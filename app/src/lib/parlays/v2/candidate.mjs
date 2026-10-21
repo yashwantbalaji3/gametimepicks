@@ -21,7 +21,8 @@
  * WHO MAY ENTER (evaluateCandidate — every refusal is a code from CANDIDATE_REASONS with its sentence)
  *   league      canEnterPredictionProducts(league) (FULL_MODEL only — MLB today). Injectable for tests. NBA is checked
  *               against the REAL registry regardless of injection: an NBA leg enters only once the registry itself
- *               says canEnterPredictionProducts("nba") — it is HISTORICAL_ONLY today, and this keeps it out.
+ *               says canEnterPredictionProducts("nba") — it is HISTORICAL_ONLY today, and this keeps it out. (Tests may
+ *               pass `nbaRegistry`; it admits FIXTURE-provenance NBA candidates only — see evaluateCandidate.)
  *   mapping     event id, market, selection, and a line wherever the market has one
  *   time        start known; not locked (now < eventLockAt)
  *   price       present, inside LEG_BOUNDS, capture time known, ≤ 12 h old, captured before start, matches its board
@@ -182,16 +183,24 @@ export function candidatesFromPublished({ mlb = null, ladders = {} } = {}) {
  * @property {(league: string) => boolean} [canEnterLeague]      defaults to canEnterPredictionProducts
  */
 
-/** The candidate gates. Returns a copy with `eligibility` filled. */
-export function evaluateCandidate(c, { now, coverage, isVerifiedOperator = seamPredicate, canEnterLeague = canEnterPredictionProducts }) {
+/**
+ * The candidate gates. Returns a copy with `eligibility` filled.
+ *
+ * NBA: the real registry decides, whatever `canEnterLeague` says. The ONE exception is a TEST FIXTURE world: a caller
+ * may pass `nbaRegistry` (the same injected registry object the NBA leg adapter took, products/nba/nba-leg.mjs), and
+ * then only a candidate whose provenance is FIXTURE may enter — a published NBA candidate still needs the real
+ * registry. So an injected registry can exercise the path but never admit a real NBA leg.
+ */
+export function evaluateCandidate(c, { now, coverage, isVerifiedOperator = seamPredicate, canEnterLeague = canEnterPredictionProducts, nbaRegistry = null }) {
   const nowMs = Date.parse(now ?? "");
   if (!Number.isFinite(nowMs)) throw new TypeError("evaluateCandidate: `now` must be an ISO instant");
   const r = [];
   const lineRequired = !LINELESS_MARKET.test(String(c?.market ?? ""));
   if (!c?.eventId || !c?.market || !c?.selection || (lineRequired && !Number.isFinite(c?.line))) r.push("INVALID_MAPPING");
 
-  // NBA: the real registry decides, whatever was injected.
-  const leagueOk = c?.league === "nba" ? canEnterPredictionProducts("nba") && canEnterLeague("nba") : canEnterLeague(c?.league);
+  let injectedNbaOk = false;
+  try { injectedNbaOk = nbaRegistry != null && c?.provenance === PROVENANCE.FIXTURE && nbaRegistry.canEnterPredictionProducts("nba") === true; } catch { injectedNbaOk = false; }
+  const leagueOk = c?.league === "nba" ? (canEnterPredictionProducts("nba") || injectedNbaOk) && canEnterLeague("nba") : canEnterLeague(c?.league);
   if (!leagueOk) r.push("LEAGUE_NOT_ELIGIBLE");
 
   const start = Date.parse(c?.gameStart ?? "");

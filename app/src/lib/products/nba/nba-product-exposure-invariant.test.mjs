@@ -144,18 +144,53 @@ test("every exclusion point refuses NBA on its own while the registry is HISTORI
     const c = { schema: "gtp.parlay.candidate@1", league: "nba", eventId: "TEST-FIXTURE-1", market: "player_points", selection: "Over 23.5", line: 23.5, gameStart: FUTURE, eventLockAt: new Date(Date.parse(FUTURE) - 1800_000).toISOString(), americanOdds: -110, capturedAt: NOW, book: "draftkings" };
     const ev = evaluateCandidate(c, { now: NOW, coverage: {}, isVerifiedOperator: () => true, canEnterLeague: () => true });
     if (ev.eligibility.state === "ELIGIBLE") leak("parlays/v2/candidate.mjs evaluateCandidate", "an NBA candidate is eligible with a permissive injected league gate");
+    // a PUBLISHED-provenance NBA candidate stays out even when a permissive TEST FIXTURE registry object is passed
+    const ev2 = evaluateCandidate({ ...c, provenance: "PUBLISHED_ARTIFACT" }, { now: NOW, coverage: {}, isVerifiedOperator: () => true, canEnterLeague: () => true, nbaRegistry: PERMISSIVE_REGISTRY });
+    if (ev2.eligibility.state === "ELIGIBLE") leak("parlays/v2/candidate.mjs evaluateCandidate", "a published NBA candidate entered through an injected nbaRegistry");
+  }
+
+  // 12 · the gated importers: Parlay Lab V2 NBA source under the REAL registry contributes nothing, and says why
+  {
+    const { nbaParlayLab, nbaSourceStatus, NBA_SOURCE_STATE } = await import("../../parlays/v2/nba-source.mjs");
+    const ps2 = permissiveSnapshot(); const pe2 = evaluate(ps2);
+    const real = nbaLegFromEvaluation({ evaluation: pe2, snapshot: ps2, verification: verificationFor(pe2) });
+    const lab = nbaParlayLab({ results: [real], snapshots: [ps2], now: "2026-11-01T13:00:00Z", coverage: { markets: [] }, isVerifiedOperator: () => true });
+    if (lab.pool.nbaEligible !== 0) leak("parlays/v2/nba-source.mjs nbaParlayLab", `${lab.pool.nbaEligible} NBA candidates under the real registry`);
+    if (lab.recommendation.tiers.some((t) => t.cards.some((cd) => cd.legs.some((l) => String(l.sport).toLowerCase() === "nba")))) leak("parlays/v2/nba-source.mjs recommendTiers", "an NBA leg reached a tier");
+    if (nbaSourceStatus().state !== NBA_SOURCE_STATE.PRICE_NOT_AUTHORIZED) leak("parlays/v2/nba-source.mjs nbaSourceStatus", `state ${nbaSourceStatus().state}`);
+    const { nbaTeamLeg, nbaProductAdmission } = await import("./nba-team-leg.mjs");
+    const tl = nbaTeamLeg({ snapshot: ps2, verification: null, now: "2026-11-01T13:00:00Z" });
+    if (tl.ok) leak("products/nba/nba-team-leg.mjs", "produced a team leg under the real registry");
+    const adm = nbaProductAdmission({ leg: null, product: "moonshot", now: "2026-11-01T13:00:00Z" });
+    if (adm.admitted) leak("products/nba/nba-team-leg.mjs nbaProductAdmission", "admitted an NBA leg under the real registry");
   }
 
   done();
 });
 
-test("the NBA product modules are INERT: nothing outside their own tests imports them", () => {
+/*
+ * GATED IMPORTERS. The NBA product modules were INERT (no importer at all). Since the Parlay Lab V2 / Bank Builder /
+ * Moonshot wiring, exactly the files below may import them — each one runs every NBA leg through the real registry
+ * (point 12 above proves each refuses today) and none flips a flag. Any OTHER importer is a leak.
+ */
+const GATED_IMPORTERS = Object.freeze([
+  "src/lib/parlays/v2/nba-source.mjs",          // Parlay Lab V2 candidate source (real registry ⇒ zero NBA candidates)
+  "src/lib/parlays/v2/board-model.mjs",         // /build render model: reads nbaSourceStatus only (the empty-state copy)
+  "src/lib/parlays/v2/__fixtures__/nba-fixtures.mjs", // TEST FIXTURE slate
+]);
+
+test("the NBA product modules are GATED: only the listed importers (and the NBA modules / their tests) import them", () => {
   let hits = "";
   try {
-    hits = execFileSync("git", ["grep", "-l", "-E", "products/nba/|from \"\\./nba-leg\\.mjs\"|from \"\\./product-tiers\\.mjs\"|from \"\\./cross-sport\\.mjs\"", "--", "src", "scripts"], { cwd: APP, encoding: "utf8" });
+    // import statements only (a comment naming a module is not an importer); untracked files count too
+    const IMPORT = "(from |import\\()\"[^\"]*(products/nba/|nba-source\\.mjs)|from \"\\./(nba-leg|product-tiers|cross-sport|nba-team-leg|proposed-policies)\\.mjs\"";
+    hits = execFileSync("git", ["grep", "--untracked", "-l", "-E", IMPORT, "--", "src", "scripts"], { cwd: APP, encoding: "utf8" });
   } catch (e) { hits = e.status === 1 ? "" : String(e.stdout ?? ""); }
-  const importers = hits.split("\n").filter(Boolean).filter((f) => !/^src\/lib\/products\/nba\/[^/]+\.test\.mjs$/.test(f) && !/^src\/lib\/products\/nba\/(nba-leg|product-tiers|cross-sport)\.mjs$/.test(f) && !/^src\/lib\/products\/nba\/__fixtures__\//.test(f));
-  assert.deepEqual(importers, [], "a build/page/script imports the inert NBA product adapter — activation must follow the plan");
+  const importers = hits.split("\n").filter(Boolean)
+    .filter((f) => !/^src\/lib\/products\/nba\//.test(f))
+    .filter((f) => !/^src\/lib\/parlays\/v2\/nba-[^/]+\.test\.mjs$/.test(f))
+    .filter((f) => !GATED_IMPORTERS.includes(f));
+  assert.deepEqual(importers, [], "a build/page/script imports the NBA product adapter outside the gated list — activation must follow the plan");
 });
 
 /* ─────────────────────────────── no sportsbook link, anywhere NBA ─────────────────────────────── */

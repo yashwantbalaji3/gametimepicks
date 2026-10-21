@@ -34,6 +34,16 @@
  * PROBABILITY HONESTY. A card shows the market-implied combined probability (the reciprocal of the product of the
  * recorded decimal prices — a fact about prices, including the books' margin). `modelJointProbability` is always
  * null: there is no validated correlation model in this codebase.
+ *
+ * NBA LEGS (./nba-source.mjs supplies them; none exist under the real registry). On top of every gate above, an NBA
+ * leg needs: a settlement path for its market (sports/nba/settlement-contract.mjs grades team markets only, so a
+ * player prop is NO_SETTLEMENT_PATH today; injectable for tests), a verified TWO-WAY price (the evaluator's implied
+ * pair was checked against it — a one-sided quote never prices a card), and its provenance (official snapshot id,
+ * model version, odds authorization receipt, and the same odds capture instant as the leg).
+ *
+ * INJECTED SPORT GATE (tests only). `canEnterSport` replaces the registry check so a TEST FIXTURE world can be
+ * exercised. It can never launder a real leg: under an injected gate a leg that is not provenance FIXTURE still needs
+ * the real registry, and every card holding a FIXTURE leg is labelled FIXTURE_CARD_LABEL.
  */
 import { PUBLIC_RISK_TIERS, PUBLIC_RISK_LABELS, PUBLIC_RISK_BAND_TEXT, getRiskBucketForCombinedOdds } from "../risk-odds-bands.mjs";
 import { LEG_BOUNDS } from "../../products/eligible-leg/contract.mjs";
@@ -45,6 +55,7 @@ import { setCorrelation } from "../correlation.ts";
 import { evaluateSlipDecorrelation, PROPOSED_SECTION_DECORRELATION_CAPS } from "../../parlay-decorrelation.ts";
 import { isVerifiedOperator as seamPredicate, OPERATOR_SEAM } from "./operators.mjs";
 import { combinedPrice, eventKeyOf } from "./pricing.mjs";
+import { MARKETS as NBA_SETTLED_MARKETS } from "../../sports/nba/settlement-contract.mjs";
 
 export const RECOMMEND_V2_VERSION = "parlay-lab-v2@1";
 export const TIER_STATUS = Object.freeze({ QUALIFIED: "QUALIFIED", NO_QUALIFYING_PARLAY: "NO_QUALIFYING_PARLAY" });
@@ -75,7 +86,19 @@ export const REASONS = Object.freeze({
   ENGINE_NO_CARD: "The card builder published no card here today.",
   TOO_FEW_EVENTS: "Too few games have prices today to build a card from different games.",
   OPERATOR_SEAM_CLOSED: "The verified-sportsbook list is not connected yet, so no price can be shown as verified.",
+  NO_SETTLEMENT_PATH: "A leg's market has no grading rule for its sport yet, so a card holding it could not be settled.",
+  PRICE_NOT_TWO_WAY: "A leg has no verified price for both sides of its market, so no fair combined price can be shown.",
+  NBA_PROVENANCE_MISSING: "An NBA leg is missing its official forecast snapshot, model version, odds authorization or odds time.",
 });
+
+/** Provenance words a leg / card carries (the candidate shape's own, ./candidate.mjs PROVENANCE). */
+export const LEG_PROVENANCE = Object.freeze({ FIXTURE: "FIXTURE", PUBLISHED: "PUBLISHED_ARTIFACT" });
+export const FIXTURE_CARD_LABEL = "FIXTURE — not real picks, not real prices";
+
+/** Candidate market keys → the NBA settlement contract's market names. Player props map to nothing (no grader). */
+const NBA_MARKET_TO_SETTLED = Object.freeze({ moneyline: "moneyline", h2h: "moneyline", spreads: "point_spread", point_spread: "point_spread", totals: "total_points", total_points: "total_points" });
+/** Does today's NBA settlement contract grade this leg's market? */
+export const nbaContractSettles = (leg) => NBA_SETTLED_MARKETS.includes(NBA_MARKET_TO_SETTLED[String(leg?.market ?? "")] ?? "");
 
 const HOUR = 3_600_000;
 export const PARTICIPANT_STATUS_FLAG = /^(out|injured|injury|inactive|dnp|did not play|scratch|scratched|doubtful|questionable|suspended|il|ir|day-to-day|not playing)\b/i;
@@ -102,7 +125,15 @@ export function legReasons(leg, ctx) {
   const sport = String(leg?.sport ?? "").toLowerCase();
   const lineRequired = !LINELESS_MARKET.test(String(leg?.market ?? ""));
   if (!leg?.eventId || !leg?.market || !leg?.selection || (lineRequired && !Number.isFinite(leg?.line))) r.push("INVALID_MAPPING");
-  if (!canEnterPredictionProducts(sport)) r.push("SPORT_NOT_ELIGIBLE");
+  const enter = ctx.canEnterSport ?? canEnterPredictionProducts;
+  const fixtureLeg = leg?.provenance === LEG_PROVENANCE.FIXTURE;
+  if (!enter(sport) || (ctx.sportGateInjected && !fixtureLeg && !canEnterPredictionProducts(sport))) r.push("SPORT_NOT_ELIGIBLE");
+  if (sport === "nba") {
+    if (!(ctx.settlesNba ?? nbaContractSettles)(leg)) r.push("NO_SETTLEMENT_PATH");
+    if (leg?.twoWay?.verified !== true || !Number.isFinite(leg?.twoWay?.otherAmerican) || leg?.twoWay?.sideAmerican !== leg?.price) r.push("PRICE_NOT_TWO_WAY");
+    const ev = leg?.evidence ?? null;
+    if (!ev?.snapshotId || !ev?.modelVersion || !ev?.authorizationReceiptRef || ev?.capturedAt !== leg?.capturedAt) r.push("NBA_PROVENANCE_MISSING");
+  }
 
   const start = Date.parse(leg?.startUtc ?? "");
   if (!Number.isFinite(start)) r.push("START_UNKNOWN");
@@ -175,14 +206,24 @@ export function evaluateCard(card, ctx) {
 }
 
 function cardView(card, price, ranking, tier) {
+  const fixture = card.legs.some((l) => l.provenance === LEG_PROVENANCE.FIXTURE);
   return {
     cardId: String(card.cardId),
     tier,
     sport: card.sport ?? null,
+    composition: [...new Set(card.legs.map((l) => String(l.sport ?? "").toLowerCase()))].sort(),
+    provenance: fixture ? LEG_PROVENANCE.FIXTURE : LEG_PROVENANCE.PUBLISHED,
+    label: fixture ? FIXTURE_CARD_LABEL : null,
     legs: card.legs.map((l) => ({
       sport: l.sport, eventId: String(l.eventId), game: l.eventLabel ?? null, startUtc: l.startUtc ?? null,
       market: l.market ?? null, marketLabel: l.marketLabel ?? null, selection: l.selection, side: l.side ?? null,
       line: l.line ?? null, book: l.book, price: l.price, capturedAt: l.capturedAt,
+      // carried verbatim when the source supplies them (NBA legs: the official projection and its provenance)
+      participant: l.participant ?? null, team: l.team ?? null,
+      // Smart Betslip comparison identity (Lane E, PR 1165): {sport, eventId, playerId, family|market, side, line}
+      playerId: l.playerId ?? null, family: l.family ?? null,
+      modelProbability: l.modelProbability ?? null, evidence: l.evidence ?? null, twoWay: l.twoWay ?? null,
+      provenance: l.provenance ?? null,
     })),
     combinedAmerican: price.american,
     combinedDecimal: price.decimal,
@@ -192,6 +233,7 @@ function cardView(card, price, ranking, tier) {
     modelJointProbability: null,
     modelJointProbabilityReason: price.modelJointProbabilityReason,
     dependenceNote: "Legs are from different games and are priced as independent. Real outcomes can still be related (weather, travel, a shared opponent), and that is not modelled.",
+    ...(card.notes?.length ? { notes: [...card.notes] } : {}),
     source: { artifact: card.source?.artifact ?? null, generatedAt: card.source?.generatedAt ?? null, receipts: [...new Set(card.legs.flatMap((l) => l.receipts ?? []))].sort() },
     ranking,
   };
@@ -207,6 +249,15 @@ export function compareCards(a, b) {
   return a.cardId < b.cardId ? -1 : a.cardId > b.cardId ? 1 : 0;
 }
 
+/** The evaluation context recommendTiers builds — exported so a card source can pre-check with the SAME gates. */
+export function recommendCtx({ nowMs, coverage = null, isVerifiedOperator = seamPredicate, canEnterSport = null, settlesNba = null }) {
+  return {
+    nowMs, families: coverage ? marketContextFamilies(coverage) : null, isVerifiedOperator,
+    canEnterSport: canEnterSport ?? canEnterPredictionProducts, sportGateInjected: canEnterSport != null,
+    settlesNba: settlesNba ?? nbaContractSettles,
+  };
+}
+
 const reasonEntry = (code, count, detail = null) => ({ code, text: REASONS[code] ?? code, count, ...(detail ? { detail } : {}) });
 
 /**
@@ -219,11 +270,14 @@ const reasonEntry = (code, count, detail = null) => ({ code, text: REASONS[code]
  * @param {ReadonlyArray<{tier: string, sport: string, text: string}>} [input.engineNotes]  ladder skip reasons
  * @param {ReadonlyArray<{code: string, detail?: string}>} [input.poolNotes]  slate-wide notes applied to every tier
  * @param {number} [input.maxCardsPerTier]
+ * @param {((sport: string) => boolean)|null} [input.canEnterSport]  TESTS ONLY — replaces the registry check (header)
+ * @param {((leg: object) => boolean)|null} [input.settlesNba]       TESTS ONLY — replaces the NBA settlement check
+ * @param {ReadonlyArray<object>} [input.sportNotes]   per-sport source states (./nba-source.mjs nbaSourceStatus)
  */
-export function recommendTiers({ candidates = [], now, coverage = null, isVerifiedOperator = seamPredicate, engineNotes = [], poolNotes = [], maxCardsPerTier = 3 }) {
+export function recommendTiers({ candidates = [], now, coverage = null, isVerifiedOperator = seamPredicate, engineNotes = [], poolNotes = [], maxCardsPerTier = 3, canEnterSport = null, settlesNba = null, sportNotes = [] }) {
   const nowMs = Date.parse(now ?? "");
   if (!Number.isFinite(nowMs)) throw new TypeError("recommendTiers: `now` must be an ISO instant");
-  const ctx = { nowMs, families: coverage ? marketContextFamilies(coverage) : null, isVerifiedOperator };
+  const ctx = recommendCtx({ nowMs, coverage, isVerifiedOperator, canEnterSport, settlesNba });
   const seamClosed = isVerifiedOperator === seamPredicate && OPERATOR_SEAM.state !== "CONNECTED";
 
   const evaluated = candidates.map((c) => evaluateCard(c, ctx));
@@ -249,6 +303,9 @@ export function recommendTiers({ candidates = [], now, coverage = null, isVerifi
     version: RECOMMEND_V2_VERSION,
     evaluatedAt: new Date(nowMs).toISOString(),
     operatorSeam: { state: seamClosed ? OPERATOR_SEAM.state : "INJECTED", note: seamClosed ? OPERATOR_SEAM.note : null },
+    sportGate: canEnterSport != null ? "INJECTED" : "REGISTRY",
+    provenance: tiers.some((t) => t.cards.some((c) => c.provenance === LEG_PROVENANCE.FIXTURE)) ? LEG_PROVENANCE.FIXTURE : LEG_PROVENANCE.PUBLISHED,
+    sportNotes: sportNotes.map((n) => ({ ...n })),
     tiers,
     // Refused cards are reported by id and code only — never their legs, books or prices.
     rejected: evaluated.filter((e) => !e.ok).map((e) => ({ cardId: e.cardId, tier: e.tier, reasons: e.reasons })),

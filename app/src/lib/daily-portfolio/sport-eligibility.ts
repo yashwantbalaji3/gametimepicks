@@ -30,6 +30,10 @@ export interface SportLegRule {
   reason: string;
   /** What would have to become true for an ineligible sport to qualify. Empty when already eligible. */
   whatWouldQualify: string[];
+  /** A typed refusal code for an ineligible sport, when one is defined (NBA: the three gates it waits on). */
+  code?: string;
+  /** The gates the sport waits on, in activation order (NBA only today). */
+  gates?: readonly string[];
 }
 
 /**
@@ -70,6 +74,10 @@ export const SPORT_LEG_RULES: Readonly<Record<LegSportKey, SportLegRule>> = Obje
     eligible: false,
     reason: "the NBA adapter is historical-only; no current NBA model output is published",
     whatWouldQualify: ["a current NBA board with published model output", "a validated NBA model version"],
+    // Typed for products/nba/nba-team-leg.mjs: NBA waits on the registry, an authorized NBA price and the settlement
+    // contract. `eligible` stays a hand-set false — opening it is the activation PR's last step, never a side effect.
+    code: "NBA_GATED",
+    gates: Object.freeze(["registry:canEnterPredictionProducts(nba)", "price:nba-odds-authorization-receipt", "settlement:nba-settlement-contract-market"]),
   },
   UFC: {
     sport: "UFC",
@@ -91,6 +99,8 @@ export interface LegSportVerdict {
   reason: string;
   /** True when the sport is not in the registry at all — refused, and reported as unregistered. */
   unregistered: boolean;
+  /** Typed code: the rule's own when it has one, else ELIGIBLE / NOT_ELIGIBLE / UNREGISTERED. */
+  code: string;
 }
 
 /**
@@ -107,9 +117,10 @@ export function legSportEligibility(pick: { sport?: string | null }): LegSportVe
       eligible: false,
       reason: `${key} is not a registered paper-product sport — an unregistered sport is refused, never allowed by default`,
       unregistered: true,
+      code: "UNREGISTERED",
     };
   }
-  return { sport: key, eligible: rule.eligible, reason: rule.reason, unregistered: false };
+  return { sport: key, eligible: rule.eligible, reason: rule.reason, unregistered: false, code: rule.code ?? (rule.eligible ? "ELIGIBLE" : "NOT_ELIGIBLE") };
 }
 
 /** The sports currently allowed to contribute legs — derived from the registry, never hand-listed. */
