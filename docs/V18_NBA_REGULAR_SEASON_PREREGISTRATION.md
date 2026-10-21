@@ -147,6 +147,7 @@ into the capability registry by automation.
 | 4 | 2026-10-19 | **v1 candidate** (`nba-sim-v1-coherent`, family `v1`, CANDIDATE_SHADOW; `game-sim-v1.mjs`, `sim-v1-profile.mjs`). Scalar parameters fitted on the 2023-24 regular season ONLY (`calibrate-sim-v1.mjs` → `reports/sim-v1-calibration-2024.json`) and frozen; then ONE look at the 2024-25 **development** season, same sample rule as look 2 (1,005 games ≥ day 30), seasons ≤ 2025 only loaded (`evaluate-sim-v1.mjs --write` → `reports/sim-v1-dev-evaluation.json`; a 5-game harness smoke run preceded it, numbers discarded). v1 4,000 draws, v0 1,000, Elo unchanged; v1 pools = historical roster proxy (no captures existed), no injuries feed | v1: winner Brier **0.212** (Elo 0.215, v0 0.267), log loss 0.612 (Elo 0.618, coin 0.693), ECE 0.025; margin MAE 11.31, bias +0.56, p10–p90 0.815, p25–p75 0.536; total MAE 15.29, **bias −2.98 (fails \|bias\| ≤ 2.0)**, p10–p90 0.776, p25–p75 0.480; sim total SD 17.94 > margin SD 14.38; OT rate 2.4 % vs realised 4.6 % (under). Players (expected ≥ 20 min, n 9,930): minutes MAE 5.41; p10–p90 coverage pts 0.780, **reb 0.849, ast 0.859 (fail 0.76–0.84), 3PM 0.905 (fails 0.74–0.86)** — over-dispersed. Historical dev numbers only: no interval on the v1−Elo winner difference was computed, so no claim that v1 beats Elo; nothing promotes or validates v1. No parameter changed after this look; assessment season (2025-26) still unread by v1; v1 starts its own forward shadow as a candidate |
 | 5 | 2026-10-20 | **no outcome; governance amendment.** Founder decision (Yash, in the release owner's session, 2026-10-20) creating a separate **EXPERIMENTAL PUBLIC LANE** (§13), recorded before any 2026-27 regular-season final. Read: the frozen pre-tip receipts for 2026-10-20 (v0.1 + Elo; integrity verified). | **No bar, threshold, metric, sample size, graded record or evaluation rule above changed.** No market moved from SHADOW. The capability registry keeps NBA `HISTORICAL_ONLY`. The lane counts toward nothing in §6–§8. |
 | 6 | 2026-10-20 | **no outcome; governance amendment A** (§13 amendment A). Founder's conditional approval (Yash, 2026-10-20) of projection-only player boards with PRA / P+R / P+A. Recorded; activation is via the release-owner gate. Read: the same frozen 2026-10-20 v0.1 receipts, to reconcile the combo fields. | **No bar, threshold, metric, sample size, graded record or evaluation rule above changed.** No market moved from SHADOW; registry still `HISTORICAL_ONLY`. Combos are copied from the receipts (per-draw sums), not recomputed. |
+| 7 | 2026-10-21 | **no outcome; governance amendment C** (§13 amendment C). Founder decision (Yash, in the release owner's session, 2026-10-21): `nba-possession-sim-v0` is ALLOWED as the NBA Theater replay engine and its public presentation is conditionally approved — not a promotion (approval file `docs/launch/approvals/NBA_THEATER_PUBLIC_2026-10-21.md`). Read: the frozen 2026-10-20 v0.1 receipts (official panel) and the stored possession runs built from as-of-tip inputs. | **No bar, threshold, metric, sample size, graded record or evaluation rule above changed.** Elo + v0.1 stay official; no market moved from SHADOW; the possession engine counts toward no validation or product record; registry still `HISTORICAL_ONLY`. |
 
 ## 13. Experimental public lane (amendment, founder decision 2026-10-20)
 
@@ -283,3 +284,35 @@ So, with this amendment on, the `/nba` lane cards became compact (PR 1170):
 5. Release-owner verification on the exact head and on Production.
 
 **What stays withheld:** win probabilities, official team scores and ranges, odds, picks and products, as in §13.
+
+### §13 amendment C — NBA Simulation Theater: the Research Possession Simulation as the replay engine
+
+**Status:** founder decision recorded 2026-10-21: **APPROVED (conditional)**, feature **OFF**. Approval file: `docs/launch/approvals/NBA_THEATER_PUBLIC_2026-10-21.md` (PR 1116). It is not an activation and not a promotion. `NBA_THEATER_PUBLIC_ENABLED` stays `false` until the approval file records every gate with the exact SHA it passed on and the release owner sets it in its own reviewed commit.
+
+**The founder's decision (quoted in the approval file):** "For PR #1167, I approve using `nba-possession-sim-v0` as the replay engine for the NBA Simulation Theater … I also approve its public presentation conditionally … I do not authorize promoting this research engine to our official NBA model. Keep v0.1/Elo as the canonical forecast until a separate evidence-based model-promotion decision." The engine question is closed; it is not to be reopened.
+
+**What it changes:** amendment B approved the architecture with labelled runs of `nba-sim-v1-coherent`. Amendment C names the engine that replays: for this engine and this scope only, the Theater playback moves out of "withheld". Three roles, kept separate:
+
+| Role | Source | Rule |
+|---|---|---|
+| **A. Official GameTimePicks forecast** | the canonical frozen snapshot: Elo winner side (N2) + v0.1 player medians (N1) | the official panel shows it exactly as the `/nba` lane prints it (the lane's players and stats, medians to 1 dp, expected minutes) and never changes when a replay runs, a run is chosen or a what-if is opened |
+| **B. NBA v1 Challenger** | `nba-sim-v1-coherent` | model evaluation and comparison only; it no longer drives any replay and never overwrites, rounds into or replaces an official number |
+| **C. Research Possession Simulation** | `nba-possession-sim-v0` | drives the playback: every play, score, clock state, possession and lineup comes from one stored event log, and the box score is the fold of that log (checker P1–P11 on every pool draw); not official, not promoted, counted toward no validation or product record |
+
+**Scope** — the public route `/nba/simulation/[eventId]` (PR 1167), only for games with a verified pre-tip official snapshot and stored possession runs built from as-of-tip inputs:
+- four-quarter animated playback, possession by possession; synchronised clock and scoreboard;
+- scoring events, substitutions and play-by-play; player contributions; overtime;
+- pause, resume, restart and speed controls;
+- final team and player box scores; the official-versus-simulated comparison;
+- clearly labelled alternative runs (each a hypothetical what-if).
+
+**Required on-screen labelling** (`app/src/lib/simulation-theater/nba/possession/labels.mjs` `ROLE_C_LABEL` / `ROLE_C_NOTE`, pinned by test): the primary label **"Research Possession Simulation — Unvalidated"**, with the note that the replay is generated by an independent research simulation engine; that it is not the official GameTimePicks forecast; that one replay is one possible modelled outcome; that a different simulated score does not mean the official forecast changed; and that the engine's predictive superiority has not been established. Nothing may imply a real or live basketball game.
+
+**Engineering:**
+- `app/src/lib/consistency/theater-gate-policy.mjs` `NBA_THEATER_REPLAY_ENGINE` names the approved engine and cites the approval file.
+- Under `LABELLED_SUPPORTING_RUNS` (in force), `theaterActivationGate("NBA", id)` opens a game only when this engine's stored runs for it pass the shared replay gate (`possession/stored-run.mjs` `replayGateProblems`): the approved engine; every stored run passes P1–P11 and its digest; the whole seed pool was checked with zero violations; the runs were selected against the game's CURRENT official snapshot; the default run is won by the official Elo side; the engine's inputs are dated no later than the game's lock. The scenario-leak, box-score and model-version-mix checks still apply. A v1 game is no longer required for the replay.
+- The public loader applies the same replay gate; a test pins that every game it would publish has the consistency gate open.
+
+**What stays withheld (§13, unchanged):** the official win probability, official team score and ranges; odds, lines, edges, picks and rankings. No Theater output feeds Bank Builder, Moonshot, Parlay Lab or Smart Betslip; the registry stays `HISTORICAL_ONLY`. **No bar, threshold, metric, sample size, graded record or evaluation rule above changed.**
+
+**Activation conditions** — amendment B's five, with this engine; evidence and SHAs are recorded in the approval file; the flag is the release owner's.

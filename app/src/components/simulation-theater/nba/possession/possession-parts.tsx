@@ -13,7 +13,7 @@ import type { PbOfficial, PbPayload, PbRun } from "./possession-types";
 import { BOX_COLUMNS, fmtMinutes } from "@/lib/simulation-theater/nba/possession/box.mjs";
 import { fmtClockDs, periodLabel } from "@/lib/simulation-theater/nba/possession/playback.mjs";
 import {
-  DEFAULT_RUN_SUBTITLE, DEFAULT_RUN_TITLE, ENGINE_NOTE, OFFICIAL_PANEL_NOTE, OFFICIAL_PANEL_TITLE, OUTCOME_PANEL_TITLE, POSSESSION_BANNER,
+  DEFAULT_RUN_SUBTITLE, DEFAULT_RUN_TAG, DEFAULT_RUN_TITLE, ENGINE_NOTE, ROLE_B_LABEL, ROLE_C_LABEL, ROLE_C_NOTE, OFFICIAL_PANEL_NOTE, OFFICIAL_PANEL_TITLE, OUTCOME_PANEL_TITLE, POSSESSION_BANNER,
   POSSESSION_NOT_MODELLED, WHAT_IF_BANNER, WHAT_IF_TAG, WHAT_IS_REAL, WITHHELD,
 } from "@/lib/simulation-theater/nba/possession/labels.mjs";
 
@@ -24,7 +24,16 @@ const fmt1 = (v: number | null | undefined) => (typeof v === "number" && Number.
 const fmtUtc = (iso: string | null) => (iso ? `${iso.replace("T", " ").replace(/\.\d+Z$/, "Z").replace(/:\d\dZ$/, "Z").replace("Z", " UTC")}` : "—");
 
 export function PossessionBanner() {
-  return <p className="nbp-banner" role="note" data-nbp-banner="">{POSSESSION_BANNER}</p>;
+  return (
+    <>
+      <p className="nbp-banner" role="note" data-nbp-banner="">{POSSESSION_BANNER}</p>
+      {/* the founder's required labelling (approval 2026-10-21): the primary label and its five-point note, on every view */}
+      <section className="nbp-rolenote" role="note" aria-label={ROLE_C_LABEL} data-nbp-role-note="">
+        <p className="nbp-rolenote-label" data-nbp-role-label=""><b>{ROLE_C_LABEL}</b></p>
+        <ul className="nbp-rolenote-list">{ROLE_C_NOTE.map((x: string) => <li key={x}>{x}</li>)}</ul>
+      </section>
+    </>
+  );
 }
 
 export function PossessionUnavailable({ title, reason }: { title: string; reason: string }) {
@@ -67,15 +76,15 @@ export function OfficialProjectionPanel({ official, teams }: { official: PbOffic
         <dt>Locks at tip</dt><dd>{fmtUtc(official.lockAt)}</dd>
       </dl>
       <details className="nbp-details">
-        <summary>Official player medians ({official.players.length} players)</summary>
+        <summary>Official player medians ({official.players.length} players, as the NBA lane prints them)</summary>
         {SIDES.map((side) => (
           <div key={side} className="nbp-scroll">
             <table className="nbp-table" data-nbp-official-players={side}>
-              <caption>{teams[side].abbr} · official medians</caption>
-              <thead><tr><th scope="col">Player</th><th scope="col">MIN</th><th scope="col">PTS</th><th scope="col">REB</th><th scope="col">AST</th><th scope="col">3PM</th></tr></thead>
+              <caption>{teams[side].abbr} · official medians · expected minutes</caption>
+              <thead><tr><th scope="col">Player</th><th scope="col">Exp. MIN</th><th scope="col">PTS</th><th scope="col">REB</th><th scope="col">AST</th><th scope="col">3PM</th></tr></thead>
               <tbody>
                 {players(side).map((p) => (
-                  <tr key={p.playerId}><td>{p.displayName ?? p.playerId}</td><td>{fmt1(p.medians.minutes)}</td><td>{fmt1(p.medians.pts)}</td><td>{fmt1(p.medians.reb)}</td><td>{fmt1(p.medians.ast)}</td><td>{fmt1(p.medians.threePm)}</td></tr>
+                  <tr key={p.playerId}><td>{p.displayName ?? p.playerId}</td><td>{fmt1(p.expectedMinutes)}</td><td>{fmt1(p.medians.pts)}</td><td>{fmt1(p.medians.reb)}</td><td>{fmt1(p.medians.ast)}</td><td>{fmt1(p.medians.threePm)}</td></tr>
                 ))}
               </tbody>
             </table>
@@ -99,7 +108,7 @@ export function RunSelector({ runs, selected, onSelect, idBase }: { runs: PbRun[
       }}>
       {runs.map((r, i) => (
         <button key={r.kind} type="button" role="radio" aria-checked={i === selected} tabIndex={i === selected ? 0 : -1} className="nbp-run" data-nbp-run-kind={r.kind} onClick={() => onSelect(i)}>
-          <span className="nbp-run-tag">{r.hypothetical ? WHAT_IF_TAG : "Default run · supporting simulation"}</span>
+          <span className="nbp-run-tag">{r.hypothetical ? WHAT_IF_TAG : DEFAULT_RUN_TAG}</span>
           {r.title} · run {r.runIndex}
         </button>
       ))}
@@ -152,6 +161,23 @@ export function PossessionScoreboard({ teams, palette, frame }: { teams: Teams; 
         <span className="nba-sb-tag">score, clock and possession from the engine&apos;s event log</span>
       </div>
     </div>
+  );
+}
+
+/** Who is on the floor after the current play (period-start lineups + every substitution in the event log). */
+export function OnCourt({ on, names, teams }: { on: string[][]; names: Map<string, string | null>; teams: Teams }) {
+  return (
+    <section className="nbp-oncourt" aria-label="On court in this simulated run" data-nbp-oncourt="">
+      {SIDES.map((side) => {
+        const ids = on[side === "home" ? 0 : 1] ?? [];
+        return (
+          <div key={side} className="nbp-oncourt-team" data-nbp-oncourt-team={side}>
+            <h3 className="nbp-oncourt-h">{teams[side].abbr} · on court</h3>
+            <ul className="nbp-oncourt-list">{ids.map((id) => <li key={id}>{names.get(id) ?? id}</li>)}</ul>
+          </div>
+        );
+      })}
+    </section>
   );
 }
 
@@ -278,13 +304,13 @@ export function OfficialComparison({ rows, teams }: { rows: Cmp[]; teams: Teams 
   return (
     <div className="nbp-scroll">
       <table className="nbp-table" data-nbp-compare="">
-        <caption>This run vs the official median, per player</caption>
+        <caption>This run vs the official forecast, per player (official medians; MIN is the official expected minutes)</caption>
         <thead><tr><th scope="col">Player</th>{rows[0]?.families.map((f) => <th key={f.family} scope="col">{f.label} run / official</th>)}</tr></thead>
         <tbody>
           {rows.map((r) => (
             <tr key={r.playerId}>
               <td>{r.name ?? r.playerId} <span className="nbp-feed-sim">{r.team === "home" ? teams.home.abbr : r.team === "away" ? teams.away.abbr : ""}</span></td>
-              {r.families.map((f) => <td key={f.family}>{f.run == null ? "not in run" : f.label === "MIN" ? f.run.toFixed(1) : f.run} / {fmt1(f.official)}</td>)}
+              {r.families.map((f) => <td key={f.family}>{f.run == null ? "not in run" : f.family === "minutes" ? f.run.toFixed(1) : f.run} / {fmt1(f.official)}</td>)}
             </tr>
           ))}
         </tbody>
@@ -331,7 +357,7 @@ export function EngineFacts({ payload }: { payload: PbPayload }) {
       <p className="nbp-note">{ENGINE_NOTE}</p>
       <dl className="nbp-kv" style={{ marginTop: 8 }}>
         <dt>Engine</dt><dd>{e.label}</dd>
-        <dt>Inputs as of</dt><dd>{fmtUtc(e.inputAsOf)} (before tip; the same as-of inputs the supporting simulation used)</dd>
+        <dt>Inputs as of</dt><dd>{fmtUtc(e.inputAsOf)} (before tip; the same as-of inputs the {ROLE_B_LABEL} used)</dd>
         <dt>Seed pool</dt><dd>{e.poolSize.toLocaleString("en-US")} seeded runs, {e.poolChecked?.toLocaleString("en-US") ?? "—"} checked, {e.poolViolations ?? "—"} invariant violations</dd>
         <dt>Checks</dt><dd>{e.checker}</dd>
       </dl>

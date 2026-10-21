@@ -236,6 +236,11 @@ test("BOUNDARY — nothing outside the research folders imports the prototype (n
   const theater = (f) => f.includes(`${path.sep}simulation-theater${path.sep}nba${path.sep}possession${path.sep}`) || f.endsWith(`${path.sep}build-theater-possession-runs.mjs`)
     || f.endsWith(`${path.sep}simulation-theater${path.sep}nba${path.sep}export-boundary.mjs`) || f.endsWith(`${path.sep}simulation-theater${path.sep}nba${path.sep}export-boundary.test.mjs`);
   const allowed = (f) => theater(f) || f.includes(`${path.sep}research${path.sep}possession-sim${path.sep}`) || f.endsWith(`${path.sep}fit-possession-sim-v0.mjs`) || f.endsWith(`${path.sep}evaluate-possession-sim-v0.mjs`) || f.endsWith(`${path.sep}research${path.sep}paired-metrics.mjs`);
-  const offenders = files.filter((f) => !allowed(f) && /possession-sim/.test(fs.readFileSync(f, "utf8")));
+  // GATE EXCEPTION (founder decision 2026-10-21, approval file docs/launch/approvals/NBA_THEATER_PUBLIC_2026-10-21.md):
+  // the consistency gate's policy constant NAMES the approved replay engine id, and its test pins it. Naming only —
+  // neither file may import the prototype.
+  const namesOnly = (f) => f.endsWith(`${path.sep}consistency${path.sep}theater-gate-policy.mjs`) || f.endsWith(`${path.sep}consistency${path.sep}audit.test.mjs`);
+  for (const f of files.filter(namesOnly)) assert.doesNotMatch(fs.readFileSync(f, "utf8"), /from\s+["'][^"']*possession-sim[^"']*["']|import\(\s*["'][^"']*possession-sim/, `${path.relative(root, f)} may name the engine, never import it`);
+  const offenders = files.filter((f) => !allowed(f) && !namesOnly(f) && /possession-sim/.test(fs.readFileSync(f, "utf8")));
   assert.deepEqual(offenders.map((f) => path.relative(root, f)), []);
 });

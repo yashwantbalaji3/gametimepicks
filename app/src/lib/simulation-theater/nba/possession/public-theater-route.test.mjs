@@ -120,13 +120,19 @@ test("research boundary: no product, board, snapshot, producer or workflow reads
       if (!/simulation-theater\/nba\/possession\/|possession-sim\//.test(src)) continue;
       const ok = rel.startsWith("src/lib/simulation-theater/nba/possession/") || rel.startsWith("src/components/simulation-theater/nba/possession/") || rel.startsWith("src/lib/sports/nba/research/possession-sim/")
         || rel === "src/app/nba/simulation/[eventId]/page.tsx" || rel === "src/app/dev/simulation-theater/nba/[eventId]/possession/page.tsx"
-        || rel.startsWith("scripts/nba/research/");
+        || rel.startsWith("scripts/nba/research/")
+        // the consistency GATE reads the stored replay runs (founder decision 2026-10-21, role C) — read-only, pinned below
+        || rel === "src/lib/consistency/audit.mjs";
       if (!ok) offenders.push(rel);
     }
   };
   walk(path.join(APP, "src"));
   walk(path.join(APP, "scripts"));
   assert.deepEqual(offenders, []);
+  // the gate's one import from the library: the read-only artifact reader and the shared replay gate, nothing else
+  const auditImports = [...read("src/lib/consistency/audit.mjs").matchAll(/^import[^;]*from "([^"]*possession[^"]*)";$/gm)];
+  assert.deepEqual(auditImports.map((m) => m[1]), ["../simulation-theater/nba/possession/stored-run.mjs"]);
+  assert.match(auditImports[0][0], /^import \{ etDateOf, readPossessionArtifact, replayGateProblems \} from/);
   // and the official snapshot / representative selection never import the possession library (one-way: official → runs)
   for (const f of ["src/lib/consistency/official-snapshot.mjs", "src/lib/consistency/representative.mjs", "src/lib/simulation-theater/official-representative.mjs"]) assert.doesNotMatch(read(f), /possession/);
 });

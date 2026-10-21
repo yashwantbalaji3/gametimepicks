@@ -24,11 +24,11 @@ import { NBA_THEATER_VARS } from "../nba-theater-css";
 import type { NbaPalette } from "../nba-types";
 import type { PbLoad, PbPayload } from "./possession-types";
 import {
-  BreakNotice, EndCard, EngineFacts, Linescore, OfficialComparison, OfficialProjectionPanel, OUTCOME_PANEL_TITLE, PlayByPlay, PossessionBanner,
+  OnCourt, BreakNotice, EndCard, EngineFacts, Linescore, OfficialComparison, OfficialProjectionPanel, OUTCOME_PANEL_TITLE, PlayByPlay, PossessionBanner,
   PossessionBoxScore, PossessionIndicator, PossessionScoreboard, PossessionUnavailable, ReconciliationChecks, RunRole, RunSelector, ScoringProgression,
 } from "./possession-parts";
 import { createTransport, transport } from "@/lib/simulation-theater/transport-machine.mjs";
-import { POSSESSION_SPEEDS, compilePossessionTimeline, frameAt, nextPlayT, possessionTransport, prevPlayT } from "@/lib/simulation-theater/nba/possession/playback.mjs";
+import { POSSESSION_SPEEDS, compilePossessionTimeline, frameAt, nextPlayT, onCourtAt, possessionTransport, prevPlayT } from "@/lib/simulation-theater/nba/possession/playback.mjs";
 import { boxRows, compareWithOfficial, foldRun, reconcileBox } from "@/lib/simulation-theater/nba/possession/box.mjs";
 import { playLine } from "@/lib/simulation-theater/nba/possession/play-text.mjs";
 import { KEYBOARD_HELP } from "@/lib/simulation-theater/nba/possession/labels.mjs";
@@ -132,6 +132,7 @@ export default function NbaPossessionTheater({ payload, palettes, devHooks = fal
 
   const frame = compiled && tp ? frameAt(compiled, tp.t, { step: reduced }) : null;
   const k = frame?.k ?? 0;
+  const onCourt = useMemo(() => (compiled ? onCourtAt(compiled, k) : [[], []]), [compiled, k]);
   const isFinal = frame?.phase === "FINAL";
   // the live box: the fold of the events played so far (the final box is the same fold over the whole log)
   const fold = useMemo(() => (run ? foldRun(run.events, rosters, k + 1) : null), [run, rosters, k]);
@@ -221,6 +222,7 @@ export default function NbaPossessionTheater({ payload, palettes, devHooks = fal
       <section className="nbp-stage" aria-label="Simulated game playback">
         <PossessionScoreboard teams={teams} palette={palette} frame={frame} />
         <PossessionIndicator teams={teams} frame={frame} />
+        <OnCourt on={onCourt} names={names} teams={teams} />
         <div className="nbp-court">
           <NbaCourt palette={palette} teams={{ home: { ...teams.home, providerTeamId: null }, away: { ...teams.away, providerTeamId: null } }} idPrefix={`${uid}-court`} />
           <p className="nbp-court-note">Decorative court · player positions and shot locations are not modelled</p>
@@ -260,7 +262,7 @@ export default function NbaPossessionTheater({ payload, palettes, devHooks = fal
       </div>
 
       <section className="nbp-panel is-outcome" style={{ marginTop: 12 }} aria-label="Simulation outcome box score" data-nbp-outcome-box={run.kind}>
-        <h2>{OUTCOME_PANEL_TITLE} · box score</h2>
+        <h2>{OUTCOME_PANEL_TITLE} · player contributions and box score</h2>
         <PossessionBoxScore rows={isFinal ? boxRows(finalFold!, rosters, names) : rows} teams={teams} final={isFinal} idBase={uid} />
         <h3 className="nba-h3">Reconciliation</h3>
         <ReconciliationChecks result={reconcile} />

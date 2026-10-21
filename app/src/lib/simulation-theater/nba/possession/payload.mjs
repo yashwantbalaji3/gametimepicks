@@ -14,7 +14,12 @@
 import { POSSESSION_KIND_TITLE, POSSESSION_RUN_KIND, POSSESSION_SELECTION_RULES } from "./selection.mjs";
 import { ENGINE_LABEL, POSSESSION_ENGINE_ID, POSSESSION_PLAYBACK_SCHEMA } from "./labels.mjs";
 
-const MEDIAN_FAMILIES = ["pts", "reb", "ast", "threePm", "minutes"];
+// The official panel prints EXACTLY what the /nba lane prints (preregistration §13 amendment B: one official forecast):
+// the lane's stats (official-snapshot.mjs NBA_LANE_FAMILIES — a test pins the two equal) for the players the snapshot
+// marks publicDisplay MEDIAN_1DP (not ruled out, at least the lane's expected minutes), with the lane's minutes basis,
+// EXPECTED minutes. Nothing else of the snapshot reaches the page.
+export const PANEL_FAMILIES = Object.freeze(["pts", "reb", "ast", "threePm"]);
+const LANE_DISPLAY = "MEDIAN_1DP";
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
 
 /** The official projection panel's data, from the official snapshot only. */
@@ -31,9 +36,10 @@ export function officialPanel(snapshot) {
     frozenAt: snapshot.frozenAt ?? snapshot.generatedAt ?? null,
     lockAt: snapshot.lockAt ?? null,
     withheld: { ...(g.withheld ?? {}) },
-    players: (snapshot.players ?? []).map((p) => ({
+    players: (snapshot.players ?? []).filter((p) => PANEL_FAMILIES.some((f) => p.families?.[f]?.publicDisplay === LANE_DISPLAY)).map((p) => ({
       playerId: String(p.playerId), team: p.side ?? null, displayName: p.displayName ?? null, participation: p.participation ?? null,
-      medians: Object.fromEntries(MEDIAN_FAMILIES.map((f) => [f, isNum(p.families?.[f]?.median) ? p.families[f].median : null])),
+      medians: Object.fromEntries(PANEL_FAMILIES.map((f) => [f, p.families?.[f]?.publicDisplay === LANE_DISPLAY && isNum(p.families[f].median) ? p.families[f].median : null])),
+      expectedMinutes: isNum(p.expectedMinutes) ? p.expectedMinutes : null,
     })),
   };
 }

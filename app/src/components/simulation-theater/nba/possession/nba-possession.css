@@ -8,6 +8,9 @@
 .nbp-banner{margin:0 0 8px;padding:8px 12px;border:2px dashed var(--vault-warn);border-radius:8px;
   background:repeating-linear-gradient(135deg, color-mix(in srgb, var(--vault-warn) 10%, var(--bg)) 0 8px, var(--bg) 8px 16px);
   font:700 11.5px/1.45 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--st-text);overflow-wrap:anywhere}
+.nbp-rolenote{margin:0 0 12px;padding:8px 12px;border:1px solid var(--vault-border);border-radius:8px;background:var(--vault-panel);font-size:12.5px;line-height:1.5;color:var(--vault-text-mute)}
+.nbp-rolenote-label{margin:0 0 4px;color:var(--vault-text)}
+.nbp-rolenote-list{margin:0;padding-left:18px}
 .nbp-head{margin:4px 0 10px}
 .nbp-head h2{margin:0;font:700 20px var(--font-headline);color:var(--st-text)}
 .nbp-engine{margin:4px 0 0;font:600 12.5px/1.45 var(--font-display);color:var(--st-text)}
@@ -107,3 +110,7 @@
 .nbp-root.is-motion-off .nbp-poss-dot{transition:none}
 .nbp-root.is-motion-off .nbp-new{animation:none}
 .nbp-root:focus{outline:none}
+.nbp-oncourt{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:8px 0;font-size:12.5px}
+.nbp-oncourt-team{min-width:0;padding:6px 8px;border:1px solid var(--vault-border);border-radius:8px}
+.nbp-oncourt-h{margin:0 0 4px;font-size:12px;color:var(--vault-text-mute)}
+.nbp-oncourt-list{margin:0;padding-left:16px;overflow-wrap:anywhere}

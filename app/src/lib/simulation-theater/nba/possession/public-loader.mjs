@@ -15,7 +15,8 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { buildPlaybackPayload } from "./payload.mjs";
-import { readPossessionArtifact, sideConstraintProblem, validatedGame } from "./stored-run.mjs";
+import { readPossessionArtifact, replayGateProblems, sideConstraintProblem, validatedGame } from "./stored-run.mjs";
+import { NBA_THEATER_REPLAY_ENGINE } from "../../../consistency/theater-gate-policy.mjs";
 import { nbaPalette } from "../nba-team-colors.mjs";
 
 export const PUBLIC_THEATER_DATE = "2026-10-20";
@@ -27,11 +28,18 @@ const readColors = (repoRoot) => { try { return JSON.parse(fs.readFileSync(path.
 
 export function loadPublicPossessionTheater(repoRoot, eventId, { date = PUBLIC_THEATER_DATE, read = null } = {}) {
   const id = String(eventId);
-  const v = validatedGame(read ?? readPossessionArtifact(repoRoot, date), id);
+  const r = read ?? readPossessionArtifact(repoRoot, date);
+  const v = validatedGame(r, id);
   if (!v.ok) return fail(id, v.code, v.reason);
   const { game } = v;
   const panel = game.official?.panel ?? null;
   if (!panel || panel.snapshotId !== game.official?.snapshotId) return fail(id, "NO_OFFICIAL_PANEL", "the artifact carries no official panel for the snapshot its runs were selected against");
+  // the SAME replay gate the consistency gate applies (role C, founder decision 2026-10-21), against the embedded panel;
+  // its equality with the CURRENT official snapshot is the consistency gate's half (possession-theater.test.mjs pins
+  // that every game this loader publishes has theaterActivationGate open)
+  const problems = replayGateProblems(r, id, { snapshotId: panel.snapshotId, lockAt: panel.lockAt }, { approvedEngineId: NBA_THEATER_REPLAY_ENGINE.id });
+  if (problems.length) return fail(id, problems[0].code, problems.map((x) => x.detail).join("; "));
+  // and the side the PAGE will print (the embedded panel) must be the side the default run was selected for
   const side = sideConstraintProblem(game, panel.favouredSide);
   if (side) return fail(id, "SIDE_CONSTRAINT", side);
   const colors = readColors(repoRoot);

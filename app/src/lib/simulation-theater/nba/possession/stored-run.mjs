@@ -73,3 +73,37 @@ export function sideConstraintProblem(game, favouredSide) {
   if (!def || !(favouredSide === "HOME" || favouredSide === "AWAY")) return null;
   return (def.final[0] > def.final[1] ? "HOME" : "AWAY") === favouredSide ? null : `default run ${def.runIndex} is not won by the official side ${favouredSide}`;
 }
+
+export const etDateOf = (iso) => (Number.isFinite(Date.parse(iso ?? "")) ? new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso)) : null);
+
+/**
+ * THE REPLAY GATE (role C, founder decision 2026-10-21) — one game's stored replay runs, checked against that game's
+ * CURRENT official snapshot. The consistency gate (audit.mjs theaterActivationGate) and the public loader both call
+ * this, so the page can never publish a game the gate keeps closed. Read-only.
+ *   REPLAY_ENGINE_NOT_APPROVED   the artifact's engine is not `approvedEngineId` (theater-gate-policy NBA_THEATER_REPLAY_ENGINE)
+ *   NO_REPLAY_RUNS               no artifact / game / runs, or a stored run fails the P1–P11 checker or its digest
+ *   REPLAY_POOL_UNCHECKED        the seed pool was not fully checked, or any pool draw violated an invariant
+ *   REPLAY_OFFICIAL_CHANGED      the runs were selected against a different official snapshot
+ *   REPLAY_SIDE_CONSTRAINT       the default run is not won by the official Elo side
+ *   REPLAY_INPUTS_AFTER_LOCK     the engine's inputs are dated after the game's lock (the approval's scope is "stored
+ *                                possession runs built from as-of-tip inputs"; inputs newer than the official freeze but
+ *                                before the lock are allowed and the page discloses them: engine facts, inputs as of)
+ * @param {object|null} read  a readPossessionArtifact result
+ * @param {{ snapshotId?: string, lockAt?: string }|null} snap
+ * @returns {{ code: string, detail: string }[]}
+ */
+export function replayGateProblems(read, eventId, snap, { approvedEngineId }) {
+  const id = String(eventId);
+  if (!read) return [{ code: "NO_REPLAY_RUNS", detail: "no stored replay runs were read" }];
+  if (read.doc && read.doc.modelVersion !== approvedEngineId) return [{ code: "REPLAY_ENGINE_NOT_APPROVED", detail: `${read.doc.modelVersion} is not the approved replay engine ${approvedEngineId}` }];
+  const v = validatedGame(read, id);
+  if (!v.ok) return [{ code: "NO_REPLAY_RUNS", detail: `${v.code}: ${v.reason}` }];
+  const g = v.game, out = [];
+  if (!(g.pool?.checkedDraws === g.poolSize && g.pool?.violations === 0)) out.push({ code: "REPLAY_POOL_UNCHECKED", detail: `pool ${g.pool?.checkedDraws ?? "?"} checked of ${g.poolSize ?? "?"}, ${g.pool?.violations ?? "?"} violations` });
+  if (!snap?.snapshotId || g.official?.snapshotId !== snap.snapshotId) out.push({ code: "REPLAY_OFFICIAL_CHANGED", detail: `runs selected against ${g.official?.snapshotId ?? "none"}, official is ${snap?.snapshotId ?? "none"} — regenerate the replay runs` });
+  const side = sideConstraintProblem(g, g.official?.winnerSide);
+  if (side) out.push({ code: "REPLAY_SIDE_CONSTRAINT", detail: side });
+  if (!(Date.parse(g.inputAsOf ?? "") <= Date.parse(snap?.lockAt ?? ""))) out.push({ code: "REPLAY_INPUTS_AFTER_LOCK", detail: `inputs as of ${g.inputAsOf ?? "?"} vs the game's lock ${snap?.lockAt ?? "?"}` });
+  return out;
+}
+

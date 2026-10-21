@@ -675,7 +675,7 @@ export function runConsistencyAudit({ repoRoot, nflEvents = null, nbaDates = DEF
   return {
     version: AUDIT_VERSION,
     events: { NFL: events, NBA: results.filter((r) => r.snapshot?.sport === "NBA").map((r) => r.snapshot.eventId) },
-    snapshots: results.filter((r) => r.snapshot).map((r) => ({ sport: r.snapshot.sport, eventId: r.snapshot.eventId, snapshotId: r.snapshot.snapshotId, publication: r.snapshot.publication, lockAt: r.snapshot.lockAt, modelVersions: r.snapshot.modelVersions, sources: r.snapshot.sources.map((s) => ({ role: s.role, path: s.path, modelVersion: s.modelVersion, alignedWithOfficial: s.alignedWithOfficial })) })),
+    snapshots: results.filter((r) => r.snapshot).map((r) => ({ sport: r.snapshot.sport, eventId: r.snapshot.eventId, snapshotId: r.snapshot.snapshotId, publication: r.snapshot.publication, lockAt: r.snapshot.lockAt, frozenAt: r.snapshot.frozenAt ?? null, modelVersions: r.snapshot.modelVersions, sources: r.snapshot.sources.map((s) => ({ role: s.role, path: s.path, modelVersion: s.modelVersion, alignedWithOfficial: s.alignedWithOfficial })) })),
     refusals: results.filter((r) => r.refusal).map((r) => r.refusal),
     evaluations: results.flatMap((r) => r.evaluations),
     representatives: ctx.representatives,
@@ -725,10 +725,25 @@ export const THEATER_GATE_CODES = Object.freeze([CODES.SCENARIO_LEAK, CODES.BOX_
  *                                scenario leak, no model-version mix — and the founder's adoption of the policy.
  * Changing the policy in force is a founder decision recorded in the same reviewed PR that edits this constant.
  */
-export { NBA_THEATER_GATE_POLICY, NBA_THEATER_GATE_POLICY_IN_FORCE } from "./theater-gate-policy.mjs";
-import { NBA_THEATER_GATE_POLICY, NBA_THEATER_GATE_POLICY_IN_FORCE } from "./theater-gate-policy.mjs";
+export { NBA_THEATER_GATE_POLICY, NBA_THEATER_GATE_POLICY_IN_FORCE, NBA_THEATER_REPLAY_ENGINE } from "./theater-gate-policy.mjs";
+import { NBA_THEATER_GATE_POLICY, NBA_THEATER_GATE_POLICY_IN_FORCE, NBA_THEATER_REPLAY_ENGINE } from "./theater-gate-policy.mjs";
+import { etDateOf, readPossessionArtifact, replayGateProblems } from "../simulation-theater/nba/possession/stored-run.mjs";
 
-export function theaterActivationGate(sport, eventId, { audit = null, repoRoot = null, nbaPolicy = NBA_THEATER_GATE_POLICY_IN_FORCE } = {}) {
+/**
+ * Role C (founder decision 2026-10-21): what keeps one NBA game's stored replay runs off a public Theater — the shared
+ * replay gate (stored-run.mjs replayGateProblems, also called by the public loader), checked against the game's CURRENT
+ * official snapshot from this audit, as gate blockers. Read-only.
+ * @param {{ snapshotId?: string, lockAt?: string }} snap
+ * @param {{ repoRoot?: string|null, read?: object|null }} opts `read` = a readPossessionArtifact result (tests)
+ */
+export function nbaReplayProblems(eventId, snap, { repoRoot = null, read = null } = {}) {
+  const id = String(eventId);
+  const r = read ?? (repoRoot ? readPossessionArtifact(repoRoot, etDateOf(snap?.lockAt)) : null);
+  return replayGateProblems(r, id, snap, { approvedEngineId: NBA_THEATER_REPLAY_ENGINE.id })
+    .map(({ code, detail }) => ({ code, severity: SEVERITY.ERROR, sport: "NBA", eventId: id, detail: code === "REPLAY_ENGINE_NOT_APPROVED" ? `${detail} (${NBA_THEATER_REPLAY_ENGINE.decision})` : detail, fingerprint: `REPLAY|${code}|${id}` }));
+}
+
+export function theaterActivationGate(sport, eventId, { audit = null, repoRoot = null, nbaPolicy = NBA_THEATER_GATE_POLICY_IN_FORCE, nbaReplayRead = null } = {}) {
   const a = audit ?? runConsistencyAudit({ repoRoot, nflEvents: String(sport).toUpperCase() === "NFL" ? [String(eventId)] : [], nbaDates: String(sport).toUpperCase() === "NBA" ? DEFAULT_NBA_DATES : [] });
   const S = String(sport).toUpperCase(); const id = String(eventId);
   const labelledRuns = S === "NBA" && nbaPolicy === NBA_THEATER_GATE_POLICY.LABELLED_SUPPORTING_RUNS;
@@ -748,9 +763,14 @@ export function theaterActivationGate(sport, eventId, { audit = null, repoRoot =
   // approved tolerance (nbaSimAnchorCheck; NBA_SIM_ANCHOR_TOLERANCE is not yet founder-approved).
   if (S === "NBA" && !refusal && known(a, S, id)) {
     const anc = (a.simAnchors ?? []).find((x) => x.sport === "NBA" && x.eventId === id);
-    if (!anc) blockers.unshift({ code: "NO_SUPPORTING_SIMULATION", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: "no verified pre-tip v1 game to replay", fingerprint: `NOSIM|${S}|${id}` });
-    else if (labelledRuns) {
+    if (labelledRuns) {
+      // Founder decision 2026-10-21: the replay is role C (NBA_THEATER_REPLAY_ENGINE), so its own stored runs gate the
+      // game; the v1 Challenger (role B) is evaluation only and no longer has to supply a replay.
       if (nbaPolicy !== NBA_THEATER_GATE_POLICY_IN_FORCE) blockers.unshift({ code: "GATE_POLICY_NOT_IN_FORCE", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: `${nbaPolicy} is prepared, not adopted (in force: ${NBA_THEATER_GATE_POLICY_IN_FORCE}) — founder decision`, fingerprint: `POLICY|${S}|${id}` });
+      const snap = a.snapshots.find((x) => x.sport === S && x.eventId === id);
+      blockers.unshift(...nbaReplayProblems(id, snap, { repoRoot, read: nbaReplayRead }));
+    } else if (!anc) {
+      blockers.unshift({ code: "NO_SUPPORTING_SIMULATION", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: "no verified pre-tip v1 game to replay", fingerprint: `NOSIM|${S}|${id}` });
     } else {
       if (!anc.anchored) blockers.unshift({ code: "SIM_NOT_ANCHORED", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: `failed: ${anc.failed.map((t) => t.term).join(", ")}`, fingerprint: `ANCHOR|${S}|${id}` });
       if (!anc.toleranceApproved) blockers.unshift({ code: "ANCHOR_TOLERANCE_UNAPPROVED", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: anc.tolerance.basis, fingerprint: `ANCHORTOL|${S}|${id}` });

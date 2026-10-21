@@ -92,3 +92,39 @@ export function scanExportForNbaPrivate(outDir, { publicTheaterOn = false } = {}
   walk(outDir);
   return res;
 }
+
+/**
+ * FLAG-ON SCAN (activation checklist §6, founder decision 2026-10-21): an export built with the NBA public Theater gate
+ * on. Beyond scanExportForNbaPrivate({ publicTheaterOn: true }) — every §5 marker a leak except the three allowlisted
+ * ones, and those only under nba/simulation/ and _next/static/ — it proves:
+ *   - `pages`        the published /nba/simulation/<id>/ pages (the inert placeholder excluded);
+ *   - `missing`      per page, every required string (`required`: the founder's labels) that its HTML does not carry;
+ *   - `strayChunks`  marker-bearing static chunks that a page OUTSIDE /nba/simulation/ loads by <script src>. Lazy chunks
+ *                    reached only through the island's dynamic import are not referenced by any other page's HTML.
+ * @param {string} outDir
+ * @param {{ required: string[], placeholder: string }} opts
+ */
+export function scanFlagOnTheaterExport(outDir, { required, placeholder }) {
+  const base = scanExportForNbaPrivate(outDir, { publicTheaterOn: true });
+  const simDir = path.join(outDir, "nba", "simulation");
+  const pages = fs.existsSync(simDir) ? fs.readdirSync(simDir, { withFileTypes: true }).filter((d) => d.isDirectory() && d.name !== placeholder && fs.existsSync(path.join(simDir, d.name, "index.html"))).map((d) => d.name).sort() : [];
+  const decode = (s) => s.replace(/&#x27;|&#39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
+  const missing = pages.flatMap((id) => {
+    const html = decode(fs.readFileSync(path.join(simDir, id, "index.html"), "utf8"));
+    return required.filter((r) => !html.includes(r)).map((r) => ({ page: id, missing: r }));
+  });
+  const markerChunks = new Set();
+  const others = [];
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) { walk(full); continue; }
+      const rel = path.relative(outDir, full).split(path.sep).join("/");
+      if (rel.startsWith("_next/static/") && /\.js$/.test(e.name) && NBA_THEATER_FLAG_ON_ALLOWLIST.some((m) => fs.readFileSync(full, "utf8").includes(m))) markerChunks.add(`/${rel}`);
+      else if (/\.html$/.test(e.name) && !rel.startsWith("nba/simulation/")) others.push(rel);
+    }
+  };
+  walk(outDir);
+  const strayChunks = others.flatMap((rel) => [...fs.readFileSync(path.join(outDir, rel), "utf8").matchAll(/src="(\/_next\/static\/[^"]+\.js)"/g)].map((m) => m[1]).filter((src) => markerChunks.has(src)).map((chunk) => ({ page: rel, chunk })));
+  return { ...base, pages, missing, markerChunks: [...markerChunks].sort(), strayChunks };
+}

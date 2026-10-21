@@ -74,7 +74,8 @@ export function reconcileBox(fold, run) {
 
 /**
  * Per player: this run's value beside the official median, for the families the official forecast publishes.
- * `official.players` = [{ playerId, team: "home"|"away", displayName, medians: { pts, reb, ast, threePm, minutes } }].
+ * `official.players` = [{ playerId, team: "home"|"away", displayName, medians: { pts, reb, ast, threePm }, expectedMinutes }]
+ * (payload.mjs officialPanel: the lane's players and stats; minutes are the lane's EXPECTED minutes).
  * Players the official forecast has but this run's roster lacks are listed with run = null (never invented).
  */
 export function compareWithOfficial(rows, official) {
@@ -85,7 +86,7 @@ export function compareWithOfficial(rows, official) {
     out.push({
       playerId: String(p.playerId), team: p.team, name: p.displayName ?? r?.name ?? null,
       families: COMPARE_FAMILIES.map(([fam, label, key]) => {
-        const off = p.medians?.[fam];
+        const off = fam === "minutes" ? p.expectedMinutes : p.medians?.[fam];
         const run = r ? (key === "min" ? Number((r.ds / 600).toFixed(1)) : r[key]) : null;
         return { family: fam, label, official: typeof off === "number" ? off : null, run, diff: typeof off === "number" && typeof run === "number" ? Number((run - off).toFixed(2)) : null };
       }),

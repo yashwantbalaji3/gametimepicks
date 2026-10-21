@@ -14,7 +14,8 @@ import { DEFAULT_POOL_SIZE, POSSESSION_RUN_KIND, POSSESSION_SELECTION_RULES, nea
 import { POSSESSION_SPEEDS, compilePossessionTimeline, frameAt, lastEventAt, nextPlayT, onCourtAt, possessionTransport, prevPlayT } from "./playback.mjs";
 import { boxRows, compareWithOfficial, foldRun, reconcileBox } from "./box.mjs";
 import { playLine } from "./play-text.mjs";
-import { buildPlaybackPayload, officialPanel } from "./payload.mjs";
+import { PANEL_FAMILIES, buildPlaybackPayload, officialPanel } from "./payload.mjs";
+import { NBA_LANE_FAMILIES } from "../../../consistency/official-snapshot.mjs";
 import { drawFromStoredRun, loadNbaPossessionTheater, possessionRouteEvents, readPossessionArtifact, storedRunProblems } from "./possession-loader.mjs";
 import { POSSESSION_ENGINE_ID } from "./labels.mjs";
 import { checkPossessionDraw } from "../../../sports/nba/research/possession-sim/invariants.mjs";
@@ -265,11 +266,16 @@ test("comparison with the official forecast: one row per official player, offici
   const off = officialPanel(snap);
   const rows = boxRows(foldRun(g.runs[0].events, rostersOf(g)), rostersOf(g), new Map());
   const cmp = compareWithOfficial(rows, off);
-  assert.equal(cmp.length, snap.players.length);
+  // amendment B: exactly the lane's players (publicDisplay MEDIAN_1DP) — never a player the lane does not print
+  const lane = snap.players.filter((p) => ["pts", "reb", "ast", "threePm"].some((f) => p.families?.[f]?.publicDisplay === "MEDIAN_1DP"));
+  assert.ok(lane.length > 0 && lane.length < snap.players.length, "the panel is the lane subset, not every snapshot player");
+  assert.deepEqual(cmp.map((c) => c.playerId).sort(), lane.map((p) => String(p.playerId)).sort());
+  assert.deepEqual([...PANEL_FAMILIES], [...NBA_LANE_FAMILIES], "the panel prints the lane's stats");
   for (const c of cmp) {
     const sp = snap.players.find((p) => String(p.playerId) === c.playerId);
     const pts = c.families.find((f) => f.family === "pts");
     assert.equal(pts.official, sp.families.pts.median);
+    assert.equal(c.families.find((f) => f.family === "minutes").official, sp.expectedMinutes, "minutes are the lane's expected minutes");
     const r = [...rows.home, ...rows.away].find((x) => x.providerAthleteId === c.playerId);
     assert.equal(pts.run, r ? r.pts : null);
   }
@@ -353,3 +359,20 @@ test("public loader: same payload as the full loader (byte-identical), reading o
   const src = fs.readFileSync(path.join(APP, "src/lib/simulation-theater/nba/possession/public-loader.mjs"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
   assert.doesNotMatch(src, /experimental-v|\.\.\/loader\.mjs|official-representative|official-snapshot/);
 });
+
+test("G2 (founder decision 2026-10-21): every game the public route would publish has the consistency gate OPEN for the possession replay engine", async () => {
+  const { runConsistencyAudit, theaterActivationGate } = await import("../../../consistency/audit.mjs");
+  const { publicPossessionEvents } = await import("./public-loader.mjs");
+  const { NBA_THEATER_REPLAY_ENGINE } = await import("../../../consistency/theater-gate-policy.mjs");
+  const { ROLE_C_LABEL } = await import("./labels.mjs");
+  assert.equal(NBA_THEATER_REPLAY_ENGINE.id, POSSESSION_ENGINE_ID);
+  assert.equal(NBA_THEATER_REPLAY_ENGINE.label, ROLE_C_LABEL, "the gate's engine label is the page's label");
+  const audit = runConsistencyAudit({ repoRoot: REPO });
+  const ids = publicPossessionEvents(REPO);
+  assert.ok(ids.length > 0);
+  for (const id of ids) {
+    const g = theaterActivationGate("NBA", id, { audit, repoRoot: REPO });
+    assert.equal(g.open, true, `${id}: ${JSON.stringify(g.blockers.map((b) => b.code))}`);
+  }
+});
+

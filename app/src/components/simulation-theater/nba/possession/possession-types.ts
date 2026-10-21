@@ -10,7 +10,7 @@ export type PbRun = {
   kind: string; title: string; role: "SUPPORTING_RUN" | "WHAT_IF"; hypothetical: boolean; runIndex: number; rule: string; distance: number | null;
   final: { home: number; away: number }; periods: [number[], number[]]; overtimePeriods: number; events: PbEvent[];
 };
-export type PbOfficialPlayer = { playerId: string; team: "home" | "away" | null; displayName: string | null; participation: string | null; medians: Record<string, number | null> };
+export type PbOfficialPlayer = { playerId: string; team: "home" | "away" | null; displayName: string | null; participation: string | null; medians: Record<string, number | null>; expectedMinutes: number | null };
 export type PbOfficial = {
   snapshotId: string; eventId: string; publication: string | null; favouredSide: "HOME" | "AWAY" | null; sideRule: string | null;
   models: { game: string | null; players: string[] }; frozenAt: string | null; lockAt: string | null;
