@@ -44,19 +44,19 @@ test("freeze → grade → report on fixtures, entirely outside the repo", () =>
   const ledger = path.join(tmp, "ledger.json");
   const g1 = run("grade-nba-top-boards.mjs", ["--now", "2026-11-02T08:00:00Z", "--boards-dir", bdir, "--ledger", ledger, "--boxscore-dir", xdir, "--write"]);
   assert.equal(g1.status, 0, g1.stderr);
-  assert.match(g1.stdout, /PENDING 8/);
+  assert.match(g1.stdout, /PENDING 14/);
   fs.writeFileSync(path.join(xdir, "fx-p1.json"), JSON.stringify(boxscore("fx-p1", [{ id: 1, pts: 25, reb: 5, ast: 3, threePm: 1 }, { id: 2, pts: 9 }, { id: 3, didNotPlay: true, dnpReason: "REST", team: "18" }])));
   const g2 = run("grade-nba-top-boards.mjs", ["--now", "2026-11-02T09:00:00Z", "--boards-dir", bdir, "--ledger", ledger, "--boxscore-dir", xdir, "--write"]);
   assert.equal(g2.status, 0, g2.stderr);
   const L = JSON.parse(fs.readFileSync(ledger, "utf8"));
-  assert.equal(L.entries.length, 16);
-  assert.deepEqual([...new Set(L.entries.slice(8).map((e) => e.lineageReason))], ["PENDING_RESOLVED"]);
+  assert.equal(L.entries.length, 28, "2 eligible players × 7 ranked boards, twice");
+  assert.deepEqual([...new Set(L.entries.slice(14).map((e) => e.lineageReason))], ["PENDING_RESOLVED"]);
   assert.equal(L.entries.filter((e) => ["WIN", "LOSS", "PUSH"].includes(e.settlement.status)).length, 0);
 
   const r = run("nba-daily-performance-report.mjs", ["--date", "2026-11-01", "--now", "2026-11-02T10:00:00Z", "--boards-dir", bdir, "--ledger", ledger, "--boxscore-dir", xdir, "--out-dir", rdir, "--write"]);
   assert.equal(r.status, 0, r.stderr);
   const rep = JSON.parse(fs.readFileSync(path.join(rdir, "2026-11-01.json"), "utf8"));
-  assert.deepEqual([rep.s05_settlement.counts.WIN, rep.s05_settlement.counts.VOID, rep.s05_settlement.counts.UNGRADABLE], [0, 4, 4]);
+  assert.deepEqual([rep.s05_settlement.counts.WIN, rep.s05_settlement.counts.VOID, rep.s05_settlement.counts.UNGRADABLE], [0, 7, 7]);
   assert.ok(fs.readFileSync(path.join(rdir, "2026-11-01.md"), "utf8").includes("## 15. Recommended investigations"));
   fs.rmSync(tmp, { recursive: true, force: true });
 });
