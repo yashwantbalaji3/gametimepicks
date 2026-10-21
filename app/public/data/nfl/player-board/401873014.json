@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-20T23:38:27Z",
- "sourceGeneratedAt": "2026-10-20T23:38:27Z",
+ "generatedAt": "2026-10-21T14:30:15Z",
+ "sourceGeneratedAt": "2026-10-21T14:30:15Z",
  "providerEventId": "401873014",
  "matchup": "IND @ MIN",
  "kickoffUtc": "2026-10-25T17:00Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-20T23:38:27Z",
-  "roleEvidenceAt": "2026-10-20T23:38:27Z",
+  "injuriesCapturedAt": "2026-10-21T14:30:15Z",
+  "roleEvidenceAt": "2026-10-21T14:30:15Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -23,45 +23,10 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
-   "withheldPassers": [
-    {
-     "team": "IND",
-     "playerId": "nfl-athlete-4429084",
-     "name": "Anthony Richardson Sr.",
-     "share": 0.348,
-     "reason": "withheld for Anthony Richardson Sr. (IND): his modelled share of IND's pass attempts is 0.35, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "IND",
-     "playerId": "nfl-athlete-4683423",
-     "name": "Riley Leonard",
-     "share": 0.42,
-     "reason": "withheld for Riley Leonard (IND): his modelled share of IND's pass attempts is 0.42, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "MIN",
-     "playerId": "nfl-athlete-4573398",
-     "name": "Max Brosmer",
-     "share": 0.474,
-     "reason": "withheld for Max Brosmer (MIN): his modelled share of MIN's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    }
-   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "MIN",
-      "pool": "passAttempts",
-      "originalSum": 1.7632,
-      "normalizedSum": 1,
-      "factor": 0.5672,
-      "playerIds": [
-       "nfl-athlete-2573079",
-       "nfl-athlete-3917315"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_rush_yds": {
@@ -121,7 +86,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 60,
+  "absent": 59,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -193,7 +158,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Anthony Richardson Sr. (IND): his modelled share of IND's pass attempts is 0.35, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -281,12 +246,12 @@
      "playerId": "nfl-athlete-4683423",
      "name": "Riley Leonard",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "withheld for Riley Leonard (IND): his modelled share of IND's pass attempts is 0.42, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Riley Leonard (IND): his modelled share of IND's pass attempts is 0.42, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     }
@@ -320,10 +285,16 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-3917315",
@@ -425,12 +396,12 @@
      "playerId": "nfl-athlete-4573398",
      "name": "Max Brosmer",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "withheld for Max Brosmer (MIN): his modelled share of MIN's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Max Brosmer (MIN): his modelled share of MIN's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     }
@@ -441,27 +412,47 @@
   "qbStarter": [
    {
     "team": "IND",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-3917792",
-     "nfl-athlete-4429084",
-     "nfl-athlete-4683423"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3917792",
+     "name": "Daniel Jones"
+    },
+    "snapshotAt": "2026-10-21T12:53:27Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4429084",
+      "name": "Anthony Richardson Sr."
+     },
+     {
+      "playerId": "nfl-athlete-4683423",
+      "name": "Riley Leonard"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-17T11:33:46Z"
+    "passers": [
+     "nfl-athlete-3917792"
+    ]
    },
    {
     "team": "MIN",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-2573079",
-     "nfl-athlete-3917315",
-     "nfl-athlete-4573398"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3917315",
+     "name": "Kyler Murray"
+    },
+    "snapshotAt": "2026-10-21T12:53:27Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-2573079",
+      "name": "Carson Wentz"
+     },
+     {
+      "playerId": "nfl-athlete-4573398",
+      "name": "Max Brosmer"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-17T11:33:46Z"
+    "passers": [
+     "nfl-athlete-3917315"
+    ]
    }
   ],
   "passerShareFloor": [
@@ -469,62 +460,22 @@
     "team": "IND",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3917792",
-     "nfl-athlete-4429084",
-     "nfl-athlete-4683423"
+     "nfl-athlete-3917792"
     ],
-    "withheld": [
-     {
-      "team": "IND",
-      "playerId": "nfl-athlete-4429084",
-      "name": "Anthony Richardson Sr.",
-      "share": 0.348,
-      "reason": "withheld for Anthony Richardson Sr. (IND): his modelled share of IND's pass attempts is 0.35, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     },
-     {
-      "team": "IND",
-      "playerId": "nfl-athlete-4683423",
-      "name": "Riley Leonard",
-      "share": 0.42,
-      "reason": "withheld for Riley Leonard (IND): his modelled share of IND's pass attempts is 0.42, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    },
    {
     "team": "MIN",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-2573079",
-     "nfl-athlete-3917315",
-     "nfl-athlete-4573398"
+     "nfl-athlete-3917315"
     ],
-    "withheld": [
-     {
-      "team": "MIN",
-      "playerId": "nfl-athlete-4573398",
-      "name": "Max Brosmer",
-      "share": 0.474,
-      "reason": "withheld for Max Brosmer (MIN): his modelled share of MIN's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    }
   ],
   "pools": [
-   {
-    "team": "MIN",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 1,
-    "originalSum": 1.7632,
-    "residualOther": 0,
-    "joined": 2,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
    {
     "team": "IND",
     "pool": "passAttempts",
@@ -553,6 +504,19 @@
    },
    {
     "team": "MIN",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.8502,
+    "originalSum": 0.8502,
+    "residualOther": 0.1498,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "MIN",
     "pool": "targets",
     "markets": [
      "player_receptions"
@@ -575,21 +539,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 60.051,
-     "p10": 22.79,
-     "p25": 36.75,
-     "median": 55.77,
-     "p75": 78.97,
-     "p90": 101.6,
+     "mean": 59.606,
+     "p10": 22.21,
+     "p25": 36.6,
+     "median": 55.82,
+     "p75": 78.07,
+     "p90": 101.08,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 19.934,
+     "mean": 20.637,
      "p10": 0,
-     "p25": 2.59,
-     "median": 14.35,
-     "p75": 30.94,
-     "p90": 47.69,
+     "p25": 3.2,
+     "median": 14.58,
+     "p75": 31.47,
+     "p90": 50.29,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -614,21 +578,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 55.475,
-     "p10": 19.41,
-     "p25": 32.59,
-     "median": 50.69,
-     "p75": 73.01,
-     "p90": 97.67,
+     "mean": 56.412,
+     "p10": 20.05,
+     "p25": 33.53,
+     "median": 51.51,
+     "p75": 74.57,
+     "p90": 98.03,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 22.314,
+     "mean": 22.094,
      "p10": 0,
-     "p25": 6.59,
-     "median": 17.57,
-     "p75": 33.02,
-     "p90": 50.6,
+     "p25": 6.32,
+     "median": 17.2,
+     "p75": 32.15,
+     "p90": 50.08,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -653,12 +617,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 55.688,
-     "p10": 13.1,
-     "p25": 27.65,
-     "median": 49.67,
-     "p75": 76.57,
-     "p90": 105.91,
+     "mean": 55.314,
+     "p10": 12.27,
+     "p25": 27.76,
+     "median": 49.04,
+     "p75": 76.35,
+     "p90": 106.06,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -683,12 +647,12 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
-     "mean": 36.46,
-     "p10": 5.92,
-     "p25": 16.03,
-     "median": 31.57,
-     "p75": 51.02,
-     "p90": 73.11,
+     "mean": 36.414,
+     "p10": 5.81,
+     "p25": 15.65,
+     "median": 31.76,
+     "p75": 51.66,
+     "p90": 72.74,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -713,12 +677,12 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
-     "mean": 40.653,
-     "p10": 4.48,
-     "p25": 16.13,
-     "median": 34.48,
-     "p75": 58.32,
-     "p90": 83.4,
+     "mean": 40.223,
+     "p10": 4.64,
+     "p25": 15.62,
+     "median": 33.64,
+     "p75": 56.97,
+     "p90": 84.72,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -743,12 +707,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 37.209,
-     "p10": 5.55,
-     "p25": 15.97,
-     "median": 32.55,
-     "p75": 52.06,
-     "p90": 74.61,
+     "mean": 37.224,
+     "p10": 5.89,
+     "p25": 15.69,
+     "median": 31.37,
+     "p75": 53.38,
+     "p90": 75.72,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -773,12 +737,12 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
-     "mean": 37.398,
-     "p10": 5.83,
-     "p25": 16.23,
-     "median": 32.59,
-     "p75": 52.28,
-     "p90": 75.86,
+     "mean": 36.838,
+     "p10": 5.63,
+     "p25": 15.69,
+     "median": 31.35,
+     "p75": 52.89,
+     "p90": 75.56,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -803,12 +767,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 33.928,
-     "p10": 2.37,
-     "p25": 12.54,
-     "median": 28.08,
-     "p75": 48.75,
-     "p90": 71.6,
+     "mean": 34.581,
+     "p10": 2.35,
+     "p25": 13.02,
+     "median": 28.56,
+     "p75": 49.29,
+     "p90": 73.62,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -833,12 +797,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 7.534,
+     "mean": 7.363,
      "p10": 0,
      "p25": 0,
-     "median": 2.11,
-     "p75": 10.92,
-     "p90": 22.13,
+     "median": 2.23,
+     "p75": 10.06,
+     "p90": 21.44,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -854,12 +818,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 11.667,
+     "mean": 11.299,
      "p10": 0,
-     "p25": 0.64,
-     "median": 6.76,
-     "p75": 17.27,
-     "p90": 31.3,
+     "p25": 0.6,
+     "median": 6.33,
+     "p75": 16.73,
+     "p90": 30,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -896,12 +860,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 8.294,
+     "mean": 8.457,
      "p10": 0,
      "p25": 0,
-     "median": 3.42,
-     "p75": 12.12,
-     "p90": 24.35,
+     "median": 3.36,
+     "p75": 12.49,
+     "p90": 24.68,
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
@@ -926,12 +890,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 16.575,
+     "mean": 16.514,
      "p10": 0,
      "p25": 0,
-     "median": 10.81,
-     "p75": 25.19,
-     "p90": 42.25,
+     "median": 10.93,
+     "p75": 25.57,
+     "p90": 42.75,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -956,12 +920,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 20.265,
+     "mean": 20.517,
      "p10": 0,
-     "p25": 2.2,
-     "median": 13.82,
-     "p75": 30.52,
-     "p90": 50.53,
+     "p25": 2.46,
+     "median": 14.97,
+     "p75": 31.69,
+     "p90": 49.73,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -986,25 +950,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 15.52,
+     "mean": 15.042,
      "p10": 0,
-     "p25": 2.15,
-     "median": 10.17,
-     "p75": 22.96,
-     "p90": 39.25,
+     "p25": 1.82,
+     "median": 9.31,
+     "p75": 22.33,
+     "p90": 38.08,
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
-     "mean": 99.4328,
-     "p10": 48.5221,
-     "p25": 67.1032,
-     "median": 92.9319,
-     "p75": 124.7108,
-     "p90": 158.7623,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.5672
-     },
+     "mean": 175.32,
+     "p10": 85.5542,
+     "p25": 118.3164,
+     "median": 163.8576,
+     "p75": 219.89,
+     "p90": 279.9296,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1020,12 +980,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 10.509,
+     "mean": 10.512,
      "p10": 0,
-     "p25": 0.28,
-     "median": 5.5,
-     "p75": 15.51,
-     "p90": 28.09,
+     "p25": 0.27,
+     "median": 5.41,
+     "p75": 15.52,
+     "p90": 28.72,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1041,12 +1001,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 20.108,
+     "mean": 21.009,
      "p10": 0,
-     "p25": 3.77,
-     "median": 14.39,
-     "p75": 30.15,
-     "p90": 48.39,
+     "p25": 4.23,
+     "median": 15.61,
+     "p75": 31.83,
+     "p90": 49.61,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -1071,12 +1031,12 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
-     "mean": 15.071,
+     "mean": 15.121,
      "p10": 0,
      "p25": 0,
-     "median": 8.38,
-     "p75": 23.54,
-     "p90": 40.83,
+     "median": 8.73,
+     "p75": 23.24,
+     "p90": 40.51,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -1101,25 +1061,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 8.087,
+     "mean": 7.952,
      "p10": 0,
      "p25": 0,
-     "median": 3.45,
-     "p75": 12.02,
-     "p90": 22.55,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_pass_yds": {
-     "mean": 112.5437,
-     "p10": 54.6213,
-     "p25": 75.7202,
-     "median": 105.0971,
-     "p75": 141.2902,
-     "p90": 180.1107,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.5672
-     },
+     "median": 3.48,
+     "p75": 12.11,
+     "p90": 22.4,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
