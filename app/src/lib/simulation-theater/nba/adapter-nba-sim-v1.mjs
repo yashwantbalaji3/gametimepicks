@@ -99,9 +99,16 @@ export function adaptNbaArtifact(artifact, eventId, { file = null, provenance = 
 
   // v1 player rows are quantiles CONDITIONAL on playing; playRate (share of draws with minutes > 0) is shown beside them
   const playRates = { home: {}, away: {} };
+  // Role inputs (NBA Theater V2, 2026-10-20): the receipt's per-player starterRate (share of the player's last ≤ 10 played
+  // games he started, sim-v1-profile.mjs) and expectedMinutes, copied verbatim. They are model INPUTS, not run output:
+  // projected-box.mjs uses them only for its ESTIMATED starter / bench grouping, labelled as an estimate.
+  const roleInputs = { home: {}, away: {} };
   for (const side of ["home", "away"]) {
     for (const p of Array.isArray(fc.players?.[side]) ? fc.players[side] : []) {
       if (p?.providerAthleteId != null && num(p.playRate) != null) playRates[side][String(p.providerAthleteId)] = p.playRate;
+      if (p?.providerAthleteId != null && (num(p.starterRate) != null || num(p.expectedMinutes) != null)) {
+        roleInputs[side][String(p.providerAthleteId)] = { starterRate: num(p.starterRate), expectedMinutes: num(p.expectedMinutes) };
+      }
     }
   }
   // Rostered players the engine did NOT simulate (assumptions.availability): ruled Out, or no usable history. They are
@@ -130,6 +137,7 @@ export function adaptNbaArtifact(artifact, eventId, { file = null, provenance = 
     role: typeof artifact.role === "string" ? artifact.role : null,
     provenance: devCopy ? { source: provenance.source ?? null, sha256: provenance.sha256 ?? null, copiedAt: provenance.copiedAt ?? null, knownDeviation: provenance.knownDeviation ?? null } : null,
     playRates,
+    roleInputs,
     rosterNotSimulated,
     date: artifact.date ?? null,
     dateUtc: g.dateUtc ?? null,

@@ -23,7 +23,7 @@ const { loadTheater } = await import("../../lib/simulation-theater/loader.mjs");
 const { defaultSample } = await import("../../lib/simulation-theater/public-theater.mjs");
 const { theaterPalette } = await import("../../lib/simulation-theater/nfl-team-colors.mjs");
 const { loadNbaTheater, NBA_REAL_TEST_FIXTURE_SOURCE, NBA_THEATER_OFFICIAL_SOURCE } = await import("../../lib/simulation-theater/nba/loader.mjs");
-const { nbaBoxScore } = await import("../../lib/simulation-theater/nba/box-score.mjs");
+const { nbaProjectedBox } = await import("../../lib/simulation-theater/nba/projected-box.mjs");
 const { chipTitle } = await import("../../lib/simulation-theater/format.mjs");
 const L = await import("../../lib/simulation-theater/representative-labels.mjs");
 
@@ -113,24 +113,22 @@ test("no official forecast: the card says so, the comparison invents nothing, an
 
 // the fixture is a byte copy of real 2026-10-20 v1 output: measure it against the committed OFFICIAL v0.1 file of that date
 const NBA = loadNbaTheater(REPO, "401909088", { source: NBA_REAL_TEST_FIXTURE_SOURCE, officialSource: NBA_THEATER_OFFICIAL_SOURCE });
-test("NBA box score: official means beside modeled stats (per game played), NO official team expectation (withheld), and hypothetical what-ifs", () => {
+test("NBA box score: official v0.1 layer beside the simulated run, NO official team expectation (withheld), and hypothetical what-ifs", () => {
   assert.equal(NBA.ok, true);
   const r = NBA.manifest.representative;
   assert.equal(r.state, "SELECTED");
   const pal = NBA.palettes.team;
   for (const s of NBA.manifest.samples) {
-    const box = nbaBoxScore(s, NBA.manifest);
     const hypothetical = L.runRole(NBA.manifest, s.runIndex).hypothetical;
     assert.equal(hypothetical, s.runIndex !== r.officialRunIndex);
-    const out = html(React.createElement(BoxScoreBody, { result: box, palette: pal, idBase: "t", manifest: NBA.manifest, hypothetical }));
+    const result = nbaProjectedBox(s, NBA.manifest, { hypothetical });
+    assert.equal(result.ok, true, `run ${s.runIndex}: ${JSON.stringify(result.errors)}`);
+    const out = html(React.createElement(BoxScoreBody, { result, palette: pal, idBase: "t", manifest: NBA.manifest }));
     const t = visible(out);
-    assert.match(out, /data-nba-official-exp="pts"/);
+    assert.match(out, /data-nba-official/, "the official projection layer is rendered");
     assert.doesNotMatch(out, /data-nba-official-exp="team"/, "the official NBA team score is WITHHELD — never printed as an expectation");
-    assert.ok(t.includes(L.NBA_PLAYER_EXPECTATION_NOTE));
-    assert.ok(t.includes(L.RECONCILIATION_NOTE));
-    // a played row's official average is the snapshot's mean for THAT athlete id
-    const played = box.box.teams.home.rows.find((x) => x.status === "played" && r.players[x.providerAthleteId]?.families?.pts?.expected != null);
-    assert.ok(t.includes(`avg ${L.fmtExpectation(r.players[played.providerAthleteId].families.pts.expected)}`));
+    assert.match(out, /data-nba-px-teamscore/);
+    assert.ok(/withheld/i.test(t), "the withheld official team score says so");
     if (hypothetical) {
       assert.ok(t.includes(L.WHAT_IF_BANNER), `run ${s.runIndex}`);
       assertNoUnlabelledForecastText(t, `NBA what-if run #${s.runIndex}`);
@@ -142,3 +140,4 @@ test("NBA box score: official means beside modeled stats (per game played), NO o
   assert.equal((chips.match(/data-st-role="official"/g) ?? []).length, 1);
   assert.equal((chips.match(/data-st-role="what-if"/g) ?? []).length, NBA.manifest.samples.length - 1);
 });
+
