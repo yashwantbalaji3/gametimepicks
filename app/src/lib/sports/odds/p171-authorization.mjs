@@ -22,6 +22,7 @@ export const LEDGER_RELPATH = {
   nfl: P171_LEDGER_RELPATH,
   ufc: "data/internal/research/odds/ufc/authorization-ledger.json",
   epl: "data/internal/research/odds/epl/authorization-ledger.json",
+  nba: "data/internal/research/odds/nba/authorization-ledger.json",
 };
 
 /**
@@ -35,6 +36,9 @@ export const AUTHORIZED_SPORTS = {
   nfl: { sportKey: "americanfootball_nfl", scopeRe: /NFL[- ]only/i },
   ufc: { sportKey: "mma_mixed_martial_arts", scopeRe: /UFC[- /]?(?:\/\s*MMA[- ])?only|MMA[- ]only/i },
   epl: { sportKey: "soccer_epl", scopeRe: /Premier League only|EPL[- ]only/i },
+  /* No NBA receipt exists. This entry only lets a future one be READ (and lets every other sport's receipt refuse
+     one that names `basketball_nba`). Without a committed receipt, nothing here authorizes a call. */
+  nba: { sportKey: "basketball_nba", scopeRe: /NBA[- ]only/i },
 };
 
 /**
@@ -48,7 +52,7 @@ export const AUTHORIZED_SPORTS = {
  * @param {string} markdown the receipt as committed
  * @param {string} sport    which allowance is being validated — must be a key of AUTHORIZED_SPORTS
  */
-export function parseSportAuthorizationReceipt(markdown, sport) {
+export function parseSportAuthorizationReceipt(markdown, sport, { now = null } = {}) {
   const spec = AUTHORIZED_SPORTS[sport];
   if (!spec) return { ok: false, errors: [`no authorization is defined for "${sport}"`] };
 
@@ -106,6 +110,12 @@ export function parseSportAuthorizationReceipt(markdown, sport) {
     );
   } else if (expiry.kind === "UNKNOWN") {
     errors.push("expiry: no expiry term found — a receipt without one cannot be shown to be current");
+  } else if (expiry.kind === "DATED") {
+    /* A DATED EXPIRY IS ENFORCED HERE, NOT LEFT TO THE CALLER. Reading the date and returning it for someone else to
+       check would repeat the half-read-term defect above. Without a clock the receipt cannot be shown current. */
+    const nowMs = Date.parse(now ?? "");
+    if (!Number.isFinite(nowMs)) errors.push(`expiry: this receipt expires at the end of ${expiry.expiresOnEt} ET and no clock was given — pass { now } to validate it`);
+    else if (nowMs > expiry.expiresAtMs) errors.push(`expiry: this receipt expired at the end of ${expiry.expiresOnEt} ET (${expiry.raw}) — a renewal is required before another paid call`);
   }
 
   if (errors.length) return { ok: false, errors };
@@ -138,8 +148,40 @@ export function expiryTerm(receiptText) {
   const raw = row[1].trim();
   const program = raw.match(/\b(Program\s+\d+)\s+close\b/i);
   if (program) return { kind: "PROGRAM_SCOPED", programCloseCondition: program[1], raw };
+  /* A date in the row ("the ceiling or 2026-11-20 23:59 ET, whichever first") is a DATED expiry. Checked BEFORE the
+     ceiling words, so the date half can never be read as CEILING_ONLY and dropped. */
+  const dated = raw.match(/\b(\d{4}-\d{2}-\d{2})\b/);
+  if (dated) {
+    const expiresAtMs = etEndOfDayMs(dated[1]);
+    return Number.isFinite(expiresAtMs) ? { kind: "DATED", expiresOnEt: dated[1], expiresAtMs, raw } : { kind: "UNKNOWN", raw };
+  }
   if (/ceiling/i.test(raw)) return { kind: "CEILING_ONLY", raw };
   return { kind: "UNKNOWN", raw };
+}
+
+/** The last millisecond of an America/New_York calendar day, as epoch ms (DST-correct). NaN for an invalid date. */
+export function etEndOfDayMs(ymd) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(ymd))) return NaN;
+  const fmt = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hourCycle: "h23" });
+  for (const off of ["-04:00", "-05:00"]) {
+    const ms = Date.parse(`${ymd}T23:59:59.999${off}`);
+    if (!Number.isFinite(ms)) return NaN;
+    const parts = Object.fromEntries(fmt.formatToParts(new Date(ms)).map((p) => [p.type, p.value]));
+    if (`${parts.year}-${parts.month}-${parts.day}` === ymd && parts.hour === "23") return ms;
+  }
+  return NaN;
+}
+
+/**
+ * May a capture request these prop markets under this parsed receipt? Every requested key must be one the receipt's
+ * own authorization row names (authorizedPropMarkets). An empty request, or a receipt naming none, refuses.
+ * @returns {{ ok: boolean, refused: string[] }}
+ */
+export function propMarketsAuthorized(parsed, requested) {
+  const allowed = new Set(parsed?.ok ? parsed.propMarkets ?? [] : []);
+  const req = [...new Set(requested ?? [])];
+  const refused = req.filter((m) => !allowed.has(m));
+  return { ok: req.length > 0 && refused.length === 0, refused: req.length ? refused : ["<no market requested>"] };
 }
 
 /** Parse the committed receipt. Fail-closed: every operative term must be present and exact. */
@@ -290,6 +332,9 @@ export function parseAuthorizationReceipt(markdown) {
     );
   } else if (expiry.kind === "UNKNOWN") {
     errors.push("expiry: no expiry term found — a receipt without one cannot be shown to be current");
+  } else if (expiry.kind === "DATED") {
+    // The legacy NFL reader takes no clock, so a dated receipt cannot be shown current here: refuse, never ignore.
+    errors.push(`expiry: this receipt expires at the end of ${expiry.expiresOnEt} ET; read it with parseSportAuthorizationReceipt(text, sport, { now })`);
   }
 
   if (errors.length) return { ok: false, errors };
