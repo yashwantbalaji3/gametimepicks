@@ -33,6 +33,7 @@ import { featuredForecasts, eligibleForecastCount } from "./featured-forecasts.m
 import { modelStatusFor } from "@/lib/command-center/model-status";
 import { PUBLIC_STATE_LABEL } from "@/lib/command-center/contract";
 import { featuredSelectionRows } from "./featured-source.mjs";
+import { sanitizeLivePropsArtifact, sanitizePlayerBoard } from "../sports/odds/public-offer-sanitizer.mjs";
 
 /**
  * One FEATURED GAMETIMEPICKS FORECAST as the card receives it — frozen halves only. The live half is
@@ -270,7 +271,8 @@ export function buildNflHubRoster(
 
   const games: NflHubRosterGame[] = [];
   for (const f of files) {
-    const board = readJson(path.join(dir, f));
+    /* O-6: sanitised at read — the hub's frozen rows are a client component's props (eligible-operators@1). */
+    const board = sanitizePlayerBoard(readJson(path.join(dir, f)));
     const kickoffUtc = normalizeInstant(board?.kickoffUtc);
     /*
      * Grouped by the ET date of KICKOFF, not by filename or by the UTC date — a 20:25 ET Sunday
@@ -285,7 +287,7 @@ export function buildNflHubRoster(
     const awayRef = nflTeamRefByAbbr(awayAbbr);
     const homeRef = nflTeamRefByAbbr(homeAbbr);
     const tracked = trackedFor(board);
-    const artifact = readJson(path.join(process.cwd(), "public/data/nfl/live-props", `${id}.json`));
+    const artifact = sanitizeLivePropsArtifact(readJson(path.join(process.cwd(), "public/data/nfl/live-props", `${id}.json`)));
     const selection = featuredSelectionRows({ board: { ...board, providerEventId: id }, artifact });
     /* Frozen halves only: the live half of each row is joined in the browser. */
     const featured = (featuredForecasts({ rows: selection.rows }, { portraitFor: espnNflHeadshotUrl }) as any[]).map((f) => ({

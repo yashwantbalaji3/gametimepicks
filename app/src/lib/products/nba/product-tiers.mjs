@@ -22,6 +22,7 @@ import { CURRENT_POLICY, SELECTION_POLICIES } from "../selection-policy.mjs";
 import { PARLAY_ODDS_BANDS, PUBLIC_RISK_BAND_TEXT } from "../../parlays/risk-odds-bands.mjs";
 import { BAND_MAX_LEGS } from "../../parlays/multi-sport.mjs";
 import { MARKETS as NBA_SETTLED_MARKETS } from "../../sports/nba/settlement-contract.mjs";
+import { openPropFamilies } from "../../parlays/nba-lab-grading.mjs";
 
 /** Words a tier description may never use about a leg or a card. */
 export const RISK_OVERCLAIM = /\b(safe|safest|safer|guarantee[sd]?|sure thing|risk[- ]free|can(?:'|no)t lose|certain(?:ty)?|lock of)\b/i;
@@ -85,8 +86,17 @@ export const NBA_PRODUCT_TIERS = Object.freeze({
   "parlay-lab-longshot": lab("longshot"),
 });
 
-/** Today's NBA settlement contract grades team markets only; no player-prop grader exists. Injectable for tests. */
+/** The NBA TEAM settlement contract's markets. A player family needs forward-graded evidence (nbaSettlesFamilyWith). */
 export const nbaSettlesFamily = (family) => NBA_SETTLED_MARKETS.includes(family);
+/**
+ * Team markets, plus player-prop families the prop-settlement GATE opens (sports/nba/prop-settlement-readiness.mjs
+ * nbaPropSettlementGate: forward-graded evidence AND a founder-approved promotion). With no gate, identical to
+ * nbaSettlesFamily.
+ */
+export const nbaSettlesFamilyWith = (gate = null) => {
+  const open = new Set(openPropFamilies(gate));
+  return (family) => nbaSettlesFamily(family) || open.has(family);
+};
 
 /**
  * One tier's view of one leg. The leg is held by reference (frozen) — never copied, edited or re-evaluated.
@@ -108,7 +118,9 @@ export function tierView(leg, tierId, { now, settles = nbaSettlesFamily } = {}) 
   if (!Number.isFinite(price) || price < LEG_BOUNDS.oddsMin || price > LEG_BOUNDS.oddsMax) reasons.push(TIER_REASON.PRICE_OUT_OF_RANGE);
   if (tier) {
     if (Number.isFinite(price) && price > tier.legRules.oddsMax && !reasons.includes(TIER_REASON.PRICE_OUT_OF_RANGE)) reasons.push(TIER_REASON.LEG_PRICE_ABOVE_TIER_MAX);
-    if (!tier.legRules.playerMarkets) reasons.push(TIER_REASON.TEAM_MARKETS_ONLY);
+    // A team-markets-only tier (moonshot@2) refuses a player leg; an NBA TEAM leg (nba-team-leg.mjs, marketKind
+    // "TEAM") is the market kind it was built for.
+    if (!tier.legRules.playerMarkets && leg?.marketKind !== "TEAM") reasons.push(TIER_REASON.TEAM_MARKETS_ONLY);
   }
   if (!settles(leg?.family)) reasons.push(TIER_REASON.NO_SETTLEMENT_PATH);
   return Object.freeze({

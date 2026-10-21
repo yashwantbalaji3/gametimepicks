@@ -9,13 +9,16 @@ import PlayerAvatar from "@/components/player-avatar";
 import TeamLogo from "@/components/team-logo";
 import { formatValue } from "@/lib/sports/nfl/forecast-view.mjs";
 import { bookmakerLabel } from "@/lib/sportsbook-comparison";
+import { isEligibleProvider } from "@/lib/sports/odds/eligible-operators.mjs";
 
 export interface RowFamily { key: string; kind: string; unit: string; title: string }
 export interface RowPlayer {
   playerId: string; name: string; position: string | null; team: string; opponent: string; providerEventId: string;
   matchup: string; kickoffUtc: string; availabilityLabel: string | null;
 }
-export interface RowMarket { sportsbook: string; line: number | null; overOdds: number | null; underOdds: number | null; yesOdds: number | null; capturedAt: string | null }
+/* `bookWithheld` set ⇒ the capture came from a book outside the eligible-operator allowlist and the loader dropped
+   its book and prices (lib/sports/odds/public-offer-sanitizer.mjs); only the flag reaches the page. */
+export interface RowMarket { sportsbook: string | null; line?: number | null; overOdds?: number | null; underOdds?: number | null; yesOdds?: number | null; capturedAt?: string | null; bookWithheld?: string | null }
 export interface RowEntry { value: number; p10?: number | null; p90?: number | null; mean?: number | null; marketKey?: string | null; market?: RowMarket | null }
 const odds = (o: number) => (o > 0 ? `+${o}` : String(o));
 
@@ -43,8 +46,11 @@ export default function PlayerRow({ player: p, entry: e, family: f, rank, linkTo
         {range ? <span>{range}</span> : null}
         {live ? <span className="nf-num" data-live={live.phase} style={{ color: "var(--vault-text)" }}>{live.phase === "FINAL" ? "Final" : "Live"} {f.kind === "probability" ? `${live.value} TD` : live.value}</span> : null}
       </div>
-      {e.market ? (
-        <span className="nf-mkt" data-market={e.market.sportsbook} title={e.market.capturedAt ? `captured ${e.market.capturedAt}` : undefined}>
+      {e.market && (e.market.bookWithheld || !isEligibleProvider(e.market.sportsbook)) ? (
+        /* O-7: fail-closed even if a caller skipped the sanitiser — the book is never named and no price prints. */
+        <span className="nf-mkt" data-market-withheld="ineligible-operator">Sportsbook · Price not shown</span>
+      ) : e.market ? (
+        <span className="nf-mkt" data-market={e.market.sportsbook ?? undefined} title={e.market.capturedAt ? `captured ${e.market.capturedAt}` : undefined}>
           Sportsbook · {bookmakerLabel(e.market.sportsbook)}{e.market.line != null ? ` ${e.market.line}` : ""}
           {e.market.overOdds != null ? ` · o ${odds(e.market.overOdds)}` : ""}{e.market.underOdds != null ? ` / u ${odds(e.market.underOdds)}` : ""}{e.market.yesOdds != null ? ` · yes ${odds(e.market.yesOdds)}` : ""}
         </span>

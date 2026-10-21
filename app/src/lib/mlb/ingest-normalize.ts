@@ -8,6 +8,7 @@
  * pure makes them unit-testable with fixture responses and ensures the pipeline never fabricates:
  * an empty provider response yields empty artifacts, not invented picks.
  */
+import { isEligibleOperator } from "../sports/odds/eligible-operators.mjs";
 
 // ── Provider response shapes (subset of fields we use) ──────────────────────────────────────────────
 export interface OddsApiEvent { id: string; commence_time: string; home_team: string; away_team: string }
@@ -82,6 +83,10 @@ export function normalizeMlbProps(eventsOdds: OddsApiEventOdds[], date: string, 
     // best price per (player|market|point|side=Over)
     const best = new Map<string, NormalizedProp>();
     for (const bk of ev.bookmakers ?? []) {
+      // ⚠ ELIGIBLE OPERATORS ONLY (2026-10-18). The provider's `us` region includes offshore books with no
+      // US licence; picking the best price across all of them put BetOnline.ag on the public /mlb board.
+      // Fail-closed: a book not on the allowlist never supplies a price here (sports/odds/eligible-operators.mjs).
+      if (!isEligibleOperator(bk.key)) continue;
       for (const mk of bk.markets ?? []) {
         const meta = MLB_PROP_MARKETS[mk.key];
         if (!meta) continue;

@@ -20,6 +20,8 @@
  * book, attributed by name. Not a "best odds" rule and not a consensus — both would be policies
  * this repo has never agreed, and a blended number has no book to attribute it to.
  */
+import { isEligibleOperator } from "./eligible-operators.mjs";
+
 export const REFERENCE_BOOK = "draftkings";
 /*
  * THE FALLBACK LADDER (founder decision, 2026-09-24). Coverage beats an empty row, but never at the
@@ -40,6 +42,16 @@ export const REFERENCE_BOOK = "draftkings";
  * book — the pair can never be split by construction.
  */
 export const FALLBACK_ORDER = [REFERENCE_BOOK, "fanduel"];
+
+/*
+ * ⚠ STEP 3 RANKED EVERY BOOK THE PROVIDER RETURNED, offshore ones included (bovada, betonlineag, …
+ * sit in the provider's `us` region). A row with no DraftKings or FanDuel market could therefore be
+ * displayed under an unlicensed operator's name. Candidates are now limited to the eligible-operator
+ * allowlist BEFORE the ladder runs, so every step can only land on a licensed book; with no eligible
+ * candidate the row is absent (a state), never filled from an ineligible book. Forward-only: prices
+ * already frozen keep the book they were frozen with.
+ */
+const eligibleOnly = (rows) => rows.filter((r) => isEligibleOperator(r.bookmaker));
 
 /** Books that returned a complete market for this event+family, ranked by coverage then key. */
 export function rankBooks(rows) {
@@ -85,11 +97,13 @@ export function selectPropPrices(probe) {
     }
     return g;
   };
-  for (const [, cands] of group(probe.anytimeTd?.rows ?? [], "anytime_td")) {
+  for (const [, all] of group(probe.anytimeTd?.rows ?? [], "anytime_td")) {
+    const cands = eligibleOnly(all);
     const c = pick(cands);
     if (c) out.push({ canonicalEventId: c.canonicalEventId, playerId: c.playerId, family: "anytime_td", shape: "YES_ONLY", yesOdds: c.price, sportsbook: c.bookmaker, capturedAt: c.capturedAt, booksAvailable: rankBooks(cands).length });
   }
-  for (const [, cands] of group(probe.lineProps?.rows ?? [], null)) {
+  for (const [, all] of group(probe.lineProps?.rows ?? [], null)) {
+    const cands = eligibleOnly(all);
     const c = pick(cands);
     if (c) out.push({ canonicalEventId: c.canonicalEventId, playerId: c.playerId, family: c.market, shape: "OVER_UNDER", line: c.line, overOdds: c.overPrice, underOdds: c.underPrice, sportsbook: c.bookmaker, capturedAt: c.capturedAt, booksAvailable: rankBooks(cands).length, linesOffered: c.linesOffered ?? 1 });
   }

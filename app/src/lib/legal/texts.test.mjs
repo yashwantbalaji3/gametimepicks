@@ -97,6 +97,9 @@ test("FACT · browser storage is exactly what the notice names (preferences, fol
     "lib/prefs/reader-prefs.ts",
     "lib/saved/saved-store.ts",
     "lib/slip/slip-store.ts",
+    // Parlay Lab V2 compare slip (gtp.slip.v2, behind NEXT_PUBLIC_PARLAY_LAB_V2): "the picks in your slip" — the same
+    // notice clause as slip-store.ts. It also keeps each pick's recorded book/price/time; flagged for notice review.
+    "lib/slip/smart-slip-store.ts",
   ], "a new browser-storage use exists — describe it in the privacy notice, then update this list");
   assert.match(renderLegal("privacy").text, /the forecasts you save/, "saved forecasts are described in the notice");
   // v1.1.2: NFL players are followable, so the notice must say players — "teams you follow" became incomplete.

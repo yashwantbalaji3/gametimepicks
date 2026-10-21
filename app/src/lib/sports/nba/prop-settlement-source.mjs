@@ -24,6 +24,8 @@ import { fileURLToPath } from "node:url";
 import { FAMILIES } from "./experimental-forecast.mjs";
 import { finalFor } from "./finals-record.mjs";
 import { boxscoreAthlete, isFinalBoxscore } from "./boxscore-line.mjs";
+import { nbaPropSettlementGate, nbaPropSettlementReadiness } from "./prop-settlement-readiness.mjs";
+import { PROP_GRADES_DIR, PROP_GRADE_LEDGER_FILE, PROP_SHADOW_FAMILY } from "./prop-shadow-grading.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 /** Repository root: app/src/lib/sports/nba → five levels up. */
@@ -116,4 +118,27 @@ export function committedNbaPropResults(opts = {}) {
     const box = cache.get(eventId);
     return nbaPropResult({ finalsRecord, boxscore: box?.doc ?? null, boxscoreSource: box?.file ?? null, providerEventId: eventId, providerAthleteId: leg?.providerAthleteId });
   };
+}
+
+/**
+ * Read-only: settlement readiness from the committed append-only shadow ledger (prop-settlement-readiness.mjs). No
+ * ledger yet, or an unreadable one, reads as NOT READY for every family — never as ready.
+ */
+export function committedNbaPropReadiness({ repoRoot = DEFAULT_REPO_ROOT } = {}) {
+  const f = path.join(repoRoot, "data", "internal", "research", "nba", PROP_GRADES_DIR, PROP_SHADOW_FAMILY, PROP_GRADE_LEDGER_FILE);
+  let entries = [];
+  try {
+    entries = fs.readFileSync(f, "utf8").split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l));
+  } catch { entries = []; }
+  return nbaPropSettlementReadiness(entries);
+}
+
+/**
+ * Read-only: the prop-settlement gate from the committed shadow ledger AND the committed NBA promotion record. A missing
+ * or unreadable promotion record is no record, so the gate is closed.
+ */
+export function committedNbaPropSettlementGate({ repoRoot = DEFAULT_REPO_ROOT } = {}) {
+  let promotionRecord = null;
+  try { promotionRecord = readJson(path.join(repoRoot, "data", "internal", "research", "nba", "promotion-record.json")); } catch { promotionRecord = null; }
+  return nbaPropSettlementGate({ readiness: committedNbaPropReadiness({ repoRoot }), promotionRecord });
 }
