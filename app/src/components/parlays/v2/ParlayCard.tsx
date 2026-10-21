@@ -19,11 +19,21 @@ export interface V2LegView {
   readonly book: string | null;
   readonly price: number | null;
   readonly capturedAt: string | null;
+  /** The official projection for the leg's side, verbatim from the shared evaluator (NBA legs); null otherwise. */
+  readonly modelProbability?: number | null;
+  /** Provenance of the leg's forecast and price (NBA legs: official snapshot, model version, odds authorization). */
+  readonly evidence?: { readonly snapshotId: string; readonly modelVersion: string; readonly capturedAt: string } | null;
 }
 
 export interface V2CardView {
   readonly cardId: string;
   readonly tier: string;
+  /** Leagues on the card, sorted ("nba", "nba+nfl" …). */
+  readonly composition?: readonly string[];
+  /** Set on every card that holds a fixture leg: shown verbatim so a fixture can never pass for a real card. */
+  readonly label?: string | null;
+  /** Correlation / eligibility notes from the card source (e.g. the same-game refusal rule). */
+  readonly notes?: readonly string[];
   readonly legs: readonly V2LegView[];
   readonly combinedAmerican: number | null;
   readonly combinedPriceText: string;
@@ -50,7 +60,7 @@ export default function ParlayCard({ card, tierLabel, selected, onCompare }: {
       style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: `1px solid ${selected ? "var(--vault-gold-bright)" : "var(--vault-border)"}` }}>
       <div className="flex items-baseline justify-between gap-2">
         <h4 id={headingId} className="m-0 font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 9.5, fontWeight: 600 }}>
-          {tierLabel} · {card.legs.length} legs
+          {tierLabel} · {card.legs.length} legs{card.composition?.length ? ` · ${card.composition.map((s) => s.toUpperCase()).join(" + ")}` : ""}
         </h4>
         <span className="font-display tabular-nums" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 800 }}
           aria-label={`Combined price ${card.combinedPriceText}`}>
@@ -70,6 +80,11 @@ export default function ParlayCard({ card, tierLabel, selected, onCompare }: {
             <span className="font-mono tabular-nums" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
               {signed(l.price)} at {l.book ?? "unknown book"}{l.capturedAt ? ` · recorded ${etStamp(l.capturedAt) ?? l.capturedAt}` : ""}
             </span>
+            {l.evidence ? (
+              <span className="font-mono tabular-nums" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+                Official projection {pct(l.modelProbability ?? null)} · model {l.evidence.modelVersion} · snapshot {l.evidence.snapshotId.slice(0, 12)}
+              </span>
+            ) : null}
           </li>
         ))}
       </ul>
@@ -87,6 +102,18 @@ export default function ParlayCard({ card, tierLabel, selected, onCompare }: {
           <dt className="sr-only">How the legs relate</dt>
           <dd className="m-0" style={{ color: "var(--vault-text-faint)" }}>{card.dependenceNote}</dd>
         </div>
+        {card.notes?.map((n) => (
+          <div key={n}>
+            <dt className="sr-only">Eligibility note</dt>
+            <dd className="m-0" style={{ color: "var(--vault-text-faint)" }}>{n}</dd>
+          </div>
+        ))}
+        {card.label ? (
+          <div>
+            <dt className="sr-only">Fixture</dt>
+            <dd className="m-0 font-mono uppercase" role="note" style={{ color: "var(--vault-warn)", fontSize: 10 }}>{card.label}</dd>
+          </div>
+        ) : null}
         <div>
           <dt className="sr-only">Source</dt>
           <dd className="m-0 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>

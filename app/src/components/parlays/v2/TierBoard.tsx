@@ -35,12 +35,37 @@ export interface V2Tier {
   readonly cards: readonly V2CardView[];
   readonly history: V2History | null;
 }
+/** A per-sport source state (lib/parlays/v2/nba-source.mjs nbaSourceStatus): why a sport adds no legs today. */
+export interface V2SportNote {
+  readonly sport: string;
+  readonly state: string;
+  readonly text: string;
+  readonly gates?: readonly { readonly gate: string; readonly open: boolean; readonly detail: string }[];
+}
 export interface ParlayLabV2Model {
   readonly slateDate: string;
   readonly evaluatedAt: string;
   readonly operatorSeam: { readonly state: string; readonly note: string | null };
   readonly availabilityNote: string;
+  readonly sportNotes?: readonly V2SportNote[];
   readonly tiers: readonly V2Tier[];
+}
+
+/** Sports that add no legs today, each with its reason — a stated state, never an empty card. */
+function SportNotes({ notes }: { notes: readonly V2SportNote[] }) {
+  const quiet = notes.filter((n) => n.state !== "NBA_CANDIDATES");
+  if (!quiet.length) return null;
+  return (
+    <ul className="flex flex-col gap-1 m-0 p-0 list-none" aria-label="Sports not in today's cards">
+      {quiet.map((n) => (
+        <li key={`${n.sport}|${n.state}`} role="note" data-sport-note={n.sport} data-sport-state={n.state}
+          className="rounded-[10px] px-3 py-2" style={{ border: "1px dashed var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.5 }}>
+          <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{n.sport.toUpperCase()} · </span>
+          {n.text}
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 function HistoryLine({ h }: { h: V2History }) {
@@ -134,6 +159,7 @@ export function TierBoardView({ model, slipApi, isVerifiedOperator, children }: 
         {model.operatorSeam.note ? (
           <p className="m-0" role="note" style={{ color: "var(--vault-warn)", fontSize: 12 }}>{model.operatorSeam.note}</p>
         ) : null}
+        {model.sportNotes?.length ? <SportNotes notes={model.sportNotes} /> : null}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 items-start">

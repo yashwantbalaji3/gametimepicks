@@ -21,6 +21,7 @@ import { candidatesFromMlbLadder, candidatesFromSportLadder, engineNotesFrom, pr
 import { tierHistory } from "./history.mjs";
 import { BOOK_AVAILABILITY_NOTE, isVerifiedOperator as seamPredicate } from "./operators.mjs";
 import { HANDOFF_NOT_AVAILABLE, HANDOFF_LABEL, HANDOFF_ROADMAP_NOTE } from "../../slip/smart-slip.mjs";
+import { nbaSourceStatus } from "./nba-source.mjs";
 
 const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
 
@@ -54,7 +55,10 @@ export function buildParlayLabV2Model({ dataRoot, repoRoot, date, now, isVerifie
   const ahead = pricedEventsAhead(board?.date === date ? board : null, nowMs);
   if (ahead < 2) poolNotes.push({ code: "TOO_FEW_EVENTS", detail: `MLB: ${ahead === 1 ? "1 game has" : `${ahead} games have`} prices more than 30 minutes before start; a card needs legs from at least 2 different games.` });
 
-  const rec = recommendTiers({ candidates, now, coverage: loadCommittedCoverage(repoRoot), isVerifiedOperator, engineNotes, poolNotes });
+  /* NBA: no authorized NBA price feed and the registry keeps NBA HISTORICAL_ONLY, so the NBA source contributes no
+     candidates; the board states why (nba-source.mjs nbaSourceStatus) instead of showing an empty NBA card. */
+  const sportNotes = [nbaSourceStatus()];
+  const rec = recommendTiers({ candidates, now, coverage: loadCommittedCoverage(repoRoot), isVerifiedOperator, engineNotes, poolNotes, sportNotes });
   const ledger = readJson(path.join(dataRoot, "parlays", "lab-ledger.json"));
   const history = tierHistory(readSettled(dataRoot), ledger, { sport: "mlb" });
 
@@ -65,6 +69,7 @@ export function buildParlayLabV2Model({ dataRoot, repoRoot, date, now, isVerifie
     operatorSeam: rec.operatorSeam,
     availabilityNote: BOOK_AVAILABILITY_NOTE,
     handoff: { status: HANDOFF_NOT_AVAILABLE, label: HANDOFF_LABEL, roadmap: HANDOFF_ROADMAP_NOTE },
+    sportNotes: rec.sportNotes,
     tiers: rec.tiers.map((t) => ({ ...t, history: history[t.tier] ?? null })),
     rejectedCount: rec.rejected.length,
   };

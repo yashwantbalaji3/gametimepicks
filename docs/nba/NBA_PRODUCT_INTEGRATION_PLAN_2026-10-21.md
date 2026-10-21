@@ -182,3 +182,47 @@ Nothing below may be done by an agent without the named approval. Each step's ev
 - **Q2.** Should the cross-sport correlation caps (#1141, PROPOSED) turn on when NBA joins? NBA adds many same-night legs per team.
 - **Q3.** Duplicate-market representative rule (newest capture, then book key): confirm, or choose a price-based rule under #1130's display policy.
 - **Q4.** candidate@2 additive `evaluation` block (§5) or receipts-only.
+
+## 9. Wired behind the gates (branch `claude/nba-parlay-integration`, stacked on this branch + #1141 + PR 1155)
+
+Everything below is wired through the existing exclusion points with **no flag or registry change**. Under the real
+registry NBA contributes zero legs to every product; every test that shows NBA cards uses TEST FIXTURE inputs
+(`app/src/lib/parlays/v2/__fixtures__/nba-fixtures.mjs`, `app/src/lib/products/nba/__fixtures__/permissive.mjs`),
+never anything under `app/public/data` or `data/`.
+
+**Parlay Lab V2 (four tiers).** `app/src/lib/parlays/v2/nba-source.mjs`: nba-leg legs → `dedupeMarkets` +
+`toParlayCandidateInput` → `gtp.parlay.candidate@1` (`evaluatePool`) → `composeCards` (distinct events, one exposure
+per player per card, verified two-way prices only, `BAND_MAX_LEGS`, cross-sport windows) → `recommend.mjs`
+`evaluateCard` / `recommendTiers`. With a permissive TEST registry + fixture prices every tier holds an NBA-only and
+an NBA+NFL card (NBA+UFC too). `recommend.mjs` adds three NBA leg gates: a settlement path (the NBA contract grades
+moneyline / spread / total only, so **player props are refused today even when every other gate opens**), a
+verified two-way price, and provenance (snapshot id, model version, authorization receipt, odds time). The sport gate
+and NBA settlement are injectable for tests only; under an injected gate a non-FIXTURE leg still needs the real
+registry, so injection cannot launder a real leg. `candidate.mjs` takes an optional `nbaRegistry` that admits
+FIXTURE-provenance NBA candidates only.
+
+**Same-game correlation.** `SAME_GAME_POLICY.mode = "REFUSE"`, `correlatedMethod: null`. Two legs from one NBA game
+never share a card and never get a combined price. A correlated pricing method would have to be validated and named
+there first.
+
+**Board empty state.** `/build` (flag `NEXT_PUBLIC_PARLAY_LAB_V2=1`, default off) reads `nbaSourceStatus()`:
+"NBA legs need an authorized NBA price. …" with the three gates (registry, price authorization, player-prop
+settlement), rendered as a note above the tiers, never as an empty NBA card.
+
+**Card identity for the Smart Betslip (Lane E, PR 1165).** Card legs keep `{sport, eventId, playerId, family, market,
+side, line}`; for NBA `playerId` is the providerAthleteId. `app/src/lib/slip/**` is not touched.
+
+**Bank Builder / Moonshot.** `app/src/lib/products/nba/nba-team-leg.mjs`: the official moneyline side (snapshot winner
+side, `pHome` / `pAway` copied verbatim) + an authorized two-way moneyline quote + the settlement contract →
+team leg; `nbaProductAdmission` reports four layers: leg, eligible-leg contract (real registry), frozen tier policy
+(bank-builder@1 / moonshot@2 via product-tiers.mjs, where moonshot@2 accepts a TEAM leg and still refuses a player
+leg), and the hand-set sport rule. `sport-eligibility.ts` now returns the typed code `NBA_GATED` with its three gates;
+`eligible` stays `false` (the activation PR's last switch). The NBA player-leg Bank Builder policy exists only as
+`bank-builder-nba-player@0-proposed` (`proposed-policies.mjs`, inactive, not in `SELECTION_POLICIES`).
+
+**Settlement routing.** PR 1155's `legGradingRoute` is merged in: an NBA leg is refused (`UNSUPPORTED_SPORT`), never
+graded against MLB, NFL, UFC or EPL rules. Every composed leg names its sport, so none can fall to the legacy
+MLB default.
+
+**Exposure invariant.** "INERT" became "GATED": only `nba-source.mjs`, `board-model.mjs` and the TEST FIXTURE slate
+may import the NBA product modules, and point 12 proves each refuses under the real registry.
