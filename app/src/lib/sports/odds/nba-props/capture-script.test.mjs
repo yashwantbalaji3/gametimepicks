@@ -13,9 +13,12 @@ const SCRIPT = path.join(APP, "scripts/nba/capture-nba-props-odds.mjs");
 const run = (...args) => spawnSync(process.execPath, [SCRIPT, ...args], { cwd: APP, encoding: "utf8", env: { PATH: process.env.PATH } });
 const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 
-test("the script holds no HTTP client, no key read and no provider host", () => {
+test("the script makes no HTTP call itself and names no provider host; the key is read only after the receipt, with --apply", () => {
   const src = strip(fs.readFileSync(SCRIPT, "utf8"));
-  assert.doesNotMatch(src, /\bfetch\s*\(|node:https?|axios|undici|XMLHttpRequest|ODDS_API_KEY|api\.the-odds-api\.com|https?:\/\//);
+  assert.doesNotMatch(src, /\bfetch\s*\(|node:https?|axios|undici|XMLHttpRequest|api\.the-odds-api\.com|https?:\/\//);
+  const keyAt = src.indexOf("ODDS_API_KEY");
+  assert.ok(keyAt > src.indexOf("parseNbaPropsReceipt(receiptText"), "the key is read after the receipt parses");
+  assert.match(src.slice(keyAt - 80, keyAt), /has\("--apply"\)/, "and only when --apply is given");
 });
 
 test("dry run: prints a points-first plan with zero network calls and a documented worst case", () => {
