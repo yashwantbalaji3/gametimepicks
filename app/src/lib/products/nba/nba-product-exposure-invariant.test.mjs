@@ -179,6 +179,21 @@ const GATED_IMPORTERS = Object.freeze([
   "src/lib/parlays/v2/__fixtures__/nba-fixtures.mjs", // TEST FIXTURE slate
 ]);
 
+/** The NBA product modules themselves (reviewed list; folder membership admits nothing). */
+const NBA_PRODUCT_MODULES = Object.freeze([
+  "src/lib/products/nba/cross-sport.mjs",
+  "src/lib/products/nba/nba-leg.mjs",
+  "src/lib/products/nba/nba-team-leg.mjs",
+  "src/lib/products/nba/product-tiers.mjs",
+  "src/lib/products/nba/proposed-policies.mjs",
+]);
+
+test("every non-test module in products/nba/ is on the reviewed NBA_PRODUCT_MODULES list", () => {
+  const dir = path.join(APP, "src/lib/products/nba");
+  const mods = fs.readdirSync(dir).filter((f) => f.endsWith(".mjs") && !f.endsWith(".test.mjs")).map((f) => `src/lib/products/nba/${f}`).sort();
+  assert.deepEqual(mods, [...NBA_PRODUCT_MODULES].sort(), "a new NBA product module must be added to the reviewed list");
+});
+
 test("the NBA product modules are GATED: only the listed importers (and the NBA modules / their tests) import them", () => {
   let hits = "";
   try {
@@ -187,7 +202,9 @@ test("the NBA product modules are GATED: only the listed importers (and the NBA 
     hits = execFileSync("git", ["grep", "--untracked", "-l", "-E", IMPORT, "--", "src", "scripts"], { cwd: APP, encoding: "utf8" });
   } catch (e) { hits = e.status === 1 ? "" : String(e.stdout ?? ""); }
   const importers = hits.split("\n").filter(Boolean)
-    .filter((f) => !/^src\/lib\/products\/nba\//.test(f))
+    // inside products/nba/ only the EXPLICIT modules (and tests / fixtures) may import each other — a new module there
+    // must be added to NBA_PRODUCT_MODULES in a reviewed change, never admitted by its folder
+    .filter((f) => !NBA_PRODUCT_MODULES.includes(f) && !/^src\/lib\/products\/nba\/(.+\.test\.mjs|__fixtures__\/.+)$/.test(f))
     .filter((f) => !/^src\/lib\/parlays\/v2\/nba-[^/]+\.test\.mjs$/.test(f))
     .filter((f) => !GATED_IMPORTERS.includes(f));
   assert.deepEqual(importers, [], "a build/page/script imports the NBA product adapter outside the gated list — activation must follow the plan");
