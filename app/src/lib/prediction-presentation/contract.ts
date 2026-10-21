@@ -24,6 +24,8 @@
  * zero and never a current price standing in for the price at publication.
  */
 
+import { isEligibleProvider } from "../sports/odds/eligible-operators.mjs";
+
 /** A sport key, as the capability registry spells it. */
 export type PresentationSport = "nfl" | "mlb" | "epl" | "ufc";
 
@@ -56,7 +58,10 @@ export type MarketState =
   | "NOT_OFFERED"
   | "NOT_PROBED"
   | "IDENTITY_UNRESOLVED"
-  | "UNSUPPORTED";
+  | "UNSUPPORTED"
+  /* eligible-operators@1: a real capture exists, but from a book outside the eligible-operator allowlist. The
+     loader replaced it with `{ sportsbook: null, bookWithheld }`, so no book, line or price reaches the page. */
+  | "INELIGIBLE_BOOK";
 
 /** American odds, kept as the integer the book published (+125, -110). Never derived, never rounded. */
 export type AmericanOdds = number;
@@ -108,6 +113,7 @@ const MARKET_NOTE: Record<Exclude<MarketState, "FROZEN_CAPTURE">, string> = {
   NOT_PROBED: "We have not checked the sportsbooks for this market, so we are not showing a price we do not hold.",
   IDENTITY_UNRESOLVED: "A sportsbook does price this market, but we could not match it to this player with enough confidence to show it. That is our limitation, not the sportsbook's.",
   UNSUPPORTED: "This kind of prediction has no sportsbook market to sit beside it.",
+  INELIGIBLE_BOOK: "The price we captured came from a sportsbook we do not show, so no price is printed here.",
 };
 
 /**
@@ -126,6 +132,23 @@ export function marketFromPricingState(pricingState: string | null | undefined):
           : s === "UNSUPPORTED" ? "UNSUPPORTED"
             : "NOT_PROBED";
   return { state, note: MARKET_NOTE[state as Exclude<MarketState, "FROZEN_CAPTURE">] };
+}
+
+/**
+ * An artifact's captured-offer slot → the market cell, with the eligible-operator policy applied ONCE here for
+ * every NFL surface (weekly boards, the Vault, the game report's player board).
+ *
+ * A slot the loader already withheld (`bookWithheld`), or one whose book is not eligible (fail-closed, in case a
+ * reader skipped the loader sanitiser), becomes INELIGIBLE_BOOK — never a priced cell and never a false
+ * "not probed". No offer at all falls through to the owner's typed absence, exactly as before.
+ */
+export function marketFromCapturedOffer(
+  offer: (Omit<Partial<FrozenMarket>, "sportsbook"> & { sportsbook?: string | null; bookWithheld?: string | null }) | null | undefined,
+  pricingState: string | null | undefined,
+): MarketSnapshot {
+  if (!offer) return marketFromPricingState(pricingState);
+  if (offer.bookWithheld || !isEligibleProvider(offer.sportsbook)) return { state: "INELIGIBLE_BOOK", note: MARKET_NOTE.INELIGIBLE_BOOK };
+  return marketFromFrozenCapture(offer as FrozenMarket);
 }
 
 /** A frozen capture, from a real owner. The only path that produces numbers. */

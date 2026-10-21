@@ -33,7 +33,7 @@ import type {
   PredictionKind,
   PredictionPresentation,
 } from "./contract";
-import { marketFromFrozenCapture, marketFromPricingState } from "./contract";
+import { marketFromCapturedOffer } from "./contract";
 
 /**
  * ESPN athlete id out of the canonical player key ("nfl-athlete-4430807" -> 4430807).
@@ -171,7 +171,7 @@ export function presentWeeklyBoardRow(
     player,
     game,
     /* A captured price wins over a typed absence; an absence is never rendered as a price. */
-    market: row.market ? marketFromFrozenCapture(row.market) : marketFromPricingState(row.pricingState),
+    market: marketFromCapturedOffer(row.market, row.pricingState),
     model,
   };
 }
@@ -203,7 +203,7 @@ export interface VaultCandidate {
    * ⚠ IT WAS THE LITERAL `null` UNTIL 2026-09-24, and nothing here could tell that apart from a
    * genuine absence — which is why the branch below used to hardcode one.
    */
-  marketPrice?: { yesOdds?: number; sportsbook?: string; capturedAt?: string } | null;
+  marketPrice?: { yesOdds?: number; sportsbook?: string | null; capturedAt?: string; bookWithheld?: string | null } | null;
   /** The producer's typed absence for a row with no price. Null when a price IS held; never both. */
   pricingState?: string | null;
 }
@@ -238,11 +238,14 @@ export function presentVaultCandidate(
    * stays the least-claiming state rather than the most convenient one: with no typed state on the
    * row we do not know that we asked, so `marketFromPricingState` resolves it to NOT_PROBED.
    */
+  /* O-7 (eligible-operators@1): a slot the loader withheld, or one from an ineligible book, is INELIGIBLE_BOOK —
+     never the book's price and never a false "not probed". An incomplete slot (no book or no instant) is still
+     treated as no price, exactly as before. */
   const price = c.marketPrice;
   const market =
-    price && price.sportsbook && price.capturedAt
-      ? marketFromFrozenCapture({ yesOdds: price.yesOdds, sportsbook: price.sportsbook, capturedAt: price.capturedAt })
-      : marketFromPricingState(c.pricingState);
+    price && (price.bookWithheld || (price.sportsbook && price.capturedAt))
+      ? marketFromCapturedOffer({ yesOdds: price.yesOdds, sportsbook: price.sportsbook, capturedAt: price.capturedAt, bookWithheld: price.bookWithheld }, c.pricingState)
+      : marketFromCapturedOffer(null, c.pricingState);
 
   return {
     sport: "nfl",
@@ -278,7 +281,7 @@ export interface PlayerBoardMarket {
   p90?: number;
   probability?: number;
   /** A real captured price for this player, family and event. Never present beside `pricingState`. */
-  market?: { line?: number; overOdds?: number; underOdds?: number; yesOdds?: number; sportsbook: string; capturedAt: string };
+  market?: { line?: number; overOdds?: number; underOdds?: number; yesOdds?: number; sportsbook: string | null; capturedAt?: string; bookWithheld?: string | null };
   /** The producer's typed absence. Never present beside `market`. */
   pricingState?: string;
 }
@@ -437,7 +440,7 @@ export function presentPlayerBoardRow(
       participation: player.participation,
     },
     /* A captured price wins over a typed absence, and the two never coexist on a producer row. */
-    market: m.market ? marketFromFrozenCapture(m.market) : marketFromPricingState(m.pricingState),
+    market: marketFromCapturedOffer(m.market, m.pricingState),
     model: {
       kind: family.kind,
       ...(family.kind === "PROBABILITY"

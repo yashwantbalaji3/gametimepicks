@@ -75,11 +75,13 @@ function TopList({ props, n }: { props: BoardProp[]; n: number }) {
   );
 }
 
-export default function MlbFlagshipSections({ props, games, teamRows, homerBoard, homerRecord, simHref, isTodaysSlate = true, slateDate }: {
+export default function MlbFlagshipSections({ props, notShown, games, teamRows, homerBoard, homerRecord, simHref, isTodaysSlate = true, slateDate }: {
   /** The selected period governs every "today" in this tree (P241 · A11). */
   isTodaysSlate?: boolean;
   slateDate?: string;
   props: BoardProp[];
+  /** Offers withheld because an ineligible operator priced them (lib/mlb/mlb-props countIneligibleMlbProps). */
+  notShown?: { batter: number; pitchers: number };
   games: ExplorerGame[];
   teamRows: readonly TeamMarketRow[];
   homerBoard: HomerNukesBoard | null;
@@ -129,11 +131,11 @@ export default function MlbFlagshipSections({ props, games, teamRows, homerBoard
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 items-start">
         <SectionCard id="mlb-player-props" tag="Batters" title="Batter props" sub="Hits · total bases · hits+runs+RBIs, filterable.">
-          {batter.length ? <MlbPropsBoard props={batter} dense initialRows={10} /> : <GatedSlot label="Batter props post when MLB markets are live" />}
+          {batter.length ? <MlbPropsBoard props={batter} dense initialRows={10} notShownIneligible={notShown?.batter ?? 0} /> : <GatedSlot label="Batter props post when MLB markets are live" />}
         </SectionCard>
 
         <SectionCard id="mlb-pitcher-props" tag="Pitchers" title="Pitcher props" sub="Strikeouts · outs recorded · earned runs, same filters.">
-          {pitchers.length ? <MlbPropsBoard props={pitchers} dense initialRows={10} /> : <GatedSlot label="Pitcher props post when MLB markets are live" />}
+          {pitchers.length ? <MlbPropsBoard props={pitchers} dense initialRows={10} notShownIneligible={notShown?.pitchers ?? 0} /> : <GatedSlot label="Pitcher props post when MLB markets are live" />}
         </SectionCard>
 
         <SectionCard id="mlb-team-props" tag="Teams" title="Team markets" sub="Win probability, run line and total for every game — de-vigged.">

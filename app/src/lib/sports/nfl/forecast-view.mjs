@@ -21,6 +21,7 @@
  */
 
 import { PUBLIC_BOARD_CLEARED } from "./board-ranking.mjs";
+import { isWithheldOffer, sanitizeOffer } from "../odds/public-offer-sanitizer.mjs";
 
 export const NFL_FORECAST_VIEW_VERSION = 1;
 
@@ -67,9 +68,14 @@ export const MARKET_KEY = Object.freeze({ passingYards: "player_pass_yds", rushi
  * ONE MARKET TRUTH: a sportsbook price captured for (event, player, market) is shown beside whichever model's
  * projection the page shows for it — the same book, line and prices as every other page, read from the player board
  * artifact that holds the capture. A market is a market, not a model output; it never changes the projection.
+ *
+ * O-7 (eligible-operators@1): the slot passes the SAME sanitiser the loaders use, so a capture from a book outside
+ * the allowlist reaches PlayerRow as `{ sportsbook: null, bookWithheld }` — no book, line or price — even if a caller
+ * handed this an unsanitised board.
  */
 const capturedMarket = (board, playerId, fam) => {
-  const m = board?.players?.find((p) => p.playerId === playerId)?.markets?.[MARKET_KEY[fam]]?.market;
+  const m = sanitizeOffer(board?.players?.find((p) => p.playerId === playerId)?.markets?.[MARKET_KEY[fam]]?.market);
+  if (isWithheldOffer(m)) return m;
   return m ? { sportsbook: m.sportsbook, line: m.line ?? null, overOdds: m.overOdds ?? null, underOdds: m.underOdds ?? null, yesOdds: m.yesOdds ?? null, capturedAt: m.capturedAt ?? null } : null;
 };
 

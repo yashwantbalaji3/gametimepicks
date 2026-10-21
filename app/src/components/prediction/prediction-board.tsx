@@ -26,6 +26,7 @@ import Link from "next/link";
 import PlayerAvatar from "@/components/player-avatar";
 import type { MarketSnapshot, ModelForecast, PredictionPresentation } from "@/lib/prediction-presentation/contract";
 import { RAIL_STATE, railGeometry, railStateOf } from "@/lib/live/tracked-prediction.mjs";
+import { BOOK_AVAILABILITY_NOTE, isEligibleOperator } from "@/lib/sports/odds/eligible-operators.mjs";
 
 /** ET, once, for every surface that renders a prediction. */
 export const etStart = (iso: string) =>
@@ -112,7 +113,15 @@ const MARKET_SHORT: Record<string, string> = {
      limitation it is; the cell says enough that a reader does not read it as the books'. */
   IDENTITY_UNRESOLVED: "Not matched to this player",
   UNSUPPORTED: "n/a",
+  /* ⚠ A REAL CAPTURE WE WILL NOT SHOW. The frozen price came from a book outside the eligible-operator
+     allowlist (an offshore operator with no US licence). The capture stays in the record untouched; the
+     page names no such book and prints none of its numbers. */
+  INELIGIBLE_BOOK: "Price not shown",
 };
+
+/** A frozen capture the page may show: it exists AND its book is an eligible operator (fail-closed). */
+const shownFrozen = (market: MarketSnapshot) =>
+  market.state === "FROZEN_CAPTURE" && market.frozen && isEligibleOperator(market.frozen.sportsbook) ? market.frozen : null;
 
 /**
  * A sportsbook's own name, as a reader would recognise it. The provider's key is a slug
@@ -169,8 +178,11 @@ const capturedAtLabel = (iso: string) => {
  * book's own spelling, which is also how the row in the brief reads.
  */
 function MarketCell({ market }: { market: MarketSnapshot }) {
-  if (market.state === "FROZEN_CAPTURE" && market.frozen) {
-    const f = market.frozen;
+  const f = shownFrozen(market);
+  if (market.state === "FROZEN_CAPTURE" && market.frozen && !f) {
+    return <span className="gtp-pred-absent">{MARKET_SHORT.INELIGIBLE_BOOK}</span>;
+  }
+  if (f) {
     return (
       <>
         <span className="gtp-pred-book font-mono uppercase tracking-[0.08em]">{bookName(f.sportsbook)}</span>
@@ -255,7 +267,8 @@ function ProgressRail({ live, market, model }: {
 
   /* A PURCHASED line is the target when one exists; otherwise the top of the model's band. The
      distinction matters and is already spoken on the row — this only decides what to draw against. */
-  const frozenLine = market.state === "FROZEN_CAPTURE" ? market.frozen?.line ?? null : null;
+  /* An ineligible book's line is not drawn against either — the rail falls back to the model's band. */
+  const frozenLine = shownFrozen(market)?.line ?? null;
   const target = typeof frozenLine === "number" ? frozenLine : model.p90 ?? null;
   if (typeof target !== "number" || target <= 0) return null;
 
@@ -268,7 +281,7 @@ function ProgressRail({ live, market, model }: {
       line: frozenLine,
       modelPrediction: model.predictedValue ?? null,
       modelRange: { low: model.p10 ?? null, high: model.p90 ?? null },
-      capturedAt: market.state === "FROZEN_CAPTURE" ? market.frozen?.capturedAt ?? null : null,
+      capturedAt: shownFrozen(market)?.capturedAt ?? null,
     },
     live: { measurementState: "MEASURED", currentValue: value },
     /* ⚠ THREE FINALITIES, NOT TWO. The first cut collapsed provider-FINAL into NOT_FINAL, so a
@@ -513,6 +526,9 @@ export function PredictionBoard({
         })}
       </ol>
       {sharedNote ? <p className="gtp-pred-note">{sharedNote}</p> : null}
+      {/* The allowlist means "licensed in at least one US jurisdiction", not "available where you are" — so a
+          board that names a book says so, once, beneath it. A board naming no book carries no such line. */}
+      {predictions.some((p) => shownFrozen(p.market)) ? <p className="gtp-pred-note" data-book-availability>{BOOK_AVAILABILITY_NOTE}</p> : null}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import TeamLogo from "@/components/team-logo";
 import AddToSlip from "@/components/slip/add-to-slip";
 import { tierFromProb, homerTierFromProb, tierMeta, type ConfTier } from "@/lib/mlb/confidence";
 import { SEARCH_PLAYERS_OR_TEAMS, SEARCH_PLAYERS_OR_TEAMS_LABEL } from "@/lib/ui/search-labels";
+import { BOOK_AVAILABILITY_NOTE } from "@/lib/sports/odds/eligible-operators.mjs";
 
 export interface BoardProp {
   player: string;
@@ -66,7 +67,7 @@ const CONFS: Array<{ key: string; label: string }> = [
 
 const selStyle = { background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)", border: "1px solid var(--vault-border)", color: "var(--vault-text)" } as const;
 
-export default function MlbPropsBoard({ props, dense = false, initialRows = 12 }: {
+export default function MlbPropsBoard({ props, dense = false, initialRows = 12, notShownIneligible = 0 }: {
   props: BoardProp[];
   /*
    * DENSE = this board is inside a narrow column, not across the page.
@@ -80,6 +81,8 @@ export default function MlbPropsBoard({ props, dense = false, initialRows = 12 }
   dense?: boolean;
   /** Rows shown before "show more". 150 batter props in a column is not a list, it is a scroll. */
   initialRows?: number;
+  /** Offers withheld because an unsupported sportsbook (outside the eligible-operator allowlist) priced them — stated, never silent. */
+  notShownIneligible?: number;
 }) {
   const [market, setMarket] = useState("all");
   const [expanded, setExpanded] = useState(false);
@@ -154,6 +157,8 @@ export default function MlbPropsBoard({ props, dense = false, initialRows = 12 }
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
             {rows.length} shown
+            {notShownIneligible > 0 ? <span> · {`${notShownIneligible} unsupported sportsbook offer${notShownIneligible > 1 ? "s" : ""} not shown`}</span> : null}
+            {rows.length ? <span data-book-availability> · {BOOK_AVAILABILITY_NOTE}</span> : null}
             {chips.length ? <span style={{ color: "var(--gtp-bank-heat)" }}> · {chips.length} filter{chips.length > 1 ? "s" : ""}</span> : null}
           </span>
           {chips.map((c) => (
