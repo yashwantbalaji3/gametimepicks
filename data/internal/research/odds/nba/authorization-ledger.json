@@ -1,0 +1,58 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nba-odds-authorization-ledger",
+ "dataClass": "PRIVATE_RESEARCH",
+ "sport": "nba",
+ "program": "NBA",
+ "receiptPath": "docs/receipts/ODDS_AUTHORIZATION_NBA_POINTS_PILOT_2026-10-21.md",
+ "openingBalance": null,
+ "requests": [
+  {
+   "at": "2026-10-21T22:20:24Z",
+   "purpose": "nba props · events listing (free)",
+   "endpoint": "/sports/basketball_nba/events",
+   "events": null,
+   "markets": null,
+   "regions": null,
+   "status": 200,
+   "resultClass": "OK",
+   "fingerprint": null,
+   "creditsUsed": 0,
+   "providerRequestsUsed": 1810,
+   "providerRequestsRemaining": 18190
+  },
+  {
+   "at": "2026-10-21T22:20:24Z",
+   "purpose": "nba props · 401909835",
+   "endpoint": "/sports/basketball_nba/events/{id}/odds",
+   "events": 1,
+   "markets": [
+    "player_points"
+   ],
+   "regions": null,
+   "status": 200,
+   "resultClass": "OK",
+   "fingerprint": "nba|164cc0396837d5ff433215ffd3279283|player_points|betmgm,betparx,betrivers,caesars,draftkings,espnbet,fanatics,fanduel,williamhill_us",
+   "creditsUsed": 1,
+   "providerRequestsUsed": 1811,
+   "providerRequestsRemaining": 18189
+  },
+  {
+   "at": "2026-10-21T22:20:24Z",
+   "purpose": "nba props · 401909834",
+   "endpoint": "/sports/basketball_nba/events/{id}/odds",
+   "events": 1,
+   "markets": [
+    "player_points"
+   ],
+   "regions": null,
+   "status": 200,
+   "resultClass": "OK",
+   "fingerprint": "nba|85e6e4e2404ef7268659739997758da1|player_points|betmgm,betparx,betrivers,caesars,draftkings,espnbet,fanatics,fanduel,williamhill_us",
+   "creditsUsed": 1,
+   "providerRequestsUsed": 1812,
+   "providerRequestsRemaining": 18188
+  }
+ ],
+ "cumulativeCredits": 2
+}
