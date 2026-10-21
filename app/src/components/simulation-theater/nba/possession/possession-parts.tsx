@@ -13,7 +13,7 @@ import type { PbOfficial, PbPayload, PbRun } from "./possession-types";
 import { BOX_COLUMNS, fmtMinutes } from "@/lib/simulation-theater/nba/possession/box.mjs";
 import { fmtClockDs, periodLabel } from "@/lib/simulation-theater/nba/possession/playback.mjs";
 import {
-  DEFAULT_RUN_SUBTITLE, DEFAULT_RUN_TAG, DEFAULT_RUN_TITLE, ENGINE_NOTE, ROLE_B_LABEL, ROLE_C_LABEL, ROLE_C_NOTE, OFFICIAL_PANEL_NOTE, OFFICIAL_PANEL_TITLE, OUTCOME_PANEL_TITLE, POSSESSION_BANNER,
+  DEFAULT_RUN_SUBTITLE, DEFAULT_RUN_TAG, DEFAULT_RUN_TITLE, ENGINE_NOTE, INPUTS_AS_OF_NOTE, ROLE_C_LABEL, ROLE_C_NOTE, OFFICIAL_PANEL_NOTE, OFFICIAL_PANEL_TITLE, OUTCOME_PANEL_TITLE, POSSESSION_BANNER,
   POSSESSION_NOT_MODELLED, WHAT_IF_BANNER, WHAT_IF_TAG, WHAT_IS_REAL, WITHHELD,
 } from "@/lib/simulation-theater/nba/possession/labels.mjs";
 
@@ -357,7 +357,7 @@ export function EngineFacts({ payload }: { payload: PbPayload }) {
       <p className="nbp-note">{ENGINE_NOTE}</p>
       <dl className="nbp-kv" style={{ marginTop: 8 }}>
         <dt>Engine</dt><dd>{e.label}</dd>
-        <dt>Inputs as of</dt><dd>{fmtUtc(e.inputAsOf)} (before tip; the same as-of inputs the {ROLE_B_LABEL} used)</dd>
+        <dt>Inputs as of</dt><dd>{fmtUtc(e.inputAsOf)} ({INPUTS_AS_OF_NOTE})</dd>
         <dt>Seed pool</dt><dd>{e.poolSize.toLocaleString("en-US")} seeded runs, {e.poolChecked?.toLocaleString("en-US") ?? "—"} checked, {e.poolViolations ?? "—"} invariant violations</dd>
         <dt>Checks</dt><dd>{e.checker}</dd>
       </dl>

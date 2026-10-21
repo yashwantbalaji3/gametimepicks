@@ -237,3 +237,16 @@ test("founder UX scope: on court now (five per team, from the event log), player
   }
 });
 
+test("inputs-as-of disclosure (release owner 2026-10-21, identical cutoffs): the official freeze, never a claim about v1's inputs", () => {
+  assert.equal(LABELS.INPUTS_AS_OF_NOTE, "the official forecast's freeze for this game: the replay has no later information than the official forecast had");
+  for (const load of LOADS) {
+    for (const kind of [null, "upset"]) {
+      const t = text(render(load, kind));
+      assert.match(t, /Inputs as of \d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC \(the official forecast's freeze for this game: the replay has no later information than the official forecast had\)/, `${load.payload?.eventId}: the freeze line`);
+      assert.doesNotMatch(t, /same as-of inputs|inputs the NBA v1|v1 Challenger \(evaluation only\) used/i, "the retired v1-inputs claim never appears");
+    }
+  }
+  // the instant printed is the official freeze recorded with the runs
+  for (const load of LOADS) assert.equal(load.payload.engine.inputAsOf, load.payload.official.frozenAt.replace(/\.000Z$/, "Z"));
+});
+
