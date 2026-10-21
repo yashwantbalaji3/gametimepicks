@@ -359,12 +359,12 @@ test("public loader: same payload as the full loader (byte-identical), reading o
   const { loadPublicPossessionTheater, publicPossessionEvents } = await import("./public-loader.mjs");
   for (const id of IDS) {
     const full = loadNbaPossessionTheater(REPO, id);
-    const pub = loadPublicPossessionTheater(REPO, id);
+    const pub = loadPublicPossessionTheater(REPO, id, { date: DATE });
     assert.equal(pub.ok, true, JSON.stringify(pub.error));
     assert.equal(JSON.stringify(pub.payload), JSON.stringify(full.payload), `${id}: public payload ≠ full payload`);
     assert.equal(JSON.stringify(pub.palettes), JSON.stringify(full.palettes));
   }
-  assert.deepEqual(publicPossessionEvents(REPO), IDS);
+  assert.deepEqual(publicPossessionEvents(REPO, { date: DATE, now: `${DATE}T15:00:00Z` }), IDS, "the slate's own day publishes every game");
   const drift = clone(DOC);
   drift.games[0].official.panel.favouredSide = "AWAY";
   assert.equal(loadNbaPossessionTheater(REPO, IDS[0], { read: { file: "x", doc: drift } }).error.code, "OFFICIAL_PANEL_DRIFT");
@@ -384,11 +384,25 @@ test("G2 (founder decision 2026-10-21): every game the public route would publis
   assert.equal(NBA_THEATER_REPLAY_ENGINE.id, POSSESSION_ENGINE_ID);
   assert.equal(NBA_THEATER_REPLAY_ENGINE.label, ROLE_C_LABEL, "the gate's engine label is the page's label");
   const audit = runConsistencyAudit({ repoRoot: REPO });
-  const ids = publicPossessionEvents(REPO);
+  const ids = publicPossessionEvents(REPO, { date: DATE, now: `${DATE}T15:00:00Z` });
   assert.ok(ids.length > 0);
   for (const id of ids) {
     const g = theaterActivationGate("NBA", id, { audit, repoRoot: REPO });
     assert.equal(g.open, true, `${id}: ${JSON.stringify(g.blockers.map((b) => b.code))}`);
   }
+});
+
+test("current slate (release owner 2026-10-21): the public route follows the build's ET date; a past slate never publishes; the cap is the slate size", async () => {
+  const { publicPossessionEvents, publicTheaterSlate, slateIsCurrent, MAX_PUBLIC_EVENTS } = await import("./public-loader.mjs");
+  const { MAX_PUBLIC_THEATER_PARAMS } = await import("./public-route.mjs");
+  assert.equal(MAX_PUBLIC_EVENTS, 15);
+  assert.equal(MAX_PUBLIC_THEATER_PARAMS, 15);
+  assert.equal(publicTheaterSlate("2026-10-21T03:30:00Z"), "2026-10-20", "a 03:30Z build is still the previous ET evening");
+  assert.equal(publicTheaterSlate("2026-10-21T15:00:00Z"), "2026-10-21");
+  assert.equal(slateIsCurrent(DATE, `${DATE}T23:59:00Z`), true);
+  assert.equal(slateIsCurrent(DATE, "2026-10-21T15:00:00Z"), false, "the next ET day hides it");
+  assert.deepEqual(publicPossessionEvents(REPO, { now: "2026-10-21T15:00:00Z", date: DATE }), [], "a past slate is never published as current");
+  assert.deepEqual(publicPossessionEvents(REPO, { now: `${DATE}T15:00:00Z` }), IDS, "the default date is the build's slate");
+  assert.deepEqual(publicPossessionEvents(REPO, { now: "2026-10-23T15:00:00Z" }), [], "no artifact for the day → nothing (placeholder 404)");
 });
 

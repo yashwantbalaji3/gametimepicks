@@ -15,18 +15,26 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { buildPlaybackPayload } from "./payload.mjs";
-import { readPossessionArtifact, replayGateProblems, sideConstraintProblem, validatedGame } from "./stored-run.mjs";
+import { etDateOf, readPossessionArtifact, replayGateProblems, sideConstraintProblem, validatedGame } from "./stored-run.mjs";
 import { NBA_THEATER_REPLAY_ENGINE } from "../../../consistency/theater-gate-policy.mjs";
 import { nbaPalette } from "../nba-team-colors.mjs";
 
-export const PUBLIC_THEATER_DATE = "2026-10-20";
-export const MAX_PUBLIC_EVENTS = 3;
+/**
+ * THE CURRENT SLATE (release owner 2026-10-21): the public route follows the build's ET date, as the /nba lane does
+ * (experimental-public-lane.mjs laneIsCurrent) — a past slate's artifact is never published as current. The possession
+ * runs are built per game at its official freeze by the nba-forecast-window tick (build-theater-possession-runs.mjs
+ * --incremental), so the day's artifact grows as games freeze. Every game of the slate may publish (NBA: ≤ 15 a night).
+ */
+export const MAX_PUBLIC_EVENTS = 15;
+export const publicTheaterSlate = (now = new Date()) => etDateOf(now instanceof Date ? now.toISOString() : now);
+/** A slate date is publishable only while it is the build's ET date or later (never a past slate). */
+export const slateIsCurrent = (date, now = new Date()) => Boolean(date) && date >= publicTheaterSlate(now);
 const COLORS = "app/src/lib/simulation-theater/nba/nba-team-colors.json";
 
 const fail = (eventId, code, reason) => ({ eventId: String(eventId), ok: false, error: { code, reason }, payload: null, palettes: null });
 const readColors = (repoRoot) => { try { return JSON.parse(fs.readFileSync(path.join(repoRoot, COLORS), "utf8")); } catch { return null; } };
 
-export function loadPublicPossessionTheater(repoRoot, eventId, { date = PUBLIC_THEATER_DATE, read = null } = {}) {
+export function loadPublicPossessionTheater(repoRoot, eventId, { date = publicTheaterSlate(), read = null } = {}) {
   const id = String(eventId);
   const r = read ?? readPossessionArtifact(repoRoot, date);
   const v = validatedGame(r, id);
@@ -50,9 +58,10 @@ export function loadPublicPossessionTheater(repoRoot, eventId, { date = PUBLIC_T
   };
 }
 
-export function publicPossessionEvents(repoRoot, { date = PUBLIC_THEATER_DATE } = {}) {
+export function publicPossessionEvents(repoRoot, { now = new Date(), date = publicTheaterSlate(now) } = {}) {
+  if (!slateIsCurrent(date, now)) return [];
   const a = readPossessionArtifact(repoRoot, date);
-  if (!a.doc) return [];
+  if (!a.doc || a.doc.date !== date) return [];
   return (a.doc.games ?? []).map((g) => String(g.providerEventId)).filter((x) => /^[0-9A-Za-z_-]+$/.test(x))
     .filter((x) => loadPublicPossessionTheater(repoRoot, x, { date, read: a }).ok).slice(0, MAX_PUBLIC_EVENTS);
 }

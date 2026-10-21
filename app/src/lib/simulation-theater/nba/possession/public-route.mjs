@@ -16,7 +16,7 @@ import { NBA_THEATER_PUBLIC_ENABLED, NBA_THEATER_PUBLIC_ENV } from "../feature-m
 
 export const NBA_PUBLIC_THEATER_ROUTE = "nba/simulation";
 export const NBA_PUBLIC_THEATER_PLACEHOLDER = "nba-theater-disabled";
-export const MAX_PUBLIC_THEATER_PARAMS = 3;
+export const MAX_PUBLIC_THEATER_PARAMS = 15; // the slate size (NBA: ≤ 15 games a night; release owner 2026-10-21)
 
 /** Both acts: the governance constant AND the build flag. */
 export function nbaPublicTheaterOn({ constantEnabled = NBA_THEATER_PUBLIC_ENABLED, env = typeof process !== "undefined" ? process.env : {} } = {}) {
