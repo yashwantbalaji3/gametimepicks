@@ -85,8 +85,16 @@ export const NBA_PRODUCT_TIERS = Object.freeze({
   "parlay-lab-longshot": lab("longshot"),
 });
 
-/** Today's NBA settlement contract grades team markets only; no player-prop grader exists. Injectable for tests. */
+/** The NBA TEAM settlement contract's markets. A player family needs forward-graded evidence (nbaSettlesFamilyWith). */
 export const nbaSettlesFamily = (family) => NBA_SETTLED_MARKETS.includes(family);
+/**
+ * Team markets, plus player-prop families the forward shadow ledger shows GRADED
+ * (sports/nba/prop-settlement-readiness.mjs readyFamilies). With no families passed, identical to nbaSettlesFamily.
+ */
+export const nbaSettlesFamilyWith = (readyFamilies = []) => {
+  const ready = new Set(readyFamilies ?? []);
+  return (family) => nbaSettlesFamily(family) || ready.has(family);
+};
 
 /**
  * One tier's view of one leg. The leg is held by reference (frozen) — never copied, edited or re-evaluated.

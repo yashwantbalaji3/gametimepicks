@@ -28,14 +28,14 @@
  * operator allowlist and NBA settlement path; every leg produced that way is provenance FIXTURE and every card holding
  * one carries the FIXTURE label. Under the real registry nba-leg.mjs refuses every leg before this module sees one.
  */
-import { NBA_FAMILY_MARKET_KEY, checkCrossSportCard, dedupeMarkets, toParlayCandidateInput } from "../../products/nba/cross-sport.mjs";
+import { checkCrossSportCard, dedupeMarkets, toParlayCandidateInput } from "../../products/nba/cross-sport.mjs";
 import { PROVENANCE as NBA_LEG_PROVENANCE } from "../../products/nba/nba-leg.mjs";
 import { canEnterPredictionProducts, capabilityState } from "../../sport-capability-registry.ts";
 import { PUBLIC_RISK_TIERS, getRiskBucketForCombinedOdds } from "../risk-odds-bands.mjs";
 import { BAND_MAX_LEGS } from "../multi-sport.mjs";
 import { ELIGIBILITY, PROVENANCE, candidateKey, checkCombination, evaluatePool, toCandidate } from "./candidate.mjs";
 import { combinedPrice } from "./pricing.mjs";
-import { evaluateCard, nbaContractSettles, recommendCtx, recommendTiers } from "./recommend.mjs";
+import { evaluateCard, recommendCtx, recommendTiers } from "./recommend.mjs";
 
 export const NBA_SOURCE_VERSION = "parlay-lab-v2-nba-source@0";
 
@@ -221,11 +221,17 @@ export function composeCards({ candidates, now, ctx, requireComposition = (legs)
  * "NBA legs need an authorized NBA price" — never an empty, unexplained card.
  * @param {{ candidates?: number, priceFeedAuthorized?: boolean, registryOpen?: boolean }} [s]
  */
-export function nbaSourceStatus({ candidates = 0, priceFeedAuthorized = false, registryOpen = canEnterPredictionProducts("nba") } = {}) {
+export function nbaSourceStatus({ candidates = 0, priceFeedAuthorized = false, registryOpen = canEnterPredictionProducts("nba"), propReadyFamilies = [] } = {}) {
   const gates = [
     { gate: "registry", open: registryOpen, detail: `NBA capability state ${capabilityState("nba")}` },
     { gate: "price authorization", open: priceFeedAuthorized, detail: priceFeedAuthorized ? "an authorized NBA price feed is connected" : "no NBA price feed is authorized" },
-    { gate: "player-prop settlement", open: nbaContractSettles({ market: NBA_FAMILY_MARKET_KEY.pts }), detail: "the NBA settlement contract grades moneyline, point spread and total points only" },
+    {
+      gate: "player-prop settlement",
+      open: propReadyFamilies.length > 0,
+      detail: propReadyFamilies.length > 0
+        ? `graded forward in the shadow ledger: ${[...propReadyFamilies].sort().join(", ")}`
+        : "the player-prop grader exists and the lab settler routes NBA legs to it; no family is graded forward yet",
+    },
   ];
   if (candidates > 0) return { sport: "nba", state: NBA_SOURCE_STATE.CANDIDATES, text: `${candidates} NBA legs passed every gate.`, gates };
   if (!priceFeedAuthorized || !registryOpen) {
@@ -248,23 +254,24 @@ export function nbaSourceStatus({ candidates = 0, priceFeedAuthorized = false, r
  * @param {object|null} [input.nbaRegistry]  TEST FIXTURE registry object, or null for the real one
  * @param {((s: string) => boolean)|null} [input.canEnterSport]  TESTS ONLY
  * @param {((l: object) => boolean)|null} [input.settlesNba]     TESTS ONLY
+ * @param {ReadonlyArray<string>} [input.nbaPropReadyFamilies]  prop families graded forward (prop-settlement-readiness.mjs)
  * @param {(label: unknown) => boolean} [input.isVerifiedOperator]
  * @param {Record<string,string>} [input.statusFeed]
  * @param {boolean} [input.priceFeedAuthorized]
  */
-export function nbaParlayLab({ results = [], snapshots = [], otherInputs = [], now, coverage = null, nbaRegistry = null, canEnterSport = null, settlesNba = null, isVerifiedOperator, statusFeed = {}, priceFeedAuthorized = false, perGroup = 1 }) {
+export function nbaParlayLab({ results = [], snapshots = [], otherInputs = [], now, coverage = null, nbaRegistry = null, canEnterSport = null, settlesNba = null, nbaPropReadyFamilies = [], isVerifiedOperator, statusFeed = {}, priceFeedAuthorized = false, perGroup = 1 }) {
   const nowMs = ms(now);
   if (nowMs == null) throw new TypeError("nbaParlayLab: `now` must be an ISO instant");
   const nba = nbaCandidateInputs({ results, snapshots, statusFeed });
   const candidates = [...nba.inputs, ...otherInputs].map(toNbaAwareCandidate);
   const leagueGate = canEnterSport ?? canEnterPredictionProducts;
   const pool = evaluatePool(candidates, { now, coverage, ...(isVerifiedOperator ? { isVerifiedOperator } : {}), canEnterLeague: leagueGate, nbaRegistry });
-  const ctx = recommendCtx({ nowMs, coverage, ...(isVerifiedOperator ? { isVerifiedOperator } : {}), canEnterSport, settlesNba });
+  const ctx = recommendCtx({ nowMs, coverage, ...(isVerifiedOperator ? { isVerifiedOperator } : {}), canEnterSport, settlesNba, nbaPropReadyFamilies });
   const composed = composeCards({ candidates: pool.eligible, now, ctx, perGroup });
   const nbaEligible = pool.eligible.filter((c) => c.league === "nba").length;
-  const status = nbaSourceStatus({ candidates: nbaEligible, priceFeedAuthorized: priceFeedAuthorized || nbaRegistry != null, registryOpen: canEnterPredictionProducts("nba") || nbaRegistry != null });
+  const status = nbaSourceStatus({ candidates: nbaEligible, priceFeedAuthorized: priceFeedAuthorized || nbaRegistry != null, registryOpen: canEnterPredictionProducts("nba") || nbaRegistry != null, propReadyFamilies: nbaPropReadyFamilies });
   const recommendation = recommendTiers({
-    candidates: composed.cards, now, coverage, ...(isVerifiedOperator ? { isVerifiedOperator } : {}), canEnterSport, settlesNba,
+    candidates: composed.cards, now, coverage, ...(isVerifiedOperator ? { isVerifiedOperator } : {}), canEnterSport, settlesNba, nbaPropReadyFamilies,
     maxCardsPerTier: Math.max(3, perGroup * 4), sportNotes: [status],
   });
   return { version: NBA_SOURCE_VERSION, status, pool: { eligible: pool.eligible.length, nbaEligible, rejected: pool.rejected }, nbaInputs: nba, composed: { refusals: composed.refusals, poolSize: composed.poolSize, combosChecked: composed.combosChecked, cards: composed.cards.length }, recommendation };

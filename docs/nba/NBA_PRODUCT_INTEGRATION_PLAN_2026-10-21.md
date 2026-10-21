@@ -236,3 +236,16 @@ may import the NBA product modules, and point 12 proves each refuses under the r
 This holds even if authorization, an odds feed, the registry and every flag are open.
 
 **Until then:** prop cards stay refused, and `bank-builder-nba-player@0-proposed` stays inactive.
+
+### Status of the hard blocker (integration branch `claude/nba-betting-v2-integration`, 2026-10-21)
+
+| Condition | State | Evidence |
+|---|---|---|
+| 1. Player-prop grader exists | **MET** on main (PR 1169 `prop-settlement.mjs`) and now **routed**: the lab settler sends `sport: "nba"` legs to `lib/parlays/nba-lab-grading.mjs` (team contract + prop grader), never MLB. `SETTLEABLE_SPORTS` (ladder admission) still excludes NBA. | `nba-lab-grading.test.mjs` on the real 10-20 finals and box scores; 75/75 graded Top Board rows agree on the actual stat |
+| 2. Graded forward on real frozen pre-tip rows | **NOT YET** in the committed ledger. The scheduled writer (`sport-schedules.yml` → `grade-nba-player-props.mjs --write`) has not run since PR 1173 wired it. A dry run on this tree: 10-20 → 441 GRADED · 126 NO_MEASUREMENT; 10-21 → 1995 PENDING_FINAL. | `prop-settlement-readiness.mjs` reads the committed ledger; with none, every family reads NOT READY |
+
+The settlement gate is now evidence-driven, not a comment. `recommend.mjs` `nbaLegSettles(nbaPropReadyFamilies)` and
+`product-tiers.mjs` `nbaSettlesFamilyWith(readyFamilies)` open a prop family only when a caller passes
+`committedNbaPropReadiness().readyFamilies`. Nothing passes it today, so every NBA prop leg is still
+`NO_SETTLEMENT_PATH`. Wiring it in belongs to the activation switch PR (§7 step 6). Even with the gate open, the
+registry, the price authorization and the §7 bars each still refuse every NBA leg.

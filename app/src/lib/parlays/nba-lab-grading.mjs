@@ -111,3 +111,18 @@ export function gradeNbaLabLeg(leg, resultFor) {
     result: LAB_WORD[g.outcome] ?? "pending",
   };
 }
+
+/**
+ * Does the NBA settlement path cover this PLAYER-PROP leg? Only for a family in `readyFamilies` — families the forward
+ * shadow ledger shows GRADED (sports/nba/prop-settlement-readiness.mjs). Team legs answer false here: they are the team
+ * contract's question. With no readiness passed in, every prop is refused, as before.
+ * @param {ReadonlyArray<string>} [readyFamilies]
+ * @returns {(leg: object) => boolean}
+ */
+export function nbaPropLegSettlesWith(readyFamilies = []) {
+  const ready = new Set(readyFamilies ?? []);
+  return (leg) => {
+    const shape = nbaLabLegShape(leg);
+    return shape?.kind === "prop" && ready.has(shape.family);
+  };
+}
