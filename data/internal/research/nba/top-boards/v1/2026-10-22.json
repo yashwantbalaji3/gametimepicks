@@ -7152,6 +7152,6914 @@
      "emptyReason": "R+A is not modelled: no forecast family simulates reb + ast jointly, and adding marginal projections is not its distribution — it is never computed"
     }
    }
+  },
+  {
+   "edition": 2,
+   "frozenAt": "2026-10-22T17:53:34Z",
+   "source": {
+    "path": "data/internal/research/nba/experimental-v1/forecasts/2026-10-22.json",
+    "sha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+    "artifactGeneratedAt": "2026-10-22T15:11:35Z",
+    "artifactInputAsOf": "2026-10-22T15:11:35Z",
+    "runs": 2,
+    "modelVersion": "nba-sim-v1-coherent"
+   },
+   "gamesOnBoard": 1,
+   "games": [
+    {
+     "eventId": "401909093",
+     "tipoffUtc": "2026-10-22T23:00Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "Philadelphia 76ers",
+      "abbr": "PHI",
+      "espnAbbr": "PHI",
+      "providerTeamId": "20"
+     },
+     "away": {
+      "name": "Cleveland Cavaliers",
+      "abbr": "CLE",
+      "espnAbbr": "CLE",
+      "providerTeamId": "5"
+     },
+     "forecastGeneratedAt": "2026-10-22T15:11:35Z",
+     "forecastInputAsOf": "2026-10-22T15:11:35Z",
+     "gamePayloadSha256": "a0f0e3beb959343a8ab189f6b574d3ca812201c9165e6c0784464e00bd0c2714",
+     "state": "ON_EARLIER_EDITION",
+     "flags": []
+    },
+    {
+     "eventId": "401909094",
+     "tipoffUtc": "2026-10-23T01:30Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "Oklahoma City Thunder",
+      "abbr": "OKC",
+      "espnAbbr": "OKC",
+      "providerTeamId": "25"
+     },
+     "away": {
+      "name": "Denver Nuggets",
+      "abbr": "DEN",
+      "espnAbbr": "DEN",
+      "providerTeamId": "7"
+     },
+     "forecastGeneratedAt": "2026-10-22T17:53:34Z",
+     "forecastInputAsOf": "2026-10-22T17:53:34Z",
+     "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6",
+     "state": "ON_BOARD",
+     "flags": []
+    }
+   ],
+   "boards": {
+    "points": {
+     "category": "points",
+     "label": "Points",
+     "stat": "pts",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-22|v1|e2|points|401909094|4278073",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Shai Gilgeous-Alexander",
+        "providerAthleteId": "4278073"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 31,
+        "mean": 31.17
+       },
+       "range": {
+        "p10": 19,
+        "p25": 25,
+        "p75": 37,
+        "p90": 43
+       },
+       "playRate": 0.9752,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 35.68,
+       "minutesSd": 7.24,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 31.17,
+        "expectedMinutes": 35.68,
+        "p90": 43
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-22|v1|e2|points|401909094|3112335",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Nikola Jokic",
+        "providerAthleteId": "3112335"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 22,
+        "mean": 22.54
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 28,
+        "p90": 33
+       },
+       "playRate": 0.9746,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.03,
+       "minutesSd": 7.95,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 22.54,
+        "expectedMinutes": 32.03,
+        "p90": 33
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-22|v1|e2|points|401909094|3936299",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jamal Murray",
+        "providerAthleteId": "3936299"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 21,
+        "mean": 21.67
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 27,
+        "p90": 33
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.32,
+       "minutesSd": 7.83,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.67,
+        "expectedMinutes": 33.32,
+        "p90": 33
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-22|v1|e2|points|401909094|4593803",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Williams",
+        "providerAthleteId": "4593803"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.96
+       },
+       "range": {
+        "p10": 8,
+        "p25": 12,
+        "p75": 22,
+        "p90": 26
+       },
+       "playRate": 0.9724,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.94,
+       "minutesSd": 7.76,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.96,
+        "expectedMinutes": 28.94,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-22|v1|e2|points|401909094|4433255",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Chet Holmgren",
+        "providerAthleteId": "4433255"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.82
+       },
+       "range": {
+        "p10": 8,
+        "p25": 12,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.75,
+       "minutesSd": 7.14,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.82,
+        "expectedMinutes": 29.75,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-22|v1|e2|points|401909094|3978",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "DeMar DeRozan",
+        "providerAthleteId": "3978"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 13,
+        "mean": 13.74
+       },
+       "range": {
+        "p10": 5,
+        "p25": 9,
+        "p75": 18,
+        "p90": 23
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.93,
+       "minutesSd": 8.43,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 13.74,
+        "expectedMinutes": 24.93,
+        "p90": 23
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-22|v1|e2|points|401909094|3064290",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Aaron Gordon",
+        "providerAthleteId": "3064290"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 12,
+        "mean": 12.74
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 17,
+        "p90": 21
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.58,
+       "minutesSd": 7.43,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 12.74,
+        "expectedMinutes": 24.58,
+        "p90": 21
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-22|v1|e2|points|401909094|4900671",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ajay Mitchell",
+        "providerAthleteId": "4900671"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 12,
+        "mean": 12.63
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 16,
+        "p90": 21
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.27,
+       "minutesSd": 7.13,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 12.63,
+        "expectedMinutes": 25.27,
+        "p90": 21
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-22|v1|e2|points|401909094|4431767",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Christian Braun",
+        "providerAthleteId": "4431767"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 11,
+        "mean": 11.12
+       },
+       "range": {
+        "p10": 4,
+        "p25": 7,
+        "p75": 15,
+        "p90": 19
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.24,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 11.12,
+        "expectedMinutes": 29.24,
+        "p90": 19
+       }
+      },
+      {
+       "rank": 10,
+       "rowId": "2026-10-22|v1|e2|points|401909094|3138196",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Cameron Johnson",
+        "providerAthleteId": "3138196"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 10,
+        "mean": 10.77
+       },
+       "range": {
+        "p10": 4,
+        "p25": 7,
+        "p75": 14,
+        "p90": 18
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.83,
+       "minutesSd": 7.46,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 10.77,
+        "expectedMinutes": 27.83,
+        "p90": 18
+       }
+      }
+     ],
+     "eligibleCount": 12,
+     "shownCount": 10,
+     "withheld": {
+      "count": 22,
+      "byPrimaryReason": {
+       "LOW_EXPECTED_MINUTES": 4,
+       "LOW_PLAY_RATE": 7,
+       "INSUFFICIENT_HISTORY": 6,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 1
+      },
+      "byReason": {
+       "LOW_EXPECTED_MINUTES": 14,
+       "MINUTES_TOO_UNCERTAIN": 11,
+       "LOW_PLAY_RATE": 9,
+       "INSUFFICIENT_HISTORY": 6,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 5,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8,
+       "AVAILABILITY_UNVERIFIED": 4
+      },
+      "players": [
+       {
+        "providerAthleteId": "2991350",
+        "name": "Alex Caruso",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3133626",
+        "name": "Kenrich Williams",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3135046",
+        "name": "Tyus Jones",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065813",
+        "name": "Alpha Diallo",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4277848",
+        "name": "Marvin Bagley III",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4431690",
+        "name": "Zeke Nnaji",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432181",
+        "name": "Julian Strawther",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4432823",
+        "name": "Jaylin Williams",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433607",
+        "name": "DaRon Holmes II",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433629",
+        "name": "Ryan Nembhard",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4565698",
+        "name": "Bryce Hopkins",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4592427",
+        "name": "Spencer Jones",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4683778",
+        "name": "Jared McCain",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4684208",
+        "name": "Brooks Barnhizer",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4698719",
+        "name": "Trevon Brazile",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5061603",
+        "name": "Thomas Sorber",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105592",
+        "name": "Cam Whitmore",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105800",
+        "name": "Josh Dix",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106270",
+        "name": "Otega Oweh",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5159925",
+        "name": "Nikola Topic",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5174983",
+        "name": "Aday Mara",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5241364",
+        "name": "Bennett Stirtz",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebounds": {
+     "category": "rebounds",
+     "label": "Rebounds",
+     "stat": "reb",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-22|v1|e2|rebounds|401909094|3112335",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Nikola Jokic",
+        "providerAthleteId": "3112335"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 11,
+        "mean": 11.23
+       },
+       "range": {
+        "p10": 6,
+        "p25": 8,
+        "p75": 14,
+        "p90": 17
+       },
+       "playRate": 0.9746,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.03,
+       "minutesSd": 7.95,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 11.23,
+        "expectedMinutes": 32.03,
+        "p90": 17
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-22|v1|e2|rebounds|401909094|4433255",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Chet Holmgren",
+        "providerAthleteId": "4433255"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 8,
+        "mean": 8.73
+       },
+       "range": {
+        "p10": 4,
+        "p25": 6,
+        "p75": 11,
+        "p90": 14
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.75,
+       "minutesSd": 7.14,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 8.73,
+        "expectedMinutes": 29.75,
+        "p90": 14
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-22|v1|e2|rebounds|401909094|4222252",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Isaiah Hartenstein",
+        "providerAthleteId": "4222252"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 7,
+        "mean": 7.56
+       },
+       "range": {
+        "p10": 3,
+        "p25": 5,
+        "p75": 10,
+        "p90": 12
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.22,
+       "minutesSd": 6.07,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 7.56,
+        "expectedMinutes": 21.22,
+        "p90": 12
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-22|v1|e2|rebounds|401909094|3064290",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Aaron Gordon",
+        "providerAthleteId": "3064290"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 5,
+        "mean": 4.89
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 7,
+        "p90": 9
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.58,
+       "minutesSd": 7.43,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.89,
+        "expectedMinutes": 24.58,
+        "p90": 9
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-22|v1|e2|rebounds|401909094|4593803",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Williams",
+        "providerAthleteId": "4593803"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.74
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9724,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.94,
+       "minutesSd": 7.76,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.74,
+        "expectedMinutes": 28.94,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-22|v1|e2|rebounds|401909094|4278073",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Shai Gilgeous-Alexander",
+        "providerAthleteId": "4278073"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.52
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9752,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 35.68,
+       "minutesSd": 7.24,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.52,
+        "expectedMinutes": 35.68,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-22|v1|e2|rebounds|401909094|4431767",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Christian Braun",
+        "providerAthleteId": "4431767"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.39
+       },
+       "range": {
+        "p10": 1,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.24,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.39,
+        "expectedMinutes": 29.24,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-22|v1|e2|rebounds|401909094|3936299",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jamal Murray",
+        "providerAthleteId": "3936299"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.12
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 6,
+        "p90": 7
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.32,
+       "minutesSd": 7.83,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.12,
+        "expectedMinutes": 33.32,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-22|v1|e2|rebounds|401909094|3138196",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Cameron Johnson",
+        "providerAthleteId": "3138196"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.57
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.83,
+       "minutesSd": 7.46,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.57,
+        "expectedMinutes": 27.83,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 10,
+       "rowId": "2026-10-22|v1|e2|rebounds|401909094|4900671",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ajay Mitchell",
+        "providerAthleteId": "4900671"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.33
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.27,
+       "minutesSd": 7.13,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.33,
+        "expectedMinutes": 25.27,
+        "p90": 6
+       }
+      }
+     ],
+     "eligibleCount": 12,
+     "shownCount": 10,
+     "withheld": {
+      "count": 22,
+      "byPrimaryReason": {
+       "LOW_EXPECTED_MINUTES": 4,
+       "LOW_PLAY_RATE": 7,
+       "INSUFFICIENT_HISTORY": 6,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 1
+      },
+      "byReason": {
+       "LOW_EXPECTED_MINUTES": 14,
+       "MINUTES_TOO_UNCERTAIN": 11,
+       "LOW_PLAY_RATE": 9,
+       "INSUFFICIENT_HISTORY": 6,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 5,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8,
+       "AVAILABILITY_UNVERIFIED": 4
+      },
+      "players": [
+       {
+        "providerAthleteId": "2991350",
+        "name": "Alex Caruso",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3133626",
+        "name": "Kenrich Williams",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3135046",
+        "name": "Tyus Jones",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065813",
+        "name": "Alpha Diallo",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4277848",
+        "name": "Marvin Bagley III",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4431690",
+        "name": "Zeke Nnaji",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432181",
+        "name": "Julian Strawther",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4432823",
+        "name": "Jaylin Williams",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433607",
+        "name": "DaRon Holmes II",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433629",
+        "name": "Ryan Nembhard",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4565698",
+        "name": "Bryce Hopkins",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4592427",
+        "name": "Spencer Jones",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4683778",
+        "name": "Jared McCain",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4684208",
+        "name": "Brooks Barnhizer",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4698719",
+        "name": "Trevon Brazile",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5061603",
+        "name": "Thomas Sorber",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105592",
+        "name": "Cam Whitmore",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105800",
+        "name": "Josh Dix",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106270",
+        "name": "Otega Oweh",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5159925",
+        "name": "Nikola Topic",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5174983",
+        "name": "Aday Mara",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5241364",
+        "name": "Bennett Stirtz",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "assists": {
+     "category": "assists",
+     "label": "Assists",
+     "stat": "ast",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-22|v1|e2|assists|401909094|3112335",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Nikola Jokic",
+        "providerAthleteId": "3112335"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 9,
+        "mean": 8.78
+       },
+       "range": {
+        "p10": 4,
+        "p25": 6,
+        "p75": 11,
+        "p90": 13
+       },
+       "playRate": 0.9746,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.03,
+       "minutesSd": 7.95,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 8.78,
+        "expectedMinutes": 32.03,
+        "p90": 13
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-22|v1|e2|assists|401909094|4278073",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Shai Gilgeous-Alexander",
+        "providerAthleteId": "4278073"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 7,
+        "mean": 6.79
+       },
+       "range": {
+        "p10": 3,
+        "p25": 5,
+        "p75": 9,
+        "p90": 10
+       },
+       "playRate": 0.9752,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 35.68,
+       "minutesSd": 7.24,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6.79,
+        "expectedMinutes": 35.68,
+        "p90": 10
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-22|v1|e2|assists|401909094|3936299",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jamal Murray",
+        "providerAthleteId": "3936299"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 6,
+        "mean": 6.05
+       },
+       "range": {
+        "p10": 3,
+        "p25": 4,
+        "p75": 8,
+        "p90": 10
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.32,
+       "minutesSd": 7.83,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6.05,
+        "expectedMinutes": 33.32,
+        "p90": 10
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-22|v1|e2|assists|401909094|4593803",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Williams",
+        "providerAthleteId": "4593803"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 5,
+        "mean": 5.2
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 7,
+        "p90": 9
+       },
+       "playRate": 0.9724,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.94,
+       "minutesSd": 7.76,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.2,
+        "expectedMinutes": 28.94,
+        "p90": 9
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-22|v1|e2|assists|401909094|4900671",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ajay Mitchell",
+        "providerAthleteId": "4900671"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.5
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.27,
+       "minutesSd": 7.13,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.5,
+        "expectedMinutes": 25.27,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-22|v1|e2|assists|401909094|3978",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "DeMar DeRozan",
+        "providerAthleteId": "3978"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.19
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 6
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.93,
+       "minutesSd": 8.43,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 3.19,
+        "expectedMinutes": 24.93,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-22|v1|e2|assists|401909094|4222252",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Isaiah Hartenstein",
+        "providerAthleteId": "4222252"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.12
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 6
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.22,
+       "minutesSd": 6.07,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.12,
+        "expectedMinutes": 21.22,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-22|v1|e2|assists|401909094|4683692",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Cason Wallace",
+        "providerAthleteId": "4683692"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.6
+       },
+       "range": {
+        "p10": 1,
+        "p25": 1,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9754,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.27,
+       "minutesSd": 7.24,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.6,
+        "expectedMinutes": 25.27,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-22|v1|e2|assists|401909094|4431767",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Christian Braun",
+        "providerAthleteId": "4431767"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.38
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 5
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.24,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.38,
+        "expectedMinutes": 29.24,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 10,
+       "rowId": "2026-10-22|v1|e2|assists|401909094|3064290",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Aaron Gordon",
+        "providerAthleteId": "3064290"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.31
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.58,
+       "minutesSd": 7.43,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.31,
+        "expectedMinutes": 24.58,
+        "p90": 4
+       }
+      }
+     ],
+     "eligibleCount": 12,
+     "shownCount": 10,
+     "withheld": {
+      "count": 22,
+      "byPrimaryReason": {
+       "LOW_EXPECTED_MINUTES": 4,
+       "LOW_PLAY_RATE": 7,
+       "INSUFFICIENT_HISTORY": 6,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 1
+      },
+      "byReason": {
+       "LOW_EXPECTED_MINUTES": 14,
+       "MINUTES_TOO_UNCERTAIN": 11,
+       "LOW_PLAY_RATE": 9,
+       "INSUFFICIENT_HISTORY": 6,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 5,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8,
+       "AVAILABILITY_UNVERIFIED": 4
+      },
+      "players": [
+       {
+        "providerAthleteId": "2991350",
+        "name": "Alex Caruso",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3133626",
+        "name": "Kenrich Williams",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3135046",
+        "name": "Tyus Jones",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065813",
+        "name": "Alpha Diallo",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4277848",
+        "name": "Marvin Bagley III",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4431690",
+        "name": "Zeke Nnaji",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432181",
+        "name": "Julian Strawther",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4432823",
+        "name": "Jaylin Williams",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433607",
+        "name": "DaRon Holmes II",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433629",
+        "name": "Ryan Nembhard",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4565698",
+        "name": "Bryce Hopkins",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4592427",
+        "name": "Spencer Jones",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4683778",
+        "name": "Jared McCain",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4684208",
+        "name": "Brooks Barnhizer",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4698719",
+        "name": "Trevon Brazile",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5061603",
+        "name": "Thomas Sorber",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105592",
+        "name": "Cam Whitmore",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105800",
+        "name": "Josh Dix",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106270",
+        "name": "Otega Oweh",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5159925",
+        "name": "Nikola Topic",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5174983",
+        "name": "Aday Mara",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5241364",
+        "name": "Bennett Stirtz",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "threes": {
+     "category": "threes",
+     "label": "3PM",
+     "stat": "threePm",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-22|v1|e2|threes|401909094|3936299",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jamal Murray",
+        "providerAthleteId": "3936299"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 2.88
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.32,
+       "minutesSd": 7.83,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.88,
+        "expectedMinutes": 33.32,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-22|v1|e2|threes|401909094|3138196",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Cameron Johnson",
+        "providerAthleteId": "3138196"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.76
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.83,
+       "minutesSd": 7.46,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.76,
+        "expectedMinutes": 27.83,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-22|v1|e2|threes|401909094|4278073",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Shai Gilgeous-Alexander",
+        "providerAthleteId": "4278073"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.73
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9752,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 35.68,
+       "minutesSd": 7.24,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.73,
+        "expectedMinutes": 35.68,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-22|v1|e2|threes|401909094|3112335",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Nikola Jokic",
+        "providerAthleteId": "3112335"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.51
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9746,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.03,
+       "minutesSd": 7.95,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.51,
+        "expectedMinutes": 32.03,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-22|v1|e2|threes|401909094|3064290",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Aaron Gordon",
+        "providerAthleteId": "3064290"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.4
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.58,
+       "minutesSd": 7.43,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.4,
+        "expectedMinutes": 24.58,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-22|v1|e2|threes|401909094|4433255",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Chet Holmgren",
+        "providerAthleteId": "4433255"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.32
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.75,
+       "minutesSd": 7.14,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.32,
+        "expectedMinutes": 29.75,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-22|v1|e2|threes|401909094|4683692",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Cason Wallace",
+        "providerAthleteId": "4683692"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.25
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9754,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.27,
+       "minutesSd": 7.24,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.25,
+        "expectedMinutes": 25.27,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-22|v1|e2|threes|401909094|4431767",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Christian Braun",
+        "providerAthleteId": "4431767"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.11
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.24,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.11,
+        "expectedMinutes": 29.24,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-22|v1|e2|threes|401909094|4900671",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ajay Mitchell",
+        "providerAthleteId": "4900671"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.06
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 2
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.27,
+       "minutesSd": 7.13,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.06,
+        "expectedMinutes": 25.27,
+        "p90": 2
+       }
+      },
+      {
+       "rank": 10,
+       "rowId": "2026-10-22|v1|e2|threes|401909094|4593803",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Williams",
+        "providerAthleteId": "4593803"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 0.89
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 1,
+        "p90": 2
+       },
+       "playRate": 0.9724,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.94,
+       "minutesSd": 7.76,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 0.89,
+        "expectedMinutes": 28.94,
+        "p90": 2
+       }
+      }
+     ],
+     "eligibleCount": 12,
+     "shownCount": 10,
+     "withheld": {
+      "count": 22,
+      "byPrimaryReason": {
+       "LOW_EXPECTED_MINUTES": 4,
+       "LOW_PLAY_RATE": 7,
+       "INSUFFICIENT_HISTORY": 6,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 1
+      },
+      "byReason": {
+       "LOW_EXPECTED_MINUTES": 14,
+       "MINUTES_TOO_UNCERTAIN": 11,
+       "LOW_PLAY_RATE": 9,
+       "INSUFFICIENT_HISTORY": 6,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 5,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8,
+       "AVAILABILITY_UNVERIFIED": 4
+      },
+      "players": [
+       {
+        "providerAthleteId": "2991350",
+        "name": "Alex Caruso",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3133626",
+        "name": "Kenrich Williams",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3135046",
+        "name": "Tyus Jones",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065813",
+        "name": "Alpha Diallo",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4277848",
+        "name": "Marvin Bagley III",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4431690",
+        "name": "Zeke Nnaji",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432181",
+        "name": "Julian Strawther",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4432823",
+        "name": "Jaylin Williams",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433607",
+        "name": "DaRon Holmes II",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433629",
+        "name": "Ryan Nembhard",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4565698",
+        "name": "Bryce Hopkins",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4592427",
+        "name": "Spencer Jones",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4683778",
+        "name": "Jared McCain",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4684208",
+        "name": "Brooks Barnhizer",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4698719",
+        "name": "Trevon Brazile",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5061603",
+        "name": "Thomas Sorber",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105592",
+        "name": "Cam Whitmore",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105800",
+        "name": "Josh Dix",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106270",
+        "name": "Otega Oweh",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5159925",
+        "name": "Nikola Topic",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5174983",
+        "name": "Aday Mara",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5241364",
+        "name": "Bennett Stirtz",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "pra": {
+     "category": "pra",
+     "label": "PRA",
+     "stat": "pra",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-22|v1|e2|pra|401909094|3112335",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Nikola Jokic",
+        "providerAthleteId": "3112335"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 42,
+        "mean": 42.54
+       },
+       "range": {
+        "p10": 26,
+        "p25": 33,
+        "p75": 51,
+        "p90": 60
+       },
+       "playRate": 0.9746,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.03,
+       "minutesSd": 7.95,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 42.54,
+        "expectedMinutes": 32.03,
+        "p90": 60
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-22|v1|e2|pra|401909094|4278073",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Shai Gilgeous-Alexander",
+        "providerAthleteId": "4278073"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 42,
+        "mean": 42.48
+       },
+       "range": {
+        "p10": 28,
+        "p25": 34,
+        "p75": 50,
+        "p90": 58
+       },
+       "playRate": 0.9752,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 35.68,
+       "minutesSd": 7.24,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 42.48,
+        "expectedMinutes": 35.68,
+        "p90": 58
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-22|v1|e2|pra|401909094|3936299",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jamal Murray",
+        "providerAthleteId": "3936299"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 31,
+        "mean": 31.84
+       },
+       "range": {
+        "p10": 19,
+        "p25": 24,
+        "p75": 38,
+        "p90": 46
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.32,
+       "minutesSd": 7.83,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 31.84,
+        "expectedMinutes": 33.32,
+        "p90": 46
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-22|v1|e2|pra|401909094|4433255",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Chet Holmgren",
+        "providerAthleteId": "4433255"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 27,
+        "mean": 27.39
+       },
+       "range": {
+        "p10": 16,
+        "p25": 21,
+        "p75": 33,
+        "p90": 40
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.75,
+       "minutesSd": 7.14,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 27.39,
+        "expectedMinutes": 29.75,
+        "p90": 40
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-22|v1|e2|pra|401909094|4593803",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Williams",
+        "providerAthleteId": "4593803"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 26,
+        "mean": 26.9
+       },
+       "range": {
+        "p10": 15,
+        "p25": 20,
+        "p75": 33,
+        "p90": 40
+       },
+       "playRate": 0.9724,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.94,
+       "minutesSd": 7.76,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 26.9,
+        "expectedMinutes": 28.94,
+        "p90": 40
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-22|v1|e2|pra|401909094|3064290",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Aaron Gordon",
+        "providerAthleteId": "3064290"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.94
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 25,
+        "p90": 31
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.58,
+       "minutesSd": 7.43,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.94,
+        "expectedMinutes": 24.58,
+        "p90": 31
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-22|v1|e2|pra|401909094|4900671",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ajay Mitchell",
+        "providerAthleteId": "4900671"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.46
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 24,
+        "p90": 30
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.27,
+       "minutesSd": 7.13,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.46,
+        "expectedMinutes": 25.27,
+        "p90": 30
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-22|v1|e2|pra|401909094|3978",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "DeMar DeRozan",
+        "providerAthleteId": "3978"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.32
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 25,
+        "p90": 31
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.93,
+       "minutesSd": 8.43,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 19.32,
+        "expectedMinutes": 24.93,
+        "p90": 31
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-22|v1|e2|pra|401909094|4222252",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Isaiah Hartenstein",
+        "providerAthleteId": "4222252"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.74
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 24,
+        "p90": 29
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.22,
+       "minutesSd": 6.07,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.74,
+        "expectedMinutes": 21.22,
+        "p90": 29
+       }
+      },
+      {
+       "rank": 10,
+       "rowId": "2026-10-22|v1|e2|pra|401909094|4431767",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Christian Braun",
+        "providerAthleteId": "4431767"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 17,
+        "mean": 17.9
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 22,
+        "p90": 28
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.24,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 17.9,
+        "expectedMinutes": 29.24,
+        "p90": 28
+       }
+      }
+     ],
+     "eligibleCount": 12,
+     "shownCount": 10,
+     "withheld": {
+      "count": 22,
+      "byPrimaryReason": {
+       "LOW_EXPECTED_MINUTES": 4,
+       "LOW_PLAY_RATE": 7,
+       "INSUFFICIENT_HISTORY": 6,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 1
+      },
+      "byReason": {
+       "LOW_EXPECTED_MINUTES": 14,
+       "MINUTES_TOO_UNCERTAIN": 11,
+       "LOW_PLAY_RATE": 9,
+       "INSUFFICIENT_HISTORY": 6,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 5,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8,
+       "AVAILABILITY_UNVERIFIED": 4
+      },
+      "players": [
+       {
+        "providerAthleteId": "2991350",
+        "name": "Alex Caruso",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3133626",
+        "name": "Kenrich Williams",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3135046",
+        "name": "Tyus Jones",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065813",
+        "name": "Alpha Diallo",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4277848",
+        "name": "Marvin Bagley III",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4431690",
+        "name": "Zeke Nnaji",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432181",
+        "name": "Julian Strawther",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4432823",
+        "name": "Jaylin Williams",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433607",
+        "name": "DaRon Holmes II",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433629",
+        "name": "Ryan Nembhard",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4565698",
+        "name": "Bryce Hopkins",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4592427",
+        "name": "Spencer Jones",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4683778",
+        "name": "Jared McCain",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4684208",
+        "name": "Brooks Barnhizer",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4698719",
+        "name": "Trevon Brazile",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5061603",
+        "name": "Thomas Sorber",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105592",
+        "name": "Cam Whitmore",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105800",
+        "name": "Josh Dix",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106270",
+        "name": "Otega Oweh",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5159925",
+        "name": "Nikola Topic",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5174983",
+        "name": "Aday Mara",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5241364",
+        "name": "Bennett Stirtz",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsReb": {
+     "category": "ptsReb",
+     "label": "P+R",
+     "stat": "ptsReb",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-22|v1|e2|ptsReb|401909094|4278073",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Shai Gilgeous-Alexander",
+        "providerAthleteId": "4278073"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 35,
+        "mean": 35.69
+       },
+       "range": {
+        "p10": 23,
+        "p25": 29,
+        "p75": 42,
+        "p90": 49
+       },
+       "playRate": 0.9752,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 35.68,
+       "minutesSd": 7.24,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 35.69,
+        "expectedMinutes": 35.68,
+        "p90": 49
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-22|v1|e2|ptsReb|401909094|3112335",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Nikola Jokic",
+        "providerAthleteId": "3112335"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 33,
+        "mean": 33.77
+       },
+       "range": {
+        "p10": 20,
+        "p25": 26,
+        "p75": 41,
+        "p90": 48
+       },
+       "playRate": 0.9746,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.03,
+       "minutesSd": 7.95,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 33.77,
+        "expectedMinutes": 32.03,
+        "p90": 48
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-22|v1|e2|ptsReb|401909094|3936299",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jamal Murray",
+        "providerAthleteId": "3936299"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 25,
+        "mean": 25.79
+       },
+       "range": {
+        "p10": 15,
+        "p25": 19,
+        "p75": 32,
+        "p90": 38
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.32,
+       "minutesSd": 7.83,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 25.79,
+        "expectedMinutes": 33.32,
+        "p90": 38
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-22|v1|e2|ptsReb|401909094|4433255",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Chet Holmgren",
+        "providerAthleteId": "4433255"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 25,
+        "mean": 25.55
+       },
+       "range": {
+        "p10": 14,
+        "p25": 19,
+        "p75": 31,
+        "p90": 38
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.75,
+       "minutesSd": 7.14,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 25.55,
+        "expectedMinutes": 29.75,
+        "p90": 38
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-22|v1|e2|ptsReb|401909094|4593803",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Williams",
+        "providerAthleteId": "4593803"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 21,
+        "mean": 21.7
+       },
+       "range": {
+        "p10": 11,
+        "p25": 16,
+        "p75": 27,
+        "p90": 33
+       },
+       "playRate": 0.9724,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.94,
+       "minutesSd": 7.76,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.7,
+        "expectedMinutes": 28.94,
+        "p90": 33
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-22|v1|e2|ptsReb|401909094|3064290",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Aaron Gordon",
+        "providerAthleteId": "3064290"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 17,
+        "mean": 17.62
+       },
+       "range": {
+        "p10": 8,
+        "p25": 12,
+        "p75": 22,
+        "p90": 28
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.58,
+       "minutesSd": 7.43,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 17.62,
+        "expectedMinutes": 24.58,
+        "p90": 28
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-22|v1|e2|ptsReb|401909094|3978",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "DeMar DeRozan",
+        "providerAthleteId": "3978"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 15,
+        "mean": 16.13
+       },
+       "range": {
+        "p10": 7,
+        "p25": 11,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.93,
+       "minutesSd": 8.43,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 16.13,
+        "expectedMinutes": 24.93,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-22|v1|e2|ptsReb|401909094|4900671",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ajay Mitchell",
+        "providerAthleteId": "4900671"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 15,
+        "mean": 15.96
+       },
+       "range": {
+        "p10": 8,
+        "p25": 11,
+        "p75": 20,
+        "p90": 25
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.27,
+       "minutesSd": 7.13,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 15.96,
+        "expectedMinutes": 25.27,
+        "p90": 25
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-22|v1|e2|ptsReb|401909094|4222252",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Isaiah Hartenstein",
+        "providerAthleteId": "4222252"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 15,
+        "mean": 15.62
+       },
+       "range": {
+        "p10": 7,
+        "p25": 11,
+        "p75": 20,
+        "p90": 25
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.22,
+       "minutesSd": 6.07,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 15.62,
+        "expectedMinutes": 21.22,
+        "p90": 25
+       }
+      },
+      {
+       "rank": 10,
+       "rowId": "2026-10-22|v1|e2|ptsReb|401909094|4431767",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Christian Braun",
+        "providerAthleteId": "4431767"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 15,
+        "mean": 15.52
+       },
+       "range": {
+        "p10": 7,
+        "p25": 11,
+        "p75": 20,
+        "p90": 25
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.24,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 15.52,
+        "expectedMinutes": 29.24,
+        "p90": 25
+       }
+      }
+     ],
+     "eligibleCount": 12,
+     "shownCount": 10,
+     "withheld": {
+      "count": 22,
+      "byPrimaryReason": {
+       "LOW_EXPECTED_MINUTES": 4,
+       "LOW_PLAY_RATE": 7,
+       "INSUFFICIENT_HISTORY": 6,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 1
+      },
+      "byReason": {
+       "LOW_EXPECTED_MINUTES": 14,
+       "MINUTES_TOO_UNCERTAIN": 11,
+       "LOW_PLAY_RATE": 9,
+       "INSUFFICIENT_HISTORY": 6,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 5,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8,
+       "AVAILABILITY_UNVERIFIED": 4
+      },
+      "players": [
+       {
+        "providerAthleteId": "2991350",
+        "name": "Alex Caruso",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3133626",
+        "name": "Kenrich Williams",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3135046",
+        "name": "Tyus Jones",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065813",
+        "name": "Alpha Diallo",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4277848",
+        "name": "Marvin Bagley III",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4431690",
+        "name": "Zeke Nnaji",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432181",
+        "name": "Julian Strawther",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4432823",
+        "name": "Jaylin Williams",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433607",
+        "name": "DaRon Holmes II",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433629",
+        "name": "Ryan Nembhard",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4565698",
+        "name": "Bryce Hopkins",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4592427",
+        "name": "Spencer Jones",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4683778",
+        "name": "Jared McCain",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4684208",
+        "name": "Brooks Barnhizer",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4698719",
+        "name": "Trevon Brazile",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5061603",
+        "name": "Thomas Sorber",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105592",
+        "name": "Cam Whitmore",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105800",
+        "name": "Josh Dix",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106270",
+        "name": "Otega Oweh",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5159925",
+        "name": "Nikola Topic",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5174983",
+        "name": "Aday Mara",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5241364",
+        "name": "Bennett Stirtz",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsAst": {
+     "category": "ptsAst",
+     "label": "P+A",
+     "stat": "ptsAst",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-22|v1|e2|ptsAst|401909094|4278073",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Shai Gilgeous-Alexander",
+        "providerAthleteId": "4278073"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 37,
+        "mean": 37.96
+       },
+       "range": {
+        "p10": 25,
+        "p25": 31,
+        "p75": 45,
+        "p90": 52
+       },
+       "playRate": 0.9752,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 35.68,
+       "minutesSd": 7.24,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 37.96,
+        "expectedMinutes": 35.68,
+        "p90": 52
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-22|v1|e2|ptsAst|401909094|3112335",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Nikola Jokic",
+        "providerAthleteId": "3112335"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 31,
+        "mean": 31.31
+       },
+       "range": {
+        "p10": 18,
+        "p25": 24,
+        "p75": 38,
+        "p90": 45
+       },
+       "playRate": 0.9746,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.03,
+       "minutesSd": 7.95,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 31.31,
+        "expectedMinutes": 32.03,
+        "p90": 45
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-22|v1|e2|ptsAst|401909094|3936299",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jamal Murray",
+        "providerAthleteId": "3936299"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 27,
+        "mean": 27.72
+       },
+       "range": {
+        "p10": 16,
+        "p25": 21,
+        "p75": 34,
+        "p90": 40
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.32,
+       "minutesSd": 7.83,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 27.72,
+        "expectedMinutes": 33.32,
+        "p90": 40
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-22|v1|e2|ptsAst|401909094|4593803",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Williams",
+        "providerAthleteId": "4593803"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 21,
+        "mean": 22.16
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 28,
+        "p90": 33
+       },
+       "playRate": 0.9724,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.94,
+       "minutesSd": 7.76,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 22.16,
+        "expectedMinutes": 28.94,
+        "p90": 33
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-22|v1|e2|ptsAst|401909094|4433255",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Chet Holmgren",
+        "providerAthleteId": "4433255"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.66
+       },
+       "range": {
+        "p10": 10,
+        "p25": 13,
+        "p75": 23,
+        "p90": 29
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.75,
+       "minutesSd": 7.14,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.66,
+        "expectedMinutes": 29.75,
+        "p90": 29
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-22|v1|e2|ptsAst|401909094|3978",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "DeMar DeRozan",
+        "providerAthleteId": "3978"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.93
+       },
+       "range": {
+        "p10": 7,
+        "p25": 11,
+        "p75": 22,
+        "p90": 27
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.93,
+       "minutesSd": 8.43,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 16.93,
+        "expectedMinutes": 24.93,
+        "p90": 27
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-22|v1|e2|ptsAst|401909094|4900671",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ajay Mitchell",
+        "providerAthleteId": "4900671"
+       },
+       "team": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "opponent": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "homeAway": "home",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 15,
+        "mean": 16.13
+       },
+       "range": {
+        "p10": 8,
+        "p25": 11,
+        "p75": 20,
+        "p90": 26
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.27,
+       "minutesSd": 7.13,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.13,
+        "expectedMinutes": 25.27,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-22|v1|e2|ptsAst|401909094|3064290",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Aaron Gordon",
+        "providerAthleteId": "3064290"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 14,
+        "mean": 15.05
+       },
+       "range": {
+        "p10": 7,
+        "p25": 10,
+        "p75": 19,
+        "p90": 24
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.58,
+       "minutesSd": 7.43,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 15.05,
+        "expectedMinutes": 24.58,
+        "p90": 24
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-22|v1|e2|ptsAst|401909094|4431767",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Christian Braun",
+        "providerAthleteId": "4431767"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 13,
+        "mean": 13.5
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 17,
+        "p90": 22
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.24,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.5,
+        "expectedMinutes": 29.24,
+        "p90": 22
+       }
+      },
+      {
+       "rank": 10,
+       "rowId": "2026-10-22|v1|e2|ptsAst|401909094|3138196",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Cameron Johnson",
+        "providerAthleteId": "3138196"
+       },
+       "team": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "espnAbbr": "DEN",
+        "providerTeamId": "7"
+       },
+       "opponent": {
+        "name": "Oklahoma City Thunder",
+        "abbr": "OKC",
+        "espnAbbr": "OKC",
+        "providerTeamId": "25"
+       },
+       "homeAway": "away",
+       "eventId": "401909094",
+       "tipoffUtc": "2026-10-23T01:30Z",
+       "projection": {
+        "p50": 12,
+        "mean": 12.97
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 17,
+        "p90": 21
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.83,
+       "minutesSd": 7.46,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-22T17:53:34Z",
+        "generatedAt": "2026-10-22T17:53:34Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4b83a1208d1376808dea7ed3d48780240848f19095eb3c14e1d3ba8386678b48",
+        "gamePayloadSha256": "289226cf7411f36e07e6800d1967b5530d4918eb447e00656bf7ede4a6ffb9a6"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 12.97,
+        "expectedMinutes": 27.83,
+        "p90": 21
+       }
+      }
+     ],
+     "eligibleCount": 12,
+     "shownCount": 10,
+     "withheld": {
+      "count": 22,
+      "byPrimaryReason": {
+       "LOW_EXPECTED_MINUTES": 4,
+       "LOW_PLAY_RATE": 7,
+       "INSUFFICIENT_HISTORY": 6,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 1
+      },
+      "byReason": {
+       "LOW_EXPECTED_MINUTES": 14,
+       "MINUTES_TOO_UNCERTAIN": 11,
+       "LOW_PLAY_RATE": 9,
+       "INSUFFICIENT_HISTORY": 6,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 5,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8,
+       "AVAILABILITY_UNVERIFIED": 4
+      },
+      "players": [
+       {
+        "providerAthleteId": "2991350",
+        "name": "Alex Caruso",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3133626",
+        "name": "Kenrich Williams",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3135046",
+        "name": "Tyus Jones",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065813",
+        "name": "Alpha Diallo",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4277848",
+        "name": "Marvin Bagley III",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4431690",
+        "name": "Zeke Nnaji",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432181",
+        "name": "Julian Strawther",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4432823",
+        "name": "Jaylin Williams",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433607",
+        "name": "DaRon Holmes II",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433629",
+        "name": "Ryan Nembhard",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4565698",
+        "name": "Bryce Hopkins",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4592427",
+        "name": "Spencer Jones",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4683778",
+        "name": "Jared McCain",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4684208",
+        "name": "Brooks Barnhizer",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4698719",
+        "name": "Trevon Brazile",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5061603",
+        "name": "Thomas Sorber",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105592",
+        "name": "Cam Whitmore",
+        "team": "DEN",
+        "eventId": "401909094",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105800",
+        "name": "Josh Dix",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106270",
+        "name": "Otega Oweh",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5159925",
+        "name": "Nikola Topic",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5174983",
+        "name": "Aday Mara",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5241364",
+        "name": "Bennett Stirtz",
+        "team": "OKC",
+        "eventId": "401909094",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebAst": {
+     "category": "rebAst",
+     "label": "R+A",
+     "stat": null,
+     "marketBasis": "NOT_MODELLED",
+     "basisText": "not modelled — no family simulates it jointly, and adding marginal projections is not its distribution",
+     "components": [
+      "reb",
+      "ast"
+     ],
+     "state": "NOT_MODELLED",
+     "rankingMetric": null,
+     "rows": [],
+     "eligibleCount": 0,
+     "shownCount": 0,
+     "withheld": {
+      "count": 0,
+      "byPrimaryReason": {},
+      "byReason": {},
+      "players": []
+     },
+     "emptyReason": "R+A is not modelled: no forecast family simulates reb + ast jointly, and adding marginal projections is not its distribution — it is never computed"
+    }
+   }
   }
  ]
 }
