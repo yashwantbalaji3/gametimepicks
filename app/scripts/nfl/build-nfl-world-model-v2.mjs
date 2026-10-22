@@ -120,7 +120,18 @@ function availabilityOf(p, teamAbbr, excluded) {
 
 const index = fs.existsSync(path.join(OUT_DIR, "index.json")) ? readJson(path.join(OUT_DIR, "index.json")) : { games: [] };
 const kept = new Map(index.games.map((g) => [g.providerEventId, g]));
-const written = []; const skipped = []; const unchanged = [];
+/** The forecast of record as this artifact restates it — exactly the published forecast's own fields, never recomputed. */
+function forecastOfRecordOf(pub, fs0) {
+  const wp = fs0.winProbability;
+  return {
+    modelVersion: pub.model?.id ?? null, winProbability: { home: wp.home, away: wp.away, tie: wp.tieMass ?? null }, projectedScore: fs0.projectedScore ? { home: fs0.projectedScore.home, away: fs0.projectedScore.away } : null,
+    marginMedianHome: fs0.margin.median, totalMedian: fs0.total.median,
+    note: "The published forecast stays the forecast of record. Its win chance comes from a separate rating (the margin-of-victory Elo win head); these worlds draw scores from its margin and total heads, so the two win chances can differ.",
+  };
+}
+const recordFields = (r) => JSON.stringify([r?.modelVersion ?? null, r?.winProbability?.home ?? null, r?.winProbability?.away ?? null, r?.winProbability?.tie ?? null, r?.projectedScore ? [r.projectedScore.home, r.projectedScore.away] : null, r?.marginMedianHome ?? null, r?.totalMedian ?? null]);
+const sameRecord = (a, b) => recordFields(a) === recordFields(b);
+const written = []; const skipped = []; const unchanged = []; const restated = [];
 for (const ev of packet.games) {
   if (ONLY && !ONLY.has(ev.providerEventId)) continue;
   if (Date.parse(ev.kickoffUtc) <= Date.parse(NOW)) { skipped.push(`${ev.matchup}: kicked off — last pregame artifact kept`); continue; }
@@ -160,7 +171,31 @@ for (const ev of packet.games) {
      availability is the same simulation — never re-run it just because the key's formula changed. */
   const legacyKey = sha256(`${WORLD_MODEL_V2.version}|${WORLD_MODEL_V2_ENGINE}|${RUNS}|${packetSha}|${headsKey}|${statusKey}`).slice(0, 16);
   const sameAsLegacy = !existing?.run?.inputs?.gameInputsSha256 && existing?.run?.inputs?.packetSha256 === packetSha && existing?.run?.inputsKey === legacyKey;
-  if (!FORCE && (existing?.run?.inputsKey === inputsKey || sameAsLegacy)) { unchanged.push(`${ev.matchup}: inputs unchanged since ${existing.run.generatedAt}`); continue; }
+  if (!FORCE && (existing?.run?.inputsKey === inputsKey || sameAsLegacy)) {
+    /* The simulation is unchanged, but the artifact also RESTATES the forecast of record, whose published medians and
+       win chance are re-sampled with each forecast revision while its distribution — this run's only score input —
+       stays the same (2026-10-22 14:31Z: 401873011 margin median -6 → -5, projected away 25 → 24, identical
+       distribution; the consistency audit's PROJECTION_MISMATCH). Sampling noise never re-simulates (refresh test 2),
+       and a stale restatement is never kept: the record and the disagreement's record side are rewritten in place.
+       The simulation, its simulationId and its write-once run file are untouched. */
+    const record = forecastOfRecordOf(pub, fs0);
+    if (!sameRecord(existing.forecastOfRecord, record)) {
+      const body = { ...existing, forecastOfRecord: { ...record, restatedAt: NOW } };
+      const dis = existing.game?.disagreement;
+      if (dis) body.game = { ...existing.game, disagreement: {
+        ...dis,
+        winProbabilityHome: { ...dis.winProbabilityHome, forecastOfRecord: record.winProbability.home, difference: r4(dis.winProbabilityHome.worlds - record.winProbability.home) },
+        marginMedianHome: { ...dis.marginMedianHome, forecastOfRecord: record.marginMedianHome },
+        totalMedian: { ...dis.totalMedian, forecastOfRecord: record.totalMedian },
+      } };
+      delete body.contentSha256;
+      body.contentSha256 = sha256(JSON.stringify(body));
+      fs.writeFileSync(existingPath, `${JSON.stringify(body)}\n`);
+      restated.push(`${ev.matchup}: record restated (projected ${record.projectedScore?.away ?? "—"}-${record.projectedScore?.home ?? "—"}, margin ${record.marginMedianHome}, total ${record.totalMedian}); simulation ${existing.simulationId} unchanged`);
+      continue;
+    }
+    unchanged.push(`${ev.matchup}: inputs unchanged since ${existing.run.generatedAt}`); continue;
+  }
   const seed = `${ev.providerEventId}|${inputsKey}`;
   const sim = simulateGame({ sides, heads, params: packet.params, tables: packet.tables, runs: RUNS, seed });
   const { game } = sim;
@@ -226,11 +261,7 @@ for (const ev of packet.games) {
       generatedAt: NOW, runs: RUNS, seed, inputsKey, supersedes: existing && Date.parse(existing.identity?.kickoffUtc) === Date.parse(ev.kickoffUtc) ? existing.simulationId ?? null : null,
       inputs: { packet: path.relative(ROOT, packetPath), packetSha256: packetSha, gameInputsSha256: gameSliceSha(ev), packetExportedAt: packet.exportedAt, forecastModel: pub.model?.id ?? null, forecastInputHash: pub.model?.inputHash ?? null, forecastGeneratedAt: pub.generatedAt ?? null, injuriesAsOf: injuries.generatedAt ?? null, depthChart: qbIndex?.file ?? null, rostersGeneratedAt: rosters.generatedAt ?? null, participationAsOf: part?.injuriesAsOf ?? null, heads: Object.fromEntries(Object.entries(heads).map(([k, v]) => [k, r4(v)])), headsSource },
     },
-    forecastOfRecord: {
-      modelVersion: pub.model?.id ?? null, winProbability: { home: wp.home, away: wp.away, tie: wp.tieMass ?? null }, projectedScore: fs0.projectedScore ? { home: fs0.projectedScore.home, away: fs0.projectedScore.away } : null,
-      marginMedianHome: fs0.margin.median, totalMedian: fs0.total.median,
-      note: "The published forecast stays the forecast of record. Its win chance comes from a separate rating (the margin-of-victory Elo win head); these worlds draw scores from its margin and total heads, so the two win chances can differ.",
-    },
+    forecastOfRecord: forecastOfRecordOf(pub, fs0),
     game: {
       winProbability: { home: r4(hw / RUNS), away: r4(aw / RUNS), tie: r4(tie / RUNS), basis: "share of the simulated games each side won, overtime included" },
       overtime: { levelAfterRegulation: r4(sim.diag.levelAfterRegulation / RUNS), levelAfterOvertime: r4(sim.diag.levelAfterOvertime / RUNS), homeWinsOvertime: r4(sim.pHomeOt) },
@@ -268,4 +299,5 @@ if (written.length || JSON.stringify(index.games) !== JSON.stringify(games) || i
 for (const w of written) console.log(`  ${w}`);
 for (const s of skipped) console.log(`  skipped ${s}`);
 for (const s of unchanged) console.log(`  unchanged ${s}`);
-console.log(`world model v2: ${written.length} simulated, ${unchanged.length} unchanged, ${skipped.length} skipped · packet ${path.basename(packetPath)} ${packetSha.slice(0, 12)}`);
+for (const s of restated) console.log(`  restated ${s}`);
+console.log(`world model v2: ${written.length} simulated, ${unchanged.length} unchanged, ${restated.length} restated, ${skipped.length} skipped · packet ${path.basename(packetPath)} ${packetSha.slice(0, 12)}`);
