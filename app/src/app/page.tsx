@@ -61,6 +61,10 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import YesterdayCard from "@/components/recap/yesterday-card";
 import { buildYesterdayRecap } from "@/lib/recap/yesterday.mjs";
 import { currentProductRecord } from "@/lib/results/current-record";
+import { committedLaneDates, loadCurrentLane } from "@/components/nba/experimental-lane";
+import { nbaTodaySlate } from "@/lib/sport-hub/nba-hub";
+import { nbaLane } from "@/lib/command-center/nba-lane";
+import { LANE as NBA_LANE } from "@/lib/sports/nba/experimental-public-lane.mjs";
 
 export const metadata = withRouteMetadata("/", {
   title: "GameTime Picks — Simulate today's games. Review model picks. Track results.",
@@ -180,6 +184,12 @@ export default function HomePage() {
   const ufcState = sportStateFromProductDay(ufcDay, { slateDate: serverToday });
   const nflState = sportStateFromProductDay(nflDay, { slateDate: serverToday });
 
+  /* NBA UI parity (founder directive 2026-10-22): NBA is a lane like the other four. Its facts are the /nba hub's own
+     view (nbaTodaySlate: schedule, finals, the current official lane snapshot); each row links to its game's card on
+     /nba, built from the same slate in the same build. */
+  const nbaNowIso = new Date().toISOString();
+  const nbaHomeLane = nbaLane(nbaTodaySlate(nbaNowIso, loadCurrentLane(serverToday), { laneEnabled: NBA_LANE.enabled }), nbaNowIso, { lastPublished: committedLaneDates().at(-1) ?? null });
+
   // Presentation-only detail: the NFL player-market count for the card's status line. Never a
   // state input — the owner decides whether the window is live at all.
   /* P250: the preseason game-simulations lane is retired (its last artifact froze 2026-08-29) — the
@@ -252,6 +262,19 @@ export default function HomePage() {
         accent: (ufcDay?.eligible ?? 0) > 0 ? "var(--sport-ufc)" : "var(--vault-text-mute)",
       },
     },
+    {
+      id: "nba",
+      state: nbaHomeLane.state,
+      card: {
+        href: "/nba",
+        label: "NBA",
+        blurb: "Today's games, the official favoured side and player projections — experimental, not validated.",
+        status: nbaHomeLane.contextLine,
+        statusSub: "experimental · not validated",
+        cta: "Open NBA hub",
+        accent: "var(--sport-nba)",
+      },
+    },
   ];
   const { primary: primarySports, secondary: secondarySports } = partitionSports(allSports);
   const simHubCards: FlagshipCard[] = primarySports.map((s) => s.card as FlagshipCard);
@@ -260,7 +283,7 @@ export default function HomePage() {
      the next forecast through the universal card. Membership of the primary hub is STILL the shared rule
      (partitionSports on the owner's typed state): a sport the rule keeps secondary renders under "Other
      coverage" as the same lane, so nothing appears as a live simulation unless it is one. */
-  const commandLanes = buildCommandCenter({ dataRoot, repoRoot: path.join(process.cwd(), ".."), today, nowIso: new Date().toISOString(), days: { mlb: mlbDay, epl: eplDay, nfl: nflDay, ufc: ufcDay } });
+  const commandLanes = [...buildCommandCenter({ dataRoot, repoRoot: path.join(process.cwd(), ".."), today, nowIso: new Date().toISOString(), days: { mlb: mlbDay, epl: eplDay, nfl: nflDay, ufc: ufcDay } }), nbaHomeLane];
   const primaryLaneIds = new Set(primarySports.map((s) => s.id));
   const primaryLanes = commandLanes.filter((l) => primaryLaneIds.has(l.sport));
   const secondaryLanes = commandLanes.filter((l) => !primaryLaneIds.has(l.sport));
