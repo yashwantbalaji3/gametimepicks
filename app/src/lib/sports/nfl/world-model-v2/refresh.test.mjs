@@ -81,6 +81,46 @@ test("2 · percentile sampling noise alone does not trigger regeneration", () =>
   assert.equal(artifactSha(sb, PHI_JAX), a);
 });
 
+test("2c · a re-sampled published median (same distribution) restates the record in place and never re-simulates", () => {
+  // 2026-10-22 14:31Z: a forecast revision moved 401873011's sampled margin median -6 → -5 and projected away 25 → 24 with
+  // an identical distribution; the restated record stayed stale (consistency audit PROJECTION_MISMATCH).
+  const sb = sandbox();
+  build(sb);
+  const files = runFiles(sb); const before = artifact(sb, PHI_JAX); const other = artifactSha(sb, IND_PIT);
+  let want;
+  edit(forecasts(sb), (d) => {
+    const f = d.forecasts.find((x) => x.providerEventId === PHI_JAX); const s = f.forecastSummary;
+    s.margin.median += 1; s.total.median -= 1; s.winProbability.home = Number((s.winProbability.home - 0.0002).toFixed(4));
+    if (s.projectedScore) s.projectedScore.away -= 1;
+    want = s;
+  });
+  const out = build(sb, { now: "2026-10-09T01:05:00Z" });
+  assert.equal(simulated(out), 0, out);
+  assert.match(out, /1 restated/);
+  assert.deepEqual(runFiles(sb), files, "no new run file: the simulation is unchanged");
+  assert.equal(artifactSha(sb, IND_PIT), other, "the untouched game is byte-identical");
+  const after = artifact(sb, PHI_JAX);
+  assert.equal(after.simulationId, before.simulationId);
+  assert.deepEqual(after.run, before.run);
+  assert.deepEqual(after.game.winProbability, before.game.winProbability, "the simulated worlds are unchanged");
+  assert.deepEqual(after.sampledWorlds, before.sampledWorlds);
+  assert.equal(after.forecastOfRecord.marginMedianHome, want.margin.median);
+  assert.equal(after.forecastOfRecord.totalMedian, want.total.median);
+  assert.equal(after.forecastOfRecord.winProbability.home, want.winProbability.home);
+  if (want.projectedScore) assert.deepEqual(after.forecastOfRecord.projectedScore, { home: want.projectedScore.home, away: want.projectedScore.away });
+  assert.equal(after.forecastOfRecord.restatedAt, "2026-10-09T01:05:00Z");
+  assert.equal(after.game.disagreement.marginMedianHome.forecastOfRecord, want.margin.median);
+  assert.equal(after.game.disagreement.totalMedian.forecastOfRecord, want.total.median);
+  assert.equal(after.game.disagreement.winProbabilityHome.forecastOfRecord, want.winProbability.home);
+  const { contentSha256, ...rest } = after;
+  assert.equal(contentSha256, crypto.createHash("sha256").update(JSON.stringify(rest)).digest("hex"), "content hash recomputed");
+  // and a further refresh with the same record writes nothing
+  const sha = artifactSha(sb, PHI_JAX);
+  const again = build(sb, { now: "2026-10-09T01:06:00Z" });
+  assert.match(again, /0 simulated, 2 unchanged, 0 restated/);
+  assert.equal(artifactSha(sb, PHI_JAX), sha);
+});
+
 test("2b · a record written before the distribution was published falls back to the median and range, named as such", () => {
   const sb = sandbox();
   edit(forecasts(sb), (d) => { for (const f of d.forecasts) delete f.forecastSummary.distribution; });
