@@ -14,6 +14,8 @@ import path from "node:path";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
+globalThis.React = React; // the lane card renders TeamLogo, which compiles with the classic JSX runtime under tsx (as nba-hub.test.mjs)
+
 import { WITHHELD } from "./experimental-public-lane.mjs";
 import {
   GAME_STATUS_LABEL, gameStatusAtBuild, gameStatusOnClock, gameLink, hubLaneAnchor, HUB_SCHEDULE_HREF, slateHref, slateNav,

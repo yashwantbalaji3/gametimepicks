@@ -16,11 +16,28 @@ import { freshnessFor } from "./freshness";
 import { modelStatusFor } from "./model-status";
 import { featuredEpl, featuredMlb, featuredNfl, featuredUfc } from "./featured";
 
+/** One matchup row on a lane that lists games instead of featuring a card (NBA — lib/command-center/nba-lane.ts). */
+export interface CommandCenterGame {
+  id: string;
+  /** "CLE @ PHI" */
+  label: string;
+  /** Crest codes [away, home] for TeamLogo (ESPN abbreviations); null where the team is not a registry team (never guessed). */
+  crests: [string | null, string | null];
+  /** "7:00 PM ET" */
+  time: string;
+  /** The row's one fact: the official side, a recorded final, or why there is none. */
+  note: string;
+  /** Where the row leads (NBA: the game's card on /nba); null renders the row as text. */
+  href: string | null;
+}
+
 export interface CommandCenterLane {
-  sport: CardSport;
+  /** NBA rides the lane without being a CardSport: it lists games and features no universal card. */
+  sport: CardSport | "nba";
   label: string;
   hubHref: string;
-  simulateHref: string;
+  /** null: the sport has no /simulate entry (NBA's per-game research simulations are linked from its rows). */
+  simulateHref: string | null;
   /** Hub vocabulary from the shared rule (LIVE_TODAY, IN_SEASON_NO_SLATE, EVENT_THIS_WEEK, HISTORICAL_ONLY, NOT_SUPPORTED). */
   state: string;
   stateLabel: string;
@@ -34,6 +51,10 @@ export interface CommandCenterLane {
   emptyLine: string | null;
   /** A secondary league inside this lane (Ligue 1 under the soccer lane) when its artifact publishes. */
   secondary: { label: string; href: string; note: string } | null;
+  /** Today's matchups (NBA); when present they take the featured card's place. */
+  games?: CommandCenterGame[];
+  /** Today's games beyond `games`, counted, never listed here. */
+  moreGames?: number;
 }
 
 export interface CommandCenterInput {

@@ -9,6 +9,8 @@ import path from "node:path";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
+globalThis.React = React; // the lane card renders TeamLogo, which compiles with the classic JSX runtime under tsx (as nba-hub.test.mjs)
+
 import { buildExperimentalSnapshot, snapshotMatchesSource, LANE, WITHHELD, AMENDMENT_A } from "./experimental-public-lane.mjs";
 import { capabilityState, canEnterPredictionProducts } from "../../sport-capability-registry.ts";
 

@@ -15,6 +15,8 @@ import crypto from "node:crypto";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
+globalThis.React = React; // the lane card renders TeamLogo, which compiles with the classic JSX runtime under tsx (as nba-hub.test.mjs)
+
 import {
   buildExperimentalSnapshot, snapshotMatchesSource, comboReconciliation, laneIsCurrent,
   STATS, PROJECTION_BOARD_STATS, COMBO_STATS, COMBO_COMPONENTS, COMBO_LABEL, AMENDMENT_A, LANE, WITHHELD,

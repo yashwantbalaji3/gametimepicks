@@ -162,7 +162,7 @@ export default function TeamLogo({
        byte-for-byte. Only the size varies per instance, so only the size is still inline — this
        component renders 545 times on /results alone, at ~360 bytes of repeated style each. */
     <span
-      className="gtp-team-logo relative inline-flex items-center justify-center"
+      className="gtp-team-logo"
       data-highlight={highlight ? "true" : undefined}
       style={{ ["--gtp-tl-size" as string]: `${px}px`, ["--gtp-tl-img" as string]: `${px - 8}px` }}
     >
