@@ -16,9 +16,14 @@ name: nba-props-pilot
 # ODDS_DRY_RUN IS DELIBERATELY NOT READ. It is shared with auto-refresh.yml: flipping it to run this pilot would
 # also re-enable that workflow's paid calls. This pilot has its own switch (1).
 #
-# Writes only PRIVATE research files (data/internal/research/odds/nba/**: the credit ledger and the parsed price
-# records). That path is not a Vercel build input (app/scripts/vercel-ignore-build.sh), so a commit here builds
-# nothing, and no page reads it: no odds or book names reach any public page.
+# STORAGE (founder decision, 2026-10-22): raw or reconstructable sportsbook prices are NEVER committed to this public
+# repository. The capture writes price records only to a private directory outside every repository
+# (--out-dir / GTP_PRIVATE_DATA_DIR; app/src/lib/ops/private-data-dir.mjs) and refuses a paid run before any call when
+# none is configured. A GitHub-hosted runner has no such private storage, so as written this workflow CANNOT spend:
+# an armed run is refused (exit 2) before the first paid call. A future approved pilot needs an approved private
+# storage target first. The only file this workflow may commit is the credit ledger
+# (data/internal/research/odds/nba/authorization-ledger.json: credits, status and provider balance; no line, no price).
+# The workflow is DISABLED (release owner, 2026-10-22 02:15Z).
 
 on:
   workflow_dispatch:
@@ -85,18 +90,19 @@ jobs:
           # all honest no-spend-further outcomes. 1 = a provider or transport failure: fail the run so it is seen.
           case "$CODE" in 0|2|4) exit 0 ;; *) exit "$CODE" ;; esac
 
-      - name: Commit the ledger and the private price records
+      - name: Commit the credit ledger only (never price records)
         if: always() && steps.gate.outputs.run == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -uo pipefail
-          [ -d data/internal/research/odds/nba ] || { echo "nothing written"; exit 0; }
-          git add data/internal/research/odds/nba/
+          L=data/internal/research/odds/nba/authorization-ledger.json
+          [ -f "$L" ] || { echo "nothing written"; exit 0; }
+          git add "$L"
           if git diff --staged --quiet; then echo "no changes"; exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -q -m "auto: nba props pilot capture $(date -u +%Y-%m-%dT%H:%M:%SZ) (private) [skip ci]"
+          git commit -q -m "auto: nba props pilot credit ledger $(date -u +%Y-%m-%dT%H:%M:%SZ) (credits only) [skip ci]"
           for a in 1 2 3 4 5; do
             if git push -q origin HEAD:main; then echo "committed on attempt $a"; exit 0; fi
             git fetch -q origin main && git rebase -q origin/main || { git rebase --abort || true; break; }

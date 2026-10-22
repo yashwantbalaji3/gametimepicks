@@ -21,6 +21,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { league as leagueOf } from "../../src/lib/sports/soccer/leagues.mjs";
+import { leagueValidation } from "../../src/lib/sports/soccer/leagues-validation.mjs";
 import { fitEplStrength, scoreMatrix, sparseSplitFlags, normalizeClubName, EPL_MODEL_ID } from "../../src/lib/sports/epl/strength-state.mjs";
 import { fetchScoreboardWindowEvents, isProviderRefusal, utcDayStart, utcDayEnd } from "../../src/lib/sports/espn-scoreboard-window.mjs";
 import { espnSoccerEventId } from "../../src/lib/sports/soccer/event-id.mjs";
@@ -36,12 +37,13 @@ if (!["ACCEPTED_V1", "LIVE"].includes(L.stage)) { console.error(`REFUSED: ${L.na
 const corpus = JSON.parse(fs.readFileSync(path.join(ROOT, "data/internal/research/soccer", L.key, "corpus-openfootball-v1.json"), "utf8"));
 /*
  * Soccer V2 · C-4: WHICH model publishes and WHICH season is its holdout come from the league's own validation
- * evidence (registry `validation`), never from this file. The model below may publish only if it is the one the
- * league's preregistration tested — so a future model can never go out under an old acceptance.
+ * evidence (the registry's server-only leagues-validation.mjs), never from this file. The model below may publish
+ * only if it is the one the league's preregistration tested — so a future model can never go out under an old acceptance.
  */
-if (!L.validation?.preregistration || !L.validation?.report) { console.error(`REFUSED: ${L.name} has no registered validation evidence`); process.exit(3); }
-const prereg = JSON.parse(fs.readFileSync(path.join(ROOT, L.validation.preregistration), "utf8"));
-const report = JSON.parse(fs.readFileSync(path.join(ROOT, L.validation.report), "utf8"));
+const V = leagueValidation(L.key);
+if (!V?.preregistration || !V?.report) { console.error(`REFUSED: ${L.name} has no registered validation evidence`); process.exit(3); }
+const prereg = JSON.parse(fs.readFileSync(path.join(ROOT, V.preregistration), "utf8"));
+const report = JSON.parse(fs.readFileSync(path.join(ROOT, V.report), "utf8"));
 const testedModel = String(prereg.whatIsBeingTested?.model ?? "").split(/\s/)[0];
 if (testedModel !== EPL_MODEL_ID) { console.error(`REFUSED: ${L.name}'s preregistration tested "${testedModel}", not ${EPL_MODEL_ID} — nothing publishes under another model's acceptance`); process.exit(3); }
 const HOLDOUT = prereg.seasons?.holdout;

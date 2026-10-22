@@ -173,3 +173,13 @@ test("one snapshot per game: an event the ledger already priced (200) is never p
   assert.ok(again.skipped.some((x) => x.reason === "ALREADY_CAPTURED"));
   assert.equal(again.ledger.cumulativeCredits, 1);
 });
+
+test("listed games outside the run's lead window are OUT_OF_WINDOW, never UNMATCHED; a started game stays STARTED", async () => {
+  const far = { id: "fx-far", sport_key: "basketball_nba", commence_time: "2026-10-25T23:30:00Z", home_team: "Miami Heat", away_team: "Orlando Magic" };
+  const f = fakeFetch((url) => (url.includes("/events?") ? { body: [...LIST, far], last: 0 } : { body: pointsOnly, last: 1 }));
+  const r = await run({ now: "2026-10-22T22:30:00Z", clock: () => "2026-10-22T22:30:00Z", apply: true, fetchImpl: f.impl, minLeadMinutes: 20, maxLeadMinutes: 75 });
+  assert.equal(r.state, CAPTURE_STATE.CAPTURED, r.stoppedBecause ?? "");
+  assert.deepEqual(r.skipped.find((x) => x.oddsEventId === "fx-far"), { oddsEventId: "fx-far", reason: "OUT_OF_WINDOW" });
+  assert.equal(r.skipped.find((x) => x.oddsEventId === "fx-started")?.reason, "STARTED");
+  assert.ok(!r.skipped.some((x) => x.reason === "UNMATCHED"));
+});

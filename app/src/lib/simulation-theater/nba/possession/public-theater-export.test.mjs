@@ -35,8 +35,19 @@ const REQUIRED = [ROLE_C_LABEL, ...ROLE_C_NOTE, POSSESSION_BANNER, OFFICIAL_PANE
 const scan = (dir) => scanFlagOnTheaterExport(dir, { required: REQUIRED, placeholder: NBA_PUBLIC_THEATER_PLACEHOLDER });
 
 test("flag ON: every published page carries the founder's labels; only the allowlisted markers, only on the route and its chunks", { skip: !BUILT ? "no export at app/out (run the build first)" : !FLAG_ON ? "flag OFF build (GTP_NBA_THEATER_PUBLIC not 1)" : false }, () => {
+  // The placeholder never ships, in any build (prune-internal-routes.mjs).
+  assert.equal(fs.existsSync(path.join(SIM, NBA_PUBLIC_THEATER_PLACEHOLDER)), false, "the inert placeholder page is pruned");
+  if (!fs.existsSync(SIM)) {
+    // Between slates (the build's ET slate has no stored runs yet) a flag-ON export legitimately has NO Theater page —
+    // but the [eventId] route chunk is still emitted, so the base leak scan and the stray-chunk rule still apply.
+    const r0 = scan(OUT);
+    assert.deepEqual(r0.leaks, [], "between slates: no §5 private marker outside the allowlist");
+    assert.deepEqual(r0.strayChunks, [], "between slates: no non-Theater page loads a chunk carrying the Theater markers");
+    console.log("# NBA theater ON: between slates — no /nba/simulation/<id>/ page in this export (placeholder pruned)");
+    return;
+  }
   const r = scan(OUT);
-  assert.ok(r.pages.length > 0, "a flag-ON export with no published /nba/simulation/<id>/ page — the check would be vacuous");
+  assert.ok(r.pages.length > 0, "out/nba/simulation/ exists but carries no game page");
   assert.deepEqual(r.leaks, [], "no §5 private marker outside the allowlist, its route and its chunks");
   assert.deepEqual(r.missing, [], "every page carries the role C label, the five-point note, the banner and the official panel");
   assert.ok(r.markerChunks.length > 0, "the island's chunk carries its data attributes — the scan is looking");

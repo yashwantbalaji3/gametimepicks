@@ -27,6 +27,7 @@ const REPO = path.resolve(APP, "..");
 const asJson = process.argv.includes("--json");
 
 const { SPORT_CAPABILITIES } = await import("../src/lib/sport-capability-registry.ts");
+const { evidenceOf } = await import("../src/lib/sport-capability-evidence.ts");
 
 const etDate = (d) =>
   new Intl.DateTimeFormat("en-CA", {
@@ -73,7 +74,7 @@ function daysBetween(fromIsoDate, toIsoDate) {
 const today = etDate(new Date());
 
 const report = SPORT_CAPABILITIES.map((cap) => {
-  const evidence = cap.evidence.map(inspect);
+  const evidence = evidenceOf(cap.key).map(inspect);
   const newest = evidence
     .map((e) => e.newestArtifact)
     .filter(Boolean)

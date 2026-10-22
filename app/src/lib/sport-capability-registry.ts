@@ -17,6 +17,12 @@
  *
  * This registry states capability. It does not decide layout; display modules should ask it rather than
  * infer capability from their own labels.
+ *
+ * EVIDENCE IS NOT HERE (Housekeeping 10-22). This module is imported by client code (e.g. custom-parlay-builder.tsx
+ * → custom-parlay.ts → sport-capabilities.ts), so every string in it ships to the browser. Each sport's evidence
+ * paths — some under data/internal — live in the SERVER-ONLY sport-capability-evidence.ts (`evidenceOf(key)`),
+ * read only by tests and scripts/audit-sports.mjs. Nothing here may name a data/internal path
+ * (lib/client-graph-internal-paths.test.mjs).
  */
 
 export type CapabilityState =
@@ -44,13 +50,12 @@ export interface SportCapability {
   state: CapabilityState;
   /** WHY this sport has this state, in one sentence a non-engineer can check. */
   reason: string;
-  /** Repo paths whose contents justify `state`. Keeps the claim auditable instead of asserted. */
-  evidence: string[];
+  /* The repo paths whose contents justify `state` are server-only: sport-capability-evidence.ts evidenceOf(key). */
 }
 
 /**
- * The registry. Every state below is backed by a file in `evidence` — if you change a state, change the
- * evidence with it, or the guard test will ask you why.
+ * The registry. Every state below is backed by files in sport-capability-evidence.ts — if you change a state,
+ * change its evidence with it, or the guard test will ask you why.
  */
 export const SPORT_CAPABILITIES: ReadonlyArray<SportCapability> = [
   {
@@ -59,12 +64,6 @@ export const SPORT_CAPABILITIES: ReadonlyArray<SportCapability> = [
     state: "FULL_MODEL",
     reason:
       "Daily board, 10,000-run full-game simulations, a canonical prediction layer, and nightly settlement all run and publish for the current slate.",
-    evidence: [
-      "app/public/data/mlb/full-game-simulations/",
-      "app/public/data/mlb/predictions/",
-      "app/src/lib/mlb/prediction/decision.ts",
-      ".github/workflows/mlb-daily-production.yml",
-    ],
   },
   {
     key: "nba",
@@ -72,13 +71,6 @@ export const SPORT_CAPABILITIES: ReadonlyArray<SportCapability> = [
     state: "HISTORICAL_ONLY",
     reason:
       "Schedule and official finals publish on /nba (free ESPN capture + the write-once finals record); no NBA model has cleared its preregistered bars, so no validated forecast publishes — only the frozen experimental projections of the §13 lane on /nba (not validated, never product-eligible). The May–June 2026 settled player-prop record is a retired model's archive and stays published as one.",
-    evidence: [
-      "status/nba-first-market-recommendation.json",
-      "docs/V18_NBA_REGULAR_SEASON_PREREGISTRATION.md",
-      "app/src/lib/sports/nba/finals-record.mjs",
-      "app/public/data/results/lifetime_summary.json",
-      "app/scripts/build-market-coverage-matrix.mjs",
-    ],
   },
   {
     key: "ufc",
@@ -86,11 +78,6 @@ export const SPORT_CAPABILITIES: ReadonlyArray<SportCapability> = [
     state: "SCAFFOLD_ONLY",
     reason:
       "Formally downgraded 2026-07-23: the moneyline is a de-vigged market price with a capped nudge (no independent signal), and zero bouts are cleanly backtestable because there is no point-in-time pregame odds capture.",
-    evidence: [
-      "status/ufc-graduation-decision.json",
-      "app/public/data/ufc/readiness-latest.json",
-      "app/public/data/ufc/ops-status-latest.json",
-    ],
   },
   {
     key: "soccer",
@@ -98,10 +85,6 @@ export const SPORT_CAPABILITIES: ReadonlyArray<SportCapability> = [
     state: "SCAFFOLD_ONLY",
     reason:
       "The generic soccer key is the World Cup market-implied path: genuine and reusable, but its tournament is over and readiness fails closed on 'no soccer stats/xG/minutes provider connected', so every player market is unsettleable. Club leagues that publish carry their OWN keys (epl, ligue-1).",
-    evidence: [
-      "app/public/data/world-cup/projection-readiness-latest.json",
-      "app/src/lib/market-coverage.ts",
-    ],
   },
   {
     key: "nhl",
@@ -109,7 +92,6 @@ export const SPORT_CAPABILITIES: ReadonlyArray<SportCapability> = [
     state: "SCAFFOLD_ONLY",
     reason:
       "No ingest script exists anywhere in the repo; the handful of schedule files came from a single manual run and nothing can refresh them, let alone project.",
-    evidence: ["app/public/data/nhl/schedule/", "app/src/lib/data-nhl.ts"],
   },
   {
     key: "ipl",
@@ -117,7 +99,6 @@ export const SPORT_CAPABILITIES: ReadonlyArray<SportCapability> = [
     state: "SCAFFOLD_ONLY",
     reason:
       "Schedule-only. There is no per-batsman/per-bowler stats source, and the projection pipeline was deliberately removed from every user-facing surface.",
-    evidence: ["app/public/data/ipl/schedule/", "app/src/lib/cricket-projection.ts"],
   },
   {
     key: "wnba",
@@ -125,7 +106,6 @@ export const SPORT_CAPABILITIES: ReadonlyArray<SportCapability> = [
     state: "SCAFFOLD_ONLY",
     reason:
       "Schedule snapshot only, hand-maintained in event-schedules.ts with no refresh job. No projections, no odds, no simulation path.",
-    evidence: ["app/src/lib/event-schedules.ts", "app/src/lib/sports-coverage.ts"],
   },
   {
     key: "mls",
@@ -133,7 +113,6 @@ export const SPORT_CAPABILITIES: ReadonlyArray<SportCapability> = [
     state: "SCAFFOLD_ONLY",
     reason:
       "Schedule snapshot only. It shares the soccer market-implied path, which is itself blocked on a stats provider, so nothing predictive can publish.",
-    evidence: ["app/src/lib/event-schedules.ts", "app/public/data/world-cup/projection-readiness-latest.json"],
   },
   {
     key: "epl",
@@ -141,12 +120,6 @@ export const SPORT_CAPABILITIES: ReadonlyArray<SportCapability> = [
     state: "EXPERIMENTAL_PUBLIC",
     reason:
       "Fixtures, exact-Poisson match forecasts, a validated scorer head and priced paper cards all publish under an experimental banner, and the lab ledger grades them; the model has not beaten the market out of sample, so nothing enters official prediction products.",
-    evidence: [
-      "app/public/data/epl/graded-picks.json",
-      ".github/workflows/epl-matchweek.yml",
-      "app/public/data/parlays/lab-ledger.json",
-      "data/internal/research/epl/learning/latest.json",
-    ],
   },
   {
     /* Soccer V2 · C-3: Ligue 1 had published since P257 but had no row here, so every capability lookup
@@ -156,12 +129,6 @@ export const SPORT_CAPABILITIES: ReadonlyArray<SportCapability> = [
     state: "EXPERIMENTAL_PUBLIC",
     reason:
       "Model-only match forecasts publish at /soccer/ligue-1 after the preregistered league backtest accepted the Premier League model unchanged (draw calibration 0.0271 against a 0.030 bar); forward grading has too few matches to assess, there are no odds and no player markets, so nothing enters official prediction products.",
-    evidence: [
-      "app/public/data/soccer/ligue-1/forecasts/latest.json",
-      "app/public/data/soccer/ligue-1/results/graded.json",
-      "data/internal/research/soccer/ligue-1/reports/walk-forward-v1.json",
-      ".github/workflows/soccer-leagues.yml",
-    ],
   },
   {
     key: "nfl",
@@ -169,12 +136,6 @@ export const SPORT_CAPABILITIES: ReadonlyArray<SportCapability> = [
     state: "EXPERIMENTAL_PUBLIC",
     reason:
       "Schedule capture, weekly forecasts-of-record from the evaluated regular-season identity, weekly player boards and graded history all exist; every game is classified PUBLIC_EXPERIMENTAL, and only VALIDATED_PICK may become a product leg — so nothing enters official prediction products yet (see nfl/product-eligibility.json for the live gate).",
-    evidence: [
-      "app/public/data/nfl/index.json",
-      ".github/workflows/nfl-event-window.yml",
-      "app/public/data/nfl/graded-picks.json",
-      "data/internal/research/nfl/regular-season-public-card-v1.json",
-    ],
   },
 ];
 
@@ -186,7 +147,6 @@ export const UNKNOWN_SPORT: SportCapability = {
   label: "Unknown",
   state: "DISABLED",
   reason: "Not in the capability registry — fails closed rather than defaulting to capable.",
-  evidence: [],
 };
 
 /** Look up a sport's capability. Case/whitespace insensitive; unknown → DISABLED. */

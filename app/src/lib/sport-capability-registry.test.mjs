@@ -26,6 +26,7 @@ import {
   FULL_MODEL_SPORTS,
   CAPABILITY_BADGE,
 } from "./sport-capability-registry.ts";
+import { SPORT_CAPABILITY_EVIDENCE, evidenceOf } from "./sport-capability-evidence.ts";
 
 const REPO = path.join(process.cwd(), "..");
 const STATES = ["FULL_MODEL", "EXPERIMENTAL_PUBLIC", "HISTORICAL_ONLY", "RESEARCH_ONLY", "SCAFFOLD_ONLY", "DISABLED"];
@@ -49,11 +50,21 @@ test("every sport declares a REASON and EVIDENCE, and the evidence actually exis
   for (const c of SPORT_CAPABILITIES) {
     assert.ok(STATES.includes(c.state), `${c.key}: state must be one of the declared states`);
     assert.ok(c.reason && c.reason.length > 40, `${c.key}: needs a real reason, not a label`);
-    assert.ok(c.evidence.length > 0, `${c.key}: a status nobody can audit is just an opinion`);
-    for (const rel of c.evidence) {
+    assert.ok(evidenceOf(c.key).length > 0, `${c.key}: a status nobody can audit is just an opinion`);
+    for (const rel of evidenceOf(c.key)) {
       assert.ok(fs.existsSync(path.join(REPO, rel)), `${c.key}: cited evidence ${rel} does not exist`);
     }
   }
+});
+
+test("evidence lives in the server-only module, keyed exactly by the registry; the client-safe registry carries none", () => {
+  assert.deepEqual(Object.keys(SPORT_CAPABILITY_EVIDENCE).sort(), SPORT_CAPABILITIES.map((c) => c.key).sort(), "one evidence list per registered sport, no strays");
+  for (const c of SPORT_CAPABILITIES) assert.equal("evidence" in c, false, `${c.key}: no evidence field on the client-reachable registry`);
+  assert.deepEqual(evidenceOf("  EPL "), evidenceOf("epl"), "lookup is case/whitespace insensitive like capabilityOf");
+  assert.deepEqual(evidenceOf("cricket-league-that-does-not-exist"), [], "unknown → no evidence (fails closed)");
+  assert.deepEqual(evidenceOf(null), []);
+  const code = fs.readFileSync(path.join(process.cwd(), "src/lib/sport-capability-registry.ts"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  assert.doesNotMatch(code, /data\/internal/, "the registry ships in client bundles");
 });
 
 test("permissions derive from STATE alone — no per-sport exceptions can creep in", () => {

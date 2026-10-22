@@ -152,7 +152,12 @@ export async function runNbaPropCapture({
 
   const rows = scheduleJoinRows(window);
   const targets = [];
+  const lead = (iso) => Date.parse(iso ?? "") - nowMs;
   for (const ev of Array.isArray(list.body) ? list.body : []) {
+    // A listed game outside this run's lead window is not a join failure: label it for what it is.
+    const l = lead(ev.commence_time);
+    if (Number.isFinite(l) && l <= 0) { skipped.push({ oddsEventId: ev.id ?? null, reason: "STARTED" }); continue; }
+    if (Number.isFinite(l) && (l <= minLeadMinutes * 60_000 || l > maxLeadMinutes * 60_000)) { skipped.push({ oddsEventId: ev.id ?? null, reason: "OUT_OF_WINDOW" }); continue; }
     const j = joinOddsEventToSchedule({ providerEventId: ev.id, home: ev.home_team, away: ev.away_team, scheduledStartUtc: ev.commence_time }, rows, { normalizeName: teamKey });
     if (j.state !== "JOINED" || j.orientation !== "ALIGNED") { skipped.push({ oddsEventId: ev.id ?? null, reason: j.state === "JOINED" ? "ORIENTATION_SWAPPED" : j.state }); continue; }
     if (!(Date.parse(ev.commence_time) > nowMs)) { skipped.push({ oddsEventId: ev.id, reason: "STARTED" }); continue; }

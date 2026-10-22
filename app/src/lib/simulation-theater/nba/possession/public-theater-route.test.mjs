@@ -67,7 +67,10 @@ test("build define and prune: next.config defines GTP_NBA_THEATER_PUBLIC as \"1\
   assert.match(cfg, /env: \{ \.\.\.buildInfoEnv\(\), \.\.\.theaterFlagEnv\(\) \}/);
   const prune = read("scripts/prune-internal-routes.mjs");
   assert.match(prune, /import \{ nbaTheaterPublicEnabled \} from "\.\.\/src\/lib\/simulation-theater\/nba\/feature-manifest\.mjs";/);
-  assert.match(prune, /const NBA_THEATER_ROUTES = nbaTheaterPublicEnabled\(\) \? \[\] : \["nba\/simulation"\];/);
+  // gate ON: real game pages ship, the inert placeholder never does; gate OFF: the whole route is pruned
+  assert.match(prune, /const NBA_THEATER_ROUTES = nbaTheaterPublicEnabled\(\) \? \["nba\/simulation\/nba-theater-disabled"\] : \["nba\/simulation"\];/);
+  assert.equal(NBA_PUBLIC_THEATER_PLACEHOLDER, "nba-theater-disabled", "the prune's literal placeholder route is the route's own placeholder id");
+  assert.doesNotMatch(prune, /possession\//, "the prune (a build step) reads nothing from the possession library");
   assert.match(prune, /const INTERNAL_ROUTES = \[[^\]]*\.\.\.NBA_THEATER_ROUTES/);
 });
 
