@@ -67,7 +67,9 @@ test("WIRING · hub membership flows from the product-day authority; every promo
    *   · NFL enters only with a real simulated slate, and a PAST window never reads as live;
    *   · EPL enters only through the lane's own loader, counting only CURRENT pre-event rows;
    *   · a mere SCHEDULE still cannot promote UFC — upcoming promotes only with predictions;
-   *   · NBA stays out by name (schedules live on /sports).
+   *   · NBA enters only through its lane's evidence gate (founder directive 2026-10-22, NBA UI parity — it replaced the
+   *     earlier "NBA stays out by name" rule): today's official forecast, or one committed in the last few days; a
+   *     schedule alone never promotes it.
    */
   const src = read("src/app/page.tsx");
   const owner = read("src/lib/product-day/product-day.ts");
@@ -77,9 +79,19 @@ test("WIRING · hub membership flows from the product-day authority; every promo
   assert.match(src, /buildProductDays\(/, "the page consumes the product-day authority");
   assert.match(allSportsBlock, /id: "mlb"/);
   assert.match(allSportsBlock, /id: "ufc"/);
-  for (const banned of ['id: "nba"']) {
-    assert.ok(!allSportsBlock.includes(banned), `${banned} must not be a hub entry — schedules live on /sports`);
-  }
+  // NBA: the entry's state is the lane's evidence-gated answer, never a page-local or schedule-derived one.
+  assert.match(allSportsBlock, /id: "nba",\s*state: nbaHomeLane\.state,/, "NBA's hub membership comes from nbaLane");
+  assert.match(src, /nbaLane\(nbaTodaySlate\([^\n]*\{ lastPublished: committedLaneDates\(\)\.at\(-1\) \?\? null \}\)/, "the gate reads the committed official forecasts");
+  const { nbaLane } = await import("../command-center/nba-lane.ts");
+  const game = { id: "g", tipUtc: "2026-10-22T23:00Z", tipLabel: "7:00 PM ET", away: { abbr: "CLE", name: null, logoTeam: null }, home: { abbr: "PHI", name: null, logoTeam: null }, status: "upcoming", finalNote: null, favoured: null, frozenAt: null, players: null, excludedReason: null, theaterHref: null };
+  const day = (forecast, games, next = null) => ({ date: "2026-10-22", dateLabel: "Thu, Oct 22", games, forecast, frozenAt: null, modelVersion: null, next, updatedAt: null });
+  const now = "2026-10-22T15:00:00Z";
+  assert.equal(isPrimary(nbaLane(day("PENDING", [game]), now, { lastPublished: null }).state), false, "a schedule alone never promotes NBA");
+  assert.equal(isPrimary(nbaLane(day("PENDING", [game]), now, { lastPublished: "2026-10-01" }).state), false, "a stale publication does not either");
+  assert.equal(isPrimary(nbaLane(day("DISABLED", [game]), now, { lastPublished: "2026-10-21" }).state), false, "the lane's rollback switch demotes it");
+  assert.equal(nbaLane(day("PUBLISHED", [{ ...game, favoured: { abbr: "PHI", name: null } }]), now).state, SPORT_STATES.LIVE_TODAY, "today's official forecast promotes it");
+  assert.equal(isPrimary(nbaLane(day("PENDING", [game]), now, { lastPublished: "2026-10-21" }).state), true, "a game day before the publish, after yesterday's publication");
+  assert.equal(isPrimary(nbaLane(day("NO_GAMES", []), now, { lastPublished: "2026-10-21" }).state), true, "an off day inside the season");
   assert.ok(!/deriveSportState\(/.test(src), "no page-local state derivation survives — the owner answers, the page maps");
 
   // NFL: evidence lives in the owner — a real simulated slate, and a passed window is history.

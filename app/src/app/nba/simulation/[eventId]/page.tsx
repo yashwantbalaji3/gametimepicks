@@ -47,12 +47,13 @@ export function generateMetadata({ params }: { params: { eventId: string } }): M
 export default async function NbaSimulationTheaterPage({ params }: { params: { eventId: string } }) {
   if (process.env.GTP_NBA_THEATER_PUBLIC === "1" && nbaPublicTheaterOn() && params.eventId !== NBA_PUBLIC_THEATER_PLACEHOLDER) {
     const { loadPublicPossessionTheater } = await import("@/lib/simulation-theater/nba/possession/public-loader.mjs");
-    const { default: NbaPossessionSection } = await import("@/components/simulation-theater/nba/possession/NbaPossessionSection");
+    const { default: NbaPossessionGamePage } = await import("@/components/simulation-theater/nba/possession/NbaPossessionGamePage");
     const load = loadPublicPossessionTheater(REPO_ROOT, params.eventId) as PbLoad; // JS loader → the island's type (as the dev route)
     if (!load.ok) notFound();
+    /* NBA UI parity (founder directive 2026-10-22): skip link → Theater → server-rendered official predictions. */
     return (
       <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden supports-[overflow:clip]:overflow-x-clip">
-        <NbaPossessionSection load={load} />
+        <NbaPossessionGamePage load={load} />
       </div>
     );
   }

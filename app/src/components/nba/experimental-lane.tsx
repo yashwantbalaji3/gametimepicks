@@ -14,6 +14,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { LANE, STATS, LANE_SNAPSHOT_SCHEMA, AMENDMENT_A, laneIsCurrent } from "@/lib/sports/nba/experimental-public-lane.mjs";
 import { THEATER_LINK_TEXT, publicTheaterHref } from "@/lib/simulation-theater/nba/possession/public-route.mjs";
+import TeamLogo from "@/components/team-logo";
+import GameStatusOnClock from "@/components/nba/projection-game-status";
 
 type Row = { providerAthleteId: string; name: string | null; expectedMinutes: number | null; injuryStatus: string | null; medians: Record<string, number | null>; comboMedians?: Record<string, number | null> };
 type Game = {
@@ -121,12 +123,49 @@ export function NbaLaneTonight({ snapshot }: { snapshot: Snapshot | null }) {
 }
 
 /** The game's Theater link — only when /nba/simulation/<id>/ is built (`theaterIds` = public-route publicTheaterRouteIds). */
-function TheaterLink({ id, theaterIds }: { id: string; theaterIds: string[] }) {
+function TheaterLink({ id, theaterIds }: { id: string; theaterIds: readonly string[] }) {
   if (!theaterIds.includes(id)) return null;
-  return <p className="m-0 text-[13px]"><a href={publicTheaterHref(id)} className="underline" style={{ color: "var(--vault-text)" }} data-nba-theater-link={id}>{THEATER_LINK_TEXT}</a></p>;
+  return <p className="m-0"><a href={publicTheaterHref(id)} className="gtp-ev-cta inline-flex items-center rounded-full px-4 text-[13px] font-semibold no-underline" data-nba-theater-link={id}>{THEATER_LINK_TEXT}</a></p>;
 }
 
-export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterIds = [] }: { snapshot: Snapshot | null; statuses?: Record<string, string>; theaterIds?: string[] }) {
+/* ── THE MATCHUP CARD (NBA UI parity 2026-10-22) ──────────────────────────────────────────────────────────────────────
+   The shared hub card language (components/sport-hub/game-summary.tsx EventCard: .gtp-ev panel, crest per side, status
+   chip, read box, ONE action link — "the action is a link, not a row click") in the NBA's compact weight: the card is
+   one article with at most one interactive target, the Theater link, present only when that page is built. Status is
+   never a build-time "Upcoming" that goes stale: a recorded final / postponement is printed as such, anything else is
+   the reader's clock (GameStatusOnClock — Upcoming until the tip instant, then Started; never Final or Live). */
+export type MatchupCardGame = {
+  id: string; tipUtc: string;
+  /** `logo` is the ESPN abbreviation TeamLogo resolves (the lane's / registry's own code) or null — never guessed. */
+  away: { abbr: string; name: string | null; logo: string | null }; home: { abbr: string; name: string | null; logo: string | null };
+  /** "final" / "postponed" from the committed record; anything else reads on the reader's clock. */
+  status: "upcoming" | "final" | "postponed";
+};
+
+const Crest = ({ team, on }: { team: MatchupCardGame["home"]; on: boolean }) =>
+  /* Decorative (ariaLabel ""): the abbreviation beside it names the team. The identity component owns the CDN host and
+     the monogram fallback when a crest fails to load. */
+  team.logo ? <TeamLogo team={team.logo} sport="nba" size="sm" highlight={on} ariaLabel="" /> : <span />;
+
+/* WEIGHT: this card repeats per game on a page with a 250 KB ceiling (experimental-public-lane.test pins < 900 B of HTML
+   a card): one class per element, styling in globals.css (.nbx-*), no per-card label the heading already says. */
+export function MatchupCard({ game: g, favoured = null, children }: { game: MatchupCardGame; favoured?: string | null; children: React.ReactNode }) {
+  return (
+    <article id={laneCardId(g.id)} className="nbx-card">
+      <p className="nbx-top"><span>{et(g.tipUtc).replace(/^[A-Z][a-z]{2} \d+, /, "")}</span><span className="nbx-chip">{g.status === "final" ? "Final" : g.status === "postponed" ? "Postponed" : <GameStatusOnClock t={g.tipUtc} />}</span></p>
+      <h3 className="nbx-match"><Crest team={g.away} on={favoured === g.away.abbr} /><b data-on={favoured === g.away.abbr ? "" : undefined}>{g.away.abbr}</b><i>@</i><b data-on={favoured === g.home.abbr ? "" : undefined}>{g.home.abbr}</b><Crest team={g.home} on={favoured === g.home.abbr} /></h3>
+      {children}
+    </article>
+  );
+}
+
+const cardGame = (g: Game, final: boolean): MatchupCardGame => ({
+  id: g.providerEventId, tipUtc: g.tipUtc, status: final ? "final" : "upcoming",
+  away: { abbr: g.away.abbr ?? "Away", name: g.away.name, logo: g.away.abbr },
+  home: { abbr: g.home.abbr ?? "Home", name: g.home.name, logo: g.home.abbr },
+});
+
+export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterIds = [] }: { snapshot: Snapshot | null; statuses?: Record<string, string>; theaterIds?: readonly string[] }) {
   if (!snapshot || snapshot.games.length === 0) return null;
   return (
     <section id="nba-experimental" className="scroll-mt-24 flex flex-col gap-3" aria-labelledby="nba-experimental-h">
@@ -152,16 +191,16 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
             {snapshot.games[0]?.players.source}, listed on the board by expected minutes, not ranked; team scores withheld;
             receipt = model version and payload hash of the frozen forecast.
           </p>
-          <div className="grid gap-2 sm:grid-cols-2 text-[12px] [&_p]:m-0" style={{ color: "var(--vault-text-mute)" }}>
+          <div className="nbx-grid">
             {snapshot.games.map((g) => (
-              <article key={g.providerEventId} id={laneCardId(g.providerEventId)} className="scroll-mt-24 rounded-lg p-3" style={{ border: "1px solid var(--vault-border)" }} aria-label={`${g.away.abbr} at ${g.home.abbr}, frozen pregame forecast`}>
-                <h3 className="m-0 text-[15px] font-bold" style={{ color: "var(--vault-text)" }}>{g.away.name} at {g.home.name}</h3>
-                <p>Tip-off {et(g.tipUtc)} · frozen pregame forecast, frozen {et(g.frozenAt)}</p>
-                {statuses[g.providerEventId] ? <p>Game status: {statuses[g.providerEventId]}</p> : null}
-                <p className="text-[13px]" style={{ color: "var(--vault-text)" }}><strong>Elo rating favours {favouredName(g) ?? "neither side"}.</strong></p>
-                <p>{g.players.away.length + g.players.home.length} players on the board · receipt {g.receipt.modelVersion} · {g.receipt.payloadSha256.slice(0, 12)}</p>
+              <MatchupCard key={g.providerEventId} game={cardGame(g, !!statuses[g.providerEventId])} favoured={g.elo.favoured}>
+                <div className="nbx-read">
+                  <p><strong>Elo rating favours {favouredName(g) ?? "neither side"}.</strong></p>
+                  <p>Official · frozen pregame forecast, frozen {et(g.frozenAt)} · {g.players.away.length + g.players.home.length} players on the board · receipt {g.receipt.payloadSha256.slice(0, 12)}</p>
+                </div>
+                {statuses[g.providerEventId] ? <p className="nbx-note">Game status: {statuses[g.providerEventId]}</p> : null}
                 <TheaterLink id={g.providerEventId} theaterIds={theaterIds} />
-              </article>
+              </MatchupCard>
             ))}
           </div>
         </>
