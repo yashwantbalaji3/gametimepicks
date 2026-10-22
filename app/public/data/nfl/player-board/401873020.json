@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-21T19:12:25Z",
- "sourceGeneratedAt": "2026-10-21T19:12:25Z",
+ "generatedAt": "2026-10-21T23:55:17Z",
+ "sourceGeneratedAt": "2026-10-21T23:55:17Z",
  "providerEventId": "401873020",
  "matchup": "GB @ DET",
  "kickoffUtc": "2026-10-25T20:25Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-21T19:12:25Z",
-  "roleEvidenceAt": "2026-10-21T19:12:25Z",
+  "injuriesCapturedAt": "2026-10-21T23:55:17Z",
+  "roleEvidenceAt": "2026-10-21T23:55:17Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -48,26 +48,7 @@
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "GB",
-      "pool": "targets",
-      "originalSum": 1.1609,
-      "normalizedSum": 1,
-      "factor": 0.8614,
-      "playerIds": [
-       "nfl-athlete-4701936",
-       "nfl-athlete-4248528",
-       "nfl-athlete-4572680",
-       "nfl-athlete-4249836",
-       "nfl-athlete-4362249",
-       "nfl-athlete-4047365",
-       "nfl-athlete-4429023",
-       "nfl-athlete-4428085",
-       "nfl-athlete-4431487"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_pass_int": {
@@ -156,7 +137,7 @@
       "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4047365",
@@ -201,7 +182,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4248528",
@@ -212,7 +193,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4819231",
@@ -265,7 +246,7 @@
       "anytime_td",
       "player_receptions"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-14163",
@@ -436,19 +417,6 @@
   ],
   "pools": [
    {
-    "team": "GB",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 1,
-    "originalSum": 1.1609,
-    "residualOther": 0,
-    "joined": 9,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
-   {
     "team": "DET",
     "pool": "passAttempts",
     "markets": [
@@ -457,19 +425,6 @@
     "sum": 0.9991,
     "originalSum": 0.9991,
     "residualOther": 0.0009,
-    "joined": 1,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "GB",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 0.9915,
-    "originalSum": 0.9915,
-    "residualOther": 0.0085,
     "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
@@ -486,6 +441,19 @@
     "joined": 5,
     "missed": 0,
     "state": "CONSERVED"
+   },
+   {
+    "team": "GB",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.642,
+    "originalSum": 0.642,
+    "residualOther": 0.358,
+    "joined": 6,
+    "missed": 0,
+    "state": "UNDER_ALLOCATED"
    }
   ],
   "violations": 0
@@ -576,16 +544,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.7028,
+     "mean": 1.9768,
      "p10": 0,
-     "p25": 0.8614,
-     "median": 1.7228,
-     "p75": 2.5842,
-     "p90": 3.4456,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8614
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -598,7 +562,7 @@
    "playerId": "nfl-athlete-4248528",
    "name": "Christian Watson",
    "team": "GB",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 44.953,
@@ -610,16 +574,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.9462,
-     "p10": 0.8614,
-     "p25": 1.7228,
-     "median": 3.4456,
-     "p75": 5.1684,
-     "p90": 7.7526,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8614
-     },
+     "mean": 4.5811,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 9,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -662,7 +622,7 @@
    "playerId": "nfl-athlete-4701936",
    "name": "Matthew Golden",
    "team": "GB",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 44.144,
@@ -674,16 +634,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 4.1681,
-     "p10": 0.8614,
-     "p25": 2.5842,
-     "median": 3.4456,
-     "p75": 6.0298,
-     "p90": 7.7526,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8614
-     },
+     "mean": 4.8388,
+     "p10": 1,
+     "p25": 3,
+     "median": 4,
+     "p75": 7,
+     "p90": 9,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -708,16 +664,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.3726,
+     "mean": 1.5935,
      "p10": 0,
-     "p25": 0.8614,
-     "median": 0.8614,
-     "p75": 1.7228,
-     "p90": 3.4456,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8614
-     },
+     "p25": 1,
+     "median": 1,
+     "p75": 2,
+     "p90": 4,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -751,16 +703,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.9229,
-     "p10": 0.8614,
-     "p25": 1.7228,
-     "median": 2.5842,
-     "p75": 4.307,
-     "p90": 6.0298,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8614
-     },
+     "mean": 3.3932,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -815,16 +763,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.525,
-     "p10": 0.8614,
-     "p25": 1.7228,
-     "median": 3.4456,
-     "p75": 5.1684,
-     "p90": 6.8912,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8614
-     },
+     "mean": 4.0922,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 8,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -861,16 +805,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.0844,
+     "mean": 2.4198,
      "p10": 0,
-     "p25": 0.8614,
-     "median": 1.7228,
-     "p75": 2.5842,
-     "p90": 4.307,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8614
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -955,19 +895,15 @@
    "playerId": "nfl-athlete-4431487",
    "name": "Savion Williams",
    "team": "GB",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_receptions": {
-     "mean": 1.2763,
+     "mean": 1.4817,
      "p10": 0,
      "p25": 0,
-     "median": 0.8614,
-     "p75": 1.7228,
-     "p90": 2.5842,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8614
-     },
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -992,16 +928,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.3319,
+     "mean": 1.5462,
      "p10": 0,
      "p25": 0,
-     "median": 0.8614,
-     "p75": 1.7228,
-     "p90": 2.5842,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8614
-     },
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1044,7 +976,7 @@
    "playerId": "nfl-athlete-4036378",
    "name": "Jordan Love",
    "team": "GB",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
      "mean": 5.029,

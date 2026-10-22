@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-21T19:12:25Z",
- "sourceGeneratedAt": "2026-10-21T19:12:25Z",
+ "generatedAt": "2026-10-21T23:55:17Z",
+ "sourceGeneratedAt": "2026-10-21T23:55:17Z",
  "providerEventId": "401873022",
  "matchup": "KC @ SEA",
  "kickoffUtc": "2026-10-26T00:20Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-21T19:12:25Z",
-  "roleEvidenceAt": "2026-10-21T19:12:25Z",
+  "injuriesCapturedAt": "2026-10-21T23:55:17Z",
+  "roleEvidenceAt": "2026-10-21T23:55:17Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -182,7 +182,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4832955",
@@ -282,7 +282,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-2977187",
@@ -441,19 +441,6 @@
    },
    {
     "team": "SEA",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.9339,
-    "originalSum": 0.9339,
-    "residualOther": 0.0661,
-    "joined": 7,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "SEA",
     "pool": "passAttempts",
     "markets": [
      "player_pass_yds"
@@ -466,17 +453,30 @@
     "state": "CONSERVED"
    },
    {
+    "team": "SEA",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.7884,
+    "originalSum": 0.7884,
+    "residualOther": 0.2116,
+    "joined": 6,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
     "team": "KC",
     "pool": "targets",
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.7719,
-    "originalSum": 0.7719,
-    "residualOther": 0.2281,
-    "joined": 7,
+    "sum": 0.5969,
+    "originalSum": 0.5969,
+    "residualOther": 0.4031,
+    "joined": 6,
     "missed": 0,
-    "state": "CONSERVED"
+    "state": "UNDER_ALLOCATED"
    }
   ],
   "violations": 0
@@ -585,7 +585,7 @@
    "playerId": "nfl-athlete-15847",
    "name": "Travis Kelce",
    "team": "KC",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 41.601,
@@ -735,7 +735,7 @@
    "playerId": "nfl-athlete-4032473",
    "name": "Rashid Shaheed",
    "team": "SEA",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 25.745,
