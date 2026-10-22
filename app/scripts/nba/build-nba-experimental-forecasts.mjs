@@ -14,7 +14,7 @@
  * (read only) · data/internal/research/injuries/nba/latest.json.
  *
  * Run (from app/):
- *   npx tsx scripts/nba/build-nba-experimental-forecasts.mjs --date 2026-10-03 --now 2026-09-22T12:00:00Z [--write] [--simulations N] [--family v0|v0.1|v0.2|v1] [--out <file>] [--horizon-hours H]
+ *   npx tsx scripts/nba/build-nba-experimental-forecasts.mjs --date 2026-10-03 --now 2026-09-22T12:00:00Z [--write] [--simulations N] [--family v0|v0.1|v0.2|v1|v0.3] [--schedule-file F --rosters-file F --injuries-file F (with --out outside the repo)] [--out <file>] [--horizon-hours H]
  *
  * FAMILIES (v1.8 A1): --family v0 (default) is the frozen preregistered pool (box-score history) and writes
  * experimental/forecasts/; --family v0.1 is the ROSTER-GATED pool and writes experimental-v0.1/forecasts/.
@@ -24,6 +24,14 @@
  * coherent-engine CANDIDATE (game-sim-v1.mjs, nba-sim-v1-coherent): v0.2's roster gate and season fold, the v1 engine and its
  * blended-history profiles (sim-v1-profile.mjs); writes experimental-v1/forecasts/ with the same write-once receipts. --out <file>
  * overrides the output path for a research comparison (never used by the workflow).
+ * --family v0.3 is the role-minutes forward-shadow CHALLENGER (founder 2026-10-22); writes experimental-v0.3/forecasts/. Its
+ * data rule folds the fetched 2026-27 box scores but not the finals record (its Elo is v0.1's), and it ALIGNS WITH v0.1:
+ * a game is frozen only where v0.1's receipt was generated at this --now from the same roster / injury / schedule
+ * inputs (NOT_ALIGNED otherwise, exit 0) — so it must run after v0.1 in the same run, with the same --now.
+ * CANDIDATE families (experimental-forecast.mjs CANDIDATE_FAMILIES, armed: false; none today) are resolvable by name only
+ * and never walked by the pipeline; --write without --out, or an --out inside a forecasts/ directory, is REFUSED for them.
+ * --schedule-file / --rosters-file / --injuries-file (research replay of a past instant's exact inputs) require --out
+ * outside the repository.
  * WRITE-ONCE, PRE-TIP (Session 10 · G2/G4/G7 — lib/sports/nba/forecast-receipt.mjs): the date file is never
  * rewritten whole. A game already in it is kept byte-for-byte; a game whose tip is at or before --now is
  * REFUSED, never forecast late; only games not yet forecast and still ahead are built and ADDED, each with a
@@ -37,7 +45,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { buildForecastArtifact, familySpec, familyGuard, etDateOf, FAMILIES } from "../../src/lib/sports/nba/experimental-forecast.mjs";
+import { buildForecastArtifact, familySpec, familyGuard, etDateOf, FAMILIES, unarmedWriteRefusal, alignedCutoffRefusal } from "../../src/lib/sports/nba/experimental-forecast.mjs";
 import { finalsAsCorpusRows, foldBoxscores } from "../../src/lib/sports/nba/season-fold.mjs";
 import { DEFAULT_SIMULATIONS } from "../../src/lib/sports/nba/game-sim.mjs";
 import { planRun, stampReceipt, mergeForecastArtifact, frozenGameViolations, injurySnapshotProvenance, sha256 } from "../../src/lib/sports/nba/forecast-receipt.mjs";
@@ -47,9 +55,21 @@ const RESEARCH = path.resolve(APP, "..", "data", "internal", "research");
 const NBA = path.join(RESEARCH, "nba");
 const CORPUS = path.join(NBA, "corpus-v1.json");
 const BOXSCORES = path.join(NBA, "boxscores");
-const SCHEDULE = path.join(APP, "public", "data", "nba", "schedule", "latest.json");
-const INJURIES = path.join(RESEARCH, "injuries", "nba", "latest.json");
-const ROSTERS = path.join(NBA, "rosters", "latest.json");
+const REPO = path.resolve(APP, "..");
+const argv0 = process.argv.slice(2);
+const opt0 = (n) => { const i = argv0.indexOf(n); return i === -1 ? null : argv0[i + 1] ?? null; };
+// RESEARCH REPLAY ONLY: --schedule-file / --rosters-file / --injuries-file replace the three committed inputs (e.g. the
+// exact git blobs a past receipt hashed). They require --out OUTSIDE the repository, so a replayed past instant can
+// never become a frozen forecast, a receipt or a sample (2026-10-20/21 are never v0.3 forward samples).
+const OVERRIDES = { schedule: opt0("--schedule-file"), rosters: opt0("--rosters-file"), injuries: opt0("--injuries-file") };
+const OVERRIDDEN = Object.values(OVERRIDES).some(Boolean);
+if (OVERRIDDEN) {
+  const out = opt0("--out") ? path.resolve(opt0("--out")) : null;
+  if (!out || out === REPO || out.startsWith(REPO + path.sep)) { console.error("REFUSED: --schedule-file / --rosters-file / --injuries-file are research replays only — they require --out <file> outside the repository"); process.exit(1); }
+}
+const SCHEDULE = OVERRIDES.schedule ? path.resolve(OVERRIDES.schedule) : path.join(APP, "public", "data", "nba", "schedule", "latest.json");
+const INJURIES = OVERRIDES.injuries ? path.resolve(OVERRIDES.injuries) : path.join(RESEARCH, "injuries", "nba", "latest.json");
+const ROSTERS = OVERRIDES.rosters ? path.resolve(OVERRIDES.rosters) : path.join(NBA, "rosters", "latest.json");
 const FINALS = path.join(APP, "public", "data", "nba", "results", "finals-2026-27.json");
 
 const argv = process.argv.slice(2);
@@ -63,6 +83,11 @@ let FAMILY;
 try { FAMILY = familySpec(opt("--family") ?? "v0"); } catch (e) { console.error(e.message); process.exit(1); }
 const OUT_DIR = path.join(NBA, FAMILY.dir, "forecasts");
 const OUT_FILE = opt("--out");
+{
+  // An unarmed candidate (CANDIDATE_FAMILIES, armed: false) is research only: never a frozen forecast in any forecasts/ dir.
+  const refusal = unarmedWriteRefusal(FAMILY, { write: WRITE, outFile: OUT_FILE ? path.resolve(OUT_FILE) : null, nbaRoot: NBA + path.sep });
+  if (refusal) { console.error(`REFUSED: ${refusal}`); process.exit(1); }
+}
 const HORIZON = opt("--horizon-hours") != null ? Number(opt("--horizon-hours")) : null;
 if (HORIZON != null && !(HORIZON > 0)) { console.error("REFUSED: --horizon-hours must be a positive number"); process.exit(1); }
 if (!DATE || !/^\d{4}-\d{2}-\d{2}$/.test(DATE)) { console.error("REFUSED: --date YYYY-MM-DD required"); process.exit(1); }
@@ -99,6 +124,27 @@ if (plan.outcomes.length > 0 && plan.build.length === 0) {
   process.exit(0);
 }
 const buildIds = new Set(plan.build);
+// SAME CUTOFF (founder condition for v0.3, 2026-10-22): a family that `alignsWith` an anchor freezes a game only when the
+// anchor's receipt for it was generated at THIS --now from THIS run's roster / injury / schedule inputs. Anything else
+// is refused per game (never built at another cutoff). The anchor is built first, in the same run, by the workflows.
+let alignment = null;
+if (FAMILY.alignsWith) {
+  const anchor = familySpec(FAMILY.alignsWith);
+  const anchorFile = path.join(NBA, anchor.dir, "forecasts", `${DATE}.json`);
+  const anchorDoc = fs.existsSync(anchorFile) ? readJson(anchorFile) : null;
+  const anchorById = new Map((anchorDoc?.games ?? []).map((g) => [String(g.providerEventId), g]));
+  const run = { now: NOW, rostersSha256: rostersText != null ? sha256(rostersText) : null, injuriesSha256: injuryInput.provenance.sha256 ?? null, scheduleGeneratedAt: schedule.generatedAt ?? null };
+  const refusedIds = [];
+  for (const id of [...buildIds]) {
+    const why = alignedCutoffRefusal(anchorById.get(id), run);
+    if (why) { buildIds.delete(id); refusedIds.push(id); console.log(`  NOT_ALIGNED ${id}: ${why} — ${FAMILY.family} is frozen only at ${anchor.family}'s instant on ${anchor.family}'s inputs`); }
+  }
+  alignment = { family: anchor.family, generatedAt: NOW, rule: `frozen only where ${anchor.family}'s receipt has generatedAt = this instant and the same roster / injury / schedule inputs` };
+  if (buildIds.size === 0) {
+    console.log(`state=NOT_ALIGNED · ${DATE}: no owed game has a ${anchor.family} receipt at ${NOW} on these inputs (${refusedIds.length} refused) — nothing written (exit 0)`);
+    process.exit(0);
+  }
+}
 if (FAMILY.poolRule === "roster-gated" && !rosters) { console.error(`REFUSED: family ${FAMILY.family} requires ${path.relative(path.resolve(APP, ".."), ROSTERS)} — no roster capture, no forecast (never box-score membership)`); process.exit(1); }
 const readBoxDir = (dir) => (fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => /^\d+\.json$/.test(f)).map((f) => readJson(path.join(dir, f))) : []);
 const corpusBoxscores = readBoxDir(BOXSCORES);
@@ -106,7 +152,15 @@ let boxscores = corpusBoxscores;
 let corpusRows = corpus.rows ?? [];
 let seasonFold = null;
 let finalsText = null;
-if (FAMILY.dataRule !== "corpus-v1") {
+// v0.2 / v1 fold the finals record AND the fetched box scores; the v0.3 candidate folds the box scores only.
+const FOLDS_FINALS = FAMILY.dataRule === "corpus-v1+season-2026-27";
+if (FAMILY.dataRule !== "corpus-v1" && !FOLDS_FINALS) {
+  const fetched = Object.values(FAMILIES).flatMap((f) => readBoxDir(path.join(NBA, f.dir, "boxscores")));
+  const box = foldBoxscores(corpusBoxscores, fetched, { now: NOW });
+  boxscores = box.docs;
+  seasonFold = { boxscoresFolded: box.added, boxscoresSkipped: box.skipped };
+  console.log(`box-score fold @ ${NOW} (no finals fold; Elo stays corpus-v1): box scores +${box.added} ${JSON.stringify(box.skipped)}`);
+} else if (FAMILY.dataRule !== "corpus-v1") {
   // v0.2 (N3): fold the 2026-27 season as of --now. No finals record → no challenger forecast (never a silent v0.1 copy).
   if (!fs.existsSync(FINALS)) { console.error(`REFUSED: family ${FAMILY.family} requires ${path.relative(path.resolve(APP, ".."), FINALS)}`); process.exit(1); }
   finalsText = fs.readFileSync(FINALS, "utf8");
@@ -131,6 +185,7 @@ artifact.inputs = {
   injuries: injuries ? { file: "injuries/nba/latest.json", generatedAt: injuries.generatedAt ?? null, sourceAsOf: injuries.sourceAsOf ?? null, entries: (injuries.entries ?? []).length } : null,
   rosters: rosters ? { file: "rosters/latest.json", asOf: rosters.asOf ?? null, contractVersion: rosters.contractVersion ?? null, teamsCaptured: rosters.manifest?.teamsCaptured ?? null, players: rosters.manifest?.players ?? null } : null,
   ...(seasonFold ? { seasonFold } : {}),
+  ...(OVERRIDDEN ? { researchReplayInputOverrides: { schedule: OVERRIDES.schedule, rosters: OVERRIDES.rosters, injuries: OVERRIDES.injuries, note: "REPLAY_NOT_PUBLISHED — never a forecast of record" } } : {}),
 };
 /* The per-game receipt's inputs: what THIS game was built from, with content hashes (G4). */
 const receiptInputs = {
@@ -139,7 +194,9 @@ const receiptInputs = {
   schedule: { file: "app/public/data/nba/schedule/latest.json", generatedAt: schedule.generatedAt ?? null },
   corpus: { file: "corpus-v1.json", generatedAt: corpus.generatedAt ?? null, rows: (corpus.rows ?? []).length },
   boxscores: { dir: "boxscores/", docs: boxscores.length },
-  ...(seasonFold ? { finals: { file: "app/public/data/nba/results/finals-2026-27.json", sha256: sha256(finalsText), folded: seasonFold.finalsFolded }, fetchedBoxscores: { folded: seasonFold.boxscoresFolded } } : {}),
+  ...(seasonFold && FOLDS_FINALS ? { finals: { file: "app/public/data/nba/results/finals-2026-27.json", sha256: sha256(finalsText), folded: seasonFold.finalsFolded }, fetchedBoxscores: { folded: seasonFold.boxscoresFolded } } : {}),
+  ...(seasonFold && !FOLDS_FINALS ? { fetchedBoxscores: { folded: seasonFold.boxscoresFolded } } : {}),
+  ...(alignment ? { alignedWith: alignment } : {}),
 };
 
 console.log(`NBA experimental forecasts · family ${FAMILY.family} (${FAMILY.poolRule}) · ${DATE} · now ${NOW} · sims ${SIMS}`);

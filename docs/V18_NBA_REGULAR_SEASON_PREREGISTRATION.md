@@ -21,6 +21,7 @@ market moves only with a receipt that cites the bars here.
 | Winner side (Stage 12-S1) | `nba-winner-side@1`: the side of `elo.pHome` (founder N2), TOO_CLOSE only at exactly 0.5 (N4 open), frozen with the producing `modelVersion` | `app/src/lib/sports/nba/winner-side.mjs` |
 | Joint combinations (Stage 12-S1) | `pra`, `ptsAst`, `ptsReb`: quantiles of the per-draw sums of the player's own simulated components (no extra randomness) | `game-sim.mjs` `COMBO_KEYS` |
 | 2026-27 challenger (Stage 12-S1b, founder N3) | family `v0.2`, `nba-experimental-v0.2-season-2026-27`: v0.1's pool, Elo and minutes also folding the 2026-27 finals record and fetched box scores as of the forecast instant | `season-fold.mjs`, `experimental-forecast.mjs` `FAMILIES` |
+| Role-minutes forward-shadow challenger (founder, 2026-10-22; §14, look 8) | family `v0.3`, `nba-experimental-v0.3-role-minutes`; minutes model `nba-minutes-model-v0.3-role-prior`, pool `nba-roster-gated-pool-v0.3`, engine `nba-sim-v0.3-conditional-minutes`: v0.1's roster gate and Elo, a new minutes layer and its normalisation, frozen at the v0.1 cutoff | `minutes-model-v03.mjs`, `game-sim-v03.mjs`, `experimental-forecast.mjs` `FAMILIES` |
 
 The shadow runs **v0 exactly as frozen**. Any v1 candidate from the dispersion plan is a separate
 version string, gets its own forward shadow from the day it is armed, and never rewrites v0's ledger.
@@ -148,6 +149,7 @@ into the capability registry by automation.
 | 5 | 2026-10-20 | **no outcome; governance amendment.** Founder decision (Yash, in the release owner's session, 2026-10-20) creating a separate **EXPERIMENTAL PUBLIC LANE** (§13), recorded before any 2026-27 regular-season final. Read: the frozen pre-tip receipts for 2026-10-20 (v0.1 + Elo; integrity verified). | **No bar, threshold, metric, sample size, graded record or evaluation rule above changed.** No market moved from SHADOW. The capability registry keeps NBA `HISTORICAL_ONLY`. The lane counts toward nothing in §6–§8. |
 | 6 | 2026-10-20 | **no outcome; governance amendment A** (§13 amendment A). Founder's conditional approval (Yash, 2026-10-20) of projection-only player boards with PRA / P+R / P+A. Recorded; activation is via the release-owner gate. Read: the same frozen 2026-10-20 v0.1 receipts, to reconcile the combo fields. | **No bar, threshold, metric, sample size, graded record or evaluation rule above changed.** No market moved from SHADOW; registry still `HISTORICAL_ONLY`. Combos are copied from the receipts (per-draw sums), not recomputed. |
 | 7 | 2026-10-21 | **no outcome; governance amendment C** (§13 amendment C). Founder decision (Yash, in the release owner's session, 2026-10-21): `nba-possession-sim-v0` is ALLOWED as the NBA Theater replay engine and its public presentation is conditionally approved — not a promotion (approval file `docs/launch/approvals/NBA_THEATER_PUBLIC_2026-10-21.md`). Read: the frozen 2026-10-20 v0.1 receipts (official panel) and the stored possession runs built from as-of-tip inputs. | **No bar, threshold, metric, sample size, graded record or evaluation rule above changed.** Elo + v0.1 stay official; no market moved from SHADOW; the possession engine counts toward no validation or product record; registry still `HISTORICAL_ONLY`. |
+| 8 | 2026-10-22 | **Outcome look (investigation of v0.1's low projected minutes, PR 1178) + amendment: the v0.3 forward-shadow challenger (§14).** Read: the frozen 2026-10-20 / 2026-10-21 v0.1 receipts (all 14 games re-derived their `payloadSha256` from the roster and injury git blobs they hashed); the 2026-10-20 final box scores (3 games, 63 matched player rows), for v0.1 and for a REPLAY of the v0.3 candidate; the 25 committed 2026-10-21 PTS lines (private capture — a line is not truth); the release owner's relayed v0.1 shadow grading. **Diagnosis (founder-accepted 2026-10-22):** the primary cause is the uniform 240-minute rescale of the roster pool (`game-sim.mjs:98-99,112`; factors 0.62–1.22; a median 5.2 / 5.5 minutes off projected starters on 10-20 / 10-21); secondary, the trailing window is the last 10 games of 2025-26, play-in and playoffs included (`minutes-model.mjs:56,96-99`); **not preseason** (v0.1 reads no 2026-27 box score; 0 preseason appearances used). The v0.3 rule was chosen on structural grounds. **Disclosure:** v0.3's first draft (one uniform factor on Σ playRate·minutes) changed ONCE, after a PROJECTION-SIDE replay inspection only (rescale factors and starter minutes, no outcome), to bench-first water-filling with v1's frozen power; the 10-20 outcome comparison for v0.3 was computed after that final design; nothing changed after any outcome. The two constants (§14) were approved by the founder for v0.3 only. **Moving closer to sportsbook lines does not establish better accuracy.** | **No bar, threshold, metric, sample size, graded record or evaluation rule above changed.** v0.1 stays official for players and Elo for winners; nothing promoted; registry still `HISTORICAL_ONLY`. 2026-10-20 and 2026-10-21 stay frozen and immutable; this look's replays are descriptive and are **never v0.3 forward-shadow samples** (they were built after tip, §8). v0.3 is frozen (§14) before its first forward slate. |
 
 ## 13. Experimental public lane (amendment, founder decision 2026-10-20)
 
@@ -316,3 +318,66 @@ So, with this amendment on, the `/nba` lane cards became compact (PR 1170):
 **What stays withheld (§13, unchanged):** the official win probability, official team score and ranges; odds, lines, edges, picks and rankings. No Theater output feeds Bank Builder, Moonshot, Parlay Lab or Smart Betslip; the registry stays `HISTORICAL_ONLY`. **No bar, threshold, metric, sample size, graded record or evaluation rule above changed.**
 
 **Activation conditions** — amendment B's five, with this engine; evidence and SHAs are recorded in the approval file; the flag is the release owner's.
+
+## 14. v0.3 role-minutes forward-shadow challenger (founder decision 2026-10-22; look 8)
+
+**Status.** Founder decision of 2026-10-22, recorded in the PR 1116 decision register and relayed by the release owner. v0.3 is **APPROVED as a FORWARD-SHADOW CHALLENGER only**. It is not a promotion, it publishes nothing, and it changes no official value. Evidence and replays: `docs/nba/NBA_V01_PRESEASON_MINUTES_INVESTIGATION_2026-10-21.md` (PR 1178).
+
+**The diagnosis (accepted).**
+- **Primary cause:** the uniform 240-minute rescale. `prepareRoster` multiplies every rostered player's minutes-per-appearance by one factor, 240 ÷ pool sum (`game-sim.mjs:98-99`, applied at `:112`). The pool sums ran 197–384, so the factor was 0.62–1.22, and projected starters lost a median 5.2 (10-20) / 5.5 (10-21) minutes.
+- **Secondary cause:** the "trailing10" window is the team's last 10 games of 2025-26. The "regular" population is `phase !== 1`, so play-in and playoff games are inside it (`minutes-model.mjs:56,96-99`).
+- **Not preseason.** v0.1 reads only the corpus box scores (`dataRule: "corpus-v1"`) and the minutes model drops phase 1.
+- The frozen 2026-10-20 / 2026-10-21 forecasts are unchanged.
+
+**Candidate identity.**
+
+| Component | Version | Where |
+|---|---|---|
+| Family | `v0.3`, role `CHALLENGER`, directory `experimental-v0.3/` (own forecasts and own ledger), `alignsWith: "v0.1"` | `experimental-forecast.mjs` `FAMILIES` |
+| Model version | `nba-experimental-v0.3-role-minutes` | same |
+| Minutes model | `nba-minutes-model-v0.3-role-prior` | `app/src/lib/sports/nba/minutes-model-v03.mjs` |
+| Pool | `nba-roster-gated-pool-v0.3` (v0.1's roster gate: fail closed, injuries rule, INSUFFICIENT_HISTORY null never 0) | `minutes-model-v03.mjs` `gatePoolV03` |
+| Engine | `nba-sim-v0.3-conditional-minutes`: the v0 per-draw model and seed, with conditional minutes, bench-first normalisation and a participation stream (`game-sim.mjs` itself is not edited and stays pinned) | `app/src/lib/sports/nba/game-sim-v03.mjs` |
+| Data rule | `corpus-v1+boxscores-2026-27`: the fetched 2026-27 box scores fold, the finals record does not, so **v0.3's Elo is v0.1's** | `build-nba-experimental-forecasts.mjs` |
+
+**The rules (frozen).**
+- **Population:** regular season = phase 2 + cup final only (`sim-v1-profile.mjs` `inPopulation`; `minutes-model-v03.mjs:76`).
+- **Role prior:** the whole prior regular season, by athlete, across teams.
+- **Blend:** `minutes = (w·Σprior + Σcurrent) / (w·n_prior + n_current)`, `w = min(1, PRIOR_GAMES / n_prior)` (`minutes-model-v03.mjs:122`). Rates, starter share, minutes SD and play rate use the same weights.
+- **Play rate:** appearances ÷ (appearances + coach's-decision DNPs) (`:135`).
+- **Normalisation:** minutes stay conditional on playing, and the team sums to 240 in expectation (Σ playRate·minutes).
+  - An over-full pool is water-filled on minutes^power (`game-sim-v03.mjs:91-93`).
+  - A pool at or under 240 keeps v0's uniform bounded factor.
+
+**The two constants (approved by the founder for v0.3 ONLY).**
+
+| Constant | Value | Origin | Implementation | Rationale |
+|---|---|---|---|---|
+| Prior strength `PRIOR_GAMES` | 10 appearances | Reuses the frozen v0 window length `TRAILING_N = 10` (`minutes-model.mjs:29`, §1). Not fitted to any outcome. | `minutes-model-v03.mjs:58` (`PARAMS`), used at `:122` | The prior is worth one v0 window of games. A thin prior is never inflated (w ≤ 1). There is no switch point, so there is no season-turnover cliff. |
+| Bench-first power `MINUTES_POWER` | 1.25 | Reuses v1's frozen `V1_PARAMS.MINUTES_POWER` (`game-sim-v1.mjs:97`), fitted on 2023-24 only and frozen at look 4. Not fitted to any 2026-27 outcome. | `minutes-model-v03.mjs:52,58` (`NORMALISATION`, `PARAMS`), applied in `game-sim-v03.mjs:93` | A power above 1 takes an over-full pool's excess mostly from short-minutes players, as real rotations do, instead of one share off every starter. |
+
+Both constants, every version string, the family spec and the two source files' sha256 are pinned by `minutes-model-v03.test.mjs` ("FROZEN CONSTANTS AND RULES"). **No tuning after 2026-10-20/21. Any change during the test is a NEW candidate** (new version strings, its own shadow), never an edit of v0.3.
+
+**The founder's conditions.**
+1. v0.1 stays official for players, and Elo for winners. v0.3 never feeds the lane, the official snapshot, the Theater or any product. This is pinned by the "ISOLATION" test (text and import-graph guard).
+2. 2026-10-20 / 2026-10-21 stay frozen and immutable. The replays are descriptive and never forward evidence. The builder refuses replay inputs unless `--out` is outside the repository.
+3. v0.3 is frozen and registered **before its first forward slate**. This section and the code freeze land before the first 2026-10-22 freeze.
+4. **The same information cutoff as the official forecast:**
+   - same instant and same inputs;
+   - a v0.3 game is frozen only where v0.1's receipt for it has `generatedAt` equal to the run's `--now` and the same roster sha256, injury sha256 and schedule capture (`experimental-forecast.mjs` `alignedCutoffRefusal`, enforced by the builder). Any other game is refused per game (`NOT_ALIGNED`), never built at another cutoff;
+   - v0.3 runs after v0.1 in the same workflow run. Its data rule also folds the fetched box scores captured at or before that instant.
+5. Graded against real results by the same grader and ledger rules as every family (`grade-nba-experimental-forecasts.mjs --family v0.3` → `experimental-v0.3/ledger.json`):
+   - errors;
+   - calibration;
+   - interval coverage;
+   - availability handling (predicted-but-DNP, predicted-but-absent, played-but-unpredicted);
+   - minutes accuracy.
+
+   It is compared with v0.1 on paired pre-tip regular-season rows by the champion/challenger evaluator, and a direction is claimed only with an interval excluding 0.
+6. The preregistered promotion rules are kept: §6 minimums, §7 bars and §8 forward shadow, market by market. There is no automatic promotion. Promotion happens only through a founder-approved record in the PR 1154 promotion record, citing READY_FOR_FOUNDER_REVIEW. No new official value without a separate approval.
+
+**Moving closer to the sportsbook lines does NOT establish better accuracy.** On 2026-10-21 the v0.3 replay sat closer to the 25 consensus lines than v0.1: median gap −1.3 vs −3.0. A line is not an outcome, one night is not a sample, and nothing here claims v0.3 is better than v0.1 on any market.
+
+**Looks.** 2026-10-20 / 2026-10-21 are recorded as an outcome look (look 8), never as v0.3 forward samples. The first v0.3 forward sample is the first slate it freezes at v0.1's cutoff after this section lands.
+
+**No bar, threshold, metric, sample size, graded record or evaluation rule above changed.**

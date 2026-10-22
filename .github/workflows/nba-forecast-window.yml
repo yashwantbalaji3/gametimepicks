@@ -113,6 +113,10 @@ jobs:
               # v1 is the coherent-engine CANDIDATE (nba-sim-v1-coherent): shadow research, same instant. Its refusal warns, never fails.
               node scripts/nba/build-nba-experimental-forecasts.mjs --date "$D" --now "$NOW" --write --family v1 --horizon-hours 8 \
                 || echo "::warning::v1 refused for $D — v0, v0.1 and v0.2 unaffected"
+              # v0.3 is the role-minutes forward-shadow CHALLENGER (founder 2026-10-22; prereg look 8 / §14). It freezes a game
+              # only where v0.1 froze it at this same --now from the same inputs (alignedCutoffRefusal); refusal warns only.
+              node scripts/nba/build-nba-experimental-forecasts.mjs --date "$D" --now "$NOW" --write --family v0.3 --horizon-hours 8 \
+                || echo "::warning::v0.3 refused for $D — v0, v0.1, v0.2 and v1 unaffected"
               # PRIVATE Top Boards (points / rebounds / assists / 3PM), frozen write-once at this same pre-tip instant from
               # the forecasts just built or already committed (v0.1 = player champion, founder N1; v1 = coherent-engine
               # candidate). This workflow is the ONLY writer of top-boards/<family>/<date>.json (grading writes ledger.json
@@ -125,7 +129,7 @@ jobs:
             if [ "$V0_FAILED" = "1" ]; then echo "::error::v0 forecast build refused"; exit 1; fi
             # One `git add` per family directory that exists: a single missing pathspec (experimental-v1/ before v1's first
             # successful build) makes `git add` stage NOTHING, which would silently drop every other family's forecast.
-            for FD in experimental experimental-v0.1 experimental-v0.2 experimental-v1; do
+            for FD in experimental experimental-v0.1 experimental-v0.2 experimental-v1 experimental-v0.3; do
               if [ -d "../data/internal/research/nba/$FD" ]; then git add "../data/internal/research/nba/$FD/"; fi
             done
             # Frozen board day files (never ledger.json, which belongs to sport-schedules), per family directory that exists.

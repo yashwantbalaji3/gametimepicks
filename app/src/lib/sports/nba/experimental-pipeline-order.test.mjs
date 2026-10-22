@@ -124,7 +124,15 @@ test("G2 · the pre-tip window: free, own concurrency group, injuries → v0 →
   assert.ok(body.indexOf("--family v0.1 --horizon-hours 8") < body.indexOf("--family v0.2 --horizon-hours 8"), "v0.2 builds after v0.1");
   assert.ok(body.indexOf("--family v0.2 --horizon-hours 8") < body.indexOf("verify-nba-forecast-receipts.mjs --against HEAD"), "v0.2 builds before the frozen-game guard");
   assert.match(body, /--family v0\.2 --horizon-hours 8 \\\n[^\n]*\|\| echo "::warning::/, "v0.2 refusal warns, never fails");
-  assert.match(body, /for FD in experimental experimental-v0\.1 experimental-v0\.2 experimental-v1; do/, "every family's directory (the challenger and the v1 candidate included) is committed with the others");
+  // v0.3 (founder 2026-10-22) joins the loop when the release owner adds its line (PR 1178 body); both forms are accepted.
+  assert.match(body, /for FD in experimental experimental-v0\.1 experimental-v0\.2 experimental-v1( experimental-v0\.3)?; do/, "every family's directory (the challenger and the v1 candidate included) is committed with the others");
+  if (body.includes("--family v0.3")) {
+    // v0.3 aligns with v0.1 (same cutoff): it must build AFTER v0.1, at the same "$D" / "$NOW", warn-only, and be staged.
+    assert.ok(body.indexOf("--family v0.1 --horizon-hours 8") < body.indexOf("--family v0.3 --horizon-hours 8"), "v0.3 builds after v0.1");
+    assert.match(body, /build-nba-experimental-forecasts\.mjs --date "\$D" --now "\$NOW" --write --family v0\.3 --horizon-hours 8 \\\n[^\n]*\|\| echo "::warning::/, "v0.3: same instant, refusal warns, never fails");
+    assert.ok(body.indexOf("--family v0.3 --horizon-hours 8") < body.indexOf("verify-nba-forecast-receipts.mjs --against HEAD"), "v0.3 builds before the frozen-game guard");
+    assert.match(body, /for FD in [^\n]*experimental-v0\.3; do/, "v0.3's directory is staged");
+  }
 });
 
 test("staging survives a family directory that does not exist yet (a missing pathspec must never drop the others)", () => {
@@ -203,12 +211,19 @@ test("shadow grading: sport-schedules grades v0.2 and v1 after v0.1, stages only
   const ss = fs.readFileSync(path.resolve(process.cwd(), "..", ".github", "workflows", "sport-schedules.yml"), "utf8").replace(/^\s*#.*$/gm, "");
   const at = ss.indexOf("grade-nba-experimental-forecasts.mjs --fetch --write --now \"$NOW\" --family \"$FAM\"");
   assert.ok(at > 0, "the shadow families are graded");
-  assert.match(ss, /for FAM in v0\.2 v1; do/);
+  assert.match(ss, /for FAM in v0\.2 v1( v0\.3)?; do/);
   assert.ok(at > ss.indexOf("--family v0.1"), "after v0.1 (whose fetch the others reuse)");
   assert.match(ss, /STATE=FAILED; echo "NBA shadow grading \$FAM" >> "\$REFUSALS"/, "a refusal is recorded, the loop goes on");
   const commit = ss.slice(ss.indexOf("Commit NBA shadow ledgers"));
   const loop = commit.match(/for F in ([^;]+); do/)?.[1] ?? "";
-  assert.deepEqual(loop.trim().split(/\s+/), ["experimental-v0.2/ledger.json", "experimental-v0.2/boxscores", "experimental-v1/ledger.json", "experimental-v1/boxscores"]);
+  const base = ["experimental-v0.2/ledger.json", "experimental-v0.2/boxscores", "experimental-v1/ledger.json", "experimental-v1/boxscores"];
+  const got = loop.trim().split(/\s+/);
+  // v0.3's ledger + box scores join when the release owner adds them (PR 1178 body); both forms are accepted.
+  assert.ok([JSON.stringify(base), JSON.stringify([...base, "experimental-v0.3/ledger.json", "experimental-v0.3/boxscores"])].includes(JSON.stringify(got)), got.join(" "));
+  if (/for FAM in v0\.2 v1 v0\.3; do/.test(ss)) assert.ok(got.includes("experimental-v0.3/ledger.json"), "a graded v0.3 ledger is committed");
+  // v0.3 aligns with v0.1: where sport-schedules builds it, it is after v0.1's build at the same "$NOW" / "$TODAY".
+  const v03 = ss.indexOf('build-nba-experimental-forecasts.mjs --date "$TODAY" --now "$NOW" --write --family v0.3');
+  if (v03 > 0) assert.ok(v03 > ss.indexOf('build-nba-experimental-forecasts.mjs --date "$TODAY" --now "$NOW" --write --family v0.1'), "v0.3 after v0.1, same instant");
   assert.doesNotMatch(loop, /forecasts/, "the window owns the forecasts");
   assert.match(commit, /if \[ -e "data\/internal\/research\/nba\/\$F" \]; then git add/, "each path only if it exists");
 });

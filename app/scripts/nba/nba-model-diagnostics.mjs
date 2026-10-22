@@ -79,7 +79,7 @@ for (const fam of fams) {
     writeOut(path.join(OUT, "diagnostics", `${DATE}.distribution-scores.md`), `# NBA distribution scores — ${DATE} (PRIVATE · diagnostic, promotes nothing)\n\n${tables.map(distributionTableMarkdown).join("\n")}`);
   }
 }
-const cc = evaluateChampionChallenger({ champion: "v0.1", challengers: ["v0.2", "v1"], families: Object.fromEntries(Object.entries(current).map(([k, es]) => [k, es.filter((e) => e.status === "GRADED").map((e) => e.grade)])), computedAt: NOW, bootstrap: { B }, underReview });
+const cc = evaluateChampionChallenger({ champion: "v0.1", challengers: ["v0.2", "v1", "v0.3"], families: Object.fromEntries(Object.entries(current).map(([k, es]) => [k, es.filter((e) => e.status === "GRADED").map((e) => e.grade)])), computedAt: NOW, bootstrap: { B }, underReview });
 cc.asOfSlate = DATE;
 for (const [ch, c] of Object.entries(cc.comparisons)) {
   console.log(`[champion v0.1 vs ${ch}] paired regular-season pre-tip games ${c.pairedGames} · excluded ${JSON.stringify(c.excluded)} · overall ${c.overall}`);

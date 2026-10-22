@@ -372,7 +372,7 @@ test("adapter: finals record + box score → the grader's input; pending, under-
 test("adapter looks for box scores where Top Board grading does, in the same order", () => {
   const dirs = nbaBoxscoreDirs({ repoRoot: REPO }).map(([d, s]) => [path.relative(REPO, d), s]);
   assert.deepEqual(dirs[0], [path.join("data", "internal", "research", "nba", "boxscores"), "corpus"]);
-  assert.deepEqual(dirs.slice(1).map(([, s]) => s), ["experimental-fetch", "experimental-v0.1-fetch", "experimental-v0.2-fetch", "experimental-v1-fetch"]);
+  assert.deepEqual(dirs.slice(1).map(([, s]) => s), ["experimental-fetch", "experimental-v0.1-fetch", "experimental-v0.2-fetch", "experimental-v1-fetch", "experimental-v0.3-fetch"]);
   const ours = nbaBoxscoreLocator({ repoRoot: REPO });
   const theirs = topBoardBoxscoreLocator();
   // A corpus game, an experimental fetch-cache game, and an absent id.

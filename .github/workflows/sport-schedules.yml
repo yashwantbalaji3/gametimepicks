@@ -505,6 +505,9 @@ jobs:
             echo "state=FAILED" >> "$GITHUB_OUTPUT"
             echo "NBA experimental forecasts v0.1" >> "$REFUSALS"
           fi
+          # v0.3 forward-shadow challenger (founder 2026-10-22): aligned to the v0.1 build just made (same --now, same inputs).
+          npx tsx scripts/nba/build-nba-experimental-forecasts.mjs --date "$TODAY" --now "$NOW" --write --family v0.3 \
+            || echo "::warning::v0.3 refused for $TODAY — v0.1 unaffected"
 
       - name: Commit NBA experimental v0 research if its content changed
         if: github.event.inputs.dry_run != 'true' && steps.nbaexp.outputs.state == 'BUILT'
@@ -525,6 +528,7 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -d data/internal/research/nba/experimental-v0.3/forecasts ]; then git add data/internal/research/nba/experimental-v0.3/forecasts/; fi
           git add data/internal/research/nba/experimental-v0.1/
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           node app/scripts/nba/verify-nba-forecast-receipts.mjs --against HEAD
@@ -547,7 +551,7 @@ jobs:
         run: |
           set -uo pipefail
           STATE=GRADED
-          for FAM in v0.2 v1; do
+          for FAM in v0.2 v1 v0.3; do
             if ! npx tsx scripts/nba/grade-nba-experimental-forecasts.mjs --fetch --write --now "$NOW" --family "$FAM"; then
               STATE=FAILED; echo "NBA shadow grading $FAM" >> "$REFUSALS"
             fi
@@ -561,7 +565,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Each path only if it exists (one missing pathspec makes `git add` stage nothing); never a forecasts/ file.
-          for F in experimental-v0.2/ledger.json experimental-v0.2/boxscores experimental-v1/ledger.json experimental-v1/boxscores; do
+          for F in experimental-v0.2/ledger.json experimental-v0.2/boxscores experimental-v1/ledger.json experimental-v1/boxscores experimental-v0.3/ledger.json experimental-v0.3/boxscores; do
             if [ -e "data/internal/research/nba/$F" ]; then git add "data/internal/research/nba/$F"; fi
           done
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
