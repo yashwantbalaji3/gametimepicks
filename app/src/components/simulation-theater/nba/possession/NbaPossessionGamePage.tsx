@@ -10,6 +10,7 @@
  * Inputs beyond the load: the game's frozen lane snapshot for its own ET slate date (combo medians only) and the
  * finals record (a recorded final only), both through the /nba hub's own loaders.
  */
+import Link from "next/link";
 import NbaPossessionSection from "./NbaPossessionSection";
 import type { PbLoad } from "./possession-types";
 import NbaOfficialPredictions, { OFFICIAL_PREDICTIONS_ID } from "@/components/nba/official-predictions";
@@ -29,9 +30,10 @@ export default function NbaPossessionGamePage({ load, nowIso = new Date().toISOS
     <>
       <nav aria-label="This game" className="nbx-gamenav">
         <a href={`#${OFFICIAL_PREDICTIONS_ID}`} className="nbx-skip" data-nba-skip-official="">Skip to Official Predictions ↓</a>
-        <a href="/nba/">← NBA hub</a>
-        <a href="/nba/projections/">Top Boards</a>
-        <a href={NBA_RESULTS_HREF}>Results</a>
+        {/* next/link (not <a>): a full page load from here aborts in-flight route prefetches, which Next logs as errors */}
+        <Link href="/nba/">← NBA hub</Link>
+        <Link href="/nba/projections/">Top Boards</Link>
+        <Link href={NBA_RESULTS_HREF}>Results</Link>
       </nav>
       <NbaPossessionSection load={load} />
       {payload ? <NbaOfficialPredictions official={payload.official} teams={payload.teams} lane={laneGame} finalNote={finalNote} resultsHref={NBA_RESULTS_HREF} /> : null}

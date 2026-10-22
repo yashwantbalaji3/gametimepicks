@@ -14,6 +14,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { LANE, STATS, LANE_SNAPSHOT_SCHEMA, AMENDMENT_A, laneIsCurrent } from "@/lib/sports/nba/experimental-public-lane.mjs";
 import { THEATER_LINK_TEXT, publicTheaterHref } from "@/lib/simulation-theater/nba/possession/public-route.mjs";
+import Link from "next/link";
 import TeamLogo from "@/components/team-logo";
 import GameStatusOnClock from "@/components/nba/projection-game-status";
 
@@ -122,10 +123,15 @@ export function NbaLaneTonight({ snapshot }: { snapshot: Snapshot | null }) {
   );
 }
 
-/** The game's Theater link — only when /nba/simulation/<id>/ is built (`theaterIds` = public-route publicTheaterRouteIds). */
+/**
+ * The game's Theater link — only when /nba/simulation/<id>/ is built (`theaterIds` = public-route publicTheaterRouteIds).
+ * next/link, as /nfl links its game pages (release owner 2026-10-22): a plain <a> made a full page load, which aborted
+ * the hub's in-flight route prefetches, and Next logged "Failed to fetch RSC payload" ~5× per click. prefetch={false}:
+ * a ~190 KB Theater page is fetched on click only, never for every card in view.
+ */
 function TheaterLink({ id, theaterIds }: { id: string; theaterIds: readonly string[] }) {
   if (!theaterIds.includes(id)) return null;
-  return <p className="m-0"><a href={publicTheaterHref(id)} className="gtp-ev-cta inline-flex items-center rounded-full px-4 text-[13px] font-semibold no-underline" data-nba-theater-link={id}>{THEATER_LINK_TEXT}</a></p>;
+  return <p className="m-0"><Link href={publicTheaterHref(id)} prefetch={false} className="gtp-ev-cta inline-flex items-center rounded-full px-4 text-[13px] font-semibold no-underline" data-nba-theater-link={id}>{THEATER_LINK_TEXT}</Link></p>;
 }
 
 /* ── THE MATCHUP CARD (NBA UI parity 2026-10-22) ──────────────────────────────────────────────────────────────────────
@@ -185,7 +191,7 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
            (HTML + flight) and broke the budget at ~12 games. The board shows the same rows from the same snapshot, so
            nothing is lost and no number is restated. */
         <>
-          <p className="m-0 text-[13px]"><a href="/nba/projections/" className="underline" style={{ color: "var(--vault-text)" }}>Every player median for this slate — filter and sort, with PRA, P+R and P+A</a></p>
+          <p className="m-0 text-[13px]"><Link href="/nba/projections/" className="underline" style={{ color: "var(--vault-text)" }}>Every player median for this slate — filter and sort, with PRA, P+R and P+A</Link></p>
           <p className="m-0 text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
             Each game below: the side favoured by {snapshot.games[0]?.elo.source}; player medians from the{" "}
             {snapshot.games[0]?.players.source}, listed on the board by expected minutes, not ranked; team scores withheld;

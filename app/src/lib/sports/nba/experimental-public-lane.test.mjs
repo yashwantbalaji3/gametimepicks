@@ -9,6 +9,7 @@ import path from "node:path";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
+process.env.__NEXT_TRAILING_SLASH = "true"; // next.config.mjs trailingSlash: true — next/link renders hrefs as the build does
 globalThis.React = React; // the lane card renders TeamLogo, which compiles with the classic JSX runtime under tsx (as nba-hub.test.mjs)
 
 import { buildExperimentalSnapshot, snapshotMatchesSource, LANE, WITHHELD, AMENDMENT_A } from "./experimental-public-lane.mjs";

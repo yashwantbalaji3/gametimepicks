@@ -14,6 +14,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 globalThis.React = React; // the island compiles with the classic JSX runtime (as possession-render.test.mjs)
+process.env.__NEXT_TRAILING_SLASH = "true"; // next.config.mjs trailingSlash: true — next/link renders hrefs as the build does
 const { default: Lane } = await import("./experimental-lane.tsx");
 const { NBA_PUBLIC_THEATER_PLACEHOLDER, THEATER_LINK_TEXT, publicTheaterHref, publicTheaterRouteIds } = await import("../../lib/simulation-theater/nba/possession/public-route.mjs");
 const { publicPossessionEvents } = await import("../../lib/simulation-theater/nba/possession/public-loader.mjs");
@@ -27,7 +28,10 @@ const DATE = "2026-10-20";
 const SNAP = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nba/experimental-public", `${DATE}.json`), "utf8"));
 const ON = { constantEnabled: true, env: { GTP_NBA_THEATER_PUBLIC: "1" } };
 const OFF = { constantEnabled: true, env: {} };
-const links = (h) => [...h.matchAll(/<a href="([^"]+)"[^>]*data-nba-theater-link="([^"]+)"[^>]*>([^<]+)<\/a>/g)].map((m) => ({ href: m[1], id: m[2], text: m[3].replace(/&#x27;/g, "'") }));
+// Attribute order is the renderer's (next/link puts class before href since the CTA became a Link, 2026-10-22): read
+// each Theater-link <a>'s href and id from its attributes, whatever their order.
+const links = (h) => [...h.matchAll(/<a\b([^>]*\bdata-nba-theater-link="([^"]+)"[^>]*)>([^<]+)<\/a>/g)]
+  .map((m) => ({ href: /\bhref="([^"]+)"/.exec(m[1])?.[1], id: m[2], text: m[3].replace(/&#x27;/g, "'") }));
 
 test("the link text carries the role C framing (research simulation, unvalidated) and points at the route", () => {
   assert.match(THEATER_LINK_TEXT, /research simulation/);

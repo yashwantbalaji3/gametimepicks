@@ -61,7 +61,9 @@ function Lane({ lane }: { lane: CommandCenterLane }) {
       )}
       <div className="mt-auto flex items-center justify-between gap-2 pt-1 flex-wrap">
         <Link href={lane.hubHref} className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5, minHeight: 24, display: "inline-flex", alignItems: "center" }}>Open {lane.label} hub →</Link>
-        {lane.secondary ? <Link href={lane.secondary.href} className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{lane.secondary.label} · {lane.secondary.note} →</Link> : null}
+        {/* A games lane (NBA) gives its secondary link a 44px target (release owner 2026-10-22: Top Boards measured 15px at
+            390px); the other lanes' links are unchanged. */}
+        {lane.secondary ? <Link href={lane.secondary.href} className={lane.games ? "font-mono gtp-hit-44" : "font-mono"} style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{lane.secondary.label} · {lane.secondary.note} →</Link> : null}
         {lane.simulateHref ? <Link href={lane.simulateHref} className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5, minHeight: 24, display: "inline-flex", alignItems: "center" }}>Simulate →</Link> : null}
       </div>
     </div>
