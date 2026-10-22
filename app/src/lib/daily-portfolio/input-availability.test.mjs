@@ -32,7 +32,7 @@ test("a priced slate is PRICED, and its reason defers to the lane's own qualific
 test("an artifact holding zero games is NO_EVENTS — distinct from both", () => {
   const a = poolAvailability(root({ "mlb/team-markets/2026-09-06.json": { games: [] } }), "2026-09-06");
   assert.equal(a.status, POOL_STATUS.NO_EVENTS);
-  assert.match(emptyPoolReason(a.status, "2026-09-06"), /holds no games/);
+  assert.equal(emptyPoolReason(a.status, "2026-09-06"), "the 2026-09-06 MLB slate holds no games", "the pool is MLB's, and the sentence says so");
   // and the three statuses produce three different answers
   const reasons = new Set([POOL_STATUS.INPUTS_MISSING, POOL_STATUS.NO_EVENTS, POOL_STATUS.PRICED]
     .map((s) => String(emptyPoolReason(s, "2026-09-06"))));
