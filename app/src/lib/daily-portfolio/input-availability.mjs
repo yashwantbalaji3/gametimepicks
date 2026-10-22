@@ -63,7 +63,11 @@ export function poolAvailability(root, date, nowIso = new Date().toISOString()) 
     return { status: POOL_STATUS.INPUTS_MISSING, sources };
   }
   const anyGames = sources.some((s) => (s.games ?? 0) > 0);
-  return { status: anyGames ? POOL_STATUS.PRICED : POOL_STATUS.NO_EVENTS, sources };
+  if (anyGames) return { status: POOL_STATUS.PRICED, sources };
+  /* A slate file present with zero games: the season state's own sentence when it establishes the off day (the same
+     evidence as the absent-file branch above), so the page names the postseason off day instead of a bare "no games". */
+  const noGames = seasonNoGamesReason(root, date, nowIso);
+  return { status: POOL_STATUS.NO_EVENTS, sources, ...(noGames ? { reason: noGames } : {}) };
 }
 
 /**
@@ -93,7 +97,10 @@ export function emptyPoolReason(status, date, detail = null) {
     return `no priced slate has been published for ${date} yet — this is a missing input, not a slate that came up short`;
   }
   if (status === POOL_STATUS.NO_EVENTS) {
-    return detail ?? `the ${date} slate holds no games`;
+    /* This pool is MLB's (team markets / boards). Say so: on 2026-10-21 the bare "the slate holds no games" ran on
+       Bank Builder and Moonshot beside an 11-game NBA night — NBA was simply not eligible, which the page says
+       separately. */
+    return detail ?? `the ${date} MLB slate holds no games`;
   }
   return null;   // PRICED — the lane's own qualification reason stands
 }

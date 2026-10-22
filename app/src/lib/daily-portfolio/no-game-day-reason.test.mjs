@@ -54,3 +54,20 @@ test("the generator passes its clock and the reason through (accounting.ts)", ()
   const v = wf.slice(wf.indexOf("- name: Validate the artifact before publishing"));
   assert.match(v.split("\n").slice(0, 4).join("\n"), /github\.event\.inputs\.dry_run != 'true'/, "a dry run writes no portfolio — nothing of today's to validate");
 });
+
+test("a slate file PRESENT with zero games on a postseason off day names the off day, not a bare 'no games' (2026-10-21)", () => {
+  // 2026-10-21: mlb/boards/<date>.json existed with no games, and Bank Builder / Moonshot read "the 2026-10-21 slate
+  // holds no games" beside an 11-game NBA night. The season state already established the postseason off day.
+  const root = rootWith(POST_OFF);
+  fs.mkdirSync(path.join(root, "mlb", "boards"), { recursive: true });
+  fs.writeFileSync(path.join(root, "mlb", "boards", `${D}.json`), JSON.stringify({ games: [] }));
+  const a = poolAvailability(root, D, NOW);
+  assert.equal(a.status, POOL_STATUS.NO_EVENTS);
+  assert.equal(emptyPoolReason(a.status, D, a.reason), "no MLB games are scheduled for 2026-10-02 — a postseason off day (41 postseason game(s) still to be played, next on 2026-10-03)");
+  // Without season evidence the fallback still names the pool it describes.
+  const bare = rootWith(null);
+  fs.mkdirSync(path.join(bare, "mlb", "boards"), { recursive: true });
+  fs.writeFileSync(path.join(bare, "mlb", "boards", `${D}.json`), JSON.stringify({ games: [] }));
+  const b = poolAvailability(bare, D, NOW);
+  assert.equal(emptyPoolReason(b.status, D, b.reason), `the ${D} MLB slate holds no games`);
+});
