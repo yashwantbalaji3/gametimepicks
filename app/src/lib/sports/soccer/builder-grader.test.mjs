@@ -10,6 +10,7 @@ import path from "node:path";
 
 import { regulationFinal } from "./grading.mjs";
 import { SOCCER_LEAGUES } from "./leagues.mjs";
+import { leagueValidation } from "./leagues-validation.mjs";
 import { EPL_MODEL_ID } from "../epl/strength-state.mjs";
 
 const APP = process.cwd();
@@ -38,8 +39,9 @@ test("🔴 every publishing league's validation evidence names THIS model and a 
   const pub = SOCCER_LEAGUES.filter((l) => (l.stage === "ACCEPTED_V1" || l.stage === "LIVE") && l.key !== "epl");
   assert.ok(pub.length > 0);
   for (const l of pub) {
-    const prereg = read(l.validation.preregistration);
-    const report = read(l.validation.report);
+    const v = leagueValidation(l.key);
+    const prereg = read(v.preregistration);
+    const report = read(v.report);
     assert.equal(String(prereg.whatIsBeingTested.model).split(/\s/)[0], EPL_MODEL_ID, `${l.key}: the preregistration tested the model that publishes`);
     const hold = prereg.seasons.holdout;
     assert.ok(report.scores.poisson.bySeason[hold] && report.scores.empirical.bySeason[hold], `${l.key}: holdout ${hold} is scored`);
@@ -49,5 +51,7 @@ test("🔴 every publishing league's validation evidence names THIS model and a 
   const b = src("scripts/soccer/build-league-forecasts.mjs");
   assert.match(b, /if \(testedModel !== EPL_MODEL_ID\)/);
   assert.doesNotMatch(b, /bySeason\["2025-26"\]/, "no hard-coded holdout season");
-  assert.match(b, /path\.join\(ROOT, L\.validation\.report\)/, "the report path is the registry's");
+  assert.match(b, /import \{ leagueValidation \} from "\.\.\/\.\.\/src\/lib\/sports\/soccer\/leagues-validation\.mjs";/, "the builder reads the registry's validation evidence");
+  assert.match(b, /const V = leagueValidation\(L\.key\);/);
+  assert.match(b, /path\.join\(ROOT, V\.report\)/, "the report path is the registry's");
 });
