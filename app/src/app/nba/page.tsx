@@ -47,6 +47,11 @@ export default async function NbaHubPage() {
   /* NBA UI parity (2026-10-22): today's slate — the same view the homepage NBA lane reads — leads the page. */
   const slate = nbaTodaySlate(nowIso, lane, { laneEnabled: LANE.enabled, theaterIds });
   const uncovered = slate.games.filter((g) => !g.favoured);
+  /* Page weight (/nba ceiling 250 KB): today's games render once, as the cards above — the long schedule lists the rest
+     of the window. A card costs ~2.8 KB (HTML + flight), a duplicate schedule row ~1.4 KB more, which a 15-game night
+     cannot afford twice. */
+  const carded = new Set(slate.games.map((g) => g.id));
+  const scheduleModel = carded.size ? { ...model, rows: model.rows.filter((r) => !carded.has(String(r.id))) } : model;
   const finals = model.rows.filter((r) => r.status === "final").length;
   /* A recorded FINAL (from the same finals record the list below uses) is the only status a card states: the page is a
      static export, so "scheduled" or "tipped" computed at build time would go stale after tip-off. Otherwise the card
@@ -78,7 +83,8 @@ export default async function NbaHubPage() {
       <NbaScheduleCards games={uncovered} id="nba-today-games" heading={lane ? "Also on today's schedule" : `Today's games · ${slate.dateLabel}`} />
       <section id="nba-games" className="scroll-mt-24" aria-label="NBA games">
         {/* Session 11: schedule-only — one line per game keeps every game inside the page budget. */}
-        <HubHeader model={model} compact />
+        {carded.size ? <p className="m-0 mb-2 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>Today&rsquo;s {carded.size} game{carded.size === 1 ? " is" : "s are"} in the cards above; the list below is the rest of the window.</p> : null}
+        <HubHeader model={scheduleModel} compact />
       </section>
 
       <section id="nba-model-status" className="scroll-mt-24 flex flex-col gap-2" aria-labelledby="nba-model-status-h">

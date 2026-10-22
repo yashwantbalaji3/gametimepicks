@@ -110,6 +110,9 @@ test("the homepage renders NBA as a Command Center lane from the hub's own view 
   const hub = read("src/app/nba/page.tsx");
   assert.match(hub, /const uncovered = slate\.games\.filter\(\(g\) => !g\.favoured\);/);
   assert.match(hub, /<NbaScheduleCards games=\{uncovered\}/);
+  // weight: today's carded games are not listed a second time in the long schedule
+  assert.match(hub, /rows: model\.rows\.filter\(\(r\) => !carded\.has\(String\(r\.id\)\)\)/);
+  assert.match(hub, /<HubHeader model=\{scheduleModel\} compact \/>/);
 });
 
 test("/nba overview: the four states say what is true, and 'publishes nothing' is gone", () => {

@@ -82,7 +82,7 @@ function Official({ official, teams, lane }: { official: PbOfficial; teams: Team
         <dt>Favoured side</dt><dd data-nba-official-side=""><strong>{fav ? `${fav.name} (${fav.abbr})` : "Neither side"}</strong> · Elo rating</dd>
         <dt>Models</dt><dd>{official.models.game ?? "—"} (side) · {official.models.players.join(", ") || "—"} (players)</dd>
         <dt>Frozen</dt><dd>{et(official.frozenAt)}{official.lockAt ? ` · locked at tip-off, ${et(official.lockAt)}` : ""}</dd>
-        <dt>Withheld</dt><dd>Win chance, team scores, margin and total, player ranges, prices{w.teamScores ? <span className="st-sr"> · {w.teamScores}</span> : null}</dd>
+        <dt>Withheld</dt><dd>Win chance, team scores, margin and total, player ranges, prices{w.teamScores ? <span className="sr-only"> · {w.teamScores}</span> : null}</dd>
       </dl>
       {(["away", "home"] as const).map((side) => {
         const rows = official.players.filter((p) => p.team === side).sort((a, b) => (b.expectedMinutes ?? -1) - (a.expectedMinutes ?? -1));

@@ -28,8 +28,8 @@ export default function NbaPossessionGamePage({ load, nowIso = new Date().toISOS
   return (
     <>
       <nav aria-label="This game" className="nbx-gamenav">
-        <a href="/nba/">← NBA hub</a>
         <a href={`#${OFFICIAL_PREDICTIONS_ID}`} className="nbx-skip" data-nba-skip-official="">Skip to Official Predictions ↓</a>
+        <a href="/nba/">← NBA hub</a>
         <a href="/nba/projections/">Top Boards</a>
         <a href={NBA_RESULTS_HREF}>Results</a>
       </nav>
