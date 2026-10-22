@@ -43,7 +43,6 @@ const covered = (ref) => INPUTS.some((i) => (i.endsWith("/") ? `${ref}/`.startsW
  *   "forbid"  the named reader is defined once in the module and referenced nowhere else in any public closure.
  */
 const EXEMPTIONS = [
-  { module: "src/lib/sport-capability-registry.ts", kind: "label", why: "evidence[] provenance strings; no I/O" },
   { module: "src/lib/launch/runbook-registry.mjs", kind: "label", why: "runbook receipt descriptions; no I/O" },
   {
     module: "src/lib/research/row-lineage-loader.ts", kind: "allow",

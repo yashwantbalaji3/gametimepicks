@@ -4,8 +4,10 @@
  * Production's site-wide layout chunk (/_next/static/chunks/app/layout-*.js, loaded on every page) shipped five
  * internal file paths — the soccer league preregistration and four walk-forward reports — because the league
  * registry (lib/sports/soccer/leagues.mjs) carried them as `validation` metadata and the site nav reaches that
- * registry (layout.tsx → command-rail.tsx → lib/navigation.ts → lib/sports/catalog.ts → leagues.mjs). The paths now live in the server-only
- * leagues-validation.mjs.
+ * registry (layout.tsx → command-rail.tsx → lib/navigation.ts → lib/sports/catalog.ts → leagues.mjs). The paths now
+ * live in the server-only leagues-validation.mjs. The same walk found sport-capability-registry.ts (client-reachable)
+ * carrying three more in its `evidence` lists; those now live in the server-only sport-capability-evidence.ts.
+ * There is NO exception list: any client-reachable data/internal string fails.
  *
  * Roots: every "use client" module under app/src, plus src/app/layout.tsx (whose whole static graph is held to the
  * same rule, so nothing the site-wide layout imports can name an internal path). From each root the static +
@@ -21,15 +23,6 @@ const APP = process.cwd();
 const SRC = path.join(APP, "src");
 const NEEDLE = "data/internal";
 const LAYOUT = path.join(SRC, "app", "layout.tsx");
-
-/*
- * Known, pre-existing client-reachable modules that still name a data/internal path, each with the follow-up that
- * removes it. NOT reachable from the layout (asserted below). The list may only shrink: an entry that is no longer
- * an offender fails the second test, so it must be deleted when fixed.
- */
-const KNOWN_PENDING = new Map([
-  ["src/lib/sport-capability-registry.ts", "evidence[] provenance strings (EPL learning, Ligue 1 walk-forward, NFL public card) — reached from the Parlay Lab builder client island; follow-up: move evidence paths server-side as was done for soccer leagues"],
-]);
 
 const exts = [".ts", ".tsx", ".mjs", ".js", ".jsx", ".cjs"];
 const isCode = (f) => /\.(tsx?|mjs|js|cjs|jsx)$/.test(f);
@@ -86,21 +79,25 @@ test("no module reachable from src/app/layout.tsx (the site-wide layout chunk) n
   assert.deepEqual([...offenders([LAYOUT])].map(([f, via]) => `${f}: ${via}`), []);
 });
 
-test("no module reachable from a \"use client\" module names a data/internal path (except the shrinking known list)", () => {
+test("no module reachable from a \"use client\" module names a data/internal path — no exceptions", () => {
   assert.ok(CLIENT_ROOTS.length > 20, `found ${CLIENT_ROOTS.length} "use client" roots — the walk is looking`);
-  const found = offenders(CLIENT_ROOTS);
-  const unexpected = [...found].filter(([f]) => !KNOWN_PENDING.has(f)).map(([f, via]) => `${f}: ${via}`);
-  assert.deepEqual(unexpected, [], "a client bundle would ship an internal file path — move the path into a server-only module");
-  for (const f of KNOWN_PENDING.keys()) assert.ok(found.has(f), `${f} no longer reaches a client graph with "${NEEDLE}" — delete it from KNOWN_PENDING`);
-  for (const f of KNOWN_PENDING.keys()) assert.ok(![...graph(LAYOUT).keys()].some((x) => rel(x) === f), `${f} is now reached from the site-wide layout`);
+  const found = [...offenders(CLIENT_ROOTS)].map(([f, via]) => `${f}: ${via}`);
+  assert.deepEqual(found, [], "a client bundle would ship an internal file path — move the path into a server-only module");
 });
 
-test("the soccer registry is clean and its evidence paths live only in the server-only module, which no client graph reaches", () => {
-  const registry = path.join(SRC, "lib", "sports", "soccer", "leagues.mjs");
-  const serverOnly = path.join(SRC, "lib", "sports", "soccer", "leagues-validation.mjs");
-  assert.doesNotMatch(code(read(registry)), /data\/internal/);
-  assert.match(code(read(serverOnly)), /data\/internal\/research\/soccer\/preregistration-league-expansion-v1\.json/);
-  for (const root of [LAYOUT, ...CLIENT_ROOTS]) assert.ok(!graph(root).has(serverOnly), `${rel(root)} reaches the server-only leagues-validation.mjs`);
+test("both registries are clean and their evidence paths live only in server-only modules, which no client graph reaches", () => {
+  const PAIRS = [
+    // [client-reachable registry, its server-only evidence module, a path that must stay server-side]
+    ["lib/sports/soccer/leagues.mjs", "lib/sports/soccer/leagues-validation.mjs", "data/internal/research/soccer/preregistration-league-expansion-v1.json"],
+    ["lib/sport-capability-registry.ts", "lib/sport-capability-evidence.ts", "data/internal/research/soccer/ligue-1/reports/walk-forward-v1.json"],
+  ];
+  for (const [registryRel, serverOnlyRel, internalPath] of PAIRS) {
+    const registry = path.join(SRC, registryRel), serverOnly = path.join(SRC, serverOnlyRel);
+    assert.ok(CLIENT_ROOTS.some((root) => graph(root).has(registry)), `${registryRel} is still client-reachable — the pin covers a real path`);
+    assert.doesNotMatch(code(read(registry)), /data\/internal/, registryRel);
+    assert.ok(code(read(serverOnly)).includes(internalPath), `${serverOnlyRel} holds the evidence`);
+    for (const root of [LAYOUT, ...CLIENT_ROOTS]) assert.ok(!graph(root).has(serverOnly), `${rel(root)} reaches the server-only ${serverOnlyRel}`);
+  }
   // the guard is not vacuous: the module the 10-22 leak came from, as it was, would have failed it
   const leaked = `export const L = [{ key: "laliga", validation: { report: "data/internal/research/soccer/laliga/reports/walk-forward-v1.json" } }];`;
   assert.ok(code(leaked).includes(NEEDLE));
