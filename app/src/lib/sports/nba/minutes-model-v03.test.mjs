@@ -9,6 +9,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
 import crypto from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -16,15 +17,21 @@ import { fileURLToPath } from "node:url";
 import { indexRoleHistory, roleEstimate, gatePoolV03, PARAMS, BASES, NORMALISATION, MINUTES_MODEL_V03_VERSION, POOL_V03_VERSION } from "./minutes-model-v03.mjs";
 import { expectedMinutes, TRAILING_N } from "./minutes-model.mjs";
 import { gatePool } from "./roster-gated-pool.mjs";
-import { prepareRoster, simulateGame, TEAM_MINUTES, MINUTES_RESCALE_BOUNDS } from "./game-sim.mjs";
+import { prepareRoster, simulateGame, TEAM_MINUTES, MINUTES_RESCALE_BOUNDS, MAX_PLAYER_MINUTES, DEFAULT_MINUTES_SD_RATIO } from "./game-sim.mjs";
 import { prepareRosterV03, simulateGameV03, weightedWaterFill, PLAY_RATE_WATER_FILL, NBA_SIM_V03_MODEL_VERSION } from "./game-sim-v03.mjs";
 import { V1_PARAMS } from "./game-sim-v1.mjs";
-import { buildForecastArtifact, familySpec, FAMILIES, CANDIDATE_FAMILIES } from "./experimental-forecast.mjs";
+import { buildForecastArtifact, familySpec, FAMILIES, CANDIDATE_FAMILIES, unarmedWriteRefusal, alignedCutoffRefusal } from "./experimental-forecast.mjs";
+import { inPopulation } from "./sim-v1-profile.mjs";
+import { validatePromotionRecord, RECORD_KIND } from "./promotion-record.mjs";
+import { VERDICT } from "./champion-challenger.mjs";
+import { owingFamilies } from "../../../../scripts/nba/decide-nba-forecast-window.mjs";
 import { stampReceipt } from "./forecast-receipt.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const APP = path.resolve(HERE, "..", "..", "..", "..");
 const NBA = path.resolve(APP, "..", "data", "internal", "research", "nba");
+/** v0.3's two source files, frozen before its first forward slate (founder 2026-10-22). */
+const FROZEN_SOURCES = Object.freeze({ "minutes-model-v03.mjs": "4819ce41c953c4b8df068539c1c85e91ade03cab41e041a6e0291bd3a500bec7", "game-sim-v03.mjs": "1b8aac60d571cba200db1658ff4262c0cfb376ef9e6ec8de081853ebfb0ab82e" });
 
 /* ─────────────── synthetic history ─────────────── */
 const NOW = "2026-10-21T14:00:00Z"; // corpus season 2027 → prior season 2026
@@ -159,39 +166,176 @@ test("PARTICIPATION: a v0.3 side's team total counts each player's points with p
   assert.equal(a.modelVersion, NBA_SIM_V03_MODEL_VERSION);
 });
 
-test("FAMILY: v0.3 is a CANDIDATE resolvable by name, NOT in FAMILIES (the pipeline never walks it), NOT ARMED", () => {
-  assert.deepEqual(Object.keys(FAMILIES), ["v0", "v0.1", "v0.2", "v1"]);
-  assert.deepEqual(Object.keys(CANDIDATE_FAMILIES), ["v0.3"]);
+test("FAMILY: v0.3 is an ARMED forward-shadow CHALLENGER in FAMILIES (founder 2026-10-22), aligned with v0.1; CANDIDATE_FAMILIES is empty", () => {
+  assert.deepEqual(Object.keys(FAMILIES), ["v0", "v0.1", "v0.2", "v1", "v0.3"]);
+  assert.deepEqual(Object.keys(CANDIDATE_FAMILIES), []);
   const f = familySpec("v0.3");
-  assert.equal(f.armed, false);
+  assert.equal(f, FAMILIES["v0.3"]);
+  assert.equal(f.role, "CHALLENGER");
+  assert.equal(f.alignsWith, "v0.1");
+  assert.ok(!("armed" in f), "an armed family carries no armed:false flag");
   assert.equal(f.poolRule, FAMILIES["v0.1"].poolRule);
   assert.equal(f.dataRule, "corpus-v1+boxscores-2026-27", "box scores fold, the finals record does not: Elo stays v0.1's");
-  assert.notEqual(f.dir, FAMILIES["v0.1"].dir);
+  assert.equal(f.dir, "experimental-v0.3");
   const sched = [{ providerEventId: "401999001", dateUtc: "2026-10-22T23:00Z", seasonType: 2, neutralSite: false, home: { abbr: "TOR", name: "Toronto Raptors", providerTeamId: TOR }, away: { abbr: "MIA", name: "Miami Heat", providerTeamId: MIA } }];
   const corpusRows = REG.map((b, i) => ({ providerEventId: b.providerEventId, season: 2026, phase: 2, dateUtc: b.dateUtc, home: "Toronto Raptors", away: "Miami Heat", ftHome: 100 + (i % 5), ftAway: 101, neutralSite: false }));
   const base = { date: "2026-10-22", now: NOW, scheduleRows: sched, corpusRows, boxscores: BOX, injuries: [], rosters: ROSTERS, simulations: 200 };
   const a3 = buildForecastArtifact({ ...base, family: "v0.3" }).artifact;
   const a1 = buildForecastArtifact({ ...base, family: "v0.1" }).artifact;
   assert.equal(a3.modelVersion, "nba-experimental-v0.3-role-minutes");
+  assert.equal(a3.family, "v0.3");
   assert.equal(a3.minutesModelVersion, MINUTES_MODEL_V03_VERSION);
-  assert.equal(a3.armed, false);
+  assert.equal(a3.alignsWith, "v0.1");
   assert.equal(a3.poolVersion, POOL_V03_VERSION);
   assert.equal(a3.simEngineVersion, NBA_SIM_V03_MODEL_VERSION);
   assert.equal(a1.simEngineVersion, "nba-preseason-experimental-v0", "v0.1 still runs the frozen v0 engine");
   assert.deepEqual(a3.games[0].forecast.elo, a1.games[0].forecast.elo, "same Elo as v0.1 — only the minutes layer differs");
-  assert.ok(!("minutesModelVersion" in a1) && !("armed" in a1));
+  // SAME CUTOFF at the artifact level: one instant in, the same instant out, for both families and every game
+  assert.equal(a3.inputAsOf, a1.inputAsOf);
+  assert.deepEqual(a3.games.map((g) => g.forecast.inputAsOf), a1.games.map((g) => g.forecast.inputAsOf));
+  assert.ok(!("minutesModelVersion" in a1) && !("alignsWith" in a1));
   assert.throws(() => buildForecastArtifact({ ...base, rosters: null, family: "v0.3" }), /requires a roster capture/);
 });
 
-test("BUILDER: an unarmed candidate never writes into a forecasts/ directory", () => {
+test("FROZEN CONSTANTS AND RULES (founder 2026-10-22, prereg look 8): any change is a new candidate, never an edit of v0.3", () => {
+  assert.deepEqual({ ...PARAMS }, { PRIOR_GAMES: 10, MIN_GAMES_FOR_RATES: 3, MINUTES_POWER: 1.25 });
+  assert.equal(PARAMS.PRIOR_GAMES, TRAILING_N, "origin: the frozen v0 window length");
+  assert.equal(PARAMS.MINUTES_POWER, V1_PARAMS.MINUTES_POWER, "origin: the frozen v1 bench-first power (look 4)");
+  assert.deepEqual({ ...NORMALISATION }, { rule: "play-rate-water-fill", power: 1.25 });
+  assert.deepEqual({ ...BASES }, { ROLE_PRIOR: "role-prior", BLEND: "blend", CURRENT: "current", INSUFFICIENT: "insufficient" });
+  assert.equal(MINUTES_MODEL_V03_VERSION, "nba-minutes-model-v0.3-role-prior");
+  assert.equal(POOL_V03_VERSION, "nba-roster-gated-pool-v0.3");
+  assert.equal(NBA_SIM_V03_MODEL_VERSION, "nba-sim-v0.3-conditional-minutes");
+  assert.deepEqual({ ...FAMILIES["v0.3"] }, { family: "v0.3", poolRule: "roster-gated", dataRule: "corpus-v1+boxscores-2026-27", role: "CHALLENGER", modelVersion: "nba-experimental-v0.3-role-minutes", dir: "experimental-v0.3", minutesRule: "v0.3-role-prior", alignsWith: "v0.1" });
+  // the v0 engine constants v0.3's engine reuses
+  assert.deepEqual([TEAM_MINUTES, MAX_PLAYER_MINUTES, MINUTES_RESCALE_BOUNDS.min, MINUTES_RESCALE_BOUNDS.max, DEFAULT_MINUTES_SD_RATIO], [240, 48, 0.5, 1.5, 0.3]);
+  // the population rule (regular = phase 2 + cup final) and the coach's-decision play-rate rule
+  assert.deepEqual([1, 2, 3, 5, "cup-final"].map((p) => inPopulation(p, "regular")), [false, true, false, false, true]);
+  // the two v0.3 source files are frozen byte-for-byte (same practice as game-sim.mjs in game-sim-v1.test.mjs)
+  for (const [file, want] of Object.entries(FROZEN_SOURCES)) {
+    assert.equal(sha(fs.readFileSync(path.join(HERE, file))), want, `${file} changed — a change during the test is a NEW candidate (new version strings, own shadow)`);
+  }
+});
+
+test("UNARMED-CANDIDATE GUARD is kept for future candidates (pure)", () => {
+  const spec = { family: "vX", armed: false };
+  const nbaRoot = "/repo/data/internal/research/nba/";
+  assert.match(unarmedWriteRefusal(spec, { write: true, outFile: null, nbaRoot }), /NOT ARMED/);
+  assert.match(unarmedWriteRefusal(spec, { write: false, outFile: "/repo/data/internal/research/nba/experimental-v0.1/forecasts/x.json", nbaRoot }), /NOT ARMED/);
+  assert.equal(unarmedWriteRefusal(spec, { write: true, outFile: "/tmp/replay/x.json", nbaRoot }), null);
+  for (const f of Object.values(FAMILIES)) assert.equal(unarmedWriteRefusal(f, { write: true, outFile: null, nbaRoot }), null, `${f.family} is armed`);
+});
+
+test("SAME-CUTOFF RULE (pure): aligned only at the anchor's exact instant on the anchor's exact inputs", () => {
+  const run = { now: "2026-10-22T14:00:00Z", rostersSha256: "r1", injuriesSha256: "i1", scheduleGeneratedAt: "2026-10-22T13:59:00Z" };
+  const anchor = { receipt: { generatedAt: run.now, inputs: { rosters: { sha256: "r1" }, injuries: { sha256: "i1" }, schedule: { generatedAt: run.scheduleGeneratedAt } } } };
+  assert.equal(alignedCutoffRefusal(anchor, run), null);
+  assert.match(alignedCutoffRefusal(undefined, run), /no receipt/);
+  assert.match(alignedCutoffRefusal({ receipt: { ...anchor.receipt, generatedAt: "2026-10-22T09:00:00Z" } }, run), /froze at/);
+  assert.match(alignedCutoffRefusal(anchor, { ...run, rostersSha256: "r2" }), /roster/);
+  assert.match(alignedCutoffRefusal(anchor, { ...run, injuriesSha256: "i2" }), /injury/);
+  assert.match(alignedCutoffRefusal(anchor, { ...run, scheduleGeneratedAt: "x" }), /schedule/);
+  // the forecast-window decision never counts an aligned family as owed (it follows its anchor)
+  assert.deepEqual(owingFamilies(FAMILIES).map((f) => f.family), ["v0", "v0.1", "v0.2", "v1"]);
+});
+
+test("BUILDER (real script, committed 2026-10-21 inputs, --out outside the repo): v0.3's cutoff equals v0.1's receipt, game by game", () => {
   const script = path.join(APP, "scripts", "nba", "build-nba-experimental-forecasts.mjs");
-  const run = (args) => spawnSync(process.execPath, [script, ...args], { cwd: APP, encoding: "utf8" });
-  const w = run(["--family", "v0.3", "--date", "2026-10-22", "--now", "2026-10-22T12:00:00Z", "--write"]);
-  assert.equal(w.status, 1);
-  assert.match(w.stderr, /NOT ARMED/);
-  const o = run(["--family", "v0.3", "--date", "2026-10-22", "--now", "2026-10-22T12:00:00Z", "--out", path.join(NBA, "experimental-v0.1", "forecasts", "x.json")]);
-  assert.equal(o.status, 1);
-  assert.match(o.stderr, /NOT ARMED/);
+  const v01 = readJson(path.join(NBA, "experimental-v0.1", "forecasts", "2026-10-21.json"));
+  const ri = v01.games[0].receipt.inputs;
+  const files = ["--schedule-file", path.join(APP, "public", "data", "nba", "schedule", "capture-2026-10-21T1428.json"), "--rosters-file", path.join(NBA, "rosters", "2026-10-21.json"), "--injuries-file", path.join(NBA, "v0.3-candidate", "fixtures", `injuries-${ri.injuries.sha256.slice(0, 16)}.json`)];
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "nba-v03-align-"));
+  const run = (args) => spawnSync(process.execPath, [script, "--family", "v0.3", "--date", "2026-10-21", "--simulations", "100", ...args], { cwd: APP, encoding: "utf8" });
+  const out = path.join(tmp, "v0.3-2026-10-21.json");
+  const r = run(["--now", v01.games[0].receipt.generatedAt, ...files, "--out", out]);
+  assert.equal(r.status, 0, r.stderr);
+  const doc = readJson(out);
+  assert.equal(doc.games.length, v01.games.length);
+  for (const g of doc.games) {
+    const a = v01.games.find((x) => x.providerEventId === g.providerEventId);
+    assert.equal(g.receipt.generatedAt, a.receipt.generatedAt, `${g.providerEventId}: same instant`);
+    assert.equal(g.forecast.inputAsOf, a.forecast.inputAsOf, `${g.providerEventId}: same inputAsOf`);
+    assert.equal(g.receipt.inputs.rosters.sha256, a.receipt.inputs.rosters.sha256);
+    assert.equal(g.receipt.inputs.injuries.sha256, a.receipt.inputs.injuries.sha256);
+    assert.equal(g.receipt.inputs.schedule.generatedAt, a.receipt.inputs.schedule.generatedAt);
+    assert.deepEqual(g.receipt.inputs.alignedWith, { family: "v0.1", generatedAt: a.receipt.generatedAt, rule: "frozen only where v0.1's receipt has generatedAt = this instant and the same roster / injury / schedule inputs" });
+  }
+  // one second later: no v0.1 receipt at that instant → NOT_ALIGNED, nothing written
+  const later = path.join(tmp, "later.json");
+  const n = run(["--now", new Date(Date.parse(v01.games[0].receipt.generatedAt) + 1000).toISOString().replace(".000Z", "Z"), ...files, "--out", later]);
+  assert.equal(n.status, 0, n.stderr);
+  assert.match(n.stdout, /state=NOT_ALIGNED/);
+  assert.ok(!fs.existsSync(later));
+  // a replay's input overrides never reach the repository
+  const inRepo = run(["--now", v01.games[0].receipt.generatedAt, ...files, "--out", path.join(NBA, "experimental-v0.3", "forecasts", "2026-10-21.json")]);
+  assert.equal(inRepo.status, 1);
+  assert.match(inRepo.stderr, /outside the repository/);
+  const noOut = run(["--now", v01.games[0].receipt.generatedAt, ...files, "--write"]);
+  assert.equal(noOut.status, 1);
+  assert.ok(!fs.existsSync(path.join(NBA, "experimental-v0.3", "forecasts", "2026-10-21.json")), "2026-10-21 is never a v0.3 forward sample");
+  fs.rmSync(tmp, { recursive: true, force: true });
+});
+
+test("PROMOTION RECORD recognises v0.3 (founder approval still required for any record)", () => {
+  const rec = {
+    kind: RECORD_KIND.PROMOTION, family: "v0.3", version: FAMILIES["v0.3"].modelVersion, market: "points", date: "2030-03-01", decidedAt: "2030-03-01T12:00:00Z",
+    metrics: { pairedN: 1600, minutesMaeDiff: -0.4, ci95: [-0.6, -0.2] }, reason: "paired forward evidence met every §7 bar",
+    approver: "Yash (founder)", evidence: { verdict: VERDICT.READY_FOR_FOUNDER_REVIEW, report: "reports/champion-challenger/2030-03-01.json", market: "points" },
+  };
+  assert.deepEqual(validatePromotionRecord(rec).errors, []);
+  assert.match(validatePromotionRecord({ ...rec, version: "nba-experimental-v0.3-something-else" }).errors.join(), /model version/);
+  assert.match(validatePromotionRecord({ ...rec, approver: "Claude" }).errors.join(), /automation identity/);
+});
+
+test("ISOLATION: v0.3 never feeds the lane, the official snapshot, any product or any public route", () => {
+  const SRC = path.join(APP, "src");
+  const PRODUCER_HELPERS_ALLOWED = new Set(["etDateOf", "labelForSeasonType", "populationForSeasonType", "LABELS", "POPULATIONS"]);
+  const MARKERS = /experimental-v0\.3|minutes-model-v03|game-sim-v03|nba-experimental-v0\.3|nba-sim-v0\.3|role-minutes|["']v0\.3["']/;
+  const walkSrc = (dir) => (fs.existsSync(dir) ? fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walkSrc(path.join(dir, e.name)) : [path.join(dir, e.name)])) : []);
+  const isCode = (f) => /\.(m?js|tsx?)$/.test(f) && !/\.test\.m?js$|\.spec\.tsx?$/.test(f);
+  const surfaces = [
+    path.join(SRC, "lib", "sports", "nba", "experimental-public-lane.mjs"),
+    path.join(SRC, "lib", "consistency", "official-snapshot.mjs"),
+    path.join(APP, "scripts", "nba", "build-nba-experimental-public.mjs"),
+    path.join(APP, "scripts", "nba", "publish-nba-experimental-lane.mjs"),
+    ...walkSrc(path.join(SRC, "lib", "products")).filter(isCode),
+    ...walkSrc(path.join(SRC, "lib", "simulation-theater")).filter(isCode),
+    ...walkSrc(path.join(SRC, "app")).filter(isCode),
+    ...walkSrc(path.join(SRC, "components")).filter(isCode),
+  ];
+  assert.ok(surfaces.length > 50, `scanned ${surfaces.length} files`);
+  const hits = surfaces.filter((f) => fs.existsSync(f) && MARKERS.test(fs.readFileSync(f, "utf8"))).map((f) => path.relative(APP, f));
+  assert.deepEqual(hits, [], "no lane / snapshot / product / route / theater source names the v0.3 family, its directory or its modules");
+  // IMPORT GRAPH: nothing reachable from those surfaces is a v0.3 module
+  const resolve = (from, spec) => {
+    const base = spec.startsWith("@/") ? path.join(SRC, spec.slice(2)) : spec.startsWith(".") ? path.resolve(path.dirname(from), spec) : null;
+    if (!base) return null;
+    for (const c of [base, ...[".mjs", ".js", ".ts", ".tsx"].map((x) => base + x), ...["index.mjs", "index.js", "index.ts", "index.tsx"].map((x) => path.join(base, x))]) if (fs.existsSync(c) && fs.statSync(c).isFile()) return c;
+    return null;
+  };
+  const seen = new Set();
+  const stack = surfaces.filter((f) => fs.existsSync(f));
+  while (stack.length) {
+    const f = stack.pop();
+    if (seen.has(f) || !/\.(m?js|tsx?)$/.test(f)) continue;
+    seen.add(f);
+    const text = fs.readFileSync(f, "utf8");
+    for (const m of text.matchAll(/(?:import|export)\s([^"'`]*?)from\s*["']([^"']+)["']|import\(\s*["']([^"']+)["']\s*\)/g)) {
+      const r = resolve(f, m[2] ?? m[3]);
+      if (!r) continue;
+      // experimental-forecast.mjs is the producer library: a surface may take only its pure date/label helpers from it
+      // (the lane publisher reads etDateOf), never a family, a builder or a model — and the walk stops there.
+      if (path.basename(r) === "experimental-forecast.mjs") {
+        const names = (/\{([^}]*)\}/.exec(m[1] ?? "")?.[1] ?? "*").split(",").map((x) => x.trim().split(/\s+as\s+/)[0]).filter(Boolean);
+        for (const name of names) assert.ok(PRODUCER_HELPERS_ALLOWED.has(name), `${path.relative(APP, f)} imports ${name} from experimental-forecast.mjs`);
+        continue;
+      }
+      stack.push(r);
+    }
+  }
+  const reached = [...seen].map((f) => path.basename(f));
+  for (const m of ["minutes-model-v03.mjs", "game-sim-v03.mjs"]) assert.ok(!reached.includes(m), `${m} is reachable from a lane / snapshot / product / route surface`);
+  assert.ok(seen.size > surfaces.length / 2, `graph walked ${seen.size} files`);
 });
 
 /* ─────────────── the official family is untouched ─────────────── */

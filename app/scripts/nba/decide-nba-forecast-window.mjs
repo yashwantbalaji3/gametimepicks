@@ -44,6 +44,11 @@ export function owedWithOvernight({ rows, storedIdsByDate, now, horizonHours = W
   return [...owedByDate.values()].sort((a, b) => (a.date < b.date ? -1 : 1));
 }
 
+/** The families whose missing forecast makes a game owed: every family except one that `alignsWith` an anchor. Pure. */
+export function owingFamilies(families) {
+  return Object.values(families ?? {}).filter((f) => !f.alignsWith);
+}
+
 /** Events every family has frozen (one Set per family). A game missing from any family stays owed. Pure. */
 export function frozenByEveryFamily(idSets) {
   const [first, ...rest] = idSets ?? [];
@@ -75,7 +80,10 @@ function main() {
      held every window once that run had landed and the challenger never got its game. A roster-gate refusal can
      re-fire BUILD on later ticks until tip; that costs a no-op run (the write-once builder adds nothing twice),
      never a forecast. */
-  const storedIdsByDate = (date) => frozenByEveryFamily(Object.values(FAMILIES).map((fam) => {
+  // A family that `alignsWith` an anchor (v0.3 → v0.1, founder 2026-10-22) is built only at its anchor's instant, in
+  // the anchor's run, so it is never owed on its own: counting it would re-fire BUILD every tick for a game the
+  // anchor froze earlier, which the aligned family must refuse anyway (it never freezes at another cutoff).
+  const storedIdsByDate = (date) => frozenByEveryFamily(owingFamilies(FAMILIES).map((fam) => {
     try { return new Set((JSON.parse(fs.readFileSync(path.join(NBA, fam.dir, "forecasts", `${date}.json`), "utf8")).games ?? []).map((g) => String(g.providerEventId))); }
     catch { return new Set(); } // no file yet = that family has frozen nothing for the date
   }));

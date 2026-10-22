@@ -282,7 +282,7 @@ test("no committed NBA data file (public or internal forecast/board artifacts) c
   const files = [
     ...walk(path.join(PUBLIC, "nba"), json),
     ...walk(path.join(PUBLIC, "products"), json),
-    ...["experimental", "experimental-v0.1", "experimental-v0.2", "experimental-v1", "top-boards", "reports"].flatMap((d) => walk(path.join(REPO, "data", "internal", "research", "nba", d), json)),
+    ...["experimental", "experimental-v0.1", "experimental-v0.2", "experimental-v1", "experimental-v0.3", "top-boards", "reports"].flatMap((d) => walk(path.join(REPO, "data", "internal", "research", "nba", d), json)),
   ];
   assert.ok(files.length > 20, `scanned ${files.length} files`);
   const hits = files.map((f) => [path.relative(REPO, f), linkHit(fs.readFileSync(f, "utf8"))]).filter(([, h]) => h);

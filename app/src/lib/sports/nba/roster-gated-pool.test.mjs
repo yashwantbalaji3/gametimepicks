@@ -179,7 +179,7 @@ test("FAMILY v0.1 through the artifact: own model version, v0 untouched, refused
   assert.match(stale.manifest.refused[0].reason, /ROSTER_GATE: ROSTER_STALE/);
   assert.equal(stale.artifact.games.length, 0);
   // the families are a closed set
-  assert.deepEqual(Object.keys(FAMILIES), ["v0", "v0.1", "v0.2", "v1"]); // v0.2 = the 2026-27 challenger (founder N3); v1 = the coherent-engine candidate
+  assert.deepEqual(Object.keys(FAMILIES), ["v0", "v0.1", "v0.2", "v1", "v0.3"]); // v0.2 = the 2026-27 challenger (founder N3); v1 = the coherent-engine candidate; v0.3 = the role-minutes challenger (founder 2026-10-22)
   assert.throws(() => familySpec("v2"), /REFUSED: unknown NBA experimental family/); // was "v1" until the v1 candidate was registered
   assert.equal(familySpec("v0.1").dir, "experimental-v0.1");
   assert.equal(familySpec("v0").dir, "experimental");

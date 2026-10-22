@@ -1,11 +1,30 @@
 # NBA v0.1 low projected minutes: investigation and forward candidate (2026-10-21)
 
-**Status:** INVESTIGATION. No production change. Do not merge without a founder decision.
+**Status:** founder decision of **2026-10-22**, recorded in the PR 1116 decision register and relayed by the release owner. It is recorded in the preregistration as look 8 and §14 (`docs/V18_NBA_REGULAR_SEASON_PREREGISTRATION.md`).
 
-- **Official composition unchanged.** Elo side + v0.1 players (`app/src/lib/consistency/official-snapshot.mjs`) is untouched.
-- **Frozen data unchanged.** No frozen forecast, receipt, ledger or published-lane file is changed.
-- **Candidate only.** The proposed fix is a new candidate family, `v0.3`, which is **NOT ARMED**.
+1. **The diagnosis is ACCEPTED.**
+   - Primary cause: the uniform 240-minute rescale.
+   - Secondary cause: the trailing window holds last season's final games, playoffs included.
+   - Not preseason.
+   - The frozen forecasts stay unchanged.
+2. **v0.3 is APPROVED as a FORWARD-SHADOW CHALLENGER only.**
+   - v0.1 stays official for players, and Elo for winners.
+   - 10-20 and 10-21 stay frozen and immutable. The replays below are descriptive and never forward evidence.
+   - v0.3 is frozen and registered before its first forward slate.
+   - It uses the SAME information cutoff as the official forecast: same instant, same inputs.
+   - It is graded against real results on errors, calibration, coverage, availability handling and minutes accuracy.
+   - The preregistered promotion rules are kept. There is no automatic promotion, and no new official value without separate approval.
+3. **Constants approved for v0.3 ONLY:** prior strength = 10 games, and bench-first power = 1.25 (reused from v1). No tuning after 10-20/21. Any change during the test means a new candidate.
+
+**Moving closer to sportsbook lines does NOT establish better accuracy.** A line is not an outcome, and one night is not a sample.
+
+What is unchanged:
+- **Official composition.** Elo side + v0.1 players (`app/src/lib/consistency/official-snapshot.mjs`) is untouched.
+- **Frozen data.** No frozen forecast, receipt, ledger or published-lane file is changed.
+- **v0.3's status.** It is a registered shadow family (`FAMILIES["v0.3"]`, `experimental-v0.3/`) aligned to v0.1's cutoff. It is never official.
 - **Promotion path.** Promotion goes only through the founder and the promotion record of PR 1154 (`data/internal/research/nba/promotion-record.json`, `app/src/lib/sports/nba/promotion-record.mjs`).
+
+The sections below are the investigation as presented for the decision. §3 and §5 are updated to the armed state.
 
 **The finding being investigated** was relayed by the release owner. It covers one night, and a market line is not truth.
 
@@ -191,14 +210,22 @@ The investigation was *motivated* by the release owner's outcome-derived shadow 
 - **`app/src/lib/sports/nba/game-sim-v03.mjs`** (new). The v0 draw model (it reuses game-sim.mjs's seed, PRNG, constants and draw order) with `prepareRosterV03` (conditional minutes, `weightedWaterFill`) and the separate participation stream. Model version `nba-sim-v0.3-conditional-minutes`. A test pins that, with every play rate 1 and a pool of exactly 240, its player distributions and team totals equal the v0 engine's.
 - **`app/src/lib/sports/nba/game-sim.mjs` is NOT modified.**
 - **`app/src/lib/sports/nba/experimental-forecast.mjs`.**
-  - Adds `CANDIDATE_FAMILIES` with `v0.3` (`armed: false`), resolvable by `familySpec`.
-  - v0.3 is **not** in `FAMILIES`. Every pipeline script that walks `FAMILIES` (window decision, grader, receipt guard, box-score fetch dirs, top boards) is therefore unaffected.
+  - After the founder decision, `v0.3` is in `FAMILIES`: role CHALLENGER, `alignsWith: "v0.1"`, its own `experimental-v0.3/` directory and ledger. The promotion record therefore recognises it.
+  - `CANDIDATE_FAMILIES` (empty) and `unarmedWriteRefusal` keep the unarmed-candidate mechanism for future candidates.
+  - `alignedCutoffRefusal` is the same-cutoff rule.
+  - `decide-nba-forecast-window.mjs` `owingFamilies` does not count an aligned family as owed; it follows its anchor.
 - **`app/scripts/nba/build-nba-experimental-forecasts.mjs`.**
-  - `--family v0.3` is accepted.
-  - An unarmed candidate's `--write` without `--out` is REFUSED, and so is an `--out` inside any `forecasts/` directory.
+  - `--family v0.3` is accepted. A v0.3 game is frozen only where v0.1's receipt for it has `generatedAt` = `--now` and the same roster, injury and schedule inputs (`NOT_ALIGNED` otherwise). The receipt records `alignedWith`.
+  - Research replays may pass `--schedule-file`, `--rosters-file` and `--injuries-file` only with `--out` outside the repository.
+  - An unarmed candidate's `--write` without `--out` is still REFUSED, and so is an `--out` inside any `forecasts/` directory.
   - Box-score-only fold for v0.3. v0.1, v0.2 and v1 take the same branches as before.
 - **`app/scripts/nba/research/replay-nba-v03-minutes-candidate.mjs`** (new). The replay. It refuses an `--out-dir` inside the repo, and refuses unless every v0.1 game re-derives its payload hash.
-- **`app/src/lib/sports/nba/minutes-model-v03.test.mjs`** (new). 13 tests, including **v0.1 byte-identity**: every committed 10-20 and 10-21 v0.1 game re-derives its `payloadSha256` with this code.
+- **`app/src/lib/sports/nba/minutes-model-v03.test.mjs`** (new). 19 tests, including:
+  - frozen constants and source hashes;
+  - the same-cutoff rule (pure, plus the real builder on the committed 10-21 inputs);
+  - the promotion record accepting v0.3;
+  - lane, snapshot, product and route isolation;
+  - **v0.1 byte-identity**: every committed 10-20 and 10-21 v0.1 game re-derives its `payloadSha256` with this code.
   - Roster inputs are the dated captures `rosters/2026-10-19|20|21.json`, which equal the hashed `latest.json` blobs.
   - Injury inputs are exact copies of the hashed blobs, in `data/internal/research/nba/v0.3-candidate/fixtures/` (sha256-checked in the test).
 
@@ -290,9 +317,11 @@ The release owner's relayed shadow grading is also outcome-derived. §8 requires
 - **Bars (§7).** For the PTS row: minutes MAE ≤ 6.0; conditional MAE ≥ 5 % better than the season-mean-rate baseline; p10–p90 coverage in [0.76, 0.84]; ECE ≤ 0.05.
 - **Forward shadow (§8).** Pre-tip artifacts only.
 - **Evaluator.** The champion/challenger evaluator (`champion-challenger.mjs`) must return READY_FOR_FOUNDER_REVIEW on paired rows, with an interval excluding 0.
-- **Promotion record.** A founder-approved record in the PR 1154 file. `promotion-record.mjs` validates against `FAMILIES`, so v0.3 can only be promoted after it is armed into `FAMILIES`.
+- **Promotion record.** A founder-approved record in the PR 1154 file. `promotion-record.mjs` validates against `FAMILIES`, which now includes v0.3. A test pins this.
 
-### 5.1 Draft amendment text (for the founder; NOT committed into the preregistration)
+### 5.1 Amendment text as drafted for the decision
+
+The committed version is preregistration §14, with the founder's conditions.
 
 > **§1 addition: v0.3 candidate (minutes layer), founder decision YYYY-MM-DD.** Family `v0.3`, model version `nba-experimental-v0.3-role-minutes`, minutes model `nba-minutes-model-v0.3-role-prior`, pool `nba-roster-gated-pool-v0.3` engine `nba-sim-v0.3-conditional-minutes` (`app/src/lib/sports/nba/minutes-model-v03.mjs`, `app/src/lib/sports/nba/game-sim-v03.mjs`).
 >
@@ -312,7 +341,9 @@ The release owner's relayed shadow grading is also outcome-derived. §8 requires
 >
 > **No bar, threshold, metric, sample size, graded record or evaluation rule above changes.**
 
-### 5.2 Draft looks-log entry
+### 5.2 Looks-log entry as drafted
+
+The committed version is look 8, with the accepted diagnosis wording.
 
 > | 8 | 2026-10-21/22 | **Outcome look (investigation, v0.1 minutes).** Read: the frozen 2026-10-20 / 2026-10-21 v0.1 receipts (all 14 re-derived from their hashed inputs); the 2026-10-20 final box scores (3 games, 63 matched rows) for v0.1 and for a REPLAY of the v0.3 candidate; the 25 committed 2026-10-21 PTS lines (private capture; a line is not truth); the release owner's relayed v0.1 shadow grading. Finding: v0.1's minutes window is the last 10 games of 2025-26 (playoffs and play-in included, preseason excluded); the uniform 240 rescale takes a median 5.2–5.5 min from projected starters. The v0.3 rule was chosen on structural grounds. One design revision was made after a projection-side replay inspection and before any outcome was computed (uniform play-rate factor → water-fill with the frozen v1 power). | **No bar, threshold, metric, sample size, graded record or evaluation rule changed.** v0.1 and the Elo side stay official. Nothing promoted; registry still `HISTORICAL_ONLY`. 2026-10-20/21 are not v0.3 forward-shadow samples. Investigation: `docs/nba/NBA_V01_PRESEASON_MINUTES_INVESTIGATION_2026-10-21.md`. |
 
@@ -328,4 +359,4 @@ The release owner's relayed shadow grading is also outcome-derived. §8 requires
 6. **Possible over-projection.** On the one 10-20 night, v0.3's PTS medians were above the actual more often than v0.1's (0.38 vs 0.54 share at or above). Watch for this; no conclusion can be drawn.
 7. **Team scores stay withheld.** The v0 team score ignores the opponent. v0.3's participation makes the team total consistent with 240 in expectation, but it is not a candidate output (§13).
 8. **v0.2 has a separate defect, not fixed here.** v0.2 folds 2026-27 box scores into the v0 minutes model, so a team switches `seasonUsed` after its first regular-season game: every player falls below 3 appearances and the rates go null. This is already documented in `sim-v1-profile.mjs:4-11`. Not fixed here; v0.2 is untouched.
-9. **Nothing is armed.** Arming v0.3 requires a workflow change, which this PR does not make, and the founder's decision.
+9. **The workflows are the release owner's.** v0.3 is armed in code. Its nightly build (both workflows, right after v0.1, same `--now`) and its grading line are given in PR 1178's body for the release owner to add. Until they are added, no v0.3 forecast is frozen. The window's decision does not count v0.3 as owed, so nothing re-fires.

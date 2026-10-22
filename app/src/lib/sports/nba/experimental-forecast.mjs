@@ -50,6 +50,17 @@ export const FORECAST_ARTIFACT = "nba-experimental-forecasts";
  * single-season rows. `engine` is the one key the build branches on; v0/v0.1/v0.2 have none and run game-sim.mjs
  * exactly as before.
  *
+ * v0.3 (founder decision 2026-10-22, recorded in the PR 1116 decision register; preregistration §1 addition and look 8)
+ * is the role-minutes FORWARD-SHADOW CHALLENGER (docs/nba/NBA_V01_PRESEASON_MINUTES_INVESTIGATION_2026-10-21.md):
+ * v0.1's roster gate and Elo UNCHANGED; only the minutes layer (minutes-model-v03.mjs: the whole prior regular season as
+ * a role prior blended toward the current regular season) and its normalisation (game-sim-v03.mjs: the v0 draw model
+ * with conditional minutes, bench-first normalisation to 240 in expectation, participation by play rate; game-sim.mjs,
+ * the frozen v0 engine, is not edited). Its data rule folds the fetched 2026-27 box scores but NOT the finals record, so
+ * its Elo is v0.1's. `minutesRule` is the key the build branches on. `alignsWith: "v0.1"` is the founder's SAME-CUTOFF
+ * condition: the builder freezes a v0.3 game only when v0.1's receipt for that game was generated at the same --now
+ * from the same roster / injury / schedule inputs (alignedCutoffRefusal below), and the forecast-window decision does
+ * not count an aligned family as owed (it follows its anchor). It never replaces v0.1 or the Elo side automatically.
+ *
  * `role` and `dataRule` are labels for readers; nothing in the build branches on `role`.
  */
 export const FAMILIES = Object.freeze({
@@ -57,26 +68,49 @@ export const FAMILIES = Object.freeze({
   "v0.1": Object.freeze({ family: "v0.1", poolRule: "roster-gated", dataRule: "corpus-v1", role: "CHAMPION", modelVersion: "nba-preseason-experimental-v0.1", dir: "experimental-v0.1" }),
   "v0.2": Object.freeze({ family: "v0.2", poolRule: "roster-gated", dataRule: "corpus-v1+season-2026-27", role: "CHALLENGER", modelVersion: "nba-experimental-v0.2-season-2026-27", dir: "experimental-v0.2" }),
   "v1": Object.freeze({ family: "v1", poolRule: "roster-gated", dataRule: "corpus-v1+season-2026-27", role: "CANDIDATE_SHADOW", modelVersion: "nba-sim-v1-coherent", dir: "experimental-v1", engine: "v1" }),
+  "v0.3": Object.freeze({ family: "v0.3", poolRule: "roster-gated", dataRule: "corpus-v1+boxscores-2026-27", role: "CHALLENGER", modelVersion: "nba-experimental-v0.3-role-minutes", dir: "experimental-v0.3", minutesRule: "v0.3-role-prior", alignsWith: "v0.1" }),
 });
 /**
  * CANDIDATE families: resolvable by name (familySpec), never iterated by the nightly pipeline. They are kept OUT of
  * FAMILIES on purpose — every script that walks FAMILIES (the forecast-window decision, the grader's cross-ledger
  * checks, the receipt guard, the box-score fetch dirs) would otherwise start owing, grading or fetching for a family
- * the founder has not armed. `armed: false` makes the builder refuse to write into the family's forecasts/ directory
- * (a replay goes to --out). Arming is a founder decision recorded in the preregistration looks log and the promotion
- * record path (PR 1154), not a code default.
- *
- * v0.3 (2026-10-21 investigation, docs/nba/NBA_V01_PRESEASON_MINUTES_INVESTIGATION_2026-10-21.md): v0.1's roster
- * gate and Elo UNCHANGED; only the minutes layer changes (minutes-model-v03.mjs: full prior regular season as a role
- * prior blended toward the current regular season) and how the engine normalises it (game-sim-v03.mjs: the v0 draw
- * model with conditional minutes, rotation-aware normalisation to 240 in expectation, participation by play rate;
- * game-sim.mjs, the frozen v0 engine, is not edited). Its data rule
- * folds the fetched 2026-27 box scores (so the current season can accrue) but NOT the finals record, so its Elo is
- * v0.1's and any difference from v0.1 is the minutes layer alone.
+ * the founder has not armed. `armed: false` makes the builder refuse to write into any forecasts/ directory
+ * (unarmedWriteRefusal; a replay goes to --out). Arming is a founder decision recorded in the preregistration looks
+ * log and moves the family into FAMILIES (v0.3 was armed this way on 2026-10-22). Empty today.
  */
-export const CANDIDATE_FAMILIES = Object.freeze({
-  "v0.3": Object.freeze({ family: "v0.3", poolRule: "roster-gated", dataRule: "corpus-v1+boxscores-2026-27", role: "CANDIDATE_SHADOW", modelVersion: "nba-experimental-v0.3-role-minutes", dir: "experimental-v0.3", minutesRule: "v0.3-role-prior", armed: false }),
-});
+export const CANDIDATE_FAMILIES = Object.freeze({});
+
+/**
+ * The builder's write guard for an UNARMED candidate (spec.armed === false). Pure. Returns a refusal string or null.
+ * --write without --out is refused, and so is an --out inside <nbaRoot>/.../forecasts/.
+ */
+export function unarmedWriteRefusal(spec, { write = false, outFile = null, nbaRoot = null } = {}) {
+  if (spec?.armed !== false) return null;
+  if (write && !outFile) return `family ${spec.family} is a candidate that is NOT ARMED (founder decision required) — --write is refused; pass --out <file> outside any forecasts/ directory for a replay`;
+  if (outFile && nbaRoot && String(outFile).startsWith(String(nbaRoot)) && String(outFile).split(/[\\/]+/).includes("forecasts")) {
+    return `family ${spec.family} is NOT ARMED — --out may not point inside a forecasts/ directory`;
+  }
+  return null;
+}
+
+/**
+ * SAME-CUTOFF rule for a family with `alignsWith` (v0.3 → v0.1). Pure. A game may be frozen only when the anchor
+ * family's receipt for it exists, was generated at exactly this run's `now`, and records the same roster sha256,
+ * injury sha256 and schedule capture as this run. Returns null when aligned, else the reason.
+ *
+ * @param anchorGame  the anchor family's stored game (with its receipt), or undefined
+ * @param run         { now, rostersSha256, injuriesSha256, scheduleGeneratedAt } of this build
+ */
+export function alignedCutoffRefusal(anchorGame, run) {
+  const r = anchorGame?.receipt;
+  if (!r) return "the anchor family has no receipt for this game, so there is no cutoff to share";
+  if (r.generatedAt !== run.now) return `the anchor froze at ${r.generatedAt}, not at this run's ${run.now}`;
+  if ((r.inputs?.rosters?.sha256 ?? null) !== (run.rostersSha256 ?? null)) return "the anchor's roster blob differs from this run's";
+  if ((r.inputs?.injuries?.sha256 ?? null) !== (run.injuriesSha256 ?? null)) return "the anchor's injury blob differs from this run's";
+  if ((r.inputs?.schedule?.generatedAt ?? null) !== (run.scheduleGeneratedAt ?? null)) return "the anchor's schedule capture differs from this run's";
+  return null;
+}
+
 export function familySpec(family) {
   const key = String(family ?? "v0");
   const f = FAMILIES[key] ?? CANDIDATE_FAMILIES[key];
@@ -359,7 +393,7 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
     neverReadBy: "app/src/app/** (public routes) — internal research only; sport-capability-registry keeps NBA HISTORICAL_ONLY",
     modelVersion: spec.modelVersion,
     ...(rosterGated ? { family: spec.family, poolRule: spec.poolRule, poolVersion, simEngineVersion: engineV1 ? NBA_SIM_V1_MODEL_VERSION : minutesV03 ? NBA_SIM_V03_MODEL_VERSION : NBA_SIM_MODEL_VERSION } : {}),
-    ...(minutesV03 ? { minutesModelVersion: MINUTES_MODEL_V03_VERSION, armed: spec.armed === true } : {}),
+    ...(minutesV03 ? { minutesModelVersion: MINUTES_MODEL_V03_VERSION, ...(spec.alignsWith ? { alignsWith: spec.alignsWith } : {}) } : {}),
     ...(engineV1 ? { profileVersion: V1_PROFILE_VERSION } : {}),
     ...(spec.dataRule !== "corpus-v1" ? { dataRule: spec.dataRule, role: spec.role } : {}),
     generatedAt: now,
