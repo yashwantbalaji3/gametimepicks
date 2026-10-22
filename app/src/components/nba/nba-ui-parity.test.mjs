@@ -197,3 +197,28 @@ test("Theater page markup: the island's one h1, then the official section's h2 �
   assert.match(h, /Research Possession Simulation — Unvalidated/, "the engine label is unchanged");
   assert.equal((h.match(/<th scope="col">PRA<\/th>/g) ?? []).length, 2, "both teams' tables carry the combos");
 });
+
+test("console-clean navigation (release owner 2026-10-22): every page-to-page NBA link is next/link; only in-page # anchors stay <a>", () => {
+  // A plain <a> to another route is a full page load: it aborts the page's in-flight route prefetches and Next logs
+  // "Failed to fetch RSC payload … Falling back to browser navigation" (measured on /nba → Theater, 4/4 runs).
+  const lane = read("src/components/nba/experimental-lane.tsx");
+  assert.match(lane, /<Link href=\{publicTheaterHref\(id\)\} prefetch=\{false\}[^>]*data-nba-theater-link=\{id\}>/, "the Theater CTA is a Link, fetched on click only");
+  for (const f of ["src/components/nba/experimental-lane.tsx", "src/components/nba/hub-overview.tsx", "src/components/nba/official-predictions.tsx", "src/components/simulation-theater/nba/possession/NbaPossessionGamePage.tsx"]) {
+    const src = read(f);
+    for (const m of src.matchAll(/<a\s[^>]*href=(\{[^}]*\}|"[^"]*")/g)) {
+      assert.ok(/^"#|^\{`#/.test(m[1]), `${f}: <a href=${m[1]}> navigates to another page — use next/link`);
+    }
+  }
+});
+
+test("homepage NBA lane: its Top Boards link is a 44px target; other lanes' secondary links are unchanged", async () => {
+  const CC = await import("../command-center/command-center.tsx");
+  const CommandCenter = CC.default?.default ?? CC.default;
+  const nba = nbaLane(slate(), NOW);
+  const epl = { ...nba, sport: "epl", label: "Premier League", games: undefined, moreGames: undefined, featured: null, emptyLine: "x", secondary: { label: "Ligue 1", href: "/soccer/ligue-1/", note: "4 fixture forecasts" } };
+  const h = renderToStaticMarkup(React.createElement(CommandCenter, { lanes: [nba, epl], heading: "H", subtitle: "s" }));
+  // next/link drops the trailing slash outside a Next build (no trailingSlash env here), so match with or without it
+  const linkTo = (href) => [...h.matchAll(/<a [^>]*>/g)].map((m) => m[0]).find((a) => a.includes(`href="${href.replace(/\/$/, "")}"`) || a.includes(`href="${href}"`));
+  assert.match(linkTo("/nba/projections/"), /class="font-mono gtp-hit-44"/);
+  assert.match(linkTo("/soccer/ligue-1/"), /class="font-mono"/, "a lane without games keeps its link as it was");
+});

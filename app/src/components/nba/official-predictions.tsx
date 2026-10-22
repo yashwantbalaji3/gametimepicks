@@ -14,6 +14,7 @@
  *   result    the official final, only when the write-once finals record holds it.
  * A missing number prints "—", never 0.
  */
+import Link from "next/link";
 import { COMBO_STATS, STATS } from "@/lib/sports/nba/experimental-public-lane.mjs";
 
 /* The official panel's shape (possession-types PbOfficial — payload.mjs officialPanel), declared here structurally so
@@ -66,7 +67,7 @@ export default function NbaOfficialPredictions({ official, teams, lane, finalNot
       <ul className="nbx-legend">
         <li><b>Official Prediction</b> — this section: frozen before tip-off, experimental and not validated. It is what GameTimePicks predicts.</li>
         <li><b>Research Simulation</b> — the replay above: one possible game from an unvalidated research engine. Its score and box score are not a prediction and never change this section.</li>
-        <li><b>Real Result</b> — {finalNote ? <>official final: <strong>{finalNote}</strong>.</> : "the official final, recorded after the game."} <a href={resultsHref}>NBA results →</a></li>
+        <li><b>Real Result</b> — {finalNote ? <>official final: <strong>{finalNote}</strong>.</> : "the official final, recorded after the game."} <Link href={resultsHref}>NBA results →</Link></li>
       </ul>
     </section>
   );
