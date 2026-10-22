@@ -26,6 +26,10 @@ for (const [w, h] of [[768, 1024], [390, 844]] as const) {
   for (const run of [1, 2, 3, 4]) {
     test(`${w}px run ${run}: /nba card → Theater → back to the hub, with no console error`, async ({ page }) => {
       await page.setViewportSize({ width: w, height: h });
+      // 300 ms of latency keeps the hub's viewport prefetches in flight at click time on a fast local server too
+      const cdp = await page.context().newCDPSession(page);
+      await cdp.send("Network.enable");
+      await cdp.send("Network.emulateNetworkConditions", { offline: false, latency: 300, downloadThroughput: -1, uploadThroughput: -1 });
       const errors = collectErrors(page);
       await page.goto("/nba/", { waitUntil: "load" });
       const cta = page.locator("[data-nba-theater-link]").first();
