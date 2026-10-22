@@ -14,8 +14,9 @@
  * Zero rows → PLAYER_UNRESOLVED. Two or more rows (two players with one normalised name, or one name on both
  * rosters) → PLAYER_AMBIGUOUS. Neither is ever resolved by "closest", initials, or a surname-only match.
  *
- * The alias table ships EMPTY: entries are added only after a human reviews a real capture's unresolved list (the
- * coverage report names every unresolved string). No entry was invented for this PR.
+ * Entries are added only from a real capture's unresolved list (the coverage report names every unresolved string),
+ * each keyed by the ESPN athlete id and checked against the committed roster capture. A human review is the merge
+ * approval of the PR that adds it. No entry is ever inferred at run time.
  */
 import { normalizePlayerName } from "../../../nba/identity-contract.ts";
 import { REFUSAL } from "./contract.mjs";
@@ -23,7 +24,15 @@ import { REFUSAL } from "./contract.mjs";
 /**
  * @type {ReadonlyArray<{ providerName: string, providerAthleteId: string, reviewedBy: string, reviewedAt: string, note: string }>}
  */
-export const REVIEWED_PLAYER_ALIASES = Object.freeze([]);
+export const REVIEWED_PLAYER_ALIASES = Object.freeze([
+  // From the 2026-10-21 points pilot (PLAYER_UNRESOLVED: 17 offers, these 3 strings only). Each string matched no
+  // roster name exactly; each id below is the ONLY roster player of that event's two teams with this given name and
+  // surname (data/internal/research/nba/rosters/latest.json, captured 2026-10-21T14:28Z). Prepared by the NBA
+  // betting-products session; human review = the merge approval of PR 1179.
+  Object.freeze({ providerName: "Herb Jones", providerAthleteId: "4277813", reviewedBy: "PR 1179 merge approval", reviewedAt: "2026-10-22", note: "ESPN \"Herbert Jones\", NO (401909839 IND @ NO); short form of the given name" }),
+  Object.freeze({ providerName: "Derrick Jones", providerAthleteId: "3936099", reviewedBy: "PR 1179 merge approval", reviewedAt: "2026-10-22", note: "ESPN \"Derrick Jones Jr.\", LAC (401909842 SAC @ LAC); provider drops the suffix" }),
+  Object.freeze({ providerName: "Robert Williams", providerAthleteId: "4066211", reviewedBy: "PR 1179 merge approval", reviewedAt: "2026-10-22", note: "ESPN \"Robert Williams III\", POR (401909841 PHX @ POR); provider drops the suffix" }),
+]);
 
 export const IDENTITY_METHOD = Object.freeze({ ALIAS: "REVIEWED_ALIAS", EXACT_NAME: "ROSTER_EXACT_NAME" });
 
