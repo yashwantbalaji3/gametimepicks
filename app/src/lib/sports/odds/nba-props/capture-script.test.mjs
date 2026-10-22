@@ -57,3 +57,35 @@ test("--authorized refuses without a receipt, with a non-receipt file, and with 
     if (dry.status === 0) assert.match(dry.stdout, /"state": "(DRY_RUN|NOTHING_TO_PRICE)"/);
   }
 });
+
+/* ── STORAGE (founder decision, 2026-10-22): no raw or reconstructable sportsbook price is committed ────────────── */
+test("STORAGE: a paid run needs a private directory outside every repository, checked before the key and before any call", () => {
+  const src = strip(fs.readFileSync(SCRIPT, "utf8"));
+  const check = src.indexOf("resolvePrivateDataDir(");
+  assert.ok(check > 0, "the script resolves the private directory");
+  assert.ok(check < src.indexOf("ODDS_API_KEY"), "before the key is read");
+  assert.ok(check < src.indexOf("runNbaPropCapture("), "before the capture (the only network path) runs");
+  assert.match(src, /if \(has\("--apply"\) && !priv\.ok\) refuse\(2/, "a paid run without one is refused");
+  assert.match(src, /path\.join\(priv\.dir, "odds", "nba", "props"/, "price records are written under the private directory");
+  assert.doesNotMatch(src, /data\/internal\/research\/odds\/nba\/props/, "never under the repository");
+});
+
+test("STORAGE: the workflow commits the credit ledger only, never a price record", () => {
+  const wf = fs.readFileSync(path.join(APP, "..", ".github/workflows/nba-props-pilot.yml"), "utf8");
+  const adds = [...wf.matchAll(/git add ([^\n]+)/g)].map((m) => m[1].trim());
+  assert.deepEqual(adds, ['"$L"']);
+  assert.match(wf, /L=data\/internal\/research\/odds\/nba\/authorization-ledger\.json/);
+  assert.doesNotMatch(wf, /git add data\/internal\/research\/odds\/nba\/(\s|$)/, "no directory-wide add");
+});
+
+test("STORAGE: the committed NBA credit ledger carries credits and status only — no line, no price", () => {
+  const f = path.join(APP, "..", "data/internal/research/odds/nba/authorization-ledger.json");
+  if (!fs.existsSync(f)) return;
+  const doc = JSON.parse(fs.readFileSync(f, "utf8"));
+  const PRICE_KEY = /^(line|point|price|prices|overAmerican|underAmerican|odds|americanOdds|outcomes|bookmakers)$/i;
+  const walk = (v, at) => {
+    if (Array.isArray(v)) v.forEach((x, i) => walk(x, `${at}[${i}]`));
+    else if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) { assert.ok(!PRICE_KEY.test(k), `${at}.${k} looks like a price field`); walk(x, `${at}.${k}`); }
+  };
+  walk(doc, "ledger");
+});

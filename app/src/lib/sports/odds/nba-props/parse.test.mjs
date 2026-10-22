@@ -64,7 +64,8 @@ test("identity: two roster players with one name → PLAYER_AMBIGUOUS; a strange
 test("identity: the reviewed alias table wins, but an alias to a player not in this event refuses; conflicting aliases refuse", () => {
   const roster = rosterFor("900000001");
   const alias = (providerName, providerAthleteId) => ({ providerName, providerAthleteId, reviewedBy: "test", reviewedAt: "2026-10-21", note: "TEST FIXTURE" });
-  assert.equal(REVIEWED_PLAYER_ALIASES.length, 0, "ships empty — entries only after a human reviews a real capture");
+  // Entries come only from a real capture's unresolved list, keyed by ESPN id (player-aliases.test.mjs pins the three).
+  assert.ok(REVIEWED_PLAYER_ALIASES.every((x) => /^\d+$/.test(x.providerAthleteId) && x.reviewedBy && x.note), "every reviewed alias carries an ESPN id, a reviewer and a note");
   const a = resolvePlayer("F. Guard One", roster, { aliases: [alias("F. Guard One", "9100001")] });
   assert.deepEqual([a.state, a.providerAthleteId, a.method], ["RESOLVED", "9100001", IDENTITY_METHOD.ALIAS]);
   assert.equal(resolvePlayer("Fixture Twin", roster, { aliases: [alias("Fixture Twin", "9100004")] }).providerAthleteId, "9100004", "a reviewed alias can settle a name collision");
