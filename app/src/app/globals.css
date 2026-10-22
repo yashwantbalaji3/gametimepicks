@@ -5261,11 +5261,10 @@ body {
 .nbx-card p { margin: 0; }
 .nbx-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-size: 12.5px; font-weight: 500; color: var(--vault-text-mute); }
 .nbx-chip { color: var(--vault-text-mute); border: 1px solid var(--vault-border); border-radius: 9999px; padding: 0.125rem 0.5rem; font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
-.nbx-match { margin: 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 0.5rem; font-size: 17px; }
-.nbx-side { display: inline-flex; align-items: center; gap: 0.5rem; min-width: 0; color: var(--vault-text-mute); }
-.nbx-side:last-child { justify-content: flex-end; flex-direction: row-reverse; }
-.nbx-side[data-on] { color: var(--vault-text); }
-.nbx-at { font-size: 12px; font-weight: 500; color: var(--vault-text-mute); }
+.nbx-match { margin: 0; display: grid; grid-template-columns: auto auto 1fr auto auto; align-items: center; gap: 0.5rem; font-size: 17px; }
+.nbx-match b { color: var(--vault-text-mute); font-weight: 700; }
+.nbx-match b[data-on] { color: var(--vault-text); }
+.nbx-match i { font-style: normal; text-align: center; font-size: 12px; font-weight: 500; color: var(--vault-text-mute); }
 .nbx-read { background: var(--vault-wash-faint); border-radius: 0.75rem; padding: 0.625rem 0.875rem; font-size: 12px; line-height: 1.5; color: var(--vault-text-mute); display: flex; flex-direction: column; gap: 0.25rem; overflow-wrap: anywhere; }
 .nbx-read strong { font-size: 14px; color: var(--vault-text); }
 .nbx-note { font-size: 12px; color: var(--vault-text); }

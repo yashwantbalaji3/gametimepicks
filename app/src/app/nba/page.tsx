@@ -66,10 +66,7 @@ export default async function NbaHubPage() {
             medians, shown as unvalidated experimental analytics while the model is checked against its preregistered bars.
           </>
         ) : (
-          <>
-            Games, start times and official finals. On game days the official forecast — the Elo-favoured side and frozen
-            player medians, experimental and not validated — is published before tip-off.
-          </>
+          <>Games, start times and official finals, and on game days the official forecast (see today, below).</>
         )}
       </p>
       <NbaSlateOverview slate={slate} gamesAnchor={lane ? "nba-experimental" : "nba-today-games"} />
