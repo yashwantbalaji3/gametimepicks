@@ -31,7 +31,7 @@ withheld; no field for them exists in the new code. The engine label stays "Rese
 | 15 | Mobile | Single column, no horizontal scroll | OK | Cards auto-fill (17.5rem minimum). The official table scrolls inside its own box, so the page does not scroll sideways. Checked at 320 / 390 / 768 / 1440 (see PR) |
 | 16 | Keyboard | Native links and buttons, visible focus | — | Skip link to an in-page anchor; the target section has `tabindex=-1` and gets focus. Focus rings on the nav strip and the section. One link per card and per lane row |
 | 17 | Touch targets ≥ 44px | `gtp-hit-44`, `.gtp-ev-cta` | — | Overview pills, game-page nav, lane rows and the card CTA are all ≥ 44px |
-| 18 | Page weight | `page-weight-budgets.mjs` ceilings | `/nba/` 233.7 KB of 250 | See the PR body (measured in a local build under the shared lock). TeamLogo's four layout utilities moved into `.gtp-team-logo` byte-for-byte, so every crest on every page is ~50 B lighter |
+| 18 | Page weight | `page-weight-budgets.mjs` ceilings | `/nba/` 233.7 KB of 250 (no lane) | Measured locally with the flag ON and today's real publish: `/` 196.6 KB (ceiling 600), `/nba/` 236.7 KB (250), `/nba/projections/` 93.6 KB (200), Theater pages 193.2 / 196.6 KB (250). Today's games now render once, as cards, instead of as a card plus a schedule row: about 2.8 KB a game against about 3.4 KB on main, so a full night is lighter than before. TeamLogo's four layout utilities moved into `.gtp-team-logo`, byte-for-byte, so every crest on every page is about 50 B lighter |
 | 19 | Loading | Static export, SSR first paint | SSR | SSR. The official section is in the HTML before any script runs; card status advances on the reader's clock (`GameStatusOnClock`) instead of freezing a build-time "Upcoming" |
 | 20 | Console errors | None | None | None at the four widths (see PR) |
 
@@ -60,4 +60,6 @@ withheld; no field for them exists in the new code. The engine label stays "Rese
 - `/methodology` still describes NBA as "frozen history" and says "MLB is the only sport producing model output". That
   copy predates the 10-20/10-21 decisions, and fixing it is methodology wording, not UI.
 - The schedule row status ("Upcoming") in the long `/nba` list is still build-time, as on every hub. Today's games
-  have clock-based status on their cards.
+  are no longer in that list; their cards carry clock-based status.
+- Every Command Center lane's hub and Simulate links are 24px high (a shared, pre-existing pattern). NBA's game rows
+  are 44px.
