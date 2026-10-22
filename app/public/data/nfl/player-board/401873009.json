@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-22T22:31:12Z",
- "sourceGeneratedAt": "2026-10-22T22:31:12Z",
+ "generatedAt": "2026-10-22T22:54:38Z",
+ "sourceGeneratedAt": "2026-10-22T22:54:38Z",
  "providerEventId": "401873009",
  "matchup": "DAL @ PHI",
  "kickoffUtc": "2026-10-27T00:15Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-22T22:31:12Z",
-  "roleEvidenceAt": "2026-10-22T22:31:12Z",
+  "injuriesCapturedAt": "2026-10-22T22:54:38Z",
+  "roleEvidenceAt": "2026-10-22T22:54:38Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -57,24 +57,7 @@
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "PHI",
-      "pool": "targets",
-      "originalSum": 1.1283,
-      "normalizedSum": 1,
-      "factor": 0.8863,
-      "playerIds": [
-       "nfl-athlete-4241478",
-       "nfl-athlete-3121023",
-       "nfl-athlete-4428850",
-       "nfl-athlete-4870795",
-       "nfl-athlete-4360238",
-       "nfl-athlete-15835",
-       "nfl-athlete-4715355"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_pass_int": {
@@ -311,7 +294,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4428850",
@@ -452,19 +435,6 @@
   ],
   "pools": [
    {
-    "team": "PHI",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 1,
-    "originalSum": 1.1283,
-    "residualOther": 0,
-    "joined": 7,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
-   {
     "team": "DAL",
     "pool": "passAttempts",
     "markets": [
@@ -474,6 +444,19 @@
     "originalSum": 0.9879,
     "residualOther": 0.0121,
     "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "PHI",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.9427,
+    "originalSum": 0.9427,
+    "residualOther": 0.0573,
+    "joined": 6,
     "missed": 0,
     "state": "CONSERVED"
    },
@@ -558,16 +541,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.3048,
+     "mean": 2.6005,
      "p10": 0,
-     "p25": 0.8863,
-     "median": 1.7726,
-     "p75": 3.5452,
-     "p90": 4.4314,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8863
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -592,16 +571,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 5.7272,
-     "p10": 1.7726,
-     "p25": 3.5452,
-     "median": 5.3177,
-     "p75": 7.9766,
-     "p90": 10.6355,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8863
-     },
+     "mean": 6.462,
+     "p10": 2,
+     "p25": 4,
+     "median": 6,
+     "p75": 9,
+     "p90": 12,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -683,7 +658,7 @@
    "playerId": "nfl-athlete-3121023",
    "name": "Dallas Goedert",
    "team": "PHI",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 30.685,
@@ -695,16 +670,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.6749,
-     "p10": 0.8863,
-     "p25": 1.7726,
-     "median": 3.5452,
-     "p75": 5.3177,
-     "p90": 7.0903,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8863
-     },
+     "mean": 4.1464,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 8,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -801,16 +772,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.1064,
-     "p10": 0.8863,
-     "p25": 1.7726,
-     "median": 2.6589,
-     "p75": 4.4314,
-     "p90": 6.204,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8863
-     },
+     "mean": 3.505,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -895,16 +862,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.9955,
-     "p10": 0.8863,
-     "p25": 1.7726,
-     "median": 2.6589,
-     "p75": 4.4314,
-     "p90": 6.204,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8863
-     },
+     "mean": 3.3798,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -929,16 +892,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.503,
+     "mean": 1.6958,
      "p10": 0,
-     "p25": 0.8863,
-     "median": 0.8863,
-     "p75": 2.6589,
-     "p90": 3.5452,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8863
-     },
+     "p25": 1,
+     "median": 1,
+     "p75": 3,
+     "p90": 4,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -984,16 +943,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.7227,
+     "mean": 1.9437,
      "p10": 0,
-     "p25": 0.8863,
-     "median": 1.7726,
-     "p75": 2.6589,
-     "p90": 3.5452,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8863
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
