@@ -18,7 +18,7 @@
  * This file holds no HTTP call and no provider host. Those live in capture.mjs, which is tested with a fake fetch.
  * The API key is read only after the receipt parses, and only with --apply.
  *
- * Usage: node scripts/nba/capture-nba-props-odds.mjs --now <iso> [--lookahead-hours 30] [--lead-minutes 20,75] [--markets player_points,…]
+ * Usage: npx tsx scripts/nba/capture-nba-props-odds.mjs --now <iso> [--lookahead-hours 30] [--lead-minutes 20,75] [--markets player_points,…]
  *        [--authorized --receipt docs/receipts/<file>.md]
  */
 import fs from "node:fs";
