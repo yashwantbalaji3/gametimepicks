@@ -38,8 +38,11 @@ test("flag ON: every published page carries the founder's labels; only the allow
   // The placeholder never ships, in any build (prune-internal-routes.mjs).
   assert.equal(fs.existsSync(path.join(SIM, NBA_PUBLIC_THEATER_PLACEHOLDER)), false, "the inert placeholder page is pruned");
   if (!fs.existsSync(SIM)) {
-    // Between slates (the build's ET slate has no stored runs yet) a flag-ON export legitimately has NO Theater page;
-    // the scanner itself is proven on planted exports in the test below, so this branch is not a silent pass.
+    // Between slates (the build's ET slate has no stored runs yet) a flag-ON export legitimately has NO Theater page —
+    // but the [eventId] route chunk is still emitted, so the base leak scan and the stray-chunk rule still apply.
+    const r0 = scan(OUT);
+    assert.deepEqual(r0.leaks, [], "between slates: no §5 private marker outside the allowlist");
+    assert.deepEqual(r0.strayChunks, [], "between slates: no non-Theater page loads a chunk carrying the Theater markers");
     console.log("# NBA theater ON: between slates — no /nba/simulation/<id>/ page in this export (placeholder pruned)");
     return;
   }
