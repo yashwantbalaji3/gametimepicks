@@ -40,7 +40,6 @@ import path from "node:path";
 
 import { LEGAL_ROUTES, legalRouteIsPublic } from "../src/lib/legal/texts.mjs";
 import { nbaTheaterPublicEnabled } from "../src/lib/simulation-theater/nba/feature-manifest.mjs";
-import { NBA_PUBLIC_THEATER_PLACEHOLDER } from "../src/lib/simulation-theater/nba/possession/public-route.mjs";
 import { sanitizeLivePropsJsonText } from "../src/lib/sports/odds/public-offer-sanitizer.mjs";
 
 /* Legal pages join the sweep until they may publish (lib/legal/texts.mjs · legalReadiness): an
@@ -56,7 +55,8 @@ if (DEV_ROUTES.length === 0) console.log("[prune-internal-routes] GTP_DEV_ROUTES
    page is an inert 404 placeholder, and this sweep removes it with its chunks. */
 // Gate ON: real game pages ship, but the inert placeholder (emitted when the current slate has no stored runs, e.g.
 // between slates) never does — it had no <main> and served an empty page (release owner 2026-10-22).
-const NBA_THEATER_ROUTES = nbaTheaterPublicEnabled() ? [`nba/simulation/${NBA_PUBLIC_THEATER_PLACEHOLDER}`] : ["nba/simulation"];
+// (A literal, not an import: this build step may not read the possession library; a test pins it to the route constant.)
+const NBA_THEATER_ROUTES = nbaTheaterPublicEnabled() ? ["nba/simulation/nba-theater-disabled"] : ["nba/simulation"];
 if (NBA_THEATER_ROUTES.length === 0) console.log("[prune-internal-routes] NBA Theater public gate ON (constant + GTP_NBA_THEATER_PUBLIC=1) → keeping out/nba/simulation/");
 const INTERNAL_ROUTES = ["ops", "preview", "launch", ...DEV_ROUTES, ...NBA_THEATER_ROUTES, ...GATED_LEGAL_ROUTES];
 
