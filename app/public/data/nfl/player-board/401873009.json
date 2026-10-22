@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-22T19:08:00Z",
- "sourceGeneratedAt": "2026-10-22T19:08:00Z",
+ "generatedAt": "2026-10-22T22:31:12Z",
+ "sourceGeneratedAt": "2026-10-22T22:31:12Z",
  "providerEventId": "401873009",
  "matchup": "DAL @ PHI",
  "kickoffUtc": "2026-10-27T00:15Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-22T19:08:00Z",
-  "roleEvidenceAt": "2026-10-22T19:08:00Z",
+  "injuriesCapturedAt": "2026-10-22T22:31:12Z",
+  "roleEvidenceAt": "2026-10-22T22:31:12Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -94,7 +94,29 @@
    "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
   }
  },
- "newArrivals": {},
+ "newArrivals": {
+  "PHI": [
+   {
+    "playerId": "nfl-athlete-4685279",
+    "name": "Jaydon Blue",
+    "position": "RB",
+    "team": "PHI",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "DAL",
+     "games": 6,
+     "targetsPg": 0.2,
+     "receptionsPg": 0.2,
+     "recYdsPg": 0.8,
+     "rushAttPg": 7.8,
+     "rushYdsPg": 25.7,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "no game for PHI yet this season, so his role there is not yet observed and he is not in this game's numbers; his DAL history is kept only as a historical prior"
+   }
+  ]
+ },
  "arrivalsShadowed": 0,
  "departedFiltered": 0,
  "practiceSquadFiltered": 0,
@@ -169,7 +191,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4240603",
@@ -230,7 +252,7 @@
     "PROJECTED": 11,
     "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
-    "WITHHELD_ROLE_UNCERTAIN": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
@@ -371,6 +393,12 @@
      "name": "Will Shipley",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-4685279",
+     "name": "Jaydon Blue",
+     "state": "WITHHELD_ROLE_UNCERTAIN",
+     "reason": "no game for PHI yet this season — role at PHI not yet observed"
     }
    ]
   }
@@ -455,12 +483,12 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.8316,
-    "originalSum": 0.8316,
-    "residualOther": 0.1684,
-    "joined": 5,
+    "sum": 0.6132,
+    "originalSum": 0.6132,
+    "residualOther": 0.3868,
+    "joined": 4,
     "missed": 0,
-    "state": "CONSERVED"
+    "state": "UNDER_ALLOCATED"
    }
   ],
   "violations": 0
@@ -689,7 +717,7 @@
    "playerId": "nfl-athlete-4426354",
    "name": "George Pickens",
    "team": "DAL",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 56.538,
