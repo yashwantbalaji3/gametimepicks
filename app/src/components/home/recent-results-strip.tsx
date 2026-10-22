@@ -16,7 +16,7 @@ export default function RecentResultsStrip({
   recordLabel: string | null;
   /** e.g. "3 pending · 33 settled" — same owner. */
   pendingLabel: string | null;
-  /** ISO date of the most recent settled slate, from the optimizer settled index. */
+  /** ISO date of the newest settled day across products and sports (lib/home/settled-through.mjs). */
   lastSettledDate: string | null;
 }) {
   const settledLabel = lastSettledDate

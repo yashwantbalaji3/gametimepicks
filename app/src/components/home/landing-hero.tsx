@@ -24,7 +24,7 @@ export interface LandingHeroProps {
   qualifiedPicks: number | null;
   /** Active signature-product cards right now (0 is an honest state, not a gap). */
   activeProducts: number;
-  /** Latest settled slate date (YYYY-MM-DD) — the proof link's anchor. */
+  /** Newest settled date (YYYY-MM-DD) across products and sports (lib/home/settled-through.mjs) — the proof link's anchor. */
   lastSettledDate: string | null;
 }
 

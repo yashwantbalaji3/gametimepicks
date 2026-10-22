@@ -22,13 +22,14 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 
 import { SPORT_CAPABILITIES, capabilityState, FULL_MODEL_SPORTS } from "./sport-capability-registry.ts";
+import { evidenceOf } from "./sport-capability-evidence.ts";
 import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
 
 const dirsOf = (cap) =>
-  cap.evidence
+  evidenceOf(cap.key)
     .map((rel) => ({ rel, abs: path.join(REPO, rel) }))
     .filter((e) => fs.existsSync(e.abs) && fs.statSync(e.abs).isDirectory());
 
@@ -109,7 +110,7 @@ test("every sport named in the Sprint 032 audit has an explicit, evidenced state
     assert.ok(known.has(key), `${key} is named in the audit but carries no registry entry`);
     const cap = SPORT_CAPABILITIES.find((c) => c.key === key);
     assert.ok(cap.reason.length > 15, `${key}: needs a reason a non-engineer can check`);
-    assert.ok(cap.evidence.length > 0, `${key}: a status nobody can audit is just an opinion`);
+    assert.ok(evidenceOf(key).length > 0, `${key}: a status nobody can audit is just an opinion`);
   }
 });
 
@@ -118,7 +119,7 @@ test("no sport is promoted above SCAFFOLD_ONLY without a populated artifact dire
   // and below may cite source files alone; anything claiming live or historical DATA must point at data.
   const CLAIMS_DATA = new Set(["FULL_MODEL", "HISTORICAL_ONLY"]);
   for (const cap of SPORT_CAPABILITIES.filter((c) => CLAIMS_DATA.has(c.state))) {
-    const hasRealEvidence = cap.evidence.some((rel) => {
+    const hasRealEvidence = evidenceOf(cap.key).some((rel) => {
       const abs = path.join(REPO, rel);
       if (!fs.existsSync(abs)) return false;
       const st = fs.statSync(abs);

@@ -44,6 +44,8 @@ import LandingHero from "@/components/home/landing-hero";
 import LiveNow from "@/components/live/live-now";
 import RecentResultsStrip from "@/components/home/recent-results-strip";
 import { getOptimizerSettledDates } from "@/lib/parlay-results";
+import { loadResultsProjection } from "@/lib/results/projection";
+import { newestSettledDate } from "@/lib/home/settled-through.mjs";
 import HomeTodayMlb from "@/components/home/home-today-mlb";
 import FlagshipCards, { type FlagshipCard } from "@/components/home/flagship-cards";
 import CommandCenter from "@/components/command-center/command-center";
@@ -308,7 +310,10 @@ export default function HomePage() {
   // Week 4. A scheduled game counts with or without our forecast.
   const eventsTodayTotal = todayAcross.eventsToday;
   const activeProductCards = dailyPortfolio.cards.filter((c) => c.status === "active").length;
-  const lastSettledDate = getOptimizerSettledDates().sort().slice(-1)[0] ?? null;
+  // Housekeeping 10-22: "Settled through" names no product, so it is the NEWEST settled date across the products and
+  // sports Home summarizes (the canonical results projection's settled records + the optimizer index) — not the
+  // optimizer index alone, which read Oct 15 while MLB had settled through 10-19 and the products through 10-20.
+  const lastSettledDate = newestSettledDate({ projection: loadResultsProjection(), optimizerSettledDates: getOptimizerSettledDates() });
 
   const dateLabel = new Date(`${today}T12:00:00Z`).toLocaleDateString("en-US", {
     weekday: "long", month: "long", day: "numeric",
@@ -430,8 +435,8 @@ export default function HomePage() {
               content, same owner (buildYesterdayRecap); still on the homepage, still above the fold on /today. */}
       <YesterdayCard recap={buildYesterdayRecap(dataRoot)} />
       {/* 6 — Recent results: the proof section (charter 5B order). Same owners as /results — the
-          record label and pending line arrive from portfolio.json above; the last settled date from
-          the optimizer's settled index. The homepage composes NOTHING. */}
+          record label and pending line arrive from portfolio.json above; the last settled date is the newest
+          settled date across products and sports (lib/home/settled-through.mjs). The homepage composes NOTHING. */}
       <RecentResultsStrip
         recordLabel={recordLabel}
         pendingLabel={pendingLabel}

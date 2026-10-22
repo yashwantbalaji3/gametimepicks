@@ -8,6 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { SOCCER_LEAGUES, league, soccerLeaguePages } from "./leagues.mjs";
+import { LEAGUE_VALIDATION, leagueValidation } from "./leagues-validation.mjs";
 import { OPENFOOTBALL_LEAGUES } from "./openfootball.mjs";
 import { SOURCES } from "../source-registry.mjs";
 
@@ -49,7 +50,7 @@ test("🔴 the openfootball table is DERIVED from the registry and equals the ta
 test("🔴 every file the registry cites exists: odds receipts, validation evidence, public routes", () => {
   for (const l of SOCCER_LEAGUES) {
     if (l.oddsReceipt) assert.ok(exists(l.oddsReceipt), `${l.key}: receipt ${l.oddsReceipt}`);
-    for (const p of Object.values(l.validation ?? {})) assert.ok(exists(p), `${l.key}: evidence ${p}`);
+    for (const p of Object.values(leagueValidation(l.key) ?? {})) assert.ok(exists(p), `${l.key}: evidence ${p}`);
     // A /soccer/<key> route is served by the shared [league] page when the registry generates it (C-3).
     const shared = l.route === `/soccer/${l.key}` && soccerLeaguePages().some((x) => x.key === l.key) && fs.existsSync(path.join(APP, "src/app/soccer/[league]/page.tsx"));
     if (l.route) assert.ok(shared || fs.existsSync(path.join(APP, "src/app", l.route, "page.tsx")), `${l.key}: route ${l.route} has a page`);
@@ -74,4 +75,20 @@ test("the source registry matches: openfootball covers every league that reads i
   for (const l of SOCCER_LEAGUES.filter((x) => x.openfootball)) assert.ok(SOURCES.openfootball.sports.includes(l.key), `openfootball.sports lists ${l.key}`);
   assert.equal(SOURCES.fantasy_premier_league.authorization, "PRIVATE_RESEARCH");
   assert.ok(fs.existsSync(path.join(APP, "scripts/epl/build-fpl-crosswalk.mjs")), "the reader the row records exists");
+});
+
+test("🔴 validation evidence lives in the server-only module: every scored or publishing league has it, and leagues.mjs names no data/internal path", () => {
+  for (const k of Object.keys(LEAGUE_VALIDATION)) assert.ok(league(k), `${k}: a registered league`);
+  for (const l of SOCCER_LEAGUES) {
+    assert.equal("validation" in l, false, `${l.key}: no validation field on the client-reachable registry`);
+    if (["LIVE", "ACCEPTED_V1", "REJECTED_V1"].includes(l.stage)) assert.ok(leagueValidation(l.key), `${l.key}: ${l.stage} carries validation evidence`);
+  }
+  for (const k of ["laliga", "serie-a", "bundesliga", "ligue-1"]) {
+    assert.equal(leagueValidation(k).preregistration, "data/internal/research/soccer/preregistration-league-expansion-v1.json");
+    assert.equal(leagueValidation(k).report, `data/internal/research/soccer/${k}/reports/walk-forward-v1.json`);
+  }
+  assert.deepEqual(leagueValidation("epl"), { modelOwner: "app/src/lib/sports/epl/match-model.mjs" });
+  assert.equal(leagueValidation("mls"), null);
+  const code = fs.readFileSync(path.join(APP, "src/lib/sports/soccer/leagues.mjs"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.doesNotMatch(code, /data\/internal/, "leagues.mjs ships in the site-wide client chunk");
 });
