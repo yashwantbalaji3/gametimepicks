@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-10-22T10:28:53.300Z",
+  "generatedAt": "2026-10-22T12:35:29.692Z",
   "canonical": {
     "record": "47-52",
     "bankroll": 14065.4,
@@ -105,7 +105,7 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-10-22",
-      "generatedAt": "2026-10-22T09:37:51Z",
+      "generatedAt": "2026-10-22T10:29:00Z",
       "sports": [
         {
           "sport": "epl",
@@ -220,16 +220,16 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-10-22T10:25:19.244Z",
-    "ageHours": 0.1,
-    "ok": false,
-    "status": "fail",
-    "phase": "daily-owner-slo"
+    "lastRunAt": "2026-10-22T12:35:28.842Z",
+    "ageHours": 0,
+    "ok": true,
+    "status": "pass",
+    "phase": "nightly-settle"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-10-22",
-    "etTime": "06:28",
+    "etTime": "08:35",
     "stages": [
       {
         "stage": "schedule",
@@ -248,14 +248,14 @@
       {
         "stage": "teamMarkets",
         "present": false,
-        "state": "pending",
+        "state": "late",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "playerProps",
         "present": false,
-        "state": "pending",
+        "state": "late",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       },
@@ -276,9 +276,9 @@
     ],
     "readyCount": 4,
     "totalStages": 6,
-    "lateCount": 0,
-    "signal": "YELLOW",
-    "summary": "4/6 produced; the rest are not due yet"
+    "lateCount": 2,
+    "signal": "RED",
+    "summary": "2 stage(s) overdue: teamMarkets (due 07:17 ET via mlb-daily-production), playerProps (due 07:17 ET via mlb-daily-production)"
   },
   "learningLoop": {
     "signal": "GREEN",
