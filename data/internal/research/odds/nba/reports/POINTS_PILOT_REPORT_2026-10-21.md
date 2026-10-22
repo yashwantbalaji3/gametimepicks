@@ -5,16 +5,16 @@ pre-tip capture per game · 11 credits total · private only. Receipt:
 `docs/receipts/ODDS_AUTHORIZATION_NBA_POINTS_PILOT_2026-10-21.md` (expired 23:59 ET). Pilot switched off and the
 workflow disabled at 02:15Z by the release owner.
 
-**Source of every number below:** the committed files only, read offline (no network) at main `70a8e07017`:
-`data/internal/research/odds/nba/authorization-ledger.json`, `data/internal/research/odds/nba/props/*.json` (14 run
-files), the frozen official v0.1 forecast `data/internal/research/nba/experimental-v0.1/forecasts/2026-10-21.json`.
+**Source of every number below:** read offline (no network) at main `70a8e07017`: the credit ledger
+`data/internal/research/odds/nba/authorization-ledger.json` (credits and status only), the pilot's 14 run files of price
+records (moving to private storage per the founder's decision; removal from the repository tip is the release
+owner's PR), and the frozen official v0.1 forecast `data/internal/research/nba/experimental-v0.1/forecasts/2026-10-21.json`.
 Nothing here is a pick, a recommendation, or a published price.
 
-> ⚠ **"Private" here means "not on the website", not "not public".** This repository is PUBLIC on GitHub, so the
-> committed price records (book names, lines, American prices) are readable by anyone. That matches existing
-> practice for other sports' odds files, but whether The Odds API's terms allow redistributing its data in a public
-> repository is a **founder / counsel question** to settle before any larger pilot. This report therefore carries
-> aggregates only — no per-book price table.
+> **Storage (founder decision, 2026-10-22):** raw or reconstructable sportsbook prices are not kept in this public
+> repository. This committed report carries **aggregates only** — counts, rates, distributions and credits. It names no
+> player together with a line or price, and gives no per-book price statistic. The full analysis is kept in private
+> storage outside every repository.
 
 ## 1. Games captured — 11 of 11, each exactly once, all pre-tip
 
@@ -45,17 +45,17 @@ Nothing here is a pick, a recommendation, or a published price.
 
 ## 3. Books represented — 8 of the 9 allowlisted keys
 
-| Book key | Records | Median two-way implied sum |
-|---|---|---|
-| draftkings | 149 | 1.0607 |
-| williamhill_us (Caesars) | 147 | 1.0726 |
-| espnbet | 146 | 1.0678 |
-| fanduel | 144 | 1.0605 |
-| betparx | 134 | 1.0719 |
-| betrivers | 134 | 1.0774 |
-| betmgm | 94 | 1.0698 |
-| fanatics | 11 | 1.0693 |
-| caesars | 0 | (the provider serves Caesars as `williamhill_us`) |
+| Book key | Records |
+|---|---|
+| draftkings | 149 |
+| williamhill_us (Caesars) | 147 |
+| espnbet | 146 |
+| fanduel | 144 |
+| betparx | 134 |
+| betrivers | 134 |
+| betmgm | 94 |
+| fanatics | 11 |
+| caesars | 0 (the provider serves Caesars as `williamhill_us`) |
 
 No offshore or unknown book appeared (`refusedNotEligible` empty in every run).
 
@@ -71,8 +71,7 @@ No offshore or unknown book appeared (`refusedNotEligible` empty in every run).
 ## 5. Lines and prices (summary)
 
 - American prices −182 … +133; 74% within −125…−105.
-- Two-way implied sum (the books' margin): median 1.069 (p10 1.060, p90 1.076). DraftKings and FanDuel were the
-  tightest (~1.061), BetRivers the widest (1.077).
+- Two-way implied sum (the books' margin), all books pooled: median 1.069 (p10 1.060, p90 1.076).
 
 ## 6. Credits by call
 
@@ -94,8 +93,7 @@ No offshore or unknown book appeared (`refusedNotEligible` empty in every run).
 
 - For the **138** priced players with an official projection, v0.1 median − consensus line (median of the books'
   lines): **median −2.08 points; 105 of 138 below the line; 47 at least 4 points away** (either side).
-  - Largest below: Anthony Edwards 16.8 vs 28.5, Tyler Herro 11.7 vs 22.5, Zion Williamson 11.3 vs 21, Trey Murphy
-    III 9.9 vs 19.5, Trae Young 11.0 vs 19.5. Largest above: Tre Jones 17.8 vs 8.5, Cooper Flagg 29.1 vs 21.5.
+  - The gap ranges from about −12 to +9 points; the largest gaps are for high-usage starters the model under-minutes.
   - (Correction to my interim note: on the first 2 games it was 22 of 25 below, not 23.)
 - **Cause — #1178's diagnosis, ACCEPTED:** primarily the uniform 240-minute rescale (`game-sim.mjs`); secondarily a
   trailing window holding last season's final 10 games, playoffs and play-in included (`minutes-model.mjs`). **Not
@@ -118,9 +116,10 @@ No offshore or unknown book appeared (`refusedNotEligible` empty in every run).
   scores, each priced line grades OVER and UNDER at the book's real line through the #1169 grader (DNP / 0 min →
   NO_MEASUREMENT, never a loss; D4-style conflicts → held). The same offline report then gives, descriptively per
   market: hit/lose/push at real lines, consensus-line MAE vs v0.1-median MAE, and coverage.
-- **What is still needed for it to be evidence, not a one-off read:** an append-only *priced* prop-grade ledger with a
-  single writer (the #1169 ledger grades synthetic median lines only, by design). That writer is a small offline PR
-  (no network, no build-time read); until it lands, grading is descriptive.
+- **The append-only priced prop-grade ledger** (PR 1179, `scripts/nba/grade-nba-priced-props.mjs`, one writer) grades
+  each real line on both sides with the PR 1169 grader. Per the founder's storage decision it writes **only** to a
+  private directory outside every repository (`--out-dir` / `GTP_PRIVATE_DATA_DIR`) and refuses any in-repository
+  path; only aggregates may be reported back.
 
 ## 10. Exact blockers for Bank Builder / Moonshot / Parlay Lab using these markets
 
@@ -142,7 +141,7 @@ Each refuses on its own; all must clear:
    moonshot is team-markets-only for NBA; `NEXT_PUBLIC_PARLAY_LAB_V2` is off.
 10. **Same-game:** two NBA legs from one game are refused (no validated correlation model); cross-sport correlation
     caps are PROPOSED and disabled.
-11. **Terms:** the public-repository data question in the header.
+11. **Storage / terms:** private storage only (founder, 2026-10-22), pending review of the provider's terms.
 
 ## 11. Is a larger pilot technically justified?
 
@@ -172,7 +171,8 @@ nights reach 500.
    ESPN athlete id — never by surname.
 3. A more reliable trigger than GitHub cron at 15-min granularity (two slots were skipped tonight): add 10-minute
    cron offsets or a dispatcher; the once-per-game and lead-window rules already make extra triggers safe.
-4. The terms question settled (or price records kept out of the public repository).
+4. Storage: decided by the founder (2026-10-22) — price records and graded lines in private storage only; the
+   capture now refuses a paid run without a private directory. **Pilot #2 is NOT approved; no spend.**
 
 A longer full-month pilot (10-22 → 11-20, 221 games, ~221 credits at one snapshot per game) is not needed to answer
 the current question and should wait for the 7-slate read.

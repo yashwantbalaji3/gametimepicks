@@ -14,7 +14,8 @@ import {
 } from "./priced-prop-grading.mjs";
 import { nbaPropResult, readNbaFinalsRecords } from "./prop-settlement-source.mjs";
 import { gradeNbaPlayerProp } from "./prop-settlement.mjs";
-import { runPricedGrading } from "../../../../scripts/nba/grade-nba-priced-props.mjs";
+import { runPricedGrading, Refused } from "../../../../scripts/nba/grade-nba-priced-props.mjs";
+import { resolvePrivateDataDir, PRIVATE_DIR_ENV } from "../../ops/private-data-dir.mjs";
 
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
@@ -79,24 +80,45 @@ test("ledger lineage: pending → graded is PENDING_RESOLVED; a box-score correc
   assert.equal(s.pts.rows, 1);
 });
 
-test("writer over the committed pilot captures (invariants only): a scratch run, then a re-run that appends nothing", () => {
+test("writer over the committed pilot captures (invariants only): a private scratch run, then a re-run that appends nothing", () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "nba-priced-"));
-  const repoLedger = path.join(REPO, "data/internal/research/nba/priced-props/ledger.jsonl");
-  const repoBefore = fs.existsSync(repoLedger) ? fs.readFileSync(repoLedger, "utf8") : null;
   try {
-    const first = runPricedGrading({ repoRoot: REPO, now: "2026-10-22T03:00:00Z", write: true, outDir: tmp });
-    const ledger = path.join(tmp, "priced-props", "ledger.jsonl");
+    const first = runPricedGrading({ repoRoot: REPO, now: "2026-10-22T03:00:00Z", write: true, outDir: tmp, env: {} });
+    const ledger = path.join(tmp, "nba", "priced-props", "ledger.jsonl");
     if (first.appended === 0) { assert.equal(fs.existsSync(ledger), false); return; }
     const text = fs.readFileSync(ledger, "utf8");
     assert.deepEqual(pricedLedgerAppendOnlyViolations({ beforeText: "", afterText: text }), []);
-    const second = runPricedGrading({ repoRoot: REPO, now: "2026-10-22T03:05:00Z", write: true, outDir: tmp });
+    assert.match(first.ledger, /^<private>\//, "the report names the private ledger, never a repository path");
+    const second = runPricedGrading({ repoRoot: REPO, now: "2026-10-22T03:05:00Z", write: true, outDir: tmp, env: {} });
     assert.equal(second.appended, 0, "re-running on unchanged inputs appends nothing");
-    assert.equal(fs.readFileSync(ledger, "utf8"), text, "the scratch ledger is byte-identical");
+    assert.equal(fs.readFileSync(ledger, "utf8"), text, "the private ledger is byte-identical");
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
-    const repoAfter = fs.existsSync(repoLedger) ? fs.readFileSync(repoLedger, "utf8") : null;
-    assert.equal(repoAfter, repoBefore, "a scratch (--out-dir) run never touches the repo ledger");
   }
+  assert.equal(fs.existsSync(path.join(REPO, "data/internal/research/nba/priced-props")), false, "nothing is ever written under the repository");
+});
+
+test("STORAGE: the writer refuses without a private directory, and refuses any path inside the repository or a git working tree", () => {
+  const refuses = (opts, why) => assert.throws(() => runPricedGrading({ repoRoot: REPO, now: "2026-10-22T03:00:00Z", write: true, ...opts }), (e) => e instanceof Refused && why.test(e.message), JSON.stringify(opts));
+  refuses({ env: {} }, /no private data directory/);
+  refuses({ outDir: "relative/dir", env: {} }, /absolute path/);
+  refuses({ outDir: path.join(REPO, "data/internal/research/nba/priced-props"), env: {} }, /inside the repository/);
+  refuses({ outDir: path.join(APP, "tmp-private"), env: {} }, /inside the repository/);
+  refuses({ env: { [PRIVATE_DIR_ENV]: path.join(REPO, "data") } }, /inside the repository/);
+  // Another git working tree (e.g. a sibling worktree of this public repository) is refused too.
+  const otherTree = fs.mkdtempSync(path.join(os.tmpdir(), "nba-tree-"));
+  try {
+    fs.writeFileSync(path.join(otherTree, ".git"), "gitdir: /elsewhere\n");
+    refuses({ outDir: path.join(otherTree, "private"), env: {} }, /inside a git working tree/);
+  } finally { fs.rmSync(otherTree, { recursive: true, force: true }); }
+  // The environment variable is honoured when no --out-dir is given.
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "nba-priv-env-"));
+  try {
+    const r = resolvePrivateDataDir({ env: { [PRIVATE_DIR_ENV]: tmp }, repoRoot: REPO });
+    assert.equal(r.ok, true, r.reason);
+    assert.equal(r.source, PRIVATE_DIR_ENV);
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+  assert.doesNotMatch(fs.readFileSync(path.join(APP, "scripts/nba/grade-nba-priced-props.mjs"), "utf8").replace(/\/\*[\s\S]*?\*\//g, ""), /"data", "internal", "research", "nba"/, "no default ledger path under the repository");
 });
 
 test("ONE PRICED-LEDGER WRITER: only scripts/nba/grade-nba-priced-props.mjs writes it, and it is offline", () => {

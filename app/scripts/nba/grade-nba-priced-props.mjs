@@ -1,19 +1,25 @@
 #!/usr/bin/env node
 /**
- * NBA PRICED-LINE GRADES → the APPEND-ONLY priced prop-grade ledger. PRIVATE research, descriptive only. OFFLINE: it reads
- * committed files only (no network, no key), and makes no pick.
+ * NBA PRICED-LINE GRADES → the APPEND-ONLY priced prop-grade ledger, in PRIVATE storage only. Descriptive; no pick.
+ * OFFLINE: it reads files only (no network, no key).
  *
- * The ONE writer of data/internal/research/nba/priced-props/ledger.jsonl (priced-prop-grading.test.mjs pins it).
- * Inputs, all committed:
- *   - price records: data/internal/research/odds/nba/props/*.json (`records`, gtp.nba.prop-price@1)
+ * FOUNDER DECISION (storage, 2026-10-22): graded real sportsbook lines are never written to the public repository.
+ * This script REFUSES to write anywhere inside the repository or inside any git working tree. It writes only to a
+ * private directory given by --out-dir or GTP_PRIVATE_DATA_DIR (absolute, outside every repository; lib/ops/
+ * private-data-dir.mjs). There is no default ledger path.
+ *
+ * The ONE writer of <private dir>/nba/priced-props/ledger.jsonl (priced-prop-grading.test.mjs pins it).
+ * Inputs:
+ *   - price records (gtp.nba.prop-price@1): <private dir>/odds/nba/props/*.json, plus, read-only, any copies still
+ *     committed under data/internal/research/odds/nba/props/ (legacy pilot files, until removed from the tip).
+ *     The same record id in both places is graded once.
  *   - finals: app/public/data/nba/results/finals-<season>.json (write-once finals record)
  *   - box scores: the stored FINAL box scores, located exactly as Top Board / v0.1 shadow grading locate them
  * Grading and holds are PR 1169's (lib/sports/nba/priced-prop-grading.mjs over prop-settlement.mjs).
  *
- *   npx tsx scripts/nba/grade-nba-priced-props.mjs --now <ISO> [--write] [--out-dir DIR]
- *     default        dry run: grade and report, write nothing
- *     --write        append the new entries to the repo ledger
- *     --out-dir DIR  read/write DIR/priced-props/ledger.jsonl instead (a scratch run never touches the repo ledger)
+ *   npx tsx scripts/nba/grade-nba-priced-props.mjs --now <ISO> [--out-dir /abs/private/dir] [--write]
+ *     default   dry run: grade and report, write nothing (still needs a valid private directory)
+ *     --write   append the new entries to <private dir>/nba/priced-props/ledger.jsonl
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -22,6 +28,7 @@ import { nbaBoxscoreLocator, nbaPropResult, readNbaFinalsRecords } from "../../s
 import { boxscoreContentHash, boxscorePointsCheck } from "../../src/lib/sports/nba/experimental-grading-ledger.mjs";
 import { finalFor } from "../../src/lib/sports/nba/finals-record.mjs";
 import { HOLD, propGradeHolds } from "../../src/lib/sports/nba/prop-shadow-grading.mjs";
+import { resolvePrivateDataDir } from "../../src/lib/ops/private-data-dir.mjs";
 import {
   PRICED_DIR, PRICED_GRADER_VERSION, PRICED_LEDGER_FILE, appendPricedGrades, gradePricedRow, parsePricedLedger,
   pricedLedgerAppendOnlyViolations, pricedLedgerLines, pricedRow, summarisePricedGrades,
@@ -30,24 +37,26 @@ import {
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const DEFAULT_REPO = path.resolve(APP, "..");
 const readJson = (f) => JSON.parse(fs.readFileSync(f, "utf8"));
-export const pricedLedgerPath = (root, { outDir = false } = {}) =>
-  outDir ? path.join(root, PRICED_DIR, PRICED_LEDGER_FILE) : path.join(root, "data", "internal", "research", "nba", PRICED_DIR, PRICED_LEDGER_FILE);
+/** The ledger path inside a RESOLVED private directory. There is no repository path. */
+export const pricedLedgerPath = (privateDir) => path.join(privateDir, "nba", PRICED_DIR, PRICED_LEDGER_FILE);
 export class Refused extends Error {}
 
 /** Grade (and with `write`, append). Returns a report; throws `Refused` on any refusal (nothing written). */
-export function runPricedGrading({ repoRoot = DEFAULT_REPO, now, write = false, outDir = null, log = () => {} }) {
+export function runPricedGrading({ repoRoot = DEFAULT_REPO, now, write = false, outDir = null, env = process.env, log = () => {} }) {
   if (!Number.isFinite(Date.parse(now ?? ""))) throw new Refused("--now must be ISO");
-  const rel = (f) => path.relative(repoRoot, f);
-  const propsDir = path.join(repoRoot, "data", "internal", "research", "odds", "nba", "props");
-  const files = fs.existsSync(propsDir) ? fs.readdirSync(propsDir).filter((f) => f.endsWith(".json")).sort() : [];
+  const priv = resolvePrivateDataDir({ cliDir: outDir, env, repoRoot });
+  if (!priv.ok) throw new Refused(priv.reason);
+  const rel = (f) => (f.startsWith(priv.dir) ? `<private>/${path.relative(priv.dir, f)}` : path.relative(repoRoot, f));
+  const propsDirs = [path.join(priv.dir, "odds", "nba", "props"), path.join(repoRoot, "data", "internal", "research", "odds", "nba", "props")];
+  const fileList = propsDirs.flatMap((d) => (fs.existsSync(d) ? fs.readdirSync(d).filter((f) => f.endsWith(".json")).sort().map((f) => path.join(d, f)) : []));
+  const files = fileList;
 
   const finalsRecord = readNbaFinalsRecords({ repoRoot });
   const holds = propGradeHolds({ finalsRecord });
   const findBox = nbaBoxscoreLocator({ repoRoot });
 
-  const repoLedger = pricedLedgerPath(repoRoot);
-  const target = outDir ? pricedLedgerPath(path.resolve(outDir), { outDir: true }) : repoLedger;
-  const source = outDir && fs.existsSync(target) ? target : repoLedger;
+  const target = pricedLedgerPath(priv.dir);
+  const source = target;
   const beforeText = fs.existsSync(source) ? fs.readFileSync(source, "utf8") : "";
   const parsed = parsePricedLedger(beforeText);
   if (parsed.errors.length) throw new Refused(`${rel(source)} is not valid JSONL: ${parsed.errors.join("; ")}`);
@@ -59,11 +68,14 @@ export function runPricedGrading({ repoRoot = DEFAULT_REPO, now, write = false, 
   const skipped = [];
   const boxCache = new Map();
   const boxFor = (id) => { if (!boxCache.has(id)) boxCache.set(id, findBox(id)); return boxCache.get(id); };
+  const seenRecords = new Set();
   for (const file of files) {
-    const doc = readJson(path.join(propsDir, file));
+    const doc = readJson(file);
     for (const rec of doc.records ?? []) {
-      const row = pricedRow(rec, { sourceFile: rel(path.join(propsDir, file)) });
-      if (!row) { skipped.push({ file, recordId: rec?.recordId ?? null, reason: "NOT_A_PRICE_RECORD" }); continue; }
+      if (rec?.recordId && seenRecords.has(rec.recordId)) continue; // the same record in private and legacy storage
+      if (rec?.recordId) seenRecords.add(rec.recordId);
+      const row = pricedRow(rec, { sourceFile: rel(file) });
+      if (!row) { skipped.push({ file: rel(file), recordId: rec?.recordId ?? null, reason: "NOT_A_PRICE_RECORD" }); continue; }
       const id = row.eventId;
       const hold = holds.get(id);
       if (hold) { held.set(id, hold); continue; }
@@ -112,7 +124,7 @@ export function runPricedGrading({ repoRoot = DEFAULT_REPO, now, write = false, 
   const written = fs.readFileSync(target, "utf8");
   const post = pricedLedgerAppendOnlyViolations({ beforeText, afterText: written });
   if (written !== afterText || post.length) throw new Refused(`post-write check failed: ${post.join("; ") || "content differs from the planned append"}`);
-  log(`wrote ${outDir ? target : rel(target)} (+${appended.length})`);
+  log(`wrote ${rel(target)} (+${appended.length})`);
   return { ...report, wrote: true };
 }
 

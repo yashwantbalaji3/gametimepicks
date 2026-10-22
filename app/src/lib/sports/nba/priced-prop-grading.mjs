@@ -22,7 +22,9 @@
  * Lineage INITIAL | PENDING_RESOLVED | CORRECTION with `supersedes`; an identical re-grade appends nothing; a pending
  * row that stays pending appends nothing; a recorded state is never downgraded to pending; a changed measurement
  * appends a CORRECTION with its cause and the old and new actual.
- * The ONE writer is app/scripts/nba/grade-nba-priced-props.mjs (priced-prop-grading.test.mjs pins it).
+ * STORAGE (founder decision, 2026-10-22): this ledger holds real sportsbook lines and prices, so it lives ONLY in private
+ * storage outside every repository (<private dir>/nba/priced-props/ledger.jsonl; lib/ops/private-data-dir.mjs). It is
+ * never committed. The ONE writer is app/scripts/nba/grade-nba-priced-props.mjs (priced-prop-grading.test.mjs pins it).
  */
 import { canonicalJson } from "./forecast-receipt.mjs";
 import { gradeNbaPlayerProp, NBA_PROP_SETTLEMENT_VERSION, PROP_FAMILIES, PROP_REASON } from "./prop-settlement.mjs";
@@ -30,7 +32,7 @@ import { CORRECTION_CAUSE, LINEAGE, SHADOW_STATE, isPendingState, parsePropLedge
 
 export const PRICED_GRADER_VERSION = "nba-priced-prop-grader-1";
 export const PRICED_SCHEMA = "nba-priced-prop-grade@1";
-/** Ledger location under data/internal/research/nba/. */
+/** Ledger directory name inside the PRIVATE data directory (never under the repository). */
 export const PRICED_DIR = "priced-props";
 export const PRICED_LEDGER_FILE = "ledger.jsonl";
 export const PRICE_RECORD_SCHEMA = "gtp.nba.prop-price@1";
