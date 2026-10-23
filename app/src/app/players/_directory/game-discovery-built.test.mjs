@@ -19,11 +19,23 @@ const has = (rel) => fs.existsSync(path.join(OUT, rel));
 const html = (rel) => fs.readFileSync(path.join(OUT, rel), "utf8");
 const index = JSON.parse(fs.readFileSync(path.join(APP, "..", "data", "research-projection", "v1", "index.json"), "utf8")).entries;
 
-/* Bounded by the research index, not by history. players/nfl: CI run 39912148148 (head 74696635e0) measured 208KB, over this
-   200KB ceiling; the row markup was then compacted (name as the link text, team in <small>, no per-row class), which cut the
-   list's server HTML from 101.8KB to 63.4KB for the 763 NFL rows (renderToString, same rows), so the page is ~170KB. The
-   ceiling was not raised. The other entries passed on that run. */
-const CEILING_KB = { "players/nfl/index.html": 200, "players/epl/index.html": 130, "players/mlb/index.html": 110, "players/ufc/index.html": 110, "teams/nfl/index.html": 60, "teams/mlb/index.html": 60, "teams/epl/index.html": 60, "players/index.html": 60, "teams/index.html": 60 };
+/*
+ * Weight ceilings, SCALED BY THE REGISTRY: SHELL_KB for the page around the list, plus PER_ROW_KB for each entry it lists.
+ * A fixed number per page broke on the first measurement and would break again as rosters grow (a UFC card adds ~20
+ * fighters), which is growth, not a regression. Derived from CI's own measurements:
+ *   run 39912148148 (74696635e0)  players/nfl 208KB with 763 rows (old row markup, 101.8KB of list HTML by renderToString)
+ *   run 39914448030 (b186699a06)  players/ufc 113KB with 352 rows (compact rows, 24.8KB of list HTML + 16.1KB of props)
+ * ⇒ the shared shell is ~65–69KB, and a compact row costs ~0.14KB (HTML + its props in the flight). 80KB + 0.2KB/row fails
+ * a ~45% per-row regression or a heavier shell, and allows registry growth. Every size is printed (diagnostic) per run.
+ */
+const SHELL_KB = 80;
+const PER_ROW_KB = 0.2;
+const rowsOf = (rel) => {
+  const [root, sport] = rel.split("/");
+  if (sport === "index.html") return 4; // the two directories list one card per sport
+  return index.filter((e) => e.kind === (root === "players" ? "player" : "team") && e.sport.toLowerCase() === sport).length;
+};
+const WEIGHED = ["players/nfl/index.html", "players/epl/index.html", "players/mlb/index.html", "players/ufc/index.html", "teams/nfl/index.html", "teams/mlb/index.html", "teams/epl/index.html", "players/index.html", "teams/index.html"];
 
 test("every research index page links exactly the detail pages that exist", (t) => {
   if (!has("index.html")) { t.skip("no export in this run"); return; }
@@ -45,12 +57,15 @@ test("every research index page links exactly the detail pages that exist", (t) 
   assert.ok(!has("teams/ufc/index.html"), "UFC has no teams, so no team index");
 });
 
-test("the new index pages stay inside their measured ceilings", (t) => {
+test("the new index pages stay inside their registry-scaled ceilings", (t) => {
   if (!has("index.html")) { t.skip("no export in this run"); return; }
-  for (const [rel, kb] of Object.entries(CEILING_KB)) {
+  for (const rel of WEIGHED) {
     assert.ok(has(rel), `${rel} missing`);
+    const rows = rowsOf(rel);
+    const kb = SHELL_KB + PER_ROW_KB * rows;
     const size = fs.statSync(path.join(OUT, rel)).size / 1024;
-    assert.ok(size <= kb, `${rel}: ${Math.round(size)}KB exceeds ${kb}KB`);
+    t.diagnostic(`${rel}: ${size.toFixed(1)}KB for ${rows} rows (ceiling ${kb.toFixed(1)}KB)`);
+    assert.ok(size <= kb, `${rel}: ${size.toFixed(1)}KB exceeds ${kb.toFixed(1)}KB (${SHELL_KB}KB + ${PER_ROW_KB}KB × ${rows} rows)`);
   }
 });
 

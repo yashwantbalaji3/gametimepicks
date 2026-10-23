@@ -33,7 +33,7 @@ export function playerRows(sport: ResearchSport): DirectoryRow[] {
     .map((e): DirectoryRow => {
       const teamId = e.hint ? null : playerBySlug(sport, e.slug)?.currentTeamId ?? null;
       const group = e.hint ?? (teamId ? labels[teamId]?.name ?? null : null);
-      return [e.slug, e.label, group, null];
+      return group ? [e.slug, e.label, group] : [e.slug, e.label];
     })
     .sort(byLabel);
 }
@@ -43,7 +43,8 @@ export function teamRows(sport: ResearchSport): DirectoryRow[] {
     .filter((e) => e.kind === "team" && e.sport === sport)
     .map((e): DirectoryRow => {
       const t = teamBySlug(sport, e.slug);
-      return [e.slug, e.label, null, t ? [t.abbreviation, t.supportsResults ? "results recorded" : "fixtures only"].filter(Boolean).join(" · ") : null];
+      const note = t ? [t.abbreviation, t.supportsResults ? "results recorded" : "fixtures only"].filter(Boolean).join(" · ") : null;
+      return note ? [e.slug, e.label, null, note] : [e.slug, e.label];
     })
     .sort(byLabel);
 }

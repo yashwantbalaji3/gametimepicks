@@ -8,8 +8,8 @@
  */
 import { useMemo, useState } from "react";
 
-/** [slug, label, group | null, note | null] */
-export type DirectoryRow = [string, string, string | null, string | null];
+/** [slug, label, group?, note?] — absent trailing fields are omitted, not null (~0.03KB a row across ~760 rows). */
+export type DirectoryRow = [string, string, (string | null)?, (string | null)?];
 
 export default function EntityDirectory({ base, rows, noun, groupLabel }: { base: string; rows: DirectoryRow[]; noun: string; groupLabel: string | null }) {
   const [q, setQ] = useState("");
