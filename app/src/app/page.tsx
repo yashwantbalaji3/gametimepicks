@@ -15,6 +15,7 @@
  */
 import { positionFromReceipts, readReceipts } from "@/lib/products/ladder-position.mjs";
 import { BANK_BUILDER_LADDER } from "@/lib/bank-builder-ladder";
+import { bankBuilderLaneSummary } from "@/lib/products/bank-builder-lane-summary.mjs";
 import path from "node:path";
 import fs from "node:fs";
 
@@ -156,7 +157,9 @@ export default function HomePage() {
   // candidate is not a placed card. Today there is none → no active card.
   const bbHasActiveCard = dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.status === "active");
   const bbNoPlay = !bbProposal.available && !bbHasActiveCard;
-  const bbStepPhrase = awaitingRung != null ? `awaiting Step ${awaitingRung}` : "awaiting next card";
+  /* Audit F10 (2026-10-23): BOTH lanes, named, from the receipts /bank-builder reads (bank-builder-lane-summary.mjs). */
+  const bbStepPhrase = bankBuilderLaneSummary({ dataRoot, today, ladder: BANK_BUILDER_LADDER as never }).phrase
+    ?? (awaitingRung != null ? `Lane A awaiting Step ${awaitingRung}` : "awaiting next card");
 
   // ── Longshot / Moonshot status — no active Moonshot card today ⇒ honest no-play ──
   const moonshotActive = dailyPortfolio.cards.some((c) => c.product === "moonshot" && c.status === "active");

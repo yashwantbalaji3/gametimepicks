@@ -35,6 +35,9 @@ import path from "node:path";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { buildParlayLabV2Model } from "@/lib/parlays/v2/board-model.mjs";
 import TierBoard, { type ParlayLabV2Model } from "@/components/parlays/v2/TierBoard";
+import EmptyTierContext from "@/components/parlays/empty-tier-context";
+import { lastCardPerTier } from "@/lib/results/v2/suggested-history.mjs";
+import { loadProductAvailability } from "@/lib/products/availability";
 
 /* Parlay Lab V2 (four-tier board + compare slip) — OFF unless the build sets NEXT_PUBLIC_PARLAY_LAB_V2=1. When off,
    nothing below is computed or rendered and the page is unchanged. */
@@ -76,6 +79,11 @@ export default function ParlayCenterSuggestedPage() {
   const swapPool = loadMlbPropsBoard(dataRoot, ladderDate)
     .filter((p) => !legIsMarketContext({ sport: "MLB", market: p.market }, marketContext))
     .map(toSwapCandidate);
+  /* Workstream E (2026-10-23): a tier with no card today says why (the eligible universe) and points to its last
+     published card in Results. Off-season keeps its own reason on every tier and needs no second panel. */
+  const tiersWithCard = new Set((riskLadder?.cards ?? []).map((c: { tier?: string }) => c.tier));
+  const emptyTiers = offSeasonReason || !ladderProducerRan ? [] : (["low", "medium", "high", "longshot"] as const).filter((t) => !tiersWithCard.has(t));
+  const lastTierCards = emptyTiers.length ? lastCardPerTier(ladderDate, dataRoot) : [];
   const v2Model = PARLAY_LAB_V2
     ? (buildParlayLabV2Model({ dataRoot, repoRoot: path.resolve(process.cwd(), ".."), date: ladderDate, now: new Date().toISOString() }) as ParlayLabV2Model)
     : null;
@@ -126,6 +134,8 @@ export default function ParlayCenterSuggestedPage() {
         replay={replay}
         recordSince={riskLadder?.record.firstDay ?? null}
       />
+
+      <EmptyTierContext emptyTiers={[...emptyTiers]} lastCards={lastTierCards} availability={emptyTiers.length ? loadProductAvailability(dataRoot) : null} />
 
       {/* ── HOW OUR LEGS HAVE SETTLED (P268) ───────────────────────────────────────────────────────
           The tier records answer "have cards like this landed". This answers the question a person

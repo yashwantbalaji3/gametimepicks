@@ -74,7 +74,9 @@ test("SM1 sitemap lists exactly the indexable research pages and never a templat
   const urls = entries.map((e) => e.url);
   assert.ok(!urls.some((u) => u.includes("[")), "a dynamic family pattern is not a URL");
   const research = urls.filter((u) => /^https:\/\/[^/]+\/(teams|players)\//.test(u)).map((u) => u.replace(/^https:\/\/[^/]+/, "")).sort();
-  const indexable = researchIndex().filter((e) => e.indexable).map((e) => e.path).sort();
+  /* Gap 6 (2026-10-23): the two research directories (/players/, /teams/) are public routes of their own; the per-sport
+     indexes are a route family and, like every family, are not listed. Everything else must be exactly the indexable pages. */
+  const indexable = [...researchIndex().filter((e) => e.indexable).map((e) => e.path), "/players/", "/teams/"].sort();
   assert.deepEqual(research, indexable);
   const noindex = researchIndex().filter((e) => !e.indexable);
   assert.ok(noindex.length > 0 && noindex.every((e) => !urls.some((u) => u.endsWith(e.path))), "no noindex research page is listed");

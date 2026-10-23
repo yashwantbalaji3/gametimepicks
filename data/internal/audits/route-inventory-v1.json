@@ -4,8 +4,8 @@
  "dataClass": "PRIVATE_AUDIT",
  "generatedAt": "2026-10-08T21:59:42Z",
  "totals": {
-  "routes": 97,
-  "public": 66,
+  "routes": 101,
+  "public": 70,
   "internal": 10,
   "redirects": 17,
   "archive": 2,
@@ -549,6 +549,25 @@
    "built": true
   },
   {
+   "route": "/players",
+   "classification": "public",
+   "owner": "research",
+   "purpose": "Player research by sport (gap 6, 2026-10-23): one card per sport with player pages, page counts from the research projection index",
+   "dataOwner": "data/research-projection/v1 index",
+   "freshness": "the projection's platform manifest",
+   "built": "UNVERIFIED (no export provided)"
+  },
+  {
+   "route": "/players/[sport]",
+   "classification": "public",
+   "owner": "research",
+   "family": true,
+   "purpose": "Player / fighter index per sport (gap 6): every player page of the sport, searchable by name and team; recorded facts only. dynamicParams=false from the research projection registry",
+   "dataOwner": "data/research-projection/v1 index (+ each player's currentTeamId → label table)",
+   "freshness": "the projection's platform manifest",
+   "built": "UNVERIFIED (no export provided)"
+  },
+  {
    "route": "/players/[sport]/[slug]",
    "classification": "public",
    "owner": "research",
@@ -823,6 +842,25 @@
    "dataOwner": "public research contract",
    "freshness": "contract stamps",
    "built": true
+  },
+  {
+   "route": "/teams",
+   "classification": "public",
+   "owner": "research",
+   "purpose": "Team research by sport (gap 6, 2026-10-23): one card per sport with team pages, page counts from the research projection index",
+   "dataOwner": "data/research-projection/v1 index",
+   "freshness": "the projection's platform manifest",
+   "built": "UNVERIFIED (no export provided)"
+  },
+  {
+   "route": "/teams/[sport]",
+   "classification": "public",
+   "owner": "research",
+   "family": true,
+   "purpose": "Team index per sport (gap 6): every team page of the sport, searchable by name; UFC has none. dynamicParams=false from the research projection registry",
+   "dataOwner": "data/research-projection/v1 index",
+   "freshness": "the projection's platform manifest",
+   "built": "UNVERIFIED (no export provided)"
   },
   {
    "route": "/teams/[sport]/[slug]",
