@@ -7,6 +7,9 @@
  * current. Past slates live on their own static pages, /nba/projections/<date>/ (follow-up to PR 1163) — this page never
  * embeds another date's board, it only links the committed dates. The view (components/nba/projections-view.tsx) copies
  * every number from the snapshot; the client island only filters and re-sorts.
+ *
+ * Between slates (overnight sprint 2026-10-23): with no current snapshot, the view lists today's scheduled games and
+ * links the newest frozen board (boardContext's `today`) instead of an empty page.
  */
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { currentEtDate } from "@/lib/freshness";
@@ -15,14 +18,14 @@ import NbaProjectionsView from "@/components/nba/projections-view";
 import { AMENDMENT_A } from "@/lib/sports/nba/experimental-public-lane.mjs";
 
 export const metadata = withRouteMetadata("/nba/projections/", {
-  title: "NBA player projections — experimental, not validated · GameTime Picks",
+  title: "NBA Predicted Player Statistics · GameTime Picks",
   description:
-    "Frozen pregame NBA player medians (PTS, REB, AST, 3PM, PRA, P+R, P+A) from an unvalidated experimental simulation, with matchup, team, player and stat filters. Not betting recommendations.",
+    "Official Forecast NBA player medians (PTS, REB, AST, 3PM, PRA, P+R, P+A), frozen before tip-off, with matchup, team, player and stat filters; between slates, today's schedule and the latest frozen board. Not betting recommendations.",
 });
 
 export default function NbaProjectionsPage() {
   // Amendment A's rollback switch, then the lane's own switch and slate-date gate (inside loadCurrentLane).
   const now = new Date();
   const ctx = boardContext({ date: null, nowIso: now.toISOString(), buildEtDate: currentEtDate(now), enabled: AMENDMENT_A.enabled });
-  return <NbaProjectionsView lane={ctx.lane} role={ctx.role} date={ctx.date} games={ctx.games} dates={ctx.dates} />;
+  return <NbaProjectionsView lane={ctx.lane} role={ctx.role} date={ctx.date} games={ctx.games} dates={ctx.dates} today={ctx.today} actuals={ctx.actuals} />;
 }
