@@ -123,7 +123,7 @@ export function levelALeg(sel, { now, productDay = null }) {
       tierable: published,
       probabilityNote: published ? null : sel.uncertainty?.kind === "elo-win-probability"
         // founder decision 2026-10-23: the Elo number is shown for information; tiering NBA legs is a separate decision
-        ? "Untiered: the Elo rating's game-winner probability is shown for information only and does not tier this leg."
+        ? "Untiered: the Elo-derived game-winner estimate is shown for information only and does not tier this leg."
         : `Untiered: no published ${SPORT_NAME[sel.sport] ?? String(sel.sport).toUpperCase()} win probability. The official forecast publishes the side only.`,
       forecast: { ...sel.forecast },
       uncertainty: sel.uncertainty ?? null,

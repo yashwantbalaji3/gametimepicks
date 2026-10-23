@@ -29,7 +29,9 @@
  * surface shows nothing — the lane, the boards and the Theater page are byte-for-byte what they were. */
 export const ELO_WIN_PROBABILITY = Object.freeze({
   id: "nba-elo-game-winner-probability@1",
-  enabled: false,
+  // Release G (2026-10-23): ON under the founder's conditional approval, after acceptance. Rollback: false here and
+  // in elo-win-probability.test.mjs. A slate published while ON keeps its field; OFF hides it on every surface.
+  enabled: true,
   decision: "founder decision 2026-10-23 — a separately identified Elo game-winner probability display",
 });
 
@@ -37,11 +39,13 @@ export const ELO_WIN_PROBABILITY = Object.freeze({
 export const ELO_WIN_PROBABILITY_SOURCE = "nba-winner-side@1 Elo";
 /** The one name the number is shown under, on every surface. */
 // U+2019 (’), not "'": React escapes "'" to &#x27; — 5 bytes per card on a page that sits at its weight budget
-export const ELO_WIN_PROBABILITY_LABEL = "Elo rating\u2019s game-winner probability";
+// Founder wording (Release G, 2026-10-23): an Elo-DERIVED game-winner ESTIMATE — never named a "probability" (it is not an
+// independently validated probability) and never a simulation result. Shorter than the first label: byte-light per card.
+export const ELO_WIN_PROBABILITY_LABEL = "Elo-derived game-winner estimate";
 /** The lane's `elo.source` sentence for a slate that carries the field (a slate without it keeps its frozen sentence).
  * PUBLIC text (the /nba hub prints it): no ops language — the decision is cited in code, never on the page (the built-export
  * banned-string guard caught "founder decision 2026-10-23" here on the 2026-10-23 switch-ON build). */
-export const ELO_SOURCE_WITH_PROBABILITY = "Elo team rating — the published winner side (founder N2) and its game-winner probability";
+export const ELO_SOURCE_WITH_PROBABILITY = "Elo team rating — the published winner side (founder N2) and its Elo-derived game-winner estimate";
 
 const isP = (x) => typeof x === "number" && Number.isFinite(x) && x > 0 && x < 1;
 /** The receipt stores both numbers at 4 dp; they must be complements (allowing the rounding of each). */
@@ -70,12 +74,22 @@ export function laneEloWinProbability(forecast, receipt) {
   };
 }
 
-/** Whole-percent display. The away figure is 100 − home so the pair always reads as 100 % (each is the receipt's number
- * rounded; never an extreme 0 % / 100 % — those print as "<1" / ">99"). */
-function pctPair(home) {
-  const h = Math.round(home * 100);
+/**
+ * The displayed pair. Whole percents; the away figure is 100 − home so the pair always reads as 100 %; never an extreme
+ * 0 % / 100 % (those print "<1" / ">99"). TIE-BREAK (Release G, founder-approved): when whole percents would tie on a
+ * game with a FAVOURED side (e.g. pHome 0.4962 → 50 / 50), show the fewest decimals that make the favoured side read
+ * higher, up to the receipt's own 4 dp (2 decimals of a percent): 0.4962 → "49.6" / "50.4"; 0.5004 → "50.04" / "49.96".
+ * A TOO_CLOSE game (exactly 0.5) reads 50 / 50.
+ * @param favoured "home" | "away" | null
+ */
+function pctPair(home, favoured = null) {
   const show = (v) => (v < 1 ? "<1" : v > 99 ? ">99" : String(v));
-  return { home: show(h), away: show(100 - h) };
+  for (let d = 0; d <= 2; d += 1) {
+    const k = 10 ** d, h = Math.round(home * 100 * k), a = 100 * k - h;
+    const reads = favoured == null || (favoured === "home" ? h > a : a > h);
+    if (!reads && d < 2) continue;
+    return d === 0 ? { home: show(h), away: show(a) } : { home: (h / k).toFixed(d), away: (a / k).toFixed(d) };
+  }
 }
 
 /**
@@ -98,7 +112,7 @@ export function eloWinProbabilityOf(game, { enabled = ELO_WIN_PROBABILITY.enable
     : fav != null && fav === game.away?.abbr ? w.home < 0.5
     : false;
   if (!consistent) return null;
-  const pct = pctPair(w.home);
+  const pct = pctPair(w.home, game.elo?.state === "FAVOURED" ? (fav === game.home?.abbr ? "home" : "away") : null);
   return Object.freeze({
     eventId: String(game.providerEventId),
     home: w.home,
@@ -127,7 +141,7 @@ export function eloWinProbabilityText(view) {
  */
 export function eloAccuracyDisclosure({ graded, minN }) {
   const n = Number.isInteger(graded) && graded >= 0 ? graded : 0;
-  return `Model Performance: the Elo rating\u2019s game-outcome accuracy is not yet established — ${n} regular-season game${n === 1 ? "" : "s"} graded so far; the preregistration requires ${minN} before any accuracy claim. A rating\u2019s probability, not the player model\u2019s, and not a betting recommendation.`;
+  return `Model Performance: the Elo rating\u2019s game-outcome accuracy is not yet established — ${n} regular-season game${n === 1 ? "" : "s"} graded so far; the preregistration requires ${minN} before any accuracy claim. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation.`;
 }
 
 /**

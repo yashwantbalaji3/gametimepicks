@@ -30,6 +30,21 @@ export function comparableSnapshot(snap) {
 }
 
 /**
+ * THE HAND-RUN PRODUCER'S WRITE RULE (scripts/nba/build-nba-experimental-public.mjs --write), the same discipline as the
+ * automation: a slate not yet published may be WRITTEN; an already-published slate is never rewritten — an identical
+ * rebuild (ignoring generatedAt) is a NOOP, anything else REFUSE. Release G review 2026-10-23: with the Elo switch ON the
+ * hand-run producer would otherwise have added the field to any date it rebuilt (and it always re-stamped generatedAt).
+ * The caller builds `snapshot` with eloWinProbabilityForPublish(committedDay), exactly like the publisher. Pure.
+ */
+export function manualWriteDecision({ committedDay = null, snapshot }) {
+  if (!snapshot) return { action: PUBLISH.REFUSE, reason: "no snapshot was built" };
+  if (!committedDay) return { action: PUBLISH.PUBLISH, reason: "no committed day file: first publication" };
+  return comparableSnapshot(committedDay) === comparableSnapshot(snapshot)
+    ? { action: PUBLISH.NOOP, reason: "the committed day file already holds this snapshot — nothing is rewritten" }
+    : { action: PUBLISH.REFUSE, reason: "the committed day file is published and differs — a published slate is never rewritten" };
+}
+
+/**
  * @param {object} o
  * @param {string} o.date                 slate ET date (YYYY-MM-DD)
  * @param {object[]} o.scheduleRows       schedule rows ({providerEventId, dateUtc, statusRaw})
