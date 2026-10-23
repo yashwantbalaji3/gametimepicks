@@ -29,7 +29,9 @@
  * surface shows nothing — the lane, the boards and the Theater page are byte-for-byte what they were. */
 export const ELO_WIN_PROBABILITY = Object.freeze({
   id: "nba-elo-game-winner-probability@1",
-  enabled: false,
+  // Release G (2026-10-23): ON under the founder's conditional approval, after acceptance. Rollback: false here and
+  // in elo-win-probability.test.mjs. A slate published while ON keeps its field; OFF hides it on every surface.
+  enabled: true,
   decision: "founder decision 2026-10-23 — a separately identified Elo game-winner probability display",
 });
 

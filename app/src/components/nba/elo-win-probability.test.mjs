@@ -47,9 +47,14 @@ const build = (eloWinProbability) => L.buildExperimentalSnapshot({ forecastDoc: 
 const ON = { enabled: true, disclosure: W.eloAccuracyDisclosure({ graded: 14, minN: PREREG.winner.minN }) };
 const receiptOf = (id) => FORECAST.games.find((g) => String(g.providerEventId) === String(id));
 
-test("the switch is OFF by default, and OFF changes nothing: the committed 10-23 lane rebuilds byte-for-byte", () => {
-  assert.equal(W.ELO_WIN_PROBABILITY.enabled, false, "default OFF — the release owner flips it after acceptance");
-  assert.deepEqual(JSON.parse(JSON.stringify(L.buildExperimentalSnapshot({ forecastDoc: structuredClone(FORECAST), sourceFile: COMMITTED.source.file, sourceCommit: COMMITTED.source.commit, generatedAt: COMMITTED.generatedAt }))), COMMITTED);
+test("the switch is ON since Release G; OFF changes nothing, and a slate already published without the field keeps it that way", () => {
+  assert.equal(W.ELO_WIN_PROBABILITY.enabled, true, "ON since Release G (founder conditional approval 2026-10-23, after acceptance); rollback = false here and in the module");
+  // OFF (the rollback state): the committed 10-23 lane rebuilds byte-for-byte.
+  assert.deepEqual(JSON.parse(JSON.stringify(build(false))), COMMITTED);
+  // ON never rewrites a published slate: 10-23 was published without the field, so the publisher's rule keeps it out.
+  assert.equal(W.eloWinProbabilityForPublish(COMMITTED), false, "an already-published slate follows what it was published with, not the switch");
+  assert.equal(W.eloWinProbabilityForPublish(null), true, "a slate not yet published follows the switch (ON)");
+  assert.deepEqual(JSON.parse(JSON.stringify(build(W.eloWinProbabilityForPublish(COMMITTED)))), COMMITTED, "the publisher's rebuild of 10-23 with the switch ON is the committed slate");
   assert.ok(Object.hasOwn(COMMITTED.withheld, "winProbability"));
   for (const g of COMMITTED.games) assert.equal(W.eloWinProbabilityOf(g), null, "a slate published without the field shows nothing");
 });
