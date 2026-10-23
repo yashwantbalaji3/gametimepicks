@@ -8,6 +8,8 @@
  * - MLB player-prop leans are model research / market context: each game links to its leans in the page's
  *   research section rather than repeating them.
  * - A row the owner has not graded reads "Not graded" — never a loss.
+ * - F05: an MLB call the site had paused (or never showed) at first pitch is still listed and graded, labelled as not
+ *   a public pick, and kept OUT of the sport's day record — the same split the /results overview makes.
  */
 import type { DayCall, DayEvent, DayRange } from "@/lib/results/v2/day";
 
@@ -30,6 +32,13 @@ function tally(rows: Array<{ outcome: DayCall["outcome"] }>) {
   }
   return c;
 }
+/** A call that was a public pick at the start. Rows without a status (other sports' owners) are public. */
+const isPublic = (c: DayCall) => !c.publication || c.publication === "PUBLIC";
+const NOT_PUBLIC_WORD: Record<string, string> = {
+  PAUSED: "paused on the site · not a public pick",
+  NOT_SERVED: "not shown before the game · not a public pick",
+  UNKNOWN: "publication status unknown (legacy)",
+};
 const recordText = (c: ReturnType<typeof tally>) =>
   `${c.won}–${c.lost}${c.push ? `–${c.push}` : ""}${c.void ? ` · ${c.void} void` : ""}`;
 
@@ -46,7 +55,10 @@ function Calls({ calls }: { calls: DayCall[] }) {
         <thead><tr><th scope="col">Call</th><th scope="col">Pick</th><th scope="col" className="r">Outcome</th></tr></thead>
         <tbody>
           {calls.map((c, i) => (
-            <tr key={i}><td>{c.market}</td><td>{c.pick}{c.line && !c.pick.includes(c.line) ? ` ${c.line}` : ""}</td><td className="r"><Outcome o={c.outcome} /></td></tr>
+            <tr key={i} data-publication={c.publication ?? "PUBLIC"} style={isPublic(c) ? undefined : { color: "var(--vault-text-mute)" }}>
+              <td>{c.market}{isPublic(c) ? null : <span className="m block text-[11.5px]">{NOT_PUBLIC_WORD[c.publication] ?? c.publication}</span>}</td>
+              <td>{c.pick}{c.line && !c.pick.includes(c.line) ? ` ${c.line}` : ""}</td><td className="r"><Outcome o={c.outcome} /></td>
+            </tr>
           ))}
         </tbody>
       </table>
@@ -107,7 +119,7 @@ export default function ResultsDay({ day }: { day: Record<Sport, DayEvent[]> }) 
       ) : (
         <nav aria-label="Sports on this day" className="flex flex-wrap gap-2">
           {present.map((s) => {
-            const c = tally(day[s.id].flatMap((e) => e.calls));
+            const c = tally(day[s.id].flatMap((e) => e.calls).filter(isPublic));
             return (
               <a key={s.id} href={`#day-${s.id}`} className="rounded-full px-3.5 text-[12.5px] no-underline" style={{ minHeight: 44, display: "inline-flex", alignItems: "center", gap: 6, color: "var(--vault-text)", border: "1px solid var(--vault-border)" }}>
                 {s.label} <strong>{recordText(c)}</strong>
@@ -118,7 +130,10 @@ export default function ResultsDay({ day }: { day: Record<Sport, DayEvent[]> }) 
       )}
       {present.map((s) => {
         const events = day[s.id];
-        const c = tally(events.flatMap((e) => e.calls));
+        const calls = events.flatMap((e) => e.calls);
+        const c = tally(calls.filter(isPublic));
+        const held = calls.filter((x) => x.publication === "PAUSED" || x.publication === "NOT_SERVED").length;
+        const unknown = calls.filter((x) => x.publication === "UNKNOWN").length;
         return (
           <section key={s.id} id={`day-${s.id}`} aria-labelledby={`day-${s.id}-h`} className="flex flex-col gap-3" style={{ scrollMarginTop: 80 }}>
             <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -127,6 +142,11 @@ export default function ResultsDay({ day }: { day: Record<Sport, DayEvent[]> }) 
               </h3>
               <a href={s.href} className="text-[13px] no-underline" style={{ color: "var(--vault-text)", minHeight: 44, display: "inline-flex", alignItems: "center" }}>Full {s.label} record →</a>
             </div>
+            {held || unknown ? (
+              <p className="m-0 text-[12.5px] leading-snug" style={{ color: "var(--vault-text-mute)", maxWidth: 720 }} data-not-public>
+                Not in this record, but still graded below:{held ? ` ${held} ${held === 1 ? "call" : "calls"} paused on the site or not shown before the game` : ""}{held && unknown ? ";" : ""}{unknown ? ` ${unknown} with publication status unknown (legacy)` : ""}.
+              </p>
+            ) : null}
             <ul className="m-0 p-0 list-none grid grid-cols-1 lg:grid-cols-2 gap-3">
               {events.map((e) => (
                 <li key={e.id} className="rounded-xl p-4" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-border-strong)" }}>

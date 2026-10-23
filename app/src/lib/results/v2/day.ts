@@ -19,9 +19,11 @@ import path from "node:path";
 import { makeGradedPickOwners } from "@/lib/sports/graded-pick-owners.mjs";
 import { mlbFirstPitches, mlbLeansOfRecord } from "@/lib/results/mlb-leans-of-record.mjs";
 import { outcomeOfPick, outcomeFromWord } from "./populations.mjs";
+import { mlbCallStatus, type MlbCallPublicationStatus } from "./mlb-call-status";
 
 export type V2Outcome = "WIN" | "LOSS" | "PUSH" | "VOID";
-export interface DayCall { market: string; pick: string; line: string | null; outcome: V2Outcome | null }
+/** F05: whether the call was a public pick at the start (MLB calls can be paused on the site and still graded). */
+export interface DayCall { market: string; pick: string; line: string | null; outcome: V2Outcome | null; publication: MlbCallPublicationStatus }
 export interface DayProp { player: string; team: string | null; market: string; pick: string; actual: string | null; outcome: V2Outcome | null }
 export interface DayRange { player: string; team: string | null; family: string; status: string; range: string; actual: string | null; inside: boolean | null }
 export interface DayEvent {
@@ -107,7 +109,7 @@ export function resultsDay(date: string): Record<"mlb" | "nfl" | "epl" | "ufc", 
       const [away, home] = String(r.matchup ?? "").split(" @ ");
       e.final = away && home ? `${away} ${r.actual.awayRuns} – ${r.actual.homeRuns} ${home}` : `${r.actual.awayRuns}–${r.actual.homeRuns}`;
     }
-    e.calls.push({ market: MARKET[r.market] ?? String(r.market), pick: String(r.pick ?? ""), line: r.line != null ? String(r.line) : null, outcome: outcomeFromWord(r.outcome) as V2Outcome | null });
+    e.calls.push({ market: MARKET[r.market] ?? String(r.market), pick: String(r.pick ?? ""), line: r.line != null ? String(r.line) : null, outcome: outcomeFromWord(r.outcome) as V2Outcome | null, publication: mlbCallStatus(r) });
   }
   for (const r of src.mlbProps) {
     if (r.date !== date) continue;
@@ -124,13 +126,13 @@ export function resultsDay(date: string): Record<"mlb" | "nfl" | "epl" | "ufc", 
     return {
     id: String(p.eventId), sport: "nfl" as const, title,
     final: f ? (away && home ? `${away} ${f.away} – ${f.home} ${home}` : `${f.away}–${f.home}`) : null,
-    calls: [{ market: "Winner", pick: sideTeam(title, p.predicted), line: null, outcome: outcomeOfPick(p) as V2Outcome | null }],
+    calls: [{ market: "Winner", pick: sideTeam(title, p.predicted), line: null, outcome: outcomeOfPick(p) as V2Outcome | null, publication: "PUBLIC" as const }],
     props: [], ranges: ranges.get(String(p.eventId)) ?? [],
     };
   });
   const simple = (sport: "epl" | "ufc", market: string, finalWord: string) => src.picks[sport].filter((p: any) => p.when === date).map((p: any) => ({
     id: String(p.eventId), sport, title: String(p.subject ?? p.eventId), final: p.actual != null ? `${finalWord}: ${p.actual}` : null,
-    calls: [{ market, pick: String(p.predicted ?? "—"), line: null, outcome: outcomeOfPick(p) as V2Outcome | null }], props: [], ranges: [],
+    calls: [{ market, pick: String(p.predicted ?? "—"), line: null, outcome: outcomeOfPick(p) as V2Outcome | null, publication: "PUBLIC" as const }], props: [], ranges: [],
   }));
   return { mlb: [...mlb.values()], nfl, epl: simple("epl", "Match result", "Result"), ufc: simple("ufc", "Fight winner", "Winner") };
 }

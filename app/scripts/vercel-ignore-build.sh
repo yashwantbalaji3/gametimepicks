@@ -171,6 +171,9 @@ BUILD_INPUTS=(
     # Comments inside this array must contain no quote and no closing round bracket: build-input-coverage.test.mjs
     # parses the block with a lazy regex up to the first closing bracket and reads entries between single quotes.
     ':(top)data/internal/research/nba/theater-possession/'
+    # Results F05, audit 2026-10-23: the deployment evidence the /results pages read to decide which MLB calls were
+    # public at first pitch. A one-off committed classification that no workflow rewrites, so it adds no build.
+    ':(top)data/internal/ops/forecast-of-record-shadow/classification.json'
 )
 # GTP-BUILD-INPUTS-END
 for _nbi in "${NON_BUILD_INPUTS[@]}"; do

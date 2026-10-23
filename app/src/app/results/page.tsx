@@ -136,7 +136,7 @@ function overviewPopulations(): OverviewPopulation[] {
   return resultsV2Populations(currentEtDate()).map((p) => ({
     id: p.id, label: p.label, sportLabel: SPORT_LABEL[p.sport] ?? p.sport, class: p.class, note: p.note,
     seasonStart: p.seasonStart, seasonLabel: p.seasonLabel, href: `/results/picks/${p.sport}/`,
-    days: p.days,
+    group: p.group ?? null, tag: p.tag ?? null, days: p.days,
   }));
 }
 
