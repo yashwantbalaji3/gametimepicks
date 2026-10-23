@@ -40,7 +40,7 @@ export function mlbSelections({ repoRoot, date }) {
       startUtc: firstPitch.get(String(p.gamePk)) ?? null, market: "winner",
       selection: side ? { code: side, label: `${team ?? side} to win` } : null,
       probability: typeof p.moneyline?.simulationProbability === "number" ? p.moneyline.simulationProbability : null,
-      forecast: { owner: "mlb-prediction official snapshot", modelId: p.decisionEngineVersion ?? snap.decisionEngineVersion ?? null, stampedAt: snap.generatedAt ?? null, ref: `${path.relative(repoRoot, path.join(dir, files.at(-1)))}#${p.artifactHash ?? p.gamePk}` },
+      forecast: { owner: "mlb-prediction official snapshot", modelId: p.decisionEngineVersion ?? snap.decisionEngineVersion ?? null, stampedAt: snap.generatedAt ?? null, ref: `mlb-prediction-snapshot:${date}:${files.at(-1).replace(/\.json$/, "")}#${p.artifactHash ?? p.gamePk}` }, // an identifier, not a repo path: this ref reaches the public served model
       uncertainty: { kind: "win-probability", note: "Probability from the official full-game simulation (10,000 runs)." },
       participantStatuses: [],
       settlement: { grader: "mlb-official-final", market: "moneyline", side },
