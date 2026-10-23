@@ -191,8 +191,9 @@ export default function NbaPossessionTheater({ wire, palette, devHooks = false, 
   const head = (
     <header className="nbp-head">
       <h1 className="nbp-title">{teams.away.name} at {teams.home.name}</h1>
-      <p className="nbp-engine" data-nbp-engine="">{payload.engine.label}</p>
-      <p className="nbp-sub">{payload.venue ? `${payload.venue} · ` : ""}Simulated game · inputs frozen before tip{switchHref ? " · " : ""}{switchHref ? <a className="nbp-switch" href={switchHref}>{switchLabel ?? "Other mode"}</a> : null}</p>
+      {/* founder directive 2026-10-22 22:55 ET: the engine is named in full in the banner above and in the engine panel —
+          the header points there instead of repeating it */}
+      <p className="nbp-sub">{payload.venue ? `${payload.venue} · ` : ""}Simulated game · inputs frozen before tip · <a className="nbp-switch" href={`#${uid}-about`}>About this simulation</a>{switchHref ? " · " : ""}{switchHref ? <a className="nbp-switch" href={switchHref}>{switchLabel ?? "Other mode"}</a> : null}</p>
     </header>
   );
   if (!run || !compiled || !frame || !tp || !rows || !reconcile) {
@@ -273,8 +274,8 @@ export default function NbaPossessionTheater({ wire, palette, devHooks = false, 
         <OfficialComparison rows={compare} teams={teams} />
       </section>
 
-      <section className="nbp-panel" style={{ marginTop: 12 }} aria-label="About this simulation">
-        <h2>About this simulation</h2>
+      <section className="nbp-panel" style={{ marginTop: 12 }} aria-labelledby={`${uid}-about`} data-nbp-about-panel="">
+        <h2 id={`${uid}-about`} tabIndex={-1}>About this simulation</h2>
         <EngineFacts payload={payload} />
       </section>
       <div className="st-sr" aria-live="polite" aria-atomic="true">{announce}</div>

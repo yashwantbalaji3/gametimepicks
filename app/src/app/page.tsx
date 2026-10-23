@@ -15,6 +15,7 @@
  */
 import { positionFromReceipts, readReceipts } from "@/lib/products/ladder-position.mjs";
 import { BANK_BUILDER_LADDER } from "@/lib/bank-builder-ladder";
+import { bankBuilderLaneSummary } from "@/lib/products/bank-builder-lane-summary.mjs";
 import path from "node:path";
 import fs from "node:fs";
 
@@ -44,6 +45,8 @@ import LandingHero from "@/components/home/landing-hero";
 import LiveNow from "@/components/live/live-now";
 import RecentResultsStrip from "@/components/home/recent-results-strip";
 import { getOptimizerSettledDates } from "@/lib/parlay-results";
+import { loadResultsProjection } from "@/lib/results/projection";
+import { newestSettledDate } from "@/lib/home/settled-through.mjs";
 import HomeTodayMlb from "@/components/home/home-today-mlb";
 import FlagshipCards, { type FlagshipCard } from "@/components/home/flagship-cards";
 import CommandCenter from "@/components/command-center/command-center";
@@ -51,7 +54,6 @@ import { buildCommandCenter } from "@/lib/command-center/command-center";
 import SuggestedParlaysPreview from "@/components/home/suggested-parlays-preview";
 import { loadSuggestedParlaysPreview, TIER_INTENT } from "@/lib/home/suggested-parlays.mjs";
 import FeaturedSimulationsSection from "@/components/home/featured-simulations";
-import { HowItWorks, FooterCta } from "@/components/home/home-sections";
 import { UpcomingSportsStrip, type SportSchedule } from "@/components/sports/upcoming-sports";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
 import { readPublicationSlo } from "@/lib/ops/read-publication-slo";
@@ -59,6 +61,11 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import YesterdayCard from "@/components/recap/yesterday-card";
 import { buildYesterdayRecap } from "@/lib/recap/yesterday.mjs";
 import { currentProductRecord } from "@/lib/results/current-record";
+import { committedLaneDates, loadCurrentLane } from "@/components/nba/experimental-lane";
+import { nbaTodaySlate } from "@/lib/sport-hub/nba-hub";
+import { nbaLane } from "@/lib/command-center/nba-lane";
+import { HomeTools, MobileMore, SportsToday } from "@/components/home/mobile-home-parts";
+import { LANE as NBA_LANE } from "@/lib/sports/nba/experimental-public-lane.mjs";
 
 export const metadata = withRouteMetadata("/", {
   title: "GameTime Picks — Simulate today's games. Review model picks. Track results.",
@@ -150,7 +157,9 @@ export default function HomePage() {
   // candidate is not a placed card. Today there is none → no active card.
   const bbHasActiveCard = dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.status === "active");
   const bbNoPlay = !bbProposal.available && !bbHasActiveCard;
-  const bbStepPhrase = awaitingRung != null ? `awaiting Step ${awaitingRung}` : "awaiting next card";
+  /* Audit F10 (2026-10-23): BOTH lanes, named, from the receipts /bank-builder reads (bank-builder-lane-summary.mjs). */
+  const bbStepPhrase = bankBuilderLaneSummary({ dataRoot, today, ladder: BANK_BUILDER_LADDER as never }).phrase
+    ?? (awaitingRung != null ? `Lane A awaiting Step ${awaitingRung}` : "awaiting next card");
 
   // ── Longshot / Moonshot status — no active Moonshot card today ⇒ honest no-play ──
   const moonshotActive = dailyPortfolio.cards.some((c) => c.product === "moonshot" && c.status === "active");
@@ -177,6 +186,12 @@ export default function HomePage() {
   const eplState = sportStateFromProductDay(eplDay, { slateDate: serverToday });
   const ufcState = sportStateFromProductDay(ufcDay, { slateDate: serverToday });
   const nflState = sportStateFromProductDay(nflDay, { slateDate: serverToday });
+
+  /* NBA UI parity (founder directive 2026-10-22): NBA is a lane like the other four. Its facts are the /nba hub's own
+     view (nbaTodaySlate: schedule, finals, the current official lane snapshot); each row links to its game's card on
+     /nba, built from the same slate in the same build. */
+  const nbaNowIso = new Date().toISOString();
+  const nbaHomeLane = nbaLane(nbaTodaySlate(nbaNowIso, loadCurrentLane(serverToday), { laneEnabled: NBA_LANE.enabled }), nbaNowIso, { lastPublished: committedLaneDates().at(-1) ?? null });
 
   // Presentation-only detail: the NFL player-market count for the card's status line. Never a
   // state input — the owner decides whether the window is live at all.
@@ -207,7 +222,7 @@ export default function HomePage() {
         label: "Premier League Forecasts",
         blurb: "Score-distribution forecasts for every matchweek fixture — win/draw/win, expected goals, over 2.5.",
         status: (eplDay?.eligible ?? 0) > 0 ? (eplDay?.note ?? stateLabel(eplState)) : stateLabel(eplState),
-        statusSub: "public beta · not validated out of sample",
+        statusSub: "Official Forecasts",
         cta: "Open EPL hub",
         accent: "var(--sport-soccer)",
       },
@@ -220,13 +235,13 @@ export default function HomePage() {
         label: "NFL Simulations",
         /* Capability copy derives from what the hub actually publishes (P241 · A03): only evaluated
            player families are public, so no sentence here may promise a "full player board". */
-        blurb: "A simulated score range and win chance for every regular-season game, frozen before kickoff — experimental, and clearly labelled.",
+        blurb: "A score range and win chance for every regular-season game — the Official Forecast, frozen before kickoff.",
         /* Only a LIVE day renders a today-count; an upcoming week speaks through the owner's note
            (which names the week's coverage and the next kickoff) — never as today's board. */
         /* The owner's note IS the today sentence (it says "N game forecasts today", or names tonight's
            games when the index has rolled to next week's forecasts) — never a count re-worded here. */
         status: nflDay?.note ?? stateLabel(nflState),
-        statusSub: "experimental simulations",
+        statusSub: "Official Forecasts · Game Simulations",
         cta: "Open NFL hub",
         accent: "var(--vault-gold)",
       },
@@ -245,9 +260,22 @@ export default function HomePage() {
             : `Winner, method of victory and finishing round for ${ufcDay?.eligible} of the card's ${ufcDay?.events} bouts — the rest lack tracked history and say so.`)
           : "No upcoming card has enough fighter history to model — the schedule is published without a read.",
         status: (ufcDay?.eligible ?? 0) > 0 ? `${ufcDay?.eligible} of ${ufcDay?.events} bouts predicted` : stateLabel(ufcState, { artifactDate: ufcDay?.productDate ?? undefined }),
-        statusSub: (ufcDay?.eligible ?? 0) > 0 ? "experimental" : "schedule only · no fighter history yet",
+        statusSub: (ufcDay?.eligible ?? 0) > 0 ? "Official Forecasts" : "Unavailable · no fighter history yet",
         cta: (ufcDay?.eligible ?? 0) > 0 ? "Open UFC hub" : "View the fight card",
         accent: (ufcDay?.eligible ?? 0) > 0 ? "var(--sport-ufc)" : "var(--vault-text-mute)",
+      },
+    },
+    {
+      id: "nba",
+      state: nbaHomeLane.state,
+      card: {
+        href: "/nba",
+        label: "NBA",
+        blurb: "Today's games with the Official Forecast: the favoured side and player projections, plus a Game Simulation per game.",
+        status: nbaHomeLane.contextLine,
+        statusSub: "Official Forecasts · Game Simulations",
+        cta: "Open NBA hub",
+        accent: "var(--sport-nba)",
       },
     },
   ];
@@ -258,7 +286,7 @@ export default function HomePage() {
      the next forecast through the universal card. Membership of the primary hub is STILL the shared rule
      (partitionSports on the owner's typed state): a sport the rule keeps secondary renders under "Other
      coverage" as the same lane, so nothing appears as a live simulation unless it is one. */
-  const commandLanes = buildCommandCenter({ dataRoot, repoRoot: path.join(process.cwd(), ".."), today, nowIso: new Date().toISOString(), days: { mlb: mlbDay, epl: eplDay, nfl: nflDay, ufc: ufcDay } });
+  const commandLanes = [...buildCommandCenter({ dataRoot, repoRoot: path.join(process.cwd(), ".."), today, nowIso: new Date().toISOString(), days: { mlb: mlbDay, epl: eplDay, nfl: nflDay, ufc: ufcDay } }), nbaHomeLane];
   const primaryLaneIds = new Set(primarySports.map((s) => s.id));
   const primaryLanes = commandLanes.filter((l) => primaryLaneIds.has(l.sport));
   const secondaryLanes = commandLanes.filter((l) => !primaryLaneIds.has(l.sport));
@@ -308,7 +336,10 @@ export default function HomePage() {
   // Week 4. A scheduled game counts with or without our forecast.
   const eventsTodayTotal = todayAcross.eventsToday;
   const activeProductCards = dailyPortfolio.cards.filter((c) => c.status === "active").length;
-  const lastSettledDate = getOptimizerSettledDates().sort().slice(-1)[0] ?? null;
+  // Housekeeping 10-22: "Settled through" names no product, so it is the NEWEST settled date across the products and
+  // sports Home summarizes (the canonical results projection's settled records + the optimizer index) — not the
+  // optimizer index alone, which read Oct 15 while MLB had settled through 10-19 and the products through 10-20.
+  const lastSettledDate = newestSettledDate({ projection: loadResultsProjection(), optimizerSettledDates: getOptimizerSettledDates() });
 
   const dateLabel = new Date(`${today}T12:00:00Z`).toLocaleDateString("en-US", {
     weekday: "long", month: "long", day: "numeric",
@@ -349,6 +380,9 @@ export default function HomePage() {
         activeProducts={activeProductCards}
         lastSettledDate={lastSettledDate}
       />
+
+      {/* Release B (benchmark PR 1193 gap 3): on phones every sport is above the fold — the lanes' own label + state */}
+      <SportsToday lanes={commandLanes} />
 
 
       {/* 2 — Simulation Hub: the per-sport simulation centers, directly under the hero (P200). This
@@ -393,6 +427,8 @@ export default function HomePage() {
         See UPCOMING_READS_SHOWN in lib/top-reads.ts for what that costs and why the alternative — the
         non-prediction trim the guard actually asks for — was left as a founder call.
       */}
+      {/* Release B (benchmark PR 1193 gap 2): secondary sections render from sm up; phones get the summary (MobileMore) */}
+      <div className="hidden sm:contents">
       {topReads && topUpcoming(topReads, UPCOMING_READS_SHOWN).length > 0 ? (
         <TopReadsPanel
           set={topReads}
@@ -406,22 +442,27 @@ export default function HomePage() {
           compact={topToday(topReads, 10).length > 0}
         />
       ) : null}
+      </div>
 
       {/* 4 — Suggested parlays: the Parlay Lab's four risk evaluations per lane, rendered from the
           day's risk-coverage matrix (the evaluation of record). No-play chips render as prominently
           as published cards — the refusal is the product working, not a gap to hide. */}
+      <div className="hidden sm:contents">
       {parlayPreview ? (
-        <SuggestedParlaysPreview live={parlayPreview.live} closed={parlayPreview.closed} tierIntent={TIER_INTENT} todayEt={currentEtDate()} />
+        <SuggestedParlaysPreview live={parlayPreview.live} closed={parlayPreview.closed} tierIntent={TIER_INTENT} todayEt={currentEtDate()} showDetails={false} />
       ) : null}
+      </div>
 
       {/* 6 — Flagship products, powered by the simulations. Each card carries its own current status,
           which is why the page no longer repeats those statuses in a second slate-summary block. */}
+      <div className="hidden sm:contents">
       <FlagshipCards
         cards={productCards}
         heading="Flagship products"
         subtitle="Paper-only"
         ariaLabel="Flagship products"
       />
+      </div>
 
       {/* 5b — How the last settled day went (P251). UX System V2 (founder directive 2026-10-13, homepage order:
               hero → live → today's predictions → sports → … → "Track our results"): it moved from directly under
@@ -430,8 +471,8 @@ export default function HomePage() {
               content, same owner (buildYesterdayRecap); still on the homepage, still above the fold on /today. */}
       <YesterdayCard recap={buildYesterdayRecap(dataRoot)} />
       {/* 6 — Recent results: the proof section (charter 5B order). Same owners as /results — the
-          record label and pending line arrive from portfolio.json above; the last settled date from
-          the optimizer's settled index. The homepage composes NOTHING. */}
+          record label and pending line arrive from portfolio.json above; the last settled date is the newest
+          settled date across products and sports (lib/home/settled-through.mjs). The homepage composes NOTHING. */}
       <RecentResultsStrip
         recordLabel={recordLabel}
         pendingLabel={pendingLabel}
@@ -453,6 +494,7 @@ export default function HomePage() {
           it is simply no longer presented as something running today. */}
       {coverageCards.length ? (
         <CommandCenter
+          id="other-coverage"
           lanes={secondaryLanes}
           heading="Other coverage"
           subtitle="Archives and quiet sports"
@@ -467,13 +509,21 @@ export default function HomePage() {
       </section>
 
       {/* 7 — Featured simulations (real ready artifacts only) */}
-      <FeaturedSimulationsSection featured={featured} readyCount={readyCount} answers={gameAnswers} allCurrent={allCurrent} />
+      <div className="hidden sm:contents"><FeaturedSimulationsSection featured={featured} readyCount={readyCount} answers={gameAnswers} allCurrent={allCurrent} /></div>
 
-      {/* 8 — How it works */}
-      <HowItWorks />
+      {/* 8/9 — "How it works" and "Get started" (65 words of non-prediction copy) gave way to links — Methodology in the
+          tools row, How it works in the phone summary — so the phone summary fits the 1,820-word first-viewport ceiling
+          (busiest-state.test) without trimming forecast copy (Release B). */}
 
-      {/* 9 — Footer CTA */}
-      <FooterCta />
+      {/* Release B: the phone summary of the sections above that render from sm up, and the tools row (every width) */}
+      <MobileMore items={[
+        { label: "Upcoming games", href: "/simulate/" },
+        ...(parlayPreview ? [{ label: "Suggested parlays", href: "/build/" }] : []),
+        { label: "Bank Builder", href: "/bank-builder/" },
+        { label: "Moonshot", href: "/moonshot/" },
+        { label: "How it works", href: "/learn/" },
+      ]} />
+      <HomeTools />
     </div>
   );
 }

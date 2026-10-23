@@ -25,10 +25,12 @@ const DAY = 86_400_000;
 export const NBA_HUB_AHEAD_DAYS = 7;
 export const NBA_HUB_BEHIND_DAYS = 3;
 
-export const NBA_NO_FORECAST_NOTE = "No public forecast — model in validation";
+/* NBA UI parity (2026-10-22): the official forecast (Elo side + player medians) publishes on each game day before
+   tip-off, so a regular-season game without one in this build has none YET — "model in validation" read as "never". */
+export const NBA_NO_FORECAST_NOTE = "No public forecast yet — publishes on game day";
 export const NBA_PRESEASON_NOTE = "Preseason — no forecast published";
 /** A game the NBA experimental public lane covers (preregistration §13): the row points at it, never claims validation. */
-export const NBA_LANE_NOTE = "Experimental model output below — not validated";
+export const NBA_LANE_NOTE = "Official Forecast on today's card above";
 
 type Side = { abbr?: string | null; name?: string | null; providerTeamId?: string | number | null };
 type ScheduleRow = { providerEventId?: string; dateUtc?: string; statusRaw?: string | null; seasonType?: number | null; home?: Side | null; away?: Side | null };
@@ -161,6 +163,158 @@ export function nbaHub(nowIso: string, laneIds: ReadonlySet<string> | null = nul
   return nbaHubFrom({
     nowIso,
     laneIds,
+    schedule: readJson<ScheduleCapture>("nba/schedule/latest.json"),
+    finals: season ? readJson<FinalsRecord>(`nba/results/finals-${season}.json`) : null,
+  });
+}
+
+/* ── TODAY'S SLATE (NBA UI parity, founder directive 2026-10-22) ─────────────────────────────────────────────────────
+   One view of the build's ET day, read by BOTH the /nba hub's matchup cards and the homepage NBA lane, so the two can
+   never disagree. Facts come from the same owners as the hub above (schedule capture, finals record); the OFFICIAL
+   side comes only from the current experimental-lane snapshot (Elo favoured side — the one official game call; team
+   scores, chances, ranges and prices stay withheld and have no field here), and a Theater link only from the ids the
+   /nba/simulation route builds (public-route publicTheaterRouteIds). Nothing is inferred: a game with no lane entry
+   has no favoured side, a game with no built page has no href. */
+
+/** The slice of the lane snapshot this view reads (components/nba/experimental-lane.tsx Snapshot). */
+export type NbaLaneLike = {
+  date: string | null;
+  generatedAt?: string | null;
+  games: Array<{
+    providerEventId: string; tipUtc: string; frozenAt: string;
+    away: { abbr: string | null; name: string | null }; home: { abbr: string | null; name: string | null };
+    receipt: { modelVersion: string };
+    elo: { favoured: string | null };
+    players: { away: unknown[]; home: unknown[] };
+  }>;
+  excluded?: Array<{ providerEventId: string; reason: string }>;
+} | null;
+
+export type NbaTodayTeam = { abbr: string; name: string | null; logoTeam: string | null };
+export type NbaTodayGame = {
+  id: string;
+  tipUtc: string;
+  /** "7:00 PM ET" */
+  tipLabel: string;
+  away: NbaTodayTeam;
+  home: NbaTodayTeam;
+  /** Build-time lifecycle from the committed record only; "upcoming" is advanced to "started" on the reader's clock. */
+  status: "upcoming" | "final" | "postponed";
+  /** The recorded final ("CLE 101 – PHI 99"), only when the finals record holds it. */
+  finalNote: string | null;
+  /** The OFFICIAL favoured side (Elo) — only when the current lane snapshot carries this game. */
+  favoured: { abbr: string; name: string | null } | null;
+  /** The lane's freeze instant for this game, ISO. */
+  frozenAt: string | null;
+  /** Players on the official board for this game (both teams). */
+  players: number | null;
+  /** Why the lane has no forecast for a listed game (its own excluded reason), when it says so. */
+  excludedReason: string | null;
+  /** /nba/simulation/<id>/ — ONLY when that page is built. */
+  theaterHref: string | null;
+};
+/**
+ *   PUBLISHED  today has games and the current lane snapshot covers today's slate
+ *   PENDING    today has games; today's official forecast is not in this build (it freezes before tip-off)
+ *   NO_GAMES   nothing on the published schedule today
+ *   DISABLED   the lane's rollback switch is off — schedule and finals only
+ */
+export type NbaForecastState = "PUBLISHED" | "PENDING" | "NO_GAMES" | "DISABLED";
+export type NbaTodaySlate = {
+  date: string;
+  /** "Thu, Oct 22" */
+  dateLabel: string;
+  games: NbaTodayGame[];
+  forecast: NbaForecastState;
+  /** The latest freeze instant among today's official forecasts, ISO. */
+  frozenAt: string | null;
+  modelVersion: string | null;
+  /** The first game after today on the published schedule (an off-day's pointer). */
+  next: { tipUtc: string; label: string; matchup: string } | null;
+  /** The schedule/finals/lane stamp the slate was built from (latest real one), ISO. */
+  updatedAt: string | null;
+};
+
+const tipLabelOf = (iso: string) => `${new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: ET })} ET`;
+const dayLabelOf = (date: string) => new Date(`${date}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" });
+
+export function nbaTodaySlateFrom({ nowIso, schedule, finals, lane, laneEnabled = true, theaterIds = [] }: {
+  nowIso: string; schedule: ScheduleCapture; finals: FinalsRecord; lane: NbaLaneLike; laneEnabled?: boolean; theaterIds?: readonly string[];
+}): NbaTodaySlate {
+  const date = etDateOf(nowIso) as string;
+  const laneToday = laneEnabled && lane && lane.date === date ? lane : null;
+  const laneById = new Map((laneToday?.games ?? []).map((g) => [String(g.providerEventId), g]));
+  const excluded = new Map((laneToday?.excluded ?? []).map((x) => [String(x.providerEventId), x.reason]));
+  const built = new Set(theaterIds.map(String));
+  const games: NbaTodayGame[] = [];
+  const seen = new Set<string>();
+  const teamOf = (s: Side | null | undefined, laneSide: { abbr: string | null; name: string | null } | undefined): NbaTodayTeam | null => {
+    const id = sideOf(s);
+    if (!id) return laneSide?.abbr ? { abbr: laneSide.abbr, name: laneSide.name ?? null, logoTeam: null } : null;
+    return { abbr: id.label, name: s?.name ?? laneSide?.name ?? null, logoTeam: id.team ? id.team.espnAbbr : null };
+  };
+  const push = (id: string, tipUtc: string, away: NbaTodayTeam, home: NbaTodayTeam, statusRaw: string) => {
+    const fin = finalFor(finals, id);
+    const isFinal = fin.state === "FINAL" || fin.state === "FINAL_UNDER_REVIEW";
+    const lg = laneById.get(id);
+    const fav = lg?.elo.favoured ?? null;
+    games.push({
+      id, tipUtc, tipLabel: tipLabelOf(tipUtc), away, home,
+      status: isFinal ? "final" : /POSTPONED|CANCELED|CANCELLED/.test(statusRaw.toUpperCase()) ? "postponed" : "upcoming",
+      finalNote: isFinal ? `${away.abbr} ${fin.ftAway} – ${home.abbr} ${fin.ftHome}${fin.state === "FINAL_UNDER_REVIEW" ? " (under review)" : ""}` : null,
+      favoured: fav ? { abbr: fav, name: fav === lg?.home.abbr ? lg.home.name : fav === lg?.away.abbr ? lg.away.name : null } : null,
+      frozenAt: lg?.frozenAt ?? null,
+      players: lg ? lg.players.away.length + lg.players.home.length : null,
+      excludedReason: excluded.get(id) ?? null,
+      theaterHref: built.has(id) ? `/nba/simulation/${id}/` : null,
+    });
+    seen.add(id);
+  };
+  for (const r of schedule?.rows ?? []) {
+    if (!r.providerEventId || !r.dateUtc || etDateOf(r.dateUtc) !== date || seen.has(String(r.providerEventId))) continue;
+    const lg = laneById.get(String(r.providerEventId));
+    const away = teamOf(r.away, lg?.away), home = teamOf(r.home, lg?.home);
+    if (!away || !home) continue;
+    push(String(r.providerEventId), r.dateUtc, away, home, String(r.statusRaw ?? ""));
+  }
+  // A game already folded into the finals record can leave the schedule capture (see G1 above): take it from the record.
+  for (const f of finals?.finals ?? []) {
+    const id = String(f.providerEventId ?? "");
+    if (!id || seen.has(id) || etDateOf(f.dateUtc) !== date) continue;
+    const away = teamOf(f.away ? { ...f.away, abbr: f.away.tricode ?? f.away.espnAbbr ?? f.away.abbr } : null, undefined);
+    const home = teamOf(f.home ? { ...f.home, abbr: f.home.tricode ?? f.home.espnAbbr ?? f.home.abbr } : null, undefined);
+    if (away && home) push(id, f.dateUtc, away, home, "");
+  }
+  // A frozen official forecast is never dropped because the schedule capture missed its game.
+  for (const g of laneToday?.games ?? []) {
+    const id = String(g.providerEventId);
+    if (seen.has(id) || !g.away.abbr || !g.home.abbr) continue;
+    push(id, g.tipUtc, { abbr: g.away.abbr, name: g.away.name, logoTeam: null }, { abbr: g.home.abbr, name: g.home.name, logoTeam: null }, "");
+  }
+  games.sort((a, b) => Date.parse(a.tipUtc) - Date.parse(b.tipUtc) || a.id.localeCompare(b.id));
+
+  const nextRow = (schedule?.rows ?? [])
+    .filter((r) => r.dateUtc && (etDateOf(r.dateUtc) ?? "") > date && sideOf(r.home) && sideOf(r.away))
+    .sort((a, b) => Date.parse(a.dateUtc!) - Date.parse(b.dateUtc!))[0];
+  const covered = games.filter((g) => g.favoured);
+  const frozen = covered.map((g) => g.frozenAt).filter((x): x is string => !!x).sort();
+  return {
+    date,
+    dateLabel: dayLabelOf(date),
+    games,
+    forecast: !laneEnabled ? "DISABLED" : games.length === 0 ? "NO_GAMES" : laneToday && laneToday.games.length ? "PUBLISHED" : "PENDING",
+    frozenAt: frozen.at(-1) ?? null,
+    modelVersion: laneToday?.games[0]?.receipt.modelVersion ?? null,
+    next: nextRow ? { tipUtc: nextRow.dateUtc!, label: startLabel(nextRow.dateUtc!), matchup: `${sideOf(nextRow.away)!.label} @ ${sideOf(nextRow.home)!.label}` } : null,
+    updatedAt: latestStamp(schedule?.generatedAt, finals?.updatedAt, laneToday?.generatedAt),
+  };
+}
+
+/** The page/homepage loader: the same committed files nbaHub reads, plus the caller's lane snapshot and built Theater ids. */
+export function nbaTodaySlate(nowIso: string, lane: NbaLaneLike, { laneEnabled = true, theaterIds = [] as readonly string[] } = {}): NbaTodaySlate {
+  const season = nbaSeasonLabel(etDateOf(nowIso));
+  return nbaTodaySlateFrom({
+    nowIso, lane, laneEnabled, theaterIds,
     schedule: readJson<ScheduleCapture>("nba/schedule/latest.json"),
     finals: season ? readJson<FinalsRecord>(`nba/results/finals-${season}.json`) : null,
   });

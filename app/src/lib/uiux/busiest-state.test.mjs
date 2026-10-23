@@ -47,15 +47,42 @@ export const BUSIEST_LANES = [
   { sport: "ufc", label: "UFC", hubHref: "/ufc/", simulateHref: "/simulate/?sport=ufc", state: "LIVE", stateLabel: "Event this week", contextLine: "11 of 13 bouts predicted · card 2026-09-19 · UFC 331: Van vs. Pantoja 2", freshness: fresh, statuses: [status("ufc_model", "Fight model", "VALIDATED"), status("ufc_live", "Live record", "TOO_EARLY")], featured: card("ufc", "ufc-1", "Alexandre Pantoja", "Joshua Van", [null, null], "UFC 331: Van vs. Pantoja 2 · title fight · Most likely by decision · round 3+"), emptyLine: null, secondary: null },
 ];
 
+/**
+ * NBA UI parity (2026-10-22): NBA joined the Command Center as a FIFTH lane that lists today's matchups instead of a
+ * featured card (lib/command-center/nba-lane.ts). Its busiest state: a full night (15 games) with the official forecast
+ * published — NBA_LANE_ROWS rows (each one link to its /nba card), the "+N more" line and the Top Boards
+ * link. It has its own budget, so the four-lane LANE_BUDGET above keeps guarding the other lanes' copy unchanged.
+ */
+export const NBA_LANE_BUDGET = 75;
+const nbaRow = (id, a, h, fav) => ({ id, label: `${a} @ ${h}`, crests: [a.toLowerCase(), h.toLowerCase()], time: "10:30 PM ET", note: `${fav} favoured · Elo`, href: `/nba/#nba-exp-${id}` });
+export const BUSIEST_NBA_LANE = {
+  sport: "nba", label: "NBA", hubHref: "/nba/", simulateHref: null, state: "LIVE_TODAY", stateLabel: "Live today",
+  contextLine: "15 games today · official side and player projections · experimental, not validated", freshness: fresh, statuses: [], featured: null, emptyLine: null,
+  secondary: { label: "Top Boards", href: "/nba/projections/", note: "player projections" },
+  games: [nbaRow("401909901", "CLE", "PHI", "PHI"), nbaRow("401909902", "DEN", "OKC", "OKC"), nbaRow("401909903", "GS", "LAL", "LAL")], moreGames: 12,
+};
+
 export function renderBusiestLanes() {
-  return renderToStaticMarkup(React.createElement(CommandCenter, { lanes: BUSIEST_LANES, heading: "Simulation Hub", subtitle: "4 sports with activity on today's slate" }));
+  return renderToStaticMarkup(React.createElement(CommandCenter, { lanes: [...BUSIEST_LANES, BUSIEST_NBA_LANE], heading: "Simulation Hub", subtitle: "5 sports with activity on today's slate" }));
 }
+const renderLanes = (lanes) => renderToStaticMarkup(React.createElement(CommandCenter, { lanes, heading: "Simulation Hub", subtitle: "4 sports with activity on today's slate" }));
 
 test("the four-lane fixture renders through the real Command Center and stays inside the lane budget", () => {
-  const html = renderBusiestLanes();
+  const html = renderLanes(BUSIEST_LANES);
   assert.equal((html.match(/<article class="gtp-pcard/g) ?? []).length, 4, "every lane features a card");
   const w = words(strip(html));
   assert.ok(w <= LANE_BUDGET, `busiest lanes render ${w} words > LANE_BUDGET ${LANE_BUDGET} — lane copy grew; trim it, do not raise the budget`);
+});
+
+test("the NBA lane's busiest night stays inside its own budget: rows, not a card; one link per row; no withheld figure", () => {
+  const all = renderBusiestLanes();
+  const four = renderLanes(BUSIEST_LANES);
+  const w = words(strip(all)) - words(strip(four));
+  assert.ok(w <= NBA_LANE_BUDGET, `the NBA lane renders ${w} words > NBA_LANE_BUDGET ${NBA_LANE_BUDGET} — trim it, do not raise the budget`);
+  const nba = all.slice(all.indexOf('data-sport="nba"'));
+  assert.equal((nba.match(/<article class="gtp-pcard/g) ?? []).length, 0, "NBA features no universal card");
+  for (const g of BUSIEST_NBA_LANE.games) assert.equal((nba.match(new RegExp(`href="${g.href.replace("/nba/#", "/nba/?#")}"`, "g")) ?? []).length, 1, `${g.id}: one link`);
+  assert.doesNotMatch(strip(nba), /\d+(\.\d+)?\s?%|Simulate →/, "no percentage and no /simulate entry for NBA");
 });
 
 test("BUILT · fixture lanes + the page's non-lane words + the evening allowance fit under the ceiling", () => {
@@ -69,7 +96,9 @@ test("BUILT · fixture lanes + the page's non-lane words + the evening allowance
   const p = path.join(process.cwd(), "out/index.html");
   if (!fs.existsSync(p)) return; // buildless lane: assert-when-built
   const page = fs.readFileSync(p, "utf8");
-  const lanesOnPage = (page.match(/<section aria-labelledby="command-center-h"[\s\S]*?<\/section>/g) ?? []).reduce((s, x) => s + words(strip(x)), 0);
+  // Every Command Center instance (Simulation Hub + Other coverage), found by data-command-center since each instance got
+  // its own heading id (2026-10-22) — the same sections the old single-id pattern matched, so nothing is counted less.
+  const lanesOnPage = (page.match(/<section aria-labelledby="[^"]+" data-command-center="[^"]+"[\s\S]*?<\/section>/g) ?? []).reduce((s, x) => s + words(strip(x)), 0);
   const total = words(strip(page));
   const nonLane = total - lanesOnPage;
   const fixture = words(strip(renderBusiestLanes()));

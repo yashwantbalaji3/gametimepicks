@@ -1,0 +1,46 @@
+{
+ "schemaVersion": 2,
+ "artifact": "nba-experimental-ledger",
+ "family": "v0.3",
+ "modelVersion": "nba-experimental-v0.3-role-minutes",
+ "poolRule": "roster-gated",
+ "dataClass": "PRIVATE_RESEARCH",
+ "productEligible": false,
+ "labels": [
+  "NBA PRESEASON — EXPERIMENTAL",
+  "NBA REGULAR SEASON — SHADOW"
+ ],
+ "entries": [],
+ "rule": "append-only: `gradeEntries`, `boxscoreChecks` and `boxscoreCorrections` are only ever appended; a resolved PENDING appends PENDING_RESOLVED, a changed decided grade appends CORRECTION with `supersedes`. `entries` is the frozen schema-1 history (grader v1, date-level) and is never written again.",
+ "legacyEntries": {
+  "key": "entries",
+  "schemaVersion": 1,
+  "frozen": true,
+  "note": "grader v1 date entries, kept content-identical (canonical JSON); grader v1 replaced a date's entry on re-grade, so these are its LAST view per date, not a lineage"
+ },
+ "gradeEntries": [
+  {"seq":1,"providerEventId":"401909093","date":"2026-10-22","gradedAt":"2026-10-22T14:29:37Z","graderVersion":"nba-experimental-grader-2","status":"PENDING","pendingReason":"NO_FINAL (finals record, results capture, corpus)","inputs":null,"lineageReason":"INITIAL","supersedes":null,"cause":null},
+  {"seq":2,"providerEventId":"401909094","date":"2026-10-22","gradedAt":"2026-10-22T14:29:37Z","graderVersion":"nba-experimental-grader-2","status":"PENDING","pendingReason":"NO_FINAL (finals record, results capture, corpus)","inputs":null,"lineageReason":"INITIAL","supersedes":null,"cause":null}
+ ],
+ "boxscoreChecks": [],
+ "boxscoreCorrections": [],
+ "graderVersion": "nba-experimental-grader-2",
+ "recheck": {
+  "windowHours": 72,
+  "everyHours": 6,
+  "enabled": true
+ },
+ "validation": {
+  "preregistration": "docs/V18_NBA_REGULAR_SEASON_PREREGISTRATION.md",
+  "computedAt": "2026-10-22T14:29:37Z",
+  "source": "gradeEntries current view (one row per event, latest forecast date)",
+  "excluded": {
+   "disputedFinal": 0,
+   "disputedIds": [],
+   "underReviewNoEntry": []
+  },
+  "byLabel": {}
+ },
+ "updatedAt": "2026-10-22T14:29:37Z",
+ "requestsMade": 0
+}

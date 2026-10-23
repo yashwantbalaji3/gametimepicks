@@ -24,7 +24,7 @@ export interface LandingHeroProps {
   qualifiedPicks: number | null;
   /** Active signature-product cards right now (0 is an honest state, not a gap). */
   activeProducts: number;
-  /** Latest settled slate date (YYYY-MM-DD) — the proof link's anchor. */
+  /** Newest settled date (YYYY-MM-DD) across products and sports (lib/home/settled-through.mjs) — the proof link's anchor. */
   lastSettledDate: string | null;
 }
 
@@ -63,8 +63,8 @@ export default function LandingHero({ readyCount, activeSports, eventsToday, eve
         * component. One line, no claim beyond what ships: no live scores, no player database, no advice.
         */}
       <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 13.5, lineHeight: 1.5, maxWidth: 640 }}>
-        Model forecasts, simulations and graded results for NFL, MLB, Premier League and UFC &mdash; each shown with
-        its model&rsquo;s current status.
+        Official Forecasts, Game Simulations and Historical Results for NFL, NBA, MLB, Premier League and UFC &mdash;
+        each with its Model Performance.
       </p>
 
       {/* The three primary jobs. Labels and destinations are guard-pinned (P208 J1). S1 (2026-09-30): set in the
@@ -135,7 +135,7 @@ export default function LandingHero({ readyCount, activeSports, eventsToday, eve
             "no qualified product card today"
           )}
         </span>
-        <Link href="/results" className="vault-press" style={{ color: "var(--vault-success)", fontWeight: 700, textDecoration: "none" }}>
+        <Link href="/results" className="vault-press" style={{ color: "var(--vault-success)", fontWeight: 700, textDecoration: "none", minHeight: 44, display: "inline-flex", alignItems: "center" }}>
           {lastSettledDate ? `Settled through ${fmtDay(lastSettledDate)} →` : "See every settled result →"}
         </Link>
       </div>

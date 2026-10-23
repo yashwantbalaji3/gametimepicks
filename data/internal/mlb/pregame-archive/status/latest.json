@@ -4,41 +4,41 @@
   "productEligible": false,
   "collectionStartDate": "2026-07-21",
   "datesCollected": 87,
-  "totalSnapshots": 6168,
-  "totalGames": 935,
-  "snapshotsBeforeFirstPitch": 5086,
+  "totalSnapshots": 6171,
+  "totalGames": 936,
+  "snapshotsBeforeFirstPitch": 5089,
   "postStartRejected": 1082,
-  "totalFreezes": 935,
+  "totalFreezes": 936,
   "freezeCompletenessPct": 100,
   "familyPresent": {
     "confirmed_lineup": 1132,
-    "pitcher_status": 5027,
+    "pitcher_status": 5030,
     "bullpen": 0,
     "plate_appearance_opportunity": 0,
     "markets": 0,
-    "environment": 5086,
+    "environment": 5089,
     "umpire": 1371
   },
   "familyEligibleSnapshots": {
     "confirmed_lineup": 1100,
-    "pitcher_status": 4989,
+    "pitcher_status": 4992,
     "bullpen": 0,
     "plate_appearance_opportunity": 0,
     "markets": 0,
-    "environment": 5048,
+    "environment": 5051,
     "umpire": 1338
   },
   "coverageByFamilyPct": {
-    "confirmed_lineup": 79.3,
+    "confirmed_lineup": 79.2,
     "pitcher_status": 98.8,
     "bullpen": 0,
     "plate_appearance_opportunity": 0,
     "markets": 0,
     "environment": 99.4,
-    "umpire": 86.7
+    "umpire": 86.6
   },
-  "lineupCoveragePct": 79.3,
-  "umpireCoveragePct": 86.7,
+  "lineupCoveragePct": 79.2,
+  "umpireCoveragePct": 86.6,
   "weatherCoveragePct": 99.4,
   "marketSnapshotDates": [
     "2026-07-22",
@@ -130,13 +130,14 @@
     "2026-10-19",
     "2026-10-20",
     "2026-10-21",
-    "2026-10-22"
+    "2026-10-22",
+    "2026-10-23"
   ],
-  "marketSnapshots": 565,
-  "marketRecords": 386462,
-  "marketRecordsEligible": 386462,
+  "marketSnapshots": 572,
+  "marketRecords": 386924,
+  "marketRecordsEligible": 386924,
   "marketCreditStatus": "team-markets captured",
-  "playerPropMarketSnapshots": 565,
+  "playerPropMarketSnapshots": 572,
   "playerPropRecords": 707718,
   "playerPropRecordsEligible": 707718,
   "playerPropCoverageByMarket": {
@@ -156,7 +157,7 @@
   "deVigCoverage": 85.2,
   "playerPropCreditsSpent": 9924,
   "playerPropCreditStatus": "player-props captured",
-  "playerPropLastCaptureAt": "2026-10-22",
+  "playerPropLastCaptureAt": "2026-10-23",
   "byDate": [
     {
       "date": "2026-07-21",
@@ -933,13 +934,13 @@
       "freezes": 1
     },
     {
-      "date": "2026-10-22",
-      "games": 0,
-      "snapshots": 0,
-      "snapshotsBeforeFirstPitch": 0,
+      "date": "2026-10-23",
+      "games": 1,
+      "snapshots": 3,
+      "snapshotsBeforeFirstPitch": 3,
       "postStartRejected": 0,
-      "snapshotsWithEligibleFamily": 0,
-      "freezes": 0
+      "snapshotsWithEligibleFamily": 3,
+      "freezes": 1
     }
   ],
   "settlementJoins": {
@@ -1029,7 +1030,8 @@
       "2026-10-17",
       "2026-10-18",
       "2026-10-19",
-      "2026-10-20"
+      "2026-10-20",
+      "2026-10-23"
     ],
     "settledEligibleDates": [
       "2026-07-22",
@@ -1117,11 +1119,11 @@
       "2026-10-19"
     ],
     "gamesFinal": 927,
-    "gamesPending": 8,
-    "joinRows": 113468,
+    "gamesPending": 9,
+    "joinRows": 113474,
     "settledEligibleRows": 103467,
     "settledPushRows": 306,
-    "marketPendingRows": 275,
+    "marketPendingRows": 281,
     "unavailableRows": 6106,
     "ambiguousRows": 0,
     "unsupportedRows": 0,
@@ -1163,7 +1165,7 @@
   },
   "gateMet": false,
   "gateBlockers": [
-    "timestamp-proven 81.8%/90%"
+    "timestamp-proven 81.9%/90%"
   ],
   "note": "settledEligibleObs is now populated by the settlement-join pipeline (join-mlb-pregame-settlements.mjs). Only pregame-researchEligible market leans with a DECISIVE official outcome (win|loss) count toward the 500-row gate; pushes/pending/ambiguous/unsupported/ineligible + contextual research rows never do. No modeling; official box scores only."
 }

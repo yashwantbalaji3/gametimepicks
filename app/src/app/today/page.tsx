@@ -31,7 +31,8 @@ import { buildDailyBrief } from "@/lib/today/daily-brief";
 import { buildMarketCoverage } from "@/lib/today/market-coverage";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
-import { resolveLadderStep } from "@/lib/bank-builder-ladder";
+import { BANK_BUILDER_LADDER, resolveLadderStep } from "@/lib/bank-builder-ladder";
+import { bankBuilderLaneSummary } from "@/lib/products/bank-builder-lane-summary.mjs";
 import { buildPublicDualLadder } from "@/lib/bank-builder/public-dual-ladder";
 
 import TodayDailySlateHeader from "@/components/today/daily-slate-header";
@@ -71,6 +72,12 @@ import { currentProductRecord } from "@/lib/results/current-record";
 import { buildSimulateDay, simulationReadyCount } from "@/lib/simulate/day-view";
 import LiveNow from "@/components/live/live-now";
 import MoreDisclosure from "@/components/ui/more-disclosure";
+import SectionHeader from "@/components/section-header";
+import GamesTable from "@/components/games-experience-table";
+import { buildGamesTableRows, gamesTableDates } from "@/components/games-experience-table-rows";
+import { packGamesTable } from "@/components/games-experience-table-wire";
+import { publicSport } from "@/lib/public-registry";
+import { loadCurrentLane } from "@/components/nba/experimental-lane";
 
 export const metadata = withRouteMetadata("/today/", {
   title: "Today · GameTime Picks",
@@ -78,6 +85,8 @@ export const metadata = withRouteMetadata("/today/", {
     "Today's model hub — the day's top model reads, simulation-ready games, and every product's honest status (Bank Builder, Parlay Center, Moonshot). Paper-only, educational; no-play shown honestly.",
 });
 
+const etStamp = (ms: number) =>
+  new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(ms)) + " ET";
 const usd2 = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export default function TodayPage() {
@@ -116,6 +125,7 @@ export default function TodayPage() {
      minute apart for every one of fifteen games. */
   const nowMs = Date.now();
   const slate = slateGames(details, today, { nowMs });
+  const gamesRows = buildGamesTableRows(serverToday);
   // Explicit readiness for a CURRENT slate (ready vs still-filling-in); stale/no-games stay with the banner.
   const slateReadiness = slateReadinessNote(slate.summary, today >= serverToday);
   // ── Daily MLB intelligence brief — the executive digest ("what should I know about MLB today?"). Reuses
@@ -132,6 +142,7 @@ export default function TodayPage() {
   const parlayPreview = loadSuggestedParlaysPreview(dataRoot);
   // ── Cross-sport ranked reads — the same owner Home's strongest-reads panel consumes ──
   const topReadsSet = loadTopReads();
+  const topReadsShown = topReadsSet ? sportsInSet(topReadsSet).flatMap((s) => topBySport(topReadsSet, s, 10)) : [];
 
   // ── Top model picks — the canonical cross-sport board; take the strongest ~6 for the compact list ──
   const top10 = buildTop10Board(dataRoot, today, nowMs);
@@ -200,7 +211,11 @@ export default function TodayPage() {
     null;
   const bbHasActiveCard = dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.status === "active");
   const bbNoPlay = !bbProposal.available && !bbHasActiveCard;
-  const bbStepPhrase = awaitingRung != null ? `awaiting Step ${awaitingRung}` : "awaiting next card";
+  /* Audit F10 (2026-10-23): name BOTH lanes, from the placed-card receipts /bank-builder reads
+     (products/bank-builder-lane-summary.mjs) — "Lane A awaiting Step 2 · Lane B awaiting Step 1". The dual-ladder /
+     crown fallback above applies only when no lane has a placed receipt yet, and it names the lane it describes. */
+  const bbLanes = bankBuilderLaneSummary({ dataRoot, today, ladder: BANK_BUILDER_LADDER as never });
+  const bbStepPhrase = bbLanes.phrase ?? (awaitingRung != null ? `Lane A awaiting Step ${awaitingRung}` : "awaiting next card");
   /* TRUTH-001 (B6): a day with no games is not a no-play CALL — /bank-builder says so explicitly. "No-play" means
      the ladder looked at a slate and held; with no events anywhere there was nothing to look at. */
   const noGamesToday = todayAcross.state !== "UNKNOWN" && todayAcross.eventsToday === 0;
@@ -235,10 +250,14 @@ export default function TodayPage() {
   // ── Active-sport labels for the header — from the PRODUCT-DAY OWNER (P201 · A1), never counted
   //    here. A sport is "active today" exactly when its own canonical artifacts say LIVE; upcoming
   //    cards/matchdays stay off this line (they have their own surfaces below). ──
-  const SPORT_LABEL: Record<string, string> = { mlb: "MLB", epl: "Premier League", ufc: "UFC", nfl: "NFL" };
+  /* Founder directive 2026-10-23 public readiness: labels are the public registry's, and NBA — an Official Forecast
+     sport that is not a product day — counts as active when today's frozen lane snapshot is published. */
   const activeSports: string[] = buildProductDays(dataRoot)
     .filter((d) => d.state === "LIVE")
-    .map((d) => SPORT_LABEL[d.sport] ?? d.sport.toUpperCase());
+    .map((d) => publicSport(d.sport)?.label ?? d.sport.toUpperCase());
+  const etToday = currentEtDate();
+  const nbaToday = loadCurrentLane(etToday);
+  if (nbaToday?.date === etToday && nbaToday.games.length) activeSports.push(publicSport("nba")!.label);
 
   // ── Section 2 · Today at a glance — 5 compact status cards, each a canonical figure + a CTA. ──
   const glanceCards: GlanceCard[] = [
@@ -348,6 +367,14 @@ export default function TodayPage() {
           view-time strip Home and the hubs use; it renders nothing when no game is in play. */}
       <LiveNow sports={["nfl", "mlb"]} />
 
+      {/* Gap 3 (2026-10-23): every event across sports in one filterable table — time, matchup, sport, status, whether an
+          Official Forecast is published (and its number, only where the sport already publishes one for that event),
+          and the event and result links. Rows come from the same cross-sport day selector /simulate renders. */}
+      <section id="all-games" aria-label="Every game, today and next" style={{ scrollMarginTop: 72 }}>
+        <SectionHeader eyebrow="All sports" title="Every game, today and next" sub="Filter by sport, date or forecast state. A probability appears only where it is published for that game." compact />
+        <GamesTable table={packGamesTable(gamesRows)} today={serverToday} dates={gamesTableDates(serverToday)} asOf={etStamp(nowMs)} />
+      </section>
+
       {/* 1b — P251-F9: the payoff for following a club. Renders nothing until a reader has followed
               one, and only ever offers a destination the search index derived from a published
               artifact — so it cannot promise a page that does not exist. */}
@@ -376,9 +403,12 @@ export default function TodayPage() {
         /* Suspense: useSearchParams inside the client filter requires a boundary under static
            export; the fallback is null, so nothing blanks while chips hydrate. */
         <Suspense fallback={null}>
+          {/* The filter is a client component, so its props are serialized into the page. The panel reads only the set's
+              provenance and exclusion lines; the full ranked set (564 reads on the 10-23 EPL matchweek, ~220KB) is not
+              shipped, only the reads this section renders. */}
           <TopReadsFilter
-            set={topReadsSet}
-            reads={sportsInSet(topReadsSet).flatMap((s) => topBySport(topReadsSet, s, 10))}
+            set={{ ...topReadsSet, reads: topReadsShown }}
+            reads={topReadsShown}
           />
         </Suspense>
       ) : null}

@@ -63,6 +63,7 @@ import { archivedEventFrom, archivedEventIds, archivedForecastFor, reconciledGam
 import { buildNflPresentation } from "@/lib/simulate/presentation/nfl";
 import { nflSimulateEligibility } from "@/lib/sports/nfl/simulate-eligibility";
 import SimulationV2Link from "@/components/nfl/simulation-v2-link";
+import { PUBLIC_TERMS, PUBLIC_TERM_MEANING } from "@/lib/public-registry";
 import ForecastStyles from "@/components/nfl/forecast/styles";
 import NotInTheseNumbers from "@/components/nfl/not-in-these-numbers";
 import GameHero from "@/components/nfl/forecast/game-hero";
@@ -75,6 +76,9 @@ import { loadForecastView } from "@/lib/sports/nfl/forecast-view-load.mjs";
 import { STATUS as WORLD_MODEL_STATUS } from "@/lib/sports/nfl/world-model-v2/artifact.mjs";
 import EtTime from "@/components/ui/et-time";
 import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
+import NflPostgameBoxScore from "@/components/game/nfl-postgame-box-score";
+import NflAllPlayersTable from "@/components/game/nfl-all-players-table";
+import { loadNflPostgame } from "@/lib/sports/nfl/postgame-box-score";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
@@ -146,7 +150,7 @@ export function generateMetadata({ params }: { params: { eventId: string } }): M
   if (!f) return withRouteMetadata(`/nfl/game/${params.eventId}/`, { title: "NFL game · GameTime Picks" });
   return withRouteMetadata(`/nfl/game/${params.eventId}/`, {
     title: `${f.matchup} — NFL game forecast and simulated games · GameTime Picks`,
-    description: `A ${Number.isInteger(f.model?.simulations) && f.model.simulations > 0 ? `${f.model.simulations.toLocaleString("en-US")}-run ` : ""}simulation of ${f.matchup}: projected score, win chance and total range, beside the sportsbook consensus. Experimental model; educational and paper-only.`,
+    description: `A ${Number.isInteger(f.model?.simulations) && f.model.simulations > 0 ? `${f.model.simulations.toLocaleString("en-US")}-run ` : ""}simulation of ${f.matchup}: projected score, win chance and total range, beside the sportsbook consensus. The ${PUBLIC_TERMS.OFFICIAL_FORECAST}, frozen before kickoff; educational and paper-only.`,
     alternates: { canonical: `/nfl/game/${f.providerEventId}` },
   });
 }
@@ -248,6 +252,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
    * one of two slots: never two panels, never two fetches.
    */
   const liveTop = started || !!archived;
+  const postgame = started ? loadNflPostgame(params.eventId, { away: f.away, home: f.home }) : null;
   const livePanel = (
     <LivePanel
       sport="nfl"
@@ -305,6 +310,11 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
       </header>
 
       <KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={liveTop} when="after"><div style={{ marginTop: 16 }}>{livePanel}</div></KickoffSlot>
+
+      {/* Gap 5 (2026-10-23): the played game — official quarter scores and player lines, each beside the graded Official
+          Forecast. Rendered only from a FINAL official file committed by the grading pipeline; a game without one shows
+          nothing here rather than a partial box. */}
+      {postgame ? <NflPostgameBoxScore box={postgame} /> : null}
 
       {/* P319: save exactly this forecast — the card the homepage would feature for this game, same identity and
           settlement key; the control itself refuses once the game has kicked off. */}
@@ -548,6 +558,9 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           <p className="nf-eyebrow">Player projections · expected statistical summaries · not one simulated game</p>
           <h2 id="nf-players-h" className="nf-h2">What each player is projected to do</h2>
           <p className="nf-sub">Every number here is the official player board&apos;s projection, the one Results grade. Players listed as Questionable or Doubtful are marked; players ruled out are not projected.</p>
+          {/* Gap 4 (2026-10-23): every official-board player in one table first — position, headline and 80% range — from
+              the same view the stat tabs below rank. */}
+          <NflAllPlayersTable players={view.players ?? []} away={f.away.abbr} home={f.home.abbr} />
           {/* Live: the factual in-game stat joins each row through the single live poller (the retired player board's
               per-prop live lines now live here, once per player and family). */}
           <FamilyTabs {...gameTabs(view)} label={`players-${f.providerEventId}`} emptyText="No official projection for this statistic in this game." live={{ eventId: f.providerEventId, kickoffUtc: f.kickoffUtc }} />
@@ -770,7 +783,8 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
             /* P250-W2: a reading key defines the LABEL. Restating the market non-claim here made it
                the third time this page said it — the model's own measured limit says it once, in
                Provenance below. */
-            ["Under forward evaluation", "Published while its record on games played after each forecast was frozen is still accumulating. Every forecast is frozen before kickoff and graded against the official result."],
+            /* Founder directive 2026-10-23 public readiness: the key defines the public term, not a readiness hedge. */
+            [PUBLIC_TERMS.OFFICIAL_FORECAST, `${PUBLIC_TERM_MEANING[PUBLIC_TERMS.OFFICIAL_FORECAST]} Each one is graded against the official result; its record on games played after it was frozen is still accumulating.`],
           ].map(([t, d]) => (
             <div key={t}>
               <dt style={{ fontWeight: 600 }}>{t}</dt>

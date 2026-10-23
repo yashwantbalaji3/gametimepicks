@@ -136,7 +136,7 @@ function overviewPopulations(): OverviewPopulation[] {
   return resultsV2Populations(currentEtDate()).map((p) => ({
     id: p.id, label: p.label, sportLabel: SPORT_LABEL[p.sport] ?? p.sport, class: p.class, note: p.note,
     seasonStart: p.seasonStart, seasonLabel: p.seasonLabel, href: `/results/picks/${p.sport}/`,
-    days: p.days,
+    group: p.group ?? null, tag: p.tag ?? null, days: p.days,
   }));
 }
 
@@ -157,6 +157,10 @@ function overviewProducts(): OverviewProduct[] {
     return { id, label, href, note, recordLabel: r.recordLabel, pendingLabel: r.pendingLabel, window: windowOf(r.cell as never) };
   });
 }
+
+/** Saved-slip days rendered in full on /results, and the next days listed with their record (each has its own page). */
+const FULL_SLIP_DAYS = 1;
+const SUMMARY_SLIP_DAYS = 6;
 
 export default function ResultsPage() {
   const summary = getOptimizerSummary();
@@ -520,7 +524,7 @@ export default function ResultsPage() {
               <FreshnessBadge slateDate={settled} serverToday={currentEtDate()} noun="grading" />
             </span>
             <p className="text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-              The suggested-parlay optimizer track record below is settled through <span style={{ color: "var(--vault-text)" }}>{settled}</span> ({days} days ago) — newer slates are awaiting grading, so this is NOT a live scoreboard. World Cup and MLB settle in their own products (World Cup on the Track Record / Bank Builder pages). Nothing here is counted as a win or loss until officially graded.
+              The suggested-parlay track record below is settled through <span style={{ color: "var(--vault-text)" }}>{settled}</span> ({days} days ago) — newer slates are awaiting grading, so this is NOT a live scoreboard. World Cup and MLB settle in their own products (World Cup on the Track Record / Bank Builder pages). Nothing here is counted as a win or loss until officially graded.
             </p>
           </div>
         );
@@ -737,7 +741,11 @@ export default function ResultsPage() {
           /* P262 · entrance role: the three newest settled days arrive in order, one short lift each.
              Three items is well inside the contract's five-item stagger cap, and the wrapper animates
              — never the section's own layout. */
-          dateSections.slice(0, 3).map((section, i) => (
+          /* PAGE WEIGHT (founder 2026-10-23, Results Truth): 3 → 1. Measured on Production: /results was 1,743,451 B and the
+             three full days' slips were ~563 KB of the 993 KB inline payload (every leg with its recent-form games). The
+             newest day stays in full; the next days are listed below with their record and slip count, each one tap
+             from its own full page — nothing is hidden and every total above still counts them. */
+          dateSections.slice(0, FULL_SLIP_DAYS).map((section, i) => (
             <div key={`rise-${section.date}`} className="gtp-rise" style={{ ["--i" as string]: i }}>
             <ParlayResultsDateSectionV2
               key={section.date}
@@ -749,7 +757,7 @@ export default function ResultsPage() {
             </div>
           ))
         )}
-        {dateSections.length > 3 ? (
+        {dateSections.length > FULL_SLIP_DAYS ? (
           <div className="rounded-[8px] px-4 py-3 text-[12px] leading-relaxed" style={{ border: "1px dashed var(--vault-border)", color: "var(--vault-text-mute)" }}>
             <p style={{ margin: 0 }}>
               Every older graded day has its own full page — slip by slip, nothing dropped; each still
@@ -767,8 +775,19 @@ export default function ResultsPage() {
               A wrapping flex row with `gap` is the fix and the house convention: let layout own the
               spacing instead of per-element margins.
             */}
+            <ul className="mt-2 mb-1 p-0 list-none flex flex-col gap-1" data-older-slip-days>
+              {dateSections.slice(FULL_SLIP_DAYS, FULL_SLIP_DAYS + SUMMARY_SLIP_DAYS).map((s2) => (
+                <li key={s2.date}>
+                  <Link href={surfaceHref("results", { date: s2.date }) ?? "/results/"} className="gtp-hit-44 no-underline" style={{ color: "var(--vault-text)", fontSize: 13 }}>
+                    <span className="font-mono">{s2.date}</span>
+                    {s2.totals ? ` · ${s2.totals.wins}–${s2.totals.losses}${s2.totals.pushes ? `–${s2.totals.pushes}` : ""}${s2.totals.pending ? ` · ${s2.totals.pending} pending` : ""}` : ""}
+                    {` · ${s2.slips.length} slip${s2.slips.length === 1 ? "" : "s"} →`}
+                  </Link>
+                </li>
+              ))}
+            </ul>
             <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0">
-              {dateSections.slice(3).map((s2) => (
+              {dateSections.slice(FULL_SLIP_DAYS + SUMMARY_SLIP_DAYS).map((s2) => (
                 <Link key={s2.date} href={surfaceHref("results", { date: s2.date }) ?? "/results/"} className="gtp-hit-44 font-mono" style={{ color: "var(--gtp-bank-heat)", fontSize: 11.5, whiteSpace: "nowrap" }}>
                   {s2.date}
                 </Link>

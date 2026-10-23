@@ -1,0 +1,78 @@
+{
+ "schemaVersion": 1,
+ "artifact": "mlb-input-snapshot",
+ "dataClass": "PRIVATE_RESEARCH",
+ "what": "The inputs each published full-game simulation actually consumed. Joined to the forecast by (date, gamePk) and by the forecast's own artifactHash. Provenance only — it changes no published number.",
+ "date": "2026-10-23",
+ "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+ "simulationVersion": 1,
+ "sourceBoardHash": "6c6590c5022dea643a1a553070f43e86011abbbe47c33478dea777f16a407e99",
+ "updatedAt": "2026-10-23T12:15:50.000Z",
+ "games": [
+  {
+   "gamePk": 849805,
+   "date": "2026-10-23",
+   "slug": "tb-vs-mil-2026-10-23",
+   "awayTeam": "TB",
+   "homeTeam": "MIL",
+   "firstPitch": "2026-10-24T00:00:00Z",
+   "artifactHash": "903a0f2a29e28fe0e9abac7b37e415feed74fad56efc3b9dd296000145b39bbb",
+   "completenessLevel": "ready",
+   "startedBeforeGeneration": false,
+   "away": {
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
+    "batterIds": [
+     802415,
+     650490,
+     691406,
+     666018,
+     676356,
+     683748,
+     689414,
+     680700,
+     670764
+    ],
+    "realCount": 9,
+    "ratedCount": 9,
+    "paddedSlots": 0
+   },
+   "home": {
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
+    "batterIds": [
+     694192,
+     668930,
+     661388,
+     592885,
+     641343,
+     806198,
+     686217,
+     669003,
+     666152
+    ],
+    "realCount": 9,
+    "ratedCount": 9,
+    "paddedSlots": 0
+   },
+   "awayStarter": {
+    "playerId": 607259,
+    "name": "Nick Martinez",
+    "hasStrikeoutProjection": true
+   },
+   "homeStarter": {
+    "playerId": 694819,
+    "name": "Jacob Misiorowski",
+    "hasStrikeoutProjection": true
+   },
+   "missingFamilies": [
+    "confirmed_batting_order",
+    "park_run_factors",
+    "weather",
+    "batter_handedness_splits"
+   ]
+  }
+ ]
+}

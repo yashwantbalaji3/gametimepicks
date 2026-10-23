@@ -43,9 +43,8 @@ const covered = (ref) => INPUTS.some((i) => (i.endsWith("/") ? `${ref}/`.startsW
  *   "forbid"  the named reader is defined once in the module and referenced nowhere else in any public closure.
  */
 const EXEMPTIONS = [
-  { module: "src/lib/sports/soccer/leagues.mjs", kind: "label", why: "validation{preregistration,report} provenance strings + leagueDir() label; no I/O" },
-  { module: "src/lib/sport-capability-registry.ts", kind: "label", why: "evidence[] provenance strings; no I/O" },
   { module: "src/lib/launch/runbook-registry.mjs", kind: "label", why: "runbook receipt descriptions; no I/O" },
+  { module: "src/lib/forecast-ledger/provenance.mjs", kind: "label", why: "names the owner record behind each Forecast Record value (CSV source column); no I/O — the reads happen in provenance-evidence.mjs, nightly ledger builder only" },
   {
     module: "src/lib/research/row-lineage-loader.ts", kind: "allow",
     allow: ["loadLineageIndex", "loadDateLineageArtifact", "LineageIndexEntry", "LineageIndexArtifact", "LINEAGE_ARTIFACT_DIR"],

@@ -26,6 +26,8 @@ import { postStartState, startedAt, POST_START_PHRASE } from "@/lib/simulate/lif
 import { allUpcoming, nbaUpcoming, ufcUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 import { getSportIdentity } from "@/lib/sport-identity";
 import fs from "node:fs";
+import { PUBLIC_TERMS, availabilityLine } from "@/lib/public-registry";
+import { hubLaneAnchor } from "@/lib/sports/nba/projection-board-ops.mjs";
 import path from "node:path";
 
 /** The charter's navigation-state matrix, verbatim. Unknown owners fail closed to SCHEDULE_ONLY. */
@@ -519,22 +521,38 @@ function nbaCapturedEvents(date: string, today: string): UpcomingSection | undef
   return nbaUpcoming({ nowIso: since, displayCap: Infinity }) as UpcomingSection;
 }
 
+/*
+ * F09 (audit 2026-10-23, founder directive public readiness): NBA has an Official Forecast and a Game Simulation per
+ * game on each slate, so a row says WHICH case it is — published (the slate's frozen public lane snapshot carries the
+ * game), not published yet for this slate (it publishes before tip-off), or none published for a past slate. Never
+ * "schedule-only by design": the public registry (lib/public-registry.ts) says NBA supports both features.
+ */
+function nbaLaneIds(date: string): Set<string> | null {
+  const doc = readJson<{ date?: string; games?: Array<{ providerEventId?: string }> }>(`nba/experimental-public/${date}.json`);
+  return doc && doc.date === date && Array.isArray(doc.games) ? new Set(doc.games.map((g) => String(g.providerEventId ?? ""))) : null;
+}
+
 function nbaSection(date: string, today: string): SportDaySection {
   const up = nbaCapturedEvents(date, today);
   const events: SimDayEvent[] = [];
+  const lane = nbaLaneIds(date);
   for (const e of up?.events ?? []) {
     if (etDayOf(e.scheduledStartUtc) !== date) continue;
     const home = e.competitors?.home?.name ?? "?";
     const away = e.competitors?.away?.name ?? "?";
+    const published = !!lane?.has(String(e.providerEventId));
     events.push({
       sport: "nba", id: `nba:${e.canonicalEventId ?? e.providerEventId}`,
       matchup: `${away} @ ${home}`, away: { name: away, logo: null }, home: { name: home, logo: null },
       startUtc: e.scheduledStartUtc ?? null, startLabel: e.scheduledStartUtc ? etTime(e.scheduledStartUtc) : "TBD",
       venue: e.venue ?? null, state: "SCHEDULE_ONLY",
-      stateReason: "NBA is schedule-only — no simulation is published, by design.",
+      stateReason: published
+        ? `${PUBLIC_TERMS.OFFICIAL_FORECAST} published — favoured side and player medians, with a ${PUBLIC_TERMS.GAME_SIMULATION} on the game's card.`
+        : date >= today ? availabilityLine("nba", "officialForecast") : `No ${PUBLIC_TERMS.OFFICIAL_FORECAST} was published for this game.`,
       /* UXJ-03: the NBA hub carries this schedule and its final scores; "/sports" was the generic sports index, so
-         "View event details" opened a page with no event on it. Every other sport's schedule-only card opens its hub. */
-      markets: [], href: "/nba", actionLabel: STATE_ACTION.SCHEDULE_ONLY,
+         "View event details" opened a page with no event on it. Every other sport's schedule-only card opens its hub.
+         A published game opens its own card there (hubLaneAnchor). */
+      markets: [], href: published ? hubLaneAnchor(String(e.providerEventId)) : "/nba", actionLabel: published ? `View the ${PUBLIC_TERMS.OFFICIAL_FORECAST}` : STATE_ACTION.SCHEDULE_ONLY,
     });
   }
   /* GTP-11: "Off-season" only when there is no captured schedule at all. In preseason, a date with no
@@ -548,7 +566,7 @@ function nbaSection(date: string, today: string): SportDaySection {
     sport: "nba", label: "NBA", icon: getSportIdentity("nba").icon,
     emptyState: events.length ? null : offSeason ? "OFF_SEASON" : "NO_CURRENT_EVENT",
     note: events.length
-      ? "Schedule only — no NBA model is published."
+      ? lane ? `${PUBLIC_TERMS.OFFICIAL_FORECAST} published for ${events.filter((x) => x.actionLabel !== STATE_ACTION.SCHEDULE_ONLY).length} of ${events.length} games.` : date >= today ? `${PUBLIC_TERMS.OFFICIAL_FORECAST} and ${PUBLIC_TERMS.GAME_SIMULATION}s publish before tip-off.` : `No ${PUBLIC_TERMS.OFFICIAL_FORECAST} was published for this date.`
       : offSeason
         ? "Off-season · schedules return with the new season."
         : nextDay ? `No NBA games on this date — next game ${etDayLabel(nextDay) ?? nextDay}.` : "No NBA games on this date.",

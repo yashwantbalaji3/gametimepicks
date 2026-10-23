@@ -1,0 +1,5300 @@
+{
+ "schemaVersion": 2,
+ "artifact": "nba-top-boards",
+ "schema": "nba-top-board@2",
+ "dataClass": "PRIVATE_RESEARCH",
+ "productEligible": false,
+ "publicState": "PRIVATE",
+ "neverReadBy": "public routes under app/src/app/** — private artifact; sport-capability-registry keeps NBA HISTORICAL_ONLY",
+ "date": "2026-10-23",
+ "family": "v1",
+ "modelVersion": "nba-sim-v1-coherent",
+ "categories": [
+  {
+   "key": "points",
+   "stat": "pts",
+   "label": "Points",
+   "basis": "MARGINAL",
+   "modelled": true
+  },
+  {
+   "key": "rebounds",
+   "stat": "reb",
+   "label": "Rebounds",
+   "basis": "MARGINAL",
+   "modelled": true
+  },
+  {
+   "key": "assists",
+   "stat": "ast",
+   "label": "Assists",
+   "basis": "MARGINAL",
+   "modelled": true
+  },
+  {
+   "key": "threes",
+   "stat": "threePm",
+   "label": "3PM",
+   "basis": "MARGINAL",
+   "modelled": true
+  },
+  {
+   "key": "pra",
+   "stat": "pra",
+   "label": "PRA",
+   "basis": "JOINT_SIMULATED_SUM",
+   "components": [
+    "pts",
+    "reb",
+    "ast"
+   ],
+   "modelled": true
+  },
+  {
+   "key": "ptsReb",
+   "stat": "ptsReb",
+   "label": "P+R",
+   "basis": "JOINT_SIMULATED_SUM",
+   "components": [
+    "pts",
+    "reb"
+   ],
+   "modelled": true
+  },
+  {
+   "key": "ptsAst",
+   "stat": "ptsAst",
+   "label": "P+A",
+   "basis": "JOINT_SIMULATED_SUM",
+   "components": [
+    "pts",
+    "ast"
+   ],
+   "modelled": true
+  },
+  {
+   "key": "rebAst",
+   "stat": null,
+   "label": "R+A",
+   "basis": "NOT_MODELLED",
+   "components": [
+    "reb",
+    "ast"
+   ],
+   "modelled": false
+  }
+ ],
+ "maxRows": 10,
+ "eligibility": {
+  "version": "nba-top-board-eligibility@1",
+  "minExpectedMinutes": 20,
+  "maxMinutesCv": 0.35,
+  "minPlayRate": 0.95,
+  "minGamesUsed": 3,
+  "playerRateBases": [
+   "player-window",
+   "v1-shrunk-to-league"
+  ],
+  "tradedHistoryPolicy": "INCLUDE_WITH_FLAG",
+  "rules": [
+   {
+    "id": "MISSING_ATHLETE_ID",
+    "scope": "player",
+    "description": "no providerAthleteId — the row could never be joined to a box score"
+   },
+   {
+    "id": "AVAILABILITY_OUT",
+    "scope": "player",
+    "description": "ruled Out by the injury feed at the forecast instant"
+   },
+   {
+    "id": "INJURY_DESIGNATION",
+    "scope": "player",
+    "description": "ANY injury designation, including Day-To-Day — an unresolved status is withheld (founder rule)"
+   },
+   {
+    "id": "INSUFFICIENT_HISTORY",
+    "scope": "player",
+    "description": "minutes basis \"insufficient\", or fewer than 3 appearances used (the minutes model's MIN_GAMES_FOR_RATES)"
+   },
+   {
+    "id": "NULL_MINUTES",
+    "scope": "player",
+    "description": "expected minutes absent (never read as zero)"
+   },
+   {
+    "id": "AVAILABILITY_UNVERIFIED",
+    "scope": "player",
+    "description": "availability not read from an injury feed (\"unknown\" or absent) — unknown is not active"
+   },
+   {
+    "id": "LOW_PLAY_RATE",
+    "scope": "player",
+    "description": "conditional-on-playing quantiles with playRate below 0.95 (or no playRate recorded)"
+   },
+   {
+    "id": "TEAM_POOL_FALLBACK_RATES",
+    "scope": "player",
+    "description": "per-minute rates not from the player's own history (team-pool fallback, or an unknown basis)"
+   },
+   {
+    "id": "LOW_EXPECTED_MINUTES",
+    "scope": "player",
+    "description": "expected minutes below 20 (the preregistered graded population)"
+   },
+   {
+    "id": "MINUTES_TOO_UNCERTAIN",
+    "scope": "player",
+    "description": "minutesSd / expectedMinutes above 0.35, or no measured minutes spread"
+   },
+   {
+    "id": "MISSING_DISTRIBUTION",
+    "scope": "category",
+    "description": "the category's frozen distribution (mean, p10, p50, p90) is incomplete"
+   }
+  ],
+  "flags": [
+   "TRADED_HISTORY_OTHER_TEAM",
+   "LEGACY_NO_RECEIPT"
+  ]
+ },
+ "ranking": {
+  "id": "nba-top-board-ranking@2",
+  "metric": "MODEL_MEDIAN_P50_OR_MEAN_WHEN_DISCRETE",
+  "metrics": {
+   "CONTINUOUS": "MODEL_MEDIAN_P50",
+   "DISCRETE": "MODEL_MEAN"
+  },
+  "rule": "per board: continuous quantile summaries → frozen p50 desc, then mean desc, then providerAthleteId asc; whole-number (discrete) summaries on every candidate → frozen mean desc, then providerAthleteId asc (deterministic, no clock)"
+ },
+ "market": {
+  "state": "NO_AUTHORIZED_PRICE",
+  "note": "no NBA odds authorization exists; no line, odds, edge or over/under probability is ever recorded"
+ },
+ "confidence": {
+  "value": null,
+  "reason": "no calibrated confidence until the preregistered bars are met"
+ },
+ "writeOnce": {
+  "rule": "an edition, once written, is never rewritten; a later freeze only adds a new edition for games on no earlier edition that have not tipped"
+ },
+ "editions": [
+  {
+   "edition": 1,
+   "frozenAt": "2026-10-23T12:23:55Z",
+   "source": {
+    "path": "data/internal/research/nba/experimental-v1/forecasts/2026-10-23.json",
+    "sha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+    "artifactGeneratedAt": "2026-10-23T12:23:55Z",
+    "artifactInputAsOf": "2026-10-23T12:23:55Z",
+    "runs": 1,
+    "modelVersion": "nba-sim-v1-coherent"
+   },
+   "gamesOnBoard": 1,
+   "games": [
+    {
+     "eventId": "401909848",
+     "tipoffUtc": "2026-10-23T20:00Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "Milwaukee Bucks",
+      "abbr": "MIL",
+      "espnAbbr": "MIL",
+      "providerTeamId": "15"
+     },
+     "away": {
+      "name": "Chicago Bulls",
+      "abbr": "CHI",
+      "espnAbbr": "CHI",
+      "providerTeamId": "4"
+     },
+     "forecastGeneratedAt": "2026-10-23T12:23:55Z",
+     "forecastInputAsOf": "2026-10-23T12:23:55Z",
+     "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5",
+     "state": "ON_BOARD",
+     "flags": []
+    }
+   ],
+   "boards": {
+    "points": {
+     "category": "points",
+     "label": "Points",
+     "stat": "pts",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-23|v1|e1|points|401909848|4395725",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyler Herro",
+        "providerAthleteId": "4395725"
+       },
+       "team": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "opponent": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "homeAway": "home",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 15,
+        "mean": 15.44
+       },
+       "range": {
+        "p10": 7,
+        "p25": 11,
+        "p75": 20,
+        "p90": 24
+       },
+       "playRate": 0.9637,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.69,
+       "minutesSd": 5.63,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 15.44,
+        "expectedMinutes": 22.69,
+        "p90": 24
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-23|v1|e1|points|401909848|4711294",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Matas Buzelis",
+        "providerAthleteId": "4711294"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 14,
+        "mean": 14.45
+       },
+       "range": {
+        "p10": 6,
+        "p25": 10,
+        "p75": 19,
+        "p90": 23
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.3,
+       "minutesSd": 6.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.45,
+        "expectedMinutes": 26.3,
+        "p90": 23
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-23|v1|e1|points|401909848|4591725",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ryan Rollins",
+        "providerAthleteId": "4591725"
+       },
+       "team": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "opponent": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "homeAway": "home",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 12,
+        "mean": 13.08
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 17,
+        "p90": 21
+       },
+       "playRate": 0.9754,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.77,
+       "minutesSd": 5.6,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.08,
+        "expectedMinutes": 22.77,
+        "p90": 21
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-23|v1|e1|points|401909848|4395626",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tre Jones",
+        "providerAthleteId": "4395626"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 11,
+        "mean": 11.66
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 15,
+        "p90": 19
+       },
+       "playRate": 0.9725,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.93,
+       "minutesSd": 5.86,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 11.66,
+        "expectedMinutes": 21.93,
+        "p90": 19
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-23|v1|e1|points|401909848|4432822",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Isaac Okoro",
+        "providerAthleteId": "4432822"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 8,
+        "mean": 8.18
+       },
+       "range": {
+        "p10": 2,
+        "p25": 5,
+        "p75": 11,
+        "p90": 15
+       },
+       "playRate": 0.9769,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.52,
+       "minutesSd": 7.02,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 8.18,
+        "expectedMinutes": 23.52,
+        "p90": 15
+       }
+      }
+     ],
+     "eligibleCount": 5,
+     "shownCount": 5,
+     "withheld": {
+      "count": 30,
+      "byPrimaryReason": {
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 5,
+       "LOW_PLAY_RATE": 13,
+       "INSUFFICIENT_HISTORY": 6,
+       "INJURY_DESIGNATION": 4,
+       "AVAILABILITY_OUT": 1
+      },
+      "byReason": {
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "LOW_EXPECTED_MINUTES": 21,
+       "LOW_PLAY_RATE": 18,
+       "INSUFFICIENT_HISTORY": 7,
+       "NULL_MINUTES": 4,
+       "AVAILABILITY_UNVERIFIED": 3,
+       "TEAM_POOL_FALLBACK_RATES": 4,
+       "MISSING_DISTRIBUTION": 4,
+       "INJURY_DESIGNATION": 5,
+       "AVAILABILITY_OUT": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2595516",
+        "name": "Norman Powell",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "2990984",
+        "name": "Buddy Hield",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "2991043",
+        "name": "Caris LeVert",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3133628",
+        "name": "Myles Turner",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3134907",
+        "name": "Kyle Kuzma",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066650",
+        "name": "Zach Collins",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4277843",
+        "name": "Gary Trent Jr.",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277922",
+        "name": "Jericho Sims",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278067",
+        "name": "Nic Claxton",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4397114",
+        "name": "Cormac Ryan",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397189",
+        "name": "Jalen Smith",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397233",
+        "name": "Pete Nance",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397475",
+        "name": "AJ Green",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4431687",
+        "name": "Patrick Williams",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432848",
+        "name": "Jaime Jaquez Jr.",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683750",
+        "name": "Jordan Hawkins",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4697268",
+        "name": "Kam Jones",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4848625",
+        "name": "Dailyn Swain",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4871145",
+        "name": "Josh Giddey",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4898010",
+        "name": "Jaylin Sellers",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4997526",
+        "name": "Ousmane Dieng",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5044385",
+        "name": "Leonard Miller",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5082206",
+        "name": "Brayden Burries",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5095151",
+        "name": "Caleb Wilson",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5105555",
+        "name": "Tobe Awaka",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "5105623",
+        "name": "Kel'el Ware",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5164559",
+        "name": "Nate Ament",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5214640",
+        "name": "Kasparas Jakucionis",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5214989",
+        "name": "Bogoljub Markovic",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5242496",
+        "name": "Noa Essengue",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebounds": {
+     "category": "rebounds",
+     "label": "Rebounds",
+     "stat": "reb",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-23|v1|e1|rebounds|401909848|4711294",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Matas Buzelis",
+        "providerAthleteId": "4711294"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 5,
+        "mean": 5.45
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 7,
+        "p90": 9
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.3,
+       "minutesSd": 6.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.45,
+        "expectedMinutes": 26.3,
+        "p90": 9
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-23|v1|e1|rebounds|401909848|4395725",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyler Herro",
+        "providerAthleteId": "4395725"
+       },
+       "team": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "opponent": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "homeAway": "home",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.56
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.9637,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.69,
+       "minutesSd": 5.63,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.56,
+        "expectedMinutes": 22.69,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-23|v1|e1|rebounds|401909848|4591725",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ryan Rollins",
+        "providerAthleteId": "4591725"
+       },
+       "team": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "opponent": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "homeAway": "home",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.38
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.9754,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.77,
+       "minutesSd": 5.6,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.38,
+        "expectedMinutes": 22.77,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-23|v1|e1|rebounds|401909848|4395626",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tre Jones",
+        "providerAthleteId": "4395626"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 2.81
+       },
+       "range": {
+        "p10": 1,
+        "p25": 1,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9725,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.93,
+       "minutesSd": 5.86,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.81,
+        "expectedMinutes": 21.93,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-23|v1|e1|rebounds|401909848|4432822",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Isaac Okoro",
+        "providerAthleteId": "4432822"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.53
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9769,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.52,
+       "minutesSd": 7.02,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.53,
+        "expectedMinutes": 23.52,
+        "p90": 5
+       }
+      }
+     ],
+     "eligibleCount": 5,
+     "shownCount": 5,
+     "withheld": {
+      "count": 30,
+      "byPrimaryReason": {
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 5,
+       "LOW_PLAY_RATE": 13,
+       "INSUFFICIENT_HISTORY": 6,
+       "INJURY_DESIGNATION": 4,
+       "AVAILABILITY_OUT": 1
+      },
+      "byReason": {
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "LOW_EXPECTED_MINUTES": 21,
+       "LOW_PLAY_RATE": 18,
+       "INSUFFICIENT_HISTORY": 7,
+       "NULL_MINUTES": 4,
+       "AVAILABILITY_UNVERIFIED": 3,
+       "TEAM_POOL_FALLBACK_RATES": 4,
+       "MISSING_DISTRIBUTION": 4,
+       "INJURY_DESIGNATION": 5,
+       "AVAILABILITY_OUT": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2595516",
+        "name": "Norman Powell",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "2990984",
+        "name": "Buddy Hield",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "2991043",
+        "name": "Caris LeVert",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3133628",
+        "name": "Myles Turner",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3134907",
+        "name": "Kyle Kuzma",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066650",
+        "name": "Zach Collins",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4277843",
+        "name": "Gary Trent Jr.",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277922",
+        "name": "Jericho Sims",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278067",
+        "name": "Nic Claxton",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4397114",
+        "name": "Cormac Ryan",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397189",
+        "name": "Jalen Smith",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397233",
+        "name": "Pete Nance",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397475",
+        "name": "AJ Green",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4431687",
+        "name": "Patrick Williams",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432848",
+        "name": "Jaime Jaquez Jr.",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683750",
+        "name": "Jordan Hawkins",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4697268",
+        "name": "Kam Jones",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4848625",
+        "name": "Dailyn Swain",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4871145",
+        "name": "Josh Giddey",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4898010",
+        "name": "Jaylin Sellers",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4997526",
+        "name": "Ousmane Dieng",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5044385",
+        "name": "Leonard Miller",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5082206",
+        "name": "Brayden Burries",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5095151",
+        "name": "Caleb Wilson",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5105555",
+        "name": "Tobe Awaka",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "5105623",
+        "name": "Kel'el Ware",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5164559",
+        "name": "Nate Ament",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5214640",
+        "name": "Kasparas Jakucionis",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5214989",
+        "name": "Bogoljub Markovic",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5242496",
+        "name": "Noa Essengue",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "assists": {
+     "category": "assists",
+     "label": "Assists",
+     "stat": "ast",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-23|v1|e1|assists|401909848|4591725",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ryan Rollins",
+        "providerAthleteId": "4591725"
+       },
+       "team": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "opponent": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "homeAway": "home",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.17
+       },
+       "range": {
+        "p10": 1,
+        "p25": 3,
+        "p75": 6,
+        "p90": 7
+       },
+       "playRate": 0.9754,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.77,
+       "minutesSd": 5.6,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.17,
+        "expectedMinutes": 22.77,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-23|v1|e1|assists|401909848|4395626",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tre Jones",
+        "providerAthleteId": "4395626"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.02
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 7
+       },
+       "playRate": 0.9725,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.93,
+       "minutesSd": 5.86,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.02,
+        "expectedMinutes": 21.93,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-23|v1|e1|assists|401909848|4395725",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyler Herro",
+        "providerAthleteId": "4395725"
+       },
+       "team": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "opponent": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "homeAway": "home",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.38
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.9637,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.69,
+       "minutesSd": 5.63,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.38,
+        "expectedMinutes": 22.69,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-23|v1|e1|assists|401909848|4711294",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Matas Buzelis",
+        "providerAthleteId": "4711294"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.88
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.3,
+       "minutesSd": 6.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.88,
+        "expectedMinutes": 26.3,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-23|v1|e1|assists|401909848|4432822",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Isaac Okoro",
+        "providerAthleteId": "4432822"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.45
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9769,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.52,
+       "minutesSd": 7.02,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.45,
+        "expectedMinutes": 23.52,
+        "p90": 3
+       }
+      }
+     ],
+     "eligibleCount": 5,
+     "shownCount": 5,
+     "withheld": {
+      "count": 30,
+      "byPrimaryReason": {
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 5,
+       "LOW_PLAY_RATE": 13,
+       "INSUFFICIENT_HISTORY": 6,
+       "INJURY_DESIGNATION": 4,
+       "AVAILABILITY_OUT": 1
+      },
+      "byReason": {
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "LOW_EXPECTED_MINUTES": 21,
+       "LOW_PLAY_RATE": 18,
+       "INSUFFICIENT_HISTORY": 7,
+       "NULL_MINUTES": 4,
+       "AVAILABILITY_UNVERIFIED": 3,
+       "TEAM_POOL_FALLBACK_RATES": 4,
+       "MISSING_DISTRIBUTION": 4,
+       "INJURY_DESIGNATION": 5,
+       "AVAILABILITY_OUT": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2595516",
+        "name": "Norman Powell",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "2990984",
+        "name": "Buddy Hield",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "2991043",
+        "name": "Caris LeVert",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3133628",
+        "name": "Myles Turner",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3134907",
+        "name": "Kyle Kuzma",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066650",
+        "name": "Zach Collins",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4277843",
+        "name": "Gary Trent Jr.",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277922",
+        "name": "Jericho Sims",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278067",
+        "name": "Nic Claxton",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4397114",
+        "name": "Cormac Ryan",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397189",
+        "name": "Jalen Smith",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397233",
+        "name": "Pete Nance",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397475",
+        "name": "AJ Green",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4431687",
+        "name": "Patrick Williams",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432848",
+        "name": "Jaime Jaquez Jr.",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683750",
+        "name": "Jordan Hawkins",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4697268",
+        "name": "Kam Jones",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4848625",
+        "name": "Dailyn Swain",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4871145",
+        "name": "Josh Giddey",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4898010",
+        "name": "Jaylin Sellers",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4997526",
+        "name": "Ousmane Dieng",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5044385",
+        "name": "Leonard Miller",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5082206",
+        "name": "Brayden Burries",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5095151",
+        "name": "Caleb Wilson",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5105555",
+        "name": "Tobe Awaka",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "5105623",
+        "name": "Kel'el Ware",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5164559",
+        "name": "Nate Ament",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5214640",
+        "name": "Kasparas Jakucionis",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5214989",
+        "name": "Bogoljub Markovic",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5242496",
+        "name": "Noa Essengue",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "threes": {
+     "category": "threes",
+     "label": "3PM",
+     "stat": "threePm",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-23|v1|e1|threes|401909848|4711294",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Matas Buzelis",
+        "providerAthleteId": "4711294"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.07
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.3,
+       "minutesSd": 6.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.07,
+        "expectedMinutes": 26.3,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-23|v1|e1|threes|401909848|4395725",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyler Herro",
+        "providerAthleteId": "4395725"
+       },
+       "team": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "opponent": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "homeAway": "home",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.81
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9637,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.69,
+       "minutesSd": 5.63,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.81,
+        "expectedMinutes": 22.69,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-23|v1|e1|threes|401909848|4591725",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ryan Rollins",
+        "providerAthleteId": "4591725"
+       },
+       "team": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "opponent": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "homeAway": "home",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.7
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9754,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.77,
+       "minutesSd": 5.6,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.7,
+        "expectedMinutes": 22.77,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-23|v1|e1|threes|401909848|4432822",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Isaac Okoro",
+        "providerAthleteId": "4432822"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.07
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9769,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.52,
+       "minutesSd": 7.02,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.07,
+        "expectedMinutes": 23.52,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-23|v1|e1|threes|401909848|4395626",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tre Jones",
+        "providerAthleteId": "4395626"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 0,
+        "mean": 0.65
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 1,
+        "p90": 2
+       },
+       "playRate": 0.9725,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.93,
+       "minutesSd": 5.86,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 0.65,
+        "expectedMinutes": 21.93,
+        "p90": 2
+       }
+      }
+     ],
+     "eligibleCount": 5,
+     "shownCount": 5,
+     "withheld": {
+      "count": 30,
+      "byPrimaryReason": {
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 5,
+       "LOW_PLAY_RATE": 13,
+       "INSUFFICIENT_HISTORY": 6,
+       "INJURY_DESIGNATION": 4,
+       "AVAILABILITY_OUT": 1
+      },
+      "byReason": {
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "LOW_EXPECTED_MINUTES": 21,
+       "LOW_PLAY_RATE": 18,
+       "INSUFFICIENT_HISTORY": 7,
+       "NULL_MINUTES": 4,
+       "AVAILABILITY_UNVERIFIED": 3,
+       "TEAM_POOL_FALLBACK_RATES": 4,
+       "MISSING_DISTRIBUTION": 4,
+       "INJURY_DESIGNATION": 5,
+       "AVAILABILITY_OUT": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2595516",
+        "name": "Norman Powell",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "2990984",
+        "name": "Buddy Hield",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "2991043",
+        "name": "Caris LeVert",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3133628",
+        "name": "Myles Turner",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3134907",
+        "name": "Kyle Kuzma",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066650",
+        "name": "Zach Collins",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4277843",
+        "name": "Gary Trent Jr.",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277922",
+        "name": "Jericho Sims",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278067",
+        "name": "Nic Claxton",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4397114",
+        "name": "Cormac Ryan",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397189",
+        "name": "Jalen Smith",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397233",
+        "name": "Pete Nance",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397475",
+        "name": "AJ Green",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4431687",
+        "name": "Patrick Williams",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432848",
+        "name": "Jaime Jaquez Jr.",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683750",
+        "name": "Jordan Hawkins",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4697268",
+        "name": "Kam Jones",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4848625",
+        "name": "Dailyn Swain",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4871145",
+        "name": "Josh Giddey",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4898010",
+        "name": "Jaylin Sellers",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4997526",
+        "name": "Ousmane Dieng",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5044385",
+        "name": "Leonard Miller",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5082206",
+        "name": "Brayden Burries",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5095151",
+        "name": "Caleb Wilson",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5105555",
+        "name": "Tobe Awaka",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "5105623",
+        "name": "Kel'el Ware",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5164559",
+        "name": "Nate Ament",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5214640",
+        "name": "Kasparas Jakucionis",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5214989",
+        "name": "Bogoljub Markovic",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5242496",
+        "name": "Noa Essengue",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "pra": {
+     "category": "pra",
+     "label": "PRA",
+     "stat": "pra",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-23|v1|e1|pra|401909848|4395725",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyler Herro",
+        "providerAthleteId": "4395725"
+       },
+       "team": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "opponent": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "homeAway": "home",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 22,
+        "mean": 22.37
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 27,
+        "p90": 33
+       },
+       "playRate": 0.9637,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.69,
+       "minutesSd": 5.63,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 22.37,
+        "expectedMinutes": 22.69,
+        "p90": 33
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-23|v1|e1|pra|401909848|4711294",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Matas Buzelis",
+        "providerAthleteId": "4711294"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 21,
+        "mean": 21.78
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 27,
+        "p90": 33
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.3,
+       "minutesSd": 6.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.78,
+        "expectedMinutes": 26.3,
+        "p90": 33
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-23|v1|e1|pra|401909848|4591725",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ryan Rollins",
+        "providerAthleteId": "4591725"
+       },
+       "team": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "opponent": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "homeAway": "home",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 20,
+        "mean": 20.63
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 26,
+        "p90": 31
+       },
+       "playRate": 0.9754,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.77,
+       "minutesSd": 5.6,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.63,
+        "expectedMinutes": 22.77,
+        "p90": 31
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-23|v1|e1|pra|401909848|4395626",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tre Jones",
+        "providerAthleteId": "4395626"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.49
+       },
+       "range": {
+        "p10": 10,
+        "p25": 13,
+        "p75": 23,
+        "p90": 28
+       },
+       "playRate": 0.9725,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.93,
+       "minutesSd": 5.86,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.49,
+        "expectedMinutes": 21.93,
+        "p90": 28
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-23|v1|e1|pra|401909848|4432822",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Isaac Okoro",
+        "providerAthleteId": "4432822"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 12,
+        "mean": 12.16
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 16,
+        "p90": 20
+       },
+       "playRate": 0.9769,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.52,
+       "minutesSd": 7.02,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 12.16,
+        "expectedMinutes": 23.52,
+        "p90": 20
+       }
+      }
+     ],
+     "eligibleCount": 5,
+     "shownCount": 5,
+     "withheld": {
+      "count": 30,
+      "byPrimaryReason": {
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 5,
+       "LOW_PLAY_RATE": 13,
+       "INSUFFICIENT_HISTORY": 6,
+       "INJURY_DESIGNATION": 4,
+       "AVAILABILITY_OUT": 1
+      },
+      "byReason": {
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "LOW_EXPECTED_MINUTES": 21,
+       "LOW_PLAY_RATE": 18,
+       "INSUFFICIENT_HISTORY": 7,
+       "NULL_MINUTES": 4,
+       "AVAILABILITY_UNVERIFIED": 3,
+       "TEAM_POOL_FALLBACK_RATES": 4,
+       "MISSING_DISTRIBUTION": 4,
+       "INJURY_DESIGNATION": 5,
+       "AVAILABILITY_OUT": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2595516",
+        "name": "Norman Powell",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "2990984",
+        "name": "Buddy Hield",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "2991043",
+        "name": "Caris LeVert",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3133628",
+        "name": "Myles Turner",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3134907",
+        "name": "Kyle Kuzma",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066650",
+        "name": "Zach Collins",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4277843",
+        "name": "Gary Trent Jr.",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277922",
+        "name": "Jericho Sims",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278067",
+        "name": "Nic Claxton",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4397114",
+        "name": "Cormac Ryan",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397189",
+        "name": "Jalen Smith",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397233",
+        "name": "Pete Nance",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397475",
+        "name": "AJ Green",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4431687",
+        "name": "Patrick Williams",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432848",
+        "name": "Jaime Jaquez Jr.",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683750",
+        "name": "Jordan Hawkins",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4697268",
+        "name": "Kam Jones",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4848625",
+        "name": "Dailyn Swain",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4871145",
+        "name": "Josh Giddey",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4898010",
+        "name": "Jaylin Sellers",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4997526",
+        "name": "Ousmane Dieng",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5044385",
+        "name": "Leonard Miller",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5082206",
+        "name": "Brayden Burries",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5095151",
+        "name": "Caleb Wilson",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5105555",
+        "name": "Tobe Awaka",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "5105623",
+        "name": "Kel'el Ware",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5164559",
+        "name": "Nate Ament",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5214640",
+        "name": "Kasparas Jakucionis",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5214989",
+        "name": "Bogoljub Markovic",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5242496",
+        "name": "Noa Essengue",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsReb": {
+     "category": "ptsReb",
+     "label": "P+R",
+     "stat": "ptsReb",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-23|v1|e1|ptsReb|401909848|4711294",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Matas Buzelis",
+        "providerAthleteId": "4711294"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.9
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 25,
+        "p90": 30
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.3,
+       "minutesSd": 6.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.9,
+        "expectedMinutes": 26.3,
+        "p90": 30
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-23|v1|e1|ptsReb|401909848|4395725",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyler Herro",
+        "providerAthleteId": "4395725"
+       },
+       "team": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "opponent": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "homeAway": "home",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 19
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 24,
+        "p90": 29
+       },
+       "playRate": 0.9637,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.69,
+       "minutesSd": 5.63,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19,
+        "expectedMinutes": 22.69,
+        "p90": 29
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-23|v1|e1|ptsReb|401909848|4591725",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ryan Rollins",
+        "providerAthleteId": "4591725"
+       },
+       "team": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "opponent": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "homeAway": "home",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.46
+       },
+       "range": {
+        "p10": 8,
+        "p25": 12,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.9754,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.77,
+       "minutesSd": 5.6,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.46,
+        "expectedMinutes": 22.77,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-23|v1|e1|ptsReb|401909848|4395626",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tre Jones",
+        "providerAthleteId": "4395626"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 14,
+        "mean": 14.47
+       },
+       "range": {
+        "p10": 7,
+        "p25": 10,
+        "p75": 18,
+        "p90": 23
+       },
+       "playRate": 0.9725,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.93,
+       "minutesSd": 5.86,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.47,
+        "expectedMinutes": 21.93,
+        "p90": 23
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-23|v1|e1|ptsReb|401909848|4432822",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Isaac Okoro",
+        "providerAthleteId": "4432822"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 10,
+        "mean": 10.71
+       },
+       "range": {
+        "p10": 4,
+        "p25": 7,
+        "p75": 14,
+        "p90": 18
+       },
+       "playRate": 0.9769,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.52,
+       "minutesSd": 7.02,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 10.71,
+        "expectedMinutes": 23.52,
+        "p90": 18
+       }
+      }
+     ],
+     "eligibleCount": 5,
+     "shownCount": 5,
+     "withheld": {
+      "count": 30,
+      "byPrimaryReason": {
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 5,
+       "LOW_PLAY_RATE": 13,
+       "INSUFFICIENT_HISTORY": 6,
+       "INJURY_DESIGNATION": 4,
+       "AVAILABILITY_OUT": 1
+      },
+      "byReason": {
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "LOW_EXPECTED_MINUTES": 21,
+       "LOW_PLAY_RATE": 18,
+       "INSUFFICIENT_HISTORY": 7,
+       "NULL_MINUTES": 4,
+       "AVAILABILITY_UNVERIFIED": 3,
+       "TEAM_POOL_FALLBACK_RATES": 4,
+       "MISSING_DISTRIBUTION": 4,
+       "INJURY_DESIGNATION": 5,
+       "AVAILABILITY_OUT": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2595516",
+        "name": "Norman Powell",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "2990984",
+        "name": "Buddy Hield",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "2991043",
+        "name": "Caris LeVert",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3133628",
+        "name": "Myles Turner",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3134907",
+        "name": "Kyle Kuzma",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066650",
+        "name": "Zach Collins",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4277843",
+        "name": "Gary Trent Jr.",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277922",
+        "name": "Jericho Sims",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278067",
+        "name": "Nic Claxton",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4397114",
+        "name": "Cormac Ryan",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397189",
+        "name": "Jalen Smith",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397233",
+        "name": "Pete Nance",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397475",
+        "name": "AJ Green",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4431687",
+        "name": "Patrick Williams",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432848",
+        "name": "Jaime Jaquez Jr.",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683750",
+        "name": "Jordan Hawkins",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4697268",
+        "name": "Kam Jones",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4848625",
+        "name": "Dailyn Swain",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4871145",
+        "name": "Josh Giddey",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4898010",
+        "name": "Jaylin Sellers",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4997526",
+        "name": "Ousmane Dieng",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5044385",
+        "name": "Leonard Miller",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5082206",
+        "name": "Brayden Burries",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5095151",
+        "name": "Caleb Wilson",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5105555",
+        "name": "Tobe Awaka",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "5105623",
+        "name": "Kel'el Ware",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5164559",
+        "name": "Nate Ament",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5214640",
+        "name": "Kasparas Jakucionis",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5214989",
+        "name": "Bogoljub Markovic",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5242496",
+        "name": "Noa Essengue",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsAst": {
+     "category": "ptsAst",
+     "label": "P+A",
+     "stat": "ptsAst",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-23|v1|e1|ptsAst|401909848|4395725",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyler Herro",
+        "providerAthleteId": "4395725"
+       },
+       "team": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "opponent": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "homeAway": "home",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.82
+       },
+       "range": {
+        "p10": 10,
+        "p25": 13,
+        "p75": 23,
+        "p90": 29
+       },
+       "playRate": 0.9637,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.69,
+       "minutesSd": 5.63,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.82,
+        "expectedMinutes": 22.69,
+        "p90": 29
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-23|v1|e1|ptsAst|401909848|4591725",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ryan Rollins",
+        "providerAthleteId": "4591725"
+       },
+       "team": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "opponent": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "homeAway": "home",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 17,
+        "mean": 17.25
+       },
+       "range": {
+        "p10": 9,
+        "p25": 12,
+        "p75": 22,
+        "p90": 27
+       },
+       "playRate": 0.9754,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.77,
+       "minutesSd": 5.6,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 17.25,
+        "expectedMinutes": 22.77,
+        "p90": 27
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-23|v1|e1|ptsAst|401909848|4711294",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Matas Buzelis",
+        "providerAthleteId": "4711294"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.33
+       },
+       "range": {
+        "p10": 8,
+        "p25": 11,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.3,
+       "minutesSd": 6.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.33,
+        "expectedMinutes": 26.3,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-23|v1|e1|ptsAst|401909848|4395626",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tre Jones",
+        "providerAthleteId": "4395626"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 15,
+        "mean": 15.68
+       },
+       "range": {
+        "p10": 8,
+        "p25": 11,
+        "p75": 20,
+        "p90": 24
+       },
+       "playRate": 0.9725,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.93,
+       "minutesSd": 5.86,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 15.68,
+        "expectedMinutes": 21.93,
+        "p90": 24
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-23|v1|e1|ptsAst|401909848|4432822",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Isaac Okoro",
+        "providerAthleteId": "4432822"
+       },
+       "team": {
+        "name": "Chicago Bulls",
+        "abbr": "CHI",
+        "espnAbbr": "CHI",
+        "providerTeamId": "4"
+       },
+       "opponent": {
+        "name": "Milwaukee Bucks",
+        "abbr": "MIL",
+        "espnAbbr": "MIL",
+        "providerTeamId": "15"
+       },
+       "homeAway": "away",
+       "eventId": "401909848",
+       "tipoffUtc": "2026-10-23T20:00Z",
+       "projection": {
+        "p50": 9,
+        "mean": 9.63
+       },
+       "range": {
+        "p10": 3,
+        "p25": 6,
+        "p75": 13,
+        "p90": 17
+       },
+       "playRate": 0.9769,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.52,
+       "minutesSd": 7.02,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-23T12:23:55Z",
+        "generatedAt": "2026-10-23T12:23:55Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2125d6ce6fe66a4f72c1f497d4182feb026f54e48d344681004499a3adfc276d",
+        "gamePayloadSha256": "692212433f5defcf80d4261287745b5312935351b5c36538f3e25736e2fbdac5"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 9.63,
+        "expectedMinutes": 23.52,
+        "p90": 17
+       }
+      }
+     ],
+     "eligibleCount": 5,
+     "shownCount": 5,
+     "withheld": {
+      "count": 30,
+      "byPrimaryReason": {
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 5,
+       "LOW_PLAY_RATE": 13,
+       "INSUFFICIENT_HISTORY": 6,
+       "INJURY_DESIGNATION": 4,
+       "AVAILABILITY_OUT": 1
+      },
+      "byReason": {
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "LOW_EXPECTED_MINUTES": 21,
+       "LOW_PLAY_RATE": 18,
+       "INSUFFICIENT_HISTORY": 7,
+       "NULL_MINUTES": 4,
+       "AVAILABILITY_UNVERIFIED": 3,
+       "TEAM_POOL_FALLBACK_RATES": 4,
+       "MISSING_DISTRIBUTION": 4,
+       "INJURY_DESIGNATION": 5,
+       "AVAILABILITY_OUT": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2595516",
+        "name": "Norman Powell",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "2990984",
+        "name": "Buddy Hield",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "2991043",
+        "name": "Caris LeVert",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3133628",
+        "name": "Myles Turner",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3134907",
+        "name": "Kyle Kuzma",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066650",
+        "name": "Zach Collins",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4277843",
+        "name": "Gary Trent Jr.",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277922",
+        "name": "Jericho Sims",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278067",
+        "name": "Nic Claxton",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4397114",
+        "name": "Cormac Ryan",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397189",
+        "name": "Jalen Smith",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397233",
+        "name": "Pete Nance",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397475",
+        "name": "AJ Green",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4431687",
+        "name": "Patrick Williams",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432848",
+        "name": "Jaime Jaquez Jr.",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683750",
+        "name": "Jordan Hawkins",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4697268",
+        "name": "Kam Jones",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4848625",
+        "name": "Dailyn Swain",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4871145",
+        "name": "Josh Giddey",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4898010",
+        "name": "Jaylin Sellers",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4997526",
+        "name": "Ousmane Dieng",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5044385",
+        "name": "Leonard Miller",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5082206",
+        "name": "Brayden Burries",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5095151",
+        "name": "Caleb Wilson",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5105555",
+        "name": "Tobe Awaka",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "5105623",
+        "name": "Kel'el Ware",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5164559",
+        "name": "Nate Ament",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5214640",
+        "name": "Kasparas Jakucionis",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5214989",
+        "name": "Bogoljub Markovic",
+        "team": "MIL",
+        "eventId": "401909848",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5242496",
+        "name": "Noa Essengue",
+        "team": "CHI",
+        "eventId": "401909848",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebAst": {
+     "category": "rebAst",
+     "label": "R+A",
+     "stat": null,
+     "marketBasis": "NOT_MODELLED",
+     "basisText": "not modelled — no family simulates it jointly, and adding marginal projections is not its distribution",
+     "components": [
+      "reb",
+      "ast"
+     ],
+     "state": "NOT_MODELLED",
+     "rankingMetric": null,
+     "rows": [],
+     "eligibleCount": 0,
+     "shownCount": 0,
+     "withheld": {
+      "count": 0,
+      "byPrimaryReason": {},
+      "byReason": {},
+      "players": []
+     },
+     "emptyReason": "R+A is not modelled: no forecast family simulates reb + ast jointly, and adding marginal projections is not its distribution — it is never computed"
+    }
+   }
+  }
+ ]
+}

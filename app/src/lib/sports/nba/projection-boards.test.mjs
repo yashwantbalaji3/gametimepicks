@@ -15,6 +15,9 @@ import crypto from "node:crypto";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
+process.env.__NEXT_TRAILING_SLASH = "true"; // next.config.mjs trailingSlash: true — next/link renders hrefs as the build does
+globalThis.React = React; // the lane card renders TeamLogo, which compiles with the classic JSX runtime under tsx (as nba-hub.test.mjs)
+
 import {
   buildExperimentalSnapshot, snapshotMatchesSource, comboReconciliation, laneIsCurrent,
   STATS, PROJECTION_BOARD_STATS, COMBO_STATS, COMBO_COMPONENTS, COMBO_LABEL, AMENDMENT_A, LANE, WITHHELD,
@@ -141,9 +144,14 @@ const renderView = async (lane) => {
 };
 const visibleText = (html) => html.replace(/<[^>]+>/g, " ").replace(/&rsquo;/g, "’").replace(/&amp;/g, "&").replace(/\s+/g, " ");
 
-test("every view carries the UNVALIDATED notice, freeze times, receipt hashes and the combo label", async () => {
+test("every view carries the one Predicted Player Statistics note, freeze times, receipt hashes and the combo label", async () => {
   const html = await renderView(JSON.parse(PUB_TEXT));
-  assert.match(html, /UNVALIDATED EXPERIMENTAL SIMULATION/);
+  // Founder vocabulary (overnight directive 2026-10-23): the experimental banner became ONE concise note (wording:
+  // release owner decision 2026-10-23, the registry's NBA_MODEL_PERFORMANCE_NOTE).
+  const { PREDICTED_NOTE } = await import("../../../components/nba/projections-view.tsx");
+  assert.equal(PREDICTED_NOTE, "NBA forecasts are graded after every game; a public Model Performance record for NBA has not been published yet.");
+  assert.equal(html.split(PREDICTED_NOTE).length - 1, 1);
+  assert.doesNotMatch(html, /UNVALIDATED EXPERIMENTAL SIMULATION|experimental, not validated/);
   for (const g of PUB.games) {
     assert.ok(html.includes(g.receipt.payloadSha256.slice(0, 12)), `receipt hash ${g.providerEventId}`);
     assert.ok(html.includes(g.receipt.modelVersion));
@@ -151,10 +159,10 @@ test("every view carries the UNVALIDATED notice, freeze times, receipt hashes an
   assert.match(visibleText(html), /frozen Oct 20, 8:29 AM ET/);
   assert.ok(html.includes(COMBO_LABEL));
   assert.match(visibleText(html), /default order is expected minutes/);
-  // The empty state (switch off or past slate) still carries the notice and states why it is empty.
+  // The empty state (switch off) still carries the note and says Unavailable.
   const empty = await renderView(null);
-  assert.match(empty, /UNVALIDATED EXPERIMENTAL SIMULATION/);
-  assert.match(empty, /No current experimental projections/);
+  assert.equal(empty.split(PREDICTED_NOTE).length - 1, 1);
+  assert.match(empty, /Predicted Player Statistics: Unavailable\./);
   assert.doesNotMatch(empty, /<table/);
 });
 

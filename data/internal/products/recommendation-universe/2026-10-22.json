@@ -1,0 +1,323 @@
+{
+ "schema": "recommendation-universe@1",
+ "artifact": "recommendation-universe",
+ "dataClass": "internal",
+ "date": "2026-10-22",
+ "asOf": "2026-10-22T09:37:49Z",
+ "floor": {
+  "version": "leg-floor@2",
+  "oddsMin": -650,
+  "oddsMax": 400,
+  "maxPriceAgeMs": 43200000,
+  "activationCutoffMs": 1800000,
+  "requireSettlement": "PROVEN",
+  "admitsMarketImplied": true,
+  "marketPricedLegPolicy": {
+   "state": "ADMITTED_PENDING_FOUNDER_DECISION",
+   "gate": "F1",
+   "since": "2026-09-21"
+  }
+ },
+ "note": "Every candidate leg judged by one floor. Zero eligible is a result, not a failure. Probabilities: MODEL = a GameTimePicks model number (usable only when MODEL_PUBLISHED); MARKET_IMPLIED = the book's de-vigged price, never ours.",
+ "counts": {
+  "candidates": 59,
+  "eligible": 0,
+  "universeHash": "4f53cda18c2b"
+ },
+ "bySport": {
+  "mlb": {
+   "registryState": "FULL_MODEL",
+   "candidates": 0,
+   "eligible": 0,
+   "events": 0,
+   "exclusions": {}
+  },
+  "nfl": {
+   "registryState": "EXPERIMENTAL_PUBLIC",
+   "candidates": 59,
+   "eligible": 0,
+   "events": 1,
+   "exclusions": {
+    "MARKET_MISSING": 59,
+    "SPORT_GATED": 59,
+    "ROLE_UNCERTAIN": 57,
+    "NO_PROBABILITY": 37,
+    "FAMILY_NOT_CLEARED": 9,
+    "MODEL_NOT_PUBLIC": 2
+   }
+  },
+  "epl": {
+   "registryState": "EXPERIMENTAL_PUBLIC",
+   "candidates": 0,
+   "eligible": 0,
+   "events": 0,
+   "exclusions": {}
+  },
+  "ufc": {
+   "registryState": "SCAFFOLD_ONLY",
+   "candidates": 0,
+   "eligible": 0,
+   "events": 0,
+   "exclusions": {}
+  },
+  "nba": {
+   "registryState": "HISTORICAL_ONLY",
+   "candidates": 0,
+   "eligible": 0,
+   "events": 0,
+   "exclusions": {}
+  }
+ },
+ "coverage": [
+  {
+   "sport": "nfl",
+   "family": "anytime_td",
+   "candidates": 20,
+   "gtpProbabilityAny": 20,
+   "gtpProbabilityUsable": 20,
+   "marketOnly": 0,
+   "noProbability": 0,
+   "priced": 0,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "nfl",
+   "family": "player_pass_yds",
+   "candidates": 2,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 2,
+   "priced": 0,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "nfl",
+   "family": "player_reception_yds",
+   "candidates": 14,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 14,
+   "priced": 0,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "nfl",
+   "family": "player_receptions",
+   "candidates": 14,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 14,
+   "priced": 0,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "nfl",
+   "family": "player_rush_yds",
+   "candidates": 7,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 7,
+   "priced": 0,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "nfl",
+   "family": "team_result",
+   "candidates": 2,
+   "gtpProbabilityAny": 2,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 0,
+   "priced": 0,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  }
+ ],
+ "exclusions": {
+  "MARKET_MISSING": 59,
+  "SPORT_GATED": 59,
+  "ROLE_UNCERTAIN": 57,
+  "NO_PROBABILITY": 37,
+  "FAMILY_NOT_CLEARED": 9,
+  "MODEL_NOT_PUBLIC": 2
+ },
+ "nflUnknownFamilies": [],
+ "grantedFamilies": [],
+ "nflFamilyGate": [
+  {
+   "sport": "nfl",
+   "family": "anytime_td",
+   "modelVersion": "nfl-anytime-td-opportunity-v1",
+   "publicationState": "PUBLISHED",
+   "state": "GATED",
+   "blockers": [
+    "MODEL_FORWARD_ACCUMULATING",
+    "ROLE_CONFIRMATION_UNAVAILABLE",
+    "PRICES_NOT_CAPTURED",
+    "NO_FOUNDER_GRANT"
+   ],
+   "evidence": {
+    "forward": {
+     "state": "FORWARD_HOLDING",
+     "n": 1248,
+     "needed": null,
+     "metrics": {
+      "n": 1248,
+      "logLoss": 0.4919,
+      "constantRateLogLoss": 0.5243,
+      "meanPredicted": 0.2344,
+      "actualRate": 0.2179,
+      "level": 1.0753,
+      "ece": 0.0265
+     }
+    },
+    "slate": {
+     "candidates": 20,
+     "modelProbability": 20,
+     "roleConfirmed": 0,
+     "priced": 0,
+     "settlementProven": true
+    }
+   },
+   "grant": null
+  },
+  {
+   "sport": "nfl",
+   "family": "player_pass_yds",
+   "modelVersion": "nfl-player-share-level-v1",
+   "publicationState": "ESTIMATE_BELOW_BAR",
+   "state": "GATED",
+   "blockers": [
+    "FAMILY_NOT_PUBLISHED",
+    "NO_MODEL_PROBABILITY",
+    "MODEL_FORWARD_ACCUMULATING",
+    "ROLE_CONFIRMATION_UNAVAILABLE",
+    "PRICES_NOT_CAPTURED",
+    "NO_FOUNDER_GRANT"
+   ],
+   "evidence": {
+    "forward": {
+     "state": "ACCUMULATING",
+     "n": 158,
+     "needed": 300,
+     "metrics": {
+      "n": 158,
+      "mae": 64.9986,
+      "rolling4Mae": 66.5849,
+      "shareVolMae": 71.6384,
+      "coverage80": 0.8418,
+      "ece": 0.0974,
+      "level": 0.9855
+     }
+    },
+    "slate": {
+     "candidates": 2,
+     "modelProbability": 0,
+     "roleConfirmed": 0,
+     "priced": 0,
+     "settlementProven": true
+    }
+   },
+   "grant": null
+  },
+  {
+   "sport": "nfl",
+   "family": "player_reception_yds",
+   "modelVersion": "props-v1",
+   "publicationState": "PUBLISHED",
+   "state": "GATED",
+   "blockers": [
+    "NO_MODEL_PROBABILITY",
+    "MODEL_FORWARD_UNREGISTERED",
+    "ROLE_CONFIRMATION_UNAVAILABLE",
+    "PRICES_NOT_CAPTURED",
+    "NO_FOUNDER_GRANT"
+   ],
+   "evidence": {
+    "forward": null,
+    "slate": {
+     "candidates": 14,
+     "modelProbability": 0,
+     "roleConfirmed": 0,
+     "priced": 0,
+     "settlementProven": true
+    }
+   },
+   "grant": null
+  },
+  {
+   "sport": "nfl",
+   "family": "player_receptions",
+   "modelVersion": "nfl-player-share-level-v1",
+   "publicationState": "PUBLISHED",
+   "state": "GATED",
+   "blockers": [
+    "NO_MODEL_PROBABILITY",
+    "MODEL_FORWARD_ACCUMULATING",
+    "ROLE_CONFIRMATION_UNAVAILABLE",
+    "PRICES_NOT_CAPTURED",
+    "NO_FOUNDER_GRANT"
+   ],
+   "evidence": {
+    "forward": {
+     "state": "FORWARD_HOLDING",
+     "n": 947,
+     "needed": null,
+     "metrics": {
+      "n": 947,
+      "mae": 1.6177,
+      "rolling4Mae": 1.7073,
+      "shareVolMae": 1.6235,
+      "coverage80": 0.7893,
+      "ece": 0.0187,
+      "level": 1.0425
+     }
+    },
+    "slate": {
+     "candidates": 14,
+     "modelProbability": 0,
+     "roleConfirmed": 0,
+     "priced": 0,
+     "settlementProven": true
+    }
+   },
+   "grant": null
+  },
+  {
+   "sport": "nfl",
+   "family": "player_rush_yds",
+   "modelVersion": null,
+   "publicationState": "ESTIMATE_NEAR_BAR",
+   "state": "GATED",
+   "blockers": [
+    "FAMILY_NOT_PUBLISHED",
+    "NO_MODEL_PROBABILITY",
+    "MODEL_FORWARD_UNREGISTERED",
+    "ROLE_CONFIRMATION_UNAVAILABLE",
+    "PRICES_NOT_CAPTURED",
+    "NO_FOUNDER_GRANT"
+   ],
+   "evidence": {
+    "forward": null,
+    "slate": {
+     "candidates": 7,
+     "modelProbability": 0,
+     "roleConfirmed": 0,
+     "priced": 0,
+     "settlementProven": true
+    }
+   },
+   "grant": null
+  }
+ ],
+ "eligibleReceipts": []
+}

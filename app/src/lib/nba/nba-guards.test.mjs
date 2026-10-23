@@ -19,11 +19,11 @@ import path from "node:path";
 import {
   canEnterPredictionProducts,
   canShowLiveProjections,
-  capabilityOf,
   capabilityState,
   resultsMode,
   FULL_MODEL_SPORTS,
 } from "../sport-capability-registry.ts";
+import { evidenceOf } from "../sport-capability-evidence.ts";
 import { MODELED_SPORT_KEYS, getSportCapabilities } from "../sport-capabilities.ts";
 import { SPORTS_COVERAGE } from "../sports-coverage.ts";
 import { NBA_MARKET_CONFIG } from "../markets/sport-config.ts";
@@ -39,7 +39,7 @@ test("NBA stays HISTORICAL_ONLY in the capability registry", () => {
   // The settled archive is real and stays published — that is what HISTORICAL_ONLY means.
   assert.equal(resultsMode("nba"), "archive");
   assert.ok(!FULL_MODEL_SPORTS.includes("nba"));
-  assert.ok(capabilityOf("nba").evidence.length > 0, "a state without evidence is an opinion");
+  assert.ok(evidenceOf("nba").length > 0, "a state without evidence is an opinion");
 });
 
 test("the legacy sports-coverage parlay gate cannot reactivate NBA", () => {

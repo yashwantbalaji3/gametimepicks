@@ -114,3 +114,15 @@
 .nbp-oncourt-team{min-width:0;padding:6px 8px;border:1px solid var(--vault-border);border-radius:8px}
 .nbp-oncourt-h{margin:0 0 4px;font-size:12px;color:var(--vault-text-mute)}
 .nbp-oncourt-list{margin:0;padding-left:16px;overflow-wrap:anywhere}
+/* "About this simulation" (founder directive 2026-10-22 22:55 ET): the engine identity once, then the two meanings side
+   by side — what is verified (a positive, checked fact) and what is not yet validated (predictive accuracy). */
+.nbp-rolenote .nbp-engine{margin:0 0 6px}
+.nbp-about{display:grid;gap:10px;margin:12px 0;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr))}
+.nbp-about-card{padding:10px 12px;border-radius:10px;border:1px solid var(--st-edge);background:var(--st-panel);font-size:12.5px;line-height:1.55;color:var(--st-mute);min-width:0}
+.nbp-about-card h3{margin:0 0 4px;font:700 13.5px var(--font-display);color:var(--st-text)}
+.nbp-about-card p{margin:0}
+.nbp-about-card .nbp-kv{margin-top:8px}
+.nbp-about-card.is-verified{border-left:3px solid var(--vault-success)}
+.nbp-about-card.is-verified h3 span{color:var(--vault-success)}
+.nbp-about-card.is-open{border-left:3px solid var(--vault-warn)}
+.nbp-panel h2[tabindex]:focus-visible{outline:2px solid var(--vault-crown);outline-offset:2px}

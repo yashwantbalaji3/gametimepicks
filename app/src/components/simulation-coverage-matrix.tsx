@@ -11,21 +11,26 @@ import {
   type MarketStatus,
   type MarketCoverage,
 } from "@/lib/market-coverage";
+import { marketStatusTerm } from "@/lib/public-registry";
 
-const STATUS_META: Record<MarketStatus, { label: string; color: string; bg: string }> = {
-  supported: { label: "Supported", color: "var(--vault-success)", bg: "rgba(34,197,94,0.10)" },
-  conditional: { label: "Conditional", color: "var(--vault-gold)", bg: "color-mix(in srgb, var(--vault-pending) 10%, transparent)" },
-  experimental: { label: "Experimental", color: "var(--vault-warn)", bg: "color-mix(in srgb, var(--vault-risk) 10%, transparent)" },
-  provider_needed: { label: "Provider needed", color: "var(--vault-text-mute)", bg: "var(--vault-wash-soft)" },
-  settlement_blocked: { label: "Settlement blocked", color: "var(--vault-warn)", bg: "color-mix(in srgb, var(--vault-risk) 8%, transparent)" },
-  coming_soon: { label: "Coming soon", color: "var(--vault-text-faint)", bg: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)" },
+/* Founder directive 2026-10-23 public readiness: the pill's WORDS are the public registry's (marketStatusTerm); the
+   status itself, and every eligibility rule, stay market-coverage.ts's. */
+const STATUS_META: Record<MarketStatus, { color: string; bg: string }> = {
+  supported: { color: "var(--vault-success)", bg: "rgba(34,197,94,0.10)" },
+  conditional: { color: "var(--vault-gold)", bg: "color-mix(in srgb, var(--vault-pending) 10%, transparent)" },
+  experimental: { color: "var(--vault-gold-bright)", bg: "color-mix(in srgb, var(--vault-gold) 10%, transparent)" },
+  provider_needed: { color: "var(--vault-text-mute)", bg: "var(--vault-wash-soft)" },
+  settlement_blocked: { color: "var(--vault-warn)", bg: "color-mix(in srgb, var(--vault-risk) 8%, transparent)" },
+  coming_soon: { color: "var(--vault-text-faint)", bg: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)" },
 };
 
-function StatusPill({ status }: { status: MarketStatus }) {
-  const m = STATUS_META[status];
+function StatusPill({ status, market }: { status: MarketStatus; market?: string }) {
+  const m = { ...STATUS_META[status], label: marketStatusTerm(status, market) };
   return (
     <span
-      className="font-mono uppercase tracking-[0.1em] rounded-full px-2 py-0.5 shrink-0"
+      /* the registry's labels are longer than the old one-word pills ("Official Forecast · not in products"): the pill may
+         wrap inside 60% of the row instead of refusing to shrink — no horizontal scroll at 320px (accessibility.spec reflow) */
+      className="font-mono uppercase tracking-[0.1em] rounded-[10px] px-2 py-0.5 text-right max-w-[60%]"
       style={{ fontSize: 9.5, color: m.color, background: m.bg, border: `1px solid ${m.color}33` }}
     >
       {m.label}
@@ -37,8 +42,8 @@ function Row({ m }: { m: MarketCoverage }) {
   return (
     <div className="flex flex-col gap-1 py-2.5" style={{ borderTop: "1px solid var(--vault-border)" }}>
       <div className="flex items-center justify-between gap-2">
-        <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{m.publicLabel}</span>
-        <StatusPill status={m.status} />
+        <span className="min-w-0" style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{m.publicLabel}</span>
+        <StatusPill status={m.status} market={m.market} />
       </div>
       <p className="text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{m.publicExplanation}</p>
       {m.settlementSupport !== "supported" && (
@@ -92,7 +97,7 @@ export default function SimulationCoverageMatrix({ sport }: { sport?: "mlb" | "n
       <p className="font-mono text-[10px] uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)" }}>
         {MARKET_COVERAGE.filter((m) => m.status === "supported").length} supported ·{" "}
         {MARKET_COVERAGE.filter((m) => m.status === "provider_needed" || m.status === "coming_soon").length} need a provider/build ·{" "}
-        settlement-blocked + experimental markets are never in Bank Builder / Moonshot.
+        markets that are unavailable or not in products are never in Bank Builder / Moonshot.
       </p>
     </section>
   );

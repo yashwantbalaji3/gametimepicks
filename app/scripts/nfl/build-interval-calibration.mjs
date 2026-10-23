@@ -69,7 +69,16 @@ const artifact = {
 };
 
 const out = path.join(APP, "public/data/nfl/interval-calibration.json");
-if (WRITE) {
+/* NO STAMP-ONLY REWRITES. This file is a Vercel build input (app/public/data), and every NFL event-window and settle
+   run rebuilt it with a new generatedAt / ledgerGeneratedAt and nothing else: 9 Production builds on 2026-10-22 with
+   identical cohorts. When everything but those two stamps is unchanged, the file keeps its previous stamps (they then
+   say when the judged content last changed, which is what a reader needs) and is not rewritten. */
+const STAMPS = ["generatedAt", "ledgerGeneratedAt"];
+const withoutStamps = (a) => JSON.stringify(Object.fromEntries(Object.entries(a).filter(([k]) => !STAMPS.includes(k))));
+let previous = null;
+try { previous = JSON.parse(fs.readFileSync(out, "utf8")); } catch { previous = null; }
+const unchanged = previous != null && withoutStamps(previous) === withoutStamps(artifact);
+if (WRITE && !unchanged) {
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, `${JSON.stringify(artifact, null, 2)}\n`);
 }
@@ -83,4 +92,4 @@ for (const c of judged) {
   }
 }
 console.log(`\nworst: ${artifact.worst}\n${artifact.action}`);
-if (WRITE) console.log(`wrote ${path.relative(ROOT, out)}`);
+if (WRITE) console.log(unchanged ? `unchanged (only stamps would move) — kept ${path.relative(ROOT, out)}` : `wrote ${path.relative(ROOT, out)}`);

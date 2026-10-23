@@ -58,6 +58,10 @@ export interface SuggestedParlaysPreviewProps {
   tierIntent: Record<string, string>;
   /** The build's frozen ET day, so a lane can say whether its card is behind or ahead of the reader. */
   todayEt?: string | null;
+  /** Home passes false: the technical per-lane reasons live on the Parlay Center, so the homepage keeps one
+   *  sentence per lane plus a link (founder directive 2026-10-23: no internal engineering detail on primary pages;
+   *  homepage word ceiling, busiest-state.test). Today keeps the details. */
+  showDetails?: boolean;
 }
 
 /* D2: the chip names the tier by its one public label — never a shortened second spelling. */
@@ -104,7 +108,7 @@ function laneDateLabel(date: string, todayEt: string | null): string {
   return `${label} · ${date > todayEt ? "next card" : "last published"}`;
 }
 
-export default function SuggestedParlaysPreview({ live, closed, tierIntent, todayEt = null }: SuggestedParlaysPreviewProps) {
+export default function SuggestedParlaysPreview({ live, closed, tierIntent, todayEt = null, showDetails = true }: SuggestedParlaysPreviewProps) {
   if (!live.length && !closed.length) return null;
   return (
     <section aria-label="Today's suggested parlays by risk tier" className="flex flex-col gap-3">
@@ -180,7 +184,10 @@ export default function SuggestedParlaysPreview({ live, closed, tierIntent, toda
           ))}
         </p>
       ) : null}
-      {closed.length ? (
+      {closed.length && !showDetails ? (
+        <Link href="/build/" className="gtp-hit-44 inline-flex items-center" style={{ fontSize: 12, color: "var(--vault-text-faint)" }}>Why each lane is closed →</Link>
+      ) : null}
+      {closed.length && showDetails ? (
         <details style={{ fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
           <summary style={{ cursor: "pointer" }}>Why each lane is closed (details)</summary>
           <ul style={{ margin: "4px 0 0", paddingLeft: 18 }}>

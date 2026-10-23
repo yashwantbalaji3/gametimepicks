@@ -183,6 +183,20 @@ test("SOURCE PIN · the homepage renders both hub sections through the Command C
   assert.match(src("src/app/methodology/page.tsx"), /id="model-status"/, "the glossary the chips link to exists");
 });
 
+test("SOURCE PIN · each Command Center instance has its own heading id (the homepage renders two)", () => {
+  // 2026-10-22: both sections rendered id="command-center-h", so aria-labelledby and in-page anchors of the second
+  // resolved to the first. Latent while Other coverage was empty; unique-dom-ids.test caught it on a rehearsal build.
+  const src = (p) => fs.readFileSync(path.join(process.cwd(), p), "utf8");
+  const cc = src("src/components/command-center/command-center.tsx");
+  assert.doesNotMatch(cc, /id="command-center-h"|aria-labelledby="command-center-h"/, "no hard-coded heading id");
+  assert.match(cc, /aria-labelledby=\{`\$\{id\}-h`\}/);
+  assert.match(cc, /<h2 id=\{`\$\{id\}-h`\}/);
+  const home = src("src/app/page.tsx");
+  const ids = [...home.matchAll(/<CommandCenter\s+(?:id="([^"]+)"\s+)?lanes=/g)].map((m) => m[1] ?? "command-center");
+  assert.equal(ids.length, 2, "the homepage renders two Command Centers");
+  assert.equal(new Set(ids).size, ids.length, `distinct ids: ${ids.join(", ")}`);
+});
+
 test("SOURCE PIN · the MLB, EPL and UFC hubs mount the full status panel from the same adapter; NFL keeps its receipt table", () => {
   const src = (p) => fs.readFileSync(path.join(process.cwd(), p), "utf8");
   for (const [f, sport] of [["src/app/mlb/page.tsx", "mlb"], ["src/app/epl/page.tsx", "epl"], ["src/app/ufc/page.tsx", "ufc"]]) {

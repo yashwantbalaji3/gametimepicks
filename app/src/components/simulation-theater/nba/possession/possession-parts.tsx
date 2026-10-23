@@ -13,7 +13,7 @@ import type { PbOfficial, PbPayload, PbRun } from "./possession-types";
 import { BOX_COLUMNS, fmtMinutes } from "@/lib/simulation-theater/nba/possession/box.mjs";
 import { fmtClockDs, periodLabel } from "@/lib/simulation-theater/nba/possession/playback.mjs";
 import {
-  DEFAULT_RUN_SUBTITLE, DEFAULT_RUN_TAG, DEFAULT_RUN_TITLE, ENGINE_NOTE, INPUTS_AS_OF_NOTE, ROLE_C_LABEL, ROLE_C_NOTE, OFFICIAL_PANEL_NOTE, OFFICIAL_PANEL_TITLE, OUTCOME_PANEL_TITLE, POSSESSION_BANNER,
+  ACCURACY_NOTE, ACCURACY_TITLE, DEFAULT_RUN_SUBTITLE, DEFAULT_RUN_TAG, DEFAULT_RUN_TITLE, INPUTS_AS_OF_NOTE, VERIFIED_NOTE, VERIFIED_TITLE, ENGINE_IDENTITY, ROLE_C_NOTE, OFFICIAL_PANEL_NOTE, OFFICIAL_PANEL_TITLE, OUTCOME_PANEL_TITLE, POSSESSION_BANNER,
   POSSESSION_NOT_MODELLED, WHAT_IF_BANNER, WHAT_IF_TAG, WHAT_IS_REAL, WITHHELD,
 } from "@/lib/simulation-theater/nba/possession/labels.mjs";
 
@@ -23,17 +23,13 @@ const SIDES: NbaSide[] = ["away", "home"];
 const fmt1 = (v: number | null | undefined) => (typeof v === "number" && Number.isFinite(v) ? v.toFixed(1) : "—");
 const fmtUtc = (iso: string | null) => (iso ? `${iso.replace("T", " ").replace(/\.\d+Z$/, "Z").replace(/:\d\dZ$/, "Z").replace("Z", " UTC")}` : "—");
 
+/**
+ * The banner: the engine identity in full, the first of its TWO statements (founder directive 2026-10-22 22:55 ET; the
+ * second is the engine panel, EngineFacts). The role C label and its five-point note (approval 2026-10-21) moved, word
+ * for word, into that panel — every view still renders them; headings and captions no longer repeat them.
+ */
 export function PossessionBanner() {
-  return (
-    <>
-      <p className="nbp-banner" role="note" data-nbp-banner="">{POSSESSION_BANNER}</p>
-      {/* the founder's required labelling (approval 2026-10-21): the primary label and its five-point note, on every view */}
-      <section className="nbp-rolenote" role="note" aria-label={ROLE_C_LABEL} data-nbp-role-note="">
-        <p className="nbp-rolenote-label" data-nbp-role-label=""><b>{ROLE_C_LABEL}</b></p>
-        <ul className="nbp-rolenote-list">{ROLE_C_NOTE.map((x: string) => <li key={x}>{x}</li>)}</ul>
-      </section>
-    </>
-  );
+  return <p className="nbp-banner" role="note" data-nbp-banner="">{POSSESSION_BANNER}</p>;
 }
 
 export function PossessionUnavailable({ title, reason }: { title: string; reason: string }) {
@@ -120,7 +116,7 @@ export function RunRole({ run }: { run: PbRun }) {
   if (!run.hypothetical) {
     return (
       <div className="nbp-role" role="note" data-nbp-role="default">
-        <p><b>{DEFAULT_RUN_TITLE}</b> · {DEFAULT_RUN_SUBTITLE}</p>
+        <p><b>{DEFAULT_RUN_TITLE} · run {run.runIndex}</b> · {DEFAULT_RUN_SUBTITLE}</p>
         <p className="nbp-note">Chosen by rule, not by hand: {run.rule}{run.distance != null ? ` (distance ${run.distance.toFixed(2)})` : ""}.</p>
       </div>
     );
@@ -349,17 +345,39 @@ export function BreakNotice({ frame, teams }: { frame: Frame; teams: Teams }) {
   );
 }
 
+/**
+ * THE ENGINE PANEL ("About this simulation"): the engine identity in full — the second of its two statements — with the
+ * founder's role C label and five-point note (approval 2026-10-21, word for word), then the two meanings the founder
+ * named side by side (directive 2026-10-22 22:55 ET): technically verified (the checks the gates run, with this page's
+ * own pool counts) and predictive accuracy not yet validated. Then the inputs, how runs were chosen, what is not modelled.
+ */
 export function EngineFacts({ payload }: { payload: PbPayload }) {
   const e = payload.engine;
+  // e.label is ENGINE_LABEL, which begins with ENGINE_IDENTITY (name + id): one sentence, the identity marked for the e2e
+  const rest = e.label.startsWith(ENGINE_IDENTITY) ? e.label.slice(ENGINE_IDENTITY.length) : null;
   return (
     <>
-      <p className="nbp-note" style={{ marginTop: 0 }}>{WHAT_IS_REAL}</p>
-      <p className="nbp-note">{ENGINE_NOTE}</p>
+      <div className="nbp-rolenote" role="note" data-nbp-role-note="">
+        <p className="nbp-engine" data-nbp-engine="">{rest != null ? <><b data-nbp-role-label="">{ENGINE_IDENTITY}</b>{rest}</> : e.label}</p>
+        <ul className="nbp-rolenote-list">{ROLE_C_NOTE.map((x: string) => <li key={x}>{x}</li>)}</ul>
+      </div>
+      <div className="nbp-about">
+        <section className="nbp-about-card is-verified" aria-labelledby={`${payload.eventId}-verified`} data-nbp-about="verified">
+          <h3 id={`${payload.eventId}-verified`}><span aria-hidden="true">✓ </span>{VERIFIED_TITLE}</h3>
+          <p>{VERIFIED_NOTE}</p>
+          <dl className="nbp-kv">
+            <dt>Checks</dt><dd>{e.checker}</dd>
+            <dt>Seed pool</dt><dd>{e.poolSize.toLocaleString("en-US")} seeded runs, {e.poolChecked?.toLocaleString("en-US") ?? "—"} checked, {e.poolViolations ?? "—"} invariant violations</dd>
+          </dl>
+        </section>
+        <section className="nbp-about-card is-open" aria-labelledby={`${payload.eventId}-accuracy`} data-nbp-about="accuracy">
+          <h3 id={`${payload.eventId}-accuracy`}>{ACCURACY_TITLE}</h3>
+          <p>{ACCURACY_NOTE}</p>
+        </section>
+      </div>
+      <p className="nbp-note">{WHAT_IS_REAL}</p>
       <dl className="nbp-kv" style={{ marginTop: 8 }}>
-        <dt>Engine</dt><dd>{e.label}</dd>
         <dt>Inputs as of</dt><dd>{fmtUtc(e.inputAsOf)} ({INPUTS_AS_OF_NOTE})</dd>
-        <dt>Seed pool</dt><dd>{e.poolSize.toLocaleString("en-US")} seeded runs, {e.poolChecked?.toLocaleString("en-US") ?? "—"} checked, {e.poolViolations ?? "—"} invariant violations</dd>
-        <dt>Checks</dt><dd>{e.checker}</dd>
       </dl>
       <details className="nbp-details">
         <summary>How the runs on this page were chosen</summary>

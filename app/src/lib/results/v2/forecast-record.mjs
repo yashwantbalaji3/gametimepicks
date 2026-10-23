@@ -14,6 +14,7 @@
  */
 
 import { HISTORICAL_MODEL_FAVORED_LABEL, SIDE_BASIS } from "../forecast-of-record.mjs";
+import { hasPrestartPublicationEvidence, PROVENANCE_FIELDS, provenanceCounts, rowProvenance } from "../../forecast-ledger/provenance.mjs";
 
 const HISTORICAL_MODEL_FAVORED = SIDE_BASIS.HISTORICAL_MODEL_FAVORED;
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
@@ -26,13 +27,23 @@ const median = (xs) => {
 };
 const round = (v, d = 4) => (isNum(v) ? Number(v.toFixed(d)) : null);
 
-/** Status counts for any set of rows — the denominators a reader sees beside every metric. */
+/**
+ * A row's measurement counts toward its family's scores only with evidence it was published before the start
+ * (provenance.mjs hasPrestartPublicationEvidence). Without it the row is still listed, labelled and exported.
+ */
+const scored = (r) => Boolean(r.measurement?.type) && hasPrestartPublicationEvidence(r);
+
+/**
+ * Status counts for any set of rows — the denominators a reader sees beside every metric. measured ·
+ * noPrestartEvidence (measured by the owner, left out of scores) · pending · void · unmeasured partition the rows, and
+ * so do published + withdrawn.
+ */
 export function statusCounts(rows) {
-  const c = { published: 0, withdrawn: 0, measured: 0, pending: 0, void: 0, unmeasured: 0 };
+  const c = { published: 0, withdrawn: 0, measured: 0, noPrestartEvidence: 0, pending: 0, void: 0, unmeasured: 0 };
   for (const r of rows) {
     if (r.publicationStatus === "WITHDRAWN") c.withdrawn += 1; else c.published += 1;
     const s = r.settlement?.state;
-    if (r.measurement?.type) c.measured += 1;
+    if (r.measurement?.type) c[scored(r) ? "measured" : "noPrestartEvidence"] += 1;
     else if (s === "PENDING") c.pending += 1;
     else if (s === "VOID") c.void += 1;
     else c.unmeasured += 1;
@@ -45,8 +56,9 @@ function directional(rows) {
   const by = new Map();
   for (const r of rows) {
     const m = r.measurement ?? {};
-    // Only a published claim that the owner settled counts: pending, withdrawn and unmeasured rows never add a W/L.
-    if (!m.directionalBasis || r.publicationStatus !== "PUBLISHED") continue;
+    // Only a published claim that the owner settled counts: pending, withdrawn and unmeasured rows never add a W/L,
+    // and neither does a row with no evidence it was published before the start.
+    if (!m.directionalBasis || r.publicationStatus !== "PUBLISHED" || !hasPrestartPublicationEvidence(r)) continue;
     if (r.settlement?.state !== "SETTLED" && !(r.settlement?.state === "VOID" && m.directionalResult === "PUSH")) continue;
     const word = m.directionalResult === "WIN" ? "win" : m.directionalResult === "LOSS" ? "loss" : m.directionalResult === "PUSH" ? "push" : null;
     if (word == null) continue;
@@ -90,8 +102,10 @@ export function reliabilityBins(pairs, bins = 10) {
 /** Metrics for ONE family (rows must share sport + family + forecastKind). */
 export function familyMetrics(rows) {
   const kind = rows[0]?.forecastKind ?? null;
-  const measured = rows.filter((r) => r.measurement?.type);
-  const base = { kind, counts: statusCounts(rows), directional: directional(rows) };
+  const measured = rows.filter(scored);
+  // provenance: rows by model-identity / event-start / publication evidence (forecast-ledger/provenance.mjs). A promotion
+  // evaluation excludes the LEGACY_UNKNOWN rows.
+  const base = { kind, counts: statusCounts(rows), directional: directional(rows), provenance: provenanceCounts(rows) };
   if (kind === "CONTINUOUS_PROJECTION") {
     const ae = measured.map((r) => r.measurement.absoluteError).filter(isNum);
     const se = measured.map((r) => r.measurement.squaredError).filter(isNum);
@@ -219,11 +233,13 @@ export function forecastRecord(rows, { declaredGaps = [] } = {}) {
     kpis: {
       forecasts: rows.length,
       measured: counts.measured,
+      noPrestartEvidence: counts.noPrestartEvidence,
       coverage: rows.length ? round(counts.measured / rows.length) : null,
       pending: counts.pending,
       voidCount: counts.void,
       unmeasured: counts.unmeasured,
       withdrawn: counts.withdrawn,
+      provenance: provenanceCounts(rows),
       sports: sports.length,
       families: sports.reduce((a, s) => a + s.families.length, 0),
       lastSettledAt: settledAts.length ? settledAts[settledAts.length - 1] : null,
@@ -233,12 +249,41 @@ export function forecastRecord(rows, { declaredGaps = [] } = {}) {
   };
 }
 
-/** CSV of ledger rows (no private data exists in the ledger; every column is a public forecast fact). */
+/**
+ * How a multiclass row's stored Brier / log loss are computed from its exported vector (forecast-ledger/measure.mjs).
+ * The vector is scored exactly as exported: no renormalisation, the stored scores rounded to 6 decimals.
+ */
+export const MULTICLASS_SCORING = "Brier = sum over every class of (p - y)^2; log loss = -ln(p of the observed class, clamped to [1e-6, 1 - 1e-6]); "
+  + "the vector is scored as exported (no renormalisation) and the stored scores are rounded to 6 decimals";
+export function vectorRule(r) {
+  if (r.forecastKind !== "MULTICLASS_PROBABILITY") return null;
+  const cp = r.classProbabilities ?? {};
+  if ("OTHER" in cp) {
+    return `classes: every score in the published table + OTHER; OTHER = max(0, 1 - sum of the listed scores), rounded to 6 decimals; `
+      + `a final outside the table is the class OTHER (finalCategory). ${MULTICLASS_SCORING}`;
+  }
+  return `classes: ${Object.keys(cp).join(" / ")}, the model's probabilities as published (6 decimals). ${MULTICLASS_SCORING}`;
+}
+
+/**
+ * CSV of ledger rows (no private data exists in the ledger; every column is a public forecast fact).
+ *
+ * The first 31 columns are the row as recorded (unchanged since the first export). The provenance columns follow
+ * (audit 2026-10-23, F01): the row's state (RECEIPT | GIT_HISTORY | LEGACY_UNKNOWN) and, for each of model id, event
+ * start and publication stamp, its state, the value that state rests on and the committed source that holds it. A
+ * value recovered after the row was written appears only there, never in the original column. Then the multiclass
+ * vector (F02): the model's full outcome distribution and the rule its Brier / log loss were computed by; the observed
+ * class is `finalCategory`. Sportsbook prices are not exported.
+ */
 export const CSV_COLUMNS = Object.freeze([
   "forecastId", "sport", "season", "eventId", "eventStart", "matchup", "subjectId", "subjectDisplay", "teamId", "family",
   "forecastKind", "modelId", "modelVersion", "publicationStatus", "publishedAt", "projection", "rangeLow", "rangeHigh",
   "probability", "categoryPrediction", "marketLine", "marketImpliedProbability", "settlementState", "finalValue",
   "finalCategory", "settledAt", "absoluteError", "brier", "logLoss", "directionalResult", "directionalBasis",
+  "provenance",
+  ...PROVENANCE_FIELDS.flatMap((f) => [`${f}State`, `${f}Evidence`, `${f}Source`]),
+  "publishedAtCommittedAt",
+  "classProbabilities", "vectorRule",
 ]);
 const csvCell = (v) => {
   if (v == null) return "";
@@ -248,6 +293,7 @@ const csvCell = (v) => {
 export function toCsv(rows) {
   const lines = [CSV_COLUMNS.join(",")];
   for (const r of rows) {
+    const pv = rowProvenance(r);
     const v = {
       ...r,
       marketLine: r.market?.line ?? null,
@@ -261,6 +307,11 @@ export function toCsv(rows) {
       logLoss: r.measurement?.logLoss ?? null,
       directionalResult: r.measurement?.directionalResult ?? null,
       directionalBasis: r.measurement?.directionalBasis ?? null,
+      provenance: pv.state,
+      ...Object.fromEntries(PROVENANCE_FIELDS.flatMap((f) => [[`${f}State`, pv.fields[f].state], [`${f}Evidence`, pv.fields[f].value], [`${f}Source`, pv.fields[f].source]])),
+      publishedAtCommittedAt: pv.fields.publishedAt.committedAt ?? null,
+      classProbabilities: r.forecastKind === "MULTICLASS_PROBABILITY" ? r.classProbabilities ?? null : null,
+      vectorRule: vectorRule(r),
     };
     lines.push(CSV_COLUMNS.map((c) => csvCell(v[c])).join(","));
   }

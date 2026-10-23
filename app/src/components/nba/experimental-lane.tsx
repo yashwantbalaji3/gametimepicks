@@ -14,6 +14,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { LANE, STATS, LANE_SNAPSHOT_SCHEMA, AMENDMENT_A, laneIsCurrent } from "@/lib/sports/nba/experimental-public-lane.mjs";
 import { THEATER_LINK_TEXT, publicTheaterHref } from "@/lib/simulation-theater/nba/possession/public-route.mjs";
+import Link from "next/link";
+import TeamLogo from "@/components/team-logo";
+import { NBA_FORECAST_DISCLOSURE, PUBLIC_TERMS } from "@/lib/public-registry";
+import GameStatusOnClock from "@/components/nba/projection-game-status";
 
 type Row = { providerAthleteId: string; name: string | null; expectedMinutes: number | null; injuryStatus: string | null; medians: Record<string, number | null>; comboMedians?: Record<string, number | null> };
 type Game = {
@@ -111,34 +115,74 @@ export function NbaLaneTonight({ snapshot }: { snapshot: Snapshot | null }) {
   const frozen = [...new Set(snapshot.games.map((g) => et(g.frozenAt)))].join(" / ");
   return (
     <p className="m-0 text-[13.5px]" style={{ color: "var(--vault-text)" }}>
-      <strong>{LANE.label}:</strong>{" "}
+      <strong>{PUBLIC_TERMS.OFFICIAL_FORECAST}:</strong>{" "}
       {snapshot.games.map((g, i) => (
         <span key={g.providerEventId}>{i ? " · " : ""}<a href={`#${laneCardId(g.providerEventId)}`} className="underline">{g.away.name} at {g.home.name}</a></span>
       ))}
-      <span style={{ color: "var(--vault-text-mute)" }}> — frozen pregame model output (frozen {frozen}), not validated.</span>
+      <span style={{ color: "var(--vault-text-mute)" }}> — frozen before tip-off ({frozen}).</span>
     </p>
   );
 }
 
-/** The game's Theater link — only when /nba/simulation/<id>/ is built (`theaterIds` = public-route publicTheaterRouteIds). */
-function TheaterLink({ id, theaterIds }: { id: string; theaterIds: string[] }) {
+/**
+ * The game's Theater link — only when /nba/simulation/<id>/ is built (`theaterIds` = public-route publicTheaterRouteIds).
+ * next/link, as /nfl links its game pages (release owner 2026-10-22): a plain <a> made a full page load, which aborted
+ * the hub's in-flight route prefetches, and Next logged "Failed to fetch RSC payload" ~5× per click. prefetch={false}:
+ * a ~190 KB Theater page is fetched on click only, never for every card in view.
+ */
+function TheaterLink({ id, theaterIds }: { id: string; theaterIds: readonly string[] }) {
   if (!theaterIds.includes(id)) return null;
-  return <p className="m-0 text-[13px]"><a href={publicTheaterHref(id)} className="underline" style={{ color: "var(--vault-text)" }} data-nba-theater-link={id}>{THEATER_LINK_TEXT}</a></p>;
+  return <p className="m-0"><Link href={publicTheaterHref(id)} prefetch={false} className="gtp-ev-cta inline-flex items-center rounded-full px-4 text-[13px] font-semibold no-underline" data-nba-theater-link={id}>{THEATER_LINK_TEXT}</Link></p>;
 }
 
-export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterIds = [] }: { snapshot: Snapshot | null; statuses?: Record<string, string>; theaterIds?: string[] }) {
+/* ── THE MATCHUP CARD (NBA UI parity 2026-10-22) ──────────────────────────────────────────────────────────────────────
+   The shared hub card language (components/sport-hub/game-summary.tsx EventCard: .gtp-ev panel, crest per side, status
+   chip, read box, ONE action link — "the action is a link, not a row click") in the NBA's compact weight: the card is
+   one article with at most one interactive target, the Theater link, present only when that page is built. Status is
+   never a build-time "Upcoming" that goes stale: a recorded final / postponement is printed as such, anything else is
+   the reader's clock (GameStatusOnClock — Upcoming until the tip instant, then Started; never Final or Live). */
+export type MatchupCardGame = {
+  id: string; tipUtc: string;
+  /** `logo` is the ESPN abbreviation TeamLogo resolves (the lane's / registry's own code) or null — never guessed. */
+  away: { abbr: string; name: string | null; logo: string | null }; home: { abbr: string; name: string | null; logo: string | null };
+  /** "final" / "postponed" from the committed record; anything else reads on the reader's clock. */
+  status: "upcoming" | "final" | "postponed";
+};
+
+const Crest = ({ team, on }: { team: MatchupCardGame["home"]; on: boolean }) =>
+  /* Decorative (ariaLabel ""): the abbreviation beside it names the team. The identity component owns the CDN host and
+     the monogram fallback when a crest fails to load. */
+  team.logo ? <TeamLogo team={team.logo} sport="nba" size="sm" highlight={on} ariaLabel="" /> : <span />;
+
+/* WEIGHT: this card repeats per game on a page with a 250 KB ceiling (experimental-public-lane.test pins < 900 B of HTML
+   a card): one class per element, styling in globals.css (.nbx-*), no per-card label the heading already says. */
+export function MatchupCard({ game: g, favoured = null, children }: { game: MatchupCardGame; favoured?: string | null; children: React.ReactNode }) {
+  return (
+    <article id={laneCardId(g.id)} className="nbx-card">
+      <p className="nbx-top"><span>{et(g.tipUtc).replace(/^[A-Z][a-z]{2} \d+, /, "")}</span><span className="nbx-chip">{g.status === "final" ? "Final" : g.status === "postponed" ? "Postponed" : <GameStatusOnClock t={g.tipUtc} />}</span></p>
+      <h3 className="nbx-match"><Crest team={g.away} on={favoured === g.away.abbr} /><b data-on={favoured === g.away.abbr ? "" : undefined}>{g.away.abbr}</b><i>@</i><b data-on={favoured === g.home.abbr ? "" : undefined}>{g.home.abbr}</b><Crest team={g.home} on={favoured === g.home.abbr} /></h3>
+      {children}
+    </article>
+  );
+}
+
+const cardGame = (g: Game, final: boolean): MatchupCardGame => ({
+  id: g.providerEventId, tipUtc: g.tipUtc, status: final ? "final" : "upcoming",
+  away: { abbr: g.away.abbr ?? "Away", name: g.away.name, logo: g.away.abbr },
+  home: { abbr: g.home.abbr ?? "Home", name: g.home.name, logo: g.home.abbr },
+});
+
+export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterIds = [] }: { snapshot: Snapshot | null; statuses?: Record<string, string>; theaterIds?: readonly string[] }) {
   if (!snapshot || snapshot.games.length === 0) return null;
   return (
     <section id="nba-experimental" className="scroll-mt-24 flex flex-col gap-3" aria-labelledby="nba-experimental-h">
+      {/* founder directive 2026-10-23 public readiness: the Official Forecast, with its ONE disclosure (frozen, not a
+          recommendation, Model Performance status from lib/public-registry.ts) — no per-card doubt */}
       <div className="rounded-lg p-3" style={{ border: "2px solid var(--vault-gold-bright)", background: "var(--vault-panel)" }} role="note">
-        <p className="m-0 font-display text-[13px] font-extrabold tracking-wide" style={{ color: "var(--vault-gold-bright)" }}>{LANE.label}</p>
-        <p className="m-0 mt-1 text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-          Frozen pregame model output, published as experimental analytics — not validated, not a betting recommendation and
-          not a pick. These models have not yet met their preregistered regular-season checks, and nothing here counts toward
-          them. Each figure was frozen before tip-off and is shown exactly as frozen.
-        </p>
+        <p className="m-0 font-display text-[13px] font-extrabold tracking-wide" style={{ color: "var(--vault-gold-bright)" }}>{PUBLIC_TERMS.OFFICIAL_FORECAST}</p>
+        <p className="m-0 mt-1 text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{NBA_FORECAST_DISCLOSURE}</p>
       </div>
-      <h2 id="nba-experimental-h" className="m-0 font-display text-[18px] font-bold" style={{ color: "var(--vault-text)" }}>Experimental model projections{snapshot.date ? ` · ${slateLabel(snapshot.date)} slate` : ""}</h2>
+      <h2 id="nba-experimental-h" className="m-0 font-display text-[18px] font-bold" style={{ color: "var(--vault-text)" }}>{PUBLIC_TERMS.OFFICIAL_FORECAST}{snapshot.date ? ` · ${slateLabel(snapshot.date)} slate` : ""}</h2>
       {AMENDMENT_A.enabled ? (
         /* COMPACT HUB (release owner 2026-10-21). With /nba/projections on, the player rows live there only, and every
            sentence that is the same for each game is said once here. Full per-team tables measured /nba at 388 KB for
@@ -146,22 +190,22 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
            (HTML + flight) and broke the budget at ~12 games. The board shows the same rows from the same snapshot, so
            nothing is lost and no number is restated. */
         <>
-          <p className="m-0 text-[13px]"><a href="/nba/projections/" className="underline" style={{ color: "var(--vault-text)" }}>Every player median for this slate — filter and sort, with PRA, P+R and P+A</a></p>
+          <p className="m-0 text-[13px]"><Link href="/nba/projections/" className="underline" style={{ color: "var(--vault-text)" }}>Every player median for this slate — filter and sort, with PRA, P+R and P+A</Link></p>
           <p className="m-0 text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
             Each game below: the side favoured by {snapshot.games[0]?.elo.source}; player medians from the{" "}
             {snapshot.games[0]?.players.source}, listed on the board by expected minutes, not ranked; team scores withheld;
             receipt = model version and payload hash of the frozen forecast.
           </p>
-          <div className="grid gap-2 sm:grid-cols-2 text-[12px] [&_p]:m-0" style={{ color: "var(--vault-text-mute)" }}>
+          <div className="nbx-grid">
             {snapshot.games.map((g) => (
-              <article key={g.providerEventId} id={laneCardId(g.providerEventId)} className="scroll-mt-24 rounded-lg p-3" style={{ border: "1px solid var(--vault-border)" }} aria-label={`${g.away.abbr} at ${g.home.abbr}, frozen pregame forecast`}>
-                <h3 className="m-0 text-[15px] font-bold" style={{ color: "var(--vault-text)" }}>{g.away.name} at {g.home.name}</h3>
-                <p>Tip-off {et(g.tipUtc)} · frozen pregame forecast, frozen {et(g.frozenAt)}</p>
-                {statuses[g.providerEventId] ? <p>Game status: {statuses[g.providerEventId]}</p> : null}
-                <p className="text-[13px]" style={{ color: "var(--vault-text)" }}><strong>Elo rating favours {favouredName(g) ?? "neither side"}.</strong></p>
-                <p>{g.players.away.length + g.players.home.length} players on the board · receipt {g.receipt.modelVersion} · {g.receipt.payloadSha256.slice(0, 12)}</p>
+              <MatchupCard key={g.providerEventId} game={cardGame(g, !!statuses[g.providerEventId])} favoured={g.elo.favoured}>
+                <div className="nbx-read">
+                  <p><strong>Elo rating favours {favouredName(g) ?? "neither side"}.</strong></p>
+                  <p>Official · frozen pregame forecast, frozen {et(g.frozenAt)} · {g.players.away.length + g.players.home.length} players on the board · receipt {g.receipt.payloadSha256.slice(0, 12)}</p>
+                </div>
+                {statuses[g.providerEventId] ? <p className="nbx-note">Game status: {statuses[g.providerEventId]}</p> : null}
                 <TheaterLink id={g.providerEventId} theaterIds={theaterIds} />
-              </article>
+              </MatchupCard>
             ))}
           </div>
         </>

@@ -41,6 +41,7 @@ function fmtShort(iso: string | null): string {
 
 const chipCls = "inline-flex items-center gap-1.5 rounded-full px-2.5 sm:px-3 py-1 whitespace-nowrap shrink-0";
 const chipStyle = (accent?: string): React.CSSProperties => ({
+  minHeight: 44, /* Release B (benchmark PR 1193 gap 8): ≥ 44px tap target */
   border: `1px solid ${accent ? `color-mix(in srgb, ${accent} 45%, transparent)` : "var(--vault-rule)"}`,
   background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)",
   color: "var(--vault-text-mute)",
