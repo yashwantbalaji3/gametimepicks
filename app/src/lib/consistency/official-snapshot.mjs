@@ -343,6 +343,33 @@ export { NBA_BOARD_ROLE, NBA_BOARD_ROLES } from "./nba-board-roles.mjs";
 export const NBA_SUPPORT = Object.freeze({ minutes: "continuous" });
 export const NBA_V01_SUPPORT_NOTE = "continuous draws of a counting stat, read as the law of an integer (continuity rule)";
 
+/**
+ * NBA SNAPSHOT-ID RULES (release owner 2026-10-23, finding (a) of the Theater loader drift). VERSIONED: a recorded or
+ * embedded snapshot id is only ever checked under the rule it was made with.
+ *
+ *   @1  (every slate so far) the sources are hashed as the WHOLE DAY FILES' bytes (v0.1 and v1 forecasts/<date>.json),
+ *       and the v1 game is attached whenever the day file holds it. A day file grows after a game freezes (later games
+ *       freeze into it; v1 receipts land at the forecast window), so a game's @1 id changes after its Theater runs were
+ *       selected — 25 of the 28 stored 10-20…10-23 games read OFFICIAL_CHANGED on 2026-10-23 with no official value
+ *       changed. Kept exactly as it was: same body, same id, for every existing slate.
+ *   @2  each source is hashed as THAT GAME'S receipt (canonical JSON), and the v1 game is attached only when its receipt
+ *       was generated at or before the official freeze (the same information cutoff as the official forecast). No v1
+ *       file, no v1 game, and a v1 receipt generated later are all ONE state, NONE_AT_OFFICIAL_FREEZE. Nothing another game does, and nothing after the freeze, can
+ *       move a game's id. The body carries `idRule` so the rule travels with the id.
+ *
+ * Which rule a game uses is decided HERE from the game's own ET slate date — never by a caller — so the Theater
+ * generator, the loaders and the consistency audit cannot disagree. NBA_SNAPSHOT_ID_V2_FROM = null ⇒ @2 is inactive
+ * (every slate @1, every id and artifact byte-identical); the release owner sets it at merge to a slate not yet built.
+ */
+export const NBA_SNAPSHOT_ID_RULE = Object.freeze({ V1: "nba-snapshot-id@1", V2: "nba-snapshot-id@2" });
+export const NBA_SNAPSHOT_ID_V2_FROM = null;
+const ET_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" });
+const gameEtDate = (g) => (typeof g?.etDate === "string" ? g.etDate : Number.isFinite(Date.parse(g?.dateUtc ?? "")) ? ET_DAY.format(new Date(g.dateUtc)) : null);
+/** The rule for a slate date (YYYY-MM-DD ET). Pure. */
+export function nbaSnapshotIdRuleFor(etDate, { v2From = NBA_SNAPSHOT_ID_V2_FROM } = {}) {
+  return v2From && etDate && etDate >= v2From ? NBA_SNAPSHOT_ID_RULE.V2 : NBA_SNAPSHOT_ID_RULE.V1;
+}
+
 /** The injury + roster inputs a receipt was frozen on (equal refs ⇒ two families saw the same availability). */
 export function nbaReceiptInputRef(receipt) {
   const i = receipt?.inputs ?? {};
@@ -376,7 +403,7 @@ export function nbaSupportingGame(supporting, eventId) {
  *   official    the committed v0.1 forecasts day file (experimental-v0.1/forecasts/<date>.json)
  *   supporting  the committed v1 forecasts day file (experimental-v1/forecasts/<date>.json), optional
  */
-export function nbaOfficialSnapshot(eventId, { official = null, supporting = null } = {}) {
+export function nbaOfficialSnapshot(eventId, { official = null, supporting = null, v2From = NBA_SNAPSHOT_ID_V2_FROM } = {}) {
   if (eventId == null || String(eventId) === "") throw new SnapshotRefusal(SNAPSHOT_REFUSAL.NO_EVENT_ID, "no event id");
   const doc = official?.doc ?? null;
   if (!doc) throw new SnapshotRefusal(SNAPSHOT_REFUSAL.NO_ARTIFACT, "no NBA official (v0.1) forecast artifact");
@@ -429,13 +456,21 @@ export function nbaOfficialSnapshot(eventId, { official = null, supporting = nul
   }
   players.sort((a, b) => a.playerId.localeCompare(b.playerId));
 
-  const sup = nbaSupportingGame(supporting, id);
+  const idRule = nbaSnapshotIdRuleFor(gameEtDate(g), { v2From });
+  const v2 = idRule === NBA_SNAPSHOT_ID_RULE.V2;
+  const supFound = nbaSupportingGame(supporting, id);
+  // @2: the same information cutoff as the official forecast. Every "no v1 receipt at the freeze" case — no v1 file yet,
+  // the game not in it yet, or a receipt generated after the freeze — is ONE state, so a later write cannot move the id.
+  const rawSup = supporting?.doc?.games?.find((x) => String(x.providerEventId) === id) ?? null;
+  const noneAtFreeze = !rawSup || !(Date.parse(rawSup.receipt?.generatedAt ?? "") <= Date.parse(r.generatedAt));
+  const sup = v2 && supFound.state !== "NOT_SUPPORTING_FAMILY" && noneAtFreeze ? { state: "NONE_AT_OFFICIAL_FREEZE", game: null } : supFound;
+  // @2 hashes THIS game's receipt (canonical JSON); @1 the whole day file's bytes when the caller passes them
   const sources = [
-    sourceEntry({ role: SOURCE_ROLE.OFFICIAL, path: official.path ?? null, doc: official.sha256 ? null : g, sha256: official.sha256, modelVersion: version, generatedAt: r.generatedAt, inputRef: r.payloadSha256, expectedInputRef: r.payloadSha256 }),
+    sourceEntry({ role: SOURCE_ROLE.OFFICIAL, path: official.path ?? null, doc: official.sha256 && !v2 ? null : g, sha256: v2 ? undefined : official.sha256, modelVersion: version, generatedAt: r.generatedAt, inputRef: r.payloadSha256, expectedInputRef: r.payloadSha256 }),
   ];
   if (sup.game) {
     sources.push(sourceEntry({
-      role: SOURCE_ROLE.SUPPORTING_SIMULATION, path: supporting.path ?? null, doc: supporting.sha256 ? null : sup.game, sha256: supporting.sha256,
+      role: SOURCE_ROLE.SUPPORTING_SIMULATION, path: supporting.path ?? null, doc: supporting.sha256 && !v2 ? null : sup.game, sha256: v2 ? undefined : supporting.sha256,
       modelVersion: `${sup.game.receipt.modelVersion}@${supporting.doc.profileVersion ?? supporting.doc.simEngineVersion ?? "?"}`,
       generatedAt: sup.game.receipt.generatedAt,
       inputRef: nbaReceiptInputRef(sup.game.receipt), expectedInputRef: nbaReceiptInputRef(r),
@@ -447,6 +482,7 @@ export function nbaOfficialSnapshot(eventId, { official = null, supporting = nul
   const side = f.publishedSide === "HOME" || f.publishedSide === "AWAY" ? f.publishedSide : null;
   return sealSnapshot({
     schema: OFFICIAL_SNAPSHOT_SCHEMA,
+    ...(v2 ? { idRule } : {}), // @1 bodies are unchanged, so every @1 id reproduces exactly
     sport: "NBA",
     eventId: id,
     matchup: `${g.away?.abbr ?? "?"} @ ${g.home?.abbr ?? "?"}`,
