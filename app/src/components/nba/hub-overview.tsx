@@ -6,13 +6,15 @@
  * Every fact comes from lib/sport-hub/nba-hub.ts nbaTodaySlate (schedule capture, finals record, the current lane
  * snapshot, the built Theater ids); this component computes nothing.
  *
- * The official forecast is the Elo-favoured side and the frozen v0.1 player medians — published as experimental
- * analytics, not validated. Team scores, chances, ranges and prices are withheld everywhere, so no sentence here
- * names a number of that kind.
+ * The Official Forecast is the Elo-favoured side and the frozen v0.1 player medians (founder directive 2026-10-23
+ * public readiness: registry vocabulary; the one Model Performance disclosure lives in the lane banner and the
+ * "How it works" section). Team scores, chances, ranges and prices are withheld everywhere, so no sentence here names
+ * a number of that kind.
  */
 import Link from "next/link";
 import type { NbaTodayGame, NbaTodaySlate } from "@/lib/sport-hub/nba-hub";
 import { MatchupCard } from "@/components/nba/experimental-lane";
+import { PUBLIC_TERMS } from "@/lib/public-registry";
 
 const etTime = (iso: string) => new Date(iso).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/New_York" }) + " ET";
 
@@ -32,18 +34,16 @@ export function NbaSlateOverview({ slate, gamesAnchor }: { slate: NbaTodaySlate;
       <p className="nbx-state" data-nba-forecast={slate.forecast}>
         {slate.forecast === "PUBLISHED" ? (
           <>
-            <strong>Official forecast published</strong>{slate.frozenAt ? `, frozen ${etTime(slate.frozenAt)}` : ""}: the side the Elo
-            rating favours in each game, and frozen player medians. Experimental — not validated against its preregistered
-            checks, and not a betting recommendation. Team scores, win chances, score ranges and prices are withheld.
+            <strong>Official Forecast published</strong>{slate.frozenAt ? `, frozen ${etTime(slate.frozenAt)}` : ""}: the side the Elo
+            rating favours in each game, and player medians. Team scores, win chances, score ranges and prices are withheld.
           </>
         ) : slate.forecast === "PENDING" ? (
           <>
-            <strong>Today&rsquo;s official forecast is not published yet.</strong> It is frozen before tip-off and appears here
-            once published: the Elo-favoured side and player medians, experimental and not validated. Until then the
-            games below show the schedule only.
+            <strong>Today&rsquo;s Official Forecast is not published yet.</strong> It is frozen before tip-off and appears here
+            once published: the Elo-favoured side and player medians. Until then the games below show the schedule only.
           </>
         ) : slate.forecast === "NO_GAMES" ? (
-          <>Schedule and official finals today. The official forecast publishes on game days, frozen before tip-off.</>
+          <>Schedule and official finals today. The Official Forecast publishes on game days, frozen before tip-off.</>
         ) : (
           <><strong>Schedule only — no public forecast.</strong> Games, start times and official finals.</>
         )}
@@ -52,7 +52,7 @@ export function NbaSlateOverview({ slate, gamesAnchor }: { slate: NbaTodaySlate;
         {n > 0 ? <a href={`#${gamesAnchor}`} className={LINK}>Today&rsquo;s games ↓</a> : null}
         <Link href="/nba/projections/" className={LINK}>Top Boards · player projections →</Link>
         <a href="#nba-results" className={LINK}>Results ↓</a>
-        <a href="#nba-model-status" className={LINK}>How the forecast works ↓</a>
+        <a href="#nba-model-status" className={LINK}>How it works · Model Performance ↓</a>
       </nav>
     </section>
   );
@@ -69,7 +69,7 @@ export function NbaScheduleCards({ games, heading, id }: { games: NbaTodayGame[]
           <MatchupCard key={g.id} game={{ id: g.id, tipUtc: g.tipUtc, status: g.status, away: { ...g.away, logo: g.away.logoTeam }, home: { ...g.home, logo: g.home.logoTeam } }}>
             <div className="nbx-read">
               <p>{g.away.name ?? g.away.abbr} at {g.home.name ?? g.home.abbr}</p>
-              <p>{g.excludedReason ? `No official forecast for this game: ${g.excludedReason}` : g.status === "final" ? "Final recorded · no official forecast for this game is in this update." : "Official forecast not published yet — it is frozen before tip-off."}</p>
+              <p>{g.excludedReason ? `${PUBLIC_TERMS.UNAVAILABLE}: ${g.excludedReason}` : g.status === "final" ? "Final recorded · no Official Forecast for this game is in this update." : "Official Forecast not published yet — it is frozen before tip-off."}</p>
             </div>
             {g.finalNote ? <p className="nbx-note">Game status: final · {g.finalNote}</p> : null}
           </MatchupCard>

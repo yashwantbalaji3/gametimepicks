@@ -21,22 +21,25 @@ const registry = fs.readFileSync(
 const registryState = (key) =>
   new RegExp(`key: "${key}",\\s*label: "[^"]+",\\s*state: "(\\w+)"`).exec(registry)?.[1] ?? null;
 
-test("covers every sport TRUTHFULLY per the capability registry (one live model, the rest labelled honestly)", () => {
-  // The page must still name every sport a reader can meet on the site…
-  for (const kw of ["MLB", "NBA", "UFC", "World Cup"]) {
-    assert.ok(src.includes(kw), `methodology must mention ${kw}`);
-  }
-  // …but each card's stage must match what the registry says is true TODAY, not celebrate a legacy product.
+test("covers every sport TRUTHFULLY per the capability registry (one live model, the rest labelled honestly)", async () => {
+  // Founder directive 2026-10-23 public readiness (audit F04): the by-sport cards are no longer typed per sport — they
+  // render the public registry (lib/public-registry.ts), whose gates are the capability registry's own answers. The
+  // hand-written stages this test pinned ("history only", "no fight model", "closed", "MLB is the only sport producing
+  // model output") had become false; the invariant — every card states what the registry says is true TODAY, and only
+  // the FULL_MODEL sport may enter paper products — is asserted against the registry instead.
+  for (const kw of ["World Cup"]) assert.ok(src.includes(kw), `methodology must mention ${kw}`);
+  assert.match(src, /PUBLIC_SPORTS\.map\(/, "one card per registry sport");
   assert.equal(registryState("mlb"), "FULL_MODEL", "registry: MLB is the live model");
-  assert.match(src, /stage="live model[^"]*"/, "MLB card is staged as the live model");
-  assert.equal(registryState("nba"), "HISTORICAL_ONLY", "registry: NBA is history only");
-  assert.match(src, /stage="history only[^"]*"/, "NBA card is staged as history only");
-  assert.equal(registryState("ufc"), "SCAFFOLD_ONLY", "registry: UFC has no model");
-  assert.match(src, /stage="market-implied only · no fight model"/, "UFC card is staged as market-implied, no model");
-  assert.match(src, /stage="closed · archive only"/, "World Cup card is staged as a closed archive");
-  // The one-live-sport statement appears both in the coverage intro and the standing limitations.
-  assert.match(src, /One sport has a live model/, "coverage intro states exactly one live sport");
-  assert.match(src, /MLB is the only sport producing model output/, "limitations repeat it");
+  assert.equal(registryState("nba"), "HISTORICAL_ONLY", "registry: NBA state unchanged (no product eligibility)");
+  assert.equal(registryState("ufc"), "SCAFFOLD_ONLY", "registry: UFC state unchanged (no product eligibility)");
+  const { PUBLIC_SPORTS } = await import("../../lib/public-registry.ts");
+  for (const k of ["MLB", "NBA", "UFC", "NFL"]) assert.ok(PUBLIC_SPORTS.some((s) => s.label === k), `the registry covers ${k}`);
+  assert.deepEqual(PUBLIC_SPORTS.filter((s) => s.productEligible).map((s) => s.key), ["mlb"], "only the FULL_MODEL sport enters paper products");
+  assert.match(src, /sp\.productEligible \? `\$\{PUBLIC_TERMS\.OFFICIAL_FORECAST\} · in paper products` : `\$\{PUBLIC_TERMS\.OFFICIAL_FORECAST\} · not in paper products`/, "each card's stage is its product gate");
+  // the product-eligibility statement appears in both the coverage intro and the standing limitations, derived
+  assert.match(src, /the only \$\{productSports\.length === 1 \? "sport" : "sports"\} whose forecasts may enter paper products/);
+  assert.match(src, /title="One sport enters paper products"/);
+  for (const stale of [/MLB is the only sport producing model output/, /NBA is frozen history/, /There is no fight model/, /soccer is closed/]) assert.doesNotMatch(src, stale);
 });
 
 test("distinguishes priced vs unpriced markets (the surviving odds-backed / model-only guarantee)", () => {

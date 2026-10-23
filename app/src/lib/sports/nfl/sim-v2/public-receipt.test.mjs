@@ -70,14 +70,18 @@ test("the page is generated only for showable records and 404s otherwise (dynami
   assert.match(strip(link), /if \(!rec\?\.showable\) return null/, "the game-page link never points at a page the build refused");
 });
 
-test("separate from the canonical forecast: its own labelled card, the scorecard label untouched, experimental wording", () => {
+test("separate from the canonical forecast: its own labelled card, the scorecard label untouched, Game Simulation wording", () => {
   assert.match(gamePage, /expected statistical summaries · not one simulated game/, "the canonical scorecard keeps its truthful label");
-  assert.match(report, /Game Time Forecast · our main model · separate from this simulation/);
-  assert.match(report, /Simulation V2 · experimental/);
-  assert.match(report, /not our main forecast/);
+  /* founder directive 2026-10-23 public readiness: "Game Time Forecast · our main model", "Simulation V2 · experimental"
+     and "not our main forecast" became the public vocabulary (lib/public-registry.ts PUBLIC_TERMS). The intent is
+     unchanged and still asserted: the simulation names itself a Game Simulation, says it is NOT the Official Forecast,
+     the forecast sits in its own labelled card, and the not-more-accurate finding stays. */
+  assert.match(report, /\{PUBLIC_TERMS\.OFFICIAL_FORECAST\} · Game Time Forecast · separate from this simulation/);
+  assert.match(report, /\{PUBLIC_TERMS\.GAME_SIMULATION\} · Simulation V2/);
+  assert.match(report, /not the \{PUBLIC_TERMS\.OFFICIAL_FORECAST\}/);
   assert.match(report, /has not been shown to be more accurate/);
   assert.match(report, /Representative simulation — not the forecast/);
-  assert.match(link, /separate from this forecast/);
+  assert.match(link, /separate from this \{PUBLIC_TERMS\.OFFICIAL_FORECAST\}/);
 });
 
 test("no market number is read or shown (probe: a market read is caught)", () => {

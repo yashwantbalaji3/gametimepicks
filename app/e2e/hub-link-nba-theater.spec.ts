@@ -39,7 +39,7 @@ for (const [w, h] of [[768, 1024], [390, 844]] as const) {
       await cta.click();
       await page.waitForURL(/\/nba\/simulation\/[^/]+\/$/);
       await page.waitForSelector("[data-nbp-theater][data-nbp-ready]");
-      await expect(page.locator("#official-predictions h2")).toHaveText("GameTimePicks Official Predictions");
+      await expect(page.locator("#official-predictions h2")).toHaveText("GameTimePicks Official Forecast");
       await page.locator('nav[aria-label="This game"] a', { hasText: "NBA hub" }).click();
       await page.waitForURL(/\/nba\/$/);
       await page.waitForLoadState("networkidle");

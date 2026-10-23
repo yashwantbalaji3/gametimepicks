@@ -32,8 +32,8 @@ export function publicTheaterRouteIds(getIds, opts = {}) {
   return nbaPublicTheaterParams(getIds, opts).map((p) => p.eventId).filter((id) => id !== NBA_PUBLIC_THEATER_PLACEHOLDER);
 }
 export const publicTheaterHref = (eventId) => `/${NBA_PUBLIC_THEATER_ROUTE}/${eventId}/`;
-/** The link text carries the role C framing (research simulation, unvalidated) — never "watch the game". */
-export const THEATER_LINK_TEXT = "Watch a research simulation of this game (unvalidated) →";
+/** Founder directive 2026-10-23 public readiness: the link names a Game Simulation — never "watch the game", never the forecast. */
+export const THEATER_LINK_TEXT = "Open the Game Simulation of this game →";
 
 /** generateStaticParams: `getIds` is called ONLY when the gate is on (an OFF build reads nothing). */
 export function nbaPublicTheaterParams(getIds, opts = {}) {

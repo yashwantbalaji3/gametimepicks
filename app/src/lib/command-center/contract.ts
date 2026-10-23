@@ -131,7 +131,8 @@ export const PUBLIC_STATE_LABEL: Record<PublicModelState, string> = {
   PAUSED: "Paused",
   ESTIMATE: "Estimate",
   TOO_EARLY: "Too early to judge",
-  EXPERIMENTAL: "Experimental",
+  /* founder directive 2026-10-23 public readiness: a Model Performance status, said as the measured fact it is */
+  EXPERIMENTAL: "Not market-validated",
   SHADOW: "Research only",
   UNKNOWN: "Status unknown",
 };
@@ -149,7 +150,7 @@ export const PUBLIC_STATE_MEANING: Record<PublicModelState, string> = {
   PAUSED: "Over the games graded so far, this call has fallen clearly below its floor — a coin flip, or the preregistered bars it is tested against. Its public call is withdrawn or handed back to the previous rule; it is still graded every day and comes back when its record recovers.",
   ESTIMATE: "This family did not clear its calibration bar in testing. It is shown as an estimate under a stated exception, not as a validated forecast.",
   TOO_EARLY: "Not enough games have been graded to judge this call either way. The number is published; the verdict on it is not.",
-  EXPERIMENTAL: "Published and labelled experimental: tested on past seasons, but not validated to out-predict the sportsbook market.",
+  EXPERIMENTAL: "Tested on past seasons and published as an Official Forecast, but not validated to out-predict the sportsbook market.",
   SHADOW: "A research candidate scored privately beside the live model. It never powers a public number.",
   UNKNOWN: "The status file for this family could not be read at build time, so no verdict is shown.",
 };

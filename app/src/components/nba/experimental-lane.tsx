@@ -16,6 +16,7 @@ import { LANE, STATS, LANE_SNAPSHOT_SCHEMA, AMENDMENT_A, laneIsCurrent } from "@
 import { THEATER_LINK_TEXT, publicTheaterHref } from "@/lib/simulation-theater/nba/possession/public-route.mjs";
 import Link from "next/link";
 import TeamLogo from "@/components/team-logo";
+import { NBA_FORECAST_DISCLOSURE, PUBLIC_TERMS } from "@/lib/public-registry";
 import GameStatusOnClock from "@/components/nba/projection-game-status";
 
 type Row = { providerAthleteId: string; name: string | null; expectedMinutes: number | null; injuryStatus: string | null; medians: Record<string, number | null>; comboMedians?: Record<string, number | null> };
@@ -114,11 +115,11 @@ export function NbaLaneTonight({ snapshot }: { snapshot: Snapshot | null }) {
   const frozen = [...new Set(snapshot.games.map((g) => et(g.frozenAt)))].join(" / ");
   return (
     <p className="m-0 text-[13.5px]" style={{ color: "var(--vault-text)" }}>
-      <strong>{LANE.label}:</strong>{" "}
+      <strong>{PUBLIC_TERMS.OFFICIAL_FORECAST}:</strong>{" "}
       {snapshot.games.map((g, i) => (
         <span key={g.providerEventId}>{i ? " · " : ""}<a href={`#${laneCardId(g.providerEventId)}`} className="underline">{g.away.name} at {g.home.name}</a></span>
       ))}
-      <span style={{ color: "var(--vault-text-mute)" }}> — frozen pregame model output (frozen {frozen}), not validated.</span>
+      <span style={{ color: "var(--vault-text-mute)" }}> — frozen before tip-off ({frozen}).</span>
     </p>
   );
 }
@@ -175,15 +176,13 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
   if (!snapshot || snapshot.games.length === 0) return null;
   return (
     <section id="nba-experimental" className="scroll-mt-24 flex flex-col gap-3" aria-labelledby="nba-experimental-h">
+      {/* founder directive 2026-10-23 public readiness: the Official Forecast, with its ONE disclosure (frozen, not a
+          recommendation, Model Performance status from lib/public-registry.ts) — no per-card doubt */}
       <div className="rounded-lg p-3" style={{ border: "2px solid var(--vault-gold-bright)", background: "var(--vault-panel)" }} role="note">
-        <p className="m-0 font-display text-[13px] font-extrabold tracking-wide" style={{ color: "var(--vault-gold-bright)" }}>{LANE.label}</p>
-        <p className="m-0 mt-1 text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-          Frozen pregame model output, published as experimental analytics — not validated, not a betting recommendation and
-          not a pick. These models have not yet met their preregistered regular-season checks, and nothing here counts toward
-          them. Each figure was frozen before tip-off and is shown exactly as frozen.
-        </p>
+        <p className="m-0 font-display text-[13px] font-extrabold tracking-wide" style={{ color: "var(--vault-gold-bright)" }}>{PUBLIC_TERMS.OFFICIAL_FORECAST}</p>
+        <p className="m-0 mt-1 text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{NBA_FORECAST_DISCLOSURE}</p>
       </div>
-      <h2 id="nba-experimental-h" className="m-0 font-display text-[18px] font-bold" style={{ color: "var(--vault-text)" }}>Experimental model projections{snapshot.date ? ` · ${slateLabel(snapshot.date)} slate` : ""}</h2>
+      <h2 id="nba-experimental-h" className="m-0 font-display text-[18px] font-bold" style={{ color: "var(--vault-text)" }}>{PUBLIC_TERMS.OFFICIAL_FORECAST}{snapshot.date ? ` · ${slateLabel(snapshot.date)} slate` : ""}</h2>
       {AMENDMENT_A.enabled ? (
         /* COMPACT HUB (release owner 2026-10-21). With /nba/projections on, the player rows live there only, and every
            sentence that is the same for each game is said once here. Full per-team tables measured /nba at 388 KB for

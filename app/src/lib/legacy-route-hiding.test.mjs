@@ -12,6 +12,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 import { LANE } from "./sports/nba/experimental-public-lane.mjs";
+const { publicSport } = await import("./public-registry.ts");
 
 const app = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
@@ -58,21 +59,28 @@ test("the footer states coverage honestly: MLB's hub, NBA archive, and NO schedu
   if (builtFooter) {
     // #797 PR B: MLB's note was "live" — a season claim that read true the day after the season ended. It
     // now names what the hub is; the property (MLB is labelled, and not as an archive) is unchanged.
-    assert.match(builtFooter, /MLB<span[^>]*> · simulation center/, "MLB is labelled by what its hub is");
+    // founder directive 2026-10-23 public readiness: the note is the public registry's ("Game Simulations · Official
+    // Forecasts" — the MLB hub is the simulation center), still naming what the hub is, still not an archive
+    assert.match(builtFooter, /MLB<span[^>]*> · Game Simulations · Official Forecasts/, "MLB is labelled by what its hub is");
     assert.match(builtFooter, /NBA archive<span[^>]*> · retired model/, "the NBA archive is labelled a retired model's record, not current coverage");
     // NBA preregistration §13 (founder decision 2026-10-20): with the experimental public lane on, the hub's label must
     // say its projections are NOT validated; with it off, factual-only. Never an unqualified forecast claim.
-    if (LANE.enabled) assert.match(builtFooter, /NBA<span[^>]*> · schedule \+ experimental projections · not validated/, "the NBA hub is labelled unvalidated");
+    // founder directive 2026-10-23 public readiness: the registry's note — what the hub publishes, never a validation claim;
+    // its Model Performance is stated once on the hub (the release owner's exact NBA sentence)
+    if (LANE.enabled) {
+      assert.match(builtFooter, /NBA<span[^>]*> · Official Forecasts · Top Boards · Game Simulations/, "the NBA hub is labelled by what it publishes");
+      assert.doesNotMatch(builtFooter, /NBA<span[^>]*> · [^<]*\bvalidated\b/, "never an unqualified validation claim");
+    }
     else assert.match(builtFooter, /NBA<span[^>]*> · schedule \+ final scores · no forecast/, "the NBA hub is labelled factual-only");
   }
-  assert.match(registry, /href: "\/mlb", label: "MLB", note: "simulation center"/, "MLB declares its coverage");
+  // founder directive 2026-10-23 public readiness: catalog notes are the public registry's (navNote) — asserted on the value
+  assert.match(registry, /href: "\/mlb", label: "MLB", note: navNote\("mlb"\)/, "MLB declares its coverage");
+  assert.equal(publicSport("mlb").navNote, "Game Simulations · Official Forecasts");
   assert.match(registry, /href: "\/results\/nba", label: "NBA archive", note: "retired model/,
     "the NBA archive declares itself a retired model's archive");
   // Session 6 (founder decision 3): /nba is a factual hub in the sports group, and its entry says it publishes no forecast.
-  assert.match(registry, LANE.enabled
-    ? /href: "\/nba", label: "NBA", note: "schedule \+ experimental projections · not validated"/
-    : /href: "\/nba", label: "NBA", note: "schedule \+ final scores · no forecast"/,
-  "the NBA hub's nav entry must not imply a validated model");
+  assert.match(registry, /href: "\/nba", label: "NBA", note: navNote\("nba"\)/, "the NBA hub's nav entry is the registry's");
+  assert.doesNotMatch(publicSport("nba").navNote, /\bvalidated\b/, "the NBA hub's nav entry must not imply a validated model");
   // The schedule-only leagues have no public destination at all, so nothing links to them.
   for (const league of ["nhl", "ipl"]) {
     assert.equal(registry.indexOf(`href: "/${league}"`), -1, `nothing links /${league}`);
