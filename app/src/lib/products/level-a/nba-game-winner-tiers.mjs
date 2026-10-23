@@ -142,6 +142,6 @@ export function nbaGameWinnerCopyText(card) {
   for (const l of card.legs) lines.push(`- ${l.eventLabel}: ${l.selection.label} · ${l.label}: ${l.shownPct}`);
   lines.push(`Model joint probability ${card.jointShown} (${card.dependency.split(":")[0].toLowerCase()}).`);
   if (card.disclosure) lines.push(card.disclosure);
-  lines.push("Not a bet and not a price. Check any sportsbook's own line before acting.");
+  lines.push("No sportsbook price. Settles on the official final.");
   return lines.join("\n");
 }

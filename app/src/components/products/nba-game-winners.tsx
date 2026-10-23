@@ -40,7 +40,7 @@ export default function NbaGameWinners({ block }: { block: NbaGameWinnersBlock |
                     </li>
                   ))}
                 </ul>
-                <p className="m-0 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>{t.card.dependency} Unpriced: no sportsbook price, so no payout is shown.</p>
+                <p className="m-0 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>{t.card.dependency} No sportsbook price. Settles on the official final.</p>
                 <LevelACopy text={nbaGameWinnerCopyText(t.card)} />
               </>
             ) : (

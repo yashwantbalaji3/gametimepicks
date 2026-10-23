@@ -135,3 +135,37 @@ test("TOO_CLOSE: a game with no favoured side has no leg, even with a published 
   assert.ok(!m.nbaGameWinners.legs.some((l) => String(l.eventId) === String(g0.providerEventId)));
   assert.ok(m.nbaGameWinners.untiered.some((u) => String(u.leg.eventId) === String(g0.providerEventId) && u.code === "SIDE_DISAGREES"));
 });
+
+test("COPY: the required phrases, and no word that reads as a priced parlay, a guarantee or a validated prop", async () => {
+  const { nbaGameWinnerCopyText } = await import("./nba-game-winner-tiers.mjs");
+  const lab = renderToString(React.createElement(LevelASuggestions, { model: MODEL_ON, mode: "parlay-lab" })).replace(/<!-- -->/g, "");
+  const start = lab.indexOf('id="level-a-nba-game-winners"');
+  const block = lab.slice(start, lab.indexOf("</section>", start)); // the NBA block only (it holds no nested section)
+  for (const t of MODEL_ON.nbaGameWinners.tiers) if (t.card) {
+    const copy = nbaGameWinnerCopyText(t.card);
+    for (const text of [block, copy]) {
+      assert.match(text, /[Mm]odel joint probability/);
+      assert.match(text, /[Aa]ssumes the games are independent/);
+      assert.match(text, /No sportsbook price\. Settles on the official final\./);
+      assert.ok(text.includes(ELO_WIN_PROBABILITY_LABEL.replace(/'/g, "&#x27;")) || text.includes(ELO_WIN_PROBABILITY_LABEL), "the display's label");
+      /* The display's own disclosure is quoted verbatim and may negate words ("not a betting recommendation"); the
+         rule's OWN words are checked without it. */
+      const own = text.split(CTX_ON.disclosure).join("");
+      assert.doesNotMatch(own, /\bparlays?\b|guarantee|\block\b|validated|sure thing|\bodds\b|payout of|\$\d|\bbet\b|wager/i);
+    }
+  }
+});
+
+test("EVIDENCE SCRIPT (§7): per-leg equality, expected cards, band sweep and switch-OFF identity for a real day", async () => {
+  const { evidence } = await import("../../../../scripts/products/nba-game-winner-evidence.mjs");
+  const e = evidence({ day: DAY, now: NOW, simulateDisplay: true, repoRoot: REPO });
+  assert.equal(e.ok, true);
+  assert.match(e.display, /^SIMULATED/, "a pre-switch run says so");
+  for (const l of e.legs.filter((x) => x.displayPHome != null)) assert.deepEqual([l.pEqual, l.shaEqual, l.frozenAtEqual], [true, true, true], l.eventId);
+  assert.deepEqual(e.cards.map((c) => c.tier), ["low", "medium", "high", "longshot"]);
+  for (const c of e.cards) if (!c.empty) assert.equal(c.jointShown, jointShownFor(c.jointExact, c.tier));
+  assert.deepEqual(e.bandSweep.misbanded, []);
+  assert.equal(e.switchOffModelIdentical, true);
+  assert.deepEqual(e.cards, MODEL_ON.nbaGameWinners.tiers.map((t) => (t.card ? { tier: t.tier, label: t.tierLabel, legs: t.card.legs.map((l) => `${l.selection.label.replace(" (official side)", "")} ${l.shownPct} (${l.eventLabel})`), jointExact: t.card.jointProbability, jointShown: jointShownFor(t.card.jointProbability, t.card.tier) } : { tier: t.tier, label: t.tierLabel, empty: t.reason })), "the prediction is the model the pages render");
+  assert.match(fs.readFileSync(path.resolve(process.cwd(), "scripts/products/nba-game-winner-evidence.mjs"), "utf8"), /READ-ONLY, OFFLINE/);
+});
