@@ -9,7 +9,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { homerNukesRecordSplit, unknownPublicationKeys, homerNukesKey } from "./homer-nukes-publication.mjs";
+import { homerNukesRecordSplit, unknownPublicationKeys, homerNukesKey, prestartEvidenceFallback } from "./homer-nukes-publication.mjs";
+import * as provenance from "../forecast-ledger/provenance.mjs";
 
 const pick = (playerId, gamePk, probability, result) => ({ playerId, gamePk, player: `P${playerId}`, probability, result });
 
@@ -26,7 +27,7 @@ test("🔴 an unknown-publication pick is graded but counted only in its own pop
   assert.deepEqual(s.unknown.picks, [{ date: "2031-07-01", player: "P1", gamePk: 9, probability: 0.2, result: "hit" }]);
 });
 
-test("🔴 the verdict is the ledger's: only mlb_homer_nukes rows whose provenance is LEGACY_UNKNOWN", () => {
+test("🔴 the verdict is the ledger's: only mlb_homer_nukes rows with no pre-start publication evidence", () => {
   const row = (o) => ({ family: "mlb_homer_nukes", receiptId: "mlb/homer-nukes/settled-2031-07-01.json", eventId: "9", subjectId: "mlb-player-1",
     modelId: "m", eventStart: "2031-07-01T17:00:00Z", publishedAt: null, provenance: { owner: "mlb-homer-nukes-settled" }, ...o });
   const keys = unknownPublicationKeys([
@@ -82,4 +83,9 @@ test("🔴 /homer-nukes and the MLB hub's board read the split, never record.jso
   }
   assert.match(src("src/app/homer-nukes/page.tsx"), /record=\{split\.public\}/);
   assert.match(src("src/app/homer-nukes/page.tsx"), /Publication status unknown \(legacy\)/);
+});
+
+test("🔴 the predicate is the Forecast Record's: the export owner's hasPrestartPublicationEvidence, when main has it, agrees row for row", (t) => {
+  if (typeof provenance.hasPrestartPublicationEvidence !== "function") return t.skip("hasPrestartPublicationEvidence is not on this branch yet — the identical fallback is in use");
+  for (const r of ledger) assert.equal(provenance.hasPrestartPublicationEvidence(r), prestartEvidenceFallback(r), r.forecastId);
 });

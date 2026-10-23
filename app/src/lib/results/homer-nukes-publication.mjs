@@ -11,12 +11,27 @@
  * before the start cannot be established is never counted in a public record. It stays on the record, graded, in its
  * own "publication status unknown (legacy)" population. Nothing is regraded or deleted.
  *
- * ONE SOURCE. Which picks are unknown is the Universal Forecast Ledger's own provenance verdict — `rowProvenance(row)`
- * (lib/forecast-ledger/provenance.mjs) on the `mlb_homer_nukes` rows — the same verdict the Forecast Record counts per
- * family. This module only matches those rows to the settled picks and splits the counts the settlement owner wrote.
+ * ONE SOURCE. Which picks are unknown is the Universal Forecast Ledger's own provenance verdict — no pre-start
+ * publication evidence (`hasPrestartPublicationEvidence`, below) on the `mlb_homer_nukes` rows — the same predicate
+ * the Forecast Record uses to leave such rows out of its scores. This module only matches those rows to the settled picks and splits the counts the settlement owner wrote.
  * Over all picks it reproduces homer-nukes/record.json exactly (pinned in the test), so it is a split, not a fork.
  */
-import { rowProvenance, PROVENANCE_STATE } from "../forecast-ledger/provenance.mjs";
+import * as provenance from "../forecast-ledger/provenance.mjs";
+
+const { fieldProvenance, PROVENANCE_STATE } = provenance;
+/*
+ * THE PREDICATE IS THE FORECAST RECORD'S: `hasPrestartPublicationEvidence` (provenance.mjs, from the export owner's
+ * claude/forecast-unpublished-unscored) — publishedAt and eventStart both known (RECEIPT or GIT_HISTORY) and
+ * publishedAt < eventStart. Until that export is on main, the same rule over `fieldProvenance`, which main has; the
+ * test proves the two agree whenever both exist, so /homer-nukes and the Forecast Record can never count differently.
+ */
+export function prestartEvidenceFallback(row) {
+  const pub = fieldProvenance(row, "publishedAt");
+  const start = fieldProvenance(row, "eventStart");
+  if (pub.state === PROVENANCE_STATE.LEGACY_UNKNOWN || start.state === PROVENANCE_STATE.LEGACY_UNKNOWN) return false;
+  return Number.isFinite(Date.parse(pub.value)) && Number.isFinite(Date.parse(start.value)) && Date.parse(pub.value) < Date.parse(start.value);
+}
+export const hasPrestartPublicationEvidence = provenance.hasPrestartPublicationEvidence ?? prestartEvidenceFallback;
 
 export const HOMER_NUKES_FAMILY = "mlb_homer_nukes";
 
@@ -24,7 +39,7 @@ export const HOMER_NUKES_FAMILY = "mlb_homer_nukes";
 export const homerNukesKey = (date, gamePk, playerId) => `${date}|${gamePk}|${playerId}`;
 
 /**
- * The settled picks whose publication before first pitch the ledger cannot establish.
+ * The settled picks whose publication before first pitch the ledger cannot establish (no pre-start evidence).
  * @param {Array<Record<string, any>>} ledgerRows  Forecast Ledger rows (any sports / families)
  * @returns {Set<string>} homerNukesKey()s
  */
@@ -32,7 +47,7 @@ export function unknownPublicationKeys(ledgerRows) {
   const out = new Set();
   for (const r of ledgerRows ?? []) {
     if (r?.family !== HOMER_NUKES_FAMILY) continue;
-    if (rowProvenance(r).state !== PROVENANCE_STATE.LEGACY_UNKNOWN) continue;
+    if (hasPrestartPublicationEvidence(r)) continue;
     const date = /settled-(\d{4}-\d{2}-\d{2})\.json/.exec(String(r.receiptId ?? ""))?.[1];
     const player = /(\d+)$/.exec(String(r.subjectId ?? ""))?.[1];
     if (date && player && r.eventId != null) out.add(homerNukesKey(date, String(r.eventId), player));
