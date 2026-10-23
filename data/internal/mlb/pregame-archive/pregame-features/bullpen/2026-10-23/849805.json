@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 849805,
+  "date": "2026-10-23",
+  "capturedAt": "2026-10-23T00:51:43.471Z",
+  "availableAt": "2026-10-23T00:51:43.471Z",
+  "eventStartTime": "2026-10-24T00:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-10-20",
+    "2026-10-21",
+    "2026-10-22"
+  ],
+  "home": {
+    "teamId": 158,
+    "teamName": "Milwaukee Brewers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 139,
+    "teamName": "Tampa Bay Rays",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-10-20,2026-10-21,2026-10-22) + feed/live box scores",
+    "capturedAt": "2026-10-23T00:51:43.471Z"
+  },
+  "recordHash": "6e382a0e7efa82d4e4a8cbd35dad67930c486caf0f505d828e07b789d91470ac"
+}
