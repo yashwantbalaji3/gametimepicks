@@ -564,7 +564,7 @@ export default function NflHubPage() {
           <strong style={{ color: "var(--vault-text-mute)" }}>{PUBLIC_TERMS.MODEL_PERFORMANCE}.</strong>{" "}
           {index?.model?.plainEnglish?.honestLimit}
           {nflPublic && !nflPublic.productEligible
-            ? ` ${PUBLIC_TERMS.OFFICIAL_FORECAST}s do not enter paper products (Bank Builder, Moonshot, Parlay Lab) until the model clears its preregistered bar.`
+            ? ` ${PUBLIC_TERMS.OFFICIAL_FORECAST}s do not enter paper products (Bank Builder, Moonshot, Parlays) until the model clears its preregistered bar.`
             : null}{" "}
           <Link href={nflPublic?.features.modelPerformance.href ?? "/models/"} style={{ color: "var(--vault-gold-bright)" }}>{PUBLIC_TERMS.MODEL_PERFORMANCE} →</Link>
         </p>

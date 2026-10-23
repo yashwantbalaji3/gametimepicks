@@ -292,7 +292,7 @@ export default function MethodologyPage() {
                   ["Method", sp.method],
                   ["Top Boards", feature(sp.features.topBoards)],
                   [PUBLIC_TERMS.GAME_SIMULATION, feature(sp.features.gameSimulation)],
-                  ["Paper products", sp.productEligible ? "May enter Bank Builder, Moonshot and Parlay Lab when a market qualifies." : "Never enters Bank Builder, Moonshot or Parlay Lab."],
+                  ["Paper products", sp.productEligible ? "May enter Bank Builder, Moonshot and Parlays when a market qualifies." : "Never enters Bank Builder, Moonshot or Parlays."],
                   [PUBLIC_TERMS.HISTORICAL_RESULTS, sp.features.results.note],
                   [PUBLIC_TERMS.MODEL_PERFORMANCE, perf],
                 ]}
@@ -321,7 +321,7 @@ export default function MethodologyPage() {
         <div className="vault-deluxe-card p-5 sm:p-6">
           <ul className="space-y-3.5 text-[14px] sm:text-[15px] leading-relaxed list-none">
             <LimitationRow title="The market is still the better estimate" body="Scored on identical settled results, the de-vigged sportsbook price beats our probabilities. Nothing here has been shown to out-predict it, and a disagreement between the two is not evidence that we are right." />
-            <LimitationRow title="One sport enters paper products" body={`${productSports.map((x) => x.label).join(", ") || "No sport"} may enter paper products. ${PUBLIC_SPORTS.filter((x) => !x.productEligible).map((x) => x.label).join(", ")} publish ${PUBLIC_TERMS.OFFICIAL_FORECAST}s that never enter Bank Builder, Moonshot or Parlay Lab until their models clear their bars.`} />
+            <LimitationRow title="One sport enters paper products" body={`${productSports.map((x) => x.label).join(", ") || "No sport"} may enter paper products. ${PUBLIC_SPORTS.filter((x) => !x.productEligible).map((x) => x.label).join(", ")} publish ${PUBLIC_TERMS.OFFICIAL_FORECAST}s that never enter Bank Builder, Moonshot or Parlays until their models clear their bars.`} />
             <LimitationRow title="Lines move" body="Boards reflect prices as captured, with the capture time shown. By the time you read them, prices have likely shifted, and there is no retained snapshot series to chart movement from." />
             <LimitationRow title="Missing context inputs" body="Park factor, weather, bullpen fatigue and handedness splits are not modelled for MLB." />
             <LimitationRow title="Some markets are switched off" body="Where a market's own settled record sits entirely below break-even across a large sample, predictions in it are disabled. The history stays visible and is never placed in a ranked or difference-ordered list." />

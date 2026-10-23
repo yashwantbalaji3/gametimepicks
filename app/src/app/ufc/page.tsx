@@ -60,7 +60,7 @@ export const metadata = withRouteMetadata("/ufc/", {
    */
   title: "UFC — Next Card Model Read & Settled Archive · GameTime Picks",
   description:
-    "Official Forecasts for the next UFC card — winner, method and finishing round for every bout with enough tracked fighter history; the rest are marked Unavailable with the reason. Graded publicly beside the de-vigged sportsbook line; paper-only and educational, never advice.",
+    "The fight model's winner pick and win chance for each modelled bout on the next UFC card, with its method lean (method and round are not yet graded). Experimental and graded publicly beside the de-vigged sportsbook line — paper-only and educational, never advice.",
 });
 
 function loadJSONUfc<T>(name: string): T | null {

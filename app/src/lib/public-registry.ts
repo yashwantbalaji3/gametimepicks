@@ -95,7 +95,7 @@ export interface PublicSport {
   hub: string;
   /** the capability registry's state — the gate, read, never re-decided here */
   capability: CapabilityState;
-  /** may this sport's forecasts enter paper products (Bank Builder, Moonshot, Parlay Lab)? canEnterPredictionProducts */
+  /** may this sport's forecasts enter paper products (Bank Builder, Moonshot, Parlays)? canEnterPredictionProducts */
   productEligible: boolean;
   families: ReadonlyArray<ForecastFamily>;
   features: Readonly<Record<PublicFeatureKey, PublicFeature>>;
@@ -128,7 +128,8 @@ export const PUBLIC_SPORTS: ReadonlyArray<PublicSport> = Object.freeze([
       modelPerformance: { availability: "AVAILABLE", href: MODEL_PERFORMANCE_HREF, note: "Graded records by market; markets below their floor are switched off." },
     },
     assistant: { forecasts: true, liveState: true, results: true },
-    navNote: "Official Forecasts · Game Simulations",
+    // the MLB hub is the simulation center (legacy-route-hiding.test: the footer labels MLB by what its hub is)
+    navNote: "Game Simulations · Official Forecasts",
     method: "Each stat is modelled as a distribution around a projection built from recent-form and season windows, then converted to a probability against the posted line; simulated game outcomes come from those same projections, and stated probabilities are calibrated against earlier settled slates.",
   }),
   sport({
