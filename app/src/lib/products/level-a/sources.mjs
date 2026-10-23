@@ -61,7 +61,7 @@ export function nbaSelections({ repoRoot, date }) {
       sport: "nba", eventId: String(g.providerEventId), eventLabel: matchup, startUtc: g.tipUtc, market: "winner",
       selection: side ? { code: side, label: `${fav} (official side)` } : null,
       probability: null, // withheld by the official composition (founder N2); the lane never carries one
-      forecast: { owner: "nba-official-composition@1", modelId: g.receipt?.modelVersion ?? null, stampedAt: g.frozenAt, ref: `${rel}#${g.providerEventId}` },
+      forecast: { owner: "nba-official-composition@1", modelId: g.receipt?.modelVersion ?? null, stampedAt: g.frozenAt, ref: `${rel}#${g.providerEventId}`, payloadSha256: g.receipt?.payloadSha256 ?? null },
       uncertainty: { kind: "side-only", note: doc.withheld?.winProbability ?? "Win probability not published." },
       participantStatuses: [],
       settlement: { grader: "nba-settlement-contract", market: "moneyline", side },
