@@ -22,11 +22,14 @@ import { publicTheaterRouteIds } from "@/lib/simulation-theater/nba/possession/p
 import { nbaTodaySlate } from "@/lib/sport-hub/nba-hub";
 import { NbaSlateOverview, NbaScheduleCards } from "@/components/nba/hub-overview";
 import { LANE } from "@/lib/sports/nba/experimental-public-lane.mjs";
+import { PUBLIC_TERMS, publicSport } from "@/lib/public-registry";
+
+const NBA_PUBLIC = publicSport("nba")!;
 
 export const metadata = withRouteMetadata("/nba/", {
-  title: "NBA — Schedule, final scores & experimental projections · GameTime Picks",
+  title: "NBA — Official Forecasts, Top Boards & Game Simulations · GameTime Picks",
   description:
-    "The 2026-27 NBA schedule and official finals, plus frozen pregame experimental model projections that are not validated and are not betting recommendations. The retired May–June 2026 player-prop archive is linked separately.",
+    "The 2026-27 NBA schedule and official finals, the Official Forecast for every game (favoured side and player medians, frozen before tip-off), Top Boards and a Game Simulation per game. Not betting recommendations. The retired May–June 2026 player-prop archive is linked separately.",
 });
 
 const REPO_ROOT = path.resolve(process.cwd(), "..");
@@ -66,12 +69,12 @@ export default async function NbaHubPage() {
       <p className="m-0 max-w-2xl text-[13.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
         {lane ? (
           <>
-            <span className="font-semibold" style={{ color: "var(--vault-text)" }}>Schedule, finals and experimental projections — not validated.</span>{" "}
-            Games, start times and official finals, plus the official forecast: the Elo-favoured side and frozen pregame player
-            medians, shown as unvalidated experimental analytics while the model is checked against its preregistered bars.
+            <span className="font-semibold" style={{ color: "var(--vault-text)" }}>Schedule, finals and the {PUBLIC_TERMS.OFFICIAL_FORECAST}.</span>{" "}
+            Games, start times and official finals, plus the {PUBLIC_TERMS.OFFICIAL_FORECAST}: the Elo-favoured side and frozen pregame player
+            medians, with a {PUBLIC_TERMS.GAME_SIMULATION} of each game.
           </>
         ) : (
-          <>Games, start times and official finals, and on game days the official forecast (see today, below).</>
+          <>Games, start times and official finals, and on game days the {PUBLIC_TERMS.OFFICIAL_FORECAST} (see today, below).</>
         )}
       </p>
       <NbaSlateOverview slate={slate} gamesAnchor={lane ? "nba-experimental" : "nba-today-games"} />
@@ -87,14 +90,17 @@ export default async function NbaHubPage() {
         <HubHeader model={scheduleModel} compact />
       </section>
 
+      {/* founder directive 2026-10-23 public readiness: what is published, as what, and its Model Performance — read from
+          the public registry (lib/public-registry.ts), the same facts Methodology, Home and the Simulate lobby print */}
       <section id="nba-model-status" className="scroll-mt-24 flex flex-col gap-2" aria-labelledby="nba-model-status-h">
-        <h2 id="nba-model-status-h" className="m-0 font-display text-[18px] font-bold" style={{ color: "var(--vault-text)" }}>Model status</h2>
+        <h2 id="nba-model-status-h" className="m-0 font-display text-[18px] font-bold" style={{ color: "var(--vault-text)" }}>How it works</h2>
         <ul className="m-0 pl-5 text-[13.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-          <li>Official forecast, frozen before tip-off on game days: the side the Elo rating favours, and player medians (PTS, REB, AST, 3PM and their combinations) from the v0.1 player simulation. Both are <strong style={{ color: "var(--vault-text)" }}>experimental and not validated</strong>.</li>
-          <li>Withheld: team scores, win chances, score and player ranges, and any sportsbook price — none has met its checks.</li>
-          <li>Each game&rsquo;s research simulation page replays one simulated game from a separate, unvalidated engine; it never changes the official forecast.</li>
+          {NBA_PUBLIC.families.map((f) => (
+            <li key={f.id}><strong style={{ color: "var(--vault-text)" }}>{f.label}</strong>: {f.publication === "OFFICIAL_FORECAST" ? `${PUBLIC_TERMS.OFFICIAL_FORECAST}, frozen before tip-off.` : "withheld — not published until it meets its checks."}</li>
+          ))}
+          <li><strong style={{ color: "var(--vault-text)" }}>{PUBLIC_TERMS.GAME_SIMULATION}</strong>: {NBA_PUBLIC.features.gameSimulation.note} It never changes the {PUBLIC_TERMS.OFFICIAL_FORECAST}.</li>
+          <li><strong style={{ color: "var(--vault-text)" }}>{PUBLIC_TERMS.MODEL_PERFORMANCE}</strong>: {NBA_PUBLIC.features.modelPerformance.note}</li>
           <li>Preseason games are tracked for schedule and final-score plumbing only; they never count as model evidence.</li>
-          <li>A family publishes only after it meets its bar on regular-season games, scored against forecasts frozen before tip-off.</li>
         </ul>
       </section>
 
@@ -106,7 +112,7 @@ export default async function NbaHubPage() {
             : "Official finals appear on their game rows once the finals record holds them. A game without one is pending, not a result."}
         </p>
         <p className="m-0 text-[13.5px]">
-          <Link href="/results/nba/" className="underline" style={{ color: "var(--vault-text)" }}>
+          <Link href="/results/nba/" className="underline inline-flex items-center" style={{ color: "var(--vault-text)", minHeight: 44 }}>
             May–June 2026 player-prop archive
           </Link>
           <span style={{ color: "var(--vault-text-mute)" }}> — a retired model&rsquo;s settled record, kept for transparency.</span>

@@ -8,6 +8,8 @@
  * The page itself holds no key, no data and no conversation. A reload starts a fresh chat.
  */
 import type { Metadata } from "next";
+import { ASSISTANT_LIVE_SPORTS, PUBLIC_SPORTS, PUBLIC_TERMS } from "@/lib/public-registry";
+
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -15,6 +17,8 @@ import AskApp from "@/components/ask/ask-app";
 import { Eyebrow, ResearchShell } from "@/components/research-pages/research-primitives";
 import { ASK_ROUTE } from "@/lib/ask/contract.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+
+const ASSISTANT_FORECAST_SPORTS = PUBLIC_SPORTS.filter((s) => s.assistant.forecasts).map((s) => s.label);
 
 export const metadata: Metadata = withRouteMetadata(ASK_ROUTE, {
   title: "Ask GameTime · GameTime Picks",
@@ -46,8 +50,9 @@ export default function AskPage() {
         <ul style={{ margin: "8px 0 0", paddingLeft: 18, fontSize: 13, color: "var(--vault-text-mute)", lineHeight: 1.7 }}>
           <li>Recorded games, player game lines and season results, through <Link href="/research/lab/" style={{ color: "var(--vault-gold-bright)", textDecoration: "underline", textUnderlineOffset: 3 }}>Research Lab</Link>.</li>
           <li>Team and player comparisons and matchup context, through <Link href="/compare/" style={{ color: "var(--vault-gold-bright)", textDecoration: "underline", textUnderlineOffset: 3 }}>Compare</Link>.</li>
-          <li>Currently published model forecasts, with each one&apos;s status and confidence.</li>
-          <li>Live MLB game state. NFL live state is not available in GameTimePicks.</li>
+          <li>Currently published {PUBLIC_TERMS.OFFICIAL_FORECAST}s for {ASSISTANT_FORECAST_SPORTS.join(", ")}, with each one&apos;s status and confidence.</li>
+          {/* F11 (audit 2026-10-23): Ask's OWN access, from the public registry — never a claim about what the product covers */}
+          <li>Live game state for {ASSISTANT_LIVE_SPORTS.join(" and ")}, read through the same live gateway as GameTime Live.</li>
           <li>Settled results by day and each product&apos;s record, through <Link href="/results/" style={{ color: "var(--vault-gold-bright)", textDecoration: "underline", textUnderlineOffset: 3 }}>Results</Link>.</li>
           <li>Published parlay candidates and how the site works.</li>
         </ul>

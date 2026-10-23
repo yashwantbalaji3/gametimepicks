@@ -34,8 +34,8 @@ export async function generateStaticParams() {
 export const dynamicParams = false;
 
 const METADATA: Metadata = {
-  title: "NBA simulated game · research simulation · GameTime Picks",
-  description: "One simulated NBA game, possession by possession, from a research simulation engine — shown beside the official projection, which it never changes. Educational and paper-only.",
+  title: "NBA Game Simulation · GameTime Picks",
+  description: "A Game Simulation of one NBA game, possession by possession, from the NBA possession engine — shown beside the Official Forecast, which it never changes. Educational and paper-only.",
   // candidate: kept out of search until the release owner publishes it
   robots: { index: false, follow: false },
 };

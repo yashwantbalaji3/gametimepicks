@@ -13,6 +13,7 @@ import type { NbaTodaySlate } from "@/lib/sport-hub/nba-hub";
 import { SPORT_STATES, stateLabel } from "@/lib/home/simulation-hub.mjs";
 import type { CommandCenterLane, CommandCenterGame } from "./command-center";
 import { freshnessFor } from "./freshness";
+import { PUBLIC_TERMS } from "@/lib/public-registry";
 import { hubLaneAnchor } from "@/lib/sports/nba/projection-board-ops.mjs";
 
 /**
@@ -40,8 +41,8 @@ export function nbaLane(slate: NbaTodaySlate, nowIso: string, { lastPublished = 
   const games = `${n} game${n === 1 ? "" : "s"} today`;
   const contextLine = n === 0
     ? `No NBA games today${slate.next ? ` · next ${slate.next.matchup}, ${slate.next.label}` : ""}`
-    : slate.forecast === "PUBLISHED" ? `${games} · official side and player projections · experimental, not validated`
-    : slate.forecast === "PENDING" ? `${games} · official forecast publishes before tip-off`
+    : slate.forecast === "PUBLISHED" ? `${games} · ${PUBLIC_TERMS.OFFICIAL_FORECAST}: favoured side and player projections`
+    : slate.forecast === "PENDING" ? `${games} · ${PUBLIC_TERMS.OFFICIAL_FORECAST} publishes before tip-off`
     : `${games} · schedule only`;
   const rows: CommandCenterGame[] = slate.games.slice(0, NBA_LANE_ROWS).map((g) => ({
     id: g.id,
@@ -51,7 +52,7 @@ export function nbaLane(slate: NbaTodaySlate, nowIso: string, { lastPublished = 
     note: g.finalNote ? `Final · ${g.finalNote}`
       : g.status === "postponed" ? "Postponed"
       : g.favoured ? `${g.favoured.abbr} favoured · Elo`
-      : slate.forecast === "PENDING" ? "Forecast pending" : "No official forecast",
+      : slate.forecast === "PENDING" ? "Forecast pending" : `No ${PUBLIC_TERMS.OFFICIAL_FORECAST}`,
     href: hubLaneAnchor(g.id),
   }));
   return {

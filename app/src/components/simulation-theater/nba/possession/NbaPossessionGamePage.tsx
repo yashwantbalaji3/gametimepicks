@@ -29,7 +29,7 @@ export default function NbaPossessionGamePage({ load, nowIso = new Date().toISOS
   return (
     <>
       <nav aria-label="This game" className="nbx-gamenav">
-        <a href={`#${OFFICIAL_PREDICTIONS_ID}`} className="nbx-skip" data-nba-skip-official="">Skip to Official Predictions ↓</a>
+        <a href={`#${OFFICIAL_PREDICTIONS_ID}`} className="nbx-skip" data-nba-skip-official="">Skip to the Official Forecast ↓</a>
         {/* next/link (not <a>): a full page load from here aborts in-flight route prefetches, which Next logs as errors */}
         <Link href="/nba/">← NBA hub</Link>
         <Link href="/nba/projections/">Top Boards</Link>

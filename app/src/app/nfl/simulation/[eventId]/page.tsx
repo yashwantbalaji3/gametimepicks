@@ -20,6 +20,7 @@ import SimulationV2Report, { type CanonicalForecast } from "@/components/nfl/sim
 import { readShadowReceipts, showableSimulationEvents, simulationOfRecord } from "@/lib/sports/nfl/sim-v2/public-receipt.mjs";
 import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { PUBLIC_TERMS } from "@/lib/public-registry";
 
 const REPO_ROOT = path.resolve(process.cwd(), "..");
 const entries = () => readShadowReceipts(REPO_ROOT);
@@ -68,8 +69,8 @@ export function generateMetadata({ params }: { params: { eventId: string } }): M
   if (!rec?.showable) return withRouteMetadata(`/nfl/simulation/${params.eventId}/`, { title: "NFL simulation · GameTime Picks" });
   const r = rec.receipt;
   return withRouteMetadata(`/nfl/simulation/${params.eventId}/`, {
-    title: `${r.away.abbr} @ ${r.home.abbr} — Simulation V2 (experimental) · GameTime Picks`,
-    description: `${r.runCount.toLocaleString("en-US")} coherent simulated games of ${r.away.name} at ${r.home.name}: outcomes, quarters, team and player lines, touchdown scorers. Experimental engine, separate from the Game Time Forecast; educational and paper-only.`,
+    title: `${r.away.abbr} @ ${r.home.abbr} — ${PUBLIC_TERMS.GAME_SIMULATION} (Simulation V2) · GameTime Picks`,
+    description: `${r.runCount.toLocaleString("en-US")} coherent simulated games of ${r.away.name} at ${r.home.name}: outcomes, quarters, team and player lines, touchdown scorers. A ${PUBLIC_TERMS.GAME_SIMULATION} from a separate engine, not the ${PUBLIC_TERMS.OFFICIAL_FORECAST}; educational and paper-only.`,
   });
 }
 
@@ -89,7 +90,7 @@ export default function NflSimulationV2Page({ params }: { params: { eventId: str
         {r.away.name} at {r.home.name}
       </h1>
       <p className="font-mono" style={{ fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-mute)", margin: "6px 0 0" }}>
-        Simulation · experimental · {r.runCount.toLocaleString("en-US")} coherent game paths
+        {PUBLIC_TERMS.GAME_SIMULATION} · Simulation V2 · {r.runCount.toLocaleString("en-US")} coherent game paths
       </p>
       <SimulationV2Report r={r} file={rec.file} canonical={canonicalFor(params.eventId)} gameHref={gameHref} />
       <SimulationReplay rec={rec} />
