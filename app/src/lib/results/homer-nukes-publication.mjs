@@ -16,14 +16,14 @@
  * the Forecast Record uses to leave such rows out of its scores. This module only matches those rows to the settled picks and splits the counts the settlement owner wrote.
  * Over all picks it reproduces homer-nukes/record.json exactly (pinned in the test), so it is a split, not a fork.
  */
-import * as provenance from "../forecast-ledger/provenance.mjs";
+import { fieldProvenance, PROVENANCE_STATE } from "../forecast-ledger/provenance.mjs";
 
-const { fieldProvenance, PROVENANCE_STATE } = provenance;
 /*
- * THE PREDICATE IS THE FORECAST RECORD'S: `hasPrestartPublicationEvidence` (provenance.mjs, from the export owner's
+ * THE PREDICATE IS THE FORECAST RECORD'S: `hasPrestartPublicationEvidence` in provenance.mjs (the export owner's
  * claude/forecast-unpublished-unscored) — publishedAt and eventStart both known (RECEIPT or GIT_HISTORY) and
- * publishedAt < eventStart. Until that export is on main, the same rule over `fieldProvenance`, which main has; the
- * test proves the two agree whenever both exist, so /homer-nukes and the Forecast Record can never count differently.
+ * publishedAt < eventStart. It is not on main yet, and the bundler refuses even a guarded read of a missing export, so
+ * the same rule is written here over `fieldProvenance`; the test compares the two row for row as soon as main has
+ * the export, so /homer-nukes and the Forecast Record cannot count differently. Swap to the import once it merges.
  */
 export function prestartEvidenceFallback(row) {
   const pub = fieldProvenance(row, "publishedAt");
@@ -31,7 +31,7 @@ export function prestartEvidenceFallback(row) {
   if (pub.state === PROVENANCE_STATE.LEGACY_UNKNOWN || start.state === PROVENANCE_STATE.LEGACY_UNKNOWN) return false;
   return Number.isFinite(Date.parse(pub.value)) && Number.isFinite(Date.parse(start.value)) && Date.parse(pub.value) < Date.parse(start.value);
 }
-export const hasPrestartPublicationEvidence = provenance.hasPrestartPublicationEvidence ?? prestartEvidenceFallback;
+const hasPrestartPublicationEvidence = prestartEvidenceFallback;
 
 export const HOMER_NUKES_FAMILY = "mlb_homer_nukes";
 
