@@ -4,119 +4,209 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-10-22",
- "generatedAt": "2026-10-22T23:53:57Z",
+ "generatedAt": "2026-10-23T14:14:45Z",
  "modelVersion": "nfl-regular-season-public-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
- "events": [],
- "pending": [
-  {
-   "canonicalEventId": "nfl-401873009",
-   "matchup": "DAL @ PHI",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-27T00:15Z"
-  },
+ "events": [
   {
    "canonicalEventId": "nfl-401873010",
+   "providerEventId": "401873010",
    "matchup": "NE @ CHI",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-23T00:15Z"
+   "kickoffUtc": "2026-10-23T00:15Z",
+   "seasonType": 2,
+   "week": 7,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-22/401873010-rev-2353Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "0e1eaa00cbb904e2",
+    "forecastGeneratedAt": "2026-10-22T23:53:57Z",
+    "revisionChain": [
+     {
+      "file": "401873010.json",
+      "generatedAt": "2026-10-22T14:31:20Z",
+      "inputHash": "a0419ce563573d88"
+     },
+     {
+      "file": "401873010-rev-1844Z.json",
+      "generatedAt": "2026-10-22T18:44:51Z",
+      "inputHash": "75168d6b74961198"
+     },
+     {
+      "file": "401873010-rev-1908Z.json",
+      "generatedAt": "2026-10-22T19:08:00Z",
+      "inputHash": "e942d9a108bb2fbd"
+     },
+     {
+      "file": "401873010-rev-2231Z.json",
+      "generatedAt": "2026-10-22T22:31:12Z",
+      "inputHash": "26db3bf10b0bd616"
+     },
+     {
+      "file": "401873010-rev-2254Z.json",
+      "generatedAt": "2026-10-22T22:54:38Z",
+      "inputHash": "56d0c074317bb171"
+     },
+     {
+      "file": "401873010-rev-2321Z.json",
+      "generatedAt": "2026-10-22T23:21:01Z",
+      "inputHash": "48b8274ada8ccfee"
+     },
+     {
+      "file": "401873010-rev-2333Z.json",
+      "generatedAt": "2026-10-22T23:33:30Z",
+      "inputHash": "63840e19d806f7b0"
+     },
+     {
+      "file": "401873010-rev-2349Z.json",
+      "generatedAt": "2026-10-22T23:49:17Z",
+      "inputHash": "96a25726c83a6e1c"
+     },
+     {
+      "file": "401873010-rev-2353Z.json",
+      "generatedAt": "2026-10-22T23:53:57Z",
+      "inputHash": "0e1eaa00cbb904e2"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_scoreboard",
+    "resultObservedAt": "2026-10-23T14:12:17Z",
+    "settledAt": "2026-10-23T14:14:45Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 30,
+     "away": 24,
+     "margin": 6,
+     "total": 54,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "HOME",
+     "modelFavoured": "HOME",
+     "correct": true,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 1,
+     "actual": 6,
+     "absError": 5,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 47,
+     "actual": 54,
+     "absError": 7,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 24,
+      "away": 23,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 7
+    },
+    "probabilistic": {
+     "brier": 0.230592,
+     "logLoss": 0.654311
+    }
+   },
+   "marketBenchmark": null
+  }
+ ],
+ "pending": [],
+ "quarantined": [],
+ "recordElsewhere": [
+  {
+   "canonicalEventId": "nfl-401873009",
+   "recordFolder": "2026-10-23",
+   "reason": "the forecast of record lives in another receipt folder"
   },
   {
    "canonicalEventId": "nfl-401873011",
-   "matchup": "PIT @ NO",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-25T13:30Z"
+   "recordFolder": "2026-10-23",
+   "reason": "the forecast of record lives in another receipt folder"
   },
   {
    "canonicalEventId": "nfl-401873012",
-   "matchup": "CIN @ BAL",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-25T17:00Z"
+   "recordFolder": "2026-10-23",
+   "reason": "the forecast of record lives in another receipt folder"
   },
   {
    "canonicalEventId": "nfl-401873013",
-   "matchup": "CLE @ TEN",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-25T17:00Z"
+   "recordFolder": "2026-10-23",
+   "reason": "the forecast of record lives in another receipt folder"
   },
   {
    "canonicalEventId": "nfl-401873014",
-   "matchup": "IND @ MIN",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-25T17:00Z"
+   "recordFolder": "2026-10-23",
+   "reason": "the forecast of record lives in another receipt folder"
   },
   {
    "canonicalEventId": "nfl-401873015",
-   "matchup": "MIA @ NYJ",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-25T17:00Z"
+   "recordFolder": "2026-10-23",
+   "reason": "the forecast of record lives in another receipt folder"
   },
   {
    "canonicalEventId": "nfl-401873016",
-   "matchup": "NYG @ HOU",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-25T17:00Z"
+   "recordFolder": "2026-10-23",
+   "reason": "the forecast of record lives in another receipt folder"
   },
   {
    "canonicalEventId": "nfl-401873017",
-   "matchup": "SF @ ATL",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-25T17:00Z"
+   "recordFolder": "2026-10-23",
+   "reason": "the forecast of record lives in another receipt folder"
   },
   {
    "canonicalEventId": "nfl-401873018",
-   "matchup": "TB @ CAR",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-25T17:00Z"
+   "recordFolder": "2026-10-23",
+   "reason": "the forecast of record lives in another receipt folder"
   },
   {
    "canonicalEventId": "nfl-401873019",
-   "matchup": "DEN @ ARI",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-25T20:05Z"
+   "recordFolder": "2026-10-23",
+   "reason": "the forecast of record lives in another receipt folder"
   },
   {
    "canonicalEventId": "nfl-401873020",
-   "matchup": "GB @ DET",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-25T20:25Z"
+   "recordFolder": "2026-10-23",
+   "reason": "the forecast of record lives in another receipt folder"
   },
   {
    "canonicalEventId": "nfl-401873021",
-   "matchup": "LAR @ LV",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-25T20:25Z"
+   "recordFolder": "2026-10-23",
+   "reason": "the forecast of record lives in another receipt folder"
   },
   {
    "canonicalEventId": "nfl-401873022",
-   "matchup": "KC @ SEA",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-26T00:20Z"
+   "recordFolder": "2026-10-23",
+   "reason": "the forecast of record lives in another receipt folder"
   }
  ],
- "quarantined": [],
- "recordElsewhere": [],
  "accounting": {
   "receipts": 14,
-  "settled": 0,
-  "pending": 14,
+  "settled": 1,
+  "pending": 0,
   "quarantined": 0,
-  "recordElsewhere": 0,
+  "recordElsewhere": 13,
   "reconciles": true
  },
  "metrics": {
-  "settledForecasts": 0,
-  "decisive": 0,
+  "settledForecasts": 1,
+  "decisive": 1,
   "ties": 0,
-  "winnerCorrect": 0,
-  "winnerAccuracy": null,
-  "marginMAE": null,
-  "totalMAE": null,
-  "marginInterval80Coverage": null,
-  "totalInterval80Coverage": null,
-  "brier": null,
-  "logLoss": null
+  "winnerCorrect": 1,
+  "winnerAccuracy": 1,
+  "marginMAE": 5,
+  "totalMAE": 7,
+  "marginInterval80Coverage": 1,
+  "totalInterval80Coverage": 1,
+  "brier": 0.2306,
+  "logLoss": 0.6543
  },
  "marketBenchmark": null,
  "comparison": null

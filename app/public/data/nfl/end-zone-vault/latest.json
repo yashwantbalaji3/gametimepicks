@@ -2,15 +2,15 @@
  "schemaVersion": 1,
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
- "date": "2026-10-22",
- "generatedAt": "2026-10-22T23:53:57Z",
+ "date": "2026-10-23",
+ "generatedAt": "2026-10-23T14:14:45Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "175 model candidates · no current comparable touchdown price is available",
+ "reason": "159 model candidates · no current comparable touchdown price is available",
  "isCard": false,
  "selections": [],
  "watchlist": [
@@ -141,27 +141,6 @@
    "modelVersion": "nfl-anytime-td-opportunity-v1"
   },
   {
-   "playerId": "nfl-athlete-4259545",
-   "name": "D'Andre Swift",
-   "position": "RB",
-   "team": "CHI",
-   "opponent": "NE",
-   "event": "NE @ CHI",
-   "providerEventId": "401873010",
-   "kickoffUtc": "2026-10-23T00:15Z",
-   "tdProbability": 0.6352,
-   "probabilitySource": "the game's player board — the published anytime-touchdown family",
-   "probabilityRange": {
-    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ACTIVE_EXPECTED",
-   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
-   "marketPrice": null,
-   "pricingState": "NOT_PROBED",
-   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
-   "modelVersion": "nfl-anytime-td-opportunity-v1"
-  },
-  {
    "playerId": "nfl-athlete-4430807",
    "name": "Bijan Robinson",
    "position": "RB",
@@ -265,16 +244,31 @@
    "pricingState": "NOT_PROBED",
    "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
    "modelVersion": "nfl-anytime-td-opportunity-v1"
+  },
+  {
+   "playerId": "nfl-athlete-4374302",
+   "name": "Amon-Ra St. Brown",
+   "position": "WR",
+   "team": "DET",
+   "opponent": "GB",
+   "event": "GB @ DET",
+   "providerEventId": "401873020",
+   "kickoffUtc": "2026-10-25T20:25Z",
+   "tdProbability": 0.5213,
+   "probabilitySource": "the game's player board — the published anytime-touchdown family",
+   "probabilityRange": {
+    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ACTIVE_EXPECTED",
+   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+   "marketPrice": null,
+   "pricingState": "NOT_PROBED",
+   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
+   "modelVersion": "nfl-anytime-td-opportunity-v1"
   }
  ],
- "candidateCount": 175,
+ "candidateCount": 159,
  "withheld": [
-  {
-   "event": "PIT @ NO",
-   "team": "NO",
-   "player": "Alvin Kamara",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
   {
    "event": "PIT @ NO",
    "team": "PIT",
@@ -490,7 +484,7 @@
   ],
   "tdMarketOffered": true,
   "pricedCandidates": 0,
-  "roleReadyCandidates": 175,
+  "roleReadyCandidates": 159,
   "cardActivation": "FOUNDER_DECISION_PENDING"
  },
  "disclaimer": "Model touchdown probabilities. Educational."
