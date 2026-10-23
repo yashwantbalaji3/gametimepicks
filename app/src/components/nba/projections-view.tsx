@@ -168,7 +168,7 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
         <>
           {/* Provenance per game, one tap away: on a phone an 11-game list otherwise pushes the filters two screens down. */}
           <details className="text-[12px]" style={MUTE}>
-            <summary className="cursor-pointer min-h-[44px] flex items-center" style={TEXT}>
+            <summary className="cursor-pointer min-h-[44px] py-3 underline decoration-dotted" style={TEXT}>
               Freeze times, receipts and game status · {live.games.length} game{live.games.length === 1 ? "" : "s"}
             </summary>
             <ul className="m-0 pl-5 text-[12px] leading-relaxed" style={MUTE} aria-label="Freeze times and receipts">
