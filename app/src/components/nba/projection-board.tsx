@@ -25,7 +25,7 @@ export type BoardOption = { id: string; label: string };
 export type PackedBoard = { t: [string, string, string][]; r: (string | number | null)[][]; a?: (0 | (number | string | null)[])[] };
 export type StatGroup = { id: string; label: string; cols: number[] };
 
-const fmt = (v: number | null | undefined) => (v == null ? "—" : String(v));
+const fmt = (v: number | string | null | undefined) => (v == null ? "—" : String(v));
 const FIELD = "flex flex-col gap-1 min-w-0 text-[12px]";
 const INPUT = "w-full min-w-0 min-h-[40px] rounded-md px-2 text-[14px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2";
 const INPUT_STYLE = { border: "1px solid var(--vault-border)", background: "var(--vault-panel)", color: "var(--vault-text)", outlineColor: "var(--vault-gold-bright)" };

@@ -71,7 +71,7 @@ export function gradedBoxscore(id: string): unknown | null {
  */
 export function boardActuals(
   lane: Snapshot | null,
-  stats: ReadonlyArray<readonly [string, string]>,
+  stats: ReadonlyArray<ReadonlyArray<string>>,
   { boxscoreOf = gradedBoxscore, finals = undefined as unknown }: { boxscoreOf?: (id: string) => unknown | null; finals?: unknown } = {},
 ): BoardActuals | null {
   if (!lane || lane.games.length === 0) return null;
