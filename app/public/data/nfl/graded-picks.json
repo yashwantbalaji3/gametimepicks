@@ -3,18 +3,18 @@
  "artifact": "graded-picks",
  "dataClass": "PUBLIC_DERIVED",
  "moneyClass": "NON_MONEY",
- "generatedAt": "2026-10-23T13:25:24Z",
+ "generatedAt": "2026-10-23T14:29:37Z",
  "sport": "nfl",
  "label": "NFL",
  "what": "Game forecasts: the model-favored team (the higher frozen win probability), graded against the official final. This is historical model-favored winner accuracy, not a record of published picks.",
  "caveat": "EXPERIMENTAL. The NFL team model has not cleared a preregistered bar and is not promoted into any paper product. A tie is recorded as void, not a miss.",
  "counts": {
-  "counted": 133,
-  "hits": 77,
+  "counted": 134,
+  "hits": 78,
   "misses": 56,
   "voided": 3,
   "shown": 60,
-  "total": 136
+  "total": 137
  },
  "hitRate": null,
  "recordBasis": "MIXED",
@@ -28,15 +28,30 @@
   },
   {
    "basis": "PUBLISHED",
-   "counted": 28,
-   "hits": 16,
+   "counted": 29,
+   "hits": 17,
    "misses": 12,
-   "hitRate": 0.5714
+   "hitRate": 0.5862
   }
  ],
  "sampleState": "EMERGING",
- "sampleNote": "133 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
+ "sampleNote": "134 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
  "picks": [
+  {
+   "eventId": "nfl-401873010",
+   "when": "2026-10-22",
+   "eventName": null,
+   "subject": "NE @ CHI",
+   "market": "Winner",
+   "basis": "PUBLISHED",
+   "noPick": false,
+   "predicted": "HOME",
+   "actual": "HOME",
+   "modelProbability": null,
+   "probabilityOfActual": 0.5198,
+   "marketProbabilityOfActual": null,
+   "hit": true
+  },
   {
    "eventId": "nfl-401873008",
    "when": "2026-10-19",
@@ -921,21 +936,6 @@
    "probabilityOfActual": 0.6166,
    "marketProbabilityOfActual": null,
    "hit": true
-  },
-  {
-   "eventId": "nfl-401872961",
-   "when": "2026-09-27",
-   "eventName": null,
-   "subject": "LV @ NO",
-   "market": "Winner",
-   "basis": "HISTORICAL_MODEL_FAVORED",
-   "noPick": false,
-   "predicted": "HOME",
-   "actual": "AWAY",
-   "modelProbability": null,
-   "probabilityOfActual": 0.4018,
-   "marketProbabilityOfActual": null,
-   "hit": false
   }
  ]
 }
