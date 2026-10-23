@@ -12,6 +12,7 @@
  */
 import Link from "next/link";
 import { formatUpdatedEt } from "@/lib/format";
+import { PUBLIC_TERMS } from "@/lib/public-registry";
 
 const CSS = `
 .s2 table{width:100%;border-collapse:collapse}
@@ -93,13 +94,16 @@ export default function SimulationV2Report({ r, canonical, gameHref }: { r: any;
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
 
       <div className="card exp">
-        <p className="tag" style={{ margin: 0 }}>Simulation V2 · experimental · how to read this page</p>
+        {/* Founder directive 2026-10-23 public readiness: named in the public vocabulary — a Game Simulation, never the
+            Official Forecast. Every fact in the paragraph below (anchored to the forecast, not shown more accurate,
+            feeds no pick, frozen before kickoff) is unchanged. */}
+        <p className="tag" style={{ margin: 0 }}>{PUBLIC_TERMS.GAME_SIMULATION} · Simulation V2 · how to read this page</p>
         <p style={{ margin: "6px 0 0", fontSize: 13.5, color: "var(--vault-text)" }}>
           Each run is one internally consistent possible game: drives, plays, player stats and points all add up inside that run.
           The numbers below summarise all {r.runCount.toLocaleString("en-US")} simulated games.
         </p>
         <p className="m" style={{ margin: "6px 0 0", fontSize: 12.5 }}>
-          This is a separate, experimental engine, not our main forecast. It is not independent of it: each team&apos;s scoring level is
+          This is a {PUBLIC_TERMS.GAME_SIMULATION} from a separate engine, not the {PUBLIC_TERMS.OFFICIAL_FORECAST}. It is not independent of it: each team&apos;s scoring level is
           set so the simulated average total and margin match the Game Time Forecast&apos;s expected total and margin. It has not been shown to be more accurate than the Game Time
           Forecast: on held-out past games its win chances scored slightly worse. It is shown for exploration, takes no betting-market
           input, and feeds no pick or product. It was frozen before kickoff and is never re-run with live information.
@@ -108,7 +112,7 @@ export default function SimulationV2Report({ r, canonical, gameHref }: { r: any;
 
       {canonical ? (
         <div className="card canon">
-          <p className="tag" style={{ margin: 0 }}>Game Time Forecast · our main model · separate from this simulation</p>
+          <p className="tag" style={{ margin: 0 }}>{PUBLIC_TERMS.OFFICIAL_FORECAST} · Game Time Forecast · separate from this simulation</p>
           <p style={{ margin: "6px 0 0", fontSize: 13, fontFamily: "var(--font-mono,ui-monospace,monospace)", overflowWrap: "anywhere" }}>
             {A} {canonical.projectedAway} — {canonical.projectedHome} {H} · win chance {A} {pct(canonical.awayWin)} · {H} {pct(canonical.homeWin)} · total {canonical.totalMedian}
           </p>
@@ -264,7 +268,7 @@ export default function SimulationV2Report({ r, canonical, gameHref }: { r: any;
           <table>
             <tbody>
               <tr><th scope="row">Engine</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.simulationEngine} {r.simulationEngineVersion}</td></tr>
-              <tr><th scope="row">Status</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>Research only · experimental · not promoted · not our main forecast</td></tr>
+              <tr><th scope="row">Status</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{PUBLIC_TERMS.GAME_SIMULATION} · not promoted · not the {PUBLIC_TERMS.OFFICIAL_FORECAST} · feeds no pick or product</td></tr>
               <tr><th scope="row">Runs</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.runCount.toLocaleString("en-US")} · incoherent runs {r.validation.failedRuns} of {r.validation.sampleCount.toLocaleString("en-US")}</td></tr>
               <tr><th scope="row">Generated</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{stamp(r.generatedAt)} · before kickoff {stamp(kickoff.toISOString())}</td></tr>
               <tr><th scope="row">Seed</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.baseSeed} · {r.seedStrategy}</td></tr>

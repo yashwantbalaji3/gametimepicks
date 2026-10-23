@@ -120,7 +120,10 @@ test("the replacement words are what renders (rows #28-#32, #34-#39)", () => {
   assert.doesNotMatch(nfl, />\{c\.state\}</, "the coverage table prints the raw enum");
   // #39: no enum, no market enum, no receipt file path.
   const sim = rendered("src/components/nfl/simulation-v2-report.tsx");
-  assert.match(sim, /Research only · experimental · not promoted · not our main forecast/);
+  // founder directive 2026-10-23 public readiness: the Status row reads in the public vocabulary (was "Research only ·
+  // experimental · not promoted · not our main forecast"); still words, not the promotionState enum, and still says
+  // it is not promoted and not the forecast.
+  assert.match(sim, /\{PUBLIC_TERMS\.GAME_SIMULATION\} · not promoted · not the \{PUBLIC_TERMS\.OFFICIAL_FORECAST\} · feeds no pick or product/);
   assert.match(sim, /"Not used as an input"/);
   assert.doesNotMatch(sim, /\{r\.promotionState\}|file\.split/);
 });

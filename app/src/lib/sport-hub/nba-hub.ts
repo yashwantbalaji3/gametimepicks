@@ -30,7 +30,7 @@ export const NBA_HUB_BEHIND_DAYS = 3;
 export const NBA_NO_FORECAST_NOTE = "No public forecast yet — publishes on game day";
 export const NBA_PRESEASON_NOTE = "Preseason — no forecast published";
 /** A game the NBA experimental public lane covers (preregistration §13): the row points at it, never claims validation. */
-export const NBA_LANE_NOTE = "Official forecast on today's card above — not validated";
+export const NBA_LANE_NOTE = "Official Forecast on today's card above";
 
 type Side = { abbr?: string | null; name?: string | null; providerTeamId?: string | number | null };
 type ScheduleRow = { providerEventId?: string; dateUtc?: string; statusRaw?: string | null; seasonType?: number | null; home?: Side | null; away?: Side | null };

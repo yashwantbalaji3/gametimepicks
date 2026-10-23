@@ -20,6 +20,7 @@
  * Pure: no fs, safe in client components.
  */
 import { soccerLeaguePages } from "./soccer/leagues.mjs";
+import { publicSport } from "@/lib/public-registry";
 
 export type SportKey = "football" | "basketball" | "baseball" | "soccer" | "mma";
 
@@ -33,6 +34,10 @@ export type Competition = {
   note: string;
 };
 
+/* Founder directive 2026-10-23 public readiness: nav notes are the public registry's (lib/public-registry.ts) — one
+   vocabulary, and no per-surface doubt ("not validated" lives once per feature, in its Model Performance link). */
+const navNote = (key: string) => publicSport(key)?.navNote ?? "";
+
 export type Sport = {
   key: SportKey;
   label: string;
@@ -42,24 +47,24 @@ export type Sport = {
 
 export const SPORTS: readonly Sport[] = [
   { key: "football", label: "Football", glyph: "🏈",
-    competitions: [{ href: "/nfl", label: "NFL", note: "experimental sims", key: "nfl" }] },
+    competitions: [{ href: "/nfl", label: "NFL", note: navNote("nfl"), key: "nfl" }] },
   /* Session 6 (founder decision 3): NBA is a factual hub — schedule and official finals, no forecast while every NBA
      model is shadow/withheld. */
   { key: "basketball", label: "Basketball", glyph: "🏀",
-    competitions: [{ href: "/nba", label: "NBA", note: "schedule + experimental projections · not validated", key: "nba" }] },
+    competitions: [{ href: "/nba", label: "NBA", note: navNote("nba"), key: "nba" }] },
   { key: "baseball", label: "Baseball", glyph: "⚾",
-    competitions: [{ href: "/mlb", label: "MLB", note: "simulation center", key: "mlb" }] },
+    competitions: [{ href: "/mlb", label: "MLB", note: navNote("mlb"), key: "mlb" }] },
   { key: "soccer", label: "Soccer", glyph: "⚽",
     competitions: [
       /* P185/P213: "not validated" is the Premier League's standing limitation, stated once per surface. */
-      { href: "/epl", label: "Premier League", note: "forecasts · not validated", key: "epl" },
+      { href: "/epl", label: "Premier League", note: navNote("epl"), key: "epl" },
       /* soccerLeaguePages() only returns leagues whose route is /soccer/<key>. Their note is what Ligue 1's page and the
          capability registry state: model-only forecasts, accepted on a preregistered backtest, too few matches yet to
          grade forward — "backtest only", neither "validated" nor the Premier League's "not validated". */
-      ...soccerLeaguePages().map((l) => ({ href: `/soccer/${l.key}`, label: l.name, note: "model-only forecasts · backtest only", key: l.key })),
+      ...soccerLeaguePages().map((l) => ({ href: `/soccer/${l.key}`, label: l.name, note: publicSport(l.key)?.navNote ?? "Official Forecasts", key: l.key })),
     ] },
   { key: "mma", label: "MMA", glyph: "🥊",
-    competitions: [{ href: "/ufc", label: "UFC", note: "fight card + archive", key: "ufc" }] },
+    competitions: [{ href: "/ufc", label: "UFC", note: navNote("ufc"), key: "ufc" }] },
 ];
 
 /** Every competition with its sport, in catalog order. */

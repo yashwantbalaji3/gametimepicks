@@ -71,14 +71,16 @@ export const NFL_COVERAGE: MarketCoverage[] = [
     status: "experimental", predictionSource: "independent_sim",
     requiredData: ["schedule", "cutoff-versioned strength state", "phase-appropriate scoring model"],
     settlementSupport: "supported",
-    publicExplanation: "A simulated score range and win chance for every regular-season game from the evaluated team-strength model, frozen before kickoff and always marked experimental — it picked about 64% of winners on a held-out 2025 season. (The archived preseason identity picked winners no better than a coin flip on its held-out preseason, which is why it never fed products.) Neither is presented as sharper than the sportsbook price.",
+    publicExplanation: "A simulated score range and win chance for every regular-season game from the evaluated team-strength model, frozen before kickoff — the Official Forecast. Model Performance: it picked about 64% of winners on a held-out 2025 season. (The archived preseason identity picked winners no better than a coin flip on its held-out preseason, which is why it never fed products.) Neither is presented as sharper than the sportsbook price.",
   },
   {
     sport: "nfl", market: "moneyline", publicLabel: "Win chance",
     status: "experimental", predictionSource: "independent_sim",
     requiredData: ["team score simulation"],
     settlementSupport: "supported",
-    publicExplanation: "Read from the same simulation as the projected score, so the two can never disagree. Experimental — never a validated pick.",
+    /* F04 (audit 2026-10-23): the win chance is NOT read from the score simulation — the NFL model notes (nfl/index.json
+       honestLimit) say it comes from the team rating that weights how decisively teams win. */
+    publicExplanation: "From the team rating that weights how decisively teams win — not from the score simulation, so the two are not forced to agree. Official Forecast, frozen before kickoff; never a product leg.",
   },
   {
     sport: "nfl", market: "totals", publicLabel: "Total points",
@@ -106,7 +108,7 @@ export const NFL_COVERAGE: MarketCoverage[] = [
     status: "experimental", predictionSource: "independent_sim",
     requiredData: ["walk-forward role evidence", "per-family evaluation receipts"],
     settlementSupport: "supported",
-    publicExplanation: "Receptions and receiving yards publish as validated model forecasts under their own evaluation receipts. Passing and rushing yards display as UNVALIDATED ESTIMATES — each failed a named evaluation bar (passing loses to a simple recent-form baseline; rushing failed calibration) and carries that caveat wherever it renders. Availability states on every row; no family is priced against a market and none is product-eligible.",
+    publicExplanation: "Receptions and receiving yards publish as validated model forecasts under their own evaluation receipts. Passing and rushing yards display as UNVALIDATED ESTIMATES, not Official Forecasts — each failed a named evaluation bar (passing loses to a simple recent-form baseline; rushing failed calibration) and carries that caveat wherever it renders. Availability states on every row; no family is priced against a market and none is product-eligible.",
   },
 ];
 
@@ -159,7 +161,7 @@ export const MARKET_COVERAGE: readonly MarketCoverage[] = [
     status: "experimental", predictionSource: "independent_sim",
     requiredData: ["Full-game simulation artifact (10k complete games from board projections)"],
     settlementSupport: "supported",
-    publicExplanation: "An independent full-game Monte Carlo — 10,000 complete simulated games from the pregame board projections — produces the projected score, win probability and run distributions where its artifact qualifies; games without one show no projected score. Experimental: it has not been validated to out-predict the market.",
+    publicExplanation: "An independent full-game Monte Carlo — 10,000 complete simulated games from the pregame board projections — produces the projected score, win probability and run distributions where its artifact qualifies; games without one show no projected score. Game Simulation; Model Performance: it has not been validated to out-predict the market.",
   },
   {
     sport: "mlb", market: "team_totals", publicLabel: "Team totals",
@@ -254,7 +256,7 @@ export const MARKET_COVERAGE: readonly MarketCoverage[] = [
     sport: "ufc", market: "moneyline", publicLabel: "Moneyline (winner)",
     status: "experimental", predictionSource: "experimental_model", requiredData: ["fight corpus (results, tale-of-the-tape)"],
     settlementSupport: "pending",
-    publicExplanation: "The fight model's own win probability — a fitted, Platt-calibrated read, NOT a market price. EXPERIMENTAL: graded publicly beside the de-vigged line, which the cumulative comparison currently favours.",
+    publicExplanation: "The fight model's own win probability — a fitted, Platt-calibrated read, NOT a market price. Official Forecast; Model Performance: graded publicly beside the de-vigged line, which the cumulative comparison currently favours.",
   },
   {
     sport: "ufc", market: "method_of_victory", publicLabel: "Method of victory",
@@ -277,11 +279,11 @@ export function coverageForSport(sport: MarketSport): MarketCoverage[] {
 }
 
 /** Sports in the registry, ordered by current activity: MLB is the live sport; soccer is a market-implied
- *  capability with no live tournament right now (the 2026 World Cup is complete); UFC is experimental. */
+ *  capability with no live tournament right now (the 2026 World Cup is complete); UFC publishes model-only forecasts. */
 export const COVERAGE_SPORTS: { key: MarketSport; label: string; note: string }[] = [
   { key: "mlb", label: "MLB", note: "market-anchored + 10k player-prop sim" },
   // P175-C: NFL joins the SHARED coverage registry rather than getting a forked matrix.
-  { key: "nfl", label: "NFL", note: "experimental 10k score simulation — not product-eligible" },
+  { key: "nfl", label: "NFL", note: "Official Forecast · 10k score simulation — not product-eligible" },
   { key: "soccer", label: "Soccer", note: "market-implied 90' read — no live tournament right now" },
-  { key: "ufc", label: "UFC", note: "experimental fight model — model-only, not product-eligible" },
+  { key: "ufc", label: "UFC", note: "Official Forecast · fight model — model-only, not product-eligible" },
 ];

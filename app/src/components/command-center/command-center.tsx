@@ -48,7 +48,7 @@ function Lane({ lane }: { lane: CommandCenterLane }) {
   return (
     <div className="gtp-lane flex flex-col gap-2 rounded-[14px] px-4 py-3.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)", borderTop: `2px solid ${SPORT_ACCENT[lane.sport]}` }} data-sport={lane.sport}>
       <div className="flex items-center justify-between gap-2">
-        <Link href={lane.hubHref} className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800, textDecoration: "none" }}>{lane.label}</Link>
+        <Link href={lane.hubHref} className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800, textDecoration: "none", minHeight: 44, display: "inline-flex", alignItems: "center" }}>{lane.label}</Link>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: STATE_TONE[lane.state] ?? "var(--vault-text-faint)", fontSize: 8.5 }}>{lane.stateLabel}</span>
       </div>
       <p className="m-0 text-[12px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{lane.contextLine}</p>
@@ -60,11 +60,11 @@ function Lane({ lane }: { lane: CommandCenterLane }) {
         <p className="m-0 rounded-[12px] px-3 py-2.5 text-[12px] leading-snug" style={{ color: "var(--vault-text-mute)", border: "1px dashed var(--vault-rule)" }}>{lane.emptyLine}</p>
       )}
       <div className="mt-auto flex items-center justify-between gap-2 pt-1 flex-wrap">
-        <Link href={lane.hubHref} className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5, minHeight: 24, display: "inline-flex", alignItems: "center" }}>Open {lane.label} hub →</Link>
+        <Link href={lane.hubHref} className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5, minHeight: 44, display: "inline-flex", alignItems: "center" }}>Open {lane.label} hub →</Link>
         {/* A games lane (NBA) gives its secondary link a 44px target (release owner 2026-10-22: Top Boards measured 15px at
             390px); the other lanes' links are unchanged. */}
-        {lane.secondary ? <Link href={lane.secondary.href} className={lane.games ? "font-mono gtp-hit-44" : "font-mono"} style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{lane.secondary.label} · {lane.secondary.note} →</Link> : null}
-        {lane.simulateHref ? <Link href={lane.simulateHref} className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5, minHeight: 24, display: "inline-flex", alignItems: "center" }}>Simulate →</Link> : null}
+        {lane.secondary ? <Link href={lane.secondary.href} className="font-mono gtp-hit-44" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{lane.secondary.label} · {lane.secondary.note} →</Link> : null}
+        {lane.simulateHref ? <Link href={lane.simulateHref} className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5, minHeight: 44, display: "inline-flex", alignItems: "center" }}>Simulate →</Link> : null}
       </div>
     </div>
   );
@@ -78,7 +78,7 @@ export default function CommandCenter({ lanes, heading, subtitle, id = "command-
     <section aria-labelledby={`${id}-h`} data-command-center={id} className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between gap-2 flex-wrap">
         <h2 id={`${id}-h`} className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold)", fontSize: 11 }}>{heading}</h2>
-        <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{subtitle} · <Link href="/methodology/#model-status" style={{ color: "var(--vault-text-faint)" }}>what the statuses mean</Link></span>
+        <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{subtitle} · <Link href="/methodology/#model-status" style={{ color: "var(--vault-text-faint)", minHeight: 44, display: "inline-flex", alignItems: "center" }}>what the statuses mean</Link></span>
       </div>
       {/* Literal class strings (Tailwind JIT): five lanes take five columns at xl, never a 4 + 1 orphan row. */}
       <div className={`grid gap-3 sm:grid-cols-2 ${lanes.length === 5 ? "lg:grid-cols-3 xl:grid-cols-5" : "xl:grid-cols-4"}`}>

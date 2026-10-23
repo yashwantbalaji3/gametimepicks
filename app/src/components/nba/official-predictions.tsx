@@ -16,6 +16,7 @@
  */
 import Link from "next/link";
 import { COMBO_STATS, STATS } from "@/lib/sports/nba/experimental-public-lane.mjs";
+import { PUBLIC_TERMS } from "@/lib/public-registry";
 
 /* The official panel's shape (possession-types PbOfficial — payload.mjs officialPanel), declared here structurally so
    this official component imports nothing from the research Theater library (public-theater-route research boundary). */
@@ -31,7 +32,8 @@ type LaneRow = { providerAthleteId: string; medians: Record<string, number | nul
 export type OfficialLaneGame = { providerEventId: string; receipt: { modelVersion: string }; players: { away: LaneRow[]; home: LaneRow[] } } | null;
 
 export const OFFICIAL_PREDICTIONS_ID = "official-predictions";
-export const OFFICIAL_PREDICTIONS_TITLE = "GameTimePicks Official Predictions";
+// founder directive 2026-10-23 public readiness: the registry term ("Official Forecast")
+export const OFFICIAL_PREDICTIONS_TITLE = `GameTimePicks ${PUBLIC_TERMS.OFFICIAL_FORECAST}`;
 
 /* The lane's own 1-dp rounding (experimental-public-lane.mjs r1), so this table prints exactly what Top Boards prints. */
 const r1 = (v: number | null | undefined) => (typeof v === "number" && Number.isFinite(v) ? Math.round(v * 10) / 10 : null);
@@ -58,16 +60,16 @@ export default function NbaOfficialPredictions({ official, teams, lane, finalNot
 }) {
   return (
     <section id={OFFICIAL_PREDICTIONS_ID} tabIndex={-1} className="nbx-official" aria-labelledby={`${OFFICIAL_PREDICTIONS_ID}-h`} data-nba-official-predictions={official?.snapshotId ?? "none"}>
-      <p className="nbx-kind">Official prediction · frozen before tip-off · the same on every page</p>
+      <p className="nbx-kind">{PUBLIC_TERMS.OFFICIAL_FORECAST} · frozen before tip-off · the same on every page</p>
       <h2 id={`${OFFICIAL_PREDICTIONS_ID}-h`}>{OFFICIAL_PREDICTIONS_TITLE}</h2>
       {official ? <Official official={official} teams={teams} lane={lane} /> : (
-        <p>No official forecast receipt for this game. Nothing on this page is an official prediction.</p>
+        <p>{PUBLIC_TERMS.UNAVAILABLE}: no Official Forecast receipt for this game. Nothing on this page is an Official Forecast.</p>
       )}
       <h3>What each part of this page is</h3>
       <ul className="nbx-legend">
-        <li><b>Official Prediction</b> — this section: frozen before tip-off, experimental and not validated. It is what GameTimePicks predicts.</li>
-        <li><b>Research Simulation</b> — the replay above: one possible game from an unvalidated research engine. Its score and box score are not a prediction and never change this section.</li>
-        <li><b>Real Result</b> — {finalNote ? <>official final: <strong>{finalNote}</strong>.</> : "the official final, recorded after the game."} <Link href={resultsHref}>NBA results →</Link></li>
+        <li><b>{PUBLIC_TERMS.OFFICIAL_FORECAST}</b> — this section: frozen before tip-off. It is what GameTimePicks forecasts.</li>
+        <li><b>{PUBLIC_TERMS.GAME_SIMULATION}</b> — the replay above: one possible game from the NBA possession engine. Its score and box score are not a forecast and never change this section.</li>
+        <li><b>Real Result</b> — {finalNote ? <>official final: <strong>{finalNote}</strong>.</> : "the official final, recorded after the game."} <Link href={resultsHref}>NBA {PUBLIC_TERMS.HISTORICAL_RESULTS} →</Link></li>
       </ul>
     </section>
   );
@@ -90,7 +92,7 @@ function Official({ official, teams, lane }: { official: PbOfficial; teams: Team
         return (
           <div key={side} className="nbx-scroll">
             <table className="nbx-ptable" data-nba-official-table={side}>
-              <caption>{teams[side].name} · official player medians</caption>
+              <caption>{teams[side].name} · {PUBLIC_TERMS.PLAYER_STATISTICS}</caption>
               <thead><tr><th scope="col">Player</th><th scope="col">MIN</th>{STATS.map(([, l]) => <th key={l} scope="col">{l}</th>)}{COMBO_STATS.map(([, l]) => <th key={l} scope="col">{l}</th>)}</tr></thead>
               <tbody>
                 {rows.map((p) => {

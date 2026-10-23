@@ -76,6 +76,8 @@ import SectionHeader from "@/components/section-header";
 import GamesTable from "@/components/games-experience-table";
 import { buildGamesTableRows, gamesTableDates } from "@/components/games-experience-table-rows";
 import { packGamesTable } from "@/components/games-experience-table-wire";
+import { publicSport } from "@/lib/public-registry";
+import { loadCurrentLane } from "@/components/nba/experimental-lane";
 
 export const metadata = withRouteMetadata("/today/", {
   title: "Today · GameTime Picks",
@@ -248,10 +250,14 @@ export default function TodayPage() {
   // ── Active-sport labels for the header — from the PRODUCT-DAY OWNER (P201 · A1), never counted
   //    here. A sport is "active today" exactly when its own canonical artifacts say LIVE; upcoming
   //    cards/matchdays stay off this line (they have their own surfaces below). ──
-  const SPORT_LABEL: Record<string, string> = { mlb: "MLB", epl: "Premier League", ufc: "UFC", nfl: "NFL" };
+  /* Founder directive 2026-10-23 public readiness: labels are the public registry's, and NBA — an Official Forecast
+     sport that is not a product day — counts as active when today's frozen lane snapshot is published. */
   const activeSports: string[] = buildProductDays(dataRoot)
     .filter((d) => d.state === "LIVE")
-    .map((d) => SPORT_LABEL[d.sport] ?? d.sport.toUpperCase());
+    .map((d) => publicSport(d.sport)?.label ?? d.sport.toUpperCase());
+  const etToday = currentEtDate();
+  const nbaToday = loadCurrentLane(etToday);
+  if (nbaToday?.date === etToday && nbaToday.games.length) activeSports.push(publicSport("nba")!.label);
 
   // ── Section 2 · Today at a glance — 5 compact status cards, each a canonical figure + a CTA. ──
   const glanceCards: GlanceCard[] = [

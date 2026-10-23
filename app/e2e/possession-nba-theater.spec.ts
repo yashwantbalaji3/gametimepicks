@@ -20,7 +20,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { test, expect, type Page } from "@playwright/test";
 
-import { ENGINE_LABEL, POSSESSION_BANNER, ROLE_C_LABEL, ROLE_C_NOTE } from "../src/lib/simulation-theater/nba/possession/labels.mjs";
+import { ENGINE_IDENTITY, ENGINE_LABEL, POSSESSION_BANNER, ROLE_C_NOTE, WHAT_IF_BANNER as POSSESSION_WHAT_IF_BANNER } from "../src/lib/simulation-theater/nba/possession/labels.mjs";
 
 // GTP_THEATER_TARGET=public: the PUBLIC route /nba/simulation/<id>/ of a flag-ON local build (both acts: the constant flipped
 // locally, never committed, and GTP_NBA_THEATER_PUBLIC=1). It has no dev URL hooks, so runs are chosen by their chips.
@@ -40,7 +40,8 @@ const GAMES = ART?.games ?? [];
 const WIDTHS = [[320, 640], [390, 844], [768, 1024], [1440, 900]] as const;
 // the engine identity text lives in labels.mjs (one source for the UI, the unit tests and this spec)
 const ENGINE = ENGINE_LABEL;
-const WHAT_IF_BANNER = "Hypothetical scenario — not the forecast";
+// founder directive 2026-10-23 public readiness: the possession Theater says What-if Scenario (labels.mjs)
+const WHAT_IF_BANNER = POSSESSION_WHAT_IF_BANNER;
 const url = (id: string, q = "") => (PUBLIC ? `/nba/simulation/${id}/` : `/dev/simulation-theater/nba/${id}/possession/${q}`);
 
 test.skip(!ENABLED, "possession theater spec: set GTP_THEATER_E2E=1 and serve a GTP_DEV_ROUTES=1 build, or a flag-ON build with GTP_THEATER_TARGET=public (see header)");
@@ -204,7 +205,7 @@ test("what-if end to end: the upset run ends won by the side the official foreca
 });
 
 for (const [w, h] of WIDTHS) {
-  test(`${w}px · founder labelling (approval 2026-10-21): the role C label and its five-point note are visible; the banner says not a real or live game`, async ({ page }) => {
+  test(`${w}px · labelling (founder directive 2026-10-23 public readiness): the engine named by name + id with its notes, in the engine panel; the banner says not a real or live game`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
     const errors = await open(page, GAMES[0].providerEventId);
     // founder directive 2026-10-22 22:55 ET: the note lives in the engine panel ("About this simulation"), and the engine
@@ -212,8 +213,10 @@ for (const [w, h] of WIDTHS) {
     const note = page.locator("[data-nbp-about-panel] [data-nbp-role-note]");
     await expect(note).toBeVisible();
     const theaterText = await page.locator("[data-nbp-theater]").innerText();
-    expect((theaterText.match(/Research Possession Simulation — Unvalidated/gi) ?? []).length).toBe(2);
-    await expect(note.locator("[data-nbp-role-label]")).toHaveText(ROLE_C_LABEL);
+    // founder directive 2026-10-23 public readiness: the engine named once (name + id), the banner once near the playback
+    expect((theaterText.match(/Game Simulation engine: NBA possession engine/g) ?? []).length).toBe(1);
+    expect((theaterText.match(/NOT A REAL OR LIVE GAME/g) ?? []).length).toBe(1);
+    await expect(note.locator("[data-nbp-role-label]")).toHaveText(ENGINE_IDENTITY);
     await expect(note.locator("li")).toHaveText([...ROLE_C_NOTE]);
     await expect(page.locator("[data-nbp-banner]")).toHaveText(POSSESSION_BANNER);
     await expect(page.locator("[data-nbp-oncourt-team]")).toHaveCount(2);

@@ -110,9 +110,14 @@ test("/sports revival keeps the retirement's invariant: coverage stated in words
     const src = renderedSource(PAGE_FOR[href]);
     if (SIMULATED.has(href)) continue;
     if (EXPERIMENTAL_LANE.has(href)) {
-      assert.match(src, /experimental projections — not validated/, `${href} must state its projections are not validated`);
+      /* founder directive 2026-10-23 public readiness: the page states what it publishes in the registry's terms and
+         carries its ONE Model Performance disclosure (the registry's NBA note); the nav entry is the registry's note —
+         it neither claims nor disclaims validation. */
+      assert.match(src, /PUBLIC_TERMS\.OFFICIAL_FORECAST/, `${href} names its Official Forecast`);
+      assert.match(src, /PUBLIC_TERMS\.MODEL_PERFORMANCE\}<\/strong>: \{NBA_PUBLIC\.features\.modelPerformance\.note\}/, `${href} carries its one Model Performance disclosure`);
+      assert.match(src, /a public Model Performance record for NBA has not been published yet/, `${href}'s Model Performance states the record is not published yet (release owner 2026-10-23 exact text)`);
       assert.match(src, /Schedule only — no public forecast/, `${href} keeps the factual-only wording for a disabled lane`);
-      assert.match(nav, new RegExp(`href: "${href}"[\\s\\S]{0,160}?not validated`), `${href}'s nav entry must say not validated`);
+      assert.match(nav, new RegExp(`href: "${href}"[\\s\\S]{0,80}?note: navNote\\("nba"\\)`), `${href}'s nav entry is the registry's note`);
       assert.doesNotMatch(src, /simulation pending/, `${href} must not imply a model is coming`);
       continue;
     }
@@ -126,7 +131,8 @@ test("/sports revival keeps the retirement's invariant: coverage stated in words
       // the nav SOURCE (the entry is the thing that could imply too much) and the page source.
       assert.match(src, /not validated out of sample/,
         `${href} publishes forecasts, so the page must state they are unvalidated`);
-      assert.match(nav, /href: "\/epl"[\s\S]{0,240}?not validated/,
+      // founder directive 2026-10-23 public readiness: the nav note is the registry's; the page keeps the disclosure
+      assert.match(nav, /href: "\/epl"[\s\S]{0,120}?note: navNote\("epl"\)/,
         `${href}'s nav entry must not imply a validated model — it said "simulation pending" while the page published forecasts`);
       continue;
     }

@@ -90,7 +90,7 @@ export default function PredictionCard({ card, variant = "compact" }: { card: Pr
         <span className="inline-flex items-center gap-2">
           {/* P310: saving keeps THIS card as it reads now; the saved page adds the result when it exists. */}
           <SaveForecastButton card={saveCardOf(card)} />
-          <Link href={card.href} className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5, minHeight: 36, display: "inline-flex", alignItems: "center" }}>Open report →</Link>
+          <Link href={card.href} className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5, minHeight: 44, display: "inline-flex", alignItems: "center" }}>Open report →</Link>
         </span>
       </div>
     </article>

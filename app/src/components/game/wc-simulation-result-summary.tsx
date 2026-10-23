@@ -7,7 +7,7 @@
  * Honest by construction:
  *   • Source is MARKET-IMPLIED (de-vigged sportsbook prices), NOT an independent soccer model, NO xG, NO
  *     projected scoreline. 90-minute regulation only (extra time / penalties excluded).
- *   • Small / no edges are EXPECTED for a market-implied read — "no strong edge = the market is efficient",
+ *   • Small / no edges are EXPECTED for a market-implied read — "no outcome clears the threshold" is a no-play,
  *     a valid no-play signal, not a broken simulation.
  * Pure/presentational. No fabrication.
  */
@@ -67,7 +67,7 @@ export default function WorldCupSimulationResultSummary({ home, away, threeWay, 
           </div>
           <p className="text-[12.5px] m-0" style={{ color: "var(--vault-text)" }}>
             Most likely 90′ result: <strong>{top?.label} ({pct(top?.p)})</strong>.{" "}
-            {efficient ? <span style={{ color: "var(--vault-text-mute)" }}>No strong edge — the market is efficient here, a valid no-play read, not a broken simulation.</span> : null}
+            {efficient ? <span style={{ color: "var(--vault-text-mute)" }}>No outcome clears the strong-lean threshold at this snapshot — a valid no-play result, not a broken simulation.</span> : null}
           </p>
         </div>
       ) : null}

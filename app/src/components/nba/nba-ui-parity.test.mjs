@@ -87,12 +87,12 @@ test("homepage NBA lane: rows (≤ NBA_LANE_ROWS), each linking to its /nba card
   assert.ok(lane.games.length <= NBA_LANE_ROWS);
   assert.equal(lane.games[0].note, "PHI favoured · Elo");
   assert.deepEqual(lane.games.map((g) => g.href), ["/nba/#nba-exp-g1", "/nba/#nba-exp-g2"], "each row → its card on /nba (every today's game has one)");
-  assert.equal(lane.games[1].note, "No official forecast");
+  assert.equal(lane.games[1].note, "No Official Forecast"); // founder directive 2026-10-23 public readiness: registry terms
   assert.deepEqual(lane.secondary, { label: "Top Boards", href: "/nba/projections/", note: "player projections" });
   const pending = nbaLane(slate({ lane: null }), NOW, { lastPublished: "2026-10-21" });
   assert.equal(nbaLane(slate({ lane: null }), NOW).stateLabel, "Schedule only", "no recent official forecast → schedule only (Other coverage)");
   assert.equal(pending.stateLabel, "Games today");
-  assert.match(pending.contextLine, /official forecast publishes before tip-off/);
+  assert.match(pending.contextLine, /Official Forecast publishes before tip-off/); // founder directive 2026-10-23 public readiness: registry terms
   assert.ok(pending.games.every((g) => g.note === "Forecast pending"));
   assert.equal(pending.secondary, null, "no Top Boards claim before the board exists");
   const off = nbaLane(slate({ nowIso: "2026-10-24T16:00:00Z" }), "2026-10-24T16:00:00Z", { lastPublished: "2026-10-22" });
@@ -118,8 +118,8 @@ test("the homepage renders NBA as a Command Center lane from the hub's own view 
 test("/nba overview: the four states say what is true, and 'publishes nothing' is gone", () => {
   const render = (s) => text(renderToStaticMarkup(React.createElement(NbaSlateOverview, { slate: s, gamesAnchor: "nba-experimental" })));
   assert.match(render(slate()), /2 games · first tip-off 7:00 PM ET/);
-  assert.match(render(slate()), /Official forecast published , frozen Oct 22, 10:30 AM ET/);
-  assert.match(render(slate({ lane: null })), /Today’s official forecast is not published yet/);
+  assert.match(render(slate()), /Official Forecast published , frozen Oct 22, 10:30 AM ET/); // founder directive 2026-10-23 public readiness: registry terms
+  assert.match(render(slate({ lane: null })), /Today’s Official Forecast is not published yet/);
   assert.match(render(slate({ nowIso: "2026-10-24T16:00:00Z" })), /No NBA games today/);
   assert.match(render(slate({ laneEnabled: false })), /Schedule only — no public forecast/);
   for (const s of [slate(), slate({ lane: null })]) assert.doesNotMatch(render(s), /Schedule only — no public forecast|publishes nothing/);
@@ -134,7 +134,7 @@ test("pending cards: matchup, clock status (SSR 'Upcoming'), no link and no side
   assert.equal((h.match(/<article/g) ?? []).length, 2);
   assert.equal((h.match(/<a /g) ?? []).length, 0, "no Theater link without a built page");
   assert.match(h, /Upcoming/);
-  assert.match(text(h), /Official forecast not published yet/);
+  assert.match(text(h), /Official Forecast not published yet/); // founder directive 2026-10-23 public readiness: registry terms
   assert.doesNotMatch(h, /favours/);
   assert.match(h, /https:\/\/a\.espncdn\.com\/i\/teamlogos\/nba\/500\/phi\.png/);
 });
@@ -155,7 +155,7 @@ test("official predictions: side, models, freeze, the full player table; combos 
   const p = lane.players.home[0];
   assert.ok(h.includes(`<td>${p.comboMedians.pra.toFixed(1)}</td>`));
   assert.doesNotMatch(text(h), /\d\s?%/, "no win chance");
-  assert.match(text(h), /Official Prediction .* Research Simulation .* Real Result/);
+  assert.match(text(h), /Official Forecast .* Game Simulation .* Real Result/); // founder directive 2026-10-23 public readiness: registry terms
   // no lane (or a lane for another game / model) → combos missing, never 0
   for (const bad of [null, { ...lane, providerEventId: "x" }, { ...lane, receipt: { modelVersion: "other" } }]) {
     const h2 = renderToStaticMarkup(React.createElement(Official, { official, teams, lane: bad, finalNote: null, resultsHref: "/r" }));
@@ -163,13 +163,13 @@ test("official predictions: side, models, freeze, the full player table; combos 
     assert.ok(cells.length > 0 && cells.every((c) => c.slice(-3).every((x) => x === "—")), "combos print — when they cannot be sourced");
   }
   const none = renderToStaticMarkup(React.createElement(Official, { official: null, teams, lane: null, finalNote: null, resultsHref: "/r" }));
-  assert.match(none, /No official forecast receipt for this game/);
+  assert.match(none, /Unavailable: no Official Forecast receipt for this game/); // founder directive 2026-10-23 public readiness: registry terms
   assert.doesNotMatch(none, /<table/);
 });
 
 test("Theater page: skip link → Theater → server-rendered official predictions, all behind the route's flag branch", () => {
   const body = read("src/components/simulation-theater/nba/possession/NbaPossessionGamePage.tsx");
-  const iSkip = body.indexOf("Skip to Official Predictions"), iTheater = body.indexOf("<NbaPossessionSection"), iOfficial = body.indexOf("<NbaOfficialPredictions");
+  const iSkip = body.indexOf("Skip to the Official Forecast"), iTheater = body.indexOf("<NbaPossessionSection"), iOfficial = body.indexOf("<NbaOfficialPredictions");
   assert.ok(iSkip > 0 && iSkip < iTheater && iTheater < iOfficial, "skip link at the top, the section directly below the Theater");
   assert.match(body, /href=\{`#\$\{OFFICIAL_PREDICTIONS_ID\}`\}/);
   const src = read("src/app/nba/simulation/[eventId]/page.tsx");
@@ -193,8 +193,9 @@ test("Theater page markup: the island's one h1, then the official section's h2 �
     React.createElement(Official, { official: load.payload.official, teams: load.payload.teams, lane, finalNote: null, resultsHref: "/nba/#nba-results" })));
   assert.equal((h.match(/<h1[\s>]/g) ?? []).length, 1, "one h1 (the Theater's game title)");
   assert.ok(h.indexOf("data-nbp-theater") < h.indexOf('id="official-predictions"'));
-  assert.ok(h.includes(">GameTimePicks Official Predictions</h2>"));
-  assert.match(h, /Research Possession Simulation — Unvalidated/, "the engine label is unchanged");
+  assert.ok(h.includes(">GameTimePicks Official Forecast</h2>")); // founder directive 2026-10-23 public readiness: registry terms
+  const { ENGINE_IDENTITY } = await import("../../lib/simulation-theater/nba/possession/labels.mjs");
+  assert.ok(h.includes(ENGINE_IDENTITY), "the engine is named by name + id");
   assert.equal((h.match(/<th scope="col">PRA<\/th>/g) ?? []).length, 2, "both teams' tables carry the combos");
 });
 
@@ -211,7 +212,7 @@ test("console-clean navigation (release owner 2026-10-22): every page-to-page NB
   }
 });
 
-test("homepage NBA lane: its Top Boards link is a 44px target; other lanes' secondary links are unchanged", async () => {
+test("homepage lanes: the NBA Top Boards link and every other lane's secondary link are 44px targets", async () => {
   const CC = await import("../command-center/command-center.tsx");
   const CommandCenter = CC.default?.default ?? CC.default;
   const nba = nbaLane(slate(), NOW);
@@ -220,5 +221,6 @@ test("homepage NBA lane: its Top Boards link is a 44px target; other lanes' seco
   // next/link drops the trailing slash outside a Next build (no trailingSlash env here), so match with or without it
   const linkTo = (href) => [...h.matchAll(/<a [^>]*>/g)].map((m) => m[0]).find((a) => a.includes(`href="${href.replace(/\/$/, "")}"`) || a.includes(`href="${href}"`));
   assert.match(linkTo("/nba/projections/"), /class="font-mono gtp-hit-44"/);
-  assert.match(linkTo("/soccer/ligue-1/"), /class="font-mono"/, "a lane without games keeps its link as it was");
+  // Release B (benchmark PR 1193 gap 8, release owner 2026-10-23): every lane's secondary link is now a 44px target too
+  assert.match(linkTo("/soccer/ligue-1/"), /class="font-mono gtp-hit-44"/);
 });

@@ -32,7 +32,7 @@ const CSS = `
 .nf-split > div{height:100%}
 /* tabs */
 .nf-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-top:12px;scrollbar-width:thin}
-.nf-tab{flex:0 0 auto;min-height:36px;padding:6px 12px;border-radius:999px;border:1px solid var(--vault-border-strong);background:transparent;color:var(--vault-text-mute);font-size:13px;cursor:pointer;white-space:nowrap}
+.nf-tab{flex:0 0 auto;min-height:44px;padding:6px 12px;border-radius:999px;border:1px solid var(--vault-border-strong);background:transparent;color:var(--vault-text-mute);font-size:13px;cursor:pointer;white-space:nowrap}
 .nf-tab[aria-selected="true"]{background:color-mix(in srgb, var(--vault-gold-bright) 16%, transparent);border-color:var(--vault-gold-bright);color:var(--vault-text)}
 .nf-tab:focus-visible{outline:2px solid var(--vault-gold-bright);outline-offset:2px}
 /* player rows */
