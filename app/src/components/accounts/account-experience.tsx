@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { accountsClient, accountsState } from "@/lib/accounts/client.mjs";
 import { accountsNotice } from "@/lib/accounts/config.mjs";
+import { PUBLIC_SIGNUP_OPEN, SIGNUP_CLOSED_DETAIL, SIGNUP_CLOSED_NOTICE } from "@/lib/accounts/public-entry.mjs";
 import SignInPanel from "./sign-in-panel";
 import SlipUpload, { type SlipReadResult } from "./slip-upload";
 import SlipConfirm from "./slip-confirm";
@@ -64,6 +65,17 @@ export default function AccountExperience({ bandByTier = null, legRecord = null 
   }
 
   if (!ready) return <p className="m-0" style={{ color: "var(--vault-text-faint)", fontSize: 13 }}>Checking your session…</p>;
+  /* Founder decision 2026-10-23: no public sign-in form until approved notices are published. A person already
+     signed in on this device (including one returning from an email link) still gets their record below. */
+  if (!user && !PUBLIC_SIGNUP_OPEN) {
+    return (
+      <section aria-label="Accounts" className="flex flex-col gap-2 rounded-[14px] p-4"
+        style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
+        <p className="m-0" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>{SIGNUP_CLOSED_NOTICE}</p>
+        <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 13, lineHeight: 1.6, maxWidth: "64ch" }}>{SIGNUP_CLOSED_DETAIL}</p>
+      </section>
+    );
+  }
   if (!user) return <SignInPanel />;
 
   return (
