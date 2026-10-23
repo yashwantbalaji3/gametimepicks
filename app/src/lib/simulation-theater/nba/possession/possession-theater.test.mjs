@@ -406,7 +406,11 @@ test("current slate (release owner 2026-10-21): the public route follows the bui
   assert.equal(slateIsCurrent(DATE, "2026-10-21T15:00:00Z"), false, "the next ET day hides it");
   assert.deepEqual(publicPossessionEvents(REPO, { now: "2026-10-21T15:00:00Z", date: DATE }), [], "a past slate is never published as current");
   assert.deepEqual(publicPossessionEvents(REPO, { now: `${DATE}T15:00:00Z` }), IDS, "the default date is the build's slate");
-  assert.deepEqual(publicPossessionEvents(REPO, { now: "2026-10-23T15:00:00Z" }), [], "no artifact for the day → nothing (placeholder 404)");
+  // A day that can never have a committed artifact (the hard-coded 2026-10-23 became a real slate when its lane
+  // published on 2026-10-23 14:22Z and turned main red — slate-dependent test; same assertion, a date that stays empty).
+  const EMPTY_DAY = "2099-01-15";
+  assert.equal(fs.existsSync(path.join(REPO, possessionArtifactPath(EMPTY_DAY))), false, "the probe day really has no artifact");
+  assert.deepEqual(publicPossessionEvents(REPO, { now: `${EMPTY_DAY}T15:00:00Z` }), [], "no artifact for the day → nothing (placeholder 404)");
 });
 
 test("storage (release owner 2026-10-21): one file per game ≤ 100 KiB, events packed on disk (lossless); the reader refuses a mixed or misnamed slate", async () => {

@@ -50,7 +50,7 @@ const CSS = `
 .nf-mkt{grid-column:1 / -1;font-size:11.5px;color:var(--vault-text-mute);font-family:var(--font-mono,ui-monospace,monospace);border-top:1px dashed var(--vault-border);padding-top:6px}
 .nf-flag{font-size:10.5px;border:1px solid var(--vault-warn);color:var(--vault-warn);border-radius:6px;padding:0 5px}
 .nf-withheld{border:1px dashed var(--vault-border-strong);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--vault-text-mute);margin-top:10px;line-height:1.5}
-.nf-details summary{cursor:pointer;min-height:32px;padding:6px 0;font-size:13px;color:var(--vault-text)}
+.nf-details summary{cursor:pointer;min-height:44px;padding:6px 0;font-size:13px;color:var(--vault-text)}
 .nf-details summary:focus-visible{outline:2px solid var(--vault-gold-bright);outline-offset:2px}
 .nf-table{width:100%;border-collapse:collapse}
 .nf-table th{text-align:left;padding:6px 8px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--vault-text-faint);white-space:nowrap}
