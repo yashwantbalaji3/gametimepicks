@@ -76,7 +76,7 @@ export default function NflPostgameBoxScore({ box }: { box: NflPostgame }) {
   const captured = fmtDate(box.capturedAt);
   return (
     <section id="what-happened" className="pg" aria-labelledby="pg-h">
-      <style>{CSS}</style>
+      <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <p className="pg-eyebrow">What happened · official box score</p>
       <h2 id="pg-h" className="pg-h2">
         {`Final: ${box.away.abbr} ${box.away.final} – ${box.home.final} ${box.home.abbr}${box.overtime ? " (OT)" : ""}`}

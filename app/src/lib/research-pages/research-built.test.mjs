@@ -36,7 +36,10 @@ test("RX1 the export holds exactly the research registry's pages", () => {
   const walkPages = (root) => {
     const dir = path.join(OUT, root);
     if (!fs.existsSync(dir)) return [];
-    return fs.readdirSync(dir).flatMap((sport) => fs.readdirSync(path.join(dir, sport)).filter((slug) => fs.existsSync(path.join(dir, sport, slug, "index.html"))).map((slug) => `/${root}/${sport}/${slug}/`));
+    /* Directories only: since gap 6 (2026-10-23) /teams/ and /teams/<sport>/ have index pages of their own (index.html
+       beside the sport and slug directories); those are pinned by app/players/_directory/game-discovery-built.test.mjs. */
+    const dirs = (p) => fs.readdirSync(p, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name);
+    return dirs(dir).flatMap((sport) => dirs(path.join(dir, sport)).filter((slug) => fs.existsSync(path.join(dir, sport, slug, "index.html"))).map((slug) => `/${root}/${sport}/${slug}/`));
   };
   const built = [...walkPages("teams"), ...walkPages("players")].sort();
   assert.deepEqual(built, index.map((e) => e.path).sort());

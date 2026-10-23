@@ -19,7 +19,10 @@ const has = (rel) => fs.existsSync(path.join(OUT, rel));
 const html = (rel) => fs.readFileSync(path.join(OUT, rel), "utf8");
 const index = JSON.parse(fs.readFileSync(path.join(APP, "..", "data", "research-projection", "v1", "index.json"), "utf8")).entries;
 
-/* Measured on the first build of this change (see the PR); ~1.6x headroom. Bounded by the research index, not by history. */
+/* Bounded by the research index, not by history. players/nfl: CI run 39912148148 (head 74696635e0) measured 208KB, over this
+   200KB ceiling; the row markup was then compacted (name as the link text, team in <small>, no per-row class), which cut the
+   list's server HTML from 101.8KB to 63.4KB for the 763 NFL rows (renderToString, same rows), so the page is ~170KB. The
+   ceiling was not raised. The other entries passed on that run. */
 const CEILING_KB = { "players/nfl/index.html": 200, "players/epl/index.html": 130, "players/mlb/index.html": 110, "players/ufc/index.html": 110, "teams/nfl/index.html": 60, "teams/mlb/index.html": 60, "teams/epl/index.html": 60, "players/index.html": 60, "teams/index.html": 60 };
 
 test("every research index page links exactly the detail pages that exist", (t) => {

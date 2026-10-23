@@ -38,7 +38,7 @@ export default function NflAllPlayersTable({ players, away, home }: { players: V
   const rows = [...players].sort((a, b) => order(a.team) - order(b.team) || weight(b) - weight(a) || a.name.localeCompare(b.name));
   return (
     <div className="ap">
-      <style>{CSS}</style>
+      <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <h3 className="ap-h3">All {rows.length} players on the official board</h3>
       <p className="ap-sub">The headline number is the median for yards, the expected count for receptions and the chance for a touchdown; the range under it is the 80% range. &ldquo;—&rdquo; means no official projection for that statistic.</p>
       <div className="ap-scroll" role="region" aria-label="All players on the official board" tabIndex={0}>

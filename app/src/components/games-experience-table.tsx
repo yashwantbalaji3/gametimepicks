@@ -44,7 +44,7 @@ export default function GamesTable({ rows, today, dates, asOf }: { rows: GamesTa
 
   return (
     <div className="gt">
-      <style>{CSS}</style>
+      <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div className="gt-controls">
         <label className="gt-field"><span>Sport</span>
           <select value={sport} onChange={(e) => setSport(e.target.value)}>
