@@ -13,7 +13,7 @@ import type { PbOfficial, PbPayload, PbRun } from "./possession-types";
 import { BOX_COLUMNS, fmtMinutes } from "@/lib/simulation-theater/nba/possession/box.mjs";
 import { fmtClockDs, periodLabel } from "@/lib/simulation-theater/nba/possession/playback.mjs";
 import {
-  ACCURACY_NOTE, ACCURACY_TITLE, DEFAULT_RUN_SUBTITLE, DEFAULT_RUN_TAG, DEFAULT_RUN_TITLE, INPUTS_AS_OF_NOTE, VERIFIED_NOTE, VERIFIED_TITLE, ROLE_C_LABEL, ROLE_C_NOTE, OFFICIAL_PANEL_NOTE, OFFICIAL_PANEL_TITLE, OUTCOME_PANEL_TITLE, POSSESSION_BANNER,
+  ACCURACY_NOTE, ACCURACY_TITLE, DEFAULT_RUN_SUBTITLE, DEFAULT_RUN_TAG, DEFAULT_RUN_TITLE, INPUTS_AS_OF_NOTE, VERIFIED_NOTE, VERIFIED_TITLE, ENGINE_IDENTITY, ROLE_C_NOTE, OFFICIAL_PANEL_NOTE, OFFICIAL_PANEL_TITLE, OUTCOME_PANEL_TITLE, POSSESSION_BANNER,
   POSSESSION_NOT_MODELLED, WHAT_IF_BANNER, WHAT_IF_TAG, WHAT_IS_REAL, WITHHELD,
 } from "@/lib/simulation-theater/nba/possession/labels.mjs";
 
@@ -353,12 +353,12 @@ export function BreakNotice({ frame, teams }: { frame: Frame; teams: Teams }) {
  */
 export function EngineFacts({ payload }: { payload: PbPayload }) {
   const e = payload.engine;
-  // e.label is ENGINE_LABEL, which begins with ROLE_C_LABEL: one sentence, its role label marked for the e2e
-  const rest = e.label.startsWith(ROLE_C_LABEL) ? e.label.slice(ROLE_C_LABEL.length) : null;
+  // e.label is ENGINE_LABEL, which begins with ENGINE_IDENTITY (name + id): one sentence, the identity marked for the e2e
+  const rest = e.label.startsWith(ENGINE_IDENTITY) ? e.label.slice(ENGINE_IDENTITY.length) : null;
   return (
     <>
       <div className="nbp-rolenote" role="note" data-nbp-role-note="">
-        <p className="nbp-engine" data-nbp-engine="">{rest != null ? <><b data-nbp-role-label="">{ROLE_C_LABEL}</b>{rest}</> : e.label}</p>
+        <p className="nbp-engine" data-nbp-engine="">{rest != null ? <><b data-nbp-role-label="">{ENGINE_IDENTITY}</b>{rest}</> : e.label}</p>
         <ul className="nbp-rolenote-list">{ROLE_C_NOTE.map((x: string) => <li key={x}>{x}</li>)}</ul>
       </div>
       <div className="nbp-about">

@@ -11,6 +11,7 @@ import { SPORTS, COMPETITIONS, competitionFor } from "./catalog.ts";
 import { NAV_DESTINATIONS } from "../navigation.ts";
 import { soccerLeaguePages } from "./soccer/leagues.mjs";
 import { LANE } from "./nba/experimental-public-lane.mjs";
+const { publicSport } = await import("../public-registry.ts");
 
 const read = (rel) => fs.readFileSync(path.join(process.cwd(), rel), "utf8");
 
@@ -42,13 +43,20 @@ test("🔴 no coverage note promises a forecast the hub does not publish, or a s
   // preregistration §13) it must say the projections are NOT validated; with the lane off it must say "no forecast".
   const nbaNote = competitionFor("nba").note;
   if (LANE.enabled) {
-    assert.match(nbaNote, /experimental projections · not validated/);
+    // founder directive 2026-10-23 public readiness: the note is the public registry's term for what /nba publishes
+    // (the one Model Performance disclosure lives on the hub, not in every nav entry)
+    assert.equal(nbaNote, publicSport("nba").navNote);
+    assert.match(nbaNote, /Official Forecasts/);
     assert.match(read("src/app/nba/page.tsx"), /<NbaExperimentalLane snapshot=\{lane\}[ >]/, "the note promises a lane the hub renders");
   } else assert.match(nbaNote, /no forecast/);
   assert.doesNotMatch(nbaNote, /\bvalidated\b(?<!not validated)/, "never 'validated' without 'not'");
   for (const c of COMPETITIONS) assert.doesNotMatch(c.note, /\blive\b|\bin season\b|\btoday\b/i, c.key);
   // Ligue 1 passed a preregistered backtest but has too few matches to grade forward: neither "validated" nor "not validated".
-  assert.equal(competitionFor("ligue-1").note, "model-only forecasts · backtest only");
+  // founder directive 2026-10-23 public readiness: its note is the registry's ("Official Forecasts"); the backtest-only
+  // fact is its Model Performance line on the league page and Methodology.
+  assert.equal(competitionFor("ligue-1").note, publicSport("ligue-1").navNote);
+  assert.match(publicSport("ligue-1").features.modelPerformance.note, /backtest/);
+  for (const c of COMPETITIONS) assert.doesNotMatch(c.note, /\bvalidated\b/, `${c.key}: the nav never claims or disclaims validation — Model Performance does`);
 });
 
 test("🔴 every hub mounts the shared switcher with its own catalog key", () => {

@@ -364,7 +364,9 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
   // P240 RS cutover: the phase in the tagline/lead is no longer a literal — it renders the
   // canonical index's own phaseLabel, so the words follow the published model. The guard got
   // STRICTER: it now pins that the page cannot hardcode a phase at all.
-  assert.match(nflHub, /Experimental \$\{index\?\.model\?\.phaseLabel/, "the page derives its phase from the canonical index, never a hardcoded literal");
+  // founder directive 2026-10-23 public readiness: the tagline reads "Official Forecasts · <phase>" instead of
+  // "Experimental <phase> simulations"; the phase is still the index's own phaseLabel, never a literal.
+  assert.match(nflHub, /\$\{PUBLIC_TERMS\.OFFICIAL_FORECAST\}s\$\{index\?\.model\?\.phaseLabel/, "the page derives its phase from the canonical index, never a hardcoded literal");
   /*
    * P250-W2: the non-claim had THREE retyped homes on this page — the header framing, a lead
    * sentence, and the model's own recorded honestLimit — and a reader met all three before a

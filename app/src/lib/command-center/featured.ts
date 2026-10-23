@@ -136,7 +136,8 @@ export function cardFromNflEvent(e: NflEvent, ctx: CardContext & { weekLabel?: s
   const favAbbr = homeFav ? e.home.abbr : e.away.abbr;
   const favProb = homeFav ? wp.home : wp.away;
   const margin = e.projectedScore ? Math.abs(e.projectedScore.home - e.projectedScore.away) : null;
-  const risks = ["Experimental: tested on past seasons, not validated to out-predict the sportsbook market."];
+  // founder directive 2026-10-23 public readiness: a Model Performance fact, worded as one
+  const risks = ["Model Performance: tested on past seasons, not validated to out-predict the sportsbook market."];
   if (e.total) risks.push(`Game totals miss by a lot: about 8 in 10 land inside the ${e.total.p10}–${e.total.p90} range.`);
   return {
     id: `nfl-${e.providerEventId}`, sport: "nfl", href: `/nfl/game/${e.providerEventId}/`, lifecycle: lifecycleOf(e.kickoffUtc, ctx.nowIso), startUtc: e.kickoffUtc, startLabel: startLabelOf(e.kickoffUtc),

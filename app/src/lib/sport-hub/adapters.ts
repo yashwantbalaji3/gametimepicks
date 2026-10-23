@@ -252,7 +252,7 @@ function nflReadFor(index: Map<string, { home: string; away: string; pHome: numb
   if (!e) return null;
   const fav = e.pHome >= e.pAway ? { abbr: e.home, p: e.pHome } : { abbr: e.away, p: e.pAway };
   return {
-    label: `${fav.abbr} ${(fav.p * 100).toFixed(1)}%`, kind: "MODEL_FORECAST", detail: "experimental",
+    label: `${fav.abbr} ${(fav.p * 100).toFixed(1)}%`, kind: "MODEL_FORECAST", detail: "Official Forecast", // founder directive 2026-10-23 public readiness
     // Both sides are the index's own numbers (pAway, pHome) — the card's order is away @ home.
     favored: fav.abbr, split: [{ label: e.away, p: e.pAway }, { label: e.home, p: e.pHome }],
   };
