@@ -66,7 +66,7 @@ A leg is eligible only if all of these hold:
 ## 5. What every tiered NBA card says
 
 - "Model joint probability X%", plus each leg's published Elo probability, its source (the NBA model session's display, with its frozen time) and its receipt reference.
-- **Rounding.** The joint and each leg % are shown at the display's own precision. The leg % shown here equals the % the display shows for that game, character for character.
+- **Rounding.** Each leg % is the display's own text (whole percent), character for character. The joint is ours to format and is shown at 1 dp, like every Level A card ("model joint probability 22.1%", the text the recorder matches). The tier comes from the exact joint and never moves to fit the text. Just past a band edge, where the 1 dp text would read as the neighbouring band (0.4987 is Medium at +101, but "49.9%" bands Low), that card alone shows the extra decimals that keep the text in its band (at most 4 dp). Amended by the release owner, 2026-10-23.
 - "Assumes the games are independent."
 - The display's validation label, imported from the display's own label constant (one source, never a copied sentence), so the two can never disagree.
 - "No sportsbook price. Settles on the official final."
@@ -107,7 +107,7 @@ A leg is eligible only if all of these hold:
    - display gated for a game → that leg untiered;
    - both switches ON → tiers.
 5. **Recording.** Only while the public switch is on (§6).
-6. **Rounding.** The display's precision; the shown leg % equals the display's shown % (§5).
+6. **Rounding.** The shown leg % equals the display's shown %. The joint is shown at 1 dp, with more decimals only at a band edge, and the tier is never moved (§5; amended: the joint was first proposed at the display's precision, which would show a 0.2496 High card as "25%").
 7. **Accessor dependency.** No code is built against an imagined accessor. The pure rule and its refusals are written first against a fixture. The accessor integration stacks on the NBA model session's draft PR (merge, never force-push).
 
 ## 9. Implementation order

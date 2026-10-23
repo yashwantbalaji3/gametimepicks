@@ -10,7 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import {
-  NBA_GAME_WINNER_TIERS_PUBLIC, NBA_GW_POLICY, NBA_GW_REFUSAL, nbaGameWinnerCopyText, nbaGameWinnerLeg, nbaGameWinnerTiers, nbaGameWinnerTiersEnabled, recordableNbaGameWinnerCards,
+  NBA_GAME_WINNER_TIERS_PUBLIC, NBA_GW_POLICY, jointShownFor, NBA_GW_REFUSAL, nbaGameWinnerCopyText, nbaGameWinnerLeg, nbaGameWinnerTiers, nbaGameWinnerTiersEnabled, recordableNbaGameWinnerCards,
 } from "./nba-game-winner-tiers.mjs";
 import { LEVEL_A_SUGGESTIONS_PUBLIC } from "./model.mjs";
 import { nbaSelections } from "./sources.mjs";
@@ -121,7 +121,8 @@ test("SHOWN: leg % is the display's own text, joint at the display's precision; 
   assert.ok(cards.length > 0);
   for (const c of cards) {
     for (const l of c.legs) assert.equal(l.shownPct, acc(l.eventId).shown[l.selection.code], "the shown leg % equals the display's shown %, character for character");
-    assert.equal(c.jointShown, `${(c.jointProbability * 100).toFixed(1)}%`);
+    assert.equal(c.jointShown, jointShownFor(c.jointProbability, c.tier));
+    assert.match(c.jointShown, /^\d+\.\d{1,4}%$/, "at least 1 dp, like every Level A card");
     assert.equal(c.validationLabel, LABEL, "the display's label, passed through, never rewritten");
     assert.match(c.dependency, /^Assumes the games are independent/);
     assert.equal(c.policy, NBA_GW_POLICY);
@@ -158,4 +159,29 @@ test("UNCHANGED OUTPUT: the rule adds nothing to the untiered Level A NBA rows (
     assert.equal(l.probability, null, "the Level A NBA leg stays untiered");
   }
   assert.equal(fs.readFileSync(path.resolve(process.cwd(), "src/lib/products/level-a/sources.mjs"), "utf8").includes("nba-game-winner-tiers"), false, "the readers do not know this rule exists");
+});
+
+test("JOINT TEXT AT BAND EDGES: 1 dp like Level A; more decimals only where 1 dp would read as the neighbouring band; the tier never moves", () => {
+  for (const j of [0.6666, 0.5001, 0.4999, 0.2501, 0.2499, 0.1431, 0.1429, 0.2212, 0.0935]) {
+    const tier = tierForJoint(j);
+    const shown = jointShownFor(j, tier);
+    assert.equal(shown, `${(j * 100).toFixed(1)}%`, `${j}: the release owner's listed edges read correctly at 1 dp`);
+    assert.equal(tierForJoint(Number(shown.slice(0, -1)) / 100), tier, `${j} (${tier}) shows ${shown}`);
+  }
+  /* Just past an edge, 1 dp would mislead: 0.4987 is Medium (+101) but "49.9%" bands Low; 0.24955 is High (+301) but
+     "25.0%" bands Medium. Those cards (only those) get the decimals that keep the text in the card's band. */
+  assert.equal(tierForJoint(0.4987), "medium");
+  assert.equal(jointShownFor(0.4987, "medium"), "49.87%");
+  assert.equal(tierForJoint(0.24955), "high");
+  assert.equal(jointShownFor(0.24955, "high"), "24.95%", "2 dp (binary rounding of 24.955 gives 24.95), which bands High");
+  assert.equal(tierForJoint(0.2495), "high");
+  for (const [lo, hi] of [[0.66, 0.672], [0.495, 0.505], [0.247, 0.253], [0.1415, 0.1445]]) {
+    for (let j = lo; j <= hi; j += 0.00001) {
+      const tier = tierForJoint(j);
+      if (!tier) continue;
+      const shown = jointShownFor(j, tier);
+      assert.equal(tierForJoint(Number(shown.slice(0, -1)) / 100), tier, `${j.toFixed(5)} (${tier}) shows ${shown}, which bands elsewhere`);
+      assert.ok(/^\d+\.\d{1,4}%$/.test(shown));
+    }
+  }
 });

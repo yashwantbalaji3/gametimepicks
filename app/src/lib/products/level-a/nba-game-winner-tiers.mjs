@@ -13,7 +13,7 @@
  * @property {string} eventId
  * @property {number} pHome                the published Elo home-win probability, exactly as the display holds it
  * @property {{ home: string, away: string }} shown   the % text the display shows for each side (its own rounding)
- * @property {number} decimals             the display's % precision
+ * @property {number} decimals             the display's % precision (leg text only; the joint is shown at 1 dp)
  * @property {string} frozenAt             the frozen receipt the display read
  * @property {string} payloadSha256        that receipt's payload hash
  * @property {string} validationLabel      the display's own label constant (imported there, passed through here)
@@ -45,7 +45,19 @@ export const NBA_GW_DEPENDENCY = "Assumes the games are independent: every leg i
 /** The Low band's upper edge, from the D2 bands: a joint above it is shorter than Low and is not tiered. */
 const SHORTER_THAN_LOW = "shorter than the Low band, so not tiered";
 
-const pctText = (p, decimals) => `${(p * 100).toFixed(decimals)}%`;
+/**
+ * The joint as shown. 1 dp, the same as every Level A card ("model joint probability 22.1%", the text the recorder
+ * matches). The tier is decided on the EXACT joint (its rounded fair price, D2) and is never moved to fit the text; but
+ * just past a band edge the 1 dp text can read as the neighbouring band (0.4987 is Medium at +101, yet "49.9%" bands as
+ * Low). Then, for that card only, add decimals until the shown number bands where the card does (at most 4 dp).
+ */
+export function jointShownFor(joint, tier) {
+  for (let d = 1; d <= 4; d += 1) {
+    const text = (joint * 100).toFixed(d);
+    if (tierForJoint(Number(text) / 100) === tier) return `${text}%`;
+  }
+  return `${(joint * 100).toFixed(4)}%`;
+}
 
 /**
  * One NBA game-winner leg: the Level A NBA side (already through the Level A leg gates) + the display's number.
@@ -78,10 +90,10 @@ const keyOf = (legs) => legs.map((l) => String(l.eventId)).sort().join("|");
 
 function cardOf(legs, tier) {
   const joint = legs.reduce((p, l) => p * l.probability, 1);
-  const decimals = Math.max(...legs.map((l) => l.decimals ?? 1));
+  const tierOfJoint = tierForJoint(joint);
   return {
     policy: NBA_GW_POLICY, tier, tierLabel: PUBLIC_RISK_LABELS[tier], legs, sports: ["nba"],
-    jointProbability: joint, jointShown: pctText(joint, decimals),
+    jointProbability: joint, jointShown: jointShownFor(joint, tierOfJoint),
     dependency: NBA_GW_DEPENDENCY,
     validationLabel: legs[0].validationLabel,
     whySelected: `Each leg is the official NBA side with its published Elo win probability; this is the combination with the highest joint probability in the ${PUBLIC_RISK_LABELS[tier]} band (${legs.length} legs).`,
