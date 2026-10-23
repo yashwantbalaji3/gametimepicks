@@ -91,3 +91,20 @@ test("REAL DATA: committed finals grade exactly one side of a finished game as t
   assert.equal(gradeLevelALeg({ sport: "ligue-1", eventId: "soccer:ligue-1:401876459", selection: { code: "draw" } }, finals).result, "loss");
   assert.deepEqual(both({ sport: "nba", eventId: "401909088" }), ["loss", "win"], "BOS @ DET, 2026-10-20 final");
 });
+
+test("SCHEDULE: nightly-settle grades after the MLB linescores, isolated from every other step, inside its existing commit", () => {
+  const wf = fs.readFileSync(path.resolve(process.cwd(), "../.github/workflows/nightly-settle.yml"), "utf8");
+  const steps = wf.split(/\n(?=      - name: )/);
+  const i = steps.findIndex((s) => s.startsWith("      - name: Grade Level A suggestions forward (isolated)"));
+  const paper = steps.findIndex((s) => s.startsWith("      - name: Settle paper product cards (internal ledgers)"));
+  const commit = steps.findIndex((s) => s.startsWith("      - name: Commit and push if results changed"));
+  assert.ok(paper > -1 && i > paper && i < commit, "after the linescore fetch, before the commit");
+  const step = steps[i].split(/\n      # ----/)[0];
+  assert.match(step, /continue-on-error: true/, "a red grader never blocks or alters the rest of settlement");
+  assert.match(step, /grade-level-a-suggestions\.mjs --now "\$\(date -u \+%Y-%m-%dT%H:%M:%SZ\)" --write/);
+  assert.match(step, /if \[ "\$CODE" = "3" \]; then echo "::error title=Level A grade CONFLICT::/, "a conflict is visible, not silent");
+  assert.match(step, /exit \$CODE/);
+  assert.doesNotMatch(step, /git (add|commit|push)|suggestions\.jsonl.*>/, "the step itself commits nothing and never writes the record");
+  assert.match(steps[commit], /git add data\/internal\/products\/ /, "graded.jsonl rides the existing nightly commit");
+  assert.doesNotMatch(fs.readFileSync(path.resolve(process.cwd(), "scripts/vercel-ignore-build.sh"), "utf8"), /data\/internal\/products/, "not a BUILD_INPUT: no Production build of its own");
+});
