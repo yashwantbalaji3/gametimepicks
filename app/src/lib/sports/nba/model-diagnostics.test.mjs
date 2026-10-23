@@ -126,3 +126,33 @@ test("diagnostics report: slate vs season-to-date, surprises listed, proposals t
   assert.match(md, /proposals are text only/);
   assert.match(md, /Proposals \(text only — nothing is applied\)/);
 });
+
+// ── few-clusters guard (prereg §14 reporting note, 2026-10-23): claim-suppressing ONLY ───────────────────────────────
+test("few-clusters guard: 2 games never produce a SYSTEMATIC finding or a proposal; the interval is still reported", () => {
+  const games = Array.from({ length: 2 }, (_, i) => graded(`s${i}`, { final: [100, 99], totalMean: 230 + i }));
+  const guarded = systematicFindings(games, { B: 400 });
+  const reference = systematicFindings(games, { B: 400, fewClustersBelow: 0 });
+  const g = guarded.find((x) => x.key === "totalBias"), r = reference.find((x) => x.key === "totalBias");
+  assert.equal(r.status, "SYSTEMATIC", "the pre-guard rule would have labelled 2 games SYSTEMATIC");
+  assert.equal(g.status, "FEW_CLUSTERS");
+  assert.deepEqual([g.estimate, g.ci95, g.n, g.clusters], [r.estimate, r.ci95, r.n, r.clusters]);
+  assert.match(g.text, /fewer than 10 games: the interval is not read, no claim/);
+  assert.ok(!guarded.some((x) => x.status === "SYSTEMATIC"));
+  assert.deepEqual(proposeCandidates(guarded, { family: "v0.3", population: REG }), [`[v0.3 · ${REG}] no season-to-date finding has an interval excluding its nominal value — no candidate proposed.`]);
+});
+
+test("few-clusters guard: statuses change only below 10 games and only to FEW_CLUSTERS; numbers never change", () => {
+  for (const n of [2, 3, 9, 10, 12, 40]) {
+    const games = Array.from({ length: n }, (_, i) => graded(`p${n}-${i}`, { final: [100 + (i % 7), 100 - (i % 5) - 1], totalMean: 200 + 15 + (i % 11), marginMean: (i % 7) + (i % 5) + 1 + (i % 2 ? 6 : -6) }));
+    const g = systematicFindings(games, { B: 300 }), r = systematicFindings(games, { B: 300, fewClustersBelow: 0 });
+    assert.equal(g.length, r.length);
+    for (const [i, x] of g.entries()) {
+      const y = r[i];
+      assert.deepEqual([x.key, x.n, x.clusters, x.estimate, x.ci95], [y.key, y.n, y.clusters, y.estimate, y.ci95], `${n} ${x.key}`);
+      if (x.status !== y.status) {
+        assert.equal(x.status, "FEW_CLUSTERS", `${n} ${x.key}`);
+        assert.ok(x.clusters < 10 && (y.status === "SYSTEMATIC" || y.status === "NO_CLAIM"), `${n} ${x.key}`);
+      } else if (n >= 10) assert.notEqual(x.status, "FEW_CLUSTERS");
+    }
+  }
+});
