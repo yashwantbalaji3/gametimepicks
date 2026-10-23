@@ -15,8 +15,13 @@ export function universeDayLabel(date: string | null | undefined): string | null
  * computes nothing. It never prints an internal reason code, and it names the one honest caveat the
  * products carry today: every eligible leg is priced by the market with no forecast behind it.
  */
-export default function EligibleUniverse({ availability, compact = false }: { availability: ProductAvailability | null; compact?: boolean }) {
+export default function EligibleUniverse({ availability, compact = false, scope = null }: { availability: ProductAvailability | null; compact?: boolean; scope?: string | null }) {
   if (!availability) return null;
+  /* Sprint 2026-10-23: this universe is the PRODUCT gate (the capability registry's product-eligibility rule, read by
+     the eligible-leg builder). It decides Bank Builder and Moonshot, not the Parlay Center's suggested-card lanes,
+     which follow their own lane rule. A `scope` names the products it speaks for, so "not eligible for prediction
+     products" can never read as a verdict on a lane that is publishing. */
+  const title = `Eligible universe${scope ? ` for ${scope}` : ""}`;
   const marketOnly = availability.sports.some((s) => s.eligibleLegs > 0 && s.marketPricedOnly);
   const contributing = availability.sports.filter((s) => s.eligibleLegs > 0);
   const day = universeDayLabel(availability.date);
@@ -37,7 +42,7 @@ export default function EligibleUniverse({ availability, compact = false }: { av
       ))}
     </ul>
   );
-  const rule = <p className="mt-1 text-[12px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>A sport enters only when its model has earned product eligibility. The selector never requires a sport to appear, and a day with no qualifying card publishes no card.</p>;
+  const rule = <p className="mt-1 text-[12px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>A sport enters only when its model has earned product eligibility. The selector never requires a sport to appear, and a day with no qualifying card publishes no card.{scope ? " The Parlay Center's suggested-card lanes use their own rule (real posted prices, an official settlement path and enough priced games), shown on the Parlay Center." : ""}</p>;
 
   /*
    * S1 (2026-09-30): COMPACT = ONE LINE, THEN THE DETAIL ON DEMAND. On /bank-builder and /moonshot this
@@ -51,7 +56,7 @@ export default function EligibleUniverse({ availability, compact = false }: { av
       <section aria-label="Eligible universe" className="rounded-xl border px-4 py-3" style={{ borderColor: "var(--vault-border)", background: "var(--vault-panel)" }}>
         <details>
           <summary className="flex cursor-pointer flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-[13px]" style={{ color: "var(--vault-text)" }}>
-            <h2 className="m-0 inline text-[13px] font-semibold">Eligible universe{day ? ` · evaluated ${day}` : ""}</h2>
+            <h2 className="m-0 inline text-[13px] font-semibold">{title}{day ? ` · evaluated ${day}` : ""}</h2>
             <span style={{ color: "var(--vault-text-mute)" }}>
               {availability.totalEligible} eligible leg{availability.totalEligible === 1 ? "" : "s"}
               {contributing.length ? ` from ${contributing.map((s) => s.label).join(", ")}` : ""}
@@ -68,7 +73,7 @@ export default function EligibleUniverse({ availability, compact = false }: { av
   return (
     <section aria-label="Eligible universe" className="rounded-xl border px-4 py-4" style={{ borderColor: "var(--vault-border)", background: "var(--vault-panel)" }}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: "var(--vault-text-faint)" }}>Eligible universe{universeDayLabel(availability.date) ? ` · evaluated ${universeDayLabel(availability.date)}` : ""}</h2>
+        <h2 className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: "var(--vault-text-faint)" }}>{title}{universeDayLabel(availability.date) ? ` · evaluated ${universeDayLabel(availability.date)}` : ""}</h2>
         <span className="font-mono text-[10px]" style={{ color: "var(--vault-text-mute)" }}>{availability.totalEligible} eligible leg{availability.totalEligible === 1 ? "" : "s"} across {availability.sports.filter((s) => s.eligibleLegs > 0).length} sport{availability.sports.filter((s) => s.eligibleLegs > 0).length === 1 ? "" : "s"}</span>
       </div>
       {rows}

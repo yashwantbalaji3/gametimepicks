@@ -310,7 +310,7 @@ export function labEligibility(root, date, now) {
     id: "multi", label: "Multi-sport",
     live: liveSports.length >= 2,
     blocked: liveSports.length >= 2 ? undefined
-      : `a cross-sport card needs two live sports; ${liveLabels.length === 1 ? `only ${liveLabels[0]} is` : "none is"} cleared`,
+      : `a cross-sport card needs two sports with an open suggested-card lane; ${liveLabels.length === 1 ? `only ${liveLabels[0]}'s lane is open` : "no lane is open"} (Bank Builder and Moonshot use a separate, stricter gate)`,
     evidence: { liveSports, liveLabels },
   });
   return out;
