@@ -75,6 +75,9 @@ import { loadForecastView } from "@/lib/sports/nfl/forecast-view-load.mjs";
 import { STATUS as WORLD_MODEL_STATUS } from "@/lib/sports/nfl/world-model-v2/artifact.mjs";
 import EtTime from "@/components/ui/et-time";
 import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
+import NflPostgameBoxScore from "@/components/game/nfl-postgame-box-score";
+import NflAllPlayersTable from "@/components/game/nfl-all-players-table";
+import { loadNflPostgame } from "@/components/game/nfl-postgame-data";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
@@ -248,6 +251,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
    * one of two slots: never two panels, never two fetches.
    */
   const liveTop = started || !!archived;
+  const postgame = started ? loadNflPostgame(params.eventId, { away: f.away, home: f.home }) : null;
   const livePanel = (
     <LivePanel
       sport="nfl"
@@ -305,6 +309,11 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
       </header>
 
       <KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={liveTop} when="after"><div style={{ marginTop: 16 }}>{livePanel}</div></KickoffSlot>
+
+      {/* Gap 5 (2026-10-23): the played game — official quarter scores and player lines, each beside the graded Official
+          Forecast. Rendered only from a FINAL official file committed by the grading pipeline; a game without one shows
+          nothing here rather than a partial box. */}
+      {postgame ? <NflPostgameBoxScore box={postgame} /> : null}
 
       {/* P319: save exactly this forecast — the card the homepage would feature for this game, same identity and
           settlement key; the control itself refuses once the game has kicked off. */}
@@ -548,6 +557,9 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           <p className="nf-eyebrow">Player projections · expected statistical summaries · not one simulated game</p>
           <h2 id="nf-players-h" className="nf-h2">What each player is projected to do</h2>
           <p className="nf-sub">Every number here is the official player board&apos;s projection, the one Results grade. Players listed as Questionable or Doubtful are marked; players ruled out are not projected.</p>
+          {/* Gap 4 (2026-10-23): every official-board player in one table first — position, headline and 80% range — from
+              the same view the stat tabs below rank. */}
+          <NflAllPlayersTable players={view.players ?? []} away={f.away.abbr} home={f.home.abbr} />
           {/* Live: the factual in-game stat joins each row through the single live poller (the retired player board's
               per-prop live lines now live here, once per player and family). */}
           <FamilyTabs {...gameTabs(view)} label={`players-${f.providerEventId}`} emptyText="No official projection for this statistic in this game." live={{ eventId: f.providerEventId, kickoffUtc: f.kickoffUtc }} />
