@@ -10,7 +10,7 @@ type Leg = {
   sport: string; eventId: string; eventLabel: string; startUtc: string; market: string;
   selection: { code: string; label: string }; probability: number | null; probabilityNote: string | null;
   forecast: { owner: string; modelId: string | null; stampedAt: string; ref: string | null };
-  uncertainty: { kind: string; home?: number | null; draw?: number | null; away?: number | null; note?: string } | null;
+  uncertainty: { kind: string; home?: number | null; draw?: number | null; away?: number | null; note?: string; text?: string } | null;
   settlement: { grader: string; market: string; side: string };
 };
 type Card = { policy: string; tier: string | null; tierLabel: string | null; legs: Leg[]; sports: string[]; jointProbability: number; method: string; dependency: string; whySelected: string; label: string };
@@ -32,7 +32,7 @@ function LegRow({ l }: { l: Leg }) {
     <li className="flex flex-col gap-0.5 text-[12.5px]" style={{ borderTop: "1px solid var(--vault-border)", paddingTop: 6 }}>
       <span className="flex flex-wrap items-baseline justify-between gap-x-3">
         <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{l.selection.label}</span>
-        <span style={{ color: "var(--vault-text-mute)" }}>{l.probability != null ? `Official Forecast ${pct(l.probability)}` : "probability not published"}</span>
+        <span style={{ color: "var(--vault-text-mute)" }}>{l.probability != null ? `Official Forecast ${pct(l.probability)}` : l.uncertainty?.kind === "elo-win-probability" ? "untiered" : "probability not published"}</span>
       </span>
       <span style={{ color: "var(--vault-text-mute)" }}>
         {SPORT[l.sport] ?? l.sport} · {l.eventLabel} · starts {etStamp(l.startUtc) ?? l.startUtc}
@@ -41,6 +41,11 @@ function LegRow({ l }: { l: Leg }) {
       <span style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }}>
         Source: {l.forecast.owner}{l.forecast.modelId ? ` (${l.forecast.modelId})` : ""} · frozen {etStamp(l.forecast.stampedAt) ?? l.forecast.stampedAt} · no sportsbook price · settles on the official final
       </span>
+      {/* founder decision 2026-10-23: the Elo rating's game-winner probability — the shared accessor's text, display only */}
+      {l.uncertainty?.kind === "elo-win-probability" && l.uncertainty.text ? (
+        <span style={{ color: "var(--vault-text-mute)" }} data-nba-elo-wp={l.eventId} data-nba-elo-wp-home={String(l.uncertainty.home)}>{l.uncertainty.text}</span>
+      ) : null}
+      {l.uncertainty?.kind === "elo-win-probability" && l.uncertainty.note ? <span style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }} data-nba-elo-wp-disclosure="">{l.uncertainty.note}</span> : null}
       {l.probabilityNote ? <span style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }}>{l.probabilityNote}</span> : null}
     </li>
   );
