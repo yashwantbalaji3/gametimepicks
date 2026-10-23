@@ -14,12 +14,16 @@ import path from "node:path";
 
 import { makeGradedPickOwners } from "@/lib/sports/graded-pick-owners.mjs";
 import { population, outcomeOfPick, outcomeFromWord } from "./populations.mjs";
+import { mlbCallStatus } from "./mlb-call-status";
 
 export interface V2Counts { won: number; lost: number; push: number; void: number; decisive: number; n: number; hitRate: number | null }
 export interface V2Day { date: string; won: number; lost: number; push: number; void: number }
 export interface V2Population {
   id: string; sport: "mlb" | "nfl" | "epl" | "ufc"; label: string;
-  class: "PUBLIC" | "RESEARCH"; kind: "GAME" | "PROP" | "MATCH" | "FIGHT";
+  /* UNKNOWN (F05): graded, but whether it was a public pick at the start cannot be established — in neither record. */
+  class: "PUBLIC" | "RESEARCH" | "UNKNOWN"; kind: "GAME" | "PROP" | "MATCH" | "FIGHT";
+  /** Populations split from ONE owner by publication status share a group, so each can name what the others hold. */
+  group?: string; tag?: string | null;
   owner: string; note: string | null; seasonStart: string | null; seasonLabel: string | null;
   pending: number | null; undated: number; unreadable: number; noPick?: number;
   days: V2Day[];
@@ -55,14 +59,33 @@ export function resultsV2Populations(today: string): V2Population[] {
 
   const pops: V2Population[] = [];
 
+  /* F05 (independent audit 2026-10-23): the MLB game-call ledger grades every call the model made, including calls
+     the site had PAUSED at first pitch (the live-record gate) and games whose forecast never reached the site. Only
+     calls shown before first pitch are the public record; the rest are graded in their own populations — every row
+     stays, in exactly one of the three (lib/results/mlb-call-publication.mjs). */
   const mlbGames = readJsonl(path.join(appDir, "public/data/mlb/results/game-predictions-graded.jsonl"));
-  if (mlbGames) pops.push(population({
-    id: "mlb-games", sport: "mlb", label: "MLB game calls", klass: "PUBLIC", kind: "GAME",
-    owner: "public/data/mlb/results/game-predictions-graded.jsonl",
-    note: "Winner, run line and total calls, graded from the official linescore. The total call is paused on the site while its live record is below a coin flip; it is still graded here.",
-    seasonStart: SEASON.mlb.start, seasonLabel: SEASON.mlb.label, today,
-    rows: mlbGames.map((r) => ({ date: typeof r.date === "string" ? r.date : null, outcome: outcomeFromWord(r.outcome) })),
-  }) as V2Population);
+  if (mlbGames) {
+    const owner = "public/data/mlb/results/game-predictions-graded.jsonl";
+    const rowsOf = (keep: (s: string) => boolean) => mlbGames.filter((r) => keep(mlbCallStatus(r)))
+      .map((r) => ({ date: typeof r.date === "string" ? r.date : null, outcome: outcomeFromWord(r.outcome) }));
+    const common = { sport: "mlb", kind: "GAME", owner, group: "mlb-games", seasonStart: SEASON.mlb.start, seasonLabel: SEASON.mlb.label, today };
+    pops.push({ ...population({
+      ...common, id: "mlb-games", label: "MLB game calls", klass: "PUBLIC",
+      note: "Winner, run line and total calls the site showed before first pitch, graded from the official linescore. A call the site had paused is graded in its own record, never here.",
+      rows: rowsOf((st) => st === "PUBLIC"),
+    }), group: "mlb-games", tag: null } as V2Population);
+    pops.push({ ...population({
+      ...common, id: "mlb-games-paused", label: "MLB game calls · paused or not shown", klass: "RESEARCH",
+      note: "Calls that were not public picks at first pitch: paused on the site while their live record was below a coin flip (the total call since Sep 14, the winner call on Sep 18), or a forecast that never reached the site before the game. Still graded every day.",
+      rows: rowsOf((st) => st === "PAUSED" || st === "NOT_SERVED"),
+    }), group: "mlb-games", tag: "paused or not shown" } as V2Population);
+    const unknown = rowsOf((st) => st === "UNKNOWN");
+    if (unknown.length) pops.push({ ...population({
+      ...common, id: "mlb-games-unknown", label: "MLB game calls · publication status unknown (legacy)", klass: "UNKNOWN",
+      note: "Graded, but the record cannot show whether the site displayed or paused these calls at first pitch (the game calls' launch day, Jul 24–25, and the morning a pause ended). Counted in neither record above; nothing is dropped.",
+      rows: unknown,
+    }), group: "mlb-games", tag: "status unknown" } as V2Population);
+  }
 
   const nfl = owners.nflPicks();
   if (nfl) pops.push(population({
@@ -86,12 +109,12 @@ export function resultsV2Populations(today: string): V2Population[] {
   }) as V2Population);
 
   const mlbProps = owners.mlbPicks();
-  if (mlbProps) pops.push(population({
+  if (mlbProps) pops.push({ ...population({
     id: "mlb-props", sport: "mlb", label: "MLB player-prop leans", klass: "RESEARCH", kind: "PROP",
     owner: "pipeline/validation/mlb_settled_leans.jsonl",
     note: "Market context, not picks: these markets are demoted — the model loses to the market on Brier and log loss. A push is a void.",
     seasonStart: SEASON.mlb.start, seasonLabel: SEASON.mlb.label, today, rows: fromPicks(mlbProps),
-  }) as V2Population);
+  }), tag: "market context · not picks" } as V2Population);
 
   memo = { today, pops };
   return pops;

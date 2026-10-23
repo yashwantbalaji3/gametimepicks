@@ -14,6 +14,7 @@
  */
 
 import { HISTORICAL_MODEL_FAVORED_LABEL, SIDE_BASIS } from "../forecast-of-record.mjs";
+import { PROVENANCE_FIELDS, provenanceCounts, rowProvenance } from "../../forecast-ledger/provenance.mjs";
 
 const HISTORICAL_MODEL_FAVORED = SIDE_BASIS.HISTORICAL_MODEL_FAVORED;
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
@@ -91,7 +92,9 @@ export function reliabilityBins(pairs, bins = 10) {
 export function familyMetrics(rows) {
   const kind = rows[0]?.forecastKind ?? null;
   const measured = rows.filter((r) => r.measurement?.type);
-  const base = { kind, counts: statusCounts(rows), directional: directional(rows) };
+  // provenance: rows by model-identity / event-start / publication evidence (forecast-ledger/provenance.mjs). A promotion
+  // evaluation excludes the LEGACY_UNKNOWN rows.
+  const base = { kind, counts: statusCounts(rows), directional: directional(rows), provenance: provenanceCounts(rows) };
   if (kind === "CONTINUOUS_PROJECTION") {
     const ae = measured.map((r) => r.measurement.absoluteError).filter(isNum);
     const se = measured.map((r) => r.measurement.squaredError).filter(isNum);
@@ -224,6 +227,7 @@ export function forecastRecord(rows, { declaredGaps = [] } = {}) {
       voidCount: counts.void,
       unmeasured: counts.unmeasured,
       withdrawn: counts.withdrawn,
+      provenance: provenanceCounts(rows),
       sports: sports.length,
       families: sports.reduce((a, s) => a + s.families.length, 0),
       lastSettledAt: settledAts.length ? settledAts[settledAts.length - 1] : null,
@@ -233,12 +237,41 @@ export function forecastRecord(rows, { declaredGaps = [] } = {}) {
   };
 }
 
-/** CSV of ledger rows (no private data exists in the ledger; every column is a public forecast fact). */
+/**
+ * How a multiclass row's stored Brier / log loss are computed from its exported vector (forecast-ledger/measure.mjs).
+ * The vector is scored exactly as exported: no renormalisation, the stored scores rounded to 6 decimals.
+ */
+export const MULTICLASS_SCORING = "Brier = sum over every class of (p - y)^2; log loss = -ln(p of the observed class, clamped to [1e-6, 1 - 1e-6]); "
+  + "the vector is scored as exported (no renormalisation) and the stored scores are rounded to 6 decimals";
+export function vectorRule(r) {
+  if (r.forecastKind !== "MULTICLASS_PROBABILITY") return null;
+  const cp = r.classProbabilities ?? {};
+  if ("OTHER" in cp) {
+    return `classes: every score in the published table + OTHER; OTHER = max(0, 1 - sum of the listed scores), rounded to 6 decimals; `
+      + `a final outside the table is the class OTHER (finalCategory). ${MULTICLASS_SCORING}`;
+  }
+  return `classes: ${Object.keys(cp).join(" / ")}, the model's probabilities as published (6 decimals). ${MULTICLASS_SCORING}`;
+}
+
+/**
+ * CSV of ledger rows (no private data exists in the ledger; every column is a public forecast fact).
+ *
+ * The first 31 columns are the row as recorded (unchanged since the first export). The provenance columns follow
+ * (audit 2026-10-23, F01): the row's state (RECEIPT | GIT_HISTORY | LEGACY_UNKNOWN) and, for each of model id, event
+ * start and publication stamp, its state, the value that state rests on and the committed source that holds it. A
+ * value recovered after the row was written appears only there, never in the original column. Then the multiclass
+ * vector (F02): the model's full outcome distribution and the rule its Brier / log loss were computed by; the observed
+ * class is `finalCategory`. Sportsbook prices are not exported.
+ */
 export const CSV_COLUMNS = Object.freeze([
   "forecastId", "sport", "season", "eventId", "eventStart", "matchup", "subjectId", "subjectDisplay", "teamId", "family",
   "forecastKind", "modelId", "modelVersion", "publicationStatus", "publishedAt", "projection", "rangeLow", "rangeHigh",
   "probability", "categoryPrediction", "marketLine", "marketImpliedProbability", "settlementState", "finalValue",
   "finalCategory", "settledAt", "absoluteError", "brier", "logLoss", "directionalResult", "directionalBasis",
+  "provenance",
+  ...PROVENANCE_FIELDS.flatMap((f) => [`${f}State`, `${f}Evidence`, `${f}Source`]),
+  "publishedAtCommittedAt",
+  "classProbabilities", "vectorRule",
 ]);
 const csvCell = (v) => {
   if (v == null) return "";
@@ -248,6 +281,7 @@ const csvCell = (v) => {
 export function toCsv(rows) {
   const lines = [CSV_COLUMNS.join(",")];
   for (const r of rows) {
+    const pv = rowProvenance(r);
     const v = {
       ...r,
       marketLine: r.market?.line ?? null,
@@ -261,6 +295,11 @@ export function toCsv(rows) {
       logLoss: r.measurement?.logLoss ?? null,
       directionalResult: r.measurement?.directionalResult ?? null,
       directionalBasis: r.measurement?.directionalBasis ?? null,
+      provenance: pv.state,
+      ...Object.fromEntries(PROVENANCE_FIELDS.flatMap((f) => [[`${f}State`, pv.fields[f].state], [`${f}Evidence`, pv.fields[f].value], [`${f}Source`, pv.fields[f].source]])),
+      publishedAtCommittedAt: pv.fields.publishedAt.committedAt ?? null,
+      classProbabilities: r.forecastKind === "MULTICLASS_PROBABILITY" ? r.classProbabilities ?? null : null,
+      vectorRule: vectorRule(r),
     };
     lines.push(CSV_COLUMNS.map((c) => csvCell(v[c])).join(","));
   }

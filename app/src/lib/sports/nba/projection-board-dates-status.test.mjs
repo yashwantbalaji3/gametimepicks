@@ -30,11 +30,18 @@ const ms = (iso) => Date.parse(iso);
 
 const { committedLaneDates, loadLaneForDate, laneCardId } = await import("../../../components/nba/experimental-lane.tsx");
 const { boardContext } = await import("../../../components/nba/projection-board-context.ts");
-const { default: View } = await import("../../../components/nba/projections-view.tsx");
+const { default: View, PREDICTED_NOTE } = await import("../../../components/nba/projections-view.tsx");
 const render = (props) => renderToStaticMarkup(React.createElement(View, props));
 const visibleText = (html) => html.replace(/<[^>]+>/g, " ").replace(/&rsquo;/g, "’").replace(/&amp;/g, "&").replace(/\s+/g, " ");
 const tbody = (html) => html.slice(html.indexOf("<tbody"), html.indexOf("</tbody>"));
 const hrefs = (html) => [...html.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
+const h1 = (html) => visibleText(html.slice(html.indexOf("<h1"), html.indexOf("</h1>"))).trim();
+/** The founder's vocabulary (overnight directive 2026-10-23): one concise note, no "experimental, not validated" heading. */
+const assertNote = (html) => {
+  assert.equal(html.split(PREDICTED_NOTE).length - 1, 1, "exactly one Predicted Player Statistics note");
+  assert.doesNotMatch(h1(html), /experimental|validated/i);
+  assert.doesNotMatch(html, /UNVALIDATED EXPERIMENTAL SIMULATION/);
+};
 
 // ── status ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 test("status at build: final only from the finals record; postponed from the schedule; started by tip-off; else upcoming", () => {
@@ -186,11 +193,11 @@ const liText = (html, i) => {
   return visibleText(html.slice(at, html.indexOf("</li>", at)));
 };
 
-test("render · current: banner kept, no past label, per-game status + hub card link, numbers unchanged", () => {
+test("render · current: one note, no past label, per-game status + hub card link, numbers unchanged", () => {
   const games = [G(ids[0], "final"), G(ids[1], "started"), G(ids[2], "upcoming")];
   const html = render({ lane: lane(), role: "current", date: "2026-10-20", games, dates: ["2026-10-20"] });
   const text = visibleText(html);
-  assert.match(html, /UNVALIDATED EXPERIMENTAL SIMULATION/);
+  assertNote(html);
   assert.doesNotMatch(text, /Past frozen slate|\(past\)/);
   assert.match(liText(html, 0), / · Final · NBA hub card $/);
   assert.match(liText(html, 1), / · Started · NBA hub card $/);
@@ -214,25 +221,25 @@ test("render · past date: labelled a past frozen slate, never current; same fro
   const games = ids.map((id) => G(id, "final", SCHED));
   const html = render({ lane: lane(), role: "past", date: "2026-10-20", games, dates: ["2026-10-20"], dated: true });
   const text = visibleText(html);
-  assert.match(text, /NBA player projections · Oct 20 slate \(past\)/);
+  assert.equal(h1(html), "NBA Predicted Player Statistics · Oct 20 slate (past)");
   assert.match(text, /Past frozen slate · Oct 20\. This is not the current slate/);
-  assert.match(html, /UNVALIDATED EXPERIMENTAL SIMULATION/);
-  assert.doesNotMatch(text, /No current experimental projections/);
+  assertNote(html);
+  assert.doesNotMatch(text, /Unavailable|not yet available/);
   assert.equal(tbody(html), tbody(render({ lane: lane() })), "the past board's cells are the same frozen values");
   assert.match(html, /<strong aria-current="page">Oct 20<\/strong>/);
   assert.ok(hrefs(html).includes("/nba/projections/"), "a way back to the current slate");
   assert.equal(hrefs(html).filter((h) => h === HUB_SCHEDULE_HREF).length, 3);
 });
 
-test("render · empty date and empty default view: honest empty state, banner kept, no table", () => {
+test("render · empty date and empty default view: honest empty state, one note, no table", () => {
   const html = render({ lane: null, role: "past", date: "2026-10-19", dates: ["2026-10-20"], dated: true });
-  assert.match(visibleText(html), /No frozen experimental projections are committed for Oct 19/);
-  assert.match(html, /UNVALIDATED EXPERIMENTAL SIMULATION/);
+  assert.match(visibleText(html), /No Official Forecast is committed for Oct 19, so no Predicted Player Statistics are shown for it/);
+  assertNote(html);
   assert.doesNotMatch(html, /<table/);
   assert.ok(hrefs(html).includes("/nba/projections/2026-10-20/"), "the committed date is linked");
   assert.ok(!hrefs(html).includes("/nba/projections/2026-10-19/"), "the empty date is never linked");
   const def = render({ lane: null, dates: ["2026-10-20"] });
-  assert.match(def, /No current experimental projections/);
+  assert.match(visibleText(def), /Predicted Player Statistics: Unavailable\./);
   assert.doesNotMatch(def, /<table|Past frozen slate/);
   assert.ok(hrefs(def).includes("/nba/projections/2026-10-20/"));
 });
