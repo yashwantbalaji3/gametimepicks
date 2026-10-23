@@ -35,7 +35,7 @@ test("tools row: Top Boards, Research Lab, Results, Forecast Record and Model Pe
 
 test("phone homepage: secondary sections render from sm up, summarised by 44px links on phones; the five sports sit under the hero", () => {
   const page = read("src/app/page.tsx");
-  for (const s of ["topUpcoming(topReads, UPCOMING_READS_SHOWN)", "<SuggestedParlaysPreview", "<FlagshipCards", "<FeaturedSimulationsSection", "<HowItWorks />", "<FooterCta />"]) {
+  for (const s of ["topUpcoming(topReads, UPCOMING_READS_SHOWN)", "<SuggestedParlaysPreview", "<FlagshipCards", "<FeaturedSimulationsSection"]) {
     const i = page.indexOf(s);
     assert.ok(i > 0, s);
     assert.ok(page.lastIndexOf('<div className="hidden sm:contents">', i) > page.lastIndexOf("</div>", i - 1) || page.slice(Math.max(0, i - 60), i).includes('hidden sm:contents'), `${s} is inside a sm-and-up wrapper`);
@@ -46,12 +46,15 @@ test("phone homepage: secondary sections render from sm up, summarised by 44px l
   // the summary's lines are destinations or statuses the page already computed — never a new number
   const more = page.slice(page.indexOf("<MobileMore"), page.indexOf("<HomeTools"));
   assert.doesNotMatch(more, /\d+ (games|parlays|simulations)/, "no invented counts");
+  // the word budget (busiest-state.test): How it works / Get started gave way to links, never a second copy of the section
+  assert.doesNotMatch(page, /<HowItWorks \/>|<FooterCta \/>/);
+  assert.match(more, /href: "\/learn\/"/, "How it works stays one tap away");
 });
 
 test("rendered: every SportsToday, HomeTools and MobileMore link carries a ≥ 44px minimum height", () => {
   const lanes = [{ sport: "nfl", label: "NFL", hubHref: "/nfl/", stateLabel: "Live today" }, { sport: "nba", label: "NBA", hubHref: "/nba/", stateLabel: "Games today" }];
   const h = renderToStaticMarkup(React.createElement(React.Fragment, null,
-    React.createElement(SportsToday, { lanes }), React.createElement(HomeTools), React.createElement(MobileMore, { items: [{ label: "How it works", sub: "x", href: "/methodology/" }] })));
+    React.createElement(SportsToday, { lanes }), React.createElement(HomeTools), React.createElement(MobileMore, { items: [{ label: "How it works", href: "/learn/" }] })));
   const anchors = [...h.matchAll(/<a [^>]*>/g)].map((m) => m[0]);
   assert.ok(anchors.length >= 2 + HOME_TOOLS.length + 1);
   for (const a of anchors) assert.match(a, /min-height:44px/, a);

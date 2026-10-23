@@ -53,7 +53,6 @@ import { buildCommandCenter } from "@/lib/command-center/command-center";
 import SuggestedParlaysPreview from "@/components/home/suggested-parlays-preview";
 import { loadSuggestedParlaysPreview, TIER_INTENT } from "@/lib/home/suggested-parlays.mjs";
 import FeaturedSimulationsSection from "@/components/home/featured-simulations";
-import { HowItWorks, FooterCta } from "@/components/home/home-sections";
 import { UpcomingSportsStrip, type SportSchedule } from "@/components/sports/upcoming-sports";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
 import { readPublicationSlo } from "@/lib/ops/read-publication-slo";
@@ -509,20 +508,17 @@ export default function HomePage() {
       {/* 7 — Featured simulations (real ready artifacts only) */}
       <div className="hidden sm:contents"><FeaturedSimulationsSection featured={featured} readyCount={readyCount} answers={gameAnswers} allCurrent={allCurrent} /></div>
 
-      {/* 8 — How it works */}
-      <div className="hidden sm:contents"><HowItWorks /></div>
-
-      {/* 9 — Footer CTA */}
-      <div className="hidden sm:contents"><FooterCta /></div>
+      {/* 8/9 — "How it works" and "Get started" (65 words of non-prediction copy) gave way to links — Methodology in the
+          tools row, How it works in the phone summary — so the phone summary fits the 1,820-word first-viewport ceiling
+          (busiest-state.test) without trimming forecast copy (Release B). */}
 
       {/* Release B: the phone summary of the sections above that render from sm up, and the tools row (every width) */}
       <MobileMore items={[
-        { label: "Upcoming games", sub: "Every scheduled game and its forecast, by date", href: "/simulate/" },
-        ...(parlayPreview ? [{ label: "Suggested parlays", sub: "Today's paper parlays by risk tier", href: "/build/" }] : []),
-        { label: "Bank Builder", sub: productCards[0].status, href: "/bank-builder/" },
-        { label: "Moonshot", sub: moonshotStatus, href: "/moonshot/" },
-        { label: "Featured simulations", sub: "Ready Game Simulations, with what each one concluded", href: "/simulate/" },
-        { label: "How it works", sub: "Methodology, the words we use, and how results are graded", href: "/methodology/" },
+        { label: "Upcoming games", href: "/simulate/" },
+        ...(parlayPreview ? [{ label: "Suggested parlays", href: "/build/" }] : []),
+        { label: "Bank Builder", href: "/bank-builder/" },
+        { label: "Moonshot", href: "/moonshot/" },
+        { label: "How it works", href: "/learn/" },
       ]} />
       <HomeTools />
     </div>
