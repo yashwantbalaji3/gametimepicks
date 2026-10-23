@@ -162,7 +162,7 @@ test("real 2026-10-20 slate: the official NBA snapshot is v0.1 + Elo, the lane m
     assert.equal(g.open, true, `${s.eventId}: ${JSON.stringify(g.blockers)}`);
   }
   for (const s of nba) assert.deepEqual(theaterActivationGate("nba", s.eventId, { audit }).blockers.map((b) => b.code), ["NO_REPLAY_RUNS"], "no repo to read the runs from: closed");
-  assert.equal(typeof NBA_THEATER_PUBLIC_ENABLED, "boolean", "the public NBA Theater flag is not part of gate v2: the gate results above are the same whatever its value");
+  assert.equal(NBA_THEATER_PUBLIC_ENABLED, false, "the public NBA Theater flag is not part of gate v2");
 });
 
 test("NBA gate policy (gate v2): LABELLED_SUPPORTING_RUNS is in force; ANCHORED stays evaluable", () => {
