@@ -8,7 +8,6 @@
  * data; lean/game counts come from the live board summary.
  */
 import LiveNow from "@/components/live/live-now";
-import fs from "node:fs";
 import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
 import SportSwitcher from "@/components/sports/sport-switcher";
 import { mlbHub } from "@/lib/sport-hub/adapters";
@@ -46,6 +45,7 @@ import SportHubNav from "@/components/sports/sport-hub-nav";
 import MlbFlagshipSections from "@/components/mlb/mlb-flagship-sections";
 import HomerNukesBoardSection from "@/components/mlb/homer-nukes-board";
 import { loadHomerNukesBoard } from "@/lib/mlb/homer-nukes-board";
+import { homerNukesRecord as homerNukesPublicRecord } from "@/lib/results/homer-nukes-record";
 import { loadRiskLadder, loadLabLedger, inSeasonLadder, loadMlbSeasonState } from "@/lib/parlays/risk-ladder";
 import RiskLadderBoard from "@/components/parlays/risk-ladder-board";
 import DeferUntilVisible from "@/components/defer-until-visible";
@@ -123,8 +123,9 @@ export default function MlbLandingPage() {
   const games = schedule.games ?? [];
   const gameCount = summary.scheduledGames || games.length || 0;
   const homerNukesBoard = loadHomerNukesBoard(path.join(process.cwd(), "public", "data"), date);
-  /* The live record behind the honest-limits sentence (lib/mlb/homer-nukes-honesty.mjs). */
-  const homerNukesRecord = (() => { try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "mlb", "homer-nukes", "record.json"), "utf8")); } catch { return null; } })();
+  /* The live record behind the honest-limits sentence (lib/mlb/homer-nukes-honesty.mjs) — its PUBLIC part: picks with
+     no evidence of publication before first pitch are not counted (lib/results/homer-nukes-record, as /homer-nukes). */
+  const homerNukesRecord = homerNukesPublicRecord(path.join(process.cwd(), "public", "data")).public;
   /* D3: once StatsAPI says the season is over, last season's ladder is not shown as the current card set. */
   const riskLadder = inSeasonLadder(loadRiskLadder(path.join(process.cwd(), "public", "data"), flagshipDate), loadMlbSeasonState(path.join(process.cwd(), "public", "data"))).ladder;
   const labLedger = loadLabLedger(path.join(process.cwd(), "public", "data"));
