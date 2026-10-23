@@ -10,7 +10,7 @@
  * CORRECTION record), then the canonical corpus, then each family's fetch cache. The directories are named one by one
  * (BOX_DIRS): each is a BUILD_INPUT in scripts/vercel-ignore-build.sh (build-input-coverage.test.mjs), and the
  * unarmed v0.3 candidate's directory is never read (minutes-model-v03.test.mjs ISOLATION). A player's line is read with the graders' shared line reader (boxscore-line.mjs), stat by stat:
- *   MEASURED            the integer (a combo is the sum of its integer components — top-board-grading.mjs's rule);
+ *   MEASURED            the integer (a combo is the sum of its integer components — top-board-grading.mjs's rule; the components are the public lane's COMBO_COMPONENTS, the same map);
  *   DNP                 "DNP" — shown as a dash, never 0;
  *   not in box score / not an integer   null — shown as a dash, never 0.
  * Nothing here touches a frozen figure: actuals travel beside the snapshot, keyed by the board's own row id.
@@ -22,7 +22,7 @@ import type { Snapshot } from "@/components/nba/experimental-lane";
 import { boxscoreAthlete, isFinalBoxscore, LINE_STATE, measureAthlete } from "@/lib/sports/nba/boxscore-line.mjs";
 import { boxscorePointsCheck } from "@/lib/sports/nba/experimental-grading-ledger.mjs";
 import { finalFor, nbaSeasonLabel } from "@/lib/sports/nba/finals-record.mjs";
-import { COMBO_COMPONENTS } from "@/lib/sports/nba/top-boards.mjs";
+import { COMBO_COMPONENTS } from "@/lib/sports/nba/experimental-public-lane.mjs";
 
 /** Per game: "recorded" = actuals shown; otherwise the one reason they are not. */
 export type GameActualState = "recorded" | "no-final" | "under-review" | "no-boxscore" | "points-disagree";
@@ -96,7 +96,7 @@ export function boardActuals(
       for (const r of g.players[side]) {
         const a = boxscoreAthlete(box, r.providerAthleteId);
         const values = stats.map(([k]) => {
-          const parts = (COMBO_COMPONENTS as Record<string, string[]>)[k] ?? [k];
+          const parts: string[] = [...((COMBO_COMPONENTS as Record<string, readonly string[]>)[k] ?? [k])];
           const line = measureAthlete(a, parts);
           return line.state === LINE_STATE.MEASURED ? parts.reduce((s: number, p: string) => s + (line.values as Record<string, number>)[p], 0) : null;
         });
