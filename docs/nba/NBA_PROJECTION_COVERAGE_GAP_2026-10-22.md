@@ -730,3 +730,30 @@ cd app
 npx tsx scripts/nba/research/backtest-nba-no-history-priors.mjs [--json <file outside the repository>]
 npx tsx --test scripts/nba/research/backtest-nba-no-history-priors.test.mjs
 ```
+
+### 12.8 Reviewer notes (verification 2026-10-23)
+
+- **Reproduced.** Two runs → byte-identical `--json`. The tests pass 31 / 0: backtest 6, `minutes-model-v04` 7, `minutes-model-v03` 18.
+- **The proxy roster flatters v0.1's 240-minute rescale. This is NOT counter-evidence to the accepted low-minutes diagnosis.**
+  - The historical v0.1 veteran benchmark is close to unbiased: first-5 cond signed +0.51 [0.17, 0.86] in 2024-25.
+  - The reason is that the proxy roster holds only athletes who dressed. The pool sum is therefore near 240, and the uniform factor stays near 1.
+  - The 2026-27 pilot rosters hold every rostered player, and their pool sums ran 197–384 (§14 of the preregistration). There the factor is what cut starters.
+  - The v0.1 and v0.4 veteran rows have different n (not paired), so nothing here compares v0.1 with v0.4 on minutes.
+
+## 13. Forward coverage after the pilot (descriptive, projection side only)
+
+The same script and PRIMARY rule as §2 (`measure-nba-projection-coverage.mjs --dates 2026-10-22,2026-10-23`). The receipts are re-derived from their own inputs; no outcome is read.
+
+| Slate (freeze) | Games | Rotation | v0.1 none | of which rookie | no-corpus veteran | v0.3 replay none | v0.4 replay none | Lagged (v0.4) |
+|---|---|---|---|---|---|---|---|---|
+| 2026-10-22 (14:29:37Z) | 2 | 48 | 8 | 7 | 1 (Hezonja) | 6 | 6 | 0 |
+| 2026-10-23, CHI @ MIL only (12:23:55Z) | 1 | 30 | 4 | 4 | 0 | 1 | 1 | 0 |
+
+Across every rostered, not-Out player:
+- 10-22: 10 of 59 have no v0.1 projection.
+- CHI @ MIL: 7 of 34. The release owner's 12-game 10-23 rehearsal counted 57; the other 11 games had not frozen when this was measured.
+
+What this shows:
+- **v0.3 closes most of the rookie gap after a team's first game** (Mara, Stirtz, Burries, Wilson, Awaka, Sellers). This matches the historical pick-up curve in §12.4.
+- **v0.1 never closes it**, because it does not read 2026-27 box scores.
+- **These two slates have no lagged athlete, so v0.4 equals v0.3 on them.** The returner population is concentrated in the first nights of the season. That is a point for D1's cost–benefit, not a reason to tune anything.
