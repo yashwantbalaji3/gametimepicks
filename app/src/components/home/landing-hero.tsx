@@ -63,8 +63,8 @@ export default function LandingHero({ readyCount, activeSports, eventsToday, eve
         * component. One line, no claim beyond what ships: no live scores, no player database, no advice.
         */}
       <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 13.5, lineHeight: 1.5, maxWidth: 640 }}>
-        Model forecasts, simulations and graded results for NFL, MLB, Premier League and UFC &mdash; each shown with
-        its model&rsquo;s current status.
+        Official Forecasts, Game Simulations and Historical Results for NFL, NBA, MLB, Premier League and UFC &mdash;
+        each with its Model Performance.
       </p>
 
       {/* The three primary jobs. Labels and destinations are guard-pinned (P208 J1). S1 (2026-09-30): set in the

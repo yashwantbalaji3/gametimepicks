@@ -449,7 +449,7 @@ export default function HomePage() {
           as published cards — the refusal is the product working, not a gap to hide. */}
       <div className="hidden sm:contents">
       {parlayPreview ? (
-        <SuggestedParlaysPreview live={parlayPreview.live} closed={parlayPreview.closed} tierIntent={TIER_INTENT} todayEt={currentEtDate()} />
+        <SuggestedParlaysPreview live={parlayPreview.live} closed={parlayPreview.closed} tierIntent={TIER_INTENT} todayEt={currentEtDate()} showDetails={false} />
       ) : null}
       </div>
 
