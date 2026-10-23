@@ -12,6 +12,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { toCsv } from "../../src/lib/results/v2/forecast-record.mjs";
+import { emitMlbGradesOfRecord, OF_RECORD_REL } from "./emit-mlb-grades-of-record.mjs";
 
 const APP = process.cwd();
 const LEDGER = path.resolve(APP, "..", "data/internal/forecast-ledger/v1");
@@ -50,6 +51,9 @@ function main() {
   const files = familyCsvs(rows);
   for (const [f, text] of Object.entries(files)) fs.writeFileSync(path.join(OUT, f), text);
   console.log(`forecast record: ${Object.keys(files).length} CSV file(s), ${rows.length} rows → public/data/forecast-record/v1/`);
+  // TRUTH-001 Stage B: the browser's MLB grade rows of record (the /saved page), from the same loader as every reader.
+  const appDir = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..", "..");
+  console.log(`mlb grades of record: ${emitMlbGradesOfRecord(appDir)} public row(s) → ${OF_RECORD_REL}`);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) main();

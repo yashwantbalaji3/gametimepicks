@@ -19,6 +19,7 @@ import path from "node:path";
 import { makeGradedPickOwners } from "@/lib/sports/graded-pick-owners.mjs";
 import { mlbFirstPitches, mlbLeansOfRecord } from "@/lib/results/mlb-leans-of-record.mjs";
 import { outcomeOfPick, outcomeFromWord } from "./populations.mjs";
+import { publicMlbGradedRows } from "@/lib/mlb/results/grades-of-record-io.mjs";
 
 export type V2Outcome = "WIN" | "LOSS" | "PUSH" | "VOID";
 export interface DayCall { market: string; pick: string; line: string | null; outcome: V2Outcome | null }
@@ -43,7 +44,8 @@ function sources() {
   if (cache) return cache;
   const app = process.cwd();
   const owners = makeGradedPickOwners({ appDir: app, rootDir: path.resolve(app, "..") });
-  const mlbGames = readJsonl(path.join(app, "public/data/mlb/results/game-predictions-graded.jsonl"));
+  // TRUTH-001 Stage B: the public MLB grade rows OF RECORD (approved restatements applied; never-public rows dropped).
+  const mlbGames = publicMlbGradedRows(app) as Record<string, any>[];
   cache = {
     mlbGames,
     mlbProps: mlbLeansOfRecord(readJsonl(path.join(app, "public/data/mlb/results/settled_leans.jsonl")), { firstPitches: mlbFirstPitches(mlbGames) }).record,

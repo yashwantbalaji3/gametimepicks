@@ -1,0 +1,2116 @@
+{
+  "schema": "gtp.mlb.results-correction-reconciliation@1",
+  "status": "PROPOSED_NOT_APPLIED",
+  "basis": "Founder forecast-of-record policy (Option B, 2026-10-09): the forecast of record is the newest revision a READY Production deployment served before first pitch.",
+  "inputs": {
+    "proposals": "app/public/data/mlb/corrections/forecast-of-record-corrections.jsonl",
+    "graded": "app/public/data/mlb/results/game-predictions-graded.jsonl",
+    "projected": "app/public/data/mlb/results/game-projected-scores-graded.jsonl",
+    "ledger": "data/internal/forecast-ledger/v1/mlb.jsonl",
+    "deployments": "data/internal/ops/vercel-production-deployments/2026-09-01_2026-10-09.json"
+  },
+  "problems": [],
+  "aggregate": {
+    "games": 14,
+    "ledgerRowsAffected": 84,
+    "marketGradesRestated": 38,
+    "selectionsChanged": 7,
+    "outcomesChanged": 6,
+    "outcomeChanges": [
+      {
+        "eventId": "824628",
+        "market": "moneyline",
+        "from": "LOSS",
+        "to": "WIN"
+      },
+      {
+        "eventId": "822763",
+        "market": "total",
+        "from": "WIN",
+        "to": "LOSS"
+      },
+      {
+        "eventId": "824217",
+        "market": "moneyline",
+        "from": "LOSS",
+        "to": "WIN"
+      },
+      {
+        "eventId": "824217",
+        "market": "run_line",
+        "from": "WIN",
+        "to": "LOSS"
+      },
+      {
+        "eventId": "824217",
+        "market": "total",
+        "from": "WIN",
+        "to": "LOSS"
+      },
+      {
+        "eventId": "824542",
+        "market": "run_line",
+        "from": "WIN",
+        "to": "LOSS"
+      }
+    ],
+    "unchangedProvenanceOnly": [
+      "823413"
+    ]
+  },
+  "familyImpact": [
+    {
+      "family": "mlb_moneyline",
+      "previous": {
+        "W": 416,
+        "L": 394,
+        "P": 0,
+        "measured": 810,
+        "hitRate": 0.5135802469135803,
+        "logLoss": 0.6992512296296298,
+        "brier": 0.2529299876543211
+      },
+      "proposed": {
+        "W": 418,
+        "L": 392,
+        "P": 0,
+        "measured": 810,
+        "hitRate": 0.5160493827160494,
+        "logLoss": 0.6991211814814817,
+        "brier": 0.2528539814814817
+      },
+      "winsDelta": 2,
+      "lossesDelta": -2,
+      "logLossDelta": -0.00013004814814809862,
+      "brierDelta": -0.00007600617283942679
+    },
+    {
+      "family": "mlb_total",
+      "previous": {
+        "W": 376,
+        "L": 391,
+        "P": 38,
+        "measured": 767,
+        "hitRate": 0.49022164276401564,
+        "logLoss": 0.7280046375488916,
+        "brier": 0.266095899608866
+      },
+      "proposed": {
+        "W": 374,
+        "L": 393,
+        "P": 38,
+        "measured": 767,
+        "hitRate": 0.4876140808344198,
+        "logLoss": 0.7290189361147326,
+        "brier": 0.26656708604954393
+      },
+      "winsDelta": -2,
+      "lossesDelta": 2,
+      "logLossDelta": 0.0010142985658410097,
+      "brierDelta": 0.0004711864406779509
+    },
+    {
+      "family": "mlb_run_line",
+      "previous": {
+        "W": 510,
+        "L": 300,
+        "P": 0,
+        "measured": 810,
+        "hitRate": 0.6296296296296297,
+        "logLoss": 0.6612291728395064,
+        "brier": 0.23415886049382734
+      },
+      "proposed": {
+        "W": 508,
+        "L": 302,
+        "P": 0,
+        "measured": 810,
+        "hitRate": 0.6271604938271605,
+        "logLoss": 0.6615782864197536,
+        "brier": 0.2343372123456792
+      },
+      "winsDelta": -2,
+      "lossesDelta": 2,
+      "logLossDelta": 0.0003491135802471401,
+      "brierDelta": 0.0001783518518518601
+    }
+  ],
+  "continuousImpact": [
+    {
+      "family": "mlb_projected_runs",
+      "rowsChanged": 8,
+      "rows": 28,
+      "previousAbsErrorSum": 51,
+      "proposedAbsErrorSum": 53
+    },
+    {
+      "family": "mlb_projected_total",
+      "rowsChanged": 7,
+      "rows": 14,
+      "previousAbsErrorSum": 33,
+      "proposedAbsErrorSum": 35
+    }
+  ],
+  "games": [
+    {
+      "key": "2026-09-10|823413",
+      "eventId": "823413",
+      "date": "2026-09-10",
+      "matchup": "HOU @ PHI",
+      "firstPitchUtc": "2026-09-10T17:05:00Z",
+      "final": {
+        "away": 2,
+        "home": 1,
+        "source": "statsapi-linescore"
+      },
+      "reasonCode": "GRADED_FORECAST_NOT_PUBLISHED_BEFORE_START",
+      "currentlyGraded": {
+        "source": "snapshot:2026-09-10/snapshot-202609101704.json",
+        "generatedAt": "2026-09-10T17:04:46.000Z",
+        "artifactHash": "8d3ea6932b5e1bd59ad716a8d4181df7fdd0f5fb243efe10912f7cf4d9e30371",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publicationEvidence": null,
+        "minutesBeforeFirstPitch": 0.2
+      },
+      "publicForecastOfRecord": {
+        "commit": "b5395109038c733a6840f7ef81a140fb3da75ee4",
+        "generatedAt": "2026-09-10T15:10:16.000Z",
+        "artifactHash": "2e87c65e18af153f62723fdbb1933fb397c11fc8b9c35040256496673b8528aa",
+        "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publication": {
+          "kind": "PRODUCTION_DEPLOYMENT_READY",
+          "id": "dpl_7tx6D3Du2cAkR2f1KxDGxya4bZzo",
+          "commitSha": "b5395109038c733a6840f7ef81a140fb3da75ee4",
+          "readyAt": "2026-09-10T15:25:13.994Z",
+          "evidenceFile": "data/internal/ops/vercel-production-deployments/2026-09-01_2026-10-09.json"
+        }
+      },
+      "markets": [
+        {
+          "market": "moneyline",
+          "family": "mlb_moneyline",
+          "forecastId": "fl1-4e64d3343188bf61",
+          "previous": {
+            "pick": "PHI (home)",
+            "probability": 0.583,
+            "outcome": "LOSS",
+            "logLoss": 0.874669,
+            "brier": 0.339889
+          },
+          "proposed": {
+            "pick": "PHI (home)",
+            "probability": 0.583,
+            "outcome": "LOSS",
+            "logLoss": 0.874669,
+            "brier": 0.339889
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "run_line",
+          "family": "mlb_run_line",
+          "forecastId": "fl1-400e74a6eceeefdb",
+          "previous": {
+            "pick": "HOU +1.5",
+            "probability": 0.613,
+            "outcome": "WIN",
+            "logLoss": 0.48939,
+            "brier": 0.149769
+          },
+          "proposed": {
+            "pick": "HOU +1.5",
+            "probability": 0.613,
+            "outcome": "WIN",
+            "logLoss": 0.48939,
+            "brier": 0.149769
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "total",
+          "family": "mlb_total",
+          "forecastId": "fl1-18c2acfc0691b505",
+          "previous": {
+            "pick": "UNDER 8.5",
+            "probability": 0.606,
+            "outcome": "WIN",
+            "logLoss": 0.500875,
+            "brier": 0.155236
+          },
+          "proposed": {
+            "pick": "UNDER 8.5",
+            "probability": 0.606,
+            "outcome": "WIN",
+            "logLoss": 0.500875,
+            "brier": 0.155236
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        }
+      ],
+      "continuous": [
+        {
+          "family": "mlb_projected_runs",
+          "subject": "HOU",
+          "previous": 3,
+          "proposed": 3,
+          "final": 2,
+          "forecastId": "fl1-d992e62d8a1a2bdd",
+          "previousAbsError": 1,
+          "proposedAbsError": 1
+        },
+        {
+          "family": "mlb_projected_runs",
+          "subject": "PHI",
+          "previous": 4,
+          "proposed": 4,
+          "final": 1,
+          "forecastId": "fl1-25ad83493fb62676",
+          "previousAbsError": 3,
+          "proposedAbsError": 3
+        },
+        {
+          "family": "mlb_projected_total",
+          "subject": "total",
+          "previous": 7,
+          "proposed": 7,
+          "final": 3,
+          "forecastId": "fl1-e0fd076acb716692",
+          "previousAbsError": 4,
+          "proposedAbsError": 4
+        }
+      ],
+      "ledgerRowsAffected": [
+        "fl1-18c2acfc0691b505",
+        "fl1-25ad83493fb62676",
+        "fl1-400e74a6eceeefdb",
+        "fl1-4e64d3343188bf61",
+        "fl1-d992e62d8a1a2bdd",
+        "fl1-e0fd076acb716692"
+      ]
+    },
+    {
+      "key": "2026-09-13|824628",
+      "eventId": "824628",
+      "date": "2026-09-13",
+      "matchup": "PIT @ CHC",
+      "firstPitchUtc": "2026-09-13T18:20:00Z",
+      "final": {
+        "away": 4,
+        "home": 3,
+        "source": "statsapi-linescore"
+      },
+      "reasonCode": "GRADED_FORECAST_NOT_PUBLISHED_BEFORE_START",
+      "currentlyGraded": {
+        "source": "snapshot:2026-09-13/snapshot-202609131817.json",
+        "generatedAt": "2026-09-13T18:17:22.000Z",
+        "artifactHash": "21edfac494a9b08bb7d083e670123f0599e73ce5dbd7b5819d51ed9046c1465e",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publicationEvidence": null,
+        "minutesBeforeFirstPitch": 2.6
+      },
+      "publicForecastOfRecord": {
+        "commit": "b15db8b16c6fb4f6710e0aad8334305891b72bdb",
+        "generatedAt": "2026-09-13T14:57:11.000Z",
+        "artifactHash": "bc299f030f3e151fa993b7ab15de38d8f95e958ca8a6729e12c2f91d81a8d3e1",
+        "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publication": {
+          "kind": "PRODUCTION_DEPLOYMENT_READY",
+          "id": "dpl_5YJAqvgTqAdbqdDUPCUjZ3dtmQ9L",
+          "commitSha": "b15db8b16c6fb4f6710e0aad8334305891b72bdb",
+          "readyAt": "2026-09-13T15:13:15.743Z",
+          "evidenceFile": "data/internal/ops/vercel-production-deployments/2026-09-01_2026-10-09.json"
+        }
+      },
+      "markets": [
+        {
+          "market": "moneyline",
+          "family": "mlb_moneyline",
+          "forecastId": "fl1-ad8988f6bbdfd5dd",
+          "previous": {
+            "pick": "CHC (home)",
+            "probability": 0.528,
+            "outcome": "LOSS",
+            "logLoss": 0.750776,
+            "brier": 0.278784
+          },
+          "proposed": {
+            "pick": "PIT (away)",
+            "probability": 0.512,
+            "outcome": "WIN",
+            "logLoss": 0.669431,
+            "brier": 0.238144
+          },
+          "selectionChanged": true,
+          "outcomeChanged": true
+        },
+        {
+          "market": "run_line",
+          "family": "mlb_run_line",
+          "forecastId": "fl1-12d849a4e96d04a7",
+          "previous": {
+            "pick": "PIT +1.5",
+            "probability": 0.661,
+            "outcome": "WIN",
+            "logLoss": 0.414001,
+            "brier": 0.114921
+          },
+          "proposed": {
+            "pick": "CHC +1.5",
+            "probability": 0.619,
+            "outcome": "WIN",
+            "logLoss": 0.47965,
+            "brier": 0.145161
+          },
+          "selectionChanged": true,
+          "outcomeChanged": false
+        },
+        {
+          "market": "total",
+          "family": "mlb_total",
+          "forecastId": "fl1-ad98d1bf41674da9",
+          "previous": {
+            "pick": "OVER 6.5",
+            "probability": 0.589,
+            "outcome": "WIN",
+            "logLoss": 0.529329,
+            "brier": 0.168921
+          },
+          "proposed": {
+            "pick": "OVER 6.5",
+            "probability": 0.635,
+            "outcome": "WIN",
+            "logLoss": 0.45413,
+            "brier": 0.133225
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        }
+      ],
+      "continuous": [
+        {
+          "family": "mlb_projected_runs",
+          "subject": "PIT",
+          "previous": 3,
+          "proposed": 4,
+          "final": 4,
+          "forecastId": "fl1-9e8d796d1773ba15",
+          "previousAbsError": 1,
+          "proposedAbsError": 0
+        },
+        {
+          "family": "mlb_projected_runs",
+          "subject": "CHC",
+          "previous": 4,
+          "proposed": 4,
+          "final": 3,
+          "forecastId": "fl1-7bc49c807f92f809",
+          "previousAbsError": 1,
+          "proposedAbsError": 1
+        },
+        {
+          "family": "mlb_projected_total",
+          "subject": "total",
+          "previous": 7,
+          "proposed": 8,
+          "final": 7,
+          "forecastId": "fl1-88d86b19d70163de",
+          "previousAbsError": 0,
+          "proposedAbsError": 1
+        }
+      ],
+      "ledgerRowsAffected": [
+        "fl1-12d849a4e96d04a7",
+        "fl1-7bc49c807f92f809",
+        "fl1-88d86b19d70163de",
+        "fl1-9e8d796d1773ba15",
+        "fl1-ad8988f6bbdfd5dd",
+        "fl1-ad98d1bf41674da9"
+      ]
+    },
+    {
+      "key": "2026-09-16|822763",
+      "eventId": "822763",
+      "date": "2026-09-16",
+      "matchup": "DET @ TOR",
+      "firstPitchUtc": "2026-09-16T19:07:00Z",
+      "final": {
+        "away": 1,
+        "home": 5,
+        "source": "statsapi-linescore"
+      },
+      "reasonCode": "GRADED_FORECAST_NOT_PUBLISHED_BEFORE_START",
+      "currentlyGraded": {
+        "source": "snapshot:2026-09-16/snapshot-202609161859.json",
+        "generatedAt": "2026-09-16T18:59:50.000Z",
+        "artifactHash": "83723fa899ed970981a9fa22c46949a31ef9652b3584a91360a7ac2b8919556d",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publicationEvidence": null,
+        "minutesBeforeFirstPitch": 7.2
+      },
+      "publicForecastOfRecord": {
+        "commit": "1ad151946e31123faceacffa730034a901f418df",
+        "generatedAt": "2026-09-16T15:27:07.000Z",
+        "artifactHash": "f6fe54377226625d0a568ca5905da2480b814f8496b199af2336acdf94810401",
+        "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publication": {
+          "kind": "PRODUCTION_DEPLOYMENT_READY",
+          "id": "dpl_7vgXiZnT6ixC1Dyqfqo9nyJbf3qv",
+          "commitSha": "1ad151946e31123faceacffa730034a901f418df",
+          "readyAt": "2026-09-16T15:45:01.859Z",
+          "evidenceFile": "data/internal/ops/vercel-production-deployments/2026-09-01_2026-10-09.json"
+        }
+      },
+      "markets": [
+        {
+          "market": "moneyline",
+          "family": "mlb_moneyline",
+          "forecastId": "fl1-3eec971c8870e8bd",
+          "previous": {
+            "pick": "TOR (home)",
+            "probability": 0.501,
+            "outcome": "WIN",
+            "logLoss": 0.691149,
+            "brier": 0.249001
+          },
+          "proposed": {
+            "pick": "TOR (home)",
+            "probability": 0.542,
+            "outcome": "WIN",
+            "logLoss": 0.612489,
+            "brier": 0.209764
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "run_line",
+          "family": "mlb_run_line",
+          "forecastId": "fl1-1c2d084043bfeec7",
+          "previous": {
+            "pick": "DET +1.5",
+            "probability": 0.675,
+            "outcome": "LOSS",
+            "logLoss": 1.12393,
+            "brier": 0.455625
+          },
+          "proposed": {
+            "pick": "DET +1.5",
+            "probability": 0.638,
+            "outcome": "LOSS",
+            "logLoss": 1.016111,
+            "brier": 0.407044
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "total",
+          "family": "mlb_total",
+          "forecastId": "fl1-21bf5cd7b80f6c09",
+          "previous": {
+            "pick": "UNDER 8.5",
+            "probability": 0.517,
+            "outcome": "WIN",
+            "logLoss": 0.659712,
+            "brier": 0.233289
+          },
+          "proposed": {
+            "pick": "OVER 8.5",
+            "probability": 0.514,
+            "outcome": "LOSS",
+            "logLoss": 0.721547,
+            "brier": 0.264196
+          },
+          "selectionChanged": true,
+          "outcomeChanged": true
+        }
+      ],
+      "continuous": [
+        {
+          "family": "mlb_projected_runs",
+          "subject": "DET",
+          "previous": 4,
+          "proposed": 4,
+          "final": 1,
+          "forecastId": "fl1-9e35efa1dde98e3d",
+          "previousAbsError": 3,
+          "proposedAbsError": 3
+        },
+        {
+          "family": "mlb_projected_runs",
+          "subject": "TOR",
+          "previous": 4,
+          "proposed": 4,
+          "final": 5,
+          "forecastId": "fl1-ce4d0e669b44b115",
+          "previousAbsError": 1,
+          "proposedAbsError": 1
+        },
+        {
+          "family": "mlb_projected_total",
+          "subject": "total",
+          "previous": 8,
+          "proposed": 9,
+          "final": 6,
+          "forecastId": "fl1-ac53bd93516d053e",
+          "previousAbsError": 2,
+          "proposedAbsError": 3
+        }
+      ],
+      "ledgerRowsAffected": [
+        "fl1-1c2d084043bfeec7",
+        "fl1-21bf5cd7b80f6c09",
+        "fl1-3eec971c8870e8bd",
+        "fl1-9e35efa1dde98e3d",
+        "fl1-ac53bd93516d053e",
+        "fl1-ce4d0e669b44b115"
+      ]
+    },
+    {
+      "key": "2026-09-17|824305",
+      "eventId": "824305",
+      "date": "2026-09-17",
+      "matchup": "SD @ COL",
+      "firstPitchUtc": "2026-09-17T19:10:00Z",
+      "final": {
+        "away": 9,
+        "home": 2,
+        "source": "statsapi-linescore"
+      },
+      "reasonCode": "GRADED_FORECAST_NOT_PUBLISHED_BEFORE_START",
+      "currentlyGraded": {
+        "source": "snapshot:2026-09-17/snapshot-202609171909.json",
+        "generatedAt": "2026-09-17T19:09:06.000Z",
+        "artifactHash": "b1bfd12ee95bda400d653ff8d5aab2d8b6512ba32c5737584af2080883a92a58",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publicationEvidence": null,
+        "minutesBeforeFirstPitch": 0.9
+      },
+      "publicForecastOfRecord": {
+        "commit": "f10c9f433e480a573aff9a50969943ca2ab28e3c",
+        "generatedAt": "2026-09-17T15:34:53.000Z",
+        "artifactHash": "ee5e95a7e3fc49e12ea9ce69dd3e99652d24e2ba92a791f81e8153eef16e4979",
+        "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publication": {
+          "kind": "PRODUCTION_DEPLOYMENT_READY",
+          "id": "dpl_aVF6y7edBeWZ4WRon6WEGJjqkN7P",
+          "commitSha": "f10c9f433e480a573aff9a50969943ca2ab28e3c",
+          "readyAt": "2026-09-17T15:43:46.727Z",
+          "evidenceFile": "data/internal/ops/vercel-production-deployments/2026-09-01_2026-10-09.json"
+        }
+      },
+      "markets": [
+        {
+          "market": "moneyline",
+          "family": "mlb_moneyline",
+          "forecastId": "fl1-b22818c50fab7d11",
+          "previous": {
+            "pick": "SD (away)",
+            "probability": 0.564,
+            "outcome": "WIN",
+            "logLoss": 0.572701,
+            "brier": 0.190096
+          },
+          "proposed": {
+            "pick": "SD (away)",
+            "probability": 0.531,
+            "outcome": "WIN",
+            "logLoss": 0.632993,
+            "brier": 0.219961
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "run_line",
+          "family": "mlb_run_line",
+          "forecastId": "fl1-10e8248619972d6b",
+          "previous": {
+            "pick": "COL +1.5",
+            "probability": 0.553,
+            "outcome": "LOSS",
+            "logLoss": 0.805197,
+            "brier": 0.305809
+          },
+          "proposed": {
+            "pick": "COL +1.5",
+            "probability": 0.579,
+            "outcome": "LOSS",
+            "logLoss": 0.865122,
+            "brier": 0.335241
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "total",
+          "family": "mlb_total",
+          "forecastId": "fl1-044cfc8ca27cc655",
+          "previous": {
+            "pick": "UNDER 11",
+            "probability": 0.537,
+            "outcome": "PUSH",
+            "logLoss": null,
+            "brier": null
+          },
+          "proposed": {
+            "pick": "UNDER 11",
+            "probability": 0.523,
+            "outcome": "PUSH",
+            "logLoss": null,
+            "brier": null
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        }
+      ],
+      "continuous": [
+        {
+          "family": "mlb_projected_runs",
+          "subject": "SD",
+          "previous": 5,
+          "proposed": 5,
+          "final": 9,
+          "forecastId": "fl1-a74be6bd5809c92e",
+          "previousAbsError": 4,
+          "proposedAbsError": 4
+        },
+        {
+          "family": "mlb_projected_runs",
+          "subject": "COL",
+          "previous": 4,
+          "proposed": 5,
+          "final": 2,
+          "forecastId": "fl1-841b5b3cb8814ce0",
+          "previousAbsError": 2,
+          "proposedAbsError": 3
+        },
+        {
+          "family": "mlb_projected_total",
+          "subject": "total",
+          "previous": 10,
+          "proposed": 10,
+          "final": 11,
+          "forecastId": "fl1-02dceb7ecf4006a2",
+          "previousAbsError": 1,
+          "proposedAbsError": 1
+        }
+      ],
+      "ledgerRowsAffected": [
+        "fl1-02dceb7ecf4006a2",
+        "fl1-044cfc8ca27cc655",
+        "fl1-10e8248619972d6b",
+        "fl1-841b5b3cb8814ce0",
+        "fl1-a74be6bd5809c92e",
+        "fl1-b22818c50fab7d11"
+      ]
+    },
+    {
+      "key": "2026-09-19|824304",
+      "eventId": "824304",
+      "date": "2026-09-19",
+      "matchup": "SEA @ COL",
+      "firstPitchUtc": "2026-09-20T00:10:00Z",
+      "final": {
+        "away": 3,
+        "home": 5,
+        "source": "statsapi-linescore"
+      },
+      "reasonCode": "GRADED_FORECAST_NOT_PUBLISHED_BEFORE_START",
+      "currentlyGraded": {
+        "source": "snapshot:2026-09-19/snapshot-202609192318.json",
+        "generatedAt": "2026-09-19T23:18:41.000Z",
+        "artifactHash": "d606b5dcf205221906e34058b51e2928fdbcc1c58f3604d16ebbeb556b4ec616",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publicationEvidence": null,
+        "minutesBeforeFirstPitch": 51.3
+      },
+      "publicForecastOfRecord": {
+        "commit": "1f2db7af95f2aa1ad6c9100c514a1f04d67b4a5d",
+        "generatedAt": "2026-09-19T21:32:57.000Z",
+        "artifactHash": "cf9f81520121649c44132074c5ea6e76088e454f7818e557349efce4d293c4bd",
+        "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publication": {
+          "kind": "PRODUCTION_DEPLOYMENT_READY",
+          "id": "dpl_5iFDafLUV7ZaM3stGXxjnqYaZrbt",
+          "commitSha": "1f2db7af95f2aa1ad6c9100c514a1f04d67b4a5d",
+          "readyAt": "2026-09-19T21:39:48.550Z",
+          "evidenceFile": "data/internal/ops/vercel-production-deployments/2026-09-01_2026-10-09.json"
+        }
+      },
+      "markets": [
+        {
+          "market": "moneyline",
+          "family": "mlb_moneyline",
+          "forecastId": "fl1-124055db3beb1539",
+          "previous": {
+            "pick": "COL (home)",
+            "probability": 0.758,
+            "outcome": "WIN",
+            "logLoss": 0.277072,
+            "brier": 0.058564
+          },
+          "proposed": {
+            "pick": "COL (home)",
+            "probability": 0.762,
+            "outcome": "WIN",
+            "logLoss": 0.271809,
+            "brier": 0.056644
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "run_line",
+          "family": "mlb_run_line",
+          "forecastId": "fl1-62ad8851e7808e03",
+          "previous": {
+            "pick": "COL -1.5",
+            "probability": 0.574,
+            "outcome": "WIN",
+            "logLoss": 0.555126,
+            "brier": 0.181476
+          },
+          "proposed": {
+            "pick": "COL -1.5",
+            "probability": 0.572,
+            "outcome": "WIN",
+            "logLoss": 0.558616,
+            "brier": 0.183184
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "total",
+          "family": "mlb_total",
+          "forecastId": "fl1-d73764ca4ff5d50d",
+          "previous": {
+            "pick": "UNDER 10.5",
+            "probability": 0.751,
+            "outcome": "WIN",
+            "logLoss": 0.28635,
+            "brier": 0.062001
+          },
+          "proposed": {
+            "pick": "UNDER 10.5",
+            "probability": 0.747,
+            "outcome": "WIN",
+            "logLoss": 0.29169,
+            "brier": 0.064009
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        }
+      ],
+      "continuous": [
+        {
+          "family": "mlb_projected_runs",
+          "subject": "SEA",
+          "previous": 2,
+          "proposed": 2,
+          "final": 3,
+          "forecastId": "fl1-061226b5b8c78c20",
+          "previousAbsError": 1,
+          "proposedAbsError": 1
+        },
+        {
+          "family": "mlb_projected_runs",
+          "subject": "COL",
+          "previous": 5,
+          "proposed": 5,
+          "final": 5,
+          "forecastId": "fl1-7fce33228e0fe985",
+          "previousAbsError": 0,
+          "proposedAbsError": 0
+        },
+        {
+          "family": "mlb_projected_total",
+          "subject": "total",
+          "previous": 7,
+          "proposed": 7,
+          "final": 8,
+          "forecastId": "fl1-06fac2ab982b1c3a",
+          "previousAbsError": 1,
+          "proposedAbsError": 1
+        }
+      ],
+      "ledgerRowsAffected": [
+        "fl1-061226b5b8c78c20",
+        "fl1-06fac2ab982b1c3a",
+        "fl1-124055db3beb1539",
+        "fl1-62ad8851e7808e03",
+        "fl1-7fce33228e0fe985",
+        "fl1-d73764ca4ff5d50d"
+      ]
+    },
+    {
+      "key": "2026-09-19|824545",
+      "eventId": "824545",
+      "date": "2026-09-19",
+      "matchup": "DET @ CWS",
+      "firstPitchUtc": "2026-09-19T18:10:00Z",
+      "final": {
+        "away": 1,
+        "home": 3,
+        "source": "statsapi-linescore"
+      },
+      "reasonCode": "GRADED_FORECAST_NOT_PUBLISHED_BEFORE_START",
+      "currentlyGraded": {
+        "source": "snapshot:2026-09-19/snapshot-202609191808.json",
+        "generatedAt": "2026-09-19T18:08:54.000Z",
+        "artifactHash": "46b93a16f05971fd0783ff7b679b7432398dc0a6c4582990ce7ed58be5452e4e",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publicationEvidence": null,
+        "minutesBeforeFirstPitch": 1.1
+      },
+      "publicForecastOfRecord": {
+        "commit": "83190b6b3d74edf8b5e3a2fde71dd90f8d46b455",
+        "generatedAt": "2026-09-19T14:30:41.000Z",
+        "artifactHash": "9157f4a9c335112c2e77c3a343fd78de204ef25642b55428fa40024ad85f3de7",
+        "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publication": {
+          "kind": "PRODUCTION_DEPLOYMENT_READY",
+          "id": "dpl_Fe8JLfax17K21DGkYCQqW9bGATeH",
+          "commitSha": "83190b6b3d74edf8b5e3a2fde71dd90f8d46b455",
+          "readyAt": "2026-09-19T14:42:11.098Z",
+          "evidenceFile": "data/internal/ops/vercel-production-deployments/2026-09-01_2026-10-09.json"
+        }
+      },
+      "markets": [
+        {
+          "market": "moneyline",
+          "family": "mlb_moneyline",
+          "forecastId": "fl1-4c0448e90b7668f5",
+          "previous": {
+            "pick": "DET (away)",
+            "probability": 0.643,
+            "outcome": "LOSS",
+            "logLoss": 1.030019,
+            "brier": 0.413449
+          },
+          "proposed": {
+            "pick": "DET (away)",
+            "probability": 0.68,
+            "outcome": "LOSS",
+            "logLoss": 1.139434,
+            "brier": 0.4624
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "run_line",
+          "family": "mlb_run_line",
+          "forecastId": "fl1-8e31973aab81e90f",
+          "previous": {
+            "pick": "DET -1.5",
+            "probability": 0.502,
+            "outcome": "LOSS",
+            "logLoss": 0.697155,
+            "brier": 0.252004
+          },
+          "proposed": {
+            "pick": "DET -1.5",
+            "probability": 0.534,
+            "outcome": "LOSS",
+            "logLoss": 0.76357,
+            "brier": 0.285156
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "total",
+          "family": "mlb_total",
+          "forecastId": "fl1-33420185fd83aff1",
+          "previous": {
+            "pick": "UNDER 8",
+            "probability": 0.58,
+            "outcome": "WIN",
+            "logLoss": 0.544727,
+            "brier": 0.1764
+          },
+          "proposed": {
+            "pick": "UNDER 8",
+            "probability": 0.572,
+            "outcome": "WIN",
+            "logLoss": 0.558616,
+            "brier": 0.183184
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        }
+      ],
+      "continuous": [
+        {
+          "family": "mlb_projected_runs",
+          "subject": "DET",
+          "previous": 4,
+          "proposed": 4,
+          "final": 1,
+          "forecastId": "fl1-923d81e0e5ce11d1",
+          "previousAbsError": 3,
+          "proposedAbsError": 3
+        },
+        {
+          "family": "mlb_projected_runs",
+          "subject": "CWS",
+          "previous": 2,
+          "proposed": 2,
+          "final": 3,
+          "forecastId": "fl1-182314140a3fe53d",
+          "previousAbsError": 1,
+          "proposedAbsError": 1
+        },
+        {
+          "family": "mlb_projected_total",
+          "subject": "total",
+          "previous": 7,
+          "proposed": 7,
+          "final": 4,
+          "forecastId": "fl1-e3b4b4913adaa446",
+          "previousAbsError": 3,
+          "proposedAbsError": 3
+        }
+      ],
+      "ledgerRowsAffected": [
+        "fl1-182314140a3fe53d",
+        "fl1-33420185fd83aff1",
+        "fl1-4c0448e90b7668f5",
+        "fl1-8e31973aab81e90f",
+        "fl1-923d81e0e5ce11d1",
+        "fl1-e3b4b4913adaa446"
+      ]
+    },
+    {
+      "key": "2026-09-25|823491",
+      "eventId": "823491",
+      "date": "2026-09-25",
+      "matchup": "BAL @ NYY",
+      "firstPitchUtc": "2026-09-25T20:05:00Z",
+      "final": {
+        "away": 10,
+        "home": 2,
+        "source": "statsapi-linescore"
+      },
+      "reasonCode": "GRADED_FORECAST_NOT_PUBLISHED_BEFORE_START",
+      "currentlyGraded": {
+        "source": "snapshot:2026-09-25/snapshot-202609252004.json",
+        "generatedAt": "2026-09-25T20:04:50.000Z",
+        "artifactHash": "29df389fec740fe2d153d8fde25dd4147384f79bf5078e00800ebaca2006ee27",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publicationEvidence": null,
+        "minutesBeforeFirstPitch": 0.2
+      },
+      "publicForecastOfRecord": {
+        "commit": "f51be27b624177f3fd1c28b6ccf10bce11524130",
+        "generatedAt": "2026-09-25T19:23:24.000Z",
+        "artifactHash": "29f8d5c1c4f9489ce703b8f5f994f6bc0362df8c5d66607ba4486fb736c140a5",
+        "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publication": {
+          "kind": "PRODUCTION_DEPLOYMENT_READY",
+          "id": "dpl_8WyG2jc6RcP363CGRuCBEqHiNoeQ",
+          "commitSha": "f51be27b624177f3fd1c28b6ccf10bce11524130",
+          "readyAt": "2026-09-25T19:27:49.201Z",
+          "evidenceFile": "data/internal/ops/vercel-production-deployments/2026-09-01_2026-10-09.json"
+        }
+      },
+      "markets": [
+        {
+          "market": "moneyline",
+          "family": "mlb_moneyline",
+          "forecastId": "fl1-54fe0f0fa2774c95",
+          "previous": {
+            "pick": "NYY (home)",
+            "probability": 0.56,
+            "outcome": "LOSS",
+            "logLoss": 0.820981,
+            "brier": 0.3136
+          },
+          "proposed": {
+            "pick": "NYY (home)",
+            "probability": 0.544,
+            "outcome": "LOSS",
+            "logLoss": 0.785262,
+            "brier": 0.295936
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "run_line",
+          "family": "mlb_run_line",
+          "forecastId": "fl1-e55292caa293716f",
+          "previous": {
+            "pick": "BAL +1.5",
+            "probability": 0.637,
+            "outcome": "WIN",
+            "logLoss": 0.450986,
+            "brier": 0.131769
+          },
+          "proposed": {
+            "pick": "BAL +1.5",
+            "probability": 0.654,
+            "outcome": "WIN",
+            "logLoss": 0.424648,
+            "brier": 0.119716
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "total",
+          "family": "mlb_total",
+          "forecastId": "fl1-1a58b6d9becfee11",
+          "previous": {
+            "pick": "OVER 6.5",
+            "probability": 0.546,
+            "outcome": "WIN",
+            "logLoss": 0.605136,
+            "brier": 0.206116
+          },
+          "proposed": {
+            "pick": "OVER 6.5",
+            "probability": 0.526,
+            "outcome": "WIN",
+            "logLoss": 0.642454,
+            "brier": 0.224676
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        }
+      ],
+      "continuous": [
+        {
+          "family": "mlb_projected_runs",
+          "subject": "BAL",
+          "previous": 3,
+          "proposed": 3,
+          "final": 10,
+          "forecastId": "fl1-b68803868798ac30",
+          "previousAbsError": 7,
+          "proposedAbsError": 7
+        },
+        {
+          "family": "mlb_projected_runs",
+          "subject": "NYY",
+          "previous": 3,
+          "proposed": 3,
+          "final": 2,
+          "forecastId": "fl1-1233f6a3a747c7e8",
+          "previousAbsError": 1,
+          "proposedAbsError": 1
+        },
+        {
+          "family": "mlb_projected_total",
+          "subject": "total",
+          "previous": 7,
+          "proposed": 7,
+          "final": 12,
+          "forecastId": "fl1-768aed43e142f9e6",
+          "previousAbsError": 5,
+          "proposedAbsError": 5
+        }
+      ],
+      "ledgerRowsAffected": [
+        "fl1-1233f6a3a747c7e8",
+        "fl1-1a58b6d9becfee11",
+        "fl1-54fe0f0fa2774c95",
+        "fl1-768aed43e142f9e6",
+        "fl1-b68803868798ac30",
+        "fl1-e55292caa293716f"
+      ]
+    },
+    {
+      "key": "2026-09-27|823084",
+      "eventId": "823084",
+      "date": "2026-09-27",
+      "matchup": "LAA @ SEA",
+      "firstPitchUtc": "2026-09-27T19:10:00Z",
+      "final": {
+        "away": 3,
+        "home": 7,
+        "source": "statsapi-linescore"
+      },
+      "reasonCode": "GRADED_FORECAST_NOT_PUBLISHED_BEFORE_START",
+      "currentlyGraded": {
+        "source": "snapshot:2026-09-27/snapshot-202609271908.json",
+        "generatedAt": "2026-09-27T19:08:06.000Z",
+        "artifactHash": "c0571f8d87d92ba77321a6bb33b39a2ae142b32e4d7171390e249cc2e2e77ed6",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publicationEvidence": null,
+        "minutesBeforeFirstPitch": 1.9
+      },
+      "publicForecastOfRecord": {
+        "commit": "4df53e062086d69e9ed706efd07b72613851e933",
+        "generatedAt": "2026-09-27T15:41:41.000Z",
+        "artifactHash": "ad22428b23a61fd2a4e516f04184ed58e0cff5994de2d550064f5e6152644fec",
+        "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publication": {
+          "kind": "PRODUCTION_DEPLOYMENT_READY",
+          "id": "dpl_EFcazZmW9K2d6cbQKvnwPz13ymwR",
+          "commitSha": "4df53e062086d69e9ed706efd07b72613851e933",
+          "readyAt": "2026-09-27T15:50:16.362Z",
+          "evidenceFile": "data/internal/ops/vercel-production-deployments/2026-09-01_2026-10-09.json"
+        }
+      },
+      "markets": [
+        {
+          "market": "moneyline",
+          "family": "mlb_moneyline",
+          "forecastId": "fl1-ca7a2c5b3699b535",
+          "previous": {
+            "pick": "SEA (home)",
+            "probability": 0.526,
+            "outcome": "WIN",
+            "logLoss": 0.642454,
+            "brier": 0.224676
+          },
+          "proposed": {
+            "pick": "SEA (home)",
+            "probability": 0.527,
+            "outcome": "WIN",
+            "logLoss": 0.640555,
+            "brier": 0.223729
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "run_line",
+          "family": "mlb_run_line",
+          "forecastId": "fl1-c443a83f815b8f4f",
+          "previous": {
+            "pick": "LAA +1.5",
+            "probability": 0.671,
+            "outcome": "LOSS",
+            "logLoss": 1.111698,
+            "brier": 0.450241
+          },
+          "proposed": {
+            "pick": "LAA +1.5",
+            "probability": 0.666,
+            "outcome": "LOSS",
+            "logLoss": 1.096614,
+            "brier": 0.443556
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "total",
+          "family": "mlb_total",
+          "forecastId": "fl1-8fe7180b10d91631",
+          "previous": {
+            "pick": "UNDER 7",
+            "probability": 0.489,
+            "outcome": "LOSS",
+            "logLoss": 0.671386,
+            "brier": 0.239121
+          },
+          "proposed": {
+            "pick": "UNDER 7",
+            "probability": 0.462,
+            "outcome": "LOSS",
+            "logLoss": 0.619897,
+            "brier": 0.213444
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        }
+      ],
+      "continuous": [
+        {
+          "family": "mlb_projected_runs",
+          "subject": "LAA",
+          "previous": 3,
+          "proposed": 3,
+          "final": 3,
+          "forecastId": "fl1-3b841ae1a0993631",
+          "previousAbsError": 0,
+          "proposedAbsError": 0
+        },
+        {
+          "family": "mlb_projected_runs",
+          "subject": "SEA",
+          "previous": 3,
+          "proposed": 3,
+          "final": 7,
+          "forecastId": "fl1-9dc53997965944da",
+          "previousAbsError": 4,
+          "proposedAbsError": 4
+        },
+        {
+          "family": "mlb_projected_total",
+          "subject": "total",
+          "previous": 7,
+          "proposed": 7,
+          "final": 10,
+          "forecastId": "fl1-abed6c74d5e01d86",
+          "previousAbsError": 3,
+          "proposedAbsError": 3
+        }
+      ],
+      "ledgerRowsAffected": [
+        "fl1-3b841ae1a0993631",
+        "fl1-8fe7180b10d91631",
+        "fl1-9dc53997965944da",
+        "fl1-abed6c74d5e01d86",
+        "fl1-c443a83f815b8f4f",
+        "fl1-ca7a2c5b3699b535"
+      ]
+    },
+    {
+      "key": "2026-09-27|823650",
+      "eventId": "823650",
+      "date": "2026-09-27",
+      "matchup": "TEX @ MIN",
+      "firstPitchUtc": "2026-09-27T19:10:00Z",
+      "final": {
+        "away": 4,
+        "home": 6,
+        "source": "statsapi-linescore"
+      },
+      "reasonCode": "GRADED_FORECAST_NOT_PUBLISHED_BEFORE_START",
+      "currentlyGraded": {
+        "source": "snapshot:2026-09-27/snapshot-202609271908.json",
+        "generatedAt": "2026-09-27T19:08:06.000Z",
+        "artifactHash": "a38e20f30d48ff685ea7e9b89a4060e076dd8ddc0ef418e7a383cec7962ca84d",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publicationEvidence": null,
+        "minutesBeforeFirstPitch": 1.9
+      },
+      "publicForecastOfRecord": {
+        "commit": "4df53e062086d69e9ed706efd07b72613851e933",
+        "generatedAt": "2026-09-27T15:41:41.000Z",
+        "artifactHash": "ee50f70b8cbb461adbd9b6780239ba8bd845b341e8ad7b488e877069949b20a2",
+        "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publication": {
+          "kind": "PRODUCTION_DEPLOYMENT_READY",
+          "id": "dpl_EFcazZmW9K2d6cbQKvnwPz13ymwR",
+          "commitSha": "4df53e062086d69e9ed706efd07b72613851e933",
+          "readyAt": "2026-09-27T15:50:16.362Z",
+          "evidenceFile": "data/internal/ops/vercel-production-deployments/2026-09-01_2026-10-09.json"
+        }
+      },
+      "markets": [
+        {
+          "market": "moneyline",
+          "family": "mlb_moneyline",
+          "forecastId": "fl1-9335a90fd843b915",
+          "previous": {
+            "pick": "MIN (home)",
+            "probability": 0.64,
+            "outcome": "WIN",
+            "logLoss": 0.446287,
+            "brier": 0.1296
+          },
+          "proposed": {
+            "pick": "MIN (home)",
+            "probability": 0.661,
+            "outcome": "WIN",
+            "logLoss": 0.414001,
+            "brier": 0.114921
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "run_line",
+          "family": "mlb_run_line",
+          "forecastId": "fl1-0507005039f212ef",
+          "previous": {
+            "pick": "TEX +1.5",
+            "probability": 0.566,
+            "outcome": "LOSS",
+            "logLoss": 0.834711,
+            "brier": 0.320356
+          },
+          "proposed": {
+            "pick": "TEX +1.5",
+            "probability": 0.554,
+            "outcome": "LOSS",
+            "logLoss": 0.807436,
+            "brier": 0.306916
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "total",
+          "family": "mlb_total",
+          "forecastId": "fl1-c3bb38f6007dd291",
+          "previous": {
+            "pick": "UNDER 8",
+            "probability": 0.615,
+            "outcome": "LOSS",
+            "logLoss": 0.954512,
+            "brier": 0.378225
+          },
+          "proposed": {
+            "pick": "UNDER 8",
+            "probability": 0.67,
+            "outcome": "LOSS",
+            "logLoss": 1.108663,
+            "brier": 0.4489
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        }
+      ],
+      "continuous": [
+        {
+          "family": "mlb_projected_runs",
+          "subject": "TEX",
+          "previous": 2,
+          "proposed": 2,
+          "final": 4,
+          "forecastId": "fl1-1df30a4338577588",
+          "previousAbsError": 2,
+          "proposedAbsError": 2
+        },
+        {
+          "family": "mlb_projected_runs",
+          "subject": "MIN",
+          "previous": 4,
+          "proposed": 3,
+          "final": 6,
+          "forecastId": "fl1-304a5f7ddb12863e",
+          "previousAbsError": 2,
+          "proposedAbsError": 3
+        },
+        {
+          "family": "mlb_projected_total",
+          "subject": "total",
+          "previous": 7,
+          "proposed": 6,
+          "final": 10,
+          "forecastId": "fl1-1e2c052d94b20766",
+          "previousAbsError": 3,
+          "proposedAbsError": 4
+        }
+      ],
+      "ledgerRowsAffected": [
+        "fl1-0507005039f212ef",
+        "fl1-1df30a4338577588",
+        "fl1-1e2c052d94b20766",
+        "fl1-304a5f7ddb12863e",
+        "fl1-9335a90fd843b915",
+        "fl1-c3bb38f6007dd291"
+      ]
+    },
+    {
+      "key": "2026-09-27|823731",
+      "eventId": "823731",
+      "date": "2026-09-27",
+      "matchup": "STL @ MIL",
+      "firstPitchUtc": "2026-09-27T19:10:00Z",
+      "final": {
+        "away": 4,
+        "home": 6,
+        "source": "statsapi-linescore"
+      },
+      "reasonCode": "GRADED_FORECAST_NOT_PUBLISHED_BEFORE_START",
+      "currentlyGraded": {
+        "source": "snapshot:2026-09-27/snapshot-202609271908.json",
+        "generatedAt": "2026-09-27T19:08:06.000Z",
+        "artifactHash": "8e469c71c8da0a7368c019d7afb712b10d68389d597cd5f8b62c486c12f9d2f8",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publicationEvidence": null,
+        "minutesBeforeFirstPitch": 1.9
+      },
+      "publicForecastOfRecord": {
+        "commit": "4df53e062086d69e9ed706efd07b72613851e933",
+        "generatedAt": "2026-09-27T15:41:41.000Z",
+        "artifactHash": "3b8626234d5ff33a14a5f3a5c9073047ef8db26b8b2aac98a876ad216362552f",
+        "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publication": {
+          "kind": "PRODUCTION_DEPLOYMENT_READY",
+          "id": "dpl_EFcazZmW9K2d6cbQKvnwPz13ymwR",
+          "commitSha": "4df53e062086d69e9ed706efd07b72613851e933",
+          "readyAt": "2026-09-27T15:50:16.362Z",
+          "evidenceFile": "data/internal/ops/vercel-production-deployments/2026-09-01_2026-10-09.json"
+        }
+      },
+      "markets": [
+        {
+          "market": "moneyline",
+          "family": "mlb_moneyline",
+          "forecastId": "fl1-b06107eae63880a9",
+          "previous": {
+            "pick": "MIL (home)",
+            "probability": 0.629,
+            "outcome": "WIN",
+            "logLoss": 0.463624,
+            "brier": 0.137641
+          },
+          "proposed": {
+            "pick": "MIL (home)",
+            "probability": 0.673,
+            "outcome": "WIN",
+            "logLoss": 0.39601,
+            "brier": 0.106929
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "run_line",
+          "family": "mlb_run_line",
+          "forecastId": "fl1-0f2e0b4c2543e053",
+          "previous": {
+            "pick": "STL +1.5",
+            "probability": 0.587,
+            "outcome": "LOSS",
+            "logLoss": 0.884308,
+            "brier": 0.344569
+          },
+          "proposed": {
+            "pick": "STL +1.5",
+            "probability": 0.529,
+            "outcome": "LOSS",
+            "logLoss": 0.752897,
+            "brier": 0.279841
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "total",
+          "family": "mlb_total",
+          "forecastId": "fl1-741cdacdb0b0439d",
+          "previous": {
+            "pick": "UNDER 7",
+            "probability": 0.529,
+            "outcome": "LOSS",
+            "logLoss": 0.752897,
+            "brier": 0.279841
+          },
+          "proposed": {
+            "pick": "UNDER 7",
+            "probability": 0.476,
+            "outcome": "LOSS",
+            "logLoss": 0.646264,
+            "brier": 0.226576
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        }
+      ],
+      "continuous": [
+        {
+          "family": "mlb_projected_runs",
+          "subject": "STL",
+          "previous": 2,
+          "proposed": 2,
+          "final": 4,
+          "forecastId": "fl1-7a09bb0459c43d5b",
+          "previousAbsError": 2,
+          "proposedAbsError": 2
+        },
+        {
+          "family": "mlb_projected_runs",
+          "subject": "MIL",
+          "previous": 3,
+          "proposed": 4,
+          "final": 6,
+          "forecastId": "fl1-af1a7375faad5f61",
+          "previousAbsError": 3,
+          "proposedAbsError": 2
+        },
+        {
+          "family": "mlb_projected_total",
+          "subject": "total",
+          "previous": 6,
+          "proposed": 7,
+          "final": 10,
+          "forecastId": "fl1-37618ee776b8338a",
+          "previousAbsError": 4,
+          "proposedAbsError": 3
+        }
+      ],
+      "ledgerRowsAffected": [
+        "fl1-0f2e0b4c2543e053",
+        "fl1-37618ee776b8338a",
+        "fl1-741cdacdb0b0439d",
+        "fl1-7a09bb0459c43d5b",
+        "fl1-af1a7375faad5f61",
+        "fl1-b06107eae63880a9"
+      ]
+    },
+    {
+      "key": "2026-09-27|823814",
+      "eventId": "823814",
+      "date": "2026-09-27",
+      "matchup": "ATL @ MIA",
+      "firstPitchUtc": "2026-09-27T19:10:00Z",
+      "final": {
+        "away": 3,
+        "home": 5,
+        "source": "statsapi-linescore"
+      },
+      "reasonCode": "GRADED_FORECAST_NOT_PUBLISHED_BEFORE_START",
+      "currentlyGraded": {
+        "source": "snapshot:2026-09-27/snapshot-202609271908.json",
+        "generatedAt": "2026-09-27T19:08:06.000Z",
+        "artifactHash": "5c02d415a9fc6b254f9cc4a936315553ccbbe319d0e4ccf3ce67d69af8893eb5",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publicationEvidence": null,
+        "minutesBeforeFirstPitch": 1.9
+      },
+      "publicForecastOfRecord": {
+        "commit": "4df53e062086d69e9ed706efd07b72613851e933",
+        "generatedAt": "2026-09-27T15:41:41.000Z",
+        "artifactHash": "7c83e36651e1fc9aeabf9601ccc8b8c947818f8e1063940528c81de434cb4c95",
+        "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publication": {
+          "kind": "PRODUCTION_DEPLOYMENT_READY",
+          "id": "dpl_EFcazZmW9K2d6cbQKvnwPz13ymwR",
+          "commitSha": "4df53e062086d69e9ed706efd07b72613851e933",
+          "readyAt": "2026-09-27T15:50:16.362Z",
+          "evidenceFile": "data/internal/ops/vercel-production-deployments/2026-09-01_2026-10-09.json"
+        }
+      },
+      "markets": [
+        {
+          "market": "moneyline",
+          "family": "mlb_moneyline",
+          "forecastId": "fl1-5a07b2efae674d59",
+          "previous": {
+            "pick": "MIA (home)",
+            "probability": 0.558,
+            "outcome": "WIN",
+            "logLoss": 0.583396,
+            "brier": 0.195364
+          },
+          "proposed": {
+            "pick": "MIA (home)",
+            "probability": 0.521,
+            "outcome": "WIN",
+            "logLoss": 0.652005,
+            "brier": 0.229441
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "run_line",
+          "family": "mlb_run_line",
+          "forecastId": "fl1-3492be46998fc2e3",
+          "previous": {
+            "pick": "ATL +1.5",
+            "probability": 0.653,
+            "outcome": "LOSS",
+            "logLoss": 1.05843,
+            "brier": 0.426409
+          },
+          "proposed": {
+            "pick": "ATL +1.5",
+            "probability": 0.653,
+            "outcome": "LOSS",
+            "logLoss": 1.05843,
+            "brier": 0.426409
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "total",
+          "family": "mlb_total",
+          "forecastId": "fl1-8b40d8b4ebefaead",
+          "previous": {
+            "pick": "UNDER 8.5",
+            "probability": 0.736,
+            "outcome": "WIN",
+            "logLoss": 0.306525,
+            "brier": 0.069696
+          },
+          "proposed": {
+            "pick": "UNDER 8.5",
+            "probability": 0.546,
+            "outcome": "WIN",
+            "logLoss": 0.605136,
+            "brier": 0.206116
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        }
+      ],
+      "continuous": [
+        {
+          "family": "mlb_projected_runs",
+          "subject": "ATL",
+          "previous": 3,
+          "proposed": 4,
+          "final": 3,
+          "forecastId": "fl1-7622cc97cb10bcfe",
+          "previousAbsError": 0,
+          "proposedAbsError": 1
+        },
+        {
+          "family": "mlb_projected_runs",
+          "subject": "MIA",
+          "previous": 3,
+          "proposed": 4,
+          "final": 5,
+          "forecastId": "fl1-6d3763eb91479b48",
+          "previousAbsError": 2,
+          "proposedAbsError": 1
+        },
+        {
+          "family": "mlb_projected_total",
+          "subject": "total",
+          "previous": 6,
+          "proposed": 8,
+          "final": 8,
+          "forecastId": "fl1-b615721c971944da",
+          "previousAbsError": 2,
+          "proposedAbsError": 0
+        }
+      ],
+      "ledgerRowsAffected": [
+        "fl1-3492be46998fc2e3",
+        "fl1-5a07b2efae674d59",
+        "fl1-6d3763eb91479b48",
+        "fl1-7622cc97cb10bcfe",
+        "fl1-8b40d8b4ebefaead",
+        "fl1-b615721c971944da"
+      ]
+    },
+    {
+      "key": "2026-09-27|824055",
+      "eventId": "824055",
+      "date": "2026-09-27",
+      "matchup": "CLE @ KC",
+      "firstPitchUtc": "2026-09-27T19:10:00Z",
+      "final": {
+        "away": 2,
+        "home": 3,
+        "source": "statsapi-linescore"
+      },
+      "reasonCode": "GRADED_FORECAST_NOT_PUBLISHED_BEFORE_START",
+      "currentlyGraded": {
+        "source": "snapshot:2026-09-27/snapshot-202609271908.json",
+        "generatedAt": "2026-09-27T19:08:06.000Z",
+        "artifactHash": "3dd3f6bc8890afa67cda0ad8f71473e5c92aebb32c5e269721286900cb7609c8",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publicationEvidence": null,
+        "minutesBeforeFirstPitch": 1.9
+      },
+      "publicForecastOfRecord": {
+        "commit": "4df53e062086d69e9ed706efd07b72613851e933",
+        "generatedAt": "2026-09-27T15:41:41.000Z",
+        "artifactHash": "5966373ce790ab6d81fbeda435223fcf6e858cf1d58f63ae709a0e2e47aca10a",
+        "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publication": {
+          "kind": "PRODUCTION_DEPLOYMENT_READY",
+          "id": "dpl_EFcazZmW9K2d6cbQKvnwPz13ymwR",
+          "commitSha": "4df53e062086d69e9ed706efd07b72613851e933",
+          "readyAt": "2026-09-27T15:50:16.362Z",
+          "evidenceFile": "data/internal/ops/vercel-production-deployments/2026-09-01_2026-10-09.json"
+        }
+      },
+      "markets": [
+        {
+          "market": "moneyline",
+          "family": "mlb_moneyline",
+          "forecastId": "fl1-2fa5c3f83d2f9ba5",
+          "previous": {
+            "pick": "KC (home)",
+            "probability": 0.646,
+            "outcome": "WIN",
+            "logLoss": 0.436956,
+            "brier": 0.125316
+          },
+          "proposed": {
+            "pick": "KC (home)",
+            "probability": 0.601,
+            "outcome": "WIN",
+            "logLoss": 0.50916,
+            "brier": 0.159201
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "run_line",
+          "family": "mlb_run_line",
+          "forecastId": "fl1-2b0691f02bc0075f",
+          "previous": {
+            "pick": "CLE +1.5",
+            "probability": 0.561,
+            "outcome": "WIN",
+            "logLoss": 0.578034,
+            "brier": 0.192721
+          },
+          "proposed": {
+            "pick": "CLE +1.5",
+            "probability": 0.585,
+            "outcome": "WIN",
+            "logLoss": 0.536143,
+            "brier": 0.172225
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "total",
+          "family": "mlb_total",
+          "forecastId": "fl1-8895ad682bd2e541",
+          "previous": {
+            "pick": "UNDER 8.5",
+            "probability": 0.69,
+            "outcome": "WIN",
+            "logLoss": 0.371064,
+            "brier": 0.0961
+          },
+          "proposed": {
+            "pick": "UNDER 8.5",
+            "probability": 0.531,
+            "outcome": "WIN",
+            "logLoss": 0.632993,
+            "brier": 0.219961
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        }
+      ],
+      "continuous": [
+        {
+          "family": "mlb_projected_runs",
+          "subject": "CLE",
+          "previous": 3,
+          "proposed": 3,
+          "final": 2,
+          "forecastId": "fl1-8befba5d42674915",
+          "previousAbsError": 1,
+          "proposedAbsError": 1
+        },
+        {
+          "family": "mlb_projected_runs",
+          "subject": "KC",
+          "previous": 4,
+          "proposed": 4,
+          "final": 3,
+          "forecastId": "fl1-e0e061d8aa6b4329",
+          "previousAbsError": 1,
+          "proposedAbsError": 1
+        },
+        {
+          "family": "mlb_projected_total",
+          "subject": "total",
+          "previous": 7,
+          "proposed": 8,
+          "final": 5,
+          "forecastId": "fl1-cc9763004f556b16",
+          "previousAbsError": 2,
+          "proposedAbsError": 3
+        }
+      ],
+      "ledgerRowsAffected": [
+        "fl1-2b0691f02bc0075f",
+        "fl1-2fa5c3f83d2f9ba5",
+        "fl1-8895ad682bd2e541",
+        "fl1-8befba5d42674915",
+        "fl1-cc9763004f556b16",
+        "fl1-e0e061d8aa6b4329"
+      ]
+    },
+    {
+      "key": "2026-09-27|824217",
+      "eventId": "824217",
+      "date": "2026-09-27",
+      "matchup": "PIT @ DET",
+      "firstPitchUtc": "2026-09-27T19:10:00Z",
+      "final": {
+        "away": 4,
+        "home": 2,
+        "source": "statsapi-linescore"
+      },
+      "reasonCode": "GRADED_FORECAST_NOT_PUBLISHED_BEFORE_START",
+      "currentlyGraded": {
+        "source": "snapshot:2026-09-27/snapshot-202609271908.json",
+        "generatedAt": "2026-09-27T19:08:06.000Z",
+        "artifactHash": "f07daa548f455d32868650f475658d179ded4e2c3875167a9e09bcc67345a5d5",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publicationEvidence": null,
+        "minutesBeforeFirstPitch": 1.9
+      },
+      "publicForecastOfRecord": {
+        "commit": "4df53e062086d69e9ed706efd07b72613851e933",
+        "generatedAt": "2026-09-27T15:41:41.000Z",
+        "artifactHash": "3fe625635f129d25f3a4312cdd367d6e970047e0f63d14d509143918c5eb7bf4",
+        "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publication": {
+          "kind": "PRODUCTION_DEPLOYMENT_READY",
+          "id": "dpl_EFcazZmW9K2d6cbQKvnwPz13ymwR",
+          "commitSha": "4df53e062086d69e9ed706efd07b72613851e933",
+          "readyAt": "2026-09-27T15:50:16.362Z",
+          "evidenceFile": "data/internal/ops/vercel-production-deployments/2026-09-01_2026-10-09.json"
+        }
+      },
+      "markets": [
+        {
+          "market": "moneyline",
+          "family": "mlb_moneyline",
+          "forecastId": "fl1-bbf178219a033a15",
+          "previous": {
+            "pick": "DET (home)",
+            "probability": 0.555,
+            "outcome": "LOSS",
+            "logLoss": 0.809681,
+            "brier": 0.308025
+          },
+          "proposed": {
+            "pick": "PIT (away)",
+            "probability": 0.567,
+            "outcome": "WIN",
+            "logLoss": 0.567396,
+            "brier": 0.187489
+          },
+          "selectionChanged": true,
+          "outcomeChanged": true
+        },
+        {
+          "market": "run_line",
+          "family": "mlb_run_line",
+          "forecastId": "fl1-4bafc1d1bd0a0def",
+          "previous": {
+            "pick": "PIT +1.5",
+            "probability": 0.628,
+            "outcome": "WIN",
+            "logLoss": 0.465215,
+            "brier": 0.138384
+          },
+          "proposed": {
+            "pick": "DET +1.5",
+            "probability": 0.55,
+            "outcome": "LOSS",
+            "logLoss": 0.798508,
+            "brier": 0.3025
+          },
+          "selectionChanged": true,
+          "outcomeChanged": true
+        },
+        {
+          "market": "total",
+          "family": "mlb_total",
+          "forecastId": "fl1-4f1c2bbb8189c391",
+          "previous": {
+            "pick": "UNDER 8",
+            "probability": 0.488,
+            "outcome": "WIN",
+            "logLoss": 0.71744,
+            "brier": 0.262144
+          },
+          "proposed": {
+            "pick": "OVER 8",
+            "probability": 0.556,
+            "outcome": "LOSS",
+            "logLoss": 0.811931,
+            "brier": 0.309136
+          },
+          "selectionChanged": true,
+          "outcomeChanged": true
+        }
+      ],
+      "continuous": [
+        {
+          "family": "mlb_projected_runs",
+          "subject": "PIT",
+          "previous": 4,
+          "proposed": 5,
+          "final": 4,
+          "forecastId": "fl1-3e05a3830379774b",
+          "previousAbsError": 0,
+          "proposedAbsError": 1
+        },
+        {
+          "family": "mlb_projected_runs",
+          "subject": "DET",
+          "previous": 4,
+          "proposed": 4,
+          "final": 2,
+          "forecastId": "fl1-9e52c1207bf83873",
+          "previousAbsError": 2,
+          "proposedAbsError": 2
+        },
+        {
+          "family": "mlb_projected_total",
+          "subject": "total",
+          "previous": 8,
+          "proposed": 9,
+          "final": 6,
+          "forecastId": "fl1-d42f947495de9a66",
+          "previousAbsError": 2,
+          "proposedAbsError": 3
+        }
+      ],
+      "ledgerRowsAffected": [
+        "fl1-3e05a3830379774b",
+        "fl1-4bafc1d1bd0a0def",
+        "fl1-4f1c2bbb8189c391",
+        "fl1-9e52c1207bf83873",
+        "fl1-bbf178219a033a15",
+        "fl1-d42f947495de9a66"
+      ]
+    },
+    {
+      "key": "2026-09-27|824542",
+      "eventId": "824542",
+      "date": "2026-09-27",
+      "matchup": "COL @ CWS",
+      "firstPitchUtc": "2026-09-27T19:10:00Z",
+      "final": {
+        "away": 2,
+        "home": 4,
+        "source": "statsapi-linescore"
+      },
+      "reasonCode": "GRADED_FORECAST_NOT_PUBLISHED_BEFORE_START",
+      "currentlyGraded": {
+        "source": "snapshot:2026-09-27/snapshot-202609271908.json",
+        "generatedAt": "2026-09-27T19:08:06.000Z",
+        "artifactHash": "596ec49aeb9e37cc011d024e84295fd1b21685f63e6fd5d4672b7bd93375c220",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publicationEvidence": null,
+        "minutesBeforeFirstPitch": 1.9
+      },
+      "publicForecastOfRecord": {
+        "commit": "4df53e062086d69e9ed706efd07b72613851e933",
+        "generatedAt": "2026-09-27T15:41:41.000Z",
+        "artifactHash": "7879d5291e9fd21cd51dbc907110f7cb515a8bdc7f105583087d5aa4fa29b182",
+        "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+        "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+        "publication": {
+          "kind": "PRODUCTION_DEPLOYMENT_READY",
+          "id": "dpl_EFcazZmW9K2d6cbQKvnwPz13ymwR",
+          "commitSha": "4df53e062086d69e9ed706efd07b72613851e933",
+          "readyAt": "2026-09-27T15:50:16.362Z",
+          "evidenceFile": "data/internal/ops/vercel-production-deployments/2026-09-01_2026-10-09.json"
+        }
+      },
+      "markets": [
+        {
+          "market": "moneyline",
+          "family": "mlb_moneyline",
+          "forecastId": "fl1-00a5d21cc3f61599",
+          "previous": {
+            "pick": "COL (away)",
+            "probability": 0.637,
+            "outcome": "LOSS",
+            "logLoss": 1.013352,
+            "brier": 0.405769
+          },
+          "proposed": {
+            "pick": "COL (away)",
+            "probability": 0.681,
+            "outcome": "LOSS",
+            "logLoss": 1.142564,
+            "brier": 0.463761
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        },
+        {
+          "market": "run_line",
+          "family": "mlb_run_line",
+          "forecastId": "fl1-e187a5b1c9993923",
+          "previous": {
+            "pick": "CWS +1.5",
+            "probability": 0.507,
+            "outcome": "WIN",
+            "logLoss": 0.679244,
+            "brier": 0.243049
+          },
+          "proposed": {
+            "pick": "COL -1.5",
+            "probability": 0.543,
+            "outcome": "LOSS",
+            "logLoss": 0.783072,
+            "brier": 0.294849
+          },
+          "selectionChanged": true,
+          "outcomeChanged": true
+        },
+        {
+          "market": "total",
+          "family": "mlb_total",
+          "forecastId": "fl1-46338e16a17bfded",
+          "previous": {
+            "pick": "UNDER 8.5",
+            "probability": 0.635,
+            "outcome": "WIN",
+            "logLoss": 0.45413,
+            "brier": 0.133225
+          },
+          "proposed": {
+            "pick": "UNDER 8.5",
+            "probability": 0.584,
+            "outcome": "WIN",
+            "logLoss": 0.537854,
+            "brier": 0.173056
+          },
+          "selectionChanged": false,
+          "outcomeChanged": false
+        }
+      ],
+      "continuous": [
+        {
+          "family": "mlb_projected_runs",
+          "subject": "COL",
+          "previous": 4,
+          "proposed": 5,
+          "final": 2,
+          "forecastId": "fl1-62f2830af9adbe31",
+          "previousAbsError": 2,
+          "proposedAbsError": 3
+        },
+        {
+          "family": "mlb_projected_runs",
+          "subject": "CWS",
+          "previous": 3,
+          "proposed": 3,
+          "final": 4,
+          "forecastId": "fl1-2e3166a985317fc2",
+          "previousAbsError": 1,
+          "proposedAbsError": 1
+        },
+        {
+          "family": "mlb_projected_total",
+          "subject": "total",
+          "previous": 7,
+          "proposed": 7,
+          "final": 6,
+          "forecastId": "fl1-3b40d9f212423a1a",
+          "previousAbsError": 1,
+          "proposedAbsError": 1
+        }
+      ],
+      "ledgerRowsAffected": [
+        "fl1-00a5d21cc3f61599",
+        "fl1-2e3166a985317fc2",
+        "fl1-3b40d9f212423a1a",
+        "fl1-46338e16a17bfded",
+        "fl1-62f2830af9adbe31",
+        "fl1-e187a5b1c9993923"
+      ]
+    }
+  ]
+}
