@@ -49,14 +49,16 @@ const pctText = (p, decimals) => `${(p * 100).toFixed(decimals)}%`;
 
 /**
  * One NBA game-winner leg: the Level A NBA side (already through the Level A leg gates) + the display's number.
- * @param {object} leg   a Level A leg: { sport, eventId, market, selection: { code }, forecast: { stampedAt, payloadSha256 } }
+ * @param {object} leg   a Level A leg: { sport, eventId, market, selection: { code }, forecast: { stampedAt } }
  * @param {DisplayProbability | null} d
+ * @param {{ payloadSha256: string } | null} receipt   the side's own frozen receipt (the lane game's `receipt`), for the
+ *   §1.4 cross-check. Passed in, not carried on the leg, so the untiered Level A output is unchanged by this rule.
  */
-export function nbaGameWinnerLeg(leg, d) {
+export function nbaGameWinnerLeg(leg, d, receipt) {
   if (leg?.sport !== "nba" || leg?.market !== "winner" || !["home", "away"].includes(leg?.selection?.code)) return { ok: false, code: "NOT_NBA_GAME_WINNER", leg };
   if (d == null) return { ok: false, code: "NO_PUBLISHED_PROBABILITY", leg };
   if (!(typeof d.pHome === "number" && d.pHome > 0 && d.pHome < 1)) return { ok: false, code: "BAD_PROBABILITY", leg };
-  if (String(d.eventId) !== String(leg.eventId) || d.frozenAt !== leg.forecast?.stampedAt || !d.payloadSha256 || d.payloadSha256 !== leg.forecast?.payloadSha256) return { ok: false, code: "PROVENANCE_MISMATCH", leg };
+  if (String(d.eventId) !== String(leg.eventId) || d.frozenAt !== leg.forecast?.stampedAt || !d.payloadSha256 || d.payloadSha256 !== receipt?.payloadSha256) return { ok: false, code: "PROVENANCE_MISMATCH", leg };
   const side = leg.selection.code;
   const p = side === "home" ? d.pHome : 1 - d.pHome;
   if (!(p >= 0.5)) return { ok: false, code: "SIDE_DISAGREES", leg };
@@ -88,11 +90,12 @@ function cardOf(legs, tier) {
 }
 
 /**
- * The NBA game winners block. `accessor(eventId)` → DisplayProbability | null.
+ * The NBA game winners block. `accessor(eventId)` → DisplayProbability | null; `receiptOf(eventId)` → the side's
+ * frozen receipt ({ payloadSha256 }) | null.
  * @returns {{ policy, public: boolean, tiers: Array<{ tier, tierLabel, card, reason }>, legs, untiered: Array<{ leg, code, reason }> }}
  */
-export function nbaGameWinnerTiers({ legs = [], accessor, enabled = nbaGameWinnerTiersEnabled() }) {
-  const graded = legs.map((l) => { let d = null; try { d = accessor?.(l.eventId) ?? null; } catch { d = null; } return nbaGameWinnerLeg(l, d); });
+export function nbaGameWinnerTiers({ legs = [], accessor, receiptOf = () => null, enabled = nbaGameWinnerTiersEnabled() }) {
+  const graded = legs.map((l) => { let d = null; try { d = accessor?.(l.eventId) ?? null; } catch { d = null; } return nbaGameWinnerLeg(l, d, receiptOf(l.eventId)); });
   const ok = [];
   const seen = new Set();
   for (const g of graded) if (g.ok && !seen.has(String(g.leg.eventId))) { seen.add(String(g.leg.eventId)); ok.push(g.leg); } // one leg per game

@@ -22,20 +22,24 @@ const DAY = fs.readdirSync(laneDir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.te
 /** REAL NBA Level A legs for the latest lane day, evaluated well before its first tip. */
 const NOW = new Date(Date.parse(`${DAY}T12:00:00Z`) - 3600_000).toISOString();
 const REAL = nbaSelections({ repoRoot: REPO, date: DAY }).selections.map((s) => levelALeg(s, { now: NOW, productDay: DAY })).filter((r) => r.ok).map((r) => r.leg);
+const LANE = JSON.parse(fs.readFileSync(path.join(laneDir, `${DAY}.json`), "utf8"));
+/** The side's own frozen receipt, from the same lane game the side was read from. */
+const receiptOf = (eventId) => LANE.games.find((g) => String(g.providerEventId) === String(eventId))?.receipt ?? null;
+const legOf = (l, d) => nbaGameWinnerLeg(l, d, receiptOf(l.eventId));
 const LABEL = "FIXTURE validation label (the display's own constant replaces this in step 2)";
 /** FIXTURE accessor: the given home-win probability per game, with the leg's own provenance. */
 const fixtureAccessor = (pHomeByEvent, o = {}) => (eventId) => {
   const leg = REAL.find((l) => l.eventId === String(eventId));
   const p = pHomeByEvent[eventId];
   if (p == null || !leg) return null;
-  return { eventId: String(eventId), pHome: p, shown: { home: `${(p * 100).toFixed(1)}%`, away: `${((1 - p) * 100).toFixed(1)}%` }, decimals: 1, frozenAt: leg.forecast.stampedAt, payloadSha256: leg.forecast.payloadSha256, validationLabel: LABEL, source: "FIXTURE display", ...o };
+  return { eventId: String(eventId), pHome: p, shown: { home: `${(p * 100).toFixed(1)}%`, away: `${((1 - p) * 100).toFixed(1)}%` }, decimals: 1, frozenAt: leg.forecast.stampedAt, payloadSha256: receiptOf(eventId)?.payloadSha256, validationLabel: LABEL, source: "FIXTURE display", ...o };
 };
 /** A FIXTURE pHome that makes each real leg's official side the favourite at `p`. */
 const favour = (legs, ps) => Object.fromEntries(legs.map((l, i) => [l.eventId, l.selection.code === "home" ? ps[i] : 1 - ps[i]]));
 
 test("the real lane gives enough NBA game-winner legs to exercise the rule", () => {
   assert.ok(REAL.length >= 5, `${DAY}: ${REAL.length} NBA legs`);
-  for (const l of REAL) assert.match(l.forecast.payloadSha256 ?? "", /^[0-9a-f]{64}$/, `${l.eventId}: the side carries its receipt hash for the §1.4 cross-check`);
+  for (const l of REAL) assert.match(receiptOf(l.eventId)?.payloadSha256 ?? "", /^[0-9a-f]{64}$/, `${l.eventId}: the side's own receipt hash, for the §1.4 cross-check`);
 });
 
 test("SWITCH: its own committed constant, default false, separate from the Level A switch; only \"1\" overrides", () => {
@@ -50,38 +54,39 @@ test("LEG REFUSALS: no published probability, provenance mismatch, side disagree
   const l = REAL[0];
   const p = l.selection.code === "home" ? 0.7 : 0.3;
   const d = fixtureAccessor({ [l.eventId]: p })(l.eventId);
-  assert.equal(nbaGameWinnerLeg(l, d).ok, true);
-  assert.equal(nbaGameWinnerLeg(l, d).leg.probability, 0.7);
-  assert.equal(nbaGameWinnerLeg(l, null).code, "NO_PUBLISHED_PROBABILITY");
+  assert.equal(legOf(l, d).ok, true);
+  assert.equal(legOf(l, d).leg.probability, 0.7);
+  assert.equal(legOf(l, null).code, "NO_PUBLISHED_PROBABILITY");
   assert.equal(NBA_GW_REFUSAL.NO_PUBLISHED_PROBABILITY, "Untiered: no published NBA win probability", "the same words the side-only suggestion already shows");
-  assert.equal(nbaGameWinnerLeg(l, { ...d, frozenAt: "2026-01-01T00:00:00Z" }).code, "PROVENANCE_MISMATCH");
-  assert.equal(nbaGameWinnerLeg(l, { ...d, payloadSha256: "0".repeat(64) }).code, "PROVENANCE_MISMATCH");
-  assert.equal(nbaGameWinnerLeg(l, { ...d, eventId: "999" }).code, "PROVENANCE_MISMATCH");
-  assert.equal(nbaGameWinnerLeg(l, { ...d, pHome: 1 - p }).code, "SIDE_DISAGREES", "never a card against the official side");
-  assert.equal(nbaGameWinnerLeg(l, { ...d, pHome: 1.2 }).code, "BAD_PROBABILITY");
-  assert.equal(nbaGameWinnerLeg({ ...l, sport: "epl", market: "1x2" }, d).code, "NOT_NBA_GAME_WINNER");
-  assert.equal(nbaGameWinnerLeg({ ...l, market: "spread" }, d).code, "NOT_NBA_GAME_WINNER", "spreads, totals and props are never legs");
+  assert.equal(legOf(l, { ...d, frozenAt: "2026-01-01T00:00:00Z" }).code, "PROVENANCE_MISMATCH");
+  assert.equal(legOf(l, { ...d, payloadSha256: "0".repeat(64) }).code, "PROVENANCE_MISMATCH");
+  assert.equal(legOf(l, { ...d, eventId: "999" }).code, "PROVENANCE_MISMATCH");
+  assert.equal(nbaGameWinnerLeg(l, d, null).code, "PROVENANCE_MISMATCH", "no receipt for the side: nothing to cross-check, so no tier");
+  assert.equal(legOf(l, { ...d, pHome: 1 - p }).code, "SIDE_DISAGREES", "never a card against the official side");
+  assert.equal(legOf(l, { ...d, pHome: 1.2 }).code, "BAD_PROBABILITY");
+  assert.equal(legOf({ ...l, sport: "epl", market: "1x2" }, d).code, "NOT_NBA_GAME_WINNER");
+  assert.equal(legOf({ ...l, market: "spread" }, d).code, "NOT_NBA_GAME_WINNER", "spreads, totals and props are never legs");
 });
 
 test("ONE SOURCE: display OFF removes every tier; a gated game is untiered; both ON tiers", () => {
   const legs = REAL.slice(0, 5);
   const on = favour(legs, [0.8, 0.78, 0.7, 0.65, 0.6]);
-  const all = nbaGameWinnerTiers({ legs, accessor: fixtureAccessor(on), enabled: true });
+  const all = nbaGameWinnerTiers({ receiptOf, legs, accessor: fixtureAccessor(on), enabled: true });
   assert.ok(all.tiers.some((t) => t.card), "both switches on: tiers exist");
-  const off = nbaGameWinnerTiers({ legs, accessor: () => null, enabled: true });
+  const off = nbaGameWinnerTiers({ receiptOf, legs, accessor: () => null, enabled: true });
   assert.deepEqual(off.tiers.map((t) => t.card), [null, null, null, null], "display OFF → no tier, with no other change");
   assert.ok(off.untiered.every((u) => u.code === "NO_PUBLISHED_PROBABILITY"));
   const gated = { ...on }; delete gated[legs[0].eventId];
-  const g = nbaGameWinnerTiers({ legs, accessor: fixtureAccessor(gated), enabled: true });
+  const g = nbaGameWinnerTiers({ receiptOf, legs, accessor: fixtureAccessor(gated), enabled: true });
   assert.ok(g.untiered.some((u) => u.leg.eventId === legs[0].eventId && u.code === "NO_PUBLISHED_PROBABILITY"));
   for (const t of g.tiers) if (t.card) assert.ok(t.card.legs.every((l) => l.eventId !== legs[0].eventId), "the gated game is in no card");
-  const threw = nbaGameWinnerTiers({ legs, accessor: () => { throw new Error("display unavailable"); }, enabled: true });
+  const threw = nbaGameWinnerTiers({ receiptOf, legs, accessor: () => { throw new Error("display unavailable"); }, enabled: true });
   assert.deepEqual(threw.tiers.map((t) => t.card), [null, null, null, null], "an accessor failure is no probability, never a guess");
 });
 
 test("BANDS: D2 on 1/joint; joint above 0.667 is untiered and said aloud; highest joint wins; ties are deterministic", () => {
   const legs = REAL.slice(0, 4);
-  const b = nbaGameWinnerTiers({ legs, accessor: fixtureAccessor(favour(legs, [0.9, 0.85, 0.75, 0.75])), enabled: true });
+  const b = nbaGameWinnerTiers({ receiptOf, legs, accessor: fixtureAccessor(favour(legs, [0.9, 0.85, 0.75, 0.75])), enabled: true });
   for (const t of b.tiers) if (t.card) {
     assert.equal(t.card.tier, t.tier);
     assert.equal(tierForJoint(t.card.jointProbability), t.tier, "the tier is exactly the D2 band of the joint");
@@ -92,17 +97,17 @@ test("BANDS: D2 on 1/joint; joint above 0.667 is untiered and said aloud; highes
   const low = b.tiers.find((t) => t.tier === "low");
   if (!low.card) assert.match(low.reason, /shorter than the Low band, so not tiered/);
   assert.equal(low.card?.jointProbability ?? null, low.card ? Math.max(...[[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]].map(([i, j]) => [0.9, 0.85, 0.75, 0.75][i] * [0.9, 0.85, 0.75, 0.75][j]).filter((x) => tierForJoint(x) === "low")) : null);
-  const tie = nbaGameWinnerTiers({ legs, accessor: fixtureAccessor(favour(legs, [0.75, 0.75, 0.75, 0.75])), enabled: true });
-  const again = nbaGameWinnerTiers({ legs: [...legs].reverse(), accessor: fixtureAccessor(favour(legs, [0.75, 0.75, 0.75, 0.75])), enabled: true });
+  const tie = nbaGameWinnerTiers({ receiptOf, legs, accessor: fixtureAccessor(favour(legs, [0.75, 0.75, 0.75, 0.75])), enabled: true });
+  const again = nbaGameWinnerTiers({ receiptOf, legs: [...legs].reverse(), accessor: fixtureAccessor(favour(legs, [0.75, 0.75, 0.75, 0.75])), enabled: true });
   assert.deepEqual(tie.tiers.map((t) => t.card?.legs.map((l) => l.eventId).sort()), again.tiers.map((t) => t.card?.legs.map((l) => l.eventId).sort()), "input order never changes the pick");
-  const one = nbaGameWinnerTiers({ legs: legs.slice(0, 1), accessor: fixtureAccessor(favour(legs, [0.8])), enabled: true });
+  const one = nbaGameWinnerTiers({ receiptOf, legs: legs.slice(0, 1), accessor: fixtureAccessor(favour(legs, [0.8])), enabled: true });
   for (const t of one.tiers) assert.match(t.reason, /needs 2 games with a published win probability; only 1 has one/);
 });
 
 test("NBA-ONLY, ONE LEG PER GAME: mixed input never yields a mixed card; a repeated game counts once", () => {
   const legs = REAL.slice(0, 3);
   const acc = fixtureAccessor(favour(legs, [0.8, 0.7, 0.6]));
-  const mixed = nbaGameWinnerTiers({ legs: [...legs, { ...legs[0], sport: "mlb", eventId: "777" }, legs[1]], accessor: acc, enabled: true });
+  const mixed = nbaGameWinnerTiers({ receiptOf, legs: [...legs, { ...legs[0], sport: "mlb", eventId: "777" }, legs[1]], accessor: acc, enabled: true });
   assert.equal(mixed.legs.length, 3);
   for (const t of mixed.tiers) if (t.card) assert.deepEqual(t.card.sports, ["nba"]);
   assert.ok(mixed.untiered.some((u) => u.code === "NOT_NBA_GAME_WINNER"));
@@ -111,7 +116,7 @@ test("NBA-ONLY, ONE LEG PER GAME: mixed input never yields a mixed card; a repea
 test("SHOWN: leg % is the display's own text, joint at the display's precision; no price, odds, payout or link; label passed through", () => {
   const legs = REAL.slice(0, 3);
   const acc = fixtureAccessor(favour(legs, [0.812, 0.7, 0.64]));
-  const b = nbaGameWinnerTiers({ legs, accessor: acc, enabled: true });
+  const b = nbaGameWinnerTiers({ receiptOf, legs, accessor: acc, enabled: true });
   const cards = b.tiers.map((t) => t.card).filter(Boolean);
   assert.ok(cards.length > 0);
   for (const c of cards) {
@@ -131,12 +136,12 @@ test("SHOWN: leg % is the display's own text, joint at the display's precision; 
 test("RECORDING: tiered NBA cards are recordable only while the public switch is on", () => {
   const legs = REAL.slice(0, 4);
   const acc = fixtureAccessor(favour(legs, [0.8, 0.78, 0.7, 0.65]));
-  const on = nbaGameWinnerTiers({ legs, accessor: acc, enabled: true });
-  const off = nbaGameWinnerTiers({ legs, accessor: acc, enabled: false });
+  const on = nbaGameWinnerTiers({ receiptOf, legs, accessor: acc, enabled: true });
+  const off = nbaGameWinnerTiers({ receiptOf, legs, accessor: acc, enabled: false });
   assert.ok(off.tiers.some((t) => t.card), "the rule still evaluates for tests and previews");
   assert.deepEqual(recordableNbaGameWinnerCards(off), [], "recording a card while the switch is OFF is a failure");
   assert.equal(recordableNbaGameWinnerCards(on).length, on.tiers.filter((t) => t.card).length);
-  assert.deepEqual(recordableNbaGameWinnerCards(nbaGameWinnerTiers({ legs, accessor: acc })), [], "the default is the committed switch: off");
+  assert.deepEqual(recordableNbaGameWinnerCards(nbaGameWinnerTiers({ receiptOf, legs, accessor: acc })), [], "the default is the committed switch: off");
 });
 
 test("SOURCE: the rule reads no receipt probability, simulation, market or file", () => {
@@ -145,4 +150,12 @@ test("SOURCE: the rule reads no receipt probability, simulation, market or file"
   const code = src.replace(/^import .*$/gm, "");
   assert.doesNotMatch(code, /node:fs|readFileSync|\.sim\b|sim\.pHome|\.elo\b|\.market\.|marketPrice|americanOdds|odds|fetch\(/);
   assert.deepEqual([...code.matchAll(/\.market\b/g)].length, 1, "the leg's market is read once, only to require \"winner\"");
+});
+
+test("UNCHANGED OUTPUT: the rule adds nothing to the untiered Level A NBA rows (switch OFF or ON)", () => {
+  for (const l of REAL) {
+    assert.deepEqual(Object.keys(l.forecast).sort(), ["modelId", "owner", "ref", "stampedAt"], `${l.eventId}: no field added to the shared leg`);
+    assert.equal(l.probability, null, "the Level A NBA leg stays untiered");
+  }
+  assert.equal(fs.readFileSync(path.resolve(process.cwd(), "src/lib/products/level-a/sources.mjs"), "utf8").includes("nba-game-winner-tiers"), false, "the readers do not know this rule exists");
 });
