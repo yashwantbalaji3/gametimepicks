@@ -31,6 +31,7 @@ import { ufcWinnerRows } from "../../src/lib/forecast-ledger/adapters/ufc.mjs";
 import { compareLedgers, pairRekeys } from "../../src/lib/forecast-ledger/append-only.mjs";
 import { buildManifest, composeLedger, serializeRow } from "../../src/lib/forecast-ledger/compose.mjs";
 import { LEDGER_SCHEMA_VERSION } from "../../src/lib/forecast-ledger/contract.mjs";
+import { attachRecovered, GIT_EVIDENCE_REL, GIT_EVIDENCE_SCHEMA } from "../../src/lib/forecast-ledger/provenance.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const APP = path.join(ROOT, "app");
@@ -139,7 +140,38 @@ export function readSources(now) {
 
   const winnerCorrections = readNflWinnerCorrections(ROOT);
   const sideCutoverAt = readNflSideCutover(ROOT);
-  return { now, teamIds, winnerCorrections, sideCutoverAt, eplTeamIds, eplDerived, mlbTeamIds, mlbProjected, reconWeeks, rosterCaptures, settledEvents, ofRecord, propRows, boards, withdrawals, mlbGraded, sourceModels, hn, eplMatch, eplPlayers, eplIndex, ligue1, ufc };
+
+  // Provenance evidence (provenance.mjs): committed forecast files the RECEIPT matchers read (memoised), the committed
+  // git-history evidence (a full-clone script writes it; this build never reads git history), and the values already
+  // recovered into the committed ledger, which are carried forward frozen.
+  const committed = new Map();
+  const readCommitted = (rel) => {
+    if (!committed.has(rel)) {
+      const p = path.join(ROOT, rel);
+      let doc = null;
+      try { doc = fs.existsSync(p) ? readJson(p) : null; } catch { doc = null; }
+      committed.set(rel, doc);
+    }
+    return committed.get(rel);
+  };
+  const listCommitted = (rel) => listJson(path.join(ROOT, rel));
+  const gitEvidence = readGitEvidence();
+  const priorRecovered = new Map();
+  for (const file of Object.values(SPORT_FILES)) {
+    for (const r of readJsonl(path.join(OUT, file))) {
+      if (r.provenance?.recovered && Object.keys(r.provenance.recovered).length) priorRecovered.set(r.forecastId, r.provenance.recovered);
+    }
+  }
+  return { now, readCommitted, listCommitted, gitEvidence, priorRecovered, teamIds, winnerCorrections, sideCutoverAt, eplTeamIds, eplDerived, mlbTeamIds, mlbProjected, reconWeeks, rosterCaptures, settledEvents, ofRecord, propRows, boards, withdrawals, mlbGraded, sourceModels, hn, eplMatch, eplPlayers, eplIndex, ligue1, ufc };
+}
+
+/** The committed git-history evidence: Map<forecastId, { field: entry }> (empty when the file does not exist yet). */
+export function readGitEvidence(rel = GIT_EVIDENCE_REL) {
+  const p = path.join(ROOT, rel);
+  if (!fs.existsSync(p)) return new Map();
+  const doc = readJson(p);
+  if (doc.schemaVersion !== GIT_EVIDENCE_SCHEMA) throw new Error(`${rel}: schemaVersion ${doc.schemaVersion} is not ${GIT_EVIDENCE_SCHEMA}`);
+  return new Map(Object.entries(doc.entries ?? {}));
 }
 
 export function buildRows(src, report = {}) {
@@ -153,7 +185,7 @@ export function buildRows(src, report = {}) {
   const recon = nflReconciliationRows({ weeks: src.reconWeeks ?? [], captures: src.rosterCaptures ?? [] });
   report.nflReconciliationUnresolved = recon.unresolved;
   const heldIds = new Set(props.map((r) => r.forecastId));
-  return composeLedger([
+  const composed = composeLedger([
     { source: "nfl-experimental-settlement", rows: nflGameRows({ settledEvents: src.settledEvents, receiptsOfRecord: src.ofRecord, now: src.now, teamIds: src.teamIds, winnerCorrections: src.winnerCorrections, sideCutoverAt: src.sideCutoverAt }) },
     { source: "nfl-prop-settlement", rows: props },
     { source: "results-top-board", rows: nflTopBoardRows({ boards: src.boards, withdrawals: src.withdrawals, heldIds, now: src.now }) },
@@ -167,6 +199,12 @@ export function buildRows(src, report = {}) {
     { source: "ligue-1-grades", rows: ligue1Rows(src.ligue1) },
     { source: "ufc-model-vs-market-grades", rows: ufcWinnerRows(src.ufc) },
   ]);
+  const { rows, report: evidence } = attachRecovered(composed, {
+    read: src.readCommitted, list: src.listCommitted, git: src.gitEvidence, prior: src.priorRecovered,
+  });
+  report.evidenceConflicts = evidence.conflicts;
+  report.evidenceRefused = evidence.refused;
+  return rows;
 }
 
 export function renderFiles(rows) {
@@ -255,6 +293,9 @@ function main() {
   if (report.eplPlayerUnresolved) console.log(`  EPL player rows with no exact published event id (not emitted): ${report.eplPlayerUnresolved}`);
   if (report.mlbTeamUnresolved) console.log(`  MLB projected-runs rows whose team abbreviation is not exactly one canonical team (not emitted): ${report.mlbTeamUnresolved}`);
   if (report.eplClubUnresolved) console.log(`  EPL clean-sheet rows whose club is not exactly one canonical team (not emitted): ${report.eplClubUnresolved}`);
+  for (const [s, m] of Object.entries(manifest.sports)) console.log(`  ${s} provenance: ${JSON.stringify(m.provenance)}`);
+  if (report.evidenceConflicts?.length) console.log(`  provenance evidence that differs from the value already recorded (the recorded one is kept): ${report.evidenceConflicts.length}\n    ${report.evidenceConflicts.slice(0, 10).join("\n    ")}`);
+  if (report.evidenceRefused?.length) console.log(`  provenance evidence refused (malformed, or publication not before the start): ${report.evidenceRefused.length}\n    ${report.evidenceRefused.slice(0, 10).join("\n    ")}`);
   if (report.nflReconciliationUnresolved?.length) console.log(`  NFL Weeks 1–2 rows with no unique roster match (not emitted): ${report.nflReconciliationUnresolved.length}`);
   if (violations.length) {
     console.error(`APPEND_ONLY_VIOLATION: ${violations.length}`);
