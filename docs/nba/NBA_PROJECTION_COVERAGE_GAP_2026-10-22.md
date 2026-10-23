@@ -501,3 +501,232 @@ cd app
 node scripts/nba/research/measure-nba-projection-coverage.mjs --dates 2026-10-20,2026-10-21 --out-dir <dir outside the repo>
 npx tsx --test src/lib/sports/nba/minutes-model-v04.test.mjs
 ```
+
+---
+
+## 12. Historical backtest (2024-25, 2025-26) — evidence for D1 and D2
+
+**Status: EVIDENCE ONLY.** Nothing is armed, promoted, tuned or merged by this section. No official forecast changes. (Numbered §12 because §10 and §11 above are already taken.)
+
+- **D1** = arm the v0.4 lagged role prior (§6.A, §8)?
+- **D2** = a rookie prior from the preseason role (§6.C)? The draft-slot option (§6.B) cannot be backtested: no draft capture is committed, and none was fetched.
+
+Script: `app/scripts/nba/research/backtest-nba-no-history-priors.mjs` (pure reads, deterministic, no wall-clock value in any output). Test: `backtest-nba-no-history-priors.test.mjs` beside it.
+
+### 12.1 Method
+
+**Inputs.**
+- Only `corpus-v1.json` and the corpus box scores of its 2024–2026 rows (2023-24 … 2025-26): 4,179 box scores, none missing.
+- Every opened doc must be dated before `2026-09-01T00:00Z`, the first instant of the 2026-27 corpus season, or the run throws. The newest date read is 2026-06-14.
+- **No 2026-27 data of any kind is read.** That includes box scores, rosters, injuries, lines and outcomes. The test pins this: a 2026-27 file that is not valid JSON is never opened, and a mislabelled one is refused.
+- Fingerprints: corpus sha256 `8cad8dcc1f87…`, box scores sha256 `b751e0e784a5…`.
+
+**Slates.**
+- Backtest seasons are S = 2025 (2024-25) and S = 2026 (2025-26).
+- For each of the 30 teams, its first regular-season (phase 2) game is the **opener**. Its first 5 regular-season games are **first-5**.
+- Each game is forecast at its own `dateUtc`, using box scores strictly before it. That is the models' own cutoff.
+- Size: 300 team-games, 103 forecast instants, 4,088 athlete-games.
+
+**Proxy roster (a known bias).**
+- The roster is every athlete listed for the team in that game's box score, DNPs included. It is passed to the real pools as a roster capture with `asOf` = the forecast instant. Injuries are null, so nobody is Out.
+- The proxy **knows who dressed or was listed that night**, which a pre-tip roster capture does not. It never holds a player waived before tip, and it holds late signings. So coverage counts here are of players who were in uniform, not of a captured roster.
+- Because injuries are null, players later listed with an injury DNP are in the pool and take minutes in the normalisation. Their own rows are excluded from scoring (see Outcome). Teammates' normalised minutes are therefore slightly lower than a forecast with an injury feed would give.
+
+**Models.**
+- The real code runs unchanged: `gatePool` (v0.1, reference only), `gatePoolV03` and `gatePoolV04`, then `prepareRoster` / `prepareRosterV03`, the team normalisation the engines apply.
+- Nothing is re-implemented. No simulation is run: minutes only.
+
+**Classes, relative to S.** An *appearance* is a box-score line with integer minutes > 0, not DNP.
+
+| Class | Rule |
+|---|---|
+| ROOKIE-PROXY | No appearance in any corpus season < S, in any phase. |
+| RETURNER | < 3 regular-season appearances in S−1 and ≥ 3 in S−2. This is exactly v0.4's lag condition at `MAX_PRIOR_LAG = 2`. |
+| VETERAN (c) | Everyone else, including thin-history players. |
+
+Caveats on the classes:
+- **S = 2025 rookies are contaminated.** 2023-24 is the only earlier corpus season, so a player who missed 2023-24 counts as a "rookie". **S = 2026 is primary for rookies.**
+- **S = 2025 has no returners by construction.** 2022-23 is not in the corpus, so v0.4 equals v0.3 on every 2024-25 slate.
+
+**Outcome.**
+- Actual minutes. A COACH'S DECISION DNP counts as 0.
+- Any other DNP (injury, illness, rest, suspension, not with team, did not dress …) and any non-integer minutes are **excluded from errors and counted**.
+
+**Forecasts scored.** Error = forecast − actual, so a positive error is over-projection.
+- **uncond** = normalised `expectedMinutes × playRate`. These are the v0.3/v0.4 engine's expected minutes, including its coach's-decision probability. It is the like-for-like target when a CD DNP counts as 0. **Primary.**
+- **cond** = normalised `expectedMinutes`, conditional on playing. This is what the product displays.
+- v0.1 has no play rate, so only its normalised minutes are shown, as reference.
+- **D2's predictor** is the raw preseason minutes per appearance in S's preseason (phase 1, strictly before the instant).
+
+**Intervals.**
+- Percentile bootstrap, 2,000 resamples, **clustered by athlete within a season**. An athlete's first-5 rows are resampled together.
+- One `mulberry32` stream per metric, seeded `1729 XOR fnv1a32(metric label)`.
+- Reporting convention:
+  - with fewer than 2 clusters, no interval is given;
+  - with fewer than 10 clusters, the interval is printed but flagged **unreliable** and is never read as a difference.
+  - This convention was set after seeing that 2025-26 has only 4 returners. It can only suppress a claim, never create one.
+
+**Constants.** None was chosen or tuned from these results.
+- `MIN_GAMES_FOR_RATES = 3` and `MAX_PRIOR_LAG = 2` are the models' own.
+- The rookie rule (≥ 2 preseason appearances at ≥ 15 mpg) is the PRIMARY rookie branch of `measure-nba-projection-coverage.mjs` (§1.2). The test pins that source text.
+- 5 games and the bootstrap settings were fixed before any result was computed.
+
+### 12.2 Integrity checks (all historical slates)
+
+| Check | Result |
+|---|---|
+| v0.4 pool row == v0.3 pool row for every non-lagged athlete | **4,071 compared, 0 mismatches** |
+| Team-games with no lagged athlete: normalised players identical | **283 of 283** |
+| RETURNER (this script) ≡ v0.4 `laggedPrior` (the model) | **0 mismatches** |
+
+v0.4 changes nothing for a non-lagged athlete's own role row. It changes teammates' normalised minutes only in the 17 team-games that contain a lagged athlete (§12.3).
+
+### 12.3 D1 — returners (S = 2026 only; S = 2025 has none by construction)
+
+**Count and coverage.**
+
+| 2025-26 | Returner athlete-games (athletes) | v0.1 projected | v0.3 projected | v0.4 projected |
+|---|---|---|---|---|
+| Opener | 4 (4) | 1 | 1 | **4** |
+| First-5 | 17 (4) | 12 | 13 | **17** |
+
+- There are **4 returners on the 30 season-opening rosters of 2025-26**: Saddiq Bey, James Wiseman, Thanasis Antetokounmpo and Isaiah Livers.
+- That is about 1 % of the 415 opener athletes. For comparison, the 2026-10-21 slate had 7 returners among 334 not-Out rostered players (§2).
+- v0.3 projects Wiseman at the opener only from his single 2024-25 appearance (5.6 min).
+- No returner had an injury DNP or null minutes in these games, so none was excluded.
+
+**Error of v0.4 expected minutes vs actual.** Every row with fewer than 10 clusters is flagged.
+
+| 2025-26 | n (athletes) | MAE [95 %] | Mean signed error [95 %] |
+|---|---|---|---|
+| Returners, v0.4 uncond, opener | 4 (4) | 8.45 [1.95, 14.95] ⚠ | +7.96 [0.97, 14.95] ⚠ |
+| Returners, v0.4 cond, opener | 4 (4) | 10.28 [1.74, 18.81] ⚠ | +10.28 [1.74, 18.81] ⚠ |
+| Returners, v0.4 uncond, first-5 | 17 (4) | 6.35 [3.01, 11.12] ⚠ | +4.83 [2.14, 7.71] ⚠ |
+| Returners, v0.4 cond, first-5 | 17 (4) | 7.56 [3.74, 13.02] ⚠ | +7.33 [3.74, 12.46] ⚠ |
+| Veterans (c), v0.4 uncond, opener | 350 (350) | 6.49 [5.94, 7.05] | +0.63 [−0.25, 1.50] |
+| Veterans (c), v0.4 cond, opener | 350 (350) | 6.92 [6.33, 7.51] | +2.00 [1.09, 2.94] |
+| Veterans (c), v0.4 uncond, first-5 | 1,727 (383) | 5.82 [5.50, 6.15] | −0.15 [−0.74, 0.43] |
+| Veterans (c), v0.4 cond, first-5 | 1,727 (383) | 6.15 [5.82, 6.48] | +1.27 [0.68, 1.88] |
+| *Reference:* veterans, v0.1 cond, opener | 317 (317) | 7.77 [7.09, 8.49] | +2.60 [1.57, 3.68] |
+| *Reference:* veterans, v0.1 cond, first-5 | 1,552 (367) | 5.50 [5.24, 5.78] | +0.59 [0.24, 0.92] |
+
+⚠ = only 4 clusters: the interval is unreliable and supports no claim.
+
+- Veteran exclusions (non-CD DNP): 5 at the opener, 24 in first-5.
+- The v0.1 rows are on v0.1's own projected set. They are not paired with v0.4 and are not a comparison.
+- 2024-25 veteran benchmark, for reference: uncond MAE 5.44 [4.94, 5.94] at the opener (n 355) and 5.30 [5.02, 5.60] in first-5 (n 1,730, 383 athletes).
+
+**Differences.** All are "not distinguishable at this n": each has too few clusters, and every interval spans 0.
+
+| 2025-26 | Estimate [95 %] | Reading |
+|---|---|---|
+| MAE returner − veteran, uncond, opener | +1.96 [−4.61, 8.59] | 4 clusters, no claim |
+| MAE returner − veteran, uncond, first-5 | +0.53 [−3.26, 5.36] | 4 clusters, no claim |
+| Paired \|e\| v0.4 − v0.3 (returners both project), uncond, opener | +8.69, n 1, no interval | no claim |
+| Paired \|e\| v0.4 − v0.3, uncond, first-5 | +0.96 [−1.52, 2.45], n 13 (4 athletes) | no claim |
+| Paired \|e\| v0.4 − v0.3, cond, first-5 | +1.38 [−1.63, 2.78], n 13 (4 athletes) | no claim |
+
+The paired rows exist only where v0.3 also projects the returner: after his first 2025-26 game, or from Wiseman's single 2024-25 appearance. Rows where only v0.4 projects (the coverage gain) cannot be paired.
+
+**Per returner, descriptive.**
+
+| Returner (team id) | S−1 / S−2 apps | Opener: v0.4 uncond → actual | First-5: games, actual mean, v0.4 uncond mean error |
+|---|---|---|---|
+| Saddiq Bey (3) | 0 / 63 | 32.9 → 30 | 5, 24.6, +4.8 |
+| James Wiseman (11) | 1 / 63 | 14.3 → 0 (CD DNP) | 3, 6.7, +8.7 |
+| Thanasis Antetokounmpo (15) | 0 / 32 | 1.0 → 2 | 5, 0.4, +0.8 |
+| Isaiah Livers (21) | 0 / 23 | 15.6 → 0 (CD DNP) | 4, 8.5, +7.0 |
+
+All four errors are over-projections, in the direction §6.A's "stale role after a long absence" risk predicts. With 4 athletes, that is a description, not an estimate.
+
+**Teammates' expected minutes** (normalised, v0.4 − v0.3; non-lagged teammates in team-games with a lagged athlete).
+
+| 2025-26 | Team-games | n | Median | IQR | Min / max |
+|---|---|---|---|---|---|
+| Opener, cond | 4 | 44 | −0.75 | [−2.29, −0.09] | −5.60 / +1.24 |
+| First-5, cond | 17 | 202 | −0.35 | [−0.84, −0.07] | −5.60 / +1.24 |
+| First-5, uncond | 17 | 202 | −0.29 | [−0.81, −0.07] | −5.60 / +1.24 |
+
+### 12.4 D2 — rookies: preseason minutes as a PROXY (not a v0.5 model)
+
+**This measures how much information raw preseason minutes carry about a rookie's early regular-season minutes.**
+- It is not a v0.5 model.
+- It has no preseason → regular mapping (§6.C's sketch has one). It is not normalised to 240, and it has no play rate.
+- Using preseason this way in a model would still need the preregistration §3 amendment (§6.C).
+
+**Rookies on the opening rosters and their preseason.**
+
+| | 2025-26 opener (primary) | 2024-25 opener (contaminated) |
+|---|---|---|
+| ROOKIE-PROXY athletes | 51 | 63 |
+| v0.1 / v0.3 / v0.4 projected at the opener | 0 / 0 / 0 | 0 / 0 / 0 |
+| 0 preseason appearances | 1 | 2 |
+| 1 appearance | 1 | 1 |
+| ≥ 2 appearances, < 15 mpg | 14 | 23 |
+| **Qualify (≥ 2 at ≥ 15 mpg)** | **35** | **37** |
+| Qualifiers' opener outcome | 24 played, 11 CD DNP | 32 played, 5 CD DNP |
+
+- No qualifier was excluded (no non-CD DNP).
+- From game 2, v0.3/v0.4 pick rookies up from current-season box scores. In 2025-26, 31 of 46 rookies were projected at game 2, and 46 of 48 by game 5. In 2024-25: 42 of 64 at game 2, 47 of 54 at game 5.
+
+**Error of preseason mpg as a predictor of actual minutes (qualifiers only), against the veterans' v0.4 benchmark.**
+
+| | n (athletes) | MAE [95 %] | Mean signed error [95 %] | MAE qualifier − veteran v0.4 uncond [95 %] | … vs v0.4 cond [95 %] |
+|---|---|---|---|---|---|
+| 2025-26 opener | 35 (35) | 11.84 [9.70, 14.33] | +9.46 [6.11, 12.73] | +5.35 [2.98, 7.76] | +4.92 [2.35, 7.25] |
+| 2025-26 first-5 | 164 (38) | 11.93 [10.28, 13.48] | +8.26 [5.04, 11.22] | +6.10 [4.58, 7.79] | +5.77 [4.13, 7.40] |
+| 2024-25 opener | 37 (37) | 10.28 [8.17, 12.49] | +9.54 [7.02, 12.06] | +4.84 [2.78, 7.23] | +4.51 [2.36, 6.77] |
+| 2024-25 first-5 | 180 (37) | 10.53 [8.77, 12.30] | +8.55 [6.06, 11.05] | +5.23 [3.47, 7.12] | +4.90 [3.15, 6.77] |
+
+- Every MAE-difference interval excludes 0: the raw preseason proxy's error is larger than the v0.4 veterans' error.
+- This is **not** a like-for-like model comparison. The groups are different players, and rookies' early minutes may simply be more volatile. The comparison says nothing about a fitted preseason prior.
+- The signed error is large and positive (+8 to +9.5 minutes). Raw preseason mpg overstates rookies' early regular-season minutes, partly through coach's-decision DNPs: 11 of 35 qualifiers at the 2025-26 opener.
+
+**What the rule would still miss:** rookies' actual minutes that came from rookies who would NOT qualify.
+
+| | Rookie minutes, total | From non-qualifiers | Share | Of which: 0 apps / 1 app / ≥ 2 apps < 15 mpg |
+|---|---|---|---|---|
+| 2025-26 opener | 506 | 108 | **21.3 %** | 15 / 22 / 71 |
+| 2025-26 first-5 | 2,506 | 432 | **17.2 %** | 106 / 82 / 244 |
+| 2024-25 opener | 445 | 49 | 11.0 % | 0 / 1 / 48 |
+| 2024-25 first-5 | 2,402 | 290 | 12.1 % | 5 / 5 / 280 |
+
+First-5 counts rookie-proxy athletes on any of the team's first 5 box scores, so it includes players who joined after the opener.
+
+### 12.5 What this does and does not support
+
+**D1 (v0.4 lagged role prior).**
+- *Supports:*
+  - The rule does what it says on historical data. v0.4 projects every returner (4 of 4 at the opener, 17 of 17 athlete-games in first-5), against v0.3's 1 and 13.
+  - It is byte-identical to v0.3 for every non-lagged athlete (4,071 rows) and for every team-game without a returner (283 of 283).
+  - Its side effect on teammates is small and negative: median −0.75 minutes at the opener, IQR [−2.29, −0.09].
+- *Does not support:* any accuracy claim.
+  - There are 4 returners in one historical season.
+  - Their errors (MAE 8.45 at the opener, 6.35 over first-5, all over-projections) have intervals that are unreliable at 4 clusters.
+  - Returner vs veteran, and v0.4 vs v0.3 where both project, are **not distinguishable at this n**.
+- The historical returner population is also unlike the 2026-27 one: three of the four (Bey, Wiseman, Livers) are role players who played almost none of 2024-25, while §4's pilot returners are high-minute starters. Forward shadow evidence would have to come from 2026-27 slates under the preregistration.
+
+**D2 (rookie prior from the preseason role, option C).**
+- *Supports:*
+  - The preseason carries some signal: about 70 % of opener rookies (35 of 51 in 2025-26) meet the ≥ 2 apps at ≥ 15 mpg rule.
+  - Those qualifiers took 79–89 % of rookies' actual minutes.
+  - The rule would still leave out 17–21 % of 2025-26 rookie minutes, and 11–12 % in 2024-25 (contaminated class).
+- *Does not support:* using raw preseason mpg as a projection.
+  - Its error is larger than the veterans' v0.4 error at every scope, with intervals excluding 0.
+  - It over-projects by about 8–9.5 minutes, with intervals excluding 0.
+  - Any option-C prior would therefore depend on the preseason → regular mapping and the play-rate treatment that §6.C leaves to a fitted, preregistered design. This backtest neither fits nor evaluates one.
+- The comparison is between different players, not a paired model test.
+- Option B (draft slot) cannot be evaluated from committed data.
+
+### 12.6 Notes on constants (notes only; nothing was changed)
+
+- **The lag threshold `MIN_GAMES_FOR_RATES = 3` drops 1–2 thin S−1 appearances.** Wiseman's single 2024-25 game (5.6 min) was replaced by his 2023-24 role (18.6 normalised conditional minutes), and he was a CD DNP. That is one case and not evidence for another threshold.
+- **The 15-mpg rookie rule is a rotation definition (§1.2), not a projection.** The +8 to +9.5 minute signed error says a raw carry-over would need a mapping. That is a design input for any v0.5, not a reason to change the rule.
+
+### 12.7 Reproduce
+
+```
+cd app
+npx tsx scripts/nba/research/backtest-nba-no-history-priors.mjs [--json <file outside the repository>]
+npx tsx --test scripts/nba/research/backtest-nba-no-history-priors.test.mjs
+```
