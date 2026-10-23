@@ -33,7 +33,8 @@ const BEFORE = JSON.parse(fs.readFileSync(path.join(process.cwd(), "src/lib/cons
 test("@2 is inactive until the release owner sets an activation slate (≥ 2026-10-25); the rule follows the slate date", () => {
   // Activation is ONE line in official-snapshot.mjs; the ACTIVATION test below refuses a slate whose runs are already built.
   if (NBA_SNAPSHOT_ID_V2_FROM != null) assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(NBA_SNAPSHOT_ID_V2_FROM) && NBA_SNAPSHOT_ID_V2_FROM >= "2026-10-25", `activation ${NBA_SNAPSHOT_ID_V2_FROM}`);
-  assert.equal(nbaSnapshotIdRuleFor("2030-01-01"), NBA_SNAPSHOT_ID_RULE.V1);
+  assert.equal(nbaSnapshotIdRuleFor("2030-01-01", { v2From: null }), NBA_SNAPSHOT_ID_RULE.V1, "inactive: every slate @1");
+  assert.equal(nbaSnapshotIdRuleFor("2030-01-01"), NBA_SNAPSHOT_ID_V2_FROM == null ? NBA_SNAPSHOT_ID_RULE.V1 : NBA_SNAPSHOT_ID_RULE.V2, "the default follows the activation constant");
   assert.equal(nbaSnapshotIdRuleFor("2026-10-24", { v2From: "2026-10-25" }), NBA_SNAPSHOT_ID_RULE.V1);
   assert.equal(nbaSnapshotIdRuleFor("2026-10-25", { v2From: "2026-10-25" }), NBA_SNAPSHOT_ID_RULE.V2);
   assert.equal(nbaSnapshotIdRuleFor(null, { v2From: "2026-10-25" }), NBA_SNAPSHOT_ID_RULE.V1);
