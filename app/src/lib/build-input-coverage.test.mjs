@@ -44,6 +44,7 @@ const covered = (ref) => INPUTS.some((i) => (i.endsWith("/") ? `${ref}/`.startsW
  */
 const EXEMPTIONS = [
   { module: "src/lib/launch/runbook-registry.mjs", kind: "label", why: "runbook receipt descriptions; no I/O" },
+  { module: "src/lib/forecast-ledger/provenance.mjs", kind: "label", why: "names the owner record behind each Forecast Record value (CSV source column); no I/O — the reads happen in provenance-evidence.mjs, nightly ledger builder only" },
   {
     module: "src/lib/research/row-lineage-loader.ts", kind: "allow",
     allow: ["loadLineageIndex", "loadDateLineageArtifact", "LineageIndexEntry", "LineageIndexArtifact", "LINEAGE_ARTIFACT_DIR"],

@@ -8,6 +8,7 @@
  */
 import { validateRow } from "./contract.mjs";
 import { fnv1a64 } from "./identity.mjs";
+import { provenanceCounts } from "./provenance.mjs";
 
 /** JSON with keys in insertion order — rows are built in canonical order, so this is stable. */
 export const serializeRow = (row) => JSON.stringify(row);
@@ -28,7 +29,8 @@ export function composeLedger(sources) {
         held.provenance.alsoPublishedOn = [...new Set([...held.provenance.alsoPublishedOn, source])].sort();
         continue;
       }
-      const row = { ...r, provenance: { owner: source, alsoPublishedOn: [], notes: r.provenance?.notes ?? [] } };
+      // `recovered` is filled after composition (provenance.mjs attachRecovered): evidence for a field the row lacks.
+      const row = { ...r, provenance: { owner: source, alsoPublishedOn: [], notes: r.provenance?.notes ?? [], recovered: {} } };
       const v = validateRow(row);
       if (v.length) {
         problems.push(`${source}: ${r.forecastId} ${r.sport} ${r.eventId} ${r.subjectId} ${r.family}: ${v.join("; ")}`);
@@ -81,6 +83,9 @@ export function buildManifest(rows, { schemaVersion, sportFiles }) {
       settlement: count(rs, (r) => r.settlement.state),
       publication: count(rs, (r) => r.publicationStatus),
       recoverability: count(rs, (r) => r.recoverability),
+      // Model identity + event start + publication evidence, per row (provenance.mjs): LEGACY_UNKNOWN rows are the ones
+      // a promotion evaluation must exclude.
+      provenance: provenanceCounts(rs),
       latestSettledAt: settledAts.length ? settledAts[settledAts.length - 1] : null,
     };
   }
