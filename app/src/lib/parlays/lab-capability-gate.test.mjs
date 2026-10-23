@@ -68,7 +68,7 @@ test("READER: a refused sport is closed whatever the ledger says, and multi is r
   assert.equal(by.ufc.blocked, sportLadderCapabilityRefusal("ufc"));
   assert.equal(by.epl.live, true);
   assert.equal(by.multi.live, false);
-  assert.match(by.multi.blocked, /only Premier League is cleared/);
+  assert.match(by.multi.blocked, /only Premier League's lane is open \(Bank Builder and Moonshot use a separate, stricter gate\)$/);
   // What was graded is never touched — only what is said about today.
   for (const s of out) assert.deepEqual(s.record, streams.find((x) => x.id === s.id).record);
 });

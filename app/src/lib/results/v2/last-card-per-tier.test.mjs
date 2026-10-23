@@ -42,13 +42,16 @@ test("a card after the reference date is not 'last' (no peeking forward)", () =>
   fs.rmSync(r, { recursive: true, force: true });
 });
 
-test("the Parlay Center and Build Your Own render the empty-state context from their owners", () => {
+test("the Parlay Center renders the empty-state context from its own owners (lab lanes + last cards)", () => {
   const build = fs.readFileSync(path.resolve(process.cwd(), "src/app/build/page.tsx"), "utf8");
   assert.match(build, /<EmptyTierContext emptyTiers=\{\[\.\.\.emptyTiers\]\} lastCards=\{lastTierCards\}/);
   assert.match(build, /lastCardPerTier\(ladderDate, dataRoot\)/);
+  // The Parlay Center reads its OWN lane gate (lab record), never the product eligible universe.
+  assert.match(build, /lanes=\{emptyTiers\.length \? \(loadLabRecord\(\)\?\.streams \?\? \[\]\)/);
   const custom = fs.readFileSync(path.resolve(process.cwd(), "src/app/build/custom/page.tsx"), "utf8");
-  assert.match(custom, /pool\.length === 0 \? <EligibleUniverse availability=\{loadProductAvailability\(dataRoot\)\} compact \/> : null/);
+  assert.doesNotMatch(custom, /EligibleUniverse/, "Build Your Own's pool is not decided by the product gate, so it does not show that panel");
   const comp = fs.readFileSync(path.resolve(process.cwd(), "src/components/parlays/empty-tier-context.tsx"), "utf8");
   const code = comp.replace(/\/\*[\s\S]*?\*\//g, "");
   assert.doesNotMatch(code, /\bFIXTURE\b|\.price\b|\.odds\b|americanOdds/, "the panel shows no fixture and no price");
+  assert.doesNotMatch(code, /EligibleUniverse/, "the product universe would read 'not eligible' beside a publishing lane");
 });

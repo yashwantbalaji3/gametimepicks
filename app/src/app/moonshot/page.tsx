@@ -24,6 +24,8 @@ import PicksSurfaceHeader, { type PicksSurfaceStatus } from "@/components/picks-
 import { presentFromArtifact } from "@/lib/signature-presentation.mjs";
 import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
 import EligibleUniverse from "@/components/products/eligible-universe";
+import LevelASuggestions, { type LevelAModel } from "@/components/products/level-a-suggestions";
+import { buildLevelAModel, levelAEnabled } from "@/lib/products/level-a/model.mjs";
 import { loadProductAvailability } from "@/lib/products/availability";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import LifecycleRecord from "@/components/products/lifecycle-record";
@@ -60,6 +62,9 @@ const readData = (...rel: string[]) => {
 };
 
 const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+/* Level A model suggestions (founder policy 2026-10-23): shown when level-a/model.mjs levelAEnabled() says so. */
+const LEVEL_A = levelAEnabled();
 
 export default function MoonshotPage() {
   const lane = loadMoonshotLane();
@@ -260,7 +265,8 @@ export default function MoonshotPage() {
 
       {/* v1.7 — which sports could contribute a leg today, from the availability owner (counts + plain
           reasons; names the market-priced caveat). Same component as /bank-builder, same owner. */}
-      <EligibleUniverse availability={loadProductAvailability()} compact />
+      <EligibleUniverse availability={loadProductAvailability()} compact scope="Moonshot" />
+      {LEVEL_A ? <LevelASuggestions model={buildLevelAModel() as unknown as LevelAModel} mode="moonshot" /> : null}
 
       {/*
         TODAY'S CARD — the PUBLISHED lanes themselves (P243 · A-2).

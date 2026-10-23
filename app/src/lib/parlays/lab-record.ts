@@ -196,7 +196,7 @@ export function applyCapabilityGate(streams: LabStream[], raw: Array<Record<stri
     return {
       ...s,
       live: false,
-      blocked: `a cross-sport card needs two live sports; ${labels.length === 1 ? `only ${labels[0]} is` : "none is"} cleared`,
+      blocked: `a cross-sport card needs two sports with an open suggested-card lane; ${labels.length === 1 ? `only ${labels[0]}'s lane is open` : "no lane is open"} (Bank Builder and Moonshot use a separate, stricter gate)`,
     };
   });
 }
