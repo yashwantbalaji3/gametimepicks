@@ -11,7 +11,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { loadNflPostgame, STAT_COLUMNS } from "./nfl-postgame-data.ts";
+import { loadNflPostgame, STAT_COLUMNS } from "./postgame-box-score.ts";
 
 const APP = process.cwd();
 const RECON = path.join(APP, "public", "data", "nfl", "reconciliation");

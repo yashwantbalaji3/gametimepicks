@@ -8,7 +8,7 @@
  */
 import Link from "next/link";
 
-import { STAT_COLUMNS, type BoxPlayer, type BoxTeam, type NflPostgame } from "./nfl-postgame-data";
+import { STAT_COLUMNS, type BoxPlayer, type BoxTeam, type NflPostgame } from "@/lib/sports/nfl/postgame-box-score";
 
 const num = (v: number) => (Number.isInteger(v) ? String(v) : v.toFixed(1));
 const range = (f: { median: number | null; low: number; high: number }) => `${f.median != null ? num(f.median) : "—"} (${num(f.low)}–${num(f.high)})`;
@@ -133,7 +133,7 @@ const CSS = `
 .pg-lines{max-width:520px}
 .pg-actual{display:block;font-size:13.5px;font-weight:700;color:var(--vault-text);font-family:var(--font-mono,monospace)}
 .pg-fc{display:block;font-size:10.5px;font-weight:400;color:var(--vault-text-faint)}
-.pg-in{color:var(--gtp-success-on-dark,var(--vault-text-mute))}
+.pg-in{color:var(--gtp-success-on-dark)}
 .pg-out{color:var(--vault-text-mute)}
 .pg-note{margin:10px 0 0;font-size:11.5px;line-height:1.55;color:var(--vault-text-faint);max-width:760px}
 .pg-note a{color:var(--vault-gold-bright)}

@@ -77,7 +77,7 @@ import EtTime from "@/components/ui/et-time";
 import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 import NflPostgameBoxScore from "@/components/game/nfl-postgame-box-score";
 import NflAllPlayersTable from "@/components/game/nfl-all-players-table";
-import { loadNflPostgame } from "@/components/game/nfl-postgame-data";
+import { loadNflPostgame } from "@/lib/sports/nfl/postgame-box-score";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
