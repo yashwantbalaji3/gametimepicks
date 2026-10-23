@@ -28,7 +28,9 @@ function StatusPill({ status, market }: { status: MarketStatus; market?: string 
   const m = { ...STATUS_META[status], label: marketStatusTerm(status, market) };
   return (
     <span
-      className="font-mono uppercase tracking-[0.1em] rounded-full px-2 py-0.5 shrink-0"
+      /* the registry's labels are longer than the old one-word pills ("Official Forecast · not in products"): the pill may
+         wrap inside 60% of the row instead of refusing to shrink — no horizontal scroll at 320px (accessibility.spec reflow) */
+      className="font-mono uppercase tracking-[0.1em] rounded-[10px] px-2 py-0.5 text-right max-w-[60%]"
       style={{ fontSize: 9.5, color: m.color, background: m.bg, border: `1px solid ${m.color}33` }}
     >
       {m.label}
@@ -40,7 +42,7 @@ function Row({ m }: { m: MarketCoverage }) {
   return (
     <div className="flex flex-col gap-1 py-2.5" style={{ borderTop: "1px solid var(--vault-border)" }}>
       <div className="flex items-center justify-between gap-2">
-        <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{m.publicLabel}</span>
+        <span className="min-w-0" style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{m.publicLabel}</span>
         <StatusPill status={m.status} market={m.market} />
       </div>
       <p className="text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{m.publicExplanation}</p>
