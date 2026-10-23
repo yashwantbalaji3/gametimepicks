@@ -71,6 +71,9 @@ import { currentProductRecord } from "@/lib/results/current-record";
 import { buildSimulateDay, simulationReadyCount } from "@/lib/simulate/day-view";
 import LiveNow from "@/components/live/live-now";
 import MoreDisclosure from "@/components/ui/more-disclosure";
+import SectionHeader from "@/components/section-header";
+import GamesTable from "@/components/games-experience-table";
+import { buildGamesTableRows, gamesTableDates } from "@/components/games-experience-table-rows";
 
 export const metadata = withRouteMetadata("/today/", {
   title: "Today · GameTime Picks",
@@ -78,6 +81,8 @@ export const metadata = withRouteMetadata("/today/", {
     "Today's model hub — the day's top model reads, simulation-ready games, and every product's honest status (Bank Builder, Parlay Center, Moonshot). Paper-only, educational; no-play shown honestly.",
 });
 
+const etStamp = (ms: number) =>
+  new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(ms)) + " ET";
 const usd2 = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export default function TodayPage() {
@@ -116,6 +121,7 @@ export default function TodayPage() {
      minute apart for every one of fifteen games. */
   const nowMs = Date.now();
   const slate = slateGames(details, today, { nowMs });
+  const gamesRows = buildGamesTableRows(serverToday);
   // Explicit readiness for a CURRENT slate (ready vs still-filling-in); stale/no-games stay with the banner.
   const slateReadiness = slateReadinessNote(slate.summary, today >= serverToday);
   // ── Daily MLB intelligence brief — the executive digest ("what should I know about MLB today?"). Reuses
@@ -347,6 +353,14 @@ export default function TodayPage() {
       {/* UX System V2 (founder directive 2026-10-13): Today is the daily command center — LIVE FIRST. The same
           view-time strip Home and the hubs use; it renders nothing when no game is in play. */}
       <LiveNow sports={["nfl", "mlb"]} />
+
+      {/* Gap 3 (2026-10-23): every event across sports in one filterable table — time, matchup, sport, status, whether an
+          Official Forecast is published (and its number, only where the sport already publishes one for that event),
+          and the event and result links. Rows come from the same cross-sport day selector /simulate renders. */}
+      <section id="all-games" aria-label="Every game, today and next" style={{ scrollMarginTop: 72 }}>
+        <SectionHeader eyebrow="All sports" title="Every game, today and next" sub="Filter by sport, date or forecast state. A probability appears only where it is published for that game." compact />
+        <GamesTable rows={gamesRows} today={serverToday} dates={gamesTableDates(serverToday)} asOf={etStamp(nowMs)} />
+      </section>
 
       {/* 1b — P251-F9: the payoff for following a club. Renders nothing until a reader has followed
               one, and only ever offers a destination the search index derived from a published

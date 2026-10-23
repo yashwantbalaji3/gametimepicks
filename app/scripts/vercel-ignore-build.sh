@@ -150,6 +150,11 @@ BUILD_INPUTS=(
     ':(top)data/internal/nfl/experimental-settlement/'
     ':(top)data/internal/nfl/winner-corrections/'
     ':(top)data/internal/nfl/side-decision-cutover.json'
+    # Gap 5 postgame box score on settled /nfl/game pages, 2026-10-23: the official lines and quarter scores the week
+    # reconciliation graded against. Written only in the same settlement commit as app/public/data/nfl/reconciliation,
+    # so these entries add no Production build of their own.
+    ':(top)data/internal/nfl/official-stats/'
+    ':(top)data/internal/nfl/official-periods/'
     ':(top)data/internal/research/ufc/model-vs-market/graded.jsonl'
     ':(top)data/internal/parlays/optimizer-reconstruction/receipts/'
     ':(top)data/internal/model-eval/latest-readout.json'
