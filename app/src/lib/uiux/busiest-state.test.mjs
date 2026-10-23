@@ -96,7 +96,9 @@ test("BUILT · fixture lanes + the page's non-lane words + the evening allowance
   const p = path.join(process.cwd(), "out/index.html");
   if (!fs.existsSync(p)) return; // buildless lane: assert-when-built
   const page = fs.readFileSync(p, "utf8");
-  const lanesOnPage = (page.match(/<section aria-labelledby="command-center-h"[\s\S]*?<\/section>/g) ?? []).reduce((s, x) => s + words(strip(x)), 0);
+  // Every Command Center instance (Simulation Hub + Other coverage), found by data-command-center since each instance got
+  // its own heading id (2026-10-22) — the same sections the old single-id pattern matched, so nothing is counted less.
+  const lanesOnPage = (page.match(/<section aria-labelledby="[^"]+" data-command-center="[^"]+"[\s\S]*?<\/section>/g) ?? []).reduce((s, x) => s + words(strip(x)), 0);
   const total = words(strip(page));
   const nonLane = total - lanesOnPage;
   const fixture = words(strip(renderBusiestLanes()));
