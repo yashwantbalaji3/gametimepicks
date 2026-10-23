@@ -4,7 +4,7 @@
  */
 import test from "node:test";
 import assert from "node:assert/strict";
-import { urlPathOf, familyPaths, verdict, exitCodeOf, OPS_USER_AGENT } from "./check-production-page-weight.mjs";
+import { urlPathOf, familyPaths, verdict, exitCodeOf, OPS_USER_AGENT, stripDpl } from "./check-production-page-weight.mjs";
 import { BUDGET_KB, FAMILY_BUDGET_KB } from "../../src/lib/uiux/page-weight-budgets.mjs";
 
 test("budget keys map to the served paths", () => {
@@ -39,4 +39,14 @@ test("a bot challenge is UNKNOWN and never a pass; exit codes: 0 all OK, 1 any b
   assert.equal(exitCodeOf([ok, ch]), 2);
   assert.equal(exitCodeOf([]), 2, "measuring nothing is not a pass");
   assert.match(OPS_USER_AGENT, /^gametimepicks-ops-/);
+});
+
+test("OVER is judged on the RAW served bytes; the dpl-stripped size is printed beside it (release owner 2026-10-23)", () => {
+  const html = '<link href="/_next/static/css/a.css?dpl=dpl_AbC123"/><script src="/_next/static/chunks/x.js?dpl=dpl_AbC123&v=2"></script><a href="/nba/?x=1&dpl=dpl_Q9">';
+  assert.equal(stripDpl(html), '<link href="/_next/static/css/a.css"/><script src="/_next/static/chunks/x.js?v=2"></script><a href="/nba/?x=1">');
+  // Production /nba 2026-10-23: 257,608 B raw, 2,795 B of dpl suffixes → over raw, under stripped
+  const f = verdict({ path: "/nba/", bytes: 257608, strippedBytes: 257608 - 2795, budgetKB: 250 });
+  assert.equal(f.state, "OVER");
+  assert.equal(f.kib, 251.6);
+  assert.equal(f.strippedKib, 248.8);
 });

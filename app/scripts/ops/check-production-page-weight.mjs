@@ -10,8 +10,10 @@
  *
  *   node scripts/ops/check-production-page-weight.mjs [--url <origin>] [--json] [--family-cap 20]
  *
- * Sizes are the decoded HTML bytes (fetch decompresses), i.e. the exported file's size, in KiB (/1024) — exactly the
- * unit of page-weight.test.mjs. Family budgets (e.g. nba/simulation, nba/projections) are checked on the family pages the
+ * Sizes are the decoded HTML bytes (fetch decompresses) in KiB (/1024) — the unit of page-weight.test.mjs. OVER is judged
+ * on the RAW served bytes (what a reader downloads). Vercel skew protection appends `?dpl=dpl_…` to asset URLs in the
+ * served HTML (76 on /nba, 2,795 B, 2026-10-23) that the export CI measures does not carry, so each page also prints
+ * its dpl-stripped size — the number comparable with the CI export (release owner 2026-10-23). Family budgets (e.g. nba/simulation, nba/projections) are checked on the family pages the
  * parent page links to (e.g. /nba/simulation/<id>/ from /nba/), capped by --family-cap.
  *
  * NEVER A PASS ON "COULD NOT TELL": a Vercel bot challenge (403 + x-vercel-mitigated: challenge — isBotChallenge, the
@@ -40,12 +42,16 @@ export function familyPaths(dir, parentHtml, cap = 20) {
 /** 0 only when every page is OK; 1 on any breach; 2 when nothing breached but something could not be measured. Pure. */
 export const exitCodeOf = (findings) => (findings.some((f) => f.state === "OVER") ? 1 : findings.every((f) => f.state === "OK") && findings.length ? 0 : 2);
 
+/** The served HTML without Vercel's skew-protection suffixes (?dpl=… / &dpl=…), for comparison with the CI export. Pure. */
+export const stripDpl = (html) => String(html ?? "").replace(/([?&])dpl=dpl_[A-Za-z0-9]+(&?)/g, (_, sep, amp) => (sep === "?" && amp ? "?" : ""));
+
 /** One finding per measured page. Pure. */
-export function verdict({ path, bytes, budgetKB, error = null, challenged = false }) {
+export function verdict({ path, bytes, budgetKB, error = null, challenged = false, strippedBytes = null }) {
   if (challenged) return { path, budgetKB, bytes: null, kib: null, state: "UNKNOWN", error: "Vercel bot challenge — says nothing about the page" };
   if (error != null || !Number.isFinite(bytes)) return { path, budgetKB, bytes: null, kib: null, state: "UNREACHABLE", error: String(error ?? "no body") };
   const kib = bytes / 1024;
-  return { path, budgetKB, bytes, kib: Math.round(kib * 10) / 10, state: kib <= budgetKB ? "OK" : "OVER", error: null };
+  const r1 = (x) => Math.round(x * 10) / 10;
+  return { path, budgetKB, bytes, kib: r1(kib), strippedKib: Number.isFinite(strippedBytes) ? r1(strippedBytes / 1024) : null, state: kib <= budgetKB ? "OK" : "OVER", error: null };
 }
 
 async function get(origin, p) {
@@ -54,7 +60,7 @@ async function get(origin, p) {
     if (isBotChallenge({ status: r.status, headers: Object.fromEntries(r.headers.entries()) })) return { challenged: true };
     if (!r.ok) return { error: `HTTP ${r.status}` };
     const text = await r.text();
-    return { text, bytes: Buffer.byteLength(text) };
+    return { text, bytes: Buffer.byteLength(text), strippedBytes: Buffer.byteLength(stripDpl(text)) };
   } catch (e) {
     return { error: e?.message ?? String(e) };
   }
@@ -71,7 +77,7 @@ async function main() {
     const p = urlPathOf(rel);
     const r = await get(origin, p);
     pages.set(p, r);
-    findings.push(verdict({ path: p, bytes: r.bytes, budgetKB: kb, error: r.error ?? null, challenged: !!r.challenged }));
+    findings.push(verdict({ path: p, bytes: r.bytes, budgetKB: kb, error: r.error ?? null, challenged: !!r.challenged, strippedBytes: r.strippedBytes ?? null }));
   }
   for (const [dir, kb] of Object.entries(FAMILY_BUDGET_KB)) {
     // family pages are linked from the family's own index (/nba/projections/ → its dates) or its parent (/nba/ → Theater pages)
@@ -80,14 +86,14 @@ async function main() {
     for (const p of parents) html += (pages.get(p) ?? await get(origin, p)).text ?? "";
     for (const p of familyPaths(dir, html, cap)) {
       const r = await get(origin, p);
-      findings.push(verdict({ path: p, bytes: r.bytes, budgetKB: kb, error: r.error ?? null, challenged: !!r.challenged }));
+      findings.push(verdict({ path: p, bytes: r.bytes, budgetKB: kb, error: r.error ?? null, challenged: !!r.challenged, strippedBytes: r.strippedBytes ?? null }));
     }
   }
   const bad = findings.filter((f) => f.state !== "OK");
   if (argv.includes("--json")) console.log(JSON.stringify({ origin, findings }, null, 1));
   else {
     console.log(`Production page weight · ${origin} · ${findings.length} pages`);
-    for (const f of findings) console.log(`${f.state.padEnd(11)} ${f.path.padEnd(44)} ${f.kib == null ? "—" : `${f.kib} KiB`} / ${f.budgetKB} KiB${f.error ? ` (${f.error})` : ""}`);
+    for (const f of findings) console.log(`${f.state.padEnd(11)} ${f.path.padEnd(44)} ${f.kib == null ? "—" : `${f.kib} KiB raw`}${f.strippedKib == null ? "" : ` · ${f.strippedKib} KiB without ?dpl=`} / ${f.budgetKB} KiB${f.error ? ` (${f.error})` : ""}`);
     console.log(bad.length ? `${bad.length} page(s) OVER, UNKNOWN or UNREACHABLE` : "every page within its budget");
   }
   process.exitCode = exitCodeOf(findings);
