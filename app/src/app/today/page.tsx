@@ -75,6 +75,7 @@ import MoreDisclosure from "@/components/ui/more-disclosure";
 import SectionHeader from "@/components/section-header";
 import GamesTable from "@/components/games-experience-table";
 import { buildGamesTableRows, gamesTableDates } from "@/components/games-experience-table-rows";
+import { packGamesTable } from "@/components/games-experience-table-wire";
 
 export const metadata = withRouteMetadata("/today/", {
   title: "Today · GameTime Picks",
@@ -139,6 +140,7 @@ export default function TodayPage() {
   const parlayPreview = loadSuggestedParlaysPreview(dataRoot);
   // ── Cross-sport ranked reads — the same owner Home's strongest-reads panel consumes ──
   const topReadsSet = loadTopReads();
+  const topReadsShown = topReadsSet ? sportsInSet(topReadsSet).flatMap((s) => topBySport(topReadsSet, s, 10)) : [];
 
   // ── Top model picks — the canonical cross-sport board; take the strongest ~6 for the compact list ──
   const top10 = buildTop10Board(dataRoot, today, nowMs);
@@ -364,7 +366,7 @@ export default function TodayPage() {
           and the event and result links. Rows come from the same cross-sport day selector /simulate renders. */}
       <section id="all-games" aria-label="Every game, today and next" style={{ scrollMarginTop: 72 }}>
         <SectionHeader eyebrow="All sports" title="Every game, today and next" sub="Filter by sport, date or forecast state. A probability appears only where it is published for that game." compact />
-        <GamesTable rows={gamesRows} today={serverToday} dates={gamesTableDates(serverToday)} asOf={etStamp(nowMs)} />
+        <GamesTable table={packGamesTable(gamesRows)} today={serverToday} dates={gamesTableDates(serverToday)} asOf={etStamp(nowMs)} />
       </section>
 
       {/* 1b — P251-F9: the payoff for following a club. Renders nothing until a reader has followed
@@ -395,9 +397,12 @@ export default function TodayPage() {
         /* Suspense: useSearchParams inside the client filter requires a boundary under static
            export; the fallback is null, so nothing blanks while chips hydrate. */
         <Suspense fallback={null}>
+          {/* The filter is a client component, so its props are serialized into the page. The panel reads only the set's
+              provenance and exclusion lines; the full ranked set (564 reads on the 10-23 EPL matchweek, ~220KB) is not
+              shipped, only the reads this section renders. */}
           <TopReadsFilter
-            set={topReadsSet}
-            reads={sportsInSet(topReadsSet).flatMap((s) => topBySport(topReadsSet, s, 10))}
+            set={{ ...topReadsSet, reads: topReadsShown }}
+            reads={topReadsShown}
           />
         </Suspense>
       ) : null}

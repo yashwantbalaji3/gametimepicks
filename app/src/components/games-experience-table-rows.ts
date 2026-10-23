@@ -22,25 +22,10 @@ import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs
 import { committedLaneDates, loadLaneForDate } from "@/components/nba/experimental-lane";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
 
-export type ForecastState = "Published" | "Frozen" | "Pending" | "Unavailable";
-export interface GamesTableRow {
-  id: string;
-  date: string;
-  startUtc: string | null;
-  time: string;
-  sport: string;
-  sportLabel: string;
-  matchup: string;
-  status: string;
-  forecast: ForecastState;
-  /** A published probability (or side) for this event, verbatim from its public owner; null when none is published. */
-  read: string | null;
-  note: string | null;
-  eventHref: string;
-  resultHref: string | null;
-}
+import { SPORT_LABEL, type ForecastState, type GamesTableRow } from "./games-experience-table-wire";
 
-const SPORT_LABEL: Record<string, string> = { nfl: "NFL", nba: "NBA", mlb: "MLB", epl: "Premier League", ufc: "UFC" };
+export type { ForecastState, GamesTableRow };
+
 /* Where each sport's graded results live. NBA official forecasts are not graded on a results page yet, so no link. */
 const RESULT_HREF: Record<string, string> = { nfl: "/results/nfl/", mlb: "/results/mlb/", epl: "/results/picks/epl/", ufc: "/results/picks/ufc/" };
 
@@ -171,3 +156,4 @@ function ufcHadForecast(date: string): boolean {
   const day = iso ? new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso)) : null;
   return day === date && (card?.bouts ?? []).some((b) => b.prediction?.winner?.probability != null);
 }
+

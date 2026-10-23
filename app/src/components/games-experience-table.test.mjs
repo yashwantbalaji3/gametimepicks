@@ -47,3 +47,12 @@ test("a probability appears only where the sport publishes one for that exact ev
     }
   }
 });
+
+test("the packed wire form is lossless for everything the table shows, and stores each repeated string once", async () => {
+  const { packGamesTable, unpackGamesTable } = await import("./games-experience-table-wire.ts");
+  const packed = packGamesTable(rows);
+  const back = unpackGamesTable(packed);
+  assert.deepEqual(back, rows.map(({ id, ...shown }) => shown));
+  assert.equal(new Set(packed.strings).size, packed.strings.length, "no string is stored twice");
+  assert.ok(JSON.stringify(packed).length < JSON.stringify(rows).length * 0.6, "the wire form is materially smaller than the row objects");
+});
