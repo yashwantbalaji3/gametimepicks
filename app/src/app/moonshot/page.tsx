@@ -260,7 +260,7 @@ export default function MoonshotPage() {
 
       {/* v1.7 — which sports could contribute a leg today, from the availability owner (counts + plain
           reasons; names the market-priced caveat). Same component as /bank-builder, same owner. */}
-      <EligibleUniverse availability={loadProductAvailability()} compact />
+      <EligibleUniverse availability={loadProductAvailability()} compact scope="Moonshot" />
 
       {/*
         TODAY'S CARD — the PUBLISHED lanes themselves (P243 · A-2).

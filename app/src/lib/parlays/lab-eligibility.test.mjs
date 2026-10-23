@@ -86,7 +86,7 @@ test("multi-sport opens only on TWO live sports", () => {
   const multi = all.find((s) => s.id === "multi");
   const liveSingles = all.filter((s) => s.id !== "multi" && s.live).length;
   assert.equal(multi.live, liveSingles >= 2, "it tracks the count rather than being set by hand");
-  if (!multi.live) assert.match(multi.blocked, /needs two live sports/i);
+  if (!multi.live) assert.match(multi.blocked, /needs two sports with an open suggested-card lane; .* \(Bank Builder and Moonshot use a separate, stricter gate\)$/i);
 });
 
 test("the ledger's streams come from the gate, not a hand-kept list", () => {

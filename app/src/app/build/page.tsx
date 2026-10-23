@@ -37,7 +37,7 @@ import { buildParlayLabV2Model } from "@/lib/parlays/v2/board-model.mjs";
 import TierBoard, { type ParlayLabV2Model } from "@/components/parlays/v2/TierBoard";
 import EmptyTierContext from "@/components/parlays/empty-tier-context";
 import { lastCardPerTier } from "@/lib/results/v2/suggested-history.mjs";
-import { loadProductAvailability } from "@/lib/products/availability";
+import { loadLabRecord } from "@/lib/parlays/lab-record";
 
 /* Parlay Lab V2 (four-tier board + compare slip) — OFF unless the build sets NEXT_PUBLIC_PARLAY_LAB_V2=1. When off,
    nothing below is computed or rendered and the page is unchanged. */
@@ -135,7 +135,7 @@ export default function ParlayCenterSuggestedPage() {
         recordSince={riskLadder?.record.firstDay ?? null}
       />
 
-      <EmptyTierContext emptyTiers={[...emptyTiers]} lastCards={lastTierCards} availability={emptyTiers.length ? loadProductAvailability(dataRoot) : null} />
+      <EmptyTierContext emptyTiers={[...emptyTiers]} lastCards={lastTierCards} lanes={emptyTiers.length ? (loadLabRecord()?.streams ?? []).map((l) => ({ id: l.id, label: l.label, live: l.live, blocked: l.blocked })) : []} />
 
       {/* ── HOW OUR LEGS HAVE SETTLED (P268) ───────────────────────────────────────────────────────
           The tier records answer "have cards like this landed". This answers the question a person
