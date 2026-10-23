@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-22T23:53:57Z",
+ "generatedAt": "2026-10-23T14:14:45Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -17,23 +17,23 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 15,
+  "scheduledUpcoming": 14,
   "forecastsTotal": 14,
-  "forecastsUpcoming": 14,
-  "forecastsStarted": 0,
+  "forecastsUpcoming": 13,
+  "forecastsStarted": 1,
   "marketEvents": 14,
   "settled": 0
  },
- "nextKickoffUtc": "2026-10-23T00:15Z",
- "nextMatchup": "NE @ CHI",
- "nextForecastUtc": "2026-10-23T00:15Z",
- "nextForecastMatchup": "NE @ CHI",
+ "nextKickoffUtc": "2026-10-25T13:30Z",
+ "nextMatchup": "PIT VS NO",
+ "nextForecastUtc": "2026-10-25T13:30Z",
+ "nextForecastMatchup": "PIT @ NO",
  "marketCapturedAt": "2026-10-11T11:41:55Z",
  "experimentalRecord": {
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-10-22T23:49:17Z",
+  "generatedAt": "2026-10-22T23:53:57Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
@@ -71,47 +71,6 @@
  },
  "events": [
   {
-   "providerEventId": "401873010",
-   "canonicalEventId": "nfl-401873010",
-   "matchup": "NE @ CHI",
-   "home": {
-    "abbr": "CHI",
-    "name": "Chicago Bears"
-   },
-   "away": {
-    "abbr": "NE",
-    "name": "New England Patriots"
-   },
-   "kickoffUtc": "2026-10-23T00:15Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 24,
-    "away": 23,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.5198,
-    "away": 0.4517
-   },
-   "total": {
-    "median": 47,
-    "p10": 30,
-    "p90": 64,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": false,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "0e1eaa00cbb904e2",
-    "generatedAt": "2026-10-22T23:53:57Z"
-   }
-  },
-  {
    "providerEventId": "401873011",
    "canonicalEventId": "nfl-401873011",
    "matchup": "PIT @ NO",
@@ -131,15 +90,15 @@
    "lean": null,
    "projectedScore": {
     "home": 20,
-    "away": 24,
+    "away": 25,
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.3257,
-    "away": 0.6476
+    "home": 0.3264,
+    "away": 0.6491
    },
    "total": {
-    "median": 44,
+    "median": 45,
     "p10": 28,
     "p90": 62,
     "head": "matchup-totals-v3-play-efficiency"
@@ -148,8 +107,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "bcacb98f03816bd2",
-    "generatedAt": "2026-10-22T23:53:57Z"
+    "inputHash": "ba44f10b962bd6f7",
+    "generatedAt": "2026-10-23T14:14:45Z"
    }
   },
   {
@@ -176,21 +135,21 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.2664,
-    "away": 0.7067
+    "home": 0.2659,
+    "away": 0.7057
    },
    "total": {
     "median": 47,
     "p10": 30,
-    "p90": 65,
+    "p90": 64,
     "head": "matchup-totals-v3-play-efficiency"
    },
    "hasMarket": false,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "eba41c602381fb29",
-    "generatedAt": "2026-10-22T23:53:57Z"
+    "inputHash": "807afc9cdb506f50",
+    "generatedAt": "2026-10-23T14:14:45Z"
    }
   },
   {
@@ -217,8 +176,8 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.3548,
-    "away": 0.615
+    "home": 0.3543,
+    "away": 0.6141
    },
    "total": {
     "median": 38,
@@ -230,8 +189,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "ced82fc628011401",
-    "generatedAt": "2026-10-22T23:53:57Z"
+    "inputHash": "f7751c98b501dc28",
+    "generatedAt": "2026-10-23T14:14:45Z"
    }
   },
   {
@@ -258,8 +217,8 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.7791,
-    "away": 0.1956
+    "home": 0.7812,
+    "away": 0.1961
    },
    "total": {
     "median": 42,
@@ -271,8 +230,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "369a7b4cbd3dc098",
-    "generatedAt": "2026-10-22T23:53:57Z"
+    "inputHash": "4d8f2c178bed3a67",
+    "generatedAt": "2026-10-23T14:14:45Z"
    }
   },
   {
@@ -294,13 +253,13 @@
    "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
    "lean": null,
    "projectedScore": {
-    "home": 21,
-    "away": 21,
+    "home": 22,
+    "away": 20,
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.5447,
-    "away": 0.4237
+    "home": 0.5459,
+    "away": 0.4245
    },
    "total": {
     "median": 42,
@@ -312,8 +271,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "544737ef5cdde5b5",
-    "generatedAt": "2026-10-22T23:53:57Z"
+    "inputHash": "9adeee4c3aad8801",
+    "generatedAt": "2026-10-23T14:14:45Z"
    }
   },
   {
@@ -340,8 +299,8 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.6287,
-    "away": 0.3409
+    "home": 0.6274,
+    "away": 0.3402
    },
    "total": {
     "median": 46,
@@ -353,8 +312,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "3a21cfeebc376a28",
-    "generatedAt": "2026-10-22T23:53:57Z"
+    "inputHash": "e21e90d85883f4b3",
+    "generatedAt": "2026-10-23T14:14:45Z"
    }
   },
   {
@@ -381,21 +340,21 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.578,
-    "away": 0.3932
+    "home": 0.5778,
+    "away": 0.393
    },
    "total": {
     "median": 49,
-    "p10": 32,
-    "p90": 66,
+    "p10": 33,
+    "p90": 67,
     "head": "matchup-totals-v3-play-efficiency"
    },
    "hasMarket": false,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "cad1c566496a1ca7",
-    "generatedAt": "2026-10-22T23:53:57Z"
+    "inputHash": "8ec0f227107801fe",
+    "generatedAt": "2026-10-23T14:14:45Z"
    }
   },
   {
@@ -418,16 +377,16 @@
    "lean": null,
    "projectedScore": {
     "home": 27,
-    "away": 19,
+    "away": 20,
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.6796,
-    "away": 0.2927
+    "home": 0.6809,
+    "away": 0.2932
    },
    "total": {
-    "median": 46,
-    "p10": 29,
+    "median": 47,
+    "p10": 30,
     "p90": 64,
     "head": "matchup-totals-v3-play-efficiency"
    },
@@ -435,8 +394,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "792af14c3ba98aaf",
-    "generatedAt": "2026-10-22T23:53:57Z"
+    "inputHash": "4a4da8f60593e26b",
+    "generatedAt": "2026-10-23T14:14:45Z"
    }
   },
   {
@@ -463,8 +422,8 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.2484,
-    "away": 0.725
+    "home": 0.2482,
+    "away": 0.7242
    },
    "total": {
     "median": 46,
@@ -476,8 +435,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "4acef53d1e1692e9",
-    "generatedAt": "2026-10-22T23:53:57Z"
+    "inputHash": "d34bcce2dcead1ee",
+    "generatedAt": "2026-10-23T14:14:45Z"
    }
   },
   {
@@ -504,8 +463,8 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.5531,
-    "away": 0.4188
+    "home": 0.5512,
+    "away": 0.4174
    },
    "total": {
     "median": 51,
@@ -517,8 +476,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "813607f421cd114a",
-    "generatedAt": "2026-10-22T23:53:57Z"
+    "inputHash": "f577bb6355486b4d",
+    "generatedAt": "2026-10-23T14:14:45Z"
    }
   },
   {
@@ -545,12 +504,12 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.3472,
-    "away": 0.6248
+    "home": 0.3466,
+    "away": 0.6237
    },
    "total": {
     "median": 47,
-    "p10": 30,
+    "p10": 31,
     "p90": 65,
     "head": "matchup-totals-v3-play-efficiency"
    },
@@ -558,8 +517,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "823b8e3fc115b3f0",
-    "generatedAt": "2026-10-22T23:53:57Z"
+    "inputHash": "22897bcb88e4653b",
+    "generatedAt": "2026-10-23T14:14:45Z"
    }
   },
   {
@@ -586,8 +545,8 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.6245,
-    "away": 0.3449
+    "home": 0.625,
+    "away": 0.3452
    },
    "total": {
     "median": 42,
@@ -599,8 +558,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "92aca27cdbd7e3d6",
-    "generatedAt": "2026-10-22T23:53:57Z"
+    "inputHash": "66b19e49fbc45118",
+    "generatedAt": "2026-10-23T14:14:45Z"
    }
   },
   {
@@ -627,8 +586,8 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.611,
-    "away": 0.3618
+    "home": 0.61,
+    "away": 0.3611
    },
    "total": {
     "median": 49,
@@ -640,7 +599,48 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "45b8ee446fdc058d",
+    "inputHash": "2bea1ad3b6b284ee",
+    "generatedAt": "2026-10-23T14:14:45Z"
+   }
+  },
+  {
+   "providerEventId": "401873010",
+   "canonicalEventId": "nfl-401873010",
+   "matchup": "NE @ CHI",
+   "home": {
+    "abbr": "CHI",
+    "name": "Chicago Bears"
+   },
+   "away": {
+    "abbr": "NE",
+    "name": "New England Patriots"
+   },
+   "kickoffUtc": "2026-10-23T00:15Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 24,
+    "away": 23,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.5198,
+    "away": 0.4517
+   },
+   "total": {
+    "median": 47,
+    "p10": 30,
+    "p90": 64,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "0e1eaa00cbb904e2",
     "generatedAt": "2026-10-22T23:53:57Z"
    }
   }
