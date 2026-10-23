@@ -46,7 +46,7 @@ export default function TerminalSummaryPanel({ terminal }: { terminal: TerminalV
         </h2>
         <Link
           href="/system-status"
-          className="text-[13px] underline underline-offset-2 text-[var(--text-mute)] hover:text-[var(--text)]"
+          className="inline-flex min-h-[44px] items-center text-[13px] underline underline-offset-2 text-[var(--text-mute)] hover:text-[var(--text)]"
         >
           System status:{" "}
           <span style={{ color: STATUS_TONE[status.overall] ?? "var(--text-mute)" }}>
