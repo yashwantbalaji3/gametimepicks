@@ -66,6 +66,7 @@ test("shared tap targets: lane links, slate chips, sport switcher, Save, Open re
   assert.doesNotMatch(cc, /minHeight: (24|36)\b/, "no 24/36px lane link left");
   assert.equal((cc.match(/minHeight: 44/g) ?? []).length >= 4, true);
   assert.match(read("src/components/slate-status-chips.tsx"), /minHeight: 44/);
+  assert.match(read("src/components/slate-status-bar.tsx"), /minHeight: 44,/, "the Settled chip beside them too");
   assert.match(read("src/components/sports/sport-switcher.tsx"), /minHeight: 44/);
   assert.match(read("src/components/saved/save-forecast-button.tsx"), /const minHeight = 44;/);
   assert.match(read("src/components/command-center/prediction-card.tsx"), /minHeight: 44, display: "inline-flex", alignItems: "center" \}\}>Open report/);
