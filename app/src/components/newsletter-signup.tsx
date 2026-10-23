@@ -19,6 +19,7 @@
  */
 
 import { useState, type FormEvent } from "react";
+import { PUBLIC_SIGNUP_OPEN } from "@/lib/accounts/public-entry.mjs";
 import {
   isValidEmail,
   submitNewsletter,
@@ -65,6 +66,10 @@ export default function NewsletterSignup({ variant = "full" }: Props) {
       setResult({ kind: "error", message: r.message });
     }
   }
+
+  /* Founder decision 2026-10-23 (lib/accounts/public-entry.mjs): no email-collection form until approved privacy and
+     terms notices are published. After the hooks, so hook order never changes. */
+  if (!PUBLIC_SIGNUP_OPEN) return null;
 
   if (variant === "compact") {
     return (

@@ -89,8 +89,7 @@ export default function NoCurrentSlate({
             style={{ color: "var(--vault-text-mute)" }}
           >
             The next NBA slate hasn&apos;t been generated yet. The model
-            board refreshes automatically — check back in a couple hours,
-            or sign up below to be notified when the next slate is ready.
+            board refreshes automatically — check back in a couple of hours.
           </p>
 
           {lastRefreshDisplay && (

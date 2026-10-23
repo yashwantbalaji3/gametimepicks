@@ -16,7 +16,7 @@ import { loadPublishedBandRecord, loadGradedLegRecord } from "@/lib/parlays/risk
 export const metadata = {
   ...withRouteMetadata("/account/", {
     title: "Your bets · GameTime Picks",
-    description: "Sign in to keep your own record: add a slip you placed, check what we read from it, and see how it has actually gone.",
+    description: "Your own bet record: add a slip you placed, check what we read from it, and see how it has actually gone.",
   }),
   robots: { index: false, follow: false },
 };
