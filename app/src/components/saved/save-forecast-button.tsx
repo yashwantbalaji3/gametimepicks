@@ -27,7 +27,7 @@ export default function SaveForecastButton({ card, compact = true, placement = "
   /* Eligibility on the CLIENT clock, after mount — the server render is the pregame control, so the markup matches. */
   const [eligibility, setEligibility] = useState<{ ok: boolean; reason: string | null }>(() => saveEligibility(card, card.freshness?.updatedAt ?? "1970-01-01T00:00:00Z"));
   useEffect(() => { setEligibility(saveEligibility(card, new Date().toISOString())); }, [card]);
-  const minHeight = 44; // Release B (benchmark #1193 gap 8): compact or not, a tap target is ≥ 44px
+  const minHeight = 44; // Release B (benchmark PR 1193 gap 8): compact or not, a tap target is ≥ 44px
   const style = { minHeight, padding: compact ? "0 8px" : "0 14px", fontSize: compact ? 9.5 : 11 } as const;
 
   if (!eligibility.ok && eligibility.reason === "NO_CALL") return null;

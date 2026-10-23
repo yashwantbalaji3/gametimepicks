@@ -1,5 +1,5 @@
 /**
- * Release B (competitor benchmark #1193 gaps 2, 3, 8 · founder sprint directive 2026-10-23): shorter phone homepage,
+ * Release B (competitor benchmark PR 1193 gaps 2, 3, 8 · founder sprint directive 2026-10-23): shorter phone homepage,
  * discoverable tools, ≥ 44px tap targets on Home and the sport hubs.
  * Run (from app/): npx tsx --test src/components/home/mobile-home.test.mjs
  */

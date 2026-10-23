@@ -1,5 +1,5 @@
 /**
- * Release B (competitor benchmark #1193 gaps 2, 3, 8 · founder sprint directive 2026-10-23): a shorter phone homepage and
+ * Release B (competitor benchmark PR 1193 gaps 2, 3, 8 · founder sprint directive 2026-10-23): a shorter phone homepage and
  * discoverable tools — no redesign.
  *
  *   SportsToday   phones only: the five sports and their state in one row of 44px chips, right under the hero, so every

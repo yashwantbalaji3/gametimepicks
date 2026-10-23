@@ -379,7 +379,7 @@ export default function HomePage() {
         lastSettledDate={lastSettledDate}
       />
 
-      {/* Release B (benchmark #1193 gap 3): on phones every sport is above the fold — the lanes' own label + state */}
+      {/* Release B (benchmark PR 1193 gap 3): on phones every sport is above the fold — the lanes' own label + state */}
       <SportsToday lanes={commandLanes} />
 
 
@@ -425,7 +425,7 @@ export default function HomePage() {
         See UPCOMING_READS_SHOWN in lib/top-reads.ts for what that costs and why the alternative — the
         non-prediction trim the guard actually asks for — was left as a founder call.
       */}
-      {/* Release B (benchmark #1193 gap 2): secondary sections render from sm up; phones get the summary (MobileMore) */}
+      {/* Release B (benchmark PR 1193 gap 2): secondary sections render from sm up; phones get the summary (MobileMore) */}
       <div className="hidden sm:contents">
       {topReads && topUpcoming(topReads, UPCOMING_READS_SHOWN).length > 0 ? (
         <TopReadsPanel
