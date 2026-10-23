@@ -39,8 +39,9 @@ const MUTE = { color: "var(--vault-text-mute)" };
 const CHIP = "inline-flex items-center min-h-[44px] rounded-full px-3 no-underline";
 const CHIP_STYLE = { border: "1px solid var(--vault-border)", color: "var(--vault-text)" };
 
-/** The founder's one note for these pages (overnight directive 2026-10-23). */
-export const PREDICTED_NOTE = "Predicted Player Statistics are frozen before tip-off; model performance is evaluated continuously in Model Performance.";
+/** The one disclosure for these pages (release owner decision 2026-10-23; the same literal as the UI session's registry
+    constant NBA_MODEL_PERFORMANCE_NOTE — switch to the import once both have merged). */
+export const PREDICTED_NOTE = "NBA forecasts are graded after every game; a public Model Performance record for NBA has not been published yet.";
 /** Why a FINAL game shows no actuals — once per game, in its line. */
 const ACTUAL_UNAVAILABLE: Partial<Record<GameActualState, string>> = {
   "no-boxscore": "Actual: Unavailable (final box score not yet recorded)",

@@ -146,9 +146,10 @@ const visibleText = (html) => html.replace(/<[^>]+>/g, " ").replace(/&rsquo;/g, 
 
 test("every view carries the one Predicted Player Statistics note, freeze times, receipt hashes and the combo label", async () => {
   const html = await renderView(JSON.parse(PUB_TEXT));
-  // Founder vocabulary (overnight directive 2026-10-23): the experimental banner became ONE concise note.
+  // Founder vocabulary (overnight directive 2026-10-23): the experimental banner became ONE concise note (wording:
+  // release owner decision 2026-10-23, the registry's NBA_MODEL_PERFORMANCE_NOTE).
   const { PREDICTED_NOTE } = await import("../../../components/nba/projections-view.tsx");
-  assert.equal(PREDICTED_NOTE, "Predicted Player Statistics are frozen before tip-off; model performance is evaluated continuously in Model Performance.");
+  assert.equal(PREDICTED_NOTE, "NBA forecasts are graded after every game; a public Model Performance record for NBA has not been published yet.");
   assert.equal(html.split(PREDICTED_NOTE).length - 1, 1);
   assert.doesNotMatch(html, /UNVALIDATED EXPERIMENTAL SIMULATION|experimental, not validated/);
   for (const g of PUB.games) {
