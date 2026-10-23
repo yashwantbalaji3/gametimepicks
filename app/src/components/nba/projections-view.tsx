@@ -17,7 +17,8 @@
  *     Official Forecast is not yet available, and links the newest frozen board; never a zero, never an invented figure;
  *   - postgame (ctx.actuals) each player's Actual from the final box score sits beside the frozen Official Forecast;
  *     a game without a usable final box score says why, once, in its line;
- *   - the slate dates are tap-sized chips at the top of the page, not a line under a 250-row table.
+ *   - the slate dates are tap-sized chips at the top of the page, not a line under a 250-row table; the per-game
+ *     freeze/receipt list is one tap away (<details>) and the method note sits under the board, so the filters lead.
  */
 import React from "react";
 import Link from "next/link";
@@ -164,20 +165,20 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
       ) : null}
       {live ? (
         <>
-          <ul className="m-0 pl-5 text-[12px] leading-relaxed" style={MUTE} aria-label="Freeze times and receipts">
-            {live.games.map((g) => (
-              <li key={g.providerEventId}>
-                {g.away.name} at {g.home.name}: tip-off {et(g.tipUtc)} · frozen {et(g.frozenAt)} · receipt {g.receipt.modelVersion} · {g.receipt.payloadSha256.slice(0, 12)}
-                {meta.has(g.providerEventId) ? <GameStatus g={meta.get(g.providerEventId)!} actual={actuals ? ACTUAL_UNAVAILABLE[actuals.games[g.providerEventId]] : undefined} /> : null}
-              </li>
-            ))}
-          </ul>
-          <p className="m-0 text-[12px] leading-relaxed" style={MUTE}>
-            Source: {live.games[0].players.source}. PRA, P+R and P+A: {COMBO_LABEL} — the median of each simulated
-            game&rsquo;s sum, so it need not equal the sum of the separate medians. Players with at least 10 expected
-            minutes who are not ruled out. The default order is expected minutes; a column sort is the reader&rsquo;s own.
-            {games.length ? " Game status is read-only, from the schedule and finals record (Started: tipped off, no final recorded yet); it never changes a frozen figure." : ""}
-          </p>
+          {/* Provenance per game, one tap away: on a phone an 11-game list otherwise pushes the filters two screens down. */}
+          <details className="text-[12px]" style={MUTE}>
+            <summary className="cursor-pointer min-h-[44px] flex items-center" style={TEXT}>
+              Freeze times, receipts and game status · {live.games.length} game{live.games.length === 1 ? "" : "s"}
+            </summary>
+            <ul className="m-0 pl-5 text-[12px] leading-relaxed" style={MUTE} aria-label="Freeze times and receipts">
+              {live.games.map((g) => (
+                <li key={g.providerEventId}>
+                  {g.away.name} at {g.home.name}: tip-off {et(g.tipUtc)} · frozen {et(g.frozenAt)} · receipt {g.receipt.modelVersion} · {g.receipt.payloadSha256.slice(0, 12)}
+                  {meta.has(g.providerEventId) ? <GameStatus g={meta.get(g.providerEventId)!} actual={actuals ? ACTUAL_UNAVAILABLE[actuals.games[g.providerEventId]] : undefined} /> : null}
+                </li>
+              ))}
+            </ul>
+          </details>
           {post ? (
             <p className="m-0 rounded-md p-2 text-[12.5px] leading-relaxed" role="note" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)" }}>
               <strong>Forecast</strong> = Official Forecast (frozen pregame), shown exactly as frozen. <strong>Actual</strong> = the
@@ -187,6 +188,12 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
             </p>
           ) : null}
           <ProjectionBoard board={packBoard(rows, post ? post.rows : null)} stats={stats} groups={groups} matchups={matchups} teams={teams} defaultGroup={post ? "core" : undefined} />
+          <p className="m-0 text-[12px] leading-relaxed" style={MUTE}>
+            Source: {live.games[0].players.source}. PRA, P+R and P+A: {COMBO_LABEL} — the median of each simulated
+            game&rsquo;s sum, so it need not equal the sum of the separate medians. Players with at least 10 expected
+            minutes who are not ruled out. The default order is expected minutes; a column sort is the reader&rsquo;s own.
+            {games.length ? " Game status is read-only, from the schedule and finals record (Started: tipped off, no final recorded yet); it never changes a frozen figure." : ""}
+          </p>
           <ul className="m-0 pl-5 text-[12px] leading-relaxed" style={MUTE}>
             {Object.entries(live.withheld).map(([k, v]) => <li key={k}>{v}</li>)}
           </ul>
