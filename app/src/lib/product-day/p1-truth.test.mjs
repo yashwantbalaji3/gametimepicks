@@ -40,6 +40,6 @@ test("🔴 the builders' eligible-universe heading names its evaluated day and n
   assert.equal(universeDayLabel("2031-07-13"), "Sun, Jul 13");
   assert.equal(universeDayLabel(null), null);
   const html = renderToStaticMarkup(React.createElement(EligibleUniverse, { availability: { date: "2031-07-13", totalEligible: 3, sports: [{ sport: "mlb", label: "MLB", eligibleLegs: 3, events: 2, marketPricedOnly: true, reason: null }] } }));
-  assert.match(html, /Eligible universe · evaluated Sun, Jul 13/);
+  assert.match(html, /Priced-card universe \(Level B\) · evaluated Sun, Jul 13/);
   assert.doesNotMatch(html, /today/i, "a static page cannot know the reader's day, so it never claims it");
 });
