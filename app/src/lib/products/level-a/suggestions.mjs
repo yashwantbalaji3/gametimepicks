@@ -39,6 +39,7 @@ import { canEnterModelSuggestions, modelSuggestionOf } from "../../sport-capabil
 export const LEVEL_A_VERSION = "level-a-suggestions@1";
 export const LEVEL_A_LEG_SCHEMA = "gtp.level-a.leg@1";
 export const LEVEL_A_LABEL = "Model suggestion — paper only. No sportsbook price, no payout, not a bet.";
+const SPORT_NAME = { nba: "NBA", nfl: "NFL", mlb: "MLB", ufc: "UFC" };
 export const TIER_METHOD = "Joint probability = product of each leg's official forecast probability, legs from different games only (treated as independent across games). Tier = the published risk band of the model-fair price (1 ÷ joint). No sportsbook price is used.";
 
 export const LEG_REFUSAL = Object.freeze({
@@ -105,7 +106,7 @@ export function levelALeg(sel, { now, productDay = null }) {
       selection: { ...sel.selection },
       probability: published ? sel.probability : null,
       tierable: published,
-      probabilityNote: published ? null : "The official forecast publishes the side but withholds its probability, so this pick is not tiered.",
+      probabilityNote: published ? null : `Untiered: no published ${SPORT_NAME[sel.sport] ?? String(sel.sport).toUpperCase()} win probability. The official forecast publishes the side only.`,
       forecast: { ...sel.forecast },
       uncertainty: sel.uncertainty ?? null,
       settlement: { ...sel.settlement },
@@ -129,7 +130,7 @@ function cardOf(legs, policy) {
   return {
     policy, tier, tierLabel: tier ? PUBLIC_RISK_LABELS[tier] : null,
     legs, sports, jointProbability: round(joint), method: TIER_METHOD,
-    dependency: "Every leg is from a different game, so no two legs share an outcome. Games are treated as independent; real outcomes can still be related, and that is not modelled.",
+    dependency: "Assumes the games are independent: every leg is from a different game, so no two legs share an outcome, but real outcomes can still be related and that is not modelled.",
     whySelected: `Each leg is the official forecast's own pick for its game; this is the combination with the highest joint probability in its band (${legs.length} legs).`,
     priced: false, price: null, payout: null,
     label: LEVEL_A_LABEL,
@@ -198,7 +199,7 @@ export function cardCopyText(card) {
   if (!card) return "";
   const lines = [`GameTimePicks model suggestion · ${card.tierLabel ?? "untiered"} · ${card.legs.length} legs · paper only, no price`];
   for (const l of card.legs) lines.push(`- ${l.eventLabel} (${l.sport.toUpperCase()}): ${l.selection.label}${l.probability != null ? ` · model ${(l.probability * 100).toFixed(1)}%` : ""}`);
-  if (card.jointProbability != null) lines.push(`Model joint probability ${(card.jointProbability * 100).toFixed(1)}% (legs from different games, treated as independent).`);
+  if (card.jointProbability != null) lines.push(`Model joint probability ${(card.jointProbability * 100).toFixed(1)}% (legs from different games; assumes the games are independent).`);
   lines.push("Not a bet and not a price. Check any sportsbook's own line before acting.");
   return lines.join("\n");
 }

@@ -35,7 +35,7 @@ import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipp
 import BankBuilderProposalCard from "@/components/bank-builder/bank-builder-proposal-card";
 import EligibleUniverse from "@/components/products/eligible-universe";
 import LevelASuggestions, { type LevelAModel } from "@/components/products/level-a-suggestions";
-import { buildLevelAModel } from "@/lib/products/level-a/model.mjs";
+import { buildLevelAModel, levelAEnabled } from "@/lib/products/level-a/model.mjs";
 import { loadProductAvailability } from "@/lib/products/availability";
 import { strongestSlatePicks } from "@/lib/world-cup/structured-moonshot";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
@@ -161,8 +161,8 @@ export const metadata = withRouteMetadata("/bank-builder/", {
   twitter: { card: "summary_large_image", title: META_TITLE, description: META_DESCRIPTION },
 });
 
-/* Level A model suggestions (founder policy 2026-10-23): shown only when NEXT_PUBLIC_LEVEL_A_SUGGESTIONS is exactly "1". */
-const LEVEL_A = process.env.NEXT_PUBLIC_LEVEL_A_SUGGESTIONS === "1";
+/* Level A model suggestions (founder policy 2026-10-23): shown when level-a/model.mjs levelAEnabled() says so. */
+const LEVEL_A = levelAEnabled();
 
 export default function BankBuilderPage() {
   const pubSummary = loadPublicBankBuilderSummary();

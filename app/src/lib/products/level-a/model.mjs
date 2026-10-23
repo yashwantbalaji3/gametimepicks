@@ -7,9 +7,14 @@ import path from "node:path";
 import { levelASources } from "./sources.mjs";
 import { levelASuggestions, productDayOf } from "./suggestions.mjs";
 
-/** The flag that shows Level A on the product pages. Default OFF; the release owner turns it on. */
+/**
+ * THE LEVEL A SWITCH. One committed constant, default false: the release owner flips it to true in the release
+ * vehicle after acceptance, and rollback is flipping it back. No Production env var is needed.
+ * NEXT_PUBLIC_LEVEL_A_SUGGESTIONS="1" is an additional override for local and preview builds only.
+ */
+export const LEVEL_A_SUGGESTIONS_PUBLIC = false;
 export const LEVEL_A_FLAG = "NEXT_PUBLIC_LEVEL_A_SUGGESTIONS";
-export const levelAEnabled = (env = process.env) => env[LEVEL_A_FLAG] === "1";
+export const levelAEnabled = (env = { [LEVEL_A_FLAG]: process.env.NEXT_PUBLIC_LEVEL_A_SUGGESTIONS }) => LEVEL_A_SUGGESTIONS_PUBLIC || env[LEVEL_A_FLAG] === "1";
 
 export function buildLevelAModel({ repoRoot = path.resolve(process.cwd(), ".."), now = new Date().toISOString(), productDay = null } = {}) {
   const day = productDay ?? productDayOf(now);

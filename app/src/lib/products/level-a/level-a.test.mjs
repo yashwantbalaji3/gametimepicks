@@ -14,7 +14,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { levelALeg, levelASuggestions, fairAmerican, tierForJoint, cardCopyText, productDayOf, POLICIES } from "./suggestions.mjs";
 import { levelASources, mlbSelections, nbaSelections } from "./sources.mjs";
 import { appendRecord, recordEntries, recordViolations } from "./record.mjs";
-import { SPORT_CAPABILITIES, canEnterPredictionProducts, canShowLiveProjections, canEnterModelSuggestions, modelSuggestionOf } from "../../sport-capability-registry.ts";
+import { LEVEL_A_SUGGESTIONS_PUBLIC, levelAEnabled } from "./model.mjs";
+import { LEVEL_A_DECISION_DOC, SPORT_CAPABILITIES, canEnterPredictionProducts, canShowLiveProjections, canEnterModelSuggestions, modelSuggestionOf } from "../../sport-capability-registry.ts";
 import { getRiskBucketForCombinedOdds } from "../../parlays/risk-odds-bands.mjs";
 
 globalThis.React = React;
@@ -157,8 +158,9 @@ test("RENDER: the section shows the Official Forecast's pick and source, never a
   assert.doesNotMatch(html, /\$\d|payout:|odds [+-]\d|href="https?:/);
   for (const f of ["src/app/bank-builder/page.tsx", "src/app/moonshot/page.tsx", "src/app/build/page.tsx"]) {
     const s = fs.readFileSync(path.resolve(process.cwd(), f), "utf8");
-    assert.match(s, /const LEVEL_A = process\.env\.NEXT_PUBLIC_LEVEL_A_SUGGESTIONS === "1";/, f);
+    assert.match(s, /^const LEVEL_A = levelAEnabled\(\);$/m, f);
     assert.match(s, /\{LEVEL_A \? <LevelASuggestions /, f);
+    assert.doesNotMatch(s.slice(s.indexOf("{LEVEL_A ?") - 200, s.indexOf("{LEVEL_A ?")), /PARLAY_LAB_V2|v2Model \?/, `${f}: Level A renders under its own switch, not inside Parlay Lab V2`);
   }
 });
 
@@ -171,4 +173,32 @@ test("WRITER: the record script is the one writer, offline, and writes no price"
   if (r1.added) assert.deepEqual(recordViolations({ beforeText: "", afterText: fs.readFileSync(tmp, "utf8") }), []);
   const script = fs.readFileSync(path.resolve(process.cwd(), "scripts/products/record-level-a-suggestions.mjs"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
   assert.doesNotMatch(script, /\bfetch\(|https?:\/\/|ODDS_API_KEY/);
+});
+
+test("SWITCH: one committed constant in level-a/model.mjs, default false; the env var is only an extra override", () => {
+  assert.equal(LEVEL_A_SUGGESTIONS_PUBLIC, false, "Level A ships OFF; the release owner flips this one line after acceptance");
+  const hits = [];
+  const walk = (d) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const f = path.join(d, e.name); if (e.isDirectory()) walk(f); else if (/\.(mjs|ts|tsx)$/.test(e.name) && !/\.test\./.test(e.name) && /export const LEVEL_A_SUGGESTIONS_PUBLIC\b/.test(fs.readFileSync(f, "utf8"))) hits.push(path.relative(process.cwd(), f)); } };
+  walk(path.resolve(process.cwd(), "src"));
+  assert.deepEqual(hits, ["src/lib/products/level-a/model.mjs"], "the switch is defined in exactly one file");
+  assert.equal(levelAEnabled({}), false);
+  assert.equal(levelAEnabled({ NEXT_PUBLIC_LEVEL_A_SUGGESTIONS: "1" }), true);
+  assert.equal(levelAEnabled({ NEXT_PUBLIC_LEVEL_A_SUGGESTIONS: "true" }), false, "only exactly \"1\" overrides");
+});
+
+test("DECISION: the registry cites the founder's verbatim Level A text, and the file exists", () => {
+  assert.equal(LEVEL_A_DECISION_DOC, "docs/decisions/2026-10-23-LEVEL-A-MODEL-SUGGESTIONS.md");
+  const doc = fs.readFileSync(path.join(REPO, LEVEL_A_DECISION_DOC), "utf8");
+  assert.match(doc, /LEVEL A — MODEL-SUGGESTED PICKS AND PARLAYS/);
+});
+
+test("DISCLOSURE: every card and its copy text say the games are assumed independent; NBA says why it is untiered", () => {
+  const out = levelASuggestions({ selections: [0.7, 0.6, 0.45, 0.4, 0.35].map((p) => sel({ probability: p })).concat(sel({ sport: "nba", market: "winner", probability: null })), now: NOW, productDay: DAY });
+  const cards = [...out.parlayLab.map((t) => t.card), out.bankBuilder.card, out.moonshot.card].filter(Boolean);
+  assert.ok(cards.length > 0);
+  for (const c of cards) {
+    assert.match(c.dependency, /assumes the games are independent/i);
+    assert.match(cardCopyText(c), /assumes the games are independent/i);
+  }
+  assert.match(out.untiered[0].probabilityNote, /^Untiered: no published NBA win probability/);
 });

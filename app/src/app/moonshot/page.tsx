@@ -25,7 +25,7 @@ import { presentFromArtifact } from "@/lib/signature-presentation.mjs";
 import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
 import EligibleUniverse from "@/components/products/eligible-universe";
 import LevelASuggestions, { type LevelAModel } from "@/components/products/level-a-suggestions";
-import { buildLevelAModel } from "@/lib/products/level-a/model.mjs";
+import { buildLevelAModel, levelAEnabled } from "@/lib/products/level-a/model.mjs";
 import { loadProductAvailability } from "@/lib/products/availability";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import LifecycleRecord from "@/components/products/lifecycle-record";
@@ -63,8 +63,8 @@ const readData = (...rel: string[]) => {
 
 const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-/* Level A model suggestions (founder policy 2026-10-23): shown only when NEXT_PUBLIC_LEVEL_A_SUGGESTIONS is exactly "1". */
-const LEVEL_A = process.env.NEXT_PUBLIC_LEVEL_A_SUGGESTIONS === "1";
+/* Level A model suggestions (founder policy 2026-10-23): shown when level-a/model.mjs levelAEnabled() says so. */
+const LEVEL_A = levelAEnabled();
 
 export default function MoonshotPage() {
   const lane = loadMoonshotLane();

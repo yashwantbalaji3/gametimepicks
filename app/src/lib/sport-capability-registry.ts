@@ -184,6 +184,8 @@ export interface ModelSuggestionCapability {
 }
 
 export const LEVEL_A_DECISION_REF = "founder Level A / Level B policy, 2026-10-23 09:16 ET";
+/** The founder's text, verbatim. */
+export const LEVEL_A_DECISION_DOC = "docs/decisions/2026-10-23-LEVEL-A-MODEL-SUGGESTIONS.md";
 
 export const MODEL_SUGGESTION_CAPABILITIES: ReadonlyArray<ModelSuggestionCapability> = Object.freeze([
   { key: "mlb", state: "OPEN", forecastOwner: "mlb-prediction official snapshot (moneyline simulation probability)", markets: ["winner"], probabilityPublished: true,
