@@ -20,9 +20,15 @@ import Link from "next/link";
 
 import PageHero from "@/components/page-hero";
 import { destinationsFor } from "@/lib/navigation";
+import { committedLaneDates, loadLaneForDate } from "@/components/nba/experimental-lane";
+import ExpiredSimulationNotice from "@/components/nba/expired-simulation-notice";
+import { expiredSimulationMap } from "@/components/nba/expired-simulation.mjs";
 
 export default function NotFound() {
   const primary = destinationsFor("top");
+  /* Expired NBA Game Simulation links (audit F07 / A-T31): a small id → [date, matchup] map from the committed dated
+     lanes, so a game-day link that 404s after the ET rollover names its game and links that day's frozen board. */
+  const expired = expiredSimulationMap(committedLaneDates().map((date) => ({ date, games: loadLaneForDate(date)?.games ?? [] })));
   return (
     <div className="vault-page-shell px-3 sm:px-6 lg:px-8 py-5 sm:py-10 md:py-14 overflow-x-hidden">
       <PageHero
@@ -30,6 +36,8 @@ export default function NotFound() {
         title="That page isn’t here"
         sub="The link may be from before a route moved, or the address may have a typo. Nothing is broken — here is everywhere you can go from here."
       />
+
+      <ExpiredSimulationNotice map={expired} />
 
       <nav aria-label="Primary destinations" className="mt-7 max-w-2xl flex flex-col gap-2">
         {primary.map((d) => (

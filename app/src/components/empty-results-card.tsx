@@ -154,7 +154,7 @@ export default function EmptyResultsCard({ latestScoredDate }: Props) {
         className="mt-5 text-center text-[11px]"
         style={{ color: "var(--vault-text-faint)" }}
       >
-        Sign up below to be notified when the first slates settle.
+        Results appear here as soon as the first slates settle.
       </p>
     </div>
   );

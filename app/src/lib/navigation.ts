@@ -251,7 +251,9 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    * literally; through a variable this would be undefined in the export and the link would never
    * appear, however many keys were set.
    */
-  ...(process.env.NEXT_PUBLIC_SUPABASE_URL
+  /* Founder decision 2026-10-23 (lib/accounts/public-entry.mjs): no public sign-in invitation until approved
+     privacy/terms notices are published, so the link also needs NEXT_PUBLIC_PUBLIC_SIGNUP_OPEN=1 (literal reads). */
+  ...(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_PUBLIC_SIGNUP_OPEN === "1"
     ? [{
         href: "/account", label: "Your bets", group: "you", glyph: "🧾",
         desc: "The bets you placed, and how they have actually gone",
