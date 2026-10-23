@@ -2,44 +2,44 @@
   "schemaVersion": 1,
   "artifact": "epl-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-10-22T23:59:50Z",
+  "generatedAt": "2026-10-23T21:49:17Z",
   "nextCluster": {
-    "kickoffUtc": "2026-10-23T19:00:00.000Z",
+    "kickoffUtc": "2026-10-24T11:30:00.000Z",
     "fixtures": 1,
-    "hoursAway": 19
+    "hoursAway": 13.68
   },
   "freshness": {
     "fixtures": {
       "state": "READ",
-      "stampedAt": "2026-10-22T23:59:27Z",
-      "ageHours": 0.01
+      "stampedAt": "2026-10-23T21:49:03Z",
+      "ageHours": 0
     },
     "odds": {
       "state": "READ",
-      "stampedAt": "2026-10-22T23:59:29Z",
-      "ageHours": 0.01
+      "stampedAt": "2026-10-23T21:49:04Z",
+      "ageHours": 0
     },
     "forecasts": {
       "state": "READ",
-      "stampedAt": "2026-10-22T23:59:41Z",
+      "stampedAt": "2026-10-23T21:49:14Z",
       "ageHours": 0
     },
     "playerProjections": {
       "state": "READ",
-      "stampedAt": "2026-10-22T23:59:48Z",
+      "stampedAt": "2026-10-23T21:49:15Z",
       "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-10-22T23:59:29Z",
-      "ageHours": 0.01
+      "stampedAt": "2026-10-23T21:49:05Z",
+      "ageHours": 0
     }
   },
   "cadence": {
     "lineupCoverage": {
       "state": "GAP",
-      "clusters": 13,
-      "covered": 12,
+      "clusters": 12,
+      "covered": 11,
       "uncoveredMatches": 1,
       "uncovered": [
         {
@@ -53,30 +53,30 @@
     },
     "budget": {
       "state": "WITHIN_CEILING",
-      "spent": 144,
-      "projectedRemaining": 304,
-      "projectedTotal": 448,
+      "spent": 148,
+      "projectedRemaining": 298,
+      "projectedTotal": 446,
       "ceiling": 500,
-      "headroom": 52,
+      "headroom": 54,
       "kickoffWindowHours": 30,
-      "spendingFirings": 152,
+      "spendingFirings": 149,
       "skippedFirings": 420
     }
   },
   "forecastSet": {
-    "generatedAt": "2026-10-22T23:59:41Z",
+    "generatedAt": "2026-10-23T21:49:14Z",
     "counts": {
-      "CURRENT_PRE_EVENT": 10
+      "CURRENT_PRE_EVENT": 9
     },
-    "rows": 10
+    "rows": 9
   },
   "playerSet": {
-    "generatedAt": "2026-10-22T23:59:48Z",
+    "generatedAt": "2026-10-23T21:49:15Z",
     "validation": "VALIDATED_OUT_OF_SAMPLE",
     "counts": {
-      "fixtures": 10,
+      "fixtures": 9,
       "withLineup": 0,
-      "awaitingLineup": 10
+      "awaitingLineup": 9
     },
     "markets": [
       "anytime_goalscorer",
@@ -85,11 +85,11 @@
   },
   "record": {
     "sampleState": "ACCUMULATING",
-    "matches": 66,
+    "matches": 67,
     "hits": 31,
-    "meanLogLoss": 1.0118928181818179,
-    "playerRows": 3396,
-    "playerVoided": 3274
+    "meanLogLoss": 1.017478029850746,
+    "playerRows": 3440,
+    "playerVoided": 3336
   },
   "gate": {
     "maturity": "SCAFFOLDED",
@@ -118,7 +118,7 @@
     {
       "id": "calibration-backtest",
       "state": "ENGINEERING",
-      "detail": "57 matches are now paired with a market baseline, past the 30 the stopping rule needs. The sample no longer blocks this: the preregistered backtest has not been run."
+      "detail": "58 matches are now paired with a market baseline, past the 30 the stopping rule needs. The sample no longer blocks this: the preregistered backtest has not been run."
     }
   ]
 }

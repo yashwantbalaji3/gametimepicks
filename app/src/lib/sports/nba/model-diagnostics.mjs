@@ -5,32 +5,37 @@
  *
  * For one family and one settled slate it lists, each with n and an interval:
  *   - systematic error: bias (forecast − actual) of margin, total, minutes and each player stat, with a game-clustered
- *     bootstrap 95% interval. "SYSTEMATIC" only when the interval excludes 0; otherwise "no bias claimed".
- *   - interval calibration: p10–p90 coverage vs nominal 0.80 (clustered interval); flagged only when it excludes 0.80.
+ *     bootstrap 95% interval. "SYSTEMATIC" only when the interval excludes 0 over at least FEW_CLUSTERS_BELOW games
+ *     (champion-challenger.mjs; fewer → FEW_CLUSTERS, the interval printed but no claim); otherwise "no bias claimed".
+ *   - interval calibration: p10–p90 coverage vs nominal 0.80 (clustered interval); flagged only when it excludes 0.80
+ *     under the same few-clusters rule.
  *   - minutes errors: the largest |expected − actual| rows, and bias by expected-minutes band and starter/bench.
  *   - rotation / injury surprises: predicted-but-DNP (with the prediction's injury status), predicted-but-absent,
  *     played-but-unpredicted (≥ 10 minutes).
  *   - data checks: finals under review, box-score points that disagree with the recorded final, unmeasured OT.
  * Season-to-date findings (regular season, the §3 population) drive the text proposals; one slate never does.
  */
-import { clusterBootstrap, PROPOSED_CHALLENGERS } from "./champion-challenger.mjs";
+import { clusterBootstrap, clustersSupportClaim, FEW_CLUSTERS_BELOW, PROPOSED_CHALLENGERS } from "./champion-challenger.mjs";
 import { MINUTES_BANDS, distributionScoreBlock } from "./grader-metrics.mjs";
 import { PLAYER_MARKETS, TEAM_MARKETS, THRESHOLDS } from "./distribution-scores.mjs";
 import { LABELS } from "./experimental-forecast.mjs";
 import { isDisputedFinal } from "./experimental-grading-ledger.mjs";
 
-export const DIAGNOSTICS_VERSION = "nba-model-diagnostics-1";
+export const DIAGNOSTICS_VERSION = "nba-model-diagnostics-2";
 const STATS = ["pts", "reb", "ast", "threePm"];
 const SURPRISE_MINUTES = 10; // prereg §13: the lane's listing floor — the rows a reader would actually see
 const r2 = (x) => (x == null || !Number.isFinite(x) ? null : Number(x.toFixed(2)));
 
-const finding = (key, ci, { what, unit = "", nominal = 0 }) => {
+const findingOf = (key, ci, { what, unit = "", nominal = 0, fewClustersBelow = FEW_CLUSTERS_BELOW }) => {
   const excl = ci.lo != null && ci.hi != null && (ci.hi < nominal || ci.lo > nominal);
+  // Claim-suppressing only (prereg §14 reporting note): the interval is kept, the label is withheld below the threshold.
+  const few = ci.lo != null && ci.hi != null && !clustersSupportClaim(ci.clusters, { fewClustersBelow });
   return {
     key, what, n: ci.n, clusters: ci.clusters, estimate: ci.mean, ci95: [ci.lo, ci.hi], nominal,
-    status: ci.n === 0 ? "NO_DATA" : ci.lo == null ? "NO_INTERVAL" : excl ? "SYSTEMATIC" : "NO_CLAIM",
+    status: ci.n === 0 ? "NO_DATA" : ci.lo == null ? "NO_INTERVAL" : few ? "FEW_CLUSTERS" : excl ? "SYSTEMATIC" : "NO_CLAIM",
     text: ci.n === 0 ? `${what}: no rows`
       : ci.lo == null ? `${what}: ${ci.mean}${unit} (n ${ci.n}; one game — no interval, no claim)`
+      : few ? `${what}: ${ci.mean}${unit} (95% CI ${ci.lo} to ${ci.hi}, n ${ci.n} over ${ci.clusters} games) — fewer than ${fewClustersBelow} games: the interval is not read, no claim`
       : excl ? `${what}: ${ci.mean}${unit} (95% CI ${ci.lo} to ${ci.hi}, n ${ci.n} over ${ci.clusters} games) — interval excludes ${nominal}`
       : `${what}: ${ci.mean}${unit} (95% CI ${ci.lo} to ${ci.hi}, n ${ci.n} over ${ci.clusters} games) — interval includes ${nominal}, no systematic error claimed`,
   };
@@ -59,6 +64,7 @@ export function coverageInterval(clusters, opts) {
 
 /** Every systematic-error finding over a set of graded games. */
 export function systematicFindings(games, opts = {}) {
+  const finding = (key, ci, meta) => findingOf(key, ci, { ...meta, ...(opts.fewClustersBelow != null ? { fewClustersBelow: opts.fewClustersBelow } : {}) });
   const per = (f) => games.map((g) => [f(g)].filter(Number.isFinite));
   const rows = (g) => g.players?.rows ?? [];
   const out = [

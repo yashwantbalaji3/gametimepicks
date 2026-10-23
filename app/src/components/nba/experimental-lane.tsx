@@ -4,7 +4,9 @@
  * Renders ONLY the canonical snapshot (public/data/nba/experimental-public/latest.json, built from receipt-verified
  * pre-tip forecasts by scripts/nba/build-nba-experimental-public.mjs). Every block names its source; the Elo side and
  * the v0.1 player medians are shown as the two separate components they are. No probability, no percentage, no team
- * score, no range, no odds, no ranking and no pick vocabulary reaches the page (lane tests pin each).
+ * score, no range, no odds, no ranking and no pick vocabulary reaches the page (lane tests pin each) — with ONE
+ * exception behind its switch (founder decision 2026-10-23): the Elo rating's game-winner probability, separately
+ * identified, from the shared accessor (components/nba/elo-win-probability.tsx), with its accuracy disclosure.
  *
  * Time words are absolute: a frozen pregame forecast reads the same before tip, during the game and after it — the
  * page never calls it live.
@@ -18,6 +20,8 @@ import Link from "next/link";
 import TeamLogo from "@/components/team-logo";
 import { NBA_FORECAST_DISCLOSURE, PUBLIC_TERMS } from "@/lib/public-registry";
 import GameStatusOnClock from "@/components/nba/projection-game-status";
+import { EloAccuracyDisclosure, EloWinProbability, type EloCtx } from "@/components/nba/elo-win-probability";
+import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
 
 type Row = { providerAthleteId: string; name: string | null; expectedMinutes: number | null; injuryStatus: string | null; medians: Record<string, number | null>; comboMedians?: Record<string, number | null> };
 type Game = {
@@ -25,7 +29,7 @@ type Game = {
   away: { abbr: string | null; name: string | null }; home: { abbr: string | null; name: string | null };
   receipt: { modelVersion: string; payloadSha256: string };
   engine: { simulation: string | null; simulations: number | null };
-  elo: { favoured: string | null; state: string; source: string };
+  elo: { favoured: string | null; state: string; source: string; rule?: string | null; winProbability?: { home: number; away: number; provenance: Record<string, string | null> } };
   teamScores: { state: string; reason: string };
   players: { source: string; comboSource?: string; away: Row[]; home: Row[] };
 };
@@ -172,8 +176,9 @@ const cardGame = (g: Game, final: boolean): MatchupCardGame => ({
   home: { abbr: g.home.abbr ?? "Home", name: g.home.name, logo: g.home.abbr },
 });
 
-export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterIds = [] }: { snapshot: Snapshot | null; statuses?: Record<string, string>; theaterIds?: readonly string[] }) {
+export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterIds = [], eloCtx }: { snapshot: Snapshot | null; statuses?: Record<string, string>; theaterIds?: readonly string[]; eloCtx?: EloCtx }) {
   if (!snapshot || snapshot.games.length === 0) return null;
+  const elo = eloCtx ?? loadEloWinProbabilityContext();
   return (
     <section id="nba-experimental" className="scroll-mt-24 flex flex-col gap-3" aria-labelledby="nba-experimental-h">
       {/* founder directive 2026-10-23 public readiness: the Official Forecast, with its ONE disclosure (frozen, not a
@@ -200,7 +205,8 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
             {snapshot.games.map((g) => (
               <MatchupCard key={g.providerEventId} game={cardGame(g, !!statuses[g.providerEventId])} favoured={g.elo.favoured}>
                 <div className="nbx-read">
-                  <p><strong>Elo rating favours {favouredName(g) ?? "neither side"}.</strong></p>
+                  {/* WEIGHT: the Elo number rides inside this existing line (no extra block) — founder decision 2026-10-23 */}
+                  <p><strong>Elo rating favours {favouredName(g) ?? "neither side"}.</strong><EloWinProbability game={g} ctx={elo} lead=" " /></p>
                   <p>Official · frozen pregame forecast, frozen {et(g.frozenAt)} · {g.players.away.length + g.players.home.length} players on the board · receipt {g.receipt.payloadSha256.slice(0, 12)}</p>
                 </div>
                 {statuses[g.providerEventId] ? <p className="nbx-note">Game status: {statuses[g.providerEventId]}</p> : null}
@@ -223,6 +229,7 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
               <strong>Elo rating favours {favouredName(g) ?? "neither side"}.</strong>{" "}
               <span style={{ color: "var(--vault-text-mute)" }}>Source: {g.elo.source}.</span>
             </p>
+            <EloWinProbability as="p" className="m-0 text-[13px]" game={g} ctx={elo} />
             <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>Team scores: {g.teamScores.reason}</p>
             <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
               Player medians — source: {g.players.source}. Players listed by expected minutes, not ranked.
@@ -238,6 +245,7 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
           </article>
         ))
       )}
+      <EloAccuracyDisclosure games={snapshot.games} ctx={elo} className="m-0 text-[12px] leading-relaxed" />
       <ul className="m-0 pl-5 text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
         {Object.entries(snapshot.withheld).map(([k, v]) => <li key={k}>{v}</li>)}
       </ul>

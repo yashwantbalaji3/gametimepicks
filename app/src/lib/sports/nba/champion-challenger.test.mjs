@@ -7,7 +7,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { clusterBootstrap, mulberry32, pairGames, pairPlayerRows, pairedMetrics, evaluateChampionChallenger, VERDICT, marketVerdict, winnerHeadComparison, PROPOSED_CHALLENGERS } from "./champion-challenger.mjs";
+import { clusterBootstrap, mulberry32, pairGames, pairPlayerRows, pairedMetrics, evaluateChampionChallenger, VERDICT, marketVerdict, winnerHeadComparison, PROPOSED_CHALLENGERS, FEW_CLUSTERS_BELOW, DIRECTION, clustersSupportClaim } from "./champion-challenger.mjs";
+import { PREREG } from "./grader-metrics.mjs";
 import { emptyPromotionRecord, appendPromotionRecord, validatePromotionRecord, promotionRecordViolations, RECORD_KIND } from "./promotion-record.mjs";
 import { FAMILIES } from "./experimental-forecast.mjs";
 import { FIXTURE_NOTE, graded, predPlayer, boxDoc, boxRow, HOME, AWAY, REG, PRE } from "./__fixtures__/nba-grading-fixtures.mjs";
@@ -167,4 +168,81 @@ test("valid PROMOTION appends seq 1; a ROLLBACK must name an earlier PROMOTION o
   assert.match(promotionRecordViolations({ before: b, after: edited }).join(), /seq 1 was edited/);
   const sneaky = { ...b, records: [...b.records, { seq: 3, ...good, approver: "" }] };
   assert.match(promotionRecordViolations({ before: b, after: sneaky }).join(), /approver is required/);
+});
+
+// ── few-clusters guard (prereg §14 reporting note, 2026-10-23): claim-suppressing ONLY ───────────────────────────────
+// The reference run passes fewClustersBelow: 0, which is exactly the pre-guard rule (any interval may be read).
+
+/** Walk two reports in parallel; return every leaf where they differ, as { keys, at, g, r } (keys may contain dots: "v0.2"). */
+function diffLeaves(g, r, keys = []) {
+  if (g === r) return [];
+  if (g && r && typeof g === "object" && typeof r === "object") {
+    return [...new Set([...Object.keys(g), ...Object.keys(r)])].flatMap((k) => diffLeaves(g[k], r[k], [...keys, k]));
+  }
+  return [{ keys, at: keys.join("/"), g, r }];
+}
+const parentOf = (obj, keys) => keys.slice(0, -1).reduce((o, k) => o?.[k], obj);
+
+test("few-clusters guard: the threshold is the PR 1180 backtest's reporting constant (10), not a new or fitted value", () => {
+  assert.equal(FEW_CLUSTERS_BELOW, 10);
+  assert.equal(clustersSupportClaim(9), false);
+  assert.equal(clustersSupportClaim(10), true);
+  assert.equal(clustersSupportClaim(2, { fewClustersBelow: 0 }), true, "fewClustersBelow: 0 is the pre-guard rule");
+});
+
+test("few-clusters guard: on 2 games the interval and estimate are unchanged, only the direction is withheld", () => {
+  // Two games the challenger forecast better (both home wins: e1, e2) — the pre-guard rule reads that as a direction.
+  const f = families(3);
+  const pairs = pairGames(f["v0.1"], f["v0.2"]).pairs.filter((p) => p.id !== "e0");
+  assert.equal(pairs.length, 2);
+  const guarded = pairedMetrics(pairs, { B: 500 });
+  const reference = pairedMetrics(pairs, { B: 500, fewClustersBelow: 0 });
+  assert.equal(reference.winnerSimLogLoss.direction, DIRECTION.CHALLENGER_LOWER, "the pre-guard rule claimed a direction from 2 games");
+  assert.equal(guarded.winnerSimLogLoss.direction, DIRECTION.FEW_CLUSTERS);
+  for (const k of ["n", "clusters", "champion", "challenger", "diff"]) assert.equal(guarded.winnerSimLogLoss[k], reference.winnerSimLogLoss[k], k);
+  assert.deepEqual(guarded.winnerSimLogLoss.ci95, reference.winnerSimLogLoss.ci95);
+});
+
+test("few-clusters guard: across sizes and effects it only ever withholds a direction and never changes a verdict upward", () => {
+  const cases = [];
+  for (const n of [2, 3, 5, 9, 10, 11, 40, 320]) for (const better of [true, false]) for (const [champP, challP] of [[0.6, 0.78], [0.5, 0.86], [0.7, 0.55]]) cases.push({ n, better, champP, challP });
+  let withheld = 0, compared = 0;
+  for (const c of cases) {
+    const fam = families(c.n, c);
+    const g = evaluateChampionChallenger({ families: fam, computedAt: "2030-03-01T00:00:00Z", bootstrap: { B: 300 } });
+    const r = evaluateChampionChallenger({ families: fam, computedAt: "2030-03-01T00:00:00Z", bootstrap: { B: 300, fewClustersBelow: 0 } });
+    for (const { keys, at, g: gv, r: rv } of diffLeaves(g, r)) {
+      const leaf = keys.at(-1);
+      if (leaf === "rule" || at === "bootstrap/fewClustersBelow" || keys.includes("reasons")) continue; // wording / the echoed setting
+      if ((leaf === "verdict" && keys.includes("verdicts")) || leaf === "overall") {
+        // A verdict may only move AWAY from READY_FOR_FOUNDER_REVIEW, never towards it.
+        assert.ok(rv === VERDICT.READY_FOR_FOUNDER_REVIEW || rv === "SOME_MARKET_READY_FOR_FOUNDER_REVIEW", `${JSON.stringify(c)} ${at}: ${rv} → ${gv}`);
+        continue;
+      }
+      assert.equal(leaf, "direction", `${JSON.stringify(c)}: only directions may differ, not ${at} (${rv} → ${gv})`);
+      assert.equal(gv, DIRECTION.FEW_CLUSTERS, `${JSON.stringify(c)} ${at}`);
+      assert.ok(parentOf(g, keys).clusters < FEW_CLUSTERS_BELOW, `${at}: withheld only below ${FEW_CLUSTERS_BELOW} clusters`);
+      withheld += 1;
+    }
+    for (const [name, cmp] of Object.entries(g.comparisons)) {
+      for (const [i, v] of (cmp.verdicts ?? []).entries()) { compared += 1; assert.equal(v.verdict, r.comparisons[name].verdicts[i].verdict, `${JSON.stringify(c)} ${name} ${v.market}: verdict unchanged`); }
+    }
+  }
+  assert.ok(withheld > 0, "the property ran on small-n cases where the pre-guard rule claimed a direction");
+  assert.ok(compared > 0);
+});
+
+test("few-clusters guard: a FEW_CLUSTERS direction can never yield READY_FOR_FOUNDER_REVIEW (a claim is removed, never created)", () => {
+  const paired = { n: 400, clusters: 9, diff: -0.02, ci95: [-0.03, -0.01], direction: DIRECTION.FEW_CLUSTERS };
+  const v = marketVerdict({ market: "m", paired, minN: 300, challengerState: { state: "BARS_HOLD" } });
+  assert.equal(v.verdict, VERDICT.NOT_READY);
+  assert.match(v.reasons.join(), /fewer than 10 games \(9\): no difference claimed/);
+});
+
+test("few-clusters guard: unreachable for every game-level §6 market (n = games ≥ minN ≥ the threshold)", () => {
+  // Game markets have one value per game, so clusters = n; INSUFFICIENT_N is decided first (marketVerdict), so once
+  // n ≥ minN the guard cannot apply. Player markets need ≥ 800–1500 eligible rows; under 10 games that would be
+  // ≥ 80 rows per game at expectedMinutes ≥ 20 in both families — impossible with two NBA rotations.
+  for (const k of ["winner", "margin", "total"]) assert.ok(PREREG[k].minN >= FEW_CLUSTERS_BELOW, k);
+  for (const k of ["pts", "reb", "ast", "threePm"]) assert.ok(PREREG.player[k].minN / (FEW_CLUSTERS_BELOW - 1) > 40, k);
 });

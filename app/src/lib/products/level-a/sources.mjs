@@ -8,7 +8,10 @@
  *            moneyline.simulationProbability; first pitch from its own source artifact (full-game-simulations/<date>).
  *            The snapshot's `market` block (de-vigged sportsbook prices) is NEVER read.
  *   NBA      app/public/data/nba/experimental-public/<date>.json, the public lane publication of the official
- *            composition (nba-official-composition@1): the Elo favoured SIDE; probability withheld (founder N2). Its
+ *            composition (nba-official-composition@1): the Elo favoured SIDE; probability withheld (founder N2). With the
+ *            Elo game-winner probability switched on (founder decision 2026-10-23) the row also carries that number for
+ *            DISPLAY ONLY, from the shared accessor (sports/nba/elo-win-probability.mjs) — `probability` stays null, so
+ *            it never tiers a leg (tiering is a separate decision and PR). Its
  *            v0.1 player MEDIANS are returned separately as Predicted Player Statistics (no line, never a leg); the
  *            lane withholds ranges, so this reader has none to return. No lane file for the day, no NBA.
  *   EPL      through the EPL lane's own reader (sports/epl/forecast-view.ts: loadEplForecasts + forecastRows, the
@@ -20,6 +23,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { canEnterModelSuggestions } from "../../sport-capability-registry.ts";
 import { loadEplForecasts, forecastRows as eplForecastRows } from "../../sports/epl/forecast-view.ts";
+import { eloWinProbabilityOf, eloWinProbabilityText } from "../../sports/nba/elo-win-probability.mjs";
+import { loadEloWinProbabilityContext } from "../../sports/nba/elo-win-probability-context.mjs";
 
 const readJson = (f) => { try { return JSON.parse(fs.readFileSync(f, "utf8")); } catch { return null; } };
 const OUTCOME_LABEL = { home: "home win", draw: "draw", away: "away win" };
@@ -40,7 +45,7 @@ export function mlbSelections({ repoRoot, date }) {
       startUtc: firstPitch.get(String(p.gamePk)) ?? null, market: "winner",
       selection: side ? { code: side, label: `${team ?? side} to win` } : null,
       probability: typeof p.moneyline?.simulationProbability === "number" ? p.moneyline.simulationProbability : null,
-      forecast: { owner: "mlb-prediction official snapshot", modelId: p.decisionEngineVersion ?? snap.decisionEngineVersion ?? null, stampedAt: snap.generatedAt ?? null, ref: `${path.relative(repoRoot, path.join(dir, files.at(-1)))}#${p.artifactHash ?? p.gamePk}` },
+      forecast: { owner: "mlb-prediction official snapshot", modelId: p.decisionEngineVersion ?? snap.decisionEngineVersion ?? null, stampedAt: snap.generatedAt ?? null, ref: `mlb-prediction-snapshot:${date}:${files.at(-1).replace(/\.json$/, "")}#${p.artifactHash ?? p.gamePk}` }, // an identifier, not a repo path: this ref reaches the public served model
       uncertainty: { kind: "win-probability", note: "Probability from the official full-game simulation (10,000 runs)." },
       participantStatuses: [],
       settlement: { grader: "mlb-official-final", market: "moneyline", side },
@@ -48,21 +53,26 @@ export function mlbSelections({ repoRoot, date }) {
   });
 }
 
-export function nbaSelections({ repoRoot, date }) {
+export function nbaSelections({ repoRoot, date, eloCtx = null }) {
   const rel = `app/public/data/nba/experimental-public/${date}.json`;
   const doc = readJson(path.join(repoRoot, rel));
   if (!doc || doc.date !== date) return { selections: [], projections: [] };
+  const elo = eloCtx ?? loadEloWinProbabilityContext({ appDir: path.join(repoRoot, "app") });
   const selections = [], projections = [];
   for (const g of doc.games ?? []) {
     const fav = g.elo?.state === "FAVOURED" ? g.elo.favoured : null;
     const side = fav && fav === g.home?.abbr ? "home" : fav && fav === g.away?.abbr ? "away" : null;
     const matchup = `${g.away?.abbr} @ ${g.home?.abbr}`;
+    const wp = eloWinProbabilityOf(g, { enabled: elo.enabled });
     selections.push({
       sport: "nba", eventId: String(g.providerEventId), eventLabel: matchup, startUtc: g.tipUtc, market: "winner",
       selection: side ? { code: side, label: `${fav} (official side)` } : null,
       probability: null, // withheld by the official composition (founder N2); the lane never carries one
       forecast: { owner: "nba-official-composition@1", modelId: g.receipt?.modelVersion ?? null, stampedAt: g.frozenAt, ref: `${rel}#${g.providerEventId}` },
-      uncertainty: { kind: "side-only", note: doc.withheld?.winProbability ?? "Win probability not published." },
+      // founder decision 2026-10-23: the Elo rating's game-winner probability, for display only (never `probability`)
+      uncertainty: wp
+        ? { kind: "elo-win-probability", home: wp.home, away: wp.away, text: eloWinProbabilityText(wp), note: elo.disclosure }
+        : { kind: "side-only", note: doc.withheld?.winProbability ?? "Win probability not published." },
       participantStatuses: [],
       settlement: { grader: "nba-settlement-contract", market: "moneyline", side },
     });

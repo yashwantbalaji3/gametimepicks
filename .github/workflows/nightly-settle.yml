@@ -498,6 +498,26 @@ jobs:
           node scripts/mlb/grade-projected-scores.mjs --write \
             || echo "::warning::projected-score grading refused — a snapshot-sourced game could not be re-opened"
 
+      # ---- Level A forward grading (its own record, separate from every priced ledger) ----
+      # Grades data/internal/products/level-a/suggestions.jsonl against COMMITTED official finals (the MLB linescores
+      # fetched in the paper step above; EPL, Ligue 1 and NBA finals committed by their own workflows) into
+      # graded.jsonl, append-only. It reads the record and never writes it; pending entries wait for a later night.
+      # ISOLATED: continue-on-error, and it writes only graded.jsonl, so a refusal or a CONFLICT (exit 3: a final that
+      # would grade an already graded entry differently) turns THIS step red and changes nothing else in the run.
+      # graded.jsonl is not a Vercel BUILD_INPUT and rides this job's existing commit, so it adds no Production build.
+      - name: Grade Level A suggestions forward (isolated)
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        continue-on-error: true
+        run: |
+          cd app
+          set +e
+          npx --yes tsx scripts/products/grade-level-a-suggestions.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --write > /tmp/level-a-grade.json
+          CODE=$?
+          set -e
+          cat /tmp/level-a-grade.json
+          if [ "$CODE" = "3" ]; then echo "::error title=Level A grade CONFLICT::a committed final would grade an already graded Level A entry differently; nothing was rewritten. Read the conflicts above."; fi
+          exit $CODE
+
       # ---- SPRINT 048: the learning loop ----
       # The prediction-history exporter existed since Sprint 036 and was referenced by NO workflow and
       # no npm script. It silently froze on 2026-07-08 — 18,227 rows while the ledger held 22,660 — so

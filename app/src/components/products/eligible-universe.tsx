@@ -23,13 +23,16 @@ export function universeDayLabel(date: string | null | undefined): string | null
  * the registry's Level A axis is OPEN and that section is on the page, points to it. Never hard-coded per sport.
  */
 const LEVEL_B_REASON = "not eligible for priced cards";
-export function universeRowReason(sport: string, reason: string, levelA: boolean): string {
+/** `shown`: the sports the page's Level A section actually shows a pick for (level-a/model.mjs levelASportsShown);
+ *  null when that section is not on the page. */
+export function universeRowReason(sport: string, reason: string, shown: ReadonlyArray<string> | null): string {
   const priced = reason === "not eligible for prediction products" ? LEVEL_B_REASON : reason;
-  return levelA && canEnterModelSuggestions(sport) ? `${priced} · model suggestions (Level A) below` : priced;
+  return shown?.includes(sport) && canEnterModelSuggestions(sport) ? `${priced} · model suggestions (Level A) below` : priced;
 }
 
-export default function EligibleUniverse({ availability, compact = false, scope = null, levelA = false }: { availability: ProductAvailability | null; compact?: boolean; scope?: string | null; levelA?: boolean }) {
+export default function EligibleUniverse({ availability, compact = false, scope = null, levelASports = null }: { availability: ProductAvailability | null; compact?: boolean; scope?: string | null; levelASports?: ReadonlyArray<string> | null }) {
   if (!availability) return null;
+  const levelA = levelASports != null;
   /* Sprint 2026-10-23: this universe is the PRODUCT gate (the capability registry's product-eligibility rule, read by
      the eligible-leg builder). It decides Bank Builder and Moonshot, not the Parlay Center's suggested-card lanes,
      which follow their own lane rule. A `scope` names the products it speaks for, so "not eligible for prediction
@@ -50,7 +53,7 @@ export default function EligibleUniverse({ availability, compact = false, scope 
           <span className="font-semibold" style={{ color: s.eligibleLegs > 0 ? "var(--vault-text)" : "var(--vault-text-mute)" }}>{s.label}</span>
           {/* GTP-04: a card needs legs from two different games, so legs from ONE game are candidates that
               cannot make a card on their own — said here, not left for the lane's "fewer than 2" to contradict. */}
-          <span className="text-right" style={{ color: "var(--vault-text-mute)" }}>{s.eligibleLegs > 0 ? `${s.eligibleLegs} eligible leg${s.eligibleLegs === 1 ? "" : "s"} · ${s.events} game${s.events === 1 ? "" : "s"}${s.events === 1 ? " — a card needs legs from 2+ games" : ""}` : universeRowReason(s.sport, s.reason, levelA)}</span>
+          <span className="text-right" style={{ color: "var(--vault-text-mute)" }}>{s.eligibleLegs > 0 ? `${s.eligibleLegs} eligible leg${s.eligibleLegs === 1 ? "" : "s"} · ${s.events} game${s.events === 1 ? "" : "s"}${s.events === 1 ? " — a card needs legs from 2+ games" : ""}` : universeRowReason(s.sport, s.reason, levelASports)}</span>
         </li>
       ))}
     </ul>

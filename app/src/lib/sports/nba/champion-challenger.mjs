@@ -9,7 +9,8 @@
  *     (§6; 3PM also rate ≥ 0.05/min in both) — so neither side is scored on rows the other was not.
  * Each market gets the paired difference (challenger − champion; for every loss here LOWER IS BETTER, so a negative
  * difference favours the challenger) with a game-clustered percentile bootstrap interval (player rows within a game
- * are not independent). A direction is claimed only when the interval excludes 0.
+ * are not independent). A direction is claimed only when the interval excludes 0 AND it rests on at least
+ * FEW_CLUSTERS_BELOW games: below that the interval is still printed but the direction is FEW_CLUSTERS (no claim).
  *
  * Verdict per market (never pooled across markets, §7 "No adoption on a pooled all-market score"):
  *   INSUFFICIENT_N            paired n below the §6 minimum
@@ -23,9 +24,23 @@ import { LABELS } from "./experimental-forecast.mjs";
 import { isDisputedFinal } from "./experimental-grading-ledger.mjs";
 import { crpsFromPinball, commonLevels, thresholdLogScore, THRESHOLDS, PLAYER_MARKETS, TEAM_MARKETS } from "./distribution-scores.mjs";
 
-export const EVALUATOR_VERSION = "nba-champion-challenger-1";
+export const EVALUATOR_VERSION = "nba-champion-challenger-2";
 export const VERDICT = Object.freeze({ INSUFFICIENT_N: "INSUFFICIENT_N", NOT_READY: "NOT_READY", READY_FOR_FOUNDER_REVIEW: "READY_FOR_FOUNDER_REVIEW" });
 export const BOOTSTRAP_DEFAULTS = Object.freeze({ B: 2000, seed: 20261020, alpha: 0.05 });
+/**
+ * REPORTING RULE, CLAIM-SUPPRESSING ONLY (prereg §14 reporting note, 2026-10-23). A game-clustered percentile bootstrap
+ * over k games can only resample those k games, so with very few games its "95% interval" is roughly the span of the
+ * per-game means: on 2 games "excludes 0" says only that both games leaned the same way (the first v0.3 forward slate,
+ * 2026-10-22, printed CHAMPION_LOWER / CHALLENGER_LOWER directions from 2 games). Below this many clusters the interval
+ * is reported unchanged but no direction or SYSTEMATIC finding is claimed. The value is not fitted: it is the
+ * reporting threshold already used by the PR 1180 historical backtest (backtest-nba-no-history-priors.mjs,
+ * REPORTING.fewClustersBelow = 10). It never creates a claim, never changes an interval, and never turns a verdict
+ * into READY_FOR_FOUNDER_REVIEW (champion-challenger.test.mjs "few-clusters guard").
+ */
+export const FEW_CLUSTERS_BELOW = 10;
+export const DIRECTION = Object.freeze({ CHALLENGER_LOWER: "CHALLENGER_LOWER", CHAMPION_LOWER: "CHAMPION_LOWER", CI_INCLUDES_0: "CI_INCLUDES_0", NO_INTERVAL: "NO_INTERVAL", FEW_CLUSTERS: "FEW_CLUSTERS" });
+/** True when an interval over `clusters` games may be read as a claim (tests may pass fewClustersBelow: 0 = the v1 rule). */
+export const clustersSupportClaim = (clusters, { fewClustersBelow = FEW_CLUSTERS_BELOW } = {}) => Number.isFinite(clusters) && clusters >= fewClustersBelow;
 const REGULAR = LABELS[2];
 const STATS = ["pts", "reb", "ast", "threePm"];
 
@@ -103,7 +118,9 @@ export function pairPlayerRows({ a, b }, stat) {
   return out;
 }
 
-const directionOf = (ci) => (ci.lo == null || ci.hi == null ? "NO_INTERVAL" : ci.hi < 0 ? "CHALLENGER_LOWER" : ci.lo > 0 ? "CHAMPION_LOWER" : "CI_INCLUDES_0");
+const directionOf = (ci, opts = {}) => (ci.lo == null || ci.hi == null ? DIRECTION.NO_INTERVAL
+  : !clustersSupportClaim(ci.clusters, opts) ? DIRECTION.FEW_CLUSTERS
+  : ci.hi < 0 ? DIRECTION.CHALLENGER_LOWER : ci.lo > 0 ? DIRECTION.CHAMPION_LOWER : DIRECTION.CI_INCLUDES_0);
 
 /** One paired market: per-cluster [champion value, challenger value] → difference interval. */
 function pairedMarket(clusterPairs, opts) {
@@ -118,8 +135,8 @@ function pairedMarket(clusterPairs, opts) {
     champion: r4(A.length ? A.reduce((s, x) => s + x, 0) / A.length : null),
     challenger: r4(Bv.length ? Bv.reduce((s, x) => s + x, 0) / Bv.length : null),
     diff: ci.mean, ci95: [ci.lo, ci.hi],
-    direction: directionOf(ci),
-    rule: "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0",
+    direction: directionOf(ci, opts),
+    rule: `challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least ${opts.fewClustersBelow ?? FEW_CLUSTERS_BELOW} games`,
   };
 }
 
@@ -179,7 +196,7 @@ function pairedDistribution(clusters, market, opts) {
 export function marketVerdict({ market, paired, minN, challengerState }) {
   const reasons = [];
   if (paired.n < minN) return { market, verdict: VERDICT.INSUFFICIENT_N, n: paired.n, minN, reasons: [`paired n ${paired.n} < §6 minimum ${minN}`] };
-  if (paired.direction !== "CHALLENGER_LOWER") reasons.push(`paired difference ${paired.diff} (95% CI ${paired.ci95.join(" to ")}, n ${paired.n}) — ${paired.direction === "CHAMPION_LOWER" ? "favours the champion" : "interval includes 0: no difference claimed"}`);
+  if (paired.direction !== DIRECTION.CHALLENGER_LOWER) reasons.push(`paired difference ${paired.diff} (95% CI ${paired.ci95.join(" to ")}, n ${paired.n}) — ${paired.direction === DIRECTION.CHAMPION_LOWER ? "favours the champion" : paired.direction === DIRECTION.FEW_CLUSTERS ? `fewer than ${FEW_CLUSTERS_BELOW} games (${paired.clusters}): no difference claimed` : "interval includes 0: no difference claimed"}`);
   if (challengerState?.state !== MARKET_STATE.BARS_HOLD) reasons.push(`challenger §7 state on the paired rows is ${challengerState?.state ?? "UNKNOWN"}${challengerState?.unrecordedBars ? ` (${challengerState.unrecordedBars})` : ""}`);
   return { market, verdict: reasons.length ? VERDICT.NOT_READY : VERDICT.READY_FOR_FOUNDER_REVIEW, n: paired.n, minN, reasons };
 }
@@ -229,7 +246,7 @@ export function evaluateChampionChallenger({ champion = "v0.1", challengers = ["
     artifact: "nba-champion-challenger-report", evaluatorVersion: EVALUATOR_VERSION, computedAt, preregistration: PREREG.doc,
     dataClass: "PRIVATE_RESEARCH", productEligible: false, promotes: false,
     rule: "report only — a verdict is an input to a founder decision (promotion-record.json), never a promotion; markets are judged separately (§7)",
-    bootstrap: { ...opts, method: "game-clustered percentile bootstrap of the pooled mean paired difference" },
+    bootstrap: { ...opts, fewClustersBelow: opts.fewClustersBelow ?? FEW_CLUSTERS_BELOW, method: "game-clustered percentile bootstrap of the pooled mean paired difference" },
     champion, comparisons: {},
     underReview: [...underReview].sort(),
     winnerHeads: winnerHeadComparison({ v01: families["v0.1"] ?? [], v1: families.v1 ?? [] }, { ...opts, underReview }),

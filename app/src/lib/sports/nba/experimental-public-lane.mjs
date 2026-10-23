@@ -16,6 +16,10 @@
  *
  * WHAT IS WITHHELD, AND WHY (each a pinned test):
  *   - win probabilities / confidence: unvalidated (n = 0 regular-season games; v0.1 preseason sim ECE 0.218).
+ *     EXCEPTION (founder decision 2026-10-23, behind ELO_WIN_PROBABILITY.enabled, default off): the Elo rating's
+ *     game-winner probability, copied verbatim from the receipt into `elo.winProbability` with its provenance
+ *     (elo-win-probability.mjs). It is the rating's number, separately identified; the withheld note is then dropped
+ *     for that slate only, and everything below stays withheld.
  *   - projected team scores: the v0.1 team score is the sum of its own players' simulated points and ignores the
  *     opponent; on 2026-10-20 it contradicts the Elo side in 2 of 3 games, and v0's historical margin/total checks failed
  *     (§12 look 2). Not eligible. (The coherent v1 candidate is consistent with Elo but is not the founder-chosen source.)
@@ -28,6 +32,7 @@
  * listed with its reason. Nothing is recomputed: every published number is copied from the receipt's stored payload.
  */
 import { receiptIntegrity } from "./forecast-receipt.mjs";
+import { ELO_WIN_PROBABILITY, ELO_SOURCE_WITH_PROBABILITY, laneEloWinProbability } from "./elo-win-probability.mjs";
 
 /**
  * Schema stays @1 under amendment A: the change is ADDITIVE only (`comboMedians` per player row, `comboSource` per
@@ -73,6 +78,9 @@ export const PROJECTION_BOARD_STATS = Object.freeze([...STATS, ...COMBO_STATS]);
 export const COMBO_LABEL = "sum over the same simulated draws (v0 engine; components independent within a player)";
 /** Draw additivity: a combo's mean must equal the sum of its components' means within this (2-dp rounding slack). */
 export const COMBO_MEAN_TOLERANCE = 0.02;
+/** The withheld notes a slate publishes: with the Elo game-winner probability on, its `winProbability` note is not
+ * published (that number is shown, separately identified); team scores, ranges and markets stay withheld. */
+export const withheldFor = ({ eloWinProbability = false } = {}) => Object.freeze(Object.fromEntries(Object.entries(WITHHELD).filter(([k]) => !(eloWinProbability && k === "winProbability"))));
 export const WITHHELD = Object.freeze({
   winProbability: "Not shown: no NBA game-outcome chance has been validated (0 graded regular-season games).",
   teamScores: "Not shown: this model's team score is a sum of player simulations that ignores the opponent, can contradict the Elo side, and has not met its historical checks.",
@@ -120,7 +128,7 @@ export function comboReconciliation(player) {
  * @param {string|null} a.sourceCommit  the git commit that holds that file, when known
  * @param {string} a.generatedAt  when this snapshot was assembled (never a forecast time)
  */
-function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCommit = null, generatedAt }) {
+function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCommit = null, generatedAt, eloWinProbability = ELO_WIN_PROBABILITY.enabled }) {
   if (forecastDoc?.family !== LANE.sourceFamily) throw new Error(`REFUSED: lane reads family ${LANE.sourceFamily}, got ${JSON.stringify(forecastDoc?.family)}`);
   const games = [];
   const excluded = [];
@@ -141,6 +149,8 @@ function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCom
       }
     }
     const side = f.publishedSide === "HOME" ? g.home : f.publishedSide === "AWAY" ? g.away : null;
+    // founder decision 2026-10-23: the receipt's own Elo pHome / pAway, verbatim, with provenance — only while switched on
+    const wp = eloWinProbability ? laneEloWinProbability(f, r) : null;
     // PRIVATE audit facts (never in the public snapshot): which side the withheld v0.1 team median favours, and the seed.
     audit.push({
       providerEventId: String(g.providerEventId),
@@ -162,7 +172,8 @@ function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCom
         favoured: side?.abbr ?? null,
         state: side ? "FAVOURED" : "TOO_CLOSE",
         rule: f.sideRule?.id ?? null,
-        source: "Elo team rating — the published winner side (founder N2); no probability is shown",
+        source: wp ? ELO_SOURCE_WITH_PROBABILITY : "Elo team rating — the published winner side (founder N2); no probability is shown",
+        ...(wp ? { winProbability: wp } : {}),
       },
       teamScores: { state: "WITHHELD", reason: WITHHELD.teamScores },
       players: {
@@ -184,7 +195,7 @@ function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCom
     date: forecastDoc.date ?? null,
     generatedAt,
     source: { family: LANE.sourceFamily, file: sourceFile, commit: sourceCommit },
-    withheld: { ...WITHHELD },
+    withheld: { ...withheldFor({ eloWinProbability: Boolean(eloWinProbability) }) },
     games,
     excluded,
   };
@@ -228,5 +239,8 @@ export function snapshotMatchesSource(snapshotGame, sourceGame) {
       if (row.expectedMinutes !== r1(p.expectedMinutes)) return false;
     }
   }
+  // founder decision 2026-10-23: a published Elo game-winner probability must be the receipt's own numbers and provenance
+  const wp = snapshotGame.elo?.winProbability;
+  if (wp !== undefined && JSON.stringify(wp) !== JSON.stringify(laneEloWinProbability(f, sourceGame.receipt))) return false;
   return snapshotGame.frozenAt === sourceGame.receipt?.generatedAt && snapshotGame.receipt.payloadSha256 === sourceGame.receipt?.payloadSha256;
 }

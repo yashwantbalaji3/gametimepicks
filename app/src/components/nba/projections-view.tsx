@@ -19,6 +19,10 @@
  *     a game without a usable final box score says why, once, in its line;
  *   - the slate dates are tap-sized chips at the top of the page, not a line under a 250-row table; the per-game
  *     freeze/receipt list is one tap away (<details>) and the method note sits under the board, so the filters lead.
+ *
+ * Founder decision 2026-10-23 (behind its switch): each game's line in that list also carries the Elo rating's
+ * game-winner probability from the shared accessor, with the accuracy disclosure once — the page hands in `eloCtx`
+ * (this view still reads no file).
  */
 import React from "react";
 import Link from "next/link";
@@ -28,6 +32,9 @@ import type { BoardActuals, GameActualState } from "@/lib/sports/nba/projection-
 import ProjectionBoard from "@/components/nba/projection-board";
 import GameStatusOnClock from "@/components/nba/projection-game-status";
 import { COMBO_STATS, PROJECTION_BOARD_STATS, COMBO_LABEL } from "@/lib/sports/nba/experimental-public-lane.mjs";
+import { EloAccuracyDisclosure, EloWinProbability, type EloCtx } from "@/components/nba/elo-win-probability";
+
+const ELO_OFF: EloCtx = { enabled: false, disclosure: "" };
 import { boardOptions, boardRows, packBoard, statGroups, GAME_STATUS_LABEL, slateHref, slateNav } from "@/lib/sports/nba/projection-board-ops.mjs";
 
 const et = (iso: string) =>
@@ -124,7 +131,7 @@ function TodaySlate({ today }: { today: BoardToday }) {
   );
 }
 
-export default function NbaProjectionsView({ lane, role = "current", date = null, games = [], dates = [], dated = false, today = null, actuals = null }: {
+export default function NbaProjectionsView({ lane, role = "current", date = null, games = [], dates = [], dated = false, today = null, actuals = null, eloCtx = ELO_OFF }: {
   lane: Snapshot | null;
   /** "past" = a slate before the build's ET date: labelled as a past frozen slate, never as current. */
   role?: SlateRole;
@@ -140,6 +147,8 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
   today?: BoardToday | null;
   /** Postgame actuals for this slate's games (projection-board-actuals). */
   actuals?: BoardActuals | null;
+  /** The Elo game-winner probability context (elo-win-probability-context.mjs), loaded by the page. */
+  eloCtx?: EloCtx;
 }) {
   const live = lane && lane.games.length > 0 ? lane : null;
   const past = role === "past";
@@ -175,6 +184,7 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
               {live.games.map((g) => (
                 <li key={g.providerEventId}>
                   {g.away.name} at {g.home.name}: tip-off {et(g.tipUtc)} · frozen {et(g.frozenAt)} · receipt {g.receipt.modelVersion} · {g.receipt.payloadSha256.slice(0, 12)}
+                  <EloWinProbability game={g} ctx={eloCtx} className="block" />
                   {meta.has(g.providerEventId) ? <GameStatus g={meta.get(g.providerEventId)!} actual={actuals ? ACTUAL_UNAVAILABLE[actuals.games[g.providerEventId]] : undefined} /> : null}
                 </li>
               ))}
@@ -195,6 +205,7 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
             minutes who are not ruled out. The default order is expected minutes; a column sort is the reader&rsquo;s own.
             {games.length ? " Game status is read-only, from the schedule and finals record (Started: tipped off, no final recorded yet); it never changes a frozen figure." : ""}
           </p>
+          <EloAccuracyDisclosure games={live.games} ctx={eloCtx} className="m-0 text-[12px] leading-relaxed" />
           <ul className="m-0 pl-5 text-[12px] leading-relaxed" style={MUTE}>
             {Object.entries(live.withheld).map(([k, v]) => <li key={k}>{v}</li>)}
           </ul>
