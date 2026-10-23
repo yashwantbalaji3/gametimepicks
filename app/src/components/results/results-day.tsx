@@ -8,6 +8,9 @@
  * - MLB player-prop leans are model research / market context: each game links to its leans in the page's
  *   research section rather than repeating them.
  * - A row the owner has not graded reads "Not graded" — never a loss.
+ * - The trace (founder 2026-10-23), linked, never rebuilt: Official Forecast (the exported page that published the
+ *   pregame forecast) → the verified final and who verified it → player statistics (ranges / leans below) → Model
+ *   Performance (each sport's Forecast Record pages).
  * - F05: an MLB call the site had paused (or never showed) at first pitch is still listed and graded, labelled as not
  *   a public pick, and kept OUT of the sport's day record — the same split the /results overview makes.
  */
@@ -103,7 +106,21 @@ function PropsLink({ e }: { e: DayEvent }) {
   );
 }
 
-export default function ResultsDay({ day }: { day: Record<Sport, DayEvent[]> }) {
+function Trace({ e }: { e: DayEvent }) {
+  if (!e.forecastHref && !e.finalSource) return null;
+  return (
+    <p className="m-0 mb-2 flex flex-wrap items-center gap-x-3 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }} data-trace>
+      {e.forecastHref ? (
+        <a href={e.forecastHref} className="no-underline" style={{ color: "var(--vault-text)", minHeight: 44, display: "inline-flex", alignItems: "center" }}>Official Forecast (pregame) →</a>
+      ) : null}
+      {e.final && e.finalSource ? <span>Verified final · {e.finalSource}</span> : null}
+    </p>
+  );
+}
+
+type PerformanceLinks = Partial<Record<Sport, Array<{ label: string; href: string }>>>;
+
+export default function ResultsDay({ day, performance = {} }: { day: Record<Sport, DayEvent[]>; performance?: PerformanceLinks }) {
   const present = SPORTS.filter((s) => day[s.id].length);
   return (
     <section aria-labelledby="results-day-h" className="mt-6 flex flex-col gap-6">
@@ -142,6 +159,14 @@ export default function ResultsDay({ day }: { day: Record<Sport, DayEvent[]> }) 
               </h3>
               <a href={s.href} className="text-[13px] no-underline" style={{ color: "var(--vault-text)", minHeight: 44, display: "inline-flex", alignItems: "center" }}>Full {s.label} record →</a>
             </div>
+            {performance[s.id]?.length ? (
+              <p className="m-0 flex flex-wrap items-center gap-x-3 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }} data-model-performance>
+                <span>Model Performance:</span>
+                {performance[s.id]!.map((l) => (
+                  <a key={l.href} href={l.href} className="no-underline" style={{ color: "var(--vault-text)", minHeight: 44, display: "inline-flex", alignItems: "center" }}>{l.label} →</a>
+                ))}
+              </p>
+            ) : null}
             {held || unknown ? (
               <p className="m-0 text-[12.5px] leading-snug" style={{ color: "var(--vault-text-mute)", maxWidth: 720 }} data-not-public>
                 Not in this record, but still graded below:{held ? ` ${held} ${held === 1 ? "call" : "calls"} paused on the site or not shown before the game` : ""}{held && unknown ? ";" : ""}{unknown ? ` ${unknown} with publication status unknown (legacy)` : ""}.
@@ -154,6 +179,7 @@ export default function ResultsDay({ day }: { day: Record<Sport, DayEvent[]> }) 
                     <h4 className="m-0 text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>{e.title}</h4>
                     <span className="font-mono text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{e.final ? `Final · ${e.final}` : "Final score not on file"}</span>
                   </div>
+                  <Trace e={e} />
                   {e.calls.length ? <Calls calls={e.calls} /> : <p className="m-0 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>No public game call graded for this game.</p>}
                   {e.ranges.length ? <Ranges ranges={e.ranges} /> : null}
                   {e.props.length ? <PropsLink e={e} /> : null}

@@ -23,7 +23,7 @@ import DateSportControls from "@/components/nav/date-sport-controls";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { surfaceHref } from "@/lib/nav/date-sport-route";
 import ResultsDay from "@/components/results/results-day";
-import { resultsDay, resultsDayDates } from "@/lib/results/v2/day";
+import { resultsDay, resultsDayDates, modelPerformanceLinks } from "@/lib/results/v2/day";
 import TopBoards from "@/components/results/top-boards";
 import { sportsWithoutBoards, topBoardDates, topBoardsFor } from "@/lib/results/v2/top-boards";
 import ProductReceipts from "@/components/results/product-receipts";
@@ -128,7 +128,7 @@ export default function ResultsDatePage({ params }: PageProps) {
         <DayNav date={date} prev={prevDate} next={nextDate} latestSettled={resultsDayDates(1)[0] ?? null} />
       </header>
 
-      <ResultsDay day={resultsDay(date)} />
+      <ResultsDay day={resultsDay(date)} performance={modelPerformanceLinks()} />
 
       <TopBoards day={topBoardsFor(date)} without={sportsWithoutBoards()} dayLabel={formatDateLong(date)} />
 
