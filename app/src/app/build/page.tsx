@@ -37,7 +37,7 @@ import { buildParlayLabV2Model } from "@/lib/parlays/v2/board-model.mjs";
 import TierBoard, { type ParlayLabV2Model } from "@/components/parlays/v2/TierBoard";
 import EmptyTierContext from "@/components/parlays/empty-tier-context";
 import LevelASuggestions, { type LevelAModel } from "@/components/products/level-a-suggestions";
-import { buildLevelAModel, levelAEnabled } from "@/lib/products/level-a/model.mjs";
+import { levelAPageModel, levelAEnabled } from "@/lib/products/level-a/model.mjs";
 import { lastCardPerTier } from "@/lib/results/v2/suggested-history.mjs";
 import { loadLabRecord } from "@/lib/parlays/lab-record";
 
@@ -140,7 +140,7 @@ export default function ParlayCenterSuggestedPage() {
         recordSince={riskLadder?.record.firstDay ?? null}
       />
 
-      {LEVEL_A ? <LevelASuggestions model={buildLevelAModel() as unknown as LevelAModel} mode="parlay-lab" /> : null}
+      {LEVEL_A ? <LevelASuggestions model={levelAPageModel() as unknown as LevelAModel} mode="parlay-lab" /> : null}
 
       <EmptyTierContext emptyTiers={[...emptyTiers]} lastCards={lastTierCards} lanes={emptyTiers.length ? (loadLabRecord()?.streams ?? []).map((l) => ({ id: l.id, label: l.label, live: l.live, blocked: l.blocked })) : []} />
 

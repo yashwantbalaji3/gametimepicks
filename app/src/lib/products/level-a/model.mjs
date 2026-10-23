@@ -4,6 +4,8 @@
  * Rendered by Bank Builder, Moonshot and the Parlay Center when NEXT_PUBLIC_LEVEL_A_SUGGESTIONS is "1".
  */
 import path from "node:path";
+import { createHash } from "node:crypto";
+import { buildAsOfIso } from "../../build-asof.ts";
 import { levelASources } from "./sources.mjs";
 import { levelASuggestions, productDayOf } from "./suggestions.mjs";
 
@@ -42,4 +44,22 @@ export function levelASportsShown(model, mode) {
   const cards = mode === "bank-builder" ? [model.bankBuilder?.card] : mode === "moonshot" ? [model.moonshot?.card] : (model.parlayLab ?? []).map((t) => t.card);
   const legs = [...cards.filter(Boolean).flatMap((c) => c.legs ?? []), ...(model.untiered ?? [])];
   return [...new Set(legs.map((l) => l.sport))].sort();
+}
+
+/**
+ * THE MODEL A BUILD SHOWS. Every Level A surface in one build (the three pages and /data/level-a/v1/model.json)
+ * evaluates at the build's ONE stamped instant (build-asof.ts), so they are the same evaluation by construction
+ * rather than by scheduling luck. The recorder reads that served file from Production; it never re-evaluates "now".
+ */
+export const LEVEL_A_SERVED_PATH = "/data/level-a/v1/model.json";
+export const LEVEL_A_SERVED_SCHEMA = "gtp.level-a.served-model@1";
+export const modelSha256 = (model) => createHash("sha256").update(JSON.stringify(model)).digest("hex");
+
+export function levelAPageModel() {
+  return { asOf: buildAsOfIso(), ...buildLevelAModel({ now: buildAsOfIso() }) };
+}
+
+export function levelAServedDoc() {
+  const model = levelAPageModel();
+  return { schema: LEVEL_A_SERVED_SCHEMA, public: levelAEnabled(), asOf: model.asOf, productDay: model.productDay, modelSha256: modelSha256(model), model };
 }
