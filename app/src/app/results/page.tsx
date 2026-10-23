@@ -520,7 +520,7 @@ export default function ResultsPage() {
               <FreshnessBadge slateDate={settled} serverToday={currentEtDate()} noun="grading" />
             </span>
             <p className="text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-              The suggested-parlay optimizer track record below is settled through <span style={{ color: "var(--vault-text)" }}>{settled}</span> ({days} days ago) — newer slates are awaiting grading, so this is NOT a live scoreboard. World Cup and MLB settle in their own products (World Cup on the Track Record / Bank Builder pages). Nothing here is counted as a win or loss until officially graded.
+              The suggested-parlay track record below is settled through <span style={{ color: "var(--vault-text)" }}>{settled}</span> ({days} days ago) — newer slates are awaiting grading, so this is NOT a live scoreboard. World Cup and MLB settle in their own products (World Cup on the Track Record / Bank Builder pages). Nothing here is counted as a win or loss until officially graded.
             </p>
           </div>
         );
