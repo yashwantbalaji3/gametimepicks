@@ -58,3 +58,24 @@ export function suggestedCardDates(dataRoot = path.join(process.cwd(), "public",
   try { files = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)); } catch { return []; }
   return files.map((f) => f.slice(0, 10)).sort().reverse();
 }
+
+/**
+ * The most recent PUBLISHED card in each risk tier, on or before `onOrBefore` — what a tier with no card today points
+ * to (sprint 2026-10-23, Workstream E: "show the dated last card or record, link Results"). Built from
+ * `suggestedCardsFor` over the published ladder days, newest first; nothing is regenerated or graded here. A tier that
+ * never published a card is `null`.
+ * @returns {Array<{ tier: string, tierLabel: string, last: null | { date: string, result: string, combinedAmerican: number|null, legs: number } }>}
+ */
+export function lastCardPerTier(onOrBefore, dataRoot = path.join(process.cwd(), "public", "data")) {
+  const out = new Map(TIERS.map((t) => [t, null]));
+  for (const date of suggestedCardDates(dataRoot)) {
+    if (onOrBefore && date > onOrBefore) continue;
+    if ([...out.values()].every(Boolean)) break;
+    const day = suggestedCardsFor(date, dataRoot);
+    for (const c of day?.cards ?? []) {
+      if (!out.has(c.tier) || out.get(c.tier)) continue;
+      out.set(c.tier, { date, result: c.result, combinedAmerican: c.combinedAmerican, legs: c.legs.length });
+    }
+  }
+  return TIERS.map((t) => ({ tier: t, tierLabel: publicRiskLabel(t) ?? t, last: out.get(t) }));
+}

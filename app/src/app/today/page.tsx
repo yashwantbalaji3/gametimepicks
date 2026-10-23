@@ -31,7 +31,8 @@ import { buildDailyBrief } from "@/lib/today/daily-brief";
 import { buildMarketCoverage } from "@/lib/today/market-coverage";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
-import { resolveLadderStep } from "@/lib/bank-builder-ladder";
+import { BANK_BUILDER_LADDER, resolveLadderStep } from "@/lib/bank-builder-ladder";
+import { bankBuilderLaneSummary } from "@/lib/products/bank-builder-lane-summary.mjs";
 import { buildPublicDualLadder } from "@/lib/bank-builder/public-dual-ladder";
 
 import TodayDailySlateHeader from "@/components/today/daily-slate-header";
@@ -200,7 +201,11 @@ export default function TodayPage() {
     null;
   const bbHasActiveCard = dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.status === "active");
   const bbNoPlay = !bbProposal.available && !bbHasActiveCard;
-  const bbStepPhrase = awaitingRung != null ? `awaiting Step ${awaitingRung}` : "awaiting next card";
+  /* Audit F10 (2026-10-23): name BOTH lanes, from the placed-card receipts /bank-builder reads
+     (products/bank-builder-lane-summary.mjs) — "Lane A awaiting Step 2 · Lane B awaiting Step 1". The dual-ladder /
+     crown fallback above applies only when no lane has a placed receipt yet, and it names the lane it describes. */
+  const bbLanes = bankBuilderLaneSummary({ dataRoot, today, ladder: BANK_BUILDER_LADDER as never });
+  const bbStepPhrase = bbLanes.phrase ?? (awaitingRung != null ? `Lane A awaiting Step ${awaitingRung}` : "awaiting next card");
   /* TRUTH-001 (B6): a day with no games is not a no-play CALL — /bank-builder says so explicitly. "No-play" means
      the ladder looked at a slate and held; with no events anywhere there was nothing to look at. */
   const noGamesToday = todayAcross.state !== "UNKNOWN" && todayAcross.eventsToday === 0;
