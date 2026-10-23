@@ -72,3 +72,16 @@ test("shared tap targets: lane links, slate chips, sport switcher, Save, Open re
   assert.match(read("src/components/command-center/prediction-card.tsx"), /minHeight: 44, display: "inline-flex", alignItems: "center" \}\}>Open report/);
   assert.match(read("src/components/nfl/forecast/styles.tsx"), /\.nf-tab\{flex:0 0 auto;min-height:44px;/);
 });
+
+test("A-T12 Production pass (2026-10-23, 375–1440): the targets it measured under 44px are 44px", () => {
+  assert.match(read("src/components/home/home-today-mlb.tsx"), /minHeight: 44, fontSize: 11/, "Home · Open today's brief (was 38)");
+  const css = read("src/app/globals.css");
+  for (const cls of ["gtp-btn-primary", "gtp-btn-ghost"]) {
+    const rule = css.slice(css.indexOf(`.${cls} {`), css.indexOf("}", css.indexOf(`.${cls} {`)));
+    assert.match(rule, /min-height: 44px;/, `${cls}: hub hero buttons (was 35)`);
+  }
+  assert.match(read("src/components/sport-overview-hero.tsx"), /minHeight: 44,\n\s+fontSize: 9\.5,/, "compact hero buttons");
+  assert.match(read("src/components/nfl/forecast/styles.tsx"), /\.nf-details summary\{cursor:pointer;min-height:44px;/, "NFL Official Forecast status summary (was 38)");
+  assert.match(read("src/components/nfl/forecast/family-tabs.tsx"), /aria-label=\{SEARCH_PLAYERS_LABEL\}\s+style=\{\{ minHeight: 44,/, "NFL player search (was 36)");
+  assert.match(read("src/components/research/terminal-summary-panel.tsx"), /className="inline-flex min-h-\[44px\] items-center[^"]*"\s*>\s*System status/, "Methodology · System status (was 20)");
+});

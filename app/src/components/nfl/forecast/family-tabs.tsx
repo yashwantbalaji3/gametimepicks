@@ -84,7 +84,7 @@ export default function FamilyTabs({ families, lists, unprojected = {}, linkToGa
             ))}
           </div>
           <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={SEARCH_PLAYERS} aria-label={SEARCH_PLAYERS_LABEL}
-            style={{ minHeight: 36, padding: "0 10px", borderRadius: 8, fontSize: 13, border: "1px solid var(--vault-border-strong)", background: "transparent", color: "var(--vault-text)", minWidth: 160 }} />
+            style={{ minHeight: 44, padding: "0 10px", borderRadius: 8, fontSize: 13, border: "1px solid var(--vault-border-strong)", background: "transparent", color: "var(--vault-text)", minWidth: 160 }} />
         </div>
       ) : null}
       <div className="nf-tabs" {...famTabs.listProps} aria-label={listLabel}>

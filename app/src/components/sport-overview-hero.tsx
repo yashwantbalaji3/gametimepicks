@@ -194,8 +194,9 @@ export default function SportOverviewHero({
         <div className="flex flex-wrap gap-2">
           {(ctas ?? []).map((c) => (
             <Link key={c.href} href={c.href}
-              className="gtp-team-row rounded-[8px] px-3 py-1.5 font-mono uppercase tracking-[0.12em] no-underline"
+              className="gtp-team-row inline-flex items-center rounded-[8px] px-3 py-1.5 font-mono uppercase tracking-[0.12em] no-underline"
               style={{
+                minHeight: 44,
                 fontSize: 9.5,
                 color: c.primary ? "var(--vault-on-accent-deep)" : "var(--vault-text-mute)",
                 background: c.primary ? "var(--gtp-bank-lava-cta)" : "var(--vault-wash-faint)",

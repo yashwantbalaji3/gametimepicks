@@ -50,7 +50,7 @@ export default function HomeTodayMlb({
       <Link
         href="/today"
         className="vault-press inline-flex w-fit items-center rounded-full px-4 shrink-0"
-        style={{ minHeight: 38, fontSize: 11, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "0.08em", textTransform: "uppercase", textDecoration: "none", background: "var(--gtp-bank-lava-cta)", color: "var(--vault-on-accent-deep)" }}
+        style={{ minHeight: 44, fontSize: 11, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "0.08em", textTransform: "uppercase", textDecoration: "none", background: "var(--gtp-bank-lava-cta)", color: "var(--vault-on-accent-deep)" }}
       >
         Open today&rsquo;s brief →
       </Link>
