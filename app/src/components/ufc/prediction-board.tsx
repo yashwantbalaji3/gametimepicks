@@ -32,7 +32,7 @@ const ET_TIME = (iso: string | null) =>
 const pct = (p: number) => `${Math.round(p * 100)}%`;
 
 /** A bout the model declines to call: the public term plus its one concise reason (the artifact's own reason rides on the title). */
-const UNAVAILABLE_NOTE = `${PUBLIC_TERMS.UNAVAILABLE} — no tracked history`;
+const UNAVAILABLE_NOTE = `${PUBLIC_TERMS.UNAVAILABLE} · not modelled — no tracked history`;
 
 const PANEL: React.CSSProperties = { background: "var(--vault-panel)", border: "1px solid var(--vault-rule)", borderRadius: 12 };
 const LABEL: React.CSSProperties = { fontSize: 9.5, color: "var(--vault-text-faint)" };
