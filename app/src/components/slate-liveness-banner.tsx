@@ -142,8 +142,8 @@ export default function SlateLivenessBanner({
       {archiveHref && liveness.latestSlate && (
         <Link
           href={archiveHref}
-          className="text-[12px] font-semibold underline underline-offset-2 w-fit"
-          style={{ color: "var(--vault-gold)" }}
+          className="text-[12px] font-semibold underline underline-offset-2 w-fit inline-flex items-center"
+          style={{ color: "var(--vault-gold)", minHeight: 44 }}
         >
           {archiveLabel ?? "View the most recent slate"} →
         </Link>

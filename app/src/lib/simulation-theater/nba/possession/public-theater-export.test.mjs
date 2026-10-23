@@ -23,7 +23,7 @@ import path from "node:path";
 
 import { NBA_PRIVATE_MARKERS, NBA_THEATER_FLAG_ON_ALLOWLIST, scanFlagOnTheaterExport } from "../export-boundary.mjs";
 import { NBA_PUBLIC_THEATER_PLACEHOLDER } from "./public-route.mjs";
-import { OFFICIAL_PANEL_TITLE, POSSESSION_BANNER, ROLE_C_LABEL, ROLE_C_NOTE, WITHHELD } from "./labels.mjs";
+import { ENGINE_IDENTITY, OFFICIAL_PANEL_TITLE, POSSESSION_BANNER, ROLE_C_NOTE, WITHHELD } from "./labels.mjs";
 
 const APP = process.cwd();
 const OUT = path.join(APP, "out");
@@ -31,7 +31,9 @@ const SIM = path.join(OUT, "nba", "simulation");
 const BUILT = fs.existsSync(path.join(OUT, "index.html"));
 const FLAG_ON = process.env.GTP_NBA_THEATER_PUBLIC === "1";
 /** What every published page must print (founder's required labelling + the official panel's withheld states). */
-const REQUIRED = [ROLE_C_LABEL, ...ROLE_C_NOTE, POSSESSION_BANNER, OFFICIAL_PANEL_TITLE, WITHHELD];
+// founder directive 2026-10-23 public readiness: the engine is identified by name + id (ENGINE_IDENTITY), replacing the
+// superseded role C label as the required on-page identity
+const REQUIRED = [ENGINE_IDENTITY, ...ROLE_C_NOTE, POSSESSION_BANNER, OFFICIAL_PANEL_TITLE, WITHHELD];
 const scan = (dir) => scanFlagOnTheaterExport(dir, { required: REQUIRED, placeholder: NBA_PUBLIC_THEATER_PLACEHOLDER });
 
 test("flag ON: every published page carries the founder's labels; only the allowlisted markers, only on the route and its chunks", { skip: !BUILT ? "no export at app/out (run the build first)" : !FLAG_ON ? "flag OFF build (GTP_NBA_THEATER_PUBLIC not 1)" : false }, () => {

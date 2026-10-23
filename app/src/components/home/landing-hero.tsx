@@ -135,7 +135,7 @@ export default function LandingHero({ readyCount, activeSports, eventsToday, eve
             "no qualified product card today"
           )}
         </span>
-        <Link href="/results" className="vault-press" style={{ color: "var(--vault-success)", fontWeight: 700, textDecoration: "none" }}>
+        <Link href="/results" className="vault-press" style={{ color: "var(--vault-success)", fontWeight: 700, textDecoration: "none", minHeight: 44, display: "inline-flex", alignItems: "center" }}>
           {lastSettledDate ? `Settled through ${fmtDay(lastSettledDate)} →` : "See every settled result →"}
         </Link>
       </div>

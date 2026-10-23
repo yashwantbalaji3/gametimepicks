@@ -40,7 +40,7 @@ test("every public render point of a data-carried sentence goes through plainCod
   assert.match(src("src/app/nfl/game/[eventId]/page.tsx"), /\{plainCodes\(x\.reason\) \?\? "did not clear its evaluation bar"\}/);
   assert.match(src("src/components/nfl/forecast/methodology.tsx"), /\{plainCodes\(status\[k\]\.scope\)\}/);
   const nfl = src("src/app/nfl/page.tsx");
-  assert.match(nfl, /\{plainCodes\(c\.detail\)\}/);
+  assert.match(nfl, /\{(?:publicWording\()?plainCodes\(c\.detail\)\)?\}/);
   assert.match(nfl, /\{plainCodes\(modelStatus\.totals\.detail\)\}/);
   assert.match(src("src/app/results/forecasts/page.tsx"), /\{plainCodes\(g\.reason\)\}/);
   assert.match(src("src/app/results/forecasts/page.tsx"), /\{g\.sport\} · \{familyLabel\(g\.family\)\}/, "a family named only by its key reads in words");

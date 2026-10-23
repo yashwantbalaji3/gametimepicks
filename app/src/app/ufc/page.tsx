@@ -41,6 +41,7 @@ import { modelStatusFor } from "@/lib/command-center/model-status";
 import SimulationStorySection from "@/components/simulate/simulation-story-section";
 import { buildUfcPresentation } from "@/lib/simulate/presentation/ufc";
 import { sourceDisplayName } from "@/lib/sports/source-registry.mjs";
+import { PUBLIC_TERMS } from "@/lib/public-registry";
 
 export const metadata = withRouteMetadata("/ufc/", {
   /*
@@ -51,13 +52,15 @@ export const metadata = withRouteMetadata("/ufc/", {
    * prices. This is the copy that reaches a search result and a link preview, so it is a public
    * claim made where nobody on the team ever looks, which is precisely why it went stale unnoticed.
    *
-   * The replacement states what is here AND what it is worth: experimental, paper-only, and a record
-   * of exactly one settled card. Naming the sample size in the description is deliberate — a reader
-   * arriving from a search result has not read anything else on the page.
+   * The replacement states what is here AND what it is worth: the Official Forecast, graded publicly
+   * beside the de-vigged sportsbook line, paper-only. Founder directive 2026-10-23 public readiness: the
+   * public vocabulary (lib/public-registry.ts) replaces the "experimental" hedge; the measured record is
+   * stated once, in the page's Model Performance line, never as a claim of skill. UFC is not
+   * product-eligible, so the description no longer mentions paper cards.
    */
   title: "UFC — Next Card Model Read & Settled Archive · GameTime Picks",
   description:
-    "An experimental fight model's read on the next UFC card — winner, method and finishing round for every bout with enough tracked history, with the unmodelled ones disclosed. Paper cards from posted fight-winner prices; paper-only and educational, never advice.",
+    "The fight model's winner pick and win chance for each modelled bout on the next UFC card, with its method lean (method and round are not yet graded). Experimental and graded publicly beside the de-vigged sportsbook line — paper-only and educational, never advice.",
 });
 
 function loadJSONUfc<T>(name: string): T | null {
@@ -152,7 +155,7 @@ export default function UfcArchivePage() {
       <HubTitle model={__hubModel} />
       <SportHubNav sport="ufc" />
       {/* UFC-001 · UX Phase A: the prediction board IS this hub's events section — every bout once, main event first,
-          the published winner probability and the experimental method lean, each row opening its bout report. It reads
+          the published winner probability and the method lean, each row opening its bout report. It reads
           the same card artifact as /ufc/bout/[boutId]. Without a card, the shared hub header renders as before. */}
       <section id="ufc-games" className="scroll-mt-24 flex flex-col gap-2">
         {card?.bouts?.length ? (
@@ -162,16 +165,15 @@ export default function UfcArchivePage() {
                   state the rest of the page uses (eventState), so after the card it reads as the pregame record. */}
               <h2 className="font-display tracking-tight m-0" style={{ color: "var(--vault-text)", fontSize: 20, fontWeight: 800 }}>
                 {cardState === EVENT_STATE.COMPLETE
-                  ? "Last card · pregame predictions"
+                  ? `Last card · pregame ${PUBLIC_TERMS.OFFICIAL_FORECAST}s`
                   : cardState === EVENT_STATE.IN_PROGRESS
-                    ? "Card in progress · pregame predictions"
-                    : "Fight card & predictions"}
+                    ? `Card in progress · pregame ${PUBLIC_TERMS.OFFICIAL_FORECAST}s`
+                    : `Fight card & ${PUBLIC_TERMS.OFFICIAL_FORECAST}s`}
               </h2>
               {/* The shared hub counts line, from the shared hub rows (`hubCounts`): scheduled, with a report and
                   with a supported read stay three separate numbers, exactly as every other hub prints them. */}
               <span className="font-mono" style={{ fontSize: 11, color: "var(--vault-text-mute)" }}>
                 {(() => { const c = hubCounts(__hubModel.rows); return `${c.scheduled} scheduled · ${c.withReport} with a report · ${c.withRead} with a supported read`; })()}
-                {" · experimental"}
               </span>
             </div>
             {cardState !== EVENT_STATE.UPCOMING ? (
@@ -183,6 +185,15 @@ export default function UfcArchivePage() {
               </p>
             ) : null}
             <UfcPredictionBoard card={card} />
+            {/* Founder directive 2026-10-23 public readiness: the ONE Model Performance disclosure for the UFC Official
+                Forecast, stated once for the whole card instead of an "experimental" label on every bout. The facts are
+                unchanged and claim no skill: backtested on past cards, graded publicly beside the de-vigged line, a small
+                live sample, the old moneyline model retired. The numbers live in the graded record it links to. */}
+            <p id="ufc-model-performance" className="m-0" style={{ fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>
+              <strong style={{ color: "var(--vault-text)", fontWeight: 600 }}>{PUBLIC_TERMS.MODEL_PERFORMANCE}:</strong> backtested on
+              past cards and graded publicly beside the de-vigged sportsbook line, on a small live sample so far (the old
+              moneyline model was retired) — <a href="#ufc-record" style={{ color: "var(--vault-text)" }}>see the graded record</a>.
+            </p>
           </>
         ) : (
           <HubHeader model={__hubModel} />
@@ -283,11 +294,12 @@ export default function UfcArchivePage() {
             className="rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold uppercase tracking-[0.1em]"
             style={{ color: "var(--sport-ufc)", border: "1px solid var(--sport-ufc)", background: "color-mix(in srgb, var(--vault-crown) 8%, transparent)" }}
           >
-            Predictions · experimental
+            {PUBLIC_TERMS.OFFICIAL_FORECAST}s
           </span>
         </div>
         <p className="max-w-2xl text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-          Winner, method and finishing round for every bout with enough tracked history — the rest say so. Paper and educational.
+          Winner, method and finishing round for every bout with enough tracked fighter history; the rest are marked{" "}
+          {PUBLIC_TERMS.UNAVAILABLE} with the reason. Paper and educational.
         </p>
         {/*
           THIS PARAGRAPH WAS ASSERTING THE OPPOSITE OF THE PAGE.
@@ -312,7 +324,7 @@ export default function UfcArchivePage() {
           either direction, and the cumulative comparison currently favours the market. The settled
           record from the retired era is kept below, behind its own label.
         </Explain>
-        <nav className="flex flex-wrap gap-3 font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
+        <nav className="gtp-hit-44-links flex flex-wrap gap-x-3 font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
           <Link href="/today" style={{ color: "var(--gtp-bank-heat)" }}>Live action → Today</Link>
           <Link href="/results" style={{ color: "var(--vault-text-mute)" }}>Track record → Results</Link>
           <Link href="/methodology" style={{ color: "var(--vault-text-mute)" }}>How everything is graded → Methodology</Link>
@@ -336,7 +348,7 @@ export default function UfcArchivePage() {
         a metric — one is a three-head model scored against a de-vigged price, the other is an
         unvalidated read's one-card outcome log — and the boundary sentence below says so.
       */}
-      <section className="flex flex-col gap-3">
+      <section id="ufc-record" className="flex flex-col gap-3 scroll-mt-24">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="font-display" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700, margin: 0 }}>
             Record

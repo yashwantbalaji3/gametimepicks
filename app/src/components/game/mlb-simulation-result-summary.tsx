@@ -97,7 +97,7 @@ export default function MlbSimulationResultSummary({ headline, picks, runCount, 
           {top.map((p, i) => <LeanRow key={`${p.player}-${p.market}-${p.line}`} p={p} lead={i === 0} />)}
         </div>
       ) : (
-        <p className="text-[12.5px] m-0" style={{ color: "var(--vault-text-mute)" }}>No qualifying model-vs-market gap in this game — the market is efficient, which is a disciplined read, not a broken report.</p>
+        <p className="text-[12.5px] m-0" style={{ color: "var(--vault-text-mute)" }}>No candidate passed the rules at this snapshot, so no lean is shown for this game. That is the rules working, not a broken report.</p>
       )}
 
       <p className="font-mono text-[10px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
