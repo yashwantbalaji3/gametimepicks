@@ -97,7 +97,7 @@ export default function SoccerSimulationReportV2(props: SoccerSimulationReportV2
             </div>
             <p className="text-[13.5px] leading-relaxed m-0" style={{ color: "var(--vault-text)" }}>
               Most likely 90-minute result: <strong>{top?.label} ({pct(top?.p)})</strong>.
-              {efficient ? <span style={{ color: "var(--vault-text-mute)" }}> No outcome clears a strong-lean threshold — the market is efficient here, which is a valid no-play read, not a broken simulation.</span> : null}
+              {efficient ? <span style={{ color: "var(--vault-text-mute)" }}> No outcome clears the strong-lean threshold at this snapshot, so there is no play — not a broken simulation.</span> : null}
             </p>
           </>
         ) : <p className="text-[13px] m-0" style={{ color: "var(--vault-text-mute)" }}>Match-result prices not available for this fixture.</p>}
@@ -183,8 +183,8 @@ export default function SoccerSimulationReportV2(props: SoccerSimulationReportV2
         <p className="text-[13px] leading-relaxed m-0" style={{ color: "var(--vault-text-mute)" }}>
           This report is <strong>market-implied</strong>: every probability is the de-vigged sportsbook price, so
           the model and the market agree <em>by construction</em>. That's why there's no advantage to claim over
-          the price. When no outcome clears a strong-lean threshold, that's the market being efficient: a
-          valid <strong>no-play</strong> signal, not a broken or empty simulation.
+          the price. When no outcome clears the strong-lean threshold at a snapshot, that is a
+          valid <strong>no-play</strong> result, not a broken or empty simulation.
         </p>
       </Section>
 

@@ -219,7 +219,7 @@ export default function HomePage() {
         label: "Premier League Forecasts",
         blurb: "Score-distribution forecasts for every matchweek fixture — win/draw/win, expected goals, over 2.5.",
         status: (eplDay?.eligible ?? 0) > 0 ? (eplDay?.note ?? stateLabel(eplState)) : stateLabel(eplState),
-        statusSub: "public beta · not validated out of sample",
+        statusSub: "Official Forecasts",
         cta: "Open EPL hub",
         accent: "var(--sport-soccer)",
       },
@@ -232,13 +232,13 @@ export default function HomePage() {
         label: "NFL Simulations",
         /* Capability copy derives from what the hub actually publishes (P241 · A03): only evaluated
            player families are public, so no sentence here may promise a "full player board". */
-        blurb: "A simulated score range and win chance for every regular-season game, frozen before kickoff — experimental, and clearly labelled.",
+        blurb: "A score range and win chance for every regular-season game — the Official Forecast, frozen before kickoff.",
         /* Only a LIVE day renders a today-count; an upcoming week speaks through the owner's note
            (which names the week's coverage and the next kickoff) — never as today's board. */
         /* The owner's note IS the today sentence (it says "N game forecasts today", or names tonight's
            games when the index has rolled to next week's forecasts) — never a count re-worded here. */
         status: nflDay?.note ?? stateLabel(nflState),
-        statusSub: "experimental simulations",
+        statusSub: "Official Forecasts · Game Simulations",
         cta: "Open NFL hub",
         accent: "var(--vault-gold)",
       },
@@ -257,7 +257,7 @@ export default function HomePage() {
             : `Winner, method of victory and finishing round for ${ufcDay?.eligible} of the card's ${ufcDay?.events} bouts — the rest lack tracked history and say so.`)
           : "No upcoming card has enough fighter history to model — the schedule is published without a read.",
         status: (ufcDay?.eligible ?? 0) > 0 ? `${ufcDay?.eligible} of ${ufcDay?.events} bouts predicted` : stateLabel(ufcState, { artifactDate: ufcDay?.productDate ?? undefined }),
-        statusSub: (ufcDay?.eligible ?? 0) > 0 ? "experimental" : "schedule only · no fighter history yet",
+        statusSub: (ufcDay?.eligible ?? 0) > 0 ? "Official Forecasts" : "Unavailable · no fighter history yet",
         cta: (ufcDay?.eligible ?? 0) > 0 ? "Open UFC hub" : "View the fight card",
         accent: (ufcDay?.eligible ?? 0) > 0 ? "var(--sport-ufc)" : "var(--vault-text-mute)",
       },
@@ -268,9 +268,9 @@ export default function HomePage() {
       card: {
         href: "/nba",
         label: "NBA",
-        blurb: "Today's games, the official favoured side and player projections — experimental, not validated.",
+        blurb: "Today's games with the Official Forecast: the favoured side and player projections, plus a Game Simulation per game.",
         status: nbaHomeLane.contextLine,
-        statusSub: "experimental · not validated",
+        statusSub: "Official Forecasts · Game Simulations",
         cta: "Open NBA hub",
         accent: "var(--sport-nba)",
       },

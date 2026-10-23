@@ -20,6 +20,10 @@ import { loadTerminal } from "@/lib/research/public-contract-adapter";
 import SportOverviewHero from "@/components/sport-overview-hero";
 import SimulationCoverageMatrix from "@/components/simulation-coverage-matrix";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import path from "node:path";
+import { currentEtDate } from "@/lib/freshness";
+import { buildCommandCenter } from "@/lib/command-center/command-center";
+import { PUBLIC_SPORTS, PUBLIC_TERMS, type PublicFeature } from "@/lib/public-registry";
 
 /**
  * /methodology — how a number on this site is produced and how it is judged.
@@ -35,6 +39,10 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
  * revised, reads as a track record and is not one.
  */
 export default function MethodologyPage() {
+  /* F04: the sport facts are the public registry's; Model Performance "now" lines are the Command Center's own lane
+     statuses (receipts + health scorecard), read at build time from the same owners Home uses. */
+  const productSports = PUBLIC_SPORTS.filter((x) => x.productEligible);
+  const statusLanes = buildCommandCenter({ dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), today: currentEtDate(), nowIso: new Date().toISOString(), days: {} });
 
   return (
     <div className="mx-auto max-w-[880px] px-4 sm:px-6 py-10">
@@ -136,8 +144,8 @@ export default function MethodologyPage() {
             </p>
             <Formula>P(over) = 1 − Φ ( (line − projection) / σ )</Formula>
             <p className="mt-2 text-[13px]" style={{ color: "var(--vault-text-faint)" }}>
-              This applies to MLB, the only sport currently producing model output. UFC prices are shown
-              as the sportsbook&rsquo;s own de-vigged numbers with no model behind them.
+              This is how MLB player props are read against their lines. Each other sport&rsquo;s method is stated under
+              &ldquo;By sport&rdquo; below.
             </p>
           </Block>
 
@@ -246,57 +254,43 @@ export default function MethodologyPage() {
       {/* SECTION 3 — Sport coverage. These cards state what is TRUE TODAY per sport, which for most of
           them is "not modelled". They previously described NBA and soccer models in the present tense
           long after either stopped producing anything. */}
-      <Section title="By sport — what is actually modelled">
+      <Section title="By sport — what is published">
+        {/* F04 (audit 2026-10-23 · founder directive public readiness): every sport claim below is read from the public
+            registry (lib/public-registry.ts) and the runtime model statuses (the Command Center's lanes) — the same facts
+            Home, the hubs and the Simulate lobby print. Nothing here is typed per sport. */}
         <p className="text-[14px] sm:text-[15px] leading-relaxed mb-4" style={{ color: "var(--vault-text-mute)" }}>
-          One sport has a live model. The rest are either history we keep readable or a market price
-          shown as a market price. Nothing below is described in the present tense unless it is
-          producing output today.
+          {PUBLIC_SPORTS.length} sports publish an {PUBLIC_TERMS.OFFICIAL_FORECAST}.{" "}
+          {productSports.length ? `${productSports.map((x) => x.label).join(" and ")} ${productSports.length === 1 ? "is" : "are"} the only ${productSports.length === 1 ? "sport" : "sports"} whose forecasts may enter paper products.` : "No sport's forecasts enter paper products."}{" "}
+          Each sport&rsquo;s {PUBLIC_TERMS.MODEL_PERFORMANCE} is stated once, below, from its graded record.
         </p>
         <div className="space-y-4">
-          <SportCard
-            accent="var(--vault-success)"
-            name="MLB"
-            stage="live model · player props + game markets"
-            inputs="Schedule and game logs from the official MLB Stats API; player-prop and game-market prices captured from our odds feed (batter hits, batter total bases, pitcher strikeouts, moneyline, run line, totals)."
-            model="Each stat is modelled as a distribution around a projection built from recent-form and season windows, then converted to P(over) against the posted line. Simulated game outcomes come from those same projections. Stated probabilities are then calibrated against earlier settled slates."
-            markets="Read side by side with the de-vigged sportsbook price. A market whose own settled record sits below break-even has its predictions switched off and keeps only its history."
-            cards="Only markets with a real two-sided price are placed beside a market comparison; the rest are labelled as having no price to read against."
-            settlement="Official MLB Stats API box scores. If the event mapping fails an integrity check, the whole slate is withheld rather than partially graded."
-            limits="No park, weather, bullpen-fatigue or handedness-split inputs. On the settled record the model does not out-score the de-vigged market price in any market."
-          />
-          <SportCard
-            accent="var(--vault-text)"
-            name="NBA"
-            stage="history only · nothing new is produced"
-            inputs="Player game logs and prop prices captured while the model was running."
-            model="The projection model that produced this history is no longer run. No validated NBA forecast is published; the NBA hub (/nba) has the 2026-27 schedule, official final scores and frozen pregame experimental player projections (not validated, not betting recommendations)."
-            markets="None currently. The archived player-prop record remains readable."
-            cards="None."
-            settlement="The historical record was settled from official box scores at the time."
-            limits="Frozen. A record that stops updating is a record of the past, and it is labelled as one wherever it appears — it says nothing about today."
-          />
-          <SportCard
-            accent="var(--gtp-bank-heat)"
-            name="UFC / MMA"
-            stage="market-implied only · no fight model"
-            inputs="Moneyline prices from our odds feed."
-            model="There is no fight model. The probability shown is the posted price with the margin removed — the sportsbook's number, presented as theirs."
-            markets="Moneyline only. Method, round and distance markets are not covered at all."
-            cards="None."
-            settlement="Official finals; a bout that cannot be matched to a result is left ungraded rather than guessed."
-            limits="No settled record exists against which any UFC number here could be judged."
-          />
-          <SportCard
-            accent="var(--vault-text)"
-            name="Soccer / World Cup"
-            stage="closed · archive only"
-            inputs="Prices and fixtures captured during the 2026 tournament."
-            model="Match-winner probabilities were de-vigged market prices with recent form attached. Nothing is being produced now."
-            markets="None. The tournament archive stays readable as a record of what was published at the time."
-            cards="None."
-            settlement="Official final score, regulation 90 minutes only — extra time and penalties never counted toward a 90-minute market."
-            limits="Closed as a destination. It is kept for the record, not offered as a product."
-          />
+          {PUBLIC_SPORTS.map((sp) => {
+            const lane = statusLanes.find((l) => l.sport === sp.key);
+            const perf = lane?.statuses.length ? `${sp.features.modelPerformance.note} Now: ${lane.statuses.map((x) => `${x.family} — ${x.headline}`).join("; ")}.` : sp.features.modelPerformance.note;
+            const feature = (f: PublicFeature) => (f.availability === "NOT_SUPPORTED" ? `${PUBLIC_TERMS.UNAVAILABLE} — ${f.note}` : f.note);
+            return (
+              <SportCard
+                key={sp.key}
+                accent={sp.productEligible ? "var(--vault-success)" : "var(--vault-gold-bright)"}
+                name={sp.label}
+                stage={sp.productEligible ? `${PUBLIC_TERMS.OFFICIAL_FORECAST} · in paper products` : `${PUBLIC_TERMS.OFFICIAL_FORECAST} · not in paper products`}
+                rows={[
+                  [PUBLIC_TERMS.OFFICIAL_FORECAST, `${sp.families.filter((f) => f.publication === "OFFICIAL_FORECAST").map((f) => f.label).join(" · ")}. ${sp.features.officialForecast.note}`],
+                  ...(sp.families.some((f) => f.publication === "WITHHELD") ? [["Withheld", `${sp.families.filter((f) => f.publication === "WITHHELD").map((f) => f.label).join(" · ")} — not published until each meets its checks.`] as [string, string]] : []),
+                  ["Method", sp.method],
+                  ["Top Boards", feature(sp.features.topBoards)],
+                  [PUBLIC_TERMS.GAME_SIMULATION, feature(sp.features.gameSimulation)],
+                  ["Paper products", sp.productEligible ? "May enter Bank Builder, Moonshot and Parlay Lab when a market qualifies." : "Never enters Bank Builder, Moonshot or Parlay Lab."],
+                  ["Results", sp.features.results.note],
+                  [PUBLIC_TERMS.MODEL_PERFORMANCE, perf],
+                ]}
+              />
+            );
+          })}
+          <p className="text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+            The 2026 World Cup archive and the May–June 2026 NBA player-prop record stay readable as records of what was
+            published at the time; neither is a current forecast.
+          </p>
         </div>
       </Section>
 
@@ -315,7 +309,7 @@ export default function MethodologyPage() {
         <div className="vault-deluxe-card p-5 sm:p-6">
           <ul className="space-y-3.5 text-[14px] sm:text-[15px] leading-relaxed list-none">
             <LimitationRow title="The market is still the better estimate" body="Scored on identical settled results, the de-vigged sportsbook price beats our probabilities. Nothing here has been shown to out-predict it, and a disagreement between the two is not evidence that we are right." />
-            <LimitationRow title="One sport is live" body="MLB is the only sport producing model output. NBA is frozen history, UFC is a market price with no model behind it, and soccer is closed." />
+            <LimitationRow title="One sport enters paper products" body={`${productSports.map((x) => x.label).join(", ") || "No sport"} may enter paper products. ${PUBLIC_SPORTS.filter((x) => !x.productEligible).map((x) => x.label).join(", ")} publish ${PUBLIC_TERMS.OFFICIAL_FORECAST}s that never enter Bank Builder, Moonshot or Parlay Lab until their models clear their bars.`} />
             <LimitationRow title="Lines move" body="Boards reflect prices as captured, with the capture time shown. By the time you read them, prices have likely shifted, and there is no retained snapshot series to chart movement from." />
             <LimitationRow title="Missing context inputs" body="Park factor, weather, bullpen fatigue and handedness splits are not modelled for MLB." />
             <LimitationRow title="Some markets are switched off" body="Where a market's own settled record sits entirely below break-even across a large sample, predictions in it are disabled. The history stays visible and is never placed in a ranked or difference-ordered list." />
@@ -385,35 +379,7 @@ function ConceptCard({
   );
 }
 
-function SportCard({
-  accent,
-  name,
-  stage,
-  inputs,
-  model,
-  markets,
-  cards,
-  settlement,
-  limits,
-}: {
-  accent: string;
-  name: string;
-  stage: string;
-  inputs: string;
-  model: string;
-  markets: string;
-  cards: string;
-  settlement: string;
-  limits: string;
-}) {
-  const rows: Array<[string, string]> = [
-    ["Inputs", inputs],
-    ["Model", model],
-    ["Markets", markets],
-    ["Card rules", cards],
-    ["Settlement", settlement],
-    ["Limitations", limits],
-  ];
+function SportCard({ accent, name, stage, rows }: { accent: string; name: string; stage: string; rows: Array<[string, string]> }) {
   return (
     <div className="vault-deluxe-card p-5 sm:p-6">
       <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
@@ -427,7 +393,7 @@ function SportCard({
       </div>
       <dl className="space-y-2.5">
         {rows.map(([k, v]) => (
-          <div key={k} className="grid grid-cols-[88px_1fr] gap-3 items-baseline">
+          <div key={k} className="grid grid-cols-1 sm:grid-cols-[132px_1fr] gap-x-3 gap-y-0.5 items-baseline">
             <dt className="font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)" }}>
               {k}
             </dt>

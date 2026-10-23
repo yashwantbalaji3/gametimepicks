@@ -66,11 +66,12 @@ import { loadForecastViews } from "@/lib/sports/nfl/forecast-view-load.mjs";
 import { formatUpdatedEt } from "@/lib/format";
 import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 import { sanitizeVaultArtifact } from "@/lib/sports/odds/public-offer-sanitizer.mjs";
+import { PUBLIC_TERMS, publicSport } from "@/lib/public-registry";
 
 export const metadata: Metadata = withRouteMetadata("/nfl/", {
-  title: "NFL Hub — Slate, Experimental Simulations & Coverage Status · GameTime Picks",
+  title: "NFL Hub — Official Forecasts, Game Simulations & Coverage Status · GameTime Picks",
   description:
-    "Every game on the next NFL slate with its experimental simulation, the sportsbook prices captured before kickoff, and an honest market-by-market coverage table. Educational and paper-only.",
+    "Every game on the next NFL slate with its Official Forecast, the sportsbook prices captured before kickoff, and an honest market-by-market coverage table. Educational and paper-only.",
 });
 
 const read = (rel: string) => {
@@ -99,13 +100,31 @@ const etDayLabel = (iso: string) =>
  * producer's enum. Render-time only — the artifacts keep their states, and the cell's colour check
  * still reads the raw value. LIVE and DEPLOYED already read as words and are left as they are.
  */
+/* Founder directive 2026-10-23 public readiness: the published team forecast reads in the public vocabulary
+   (lib/public-registry.ts) — it IS the Official Forecast. What it has and has not shown is stated once, in the
+   Model Performance lead, never as a per-row hedge. */
 const COVERAGE_STATE_LABEL: Record<string, string> = {
-  PUBLIC_EXPERIMENTAL: "Experimental",
+  PUBLIC_EXPERIMENTAL: PUBLIC_TERMS.OFFICIAL_FORECAST,
   ARCHIVED_CAPTURE: "Archived prices",
   IN_USE: "In use",
   EVALUATED_NONE_QUALIFY: "Evaluated · none qualify",
   PRODUCT_GATED: "Gated",
 };
+/*
+ * Founder directive 2026-10-23 public readiness. A few DERIVED artifact phrases repeated the readiness hedge on
+ * every row ("the team model is experimental, not validated" × each product lane). Render-time and exact-phrase
+ * only: the artifacts keep their words, an unmatched phrase passes through unchanged, and every replacement states
+ * the same fact in the public vocabulary — the gate the model has not cleared is named, never softened.
+ */
+const PUBLIC_WORDING: ReadonlyArray<[string, string]> = [
+  ["clearly marked experimental", `published as the ${PUBLIC_TERMS.OFFICIAL_FORECAST}`],
+  ["the team model is experimental, not validated", "the team model has not cleared its preregistered bar"],
+  ["enough settled experimental forecasts", `enough settled ${PUBLIC_TERMS.OFFICIAL_FORECAST}s`],
+];
+function publicWording(text: string): string {
+  return PUBLIC_WORDING.reduce((t, [from, to]) => t.split(from).join(to), String(text ?? ""));
+}
+
 function coverageStateLabel(state: string): string {
   if (state === "LIVE" || state === "DEPLOYED") return state;
   if (COVERAGE_STATE_LABEL[state]) return COVERAGE_STATE_LABEL[state];
@@ -385,27 +404,42 @@ export default function NflHubPage() {
     ...((modelStatus?.playerFamilies ?? []) as Array<StatusLayer & { label: string }>).map((f) => layerRow(f.label, f, "no evaluation on file")),
     layerRow("Anytime touchdown · Endzone Vault", modelStatus?.anytimeTd, "no calibration receipt on file"),
     { layer: "Settlement", state: "DEPLOYED", detail: "team and scorer results are graded automatically from official finals; each pre-kickoff forecast settles exactly once when its result exists" },
+    /* Founder directive 2026-10-23 public readiness: products that share ONE state and ONE reason read as one row
+       (the same sentence printed once per product was the repetition), naming every product it covers. The
+       reason itself is stated once, under "Why NFL is not in the paper products" below. */
     ...(productEligibility
-      ? productEligibility.products.map((p) => ({
-          layer: `Paper products · ${p.label}`,
-          state: p.state,
-          detail: p.reason,
+      ? [...productEligibility.products.reduce((groups, p) => {
+          const key = `${p.state}\u0000${p.reason}`;
+          const g = groups.get(key);
+          if (g) g.labels.push(p.label); else groups.set(key, { labels: [p.label], state: p.state, reason: p.reason });
+          return groups;
+        }, new Map<string, { labels: string[]; state: string; reason: string }>()).values()].map((g) => ({
+          layer: `Paper products · ${g.labels.join(", ")}`,
+          state: g.state,
+          detail: g.state === "EVALUATED_NONE_QUALIFY"
+            ? `${productEligibility.consideredEvents} pre-kickoff NFL games evaluated; none qualified — the reason is under "Why NFL is not in the paper products" below.`
+            : g.reason,
         }))
       : []),
   ];
+  /* The ONE Model Performance disclosure for the NFL forecast (founder directive 2026-10-23 public readiness): the
+     registry's own NFL entry decides product eligibility and where Model Performance lives — never re-decided here. */
+  const nflPublic = publicSport("nfl");
 
   const identity = getSportIdentity("nfl");
   const slateLabel = slateDay ? etDayLabel(`${slateDay}T18:00:00Z`) : "the next slate";
-  const experimentalChip = (
+  const officialChip = (
     <span style={{ fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: "var(--sport-nfl)", border: "1px solid var(--vault-border)", borderRadius: 6, padding: "2px 6px", verticalAlign: "middle" }}>
-      EXPERIMENTAL
+      {PUBLIC_TERMS.OFFICIAL_FORECAST.toUpperCase()}
     </span>
   );
 
   /* Program 237. The games come first here too. This adapter deliberately does NOT label the board
      "this week": every NFL artifact on disk runs 2026-08-14 to 2026-08-29 with no prediction, no
      simulation and no market snapshot, so it is a preseason archive and says so. */
+  // founder directive 2026-10-23 public readiness: the per-card qualifier ("Official Forecast") is the adapter's own (nflReadFor)
   const __hubModel = nflHub(nowIso);
+
 
   return (
     // P176: adopt the SHARED application shell /mlb uses (vault-page-shell, 1440px) instead of
@@ -462,9 +496,9 @@ export default function NflHubPage() {
           stops claiming to be today's. */}
       <SportOverviewHero
         headingLevel="h2"
-        eyebrow="NFL · public beta"
+        eyebrow={`NFL · ${PUBLIC_TERMS.OFFICIAL_FORECAST}s`}
         sport="NFL"
-        tagline={`Experimental ${index?.model?.phaseLabel ? `${index.model.phaseLabel} ` : ""}simulations`}
+        tagline={`${PUBLIC_TERMS.OFFICIAL_FORECAST}s${index?.model?.phaseLabel ? ` · ${index.model.phaseLabel}` : ""}`}
         accent="nfl"
         icon={identity.icon}
         iconGradient={identity.gradient}
@@ -506,7 +540,9 @@ export default function NflHubPage() {
         /* P250-W2: this said the same thing the lead paragraph below says, one line apart — a
            reader met three consecutive disclaimers before a single number. The hero states the
            frame; the model's own recorded result states the limit, once. */
-        framing="Experimental regular-season simulations · educational · paper-only."
+        /* Founder directive 2026-10-23 public readiness: the frame in the public vocabulary; the limit is the
+           Model Performance lead just below, stated once. */
+        framing={`${PUBLIC_TERMS.OFFICIAL_FORECAST}s · ${PUBLIC_TERMS.GAME_SIMULATION}s · educational · paper-only.`}
       />
 
       <div style={{ maxWidth: 680 }}>
@@ -522,8 +558,15 @@ export default function NflHubPage() {
          * should be read, and a guard holds it here on purpose. P250-W2 removed the two hand-typed
          * sentences that used to sit above it and said the same thing twice more.
          */}
+        {/* Founder directive 2026-10-23 public readiness: this lead is THE one Model Performance disclosure for the
+            NFL forecast — the model's own measured sentence, the paper-product fact once, and the link. */}
         <p style={{ margin: 0, fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
+          <strong style={{ color: "var(--vault-text-mute)" }}>{PUBLIC_TERMS.MODEL_PERFORMANCE}.</strong>{" "}
           {index?.model?.plainEnglish?.honestLimit}
+          {nflPublic && !nflPublic.productEligible
+            ? ` ${PUBLIC_TERMS.OFFICIAL_FORECAST}s do not enter paper products (Bank Builder, Moonshot, Parlay Lab) until the model clears its preregistered bar.`
+            : null}{" "}
+          <Link href={nflPublic?.features.modelPerformance.href ?? "/models/"} style={{ color: "var(--vault-gold-bright)" }}>{PUBLIC_TERMS.MODEL_PERFORMANCE} →</Link>
         </p>
       </div>
 
@@ -547,7 +590,7 @@ export default function NflHubPage() {
               ? "No scheduled games remain in the current NFL schedule."
               : `The full ${weekLabel ?? "slate"}: ${simulatedOnSlate} of ${slateGames.length} carry a published simulation${weekCounts.missedPreEvent ? `, ${weekCounts.missedPreEvent} missed pre-event coverage` : ""}.`
           }
-          rightSlot={experimentalChip}
+          rightSlot={officialChip}
         />
         {/* P246 §3 (founder): the week reads as ONE COMPACT TABLE, not a wall of cards —
             kickoff, matchup, the model's winner, the derived score/total pair, readiness, one
@@ -955,7 +998,7 @@ export default function NflHubPage() {
                 <tr key={c.layer}>
                   <td className="gtp-nfl-td gtp-nfl-td-13">{c.layer}</td>
                   <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, fontFamily: "var(--font-mono, monospace)", color: c.state === "LIVE" || c.state === "DEPLOYED" ? "var(--gtp-success-on-dark)" : "var(--vault-text-mute)" }}>{coverageStateLabel(c.state)}</td>
-                  <td className="gtp-nfl-td gtp-nfl-td-mute">{plainCodes(c.detail)}</td>
+                  <td className="gtp-nfl-td gtp-nfl-td-mute">{publicWording(plainCodes(c.detail))}</td>
                 </tr>
               ))}
             </tbody>
@@ -1103,7 +1146,7 @@ export default function NflHubPage() {
                     <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)" }}>{NFL_LANE_STATE_LABEL[l.state] ?? l.state}</td>
                     <td className="gtp-nfl-td gtp-nfl-td-mono">{l.candidatesConsidered}</td>
                     <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, lineHeight: 1.55, color: "var(--vault-text-mute)" }}>
-                      {l.rejections.map((r) => `${r.count} × ${r.label}`).join("; ") || "—"}
+                      {l.rejections.map((r) => `${r.count} × ${publicWording(r.label)}`).join("; ") || "—"}
                     </td>
                   </tr>
                 ))}
@@ -1123,13 +1166,18 @@ export default function NflHubPage() {
           <SectionHeader
             eyebrow={`Evaluated ${formatUpdatedEt(productEligibility.generatedAt)}`}
             title="Why NFL is not in the paper products"
-            sub={productEligibility.plainEnglish}
+            /* Founder directive 2026-10-23 public readiness: the dated count from the evaluation, not a third
+               restatement of the gate (the lead states it once). Falls back to the artifact's own sentence if any
+               product were ever eligible. */
+            sub={productEligibility.products.some((p) => p.eligible)
+              ? productEligibility.plainEnglish
+              : `${productEligibility.consideredEvents} pre-kickoff NFL games were evaluated and none qualified. What would change that:`}
           />
           <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: 6 }}>
             {(productEligibility.products.find((p) => p.whatWouldQualify.length)?.whatWouldQualify ?? []).map((w) => (
               <li key={w} style={{ fontSize: 12.5, color: "var(--vault-text-mute)", display: "flex", gap: 8 }}>
                 <span aria-hidden style={{ color: "var(--vault-text-faint)" }}>·</span>
-                <span>{w}</span>
+                <span>{publicWording(w)}</span>
               </li>
             ))}
           </ul>
@@ -1157,7 +1205,7 @@ export default function NflHubPage() {
           site." That stopped being true the day the public beta shipped, and a page that contradicts
           its own contents is exactly the failure the canonical index exists to prevent. */}
       <p style={{ margin: 0, fontSize: 12.5, color: "var(--vault-text-mute)", maxWidth: 680 }}>
-        The NFL simulations on this page are published as experimental and are never presented as
+        {PUBLIC_TERMS.OFFICIAL_FORECAST}s and {PUBLIC_TERMS.GAME_SIMULATION}s on this page are never presented as
         picks. Player markets and the Endzone Vault stay gated on their own separate evidence —
         team readiness never auto-publishes a player market. See{" "}
         <Link href="/methodology" style={{ color: "var(--sport-nfl)" }}>methodology</Link> and{" "}

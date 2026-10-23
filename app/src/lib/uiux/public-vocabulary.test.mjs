@@ -21,6 +21,14 @@ const OUT = path.join(APP, "out");
 const hasBuild = fs.existsSync(path.join(OUT, "index.html"));
 
 const RETIRED_EVERYWHERE = ["Picks Lab", "Build-a-Pick", "Parlay Lab"];
+/*
+ * Founder directive 2026-10-23 public readiness: the hedging phrases retired in favour of the five public terms
+ * (lib/public-registry.ts RETIRED_PUBLIC_PHRASES — Official Forecast · Game Simulation · What-if Scenario · Model
+ * Performance · Unavailable). Case-insensitive. /results and the Forecast Record belong to their own owners, who adopt
+ * the registry's terms in their own PRs — they are excluded here until then, by name.
+ */
+const { RETIRED_PUBLIC_PHRASES } = await import("../public-registry.ts");
+const RETIRED_PHRASES_OWNED_ELSEWHERE = new Set(["results", "forecast-record"]);
 const INTERNAL_OFF_PRIMARY = ["optimizer", "settlement contract", "shadow lane", "research corpus", "leakage-safe"];
 const TECHNICAL_PAGES = new Set(["methodology", "research", "system-status", "market-guide", "bucket-blitz", "goal-rush"]);
 
@@ -105,4 +113,16 @@ test("internal pipeline vocabulary stays off primary public surfaces", () => {
     }
   }
   assert.deepEqual(offenders, [], `internal vocabulary on primary surfaces:\n  ${offenders.join("\n  ")}`);
+});
+
+test("founder directive 2026-10-23: the retired hedging phrases never render on a public page (registry vocabulary instead)", () => {
+  if (!hasBuild) return;
+  const offenders = [];
+  for (const p of publicPages()) {
+    const top = p.replace(OUT, "").split("/").filter(Boolean)[0] ?? "";
+    if (RETIRED_PHRASES_OWNED_ELSEWHERE.has(top)) continue;
+    const text = visibleText(p).replace(/\s+/g, " ").toLowerCase();
+    for (const term of RETIRED_PUBLIC_PHRASES) if (text.includes(term.toLowerCase())) offenders.push(`${p.replace(OUT, "")}: "${term}"`);
+  }
+  assert.deepEqual(offenders, [], `retired hedging phrases rendering:\n  ${offenders.join("\n  ")}`);
 });

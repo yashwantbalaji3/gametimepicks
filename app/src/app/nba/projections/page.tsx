@@ -15,9 +15,9 @@ import NbaProjectionsView from "@/components/nba/projections-view";
 import { AMENDMENT_A } from "@/lib/sports/nba/experimental-public-lane.mjs";
 
 export const metadata = withRouteMetadata("/nba/projections/", {
-  title: "NBA player projections — experimental, not validated · GameTime Picks",
+  title: "NBA Top Boards — Official Forecast player projections · GameTime Picks",
   description:
-    "Frozen pregame NBA player medians (PTS, REB, AST, 3PM, PRA, P+R, P+A) from an unvalidated experimental simulation, with matchup, team, player and stat filters. Not betting recommendations.",
+    "Official Forecast NBA player medians (PTS, REB, AST, 3PM, PRA, P+R, P+A), frozen before tip-off, with matchup, team, player and stat filters. Not betting recommendations.",
 });
 
 export default function NbaProjectionsPage() {

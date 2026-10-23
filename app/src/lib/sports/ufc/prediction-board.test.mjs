@@ -98,3 +98,19 @@ test("/ufc renders the board as its events section, and the board says what the 
   assert.match(comp, /method and round are not yet graded/);
   assert.doesNotMatch(comp, /methodLean\.(probability|p)\b/, "the board never renders a method probability");
 });
+
+// Founder directive 2026-10-23 public readiness: the per-bout "experimental lean" hedge is replaced by the public
+// vocabulary, and the Model Performance disclosure is stated ONCE for the card on /ufc — with the true facts, never a
+// claim of skill — instead of on every bout.
+test("/ufc states the UFC Model Performance disclosure once, with its facts and a link to the graded record", () => {
+  const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\s+/g, " ");
+  const page = strip(read("src/app/ufc/page.tsx"));
+  const comp = strip(read("src/components/ufc/prediction-board.tsx"));
+  assert.equal((page.match(/PUBLIC_TERMS\.MODEL_PERFORMANCE/g) ?? []).length, 1, "exactly one Model Performance disclosure on the page");
+  assert.doesNotMatch(comp, /MODEL_PERFORMANCE|Model Performance/, "the board never repeats it per bout");
+  assert.match(page, /backtested on past cards and graded publicly beside the de-vigged sportsbook line, on a small live sample so far \(the old moneyline model was retired\)/);
+  assert.match(page, /href="#ufc-record"/, "it links to the graded record");
+  assert.match(page, /<section id="ufc-record"/, "and the anchor exists");
+  assert.doesNotMatch(`${page} ${comp}`, /experimental lean|Predictions · experimental|" · experimental"/i, "the retired hedge labels stay gone");
+  assert.doesNotMatch(`${page} ${comp}`, /\b(proven|edge over the market|beats? the market)\b/i, "the disclosure never implies proven skill");
+});

@@ -29,8 +29,11 @@ test("surfaces the 3-way win/draw/win probability center + most-likely result", 
   assert.match(SUMMARY, /win/, "labels the win/draw/win bar");
 });
 
-test("small/no edge is framed as an efficient-market no-play, not a broken simulation", () => {
-  assert.match(SUMMARY, /the market is efficient/i, "efficient-market language");
+test("small/no edge is framed as a no-play at this snapshot, not a broken simulation", () => {
+  // F12 (audit 2026-10-23, founder directive 2026-10-23 public readiness): "no candidate passed" is all a no-play shows —
+  // it is not evidence that the market is efficient, so the copy says only what the rules found at that snapshot.
+  assert.match(SUMMARY, /no outcome clears the strong-lean threshold at this snapshot/i, "the no-play is stated as the rules' result");
+  assert.doesNotMatch(SUMMARY, /market is efficient/i, "no efficiency claim from a no-play");
   assert.match(SUMMARY, /not a broken simulation/i, "reassures a no-play is valid");
 });
 

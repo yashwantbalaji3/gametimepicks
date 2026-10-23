@@ -146,7 +146,8 @@ const visibleText = (html) => html.replace(/<[^>]+>/g, " ").replace(/&rsquo;/g, 
 
 test("every view carries the UNVALIDATED notice, freeze times, receipt hashes and the combo label", async () => {
   const html = await renderView(JSON.parse(PUB_TEXT));
-  assert.match(html, /UNVALIDATED EXPERIMENTAL SIMULATION/);
+  // founder directive 2026-10-23 public readiness: the registry banner (Official Forecast + its one disclosure)
+  assert.match(html, /Frozen before tip-off and shown exactly as frozen\. Not a betting recommendation\. Model Performance: /);
   for (const g of PUB.games) {
     assert.ok(html.includes(g.receipt.payloadSha256.slice(0, 12)), `receipt hash ${g.providerEventId}`);
     assert.ok(html.includes(g.receipt.modelVersion));
@@ -156,8 +157,9 @@ test("every view carries the UNVALIDATED notice, freeze times, receipt hashes an
   assert.match(visibleText(html), /default order is expected minutes/);
   // The empty state (switch off or past slate) still carries the notice and states why it is empty.
   const empty = await renderView(null);
-  assert.match(empty, /UNVALIDATED EXPERIMENTAL SIMULATION/);
-  assert.match(empty, /No current experimental projections/);
+  // founder directive 2026-10-23 public readiness: the registry banner (Official Forecast + its one disclosure)
+  assert.match(empty, /Frozen before tip-off and shown exactly as frozen\. Not a betting recommendation\. Model Performance: /);
+  assert.match(empty, /No current Official Forecast/);
   assert.doesNotMatch(empty, /<table/);
 });
 

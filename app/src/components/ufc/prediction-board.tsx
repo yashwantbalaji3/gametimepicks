@@ -1,19 +1,24 @@
 /**
  * UFC PREDICTION BOARD (UFC-001 · UX Phase A) — the first section on /ufc.
  *
- * Every bout on the card once, main event first, with the experimental model's published winner probability and its
- * experimental method lean, each row opening the existing bout report. Rows come from `buildPredictionBoard`, which reads
+ * Every bout on the card once, main event first, with the Official Forecast's published winner probability and its
+ * method lean, each row opening the existing bout report. Rows come from `buildPredictionBoard`, which reads
  * only the card artifact the bout pages read, so the two cannot disagree.
  *
  * Layout: row cards on one shared column grid from `xl` up (never a <table>: the hub contract) (weight class gets its own column at `2xl`, otherwise it sits under the
  * matchup), and matchup cards below that — two per row on tablets, one on phones. The same facts at every width, never a
  * clipped or page-wide sideways-scrolling table. The pick is marked in words ("Pick"), not by colour alone.
+ *
+ * Founder directive 2026-10-23 public readiness: the public vocabulary (lib/public-registry.ts) replaces the per-bout
+ * hedge label on the method lean — the Model Performance disclosure is stated ONCE, under the board on /ufc, never per row.
+ * A bout without enough tracked history reads "Unavailable" with its reason.
  */
 import Link from "next/link";
 
 import PlayerAvatar from "@/components/player-avatar";
 import { buildPredictionBoard } from "@/lib/sports/ufc/prediction-board.mjs";
 import type { UfcCardArtifact } from "@/components/sports/ufc-card";
+import { PUBLIC_TERMS } from "@/lib/public-registry";
 
 type Board = ReturnType<typeof buildPredictionBoard>;
 type Row = Board["rows"][number];
@@ -25,6 +30,9 @@ const ET_TIME = (iso: string | null) =>
     : null;
 
 const pct = (p: number) => `${Math.round(p * 100)}%`;
+
+/** A bout the model declines to call: the public term plus its one concise reason (the artifact's own reason rides on the title). */
+const UNAVAILABLE_NOTE = `${PUBLIC_TERMS.UNAVAILABLE} — no tracked history`;
 
 const PANEL: React.CSSProperties = { background: "var(--vault-panel)", border: "1px solid var(--vault-rule)", borderRadius: 12 };
 const LABEL: React.CSSProperties = { fontSize: 9.5, color: "var(--vault-text-faint)" };
@@ -72,7 +80,7 @@ function MethodCell({ row }: { row: Row }) {
   return (
     <span className="flex flex-col">
       <span style={{ fontSize: 13, fontWeight: 600, color: "var(--vault-text)" }}>{row.methodLean.label}</span>
-      <span className="font-mono uppercase tracking-[0.08em]" style={{ ...LABEL }}>experimental lean</span>
+      <span className="font-mono uppercase tracking-[0.08em]" style={{ ...LABEL }}>method lean</span>
     </span>
   );
 }
@@ -128,7 +136,7 @@ export default function UfcPredictionBoard({ card }: { card: UfcCardArtifact }) 
                     <ProbabilityCell row={row} />
                   </span>
                 ) : (
-                  <span className="font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }} title={row.unmodelledReason ?? undefined}>not modelled — no tracked history</span>
+                  <span className="font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }} title={row.unmodelledReason ?? undefined}>{UNAVAILABLE_NOTE}</span>
                 )}
               </span>
               <MethodCell row={row} />
@@ -153,7 +161,7 @@ export default function UfcPredictionBoard({ card }: { card: UfcCardArtifact }) 
           <li key={row.boutId}>
             <Link
               href={row.href}
-              aria-label={`${row.position}: ${row.red.name} vs ${row.blue.name}. ${row.pick ? `Model pick ${row.pick.name}, ${pct(row.pick.probability)} win chance${row.methodLean ? `, experimental method lean ${row.methodLean.label}` : ""}.` : "Not modelled: no tracked history."} Open the analysis.`}
+              aria-label={`${row.position}: ${row.red.name} vs ${row.blue.name}. ${row.pick ? `Model pick ${row.pick.name}, ${pct(row.pick.probability)} win chance${row.methodLean ? `, method lean ${row.methodLean.label}` : ""}.` : `${PUBLIC_TERMS.UNAVAILABLE}: no tracked history.`} Open the analysis.`}
               className="block h-full px-3 py-2.5"
               style={{ ...PANEL, textDecoration: "none", color: "inherit" }}
             >
@@ -176,7 +184,7 @@ export default function UfcPredictionBoard({ card }: { card: UfcCardArtifact }) 
                     <MethodCell row={row} />
                   </>
                 ) : (
-                  <span className="font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }} title={row.unmodelledReason ?? undefined}>not modelled — no tracked history</span>
+                  <span className="font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }} title={row.unmodelledReason ?? undefined}>{UNAVAILABLE_NOTE}</span>
                 )}
                 <span aria-hidden className="font-mono shrink-0" style={{ fontSize: 11, color: "var(--vault-text-mute)" }}>→</span>
               </span>
@@ -189,9 +197,9 @@ export default function UfcPredictionBoard({ card }: { card: UfcCardArtifact }) 
           It is provenance, not reading matter: it stays on the paragraph's title here and in each bout report's
           provenance block. */}
       <p className="m-0 font-mono max-w-3xl" title={board.modelId ? `Model: ${board.modelId}` : undefined} style={{ fontSize: 10.5, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
-        Win chance is the experimental fight model&apos;s published winner probability — not a sportsbook price. Method lean is the most likely way the fight
-        ends, for either fighter, from the experimental method head; it is not the chance that the pick wins that way, and
-        method and round are not yet graded. Not modelled means too little tracked history to read. Paper and educational.
+        Win chance is the fight model&apos;s published winner probability — not a sportsbook price. Method lean is the most likely way the fight
+        ends, for either fighter, from the model&apos;s method head; it is not the chance that the pick wins that way, and
+        method and round are not yet graded. Unavailable means too little tracked history to forecast. Paper and educational.
       </p>
     </div>
   );
