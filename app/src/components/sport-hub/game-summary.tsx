@@ -141,17 +141,19 @@ function EventCard({ row: r, unitLabel }: { row: HubGameRow; unitLabel: string }
 function CompactRow({ row: r }: { row: HubGameRow }) {
   const tone = r.read ? READ_TONE[r.read.kind] : null;
   return (
-    <li className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 py-2 text-[13px]" style={{ borderBottom: "1px solid var(--vault-rule)" }}>
-      <span className="text-[12px]" style={{ color: "var(--vault-text-mute)", minWidth: 150 }}>{r.startLabel}</span>
+    /* WEIGHT (2026-10-23): one class per element, the declarations byte-for-byte in globals.css (.gtp-cr*) — this row
+       repeats once per game in the window (~70 on an in-season /nba, HTML + flight) and cost ~1 KB each inlined. */
+    <li className="gtp-cr">
+      <span className="gtp-cr-t">{r.startLabel}</span>
       {/* GTP-15: each side's crest, small and decorative (alt="" — the matchup text names both teams). */}
-      <span className="inline-flex items-center gap-1.5 font-semibold" style={{ color: "var(--vault-text)" }}>
+      <span className="gtp-cr-m">
         {(r.participants ?? []).slice(0, 1).map((p) => p.logoTeam && p.logoSport ? <TeamLogo key={p.name} team={p.logoTeam} sport={p.logoSport} size="sm" ariaLabel="" /> : null)}
         {r.matchup}
         {(r.participants ?? []).slice(1, 2).map((p) => p.logoTeam && p.logoSport ? <TeamLogo key={p.name} team={p.logoTeam} sport={p.logoSport} size="sm" ariaLabel="" /> : null)}
       </span>
-      <span className="text-[11px] uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-mute)" }}>{hubStatusDisplay(r.status)}</span>
+      <span className="gtp-cr-s">{hubStatusDisplay(r.status)}</span>
       {r.read ? <span className={tone!.cls}>{r.read.label} <span className="gtp-c-mute">· {tone!.label}</span></span> : null}
-      <span className="text-[12px]"><Action row={r} /></span>
+      <span className="gtp-cr-a"><Action row={r} /></span>
     </li>
   );
 }

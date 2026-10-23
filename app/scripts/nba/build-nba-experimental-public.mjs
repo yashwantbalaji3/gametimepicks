@@ -5,6 +5,10 @@
  *   node scripts/nba/build-nba-experimental-public.mjs --date 2026-10-20 [--now <ISO>] [--write]
  * Writes app/public/data/nba/experimental-public/<date>.json and latest.json. Exit 1 if the source is missing or any
  * published number fails the re-derivation check.
+ *
+ * An ALREADY-PUBLISHED date is never rewritten (Release G review 2026-10-23): the snapshot is built with the
+ * publisher's own Elo rule (eloWinProbabilityForPublish(committedDay)), and --write follows manualWriteDecision —
+ * NOOP when the committed day file already holds it, REFUSED (exit 1) when it differs.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -12,6 +16,8 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { buildExperimentalSnapshot, buildExperimentalAudit, snapshotMatchesSource } from "../../src/lib/sports/nba/experimental-public-lane.mjs";
+import { manualWriteDecision, PUBLISH } from "../../src/lib/sports/nba/experimental-lane-publish.mjs";
+import { eloWinProbabilityForPublish } from "../../src/lib/sports/nba/elo-win-probability.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -30,9 +36,13 @@ try { commit = execFileSync("git", ["log", "-1", "--format=%H", "--", rel], { cw
 
 // Published label omits the internal prefix: the public file names the family and date, the commit pins the bytes.
 // §13 amendment A: a combo that does not reconcile with its source draws throws REFUSED inside the build — exit 1.
+const OUT = path.join(APP, "public", "data", "nba", "experimental-public");
+const committedDay = (() => { try { return JSON.parse(fs.readFileSync(path.join(OUT, `${DATE}.json`), "utf8")); } catch { return null; } })();
+// a published day file pins the commit and instant it was built from; a rebuild of the same bytes keeps both
+if (committedDay?.source?.commit) commit = committedDay.source.commit;
 let snap;
 try {
-  snap = buildExperimentalSnapshot({ forecastDoc: doc, sourceFile: `nba/experimental-v0.1/forecasts/${DATE}.json`, sourceCommit: commit, generatedAt: NOW });
+  snap = buildExperimentalSnapshot({ forecastDoc: doc, sourceFile: `nba/experimental-v0.1/forecasts/${DATE}.json`, sourceCommit: commit, generatedAt: committedDay?.generatedAt ?? NOW, eloWinProbability: eloWinProbabilityForPublish(committedDay) });
 } catch (e) { console.error(e.message); process.exit(1); }
 const byId = new Map(doc.games.map((g) => [String(g.providerEventId), g]));
 for (const g of snap.games) {
@@ -40,8 +50,11 @@ for (const g of snap.games) {
 }
 for (const g of snap.games) console.log(`${g.away.abbr} @ ${g.home.abbr} (${g.providerEventId}) · tip ${g.tipUtc} · frozen ${g.frozenAt} · Elo favours ${g.elo.favoured} · players ${g.players.away.length}+${g.players.home.length} · receipt ${g.receipt.payloadSha256.slice(0, 12)}`);
 for (const e of snap.excluded) console.log(`EXCLUDED ${e.providerEventId}: ${e.reason}`);
-if (argv.includes("--write")) {
-  const out = path.join(APP, "public", "data", "nba", "experimental-public");
+const decision = manualWriteDecision({ committedDay, snapshot: snap });
+console.log(`${DATE}: ${decision.action} — ${decision.reason}`);
+if (argv.includes("--write") && decision.action === PUBLISH.REFUSE) { console.error(`REFUSED: ${decision.reason}`); process.exit(1); }
+if (argv.includes("--write") && decision.action === PUBLISH.PUBLISH) {
+  const out = OUT;
   fs.mkdirSync(out, { recursive: true });
   const text = `${JSON.stringify(snap, null, 1)}\n`;
   fs.writeFileSync(path.join(out, `${DATE}.json`), text);

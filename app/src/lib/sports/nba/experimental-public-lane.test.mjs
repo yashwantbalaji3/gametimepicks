@@ -13,12 +13,18 @@ process.env.__NEXT_TRAILING_SLASH = "true"; // next.config.mjs trailingSlash: tr
 globalThis.React = React; // the lane card renders TeamLogo, which compiles with the classic JSX runtime under tsx (as nba-hub.test.mjs)
 
 import { buildExperimentalSnapshot, snapshotMatchesSource, LANE, WITHHELD, AMENDMENT_A } from "./experimental-public-lane.mjs";
+import { eloWinProbabilityForPublish, eloWinProbabilityOf, eloWinProbabilityText, eloAccuracyDisclosure, ELO_WIN_PROBABILITY_LABEL } from "./elo-win-probability.mjs";
 import { capabilityState, canEnterPredictionProducts } from "../../sport-capability-registry.ts";
 
 const REPO = path.resolve(process.cwd(), "..");
 const SRC = path.join(REPO, "data/internal/research/nba/experimental-v0.1/forecasts/2026-10-20.json");
 const DOC = JSON.parse(fs.readFileSync(SRC, "utf8"));
-const snap = () => buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: "nba/experimental-v0.1/forecasts/2026-10-20.json", sourceCommit: null, generatedAt: "2026-10-20T17:20:00Z" });
+// 2026-10-20 is ALREADY PUBLISHED without the Elo field: the fixture follows the publisher's rule, so every assertion
+// below stays strict with the Elo switch ON (Release G). The slate WITH the field is `snapOn` (its own tests below).
+const PUBLISHED_1020 = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nba/experimental-public/2026-10-20.json"), "utf8"));
+const snap = () => buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: "nba/experimental-v0.1/forecasts/2026-10-20.json", sourceCommit: null, generatedAt: "2026-10-20T17:20:00Z", eloWinProbability: eloWinProbabilityForPublish(PUBLISHED_1020) });
+const snapOn = () => buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: "nba/experimental-v0.1/forecasts/2026-10-20.json", sourceCommit: null, generatedAt: "2026-10-20T17:20:00Z", eloWinProbability: true });
+const ELO_ON = { enabled: true, disclosure: eloAccuracyDisclosure({ graded: 3, minN: 300 }) };
 
 test("the lane is surface-scoped: NBA stays HISTORICAL_ONLY, so no prediction product can read it", () => {
   assert.equal(capabilityState("nba"), "HISTORICAL_ONLY");
@@ -82,7 +88,7 @@ test("the public snapshot carries no internal path and no private v1/theater mar
 
 test("the committed public snapshot is exactly what the producer builds from the committed receipts", () => {
   const pub = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nba/experimental-public/2026-10-20.json"), "utf8"));
-  const rebuilt = buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: pub.source.file, sourceCommit: pub.source.commit, generatedAt: pub.generatedAt });
+  const rebuilt = buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: pub.source.file, sourceCommit: pub.source.commit, generatedAt: pub.generatedAt, eloWinProbability: eloWinProbabilityForPublish(pub) });
   assert.deepEqual(pub, JSON.parse(JSON.stringify(rebuilt)));
 });
 
@@ -160,4 +166,44 @@ test("compact hub: with /nba/projections on, /nba cards carry no player table an
   // must stay well under the ~3 KB/game (HTML + flight) that a 15-game slate leaves inside the budget.
   const perGame = (html.length - renderToStaticMarkup(React.createElement(Lane, { snapshot: { ...s, games: s.games.slice(0, 1) } })).length) / (s.games.length - 1);
   assert.ok(perGame < 900, `compact card ${Math.round(perGame)} B of HTML per game`);
+  // Release G (Elo switch ON; release-owner-approved measured re-baseline, 2026-10-23): a slate that CARRIES the Elo
+  // game-winner probability adds one inline line per card. Measured: this 10-20 fixture 998 B/game; the real 10-23 lane
+  // forced ON 1001 B/game (component render) and 1001 B/game at 15 games; /nba total at 15 games with the Theater ON
+  // and the CompactRow fix (PR 1226) 224,074 B unflipped → about 229 KB with the field (+4.8 KB) against the 250 KiB
+  // budget the total is judged on. Bound = measured + 4.7 % (1045); the 900 B bound above is unchanged for slates
+  // without the field, and no other bound moves.
+  const on = JSON.parse(JSON.stringify(snapOn()));
+  const htmlOn = renderToStaticMarkup(React.createElement(Lane, { snapshot: on, eloCtx: ELO_ON }));
+  const perGameOn = (htmlOn.length - renderToStaticMarkup(React.createElement(Lane, { snapshot: { ...on, games: on.games.slice(0, 1) }, eloCtx: ELO_ON })).length) / (on.games.length - 1);
+  assert.ok(perGameOn < 1045, `compact card with the Elo line ${Math.round(perGameOn)} B of HTML per game`);
+});
+
+// ── Release G: a slate WITH the Elo game-winner probability (founder decision 2026-10-23) ─────────────────────────
+test("withheld, slate WITH the Elo field: the ONLY probability-like value is elo.winProbability (home/away + provenance); scores, ranges, markets stay withheld", () => {
+  const s = snapOn();
+  assert.deepEqual(Object.keys(s.withheld), ["teamScores", "playerRanges", "markets"]);
+  for (const g of s.games) {
+    assert.deepEqual(Object.keys(g.elo.winProbability), ["home", "away", "provenance"]);
+    assert.equal(g.teamScores.state, "WITHHELD");
+    for (const side of ["away", "home"]) for (const r of g.players[side]) assert.deepEqual(Object.keys(r.medians), ["pts", "reb", "ast", "threePm"]);
+  }
+  const text = JSON.stringify({ ...s, withheld: null, games: s.games.map((g) => ({ ...g, elo: { ...g.elo, winProbability: null } })) });
+  assert.doesNotMatch(text, /"(pHome|pAway|probability|winProbability|confidence|odds|line|edge|p10|p90|mean)"\s*:\s*(?!null)/);
+  assert.doesNotMatch(text, /\d%/);
+});
+
+test("rendered lane, slate WITH the Elo field: the ONLY percentage is the Elo row, under its label, with the disclosure", async () => {
+  const { default: Lane } = await import("../../../components/nba/experimental-lane.tsx");
+  const on = JSON.parse(JSON.stringify(snapOn()));
+  const html = renderToStaticMarkup(React.createElement(Lane, { snapshot: on, eloCtx: ELO_ON }));
+  let visible = html.replace(/<[^>]+>/g, " ");
+  for (const g of on.games) {
+    const t = eloWinProbabilityText(eloWinProbabilityOf(g, { enabled: true })).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    assert.ok(visible.includes(t), `${g.providerEventId}: the Elo row under "${ELO_WIN_PROBABILITY_LABEL}"`);
+    visible = visible.split(t).join(" ");
+  }
+  assert.ok(visible.includes(ELO_ON.disclosure), "the accuracy disclosure is shown");
+  visible = visible.split(ELO_ON.disclosure).join(" ");
+  assert.doesNotMatch(visible, /\d+(\.\d+)?\s?%/, "no other percentage");
+  assert.doesNotMatch(visible, /\blive\b/i);
 });

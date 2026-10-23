@@ -178,7 +178,21 @@ jobs:
       - name: Ask projection is current
         run: npm run ask:check
 
+      # ── BUILD WHAT PRODUCTION SERVES (release owner, 2026-10-23) ───────────────────────────────
+      #
+      # Every guard below reads `out/`, so it can only be as true as the export it reads. Production builds with
+      # the NBA Simulation Theater public (GTP_NBA_THEATER_PUBLIC=1); this job built without it, so the
+      # page-weight budgets measured an /nba the site never served. On 2026-10-23 Production /nba was
+      # 259,073 B (253 KiB) against its 250 KiB budget while this job stayed green. The build step and
+      # every step that reads the export now see the same public flags as Production.
+      # Gained: public-theater-export.test.mjs "flag ON: every published page carries the founder's labels; only the
+      # allowlisted markers" now runs here; until now it was skipped on every CI run.
+      # Lost: its "flag OFF: the public route is pruned" case now skips here (the Theater-OFF export, i.e. a rollback).
+      # The unit phase still covers both states without an export: theater-entry-points.test.mjs passes ON and OFF
+      # explicitly per case, and client-graph-internal-paths.test.mjs guards private ids in the client graph.
       - name: Build the public export
+        env:
+          GTP_NBA_THEATER_PUBLIC: "1"
         run: npm run build
 
       # ── PHASE 2: the guards that read the bytes the build just produced ────────────────────────
@@ -186,6 +200,8 @@ jobs:
       # The runner REFUSES this phase when `out/` is missing or when the partition selects no files,
       # so it cannot reproduce one level up the vacuous pass it exists to remove.
       - name: Rendered guards (phase 2 — reads the built export)
+        env:
+          GTP_NBA_THEATER_PUBLIC: "1"
         run: |
           set -o pipefail
           node scripts/ci/run-suite.mjs --phase post-build 2>&1 | tee /tmp/rendered.log
@@ -212,6 +228,8 @@ jobs:
         run: npx playwright install --with-deps chromium webkit firefox
 
       - name: Accessibility — browser (contrast · keyboard · reflow)
+        env:
+          GTP_NBA_THEATER_PUBLIC: "1"
         # Chromium + Firefox + WebKit. Keyboard traversal is skipped on WebKit by design: Safari
         # ships with Full Keyboard Access off, so links are not in its Tab order.
         # v1.4.1: worker count comes from the runner's own vCPUs (playwright.config `workers: "100%"` in CI);

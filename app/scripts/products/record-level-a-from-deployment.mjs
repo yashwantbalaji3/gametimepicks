@@ -24,6 +24,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { appendRecord, recordEntries, recordViolations } from "../../src/lib/products/level-a/record.mjs";
 import { LEVEL_A_SERVED_PATH, LEVEL_A_SERVED_SCHEMA, modelSha256 } from "../../src/lib/products/level-a/model.mjs";
+import { jointShownFor } from "../../src/lib/products/level-a/suggestions.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const LEVEL_A_RECORD_PATH = path.join(APP, "..", "data", "internal", "products", "level-a", "suggestions.jsonl");
@@ -32,7 +33,6 @@ export const DEFAULT_ORIGIN = "https://gametimepicks.yashwantbalaji.com";
 export const PAGE_FOR = { "parlay-lab": "/build/", "bank-builder": "/bank-builder/", moonshot: "/moonshot/" };
 
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
-const pct = (p) => `${(p * 100).toFixed(1)}%`;
 
 /** The cards a model shows, with the page each one is on (pure). */
 export function shownItems(model) {
@@ -62,7 +62,9 @@ export function verifyServed({ sha, buildInfo, served, pages }) {
     if (typeof html !== "string") { problems.push(`${it.page} was not readable`); continue; }
     const legs = it.card ? it.card.legs : [it.leg];
     for (const l of legs) if (!html.includes(esc(l.selection.label))) problems.push(`${it.page} does not show the leg "${l.selection.label}" (${l.sport}:${l.eventId})`);
-    if (it.card && !html.includes(`model joint probability ${pct(it.card.jointProbability)}`)) problems.push(`${it.page} does not show "${it.card.tierLabel} · model joint probability ${pct(it.card.jointProbability)}"`);
+    /* The same function the page printed with (suggestions.mjs jointShownFor), so record and page cannot disagree. */
+    const joint = it.card ? `model joint probability ${jointShownFor(it.card.jointProbability, it.card.tier)}` : null;
+    if (joint && !html.includes(joint)) problems.push(`${it.page} does not show "${it.card.tierLabel} · ${joint}"`);
   }
   return { ok: problems.length === 0, problems };
 }

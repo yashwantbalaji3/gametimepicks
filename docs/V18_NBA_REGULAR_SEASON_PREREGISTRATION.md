@@ -381,3 +381,24 @@ Both constants, every version string, the family spec and the two source files' 
 **Looks.** 2026-10-20 / 2026-10-21 are recorded as an outcome look (look 8), never as v0.3 forward samples. The first v0.3 forward sample is the first slate it freezes at v0.1's cutoff after this section lands.
 
 **No bar, threshold, metric, sample size, graded record or evaluation rule above changed.**
+
+### 14.1 Reporting note (2026-10-23): few-clusters guard (claim-suppressing only)
+
+**What changed.** The §14 champion/challenger evaluator (`app/src/lib/sports/nba/champion-challenger.mjs`, `EVALUATOR_VERSION` → `nba-champion-challenger-2`) and the daily diagnostics (`model-diagnostics.mjs`, → `nba-model-diagnostics-2`) still print every game-clustered 95% interval exactly as before. Below `FEW_CLUSTERS_BELOW = 10` games, though:
+- a paired difference's direction is `FEW_CLUSTERS`, not `CHALLENGER_LOWER` / `CHAMPION_LOWER` / `CI_INCLUDES_0`;
+- a bias or coverage finding's status is `FEW_CLUSTERS`, not `SYSTEMATIC` / `NO_CLAIM`, so it feeds no text-only proposal.
+
+**Why.** A percentile bootstrap that resamples k games can only recombine those k games. With very few games, its interval is about the span of the per-game means. On 2 games, "excludes 0" says only that both games leaned the same way.
+- The first v0.3 forward comparison (2026-10-22, 2 games) printed directions and "SYSTEMATIC" labels from exactly that.
+- Its verdicts were correctly `INSUFFICIENT_N`, but a reader could have quoted a direction.
+- The threshold is not fitted. It is the reporting threshold already used by the PR 1180 historical backtest (`REPORTING.fewClustersBelow = 10`).
+
+**Why it is claim-suppressing only** (pinned by the "few-clusters guard" tests in `champion-challenger.test.mjs` and `model-diagnostics.test.mjs`, each against the pre-guard rule):
+- No interval, estimate or n changes, and no new claim can appear.
+- A direction can only become `FEW_CLUSTERS`, and only below 10 games.
+- A verdict can never become `READY_FOR_FOUNDER_REVIEW` because of it.
+- For every game-level §6 market the guard cannot touch a verdict at all: n = games, and `INSUFFICIENT_N` is decided before the direction is read, with minN 300 ≥ 10.
+- For player markets it could only matter with ≥ 800–1500 eligible rows in under 10 games, which two NBA rotations cannot supply.
+- On the committed 2026-10-22 ledgers, every verdict for v0.2, v1 and v0.3 is identical with and without the guard.
+
+**No bar, threshold, metric, sample size, graded record or evaluation rule above changed.** The §6 minimums, the §7 bars, the §8 forward-shadow rule and the verdict rule are unchanged. Nothing is promoted, and the registry stays `HISTORICAL_ONLY`.
