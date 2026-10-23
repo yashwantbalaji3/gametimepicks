@@ -116,3 +116,17 @@ export function provenanceCounts(rows) {
   for (const r of rows) c[rowProvenance(r).state] += 1;
   return c;
 }
+
+/**
+ * SCORING RULE (release owner, 2026-10-23, Option B): a forecast is SCORED only if there is evidence it was published
+ * before its event started — a publication stamp and an event start, each RECEIPT or GIT_HISTORY, stamp strictly before
+ * start. A row without that evidence stays listed and labelled (CSV, family page) but adds nothing to a family's scores,
+ * its measured count or its pick record. This is the one predicate the Forecast Record and Results both use; on
+ * 2026-10-23 it excludes exactly 15 rows (Homer Nukes picks whose graded probability first appears after first pitch).
+ */
+export function hasPrestartPublicationEvidence(row) {
+  const pub = fieldProvenance(row, "publishedAt");
+  const start = fieldProvenance(row, "eventStart");
+  if (pub.state === PROVENANCE_STATE.LEGACY_UNKNOWN || start.state === PROVENANCE_STATE.LEGACY_UNKNOWN) return false;
+  return Number.isFinite(Date.parse(pub.value)) && Number.isFinite(Date.parse(start.value)) && Date.parse(pub.value) < Date.parse(start.value);
+}

@@ -12,7 +12,7 @@ import path from "node:path";
 import { FORECAST_KIND, validateRow } from "./contract.mjs";
 import { makeRow } from "./row.mjs";
 import { compareLedgers } from "./append-only.mjs";
-import { fieldProvenance, PROVENANCE_FIELDS, PROVENANCE_STATE, provenanceCounts, rowProvenance, validateRecovered } from "./provenance.mjs";
+import { fieldProvenance, hasPrestartPublicationEvidence, PROVENANCE_FIELDS, PROVENANCE_STATE, provenanceCounts, rowProvenance, validateRecovered } from "./provenance.mjs";
 import {
   attachRecovered, eplPlayerSnapshotEvidence, GIT_EVIDENCE_REL, GIT_EVIDENCE_SCHEMA, ligue1ArchiveEvidence, nflBoardEvidence, ufcSnapshotEvidence,
 } from "./provenance-evidence.mjs";
@@ -199,4 +199,18 @@ test("committed git evidence: schema, a commit-named source per value, and only 
       assert.deepEqual(r.provenance.recovered[f], v, `${id}: the ledger carries the committed evidence verbatim`);
     }
   }
+});
+
+test("hasPrestartPublicationEvidence: a known stamp strictly before a known start, from the row or from recovered evidence", () => {
+  assert.equal(hasPrestartPublicationEvidence(prop()), true, "control");
+  assert.equal(hasPrestartPublicationEvidence(prop({ publishedAt: null })), false, "no stamp");
+  assert.equal(hasPrestartPublicationEvidence(prop({ eventStart: null })), false, "no start to compare with");
+  assert.equal(hasPrestartPublicationEvidence({ ...prop(), publishedAt: "2031-10-05T17:00:00Z" }), false, "at the start is not before it");
+  const viaGit = withProv(prop({ publishedAt: null, eventStart: null }), "mlb-homer-nukes-settled", {
+    eventStart: { value: "2031-09-08T22:40:00Z", state: GIT_HISTORY, source: "git:67ba8acfca77:f.json#gameDate" },
+    publishedAt: { value: "2031-09-08T17:56:36Z", state: GIT_HISTORY, source: "git:67ba8acfca77:f.json#generatedAt" },
+  });
+  assert.equal(hasPrestartPublicationEvidence(viaGit), true, "recovered evidence counts");
+  const startOnly = withProv(prop({ publishedAt: null, eventStart: null }), "mlb-homer-nukes-settled", { eventStart: viaGit.provenance.recovered.eventStart });
+  assert.equal(hasPrestartPublicationEvidence(startOnly), false, "a start without a stamp (the 15 Homer Nukes picks)");
 });

@@ -14,7 +14,7 @@
  */
 
 import { HISTORICAL_MODEL_FAVORED_LABEL, SIDE_BASIS } from "../forecast-of-record.mjs";
-import { PROVENANCE_FIELDS, provenanceCounts, rowProvenance } from "../../forecast-ledger/provenance.mjs";
+import { hasPrestartPublicationEvidence, PROVENANCE_FIELDS, provenanceCounts, rowProvenance } from "../../forecast-ledger/provenance.mjs";
 
 const HISTORICAL_MODEL_FAVORED = SIDE_BASIS.HISTORICAL_MODEL_FAVORED;
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
@@ -27,13 +27,23 @@ const median = (xs) => {
 };
 const round = (v, d = 4) => (isNum(v) ? Number(v.toFixed(d)) : null);
 
-/** Status counts for any set of rows — the denominators a reader sees beside every metric. */
+/**
+ * A row's measurement counts toward its family's scores only with evidence it was published before the start
+ * (provenance.mjs hasPrestartPublicationEvidence). Without it the row is still listed, labelled and exported.
+ */
+const scored = (r) => Boolean(r.measurement?.type) && hasPrestartPublicationEvidence(r);
+
+/**
+ * Status counts for any set of rows — the denominators a reader sees beside every metric. measured ·
+ * noPrestartEvidence (measured by the owner, left out of scores) · pending · void · unmeasured partition the rows, and
+ * so do published + withdrawn.
+ */
 export function statusCounts(rows) {
-  const c = { published: 0, withdrawn: 0, measured: 0, pending: 0, void: 0, unmeasured: 0 };
+  const c = { published: 0, withdrawn: 0, measured: 0, noPrestartEvidence: 0, pending: 0, void: 0, unmeasured: 0 };
   for (const r of rows) {
     if (r.publicationStatus === "WITHDRAWN") c.withdrawn += 1; else c.published += 1;
     const s = r.settlement?.state;
-    if (r.measurement?.type) c.measured += 1;
+    if (r.measurement?.type) c[scored(r) ? "measured" : "noPrestartEvidence"] += 1;
     else if (s === "PENDING") c.pending += 1;
     else if (s === "VOID") c.void += 1;
     else c.unmeasured += 1;
@@ -46,8 +56,9 @@ function directional(rows) {
   const by = new Map();
   for (const r of rows) {
     const m = r.measurement ?? {};
-    // Only a published claim that the owner settled counts: pending, withdrawn and unmeasured rows never add a W/L.
-    if (!m.directionalBasis || r.publicationStatus !== "PUBLISHED") continue;
+    // Only a published claim that the owner settled counts: pending, withdrawn and unmeasured rows never add a W/L,
+    // and neither does a row with no evidence it was published before the start.
+    if (!m.directionalBasis || r.publicationStatus !== "PUBLISHED" || !hasPrestartPublicationEvidence(r)) continue;
     if (r.settlement?.state !== "SETTLED" && !(r.settlement?.state === "VOID" && m.directionalResult === "PUSH")) continue;
     const word = m.directionalResult === "WIN" ? "win" : m.directionalResult === "LOSS" ? "loss" : m.directionalResult === "PUSH" ? "push" : null;
     if (word == null) continue;
@@ -91,7 +102,7 @@ export function reliabilityBins(pairs, bins = 10) {
 /** Metrics for ONE family (rows must share sport + family + forecastKind). */
 export function familyMetrics(rows) {
   const kind = rows[0]?.forecastKind ?? null;
-  const measured = rows.filter((r) => r.measurement?.type);
+  const measured = rows.filter(scored);
   // provenance: rows by model-identity / event-start / publication evidence (forecast-ledger/provenance.mjs). A promotion
   // evaluation excludes the LEGACY_UNKNOWN rows.
   const base = { kind, counts: statusCounts(rows), directional: directional(rows), provenance: provenanceCounts(rows) };
@@ -222,6 +233,7 @@ export function forecastRecord(rows, { declaredGaps = [] } = {}) {
     kpis: {
       forecasts: rows.length,
       measured: counts.measured,
+      noPrestartEvidence: counts.noPrestartEvidence,
       coverage: rows.length ? round(counts.measured / rows.length) : null,
       pending: counts.pending,
       voidCount: counts.void,

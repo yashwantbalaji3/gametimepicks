@@ -74,11 +74,12 @@ function primary(f: any): { main: string; sub: string } {
 
 /* Audit 2026-10-23 (F01): how many rows can name their model, start and publication time, per family. LEGACY_UNKNOWN
    rows are left out of model evaluations; the CSV names the source of every value (forecast-ledger/provenance.mjs). */
-function provenanceText(p: { RECEIPT: number; GIT_HISTORY: number; LEGACY_UNKNOWN: number } | undefined): { main: string; sub: string } {
+function provenanceText(p: { RECEIPT: number; GIT_HISTORY: number; LEGACY_UNKNOWN: number } | undefined, unscored = 0): { main: string; sub: string } {
   if (!p) return { main: "—", sub: "" };
   return {
     main: p.LEGACY_UNKNOWN ? `${n(p.LEGACY_UNKNOWN)} unknown` : "All known",
-    sub: `${n(p.RECEIPT)} from a committed record${p.GIT_HISTORY ? ` · ${n(p.GIT_HISTORY)} from file history` : ""}`,
+    sub: `${n(p.RECEIPT)} from a committed record${p.GIT_HISTORY ? ` · ${n(p.GIT_HISTORY)} from file history` : ""}`
+      + (unscored ? ` · ${n(unscored)} not scored: no record of publication before the start` : ""),
   };
 }
 
@@ -129,7 +130,7 @@ export default function ForecastRecordPage() {
                   <tbody>
                     {s.families.map((f: any) => {
                       const p = primary(f);
-                      const pv = provenanceText(f.provenance);
+                      const pv = provenanceText(f.provenance, f.counts.noPrestartEvidence);
                       return (
                         <tr key={f.family}>
                           <td><span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{f.label}</span>{f.directional ? (f.directional.byBasis ?? [{ ...f.directional, label: f.directional.label ?? "pick record" }]).map((d: any) => <div className="f" key={d.basis ?? "all"}>{d.label.charAt(0).toUpperCase() + d.label.slice(1)} {d.win}–{d.loss}{d.push ? `–${d.push}` : ""}</div>) : null}</td>
@@ -172,6 +173,10 @@ export default function ForecastRecordPage() {
               in the scores above, and they are counted per forecast type so a Model Performance comparison can leave
               them out. Multi-outcome forecasts (match result, correct score) also export their full probability table,
               so anyone can recompute their scores.
+            </p>
+            <p className="note">
+              A forecast is scored only if the record shows it was published before the game started.
+              {k.noPrestartEvidence ? ` ${n(k.noPrestartEvidence)} graded forecast${k.noPrestartEvidence === 1 ? " has" : "s have"} no such record, so ${k.noPrestartEvidence === 1 ? "it stays" : "they stay"} listed and in the downloads, marked, but out of every score and count of measured forecasts above.` : ""}
             </p>
           </section>
 
