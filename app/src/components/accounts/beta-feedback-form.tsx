@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { accountsClient, accountsState } from "@/lib/accounts/client.mjs";
 import { accountsNotice } from "@/lib/accounts/config.mjs";
+import { PUBLIC_SIGNUP_OPEN } from "@/lib/accounts/public-entry.mjs";
 import { FEEDBACK_KINDS, FEEDBACK_PRODUCTS, FEEDBACK_SEVERITIES, FEEDBACK_SPORTS, LIMITS, buildFeedbackRow, cleanRoute } from "@/lib/accounts/beta-feedback.mjs";
 
 /**
@@ -33,7 +34,8 @@ export default function BetaFeedbackForm() {
 
   if (cfg.state !== "READY") return <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 14 }}>{accountsNotice(cfg)} The feedback form opens with tester accounts.</p>;
   if (!ready) return <p className="m-0" style={{ color: "var(--vault-text-faint)", fontSize: 13 }}>Checking your session…</p>;
-  if (!userId) return <p className="m-0" style={{ fontSize: 14, color: "var(--vault-text-mute)" }}>Feedback is for invited testers. <Link href="/account" style={{ color: "var(--vault-gold-bright)" }}>Sign in</Link> first.</p>;
+  /* Founder decision 2026-10-23 (public-entry.mjs): no public sign-in link while new sign-ins are paused. */
+  if (!userId) return <p className="m-0" style={{ fontSize: 14, color: "var(--vault-text-mute)" }}>Feedback is for invited testers who are signed in.{PUBLIC_SIGNUP_OPEN ? <> <Link href="/account" style={{ color: "var(--vault-gold-bright)" }}>Sign in</Link> first.</> : null}</p>;
   if (state.kind === "sent") return <p role="status" className="m-0" style={{ fontSize: 14, color: "var(--vault-text)" }}>Thanks — sent. Only you and the GameTimePicks team can see it. <button type="button" onClick={() => { setForm((f) => ({ ...f, actual: "", expected: "" })); setState({ kind: "idle" }); }} style={{ color: "var(--vault-gold-bright)", background: "none", border: 0, textDecoration: "underline", cursor: "pointer", fontSize: 14 }}>Send another</button></p>;
 
   const set = (k: keyof typeof form) => (e: { target: { value: string } }) => setForm((f) => ({ ...f, [k]: e.target.value }));
