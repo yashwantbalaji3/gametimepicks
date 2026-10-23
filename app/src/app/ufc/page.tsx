@@ -324,7 +324,7 @@ export default function UfcArchivePage() {
           either direction, and the cumulative comparison currently favours the market. The settled
           record from the retired era is kept below, behind its own label.
         </Explain>
-        <nav className="flex flex-wrap gap-3 font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
+        <nav className="gtp-hit-44-links flex flex-wrap gap-x-3 font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
           <Link href="/today" style={{ color: "var(--gtp-bank-heat)" }}>Live action → Today</Link>
           <Link href="/results" style={{ color: "var(--vault-text-mute)" }}>Track record → Results</Link>
           <Link href="/methodology" style={{ color: "var(--vault-text-mute)" }}>How everything is graded → Methodology</Link>

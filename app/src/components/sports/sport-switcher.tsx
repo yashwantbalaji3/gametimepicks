@@ -12,7 +12,7 @@ import { SPORTS, competitionFor } from "@/lib/sports/catalog";
  * build and the browser. Wraps rather than scrolls sideways at 390px, so no keyboard-unreachable scrolling box.
  */
 const pill = (on: boolean): React.CSSProperties => ({
-  display: "inline-flex", alignItems: "center", gap: 6, minHeight: 36, padding: "6px 12px", borderRadius: 999,
+  display: "inline-flex", alignItems: "center", gap: 6, minHeight: 44, /* Release B (benchmark #1193 gap 8): ≥ 44px tap target */ padding: "6px 12px", borderRadius: 999,
   fontSize: 13, fontWeight: 650, textDecoration: "none", whiteSpace: "nowrap",
   color: on ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
   background: on ? "var(--vault-gold-dim)" : "transparent",
