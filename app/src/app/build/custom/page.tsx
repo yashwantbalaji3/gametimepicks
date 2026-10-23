@@ -25,6 +25,8 @@ import { loadPublishedBandRecord, loadGradedLegRecord, loadCardShapeRecord, risk
 import { picksSurfaceStatus } from "@/lib/products/surface-status.mjs";
 import path from "node:path";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import EligibleUniverse from "@/components/products/eligible-universe";
+import { loadProductAvailability } from "@/lib/products/availability";
 
 export const metadata = withRouteMetadata("/build/custom/", {
   title: "Build Your Own · Parlay Center · GameTime Picks",
@@ -89,6 +91,9 @@ export default function ParlayCenterCustomPage() {
           it, and both must survive an empty pool — late at night every leg has started and the pool
           is legitimately zero, but a Customize link or a saved draft still needs its surface. The
           pool column renders its own honest empty state. */}
+      {/* Workstream E (2026-10-23): an empty pool says WHICH sports could contribute a leg and why the others cannot
+          (the same eligible-universe panel /bank-builder and /moonshot show), instead of a generic "no eligible legs". */}
+      {pool.length === 0 ? <EligibleUniverse availability={loadProductAvailability(dataRoot)} compact /> : null}
       <BuildExperience pool={pool} productDate={currentEtDate()} cards={seedableCards} bandByTier={bandByTier} legRecord={legRecord} shapeRecord={shapeRecord} />
 
       {/* ── OPTIMIZER COVERAGE & ELIGIBLE-LEG MARKETPLACE ────────────────────────────────────────

@@ -303,7 +303,7 @@ export default function BuildExperience({
         return (
           <p aria-live="polite" style={{ color: h.concentrated ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)", fontSize: 11, lineHeight: 1.5 }}>
             {h.legs} legs across {h.games} game{h.games === 1 ? "" : "s"}
-            {h.concentrated ? ` · ${h.maxLegsInOneGame} in one game — outcomes there can move together (correlation not validated)` : " · all different games"}
+            {h.concentrated ? ` · ${h.maxLegsInOneGame} in one game — outcomes there can move together, and that is not modelled` : " · all different games"}
           </p>
         );
       })() : null}
