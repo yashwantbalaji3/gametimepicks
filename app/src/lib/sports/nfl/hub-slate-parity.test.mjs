@@ -173,7 +173,10 @@ test("EventCard is layout-only — it fetches nothing and decides nothing", () =
 test("the hub no longer contradicts itself about publishing simulations", () => {
   assert.ok(!/No NFL models, simulations, or picks are published/.test(hubProse),
     "the page publishes simulations; claiming otherwise is the contradiction the index exists to catch");
-  assert.match(hubProse, /published as experimental and are never presented as\s+picks/);
+  // founder directive 2026-10-23 public readiness: "published as experimental" became the public vocabulary
+  // (Official Forecasts and Game Simulations). The intent is unchanged: the page says what it publishes AND that
+  // none of it is presented as a pick.
+  assert.match(hubProse, /\{PUBLIC_TERMS\.OFFICIAL_FORECAST\}s and \{PUBLIC_TERMS\.GAME_SIMULATION\}s on this page are never presented as\s+picks/);
   assert.equal(index.contradictions.length, 0, "the canonical index reports no contradiction");
 });
 

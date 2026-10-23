@@ -33,9 +33,10 @@ const OFF = { constantEnabled: true, env: {} };
 const links = (h) => [...h.matchAll(/<a\b([^>]*\bdata-nba-theater-link="([^"]+)"[^>]*)>([^<]+)<\/a>/g)]
   .map((m) => ({ href: /\bhref="([^"]+)"/.exec(m[1])?.[1], id: m[2], text: m[3].replace(/&#x27;/g, "'") }));
 
-test("the link text carries the role C framing (research simulation, unvalidated) and points at the route", () => {
-  assert.match(THEATER_LINK_TEXT, /research simulation/);
-  assert.match(THEATER_LINK_TEXT, /unvalidated/);
+test("the link text names the Game Simulation (registry term) and points at the route", () => {
+  // founder directive 2026-10-23 public readiness: the role C framing ("research simulation (unvalidated)") is now the registry's Game Simulation; the engine panel
+  // carries the one Model Performance disclosure
+  assert.match(THEATER_LINK_TEXT, /Game Simulation/);
   assert.doesNotMatch(THEATER_LINK_TEXT, /\blive\b|watch the game|forecast|pick/i);
   assert.equal(publicTheaterHref("401909088"), "/nba/simulation/401909088/");
 });

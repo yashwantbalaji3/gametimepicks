@@ -63,6 +63,7 @@ import { archivedEventFrom, archivedEventIds, archivedForecastFor, reconciledGam
 import { buildNflPresentation } from "@/lib/simulate/presentation/nfl";
 import { nflSimulateEligibility } from "@/lib/sports/nfl/simulate-eligibility";
 import SimulationV2Link from "@/components/nfl/simulation-v2-link";
+import { PUBLIC_TERMS, PUBLIC_TERM_MEANING } from "@/lib/public-registry";
 import ForecastStyles from "@/components/nfl/forecast/styles";
 import NotInTheseNumbers from "@/components/nfl/not-in-these-numbers";
 import GameHero from "@/components/nfl/forecast/game-hero";
@@ -149,7 +150,7 @@ export function generateMetadata({ params }: { params: { eventId: string } }): M
   if (!f) return withRouteMetadata(`/nfl/game/${params.eventId}/`, { title: "NFL game · GameTime Picks" });
   return withRouteMetadata(`/nfl/game/${params.eventId}/`, {
     title: `${f.matchup} — NFL game forecast and simulated games · GameTime Picks`,
-    description: `A ${Number.isInteger(f.model?.simulations) && f.model.simulations > 0 ? `${f.model.simulations.toLocaleString("en-US")}-run ` : ""}simulation of ${f.matchup}: projected score, win chance and total range, beside the sportsbook consensus. Experimental model; educational and paper-only.`,
+    description: `A ${Number.isInteger(f.model?.simulations) && f.model.simulations > 0 ? `${f.model.simulations.toLocaleString("en-US")}-run ` : ""}simulation of ${f.matchup}: projected score, win chance and total range, beside the sportsbook consensus. The ${PUBLIC_TERMS.OFFICIAL_FORECAST}, frozen before kickoff; educational and paper-only.`,
     alternates: { canonical: `/nfl/game/${f.providerEventId}` },
   });
 }
@@ -782,7 +783,8 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
             /* P250-W2: a reading key defines the LABEL. Restating the market non-claim here made it
                the third time this page said it — the model's own measured limit says it once, in
                Provenance below. */
-            ["Under forward evaluation", "Published while its record on games played after each forecast was frozen is still accumulating. Every forecast is frozen before kickoff and graded against the official result."],
+            /* Founder directive 2026-10-23 public readiness: the key defines the public term, not a readiness hedge. */
+            [PUBLIC_TERMS.OFFICIAL_FORECAST, `${PUBLIC_TERM_MEANING[PUBLIC_TERMS.OFFICIAL_FORECAST]} Each one is graded against the official result; its record on games played after it was frozen is still accumulating.`],
           ].map(([t, d]) => (
             <div key={t}>
               <dt style={{ fontWeight: 600 }}>{t}</dt>

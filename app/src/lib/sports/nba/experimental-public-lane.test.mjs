@@ -89,10 +89,11 @@ test("the committed public snapshot is exactly what the producer builds from the
 test("rendered lane: the UNVALIDATED banner, freeze times and sources show; no percentage, pick, edge, lean or rank", async () => {
   const { default: Lane } = await import("../../../components/nba/experimental-lane.tsx");
   const html = renderToStaticMarkup(React.createElement(Lane, { snapshot: JSON.parse(JSON.stringify(snap())) }));
-  assert.match(html, /UNVALIDATED EXPERIMENTAL SIMULATION/);
+  // founder directive 2026-10-23 public readiness: the registry banner (Official Forecast + its one disclosure)
+  assert.match(html, /Frozen before tip-off and shown exactly as frozen\. Not a betting recommendation\. NBA forecasts are graded after every game; a public Model Performance record for NBA has not been published yet\./); // release owner 2026-10-23 exact text
   assert.match(html, /frozen pregame forecast, frozen Oct 20/);
   assert.match(html, /Elo rating favours New York Knicks/, "team names, never mixed NY/NYK codes");
-  assert.match(html, /not validated, not a betting recommendation and\s+not a pick/);
+  assert.match(html, /Not a betting recommendation\./); // founder directive 2026-10-23 public readiness
   assert.match(html, /not ranked/);
   const visible = html.replace(/<[^>]+>/g, " ");
   assert.doesNotMatch(visible, /\d+(\.\d+)?\s?%/, "no percentage");
@@ -135,7 +136,7 @@ test("the jump line links every lane game to its card; each card shows its game 
   const s = JSON.parse(JSON.stringify(snap()));
   const line = renderToStaticMarkup(React.createElement(NbaLaneTonight, { snapshot: s }));
   for (const g of s.games) assert.match(line, new RegExp(`href="#${laneCardId(g.providerEventId)}"`));
-  assert.match(line, /not validated/);
+  assert.match(line, /frozen before tip-off/); // founder directive 2026-10-23 public readiness: the jump line names the freeze, not a validation status
   const html = renderToStaticMarkup(React.createElement(Lane, { snapshot: s, statuses: { "401909088": "final · BOS 113 – DET 121" } }));
   for (const g of s.games) assert.match(html, new RegExp(`id="${laneCardId(g.providerEventId)}"`));
   assert.match(html, /Game status: final · BOS 113 – DET 121/);

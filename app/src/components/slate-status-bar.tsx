@@ -51,6 +51,7 @@ function Chip({
   accent?: string;
 }) {
   const style: React.CSSProperties = {
+    minHeight: 44, /* Release B (benchmark PR 1193 gap 8): ≥ 44px tap target, like the slate chips beside it */
     border: `1px solid ${accent ? `color-mix(in srgb, ${accent} 45%, transparent)` : "var(--vault-rule)"}`,
     background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)",
     color: "var(--vault-text-mute)",

@@ -73,12 +73,14 @@ test("UXJ-03: every schedule-only Simulate card opens its own sport's hub — th
         if (e.state !== "SCHEDULE_ONLY") continue;
         if (e.sport === "nba") nbaSeen++;
         assert.notEqual(e.href, "/sports", `${date} ${e.sport} ${e.matchup}: "${e.actionLabel}" opens the generic sports index`);
-        if (HUB[e.sport]) assert.equal(e.href, HUB[e.sport], `${date} ${e.sport} ${e.matchup}: schedule-only card opens its hub`);
+        // F09 (founder directive 2026-10-23 public readiness): an NBA game whose Official Forecast is published opens its
+        // own card ON the hub (/nba/#nba-exp-<id>) — still the hub, never /sports; an unpublished one opens the hub top
+        if (HUB[e.sport]) assert.ok(e.href === HUB[e.sport] || (e.sport === "nba" && /^\/nba\/#nba-exp-[0-9A-Za-z_-]+$/.test(e.href)), `${date} ${e.sport} ${e.matchup}: schedule-only card opens its hub (${e.href})`);
       }
     }
   }
   const day = src("src/lib/simulate/day-view.ts");
-  assert.match(day, /markets: \[\], href: "\/nba", actionLabel: STATE_ACTION\.SCHEDULE_ONLY/, "the NBA composer's destination");
+  assert.match(day, /markets: \[\], href: published \? hubLaneAnchor\(String\(e\.providerEventId\)\) : "\/nba", actionLabel: published \? `View the \$\{PUBLIC_TERMS\.OFFICIAL_FORECAST\}` : STATE_ACTION\.SCHEDULE_ONLY/, "the NBA composer's destination (hub card when published, hub otherwise)");
   if (nbaSeen === 0) assert.ok(true, "no NBA game in the window today — the source pin above still holds");
 });
 
