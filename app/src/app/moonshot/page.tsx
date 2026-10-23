@@ -265,7 +265,7 @@ export default function MoonshotPage() {
 
       {/* v1.7 — which sports could contribute a leg today, from the availability owner (counts + plain
           reasons; names the market-priced caveat). Same component as /bank-builder, same owner. */}
-      <EligibleUniverse availability={loadProductAvailability()} compact scope="Moonshot" />
+      <EligibleUniverse availability={loadProductAvailability()} compact scope="Moonshot" levelA={LEVEL_A} />
       {LEVEL_A ? <LevelASuggestions model={buildLevelAModel() as unknown as LevelAModel} mode="moonshot" /> : null}
 
       {/*

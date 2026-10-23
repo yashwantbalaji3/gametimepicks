@@ -23,7 +23,7 @@ test("compact · closed state still names the evaluated day, the count and the c
   const h = render({ availability, compact: true });
   assert.match(h, /<details/);
   const summary = h.match(/<summary[\s\S]*<\/summary>/)?.[0] ?? "";
-  assert.match(summary, /Eligible universe · evaluated Sun, Jul 13/);
+  assert.match(summary, /Priced-card universe \(Level B\) · evaluated Sun, Jul 13/);
   assert.match(summary, /24 eligible legs from MLB/);
   assert.doesNotMatch(h, /today/i);
 });
@@ -31,8 +31,8 @@ test("compact · closed state still names the evaluated day, the count and the c
 test("compact · the market-priced caveat is never behind the disclosure", () => {
   const h = render({ availability, compact: true });
   assert.match(outsideDetails(h), /priced by the sportsbook market with no forecast behind it/);
-  assert.doesNotMatch(outsideDetails(h), /not eligible for prediction products/, "per-sport reasons are the detail");
-  assert.match(h, /not eligible for prediction products/, "…and they are still on the page");
+  assert.doesNotMatch(outsideDetails(h), /not eligible for priced cards/, "per-sport reasons are the detail");
+  assert.match(h, /not eligible for priced cards/, "…and they are still on the page");
 });
 
 test("compact · no market-only leg, no caveat; the full variant is unchanged in content", () => {
@@ -40,5 +40,5 @@ test("compact · no market-only leg, no caveat; the full variant is unchanged in
   assert.doesNotMatch(render({ availability: modelled, compact: true }), /no forecast behind it/);
   const full = render({ availability });
   assert.doesNotMatch(full, /<details/);
-  for (const t of [/Eligible universe · evaluated Sun, Jul 13/, /24 eligible legs · 4 games/, /no forecast behind it/, /A sport enters only/]) assert.match(full, t);
+  for (const t of [/Priced-card universe \(Level B\) · evaluated Sun, Jul 13/, /24 eligible legs · 4 games/, /no forecast behind it/, /A sport enters only/]) assert.match(full, t);
 });

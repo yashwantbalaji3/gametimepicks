@@ -512,7 +512,7 @@ export default function BankBuilderPage() {
 
       {/* v1.7 — which sports could contribute a leg today, from the availability owner. Counts and plain
           reasons only; it names the market-priced caveat the product carries. Reads no internal artifact. */}
-      <EligibleUniverse availability={loadProductAvailability()} compact scope="Bank Builder" />
+      <EligibleUniverse availability={loadProductAvailability()} compact scope="Bank Builder" levelA={LEVEL_A} />
       {LEVEL_A ? <LevelASuggestions model={buildLevelAModel() as unknown as LevelAModel} mode="bank-builder" /> : null}
 
       {/* FLAGSHIP — the "live climb" hero: a plain-English, mobile-first front door to the ladder. It is
