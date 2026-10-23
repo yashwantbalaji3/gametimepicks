@@ -3,7 +3,7 @@
  "artifact": "daily-product-receipt",
  "dataClass": "PRIVATE_OPERATING_RECORD",
  "date": "2026-10-23",
- "generatedAt": "2026-10-23T09:40:35Z",
+ "generatedAt": "2026-10-23T14:43:23Z",
  "states": [
   "NOT_RUN",
   "INPUTS_MISSING",
@@ -138,18 +138,18 @@
   {
    "product": "end-zone-vault",
    "label": "End Zone Vault",
-   "state": "NOT_RUN",
-   "reason": "the Vault ledger holds no entry for 2026-10-23",
+   "state": "NO_PLAY",
+   "reason": "scorerPrice: FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market) · participation: FAIL(INACTIVE) · participation: FAIL(QUESTIONABLE)",
    "candidatesEvaluated": 0,
    "rejections": [],
    "card": null,
    "ledgerOwned": true,
    "lifecycle": {
-    "state": "INCIDENT",
+    "state": "NO_PLAY",
     "policyVersion": "end-zone-vault@1",
     "evidence": {
      "policyVersion": "end-zone-vault@1",
-     "incidentRef": "NOT_RUN: the Vault ledger holds no entry for 2026-10-23"
+     "reason": "scorerPrice: FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market) · participation: FAIL(INACTIVE) · participation: FAIL(QUESTIONABLE)"
     },
     "transitions": [
      {
@@ -157,8 +157,8 @@
       "runId": "open:end-zone-vault:2026-10-23"
      },
      {
-      "to": "INCIDENT",
-      "runId": "eval:2026-10-23:NOT_RUN"
+      "to": "NO_PLAY",
+      "runId": "eval:2026-10-23:1826563a10ea"
      }
     ]
    }
@@ -436,13 +436,7 @@
    "ledgerOwned": false
   }
  ],
- "watchdog": [
-  {
-   "product": "end-zone-vault",
-   "kind": "INCIDENT_OPEN",
-   "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-10-23"
-  }
- ],
+ "watchdog": [],
  "authorities": {
   "bankBuilder": "src/lib/daily-portfolio/accounting.ts · buildPersistedDailyPortfolio (the same call activate-daily-portfolio.mjs makes)",
   "moonshot": "src/lib/daily-portfolio/accounting.ts · laneEligibility — the LIVE band is MOONSHOT_MIN_COMBINED_ODDS (world-cup/model-qualified-picks.ts)",
