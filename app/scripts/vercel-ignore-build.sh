@@ -171,6 +171,12 @@ BUILD_INPUTS=(
     # Comments inside this array must contain no quote and no closing round bracket: build-input-coverage.test.mjs
     # parses the block with a lazy regex up to the first closing bracket and reads entries between single quotes.
     ':(top)data/internal/research/nba/theater-possession/'
+    # NBA Top Boards postgame actuals, overnight sprint 2026-10-23: the public /nba/projections/<date> pages show each
+    # player's actual figures from the graders' stored box scores, read at build time by
+    # src/lib/sports/nba/projection-board-actuals.ts BOX_DIRS. New box scores land in the daily NBA research commit,
+    # in the same automation window as the lane publish; v0.3-candidate directories are never read.
+    ':(top)data/internal/research/nba/boxscores/'
+    ':(top)data/internal/research/nba/experimental/boxscores/'
 )
 # GTP-BUILD-INPUTS-END
 for _nbi in "${NON_BUILD_INPUTS[@]}"; do

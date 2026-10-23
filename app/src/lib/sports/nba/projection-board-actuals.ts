@@ -6,8 +6,10 @@
  * The board shows a player's actual stat line only for a game whose official final is in the write-once finals record
  * (FINAL — never FINAL_UNDER_REVIEW), whose stored box score is FINAL, and whose box-score team points agree with that
  * final. The box score is the one the graders read, in the graders' order (grade-nba-experimental-forecasts.mjs):
- * the newest recorded correction across every family's ledger, then the canonical corpus, then each family's fetch
- * cache. A player's line is read with the graders' shared line reader (boxscore-line.mjs), stat by stat:
+ * the newest stored correction (<cache>/corrections/<id>.<hash12>.json — written only together with the ledger's
+ * CORRECTION record), then the canonical corpus, then each family's fetch cache. The directories are named one by one
+ * (BOX_DIRS): each is a BUILD_INPUT in scripts/vercel-ignore-build.sh (build-input-coverage.test.mjs), and the
+ * unarmed v0.3 candidate's directory is never read (minutes-model-v03.test.mjs ISOLATION). A player's line is read with the graders' shared line reader (boxscore-line.mjs), stat by stat:
  *   MEASURED            the integer (a combo is the sum of its integer components — top-board-grading.mjs's rule);
  *   DNP                 "DNP" — shown as a dash, never 0;
  *   not in box score / not an integer   null — shown as a dash, never 0.
@@ -18,8 +20,7 @@ import path from "node:path";
 
 import type { Snapshot } from "@/components/nba/experimental-lane";
 import { boxscoreAthlete, isFinalBoxscore, LINE_STATE, measureAthlete } from "@/lib/sports/nba/boxscore-line.mjs";
-import { boxscorePointsCheck, latestCorrectionAcross, upgradeLedger } from "@/lib/sports/nba/experimental-grading-ledger.mjs";
-import { FAMILIES } from "@/lib/sports/nba/experimental-forecast.mjs";
+import { boxscorePointsCheck } from "@/lib/sports/nba/experimental-grading-ledger.mjs";
 import { finalFor, nbaSeasonLabel } from "@/lib/sports/nba/finals-record.mjs";
 import { COMBO_COMPONENTS } from "@/lib/sports/nba/top-boards.mjs";
 
@@ -29,25 +30,38 @@ export type GameActualState = "recorded" | "no-final" | "under-review" | "no-box
 export type RowActual = [number | "DNP" | null, ...(number | null)[]];
 export type BoardActuals = { games: Record<string, GameActualState>; rows: Record<string, RowActual> };
 
-const NBA_DIR = () => path.resolve(process.cwd(), "..", "data/internal/research/nba");
+/** Repo-relative box-score directories, in the graders' lookup order: the canonical corpus, then the fetch cache the
+    nightly grader writes (the v0 family's directory). The other families' caches are empty in the repository; a box
+    score stored only there reads as "not yet recorded" here (never a wrong figure) until it is added below — and to
+    BUILD_INPUTS, which build-input-coverage.test.mjs enforces. */
+export const BOX_DIRS = Object.freeze([
+  "data/internal/research/nba/boxscores",
+  "data/internal/research/nba/experimental/boxscores",
+]);
+const abs = (rel: string) => path.resolve(process.cwd(), "..", rel);
 const readJson = (f: string) => { try { return JSON.parse(fs.readFileSync(f, "utf8")); } catch { return null; } };
 
-let ledgersMemo: unknown[] | null = null;
-/** Every family's grading ledger (for recorded box-score corrections), read once per build process. */
-function familyLedgers(): unknown[] {
-  ledgersMemo ??= Object.values(FAMILIES as Record<string, { dir: string }>)
-    .map((f) => readJson(path.join(NBA_DIR(), f.dir, "ledger.json")))
-    .filter(Boolean)
-    .map((l) => upgradeLedger(l));
-  return ledgersMemo;
+/** The newest stored correction of one event across the fetch caches (by its own capture time), or null. */
+function latestCorrection(id: string): unknown | null {
+  let best: { capturedAt?: string } | null = null;
+  for (const d of BOX_DIRS.slice(1)) {
+    const dir = path.join(abs(d), "corrections");
+    let names: string[] = [];
+    try { names = fs.readdirSync(dir).filter((n) => n.startsWith(`${id}.`) && n.endsWith(".json")); } catch { continue; }
+    for (const n of names) {
+      const doc = readJson(path.join(dir, n));
+      if (doc && (!best || Date.parse(doc.capturedAt ?? "") > Date.parse(best.capturedAt ?? ""))) best = doc;
+    }
+  }
+  return best;
 }
 
 /** The box score the graders read for one event, or null. */
 export function gradedBoxscore(id: string): unknown | null {
-  const fix = latestCorrectionAcross(familyLedgers(), id) as { new?: { file?: string } } | null;
-  if (fix?.new?.file) { const doc = readJson(path.join(NBA_DIR(), fix.new.file)); if (doc) return doc; }
-  const dirs = [path.join(NBA_DIR(), "boxscores"), ...Object.values(FAMILIES as Record<string, { dir: string }>).map((f) => path.join(NBA_DIR(), f.dir, "boxscores"))];
-  for (const d of dirs) { const doc = readJson(path.join(d, `${id}.json`)); if (doc) return doc; }
+  if (!/^\d+$/.test(id)) return null;
+  const fix = latestCorrection(id);
+  if (fix) return fix;
+  for (const d of BOX_DIRS) { const doc = readJson(path.join(abs(d), `${id}.json`)); if (doc) return doc; }
   return null;
 }
 
