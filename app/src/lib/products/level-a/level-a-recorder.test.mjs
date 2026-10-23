@@ -16,7 +16,7 @@ import { levelASuggestions } from "./suggestions.mjs";
 import { LEVEL_A_SERVED_PATH, LEVEL_A_SERVED_SCHEMA, levelAPageModel, levelAServedDoc, modelSha256 } from "./model.mjs";
 import { appendRecord, recordEntries, recordViolations } from "./record.mjs";
 import { buildAsOfIso } from "../../build-asof.ts";
-import { PAGE_FOR, runFromDeployment, shownItems, verifyServed } from "../../../../scripts/products/record-level-a-from-deployment.mjs";
+import { PAGE_FOR, runFromDeployment, shownItems, verdictLine, verifyServed } from "../../../../scripts/products/record-level-a-from-deployment.mjs";
 
 globalThis.React = React;
 const { default: LevelASuggestions } = await import("../../../components/products/level-a-suggestions.tsx");
@@ -135,11 +135,63 @@ test("WORKFLOW: per Production deployment, commits only the record, builds nothi
   const wf = read("../.github/workflows/level-a-record.yml");
   assert.match(wf, /^on:\n  deployment_status:/m);
   assert.match(wf, /github\.event\.deployment_status\.state == 'success' && github\.event\.deployment\.environment == 'Production'/);
-  assert.match(wf, /record-level-a-from-deployment\.mjs --sha "\$DEPLOY_SHA" --attempts 5 --write/);
+  assert.match(wf, /record-level-a-from-deployment\.mjs --sha "\$DEPLOY_SHA" --served-from "\$SERVED_FROM" --attempts 5 --write/);
+  assert.match(wf, /SERVED_FROM: \$\{\{ github\.event\.deployment_status\.created_at \}\}/, "servedFrom is the success status: when the deployment went live");
+  assert.match(wf, /echo "## Level A record: \$\(head -n 1 \/tmp\/level-a-record\.txt\)"/, "the summary leads with the verdict line");
+  assert.match(wf, /exit \$CODE/, "a REFUSED run stays red");
+  assert.match(wf, /permissions:\n  contents: write\n(?:  #.*\n)*  deployments: read\n\n/, "read-only deployments, nothing else");
   assert.match(wf, /git add data\/internal\/products\/level-a\/suggestions\.jsonl/);
   assert.equal((wf.match(/git add /g) ?? []).length, 1, "the record is the only path it stages");
   assert.match(wf, /\[skip ci\]/);
   assert.doesNotMatch(wf, /secrets\.|ODDS_API|VERCEL_TOKEN/);
   const ignore = read("scripts/vercel-ignore-build.sh");
   assert.doesNotMatch(ignore, /data\/internal\/products/, "the record is not a BUILD_INPUT, so its commits build nothing and cannot re-trigger this workflow");
+});
+
+test("SERVED FROM: the gate reads when readers could first see the page; a status before the build is refused", async () => {
+  const { model } = fixture();
+  const firstStart = "2026-10-23T19:00:00Z";
+  assert.ok(appendRecord([], recordEntries(model, { recordedAt: "2026-10-23T14:05:00.000Z", shownAt: AS_OF, servedFrom: "2026-10-23T14:04:00.000Z" })).length > 0);
+  assert.equal(appendRecord([], recordEntries(model, { recordedAt: "2026-10-23T19:10:00.000Z", shownAt: AS_OF, servedFrom: firstStart })).length, 0, "built before the start but live only at it: never recorded");
+  const f = fixture();
+  const fetchText = fetcher({ "/data/build-info.json": f.buildInfo, [LEVEL_A_SERVED_PATH]: f.served, ...f.pages });
+  const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "levela-rec-")), "s.jsonl");
+  const early = await runFromDeployment({ sha: SHA, servedFrom: "2026-10-23T13:59:00.000Z", origin: "https://example.test", write: true, file, fetchText });
+  assert.equal(early.ok, false, "a deployment cannot go live before it was built");
+  assert.equal(fs.existsSync(file), false);
+  const ok = await runFromDeployment({ sha: SHA, servedFrom: "2026-10-23T14:03:00.000Z", origin: "https://example.test", write: true, file, fetchText });
+  assert.equal(ok.ok, true);
+  for (const l of fs.readFileSync(file, "utf8").trim().split("\n")) assert.equal(JSON.parse(l).servedFrom, "2026-10-23T14:03:00.000Z");
+});
+
+test("VERDICT: the first line says OK / SUPERSEDED / REFUSED and why", () => {
+  assert.match(verdictLine({ ok: true, added: 2, entries: ["a/high", "b/longshot"] }), /^OK: 2 new entries recorded \(a\/high, b\/longshot\)$/);
+  assert.match(verdictLine({ ok: true, added: 0, entries: [] }), /^OK: 0 new entries recorded$/);
+  assert.match(verdictLine({ ok: true, superseded: true, servedSha: NEWER }), /^SUPERSEDED: Production already serves the newer bbbbbbbbbb/);
+  assert.match(verdictLine({ ok: false, problems: ["x", "y"] }), /^REFUSED: x; y$/);
+  const script = read("scripts/products/record-level-a-from-deployment.mjs");
+  assert.match(script, /catch \(e\) \{[\s\S]*?out = \{ ok: false, problems: \[String\(e\?\.message \?\? e\)\]/, "a thrown read still produces a REFUSED verdict");
+});
+
+test("PUBLIC BY DESIGN: the served model carries no price, odds, payout, internal path or private id; a flag-OFF build emits no file", () => {
+  const doc = levelAServedDoc();
+  const json = JSON.stringify(doc);
+  for (const banned of ["data/internal", "PRIVATE_RESEARCH", "apiKey", "ODDS_API", "internal/platform", "private-data", "GTP_PRIVATE"]) assert.ok(!json.includes(banned), `the served model must not carry "${banned}"`);
+  assert.doesNotMatch(json, /"(americanOdds|overAmerican|underAmerican|odds|book|bookmaker|ev|edge|stake)":/);
+  for (const m of json.matchAll(/"(price|payout)":([^,}]+)/g)) assert.equal(m[2], "null", `${m[1]} is always null`);
+  for (const m of json.matchAll(/"priced":([^,}]+)/g)) assert.equal(m[1], "false");
+  /* Flag OFF: the doc says public:false, the Level A section (the only literal link) is absent, the file is in no
+     always-public list, so the post-build sweep removes it. */
+  assert.match(read("src/lib/products/level-a/model.mjs"), /public: levelAEnabled\(\)/);
+  const prune = read("scripts/prune-internal-routes.mjs");
+  assert.doesNotMatch(prune.match(/const ALWAYS_PUBLIC_DATA = \[[^\]]*\]/)[0] + prune.match(/const ALWAYS_PUBLIC_DATA_DIRS = \[[^\]]*\]/)[0], /level-a/);
+  const linkers = [];
+  const walk = (d) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const f = path.join(d, e.name); if (e.isDirectory()) walk(f); else if (/\.(tsx?|mjs)$/.test(e.name) && !/\.test\./.test(e.name)) { const t = fs.readFileSync(f, "utf8"); if (t.includes(LEVEL_A_SERVED_PATH) && !f.includes(`${path.sep}data${path.sep}level-a${path.sep}`) && !f.endsWith("model.mjs")) linkers.push(path.relative(process.cwd(), f)); } } };
+  walk(path.resolve(process.cwd(), "src"));
+  assert.deepEqual(linkers, ["src/components/products/level-a-suggestions.tsx"], "only the Level A section links the file, and it renders only when Level A is on");
+  /* The client-graph lesson: no client component reaches the Level A model, its readers or the record. */
+  const clientHits = [];
+  const walkC = (d) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const f = path.join(d, e.name); if (e.isDirectory()) walkC(f); else if (/\.(tsx?|mjs)$/.test(e.name) && !/\.test\./.test(e.name)) { const t = fs.readFileSync(f, "utf8"); if (/^["']use client["']/m.test(t) && /level-a\/(model|sources|record)/.test(t)) clientHits.push(path.relative(process.cwd(), f)); } } };
+  walkC(path.resolve(process.cwd(), "src"));
+  assert.deepEqual(clientHits, []);
 });

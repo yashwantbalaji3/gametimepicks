@@ -14,7 +14,9 @@
  * A refused run writes nothing and exits non-zero, so the workflow goes red instead of recording a card readers
  * never saw. A bot-challenged response is refused the same way (it proves nothing either way).
  *
- *   npx tsx scripts/products/record-level-a-from-deployment.mjs --sha <deployment sha> [--origin URL] [--write]
+ *   npx tsx scripts/products/record-level-a-from-deployment.mjs --sha <deployment sha> --served-from <ISO> [--origin URL] [--write]
+ *   --served-from: when the deployment went live (its success deployment_status). The first stdout line is the
+ *   verdict, OK / SUPERSEDED / REFUSED with its reason; the JSON follows.
  *   Default: dry run (prints what would be appended).
  */
 import fs from "node:fs";
@@ -78,7 +80,7 @@ async function get(url) {
  * Lagging: wait and re-read. Newer: that deployment's own run records what it shows, so this one is SUPERSEDED and
  * writes nothing. Its cards were shown only between the two builds; see the workflow note.
  */
-export async function runFromDeployment({ sha, origin = DEFAULT_ORIGIN, write = false, file = LEVEL_A_RECORD_PATH, now = new Date().toISOString(), fetchText = get, attempts = 1, waitMs = 60_000, isNewer = () => false, sleep = (ms) => new Promise((r) => setTimeout(r, ms)) }) {
+export async function runFromDeployment({ sha, servedFrom = null, origin = DEFAULT_ORIGIN, write = false, file = LEVEL_A_RECORD_PATH, now = new Date().toISOString(), fetchText = get, attempts = 1, waitMs = 60_000, isNewer = () => false, sleep = (ms) => new Promise((r) => setTimeout(r, ms)) }) {
   if (!/^[0-9a-f]{40}$/.test(sha ?? "")) throw new Error("--sha <40-hex deployment sha> required");
   let buildInfo = JSON.parse(await fetchText(`${origin}/data/build-info.json`));
   for (let a = 1; buildInfo?.commit?.sha !== sha; a++) {
@@ -91,10 +93,11 @@ export async function runFromDeployment({ sha, origin = DEFAULT_ORIGIN, write = 
   const pages = {};
   for (const p of new Set(Object.values(PAGE_FOR))) pages[p] = await fetchText(`${origin}${p}`);
   const v = verifyServed({ sha, buildInfo, served, pages });
-  if (!v.ok) return { ok: false, problems: v.problems, added: 0, wrote: false };
+  if (v.ok && servedFrom != null && !(Date.parse(servedFrom) >= Date.parse(served.asOf))) v.problems.push(`servedFrom ${servedFrom} is not at or after the build instant ${served.asOf}`);
+  if (!v.ok || v.problems.length) return { ok: false, problems: v.problems, added: 0, wrote: false };
   const beforeText = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
   const existing = beforeText.split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l));
-  const added = appendRecord(existing, recordEntries(served.model, { recordedAt: now, shownAt: served.asOf, source: { kind: "production-deployment", sha, origin, servedModelSha256: served.modelSha256 } }));
+  const added = appendRecord(existing, recordEntries(served.model, { recordedAt: now, shownAt: served.asOf, servedFrom, source: { kind: "production-deployment", sha, origin, servedModelSha256: served.modelSha256 } }));
   const afterText = beforeText + added.map((e) => `${JSON.stringify(e)}\n`).join("");
   const violations = recordViolations({ beforeText, afterText });
   if (violations.length) throw new Error(`record guard: ${violations.join("; ")}`);
@@ -104,7 +107,14 @@ export async function runFromDeployment({ sha, origin = DEFAULT_ORIGIN, write = 
     else fs.writeFileSync(file, afterText, { flag: "wx" });
     if (fs.readFileSync(file, "utf8") !== afterText) throw new Error("post-write check failed");
   }
-  return { ok: true, problems: [], productDay: served.productDay, shownAt: served.asOf, added: added.length, wrote: write && added.length > 0, entries: added.map((e) => `${e.policy}/${e.tier}${e.revisionOf ? ` (revises ${e.revisionOf})` : ""}`) };
+  return { ok: true, problems: [], productDay: served.productDay, shownAt: served.asOf, servedFrom, added: added.length, wrote: write && added.length > 0, entries: added.map((e) => `${e.policy}/${e.tier}${e.revisionOf ? ` (revises ${e.revisionOf})` : ""}`) };
+}
+
+/** The verdict line a run summary leads with, so a red run says why at a glance. */
+export function verdictLine(out) {
+  if (out.superseded) return `SUPERSEDED: Production already serves the newer ${String(out.servedSha).slice(0, 10)}; that deployment's own run records it`;
+  if (!out.ok) return `REFUSED: ${out.problems.join("; ")}`;
+  return `OK: ${out.added} new entr${out.added === 1 ? "y" : "ies"} recorded${out.added ? ` (${out.entries.join(", ")})` : ""}`;
 }
 
 if (path.resolve(process.argv[1] ?? "") === fileURLToPath(import.meta.url)) {
@@ -112,7 +122,14 @@ if (path.resolve(process.argv[1] ?? "") === fileURLToPath(import.meta.url)) {
   const { execFileSync } = await import("node:child_process");
   /* "Newer" = the served commit descends from the deployment's commit on this checkout's history. */
   const isNewer = (served, mine) => { try { execFileSync("git", ["merge-base", "--is-ancestor", mine, served], { stdio: "ignore" }); return served !== mine; } catch { return false; } };
-  const out = await runFromDeployment({ sha: arg("--sha"), origin: arg("--origin") ?? DEFAULT_ORIGIN, write: process.argv.includes("--write"), attempts: Number(arg("--attempts") ?? 1), isNewer });
+  let out;
+  try {
+    out = await runFromDeployment({ sha: arg("--sha"), servedFrom: arg("--served-from"), origin: arg("--origin") ?? DEFAULT_ORIGIN, write: process.argv.includes("--write"), attempts: Number(arg("--attempts") ?? 1), isNewer });
+  } catch (e) {
+    /* A challenged or failed read, or a record-guard violation: still a verdict line, never a silent failure. */
+    out = { ok: false, problems: [String(e?.message ?? e)], added: 0, wrote: false };
+  }
+  console.log(verdictLine(out));
   console.log(JSON.stringify(out, null, 2));
   if (!out.ok) process.exit(1);
 }

@@ -8,9 +8,10 @@
  * pointing at the earlier one; the grader grades every entry that was recorded before its first leg's start, so a
  * revision can never replace what was shown.
  * SHOWN, NOT COMPUTED. A static export decides what readers see at BUILD time. `shownAt` is the build instant of the
- * Production deployment that served the entry (read from that deployment, never from the recorder's clock), and the
- * pre-start gate reads it: an entry counts only if it was shown before its first leg started. `source` names the
- * deployment. Entries written before this (manual runs) carry no `shownAt`; for them the gate reads `recordedAt`.
+ * Production deployment that served the entry (read from that deployment, never from the recorder's clock), and
+ * `servedFrom` is when that deployment went live (its GitHub deployment status turned success), a few minutes later.
+ * The pre-start gate reads the LATEST instant it has (servedFrom, else shownAt, else recordedAt): an entry counts
+ * only if readers could see it before its first leg started. `source` names the deployment.
  * Writers: app/scripts/products/record-level-a-from-deployment.mjs (per Production deployment, the normal path) and
  * app/scripts/products/record-level-a-suggestions.mjs (manual).
  */
@@ -22,13 +23,13 @@ const legKey = (l) => `${l.sport}:${l.eventId}:${l.market}:${l.selection.code}`;
 const sha = (s) => createHash("sha256").update(s).digest("hex").slice(0, 16);
 
 /** Entries a Level A answer would add to a record (pure). */
-export function recordEntries(answer, { recordedAt, shownAt = null, source = null }) {
+export function recordEntries(answer, { recordedAt, shownAt = null, servedFrom = null, source = null }) {
   const rows = [];
   const add = (policy, tier, legs, extra = {}) => {
     if (!legs?.length) return;
     const legsOut = legs.map((l) => ({ sport: l.sport, eventId: l.eventId, eventLabel: l.eventLabel, startUtc: l.startUtc, market: l.market, selection: l.selection, probability: l.probability, forecast: l.forecast, settlement: l.settlement }));
     const id = sha([answer.productDay, policy, tier, ...legs.map(legKey)].join("|"));
-    rows.push({ schema: LEVEL_A_RECORD_SCHEMA, id, productDay: answer.productDay, policy, tier, recordedAt, ...(shownAt ? { shownAt } : {}), ...(source ? { source } : {}), firstStartUtc: legs.map((l) => l.startUtc).sort()[0], legs: legsOut, priced: false, price: null, payout: null, dataClass: "PAPER_SUGGESTION", ...extra });
+    rows.push({ schema: LEVEL_A_RECORD_SCHEMA, id, productDay: answer.productDay, policy, tier, recordedAt, ...(shownAt ? { shownAt } : {}), ...(servedFrom ? { servedFrom } : {}), ...(source ? { source } : {}), firstStartUtc: legs.map((l) => l.startUtc).sort()[0], legs: legsOut, priced: false, price: null, payout: null, dataClass: "PAPER_SUGGESTION", ...extra });
   };
   for (const t of answer.parlayLab ?? []) if (t.card) add(t.card.policy, t.tier, t.card.legs, { jointProbability: t.card.jointProbability });
   if (answer.bankBuilder?.card) add(answer.bankBuilder.card.policy, answer.bankBuilder.card.tier, answer.bankBuilder.card.legs, { jointProbability: answer.bankBuilder.card.jointProbability });
@@ -45,7 +46,7 @@ export function appendRecord(existing, candidates) {
   const out = [];
   for (const c of candidates ?? []) {
     if (ids.has(c.id)) continue;
-    if (!(Date.parse(c.shownAt ?? c.recordedAt) < Date.parse(c.firstStartUtc))) continue; // only what was shown before its first leg started
+    if (!(Date.parse(c.servedFrom ?? c.shownAt ?? c.recordedAt) < Date.parse(c.firstStartUtc))) continue; // only what readers could see before its first leg started
     const prev = lastBySlot.get(`${c.productDay}|${c.policy}|${c.tier}`);
     const row = prev ? { ...c, revisionOf: prev.id } : c;
     out.push(row); ids.add(row.id); lastBySlot.set(`${c.productDay}|${c.policy}|${c.tier}`, row);
