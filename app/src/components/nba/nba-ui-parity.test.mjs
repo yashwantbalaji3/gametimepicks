@@ -212,7 +212,7 @@ test("console-clean navigation (release owner 2026-10-22): every page-to-page NB
   }
 });
 
-test("homepage NBA lane: its Top Boards link is a 44px target; other lanes' secondary links are unchanged", async () => {
+test("homepage lanes: the NBA Top Boards link and every other lane's secondary link are 44px targets", async () => {
   const CC = await import("../command-center/command-center.tsx");
   const CommandCenter = CC.default?.default ?? CC.default;
   const nba = nbaLane(slate(), NOW);
@@ -221,5 +221,6 @@ test("homepage NBA lane: its Top Boards link is a 44px target; other lanes' seco
   // next/link drops the trailing slash outside a Next build (no trailingSlash env here), so match with or without it
   const linkTo = (href) => [...h.matchAll(/<a [^>]*>/g)].map((m) => m[0]).find((a) => a.includes(`href="${href.replace(/\/$/, "")}"`) || a.includes(`href="${href}"`));
   assert.match(linkTo("/nba/projections/"), /class="font-mono gtp-hit-44"/);
-  assert.match(linkTo("/soccer/ligue-1/"), /class="font-mono"/, "a lane without games keeps its link as it was");
+  // Release B (benchmark PR 1193 gap 8, release owner 2026-10-23): every lane's secondary link is now a 44px target too
+  assert.match(linkTo("/soccer/ligue-1/"), /class="font-mono gtp-hit-44"/);
 });

@@ -112,7 +112,7 @@ export default async function NbaHubPage() {
             : "Official finals appear on their game rows once the finals record holds them. A game without one is pending, not a result."}
         </p>
         <p className="m-0 text-[13.5px]">
-          <Link href="/results/nba/" className="underline" style={{ color: "var(--vault-text)" }}>
+          <Link href="/results/nba/" className="underline inline-flex items-center" style={{ color: "var(--vault-text)", minHeight: 44 }}>
             May–June 2026 player-prop archive
           </Link>
           <span style={{ color: "var(--vault-text-mute)" }}> — a retired model&rsquo;s settled record, kept for transparency.</span>
