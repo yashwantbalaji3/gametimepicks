@@ -114,3 +114,38 @@ test("@1 bodies carry no idRule (ids reproduce exactly); @2 hashes each source a
   const v2 = nbaOfficialSnapshot(id, { official: off, supporting: sup, v2From: date });
   assert.ok(v2.sources.every((x) => x.hashBasis === "canonical-json"));
 });
+
+// ── ACTIVATION SAFETY (release owner 2026-10-23: "an activation slate ≥ 10-25 with a byte-identity check for every
+//    published slate"). Data-driven over EVERY committed Theater slate, so it holds for slates published after this test.
+const THEATER_DIR = path.join(REPO, "data/internal/research/nba/theater-possession");
+const THEATER_SLATES = fs.existsSync(THEATER_DIR) ? fs.readdirSync(THEATER_DIR).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort() : [];
+
+test("ACTIVATION: the @2 slate is strictly after every slate whose Theater runs are already committed (a past slate never changes rule)", () => {
+  assert.ok(THEATER_SLATES.length >= 4);
+  if (NBA_SNAPSHOT_ID_V2_FROM == null) return; // inactive: nothing to check
+  for (const d of THEATER_SLATES) {
+    if (d < NBA_SNAPSHOT_ID_V2_FROM) continue;
+    // a slate at/after activation that already has runs must have been BUILT under @2 (its embedded ids equal @2 rebuilds)
+    const read = readPossessionArtifact(REPO, d);
+    const off = fileSrc(OFF(d)), sup = fileSrc(SUP(d));
+    for (const g of read.doc?.games ?? []) {
+      const s = nbaOfficialSnapshot(String(g.providerEventId), { official: off, supporting: sup });
+      assert.equal(s.idRule, NBA_SNAPSHOT_ID_RULE.V2, `${d}: an @2 slate`);
+      assert.equal(g.official?.snapshotId, s.snapshotId, `${d}/${g.providerEventId}: its committed runs embed the @2 id — activation was set after it was built`);
+    }
+  }
+});
+
+test("BYTE-IDENTITY of every published slate before the activation slate: each game's snapshot is exactly the @1 snapshot", () => {
+  for (const d of THEATER_SLATES) {
+    if (NBA_SNAPSHOT_ID_V2_FROM != null && d >= NBA_SNAPSHOT_ID_V2_FROM) continue;
+    const off = fileSrc(OFF(d)), sup = fileSrc(SUP(d));
+    for (const g of off?.doc.games ?? []) {
+      const id = String(g.providerEventId);
+      const now = nbaOfficialSnapshot(id, { official: off, supporting: sup });
+      const v1 = nbaOfficialSnapshot(id, { official: off, supporting: sup, v2From: null });
+      assert.equal(JSON.stringify(now), JSON.stringify(v1), `${d}/${id}: unchanged by the rule's existence`);
+      assert.equal("idRule" in now, false, `${d}/${id}: an @1 body`);
+    }
+  }
+});
