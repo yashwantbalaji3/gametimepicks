@@ -116,3 +116,37 @@ test("probe: a monitor with a looser bar would miss the finding it was built for
   assert.equal(CALIBRATION_BARS.Z_THRESHOLD, 2);
   assert.equal(CALIBRATION_BARS.MIN_SAMPLE, 20);
 });
+
+test("builder: a re-run that changes only the stamps does not rewrite the public file (no stamp-only Production build)", async () => {
+  // 2026-10-22: 9 Production builds came from app/public/data/nfl/interval-calibration.json changing only generatedAt and
+  // ledgerGeneratedAt. Runs the real builder against a temporary copy of the layout it reads and writes.
+  const os = await import("node:os");
+  const { spawnSync } = await import("node:child_process");
+  const appSrc = path.resolve(HERE, "../../../..");
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "interval-cal-"));
+  for (const rel of ["app/scripts/nfl/build-interval-calibration.mjs", "app/src/lib/sports/nfl/interval-calibration.mjs"]) {
+    fs.mkdirSync(path.dirname(path.join(root, rel)), { recursive: true });
+    fs.copyFileSync(path.join(appSrc, "..", rel), path.join(root, rel));
+  }
+  const summaryPath = path.join(root, "data/internal/nfl/experimental-settlement/summary.json");
+  fs.mkdirSync(path.dirname(summaryPath), { recursive: true });
+  const cohort = (n) => ({ label: "regular season", decisive: n, winnerAccuracy: 0.6, marginInterval80Coverage: 0.8, totalInterval80Coverage: 0.775 });
+  const writeSummary = (stamp, n) => fs.writeFileSync(summaryPath, JSON.stringify({ generatedAt: stamp, modelVersion: "m", cohorts: { regular: cohort(n) } }));
+  const out = path.join(root, "app/public/data/nfl/interval-calibration.json");
+  const run = (now) => { const r = spawnSync(process.execPath, [path.join(root, "app/scripts/nfl/build-interval-calibration.mjs"), "--now", now, "--write"], { encoding: "utf8" }); assert.equal(r.status, 0, r.stderr); return r.stdout; };
+
+  writeSummary("2026-10-22T23:49:17Z", 40);
+  assert.match(run("2026-10-22T23:49:17Z"), /wrote /);
+  const first = fs.readFileSync(out, "utf8");
+
+  writeSummary("2026-10-22T23:53:57Z", 40); // the settler re-ran: new stamp, same cohorts
+  assert.match(run("2026-10-22T23:53:57Z"), /unchanged \(only stamps would move\)/);
+  assert.equal(fs.readFileSync(out, "utf8"), first, "byte-identical: no rewrite, no build");
+
+  writeSummary("2026-10-23T03:00:00Z", 41); // a newly settled game: real content change
+  assert.match(run("2026-10-23T03:00:00Z"), /wrote /);
+  const third = JSON.parse(fs.readFileSync(out, "utf8"));
+  assert.equal(third.generatedAt, "2026-10-23T03:00:00Z");
+  assert.equal(third.ledgerGeneratedAt, "2026-10-23T03:00:00Z");
+  assert.notEqual(JSON.stringify(third.cohorts), JSON.stringify(JSON.parse(first).cohorts));
+});
