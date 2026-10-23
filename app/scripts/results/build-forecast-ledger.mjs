@@ -31,7 +31,7 @@ import { ufcWinnerRows } from "../../src/lib/forecast-ledger/adapters/ufc.mjs";
 import { compareLedgers, pairRekeys } from "../../src/lib/forecast-ledger/append-only.mjs";
 import { buildManifest, composeLedger, serializeRow } from "../../src/lib/forecast-ledger/compose.mjs";
 import { LEDGER_SCHEMA_VERSION } from "../../src/lib/forecast-ledger/contract.mjs";
-import { attachRecovered, GIT_EVIDENCE_REL, GIT_EVIDENCE_SCHEMA } from "../../src/lib/forecast-ledger/provenance.mjs";
+import { attachRecovered, GIT_EVIDENCE_REL, GIT_EVIDENCE_SCHEMA } from "../../src/lib/forecast-ledger/provenance-evidence.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const APP = path.join(ROOT, "app");

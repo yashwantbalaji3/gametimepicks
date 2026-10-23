@@ -12,10 +12,10 @@ import path from "node:path";
 import { FORECAST_KIND, validateRow } from "./contract.mjs";
 import { makeRow } from "./row.mjs";
 import { compareLedgers } from "./append-only.mjs";
+import { fieldProvenance, PROVENANCE_FIELDS, PROVENANCE_STATE, provenanceCounts, rowProvenance, validateRecovered } from "./provenance.mjs";
 import {
-  attachRecovered, eplPlayerSnapshotEvidence, fieldProvenance, GIT_EVIDENCE_REL, GIT_EVIDENCE_SCHEMA, ligue1ArchiveEvidence,
-  nflBoardEvidence, PROVENANCE_FIELDS, PROVENANCE_STATE, provenanceCounts, rowProvenance, ufcSnapshotEvidence, validateRecovered,
-} from "./provenance.mjs";
+  attachRecovered, eplPlayerSnapshotEvidence, GIT_EVIDENCE_REL, GIT_EVIDENCE_SCHEMA, ligue1ArchiveEvidence, nflBoardEvidence, ufcSnapshotEvidence,
+} from "./provenance-evidence.mjs";
 import { mergeEvidence } from "../../../scripts/results/recover-forecast-provenance-git.mjs";
 
 const ROOT = path.resolve(process.cwd(), "..");

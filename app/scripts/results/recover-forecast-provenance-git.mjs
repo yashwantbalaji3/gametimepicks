@@ -27,7 +27,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { GIT_EVIDENCE_REL, GIT_EVIDENCE_SCHEMA, PROVENANCE_STATE, validateRecovered } from "../../src/lib/forecast-ledger/provenance.mjs";
+import { PROVENANCE_STATE, validateRecovered } from "../../src/lib/forecast-ledger/provenance.mjs";
+import { GIT_EVIDENCE_REL, GIT_EVIDENCE_SCHEMA } from "../../src/lib/forecast-ledger/provenance-evidence.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const LEDGER = path.join(ROOT, "data/internal/forecast-ledger/v1");

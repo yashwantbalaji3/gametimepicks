@@ -13,7 +13,7 @@ or timestamp on a row was changed.
 ## The contract
 
 Each ledger row now carries a provenance state for three fields: `modelId`, `eventStart` and `publishedAt`.
-The logic lives in `app/src/lib/forecast-ledger/provenance.mjs`.
+The states and the resolver live in `app/src/lib/forecast-ledger/provenance.mjs`, which is pure and does no I/O, so pages can import it. The matchers that read committed files live in `provenance-evidence.mjs`, which only the ledger builder calls.
 
 | State | Meaning |
 |---|---|
