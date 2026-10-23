@@ -19,14 +19,21 @@ import path from "node:path";
 import { makeGradedPickOwners } from "@/lib/sports/graded-pick-owners.mjs";
 import { mlbFirstPitches, mlbLeansOfRecord } from "@/lib/results/mlb-leans-of-record.mjs";
 import { outcomeOfPick, outcomeFromWord } from "./populations.mjs";
+import { mlbCallStatus, type MlbCallPublicationStatus } from "./mlb-call-status";
+import { gameHref } from "@/lib/research-pages/game-links";
+import { ledgerFamilies, familyHref } from "./forecast-ledger-reader";
 
 export type V2Outcome = "WIN" | "LOSS" | "PUSH" | "VOID";
-export interface DayCall { market: string; pick: string; line: string | null; outcome: V2Outcome | null }
+/** F05: whether the call was a public pick at the start (MLB calls can be paused on the site and still graded). */
+export interface DayCall { market: string; pick: string; line: string | null; outcome: V2Outcome | null; publication: MlbCallPublicationStatus }
 export interface DayProp { player: string; team: string | null; market: string; pick: string; actual: string | null; outcome: V2Outcome | null }
 export interface DayRange { player: string; team: string | null; family: string; status: string; range: string; actual: string | null; inside: boolean | null }
 export interface DayEvent {
   id: string; sport: "mlb" | "nfl" | "epl" | "ufc"; title: string; final: string | null;
   calls: DayCall[]; props: DayProp[]; ranges: DayRange[];
+  /** The trace (founder 2026-10-23): the exported page that published the pregame forecast, and who verified the
+   *  final. Links only to a page this deploy exports (research-pages/game-links); null when there is none. */
+  forecastHref?: string | null; finalSource?: string | null;
 }
 
 const readJsonl = (p: string): Record<string, any>[] => {
@@ -97,7 +104,7 @@ export function resultsDay(date: string): Record<"mlb" | "nfl" | "epl" | "ufc", 
   const src = sources();
   const mlb = new Map<string, DayEvent>();
   const mlbEvent = (pk: string, title: string) => {
-    if (!mlb.has(pk)) mlb.set(pk, { id: `mlb-${pk}`, sport: "mlb", title, final: null, calls: [], props: [], ranges: [] });
+    if (!mlb.has(pk)) mlb.set(pk, { id: `mlb-${pk}`, sport: "mlb", title, final: null, calls: [], props: [], ranges: [], forecastHref: gameHref("MLB", pk, date), finalSource: null });
     return mlb.get(pk)!;
   };
   for (const r of src.mlbGames) {
@@ -106,8 +113,9 @@ export function resultsDay(date: string): Record<"mlb" | "nfl" | "epl" | "ufc", 
     if (r.actual && typeof r.actual.homeRuns === "number" && typeof r.actual.awayRuns === "number") {
       const [away, home] = String(r.matchup ?? "").split(" @ ");
       e.final = away && home ? `${away} ${r.actual.awayRuns} – ${r.actual.homeRuns} ${home}` : `${r.actual.awayRuns}–${r.actual.homeRuns}`;
+      e.finalSource = r.resultSource === "statsapi-linescore" ? "MLB official linescore" : e.finalSource ?? null;
     }
-    e.calls.push({ market: MARKET[r.market] ?? String(r.market), pick: String(r.pick ?? ""), line: r.line != null ? String(r.line) : null, outcome: outcomeFromWord(r.outcome) as V2Outcome | null });
+    e.calls.push({ market: MARKET[r.market] ?? String(r.market), pick: String(r.pick ?? ""), line: r.line != null ? String(r.line) : null, outcome: outcomeFromWord(r.outcome) as V2Outcome | null, publication: mlbCallStatus(r) });
   }
   for (const r of src.mlbProps) {
     if (r.date !== date) continue;
@@ -124,13 +132,15 @@ export function resultsDay(date: string): Record<"mlb" | "nfl" | "epl" | "ufc", 
     return {
     id: String(p.eventId), sport: "nfl" as const, title,
     final: f ? (away && home ? `${away} ${f.away} – ${f.home} ${home}` : `${f.away}–${f.home}`) : null,
-    calls: [{ market: "Winner", pick: sideTeam(title, p.predicted), line: null, outcome: outcomeOfPick(p) as V2Outcome | null }],
+    calls: [{ market: "Winner", pick: sideTeam(title, p.predicted), line: null, outcome: outcomeOfPick(p) as V2Outcome | null, publication: "PUBLIC" as const }],
     props: [], ranges: ranges.get(String(p.eventId)) ?? [],
+    forecastHref: gameHref("NFL", String(p.eventId).replace(/^nfl-/, ""), date), finalSource: f ? "official final score" : null,
     };
   });
   const simple = (sport: "epl" | "ufc", market: string, finalWord: string) => src.picks[sport].filter((p: any) => p.when === date).map((p: any) => ({
     id: String(p.eventId), sport, title: String(p.subject ?? p.eventId), final: p.actual != null ? `${finalWord}: ${p.actual}` : null,
-    calls: [{ market, pick: String(p.predicted ?? "—"), line: null, outcome: outcomeOfPick(p) as V2Outcome | null }], props: [], ranges: [],
+    calls: [{ market, pick: String(p.predicted ?? "—"), line: null, outcome: outcomeOfPick(p) as V2Outcome | null, publication: "PUBLIC" as const }], props: [], ranges: [],
+    forecastHref: gameHref(sport === "epl" ? "EPL" : "UFC", String(p.eventId), date), finalSource: p.actual != null ? "official result" : null,
   }));
   return { mlb: [...mlb.values()], nfl, epl: simple("epl", "Match result", "Result"), ufc: simple("ufc", "Fight winner", "Winner") };
 }
@@ -143,4 +153,17 @@ export function resultsDayDates(limit = Infinity): string[] {
   for (const s of ["nfl", "epl", "ufc"] as const) for (const p of src.picks[s]) if (typeof p.when === "string" && /^\d{4}-\d{2}-\d{2}$/.test(p.when)) days.add(p.when);
   for (const r of src.mlbProps) if (typeof r.date === "string") days.add(r.date);
   return [...days].sort().reverse().slice(0, limit);
+}
+
+/** Each sport's Model Performance pages — the Forecast Record family pages this deploy exports for its game calls. */
+const PERFORMANCE: Record<DayEvent["sport"], Array<[string, string, string]>> = {
+  mlb: [["MLB", "mlb_moneyline", "Winner"], ["MLB", "mlb_total", "Total runs"], ["MLB", "mlb_run_line", "Run line"]],
+  nfl: [["NFL", "nfl_game_winner", "Winner"]],
+  epl: [["EPL", "epl_1x2", "Match result"]],
+  ufc: [["UFC", "ufc_winner", "Fight winner"]],
+};
+export function modelPerformanceLinks(): Record<DayEvent["sport"], Array<{ label: string; href: string }>> {
+  const have = new Set(ledgerFamilies().map((f) => `${f.sport}|${f.family}`));
+  const pick = (k: DayEvent["sport"]) => PERFORMANCE[k].filter(([sp, fam]) => have.has(`${sp}|${fam}`)).map(([sp, fam, label]) => ({ label, href: familyHref(sp, fam) }));
+  return { mlb: pick("mlb"), nfl: pick("nfl"), epl: pick("epl"), ufc: pick("ufc") };
 }

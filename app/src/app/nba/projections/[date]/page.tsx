@@ -8,7 +8,8 @@
  *
  * A date before the build's ET date is labelled a PAST FROZEN SLATE and is never presented as current; the default view
  * (/nba/projections/) stays the current slate. Each page embeds only its own date's board. Every number is the frozen
- * pregame value, copied verbatim from that date's snapshot by the shared view.
+ * pregame value, copied verbatim from that date's snapshot by the shared view. After an official final, each player's
+ * Actual from the graders' box score sits beside the frozen figure (projection-board-actuals.ts) — never in place of it.
  */
 import type { Metadata } from "next";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
@@ -27,8 +28,8 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: { params: { date: string } }): Metadata {
   const shown = AMENDMENT_A.enabled && (loadLaneForDate(params.date)?.games.length ?? 0) > 0;
   return withRouteMetadata(`/nba/projections/${params.date}/`, {
-    title: `NBA player projections · ${params.date}${params.date < currentEtDate() ? " (past frozen slate)" : ""} — experimental, not validated · GameTime Picks`,
-    description: `Frozen pregame NBA player medians for the ${params.date} slate from an unvalidated experimental simulation, shown exactly as frozen. Not betting recommendations.`,
+    title: `NBA Predicted Player Statistics · ${params.date}${params.date < currentEtDate() ? " (past frozen slate)" : ""} · GameTime Picks`,
+    description: `Official Forecast NBA player medians for the ${params.date} slate, frozen before tip-off and shown exactly as frozen, with each player's actual box-score figures beside them after the final. Not betting recommendations.`,
     // A date with no committed snapshot is an empty state: reachable, never indexed.
     ...(shown ? {} : { robots: { index: false, follow: true } }),
   });
@@ -37,5 +38,5 @@ export function generateMetadata({ params }: { params: { date: string } }): Meta
 export default function NbaProjectionsDatePage({ params }: { params: { date: string } }) {
   const now = new Date();
   const ctx = boardContext({ date: params.date, nowIso: now.toISOString(), buildEtDate: currentEtDate(now), enabled: AMENDMENT_A.enabled });
-  return <NbaProjectionsView lane={ctx.lane} role={ctx.role} date={ctx.date} games={ctx.games} dates={ctx.dates} dated />;
+  return <NbaProjectionsView lane={ctx.lane} role={ctx.role} date={ctx.date} games={ctx.games} dates={ctx.dates} today={ctx.today} actuals={ctx.actuals} dated />;
 }

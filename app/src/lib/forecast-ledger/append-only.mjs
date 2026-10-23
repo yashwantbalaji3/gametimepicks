@@ -10,6 +10,8 @@
  *   DIRECTIONAL_REWRITTEN a settled row's directional WIN / LOSS / PUSH changed while its settlement did not, and no
  *                        committed correction restates it (Stage 3C: a grading-rule restatement is append-only and
  *                        named, e.g. data/internal/nfl/winner-corrections/; the caller passes the restated ids)
+ *   RECOVERED_EVIDENCE_CHANGED  a value recovered into provenance.recovered (model id / event start / publication
+ *                        evidence the row lacked) changed or vanished — once attested it is as frozen as the row
  *
  * Allowed: new rows; PENDING → anything; NO_MEASUREMENT → SETTLED (a late official stat); a settled outcome change
  * that comes with a larger `settlement.corrections` count (the owner's own correction log); measurement fields that
@@ -40,6 +42,13 @@ export function compareLedgers(prevRows, nextRows, { directionalRestated = new S
     }
     if (p.publicationStatus !== n.publicationStatus && !(p.publicationStatus === "PUBLISHED" && n.publicationStatus === "WITHDRAWN")) {
       violations.push({ forecastId: p.forecastId, kind: "PUBLICATION_CHANGED", detail: `${p.publicationStatus} → ${n.publicationStatus}` });
+    }
+    const pr = p.provenance?.recovered ?? {};
+    const nr = n.provenance?.recovered ?? {};
+    for (const f of Object.keys(pr)) {
+      if (stable(pr[f]) !== stable(nr[f])) {
+        violations.push({ forecastId: p.forecastId, kind: "RECOVERED_EVIDENCE_CHANGED", detail: `${f}: ${stable(pr[f])} → ${stable(nr[f])}` });
+      }
     }
     const ps = p.settlement;
     const ns = n.settlement;

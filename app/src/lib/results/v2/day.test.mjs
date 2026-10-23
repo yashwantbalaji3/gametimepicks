@@ -24,7 +24,10 @@ const tally = (rows) => {
 
 test("🔴 parity: for every graded day, the day view's counts equal the overview's daily series, per population", () => {
   const pops = resultsV2Populations("2099-01-01");
-  const pick = { "mlb-games": (d) => d.mlb.flatMap((e) => e.calls), "nfl-games": (d) => d.nfl.flatMap((e) => e.calls),
+  /* F05: the MLB call ledger is split three ways by publication status at first pitch — every call in exactly one. */
+  const mlbCalls = (d, keep) => d.mlb.flatMap((e) => e.calls).filter((c) => keep.includes(c.publication));
+  const pick = { "mlb-games": (d) => mlbCalls(d, ["PUBLIC"]), "mlb-games-paused": (d) => mlbCalls(d, ["PAUSED", "NOT_SERVED"]),
+    "mlb-games-unknown": (d) => mlbCalls(d, ["UNKNOWN"]), "nfl-games": (d) => d.nfl.flatMap((e) => e.calls),
     "epl-matches": (d) => d.epl.flatMap((e) => e.calls), "ufc-fights": (d) => d.ufc.flatMap((e) => e.calls),
     "mlb-props": (d) => d.mlb.flatMap((e) => e.props) };
   let checked = 0;
@@ -91,4 +94,20 @@ test("🔴 NFL ranges are coverage (inside / outside of GRADED), never wins and 
 test("empty day renders the honest empty state", () => {
   const e = renderToStaticMarkup(React.createElement(ResultsDay, { day: { mlb: [], nfl: [], epl: [], ufc: [] } }));
   assert.match(e, /No public forecast was graded on this day/);
+});
+
+/* F05: a call the site had paused at first pitch is listed and graded on the day page, but is not in the day's record. */
+test("🔴 F05: a paused or legacy MLB call is labelled in place and kept out of the sport's day record", () => {
+  const h = renderToStaticMarkup(React.createElement(ResultsDay, { day: {
+    mlb: [ev({ id: "mlb-5", final: "AAA 3 – 2 BBB", calls: [
+      { market: "Winner", pick: "AAA (away)", line: null, outcome: "WIN", publication: "PUBLIC" },
+      { market: "Total runs", pick: "UNDER 8.5", line: "8.5", outcome: "WIN", publication: "PAUSED" },
+      { market: "Run line", pick: "BBB +1.5", line: "1.5", outcome: "LOSS", publication: "UNKNOWN" },
+    ] })], nfl: [], epl: [], ufc: [],
+  } }));
+  assert.match(h, /MLB <strong>1–0<\/strong>/, "the chip counts the public call only");
+  assert.match(h, /MLB · 1–0 /, "and so does the heading");
+  assert.match(h, /data-publication="PAUSED"[^>]*><td>Total runs<span[^>]*>paused on the site · not a public pick<\/span>/);
+  assert.match(h, /data-publication="UNKNOWN"[^>]*><td>Run line<span[^>]*>publication status unknown \(legacy\)<\/span>/);
+  assert.match(h, /Not in this record, but still graded below: 1 call paused on the site or not shown before the game; 1 with publication status unknown \(legacy\)\./);
 });

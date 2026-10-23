@@ -83,6 +83,35 @@ export function dailySeries(rows) {
 
 const minusDays = (day, n) => new Date(Date.parse(`${day}T12:00:00Z`) - n * 86_400_000).toISOString().slice(0, 10);
 
+/** The overview's windows, in tab order. */
+export const WINDOW_KEYS = Object.freeze(["today", "d7", "d30", "season", "all"]);
+
+/**
+ * THE WINDOW CONTRACT (F06, independent audit 2026-10-23). One definition of which days a window holds, read by the
+ * window counts AND the day-by-day list, so a "Today" tab can never sit above a list that starts last week.
+ * Returns the inclusive first day (null = no lower bound), or undefined when the population has no such window
+ * (Season without a season start). The last day is always `today`; later days are never in a window.
+ * @param {string} key  one of WINDOW_KEYS
+ * @param {{ today: string, seasonStart?: string | null }} opts
+ * @returns {string | null | undefined}
+ */
+export function windowStart(key, { today, seasonStart = null }) {
+  switch (key) {
+    case "today": return today;
+    case "d7": return minusDays(today, 6);
+    case "d30": return minusDays(today, 29);
+    case "season": return seasonStart ? seasonStart : undefined;
+    case "all": return null;
+    default: return undefined;
+  }
+}
+
+/** Is `date` inside window `key` on `today`? */
+export function inWindow(date, key, opts) {
+  const from = windowStart(key, opts);
+  return from !== undefined && date <= opts.today && (from == null || date >= from);
+}
+
 /**
  * Window counts from a daily series on `today` (an ET day): today, last 7 and 30 days (inclusive of today),
  * season (from `seasonStart`, when the population has one) and all. Pure — the reader's clock can drive it.
@@ -92,18 +121,13 @@ const minusDays = (day, n) => new Date(Date.parse(`${day}T12:00:00Z`) - n * 86_4
  * @param {{ today: string, seasonStart?: string | null }} opts
  */
 export function windowsFrom(days, { today, seasonStart = null }) {
-  const win = (from) => {
+  const win = (key) => {
+    if (windowStart(key, { today, seasonStart }) === undefined) return null;
     const c = emptyCounts();
-    for (const d of days) if (d.date <= today && (from == null || d.date >= from)) { c.won += d.won; c.lost += d.lost; c.push += d.push; c.void += d.void; }
+    for (const d of days) if (inWindow(d.date, key, { today, seasonStart })) { c.won += d.won; c.lost += d.lost; c.push += d.push; c.void += d.void; }
     return finish(c);
   };
-  return {
-    today: win(today),
-    d7: win(minusDays(today, 6)),
-    d30: win(minusDays(today, 29)),
-    season: seasonStart ? win(seasonStart) : null,
-    all: win(null),
-  };
+  return { today: win("today"), d7: win("d7"), d30: win("d30"), season: win("season"), all: win("all") };
 }
 
 /**
