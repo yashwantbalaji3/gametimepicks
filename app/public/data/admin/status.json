@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-10-23T14:43:17.862Z",
+  "generatedAt": "2026-10-23T15:38:17.401Z",
   "canonical": {
     "record": "47-52",
     "bankroll": 14065.4,
@@ -105,7 +105,7 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-10-23",
-      "generatedAt": "2026-10-23T13:37:56Z",
+      "generatedAt": "2026-10-23T14:43:24Z",
       "sports": [
         {
           "sport": "epl",
@@ -166,14 +166,8 @@
     "dailyLifecycle": {
       "receiptDate": "2026-10-23",
       "present": true,
-      "generatedAt": "2026-10-23T09:40:35Z",
-      "watchdog": [
-        {
-          "product": "end-zone-vault",
-          "kind": "INCIDENT_OPEN",
-          "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-10-23"
-        }
-      ],
+      "generatedAt": "2026-10-23T14:43:23Z",
+      "watchdog": [],
       "states": {
         "bank-builder": {
           "state": "NO_PLAY",
@@ -184,7 +178,7 @@
           "policyVersion": "moonshot@2"
         },
         "end-zone-vault": {
-          "state": "INCIDENT",
+          "state": "NO_PLAY",
           "policyVersion": "end-zone-vault@1"
         },
         "homer-nukes": {
@@ -215,16 +209,16 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-10-23T14:39:00.717Z",
-    "ageHours": 0.1,
-    "ok": false,
-    "status": "fail",
-    "phase": "daily-owner-slo"
+    "lastRunAt": "2026-10-23T15:38:16.575Z",
+    "ageHours": 0,
+    "ok": true,
+    "status": "pass",
+    "phase": "mlb-daily-production"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-10-23",
-    "etTime": "10:43",
+    "etTime": "11:38",
     "stages": [
       {
         "stage": "schedule",
