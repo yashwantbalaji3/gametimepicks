@@ -16,14 +16,14 @@
  * @property {number} decimals             the display's % precision (leg text only; the joint is shown at 1 dp)
  * @property {string} frozenAt             the frozen receipt the display read
  * @property {string} payloadSha256        that receipt's payload hash
- * @property {string} validationLabel      the display's own label constant (imported there, passed through here)
+ * @property {string} label                the display's name for the number (its ELO_WIN_PROBABILITY_LABEL), passed through
  * @property {string} source               the display's provenance line
  *
  * Switch: NBA_GAME_WINNER_TIERS_PUBLIC (default false), separate from LEVEL_A_SUGGESTIONS_PUBLIC.
  */
 import { PUBLIC_RISK_TIERS, PUBLIC_RISK_LABELS } from "../../parlays/risk-odds-bands.mjs";
 import { BAND_MAX_LEGS } from "../../parlays/multi-sport.mjs";
-import { tierForJoint } from "./suggestions.mjs";
+import { jointShownFor, tierForJoint } from "./suggestions.mjs";
 
 export const NBA_GW_POLICY = "nba-game-winner-tiers@1";
 export const NBA_GW_RULE_DOC = "docs/LEVEL_A_NBA_GAME_WINNER_TIERING_RULE.md";
@@ -45,19 +45,8 @@ export const NBA_GW_DEPENDENCY = "Assumes the games are independent: every leg i
 /** The Low band's upper edge, from the D2 bands: a joint above it is shorter than Low and is not tiered. */
 const SHORTER_THAN_LOW = "shorter than the Low band, so not tiered";
 
-/**
- * The joint as shown. 1 dp, the same as every Level A card ("model joint probability 22.1%", the text the recorder
- * matches). The tier is decided on the EXACT joint (its rounded fair price, D2) and is never moved to fit the text; but
- * just past a band edge the 1 dp text can read as the neighbouring band (0.4987 is Medium at +101, yet "49.9%" bands as
- * Low). Then, for that card only, add decimals until the shown number bands where the card does (at most 4 dp).
- */
-export function jointShownFor(joint, tier) {
-  for (let d = 1; d <= 4; d += 1) {
-    const text = (joint * 100).toFixed(d);
-    if (tierForJoint(Number(text) / 100) === tier) return `${text}%`;
-  }
-  return `${(joint * 100).toFixed(4)}%`;
-}
+/** The joint is shown by Level A's one joint text (suggestions.mjs jointShownFor): 1 dp, band-edge safe. */
+export { jointShownFor };
 
 /**
  * One NBA game-winner leg: the Level A NBA side (already through the Level A leg gates) + the display's number.
@@ -73,12 +62,13 @@ export function nbaGameWinnerLeg(leg, d, receipt) {
   if (String(d.eventId) !== String(leg.eventId) || d.frozenAt !== leg.forecast?.stampedAt || !d.payloadSha256 || d.payloadSha256 !== receipt?.payloadSha256) return { ok: false, code: "PROVENANCE_MISMATCH", leg };
   const side = leg.selection.code;
   const p = side === "home" ? d.pHome : 1 - d.pHome;
-  if (!(p >= 0.5)) return { ok: false, code: "SIDE_DISAGREES", leg };
+  /* Strictly above 0.5: the display's own consistency rule (FAVOURED home ⇔ pHome > 0.5; exactly 0.5 is TOO_CLOSE, no side). */
+  if (!(p > 0.5)) return { ok: false, code: "SIDE_DISAGREES", leg };
   const shown = d.shown?.[side];
   if (typeof shown !== "string") return { ok: false, code: "BAD_PROBABILITY", leg };
   return {
     ok: true,
-    leg: { ...leg, probability: p, shownPct: shown, decimals: d.decimals, validationLabel: d.validationLabel, display: { source: d.source, frozenAt: d.frozenAt, payloadSha256: d.payloadSha256 }, tierable: true, priced: false, price: null },
+    leg: { ...leg, probability: p, shownPct: shown, decimals: d.decimals, label: d.label, display: { source: d.source, frozenAt: d.frozenAt, payloadSha256: d.payloadSha256 }, tierable: true, priced: false, price: null },
   };
 }
 
@@ -95,7 +85,7 @@ function cardOf(legs, tier) {
     policy: NBA_GW_POLICY, tier, tierLabel: PUBLIC_RISK_LABELS[tier], legs, sports: ["nba"],
     jointProbability: joint, jointShown: jointShownFor(joint, tierOfJoint),
     dependency: NBA_GW_DEPENDENCY,
-    validationLabel: legs[0].validationLabel,
+    label: legs[0].label,
     whySelected: `Each leg is the official NBA side with its published Elo win probability; this is the combination with the highest joint probability in the ${PUBLIC_RISK_LABELS[tier]} band (${legs.length} legs).`,
     priced: false, price: null, payout: null,
   };
@@ -106,7 +96,7 @@ function cardOf(legs, tier) {
  * frozen receipt ({ payloadSha256 }) | null.
  * @returns {{ policy, public: boolean, tiers: Array<{ tier, tierLabel, card, reason }>, legs, untiered: Array<{ leg, code, reason }> }}
  */
-export function nbaGameWinnerTiers({ legs = [], accessor, receiptOf = () => null, enabled = nbaGameWinnerTiersEnabled() }) {
+export function nbaGameWinnerTiers({ legs = [], accessor, receiptOf = () => null, disclosure = null, enabled = nbaGameWinnerTiersEnabled() }) {
   const graded = legs.map((l) => { let d = null; try { d = accessor?.(l.eventId) ?? null; } catch { d = null; } return nbaGameWinnerLeg(l, d, receiptOf(l.eventId)); });
   const ok = [];
   const seen = new Set();
@@ -134,7 +124,9 @@ export function nbaGameWinnerTiers({ legs = [], accessor, receiptOf = () => null
         ? `no combination lands in the Low Risk band; ${shorter.size} combination${shorter.size === 1 ? " is" : "s are"} ${SHORTER_THAN_LOW}`
         : `no combination of today's NBA game winners lands in the ${t.tierLabel} band`;
   }
-  return { policy: NBA_GW_POLICY, public: enabled === true, tiers, legs: ok, untiered, shorterThanLow: shorter.size };
+  for (const t of tiers) if (t.card) t.card.disclosure = disclosure;
+  /* `disclosure`: the display's accuracy disclosure, verbatim, shown once per block (and carried on each card's copy text). */
+  return { policy: NBA_GW_POLICY, public: enabled === true, tiers, legs: ok, untiered, shorterThanLow: shorter.size, disclosure };
 }
 
 /** The cards that may be recorded: only while the block is public, i.e. only cards readers saw. */
@@ -147,9 +139,9 @@ export function recordableNbaGameWinnerCards(block) {
 export function nbaGameWinnerCopyText(card) {
   if (!card) return "";
   const lines = [`GameTimePicks NBA game winners · ${card.tierLabel} · ${card.legs.length} legs · paper only, no price`];
-  for (const l of card.legs) lines.push(`- ${l.eventLabel}: ${l.selection.label} · published Elo win probability ${l.shownPct}`);
+  for (const l of card.legs) lines.push(`- ${l.eventLabel}: ${l.selection.label} · ${l.label}: ${l.shownPct}`);
   lines.push(`Model joint probability ${card.jointShown} (${card.dependency.split(":")[0].toLowerCase()}).`);
-  lines.push(card.validationLabel);
+  if (card.disclosure) lines.push(card.disclosure);
   lines.push("Not a bet and not a price. Check any sportsbook's own line before acting.");
   return lines.join("\n");
 }

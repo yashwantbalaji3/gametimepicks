@@ -41,6 +41,8 @@ export function shownItems(model) {
   if (model.bankBuilder?.card) items.push({ page: PAGE_FOR["bank-builder"], card: model.bankBuilder.card });
   if (model.moonshot?.card) items.push({ page: PAGE_FOR.moonshot, card: model.moonshot.card });
   for (const l of model.untiered ?? []) items.push({ page: PAGE_FOR["parlay-lab"], leg: l });
+  /* The NBA game winners block renders on the Parlay Center only, and only when public. */
+  if (model.nbaGameWinners?.public === true) for (const t of model.nbaGameWinners.tiers ?? []) if (t.card) items.push({ page: PAGE_FOR["parlay-lab"], card: t.card });
   return items;
 }
 

@@ -22,7 +22,7 @@ A leg is eligible only if all of these hold:
    - the published side's Elo probability is `pHome` if the side is home, `1 − pHome` if away, copied exactly as the accessor returns it and never recomputed from ratings;
    - it is never taken from the v0.1 simulation (`sim.pHome`), the v1 supporting simulation, or any market price.
 4. **Provenance agrees.** The probability and the side come from the same frozen receipt: the same `providerEventId`, the same `frozenAt`, the same receipt `payloadSha256`.
-   - The published side must be the team with Elo probability ≥ 0.5.
+   - The published side must be the team with Elo probability strictly above 0.5 (the display's own rule; exactly 0.5 is TOO_CLOSE, which has no side).
    - If either check fails, the leg is refused as `PROVENANCE_MISMATCH` and is not tiered.
 5. **The usual Level A leg gates apply unchanged:**
    - the start is known;
@@ -58,7 +58,7 @@ A leg is eligible only if all of these hold:
 | Longshot | above +600 | below 0.143 |
 
 - A joint above 0.667 is untiered: it is shorter than the Low band. It is said aloud ("shorter than the Low band, so not tiered"), as D2 does everywhere, and is never dropped silently.
-- Every leg is a favourite (p ≥ 0.5), so these follow from the numbers alone:
+- Every leg is a favourite (p > 0.5), so these follow from the numbers alone:
   - Low needs two strong favourites, e.g. 0.75 × 0.75 = 0.5625.
   - Longshot needs at least three legs.
 - Cards show a model probability %, never odds, payout or EV. The fair price is used only to place the tier. It is never displayed as a price.

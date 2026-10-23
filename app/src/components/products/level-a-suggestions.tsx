@@ -1,5 +1,6 @@
 import Link from "next/link";
 import LevelACopy from "@/components/products/level-a-copy";
+import NbaGameWinners, { type NbaGameWinnersBlock } from "@/components/products/nba-game-winners";
 import { cardCopyText, jointShownFor, LEG_REFUSAL } from "@/lib/products/level-a/suggestions.mjs";
 import { etStamp } from "@/lib/et-stamp.mjs";
 
@@ -21,6 +22,8 @@ export type LevelAModel = {
   refusedByReason: Record<string, number>;
   parlayLab: Array<Slot & { tier: string; tierLabel: string }>;
   bankBuilder: Slot; moonshot: Slot; nbaProjections: Projection[];
+  /* Present only when the NBA game winners rule and the NBA display are both switched on (level-a/model.mjs). */
+  nbaGameWinners?: NbaGameWinnersBlock;
 };
 
 const SPORT: Record<string, string> = { mlb: "MLB", nba: "NBA", epl: "Premier League", "ligue-1": "Ligue 1", nfl: "NFL", ufc: "UFC" };
@@ -88,7 +91,10 @@ export default function LevelASuggestions({ model, mode }: { model: LevelAModel 
         </p>
       </div>
       {mode === "parlay-lab" ? (
-        <div className="grid gap-3 lg:grid-cols-2">{model.parlayLab.map((t) => <CardBox key={t.tier} title={t.tierLabel} slot={t} />)}</div>
+        <>
+          <div className="grid gap-3 lg:grid-cols-2">{model.parlayLab.map((t) => <CardBox key={t.tier} title={t.tierLabel} slot={t} />)}</div>
+          <NbaGameWinners block={model.nbaGameWinners} />
+        </>
       ) : mode === "bank-builder" ? (
         <CardBox title="Bank Builder suggestion · 2 legs, Low or Medium band, highest joint probability" slot={model.bankBuilder} />
       ) : (

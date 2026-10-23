@@ -26,13 +26,13 @@ const LANE = JSON.parse(fs.readFileSync(path.join(laneDir, `${DAY}.json`), "utf8
 /** The side's own frozen receipt, from the same lane game the side was read from. */
 const receiptOf = (eventId) => LANE.games.find((g) => String(g.providerEventId) === String(eventId))?.receipt ?? null;
 const legOf = (l, d) => nbaGameWinnerLeg(l, d, receiptOf(l.eventId));
-const LABEL = "FIXTURE validation label (the display's own constant replaces this in step 2)";
+const LABEL = "FIXTURE label (step 2 passes the display's ELO_WIN_PROBABILITY_LABEL)";
 /** FIXTURE accessor: the given home-win probability per game, with the leg's own provenance. */
 const fixtureAccessor = (pHomeByEvent, o = {}) => (eventId) => {
   const leg = REAL.find((l) => l.eventId === String(eventId));
   const p = pHomeByEvent[eventId];
   if (p == null || !leg) return null;
-  return { eventId: String(eventId), pHome: p, shown: { home: `${(p * 100).toFixed(1)}%`, away: `${((1 - p) * 100).toFixed(1)}%` }, decimals: 1, frozenAt: leg.forecast.stampedAt, payloadSha256: receiptOf(eventId)?.payloadSha256, validationLabel: LABEL, source: "FIXTURE display", ...o };
+  return { eventId: String(eventId), pHome: p, shown: { home: `${(p * 100).toFixed(1)}%`, away: `${((1 - p) * 100).toFixed(1)}%` }, decimals: 1, frozenAt: leg.forecast.stampedAt, payloadSha256: receiptOf(eventId)?.payloadSha256, label: LABEL, source: "FIXTURE display", ...o };
 };
 /** A FIXTURE pHome that makes each real leg's official side the favourite at `p`. */
 const favour = (legs, ps) => Object.fromEntries(legs.map((l, i) => [l.eventId, l.selection.code === "home" ? ps[i] : 1 - ps[i]]));
@@ -123,7 +123,7 @@ test("SHOWN: leg % is the display's own text, joint at the display's precision; 
     for (const l of c.legs) assert.equal(l.shownPct, acc(l.eventId).shown[l.selection.code], "the shown leg % equals the display's shown %, character for character");
     assert.equal(c.jointShown, jointShownFor(c.jointProbability, c.tier));
     assert.match(c.jointShown, /^\d+\.\d{1,4}%$/, "at least 1 dp, like every Level A card");
-    assert.equal(c.validationLabel, LABEL, "the display's label, passed through, never rewritten");
+    assert.equal(c.label, LABEL, "the display's label, passed through, never rewritten");
     assert.match(c.dependency, /^Assumes the games are independent/);
     assert.equal(c.policy, NBA_GW_POLICY);
     assert.deepEqual([c.priced, c.price, c.payout], [false, null, null]);

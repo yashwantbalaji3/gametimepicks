@@ -16,6 +16,7 @@
  * app/scripts/products/record-level-a-suggestions.mjs (manual).
  */
 import { createHash } from "node:crypto";
+import { recordableNbaGameWinnerCards } from "./nba-game-winner-tiers.mjs";
 
 export const LEVEL_A_RECORD_SCHEMA = "gtp.level-a.suggestion@1";
 
@@ -35,6 +36,8 @@ export function recordEntries(answer, { recordedAt, shownAt = null, servedFrom =
   if (answer.bankBuilder?.card) add(answer.bankBuilder.card.policy, answer.bankBuilder.card.tier, answer.bankBuilder.card.legs, { jointProbability: answer.bankBuilder.card.jointProbability });
   if (answer.moonshot?.card) add(answer.moonshot.card.policy, answer.moonshot.card.tier, answer.moonshot.card.legs, { jointProbability: answer.moonshot.card.jointProbability });
   for (const l of answer.untiered ?? []) add("untiered-pick@1", "untiered", [l], { jointProbability: null });
+  /* NBA game winners (nba-game-winner-tiers@1): only while that block is public, i.e. only cards readers saw. */
+  for (const c of recordableNbaGameWinnerCards(answer.nbaGameWinners)) add(c.policy, c.tier, c.legs, { jointProbability: c.jointProbability });
   return rows;
 }
 
