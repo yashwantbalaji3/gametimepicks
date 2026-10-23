@@ -115,9 +115,9 @@ test("the accessor refuses anything that is not this game's own frozen Elo numbe
 test("text: separately identified, whole percents that read as 100; extremes never print 0 % or 100 %", () => {
   const g = (home, away) => ({ providerEventId: "1", frozenAt: "t", receipt: { payloadSha256: "s" }, home: { abbr: "BOS" }, away: { abbr: "NY" },
     elo: { state: "FAVOURED", favoured: home > 0.5 ? "BOS" : "NY", rule: "nba-winner-side@1", winProbability: { home, away, provenance: { source: W.ELO_WIN_PROBABILITY_SOURCE, rule: "nba-winner-side@1", frozenAt: "t", receiptPayloadSha256: "s" } } } });
-  assert.equal(W.eloWinProbabilityText(W.eloWinProbabilityOf(g(0.6337, 0.3663), { enabled: true })), "Elo rating's game-winner probability: NY 37% · BOS 63%");
-  assert.equal(W.eloWinProbabilityText(W.eloWinProbabilityOf(g(0.635, 0.365), { enabled: true })), "Elo rating's game-winner probability: NY 36% · BOS 64%", "the pair always sums to 100");
-  assert.equal(W.eloWinProbabilityText(W.eloWinProbabilityOf(g(0.9962, 0.0038), { enabled: true })), "Elo rating's game-winner probability: NY <1% · BOS >99%");
+  assert.equal(W.eloWinProbabilityText(W.eloWinProbabilityOf(g(0.6337, 0.3663), { enabled: true })), "Elo rating’s game-winner probability: NY 37% · BOS 63%");
+  assert.equal(W.eloWinProbabilityText(W.eloWinProbabilityOf(g(0.635, 0.365), { enabled: true })), "Elo rating’s game-winner probability: NY 36% · BOS 64%", "the pair always sums to 100");
+  assert.equal(W.eloWinProbabilityText(W.eloWinProbabilityOf(g(0.9962, 0.0038), { enabled: true })), "Elo rating’s game-winner probability: NY <1% · BOS >99%");
   assert.doesNotMatch(W.ELO_WIN_PROBABILITY_LABEL, /official|win chance/i, "never called the official win chance");
 });
 
@@ -139,16 +139,16 @@ test("disclosure: accuracy not established, with the graded count and the prereg
   const ctx = loadEloWinProbabilityContext({ appDir: tmp, enabled: true });
   assert.equal(ctx.graded, 2); assert.equal(ctx.minN, PREREG.winner.minN);
   assert.equal(ctx.disclosure, W.eloAccuracyDisclosure({ graded: 2, minN: 300 }));
-  assert.match(ctx.disclosure, /^Model Performance: the Elo rating's game-outcome accuracy is not yet established — 2 regular-season games graded so far; the preregistration requires 300 before any accuracy claim\./);
+  assert.match(ctx.disclosure, /^Model Performance: the Elo rating’s game-outcome accuracy is not yet established — 2 regular-season games graded so far; the preregistration requires 300 before any accuracy claim\./);
   assert.equal(loadEloWinProbabilityContext({ appDir: tmp, enabled: false }).enabled, false);
 });
 
 /** Every Elo element on a rendered surface: id → { home, text }. */
 function eloOn(html) {
   const out = new Map();
-  for (const m of html.matchAll(/data-nba-elo-wp="(\d+)" data-nba-elo-wp-home="([0-9.]+)"[^>]*>([^<]+)</g)) {
+  for (const m of html.matchAll(/data-nba-elo-wp="(\d+):([0-9.]+)"[^>]*>([^<]+)</g)) {
     assert.ok(!out.has(m[1]), `one Elo element per game per surface (${m[1]})`);
-    out.set(m[1], { home: Number(m[2]), text: m[3].replace(/&#x27;/g, "'") });
+    out.set(m[1], { home: Number(m[2]), text: m[3] });
   }
   return out;
 }
@@ -182,7 +182,9 @@ test("ONE accessor: the hub card, the Theater Official Forecast panel, the curre
   for (const l of model.untiered) { assert.equal(l.tierable, false); assert.match(l.probabilityNote, /shown for information only and does not tier this leg/); }
   const lvl = renderToStaticMarkup(React.createElement(LevelASuggestions, { model: { ...model, refusedByReason: {}, nbaProjections: [] }, mode: "parlay-lab" }));
   surfaces.levelA = eloOn(lvl);
-  assert.ok(lvl.includes(ON.disclosure.replace(/'/g, "&#x27;")));
+  assert.ok(lvl.includes(ON.disclosure));
+  // WEIGHT (built 15-game page, 2026-10-23): once per list, never once per leg (+16.7 KB → +5.7 KB)
+  assert.equal((lvl.match(/data-nba-elo-wp-disclosure/g) ?? []).length, 1, "the disclosure prints once on Level A");
   for (const [name, m] of Object.entries(surfaces)) {
     assert.equal(m.size, on.games.length, `${name}: every game shows it`);
     for (const g of on.games) {

@@ -7,15 +7,16 @@
  * accessor refuses (switch off, no field, or provenance that is not this game's own freeze and receipt).
  */
 import React from "react";
-import { eloWinProbabilityOf, eloWinProbabilityText } from "@/lib/sports/nba/elo-win-probability.mjs";
+import { eloWinProbabilityAttr, eloWinProbabilityOf, eloWinProbabilityText } from "@/lib/sports/nba/elo-win-probability.mjs";
 
 type LaneGameLike = Parameters<typeof eloWinProbabilityOf>[0];
 export type EloCtx = { enabled: boolean; disclosure: string };
 
-export function EloWinProbability({ game, ctx, as: Tag = "span", className }: { game: LaneGameLike; ctx: EloCtx; as?: "span" | "p" | "dd"; className?: string }) {
+export function EloWinProbability({ game, ctx, as: Tag = "span", className, lead = "" }: { game: LaneGameLike; ctx: EloCtx; as?: "span" | "p" | "dd"; className?: string; lead?: string }) {
   const v = eloWinProbabilityOf(game, { enabled: ctx.enabled });
   if (!v) return null;
-  return <Tag className={className} data-nba-elo-wp={v.eventId} data-nba-elo-wp-home={String(v.home)}>{eloWinProbabilityText(v)}</Tag>;
+  if (lead) return <>{lead}<Tag className={className} data-nba-elo-wp={eloWinProbabilityAttr(v)}>{eloWinProbabilityText(v)}</Tag></>;
+  return <Tag className={className} data-nba-elo-wp={eloWinProbabilityAttr(v)}>{eloWinProbabilityText(v)}</Tag>;
 }
 
 /** The disclosure, once per surface (only when at least one game on it shows the number). */

@@ -21,6 +21,7 @@
  * boards, and the Level A NBA rows — each prints eloWinProbabilityText(view), so the same game reads the same everywhere
  * (elo-win-probability.test.mjs renders all four).
  *
+ * Markup: ONE attribute, data-nba-elo-wp="<eventId>:<home>" (eloWinProbabilityAttr) — the receipt's exact home number.
  * Accuracy: not established. Each surface carries eloAccuracyDisclosure (the graded count and the preregistered minimum).
  */
 
@@ -35,9 +36,12 @@ export const ELO_WIN_PROBABILITY = Object.freeze({
 /** The provenance `source` every published field must carry. */
 export const ELO_WIN_PROBABILITY_SOURCE = "nba-winner-side@1 Elo";
 /** The one name the number is shown under, on every surface. */
-export const ELO_WIN_PROBABILITY_LABEL = "Elo rating's game-winner probability";
-/** The lane's `elo.source` sentence for a slate that carries the field (a slate without it keeps its frozen sentence). */
-export const ELO_SOURCE_WITH_PROBABILITY = "Elo team rating — the published winner side (founder N2) and its game-winner probability (founder decision 2026-10-23)";
+// U+2019 (’), not "'": React escapes "'" to &#x27; — 5 bytes per card on a page that sits at its weight budget
+export const ELO_WIN_PROBABILITY_LABEL = "Elo rating\u2019s game-winner probability";
+/** The lane's `elo.source` sentence for a slate that carries the field (a slate without it keeps its frozen sentence).
+ * PUBLIC text (the /nba hub prints it): no ops language — the decision is cited in code, never on the page (the built-export
+ * banned-string guard caught "founder decision 2026-10-23" here on the 2026-10-23 switch-ON build). */
+export const ELO_SOURCE_WITH_PROBABILITY = "Elo team rating — the published winner side (founder N2) and its game-winner probability";
 
 const isP = (x) => typeof x === "number" && Number.isFinite(x) && x > 0 && x < 1;
 /** The receipt stores both numbers at 4 dp; they must be complements (allowing the rounding of each). */
@@ -108,6 +112,9 @@ export function eloWinProbabilityOf(game, { enabled = ELO_WIN_PROBABILITY.enable
   });
 }
 
+/** The one data attribute value every surface carries: "<eventId>:<the receipt's exact pHome>". */
+export const eloWinProbabilityAttr = (view) => `${view.eventId}:${view.home}`;
+
 /** The exact text every surface prints for a view (away first, as every NBA matchup is written). */
 export function eloWinProbabilityText(view) {
   return `${ELO_WIN_PROBABILITY_LABEL}: ${view.awayAbbr} ${view.awayPct}% · ${view.homeAbbr} ${view.homePct}%`;
@@ -120,7 +127,7 @@ export function eloWinProbabilityText(view) {
  */
 export function eloAccuracyDisclosure({ graded, minN }) {
   const n = Number.isInteger(graded) && graded >= 0 ? graded : 0;
-  return `Model Performance: the Elo rating's game-outcome accuracy is not yet established — ${n} regular-season game${n === 1 ? "" : "s"} graded so far; the preregistration requires ${minN} before any accuracy claim. A rating's probability, not the player model's, and not a betting recommendation.`;
+  return `Model Performance: the Elo rating\u2019s game-outcome accuracy is not yet established — ${n} regular-season game${n === 1 ? "" : "s"} graded so far; the preregistration requires ${minN} before any accuracy claim. A rating\u2019s probability, not the player model\u2019s, and not a betting recommendation.`;
 }
 
 /**

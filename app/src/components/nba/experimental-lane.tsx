@@ -205,8 +205,8 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
             {snapshot.games.map((g) => (
               <MatchupCard key={g.providerEventId} game={cardGame(g, !!statuses[g.providerEventId])} favoured={g.elo.favoured}>
                 <div className="nbx-read">
-                  <p><strong>Elo rating favours {favouredName(g) ?? "neither side"}.</strong></p>
-                  <EloWinProbability as="p" game={g} ctx={elo} />
+                  {/* WEIGHT: the Elo number rides inside this existing line (no extra block) — founder decision 2026-10-23 */}
+                  <p><strong>Elo rating favours {favouredName(g) ?? "neither side"}.</strong><EloWinProbability game={g} ctx={elo} lead=" " /></p>
                   <p>Official · frozen pregame forecast, frozen {et(g.frozenAt)} · {g.players.away.length + g.players.home.length} players on the board · receipt {g.receipt.payloadSha256.slice(0, 12)}</p>
                 </div>
                 {statuses[g.providerEventId] ? <p className="nbx-note">Game status: {statuses[g.providerEventId]}</p> : null}

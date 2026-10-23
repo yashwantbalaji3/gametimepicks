@@ -43,9 +43,8 @@ function LegRow({ l }: { l: Leg }) {
       </span>
       {/* founder decision 2026-10-23: the Elo rating's game-winner probability — the shared accessor's text, display only */}
       {l.uncertainty?.kind === "elo-win-probability" && l.uncertainty.text ? (
-        <span style={{ color: "var(--vault-text-mute)" }} data-nba-elo-wp={l.eventId} data-nba-elo-wp-home={String(l.uncertainty.home)}>{l.uncertainty.text}</span>
+        <span style={{ color: "var(--vault-text-mute)" }} data-nba-elo-wp={`${l.eventId}:${l.uncertainty.home}`}>{l.uncertainty.text}</span>
       ) : null}
-      {l.uncertainty?.kind === "elo-win-probability" && l.uncertainty.note ? <span style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }} data-nba-elo-wp-disclosure="">{l.uncertainty.note}</span> : null}
       {l.probabilityNote ? <span style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }}>{l.probabilityNote}</span> : null}
     </li>
   );
@@ -99,6 +98,8 @@ export default function LevelASuggestions({ model, mode }: { model: LevelAModel 
         <div className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
           <p className="m-0 font-semibold" style={{ color: "var(--vault-text)" }}>Official sides that are not tiered</p>
           <ul className="m-0 mt-1 flex flex-col gap-1 p-0" role="list">{model.untiered.map((l) => <LegRow key={`${l.sport}:${l.eventId}`} l={l} />)}</ul>
+          {/* WEIGHT (measured 2026-10-23): the Elo accuracy disclosure once per list, not once per leg (+16.7 KB on a 15-game page) */}
+          {(() => { const d = model.untiered.find((l) => l.uncertainty?.kind === "elo-win-probability" && l.uncertainty.note)?.uncertainty?.note; return d ? <p className="m-0 mt-1" style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }} data-nba-elo-wp-disclosure="">{d}</p> : null; })()}
         </div>
       ) : null}
       {model.nbaProjections.length ? (
