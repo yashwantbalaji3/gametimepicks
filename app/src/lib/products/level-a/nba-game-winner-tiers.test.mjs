@@ -57,7 +57,7 @@ test("LEG REFUSALS: no published probability, provenance mismatch, side disagree
   assert.equal(legOf(l, d).ok, true);
   assert.equal(legOf(l, d).leg.probability, 0.7);
   assert.equal(legOf(l, null).code, "NO_PUBLISHED_PROBABILITY");
-  assert.equal(NBA_GW_REFUSAL.NO_PUBLISHED_PROBABILITY, "Untiered: no published NBA win probability", "the same words the side-only suggestion already shows");
+  assert.equal(NBA_GW_REFUSAL.NO_PUBLISHED_PROBABILITY, "Untiered: no published Elo-derived game-winner estimate", "the display's own name for the number (founder wording): never called a probability");
   assert.equal(legOf(l, { ...d, frozenAt: "2026-01-01T00:00:00Z" }).code, "PROVENANCE_MISMATCH");
   assert.equal(legOf(l, { ...d, payloadSha256: "0".repeat(64) }).code, "PROVENANCE_MISMATCH");
   assert.equal(legOf(l, { ...d, eventId: "999" }).code, "PROVENANCE_MISMATCH");
@@ -101,7 +101,7 @@ test("BANDS: D2 on 1/joint; joint above 0.667 is untiered and said aloud; highes
   const again = nbaGameWinnerTiers({ receiptOf, legs: [...legs].reverse(), accessor: fixtureAccessor(favour(legs, [0.75, 0.75, 0.75, 0.75])), enabled: true });
   assert.deepEqual(tie.tiers.map((t) => t.card?.legs.map((l) => l.eventId).sort()), again.tiers.map((t) => t.card?.legs.map((l) => l.eventId).sort()), "input order never changes the pick");
   const one = nbaGameWinnerTiers({ receiptOf, legs: legs.slice(0, 1), accessor: fixtureAccessor(favour(legs, [0.8])), enabled: true });
-  for (const t of one.tiers) assert.match(t.reason, /needs 2 games with a published win probability; only 1 has one/);
+  for (const t of one.tiers) assert.match(t.reason, /needs 2 games with a published Elo-derived estimate; only 1 has one/);
 });
 
 test("NBA-ONLY, ONE LEG PER GAME: mixed input never yields a mixed card; a repeated game counts once", () => {

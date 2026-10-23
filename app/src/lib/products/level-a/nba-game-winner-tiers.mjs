@@ -35,7 +35,7 @@ export const nbaGameWinnerTiersEnabled = (env = { [NBA_GW_FLAG]: process.env.NEX
 
 export const NBA_GW_REFUSAL = Object.freeze({
   NOT_NBA_GAME_WINNER: "not an NBA game-winner leg",
-  NO_PUBLISHED_PROBABILITY: "Untiered: no published NBA win probability",
+  NO_PUBLISHED_PROBABILITY: "Untiered: no published Elo-derived game-winner estimate",
   PROVENANCE_MISMATCH: "the published probability is not from the same frozen forecast as the side",
   SIDE_DISAGREES: "the official side is not the team the published probability favours",
   BAD_PROBABILITY: "the published probability is not a valid probability",
@@ -86,7 +86,7 @@ function cardOf(legs, tier) {
     jointProbability: joint, jointShown: jointShownFor(joint, tierOfJoint),
     dependency: NBA_GW_DEPENDENCY,
     label: legs[0].label,
-    whySelected: `Each leg is the official NBA side with its published Elo win probability; this is the combination with the highest joint probability in the ${PUBLIC_RISK_LABELS[tier]} band (${legs.length} legs).`,
+    whySelected: `Each leg is the official NBA side with its published Elo-derived game-winner estimate; this is the combination with the highest joint probability in the ${PUBLIC_RISK_LABELS[tier]} band (${legs.length} legs).`,
     priced: false, price: null, payout: null,
   };
 }
@@ -119,7 +119,7 @@ export function nbaGameWinnerTiers({ legs = [], accessor, receiptOf = () => null
   });
   for (const t of tiers) if (!t.card) {
     t.reason = ok.length < 2
-      ? `an NBA game-winner card needs 2 games with a published win probability; ${ok.length === 0 ? "none has" : "only 1 has"} one`
+      ? `an NBA game-winner card needs 2 games with a published Elo-derived estimate; ${ok.length === 0 ? "none has" : "only 1 has"} one`
       : t.tier === "low" && shorter.size
         ? `no combination lands in the Low Risk band; ${shorter.size} combination${shorter.size === 1 ? " is" : "s are"} ${SHORTER_THAN_LOW}`
         : `no combination of today's NBA game winners lands in the ${t.tierLabel} band`;

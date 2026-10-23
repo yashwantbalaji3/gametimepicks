@@ -152,6 +152,9 @@ test("COPY: the required phrases, and no word that reads as a priced parlay, a g
          rule's OWN words are checked without it. */
       const own = text.split(CTX_ON.disclosure).join("");
       assert.doesNotMatch(own, /\bparlays?\b|guarantee|\block\b|validated|sure thing|\bodds\b|payout of|\$\d|\bbet\b|wager/i);
+      /* Founder wording: the Elo number is an "Elo-derived game-winner estimate", never a probability. Only OUR joint is a
+         "model joint probability". */
+      assert.doesNotMatch(own.replace(/[Mm]odel joint probability/g, ""), /probability/i, "the rule's own words never call the Elo number a probability");
     }
   }
 });
@@ -168,4 +171,16 @@ test("EVIDENCE SCRIPT (§7): per-leg equality, expected cards, band sweep and sw
   assert.equal(e.switchOffModelIdentical, true);
   assert.deepEqual(e.cards, MODEL_ON.nbaGameWinners.tiers.map((t) => (t.card ? { tier: t.tier, label: t.tierLabel, legs: t.card.legs.map((l) => `${l.selection.label.replace(" (official side)", "")} ${l.shownPct} (${l.eventLabel})`), jointExact: t.card.jointProbability, jointShown: jointShownFor(t.card.jointProbability, t.card.tier) } : { tier: t.tier, label: t.tierLabel, empty: t.reason })), "the prediction is the model the pages render");
   assert.match(fs.readFileSync(path.resolve(process.cwd(), "scripts/products/nba-game-winner-evidence.mjs"), "utf8"), /READ-ONLY, OFFLINE/);
+});
+
+test("GRADER: a recorded nba-game-winner-tiers@1 entry grades through the NBA settlement contract on committed finals", async () => {
+  const { gradeEntry } = await import("./grade.mjs");
+  const { committedFinals } = await import("../../../../scripts/products/grade-level-a-suggestions.mjs");
+  const finals = committedFinals({ repoRoot: REPO, nowIso: NOW });
+  /* A REAL final (BOS @ DET, 2026-10-20) in an entry shaped exactly like recordEntries writes for this policy. */
+  const leg = (code) => ({ sport: "nba", eventId: "401909088", market: "winner", selection: { code, label: code }, probability: 0.6, startUtc: "2026-10-20T23:00Z" });
+  const results = ["home", "away"].map((code) => gradeEntry({ id: `x-${code}`, policy: NBA_GW_POLICY, tier: "low", productDay: "2026-10-20", legs: [leg(code)] }, finals).result).sort();
+  assert.deepEqual(results, ["loss", "win"], "exactly one side of a finished game wins");
+  const pending = gradeEntry({ id: "p", policy: NBA_GW_POLICY, tier: "low", productDay: DAY, legs: [leg("home"), { ...leg("home"), eventId: "409999999" }] }, finals);
+  assert.ok(["pending", "loss"].includes(pending.result), "an unfinished leg is pending, never a loss on its own");
 });
