@@ -12,7 +12,7 @@ import { levelASuggestions, productDayOf } from "./suggestions.mjs";
  * vehicle after acceptance, and rollback is flipping it back. No Production env var is needed.
  * NEXT_PUBLIC_LEVEL_A_SUGGESTIONS="1" is an additional override for local and preview builds only.
  */
-export const LEVEL_A_SUGGESTIONS_PUBLIC = false;
+export const LEVEL_A_SUGGESTIONS_PUBLIC = true;
 export const LEVEL_A_FLAG = "NEXT_PUBLIC_LEVEL_A_SUGGESTIONS";
 export const levelAEnabled = (env = { [LEVEL_A_FLAG]: process.env.NEXT_PUBLIC_LEVEL_A_SUGGESTIONS }) => LEVEL_A_SUGGESTIONS_PUBLIC || env[LEVEL_A_FLAG] === "1";
 

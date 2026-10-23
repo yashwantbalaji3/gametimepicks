@@ -175,15 +175,17 @@ test("WRITER: the record script is the one writer, offline, and writes no price"
   assert.doesNotMatch(script, /\bfetch\(|https?:\/\/|ODDS_API_KEY/);
 });
 
-test("SWITCH: one committed constant in level-a/model.mjs, default false; the env var is only an extra override", () => {
-  assert.equal(LEVEL_A_SUGGESTIONS_PUBLIC, false, "Level A ships OFF; the release owner flips this one line after acceptance");
+test("SWITCH: one committed constant in level-a/model.mjs (flipped on in Release F); the env var is only an extra override", () => {
+  // Release owner flip, Release F 2026-10-23, after acceptance (founder decision docs/decisions/2026-10-23-LEVEL-A-MODEL-SUGGESTIONS.md).
+  // Rollback = set it back to false here and in model.mjs.
+  assert.equal(LEVEL_A_SUGGESTIONS_PUBLIC, true, "Level A is public after release-owner acceptance (Release F 2026-10-23)");
   const hits = [];
   const walk = (d) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const f = path.join(d, e.name); if (e.isDirectory()) walk(f); else if (/\.(mjs|ts|tsx)$/.test(e.name) && !/\.test\./.test(e.name) && /export const LEVEL_A_SUGGESTIONS_PUBLIC\b/.test(fs.readFileSync(f, "utf8"))) hits.push(path.relative(process.cwd(), f)); } };
   walk(path.resolve(process.cwd(), "src"));
   assert.deepEqual(hits, ["src/lib/products/level-a/model.mjs"], "the switch is defined in exactly one file");
-  assert.equal(levelAEnabled({}), false);
+  assert.equal(levelAEnabled({}), LEVEL_A_SUGGESTIONS_PUBLIC, "with no override the constant decides");
   assert.equal(levelAEnabled({ NEXT_PUBLIC_LEVEL_A_SUGGESTIONS: "1" }), true);
-  assert.equal(levelAEnabled({ NEXT_PUBLIC_LEVEL_A_SUGGESTIONS: "true" }), false, "only exactly \"1\" overrides");
+  assert.equal(levelAEnabled({ NEXT_PUBLIC_LEVEL_A_SUGGESTIONS: "true" }), LEVEL_A_SUGGESTIONS_PUBLIC, "only exactly \"1\" overrides; anything else leaves the constant in charge");
 });
 
 test("DECISION: the registry cites the founder's verbatim Level A text, and the file exists", () => {
