@@ -29,3 +29,17 @@ export function buildLevelAModel({ repoRoot = path.resolve(process.cwd(), ".."),
     nbaProjections: src.nbaProjections.filter((p) => productDayOf(p.startUtc) === day && Date.parse(p.startUtc) > Date.parse(now)).slice(0, 8),
   };
 }
+
+/**
+ * The sports a page's Level A section actually shows a pick for: its own card(s) plus the untiered official sides
+ * (Predicted Player Statistics are not picks). The priced-universe list points to Level A only for these, so on a
+ * day with no NBA games it never points to an NBA suggestion that is not there.
+ * @param {"parlay-lab" | "bank-builder" | "moonshot"} mode
+ * @returns {string[]}
+ */
+export function levelASportsShown(model, mode) {
+  if (!model) return [];
+  const cards = mode === "bank-builder" ? [model.bankBuilder?.card] : mode === "moonshot" ? [model.moonshot?.card] : (model.parlayLab ?? []).map((t) => t.card);
+  const legs = [...cards.filter(Boolean).flatMap((c) => c.legs ?? []), ...(model.untiered ?? [])];
+  return [...new Set(legs.map((l) => l.sport))].sort();
+}

@@ -25,7 +25,7 @@ import { presentFromArtifact } from "@/lib/signature-presentation.mjs";
 import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
 import EligibleUniverse from "@/components/products/eligible-universe";
 import LevelASuggestions, { type LevelAModel } from "@/components/products/level-a-suggestions";
-import { buildLevelAModel, levelAEnabled } from "@/lib/products/level-a/model.mjs";
+import { buildLevelAModel, levelAEnabled, levelASportsShown } from "@/lib/products/level-a/model.mjs";
 import { loadProductAvailability } from "@/lib/products/availability";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import LifecycleRecord from "@/components/products/lifecycle-record";
@@ -67,6 +67,8 @@ const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFrac
 const LEVEL_A = levelAEnabled();
 
 export default function MoonshotPage() {
+  /* One Level A evaluation per page: the section and the priced-universe pointer read the same model. */
+  const levelAModel = LEVEL_A ? buildLevelAModel() : null;
   const lane = loadMoonshotLane();
   const portfolioMoonshot = readData("mr-dub", "portfolio.json")?.moonshot ?? null;
   const record = portfolioMoonshot?.record;
@@ -265,8 +267,8 @@ export default function MoonshotPage() {
 
       {/* v1.7 — which sports could contribute a leg today, from the availability owner (counts + plain
           reasons; names the market-priced caveat). Same component as /bank-builder, same owner. */}
-      <EligibleUniverse availability={loadProductAvailability()} compact scope="Moonshot" levelA={LEVEL_A} />
-      {LEVEL_A ? <LevelASuggestions model={buildLevelAModel() as unknown as LevelAModel} mode="moonshot" /> : null}
+      <EligibleUniverse availability={loadProductAvailability()} compact scope="Moonshot" levelASports={levelAModel ? levelASportsShown(levelAModel, "moonshot") : null} />
+      {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="moonshot" /> : null}
 
       {/*
         TODAY'S CARD — the PUBLISHED lanes themselves (P243 · A-2).

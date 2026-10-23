@@ -159,8 +159,10 @@ test("RENDER: the section shows the Official Forecast's pick and source, never a
   for (const f of ["src/app/bank-builder/page.tsx", "src/app/moonshot/page.tsx", "src/app/build/page.tsx"]) {
     const s = fs.readFileSync(path.resolve(process.cwd(), f), "utf8");
     assert.match(s, /^const LEVEL_A = levelAEnabled\(\);$/m, f);
-    assert.match(s, /\{LEVEL_A \? <LevelASuggestions /, f);
-    assert.doesNotMatch(s.slice(s.indexOf("{LEVEL_A ?") - 200, s.indexOf("{LEVEL_A ?")), /PARLAY_LAB_V2|v2Model \?/, `${f}: Level A renders under its own switch, not inside Parlay Lab V2`);
+    const gate = s.includes("{LEVEL_A ? <LevelASuggestions ") ? "{LEVEL_A ?" : "{levelAModel ?";
+    assert.ok(s.includes(`${gate} <LevelASuggestions `), f);
+    if (gate === "{levelAModel ?") assert.match(s, /const levelAModel = LEVEL_A \? buildLevelAModel\(\) : null;/, `${f}: the page's one Level A model exists only under the switch`);
+    assert.doesNotMatch(s.slice(s.indexOf(gate) - 200, s.indexOf(gate)), /PARLAY_LAB_V2|v2Model \?/, `${f}: Level A renders under its own switch, not inside Parlay Lab V2`);
   }
 });
 
