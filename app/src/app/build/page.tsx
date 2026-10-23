@@ -36,6 +36,8 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { buildParlayLabV2Model } from "@/lib/parlays/v2/board-model.mjs";
 import TierBoard, { type ParlayLabV2Model } from "@/components/parlays/v2/TierBoard";
 import EmptyTierContext from "@/components/parlays/empty-tier-context";
+import LevelASuggestions, { type LevelAModel } from "@/components/products/level-a-suggestions";
+import { buildLevelAModel } from "@/lib/products/level-a/model.mjs";
 import { lastCardPerTier } from "@/lib/results/v2/suggested-history.mjs";
 import { loadLabRecord } from "@/lib/parlays/lab-record";
 
@@ -48,6 +50,9 @@ export const metadata = withRouteMetadata("/build/", {
   description:
     "Start with a model-suggested parlay card — filtered by sport and risk, each with its own settled record — or build your own from qualified legs. Educational, paper-only.",
 });
+
+/* Level A model suggestions (founder policy 2026-10-23): shown only when NEXT_PUBLIC_LEVEL_A_SUGGESTIONS is exactly "1". */
+const LEVEL_A = process.env.NEXT_PUBLIC_LEVEL_A_SUGGESTIONS === "1";
 
 export default function ParlayCenterSuggestedPage() {
   // Same slate framing the rest of the site uses, so every surface agrees on which day is current.
@@ -134,6 +139,8 @@ export default function ParlayCenterSuggestedPage() {
         replay={replay}
         recordSince={riskLadder?.record.firstDay ?? null}
       />
+
+      {LEVEL_A ? <LevelASuggestions model={buildLevelAModel() as unknown as LevelAModel} mode="parlay-lab" /> : null}
 
       <EmptyTierContext emptyTiers={[...emptyTiers]} lastCards={lastTierCards} lanes={emptyTiers.length ? (loadLabRecord()?.streams ?? []).map((l) => ({ id: l.id, label: l.label, live: l.live, blocked: l.blocked })) : []} />
 

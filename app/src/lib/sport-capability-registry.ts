@@ -159,6 +159,47 @@ export function capabilityState(sport: string | null | undefined): CapabilitySta
   return capabilityOf(sport).state;
 }
 
+// ── TWO CAPABILITY LEVELS (founder policy, 2026-10-23 09:16 ET) ─────────────────────────────────────────────────
+//
+// LEVEL B — PRICED SPORTSBOOK RECOMMENDATIONS (real odds, EV, book comparison, payouts, handoff). Decided by the
+//   `state` above and `canEnterPredictionProducts` — UNCHANGED. Nothing below loosens it.
+// LEVEL A — MODEL-SUGGESTED PICKS AND PARLAYS. Non-transactional: no price, no EV, no payout, no handoff. A sport is
+//   OPEN only where an OFFICIAL, FROZEN, PRE-EVENT forecast exists and its owner is named. This is a SEPARATE axis on
+//   purpose: it neither reads nor repurposes `state` (HISTORICAL_ONLY etc.) or any promotion gate.
+//
+// `probabilityPublished` records whether the official forecast itself publishes an outcome probability. Only then may
+// a Level A leg enter a tiered card (the tier is read from that probability; see lib/products/level-a). NBA's official
+// composition publishes the Elo SIDE but withholds the probability (founder N2), so NBA legs are untiered.
+export type SuggestionLevelState = "OPEN" | "CLOSED";
+export interface ModelSuggestionCapability {
+  key: string;
+  state: SuggestionLevelState;
+  /** The official forecast owner Level A legs are read from (verbatim, never recomputed). */
+  forecastOwner: string | null;
+  /** Markets the owner's frozen forecast defines a selection for. */
+  markets: ReadonlyArray<string>;
+  /** Does the official forecast publish an outcome probability for those markets? */
+  probabilityPublished: boolean;
+  reason: string;
+}
+
+export const LEVEL_A_DECISION_REF = "founder Level A / Level B policy, 2026-10-23 09:16 ET";
+
+export const MODEL_SUGGESTION_CAPABILITIES: ReadonlyArray<ModelSuggestionCapability> = Object.freeze([
+  { key: "mlb", state: "OPEN", forecastOwner: "mlb-prediction official snapshot (moneyline simulation probability)", markets: ["winner"], probabilityPublished: true,
+    reason: "An official prediction snapshot is frozen before first pitch and publishes each game's predicted winner and its simulation probability." },
+  { key: "nba", state: "OPEN", forecastOwner: "nba-official-composition@1 (Elo favoured side + v0.1 player projections)", markets: ["winner"], probabilityPublished: false,
+    reason: "The official NBA forecast is frozen before tip: the Elo favoured side and the v0.1 player projections. Its win probability is withheld (no graded regular-season record), so NBA suggestions show the side without a chance and are never tiered." },
+  { key: "epl", state: "OPEN", forecastOwner: "epl-model-v2-elo-poisson public forecast", markets: ["1x2"], probabilityPublished: true,
+    reason: "The public Premier League forecast publishes home/draw/away probabilities for every current pre-event match." },
+  { key: "ligue-1", state: "OPEN", forecastOwner: "soccer-league-forecasts (Ligue 1, model-only)", markets: ["1x2"], probabilityPublished: true,
+    reason: "The public Ligue 1 forecast publishes model-only home/draw/away probabilities for each fixture, stamped before kickoff." },
+  { key: "nfl", state: "CLOSED", forecastOwner: null, markets: [], probabilityPublished: false,
+    reason: "No reader for the NFL official game forecast has been reviewed for Level A yet; NFL stays out until one is." },
+  { key: "ufc", state: "CLOSED", forecastOwner: null, markets: [], probabilityPublished: false,
+    reason: "UFC has no independent official forecast: its moneyline is a de-vigged market price with a capped nudge." },
+] as ModelSuggestionCapability[]);
+
 // ── DERIVED PERMISSIONS ─────────────────────────────────────────────────────────────────────────
 // Each answers one product question from `state` alone. Never add a per-sport exception here: if a sport
 // needs different behaviour, its STATE is wrong and the evidence should say so.
@@ -214,3 +255,17 @@ export const CAPABILITY_BADGE: Record<CapabilityState, string> = {
   SCAFFOLD_ONLY: "Schedule only",
   DISABLED: "Not covered",
 };
+
+// ── LEVEL A LOOKUPS (derived from the Level A table above, never from a sport key) ──────────────────────────
+const SUGGESTION_BY_KEY = new Map(MODEL_SUGGESTION_CAPABILITIES.map((c) => [c.key, c]));
+
+/** Level A capability for a sport. Unknown or unlisted sports are CLOSED (fail closed). */
+export function modelSuggestionOf(sport: string | null | undefined): ModelSuggestionCapability {
+  const key = String(sport ?? "").trim().toLowerCase();
+  return SUGGESTION_BY_KEY.get(key) ?? { key, state: "CLOSED", forecastOwner: null, markets: [], probabilityPublished: false, reason: "Not listed for model suggestions — fails closed." };
+}
+
+/** May this sport appear in Level A (non-transactional) model suggestions? Separate from canEnterPredictionProducts. */
+export function canEnterModelSuggestions(sport: string | null | undefined): boolean {
+  return modelSuggestionOf(sport).state === "OPEN";
+}
