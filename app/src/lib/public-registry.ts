@@ -108,6 +108,11 @@ export interface PublicSport {
 }
 
 const MODEL_PERFORMANCE_HREF = "/models/";
+/**
+ * The ONE NBA Model Performance sentence (release owner decision 2026-10-23, exact text): nightly grading runs, and no
+ * public NBA Model Performance record exists yet. Every NBA surface — /nba, the Theater, Top Boards — prints this literal.
+ */
+export const NBA_MODEL_PERFORMANCE_NOTE = "NBA forecasts are graded after every game; a public Model Performance record for NBA has not been published yet.";
 const fam = (id: string, label: string, publication: ForecastFamily["publication"], performanceId: string | null = null): ForecastFamily => ({ id, label, publication, performanceId });
 const sport = (s: Omit<PublicSport, "capability" | "productEligible">): PublicSport => ({ ...s, capability: capabilityOf(s.key).state, productEligible: canEnterPredictionProducts(s.key) });
 
@@ -148,7 +153,7 @@ export const PUBLIC_SPORTS: ReadonlyArray<PublicSport> = Object.freeze([
       topBoards: { availability: "PER_SLATE", href: "/nba/projections/", note: "Every player median for the slate, filterable and sortable." },
       gameSimulation: { availability: "PER_SLATE", href: "/nba/", note: "A possession-by-possession Game Simulation of each game on the current slate, with What-if Scenarios." },
       results: { availability: "AVAILABLE", href: "/nba/#nba-results", note: "Official finals from the write-once finals record." },
-      modelPerformance: { availability: "NOT_SUPPORTED", href: null, note: "Not graded publicly yet: too few regular-season games have been played." },
+      modelPerformance: { availability: "NOT_SUPPORTED", href: null, note: NBA_MODEL_PERFORMANCE_NOTE },
     },
     assistant: { forecasts: false, liveState: false, results: false },
     navNote: "Official Forecasts · Top Boards · Game Simulations",
@@ -239,4 +244,4 @@ export const marketStatusTerm = (status: keyof typeof MARKET_STATUS_TERM, market
  * The ONE disclosure an NBA Official Forecast surface carries (hub lane, Top Boards): frozen, not a recommendation, and
  * its Model Performance status from the registry — said once per surface, never per card.
  */
-export const NBA_FORECAST_DISCLOSURE = `Frozen before tip-off and shown exactly as frozen. Not a betting recommendation. ${PUBLIC_TERMS.MODEL_PERFORMANCE}: ${publicSport("nba")!.features.modelPerformance.note}`;
+export const NBA_FORECAST_DISCLOSURE = `Frozen before tip-off and shown exactly as frozen. Not a betting recommendation. ${NBA_MODEL_PERFORMANCE_NOTE}`;

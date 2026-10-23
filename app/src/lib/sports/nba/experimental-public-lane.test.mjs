@@ -90,7 +90,7 @@ test("rendered lane: the UNVALIDATED banner, freeze times and sources show; no p
   const { default: Lane } = await import("../../../components/nba/experimental-lane.tsx");
   const html = renderToStaticMarkup(React.createElement(Lane, { snapshot: JSON.parse(JSON.stringify(snap())) }));
   // founder directive 2026-10-23 public readiness: the registry banner (Official Forecast + its one disclosure)
-  assert.match(html, /Frozen before tip-off and shown exactly as frozen\. Not a betting recommendation\. Model Performance: /);
+  assert.match(html, /Frozen before tip-off and shown exactly as frozen\. Not a betting recommendation\. NBA forecasts are graded after every game; a public Model Performance record for NBA has not been published yet\./); // release owner 2026-10-23 exact text
   assert.match(html, /frozen pregame forecast, frozen Oct 20/);
   assert.match(html, /Elo rating favours New York Knicks/, "team names, never mixed NY/NYK codes");
   assert.match(html, /Not a betting recommendation\./); // founder directive 2026-10-23 public readiness

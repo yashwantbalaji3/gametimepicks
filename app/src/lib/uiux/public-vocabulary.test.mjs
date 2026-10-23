@@ -29,9 +29,8 @@ const RETIRED_EVERYWHERE = ["Picks Lab", "Build-a-Pick", "Parlay Lab"];
  */
 const { RETIRED_PUBLIC_PHRASES } = await import("../public-registry.ts");
 const RETIRED_PHRASES_OWNED_ELSEWHERE = new Set(["results", "forecast-record"]);
-/* NBA Top Boards (/nba/projections/**) belong to Workstream F (release owner 2026-10-23), which adopts the registry's
-   NBA_FORECAST_DISCLOSURE / PUBLIC_TERMS in its own PR — excluded here, by path, until then. */
-const RETIRED_PATHS_OWNED_ELSEWHERE = ["/nba/projections/"];
+/* /nba/projections/** is covered too (release owner 2026-10-23: Workstream F's PR #1199 removed the phrases there). */
+const RETIRED_PATHS_OWNED_ELSEWHERE = [];
 const INTERNAL_OFF_PRIMARY = ["optimizer", "settlement contract", "shadow lane", "research corpus", "leakage-safe"];
 const TECHNICAL_PAGES = new Set(["methodology", "research", "system-status", "market-guide", "bucket-blitz", "goal-rush"]);
 
