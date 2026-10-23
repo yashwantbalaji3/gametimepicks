@@ -10,52 +10,119 @@
  * Follow-up to PR 1163 (dates, game links, game status): a past slate is labelled as a past frozen slate, never as
  * current; each GAME (not each row — page weight) carries one read-only status label and at most one link to a page
  * that exists in the same build; the date links name committed snapshot dates only, bounded in number.
+ *
+ * Overnight sprint 2026-10-23 (competitor gaps 1, 4, 6; founder vocabulary):
+ *   - one concise note replaces the experimental banner (PREDICTED_NOTE); titles say Predicted Player Statistics;
+ *   - between slates (no lane, ctx.today) the page lists today's scheduled games — matchup, tip-off, status — says the
+ *     Official Forecast is not yet available, and links the newest frozen board; never a zero, never an invented figure;
+ *   - postgame (ctx.actuals) each player's Actual from the final box score sits beside the frozen Official Forecast;
+ *     a game without a usable final box score says why, once, in its line;
+ *   - the slate dates are tap-sized chips at the top of the page, not a line under a 250-row table.
  */
 import React from "react";
 import Link from "next/link";
 import type { Snapshot } from "@/components/nba/experimental-lane";
-import type { BoardGame, SlateRole } from "@/components/nba/projection-board-context";
+import type { BoardGame, BoardToday, SlateRole } from "@/components/nba/projection-board-context";
+import type { BoardActuals, GameActualState } from "@/lib/sports/nba/projection-board-actuals";
 import ProjectionBoard from "@/components/nba/projection-board";
 import GameStatusOnClock from "@/components/nba/projection-game-status";
-import { COMBO_STATS, LANE, PROJECTION_BOARD_STATS, COMBO_LABEL } from "@/lib/sports/nba/experimental-public-lane.mjs";
+import { COMBO_STATS, PROJECTION_BOARD_STATS, COMBO_LABEL } from "@/lib/sports/nba/experimental-public-lane.mjs";
 import { boardOptions, boardRows, packBoard, statGroups, GAME_STATUS_LABEL, slateHref, slateNav } from "@/lib/sports/nba/projection-board-ops.mjs";
 
 const et = (iso: string) =>
   new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(iso)) + " ET";
 const slateLabel = (d: string) => new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "short", day: "numeric" }).format(new Date(`${d}T12:00:00Z`));
+const dayLabel = (d: string) => new Intl.DateTimeFormat("en-US", { timeZone: "UTC", weekday: "short", month: "short", day: "numeric" }).format(new Date(`${d}T12:00:00Z`));
+const tipEt = (iso: string) => new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" }).format(new Date(iso)) + " ET";
 const MUTE = { color: "var(--vault-text-mute)" };
+const CHIP = "inline-flex items-center min-h-[44px] rounded-full px-3 no-underline";
+const CHIP_STYLE = { border: "1px solid var(--vault-border)", color: "var(--vault-text)" };
+
+/** The founder's one note for these pages (overnight directive 2026-10-23). */
+export const PREDICTED_NOTE = "Predicted Player Statistics are frozen before tip-off; model performance is evaluated continuously in Model Performance.";
+/** Why a FINAL game shows no actuals — once per game, in its line. */
+const ACTUAL_UNAVAILABLE: Partial<Record<GameActualState, string>> = {
+  "no-boxscore": "Actual: Unavailable (final box score not yet recorded)",
+  "under-review": "Actual: Unavailable (final under review)",
+  "points-disagree": "Actual: Unavailable (box score under review)",
+};
 const TEXT = { color: "var(--vault-text)" };
 
 /* One status word and at most one link per game, no inline styles (they inherit the list's colour) — the markup is
    emitted twice (HTML + RSC), so every byte here counts per game. A build-time "Upcoming" goes to the reader's-clock
    label (it may become "Started" after tip-off); every other status is fixed text from the committed record. */
-function GameStatus({ g }: { g: BoardGame }) {
+function GameStatus({ g, actual }: { g: BoardGame; actual?: string }) {
   return (
     <>
       {" · "}<strong>{g.status === "upcoming" ? <GameStatusOnClock t={g.tipUtc} /> : GAME_STATUS_LABEL[g.status]}</strong>
+      {actual ? ` · ${actual}` : null}
       {g.link ? <>{" · "}<a href={g.link.href} className="underline">{g.link.label}</a></> : null}
     </>
   );
 }
 
-/** Committed slate dates only (slateNav): the newest few plus this slate's neighbours — bounded, never invented. */
+/** Committed slate dates only (slateNav): the newest few plus this slate's neighbours — bounded, never invented. Tap-sized
+    chips at the top of the page, so a phone reader finds them without scrolling past the board. */
 function SlateDates({ dates, date, dated }: { dates: string[]; date: string | null; dated: boolean }) {
   const nav = slateNav(dates, dated ? date : null, 5);
   if (nav.total === 0) return null;
+  const chip = (d: string, text: string) => <a key={d} href={slateHref(d)} className={CHIP} style={CHIP_STYLE}>{text}</a>;
   return (
-    <nav className="m-0 text-[12.5px] leading-relaxed" style={MUTE} aria-label="Slate dates">
-      Frozen slates by date:{" "}
-      {dated ? <><a href="/nba/projections/" className="underline">current slate</a> · </> : null}
-      {nav.recent.map((d, i) => (
-        <React.Fragment key={d}>{i ? " · " : ""}{dated && d === date ? <strong aria-current="page">{slateLabel(d)}</strong> : <a href={slateHref(d)} className="underline">{slateLabel(d)}</a>}</React.Fragment>
-      ))}
-      {nav.prev && !nav.recent.includes(nav.prev) ? <> · <a href={slateHref(nav.prev)} className="underline">earlier: {slateLabel(nav.prev)}</a></> : null}
-      {nav.next && !nav.recent.includes(nav.next) ? <> · <a href={slateHref(nav.next)} className="underline">later: {slateLabel(nav.next)}</a></> : null}
+    <nav className="m-0 flex flex-wrap items-center gap-2 text-[13px]" style={MUTE} aria-label="Slate dates">
+      <span>Frozen slates by date:</span>
+      {dated ? <a href="/nba/projections/" className={CHIP} style={CHIP_STYLE}>Current slate</a> : null}
+      {nav.recent.map((d) => (dated && d === date
+        ? <span key={d} className={CHIP} style={{ ...CHIP_STYLE, borderColor: "var(--vault-gold-bright)" }}><strong aria-current="page">{slateLabel(d)}</strong></span>
+        : chip(d, slateLabel(d))))}
+      {nav.prev && !nav.recent.includes(nav.prev) ? chip(nav.prev, `earlier: ${slateLabel(nav.prev)}`) : null}
+      {nav.next && !nav.recent.includes(nav.next) ? chip(nav.next, `later: ${slateLabel(nav.next)}`) : null}
     </nav>
   );
 }
 
-export default function NbaProjectionsView({ lane, role = "current", date = null, games = [], dates = [], dated = false }: {
+/** Between slates: today's scheduled games (schedule facts only) and the newest frozen board. No figure is shown. */
+function TodaySlate({ today }: { today: BoardToday }) {
+  const { games, latest } = today;
+  const anyUpcoming = games.some((g) => g.status === "upcoming");
+  return (
+    <section className="flex flex-col gap-3" aria-labelledby="nba-today-h">
+      <h2 id="nba-today-h" className="m-0 font-display text-[17px] font-bold" style={TEXT}>
+        Today · {dayLabel(today.date)}{games.length ? ` · ${games.length} game${games.length === 1 ? "" : "s"}` : ""}
+      </h2>
+      <p className="m-0 text-[13.5px] leading-relaxed" style={TEXT} role="status">
+        {!today.scheduled
+          ? "Today's schedule is Unavailable in this build, and no Official Forecast is published for today yet."
+          : games.length === 0
+            ? `The schedule lists no NBA games for ${dayLabel(today.date)}.`
+            : anyUpcoming
+              ? "Official Forecast publishes before tip-off: not yet available."
+              : "Official Forecast: Unavailable for this slate."}
+      </p>
+      {latest ? (
+        <p className="m-0">
+          <a href={slateHref(latest)} className={`${CHIP} font-semibold`} style={{ ...CHIP_STYLE, borderColor: "var(--vault-gold-bright)" }}>
+            Latest Official Forecast · {dayLabel(latest)} →
+          </a>
+        </p>
+      ) : null}
+      {games.length ? (
+        <ul className="m-0 pl-5 text-[13px] leading-relaxed" style={MUTE} aria-label={`Scheduled games, ${dayLabel(today.date)}`}>
+          {games.map((g) => (
+            <li key={g.id}>
+              <span style={TEXT}>{g.away} at {g.home}</span> · {tipEt(g.tipUtc)} ·{" "}
+              <strong>{g.status === "upcoming" ? <GameStatusOnClock t={g.tipUtc} /> : GAME_STATUS_LABEL[g.status]}</strong>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      <p className="m-0 text-[12px] leading-relaxed" style={MUTE}>
+        Schedule and status from the committed NBA schedule and finals record. <Link href="/nba/" className="underline" style={TEXT}>NBA hub</Link>
+      </p>
+    </section>
+  );
+}
+
+export default function NbaProjectionsView({ lane, role = "current", date = null, games = [], dates = [], dated = false, today = null, actuals = null }: {
   lane: Snapshot | null;
   /** "past" = a slate before the build's ET date: labelled as a past frozen slate, never as current. */
   role?: SlateRole;
@@ -67,6 +134,10 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
   dates?: string[];
   /** true on /nba/projections/[date]/. */
   dated?: boolean;
+  /** Between slates: today's schedule + the newest frozen board (projection-board-context). */
+  today?: BoardToday | null;
+  /** Postgame actuals for this slate's games (projection-board-actuals). */
+  actuals?: BoardActuals | null;
 }) {
   const live = lane && lane.games.length > 0 ? lane : null;
   const past = role === "past";
@@ -76,10 +147,14 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
   const rows = live ? boardRows(live, PROJECTION_BOARD_STATS) : [];
   const { matchups, teams } = boardOptions(live);
   const groups = statGroups(PROJECTION_BOARD_STATS, COMBO_STATS.map(([k]) => k));
+  // Postgame mode only when at least one game's actuals are recorded; otherwise the board is exactly the pregame one.
+  const post = live && actuals && Object.values(actuals.games).includes("recorded") ? actuals : null;
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-4 min-w-0">
       <p className="m-0 text-[13px]"><Link href="/nba/" className="underline" style={TEXT}>← NBA hub</Link></p>
-      <h1 className="m-0 font-display text-[22px] font-bold" style={TEXT}>NBA player projections{slate && (live || dated) ? ` · ${slateLabel(slate)} slate` : ""}{past ? " (past)" : ""}</h1>
+      <h1 className="m-0 font-display text-[22px] font-bold" style={TEXT}>NBA Predicted Player Statistics{slate && (live || dated) ? ` · ${slateLabel(slate)} slate` : ""}{past ? " (past)" : ""}</h1>
+      <p className="m-0 text-[12.5px] leading-relaxed" style={MUTE} role="note">{PREDICTED_NOTE}</p>
+      <SlateDates dates={dates} date={slate} dated={dated} />
       {past ? (
         <p className="m-0 rounded-md p-2 text-[13px] font-semibold" role="note" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)" }}>
           Past frozen slate{slate ? ` · ${slateLabel(slate)}` : ""}. This is not the current slate: each figure is the pregame median frozen
@@ -87,21 +162,13 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
           <a href="/nba/projections/" className="underline">Current slate</a>
         </p>
       ) : null}
-      <div className="rounded-lg p-3" style={{ border: "2px solid var(--vault-gold-bright)", background: "var(--vault-panel)" }} role="note">
-        <p className="m-0 font-display text-[13px] font-extrabold tracking-wide" style={{ color: "var(--vault-gold-bright)" }}>{LANE.label}</p>
-        <p className="m-0 mt-1 text-[12.5px] leading-relaxed" style={MUTE}>
-          Frozen pregame model medians, published as experimental analytics — not validated and not a betting
-          recommendation. These models have not yet met their preregistered regular-season checks, and nothing here counts
-          toward them. Each figure was frozen before tip-off and is shown exactly as frozen.
-        </p>
-      </div>
       {live ? (
         <>
           <ul className="m-0 pl-5 text-[12px] leading-relaxed" style={MUTE} aria-label="Freeze times and receipts">
             {live.games.map((g) => (
               <li key={g.providerEventId}>
                 {g.away.name} at {g.home.name}: tip-off {et(g.tipUtc)} · frozen {et(g.frozenAt)} · receipt {g.receipt.modelVersion} · {g.receipt.payloadSha256.slice(0, 12)}
-                {meta.has(g.providerEventId) ? <GameStatus g={meta.get(g.providerEventId)!} /> : null}
+                {meta.has(g.providerEventId) ? <GameStatus g={meta.get(g.providerEventId)!} actual={actuals ? ACTUAL_UNAVAILABLE[actuals.games[g.providerEventId]] : undefined} /> : null}
               </li>
             ))}
           </ul>
@@ -111,24 +178,32 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
             minutes who are not ruled out. The default order is expected minutes; a column sort is the reader&rsquo;s own.
             {games.length ? " Game status is read-only, from the schedule and finals record (Started: tipped off, no final recorded yet); it never changes a frozen figure." : ""}
           </p>
-          <ProjectionBoard board={packBoard(rows)} stats={stats} groups={groups} matchups={matchups} teams={teams} />
+          {post ? (
+            <p className="m-0 rounded-md p-2 text-[12.5px] leading-relaxed" role="note" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)" }}>
+              <strong>Forecast</strong> = Official Forecast (frozen pregame), shown exactly as frozen. <strong>Actual</strong> = the
+              player&rsquo;s figure in the final box score (ESPN), recorded after an official final; PRA, P+R and P+A actuals are
+              sums of the actual points, rebounds and assists. A dash means did not play, not in the box score, or no final yet
+              &mdash; never a zero. Forecast and Actual are compared per player only.
+            </p>
+          ) : null}
+          <ProjectionBoard board={packBoard(rows, post ? post.rows : null)} stats={stats} groups={groups} matchups={matchups} teams={teams} defaultGroup={post ? "core" : undefined} />
           <ul className="m-0 pl-5 text-[12px] leading-relaxed" style={MUTE}>
             {Object.entries(live.withheld).map(([k, v]) => <li key={k}>{v}</li>)}
           </ul>
         </>
+      ) : today ? (
+        <TodaySlate today={today} />
       ) : dated ? (
         <p className="m-0 text-[13.5px] leading-relaxed" style={MUTE} role="status">
-          No frozen experimental projections are committed for {slate ? slateLabel(slate) : "this date"}, so nothing is shown
-          for it. The <Link href="/nba/" className="underline" style={TEXT}>NBA hub</Link> has the schedule and official finals.
+          No Official Forecast is committed for {slate ? slateLabel(slate) : "this date"}, so no Predicted Player Statistics
+          are shown for it. The <Link href="/nba/" className="underline" style={TEXT}>NBA hub</Link> has the schedule and official finals.
         </p>
       ) : (
         <p className="m-0 text-[13.5px] leading-relaxed" style={MUTE} role="status">
-          No current experimental projections. This board shows only the current slate&rsquo;s frozen pregame output and
-          is empty between slates. The <Link href="/nba/" className="underline" style={TEXT}>NBA hub</Link> has
+          Predicted Player Statistics: Unavailable. The <Link href="/nba/" className="underline" style={TEXT}>NBA hub</Link> has
           the schedule and official finals.
         </p>
       )}
-      <SlateDates dates={dates} date={slate} dated={dated} />
     </div>
   );
 }
