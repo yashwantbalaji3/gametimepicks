@@ -33,7 +33,7 @@ function routeExists(route) {
 }
 
 test("the five public terms are the founder's, verbatim, and every one has its one-line meaning", () => {
-  assert.deepEqual(Object.values(R.PUBLIC_TERMS), ["Official Forecast", "Game Simulation", "What-if Scenario", "Model Performance", "Unavailable"]);
+  assert.deepEqual(Object.values(R.PUBLIC_TERMS), ["Official Forecast", "Predicted Player Statistics", "Game Simulation", "What-if Scenario", "Model Performance", "Historical Results", "Unavailable"]);
   for (const t of Object.values(R.PUBLIC_TERMS)) assert.ok(R.PUBLIC_TERM_MEANING[t]?.length > 20, t);
   for (const p of ["Unvalidated experimental simulation", "Experimental model projections", "Research-only prototype", "Experimental feature"]) {
     assert.ok(R.RETIRED_PUBLIC_PHRASES.includes(p), `${p} is retired`);
@@ -104,8 +104,8 @@ test("same facts everywhere: Home, Today, the lobby, Methodology, Ask and the na
 
 test("retired phrases stay out of the source copy of every surface this directive owns", () => {
   const owned = [
-    "src/app/nba/page.tsx", "src/components/nba/experimental-lane.tsx", "src/components/nba/hub-overview.tsx", "src/components/nba/projections-view.tsx",
-    "src/app/nba/projections/page.tsx", "src/app/nba/projections/[date]/page.tsx", "src/app/nba/simulation/[eventId]/page.tsx", "src/lib/sports/catalog.ts",
+    "src/app/nba/page.tsx", "src/components/nba/experimental-lane.tsx", "src/components/nba/hub-overview.tsx",
+    "src/app/nba/simulation/[eventId]/page.tsx", "src/lib/sports/catalog.ts",
     "src/lib/simulation-theater/nba/possession/public-route.mjs", "src/app/methodology/page.tsx", "src/app/ask/page.tsx", "src/lib/command-center/nba-lane.ts",
   ];
   for (const f of owned) {

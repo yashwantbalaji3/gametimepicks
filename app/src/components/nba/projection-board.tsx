@@ -96,7 +96,7 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams 
       ) : (
         <div className="overflow-x-auto max-w-full rounded-md focus-visible:outline focus-visible:outline-2" style={{ border: "1px solid var(--vault-border)", outlineColor: "var(--vault-gold-bright)" }} tabIndex={0} role="region" aria-label="Player board table (scrolls sideways on narrow screens)">
           <table className={TABLE}>
-            <caption className="sr-only">Official Forecast medians, frozen before tip-off, {rows.length} players. Sort buttons are in the column headers.</caption>
+            <caption className="sr-only">Frozen pregame experimental medians, {rows.length} players. Sort buttons are in the column headers.</caption>
             <thead style={{ color: "var(--vault-text-mute)" }}>
               <tr>
                 <th scope="col" className="!text-left">Player</th>

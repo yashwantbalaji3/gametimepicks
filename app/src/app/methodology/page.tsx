@@ -23,7 +23,7 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import path from "node:path";
 import { currentEtDate } from "@/lib/freshness";
 import { buildCommandCenter } from "@/lib/command-center/command-center";
-import { PUBLIC_SPORTS, PUBLIC_TERMS, type PublicFeature } from "@/lib/public-registry";
+import { PUBLIC_SPORTS, PUBLIC_TERM_MEANING, PUBLIC_TERMS, type PublicFeature } from "@/lib/public-registry";
 
 /**
  * /methodology — how a number on this site is produced and how it is judged.
@@ -254,6 +254,18 @@ export default function MethodologyPage() {
       {/* SECTION 3 — Sport coverage. These cards state what is TRUE TODAY per sport, which for most of
           them is "not modelled". They previously described NBA and soccer models in the present tense
           long after either stopped producing anything. */}
+      {/* founder directive 2026-10-23 public readiness: the public vocabulary, defined once (lib/public-registry.ts) */}
+      <Section title="The words we use" id="terms">
+        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {Object.values(PUBLIC_TERMS).map((t) => (
+            <div key={t} className="vault-deluxe-card p-4">
+              <dt className="font-display text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>{t}</dt>
+              <dd className="m-0 mt-1 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{PUBLIC_TERM_MEANING[t]}</dd>
+            </div>
+          ))}
+        </dl>
+      </Section>
+
       <Section title="By sport — what is published">
         {/* F04 (audit 2026-10-23 · founder directive public readiness): every sport claim below is read from the public
             registry (lib/public-registry.ts) and the runtime model statuses (the Command Center's lanes) — the same facts
@@ -281,7 +293,7 @@ export default function MethodologyPage() {
                   ["Top Boards", feature(sp.features.topBoards)],
                   [PUBLIC_TERMS.GAME_SIMULATION, feature(sp.features.gameSimulation)],
                   ["Paper products", sp.productEligible ? "May enter Bank Builder, Moonshot and Parlay Lab when a market qualifies." : "Never enters Bank Builder, Moonshot or Parlay Lab."],
-                  ["Results", sp.features.results.note],
+                  [PUBLIC_TERMS.HISTORICAL_RESULTS, sp.features.results.note],
                   [PUBLIC_TERMS.MODEL_PERFORMANCE, perf],
                 ]}
               />

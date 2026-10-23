@@ -27,8 +27,8 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: { params: { date: string } }): Metadata {
   const shown = AMENDMENT_A.enabled && (loadLaneForDate(params.date)?.games.length ?? 0) > 0;
   return withRouteMetadata(`/nba/projections/${params.date}/`, {
-    title: `NBA player projections · ${params.date}${params.date < currentEtDate() ? " (past frozen slate)" : ""} — Official Forecast · GameTime Picks`,
-    description: `Frozen pregame NBA player medians for the ${params.date} slate — the Official Forecast, shown exactly as frozen. Not betting recommendations.`,
+    title: `NBA player projections · ${params.date}${params.date < currentEtDate() ? " (past frozen slate)" : ""} — experimental, not validated · GameTime Picks`,
+    description: `Frozen pregame NBA player medians for the ${params.date} slate from an unvalidated experimental simulation, shown exactly as frozen. Not betting recommendations.`,
     // A date with no committed snapshot is an empty state: reachable, never indexed.
     ...(shown ? {} : { robots: { index: false, follow: true } }),
   });

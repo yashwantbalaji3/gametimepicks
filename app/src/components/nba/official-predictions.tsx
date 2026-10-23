@@ -69,7 +69,7 @@ export default function NbaOfficialPredictions({ official, teams, lane, finalNot
       <ul className="nbx-legend">
         <li><b>{PUBLIC_TERMS.OFFICIAL_FORECAST}</b> — this section: frozen before tip-off. It is what GameTimePicks forecasts.</li>
         <li><b>{PUBLIC_TERMS.GAME_SIMULATION}</b> — the replay above: one possible game from the NBA possession engine. Its score and box score are not a forecast and never change this section.</li>
-        <li><b>Real Result</b> — {finalNote ? <>official final: <strong>{finalNote}</strong>.</> : "the official final, recorded after the game."} <Link href={resultsHref}>NBA results →</Link></li>
+        <li><b>Real Result</b> — {finalNote ? <>official final: <strong>{finalNote}</strong>.</> : "the official final, recorded after the game."} <Link href={resultsHref}>NBA {PUBLIC_TERMS.HISTORICAL_RESULTS} →</Link></li>
       </ul>
     </section>
   );
@@ -92,7 +92,7 @@ function Official({ official, teams, lane }: { official: PbOfficial; teams: Team
         return (
           <div key={side} className="nbx-scroll">
             <table className="nbx-ptable" data-nba-official-table={side}>
-              <caption>{teams[side].name} · official player medians</caption>
+              <caption>{teams[side].name} · {PUBLIC_TERMS.PLAYER_STATISTICS}</caption>
               <thead><tr><th scope="col">Player</th><th scope="col">MIN</th>{STATS.map(([, l]) => <th key={l} scope="col">{l}</th>)}{COMBO_STATS.map(([, l]) => <th key={l} scope="col">{l}</th>)}</tr></thead>
               <tbody>
                 {rows.map((p) => {

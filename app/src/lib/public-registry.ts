@@ -6,9 +6,11 @@
  *
  * THE FIVE PUBLIC TERMS (founder, verbatim intent):
  *   Official Forecast   the authorized, frozen GameTimePicks output for a game or player
+ *   Predicted Player Statistics   the Official Forecast's per-player numbers (added by the founder, sprint directive 2026-10-23)
  *   Game Simulation     a clearly identified simulated game from a named engine and frozen inputs
  *   What-if Scenario    one hypothetical alternative — never the Official Forecast, never a real result
  *   Model Performance   historical grading, calibration, sample size, evaluation findings
+ *   Historical Results  official finals and graded records (added by the founder, sprint directive 2026-10-23)
  *   Unavailable         cannot legitimately be shown yet, with one concise reason
  *
  * PRESENTATION, NOT PERMISSION. This registry never decides eligibility: `productEligible` is READ from the capability
@@ -24,9 +26,11 @@ import { canEnterPredictionProducts, capabilityOf, type CapabilityState } from "
 
 export const PUBLIC_TERMS = Object.freeze({
   OFFICIAL_FORECAST: "Official Forecast",
+  PLAYER_STATISTICS: "Predicted Player Statistics",
   GAME_SIMULATION: "Game Simulation",
   WHAT_IF: "What-if Scenario",
   MODEL_PERFORMANCE: "Model Performance",
+  HISTORICAL_RESULTS: "Historical Results",
   UNAVAILABLE: "Unavailable",
 } as const);
 export type PublicTerm = (typeof PUBLIC_TERMS)[keyof typeof PUBLIC_TERMS];
@@ -34,9 +38,11 @@ export type PublicTerm = (typeof PUBLIC_TERMS)[keyof typeof PUBLIC_TERMS];
 /** One sentence per term, the same everywhere it is explained. */
 export const PUBLIC_TERM_MEANING: Readonly<Record<PublicTerm, string>> = Object.freeze({
   "Official Forecast": "The authorized GameTimePicks output for a game or player, frozen before the start and never edited afterwards.",
+  "Predicted Player Statistics": "The Official Forecast's per-player numbers — each player's median for the stats a sport publishes, frozen with it.",
   "Game Simulation": "One simulated game from a named engine and the same frozen inputs. It is not the Official Forecast and not a real result.",
   "What-if Scenario": "One hypothetical alternative run. It is never the Official Forecast and never a real result.",
-  "Model Performance": "How the model has actually done: graded results, calibration and sample size.",
+  "Model Performance": "How the model has actually done: graded results, calibration and sample size — evaluated continuously as games settle.",
+  "Historical Results": "Official finals and the graded record of every published forecast, settled from official sources.",
   "Unavailable": "Cannot legitimately be shown yet — the reason is given.",
 });
 
@@ -122,7 +128,7 @@ export const PUBLIC_SPORTS: ReadonlyArray<PublicSport> = Object.freeze([
   }),
   sport({
     key: "nfl", label: "NFL", hub: "/nfl/",
-    families: [fam("nfl_team", "Game winner and score range", "OFFICIAL_FORECAST", "nfl_team"), fam("nfl_player_forward", "Player ranges", "OFFICIAL_FORECAST", "nfl_player_forward"), fam("nfl_anytime_td", "Touchdown chances", "OFFICIAL_FORECAST", "nfl_anytime_td")],
+    families: [fam("nfl_team", "Game winner and score range", "OFFICIAL_FORECAST", "nfl_team"), fam("nfl_player_forward", "Predicted Player Statistics (player ranges)", "OFFICIAL_FORECAST", "nfl_player_forward"), fam("nfl_anytime_td", "Touchdown chances", "OFFICIAL_FORECAST", "nfl_anytime_td")],
     features: {
       officialForecast: { availability: "PER_SLATE", href: "/nfl/", note: "A score range and win chance for every regular-season game, frozen before kickoff." },
       topBoards: { availability: "PER_SLATE", href: "/nfl/#nfl-boards", note: "Weekly player boards." },
@@ -136,7 +142,7 @@ export const PUBLIC_SPORTS: ReadonlyArray<PublicSport> = Object.freeze([
   }),
   sport({
     key: "nba", label: "NBA", hub: "/nba/",
-    families: [fam("nba_winner_side", "Favoured side (Elo rating)", "OFFICIAL_FORECAST"), fam("nba_player_medians", "Player medians (PTS, REB, AST, 3PM, PRA, P+R, P+A)", "OFFICIAL_FORECAST"), fam("nba_team_scores", "Team scores, win chance and ranges", "WITHHELD")],
+    families: [fam("nba_winner_side", "Favoured side (Elo rating)", "OFFICIAL_FORECAST"), fam("nba_player_medians", "Predicted Player Statistics (PTS, REB, AST, 3PM, PRA, P+R, P+A medians)", "OFFICIAL_FORECAST"), fam("nba_team_scores", "Team scores, win chance and ranges", "WITHHELD")],
     features: {
       officialForecast: { availability: "PER_SLATE", href: "/nba/", note: "The favoured side and player medians for every game on the slate, frozen before tip-off." },
       topBoards: { availability: "PER_SLATE", href: "/nba/projections/", note: "Every player median for the slate, filterable and sortable." },

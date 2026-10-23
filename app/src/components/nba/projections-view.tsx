@@ -17,8 +17,7 @@ import type { Snapshot } from "@/components/nba/experimental-lane";
 import type { BoardGame, SlateRole } from "@/components/nba/projection-board-context";
 import ProjectionBoard from "@/components/nba/projection-board";
 import GameStatusOnClock from "@/components/nba/projection-game-status";
-import { COMBO_STATS, PROJECTION_BOARD_STATS, COMBO_LABEL } from "@/lib/sports/nba/experimental-public-lane.mjs";
-import { NBA_FORECAST_DISCLOSURE, PUBLIC_TERMS } from "@/lib/public-registry";
+import { COMBO_STATS, LANE, PROJECTION_BOARD_STATS, COMBO_LABEL } from "@/lib/sports/nba/experimental-public-lane.mjs";
 import { boardOptions, boardRows, packBoard, statGroups, GAME_STATUS_LABEL, slateHref, slateNav } from "@/lib/sports/nba/projection-board-ops.mjs";
 
 const et = (iso: string) =>
@@ -89,9 +88,12 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
         </p>
       ) : null}
       <div className="rounded-lg p-3" style={{ border: "2px solid var(--vault-gold-bright)", background: "var(--vault-panel)" }} role="note">
-        {/* founder directive 2026-10-23 public readiness: one disclosure, from the public registry */}
-        <p className="m-0 font-display text-[13px] font-extrabold tracking-wide" style={{ color: "var(--vault-gold-bright)" }}>{PUBLIC_TERMS.OFFICIAL_FORECAST}</p>
-        <p className="m-0 mt-1 text-[12.5px] leading-relaxed" style={MUTE}>{NBA_FORECAST_DISCLOSURE}</p>
+        <p className="m-0 font-display text-[13px] font-extrabold tracking-wide" style={{ color: "var(--vault-gold-bright)" }}>{LANE.label}</p>
+        <p className="m-0 mt-1 text-[12.5px] leading-relaxed" style={MUTE}>
+          Frozen pregame model medians, published as experimental analytics — not validated and not a betting
+          recommendation. These models have not yet met their preregistered regular-season checks, and nothing here counts
+          toward them. Each figure was frozen before tip-off and is shown exactly as frozen.
+        </p>
       </div>
       {live ? (
         <>
@@ -116,12 +118,12 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
         </>
       ) : dated ? (
         <p className="m-0 text-[13.5px] leading-relaxed" style={MUTE} role="status">
-          No {PUBLIC_TERMS.OFFICIAL_FORECAST} is committed for {slate ? slateLabel(slate) : "this date"}, so nothing is shown
+          No frozen experimental projections are committed for {slate ? slateLabel(slate) : "this date"}, so nothing is shown
           for it. The <Link href="/nba/" className="underline" style={TEXT}>NBA hub</Link> has the schedule and official finals.
         </p>
       ) : (
         <p className="m-0 text-[13.5px] leading-relaxed" style={MUTE} role="status">
-          No current {PUBLIC_TERMS.OFFICIAL_FORECAST}. This board shows only the current slate&rsquo;s frozen pregame medians and
+          No current experimental projections. This board shows only the current slate&rsquo;s frozen pregame output and
           is empty between slates. The <Link href="/nba/" className="underline" style={TEXT}>NBA hub</Link> has
           the schedule and official finals.
         </p>
