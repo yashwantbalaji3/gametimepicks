@@ -1,6 +1,6 @@
 import Link from "next/link";
 import LevelACopy from "@/components/products/level-a-copy";
-import { cardCopyText, LEG_REFUSAL } from "@/lib/products/level-a/suggestions.mjs";
+import { cardCopyText, jointShownFor, LEG_REFUSAL } from "@/lib/products/level-a/suggestions.mjs";
 import { etStamp } from "@/lib/et-stamp.mjs";
 
 /* LEVEL A · MODEL SUGGESTIONS (founder policy 2026-10-23). Server component; renders what level-a/model.mjs decided
@@ -52,7 +52,7 @@ function CardBox({ title, slot }: { title: string; slot: Slot }) {
     <article className="flex flex-col gap-2 rounded-[10px] px-4 py-3" style={{ border: "1px solid var(--vault-border)" }} aria-label={title}>
       <header className="flex flex-wrap items-baseline justify-between gap-2">
         <h3 className="m-0 font-semibold" style={{ color: "var(--vault-text)", fontSize: 14 }}>{title}</h3>
-        {c ? <span style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>{c.tierLabel} · model joint probability {pct(c.jointProbability)}</span> : null}
+        {c ? <span style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>{c.tierLabel} · model joint probability {jointShownFor(c.jointProbability, c.tier)}</span> : null}
       </header>
       {c ? (
         <>

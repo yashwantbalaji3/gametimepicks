@@ -69,6 +69,21 @@ export function fairAmerican(p) {
 export const tierForJoint = (joint) => getRiskBucketForCombinedOdds(fairAmerican(joint));
 
 /**
+ * THE ONE JOINT TEXT for every Level A card: the pages (Parlay Center, Bank Builder, Moonshot), the copy text and the
+ * recorder's page check all print this, so they cannot disagree. 1 dp. The tier is the exact joint's (its rounded
+ * fair price, D2) and is never moved to fit the text; but just past a band edge the 1 dp text can read as the
+ * neighbouring band (0.4987 is Medium at +101, yet "49.9%" bands Low), so that card alone gets the decimals that keep
+ * the shown number in its own band (at most 4 dp).
+ */
+export function jointShownFor(joint, tier) {
+  for (let d = 1; d <= 4; d += 1) {
+    const text = (joint * 100).toFixed(d);
+    if (tierForJoint(Number(text) / 100) === tier) return `${text}%`;
+  }
+  return `${(joint * 100).toFixed(4)}%`;
+}
+
+/**
  * @typedef {object} ForecastSelection   normalised by a sport source (level-a/sources.mjs)
  * @property {string} sport @property {string} eventId @property {string} eventLabel @property {string} startUtc
  * @property {string} market  "winner" | "1x2"
@@ -199,7 +214,7 @@ export function cardCopyText(card) {
   if (!card) return "";
   const lines = [`GameTimePicks model suggestion · ${card.tierLabel ?? "untiered"} · ${card.legs.length} legs · paper only, no price`];
   for (const l of card.legs) lines.push(`- ${l.eventLabel} (${l.sport.toUpperCase()}): ${l.selection.label}${l.probability != null ? ` · model ${(l.probability * 100).toFixed(1)}%` : ""}`);
-  if (card.jointProbability != null) lines.push(`Model joint probability ${(card.jointProbability * 100).toFixed(1)}% (legs from different games; assumes the games are independent).`);
+  if (card.jointProbability != null) lines.push(`Model joint probability ${jointShownFor(card.jointProbability, card.tier)} (legs from different games; assumes the games are independent).`);
   lines.push("Not a bet and not a price. Check any sportsbook's own line before acting.");
   return lines.join("\n");
 }
