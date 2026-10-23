@@ -228,3 +228,27 @@ These would stop new forecasts from arriving as `LEGACY_UNKNOWN`.
 - **NFL player board.** Write `families.<family>.model` for every published family, including receiving yards since
   2026-10-04.
 - **Nightly.** Run the git recovery in a full-depth job, so `GIT_HISTORY` evidence keeps up without a manual run.
+
+## Addendum, 2026-10-23: scoring rule for rows without evidence of pre-start publication (Release E)
+
+The release owner chose Option B, a general rule.
+
+**The rule.** A forecast is **scored** only when there is evidence it was published before the start. That means a
+publication stamp and an event start, each `RECEIPT` or `GIT_HISTORY`, with the stamp strictly before the start
+(`hasPrestartPublicationEvidence` in `provenance.mjs`).
+
+**A graded row without that evidence:**
+- stays listed, labelled and exported, so the CSV is unchanged;
+- leaves the family's Brier, log loss and calibration;
+- leaves the measured count and the pick record;
+- is counted on its own as `counts.noPrestartEvidence`.
+
+Today this applies to the 15 Homer Nukes picks above. 14 of them are graded; Contreras on 09-07 is NO_MEASUREMENT.
+
+**mlb_homer_nukes, before → after:**
+- measured: 251 → 237;
+- Brier: 0.1336 → 0.1313;
+- log loss: 0.4392 → 0.4339;
+- forecast vs happened: 22.39% vs 15.14% → 22.32% vs 14.77%.
+
+These match `/homer-nukes` (Results Truth), which uses the same predicate.

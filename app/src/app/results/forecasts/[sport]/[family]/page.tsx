@@ -12,7 +12,7 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { etDayLabel, etStamp } from "@/lib/et-stamp.mjs";
 import { csvHref, familyFromSlug, familyRows, familySlug, ledgerFamilies, researchHrefFor, SPORT_SLUGS, sportFromSlug } from "@/lib/results/v2/forecast-ledger-reader";
 import { FAMILY_LABELS, familyMetrics, SPORT_LABELS } from "@/lib/results/v2/forecast-record.mjs";
-import { fieldProvenance } from "@/lib/forecast-ledger/provenance.mjs";
+import { fieldProvenance, hasPrestartPublicationEvidence } from "@/lib/forecast-ledger/provenance.mjs";
 
 export const dynamicParams = false;
 
@@ -90,6 +90,7 @@ function outcomeText(r: any): string {
 function scoreText(r: any): string {
   const m = r.measurement ?? {};
   if (!m.type) return "—";
+  if (!hasPrestartPublicationEvidence(r)) return "not scored: no record of publication before the start";
   if (m.type === "CONTINUOUS_ERROR") return `missed by ${fmt(m.absoluteError)}${m.insideRange === true ? " · inside range" : m.insideRange === false ? " · outside range" : ""}`;
   return `Brier ${num(m.brier)}`;
 }
@@ -117,7 +118,8 @@ export default async function ForecastFamilyPage({ params }: { params: Promise<P
       <h1 className="font-display m-0 mt-2" style={{ color: "var(--vault-text)", fontSize: 28, lineHeight: 1.15 }}>{sportLabel} · {label}</h1>
       <p className="note">
         {n(rows.length)} forecasts published · {n(m.counts.measured)} measured · {n(m.counts.pending)} not final · {n(m.counts.void + m.counts.unmeasured)} void or not measurable
-        {m.counts.withdrawn ? ` · ${n(m.counts.withdrawn)} withdrawn` : ""}. Model{models.length === 1 ? "" : "s"}: {models.length ? models.join(", ") : "not recorded by this forecast's record"}.
+        {m.counts.withdrawn ? ` · ${n(m.counts.withdrawn)} withdrawn` : ""}
+        {m.counts.noPrestartEvidence ? ` · ${n(m.counts.noPrestartEvidence)} graded but not scored (no record of publication before the start)` : ""}. Model{models.length === 1 ? "" : "s"}: {models.length ? models.join(", ") : "not recorded by this forecast's record"}.
       </p>
       <p className="note">
         Where the model, start and publication time of each forecast come from: {n(m.provenance?.RECEIPT)} from a committed record

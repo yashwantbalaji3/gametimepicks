@@ -12,6 +12,8 @@ import { familyCsvs } from "../../../../scripts/results/emit-forecast-record-ass
 const row = (over = {}) => ({
   forecastId: `fl1-${Math.random().toString(16).slice(2, 18).padEnd(16, "0")}`,
   sport: "NFL", family: "player_receptions", forecastKind: "CONTINUOUS_PROJECTION", publicationStatus: "PUBLISHED",
+  // a scored forecast carries evidence it was published before its start (provenance.mjs hasPrestartPublicationEvidence)
+  modelId: "m", eventStart: "2031-10-05T17:00Z", publishedAt: "2031-10-05T15:00:00Z", provenance: { owner: "nfl-prop-settlement", recovered: {} },
   projection: 5, rangeLow: 2, rangeHigh: 8, rangeCoverage: 0.8, probability: null,
   settlement: { state: "SETTLED", finalValue: 7 },
   measurement: { type: "CONTINUOUS_ERROR", absoluteError: 2, squaredError: 4, signedError: -2, insideRange: true, brier: null, logLoss: null, directionalResult: null, directionalBasis: null },
@@ -90,11 +92,11 @@ test("real ledger: KPI and per-family counts reconcile to the raw ledger and the
     sum += fams;
     for (const f of s.families) {
       const c = f.counts;
-      assert.equal(c.measured + c.pending + c.void + c.unmeasured, c.published + c.withdrawn, `${s.sport} ${f.family} states partition the rows`);
+      assert.equal(c.measured + c.noPrestartEvidence + c.pending + c.void + c.unmeasured, c.published + c.withdrawn, `${s.sport} ${f.family} states partition the rows`);
     }
   }
   assert.equal(sum, rows.length);
-  assert.equal(rec.kpis.measured + rec.kpis.pending + rec.kpis.voidCount + rec.kpis.unmeasured, rows.length);
+  assert.equal(rec.kpis.measured + rec.kpis.noPrestartEvidence + rec.kpis.pending + rec.kpis.voidCount + rec.kpis.unmeasured, rows.length);
 });
 
 test("real ledger: every family CSV holds exactly the rows its page counts", () => {
@@ -111,4 +113,49 @@ test("real ledger: every family CSV holds exactly the rows its page counts", () 
     assert.equal(lines.length - 1, familyRows(sport, family).length, `${sport} ${family}: CSV rows = page rows`);
   }
   assert.match(toCsv([row({ matchup: 'A, "B"' })]).split("\n")[1], /"A, ""B"""/, "CSV escaping");
+});
+
+// ── scoring rule: no evidence of publication before the start → listed, labelled, exported, never scored ────────────
+test("probe: a graded row with no pre-start publication evidence leaves every score, count and pick record (control: with evidence it counts)", () => {
+  const b = (p, y, over = {}) => row({ forecastKind: "BINARY_PROBABILITY", probability: p, projection: null, measurement: { type: "PROBABILITY_SCORE", observed: y, brier: Number(((p - y) ** 2).toFixed(6)), logLoss: 0.5, directionalResult: y ? "WIN" : "LOSS", directionalBasis: "PUBLISHED_PICK" }, ...over });
+  const ok = [b(0.2, 0), b(0.8, 1)];
+  const control = familyMetrics(ok);
+  assert.equal(control.n, 2);
+  assert.equal(control.counts.measured, 2);
+  assert.equal(control.directional.win, 1);
+  const cases = {
+    "no publication stamp": { publishedAt: null },
+    "no event start": { eventStart: null },
+    "stamped at the start": { publishedAt: "2031-10-05T17:00:00Z" },
+  };
+  for (const [why, over] of Object.entries(cases)) {
+    const bad = b(0.9, 1, over);
+    const m = familyMetrics([...ok, bad]);
+    assert.equal(m.n, 2, `${why}: not in n`);
+    assert.equal(m.brier, control.brier, `${why}: not in the Brier`);
+    assert.equal(m.observedRate, control.observedRate, `${why}: not in calibration`);
+    assert.equal(m.counts.measured, 2, `${why}: not counted as measured`);
+    assert.equal(m.counts.noPrestartEvidence, 1, `${why}: counted on its own`);
+    assert.equal(m.directional.win, 1, `${why}: not in the pick record`);
+    assert.equal(toCsv([...ok, bad]).trimEnd().split("\n").length - 1, 3, `${why}: still exported`);
+  }
+  const recovered = b(0.9, 1, { publishedAt: null, provenance: { owner: "mlb-homer-nukes-settled", recovered: { publishedAt: { value: "2031-10-05T16:00:00Z", state: "GIT_HISTORY", source: "git:0123456789ab:f.json#generatedAt" } } } });
+  assert.equal(familyMetrics([...ok, recovered]).n, 3, "a recovered pre-start stamp is evidence");
+  const rec = forecastRecord([...ok, b(0.9, 1, { publishedAt: null })]);
+  assert.equal(rec.kpis.measured, 2);
+  assert.equal(rec.kpis.noPrestartEvidence, 1);
+});
+
+test("real ledger: rows without pre-start publication evidence are exactly the ones left out of each family's scores", async () => {
+  const { hasPrestartPublicationEvidence } = await import("../../forecast-ledger/provenance.mjs");
+  const rec = forecastRecordView();
+  let excluded = 0;
+  for (const s of rec.sports) for (const f of s.families) {
+    const rs = familyRows(s.sport, f.family);
+    const want = rs.filter((r) => r.measurement?.type && !hasPrestartPublicationEvidence(r)).length;
+    assert.equal(f.counts.noPrestartEvidence, want, `${s.sport} ${f.family}`);
+    assert.equal(f.counts.measured, rs.filter((r) => r.measurement?.type).length - want, `${s.sport} ${f.family}: measured excludes them`);
+    excluded += want;
+  }
+  assert.equal(rec.kpis.noPrestartEvidence, excluded);
 });
