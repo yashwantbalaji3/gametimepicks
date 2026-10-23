@@ -1,0 +1,127 @@
+{
+ "providerEventId": "401873013",
+ "canonicalEventId": "nfl-401873013",
+ "matchup": "CLE @ TEN",
+ "home": {
+  "abbr": "TEN",
+  "name": "Tennessee Titans"
+ },
+ "away": {
+  "abbr": "CLE",
+  "name": "Cleveland Browns"
+ },
+ "kickoffUtc": "2026-10-25T17:00Z",
+ "seasonType": 2,
+ "week": 7,
+ "venue": "Nissan Stadium",
+ "state": "PUBLIC_EXPERIMENTAL",
+ "model": {
+  "id": "nfl-regular-season-public-v1",
+  "version": 2,
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "inputHash": "4d9238a61e897d83",
+  "simulations": 10000,
+  "derivedFrom": [
+   "nfl-win-elo-mov-v1@v1",
+   "nfl-margin-elo-hfa-v1@v1",
+   "nfl-model-v1-elo-analytic@v1",
+   "nfl-gamesim-v1-joint-normal@v1"
+  ],
+  "totalsHead": {
+   "id": "matchup-totals-v3-play-efficiency",
+   "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
+   "gamesFolded": 7370,
+   "foldedThrough": "2026-10-22",
+   "sigma": 13.32677
+  },
+  "winHead": {
+   "id": "nfl-win-elo-mov-v1",
+   "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
+   "gamesFolded": 7354,
+   "foldedThrough": "2026-10-22"
+  },
+  "marginHead": {
+   "id": "nfl-margin-elo-hfa-v1",
+   "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
+   "gamesFolded": 7354,
+   "sigma": 13.03176
+  }
+ },
+ "teamSignal": {
+  "state": "APPLIED",
+  "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
+ },
+ "generatedAt": "2026-10-23T17:37:55Z",
+ "evidence": {
+  "schedule": "2026-10-23T14:12:08Z",
+  "strengthCutoff": "2026-10-23T17:37:55Z",
+  "strengthGamesFolded": 869,
+  "regressedToSeason": null
+ },
+ "forecastSummary": {
+  "projectedScore": {
+   "home": 18,
+   "away": 20,
+   "convention": "scores-derived-from-total-and-margin-v1"
+  },
+  "winProbability": {
+   "home": 0.3543,
+   "away": 0.6141,
+   "tieMass": 0.0316,
+   "homeUnrounded": 0.35425129051777515,
+   "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
+  },
+  "margin": {
+   "median": -3,
+   "p10": -19,
+   "p90": 13
+  },
+  "total": {
+   "median": 38,
+   "p10": 21,
+   "p90": 55,
+   "head": "matchup-totals-v3-play-efficiency"
+  },
+  "scoreRange": {
+   "homeP10": 6,
+   "homeP90": 29,
+   "awayP10": 8,
+   "awayP90": 32
+  },
+  "distribution": {
+   "marginMean": -3.08,
+   "marginSigma": 13.03,
+   "totalMean": 37.9501,
+   "totalSigma": 13.33,
+   "source": "nfl-gamesim-v1-joint-normal"
+  }
+ },
+ "marketComparison": {
+  "state": "NO_MARKET",
+  "note": "No current sportsbook capture covers this game."
+ },
+ "teamInputs": {
+  "version": 1,
+  "consumedByModel": false,
+  "participationAsOf": "2026-10-23T17:37:55Z",
+  "state": "NO_STARTING_QB_ABSENCE",
+  "absences": [],
+  "comparisonWithheld": false,
+  "note": null
+ },
+ "settlementKey": {
+  "canonicalEventId": "nfl-401873013",
+  "settlesAgainst": "official final score",
+  "ledger": "experimental-forecast"
+ },
+ "disclaimer": "Educational and paper-only — not betting advice.",
+ "sideDecision": {
+  "schemaVersion": "side-decision@1",
+  "publishedSide": "AWAY",
+  "rule": "MODEL_FAVORED_V1",
+  "abstention": null,
+  "frozenAt": "2026-10-23T17:37:55Z"
+ },
+ "revisionOf": "401873013.json",
+ "priorInputHash": "f7751c98b501dc28"
+}
