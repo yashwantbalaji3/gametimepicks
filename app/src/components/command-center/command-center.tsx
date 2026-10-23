@@ -70,11 +70,14 @@ function Lane({ lane }: { lane: CommandCenterLane }) {
   );
 }
 
-export default function CommandCenter({ lanes, heading, subtitle }: { lanes: CommandCenterLane[]; heading: string; subtitle: string }) {
+/** `id` names this instance: the homepage renders two (Simulation Hub + Other coverage). A shared heading id made each
+ *  aria-labelledby and in-page anchor resolve to the first by document order (unique-dom-ids.test, found 2026-10-22 on a
+ *  rehearsal build where a lane sat in Other coverage; Production then had no secondary lane, so it was latent). */
+export default function CommandCenter({ lanes, heading, subtitle, id = "command-center" }: { lanes: CommandCenterLane[]; heading: string; subtitle: string; id?: string }) {
   return (
-    <section aria-labelledby="command-center-h" className="flex flex-col gap-3">
+    <section aria-labelledby={`${id}-h`} data-command-center={id} className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between gap-2 flex-wrap">
-        <h2 id="command-center-h" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold)", fontSize: 11 }}>{heading}</h2>
+        <h2 id={`${id}-h`} className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold)", fontSize: 11 }}>{heading}</h2>
         <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{subtitle} · <Link href="/methodology/#model-status" style={{ color: "var(--vault-text-faint)" }}>what the statuses mean</Link></span>
       </div>
       {/* Literal class strings (Tailwind JIT): five lanes take five columns at xl, never a 4 + 1 orphan row. */}

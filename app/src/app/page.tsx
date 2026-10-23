@@ -481,6 +481,7 @@ export default function HomePage() {
           it is simply no longer presented as something running today. */}
       {coverageCards.length ? (
         <CommandCenter
+          id="other-coverage"
           lanes={secondaryLanes}
           heading="Other coverage"
           subtitle="Archives and quiet sports"

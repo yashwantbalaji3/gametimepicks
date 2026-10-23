@@ -207,8 +207,12 @@ for (const [w, h] of WIDTHS) {
   test(`${w}px · founder labelling (approval 2026-10-21): the role C label and its five-point note are visible; the banner says not a real or live game`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
     const errors = await open(page, GAMES[0].providerEventId);
-    const note = page.locator("[data-nbp-role-note]");
+    // founder directive 2026-10-22 22:55 ET: the note lives in the engine panel ("About this simulation"), and the engine
+    // identity is stated in full exactly twice — the banner and that panel
+    const note = page.locator("[data-nbp-about-panel] [data-nbp-role-note]");
     await expect(note).toBeVisible();
+    const theaterText = await page.locator("[data-nbp-theater]").innerText();
+    expect((theaterText.match(/Research Possession Simulation — Unvalidated/gi) ?? []).length).toBe(2);
     await expect(note.locator("[data-nbp-role-label]")).toHaveText(ROLE_C_LABEL);
     await expect(note.locator("li")).toHaveText([...ROLE_C_NOTE]);
     await expect(page.locator("[data-nbp-banner]")).toHaveText(POSSESSION_BANNER);

@@ -29,9 +29,23 @@ export const ENGINE_IDENTITY = `${ROLE_C_LABEL} (${POSSESSION_ENGINE_ID})`;
 export const ENGINE_LABEL = `${ENGINE_IDENTITY} — not the official forecast, not the ${ROLE_B_LABEL}`;
 export const POSSESSION_BANNER = "SIMULATED GAME · RESEARCH POSSESSION SIMULATION — UNVALIDATED · NOT THE OFFICIAL FORECAST · NOT A REAL OR LIVE GAME";
 export const WHAT_IS_REAL =
-  "What is modelled: every play, score change, clock reading, possession arrow and lineup below comes from one stored event log of the engine, and the box score is that log added up. The court graphic is decorative: player positions, ball movement and shot locations are not modelled.";
-export const ENGINE_NOTE =
-  `This engine is an unvalidated research simulation. It is a different model from both the official forecast and the ${ROLE_B_LABEL}; its runs are independent draws (not reconciled to v1's draws), it has no preregistered evaluation, it has not been shown to be more accurate, and nothing it shows changes an official number.`;
+  "What is modelled: every play, score change, clock reading, possession arrow and lineup on this page comes from one stored event log of the engine, and the box score is that log added up. The court graphic is decorative: player positions, ball movement and shot locations are not modelled.";
+/*
+ * "ABOUT THIS SIMULATION" (founder directive 2026-10-22 22:55 ET — a professional presentation that is transparent without
+ * making working features look unfinished). The two meanings the founder named are stated ONCE, side by side, in the
+ * engine panel — never sprinkled over headings:
+ *   VERIFIED   technically verified: what the build/test gates actually check (stored-run.mjs storedRunProblems → the
+ *              P1–P11 checker, re-run at page build; replayGateProblems → the seed pool fully checked, zero violations;
+ *              the in-browser reconciliation of the selected run). No claim beyond those checks.
+ *   ACCURACY   predictive accuracy not yet validated: no measurement against actual results exists, so a run is a
+ *              possibility — not a prediction and not a guarantee. (The former ENGINE_NOTE's facts, restated here.)
+ */
+export const VERIFIED_TITLE = "Technically verified";
+export const VERIFIED_NOTE =
+  "Every run on this page passed the engine's consistency checks when it was generated and again when this page was built: game clock, possessions, five players on court per side, scoring, minutes, fouls, and an event log that adds up exactly to the box score. The run you are watching is also re-added from its own event log in your browser (Reconciliation, above).";
+export const ACCURACY_TITLE = "Predictive accuracy — not yet validated";
+export const ACCURACY_NOTE =
+  `The engine has not been measured against actual NBA results: it has no preregistered evaluation, and it has not been shown to be more accurate than the official forecast or the ${ROLE_B_LABEL}. Its runs are independent draws (not reconciled to v1's draws). Each run is one possible game — a scenario, not a prediction and not a guarantee — and nothing it shows changes an official number.`;
 
 /** Beside "Inputs as of <ts> UTC": the replay's input cutoff is the OFFICIAL freeze (release owner 2026-10-21, identical cutoffs). */
 export const INPUTS_AS_OF_NOTE = "the official forecast's freeze for this game: the replay has no later information than the official forecast had";
@@ -39,9 +53,12 @@ export const INPUTS_AS_OF_NOTE = "the official forecast's freeze for this game: 
 export const OFFICIAL_PANEL_TITLE = "Official projection";
 export const OFFICIAL_PANEL_NOTE = "The canonical forecast for this game. It is the same for every run and every what-if; no run below changes it.";
 export const WITHHELD = "Withheld";
-export const OUTCOME_PANEL_TITLE = `Simulation outcome · this run · ${ROLE_C_LABEL}`;
+// founder directive 2026-10-22 22:55 ET: the engine identity is stated in full twice (banner + engine panel); headings
+// and captions carry short labels.
+export const OUTCOME_PANEL_TITLE = "Simulation outcome · this run";
 // Gate V2 labels describe v1 runs; this engine is NOT v1, so its default run says which engine it is.
-export const DEFAULT_RUN_TITLE = `Simulated game · one run of the ${ROLE_C_LABEL}`;
+// rendered as "Simulated game · run N" (founder directive 2026-10-22 22:55 ET: short caption; the engine is named in the panel)
+export const DEFAULT_RUN_TITLE = "Simulated game";
 // Founder condition 2026-10-21 (scenario transparency): the default run is SELECTED from the runs the Elo favourite won,
 // so it must never read as an unbiased random draw or as independent confirmation of the official forecast.
 export const DEFAULT_RUN_SUBTITLE = "a selected illustrative scenario: the stored run closest to the official projection among the runs the Elo favourite won, so it is not a random draw and not an independent confirmation of the official forecast; the official projection beside it never changes";
