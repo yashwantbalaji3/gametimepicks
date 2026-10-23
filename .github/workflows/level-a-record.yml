@@ -1,0 +1,84 @@
+name: level-a-record
+
+# ── LEVEL A RECORD: ONE APPEND PER PRODUCTION DEPLOYMENT THAT SHOWED SOMETHING NEW ──────────────────────────────
+#
+# The record must hold what readers saw. The site is a static export, so the Level A pages are decided at BUILD
+# time; a recorder on a clock could record a card no deployment ever served. So this runs on Vercel's
+# deployment_status for Production. It reads that deployment's own served model
+# (/data/level-a/v1/model.json, the same evaluation the pages render), checks it against the pages, and appends
+# only entries not already recorded (append-only; revisions stay revisions; nothing shown at or after a card's
+# first start). See app/scripts/products/record-level-a-from-deployment.mjs for the mismatch checks.
+#
+# COMMITS. Only when a deployment showed a card or pick not yet in the record (in practice a few a day, on the days
+# the inputs change). The path, data/internal/products/level-a/, is NOT a Vercel BUILD_INPUT, so these commits
+# build nothing and cannot re-trigger this workflow. No odds key, no paid call, no secret beyond GITHUB_TOKEN.
+#
+# KNOWN LIMIT. If a newer deployment is already live when this runs, the older one is SUPERSEDED and writes nothing;
+# a card shown only between the two builds (minutes) is not recorded. The run says so in its summary.
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: "Production deployment commit (40-hex) to record, for a re-run after a refused or challenged read."
+        required: true
+        type: string
+
+concurrency:
+  group: level-a-record
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  record:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      DEPLOY_SHA: ${{ github.event.deployment.sha || inputs.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 200
+          persist-credentials: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install app dependencies
+        run: cd app && (npm ci --silent || npm install --silent)
+
+      - name: Record what this deployment shows
+        run: |
+          cd app
+          # Up to 5 reads a minute apart while the Production alias still points at an older build.
+          npx tsx scripts/products/record-level-a-from-deployment.mjs --sha "$DEPLOY_SHA" --attempts 5 --write | tee /tmp/level-a-record.json
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"; cat /tmp/level-a-record.json >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit the record (only if it grew)
+        run: |
+          git add data/internal/products/level-a/suggestions.jsonl 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "  (nothing new shown by this deployment)"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "auto: level-a record ${DEPLOY_SHA:0:10} [skip ci]"
+          # Rebase-then-push, with retries (the auto-refresh idiom): other bots land on main too.
+          for a in 1 2 3 4 5; do
+            git push origin HEAD:main && break
+            echo "push rejected (attempt $a) — rebasing onto origin/main and retrying"
+            git pull --rebase --autostash origin main || exit 1
+            if [ "$a" = "5" ]; then echo "still rejected after 5 attempts"; exit 1; fi
+          done

@@ -35,7 +35,7 @@ import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipp
 import BankBuilderProposalCard from "@/components/bank-builder/bank-builder-proposal-card";
 import EligibleUniverse from "@/components/products/eligible-universe";
 import LevelASuggestions, { type LevelAModel } from "@/components/products/level-a-suggestions";
-import { buildLevelAModel, levelAEnabled } from "@/lib/products/level-a/model.mjs";
+import { levelAPageModel, levelAEnabled } from "@/lib/products/level-a/model.mjs";
 import { loadProductAvailability } from "@/lib/products/availability";
 import { strongestSlatePicks } from "@/lib/world-cup/structured-moonshot";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
@@ -513,7 +513,7 @@ export default function BankBuilderPage() {
       {/* v1.7 — which sports could contribute a leg today, from the availability owner. Counts and plain
           reasons only; it names the market-priced caveat the product carries. Reads no internal artifact. */}
       <EligibleUniverse availability={loadProductAvailability()} compact scope="Bank Builder" />
-      {LEVEL_A ? <LevelASuggestions model={buildLevelAModel() as unknown as LevelAModel} mode="bank-builder" /> : null}
+      {LEVEL_A ? <LevelASuggestions model={levelAPageModel() as unknown as LevelAModel} mode="bank-builder" /> : null}
 
       {/* FLAGSHIP — the "live climb" hero: a plain-English, mobile-first front door to the ladder. It is
           purely presentational (every figure is read verbatim from the data loaded above) and sits ABOVE

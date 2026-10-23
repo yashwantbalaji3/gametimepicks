@@ -25,7 +25,7 @@ import { presentFromArtifact } from "@/lib/signature-presentation.mjs";
 import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
 import EligibleUniverse from "@/components/products/eligible-universe";
 import LevelASuggestions, { type LevelAModel } from "@/components/products/level-a-suggestions";
-import { buildLevelAModel, levelAEnabled } from "@/lib/products/level-a/model.mjs";
+import { levelAPageModel, levelAEnabled } from "@/lib/products/level-a/model.mjs";
 import { loadProductAvailability } from "@/lib/products/availability";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import LifecycleRecord from "@/components/products/lifecycle-record";
@@ -266,7 +266,7 @@ export default function MoonshotPage() {
       {/* v1.7 — which sports could contribute a leg today, from the availability owner (counts + plain
           reasons; names the market-priced caveat). Same component as /bank-builder, same owner. */}
       <EligibleUniverse availability={loadProductAvailability()} compact scope="Moonshot" />
-      {LEVEL_A ? <LevelASuggestions model={buildLevelAModel() as unknown as LevelAModel} mode="moonshot" /> : null}
+      {LEVEL_A ? <LevelASuggestions model={levelAPageModel() as unknown as LevelAModel} mode="moonshot" /> : null}
 
       {/*
         TODAY'S CARD — the PUBLISHED lanes themselves (P243 · A-2).
