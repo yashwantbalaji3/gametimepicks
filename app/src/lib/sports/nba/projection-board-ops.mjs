@@ -44,27 +44,38 @@ export function boardRows(snapshot, stats) {
  * `[name, injury || 0, teamIndex, min, ...v]`, IN THE DEFAULT ORDER (sortRows' expected-minutes order, ties by id).
  * `unpackBoard` (browser) rebuilds the same rows with an index id ("0000", "0001", …), so the default order — and every
  * tie inside it — is exactly the server's. Every number is carried verbatim; nothing is rounded or recomputed.
+ *
+ * POSTGAME ACTUALS (overnight sprint 2026-10-23): when `actuals` (projection-board-actuals.ts, keyed by row id) is
+ * given, the board also carries `a`, parallel to `r`: per row 0 (no actual — the game has no recorded final box score)
+ * or `[minutes | "DNP" | null, ...one actual per board stat]`, copied verbatim (the server computed every combo from
+ * integer box-score components). Unpacked, a row's `v` is the frozen values FOLLOWED BY the actuals (so a reader may
+ * sort by an actual column too) and `am` is the actual minutes. Without actuals the format is unchanged.
  * @param {ReturnType<typeof boardRows>} rows
+ * @param {Record<string, (number | string | null)[]> | null} [actuals]
  */
-export function packBoard(rows) {
+export function packBoard(rows, actuals = null) {
   const t = [];
   const at = new Map();
-  const r = sortRows(rows).map((x) => {
+  const sorted = sortRows(rows);
+  const r = sorted.map((x) => {
     const k = `${x.game}\u0000${x.team}`;
     if (!at.has(k)) { at.set(k, t.length); t.push([x.team, x.teamName, x.game]); }
     return [x.name, x.injury || 0, at.get(k), x.min, ...x.v];
   });
-  return { t, r };
+  return actuals ? { t, r, a: sorted.map((x) => actuals[x.id] ?? 0) } : { t, r };
 }
 
 /**
- * @param {{ t: [string, string, string][], r: (string | number | null)[][] }} packed
- * @returns {{ id: string, game: string, name: string, injury: string | null, team: string, teamName: string, min: number | null, v: (number | null)[] }[]}
+ * @param {{ t: [string, string, string][], r: (string | number | null)[][], a?: (0 | (number | string | null)[])[] }} packed
+ * @returns {{ id: string, game: string, name: string, injury: string | null, team: string, teamName: string, min: number | null, v: (number | null)[], am?: number | "DNP" | null }[]}
  */
-export function unpackBoard({ t, r }) {
+export function unpackBoard({ t, r, a }) {
   return r.map(([name, injury, ti, min, ...v], i) => {
     const [team, teamName, game] = t[/** @type {number} */ (ti)];
-    return { id: String(i).padStart(4, "0"), game, name: /** @type {string} */ (name), injury: /** @type {string} */ (injury) || null, team, teamName, min: /** @type {number | null} */ (min), v: /** @type {(number | null)[]} */ (v) };
+    const row = { id: String(i).padStart(4, "0"), game, name: /** @type {string} */ (name), injury: /** @type {string} */ (injury) || null, team, teamName, min: /** @type {number | null} */ (min), v: /** @type {(number | null)[]} */ (v) };
+    if (!a) return row;
+    const act = a[i] || null;
+    return { ...row, v: [...row.v, ...(act ? act.slice(1) : v.map(() => null))], am: act ? act[0] : null };
   });
 }
 

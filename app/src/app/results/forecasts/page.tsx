@@ -72,6 +72,16 @@ function primary(f: any): { main: string; sub: string } {
   return { main: "—", sub: "" };
 }
 
+/* Audit 2026-10-23 (F01): how many rows can name their model, start and publication time, per family. LEGACY_UNKNOWN
+   rows are left out of model evaluations; the CSV names the source of every value (forecast-ledger/provenance.mjs). */
+function provenanceText(p: { RECEIPT: number; GIT_HISTORY: number; LEGACY_UNKNOWN: number } | undefined): { main: string; sub: string } {
+  if (!p) return { main: "—", sub: "" };
+  return {
+    main: p.LEGACY_UNKNOWN ? `${n(p.LEGACY_UNKNOWN)} unknown` : "All known",
+    sub: `${n(p.RECEIPT)} from a committed record${p.GIT_HISTORY ? ` · ${n(p.GIT_HISTORY)} from file history` : ""}`,
+  };
+}
+
 export default function ForecastRecordPage() {
   const rec = forecastRecordView();
   const k = rec.kpis;
@@ -99,6 +109,7 @@ export default function ForecastRecordPage() {
             <div className="kpi" role="listitem"><b>{n(k.voidCount + k.unmeasured)}</b><span>void or not measurable</span></div>
             <div className="kpi" role="listitem"><b>{k.sports} · {k.families}</b><span>sports · forecast types</span></div>
             <div className="kpi" role="listitem"><b>{day(k.lastSettledAt)}</b><span>last settled</span></div>
+            <div className="kpi" role="listitem"><b>{n(k.provenance?.LEGACY_UNKNOWN)}</b><span>model, start or publication time unknown</span></div>
           </div>
           <p className="note">
             Void means the player did not play, or the game ended in a push or tie. Not measurable means the official
@@ -113,11 +124,12 @@ export default function ForecastRecordPage() {
               <div className="scroll">
                 <table>
                   <thead>
-                    <tr><th scope="col">Forecast</th><th scope="col">Kind</th><th scope="col">Measured</th><th scope="col">How it did</th><th scope="col">Latest game</th><th scope="col"><span className="sr-only">Details</span></th></tr>
+                    <tr><th scope="col">Forecast</th><th scope="col">Kind</th><th scope="col">Measured</th><th scope="col">How it did</th><th scope="col">Latest game</th><th scope="col">Provenance</th><th scope="col"><span className="sr-only">Details</span></th></tr>
                   </thead>
                   <tbody>
                     {s.families.map((f: any) => {
                       const p = primary(f);
+                      const pv = provenanceText(f.provenance);
                       return (
                         <tr key={f.family}>
                           <td><span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{f.label}</span>{f.directional ? (f.directional.byBasis ?? [{ ...f.directional, label: f.directional.label ?? "pick record" }]).map((d: any) => <div className="f" key={d.basis ?? "all"}>{d.label.charAt(0).toUpperCase() + d.label.slice(1)} {d.win}–{d.loss}{d.push ? `–${d.push}` : ""}</div>) : null}</td>
@@ -125,6 +137,7 @@ export default function ForecastRecordPage() {
                           <td className="k nw">{n(f.counts.measured)}</td>
                           <td><span className="k">{p.main}</span><div className="f">{p.sub}</div></td>
                           <td className="m nw">{day(f.latestEvent)}</td>
+                          <td className="nw"><span className="k">{pv.main}</span><div className="f">{pv.sub}</div></td>
                           <td className="nw"><Link href={familyHref(s.sport, f.family)} className="l">Details →</Link> <a href={csvHref(s.sport, f.family)} className="f" download>CSV</a></td>
                         </tr>
                       );
@@ -142,6 +155,24 @@ export default function ForecastRecordPage() {
                 <li key={`${g.sport}-${g.family}`}><b style={{ color: "var(--vault-text)" }}>{g.sport} · {familyLabel(g.family)}</b>: {plainCodes(g.reason)}</li>
               ))}
             </ul>
+          </section>
+
+          <section aria-labelledby="fr-provenance">
+            <h2 id="fr-provenance" className="font-display">Where each forecast&rsquo;s facts come from</h2>
+            <p className="note">
+              Every row in the CSV downloads names the model that published it, when the game started and when the
+              forecast was stamped, together with where each of those facts is written down. Most come from a committed
+              record: the frozen forecast, its grade log, or the forecast file on record. Some come from the history of
+              the file that first published the forecast, named by commit. Where nothing on record shows a fact, the row
+              says unknown and the value stays empty. We never fill one in by estimate.
+            </p>
+            <p className="note">
+              {n(k.provenance?.LEGACY_UNKNOWN)} of {n(k.forecasts)} forecasts are missing at least one of the three, mostly
+              because the file that published them did not record the model. They keep their place in this record and
+              in the scores above, and they are counted per forecast type so a Model Performance comparison can leave
+              them out. Multi-outcome forecasts (match result, correct score) also export their full probability table,
+              so anyone can recompute their scores.
+            </p>
           </section>
 
           <section aria-labelledby="fr-how">

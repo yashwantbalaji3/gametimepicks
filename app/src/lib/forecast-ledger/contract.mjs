@@ -23,6 +23,8 @@
  * recorded a correction (settlement.corrections grows). Everything else is a violation.
  */
 
+import { validateRecovered } from "./provenance.mjs";
+
 export const LEDGER_SCHEMA_VERSION = "forecast-ledger@1";
 
 /** Publication states (B4). Only PUBLISHED and WITHDRAWN rows are in the public ledger at all. */
@@ -56,8 +58,9 @@ export const SETTLEMENT_STATE = Object.freeze(["PENDING", "SETTLED", "VOID", "NO
 export const DIRECTIONAL_RESULT = Object.freeze(["WIN", "LOSS", "PUSH", "VOID", "WITHDRAWN", "PENDING"]);
 
 /**
- * Fields that, once written, never change (B3). `settlement`, `measurement`, `withdrawal` and `provenance.notes`
- * are the only parts of a row that may evolve, and only in the directions append-only.mjs allows.
+ * Fields that, once written, never change (B3). `settlement`, `measurement`, `withdrawal`, `provenance.notes` and
+ * `provenance.recovered` (which may only GAIN entries) are the only parts of a row that may evolve, and only in the
+ * directions append-only.mjs allows.
  */
 export const IMMUTABLE_FIELDS = Object.freeze([
   "forecastId", "sport", "competition", "season", "eventId", "eventStart",
@@ -151,6 +154,11 @@ export function validateRow(row) {
   // A continuous projection never gets a W/L unless the owner graded a published directional claim.
   if (row.forecastKind === FORECAST_KIND.CONTINUOUS && (m?.directionalResult === "WIN" || m?.directionalResult === "LOSS") && !m?.directionalBasis) {
     p.push("continuous row has a W/L without a published directional basis");
+  }
+  // Recovered evidence (provenance.mjs) only for a field the row lacks, each entry naming its state and source.
+  for (const [f, e] of Object.entries(row.provenance?.recovered ?? {})) {
+    if (row[f] != null) p.push(`provenance.recovered.${f} but the row carries ${f} itself`);
+    p.push(...validateRecovered(f, e));
   }
   // Market numbers are context, typed as such: a market block never carries the model's probability field.
   if (row.market && "probability" in row.market) p.push("market block carries a bare `probability` (must be impliedProbability)");
