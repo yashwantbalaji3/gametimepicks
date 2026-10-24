@@ -37,6 +37,7 @@ import { readPossessionArtifact, validatedGame, replayGateProblems, sideConstrai
 import { NBA_THEATER_REPLAY_ENGINE } from "../../src/lib/consistency/theater-replay-engine.mjs";
 import { nbaOfficialSnapshot } from "../../src/lib/consistency/official-snapshot.mjs";
 import { isBotChallenge } from "../../src/lib/deployment-verification.mjs";
+import { loadRosterIndex } from "../../src/lib/sports/nba/roster-index.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -65,7 +66,7 @@ export function reconcile({ scheduleIds, receiptIds, laneIds, laneExcludedIds = 
 }
 
 /** Checks 1–8 and 10 for one game from committed artifacts. Pure given its inputs. */
-export function gameChecks({ id, sched, rec, laneGame, laneDoc, theaterRead, offSrc, supSrc, boards, final, ledgerEntry, nowMs }) {
+export function gameChecks({ id, sched, rec, laneGame, laneDoc, theaterRead, offSrc, supSrc, boards, final, ledgerEntry, nowMs, rosters = null }) {
   const c = {};
   const r = rec?.receipt ?? null, f = rec?.forecast ?? null;
   const codes = (x) => [x?.away?.abbr ?? x?.away?.tricode ?? null, x?.home?.abbr ?? x?.home?.tricode ?? null].join("@");
@@ -97,7 +98,7 @@ export function gameChecks({ id, sched, rec, laneGame, laneDoc, theaterRead, off
     // 5 players + boards
     const rows = laneGame ? [laneGame.players?.away?.length ?? 0, laneGame.players?.home?.length ?? 0] : [0, 0];
     const onBoard = (boards?.rows ?? boards?.boards ?? boards?.entries ?? []).length === 0 ? null : JSON.stringify(boards).includes(id);
-    c.players = !laneGame ? cell(S.PENDING, "not in the lane yet") : !snapshotMatchesSource(laneGame, rec) ? cell(S.FAIL, "lane rows do not re-derive from the receipt")
+    c.players = !laneGame ? cell(S.PENDING, "not in the lane yet") : !snapshotMatchesSource(laneGame, rec, { rosters }) ? cell(S.FAIL, "lane rows do not re-derive from the receipt")
       : rows[0] && rows[1] ? cell(onBoard === false ? S.WARN : S.OK, `${rows[0]}+${rows[1]} player rows${onBoard == null ? " · Top Boards file absent" : onBoard ? " · on Top Boards" : " · not on Top Boards"}`) : cell(S.FAIL, `a side has no player rows (${rows.join("+")})`);
     // 6 theater (public replay gate) + internal @1 consistency (reported, known drift)
     if (!tg) c.theater = cell(laneGame ? S.FAIL : S.PENDING, "no stored possession run");
@@ -168,6 +169,8 @@ async function main() {
   const boards = readJson(path.join(NBA, "top-boards/v0.1", `${DATE}.json`));
   const finals = readJson(path.join(APP, "public/data/nba/results/finals-2026-27.json"));
   const ledger = readJson(path.join(NBA, "experimental-v0.1/ledger.json"));
+  // a lane carrying positions / the unavailable list re-derives only against the receipt's own roster capture (by sha)
+  const ROSTERS = loadRosterIndex(REPO);
   const recon = reconcile({ scheduleIds: sched.map((r) => String(r.providerEventId)), receiptIds: (off?.games ?? []).map((g) => String(g.providerEventId)), laneIds: (laneDoc?.games ?? []).map((g) => g.providerEventId), laneExcludedIds: (laneDoc?.excluded ?? []).map((x) => String(x.providerEventId)) });
   const firstTip = sched.length ? sched[0].dateUtc : null;
   let laneCommit = null;
@@ -182,7 +185,7 @@ async function main() {
     const laneGame = laneDoc?.games?.find((g) => g.providerEventId === id) ?? null;
     const final = (finals?.finals ?? []).find((x) => String(x.providerEventId) === id) ?? null;
     const ledgerEntry = (ledger?.gradeEntries ?? []).filter((e) => String(e.providerEventId) === id).at(-1) ?? null;
-    const c = gameChecks({ id, sched: s, rec, laneGame, laneDoc, theaterRead, offSrc, supSrc, boards, final, ledgerEntry, nowMs });
+    const c = gameChecks({ id, sched: s, rec, laneGame, laneDoc, theaterRead, offSrc, supSrc, boards, final, ledgerEntry, nowMs, rosters: ROSTERS });
     c.onTime = !laneAt ? cell(S.PENDING, "lane not committed yet") : t(laneAt) < t(firstTip) ? cell(S.OK, `lane first committed ${laneAt} < first tip ${firstTip}`) : cell(S.FAIL, `lane first committed ${laneAt} ≥ first tip ${firstTip}`);
     if (c.publicData.state === S.OK && latest?.date && latest.date < DATE) c.publicData = cell(S.FAIL, `latest.json still ${latest.date}`);
     if (argv.includes("--production")) {
