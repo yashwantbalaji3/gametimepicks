@@ -12,7 +12,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 process.env.__NEXT_TRAILING_SLASH = "true"; // next.config.mjs trailingSlash: true — next/link renders hrefs as the build does
 globalThis.React = React; // the lane card renders TeamLogo, which compiles with the classic JSX runtime under tsx (as nba-hub.test.mjs)
 
-import { buildExperimentalSnapshot, snapshotMatchesSource, LANE, WITHHELD, AMENDMENT_A } from "./experimental-public-lane.mjs";
+import { buildExperimentalSnapshot, snapshotMatchesSource, LANE, WITHHELD, AMENDMENT_A, unavailablePlayersForPublish } from "./experimental-public-lane.mjs";
 import { eloWinProbabilityForPublish, eloWinProbabilityOf, eloWinProbabilityText, eloAccuracyDisclosure, ELO_WIN_PROBABILITY_LABEL } from "./elo-win-probability.mjs";
 import { capabilityState, canEnterPredictionProducts } from "../../sport-capability-registry.ts";
 
@@ -22,7 +22,7 @@ const DOC = JSON.parse(fs.readFileSync(SRC, "utf8"));
 // 2026-10-20 is ALREADY PUBLISHED without the Elo field: the fixture follows the publisher's rule, so every assertion
 // below stays strict with the Elo switch ON (Release G). The slate WITH the field is `snapOn` (its own tests below).
 const PUBLISHED_1020 = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nba/experimental-public/2026-10-20.json"), "utf8"));
-const snap = () => buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: "nba/experimental-v0.1/forecasts/2026-10-20.json", sourceCommit: null, generatedAt: "2026-10-20T17:20:00Z", eloWinProbability: eloWinProbabilityForPublish(PUBLISHED_1020) });
+const snap = () => buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: "nba/experimental-v0.1/forecasts/2026-10-20.json", sourceCommit: null, generatedAt: "2026-10-20T17:20:00Z", eloWinProbability: eloWinProbabilityForPublish(PUBLISHED_1020), unavailablePlayers: unavailablePlayersForPublish(PUBLISHED_1020) });
 const snapOn = () => buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: "nba/experimental-v0.1/forecasts/2026-10-20.json", sourceCommit: null, generatedAt: "2026-10-20T17:20:00Z", eloWinProbability: true });
 const ELO_ON = { enabled: true, disclosure: eloAccuracyDisclosure({ graded: 3, minN: 300 }) };
 
@@ -88,7 +88,7 @@ test("the public snapshot carries no internal path and no private v1/theater mar
 
 test("the committed public snapshot is exactly what the producer builds from the committed receipts", () => {
   const pub = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nba/experimental-public/2026-10-20.json"), "utf8"));
-  const rebuilt = buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: pub.source.file, sourceCommit: pub.source.commit, generatedAt: pub.generatedAt, eloWinProbability: eloWinProbabilityForPublish(pub) });
+  const rebuilt = buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: pub.source.file, sourceCommit: pub.source.commit, generatedAt: pub.generatedAt, eloWinProbability: eloWinProbabilityForPublish(pub), unavailablePlayers: unavailablePlayersForPublish(pub) });
   assert.deepEqual(pub, JSON.parse(JSON.stringify(rebuilt)));
 });
 
