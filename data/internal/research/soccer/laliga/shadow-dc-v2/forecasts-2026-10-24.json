@@ -1,0 +1,94 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "laliga",
+ "season": "2026-27",
+ "date": "2026-10-24",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-10-24T13:37:12.000Z",
+ "runs": [
+  {
+   "at": "2026-10-24T13:37:12.000Z",
+   "added": 1
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Sevilla|Osasuna",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882828",
+   "providerEventId": "401882828",
+   "kickoffUtc": "2026-10-26T20:00:00.000Z",
+   "matchup": "Sevilla v Osasuna",
+   "homeClub": "Sevilla",
+   "awayClub": "Osasuna",
+   "historyNames": {
+    "home": "Sevilla",
+    "away": "Osasuna"
+   },
+   "espnTeamIds": {
+    "home": "243",
+    "away": "97"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-24T13:37:12.000Z",
+   "probs": {
+    "home": 0.467989,
+    "draw": 0.261139,
+    "away": 0.270873
+   },
+   "over25": 0.464764,
+   "under25": 0.535236,
+   "expectedGoals": {
+    "home": 1.4763,
+    "away": 1.0572
+   },
+   "lambdas": {
+    "home": 1.4763,
+    "away": 1.0572
+   },
+   "rho": -0.001104,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 158,
+    "away": 158
+   },
+   "fit": {
+    "cutoffIso": "2026-10-24T13:37:12.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 20
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.389608,
+     "draw": 0.286706,
+     "away": 0.323686
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 1
+ }
+}
