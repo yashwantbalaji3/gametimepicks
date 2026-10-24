@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-10-24T11:59:17.897Z",
+  "generatedAt": "2026-10-24T12:44:19.873Z",
   "canonical": {
     "record": "47-52",
     "bankroll": 14065.4,
@@ -105,15 +105,15 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-10-24",
-      "generatedAt": "2026-10-24T09:40:54Z",
+      "generatedAt": "2026-10-24T11:59:25Z",
       "sports": [
         {
           "sport": "epl",
           "state": "DERIVED",
           "counts": {
-            "scheduled": 19,
-            "priced": 19,
-            "generated": 9,
+            "scheduled": 18,
+            "priced": 18,
+            "generated": 8,
             "frozen": 0,
             "started": 0
           },
@@ -166,12 +166,17 @@
     "dailyLifecycle": {
       "receiptDate": "2026-10-24",
       "present": true,
-      "generatedAt": "2026-10-24T09:40:53Z",
+      "generatedAt": "2026-10-24T11:59:24Z",
       "watchdog": [
         {
           "product": "end-zone-vault",
           "kind": "INCIDENT_OPEN",
           "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-10-24"
+        },
+        {
+          "product": "epl-cards",
+          "kind": "STALE_ACTIVE_CARD",
+          "detail": "locked 2026-10-23T23:47:55Z, still ACTIVE"
         }
       ],
       "states": {
@@ -215,16 +220,16 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-10-24T11:55:42.372Z",
-    "ageHours": 0.1,
-    "ok": false,
-    "status": "fail",
-    "phase": "daily-owner-slo"
+    "lastRunAt": "2026-10-24T12:44:19.249Z",
+    "ageHours": 0,
+    "ok": true,
+    "status": "pass",
+    "phase": "nightly-settle"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-10-24",
-    "etTime": "07:59",
+    "etTime": "08:44",
     "stages": [
       {
         "stage": "schedule",
