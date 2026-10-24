@@ -50,7 +50,8 @@ test("🔴 A: the graded-row cells carry no repeated utility classes; CSS holds 
   const c = src("src/components/settled-game-detail.tsx");
   assert.doesNotMatch(c, /px-3 sm:px-4 py-2|ml-2 sgd-odds/);
   const css = src("src/app/globals.css");
-  assert.match(css, /\.sgd-th, \.sgd-td \{ padding: 0\.5rem 0\.75rem; \}/, "py-2 / px-3");
+  assert.match(css, /\.sgd-th \{[^}]*padding: 0\.5rem 0\.75rem; \}/, "th: py-2 / px-3");
+  assert.match(css, /\.sgd-td \{[^}]*padding: 0\.5rem 0\.75rem; \}/, "td: py-2 / px-3");
   assert.match(css, /@media \(min-width: 640px\) \{ \.sgd-th, \.sgd-td \{ padding-left: 1rem; padding-right: 1rem; \} \}/, "sm:px-4 at Tailwind's default sm");
   assert.match(css, /\.sgd-odds \{[^}]*margin-left: 0\.5rem;/, "ml-2");
   const tw = src("tailwind.config.ts");

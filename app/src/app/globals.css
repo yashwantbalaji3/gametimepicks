@@ -6004,11 +6004,10 @@ main a.font-mono.uppercase:not(p a):not(li a):not(td a):not(dd a) { display: inl
    each inline style was written twice (HTML + RSC payload), ≈41 MB of the Results-by-date archive. Values are
    copied verbatim; unlayered after the utilities so ties resolve as the inline styles did. */
 .sgd-row { border-top: 1px solid var(--vault-rule); }
-.sgd-th { text-align: left; font-weight: 600; }
-.sgd-td { text-align: left; white-space: nowrap; }
 /* Page weight (2026-10-24): every cell carried "px-3 sm:px-4 py-2" — 132 KB of repeated class text on /results/nba alone,
-   shipped twice (HTML + payload). The same values, once: Tailwind px-3 / py-2 / sm:px-4 at its default 640px break. */
-.sgd-th, .sgd-td { padding: 0.5rem 0.75rem; }
+   shipped twice (HTML + payload). The same values, once: Tailwind py-2 / px-3, and sm:px-4 at its default 640px break. */
+.sgd-th { text-align: left; font-weight: 600; padding: 0.5rem 0.75rem; }
+.sgd-td { text-align: left; white-space: nowrap; padding: 0.5rem 0.75rem; }
 @media (min-width: 640px) { .sgd-th, .sgd-td { padding-left: 1rem; padding-right: 1rem; } }
 .sgd-th.sgd-r, .sgd-td.sgd-r { text-align: right; }
 .sgd-name { color: var(--vault-text); font-weight: 500; }
