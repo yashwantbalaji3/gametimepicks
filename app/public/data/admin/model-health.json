@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-10-24T09:25:28Z",
+ "generatedAt": "2026-10-24T13:39:16Z",
  "worst": "BREACHED",
  "counts": {
   "INSUFFICIENT_SAMPLE": 5,
@@ -285,28 +285,28 @@
    "label": "EPL match result (home/draw/away)",
    "baseline": "even odds (log loss 1.0986)",
    "state": "HOLDING",
-   "n": 67,
+   "n": 68,
    "judgement": {
     "state": "HOLDING",
-    "n": 67,
+    "n": 68,
     "needed": 60,
-    "meanDiff": -0.0811,
-    "lo95": -0.1908,
-    "hi95": 0.0352
+    "meanDiff": -0.0752,
+    "lo95": -0.1906,
+    "hi95": 0.0374
    },
    "context": {
-    "modelLogLoss": 1.0175,
+    "modelLogLoss": 1.0234,
     "market": {
      "model": {
-      "logLoss": 1.026545,
-      "brier": 0.625737
+      "logLoss": 1.03324,
+      "brier": 0.630428
      },
      "market": {
-      "logLoss": 1.01728,
-      "brier": 0.610948
+      "logLoss": 1.027791,
+      "brier": 0.618233
      },
-     "logLossDelta": 0.009265,
-     "brierDelta": 0.014789
+     "logLossDelta": 0.005449,
+     "brierDelta": 0.012195
     },
     "marketComparisonState": "MODEL_BEHIND",
     "stoppingRule": "NO_MEASURABLE_ADVANTAGE"
@@ -665,16 +665,16 @@
    "label": "EPL blind forward test · match model vs the one it replaced",
    "baseline": "the previous model (epl-model-v1-split-poisson), paired per match",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 31,
+   "n": 32,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "watch": false,
     "needed": 60,
-    "meanDiff": -0.3055,
+    "meanDiff": -0.2942,
     "lo95": null,
     "hi95": null,
-    "modelLogLoss": 0.9698,
-    "controlLogLoss": 1.2753,
+    "modelLogLoss": 0.9839,
+    "controlLogLoss": 1.2781,
     "modelId": "epl-model-v2-elo-poisson"
    },
    "context": null,
@@ -691,11 +691,11 @@
    "label": "EPL totals SHADOW (research, not public) · club-specific total vs live P304",
    "baseline": "live P304 constant total, paired per match",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 31,
+   "n": 32,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "needed": 60,
-    "meanDiff": -0.0003,
+    "meanDiff": -0.0005,
     "lo95": null,
     "hi95": null,
     "failedBars": null,
@@ -715,17 +715,17 @@
    "label": "Ligue 1 match result (home/draw/away)",
    "baseline": "even odds (log loss 1.0986)",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 36,
+   "n": 37,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 36,
+    "n": 37,
     "needed": 60,
-    "meanDiff": -0.2427,
+    "meanDiff": -0.2343,
     "lo95": null,
     "hi95": null
    },
    "context": {
-    "modelLogLoss": 0.8559
+    "modelLogLoss": 0.8643
    },
    "source": "app/public/data/soccer/ligue-1/results/graded.json",
    "bar": {
