@@ -289,3 +289,19 @@ test("reader words: no engineering jargon in the hub's visible text outside the 
   const page = read("src/app/nba/page.tsx").replace(/\/\*[\s\S]*?\*\//g, "").replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/^\s*\/\/.*$/gm, "");
   assert.doesNotMatch(page.replace(/import[^\n]*\n/g, "").replace(/NbaExperimentalLane/g, ""), /experimental|candidate|plumbing|write-once/i);
 });
+
+test("players without a projection (PR 1230 lane field): counted per game and pointed to the board — never a number per player", () => {
+  const snap = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nba/experimental-public/2026-10-20.json"), "utf8"));
+  const before = renderToStaticMarkup(React.createElement(ForecastLane, { snapshot: snap }));
+  assert.doesNotMatch(before, /without a projection/, "a slate published without the list says nothing about it");
+  snap.games[0].players.unavailable = { away: [{ providerAthleteId: "1", reason: "ROOKIE" }], home: [{ providerAthleteId: "2", reason: "RULED_OUT" }, { providerAthleteId: "3", reason: "BELOW_PUBLISH_CUT" }] };
+  snap.games[1].players.unavailable = { away: [], home: [] };
+  const h = renderToStaticMarkup(React.createElement(ForecastLane, { snapshot: snap }));
+  const rows = h.match(/<tr id="nba-fc-[\s\S]*?<\/tr>/g);
+  assert.match(rows[0], /<td>\d+ · 3 without a projection<\/td>/);
+  assert.doesNotMatch(rows[1], /without a projection/, "an empty list adds nothing");
+  assert.match(text(h), /listed there with the reason, never as zero/);
+  assert.doesNotMatch(h, /ROOKIE|RULED_OUT|BELOW_PUBLISH_CUT/, "reason codes stay on the board, never printed raw here");
+  const perGame = (h.length - before.length);
+  assert.ok(perGame < 260, `the note costs ${perGame} B for the whole slate`);
+});

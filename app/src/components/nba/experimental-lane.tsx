@@ -34,7 +34,8 @@ type Game = {
   engine: { simulation: string | null; simulations: number | null };
   elo: { favoured: string | null; state: string; source: string; rule?: string | null; winProbability?: { home: number; away: number; provenance: Record<string, string | null> } };
   teamScores: { state: string; reason: string };
-  players: { source: string; comboSource?: string; away: Row[]; home: Row[] };
+  /** `unavailable` (PR 1230): rostered players with no projection — a reason, never a number. Absent on older slates. */
+  players: { source: string; comboSource?: string; away: Row[]; home: Row[]; unavailable?: { away: unknown[]; home: unknown[] } };
 };
 export type Snapshot = { schema: string; label: string; validation: string; date: string | null; withheld: Record<string, string>; games: Game[]; excluded: { providerEventId: string; reason: string }[] };
 
@@ -118,6 +119,9 @@ export const laneCardId = (id: string) => `nba-exp-${id}`;
 /** The snapshot names sides by ESPN's code ("NY", "GS"); the hub prints the canonical one its cards use ("NYK", "GSW"). */
 const code = (abbr: string | null) => (abbr ? canonicalTricodeFromEspnAbbr(abbr) ?? abbr : "—");
 
+/** Rostered players the forecast lists as "projection unavailable" (PR 1230) — counted, never given a number. */
+const unavailableCount = (g: Game) => (g.players.unavailable?.away.length ?? 0) + (g.players.unavailable?.home.length ?? 0);
+
 /** The game's row in the hub's Official Forecasts table — today's game card links here when no Game Simulation page is built. */
 export const forecastRowId = (id: string) => `nba-fc-${id}`;
 
@@ -193,7 +197,7 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
                     <th scope="row">{code(g.away.abbr)} @ {code(g.home.abbr)}</th>
                     <td><strong>{favouredName(g) ?? "Neither side"}</strong></td>
                     {eloCol ? <td><EloWinProbability game={g} ctx={elo} /></td> : null}
-                    <td>{g.players.away.length + g.players.home.length}</td>
+                    <td>{g.players.away.length + g.players.home.length}{unavailableCount(g) ? ` · ${unavailableCount(g)} without a projection` : ""}</td>
                     <td>{et(g.frozenAt).replace(/^[A-Z][a-z]{2} \d+, /, "")}</td>
                   </tr>
                 ))}
@@ -204,6 +208,7 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
             The favoured side comes from a team rating (Elo) updated after every game. Each player&rsquo;s {PUBLIC_TERMS.PLAYER_STATISTICS} are
             medians of 10,000 simulated games — every player is on the <Link href="/nba/projections/" className="underline nbx-inl">player projections
             board</Link>, listed by expected minutes, not ranked.
+            {snapshot.games.some(unavailableCount) ? " A rostered player without a projection — ruled out, a rookie, too little history or too few expected minutes — is listed there with the reason, never as zero." : ""}
           </p>
         </>
       ) : (
