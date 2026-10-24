@@ -87,7 +87,9 @@ export const COMBO_MEAN_TOLERANCE = 0.02;
  * inferred. Additive; behind its switch (default OFF); a published slate keeps what it was published with
  * (unavailablePlayersForPublish), exactly like the Elo estimate.
  */
-export const UNAVAILABLE_PLAYERS = Object.freeze({ id: "nba-lane-unavailable-players@1", enabled: false });
+// Release H1a (2026-10-24): ON so the 10-24 publish (~14:15Z) is the first slate to carry it. Published slates keep what they
+// were published with (unavailablePlayersForPublish). Rollback: false.
+export const UNAVAILABLE_PLAYERS = Object.freeze({ id: "nba-lane-unavailable-players@1", enabled: true });
 /*
  * POSITION (release owner 2026-10-24, the one producer for boards): under the SAME switch and rule, each published player
  * row and each unavailable entry carries `position` from the EXACT roster the receipt was frozen on — found by the
