@@ -118,10 +118,14 @@ export function boardOptions(snapshot) {
   return { matchups, teams };
 }
 
-/** Why a listed player has no projection: the lane's own reason codes (PR 1230) and the box-score-only "played". */
+/** Why a listed player has no projection, in plain words: the lane's own reason codes (PR 1230 — the three below the
+    first two are the codes it may add) and the box-score-only "played". An unknown code reads "Projection unavailable". */
 export const NO_PROJECTION_LABEL = Object.freeze({
   INSUFFICIENT_HISTORY: "Projection unavailable — not enough recent NBA minutes",
   NO_EXPECTED_MINUTES: "Projection unavailable — no expected minutes",
+  ROOKIE: "Projection unavailable — rookie, no NBA minutes yet",
+  RULED_OUT: "Projection unavailable — ruled out before tip-off",
+  BELOW_PUBLISH_CUT: "Projection unavailable — under 10 expected minutes",
   P: "Played, no projection",
 });
 export const noProjectionLabel = (code) => NO_PROJECTION_LABEL[code] ?? "Projection unavailable";

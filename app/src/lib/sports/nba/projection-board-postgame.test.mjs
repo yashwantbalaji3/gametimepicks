@@ -382,7 +382,10 @@ test("PR 1230 lane fields (optional): positions → a Position filter; listed un
   assert.deepEqual(listed.v, Array(PROJECTION_BOARD_STATS.length).fill(null));
   assert.equal(listed.pos, "G");
   assert.ok(filt(back, { position: "C" }).every((r) => String(r.pos).split("-").includes("C")) && filt(back, { position: "C" }).some((r) => r.pos === "F-C"), "F-C counts as a center and a forward");
-  for (const l of Object.values(NO_PROJECTION_LABEL)) assert.doesNotMatch(l, /injur|\bout\b/i, "a reason is never called injury or out");
+  for (const [k, l] of Object.entries(NO_PROJECTION_LABEL)) {
+    assert.doesNotMatch(l, /injur/i, "a reason is never called an injury");
+    if (k !== "RULED_OUT") assert.doesNotMatch(l, /\bout\b/i, `${k}: only the lane's own RULED_OUT code reads 'out'`);
+  }
   // Without the fields (10-20 … 10-23): no Position filter, the list is 'not recorded', never 'none'.
   const plain = render({ lane: lane() });
   assert.equal((plain.match(/<select /g) ?? []).length, 3);
