@@ -78,6 +78,32 @@ export const PROJECTION_BOARD_STATS = Object.freeze([...STATS, ...COMBO_STATS]);
 export const COMBO_LABEL = "sum over the same simulated draws (v0 engine; components independent within a player)";
 /** Draw additivity: a combo's mean must equal the sum of its components' means within this (2-dp rounding slack). */
 export const COMBO_MEAN_TOLERANCE = 0.02;
+/**
+ * PROJECTION-UNAVAILABLE PLAYERS (founder mandate 2026-10-24, P1(b): rookies and returning players). A rostered,
+ * not-Out player the official v0.1 pool could not project (no usable NBA minutes history in the data — a rookie, or a
+ * player who missed the window) is listed per side with state PROJECTION_UNAVAILABLE and a reason, so a surface can say
+ * "projection unavailable" — NEVER a zero, and never a number of any kind. Source: the receipt's own pregame
+ * availability record (forecast.assumptions.availability.<side>.excludedNoMinutes), frozen before tip; nothing is
+ * inferred. Additive; behind its switch (default OFF); a published slate keeps what it was published with
+ * (unavailablePlayersForPublish), exactly like the Elo estimate.
+ */
+export const UNAVAILABLE_PLAYERS = Object.freeze({ id: "nba-lane-unavailable-players@1", enabled: false });
+export const UNAVAILABLE_STATE = "PROJECTION_UNAVAILABLE";
+const UNAVAILABLE_REASON = Object.freeze({ insufficient: "INSUFFICIENT_HISTORY" });
+/** The lane's per-side list, copied from the receipt (sorted by id for byte-stable output). Pure. */
+export function laneUnavailable(forecast) {
+  const side = (k) => (forecast?.assumptions?.availability?.[k]?.excludedNoMinutes ?? [])
+    .filter((p) => p?.providerAthleteId != null)
+    .map((p) => ({ providerAthleteId: String(p.providerAthleteId), name: p.name ?? null, state: UNAVAILABLE_STATE, reason: UNAVAILABLE_REASON[p.basis] ?? "NO_EXPECTED_MINUTES" }))
+    .sort((a, b) => a.providerAthleteId.localeCompare(b.providerAthleteId));
+  return { away: side("away"), home: side("home") };
+}
+/** Does a rebuild of a slate carry the list? A published slate: exactly what it was published with; otherwise the switch. */
+export function unavailablePlayersForPublish(committedDay, { enabled = UNAVAILABLE_PLAYERS.enabled } = {}) {
+  if (committedDay && typeof committedDay === "object") return (committedDay.games ?? []).some((g) => g?.players && Object.prototype.hasOwnProperty.call(g.players, "unavailable"));
+  return Boolean(enabled);
+}
+
 /** The withheld notes a slate publishes: with the Elo game-winner probability on, its `winProbability` note is not
  * published (that number is shown, separately identified); team scores, ranges and markets stay withheld. */
 export const withheldFor = ({ eloWinProbability = false } = {}) => Object.freeze(Object.fromEntries(Object.entries(WITHHELD).filter(([k]) => !(eloWinProbability && k === "winProbability"))));
@@ -128,7 +154,7 @@ export function comboReconciliation(player) {
  * @param {string|null} a.sourceCommit  the git commit that holds that file, when known
  * @param {string} a.generatedAt  when this snapshot was assembled (never a forecast time)
  */
-function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCommit = null, generatedAt, eloWinProbability = ELO_WIN_PROBABILITY.enabled }) {
+function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCommit = null, generatedAt, eloWinProbability = ELO_WIN_PROBABILITY.enabled, unavailablePlayers = UNAVAILABLE_PLAYERS.enabled }) {
   if (forecastDoc?.family !== LANE.sourceFamily) throw new Error(`REFUSED: lane reads family ${LANE.sourceFamily}, got ${JSON.stringify(forecastDoc?.family)}`);
   const games = [];
   const excluded = [];
@@ -181,6 +207,7 @@ function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCom
         ...(AMENDMENT_A.enabled ? { comboSource: `PRA, P+R and P+A: ${COMBO_LABEL}` } : {}),
         away: sideRows(f.players?.away),
         home: sideRows(f.players?.home),
+        ...(unavailablePlayers ? { unavailable: laneUnavailable(f) } : {}),
       },
     });
   }
@@ -239,6 +266,8 @@ export function snapshotMatchesSource(snapshotGame, sourceGame) {
       if (row.expectedMinutes !== r1(p.expectedMinutes)) return false;
     }
   }
+  // P1(b): a published unavailable list must be exactly the receipt's own pregame record
+  if (snapshotGame.players?.unavailable !== undefined && JSON.stringify(snapshotGame.players.unavailable) !== JSON.stringify(laneUnavailable(f))) return false;
   // founder decision 2026-10-23: a published Elo game-winner probability must be the receipt's own numbers and provenance
   const wp = snapshotGame.elo?.winProbability;
   if (wp !== undefined && JSON.stringify(wp) !== JSON.stringify(laneEloWinProbability(f, sourceGame.receipt))) return false;

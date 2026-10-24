@@ -15,7 +15,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-import { buildExperimentalSnapshot, buildExperimentalAudit, snapshotMatchesSource } from "../../src/lib/sports/nba/experimental-public-lane.mjs";
+import { buildExperimentalSnapshot, buildExperimentalAudit, snapshotMatchesSource, unavailablePlayersForPublish } from "../../src/lib/sports/nba/experimental-public-lane.mjs";
 import { manualWriteDecision, PUBLISH } from "../../src/lib/sports/nba/experimental-lane-publish.mjs";
 import { eloWinProbabilityForPublish } from "../../src/lib/sports/nba/elo-win-probability.mjs";
 
@@ -42,7 +42,7 @@ const committedDay = (() => { try { return JSON.parse(fs.readFileSync(path.join(
 if (committedDay?.source?.commit) commit = committedDay.source.commit;
 let snap;
 try {
-  snap = buildExperimentalSnapshot({ forecastDoc: doc, sourceFile: `nba/experimental-v0.1/forecasts/${DATE}.json`, sourceCommit: commit, generatedAt: committedDay?.generatedAt ?? NOW, eloWinProbability: eloWinProbabilityForPublish(committedDay) });
+  snap = buildExperimentalSnapshot({ forecastDoc: doc, sourceFile: `nba/experimental-v0.1/forecasts/${DATE}.json`, sourceCommit: commit, generatedAt: committedDay?.generatedAt ?? NOW, eloWinProbability: eloWinProbabilityForPublish(committedDay), unavailablePlayers: unavailablePlayersForPublish(committedDay) });
 } catch (e) { console.error(e.message); process.exit(1); }
 const byId = new Map(doc.games.map((g) => [String(g.providerEventId), g]));
 for (const g of snap.games) {
