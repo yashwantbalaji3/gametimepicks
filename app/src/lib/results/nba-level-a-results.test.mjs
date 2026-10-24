@@ -108,6 +108,8 @@ test("🔴 the suggestions record says what it is, shows counts not rates, and l
   assert.match(h, /joint 20\.0%/, "the joint as the Level A pages print it");
   assert.match(h, /<caption class="sr-only">/);
   assert.match(h, /no deployment stamp on this entry/, "publication evidence is stated, including its absence");
+  assert.match(h, /As of this page&#x27;s last update: newest suggestion [^;]+; newest grade /, "the record is read at build and says so");
+  assert.equal(v.asOf.gradedAt, "2031-07-02T05:17:00Z");
   assert.match(renderToStaticMarkup(React.createElement(ModelSuggestionsRecord, { view: levelARecord([], []) })), /No suggestion has been recorded yet\./);
 });
 

@@ -17,6 +17,7 @@
  *     preregistered bar of its own.
  */
 import { ASSESSABLE_MIN } from "../sports/graded-picks.mjs";
+import { publicRiskLabel } from "../parlays/risk-odds-bands.mjs";
 
 export const MIN_DECIDED_FOR_RATE = ASSESSABLE_MIN;
 
@@ -28,7 +29,8 @@ export const POLICY_LABEL = Object.freeze({
 });
 const POLICY_ORDER = Object.keys(POLICY_LABEL);
 const TIER_ORDER = ["low", "medium", "high", "longshot", "untiered"];
-export const TIER_LABEL = Object.freeze({ low: "Low", medium: "Medium", high: "High", longshot: "Longshot", untiered: "Untiered" });
+/** The one public tier label (risk-odds-bands.mjs); an untiered pick has no risk tier. */
+const tierLabel = (tier) => (tier === "untiered" ? "Untiered" : publicRiskLabel(tier) ?? String(tier));
 
 const RESULT = { win: "WON", loss: "LOST", void: "VOID" };
 const zero = () => ({ recorded: 0, graded: 0, won: 0, lost: 0, void: 0, pending: 0 });
@@ -50,7 +52,7 @@ export function levelARecord(suggestions, grades) {
     const g = gradeOf.get(e.id) ?? null;
     const status = g ? RESULT[g.result] ?? "PENDING" : "PENDING";
     const key = `${e.policy}|${e.tier}`;
-    if (!groups.has(key)) groups.set(key, { policy: e.policy, tier: e.tier, label: POLICY_LABEL[e.policy] ?? e.policy, tierLabel: TIER_LABEL[e.tier] ?? e.tier, ...zero() });
+    if (!groups.has(key)) groups.set(key, { policy: e.policy, tier: e.tier, label: POLICY_LABEL[e.policy] ?? e.policy, tierLabel: tierLabel(e.tier), ...zero() });
     const c = groups.get(key);
     c.recorded += 1;
     if (status === "WON") { c.won += 1; c.graded += 1; }
@@ -60,7 +62,7 @@ export function levelARecord(suggestions, grades) {
     const legGrade = new Map((g?.legs ?? []).map((l) => [`${l.sport}|${l.eventId}`, l]));
     entries.push({
       id: e.id, productDay: e.productDay, policy: e.policy, tier: e.tier,
-      label: POLICY_LABEL[e.policy] ?? e.policy, tierLabel: TIER_LABEL[e.tier] ?? e.tier,
+      label: POLICY_LABEL[e.policy] ?? e.policy, tierLabel: tierLabel(e.tier),
       jointProbability: typeof e.jointProbability === "number" ? e.jointProbability : null,
       recordedAt: e.recordedAt ?? null, shownAt: e.shownAt ?? null, servedFrom: e.servedFrom ?? null, source: e.source ?? null,
       firstStartUtc: e.firstStartUtc ?? null, revisionOf: e.revisionOf ?? null,
@@ -82,5 +84,9 @@ export function levelARecord(suggestions, grades) {
   const totals = byGroup.reduce((t, c) => { for (const k of Object.keys(zero())) t[k] += c[k]; return t; }, zero());
   entries.sort((a, b) => String(b.productDay).localeCompare(String(a.productDay)) || rank(POLICY_ORDER, a.policy) - rank(POLICY_ORDER, b.policy) || rank(TIER_ORDER, a.tier) - rank(TIER_ORDER, b.tier) || String(a.firstStartUtc).localeCompare(String(b.firstStartUtc)));
   const orphanGrades = (grades ?? []).filter((g) => !(suggestions ?? []).some((e) => e.id === g.entryId)).length;
-  return { byGroup, totals, entries, orphanGrades, minDecidedForRate: MIN_DECIDED_FOR_RATE };
+  /* AS OF: the record is read at build time and its own commits build nothing (they would re-trigger the recorder), so the
+     page states the newest entry and grade it holds rather than implying it is live. */
+  const newest = (xs) => xs.filter((x) => Number.isFinite(Date.parse(String(x ?? "")))).sort().at(-1) ?? null;
+  const asOf = { recordedAt: newest((suggestions ?? []).map((e) => e.servedFrom ?? e.shownAt ?? e.recordedAt)), gradedAt: newest((grades ?? []).map((g) => g.gradedAt)) };
+  return { byGroup, totals, entries, orphanGrades, minDecidedForRate: MIN_DECIDED_FOR_RATE, asOf };
 }

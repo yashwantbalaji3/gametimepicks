@@ -106,6 +106,9 @@ export default function ModelSuggestionsRecord({ view }: { view: View }) {
               </tbody>
             </table>
           </div>
+          <p className="m-0 text-[12px] leading-snug" style={{ color: "var(--vault-text-mute)" }} data-as-of>
+            As of this page&apos;s last update: newest suggestion {etTime(view.asOf.recordedAt) ?? "—"}; newest grade {view.asOf.gradedAt ? etTime(view.asOf.gradedAt) : "none yet — the first grades land with the nightly settle"}.
+          </p>
           <p className="m-0 text-[12px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>
             Counts only: no hit rate is shown for a suggestion type until it has {view.minDecidedForRate} decided (won or lost) suggestions.
             {view.byGroup.some((g) => g.rateShown) ? "" : " None has reached that yet."}

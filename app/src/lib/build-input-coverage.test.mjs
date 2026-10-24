@@ -51,6 +51,18 @@ const EXEMPTIONS = [
     why: "/markets reads only the exported lineage artifact under app/public/data/research/row-lineage; the pregame-archive / quarantine / alias readers are used by the emit script, not by a page",
   },
   { module: "src/lib/sports/nfl/player-props-v1.mjs", kind: "forbid", forbid: ["loadPlayerPropsFit"], why: "public pages import only the sampling helpers; the fit-receipt loader has no public caller" },
+  /*
+   * LAGS BY DESIGN — a public read that must NOT rebuild on its own commits. The Level A suggestions record is written
+   * per Production deployment; if its commits built, every record commit would deploy and re-trigger the recorder. Its
+   * owners pin "not a BUILD_INPUT" in their own tests, so /results shows the record as of its latest build (and says
+   * so). The exemption holds only while those pins exist and the module reads nothing else under data/internal.
+   */
+  {
+    module: "src/lib/results/nba-level-a-readers.ts", kind: "lags",
+    reads: ["data/internal/products/level-a"],
+    pinnedBy: ["src/lib/products/level-a/level-a-recorder.test.mjs", "src/lib/products/level-a/level-a-grade.test.mjs"],
+    why: "the Level A record's commits must build nothing (recorder loop); /results reads it at each build and states its as-of",
+  },
 ];
 
 const exts = [".ts", ".tsx", ".mjs", ".js", ".jsx", ".json", ".cjs"];
@@ -217,6 +229,15 @@ function exemptionHolds(ex) {
       for (const f of importers) if (new RegExp(`\\b${name}\\b`).test(stripComments(read(f)))) return `${rel(f)} references ${name} — its data/internal read is now public`;
     }
     return true;
+  }
+  if (ex.kind === "lags") {
+    for (const t of ex.pinnedBy) {
+      const pin = stripComments(read(path.join(APP, t)));
+      if (!/doesNotMatch\([^;]*vercel-ignore-build[\s\S]{0,200}?\/data\\\/internal\\\/products\//.test(pin) && !/doesNotMatch\(\s*ignore\s*,\s*\/data\\\/internal\\\/products\//.test(pin)) return `${t} no longer pins the Level A record out of BUILD_INPUTS — make it a BUILD_INPUT instead`;
+    }
+    const refs = [...MAP.readers].filter(([, byMod]) => byMod.has(ex.module)).map(([ref]) => ref);
+    const stray = refs.filter((r) => !ex.reads.some((x) => r === x || r.startsWith(`${x}/`)));
+    return stray.length === 0 || `${ex.module} also reads ${stray.join(", ")} — not covered by this exemption`;
   }
   return `unknown exemption kind ${ex.kind}`;
 }

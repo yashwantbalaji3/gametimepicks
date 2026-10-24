@@ -179,10 +179,6 @@ BUILD_INPUTS=(
     # Results F05, audit 2026-10-23: the deployment evidence the /results pages read to decide which MLB calls were
     # public at first pitch. A one-off committed classification that no workflow rewrites, so it adds no build.
     ':(top)data/internal/ops/forecast-of-record-shadow/classification.json'
-    # Results, founder mandate 2026-10-24: /results renders the Level A model suggestions record and its grades.
-    # Grades commit in the nightly settle, which already builds. A recorder commit after a Production deployment
-    # adds one build when that deployment showed a new card or pick, a few a day; the next deployment records nothing new.
-    ':(top)data/internal/products/level-a/'
     # NBA Top Boards postgame actuals, overnight sprint 2026-10-23: the public /nba/projections/<date> pages show each
     # player's actual figures from the graders' stored box scores, read at build time by
     # src/lib/sports/nba/projection-board-actuals.ts BOX_DIRS. New box scores land in the daily NBA research commit,
