@@ -88,3 +88,15 @@ export const POSSESSION_NOT_MODELLED = Object.freeze([
 ]);
 
 export const KEYBOARD_HELP = "Keys: Space or K play / pause · , and . previous / next play · [ and ] previous / next quarter · Home restart · End final";
+
+/*
+ * Consumer wording (founder mandate 2026-10-24, NBA public on 10-24): what a reader sees names the two things on the
+ * page plainly — the Official Forecast's "Predicted Player Statistics" and "This simulation's box score" — and names the
+ * models in words. The exact model ids are kept, verbatim, in a "Model details" disclosure.
+ */
+export const PREDICTED_STATS_TITLE = `Predicted Player Statistics (${PUBLIC_TERMS.OFFICIAL_FORECAST})`;
+export const SIM_BOX_TITLE = "This simulation's box score";
+export const SIM_BOX_NOTE = `One simulated game, added up from its own event log. It is not the ${PUBLIC_TERMS.OFFICIAL_FORECAST}; the ${PREDICTED_STATS_TITLE} are in the ${PUBLIC_TERMS.OFFICIAL_FORECAST} section and never change.`;
+export const COMPARE_TITLE = `This simulation vs the ${PREDICTED_STATS_TITLE}`;
+export const MODEL_PLAIN = Object.freeze({ game: "Elo team rating", players: "GameTimePicks player model" });
+export const MODEL_DETAILS_TITLE = "Model details";

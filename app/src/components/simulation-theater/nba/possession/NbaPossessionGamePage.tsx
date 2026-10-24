@@ -28,8 +28,13 @@ export default function NbaPossessionGamePage({ load, nowIso = new Date().toISOS
   const finalNote = nbaTodaySlate(nowIso, loadCurrentLane(etDateOf(nowIso) as string)).games.find((g) => g.id === eventId)?.finalNote ?? null;
   return (
     <>
+      {/* Founder mandate 2026-10-24: the skip is the page's first control, full width on a phone, and says what it reaches —
+          the Official Forecast is fully readable without touching the playback. */}
+      <a href={`#${OFFICIAL_PREDICTIONS_ID}`} className="nbx-skip nbp-skip-cta" data-nba-skip-official="">
+        <span className="nbp-skip-main">Skip to the Official Forecast ↓</span>
+        <span className="nbp-skip-sub">Favoured side and Predicted Player Statistics, frozen before tip-off. No playback needed.</span>
+      </a>
       <nav aria-label="This game" className="nbx-gamenav">
-        <a href={`#${OFFICIAL_PREDICTIONS_ID}`} className="nbx-skip" data-nba-skip-official="">Skip to the Official Forecast ↓</a>
         {/* next/link (not <a>): a full page load from here aborts in-flight route prefetches, which Next logs as errors */}
         <Link href="/nba/">← NBA hub</Link>
         <Link href="/nba/projections/">Top Boards</Link>
