@@ -1,7 +1,7 @@
 {
   "sport": "mlb",
   "date": "2026-10-24",
-  "generatedAt": "2026-10-24T18:17:08.000Z",
+  "generatedAt": "2026-10-24T21:06:48.000Z",
   "decisionEngineVersion": "mlb-prediction-2026.10-v2",
   "sourceArtifact": "full-game-simulations/2026-10-24.json",
   "notBettingAdvice": true,
@@ -15,13 +15,16 @@
       "homeTeam": "MIL",
       "awayTeamName": "Tampa Bay Rays",
       "homeTeamName": "Milwaukee Brewers",
-      "artifactHash": "fb2675ff7c39c532b14f49382d2053bd90486937f456980dfbd5fc3a7c643028",
+      "artifactHash": "aad7cc2ad3b199eb0b4302d3e1e011fb2d6c47d419f3831587be5a3a48fa4039",
       "decisionEngineVersion": "mlb-prediction-2026.10-v2",
       "completeness": {
         "level": "ready",
-        "notes": [],
-        "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
+        "notes": [
+          "TB confirmed batting order used, all 9 with posted prop lines.",
+          "MIL confirmed batting order used, all 9 with posted prop lines."
+        ],
+        "awayLineupSource": "confirmed",
+        "homeLineupSource": "confirmed",
         "awayRatedCount": 9,
         "homeRatedCount": 9,
         "awayLineupCount": 9,
@@ -30,7 +33,6 @@
         "hasHomeStarter": true,
         "startedBeforeGeneration": false,
         "missingFamilies": [
-          "confirmed_batting_order",
           "park_run_factors",
           "weather",
           "batter_handedness_splits"
@@ -54,8 +56,8 @@
       },
       "status": "ready",
       "predictedWinner": {
-        "side": "away",
-        "team": "TB"
+        "side": "home",
+        "team": "MIL"
       },
       "projectedScore": {
         "away": 4,
@@ -63,18 +65,18 @@
         "label": "Median simulation score"
       },
       "moneyline": {
-        "side": "away",
-        "team": "TB",
-        "simulationProbability": 0.501,
-        "marketImpliedProbability": 0.465,
-        "marketAgreement": "MODEL HIGHER",
+        "side": "home",
+        "team": "MIL",
+        "simulationProbability": 0.502,
+        "marketImpliedProbability": 0.535,
+        "marketAgreement": "MODEL LOWER",
         "strengthLabel": "LEAN"
       },
       "total": {
         "line": 6.5,
         "pick": "OVER",
-        "overProbability": 0.643,
-        "underProbability": 0.357,
+        "overProbability": 0.646,
+        "underProbability": 0.354,
         "pushProbability": 0,
         "simulationMedian": 8,
         "marketImpliedOver": 0.505,
@@ -88,8 +90,8 @@
         "pick": "TB +1.5",
         "pickSide": "away",
         "pickLine": 1.5,
-        "coverProbability": 0.679,
-        "opposingCoverProbability": 0.321,
+        "coverProbability": 0.675,
+        "opposingCoverProbability": 0.325,
         "pushProbability": 0,
         "marketImpliedProbability": 0.657,
         "bookmaker": "draftkings",
