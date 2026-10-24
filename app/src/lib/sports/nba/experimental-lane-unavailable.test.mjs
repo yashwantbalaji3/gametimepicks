@@ -25,7 +25,10 @@ test("whatever the switch (OFF by default; the release owner flips it in a vehic
   assert.equal(typeof UNAVAILABLE_PLAYERS.enabled, "boolean");
   for (const f of DATED) {
     const d = f.slice(0, 10), pub = day(d);
-    assert.equal(unavailablePlayersForPublish(pub, { enabled: true }), false, `${d} was published without the list`);
+    // the rule returns exactly what the slate was published with (10-20…10-23 without the list, 10-24 onward with it)
+    const published = (pub.games ?? []).some((g) => g?.players && Object.prototype.hasOwnProperty.call(g.players, "unavailable"));
+    assert.equal(unavailablePlayersForPublish(pub, { enabled: true }), published, `${d}`);
+    assert.equal(unavailablePlayersForPublish(pub, { enabled: false }), published, `${d}: a flip never changes a published slate`);
     assert.equal(`${JSON.stringify(build(d, unavailablePlayersForPublish(pub, { enabled: true })), null, 1)}\n`, fs.readFileSync(path.join(LANE_DIR, f), "utf8"), d);
   }
 });
