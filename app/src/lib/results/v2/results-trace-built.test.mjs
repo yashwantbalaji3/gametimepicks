@@ -91,7 +91,7 @@ test("🔴 every archived game, on every archive date, is anchored on its day pa
     for (const [gid, rows] of byGame) {
       const card = cardOf(html, gid);
       assert.ok(card, `${d} ${gid}: no anchored card`);
-      assert.match(card, new RegExp(`id="nba-game-${gid}"`));
+      assert.match(html, new RegExp(`<div id="nba-game-${gid}"[^>]*data-nba-archive-game="${gid}"`), `${d} ${gid}: the card carries its anchor`);
       assert.equal((card.match(/class="sgd-row"/g) ?? []).length, rows.length, `${d} ${gid}: row count`);
       const names = [...card.matchAll(/<span class="sgd-name">([^<]*)<\/span>/g)].map((m) => unescape(m[1]));
       assert.deepEqual(names, rows.map((r) => r.playerName ?? "—"), `${d} ${gid}: the exact rows, in order`);
