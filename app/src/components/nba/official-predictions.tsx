@@ -36,7 +36,7 @@ type Teams = { home: { abbr: string; name: string }; away: { abbr: string; name:
 
 type LaneRow = { providerAthleteId: string; medians: Record<string, number | null>; comboMedians?: Record<string, number | null> };
 /* Lane players the official pool could not project (lane `players.unavailable`, PR 1230): a state and a reason, never a number. */
-type LaneUnavailable = { providerAthleteId: string; name: string | null; position?: string | null; state: string; reason: string };
+type LaneUnavailable = { providerAthleteId: string; name: string | null; position?: string | null; state: string; reason: string; status?: string | null };
 export type OfficialLaneGame = {
   providerEventId: string; receipt: { modelVersion: string; payloadSha256?: string }; players: { away: LaneRow[]; home: LaneRow[]; unavailable?: { away: LaneUnavailable[]; home: LaneUnavailable[] } };
   frozenAt?: string; home?: { abbr: string | null }; away?: { abbr: string | null };
@@ -49,10 +49,17 @@ export const OFFICIAL_PREDICTIONS_ID = "official-predictions";
 export const OFFICIAL_MODEL_PLAIN = Object.freeze({ game: "Elo team rating", players: "GameTimePicks player model" });
 /** A projection-unavailable player's reason in words (founder mandate 2026-10-24: "Projection unavailable — <reason>", never 0). */
 export const UNAVAILABLE_REASON_TEXT: Readonly<Record<string, string>> = Object.freeze({
-  INSUFFICIENT_HISTORY: "not enough NBA minutes history to project (a rookie or a returning player)",
+  RULED_OUT: "ruled out on the pre-tip injury report",
+  BELOW_PUBLISH_CUT: "expected to play too few minutes for a published projection",
+  ROOKIE: "a rookie with no NBA minutes in the data yet",
+  INSUFFICIENT_HISTORY: "not enough recent NBA minutes to project (for example, a returning player)",
   NO_EXPECTED_MINUTES: "no expected minutes in the pregame record",
 });
-export const unavailableReasonText = (reason: string | null | undefined) => UNAVAILABLE_REASON_TEXT[reason ?? ""] ?? "no projection was published for this player";
+/** RULED_OUT carries the receipt's pre-cutoff status text; it is added only when it says more than "Out". */
+export const unavailableReasonText = (reason: string | null | undefined, status?: string | null) => {
+  const base = UNAVAILABLE_REASON_TEXT[reason ?? ""] ?? "no projection was published for this player";
+  return reason === "RULED_OUT" && status && status.trim().toLowerCase() !== "out" ? `${base} (listed ${status.trim()})` : base;
+};
 // founder directive 2026-10-23 public readiness: the registry term ("Official Forecast")
 export const OFFICIAL_PREDICTIONS_TITLE = `GameTimePicks ${PUBLIC_TERMS.OFFICIAL_FORECAST}`;
 
@@ -148,7 +155,7 @@ function Official({ official, teams, lane, elo }: { official: PbOfficial; teams:
                 {none.map((u) => (
                   <tr key={`u-${u.providerAthleteId}`} data-nba-projection-unavailable={u.providerAthleteId}>
                     <th scope="row">{u.name ?? u.providerAthleteId}</th>
-                    <td colSpan={1 + STATS.length + COMBO_STATS.length} style={{ textAlign: "left" }}>Projection unavailable — {unavailableReasonText(u.reason)}</td>
+                    <td colSpan={1 + STATS.length + COMBO_STATS.length} style={{ textAlign: "left" }}>Projection unavailable — {unavailableReasonText(u.reason, u.status)}</td>
                   </tr>
                 ))}
               </tbody>

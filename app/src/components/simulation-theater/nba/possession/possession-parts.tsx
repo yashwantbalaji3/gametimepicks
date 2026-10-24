@@ -88,7 +88,7 @@ export function OfficialProjectionPanel({ official, teams, unavailable = null }:
                   <tr key={p.playerId}><td>{p.displayName ?? p.playerId}</td><td>{fmt1(p.expectedMinutes)}</td><td>{fmt1(p.medians.pts)}</td><td>{fmt1(p.medians.reb)}</td><td>{fmt1(p.medians.ast)}</td><td>{fmt1(p.medians.threePm)}</td></tr>
                 ))}
                 {none(side).map((u) => (
-                  <tr key={`u-${u.providerAthleteId}`} data-nbp-projection-unavailable={u.providerAthleteId}><td>{u.name ?? u.providerAthleteId}</td><td colSpan={5}>Projection unavailable — {unavailableReasonText(u.reason)}</td></tr>
+                  <tr key={`u-${u.providerAthleteId}`} data-nbp-projection-unavailable={u.providerAthleteId}><td>{u.name ?? u.providerAthleteId}</td><td colSpan={5}>Projection unavailable — {unavailableReasonText(u.reason, u.status)}</td></tr>
                 ))}
               </tbody>
             </table>

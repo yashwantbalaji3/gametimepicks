@@ -20,12 +20,13 @@ import { etDateOf } from "@/lib/sports/nba/finals-record.mjs";
 
 export const NBA_RESULTS_HREF = "/nba/#nba-results";
 
-/* Only what the panel prints (id, name, reason) crosses into the client island's props. */
-type LaneUnavailable = { away?: { providerAthleteId: string; name: string | null; reason: string }[]; home?: { providerAthleteId: string; name: string | null; reason: string }[] };
+/* Only what the panel prints (id, name, reason, pre-cutoff status) crosses into the client island's props. */
+type LaneUnavailableRow = { providerAthleteId: string; name: string | null; reason: string; status?: string | null };
+type LaneUnavailable = { away?: LaneUnavailableRow[]; home?: LaneUnavailableRow[] };
 const unavailableOf = (g: unknown): PbUnavailable => {
   const u = (g as { players?: { unavailable?: LaneUnavailable } } | null)?.players?.unavailable;
   if (!u) return null;
-  const slim = (xs: { providerAthleteId: string; name: string | null; reason: string }[] = []) => xs.map((x) => ({ providerAthleteId: String(x.providerAthleteId), name: x.name ?? null, reason: x.reason }));
+  const slim = (xs: LaneUnavailableRow[] = []) => xs.map((x) => ({ providerAthleteId: String(x.providerAthleteId), name: x.name ?? null, reason: x.reason, ...(x.status ? { status: x.status } : {}) }));
   return { away: slim(u.away), home: slim(u.home) };
 };
 

@@ -63,3 +63,22 @@ test("projection-unavailable players (lane players.unavailable, PR 1230): listed
   const none = renderToStaticMarkup(React.createElement(OfficialProjectionPanel, { official, teams: load.payload.teams }));
   assert.doesNotMatch(none, /Projection unavailable/, "no list → no rows (the published 10-23 slates carry none)");
 });
+
+test("every reason the lane can emit has words (a new reason without words fails here); RULED_OUT adds its pre-cutoff status only when it says more than Out", async () => {
+  const { UNAVAILABLE_REASON_TEXT, unavailableReasonText } = await import("./official-predictions.tsx");
+  const LABELS = await import("../../lib/simulation-theater/nba/possession/labels.mjs");
+  const { UNAVAILABLE_REASONS } = await import("../../lib/sports/nba/experimental-public-lane.mjs");
+  assert.ok(UNAVAILABLE_REASONS.length >= 5);
+  for (const r of UNAVAILABLE_REASONS) {
+    assert.ok(UNAVAILABLE_REASON_TEXT[r], `${r} has a plain wording`);
+    assert.doesNotMatch(UNAVAILABLE_REASON_TEXT[r], /_|\d|\b[A-Z]{4,}\b/, `${r}: words, not a code or a number`);
+  }
+  assert.deepEqual(Object.keys(UNAVAILABLE_REASON_TEXT).sort(), [...UNAVAILABLE_REASONS].sort(), "no wording for a reason the lane never emits");
+  for (const f of [unavailableReasonText, LABELS.unavailableReasonText]) {
+    assert.equal(f("RULED_OUT", "Out"), UNAVAILABLE_REASON_TEXT.RULED_OUT);
+    assert.equal(f("RULED_OUT", "Doubtful"), `${UNAVAILABLE_REASON_TEXT.RULED_OUT} (listed Doubtful)`);
+    assert.equal(f("RULED_OUT", null), UNAVAILABLE_REASON_TEXT.RULED_OUT);
+    assert.equal(f("ROOKIE", "Out"), UNAVAILABLE_REASON_TEXT.ROOKIE, "status only qualifies RULED_OUT");
+    assert.equal(f("SOMETHING_NEW"), "no projection was published for this player");
+  }
+});

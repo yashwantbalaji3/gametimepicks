@@ -102,7 +102,14 @@ export const MODEL_PLAIN = Object.freeze({ game: "Elo team rating", players: "Ga
 export const MODEL_DETAILS_TITLE = "Model details";
 /** The lane's projection-unavailable reasons in words (PR 1230 lane field); equal to official-predictions UNAVAILABLE_REASON_TEXT. */
 export const UNAVAILABLE_REASON_TEXT = Object.freeze({
-  INSUFFICIENT_HISTORY: "not enough NBA minutes history to project (a rookie or a returning player)",
+  RULED_OUT: "ruled out on the pre-tip injury report",
+  BELOW_PUBLISH_CUT: "expected to play too few minutes for a published projection",
+  ROOKIE: "a rookie with no NBA minutes in the data yet",
+  INSUFFICIENT_HISTORY: "not enough recent NBA minutes to project (for example, a returning player)",
   NO_EXPECTED_MINUTES: "no expected minutes in the pregame record",
 });
-export const unavailableReasonText = (reason) => UNAVAILABLE_REASON_TEXT[reason ?? ""] ?? "no projection was published for this player";
+/** @param {string | null | undefined} reason @param {string | null | undefined} [status] @returns {string} */
+export const unavailableReasonText = (reason, status = null) => {
+  const base = UNAVAILABLE_REASON_TEXT[reason ?? ""] ?? "no projection was published for this player";
+  return reason === "RULED_OUT" && status && status.trim().toLowerCase() !== "out" ? `${base} (listed ${status.trim()})` : base;
+};

@@ -38,4 +38,5 @@ export type PbWire = Omit<PbPayload, "runs"> & {
   runs: (Omit<PbRun, "events" | "rule"> & { rule?: string; log: PbPackedEvents })[];
 };
 /** The lane's projection-unavailable players for this game (PR 1230 `players.unavailable`): a reason, never a number. */
-export type PbUnavailable = { away: { providerAthleteId: string; name: string | null; reason: string }[]; home: { providerAthleteId: string; name: string | null; reason: string }[] } | null;
+type PbUnavailableRow = { providerAthleteId: string; name: string | null; reason: string; status?: string | null };
+export type PbUnavailable = { away: PbUnavailableRow[]; home: PbUnavailableRow[] } | null;
