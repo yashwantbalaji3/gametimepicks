@@ -1,5 +1,6 @@
 /**
- * NBA EXPERIMENTAL PUBLIC LANE — the /nba section (founder decision 2026-10-20 · preregistration §12 look 5 · §13).
+ * THE NBA OFFICIAL FORECASTS — the /nba section (founder decision 2026-10-20 · preregistration §12 look 5 · §13; one
+ * table row per game since the founder mandate of 2026-10-24, the matchup cards now being today's games above it).
  *
  * Renders ONLY the canonical snapshot (public/data/nba/experimental-public/latest.json, built from receipt-verified
  * pre-tip forecasts by scripts/nba/build-nba-experimental-public.mjs). Every block names its source; the Elo side and
@@ -21,6 +22,7 @@ import TeamLogo from "@/components/team-logo";
 import { NBA_FORECAST_DISCLOSURE, PUBLIC_TERMS } from "@/lib/public-registry";
 import GameStatusOnClock from "@/components/nba/projection-game-status";
 import { EloAccuracyDisclosure, EloWinProbability, type EloCtx } from "@/components/nba/elo-win-probability";
+import { ELO_WIN_PROBABILITY_LABEL, eloWinProbabilityOf } from "@/lib/sports/nba/elo-win-probability.mjs";
 import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
 
 type Row = { providerAthleteId: string; name: string | null; expectedMinutes: number | null; injuryStatus: string | null; medians: Record<string, number | null>; comboMedians?: Record<string, number | null> };
@@ -113,20 +115,8 @@ function TeamTable({ team, rows }: { team: string; rows: Row[] }) {
 const favouredName = (g: Game) => (g.elo.favoured === g.home.abbr ? g.home.name : g.elo.favoured === g.away.abbr ? g.away.name : null) ?? g.elo.favoured;
 export const laneCardId = (id: string) => `nba-exp-${id}`;
 
-/** One line above the schedule: which games have frozen experimental output, each a jump link to its card. */
-export function NbaLaneTonight({ snapshot }: { snapshot: Snapshot | null }) {
-  if (!snapshot || snapshot.games.length === 0) return null;
-  const frozen = [...new Set(snapshot.games.map((g) => et(g.frozenAt)))].join(" / ");
-  return (
-    <p className="m-0 text-[13.5px]" style={{ color: "var(--vault-text)" }}>
-      <strong>{PUBLIC_TERMS.OFFICIAL_FORECAST}:</strong>{" "}
-      {snapshot.games.map((g, i) => (
-        <span key={g.providerEventId}>{i ? " · " : ""}<a href={`#${laneCardId(g.providerEventId)}`} className="underline">{g.away.name} at {g.home.name}</a></span>
-      ))}
-      <span style={{ color: "var(--vault-text-mute)" }}> — frozen before tip-off ({frozen}).</span>
-    </p>
-  );
-}
+/** The game's row in the hub's Official Forecasts table — today's game card links here when no Game Simulation page is built. */
+export const forecastRowId = (id: string) => `nba-fc-${id}`;
 
 /**
  * The game's Theater link — only when /nba/simulation/<id>/ is built (`theaterIds` = public-route publicTheaterRouteIds).
@@ -170,54 +160,52 @@ export function MatchupCard({ game: g, favoured = null, children }: { game: Matc
   );
 }
 
-const cardGame = (g: Game, final: boolean): MatchupCardGame => ({
-  id: g.providerEventId, tipUtc: g.tipUtc, status: final ? "final" : "upcoming",
-  away: { abbr: g.away.abbr ?? "Away", name: g.away.name, logo: g.away.abbr },
-  home: { abbr: g.home.abbr ?? "Home", name: g.home.name, logo: g.home.abbr },
-});
-
 export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterIds = [], eloCtx }: { snapshot: Snapshot | null; statuses?: Record<string, string>; theaterIds?: readonly string[]; eloCtx?: EloCtx }) {
   if (!snapshot || snapshot.games.length === 0) return null;
   const elo = eloCtx ?? loadEloWinProbabilityContext();
+  // the Elo-derived estimate gets a column only when at least one game's receipt carries it (the accessor's own refusal)
+  const eloCol = snapshot.games.some((g) => eloWinProbabilityOf(g, { enabled: elo.enabled }) != null);
+  const versions = [...new Set(snapshot.games.map((g) => g.receipt.modelVersion))];
   return (
-    <section id="nba-experimental" className="scroll-mt-24 flex flex-col gap-3" aria-labelledby="nba-experimental-h">
+    <section className="flex flex-col gap-3" aria-labelledby="nba-forecast-h">
+      <h2 id="nba-forecast-h" className="m-0 font-display text-[18px] font-bold" style={{ color: "var(--vault-text)" }}>{PUBLIC_TERMS.OFFICIAL_FORECAST}s{snapshot.date ? ` · ${slateLabel(snapshot.date)}` : ""}</h2>
       {/* founder directive 2026-10-23 public readiness: the Official Forecast, with its ONE disclosure (frozen, not a
           recommendation, Model Performance status from lib/public-registry.ts) — no per-card doubt */}
       <div className="rounded-lg p-3" style={{ border: "2px solid var(--vault-gold-bright)", background: "var(--vault-panel)" }} role="note">
-        <p className="m-0 font-display text-[13px] font-extrabold tracking-wide" style={{ color: "var(--vault-gold-bright)" }}>{PUBLIC_TERMS.OFFICIAL_FORECAST}</p>
-        <p className="m-0 mt-1 text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{NBA_FORECAST_DISCLOSURE}</p>
+        <p className="m-0 text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{NBA_FORECAST_DISCLOSURE}</p>
       </div>
-      <h2 id="nba-experimental-h" className="m-0 font-display text-[18px] font-bold" style={{ color: "var(--vault-text)" }}>{PUBLIC_TERMS.OFFICIAL_FORECAST}{snapshot.date ? ` · ${slateLabel(snapshot.date)} slate` : ""}</h2>
       {AMENDMENT_A.enabled ? (
-        /* COMPACT HUB (release owner 2026-10-21). With /nba/projections on, the player rows live there only, and every
-           sentence that is the same for each game is said once here. Full per-team tables measured /nba at 388 KB for
-           an 11-game slate (budget 250 KB, empty-lane page ~204 KB); the first compact card still cost ~3.9 KB a game
-           (HTML + flight) and broke the budget at ~12 games. The board shows the same rows from the same snapshot, so
-           nothing is lost and no number is restated. */
+        /* COMPACT HUB (release owner 2026-10-21 · founder mandate 2026-10-24). The player rows live on /nba/projections only
+           (full per-team tables measured /nba at 388 KB for an 11-game slate); here each game is ONE table row — the
+           favoured side, the Elo-derived estimate where the receipt carries it, the board size and the freeze time.
+           Today's game cards above link to the row (or to the game's full forecast on its Game Simulation page). */
         <>
-          <p className="m-0 text-[13px]"><Link href="/nba/projections/" className="underline" style={{ color: "var(--vault-text)" }}>Every player median for this slate — filter and sort, with PRA, P+R and P+A</Link></p>
-          <p className="m-0 text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-            Each game below: the side favoured by {snapshot.games[0]?.elo.source}; player medians from the{" "}
-            {snapshot.games[0]?.players.source}, listed on the board by expected minutes, not ranked; team scores withheld;
-            receipt = model version and payload hash of the frozen forecast.
-          </p>
-          <div className="nbx-grid">
-            {snapshot.games.map((g) => (
-              <MatchupCard key={g.providerEventId} game={cardGame(g, !!statuses[g.providerEventId])} favoured={g.elo.favoured}>
-                <div className="nbx-read">
-                  {/* WEIGHT: the Elo number rides inside this existing line (no extra block) — founder decision 2026-10-23 */}
-                  <p><strong>Elo rating favours {favouredName(g) ?? "neither side"}.</strong><EloWinProbability game={g} ctx={elo} lead=" " /></p>
-                  <p>Official · frozen pregame forecast, frozen {et(g.frozenAt)} · {g.players.away.length + g.players.home.length} players on the board · receipt {g.receipt.payloadSha256.slice(0, 12)}</p>
-                </div>
-                {statuses[g.providerEventId] ? <p className="nbx-note">Game status: {statuses[g.providerEventId]}</p> : null}
-                <TheaterLink id={g.providerEventId} theaterIds={theaterIds} />
-              </MatchupCard>
-            ))}
+          <div className="nbx-scroll">
+            <table className="nbx-ftable">
+              <caption className="sr-only">{PUBLIC_TERMS.OFFICIAL_FORECAST} for each game</caption>
+              <thead><tr><th scope="col">Game</th><th scope="col">Favoured side</th>{eloCol ? <th scope="col">{ELO_WIN_PROBABILITY_LABEL}</th> : null}<th scope="col">Players</th><th scope="col">Frozen</th></tr></thead>
+              <tbody>
+                {snapshot.games.map((g) => (
+                  <tr key={g.providerEventId} id={forecastRowId(g.providerEventId)}>
+                    <th scope="row">{g.away.abbr} @ {g.home.abbr}</th>
+                    <td><strong>{favouredName(g) ?? "Neither side"}</strong></td>
+                    {eloCol ? <td><EloWinProbability game={g} ctx={elo} /></td> : null}
+                    <td>{g.players.away.length + g.players.home.length}</td>
+                    <td>{et(g.frozenAt).replace(/^[A-Z][a-z]{2} \d+, /, "")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
+          <p className="m-0 text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+            The favoured side comes from a team rating (Elo) updated after every game. Each player&rsquo;s {PUBLIC_TERMS.PLAYER_STATISTICS} are
+            medians of 10,000 simulated games — every player is on the <Link href="/nba/projections/" className="underline">player projections
+            board</Link>, listed by expected minutes, not ranked.
+          </p>
         </>
       ) : (
         snapshot.games.map((g) => (
-          <article key={g.providerEventId} id={laneCardId(g.providerEventId)} className="scroll-mt-24 flex flex-col gap-2 rounded-lg p-3" style={{ border: "1px solid var(--vault-border)" }} aria-label={`${g.away.abbr} at ${g.home.abbr}, frozen pregame forecast`}>
+          <article key={g.providerEventId} id={forecastRowId(g.providerEventId)} className="scroll-mt-24 flex flex-col gap-2 rounded-lg p-3" style={{ border: "1px solid var(--vault-border)" }} aria-label={`${g.away.abbr} at ${g.home.abbr}, frozen pregame forecast`}>
             <header className="flex flex-col gap-0.5">
               <h3 className="m-0 text-[15px] font-bold" style={{ color: "var(--vault-text)" }}>{g.away.name} at {g.home.name}</h3>
               <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
@@ -246,9 +234,20 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
         ))
       )}
       <EloAccuracyDisclosure games={snapshot.games} ctx={elo} className="m-0 text-[12px] leading-relaxed" />
+      {/* the snapshot's own statements of what is not published, and why — honest disclosures, printed as frozen */}
       <ul className="m-0 pl-5 text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
         {Object.entries(snapshot.withheld).map(([k, v]) => <li key={k}>{v}</li>)}
       </ul>
+      {/* founder mandate 2026-10-24: model ids, sources and receipts move here — out of the consumer text, never deleted */}
+      <details className="nbx-details">
+        <summary>Model details</summary>
+        <ul className="nbx-md">
+          <li>Favoured side: {snapshot.games[0]?.elo.source}</li>
+          <li>{PUBLIC_TERMS.PLAYER_STATISTICS}: {snapshot.games[0]?.players.source}</li>
+          <li>Model version: {versions.join(", ")}</li>
+          <li>Receipts (payload hash of each frozen forecast): {snapshot.games.map((g) => `${g.away.abbr} @ ${g.home.abbr} ${g.receipt.payloadSha256.slice(0, 12)}`).join(" · ")}</li>
+        </ul>
+      </details>
     </section>
   );
 }

@@ -70,7 +70,7 @@ export function buildGamesTableRows(today: string): GamesTableRow[] {
     const day = buildSimulateDay(date, { today });
     const lane = loadLaneForDate(date);
     for (const section of day.sections) {
-      for (const e of section.events) rows.push(rowFor(e, date, { nflIdx, nflPages, eplById, lane, laneDates, nbaFinals, nowMs }));
+      for (const e of section.events) rows.push(rowFor(e, date, { nflIdx, nflPages, eplById, lane, laneDates, nbaFinals, nowMs, today }));
     }
   }
   return rows.sort((a, b) => String(a.startUtc ?? a.date).localeCompare(String(b.startUtc ?? b.date)) || a.matchup.localeCompare(b.matchup));
@@ -84,6 +84,8 @@ type Ctx = {
   laneDates: Set<string>;
   nbaFinals: Set<string>;
   nowMs: number;
+  /** The build's ET day: each of today's NBA games has a card on /nba. */
+  today?: string;
 };
 
 function rowFor(e: SimDayEvent, date: string, ctx: Ctx): GamesTableRow {
@@ -119,9 +121,11 @@ function rowFor(e: SimDayEvent, date: string, ctx: Ctx): GamesTableRow {
   if (e.sport === "nba") {
     const pid = tail(e.id);
     const g = ctx.lane?.games.find((x) => x.providerEventId === pid);
-    const page = ctx.laneDates.has(date) ? `/nba/projections/${date}/` : "/nba/";
+    /* founder mandate 2026-10-24: a game today opens its /nba card (its Official Forecast and Game Simulation links); an
+       earlier date's opens that date's board. */
+    const page = date === ctx.today && pid ? `/nba/#nba-exp-${pid}` : ctx.laneDates.has(date) ? `/nba/projections/${date}/` : "/nba/";
     if (g) {
-      const side = g.elo?.favoured ? `${g.elo.favoured} favoured · no probability published` : null;
+      const side = g.elo?.favoured ? `${g.elo.favoured} favoured · no win chance published` : null;
       return { ...base, forecast: "Frozen", read: side, note: null, eventHref: page };
     }
     const excluded = ctx.lane?.excluded.find((x) => x.providerEventId === pid);

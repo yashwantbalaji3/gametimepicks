@@ -40,7 +40,7 @@ test("a probability appears only where the sport publishes one for that exact ev
       assert.ok(f?.probs, `${r.matchup}: EPL number without a published row`);
       assert.match(r.read, new RegExp(`${Math.round(f.probs.home * 100)}% · Draw ${Math.round(f.probs.draw * 100)}% · `), r.matchup);
     } else if (r.sport === "nba") {
-      assert.match(r.read, /favoured · no probability published$/, r.matchup);
+      assert.match(r.read, /favoured · no win chance published$/, r.matchup); // founder mandate 2026-10-24: reader words, same disclosure
       assert.doesNotMatch(r.read, /\d%/, `${r.matchup}: NBA publishes no probability`);
     } else {
       assert.fail(`${r.sport} ${r.matchup}: this sport publishes no per-row number here`);

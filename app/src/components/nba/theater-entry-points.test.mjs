@@ -15,7 +15,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 globalThis.React = React; // the island compiles with the classic JSX runtime (as possession-render.test.mjs)
 process.env.__NEXT_TRAILING_SLASH = "true"; // next.config.mjs trailingSlash: true — next/link renders hrefs as the build does
-const { default: Lane } = await import("./experimental-lane.tsx");
+const { NbaTodayGames } = await import("./hub-overview.tsx");
+const { nbaTodaySlateFrom } = await import("../../lib/sport-hub/nba-hub.ts");
 const { NBA_PUBLIC_THEATER_PLACEHOLDER, THEATER_LINK_TEXT, publicTheaterHref, publicTheaterRouteIds } = await import("../../lib/simulation-theater/nba/possession/public-route.mjs");
 const { publicPossessionEvents } = await import("../../lib/simulation-theater/nba/possession/public-loader.mjs");
 const { default: Island } = await import("../simulation-theater/nba/possession/NbaPossessionTheater.tsx");
@@ -27,6 +28,9 @@ const REPO = path.resolve(APP, "..");
 const DATE = "2026-10-20";
 const SNAP = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nba/experimental-public", `${DATE}.json`), "utf8"));
 const ON = { constantEnabled: true, env: { GTP_NBA_THEATER_PUBLIC: "1" } };
+// founder mandate 2026-10-24: the Game Simulation link lives on today's game card (hub-overview NbaTodayGames), built from
+// the same slate view as the homepage; the lane snapshot alone yields every game (no schedule needed)
+const cards = (theaterIds = []) => renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: nbaTodaySlateFrom({ nowIso: `${DATE}T15:00:00Z`, schedule: null, finals: null, lane: SNAP, theaterIds }) }));
 const OFF = { constantEnabled: true, env: {} };
 // Attribute order is the renderer's (next/link puts class before href since the CTA became a Link, 2026-10-22): read
 // each Theater-link <a>'s href and id from its attributes, whatever their order.
@@ -49,15 +53,17 @@ test("link present iff the page is built: ids = exactly what generateStaticParam
   assert.deepEqual(publicTheaterRouteIds(() => [], ON), [], "no valid runs → no link (never the placeholder)");
   assert.ok(!publicTheaterRouteIds(() => built, ON).includes(NBA_PUBLIC_THEATER_PLACEHOLDER));
   // a game whose runs are not built gets no card link
-  const h = renderToStaticMarkup(React.createElement(Lane, { snapshot: SNAP, theaterIds: [built[0]] }));
+  const h = cards([built[0]]);
   const got = links(h);
   assert.deepEqual(got.map((l) => l.id), [built[0]], "only the game with a built page links");
   assert.equal(got[0].href, `/nba/simulation/${built[0]}/`);
-  assert.equal(got[0].text, THEATER_LINK_TEXT);
+  assert.match(got[0].text, /^Game Simulation →$/); // founder mandate 2026-10-24: the registry term, as the card's second action
+  // its Official Forecast link opens the same built page's server-rendered forecast section
+  assert.match(h, new RegExp(`href="/nba/simulation/${built[0]}/#official-predictions"`));
 });
 
 test("flag-OFF render: no Theater link on any lane card", () => {
-  const h = renderToStaticMarkup(React.createElement(Lane, { snapshot: SNAP }));
+  const h = cards();
   assert.deepEqual(links(h), []);
   assert.doesNotMatch(h, /\/nba\/simulation\//);
 });

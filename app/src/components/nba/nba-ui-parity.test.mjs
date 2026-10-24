@@ -21,7 +21,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 globalThis.React = React;
 const { nbaTodaySlateFrom } = await import("../../lib/sport-hub/nba-hub.ts");
 const { nbaLane, NBA_LANE_ROWS } = await import("../../lib/command-center/nba-lane.ts");
-const { NbaSlateOverview, NbaScheduleCards } = await import("./hub-overview.tsx");
+const { NbaSlateOverview, NbaTodayGames } = await import("./hub-overview.tsx");
 const { default: Official, reconciledCombos, OFFICIAL_PREDICTIONS_TITLE } = await import("./official-predictions.tsx");
 const { mergeFinals } = await import("../../lib/sports/nba/finals-record.mjs");
 const { loadNbaPossessionTheater } = await import("../../lib/simulation-theater/nba/possession/possession-loader.mjs");
@@ -81,11 +81,14 @@ test("homepage NBA lane: rows (≤ NBA_LANE_ROWS), each linking to its /nba card
   const lane = nbaLane(slate(), NOW);
   assert.equal(lane.sport, "nba");
   assert.equal(lane.hubHref, "/nba/");
-  assert.equal(lane.simulateHref, null);
+  assert.equal(lane.simulateHref, "/simulate/?sport=nba"); // founder mandate 2026-10-24: NBA at parity — the lobby filters to NBA
+  // …and the same two status chips the other lanes carry, honestly "Too early to judge" (no public Model Performance yet)
+  assert.deepEqual(lane.statuses.map((x) => [x.family, x.state]), [["Favoured side", "TOO_EARLY"], ["Player projections", "TOO_EARLY"]]);
+  assert.deepEqual(nbaLane(slate({ lane: null }), NOW).statuses, [], "a schedule-only lane claims no model status");
   assert.equal(lane.featured, null);
   assert.equal(lane.state, "LIVE_TODAY");
   assert.ok(lane.games.length <= NBA_LANE_ROWS);
-  assert.equal(lane.games[0].note, "PHI favoured · Elo");
+  assert.equal(lane.games[0].note, "PHI favoured"); // founder mandate 2026-10-24: reader words (the hub card names the team rating)
   assert.deepEqual(lane.games.map((g) => g.href), ["/nba/#nba-exp-g1", "/nba/#nba-exp-g2"], "each row → its card on /nba (every today's game has one)");
   assert.equal(lane.games[1].note, "No Official Forecast"); // founder directive 2026-10-23 public readiness: registry terms
   assert.deepEqual(lane.secondary, { label: "Top Boards", href: "/nba/projections/", note: "player projections" });
@@ -105,18 +108,21 @@ test("the homepage renders NBA as a Command Center lane from the hub's own view 
   const home = read("src/app/page.tsx");
   assert.match(home, /nbaLane\(nbaTodaySlate\(/);
   assert.doesNotMatch(home, /simulation-theater|GTP_NBA_THEATER_PUBLIC/, "/ links the hub cards; only /nba and the route touch the Theater gate");
-  assert.match(home, /\.\.\.buildCommandCenter\(\{ dataRoot[^\n]*\}\), nbaHomeLane\]/);
-  // every /nba card the homepage links exists: the hub renders a MatchupCard (id laneCardId) for every one of today's games
+  // founder mandate 2026-10-24: NBA is first-class — its lane sits right after NFL's
+  assert.match(home, /const cardLanes = buildCommandCenter\(\{ dataRoot[^\n]*\}\);/);
+  assert.match(home, /const commandLanes = \[\.\.\.cardLanes\.slice\(0, afterNfl\), nbaHomeLane, \.\.\.cardLanes\.slice\(afterNfl\)\];/);
+  // every /nba card the homepage links exists: the hub renders a MatchupCard (id laneCardId) for EVERY one of today's games
   const hub = read("src/app/nba/page.tsx");
-  assert.match(hub, /const uncovered = slate\.games\.filter\(\(g\) => !g\.favoured\);/);
-  assert.match(hub, /<NbaScheduleCards games=\{uncovered\}/);
-  // weight: today's carded games are not listed a second time in the long schedule
-  assert.match(hub, /rows: model\.rows\.filter\(\(r\) => !carded\.has\(String\(r\.id\)\)\)/);
-  assert.match(hub, /<HubHeader model=\{scheduleModel\} compact \/>/);
+  assert.match(hub, /<NbaTodayGames slate=\{slate\} \/>/);
+  assert.match(read("src/components/nba/hub-overview.tsx"), /\{slate\.games\.map\(\(g\) => \(\n\s+<MatchupCard key=\{g\.id\}/);
+  // weight: today's carded games are not listed a second time in the window's one-line lists
+  assert.match(hub, /const rest = model\.rows\.filter\(\(r\) => !carded\.has\(String\(r\.id\)\)\);/);
+  assert.match(hub, /<NbaGameList rows=\{upcoming\}/);
+  assert.match(hub, /<NbaGameList rows=\{played\}/);
 });
 
 test("/nba overview: the four states say what is true, and 'publishes nothing' is gone", () => {
-  const render = (s) => text(renderToStaticMarkup(React.createElement(NbaSlateOverview, { slate: s, gamesAnchor: "nba-experimental" })));
+  const render = (s) => text(renderToStaticMarkup(React.createElement(NbaSlateOverview, { slate: s })));
   assert.match(render(slate()), /2 games · first tip-off 7:00 PM ET/);
   assert.match(render(slate()), /Official Forecast published , frozen Oct 22, 10:30 AM ET/); // founder directive 2026-10-23 public readiness: registry terms
   assert.match(render(slate({ lane: null })), /Today’s Official Forecast is not published yet/);
@@ -125,14 +131,17 @@ test("/nba overview: the four states say what is true, and 'publishes nothing' i
   for (const s of [slate(), slate({ lane: null })]) assert.doesNotMatch(render(s), /Schedule only — no public forecast|publishes nothing/);
   const page = read("src/app/nba/page.tsx");
   assert.doesNotMatch(page, /publishes nothing until/);
-  assert.ok(page.indexOf("<NbaSlateOverview") < page.indexOf("<NbaExperimentalLane") && page.indexOf("<NbaScheduleCards") < page.indexOf('id="nba-games"'), "overview → cards → schedule");
+  // founder mandate 2026-10-24: overview → today's games → Official Forecasts → Top Boards → Predicted Player Statistics →
+  // Game Simulations → Results & Model Performance → how it works
+  const order = ["<NbaSlateOverview", "<NbaTodayGames", "<NbaExperimentalLane", 'id="nba-boards"', 'id="nba-players"', 'id="nba-simulations"', 'id="nba-results"', 'id="nba-model-status"'].map((x) => page.indexOf(x));
+  assert.ok(order.every((i, k) => i > 0 && (k === 0 || i > order[k - 1])), `hub order ${order}`);
 });
 
 test("pending cards: matchup, clock status (SSR 'Upcoming'), no link and no side before today's forecast exists", () => {
-  const s = slate({ lane: null });
-  const h = renderToStaticMarkup(React.createElement(NbaScheduleCards, { games: s.games, id: "nba-today-games", heading: "Today's games" }));
+  const s = slate({ lane: null, theaterIds: [] });
+  const h = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: s }));
   assert.equal((h.match(/<article/g) ?? []).length, 2);
-  assert.equal((h.match(/<a /g) ?? []).length, 0, "no Theater link without a built page");
+  assert.equal((h.match(/<a /g) ?? []).length, 0, "no forecast link before it is published, no Game Simulation link without a built page");
   assert.match(h, /Upcoming/);
   assert.match(text(h), /Official Forecast not published yet/); // founder directive 2026-10-23 public readiness: registry terms
   assert.doesNotMatch(h, /favours/);

@@ -27,7 +27,7 @@ export const NBA_HUB_BEHIND_DAYS = 3;
 
 /* NBA UI parity (2026-10-22): the official forecast (Elo side + player medians) publishes on each game day before
    tip-off, so a regular-season game without one in this build has none YET — "model in validation" read as "never". */
-export const NBA_NO_FORECAST_NOTE = "No public forecast yet — publishes on game day";
+export const NBA_NO_FORECAST_NOTE = "Official Forecast publishes on game day, before tip-off";
 export const NBA_PRESEASON_NOTE = "Preseason — no forecast published";
 /** A game the NBA experimental public lane covers (preregistration §13): the row points at it, never claims validation. */
 export const NBA_LANE_NOTE = "Official Forecast on today's card above";
