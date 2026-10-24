@@ -9,7 +9,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { buildExperimentalSnapshot, snapshotMatchesSource, laneUnavailable, unavailablePlayersForPublish, rosterPositions, UNAVAILABLE_PLAYERS, UNAVAILABLE_STATE } from "./experimental-public-lane.mjs";
+import { buildExperimentalSnapshot, snapshotMatchesSource, laneUnavailable, unavailablePlayersForPublish, rosterPositions, rosterFacts, UNAVAILABLE_PLAYERS, UNAVAILABLE_STATE, UNAVAILABLE_REASONS, MIN_EXPECTED_MINUTES } from "./experimental-public-lane.mjs";
 import { loadRosterIndex } from "./roster-index.mjs";
 import { eloWinProbabilityForPublish } from "./elo-win-probability.mjs";
 
@@ -30,19 +30,27 @@ test("whatever the switch (OFF by default; the release owner flips it in a vehic
   }
 });
 
-test("ON: each game lists exactly the receipt's excludedNoMinutes players, with a state and a reason — and no number at all", () => {
+test("ON: the list is exactly the receipt's own pregame record — Out, below the publish cut, no usable history — with a reason and no number", () => {
   const d = "2026-10-23", s = build(d, true), D = doc(d);
   let listed = 0;
   for (const g of s.games) {
     const rec = D.games.find((x) => String(x.providerEventId) === g.providerEventId);
+    const facts = rosterFacts(ROSTERS.get(rec.receipt.inputs.rosters.sha256).doc);
     for (const side of ["away", "home"]) {
-      const want = (rec.forecast.assumptions.availability[side].excludedNoMinutes ?? []).map((p) => String(p.providerAthleteId)).sort();
-      assert.deepEqual(g.players.unavailable[side].map((p) => p.providerAthleteId), want, `${g.providerEventId} ${side}`);
+      const av = rec.forecast.assumptions.availability[side];
+      const want = new Map();
+      for (const p of av.excludedOut ?? []) want.set(String(p.providerAthleteId), "RULED_OUT");
+      for (const p of rec.forecast.players[side]) if (p.availability === "out" && !want.has(String(p.providerAthleteId))) want.set(String(p.providerAthleteId), "RULED_OUT");
+      for (const p of rec.forecast.players[side]) if (p.availability !== "out" && p.expectedMinutes < MIN_EXPECTED_MINUTES && !want.has(String(p.providerAthleteId))) want.set(String(p.providerAthleteId), "BELOW_PUBLISH_CUT");
+      for (const p of av.excludedNoMinutes ?? []) if (!want.has(String(p.providerAthleteId))) want.set(String(p.providerAthleteId), p.basis === "insufficient" ? (facts.get(String(p.providerAthleteId))?.experienceYears === 0 ? "ROOKIE" : "INSUFFICIENT_HISTORY") : "NO_EXPECTED_MINUTES");
+      assert.deepEqual(Object.fromEntries(g.players.unavailable[side].map((p) => [p.providerAthleteId, p.reason])), Object.fromEntries([...want].sort((a, b) => a[0].localeCompare(b[0]))), `${g.providerEventId} ${side}`);
       const shown = new Set(g.players[side].map((r) => r.providerAthleteId));
       for (const p of g.players.unavailable[side]) {
         assert.equal(p.state, UNAVAILABLE_STATE);
-        assert.ok(["INSUFFICIENT_HISTORY", "NO_EXPECTED_MINUTES"].includes(p.reason));
-        assert.deepEqual(Object.keys(p).sort(), ["name", "position", "providerAthleteId", "reason", "state"], "no medians, minutes or any number travel");
+        assert.ok(UNAVAILABLE_REASONS.includes(p.reason), p.reason);
+        assert.deepEqual(Object.keys(p).sort(), ["name", "position", "providerAthleteId", "reason", "state", ...(p.reason === "RULED_OUT" ? ["status"] : [])].sort(), "no minutes, medians or any number travel");
+        if (p.reason === "RULED_OUT") assert.equal(typeof p.status, "string", "the pre-cutoff status text");
+        if (p.reason === "ROOKIE") assert.equal(facts.get(p.providerAthleteId)?.experienceYears, 0, "a rookie by the receipt's own roster");
         assert.equal(shown.has(p.providerAthleteId), false, "never both projected and unavailable");
         listed += 1;
       }
@@ -51,8 +59,32 @@ test("ON: each game lists exactly the receipt's excludedNoMinutes players, with 
     const tampered = structuredClone(g); tampered.players.unavailable.home = tampered.players.unavailable.home.slice(1);
     if (g.players.unavailable.home.length) assert.equal(snapshotMatchesSource(tampered, rec, { rosters: ROSTERS }), false, "a dropped player never re-derives");
   }
-  assert.ok(listed > 0, `the 10-23 receipts carry unprojected rostered players (${listed})`);
+  assert.ok(listed > 0);
   assert.doesNotMatch(JSON.stringify(s.games.map((g) => g.players.unavailable)), /:\s*-?\d/, "no numeric value anywhere in the lists");
+});
+
+test("EVERY ROSTERED PLAYER IS ACCOUNTED FOR (founder 2026-10-24): on every committed slate, each player on both teams' frozen roster appears exactly once — published row or unavailable entry", () => {
+  const counts = {};
+  for (const f of DATED) {
+    const d = f.slice(0, 10), s = build(d, true), D = doc(d);
+    let roster = 0, accounted = 0;
+    for (const g of s.games) {
+      const rec = D.games.find((x) => String(x.providerEventId) === g.providerEventId);
+      const ro = ROSTERS.get(rec.receipt.inputs.rosters.sha256);
+      assert.ok(ro, `${d}/${g.providerEventId}: the receipt's roster capture is committed`);
+      for (const side of ["away", "home"]) {
+        const ids = [...g.players[side], ...g.players.unavailable[side]].map((r) => r.providerAthleteId);
+        assert.equal(new Set(ids).size, ids.length, `${d}/${g.providerEventId} ${side}: no player twice`);
+        const team = ro.doc.teams.find((t) => t.espnAbbr === rec[side].abbr || t.canonicalTricode === rec[side].abbr);
+        for (const p of team.players) { roster += 1; if (ids.includes(String(p.providerAthleteId))) accounted += 1; }
+      }
+    }
+    counts[d] = `${accounted}/${roster}`;
+    assert.equal(accounted, roster, `${d}: ${accounted}/${roster}`);
+  }
+  // the measured counts (2026-10-24): 10-21 380/380, 10-23 416/416 — the same as the Top Boards session's parked branch
+  assert.equal(counts["2026-10-21"], "380/380");
+  assert.equal(counts["2026-10-23"], "416/416");
 });
 
 test("publish rule: a slate not yet published follows the switch; a published one keeps what it was published with", () => {
