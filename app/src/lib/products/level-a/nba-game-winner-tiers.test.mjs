@@ -10,7 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import {
-  NBA_GAME_WINNER_TIERS_PUBLIC, NBA_GW_POLICY, jointShownFor, NBA_GW_REFUSAL, nbaGameWinnerCopyText, nbaGameWinnerLeg, nbaGameWinnerTiers, nbaGameWinnerTiersEnabled, recordableNbaGameWinnerCards,
+  NBA_GAME_WINNER_TIERS_PUBLIC, NBA_GW_POLICY, NBA_GW_POLICIES, jointShownFor, NBA_GW_REFUSAL, nbaGameWinnerCopyText, nbaGameWinnerLeg, nbaGameWinnerTiers, nbaGameWinnerTiersEnabled, recordableNbaGameWinnerCards,
 } from "./nba-game-winner-tiers.mjs";
 import { LEVEL_A_SUGGESTIONS_PUBLIC } from "./model.mjs";
 import { nbaSelections } from "./sources.mjs";
@@ -101,7 +101,7 @@ test("BANDS: D2 on 1/joint; joint above 0.667 is untiered and said aloud; highes
   const again = nbaGameWinnerTiers({ receiptOf, legs: [...legs].reverse(), accessor: fixtureAccessor(favour(legs, [0.75, 0.75, 0.75, 0.75])), enabled: true });
   assert.deepEqual(tie.tiers.map((t) => t.card?.legs.map((l) => l.eventId).sort()), again.tiers.map((t) => t.card?.legs.map((l) => l.eventId).sort()), "input order never changes the pick");
   const one = nbaGameWinnerTiers({ receiptOf, legs: legs.slice(0, 1), accessor: fixtureAccessor(favour(legs, [0.8])), enabled: true });
-  for (const t of one.tiers) assert.match(t.reason, /needs 2 games with a published Elo-derived estimate; only 1 has one/);
+  for (const t of one.tiers) assert.match(t.reason, t.tier === "longshot" ? /needs 3 games with a published Elo-derived estimate; only 1 has one/ : /needs 2 games with a published Elo-derived estimate; only 1 has one/, "two favourites can never reach Longshot, so it needs 3");
 });
 
 test("NBA-ONLY, ONE LEG PER GAME: mixed input never yields a mixed card; a repeated game counts once", () => {
@@ -125,7 +125,8 @@ test("SHOWN: leg % is the display's own text, joint at the display's precision; 
     assert.match(c.jointShown, /^\d+\.\d{1,4}%$/, "at least 1 dp, like every Level A card");
     assert.equal(c.label, LABEL, "the display's label, passed through, never rewritten");
     assert.match(c.dependency, /^Assumes the games are independent/);
-    assert.equal(c.policy, NBA_GW_POLICY);
+    assert.equal(c.policy, NBA_GW_POLICIES.parlayLab);
+    assert.ok(c.policy.startsWith(`${NBA_GW_POLICY}/`), "one rule family for grading");
     assert.deepEqual([c.priced, c.price, c.payout], [false, null, null]);
     const text = nbaGameWinnerCopyText(c);
     assert.match(text, /assumes the games are independent/);
@@ -141,7 +142,7 @@ test("RECORDING: tiered NBA cards are recordable only while the public switch is
   const off = nbaGameWinnerTiers({ receiptOf, legs, accessor: acc, enabled: false });
   assert.ok(off.tiers.some((t) => t.card), "the rule still evaluates for tests and previews");
   assert.deepEqual(recordableNbaGameWinnerCards(off), [], "recording a card while the switch is OFF is a failure");
-  assert.equal(recordableNbaGameWinnerCards(on).length, on.tiers.filter((t) => t.card).length);
+  assert.equal(recordableNbaGameWinnerCards(on).length, on.tiers.filter((t) => t.card).length + (on.bankBuilder.card ? 1 : 0) + (on.moonshot.card ? 1 : 0), "Parlay Center tiers, Bank Builder and Moonshot");
   assert.deepEqual(recordableNbaGameWinnerCards(nbaGameWinnerTiers({ receiptOf, legs, accessor: acc })), [], "the default is the committed switch: off");
 });
 
@@ -183,5 +184,40 @@ test("JOINT TEXT AT BAND EDGES: 1 dp like Level A; more decimals only where 1 dp
       assert.equal(tierForJoint(Number(shown.slice(0, -1)) / 100), tier, `${j.toFixed(5)} (${tier}) shows ${shown}, which bands elsewhere`);
       assert.ok(/^\d+\.\d{1,4}%$/.test(shown));
     }
+  }
+});
+
+test("PRODUCTS (founder mandate 2026-10-24): one engine; Bank Builder = best 2-leg Low/Medium; Moonshot = best Longshot up to 5 legs", () => {
+  const legs = REAL.slice(0, 6);
+  const b = nbaGameWinnerTiers({ receiptOf, legs, accessor: fixtureAccessor(favour(legs, [0.8, 0.78, 0.7, 0.65, 0.6, 0.58])), enabled: true });
+  const bb = b.bankBuilder.card, moon = b.moonshot.card;
+  assert.ok(bb && bb.legs.length === 2 && ["low", "medium"].includes(bb.tier));
+  assert.equal(bb.policy, NBA_GW_POLICIES.bankBuilder);
+  const pairs = [];
+  for (let i = 0; i < legs.length; i += 1) for (let j = i + 1; j < legs.length; j += 1) pairs.push([0.8, 0.78, 0.7, 0.65, 0.6, 0.58][i] * [0.8, 0.78, 0.7, 0.65, 0.6, 0.58][j]);
+  assert.ok(Math.abs(bb.jointProbability - Math.max(...pairs.filter((x) => ["low", "medium"].includes(tierForJoint(x))))) < 1e-12, "the highest 2-leg joint in Low or Medium");
+  assert.ok(moon && moon.tier === "longshot" && moon.legs.length >= 3 && moon.legs.length <= 5);
+  assert.equal(moon.policy, NBA_GW_POLICIES.moonshot);
+  const lab = b.tiers.find((t) => t.tier === "longshot").card;
+  assert.deepEqual(moon.legs.map((l) => l.eventId).sort(), lab.legs.map((l) => l.eventId).sort(), "Moonshot and the Parlay Center Longshot come from the same engine and agree");
+  const strong = nbaGameWinnerTiers({ receiptOf, legs: legs.slice(0, 3), accessor: fixtureAccessor(favour(legs, [0.92, 0.9, 0.91])), enabled: true });
+  assert.equal(strong.bankBuilder.card, null);
+  assert.equal(strong.bankBuilder.reason, "no two of tonight's favourites combine into the Low Risk or Medium Risk band (Bank Builder)", "an accurate empty state");
+  assert.match(strong.tiers.find((t) => t.tier === "low").reason, /^no two of tonight's favourites combine into the Low Risk band; 3 combinations are shorter than the Low band, so not tiered$/);
+  const two = nbaGameWinnerTiers({ receiptOf, legs: legs.slice(0, 2), accessor: fixtureAccessor(favour(legs, [0.6, 0.6])), enabled: true });
+  assert.match(two.moonshot.reason, /needs 3 games with a published Elo-derived estimate; only 2 have one/);
+});
+
+test("SAME TEAM / SAME GAME: one leg per game, and no team twice in a card even across different event ids", () => {
+  const legs = REAL.slice(0, 3);
+  const acc = fixtureAccessor(favour(legs, [0.8, 0.75, 0.7]));
+  /* A malformed input: a second event id whose label repeats a team of the first game. */
+  const clone = { ...legs[1], eventLabel: legs[0].eventLabel };
+  const accClone = (id) => (id === clone.eventId ? acc(legs[1].eventId) : acc(id));
+  const b = nbaGameWinnerTiers({ receiptOf, legs: [legs[0], clone, legs[2]], accessor: accClone, enabled: true });
+  for (const c of [...b.tiers.map((t) => t.card), b.bankBuilder.card, b.moonshot.card].filter(Boolean)) {
+    const teams = c.legs.flatMap((l) => l.eventLabel.split(" @ "));
+    assert.equal(new Set(teams).size, teams.length, "no team twice");
+    assert.equal(new Set(c.legs.map((l) => l.eventId)).size, c.legs.length, "no game twice");
   }
 });

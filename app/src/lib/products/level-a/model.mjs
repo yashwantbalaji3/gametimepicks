@@ -22,7 +22,7 @@ export const levelAEnabled = (env = { [LEVEL_A_FLAG]: process.env.NEXT_PUBLIC_LE
 
 /** The note an NBA side carries when it can appear in the NBA game winners cards (both switches on). It replaces the
  *  display's "for information only and does not tier this leg", which would be false beside those cards. */
-export const NBA_GW_LEG_NOTE = "Not tiered in the cross-sport cards. Its Elo-derived game-winner estimate is published, so this side can appear in the NBA game winners cards on the Parlay Center.";
+export const NBA_GW_LEG_NOTE = "Not tiered in the cross-sport cards. Its Elo-derived game-winner estimate is published, so this side can appear in the NBA game winners cards.";
 
 /**
  * The NBA game winners block (rule docs/LEVEL_A_NBA_GAME_WINNER_TIERING_RULE.md), or null. Null unless BOTH switches are

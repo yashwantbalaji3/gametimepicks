@@ -91,15 +91,13 @@ export default function LevelASuggestions({ model, mode }: { model: LevelAModel 
         </p>
       </div>
       {mode === "parlay-lab" ? (
-        <>
-          <div className="grid gap-3 lg:grid-cols-2">{model.parlayLab.map((t) => <CardBox key={t.tier} title={t.tierLabel} slot={t} />)}</div>
-          <NbaGameWinners block={model.nbaGameWinners} />
-        </>
+        <div className="grid gap-3 lg:grid-cols-2">{model.parlayLab.map((t) => <CardBox key={t.tier} title={t.tierLabel} slot={t} />)}</div>
       ) : mode === "bank-builder" ? (
         <CardBox title="Bank Builder suggestion · 2 legs, Low or Medium band, highest joint probability" slot={model.bankBuilder} />
       ) : (
         <CardBox title="Moonshot suggestion · 3 legs, High or Longshot band, highest joint probability" slot={model.moonshot} />
       )}
+      <NbaGameWinners block={model.nbaGameWinners} mode={mode} />
       {model.untiered.length ? (
         <div className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
           <p className="m-0 font-semibold" style={{ color: "var(--vault-text)" }}>Official sides that are not tiered</p>

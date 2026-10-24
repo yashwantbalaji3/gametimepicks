@@ -1,6 +1,6 @@
 # Level A · NBA game-winner tiering rule (`nba-game-winner-tiers@1`)
 
-- **Status:** ACCEPTED FOR IMPLEMENTATION (release owner review 2026-10-23). Public switch: after §7 verification and a founder go. The amendments from that review are folded into the sections below and listed in §8.
+- **Status:** ACCEPTED FOR IMPLEMENTATION (release owner review 2026-10-23). Public switch: after every §7 acceptance check passes (founder conditional approval, 2026-10-23, relayed by the release owner: no further routine go). The amendments from the reviews are folded into the sections below and listed in §8 and §10.
 - **Authority:** the founder decision of 2026-10-23, as relayed by the release owner. It approves preparing a separately identified Elo game-winner probability display, sourced from the existing frozen official forecast, with consistent provenance across pages. It requires that Elo probabilities are not used automatically to tier player props or mixed parlays: a documented game-winner-specific tiering rule must be implemented and verified first. Existing forecasts and grading stay immutable.
 - **Ownership:**
   - The probability *display* belongs to the NBA model session (official composition and provenance).
@@ -36,14 +36,23 @@ A leg is eligible only if all of these hold:
 ## 2. Which cards
 
 - **NBA-only.** Every leg in a tiered NBA card is an NBA game-winner leg under §1. There are no mixed-sport cards with NBA, and NBA legs never join the cross-sport Level A cards.
-- **Distinct games.** One leg per game. An NBA team plays at most once per night, so legs on the same night never share a team.
+- **Same game, duplicate events and teams.** One leg per game (a repeated event id counts once). No team may appear twice in a card, even across different event ids: an NBA team plays at most once a night, so this guard only ever rejects a malformed input, but it is enforced, not assumed.
 - **Leg counts.** 2 to `BAND_MAX_LEGS[tier]` legs, with the same caps as the Level A cross-sport policy (Low 2, Medium 3, High 4, Longshot 5).
-- **Selection.** For each tier, the qualifying combination with the highest joint probability wins. Ties are broken by the sorted event-id key (deterministic). If none qualifies, the tier shows no card and says why.
+- **Selection.** For each tier, the qualifying combination with the highest joint probability wins. Ties are broken by the sorted event-id key (deterministic). If none qualifies, the tier shows no card and says why, e.g. "no two of tonight's favourites combine into the Low Risk band; 3 combinations are shorter than the Low band, so not tiered".
+- **Products (founder mandate, 2026-10-24).** One engine, three placements, each with its own policy under the `nba-game-winner-tiers@1` family:
+
+| Page | Policy | Rule |
+|---|---|---|
+| Parlay Center (/build) | `nba-game-winner-tiers@1/parlay-lab` | one card per tier (Low, Medium, High, Longshot), 2 to `BAND_MAX_LEGS[tier]` legs |
+| Bank Builder | `nba-game-winner-tiers@1/bank-builder` | conservative: exactly 2 legs, Low or Medium band, highest joint |
+| Moonshot | `nba-game-winner-tiers@1/moonshot` | Longshot band, up to 5 legs, highest joint (two favourites never reach Longshot, so in practice 3 to 5) |
+
+  Every card shows a probability % only, with the independence disclosure. No odds, no payout. An empty slot says why.
 
 ## 3. How the joint is formed
 
 - **joint** = the product of the legs' published Elo probabilities, over distinct games.
-- That product **assumes the games are independent**. Every card says so verbatim ("Assumes the games are independent"), as on all Level A cards.
+- That product **assumes the games are independent**. Every card says so verbatim ("Assumes the games are independent"), as on all Level A cards. Correlation between same-night games is not modelled and is not corrected for; the disclosure is the treatment.
 - Same-night NBA results can be related (shared travel, schedule spots, league-wide scoring trends). That is not modelled, and the disclosure says so.
 
 ## 4. Which bands
@@ -80,7 +89,8 @@ A leg is eligible only if all of these hold:
   - Nothing is recorded at or after the first tip.
   - A changed card is written as a revision.
   - Existing rows are never rewritten.
-- **Grading.** Forward only: the NBA settlement contract (moneyline winner, official final). No retroactive grading of earlier days, and no change to any existing forecast or graded record.
+- **Grading.** Forward only: the NBA settlement contract (moneyline winner, official final), through the Level A forward grader for every policy in the `nba-game-winner-tiers@1` family. A card loses when any leg loses; pending and VOID are never losses. No retroactive grading of earlier days, and no change to any existing forecast or graded record.
+- **Publication cutoff.** The Level A leg gates apply unchanged: a leg leaves every card 30 minutes before its tip (and the record never holds a card shown at or after its first tip).
 
 ## 7. Verification before the switch is flipped
 
@@ -109,6 +119,13 @@ A leg is eligible only if all of these hold:
 5. **Recording.** Only while the public switch is on (§6).
 6. **Rounding.** The shown leg % equals the display's shown %. The joint is shown at 1 dp, with more decimals only at a band edge, and the tier is never moved (§5; amended: the joint was first proposed at the display's precision, which would show a 0.2496 High card as "25%").
 7. **Accessor dependency.** No code is built against an imagined accessor. The pure rule and its refusals are written first against a fixture. The accessor integration stacks on the NBA model session's draft PR (merge, never force-push).
+
+## 10. Founder mandate (2026-10-24, relayed by the release owner)
+
+1. **Placement superseded.** §8.1's "Parlay Center only" is replaced: NBA game-winner suggestions appear on the Parlay Center, Bank Builder and Moonshot (§2 Products), all behind `NBA_GAME_WINNER_TIERS_PUBLIC`.
+2. **Recording.** The per-deployment recorder covers all three pages' NBA cards. Each card carries a `data-level-a-card` key (policy, tier, games, shown joint) and the recorder matches it exactly.
+3. **Wording.** The NBA display's number is the "Elo-derived game-winner estimate" (its constant `ELO_WIN_PROBABILITY_LABEL`). This rule's own text never calls it a probability; only the card's own joint is a "model joint probability".
+4. **Missing estimate.** A game the display does not publish (switch off, gated, or a slate published without the field) stays an untiered side-only suggestion. Never imputed.
 
 ## 9. Implementation order
 

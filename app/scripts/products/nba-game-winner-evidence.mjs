@@ -4,7 +4,8 @@
  * one lane day and one planned build instant, what the NBA game winners block WILL show, so the release owner's
  * browser check compares against a prediction made before the build:
  *   1. every NBA leg: the receipt's exact pHome vs the display accessor's (Object.is), receipt sha and frozenAt equal;
- *   2. the expected card per tier: legs (side, shown %), exact joint, shown joint text, tier; or the empty-state reason;
+ *   2. the expected card on every page (Parlay Center per tier, Bank Builder, Moonshot): legs (side, shown %), exact
+ *      joint, shown joint text, tier and the exact card key the recorder matches; or the empty-state reason;
  *   3. the band-edge sweep of the joint text (every shown joint bands with its card);
  *   4. the switch-OFF model is byte-identical to the model without this rule.
  * The display is read through its own committed switch. Before that switch is on, `--simulate-display` builds the
@@ -20,6 +21,12 @@ import { loadEloWinProbabilityContext } from "../../src/lib/sports/nba/elo-win-p
 import { nbaGameWinnerDisplay } from "../../src/lib/products/level-a/nba-game-winner-source.mjs";
 import { buildLevelAModel } from "../../src/lib/products/level-a/model.mjs";
 import { jointShownFor, tierForJoint } from "../../src/lib/products/level-a/suggestions.mjs";
+import { nbaGameWinnerCardKey } from "../../src/lib/products/level-a/nba-game-winner-tiers.mjs";
+
+/** One expected card (or the empty state) as the page will print it, with the exact key the recorder matches. */
+export const expectedCard = (slot, title) => (slot.card
+  ? { page: title, tier: slot.card.tier, label: slot.card.tierLabel, legs: slot.card.legs.map((l) => `${l.selection.label.replace(" (official side)", "")} ${l.shownPct} (${l.eventLabel})`), jointExact: slot.card.jointProbability, jointShown: jointShownFor(slot.card.jointProbability, slot.card.tier), cardKey: nbaGameWinnerCardKey(slot.card) }
+  : { page: title, empty: slot.reason });
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -63,9 +70,11 @@ export function evidence({ day, now, simulateDisplay = false, repoRoot = REPO })
   });
   const model = buildLevelAModel({ repoRoot, now, productDay: day, nbaGameWinners: { enabled: true, display } });
   const block = model.nbaGameWinners;
-  const cards = (block?.tiers ?? []).map((t) => (t.card
-    ? { tier: t.tier, label: t.tierLabel, legs: t.card.legs.map((l) => `${l.selection.label.replace(" (official side)", "")} ${l.shownPct} (${l.eventLabel})`), jointExact: t.card.jointProbability, jointShown: jointShownFor(t.card.jointProbability, t.card.tier) }
-    : { tier: t.tier, label: t.tierLabel, empty: t.reason }));
+  const cards = block ? {
+    parlayCenter: block.tiers.map((t) => ({ tier: t.tier, ...expectedCard(t, `/build/ · ${t.tierLabel}`) })),
+    bankBuilder: expectedCard(block.bankBuilder, "/bank-builder/"),
+    moonshot: expectedCard(block.moonshot, "/moonshot/"),
+  } : null;
   const off = JSON.stringify(buildLevelAModel({ repoRoot, now, productDay: day, nbaGameWinners: { enabled: false } })) === JSON.stringify(buildLevelAModel({ repoRoot, now, productDay: day }));
   return {
     ok: true, day, now, display: simulateDisplay ? "SIMULATED (the display's own publisher over the real receipts; its switch is not on yet)" : realCtx.enabled ? "LIVE (the display's committed switch is on)" : "OFF (the display's switch is off: no tiers)",

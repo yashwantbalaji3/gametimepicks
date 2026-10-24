@@ -13,7 +13,7 @@ import { renderToString } from "react-dom/server";
 
 import { ELO_WIN_PROBABILITY_LABEL, eloWinProbabilityOf, eloWinProbabilityText, laneEloWinProbability } from "../../sports/nba/elo-win-probability.mjs";
 import { nbaGameWinnerDisplay } from "./nba-game-winner-source.mjs";
-import { NBA_GW_POLICY, NBA_GAME_WINNER_TIERS_PUBLIC } from "./nba-game-winner-tiers.mjs";
+import { NBA_GW_POLICY, NBA_GW_POLICIES, NBA_GAME_WINNER_TIERS_PUBLIC, nbaGameWinnerCardKey, recordableNbaGameWinnerCards } from "./nba-game-winner-tiers.mjs";
 import { NBA_GW_LEG_NOTE, buildLevelAModel, LEVEL_A_SERVED_SCHEMA, modelSha256 } from "./model.mjs";
 import { recordEntries } from "./record.mjs";
 import { jointShownFor } from "./suggestions.mjs";
@@ -75,7 +75,7 @@ test("CARDS: joint = product of the receipts' exact p; each shown leg % is the d
       assert.ok(Object.is(l.label, ELO_WIN_PROBABILITY_LABEL));
     }
     assert.equal(t.card.disclosure, CTX_ON.disclosure);
-    assert.equal(t.card.policy, NBA_GW_POLICY);
+    assert.equal(t.card.policy, NBA_GW_POLICIES.parlayLab);
     assert.deepEqual([t.card.priced, t.card.price, t.card.payout], [false, null, null]);
   }
 });
@@ -96,32 +96,43 @@ test("NOTE: with both on, a side that can appear in an NBA card no longer says i
   }
 });
 
-test("RENDER: Parlay Center only; the display's % text and the disclosure once; the recorder verifies the block", () => {
+test("RENDER: all three pages (founder mandate 2026-10-24) from one engine; display text; disclosure once per page; the recorder verifies every card exactly", () => {
   const render = (mode) => renderToString(React.createElement(LevelASuggestions, { model: MODEL_ON, mode }));
-  const lab = render("parlay-lab");
-  const text = lab.replace(/<!-- -->/g, "");
-  assert.match(text, /NBA game winners/);
-  for (const t of MODEL_ON.nbaGameWinners.tiers) if (t.card) {
-    assert.ok(text.includes(`model joint probability ${jointShownFor(t.card.jointProbability, t.card.tier)}`));
-    for (const l of t.card.legs) assert.ok(text.includes(`${ELO_WIN_PROBABILITY_LABEL}: ${l.shownPct}`), l.eventId);
+  const gw = MODEL_ON.nbaGameWinners;
+  const pages = { [PAGE_FOR["parlay-lab"]]: render("parlay-lab"), [PAGE_FOR["bank-builder"]]: render("bank-builder"), [PAGE_FOR.moonshot]: render("moonshot") };
+  const cardsOn = { "parlay-lab": gw.tiers.map((t) => t.card).filter(Boolean), "bank-builder": [gw.bankBuilder.card].filter(Boolean), moonshot: [gw.moonshot.card].filter(Boolean) };
+  for (const [mode, page] of [["parlay-lab", "/build/"], ["bank-builder", "/bank-builder/"], ["moonshot", "/moonshot/"]]) {
+    const html = pages[page];
+    const text = html.replace(/<!-- -->/g, "");
+    assert.match(html, new RegExp(`data-level-a-nba-game-winners="${mode}"`), `${mode} shows the NBA block`);
+    assert.equal(text.split(CTX_ON.disclosure).length - 1, 1, `${mode}: the disclosure once`);
+    const keys = [...html.matchAll(/data-level-a-card="([^"]+)"/g)].map((m) => m[1]);
+    assert.deepEqual(keys, cardsOn[mode].map(nbaGameWinnerCardKey), `${mode}: exactly the engine's cards, nothing else`);
+    for (const c of cardsOn[mode]) {
+      assert.ok(text.includes(`model joint probability ${jointShownFor(c.jointProbability, c.tier)}`));
+      for (const l of c.legs) assert.ok(text.includes(`${ELO_WIN_PROBABILITY_LABEL}: ${l.shownPct}`), l.eventId);
+    }
   }
-  assert.equal(text.split(CTX_ON.disclosure).length - 1, 1, "the disclosure once per block");
-  assert.match(lab, /id="level-a-nba-game-winners"/);
-  for (const mode of ["bank-builder", "moonshot"]) assert.doesNotMatch(render(mode), /id="level-a-nba-game-winners"|aria-label="NBA game winners/, `${mode}: the block is not in Bank Builder or Moonshot`);
-  assert.match(NBA_GW_LEG_NOTE, /on the Parlay Center\.$/, "the note names where the cards are, so it is true on every page it appears on");
-  const served = { schema: LEVEL_A_SERVED_SCHEMA, public: true, asOf: NOW, productDay: DAY, modelSha256: modelSha256(MODEL_ON), model: { ...MODEL_ON, asOf: NOW } };
+  assert.ok(cardsOn["bank-builder"].every((c) => c.legs.length === 2 && ["low", "medium"].includes(c.tier)), "Bank Builder: 2 legs, Low or Medium");
+  assert.ok(cardsOn.moonshot.every((c) => c.tier === "longshot" && c.legs.length <= 5), "Moonshot: Longshot, at most 5 legs");
+  const served = { schema: LEVEL_A_SERVED_SCHEMA, public: true, asOf: NOW, productDay: DAY, model: { ...MODEL_ON, asOf: NOW } };
   served.modelSha256 = modelSha256(served.model);
-  const pages = { [PAGE_FOR["parlay-lab"]]: lab, [PAGE_FOR["bank-builder"]]: render("bank-builder"), [PAGE_FOR.moonshot]: render("moonshot") };
-  assert.deepEqual(verifyServed({ sha: "a".repeat(40), buildInfo: { builtAt: NOW, commit: { sha: "a".repeat(40) } }, served, pages }), { ok: true, problems: [] });
+  const ok = verifyServed({ sha: "a".repeat(40), buildInfo: { builtAt: NOW, commit: { sha: "a".repeat(40) } }, served, pages });
+  assert.deepEqual(ok, { ok: true, problems: [] });
+  if (cardsOn["bank-builder"][0]) {
+    const tampered = { ...pages, "/bank-builder/": pages["/bank-builder/"].replace(/data-level-a-card="[^"]+"/, 'data-level-a-card="other"') };
+    assert.equal(verifyServed({ sha: "a".repeat(40), buildInfo: { builtAt: NOW, commit: { sha: "a".repeat(40) } }, served, pages: tampered }).ok, false, "a page not showing the exact card is refused");
+  }
 });
 
 test("RECORD: tiered NBA cards are recorded only while public; never with the switch OFF", () => {
   const rows = recordEntries(MODEL_ON, { recordedAt: NOW });
-  const nba = rows.filter((r) => r.policy === NBA_GW_POLICY);
-  assert.equal(nba.length, MODEL_ON.nbaGameWinners.tiers.filter((t) => t.card).length);
+  const nba = rows.filter((r) => r.policy.startsWith(NBA_GW_POLICY));
+  assert.equal(nba.length, recordableNbaGameWinnerCards(MODEL_ON.nbaGameWinners).length);
+  assert.ok(nba.some((r) => r.policy === NBA_GW_POLICIES.parlayLab));
   for (const r of nba) assert.ok(r.legs.every((l) => l.sport === "nba" && typeof l.probability === "number"));
-  assert.equal(recordEntries({ ...MODEL_ON, nbaGameWinners: { ...MODEL_ON.nbaGameWinners, public: false } }, { recordedAt: NOW }).filter((r) => r.policy === NBA_GW_POLICY).length, 0);
-  assert.equal(recordEntries(buildLevelAModel({ repoRoot: REPO, now: NOW, productDay: DAY }), { recordedAt: NOW }).filter((r) => r.policy === NBA_GW_POLICY).length, 0, "the committed default (switch OFF) records none");
+  assert.equal(recordEntries({ ...MODEL_ON, nbaGameWinners: { ...MODEL_ON.nbaGameWinners, public: false } }, { recordedAt: NOW }).filter((r) => r.policy.startsWith(NBA_GW_POLICY)).length, 0);
+  assert.equal(recordEntries(buildLevelAModel({ repoRoot: REPO, now: NOW, productDay: DAY }), { recordedAt: NOW }).filter((r) => r.policy.startsWith(NBA_GW_POLICY)).length, 0, "the committed default (switch OFF) records none");
 });
 
 test("TOO_CLOSE: a game with no favoured side has no leg, even with a published 50/50", () => {
@@ -139,8 +150,10 @@ test("TOO_CLOSE: a game with no favoured side has no leg, even with a published 
 test("COPY: the required phrases, and no word that reads as a priced parlay, a guarantee or a validated prop", async () => {
   const { nbaGameWinnerCopyText } = await import("./nba-game-winner-tiers.mjs");
   const lab = renderToString(React.createElement(LevelASuggestions, { model: MODEL_ON, mode: "parlay-lab" })).replace(/<!-- -->/g, "");
-  const start = lab.indexOf('id="level-a-nba-game-winners"');
-  const block = lab.slice(start, lab.indexOf("</section>", start)); // the NBA block only (it holds no nested section)
+  const start = lab.lastIndexOf("<section", lab.indexOf('data-level-a-nba-game-winners="parlay-lab"'));
+  /* The NBA block only (it holds no nested section), as VISIBLE TEXT: tags and attributes (data-level-a-card keys such as
+     "nba-game-winner-tiers@1/parlay-lab") are machine identifiers, not words a reader sees. */
+  const block = lab.slice(start, lab.indexOf("</section>", start)).replace(/<[^>]+>/g, " ");
   for (const t of MODEL_ON.nbaGameWinners.tiers) if (t.card) {
     const copy = nbaGameWinnerCopyText(t.card);
     for (const text of [block, copy]) {
@@ -165,11 +178,14 @@ test("EVIDENCE SCRIPT (§7): per-leg equality, expected cards, band sweep and sw
   assert.equal(e.ok, true);
   assert.match(e.display, /^SIMULATED/, "a pre-switch run says so");
   for (const l of e.legs.filter((x) => x.displayPHome != null)) assert.deepEqual([l.pEqual, l.shaEqual, l.frozenAtEqual], [true, true, true], l.eventId);
-  assert.deepEqual(e.cards.map((c) => c.tier), ["low", "medium", "high", "longshot"]);
-  for (const c of e.cards) if (!c.empty) assert.equal(c.jointShown, jointShownFor(c.jointExact, c.tier));
+  assert.deepEqual(e.cards.parlayCenter.map((c) => c.tier), ["low", "medium", "high", "longshot"]);
+  for (const c of [...e.cards.parlayCenter, e.cards.bankBuilder, e.cards.moonshot]) if (!c.empty) assert.equal(c.jointShown, jointShownFor(c.jointExact, c.tier));
   assert.deepEqual(e.bandSweep.misbanded, []);
   assert.equal(e.switchOffModelIdentical, true);
-  assert.deepEqual(e.cards, MODEL_ON.nbaGameWinners.tiers.map((t) => (t.card ? { tier: t.tier, label: t.tierLabel, legs: t.card.legs.map((l) => `${l.selection.label.replace(" (official side)", "")} ${l.shownPct} (${l.eventLabel})`), jointExact: t.card.jointProbability, jointShown: jointShownFor(t.card.jointProbability, t.card.tier) } : { tier: t.tier, label: t.tierLabel, empty: t.reason })), "the prediction is the model the pages render");
+  const gw = MODEL_ON.nbaGameWinners;
+  assert.deepEqual(e.cards.parlayCenter.map((c) => c.cardKey ?? null), gw.tiers.map((t) => (t.card ? nbaGameWinnerCardKey(t.card) : null)), "the prediction is the model the pages render");
+  assert.equal(e.cards.bankBuilder.cardKey ?? null, gw.bankBuilder.card ? nbaGameWinnerCardKey(gw.bankBuilder.card) : null);
+  assert.equal(e.cards.moonshot.cardKey ?? null, gw.moonshot.card ? nbaGameWinnerCardKey(gw.moonshot.card) : null);
   assert.match(fs.readFileSync(path.resolve(process.cwd(), "scripts/products/nba-game-winner-evidence.mjs"), "utf8"), /READ-ONLY, OFFLINE/);
 });
 
@@ -183,4 +199,29 @@ test("GRADER: a recorded nba-game-winner-tiers@1 entry grades through the NBA se
   assert.deepEqual(results, ["loss", "win"], "exactly one side of a finished game wins");
   const pending = gradeEntry({ id: "p", policy: NBA_GW_POLICY, tier: "low", productDay: DAY, legs: [leg("home"), { ...leg("home"), eventId: "409999999" }] }, finals);
   assert.ok(["pending", "loss"].includes(pending.result), "an unfinished leg is pending, never a loss on its own");
+});
+
+test("SWITCH FALSE ON AN ELO SLATE (H1 lands before the 10-24 publish): untiered NBA sides show the Elo estimate as information, no NBA card anywhere", async () => {
+  const os = await import("node:os");
+  /* A temporary repo root holding ONLY a lane in the published-with-Elo shape (the display's own publisher over the real
+     receipts), so the Level A readers see exactly what a slate published with the Elo switch on gives them. */
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "levela-elo-"));
+  fs.mkdirSync(path.join(root, "app/public/data/nba/experimental-public"), { recursive: true });
+  fs.writeFileSync(path.join(root, `app/public/data/nba/experimental-public/${DAY}.json`), JSON.stringify(LANE_ON));
+  const model = buildLevelAModel({ repoRoot: root, now: NOW, productDay: DAY });
+  assert.equal("nbaGameWinners" in model, false, "switch false: no NBA game-winner block in the model");
+  const nba = model.untiered.filter((l) => l.sport === "nba");
+  assert.ok(nba.length >= 5);
+  for (const mode of ["parlay-lab", "bank-builder", "moonshot"]) {
+    const html = renderToString(React.createElement(LevelASuggestions, { model, mode }));
+    const text = html.replace(/<!-- -->/g, "");
+    assert.doesNotMatch(html, /data-level-a-nba-game-winners|data-level-a-card=/, `${mode}: no NBA card`);
+    for (const l of nba) {
+      if (l.uncertainty?.kind !== "elo-win-probability") continue;
+      assert.ok(text.includes(l.uncertainty.text), `${mode}: ${l.eventId} shows the display's Elo estimate text`);
+      assert.ok(text.includes("Untiered: the Elo-derived game-winner estimate is shown for information only and does not tier this leg."), `${mode}: the display's own untiered note, unchanged by this rule while it is off`);
+      assert.equal(l.probability, null, "still untiered");
+    }
+    assert.ok(nba.some((l) => l.uncertainty?.kind === "elo-win-probability"), "the Elo field reached the rows");
+  }
 });
