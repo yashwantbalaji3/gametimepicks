@@ -3,23 +3,36 @@
  "artifact": "graded-picks",
  "dataClass": "PUBLIC_DERIVED",
  "moneyClass": "NON_MONEY",
- "generatedAt": "2026-10-24T11:44:12Z",
+ "generatedAt": "2026-10-24T13:38:28Z",
  "sport": "epl",
  "label": "Premier League",
  "what": "Match-result forecasts: the outcome the model gave the most probability to, graded against the official full-time score.",
  "caveat": "This model has cleared no preregistered bar and publishes distributions rather than picks — the 'predicted' column is simply its likeliest outcome.",
  "counts": {
-  "counted": 67,
+  "counted": 68,
   "hits": 31,
-  "misses": 36,
+  "misses": 37,
   "voided": 0,
   "shown": 60,
-  "total": 67
+  "total": 68
  },
- "hitRate": 0.4627,
+ "hitRate": 0.4559,
  "sampleState": "EMERGING",
- "sampleNote": "67 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
+ "sampleNote": "68 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
  "picks": [
+  {
+   "eventId": "soccer:epl:aston-villa-v-manchester-city:20261024t1130",
+   "when": "2026-10-24",
+   "eventName": null,
+   "subject": "Aston Villa v Manchester City",
+   "market": "Match result",
+   "predicted": "away win",
+   "actual": "home win (2-1)",
+   "modelProbability": 0.519216,
+   "probabilityOfActual": 0.24134,
+   "marketProbabilityOfActual": null,
+   "hit": false
+  },
   {
    "eventId": "soccer:epl:ipswich-town-v-nottingham-forest:20261023t1900",
    "when": "2026-10-23",
@@ -786,19 +799,6 @@
    "probabilityOfActual": 0.381386,
    "marketProbabilityOfActual": null,
    "hit": true
-  },
-  {
-   "eventId": "soccer:epl:liverpool-v-newcastle-united:20260823t1530",
-   "when": "2026-08-23",
-   "eventName": null,
-   "subject": "Newcastle United v Liverpool",
-   "market": "Match result",
-   "predicted": "home win",
-   "actual": "draw (2-2)",
-   "modelProbability": 0.466432,
-   "probabilityOfActual": 0.219738,
-   "marketProbabilityOfActual": null,
-   "hit": false
   }
  ]
 }
