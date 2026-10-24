@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-24T18:00:47Z",
- "sourceGeneratedAt": "2026-10-24T18:00:47Z",
+ "generatedAt": "2026-10-24T22:55:18Z",
+ "sourceGeneratedAt": "2026-10-24T22:55:18Z",
  "providerEventId": "401873009",
  "matchup": "DAL @ PHI",
  "kickoffUtc": "2026-10-27T00:15Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-24T18:00:47Z",
-  "roleEvidenceAt": "2026-10-24T18:00:47Z",
+  "injuriesCapturedAt": "2026-10-24T22:55:18Z",
+  "roleEvidenceAt": "2026-10-24T22:55:18Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -117,7 +117,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 55,
+  "absent": 49,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -232,8 +232,8 @@
   },
   "PHI": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 4,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -265,17 +265,6 @@
      "participation": "QUESTIONABLE"
     },
     {
-     "playerId": "nfl-athlete-4241478",
-     "name": "DeVonta Smith",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
-    },
-    {
      "playerId": "nfl-athlete-4429013",
      "name": "Tank Bigsby",
      "state": "PROJECTED",
@@ -294,18 +283,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
-    },
-    {
-     "playerId": "nfl-athlete-4428850",
-     "name": "Dontayvion Wicks",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4870795",
@@ -370,6 +348,18 @@
      "name": "Jalen Hurts",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-4241478",
+     "name": "DeVonta Smith",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-4428850",
+     "name": "Dontayvion Wicks",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4431545",
@@ -466,10 +456,10 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.463,
-    "originalSum": 0.463,
-    "residualOther": 0.537,
-    "joined": 4,
+    "sum": 0.6486,
+    "originalSum": 0.6486,
+    "residualOther": 0.3514,
+    "joined": 5,
     "missed": 0,
     "state": "UNDER_ALLOCATED"
    }
@@ -556,36 +546,6 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4241478",
-   "name": "DeVonta Smith",
-   "team": "PHI",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 51.159,
-     "p10": 10.41,
-     "p25": 24.74,
-     "median": 44.82,
-     "p75": 71.45,
-     "p90": 100.55,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 6.462,
-     "p10": 2,
-     "p25": 4,
-     "median": 6,
-     "p75": 9,
-     "p90": 12,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.3712,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4241389",
    "name": "CeeDee Lamb",
    "team": "DAL",
@@ -658,7 +618,7 @@
    "playerId": "nfl-athlete-3121023",
    "name": "Dallas Goedert",
    "team": "PHI",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 30.265,
@@ -752,36 +712,6 @@
     },
     "anytime_td": {
      "probability": 0.2268,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4428850",
-   "name": "Dontayvion Wicks",
-   "team": "PHI",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 29.496,
-     "p10": 0,
-     "p25": 8.38,
-     "median": 23.34,
-     "p75": 43.4,
-     "p90": 67.13,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 3.505,
-     "p10": 1,
-     "p25": 2,
-     "median": 3,
-     "p75": 5,
-     "p90": 7,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.2119,
      "pricingState": "NOT_PROBED"
     }
    }

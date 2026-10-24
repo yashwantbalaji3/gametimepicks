@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-24T18:00:47Z",
- "sourceGeneratedAt": "2026-10-24T18:00:47Z",
+ "generatedAt": "2026-10-24T22:55:18Z",
+ "sourceGeneratedAt": "2026-10-24T22:55:18Z",
  "providerEventId": "401873014",
  "matchup": "IND @ MIN",
  "kickoffUtc": "2026-10-25T17:00Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-24T18:00:47Z",
-  "roleEvidenceAt": "2026-10-24T18:00:47Z",
+  "injuriesCapturedAt": "2026-10-24T22:55:18Z",
+  "roleEvidenceAt": "2026-10-24T22:55:18Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -86,7 +86,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 56,
+  "absent": 58,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -254,8 +254,8 @@
   },
   "MIN": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 1,
@@ -298,6 +298,16 @@
      "families": [
       "anytime_td",
       "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4360569",
+     "name": "Jordan Mason",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
@@ -374,12 +384,6 @@
       "anytime_td"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4360569",
-     "name": "Jordan Mason",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Injured Reserve"
     },
     {
      "playerId": "nfl-athlete-3921690",
@@ -631,6 +635,27 @@
     },
     "anytime_td": {
      "probability": 0.3267,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4360569",
+   "name": "Jordan Mason",
+   "team": "MIN",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 33.049,
+     "p10": 5.65,
+     "p25": 13.6,
+     "median": 27.78,
+     "p75": 46.54,
+     "p90": 68.22,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.2969,
      "pricingState": "NOT_PROBED"
     }
    }

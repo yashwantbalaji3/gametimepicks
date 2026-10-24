@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-24T18:00:47Z",
- "sourceGeneratedAt": "2026-10-24T18:00:47Z",
+ "generatedAt": "2026-10-24T22:55:18Z",
+ "sourceGeneratedAt": "2026-10-24T22:55:18Z",
  "providerEventId": "401873020",
  "matchup": "GB @ DET",
  "kickoffUtc": "2026-10-25T20:25Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-24T18:00:47Z",
-  "roleEvidenceAt": "2026-10-24T18:00:47Z",
+  "injuriesCapturedAt": "2026-10-24T22:55:18Z",
+  "roleEvidenceAt": "2026-10-24T22:55:18Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -132,14 +132,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 52,
+  "absent": 54,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "GB": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 3,
+    "PROJECTED": 12,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -235,6 +235,16 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-3149687",
+     "name": "Chris Brooks",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
      "playerId": "nfl-athlete-4362249",
      "name": "Jayden Reed",
      "state": "PROJECTED",
@@ -263,12 +273,6 @@
       "anytime_td"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-3149687",
-     "name": "Chris Brooks",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Injured Reserve"
     },
     {
      "playerId": "nfl-athlete-4428085",
@@ -920,6 +924,27 @@
     },
     "anytime_td": {
      "probability": 0.1449,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3149687",
+   "name": "Chris Brooks",
+   "team": "GB",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 9.423,
+     "p10": 0,
+     "p25": 0,
+     "median": 4.3,
+     "p75": 13.83,
+     "p90": 26.55,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.1408,
      "pricingState": "NOT_PROBED"
     }
    }

@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-24T18:00:47Z",
- "sourceGeneratedAt": "2026-10-24T18:00:47Z",
+ "generatedAt": "2026-10-24T22:55:18Z",
+ "sourceGeneratedAt": "2026-10-24T22:55:18Z",
  "providerEventId": "401873011",
  "matchup": "PIT @ NO",
  "kickoffUtc": "2026-10-25T13:30Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-24T18:00:47Z",
-  "roleEvidenceAt": "2026-10-24T18:00:47Z",
+  "injuriesCapturedAt": "2026-10-24T22:55:18Z",
+  "roleEvidenceAt": "2026-10-24T22:55:18Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -153,14 +153,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 58,
+  "absent": 61,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "PIT": {
    "counts": {
-    "PROJECTED": 9,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -225,6 +225,17 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-4035687",
+     "name": "Michael Pittman Jr.",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
      "playerId": "nfl-athlete-4430802",
      "name": "Darnell Washington",
      "state": "PROJECTED",
@@ -266,12 +277,6 @@
     {
      "playerId": "nfl-athlete-4431492",
      "name": "Roman Wilson",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Injured Reserve"
-    },
-    {
-     "playerId": "nfl-athlete-4035687",
-     "name": "Michael Pittman Jr.",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
     },
@@ -534,10 +539,10 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.7724,
-    "originalSum": 0.7724,
-    "residualOther": 0.2276,
-    "joined": 5,
+    "sum": 0.8884,
+    "originalSum": 0.8884,
+    "residualOther": 0.1116,
+    "joined": 6,
     "missed": 0,
     "state": "CONSERVED"
    }
@@ -948,6 +953,36 @@
     },
     "anytime_td": {
      "probability": 0.1946,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4035687",
+   "name": "Michael Pittman Jr.",
+   "team": "PIT",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 22.466,
+     "p10": 0,
+     "p25": 3.98,
+     "median": 16.39,
+     "p75": 33.68,
+     "p90": 53.93,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 2.6292,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.1696,
      "pricingState": "NOT_PROBED"
     }
    }

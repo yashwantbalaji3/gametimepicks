@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-24T18:00:47Z",
- "sourceGeneratedAt": "2026-10-24T18:00:47Z",
+ "generatedAt": "2026-10-24T22:55:18Z",
+ "sourceGeneratedAt": "2026-10-24T22:55:18Z",
  "providerEventId": "401873017",
  "matchup": "SF @ ATL",
  "kickoffUtc": "2026-10-25T17:00Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-24T18:00:47Z",
-  "roleEvidenceAt": "2026-10-24T18:00:47Z",
+  "injuriesCapturedAt": "2026-10-24T22:55:18Z",
+  "roleEvidenceAt": "2026-10-24T22:55:18Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -85,7 +85,29 @@
    "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
   }
  },
- "newArrivals": {},
+ "newArrivals": {
+  "SF": [
+   {
+    "playerId": "nfl-athlete-3895856",
+    "name": "Christian Kirk",
+    "position": "WR",
+    "team": "SF",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "HOU",
+     "games": 14,
+     "targetsPg": 4.9,
+     "receptionsPg": 2.9,
+     "recYdsPg": 29.7,
+     "rushAttPg": 0,
+     "rushYdsPg": 0,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "no game for SF yet this season, so his role there is not yet observed and he is not in this game's numbers; his HOU history is kept only as a historical prior"
+   }
+  ]
+ },
  "arrivalsShadowed": 0,
  "departedFiltered": 0,
  "practiceSquadFiltered": 0,
@@ -112,7 +134,7 @@
     "PROJECTED": 10,
     "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
-    "WITHHELD_ROLE_UNCERTAIN": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
@@ -241,6 +263,12 @@
      "name": "Demarcus Robinson",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-3895856",
+     "name": "Christian Kirk",
+     "state": "WITHHELD_ROLE_UNCERTAIN",
+     "reason": "no game for SF yet this season — role at SF not yet observed"
     }
    ]
   },
