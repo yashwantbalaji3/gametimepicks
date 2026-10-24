@@ -459,6 +459,7 @@ export default function NbaResultsPage() {
                     decisive={decisive}
                     hitRate={hitRate}
                     rows={detailRows}
+                    sport="nba"
                     tone="gold"
                     defaultOpen={false}
                   />

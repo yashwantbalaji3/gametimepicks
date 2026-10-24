@@ -627,6 +627,7 @@ function NbaGameGroups({
               decisive={decisive}
               hitRate={hitRate}
               rows={detailRows}
+              sport="nba"
               tone="gold"
               defaultOpen={ordered.length === 1}
             />
@@ -702,6 +703,7 @@ function MlbGameGroups({
               decisive={decisive}
               hitRate={hitRate}
               rows={detailRows}
+              sport="mlb"
               tone="success"
             />
             </div>

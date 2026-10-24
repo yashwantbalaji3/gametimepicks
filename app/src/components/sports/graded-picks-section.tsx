@@ -85,7 +85,7 @@ export default function GradedPicksSection({ record, rows = 6, href }: { record:
                 <td className="py-2 pr-3" style={{ color: "var(--vault-text)" }}>
                   {/* The subject IS the matchup ("DET @ IND"), so the row can wear both clubs. */}
                   <span className="inline-flex items-center gap-1.5">
-                    <MatchupCrests matchup={p.subject} size="sm" />
+                    <MatchupCrests matchup={p.subject} sport={record.sport} size="sm" />
                     <span>{p.subject}</span>
                   </span>
                 </td>
