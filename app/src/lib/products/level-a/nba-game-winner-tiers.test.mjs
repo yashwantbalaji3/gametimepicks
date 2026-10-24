@@ -42,12 +42,16 @@ test("the real lane gives enough NBA game-winner legs to exercise the rule", () 
   for (const l of REAL) assert.match(receiptOf(l.eventId)?.payloadSha256 ?? "", /^[0-9a-f]{64}$/, `${l.eventId}: the side's own receipt hash, for the §1.4 cross-check`);
 });
 
-test("SWITCH: its own committed constant, default false, separate from the Level A switch; only \"1\" overrides", () => {
-  assert.equal(NBA_GAME_WINNER_TIERS_PUBLIC, false);
-  assert.equal(nbaGameWinnerTiersEnabled({}), false);
+test("SWITCH: its own committed constant (one file), separate from the Level A switch; only \"1\" overrides; works either way", () => {
+  assert.equal(typeof NBA_GAME_WINNER_TIERS_PUBLIC, "boolean");
+  const defs = [];
+  const walk = (d) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const f = path.join(d, e.name); if (e.isDirectory()) walk(f); else if (/\.(mjs|ts|tsx)$/.test(e.name) && !/\.test\./.test(e.name) && /export const NBA_GAME_WINNER_TIERS_PUBLIC\b/.test(fs.readFileSync(f, "utf8"))) defs.push(path.relative(process.cwd(), f)); } };
+  walk(path.resolve(process.cwd(), "src"));
+  assert.deepEqual(defs, ["src/lib/products/level-a/nba-game-winner-tiers.mjs"], "the switch is defined in exactly one file");
+  assert.equal(nbaGameWinnerTiersEnabled({}), NBA_GAME_WINNER_TIERS_PUBLIC, "with no override the constant decides");
   assert.equal(nbaGameWinnerTiersEnabled({ NEXT_PUBLIC_NBA_GAME_WINNER_TIERS: "1" }), true);
-  assert.equal(nbaGameWinnerTiersEnabled({ NEXT_PUBLIC_NBA_GAME_WINNER_TIERS: "true" }), false);
-  assert.equal(LEVEL_A_SUGGESTIONS_PUBLIC, true, "Level A being public does not open NBA tiers");
+  assert.equal(nbaGameWinnerTiersEnabled({ NEXT_PUBLIC_NBA_GAME_WINNER_TIERS: "true" }), NBA_GAME_WINNER_TIERS_PUBLIC, "only exactly \"1\" overrides");
+  assert.equal(LEVEL_A_SUGGESTIONS_PUBLIC, true, "Level A is public; the NBA tiers have their OWN switch either way");
 });
 
 test("LEG REFUSALS: no published probability, provenance mismatch, side disagreement, bad value, not NBA game-winner", () => {
@@ -143,7 +147,8 @@ test("RECORDING: tiered NBA cards are recordable only while the public switch is
   assert.ok(off.tiers.some((t) => t.card), "the rule still evaluates for tests and previews");
   assert.deepEqual(recordableNbaGameWinnerCards(off), [], "recording a card while the switch is OFF is a failure");
   assert.equal(recordableNbaGameWinnerCards(on).length, on.tiers.filter((t) => t.card).length + (on.bankBuilder.card ? 1 : 0) + (on.moonshot.card ? 1 : 0), "Parlay Center tiers, Bank Builder and Moonshot");
-  assert.deepEqual(recordableNbaGameWinnerCards(nbaGameWinnerTiers({ receiptOf, legs, accessor: acc })), [], "the default is the committed switch: off");
+  const byDefault = recordableNbaGameWinnerCards(nbaGameWinnerTiers({ receiptOf, legs, accessor: acc }));
+  assert.equal(byDefault.length, NBA_GAME_WINNER_TIERS_PUBLIC ? recordableNbaGameWinnerCards(on).length : 0, "the default follows the committed switch exactly");
 });
 
 test("SOURCE: the rule reads no receipt probability, simulation, market or file", () => {

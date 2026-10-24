@@ -58,7 +58,8 @@ test("ADAPTER: the receipt's exact p for the joint, the display's own text for t
   const off = nbaGameWinnerDisplay({ repoRoot: REPO, date: DAY, ctx: CTX_OFF, lane: LANE_ON });
   assert.equal(off.enabled, false);
   assert.ok(LANE_ON.games.every((g) => off.accessor(g.providerEventId) === null), "the display's switch OFF: no probability for any game");
-  assert.equal(nbaGameWinnerDisplay({ repoRoot: REPO, date: DAY, ctx: CTX_ON, lane: LANE }).accessor(LANE.games[0].providerEventId), null, "a lane published without the field: nothing");
+  const noField = { ...LANE, games: LANE.games.map((g) => { const { winProbability, ...elo } = g.elo ?? {}; return { ...g, elo }; }) };
+  assert.equal(nbaGameWinnerDisplay({ repoRoot: REPO, date: DAY, ctx: CTX_ON, lane: noField }).accessor(LANE.games[0].providerEventId), null, "a lane published without the field: nothing");
   const src = fs.readFileSync(path.resolve(process.cwd(), "src/lib/products/level-a/nba-game-winner-source.mjs"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
   assert.match(src, /eloWinProbabilityOf\(g, \{ enabled: c\.enabled \}\)/, "the display's own switch, never a literal true");
   assert.doesNotMatch(src, /enabled: true/);
@@ -81,11 +82,22 @@ test("CARDS: joint = product of the receipts' exact p; each shown leg % is the d
 });
 
 test("SWITCHES: this rule OFF, or the display OFF, leaves the model byte-identical (no key, no note changed)", () => {
-  assert.equal(NBA_GAME_WINNER_TIERS_PUBLIC, false);
-  const base = JSON.stringify(buildLevelAModel({ repoRoot: REPO, now: NOW, productDay: DAY }));
+  /* The OFF baseline is explicit (enabled:false), so this holds whichever way the committed switch is set. */
+  const base = JSON.stringify(buildLevelAModel({ repoRoot: REPO, now: NOW, productDay: DAY, nbaGameWinners: { enabled: false } }));
   assert.equal(JSON.stringify(buildLevelAModel({ repoRoot: REPO, now: NOW, productDay: DAY, nbaGameWinners: { enabled: false, display: on().display } })), base);
   assert.equal(JSON.stringify(buildLevelAModel({ repoRoot: REPO, now: NOW, productDay: DAY, nbaGameWinners: { enabled: true, display: nbaGameWinnerDisplay({ repoRoot: REPO, date: DAY, ctx: CTX_OFF, lane: LANE_ON }) } })), base, "display OFF removes every tier with no other change");
   assert.equal("nbaGameWinners" in JSON.parse(base), false);
+  /* ON: the committed default is exactly the switch's model — the rule's block with the real display when the switch is
+     true, the OFF baseline when it is false. And ON differs from OFF only by the block and the NBA notes it owns. */
+  const def = buildLevelAModel({ repoRoot: REPO, now: NOW, productDay: DAY });
+  const onReal = buildLevelAModel({ repoRoot: REPO, now: NOW, productDay: DAY, nbaGameWinners: { enabled: true } });
+  assert.equal(JSON.stringify(def), NBA_GAME_WINNER_TIERS_PUBLIC ? JSON.stringify(onReal) : base);
+  const offM = JSON.parse(base);
+  const { nbaGameWinners: block, ...rest } = MODEL_ON;
+  assert.ok(block?.public === true);
+  const restNotes = { ...rest, untiered: rest.untiered.map((l) => (l.probabilityNote === NBA_GW_LEG_NOTE ? { ...l, probabilityNote: offM.untiered.find((o) => o.eventId === l.eventId)?.probabilityNote } : l)) };
+  const offWithSameLane = JSON.parse(JSON.stringify(buildLevelAModel({ repoRoot: REPO, now: NOW, productDay: DAY, nbaGameWinners: { enabled: false } })));
+  assert.deepEqual(JSON.parse(JSON.stringify(restNotes)), offWithSameLane, "switch ON changes nothing but the NBA block and the notes of sides that can tier");
 });
 
 test("NOTE: with both on, a side that can appear in an NBA card no longer says it does not tier", () => {
@@ -132,7 +144,9 @@ test("RECORD: tiered NBA cards are recorded only while public; never with the sw
   assert.ok(nba.some((r) => r.policy === NBA_GW_POLICIES.parlayLab));
   for (const r of nba) assert.ok(r.legs.every((l) => l.sport === "nba" && typeof l.probability === "number"));
   assert.equal(recordEntries({ ...MODEL_ON, nbaGameWinners: { ...MODEL_ON.nbaGameWinners, public: false } }, { recordedAt: NOW }).filter((r) => r.policy.startsWith(NBA_GW_POLICY)).length, 0);
-  assert.equal(recordEntries(buildLevelAModel({ repoRoot: REPO, now: NOW, productDay: DAY }), { recordedAt: NOW }).filter((r) => r.policy.startsWith(NBA_GW_POLICY)).length, 0, "the committed default (switch OFF) records none");
+  assert.equal(recordEntries(buildLevelAModel({ repoRoot: REPO, now: NOW, productDay: DAY, nbaGameWinners: { enabled: false } }), { recordedAt: NOW }).filter((r) => r.policy.startsWith(NBA_GW_POLICY)).length, 0, "switch OFF records none");
+  const def = buildLevelAModel({ repoRoot: REPO, now: NOW, productDay: DAY });
+  assert.equal(recordEntries(def, { recordedAt: NOW }).filter((r) => r.policy.startsWith(NBA_GW_POLICY)).length, NBA_GAME_WINNER_TIERS_PUBLIC ? recordableNbaGameWinnerCards(def.nbaGameWinners).length : 0, "the committed default records exactly what its switch shows");
 });
 
 test("TOO_CLOSE: a game with no favoured side has no leg, even with a published 50/50", () => {
@@ -208,7 +222,7 @@ test("SWITCH FALSE ON AN ELO SLATE (H1 lands before the 10-24 publish): untiered
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "levela-elo-"));
   fs.mkdirSync(path.join(root, "app/public/data/nba/experimental-public"), { recursive: true });
   fs.writeFileSync(path.join(root, `app/public/data/nba/experimental-public/${DAY}.json`), JSON.stringify(LANE_ON));
-  const model = buildLevelAModel({ repoRoot: root, now: NOW, productDay: DAY });
+  const model = buildLevelAModel({ repoRoot: root, now: NOW, productDay: DAY, nbaGameWinners: { enabled: false } });
   assert.equal("nbaGameWinners" in model, false, "switch false: no NBA game-winner block in the model");
   const nba = model.untiered.filter((l) => l.sport === "nba");
   assert.ok(nba.length >= 5);

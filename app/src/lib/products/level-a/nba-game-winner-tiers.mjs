@@ -19,7 +19,7 @@
  * @property {string} label                the display's name for the number (its ELO_WIN_PROBABILITY_LABEL), passed through
  * @property {string} source               the display's provenance line
  *
- * Switch: NBA_GAME_WINNER_TIERS_PUBLIC (default false), separate from LEVEL_A_SUGGESTIONS_PUBLIC.
+ * Switch: NBA_GAME_WINNER_TIERS_PUBLIC, separate from LEVEL_A_SUGGESTIONS_PUBLIC (on since Release H, 2026-10-24).
  */
 import { PUBLIC_RISK_TIERS, PUBLIC_RISK_LABELS } from "../../parlays/risk-odds-bands.mjs";
 import { BAND_MAX_LEGS } from "../../parlays/multi-sport.mjs";
@@ -28,8 +28,9 @@ import { jointShownFor, tierForJoint } from "./suggestions.mjs";
 export const NBA_GW_POLICY = "nba-game-winner-tiers@1";
 export const NBA_GW_RULE_DOC = "docs/LEVEL_A_NBA_GAME_WINNER_TIERING_RULE.md";
 
-/** THE SWITCH. One committed constant, default false; flipped only after §7 verification and a founder go. */
-export const NBA_GAME_WINNER_TIERS_PUBLIC = false;
+/** THE SWITCH. One committed constant. Flipped to true in Release H (2026-10-24) after the §7 evidence on the committed
+ *  10-24 lane matched (founder conditional approval 2026-10-23: no further routine go). Rollback = set it back to false. */
+export const NBA_GAME_WINNER_TIERS_PUBLIC = true;
 export const NBA_GW_FLAG = "NEXT_PUBLIC_NBA_GAME_WINNER_TIERS";
 export const nbaGameWinnerTiersEnabled = (env = { [NBA_GW_FLAG]: process.env.NEXT_PUBLIC_NBA_GAME_WINNER_TIERS }) => NBA_GAME_WINNER_TIERS_PUBLIC || env[NBA_GW_FLAG] === "1";
 

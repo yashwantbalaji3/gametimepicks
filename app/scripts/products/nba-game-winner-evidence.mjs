@@ -75,7 +75,11 @@ export function evidence({ day, now, simulateDisplay = false, repoRoot = REPO })
     bankBuilder: expectedCard(block.bankBuilder, "/bank-builder/"),
     moonshot: expectedCard(block.moonshot, "/moonshot/"),
   } : null;
-  const off = JSON.stringify(buildLevelAModel({ repoRoot, now, productDay: day, nbaGameWinners: { enabled: false } })) === JSON.stringify(buildLevelAModel({ repoRoot, now, productDay: day }));
+  /* Switch OFF (explicit) and display OFF must both give exactly the model without this rule; independent of the
+     committed switch's value. */
+  const offModel = JSON.stringify(buildLevelAModel({ repoRoot, now, productDay: day, nbaGameWinners: { enabled: false } }));
+  const displayOff = nbaGameWinnerDisplay({ repoRoot, date: day, ctx: { ...ctx, enabled: false }, lane: laneUsed });
+  const off = offModel === JSON.stringify(buildLevelAModel({ repoRoot, now, productDay: day, nbaGameWinners: { enabled: true, display: displayOff } }));
   return {
     ok: true, day, now, display: simulateDisplay ? "SIMULATED (the display's own publisher over the real receipts; its switch is not on yet)" : realCtx.enabled ? "LIVE (the display's committed switch is on)" : "OFF (the display's switch is off: no tiers)",
     legs, block: block ? { public: block.public, untiered: block.untiered.map((u) => `${u.leg.eventId} ${u.code}`), disclosure: block.disclosure } : null,
