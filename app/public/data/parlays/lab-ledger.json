@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "parlay-lab-ledger",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-23T16:02:10Z",
+ "generatedAt": "2026-10-24T09:22:08Z",
  "moneyClass": "PAPER_ONLY",
  "note": "Paper stream with its own ledger. Never part of the Bank Builder / Moonshot bankroll or the settled product record.",
  "policy": {
@@ -15,11 +15,11 @@
    "id": "mlb",
    "label": "MLB",
    "live": false,
-   "blocked": "only 1 priced game — the ladder needs 4",
+   "blocked": "no price capture for 2026-10-24 yet — the sport's own generation runs later in the day (newest capture 2026-10-23); only 0 priced games — the ladder needs 4",
    "evidence": {
-    "pricedGames": 1,
-    "pricesCapturedAt": "2026-10-23T09:30:19.876Z",
-    "priceAgeDays": 0.27,
+    "pricedGames": 0,
+    "pricesCapturedAt": null,
+    "priceAgeDays": null,
     "settlementSource": "MLB Stats API official box score",
     "settlementProven": true,
     "capabilityGated": false
@@ -81,7 +81,7 @@
    "evidence": {
     "pricedGames": 0,
     "pricesCapturedAt": "2026-10-11T11:41:55Z",
-    "priceAgeDays": 12.18,
+    "priceAgeDays": 12.9,
     "settlementSource": "official NFL final scores",
     "settlementProven": true,
     "capabilityGated": false
@@ -143,7 +143,7 @@
    "evidence": {
     "pricedGames": 13,
     "pricesCapturedAt": "2026-10-22T15:45:46Z",
-    "priceAgeDays": 1.01,
+    "priceAgeDays": 1.73,
     "settlementSource": "official UFC bout results through the lab's own settled receipts",
     "settlementProven": true,
     "capabilityGated": true
@@ -202,9 +202,9 @@
    "label": "Premier League",
    "live": true,
    "evidence": {
-    "pricedGames": 21,
-    "pricesCapturedAt": "2026-10-22T23:59:29Z",
-    "priceAgeDays": 0.67,
+    "pricedGames": 20,
+    "pricesCapturedAt": "2026-10-23T23:47:38Z",
+    "priceAgeDays": 0.4,
     "settlementSource": "official full-time results, graded through the EPL settlement contract",
     "settlementProven": true,
     "capabilityGated": false
@@ -262,7 +262,7 @@
    "id": "multi",
    "label": "Multi-sport",
    "live": false,
-   "blocked": "a cross-sport card needs two live sports; only Premier League is cleared",
+   "blocked": "a cross-sport card needs two sports with an open suggested-card lane; only Premier League's lane is open (Bank Builder and Moonshot use a separate, stricter gate)",
    "evidence": {
     "liveSports": [
      "epl"
