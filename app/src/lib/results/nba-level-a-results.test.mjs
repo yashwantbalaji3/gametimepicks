@@ -193,7 +193,7 @@ test("🔴 page weight: /results/nba lists the newest 7 days game by game; every
 test("🔴 every NBA lane day has a statically generated day page carrying its games", async () => {
   const page = fs.readFileSync(path.join(process.cwd(), "src/app/results/date/[date]/page.tsx"), "utf8");
   assert.match(page, /\.\.\.nbaOfficialForecastDates\(\)[^\n]*\]\)\)\.sort\(\)/, "generateStaticParams enumerates the lane days");
-  assert.match(page, /dayDates = new Set\(\[[^\n]*\.\.\.nbaOfficialForecastDates\(\)\]\)/, "the 404 gate accepts a lane day");
+  assert.match(page, /dayDates = new Set\(\[[^\n]*\.\.\.nbaOfficialForecastDates\(\)[^\n]*\]\)/, "the 404 gate accepts a lane day");
   assert.match(page, /<NbaForecastVsActual view=\{nbaForecastVsActualView\(\)\} date=\{date\} \/>/);
   const { nbaOfficialForecastDates } = await import("./nba-level-a-readers.ts");
   const dates = nbaOfficialForecastDates();

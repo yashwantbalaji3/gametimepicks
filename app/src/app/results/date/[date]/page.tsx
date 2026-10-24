@@ -48,7 +48,7 @@ export function generateStaticParams() {
   // A frozen Top-5 day gets its page before any result exists — the board is published pre-kickoff.
   // G-4: a day with a product receipt (Bank Builder / Moonshot) has a page too.
   // 2026-10-24: a day with a published NBA official forecast has a page — /results/nba links each earlier day here.
-  const all = Array.from(new Set([...nbaDates, ...mlbDates, ...suggestedCardDates(), ...nbaOfficialForecastDates(), ...resultsDayDates(), ...topBoardDates(), ...productReceiptDates()])).sort();
+  const all = Array.from(new Set([...nbaDates, ...mlbDates, ...nbaOfficialForecastDates(), ...suggestedCardDates(), ...resultsDayDates(), ...topBoardDates(), ...productReceiptDates()])).sort();
   return all.map((date) => ({ date }));
 }
 
@@ -76,7 +76,7 @@ export default function ResultsDatePage({ params }: PageProps) {
   const nbaAllDates = new Set(getAvailableSettlementDates());
   const mlbAllDates = new Set(getMlbAvailableResultDates().dates ?? []);
   const date = params.date;
-  const dayDates = new Set([...resultsDayDates(), ...topBoardDates(), ...productReceiptDates(), ...suggestedCardDates(), ...nbaOfficialForecastDates()]);
+  const dayDates = new Set([...nbaOfficialForecastDates(), ...resultsDayDates(), ...topBoardDates(), ...productReceiptDates(), ...suggestedCardDates()]);
   const hasAny = nbaAllDates.has(date) || mlbAllDates.has(date) || dayDates.has(date);
   if (!hasAny) {
     notFound();
