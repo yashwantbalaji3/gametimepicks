@@ -28,7 +28,7 @@
  * data rule folds the fetched 2026-27 box scores but not the finals record (its Elo is v0.1's), and it ALIGNS WITH v0.1:
  * a game is frozen only where v0.1's receipt was generated at this --now from the same roster / injury / schedule
  * inputs (NOT_ALIGNED otherwise, exit 0) — so it must run after v0.1 in the same run, with the same --now.
- * CANDIDATE families (experimental-forecast.mjs CANDIDATE_FAMILIES, armed: false; none today) are resolvable by name only
+ * CANDIDATE families (experimental-forecast.mjs CANDIDATE_FAMILIES, armed: false; v0.4 today) are resolvable by name only
  * and never walked by the pipeline; --write without --out, or an --out inside a forecasts/ directory, is REFUSED for them.
  * --schedule-file / --rosters-file / --injuries-file (research replay of a past instant's exact inputs) require --out
  * outside the repository.
