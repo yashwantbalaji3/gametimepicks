@@ -558,6 +558,18 @@ jobs:
           done
           echo "state=$STATE" >> "$GITHUB_OUTPUT"
 
+      # Release H1a (2026-10-24, NBA model session's text): the §14 evaluator + champion/challenger, report only — gates
+      # nothing, never fails the job. Public repo: keep only champion-challenger/<date>.json and the per-family markdown.
+      - name: NBA model diagnostics + champion/challenger (report only; gates nothing)
+        if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' }}
+        working-directory: app
+        continue-on-error: true
+        run: |
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          npx tsx scripts/nba/nba-model-diagnostics.mjs --family all --now "$NOW" --write \
+            || echo "::warning::NBA diagnostics failed — report only, nothing gated"
+          find ../data/internal/research/nba/reports/diagnostics -name '*.json' -delete 2>/dev/null || true
+
       - name: Commit NBA shadow ledgers (v0.2, v1) if changed
         if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' && steps.nbagradeshadow.outcome == 'success' }}
         run: |
@@ -570,6 +582,22 @@ jobs:
           done
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           git commit -m "auto: nba shadow ledgers v0.2 + v1 (private research) [skip ci]"
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main
+
+      - name: Commit NBA model diagnostics reports if changed
+        if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' }}
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Report files only (champion-challenger JSON + per-family markdown); each path only if it exists.
+          for F in reports/champion-challenger reports/diagnostics; do
+            if [ -e "data/internal/research/nba/$F" ]; then git add "data/internal/research/nba/$F"; fi
+          done
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "auto: nba model diagnostics + champion/challenger (report only) [skip ci]"
           git pull --rebase --autostash origin main
           git push origin HEAD:main
 

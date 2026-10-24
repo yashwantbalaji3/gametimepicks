@@ -362,7 +362,8 @@ export const NBA_V01_SUPPORT_NOTE = "continuous draws of a counting stat, read a
  * (every slate @1, every id and artifact byte-identical); the release owner sets it at merge to a slate not yet built.
  */
 export const NBA_SNAPSHOT_ID_RULE = Object.freeze({ V1: "nba-snapshot-id@1", V2: "nba-snapshot-id@2" });
-export const NBA_SNAPSHOT_ID_V2_FROM = null;
+// Release H1a (2026-10-24): @2 from the 10-25 slate (first slate not yet built). Every earlier slate stays @1.
+export const NBA_SNAPSHOT_ID_V2_FROM = "2026-10-25";
 const ET_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" });
 const gameEtDate = (g) => (typeof g?.etDate === "string" ? g.etDate : Number.isFinite(Date.parse(g?.dateUtc ?? "")) ? ET_DAY.format(new Date(g.dateUtc)) : null);
 /** The rule for a slate date (YYYY-MM-DD ET). Pure. */
