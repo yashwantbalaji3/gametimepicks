@@ -585,11 +585,12 @@ jobs:
           git pull --rebase --autostash origin main
           git push origin HEAD:main
 
+      # A failed push here is VISIBLE (::error + a $REFUSALS entry, so "Fail the run if any capture refused" reddens the
+      # run) without skipping the later NFL/UFC steps, several of which have no !cancelled() guard.
       - name: Commit NBA model diagnostics reports if changed
         if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' }}
-        continue-on-error: true
         run: |
-          set -euo pipefail
+          set -uo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Report files only (champion-challenger JSON + per-family markdown); each path only if it exists.
@@ -598,8 +599,12 @@ jobs:
           done
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           git commit -m "auto: nba model diagnostics + champion/challenger (report only) [skip ci]"
-          git pull --rebase --autostash origin main
-          git push origin HEAD:main
+          if git pull --rebase --autostash origin main && git push origin HEAD:main; then
+            echo "pushed"
+          else
+            echo "::error::NBA model diagnostics reports were not pushed"
+            echo "NBA diagnostics reports push" >> "$REFUSALS"
+          fi
 
       # NBA PLAYER-PROP FORWARD SHADOW GRADING (#1169; founder D6, 2026-10-21). Grades the frozen OFFICIAL v0.1 rows
       # (7 families) against the box scores the graders above fetched, with each frozen median as a SYNTHETIC_MEDIAN_LINE
