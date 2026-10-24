@@ -19,7 +19,7 @@ process.env.__NEXT_TRAILING_SLASH = "true"; // next.config.mjs trailingSlash: tr
 globalThis.React = React; // the lane card renders TeamLogo, which compiles with the classic JSX runtime under tsx (as nba-hub.test.mjs)
 
 import {
-  buildExperimentalSnapshot, snapshotMatchesSource, comboReconciliation, laneIsCurrent,
+  buildExperimentalSnapshot, snapshotMatchesSource, comboReconciliation, laneIsCurrent, unavailablePlayersForPublish,
   STATS, PROJECTION_BOARD_STATS, COMBO_STATS, COMBO_COMPONENTS, COMBO_LABEL, AMENDMENT_A, LANE, WITHHELD,
 } from "./experimental-public-lane.mjs";
 import { COMBO_KEYS } from "./game-sim.mjs";
@@ -35,7 +35,7 @@ const PUB_TEXT = fs.readFileSync(path.join(APP, PUB_REL), "utf8");
 const PUB = JSON.parse(PUB_TEXT);
 const r1 = (x) => Math.round(x * 10) / 10;
 // 10-20 is ALREADY PUBLISHED: rebuilds follow the publisher's Elo rule (switch-agnostic since Release G, never weaker)
-const snap = (doc = DOC) => buildExperimentalSnapshot({ forecastDoc: structuredClone(doc), sourceFile: "x", sourceCommit: null, generatedAt: "2026-10-20T17:20:00Z", eloWinProbability: eloWinProbabilityForPublish(PUB) });
+const snap = (doc = DOC) => buildExperimentalSnapshot({ forecastDoc: structuredClone(doc), sourceFile: "x", sourceCommit: null, generatedAt: "2026-10-20T17:20:00Z", eloWinProbability: eloWinProbabilityForPublish(PUB), unavailablePlayers: unavailablePlayersForPublish(PUB) });
 const srcPlayers = (g) => new Map([...g.forecast.players.away, ...g.forecast.players.home].map((p) => [String(p.providerAthleteId), p]));
 const byEvent = new Map(DOC.games.map((g) => [String(g.providerEventId), g]));
 
@@ -129,7 +129,7 @@ test("the 10-20 regeneration only ADDED fields: stripping them gives the pre-ame
   const newest = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().at(-1);
   assert.equal(fs.readFileSync(path.join(dir, "latest.json"), "utf8"), fs.readFileSync(path.join(dir, newest), "utf8"), `latest.json is the same bytes as the newest slate (${newest})`);
   // …and the committed file is exactly what the producer builds now.
-  const rebuilt = buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: PUB.source.file, sourceCommit: PUB.source.commit, generatedAt: PUB.generatedAt, eloWinProbability: eloWinProbabilityForPublish(PUB) });
+  const rebuilt = buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: PUB.source.file, sourceCommit: PUB.source.commit, generatedAt: PUB.generatedAt, eloWinProbability: eloWinProbabilityForPublish(PUB), unavailablePlayers: unavailablePlayersForPublish(PUB) });
   assert.equal(`${JSON.stringify(rebuilt, null, 1)}\n`, PUB_TEXT);
 });
 
