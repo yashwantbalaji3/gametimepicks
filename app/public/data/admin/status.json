@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-10-24T14:24:34.250Z",
+  "generatedAt": "2026-10-24T14:45:53.664Z",
   "canonical": {
     "record": "47-52",
     "bankroll": 14065.4,
@@ -105,15 +105,15 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-10-24",
-      "generatedAt": "2026-10-24T13:50:07Z",
+      "generatedAt": "2026-10-24T14:24:41Z",
       "sports": [
         {
           "sport": "epl",
           "state": "DERIVED",
           "counts": {
-            "scheduled": 18,
-            "priced": 18,
-            "generated": 8,
+            "scheduled": 16,
+            "priced": 16,
+            "generated": 6,
             "frozen": 0,
             "started": 0
           },
@@ -123,15 +123,17 @@
         },
         {
           "sport": "ufc",
-          "state": "DERIVED",
+          "state": "STARTED",
           "counts": {
-            "scheduled": 14,
-            "priced": 13,
-            "generated": 12,
+            "scheduled": 0,
+            "priced": 0,
+            "generated": 0,
             "frozen": 0,
             "started": 0
           },
-          "findings": []
+          "findings": [
+            "CARD_STARTED:UFC 333: Volkanovski vs. Evloev started 2026-10-24T14:00Z — no longer forward coverage"
+          ]
         },
         {
           "sport": "nfl",
@@ -209,16 +211,16 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-10-24T14:16:44.160Z",
-    "ageHours": 0.1,
-    "ok": false,
-    "status": "fail",
-    "phase": "daily-owner-slo"
+    "lastRunAt": "2026-10-24T14:45:52.850Z",
+    "ageHours": 0,
+    "ok": true,
+    "status": "pass",
+    "phase": "mlb-daily-production"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-10-24",
-    "etTime": "10:24",
+    "etTime": "10:45",
     "stages": [
       {
         "stage": "schedule",
