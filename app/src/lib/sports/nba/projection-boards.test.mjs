@@ -225,8 +225,12 @@ test("controls: native labelled select/input/button (keyboard), table scrolls in
   for (const name of ["Matchup", "Team", "Player", "Stat"]) assert.match(html, new RegExp(`<label[^>]*for="[^"]+"[^>]*>${name}<`), name);
   assert.equal((html.match(/<select /g) ?? []).length, 3);
   assert.match(html, /<input [^>]*type="search"/);
-  assert.equal((html.match(/<button type="button"[^>]*aria-label="Sort by /g) ?? []).length, 7, "one sort button per stat column");
-  assert.match(html, /class="overflow-x-auto max-w-full[^"]*"[^>]*tabindex="0" role="region"/);
+  assert.equal((html.match(/<button type="button"[^>]*aria-label="Sort by /g) ?? []).length, 8, "one sort button per stat column, plus minutes");
+  // The table scrolls in its own bounded box (founder mandate 2026-10-24): header row and player column stay in view.
+  assert.match(html, /class="overflow-auto max-h-\[75vh\] max-w-full[^"]*"[^>]*tabindex="0" role="region"/);
+  assert.match(html, /\[&amp;_thead_th\]:sticky/);
+  assert.match(html, /\[&amp;_tbody_th\]:sticky \[&amp;_tbody_th\]:left-0/);
+  assert.ok(!/min-h-\[32px\]/.test(html), "every button is a 44px target");
   assert.match(html, /vault-page-shell[^"]*overflow-x-hidden/);
   for (const rel of ["src/components/nba/projections-view.tsx", "src/components/nba/projection-board.tsx"]) {
     const code = fs.readFileSync(path.join(APP, rel), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");

@@ -142,11 +142,11 @@ test("render · postgame: Forecast beside Actual, frozen cells unchanged, dashes
   const acts = boardActuals(lane(), PROJECTION_BOARD_STATS, { boxscoreOf: boxes(), finals: finalsFor(PUB.games) });
   const html = render({ lane: lane(), role: "past", date: "2026-10-20", dates: ["2026-10-20"], dated: true, actuals: acts });
   const text = visibleText(html);
-  assert.match(text, /Forecast = Official Forecast \(frozen pregame\), shown exactly as frozen\. Actual = the player’s figure in the final box score/);
-  assert.match(text, /never a zero/);
+  assert.match(text, /Forecast vs\. Actual Forecast is the Official Forecast, frozen before tip-off and never changed\. Actual is the player’s figure in the final box score \(ESPN\), shown only after the official final is recorded/);
+  assert.match(text, /“awaiting final” means the game has no official final yet; a dash means did not play or not in the box score — never a zero/);
   const head = visibleText(html.slice(html.indexOf("<thead"), html.indexOf("</thead>"))).trim();
   assert.equal(head, "Player Team Min PTS REB AST 3PM Exp. Actual Forecast Actual Forecast Actual Forecast Actual Forecast Actual");
-  assert.equal((html.match(/aria-label="Sort by /g) ?? []).length, 8, "each frozen and each actual column sorts");
+  assert.equal((html.match(/aria-label="Sort by /g) ?? []).length, 10, "each frozen and each actual column sorts, and both minutes columns");
   assert.match(html, /<colgroup>/);
   const core = STATS.map(([k]) => k);
   const by = new Map();
@@ -257,6 +257,64 @@ test("weight: postgame adds a bounded per-row cost (actual cells + wire), not pe
   const wire = JSON.stringify(packBoard(boardRows(PUB, PROJECTION_BOARD_STATS), acts.rows).a).length;
   // Static markup only (the flight is measured on the built page): the core group's 4 pairs replace the 7 frozen
   // columns, so the HTML barely grows; legend + two-row head + colgroup are fixed.
-  assert.ok(post - pre < 1500 + rows * 25, `HTML +${post - pre} B for ${rows} rows`);
+  // Fixed: the Forecast vs. Actual heading + legend, the two-row head with its minutes sort buttons, the colgroup.
+  assert.ok(post - pre < 2000 + rows * 25, `HTML +${post - pre} B for ${rows} rows`);
   assert.ok(wire / rows < 30, `~${Math.round(wire / rows)} B of wire per row`);
+});
+
+/* ── public-readiness pass (founder mandate 2026-10-24) ─────────────────────────────────────────────────────────── */
+const detailsOf = (html) => html.slice(html.indexOf("<details"), html.indexOf("</details>"));
+const outsideDetails = (html) => html.slice(0, html.indexOf("<details")) + html.slice(html.indexOf("</details>"));
+
+test("consumer language: model ids, receipts and engine notes only inside Model details, each model id once", () => {
+  const acts = boardActuals(lane(), PROJECTION_BOARD_STATS, { boxscoreOf: boxes(), finals: finalsFor(PUB.games) });
+  for (const props of [{ lane: lane() }, { lane: lane(), role: "past", date: "2026-10-20", dated: true, actuals: acts }]) {
+    const html = render(props);
+    const out = visibleText(outsideDetails(html));
+    assert.doesNotMatch(out, /experimental|v0\.1|v0 engine|receipt|nba-preseason/i, "nothing model-internal outside Model details");
+    const det = visibleText(detailsOf(html));
+    assert.match(det, /^ ?Model details · freeze times, receipts and method · 3 games/);
+    assert.equal(det.split(PUB.games[0].receipt.modelVersion).length - 1, 2, "the model id once in the Model line, once in the Source line");
+    for (const g of PUB.games) assert.ok(det.includes(g.receipt.payloadSha256.slice(0, 12)), "each receipt hash stays");
+    assert.equal(html.split(PREDICTED_NOTE).length - 1, 1);
+  }
+});
+
+test("game navigation: one chip per game with its status; a chip toggles the game filter (aria-pressed)", () => {
+  const games = PUB.games.map((g, i) => ({ id: g.providerEventId, tipUtc: "2099-01-01T00:00Z", status: ["final", "started", "upcoming"][i], link: null }));
+  const html = render({ lane: lane(), games });
+  const chips = [...html.matchAll(/<button type="button" aria-pressed="(true|false)"[^>]*>(.*?)<\/button>/g)].map((m) => [m[1], visibleText(m[2]).trim()]);
+  assert.deepEqual(chips, PUB.games.map((g, i) => ["false", `${g.away.abbr} @ ${g.home.abbr} · ${["Final", "Started", "Upcoming"][i]}`]));
+  assert.match(html, /role="group" aria-label="Games: show one game"/);
+});
+
+test("Forecast vs. Actual: a finished slate without verified actuals says 'awaiting final box scores'; a row awaiting its final says so", () => {
+  const finalG = PUB.games.map((g) => ({ id: g.providerEventId, tipUtc: g.tipUtc, status: "final", link: null }));
+  const none = { games: Object.fromEntries(PUB.games.map((g) => [g.providerEventId, "no-boxscore"])), rows: {} };
+  const html = render({ lane: lane(), role: "past", date: "2026-10-20", games: finalG, dated: true, actuals: none });
+  assert.match(visibleText(html), /Forecast vs\. Actual: awaiting final box scores\. Each player’s actual figures appear beside the frozen Official Forecast once that game’s official final and box score are recorded\./);
+  assert.equal((visibleText(html).match(/· box score pending/g) ?? []).length, PUB.games.length, "each chip says why");
+  // Before tip-off nothing is due: no banner, no chip note.
+  const pre = render({ lane: lane(), games: PUB.games.map((g) => ({ id: g.providerEventId, tipUtc: "2099-01-01T00:00Z", status: "upcoming", link: null })), actuals: { games: Object.fromEntries(PUB.games.map((g) => [g.providerEventId, "no-final"])), rows: {} } });
+  assert.doesNotMatch(visibleText(pre), /awaiting|pending/);
+  // Mixed: one game recorded, one still without a final → that game's rows read "awaiting final", never a zero.
+  const acts = boardActuals(lane(), PROJECTION_BOARD_STATS, { boxscoreOf: boxes(), finals: finalsFor(PUB.games.slice(1)) });
+  assert.equal(acts.games[G0.providerEventId], "no-final");
+  const mixed = render({ lane: lane(), games: PUB.games.map((g, i) => ({ id: g.providerEventId, tipUtc: g.tipUtc, status: i ? "final" : "started", link: null })), actuals: acts });
+  const trs = cellsOf(mixed);
+  const g0Names = new Set(G0.players.away.concat(G0.players.home).map((r) => `${r.name}${r.injuryStatus ? ` · ${r.injuryStatus}` : ""}`));
+  const g0Rows = trs.filter((c) => g0Names.has(c[0]));
+  assert.equal(g0Rows.length, g0Names.size);
+  for (const c of g0Rows) { assert.equal(c[3], "awaiting final"); assert.ok(c.slice(4).filter((_, j) => j % 2 === 1).every((v) => v === "—"), "actual cells are dashes"); }
+  assert.match(visibleText(mixed), new RegExp(`${G0.away.abbr} @ ${G0.home.abbr} · Started · awaiting final`));
+});
+
+test("sort by minutes: expected and actual minutes are reader sorts; DNP and missing sort last", () => {
+  const acts = boardActuals(lane(), PROJECTION_BOARD_STATS, { boxscoreOf: boxes(), finals: finalsFor(PUB.games) });
+  const back = unpackBoard(JSON.parse(JSON.stringify(packBoard(boardRows(PUB, PROJECTION_BOARD_STATS), acts.rows))));
+  const am = sortRows(back, { key: "am", dir: "desc" }).map((r) => r.am);
+  const nums = am.filter((x) => typeof x === "number");
+  assert.deepEqual(nums, [...nums].sort((a, b) => b - a));
+  assert.ok(am.slice(nums.length).every((x) => typeof x !== "number"), "DNP / missing last");
+  assert.deepEqual(sortRows(back, { key: "min", dir: "asc" }).map((r) => r.min), back.map((r) => r.min).sort((a, b) => a - b));
 });

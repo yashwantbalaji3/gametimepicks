@@ -217,17 +217,18 @@ test("render · each status label, including postponed and a game with no link",
   }
 });
 
-test("render · past date: labelled a past frozen slate, never current; same frozen numbers; hub schedule link", () => {
+test("render · past date: labelled a past slate, never current; same frozen numbers; hub schedule link", () => {
   const games = ids.map((id) => G(id, "final", SCHED));
   const html = render({ lane: lane(), role: "past", date: "2026-10-20", games, dates: ["2026-10-20"], dated: true });
   const text = visibleText(html);
-  assert.equal(h1(html), "NBA Predicted Player Statistics · Oct 20 slate (past)");
-  assert.match(text, /Past frozen slate · Oct 20\. This is not the current slate/);
+  // Consumer wording (founder mandate 2026-10-24): the date in the heading, "Past slate" + "shown exactly as frozen".
+  assert.equal(h1(html), "NBA Predicted Player Statistics · Tue, Oct 20");
+  assert.match(text, /Past slate · Tue, Oct 20\. Every Official Forecast figure here was frozen before that day’s tip-offs and is shown exactly as frozen, never updated after a game\./);
   assertNote(html);
   assert.doesNotMatch(text, /Unavailable|not yet available/);
   assert.equal(tbody(html), tbody(render({ lane: lane() })), "the past board's cells are the same frozen values");
   assert.match(html, /<strong aria-current="page">Oct 20<\/strong>/);
-  assert.ok(hrefs(html).includes("/nba/projections/"), "a way back to the current slate");
+  assert.ok(hrefs(html).includes("/nba/projections/"), "a way back to today's board");
   assert.equal(hrefs(html).filter((h) => h === HUB_SCHEDULE_HREF).length, 3);
 });
 
@@ -261,10 +262,15 @@ test("render · every href is an existing destination; no forbidden vocabulary i
 });
 
 test("weight: status + link cost is per game and small (no per-row markup)", () => {
+  // Game chips (founder mandate 2026-10-24) render from the snapshot even without status metadata, so the per-game cost
+  // is measured between 1 and 3 games with metadata; the fixed part is the status explainer plus slack for one chip
+  // status word changing length.
   const base = render({ lane: lane() }).length;
-  const withGames = render({ lane: lane(), games: [G(ids[0], "final"), G(ids[1], "started"), G(ids[2], "upcoming")] }).length;
-  const explainer = " Game status is read-only, from the schedule and finals record (Started: tipped off, no final recorded yet); it never changes a frozen figure.".length;
-  assert.ok(withGames - base < explainer + 3 * 110 + 1, "fixed explainer + per-game cost only");
-  const perGame = (withGames - base - explainer) / 3;
+  const one = render({ lane: lane(), games: [G(ids[0], "final")] }).length;
+  const three = render({ lane: lane(), games: [G(ids[0], "final"), G(ids[1], "started"), G(ids[2], "upcoming")] }).length;
+  const perGame = (three - one) / 2;
   assert.ok(perGame < 110, `~${Math.round(perGame)} B of HTML per game`);
+  const explainer = " Game status is read-only, from the schedule and finals record (Started: tipped off, no final recorded yet); it never changes a frozen figure.".length;
+  assert.ok(one - base - perGame < explainer + 400, `fixed ${one - base - perGame} B`);
+  assert.doesNotMatch(tbody(render({ lane: lane(), games: [G(ids[0], "final")] })), /Final|Upcoming|Started|href=/, "nothing per row");
 });
