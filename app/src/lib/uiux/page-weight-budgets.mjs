@@ -15,6 +15,10 @@ export const BUDGET_KB = Object.freeze({
   /* P296: the NFL week report renders every graded player prediction (~400 rows a week, collapsed per
      game). Set from the first measured build; shrink-only like every other ceiling here. */
   "results/nfl/index.html": 700,
+  /* 2026-10-24 (Release H follow-up): /results/nba had no ceiling. Measured 2,794KB on a flag-ON build at 9baef3847c
+     (the retired May–June archive is ~2,770KB of it; the 2026-27 Official Forecast section lists at most the newest
+     7 days, ~10KB each, earlier days one line each). Ceiling = measurement + headroom; shrink-only like the rest. */
+  "results/nba/index.html": 3000,
   "index.html": 600,            // measured 189KB
   "today/index.html": 1200,     // measured 395KB
   /* P208 (Release H): the redesigned surfaces — measured 2026-08-26 on a 15-game MLB slate
