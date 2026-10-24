@@ -32,6 +32,8 @@ import NeonCornerBracket from "@/components/neon-corner-bracket";
 import { getPlayoffContext } from "@/components/playoff-context";
 import ModelLessonsCard from "@/components/model-lessons-card";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import NbaForecastVsActual from "@/components/results/nba-forecast-vs-actual";
+import { nbaForecastVsActualView } from "@/lib/results/nba-level-a-readers";
 
 export const metadata = withRouteMetadata("/results/nba/", {
   title: "NBA Model Audit (archive) · GameTime Picks",
@@ -121,6 +123,8 @@ export default function NbaResultsPage() {
             player-prop model. Nothing new is graded here.
           </p>
         </div>
+        {/* Founder mandate 2026-10-24: the current season's official winner side vs the final, ahead of the archive. */}
+        <div className="mt-6"><NbaForecastVsActual view={nbaForecastVsActualView()} /></div>
         <NbaArchiveNotice />
         <div className="mt-8">
           <EmptyResultsCard latestScoredDate={latestScoredDate} />
@@ -153,6 +157,9 @@ export default function NbaResultsPage() {
           mlbHasData={mlbHasData}
         />
       </div>
+
+      {/* Founder mandate 2026-10-24: the current season's official winner side vs the final, ahead of the archive. */}
+      <NbaForecastVsActual view={nbaForecastVsActualView()} />
 
       <NbaArchiveNotice />
 

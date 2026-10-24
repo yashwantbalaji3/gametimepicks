@@ -103,6 +103,8 @@ import fs from "node:fs";
 import { getTrustCenterModel } from "@/lib/results-trust-center";
 import { surfaceHref } from "@/lib/nav/date-sport-route";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import ModelSuggestionsRecord from "@/components/results/model-suggestions-record";
+import { levelARecordView } from "@/lib/results/nba-level-a-readers";
 
 export const metadata = withRouteMetadata("/results/", {
   title: "Results & Receipts · GameTime Picks",
@@ -292,6 +294,9 @@ export default function ResultsPage() {
           products' canonical headlines, research kept apart, and a day-by-day tracker. The explorer and every
           receipt below stay as the detailed record. */}
       <ResultsOverview populations={overviewPopulations()} products={overviewProducts()} seedToday={currentEtDate()} />
+      {/* Founder mandate 2026-10-24: the model's paper suggestions (Level A), recorded as shown and graded against the
+          official final, in their own record — never pooled with the priced products below. */}
+      <ModelSuggestionsRecord view={levelARecordView()} />
       <LatestTopBoard />
       <TrendingOnOurBoards trending={latestTrending()} />
       {forecastKpis.forecasts > 0 ? (
