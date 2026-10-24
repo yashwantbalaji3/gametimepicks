@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-24T16:20:59Z",
- "sourceGeneratedAt": "2026-10-24T16:20:59Z",
+ "generatedAt": "2026-10-24T17:32:57Z",
+ "sourceGeneratedAt": "2026-10-24T17:32:57Z",
  "providerEventId": "401873013",
  "matchup": "CLE @ TEN",
  "kickoffUtc": "2026-10-25T17:00Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-24T16:20:59Z",
-  "roleEvidenceAt": "2026-10-24T16:20:59Z",
+  "injuriesCapturedAt": "2026-10-24T17:32:57Z",
+  "roleEvidenceAt": "2026-10-24T17:32:57Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -114,14 +114,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 62,
+  "absent": 65,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "CLE": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 3,
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -217,6 +217,17 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-5081397",
+     "name": "Dylan Sampson",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
      "playerId": "nfl-athlete-4722893",
      "name": "Jaleel McLaughlin",
      "state": "PROJECTED",
@@ -243,12 +254,6 @@
        "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
-    },
-    {
-     "playerId": "nfl-athlete-5081397",
-     "name": "Dylan Sampson",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Injured Reserve"
     },
     {
      "playerId": "nfl-athlete-4601080",
@@ -456,6 +461,19 @@
   "pools": [
    {
     "team": "CLE",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 1.0049,
+    "originalSum": 1.0049,
+    "residualOther": 0,
+    "joined": 8,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "CLE",
     "pool": "passAttempts",
     "markets": [
      "player_pass_yds"
@@ -477,19 +495,6 @@
     "originalSum": 0.9825,
     "residualOther": 0.0175,
     "joined": 1,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "CLE",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.949,
-    "originalSum": 0.949,
-    "residualOther": 0.051,
-    "joined": 7,
     "missed": 0,
     "state": "CONSERVED"
    },
@@ -794,6 +799,36 @@
     },
     "anytime_td": {
      "probability": 0.1629,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-5081397",
+   "name": "Dylan Sampson",
+   "team": "CLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 7.592,
+     "p10": 0,
+     "p25": 0,
+     "median": 2.68,
+     "p75": 10.9,
+     "p90": 22.24,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 1.2151,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.1398,
      "pricingState": "NOT_PROBED"
     }
    }
