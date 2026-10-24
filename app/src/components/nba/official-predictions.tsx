@@ -45,7 +45,8 @@ export type OfficialLaneGame = {
 
 export const OFFICIAL_PREDICTIONS_ID = "official-predictions";
 /* Plain model names (founder mandate 2026-10-24); the Theater's in-panel labels say the same words
-   (lib/simulation-theater/nba/possession/labels.mjs MODEL_PLAIN — pinned equal in official-predictions-labels.test). */
+   (the Theater labels module's MODEL_PLAIN — pinned equal in official-predictions-labels.test; no path named here, so the
+   research boundary in public-theater-route.test keeps this official component clear of the Theater library). */
 export const OFFICIAL_MODEL_PLAIN = Object.freeze({ game: "Elo team rating", players: "GameTimePicks player model" });
 /** A projection-unavailable player's reason in words (founder mandate 2026-10-24: "Projection unavailable — <reason>", never 0). */
 export const UNAVAILABLE_REASON_TEXT: Readonly<Record<string, string>> = Object.freeze({
