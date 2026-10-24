@@ -8,6 +8,7 @@ import { spawnSync } from "node:child_process";
 import crypto from "node:crypto";
 import { PUBLISH, comparableSnapshot, decidePublish, manualWriteDecision } from "./experimental-lane-publish.mjs";
 import { ELO_WIN_PROBABILITY, eloWinProbabilityForPublish } from "./elo-win-probability.mjs";
+import { loadRosterIndex } from "./roster-index.mjs";
 import { buildExperimentalSnapshot, snapshotMatchesSource, unavailablePlayersForPublish } from "./experimental-public-lane.mjs";
 import { etDateOf } from "./experimental-forecast.mjs";
 
@@ -74,6 +75,9 @@ test("HOLD with no forecast file or no games on the date", () => {
 
 // ── Release G (Elo switch ON) ─────────────────────────────────────────────────────────────────────────────────────────
 const LANE_DIR = path.join(REPO, "app/public/data/nba/experimental-public");
+// a slate carrying positions / the unavailable list rebuilds only against the receipt's own roster capture (by sha256),
+// exactly as both producers do — found on the first such slate (2026-10-24)
+const ROSTERS = loadRosterIndex(REPO);
 const DATED = fs.readdirSync(LANE_DIR).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort();
 
 test("EVERY committed slate rebuilds byte-for-byte under the publisher's rule, with the Elo switch as it is (ON since Release G)", () => {
@@ -83,7 +87,7 @@ test("EVERY committed slate rebuilds byte-for-byte under the publisher's rule, w
     const text = fs.readFileSync(path.join(LANE_DIR, f), "utf8");
     const day = JSON.parse(text);
     const doc = read(`data/internal/research/nba/experimental-v0.1/forecasts/${date}.json`);
-    const rebuilt = buildExperimentalSnapshot({ forecastDoc: doc, sourceFile: day.source.file, sourceCommit: day.source.commit, generatedAt: day.generatedAt, eloWinProbability: eloWinProbabilityForPublish(day), unavailablePlayers: unavailablePlayersForPublish(day) });
+    const rebuilt = buildExperimentalSnapshot({ forecastDoc: doc, sourceFile: day.source.file, sourceCommit: day.source.commit, generatedAt: day.generatedAt, eloWinProbability: eloWinProbabilityForPublish(day), unavailablePlayers: unavailablePlayersForPublish(day), rosters: ROSTERS });
     assert.equal(`${JSON.stringify(rebuilt, null, 1)}\n`, text, `${date}: a published slate is exactly what the producer rebuilds`);
     assert.equal(manualWriteDecision({ committedDay: day, snapshot: rebuilt }).action, PUBLISH.NOOP, date);
   }

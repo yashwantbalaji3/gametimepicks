@@ -80,9 +80,11 @@ export const HUB_SECTIONS: Record<HubSport, readonly HubSection[]> = {
      entry it cannot back (/live has no NBA adapter). */
   nba: [
     { kind: "anchor", target: "nba-games", label: "Games" },
+    // founder mandate 2026-10-24: the hub's own order — games, forecasts, boards, simulations, results.
+    { kind: "anchor", target: "nba-forecast", label: "Forecasts" },
     // NBA UI parity (2026-10-22): the player Top Boards, as /nfl's strip carries its boards.
     { kind: "link", target: "/nba/projections/", label: "Top boards" },
-    { kind: "anchor", target: "nba-model-status", label: "Model status" },
+    { kind: "anchor", target: "nba-simulations", label: "Simulations" },
     { kind: "anchor", target: "nba-results", label: "Results" },
     { kind: "link", target: "/ask", label: "Ask" },
   ],

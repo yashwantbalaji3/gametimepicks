@@ -274,3 +274,27 @@ test("scenario transparency (founder 2026-10-21): the default run is described a
     }
   }
 });
+
+test("consumer wording (founder mandate 2026-10-24): models named in words, exact ids only inside Model details; predicted vs simulated tables never share a title", () => {
+  for (const load of LOADS) {
+    const sec = officialSection(render(load));
+    const i = sec.indexOf("data-nbp-model-details");
+    assert.ok(i > 0, "a Model details disclosure exists");
+    const outside = text(sec.slice(0, sec.lastIndexOf("<details", i)));
+    assert.ok(outside.includes(`Game winner ${LABELS.MODEL_PLAIN.game}`) && outside.includes(`Player statistics ${LABELS.MODEL_PLAIN.players}`), "plain model labels");
+    for (const id of [load.payload.official.models.game, ...load.payload.official.models.players]) {
+      assert.ok(!outside.includes(id), `${id} is not printed outside Model details`);
+      assert.ok(text(sec.slice(i)).includes(id), `${id} is kept verbatim inside Model details`);
+    }
+    assert.doesNotMatch(text(sec), /as the NBA lane prints them/);
+    assert.ok(text(sec).includes(LABELS.PREDICTED_STATS_TITLE), "the official medians are the Predicted Player Statistics");
+    const h = render(load);
+    const boxCaps = [...h.matchAll(/data-nbp-box-team="(?:home|away)"><caption>([\s\S]*?)<\/caption>/g)].map((m) => text(m[1]));
+    assert.equal(boxCaps.length, 2);
+    for (const c of boxCaps) {
+      assert.ok(c.startsWith(LABELS.SIM_BOX_TITLE) && c.includes("not the Official Forecast"), c);
+      assert.ok(!c.includes("Predicted Player Statistics"), "a simulated box score is never titled as the prediction");
+    }
+    assert.ok(text(h).includes(LABELS.SIM_BOX_NOTE));
+  }
+});

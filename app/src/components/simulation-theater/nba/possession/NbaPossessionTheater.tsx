@@ -24,7 +24,7 @@ import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent } from "react";
 import NbaCourt from "../NbaCourt";
 import { NBA_THEATER_VARS } from "../nba-theater-css";
 import type { NbaPalette } from "../nba-types";
-import type { PbPayload, PbWire } from "./possession-types";
+import type { PbPayload, PbUnavailable, PbWire } from "./possession-types";
 import {
   OnCourt, BreakNotice, EndCard, EngineFacts, Linescore, OfficialComparison, OfficialProjectionPanel, OUTCOME_PANEL_TITLE, PlayByPlay, PossessionBanner,
   PossessionBoxScore, PossessionIndicator, PossessionScoreboard, PossessionUnavailable, ReconciliationChecks, RunRole, RunSelector, ScoringProgression,
@@ -33,7 +33,7 @@ import { createTransport, transport } from "@/lib/simulation-theater/transport-m
 import { POSSESSION_SPEEDS, compilePossessionTimeline, frameAt, nextPlayT, onCourtAt, possessionTransport, prevPlayT } from "@/lib/simulation-theater/nba/possession/playback.mjs";
 import { boxRows, compareWithOfficial, foldRun, reconcileBox } from "@/lib/simulation-theater/nba/possession/box.mjs";
 import { playLine } from "@/lib/simulation-theater/nba/possession/play-text.mjs";
-import { KEYBOARD_HELP } from "@/lib/simulation-theater/nba/possession/labels.mjs";
+import { COMPARE_TITLE, KEYBOARD_HELP, SIM_BOX_NOTE, SIM_BOX_TITLE } from "@/lib/simulation-theater/nba/possession/labels.mjs";
 import { unpackPlaybackPayload } from "@/lib/simulation-theater/nba/possession/wire.mjs";
 
 type Tp = { state: string; t: number; tEnd: number; speed: number; driveStarts: number[]; reason: string | null };
@@ -55,8 +55,8 @@ function useMedia(query: string) {
 
 const fmtPlay = (ms: number) => { const s = Math.floor(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
 
-export default function NbaPossessionTheater({ wire, palette, devHooks = false, initialKind = null, switchHref = null, switchLabel = null }: {
-  wire: PbWire; palette: NbaPalette; devHooks?: boolean; initialKind?: string | null; switchHref?: string | null; switchLabel?: string | null;
+export default function NbaPossessionTheater({ wire, palette, devHooks = false, initialKind = null, switchHref = null, switchLabel = null, unavailable = null }: {
+  wire: PbWire; palette: NbaPalette; devHooks?: boolean; initialKind?: string | null; switchHref?: string | null; switchLabel?: string | null; unavailable?: PbUnavailable;
 }) {
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const payload = useMemo(() => unpackPlaybackPayload(wire) as PbPayload, [wire]);
@@ -201,7 +201,7 @@ export default function NbaPossessionTheater({ wire, palette, devHooks = false, 
       <div className="st-root nba-root nbp-root" style={rootStyle} data-nbp-theater="">
         <PossessionBanner />
         {head}
-        <OfficialProjectionPanel official={payload.official} teams={teams} />
+        <OfficialProjectionPanel official={payload.official} teams={teams} unavailable={unavailable} />
         <PossessionUnavailable title="Playback unavailable" reason="No stored run of this game passed its checks." />
       </div>
     );
@@ -266,11 +266,12 @@ export default function NbaPossessionTheater({ wire, palette, devHooks = false, 
       </div>
 
       <section className="nbp-panel is-outcome" style={{ marginTop: 12 }} aria-label="Simulation outcome box score" data-nbp-outcome-box={run.kind}>
-        <h2>{OUTCOME_PANEL_TITLE} · player contributions and box score</h2>
+        <h2>{SIM_BOX_TITLE} <span className="nbp-h2-sub">· player contributions and box score of this run</span></h2>
+        <p className="nbp-note" style={{ marginTop: 0 }} data-nbp-sim-box-note="">{SIM_BOX_NOTE}</p>
         <PossessionBoxScore rows={isFinal ? boxRows(finalFold!, rosters, names) : rows} teams={teams} final={isFinal} idBase={uid} />
         <h3 className="nba-h3">Reconciliation</h3>
         <ReconciliationChecks result={reconcile} />
-        <h3 className="nba-h3">Compared with the official projection</h3>
+        <h3 className="nba-h3">{COMPARE_TITLE}</h3>
         <OfficialComparison rows={compare} teams={teams} />
       </section>
 

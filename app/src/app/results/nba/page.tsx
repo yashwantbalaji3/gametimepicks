@@ -32,6 +32,8 @@ import NeonCornerBracket from "@/components/neon-corner-bracket";
 import { getPlayoffContext } from "@/components/playoff-context";
 import ModelLessonsCard from "@/components/model-lessons-card";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import NbaForecastVsActual from "@/components/results/nba-forecast-vs-actual";
+import { nbaForecastVsActualView } from "@/lib/results/nba-level-a-readers";
 
 export const metadata = withRouteMetadata("/results/nba/", {
   title: "NBA Model Audit (archive) · GameTime Picks",
@@ -100,6 +102,8 @@ export default function NbaResultsPage() {
             mlbHasData={mlbHasData}
           />
         </div>
+        <h1 className="m-0 mb-4 font-display text-[26px]" style={{ color: "var(--vault-text)", lineHeight: 1.15 }}>NBA results</h1>
+        <NbaForecastVsActual view={nbaForecastVsActualView()} />
         <div className="reveal mt-4">
           <div
             className="font-mono uppercase tracking-[0.16em]"
@@ -107,12 +111,12 @@ export default function NbaResultsPage() {
           >
             NBA archive · retired May–June 2026 player-prop model
           </div>
-          <h1
+          <h2
             className="mt-2 vault-display-h2"
             style={{ color: "var(--vault-text)" }}
           >
             No settled archive rows are available.
-          </h1>
+          </h2>
           <p
             className="mt-3 max-w-2xl text-[13px] leading-relaxed"
             style={{ color: "var(--vault-text-mute)" }}
@@ -154,6 +158,11 @@ export default function NbaResultsPage() {
         />
       </div>
 
+      {/* Founder mandate 2026-10-24: the current season's official winner side vs the final, ahead of the archive,
+          under the page's one <h1>. */}
+      <h1 className="m-0 mb-4 font-display text-[26px]" style={{ color: "var(--vault-text)", lineHeight: 1.15 }}>NBA results</h1>
+      <NbaForecastVsActual view={nbaForecastVsActualView()} />
+
       <NbaArchiveNotice />
 
       {/* Hero — NBA-only audit. The cross-sport overall hit rate lives
@@ -169,15 +178,15 @@ export default function NbaResultsPage() {
               boxShadow: "0 0 8px color-mix(in srgb, var(--vault-accent) 60%, transparent)",
             }}
           />
-          {/* This line already named the page; it is now the page's heading, so the visible heading
-              and the document heading are the same words rather than two different things. Styling
-              unchanged — it is an <h1> that happens to be set as an eyebrow. */}
-          <h1
+          {/* This line names the archive section. It was the page's <h1> until the 2026-27 Official Forecast section
+              (founder mandate 2026-10-24) came first; the page's <h1> is now "NBA results" above both, and this is the
+              archive's own heading. Styling unchanged — an <h2> set as an eyebrow. */}
+          <h2
             className="font-mono uppercase tracking-[0.18em]"
             style={{ color: "var(--vault-gold)", fontSize: 10, margin: 0, fontWeight: "inherit" }}
           >
             NBA archive · retired May–June 2026 player-prop model
-          </h1>
+          </h2>
         </div>
         {/*
           P291: THE PAGE'S ONLY TOP-LEVEL HEADING WAS THE NUMBER "49.1%".
@@ -459,6 +468,7 @@ export default function NbaResultsPage() {
                     decisive={decisive}
                     hitRate={hitRate}
                     rows={detailRows}
+                    sport="nba"
                     tone="gold"
                     defaultOpen={false}
                   />

@@ -35,13 +35,32 @@ export type PbOfficial = {
 type Teams = { home: { abbr: string; name: string }; away: { abbr: string; name: string } };
 
 type LaneRow = { providerAthleteId: string; medians: Record<string, number | null>; comboMedians?: Record<string, number | null> };
+/* Lane players the official pool could not project (lane `players.unavailable`, PR 1230): a state and a reason, never a number. */
+type LaneUnavailable = { providerAthleteId: string; name: string | null; position?: string | null; state: string; reason: string; status?: string | null };
 export type OfficialLaneGame = {
-  providerEventId: string; receipt: { modelVersion: string; payloadSha256?: string }; players: { away: LaneRow[]; home: LaneRow[] };
+  providerEventId: string; receipt: { modelVersion: string; payloadSha256?: string }; players: { away: LaneRow[]; home: LaneRow[]; unavailable?: { away: LaneUnavailable[]; home: LaneUnavailable[] } };
   frozenAt?: string; home?: { abbr: string | null }; away?: { abbr: string | null };
   elo?: { favoured: string | null; state: string; rule?: string | null; winProbability?: { home: number; away: number; provenance: Record<string, string | null> } };
 } | null;
 
 export const OFFICIAL_PREDICTIONS_ID = "official-predictions";
+/* Plain model names (founder mandate 2026-10-24); the Theater's in-panel labels say the same words
+   (the Theater labels module's MODEL_PLAIN — pinned equal in official-predictions-labels.test; no path named here, so the
+   research boundary in public-theater-route.test keeps this official component clear of the Theater library). */
+export const OFFICIAL_MODEL_PLAIN = Object.freeze({ game: "Elo team rating", players: "GameTimePicks player model" });
+/** A projection-unavailable player's reason in words (founder mandate 2026-10-24: "Projection unavailable — <reason>", never 0). */
+export const UNAVAILABLE_REASON_TEXT: Readonly<Record<string, string>> = Object.freeze({
+  RULED_OUT: "ruled out on the pre-tip injury report",
+  BELOW_PUBLISH_CUT: "expected to play too few minutes for a published projection",
+  ROOKIE: "a rookie with no NBA minutes in the data yet",
+  INSUFFICIENT_HISTORY: "not enough recent NBA minutes to project (for example, a returning player)",
+  NO_EXPECTED_MINUTES: "no expected minutes in the pregame record",
+});
+/** RULED_OUT carries the receipt's pre-cutoff status text; it is added only when it says more than "Out". */
+export const unavailableReasonText = (reason: string | null | undefined, status?: string | null) => {
+  const base = UNAVAILABLE_REASON_TEXT[reason ?? ""] ?? "no projection was published for this player";
+  return reason === "RULED_OUT" && status && status.trim().toLowerCase() !== "out" ? `${base} (listed ${status.trim()})` : base;
+};
 // founder directive 2026-10-23 public readiness: the registry term ("Official Forecast")
 export const OFFICIAL_PREDICTIONS_TITLE = `GameTimePicks ${PUBLIC_TERMS.OFFICIAL_FORECAST}`;
 
@@ -98,13 +117,26 @@ function Official({ official, teams, lane, elo }: { official: PbOfficial; teams:
     <>
       <dl className="nbx-kv">
         <dt>Favoured side</dt><dd data-nba-official-side=""><strong>{fav ? `${fav.name} (${fav.abbr})` : "Neither side"}</strong> · Elo rating</dd>
-        <dt>Models</dt><dd>{official.models.game ?? "—"} (side) · {official.models.players.join(", ") || "—"} (players)</dd>
+        {/* Founder mandate 2026-10-24: the models in words; the exact ids are kept, verbatim, under Model details below. */}
+        <dt>Game winner</dt><dd>{OFFICIAL_MODEL_PLAIN.game}</dd>
+        <dt>Player statistics</dt><dd>{OFFICIAL_MODEL_PLAIN.players} · medians</dd>
         <dt>Frozen</dt><dd>{et(official.frozenAt)}{official.lockAt ? ` · locked at tip-off, ${et(official.lockAt)}` : ""}</dd>
         {eloShown ? <><dt>{ELO_WIN_PROBABILITY_LABEL}</dt><dd><EloWinProbability game={eloGame} ctx={elo} /> <span className="nbx-fine" data-nba-elo-wp-disclosure="">{elo.disclosure}</span></dd></> : null}
         <dt>Withheld</dt><dd>{eloShown ? "Team scores" : "Win chance, team scores"}, margin and total, player ranges, prices{w.teamScores ? <span className="sr-only"> · {w.teamScores}</span> : null}</dd>
       </dl>
+      <details className="nbx-model-details" data-nba-model-details="">
+        <summary style={{ minHeight: 44, lineHeight: "44px", cursor: "pointer" }}>Model details</summary>
+        <dl className="nbx-kv">
+          <dt>Game winner model</dt><dd>{official.models.game ?? "—"}</dd>
+          <dt>Player model</dt><dd>{official.models.players.join(", ") || "—"}</dd>
+          <dt>Snapshot</dt><dd>{official.snapshotId}</dd>
+        </dl>
+      </details>
       {(["away", "home"] as const).map((side) => {
         const rows = official.players.filter((p) => p.team === side).sort((a, b) => (b.expectedMinutes ?? -1) - (a.expectedMinutes ?? -1));
+        // only THIS game's lane list, and never a player the official rows already carry
+        const shown = new Set(rows.map((p) => p.playerId));
+        const none = (lane && String(lane.providerEventId) === String(official.eventId) ? lane.players.unavailable?.[side] ?? [] : []).filter((u) => !shown.has(String(u.providerAthleteId)));
         return (
           <div key={side} className="nbx-scroll">
             <table className="nbx-ptable" data-nba-official-table={side}>
@@ -121,6 +153,12 @@ function Official({ official, teams, lane, elo }: { official: PbOfficial; teams:
                     </tr>
                   );
                 })}
+                {none.map((u) => (
+                  <tr key={`u-${u.providerAthleteId}`} data-nba-projection-unavailable={u.providerAthleteId}>
+                    <th scope="row">{u.name ?? u.providerAthleteId}</th>
+                    <td colSpan={1 + STATS.length + COMBO_STATS.length} style={{ textAlign: "left" }}>Projection unavailable — {unavailableReasonText(u.reason, u.status)}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

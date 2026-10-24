@@ -12,13 +12,23 @@
  */
 import Link from "next/link";
 import NbaPossessionSection from "./NbaPossessionSection";
-import type { PbLoad } from "./possession-types";
+import type { PbLoad, PbUnavailable } from "./possession-types";
 import NbaOfficialPredictions, { OFFICIAL_PREDICTIONS_ID } from "@/components/nba/official-predictions";
 import { loadCurrentLane, loadLaneForDate } from "@/components/nba/experimental-lane";
 import { nbaTodaySlate } from "@/lib/sport-hub/nba-hub";
 import { etDateOf } from "@/lib/sports/nba/finals-record.mjs";
 
 export const NBA_RESULTS_HREF = "/nba/#nba-results";
+
+/* Only what the panel prints (id, name, reason, pre-cutoff status) crosses into the client island's props. */
+type LaneUnavailableRow = { providerAthleteId: string; name: string | null; reason: string; status?: string | null };
+type LaneUnavailable = { away?: LaneUnavailableRow[]; home?: LaneUnavailableRow[] };
+const unavailableOf = (g: unknown): PbUnavailable => {
+  const u = (g as { players?: { unavailable?: LaneUnavailable } } | null)?.players?.unavailable;
+  if (!u) return null;
+  const slim = (xs: LaneUnavailableRow[] = []) => xs.map((x) => ({ providerAthleteId: String(x.providerAthleteId), name: x.name ?? null, reason: x.reason, ...(x.status ? { status: x.status } : {}) }));
+  return { away: slim(u.away), home: slim(u.home) };
+};
 
 export default function NbaPossessionGamePage({ load, nowIso = new Date().toISOString() }: { load: PbLoad; nowIso?: string }) {
   const payload = load.ok ? load.payload : null;
@@ -28,14 +38,21 @@ export default function NbaPossessionGamePage({ load, nowIso = new Date().toISOS
   const finalNote = nbaTodaySlate(nowIso, loadCurrentLane(etDateOf(nowIso) as string)).games.find((g) => g.id === eventId)?.finalNote ?? null;
   return (
     <>
+      {/* Founder mandate 2026-10-24: the skip is the page's first control, full width on a phone, and says what it reaches —
+          the Official Forecast is fully readable without touching the playback. */}
+      <a href={`#${OFFICIAL_PREDICTIONS_ID}`} className="nbx-skip nbp-skip-cta" data-nba-skip-official="">
+        <span className="nbp-skip-main">Skip to the Official Forecast ↓</span>
+        <span className="nbp-skip-sub">Favoured side and Predicted Player Statistics, frozen before tip-off. No playback needed.</span>
+      </a>
       <nav aria-label="This game" className="nbx-gamenav">
-        <a href={`#${OFFICIAL_PREDICTIONS_ID}`} className="nbx-skip" data-nba-skip-official="">Skip to the Official Forecast ↓</a>
         {/* next/link (not <a>): a full page load from here aborts in-flight route prefetches, which Next logs as errors */}
         <Link href="/nba/">← NBA hub</Link>
         <Link href="/nba/projections/">Top Boards</Link>
         <Link href={NBA_RESULTS_HREF}>Results</Link>
       </nav>
-      <NbaPossessionSection load={load} />
+      {/* This game's projection-unavailable players (lane `players.unavailable`, PR 1230), by name and reason only — the
+          in-Theater Official Forecast panel lists them as the section below does, never as 0. */}
+      <NbaPossessionSection load={load} unavailable={unavailableOf(laneGame)} />
       {payload ? <NbaOfficialPredictions official={payload.official} teams={payload.teams} lane={laneGame} finalNote={finalNote} resultsHref={NBA_RESULTS_HREF} /> : null}
     </>
   );

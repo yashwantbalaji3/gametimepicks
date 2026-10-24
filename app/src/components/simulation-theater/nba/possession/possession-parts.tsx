@@ -9,12 +9,13 @@ import { Fragment } from "react";
 import type { CSSProperties } from "react";
 import type { NbaPalette, NbaSide } from "../nba-types";
 import { teamStyle } from "../nba-parts";
-import type { PbOfficial, PbPayload, PbRun } from "./possession-types";
+import type { PbOfficial, PbPayload, PbRun, PbUnavailable } from "./possession-types";
 import { BOX_COLUMNS, fmtMinutes } from "@/lib/simulation-theater/nba/possession/box.mjs";
 import { fmtClockDs, periodLabel } from "@/lib/simulation-theater/nba/possession/playback.mjs";
 import {
   ACCURACY_NOTE, ACCURACY_TITLE, DEFAULT_RUN_SUBTITLE, DEFAULT_RUN_TAG, DEFAULT_RUN_TITLE, INPUTS_AS_OF_NOTE, VERIFIED_NOTE, VERIFIED_TITLE, ENGINE_IDENTITY, ROLE_C_NOTE, OFFICIAL_PANEL_NOTE, OFFICIAL_PANEL_TITLE, OUTCOME_PANEL_TITLE, POSSESSION_BANNER,
   POSSESSION_NOT_MODELLED, WHAT_IF_BANNER, WHAT_IF_TAG, WHAT_IS_REAL, WITHHELD,
+  COMPARE_TITLE, MODEL_DETAILS_TITLE, MODEL_PLAIN, PREDICTED_STATS_TITLE, SIM_BOX_TITLE, unavailableReasonText,
 } from "@/lib/simulation-theater/nba/possession/labels.mjs";
 
 type Teams = PbPayload["teams"];
@@ -22,6 +23,8 @@ const COLS = BOX_COLUMNS as unknown as [string, string][];
 const SIDES: NbaSide[] = ["away", "home"];
 const fmt1 = (v: number | null | undefined) => (typeof v === "number" && Number.isFinite(v) ? v.toFixed(1) : "—");
 const fmtUtc = (iso: string | null) => (iso ? `${iso.replace("T", " ").replace(/\.\d+Z$/, "Z").replace(/:\d\dZ$/, "Z").replace("Z", " UTC")}` : "—");
+/* Reader-facing instants in ET, as the Official Forecast section below prints them; the exact UTC stays in Model details. */
+const fmtEt = (iso: string | null) => (iso && Number.isFinite(Date.parse(iso)) ? new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(iso)) + " ET" : "—");
 
 /**
  * The banner: the engine identity in full, the first of its TWO statements (founder directive 2026-10-22 22:55 ET; the
@@ -42,7 +45,7 @@ export function PossessionUnavailable({ title, reason }: { title: string; reason
 }
 
 /** THE OFFICIAL PROJECTION PANEL — the canonical forecast only (never computed from a run). */
-export function OfficialProjectionPanel({ official, teams }: { official: PbOfficial | null; teams: Teams }) {
+export function OfficialProjectionPanel({ official, teams, unavailable = null }: { official: PbOfficial | null; teams: Teams; unavailable?: PbUnavailable }) {
   if (!official) {
     return (
       <section className="nbp-panel is-official" aria-label={OFFICIAL_PANEL_TITLE} data-nbp-official="none">
@@ -55,6 +58,8 @@ export function OfficialProjectionPanel({ official, teams }: { official: PbOffic
   const w = official.withheld ?? {};
   const Withheld = ({ why }: { why?: string }) => <span className="nbp-withheld" title={why}>{WITHHELD}{why ? <span className="st-sr"> · {why}</span> : null}</span>;
   const players = (side: NbaSide) => official.players.filter((p) => p.team === side);
+  const none = (side: NbaSide) => (unavailable?.[side] ?? []).filter((u) => !official.players.some((p) => p.playerId === String(u.providerAthleteId)));
+  const noneCount = none("away").length + none("home").length;
   return (
     <section className="nbp-panel is-official" aria-label={OFFICIAL_PANEL_TITLE} data-nbp-official={official.snapshotId}>
       <h2>{OFFICIAL_PANEL_TITLE}</h2>
@@ -66,26 +71,39 @@ export function OfficialProjectionPanel({ official, teams }: { official: PbOffic
         <dt>Margin and total</dt><dd><Withheld why={w.teamScores} /></dd>
         <dt>Player ranges</dt><dd><Withheld why={w.playerRanges} /> · medians only</dd>
         <dt>Odds and picks</dt><dd><Withheld why={w.markets} /></dd>
-        <dt>Game model</dt><dd>{official.models.game ?? "—"}</dd>
-        <dt>Player model</dt><dd>{official.models.players.join(", ") || "—"}</dd>
-        <dt>Frozen</dt><dd>{fmtUtc(official.frozenAt)}</dd>
-        <dt>Locks at tip</dt><dd>{fmtUtc(official.lockAt)}</dd>
+        <dt>Game winner</dt><dd>{MODEL_PLAIN.game}</dd>
+        <dt>Player statistics</dt><dd>{MODEL_PLAIN.players} · medians</dd>
+        <dt>Frozen</dt><dd>{fmtEt(official.frozenAt)}</dd>
+        <dt>Locks at tip</dt><dd>{fmtEt(official.lockAt)}</dd>
       </dl>
       <details className="nbp-details">
-        <summary>Official player medians ({official.players.length} players, as the NBA lane prints them)</summary>
+        <summary>{PREDICTED_STATS_TITLE} · {official.players.length} players{noneCount ? ` · ${noneCount} without a projection` : ""}</summary>
         {SIDES.map((side) => (
           <div key={side} className="nbp-scroll">
             <table className="nbp-table" data-nbp-official-players={side}>
-              <caption>{teams[side].abbr} · official medians · expected minutes</caption>
+              <caption>{teams[side].abbr} · {PREDICTED_STATS_TITLE} · medians and expected minutes</caption>
               <thead><tr><th scope="col">Player</th><th scope="col">Exp. MIN</th><th scope="col">PTS</th><th scope="col">REB</th><th scope="col">AST</th><th scope="col">3PM</th></tr></thead>
               <tbody>
                 {players(side).map((p) => (
                   <tr key={p.playerId}><td>{p.displayName ?? p.playerId}</td><td>{fmt1(p.expectedMinutes)}</td><td>{fmt1(p.medians.pts)}</td><td>{fmt1(p.medians.reb)}</td><td>{fmt1(p.medians.ast)}</td><td>{fmt1(p.medians.threePm)}</td></tr>
                 ))}
+                {none(side).map((u) => (
+                  <tr key={`u-${u.providerAthleteId}`} data-nbp-projection-unavailable={u.providerAthleteId}><td>{u.name ?? u.providerAthleteId}</td><td colSpan={5}>Projection unavailable — {unavailableReasonText(u.reason, u.status)}</td></tr>
+                ))}
               </tbody>
             </table>
           </div>
         ))}
+      </details>
+      <details className="nbp-details" data-nbp-model-details="">
+        <summary>{MODEL_DETAILS_TITLE}</summary>
+        <dl className="nbp-kv">
+          <dt>Game winner model</dt><dd>{official.models.game ?? "—"}</dd>
+          <dt>Player model</dt><dd>{official.models.players.join(", ") || "—"}</dd>
+          <dt>Snapshot</dt><dd>{official.snapshotId}</dd>
+          <dt>Frozen</dt><dd>{fmtUtc(official.frozenAt)}</dd>
+          <dt>Locks at tip</dt><dd>{fmtUtc(official.lockAt)}</dd>
+        </dl>
       </details>
     </section>
   );
@@ -263,7 +281,7 @@ export function PossessionBoxScore({ rows, teams, final, idBase }: { rows: Rows;
       {SIDES.map((side) => (
         <div key={side} className="nbp-scroll">
           <table className="nbp-table" data-nbp-box-team={side}>
-            <caption>{teams[side].name} · {final ? "final box score of this simulated game" : "box score so far (this simulated game)"}</caption>
+            <caption>{SIM_BOX_TITLE} · {teams[side].name} · {final ? "final" : "so far"} · simulated game, not the Official Forecast</caption>
             <thead><tr><th scope="col">Player</th>{COLS.map(([, label]) => <th key={label} scope="col">{label}</th>)}</tr></thead>
             <tbody>
               {rows[side].map((r) => (
@@ -300,7 +318,7 @@ export function OfficialComparison({ rows, teams }: { rows: Cmp[]; teams: Teams 
   return (
     <div className="nbp-scroll">
       <table className="nbp-table" data-nbp-compare="">
-        <caption>This run vs the official forecast, per player (official medians; MIN is the official expected minutes)</caption>
+        <caption>{COMPARE_TITLE}, per player: this run&apos;s number / the Official Forecast&apos;s median (MIN is the official expected minutes)</caption>
         <thead><tr><th scope="col">Player</th>{rows[0]?.families.map((f) => <th key={f.family} scope="col">{f.label} run / official</th>)}</tr></thead>
         <tbody>
           {rows.map((r) => (
