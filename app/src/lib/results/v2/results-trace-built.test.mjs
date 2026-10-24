@@ -37,3 +37,24 @@ test("🔴 every trace and Model Performance link on the day pages opens an expo
   assert.deepEqual(missing.slice(0, 20), [], `${missing.length} trace links point at no exported page`);
   assert.ok(traced > 0 && links > 0, "the day pages carry the trace");
 });
+
+test("🔴 every earlier NBA day /results/nba links to is an exported day page carrying that day's official forecasts", (t) => {
+  const nba = path.join(OUT, "results/nba/index.html");
+  if (!fs.existsSync(nba)) return t.skip("post-build: out/results/nba is emitted by the build");
+  const html = fs.readFileSync(nba, "utf8");
+  const block = html.match(/data-nba-older-days="true"[\s\S]*?<\/ul>/)?.[0] ?? "";
+  for (const [, d] of block.matchAll(/href="\/results\/date\/(\d{4}-\d{2}-\d{2})\/#official-forecast"/g)) {
+    const f = path.join(DAYS, d, "index.html");
+    assert.ok(fs.existsSync(f), `${d} has no day page`);
+    assert.match(fs.readFileSync(f, "utf8"), new RegExp(`id="official-forecast"[\\s\\S]*data-nba-day="${d}"`), `${d}'s page carries its NBA games`);
+  }
+  /* Not vacuous while the season is young: every lane day's page carries that day's games, linked or not yet. */
+  const laneDir = path.join(process.cwd(), "public/data/nba/experimental-public");
+  const laneDays = fs.readdirSync(laneDir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).map((f) => f.slice(0, 10));
+  assert.ok(laneDays.length > 0);
+  for (const d of laneDays) {
+    const f = path.join(DAYS, d, "index.html");
+    assert.ok(fs.existsSync(f), `lane day ${d} has no day page`);
+    assert.match(fs.readFileSync(f, "utf8"), new RegExp(`data-nba-day="${d}"`), `${d}'s page carries its NBA games`);
+  }
+});

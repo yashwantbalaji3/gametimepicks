@@ -24,6 +24,8 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { surfaceHref } from "@/lib/nav/date-sport-route";
 import ResultsDay from "@/components/results/results-day";
 import { resultsDay, resultsDayDates, modelPerformanceLinks } from "@/lib/results/v2/day";
+import NbaForecastVsActual from "@/components/results/nba-forecast-vs-actual";
+import { nbaForecastVsActualView, nbaOfficialForecastDates } from "@/lib/results/nba-level-a-readers";
 import TopBoards from "@/components/results/top-boards";
 import { sportsWithoutBoards, topBoardDates, topBoardsFor } from "@/lib/results/v2/top-boards";
 import ProductReceipts from "@/components/results/product-receipts";
@@ -45,7 +47,8 @@ export function generateStaticParams() {
   const mlbDates = getMlbAvailableResultDates().dates ?? [];
   // A frozen Top-5 day gets its page before any result exists — the board is published pre-kickoff.
   // G-4: a day with a product receipt (Bank Builder / Moonshot) has a page too.
-  const all = Array.from(new Set([...nbaDates, ...mlbDates, ...suggestedCardDates(), ...resultsDayDates(), ...topBoardDates(), ...productReceiptDates()])).sort();
+  // 2026-10-24: a day with a published NBA official forecast has a page — /results/nba links each earlier day here.
+  const all = Array.from(new Set([...nbaDates, ...mlbDates, ...suggestedCardDates(), ...nbaOfficialForecastDates(), ...resultsDayDates(), ...topBoardDates(), ...productReceiptDates()])).sort();
   return all.map((date) => ({ date }));
 }
 
@@ -73,7 +76,7 @@ export default function ResultsDatePage({ params }: PageProps) {
   const nbaAllDates = new Set(getAvailableSettlementDates());
   const mlbAllDates = new Set(getMlbAvailableResultDates().dates ?? []);
   const date = params.date;
-  const dayDates = new Set([...resultsDayDates(), ...topBoardDates(), ...productReceiptDates(), ...suggestedCardDates()]);
+  const dayDates = new Set([...resultsDayDates(), ...topBoardDates(), ...productReceiptDates(), ...suggestedCardDates(), ...nbaOfficialForecastDates()]);
   const hasAny = nbaAllDates.has(date) || mlbAllDates.has(date) || dayDates.has(date);
   if (!hasAny) {
     notFound();
@@ -129,6 +132,10 @@ export default function ResultsDatePage({ params }: PageProps) {
       </header>
 
       <ResultsDay day={resultsDay(date)} performance={modelPerformanceLinks()} />
+      {/* The day's NBA official winner sides vs the finals — the same reader /results/nba uses, filtered to this date. */}
+      {nbaOfficialForecastDates().includes(date) ? (
+        <div className="mt-6"><NbaForecastVsActual view={nbaForecastVsActualView()} date={date} /></div>
+      ) : null}
 
       <TopBoards day={topBoardsFor(date)} without={sportsWithoutBoards()} dayLabel={formatDateLong(date)} />
 
