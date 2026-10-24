@@ -64,3 +64,15 @@ test("no prior artifact: nothing carried, nothing invented", () => {
   assert.equal(r.games[0].status, "unavailable");
   assert.deepEqual(r.frozenPregame, {});
 });
+
+test("MLB-001 version transition: a pa-v2 forecast carried into the first pa-v3 file keeps the version that made it", () => {
+  const v2Morning = { generatedAt: "2030-06-01T15:11:00Z", modelVersion: "mlb-fullgame-2026.08-pa-v2", games: [sim("v2-hash")] };
+  // First v3 refresh after first pitch: the prior file is v2.
+  const first = carryFrozenPregame({ games: [refusal()], priorArtifact: v2Morning, startedPks: started });
+  assert.deepEqual(first.frozenPregame, { 1: { forecastGeneratedAt: "2030-06-01T15:11:00Z", artifactHash: "v2-hash", modelVersion: "mlb-fullgame-2026.08-pa-v2" } });
+  // Second v3 refresh: the prior file now says v3, but the entry still names v2 — copied forward, never restamped.
+  const v3File = { generatedAt: "2030-06-01T18:46:00Z", modelVersion: "mlb-fullgame-2026.10-pa-v3", games: first.games, frozenPregame: first.frozenPregame };
+  const second = carryFrozenPregame({ games: [refusal()], priorArtifact: v3File, startedPks: started });
+  assert.deepEqual(second.games, v2Morning.games, "the bytes are the v2 forecast");
+  assert.equal(second.frozenPregame[1].modelVersion, "mlb-fullgame-2026.08-pa-v2");
+});
