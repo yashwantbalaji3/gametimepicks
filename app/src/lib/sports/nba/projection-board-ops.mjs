@@ -30,6 +30,8 @@ export function boardRows(snapshot, stats) {
           team: team.abbr ?? "",
           teamName: team.name ?? team.abbr ?? "",
           min: r.expectedMinutes ?? null,
+          // the lane's roster position (PR 1230), only on slates published with it; undefined = not recorded
+          ...(r.position !== undefined ? { pos: r.position ?? null } : {}),
           v: stats.map(([k]) => (r.medians && k in r.medians ? r.medians[k] : r.comboMedians?.[k] ?? null)),
         });
       }
@@ -46,14 +48,23 @@ export function boardRows(snapshot, stats) {
  * tie inside it — is exactly the server's. Every number is carried verbatim; nothing is rounded or recomputed.
  *
  * POSTGAME ACTUALS (overnight sprint 2026-10-23): when `actuals` (projection-board-actuals.ts, keyed by row id) is
- * given, the board also carries `a`, parallel to `r`: per row 0 (no actual — the game has no recorded final box score)
- * or `[minutes | "DNP" | null, ...one actual per board stat]`, copied verbatim (the server computed every combo from
- * integer box-score components). Unpacked, a row's `v` is the frozen values FOLLOWED BY the actuals (so a reader may
- * sort by an actual column too) and `am` is the actual minutes. Without actuals the format is unchanged.
+ * given, the board also carries `a`, parallel to `r`: per row `[minutes | "DNP" | null, ...one actual per board stat]`,
+ * copied verbatim (the server computed every combo from integer box-score components), or a code when the row has no
+ * actual: 1 = AWAITING FINAL (its game has no official final yet — `awaiting` holds those game ids), 0 = unavailable
+ * (final recorded, but no usable box score yet). Unpacked, a row's `v` is the frozen values FOLLOWED BY the actuals (so
+ * a reader may sort by an actual column too), `am` is the actual minutes and `aw` marks an awaiting row. Without
+ * actuals the format is unchanged.
  * @param {ReturnType<typeof boardRows>} rows
  * @param {Record<string, (number | string | null)[]> | null} [actuals]
+ * WITHOUT A PROJECTION: `unprojected` travel in `u`, each `[name, teamIndex, code, position, ...actual]`, never with a
+ * forecast value. `code` is NO_PROJECTION_CODE's key — the lane's own reason for a listed unavailable player, or "P"
+ * (played, no projection: in the final box score only); `actual` is empty before a verified final. Unpacked they are
+ * rows with `np` = that code, every frozen value null and the actuals verbatim; they sort last in the default order.
+ * POSITIONS: when any board row carries the lane's `position`, `p` (parallel to `r`) holds them; absent = not recorded.
+ * @param {ReadonlySet<string> | null} [awaiting]  game ids with no official final yet
+ * @param {{ name: string, game: string, team: string, teamName: string, code: string, pos?: string | null, actual?: (number | string | null)[] | null }[] | null} [unprojected]
  */
-export function packBoard(rows, actuals = null) {
+export function packBoard(rows, actuals = null, awaiting = null, unprojected = null) {
   const t = [];
   const at = new Map();
   const sorted = sortRows(rows);
@@ -62,21 +73,38 @@ export function packBoard(rows, actuals = null) {
     if (!at.has(k)) { at.set(k, t.length); t.push([x.team, x.teamName, x.game]); }
     return [x.name, x.injury || 0, at.get(k), x.min, ...x.v];
   });
-  return actuals ? { t, r, a: sorted.map((x) => actuals[x.id] ?? 0) } : { t, r };
+  const out = { t, r };
+  if (sorted.some((x) => x.pos !== undefined)) out.p = sorted.map((x) => x.pos ?? 0);
+  if (actuals) out.a = sorted.map((x) => actuals[x.id] ?? (awaiting?.has(x.game) ? 1 : 0));
+  if (unprojected?.length) {
+    out.u = unprojected.map((x) => {
+      const k = `${x.game}\u0000${x.team}`;
+      if (!at.has(k)) { at.set(k, t.length); t.push([x.team, x.teamName, x.game]); }
+      return [x.name, at.get(k), x.code, x.pos ?? 0, ...(x.actual ?? [])];
+    });
+  }
+  return out;
 }
 
 /**
- * @param {{ t: [string, string, string][], r: (string | number | null)[][], a?: (0 | (number | string | null)[])[] }} packed
- * @returns {{ id: string, game: string, name: string, injury: string | null, team: string, teamName: string, min: number | null, v: (number | null)[], am?: number | "DNP" | null }[]}
+ * @param {{ t: [string, string, string][], r: (string | number | null)[][], a?: (0 | 1 | (number | string | null)[])[], u?: (string | number | null)[][], p?: (string | 0)[] }} packed
+ * @returns {{ id: string, game: string, name: string, injury: string | null, team: string, teamName: string, min: number | null, v: (number | null)[], am?: number | "DNP" | null, aw?: boolean, np?: string, pos?: string | null }[]}
  */
-export function unpackBoard({ t, r, a }) {
-  return r.map(([name, injury, ti, min, ...v], i) => {
+export function unpackBoard({ t, r, a, u, p }) {
+  const board = r.map(([name, injury, ti, min, ...v], i) => {
     const [team, teamName, game] = t[/** @type {number} */ (ti)];
-    const row = { id: String(i).padStart(4, "0"), game, name: /** @type {string} */ (name), injury: /** @type {string} */ (injury) || null, team, teamName, min: /** @type {number | null} */ (min), v: /** @type {(number | null)[]} */ (v) };
+    const row = { id: String(i).padStart(4, "0"), game, name: /** @type {string} */ (name), injury: /** @type {string} */ (injury) || null, team, teamName, min: /** @type {number | null} */ (min), v: /** @type {(number | null)[]} */ (v), ...(p ? { pos: p[i] || null } : {}) };
     if (!a) return row;
-    const act = a[i] || null;
-    return { ...row, v: [...row.v, ...(act ? act.slice(1) : v.map(() => null))], am: act ? act[0] : null };
+    const act = Array.isArray(a[i]) ? a[i] : null;
+    return { ...row, v: [...row.v, ...(act ? act.slice(1) : v.map(() => null))], am: act ? act[0] : null, aw: a[i] === 1 };
   });
+  const width = r[0] ? r[0].length - 4 : 0;
+  for (const [j, [name, ti, code, pos, am, ...act]] of (u ?? []).entries()) {
+    const [team, teamName, game] = t[/** @type {number} */ (ti)];
+    const actual = a ? (am === undefined ? Array(width).fill(null) : act) : [];
+    board.push({ id: `u${String(j).padStart(4, "0")}`, game, name: /** @type {string} */ (name), injury: null, team, teamName, min: null, v: [...Array(width).fill(null), ...actual], am: am === undefined ? null : am, aw: false, np: /** @type {string} */ (code), ...(p || pos ? { pos: pos || null } : {}) });
+  }
+  return board;
 }
 
 /** Matchup and team filter options, in slate order. */
@@ -90,33 +118,62 @@ export function boardOptions(snapshot) {
   return { matchups, teams };
 }
 
+/** Why a listed player has no projection, in plain words: the lane's own reason codes (PR 1230 — the three below the
+    first two are the codes it may add) and the box-score-only "played". An unknown code reads "Projection unavailable". */
+export const NO_PROJECTION_LABEL = Object.freeze({
+  INSUFFICIENT_HISTORY: "Projection unavailable — not enough recent NBA minutes",
+  NO_EXPECTED_MINUTES: "Projection unavailable — no expected minutes",
+  ROOKIE: "Projection unavailable — rookie, no NBA minutes yet",
+  RULED_OUT: "Projection unavailable — ruled out before the freeze",
+  BELOW_PUBLISH_CUT: "Projection unavailable — under 10 expected minutes, not published",
+  P: "Played, no projection",
+});
+export const noProjectionLabel = (code) => NO_PROJECTION_LABEL[code] ?? "Projection unavailable";
+/** The same reasons, short, for the board's row (a second line under the name; the legend carries the long form). */
+export const NO_PROJECTION_SHORT = Object.freeze({
+  INSUFFICIENT_HISTORY: "Projection unavailable — not enough recent minutes",
+  NO_EXPECTED_MINUTES: "Projection unavailable — no expected minutes",
+  ROOKIE: "Projection unavailable — rookie",
+  RULED_OUT: "Projection unavailable — ruled out before the freeze",
+  BELOW_PUBLISH_CUT: "Projection unavailable — under 10 min, not published",
+  P: "Played, no projection",
+});
+export const noProjectionShort = (code) => NO_PROJECTION_SHORT[code] ?? "Projection unavailable";
+
+/** Position filter groups: a hyphenated roster position ("F-C") belongs to each of its letters. */
+export const POSITION_GROUPS = Object.freeze([["G", "Guards"], ["F", "Forwards"], ["C", "Centers"]]);
+const inPosition = (pos, g) => String(pos ?? "").split("-").includes(g);
+
 const norm = (s) => String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
 
 /**
  * @template {{ id: string, game: string, name: string, team: string, min: number | null, v: (number | null)[] }} T
  * @param {T[]} rows
  * @returns {T[]}
- * @param {{ matchup?: string, team?: string, player?: string }} f  "" / undefined = no filter on that field
+ * @param {{ matchup?: string, team?: string, player?: string, position?: string }} f  "" / undefined = no filter on that field
  */
-export function filterRows(rows, { matchup = "", team = "", player = "" } = {}) {
+export function filterRows(rows, { matchup = "", team = "", player = "", position = "" } = {}) {
   const q = norm(player);
-  return rows.filter((r) => (!matchup || r.game === matchup) && (!team || r.team === team) && (!q || norm(r.name).includes(q)));
+  return rows.filter((r) => (!matchup || r.game === matchup) && (!team || r.team === team) && (!q || norm(r.name).includes(q)) && (!position || inPosition(r.pos, position)));
 }
 
 /**
  * Default order: expected minutes, high to low (ties by row id, stable across builds). With `key` = a stat index, sort
- * by that stat in `dir` ("desc" | "asc"); a missing value always sorts last. Returns a new array.
- * @template {{ id: string, game: string, name: string, team: string, min: number | null, v: (number | null)[] }} T
+ * by that stat in `dir` ("desc" | "asc"); `key` = "min" sorts by expected minutes and "am" by actual minutes (a DNP or a
+ * missing value is not a number). A missing value always sorts last. Returns a new array.
+ * @template {{ id: string, game: string, name: string, team: string, min: number | null, v: (number | null)[], am?: number | string | null }} T
  * @param {T[]} rows
  * @returns {T[]}
- * @param {{ key?: number|null, dir?: "desc"|"asc" }} s
+ * @param {{ key?: number|"min"|"am"|null, dir?: "desc"|"asc" }} s
  */
 export function sortRows(rows, { key = null, dir = "desc" } = {}) {
   const byMinutes = (a, b) => (b.min ?? -Infinity) - (a.min ?? -Infinity) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
   if (key == null) return [...rows].sort(byMinutes);
+  const at = key === "min" ? (r) => r.min : key === "am" ? (r) => r.am : (r) => r.v[key];
+  const num = (x) => (typeof x === "number" ? x : null);
   const sign = dir === "asc" ? 1 : -1;
   return [...rows].sort((a, b) => {
-    const x = a.v[key], y = b.v[key];
+    const x = num(at(a)), y = num(at(b));
     if (x == null || y == null) return x == null && y == null ? byMinutes(a, b) : x == null ? 1 : -1;
     return sign * (x - y) || byMinutes(a, b);
   });

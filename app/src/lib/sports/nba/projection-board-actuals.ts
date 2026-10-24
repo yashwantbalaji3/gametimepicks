@@ -28,7 +28,10 @@ import { COMBO_COMPONENTS } from "@/lib/sports/nba/experimental-public-lane.mjs"
 export type GameActualState = "recorded" | "no-final" | "under-review" | "no-boxscore" | "points-disagree";
 /** Per row: [actual minutes | "DNP" | null, ...one value per board stat]. */
 export type RowActual = [number | "DNP" | null, ...(number | null)[]];
-export type BoardActuals = { games: Record<string, GameActualState>; rows: Record<string, RowActual> };
+/** A player who PLAYED in a recorded game (integer minutes > 0 in the final box score) but has no row on the frozen
+    board: the Official Forecast had no projection for him. His actuals are shown; no forecast figure is invented. */
+export type UnprojectedPlayer = { id: string; game: string; side: "away" | "home"; name: string; actual: RowActual };
+export type BoardActuals = { games: Record<string, GameActualState>; rows: Record<string, RowActual>; unprojected?: UnprojectedPlayer[] };
 
 /** Repo-relative box-score directories, in the graders' lookup order: the canonical corpus, then the fetch cache the
     nightly grader writes (the v0 family's directory). The other families' caches are empty in the repository; a box
@@ -79,6 +82,17 @@ export function boardActuals(
   const record = finals !== undefined ? finals : season ? readJson(path.join(process.cwd(), "public", "data", "nba", "results", `finals-${season}.json`)) : null;
   const games: Record<string, GameActualState> = {};
   const rows: Record<string, RowActual> = {};
+  const unprojected: UnprojectedPlayer[] = [];
+  const lineOf = (a: object | null): RowActual => {
+    const values = stats.map(([k]) => {
+      const parts: string[] = [...((COMBO_COMPONENTS as Record<string, readonly string[]>)[k] ?? [k])];
+      const line = measureAthlete(a, parts);
+      return line.state === LINE_STATE.MEASURED ? parts.reduce((s: number, p: string) => s + (line.values as Record<string, number>)[p], 0) : null;
+    });
+    const m = measureAthlete(a, []);
+    const minutes = m.state === LINE_STATE.DNP ? "DNP" : m.state === LINE_STATE.MEASURED ? (m.minutes as number) : null;
+    return [minutes, ...values];
+  };
   for (const g of lane.games) {
     const id = g.providerEventId;
     const fin = finalFor(record, id) as { state: string; ftHome?: number; ftAway?: number };
@@ -93,20 +107,17 @@ export function boardActuals(
     if (pts?.agrees === false) { games[id] = "points-disagree"; continue; }
     games[id] = "recorded";
     for (const side of ["away", "home"] as const) {
-      for (const r of g.players[side]) {
-        const a = boxscoreAthlete(box, r.providerAthleteId);
-        const values = stats.map(([k]) => {
-          const parts: string[] = [...((COMBO_COMPONENTS as Record<string, readonly string[]>)[k] ?? [k])];
-          const line = measureAthlete(a, parts);
-          return line.state === LINE_STATE.MEASURED ? parts.reduce((s: number, p: string) => s + (line.values as Record<string, number>)[p], 0) : null;
-        });
-        const m = measureAthlete(a, []);
-        const minutes = m.state === LINE_STATE.DNP ? "DNP" : m.state === LINE_STATE.MEASURED ? (m.minutes as number) : null;
-        rows[`${id}:${r.providerAthleteId}`] = [minutes, ...values];
+      for (const r of g.players[side]) rows[`${id}:${r.providerAthleteId}`] = lineOf(boxscoreAthlete(box, r.providerAthleteId));
+      // Played, but not on the board: every box-score row of this side with integer minutes > 0 and no board row.
+      const onBoard = new Set(g.players[side].map((r) => String(r.providerAthleteId)));
+      const tid = String((side === "home" ? home : away).providerTeamId);
+      for (const p of (box as { players?: { providerAthleteId?: string; providerTeamId?: string; name?: string; minutes?: unknown; didNotPlay?: boolean }[] }).players ?? []) {
+        if (String(p.providerTeamId) !== tid || onBoard.has(String(p.providerAthleteId)) || p.didNotPlay || !Number.isInteger(p.minutes) || (p.minutes as number) <= 0) continue;
+        unprojected.push({ id: String(p.providerAthleteId), game: id, side, name: p.name ?? "", actual: lineOf(p) });
       }
     }
   }
-  return { games, rows };
+  return { games, rows, unprojected };
 }
 
 type BoxTeam = { providerTeamId?: string; abbr?: string; homeAway?: string };

@@ -224,9 +224,16 @@ test("controls: native labelled select/input/button (keyboard), table scrolls in
   const html = await renderView(JSON.parse(PUB_TEXT));
   for (const name of ["Matchup", "Team", "Player", "Stat"]) assert.match(html, new RegExp(`<label[^>]*for="[^"]+"[^>]*>${name}<`), name);
   assert.equal((html.match(/<select /g) ?? []).length, 3);
+  // a11y (release owner 2026-10-24): every filter control carries its own accessible name, not only the wrapping label.
+  for (const el of html.match(/<(select|input)\b[^>]*>/g) ?? []) assert.match(el, /aria-label="[^"]{4,}"/, el.slice(0, 80));
   assert.match(html, /<input [^>]*type="search"/);
-  assert.equal((html.match(/<button type="button"[^>]*aria-label="Sort by /g) ?? []).length, 7, "one sort button per stat column");
-  assert.match(html, /class="overflow-x-auto max-w-full[^"]*"[^>]*tabindex="0" role="region"/);
+  assert.equal((html.match(/<button type="button"[^>]*aria-label="Sort by /g) ?? []).length, 8, "one sort button per stat column, plus minutes");
+  // The table scrolls in its own bounded box (founder mandate 2026-10-24): header row and player column stay in view.
+  assert.match(html, /class="overflow-auto max-h-\[75vh\] max-w-full[^"]*"[^>]*tabindex="0" role="region"/);
+  assert.match(html, /\[&amp;_thead_th\]:sticky/);
+  assert.match(html, /\[&amp;_tbody_th\]:sticky \[&amp;_tbody_th\]:left-0/);
+  assert.ok(!/min-h-\[(32|40)px\]/.test(html), "every button, select and input is a 44px target");
+  for (const el of html.match(/<(select|input)\b[^>]*>/g) ?? []) assert.match(el, /min-h-\[44px\]/, el.slice(0, 60));
   assert.match(html, /vault-page-shell[^"]*overflow-x-hidden/);
   for (const rel of ["src/components/nba/projections-view.tsx", "src/components/nba/projection-board.tsx"]) {
     const code = fs.readFileSync(path.join(APP, rel), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
