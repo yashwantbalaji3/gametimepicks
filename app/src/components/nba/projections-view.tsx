@@ -248,7 +248,7 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
           ) : null}
           <p className="m-0 text-[12px] leading-relaxed" style={MUTE}>
             {coverageRecorded(live)
-              ? "Every rostered player without a projection is listed as \u201cProjection unavailable\u201d with the reason the Official Forecast recorded; Out players are not listed."
+              ? "Every rostered player without a projection is listed as \u201cProjection unavailable\u201d with the reason the Official Forecast recorded."
               : `Coverage list not recorded for this slate.${post ? " Players who played without a projection are listed from the final box score." : ""}`}
           </p>
           <ProjectionBoard board={packBoard(rows, post ? post.rows : null, post ? awaiting : null, noProjectionRows(live, post))} stats={stats} groups={groups} matchups={matchups} teams={teams} games={nav} defaultGroup={post ? "core" : undefined} />

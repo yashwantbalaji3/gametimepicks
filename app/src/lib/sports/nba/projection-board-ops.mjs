@@ -129,6 +129,16 @@ export const NO_PROJECTION_LABEL = Object.freeze({
   P: "Played, no projection",
 });
 export const noProjectionLabel = (code) => NO_PROJECTION_LABEL[code] ?? "Projection unavailable";
+/** The same reasons, short, for the board's row (a second line under the name; the legend carries the long form). */
+export const NO_PROJECTION_SHORT = Object.freeze({
+  INSUFFICIENT_HISTORY: "Projection unavailable — not enough recent minutes",
+  NO_EXPECTED_MINUTES: "Projection unavailable — no expected minutes",
+  ROOKIE: "Projection unavailable — rookie",
+  RULED_OUT: "Projection unavailable — ruled out before the freeze",
+  BELOW_PUBLISH_CUT: "Projection unavailable — under 10 min, not published",
+  P: "Played, no projection",
+});
+export const noProjectionShort = (code) => NO_PROJECTION_SHORT[code] ?? "Projection unavailable";
 
 /** Position filter groups: a hyphenated roster position ("F-C") belongs to each of its letters. */
 export const POSITION_GROUPS = Object.freeze([["G", "Guards"], ["F", "Forwards"], ["C", "Centers"]]);

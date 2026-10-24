@@ -369,7 +369,7 @@ test("PR 1230 lane fields (optional): positions → a Position filter; listed un
   const html = render({ lane: withFields });
   assert.match(html, /<label[^>]*for="[^"]+"[^>]*>Position</);
   assert.equal((html.match(/<select /g) ?? []).length, 4, "Matchup, Team, Position, Stat");
-  assert.match(visibleText(html), /Every rostered player without a projection is listed as “Projection unavailable” with the reason the Official Forecast recorded; Out players are not listed\./);
+  assert.match(visibleText(html), /Every rostered player without a projection is listed as “Projection unavailable” with the reason the Official Forecast recorded\./);
   assert.match(visibleText(html), new RegExp(`· ${withFields.games.length * 2} without a projection`));
   assert.doesNotMatch(html, /positionSource|nba\/rosters/, "the roster source is not rendered");
   // Wire: positions parallel to the rows; listed players with code + position, no numbers before a final.
@@ -382,7 +382,9 @@ test("PR 1230 lane fields (optional): positions → a Position filter; listed un
   assert.deepEqual(listed.v, Array(PROJECTION_BOARD_STATS.length).fill(null));
   assert.equal(listed.pos, "G");
   assert.ok(filt(back, { position: "C" }).every((r) => String(r.pos).split("-").includes("C")) && filt(back, { position: "C" }).some((r) => r.pos === "F-C"), "F-C counts as a center and a forward");
-  for (const [k, l] of Object.entries(NO_PROJECTION_LABEL)) {
+  const { NO_PROJECTION_SHORT } = await import("./projection-board-ops.mjs");
+  assert.deepEqual(Object.keys(NO_PROJECTION_SHORT), Object.keys(NO_PROJECTION_LABEL), "a short row label for every reason");
+  for (const [k, l] of [...Object.entries(NO_PROJECTION_LABEL), ...Object.entries(NO_PROJECTION_SHORT)]) {
     assert.doesNotMatch(l, /injur/i, "a reason is never called an injury");
     if (k !== "RULED_OUT") assert.doesNotMatch(l, /\bout\b/i, `${k}: only the lane's own RULED_OUT code reads 'out'`);
   }
