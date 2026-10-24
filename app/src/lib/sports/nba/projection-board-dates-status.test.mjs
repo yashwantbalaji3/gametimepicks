@@ -88,9 +88,11 @@ test("links: the hub's own lane-card anchor, else its schedule section, else non
 
 test("links: the compact /nba hub (PR 1170) RENDERS the exact per-game anchor each board link targets", async () => {
   // Whatever slate latest.json holds (data commits move it): build "on its own date", so /nba renders it as current.
-  const { default: Lane } = await import("../../../components/nba/experimental-lane.tsx");
+  // founder mandate 2026-10-24: the per-game anchor is today's game card (hub-overview NbaTodayGames), from the same slate view
+  const { NbaTodayGames } = await import("../../../components/nba/hub-overview.tsx");
+  const { nbaTodaySlateFrom } = await import("../../sport-hub/nba-hub.ts");
   const hubLane = JSON.parse(fs.readFileSync(path.join(DIR, "latest.json"), "utf8"));
-  const html = renderToStaticMarkup(React.createElement(Lane, { snapshot: hubLane }));
+  const html = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: nbaTodaySlateFrom({ nowIso: `${hubLane.date}T12:00:00Z`, schedule: null, finals: null, lane: hubLane }) }));
   const ctx = boardContext({ date: null, nowIso: `${hubLane.date}T12:00:00Z`, buildEtDate: hubLane.date, enabled: true });
   assert.equal(ctx.games.length, hubLane.games.length);
   assert.ok(ctx.games.length > 0);
