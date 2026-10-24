@@ -6006,6 +6006,10 @@ main a.font-mono.uppercase:not(p a):not(li a):not(td a):not(dd a) { display: inl
 .sgd-row { border-top: 1px solid var(--vault-rule); }
 .sgd-th { text-align: left; font-weight: 600; }
 .sgd-td { text-align: left; white-space: nowrap; }
+/* Page weight (2026-10-24): every cell carried "px-3 sm:px-4 py-2" — 132 KB of repeated class text on /results/nba alone,
+   shipped twice (HTML + payload). The same values, once: Tailwind px-3 / py-2 / sm:px-4 at its default 640px break. */
+.sgd-th, .sgd-td { padding: 0.5rem 0.75rem; }
+@media (min-width: 640px) { .sgd-th, .sgd-td { padding-left: 1rem; padding-right: 1rem; } }
 .sgd-th.sgd-r, .sgd-td.sgd-r { text-align: right; }
 .sgd-name { color: var(--vault-text); font-weight: 500; }
 .sgd-text { color: var(--vault-text); }
@@ -6015,7 +6019,7 @@ main a.font-mono.uppercase:not(p a):not(li a):not(td a):not(dd a) { display: inl
 .sgd-loss { color: var(--vault-warn); }
 .sgd-push, .sgd-void { color: var(--vault-text-mute); }
 .sgd-other { color: var(--vault-text-faint); }
-.sgd-odds { color: var(--vault-text-faint); font-size: 10px; }
+.sgd-odds { color: var(--vault-text-faint); font-size: 10px; margin-left: 0.5rem; }
 /* ── Site chrome: command rail + footer link lists · COST-002 HTML reduction, 2026-10-15 ─────────────────────
    Formerly inline on every rail link and footer link of all ~2,900 exported pages. Values verbatim. The rail's
    active state keys off aria-current="page", which the component sets exactly when the item is active. Footer
