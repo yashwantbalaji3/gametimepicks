@@ -132,26 +132,26 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
       <form className={`grid gap-2 grid-cols-1 sm:grid-cols-2 ${hasPositions ? "lg:grid-cols-5" : "lg:grid-cols-4"} min-w-0`} role="search" aria-label="Filter the player board" onSubmit={(e) => e.preventDefault()}>
         <label className={FIELD} htmlFor={`${uid}-m`} style={{ color: "var(--vault-text-mute)" }}>
           Matchup
-          <select id={`${uid}-m`} className={INPUT} style={INPUT_STYLE} value={matchup} onChange={(e) => { setMatchup(e.target.value); setTeam(""); }}>
+          <select id={`${uid}-m`} aria-label="Filter by game" className={INPUT} style={INPUT_STYLE} value={matchup} onChange={(e) => { setMatchup(e.target.value); setTeam(""); }}>
             <option value="">All games</option>
             {matchups.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
           </select>
         </label>
         <label className={FIELD} htmlFor={`${uid}-t`} style={{ color: "var(--vault-text-mute)" }}>
           Team
-          <select id={`${uid}-t`} className={INPUT} style={INPUT_STYLE} value={team} onChange={(e) => setTeam(e.target.value)}>
+          <select id={`${uid}-t`} aria-label="Filter by team" className={INPUT} style={INPUT_STYLE} value={team} onChange={(e) => setTeam(e.target.value)}>
             <option value="">All teams</option>
             {teamOptions.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
           </select>
         </label>
         <label className={FIELD} htmlFor={`${uid}-p`} style={{ color: "var(--vault-text-mute)" }}>
           Player
-          <input id={`${uid}-p`} type="search" className={INPUT} style={INPUT_STYLE} value={player} onChange={(e) => setPlayer(e.target.value)} placeholder="Name" autoComplete="off" />
+          <input id={`${uid}-p`} type="search" aria-label="Search players by name" className={INPUT} style={INPUT_STYLE} value={player} onChange={(e) => setPlayer(e.target.value)} placeholder="Name" autoComplete="off" />
         </label>
         {hasPositions ? (
           <label className={FIELD} htmlFor={`${uid}-pos`} style={{ color: "var(--vault-text-mute)" }}>
             Position
-            <select id={`${uid}-pos`} className={INPUT} style={INPUT_STYLE} value={position} onChange={(e) => setPosition(e.target.value)}>
+            <select id={`${uid}-pos`} aria-label="Filter by position" className={INPUT} style={INPUT_STYLE} value={position} onChange={(e) => setPosition(e.target.value)}>
               <option value="">All positions</option>
               {POSITION_GROUPS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
             </select>
@@ -159,7 +159,7 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
         ) : null}
         <label className={FIELD} htmlFor={`${uid}-s`} style={{ color: "var(--vault-text-mute)" }}>
           Stat
-          <select id={`${uid}-s`} className={INPUT} style={INPUT_STYLE} value={group} onChange={(e) => setGroup(e.target.value)}>
+          <select id={`${uid}-s`} aria-label="Choose which stats to show" className={INPUT} style={INPUT_STYLE} value={group} onChange={(e) => setGroup(e.target.value)}>
             {groups.map((g) => <option key={g.id} value={g.id}>{g.label}</option>)}
           </select>
         </label>

@@ -224,6 +224,8 @@ test("controls: native labelled select/input/button (keyboard), table scrolls in
   const html = await renderView(JSON.parse(PUB_TEXT));
   for (const name of ["Matchup", "Team", "Player", "Stat"]) assert.match(html, new RegExp(`<label[^>]*for="[^"]+"[^>]*>${name}<`), name);
   assert.equal((html.match(/<select /g) ?? []).length, 3);
+  // a11y (release owner 2026-10-24): every filter control carries its own accessible name, not only the wrapping label.
+  for (const el of html.match(/<(select|input)\b[^>]*>/g) ?? []) assert.match(el, /aria-label="[^"]{4,}"/, el.slice(0, 80));
   assert.match(html, /<input [^>]*type="search"/);
   assert.equal((html.match(/<button type="button"[^>]*aria-label="Sort by /g) ?? []).length, 8, "one sort button per stat column, plus minutes");
   // The table scrolls in its own bounded box (founder mandate 2026-10-24): header row and player column stay in view.
