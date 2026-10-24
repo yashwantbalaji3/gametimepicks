@@ -22,6 +22,7 @@ import { fileURLToPath } from "node:url";
 import { buildExperimentalSnapshot, snapshotMatchesSource, unavailablePlayersForPublish } from "../../src/lib/sports/nba/experimental-public-lane.mjs";
 import { decidePublish, PUBLISH } from "../../src/lib/sports/nba/experimental-lane-publish.mjs";
 import { etDateOf } from "../../src/lib/sports/nba/experimental-forecast.mjs";
+import { loadRosterIndex } from "../../src/lib/sports/nba/roster-index.mjs";
 import { eloWinProbabilityForPublish } from "../../src/lib/sports/nba/elo-win-probability.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -38,6 +39,8 @@ const forecastDoc = readJson(path.join(REPO, rel));
 const schedule = readJson(path.join(APP, "public", "data", "nba", "schedule", "latest.json"));
 const OUT = path.join(APP, "public", "data", "nba", "experimental-public");
 const committedDay = readJson(path.join(OUT, `${DATE}.json`));
+// the exact pregame roster of each freeze, by its sha256 (positions; P1(b) detail — used only for slates carrying it)
+const ROSTERS = loadRosterIndex(REPO);
 const committedLatest = readJson(path.join(OUT, "latest.json"));
 
 let snapshot = null;
@@ -49,9 +52,9 @@ if (forecastDoc?.family === "v0.1") {
   if (committedDay?.source?.file === `nba/experimental-v0.1/forecasts/${DATE}.json` && committedDay.source.commit) commit = committedDay.source.commit;
   // founder decision 2026-10-23: the Elo game-winner probability follows the switch for an unpublished slate only; a
   // published slate is rebuilt exactly as it was published (so a flip never makes it differ or rewrites it)
-  snapshot = buildExperimentalSnapshot({ forecastDoc, sourceFile: `nba/experimental-v0.1/forecasts/${DATE}.json`, sourceCommit: commit, generatedAt: NOW, eloWinProbability: eloWinProbabilityForPublish(committedDay), unavailablePlayers: unavailablePlayersForPublish(committedDay) });
+  snapshot = buildExperimentalSnapshot({ forecastDoc, sourceFile: `nba/experimental-v0.1/forecasts/${DATE}.json`, sourceCommit: commit, generatedAt: NOW, eloWinProbability: eloWinProbabilityForPublish(committedDay), unavailablePlayers: unavailablePlayersForPublish(committedDay), rosters: ROSTERS });
   const byId = new Map(forecastDoc.games.map((g) => [String(g.providerEventId), g]));
-  rederivesOk = snapshot.games.every((g) => snapshotMatchesSource(g, byId.get(g.providerEventId)));
+  rederivesOk = snapshot.games.every((g) => snapshotMatchesSource(g, byId.get(g.providerEventId), { rosters: ROSTERS }));
 }
 
 const d = decidePublish({ date: DATE, scheduleRows: schedule?.rows ?? [], etDateOf, forecastDoc, now: NOW, snapshot, rederivesOk, committedDay, committedLatest });

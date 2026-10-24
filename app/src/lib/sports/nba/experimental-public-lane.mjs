@@ -88,13 +88,30 @@ export const COMBO_MEAN_TOLERANCE = 0.02;
  * (unavailablePlayersForPublish), exactly like the Elo estimate.
  */
 export const UNAVAILABLE_PLAYERS = Object.freeze({ id: "nba-lane-unavailable-players@1", enabled: false });
+/*
+ * POSITION (release owner 2026-10-24, the one producer for boards): under the SAME switch and rule, each published player
+ * row and each unavailable entry carries `position` from the EXACT roster the receipt was frozen on — found by the
+ * receipt's own roster sha256 (roster-index.mjs), so it is pregame and proven; `players.positionSource` names that
+ * capture ({ file, sha256 }), or is null when no committed capture matches (then every position is null — never guessed).
+ */
+/** athlete id → position code (or null) from one roster capture. Pure. */
+export function rosterPositions(rosterDoc) {
+  const m = new Map();
+  for (const t of rosterDoc?.teams ?? []) for (const p of t?.players ?? []) if (p?.providerAthleteId != null) m.set(String(p.providerAthleteId), typeof p.position === "string" && p.position ? p.position : null);
+  return m;
+}
+const positionsFor = (receipt, rosters) => {
+  const sha = receipt?.inputs?.rosters?.sha256 ?? null;
+  const ro = sha && rosters?.get?.(sha);
+  return ro ? { source: { file: ro.file, sha256: sha }, positions: rosterPositions(ro.doc) } : { source: null, positions: new Map() };
+};
 export const UNAVAILABLE_STATE = "PROJECTION_UNAVAILABLE";
 const UNAVAILABLE_REASON = Object.freeze({ insufficient: "INSUFFICIENT_HISTORY" });
 /** The lane's per-side list, copied from the receipt (sorted by id for byte-stable output). Pure. */
-export function laneUnavailable(forecast) {
+export function laneUnavailable(forecast, positions = null) {
   const side = (k) => (forecast?.assumptions?.availability?.[k]?.excludedNoMinutes ?? [])
     .filter((p) => p?.providerAthleteId != null)
-    .map((p) => ({ providerAthleteId: String(p.providerAthleteId), name: p.name ?? null, state: UNAVAILABLE_STATE, reason: UNAVAILABLE_REASON[p.basis] ?? "NO_EXPECTED_MINUTES" }))
+    .map((p) => ({ providerAthleteId: String(p.providerAthleteId), name: p.name ?? null, ...(positions ? { position: positions.get(String(p.providerAthleteId)) ?? null } : {}), state: UNAVAILABLE_STATE, reason: UNAVAILABLE_REASON[p.basis] ?? "NO_EXPECTED_MINUTES" }))
     .sort((a, b) => a.providerAthleteId.localeCompare(b.providerAthleteId));
   return { away: side("away"), home: side("home") };
 }
@@ -116,13 +133,14 @@ export const WITHHELD = Object.freeze({
 
 const r1 = (x) => (Number.isFinite(x) ? Math.round(x * 10) / 10 : null);
 
-function sideRows(players) {
+function sideRows(players, positions = null) {
   return (Array.isArray(players) ? players : [])
     .filter((p) => p?.availability !== "out" && Number.isFinite(p?.expectedMinutes) && p.expectedMinutes >= MIN_EXPECTED_MINUTES)
     .sort((a, b) => b.expectedMinutes - a.expectedMinutes || String(a.providerAthleteId).localeCompare(String(b.providerAthleteId)))
     .map((p) => ({
       providerAthleteId: String(p.providerAthleteId),
       name: p.name ?? null,
+      ...(positions ? { position: positions.get(String(p.providerAthleteId)) ?? null } : {}),
       expectedMinutes: r1(p.expectedMinutes),
       injuryStatus: p.injuryStatus ?? null,
       medians: Object.fromEntries(STATS.map(([k]) => [k, r1(p?.[k]?.p50)])),
@@ -154,7 +172,7 @@ export function comboReconciliation(player) {
  * @param {string|null} a.sourceCommit  the git commit that holds that file, when known
  * @param {string} a.generatedAt  when this snapshot was assembled (never a forecast time)
  */
-function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCommit = null, generatedAt, eloWinProbability = ELO_WIN_PROBABILITY.enabled, unavailablePlayers = UNAVAILABLE_PLAYERS.enabled }) {
+function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCommit = null, generatedAt, eloWinProbability = ELO_WIN_PROBABILITY.enabled, unavailablePlayers = UNAVAILABLE_PLAYERS.enabled, rosters = null }) {
   if (forecastDoc?.family !== LANE.sourceFamily) throw new Error(`REFUSED: lane reads family ${LANE.sourceFamily}, got ${JSON.stringify(forecastDoc?.family)}`);
   const games = [];
   const excluded = [];
@@ -177,6 +195,7 @@ function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCom
     const side = f.publishedSide === "HOME" ? g.home : f.publishedSide === "AWAY" ? g.away : null;
     // founder decision 2026-10-23: the receipt's own Elo pHome / pAway, verbatim, with provenance — only while switched on
     const wp = eloWinProbability ? laneEloWinProbability(f, r) : null;
+    const pos = unavailablePlayers ? positionsFor(r, rosters) : null;
     // PRIVATE audit facts (never in the public snapshot): which side the withheld v0.1 team median favours, and the seed.
     audit.push({
       providerEventId: String(g.providerEventId),
@@ -205,9 +224,10 @@ function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCom
       players: {
         source: `v0.1 roster-gated player simulation (${r.modelVersion}) — medians of ${f.simulations ?? "?"} simulated games`,
         ...(AMENDMENT_A.enabled ? { comboSource: `PRA, P+R and P+A: ${COMBO_LABEL}` } : {}),
-        away: sideRows(f.players?.away),
-        home: sideRows(f.players?.home),
-        ...(unavailablePlayers ? { unavailable: laneUnavailable(f) } : {}),
+        ...(pos ? { positionSource: pos.source } : {}),
+        away: sideRows(f.players?.away, pos?.positions ?? null),
+        home: sideRows(f.players?.home, pos?.positions ?? null),
+        ...(pos ? { unavailable: laneUnavailable(f, pos.positions) } : {}),
       },
     });
   }
@@ -249,8 +269,12 @@ export function laneIsCurrent(snapshot, buildEtDate) {
 }
 
 /** Every number in a snapshot game must be the receipt's stored value — re-derive and compare. Pure. */
-export function snapshotMatchesSource(snapshotGame, sourceGame) {
+export function snapshotMatchesSource(snapshotGame, sourceGame, { rosters = null } = {}) {
   const f = sourceGame?.forecast ?? {};
+  // P1(b) detail (positions + unavailable list): re-derived from the receipt's own roster capture, found by its sha256
+  const detail = snapshotGame.players?.positionSource !== undefined;
+  const pos = detail ? positionsFor(sourceGame?.receipt, rosters) : null;
+  if (detail && JSON.stringify(snapshotGame.players.positionSource) !== JSON.stringify(pos.source)) return false;
   for (const side of ["away", "home"]) {
     const src = new Map((f.players?.[side] ?? []).map((p) => [String(p.providerAthleteId), p]));
     for (const row of snapshotGame.players[side]) {
@@ -264,10 +288,11 @@ export function snapshotMatchesSource(snapshotGame, sourceGame) {
         if (comboReconciliation(p).length) return false;
       }
       if (row.expectedMinutes !== r1(p.expectedMinutes)) return false;
+      if (detail ? row.position !== (pos.positions.get(row.providerAthleteId) ?? null) : row.position !== undefined) return false;
     }
   }
   // P1(b): a published unavailable list must be exactly the receipt's own pregame record
-  if (snapshotGame.players?.unavailable !== undefined && JSON.stringify(snapshotGame.players.unavailable) !== JSON.stringify(laneUnavailable(f))) return false;
+  if (snapshotGame.players?.unavailable !== undefined && JSON.stringify(snapshotGame.players.unavailable) !== JSON.stringify(laneUnavailable(f, detail ? pos.positions : null))) return false;
   // founder decision 2026-10-23: a published Elo game-winner probability must be the receipt's own numbers and provenance
   const wp = snapshotGame.elo?.winProbability;
   if (wp !== undefined && JSON.stringify(wp) !== JSON.stringify(laneEloWinProbability(f, sourceGame.receipt))) return false;
