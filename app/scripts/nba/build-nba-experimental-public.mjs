@@ -15,8 +15,9 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-import { buildExperimentalSnapshot, buildExperimentalAudit, snapshotMatchesSource } from "../../src/lib/sports/nba/experimental-public-lane.mjs";
+import { buildExperimentalSnapshot, buildExperimentalAudit, snapshotMatchesSource, unavailablePlayersForPublish } from "../../src/lib/sports/nba/experimental-public-lane.mjs";
 import { manualWriteDecision, PUBLISH } from "../../src/lib/sports/nba/experimental-lane-publish.mjs";
+import { loadRosterIndex } from "../../src/lib/sports/nba/roster-index.mjs";
 import { eloWinProbabilityForPublish } from "../../src/lib/sports/nba/elo-win-probability.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -37,16 +38,18 @@ try { commit = execFileSync("git", ["log", "-1", "--format=%H", "--", rel], { cw
 // Published label omits the internal prefix: the public file names the family and date, the commit pins the bytes.
 // §13 amendment A: a combo that does not reconcile with its source draws throws REFUSED inside the build — exit 1.
 const OUT = path.join(APP, "public", "data", "nba", "experimental-public");
+// the exact pregame roster of each freeze, by its sha256 (positions; P1(b) detail — used only for slates carrying it)
+const ROSTERS = loadRosterIndex(REPO);
 const committedDay = (() => { try { return JSON.parse(fs.readFileSync(path.join(OUT, `${DATE}.json`), "utf8")); } catch { return null; } })();
 // a published day file pins the commit and instant it was built from; a rebuild of the same bytes keeps both
 if (committedDay?.source?.commit) commit = committedDay.source.commit;
 let snap;
 try {
-  snap = buildExperimentalSnapshot({ forecastDoc: doc, sourceFile: `nba/experimental-v0.1/forecasts/${DATE}.json`, sourceCommit: commit, generatedAt: committedDay?.generatedAt ?? NOW, eloWinProbability: eloWinProbabilityForPublish(committedDay) });
+  snap = buildExperimentalSnapshot({ forecastDoc: doc, sourceFile: `nba/experimental-v0.1/forecasts/${DATE}.json`, sourceCommit: commit, generatedAt: committedDay?.generatedAt ?? NOW, eloWinProbability: eloWinProbabilityForPublish(committedDay), unavailablePlayers: unavailablePlayersForPublish(committedDay), rosters: ROSTERS });
 } catch (e) { console.error(e.message); process.exit(1); }
 const byId = new Map(doc.games.map((g) => [String(g.providerEventId), g]));
 for (const g of snap.games) {
-  if (!snapshotMatchesSource(g, byId.get(g.providerEventId))) { console.error(`REFUSED: ${g.providerEventId} does not re-derive from its receipt`); process.exit(1); }
+  if (!snapshotMatchesSource(g, byId.get(g.providerEventId), { rosters: ROSTERS })) { console.error(`REFUSED: ${g.providerEventId} does not re-derive from its receipt`); process.exit(1); }
 }
 for (const g of snap.games) console.log(`${g.away.abbr} @ ${g.home.abbr} (${g.providerEventId}) · tip ${g.tipUtc} · frozen ${g.frozenAt} · Elo favours ${g.elo.favoured} · players ${g.players.away.length}+${g.players.home.length} · receipt ${g.receipt.payloadSha256.slice(0, 12)}`);
 for (const e of snap.excluded) console.log(`EXCLUDED ${e.providerEventId}: ${e.reason}`);

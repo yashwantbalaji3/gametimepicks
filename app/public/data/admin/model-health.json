@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-10-23T14:30:35Z",
+ "generatedAt": "2026-10-24T13:39:16Z",
  "worst": "BREACHED",
  "counts": {
   "INSUFFICIENT_SAMPLE": 5,
@@ -22,20 +22,20 @@
    "label": "MLB total picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "BREACHED",
-   "n": 778,
+   "n": 779,
    "judgement": {
     "state": "BREACHED",
-    "n": 778,
+    "n": 779,
     "needed": 200,
-    "meanDiff": 0.0343,
+    "meanDiff": 0.0347,
     "lo95": 0.0163,
-    "hi95": 0.0522
+    "hi95": 0.0541
    },
    "context": {
-    "hitRate": 0.491,
-    "meanPickProbability": 0.5873,
-    "modelMinusMarket": 0.0336,
-    "pairedWithMarket": 778
+    "hitRate": 0.4904,
+    "meanPickProbability": 0.5874,
+    "modelMinusMarket": 0.034,
+    "pairedWithMarket": 779
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
    "bar": {
@@ -157,20 +157,20 @@
    "label": "MLB moneyline picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "WATCH",
-   "n": 821,
+   "n": 822,
    "judgement": {
     "state": "WATCH",
-    "n": 821,
+    "n": 822,
     "needed": 200,
-    "meanDiff": 0.007,
-    "lo95": -0.0056,
-    "hi95": 0.0196
+    "meanDiff": 0.0069,
+    "lo95": -0.0053,
+    "hi95": 0.019
    },
    "context": {
-    "hitRate": 0.5116,
-    "meanPickProbability": 0.5717,
-    "modelMinusMarket": 0.0311,
-    "pairedWithMarket": 816
+    "hitRate": 0.5122,
+    "meanPickProbability": 0.5716,
+    "modelMinusMarket": 0.0314,
+    "pairedWithMarket": 817
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
    "bar": {
@@ -285,28 +285,28 @@
    "label": "EPL match result (home/draw/away)",
    "baseline": "even odds (log loss 1.0986)",
    "state": "HOLDING",
-   "n": 66,
+   "n": 68,
    "judgement": {
     "state": "HOLDING",
-    "n": 66,
+    "n": 68,
     "needed": 60,
-    "meanDiff": -0.0867,
-    "lo95": -0.203,
-    "hi95": 0.0291
+    "meanDiff": -0.0752,
+    "lo95": -0.1906,
+    "hi95": 0.0374
    },
    "context": {
-    "modelLogLoss": 1.0119,
+    "modelLogLoss": 1.0234,
     "market": {
      "model": {
-      "logLoss": 1.020237,
-      "brier": 0.621762
+      "logLoss": 1.03324,
+      "brier": 0.630428
      },
      "market": {
-      "logLoss": 1.012479,
-      "brier": 0.607706
+      "logLoss": 1.027791,
+      "brier": 0.618233
      },
-     "logLossDelta": 0.007758,
-     "brierDelta": 0.014056
+     "logLossDelta": 0.005449,
+     "brierDelta": 0.012195
     },
     "marketComparisonState": "MODEL_BEHIND",
     "stoppingRule": "NO_MEASURABLE_ADVANTAGE"
@@ -665,16 +665,16 @@
    "label": "EPL blind forward test · match model vs the one it replaced",
    "baseline": "the previous model (epl-model-v1-split-poisson), paired per match",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 30,
+   "n": 32,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "watch": false,
     "needed": 60,
-    "meanDiff": -0.3093,
+    "meanDiff": -0.2942,
     "lo95": null,
     "hi95": null,
-    "modelLogLoss": 0.9559,
-    "controlLogLoss": 1.2652,
+    "modelLogLoss": 0.9839,
+    "controlLogLoss": 1.2781,
     "modelId": "epl-model-v2-elo-poisson"
    },
    "context": null,
@@ -691,11 +691,11 @@
    "label": "EPL totals SHADOW (research, not public) · club-specific total vs live P304",
    "baseline": "live P304 constant total, paired per match",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 30,
+   "n": 32,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "needed": 60,
-    "meanDiff": 0,
+    "meanDiff": -0.0005,
     "lo95": null,
     "hi95": null,
     "failedBars": null,
@@ -715,17 +715,17 @@
    "label": "Ligue 1 match result (home/draw/away)",
    "baseline": "even odds (log loss 1.0986)",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 36,
+   "n": 37,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 36,
+    "n": 37,
     "needed": 60,
-    "meanDiff": -0.2427,
+    "meanDiff": -0.2343,
     "lo95": null,
     "hi95": null
    },
    "context": {
-    "modelLogLoss": 0.8559
+    "modelLogLoss": 0.8643
    },
    "source": "app/public/data/soccer/ligue-1/results/graded.json",
    "bar": {
@@ -746,20 +746,20 @@
    "label": "MLB run line posted picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 11,
+   "n": 12,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 11,
+    "n": 12,
     "needed": 200,
-    "meanDiff": 0.0826,
+    "meanDiff": 0.0512,
     "lo95": null,
     "hi95": null
    },
    "context": {
-    "hitRate": 0.4545,
-    "meanPickProbability": 0.6311,
-    "modelMinusMarket": 0.0618,
-    "pairedWithMarket": 11
+    "hitRate": 0.5,
+    "meanPickProbability": 0.6344,
+    "modelMinusMarket": 0.0429,
+    "pairedWithMarket": 12
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
    "bar": {
