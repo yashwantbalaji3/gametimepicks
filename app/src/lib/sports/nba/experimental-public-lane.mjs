@@ -94,25 +94,57 @@ export const UNAVAILABLE_PLAYERS = Object.freeze({ id: "nba-lane-unavailable-pla
  * receipt's own roster sha256 (roster-index.mjs), so it is pregame and proven; `players.positionSource` names that
  * capture ({ file, sha256 }), or is null when no committed capture matches (then every position is null — never guessed).
  */
-/** athlete id → position code (or null) from one roster capture. Pure. */
-export function rosterPositions(rosterDoc) {
+/** athlete id → { position, experienceYears } from one roster capture (the receipt's own, by sha256). Pure. */
+export function rosterFacts(rosterDoc) {
   const m = new Map();
-  for (const t of rosterDoc?.teams ?? []) for (const p of t?.players ?? []) if (p?.providerAthleteId != null) m.set(String(p.providerAthleteId), typeof p.position === "string" && p.position ? p.position : null);
+  for (const t of rosterDoc?.teams ?? []) for (const p of t?.players ?? []) {
+    if (p?.providerAthleteId == null) continue;
+    m.set(String(p.providerAthleteId), { position: typeof p.position === "string" && p.position ? p.position : null, experienceYears: Number.isInteger(p.experienceYears) ? p.experienceYears : null });
+  }
   return m;
 }
+/** athlete id → position code (or null). Pure. */
+export const rosterPositions = (rosterDoc) => new Map([...rosterFacts(rosterDoc)].map(([id, f]) => [id, f.position]));
 const positionsFor = (receipt, rosters) => {
   const sha = receipt?.inputs?.rosters?.sha256 ?? null;
   const ro = sha && rosters?.get?.(sha);
-  return ro ? { source: { file: ro.file, sha256: sha }, positions: rosterPositions(ro.doc) } : { source: null, positions: new Map() };
+  const facts = ro ? rosterFacts(ro.doc) : new Map();
+  return { source: ro ? { file: ro.file, sha256: sha } : null, facts, positions: new Map([...facts].map(([id, f]) => [id, f.position])) };
 };
 export const UNAVAILABLE_STATE = "PROJECTION_UNAVAILABLE";
-const UNAVAILABLE_REASON = Object.freeze({ insufficient: "INSUFFICIENT_HISTORY" });
-/** The lane's per-side list, copied from the receipt (sorted by id for byte-stable output). Pure. */
-export function laneUnavailable(forecast, positions = null) {
-  const side = (k) => (forecast?.assumptions?.availability?.[k]?.excludedNoMinutes ?? [])
-    .filter((p) => p?.providerAthleteId != null)
-    .map((p) => ({ providerAthleteId: String(p.providerAthleteId), name: p.name ?? null, ...(positions ? { position: positions.get(String(p.providerAthleteId)) ?? null } : {}), state: UNAVAILABLE_STATE, reason: UNAVAILABLE_REASON[p.basis] ?? "NO_EXPECTED_MINUTES" }))
-    .sort((a, b) => a.providerAthleteId.localeCompare(b.providerAthleteId));
+/*
+ * REASONS (founder 2026-10-24: "every rostered player accounted for — if a player cannot be projected, show why"; the
+ * Top Boards session's parked coverage branch claude/nba-lane-coverage-alt-parked proved the receipt fields):
+ *   RULED_OUT            in the receipt's pre-cutoff availability as Out (assumptions.availability.<side>.excludedOut, or
+ *                        a pool player marked out); `status` is that pre-cutoff status text — never a later update
+ *   BELOW_PUBLISH_CUT    projected, but under the lane's MIN_EXPECTED_MINUTES publish cut — the projection is not
+ *                        published, and no number is shown here
+ *   ROOKIE               no usable NBA minutes in the data, and the receipt's roster capture says experienceYears 0
+ *   INSUFFICIENT_HISTORY no usable NBA minutes in the data (not a rookie, or no roster capture to tell)
+ *   NO_EXPECTED_MINUTES  excluded from the pool for any other no-minutes basis
+ * One entry per athlete (priority in that order). No minutes, medians or any other number travels.
+ */
+export const UNAVAILABLE_REASONS = Object.freeze(["RULED_OUT", "BELOW_PUBLISH_CUT", "ROOKIE", "INSUFFICIENT_HISTORY", "NO_EXPECTED_MINUTES"]);
+/** The lane's per-side list, copied from the receipt (+ the receipt's own roster capture for position / rookie). Pure. */
+export function laneUnavailable(forecast, facts = null) {
+  const side = (k) => {
+    const av = forecast?.assumptions?.availability?.[k] ?? {};
+    const byId = new Map();
+    const add = (p, reason, extra = {}) => {
+      const id = p?.providerAthleteId == null ? null : String(p.providerAthleteId);
+      if (id == null || byId.has(id)) return;
+      const fact = facts?.get(id) ?? null;
+      byId.set(id, { providerAthleteId: id, name: p.name ?? null, ...(facts ? { position: fact?.position ?? null } : {}), state: UNAVAILABLE_STATE, reason, ...extra });
+    };
+    for (const p of av.excludedOut ?? []) add(p, "RULED_OUT", { status: p.injuryStatus ?? null });
+    for (const p of forecast?.players?.[k] ?? []) if (p?.availability === "out") add(p, "RULED_OUT", { status: p.injuryStatus ?? null });
+    for (const p of forecast?.players?.[k] ?? []) if (p?.availability !== "out" && Number.isFinite(p?.expectedMinutes) && p.expectedMinutes < MIN_EXPECTED_MINUTES) add(p, "BELOW_PUBLISH_CUT");
+    for (const p of av.excludedNoMinutes ?? []) {
+      const rookie = facts?.get(String(p?.providerAthleteId))?.experienceYears === 0;
+      add(p, p?.basis === "insufficient" ? (rookie ? "ROOKIE" : "INSUFFICIENT_HISTORY") : "NO_EXPECTED_MINUTES");
+    }
+    return [...byId.values()].sort((a, b) => a.providerAthleteId.localeCompare(b.providerAthleteId));
+  };
   return { away: side("away"), home: side("home") };
 }
 /** Does a rebuild of a slate carry the list? A published slate: exactly what it was published with; otherwise the switch. */
@@ -227,7 +259,7 @@ function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCom
         ...(pos ? { positionSource: pos.source } : {}),
         away: sideRows(f.players?.away, pos?.positions ?? null),
         home: sideRows(f.players?.home, pos?.positions ?? null),
-        ...(pos ? { unavailable: laneUnavailable(f, pos.positions) } : {}),
+        ...(pos ? { unavailable: laneUnavailable(f, pos.facts) } : {}),
       },
     });
   }
@@ -292,7 +324,7 @@ export function snapshotMatchesSource(snapshotGame, sourceGame, { rosters = null
     }
   }
   // P1(b): a published unavailable list must be exactly the receipt's own pregame record
-  if (snapshotGame.players?.unavailable !== undefined && JSON.stringify(snapshotGame.players.unavailable) !== JSON.stringify(laneUnavailable(f, detail ? pos.positions : null))) return false;
+  if (snapshotGame.players?.unavailable !== undefined && JSON.stringify(snapshotGame.players.unavailable) !== JSON.stringify(laneUnavailable(f, detail ? pos.facts : null))) return false;
   // founder decision 2026-10-23: a published Elo game-winner probability must be the receipt's own numbers and provenance
   const wp = snapshotGame.elo?.winProbability;
   if (wp !== undefined && JSON.stringify(wp) !== JSON.stringify(laneEloWinProbability(f, sourceGame.receipt))) return false;
