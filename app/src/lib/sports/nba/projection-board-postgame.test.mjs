@@ -392,3 +392,21 @@ test("PR 1230 lane fields (optional): positions → a Position filter; listed un
   assert.match(visibleText(plain), /Coverage list not recorded for this slate\./);
   assert.doesNotMatch(visibleText(plain), /without a projection/);
 });
+
+test("weight: the static HTML carries the first SSR_ROWS rows in the default order, says so, and a small slate is complete", async () => {
+  const { SSR_ROWS } = await import("../../../components/nba/projection-board.tsx");
+  assert.equal(SSR_ROWS, 100);
+  const big = JSON.parse(fs.readFileSync(path.join(DIR, "2026-10-21.json"), "utf8"));
+  const all = sortRows(boardRows(big, PROJECTION_BOARD_STATS));
+  assert.ok(all.length > SSR_ROWS, `${all.length} rows on the 10-21 slate`);
+  const html = render({ lane: big });
+  const trs = cellsOf(html);
+  assert.equal(trs.length, SSR_ROWS);
+  assert.deepEqual(trs.map((c) => c[0]), all.slice(0, SSR_ROWS).map((r) => `${r.name}${r.injury ? ` · ${r.injury}` : ""}`), "the top of the default (expected-minutes) order");
+  assert.match(visibleText(html), new RegExp(`Showing the first ${SSR_ROWS} of ${all.length} players; the full board loads in your browser\\.`));
+  assert.equal(JSON.parse(JSON.stringify(packBoard(all))).r.length, all.length, "the island still receives every row");
+  const small = render({ lane: lane() });
+  assert.equal(cellsOf(small).length, boardRows(PUB, PROJECTION_BOARD_STATS).length);
+  assert.doesNotMatch(small, /Showing the first/);
+  assert.doesNotMatch(html, /class="sr-only">, /, "no per-row hidden position text (weight; the Position filter carries it)");
+});

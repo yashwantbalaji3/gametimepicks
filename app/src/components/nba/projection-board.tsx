@@ -26,6 +26,10 @@
  *   - a Position filter appears only when the slate carries positions (none is shown on slates without them). They are on by default and the count line says how many
  *     (with a toggle); they render after hydration, so the static HTML carries the count line, not the rows (weight).
  *
+ * Weight (15-game boards ≤ 200 KiB): the static HTML carries the first SSR_ROWS rows of the default order; the rest
+ * render right after hydration (the first client render equals the server's, then the full list), and a visible line
+ * says so to a reader without JavaScript. Filters and sorts always run over every row.
+ *
  * Layout: controls stack on a phone; the table scrolls inside its own container, so the page never scrolls sideways at
  * 320 px. No transitions or animation (prefers-reduced-motion has nothing to reduce).
  */
@@ -55,6 +59,8 @@ const STICKY_CORNER = "!text-left left-0 !z-20";
 const ROW1 = "[inset-block-start:0]";
 const ROW2 = "[inset-block-start:2.75rem]";
 
+/** Rows in the static HTML (page weight); a 3-game night (~60 rows) is complete without JavaScript. */
+export const SSR_ROWS = 100;
 const ACTUAL_COL = { background: "color-mix(in srgb, var(--vault-gold-bright) 9%, transparent)" };
 
 export default function ProjectionBoard({ board, stats, groups, matchups, teams, defaultGroup, games = [] }: {
@@ -212,9 +218,9 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
               ) : null}
             </thead>
             <tbody style={{ color: "var(--vault-text)" }}>
-              {shown.map((r) => (
+              {(mounted ? shown : shown.slice(0, SSR_ROWS)).map((r) => (
                 <tr key={r.id}>
-                  <th scope="row">{r.name}{r.injury ? ` · ${r.injury}` : ""}{r.np ? ` · ${noProjectionLabel(r.np)}` : ""}{r.pos ? <span className="sr-only">, {r.pos}</span> : null}</th>
+                  <th scope="row">{r.name}{r.injury ? ` · ${r.injury}` : ""}{r.np ? ` · ${noProjectionLabel(r.np)}` : ""}</th>
                   <td title={r.teamName}>{r.team}</td>
                   <td>{fmt(r.min)}</td>
                   {post ? <td>{r.aw ? "awaiting final" : fmt(r.am)}</td> : null}
@@ -225,6 +231,9 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
               ))}
             </tbody>
           </table>
+          {!mounted && shown.length > SSR_ROWS ? (
+            <p className="m-0 p-2 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>Showing the first {SSR_ROWS} of {shown.length} players; the full board loads in your browser.</p>
+          ) : null}
         </div>
       )}
     </div>
