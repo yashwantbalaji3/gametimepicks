@@ -127,12 +127,17 @@ test("🔴 NBA real data: every MATCHED / MISSED verdict equals the NBA settleme
 
 /* ── 3. Rendering ───────────────────────────────────────────────────────────────────────────────── */
 test("🔴 the suggestions record says what it is, shows counts not rates, and labels pending and void", () => {
-  const v = levelARecord([entry("a"), entry("b"), entry("c")], [grade("a", "win"), grade("b", "void")]);
+  const v = levelARecord([entry("a"), entry("b"), entry("c"), entry("s", { shownAt: "2031-07-01T12:05:00Z", servedFrom: "2031-07-01T12:10:00Z", source: { kind: "production-deployment", sha: "c948636e1a300b77e246ea466566e9c0238f19aa" },
+    legs: [{ ...entry("s").legs[0] }, { sport: "ligue-1", eventId: "x", eventLabel: "Brest v Nice", startUtc: "2031-07-01T19:00:00Z", selection: { code: "home", label: "Brest to win" }, probability: 0.42 }] })],
+    [grade("a", "win"), grade("b", "void"), grade("s", "loss", [{ sport: "nba", eventId: "e-s", result: "loss", reason: "final 1-2" }, { sport: "ligue-1", eventId: "x", result: "pending", reason: "no gradeable result — status missing (only FULL_TIME grades)" }])]);
   const h = renderToStaticMarkup(React.createElement(ModelSuggestionsRecord, { view: v }));
+  assert.match(h, /live from [^·]+ · Production deployment c948636e1a/, "the recorder's source object in reader words");
+  assert.doesNotMatch(h, /\[object Object\]|FULL_TIME/, "no object and no status code reaches the page (post-build guards)");
+  assert.match(h, /Brest to win[\s\S]*?No official final yet/, "a pending leg says so instead of its grader code");
   assert.match(h, /Paper suggestions, no price, accuracy not yet established at this sample size\./);
   assert.match(h, /never mixed\s+with the priced products or sportsbook settlement/);
   assert.match(h, new RegExp(`no hit rate is shown for a suggestion type until it has ${MIN_DECIDED_FOR_RATE} decided`));
-  assert.doesNotMatch(h.replace(/joint [\d.]+%/g, ""), /\d%/, "no percentage other than the joint probability as printed");
+  assert.doesNotMatch(h.replace(/joint [\d.]+%/g, "").replace(/ · [\d.]+%<\/span>/g, "</span>"), /\d%/, "no percentage other than the joint and each leg's forecast probability as the Level A pages print them — never a hit rate");
   assert.match(h, /Void — not a loss/);
   assert.match(h, /Pending — not a loss/);
   assert.match(h, /joint 20\.0%/, "the joint as the Level A pages print it");

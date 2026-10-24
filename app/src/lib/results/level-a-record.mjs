@@ -35,6 +35,15 @@ const tierLabel = (tier) => (tier === "untiered" ? "Untiered" : publicRiskLabel(
 const RESULT = { win: "WON", loss: "LOST", void: "VOID" };
 const zero = () => ({ recorded: 0, graded: 0, won: 0, lost: 0, void: 0, pending: 0 });
 
+/** The deployment that served an entry, in reader words: the recorder writes `source` as an object (record.mjs). */
+export function sourceLabel(source) {
+  if (!source) return null;
+  if (typeof source === "string") return source;
+  const sha = typeof source.sha === "string" ? source.sha.slice(0, 10) : null;
+  if (source.kind === "production-deployment") return sha ? `Production deployment ${sha}` : "Production deployment";
+  return sha ? `deployment ${sha}` : null;
+}
+
 /** The instant readers could first see an entry — the latest publication evidence it carries (record.mjs). */
 export function shownInstant(e) {
   return e?.servedFrom ?? e?.shownAt ?? null;
@@ -64,7 +73,7 @@ export function levelARecord(suggestions, grades) {
       id: e.id, productDay: e.productDay, policy: e.policy, tier: e.tier,
       label: POLICY_LABEL[e.policy] ?? e.policy, tierLabel: tierLabel(e.tier),
       jointProbability: typeof e.jointProbability === "number" ? e.jointProbability : null,
-      recordedAt: e.recordedAt ?? null, shownAt: e.shownAt ?? null, servedFrom: e.servedFrom ?? null, source: e.source ?? null,
+      recordedAt: e.recordedAt ?? null, shownAt: e.shownAt ?? null, servedFrom: e.servedFrom ?? null, source: sourceLabel(e.source),
       firstStartUtc: e.firstStartUtc ?? null, revisionOf: e.revisionOf ?? null,
       status, gradedAt: g?.gradedAt ?? null,
       legs: (e.legs ?? []).map((l) => {
@@ -73,7 +82,10 @@ export function levelARecord(suggestions, grades) {
           sport: l.sport, eventId: l.eventId, eventLabel: l.eventLabel ?? null, startUtc: l.startUtc ?? null,
           selection: l.selection?.label ?? null, probability: typeof l.probability === "number" ? l.probability : null,
           modelId: l.forecast?.modelId ?? null, stampedAt: l.forecast?.stampedAt ?? null,
-          result: lg ? (RESULT[lg.result] ?? "PENDING") : "PENDING", final: lg?.reason ?? null,
+          /* The grader's words describe the official final only once the leg is decided; a pending leg's reason is a
+             status code ("only FULL_TIME grades"), never shown as a final. */
+          result: lg ? (RESULT[lg.result] ?? "PENDING") : "PENDING",
+          final: lg && RESULT[lg.result] ? lg.reason ?? null : null,
         };
       }),
     });
