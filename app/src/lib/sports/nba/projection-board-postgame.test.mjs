@@ -330,18 +330,19 @@ test("coverage: a player who PLAYED without a projection is listed with his veri
   assert.deepEqual(acts.unprojected, [{ id: "9990001", game: G0.providerEventId, side: "home", name: "Rookie Fixture", actual: [12, 4, 3, 1, 0, 8, 7, 5] }], "only players with minutes > 0; a DNP bench player is not listed");
   // Wire + unpack: frozen values all null, actuals verbatim, after the board rows.
   const rows = boardRows(PUB, PROJECTION_BOARD_STATS);
-  const packed = JSON.parse(JSON.stringify(packBoard(rows, acts.rows, null, [{ name: "Rookie Fixture", game: G0.providerEventId, team: G0.home.abbr, teamName: G0.home.name, actual: acts.unprojected[0].actual }])));
+  const packed = JSON.parse(JSON.stringify(packBoard(rows, acts.rows, null, [{ name: "Rookie Fixture", game: G0.providerEventId, team: G0.home.abbr, teamName: G0.home.name, code: "P", pos: null, actual: acts.unprojected[0].actual }])));
   assert.deepEqual(packed.r, packBoard(rows).r, "the frozen rows are untouched");
   const np = unpackBoard(packed).filter((r) => r.np);
   assert.equal(np.length, 1);
   assert.deepEqual(np[0].v, [...Array(PROJECTION_BOARD_STATS.length).fill(null), 4, 3, 1, 0, 8, 7, 5]);
-  assert.equal(np[0].min, null); assert.equal(np[0].am, 12); assert.equal(np[0].team, G0.home.abbr);
+  assert.equal(np[0].min, null); assert.equal(np[0].am, 12); assert.equal(np[0].team, G0.home.abbr); assert.equal(np[0].np, "P");
   // Static render: the count line and toggle are in the HTML; the rows come after hydration (weight).
   const html = render({ lane: lane(), role: "past", date: "2026-10-20", dated: true, actuals: { ...acts, unprojected: acts.unprojected } });
-  assert.match(visibleText(html), /· 1 played without a projection Hide them/);
+  assert.match(visibleText(html), /· 1 without a projection Hide them/);
+  assert.match(visibleText(html), /Coverage list not recorded for this slate\. Players who played without a projection are listed from the final box score\./);
   assert.match(html, /aria-pressed="true"[^>]*>Hide them</);
   assert.doesNotMatch(html, /Rookie Fixture/, "rows render after hydration");
-  assert.match(visibleText(html), /“projection unavailable” marks a player who played without an Official Forecast projection/);
+  assert.match(visibleText(html), /“Played, no projection” and “Projection unavailable” mark players without an Official Forecast projection: their actuals are shown, no forecast is invented/);
 });
 
 test("coverage on the COMMITTED record: every listed player played, is not on that game's board, and carries integer minutes", () => {
@@ -355,4 +356,36 @@ test("coverage on the COMMITTED record: every listed player played, is not on th
       assert.ok(Number.isInteger(u.actual[0]) && u.actual[0] > 0, `${d} ${u.name} played`);
     }
   }
+});
+
+test("PR 1230 lane fields (optional): positions → a Position filter; listed unavailable players → reason rows; absent → 'not recorded'", async () => {
+  const { NO_PROJECTION_LABEL, filterRows: filt } = await import("./projection-board-ops.mjs");
+  const withFields = lane();
+  for (const g of withFields.games) {
+    for (const side of ["away", "home"]) g.players[side] = g.players[side].map((r, i) => ({ ...r, position: ["G", "F", "C", "F-C", null][i % 5] }));
+    g.players.positionSource = { file: "nba/rosters/2026-10-20.json", sha256: "0".repeat(64) };
+    g.players.unavailable = { away: [{ providerAthleteId: "8880001", name: "Listed Rookie", position: "G", state: "PROJECTION_UNAVAILABLE", reason: "INSUFFICIENT_HISTORY" }], home: [{ providerAthleteId: "8880002", name: "No Minutes", position: null, state: "PROJECTION_UNAVAILABLE", reason: "NO_EXPECTED_MINUTES" }] };
+  }
+  const html = render({ lane: withFields });
+  assert.match(html, /<label[^>]*for="[^"]+"[^>]*>Position</);
+  assert.equal((html.match(/<select /g) ?? []).length, 4, "Matchup, Team, Position, Stat");
+  assert.match(visibleText(html), /Every rostered player without a projection is listed as “Projection unavailable” with the reason the Official Forecast recorded; Out players are not listed\./);
+  assert.match(visibleText(html), new RegExp(`· ${withFields.games.length * 2} without a projection`));
+  assert.doesNotMatch(html, /positionSource|nba\/rosters/, "the roster source is not rendered");
+  // Wire: positions parallel to the rows; listed players with code + position, no numbers before a final.
+  const rows = boardRows(withFields, PROJECTION_BOARD_STATS);
+  const packed = JSON.parse(JSON.stringify(packBoard(rows, null, null, [{ name: "Listed Rookie", game: G0.providerEventId, team: G0.away.abbr, teamName: G0.away.name, code: "INSUFFICIENT_HISTORY", pos: "G", actual: null }])));
+  assert.equal(packed.p.length, packed.r.length);
+  assert.deepEqual(packed.u, [["Listed Rookie", packed.t.findIndex((t) => t[0] === G0.away.abbr && t[2] === G0.providerEventId), "INSUFFICIENT_HISTORY", "G"]], "no numbers travel for a listed player");
+  const back = unpackBoard(packed);
+  const listed = back.find((r) => r.np);
+  assert.deepEqual(listed.v, Array(PROJECTION_BOARD_STATS.length).fill(null));
+  assert.equal(listed.pos, "G");
+  assert.ok(filt(back, { position: "C" }).every((r) => String(r.pos).split("-").includes("C")) && filt(back, { position: "C" }).some((r) => r.pos === "F-C"), "F-C counts as a center and a forward");
+  for (const l of Object.values(NO_PROJECTION_LABEL)) assert.doesNotMatch(l, /injur|\bout\b/i, "a reason is never called injury or out");
+  // Without the fields (10-20 … 10-23): no Position filter, the list is 'not recorded', never 'none'.
+  const plain = render({ lane: lane() });
+  assert.equal((plain.match(/<select /g) ?? []).length, 3);
+  assert.match(visibleText(plain), /Coverage list not recorded for this slate\./);
+  assert.doesNotMatch(visibleText(plain), /without a projection/);
 });

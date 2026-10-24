@@ -60,13 +60,37 @@ const ACTUAL_UNAVAILABLE: Partial<Record<GameActualState, string>> = {
   "under-review": "Actual: Unavailable (final under review)",
   "points-disagree": "Actual: Unavailable (box score under review)",
 };
-/** Box-score players who played without a projection, with their team as the board names it. */
-function unprojectedRows(lane: Snapshot, a: BoardActuals) {
+/** The lane's own list of rostered players it could not project (PR 1230; optional — absent = not recorded). */
+type LaneUnavailable = { providerAthleteId: string; name: string | null; position?: string | null; reason: string };
+const laneUnavailable = (g: Snapshot["games"][number], side: "away" | "home"): LaneUnavailable[] | undefined =>
+  (g.players as unknown as { unavailable?: Record<string, LaneUnavailable[]> }).unavailable?.[side];
+/** Did this slate's publisher record who had no projection? */
+const coverageRecorded = (lane: Snapshot) => lane.games.some((g) => laneUnavailable(g, "away") !== undefined || laneUnavailable(g, "home") !== undefined);
+
+/**
+ * Every player without a projection, with his team as the board names it: the lane's listed players (their reason
+ * code, position and, after a verified final, the actuals) and, from the final box score, anyone else who played
+ * ("P" — played, no projection). No forecast value is ever attached.
+ */
+function noProjectionRows(lane: Snapshot, a: BoardActuals | null) {
+  const played = new Map((a?.unprojected ?? []).map((u) => [`${u.game}:${u.id}`, u]));
+  const out: { name: string; game: string; team: string; teamName: string; code: string; pos: string | null; actual: (number | string | null)[] | null }[] = [];
+  for (const g of lane.games) {
+    for (const side of ["away", "home"] as const) {
+      const t = g[side];
+      for (const e of laneUnavailable(g, side) ?? []) {
+        const key = `${g.providerEventId}:${e.providerAthleteId}`;
+        out.push({ name: e.name ?? "", game: g.providerEventId, team: t.abbr ?? "", teamName: t.name ?? t.abbr ?? "", code: e.reason, pos: e.position ?? null, actual: played.get(key)?.actual ?? null });
+        played.delete(key);
+      }
+    }
+  }
   const byId = new Map(lane.games.map((g) => [g.providerEventId, g]));
-  return (a.unprojected ?? []).map((u) => {
-    const side = byId.get(u.game)![u.side];
-    return { name: u.name, game: u.game, team: side.abbr ?? "", teamName: side.name ?? side.abbr ?? "", actual: u.actual };
-  });
+  for (const u of played.values()) {
+    const t = byId.get(u.game)![u.side];
+    out.push({ name: u.name, game: u.game, team: t.abbr ?? "", teamName: t.name ?? t.abbr ?? "", code: "P", pos: null, actual: u.actual });
+  }
+  return out;
 }
 /** The same state, short, on a game chip. A recorded game needs no note; a game still to finish reads "awaiting final". */
 const ACTUAL_CHIP: Partial<Record<GameActualState, string>> = {
@@ -215,10 +239,9 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
                 <strong>Forecast</strong> is the Official Forecast, frozen before tip-off and never changed. <strong>Actual</strong> is
                 the player&rsquo;s figure in the final box score (ESPN), shown only after the official final is recorded; PRA, P+R
                 and P+A actuals add up the actual points, rebounds and assists. &ldquo;awaiting final&rdquo; means the game has no
-                official final yet; a dash means did not play or not in the box score &mdash; never a zero. &ldquo;projection
-                unavailable&rdquo; marks a player who played without an Official Forecast projection (for example a rookie
-                without NBA minutes, a player without recent minutes, or one under 10 expected minutes): his actuals are
-                shown, no forecast is invented. Compared per player only.
+                official final yet; a dash means did not play or not in the box score &mdash; never a zero. &ldquo;Played, no
+                projection&rdquo; and &ldquo;Projection unavailable&rdquo; mark players without an Official Forecast projection:
+                their actuals are shown, no forecast is invented. Compared per player only.
               </p>
             </section>
           ) : pendingActuals ? (
@@ -227,7 +250,12 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
               frozen Official Forecast once that game&rsquo;s official final and box score are recorded.
             </p>
           ) : null}
-          <ProjectionBoard board={packBoard(rows, post ? post.rows : null, post ? awaiting : null, post ? unprojectedRows(live, post) : null)} stats={stats} groups={groups} matchups={matchups} teams={teams} games={nav} defaultGroup={post ? "core" : undefined} />
+          <p className="m-0 text-[12px] leading-relaxed" style={MUTE}>
+            {coverageRecorded(live)
+              ? "Every rostered player without a projection is listed as \u201cProjection unavailable\u201d with the reason the Official Forecast recorded; Out players are not listed."
+              : `Coverage list not recorded for this slate.${post ? " Players who played without a projection are listed from the final box score." : ""}`}
+          </p>
+          <ProjectionBoard board={packBoard(rows, post ? post.rows : null, post ? awaiting : null, noProjectionRows(live, post))} stats={stats} groups={groups} matchups={matchups} teams={teams} games={nav} defaultGroup={post ? "core" : undefined} />
           {/* Model ids, receipts, engine notes and the withheld list: one tap away, each model id once. */}
           <details className="text-[12px]" style={MUTE}>
             <summary className="cursor-pointer min-h-[44px] py-3 underline decoration-dotted" style={TEXT}>

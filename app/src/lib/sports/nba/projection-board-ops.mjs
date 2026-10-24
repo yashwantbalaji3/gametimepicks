@@ -30,6 +30,8 @@ export function boardRows(snapshot, stats) {
           team: team.abbr ?? "",
           teamName: team.name ?? team.abbr ?? "",
           min: r.expectedMinutes ?? null,
+          // the lane's roster position (PR 1230), only on slates published with it; undefined = not recorded
+          ...(r.position !== undefined ? { pos: r.position ?? null } : {}),
           v: stats.map(([k]) => (r.medians && k in r.medians ? r.medians[k] : r.comboMedians?.[k] ?? null)),
         });
       }
@@ -54,11 +56,13 @@ export function boardRows(snapshot, stats) {
  * actuals the format is unchanged.
  * @param {ReturnType<typeof boardRows>} rows
  * @param {Record<string, (number | string | null)[]> | null} [actuals]
- * PLAYED WITHOUT A PROJECTION: `unprojected` (projection-board-actuals.ts — box-score players with minutes and no board
- * row) travel in `u`, each `[name, teamIndex, ...actual]`, never with a forecast value. Unpacked they are rows with
- * `np: true`, every frozen value null and the actuals verbatim; they sort last in the default order (no expected minutes).
+ * WITHOUT A PROJECTION: `unprojected` travel in `u`, each `[name, teamIndex, code, position, ...actual]`, never with a
+ * forecast value. `code` is NO_PROJECTION_CODE's key — the lane's own reason for a listed unavailable player, or "P"
+ * (played, no projection: in the final box score only); `actual` is empty before a verified final. Unpacked they are
+ * rows with `np` = that code, every frozen value null and the actuals verbatim; they sort last in the default order.
+ * POSITIONS: when any board row carries the lane's `position`, `p` (parallel to `r`) holds them; absent = not recorded.
  * @param {ReadonlySet<string> | null} [awaiting]  game ids with no official final yet
- * @param {{ name: string, game: string, team: string, teamName: string, actual: (number | string | null)[] }[] | null} [unprojected]
+ * @param {{ name: string, game: string, team: string, teamName: string, code: string, pos?: string | null, actual?: (number | string | null)[] | null }[] | null} [unprojected]
  */
 export function packBoard(rows, actuals = null, awaiting = null, unprojected = null) {
   const t = [];
@@ -69,34 +73,36 @@ export function packBoard(rows, actuals = null, awaiting = null, unprojected = n
     if (!at.has(k)) { at.set(k, t.length); t.push([x.team, x.teamName, x.game]); }
     return [x.name, x.injury || 0, at.get(k), x.min, ...x.v];
   });
-  if (!actuals) return { t, r };
-  const out = { t, r, a: sorted.map((x) => actuals[x.id] ?? (awaiting?.has(x.game) ? 1 : 0)) };
+  const out = { t, r };
+  if (sorted.some((x) => x.pos !== undefined)) out.p = sorted.map((x) => x.pos ?? 0);
+  if (actuals) out.a = sorted.map((x) => actuals[x.id] ?? (awaiting?.has(x.game) ? 1 : 0));
   if (unprojected?.length) {
     out.u = unprojected.map((x) => {
       const k = `${x.game}\u0000${x.team}`;
       if (!at.has(k)) { at.set(k, t.length); t.push([x.team, x.teamName, x.game]); }
-      return [x.name, at.get(k), ...x.actual];
+      return [x.name, at.get(k), x.code, x.pos ?? 0, ...(x.actual ?? [])];
     });
   }
   return out;
 }
 
 /**
- * @param {{ t: [string, string, string][], r: (string | number | null)[][], a?: (0 | 1 | (number | string | null)[])[], u?: (string | number | null)[][] }} packed
- * @returns {{ id: string, game: string, name: string, injury: string | null, team: string, teamName: string, min: number | null, v: (number | null)[], am?: number | "DNP" | null, aw?: boolean, np?: boolean }[]}
+ * @param {{ t: [string, string, string][], r: (string | number | null)[][], a?: (0 | 1 | (number | string | null)[])[], u?: (string | number | null)[][], p?: (string | 0)[] }} packed
+ * @returns {{ id: string, game: string, name: string, injury: string | null, team: string, teamName: string, min: number | null, v: (number | null)[], am?: number | "DNP" | null, aw?: boolean, np?: string, pos?: string | null }[]}
  */
-export function unpackBoard({ t, r, a, u }) {
+export function unpackBoard({ t, r, a, u, p }) {
   const board = r.map(([name, injury, ti, min, ...v], i) => {
     const [team, teamName, game] = t[/** @type {number} */ (ti)];
-    const row = { id: String(i).padStart(4, "0"), game, name: /** @type {string} */ (name), injury: /** @type {string} */ (injury) || null, team, teamName, min: /** @type {number | null} */ (min), v: /** @type {(number | null)[]} */ (v) };
+    const row = { id: String(i).padStart(4, "0"), game, name: /** @type {string} */ (name), injury: /** @type {string} */ (injury) || null, team, teamName, min: /** @type {number | null} */ (min), v: /** @type {(number | null)[]} */ (v), ...(p ? { pos: p[i] || null } : {}) };
     if (!a) return row;
     const act = Array.isArray(a[i]) ? a[i] : null;
     return { ...row, v: [...row.v, ...(act ? act.slice(1) : v.map(() => null))], am: act ? act[0] : null, aw: a[i] === 1 };
   });
   const width = r[0] ? r[0].length - 4 : 0;
-  for (const [j, [name, ti, am, ...act]] of (u ?? []).entries()) {
+  for (const [j, [name, ti, code, pos, am, ...act]] of (u ?? []).entries()) {
     const [team, teamName, game] = t[/** @type {number} */ (ti)];
-    board.push({ id: `u${String(j).padStart(4, "0")}`, game, name: /** @type {string} */ (name), injury: null, team, teamName, min: null, v: [...Array(width).fill(null), ...act], am, aw: false, np: true });
+    const actual = a ? (am === undefined ? Array(width).fill(null) : act) : [];
+    board.push({ id: `u${String(j).padStart(4, "0")}`, game, name: /** @type {string} */ (name), injury: null, team, teamName, min: null, v: [...Array(width).fill(null), ...actual], am: am === undefined ? null : am, aw: false, np: /** @type {string} */ (code), ...(p || pos ? { pos: pos || null } : {}) });
   }
   return board;
 }
@@ -112,17 +118,29 @@ export function boardOptions(snapshot) {
   return { matchups, teams };
 }
 
+/** Why a listed player has no projection: the lane's own reason codes (PR 1230) and the box-score-only "played". */
+export const NO_PROJECTION_LABEL = Object.freeze({
+  INSUFFICIENT_HISTORY: "Projection unavailable — not enough recent NBA minutes",
+  NO_EXPECTED_MINUTES: "Projection unavailable — no expected minutes",
+  P: "Played, no projection",
+});
+export const noProjectionLabel = (code) => NO_PROJECTION_LABEL[code] ?? "Projection unavailable";
+
+/** Position filter groups: a hyphenated roster position ("F-C") belongs to each of its letters. */
+export const POSITION_GROUPS = Object.freeze([["G", "Guards"], ["F", "Forwards"], ["C", "Centers"]]);
+const inPosition = (pos, g) => String(pos ?? "").split("-").includes(g);
+
 const norm = (s) => String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
 
 /**
  * @template {{ id: string, game: string, name: string, team: string, min: number | null, v: (number | null)[] }} T
  * @param {T[]} rows
  * @returns {T[]}
- * @param {{ matchup?: string, team?: string, player?: string }} f  "" / undefined = no filter on that field
+ * @param {{ matchup?: string, team?: string, player?: string, position?: string }} f  "" / undefined = no filter on that field
  */
-export function filterRows(rows, { matchup = "", team = "", player = "" } = {}) {
+export function filterRows(rows, { matchup = "", team = "", player = "", position = "" } = {}) {
   const q = norm(player);
-  return rows.filter((r) => (!matchup || r.game === matchup) && (!team || r.team === team) && (!q || norm(r.name).includes(q)));
+  return rows.filter((r) => (!matchup || r.game === matchup) && (!team || r.team === team) && (!q || norm(r.name).includes(q)) && (!position || inPosition(r.pos, position)));
 }
 
 /**

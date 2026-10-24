@@ -20,8 +20,10 @@
  *     every sort button is a 44 px target;
  *   - postgame, a row whose game has no official final yet reads "awaiting final" in its actual-minutes cell — an
  *     explicit state, never a blank, never a zero;
- *   - players who played without a projection (`u` on the wire) are rows reading "projection unavailable", with their
- *     verified actuals and dashes for every forecast cell. They are on by default and the count line says how many
+ *   - players without a projection (`u` on the wire: the lane's listed players and box-score "played, no projection")
+ *     are rows reading their reason ("Projection unavailable — …" / "Played, no projection"), with verified actuals
+ *     when there are any and dashes for every forecast cell;
+ *   - a Position filter appears only when the slate carries positions (none is shown on slates without them). They are on by default and the count line says how many
  *     (with a toggle); they render after hydration, so the static HTML carries the count line, not the rows (weight).
  *
  * Layout: controls stack on a phone; the table scrolls inside its own container, so the page never scrolls sideways at
@@ -29,15 +31,15 @@
  */
 import React, { useEffect, useId, useMemo, useState } from "react";
 
-import { filterRows, sortRows, unpackBoard, gameStatusOnClock, GAME_STATUS_LABEL } from "@/lib/sports/nba/projection-board-ops.mjs";
+import { filterRows, sortRows, unpackBoard, gameStatusOnClock, GAME_STATUS_LABEL, noProjectionLabel, POSITION_GROUPS } from "@/lib/sports/nba/projection-board-ops.mjs";
 
-export type BoardRow = { id: string; game: string; name: string; injury: string | null; team: string; teamName: string; min: number | null; v: (number | null)[]; am?: number | "DNP" | null; aw?: boolean; np?: boolean };
+export type BoardRow = { id: string; game: string; name: string; injury: string | null; team: string; teamName: string; min: number | null; v: (number | null)[]; am?: number | "DNP" | null; aw?: boolean; np?: string; pos?: string | null };
 /** One game chip: id, short matchup ("BOS @ DET"), build-time status code, tip-off instant, optional actual-state note. */
 export type BoardGameNav = [string, string, "upcoming" | "started" | "final" | "postponed", string, string?];
 type SortKey = number | "min" | "am";
 export type BoardOption = { id: string; label: string };
 /** packBoard's wire format: teams once, rows as arrays (page weight — see projection-board-ops.mjs). */
-export type PackedBoard = { t: [string, string, string][]; r: (string | number | null)[][]; a?: (0 | 1 | (number | string | null)[])[]; u?: (string | number | null)[][] };
+export type PackedBoard = { t: [string, string, string][]; r: (string | number | null)[][]; a?: (0 | 1 | (number | string | null)[])[]; u?: (string | number | null)[][]; p?: (string | 0)[] };
 export type StatGroup = { id: string; label: string; cols: number[] };
 
 const fmt = (v: number | string | null | undefined) => (v == null ? "—" : String(v));
@@ -76,6 +78,8 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
   const [matchup, setMatchup] = useState("");
   const [team, setTeam] = useState("");
   const [player, setPlayer] = useState("");
+  const [position, setPosition] = useState("");
+  const hasPositions = Array.isArray(board.p);
   const [group, setGroup] = useState(defaultGroup ?? groups[0]?.id ?? "all");
   const post = Array.isArray(board.a);
   const n = stats.length;
@@ -95,7 +99,7 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
   const cols = useMemo(() => groups.find((g) => g.id === group)?.cols ?? [], [groups, group]);
   // Postgame: every shown stat is a pair (frozen value i, actual i + n); either may be the reader's sort.
   const sortable = useMemo<SortKey[]>(() => ["min", ...(post ? ["am" as const, ...cols.flatMap((i) => [i, i + n])] : cols)], [cols, post, n]);
-  const shown = useMemo(() => sortRows(filterRows(rows, { matchup, team, player }), { key: sortKey != null && sortable.includes(sortKey) ? sortKey : null, dir }), [rows, matchup, team, player, sortKey, dir, sortable]);
+  const shown = useMemo(() => sortRows(filterRows(rows, { matchup, team, player, position }), { key: sortKey != null && sortable.includes(sortKey) ? sortKey : null, dir }), [rows, matchup, team, player, position, sortKey, dir, sortable]);
   const activeSort = sortKey != null && sortable.includes(sortKey) ? sortKey : null;
   const sortBy = (i: SortKey) => {
     if (activeSort === i) setDir(dir === "desc" ? "asc" : "desc");
@@ -125,7 +129,7 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
           ))}
         </div>
       ) : null}
-      <form className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 min-w-0" role="search" aria-label="Filter the player board" onSubmit={(e) => e.preventDefault()}>
+      <form className={`grid gap-2 grid-cols-1 sm:grid-cols-2 ${hasPositions ? "lg:grid-cols-5" : "lg:grid-cols-4"} min-w-0`} role="search" aria-label="Filter the player board" onSubmit={(e) => e.preventDefault()}>
         <label className={FIELD} htmlFor={`${uid}-m`} style={{ color: "var(--vault-text-mute)" }}>
           Matchup
           <select id={`${uid}-m`} className={INPUT} style={INPUT_STYLE} value={matchup} onChange={(e) => { setMatchup(e.target.value); setTeam(""); }}>
@@ -144,6 +148,15 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
           Player
           <input id={`${uid}-p`} type="search" className={INPUT} style={INPUT_STYLE} value={player} onChange={(e) => setPlayer(e.target.value)} placeholder="Name" autoComplete="off" />
         </label>
+        {hasPositions ? (
+          <label className={FIELD} htmlFor={`${uid}-pos`} style={{ color: "var(--vault-text-mute)" }}>
+            Position
+            <select id={`${uid}-pos`} className={INPUT} style={INPUT_STYLE} value={position} onChange={(e) => setPosition(e.target.value)}>
+              <option value="">All positions</option>
+              {POSITION_GROUPS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+            </select>
+          </label>
+        ) : null}
         <label className={FIELD} htmlFor={`${uid}-s`} style={{ color: "var(--vault-text-mute)" }}>
           Stat
           <select id={`${uid}-s`} className={INPUT} style={INPUT_STYLE} value={group} onChange={(e) => setGroup(e.target.value)}>
@@ -157,7 +170,7 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
         </p>
         {npCount ? (
           <>
-            <span>· {npCount} played without a projection{mounted && showNp ? " (listed, \u201cprojection unavailable\u201d)" : ""}</span>
+            <span>· {npCount} without a projection{mounted && showNp ? " (listed at the end)" : ""}</span>
             <button type="button" aria-pressed={showNp} className="underline min-h-[44px] px-1 focus-visible:outline focus-visible:outline-2" style={{ color: "var(--vault-text)", outlineColor: "var(--vault-gold-bright)" }} onClick={() => setShowNp(!showNp)}>
               {showNp ? "Hide them" : "Show them"}
             </button>
@@ -201,7 +214,7 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
             <tbody style={{ color: "var(--vault-text)" }}>
               {shown.map((r) => (
                 <tr key={r.id}>
-                  <th scope="row">{r.name}{r.injury ? ` · ${r.injury}` : ""}{r.np ? " · projection unavailable" : ""}</th>
+                  <th scope="row">{r.name}{r.injury ? ` · ${r.injury}` : ""}{r.np ? ` · ${noProjectionLabel(r.np)}` : ""}{r.pos ? <span className="sr-only">, {r.pos}</span> : null}</th>
                   <td title={r.teamName}>{r.team}</td>
                   <td>{fmt(r.min)}</td>
                   {post ? <td>{r.aw ? "awaiting final" : fmt(r.am)}</td> : null}
