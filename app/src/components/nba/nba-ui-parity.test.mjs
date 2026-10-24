@@ -305,3 +305,12 @@ test("players without a projection (PR 1230 lane field): counted per game and po
   const perGame = (h.length - before.length);
   assert.ok(perGame < 260, `the note costs ${perGame} B for the whole slate`);
 });
+
+test("window rows carry both teams' crests (release owner 2026-10-24: logos for every game), decorative and lazy", () => {
+  const rows = [{ id: "a", startLabel: "Sat, Oct 24 · 7:30 PM ET", matchup: "BKN @ CLE", status: "scheduled", started: false, reportNote: "Official Forecast publishes on game day, before tip-off", participants: [{ name: "BKN", logoTeam: "bkn", logoSport: "nba" }, { name: "CLE", logoTeam: "cle", logoSport: "nba" }] }];
+  const h = renderToStaticMarkup(React.createElement(NbaGameList, { rows, heading: "Coming up" }));
+  const imgs = h.match(/<img [^>]*>/g) ?? [];
+  assert.equal(imgs.length, 2);
+  for (const i of imgs) { assert.match(i, /loading="lazy"/); assert.match(i, /alt=""/); }
+  assert.match(h, /teamlogos\/nba\/500\/bkn\.png[\s\S]*BKN @ CLE[\s\S]*teamlogos\/nba\/500\/cle\.png/);
+});

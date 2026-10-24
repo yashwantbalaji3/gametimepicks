@@ -14,6 +14,7 @@
  * forecast is published, none to a Game Simulation page that was not built.
  */
 import Link from "next/link";
+import TeamLogo from "@/components/team-logo";
 import { nbaExclusionText, type NbaTodayGame, type NbaTodaySlate } from "@/lib/sport-hub/nba-hub";
 import { hubStatusDisplay, type HubGameRow } from "@/lib/sport-hub/contract";
 import { MatchupCard, forecastRowId } from "@/components/nba/experimental-lane";
@@ -120,7 +121,7 @@ export function NbaTodayGames({ slate }: { slate: NbaTodaySlate }) {
 
 /**
  * The window's other games, one line each (WEIGHT: ~70 rows on an in-season /nba, HTML + flight — the shared .gtp-cr
- * row classes, no crests). Upcoming rows say when the forecast publishes (the adapter's note); played rows print the
+ * row classes and the CompactRow crests). Upcoming rows say when the forecast publishes (the adapter's note); played rows print the
  * official final and, beside it, the side that was frozen for that game — only from `forecasts` (that date's committed
  * snapshot), never inferred.
  */
@@ -133,7 +134,12 @@ export function NbaGameList({ rows, heading, collapsed = false, forecasts }: { r
         return (
           <li key={r.id} className="gtp-cr">
             <span className="gtp-cr-t">{r.startLabel}</span>
-            <span className="gtp-cr-m">{r.matchup}</span>
+            {/* each side's crest, as the shared CompactRow draws it (PR 1226 markup, decorative, loading=lazy) */}
+            <span className="gtp-cr-m">
+              {(r.participants ?? []).slice(0, 1).map((p) => p.logoTeam && p.logoSport ? <TeamLogo key={p.name} team={p.logoTeam} sport={p.logoSport} size="sm" ariaLabel="" /> : null)}
+              {r.matchup}
+              {(r.participants ?? []).slice(1, 2).map((p) => p.logoTeam && p.logoSport ? <TeamLogo key={p.name} team={p.logoTeam} sport={p.logoSport} size="sm" ariaLabel="" /> : null)}
+            </span>
             <span className="gtp-cr-s">{hubStatusDisplay(r.status)}</span>
             <span className="gtp-cr-a">
               {r.reportNote}
