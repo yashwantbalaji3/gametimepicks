@@ -26,6 +26,10 @@ import { ELO_WIN_PROBABILITY_LABEL, eloWinProbabilityOf } from "@/lib/sports/nba
 import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
 import { canonicalTricodeFromEspnAbbr } from "@/lib/sports/nba/boxscore-parse.mjs";
 
+/** Lane `players.unavailable` row (PR 1230): name and reason only, never a number. Release H integration: one shape for
+ *  the hub and the Theater's Official Forecast panel (official-predictions.tsx LaneUnavailable). */
+export type LaneUnavailablePlayer = { providerAthleteId: string; name: string | null; position?: string | null; state: string; reason: string; status?: string | null };
+
 type Row = { providerAthleteId: string; name: string | null; expectedMinutes: number | null; injuryStatus: string | null; medians: Record<string, number | null>; comboMedians?: Record<string, number | null> };
 type Game = {
   providerEventId: string; tipUtc: string; frozenAt: string;
@@ -35,7 +39,7 @@ type Game = {
   elo: { favoured: string | null; state: string; source: string; rule?: string | null; winProbability?: { home: number; away: number; provenance: Record<string, string | null> } };
   teamScores: { state: string; reason: string };
   /** `unavailable` (PR 1230): rostered players with no projection — a reason, never a number. Absent on older slates. */
-  players: { source: string; comboSource?: string; away: Row[]; home: Row[]; unavailable?: { away: unknown[]; home: unknown[] } };
+  players: { source: string; comboSource?: string; away: Row[]; home: Row[]; unavailable?: { away: LaneUnavailablePlayer[]; home: LaneUnavailablePlayer[] } };
 };
 export type Snapshot = { schema: string; label: string; validation: string; date: string | null; withheld: Record<string, string>; games: Game[]; excluded: { providerEventId: string; reason: string }[] };
 
