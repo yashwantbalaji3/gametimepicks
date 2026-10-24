@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-23T19:00:36Z",
- "sourceGeneratedAt": "2026-10-23T19:00:36Z",
+ "generatedAt": "2026-10-23T23:45:53Z",
+ "sourceGeneratedAt": "2026-10-23T23:45:53Z",
  "providerEventId": "401873016",
  "matchup": "NYG @ HOU",
  "kickoffUtc": "2026-10-25T17:00Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-23T19:00:36Z",
-  "roleEvidenceAt": "2026-10-23T19:00:36Z",
+  "injuriesCapturedAt": "2026-10-23T23:45:53Z",
+  "roleEvidenceAt": "2026-10-23T23:45:53Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -52,12 +52,13 @@
      {
       "team": "HOU",
       "pool": "targets",
-      "originalSum": 1.0319,
+      "originalSum": 1.1905,
       "normalizedSum": 1,
-      "factor": 0.9691,
+      "factor": 0.84,
       "playerIds": [
        "nfl-athlete-4258173",
        "nfl-athlete-4686422",
+       "nfl-athlete-3117256",
        "nfl-athlete-4877706",
        "nfl-athlete-4432708",
        "nfl-athlete-4429022",
@@ -132,7 +133,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 69,
+  "absent": 67,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -298,8 +299,8 @@
   },
   "HOU": {
    "counts": {
-    "PROJECTED": 13,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 12,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -328,16 +329,6 @@
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4035538",
-     "name": "David Montgomery",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4429939",
@@ -380,7 +371,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4877706",
@@ -452,6 +443,12 @@
        "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
+    },
+    {
+     "playerId": "nfl-athlete-4035538",
+     "name": "David Montgomery",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4366031",
@@ -535,9 +532,9 @@
      "player_receptions"
     ],
     "sum": 1,
-    "originalSum": 1.0319,
+    "originalSum": 1.1905,
     "residualOther": 0,
-    "joined": 8,
+    "joined": 9,
     "missed": 0,
     "state": "NORMALIZED"
    },
@@ -639,15 +636,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.7736,
+     "mean": 1.5373,
      "p10": 0,
-     "p25": 0.9691,
-     "median": 1.9382,
-     "p75": 2.9073,
-     "p90": 3.8763,
+     "p25": 0.84,
+     "median": 1.68,
+     "p75": 2.5199,
+     "p90": 3.3599,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9691
+      "factor": 0.84
      },
      "pricingState": "NOT_PROBED"
     },
@@ -688,27 +685,6 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4035538",
-   "name": "David Montgomery",
-   "team": "HOU",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 28.466,
-     "p10": 6.66,
-     "p25": 13.41,
-     "median": 24.59,
-     "p75": 39.76,
-     "p90": 55.6,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.3563,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4258173",
    "name": "Nico Collins",
    "team": "HOU",
@@ -724,15 +700,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 4.9718,
-     "p10": 0.9691,
-     "p25": 2.9073,
-     "median": 4.8454,
-     "p75": 6.7836,
-     "p90": 8.7218,
+     "mean": 4.3094,
+     "p10": 0.84,
+     "p25": 2.5199,
+     "median": 4.1999,
+     "p75": 5.8799,
+     "p90": 7.5598,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9691
+      "factor": 0.84
      },
      "pricingState": "NOT_PROBED"
     },
@@ -818,15 +794,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.2082,
-     "p10": 0.9691,
-     "p25": 1.9382,
-     "median": 2.9073,
-     "p75": 4.8454,
-     "p90": 5.8145,
+     "mean": 2.7808,
+     "p10": 0.84,
+     "p25": 1.68,
+     "median": 2.5199,
+     "p75": 4.1999,
+     "p90": 5.0399,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9691
+      "factor": 0.84
      },
      "pricingState": "NOT_PROBED"
     },
@@ -882,15 +858,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.492,
+     "mean": 2.16,
      "p10": 0,
-     "p25": 0.9691,
-     "median": 1.9382,
-     "p75": 3.8763,
-     "p90": 4.8454,
+     "p25": 0.84,
+     "median": 1.68,
+     "p75": 3.3599,
+     "p90": 4.1999,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9691
+      "factor": 0.84
      },
      "pricingState": "NOT_PROBED"
     },
@@ -916,15 +892,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.4015,
+     "mean": 2.0816,
      "p10": 0,
-     "p25": 0.9691,
-     "median": 1.9382,
-     "p75": 3.8763,
-     "p90": 4.8454,
+     "p25": 0.84,
+     "median": 1.68,
+     "p75": 3.3599,
+     "p90": 4.1999,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9691
+      "factor": 0.84
      },
      "pricingState": "NOT_PROBED"
     },
@@ -950,15 +926,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.0949,
-     "p10": 0.9691,
-     "p25": 0.9691,
-     "median": 2.9073,
-     "p75": 3.8763,
-     "p90": 5.8145,
+     "mean": 2.6826,
+     "p10": 0.84,
+     "p25": 0.84,
+     "median": 2.5199,
+     "p75": 3.3599,
+     "p90": 5.0399,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9691
+      "factor": 0.84
      },
      "pricingState": "NOT_PROBED"
     },
@@ -1023,7 +999,7 @@
    "playerId": "nfl-athlete-3117256",
    "name": "Dalton Schultz",
    "team": "HOU",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 27.577,
@@ -1035,12 +1011,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.8529,
-     "p10": 1,
-     "p25": 2,
-     "median": 3,
-     "p75": 5,
-     "p90": 7,
+     "mean": 3.2364,
+     "p10": 0.84,
+     "p25": 1.68,
+     "median": 2.5199,
+     "p75": 4.1999,
+     "p90": 5.8799,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.84
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1065,15 +1045,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.7193,
+     "mean": 1.4902,
      "p10": 0,
-     "p25": 0.9691,
-     "median": 0.9691,
-     "p75": 2.9073,
-     "p90": 3.8763,
+     "p25": 0.84,
+     "median": 0.84,
+     "p75": 2.5199,
+     "p90": 3.3599,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9691
+      "factor": 0.84
      },
      "pricingState": "NOT_PROBED"
     },
@@ -1099,15 +1079,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.3636,
+     "mean": 2.0487,
      "p10": 0,
-     "p25": 0.9691,
-     "median": 1.9382,
-     "p75": 2.9073,
-     "p90": 4.8454,
+     "p25": 0.84,
+     "median": 1.68,
+     "p75": 2.5199,
+     "p90": 4.1999,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9691
+      "factor": 0.84
      },
      "pricingState": "NOT_PROBED"
     },

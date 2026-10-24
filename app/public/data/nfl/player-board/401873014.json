@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-23T19:00:36Z",
- "sourceGeneratedAt": "2026-10-23T19:00:36Z",
+ "generatedAt": "2026-10-23T23:45:53Z",
+ "sourceGeneratedAt": "2026-10-23T23:45:53Z",
  "providerEventId": "401873014",
  "matchup": "IND @ MIN",
  "kickoffUtc": "2026-10-25T17:00Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-23T19:00:36Z",
-  "roleEvidenceAt": "2026-10-23T19:00:36Z",
+  "injuriesCapturedAt": "2026-10-23T23:45:53Z",
+  "roleEvidenceAt": "2026-10-23T23:45:53Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -213,7 +213,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4249030",
@@ -333,7 +333,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4708049",
@@ -472,6 +472,32 @@
   ],
   "pools": [
    {
+    "team": "MIN",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.9952,
+    "originalSum": 0.9952,
+    "residualOther": 0.0048,
+    "joined": 7,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "IND",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.9885,
+    "originalSum": 0.9885,
+    "residualOther": 0.0115,
+    "joined": 7,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
     "team": "IND",
     "pool": "passAttempts",
     "markets": [
@@ -485,19 +511,6 @@
     "state": "CONSERVED"
    },
    {
-    "team": "IND",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.8959,
-    "originalSum": 0.8959,
-    "residualOther": 0.1041,
-    "joined": 6,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
     "team": "MIN",
     "pool": "passAttempts",
     "markets": [
@@ -507,19 +520,6 @@
     "originalSum": 0.8502,
     "residualOther": 0.1498,
     "joined": 1,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "MIN",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.8063,
-    "originalSum": 0.8063,
-    "residualOther": 0.1937,
-    "joined": 6,
     "missed": 0,
     "state": "CONSERVED"
    }
@@ -699,7 +699,7 @@
    "playerId": "nfl-athlete-4036133",
    "name": "T.J. Hockenson",
    "team": "MIN",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 37.359,
@@ -993,7 +993,7 @@
    "playerId": "nfl-athlete-4061956",
    "name": "Ashton Dulin",
    "team": "IND",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 14.754,
