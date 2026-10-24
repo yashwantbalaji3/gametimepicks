@@ -2,11 +2,11 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-24T13:50:08Z",
+ "generatedAt": "2026-10-24T14:24:42Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
-  "PUBLISHED": 1,
-  "NO_PLAY": 3,
+  "PUBLISHED": 2,
+  "NO_PLAY": 2,
   "LANE_CLOSED": 16,
   "MISSING": 0
  },
@@ -37,21 +37,21 @@
   },
   {
    "lane": "epl",
-   "date": "2026-10-24",
+   "date": "2026-10-25",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
     "low": {
      "state": "NO_PLAY",
-     "reason": "no combination of today's prices lands in this band — 2 legs → +119 (medium) … +399 (high)"
+     "reason": "no combination of today's prices lands in this band — 2 legs → +146 (medium) … +440 (high)"
     },
     "medium": {
      "state": "PUBLISHED",
-     "slipId": "epl-medium-2026-10-24"
+     "slipId": "epl-medium-2026-10-25"
     },
     "high": {
-     "state": "NO_PLAY",
-     "reason": "not enough eligible priced fixtures to build a card"
+     "state": "PUBLISHED",
+     "slipId": "epl-high-2026-10-25"
     },
     "longshot": {
      "state": "NO_PLAY",
