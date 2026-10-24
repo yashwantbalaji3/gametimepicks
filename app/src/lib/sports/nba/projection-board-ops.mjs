@@ -54,9 +54,13 @@ export function boardRows(snapshot, stats) {
  * actuals the format is unchanged.
  * @param {ReturnType<typeof boardRows>} rows
  * @param {Record<string, (number | string | null)[]> | null} [actuals]
+ * PLAYED WITHOUT A PROJECTION: `unprojected` (projection-board-actuals.ts — box-score players with minutes and no board
+ * row) travel in `u`, each `[name, teamIndex, ...actual]`, never with a forecast value. Unpacked they are rows with
+ * `np: true`, every frozen value null and the actuals verbatim; they sort last in the default order (no expected minutes).
  * @param {ReadonlySet<string> | null} [awaiting]  game ids with no official final yet
+ * @param {{ name: string, game: string, team: string, teamName: string, actual: (number | string | null)[] }[] | null} [unprojected]
  */
-export function packBoard(rows, actuals = null, awaiting = null) {
+export function packBoard(rows, actuals = null, awaiting = null, unprojected = null) {
   const t = [];
   const at = new Map();
   const sorted = sortRows(rows);
@@ -65,21 +69,36 @@ export function packBoard(rows, actuals = null, awaiting = null) {
     if (!at.has(k)) { at.set(k, t.length); t.push([x.team, x.teamName, x.game]); }
     return [x.name, x.injury || 0, at.get(k), x.min, ...x.v];
   });
-  return actuals ? { t, r, a: sorted.map((x) => actuals[x.id] ?? (awaiting?.has(x.game) ? 1 : 0)) } : { t, r };
+  if (!actuals) return { t, r };
+  const out = { t, r, a: sorted.map((x) => actuals[x.id] ?? (awaiting?.has(x.game) ? 1 : 0)) };
+  if (unprojected?.length) {
+    out.u = unprojected.map((x) => {
+      const k = `${x.game}\u0000${x.team}`;
+      if (!at.has(k)) { at.set(k, t.length); t.push([x.team, x.teamName, x.game]); }
+      return [x.name, at.get(k), ...x.actual];
+    });
+  }
+  return out;
 }
 
 /**
- * @param {{ t: [string, string, string][], r: (string | number | null)[][], a?: (0 | 1 | (number | string | null)[])[] }} packed
- * @returns {{ id: string, game: string, name: string, injury: string | null, team: string, teamName: string, min: number | null, v: (number | null)[], am?: number | "DNP" | null, aw?: boolean }[]}
+ * @param {{ t: [string, string, string][], r: (string | number | null)[][], a?: (0 | 1 | (number | string | null)[])[], u?: (string | number | null)[][] }} packed
+ * @returns {{ id: string, game: string, name: string, injury: string | null, team: string, teamName: string, min: number | null, v: (number | null)[], am?: number | "DNP" | null, aw?: boolean, np?: boolean }[]}
  */
-export function unpackBoard({ t, r, a }) {
-  return r.map(([name, injury, ti, min, ...v], i) => {
+export function unpackBoard({ t, r, a, u }) {
+  const board = r.map(([name, injury, ti, min, ...v], i) => {
     const [team, teamName, game] = t[/** @type {number} */ (ti)];
     const row = { id: String(i).padStart(4, "0"), game, name: /** @type {string} */ (name), injury: /** @type {string} */ (injury) || null, team, teamName, min: /** @type {number | null} */ (min), v: /** @type {(number | null)[]} */ (v) };
     if (!a) return row;
     const act = Array.isArray(a[i]) ? a[i] : null;
     return { ...row, v: [...row.v, ...(act ? act.slice(1) : v.map(() => null))], am: act ? act[0] : null, aw: a[i] === 1 };
   });
+  const width = r[0] ? r[0].length - 4 : 0;
+  for (const [j, [name, ti, am, ...act]] of (u ?? []).entries()) {
+    const [team, teamName, game] = t[/** @type {number} */ (ti)];
+    board.push({ id: `u${String(j).padStart(4, "0")}`, game, name: /** @type {string} */ (name), injury: null, team, teamName, min: null, v: [...Array(width).fill(null), ...act], am, aw: false, np: true });
+  }
+  return board;
 }
 
 /** Matchup and team filter options, in slate order. */

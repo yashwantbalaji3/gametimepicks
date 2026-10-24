@@ -19,7 +19,10 @@
  *   - the table scrolls in its own bounded box, so its header row and the player column stay in view (sticky), and
  *     every sort button is a 44 px target;
  *   - postgame, a row whose game has no official final yet reads "awaiting final" in its actual-minutes cell — an
- *     explicit state, never a blank, never a zero.
+ *     explicit state, never a blank, never a zero;
+ *   - players who played without a projection (`u` on the wire) are rows reading "projection unavailable", with their
+ *     verified actuals and dashes for every forecast cell. They are on by default and the count line says how many
+ *     (with a toggle); they render after hydration, so the static HTML carries the count line, not the rows (weight).
  *
  * Layout: controls stack on a phone; the table scrolls inside its own container, so the page never scrolls sideways at
  * 320 px. No transitions or animation (prefers-reduced-motion has nothing to reduce).
@@ -28,13 +31,13 @@ import React, { useEffect, useId, useMemo, useState } from "react";
 
 import { filterRows, sortRows, unpackBoard, gameStatusOnClock, GAME_STATUS_LABEL } from "@/lib/sports/nba/projection-board-ops.mjs";
 
-export type BoardRow = { id: string; game: string; name: string; injury: string | null; team: string; teamName: string; min: number | null; v: (number | null)[]; am?: number | "DNP" | null; aw?: boolean };
+export type BoardRow = { id: string; game: string; name: string; injury: string | null; team: string; teamName: string; min: number | null; v: (number | null)[]; am?: number | "DNP" | null; aw?: boolean; np?: boolean };
 /** One game chip: id, short matchup ("BOS @ DET"), build-time status code, tip-off instant, optional actual-state note. */
 export type BoardGameNav = [string, string, "upcoming" | "started" | "final" | "postponed", string, string?];
 type SortKey = number | "min" | "am";
 export type BoardOption = { id: string; label: string };
 /** packBoard's wire format: teams once, rows as arrays (page weight — see projection-board-ops.mjs). */
-export type PackedBoard = { t: [string, string, string][]; r: (string | number | null)[][]; a?: (0 | 1 | (number | string | null)[])[] };
+export type PackedBoard = { t: [string, string, string][]; r: (string | number | null)[][]; a?: (0 | 1 | (number | string | null)[])[]; u?: (string | number | null)[][] };
 export type StatGroup = { id: string; label: string; cols: number[] };
 
 const fmt = (v: number | string | null | undefined) => (v == null ? "—" : String(v));
@@ -64,7 +67,12 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
   defaultGroup?: string;
 }) {
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
-  const rows: BoardRow[] = useMemo(() => unpackBoard(board), [board]);
+  const all: BoardRow[] = useMemo(() => unpackBoard(board), [board]);
+  const npCount = all.filter((r) => r.np).length;
+  const [mounted, setMounted] = useState(false);
+  const [showNp, setShowNp] = useState(true);
+  useEffect(() => setMounted(true), []);
+  const rows = useMemo(() => all.filter((r) => !r.np || (mounted && showNp)), [all, mounted, showNp]);
   const [matchup, setMatchup] = useState("");
   const [team, setTeam] = useState("");
   const [player, setPlayer] = useState("");
@@ -147,6 +155,14 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
         <p className="m-0" aria-live="polite">
           {shown.length} of {rows.length} players · order: {activeSort == null ? "expected minutes" : `${label(activeSort)}, ${dir === "desc" ? "high to low" : "low to high"}`}
         </p>
+        {npCount ? (
+          <>
+            <span>· {npCount} played without a projection{mounted && showNp ? " (listed, \u201cprojection unavailable\u201d)" : ""}</span>
+            <button type="button" aria-pressed={showNp} className="underline min-h-[44px] px-1 focus-visible:outline focus-visible:outline-2" style={{ color: "var(--vault-text)", outlineColor: "var(--vault-gold-bright)" }} onClick={() => setShowNp(!showNp)}>
+              {showNp ? "Hide them" : "Show them"}
+            </button>
+          </>
+        ) : null}
         {activeSort != null ? (
           <button type="button" className="underline min-h-[44px] px-1 focus-visible:outline focus-visible:outline-2" style={{ color: "var(--vault-text)", outlineColor: "var(--vault-gold-bright)" }} onClick={() => setSortKey(null)}>
             Back to expected-minutes order
@@ -185,7 +201,7 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
             <tbody style={{ color: "var(--vault-text)" }}>
               {shown.map((r) => (
                 <tr key={r.id}>
-                  <th scope="row">{r.name}{r.injury ? ` · ${r.injury}` : ""}</th>
+                  <th scope="row">{r.name}{r.injury ? ` · ${r.injury}` : ""}{r.np ? " · projection unavailable" : ""}</th>
                   <td title={r.teamName}>{r.team}</td>
                   <td>{fmt(r.min)}</td>
                   {post ? <td>{r.aw ? "awaiting final" : fmt(r.am)}</td> : null}

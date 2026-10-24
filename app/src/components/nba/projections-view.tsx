@@ -60,6 +60,14 @@ const ACTUAL_UNAVAILABLE: Partial<Record<GameActualState, string>> = {
   "under-review": "Actual: Unavailable (final under review)",
   "points-disagree": "Actual: Unavailable (box score under review)",
 };
+/** Box-score players who played without a projection, with their team as the board names it. */
+function unprojectedRows(lane: Snapshot, a: BoardActuals) {
+  const byId = new Map(lane.games.map((g) => [g.providerEventId, g]));
+  return (a.unprojected ?? []).map((u) => {
+    const side = byId.get(u.game)![u.side];
+    return { name: u.name, game: u.game, team: side.abbr ?? "", teamName: side.name ?? side.abbr ?? "", actual: u.actual };
+  });
+}
 /** The same state, short, on a game chip. A recorded game needs no note; a game still to finish reads "awaiting final". */
 const ACTUAL_CHIP: Partial<Record<GameActualState, string>> = {
   "no-final": "awaiting final",
@@ -207,7 +215,10 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
                 <strong>Forecast</strong> is the Official Forecast, frozen before tip-off and never changed. <strong>Actual</strong> is
                 the player&rsquo;s figure in the final box score (ESPN), shown only after the official final is recorded; PRA, P+R
                 and P+A actuals add up the actual points, rebounds and assists. &ldquo;awaiting final&rdquo; means the game has no
-                official final yet; a dash means did not play or not in the box score &mdash; never a zero. Compared per player only.
+                official final yet; a dash means did not play or not in the box score &mdash; never a zero. &ldquo;projection
+                unavailable&rdquo; marks a player who played without an Official Forecast projection (for example a rookie
+                without NBA minutes, a player without recent minutes, or one under 10 expected minutes): his actuals are
+                shown, no forecast is invented. Compared per player only.
               </p>
             </section>
           ) : pendingActuals ? (
@@ -216,7 +227,7 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
               frozen Official Forecast once that game&rsquo;s official final and box score are recorded.
             </p>
           ) : null}
-          <ProjectionBoard board={packBoard(rows, post ? post.rows : null, post ? awaiting : null)} stats={stats} groups={groups} matchups={matchups} teams={teams} games={nav} defaultGroup={post ? "core" : undefined} />
+          <ProjectionBoard board={packBoard(rows, post ? post.rows : null, post ? awaiting : null, post ? unprojectedRows(live, post) : null)} stats={stats} groups={groups} matchups={matchups} teams={teams} games={nav} defaultGroup={post ? "core" : undefined} />
           {/* Model ids, receipts, engine notes and the withheld list: one tap away, each model id once. */}
           <details className="text-[12px]" style={MUTE}>
             <summary className="cursor-pointer min-h-[44px] py-3 underline decoration-dotted" style={TEXT}>

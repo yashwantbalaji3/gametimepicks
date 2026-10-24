@@ -318,3 +318,41 @@ test("sort by minutes: expected and actual minutes are reader sorts; DNP and mis
   assert.ok(am.slice(nums.length).every((x) => typeof x !== "number"), "DNP / missing last");
   assert.deepEqual(sortRows(back, { key: "min", dir: "asc" }).map((r) => r.min), back.map((r) => r.min).sort((a, b) => a - b));
 });
+
+test("coverage: a player who PLAYED without a projection is listed with his verified actuals and no forecast value", () => {
+  const extra = { providerAthleteId: "9990001", name: "Rookie Fixture", providerTeamId: "H", didNotPlay: false, minutes: 12, pts: 4, reb: 3, ast: 1, threePm: 0 };
+  const benchDnp = { providerAthleteId: "9990002", name: "Bench Fixture", providerTeamId: "H", didNotPlay: true, minutes: null, pts: null, reb: null, ast: null, threePm: null };
+  const withExtra = (id) => { const b = boxes()(id); if (id === G0.providerEventId) b.players.push(extra, benchDnp); return b; };
+  const fin = finalsFor(PUB.games);
+  fin.finals[0].ftHome += 4; // the box score's team points include the extra player's 4
+  const acts = boardActuals(lane(), PROJECTION_BOARD_STATS, { boxscoreOf: withExtra, finals: fin });
+  assert.equal(acts.games[G0.providerEventId], "recorded");
+  assert.deepEqual(acts.unprojected, [{ id: "9990001", game: G0.providerEventId, side: "home", name: "Rookie Fixture", actual: [12, 4, 3, 1, 0, 8, 7, 5] }], "only players with minutes > 0; a DNP bench player is not listed");
+  // Wire + unpack: frozen values all null, actuals verbatim, after the board rows.
+  const rows = boardRows(PUB, PROJECTION_BOARD_STATS);
+  const packed = JSON.parse(JSON.stringify(packBoard(rows, acts.rows, null, [{ name: "Rookie Fixture", game: G0.providerEventId, team: G0.home.abbr, teamName: G0.home.name, actual: acts.unprojected[0].actual }])));
+  assert.deepEqual(packed.r, packBoard(rows).r, "the frozen rows are untouched");
+  const np = unpackBoard(packed).filter((r) => r.np);
+  assert.equal(np.length, 1);
+  assert.deepEqual(np[0].v, [...Array(PROJECTION_BOARD_STATS.length).fill(null), 4, 3, 1, 0, 8, 7, 5]);
+  assert.equal(np[0].min, null); assert.equal(np[0].am, 12); assert.equal(np[0].team, G0.home.abbr);
+  // Static render: the count line and toggle are in the HTML; the rows come after hydration (weight).
+  const html = render({ lane: lane(), role: "past", date: "2026-10-20", dated: true, actuals: { ...acts, unprojected: acts.unprojected } });
+  assert.match(visibleText(html), /· 1 played without a projection Hide them/);
+  assert.match(html, /aria-pressed="true"[^>]*>Hide them</);
+  assert.doesNotMatch(html, /Rookie Fixture/, "rows render after hydration");
+  assert.match(visibleText(html), /“projection unavailable” marks a player who played without an Official Forecast projection/);
+});
+
+test("coverage on the COMMITTED record: every listed player played, is not on that game's board, and carries integer minutes", () => {
+  for (const d of committedLaneDates()) {
+    const snap = JSON.parse(fs.readFileSync(path.join(DIR, `${d}.json`), "utf8"));
+    const a = boardActuals(snap, PROJECTION_BOARD_STATS);
+    for (const u of a.unprojected ?? []) {
+      const g = snap.games.find((x) => x.providerEventId === u.game);
+      assert.equal(a.games[u.game], "recorded");
+      assert.ok(!g.players[u.side].some((r) => String(r.providerAthleteId) === u.id), `${d} ${u.name} is not on the board`);
+      assert.ok(Number.isInteger(u.actual[0]) && u.actual[0] > 0, `${d} ${u.name} played`);
+    }
+  }
+});
