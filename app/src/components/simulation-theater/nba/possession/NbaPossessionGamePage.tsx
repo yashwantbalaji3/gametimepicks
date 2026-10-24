@@ -12,13 +12,22 @@
  */
 import Link from "next/link";
 import NbaPossessionSection from "./NbaPossessionSection";
-import type { PbLoad } from "./possession-types";
+import type { PbLoad, PbUnavailable } from "./possession-types";
 import NbaOfficialPredictions, { OFFICIAL_PREDICTIONS_ID } from "@/components/nba/official-predictions";
 import { loadCurrentLane, loadLaneForDate } from "@/components/nba/experimental-lane";
 import { nbaTodaySlate } from "@/lib/sport-hub/nba-hub";
 import { etDateOf } from "@/lib/sports/nba/finals-record.mjs";
 
 export const NBA_RESULTS_HREF = "/nba/#nba-results";
+
+/* Only what the panel prints (id, name, reason) crosses into the client island's props. */
+type LaneUnavailable = { away?: { providerAthleteId: string; name: string | null; reason: string }[]; home?: { providerAthleteId: string; name: string | null; reason: string }[] };
+const unavailableOf = (g: unknown): PbUnavailable => {
+  const u = (g as { players?: { unavailable?: LaneUnavailable } } | null)?.players?.unavailable;
+  if (!u) return null;
+  const slim = (xs: { providerAthleteId: string; name: string | null; reason: string }[] = []) => xs.map((x) => ({ providerAthleteId: String(x.providerAthleteId), name: x.name ?? null, reason: x.reason }));
+  return { away: slim(u.away), home: slim(u.home) };
+};
 
 export default function NbaPossessionGamePage({ load, nowIso = new Date().toISOString() }: { load: PbLoad; nowIso?: string }) {
   const payload = load.ok ? load.payload : null;
@@ -40,7 +49,9 @@ export default function NbaPossessionGamePage({ load, nowIso = new Date().toISOS
         <Link href="/nba/projections/">Top Boards</Link>
         <Link href={NBA_RESULTS_HREF}>Results</Link>
       </nav>
-      <NbaPossessionSection load={load} />
+      {/* This game's projection-unavailable players (lane `players.unavailable`, PR 1230), by name and reason only — the
+          in-Theater Official Forecast panel lists them as the section below does, never as 0. */}
+      <NbaPossessionSection load={load} unavailable={unavailableOf(laneGame)} />
       {payload ? <NbaOfficialPredictions official={payload.official} teams={payload.teams} lane={laneGame} finalNote={finalNote} resultsHref={NBA_RESULTS_HREF} /> : null}
     </>
   );

@@ -100,3 +100,9 @@ export const SIM_BOX_NOTE = `One simulated game, added up from its own event log
 export const COMPARE_TITLE = `This simulation vs the ${PREDICTED_STATS_TITLE}`;
 export const MODEL_PLAIN = Object.freeze({ game: "Elo team rating", players: "GameTimePicks player model" });
 export const MODEL_DETAILS_TITLE = "Model details";
+/** The lane's projection-unavailable reasons in words (PR 1230 lane field); equal to official-predictions UNAVAILABLE_REASON_TEXT. */
+export const UNAVAILABLE_REASON_TEXT = Object.freeze({
+  INSUFFICIENT_HISTORY: "not enough NBA minutes history to project (a rookie or a returning player)",
+  NO_EXPECTED_MINUTES: "no expected minutes in the pregame record",
+});
+export const unavailableReasonText = (reason) => UNAVAILABLE_REASON_TEXT[reason ?? ""] ?? "no projection was published for this player";

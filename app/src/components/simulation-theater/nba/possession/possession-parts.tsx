@@ -9,13 +9,13 @@ import { Fragment } from "react";
 import type { CSSProperties } from "react";
 import type { NbaPalette, NbaSide } from "../nba-types";
 import { teamStyle } from "../nba-parts";
-import type { PbOfficial, PbPayload, PbRun } from "./possession-types";
+import type { PbOfficial, PbPayload, PbRun, PbUnavailable } from "./possession-types";
 import { BOX_COLUMNS, fmtMinutes } from "@/lib/simulation-theater/nba/possession/box.mjs";
 import { fmtClockDs, periodLabel } from "@/lib/simulation-theater/nba/possession/playback.mjs";
 import {
   ACCURACY_NOTE, ACCURACY_TITLE, DEFAULT_RUN_SUBTITLE, DEFAULT_RUN_TAG, DEFAULT_RUN_TITLE, INPUTS_AS_OF_NOTE, VERIFIED_NOTE, VERIFIED_TITLE, ENGINE_IDENTITY, ROLE_C_NOTE, OFFICIAL_PANEL_NOTE, OFFICIAL_PANEL_TITLE, OUTCOME_PANEL_TITLE, POSSESSION_BANNER,
   POSSESSION_NOT_MODELLED, WHAT_IF_BANNER, WHAT_IF_TAG, WHAT_IS_REAL, WITHHELD,
-  COMPARE_TITLE, MODEL_DETAILS_TITLE, MODEL_PLAIN, PREDICTED_STATS_TITLE, SIM_BOX_TITLE,
+  COMPARE_TITLE, MODEL_DETAILS_TITLE, MODEL_PLAIN, PREDICTED_STATS_TITLE, SIM_BOX_TITLE, unavailableReasonText,
 } from "@/lib/simulation-theater/nba/possession/labels.mjs";
 
 type Teams = PbPayload["teams"];
@@ -45,7 +45,7 @@ export function PossessionUnavailable({ title, reason }: { title: string; reason
 }
 
 /** THE OFFICIAL PROJECTION PANEL — the canonical forecast only (never computed from a run). */
-export function OfficialProjectionPanel({ official, teams }: { official: PbOfficial | null; teams: Teams }) {
+export function OfficialProjectionPanel({ official, teams, unavailable = null }: { official: PbOfficial | null; teams: Teams; unavailable?: PbUnavailable }) {
   if (!official) {
     return (
       <section className="nbp-panel is-official" aria-label={OFFICIAL_PANEL_TITLE} data-nbp-official="none">
@@ -58,6 +58,8 @@ export function OfficialProjectionPanel({ official, teams }: { official: PbOffic
   const w = official.withheld ?? {};
   const Withheld = ({ why }: { why?: string }) => <span className="nbp-withheld" title={why}>{WITHHELD}{why ? <span className="st-sr"> · {why}</span> : null}</span>;
   const players = (side: NbaSide) => official.players.filter((p) => p.team === side);
+  const none = (side: NbaSide) => (unavailable?.[side] ?? []).filter((u) => !official.players.some((p) => p.playerId === String(u.providerAthleteId)));
+  const noneCount = none("away").length + none("home").length;
   return (
     <section className="nbp-panel is-official" aria-label={OFFICIAL_PANEL_TITLE} data-nbp-official={official.snapshotId}>
       <h2>{OFFICIAL_PANEL_TITLE}</h2>
@@ -75,7 +77,7 @@ export function OfficialProjectionPanel({ official, teams }: { official: PbOffic
         <dt>Locks at tip</dt><dd>{fmtEt(official.lockAt)}</dd>
       </dl>
       <details className="nbp-details">
-        <summary>{PREDICTED_STATS_TITLE} · {official.players.length} players</summary>
+        <summary>{PREDICTED_STATS_TITLE} · {official.players.length} players{noneCount ? ` · ${noneCount} without a projection` : ""}</summary>
         {SIDES.map((side) => (
           <div key={side} className="nbp-scroll">
             <table className="nbp-table" data-nbp-official-players={side}>
@@ -84,6 +86,9 @@ export function OfficialProjectionPanel({ official, teams }: { official: PbOffic
               <tbody>
                 {players(side).map((p) => (
                   <tr key={p.playerId}><td>{p.displayName ?? p.playerId}</td><td>{fmt1(p.expectedMinutes)}</td><td>{fmt1(p.medians.pts)}</td><td>{fmt1(p.medians.reb)}</td><td>{fmt1(p.medians.ast)}</td><td>{fmt1(p.medians.threePm)}</td></tr>
+                ))}
+                {none(side).map((u) => (
+                  <tr key={`u-${u.providerAthleteId}`} data-nbp-projection-unavailable={u.providerAthleteId}><td>{u.name ?? u.providerAthleteId}</td><td colSpan={5}>Projection unavailable — {unavailableReasonText(u.reason)}</td></tr>
                 ))}
               </tbody>
             </table>

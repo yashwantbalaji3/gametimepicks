@@ -33,3 +33,33 @@ test("models in words outside Model details; exact ids only inside it; same word
   }
   assert.doesNotMatch(outside, /\(side\)|\(players\)/);
 });
+
+test("projection-unavailable players (lane players.unavailable, PR 1230): listed by name with a reason in words, never a number; another game's list is ignored", async () => {
+  const { UNAVAILABLE_REASON_TEXT } = await import("./official-predictions.tsx");
+  const LABELS = await import("../../lib/simulation-theater/nba/possession/labels.mjs");
+  assert.deepEqual({ ...UNAVAILABLE_REASON_TEXT }, { ...LABELS.UNAVAILABLE_REASON_TEXT }, "one wording on both tables");
+  const { OfficialProjectionPanel } = await import("../simulation-theater/nba/possession/possession-parts.tsx");
+  const load = loadNbaPossessionTheater(REPO, "401909088");
+  const official = load.payload.official;
+  const unavailable = {
+    away: [{ providerAthleteId: "9000001", name: "Rookie One", position: "G", state: "PROJECTION_UNAVAILABLE", reason: "INSUFFICIENT_HISTORY" }],
+    home: [{ providerAthleteId: "9000002", name: "Returner Two", position: null, state: "PROJECTION_UNAVAILABLE", reason: "NO_EXPECTED_MINUTES" }],
+  };
+  const lane = { providerEventId: official.eventId, receipt: { modelVersion: "none" }, players: { away: [], home: [], unavailable } };
+  const props = { official, teams: load.payload.teams, finalNote: null, resultsHref: "/r", eloCtx: { enabled: false, disclosure: "" } };
+  const rowsOf = (h, attr) => [...h.matchAll(new RegExp(`<tr[^>]*${attr}="(\\d+)"[^>]*>([\\s\\S]*?)</tr>`, "g"))].map((m) => [m[1], text(m[2])]);
+  for (const [h, attr] of [
+    [renderToStaticMarkup(React.createElement(Official, { ...props, lane })), "data-nba-projection-unavailable"],
+    [renderToStaticMarkup(React.createElement(OfficialProjectionPanel, { official, teams: load.payload.teams, unavailable })), "data-nbp-projection-unavailable"],
+  ]) {
+    const rows = rowsOf(h, attr);
+    assert.deepEqual(rows.map((r) => r[0]), ["9000001", "9000002"]);
+    assert.ok(rows[0][1].includes(`Rookie One Projection unavailable — ${UNAVAILABLE_REASON_TEXT.INSUFFICIENT_HISTORY}`), rows[0][1]);
+    assert.ok(rows[1][1].includes(`Returner Two Projection unavailable — ${UNAVAILABLE_REASON_TEXT.NO_EXPECTED_MINUTES}`), rows[1][1]);
+    for (const [, t] of rows) assert.doesNotMatch(t, /\d/, "no number of any kind, and never 0");
+  }
+  const other = renderToStaticMarkup(React.createElement(Official, { ...props, lane: { ...lane, providerEventId: "x" } }));
+  assert.doesNotMatch(other, /Projection unavailable/, "another game's list never prints here");
+  const none = renderToStaticMarkup(React.createElement(OfficialProjectionPanel, { official, teams: load.payload.teams }));
+  assert.doesNotMatch(none, /Projection unavailable/, "no list → no rows (the published 10-23 slates carry none)");
+});

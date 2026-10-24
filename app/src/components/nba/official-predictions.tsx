@@ -35,8 +35,10 @@ export type PbOfficial = {
 type Teams = { home: { abbr: string; name: string }; away: { abbr: string; name: string } };
 
 type LaneRow = { providerAthleteId: string; medians: Record<string, number | null>; comboMedians?: Record<string, number | null> };
+/* Lane players the official pool could not project (lane `players.unavailable`, PR 1230): a state and a reason, never a number. */
+type LaneUnavailable = { providerAthleteId: string; name: string | null; position?: string | null; state: string; reason: string };
 export type OfficialLaneGame = {
-  providerEventId: string; receipt: { modelVersion: string; payloadSha256?: string }; players: { away: LaneRow[]; home: LaneRow[] };
+  providerEventId: string; receipt: { modelVersion: string; payloadSha256?: string }; players: { away: LaneRow[]; home: LaneRow[]; unavailable?: { away: LaneUnavailable[]; home: LaneUnavailable[] } };
   frozenAt?: string; home?: { abbr: string | null }; away?: { abbr: string | null };
   elo?: { favoured: string | null; state: string; rule?: string | null; winProbability?: { home: number; away: number; provenance: Record<string, string | null> } };
 } | null;
@@ -45,6 +47,12 @@ export const OFFICIAL_PREDICTIONS_ID = "official-predictions";
 /* Plain model names (founder mandate 2026-10-24); the Theater's in-panel labels say the same words
    (lib/simulation-theater/nba/possession/labels.mjs MODEL_PLAIN — pinned equal in official-predictions-labels.test). */
 export const OFFICIAL_MODEL_PLAIN = Object.freeze({ game: "Elo team rating", players: "GameTimePicks player model" });
+/** A projection-unavailable player's reason in words (founder mandate 2026-10-24: "Projection unavailable — <reason>", never 0). */
+export const UNAVAILABLE_REASON_TEXT: Readonly<Record<string, string>> = Object.freeze({
+  INSUFFICIENT_HISTORY: "not enough NBA minutes history to project (a rookie or a returning player)",
+  NO_EXPECTED_MINUTES: "no expected minutes in the pregame record",
+});
+export const unavailableReasonText = (reason: string | null | undefined) => UNAVAILABLE_REASON_TEXT[reason ?? ""] ?? "no projection was published for this player";
 // founder directive 2026-10-23 public readiness: the registry term ("Official Forecast")
 export const OFFICIAL_PREDICTIONS_TITLE = `GameTimePicks ${PUBLIC_TERMS.OFFICIAL_FORECAST}`;
 
@@ -109,7 +117,7 @@ function Official({ official, teams, lane, elo }: { official: PbOfficial; teams:
         <dt>Withheld</dt><dd>{eloShown ? "Team scores" : "Win chance, team scores"}, margin and total, player ranges, prices{w.teamScores ? <span className="sr-only"> · {w.teamScores}</span> : null}</dd>
       </dl>
       <details className="nbx-model-details" data-nba-model-details="">
-        <summary style={{ minHeight: 44, display: "flex", alignItems: "center", cursor: "pointer" }}>Model details</summary>
+        <summary style={{ minHeight: 44, lineHeight: "44px", cursor: "pointer" }}>Model details</summary>
         <dl className="nbx-kv">
           <dt>Game winner model</dt><dd>{official.models.game ?? "—"}</dd>
           <dt>Player model</dt><dd>{official.models.players.join(", ") || "—"}</dd>
@@ -118,6 +126,9 @@ function Official({ official, teams, lane, elo }: { official: PbOfficial; teams:
       </details>
       {(["away", "home"] as const).map((side) => {
         const rows = official.players.filter((p) => p.team === side).sort((a, b) => (b.expectedMinutes ?? -1) - (a.expectedMinutes ?? -1));
+        // only THIS game's lane list, and never a player the official rows already carry
+        const shown = new Set(rows.map((p) => p.playerId));
+        const none = (lane && String(lane.providerEventId) === String(official.eventId) ? lane.players.unavailable?.[side] ?? [] : []).filter((u) => !shown.has(String(u.providerAthleteId)));
         return (
           <div key={side} className="nbx-scroll">
             <table className="nbx-ptable" data-nba-official-table={side}>
@@ -134,6 +145,12 @@ function Official({ official, teams, lane, elo }: { official: PbOfficial; teams:
                     </tr>
                   );
                 })}
+                {none.map((u) => (
+                  <tr key={`u-${u.providerAthleteId}`} data-nba-projection-unavailable={u.providerAthleteId}>
+                    <th scope="row">{u.name ?? u.providerAthleteId}</th>
+                    <td colSpan={1 + STATS.length + COMBO_STATS.length} style={{ textAlign: "left" }}>Projection unavailable — {unavailableReasonText(u.reason)}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
