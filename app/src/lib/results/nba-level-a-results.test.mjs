@@ -125,10 +125,15 @@ test("🔴 NBA Official Forecast vs final: Model Performance as counts against t
   assert.match(h, /<th scope="row"/);
 });
 
-test("🔴 the pages carry both records", () => {
+test("🔴 the pages carry both records", async () => {
   const src = (p) => fs.readFileSync(path.join(process.cwd(), p), "utf8");
   const results = src("src/app/results/page.tsx");
   assert.ok(results.indexOf("<ResultsOverview") < results.indexOf("<ModelSuggestionsRecord") && results.indexOf("<ModelSuggestionsRecord") < results.indexOf("<ResultsExplorer"));
   const nba = src("src/app/results/nba/page.tsx");
   assert.equal((nba.match(/<NbaForecastVsActual view=\{nbaForecastVsActualView\(\)\} \/>/g) ?? []).length, 2, "both the archive and the empty-archive branch show it");
+  /* One <h1> per rendered branch, above the new section: its <h2> must not precede the page's heading. */
+  assert.equal((nba.match(/<h1 className/g) ?? []).length, 2);
+  for (const branch of nba.split("<NbaForecastVsActual view=").slice(0, 2)) assert.match(branch.slice(-400), /<h1[^>]*>NBA results<\/h1>\s*$/);
+  const { POLICY_LABEL } = await import("./level-a-record.mjs");
+  assert.ok(Object.values(POLICY_LABEL).every((l) => !/Parlay Lab|Picks Lab|Build-a-Pick/.test(l)), "no retired destination name (public-vocabulary.test)");
 });

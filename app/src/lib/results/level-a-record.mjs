@@ -22,7 +22,7 @@ import { publicRiskLabel } from "../parlays/risk-odds-bands.mjs";
 export const MIN_DECIDED_FOR_RATE = ASSESSABLE_MIN;
 
 export const POLICY_LABEL = Object.freeze({
-  "parlay-lab-suggest@1": "Parlay Lab card",
+  "parlay-lab-suggest@1": "Parlay Center card",
   "bank-builder-suggest@1": "Bank Builder card",
   "moonshot-suggest@1": "Moonshot card",
   "untiered-pick@1": "Single pick (untiered)",
