@@ -236,12 +236,8 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
             <section className="flex flex-col gap-2" aria-labelledby="nba-fva-h">
               <h2 id="nba-fva-h" className="m-0 font-display text-[17px] font-bold" style={TEXT}>Forecast vs. Actual</h2>
               <p className="m-0 rounded-md p-2 text-[12.5px] leading-relaxed" role="note" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)" }}>
-                <strong>Forecast</strong> is the Official Forecast, frozen before tip-off and never changed. <strong>Actual</strong> is
-                the player&rsquo;s figure in the final box score (ESPN), shown only after the official final is recorded; PRA, P+R
-                and P+A actuals add up the actual points, rebounds and assists. &ldquo;awaiting final&rdquo; means the game has no
-                official final yet; a dash means did not play or not in the box score &mdash; never a zero. &ldquo;Played, no
-                projection&rdquo; and &ldquo;Projection unavailable&rdquo; mark players without an Official Forecast projection:
-                their actuals are shown, no forecast is invented. Compared per player only.
+                <strong>Forecast</strong>: the Official Forecast, frozen before tip-off and never changed. <strong>Actual</strong>: the
+                final box score (ESPN), after the official final. A dash means did not play &mdash; never a zero.
               </p>
             </section>
           ) : pendingActuals ? (
@@ -267,6 +263,7 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
                 each simulated game&rsquo;s sum, so it need not equal the sum of the separate medians. Players with at least 10
                 expected minutes who are not ruled out. The default order is expected minutes; a column sort is the reader&rsquo;s own.
                 {games.length ? " Game status is read-only, from the schedule and finals record (Started: tipped off, no final recorded yet); it never changes a frozen figure." : ""}
+                {post ? <> Forecast vs. Actual: PRA, P+R and P+A actuals add up the actual points, rebounds and assists; &ldquo;awaiting final&rdquo; means the game has no official final yet; &ldquo;Played, no projection&rdquo; and &ldquo;Projection unavailable&rdquo; mark players without an Official Forecast projection &mdash; their actuals are shown, no forecast is invented. Forecast and Actual are compared per player only.</> : null}
               </p>
               <ul className="m-0 pl-5 leading-relaxed" aria-label="Freeze times and receipts">
                 {live.games.map((g) => (

@@ -142,8 +142,8 @@ test("render · postgame: Forecast beside Actual, frozen cells unchanged, dashes
   const acts = boardActuals(lane(), PROJECTION_BOARD_STATS, { boxscoreOf: boxes(), finals: finalsFor(PUB.games) });
   const html = render({ lane: lane(), role: "past", date: "2026-10-20", dates: ["2026-10-20"], dated: true, actuals: acts });
   const text = visibleText(html);
-  assert.match(text, /Forecast vs\. Actual Forecast is the Official Forecast, frozen before tip-off and never changed\. Actual is the player’s figure in the final box score \(ESPN\), shown only after the official final is recorded/);
-  assert.match(text, /“awaiting final” means the game has no official final yet; a dash means did not play or not in the box score — never a zero/);
+  assert.match(text, /Forecast vs\. Actual Forecast : the Official Forecast, frozen before tip-off and never changed\. Actual : the final box score \(ESPN\), after the official final\. A dash means did not play — never a zero\./);
+  assert.match(visibleText(detailsOf(html)), /“awaiting final” means the game has no official final yet; “Played, no projection” and “Projection unavailable” mark players without an Official Forecast projection — their actuals are shown, no forecast is invented\. Forecast and Actual are compared per player only\./);
   const head = visibleText(html.slice(html.indexOf("<thead"), html.indexOf("</thead>"))).trim();
   assert.equal(head, "Player Team Min PTS REB AST 3PM Exp. Actual Forecast Actual Forecast Actual Forecast Actual Forecast Actual");
   assert.equal((html.match(/aria-label="Sort by /g) ?? []).length, 10, "each frozen and each actual column sorts, and both minutes columns");
@@ -342,7 +342,7 @@ test("coverage: a player who PLAYED without a projection is listed with his veri
   assert.match(visibleText(html), /Coverage list not recorded for this slate\. Players who played without a projection are listed from the final box score\./);
   assert.match(html, /aria-pressed="true"[^>]*>Hide them</);
   assert.doesNotMatch(html, /Rookie Fixture/, "rows render after hydration");
-  assert.match(visibleText(html), /“Played, no projection” and “Projection unavailable” mark players without an Official Forecast projection: their actuals are shown, no forecast is invented/);
+  assert.match(visibleText(html), /“Played, no projection” and “Projection unavailable” mark players without an Official Forecast projection — their actuals are shown, no forecast is invented/);
 });
 
 test("coverage on the COMMITTED record: every listed player played, is not on that game's board, and carries integer minutes", () => {
