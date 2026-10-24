@@ -42,6 +42,9 @@ export type OfficialLaneGame = {
 } | null;
 
 export const OFFICIAL_PREDICTIONS_ID = "official-predictions";
+/* Plain model names (founder mandate 2026-10-24); the Theater's in-panel labels say the same words
+   (lib/simulation-theater/nba/possession/labels.mjs MODEL_PLAIN — pinned equal in official-predictions-labels.test). */
+export const OFFICIAL_MODEL_PLAIN = Object.freeze({ game: "Elo team rating", players: "GameTimePicks player model" });
 // founder directive 2026-10-23 public readiness: the registry term ("Official Forecast")
 export const OFFICIAL_PREDICTIONS_TITLE = `GameTimePicks ${PUBLIC_TERMS.OFFICIAL_FORECAST}`;
 
@@ -98,11 +101,21 @@ function Official({ official, teams, lane, elo }: { official: PbOfficial; teams:
     <>
       <dl className="nbx-kv">
         <dt>Favoured side</dt><dd data-nba-official-side=""><strong>{fav ? `${fav.name} (${fav.abbr})` : "Neither side"}</strong> · Elo rating</dd>
-        <dt>Models</dt><dd>{official.models.game ?? "—"} (side) · {official.models.players.join(", ") || "—"} (players)</dd>
+        {/* Founder mandate 2026-10-24: the models in words; the exact ids are kept, verbatim, under Model details below. */}
+        <dt>Game winner</dt><dd>{OFFICIAL_MODEL_PLAIN.game}</dd>
+        <dt>Player statistics</dt><dd>{OFFICIAL_MODEL_PLAIN.players} · medians</dd>
         <dt>Frozen</dt><dd>{et(official.frozenAt)}{official.lockAt ? ` · locked at tip-off, ${et(official.lockAt)}` : ""}</dd>
         {eloShown ? <><dt>{ELO_WIN_PROBABILITY_LABEL}</dt><dd><EloWinProbability game={eloGame} ctx={elo} /> <span className="nbx-fine" data-nba-elo-wp-disclosure="">{elo.disclosure}</span></dd></> : null}
         <dt>Withheld</dt><dd>{eloShown ? "Team scores" : "Win chance, team scores"}, margin and total, player ranges, prices{w.teamScores ? <span className="sr-only"> · {w.teamScores}</span> : null}</dd>
       </dl>
+      <details className="nbx-model-details" data-nba-model-details="">
+        <summary style={{ minHeight: 44, display: "flex", alignItems: "center", cursor: "pointer" }}>Model details</summary>
+        <dl className="nbx-kv">
+          <dt>Game winner model</dt><dd>{official.models.game ?? "—"}</dd>
+          <dt>Player model</dt><dd>{official.models.players.join(", ") || "—"}</dd>
+          <dt>Snapshot</dt><dd>{official.snapshotId}</dd>
+        </dl>
+      </details>
       {(["away", "home"] as const).map((side) => {
         const rows = official.players.filter((p) => p.team === side).sort((a, b) => (b.expectedMinutes ?? -1) - (a.expectedMinutes ?? -1));
         return (
