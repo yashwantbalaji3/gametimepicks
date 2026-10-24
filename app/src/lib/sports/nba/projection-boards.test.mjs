@@ -232,7 +232,8 @@ test("controls: native labelled select/input/button (keyboard), table scrolls in
   assert.match(html, /class="overflow-auto max-h-\[75vh\] max-w-full[^"]*"[^>]*tabindex="0" role="region"/);
   assert.match(html, /\[&amp;_thead_th\]:sticky/);
   assert.match(html, /\[&amp;_tbody_th\]:sticky \[&amp;_tbody_th\]:left-0/);
-  assert.ok(!/min-h-\[32px\]/.test(html), "every button is a 44px target");
+  assert.ok(!/min-h-\[(32|40)px\]/.test(html), "every button, select and input is a 44px target");
+  for (const el of html.match(/<(select|input)\b[^>]*>/g) ?? []) assert.match(el, /min-h-\[44px\]/, el.slice(0, 60));
   assert.match(html, /vault-page-shell[^"]*overflow-x-hidden/);
   for (const rel of ["src/components/nba/projections-view.tsx", "src/components/nba/projection-board.tsx"]) {
     const code = fs.readFileSync(path.join(APP, rel), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
