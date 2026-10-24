@@ -34,6 +34,8 @@ export interface SettledLeanRow {
 
 interface Props {
   matchup: string;          // "DET @ CLE" / "TOR @ DET"
+  /** The sport the crests are drawn in — never inferred from the team codes (NBA and NFL/MLB codes collide). */
+  sport: "nba" | "mlb";
   subtitle?: string;        // e.g. "Eastern Conf Semis · Game 6" or tipoff
   wins: number;
   losses: number;
@@ -85,6 +87,7 @@ function outcomeClass(o: SettledLeanRow["outcome"]): string {
 
 export default function SettledGameDetail({
   matchup,
+  sport,
   subtitle,
   wins,
   losses,
@@ -120,7 +123,7 @@ export default function SettledGameDetail({
           <span className="inline-flex items-center gap-1.5">
             {/* Both clubs, when both resolve. A settled archive row carries the matchup and nothing
                 stopped it wearing the crests except that nobody had a name-to-abbr map. */}
-            <MatchupCrests matchup={matchup} size="sm" />
+            <MatchupCrests matchup={matchup} sport={sport} size="sm" />
             <span
               className="font-display font-semibold tracking-tight"
               style={{ color: "var(--vault-text)", fontSize: 16 }}

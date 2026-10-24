@@ -292,6 +292,7 @@ export default function MlbResultsPage() {
                     decisive={decisive}
                     hitRate={hitRate}
                     rows={detailRows}
+                    sport="mlb"
                     tone="success"
                   />
                 );

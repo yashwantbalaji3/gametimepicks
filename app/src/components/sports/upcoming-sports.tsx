@@ -110,7 +110,7 @@ export function UpcomingSportSection({ s }: { s: SportSchedule }) {
               <span className="inline-flex items-center gap-1.5">
                 {/* "X at Y" resolves through the same matchup parser as "X @ Y". A UFC bout names
                     two fighters, resolves to nothing, and correctly stays bare. */}
-                <MatchupCrests matchup={competitorsLine(e)} size="sm" />
+                <MatchupCrests matchup={competitorsLine(e)} sport={s.sport} size="sm" />
                 <span style={{ fontSize: 14 }}>{competitorsLine(e)}</span>
               </span>
               <span style={{ fontSize: 12.5, color: "var(--text-mute)" }}>{etDateTime(e.scheduledStartUtc)}</span>
