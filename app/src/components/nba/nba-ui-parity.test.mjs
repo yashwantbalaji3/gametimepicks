@@ -45,7 +45,7 @@ const SCHEDULE = {
   ],
 };
 const laneGame = (id, away, home, fav) => ({ providerEventId: id, tipUtc: "2026-10-22T23:00Z", frozenAt: "2026-10-22T14:30:00Z", away: { abbr: away.abbr, name: away.name }, home: { abbr: home.abbr, name: home.name }, receipt: { modelVersion: "nba-preseason-experimental-v0.1" }, elo: { favoured: fav }, players: { away: [{}, {}], home: [{}] } });
-const LANE = { date: "2026-10-22", generatedAt: "2026-10-22T14:31:00Z", games: [laneGame("g1", CLE, PHI, "PHI")], excluded: [{ providerEventId: "g2", reason: "receipt generated after tip-off" }] };
+const LANE = { date: "2026-10-22", generatedAt: "2026-10-22T14:31:00Z", games: [laneGame("g1", CLE, PHI, "PHI")], excluded: [{ providerEventId: "g2", reason: "NOT_PRE_TIP" }] };
 const NOW = "2026-10-22T16:00:00Z";
 const slate = (over = {}) => nbaTodaySlateFrom({ nowIso: NOW, schedule: SCHEDULE, finals: null, lane: LANE, theaterIds: ["g1"], ...over });
 
@@ -58,7 +58,7 @@ test("today's slate: ET-day games only, the official side only from TODAY's lane
   assert.equal(s.games[0].theaterHref, "/nba/simulation/g1/");
   assert.equal(s.games[1].favoured, null, "a game the lane does not carry has no side");
   assert.equal(s.games[1].theaterHref, null, "no link to an unbuilt page");
-  assert.equal(s.games[1].excludedReason, "receipt generated after tip-off");
+  assert.equal(s.games[1].excludedReason, "NOT_PRE_TIP");
   assert.equal(s.games[0].tipLabel, "7:00 PM ET");
   assert.deepEqual(s.next && s.next.matchup, "OKC @ CLE");
   // yesterday's lane never stands in for today's
@@ -232,4 +232,60 @@ test("homepage lanes: the NBA Top Boards link and every other lane's secondary l
   assert.match(linkTo("/nba/projections/"), /class="font-mono gtp-hit-44"/);
   // Release B (benchmark PR 1193 gap 8, release owner 2026-10-23): every lane's secondary link is now a 44px target too
   assert.match(linkTo("/soccer/ligue-1/"), /class="font-mono gtp-hit-44"/);
+});
+
+// ── founder mandate 2026-10-24: NBA publicly usable end-to-end ──────────────────────────────────────────────────────
+const { NbaGameList } = await import("./hub-overview.tsx");
+const { default: ForecastLane } = await import("./experimental-lane.tsx");
+process.env.__NEXT_TRAILING_SLASH = "true";
+
+test("today's cards: each links to its Official Forecast and its Game Simulation — only when each exists", () => {
+  const h = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: slate() }));
+  const cards = h.split("<article").slice(1);
+  assert.equal(cards.length, 2, "a card for every one of today's games");
+  assert.match(cards[0], /href="\/nba\/simulation\/g1\/#official-predictions"[^>]*>Official Forecast →/, "built page → the full forecast section");
+  assert.match(cards[0], /href="\/nba\/simulation\/g1\/"[^>]*>Game Simulation →/);
+  assert.match(text(cards[0]), /Official Forecast: Philadelphia 76ers favoured/);
+  assert.doesNotMatch(cards[1], /<a /, "an excluded game: no forecast link, no unbuilt simulation link");
+  assert.match(text(cards[1]), /Unavailable: its forecast was not frozen before tip-off, so none is published\./, "the lane code in reader words");
+  assert.doesNotMatch(cards[1], /NOT_PRE_TIP/);
+  // no built page → the forecast link is this page's forecast row
+  const noSim = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: slate({ theaterIds: [] }) }));
+  assert.match(noSim, /href="#nba-fc-g1"/);
+  assert.doesNotMatch(noSim, /Game Simulation →/);
+});
+
+test("the favoured side is printed in the row's own team code, so the crest it highlights is the right one", () => {
+  const lane = { ...LANE, games: [{ ...laneGame("g1", CLE, PHI, "PHI"), home: { abbr: "PHL", name: "Philadelphia 76ers" }, elo: { favoured: "PHL" } }] };
+  const s = slate({ lane });
+  assert.deepEqual(s.games[0].favoured, { abbr: "PHI", name: "Philadelphia 76ers" }, "lane 'PHL' → schedule 'PHI'");
+  assert.equal(nbaLane(s, NOW).games[0].note, "PHI favoured");
+});
+
+test("Forecast vs. Actual: a played game shows a side only from the forecasts it is given (its date's frozen snapshot)", () => {
+  const rows = [
+    { id: "a", startLabel: "Thu, Oct 22 · 7:00 PM ET", matchup: "CLE @ PHI", status: "final", started: true, reportNote: "CLE 106 – PHI 114" },
+    { id: "b", startLabel: "Thu, Oct 22 · 9:30 PM ET", matchup: "DEN @ OKC", status: "final", started: true, reportNote: "DEN 84 – OKC 96" },
+  ];
+  const h = text(renderToStaticMarkup(React.createElement(NbaGameList, { rows, heading: "Forecast vs. Actual", forecasts: new Map([["a", "Philadelphia 76ers"]]) })));
+  assert.match(h, /CLE 106 – PHI 114 · Official Forecast: Philadelphia 76ers favoured/);
+  assert.match(h, /DEN 84 – OKC 96 · no Official Forecast published/, "no snapshot, no side");
+  const page = read("src/app/nba/page.tsx");
+  assert.match(page, /for \(const d of boardDates\.filter\(\(x\) => x < today\)\.slice\(-4\)\) \{\n\s+for \(const g of loadLaneForDate\(d\)\?\.games \?\? \[\]\)/, "past sides come only from committed dated snapshots");
+});
+
+test("reader words: no engineering jargon in the hub's visible text outside the Model details disclosure", () => {
+  const snap = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nba/experimental-public/2026-10-20.json"), "utf8"));
+  const html = [
+    renderToStaticMarkup(React.createElement(NbaSlateOverview, { slate: slate(), boardDates: ["2026-10-20", "2026-10-21"] })),
+    renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: slate() })),
+    renderToStaticMarkup(React.createElement(ForecastLane, { snapshot: snap })),
+  ].join("");
+  assert.match(html, /<summary>Model details<\/summary>[\s\S]*nba-preseason-experimental-v0\.1/, "the model id is kept — in Model details");
+  const visible = text(html.replace(/<details class="nbx-details">[\s\S]*?<\/details>/g, ""));
+  assert.doesNotMatch(visible, /experimental|\blane\b|candidate|\bN2\b|v0\.\d|receipt|payload|roster-gated/i);
+  assert.match(visible, /PHI @ NYK/, "the forecast table prints the canonical codes the cards use (snapshot 'NY')");
+  assert.doesNotMatch(visible, /@ (NY|SA|GS|NO|UTAH|WSH)\b/);
+  const page = read("src/app/nba/page.tsx").replace(/\/\*[\s\S]*?\*\//g, "").replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/^\s*\/\/.*$/gm, "");
+  assert.doesNotMatch(page.replace(/import[^\n]*\n/g, "").replace(/NbaExperimentalLane/g, ""), /experimental|candidate|plumbing|write-once/i);
 });

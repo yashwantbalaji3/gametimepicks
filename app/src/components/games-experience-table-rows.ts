@@ -20,6 +20,7 @@ import { loadEplForecasts, reportableRows } from "@/lib/sports/epl/forecast-view
 import { archivedEventIds } from "@/lib/sports/nfl/archived-forecast";
 import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
 import { committedLaneDates, loadLaneForDate } from "@/components/nba/experimental-lane";
+import { nbaExclusionText } from "@/lib/sport-hub/nba-hub";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
 
 import { SPORT_LABEL, type ForecastState, type GamesTableRow } from "./games-experience-table-wire";
@@ -129,7 +130,7 @@ function rowFor(e: SimDayEvent, date: string, ctx: Ctx): GamesTableRow {
       return { ...base, forecast: "Frozen", read: side, note: null, eventHref: page };
     }
     const excluded = ctx.lane?.excluded.find((x) => x.providerEventId === pid);
-    if (excluded || ctx.lane || started) return { ...base, forecast: "Unavailable", read: null, note: excluded?.reason ?? "No Official Forecast was frozen for this game before tip-off.", eventHref: page };
+    if (excluded || ctx.lane || started) return { ...base, forecast: "Unavailable", read: null, note: excluded ? `No Official Forecast: ${nbaExclusionText(excluded.reason)}` : "No Official Forecast was frozen for this game before tip-off.", eventHref: page };
     return { ...base, forecast: "Pending", read: null, note: "The NBA Official Forecast is frozen on game day, before tip-off.", eventHref: page };
   }
   /* MLB and UFC: forecast status from the day selector's own state; no single probability per row. */

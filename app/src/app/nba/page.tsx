@@ -104,7 +104,7 @@ export default async function NbaHubPage() {
       {/* 3 · TOP BOARDS and 4 · PREDICTED PLAYER STATISTICS — both live on /nba/projections (the boards session's page) */}
       <section id="nba-boards" className="scroll-mt-24 flex flex-col gap-2" aria-labelledby="nba-boards-h">
         <h2 id="nba-boards-h" className={H2} style={{ color: "var(--vault-text)" }}>Top Boards</h2>
-        <p className={MUTE} style={{ color: "var(--vault-text-mute)" }}>The slate&rsquo;s leaders in points, rebounds, assists, 3-pointers and PRA, from the {PUBLIC_TERMS.OFFICIAL_FORECAST}.</p>
+        <p className={MUTE} style={{ color: "var(--vault-text-mute)" }}>Pick a stat — points, rebounds, assists, 3-pointers or PRA — and sort the slate&rsquo;s players to see its leaders, from the {PUBLIC_TERMS.OFFICIAL_FORECAST}.</p>
         <p className="m-0"><Link href="/nba/projections/" className="gtp-hit-44 nbx-pill no-underline">Open Top Boards →</Link></p>
       </section>
       <section id="nba-players" className="scroll-mt-24 flex flex-col gap-2" aria-labelledby="nba-players-h">
@@ -121,7 +121,7 @@ export default async function NbaHubPage() {
         <h2 id="nba-simulations-h" className={H2} style={{ color: "var(--vault-text)" }}>{PUBLIC_TERMS.GAME_SIMULATION}s</h2>
         <p className={MUTE} style={{ color: "var(--vault-text-mute)" }}>
           {NBA_PUBLIC.features.gameSimulation.note} A simulation is one possible game, not a real one, and it never changes the {PUBLIC_TERMS.OFFICIAL_FORECAST}.{" "}
-          {slate.games.some((g) => g.theaterHref) ? <>Open one from any of <a href={`#${S.games}`} className="underline">today&rsquo;s games</a>.</> : <>They open from today&rsquo;s game cards on game days.</>}
+          {slate.games.some((g) => g.theaterHref) ? <>Open one from any of <a href={`#${S.games}`} className="underline nbx-inl">today&rsquo;s games</a>.</> : <>They open from today&rsquo;s game cards on game days.</>}
         </p>
       </section>
 

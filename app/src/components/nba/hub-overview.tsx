@@ -14,7 +14,7 @@
  * forecast is published, none to a Game Simulation page that was not built.
  */
 import Link from "next/link";
-import type { NbaTodayGame, NbaTodaySlate } from "@/lib/sport-hub/nba-hub";
+import { nbaExclusionText, type NbaTodayGame, type NbaTodaySlate } from "@/lib/sport-hub/nba-hub";
 import { hubStatusDisplay, type HubGameRow } from "@/lib/sport-hub/contract";
 import { MatchupCard, forecastRowId } from "@/components/nba/experimental-lane";
 import { PUBLIC_TERMS } from "@/lib/public-registry";
@@ -86,7 +86,7 @@ export function NbaSlateOverview({ slate, boardDates = [] }: { slate: NbaTodaySl
 /** What a card says about the game's Official Forecast, true at build time. */
 function forecastLine(g: NbaTodayGame, pending: boolean): string {
   if (g.favoured) return `${PUBLIC_TERMS.OFFICIAL_FORECAST}: ${g.favoured.name ?? g.favoured.abbr} favoured`;
-  if (g.excludedReason) return `${PUBLIC_TERMS.UNAVAILABLE}: ${g.excludedReason}`;
+  if (g.excludedReason) return `${PUBLIC_TERMS.UNAVAILABLE}: ${nbaExclusionText(g.excludedReason)}`;
   if (g.status === "final") return `Final recorded · no ${PUBLIC_TERMS.OFFICIAL_FORECAST} was published for this game.`;
   return pending ? `${PUBLIC_TERMS.OFFICIAL_FORECAST} not published yet — it is frozen before tip-off.` : `No ${PUBLIC_TERMS.OFFICIAL_FORECAST} for this game.`;
 }

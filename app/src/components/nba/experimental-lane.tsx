@@ -24,6 +24,7 @@ import GameStatusOnClock from "@/components/nba/projection-game-status";
 import { EloAccuracyDisclosure, EloWinProbability, type EloCtx } from "@/components/nba/elo-win-probability";
 import { ELO_WIN_PROBABILITY_LABEL, eloWinProbabilityOf } from "@/lib/sports/nba/elo-win-probability.mjs";
 import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
+import { canonicalTricodeFromEspnAbbr } from "@/lib/sports/nba/boxscore-parse.mjs";
 
 type Row = { providerAthleteId: string; name: string | null; expectedMinutes: number | null; injuryStatus: string | null; medians: Record<string, number | null>; comboMedians?: Record<string, number | null> };
 type Game = {
@@ -114,6 +115,8 @@ function TeamTable({ team, rows }: { team: string; rows: Row[] }) {
 
 const favouredName = (g: Game) => (g.elo.favoured === g.home.abbr ? g.home.name : g.elo.favoured === g.away.abbr ? g.away.name : null) ?? g.elo.favoured;
 export const laneCardId = (id: string) => `nba-exp-${id}`;
+/** The snapshot names sides by ESPN's code ("NY", "GS"); the hub prints the canonical one its cards use ("NYK", "GSW"). */
+const code = (abbr: string | null) => (abbr ? canonicalTricodeFromEspnAbbr(abbr) ?? abbr : "—");
 
 /** The game's row in the hub's Official Forecasts table — today's game card links here when no Game Simulation page is built. */
 export const forecastRowId = (id: string) => `nba-fc-${id}`;
@@ -187,7 +190,7 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
               <tbody>
                 {snapshot.games.map((g) => (
                   <tr key={g.providerEventId} id={forecastRowId(g.providerEventId)}>
-                    <th scope="row">{g.away.abbr} @ {g.home.abbr}</th>
+                    <th scope="row">{code(g.away.abbr)} @ {code(g.home.abbr)}</th>
                     <td><strong>{favouredName(g) ?? "Neither side"}</strong></td>
                     {eloCol ? <td><EloWinProbability game={g} ctx={elo} /></td> : null}
                     <td>{g.players.away.length + g.players.home.length}</td>
@@ -199,7 +202,7 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
           </div>
           <p className="m-0 text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
             The favoured side comes from a team rating (Elo) updated after every game. Each player&rsquo;s {PUBLIC_TERMS.PLAYER_STATISTICS} are
-            medians of 10,000 simulated games — every player is on the <Link href="/nba/projections/" className="underline">player projections
+            medians of 10,000 simulated games — every player is on the <Link href="/nba/projections/" className="underline nbx-inl">player projections
             board</Link>, listed by expected minutes, not ranked.
           </p>
         </>
@@ -245,7 +248,7 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
           <li>Favoured side: {snapshot.games[0]?.elo.source}</li>
           <li>{PUBLIC_TERMS.PLAYER_STATISTICS}: {snapshot.games[0]?.players.source}</li>
           <li>Model version: {versions.join(", ")}</li>
-          <li>Receipts (payload hash of each frozen forecast): {snapshot.games.map((g) => `${g.away.abbr} @ ${g.home.abbr} ${g.receipt.payloadSha256.slice(0, 12)}`).join(" · ")}</li>
+          <li>Receipts (payload hash of each frozen forecast): {snapshot.games.map((g) => `${code(g.away.abbr)} @ ${code(g.home.abbr)} ${g.receipt.payloadSha256.slice(0, 12)}`).join(" · ")}</li>
         </ul>
       </details>
     </section>
