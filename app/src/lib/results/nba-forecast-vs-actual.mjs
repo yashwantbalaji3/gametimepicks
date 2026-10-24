@@ -12,13 +12,15 @@
  * STATES (one per game):
  *   MATCHED / MISSED   published before tip, final recorded, the side won / lost
  *   PENDING            no official final recorded yet — never a miss
- *   HELD               the final is disputed (finals-record conflict) or the release owner holds the event — never
- *                      compared until it is resolved (401901822 is the standing hold)
+ *   HELD               the final is disputed (finals-record conflict), the release owner holds the event (401901822
+ *                      is the standing hold), or the final's home/away teams are not the lane's — never compared
+ *                      until it is resolved
  *   NO_SIDE            the lane published no side for the game
  *   NOT_BEFORE_TIP     no evidence the side was published before tip
  * Counts are counts: no percentage below the preregistered minimum (V18 §6: 300 graded games for the winner market).
  */
 import { finalFor } from "../sports/nba/finals-record.mjs";
+import { canonicalTricodeFromEspnAbbr } from "../sports/nba/boxscore-parse.mjs";
 
 export const NBA_WINNER_MIN_GRADED = 300; // docs/V18_NBA_REGULAR_SEASON_PREREGISTRATION.md §6, winner/margin/total
 export const NBA_STANDING_HOLDS = Object.freeze(["401901822"]);
@@ -51,10 +53,13 @@ export function nbaForecastVsActual(laneDays, finals, { holds = NBA_STANDING_HOL
               winner: f.winnerSide === "home" ? g.home?.abbr ?? f.home : f.winnerSide === "away" ? g.away?.abbr ?? f.away : null }
           : null,
       };
+      /* The final's teams must BE the lane's teams, side for side (ESPN code → canonical tricode, never guessed); a
+         swapped or mismatched event is held rather than scored against the wrong team. */
+      const sameTeams = !base.final || (canonicalTricodeFromEspnAbbr(g.home?.abbr) === f.home && canonicalTricodeFromEspnAbbr(g.away?.abbr) === f.away);
       let state;
       if (!side || !sideKey) state = "NO_SIDE";
       else if (!before) state = "NOT_BEFORE_TIP";
-      else if (held.has(id) || f.state === "FINAL_UNDER_REVIEW") state = "HELD";
+      else if (held.has(id) || f.state === "FINAL_UNDER_REVIEW" || !sameTeams) state = "HELD";
       else if (f.state !== "FINAL" || !base.final?.winnerSide) state = "PENDING";
       else state = base.final.winnerSide === sideKey ? "MATCHED" : "MISSED";
       games.push({ ...base, state });

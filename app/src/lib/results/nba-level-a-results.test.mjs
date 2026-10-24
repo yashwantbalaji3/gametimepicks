@@ -74,8 +74,38 @@ test("🔴 NBA: sides by home/away (WSH vs WAS), pending and held never misses, 
   assert.equal(NBA_WINNER_MIN_GRADED, 300, "V18 preregistration §6: 300 graded games for the winner market");
   const late = nbaForecastVsActual([lane("2031-07-01", "2031-07-02T00:00:00Z", [g("1", "MIL", "WSH", "WSH")])], finals);
   assert.equal(late.games[0].state, "NOT_BEFORE_TIP", "a lane file written after tip is no evidence of a pre-tip publication");
+  const swapped = nbaForecastVsActual([lane("2031-07-01", "2031-07-01T14:00:00Z", [g("1", "WSH", "MIL", "WSH")])], finals);
+  assert.equal(swapped.games[0].state, "HELD", "a final whose home/away teams are not the lane's is held, never scored");
   const disputed = nbaForecastVsActual([lane("2031-07-01", "2031-07-01T14:00:00Z", [g("2", "BOS", "NY", "NY")])], { ...finals, conflicts: [{ providerEventId: "2" }] });
   assert.equal(disputed.games[0].state, "HELD");
+});
+
+test("🔴 NBA team-code aliases: for all 30 teams, home and away, a lane code is never scored against the wrong team", async () => {
+  const { ESPN_NBA_TEAMS } = await import("../sports/nba/roster-contract.mjs");
+  const aliases = ESPN_NBA_TEAMS.filter((t) => t.canonicalTricode && t.canonicalTricode !== t.espnAbbr).map((t) => `${t.canonicalTricode}/${t.espnAbbr}`).sort();
+  /* The aliases the finals record actually carries today must all be covered by the registry this test iterates. */
+  for (const a of ["GSW/GS", "NOP/NO", "NYK/NY", "SAS/SA", "UTA/UTAH", "WAS/WSH"]) assert.ok(aliases.includes(a), `registry covers ${a}`);
+  let cases = 0;
+  for (const t of ESPN_NBA_TEAMS) {
+    const opp = ESPN_NBA_TEAMS.find((o) => o.providerTeamId !== t.providerTeamId && o.canonicalTricode !== o.espnAbbr) ?? ESPN_NBA_TEAMS.find((o) => o.providerTeamId !== t.providerTeamId);
+    for (const home of [true, false]) {
+      const [h, a] = home ? [t, opp] : [opp, t];
+      for (const homeWins of [true, false]) {
+        for (const pick of [t, opp]) {
+          const id = `alias-${t.providerTeamId}-${home}-${homeWins}-${pick.providerTeamId}`;
+          const v = nbaForecastVsActual(
+            [lane("2031-07-01", "2031-07-01T14:00:00Z", [g(id, a.espnAbbr, h.espnAbbr, pick.espnAbbr)])],
+            { finals: [{ providerEventId: id, ftHome: homeWins ? 110 : 100, ftAway: homeWins ? 100 : 110, winnerSide: homeWins ? "home" : "away", home: { tricode: h.canonicalTricode }, away: { tricode: a.canonicalTricode } }], conflicts: [] },
+          );
+          const pickIsHome = pick.providerTeamId === h.providerTeamId;
+          assert.equal(v.games[0].state, pickIsHome === homeWins ? "MATCHED" : "MISSED", `${a.espnAbbr} @ ${h.espnAbbr} (finals ${a.canonicalTricode} @ ${h.canonicalTricode}), pick ${pick.espnAbbr}, ${homeWins ? "home" : "away"} wins`);
+          assert.equal(v.games[0].final.winner, homeWins ? h.espnAbbr : a.espnAbbr, "the winner is named in the lane's code");
+          cases += 1;
+        }
+      }
+    }
+  }
+  assert.equal(cases, 30 * 8);
 });
 
 test("🔴 NBA real data: every MATCHED / MISSED verdict equals the NBA settlement contract's grade of the same side", async () => {
