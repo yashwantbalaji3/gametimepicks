@@ -77,7 +77,7 @@ export default function NbaForecastVsActual({ view, date = null }: { view: View;
                   <summary className="cursor-pointer px-3 py-2.5 text-[13px] font-medium" style={{ color: "var(--vault-text)", minHeight: 44, display: "flex", alignItems: "center" }}>
                     <span aria-hidden>▸&nbsp;</span>{etDayLabel(d)} · {dayLine(gs)}
                   </summary>
-                  <div className="overflow-x-auto px-3 pb-3">
+                  <div className="overflow-x-auto px-3 pb-3" role="region" aria-label={`Official winner side vs final, ${etDayLabel(d)}`} tabIndex={0}>
                     <table className="w-full text-[12.5px] border-collapse" style={{ minWidth: 480 }}>
                       <caption className="sr-only">Official winner side vs final, {etDayLabel(d)}</caption>
                       <thead><tr style={{ color: "var(--vault-text-mute)" }}>

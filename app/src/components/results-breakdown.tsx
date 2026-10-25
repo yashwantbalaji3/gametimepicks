@@ -428,6 +428,7 @@ function ResultDot({ result }: { result: string }) {
     <span
       className="inline-block w-2 h-2 rounded-full shrink-0"
       style={{ backgroundColor: color }}
+      role="img"
       aria-label={result || "result"}
     />
   );

@@ -54,6 +54,16 @@ test("in-sentence links flagged by the audit are underlined, not colour-only", (
   }
 });
 
+/* Production axe, 2026-10-25 (390 px): /results/nba/ had a day table a keyboard could not scroll, and ten result dots
+   carrying aria-label on a plain span (aria-prohibited-attr), so screen readers were not given the result at all. */
+test("/results/nba: the day table scrolls by keyboard, and each result dot is a labelled image", () => {
+  const [day] = tagsOf(read("src/components/results/nba-forecast-vs-actual.tsx"), /className="overflow-x-auto px-3 pb-3"/g);
+  assert.match(day ?? "", /role="region"[\s\S]*aria-label=[\s\S]*tabIndex=\{0\}/);
+  const src = read("src/components/results-breakdown.tsx");
+  const dot = src.slice(src.indexOf("function ResultDot"), src.indexOf("/>", src.indexOf("function ResultDot")));
+  assert.match(dot, /role="img"\s+aria-label=/);
+});
+
 /* Only a FINAL game renders the postgame box score, so a scan of upcoming games never saw this link. Found 2026-10-26
    by axe on the built export (/nfl/game/401873011/): "the NFL week report" at 1.42:1 against the note text. */
 test("the postgame box-score note's link is underlined", () => {
