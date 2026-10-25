@@ -100,8 +100,9 @@ export default function LevelASuggestions({ model, mode }: { model: LevelAModel 
       ) : (
         <CardBox title="Moonshot suggestion · 3 legs, High or Longshot band, highest joint probability" slot={model.moonshot} />
       )}
-      {/* The NBA display's accuracy disclosure, once, when a mixed card shows an NBA estimate. */}
-      {model.mixed?.disclosure ? <p className="m-0 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }} data-level-a-mixed-disclosure="">{model.mixed.disclosure}</p> : null}
+      {/* The NBA display's accuracy disclosure, ONCE per page: here when a mixed card shows an NBA estimate, unless the NBA
+          game winners block below already prints it on this page. */}
+      {model.mixed?.disclosure && !(model.nbaGameWinners?.public && model.nbaGameWinners.disclosure) ? <p className="m-0 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }} data-level-a-mixed-disclosure="">{model.mixed.disclosure}</p> : null}
       <NbaGameWinners block={model.nbaGameWinners} mode={mode} />
       {model.untiered.length ? (
         <div className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>

@@ -139,3 +139,17 @@ test("REAL DATA (committed lane + receipts): with both NBA switches and mixed on
     }
   }
 });
+
+test("ONE DISCLOSURE PER PAGE: with mixed cards AND the NBA game winners block on the same page, the display's disclosure prints once", () => {
+  const answer = levelASuggestions({ selections: [sel("mlb", 0.62), sel("epl", 0.55), sel("ligue-1", 0.48)], now: NOW, productDay: DAY });
+  const mixed = levelAMixed({ crossSportLegs: answer.legs, nbaLegs: NBA_LEGS, disclosure: DISCLOSURE, enabled: true });
+  assert.ok(mixed.disclosure, "a mixed card shows an NBA leg");
+  const nbaBlock = { public: true, tiers: [], bankBuilder: { card: null, reason: "x" }, moonshot: { card: null, reason: "x" }, disclosure: DISCLOSURE };
+  for (const withBlock of [true, false]) {
+    const model = { asOf: NOW, ...answer, parlayLab: mixed.parlayLab, bankBuilder: mixed.bankBuilder, moonshot: mixed.moonshot, mixed: { public: true, policy: mixed.policy, sports: mixed.sports, disclosure: mixed.disclosure }, ...(withBlock ? { nbaGameWinners: nbaBlock } : {}), refusedByReason: {}, nbaProjections: [] };
+    for (const mode of ["parlay-lab", "bank-builder", "moonshot"]) {
+      const text = renderToString(React.createElement(LevelASuggestions, { model, mode })).replace(/<!-- -->/g, "");
+      assert.equal(text.split(DISCLOSURE).length - 1, 1, `${mode}, NBA block ${withBlock ? "shown" : "absent"}: once`);
+    }
+  }
+});
