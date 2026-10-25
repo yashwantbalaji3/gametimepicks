@@ -51,7 +51,9 @@ type FinalsRecord = { finals?: Array<Record<string, any>>; conflicts?: unknown[]
 function sideOf(s: Side | null | undefined): { label: string; team: ReturnType<typeof espnTeamById> } | null {
   if (!s) return null;
   const team = s.providerTeamId != null ? espnTeamById(String(s.providerTeamId)) : null;
-  const label = team ? team.canonicalTricode : (s.abbr ?? "").trim();
+  /* Release owner 2026-10-25: the hub prints the code the forecast lane, the boards and the Game Simulation publish —
+     ESPN's own ("WSH", "NY", "GS", "NO", "SA", "UTAH") — never a second code for the same team. */
+  const label = team ? team.espnAbbr : (s.abbr ?? "").trim();
   if (!label || /^tbd$/i.test(label)) return null;
   return { label, team };
 }
@@ -120,7 +122,7 @@ export function nbaHubFrom({ nowIso, schedule, finals, laneIds = null }: { nowIs
     if (!f.providerEventId || listed.has(String(f.providerEventId)) || !Number.isFinite(t) || t < lo || t > now) continue;
     const fin = finalFor(finals, f.providerEventId);
     if (fin.state !== "FINAL" && fin.state !== "FINAL_UNDER_REVIEW") continue;
-    const sideLabel = (s: Record<string, any> | null | undefined) => (s?.tricode ?? s?.espnAbbr ?? s?.name ?? null) as string | null;
+    const sideLabel = (s: Record<string, any> | null | undefined) => (s?.espnAbbr ?? s?.tricode ?? s?.name ?? null) as string | null;
     const awayLabel = sideLabel(f.away), homeLabel = sideLabel(f.home);
     if (!awayLabel || !homeLabel) { unidentified++; continue; }
     const awayTeam = f.away?.providerTeamId != null ? espnTeamById(String(f.away.providerTeamId)) : null;
@@ -293,8 +295,8 @@ export function nbaTodaySlateFrom({ nowIso, schedule, finals, lane, laneEnabled 
   for (const f of finals?.finals ?? []) {
     const id = String(f.providerEventId ?? "");
     if (!id || seen.has(id) || etDateOf(f.dateUtc) !== date) continue;
-    const away = teamOf(f.away ? { ...f.away, abbr: f.away.tricode ?? f.away.espnAbbr ?? f.away.abbr } : null, undefined);
-    const home = teamOf(f.home ? { ...f.home, abbr: f.home.tricode ?? f.home.espnAbbr ?? f.home.abbr } : null, undefined);
+    const away = teamOf(f.away ? { ...f.away, abbr: f.away.espnAbbr ?? f.away.tricode ?? f.away.abbr } : null, undefined);
+    const home = teamOf(f.home ? { ...f.home, abbr: f.home.espnAbbr ?? f.home.tricode ?? f.home.abbr } : null, undefined);
     if (away && home) push(id, f.dateUtc, away, home, "");
   }
   // A frozen official forecast is never dropped because the schedule capture missed its game.

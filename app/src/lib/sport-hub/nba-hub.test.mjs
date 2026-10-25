@@ -53,7 +53,7 @@ test("window: 3 days back to 7 days ahead; placeholder sides are counted, never 
   assert.equal(hub.identityReconciliation.unidentifiedScheduleRows, 1, "the TBD row is counted, not dropped silently");
 });
 
-test("a final prints ONLY from the finals record, with canonical tricodes", () => {
+test("a final prints ONLY from the finals record, in the code the forecast lane publishes", () => {
   assert.equal(byId.played.status, "final");
   // The chip beside the note already says "Final" (hubStatusDisplay); the note carries only the recorded score.
   assert.equal(byId.played.reportNote, "MIA 104 – TOR 112");
@@ -61,7 +61,9 @@ test("a final prints ONLY from the finals record, with canonical tricodes", () =
   assert.equal(u.status, "started or final", "a started game the record does not hold is not 'final'");
   assert.equal(u.reportNote, "Final not recorded yet");
   assert.doesNotMatch(u.reportNote, /\d/, "no score without a recorded final");
-  assert.deepEqual(byId["next-pre"].participants.map((p) => p.name), ["LAL", "GSW"], "ESPN 'GS' is shown as GSW");
+  // release owner 2026-10-25: one code per team on every NBA surface — the lane's (ESPN's) "GS", not the alias "GSW"
+  assert.deepEqual(byId["next-pre"].participants.map((p) => p.name), ["LAL", "GS"], "ESPN 'GS' is shown as the lane shows it");
+  assert.match(byId["next-pre"].matchup, /^LAL @ GS · preseason$/);
   assert.deepEqual(byId["next-pre"].participants.map((p) => p.logoTeam), ["LAL", "GS"], "the crest resolves by ESPN's own slug");
 });
 
