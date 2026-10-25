@@ -20,114 +20,114 @@
   "sharpness": "A range can always be made to land 8 in 10 times by making it wider. So beside each success rate we show the typical miss (how far the middle of our range was from the final number) and the average width of the range. Getting better means both shrink while about 8 in 10 still land inside."
  },
  "summary": {
-  "gamesFinal": 8,
-  "gamesPending": 6,
+  "gamesFinal": 9,
+  "gamesPending": 5,
   "overall": {
-   "checks": 290,
-   "hits": 234,
-   "rate": 0.8068965517241379
+   "checks": 330,
+   "hits": 263,
+   "rate": 0.796969696969697
   },
   "props": [
    {
     "id": "winner",
     "label": "Model-favored team won",
     "group": "team",
-    "checks": 8,
+    "checks": 9,
     "hits": 4,
     "voids": 0,
-    "rate": 0.5,
-    "expectedHits": 5
+    "rate": 0.4444444444444444,
+    "expectedHits": 5.7
    },
    {
     "id": "total_range",
     "label": "Total points landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 8,
-    "hits": 7,
+    "checks": 9,
+    "hits": 8,
     "voids": 0,
-    "rate": 0.875,
-    "typicalMiss": 9.8,
-    "rangeWidth": 33.9,
-    "lean": -0.7
+    "rate": 0.8888888888888888,
+    "typicalMiss": 8.8,
+    "rangeWidth": 34,
+    "lean": -0.8
    },
    {
     "id": "margin_range",
     "label": "Winning margin landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 8,
-    "hits": 6,
+    "checks": 9,
+    "hits": 7,
     "voids": 0,
-    "rate": 0.75,
-    "typicalMiss": 10.6,
+    "rate": 0.7777777777777778,
+    "typicalMiss": 10.9,
     "rangeWidth": 33.4,
-    "lean": 5.9
+    "lean": 6.7
    },
    {
     "id": "player_receptions",
     "label": "Receptions landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 100,
-    "hits": 91,
-    "voids": 15,
-    "rate": 0.91,
+    "checks": 114,
+    "hits": 104,
+    "voids": 19,
+    "rate": 0.9122807017543859,
     "status": "PUBLISHED",
     "typicalMiss": 1.5,
-    "rangeWidth": 5.3,
-    "lean": -0.3
+    "rangeWidth": 5.2,
+    "lean": -0.2
    },
    {
     "id": "player_reception_yds",
     "label": "Receiving yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 95,
-    "hits": 76,
-    "voids": 15,
-    "rate": 0.8,
+    "checks": 108,
+    "hits": 84,
+    "voids": 17,
+    "rate": 0.7777777777777778,
     "status": "PUBLISHED",
-    "typicalMiss": 21.8,
-    "rangeWidth": 60,
-    "lean": -10.5
+    "typicalMiss": 22.1,
+    "rangeWidth": 59.9,
+    "lean": -10
    },
    {
     "id": "player_rush_yds",
     "label": "Rushing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 48,
-    "hits": 33,
-    "voids": 8,
-    "rate": 0.6875,
+    "checks": 55,
+    "hits": 38,
+    "voids": 10,
+    "rate": 0.6909090909090909,
     "status": "ESTIMATE",
-    "typicalMiss": 22.3,
-    "rangeWidth": 50.6,
-    "lean": -12.8
+    "typicalMiss": 22.4,
+    "rangeWidth": 49,
+    "lean": -14.1
    },
    {
     "id": "player_pass_yds",
     "label": "Passing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 16,
-    "hits": 13,
+    "checks": 18,
+    "hits": 14,
     "voids": 0,
-    "rate": 0.8125,
+    "rate": 0.7777777777777778,
     "status": "ESTIMATE",
-    "typicalMiss": 65.8,
-    "rangeWidth": 228.9,
-    "lean": -23.3
+    "typicalMiss": 73.4,
+    "rangeWidth": 229.2,
+    "lean": -5.8
    },
    {
     "id": "likeliest_scorer",
     "label": "Our likeliest touchdown scorer scored",
     "group": "player",
-    "checks": 7,
+    "checks": 8,
     "hits": 4,
     "voids": 1,
-    "rate": 0.5714285714285714
+    "rate": 0.5
    }
   ],
   "context": {
@@ -135,12 +135,12 @@
     "oursCloser": 0,
     "booksCloser": 0,
     "even": 0,
-    "noLine": 8
+    "noLine": 9
    },
    "touchdowns": {
-    "playersGraded": 128,
-    "expectedScorers": 28.7,
-    "actualScorers": 32
+    "playersGraded": 146,
+    "expectedScorers": 32.6,
+    "actualScorers": 38
    }
   }
  },
@@ -3855,11 +3855,674 @@
     },
     "sportsbookTotal": null
    },
-   "state": "PENDING",
-   "final": null,
-   "team": [],
-   "players": [],
-   "touchdowns": [],
+   "state": "FINAL",
+   "final": {
+    "away": 27,
+    "home": 21,
+    "total": 48,
+    "margin": -6
+   },
+   "team": [
+    {
+     "prop": "winner",
+     "outcome": "MISS"
+    },
+    {
+     "prop": "total_range",
+     "outcome": "HIT",
+     "actual": 48
+    },
+    {
+     "prop": "margin_range",
+     "outcome": "HIT",
+     "actual": -6
+    },
+    {
+     "prop": "closer_than_sportsbook",
+     "outcome": "NO_LINE",
+     "oursOff": 1,
+     "booksOff": null
+    }
+   ],
+   "players": [
+    {
+     "name": "Isaiah Likely",
+     "team": "NYG",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 5.8,
+     "low": 1.9,
+     "high": 11.5,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Isaiah Likely",
+     "team": "NYG",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 50,
+     "low": 15,
+     "high": 100,
+     "actual": 12,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Woody Marks",
+     "team": "HOU",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1.5,
+     "low": 0,
+     "high": 2.9,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Woody Marks",
+     "team": "HOU",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 7,
+     "low": 0,
+     "high": 33,
+     "actual": 15,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Woody Marks",
+     "team": "HOU",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 32,
+     "low": 9,
+     "high": 69,
+     "actual": 66,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Malik Nabers",
+     "team": "NYG",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 5.8,
+     "low": 1.9,
+     "high": 11.5,
+     "actual": 7,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Malik Nabers",
+     "team": "NYG",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 58,
+     "low": 18,
+     "high": 120,
+     "actual": 111,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Nico Collins",
+     "team": "HOU",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3.7,
+     "low": 0.7,
+     "high": 6.6,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Nico Collins",
+     "team": "HOU",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 39,
+     "low": 6,
+     "high": 95,
+     "actual": 6,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Cam Skattebo",
+     "team": "NYG",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3.8,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Cam Skattebo",
+     "team": "NYG",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 12,
+     "low": 0,
+     "high": 44,
+     "actual": -3,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Cam Skattebo",
+     "team": "NYG",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 36,
+     "low": 11,
+     "high": 73,
+     "actual": 124,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Jawhar Jordan",
+     "team": "HOU",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 18,
+     "low": 1,
+     "high": 54,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Tank Dell",
+     "team": "HOU",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2.2,
+     "low": 0.7,
+     "high": 5.1,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tank Dell",
+     "team": "HOU",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 8,
+     "low": 0,
+     "high": 40,
+     "actual": 43,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Jayden Higgins",
+     "team": "HOU",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2.2,
+     "low": 0.7,
+     "high": 4.4,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Jayden Higgins",
+     "team": "HOU",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 15,
+     "low": 0,
+     "high": 51,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Devin Singletary",
+     "team": "NYG",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 2.9,
+     "actual": 3,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Devin Singletary",
+     "team": "NYG",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 10,
+     "low": 0,
+     "high": 35,
+     "actual": 41,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Jaylin Noel",
+     "team": "HOU",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1.5,
+     "low": 0,
+     "high": 3.7,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jaylin Noel",
+     "team": "HOU",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 16,
+     "low": 0,
+     "high": 61,
+     "actual": -3,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Marvin Harrison Jr.",
+     "team": "HOU",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1.5,
+     "low": 0,
+     "high": 3.7,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Marvin Harrison Jr.",
+     "team": "HOU",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 10,
+     "low": 0,
+     "high": 43,
+     "actual": 6,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Xavier Hutchinson",
+     "team": "HOU",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2.2,
+     "low": 0.7,
+     "high": 4.4,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Xavier Hutchinson",
+     "team": "HOU",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 19,
+     "low": 0,
+     "high": 60,
+     "actual": 17,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Malachi Fields",
+     "team": "NYG",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1.9,
+     "low": 0,
+     "high": 4.8,
+     "actual": 4,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Malachi Fields",
+     "team": "NYG",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 17,
+     "low": 0,
+     "high": 57,
+     "actual": 83,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Tyrone Tracy Jr.",
+     "team": "NYG",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 7,
+     "low": 0,
+     "high": 32,
+     "actual": 15,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Dalton Schultz",
+     "team": "HOU",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2.2,
+     "low": 0.7,
+     "high": 5.1,
+     "actual": 5,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Dalton Schultz",
+     "team": "HOU",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 22,
+     "low": 0,
+     "high": 61,
+     "actual": 45,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Foster Moreau",
+     "team": "HOU",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 0.7,
+     "low": 0,
+     "high": 2.9,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Foster Moreau",
+     "team": "HOU",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 5,
+     "low": 0,
+     "high": 32,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Kayshon Boutte",
+     "team": "HOU",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1.5,
+     "low": 0,
+     "high": 3.7,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kayshon Boutte",
+     "team": "HOU",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 13,
+     "low": 0,
+     "high": 46,
+     "actual": 25,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Darnell Mooney",
+     "team": "NYG",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3.8,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Darnell Mooney",
+     "team": "NYG",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 10,
+     "low": 0,
+     "high": 42,
+     "actual": 4,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jaxson Dart",
+     "team": "NYG",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 9,
+     "low": 0,
+     "high": 37,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "C.J. Stroud",
+     "team": "HOU",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 5,
+     "low": 0,
+     "high": 29,
+     "actual": 4,
+     "outcome": "HIT"
+    },
+    {
+     "name": "C.J. Stroud",
+     "team": "HOU",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 248,
+     "low": 140,
+     "high": 401,
+     "actual": 153,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Gunner Olszewski",
+     "team": "NYG",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 2.9,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Jalin Hyatt",
+     "team": "NYG",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 2.9,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Jameis Winston",
+     "team": "NYG",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 3,
+     "low": 0,
+     "high": 24,
+     "actual": 4,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jameis Winston",
+     "team": "NYG",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 173,
+     "low": 91,
+     "high": 293,
+     "actual": 0,
+     "outcome": "MISS"
+    },
+    {
+     "name": "J.J. McCarthy",
+     "team": "NYG",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 1,
+     "low": 0,
+     "high": 21,
+     "actual": 1,
+     "outcome": "HIT"
+    }
+   ],
+   "touchdowns": [
+    {
+     "name": "Isaiah Likely",
+     "team": "NYG",
+     "probability": 0.4571,
+     "outcome": "DID_NOT_SCORE",
+     "likeliest": true
+    },
+    {
+     "name": "Woody Marks",
+     "team": "HOU",
+     "probability": 0.3767,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Malik Nabers",
+     "team": "NYG",
+     "probability": 0.3638,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Nico Collins",
+     "team": "HOU",
+     "probability": 0.3546,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Cam Skattebo",
+     "team": "NYG",
+     "probability": 0.2849,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Jawhar Jordan",
+     "team": "HOU",
+     "probability": 0.2827,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Tank Dell",
+     "team": "HOU",
+     "probability": 0.2497,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Jayden Higgins",
+     "team": "HOU",
+     "probability": 0.2209,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Devin Singletary",
+     "team": "NYG",
+     "probability": 0.2131,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Jaylin Noel",
+     "team": "HOU",
+     "probability": 0.1985,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Marvin Harrison Jr.",
+     "team": "HOU",
+     "probability": 0.1861,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Xavier Hutchinson",
+     "team": "HOU",
+     "probability": 0.1853,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Malachi Fields",
+     "team": "NYG",
+     "probability": 0.1833,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Tyrone Tracy Jr.",
+     "team": "NYG",
+     "probability": 0.1746,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Dalton Schultz",
+     "team": "HOU",
+     "probability": 0.1745,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Foster Moreau",
+     "team": "HOU",
+     "probability": 0.1551,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Kayshon Boutte",
+     "team": "HOU",
+     "probability": 0.1447,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Darnell Mooney",
+     "team": "NYG",
+     "probability": 0.1302,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Jaxson Dart",
+     "team": "NYG",
+     "probability": 0.1218,
+     "outcome": "VOID"
+    },
+    {
+     "name": "C.J. Stroud",
+     "team": "HOU",
+     "probability": 0.107,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Gunner Olszewski",
+     "team": "NYG",
+     "probability": 0.0937,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Jalin Hyatt",
+     "team": "NYG",
+     "probability": 0.0936,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Jameis Winston",
+     "team": "NYG",
+     "probability": 0.0668,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Davis Mills",
+     "team": "HOU",
+     "probability": 0.0657,
+     "outcome": "VOID"
+    },
+    {
+     "name": "J.J. McCarthy",
+     "team": "NYG",
+     "probability": 0.0654,
+     "outcome": "DID_NOT_SCORE"
+    }
+   ],
    "boardNote": null
   },
   {
@@ -5073,7 +5736,7 @@
     "name": "Seattle Seahawks"
    },
    "published": {
-    "generatedAt": "2026-10-25T20:10:38Z",
+    "generatedAt": "2026-10-25T22:36:17Z",
     "projectedScore": {
      "away": 19,
      "home": 23
@@ -5114,7 +5777,7 @@
     "name": "Philadelphia Eagles"
    },
    "published": {
-    "generatedAt": "2026-10-25T20:10:38Z",
+    "generatedAt": "2026-10-25T22:36:17Z",
     "projectedScore": {
      "away": 22,
      "home": 27
@@ -5144,5 +5807,5 @@
   }
  ],
  "disclaimer": "Educational and paper-only — not betting advice. A range is not a bet: these are checks of how often what we published matched what happened.",
- "generatedAt": "2026-10-25T20:10:38Z"
+ "generatedAt": "2026-10-25T22:36:17Z"
 }
