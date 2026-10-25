@@ -95,7 +95,13 @@ test("actuals: no final, final under review, unfinished box score, other teams, 
   assert.equal(boardActuals(null, PROJECTION_BOARD_STATS), null);
 });
 
-test("actuals on the COMMITTED record equal the shadow grader's own recorded actuals for every graded Top Board row", () => {
+test("actuals on the COMMITTED record equal the shadow grader's own recorded actuals for every graded Top Board row — a stat corrected after grading is shown corrected AND flagged with the graded value", () => {
+  /* Release owner P0 2026-10-25: ESPN corrected 401909852 (Deni Avdija REB 6 → 7) after the Top Board grader graded the
+     first capture. Grades are never rewritten and the page never silently differs: for each graded row,
+       - the grade's own box score is the first capture → the board's GRADED value (the corrected-after-grading mark's
+         value when a correction changed it, else the shown actual) equals the ledger's actual exactly, and a changed
+         value is flagged and equals the stored correction exactly;
+       - the grade's box score is a correction (a grader that follows corrections) → the shown actual equals it exactly. */
   const ledgerFile = path.join(APP, "..", "data/internal/research/nba/top-boards/v0.1/ledger.json");
   if (!fs.existsSync(ledgerFile)) return; // a checkout without the research tree has nothing to compare
   const latest = new Map();
@@ -103,18 +109,77 @@ test("actuals on the COMMITTED record equal the shadow grader's own recorded act
   const statAt = { points: "pts", rebounds: "reb", assists: "ast", threes: "threePm", threePm: "threePm" };
   const ix = Object.fromEntries(PROJECTION_BOARD_STATS.map(([k], i) => [k, i + 1]));
   const byDate = new Map();
-  let compared = 0;
+  let compared = 0, correctedRows = 0;
   for (const e of latest.values()) {
     if (!e.accuracy || !fs.existsSync(path.join(DIR, `${e.date}.json`))) continue;
     if (!byDate.has(e.date)) byDate.set(e.date, boardActuals(JSON.parse(fs.readFileSync(path.join(DIR, `${e.date}.json`), "utf8")), PROJECTION_BOARD_STATS));
-    const row = byDate.get(e.date).rows[`${e.eventId}:${e.providerAthleteId}`];
+    const a = byDate.get(e.date);
+    const key = `${e.eventId}:${e.providerAthleteId}`;
+    const row = a.rows[key];
     const at = ix[statAt[e.category] ?? e.category];
     assert.ok(row && at, `${e.rowId} is on the board`);
-    assert.equal(row[at], e.accuracy.actual, `${e.rowId} actual`);
-    assert.equal(row[0], e.accuracy.actualMinutes, `${e.rowId} minutes`);
+    const gradedOnCorrection = /\/corrections\//.test(String(e.source?.file ?? ""));
+    const was = a.corrected?.[key] ?? {};
+    if (gradedOnCorrection) {
+      assert.equal(row[at], e.accuracy.actual, `${e.rowId}: graded on a correction → the board shows that value`);
+    } else {
+      assert.equal(at in was ? was[at] : row[at], e.accuracy.actual, `${e.rowId}: the graded value`);
+      assert.equal(0 in was ? was[0] : row[0], e.accuracy.actualMinutes, `${e.rowId}: the graded minutes`);
+      if (at in was) {
+        correctedRows += 1;
+        assert.ok(a.corrections?.[e.eventId]?.correctedAt, `${e.rowId}: the correction is dated`);
+        assert.notEqual(row[at], was[at], `${e.rowId}: a flagged value really changed`);
+      }
+    }
     compared += 1;
   }
   assert.ok(compared > 0 || latest.size === 0, `compared ${compared} graded rows`);
+  // The case that turned main red is covered, exactly: Avdija REB 6 → 7, so PRA 38 → 39, P+R 32 → 33.
+  const d23 = byDate.get("2026-10-23");
+  if (d23?.corrected?.["401909852:4683021"]) {
+    assert.deepEqual(d23.corrected["401909852:4683021"], { 2: 6, 5: 38, 6: 32 });
+    assert.deepEqual([d23.rows["401909852:4683021"][2], d23.rows["401909852:4683021"][5], d23.rows["401909852:4683021"][6]], [7, 39, 33]);
+    assert.ok(correctedRows > 0);
+  }
+});
+
+test("stat corrections render honestly: corrected figure + dagger + the graded value for screen readers; legend, chip and Model details say so", () => {
+  const snap = lane();
+  const acts = boardActuals(snap, PROJECTION_BOARD_STATS, { boxscoreOf: boxes(), finals: finalsFor(PUB.games) });
+  const key = `${G0.providerEventId}:${G0.players.home[0].providerAthleteId}`;
+  // a correction raised the first home player's REB 5 → 6 after grading (fixture)
+  acts.rows[key] = [...acts.rows[key]]; acts.rows[key][2] = 6; acts.rows[key][5] += 1; acts.rows[key][6] += 1;
+  acts.corrected = { [key]: { 2: 5, 5: acts.rows[key][5] - 1, 6: acts.rows[key][6] - 1 } };
+  acts.corrections = { [G0.providerEventId]: { firstCapturedAt: "2026-10-21T13:16:03Z", correctedAt: "2026-10-22T13:41:38Z" } };
+  const html = render({ lane: snap, role: "past", date: "2026-10-20", dates: ["2026-10-20"], dated: true, actuals: acts });
+  const text = visibleText(html);
+  assert.match(text, /† stat corrected by ESPN after grading: the corrected figure is shown, and the graded one is listed in Model details\./);
+  assert.match(html, /6<span aria-hidden="true">†<\/span><span class="sr-only"> \(stat corrected after grading; graded on 5\)<\/span>/);
+  assert.match(text, new RegExp(`${G0.away.abbr} @ ${G0.home.abbr} · \\S+ · stat corrected after grading`));
+  assert.match(visibleText(detailsOf(html)), new RegExp(`${G0.away.abbr} @ ${G0.home.abbr}: ESPN corrected the final box score \\(captured Oct 22, 9:41 AM ET\\) after grading on the first final box score \\(captured Oct 21, 9:16 AM ET\\)\\. Graded → corrected: ${G0.players.home[0].name} REB 5 → 6, PRA \\d+ → \\d+, P\\+R \\d+ → \\d+\\.`));
+  const back = unpackBoard(JSON.parse(JSON.stringify(packBoard(boardRows(PUB, PROJECTION_BOARD_STATS), acts.rows, null, null, acts.corrected))));
+  const flagged = back.filter((r) => r.cv);
+  assert.equal(flagged.length, 1);
+  assert.deepEqual(flagged[0].cv, acts.corrected[key]);
+  // Without corrections nothing changes: no dagger, no list, no wire field.
+  const plain = boardActuals(lane(), PROJECTION_BOARD_STATS, { boxscoreOf: boxes(), finals: finalsFor(PUB.games) });
+  assert.equal(plain.corrected, undefined);
+  assert.doesNotMatch(render({ lane: lane(), actuals: plain }), /†|corrected/);
+  assert.ok(!("c" in packBoard(boardRows(PUB, PROJECTION_BOARD_STATS), plain.rows, null, null, null)));
+});
+
+test("the reader flags exactly the values a stored correction changed (first capture vs correction), and nothing on an uncorrected game", () => {
+  const first = (id) => boxes()(id);
+  const fixed = (id) => { const b = boxes()(id); if (id === G0.providerEventId) { b.capturedAt = "2026-10-22T13:41:38Z"; const p = b.players.find((x) => x.providerAthleteId === G0.players.home[0].providerAthleteId); p.reb += 1; } return b; };
+  const fin = finalsFor(PUB.games);
+  const a = boardActuals(lane(), PROJECTION_BOARD_STATS, { boxscoreOf: fixed, firstCaptureOf: (id) => ({ ...first(id), capturedAt: "2026-10-21T13:16:03Z" }), finals: fin });
+  const key = `${G0.providerEventId}:${G0.players.home[0].providerAthleteId}`;
+  assert.deepEqual(Object.keys(a.corrected), [key], "only the changed player");
+  assert.deepEqual(a.corrected[key], { 2: 5, 5: 18, 6: 15 }, "REB and the combos that contain it, with the graded values");
+  assert.deepEqual(a.corrections, { [G0.providerEventId]: { firstCapturedAt: "2026-10-21T13:16:03Z", correctedAt: "2026-10-22T13:41:38Z" } });
+  assert.equal(a.rows[key][2], 6);
+  const none = boardActuals(lane(), PROJECTION_BOARD_STATS, { boxscoreOf: boxes(), firstCaptureOf: boxes(), finals: fin });
+  assert.equal(none.corrected, undefined, "same capture → nothing flagged");
 });
 
 test("wire format: actuals travel verbatim beside the frozen values, which unpack byte-identical; no actuals → format unchanged", () => {

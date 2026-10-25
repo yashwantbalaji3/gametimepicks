@@ -37,16 +37,19 @@ import React, { useEffect, useId, useMemo, useState } from "react";
 
 import { filterRows, sortRows, unpackBoard, gameStatusOnClock, GAME_STATUS_LABEL, noProjectionShort, POSITION_GROUPS } from "@/lib/sports/nba/projection-board-ops.mjs";
 
-export type BoardRow = { id: string; game: string; name: string; injury: string | null; team: string; teamName: string; min: number | null; v: (number | null)[]; am?: number | "DNP" | null; aw?: boolean; np?: string; pos?: string | null };
+export type BoardRow = { id: string; game: string; name: string; injury: string | null; team: string; teamName: string; min: number | null; v: (number | null)[]; am?: number | "DNP" | null; aw?: boolean; np?: string; pos?: string | null; cv?: Record<number, number | string | null> };
 /** One game chip: id, short matchup ("BOS @ DET"), build-time status code, tip-off instant, optional actual-state note. */
 export type BoardGameNav = [string, string, "upcoming" | "started" | "final" | "postponed", string, string?];
 type SortKey = number | "min" | "am";
 export type BoardOption = { id: string; label: string };
 /** packBoard's wire format: teams once, rows as arrays (page weight — see projection-board-ops.mjs). */
-export type PackedBoard = { t: [string, string, string][]; r: (string | number | null)[][]; a?: (0 | 1 | (number | string | null)[])[]; u?: (string | number | null)[][]; p?: (string | 0)[] };
+export type PackedBoard = { t: [string, string, string][]; r: (string | number | null)[][]; a?: (0 | 1 | (number | string | null)[])[]; u?: (string | number | null)[][]; p?: (string | 0)[]; c?: [number, number, number | string | null][] };
 export type StatGroup = { id: string; label: string; cols: number[] };
 
 const fmt = (v: number | string | null | undefined) => (v == null ? "—" : String(v));
+/** An actual a box-score correction changed after grading: the corrected value, a dagger, and (for screen readers) the graded value. */
+const actualCell = (v: number | string | null | undefined, was: number | string | null | undefined, corrected: boolean) =>
+  corrected ? <>{fmt(v)}<span aria-hidden="true">†</span><span className="sr-only"> (stat corrected after grading; graded on {fmt(was)})</span></> : fmt(v);
 const FIELD = "flex flex-col gap-1 min-w-0 text-[12px]";
 const INPUT = "w-full min-w-0 min-h-[44px] rounded-md px-2 text-[14px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2";
 const INPUT_STYLE = { border: "1px solid var(--vault-border)", background: "var(--vault-panel)", color: "var(--vault-text)", outlineColor: "var(--vault-gold-bright)" };
@@ -223,9 +226,9 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
                   <th scope="row">{r.name}{r.injury ? ` · ${r.injury}` : ""}{r.np ? <span className="block text-[11px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{noProjectionShort(r.np)}</span> : null}</th>
                   <td title={r.teamName}>{r.team}</td>
                   <td>{fmt(r.min)}</td>
-                  {post ? <td>{r.aw ? "awaiting final" : fmt(r.am)}</td> : null}
+                  {post ? <td>{r.aw ? "awaiting final" : actualCell(r.am, r.cv?.[0], r.cv?.[0] !== undefined)}</td> : null}
                   {post
-                    ? cols.map((i) => <React.Fragment key={stats[i][0]}><td>{fmt(r.v[i])}</td><td>{fmt(r.v[i + n])}</td></React.Fragment>)
+                    ? cols.map((i) => <React.Fragment key={stats[i][0]}><td>{fmt(r.v[i])}</td><td>{actualCell(r.v[i + n], r.cv?.[i + 1], r.cv?.[i + 1] !== undefined)}</td></React.Fragment>)
                     : cols.map((i) => <td key={stats[i][0]}>{fmt(r.v[i])}</td>)}
                 </tr>
               ))}
