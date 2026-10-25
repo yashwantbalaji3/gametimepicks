@@ -24,7 +24,6 @@ import GameStatusOnClock from "@/components/nba/projection-game-status";
 import { EloAccuracyDisclosure, EloWinProbability, type EloCtx } from "@/components/nba/elo-win-probability";
 import { ELO_WIN_PROBABILITY_LABEL, eloWinProbabilityOf } from "@/lib/sports/nba/elo-win-probability.mjs";
 import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
-import { canonicalTricodeFromEspnAbbr } from "@/lib/sports/nba/boxscore-parse.mjs";
 
 /** Lane `players.unavailable` row (PR 1230): name and reason only, never a number. Release H integration: one shape for
  *  the hub and the Theater's Official Forecast panel (official-predictions.tsx LaneUnavailable). */
@@ -120,8 +119,8 @@ function TeamTable({ team, rows }: { team: string; rows: Row[] }) {
 
 const favouredName = (g: Game) => (g.elo.favoured === g.home.abbr ? g.home.name : g.elo.favoured === g.away.abbr ? g.away.name : null) ?? g.elo.favoured;
 export const laneCardId = (id: string) => `nba-exp-${id}`;
-/** The snapshot names sides by ESPN's code ("NY", "GS"); the hub prints the canonical one its cards use ("NYK", "GSW"). */
-const code = (abbr: string | null) => (abbr ? canonicalTricodeFromEspnAbbr(abbr) ?? abbr : "—");
+/** The snapshot's own team code (ESPN's: "WSH", "NY", "GS") — the code every NBA surface prints, the hub's cards included. */
+const code = (abbr: string | null) => abbr ?? "—";
 
 /** Rostered players the forecast lists as "projection unavailable" (PR 1230) — counted, never given a number. */
 const unavailableCount = (g: Game) => (g.players.unavailable?.away.length ?? 0) + (g.players.unavailable?.home.length ?? 0);
