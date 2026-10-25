@@ -24,6 +24,7 @@
 import { PUBLIC_RISK_TIERS, PUBLIC_RISK_LABELS } from "../../parlays/risk-odds-bands.mjs";
 import { BAND_MAX_LEGS } from "../../parlays/multi-sport.mjs";
 import { jointShownFor, tierForJoint } from "./suggestions.mjs";
+import { best, levelACardKey } from "./engine.mjs";
 
 export const NBA_GW_POLICY = "nba-game-winner-tiers@1";
 export const NBA_GW_RULE_DOC = "docs/LEVEL_A_NBA_GAME_WINNER_TIERING_RULE.md";
@@ -73,19 +74,8 @@ export function nbaGameWinnerLeg(leg, d, receipt) {
   };
 }
 
-function* combos(arr, k, start = 0, acc = []) {
-  if (acc.length === k) { yield acc; return; }
-  for (let i = start; i <= arr.length - (k - acc.length); i += 1) yield* combos(arr, k, i + 1, [...acc, arr[i]]);
-}
-const keyOf = (legs) => legs.map((l) => String(l.eventId)).sort().join("|");
-/** The two teams of a leg's game, from its "AWAY @ HOME" label. */
-const teamsOf = (leg) => String(leg.eventLabel ?? "").split(" @ ").map((t) => t.trim()).filter(Boolean);
-/** Distinct games AND distinct teams: an NBA team plays once a night, so this only ever rejects a malformed input. */
-const independentGames = (c) => {
-  const teams = c.flatMap(teamsOf);
-  return new Set(c.map((l) => String(l.eventId))).size === c.length && new Set(teams).size === teams.length;
-};
-
+/* The selection engine is shared with the mixed-sport cards (level-a/engine.mjs). Within NBA every leg has the same
+   sport, so the engine's sport-scoped team guard is exactly this rule's "no team twice". */
 /** The product policies of this rule, one family (`nba-game-winner-tiers@1`), graded the same way. */
 export const NBA_GW_POLICIES = Object.freeze({
   parlayLab: `${NBA_GW_POLICY}/parlay-lab`,
@@ -108,23 +98,6 @@ function cardOf(legs, tier, policy) {
     whySelected: `Each leg is the official NBA side with its published Elo-derived game-winner estimate; this is the combination with the highest joint probability in the ${PUBLIC_RISK_LABELS[tier]} band (${legs.length} legs).`,
     priced: false, price: null, payout: null,
   };
-}
-
-/** The highest-joint combination of `sizes` legs (distinct games and teams) whose band is in `tiers`; ties by event ids. */
-function best(ok, sizes, tiers, shorter) {
-  let top = null;
-  for (const k of sizes) {
-    if (k > ok.length) continue;
-    for (const c of combos(ok, k)) {
-      if (!independentGames(c)) continue;
-      const joint = c.reduce((p, l) => p * l.probability, 1);
-      const t = tierForJoint(joint);
-      if (t == null) { shorter?.add(keyOf(c)); continue; }
-      if (!tiers.includes(t)) continue;
-      if (!top || joint > top.joint || (joint === top.joint && keyOf(c) < keyOf(top.c))) top = { c: [...c], joint, tier: t };
-    }
-  }
-  return top;
 }
 
 const howMany = (sizes) => (sizes.length === 1 ? (sizes[0] === 2 ? "two" : String(sizes[0])) : `${sizes[0]} to ${sizes.at(-1)}`);
@@ -167,7 +140,7 @@ export function nbaGameWinnerTiers({ legs = [], accessor, receiptOf = () => null
 
 /** The exact identity a page prints on each NBA card (data-level-a-card) and the recorder matches: policy, tier, the
  *  games, and the shown joint text. One function, so page and record cannot disagree. */
-export const nbaGameWinnerCardKey = (card) => `${card.policy}|${card.tier}|${keyOf(card.legs)}|${jointShownFor(card.jointProbability, card.tier)}`;
+export const nbaGameWinnerCardKey = levelACardKey;
 
 /** The cards that may be recorded, with the page each is on: only while the block is public, i.e. only cards readers saw. */
 export function recordableNbaGameWinnerCards(block) {
