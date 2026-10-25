@@ -339,8 +339,10 @@ jobs:
       # `!cancelled()` (P265): these three need ROSTERS and INJURIES, which are captured above and did
       # not fail — but GitHub skips every later step once one fails, so a refused PAID odds capture took
       # the free work down with it. On 2026-09-12 that left the published boards carrying last night's
-      # role evidence against injuries captured this morning, the day before Sunday. The odds step still
-      # fails the job and still alerts — that part was right — while the boards refresh regardless.
+      # role evidence against injuries captured this morning, the day before Sunday. A REFUSED capture (malformed
+      # receipt, provider error) still fails the job and still alerts — that part was right — while the boards
+      # refresh regardless. An expired or SPENT allowance exits 0 with a warning instead (AUTHORIZATION_EXPIRED /
+      # BUDGET_EXHAUSTED): the receipt calls that refusal a decision owed to the founder, not a broken job.
       - name: Event assembly + shadow simulations + current artifacts
         if: ${{ !cancelled() && steps.window.outputs.events != '0' }}
         working-directory: app

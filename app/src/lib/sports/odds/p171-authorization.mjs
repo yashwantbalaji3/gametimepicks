@@ -417,6 +417,22 @@ export function assertCallAllowed({ authorization, ledger, worstCaseCredits, pur
 }
 
 /**
+ * IS THE ALLOWANCE SPENT? Pure. True when the authorized ceiling cannot cover even the cheapest paid call a run could
+ * make (`cheapestPaidCredits`), so every paid call this run plans would be refused by assertCallAllowed anyway.
+ *
+ * Like an expired allowance, a spent one is a decision owed (a renewed or raised receipt), not a broken job: nothing a
+ * rerun does can change it, and failing the workflow on it turned nfl-event-window red on 68 of 100 runs between
+ * 2026-10-12 and 2026-10-25, where a real failure in the same job would have read exactly the same. A receipt that does
+ * not parse is never "exhausted" — it fails on its own path.
+ */
+export function ceilingExhausted({ authorization, ledger, cheapestPaidCredits }) {
+  if (!authorization?.ok || !(cheapestPaidCredits > 0)) return { exhausted: false, cumulative: ledger?.cumulativeCredits ?? 0, ceiling: authorization?.ceiling ?? null, remaining: null };
+  const cumulative = ledger?.cumulativeCredits ?? 0;
+  const remaining = authorization.ceiling - cumulative;
+  return { exhausted: remaining < cheapestPaidCredits, cumulative, ceiling: authorization.ceiling, remaining };
+}
+
+/**
  * Append one provider response to the ledger. `headers` is a plain object of the usage headers
  * (x-requests-last / x-requests-used / x-requests-remaining) — parsed here, defaulting a paid
  * call with unreadable headers to cost 1 (never 0: unaccounted spend is the failure mode).
