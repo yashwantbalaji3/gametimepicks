@@ -41,7 +41,7 @@ const CSS = `
 .nf-row.nf-ranked{grid-template-columns:28px auto 1fr auto}
 .nf-rank{font-family:var(--font-mono,ui-monospace,monospace);font-size:15px;font-weight:700;color:var(--vault-text-faint);text-align:center}
 .nf-who{min-width:0;display:grid;gap:3px}
-.nf-who a,.nf-who b{font-size:14px;font-weight:600;color:var(--vault-text);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nf-who a,.nf-who b{font-size:14px;line-height:24px;font-weight:600;color:var(--vault-text);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .nf-who a:hover{text-decoration:underline}
 .nf-meta{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--vault-text-mute);flex-wrap:wrap}
 .nf-val{text-align:right;display:grid;gap:2px;justify-items:end}
