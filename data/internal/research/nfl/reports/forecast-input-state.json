@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-10-25T23:02:21Z",
+  "generatedAt": "2026-10-25T23:27:16Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
     "upcomingEvents": 2,
     "eventsWhereTeamForecastIsBlindToAnExclusion": 2,
-    "eventsWithAMaterialExclusion": 1,
+    "eventsWithAMaterialExclusion": 2,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
@@ -23,16 +23,36 @@
         "version": 2,
         "inputHash": "c712bd878fbd38d5",
         "simulations": 10000,
-        "generatedAt": "2026-10-25T23:02:21Z"
+        "generatedAt": "2026-10-25T23:27:16Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-25T23:02:21Z",
-        "participationInputHash": "a4704e0f754250fb",
-        "excludedCount": 6,
-        "materialExclusions": [],
+        "snapshotAsOf": "2026-10-25T23:27:16Z",
+        "participationInputHash": "1ccf2983f45c2d6e",
+        "excludedCount": 7,
+        "materialExclusions": [
+          {
+            "name": "Drew Lock",
+            "team": "SEA",
+            "state": "Out",
+            "statedAt": "2026-10-25T23:00Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          }
+        ],
         "excluded": [
+          {
+            "name": "Drew Lock",
+            "team": "SEA",
+            "state": "Out",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
           {
             "name": "Jadarian Price",
             "team": "SEA",
@@ -98,13 +118,13 @@
         "version": 2,
         "inputHash": "b7a401e2db3709d1",
         "simulations": 10000,
-        "generatedAt": "2026-10-25T23:02:21Z"
+        "generatedAt": "2026-10-25T23:27:16Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-25T23:02:21Z",
-        "participationInputHash": "e59317bf188c1698",
+        "snapshotAsOf": "2026-10-25T23:27:16Z",
+        "participationInputHash": "9648bb5456c524ad",
         "excludedCount": 6,
         "materialExclusions": [
           {
