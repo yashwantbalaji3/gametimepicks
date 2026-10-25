@@ -435,7 +435,7 @@ export default function NbaResultsPage() {
         className="mt-10 text-[12px]"
         style={{ color: "var(--vault-text-faint)" }}
       >
-        <Link href="/results" style={{ color: "var(--vault-gold-bright)" }}>
+        <Link href="/results" className="gtp-backlink" style={{ color: "var(--vault-gold-bright)" }}>
           ← global Results hub (cross-sport)
         </Link>
       </section>

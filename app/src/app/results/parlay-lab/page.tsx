@@ -235,7 +235,7 @@ export default function ParlayLabRecordPage() {
       </p>
 
       <nav className="mt-4 flex flex-wrap gap-3" style={{ fontSize: 12.5 }}>
-        <Link href="/results" style={{ color: "var(--gtp-bank-heat)" }}>← All results</Link>
+        <Link href="/results" className="gtp-backlink" style={{ color: "var(--gtp-bank-heat)" }}>← All results</Link>
         <Link href="/results/parlays" style={{ color: "var(--vault-text-mute)" }}>Saved slips (a different record)</Link>
         <Link href="/build" style={{ color: "var(--vault-text-mute)" }}>Build a card</Link>
       </nav>

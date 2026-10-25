@@ -401,7 +401,7 @@ export default function MlbResultsPage() {
       />
 
       <section className="mt-8 text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
-        <Link href="/mlb/board" style={{ color: "var(--vault-gold-bright)" }}>
+        <Link href="/mlb/board" className="gtp-backlink" style={{ color: "var(--vault-gold-bright)" }}>
           ← back to MLB board
         </Link>
       </section>

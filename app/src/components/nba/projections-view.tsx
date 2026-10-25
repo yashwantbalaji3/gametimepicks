@@ -219,7 +219,7 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
   const models = live ? [...new Set(live.games.map((g) => g.receipt.modelVersion))] : [];
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-4 min-w-0">
-      <p className="m-0 text-[13px]"><Link href="/nba/" className="underline" style={TEXT}>← NBA hub</Link></p>
+      <p className="m-0 text-[13px]"><Link href="/nba/" className="gtp-backlink underline" style={TEXT}>← NBA hub</Link></p>
       <h1 className="m-0 font-display text-[22px] font-bold" style={TEXT}>NBA Predicted Player Statistics{slate && (live || dated) ? ` · ${dayLabel(slate)}` : ""}</h1>
       <p className="m-0 text-[12.5px] leading-relaxed" style={MUTE} role="note">{PREDICTED_NOTE}</p>
       <SlateDates dates={dates} date={slate} dated={dated} />

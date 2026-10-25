@@ -271,7 +271,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden nf">
       <ForecastStyles />
       <p style={{ margin: 0, fontSize: 11.5 }}>
-        <Link href="/nfl" style={{ color: "var(--vault-gold)" }}>← NFL hub</Link>
+        <Link href="/nfl" className="gtp-backlink" style={{ color: "var(--vault-gold)" }}>← NFL hub</Link>
       </p>
 
       <header style={{ marginTop: 12 }}>

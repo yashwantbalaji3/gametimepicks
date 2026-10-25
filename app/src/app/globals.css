@@ -6057,6 +6057,11 @@ a.ft-link { display: inline-block; min-height: 24px; padding-block: 2px; }
   .ft-list > li + li { margin-top: 0; }
 }
 .ft-note { color: var(--vault-text-faint); font-size: 11px; }
+/* Standalone back / hub / prev-next links (audit 2026-10-25: "← NFL hub" on every NFL game page was 14px tall, "← NBA hub"
+   on every NBA simulation page bare text). Same rule as the site map: 24px for any pointer, 44px for a finger. Never on
+   a link inside a sentence — WCAG exempts those, and a 44px inline box would break the line. */
+a.gtp-backlink { display: inline-flex; align-items: center; min-height: 24px; }
+@media (pointer: coarse) { a.gtp-backlink { min-height: 44px; } }
 /* ── Player research view + research primitives · COST-002 HTML reduction, 2026-10-15 ─────────────────────────
    Game-log / recent-window cells (components/research-pages/player-research-view.tsx), EntityLink and ResultBadge
    (research-primitives.tsx): formerly inline on every cell and link of every row, ~1,800 player pages. Values

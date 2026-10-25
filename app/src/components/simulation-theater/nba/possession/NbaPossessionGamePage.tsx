@@ -46,7 +46,7 @@ export default function NbaPossessionGamePage({ load, nowIso = new Date().toISOS
       </a>
       <nav aria-label="This game" className="nbx-gamenav">
         {/* next/link (not <a>): a full page load from here aborts in-flight route prefetches, which Next logs as errors */}
-        <Link href="/nba/">← NBA hub</Link>
+        <Link href="/nba/" className="gtp-backlink">← NBA hub</Link>
         <Link href="/nba/projections/">Top Boards</Link>
         <Link href={NBA_RESULTS_HREF}>Results</Link>
       </nav>

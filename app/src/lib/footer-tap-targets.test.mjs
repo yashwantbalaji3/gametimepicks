@@ -25,3 +25,20 @@ test("the site-map lists use the rule's own spacing (the old space-y-2 would sta
   assert.doesNotMatch(nav, /space-y-2/);
   assert.equal((nav.match(/className="ft-link"/g) ?? []).length, 2, "both link kinds (destinations, legal) carry the class");
 });
+
+test("standalone back / hub / prev-next links carry the same 24px (44px on touch) rule", () => {
+  assert.match(css, /a\.gtp-backlink \{ display: inline-flex; align-items: center; min-height: 24px; \}/);
+  assert.match(css, /@media \(pointer: coarse\) \{ a\.gtp-backlink \{ min-height: 44px; \} \}/);
+  /* The pages the 2026-10-25 audit measured under 24px, plus the same link on sibling pages. */
+  for (const [file, text] of [
+    ["src/app/nfl/game/[eventId]/page.tsx", "← NFL hub"],
+    ["src/app/results/nba/page.tsx", "← global Results hub"],
+    ["src/components/nba/projections-view.tsx", "← NBA hub"],
+    ["src/app/epl/match/[slug]/page.tsx", "← Premier League fixtures"],
+  ]) {
+    const src = fs.readFileSync(path.join(process.cwd(), file), "utf8");
+    const at = src.indexOf(text);
+    assert.ok(at > 0, `${file}: ${text}`);
+    assert.match(src.slice(src.lastIndexOf("<Link", at), at), /className="gtp-backlink/, `${file}: ${text} carries gtp-backlink`);
+  }
+});
