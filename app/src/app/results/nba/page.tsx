@@ -24,14 +24,13 @@ import PerGameScorecard from "@/components/per-game-scorecard";
 import ResultsBreakdown from "@/components/results-breakdown";
 import ResultsModelAuditNotes from "@/components/results-model-audit-notes";
 import AnomalyGuardrailPanel from "@/components/anomaly-guardrail-panel";
-import SettledGameDetail, {
-  type SettledLeanRow,
-} from "@/components/settled-game-detail";
 import SettledPlayerList from "@/components/settled-player-list";
 import NeonCornerBracket from "@/components/neon-corner-bracket";
 import { getPlayoffContext } from "@/components/playoff-context";
 import ModelLessonsCard from "@/components/model-lessons-card";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { nbaArchiveGames, nbaArchiveGameAnchor } from "@/lib/results/nba-archive-games";
+import { surfaceHref } from "@/lib/nav/date-sport-route";
 import NbaForecastVsActual from "@/components/results/nba-forecast-vs-actual";
 import { nbaForecastVsActualView } from "@/lib/results/nba-level-a-readers";
 
@@ -353,133 +352,39 @@ export default function NbaResultsPage() {
         </section>
       )}
 
-      {/* Settled games · tap to expand each game's projection-vs-actual
-          audit. Same SettledGameDetail component used on the MLB Results
-          page for consistent UX across sports. */}
-      {latest.rows.length > 0 && (
-        <section className="mt-10">
-          <details
-            className="group"
-            style={{
-              background: "color-mix(in srgb, var(--vault-scrim-base) 40%, transparent)",
-              border: "1px dashed var(--vault-border)",
-              borderRadius: 8,
-              padding: "10px 14px",
-            }}
-          >
-            <summary
-              className="list-none cursor-pointer flex items-center justify-between gap-2"
-              style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
-            >
-              <span
-                className="font-mono uppercase tracking-[0.16em]"
-                style={{ color: "var(--vault-gold)", fontSize: 10 }}
-              >
-                Full per-game audit table · {latest.date}
-              </span>
-              <span
-                aria-hidden
-                className="font-mono transition-transform group-open:rotate-180"
-                style={{ color: "var(--vault-text-faint)" }}
-              >
-                ▾
-              </span>
-            </summary>
-            <div className="mt-3">
-          <SectionHeading>
-            {latest.date} · settled games · projection vs actual
-          </SectionHeading>
-          <div className="mt-4 flex flex-col gap-3">
-            {(() => {
-              const rowsByGame = new Map<string, typeof latest.rows>();
-              for (const r of latest.rows) {
-                const k = r.gameId ?? "_";
-                const list = rowsByGame.get(k) ?? [];
-                list.push(r);
-                rowsByGame.set(k, list);
-              }
-              const orderedGameIds = Object.keys(latest.report?.byGame || {});
-              const seen = new Set<string>();
-              const ordered = [
-                ...orderedGameIds.filter((g) => rowsByGame.has(g)),
-                ...[...rowsByGame.keys()].filter(
-                  (g) => !orderedGameIds.includes(g),
-                ),
-              ].filter((g) => {
-                if (seen.has(g)) return false;
-                seen.add(g);
-                return true;
-              });
-              return ordered.map((gameId) => {
-                const rows = rowsByGame.get(gameId) || [];
-                const wins = rows.filter((r) => r.result === "win").length;
-                const losses = rows.filter((r) => r.result === "loss").length;
-                const pushes = rows.filter((r) => r.result === "push").length;
-                const decisive = wins + losses;
-                const hitRate = decisive > 0 ? wins / decisive : null;
-                const matchup =
-                  gameLabelMap[gameId] ||
-                  (rows[0]?.team && rows[0]?.opponent
-                    ? `${rows[0].team} @ ${rows[0].opponent}`
-                    : "Settled game");
-                const ctx = getPlayoffContext(
-                  gameId,
-                  rows[0]?.team,
-                  rows[0]?.opponent,
-                );
-                const subtitle = ctx.isPlayoffs
-                  ? `${ctx.roundLabel} · ${ctx.gameLabel}`
-                  : undefined;
-                const detailRows: SettledLeanRow[] = rows.map((r, i) => {
-                  const odds = r.side === "Over" ? r.oddsOver : r.oddsUnder;
-                  const outcome: SettledLeanRow["outcome"] =
-                    r.result === "win"
-                      ? "Win"
-                      : r.result === "loss"
-                        ? "Loss"
-                        : r.result === "push"
-                          ? "Push"
-                          : "—";
-                  return {
-                    id: `${r.date}-${r.gameId}-${r.playerId}-${r.market}-${i}`,
-                    playerName: r.playerName ?? "—",
-                    marketLabel: r.market ?? "—",
-                    side: r.side ?? "Pass",
-                    line: r.line ?? null,
-                    projection: r.modelProjection ?? null,
-                    actual:
-                      typeof r.finalStat === "number" ? r.finalStat : null,
-                    outcome,
-                    confidence: r.confidence ?? "—",
-                    edgePct:
-                      typeof r.edgePct === "number" ? r.edgePct : null,
-                    bookmaker: r.bookmaker ?? null,
-                    oddsForSide: odds ?? null,
-                  };
-                });
-                return (
-                  <SettledGameDetail
-                    key={gameId}
-                    matchup={matchup}
-                    subtitle={subtitle}
-                    wins={wins}
-                    losses={losses}
-                    pushes={pushes}
-                    decisive={decisive}
-                    hitRate={hitRate}
-                    rows={detailRows}
-                    sport="nba"
-                    tone="gold"
-                    defaultOpen={false}
-                  />
-                );
-              });
-            })()}
-            </div>
-            </div>
-          </details>
-        </section>
-      )}
+      {/* Settled games (release owner 2026-10-24, page weight). This was every game's full player table inline — a
+          collapsed copy of the rows the player audit above already shows, ~630 KB of HTML plus its payload copy. Each
+          game is now one summary row (the same counts its card shows) linking to that game's card on its day page,
+          where every player row is rendered from the same builder (lib/results/nba-archive-games.ts). Nothing hidden. */}
+      {latest.rows.length > 0 && (() => {
+        const games = nbaArchiveGames(latest.rows, latest.date, gameLabelMap);
+        const dayHref = surfaceHref("results", { date: latest.date }) ?? "/results/";
+        return (
+          <section className="mt-10" aria-label={`${latest.date} settled games`} data-nba-archive-games>
+            <SectionHeading>
+              {latest.date} · settled games · projection vs actual
+            </SectionHeading>
+            <ul className="mt-4 p-0 list-none flex flex-col gap-2">
+              {games.map((g) => (
+                <li key={g.gameId} className="rounded-[6px] px-4 py-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1"
+                  style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
+                  <span className="flex flex-col gap-0.5 min-w-0">
+                    <span className="font-display font-semibold" style={{ color: "var(--vault-text)", fontSize: 15 }}>{g.matchup}</span>
+                    {g.subtitle ? <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{g.subtitle}</span> : null}
+                  </span>
+                  <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 12, fontVariantNumeric: "tabular-nums" }}>
+                    {g.wins}–{g.losses}{g.pushes > 0 ? `–${g.pushes}P` : ""} · {g.decisive} dec · {g.hitRate === null ? "—" : `${(g.hitRate * 100).toFixed(1)}%`} · {g.rows.length} {g.rows.length === 1 ? "row" : "rows"}
+                  </span>
+                  <a href={`${dayHref}#${nbaArchiveGameAnchor(g.gameId)}`} className="basis-full text-[13px] no-underline" data-archive-link={g.gameId}
+                    style={{ color: "var(--vault-gold-bright)", minHeight: 44, display: "inline-flex", alignItems: "center" }}>
+                    Every player row for {g.matchup} on {latest.date} →
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })()}
 
       {latest.report && (
         <section className="mt-10">

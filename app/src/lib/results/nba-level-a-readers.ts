@@ -23,6 +23,11 @@ export function levelARecordView(dir: string = LEVEL_A_DIR) {
   return levelARecord(readJsonl(path.join(dir, "suggestions.jsonl")), readJsonl(path.join(dir, "graded.jsonl")));
 }
 
+/** ET dates with a published NBA lane file — each gets a /results/date/<d>/ page carrying that day's games. */
+export function nbaOfficialForecastDates(dataRoot: string = path.join(process.cwd(), "public", "data")): string[] {
+  try { return fs.readdirSync(path.join(dataRoot, "nba", "experimental-public")).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).map((f) => f.slice(0, 10)).sort(); } catch { return []; }
+}
+
 export function nbaForecastVsActualView(dataRoot: string = path.join(process.cwd(), "public", "data")) {
   const laneDir = path.join(dataRoot, "nba", "experimental-public");
   let days: any[] = [];

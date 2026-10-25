@@ -260,7 +260,7 @@ export default function SettledGameDetail({
                     {r.outcome}
                   </span>
                   {r.bookmaker && (
-                    <span className="ml-2 sgd-odds">
+                    <span className="sgd-odds">
                       {fmtOdds(r.oddsForSide)} · {r.bookmaker}
                     </span>
                   )}
@@ -284,7 +284,7 @@ function Th({
   return (
     <th
       scope="col"
-      className={`px-3 sm:px-4 py-2 sgd-th${align === "right" ? " sgd-r" : ""}`}
+      className={`sgd-th${align === "right" ? " sgd-r" : ""}`}
     >
       {children}
     </th>
@@ -300,7 +300,7 @@ function Td({
 }) {
   return (
     <td
-      className={`px-3 sm:px-4 py-2 sgd-td${align === "right" ? " sgd-r" : ""}`}
+      className={`sgd-td${align === "right" ? " sgd-r" : ""}`}
     >
       {children}
     </td>

@@ -172,3 +172,30 @@ test("🔴 the pages carry both records", async () => {
   const { POLICY_LABEL } = await import("./level-a-record.mjs");
   assert.ok(Object.values(POLICY_LABEL).every((l) => !/Parlay Lab|Picks Lab|Build-a-Pick/.test(l)), "no retired destination name (public-vocabulary.test)");
 });
+
+test("🔴 page weight: /results/nba lists the newest 7 days game by game; every older day is one line linking to its own day page", () => {
+  const days = Array.from({ length: 10 }, (_, i) => `2031-07-${String(1 + i).padStart(2, "0")}`);
+  const v = nbaForecastVsActual(days.map((d) => lane(d, `${d}T14:00:00Z`, [g(`${d}-1`, "MIL", "WSH", "WSH", { etDate: d, tipUtc: `${d}T23:00Z`, frozenAt: `${d}T12:00:00Z` })])),
+    { finals: days.map((d) => fin(`${d}-1`, 116, 128, "WAS", "MIL")), conflicts: [] });
+  const h = renderToStaticMarkup(React.createElement(NbaForecastVsActual, { view: v }));
+  assert.equal((h.match(/data-nba-day=/g) ?? []).length, 7);
+  assert.equal((h.match(/data-game=/g) ?? []).length, 7, "only listed days carry game rows");
+  assert.match(h, /The newest 7 of 10 days are listed game by game; every game is in the counts above/);
+  for (const d of ["2031-07-01", "2031-07-02", "2031-07-03"]) assert.match(h, new RegExp(`href="/results/date/${d}/#official-forecast"`));
+  assert.match(h, /won 10 and lost 0 of 10 decided/, "the counts still cover every day");
+  const day = renderToStaticMarkup(React.createElement(NbaForecastVsActual, { view: v, date: "2031-07-02" }));
+  assert.deepEqual([...day.matchAll(/data-nba-day="([^"]+)"/g)].map((m) => m[1]), ["2031-07-02"], "a day page lists only its own day");
+  assert.match(day, /NBA · Official Forecast vs final/);
+  assert.match(day, /Model Performance · season to date:/);
+  assert.doesNotMatch(day, /data-nba-older-days/);
+});
+
+test("🔴 every NBA lane day has a statically generated day page carrying its games", async () => {
+  const page = fs.readFileSync(path.join(process.cwd(), "src/app/results/date/[date]/page.tsx"), "utf8");
+  assert.match(page, /\.\.\.nbaOfficialForecastDates\(\)[^\n]*\]\)\)\.sort\(\)/, "generateStaticParams enumerates the lane days");
+  assert.match(page, /dayDates = new Set\(\[[^\n]*\.\.\.nbaOfficialForecastDates\(\)[^\n]*\]\)/, "the 404 gate accepts a lane day");
+  assert.match(page, /<NbaForecastVsActual view=\{nbaForecastVsActualView\(\)\} date=\{date\} \/>/);
+  const { nbaOfficialForecastDates } = await import("./nba-level-a-readers.ts");
+  const dates = nbaOfficialForecastDates();
+  assert.ok(dates.length >= 4 && dates.every((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)));
+});
