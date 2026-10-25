@@ -4,17 +4,17 @@
  "dataClass": "FORECAST_PUBLIC",
  "public": true,
  "competition": "epl",
- "generatedAt": "2026-10-25T15:40:56Z",
+ "generatedAt": "2026-10-25T18:04:07Z",
  "oddsCapturedAt": "2026-10-25T15:40:37Z",
  "counts": {
-  "CURRENT_PRE_EVENT": 1
+  "CURRENT_PRE_EVENT": 10
  },
  "validation": "VALIDATED_OUT_OF_SAMPLE_HISTORY",
  "validationNote": "Tested blind on nine past Premier League seasons (2013-14 to 2021-22, 3,420 matches) it was never fit on, where it beat the previous model and a plain rating system. Its total-goals numbers follow the league's recent scoring rate, so they are the same for every match — in that test they were more accurate than the previous model's team-by-team totals. Its live record this season is still being graded.",
- "trackRecord": "35 Premier League matches have been graded under this model — far too few to support any accuracy claim. No live win rate or accuracy figure is quoted until its season record is large enough to mean something. 36 matches were graded under the model this one replaced; that record is kept separately and is not evidence for this model.",
+ "trackRecord": "39 Premier League matches have been graded under this model — far too few to support any accuracy claim. No live win rate or accuracy figure is quoted until its season record is large enough to mean something. 36 matches were graded under the model this one replaced; that record is kept separately and is not evidence for this model.",
  "gradedRecord": {
   "modelId": "epl-model-v2-elo-poisson",
-  "gradedUnderThisModel": 35,
+  "gradedUnderThisModel": 39,
   "priorModels": [
    {
     "modelId": "epl-model-v1-split-poisson",
@@ -22,27 +22,567 @@
    }
   ],
   "unattributed": 0,
-  "ledgerTotal": 71,
+  "ledgerTotal": 75,
   "note": "Counts by the modelId on each graded row. Figures for the live model exist only over its own rows; a previous model's record is not this model's evidence."
  },
  "note": "Model distributions only — not picks, not advice, and not compared against a price.",
  "rows": [
   {
-   "eventId": "soccer:epl:leeds-united-v-sunderland:20261025t1630",
-   "matchup": "Sunderland v Leeds United",
-   "homeClub": "Sunderland",
-   "awayClub": "Leeds United",
-   "slug": "sunderland-v-leeds-united-2026-10-25",
-   "kickoffUtc": "2026-10-25T16:30:00Z",
-   "matchweek": 8,
+   "eventId": "soccer:epl:chelsea-v-manchester-united:20261031t1230",
+   "matchup": "Chelsea v Manchester United",
+   "homeClub": "Chelsea",
+   "awayClub": "Manchester United",
+   "slug": "chelsea-v-manchester-united-2026-10-31",
+   "kickoffUtc": "2026-10-31T12:30:00Z",
+   "matchweek": 9,
    "state": "CURRENT_PRE_EVENT",
    "unavailableReason": null,
    "modelOnly": false,
    "sparseInput": null,
    "probs": {
-    "home": 0.393684,
-    "draw": 0.252799,
-    "away": 0.353517
+    "home": 0.380347,
+    "draw": 0.253047,
+    "away": 0.366606
+   },
+   "expectedGoals": 2.7947,
+   "over25": 0.529291,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "lambdas": {
+    "home": 1.4125,
+    "away": 1.3822
+   },
+   "totals": {
+    "expected": 2.7947,
+    "over25": 0.529291,
+    "under25": 0.470709,
+    "quantiles": {
+     "p10": 1,
+     "p25": 2,
+     "p50": 3,
+     "p75": 4,
+     "p90": 5
+    },
+    "distribution": [
+     0.061131,
+     0.170845,
+     0.238733,
+     0.222399,
+     0.155387,
+     0.086853,
+     0.040455,
+     0.016152,
+     0.005642,
+     0.001752,
+     0.00049,
+     0.000124,
+     0.000029,
+     0.000006,
+     0.000001,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "ladder": [
+     {
+      "line": 0.5,
+      "over": 0.938869,
+      "under": 0.061131
+     },
+     {
+      "line": 1.5,
+      "over": 0.768024,
+      "under": 0.231976
+     },
+     {
+      "line": 2.5,
+      "over": 0.529291,
+      "under": 0.470709
+     },
+     {
+      "line": 3.5,
+      "over": 0.306891,
+      "under": 0.693109
+     },
+     {
+      "line": 4.5,
+      "over": 0.151505,
+      "under": 0.848495
+     }
+    ]
+   },
+   "teamGoals": {
+    "home": {
+     "expected": 1.4125,
+     "distribution": [
+      0.243532,
+      0.343991,
+      0.242945,
+      0.114387,
+      0.040393,
+      0.011411,
+      0.002686,
+      0.000542,
+      0.000096,
+      0.000015,
+      0.000002
+     ]
+    },
+    "away": {
+     "expected": 1.3822,
+     "distribution": [
+      0.251018,
+      0.346965,
+      0.239793,
+      0.110483,
+      0.038178,
+      0.010554,
+      0.002431,
+      0.00048,
+      0.000083,
+      0.000013,
+      0.000002
+     ]
+    }
+   },
+   "btts": {
+    "yes": 0.566581,
+    "no": 0.433419
+   },
+   "cleanSheet": {
+    "home": 0.251018,
+    "away": 0.243532
+   },
+   "doubleChance": {
+    "homeOrDraw": 0.633394,
+    "drawOrAway": 0.619653,
+    "homeOrAway": 0.746953
+   },
+   "margin": {
+    "expected": 0.0303,
+    "distribution": [
+     {
+      "margin": -10,
+      "p": 0
+     },
+     {
+      "margin": -9,
+      "p": 0.000004
+     },
+     {
+      "margin": -8,
+      "p": 0.000025
+     },
+     {
+      "margin": -7,
+      "p": 0.000149
+     },
+     {
+      "margin": -6,
+      "p": 0.000779
+     },
+     {
+      "margin": -5,
+      "p": 0.003533
+     },
+     {
+      "margin": -4,
+      "p": 0.013577
+     },
+     {
+      "margin": -3,
+      "p": 0.042902
+     },
+     {
+      "margin": -2,
+      "p": 0.106989
+     },
+     {
+      "margin": -1,
+      "p": 0.198647
+     },
+     {
+      "margin": 0,
+      "p": 0.253047
+     },
+     {
+      "margin": 1,
+      "p": 0.202998
+     },
+     {
+      "margin": 2,
+      "p": 0.111727
+     },
+     {
+      "margin": 3,
+      "p": 0.045783
+     },
+     {
+      "margin": 4,
+      "p": 0.014806
+     },
+     {
+      "margin": 5,
+      "p": 0.003938
+     },
+     {
+      "margin": 6,
+      "p": 0.000887
+     },
+     {
+      "margin": 7,
+      "p": 0.000173
+     },
+     {
+      "margin": 8,
+      "p": 0.00003
+     },
+     {
+      "margin": 9,
+      "p": 0.000005
+     },
+     {
+      "margin": 10,
+      "p": 0.000001
+     }
+    ]
+   },
+   "topScorelines": [
+    {
+     "score": "1-1",
+     "p": 0.119353
+    },
+    {
+     "score": "1-0",
+     "p": 0.086348
+    },
+    {
+     "score": "0-1",
+     "p": 0.084497
+    },
+    {
+     "score": "2-1",
+     "p": 0.084293
+    },
+    {
+     "score": "1-2",
+     "p": 0.082487
+    },
+    {
+     "score": "0-0",
+     "p": 0.061131
+    },
+    {
+     "score": "2-0",
+     "p": 0.060983
+    },
+    {
+     "score": "0-2",
+     "p": 0.058397
+    },
+    {
+     "score": "2-2",
+     "p": 0.058256
+    },
+    {
+     "score": "3-1",
+     "p": 0.039688
+    }
+   ],
+   "topScorelinesMass": 0.735434,
+   "modelId": "epl-model-v2-elo-poisson"
+  },
+  {
+   "eventId": "soccer:epl:brighton-hove-albion-v-manchester-city:20261031t1500",
+   "matchup": "Manchester City v Brighton & Hove Albion",
+   "homeClub": "Manchester City",
+   "awayClub": "Brighton & Hove Albion",
+   "slug": "manchester-city-v-brighton-and-hove-albion-2026-10-31",
+   "kickoffUtc": "2026-10-31T15:00:00Z",
+   "matchweek": 9,
+   "state": "CURRENT_PRE_EVENT",
+   "unavailableReason": null,
+   "modelOnly": false,
+   "sparseInput": null,
+   "probs": {
+    "home": 0.628076,
+    "draw": 0.213185,
+    "away": 0.158739
+   },
+   "expectedGoals": 2.7947,
+   "over25": 0.529288,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "lambdas": {
+    "home": 1.9395,
+    "away": 0.8552
+   },
+   "totals": {
+    "expected": 2.7947,
+    "over25": 0.529288,
+    "under25": 0.470712,
+    "quantiles": {
+     "p10": 1,
+     "p25": 2,
+     "p50": 3,
+     "p75": 4,
+     "p90": 5
+    },
+    "distribution": [
+     0.061131,
+     0.170846,
+     0.238735,
+     0.2224,
+     0.155388,
+     0.086853,
+     0.040455,
+     0.016152,
+     0.005642,
+     0.001752,
+     0.00049,
+     0.000122,
+     0.000027,
+     0.000005,
+     0.000001,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "ladder": [
+     {
+      "line": 0.5,
+      "over": 0.938869,
+      "under": 0.061131
+     },
+     {
+      "line": 1.5,
+      "over": 0.768023,
+      "under": 0.231977
+     },
+     {
+      "line": 2.5,
+      "over": 0.529288,
+      "under": 0.470712
+     },
+     {
+      "line": 3.5,
+      "over": 0.306887,
+      "under": 0.693113
+     },
+     {
+      "line": 4.5,
+      "over": 0.1515,
+      "under": 0.8485
+     }
+    ]
+   },
+   "teamGoals": {
+    "home": {
+     "expected": 1.9395,
+     "distribution": [
+      0.143772,
+      0.27885,
+      0.27042,
+      0.17483,
+      0.084772,
+      0.032884,
+      0.01063,
+      0.002945,
+      0.000714,
+      0.000154,
+      0.00003
+     ]
+    },
+    "away": {
+     "expected": 0.8552,
+     "distribution": [
+      0.425197,
+      0.36363,
+      0.155488,
+      0.044325,
+      0.009477,
+      0.001621,
+      0.000231,
+      0.000028,
+      0.000003,
+      0,
+      0
+     ]
+    }
+   },
+   "btts": {
+    "yes": 0.492162,
+    "no": 0.507838
+   },
+   "cleanSheet": {
+    "home": 0.425197,
+    "away": 0.143772
+   },
+   "doubleChance": {
+    "homeOrDraw": 0.841261,
+    "drawOrAway": 0.371924,
+    "homeOrAway": 0.786815
+   },
+   "margin": {
+    "expected": 1.0843,
+    "distribution": [
+     {
+      "margin": -10,
+      "p": 0
+     },
+     {
+      "margin": -9,
+      "p": 0
+     },
+     {
+      "margin": -8,
+      "p": 0.000001
+     },
+     {
+      "margin": -7,
+      "p": 0.000005
+     },
+     {
+      "margin": -6,
+      "p": 0.000042
+     },
+     {
+      "margin": -5,
+      "p": 0.000306
+     },
+     {
+      "margin": -4,
+      "p": 0.001882
+     },
+     {
+      "margin": -3,
+      "p": 0.009496
+     },
+     {
+      "margin": -2,
+      "p": 0.037581
+     },
+     {
+      "margin": -1,
+      "p": 0.109426
+     },
+     {
+      "margin": 0,
+      "p": 0.213185
+     },
+     {
+      "margin": 1,
+      "p": 0.24817
+     },
+     {
+      "margin": 2,
+      "p": 0.193299
+     },
+     {
+      "margin": 3,
+      "p": 0.110776
+     },
+     {
+      "margin": 4,
+      "p": 0.049793
+     },
+     {
+      "margin": 5,
+      "p": 0.018338
+     },
+     {
+      "margin": 6,
+      "p": 0.005709
+     },
+     {
+      "margin": 7,
+      "p": 0.001537
+     },
+     {
+      "margin": 8,
+      "p": 0.000364
+     },
+     {
+      "margin": 9,
+      "p": 0.000076
+     },
+     {
+      "margin": 10,
+      "p": 0.000013
+     }
+    ]
+   },
+   "topScorelines": [
+    {
+     "score": "1-0",
+     "p": 0.118566
+    },
+    {
+     "score": "2-0",
+     "p": 0.114982
+    },
+    {
+     "score": "1-1",
+     "p": 0.101398
+    },
+    {
+     "score": "2-1",
+     "p": 0.098333
+    },
+    {
+     "score": "3-0",
+     "p": 0.074337
+    },
+    {
+     "score": "3-1",
+     "p": 0.063573
+    },
+    {
+     "score": "0-0",
+     "p": 0.061131
+    },
+    {
+     "score": "0-1",
+     "p": 0.05228
+    },
+    {
+     "score": "1-2",
+     "p": 0.043358
+    },
+    {
+     "score": "2-2",
+     "p": 0.042047
+    }
+   ],
+   "topScorelinesMass": 0.770005,
+   "modelId": "epl-model-v2-elo-poisson"
+  },
+  {
+   "eventId": "soccer:epl:bournemouth-v-leeds-united:20261031t1500",
+   "matchup": "Bournemouth v Leeds United",
+   "homeClub": "Bournemouth",
+   "awayClub": "Leeds United",
+   "slug": "bournemouth-v-leeds-united-2026-10-31",
+   "kickoffUtc": "2026-10-31T15:00:00Z",
+   "matchweek": 9,
+   "state": "CURRENT_PRE_EVENT",
+   "unavailableReason": null,
+   "modelOnly": false,
+   "sparseInput": null,
+   "probs": {
+    "home": 0.519627,
+    "draw": 0.239369,
+    "away": 0.241003
    },
    "expectedGoals": 2.7947,
    "over25": 0.52929,
@@ -51,8 +591,278 @@
     "away": false
    },
    "lambdas": {
-    "home": 1.4416,
-    "away": 1.3531
+    "home": 1.7092,
+    "away": 1.0856
+   },
+   "totals": {
+    "expected": 2.7947,
+    "over25": 0.52929,
+    "under25": 0.47071,
+    "quantiles": {
+     "p10": 1,
+     "p25": 2,
+     "p50": 3,
+     "p75": 4,
+     "p90": 5
+    },
+    "distribution": [
+     0.061131,
+     0.170845,
+     0.238734,
+     0.222399,
+     0.155387,
+     0.086853,
+     0.040455,
+     0.016152,
+     0.005642,
+     0.001752,
+     0.00049,
+     0.000124,
+     0.000028,
+     0.000006,
+     0.000001,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "ladder": [
+     {
+      "line": 0.5,
+      "over": 0.938869,
+      "under": 0.061131
+     },
+     {
+      "line": 1.5,
+      "over": 0.768024,
+      "under": 0.231976
+     },
+     {
+      "line": 2.5,
+      "over": 0.52929,
+      "under": 0.47071
+     },
+     {
+      "line": 3.5,
+      "over": 0.30689,
+      "under": 0.69311
+     },
+     {
+      "line": 4.5,
+      "over": 0.151504,
+      "under": 0.848496
+     }
+    ]
+   },
+   "teamGoals": {
+    "home": {
+     "expected": 1.7092,
+     "distribution": [
+      0.181016,
+      0.309388,
+      0.264398,
+      0.150634,
+      0.064365,
+      0.022002,
+      0.006268,
+      0.00153,
+      0.000327,
+      0.000062,
+      0.000011
+     ]
+    },
+    "away": {
+     "expected": 1.0856,
+     "distribution": [
+      0.33771,
+      0.366607,
+      0.198988,
+      0.072005,
+      0.019542,
+      0.004243,
+      0.000768,
+      0.000119,
+      0.000016,
+      0.000002,
+      0
+     ]
+    }
+   },
+   "btts": {
+    "yes": 0.542405,
+    "no": 0.457595
+   },
+   "cleanSheet": {
+    "home": 0.33771,
+    "away": 0.181016
+   },
+   "doubleChance": {
+    "homeOrDraw": 0.758997,
+    "drawOrAway": 0.480373,
+    "homeOrAway": 0.760631
+   },
+   "margin": {
+    "expected": 0.6236,
+    "distribution": [
+     {
+      "margin": -10,
+      "p": 0
+     },
+     {
+      "margin": -9,
+      "p": 0
+     },
+     {
+      "margin": -8,
+      "p": 0.000004
+     },
+     {
+      "margin": -7,
+      "p": 0.000027
+     },
+     {
+      "margin": -6,
+      "p": 0.00018
+     },
+     {
+      "margin": -5,
+      "p": 0.00104
+     },
+     {
+      "margin": -4,
+      "p": 0.005072
+     },
+     {
+      "margin": -3,
+      "p": 0.020325
+     },
+     {
+      "margin": -2,
+      "p": 0.064156
+     },
+     {
+      "margin": -1,
+      "p": 0.150199
+     },
+     {
+      "margin": 0,
+      "p": 0.239369
+     },
+     {
+      "margin": 1,
+      "p": 0.23648
+     },
+     {
+      "margin": 2,
+      "p": 0.159035
+     },
+     {
+      "margin": 3,
+      "p": 0.079328
+     },
+     {
+      "margin": 4,
+      "p": 0.031167
+     },
+     {
+      "margin": 5,
+      "p": 0.010057
+     },
+     {
+      "margin": 6,
+      "p": 0.002747
+     },
+     {
+      "margin": 7,
+      "p": 0.00065
+     },
+     {
+      "margin": 8,
+      "p": 0.000135
+     },
+     {
+      "margin": 9,
+      "p": 0.000025
+     },
+     {
+      "margin": 10,
+      "p": 0.000004
+     }
+    ]
+   },
+   "topScorelines": [
+    {
+     "score": "1-1",
+     "p": 0.113424
+    },
+    {
+     "score": "1-0",
+     "p": 0.104483
+    },
+    {
+     "score": "2-1",
+     "p": 0.09693
+    },
+    {
+     "score": "2-0",
+     "p": 0.08929
+    },
+    {
+     "score": "0-1",
+     "p": 0.066362
+    },
+    {
+     "score": "1-2",
+     "p": 0.061565
+    },
+    {
+     "score": "0-0",
+     "p": 0.061131
+    },
+    {
+     "score": "3-1",
+     "p": 0.055223
+    },
+    {
+     "score": "2-2",
+     "p": 0.052612
+    },
+    {
+     "score": "3-0",
+     "p": 0.05087
+    }
+   ],
+   "topScorelinesMass": 0.751891,
+   "modelId": "epl-model-v2-elo-poisson"
+  },
+  {
+   "eventId": "soccer:epl:coventry-city-v-sunderland:20261031t1500",
+   "matchup": "Coventry City v Sunderland",
+   "homeClub": "Coventry City",
+   "awayClub": "Sunderland",
+   "slug": "coventry-city-v-sunderland-2026-10-31",
+   "kickoffUtc": "2026-10-31T15:00:00Z",
+   "matchweek": 9,
+   "state": "CURRENT_PRE_EVENT",
+   "unavailableReason": null,
+   "modelOnly": false,
+   "sparseInput": null,
+   "probs": {
+    "home": 0.350235,
+    "draw": 0.252698,
+    "away": 0.397068
+   },
+   "expectedGoals": 2.7947,
+   "over25": 0.52929,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "lambdas": {
+    "home": 1.3458,
+    "away": 1.449
    },
    "totals": {
     "expected": 2.7947,
@@ -118,53 +928,863 @@
    },
    "teamGoals": {
     "home": {
-     "expected": 1.4416,
+     "expected": 1.3458,
      "distribution": [
-      0.236543,
-      0.341006,
-      0.245802,
-      0.118118,
-      0.042571,
-      0.012274,
-      0.002949,
-      0.000607,
-      0.000109,
+      0.260342,
+      0.350358,
+      0.235748,
+      0.105753,
+      0.03558,
+      0.009576,
+      0.002148,
+      0.000413,
+      0.000069,
+      0.00001,
+      0.000001
+     ]
+    },
+    "away": {
+     "expected": 1.449,
+     "distribution": [
+      0.23481,
+      0.340235,
+      0.246496,
+      0.119056,
+      0.043127,
+      0.012498,
+      0.003018,
+      0.000625,
+      0.000113,
+      0.000018,
+      0.000003
+     ]
+    }
+   },
+   "btts": {
+    "yes": 0.565979,
+    "no": 0.434021
+   },
+   "cleanSheet": {
+    "home": 0.23481,
+    "away": 0.260342
+   },
+   "doubleChance": {
+    "homeOrDraw": 0.602932,
+    "drawOrAway": 0.649765,
+    "homeOrAway": 0.747302
+   },
+   "margin": {
+    "expected": -0.1032,
+    "distribution": [
+     {
+      "margin": -10,
+      "p": 0.000001
+     },
+     {
+      "margin": -9,
+      "p": 0.000006
+     },
+     {
+      "margin": -8,
+      "p": 0.000036
+     },
+     {
+      "margin": -7,
+      "p": 0.000207
+     },
+     {
+      "margin": -6,
+      "p": 0.001033
+     },
+     {
+      "margin": -5,
+      "p": 0.004471
+     },
+     {
+      "margin": -4,
+      "p": 0.016389
+     },
+     {
+      "margin": -3,
+      "p": 0.049394
+     },
+     {
+      "margin": -2,
+      "p": 0.117488
+     },
+     {
+      "margin": -1,
+      "p": 0.208043
+     },
+     {
+      "margin": 0,
+      "p": 0.252698
+     },
+     {
+      "margin": 1,
+      "p": 0.193222
+     },
+     {
+      "margin": 2,
+      "p": 0.101346
+     },
+     {
+      "margin": 3,
+      "p": 0.039572
+     },
+     {
+      "margin": 4,
+      "p": 0.012194
+     },
+     {
+      "margin": 5,
+      "p": 0.00309
+     },
+     {
+      "margin": 6,
+      "p": 0.000663
+     },
+     {
+      "margin": 7,
+      "p": 0.000123
+     },
+     {
+      "margin": 8,
+      "p": 0.00002
+     },
+     {
+      "margin": 9,
+      "p": 0.000003
+     },
+     {
+      "margin": 10,
+      "p": 0
+     }
+    ]
+   },
+   "topScorelines": [
+    {
+     "score": "1-1",
+     "p": 0.119204
+    },
+    {
+     "score": "0-1",
+     "p": 0.088577
+    },
+    {
+     "score": "1-2",
+     "p": 0.086362
+    },
+    {
+     "score": "1-0",
+     "p": 0.082268
+    },
+    {
+     "score": "2-1",
+     "p": 0.08021
+    },
+    {
+     "score": "0-2",
+     "p": 0.064173
+    },
+    {
+     "score": "0-0",
+     "p": 0.061131
+    },
+    {
+     "score": "2-2",
+     "p": 0.058111
+    },
+    {
+     "score": "2-0",
+     "p": 0.055356
+    },
+    {
+     "score": "1-3",
+     "p": 0.041712
+    }
+   ],
+   "topScorelinesMass": 0.737105,
+   "modelId": "epl-model-v2-elo-poisson"
+  },
+  {
+   "eventId": "soccer:epl:hull-city-v-ipswich-town:20261031t1500",
+   "matchup": "Hull City v Ipswich Town",
+   "homeClub": "Hull City",
+   "awayClub": "Ipswich Town",
+   "slug": "hull-city-v-ipswich-town-2026-10-31",
+   "kickoffUtc": "2026-10-31T15:00:00Z",
+   "matchweek": 9,
+   "state": "CURRENT_PRE_EVENT",
+   "unavailableReason": null,
+   "modelOnly": false,
+   "sparseInput": null,
+   "probs": {
+    "home": 0.496573,
+    "draw": 0.243247,
+    "away": 0.260181
+   },
+   "expectedGoals": 2.7947,
+   "over25": 0.52929,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "lambdas": {
+    "home": 1.6607,
+    "away": 1.134
+   },
+   "totals": {
+    "expected": 2.7947,
+    "over25": 0.52929,
+    "under25": 0.47071,
+    "quantiles": {
+     "p10": 1,
+     "p25": 2,
+     "p50": 3,
+     "p75": 4,
+     "p90": 5
+    },
+    "distribution": [
+     0.061131,
+     0.170845,
+     0.238734,
+     0.222399,
+     0.155387,
+     0.086853,
+     0.040455,
+     0.016152,
+     0.005642,
+     0.001752,
+     0.00049,
+     0.000124,
+     0.000028,
+     0.000006,
+     0.000001,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "ladder": [
+     {
+      "line": 0.5,
+      "over": 0.938869,
+      "under": 0.061131
+     },
+     {
+      "line": 1.5,
+      "over": 0.768024,
+      "under": 0.231976
+     },
+     {
+      "line": 2.5,
+      "over": 0.52929,
+      "under": 0.47071
+     },
+     {
+      "line": 3.5,
+      "over": 0.306891,
+      "under": 0.693109
+     },
+     {
+      "line": 4.5,
+      "over": 0.151504,
+      "under": 0.848496
+     }
+    ]
+   },
+   "teamGoals": {
+    "home": {
+     "expected": 1.6607,
+     "distribution": [
+      0.190004,
+      0.315542,
+      0.262012,
+      0.145042,
+      0.060218,
+      0.020001,
+      0.005536,
+      0.001313,
+      0.000273,
+      0.00005,
+      0.000008
+     ]
+    },
+    "away": {
+     "expected": 1.134,
+     "distribution": [
+      0.321736,
+      0.364856,
+      0.206878,
+      0.078201,
+      0.022171,
+      0.005028,
+      0.00095,
+      0.000154,
+      0.000022,
+      0.000003,
+      0
+     ]
+    }
+   },
+   "btts": {
+    "yes": 0.549391,
+    "no": 0.450609
+   },
+   "cleanSheet": {
+    "home": 0.321736,
+    "away": 0.190004
+   },
+   "doubleChance": {
+    "homeOrDraw": 0.739819,
+    "drawOrAway": 0.503427,
+    "homeOrAway": 0.756753
+   },
+   "margin": {
+    "expected": 0.5267,
+    "distribution": [
+     {
+      "margin": -10,
+      "p": 0
+     },
+     {
+      "margin": -9,
+      "p": 0.000001
+     },
+     {
+      "margin": -8,
+      "p": 0.000005
+     },
+     {
+      "margin": -7,
+      "p": 0.000037
+     },
+     {
+      "margin": -6,
+      "p": 0.000235
+     },
+     {
+      "margin": -5,
+      "p": 0.001299
+     },
+     {
+      "margin": -4,
+      "p": 0.006072
+     },
+     {
+      "margin": -3,
+      "p": 0.023319
+     },
+     {
+      "margin": -2,
+      "p": 0.070582
+     },
+     {
+      "margin": -1,
+      "p": 0.158631
+     },
+     {
+      "margin": 0,
+      "p": 0.243247
+     },
+     {
+      "margin": 1,
+      "p": 0.232306
+     },
+     {
+      "margin": 2,
+      "p": 0.15137
+     },
+     {
+      "margin": 3,
+      "p": 0.073238
+     },
+     {
+      "margin": 4,
+      "p": 0.027926
+     },
+     {
+      "margin": 5,
+      "p": 0.008749
+     },
+     {
+      "margin": 6,
+      "p": 0.002321
+     },
+     {
+      "margin": 7,
+      "p": 0.000533
+     },
+     {
+      "margin": 8,
+      "p": 0.000108
+     },
+     {
+      "margin": 9,
+      "p": 0.000019
+     },
+     {
+      "margin": 10,
+      "p": 0.000003
+     }
+    ]
+   },
+   "topScorelines": [
+    {
+     "score": "1-1",
+     "p": 0.115127
+    },
+    {
+     "score": "1-0",
+     "p": 0.101521
+    },
+    {
+     "score": "2-1",
+     "p": 0.095597
+    },
+    {
+     "score": "2-0",
+     "p": 0.084299
+    },
+    {
+     "score": "0-1",
+     "p": 0.069324
+    },
+    {
+     "score": "1-2",
+     "p": 0.065279
+    },
+    {
+     "score": "0-0",
+     "p": 0.061131
+    },
+    {
+     "score": "2-2",
+     "p": 0.054204
+    },
+    {
+     "score": "3-1",
+     "p": 0.05292
+    },
+    {
+     "score": "3-0",
+     "p": 0.046665
+    }
+   ],
+   "topScorelinesMass": 0.746067,
+   "modelId": "epl-model-v2-elo-poisson"
+  },
+  {
+   "eventId": "soccer:epl:brentford-v-nottingham-forest:20261031t1500",
+   "matchup": "Brentford v Nottingham Forest",
+   "homeClub": "Brentford",
+   "awayClub": "Nottingham Forest",
+   "slug": "brentford-v-nottingham-forest-2026-10-31",
+   "kickoffUtc": "2026-10-31T15:00:00Z",
+   "matchweek": 9,
+   "state": "CURRENT_PRE_EVENT",
+   "unavailableReason": null,
+   "modelOnly": false,
+   "sparseInput": null,
+   "probs": {
+    "home": 0.521723,
+    "draw": 0.238987,
+    "away": 0.23929
+   },
+   "expectedGoals": 2.7947,
+   "over25": 0.52929,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "lambdas": {
+    "home": 1.7136,
+    "away": 1.0812
+   },
+   "totals": {
+    "expected": 2.7947,
+    "over25": 0.52929,
+    "under25": 0.47071,
+    "quantiles": {
+     "p10": 1,
+     "p25": 2,
+     "p50": 3,
+     "p75": 4,
+     "p90": 5
+    },
+    "distribution": [
+     0.061131,
+     0.170845,
+     0.238734,
+     0.222399,
+     0.155387,
+     0.086853,
+     0.040455,
+     0.016152,
+     0.005642,
+     0.001752,
+     0.00049,
+     0.000124,
+     0.000028,
+     0.000006,
+     0.000001,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "ladder": [
+     {
+      "line": 0.5,
+      "over": 0.938869,
+      "under": 0.061131
+     },
+     {
+      "line": 1.5,
+      "over": 0.768024,
+      "under": 0.231976
+     },
+     {
+      "line": 2.5,
+      "over": 0.52929,
+      "under": 0.47071
+     },
+     {
+      "line": 3.5,
+      "over": 0.30689,
+      "under": 0.69311
+     },
+     {
+      "line": 4.5,
+      "over": 0.151504,
+      "under": 0.848496
+     }
+    ]
+   },
+   "teamGoals": {
+    "home": {
+     "expected": 1.7136,
+     "distribution": [
+      0.180221,
+      0.308822,
+      0.264594,
+      0.151134,
+      0.064745,
+      0.022189,
+      0.006337,
+      0.001551,
+      0.000332,
+      0.000063,
+      0.000011
+     ]
+    },
+    "away": {
+     "expected": 1.0812,
+     "distribution": [
+      0.3392,
+      0.366731,
+      0.198248,
+      0.071446,
+      0.019311,
+      0.004176,
+      0.000752,
+      0.000116,
+      0.000016,
+      0.000002,
+      0
+     ]
+    }
+   },
+   "btts": {
+    "yes": 0.54171,
+    "no": 0.45829
+   },
+   "cleanSheet": {
+    "home": 0.3392,
+    "away": 0.180221
+   },
+   "doubleChance": {
+    "homeOrDraw": 0.76071,
+    "drawOrAway": 0.478277,
+    "homeOrAway": 0.761013
+   },
+   "margin": {
+    "expected": 0.6324,
+    "distribution": [
+     {
+      "margin": -10,
+      "p": 0
+     },
+     {
+      "margin": -9,
+      "p": 0
+     },
+     {
+      "margin": -8,
+      "p": 0.000003
+     },
+     {
+      "margin": -7,
+      "p": 0.000026
+     },
+     {
+      "margin": -6,
+      "p": 0.000176
+     },
+     {
+      "margin": -5,
+      "p": 0.001018
+     },
+     {
+      "margin": -4,
+      "p": 0.004988
+     },
+     {
+      "margin": -3,
+      "p": 0.020066
+     },
+     {
+      "margin": -2,
+      "p": 0.063585
+     },
+     {
+      "margin": -1,
+      "p": 0.149427
+     },
+     {
+      "margin": 0,
+      "p": 0.238987
+     },
+     {
+      "margin": 1,
+      "p": 0.236832
+     },
+     {
+      "margin": 2,
+      "p": 0.159726
+     },
+     {
+      "margin": 3,
+      "p": 0.079892
+     },
+     {
+      "margin": 4,
+      "p": 0.031473
+     },
+     {
+      "margin": 5,
+      "p": 0.010183
+     },
+     {
+      "margin": 6,
+      "p": 0.002789
+     },
+     {
+      "margin": 7,
+      "p": 0.000661
+     },
+     {
+      "margin": 8,
+      "p": 0.000138
+     },
+     {
+      "margin": 9,
+      "p": 0.000025
+     },
+     {
+      "margin": 10,
+      "p": 0.000004
+     }
+    ]
+   },
+   "topScorelines": [
+    {
+     "score": "1-1",
+     "p": 0.113255
+    },
+    {
+     "score": "1-0",
+     "p": 0.104753
+    },
+    {
+     "score": "2-1",
+     "p": 0.097035
+    },
+    {
+     "score": "2-0",
+     "p": 0.089751
+    },
+    {
+     "score": "0-1",
+     "p": 0.066093
+    },
+    {
+     "score": "1-2",
+     "p": 0.061224
+    },
+    {
+     "score": "0-0",
+     "p": 0.061131
+    },
+    {
+     "score": "3-1",
+     "p": 0.055426
+    },
+    {
+     "score": "2-2",
+     "p": 0.052455
+    },
+    {
+     "score": "3-0",
+     "p": 0.051265
+    }
+   ],
+   "topScorelinesMass": 0.752386,
+   "modelId": "epl-model-v2-elo-poisson"
+  },
+  {
+   "eventId": "soccer:epl:crystal-palace-v-tottenham-hotspur:20261031t1730",
+   "matchup": "Tottenham Hotspur v Crystal Palace",
+   "homeClub": "Tottenham Hotspur",
+   "awayClub": "Crystal Palace",
+   "slug": "tottenham-hotspur-v-crystal-palace-2026-10-31",
+   "kickoffUtc": "2026-10-31T17:30:00Z",
+   "matchweek": 9,
+   "state": "CURRENT_PRE_EVENT",
+   "unavailableReason": null,
+   "modelOnly": false,
+   "sparseInput": null,
+   "probs": {
+    "home": 0.39551,
+    "draw": 0.252746,
+    "away": 0.351744
+   },
+   "expectedGoals": 2.7947,
+   "over25": 0.52929,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "lambdas": {
+    "home": 1.4456,
+    "away": 1.3491
+   },
+   "totals": {
+    "expected": 2.7947,
+    "over25": 0.52929,
+    "under25": 0.47071,
+    "quantiles": {
+     "p10": 1,
+     "p25": 2,
+     "p50": 3,
+     "p75": 4,
+     "p90": 5
+    },
+    "distribution": [
+     0.061131,
+     0.170845,
+     0.238733,
+     0.222399,
+     0.155387,
+     0.086853,
+     0.040455,
+     0.016152,
+     0.005642,
+     0.001752,
+     0.00049,
+     0.000124,
+     0.000029,
+     0.000006,
+     0.000001,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "ladder": [
+     {
+      "line": 0.5,
+      "over": 0.938869,
+      "under": 0.061131
+     },
+     {
+      "line": 1.5,
+      "over": 0.768024,
+      "under": 0.231976
+     },
+     {
+      "line": 2.5,
+      "over": 0.52929,
+      "under": 0.47071
+     },
+     {
+      "line": 3.5,
+      "over": 0.306891,
+      "under": 0.693109
+     },
+     {
+      "line": 4.5,
+      "over": 0.151505,
+      "under": 0.848495
+     }
+    ]
+   },
+   "teamGoals": {
+    "home": {
+     "expected": 1.4456,
+     "distribution": [
+      0.235606,
+      0.340591,
+      0.246178,
+      0.118625,
+      0.042871,
+      0.012395,
+      0.002986,
+      0.000617,
+      0.000111,
       0.000018,
       0.000003
      ]
     },
     "away": {
-     "expected": 1.3531,
+     "expected": 1.3491,
      "distribution": [
-      0.258436,
-      0.349691,
-      0.236585,
-      0.106709,
-      0.036097,
-      0.009769,
-      0.002203,
-      0.000426,
-      0.000072,
+      0.259463,
+      0.350052,
+      0.236135,
+      0.106193,
+      0.035817,
+      0.009665,
+      0.002173,
+      0.000419,
+      0.000071,
       0.000011,
       0.000001
      ]
     }
    },
    "btts": {
-    "yes": 0.566153,
-    "no": 0.433847
+    "yes": 0.566062,
+    "no": 0.433938
    },
    "cleanSheet": {
-    "home": 0.258436,
-    "away": 0.236543
+    "home": 0.259463,
+    "away": 0.235606
    },
    "doubleChance": {
-    "homeOrDraw": 0.646483,
-    "drawOrAway": 0.606316,
-    "homeOrAway": 0.747201
+    "homeOrDraw": 0.648256,
+    "drawOrAway": 0.60449,
+    "homeOrAway": 0.747254
    },
    "margin": {
-    "expected": 0.0885,
+    "expected": 0.0965,
     "distribution": [
      {
       "margin": -10,
@@ -180,71 +1800,71 @@
      },
      {
       "margin": -7,
-      "p": 0.000128
+      "p": 0.000126
      },
      {
       "margin": -6,
-      "p": 0.000685
+      "p": 0.000673
      },
      {
       "margin": -5,
-      "p": 0.003176
+      "p": 0.003129
      },
      {
       "margin": -4,
-      "p": 0.012465
+      "p": 0.012318
      },
      {
       "margin": -3,
-      "p": 0.040231
+      "p": 0.039875
      },
      {
       "margin": -2,
-      "p": 0.102477
+      "p": 0.101866
      },
      {
       "margin": -1,
-      "p": 0.194331
+      "p": 0.193734
      },
      {
       "margin": 0,
-      "p": 0.252799
+      "p": 0.252746
      },
      {
       "margin": 1,
-      "p": 0.207044
+      "p": 0.207584
      },
      {
       "margin": 2,
-      "p": 0.116323
+      "p": 0.116952
      },
      {
       "margin": 3,
-      "p": 0.048654
+      "p": 0.049053
      },
      {
       "margin": 4,
-      "p": 0.016061
+      "p": 0.016237
      },
      {
       "margin": 5,
-      "p": 0.004359
+      "p": 0.004419
      },
      {
       "margin": 6,
-      "p": 0.001002
+      "p": 0.001019
      },
      {
       "margin": 7,
-      "p": 0.0002
+      "p": 0.000204
      },
      {
       "margin": 8,
-      "p": 0.000035
+      "p": 0.000036
      },
      {
       "margin": 9,
-      "p": 0.000005
+      "p": 0.000006
      },
      {
       "margin": 10,
@@ -255,27 +1875,27 @@
    "topScorelines": [
     {
      "score": "1-1",
-     "p": 0.119247
+     "p": 0.119225
     },
     {
      "score": "1-0",
-     "p": 0.088128
+     "p": 0.088371
     },
     {
      "score": "2-1",
-     "p": 0.085955
+     "p": 0.086175
     },
     {
      "score": "0-1",
-     "p": 0.082717
+     "p": 0.082474
     },
     {
      "score": "1-2",
-     "p": 0.080677
+     "p": 0.080425
     },
     {
      "score": "2-0",
-     "p": 0.063524
+     "p": 0.063874
     },
     {
      "score": "0-0",
@@ -283,18 +1903,828 @@
     },
     {
      "score": "2-2",
-     "p": 0.058153
+     "p": 0.058131
     },
     {
      "score": "0-2",
-     "p": 0.055963
+     "p": 0.055635
     },
     {
      "score": "3-1",
-     "p": 0.041305
+     "p": 0.041525
     }
    ],
-   "topScorelinesMass": 0.7368,
+   "topScorelinesMass": 0.736966,
+   "modelId": "epl-model-v2-elo-poisson"
+  },
+  {
+   "eventId": "soccer:epl:aston-villa-v-fulham:20261031t2000",
+   "matchup": "Aston Villa v Fulham",
+   "homeClub": "Aston Villa",
+   "awayClub": "Fulham",
+   "slug": "aston-villa-v-fulham-2026-10-31",
+   "kickoffUtc": "2026-10-31T20:00:00Z",
+   "matchweek": 9,
+   "state": "CURRENT_PRE_EVENT",
+   "unavailableReason": null,
+   "modelOnly": false,
+   "sparseInput": null,
+   "probs": {
+    "home": 0.526539,
+    "draw": 0.238089,
+    "away": 0.235372
+   },
+   "expectedGoals": 2.7947,
+   "over25": 0.52929,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "lambdas": {
+    "home": 1.7237,
+    "away": 1.071
+   },
+   "totals": {
+    "expected": 2.7947,
+    "over25": 0.52929,
+    "under25": 0.47071,
+    "quantiles": {
+     "p10": 1,
+     "p25": 2,
+     "p50": 3,
+     "p75": 4,
+     "p90": 5
+    },
+    "distribution": [
+     0.061131,
+     0.170845,
+     0.238734,
+     0.222399,
+     0.155387,
+     0.086853,
+     0.040455,
+     0.016152,
+     0.005642,
+     0.001752,
+     0.00049,
+     0.000124,
+     0.000028,
+     0.000006,
+     0.000001,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "ladder": [
+     {
+      "line": 0.5,
+      "over": 0.938869,
+      "under": 0.061131
+     },
+     {
+      "line": 1.5,
+      "over": 0.768024,
+      "under": 0.231976
+     },
+     {
+      "line": 2.5,
+      "over": 0.52929,
+      "under": 0.47071
+     },
+     {
+      "line": 3.5,
+      "over": 0.30689,
+      "under": 0.69311
+     },
+     {
+      "line": 4.5,
+      "over": 0.151503,
+      "under": 0.848497
+     }
+    ]
+   },
+   "teamGoals": {
+    "home": {
+     "expected": 1.7237,
+     "distribution": [
+      0.178406,
+      0.307518,
+      0.265033,
+      0.152279,
+      0.065621,
+      0.022622,
+      0.006499,
+      0.0016,
+      0.000345,
+      0.000066,
+      0.000011
+     ]
+    },
+    "away": {
+     "expected": 1.071,
+     "distribution": [
+      0.342652,
+      0.366994,
+      0.196533,
+      0.070165,
+      0.018787,
+      0.004024,
+      0.000718,
+      0.00011,
+      0.000015,
+      0.000002,
+      0
+     ]
+    }
+   },
+   "btts": {
+    "yes": 0.540073,
+    "no": 0.459927
+   },
+   "cleanSheet": {
+    "home": 0.342652,
+    "away": 0.178406
+   },
+   "doubleChance": {
+    "homeOrDraw": 0.764628,
+    "drawOrAway": 0.473461,
+    "homeOrAway": 0.761911
+   },
+   "margin": {
+    "expected": 0.6526,
+    "distribution": [
+     {
+      "margin": -10,
+      "p": 0
+     },
+     {
+      "margin": -9,
+      "p": 0
+     },
+     {
+      "margin": -8,
+      "p": 0.000003
+     },
+     {
+      "margin": -7,
+      "p": 0.000025
+     },
+     {
+      "margin": -6,
+      "p": 0.000166
+     },
+     {
+      "margin": -5,
+      "p": 0.00097
+     },
+     {
+      "margin": -4,
+      "p": 0.004797
+     },
+     {
+      "margin": -3,
+      "p": 0.019479
+     },
+     {
+      "margin": -2,
+      "p": 0.062281
+     },
+     {
+      "margin": -1,
+      "p": 0.147649
+     },
+     {
+      "margin": 0,
+      "p": 0.238089
+     },
+     {
+      "margin": 1,
+      "p": 0.237622
+     },
+     {
+      "margin": 2,
+      "p": 0.161312
+     },
+     {
+      "margin": 3,
+      "p": 0.081195
+     },
+     {
+      "margin": 4,
+      "p": 0.032183
+     },
+     {
+      "margin": 5,
+      "p": 0.010477
+     },
+     {
+      "margin": 6,
+      "p": 0.002887
+     },
+     {
+      "margin": 7,
+      "p": 0.000689
+     },
+     {
+      "margin": 8,
+      "p": 0.000145
+     },
+     {
+      "margin": 9,
+      "p": 0.000027
+     },
+     {
+      "margin": 10,
+      "p": 0.000004
+     }
+    ]
+   },
+   "topScorelines": [
+    {
+     "score": "1-1",
+     "p": 0.112857
+    },
+    {
+     "score": "1-0",
+     "p": 0.105371
+    },
+    {
+     "score": "2-1",
+     "p": 0.097266
+    },
+    {
+     "score": "2-0",
+     "p": 0.090814
+    },
+    {
+     "score": "0-1",
+     "p": 0.065474
+    },
+    {
+     "score": "0-0",
+     "p": 0.061131
+    },
+    {
+     "score": "1-2",
+     "p": 0.060437
+    },
+    {
+     "score": "3-1",
+     "p": 0.055885
+    },
+    {
+     "score": "3-0",
+     "p": 0.052179
+    },
+    {
+     "score": "2-2",
+     "p": 0.052088
+    }
+   ],
+   "topScorelinesMass": 0.753502,
+   "modelId": "epl-model-v2-elo-poisson"
+  },
+  {
+   "eventId": "soccer:epl:arsenal-v-liverpool:20261101t1630",
+   "matchup": "Liverpool v Arsenal",
+   "homeClub": "Liverpool",
+   "awayClub": "Arsenal",
+   "slug": "liverpool-v-arsenal-2026-11-01",
+   "kickoffUtc": "2026-11-01T16:30:00Z",
+   "matchweek": 9,
+   "state": "CURRENT_PRE_EVENT",
+   "unavailableReason": null,
+   "modelOnly": false,
+   "sparseInput": null,
+   "probs": {
+    "home": 0.331035,
+    "draw": 0.251785,
+    "away": 0.41718
+   },
+   "expectedGoals": 2.7947,
+   "over25": 0.52929,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "lambdas": {
+    "home": 1.3023,
+    "away": 1.4924
+   },
+   "totals": {
+    "expected": 2.7947,
+    "over25": 0.52929,
+    "under25": 0.47071,
+    "quantiles": {
+     "p10": 1,
+     "p25": 2,
+     "p50": 3,
+     "p75": 4,
+     "p90": 5
+    },
+    "distribution": [
+     0.061131,
+     0.170845,
+     0.238733,
+     0.222399,
+     0.155387,
+     0.086853,
+     0.040455,
+     0.016152,
+     0.005642,
+     0.001752,
+     0.00049,
+     0.000124,
+     0.000029,
+     0.000006,
+     0.000001,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "ladder": [
+     {
+      "line": 0.5,
+      "over": 0.938869,
+      "under": 0.061131
+     },
+     {
+      "line": 1.5,
+      "over": 0.768024,
+      "under": 0.231976
+     },
+     {
+      "line": 2.5,
+      "over": 0.52929,
+      "under": 0.47071
+     },
+     {
+      "line": 3.5,
+      "over": 0.306891,
+      "under": 0.693109
+     },
+     {
+      "line": 4.5,
+      "over": 0.151505,
+      "under": 0.848495
+     }
+    ]
+   },
+   "teamGoals": {
+    "home": {
+     "expected": 1.3023,
+     "distribution": [
+      0.271895,
+      0.3541,
+      0.230579,
+      0.100097,
+      0.03259,
+      0.008489,
+      0.001843,
+      0.000343,
+      0.000056,
+      0.000008,
+      0.000001
+     ]
+    },
+    "away": {
+     "expected": 1.4924,
+     "distribution": [
+      0.224833,
+      0.33554,
+      0.25038,
+      0.124555,
+      0.046472,
+      0.013871,
+      0.00345,
+      0.000736,
+      0.000137,
+      0.000023,
+      0.000003
+     ]
+    }
+   },
+   "btts": {
+    "yes": 0.564403,
+    "no": 0.435597
+   },
+   "cleanSheet": {
+    "home": 0.224833,
+    "away": 0.271895
+   },
+   "doubleChance": {
+    "homeOrDraw": 0.58282,
+    "drawOrAway": 0.668965,
+    "homeOrAway": 0.748215
+   },
+   "margin": {
+    "expected": -0.1901,
+    "distribution": [
+     {
+      "margin": -10,
+      "p": 0.000001
+     },
+     {
+      "margin": -9,
+      "p": 0.000007
+     },
+     {
+      "margin": -8,
+      "p": 0.000046
+     },
+     {
+      "margin": -7,
+      "p": 0.000254
+     },
+     {
+      "margin": -6,
+      "p": 0.001233
+     },
+     {
+      "margin": -5,
+      "p": 0.005177
+     },
+     {
+      "margin": -4,
+      "p": 0.018421
+     },
+     {
+      "margin": -3,
+      "p": 0.05389
+     },
+     {
+      "margin": -2,
+      "p": 0.124405
+     },
+     {
+      "margin": -1,
+      "p": 0.213745
+     },
+     {
+      "margin": 0,
+      "p": 0.251785
+     },
+     {
+      "margin": 1,
+      "p": 0.186525
+     },
+     {
+      "margin": 2,
+      "p": 0.094736
+     },
+     {
+      "margin": 3,
+      "p": 0.035812
+     },
+     {
+      "margin": 4,
+      "p": 0.010682
+     },
+     {
+      "margin": 5,
+      "p": 0.00262
+     },
+     {
+      "margin": 6,
+      "p": 0.000544
+     },
+     {
+      "margin": 7,
+      "p": 0.000098
+     },
+     {
+      "margin": 8,
+      "p": 0.000016
+     },
+     {
+      "margin": 9,
+      "p": 0.000002
+     },
+     {
+      "margin": 10,
+      "p": 0
+     }
+    ]
+   },
+   "topScorelines": [
+    {
+     "score": "1-1",
+     "p": 0.118815
+    },
+    {
+     "score": "0-1",
+     "p": 0.091232
+    },
+    {
+     "score": "1-2",
+     "p": 0.088659
+    },
+    {
+     "score": "1-0",
+     "p": 0.079613
+    },
+    {
+     "score": "2-1",
+     "p": 0.077369
+    },
+    {
+     "score": "0-2",
+     "p": 0.068077
+    },
+    {
+     "score": "0-0",
+     "p": 0.061131
+    },
+    {
+     "score": "2-2",
+     "p": 0.057732
+    },
+    {
+     "score": "2-0",
+     "p": 0.051842
+    },
+    {
+     "score": "1-3",
+     "p": 0.044105
+    }
+   ],
+   "topScorelinesMass": 0.738575,
+   "modelId": "epl-model-v2-elo-poisson"
+  },
+  {
+   "eventId": "soccer:epl:everton-v-newcastle-united:20261102t2000",
+   "matchup": "Newcastle United v Everton",
+   "homeClub": "Newcastle United",
+   "awayClub": "Everton",
+   "slug": "newcastle-united-v-everton-2026-11-02",
+   "kickoffUtc": "2026-11-02T20:00:00Z",
+   "matchweek": 9,
+   "state": "CURRENT_PRE_EVENT",
+   "unavailableReason": null,
+   "modelOnly": false,
+   "sparseInput": null,
+   "probs": {
+    "home": 0.460441,
+    "draw": 0.248079,
+    "away": 0.29148
+   },
+   "expectedGoals": 2.7947,
+   "over25": 0.52929,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "lambdas": {
+    "home": 1.5845,
+    "away": 1.2102
+   },
+   "totals": {
+    "expected": 2.7947,
+    "over25": 0.52929,
+    "under25": 0.47071,
+    "quantiles": {
+     "p10": 1,
+     "p25": 2,
+     "p50": 3,
+     "p75": 4,
+     "p90": 5
+    },
+    "distribution": [
+     0.061131,
+     0.170845,
+     0.238734,
+     0.222399,
+     0.155387,
+     0.086853,
+     0.040455,
+     0.016152,
+     0.005642,
+     0.001752,
+     0.00049,
+     0.000124,
+     0.000029,
+     0.000006,
+     0.000001,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "ladder": [
+     {
+      "line": 0.5,
+      "over": 0.938869,
+      "under": 0.061131
+     },
+     {
+      "line": 1.5,
+      "over": 0.768024,
+      "under": 0.231976
+     },
+     {
+      "line": 2.5,
+      "over": 0.52929,
+      "under": 0.47071
+     },
+     {
+      "line": 3.5,
+      "over": 0.306891,
+      "under": 0.693109
+     },
+     {
+      "line": 4.5,
+      "over": 0.151504,
+      "under": 0.848496
+     }
+    ]
+   },
+   "teamGoals": {
+    "home": {
+     "expected": 1.5845,
+     "distribution": [
+      0.205041,
+      0.324897,
+      0.257407,
+      0.135958,
+      0.053858,
+      0.017068,
+      0.004508,
+      0.00102,
+      0.000202,
+      0.000036,
+      0.000006
+     ]
+    },
+    "away": {
+     "expected": 1.2102,
+     "distribution": [
+      0.29814,
+      0.360807,
+      0.218323,
+      0.088071,
+      0.026646,
+      0.006449,
+      0.001301,
+      0.000225,
+      0.000034,
+      0.000005,
+      0.000001
+     ]
+    }
+   },
+   "btts": {
+    "yes": 0.55795,
+    "no": 0.44205
+   },
+   "cleanSheet": {
+    "home": 0.29814,
+    "away": 0.205041
+   },
+   "doubleChance": {
+    "homeOrDraw": 0.70852,
+    "drawOrAway": 0.539559,
+    "homeOrAway": 0.751921
+   },
+   "margin": {
+    "expected": 0.3743,
+    "distribution": [
+     {
+      "margin": -10,
+      "p": 0
+     },
+     {
+      "margin": -9,
+      "p": 0.000001
+     },
+     {
+      "margin": -8,
+      "p": 0.000009
+     },
+     {
+      "margin": -7,
+      "p": 0.000058
+     },
+     {
+      "margin": -6,
+      "p": 0.000349
+     },
+     {
+      "margin": -5,
+      "p": 0.001808
+     },
+     {
+      "margin": -4,
+      "p": 0.007926
+     },
+     {
+      "margin": -3,
+      "p": 0.028565
+     },
+     {
+      "margin": -2,
+      "p": 0.081189
+     },
+     {
+      "margin": -1,
+      "p": 0.171576
+     },
+     {
+      "margin": 0,
+      "p": 0.248079
+     },
+     {
+      "margin": 1,
+      "p": 0.22465
+     },
+     {
+      "margin": 2,
+      "p": 0.139187
+     },
+     {
+      "margin": 3,
+      "p": 0.064119
+     },
+     {
+      "margin": 4,
+      "p": 0.023295
+     },
+     {
+      "margin": 5,
+      "p": 0.006957
+     },
+     {
+      "margin": 6,
+      "p": 0.001759
+     },
+     {
+      "margin": 7,
+      "p": 0.000385
+     },
+     {
+      "margin": 8,
+      "p": 0.000074
+     },
+     {
+      "margin": 9,
+      "p": 0.000013
+     },
+     {
+      "margin": 10,
+      "p": 0.000002
+     }
+    ]
+   },
+   "topScorelines": [
+    {
+     "score": "1-1",
+     "p": 0.117225
+    },
+    {
+     "score": "1-0",
+     "p": 0.096865
+    },
+    {
+     "score": "2-1",
+     "p": 0.092874
+    },
+    {
+     "score": "2-0",
+     "p": 0.076743
+    },
+    {
+     "score": "0-1",
+     "p": 0.07398
+    },
+    {
+     "score": "1-2",
+     "p": 0.070932
+    },
+    {
+     "score": "0-0",
+     "p": 0.061131
+    },
+    {
+     "score": "2-2",
+     "p": 0.056198
+    },
+    {
+     "score": "3-1",
+     "p": 0.049055
+    },
+    {
+     "score": "0-2",
+     "p": 0.044765
+    }
+   ],
+   "topScorelinesMass": 0.739769,
    "modelId": "epl-model-v2-elo-poisson"
   }
  ]
