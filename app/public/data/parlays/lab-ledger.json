@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "parlay-lab-ledger",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-24T14:54:22Z",
+ "generatedAt": "2026-10-25T14:12:16Z",
  "moneyClass": "PAPER_ONLY",
  "note": "Paper stream with its own ledger. Never part of the Bank Builder / Moonshot bankroll or the settled product record.",
  "policy": {
@@ -15,11 +15,11 @@
    "id": "mlb",
    "label": "MLB",
    "live": false,
-   "blocked": "only 1 priced game — the ladder needs 4",
+   "blocked": "no price capture for 2026-10-25 yet — the sport's own generation runs later in the day (newest capture 2026-10-24); only 0 priced games — the ladder needs 4",
    "evidence": {
-    "pricedGames": 1,
-    "pricesCapturedAt": "2026-10-24T09:29:43.848Z",
-    "priceAgeDays": 0.23,
+    "pricedGames": 0,
+    "pricesCapturedAt": null,
+    "priceAgeDays": null,
     "settlementSource": "MLB Stats API official box score",
     "settlementProven": true,
     "capabilityGated": false
@@ -81,7 +81,7 @@
    "evidence": {
     "pricedGames": 0,
     "pricesCapturedAt": "2026-10-11T11:41:55Z",
-    "priceAgeDays": 13.13,
+    "priceAgeDays": 14.1,
     "settlementSource": "official NFL final scores",
     "settlementProven": true,
     "capabilityGated": false
@@ -139,11 +139,11 @@
    "id": "ufc",
    "label": "UFC",
    "live": false,
-   "blocked": "not cleared to publish model cards — the capability registry lists UFC as SCAFFOLD_ONLY, which may not show forward-looking model output: Formally downgraded 2026-07-23: the moneyline is a de-vigged market price with a capped nudge (no independent signal), and zero bouts are cleanly backtestable because there is no point-in-time pregame odds capture.",
+   "blocked": "not cleared to publish model cards — the capability registry lists UFC as SCAFFOLD_ONLY, which may not show forward-looking model output: Formally downgraded 2026-07-23: the moneyline is a de-vigged market price with a capped nudge (no independent signal), and zero bouts are cleanly backtestable because there is no point-in-time pregame odds capture.; only 0 priced games — the ladder needs 4",
    "evidence": {
-    "pricedGames": 13,
+    "pricedGames": 0,
     "pricesCapturedAt": "2026-10-22T15:45:46Z",
-    "priceAgeDays": 1.96,
+    "priceAgeDays": 2.94,
     "settlementSource": "official UFC bout results through the lab's own settled receipts",
     "settlementProven": true,
     "capabilityGated": true
@@ -202,22 +202,22 @@
    "label": "Premier League",
    "live": true,
    "evidence": {
-    "pricedGames": 17,
-    "pricesCapturedAt": "2026-10-24T13:32:04Z",
-    "priceAgeDays": 0.06,
+    "pricedGames": 22,
+    "pricesCapturedAt": "2026-10-24T22:50:10Z",
+    "priceAgeDays": 0.64,
     "settlementSource": "official full-time results, graded through the EPL settlement contract",
     "settlementProven": true,
     "capabilityGated": false
    },
-   "settledDays": 13,
+   "settledDays": 14,
    "record": {
     "wins": 8,
-    "losses": 11,
+    "losses": 12,
     "pushes": 0,
-    "staked": 19,
+    "staked": 20,
     "returned": 23.98,
-    "hitRate": 0.4211,
-    "roi": 0.2621
+    "hitRate": 0.4,
+    "roi": 0.199
    },
    "byTier": {
     "low": {
@@ -231,12 +231,12 @@
     },
     "medium": {
      "wins": 5,
-     "losses": 8,
+     "losses": 9,
      "pushes": 0,
-     "staked": 13,
+     "staked": 14,
      "returned": 13.18,
-     "hitRate": 0.3846,
-     "roi": 0.0138
+     "hitRate": 0.3571,
+     "roi": -0.0586
     },
     "high": {
      "wins": 2,

@@ -2,19 +2,19 @@
   "schemaVersion": 1,
   "artifact": "mlb-model-results-index",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-10-24T13:39:15Z",
+  "generatedAt": "2026-10-25T13:59:40Z",
   "sport": "mlb",
   "coverage": {
-    "dates": 128,
+    "dates": 129,
     "firstDate": "2026-05-16",
-    "lastDate": "2026-10-23",
-    "rows": 52930,
-    "wins": 25028,
-    "losses": 24740,
+    "lastDate": "2026-10-24",
+    "rows": 52971,
+    "wins": 25057,
+    "losses": 24752,
     "pushes": 0,
     "voids": 3162,
-    "decisive": 49768,
-    "games": 1397,
+    "decisive": 49809,
+    "games": 1398,
     "notOfRecord": 94,
     "note": "Every settled model pick this project has graded, one row per pick. Reconciled against graded-picks.json at build time; the build refuses if the two disagree. `games` counts the distinct games those picks came from — the rows are clustered within games and are not independent observations. `notOfRecord` counts earlier-board copies of re-issued leans (postponed games), kept in the raw ledger and counted once."
   },
@@ -6319,6 +6319,56 @@
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-10-23.json"
+    },
+    {
+      "date": "2026-10-24",
+      "sport": "mlb",
+      "rows": 41,
+      "wins": 29,
+      "losses": 12,
+      "pushes": 0,
+      "voids": 0,
+      "decisive": 41,
+      "games": 1,
+      "byMarket": {
+        "batter_hits": {
+          "rows": 18,
+          "wins": 14,
+          "losses": 4,
+          "pushes": 0,
+          "voids": 0,
+          "decisive": 18,
+          "games": 1
+        },
+        "batter_hits_runs_rbis": {
+          "rows": 18,
+          "wins": 14,
+          "losses": 4,
+          "pushes": 0,
+          "voids": 0,
+          "decisive": 18,
+          "games": 1
+        },
+        "batter_total_bases": {
+          "rows": 3,
+          "wins": 1,
+          "losses": 2,
+          "pushes": 0,
+          "voids": 0,
+          "decisive": 3,
+          "games": 1
+        },
+        "pitcher_strikeouts": {
+          "rows": 2,
+          "wins": 0,
+          "losses": 2,
+          "pushes": 0,
+          "voids": 0,
+          "decisive": 2,
+          "games": 1
+        }
+      },
+      "rowsUrl": "/data/mlb/results/model-rows/2026-10-24.json"
     }
   ]
 }

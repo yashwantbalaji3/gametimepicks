@@ -284,8 +284,9 @@ test("reader words: no engineering jargon in the hub's visible text outside the 
   assert.match(html, /<summary>Model details<\/summary>[\s\S]*nba-preseason-experimental-v0\.1/, "the model id is kept — in Model details");
   const visible = text(html.replace(/<details class="nbx-details">[\s\S]*?<\/details>/g, ""));
   assert.doesNotMatch(visible, /experimental|\blane\b|candidate|\bN2\b|v0\.\d|receipt|payload|roster-gated/i);
-  assert.match(visible, /PHI @ NYK/, "the forecast table prints the canonical codes the cards use (snapshot 'NY')");
-  assert.doesNotMatch(visible, /@ (NY|SA|GS|NO|UTAH|WSH)\b/);
+  // release owner 2026-10-25: one code per team on every NBA surface — the lane's own (ESPN's), never the canonical alias
+  assert.match(visible, /PHI @ NY\b/, "the forecast table prints the snapshot's code");
+  assert.doesNotMatch(visible, /\b(NYK|SAS|GSW|NOP|UTA|WAS)\b/);
   const page = read("src/app/nba/page.tsx").replace(/\/\*[\s\S]*?\*\//g, "").replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/^\s*\/\/.*$/gm, "");
   assert.doesNotMatch(page.replace(/import[^\n]*\n/g, "").replace(/NbaExperimentalLane/g, ""), /experimental|candidate|plumbing|write-once/i);
 });
@@ -313,4 +314,39 @@ test("window rows carry both teams' crests (release owner 2026-10-24: logos for 
   assert.equal(imgs.length, 2);
   for (const i of imgs) { assert.match(i, /loading="lazy"/); assert.match(i, /alt=""/); }
   assert.match(h, /teamlogos\/nba\/500\/bkn\.png[\s\S]*BKN @ CLE[\s\S]*teamlogos\/nba\/500\/cle\.png/);
+});
+
+test("one code per team (release owner 2026-10-25): on every committed slate the hub's card header, its forecast row and the homepage row print the lane's own code", async () => {
+  const { committedLaneDates, loadLaneForDate } = await import("./experimental-lane.tsx");
+  const { nbaHubFrom } = await import("../../lib/sport-hub/nba-hub.ts");
+  const schedule = JSON.parse(read("public/data/nba/schedule/latest.json"));
+  const finals = JSON.parse(read("public/data/nba/results/finals-2026-27.json"));
+  const dates = committedLaneDates();
+  assert.ok(dates.length >= 4, "the committed slates since 10-20");
+  const aliases = new Set();
+  for (const d of dates) {
+    const lane = loadLaneForDate(d);
+    const s = nbaTodaySlateFrom({ nowIso: `${d}T16:00:00Z`, schedule, finals, lane });
+    const cards = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: s }));
+    const table = renderToStaticMarkup(React.createElement(ForecastLane, { snapshot: lane }));
+    const home = nbaLane(s, `${d}T16:00:00Z`, { lastPublished: d });
+    for (const g of lane.games) {
+      const id = g.providerEventId, a = g.away.abbr, h = g.home.abbr;
+      for (const x of [a, h]) aliases.add(x);
+      const card = cards.slice(cards.indexOf(`id="nba-exp-${id}"`), cards.indexOf("</article>", cards.indexOf(`id="nba-exp-${id}"`)));
+      assert.ok(card.length > 0, `${d} ${id}: a card`);
+      assert.deepEqual([...card.matchAll(/<b(?: data-on="")?>([^<]+)<\/b>/g)].map((m) => m[1]), [a, h], `${d} ${id}: card header = lane codes`);
+      assert.match(table, new RegExp(`<tr id="nba-fc-${id}"><th scope="row">${a} @ ${h}</th>`), `${d} ${id}: forecast row`);
+      const sg = s.games.find((x) => x.id === String(id));
+      if (sg.favoured) assert.ok([a, h].includes(sg.favoured.abbr), `${d} ${id}: the favoured side in the lane's code`);
+      const row = home.games.find((x) => x.id === String(id));
+      if (row) assert.equal(row.label, `${a} @ ${h}`, `${d} ${id}: homepage row`);
+    }
+    // the window's one-line rows print the same code for the same game
+    for (const r of nbaHubFrom({ nowIso: `${d}T16:00:00Z`, schedule, finals }).rows) {
+      const g = lane.games.find((x) => x.providerEventId === String(r.id));
+      if (g) assert.equal(r.matchup, `${g.away.abbr} @ ${g.home.abbr}`, `${d} ${r.id}: window row`);
+    }
+  }
+  assert.ok(["WSH", "NY", "GS", "NO", "SA", "UTAH"].some((x) => aliases.has(x)), "the committed slates exercise at least one aliased team");
 });

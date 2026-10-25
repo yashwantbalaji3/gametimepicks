@@ -18,12 +18,13 @@ import SettledGameDetail, {
   type SettledLeanRow,
 } from "@/components/settled-game-detail";
 import PlayerResultsCards from "@/components/player-results-cards";
-import { getPlayoffContext } from "@/components/playoff-context";
 import DateSportControls from "@/components/nav/date-sport-controls";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { surfaceHref } from "@/lib/nav/date-sport-route";
 import ResultsDay from "@/components/results/results-day";
 import { resultsDay, resultsDayDates, modelPerformanceLinks } from "@/lib/results/v2/day";
+import NbaForecastVsActual from "@/components/results/nba-forecast-vs-actual";
+import { nbaForecastVsActualView, nbaOfficialForecastDates } from "@/lib/results/nba-level-a-readers";
 import TopBoards from "@/components/results/top-boards";
 import { sportsWithoutBoards, topBoardDates, topBoardsFor } from "@/lib/results/v2/top-boards";
 import ProductReceipts from "@/components/results/product-receipts";
@@ -31,6 +32,8 @@ import DayNav from "@/components/results/day-nav";
 import { productReceiptDates, productReceiptsFor } from "@/lib/results/v2/product-receipts";
 import SuggestedReceipts from "@/components/results/suggested-receipts";
 import { suggestedCardDates } from "@/lib/results/v2/suggested-history.mjs";
+import { nbaArchiveGames, nbaArchiveGameAnchor } from "@/lib/results/nba-archive-games";
+import { getBoardForDate } from "@/lib/data";
 
 interface PageProps {
   params: { date: string };
@@ -45,7 +48,8 @@ export function generateStaticParams() {
   const mlbDates = getMlbAvailableResultDates().dates ?? [];
   // A frozen Top-5 day gets its page before any result exists — the board is published pre-kickoff.
   // G-4: a day with a product receipt (Bank Builder / Moonshot) has a page too.
-  const all = Array.from(new Set([...nbaDates, ...mlbDates, ...suggestedCardDates(), ...resultsDayDates(), ...topBoardDates(), ...productReceiptDates()])).sort();
+  // 2026-10-24: a day with a published NBA official forecast has a page — /results/nba links each earlier day here.
+  const all = Array.from(new Set([...nbaDates, ...mlbDates, ...nbaOfficialForecastDates(), ...suggestedCardDates(), ...resultsDayDates(), ...topBoardDates(), ...productReceiptDates()])).sort();
   return all.map((date) => ({ date }));
 }
 
@@ -73,7 +77,7 @@ export default function ResultsDatePage({ params }: PageProps) {
   const nbaAllDates = new Set(getAvailableSettlementDates());
   const mlbAllDates = new Set(getMlbAvailableResultDates().dates ?? []);
   const date = params.date;
-  const dayDates = new Set([...resultsDayDates(), ...topBoardDates(), ...productReceiptDates(), ...suggestedCardDates()]);
+  const dayDates = new Set([...nbaOfficialForecastDates(), ...resultsDayDates(), ...topBoardDates(), ...productReceiptDates(), ...suggestedCardDates()]);
   const hasAny = nbaAllDates.has(date) || mlbAllDates.has(date) || dayDates.has(date);
   if (!hasAny) {
     notFound();
@@ -129,6 +133,10 @@ export default function ResultsDatePage({ params }: PageProps) {
       </header>
 
       <ResultsDay day={resultsDay(date)} performance={modelPerformanceLinks()} />
+      {/* The day's NBA official winner sides vs the finals — the same reader /results/nba uses, filtered to this date. */}
+      {nbaOfficialForecastDates().includes(date) ? (
+        <div className="mt-6"><NbaForecastVsActual view={nbaForecastVsActualView()} date={date} /></div>
+      ) : null}
 
       <TopBoards day={topBoardsFor(date)} without={sportsWithoutBoards()} dayLabel={formatDateLong(date)} />
 
@@ -554,15 +562,11 @@ function NbaGameGroups({
   rows: ReturnType<typeof getSettlementForDate>["rows"];
   date: string;
 }) {
-  // Group by gameId. Keys are stable for static export.
-  const byGame = new Map<string, typeof rows>();
-  for (const r of rows) {
-    const k = r.gameId ?? "_";
-    const list = byGame.get(k) ?? [];
-    list.push(r);
-    byGame.set(k, list);
-  }
-  const ordered = [...byGame.keys()].sort();
+  /* One builder for the archive games (lib/results/nba-archive-games.ts): /results/nba's summary rows link to these cards
+     by anchor and must land on exactly these rows. Labels come from the date's board (away @ home) when it has one. */
+  const labelFor: Record<string, string> = {};
+  for (const g of getBoardForDate(date).games ?? []) if (g.gameId && g.awayTeamAbbr && g.homeTeamAbbr) labelFor[g.gameId] = `${g.awayTeamAbbr} @ ${g.homeTeamAbbr}`;
+  const games = nbaArchiveGames(rows, date, labelFor);
   return (
     <section className="mt-10">
       <div className="flex items-center gap-3 mb-4">
@@ -577,62 +581,23 @@ function NbaGameGroups({
         <div className="flex-1 h-px" style={{ background: "var(--vault-rule)" }} />
       </div>
       <div className="flex flex-col gap-3">
-        {ordered.map((gid) => {
-          const gameRows = byGame.get(gid) || [];
-          const wins = gameRows.filter((r) => r.result === "win").length;
-          const losses = gameRows.filter((r) => r.result === "loss").length;
-          const pushes = gameRows.filter((r) => r.result === "push").length;
-          const decisive = wins + losses;
-          const hitRate = decisive > 0 ? wins / decisive : null;
-          const r0 = gameRows[0];
-          const matchup =
-            r0?.team && r0?.opponent
-              ? `${r0.team} @ ${r0.opponent}`
-              : "Settled NBA game";
-          const ctx = getPlayoffContext(gid, r0?.team, r0?.opponent);
-          const subtitle = ctx.isPlayoffs
-            ? `${ctx.roundLabel} · ${ctx.gameLabel}`
-            : undefined;
-          const detailRows: SettledLeanRow[] = gameRows.map((r, i) => ({
-            id: `${date}-${gid}-${r.playerId}-${r.market}-${i}`,
-            playerName: r.playerName ?? "—",
-            marketLabel: r.market ?? "—",
-            side: r.side ?? "Pass",
-            line: r.line ?? null,
-            projection: r.modelProjection ?? null,
-            actual:
-              typeof r.finalStat === "number" ? r.finalStat : null,
-            outcome:
-              r.result === "win"
-                ? "Win"
-                : r.result === "loss"
-                  ? "Loss"
-                  : r.result === "push"
-                    ? "Push"
-                    : "—",
-            confidence: r.confidence ?? "—",
-            edgePct: typeof r.edgePct === "number" ? r.edgePct : null,
-            bookmaker: r.bookmaker ?? null,
-            oddsForSide:
-              r.side === "Over" ? r.oddsOver ?? null : r.oddsUnder ?? null,
-          }));
-          return (
+        {games.map((g) => (
+          <div key={g.gameId} id={nbaArchiveGameAnchor(g.gameId)} style={{ scrollMarginTop: 80 }} data-nba-archive-game={g.gameId}>
             <SettledGameDetail
-              key={gid}
-              matchup={matchup}
-              subtitle={subtitle}
-              wins={wins}
-              losses={losses}
-              pushes={pushes}
-              decisive={decisive}
-              hitRate={hitRate}
-              rows={detailRows}
+              matchup={g.matchup}
+              subtitle={g.subtitle}
+              wins={g.wins}
+              losses={g.losses}
+              pushes={g.pushes}
+              decisive={g.decisive}
+              hitRate={g.hitRate}
+              rows={g.rows}
               sport="nba"
               tone="gold"
-              defaultOpen={ordered.length === 1}
+              defaultOpen={games.length === 1}
             />
-          );
-        })}
+          </div>
+        ))}
       </div>
     </section>
   );
