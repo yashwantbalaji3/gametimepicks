@@ -519,11 +519,12 @@ for (const ev of events) {
       d: Number(dExact.toFixed(6)),
       marginSlope: rsEval.fitParams.marginSlope, sigmaMargin: rsEval.fitParams.sigmaMargin,
       muTotal: rsEval.fitParams.muTotal, sigmaTotal: rsEval.fitParams.sigmaTotal,
-      /* WHICH finals are folded (the newest one + the count), never WHEN this run happened. strength.cutoffIso is this
-         run's NOW and schedule.generatedAt the capture's own stamp: hashing either made every event window "revise"
-         every game (2026-10-25: 99 revision receipts for 12 games by 16:40Z, differing only in timestamps), moved
-         sideDecision.frozenAt, re-seeded the score shape and built. The kickoff (above) is the schedule's input. */
-      strengthLastFolded: strength.lastFoldedUtc, gamesFolded: strength.gamesFolded,
+      /* The strength input is `d` above (this game's two ratings), never WHEN this run happened nor how many finals the
+         league has. strength.cutoffIso is this run's NOW and schedule.generatedAt the capture's own stamp: hashing
+         either made every event window "revise" every game (2026-10-25: 99 revision receipts for 12 games by 16:40Z,
+         differing only in timestamps), moved sideDecision.frozenAt, re-seeded the score shape and built. A league-wide
+         count or newest-final stamp did the same on a smaller scale: the Elo fold takes finals up to this kickoff, so
+         each earlier final that day "revised" every later game, unchanged, sometimes seconds before kickoff. */
       regressedToSeason: strength.regressedToSeason,
       /* P295: a v3 total is an input like any other. When a new final moves it, the forecast is a
          pre-kickoff REVISION with lineage, never a silent rewrite under an unchanged hash. (Absent for

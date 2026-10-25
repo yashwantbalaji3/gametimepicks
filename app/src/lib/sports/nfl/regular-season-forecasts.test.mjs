@@ -170,6 +170,48 @@ test("a LATER run on identical inputs writes no revision — the run's clock and
   assert.deepEqual(Object.keys(snap()).filter((f) => f.includes("-rev-")), revs, "no second revision for an unchanged revised forecast");
 });
 
+test("a new final revises only the games of the two teams that played it — never the rest of the window", () => {
+  /* Review of PR 1247 (2026-10-25): the hash counted EVERY folded final (gamesFolded, lastFoldedUtc), and the Elo fold
+     takes finals up to each kickoff while the heads and v3 totals fold whole days before it. So on a Sunday each 1 pm
+     final "revised" every later game with identical numbers, possibly seconds before kickoff — the pattern the
+     consistency audit fails on (NFL 401873011). This game's two ratings are already hashed (d). */
+  const rows = realWeek1Rows();
+  const { app } = makeRoot({ scheduleRows: rows });
+  const root = path.resolve(app, "..");
+  const at = (hhmm) => `2026-09-10T${hhmm}:00Z`; // all finals and runs on Sep 10 ET, before the 00:35Z opener
+  const dir = path.join(root, "data/internal/nfl/forecast-receipts", "2026-09-10");
+  const revisions = () => fs.readdirSync(dir).filter((f) => f.includes("-rev-")).sort();
+  const results = path.join(app, "public/data/nfl/results/latest.json");
+  const gameOf = (abbr) => String(rows.find((x) => x.home.abbr === abbr || x.away.abbr === abbr).providerEventId);
+  const finals = [];
+  const final = (id, home, away, dateUtc) => {
+    finals.push({ providerEventId: id, seasonType: 2, statusRaw: "STATUS_FINAL", dateUtc, home: { name: home }, away: { name: away }, ftHome: 24, ftAway: 17 });
+    fs.mkdirSync(path.dirname(results), { recursive: true });
+    fs.writeFileSync(results, JSON.stringify({ rows: finals }));
+  };
+  const newSince = (before) => [...new Set(revisions().filter((f) => !before.includes(f)).map((f) => f.split("-rev-")[0]))].sort();
+  assert.equal(runBuilder(app, at("18:00")).status, 0);
+  assert.ok(fs.readdirSync(dir).filter((f) => !f.includes("-rev-")).length >= 4, "the window froze receipts, or this test is vacuous");
+  /* The season's first final flips regressedToSeason (from now on applied inside the fold) for every game: once. */
+  final("990000001", "Cincinnati Bengals", "Tampa Bay Buccaneers", at("17:00"));
+  assert.equal(runBuilder(app, at("18:30")).status, 0);
+  let before = revisions();
+  /* A second final: only DET and NO's ratings move, so only their game revises. */
+  final("990000002", "Detroit Lions", "New Orleans Saints", at("17:05"));
+  const r = runBuilder(app, at("18:40"));
+  assert.equal(r.status, 0, r.stderr || r.stdout);
+  assert.deepEqual(newSince(before), [gameOf("DET")], "a final revises its own teams' game, and no other game in the window");
+  before = revisions();
+  /* POSITIVE CONTROL on the window's first game: a final of SF revises SF @ LAR (and ARI's game), with lineage. */
+  final("990000003", "Arizona Cardinals", "San Francisco 49ers", at("17:10"));
+  assert.equal(runBuilder(app, at("18:50")).status, 0);
+  assert.deepEqual(newSince(before), [gameOf("SF"), gameOf("ARI")].sort(), "a final of SF revises SF @ LAR, and ARI's game");
+  /* …and nothing more on a rerun with the same finals. */
+  before = revisions();
+  assert.equal(runBuilder(app, at("19:00")).status, 0);
+  assert.deepEqual(revisions(), before, "unchanged finals, later run: no revision");
+});
+
 test("a preseason window still publishes under the preseason card — the phases never merge", () => {
   const rows = [{
     providerEventId: "999000111", statusRaw: "STATUS_SCHEDULED", dateUtc: "2026-09-10T00:20Z",

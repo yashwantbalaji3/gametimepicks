@@ -52,7 +52,15 @@ while rebasing; do
   fi
   if ! GIT_EDITOR=true git rebase --continue >/dev/null 2>&1; then
     [ -n "$(git diff --name-only --diff-filter=U)" ] && continue
-    git rebase --skip >/dev/null 2>&1 || true   # nothing left in this commit: main already had all of it
+    # Skip ONLY a commit the resolution left empty (main already had all of it). Any other failure (a hook, an
+    # index.lock, a full disk) must not drop the settlement commit silently: abort, and let the push loop fail.
+    if git diff --cached --quiet; then
+      git rebase --skip >/dev/null 2>&1 || true
+    else
+      echo "::error::$P: git rebase --continue failed with the conflict resolved; aborting, nothing dropped"
+      git rebase --abort
+      exit 1
+    fi
   fi
 done
 if ! git merge-base --is-ancestor origin/main HEAD; then
