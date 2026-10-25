@@ -1,0 +1,273 @@
+{
+  "policyVersion": 1,
+  "generatedAt": null,
+  "latestSettledDate": "2026-10-24",
+  "trainingWindowStart": "2026-10-17",
+  "trainingWindowEnd": "2026-10-24",
+  "trainingWindowDays": 8,
+  "sampleSizes": {
+    "universeLegs": 205,
+    "publishedLegs": 0,
+    "publishedCards": 0
+  },
+  "universeBaselineHitRate": 0.5707,
+  "noLiveWire": true,
+  "hardGuards": {
+    "maxLegsByLane": {
+      "low": 2,
+      "medium": 3,
+      "high": 3,
+      "longshot": 3
+    },
+    "bankBuilderMaxLegs": 2,
+    "bankBuilderHeavyFavoriteOnly": true,
+    "lowNoPlusMoney": true,
+    "lowOddsFloor": -130,
+    "maxRestrictedLegsPerCard": 1,
+    "excludeEdgePctFromLowMedium": 15,
+    "excludeEdgePctAll": 20,
+    "nbaRequiresRealStatsProvider": true,
+    "ufcFailClosed": true,
+    "staleFormBlockedFromLowBank": true,
+    "confidenceUsedForRanking": false
+  },
+  "recommendedMarketStatus": {
+    "pitcher_strikeouts": {
+      "wins": 4,
+      "losses": 4,
+      "n": 8,
+      "hitRate": 0.5,
+      "wilsonLB": 0.2152,
+      "shrunk": 0.5505,
+      "recommendedStatus": "insufficient_sample"
+    },
+    "batter_hits": {
+      "wins": 52,
+      "losses": 37,
+      "n": 89,
+      "hitRate": 0.5843,
+      "wilsonLB": 0.4805,
+      "shrunk": 0.5818,
+      "recommendedStatus": "restricted"
+    },
+    "batter_hits_runs_rbis": {
+      "wins": 52,
+      "losses": 37,
+      "n": 89,
+      "hitRate": 0.5843,
+      "wilsonLB": 0.4805,
+      "shrunk": 0.5818,
+      "recommendedStatus": "restricted"
+    },
+    "batter_total_bases": {
+      "wins": 9,
+      "losses": 8,
+      "n": 17,
+      "hitRate": 0.5294,
+      "wilsonLB": 0.3096,
+      "shrunk": 0.5517,
+      "recommendedStatus": "insufficient_sample"
+    }
+  },
+  "calibration": {
+    "edgeInverted": true,
+    "confidencePredictive": true,
+    "confidenceSpread": 0.0882,
+    "byEdgeBucket": {
+      "20+": {
+        "wins": 4,
+        "losses": 3,
+        "n": 7,
+        "hitRate": 0.5714,
+        "wilsonLB": 0.2505
+      },
+      "5-10": {
+        "wins": 40,
+        "losses": 25,
+        "n": 65,
+        "hitRate": 0.6154,
+        "wilsonLB": 0.4938
+      },
+      "neg": {
+        "wins": 8,
+        "losses": 6,
+        "n": 14,
+        "hitRate": 0.5714,
+        "wilsonLB": 0.3259
+      },
+      "0-5": {
+        "wins": 29,
+        "losses": 16,
+        "n": 45,
+        "hitRate": 0.6444,
+        "wilsonLB": 0.4984
+      },
+      "15-20": {
+        "wins": 9,
+        "losses": 13,
+        "n": 22,
+        "hitRate": 0.4091,
+        "wilsonLB": 0.2326
+      },
+      "10-15": {
+        "wins": 27,
+        "losses": 23,
+        "n": 50,
+        "hitRate": 0.54,
+        "wilsonLB": 0.404
+      }
+    },
+    "byConfidence": {
+      "Low": {
+        "wins": 23,
+        "losses": 15,
+        "n": 38,
+        "hitRate": 0.6053,
+        "wilsonLB": 0.4472
+      },
+      "High": {
+        "wins": 76,
+        "losses": 61,
+        "n": 137,
+        "hitRate": 0.5547,
+        "wilsonLB": 0.4712
+      },
+      "Medium": {
+        "wins": 18,
+        "losses": 10,
+        "n": 28,
+        "hitRate": 0.6429,
+        "wilsonLB": 0.4583
+      }
+    }
+  },
+  "segments": {
+    "universe_byMarket": {
+      "pitcher_strikeouts": {
+        "wins": 4,
+        "losses": 4,
+        "n": 8,
+        "hitRate": 0.5,
+        "wilsonLB": 0.2152
+      },
+      "batter_hits": {
+        "wins": 52,
+        "losses": 37,
+        "n": 89,
+        "hitRate": 0.5843,
+        "wilsonLB": 0.4805
+      },
+      "batter_hits_runs_rbis": {
+        "wins": 52,
+        "losses": 37,
+        "n": 89,
+        "hitRate": 0.5843,
+        "wilsonLB": 0.4805
+      },
+      "batter_total_bases": {
+        "wins": 9,
+        "losses": 8,
+        "n": 17,
+        "hitRate": 0.5294,
+        "wilsonLB": 0.3096
+      }
+    },
+    "universe_byConfidence": {
+      "Low": {
+        "wins": 23,
+        "losses": 15,
+        "n": 38,
+        "hitRate": 0.6053,
+        "wilsonLB": 0.4472
+      },
+      "High": {
+        "wins": 76,
+        "losses": 61,
+        "n": 137,
+        "hitRate": 0.5547,
+        "wilsonLB": 0.4712
+      },
+      "Medium": {
+        "wins": 18,
+        "losses": 10,
+        "n": 28,
+        "hitRate": 0.6429,
+        "wilsonLB": 0.4583
+      }
+    },
+    "universe_byEdgeBucket": {
+      "20+": {
+        "wins": 4,
+        "losses": 3,
+        "n": 7,
+        "hitRate": 0.5714,
+        "wilsonLB": 0.2505
+      },
+      "5-10": {
+        "wins": 40,
+        "losses": 25,
+        "n": 65,
+        "hitRate": 0.6154,
+        "wilsonLB": 0.4938
+      },
+      "neg": {
+        "wins": 8,
+        "losses": 6,
+        "n": 14,
+        "hitRate": 0.5714,
+        "wilsonLB": 0.3259
+      },
+      "0-5": {
+        "wins": 29,
+        "losses": 16,
+        "n": 45,
+        "hitRate": 0.6444,
+        "wilsonLB": 0.4984
+      },
+      "15-20": {
+        "wins": 9,
+        "losses": 13,
+        "n": 22,
+        "hitRate": 0.4091,
+        "wilsonLB": 0.2326
+      },
+      "10-15": {
+        "wins": 27,
+        "losses": 23,
+        "n": 50,
+        "hitRate": 0.54,
+        "wilsonLB": 0.404
+      }
+    },
+    "universe_byRole": {
+      "pitcher": {
+        "wins": 4,
+        "losses": 4,
+        "n": 8,
+        "hitRate": 0.5,
+        "wilsonLB": 0.2152
+      },
+      "batter": {
+        "wins": 113,
+        "losses": 82,
+        "n": 195,
+        "hitRate": 0.5795,
+        "wilsonLB": 0.5093
+      }
+    },
+    "published_byRiskLane": {},
+    "published_byMarket": {},
+    "published_byOddsBand": {},
+    "published_byEdgeBucket": {},
+    "published_byRecentForm": {},
+    "published_byCardLength": {},
+    "published_cardsByLane": {}
+  },
+  "warnings": [
+    "edge signal is INVERTED at high values — edge capped, not used to promote",
+    "market pitcher_strikeouts: insufficient sample (8)",
+    "market batter_total_bases: insufficient sample (17)"
+  ],
+  "notes": "Recommendation artifact only. Optimizer reads this in a later PR; until then it documents policy. Fail-closed: if noLiveWire, optimizer keeps its static conservative policy.",
+  "cardLengthProjection": {}
+}

@@ -3,23 +3,62 @@
  "artifact": "graded-picks",
  "dataClass": "PUBLIC_DERIVED",
  "moneyClass": "NON_MONEY",
- "generatedAt": "2026-10-24T13:38:28Z",
+ "generatedAt": "2026-10-25T09:25:34Z",
  "sport": "epl",
  "label": "Premier League",
  "what": "Match-result forecasts: the outcome the model gave the most probability to, graded against the official full-time score.",
  "caveat": "This model has cleared no preregistered bar and publishes distributions rather than picks — the 'predicted' column is simply its likeliest outcome.",
  "counts": {
-  "counted": 68,
-  "hits": 31,
-  "misses": 37,
+  "counted": 71,
+  "hits": 33,
+  "misses": 38,
   "voided": 0,
   "shown": 60,
-  "total": 68
+  "total": 71
  },
- "hitRate": 0.4559,
+ "hitRate": 0.4648,
  "sampleState": "EMERGING",
- "sampleNote": "68 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
+ "sampleNote": "71 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
  "picks": [
+  {
+   "eventId": "soccer:epl:chelsea-v-tottenham-hotspur:20261024t1630",
+   "when": "2026-10-24",
+   "eventName": null,
+   "subject": "Chelsea v Tottenham Hotspur",
+   "market": "Match result",
+   "predicted": "home win",
+   "actual": "away win (0-2)",
+   "modelProbability": 0.586425,
+   "probabilityOfActual": 0.188807,
+   "marketProbabilityOfActual": null,
+   "hit": false
+  },
+  {
+   "eventId": "soccer:epl:arsenal-v-everton:20261024t1400",
+   "when": "2026-10-24",
+   "eventName": null,
+   "subject": "Arsenal v Everton",
+   "market": "Match result",
+   "predicted": "home win",
+   "actual": "home win (2-0)",
+   "modelProbability": 0.688057,
+   "probabilityOfActual": 0.688057,
+   "marketProbabilityOfActual": null,
+   "hit": true
+  },
+  {
+   "eventId": "soccer:epl:coventry-city-v-fulham:20261024t1400",
+   "when": "2026-10-24",
+   "eventName": null,
+   "subject": "Coventry City v Fulham",
+   "market": "Match result",
+   "predicted": "away win",
+   "actual": "away win (0-1)",
+   "modelProbability": 0.435671,
+   "probabilityOfActual": 0.435671,
+   "marketProbabilityOfActual": null,
+   "hit": true
+  },
   {
    "eventId": "soccer:epl:aston-villa-v-manchester-city:20261024t1130",
    "when": "2026-10-24",
@@ -760,45 +799,6 @@
    "probabilityOfActual": 0.304636,
    "marketProbabilityOfActual": null,
    "hit": false
-  },
-  {
-   "eventId": "soccer:epl:coventry-city-v-hull-city:20260829t1400",
-   "when": "2026-08-29",
-   "eventName": null,
-   "subject": "Coventry City v Hull City",
-   "market": "Match result",
-   "predicted": "home win",
-   "actual": "away win (0-1)",
-   "modelProbability": 0.442878,
-   "probabilityOfActual": 0.314788,
-   "marketProbabilityOfActual": null,
-   "hit": false
-  },
-  {
-   "eventId": "soccer:epl:liverpool-v-nottingham-forest:20260829t1130",
-   "when": "2026-08-29",
-   "eventName": null,
-   "subject": "Liverpool v Nottingham Forest",
-   "market": "Match result",
-   "predicted": "home win",
-   "actual": "draw (2-2)",
-   "modelProbability": 0.740023,
-   "probabilityOfActual": 0.156626,
-   "marketProbabilityOfActual": null,
-   "hit": false
-  },
-  {
-   "eventId": "soccer:epl:chelsea-v-fulham:20260824t1900",
-   "when": "2026-08-24",
-   "eventName": null,
-   "subject": "Fulham v Chelsea",
-   "market": "Match result",
-   "predicted": "away win",
-   "actual": "away win (2-3)",
-   "modelProbability": 0.381386,
-   "probabilityOfActual": 0.381386,
-   "marketProbabilityOfActual": null,
-   "hit": true
   }
  ]
 }

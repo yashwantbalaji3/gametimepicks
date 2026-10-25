@@ -1,18 +1,18 @@
-# Daily selection learning — through 2026-10-23
+# Daily selection learning — through 2026-10-24
 
-Training window: **2026-10-16 → 2026-10-23** (8d). Universe legs:
-**205** (baseline 42.9%). Published legs:
-**0**, cards: **1**. noLiveWire=**true**.
+Training window: **2026-10-17 → 2026-10-24** (8d). Universe legs:
+**205** (baseline 57.1%). Published legs:
+**0**, cards: **0**. noLiveWire=**true**.
 
 ## Recommended market status (Wilson-LB driven, fail-closed)
-- **batter_hits** → `disabled` — 54% (38/71, WLB 42%) shrunk 51%
-- **batter_hits_runs_rbis** → `disabled` — 54% (38/71, WLB 42%) shrunk 51%
-- **batter_total_bases** → `insufficient_sample` — 57% (8/14, WLB 33%) shrunk 49%
-- **pitcher_strikeouts** → `insufficient_sample` — 67% (4/6, WLB 30%) shrunk 48%
+- **batter_hits** → `restricted` — 58% (52/89, WLB 48%) shrunk 58%
+- **batter_hits_runs_rbis** → `restricted` — 58% (52/89, WLB 48%) shrunk 58%
+- **batter_total_bases** → `insufficient_sample` — 53% (9/17, WLB 31%) shrunk 55%
+- **pitcher_strikeouts** → `insufficient_sample` — 50% (4/8, WLB 22%) shrunk 55%
 
 ## Calibration
-- Edge inverted at high values: **true** neg:55% (6/11, WLB 28%) · 5-10:62% (32/52, WLB 48%) · 0-5:62% (21/34, WLB 45%) · 15-20:42% (8/19, WLB 23%) · 10-15:44% (18/41, WLB 30%) · 20+:60% (3/5, WLB 23%)
-- Confidence predictive: **true** (spread 11.8pts) Low:57% (16/28, WLB 39%) · High:52% (58/112, WLB 43%) · Medium:64% (14/22, WLB 43%)
+- Edge inverted at high values: **true** 20+:57% (4/7, WLB 25%) · 5-10:62% (40/65, WLB 49%) · neg:57% (8/14, WLB 33%) · 0-5:64% (29/45, WLB 50%) · 15-20:41% (9/22, WLB 23%) · 10-15:54% (27/50, WLB 40%)
+- Confidence predictive: **true** (spread 8.8pts) Low:61% (23/38, WLB 45%) · High:55% (76/137, WLB 47%) · Medium:64% (18/28, WLB 46%)
 
 ## Published leg hit rate by lane
 
@@ -22,7 +22,7 @@ Training window: **2026-10-16 → 2026-10-23** (8d). Universe legs:
 
 ## Warnings
 - edge signal is INVERTED at high values — edge capped, not used to promote
-- market batter_total_bases: insufficient sample (14)
-- market pitcher_strikeouts: insufficient sample (6)
+- market pitcher_strikeouts: insufficient sample (8)
+- market batter_total_bases: insufficient sample (17)
 
 _Recommendation artifact only — no production logic changed by this script._
