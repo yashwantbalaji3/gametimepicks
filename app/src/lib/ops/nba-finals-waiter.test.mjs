@@ -601,7 +601,10 @@ test("CONTRACT: the only workflows the waiter dispatches are nba-results-refresh
   assert.equal(refresh.concurrency.group, "nba-results-refresh");
   assert.equal(refresh.concurrency["cancel-in-progress"], false);
   const step = refresh.jobs.refresh.steps.map((s) => String(s.run ?? "")).join("\n");
-  assert.match(step, /git add "\$RESULTS\/"/, "the refresh stages only app/public/data/nba/results/");
+  assert.match(step, /git add "\$RESULTS\/"/, "the refresh stages app/public/data/nba/results/");
+  /* …and, since 2026-10-25, the Level A grades of all-NBA cards those finals settle (level-a-grade-writers.test.mjs) —
+     nothing else. */
+  assert.deepEqual([...step.matchAll(/git add (\S+)/g)].map((m) => m[1]), ['"$RESULTS/"', "data/internal/products/level-a/graded.jsonl"]);
   assert.match(step, /build-nba-finals-record\.mjs/);
   assert.match(String(refresh.jobs.refresh.if), /head_branch == github\.event\.repository\.default_branch/);
 });
