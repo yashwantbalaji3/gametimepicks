@@ -12,7 +12,7 @@ index b484bc34ed..04e989c838 100644
        {/* The NBA display's accuracy disclosure, ONCE per page: here when a mixed card shows an NBA estimate, unless the NBA
            game winners block below already prints it on this page. */}
 diff --git a/app/src/lib/products/level-a/level-a-mixed.test.mjs b/app/src/lib/products/level-a/level-a-mixed.test.mjs
-index 97aaf78269..2e40b7993e 100644
+index 97aaf78269..b8db5d8610 100644
 --- a/app/src/lib/products/level-a/level-a-mixed.test.mjs
 +++ b/app/src/lib/products/level-a/level-a-mixed.test.mjs
 @@ -13,7 +13,7 @@ import { renderToString } from "react-dom/server";
@@ -24,7 +24,7 @@ index 97aaf78269..2e40b7993e 100644
  import { recordEntries } from "./record.mjs";
  import { gradeEntry } from "./grade.mjs";
  import { PAGE_FOR, verifyServed } from "../../../../scripts/products/record-level-a-from-deployment.mjs";
-@@ -153,3 +153,46 @@ test("ONE DISCLOSURE PER PAGE: with mixed cards AND the NBA game winners block o
+@@ -153,3 +153,93 @@ test("ONE DISCLOSURE PER PAGE: with mixed cards AND the NBA game winners block o
      }
    }
  });
@@ -70,6 +70,53 @@ index 97aaf78269..2e40b7993e 100644
 +  assert.doesNotMatch(html, /Moonshot suggestion · 3 legs, High or Longshot band/, "the heading must not promise 3 legs over a longer card");
 +  const off = buildLevelAModel({ repoRoot: REPO, now, mixed: { enabled: false } });
 +  assert.match(renderToString(React.createElement(LevelASuggestions, { model: off, mode: "moonshot" })), /Moonshot suggestion · 3 legs, High or Longshot band/, "OFF: the heading is unchanged");
++});
++
++test("REAL SLATE TRANSITIONS: every 30 minutes across 10-24 and 10-25 with mixed ON, every card shown is valid and ON never shows fewer cards than OFF", async () => {
++  const { LEG_BOUNDS } = await import("../eligible-leg/contract.mjs");
++  const { teamsOf } = await import("./engine.mjs");
++  const { BAND_MAX_LEGS } = await import("../../parlays/multi-sport.mjs");
++  let instants = 0, mixedShown = 0, fallbackShown = 0, drawLegs = 0;
++  for (const day of ["2026-10-24", "2026-10-25"]) for (let m = 0; m < 24 * 60; m += 30) {
++    const now = new Date(Date.parse(`${day}T04:00:00Z`) + m * 60_000).toISOString(); // the ET product day, 00:00 → 23:30 ET
++    instants += 1;
++    const gw = { enabled: true, displayEnabled: true };
++    const on = buildLevelAModel({ repoRoot: REPO, now, nbaGameWinners: gw, mixed: { enabled: true } });
++    const off = buildLevelAModel({ repoRoot: REPO, now, nbaGameWinners: gw, mixed: { enabled: false } });
++    const slots = (x) => [...x.parlayLab.map((t) => ["parlay", t.tier, t]), ["bank", null, x.bankBuilder], ["moon", null, x.moonshot]];
++    const offSlots = slots(off);
++    for (const [i, [kind, tier, s]] of slots(on).entries()) {
++      if (offSlots[i][2].card) assert.ok(s.card, `${now} ${kind} ${tier ?? ""}: OFF shows a card, ON shows none`);
++      if (!s.card) { assert.ok(s.reason, `${now} ${kind}: an empty slot always says why`); continue; }
++      const c = s.card, mixed = c.policy.startsWith("level-a-mixed@1");
++      mixed ? (mixedShown += 1) : (fallbackShown += 1);
++      for (const l of c.legs) {
++        assert.ok(Date.parse(l.startUtc) - Date.parse(now) >= LEG_BOUNDS.activationCutoffMs, `${now} ${c.policy}: ${l.eventLabel} is inside its pregame cutoff`);
++        if (l.sport === "epl" || l.sport === "ligue-1") {
++          assert.ok(["home", "draw", "away"].includes(l.selection.code), `${l.eventLabel}: a 1X2 leg names home, draw or away`);
++          assert.equal(l.settlement.side, l.selection.code, `${l.eventLabel}: graded on the outcome it shows`);
++          if (l.selection.code === "draw") drawLegs += 1;
++        }
++      }
++      assert.equal(new Set(c.legs.map((l) => `${l.sport}:${l.eventId}`)).size, c.legs.length, `${now} ${c.policy}: one leg per event`);
++      const teams = c.legs.flatMap(teamsOf);
++      assert.equal(new Set(teams).size, teams.length, `${now} ${c.policy}: no team twice in a sport`);
++      const joint = c.legs.reduce((p, l) => p * l.probability, 1);
++      assert.ok(Math.abs(joint - c.jointProbability) < 1e-12, `${now} ${c.policy}: joint is the product of the shown legs`);
++      assert.equal(tierForJoint(c.jointProbability), c.tier, `${now} ${c.policy}: the band is the exact joint's band`);
++      if (!mixed) continue;
++      assert.ok(new Set(c.legs.map((l) => l.sport)).size >= 2, `${now}: a mixed card spans two sports`);
++      if (kind === "parlay") { assert.equal(c.tier, tier); assert.ok(c.legs.length >= 2 && c.legs.length <= BAND_MAX_LEGS[tier]); }
++      if (kind === "bank") { assert.equal(c.legs.length, 2); assert.ok(["low", "medium"].includes(c.tier)); }
++      if (kind === "moon") { assert.equal(c.tier, "longshot"); assert.ok(c.legs.length >= 2 && c.legs.length <= BAND_MAX_LEGS.longshot); }
++    }
++  }
++  assert.equal(instants, 96);
++  assert.ok(mixedShown > 0, `the slates must show mixed cards, or this test is vacuous (${mixedShown})`);
++  /* Fallback cards (a slot the mixed rule leaves empty) are pinned by the one-sport fixture test above: the committed NBA lane
++     is readable at every instant here, so a real "before the NBA lane publishes" window cannot be replayed from files. */
++  /* Reported, not required: a draw is rarely the most likely 1X2 outcome; the 1X2 rule above holds whenever one appears. */
++  console.log(`# slate transitions: ${instants} instants, ${mixedShown} mixed cards, ${fallbackShown} fallback cards, ${drawLegs} draw legs`);
 +});
 diff --git a/app/src/lib/products/level-a/mixed.mjs b/app/src/lib/products/level-a/mixed.mjs
 index a4aec57ea6..9f00957a80 100644
