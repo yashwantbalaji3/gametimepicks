@@ -9,8 +9,16 @@
  * It reads the record and never writes it. Pending entries wait; conflicts with grades already written are reported
  * and change nothing. See src/lib/products/level-a/grade.mjs for the rules.
  *
- *   npx tsx scripts/products/grade-level-a-suggestions.mjs --now <ISO> [--write]
+ *   npx tsx scripts/products/grade-level-a-suggestions.mjs --now <ISO> [--write] [--only-sport nba]
  *   Default: dry run.
+ *
+ * TWO WRITERS, NEVER THE SAME ENTRY. nightly-settle grades every entry. nba-results-refresh grades with
+ * `--only-sport nba`, i.e. only entries whose EVERY leg is NBA, inside the same commit that adds the finals they need — so
+ * an NBA card is graded when its last final lands (about 00:35 ET) rather than when nightly-settle next runs (about 05:20
+ * ET), with no build of its own. An all-NBA entry can only be graded once its finals are committed, and the refresh
+ * commits those finals and their grades together, so a nightly run that sees the finals also sees the grades. Mixed cards
+ * stay with nightly-settle alone. If both runs still append lines at once, nightly-settle's push regenerates the file
+ * instead of failing (scripts/ci/regrade-level-a-on-conflict.sh).
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -57,12 +65,17 @@ export function committedFinals({ repoRoot = REPO, nowIso }) {
   };
 }
 
-export function runGrade({ now, write = false, recordFile = LEVEL_A_RECORD_FILE, gradesFile = LEVEL_A_GRADES_FILE, finals = null, repoRoot = REPO }) {
+/** An entry whose every leg is `sport` (the `--only-sport` writer's scope). Pure. */
+export const allLegsAre = (sport) => (e) => Array.isArray(e?.legs) && e.legs.length > 0 && e.legs.every((l) => l.sport === sport);
+
+export function runGrade({ now, write = false, recordFile = LEVEL_A_RECORD_FILE, gradesFile = LEVEL_A_GRADES_FILE, finals = null, repoRoot = REPO, onlySport = null }) {
   if (!Number.isFinite(Date.parse(now ?? ""))) throw new Error("--now <ISO> required");
+  if (onlySport != null && !/^[a-z0-9-]+$/.test(onlySport)) throw new Error(`--only-sport: not a sport key (${onlySport})`);
   const record = parseLines(readLines(recordFile));
   const f = finals ?? committedFinals({ repoRoot, nowIso: now });
   /* The product day travels with the leg so the MLB reader finds the right linescore file. */
-  const withDay = record.map((e) => ({ ...e, legs: e.legs.map((l) => ({ ...l, productDay: e.productDay })) }));
+  const scoped = onlySport ? record.filter(allLegsAre(onlySport)) : record;
+  const withDay = scoped.map((e) => ({ ...e, legs: e.legs.map((l) => ({ ...l, productDay: e.productDay })) }));
   const beforeText = readLines(gradesFile);
   const { rows, conflicts, pending } = gradeRecord({ record: withDay, graded: parseLines(beforeText), finals: f, gradedAt: new Date(Date.parse(now)).toISOString() });
   const afterText = beforeText + rows.map((r) => `${JSON.stringify(r)}\n`).join("");
@@ -74,12 +87,12 @@ export function runGrade({ now, write = false, recordFile = LEVEL_A_RECORD_FILE,
     else fs.writeFileSync(gradesFile, afterText, { flag: "wx" });
     if (readLines(gradesFile) !== afterText) throw new Error("post-write check failed");
   }
-  return { entries: record.length, added: rows.length, pending, conflicts, wrote: write && rows.length > 0, grades: rows.map((r) => `${r.productDay} ${r.policy}/${r.tier}: ${r.result}`) };
+  return { entries: record.length, ...(onlySport ? { scope: `only-sport ${onlySport}`, inScope: scoped.length } : {}), added: rows.length, pending, conflicts, wrote: write && rows.length > 0, grades: rows.map((r) => `${r.productDay} ${r.policy}/${r.tier}: ${r.result}`) };
 }
 
 if (path.resolve(process.argv[1] ?? "") === fileURLToPath(import.meta.url)) {
   const arg = (n) => { const i = process.argv.indexOf(n); return i > -1 ? process.argv[i + 1] : null; };
-  const out = runGrade({ now: arg("--now"), write: process.argv.includes("--write") });
+  const out = runGrade({ now: arg("--now"), write: process.argv.includes("--write"), onlySport: process.argv.includes("--only-sport") ? arg("--only-sport") ?? "" : null });
   console.log(JSON.stringify(out, null, 2));
   if (out.conflicts.length) process.exit(3);
 }

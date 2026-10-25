@@ -83,9 +83,9 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
           NFL {weekTitle(params.key)}
         </h1>
         <nav aria-label="Week navigation" className="font-mono" style={{ fontSize: 11.5 }}>
-          {prev ? <Link href={`/nfl/week/${prev}/`} style={{ color: "var(--vault-gold)" }}>← {weekTitle(prev)}</Link> : null}
+          {prev ? <Link href={`/nfl/week/${prev}/`} className="gtp-backlink" style={{ color: "var(--vault-gold)" }}>← {weekTitle(prev)}</Link> : null}
           {prev && next ? <span style={{ color: "var(--vault-text-faint)" }}> · </span> : null}
-          {next ? <Link href={`/nfl/week/${next}/`} style={{ color: "var(--vault-gold)" }}>{weekTitle(next)} →</Link> : null}
+          {next ? <Link href={`/nfl/week/${next}/`} className="gtp-backlink" style={{ color: "var(--vault-gold)" }}>{weekTitle(next)} →</Link> : null}
           {!prev && !next ? <span style={{ color: "var(--vault-text-faint)" }}>the only captured week so far — neighbors appear when their data exists</span> : null}
         </nav>
         <Link href="/nfl/" className="font-mono uppercase tracking-[0.12em]" style={{ fontSize: 10.5, color: "var(--vault-gold-bright)", marginLeft: "auto" }}>

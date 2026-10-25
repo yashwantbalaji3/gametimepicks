@@ -136,5 +136,5 @@ const CSS = `
 .pg-in{color:var(--gtp-success-on-dark)}
 .pg-out{color:var(--vault-text-mute)}
 .pg-note{margin:10px 0 0;font-size:11.5px;line-height:1.55;color:var(--vault-text-faint);max-width:760px}
-.pg-note a{color:var(--vault-gold-bright)}
+.pg-note a{color:var(--vault-gold-bright);text-decoration:underline}
 `;

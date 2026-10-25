@@ -1082,7 +1082,7 @@ function LatestTopBoard() {
     <p className="m-0 mb-8 text-[13.5px]" style={{ color: "var(--vault-text-mute)" }}>
       <strong style={{ color: "var(--vault-text)" }}>Daily Top 5 boards</strong> — frozen before each day&apos;s first kickoff, never revised.{" "}
       {latest
-        ? <a href={surfaceHref("results", { date: latest }) ?? "/results/"} style={{ color: "var(--vault-text)", minHeight: 44, display: "inline-flex", alignItems: "center" }}>Latest board · {formatDateLong(latest)} →</a>
+        ? <a href={surfaceHref("results", { date: latest }) ?? "/results/"} style={{ color: "var(--vault-text)", minHeight: 44, display: "inline-flex", alignItems: "center", textDecoration: "underline" }}>Latest board · {formatDateLong(latest)} →</a>
         : <span>No board has been frozen yet.</span>}
     </p>
   );

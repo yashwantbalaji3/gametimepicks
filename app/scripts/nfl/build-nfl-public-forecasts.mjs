@@ -519,8 +519,13 @@ for (const ev of events) {
       d: Number(dExact.toFixed(6)),
       marginSlope: rsEval.fitParams.marginSlope, sigmaMargin: rsEval.fitParams.sigmaMargin,
       muTotal: rsEval.fitParams.muTotal, sigmaTotal: rsEval.fitParams.sigmaTotal,
-      strengthCutoff: strength.cutoffIso, gamesFolded: strength.gamesFolded,
-      regressedToSeason: strength.regressedToSeason, scheduleAsOf: schedule.generatedAt,
+      /* The strength input is `d` above (this game's two ratings), never WHEN this run happened nor how many finals the
+         league has. strength.cutoffIso is this run's NOW and schedule.generatedAt the capture's own stamp: hashing
+         either made every event window "revise" every game (2026-10-25: 99 revision receipts for 12 games by 16:40Z,
+         differing only in timestamps), moved sideDecision.frozenAt, re-seeded the score shape and built. A league-wide
+         count or newest-final stamp did the same on a smaller scale: the Elo fold takes finals up to this kickoff, so
+         each earlier final that day "revised" every later game, unchanged, sometimes seconds before kickoff. */
+      regressedToSeason: strength.regressedToSeason,
       /* P295: a v3 total is an input like any other. When a new final moves it, the forecast is a
          pre-kickoff REVISION with lineage, never a silent rewrite under an unchanged hash. (Absent for
          v1 so its existing receipts stay byte-identical.) */
@@ -766,9 +771,14 @@ for (const ev of events) {
   const receiptPath = path.join(ROOT, "data/internal/nfl/forecast-receipts", DATE, `${ev.providerEventId}.json`);
   if (fs.existsSync(receiptPath)) {
     const existing = read(receiptPath);
-    if (existing?.model?.inputHash === forecast.model.inputHash) {
+    /* Compare against the NEWEST receipt for this event — its latest pre-kickoff revision, else the original. Comparing
+       against the original alone meant that after one real revision every later run, on unchanged inputs, wrote
+       another (the revised hash never matches the original's). Revision names sort by time within the day. */
+    const revs = fs.readdirSync(path.dirname(receiptPath)).filter((f) => f.startsWith(`${ev.providerEventId}-rev-`) && f.endsWith(".json")).sort();
+    const latest = revs.length ? read(path.join(path.dirname(receiptPath), revs.at(-1))) : existing;
+    if (latest?.model?.inputHash === forecast.model.inputHash) {
       // Publish only what the receipt froze: a receipt written before 3D has no side decision, so none is shown.
-      if (existing.sideDecision) forecast.sideDecision = existing.sideDecision;
+      if (latest.sideDecision) forecast.sideDecision = latest.sideDecision;
       else delete forecast.sideDecision;
       published.push(forecast);
       continue; // identical inputs → identical forecast; nothing to rewrite
@@ -780,7 +790,7 @@ for (const ev of events) {
     // pre-kickoff revision: new file with lineage, original preserved
     const revPath = path.join(ROOT, "data/internal/nfl/forecast-receipts", DATE, `${ev.providerEventId}-rev-${NOW.slice(11, 16).replace(":", "")}Z.json`);
     markSideCutover(forecast);
-    fs.writeFileSync(revPath, JSON.stringify({ ...forecast, revisionOf: path.basename(receiptPath), priorInputHash: existing?.model?.inputHash ?? null }, null, 1));
+    fs.writeFileSync(revPath, JSON.stringify({ ...forecast, revisionOf: path.basename(receiptPath), priorInputHash: latest?.model?.inputHash ?? null }, null, 1));
     published.push(forecast);
     continue;
   }

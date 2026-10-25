@@ -74,13 +74,13 @@ const coverageRecorded = (lane: Snapshot) => lane.games.some((g) => laneUnavaila
  */
 function noProjectionRows(lane: Snapshot, a: BoardActuals | null) {
   const played = new Map((a?.unprojected ?? []).map((u) => [`${u.game}:${u.id}`, u]));
-  const out: { name: string; game: string; team: string; teamName: string; code: string; pos: string | null; actual: (number | string | null)[] | null }[] = [];
+  const out: { key: string; name: string; game: string; team: string; teamName: string; code: string; pos: string | null; actual: (number | string | null)[] | null }[] = [];
   for (const g of lane.games) {
     for (const side of ["away", "home"] as const) {
       const t = g[side];
       for (const e of laneUnavailable(g, side) ?? []) {
         const key = `${g.providerEventId}:${e.providerAthleteId}`;
-        out.push({ name: e.name ?? "", game: g.providerEventId, team: t.abbr ?? "", teamName: t.name ?? t.abbr ?? "", code: e.reason, pos: e.position ?? null, actual: played.get(key)?.actual ?? null });
+        out.push({ key, name: e.name ?? "", game: g.providerEventId, team: t.abbr ?? "", teamName: t.name ?? t.abbr ?? "", code: e.reason, pos: e.position ?? null, actual: played.get(key)?.actual ?? null });
         played.delete(key);
       }
     }
@@ -88,10 +88,30 @@ function noProjectionRows(lane: Snapshot, a: BoardActuals | null) {
   const byId = new Map(lane.games.map((g) => [g.providerEventId, g]));
   for (const u of played.values()) {
     const t = byId.get(u.game)![u.side];
-    out.push({ name: u.name, game: u.game, team: t.abbr ?? "", teamName: t.name ?? t.abbr ?? "", code: "P", pos: null, actual: u.actual });
+    out.push({ key: `${u.game}:${u.id}`, name: u.name, game: u.game, team: t.abbr ?? "", teamName: t.name ?? t.abbr ?? "", code: "P", pos: null, actual: u.actual });
   }
   return out;
 }
+/**
+ * Stat corrections shown on this board (projection-board-actuals): per game, when ESPN's corrected box score was
+ * captured and each changed value as "graded on → corrected", for the Model details list. Server-rendered, once.
+ */
+function correctionLines(lane: Snapshot, a: BoardActuals) {
+  if (!a.corrected || !a.corrections) return [];
+  const names = new Map<string, string>();
+  for (const g of lane.games) for (const side of ["away", "home"] as const) for (const r of g.players[side]) names.set(`${g.providerEventId}:${r.providerAthleteId}`, r.name ?? "");
+  for (const u of a.unprojected ?? []) names.set(`${u.game}:${u.id}`, u.name);
+  const label = (vi: number) => (vi === 0 ? "MIN" : PROJECTION_BOARD_STATS[vi - 1][1]);
+  return lane.games.filter((g) => a.corrections![g.providerEventId]).map((g) => {
+    const c = a.corrections![g.providerEventId];
+    const changes = Object.entries(a.corrected!).filter(([k]) => k.startsWith(`${g.providerEventId}:`)).map(([k, diff]) => {
+      const now = a.rows[k] ?? a.unprojected?.find((u) => `${u.game}:${u.id}` === k)?.actual ?? [];
+      return `${names.get(k) ?? ""} ${Object.entries(diff).map(([vi, was]) => `${label(Number(vi))} ${was ?? "—"} → ${now[Number(vi)] ?? "—"}`).join(", ")}`;
+    });
+    return { id: g.providerEventId, text: `${g.away.abbr} @ ${g.home.abbr}: ESPN corrected the final box score${c.correctedAt ? ` (captured ${et(c.correctedAt)})` : ""} after grading on the first final box score${c.firstCapturedAt ? ` (captured ${et(c.firstCapturedAt)})` : ""}. Graded → corrected: ${changes.join("; ")}.` };
+  });
+}
+
 /** The same state, short, on a game chip. A recorded game needs no note; a game still to finish reads "awaiting final". */
 const ACTUAL_CHIP: Partial<Record<GameActualState, string>> = {
   "no-final": "awaiting final",
@@ -211,7 +231,7 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
   const nav: BoardGameNav[] = live
     ? live.games.map((g) => {
         const st = stateOf(g.providerEventId);
-        const note = st && st !== "recorded" && due(g.providerEventId) ? ACTUAL_CHIP[st] : undefined;
+        const note = st && st !== "recorded" && due(g.providerEventId) ? ACTUAL_CHIP[st] : actuals?.corrections?.[g.providerEventId] ? "stat corrected after grading" : undefined;
         return [g.providerEventId, `${g.away.abbr ?? g.away.name} @ ${g.home.abbr ?? g.home.name}`, meta.get(g.providerEventId)?.status ?? "upcoming", meta.get(g.providerEventId)?.tipUtc ?? g.tipUtc, ...(note ? [note] : [])] as BoardGameNav;
       })
     : [];
@@ -219,7 +239,7 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
   const models = live ? [...new Set(live.games.map((g) => g.receipt.modelVersion))] : [];
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-4 min-w-0">
-      <p className="m-0 text-[13px]"><Link href="/nba/" className="underline" style={TEXT}>← NBA hub</Link></p>
+      <p className="m-0 text-[13px]"><Link href="/nba/" className="gtp-backlink underline" style={TEXT}>← NBA hub</Link></p>
       <h1 className="m-0 font-display text-[22px] font-bold" style={TEXT}>NBA Predicted Player Statistics{slate && (live || dated) ? ` · ${dayLabel(slate)}` : ""}</h1>
       <p className="m-0 text-[12.5px] leading-relaxed" style={MUTE} role="note">{PREDICTED_NOTE}</p>
       <SlateDates dates={dates} date={slate} dated={dated} />
@@ -238,6 +258,7 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
               <p className="m-0 rounded-md p-2 text-[12.5px] leading-relaxed" role="note" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)" }}>
                 <strong>Forecast</strong>: the Official Forecast, frozen before tip-off and never changed. <strong>Actual</strong>: the
                 final box score (ESPN), after the official final. A dash means did not play &mdash; never a zero.
+                {post.corrected ? <> <strong>†</strong> stat corrected by ESPN after grading: the corrected figure is shown, and the graded one is listed in Model details.</> : null}
               </p>
             </section>
           ) : pendingActuals ? (
@@ -251,7 +272,7 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
               ? "Every rostered player without a projection is listed as \u201cProjection unavailable\u201d with the reason the Official Forecast recorded."
               : `Coverage list not recorded for this slate.${post ? " Players who played without a projection are listed from the final box score." : ""}`}
           </p>
-          <ProjectionBoard board={packBoard(rows, post ? post.rows : null, post ? awaiting : null, noProjectionRows(live, post))} stats={stats} groups={groups} matchups={matchups} teams={teams} games={nav} defaultGroup={post ? "core" : undefined} />
+          <ProjectionBoard board={packBoard(rows, post ? post.rows : null, post ? awaiting : null, noProjectionRows(live, post), post?.corrected ?? null)} stats={stats} groups={groups} matchups={matchups} teams={teams} games={nav} defaultGroup={post ? "core" : undefined} />
           {/* Model ids, receipts, engine notes and the withheld list: one tap away, each model id once. */}
           <details className="text-[12px]" style={MUTE}>
             <summary className="cursor-pointer min-h-[44px] py-3 underline decoration-dotted" style={TEXT}>
@@ -274,6 +295,11 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
                   </li>
                 ))}
               </ul>
+              {post && correctionLines(live, post).length ? (
+                <ul className="m-0 pl-5 leading-relaxed" aria-label="Stat corrections after grading">
+                  {correctionLines(live, post).map((l) => <li key={l.id}>{l.text}</li>)}
+                </ul>
+              ) : null}
               <EloAccuracyDisclosure games={live.games} ctx={eloCtx} className="m-0 leading-relaxed" />
               <ul className="m-0 pl-5 leading-relaxed">
                 {Object.entries(live.withheld).map(([k, v]) => <li key={k}>{v}</li>)}

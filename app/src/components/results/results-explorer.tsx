@@ -447,7 +447,7 @@ export default function ResultsExplorer({
         gridSports.length === 0 ? (
           <p style={{ fontSize: 13, color: "var(--vault-text-mute)" }}>No settled card in this period.</p>
         ) : (
-          <div style={{ overflowX: "auto" }}>
+          <div role="region" aria-label="Record by sport" tabIndex={0} style={{ overflowX: "auto" }}>
             <table style={{ borderCollapse: "collapse", fontSize: 13, width: "100%", minWidth: 460 }}>
               <caption className="sr-only">Record by sport for {rangeLabel}</caption>
               <thead>
@@ -493,7 +493,7 @@ export default function ResultsExplorer({
           Nothing settled in this combination yet. That is an absence of graded cards, not a zero result.
         </p>
       ) : (
-        <div style={{ overflowX: "auto" }}>
+        <div role="region" aria-label="Record for the selected population" tabIndex={0} style={{ overflowX: "auto" }}>
           <table style={{ borderCollapse: "collapse", fontSize: 13, width: "100%", minWidth: 460 }}>
             <caption className="sr-only">Record for the selected population</caption>
             <thead>
@@ -533,7 +533,7 @@ export default function ResultsExplorer({
       {dateFilterable && !rangeError ? (
         <div className="flex flex-col gap-2">
           <h3 style={{ fontSize: 13.5, fontWeight: 700, margin: "6px 0 0" }}>By sport and risk tier</h3>
-          <div style={{ overflowX: "auto" }}>
+          <div role="region" aria-label="Settled cards by sport and risk tier" tabIndex={0} style={{ overflowX: "auto" }}>
             <table style={{ borderCollapse: "collapse", fontSize: 12.5, width: "100%", minWidth: 520 }}>
               <caption className="sr-only">Settled cards by sport and risk tier for {rangeLabel}</caption>
               <thead>
@@ -607,7 +607,7 @@ export default function ResultsExplorer({
           <h3 style={{ fontSize: 13.5, fontWeight: 700, margin: "6px 0 0" }}>
             The {selectedCards.length} card{selectedCards.length === 1 ? "" : "s"} behind this record
           </h3>
-          <div style={{ overflowX: "auto" }}>
+          <div role="region" aria-label="Individual settled cards" tabIndex={0} style={{ overflowX: "auto" }}>
             <table style={{ borderCollapse: "collapse", fontSize: 12.5, width: "100%", minWidth: 560 }}>
               <caption className="sr-only">Individual settled cards for {rangeLabel}</caption>
               <thead>

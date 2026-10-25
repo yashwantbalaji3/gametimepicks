@@ -70,7 +70,7 @@ export default function EmptyTierContext({ emptyTiers, lastCards, lanes }: { emp
       ) : null}
       <p className="text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
         An empty tier is a decision, not a missing update: no card is published rather than forcing one.{" "}
-        <Link href="/results/parlay-lab" style={{ color: "var(--vault-text-mute)" }}>Every settled card (Historical Results) →</Link>
+        <Link href="/results/parlay-lab" style={{ color: "var(--vault-text-mute)", textDecoration: "underline" }}>Every settled card (Historical Results) →</Link>
       </p>
     </section>
   );

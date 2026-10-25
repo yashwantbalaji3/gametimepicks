@@ -33,7 +33,7 @@ import { fileURLToPath } from "node:url";
 import { ODDS_SPORT_KEYS, classifyOddsSecret, validateOddsSnapshot } from "../../src/lib/sports/odds/snapshot-contract.mjs";
 import { MARKET_SCOPE, normalizeScopedOddsEvent } from "../../src/lib/sports/odds/market-scope.mjs";
 import { joinOddsBatch } from "../../src/lib/sports/odds/event-join.mjs";
-import { parseAuthorizationReceipt, emptyLedger, assertCallAllowed, recordRequest, assertNoSecretLeak, classifyProviderResult, isDuplicateRequest, P171_LEDGER_RELPATH } from "../../src/lib/sports/odds/p171-authorization.mjs";
+import { parseAuthorizationReceipt, emptyLedger, assertCallAllowed, ceilingExhausted, recordRequest, assertNoSecretLeak, classifyProviderResult, isDuplicateRequest, P171_LEDGER_RELPATH } from "../../src/lib/sports/odds/p171-authorization.mjs";
 import { buildPlayerRegistry, resolvePlayerRef } from "../../src/lib/sports/nfl/player-identity.mjs";
 import { twoWayConsensus, medianOf } from "../../src/lib/sports/odds/consensus.mjs";
 import { mergeCaptureRows, carryPropsForward, carryUnreachedProps, unreachedTargets } from "../../src/lib/sports/odds/capture-merge.mjs";
@@ -168,6 +168,23 @@ if (PROBE) {
   console.log(`prop scope: ${PROP_PROBE_MARKETS.length} requested, all authorized by the receipt`);
 }
 if (!windowRows.length) { console.log("NO_EVENTS: no pre-start events in the window — an empty slate is an answer, not a call"); process.exit(0); }
+
+/*
+ * A SPENT ALLOWANCE IS A DECISION OWED, NOT A BROKEN JOB — the expired path above, for the ceiling half of the receipt.
+ * When the ceiling cannot cover even the cheapest paid call this run plans, every paid call would be refused, so the
+ * run stops HERE: before the key check and before any network call (not even the free index, whose only purpose is to
+ * precede a paid call), writing nothing — not even a ledger line. The chain continues against the last committed
+ * capture, exactly as with `skip_odds`. It stays visible: a workflow warning and the step summary name the renewal.
+ */
+const cheapestPaid = keyPlan.length ? Math.min(TEAM_MARKETS.length * REGIONS.length, ...(PROBE ? [PROP_PROBE_MARKETS.length * REGIONS.length] : [])) : 0;
+const spent = ceilingExhausted({ authorization, ledger, cheapestPaidCredits: cheapestPaid });
+if (spent.exhausted) {
+  const why = `cumulative ${spent.cumulative} of the ${spent.ceiling}-credit authorized ceiling (${spent.remaining} left) cannot cover the cheapest paid call this run plans (${cheapestPaid})`;
+  console.log(`BUDGET_EXHAUSTED: ${why}. No network call was made and nothing was written. The chain continues against the last committed capture; a renewed or raised receipt re-enables acquisition.`);
+  console.log(`::warning title=NFL odds allowance spent::${why} — NFL prices stay on the last committed capture until the receipt is renewed or raised (founder decision).`);
+  if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## NFL odds capture: BUDGET_EXHAUSTED\n\n${why}. No call, no spend; the last committed capture stands. Renewing or raising docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md is a founder decision.\n`);
+  process.exit(0);
+}
 
 const secretState = classifyOddsSecret(process.env);
 // the contract's healthy state is PRESENT (key-shaped, value never echoed) — refuse the other two

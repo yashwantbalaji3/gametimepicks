@@ -42,7 +42,7 @@ export default function BankBuilderLadderV2({ liveStep = 1, compact = false, cla
           <span className="font-mono uppercase tracking-[0.1em] text-[9.5px]" style={{ color: "var(--vault-gold)" }}>7-step profit-locking ladder</span>
           <span className="font-mono text-[8.5px] uppercase tracking-[0.06em]" style={{ color: "var(--vault-text-faint)" }}>v2 preview · live runs v1</span>
         </div>
-        <div className="mt-2 flex items-center gap-1 overflow-x-auto">
+        <div className="mt-2 flex items-center gap-1 overflow-x-auto" role="region" aria-label="Ladder steps" tabIndex={0}>
           {steps.map((p, i) => (
             <div key={p.step} className="flex items-center gap-1 shrink-0">
               <span className="rounded px-1.5 py-1 font-mono text-[9px] tabular" style={{ border: `1px solid ${p.step === liveStep ? "color-mix(in srgb, var(--vault-accent) 50%, transparent)" : "var(--vault-rule)"}`, color: p.lock > 0 ? "var(--vault-success)" : "var(--vault-text-mute)", background: p.step === liveStep ? "color-mix(in srgb, var(--vault-accent) 8%, transparent)" : "transparent" }}>

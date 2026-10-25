@@ -26,8 +26,26 @@ export const POLICY_LABEL = Object.freeze({
   "bank-builder-suggest@1": "Bank Builder card",
   "moonshot-suggest@1": "Moonshot card",
   "untiered-pick@1": "Single pick (untiered)",
+  /* The NBA game-winner rule (Release H) and the mixed-sport rule (PR 1244, switch off): one policy per page. Audit
+     2026-10-25: the live /results table printed these as raw ids ("nba-game-winner-tiers@1/parlay-lab · Low Risk"). */
+  "nba-game-winner-tiers@1/parlay-lab": "NBA Parlay Center card",
+  "nba-game-winner-tiers@1/bank-builder": "NBA Bank Builder card",
+  "nba-game-winner-tiers@1/moonshot": "NBA Moonshot card",
+  "level-a-mixed@1/parlay-lab": "Mixed-sport Parlay Center card",
+  "level-a-mixed@1/bank-builder": "Mixed-sport Bank Builder card",
+  "level-a-mixed@1/moonshot": "Mixed-sport Moonshot card",
 });
 const POLICY_ORDER = Object.keys(POLICY_LABEL);
+const PAGE_CARD = { "parlay-lab": "Parlay Center card", "bank-builder": "Bank Builder card", moonshot: "Moonshot card" };
+/**
+ * A policy's reader label. A policy this table does not list yet still never prints its raw id: a "<rule>/<page>" policy
+ * reads as that page's card, anything else as a plain model suggestion.
+ */
+export function policyLabel(policy) {
+  if (POLICY_LABEL[policy]) return POLICY_LABEL[policy];
+  const page = /\/(parlay-lab|bank-builder|moonshot)$/.exec(String(policy ?? ""))?.[1];
+  return page ? PAGE_CARD[page] : "Model suggestion";
+}
 const TIER_ORDER = ["low", "medium", "high", "longshot", "untiered"];
 /** The one public tier label (risk-odds-bands.mjs); an untiered pick has no risk tier. */
 const tierLabel = (tier) => (tier === "untiered" ? "Untiered" : publicRiskLabel(tier) ?? String(tier));
@@ -61,7 +79,7 @@ export function levelARecord(suggestions, grades) {
     const g = gradeOf.get(e.id) ?? null;
     const status = g ? RESULT[g.result] ?? "PENDING" : "PENDING";
     const key = `${e.policy}|${e.tier}`;
-    if (!groups.has(key)) groups.set(key, { policy: e.policy, tier: e.tier, label: POLICY_LABEL[e.policy] ?? e.policy, tierLabel: tierLabel(e.tier), ...zero() });
+    if (!groups.has(key)) groups.set(key, { policy: e.policy, tier: e.tier, label: policyLabel(e.policy), tierLabel: tierLabel(e.tier), ...zero() });
     const c = groups.get(key);
     c.recorded += 1;
     if (status === "WON") { c.won += 1; c.graded += 1; }
@@ -71,7 +89,7 @@ export function levelARecord(suggestions, grades) {
     const legGrade = new Map((g?.legs ?? []).map((l) => [`${l.sport}|${l.eventId}`, l]));
     entries.push({
       id: e.id, productDay: e.productDay, policy: e.policy, tier: e.tier,
-      label: POLICY_LABEL[e.policy] ?? e.policy, tierLabel: tierLabel(e.tier),
+      label: policyLabel(e.policy), tierLabel: tierLabel(e.tier),
       jointProbability: typeof e.jointProbability === "number" ? e.jointProbability : null,
       recordedAt: e.recordedAt ?? null, shownAt: e.shownAt ?? null, servedFrom: e.servedFrom ?? null, source: sourceLabel(e.source),
       firstStartUtc: e.firstStartUtc ?? null, revisionOf: e.revisionOf ?? null,

@@ -14,6 +14,12 @@
  *   DNP                 "DNP" — shown as a dash, never 0;
  *   not in box score / not an integer   null — shown as a dash, never 0.
  * Nothing here touches a frozen figure: actuals travel beside the snapshot, keyed by the board's own row id.
+ *
+ * STAT CORRECTIONS (release owner P0, 2026-10-25): ESPN may correct a final box score after the graders read it. The
+ * nightly re-check stores the corrected box as a correction (it never rewrites the first capture), and the board shows
+ * the newest verified figures. Grades are never rewritten here: each value that the correction CHANGED keeps the first
+ * capture's value beside it (`corrected[rowId][valueIndex]` = the value the graders graded on), and the game records
+ * when the correction was captured — so the page says "stat corrected after grading" instead of silently differing.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -31,7 +37,18 @@ export type RowActual = [number | "DNP" | null, ...(number | null)[]];
 /** A player who PLAYED in a recorded game (integer minutes > 0 in the final box score) but has no row on the frozen
     board: the Official Forecast had no projection for him. His actuals are shown; no forecast figure is invented. */
 export type UnprojectedPlayer = { id: string; game: string; side: "away" | "home"; name: string; actual: RowActual };
-export type BoardActuals = { games: Record<string, GameActualState>; rows: Record<string, RowActual>; unprojected?: UnprojectedPlayer[] };
+/** Per row id: value index (0 = minutes, k = the k-th board stat) → the first capture's value, for values a correction changed. */
+export type CorrectedValues = Record<string, Record<number, number | "DNP" | null>>;
+/** Per game whose shown box score is a stored correction: when the first capture and the correction were captured. */
+export type GameCorrection = { firstCapturedAt: string | null; correctedAt: string | null };
+export type BoardActuals = {
+  games: Record<string, GameActualState>;
+  rows: Record<string, RowActual>;
+  unprojected?: UnprojectedPlayer[];
+  /** values a stat correction changed after grading (absent = none) */
+  corrected?: CorrectedValues;
+  corrections?: Record<string, GameCorrection>;
+};
 
 /** Repo-relative box-score directories, in the graders' lookup order: the canonical corpus, then the fetch cache the
     nightly grader writes (the v0 family's directory). The other families' caches are empty in the repository; a box
@@ -59,13 +76,17 @@ function latestCorrection(id: string): unknown | null {
   return best;
 }
 
-/** The box score the graders read for one event, or null. */
-export function gradedBoxscore(id: string): unknown | null {
+/** The FIRST capture of an event's box score (corpus, then the fetch cache) — the one the graders graded on — or null. */
+export function firstCapturedBoxscore(id: string): unknown | null {
   if (!/^\d+$/.test(id)) return null;
-  const fix = latestCorrection(id);
-  if (fix) return fix;
   for (const d of BOX_DIRS) { const doc = readJson(path.join(abs(d), `${id}.json`)); if (doc) return doc; }
   return null;
+}
+
+/** The newest verified box score for one event (a stored correction, else the first capture), or null. */
+export function gradedBoxscore(id: string): unknown | null {
+  if (!/^\d+$/.test(id)) return null;
+  return latestCorrection(id) ?? firstCapturedBoxscore(id);
 }
 
 /**
@@ -75,14 +96,18 @@ export function gradedBoxscore(id: string): unknown | null {
 export function boardActuals(
   lane: Snapshot | null,
   stats: ReadonlyArray<ReadonlyArray<string>>,
-  { boxscoreOf = gradedBoxscore, finals = undefined as unknown }: { boxscoreOf?: (id: string) => unknown | null; finals?: unknown } = {},
+  { boxscoreOf = gradedBoxscore, firstCaptureOf: firstOf, finals = undefined as unknown }: { boxscoreOf?: (id: string) => unknown | null; firstCaptureOf?: (id: string) => unknown | null; finals?: unknown } = {},
 ): BoardActuals | null {
+  // The first capture comes from the same store as the shown box score: an injected reader brings its own (or none).
+  const firstCaptureOf = firstOf ?? (boxscoreOf === gradedBoxscore ? firstCapturedBoxscore : () => null);
   if (!lane || lane.games.length === 0) return null;
   const season = nbaSeasonLabel(lane.date ?? "");
   const record = finals !== undefined ? finals : season ? readJson(path.join(process.cwd(), "public", "data", "nba", "results", `finals-${season}.json`)) : null;
   const games: Record<string, GameActualState> = {};
   const rows: Record<string, RowActual> = {};
   const unprojected: UnprojectedPlayer[] = [];
+  const corrected: CorrectedValues = {};
+  const corrections: Record<string, GameCorrection> = {};
   const lineOf = (a: object | null): RowActual => {
     const values = stats.map(([k]) => {
       const parts: string[] = [...((COMBO_COMPONENTS as Record<string, readonly string[]>)[k] ?? [k])];
@@ -106,18 +131,35 @@ export function boardActuals(
     const pts = boxscorePointsCheck(box, { homeTeamId: home.providerTeamId, awayTeamId: away.providerTeamId, ftHome: fin.ftHome, ftAway: fin.ftAway });
     if (pts?.agrees === false) { games[id] = "points-disagree"; continue; }
     games[id] = "recorded";
+    // A shown correction keeps the first capture's values beside the values it changed (never silently differing).
+    const first = firstCaptureOf(id) as { capturedAt?: string } | null;
+    const isCorrection = first != null && first !== box && isFinalBoxscore(first) && (first as { capturedAt?: string }).capturedAt !== (box as { capturedAt?: string }).capturedAt;
+    const keepLine = (key: string, athleteId: string, shown: RowActual) => {
+      rows[key] = shown;
+      if (!isCorrection) return;
+      const was = lineOf(boxscoreAthlete(first, athleteId));
+      const diff: Record<number, number | "DNP" | null> = {};
+      shown.forEach((v, i) => { if (v !== was[i]) diff[i] = was[i]; });
+      if (Object.keys(diff).length) {
+        corrected[key] = diff;
+        corrections[id] = { firstCapturedAt: first.capturedAt ?? null, correctedAt: (box as { capturedAt?: string }).capturedAt ?? null };
+      }
+    };
     for (const side of ["away", "home"] as const) {
-      for (const r of g.players[side]) rows[`${id}:${r.providerAthleteId}`] = lineOf(boxscoreAthlete(box, r.providerAthleteId));
+      for (const r of g.players[side]) keepLine(`${id}:${r.providerAthleteId}`, r.providerAthleteId, lineOf(boxscoreAthlete(box, r.providerAthleteId)));
       // Played, but not on the board: every box-score row of this side with integer minutes > 0 and no board row.
       const onBoard = new Set(g.players[side].map((r) => String(r.providerAthleteId)));
       const tid = String((side === "home" ? home : away).providerTeamId);
       for (const p of (box as { players?: { providerAthleteId?: string; providerTeamId?: string; name?: string; minutes?: unknown; didNotPlay?: boolean }[] }).players ?? []) {
         if (String(p.providerTeamId) !== tid || onBoard.has(String(p.providerAthleteId)) || p.didNotPlay || !Number.isInteger(p.minutes) || (p.minutes as number) <= 0) continue;
-        unprojected.push({ id: String(p.providerAthleteId), game: id, side, name: p.name ?? "", actual: lineOf(p) });
+        const shown = lineOf(p);
+        unprojected.push({ id: String(p.providerAthleteId), game: id, side, name: p.name ?? "", actual: shown });
+        // keyed like a board row, for the corrected-after-grading marks (not added to `rows`)
+        if (isCorrection) { const keep = rows[`${id}:${p.providerAthleteId}`]; keepLine(`${id}:${p.providerAthleteId}`, String(p.providerAthleteId), shown); if (keep === undefined) delete rows[`${id}:${p.providerAthleteId}`]; }
       }
     }
   }
-  return { games, rows, unprojected };
+  return { games, rows, unprojected, ...(Object.keys(corrected).length ? { corrected, corrections } : {}) };
 }
 
 type BoxTeam = { providerTeamId?: string; abbr?: string; homeAway?: string };

@@ -62,9 +62,10 @@ export function boardRows(snapshot, stats) {
  * rows with `np` = that code, every frozen value null and the actuals verbatim; they sort last in the default order.
  * POSITIONS: when any board row carries the lane's `position`, `p` (parallel to `r`) holds them; absent = not recorded.
  * @param {ReadonlySet<string> | null} [awaiting]  game ids with no official final yet
- * @param {{ name: string, game: string, team: string, teamName: string, code: string, pos?: string | null, actual?: (number | string | null)[] | null }[] | null} [unprojected]
+ * @param {{ key?: string, name: string, game: string, team: string, teamName: string, code: string, pos?: string | null, actual?: (number | string | null)[] | null }[] | null} [unprojected]
+ * @param {Record<string, Record<number, number | string | null>> | null} [corrected]  row id → value index → graded value
  */
-export function packBoard(rows, actuals = null, awaiting = null, unprojected = null) {
+export function packBoard(rows, actuals = null, awaiting = null, unprojected = null, corrected = null) {
   const t = [];
   const at = new Map();
   const sorted = sortRows(rows);
@@ -83,14 +84,22 @@ export function packBoard(rows, actuals = null, awaiting = null, unprojected = n
       return [x.name, at.get(k), x.code, x.pos ?? 0, ...(x.actual ?? [])];
     });
   }
+  // STAT CORRECTIONS: `c` lists [row index (board rows, then u rows), value index (0 = minutes, k = k-th stat), the
+  // value graded on] for each actual a box-score correction changed after grading; absent = none.
+  if (actuals && corrected) {
+    const c = [];
+    const keys = [...sorted.map((x) => x.id), ...(unprojected ?? []).map((x) => x.key ?? "")];
+    keys.forEach((key, i) => { for (const [vi, was] of Object.entries(corrected[key] ?? {})) c.push([i, Number(vi), was]); });
+    if (c.length) out.c = c;
+  }
   return out;
 }
 
 /**
- * @param {{ t: [string, string, string][], r: (string | number | null)[][], a?: (0 | 1 | (number | string | null)[])[], u?: (string | number | null)[][], p?: (string | 0)[] }} packed
- * @returns {{ id: string, game: string, name: string, injury: string | null, team: string, teamName: string, min: number | null, v: (number | null)[], am?: number | "DNP" | null, aw?: boolean, np?: string, pos?: string | null }[]}
+ * @param {{ t: [string, string, string][], r: (string | number | null)[][], a?: (0 | 1 | (number | string | null)[])[], u?: (string | number | null)[][], p?: (string | 0)[], c?: [number, number, number | string | null][] }} packed
+ * @returns {{ id: string, game: string, name: string, injury: string | null, team: string, teamName: string, min: number | null, v: (number | null)[], am?: number | "DNP" | null, aw?: boolean, np?: string, pos?: string | null, cv?: Record<number, number | string | null> }[]}
  */
-export function unpackBoard({ t, r, a, u, p }) {
+export function unpackBoard({ t, r, a, u, p, c }) {
   const board = r.map(([name, injury, ti, min, ...v], i) => {
     const [team, teamName, game] = t[/** @type {number} */ (ti)];
     const row = { id: String(i).padStart(4, "0"), game, name: /** @type {string} */ (name), injury: /** @type {string} */ (injury) || null, team, teamName, min: /** @type {number | null} */ (min), v: /** @type {(number | null)[]} */ (v), ...(p ? { pos: p[i] || null } : {}) };
@@ -104,6 +113,7 @@ export function unpackBoard({ t, r, a, u, p }) {
     const actual = a ? (am === undefined ? Array(width).fill(null) : act) : [];
     board.push({ id: `u${String(j).padStart(4, "0")}`, game, name: /** @type {string} */ (name), injury: null, team, teamName, min: null, v: [...Array(width).fill(null), ...actual], am: am === undefined ? null : am, aw: false, np: /** @type {string} */ (code), ...(p || pos ? { pos: pos || null } : {}) });
   }
+  for (const [i, vi, was] of c ?? []) if (board[i]) board[i].cv = { ...(board[i].cv ?? {}), [vi]: was };
   return board;
 }
 

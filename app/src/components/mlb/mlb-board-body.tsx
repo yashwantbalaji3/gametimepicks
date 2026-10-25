@@ -486,7 +486,7 @@ function BackToOverviewLink() {
       className="mt-10 text-[12px]"
       style={{ color: "var(--vault-text-faint)" }}
     >
-      <Link href="/mlb" style={{ color: "var(--vault-gold-bright)" }}>
+      <Link href="/mlb" className="gtp-backlink" style={{ color: "var(--vault-gold-bright)" }}>
         ← back to MLB overview
       </Link>
     </section>
