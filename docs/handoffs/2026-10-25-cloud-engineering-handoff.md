@@ -32,7 +32,7 @@ This is an independent contributor session. It **did not merge, deploy, flip a f
 | Model performance / methodology | Truthful public wording | LIVE wording **was false**: NBA, EPL and Ligue 1 "Never enter Bank Builder, Moonshot or Parlays" | Fixed from the registry (BRANCH) | — | — |
 | Accounts / legal | Terms and Privacy published, sign-up | BLOCKED | — | Founder inputs + counsel receipt | — |
 | Workflow reliability & cost | No false-red jobs; fewer data-only builds | 70 of 118 main commits in 24 h changed build inputs. `nfl-event-window` red on 68 of 100 runs | NFL odds red runs (#1247). Vacuous NFL revisions (BRANCH) | Stamp-only NFL commits (see E) | Launch Readiness decision |
-| Accessibility / mobile | Targets ≥ 24 px (44 px project rule), no overflow | 19 routes × 4 widths: 0 overflow, 1 h1 each. About 30 footer links per page at 16 px | Footer, back links, NFL board (BRANCH) | — | — |
+| Accessibility / mobile | Targets ≥ 24 px (44 px project rule), no overflow, keyboard-reachable | 19 routes × 4 widths: 0 overflow, 1 h1 each. About 30 footer links per page at 16 px. axe: 22 serious issues on 14 routes | Footer, back links, NFL board, scroll regions, in-text links (BRANCH). Local axe: 0 on 9 routes | — | — |
 
 **Detailed lists from the read-only reconciliation:**
 - **Switches OFF:** NBA Top-10 board; `LEVEL_A_MIXED_PUBLIC`; Parlay Lab V2; correlation caps; sportsbook links; NFL Theater env; public sign-up; Terms and Privacy; Live UI; `NBA_FINALS_WAITER_ENABLED`.
@@ -52,6 +52,7 @@ This is an independent contributor session. It **did not merge, deploy, flip a f
 | 7 | `60e4b4ed95` | **Problem:** NFL board player links at 22 px. **Fix:** `line-height: 24px` | Local: 10 → 0 targets under 24 px on `/nfl/` main content | — |
 | 8 | `0a3658a706` | **Problem:** `/results` printed raw ids like `nba-game-winner-tiers@1/parlay-lab`. **Fix:** labels for the NBA and mixed policies, plus a `policyLabel()` fallback | Local render shows 0 raw ids; counts unchanged and reconciled with the ledger | — |
 | 9 | `bd80ad2797` | **Problem:** 99 NFL "revisions" (timestamp-only) for 12 games today, 177 on 10-18 and 10-11. The score shape flickered (median 47 → 46) and each run built. **Cause:** the hash carried the run clock and the schedule stamp, and the unchanged check compared only the original receipt. **Fix:** hash the folded finals (`lastFoldedUtc`) and compare against the newest receipt | New test: a run 34 min later, and a recaptured schedule, write nothing; a moved kickoff revises one game, once. Red before each fix. 981 pass; the same 7 fail without the change | **The first run after deploy writes ONE revision per pending game** (new hash formula; numbers identical) |
+| 10 | `4d0448b559` | **Problem:** axe-core on 14 live routes found 22 serious issues: 14 scroll regions a keyboard cannot reach, 8 links distinguished by colour alone. **Fix:** `role="region"` + `aria-label` + `tabIndex={0}` on scroll wrappers (the existing NFL convention), and underlined in-text links | Local `next dev` axe scan of 9 routes: 0 violations. New test `a11y-scroll-regions`. 764 pass; the same 4 fail without the change | The NBA simulation and NFL game routes are covered by the code change, not by a scan |
 
 The branch head (`bd80ad2797`) merges cleanly into main `6ca75ff428`, and separately with #1246, #1238 and #1245 (checked with `git merge-tree`).
 
@@ -78,14 +79,14 @@ The branch head (`bd80ad2797`) merges cleanly into main `6ca75ff428`, and separa
 
 **Not yet implemented:**
 1. a stamp-only guard for NFL window commits (see E);
-2. event-driven grading for soccer and MLB Level A cards;
+2. event-driven grading for soccer and MLB Level A cards. **Assessed, not built.** Ligue 1 finals land only with `soccer-leagues` at 09:15Z, so there is no gain. EPL-only cards would gain hours (`epl-settle` 23:00Z), but `epl-settle` pushes with a bare `pull --rebase`, so it would first need the `regrade-level-a-on-conflict.sh` resolver. Most soccer cards mix leagues;
 3. `/results` page weight (1,366 KB against a 2,300 KB ceiling; P2);
 4. the NFL preseason hash path (same pattern as B9; inert until 2027).
 
 ## D. Release package
 
 - **Base:** `674c57f786`.
-- **Commits:** B1–B9 in the order of the table (`git log --reverse 674c57f786..claude/adoring-bohr-e6yo42`).
+- **Commits:** B1–B10 in the order of the table (`git log --reverse 674c57f786..claude/adoring-bohr-e6yo42`).
 - **Rebuilding in a fresh checkout:** `git fetch origin claude/adoring-bohr-e6yo42`, then either `git merge` or `git format-patch 674c57f786..FETCH_HEAD`. The branch on GitHub is the durable copy.
 - **Feature flags touched:** none.
 
