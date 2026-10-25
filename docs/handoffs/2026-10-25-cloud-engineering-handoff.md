@@ -56,7 +56,7 @@ This is an independent contributor session. It **did not merge, deploy, flip a f
 
 The branch head (`bd80ad2797`) merges cleanly into main `6ca75ff428`, and separately with #1246, #1238 and #1245 (checked with `git merge-tree`).
 
-**Full-suite note:** main itself is red (3 unit failures in CI). #1245 and #1246 each fix one; the third is shared and unidentified. #1247's CI showed the same 3 at head `dc62398de6`; for later heads, read the PR's checks.
+**Full-suite note (superseded 10-26):** main is red with 3 unit failures. #1245 and #1246 each fix one, and #1247 now fixes the third (the consistency audit's NFL 401873011 event). Exact heads, merge order and test results are in [the release manifest](2026-10-26-release-manifest.md).
 
 ## C. Pending work, in execution order
 
