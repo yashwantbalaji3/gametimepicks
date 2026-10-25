@@ -464,6 +464,9 @@ function Block({ title, children }: { title: string; children: ReactNode }) {
 function Formula({ children }: { children: ReactNode }) {
   return (
     <div
+      role="region"
+      aria-label="Formula"
+      tabIndex={0}
       className="relative my-3 rounded-[6px] px-4 py-3.5 font-mono text-[12px] sm:text-[13px] tabular leading-relaxed overflow-x-auto"
       style={{
         background: "linear-gradient(180deg, color-mix(in srgb, var(--vault-scrim-base) 92%, transparent), rgba(10, 16, 13, 0.92))",
@@ -550,7 +553,7 @@ function WorkflowDiagram() {
   ];
   return (
     <div className="surface p-5 rounded-[10px]">
-      <div className="overflow-x-auto -mx-1">
+      <div className="overflow-x-auto -mx-1" role="region" aria-label="Ladder steps" tabIndex={0}>
         <div className="flex items-center gap-2 px-1 min-w-min">
           {steps.map((step, i) => (
             <div key={i} className="flex items-center gap-2 shrink-0">

@@ -173,7 +173,7 @@ export default function ParlayCenterSuggestedPage() {
         <Link className="inline-flex items-center" href="/cards/ufc" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600, minHeight: 44 }}>UFC cards</Link>
         <Link className="inline-flex items-center" href="/cards/nfl" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600, minHeight: 44 }}>NFL cards</Link>
         <span style={{ color: "var(--vault-text-faint)" }}>·</span>
-        <Link className="inline-flex items-center" href="/results/parlay-lab" style={{ color: "var(--vault-text-mute)", minHeight: 44 }}>Every settled card (history)</Link>
+        <Link className="inline-flex items-center" href="/results/parlay-lab" style={{ color: "var(--vault-text-mute)", minHeight: 44, textDecoration: "underline" }}>Every settled card (history)</Link>
       </section>
 
       {/* ── SUGGESTED CARDS (shared loader; the optimizer's full pool) ───────────────────────────

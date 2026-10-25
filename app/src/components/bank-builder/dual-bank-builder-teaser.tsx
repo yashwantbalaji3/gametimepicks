@@ -177,7 +177,7 @@ function StepLadder({ lane, accent }: { lane: DualLane; accent: string }) {
     { n: 5, label: "👑 $10K", crown: true },
   ];
   return (
-    <div className="mt-2.5 flex items-center gap-1 overflow-x-auto" aria-label="Ladder path: Step 1 of 5 toward the $10,000 crown">
+    <div className="mt-2.5 flex items-center gap-1 overflow-x-auto" role="region" tabIndex={0} aria-label="Ladder path: Step 1 of 5 toward the $10,000 crown">
       {steps.map((s, i) => (
         <span key={s.n} className="flex items-center gap-1 shrink-0">
           <span

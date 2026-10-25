@@ -31,7 +31,7 @@ type Row = { readonly wins: number; readonly losses: number; readonly hitRate?: 
 function BandTable({ rows, overall, caption }: { rows: { tier: string; r: Row }[]; overall: Row; caption: string }) {
   const cell = { borderBottom: "1px solid var(--vault-rule)" } as const;
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto" role="region" aria-label={caption} tabIndex={0}>
       <table className="w-full" style={{ borderCollapse: "collapse", minWidth: 560 }}>
         <caption className="sr-only">{caption}</caption>
         <thead>

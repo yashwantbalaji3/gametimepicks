@@ -42,7 +42,7 @@ export default function LifecycleRecord({
                   <span className="text-[12px] font-mono" style={{ color: "var(--vault-text-mute)" }}>{c.id}</span>
                 </div>
                 <p className="mt-1 mb-3 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{cardSummary(c)}</p>
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto" role="region" aria-label={`Legs of card ${c.id}`} tabIndex={0}>
                   <table className="w-full text-[12px] border-collapse" style={{ minWidth: 380 }}>
                     <thead>
                       <tr style={{ color: "var(--vault-text-mute)" }}>

@@ -190,7 +190,7 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
            favoured side, the Elo-derived estimate where the receipt carries it, the board size and the freeze time.
            Today's game cards above link to the row (or to the game's full forecast on its Game Simulation page). */
         <>
-          <div className="nbx-scroll">
+          <div className="nbx-scroll" role="region" aria-label={`${PUBLIC_TERMS.OFFICIAL_FORECAST} for each game`} tabIndex={0}>
             <table className="nbx-ftable">
               <caption className="sr-only">{PUBLIC_TERMS.OFFICIAL_FORECAST} for each game</caption>
               <thead><tr><th scope="col">Game</th><th scope="col">Favoured side</th>{eloCol ? <th scope="col">{ELO_WIN_PROBABILITY_LABEL}</th> : null}<th scope="col">Players</th><th scope="col">Frozen</th></tr></thead>
