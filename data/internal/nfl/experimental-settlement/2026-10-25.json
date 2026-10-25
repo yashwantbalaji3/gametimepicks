@@ -4,7 +4,7 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-10-25",
- "generatedAt": "2026-10-25T22:36:17Z",
+ "generatedAt": "2026-10-25T22:58:59Z",
  "modelVersion": "nfl-regular-season-public-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
@@ -769,6 +769,119 @@
     }
    },
    "marketBenchmark": null
+  },
+  {
+   "canonicalEventId": "nfl-401873016",
+   "providerEventId": "401873016",
+   "matchup": "NYG @ HOU",
+   "kickoffUtc": "2026-10-25T17:00Z",
+   "seasonType": 2,
+   "week": 7,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-25/401873016-rev-1658Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "9a4907e61849ab1a",
+    "forecastGeneratedAt": "2026-10-25T16:58:30Z",
+    "revisionChain": [
+     {
+      "file": "401873016.json",
+      "generatedAt": "2026-10-25T11:46:15Z",
+      "inputHash": "dd8117fab06d4003"
+     },
+     {
+      "file": "401873016-rev-1221Z.json",
+      "generatedAt": "2026-10-25T12:21:44Z",
+      "inputHash": "5530bbbd444230ac"
+     },
+     {
+      "file": "401873016-rev-1236Z.json",
+      "generatedAt": "2026-10-25T12:36:05Z",
+      "inputHash": "80df5444a69b9482"
+     },
+     {
+      "file": "401873016-rev-1329Z.json",
+      "generatedAt": "2026-10-25T13:29:54Z",
+      "inputHash": "6f024ca55b357705"
+     },
+     {
+      "file": "401873016-rev-1343Z.json",
+      "generatedAt": "2026-10-25T13:43:46Z",
+      "inputHash": "c846c04a4e8992ac"
+     },
+     {
+      "file": "401873016-rev-1506Z.json",
+      "generatedAt": "2026-10-25T15:06:54Z",
+      "inputHash": "fad0c907c1211ed1"
+     },
+     {
+      "file": "401873016-rev-1513Z.json",
+      "generatedAt": "2026-10-25T15:13:37Z",
+      "inputHash": "965e9324f5fd2def"
+     },
+     {
+      "file": "401873016-rev-1606Z.json",
+      "generatedAt": "2026-10-25T16:06:17Z",
+      "inputHash": "f76f52083783ebb8"
+     },
+     {
+      "file": "401873016-rev-1640Z.json",
+      "generatedAt": "2026-10-25T16:40:00Z",
+      "inputHash": "4e6280e84bb8802b"
+     },
+     {
+      "file": "401873016-rev-1658Z.json",
+      "generatedAt": "2026-10-25T16:58:30Z",
+      "inputHash": "9a4907e61849ab1a"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-10-25T22:36:17Z",
+    "settledAt": "2026-10-25T22:58:59Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 21,
+     "away": 27,
+     "margin": -6,
+     "total": 48,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "HOME",
+     "correct": false,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 7,
+     "actual": -6,
+     "absError": 13,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 47,
+     "actual": 48,
+     "absError": 1,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 27,
+      "away": 20,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 13
+    },
+    "probabilistic": {
+     "brier": 0.462128,
+     "logLoss": 1.138809
+    }
+   },
+   "marketBenchmark": null
   }
  ],
  "pending": [
@@ -777,13 +890,6 @@
    "matchup": "DAL @ PHI",
    "state": "PRE_KICKOFF",
    "kickoffUtc": "2026-10-27T00:15Z"
-  },
-  {
-   "canonicalEventId": "nfl-401873016",
-   "matchup": "NYG @ HOU",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-10-25T17:00Z",
-   "observed": "STATUS_SCHEDULED"
   },
   {
    "canonicalEventId": "nfl-401873019",
@@ -817,24 +923,24 @@
  "recordElsewhere": [],
  "accounting": {
   "receipts": 13,
-  "settled": 7,
-  "pending": 6,
+  "settled": 8,
+  "pending": 5,
   "quarantined": 0,
   "recordElsewhere": 0,
   "reconciles": true
  },
  "metrics": {
-  "settledForecasts": 7,
-  "decisive": 7,
+  "settledForecasts": 8,
+  "decisive": 8,
   "ties": 0,
   "winnerCorrect": 3,
-  "winnerAccuracy": 0.4286,
-  "marginMAE": 11.4286,
-  "totalMAE": 10.1429,
-  "marginInterval80Coverage": 0.7143,
-  "totalInterval80Coverage": 0.8571,
-  "brier": 0.2642,
-  "logLoss": 0.722
+  "winnerAccuracy": 0.375,
+  "marginMAE": 11.625,
+  "totalMAE": 9,
+  "marginInterval80Coverage": 0.75,
+  "totalInterval80Coverage": 0.875,
+  "brier": 0.2889,
+  "logLoss": 0.7741
  },
  "marketBenchmark": null,
  "comparison": null
