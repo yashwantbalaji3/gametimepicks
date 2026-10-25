@@ -1,6 +1,6 @@
-# Level A · mixed-sport model suggestions: design (DRAFT, doc only)
+# Level A · mixed-sport model suggestions: design
 
-- **Status:** DRAFT for release-owner review. No code. Nothing here changes a switch, a gate or a published number.
+- **Status:** ACCEPTED FOR IMPLEMENTATION (release owner, 2026-10-24), with per-leg labelling only and no cap (§6.6). The implementation ships after the NBA-only tiers have a graded night, behind its own switch (default false), with a §7-style evidence package on a real day.
 - **Builds on:**
   - the Level A decision ([founder text](decisions/2026-10-23-LEVEL-A-MODEL-SUGGESTIONS.md));
   - the live cross-sport Level A cards (`level-a/suggestions.mjs`);
@@ -92,7 +92,7 @@ Today NBA legs appear only in NBA-only cards (rule §2, deliberately conservativ
 3. **The same engine.** Mixed and NBA-only cards come from one selection function (highest joint per band, deterministic ties, distinct events and teams), so a card cannot be computed two ways.
 4. **Policy and recording.** A new policy id (`level-a-mixed@1/<page>`), recorded per deployment with the exact `data-level-a-card` key, graded by the existing grader.
 5. **Switch.** Its own committed constant, default false. Flipped only after a §7-style evidence package on a real slate (per-leg equality, expected cards per page and tier, band sweep, switch-OFF identity).
-6. **Open question for the release owner.** Should a mixed card require that at most one leg's probability is "not independently validated" (today: NBA)? Or is per-leg labelling enough? The recommendation is labelling plus the disclosure, with no cap, because a cap would be a methodology constant needing its own source and approval.
+6. **Decided (release owner, 2026-10-24): per-leg labelling only, no cap.** Each leg carries its own label, and the display's accuracy disclosure appears once whenever an NBA leg is present. There is no limit on how many "not independently validated" legs a card may hold: a cap would be a methodology constant needing its own source and approval.
 
 ## 7. Bands and rounding (shared, unchanged)
 
