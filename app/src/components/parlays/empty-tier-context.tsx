@@ -53,10 +53,10 @@ export default function EmptyTierContext({ emptyTiers, lastCards, lanes }: { emp
             {rows.map((t) => {
               const href = t.last ? surfaceHref("results", { date: t.last.date }) : null;
               return (
-                <li key={t.tier} className="flex flex-wrap items-baseline justify-between gap-x-3 text-[12.5px]">
+                <li key={t.tier} className="flex flex-wrap items-center justify-between gap-x-3 text-[12.5px]">
                   <span className="font-semibold" style={{ color: "var(--vault-text)" }}>{t.tierLabel}</span>
                   {t.last && href ? (
-                    <Link href={href} style={{ color: "var(--vault-gold-bright)" }}>
+                    <Link href={href} className="inline-flex items-center" style={{ color: "var(--vault-gold-bright)", minHeight: 44 }}>
                       {etDayLabel(t.last.date) ?? t.last.date}, {yearOf(t.last.date)} · {t.last.legs} legs{signed(t.last.combinedAmerican) ? ` · ${signed(t.last.combinedAmerican)}` : ""} · {RESULT_WORD[t.last.result] ?? t.last.result}
                     </Link>
                   ) : (
