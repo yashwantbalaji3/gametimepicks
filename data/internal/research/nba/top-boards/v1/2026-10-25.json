@@ -1,0 +1,6927 @@
+{
+ "schemaVersion": 2,
+ "artifact": "nba-top-boards",
+ "schema": "nba-top-board@2",
+ "dataClass": "PRIVATE_RESEARCH",
+ "productEligible": false,
+ "publicState": "PRIVATE",
+ "neverReadBy": "public routes under app/src/app/** — private artifact; sport-capability-registry keeps NBA HISTORICAL_ONLY",
+ "date": "2026-10-25",
+ "family": "v1",
+ "modelVersion": "nba-sim-v1-coherent",
+ "categories": [
+  {
+   "key": "points",
+   "stat": "pts",
+   "label": "Points",
+   "basis": "MARGINAL",
+   "modelled": true
+  },
+  {
+   "key": "rebounds",
+   "stat": "reb",
+   "label": "Rebounds",
+   "basis": "MARGINAL",
+   "modelled": true
+  },
+  {
+   "key": "assists",
+   "stat": "ast",
+   "label": "Assists",
+   "basis": "MARGINAL",
+   "modelled": true
+  },
+  {
+   "key": "threes",
+   "stat": "threePm",
+   "label": "3PM",
+   "basis": "MARGINAL",
+   "modelled": true
+  },
+  {
+   "key": "pra",
+   "stat": "pra",
+   "label": "PRA",
+   "basis": "JOINT_SIMULATED_SUM",
+   "components": [
+    "pts",
+    "reb",
+    "ast"
+   ],
+   "modelled": true
+  },
+  {
+   "key": "ptsReb",
+   "stat": "ptsReb",
+   "label": "P+R",
+   "basis": "JOINT_SIMULATED_SUM",
+   "components": [
+    "pts",
+    "reb"
+   ],
+   "modelled": true
+  },
+  {
+   "key": "ptsAst",
+   "stat": "ptsAst",
+   "label": "P+A",
+   "basis": "JOINT_SIMULATED_SUM",
+   "components": [
+    "pts",
+    "ast"
+   ],
+   "modelled": true
+  },
+  {
+   "key": "rebAst",
+   "stat": null,
+   "label": "R+A",
+   "basis": "NOT_MODELLED",
+   "components": [
+    "reb",
+    "ast"
+   ],
+   "modelled": false
+  }
+ ],
+ "maxRows": 10,
+ "eligibility": {
+  "version": "nba-top-board-eligibility@1",
+  "minExpectedMinutes": 20,
+  "maxMinutesCv": 0.35,
+  "minPlayRate": 0.95,
+  "minGamesUsed": 3,
+  "playerRateBases": [
+   "player-window",
+   "v1-shrunk-to-league"
+  ],
+  "tradedHistoryPolicy": "INCLUDE_WITH_FLAG",
+  "rules": [
+   {
+    "id": "MISSING_ATHLETE_ID",
+    "scope": "player",
+    "description": "no providerAthleteId — the row could never be joined to a box score"
+   },
+   {
+    "id": "AVAILABILITY_OUT",
+    "scope": "player",
+    "description": "ruled Out by the injury feed at the forecast instant"
+   },
+   {
+    "id": "INJURY_DESIGNATION",
+    "scope": "player",
+    "description": "ANY injury designation, including Day-To-Day — an unresolved status is withheld (founder rule)"
+   },
+   {
+    "id": "INSUFFICIENT_HISTORY",
+    "scope": "player",
+    "description": "minutes basis \"insufficient\", or fewer than 3 appearances used (the minutes model's MIN_GAMES_FOR_RATES)"
+   },
+   {
+    "id": "NULL_MINUTES",
+    "scope": "player",
+    "description": "expected minutes absent (never read as zero)"
+   },
+   {
+    "id": "AVAILABILITY_UNVERIFIED",
+    "scope": "player",
+    "description": "availability not read from an injury feed (\"unknown\" or absent) — unknown is not active"
+   },
+   {
+    "id": "LOW_PLAY_RATE",
+    "scope": "player",
+    "description": "conditional-on-playing quantiles with playRate below 0.95 (or no playRate recorded)"
+   },
+   {
+    "id": "TEAM_POOL_FALLBACK_RATES",
+    "scope": "player",
+    "description": "per-minute rates not from the player's own history (team-pool fallback, or an unknown basis)"
+   },
+   {
+    "id": "LOW_EXPECTED_MINUTES",
+    "scope": "player",
+    "description": "expected minutes below 20 (the preregistered graded population)"
+   },
+   {
+    "id": "MINUTES_TOO_UNCERTAIN",
+    "scope": "player",
+    "description": "minutesSd / expectedMinutes above 0.35, or no measured minutes spread"
+   },
+   {
+    "id": "MISSING_DISTRIBUTION",
+    "scope": "category",
+    "description": "the category's frozen distribution (mean, p10, p50, p90) is incomplete"
+   }
+  ],
+  "flags": [
+   "TRADED_HISTORY_OTHER_TEAM",
+   "LEGACY_NO_RECEIPT"
+  ]
+ },
+ "ranking": {
+  "id": "nba-top-board-ranking@2",
+  "metric": "MODEL_MEDIAN_P50_OR_MEAN_WHEN_DISCRETE",
+  "metrics": {
+   "CONTINUOUS": "MODEL_MEDIAN_P50",
+   "DISCRETE": "MODEL_MEAN"
+  },
+  "rule": "per board: continuous quantile summaries → frozen p50 desc, then mean desc, then providerAthleteId asc; whole-number (discrete) summaries on every candidate → frozen mean desc, then providerAthleteId asc (deterministic, no clock)"
+ },
+ "market": {
+  "state": "NO_AUTHORIZED_PRICE",
+  "note": "no NBA odds authorization exists; no line, odds, edge or over/under probability is ever recorded"
+ },
+ "confidence": {
+  "value": null,
+  "reason": "no calibrated confidence until the preregistered bars are met"
+ },
+ "writeOnce": {
+  "rule": "an edition, once written, is never rewritten; a later freeze only adds a new edition for games on no earlier edition that have not tipped"
+ },
+ "editions": [
+  {
+   "edition": 1,
+   "frozenAt": "2026-10-25T13:25:18Z",
+   "source": {
+    "path": "data/internal/research/nba/experimental-v1/forecasts/2026-10-25.json",
+    "sha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+    "artifactGeneratedAt": "2026-10-25T13:25:18Z",
+    "artifactInputAsOf": "2026-10-25T13:25:18Z",
+    "runs": 1,
+    "modelVersion": "nba-sim-v1-coherent"
+   },
+   "gamesOnBoard": 1,
+   "games": [
+    {
+     "eventId": "401909861",
+     "tipoffUtc": "2026-10-25T21:00Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "Utah Jazz",
+      "abbr": "UTA",
+      "espnAbbr": "UTAH",
+      "providerTeamId": "26"
+     },
+     "away": {
+      "name": "Los Angeles Lakers",
+      "abbr": "LAL",
+      "espnAbbr": "LAL",
+      "providerTeamId": "13"
+     },
+     "forecastGeneratedAt": "2026-10-25T13:25:18Z",
+     "forecastInputAsOf": "2026-10-25T13:25:18Z",
+     "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b",
+     "state": "ON_BOARD",
+     "flags": []
+    }
+   ],
+   "boards": {
+    "points": {
+     "category": "points",
+     "label": "Points",
+     "stat": "pts",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-25|v1|e1|points|401909861|3945274",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Luka Doncic",
+        "providerAthleteId": "3945274"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 30,
+        "mean": 30.94
+       },
+       "range": {
+        "p10": 19,
+        "p25": 24,
+        "p75": 37,
+        "p90": 43
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.26,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 30.94,
+        "expectedMinutes": 33.26,
+        "p90": 43
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-25|v1|e1|points|401909861|4066457",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Austin Reaves",
+        "providerAthleteId": "4066457"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 21,
+        "mean": 21.92
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 27,
+        "p90": 33
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.88,
+       "minutesSd": 7.61,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.92,
+        "expectedMinutes": 32.88,
+        "p90": 33
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-25|v1|e1|points|401909861|4066336",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Lauri Markkanen",
+        "providerAthleteId": "4066336"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.39
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 24,
+        "p90": 30
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.6,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.39,
+        "expectedMinutes": 27.6,
+        "p90": 30
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-25|v1|e1|points|401909861|4433627",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keyonte George",
+        "providerAthleteId": "4433627"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.79
+       },
+       "range": {
+        "p10": 8,
+        "p25": 12,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.975,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.34,
+       "minutesSd": 7.21,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.79,
+        "expectedMinutes": 25.34,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-25|v1|e1|points|401909861|4277961",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaren Jackson Jr.",
+        "providerAthleteId": "4277961"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 15,
+        "mean": 15.24
+       },
+       "range": {
+        "p10": 7,
+        "p25": 11,
+        "p75": 19,
+        "p90": 24
+       },
+       "playRate": 0.9763,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.13,
+       "minutesSd": 5.65,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 15.24,
+        "expectedMinutes": 25.13,
+        "p90": 24
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-25|v1|e1|points|401909861|4433136",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Walker Kessler",
+        "providerAthleteId": "4433136"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 15,
+        "mean": 15.16
+       },
+       "range": {
+        "p10": 7,
+        "p25": 10,
+        "p75": 19,
+        "p90": 24
+       },
+       "playRate": 0.9521,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.74,
+       "minutesSd": 6.77,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 15.16,
+        "expectedMinutes": 28.74,
+        "p90": 24
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-25|v1|e1|points|401909861|4277811",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Collin Sexton",
+        "providerAthleteId": "4277811"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 14,
+        "mean": 14.37
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 19,
+        "p90": 24
+       },
+       "playRate": 0.9751,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.89,
+       "minutesSd": 6.91,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.37,
+        "expectedMinutes": 21.89,
+        "p90": 24
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-25|v1|e1|points|401909861|4873138",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ace Bailey",
+        "providerAthleteId": "4873138"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 12,
+        "mean": 12.2
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 16,
+        "p90": 20
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.39,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 12.2,
+        "expectedMinutes": 24.39,
+        "p90": 20
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-25|v1|e1|points|401909861|4397014",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Quentin Grimes",
+        "providerAthleteId": "4397014"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 11,
+        "mean": 11.91
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 16,
+        "p90": 20
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.52,
+       "minutesSd": 7.13,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 11.91,
+        "expectedMinutes": 24.52,
+        "p90": 20
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "INSUFFICIENT_HISTORY": 3,
+       "MINUTES_TOO_UNCERTAIN": 2,
+       "LOW_PLAY_RATE": 14,
+       "LOW_EXPECTED_MINUTES": 4,
+       "AVAILABILITY_OUT": 4
+      },
+      "byReason": {
+       "INSUFFICIENT_HISTORY": 3,
+       "LOW_PLAY_RATE": 15,
+       "MINUTES_TOO_UNCERTAIN": 16,
+       "LOW_EXPECTED_MINUTES": 17,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 4,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "3102530",
+        "name": "Jusuf Nurkic",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133602",
+        "name": "Svi Mykhailiuk",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3155535",
+        "name": "Kevon Looney",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907498",
+        "name": "Matisse Thybulle",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4065663",
+        "name": "Josh Okogie",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065673",
+        "name": "Tony Bradley",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277919",
+        "name": "Mo Bamba",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278077",
+        "name": "Jarred Vanderbilt",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278580",
+        "name": "Sandro Mamukelashvili",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4396963",
+        "name": "Blake Hinson",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397077",
+        "name": "Jaxson Hayes",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432811",
+        "name": "Josh Green",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433137",
+        "name": "Ziaire Williams",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433268",
+        "name": "Trey Alexander",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433599",
+        "name": "Arthur Kaluma",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4433618",
+        "name": "Harrison Ingram",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4592691",
+        "name": "Jake LaRavia",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4683766",
+        "name": "Isaiah Collier",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683774",
+        "name": "Bronny James",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684793",
+        "name": "Kyle Filipowski",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4702972",
+        "name": "Chris Manon",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4868423",
+        "name": "Jaden Hardy",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5041955",
+        "name": "Darryn Peterson",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5060631",
+        "name": "Adou Thiero",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105839",
+        "name": "Brice Sensabaugh",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5113969",
+        "name": "Cameron Carr",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5114350",
+        "name": "AK Okereke",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebounds": {
+     "category": "rebounds",
+     "label": "Rebounds",
+     "stat": "reb",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-25|v1|e1|rebounds|401909861|4433136",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Walker Kessler",
+        "providerAthleteId": "4433136"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 8,
+        "mean": 7.93
+       },
+       "range": {
+        "p10": 4,
+        "p25": 5,
+        "p75": 10,
+        "p90": 13
+       },
+       "playRate": 0.9521,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.74,
+       "minutesSd": 6.77,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 7.93,
+        "expectedMinutes": 28.74,
+        "p90": 13
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-25|v1|e1|rebounds|401909861|3945274",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Luka Doncic",
+        "providerAthleteId": "3945274"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 7,
+        "mean": 6.98
+       },
+       "range": {
+        "p10": 3,
+        "p25": 5,
+        "p75": 9,
+        "p90": 11
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.26,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6.98,
+        "expectedMinutes": 33.26,
+        "p90": 11
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-25|v1|e1|rebounds|401909861|4066336",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Lauri Markkanen",
+        "providerAthleteId": "4066336"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 5,
+        "mean": 5.55
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 7,
+        "p90": 9
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.6,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.55,
+        "expectedMinutes": 27.6,
+        "p90": 9
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-25|v1|e1|rebounds|401909861|4277961",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaren Jackson Jr.",
+        "providerAthleteId": "4277961"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 5,
+        "mean": 4.83
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9763,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.13,
+       "minutesSd": 5.65,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.83,
+        "expectedMinutes": 25.13,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-25|v1|e1|rebounds|401909861|4066457",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Austin Reaves",
+        "providerAthleteId": "4066457"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.45
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.88,
+       "minutesSd": 7.61,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.45,
+        "expectedMinutes": 32.88,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-25|v1|e1|rebounds|401909861|4873138",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ace Bailey",
+        "providerAthleteId": "4873138"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 3.91
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 7
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.39,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.91,
+        "expectedMinutes": 24.39,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-25|v1|e1|rebounds|401909861|4397014",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Quentin Grimes",
+        "providerAthleteId": "4397014"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.19
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 6
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.52,
+       "minutesSd": 7.13,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.19,
+        "expectedMinutes": 24.52,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-25|v1|e1|rebounds|401909861|4433627",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keyonte George",
+        "providerAthleteId": "4433627"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 2.85
+       },
+       "range": {
+        "p10": 1,
+        "p25": 1,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.975,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.34,
+       "minutesSd": 7.21,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.85,
+        "expectedMinutes": 25.34,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-25|v1|e1|rebounds|401909861|4277811",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Collin Sexton",
+        "providerAthleteId": "4277811"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.38
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 5
+       },
+       "playRate": 0.9751,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.89,
+       "minutesSd": 6.91,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.38,
+        "expectedMinutes": 21.89,
+        "p90": 5
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "INSUFFICIENT_HISTORY": 3,
+       "MINUTES_TOO_UNCERTAIN": 2,
+       "LOW_PLAY_RATE": 14,
+       "LOW_EXPECTED_MINUTES": 4,
+       "AVAILABILITY_OUT": 4
+      },
+      "byReason": {
+       "INSUFFICIENT_HISTORY": 3,
+       "LOW_PLAY_RATE": 15,
+       "MINUTES_TOO_UNCERTAIN": 16,
+       "LOW_EXPECTED_MINUTES": 17,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 4,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "3102530",
+        "name": "Jusuf Nurkic",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133602",
+        "name": "Svi Mykhailiuk",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3155535",
+        "name": "Kevon Looney",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907498",
+        "name": "Matisse Thybulle",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4065663",
+        "name": "Josh Okogie",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065673",
+        "name": "Tony Bradley",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277919",
+        "name": "Mo Bamba",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278077",
+        "name": "Jarred Vanderbilt",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278580",
+        "name": "Sandro Mamukelashvili",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4396963",
+        "name": "Blake Hinson",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397077",
+        "name": "Jaxson Hayes",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432811",
+        "name": "Josh Green",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433137",
+        "name": "Ziaire Williams",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433268",
+        "name": "Trey Alexander",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433599",
+        "name": "Arthur Kaluma",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4433618",
+        "name": "Harrison Ingram",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4592691",
+        "name": "Jake LaRavia",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4683766",
+        "name": "Isaiah Collier",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683774",
+        "name": "Bronny James",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684793",
+        "name": "Kyle Filipowski",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4702972",
+        "name": "Chris Manon",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4868423",
+        "name": "Jaden Hardy",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5041955",
+        "name": "Darryn Peterson",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5060631",
+        "name": "Adou Thiero",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105839",
+        "name": "Brice Sensabaugh",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5113969",
+        "name": "Cameron Carr",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5114350",
+        "name": "AK Okereke",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "assists": {
+     "category": "assists",
+     "label": "Assists",
+     "stat": "ast",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-25|v1|e1|assists|401909861|3945274",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Luka Doncic",
+        "providerAthleteId": "3945274"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 7,
+        "mean": 7.44
+       },
+       "range": {
+        "p10": 4,
+        "p25": 5,
+        "p75": 9,
+        "p90": 11
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.26,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 7.44,
+        "expectedMinutes": 33.26,
+        "p90": 11
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-25|v1|e1|assists|401909861|4066457",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Austin Reaves",
+        "providerAthleteId": "4066457"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 5,
+        "mean": 5.22
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 7,
+        "p90": 9
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.88,
+       "minutesSd": 7.61,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.22,
+        "expectedMinutes": 32.88,
+        "p90": 9
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-25|v1|e1|assists|401909861|4433627",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keyonte George",
+        "providerAthleteId": "4433627"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.26
+       },
+       "range": {
+        "p10": 1,
+        "p25": 3,
+        "p75": 6,
+        "p90": 7
+       },
+       "playRate": 0.975,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.34,
+       "minutesSd": 7.21,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.26,
+        "expectedMinutes": 25.34,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-25|v1|e1|assists|401909861|4277811",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Collin Sexton",
+        "providerAthleteId": "4277811"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 2.84
+       },
+       "range": {
+        "p10": 1,
+        "p25": 1,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9751,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.89,
+       "minutesSd": 6.91,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.84,
+        "expectedMinutes": 21.89,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-25|v1|e1|assists|401909861|4433136",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Walker Kessler",
+        "providerAthleteId": "4433136"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 2.82
+       },
+       "range": {
+        "p10": 1,
+        "p25": 1,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9521,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.74,
+       "minutesSd": 6.77,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.82,
+        "expectedMinutes": 28.74,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-25|v1|e1|assists|401909861|4397014",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Quentin Grimes",
+        "providerAthleteId": "4397014"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.69
+       },
+       "range": {
+        "p10": 1,
+        "p25": 1,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.52,
+       "minutesSd": 7.13,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.69,
+        "expectedMinutes": 24.52,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-25|v1|e1|assists|401909861|4066336",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Lauri Markkanen",
+        "providerAthleteId": "4066336"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.78
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.6,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.78,
+        "expectedMinutes": 27.6,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-25|v1|e1|assists|401909861|4277961",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaren Jackson Jr.",
+        "providerAthleteId": "4277961"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.74
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9763,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.13,
+       "minutesSd": 5.65,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.74,
+        "expectedMinutes": 25.13,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-25|v1|e1|assists|401909861|4873138",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ace Bailey",
+        "providerAthleteId": "4873138"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.66
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 4
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.39,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.66,
+        "expectedMinutes": 24.39,
+        "p90": 4
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "INSUFFICIENT_HISTORY": 3,
+       "MINUTES_TOO_UNCERTAIN": 2,
+       "LOW_PLAY_RATE": 14,
+       "LOW_EXPECTED_MINUTES": 4,
+       "AVAILABILITY_OUT": 4
+      },
+      "byReason": {
+       "INSUFFICIENT_HISTORY": 3,
+       "LOW_PLAY_RATE": 15,
+       "MINUTES_TOO_UNCERTAIN": 16,
+       "LOW_EXPECTED_MINUTES": 17,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 4,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "3102530",
+        "name": "Jusuf Nurkic",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133602",
+        "name": "Svi Mykhailiuk",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3155535",
+        "name": "Kevon Looney",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907498",
+        "name": "Matisse Thybulle",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4065663",
+        "name": "Josh Okogie",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065673",
+        "name": "Tony Bradley",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277919",
+        "name": "Mo Bamba",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278077",
+        "name": "Jarred Vanderbilt",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278580",
+        "name": "Sandro Mamukelashvili",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4396963",
+        "name": "Blake Hinson",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397077",
+        "name": "Jaxson Hayes",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432811",
+        "name": "Josh Green",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433137",
+        "name": "Ziaire Williams",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433268",
+        "name": "Trey Alexander",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433599",
+        "name": "Arthur Kaluma",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4433618",
+        "name": "Harrison Ingram",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4592691",
+        "name": "Jake LaRavia",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4683766",
+        "name": "Isaiah Collier",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683774",
+        "name": "Bronny James",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684793",
+        "name": "Kyle Filipowski",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4702972",
+        "name": "Chris Manon",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4868423",
+        "name": "Jaden Hardy",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5041955",
+        "name": "Darryn Peterson",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5060631",
+        "name": "Adou Thiero",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105839",
+        "name": "Brice Sensabaugh",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5113969",
+        "name": "Cameron Carr",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5114350",
+        "name": "AK Okereke",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "threes": {
+     "category": "threes",
+     "label": "3PM",
+     "stat": "threePm",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-25|v1|e1|threes|401909861|3945274",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Luka Doncic",
+        "providerAthleteId": "3945274"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.68
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.26,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.68,
+        "expectedMinutes": 33.26,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-25|v1|e1|threes|401909861|4066336",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Lauri Markkanen",
+        "providerAthleteId": "4066336"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.1
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.6,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.1,
+        "expectedMinutes": 27.6,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-25|v1|e1|threes|401909861|4066457",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Austin Reaves",
+        "providerAthleteId": "4066457"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.07
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.88,
+       "minutesSd": 7.61,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.07,
+        "expectedMinutes": 32.88,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-25|v1|e1|threes|401909861|4433627",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keyonte George",
+        "providerAthleteId": "4433627"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.88
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.975,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.34,
+       "minutesSd": 7.21,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.88,
+        "expectedMinutes": 25.34,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-25|v1|e1|threes|401909861|4873138",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ace Bailey",
+        "providerAthleteId": "4873138"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.77
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.39,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.77,
+        "expectedMinutes": 24.39,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-25|v1|e1|threes|401909861|4277811",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Collin Sexton",
+        "providerAthleteId": "4277811"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.5
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9751,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.89,
+       "minutesSd": 6.91,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.5,
+        "expectedMinutes": 21.89,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-25|v1|e1|threes|401909861|4277961",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaren Jackson Jr.",
+        "providerAthleteId": "4277961"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.45
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9763,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.13,
+       "minutesSd": 5.65,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.45,
+        "expectedMinutes": 25.13,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-25|v1|e1|threes|401909861|4397014",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Quentin Grimes",
+        "providerAthleteId": "4397014"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.37
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.52,
+       "minutesSd": 7.13,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.37,
+        "expectedMinutes": 24.52,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-25|v1|e1|threes|401909861|4433136",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Walker Kessler",
+        "providerAthleteId": "4433136"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 0.8
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 1,
+        "p90": 2
+       },
+       "playRate": 0.9521,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.74,
+       "minutesSd": 6.77,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 0.8,
+        "expectedMinutes": 28.74,
+        "p90": 2
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "INSUFFICIENT_HISTORY": 3,
+       "MINUTES_TOO_UNCERTAIN": 2,
+       "LOW_PLAY_RATE": 14,
+       "LOW_EXPECTED_MINUTES": 4,
+       "AVAILABILITY_OUT": 4
+      },
+      "byReason": {
+       "INSUFFICIENT_HISTORY": 3,
+       "LOW_PLAY_RATE": 15,
+       "MINUTES_TOO_UNCERTAIN": 16,
+       "LOW_EXPECTED_MINUTES": 17,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 4,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "3102530",
+        "name": "Jusuf Nurkic",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133602",
+        "name": "Svi Mykhailiuk",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3155535",
+        "name": "Kevon Looney",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907498",
+        "name": "Matisse Thybulle",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4065663",
+        "name": "Josh Okogie",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065673",
+        "name": "Tony Bradley",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277919",
+        "name": "Mo Bamba",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278077",
+        "name": "Jarred Vanderbilt",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278580",
+        "name": "Sandro Mamukelashvili",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4396963",
+        "name": "Blake Hinson",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397077",
+        "name": "Jaxson Hayes",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432811",
+        "name": "Josh Green",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433137",
+        "name": "Ziaire Williams",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433268",
+        "name": "Trey Alexander",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433599",
+        "name": "Arthur Kaluma",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4433618",
+        "name": "Harrison Ingram",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4592691",
+        "name": "Jake LaRavia",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4683766",
+        "name": "Isaiah Collier",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683774",
+        "name": "Bronny James",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684793",
+        "name": "Kyle Filipowski",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4702972",
+        "name": "Chris Manon",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4868423",
+        "name": "Jaden Hardy",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5041955",
+        "name": "Darryn Peterson",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5060631",
+        "name": "Adou Thiero",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105839",
+        "name": "Brice Sensabaugh",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5113969",
+        "name": "Cameron Carr",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5114350",
+        "name": "AK Okereke",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "pra": {
+     "category": "pra",
+     "label": "PRA",
+     "stat": "pra",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-25|v1|e1|pra|401909861|3945274",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Luka Doncic",
+        "providerAthleteId": "3945274"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 45,
+        "mean": 45.36
+       },
+       "range": {
+        "p10": 30,
+        "p25": 37,
+        "p75": 53,
+        "p90": 62
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.26,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 45.36,
+        "expectedMinutes": 33.26,
+        "p90": 62
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-25|v1|e1|pra|401909861|4066457",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Austin Reaves",
+        "providerAthleteId": "4066457"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 31,
+        "mean": 31.59
+       },
+       "range": {
+        "p10": 19,
+        "p25": 24,
+        "p75": 38,
+        "p90": 45
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.88,
+       "minutesSd": 7.61,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 31.59,
+        "expectedMinutes": 32.88,
+        "p90": 45
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-25|v1|e1|pra|401909861|4066336",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Lauri Markkanen",
+        "providerAthleteId": "4066336"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 26,
+        "mean": 26.72
+       },
+       "range": {
+        "p10": 15,
+        "p25": 20,
+        "p75": 33,
+        "p90": 40
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.6,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 26.72,
+        "expectedMinutes": 27.6,
+        "p90": 40
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-25|v1|e1|pra|401909861|4433136",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Walker Kessler",
+        "providerAthleteId": "4433136"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 25,
+        "mean": 25.9
+       },
+       "range": {
+        "p10": 15,
+        "p25": 19,
+        "p75": 32,
+        "p90": 38
+       },
+       "playRate": 0.9521,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.74,
+       "minutesSd": 6.77,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 25.9,
+        "expectedMinutes": 28.74,
+        "p90": 38
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-25|v1|e1|pra|401909861|4433627",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keyonte George",
+        "providerAthleteId": "4433627"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 23,
+        "mean": 23.91
+       },
+       "range": {
+        "p10": 13,
+        "p25": 17,
+        "p75": 30,
+        "p90": 36
+       },
+       "playRate": 0.975,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.34,
+       "minutesSd": 7.21,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 23.91,
+        "expectedMinutes": 25.34,
+        "p90": 36
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-25|v1|e1|pra|401909861|4277961",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaren Jackson Jr.",
+        "providerAthleteId": "4277961"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 21,
+        "mean": 21.8
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 27,
+        "p90": 32
+       },
+       "playRate": 0.9763,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.13,
+       "minutesSd": 5.65,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.8,
+        "expectedMinutes": 25.13,
+        "p90": 32
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-25|v1|e1|pra|401909861|4277811",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Collin Sexton",
+        "providerAthleteId": "4277811"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.59
+       },
+       "range": {
+        "p10": 9,
+        "p25": 14,
+        "p75": 25,
+        "p90": 31
+       },
+       "playRate": 0.9751,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.89,
+       "minutesSd": 6.91,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.59,
+        "expectedMinutes": 21.89,
+        "p90": 31
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-25|v1|e1|pra|401909861|4397014",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Quentin Grimes",
+        "providerAthleteId": "4397014"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 17,
+        "mean": 17.79
+       },
+       "range": {
+        "p10": 8,
+        "p25": 12,
+        "p75": 23,
+        "p90": 28
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.52,
+       "minutesSd": 7.13,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 17.79,
+        "expectedMinutes": 24.52,
+        "p90": 28
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-25|v1|e1|pra|401909861|4873138",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ace Bailey",
+        "providerAthleteId": "4873138"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 17,
+        "mean": 17.77
+       },
+       "range": {
+        "p10": 9,
+        "p25": 12,
+        "p75": 22,
+        "p90": 28
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.39,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 17.77,
+        "expectedMinutes": 24.39,
+        "p90": 28
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "INSUFFICIENT_HISTORY": 3,
+       "MINUTES_TOO_UNCERTAIN": 2,
+       "LOW_PLAY_RATE": 14,
+       "LOW_EXPECTED_MINUTES": 4,
+       "AVAILABILITY_OUT": 4
+      },
+      "byReason": {
+       "INSUFFICIENT_HISTORY": 3,
+       "LOW_PLAY_RATE": 15,
+       "MINUTES_TOO_UNCERTAIN": 16,
+       "LOW_EXPECTED_MINUTES": 17,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 4,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "3102530",
+        "name": "Jusuf Nurkic",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133602",
+        "name": "Svi Mykhailiuk",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3155535",
+        "name": "Kevon Looney",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907498",
+        "name": "Matisse Thybulle",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4065663",
+        "name": "Josh Okogie",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065673",
+        "name": "Tony Bradley",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277919",
+        "name": "Mo Bamba",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278077",
+        "name": "Jarred Vanderbilt",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278580",
+        "name": "Sandro Mamukelashvili",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4396963",
+        "name": "Blake Hinson",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397077",
+        "name": "Jaxson Hayes",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432811",
+        "name": "Josh Green",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433137",
+        "name": "Ziaire Williams",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433268",
+        "name": "Trey Alexander",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433599",
+        "name": "Arthur Kaluma",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4433618",
+        "name": "Harrison Ingram",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4592691",
+        "name": "Jake LaRavia",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4683766",
+        "name": "Isaiah Collier",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683774",
+        "name": "Bronny James",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684793",
+        "name": "Kyle Filipowski",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4702972",
+        "name": "Chris Manon",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4868423",
+        "name": "Jaden Hardy",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5041955",
+        "name": "Darryn Peterson",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5060631",
+        "name": "Adou Thiero",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105839",
+        "name": "Brice Sensabaugh",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5113969",
+        "name": "Cameron Carr",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5114350",
+        "name": "AK Okereke",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsReb": {
+     "category": "ptsReb",
+     "label": "P+R",
+     "stat": "ptsReb",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-25|v1|e1|ptsReb|401909861|3945274",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Luka Doncic",
+        "providerAthleteId": "3945274"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 37,
+        "mean": 37.92
+       },
+       "range": {
+        "p10": 24,
+        "p25": 30,
+        "p75": 45,
+        "p90": 52
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.26,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 37.92,
+        "expectedMinutes": 33.26,
+        "p90": 52
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-25|v1|e1|ptsReb|401909861|4066457",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Austin Reaves",
+        "providerAthleteId": "4066457"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 26,
+        "mean": 26.37
+       },
+       "range": {
+        "p10": 15,
+        "p25": 20,
+        "p75": 32,
+        "p90": 38
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.88,
+       "minutesSd": 7.61,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 26.37,
+        "expectedMinutes": 32.88,
+        "p90": 38
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-25|v1|e1|ptsReb|401909861|4066336",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Lauri Markkanen",
+        "providerAthleteId": "4066336"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 24,
+        "mean": 24.94
+       },
+       "range": {
+        "p10": 14,
+        "p25": 18,
+        "p75": 31,
+        "p90": 37
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.6,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 24.94,
+        "expectedMinutes": 27.6,
+        "p90": 37
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-25|v1|e1|ptsReb|401909861|4433136",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Walker Kessler",
+        "providerAthleteId": "4433136"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 22,
+        "mean": 23.08
+       },
+       "range": {
+        "p10": 13,
+        "p25": 17,
+        "p75": 28,
+        "p90": 34
+       },
+       "playRate": 0.9521,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.74,
+       "minutesSd": 6.77,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 23.08,
+        "expectedMinutes": 28.74,
+        "p90": 34
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-25|v1|e1|ptsReb|401909861|4277961",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaren Jackson Jr.",
+        "providerAthleteId": "4277961"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 20,
+        "mean": 20.07
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 25,
+        "p90": 30
+       },
+       "playRate": 0.9763,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.13,
+       "minutesSd": 5.65,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.07,
+        "expectedMinutes": 25.13,
+        "p90": 30
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-25|v1|e1|ptsReb|401909861|4433627",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keyonte George",
+        "providerAthleteId": "4433627"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.65
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 25,
+        "p90": 30
+       },
+       "playRate": 0.975,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.34,
+       "minutesSd": 7.21,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.65,
+        "expectedMinutes": 25.34,
+        "p90": 30
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-25|v1|e1|ptsReb|401909861|4277811",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Collin Sexton",
+        "providerAthleteId": "4277811"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.75
+       },
+       "range": {
+        "p10": 8,
+        "p25": 11,
+        "p75": 22,
+        "p90": 27
+       },
+       "playRate": 0.9751,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.89,
+       "minutesSd": 6.91,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.75,
+        "expectedMinutes": 21.89,
+        "p90": 27
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-25|v1|e1|ptsReb|401909861|4873138",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ace Bailey",
+        "providerAthleteId": "4873138"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 15,
+        "mean": 16.11
+       },
+       "range": {
+        "p10": 7,
+        "p25": 11,
+        "p75": 20,
+        "p90": 26
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.39,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.11,
+        "expectedMinutes": 24.39,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-25|v1|e1|ptsReb|401909861|4397014",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Quentin Grimes",
+        "providerAthleteId": "4397014"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 14,
+        "mean": 15.1
+       },
+       "range": {
+        "p10": 7,
+        "p25": 10,
+        "p75": 19,
+        "p90": 24
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.52,
+       "minutesSd": 7.13,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 15.1,
+        "expectedMinutes": 24.52,
+        "p90": 24
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "INSUFFICIENT_HISTORY": 3,
+       "MINUTES_TOO_UNCERTAIN": 2,
+       "LOW_PLAY_RATE": 14,
+       "LOW_EXPECTED_MINUTES": 4,
+       "AVAILABILITY_OUT": 4
+      },
+      "byReason": {
+       "INSUFFICIENT_HISTORY": 3,
+       "LOW_PLAY_RATE": 15,
+       "MINUTES_TOO_UNCERTAIN": 16,
+       "LOW_EXPECTED_MINUTES": 17,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 4,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "3102530",
+        "name": "Jusuf Nurkic",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133602",
+        "name": "Svi Mykhailiuk",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3155535",
+        "name": "Kevon Looney",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907498",
+        "name": "Matisse Thybulle",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4065663",
+        "name": "Josh Okogie",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065673",
+        "name": "Tony Bradley",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277919",
+        "name": "Mo Bamba",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278077",
+        "name": "Jarred Vanderbilt",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278580",
+        "name": "Sandro Mamukelashvili",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4396963",
+        "name": "Blake Hinson",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397077",
+        "name": "Jaxson Hayes",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432811",
+        "name": "Josh Green",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433137",
+        "name": "Ziaire Williams",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433268",
+        "name": "Trey Alexander",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433599",
+        "name": "Arthur Kaluma",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4433618",
+        "name": "Harrison Ingram",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4592691",
+        "name": "Jake LaRavia",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4683766",
+        "name": "Isaiah Collier",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683774",
+        "name": "Bronny James",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684793",
+        "name": "Kyle Filipowski",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4702972",
+        "name": "Chris Manon",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4868423",
+        "name": "Jaden Hardy",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5041955",
+        "name": "Darryn Peterson",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5060631",
+        "name": "Adou Thiero",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105839",
+        "name": "Brice Sensabaugh",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5113969",
+        "name": "Cameron Carr",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5114350",
+        "name": "AK Okereke",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsAst": {
+     "category": "ptsAst",
+     "label": "P+A",
+     "stat": "ptsAst",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-25|v1|e1|ptsAst|401909861|3945274",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Luka Doncic",
+        "providerAthleteId": "3945274"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 38,
+        "mean": 38.38
+       },
+       "range": {
+        "p10": 25,
+        "p25": 31,
+        "p75": 46,
+        "p90": 53
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.26,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 38.38,
+        "expectedMinutes": 33.26,
+        "p90": 53
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-25|v1|e1|ptsAst|401909861|4066457",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Austin Reaves",
+        "providerAthleteId": "4066457"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 27,
+        "mean": 27.14
+       },
+       "range": {
+        "p10": 16,
+        "p25": 21,
+        "p75": 33,
+        "p90": 40
+       },
+       "playRate": 0.9729,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.88,
+       "minutesSd": 7.61,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 27.14,
+        "expectedMinutes": 32.88,
+        "p90": 40
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-25|v1|e1|ptsAst|401909861|4066336",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Lauri Markkanen",
+        "providerAthleteId": "4066336"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 21,
+        "mean": 21.17
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 26,
+        "p90": 32
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.6,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.17,
+        "expectedMinutes": 27.6,
+        "p90": 32
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-25|v1|e1|ptsAst|401909861|4433627",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keyonte George",
+        "providerAthleteId": "4433627"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 20,
+        "mean": 21.06
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 26,
+        "p90": 32
+       },
+       "playRate": 0.975,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.34,
+       "minutesSd": 7.21,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.06,
+        "expectedMinutes": 25.34,
+        "p90": 32
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-25|v1|e1|ptsAst|401909861|4433136",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Walker Kessler",
+        "providerAthleteId": "4433136"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 17,
+        "mean": 17.98
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 23,
+        "p90": 27
+       },
+       "playRate": 0.9521,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.74,
+       "minutesSd": 6.77,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 17.98,
+        "expectedMinutes": 28.74,
+        "p90": 27
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-25|v1|e1|ptsAst|401909861|4277811",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Collin Sexton",
+        "providerAthleteId": "4277811"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 17,
+        "mean": 17.21
+       },
+       "range": {
+        "p10": 8,
+        "p25": 12,
+        "p75": 22,
+        "p90": 28
+       },
+       "playRate": 0.9751,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.89,
+       "minutesSd": 6.91,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 17.21,
+        "expectedMinutes": 21.89,
+        "p90": 28
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-25|v1|e1|ptsAst|401909861|4277961",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaren Jackson Jr.",
+        "providerAthleteId": "4277961"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.98
+       },
+       "range": {
+        "p10": 9,
+        "p25": 12,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.9763,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.13,
+       "minutesSd": 5.65,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.98,
+        "expectedMinutes": 25.13,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-25|v1|e1|ptsAst|401909861|4397014",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Quentin Grimes",
+        "providerAthleteId": "4397014"
+       },
+       "team": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 14,
+        "mean": 14.6
+       },
+       "range": {
+        "p10": 6,
+        "p25": 10,
+        "p75": 19,
+        "p90": 24
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.52,
+       "minutesSd": 7.13,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.6,
+        "expectedMinutes": 24.52,
+        "p90": 24
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-25|v1|e1|ptsAst|401909861|4873138",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ace Bailey",
+        "providerAthleteId": "4873138"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Los Angeles Lakers",
+        "abbr": "LAL",
+        "espnAbbr": "LAL",
+        "providerTeamId": "13"
+       },
+       "homeAway": "home",
+       "eventId": "401909861",
+       "tipoffUtc": "2026-10-25T21:00Z",
+       "projection": {
+        "p50": 13,
+        "mean": 13.86
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 18,
+        "p90": 23
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.39,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-25T13:25:18Z",
+        "generatedAt": "2026-10-25T13:25:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "18c5637ce8b85be1993c369a080a9d4b3f5dfb6729388461c572e6f9a2785e2a",
+        "gamePayloadSha256": "e47e9eab7706e9e5ae6c67b5d92ef057aa3bbdc8b14748aaaf155722246da07b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.86,
+        "expectedMinutes": 24.39,
+        "p90": 23
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "INSUFFICIENT_HISTORY": 3,
+       "MINUTES_TOO_UNCERTAIN": 2,
+       "LOW_PLAY_RATE": 14,
+       "LOW_EXPECTED_MINUTES": 4,
+       "AVAILABILITY_OUT": 4
+      },
+      "byReason": {
+       "INSUFFICIENT_HISTORY": 3,
+       "LOW_PLAY_RATE": 15,
+       "MINUTES_TOO_UNCERTAIN": 16,
+       "LOW_EXPECTED_MINUTES": 17,
+       "AVAILABILITY_OUT": 4,
+       "INJURY_DESIGNATION": 4,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "3102530",
+        "name": "Jusuf Nurkic",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133602",
+        "name": "Svi Mykhailiuk",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3155535",
+        "name": "Kevon Looney",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907498",
+        "name": "Matisse Thybulle",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4065663",
+        "name": "Josh Okogie",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065673",
+        "name": "Tony Bradley",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277919",
+        "name": "Mo Bamba",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278077",
+        "name": "Jarred Vanderbilt",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278580",
+        "name": "Sandro Mamukelashvili",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4396963",
+        "name": "Blake Hinson",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397077",
+        "name": "Jaxson Hayes",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432811",
+        "name": "Josh Green",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433137",
+        "name": "Ziaire Williams",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433268",
+        "name": "Trey Alexander",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433599",
+        "name": "Arthur Kaluma",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4433618",
+        "name": "Harrison Ingram",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4592691",
+        "name": "Jake LaRavia",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4683766",
+        "name": "Isaiah Collier",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683774",
+        "name": "Bronny James",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684793",
+        "name": "Kyle Filipowski",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4702972",
+        "name": "Chris Manon",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4868423",
+        "name": "Jaden Hardy",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5041955",
+        "name": "Darryn Peterson",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5060631",
+        "name": "Adou Thiero",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105839",
+        "name": "Brice Sensabaugh",
+        "team": "UTA",
+        "eventId": "401909861",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5113969",
+        "name": "Cameron Carr",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5114350",
+        "name": "AK Okereke",
+        "team": "LAL",
+        "eventId": "401909861",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebAst": {
+     "category": "rebAst",
+     "label": "R+A",
+     "stat": null,
+     "marketBasis": "NOT_MODELLED",
+     "basisText": "not modelled — no family simulates it jointly, and adding marginal projections is not its distribution",
+     "components": [
+      "reb",
+      "ast"
+     ],
+     "state": "NOT_MODELLED",
+     "rankingMetric": null,
+     "rows": [],
+     "eligibleCount": 0,
+     "shownCount": 0,
+     "withheld": {
+      "count": 0,
+      "byPrimaryReason": {},
+      "byReason": {},
+      "players": []
+     },
+     "emptyReason": "R+A is not modelled: no forecast family simulates reb + ast jointly, and adding marginal projections is not its distribution — it is never computed"
+    }
+   }
+  }
+ ]
+}
