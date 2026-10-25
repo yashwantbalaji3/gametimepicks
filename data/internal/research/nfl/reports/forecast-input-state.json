@@ -2,150 +2,17 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-10-25T20:10:38Z",
+  "generatedAt": "2026-10-25T22:36:17Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
-    "upcomingEvents": 4,
-    "eventsWhereTeamForecastIsBlindToAnExclusion": 4,
-    "eventsWithAMaterialExclusion": 2,
+    "upcomingEvents": 2,
+    "eventsWhereTeamForecastIsBlindToAnExclusion": 2,
+    "eventsWithAMaterialExclusion": 1,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
-    {
-      "sport": "nfl",
-      "eventId": "401873020",
-      "matchup": "GB @ DET",
-      "kickoffUtc": "2026-10-25T20:25Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "1e7a65f7b965b263",
-        "simulations": 10000,
-        "generatedAt": "2026-10-25T20:10:38Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-25T20:10:38Z",
-        "participationInputHash": "b34776cb2aa56c94",
-        "excludedCount": 4,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "Jackson Meeks",
-            "team": "DET",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Kaleb Johnson",
-            "team": "GB",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Luke Musgrave",
-            "team": "GB",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Skyy Moore",
-            "team": "GB",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401873021",
-      "matchup": "LAR @ LV",
-      "kickoffUtc": "2026-10-25T20:25Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "5264ef2b187dc238",
-        "simulations": 10000,
-        "generatedAt": "2026-10-25T20:10:38Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-25T20:10:38Z",
-        "participationInputHash": "787abd14cb4d53c5",
-        "excludedCount": 5,
-        "materialExclusions": [
-          {
-            "name": "Aidan O'Connell",
-            "team": "LV",
-            "state": "Out",
-            "statedAt": "2026-10-25T19:24Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          }
-        ],
-        "excluded": [
-          {
-            "name": "Aidan O'Connell",
-            "team": "LV",
-            "state": "Out",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Dont'e Thornton Jr.",
-            "team": "LV",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Carter Runyon",
-            "team": "LV",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Davante Adams",
-            "team": "LAR",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Terrance Ferguson",
-            "team": "LAR",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
     {
       "sport": "nfl",
       "eventId": "401873022",
@@ -154,15 +21,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "07f233ef87ffd7e9",
+        "inputHash": "c712bd878fbd38d5",
         "simulations": 10000,
-        "generatedAt": "2026-10-25T20:10:38Z"
+        "generatedAt": "2026-10-25T22:36:17Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-25T20:10:38Z",
-        "participationInputHash": "79d7360b452edcca",
+        "snapshotAsOf": "2026-10-25T22:36:17Z",
+        "participationInputHash": "dc321535d8eb8e22",
         "excludedCount": 6,
         "materialExclusions": [],
         "excluded": [
@@ -229,15 +96,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "d989d0794bfc5d27",
+        "inputHash": "b7a401e2db3709d1",
         "simulations": 10000,
-        "generatedAt": "2026-10-25T20:10:38Z"
+        "generatedAt": "2026-10-25T22:36:17Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-25T20:10:38Z",
-        "participationInputHash": "e8d0dec69dd819db",
+        "snapshotAsOf": "2026-10-25T22:36:17Z",
+        "participationInputHash": "beb3cb9bd689d6e5",
         "excludedCount": 6,
         "materialExclusions": [
           {
