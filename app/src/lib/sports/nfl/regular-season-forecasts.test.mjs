@@ -133,6 +133,43 @@ test("the builder is deterministic: a second run rewrites nothing and no receipt
   assert.deepEqual(after, before, "identical inputs → identical receipts, no revisions");
 });
 
+test("a LATER run on identical inputs writes no revision — the run's clock and the schedule capture's stamp are not inputs", () => {
+  /* Live 2026-10-25: every nfl-event-window run wrote a "revision" receipt for every game (99 by 16:40Z for 12 games;
+     177 on 10-18 and on 10-11) whose only differences were timestamps, because the hash carried strength.cutoffIso
+     (= the run's NOW) and the schedule capture's generatedAt. Each one moved sideDecision.frozenAt, re-seeded the
+     score shape (its published distributions flickered with no new information) and, as a BUILD_INPUT, built. The
+     same-NOW determinism test above could not see it. */
+  const rows = realWeek1Rows();
+  const { app } = makeRoot({ scheduleRows: rows });
+  const root = path.resolve(app, "..");
+  const dir = path.join(root, "data/internal/nfl/forecast-receipts", NOW.slice(0, 10));
+  const snap = () => Object.fromEntries(fs.readdirSync(dir).sort().map((f) => [f, fs.readFileSync(path.join(dir, f), "utf8")]));
+  assert.equal(runBuilder(app, NOW).status, 0);
+  const first = snap();
+  assert.ok(Object.keys(first).length >= 2, "the window froze receipts, or this test is vacuous");
+  const later = new Date(Date.parse(NOW) + 34 * 60_000).toISOString().replace(".000Z", "Z");
+  const r2 = runBuilder(app, later);
+  assert.equal(r2.status, 0, r2.stderr || r2.stdout);
+  assert.deepEqual(snap(), first, "34 minutes later, same finals and schedule: no revision, no receipt rewritten");
+  /* The schedule was recaptured (new generatedAt), nothing in it changed. */
+  const schedFile = path.join(app, "public/data/nfl/schedule/latest.json");
+  fs.writeFileSync(schedFile, JSON.stringify({ ...JSON.parse(fs.readFileSync(schedFile, "utf8")), generatedAt: later }));
+  assert.equal(runBuilder(app, later).status, 0);
+  assert.deepEqual(snap(), first, "a recaptured but unchanged schedule is not a revision");
+  /* POSITIVE CONTROL: a real input change still revises, with lineage. */
+  const target = JSON.parse(fs.readFileSync(path.join(dir, Object.keys(first).find((f) => !f.includes("-rev-"))), "utf8"));
+  const moved = rows.map((x) => (x.providerEventId === target.providerEventId ? { ...x, dateUtc: new Date(Date.parse(x.dateUtc) + 3600_000).toISOString().replace(".000Z", "Z") } : x));
+  fs.writeFileSync(schedFile, JSON.stringify({ generatedAt: later, rows: moved }));
+  assert.equal(runBuilder(app, later).status, 0);
+  const revs = Object.keys(snap()).filter((f) => f.includes("-rev-"));
+  assert.deepEqual(revs.map((f) => f.split("-rev-")[0]), [String(target.providerEventId)], "a moved kickoff is a pre-kickoff revision of that game only");
+  /* …and a revision is the new baseline: later runs on the SAME (moved) inputs compare against it, not the original
+     receipt, so they write nothing more. */
+  const evenLater = new Date(Date.parse(later) + 30 * 60_000).toISOString().replace(".000Z", "Z");
+  assert.equal(runBuilder(app, evenLater).status, 0);
+  assert.deepEqual(Object.keys(snap()).filter((f) => f.includes("-rev-")), revs, "no second revision for an unchanged revised forecast");
+});
+
 test("a preseason window still publishes under the preseason card — the phases never merge", () => {
   const rows = [{
     providerEventId: "999000111", statusRaw: "STATUS_SCHEDULED", dateUtc: "2026-09-10T00:20Z",
