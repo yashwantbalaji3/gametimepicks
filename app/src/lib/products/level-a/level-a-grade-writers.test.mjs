@@ -137,3 +137,51 @@ test("WIRING: nightly-settle's push loop calls the resolver; nba-results-refresh
   /* No build of its own: the grade file is not a Vercel BUILD_INPUT (it rides a finals commit, which builds anyway). */
   assert.doesNotMatch(fs.readFileSync(path.join(REPO, "app/scripts/vercel-ignore-build.sh"), "utf8"), /data\/internal\/products/);
 });
+
+/* ─── acceptance (2026-10-26 release readiness): repeat runs and late corrections, on the REAL record ─────────────── */
+
+import { committedFinals } from "../../../../scripts/products/grade-level-a-suggestions.mjs";
+
+const realCopy = () => {
+  const dir = tmp("la-accept-");
+  const gradesFile = path.join(dir, "graded.jsonl");
+  fs.copyFileSync(path.join(REPO, "data/internal/products/level-a/graded.jsonl"), gradesFile);
+  return { gradesFile, recordFile: path.join(REPO, "data/internal/products/level-a/suggestions.jsonl") };
+};
+
+test("REPEAT: the NBA-scoped writer run again on the same committed finals appends nothing and changes no byte", () => {
+  const { gradesFile, recordFile } = realCopy();
+  runGrade({ now: "2026-10-26T05:00:00Z", write: true, recordFile, gradesFile, onlySport: "nba" });
+  const once = fs.readFileSync(gradesFile, "utf8");
+  for (const now of ["2026-10-26T05:15:00Z", "2026-10-26T09:30:00Z"]) {
+    const again = runGrade({ now, write: true, recordFile, gradesFile, onlySport: "nba" });
+    assert.equal(again.added, 0, `${now}: a repeated run added ${again.added}`);
+    assert.equal(fs.readFileSync(gradesFile, "utf8"), once, `${now}: the file changed`);
+  }
+  /* …and the full (nightly) writer after it adds no second row for any NBA entry. */
+  runGrade({ now: "2026-10-26T09:40:00Z", write: true, recordFile, gradesFile });
+  assert.deepEqual(gradeViolations({ afterText: fs.readFileSync(gradesFile, "utf8") }), [], "no entry graded twice");
+});
+
+test("LATE CORRECTION: a final that would flip a graded NBA result is a CONFLICT — reported, never rewritten", () => {
+  const { gradesFile, recordFile } = realCopy();
+  const before = fs.readFileSync(gradesFile, "utf8");
+  const real = committedFinals({ repoRoot: REPO, nowIso: "2026-10-26T05:00:00Z" });
+  const EVENT = "401909860"; // GSW @ PHX, 10-24: committed final 122-131 (home win), in 6 graded entries: 3 won, 3 already lost via another leg
+  assert.equal(real.nba(EVENT)?.homePointsFT, 131, "the committed final this test corrects");
+  const flipped = { ...real, nba: (id) => (String(id) === EVENT ? { ...real.nba(id), homePointsFT: 120, awayPointsFT: 122 } : real.nba(id)) };
+  const out = runGrade({ now: "2026-10-26T05:00:00Z", write: true, recordFile, gradesFile, finals: flipped, onlySport: "nba" });
+  const touched = new Set(lines(recordFile).filter((e) => e.legs.some((l) => String(l.eventId).endsWith(EVENT))).map((e) => e.id));
+  /* A conflict is a CARD whose grade would change. A card already lost through another leg stays lost when this leg
+     flips too, so it is (correctly) not a conflict; every card this game won becomes a conflict. */
+  const gradeOf = new Map(lines(gradesFile).map((g) => [g.entryId, g.result]));
+  const expected = [...touched].filter((id) => gradeOf.get(id) === "win").sort();
+  const stillLost = [...touched].filter((id) => gradeOf.get(id) === "loss");
+  assert.ok(expected.length >= 3 && stillLost.length >= 1, `the record holds won and lost entries with this game (${expected.length}/${stillLost.length}), or the test is vacuous`);
+  assert.deepEqual(out.conflicts.map((c) => c.entryId).sort(), expected, "every won card the correction would flip is reported, and only those");
+  assert.ok(fs.readFileSync(gradesFile, "utf8").startsWith(before), "every line already written is byte-identical (append-only)");
+  /* A correction that keeps the winner (PHX by 8, not 9) changes nothing and conflicts nothing. */
+  const same = { ...real, nba: (id) => (String(id) === EVENT ? { ...real.nba(id), homePointsFT: 130 } : real.nba(id)) };
+  const out2 = runGrade({ now: "2026-10-26T05:10:00Z", write: true, recordFile, gradesFile, finals: same, onlySport: "nba" });
+  assert.deepEqual(out2.conflicts, []);
+});
