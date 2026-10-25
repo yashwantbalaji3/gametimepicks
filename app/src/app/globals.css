@@ -6046,6 +6046,16 @@ main a.font-mono.uppercase:not(p a):not(li a):not(td a):not(dd a) { display: inl
 .gtp-rail-glyph { width: 18px; text-align: center; font-size: 13px; align-self: flex-start; margin-top: 1px; }
 .gtp-rail-desc { color: var(--vault-text-faint); margin-top: 1px; }
 a.ft-link, a.ft-link[data-prose-link] { color: var(--vault-text-mute); text-decoration: none; }
+/* Site-map links as TAP TARGETS (audit 2026-10-25: every page carried ~30 site-map links 16px tall — under even WCAG 2.2's
+   24px minimum, 2.5.8). Each link is at least 24px tall for any pointer and 44px where the pointer is a finger (this
+   project's tap-target rule); on touch the 44px rows ARE the spacing, so the list gap collapses instead of stacking.
+   inline-block + padding (not flex): the label and its coverage note keep wrapping as ONE run of text. */
+a.ft-link { display: inline-block; min-height: 24px; padding-block: 2px; }
+.ft-list > li + li { margin-top: 0.25rem; }
+@media (pointer: coarse) {
+  a.ft-link { min-height: 44px; padding-block: 12px; }
+  .ft-list > li + li { margin-top: 0; }
+}
 .ft-note { color: var(--vault-text-faint); font-size: 11px; }
 /* ── Player research view + research primitives · COST-002 HTML reduction, 2026-10-15 ─────────────────────────
    Game-log / recent-window cells (components/research-pages/player-research-view.tsx), EntityLink and ResultBadge
