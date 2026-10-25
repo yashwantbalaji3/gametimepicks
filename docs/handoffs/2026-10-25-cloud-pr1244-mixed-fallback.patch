@@ -1,0 +1,121 @@
+diff --git a/app/src/components/products/level-a-suggestions.tsx b/app/src/components/products/level-a-suggestions.tsx
+index b484bc34ed..04e989c838 100644
+--- a/app/src/components/products/level-a-suggestions.tsx
++++ b/app/src/components/products/level-a-suggestions.tsx
+@@ -98,7 +98,7 @@ export default function LevelASuggestions({ model, mode }: { model: LevelAModel
+       ) : mode === "bank-builder" ? (
+         <CardBox title="Bank Builder suggestion · 2 legs, Low or Medium band, highest joint probability" slot={model.bankBuilder} />
+       ) : (
+-        <CardBox title="Moonshot suggestion · 3 legs, High or Longshot band, highest joint probability" slot={model.moonshot} />
++        <CardBox title={model.moonshot.card?.policy.startsWith("level-a-mixed@1") ? "Moonshot suggestion · up to 5 legs, Longshot band, highest joint probability" : "Moonshot suggestion · 3 legs, High or Longshot band, highest joint probability"} slot={model.moonshot} />
+       )}
+       {/* The NBA display's accuracy disclosure, ONCE per page: here when a mixed card shows an NBA estimate, unless the NBA
+           game winners block below already prints it on this page. */}
+diff --git a/app/src/lib/products/level-a/level-a-mixed.test.mjs b/app/src/lib/products/level-a/level-a-mixed.test.mjs
+index 97aaf78269..2e40b7993e 100644
+--- a/app/src/lib/products/level-a/level-a-mixed.test.mjs
++++ b/app/src/lib/products/level-a/level-a-mixed.test.mjs
+@@ -13,7 +13,7 @@ import { renderToString } from "react-dom/server";
+ import { LEVEL_A_MIXED_POLICIES, LEVEL_A_MIXED_PUBLIC, levelAMixed, levelAMixedEnabled } from "./mixed.mjs";
+ import { levelACardKey } from "./engine.mjs";
+ import { cardCopyText, jointShownFor, levelASuggestions, tierForJoint } from "./suggestions.mjs";
+-import { buildLevelAModel, LEVEL_A_SERVED_SCHEMA, modelSha256 } from "./model.mjs";
++import { buildLevelAModel, LEVEL_A_SERVED_SCHEMA, mixedSlots, modelSha256 } from "./model.mjs";
+ import { recordEntries } from "./record.mjs";
+ import { gradeEntry } from "./grade.mjs";
+ import { PAGE_FOR, verifyServed } from "../../../../scripts/products/record-level-a-from-deployment.mjs";
+@@ -153,3 +153,46 @@ test("ONE DISCLOSURE PER PAGE: with mixed cards AND the NBA game winners block o
+     }
+   }
+ });
++
++test("ON NEVER REMOVES A CARD: a slot the mixed rule leaves empty keeps the switch-OFF cross-sport card (one-sport morning)", () => {
++  /* FIXTURE: a weekend morning before the NBA lane publishes (2026-10-25: Ligue 1 cards recorded 04:42Z, NBA lane 14:33Z). */
++  const soccerOnly = levelASuggestions({ selections: [sel("ligue-1", 0.62), sel("ligue-1", 0.6), sel("ligue-1", 0.52), sel("ligue-1", 0.46)], now: NOW, productDay: DAY });
++  const m = levelAMixed({ crossSportLegs: soccerOnly.legs, nbaLegs: [], disclosure: null, enabled: true });
++  assert.ok([...m.parlayLab, m.bankBuilder, m.moonshot].every((s) => s.card === null), "one sport: the mixed rule alone shows nothing");
++  assert.match(m.bankBuilder.reason, /today only Ligue 1 has a leg/);
++  assert.match(levelAMixed({ crossSportLegs: [], nbaLegs: [], enabled: true }).bankBuilder.reason, /today no sport has a leg/, "reads as a sentence with no legs at all");
++  const slots = mixedSlots(m, soccerOnly);
++  const shownOff = [...soccerOnly.parlayLab, soccerOnly.bankBuilder, soccerOnly.moonshot].filter((s) => s.card).length;
++  assert.ok(shownOff >= 3, "the fixture must give the OFF model cards, or this test is vacuous");
++  assert.deepEqual(slots.parlayLab.map((t) => t.card?.policy ?? null), soccerOnly.parlayLab.map((t) => t.card?.policy ?? null));
++  assert.equal(slots.bankBuilder, soccerOnly.bankBuilder);
++  assert.equal(slots.moonshot, soccerOnly.moonshot);
++  /* And a filled mixed slot still wins its slot. */
++  const both = levelAMixed({ crossSportLegs: crossSport(), nbaLegs: NBA_LEGS, disclosure: DISCLOSURE, enabled: true });
++  const s2 = mixedSlots(both, levelASuggestions({ selections: [sel("mlb", 0.62), sel("epl", 0.55)], now: NOW, productDay: DAY }));
++  for (const [i, t] of both.parlayLab.entries()) if (t.card) assert.equal(s2.parlayLab[i], t);
++});
++
++test("REAL DATA (committed slate): with mixed ON every slot the OFF model fills is still filled, at several instants", () => {
++  for (const now of ["2026-10-24T12:00:00Z", "2026-10-25T04:45:00Z", "2026-10-25T14:00:00Z", "2026-10-25T20:00:00Z"]) {
++    const off = buildLevelAModel({ repoRoot: REPO, now, mixed: { enabled: false } });
++    const on = buildLevelAModel({ repoRoot: REPO, now, mixed: { enabled: true } });
++    off.parlayLab.forEach((t, i) => { if (t.card) assert.ok(on.parlayLab[i].card, `${now} Parlay Center ${t.tier}: OFF shows a card, ON shows none`); });
++    if (off.bankBuilder.card) assert.ok(on.bankBuilder.card, `${now} Bank Builder`);
++    if (off.moonshot.card) assert.ok(on.moonshot.card, `${now} Moonshot`);
++  }
++});
++
++test("MOONSHOT HEADING names the rule of the card it shows (mixed: Longshot, up to 5 legs; cross-sport: 3 legs, High or Longshot)", () => {
++  /* 2026-10-25 14:00Z, committed slate: the mixed Moonshot is a 5-leg Longshot (Ligue 1 + four NBA games). */
++  const now = "2026-10-25T14:00:00Z";
++  const model = buildLevelAModel({ repoRoot: REPO, now, nbaGameWinners: { enabled: true, displayEnabled: true }, mixed: { enabled: true } });
++  const card = model.moonshot.card;
++  assert.ok(card?.policy.startsWith("level-a-mixed@1"), "the instant must show a mixed Moonshot card, or this test is vacuous");
++  assert.ok(card.legs.length > 3 && card.legs.length <= 5 && card.tier === "longshot");
++  const html = renderToString(React.createElement(LevelASuggestions, { model, mode: "moonshot" }));
++  assert.match(html, /Moonshot suggestion · up to 5 legs, Longshot band/);
++  assert.doesNotMatch(html, /Moonshot suggestion · 3 legs, High or Longshot band/, "the heading must not promise 3 legs over a longer card");
++  const off = buildLevelAModel({ repoRoot: REPO, now, mixed: { enabled: false } });
++  assert.match(renderToString(React.createElement(LevelASuggestions, { model: off, mode: "moonshot" })), /Moonshot suggestion · 3 legs, High or Longshot band/, "OFF: the heading is unchanged");
++});
+diff --git a/app/src/lib/products/level-a/mixed.mjs b/app/src/lib/products/level-a/mixed.mjs
+index a4aec57ea6..9f00957a80 100644
+--- a/app/src/lib/products/level-a/mixed.mjs
++++ b/app/src/lib/products/level-a/mixed.mjs
+@@ -57,7 +57,7 @@ const range = (sizes) => (sizes.length === 1 ? (sizes[0] === 2 ? "two" : String(
+ export function levelAMixed({ crossSportLegs = [], nbaLegs = [], disclosure = null, enabled = levelAMixedEnabled() }) {
+   const pool = [...crossSportLegs.filter((l) => l.tierable && typeof l.probability === "number"), ...nbaLegs.filter((l) => l.sport === "nba" && typeof l.probability === "number")];
+   const sports = sportsOf(pool);
+-  const tooFew = sports.length < 2 ? `a mixed card needs legs from two sports; today only ${sports.length === 0 ? "no sport has" : `${sports.map((s) => SPORT_NAME[s] ?? s).join("")} has`} a leg with a published probability` : null;
++  const tooFew = sports.length < 2 ? `a mixed card needs legs from two sports; ${sports.length === 0 ? "today no sport has" : `today only ${sports.map((s) => SPORT_NAME[s] ?? s).join("")} has`} a leg with a published probability` : null;
+   const parlayLab = PUBLIC_RISK_TIERS.map((tier) => {
+     const sizes = Array.from({ length: BAND_MAX_LEGS[tier] - 1 }, (_, i) => i + 2);
+     const top = tooFew ? null : best(pool, sizes, [tier], null, twoSports);
+diff --git a/app/src/lib/products/level-a/model.mjs b/app/src/lib/products/level-a/model.mjs
+index 772adf6a44..e812829a4f 100644
+--- a/app/src/lib/products/level-a/model.mjs
++++ b/app/src/lib/products/level-a/model.mjs
+@@ -37,6 +37,21 @@ export function nbaGameWinnersBlock({ answer, repoRoot, day, enabled = nbaGameWi
+   return nbaGameWinnerTiers({ legs: (answer.untiered ?? []).filter((l) => l.sport === "nba"), accessor: d.accessor, receiptOf: d.receiptOf, disclosure: d.disclosure, enabled: true });
+ }
+ 
++/**
++ * The slots the mixed switch fills. A mixed card takes its slot; a slot the mixed rule leaves EMPTY (fewer than two sports
++ * with a published probability, e.g. a soccer morning before the NBA lane publishes, or no mixed combination in that band)
++ * keeps the cross-sport card the switch-OFF model shows there, under its own policy. So switching mixed ON never removes a
++ * card readers would otherwise see; it only adds or replaces. Pure.
++ */
++export function mixedSlots(mixed, answer) {
++  const keep = (m, a) => (m.card || !a?.card ? m : a);
++  return {
++    parlayLab: mixed.parlayLab.map((t) => keep(t, answer.parlayLab.find((a) => a.tier === t.tier))),
++    bankBuilder: keep(mixed.bankBuilder, answer.bankBuilder),
++    moonshot: keep(mixed.moonshot, answer.moonshot),
++  };
++}
++
+ export function buildLevelAModel({ repoRoot = path.resolve(process.cwd(), ".."), now = new Date().toISOString(), productDay = null, nbaGameWinners: gw = {}, mixed: mx = {} } = {}) {
+   const day = productDay ?? productDayOf(now);
+   const src = levelASources({ repoRoot, date: day });
+@@ -53,7 +68,7 @@ export function buildLevelAModel({ repoRoot = path.resolve(process.cwd(), ".."),
+     : null;
+   return {
+     ...answer,
+-    ...(mixed ? { parlayLab: mixed.parlayLab, bankBuilder: mixed.bankBuilder, moonshot: mixed.moonshot, mixed: { public: mixed.public, policy: mixed.policy, sports: mixed.sports, disclosure: mixed.disclosure } } : {}),
++    ...(mixed ? { ...mixedSlots(mixed, answer), mixed: { public: mixed.public, policy: mixed.policy, sports: mixed.sports, disclosure: mixed.disclosure } } : {}),
+     ...(nbaGameWinners ? { nbaGameWinners, untiered: answer.untiered.map((l) => (l.sport === "nba" && tierable.has(String(l.eventId)) ? { ...l, probabilityNote: NBA_GW_LEG_NOTE } : l)) } : {}),
+     refusedByReason,
+     nbaProjections: src.nbaProjections.filter((p) => productDayOf(p.startUtc) === day && Date.parse(p.startUtc) > Date.parse(now)).slice(0, 8),
