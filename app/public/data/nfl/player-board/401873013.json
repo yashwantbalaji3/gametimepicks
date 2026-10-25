@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-25T15:13:37Z",
- "sourceGeneratedAt": "2026-10-25T15:13:37Z",
+ "generatedAt": "2026-10-25T16:06:17Z",
+ "sourceGeneratedAt": "2026-10-25T16:06:17Z",
  "providerEventId": "401873013",
  "matchup": "CLE @ TEN",
  "kickoffUtc": "2026-10-25T17:00Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-25T15:13:37Z",
-  "roleEvidenceAt": "2026-10-25T15:13:37Z",
+  "injuriesCapturedAt": "2026-10-25T16:06:17Z",
+  "roleEvidenceAt": "2026-10-25T16:06:17Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -114,14 +114,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 65,
+  "absent": 54,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "CLE": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -170,16 +170,6 @@
       "anytime_td",
       "player_reception_yds",
       "player_receptions"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4569682",
-     "name": "Audric Estime",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
@@ -256,6 +246,12 @@
      ]
     },
     {
+     "playerId": "nfl-athlete-4569682",
+     "name": "Audric Estime",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-4601080",
      "name": "Raheim Sanders",
      "state": "EXCLUDED_UNAVAILABLE",
@@ -271,8 +267,8 @@
   },
   "TEN": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 8,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -325,28 +321,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4428557",
-     "name": "Tyjae Spears",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE"
-    },
-    {
-     "playerId": "nfl-athlete-4685555",
-     "name": "Nicholas Singleton",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
      "playerId": "nfl-athlete-4883647",
      "name": "Elic Ayomanor",
      "state": "PROJECTED",
@@ -356,17 +330,6 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-3925357",
-     "name": "Calvin Ridley",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4686728",
@@ -399,6 +362,24 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4428557",
+     "name": "Tyjae Spears",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-4685555",
+     "name": "Nicholas Singleton",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-3925357",
+     "name": "Calvin Ridley",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4240657",
@@ -714,27 +695,6 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4569682",
-   "name": "Audric Estime",
-   "team": "CLE",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 14.829,
-     "p10": 0.05,
-     "p25": 2.98,
-     "median": 10.53,
-     "p75": 21.9,
-     "p90": 36.34,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.2204,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4870653",
    "name": "KC Concepcion",
    "team": "CLE",
@@ -760,45 +720,6 @@
     },
     "anytime_td": {
      "probability": 0.2046,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4428557",
-   "name": "Tyjae Spears",
-   "team": "TEN",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 12.786,
-     "p10": 0,
-     "p25": 1.59,
-     "median": 8.16,
-     "p75": 18.96,
-     "p90": 32.26,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_reception_yds": {
-     "mean": 19.676,
-     "p10": 0,
-     "p25": 5.22,
-     "median": 15.21,
-     "p75": 29.59,
-     "p90": 44.66,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 2.4791,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 4,
-     "p90": 5,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1629,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -988,57 +909,6 @@
     },
     "anytime_td": {
      "probability": 0.1014,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3925357",
-   "name": "Calvin Ridley",
-   "team": "TEN",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 19.242,
-     "p10": 0,
-     "p25": 0,
-     "median": 12.38,
-     "p75": 29.92,
-     "p90": 49.96,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 1.471,
-     "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.079,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4685555",
-   "name": "Nicholas Singleton",
-   "team": "TEN",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 10.395,
-     "p10": 0,
-     "p25": 0.7,
-     "median": 5.97,
-     "p75": 15.61,
-     "p90": 27.35,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.076,
      "pricingState": "NOT_PROBED"
     }
    }
