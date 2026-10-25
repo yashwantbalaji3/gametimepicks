@@ -126,3 +126,11 @@
 .nbp-about-card.is-verified h3 span{color:var(--vault-success)}
 .nbp-about-card.is-open{border-left:3px solid var(--vault-warn)}
 .nbp-panel h2[tabindex]:focus-visible{outline:2px solid var(--vault-crown);outline-offset:2px}
+/* Founder mandate 2026-10-24 — the skip to the Official Forecast is the page's first, most visible control. */
+.nbp-skip-cta{display:flex;flex-direction:column;gap:2px;margin:0 0 10px;padding:12px 16px;min-height:56px;border-radius:14px;border:2px solid var(--vault-crown);background:color-mix(in srgb,var(--vault-crown) 14%,transparent);color:var(--vault-text);text-decoration:none}
+.nbp-skip-cta:hover{background:color-mix(in srgb,var(--vault-crown) 22%,transparent)}
+.nbp-skip-cta:focus-visible{outline:2px solid var(--vault-crown);outline-offset:3px}
+.nbp-skip-main{font:700 16px/1.25 var(--font-display)}
+.nbp-skip-sub{font:400 12.5px/1.4 var(--font-mono);color:var(--vault-text-mute)}
+@media (min-width:768px){.nbp-skip-cta{display:inline-flex;max-width:640px}}
+.nbp-h2-sub{font-weight:500;color:var(--st-mute)}

@@ -20,6 +20,11 @@
  *   - the slate dates are tap-sized chips at the top of the page, not a line under a 250-row table; the per-game
  *     freeze/receipt list is one tap away (<details>) and the method note sits under the board, so the filters lead.
  *
+ * Public-readiness pass (founder mandate 2026-10-24): consumer language first. Headings say Predicted Player
+ * Statistics, Official Forecast and Forecast vs. Actual; model ids, receipts, engine notes and the withheld list live in
+ * one "Model details" disclosure (each model id once, not once per game). Game chips (island) carry each game's status
+ * and its actual state; a finished slate without verified actuals says "awaiting final box scores" explicitly.
+ *
  * Founder decision 2026-10-23 (behind its switch): each game's line in that list also carries the Elo rating's
  * game-winner probability from the shared accessor, with the accuracy disclosure once — the page hands in `eloCtx`
  * (this view still reads no file).
@@ -29,7 +34,7 @@ import Link from "next/link";
 import type { Snapshot } from "@/components/nba/experimental-lane";
 import type { BoardGame, BoardToday, SlateRole } from "@/components/nba/projection-board-context";
 import type { BoardActuals, GameActualState } from "@/lib/sports/nba/projection-board-actuals";
-import ProjectionBoard from "@/components/nba/projection-board";
+import ProjectionBoard, { type BoardGameNav } from "@/components/nba/projection-board";
 import GameStatusOnClock from "@/components/nba/projection-game-status";
 import { COMBO_STATS, PROJECTION_BOARD_STATS, COMBO_LABEL } from "@/lib/sports/nba/experimental-public-lane.mjs";
 import { EloAccuracyDisclosure, EloWinProbability, type EloCtx } from "@/components/nba/elo-win-probability";
@@ -55,6 +60,45 @@ const ACTUAL_UNAVAILABLE: Partial<Record<GameActualState, string>> = {
   "under-review": "Actual: Unavailable (final under review)",
   "points-disagree": "Actual: Unavailable (box score under review)",
 };
+/** The lane's own list of rostered players it could not project (PR 1230; optional — absent = not recorded). */
+type LaneUnavailable = { providerAthleteId: string; name: string | null; position?: string | null; reason: string };
+const laneUnavailable = (g: Snapshot["games"][number], side: "away" | "home"): LaneUnavailable[] | undefined =>
+  (g.players as unknown as { unavailable?: Record<string, LaneUnavailable[]> }).unavailable?.[side];
+/** Did this slate's publisher record who had no projection? */
+const coverageRecorded = (lane: Snapshot) => lane.games.some((g) => laneUnavailable(g, "away") !== undefined || laneUnavailable(g, "home") !== undefined);
+
+/**
+ * Every player without a projection, with his team as the board names it: the lane's listed players (their reason
+ * code, position and, after a verified final, the actuals) and, from the final box score, anyone else who played
+ * ("P" — played, no projection). No forecast value is ever attached.
+ */
+function noProjectionRows(lane: Snapshot, a: BoardActuals | null) {
+  const played = new Map((a?.unprojected ?? []).map((u) => [`${u.game}:${u.id}`, u]));
+  const out: { name: string; game: string; team: string; teamName: string; code: string; pos: string | null; actual: (number | string | null)[] | null }[] = [];
+  for (const g of lane.games) {
+    for (const side of ["away", "home"] as const) {
+      const t = g[side];
+      for (const e of laneUnavailable(g, side) ?? []) {
+        const key = `${g.providerEventId}:${e.providerAthleteId}`;
+        out.push({ name: e.name ?? "", game: g.providerEventId, team: t.abbr ?? "", teamName: t.name ?? t.abbr ?? "", code: e.reason, pos: e.position ?? null, actual: played.get(key)?.actual ?? null });
+        played.delete(key);
+      }
+    }
+  }
+  const byId = new Map(lane.games.map((g) => [g.providerEventId, g]));
+  for (const u of played.values()) {
+    const t = byId.get(u.game)![u.side];
+    out.push({ name: u.name, game: u.game, team: t.abbr ?? "", teamName: t.name ?? t.abbr ?? "", code: "P", pos: null, actual: u.actual });
+  }
+  return out;
+}
+/** The same state, short, on a game chip. A recorded game needs no note; a game still to finish reads "awaiting final". */
+const ACTUAL_CHIP: Partial<Record<GameActualState, string>> = {
+  "no-final": "awaiting final",
+  "no-boxscore": "box score pending",
+  "under-review": "final under review",
+  "points-disagree": "box score under review",
+};
 const TEXT = { color: "var(--vault-text)" };
 
 /* One status word and at most one link per game, no inline styles (they inherit the list's colour) — the markup is
@@ -78,8 +122,8 @@ function SlateDates({ dates, date, dated }: { dates: string[]; date: string | nu
   const chip = (d: string, text: string) => <a key={d} href={slateHref(d)} className={CHIP} style={CHIP_STYLE}>{text}</a>;
   return (
     <nav className="m-0 flex flex-wrap items-center gap-2 text-[13px]" style={MUTE} aria-label="Slate dates">
-      <span>Frozen slates by date:</span>
-      {dated ? <a href="/nba/projections/" className={CHIP} style={CHIP_STYLE}>Current slate</a> : null}
+      <span>Dates:</span>
+      {dated ? <a href="/nba/projections/" className={CHIP} style={CHIP_STYLE}>Today&rsquo;s board</a> : null}
       {nav.recent.map((d) => (dated && d === date
         ? <span key={d} className={CHIP} style={{ ...CHIP_STYLE, borderColor: "var(--vault-gold-bright)" }}><strong aria-current="page">{slateLabel(d)}</strong></span>
         : chip(d, slateLabel(d))))}
@@ -160,55 +204,82 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
   const groups = statGroups(PROJECTION_BOARD_STATS, COMBO_STATS.map(([k]) => k));
   // Postgame mode only when at least one game's actuals are recorded; otherwise the board is exactly the pregame one.
   const post = live && actuals && Object.values(actuals.games).includes("recorded") ? actuals : null;
+  const stateOf = (id: string) => actuals?.games[id];
+  // A game whose actuals are due (it tipped off, or the slate is past) but not shown says why on its chip.
+  const due = (id: string) => past || (meta.get(id)?.status ?? "upcoming") !== "upcoming";
+  const awaiting = new Set(live ? live.games.map((g) => g.providerEventId).filter((id) => stateOf(id) === "no-final") : []);
+  const nav: BoardGameNav[] = live
+    ? live.games.map((g) => {
+        const st = stateOf(g.providerEventId);
+        const note = st && st !== "recorded" && due(g.providerEventId) ? ACTUAL_CHIP[st] : undefined;
+        return [g.providerEventId, `${g.away.abbr ?? g.away.name} @ ${g.home.abbr ?? g.home.name}`, meta.get(g.providerEventId)?.status ?? "upcoming", meta.get(g.providerEventId)?.tipUtc ?? g.tipUtc, ...(note ? [note] : [])] as BoardGameNav;
+      })
+    : [];
+  const pendingActuals = live && !post && live.games.some((g) => due(g.providerEventId) && stateOf(g.providerEventId) !== "recorded");
+  const models = live ? [...new Set(live.games.map((g) => g.receipt.modelVersion))] : [];
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-4 min-w-0">
       <p className="m-0 text-[13px]"><Link href="/nba/" className="underline" style={TEXT}>← NBA hub</Link></p>
-      <h1 className="m-0 font-display text-[22px] font-bold" style={TEXT}>NBA Predicted Player Statistics{slate && (live || dated) ? ` · ${slateLabel(slate)} slate` : ""}{past ? " (past)" : ""}</h1>
+      <h1 className="m-0 font-display text-[22px] font-bold" style={TEXT}>NBA Predicted Player Statistics{slate && (live || dated) ? ` · ${dayLabel(slate)}` : ""}</h1>
       <p className="m-0 text-[12.5px] leading-relaxed" style={MUTE} role="note">{PREDICTED_NOTE}</p>
       <SlateDates dates={dates} date={slate} dated={dated} />
       {past ? (
         <p className="m-0 rounded-md p-2 text-[13px] font-semibold" role="note" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)" }}>
-          Past frozen slate{slate ? ` · ${slateLabel(slate)}` : ""}. This is not the current slate: each figure is the pregame median frozen
-          before that day&rsquo;s tip-offs, shown exactly as frozen and never updated after a game.{" "}
-          <a href="/nba/projections/" className="underline">Current slate</a>
+          Past slate{slate ? ` · ${dayLabel(slate)}` : ""}. Every Official Forecast figure here was frozen before that day&rsquo;s
+          tip-offs and is shown exactly as frozen, never updated after a game.{" "}
+          <a href="/nba/projections/" className="underline">Today&rsquo;s board</a>
         </p>
       ) : null}
       {live ? (
         <>
-          {/* Provenance per game, one tap away: on a phone an 11-game list otherwise pushes the filters two screens down. */}
-          <details className="text-[12px]" style={MUTE}>
-            <summary className="cursor-pointer min-h-[44px] py-3 underline decoration-dotted" style={TEXT}>
-              Freeze times, receipts and game status · {live.games.length} game{live.games.length === 1 ? "" : "s"}
-            </summary>
-            <ul className="m-0 pl-5 text-[12px] leading-relaxed" style={MUTE} aria-label="Freeze times and receipts">
-              {live.games.map((g) => (
-                <li key={g.providerEventId}>
-                  {g.away.name} at {g.home.name}: tip-off {et(g.tipUtc)} · frozen {et(g.frozenAt)} · receipt {g.receipt.modelVersion} · {g.receipt.payloadSha256.slice(0, 12)}
-                  <EloWinProbability game={g} ctx={eloCtx} className="block" />
-                  {meta.has(g.providerEventId) ? <GameStatus g={meta.get(g.providerEventId)!} actual={actuals ? ACTUAL_UNAVAILABLE[actuals.games[g.providerEventId]] : undefined} /> : null}
-                </li>
-              ))}
-            </ul>
-          </details>
           {post ? (
-            <p className="m-0 rounded-md p-2 text-[12.5px] leading-relaxed" role="note" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)" }}>
-              <strong>Forecast</strong> = Official Forecast (frozen pregame), shown exactly as frozen. <strong>Actual</strong> = the
-              player&rsquo;s figure in the final box score (ESPN), recorded after an official final; PRA, P+R and P+A actuals are
-              sums of the actual points, rebounds and assists. A dash means did not play, not in the box score, or no final yet
-              &mdash; never a zero. Forecast and Actual are compared per player only.
+            <section className="flex flex-col gap-2" aria-labelledby="nba-fva-h">
+              <h2 id="nba-fva-h" className="m-0 font-display text-[17px] font-bold" style={TEXT}>Forecast vs. Actual</h2>
+              <p className="m-0 rounded-md p-2 text-[12.5px] leading-relaxed" role="note" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)" }}>
+                <strong>Forecast</strong>: the Official Forecast, frozen before tip-off and never changed. <strong>Actual</strong>: the
+                final box score (ESPN), after the official final. A dash means did not play &mdash; never a zero.
+              </p>
+            </section>
+          ) : pendingActuals ? (
+            <p className="m-0 rounded-md p-2 text-[12.5px] leading-relaxed" role="status" style={{ border: "1px dashed var(--vault-border)", color: "var(--vault-text)" }}>
+              <strong>Forecast vs. Actual: awaiting final box scores.</strong> Each player&rsquo;s actual figures appear beside the
+              frozen Official Forecast once that game&rsquo;s official final and box score are recorded.
             </p>
           ) : null}
-          <ProjectionBoard board={packBoard(rows, post ? post.rows : null)} stats={stats} groups={groups} matchups={matchups} teams={teams} defaultGroup={post ? "core" : undefined} />
           <p className="m-0 text-[12px] leading-relaxed" style={MUTE}>
-            Source: {live.games[0].players.source}. PRA, P+R and P+A: {COMBO_LABEL} — the median of each simulated
-            game&rsquo;s sum, so it need not equal the sum of the separate medians. Players with at least 10 expected
-            minutes who are not ruled out. The default order is expected minutes; a column sort is the reader&rsquo;s own.
-            {games.length ? " Game status is read-only, from the schedule and finals record (Started: tipped off, no final recorded yet); it never changes a frozen figure." : ""}
+            {coverageRecorded(live)
+              ? "Every rostered player without a projection is listed as \u201cProjection unavailable\u201d with the reason the Official Forecast recorded."
+              : `Coverage list not recorded for this slate.${post ? " Players who played without a projection are listed from the final box score." : ""}`}
           </p>
-          <EloAccuracyDisclosure games={live.games} ctx={eloCtx} className="m-0 text-[12px] leading-relaxed" />
-          <ul className="m-0 pl-5 text-[12px] leading-relaxed" style={MUTE}>
-            {Object.entries(live.withheld).map(([k, v]) => <li key={k}>{v}</li>)}
-          </ul>
+          <ProjectionBoard board={packBoard(rows, post ? post.rows : null, post ? awaiting : null, noProjectionRows(live, post))} stats={stats} groups={groups} matchups={matchups} teams={teams} games={nav} defaultGroup={post ? "core" : undefined} />
+          {/* Model ids, receipts, engine notes and the withheld list: one tap away, each model id once. */}
+          <details className="text-[12px]" style={MUTE}>
+            <summary className="cursor-pointer min-h-[44px] py-3 underline decoration-dotted" style={TEXT}>
+              Model details · freeze times, receipts and method · {live.games.length} game{live.games.length === 1 ? "" : "s"}
+            </summary>
+            <div className="flex flex-col gap-2 pb-2">
+              <p className="m-0 leading-relaxed">
+                Model: {models.join(", ")}. Source: {live.games[0].players.source}. PRA, P+R and P+A: {COMBO_LABEL} — the median of
+                each simulated game&rsquo;s sum, so it need not equal the sum of the separate medians. Players with at least 10
+                expected minutes who are not ruled out. The default order is expected minutes; a column sort is the reader&rsquo;s own.
+                {games.length ? " Game status is read-only, from the schedule and finals record (Started: tipped off, no final recorded yet); it never changes a frozen figure." : ""}
+                {post ? <> Forecast vs. Actual: PRA, P+R and P+A actuals add up the actual points, rebounds and assists; &ldquo;awaiting final&rdquo; means the game has no official final yet; &ldquo;Played, no projection&rdquo; and &ldquo;Projection unavailable&rdquo; mark players without an Official Forecast projection &mdash; their actuals are shown, no forecast is invented. Forecast and Actual are compared per player only.</> : null}
+              </p>
+              <ul className="m-0 pl-5 leading-relaxed" aria-label="Freeze times and receipts">
+                {live.games.map((g) => (
+                  <li key={g.providerEventId}>
+                    {g.away.name} at {g.home.name}: tip-off {et(g.tipUtc)} · frozen {et(g.frozenAt)} · receipt {g.receipt.payloadSha256.slice(0, 12)}
+                    <EloWinProbability game={g} ctx={eloCtx} className="block" />
+                    {meta.has(g.providerEventId) ? <GameStatus g={meta.get(g.providerEventId)!} actual={actuals ? ACTUAL_UNAVAILABLE[actuals.games[g.providerEventId]] : undefined} /> : null}
+                  </li>
+                ))}
+              </ul>
+              <EloAccuracyDisclosure games={live.games} ctx={eloCtx} className="m-0 leading-relaxed" />
+              <ul className="m-0 pl-5 leading-relaxed">
+                {Object.entries(live.withheld).map(([k, v]) => <li key={k}>{v}</li>)}
+              </ul>
+            </div>
+          </details>
         </>
       ) : today ? (
         <TodaySlate today={today} />

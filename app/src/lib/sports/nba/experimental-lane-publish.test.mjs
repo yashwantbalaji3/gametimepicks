@@ -8,7 +8,8 @@ import { spawnSync } from "node:child_process";
 import crypto from "node:crypto";
 import { PUBLISH, comparableSnapshot, decidePublish, manualWriteDecision } from "./experimental-lane-publish.mjs";
 import { ELO_WIN_PROBABILITY, eloWinProbabilityForPublish } from "./elo-win-probability.mjs";
-import { buildExperimentalSnapshot, snapshotMatchesSource } from "./experimental-public-lane.mjs";
+import { loadRosterIndex } from "./roster-index.mjs";
+import { buildExperimentalSnapshot, snapshotMatchesSource, unavailablePlayersForPublish } from "./experimental-public-lane.mjs";
 import { etDateOf } from "./experimental-forecast.mjs";
 
 const REPO = path.resolve(process.cwd(), "..");
@@ -19,7 +20,7 @@ const DAY = read(`app/public/data/nba/experimental-public/${DATE}.json`);
 const ROWS = DOC.games.map((g) => ({ providerEventId: g.providerEventId, dateUtc: g.dateUtc, statusRaw: "STATUS_SCHEDULED" }));
 // 10-20 is ALREADY PUBLISHED: every rebuild here follows the publisher's own Elo rule (Release G: switch-agnostic, so the
 // identity checks below hold with the Elo switch ON as well as OFF — never weaker).
-const snap = (doc = DOC, generatedAt = "2026-10-20T20:00:00Z") => buildExperimentalSnapshot({ forecastDoc: doc, sourceFile: DAY.source.file, sourceCommit: DAY.source.commit, generatedAt, eloWinProbability: eloWinProbabilityForPublish(DAY) });
+const snap = (doc = DOC, generatedAt = "2026-10-20T20:00:00Z") => buildExperimentalSnapshot({ forecastDoc: doc, sourceFile: DAY.source.file, sourceCommit: DAY.source.commit, generatedAt, eloWinProbability: eloWinProbabilityForPublish(DAY), unavailablePlayers: unavailablePlayersForPublish(DAY) });
 const base = (o = {}) => ({ date: DATE, scheduleRows: ROWS, etDateOf, forecastDoc: DOC, now: "2026-10-20T18:00:00Z", snapshot: snap(), rederivesOk: true, committedDay: null, committedLatest: null, ...o });
 
 test("PUBLISH once every game is frozen; writes the day file and latest.json", () => {
@@ -74,6 +75,9 @@ test("HOLD with no forecast file or no games on the date", () => {
 
 // ── Release G (Elo switch ON) ─────────────────────────────────────────────────────────────────────────────────────────
 const LANE_DIR = path.join(REPO, "app/public/data/nba/experimental-public");
+// a slate carrying positions / the unavailable list rebuilds only against the receipt's own roster capture (by sha256),
+// exactly as both producers do — found on the first such slate (2026-10-24)
+const ROSTERS = loadRosterIndex(REPO);
 const DATED = fs.readdirSync(LANE_DIR).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort();
 
 test("EVERY committed slate rebuilds byte-for-byte under the publisher's rule, with the Elo switch as it is (ON since Release G)", () => {
@@ -83,7 +87,7 @@ test("EVERY committed slate rebuilds byte-for-byte under the publisher's rule, w
     const text = fs.readFileSync(path.join(LANE_DIR, f), "utf8");
     const day = JSON.parse(text);
     const doc = read(`data/internal/research/nba/experimental-v0.1/forecasts/${date}.json`);
-    const rebuilt = buildExperimentalSnapshot({ forecastDoc: doc, sourceFile: day.source.file, sourceCommit: day.source.commit, generatedAt: day.generatedAt, eloWinProbability: eloWinProbabilityForPublish(day) });
+    const rebuilt = buildExperimentalSnapshot({ forecastDoc: doc, sourceFile: day.source.file, sourceCommit: day.source.commit, generatedAt: day.generatedAt, eloWinProbability: eloWinProbabilityForPublish(day), unavailablePlayers: unavailablePlayersForPublish(day), rosters: ROSTERS });
     assert.equal(`${JSON.stringify(rebuilt, null, 1)}\n`, text, `${date}: a published slate is exactly what the producer rebuilds`);
     assert.equal(manualWriteDecision({ committedDay: day, snapshot: rebuilt }).action, PUBLISH.NOOP, date);
   }

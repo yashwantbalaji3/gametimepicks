@@ -1,0 +1,493 @@
+{
+ "schemaVersion": 1,
+ "artifact": "daily-product-receipt",
+ "dataClass": "PRIVATE_OPERATING_RECORD",
+ "date": "2026-10-24",
+ "generatedAt": "2026-10-24T13:50:07Z",
+ "states": [
+  "NOT_RUN",
+  "INPUTS_MISSING",
+  "STALE",
+  "INCIDENT",
+  "NO_PLAY",
+  "ACTIVE",
+  "PENDING_RESULT",
+  "SETTLED",
+  "VOID",
+  "OFF_SEASON"
+ ],
+ "lifecycleStates": [
+  "EVALUATING",
+  "ACTIVE",
+  "AWAITING_RESULT",
+  "SETTLED_WIN",
+  "SETTLED_LOSS",
+  "SETTLED_RECORDED",
+  "ADVANCED",
+  "RESTARTED",
+  "NO_PLAY",
+  "OFF_SEASON",
+  "INCIDENT"
+ ],
+ "inputs": {
+  "mlbBoard": {
+   "date": "2026-10-24",
+   "present": true,
+   "games": 1,
+   "leans": 41,
+   "hash": "e4ae9e3799da"
+  },
+  "nflMarket": {
+   "present": true,
+   "capturedAt": "2026-10-11T11:41:55Z",
+   "events": 77
+  },
+  "nflModelEligible": false,
+  "portfolioSource": "published mr-dub/daily-portfolio.json",
+  "nflNote": "NFL contributes NO legs: PUBLIC_EXPERIMENTAL — sportsbook prices are not a GameTimePicks pick"
+ },
+ "products": [
+  {
+   "product": "bank-builder",
+   "label": "Bank Builder",
+   "state": "NO_PLAY",
+   "reason": "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage",
+   "candidatesEvaluated": 0,
+   "rejections": [
+    {
+     "lane": "A",
+     "step": 2,
+     "status": "awaiting",
+     "legsFound": 0,
+     "legsRequired": 2,
+     "reason": "fewer than 2 eligible legs — awaiting a full card"
+    },
+    {
+     "lane": "B",
+     "step": 1,
+     "status": "awaiting",
+     "legsFound": 0,
+     "legsRequired": 2,
+     "reason": "fewer than 2 eligible legs — awaiting a full card"
+    }
+   ],
+   "card": null,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "bank-builder@1",
+    "evidence": {
+     "policyVersion": "bank-builder@1",
+     "reason": "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:bank-builder:2026-10-24"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-10-24:e4ae9e3799da"
+     }
+    ]
+   }
+  },
+  {
+   "product": "moonshot",
+   "label": "Moonshot",
+   "state": "NO_PLAY",
+   "reason": "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage",
+   "candidatesEvaluated": 0,
+   "rejections": [
+    {
+     "lane": "A",
+     "step": 2,
+     "status": "awaiting",
+     "legsFound": 0,
+     "legsRequired": 2,
+     "reason": "fewer than 2 eligible legs — awaiting a full card"
+    },
+    {
+     "lane": "B",
+     "step": 1,
+     "status": "awaiting",
+     "legsFound": 0,
+     "legsRequired": 2,
+     "reason": "fewer than 2 eligible legs — awaiting a full card"
+    }
+   ],
+   "card": null,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "moonshot@2",
+    "evidence": {
+     "policyVersion": "moonshot@2",
+     "reason": "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:moonshot:2026-10-24"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-10-24:e4ae9e3799da"
+     }
+    ]
+   }
+  },
+  {
+   "product": "end-zone-vault",
+   "label": "End Zone Vault",
+   "state": "NO_PLAY",
+   "reason": "scorerPrice: FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market) · participation: FAIL(INACTIVE) · participation: FAIL(QUESTIONABLE)",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "end-zone-vault@1",
+    "evidence": {
+     "policyVersion": "end-zone-vault@1",
+     "reason": "scorerPrice: FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market) · participation: FAIL(INACTIVE) · participation: FAIL(QUESTIONABLE)"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:end-zone-vault:2026-10-24"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-10-24:e4ae9e3799da"
+     }
+    ]
+   }
+  },
+  {
+   "product": "homer-nukes",
+   "label": "Homer Nukes",
+   "state": "ACTIVE",
+   "reason": "5 model-qualified home-run picks published for the slate",
+   "candidatesEvaluated": 5,
+   "rejections": [],
+   "card": [
+    {
+     "playerId": 691406,
+     "player": "Junior Caminero",
+     "teamId": 139,
+     "teamAbbr": "TB",
+     "teamName": "Tampa Bay Rays",
+     "opponentAbbr": "MIL",
+     "opponentTeamId": 158,
+     "matchup": "TB @ MIL",
+     "gamePk": 849802,
+     "gameDate": "2026-10-25T00:00:00Z",
+     "venue": "American Family Field",
+     "opposingPitcher": "Logan Henderson",
+     "opposingPitcherId": 701656,
+     "probability": 0.2308,
+     "seasonHr": 42,
+     "seasonPa": 702,
+     "seasonRate": 0.05983,
+     "adjustedRate": 0.06049,
+     "pitcherHrAllowed": 14,
+     "pitcherBattersFaced": 371,
+     "pitcherMultiplier": 1.135,
+     "reason": "42 HR in 702 plate appearances (6.0% of trips, league 3.0%). Logan Henderson has been more homer-prone than average (14 allowed in 371 batters faced), lifting it to 23.1%."
+    },
+    {
+     "playerId": 683748,
+     "player": "Victor Mesa Jr.",
+     "teamId": 139,
+     "teamAbbr": "TB",
+     "teamName": "Tampa Bay Rays",
+     "opponentAbbr": "MIL",
+     "opponentTeamId": 158,
+     "matchup": "TB @ MIL",
+     "gamePk": 849802,
+     "gameDate": "2026-10-25T00:00:00Z",
+     "venue": "American Family Field",
+     "opposingPitcher": "Logan Henderson",
+     "opposingPitcherId": 701656,
+     "probability": 0.1915,
+     "seasonHr": 14,
+     "seasonPa": 262,
+     "seasonRate": 0.05344,
+     "adjustedRate": 0.0493,
+     "pitcherHrAllowed": 14,
+     "pitcherBattersFaced": 371,
+     "pitcherMultiplier": 1.135,
+     "reason": "14 HR in 262 plate appearances (5.3% of trips, league 3.0%). Logan Henderson has been more homer-prone than average (14 allowed in 371 batters faced), lifting it to 19.2%."
+    },
+    {
+     "playerId": 668723,
+     "player": "Ryan Vilade",
+     "teamId": 139,
+     "teamAbbr": "TB",
+     "teamName": "Tampa Bay Rays",
+     "opponentAbbr": "MIL",
+     "opponentTeamId": 158,
+     "matchup": "TB @ MIL",
+     "gamePk": 849802,
+     "gameDate": "2026-10-25T00:00:00Z",
+     "venue": "American Family Field",
+     "opposingPitcher": "Logan Henderson",
+     "opposingPitcherId": 701656,
+     "probability": 0.1597,
+     "seasonHr": 11,
+     "seasonPa": 278,
+     "seasonRate": 0.03957,
+     "adjustedRate": 0.04053,
+     "pitcherHrAllowed": 14,
+     "pitcherBattersFaced": 371,
+     "pitcherMultiplier": 1.135,
+     "reason": "11 HR in 278 plate appearances (4.0% of trips, league 3.0%). Logan Henderson has been more homer-prone than average (14 allowed in 371 batters faced), lifting it to 16.0%."
+    },
+    {
+     "playerId": 666018,
+     "player": "Jonathan Aranda",
+     "teamId": 139,
+     "teamAbbr": "TB",
+     "teamName": "Tampa Bay Rays",
+     "opponentAbbr": "MIL",
+     "opponentTeamId": 158,
+     "matchup": "TB @ MIL",
+     "gamePk": 849802,
+     "gameDate": "2026-10-25T00:00:00Z",
+     "venue": "American Family Field",
+     "opposingPitcher": "Logan Henderson",
+     "opposingPitcherId": 701656,
+     "probability": 0.1455,
+     "seasonHr": 22,
+     "seasonPa": 668,
+     "seasonRate": 0.03293,
+     "adjustedRate": 0.0367,
+     "pitcherHrAllowed": 14,
+     "pitcherBattersFaced": 371,
+     "pitcherMultiplier": 1.135,
+     "reason": "22 HR in 668 plate appearances (3.3% of trips, league 3.0%). Logan Henderson has been more homer-prone than average (14 allowed in 371 batters faced), lifting it to 14.5%."
+    },
+    {
+     "playerId": 689414,
+     "player": "Liam Hicks",
+     "teamId": 139,
+     "teamAbbr": "TB",
+     "teamName": "Tampa Bay Rays",
+     "opponentAbbr": "MIL",
+     "opponentTeamId": 158,
+     "matchup": "TB @ MIL",
+     "gamePk": 849802,
+     "gameDate": "2026-10-25T00:00:00Z",
+     "venue": "American Family Field",
+     "opposingPitcher": "Logan Henderson",
+     "opposingPitcherId": 701656,
+     "probability": 0.1437,
+     "seasonHr": 18,
+     "seasonPa": 554,
+     "seasonRate": 0.03249,
+     "adjustedRate": 0.03623,
+     "pitcherHrAllowed": 14,
+     "pitcherBattersFaced": 371,
+     "pitcherMultiplier": 1.135,
+     "reason": "18 HR in 554 plate appearances (3.2% of trips, league 3.0%). Logan Henderson has been more homer-prone than average (14 allowed in 371 batters faced), lifting it to 14.4%."
+    }
+   ],
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "ACTIVE",
+    "policyVersion": "homer-nukes@1",
+    "evidence": {
+     "policyVersion": "homer-nukes@1",
+     "cardRef": "card+card+card+card+card",
+     "lockAt": "2026-10-24T09:29:47.000Z"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:homer-nukes:2026-10-24"
+     },
+     {
+      "to": "ACTIVE",
+      "runId": "gen:2026-10-24:e4ae9e3799da"
+     }
+    ]
+   }
+  },
+  {
+   "product": "ufc-cards",
+   "label": "UFC paper cards",
+   "state": "NO_PLAY",
+   "reason": "the ladder was built for this date and no tier had enough supported legs",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "ufc-cards@1",
+    "evidence": {
+     "policyVersion": "ufc-cards@1",
+     "reason": "the ladder was built for this date and no tier had enough supported legs"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:ufc-cards:2026-10-24"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-10-24:e4ae9e3799da"
+     }
+    ]
+   }
+  },
+  {
+   "product": "epl-cards",
+   "label": "EPL paper cards",
+   "state": "ACTIVE",
+   "reason": "1 paper card published for the 2026-10-24 event",
+   "candidatesEvaluated": 3,
+   "rejections": [],
+   "card": [
+    {
+     "tier": "medium",
+     "slipId": "epl-medium-2026-10-24",
+     "combinedAmerican": 119,
+     "combinedDecimal": 2.191,
+     "legs": [
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:arsenal-v-everton:20261024t1400",
+       "player": null,
+       "matchup": "Arsenal v Everton",
+       "kickoffUtc": "2026-10-24T14:00:00Z",
+       "team": "Arsenal",
+       "market": "match_result",
+       "marketLabel": "Match result",
+       "side": "home",
+       "line": null,
+       "odds": -250,
+       "decimal": 1.4,
+       "books": 11
+      },
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:chelsea-v-tottenham-hotspur:20261024t1630",
+       "player": null,
+       "matchup": "Chelsea v Tottenham Hotspur",
+       "kickoffUtc": "2026-10-24T16:30:00Z",
+       "team": null,
+       "market": "total_goals",
+       "marketLabel": "Total goals 2.5",
+       "side": "over",
+       "line": 2.5,
+       "odds": -177,
+       "decimal": 1.5649717514124295,
+       "books": 3
+      }
+     ],
+     "status": "pending",
+     "tierRecord": null
+    }
+   ],
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "ACTIVE",
+    "policyVersion": "epl-cards@1",
+    "evidence": {
+     "policyVersion": "epl-cards@1",
+     "cardRef": "card",
+     "lockAt": "2026-10-24T13:32:22Z"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:epl-cards:2026-10-24"
+     },
+     {
+      "to": "ACTIVE",
+      "runId": "gen:2026-10-24:e4ae9e3799da"
+     }
+    ]
+   }
+  },
+  {
+   "product": "mlb-cards",
+   "label": "MLB suggested cards",
+   "state": "NO_PLAY",
+   "reason": "no priced card in this tier on today's slate · no priced card in this tier on today's slate · no priced card in this tier on today's slate · no priced card in this tier on today's slate",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "mlb-cards@1",
+    "evidence": {
+     "policyVersion": "mlb-cards@1",
+     "reason": "no priced card in this tier on today's slate · no priced card in this tier on today's slate · no priced card in this tier on today's slate · no priced card in this tier on today's slate"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:mlb-cards:2026-10-24"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-10-24:e4ae9e3799da"
+     }
+    ]
+   }
+  },
+  {
+   "product": "multi-cards",
+   "label": "Multi-sport paper cards",
+   "state": "NO_PLAY",
+   "reason": "NOT_ELIGIBLE",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "multi-cards@1",
+    "evidence": {
+     "policyVersion": "multi-cards@1",
+     "reason": "NOT_ELIGIBLE"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:multi-cards:2026-10-24"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-10-24:e4ae9e3799da"
+     }
+    ]
+   }
+  },
+  {
+   "product": "nba-lanes",
+   "label": "NBA (all lanes)",
+   "state": "NOT_RUN",
+   "reason": "NBA results capture did not report OFF_SEASON — investigate before assuming dormancy",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": false
+  }
+ ],
+ "watchdog": [],
+ "authorities": {
+  "bankBuilder": "src/lib/daily-portfolio/accounting.ts · buildPersistedDailyPortfolio (the same call activate-daily-portfolio.mjs makes)",
+  "moonshot": "src/lib/daily-portfolio/accounting.ts · laneEligibility — the LIVE band is MOONSHOT_MIN_COMBINED_ODDS (world-cup/model-qualified-picks.ts)",
+  "vault": "data/internal/nfl/end-zone-vault/ledger.json (append-only, owned by the Vault)",
+  "money": "NOT THIS SCRIPT — no money artifact is read for state or written at all"
+ },
+ "honesty": [
+  "INPUTS_MISSING is not NO_PLAY: a missing slate is an operational gap, and saying 'nothing qualified' would be a lie about a decision that never happened",
+  "every rejection reason is copied verbatim from the live activation policy — this receipt invents none",
+  "NFL contributes legs only when its MODEL layer is publishable; captured sportsbook prices never qualify a leg by themselves"
+ ]
+}

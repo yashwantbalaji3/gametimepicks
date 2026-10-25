@@ -1,19 +1,18 @@
 {
   "kind": "publication-slo",
   "date": "2026-10-24",
-  "platformState": "PUBLISHING",
+  "platformState": "MISSED_COVERAGE",
   "sports": {
     "mlb": {
-      "state": "PUBLISHING",
-      "reason": "1 event(s) still awaiting a forecast, none of them late yet",
-      "deadlineUtc": "2026-10-24T22:30:00.000Z",
+      "state": "PUBLISHED",
+      "reason": "all 1 event(s) in the horizon carry a forecast",
+      "deadlineUtc": null,
       "counts": {
         "scheduled": 1,
-        "published": 0,
+        "published": 1,
         "missedCoverage": 0,
-        "awaiting": 1
-      },
-      "missed": []
+        "awaiting": 0
+      }
     },
     "nfl": {
       "state": "PUBLISHING",
@@ -28,44 +27,52 @@
       "missed": []
     },
     "ufc": {
-      "state": "PUBLISHING",
-      "reason": "1 event(s) still awaiting a forecast, none of them late yet",
-      "deadlineUtc": "2026-10-24T16:30:00.000Z",
+      "state": "MISSED_COVERAGE",
+      "reason": "1 of 14 event(s) started with no pre-event forecast; nothing is still pending",
+      "deadlineUtc": null,
       "counts": {
         "scheduled": 14,
         "published": 13,
-        "missedCoverage": 0,
-        "awaiting": 1
+        "missedCoverage": 1,
+        "awaiting": 0
       },
-      "missed": []
+      "missed": [
+        {
+          "id": "401911634",
+          "label": "Ramazan Temirov vs Lone'er Kavanagh",
+          "startUtc": "2026-10-24T18:00Z"
+        }
+      ]
     },
     "epl": {
       "state": "PUBLISHING",
       "reason": "10 event(s) still awaiting a forecast, none of them late yet",
       "deadlineUtc": "2026-10-31T11:00:00.000Z",
       "counts": {
-        "scheduled": 19,
-        "published": 9,
+        "scheduled": 15,
+        "published": 5,
         "missedCoverage": 0,
         "awaiting": 10
       },
       "missed": []
     }
   },
-  "checkedAt": "2026-10-24T09:25:35.326Z",
+  "checkedAt": "2026-10-25T00:24:35.671Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
-  "state": "PUBLISHING",
-  "reason": "today's slate is not published yet and is not late — the deadline is 2026-10-24T22:30:00.000Z",
-  "publishDeadlineUtc": "2026-10-24T22:30:00.000Z",
+  "state": "PUBLISHED",
+  "reason": "board published with 41 rows",
+  "publishDeadlineUtc": null,
   "scheduledGames": 1,
-  "pregameRemaining": 1,
-  "alreadyStarted": 0,
+  "pregameRemaining": 0,
+  "alreadyStarted": 1,
   "board": {
-    "present": false,
-    "leans": 0,
+    "present": true,
+    "leans": 41,
     "pendingReason": null,
-    "generatedAt": null
+    "generatedAt": "2026-10-24T09:28:02.367178+00:00",
+    "scheduledGames": 1,
+    "startedBeforeGeneration": 0
   },
   "games": [
     {
@@ -73,8 +80,8 @@
       "startUtc": "2026-10-25T00:00:00Z",
       "away": "Tampa Bay Rays",
       "home": "Milwaukee Brewers",
-      "detailedState": "Scheduled",
-      "pregameAtCheck": true
+      "detailedState": "In Progress",
+      "pregameAtCheck": false
     }
   ]
 }

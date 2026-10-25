@@ -1,5 +1,6 @@
 import Link from "next/link";
 import LevelACopy from "@/components/products/level-a-copy";
+import NbaGameWinners, { type NbaGameWinnersBlock } from "@/components/products/nba-game-winners";
 import { cardCopyText, jointShownFor, LEG_REFUSAL } from "@/lib/products/level-a/suggestions.mjs";
 import { etStamp } from "@/lib/et-stamp.mjs";
 
@@ -21,6 +22,8 @@ export type LevelAModel = {
   refusedByReason: Record<string, number>;
   parlayLab: Array<Slot & { tier: string; tierLabel: string }>;
   bankBuilder: Slot; moonshot: Slot; nbaProjections: Projection[];
+  /* Present only when the NBA game winners rule and the NBA display are both switched on (level-a/model.mjs). */
+  nbaGameWinners?: NbaGameWinnersBlock;
 };
 
 const SPORT: Record<string, string> = { mlb: "MLB", nba: "NBA", epl: "Premier League", "ligue-1": "Ligue 1", nfl: "NFL", ufc: "UFC" };
@@ -94,6 +97,7 @@ export default function LevelASuggestions({ model, mode }: { model: LevelAModel 
       ) : (
         <CardBox title="Moonshot suggestion · 3 legs, High or Longshot band, highest joint probability" slot={model.moonshot} />
       )}
+      <NbaGameWinners block={model.nbaGameWinners} mode={mode} />
       {model.untiered.length ? (
         <div className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
           <p className="m-0 font-semibold" style={{ color: "var(--vault-text)" }}>Official sides that are not tiered</p>

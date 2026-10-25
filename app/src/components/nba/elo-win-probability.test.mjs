@@ -43,7 +43,7 @@ const DATE = "2026-10-23";
 const readJson = (abs) => JSON.parse(fs.readFileSync(abs, "utf8"));
 const FORECAST = readJson(path.join(REPO, "data/internal/research/nba/experimental-v0.1/forecasts", `${DATE}.json`));
 const COMMITTED = readJson(path.join(APP, "public/data/nba/experimental-public", `${DATE}.json`));
-const build = (eloWinProbability) => L.buildExperimentalSnapshot({ forecastDoc: structuredClone(FORECAST), sourceFile: COMMITTED.source.file, sourceCommit: COMMITTED.source.commit, generatedAt: COMMITTED.generatedAt, eloWinProbability });
+const build = (eloWinProbability) => L.buildExperimentalSnapshot({ forecastDoc: structuredClone(FORECAST), sourceFile: COMMITTED.source.file, sourceCommit: COMMITTED.source.commit, generatedAt: COMMITTED.generatedAt, eloWinProbability, unavailablePlayers: L.unavailablePlayersForPublish(COMMITTED) });
 const ON = { enabled: true, disclosure: W.eloAccuracyDisclosure({ graded: 14, minN: PREREG.winner.minN }) };
 const receiptOf = (id) => FORECAST.games.find((g) => String(g.providerEventId) === String(id));
 

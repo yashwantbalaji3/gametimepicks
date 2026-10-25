@@ -8,6 +8,8 @@ import { createHash } from "node:crypto";
 import { buildAsOfIso } from "../../build-asof.ts";
 import { levelASources } from "./sources.mjs";
 import { levelASuggestions, productDayOf } from "./suggestions.mjs";
+import { nbaGameWinnerTiers, nbaGameWinnerTiersEnabled } from "./nba-game-winner-tiers.mjs";
+import { nbaGameWinnerDisplay } from "./nba-game-winner-source.mjs";
 
 /**
  * THE LEVEL A SWITCH. One committed constant, default false: the release owner flips it to true in the release
@@ -18,15 +20,34 @@ export const LEVEL_A_SUGGESTIONS_PUBLIC = true;
 export const LEVEL_A_FLAG = "NEXT_PUBLIC_LEVEL_A_SUGGESTIONS";
 export const levelAEnabled = (env = { [LEVEL_A_FLAG]: process.env.NEXT_PUBLIC_LEVEL_A_SUGGESTIONS }) => LEVEL_A_SUGGESTIONS_PUBLIC || env[LEVEL_A_FLAG] === "1";
 
-export function buildLevelAModel({ repoRoot = path.resolve(process.cwd(), ".."), now = new Date().toISOString(), productDay = null } = {}) {
+/** The note an NBA side carries when it can appear in the NBA game winners cards (both switches on). It replaces the
+ *  display's "for information only and does not tier this leg", which would be false beside those cards. */
+export const NBA_GW_LEG_NOTE = "Not tiered in the cross-sport cards. Its Elo-derived game-winner estimate is published, so this side can appear in the NBA game winners cards.";
+
+/**
+ * The NBA game winners block (rule docs/LEVEL_A_NBA_GAME_WINNER_TIERING_RULE.md), or null. Null unless BOTH switches are
+ * on: this rule's NBA_GAME_WINNER_TIERS_PUBLIC and the display's own. Null means the model is exactly what it was
+ * without this rule (no key, no note changed).
+ */
+export function nbaGameWinnersBlock({ answer, repoRoot, day, enabled = nbaGameWinnerTiersEnabled(), display = null }) {
+  if (!enabled) return null;
+  const d = display ?? nbaGameWinnerDisplay({ repoRoot, date: day });
+  if (!d.enabled) return null;
+  return nbaGameWinnerTiers({ legs: (answer.untiered ?? []).filter((l) => l.sport === "nba"), accessor: d.accessor, receiptOf: d.receiptOf, disclosure: d.disclosure, enabled: true });
+}
+
+export function buildLevelAModel({ repoRoot = path.resolve(process.cwd(), ".."), now = new Date().toISOString(), productDay = null, nbaGameWinners: gw = {} } = {}) {
   const day = productDay ?? productDayOf(now);
   const src = levelASources({ repoRoot, date: day });
   const answer = levelASuggestions({ selections: src.selections, now, productDay: day });
   /** @type {Record<string, number>} */
   const refusedByReason = {};
   for (const r of answer.refused) for (const c of r.reasons) if (c !== "OTHER_PRODUCT_DAY") refusedByReason[c] = (refusedByReason[c] ?? 0) + 1;
+  const nbaGameWinners = nbaGameWinnersBlock({ answer, repoRoot, day, ...gw });
+  const tierable = new Set((nbaGameWinners?.legs ?? []).map((l) => String(l.eventId)));
   return {
     ...answer,
+    ...(nbaGameWinners ? { nbaGameWinners, untiered: answer.untiered.map((l) => (l.sport === "nba" && tierable.has(String(l.eventId)) ? { ...l, probabilityNote: NBA_GW_LEG_NOTE } : l)) } : {}),
     refusedByReason,
     nbaProjections: src.nbaProjections.filter((p) => productDayOf(p.startUtc) === day && Date.parse(p.startUtc) > Date.parse(now)).slice(0, 8),
   };

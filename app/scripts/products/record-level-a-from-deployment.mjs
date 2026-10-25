@@ -25,6 +25,7 @@ import { fileURLToPath } from "node:url";
 import { appendRecord, recordEntries, recordViolations } from "../../src/lib/products/level-a/record.mjs";
 import { LEVEL_A_SERVED_PATH, LEVEL_A_SERVED_SCHEMA, modelSha256 } from "../../src/lib/products/level-a/model.mjs";
 import { jointShownFor } from "../../src/lib/products/level-a/suggestions.mjs";
+import { nbaGameWinnerCardKey } from "../../src/lib/products/level-a/nba-game-winner-tiers.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const LEVEL_A_RECORD_PATH = path.join(APP, "..", "data", "internal", "products", "level-a", "suggestions.jsonl");
@@ -41,6 +42,14 @@ export function shownItems(model) {
   if (model.bankBuilder?.card) items.push({ page: PAGE_FOR["bank-builder"], card: model.bankBuilder.card });
   if (model.moonshot?.card) items.push({ page: PAGE_FOR.moonshot, card: model.moonshot.card });
   for (const l of model.untiered ?? []) items.push({ page: PAGE_FOR["parlay-lab"], leg: l });
+  /* NBA game winners, only when public: the Parlay Center's tier cards, Bank Builder's and Moonshot's own cards. Each is
+     matched EXACTLY by its data-level-a-card key (policy, tier, games, shown joint). */
+  const gw = model.nbaGameWinners;
+  if (gw?.public === true) {
+    for (const t of gw.tiers ?? []) if (t.card) items.push({ page: PAGE_FOR["parlay-lab"], card: t.card, cardKey: nbaGameWinnerCardKey(t.card) });
+    if (gw.bankBuilder?.card) items.push({ page: PAGE_FOR["bank-builder"], card: gw.bankBuilder.card, cardKey: nbaGameWinnerCardKey(gw.bankBuilder.card) });
+    if (gw.moonshot?.card) items.push({ page: PAGE_FOR.moonshot, card: gw.moonshot.card, cardKey: nbaGameWinnerCardKey(gw.moonshot.card) });
+  }
   return items;
 }
 
@@ -65,6 +74,7 @@ export function verifyServed({ sha, buildInfo, served, pages }) {
     /* The same function the page printed with (suggestions.mjs jointShownFor), so record and page cannot disagree. */
     const joint = it.card ? `model joint probability ${jointShownFor(it.card.jointProbability, it.card.tier)}` : null;
     if (joint && !html.includes(joint)) problems.push(`${it.page} does not show "${it.card.tierLabel} · ${joint}"`);
+    if (it.cardKey && !html.includes(`data-level-a-card="${esc(it.cardKey)}"`)) problems.push(`${it.page} does not show the exact NBA card ${it.cardKey}`);
   }
   return { ok: problems.length === 0, problems };
 }

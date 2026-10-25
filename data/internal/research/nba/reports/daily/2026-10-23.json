@@ -1,0 +1,1401 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nba-top-board-daily-report",
+ "dataClass": "PRIVATE_RESEARCH",
+ "productEligible": false,
+ "date": "2026-10-23",
+ "family": "v0.1",
+ "generatedAt": "2026-10-24T13:16:03Z",
+ "s01_scope": {
+  "date": "2026-10-23",
+  "family": "v0.1",
+  "modelVersion": "nba-preseason-experimental-v0.1",
+  "editions": [
+   {
+    "edition": 1,
+    "frozenAt": "2026-10-23T12:23:55Z",
+    "sourceSha256": "248cbef38eb2e5d2a9bd61a894981a2d2e9eab02835676ecde9dd3b5275abec6",
+    "gamesOnBoard": 1
+   },
+   {
+    "edition": 2,
+    "frozenAt": "2026-10-23T15:39:50Z",
+    "sourceSha256": "ec2d9ca8520229aaf16541cca9caec633f9d8f23979c977124e6ba6cb4321195",
+    "gamesOnBoard": 11
+   }
+  ]
+ },
+ "s02_games": {
+  "inForecast": 12,
+  "onBoard": 12,
+  "offBoardByReason": {},
+  "withFinalBoxscore": 12,
+  "awaitingBoxscore": 0
+ },
+ "s03_rowsPublishedPrivate": {
+  "total": 112,
+  "byCategory": {
+   "points": 16,
+   "rebounds": 16,
+   "assists": 16,
+   "threes": 16,
+   "pra": 16,
+   "ptsReb": 16,
+   "ptsAst": 16
+  },
+  "uniquePlayers": 38,
+  "note": "PRIVATE artifact rows — nothing was published publicly"
+ },
+ "s04_graded": {
+  "projectionGraded": 105,
+  "byCategory": {
+   "points": 15,
+   "rebounds": 15,
+   "assists": 15,
+   "threes": 15,
+   "pra": 15,
+   "ptsReb": 15,
+   "ptsAst": 15
+  }
+ },
+ "s05_settlement": {
+  "counts": {
+   "WIN": 0,
+   "LOSS": 0,
+   "PUSH": 0,
+   "VOID": 7,
+   "PENDING": 0,
+   "UNGRADABLE": 105
+  },
+  "note": "W/L/P are 0 by construction: no line is recorded for any NBA row (NO_AUTHORIZED_PRICE), so no row can win, lose or push. Projection accuracy is graded separately below."
+ },
+ "s06_pending": {
+  "count": 0,
+  "notYetGraded": 0,
+  "rows": []
+ },
+ "s07_ungradable": {
+  "count": 105,
+  "byReason": {
+   "NO_RECORDED_LINE": 105
+  }
+ },
+ "s08_accuracy": {
+  "points": {
+   "label": "Points",
+   "day": {
+    "graded": 15,
+    "maeP50": 5.589,
+    "biasP50": 1.651,
+    "maeMean": 5.636,
+    "biasMean": 2.04,
+    "minutesMae": 5.964,
+    "minutesBias": 2.163
+   },
+   "cumulative": {
+    "graded": 54,
+    "maeP50": 6.324,
+    "biasP50": -0.927,
+    "maeMean": 6.288,
+    "biasMean": -0.586,
+    "minutesMae": 5.668,
+    "minutesBias": -0.956
+   }
+  },
+  "rebounds": {
+   "label": "Rebounds",
+   "day": {
+    "graded": 15,
+    "maeP50": 2.302,
+    "biasP50": -0.379,
+    "maeMean": 2.315,
+    "biasMean": -0.215,
+    "minutesMae": 5.399,
+    "minutesBias": -0.317
+   },
+   "cumulative": {
+    "graded": 52,
+    "maeP50": 2.818,
+    "biasP50": -0.673,
+    "maeMean": 2.837,
+    "biasMean": -0.498,
+    "minutesMae": 4.843,
+    "minutesBias": -1.323
+   }
+  },
+  "assists": {
+   "label": "Assists",
+   "day": {
+    "graded": 15,
+    "maeP50": 1.229,
+    "biasP50": 0.243,
+    "maeMean": 1.265,
+    "biasMean": 0.39,
+    "minutesMae": 4.634,
+    "minutesBias": 0.049
+   },
+   "cumulative": {
+    "graded": 54,
+    "maeP50": 1.831,
+    "biasP50": 0.359,
+    "maeMean": 1.865,
+    "biasMean": 0.502,
+    "minutesMae": 5.083,
+    "minutesBias": -0.946
+   }
+  },
+  "threes": {
+   "label": "3PM",
+   "day": {
+    "graded": 15,
+    "maeP50": 0.935,
+    "biasP50": 0.617,
+    "maeMean": 0.961,
+    "biasMean": 0.699,
+    "minutesMae": 4.737,
+    "minutesBias": 2.323
+   },
+   "cumulative": {
+    "graded": 54,
+    "maeP50": 1.218,
+    "biasP50": 0.246,
+    "maeMean": 1.241,
+    "biasMean": 0.351,
+    "minutesMae": 4.789,
+    "minutesBias": 0.144
+   }
+  },
+  "pra": {
+   "label": "PRA",
+   "day": {
+    "graded": 15,
+    "maeP50": 6.865,
+    "biasP50": 0.498,
+    "maeMean": 6.926,
+    "biasMean": 1.009,
+    "minutesMae": 5.497,
+    "minutesBias": 0.864
+   },
+   "cumulative": {
+    "graded": 35,
+    "maeP50": 6.546,
+    "biasP50": -0.992,
+    "maeMean": 6.559,
+    "biasMean": -0.499,
+    "minutesMae": 5.666,
+    "minutesBias": -0.899
+   }
+  },
+  "ptsReb": {
+   "label": "P+R",
+   "day": {
+    "graded": 15,
+    "maeP50": 7.117,
+    "biasP50": 0.966,
+    "maeMean": 7.196,
+    "biasMean": 1.408,
+    "minutesMae": 5.587,
+    "minutesBias": 0.774
+   },
+   "cumulative": {
+    "graded": 35,
+    "maeP50": 6.543,
+    "biasP50": -0.386,
+    "maeMean": 6.574,
+    "biasMean": 0.031,
+    "minutesMae": 5.749,
+    "minutesBias": 0.042
+   }
+  },
+  "ptsAst": {
+   "label": "P+A",
+   "day": {
+    "graded": 15,
+    "maeP50": 5.371,
+    "biasP50": 1.746,
+    "maeMean": 5.504,
+    "biasMean": 2.175,
+    "minutesMae": 5.277,
+    "minutesBias": 1.476
+   },
+   "cumulative": {
+    "graded": 35,
+    "maeP50": 5.534,
+    "biasP50": -0.025,
+    "maeMean": 5.574,
+    "biasMean": 0.411,
+    "minutesMae": 5.565,
+    "minutesBias": -0.773
+   }
+  }
+ },
+ "s09_largestMisses": [
+  {
+   "rowId": "2026-10-23|v0.1|e2|ptsReb|401909844|5041939",
+   "player": "Cooper Flagg",
+   "team": "DAL",
+   "category": "ptsReb",
+   "rank": 3,
+   "p50": 33.29,
+   "p10": 15.7,
+   "p90": 55.55,
+   "actual": 19,
+   "errorP50": 14.29,
+   "expectedMinutes": 34.25,
+   "actualMinutes": 17,
+   "flags": []
+  },
+  {
+   "rowId": "2026-10-23|v0.1|e2|pra|401909844|5041939",
+   "player": "Cooper Flagg",
+   "team": "DAL",
+   "category": "pra",
+   "rank": 2,
+   "p50": 37.44,
+   "p10": 18.94,
+   "p90": 60.91,
+   "actual": 25,
+   "errorP50": 12.44,
+   "expectedMinutes": 34.25,
+   "actualMinutes": 17,
+   "flags": []
+  },
+  {
+   "rowId": "2026-10-23|v0.1|e2|points|401909844|5041939",
+   "player": "Cooper Flagg",
+   "team": "DAL",
+   "category": "points",
+   "rank": 2,
+   "p50": 25.91,
+   "p10": 10.11,
+   "p90": 46.59,
+   "actual": 14,
+   "errorP50": 11.91,
+   "expectedMinutes": 34.25,
+   "actualMinutes": 17,
+   "flags": []
+  },
+  {
+   "rowId": "2026-10-23|v0.1|e2|pra|401909845|4432573",
+   "player": "Paolo Banchero",
+   "team": "ORL",
+   "category": "pra",
+   "rank": 5,
+   "p50": 35.79,
+   "p10": 25.51,
+   "p90": 46.83,
+   "actual": 25,
+   "errorP50": 10.79,
+   "expectedMinutes": 34.47,
+   "actualMinutes": 26,
+   "flags": []
+  },
+  {
+   "rowId": "2026-10-23|v0.1|e2|ptsAst|401909844|5041939",
+   "player": "Cooper Flagg",
+   "team": "DAL",
+   "category": "ptsAst",
+   "rank": 3,
+   "p50": 30.13,
+   "p10": 13.42,
+   "p90": 51.9,
+   "actual": 20,
+   "errorP50": 10.13,
+   "expectedMinutes": 34.25,
+   "actualMinutes": 17,
+   "flags": []
+  }
+ ],
+ "s10_largestPositiveDeviations": [
+  {
+   "rowId": "2026-10-23|v0.1|e2|pra|401909847|3032977",
+   "player": "Giannis Antetokounmpo",
+   "team": "MIA",
+   "category": "pra",
+   "rank": 6,
+   "p50": 34.29,
+   "p10": 21.67,
+   "p90": 48.89,
+   "actual": 53,
+   "errorP50": -18.71,
+   "expectedMinutes": 23.55,
+   "actualMinutes": 33,
+   "flags": [
+    "TRADED_HISTORY_OTHER_TEAM"
+   ]
+  },
+  {
+   "rowId": "2026-10-23|v0.1|e2|ptsReb|401909847|3032977",
+   "player": "Giannis Antetokounmpo",
+   "team": "MIA",
+   "category": "ptsReb",
+   "rank": 6,
+   "p50": 29.86,
+   "p10": 18.56,
+   "p90": 43.01,
+   "actual": 48,
+   "errorP50": -18.14,
+   "expectedMinutes": 23.55,
+   "actualMinutes": 33,
+   "flags": [
+    "TRADED_HISTORY_OTHER_TEAM"
+   ]
+  },
+  {
+   "rowId": "2026-10-23|v0.1|e2|pra|401909095|4065648",
+   "player": "Jayson Tatum",
+   "team": "BOS",
+   "category": "pra",
+   "rank": 7,
+   "p50": 34.27,
+   "p10": 25.5,
+   "p90": 44.42,
+   "actual": 52,
+   "errorP50": -17.73,
+   "expectedMinutes": 30.76,
+   "actualMinutes": 37,
+   "flags": []
+  },
+  {
+   "rowId": "2026-10-23|v0.1|e2|ptsReb|401909095|4065648",
+   "player": "Jayson Tatum",
+   "team": "BOS",
+   "category": "ptsReb",
+   "rank": 7,
+   "p50": 28.48,
+   "p10": 20.65,
+   "p90": 37.41,
+   "actual": 45,
+   "errorP50": -16.52,
+   "expectedMinutes": 30.76,
+   "actualMinutes": 37,
+   "flags": []
+  },
+  {
+   "rowId": "2026-10-23|v0.1|e2|ptsAst|401909847|3032977",
+   "player": "Giannis Antetokounmpo",
+   "team": "MIA",
+   "category": "ptsAst",
+   "rank": 9,
+   "p50": 26.31,
+   "p10": 16.22,
+   "p90": 38.39,
+   "actual": 41,
+   "errorP50": -14.69,
+   "expectedMinutes": 23.55,
+   "actualMinutes": 33,
+   "flags": [
+    "TRADED_HISTORY_OTHER_TEAM"
+   ]
+  }
+ ],
+ "s11_availabilitySurprises": {
+  "predictedButVoid": [
+   {
+    "rowId": "2026-10-23|v0.1|e1|points|401909848|4431687",
+    "player": "Patrick Williams",
+    "team": "CHI",
+    "category": "points",
+    "reason": "DNP",
+    "detail": "COACH'S DECISION",
+    "expectedMinutes": 22.89
+   },
+   {
+    "rowId": "2026-10-23|v0.1|e1|rebounds|401909848|4431687",
+    "player": "Patrick Williams",
+    "team": "CHI",
+    "category": "rebounds",
+    "reason": "DNP",
+    "detail": "COACH'S DECISION",
+    "expectedMinutes": 22.89
+   },
+   {
+    "rowId": "2026-10-23|v0.1|e1|assists|401909848|4431687",
+    "player": "Patrick Williams",
+    "team": "CHI",
+    "category": "assists",
+    "reason": "DNP",
+    "detail": "COACH'S DECISION",
+    "expectedMinutes": 22.89
+   },
+   {
+    "rowId": "2026-10-23|v0.1|e1|threes|401909848|4431687",
+    "player": "Patrick Williams",
+    "team": "CHI",
+    "category": "threes",
+    "reason": "DNP",
+    "detail": "COACH'S DECISION",
+    "expectedMinutes": 22.89
+   },
+   {
+    "rowId": "2026-10-23|v0.1|e1|pra|401909848|4431687",
+    "player": "Patrick Williams",
+    "team": "CHI",
+    "category": "pra",
+    "reason": "DNP",
+    "detail": "COACH'S DECISION",
+    "expectedMinutes": 22.89
+   },
+   {
+    "rowId": "2026-10-23|v0.1|e1|ptsReb|401909848|4431687",
+    "player": "Patrick Williams",
+    "team": "CHI",
+    "category": "ptsReb",
+    "reason": "DNP",
+    "detail": "COACH'S DECISION",
+    "expectedMinutes": 22.89
+   },
+   {
+    "rowId": "2026-10-23|v0.1|e1|ptsAst|401909848|4431687",
+    "player": "Patrick Williams",
+    "team": "CHI",
+    "category": "ptsAst",
+    "reason": "DNP",
+    "detail": "COACH'S DECISION",
+    "expectedMinutes": 22.89
+   }
+  ],
+  "playedButUnpredicted": [
+   {
+    "eventId": "401909848",
+    "player": "Caleb Wilson",
+    "minutes": 33,
+    "pts": 21,
+    "reb": 6,
+    "ast": 1,
+    "threePm": 2,
+    "withheldAs": "INSUFFICIENT_HISTORY"
+   },
+   {
+    "eventId": "401909843",
+    "player": "Kingston Flemings",
+    "minutes": 25,
+    "pts": 5,
+    "reb": 6,
+    "ast": 8,
+    "threePm": 1,
+    "withheldAs": "INSUFFICIENT_HISTORY"
+   },
+   {
+    "eventId": "401909844",
+    "player": "Kyrie Irving",
+    "minutes": 25,
+    "pts": 24,
+    "reb": 1,
+    "ast": 3,
+    "threePm": 5,
+    "withheldAs": "INSUFFICIENT_HISTORY"
+   },
+   {
+    "eventId": "401909844",
+    "player": "Tyrese Haliburton",
+    "minutes": 32,
+    "pts": 18,
+    "reb": 6,
+    "ast": 7,
+    "threePm": 0,
+    "withheldAs": "INSUFFICIENT_HISTORY"
+   },
+   {
+    "eventId": "401909096",
+    "player": "Fred VanVleet",
+    "minutes": 32,
+    "pts": 14,
+    "reb": 3,
+    "ast": 5,
+    "threePm": 3,
+    "withheldAs": "INSUFFICIENT_HISTORY"
+   },
+   {
+    "eventId": "401909849",
+    "player": "Darryn Peterson",
+    "minutes": 30,
+    "pts": 15,
+    "reb": 3,
+    "ast": 1,
+    "threePm": 1,
+    "withheldAs": "INSUFFICIENT_HISTORY"
+   },
+   {
+    "eventId": "401909850",
+    "player": "Cameron Boozer",
+    "minutes": 37,
+    "pts": 25,
+    "reb": 13,
+    "ast": 6,
+    "threePm": 4,
+    "withheldAs": "INSUFFICIENT_HISTORY"
+   },
+   {
+    "eventId": "401909850",
+    "player": "Yaxel Lendeborg",
+    "minutes": 37,
+    "pts": 18,
+    "reb": 13,
+    "ast": 6,
+    "threePm": 1,
+    "withheldAs": "INSUFFICIENT_HISTORY"
+   },
+   {
+    "eventId": "401909851",
+    "player": "Keaton Wagler",
+    "minutes": 24,
+    "pts": 13,
+    "reb": 3,
+    "ast": 3,
+    "threePm": 2,
+    "withheldAs": "INSUFFICIENT_HISTORY"
+   },
+   {
+    "eventId": "401909852",
+    "player": "Damian Lillard",
+    "minutes": 33,
+    "pts": 19,
+    "reb": 5,
+    "ast": 2,
+    "threePm": 2,
+    "withheldAs": "INSUFFICIENT_HISTORY"
+   },
+   {
+    "eventId": "401909852",
+    "player": "Darius Acuff Jr.",
+    "minutes": 37,
+    "pts": 33,
+    "reb": 2,
+    "ast": 4,
+    "threePm": 2,
+    "withheldAs": "INSUFFICIENT_HISTORY"
+   }
+  ],
+  "withheldButPlayedBig": [
+   {
+    "eventId": "401909848",
+    "player": "Jalen Smith",
+    "minutes": 24,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909848",
+    "player": "Norman Powell",
+    "minutes": 33,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909848",
+    "player": "Josh Giddey",
+    "minutes": 25,
+    "withheldAs": "INJURY_DESIGNATION",
+    "reasons": [
+     "INJURY_DESIGNATION"
+    ]
+   },
+   {
+    "eventId": "401909848",
+    "player": "Kyle Kuzma",
+    "minutes": 30,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909848",
+    "player": "Jaime Jaquez Jr.",
+    "minutes": 35,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909848",
+    "player": "Myles Turner",
+    "minutes": 30,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909848",
+    "player": "Tyler Herro",
+    "minutes": 32,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909848",
+    "player": "Ryan Rollins",
+    "minutes": 34,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909848",
+    "player": "Kasparas Jakucionis",
+    "minutes": 23,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES",
+     "MINUTES_TOO_UNCERTAIN"
+    ]
+   },
+   {
+    "eventId": "401909095",
+    "player": "Landry Shamet",
+    "minutes": 21,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES",
+     "MINUTES_TOO_UNCERTAIN"
+    ]
+   },
+   {
+    "eventId": "401909095",
+    "player": "Miles McBride",
+    "minutes": 30,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES",
+     "MINUTES_TOO_UNCERTAIN"
+    ]
+   },
+   {
+    "eventId": "401909095",
+    "player": "Mitchell Robinson",
+    "minutes": 22,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909095",
+    "player": "Jordan Walsh",
+    "minutes": 20,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES",
+     "MINUTES_TOO_UNCERTAIN"
+    ]
+   },
+   {
+    "eventId": "401909095",
+    "player": "Neemias Queta",
+    "minutes": 22,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909843",
+    "player": "Aaron Wiggins",
+    "minutes": 22,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES",
+     "MINUTES_TOO_UNCERTAIN"
+    ]
+   },
+   {
+    "eventId": "401909843",
+    "player": "Dennis Schroder",
+    "minutes": 20,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909843",
+    "player": "Tidjane Salaun",
+    "minutes": 23,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES",
+     "MINUTES_TOO_UNCERTAIN"
+    ]
+   },
+   {
+    "eventId": "401909844",
+    "player": "Zaccharie Risacher",
+    "minutes": 32,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES",
+     "MINUTES_TOO_UNCERTAIN"
+    ]
+   },
+   {
+    "eventId": "401909844",
+    "player": "Marcus Sasser",
+    "minutes": 27,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES",
+     "MINUTES_TOO_UNCERTAIN"
+    ]
+   },
+   {
+    "eventId": "401909844",
+    "player": "Ivica Zubac",
+    "minutes": 24,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909844",
+    "player": "Obi Toppin",
+    "minutes": 25,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909844",
+    "player": "Aaron Nesmith",
+    "minutes": 20,
+    "withheldAs": "INJURY_DESIGNATION",
+    "reasons": [
+     "INJURY_DESIGNATION"
+    ]
+   },
+   {
+    "eventId": "401909845",
+    "player": "Terrence Shannon Jr.",
+    "minutes": 22,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES",
+     "MINUTES_TOO_UNCERTAIN"
+    ]
+   },
+   {
+    "eventId": "401909845",
+    "player": "Tristan da Silva",
+    "minutes": 29,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909846",
+    "player": "Jakob Poeltl",
+    "minutes": 27,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909846",
+    "player": "Alex Sarr",
+    "minutes": 25,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909846",
+    "player": "Trae Young",
+    "minutes": 37,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909846",
+    "player": "Bilal Coulibaly",
+    "minutes": 26,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909846",
+    "player": "Justin Champagnie",
+    "minutes": 23,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909846",
+    "player": "Tre Johnson",
+    "minutes": 26,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909847",
+    "player": "John Collins",
+    "minutes": 29,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909847",
+    "player": "Paul Reed",
+    "minutes": 26,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES",
+     "MINUTES_TOO_UNCERTAIN"
+    ]
+   },
+   {
+    "eventId": "401909847",
+    "player": "Ronald Holland II",
+    "minutes": 22,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES",
+     "MINUTES_TOO_UNCERTAIN"
+    ]
+   },
+   {
+    "eventId": "401909847",
+    "player": "Kevin Huerter",
+    "minutes": 20,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES",
+     "MINUTES_TOO_UNCERTAIN"
+    ]
+   },
+   {
+    "eventId": "401909847",
+    "player": "Klay Thompson",
+    "minutes": 24,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909847",
+    "player": "Bobby Portis",
+    "minutes": 21,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909847",
+    "player": "Tim Hardaway Jr.",
+    "minutes": 21,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909096",
+    "player": "De'Aaron Fox",
+    "minutes": 34,
+    "withheldAs": "INJURY_DESIGNATION",
+    "reasons": [
+     "INJURY_DESIGNATION"
+    ]
+   },
+   {
+    "eventId": "401909849",
+    "player": "Zion Williamson",
+    "minutes": 33,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909849",
+    "player": "Dejounte Murray",
+    "minutes": 30,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909849",
+    "player": "Jeremiah Fears",
+    "minutes": 24,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909849",
+    "player": "Derik Queen",
+    "minutes": 29,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909849",
+    "player": "Saddiq Bey",
+    "minutes": 22,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909849",
+    "player": "Jaren Jackson Jr.",
+    "minutes": 33,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909849",
+    "player": "Jaxson Hayes",
+    "minutes": 26,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909849",
+    "player": "Svi Mykhailiuk",
+    "minutes": 21,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909850",
+    "player": "Jaylen Wells",
+    "minutes": 25,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909850",
+    "player": "Zach Edey",
+    "minutes": 22,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909850",
+    "player": "Ty Jerome",
+    "minutes": 32,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909850",
+    "player": "Jerami Grant",
+    "minutes": 26,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909850",
+    "player": "Quinten Post",
+    "minutes": 20,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES",
+     "MINUTES_TOO_UNCERTAIN"
+    ]
+   },
+   {
+    "eventId": "401909850",
+    "player": "Brandin Podziemski",
+    "minutes": 33,
+    "withheldAs": "INJURY_DESIGNATION",
+    "reasons": [
+     "INJURY_DESIGNATION"
+    ]
+   },
+   {
+    "eventId": "401909851",
+    "player": "Isaiah Jackson",
+    "minutes": 28,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES",
+     "MINUTES_TOO_UNCERTAIN"
+    ]
+   },
+   {
+    "eventId": "401909851",
+    "player": "Ziaire Williams",
+    "minutes": 31,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909851",
+    "player": "Matisse Thybulle",
+    "minutes": 24,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES",
+     "MINUTES_TOO_UNCERTAIN"
+    ]
+   },
+   {
+    "eventId": "401909851",
+    "player": "Sandro Mamukelashvili",
+    "minutes": 24,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909851",
+    "player": "Quentin Grimes",
+    "minutes": 31,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES"
+    ]
+   },
+   {
+    "eventId": "401909852",
+    "player": "Sidy Cissoko",
+    "minutes": 26,
+    "withheldAs": "LOW_EXPECTED_MINUTES",
+    "reasons": [
+     "LOW_EXPECTED_MINUTES",
+     "MINUTES_TOO_UNCERTAIN"
+    ]
+   },
+   {
+    "eventId": "401909852",
+    "player": "De'Andre Hunter",
+    "minutes": 25,
+    "withheldAs": "INSUFFICIENT_HISTORY",
+    "reasons": [
+     "INSUFFICIENT_HISTORY",
+     "TEAM_POOL_FALLBACK_RATES"
+    ]
+   }
+  ],
+  "thresholdMinutes": 20
+ },
+ "s12_withheld": {
+  "points": {
+   "shown": 16,
+   "eligible": 117,
+   "withheldByPrimaryReason": {
+    "LOW_EXPECTED_MINUTES": 175,
+    "INSUFFICIENT_HISTORY": 59,
+    "INJURY_DESIGNATION": 18,
+    "AVAILABILITY_OUT": 43,
+    "MINUTES_TOO_UNCERTAIN": 3,
+    "TEAM_POOL_FALLBACK_RATES": 1
+   },
+   "emptyReasons": []
+  },
+  "rebounds": {
+   "shown": 16,
+   "eligible": 117,
+   "withheldByPrimaryReason": {
+    "LOW_EXPECTED_MINUTES": 175,
+    "INSUFFICIENT_HISTORY": 59,
+    "INJURY_DESIGNATION": 18,
+    "AVAILABILITY_OUT": 43,
+    "MINUTES_TOO_UNCERTAIN": 3,
+    "TEAM_POOL_FALLBACK_RATES": 1
+   },
+   "emptyReasons": []
+  },
+  "assists": {
+   "shown": 16,
+   "eligible": 117,
+   "withheldByPrimaryReason": {
+    "LOW_EXPECTED_MINUTES": 175,
+    "INSUFFICIENT_HISTORY": 59,
+    "INJURY_DESIGNATION": 18,
+    "AVAILABILITY_OUT": 43,
+    "MINUTES_TOO_UNCERTAIN": 3,
+    "TEAM_POOL_FALLBACK_RATES": 1
+   },
+   "emptyReasons": []
+  },
+  "threes": {
+   "shown": 16,
+   "eligible": 117,
+   "withheldByPrimaryReason": {
+    "LOW_EXPECTED_MINUTES": 175,
+    "INSUFFICIENT_HISTORY": 59,
+    "INJURY_DESIGNATION": 18,
+    "AVAILABILITY_OUT": 43,
+    "MINUTES_TOO_UNCERTAIN": 3,
+    "TEAM_POOL_FALLBACK_RATES": 1
+   },
+   "emptyReasons": []
+  },
+  "pra": {
+   "shown": 16,
+   "eligible": 117,
+   "withheldByPrimaryReason": {
+    "LOW_EXPECTED_MINUTES": 175,
+    "INSUFFICIENT_HISTORY": 59,
+    "INJURY_DESIGNATION": 18,
+    "AVAILABILITY_OUT": 43,
+    "MINUTES_TOO_UNCERTAIN": 3,
+    "TEAM_POOL_FALLBACK_RATES": 1
+   },
+   "emptyReasons": []
+  },
+  "ptsReb": {
+   "shown": 16,
+   "eligible": 117,
+   "withheldByPrimaryReason": {
+    "LOW_EXPECTED_MINUTES": 175,
+    "INSUFFICIENT_HISTORY": 59,
+    "INJURY_DESIGNATION": 18,
+    "AVAILABILITY_OUT": 43,
+    "MINUTES_TOO_UNCERTAIN": 3,
+    "TEAM_POOL_FALLBACK_RATES": 1
+   },
+   "emptyReasons": []
+  },
+  "ptsAst": {
+   "shown": 16,
+   "eligible": 117,
+   "withheldByPrimaryReason": {
+    "LOW_EXPECTED_MINUTES": 175,
+    "INSUFFICIENT_HISTORY": 59,
+    "INJURY_DESIGNATION": 18,
+    "AVAILABILITY_OUT": 43,
+    "MINUTES_TOO_UNCERTAIN": 3,
+    "TEAM_POOL_FALLBACK_RATES": 1
+   },
+   "emptyReasons": []
+  }
+ },
+ "s13_dataQuality": [
+  {
+   "issue": "TRADED_HISTORY_ROWS",
+   "detail": "14 board row(s) carry history from a previous team (included with flag)"
+  }
+ ],
+ "s14_calibration": {
+  "points": {
+   "day": {
+    "n": 15,
+    "preregMinN": 1500,
+    "nominalBand": [
+     0.76,
+     0.84
+    ],
+    "coverage80": 0.867,
+    "shareAtOrAboveP50": 0.467,
+    "state": "DESCRIPTIVE_ONLY",
+    "warning": "n = 15 is below the preregistered minimum 1500 — descriptive only, no calibration or hit-rate claim"
+   },
+   "cumulative": {
+    "n": 54,
+    "preregMinN": 1500,
+    "nominalBand": [
+     0.76,
+     0.84
+    ],
+    "coverage80": 0.685,
+    "shareAtOrAboveP50": 0.593,
+    "state": "DESCRIPTIVE_ONLY",
+    "warning": "n = 54 is below the preregistered minimum 1500 — descriptive only, no calibration or hit-rate claim"
+   }
+  },
+  "rebounds": {
+   "day": {
+    "n": 15,
+    "preregMinN": 1500,
+    "nominalBand": [
+     0.76,
+     0.84
+    ],
+    "coverage80": 0.733,
+    "shareAtOrAboveP50": 0.4,
+    "state": "DESCRIPTIVE_ONLY",
+    "warning": "n = 15 is below the preregistered minimum 1500 — descriptive only, no calibration or hit-rate claim"
+   },
+   "cumulative": {
+    "n": 52,
+    "preregMinN": 1500,
+    "nominalBand": [
+     0.76,
+     0.84
+    ],
+    "coverage80": 0.731,
+    "shareAtOrAboveP50": 0.481,
+    "state": "DESCRIPTIVE_ONLY",
+    "warning": "n = 52 is below the preregistered minimum 1500 — descriptive only, no calibration or hit-rate claim"
+   }
+  },
+  "assists": {
+   "day": {
+    "n": 15,
+    "preregMinN": 1500,
+    "nominalBand": [
+     0.76,
+     0.84
+    ],
+    "coverage80": 0.933,
+    "shareAtOrAboveP50": 0.467,
+    "state": "DESCRIPTIVE_ONLY",
+    "warning": "n = 15 is below the preregistered minimum 1500 — descriptive only, no calibration or hit-rate claim"
+   },
+   "cumulative": {
+    "n": 54,
+    "preregMinN": 1500,
+    "nominalBand": [
+     0.76,
+     0.84
+    ],
+    "coverage80": 0.722,
+    "shareAtOrAboveP50": 0.444,
+    "state": "DESCRIPTIVE_ONLY",
+    "warning": "n = 54 is below the preregistered minimum 1500 — descriptive only, no calibration or hit-rate claim"
+   }
+  },
+  "threes": {
+   "day": {
+    "n": 15,
+    "preregMinN": 800,
+    "nominalBand": [
+     0.74,
+     0.86
+    ],
+    "coverage80": 0.867,
+    "shareAtOrAboveP50": 0.333,
+    "state": "DESCRIPTIVE_ONLY",
+    "warning": "n = 15 is below the preregistered minimum 800 — descriptive only, no calibration or hit-rate claim"
+   },
+   "cumulative": {
+    "n": 54,
+    "preregMinN": 800,
+    "nominalBand": [
+     0.74,
+     0.86
+    ],
+    "coverage80": 0.759,
+    "shareAtOrAboveP50": 0.407,
+    "state": "DESCRIPTIVE_ONLY",
+    "warning": "n = 54 is below the preregistered minimum 800 — descriptive only, no calibration or hit-rate claim"
+   }
+  },
+  "pra": {
+   "day": {
+    "n": 15,
+    "preregMinN": null,
+    "nominalBand": null,
+    "coverage80": 0.733,
+    "shareAtOrAboveP50": 0.467,
+    "state": "NO_PREREGISTERED_BAR",
+    "warning": "no preregistered sample size or coverage band for pra (preregistration §6 covers pts, reb, ast, threePm only) — descriptive only, never a claim"
+   },
+   "cumulative": {
+    "n": 35,
+    "preregMinN": null,
+    "nominalBand": null,
+    "coverage80": 0.743,
+    "shareAtOrAboveP50": 0.543,
+    "state": "NO_PREREGISTERED_BAR",
+    "warning": "no preregistered sample size or coverage band for pra (preregistration §6 covers pts, reb, ast, threePm only) — descriptive only, never a claim"
+   }
+  },
+  "ptsReb": {
+   "day": {
+    "n": 15,
+    "preregMinN": null,
+    "nominalBand": null,
+    "coverage80": 0.733,
+    "shareAtOrAboveP50": 0.467,
+    "state": "NO_PREREGISTERED_BAR",
+    "warning": "no preregistered sample size or coverage band for ptsReb (preregistration §6 covers pts, reb, ast, threePm only) — descriptive only, never a claim"
+   },
+   "cumulative": {
+    "n": 35,
+    "preregMinN": null,
+    "nominalBand": null,
+    "coverage80": 0.829,
+    "shareAtOrAboveP50": 0.543,
+    "state": "NO_PREREGISTERED_BAR",
+    "warning": "no preregistered sample size or coverage band for ptsReb (preregistration §6 covers pts, reb, ast, threePm only) — descriptive only, never a claim"
+   }
+  },
+  "ptsAst": {
+   "day": {
+    "n": 15,
+    "preregMinN": null,
+    "nominalBand": null,
+    "coverage80": 0.8,
+    "shareAtOrAboveP50": 0.4,
+    "state": "NO_PREREGISTERED_BAR",
+    "warning": "no preregistered sample size or coverage band for ptsAst (preregistration §6 covers pts, reb, ast, threePm only) — descriptive only, never a claim"
+   },
+   "cumulative": {
+    "n": 35,
+    "preregMinN": null,
+    "nominalBand": null,
+    "coverage80": 0.8,
+    "shareAtOrAboveP50": 0.543,
+    "state": "NO_PREREGISTERED_BAR",
+    "warning": "no preregistered sample size or coverage band for ptsAst (preregistration §6 covers pts, reb, ast, threePm only) — descriptive only, never a claim"
+   }
+  }
+ },
+ "s15_investigations": [
+  "Availability: Patrick Williams (CHI) was on the points, rebounds, assists, threes, pra, ptsReb, ptsAst board(s) and was DNP (COACH'S DECISION) — check the injury snapshot and freeze timing against the actual status.",
+  "Eligibility: Jalen Smith played 24 min but was withheld as LOW_EXPECTED_MINUTES — review whether that rule is too strict for this case.",
+  "Eligibility: Norman Powell played 33 min but was withheld as LOW_EXPECTED_MINUTES — review whether that rule is too strict for this case.",
+  "Eligibility: Josh Giddey played 25 min but was withheld as INJURY_DESIGNATION — review whether that rule is too strict for this case.",
+  "Eligibility: Kyle Kuzma played 30 min but was withheld as LOW_EXPECTED_MINUTES — review whether that rule is too strict for this case.",
+  "Eligibility: Jaime Jaquez Jr. played 35 min but was withheld as LOW_EXPECTED_MINUTES — review whether that rule is too strict for this case.",
+  "Pool: Caleb Wilson played 33 min but was not in the simulated pool — roster/history gap.",
+  "Pool: Kingston Flemings played 25 min but was not in the simulated pool — roster/history gap.",
+  "Pool: Kyrie Irving played 25 min but was not in the simulated pool — roster/history gap.",
+  "Pool: Tyrese Haliburton played 32 min but was not in the simulated pool — roster/history gap.",
+  "Pool: Fred VanVleet played 32 min but was not in the simulated pool — roster/history gap.",
+  "Traded-history flag: MAE(p50) 6.163 on 14 flagged rows vs 3.899 on 91 others — keep watching before changing the include-with-flag policy."
+ ]
+}

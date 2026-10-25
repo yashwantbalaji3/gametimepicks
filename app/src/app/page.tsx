@@ -286,7 +286,10 @@ export default function HomePage() {
      the next forecast through the universal card. Membership of the primary hub is STILL the shared rule
      (partitionSports on the owner's typed state): a sport the rule keeps secondary renders under "Other
      coverage" as the same lane, so nothing appears as a live simulation unless it is one. */
-  const commandLanes = [...buildCommandCenter({ dataRoot, repoRoot: path.join(process.cwd(), ".."), today, nowIso: new Date().toISOString(), days: { mlb: mlbDay, epl: eplDay, nfl: nflDay, ufc: ufcDay } }), nbaHomeLane];
+  const cardLanes = buildCommandCenter({ dataRoot, repoRoot: path.join(process.cwd(), ".."), today, nowIso: new Date().toISOString(), days: { mlb: mlbDay, epl: eplDay, nfl: nflDay, ufc: ufcDay } });
+  /* founder mandate 2026-10-24: NBA is a first-class sport — its lane sits second, after NFL, in the sport switcher's order. */
+  const afterNfl = cardLanes.findIndex((l) => l.sport === "nfl") + 1;
+  const commandLanes = [...cardLanes.slice(0, afterNfl), nbaHomeLane, ...cardLanes.slice(afterNfl)];
   const primaryLaneIds = new Set(primarySports.map((s) => s.id));
   const primaryLanes = commandLanes.filter((l) => primaryLaneIds.has(l.sport));
   const secondaryLanes = commandLanes.filter((l) => !primaryLaneIds.has(l.sport));

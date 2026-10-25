@@ -12,7 +12,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 process.env.__NEXT_TRAILING_SLASH = "true"; // next.config.mjs trailingSlash: true — next/link renders hrefs as the build does
 globalThis.React = React; // the lane card renders TeamLogo, which compiles with the classic JSX runtime under tsx (as nba-hub.test.mjs)
 
-import { buildExperimentalSnapshot, snapshotMatchesSource, LANE, WITHHELD, AMENDMENT_A } from "./experimental-public-lane.mjs";
+import { buildExperimentalSnapshot, snapshotMatchesSource, LANE, WITHHELD, AMENDMENT_A, unavailablePlayersForPublish } from "./experimental-public-lane.mjs";
 import { eloWinProbabilityForPublish, eloWinProbabilityOf, eloWinProbabilityText, eloAccuracyDisclosure, ELO_WIN_PROBABILITY_LABEL } from "./elo-win-probability.mjs";
 import { capabilityState, canEnterPredictionProducts } from "../../sport-capability-registry.ts";
 
@@ -22,7 +22,7 @@ const DOC = JSON.parse(fs.readFileSync(SRC, "utf8"));
 // 2026-10-20 is ALREADY PUBLISHED without the Elo field: the fixture follows the publisher's rule, so every assertion
 // below stays strict with the Elo switch ON (Release G). The slate WITH the field is `snapOn` (its own tests below).
 const PUBLISHED_1020 = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nba/experimental-public/2026-10-20.json"), "utf8"));
-const snap = () => buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: "nba/experimental-v0.1/forecasts/2026-10-20.json", sourceCommit: null, generatedAt: "2026-10-20T17:20:00Z", eloWinProbability: eloWinProbabilityForPublish(PUBLISHED_1020) });
+const snap = () => buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: "nba/experimental-v0.1/forecasts/2026-10-20.json", sourceCommit: null, generatedAt: "2026-10-20T17:20:00Z", eloWinProbability: eloWinProbabilityForPublish(PUBLISHED_1020), unavailablePlayers: unavailablePlayersForPublish(PUBLISHED_1020) });
 const snapOn = () => buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: "nba/experimental-v0.1/forecasts/2026-10-20.json", sourceCommit: null, generatedAt: "2026-10-20T17:20:00Z", eloWinProbability: true });
 const ELO_ON = { enabled: true, disclosure: eloAccuracyDisclosure({ graded: 3, minN: 300 }) };
 
@@ -88,7 +88,7 @@ test("the public snapshot carries no internal path and no private v1/theater mar
 
 test("the committed public snapshot is exactly what the producer builds from the committed receipts", () => {
   const pub = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nba/experimental-public/2026-10-20.json"), "utf8"));
-  const rebuilt = buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: pub.source.file, sourceCommit: pub.source.commit, generatedAt: pub.generatedAt, eloWinProbability: eloWinProbabilityForPublish(pub) });
+  const rebuilt = buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: pub.source.file, sourceCommit: pub.source.commit, generatedAt: pub.generatedAt, eloWinProbability: eloWinProbabilityForPublish(pub), unavailablePlayers: unavailablePlayersForPublish(pub) });
   assert.deepEqual(pub, JSON.parse(JSON.stringify(rebuilt)));
 });
 
@@ -97,8 +97,15 @@ test("rendered lane: the UNVALIDATED banner, freeze times and sources show; no p
   const html = renderToStaticMarkup(React.createElement(Lane, { snapshot: JSON.parse(JSON.stringify(snap())) }));
   // founder directive 2026-10-23 public readiness: the registry banner (Official Forecast + its one disclosure)
   assert.match(html, /Frozen before tip-off and shown exactly as frozen\. Not a betting recommendation\. NBA forecasts are graded after every game; a public Model Performance record for NBA has not been published yet\./); // release owner 2026-10-23 exact text
-  assert.match(html, /frozen pregame forecast, frozen Oct 20/);
-  assert.match(html, /Elo rating favours New York Knicks/, "team names, never mixed NY/NYK codes");
+  // founder mandate 2026-10-24: one table row per game — the slate date in the heading, each game's freeze time in its row
+  assert.match(html, /Official Forecasts · Oct 20/);
+  assert.match(html, /<th scope="col">Frozen<\/th>/);
+  assert.match(html, /<td>8:29 AM ET<\/td>/);
+  assert.match(html, /<strong>New York Knicks<\/strong>/, "team names, never mixed NY/NYK codes");
+  assert.match(html, /favoured side comes from a team rating \(Elo\)/);
+  // the sources (model ids) moved into the Model details disclosure — present, not deleted
+  assert.match(html, /<summary>Model details<\/summary>/);
+  assert.ok(html.includes(snap().games[0].players.source.replace(/'/g, "&#x27;")), "the player source is still printed");
   assert.match(html, /Not a betting recommendation\./); // founder directive 2026-10-23 public readiness
   assert.match(html, /not ranked/);
   const visible = html.replace(/<[^>]+>/g, " ");
@@ -130,22 +137,22 @@ test("a past slate is never shown as current: laneIsCurrent is true only on or b
   assert.equal(laneIsCurrent({ ...s, date: null }, "2026-10-20"), false);
   const page = fs.readFileSync(path.join(process.cwd(), "src/app/nba/page.tsx"), "utf8");
   const comp = fs.readFileSync(path.join(process.cwd(), "src/components/nba/experimental-lane.tsx"), "utf8");
-  assert.match(page, /loadCurrentLane\(currentEtDate\(\)\)/, "the page gates the lane on its slate date");
+  assert.match(page, /const today = currentEtDate\(\);\n\s+const lane = loadCurrentLane\(today\);/, "the page gates the lane on its slate date");
   assert.match(comp, /laneIsCurrent\(s, etDate\)/);
-  // Founder direction 2026-10-20: the lane leads the page — the jump line and the lane render ABOVE the schedule list.
-  const iTonight = page.indexOf("<NbaLaneTonight"), iLane = page.indexOf("<NbaExperimentalLane"), iGames = page.indexOf('id="nba-games"');
-  assert.ok(iTonight > 0 && iTonight < iLane && iLane < iGames, "jump line → lane → schedule");
+  // founder mandate 2026-10-24 (supersedes the 2026-10-20 "lane leads" order): today's games → the Official Forecasts →
+  // Top Boards; the forecasts still render above every other section of the page.
+  const iGames = page.indexOf("<NbaTodayGames"), iLane = page.indexOf("<NbaExperimentalLane"), iBoards = page.indexOf('id="nba-boards"');
+  assert.ok(iGames > 0 && iGames < iLane && iLane < iBoards, "today's games → forecasts → boards");
 });
 
-test("the jump line links every lane game to its card; each card shows its game status from the schedule rows", async () => {
-  const { NbaLaneTonight, laneCardId, default: Lane } = await import("../../../components/nba/experimental-lane.tsx");
+test("every lane game has its forecast row, and today's card links to it; a game's status comes only from the finals record", async () => {
+  // founder mandate 2026-10-24: the jump line gave way to today's game cards, each linking to its forecast (row or full page)
+  const { forecastRowId, default: Lane } = await import("../../../components/nba/experimental-lane.tsx");
   const s = JSON.parse(JSON.stringify(snap()));
-  const line = renderToStaticMarkup(React.createElement(NbaLaneTonight, { snapshot: s }));
-  for (const g of s.games) assert.match(line, new RegExp(`href="#${laneCardId(g.providerEventId)}"`));
-  assert.match(line, /frozen before tip-off/); // founder directive 2026-10-23 public readiness: the jump line names the freeze, not a validation status
-  const html = renderToStaticMarkup(React.createElement(Lane, { snapshot: s, statuses: { "401909088": "final · BOS 113 – DET 121" } }));
-  for (const g of s.games) assert.match(html, new RegExp(`id="${laneCardId(g.providerEventId)}"`));
-  assert.match(html, /Game status: final · BOS 113 – DET 121/);
+  const html = renderToStaticMarkup(React.createElement(Lane, { snapshot: s }));
+  for (const g of s.games) assert.match(html, new RegExp(`<tr id="${forecastRowId(g.providerEventId)}">`));
+  const cards = fs.readFileSync(path.join(process.cwd(), "src/components/nba/hub-overview.tsx"), "utf8");
+  assert.match(cards, /`#\$\{forecastRowId\(g\.id\)\}`/, "a card without a built Game Simulation page links to its forecast row");
   const page = fs.readFileSync(path.join(process.cwd(), "src/app/nba/page.tsx"), "utf8");
   assert.match(page, /if \(r\.status === "final" && lane\?\.games/, "only a recorded final is stated — a static page never freezes 'scheduled'/'tipped'");
   assert.doesNotMatch(page, /tipped — final not recorded yet|`scheduled · /);
@@ -159,9 +166,10 @@ test("compact hub: with /nba/projections on, /nba cards carry no player table an
     assert.match(html, /<table/, "with the board off, the hub keeps the full tables (amendment A's rollback loses nothing)");
     return;
   }
-  assert.doesNotMatch(html, /<table/, "the rows live on /nba/projections only");
+  // founder mandate 2026-10-24: one forecast table row per GAME; the player rows still live on /nba/projections only
+  assert.doesNotMatch(html, /<th[^>]*>(PTS|REB|AST|3PM|Min)<\/th>/, "the player rows live on /nba/projections only");
   assert.equal((html.match(/href="\/nba\/projections\/"/g) ?? []).length, 1, "one slate-level board link (projection-boards.test pins it)");
-  for (const g of s.games) assert.match(html, new RegExp(`${g.players.away.length + g.players.home.length} players on the board`));
+  for (const g of s.games) assert.match(html, new RegExp(`<tr id="nba-fc-${g.providerEventId}">[\\s\\S]*?<td>${g.players.away.length + g.players.home.length}</td>`));
   // An 11-game slate with full tables measured /nba at 388 KB (budget 250 KB, empty-lane page 204 KB). The compact card
   // must stay well under the ~3 KB/game (HTML + flight) that a 15-game slate leaves inside the budget.
   const perGame = (html.length - renderToStaticMarkup(React.createElement(Lane, { snapshot: { ...s, games: s.games.slice(0, 1) } })).length) / (s.games.length - 1);

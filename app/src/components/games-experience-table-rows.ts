@@ -20,6 +20,7 @@ import { loadEplForecasts, reportableRows } from "@/lib/sports/epl/forecast-view
 import { archivedEventIds } from "@/lib/sports/nfl/archived-forecast";
 import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
 import { committedLaneDates, loadLaneForDate } from "@/components/nba/experimental-lane";
+import { nbaExclusionText } from "@/lib/sport-hub/nba-hub";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
 
 import { SPORT_LABEL, type ForecastState, type GamesTableRow } from "./games-experience-table-wire";
@@ -70,7 +71,7 @@ export function buildGamesTableRows(today: string): GamesTableRow[] {
     const day = buildSimulateDay(date, { today });
     const lane = loadLaneForDate(date);
     for (const section of day.sections) {
-      for (const e of section.events) rows.push(rowFor(e, date, { nflIdx, nflPages, eplById, lane, laneDates, nbaFinals, nowMs }));
+      for (const e of section.events) rows.push(rowFor(e, date, { nflIdx, nflPages, eplById, lane, laneDates, nbaFinals, nowMs, today }));
     }
   }
   return rows.sort((a, b) => String(a.startUtc ?? a.date).localeCompare(String(b.startUtc ?? b.date)) || a.matchup.localeCompare(b.matchup));
@@ -84,6 +85,8 @@ type Ctx = {
   laneDates: Set<string>;
   nbaFinals: Set<string>;
   nowMs: number;
+  /** The build's ET day: each of today's NBA games has a card on /nba. */
+  today?: string;
 };
 
 function rowFor(e: SimDayEvent, date: string, ctx: Ctx): GamesTableRow {
@@ -119,13 +122,15 @@ function rowFor(e: SimDayEvent, date: string, ctx: Ctx): GamesTableRow {
   if (e.sport === "nba") {
     const pid = tail(e.id);
     const g = ctx.lane?.games.find((x) => x.providerEventId === pid);
-    const page = ctx.laneDates.has(date) ? `/nba/projections/${date}/` : "/nba/";
+    /* founder mandate 2026-10-24: a game today opens its /nba card (its Official Forecast and Game Simulation links); an
+       earlier date's opens that date's board. */
+    const page = date === ctx.today && pid ? `/nba/#nba-exp-${pid}` : ctx.laneDates.has(date) ? `/nba/projections/${date}/` : "/nba/";
     if (g) {
-      const side = g.elo?.favoured ? `${g.elo.favoured} favoured · no probability published` : null;
+      const side = g.elo?.favoured ? `${g.elo.favoured} favoured · no win chance published` : null;
       return { ...base, forecast: "Frozen", read: side, note: null, eventHref: page };
     }
     const excluded = ctx.lane?.excluded.find((x) => x.providerEventId === pid);
-    if (excluded || ctx.lane || started) return { ...base, forecast: "Unavailable", read: null, note: excluded?.reason ?? "No Official Forecast was frozen for this game before tip-off.", eventHref: page };
+    if (excluded || ctx.lane || started) return { ...base, forecast: "Unavailable", read: null, note: excluded ? `No Official Forecast: ${nbaExclusionText(excluded.reason)}` : "No Official Forecast was frozen for this game before tip-off.", eventHref: page };
     return { ...base, forecast: "Pending", read: null, note: "The NBA Official Forecast is frozen on game day, before tip-off.", eventHref: page };
   }
   /* MLB and UFC: forecast status from the day selector's own state; no single probability per row. */

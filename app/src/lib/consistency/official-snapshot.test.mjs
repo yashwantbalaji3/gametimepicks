@@ -8,6 +8,7 @@ import assert from "node:assert/strict";
 import {
   EXCLUSION, OFFICIAL_SNAPSHOT_SCHEMA, PUBLICATION, SNAPSHOT_REFUSAL, SOURCE_ROLE, SnapshotRefusal,
   NBA_OFFICIAL_FAMILY, nbaOfficialSnapshot, nbaReceiptInputRef, nflOfficialSnapshot, playerOf,
+  NBA_SNAPSHOT_ID_V2_FROM,
 } from "./official-snapshot.mjs";
 import { KICKOFF, NBA_ID, NFL_ID, nbaArtifact, nbaOfficialArtifact, nbaSources, nflBoard, nflReceipt, receiptsOf } from "./__fixtures__/synthetic.mjs";
 import { LANE } from "../sports/nba/experimental-public-lane.mjs";
@@ -132,9 +133,16 @@ test("NBA: v1 is attached as a SUPPORTING_SIMULATION source only, with input ali
   assert.match(sup.modelVersion, /^nba-sim-v1-coherent@/);
   assert.equal(s.supporting.state, "ATTACHED");
   assert.deepEqual(Object.keys(s.players.find((p) => p.playerId === "11").families).sort(), ["minutes", "pra", "pts"], "no v1 family leaks in");
-  const without = nbaOfficialSnapshot(NBA_ID, nbaSources({ supporting: null }));
-  assert.equal(without.supporting.state, "NO_ARTIFACT");
+  // Snapshot-id rules (PR 1224): under @1 "no v1 file" is NO_ARTIFACT; under @2 it is the one state
+  // NONE_AT_OFFICIAL_FREEZE (no v1 file / no v1 game / a later receipt), so a later write can never move an id.
+  // This fixture's game is a 2026-11-01 ET slate, so it follows the activation constant — pin BOTH rules explicitly.
+  const without = nbaOfficialSnapshot(NBA_ID, { ...nbaSources({ supporting: null }), v2From: null });
+  assert.equal(without.supporting.state, "NO_ARTIFACT", "@1");
   assert.equal(without.sources.length, 1);
+  const without2 = nbaOfficialSnapshot(NBA_ID, { ...nbaSources({ supporting: null }), v2From: "2026-10-25" });
+  assert.equal(without2.supporting.state, "NONE_AT_OFFICIAL_FREEZE", "@2");
+  assert.equal(without2.sources.length, 1);
+  assert.equal(nbaOfficialSnapshot(NBA_ID, nbaSources({ supporting: null })).supporting.state, NBA_SNAPSHOT_ID_V2_FROM == null ? "NO_ARTIFACT" : "NONE_AT_OFFICIAL_FREEZE", "the default follows the activation constant");
   assert.equal(nbaOfficialSnapshot(NBA_ID, nbaSources({ supporting: nbaArtifact({ tamper: true }) })).supporting.state, "RECEIPT_INTEGRITY");
   assert.equal(nbaReceiptInputRef({ inputs: { injuries: { sha256: "a" }, rosters: { sha256: "b" } } }), "injuries:a|rosters:b");
 });

@@ -27,7 +27,17 @@ export const NBA_HUB_BEHIND_DAYS = 3;
 
 /* NBA UI parity (2026-10-22): the official forecast (Elo side + player medians) publishes on each game day before
    tip-off, so a regular-season game without one in this build has none YET — "model in validation" read as "never". */
-export const NBA_NO_FORECAST_NOTE = "No public forecast yet — publishes on game day";
+export const NBA_NO_FORECAST_NOTE = "Official Forecast publishes on game day, before tip-off";
+/**
+ * Why a game on the slate has no Official Forecast, in reader words (founder mandate 2026-10-24). The lane records a code
+ * (scripts/nba/build-nba-experimental-public.mjs: NOT_PRE_TIP, RECEIPT_<state>); a code is never printed as is.
+ */
+export function nbaExclusionText(reason: string | null | undefined): string {
+  if (!reason) return "no Official Forecast was published for this game.";
+  if (reason === "NOT_PRE_TIP") return "its forecast was not frozen before tip-off, so none is published.";
+  if (/^RECEIPT_/.test(reason)) return "its forecast did not pass its integrity check, so none is published.";
+  return /^[A-Z0-9_]+$/.test(reason) ? "no Official Forecast was published for this game." : reason;
+}
 export const NBA_PRESEASON_NOTE = "Preseason — no forecast published";
 /** A game the NBA experimental public lane covers (preregistration §13): the row points at it, never claims validation. */
 export const NBA_LANE_NOTE = "Official Forecast on today's card above";
@@ -262,7 +272,9 @@ export function nbaTodaySlateFrom({ nowIso, schedule, finals, lane, laneEnabled 
       id, tipUtc, tipLabel: tipLabelOf(tipUtc), away, home,
       status: isFinal ? "final" : /POSTPONED|CANCELED|CANCELLED/.test(statusRaw.toUpperCase()) ? "postponed" : "upcoming",
       finalNote: isFinal ? `${away.abbr} ${fin.ftAway} – ${home.abbr} ${fin.ftHome}${fin.state === "FINAL_UNDER_REVIEW" ? " (under review)" : ""}` : null,
-      favoured: fav ? { abbr: fav, name: fav === lg?.home.abbr ? lg.home.name : fav === lg?.away.abbr ? lg.away.name : null } : null,
+      /* the side in the ROW's own team code (the lane may say "NY" where the schedule says "NYK"), so the card highlights
+         the right crest and the homepage never prints two codes for one team */
+      favoured: fav ? (fav === lg?.home.abbr ? { abbr: home.abbr, name: lg.home.name } : fav === lg?.away.abbr ? { abbr: away.abbr, name: lg.away.name } : { abbr: fav, name: null }) : null,
       frozenAt: lg?.frozenAt ?? null,
       players: lg ? lg.players.away.length + lg.players.home.length : null,
       excludedReason: excluded.get(id) ?? null,

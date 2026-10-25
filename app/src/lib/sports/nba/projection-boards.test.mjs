@@ -19,7 +19,7 @@ process.env.__NEXT_TRAILING_SLASH = "true"; // next.config.mjs trailingSlash: tr
 globalThis.React = React; // the lane card renders TeamLogo, which compiles with the classic JSX runtime under tsx (as nba-hub.test.mjs)
 
 import {
-  buildExperimentalSnapshot, snapshotMatchesSource, comboReconciliation, laneIsCurrent,
+  buildExperimentalSnapshot, snapshotMatchesSource, comboReconciliation, laneIsCurrent, unavailablePlayersForPublish,
   STATS, PROJECTION_BOARD_STATS, COMBO_STATS, COMBO_COMPONENTS, COMBO_LABEL, AMENDMENT_A, LANE, WITHHELD,
 } from "./experimental-public-lane.mjs";
 import { COMBO_KEYS } from "./game-sim.mjs";
@@ -35,7 +35,7 @@ const PUB_TEXT = fs.readFileSync(path.join(APP, PUB_REL), "utf8");
 const PUB = JSON.parse(PUB_TEXT);
 const r1 = (x) => Math.round(x * 10) / 10;
 // 10-20 is ALREADY PUBLISHED: rebuilds follow the publisher's Elo rule (switch-agnostic since Release G, never weaker)
-const snap = (doc = DOC) => buildExperimentalSnapshot({ forecastDoc: structuredClone(doc), sourceFile: "x", sourceCommit: null, generatedAt: "2026-10-20T17:20:00Z", eloWinProbability: eloWinProbabilityForPublish(PUB) });
+const snap = (doc = DOC) => buildExperimentalSnapshot({ forecastDoc: structuredClone(doc), sourceFile: "x", sourceCommit: null, generatedAt: "2026-10-20T17:20:00Z", eloWinProbability: eloWinProbabilityForPublish(PUB), unavailablePlayers: unavailablePlayersForPublish(PUB) });
 const srcPlayers = (g) => new Map([...g.forecast.players.away, ...g.forecast.players.home].map((p) => [String(p.providerAthleteId), p]));
 const byEvent = new Map(DOC.games.map((g) => [String(g.providerEventId), g]));
 
@@ -129,7 +129,7 @@ test("the 10-20 regeneration only ADDED fields: stripping them gives the pre-ame
   const newest = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().at(-1);
   assert.equal(fs.readFileSync(path.join(dir, "latest.json"), "utf8"), fs.readFileSync(path.join(dir, newest), "utf8"), `latest.json is the same bytes as the newest slate (${newest})`);
   // …and the committed file is exactly what the producer builds now.
-  const rebuilt = buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: PUB.source.file, sourceCommit: PUB.source.commit, generatedAt: PUB.generatedAt, eloWinProbability: eloWinProbabilityForPublish(PUB) });
+  const rebuilt = buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: PUB.source.file, sourceCommit: PUB.source.commit, generatedAt: PUB.generatedAt, eloWinProbability: eloWinProbabilityForPublish(PUB), unavailablePlayers: unavailablePlayersForPublish(PUB) });
   assert.equal(`${JSON.stringify(rebuilt, null, 1)}\n`, PUB_TEXT);
 });
 
@@ -224,9 +224,16 @@ test("controls: native labelled select/input/button (keyboard), table scrolls in
   const html = await renderView(JSON.parse(PUB_TEXT));
   for (const name of ["Matchup", "Team", "Player", "Stat"]) assert.match(html, new RegExp(`<label[^>]*for="[^"]+"[^>]*>${name}<`), name);
   assert.equal((html.match(/<select /g) ?? []).length, 3);
+  // a11y (release owner 2026-10-24): every filter control carries its own accessible name, not only the wrapping label.
+  for (const el of html.match(/<(select|input)\b[^>]*>/g) ?? []) assert.match(el, /aria-label="[^"]{4,}"/, el.slice(0, 80));
   assert.match(html, /<input [^>]*type="search"/);
-  assert.equal((html.match(/<button type="button"[^>]*aria-label="Sort by /g) ?? []).length, 7, "one sort button per stat column");
-  assert.match(html, /class="overflow-x-auto max-w-full[^"]*"[^>]*tabindex="0" role="region"/);
+  assert.equal((html.match(/<button type="button"[^>]*aria-label="Sort by /g) ?? []).length, 8, "one sort button per stat column, plus minutes");
+  // The table scrolls in its own bounded box (founder mandate 2026-10-24): header row and player column stay in view.
+  assert.match(html, /class="overflow-auto max-h-\[75vh\] max-w-full[^"]*"[^>]*tabindex="0" role="region"/);
+  assert.match(html, /\[&amp;_thead_th\]:sticky/);
+  assert.match(html, /\[&amp;_tbody_th\]:sticky \[&amp;_tbody_th\]:left-0/);
+  assert.ok(!/min-h-\[(32|40)px\]/.test(html), "every button, select and input is a 44px target");
+  for (const el of html.match(/<(select|input)\b[^>]*>/g) ?? []) assert.match(el, /min-h-\[44px\]/, el.slice(0, 60));
   assert.match(html, /vault-page-shell[^"]*overflow-x-hidden/);
   for (const rel of ["src/components/nba/projections-view.tsx", "src/components/nba/projection-board.tsx"]) {
     const code = fs.readFileSync(path.join(APP, rel), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
