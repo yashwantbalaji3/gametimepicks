@@ -32,7 +32,7 @@ const audit = runConsistencyAudit({ repoRoot, nflEvents: nflEvents.length ? nflE
 
 if (flag("--write-baseline")) {
   if (nflEvents.length || nbaDates.length) { console.error("--write-baseline pins the full default audit; drop --event / --nba-date"); process.exit(2); }
-  fs.writeFileSync(baselinePath, serializeBaseline(baselineOf(audit)));
+  fs.writeFileSync(baselinePath, serializeBaseline(baselineOf(audit, fs.existsSync(baselinePath) ? JSON.parse(fs.readFileSync(baselinePath, "utf8")) : null)));
   console.log(`pinned ${audit.discrepancies.length} discrepancies → ${path.relative(repoRoot, baselinePath)}`);
   process.exit(0);
 }

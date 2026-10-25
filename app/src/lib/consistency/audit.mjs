@@ -793,7 +793,9 @@ function known(a, S, id) {
 /* ═══════════════════════════════════════ baseline ═══════════════════════════════════════ */
 
 /** The pinned form of an audit: fingerprints + counts + the artifact hashes each one depends on. */
-export function baselineOf(audit) {
+export function baselineOf(audit, prior = null) {
+  /* A re-pin keeps every reviewed eventOnly acknowledgement that still applies, rather than widening it to its class. */
+  const reviewed = new Map((prior?.entries ?? []).filter((e) => e.eventOnly).map((e) => [e.f, e]));
   const used = [...new Set(audit.discrepancies.flatMap((d) => (d.sources ?? []).filter(Boolean)))].sort();
   const idx = new Map(used.map((p, i) => [p, i]));
   return {
@@ -803,7 +805,7 @@ export function baselineOf(audit) {
     events: audit.events,
     files: used,
     manifest: Object.fromEntries(used.map((p) => [p, audit.manifest[p] ?? null])),
-    entries: audit.discrepancies.map((d) => ({ f: d.fingerprint, n: d.count ?? 1, sev: d.severity, s: [...new Set((d.sources ?? []).filter(Boolean))].map((p) => idx.get(p)).sort((a, b) => a - b) })),
+    entries: audit.discrepancies.map((d) => ({ f: d.fingerprint, n: d.count ?? 1, sev: d.severity, s: [...new Set((d.sources ?? []).filter(Boolean))].map((p) => idx.get(p)).sort((a, b) => a - b), ...(reviewed.has(d.fingerprint) ? { eventOnly: true, review: reviewed.get(d.fingerprint).review } : {}) })),
   };
 }
 
@@ -837,8 +839,11 @@ const eventOf = (fp) => String(fp).split("|")[2];
  */
 export function compareWithBaseline(audit, baseline) {
   const pinned = new Map(baseline.entries.map((e) => [e.f, { fingerprint: e.f, count: e.n }]));
-  const pinnedClasses = new Set(baseline.entries.map((e) => fingerprintClass(e.f)));
-  const pinnedEvents = new Set(baseline.entries.map((e) => eventOf(e.f)));
+  /* An `eventOnly` entry is a reviewed acknowledgement of ONE fingerprint. It never teaches the baseline its class or its
+     event, so every other occurrence of that class still fails strictly (a reviewed one-off is not a policy). */
+  const classEntries = baseline.entries.filter((e) => !e.eventOnly);
+  const pinnedClasses = new Set(classEntries.map((e) => fingerprintClass(e.f)));
+  const pinnedEvents = new Set(classEntries.map((e) => eventOf(e.f)));
   const changed = (p) => !(p in baseline.manifest) ? true : baseline.manifest[p] !== audit.manifest[p];
   const isSourceFile = (p) => !/^(app\/public\/data|data)\//.test(p); // code paths: drift never excuses them
   const newStrict = []; const grown = []; const drift = [];
