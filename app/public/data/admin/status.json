@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-10-25T12:19:46.478Z",
+  "generatedAt": "2026-10-25T13:15:06.622Z",
   "canonical": {
     "record": "47-52",
     "bankroll": 14065.4,
@@ -105,7 +105,7 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-10-25",
-      "generatedAt": "2026-10-25T10:07:29Z",
+      "generatedAt": "2026-10-25T12:19:51Z",
       "sports": [
         {
           "sport": "epl",
@@ -168,17 +168,17 @@
     "dailyLifecycle": {
       "receiptDate": "2026-10-25",
       "present": true,
-      "generatedAt": "2026-10-25T09:38:54Z",
+      "generatedAt": "2026-10-25T12:19:51Z",
       "watchdog": [
-        {
-          "product": "end-zone-vault",
-          "kind": "INCIDENT_OPEN",
-          "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-10-25"
-        },
         {
           "product": "homer-nukes",
           "kind": "INCIDENT_OPEN",
           "detail": "NOT_RUN: no Homer Nukes board exists for 2026-10-25"
+        },
+        {
+          "product": "epl-cards",
+          "kind": "STALE_ACTIVE_CARD",
+          "detail": "locked 2026-10-24T22:50:25Z, still ACTIVE"
         }
       ],
       "states": {
@@ -191,7 +191,7 @@
           "policyVersion": "moonshot@2"
         },
         "end-zone-vault": {
-          "state": "INCIDENT",
+          "state": "NO_PLAY",
           "policyVersion": "end-zone-vault@1"
         },
         "homer-nukes": {
@@ -222,16 +222,16 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-10-25T12:16:46.561Z",
+    "lastRunAt": "2026-10-25T13:15:05.871Z",
     "ageHours": 0,
-    "ok": false,
-    "status": "fail",
-    "phase": "daily-owner-slo"
+    "ok": true,
+    "status": "pass",
+    "phase": "nightly-settle"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-10-25",
-    "etTime": "08:19",
+    "etTime": "09:15",
     "stages": [
       {
         "stage": "schedule",
