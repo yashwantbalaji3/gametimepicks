@@ -136,17 +136,19 @@ test("SHOWN BEFORE START: the gate reads shownAt (the build), not when the recor
   assert.equal(appendRecord([], manual).length, 0, "an entry without shownAt still gates on recordedAt");
 });
 
-test("WORKFLOW: per Production deployment, commits only the record, builds nothing, holds no secret", () => {
+test("WORKFLOW: per Production deployment, commits only the record and its withdrawal file, builds nothing, holds no secret", () => {
   const wf = read("../.github/workflows/level-a-record.yml");
   assert.match(wf, /^on:\n  deployment_status:/m);
   assert.match(wf, /github\.event\.deployment_status\.state == 'success' && github\.event\.deployment\.environment == 'Production'/);
-  assert.match(wf, /record-level-a-from-deployment\.mjs --sha "\$DEPLOY_SHA" --served-from "\$SERVED_FROM" --attempts 5 --write/);
+  assert.match(wf, /record-level-a-from-deployment\.mjs --sha "\$DEPLOY_SHA" --served-from "\$SERVED_FROM" \$\{LAST_SERVED_FROM:\+--last-served-from "\$LAST_SERVED_FROM"\} --attempts 5 --write/);
+  assert.match(wf, /select\(\.id < \$DEPLOY_ID\)/, "lastServedFrom: the newest EARLIER Production deployment that went live");
   assert.match(wf, /SERVED_FROM: \$\{\{ github\.event\.deployment_status\.created_at \}\}/, "servedFrom is the success status: when the deployment went live");
   assert.match(wf, /echo "## Level A record: \$\(head -n 1 \/tmp\/level-a-record\.txt\)"/, "the summary leads with the verdict line");
   assert.match(wf, /exit \$CODE/, "a REFUSED run stays red");
   assert.match(wf, /permissions:\n  contents: write\n(?:  #.*\n)*  deployments: read\n\n/, "read-only deployments, nothing else");
-  assert.match(wf, /git add data\/internal\/products\/level-a\/suggestions\.jsonl/);
-  assert.equal((wf.match(/git add /g) ?? []).length, 1, "the record is the only path it stages");
+  assert.match(wf, /git add data\/internal\/products\/level-a\/suggestions\.jsonl 2/);
+  assert.match(wf, /git add data\/internal\/products\/level-a\/withdrawn\.jsonl 2/);
+  assert.deepEqual([...wf.matchAll(/git add (\S+)/g)].map((m) => m[1]), ["data/internal/products/level-a/suggestions.jsonl", "data/internal/products/level-a/withdrawn.jsonl"], "the record and its withdrawal file are the only paths it stages");
   assert.match(wf, /\[skip ci\]/);
   assert.doesNotMatch(wf, /secrets\.|ODDS_API|VERCEL_TOKEN/);
   const ignore = read("scripts/vercel-ignore-build.sh");

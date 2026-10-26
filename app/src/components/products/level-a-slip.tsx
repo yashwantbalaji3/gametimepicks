@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { registerSlipCatalog, useModelSlip } from "@/lib/products/level-a/slip-store";
-import { MODEL_SLIP_LABEL, modelSlipText, modelSlipView } from "@/lib/products/level-a/slip.mjs";
+import { MODEL_SLIP_LABEL, modelSlipText, modelSlipView, slipButtonText } from "@/lib/products/level-a/slip.mjs";
 import { etStamp } from "@/lib/et-stamp.mjs";
 
 /* LEVEL A · THE MODEL-ONLY SLIP (client island). Buttons add the public slip legs the server prepared
@@ -20,15 +20,16 @@ const BTN: React.CSSProperties = { minHeight: 44, minWidth: 44, whiteSpace: "now
 const SPORT: Record<string, string> = { mlb: "MLB", nba: "NBA", epl: "Premier League", "ligue-1": "Ligue 1" };
 
 /** "Add to slip" for one leg, or "Add card to slip" for a card's legs (by key: the bar carries the page's legs once).
- *  Shows "In slip · remove" once every leg is in. */
+ *  Once every leg is in: "In slip · remove" for a leg, "Remove card (n legs)" for a card (slipButtonText). */
 export function AddToSlip({ keys, label = "Add to slip", name }: { keys: string[]; label?: string; name: string }) {
   const { slip, add, remove } = useModelSlip();
   const inSlip = keys.length > 0 && keys.every((k) => slip.legs.some((x: { key: string }) => x.key === k));
+  const words = slipButtonText({ inSlip, count: keys.length, label, name });
   return (
     <button type="button" className="vault-press inline-flex items-center" style={BTN} aria-pressed={inSlip}
-      aria-label={inSlip ? `Remove ${name} from the model slip` : `${label}: ${name}`}
+      aria-label={words.aria}
       onClick={() => (inSlip ? keys.forEach(remove) : add(keys))}>
-      {inSlip ? "In slip · remove" : label}
+      {words.text}
     </button>
   );
 }
