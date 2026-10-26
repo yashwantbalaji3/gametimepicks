@@ -1,3 +1,4 @@
+import type React from "react";
 import GameSummary from "./game-summary";
 import type { SportHubModel } from "@/lib/sport-hub/contract";
 
@@ -36,8 +37,10 @@ export function HubTitle({ model }: { model: SportHubModel }) {
   );
 }
 
-export default function HubHeader({ model, deferToCanonical, compact = false }: {
+export default function HubHeader({ model, deferToCanonical, compact = false, extras }: {
   model: SportHubModel;
+  /** Vehicle N: one extra control per row id, passed to GameSummary (a hub's "Add to slip"). */
+  extras?: ReadonlyMap<string, React.ReactNode>;
   /** Session 11 — one line per event (GameSummary's compact row) for a schedule-only hub. */
   compact?: boolean;
   /**
@@ -59,7 +62,7 @@ export default function HubHeader({ model, deferToCanonical, compact = false }: 
         </summary>
         <div className="px-4 pb-4">
           <p className="m-0 mb-2 text-[12px]" style={{ color: "var(--vault-text-faint)" }}>{deferToCanonical.note}</p>
-          <GameSummary rows={model.rows} unitLabel={model.labels.games} emptyReason={model.emptyReason} emptyCounts={model.emptyCounts} emptyLink={model.emptyLink} compact={compact} />
+          <GameSummary rows={model.rows} unitLabel={model.labels.games} emptyReason={model.emptyReason} emptyCounts={model.emptyCounts} emptyLink={model.emptyLink} compact={compact} extras={extras} />
         </div>
       </details>
     );
@@ -79,7 +82,7 @@ export default function HubHeader({ model, deferToCanonical, compact = false }: 
           ({model.rows.length} {model.labels.games.toLowerCase()})
         </summary>
         <div className="px-4 pb-4">
-          <GameSummary rows={model.rows} unitLabel={model.labels.games} emptyReason={model.emptyReason} emptyCounts={model.emptyCounts} emptyLink={model.emptyLink} compact={compact} />
+          <GameSummary rows={model.rows} unitLabel={model.labels.games} emptyReason={model.emptyReason} emptyCounts={model.emptyCounts} emptyLink={model.emptyLink} compact={compact} extras={extras} />
         </div>
       </details>
     );
@@ -87,7 +90,7 @@ export default function HubHeader({ model, deferToCanonical, compact = false }: 
   return (
     <div>
       <h2 className="m-0 mb-3 text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>{model.labels.games}</h2>
-      <GameSummary rows={model.rows} unitLabel={model.labels.games} emptyReason={model.emptyReason} emptyCounts={model.emptyCounts} emptyLink={model.emptyLink} compact={compact} />
+      <GameSummary rows={model.rows} unitLabel={model.labels.games} emptyReason={model.emptyReason} emptyCounts={model.emptyCounts} emptyLink={model.emptyLink} compact={compact} extras={extras} />
     </div>
   );
 }

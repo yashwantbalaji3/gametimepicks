@@ -95,6 +95,9 @@ test("FACT · browser storage is exactly what the notice names (preferences, fol
     "lib/follow/follow-store.ts",
     "lib/my/observation-store.ts",
     "lib/prefs/reader-prefs.ts",
+    // The model-only slip (gtp.slip.model.v1, founder P1 2026-10-26): "the picks in your slip" — the same notice clause
+    // as slip-store.ts. It keeps only the public pick (event, outcome, start, the published model estimate), no price.
+    "lib/products/level-a/slip-store.ts",
     "lib/saved/saved-store.ts",
     "lib/slip/slip-store.ts",
     // Parlay Lab V2 compare slip (gtp.slip.v2, behind NEXT_PUBLIC_PARLAY_LAB_V2): "the picks in your slip" — the same

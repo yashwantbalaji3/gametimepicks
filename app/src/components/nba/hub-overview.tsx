@@ -19,6 +19,7 @@ import { nbaExclusionText, type NbaTodayGame, type NbaTodaySlate } from "@/lib/s
 import { hubStatusDisplay, type HubGameRow } from "@/lib/sport-hub/contract";
 import { MatchupCard, forecastRowId } from "@/components/nba/experimental-lane";
 import { PUBLIC_TERMS } from "@/lib/public-registry";
+import { HubSlipButton, type HubSlipLegs } from "@/components/products/hub-slip";
 
 const etTime = (iso: string) => new Date(iso).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/New_York" }) + " ET";
 const shortDate = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
@@ -96,7 +97,7 @@ function forecastLine(g: NbaTodayGame, pending: boolean): string {
  * Today's games: a card per game. The Official Forecast link opens the game's full forecast (favoured side and every
  * player's statistics) on its Game Simulation page when that page is built, else this page's forecast row.
  */
-export function NbaTodayGames({ slate }: { slate: NbaTodaySlate }) {
+export function NbaTodayGames({ slate, slip }: { slate: NbaTodaySlate; slip?: HubSlipLegs }) {
   if (!slate.games.length) return null;
   const pending = slate.forecast === "PENDING";
   return (
@@ -107,10 +108,12 @@ export function NbaTodayGames({ slate }: { slate: NbaTodaySlate }) {
             {g.finalNote ? <strong>Final · {g.finalNote}</strong> : null}
             <p>{forecastLine(g, pending)}</p>
           </div>
-          {g.favoured || g.theaterHref ? (
+          {g.favoured || g.theaterHref || slip?.has(g.id) ? (
             <p className="nbx-acts">
               {g.favoured ? <Link href={g.theaterHref ? `${g.theaterHref}#official-predictions` : `#${forecastRowId(g.id)}`} prefetch={false}>{PUBLIC_TERMS.OFFICIAL_FORECAST} →</Link> : null}
               {g.theaterHref ? <Link href={g.theaterHref} prefetch={false} data-nba-theater-link={g.id}>{PUBLIC_TERMS.GAME_SIMULATION} →</Link> : null}
+              {/* Vehicle N: only a Level A leg (hub-slip → levelASlipLegFor) — a game without one gets no button */}
+              <HubSlipButton leg={slip?.get(g.id)} />
             </p>
           ) : null}
         </MatchupCard>

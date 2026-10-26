@@ -22,6 +22,7 @@ import { currentEtDate } from "@/lib/freshness";
 import path from "node:path";
 import { publicTheaterRouteIds } from "@/lib/simulation-theater/nba/possession/public-route.mjs";
 import { nbaTodaySlate } from "@/lib/sport-hub/nba-hub";
+import { HubSlipBar, hubSlipLegs } from "@/components/products/hub-slip";
 import { NBA_HUB_SECTIONS, NbaGameList, NbaSlateOverview, NbaTodayGames } from "@/components/nba/hub-overview";
 import { LANE } from "@/lib/sports/nba/experimental-public-lane.mjs";
 import { NBA_MODEL_PERFORMANCE_NOTE, PUBLIC_TERMS, publicSport } from "@/lib/public-registry";
@@ -56,6 +57,9 @@ export default async function NbaHubPage() {
   /* NBA UI parity (2026-10-22): today's slate — the same view the homepage NBA lane reads — leads the page. */
   const slate = nbaTodaySlate(nowIso, lane, { laneEnabled: LANE.enabled, theaterIds });
   const boardDates = committedLaneDates();
+  /* Vehicle N: "Add to slip" only on a game Level A suggests (its exact leg, or nothing); the bar renders once, and only
+     when a button does, so the slip island never ships to a /nba without one. */
+  const slip = await hubSlipLegs("nba", slate.games.map((g) => g.id));
   /* Page weight (/nba ceiling 245 KiB at 15 games): today's games render once, as the cards; the window's other games are
      one line each — upcoming under the cards, started or final under Results. */
   const carded = new Set(slate.games.map((g) => g.id));
@@ -90,7 +94,7 @@ export default async function NbaHubPage() {
       {/* 1 · TODAY'S GAMES — a card per game (each links to its Official Forecast and its Game Simulation), then the week */}
       <section id="nba-games" className="scroll-mt-24 flex flex-col gap-3" aria-labelledby="nba-games-h">
         <h2 id="nba-games-h" className={H2} style={{ color: "var(--vault-text)" }}>{slate.games.length ? `Today’s games · ${slate.dateLabel}` : "Games"}</h2>
-        <NbaTodayGames slate={slate} />
+        <NbaTodayGames slate={slate} slip={slip} />
         <NbaGameList rows={upcoming} heading={`Coming up · ${upcoming.length} game${upcoming.length === 1 ? "" : "s"} in the next 7 days`} collapsed />
       </section>
 
@@ -159,6 +163,7 @@ export default async function NbaHubPage() {
         </ul>
         <p className="m-0 text-[13.5px]"><Link href="/methodology/" className="underline inline-flex items-center" style={{ color: "var(--vault-text)", minHeight: 44 }}>Methodology — where the numbers come from</Link></p>
       </section>
+      <HubSlipBar legs={slip} />
     </div>
   );
 }

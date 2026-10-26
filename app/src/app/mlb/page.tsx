@@ -35,6 +35,7 @@ import {
   type PublicProjection,
 } from "@/lib/normalize";
 import { gameHrefByMatchId, buildAllGameDetails } from "@/lib/game-detail";
+import { HubSlipBar, HubSlipButton, hubSlipLegs } from "@/components/products/hub-slip";
 import { slateGames } from "@/lib/today/slate-games";
 import MlbSlateAvailability from "@/components/mlb/mlb-slate-availability";
 import { getTeamMarketsForDate, buildMlbGameCenter, runLineLayer } from "@/lib/mlb-team-markets";
@@ -93,7 +94,7 @@ function byEdge(a: PublicProjection, b: PublicProjection) {
   return Math.abs(b.edgePct ?? 0) - Math.abs(a.edgePct ?? 0);
 }
 
-export default function MlbLandingPage() {
+export default async function MlbLandingPage() {
   const date = activeMlbDate() ?? currentEtDate();
   const board = getMlbBoardForDate(date);
   const topReads = loadTopReads();
@@ -400,6 +401,14 @@ export default function MlbLandingPage() {
      the browser. It decides ORDERING and grouping only — each row's status text comes from the
      artifact's own eventPhase, so a day-old build cannot invent a game state. */
   const __hubModel = mlbHub(new Date().toISOString());
+  /* Vehicle N: "Add to slip" on a game card only for a Level A leg (joined by gamePk — the card's id is its slug); the
+     bar renders once, and only when a button does. */
+  const gamePkBySlug = new Map(buildAllGameDetails().filter((d) => d.sport === "mlb" && d.matchId).map((d) => [d.slug, String(d.matchId)]));
+  const slip = await hubSlipLegs("mlb", __hubModel.rows.map((r) => gamePkBySlug.get(String(r.id))).filter((x): x is string => !!x));
+  const slipExtras = new Map(__hubModel.rows.flatMap((r) => {
+    const leg = slip.get(gamePkBySlug.get(String(r.id)) ?? "");
+    return leg ? [[String(r.id), <HubSlipButton key="slip" leg={leg} />] as const] : [];
+  }));
 
   return (
     <div data-sport="mlb" className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
@@ -427,7 +436,8 @@ export default function MlbLandingPage() {
           ]}
         />
       </div>
-      <section id="mlb-games" className="scroll-mt-24"><HubHeader model={__hubModel} /></section>
+      <section id="mlb-games" className="scroll-mt-24"><HubHeader model={__hubModel} extras={slipExtras} /></section>
+      <HubSlipBar legs={slip} />
       {/* P309: the live record of every game call against a coin flip — a paused call says paused here first. */}
 
       {/* Slate liveness (real ET clock) — on an MLB no-games day (e.g. the All-Star break) this says so

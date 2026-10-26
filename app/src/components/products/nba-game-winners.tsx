@@ -1,4 +1,6 @@
 import LevelACopy from "@/components/products/level-a-copy";
+import { AddToSlip } from "@/components/products/level-a-slip";
+import { slipLegOf } from "@/lib/products/level-a/slip-legs.mjs";
 import { nbaGameWinnerCardKey, nbaGameWinnerCopyText } from "@/lib/products/level-a/nba-game-winner-tiers.mjs";
 import { jointShownFor } from "@/lib/products/level-a/suggestions.mjs";
 import { etStamp } from "@/lib/et-stamp.mjs";
@@ -32,11 +34,15 @@ function GwCardBox({ title, slot }: { title: string; slot: GwSlot }) {
                   <span style={{ color: "var(--vault-text-mute)" }}>{l.label}: {l.shownPct}</span>
                 </span>
                 <span style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }}>NBA · {l.eventLabel} · tips {etStamp(l.startUtc) ?? l.startUtc} · frozen {etStamp(l.display.frozenAt) ?? l.display.frozenAt} · no sportsbook price · settles on the official final</span>
+                <span><AddToSlip keys={[slipLegOf(l as never).key]} name={`${l.selection.label}, ${l.eventLabel}`} /></span>
               </li>
             ))}
           </ul>
           <p className="m-0 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>{c.dependency} No sportsbook price. Settles on the official final.</p>
-          <LevelACopy text={nbaGameWinnerCopyText(c)} />
+          <span className="flex flex-wrap items-center gap-2">
+            <AddToSlip keys={c.legs.map((l) => slipLegOf(l as never).key)} label="Add card to slip" name={`NBA game winners ${title} (${c.legs.length} legs)`} />
+            <LevelACopy text={nbaGameWinnerCopyText(c)} />
+          </span>
         </>
       ) : (
         <p className="m-0 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>No card: {slot.reason}.</p>

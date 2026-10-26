@@ -23,6 +23,7 @@ import { destinationsFor } from "@/lib/navigation";
 import { committedLaneDates, loadLaneForDate } from "@/components/nba/experimental-lane";
 import ExpiredSimulationNotice from "@/components/nba/expired-simulation-notice";
 import { expiredSimulationMap } from "@/components/nba/expired-simulation.mjs";
+import ExpiredGameNotice from "@/components/expired/expired-game-notice";
 
 export default function NotFound() {
   const primary = destinationsFor("top");
@@ -38,6 +39,9 @@ export default function NotFound() {
       />
 
       <ExpiredSimulationNotice map={expired} />
+      {/* Founder P1 2026-10-26: expired MLB game report and UFC bout links. No props: the root not-found tree rides in
+          EVERY page's flight payload, so the index is a build-time file the notice fetches only on a matching path. */}
+      <ExpiredGameNotice />
 
       <nav aria-label="Primary destinations" className="mt-7 max-w-2xl flex flex-col gap-2">
         {primary.map((d) => (

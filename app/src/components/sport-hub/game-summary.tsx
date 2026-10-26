@@ -1,3 +1,4 @@
+import type React from "react";
 import Link from "next/link";
 import TeamLogo from "@/components/team-logo";
 import { orderRows, isInProgress, hubStatusDisplay, hubCounts, drawableSplit, type HubGameRow, type HubParticipant, type HubRead } from "@/lib/sport-hub/contract";
@@ -92,7 +93,7 @@ function SplitBar({ split, favored, sides }: { split: Array<{ label: string; p: 
   );
 }
 
-function EventCard({ row: r, unitLabel }: { row: HubGameRow; unitLabel: string }) {
+function EventCard({ row: r, unitLabel, extra = null }: { row: HubGameRow; unitLabel: string; extra?: React.ReactNode }) {
   const hasSides = Array.isArray(r.participants) && r.participants.length === 2;
   const tone = r.read ? READ_TONE[r.read.kind] : null;
   const isModel = r.read?.kind === "MODEL_FORECAST" || r.read?.kind === "MODEL_PICK";
@@ -126,7 +127,7 @@ function EventCard({ row: r, unitLabel }: { row: HubGameRow; unitLabel: string }
           <div className="text-[13px] gtp-c-mute">No supported read for this {unitLabel.toLowerCase().replace(/s$/, "")}</div>
         )}
       </div>
-      <div className="mt-auto"><Action row={r} /></div>
+      <div className="mt-auto flex flex-wrap items-center gap-2"><Action row={r} />{extra}</div>
     </li>
   );
 }
@@ -159,8 +160,12 @@ function CompactRow({ row: r }: { row: HubGameRow }) {
 }
 
 export default function GameSummary({
-  rows, unitLabel, emptyReason, emptyCounts, emptyLink, compact = false,
-}: { rows: HubGameRow[]; unitLabel: string; emptyReason?: string; emptyCounts?: string; emptyLink?: { href: string; label: string }; compact?: boolean }) {
+  rows, unitLabel, emptyReason, emptyCounts, emptyLink, compact = false, extras,
+}: {
+  rows: HubGameRow[]; unitLabel: string; emptyReason?: string; emptyCounts?: string; emptyLink?: { href: string; label: string }; compact?: boolean;
+  /** Vehicle N: one extra control per row id beside the row's action (a hub's "Add to slip") — absent rows get nothing. */
+  extras?: ReadonlyMap<string, React.ReactNode>;
+}) {
   const ordered = orderRows(rows);
   const counts = hubCounts(rows);
   const live = ordered.filter(isInProgress);
@@ -208,7 +213,7 @@ export default function GameSummary({
         <ul className="m-0 p-0 list-none">{list.map((r) => <CompactRow key={r.id} row={r} />)}</ul>
       ) : (
         <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
-          {list.map((r) => <EventCard key={r.id} row={r} unitLabel={unitLabel} />)}
+          {list.map((r) => <EventCard key={r.id} row={r} unitLabel={unitLabel} extra={extras?.get(String(r.id)) ?? null} />)}
         </ul>
       )}
     </>
