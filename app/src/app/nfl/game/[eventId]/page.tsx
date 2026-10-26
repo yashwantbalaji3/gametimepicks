@@ -54,6 +54,7 @@ import { KickoffSlot } from "@/components/live/kickoff-aware";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { effectiveLifecycle } from "@/lib/sports/nfl/effective-lifecycle.mjs";
 import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
+import { nflPublicRecordResolver } from "@/lib/sports/nfl/public-record.mjs";
 import SimulationStorySection from "@/components/simulate/simulation-story-section";
 import SaveForecastButton from "@/components/saved/save-forecast-button";
 import { cardFromNflEvent, type NflEvent } from "@/lib/command-center/featured";
@@ -115,7 +116,7 @@ const readPublic = (rel: string) => {
 };
 /* P295: a started game's forecast lives in frozen-latest.json (rebuilt from its pre-kickoff receipt by the
    same run), so its report keeps rendering after kickoff instead of 404ing. */
-const forecastArtifact = () => unionFrozenForecasts(readPublic("nfl/forecasts/latest.json"), readPublic("nfl/forecasts/frozen-latest.json"));
+const forecastArtifact = () => unionFrozenForecasts(readPublic("nfl/forecasts/latest.json"), readPublic("nfl/forecasts/frozen-latest.json"), { resolve: nflPublicRecordResolver() });
 /* P277: pregame conditions, shown beside the forecast and never inside it — the model ingests no
    weather term, and the line that renders this says so. */
 const weatherArtifact = () => readPublic("nfl/weather/latest.json");

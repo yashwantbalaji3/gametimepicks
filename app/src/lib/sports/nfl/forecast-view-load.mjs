@@ -16,8 +16,9 @@ import { unionFrozenForecasts } from "./public-forecast-union.mjs";
 import { sanitizePlayerBoard } from "../odds/public-offer-sanitizer.mjs";
 import { readWorldModelArtifacts } from "./world-model-v2/read.mjs";
 import { nflOfficialSnapshot, SnapshotRefusal } from "../../consistency/official-snapshot.mjs";
-import { exclusionFor } from "./record-exclusions.mjs";
-import { isRecordEligible } from "./record-eligibility.mjs";
+import { nflPublicRecordResolver, publicRecordOf } from "./public-record.mjs";
+
+export { publicRecordOf };
 
 const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
 
@@ -41,36 +42,16 @@ export function officialSnapshotFor(forecast, board, world = null) {
   }
 }
 
-/**
- * The forecast a public page stands on. A public copy of an EXCLUDED revision (record-exclusions.mjs: a pre-kickoff
- * label on post-kickoff inputs, e.g. PIT @ NO 401873011-rev-1329Z, still carried by frozen-latest.json) is never shown
- * or used as the record: it stands for the exclusion's `recordInstead` receipt, read from the committed receipts tree
- * (a BUILD_INPUT; archived-forecast.ts reads it the same way) and published exactly as the producer publishes a receipt.
- * If that receipt is unreadable, not the same event, or not itself eligible, null — the caller fails closed.
- * @param {object} forecast a public forecast entry
- * @param {string} repoRoot the repository root
- */
-export function publicRecordOf(forecast, repoRoot) {
-  const ex = exclusionFor(forecast);
-  if (!ex) return forecast;
-  const r = readJson(path.join(repoRoot, ex.recordInstead));
-  if (!r || String(r.providerEventId) !== String(forecast.providerEventId) || !isRecordEligible(r)) return null;
-  const f = { ...r };
-  delete f.revisionOf; delete f.priorInputHash; delete f.inputs;
-  return f;
-}
-
 /** @param {string} publicDir the app's public/ directory */
 export function loadForecastViews(publicDir) {
   const data = path.join(publicDir, "data/nfl");
-  const art = unionFrozenForecasts(readJson(path.join(data, "forecasts/latest.json")), readJson(path.join(data, "forecasts/frozen-latest.json")));
-  const worlds = new Map(readWorldModelArtifacts(publicDir).map((a) => [a.identity.providerEventId, a]));
   const repoRoot = path.resolve(publicDir, "..", "..");
+  // an excluded public copy stands for its record (public-record.mjs); if that cannot be read, the copy is kept for the
+  // page but the official snapshot below refuses it (isRecordEligible), so no excluded number is presented as official
+  const art = unionFrozenForecasts(readJson(path.join(data, "forecasts/latest.json")), readJson(path.join(data, "forecasts/frozen-latest.json")), { resolve: nflPublicRecordResolver(repoRoot) });
+  const worlds = new Map(readWorldModelArtifacts(publicDir).map((a) => [a.identity.providerEventId, a]));
   return (art?.forecasts ?? [])
-    .map((pub) => {
-      /* An excluded public copy stands for its record; if that cannot be read, the copy is kept for the page but the
-         official snapshot below refuses it (isRecordEligible), so no excluded number is ever presented as official. */
-      const f = publicRecordOf(pub, repoRoot) ?? pub;
+    .map((f) => {
       const world = worlds.get(String(f.providerEventId)) ?? null;
       const rawBoard = readJson(path.join(data, "player-board", `${f.providerEventId}.json`));
       // The official snapshot reads the model's own board (projections are not prices); the page is handed the

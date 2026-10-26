@@ -154,3 +154,39 @@ test("a public copy of an excluded revision stands for its recordInstead (hero a
     assert.deepEqual([v.record.generatedAt, v.record.inputHash], [rec.generatedAt, rec.model.inputHash], "the page's forecast is the record, not the excluded copy");
   }
 });
+
+test("an excluded record never renders as official anywhere: every public-forecast union passes the record resolver", () => {
+  /* Pages read app/public/data/nfl/forecasts (latest ∪ frozen-latest), which are never rewritten for a past game. Each
+     reader resolves an excluded copy to its record (public-record.mjs); a reader that bypasses it would show the
+     excluded revision. */
+  const roots = ["src/app", "src/components", "src/lib"].map((d) => path.join(APP, d));
+  const files = [];
+  const walk = (d) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walk(p); else if (/\.(mjs|ts|tsx)$/.test(e.name) && !/\.test\./.test(e.name)) files.push(p); } };
+  roots.forEach(walk);
+  let calls = 0;
+  for (const f of files) {
+    const src = fs.readFileSync(f, "utf8");
+    if (f.endsWith("public-forecast-union.mjs")) continue;
+    let i = src.indexOf("unionFrozenForecasts(");
+    while (i !== -1) {
+      if (!/^\s*import\b/m.test(src.slice(src.lastIndexOf("\n", i) + 1, i)) && src.slice(i - 9, i) !== "function ") {
+        calls += 1;
+        const window = src.slice(i, i + 600);
+        assert.match(window, /resolve:\s*nflPublicRecordResolver\(/, `${path.relative(APP, f)} reads the public forecasts without the record resolver`);
+      }
+      i = src.indexOf("unionFrozenForecasts(", i + 1);
+    }
+  }
+  assert.ok(calls >= 7, `found ${calls} union readers (game, simulation and week pages, games table, events and my read-models, forecast-view-load)`);
+});
+
+test("a FUTURE post-kickoff record needs no exclusion: recorded inputs alone make it ineligible", () => {
+  /* Exclusions exist only for receipts written before inputs were recorded. A receipt written from now on that rests on
+     a post-kickoff input (if a producer ever wrote one) is ineligible by its own stamps — no list entry needed. */
+  const future = receipt({ providerEventId: "999999999", generatedAt: "2026-11-01T17:59:50Z", kickoffUtc: "2026-11-01T18:00Z", inputs: { injuries: { sourceAsOf: "2026-11-01T18:00:12Z" }, rosters: { sourceAsOf: "2026-11-01T17:59:50Z" } } });
+  assert.equal(exclusionFor(future), null, "not on the list");
+  assert.equal(recordEligibility(future).code, INELIGIBLE.INPUT_AFTER_KICKOFF);
+  assert.equal(forecastOfRecord([{ file: "f.json", receipt: future }]).get("999999999"), undefined, "never the record");
+  const ok = receipt({ providerEventId: "999999999", generatedAt: "2026-11-01T17:30:00Z", kickoffUtc: "2026-11-01T18:00Z", inputs: { injuries: { sourceAsOf: "2026-11-01T17:29:00Z" } } });
+  assert.equal(forecastOfRecord([{ file: "a.json", receipt: ok }, { file: "f.json", receipt: future }]).get("999999999").file, "a.json", "the earlier eligible receipt stays the record");
+});
