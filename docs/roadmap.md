@@ -8,52 +8,72 @@ mirrors the headlines below.
 > see `docs/ENGINEERING_START_HERE.md` §7). This file records what is verified in Production. The phase history
 > below it is the original 2026-05 plan, kept as history.
 
-## Current status — 2026-10-26 (Release J, verified in Production)
+## Current status — 2026-10-26 05:00Z (verified evidence only)
 
-**Deployed:** `50d2d3fc6f` (built 2026-10-25 21:38Z). It contains the Vehicle J merge `916f9fedd6`
-(#1245 + #1246 + #1247, one Production build). Main CI (`quality-gate`) is green on the merge commit. It had
-been red on three unit tests since 10-24.
+**Release governance (founder, 10-26).** Launch Readiness owns every Production merge and deployment. Cloud
+Engineering develops, tests and prepares branches and PRs, and merges nothing to `main` without an explicit
+founder exception. Release J (`916f9fedd6`) and its follow-up #1248 (`9b117ac6ba`) went out under the 10-25
+exception.
 
-**Verified on Production** (axe-core 4.10.2, 390 px phone and 1280 px desktop, before → after):
+**Production:** `263043e05a`, built 04:05Z, one bot data commit behind `main`. Main CI is green on #1248.
+Public pages carry the 10-26 dates; the Monday-night game and its simulation are linked; the routes checked
+return 200 with no error markers.
 
-| Change | Route | Before | After |
+### Verified in Production
+| Item | Evidence |
+|---|---|
+| Methodology wording, results labels, NBA stat-correction flag, back links, footer, scroll regions | Before → after on Production, 10-25. Axe violations 17 → 0 on the routes checked |
+| NFL forecasts revise only on real input changes | Run 413 wrote the 2 expected one-time revisions (identical `forecastSummary`). The next 4 windows wrote 0 |
+| NFL board ↔ forecast-record audit (regression from J, fixed in #1248) | Board names its record by `forecastInputHash`. Main green |
+| NBA Level A graded in the finals commit | 3 `nba results capture` commits (23:52, 01:38, 04:39Z) appended 1 + 5 + 9 grades for 10-25: append-only, 0 duplicate ids |
+
+**Still to observe:** the NFL odds-budget path. The 10-26 14:30Z cron is the first run that executes the
+odds step; dispatched windows pass `skip_odds`.
+
+### Vercel build hangs (open, evidence to date)
+- 13 Production deployments have failed since 2026-10-23 14:28Z, each after 46–54 min (the 45-minute
+  build limit). The 174 successes on 10-22 → 26 have a median of 8.1 min.
+- Daily failures: 1–5 a day 10-10 → 10-15; **0 from 10-16 to 10-22** (after `1b8463c539` capped static
+  workers at 4 on 10-15); 2–4 a day since 10-23. Bot data commits wedge too (`d9ef6ff6c6`), so release
+  merges are not the trigger.
+- With Elastic Concurrency off, one wedge blocks the queue. On 10-26, Production lagged about 1 h 40 min.
+- Forecast records are unaffected. Pre-start `publishedAt` comes from git commit time, not deploy time.
+- Measured locally with Vercel's settings (4 workers): peak memory is flat across the onset.
+  - 13.3 GB at 10-22 14:00Z, 13.6 GB at 10-23 14:16Z, 12.6 GB now, on a 15.7 GB host.
+  - The 10-23 onset is therefore not explained by build demand growth. Headroom stays thin, as in the
+    September and 10-15 investigations.
+  - These figures include page cache. Vehicle K's heartbeat (#1095) splits `anon` from `file`, so the next
+    wedge's log will say whether it is out-of-memory.
+- **Needs dashboard access (founder or Launch Readiness):** the last `[phase] ALIVE` line of one failed
+  deployment (e.g. `9b117ac6ba`), the build machine class, and billed build CPU.
+- #1094 (workers 4 → 3) stays a founder decision. Its expected memory saving is about 6%.
+
+### Product readiness vs engineering completion
+| Area | Public today | Engineering complete, not public | Blocking public readiness |
 |---|---|---|---|
-| Methodology states where each sport's picks appear | `/methodology/` | 5 rows said NBA / EPL / Ligue 1 "never enter" the products that show them | NBA, EPL, Ligue 1: "only as unpriced model suggestions"; NFL and UFC rows unchanged (correct per registry) |
-| Results labels | `/results/` | 12 raw policy ids (`…@1/…`) on screen | 0; reader labels ("NBA Parlay Center card" ×8) |
-| Corrected NBA stats flagged, grades untouched | `/nba/projections/2026-10-23/` | Avdija REB 7 shown unlabelled while graded on 6 | † flag, plus "Deni Avdija REB 6 → 7, PRA 38 → 39, P+R 32 → 33" in Model details |
-| Back links | `/results/nba/`, `/nba/projections/`, `/nfl/game/<id>/` | 14–16 px | 24 px desktop / 44 px phone |
-| Footer site map | every page | ~30 links at 16 px | 40 of 44 links at ≥ 24 / 44 px |
-| Keyboard-reachable tables, labelled result dots | `/nba/simulation/<id>/`, `/results/nba/`, `/results/` | 5 + 11 + 1 axe violations | 0 |
+| NFL | Forecasts, game pages, Theater, boards, results | — | ★ odds allowance (market comparison NO_MARKET) |
+| NBA | Hub, Official Forecast, Elo estimate, Theater, projections board, Level A cards, results | Challenger research | ★ Top-10 board; challenger promotion (evidence) |
+| MLB | Boards, props, results (postseason) | — | Season ending |
+| UFC | Bout pages, results | — | Level A closed by design (no independent model) |
+| EPL / Ligue 1 | 1X2 forecasts, Level A cards | — | Player markets not modelled |
+| Bank Builder / Moonshot / Parlay Center | Single-sport Level A cards | Mixed-sport cards (#1244 + tested patch, switch OFF) | Owner applies patch; ★ activation after a §7 package |
+| Parlay Lab V2, sportsbook links | — | Built, flags OFF | ★ legal Terms; correlation caps |
+| Accounts / sign-up | — | Schema + RLS (15/15 isolation battery) | ★ Terms and Privacy (counsel) |
+| Delivery reliability | Main green | Vehicle K (below) | Vercel wedges (above) |
 
-**NFL forecast revisions: verified on Production runs.**
-- Event window run 413 (22:35Z) wrote exactly the two expected one-time revisions, KC @ SEA and DAL @ PHI, each with a `forecastSummary` identical to the receipt it replaced.
-- The next four windows (22:59, 23:03, 23:27, 23:53Z; the last 27 min before KC @ SEA kicked off) wrote **none**.
-- Before, every window revised every game: 99 timestamp-only revisions for 12 games by 16:40Z on 10-25.
+### Next executable release batch — Vehicle K (prepared by Cloud Engineering, merged by Launch Readiness)
+- #1095 heartbeat memory split (observability only).
+- The last footer tap targets: "Contact support" 16 px → 24 / 44 px; source-chip links 44 px on touch.
+- Test isolation: `adoption-mutation.test.mjs` mutates a temp copy, removing a CI flake on every PR.
+- This status section.
 
-**Regression found and fixed (follow-up release).**
-- **Problem:** the consistency audit tied each NFL player board to its forecast record by timestamp. That held only while every window rewrote every receipt. After the revisions stopped, main's `audit.test.mjs` failed on live data for 401873009 and 401873022, with identical numbers on both sides (no public effect).
-- **Fix:** the board now names the record it was published beside (`forecastInputHash`), and the audit compares hashes. A board left behind by a real revision still fails.
+It is one Production build. **Merge only while no deployment is pending**, so it does not queue behind a wedge.
 
-**Released, verified before release, Production run still to observe:**
-- **NFL odds budget:** an exhausted allowance ends the capture green, with a `BUDGET_EXHAUSTED` warning and step summary, before any request. Before, 68 of 100 windows were red for this reason alone. Run 413 skipped the odds step (the kickoff dispatcher passes `skip_odds`); the first run that executes it is the 10-26 14:30Z cron.
-- **NBA Level A grading:** NBA-only cards are graded inside the `nba-results-refresh` finals commit, instead of about 5 h later in nightly-settle. A rebase that conflicts only on `graded.jsonl` is regraded instead of dropping the settlement commit.
-
-**Unresolved limitations**
-- **Vercel:** the first deployment of the merge sat "pending" for 46 min, then failed. The next queued commit built in about 5 min. Locally, the release builds in the same time and memory as the commit before it (503 s vs 500 s; 13.5 GB). Vercel's logs need dashboard access; worth a look if it repeats.
-- **Footer:** "Contact support" is still 16 px. The three data-source chips are 27 px on phones (≥ 24 AA, below the 44 px project rule).
-- **Sandbox-only test limits:** the live RLS battery needs a non-root Postgres (passed 15/15 that way; CI runs it). The EPL recovery rerun test needs git ≥ 2.44 date output (CI passes).
-- **Flake risk:** `adoption-mutation.test.mjs` rewrites `src/lib/analytics/adoption.ts` while sibling tests run in parallel. Mutating a temp copy would remove the race.
-- **Inert until next preseason:** the NFL preseason hash still carries the run clock.
-- **Follow-up from #1246:** `grade-nba-top-boards.mjs` should read stored corrections and append `CORRECTION` entries.
-
-**Remaining customer-facing priorities** (founder decisions marked ★)
-1. ★ **NFL odds allowance:** renew, raise, or stay on the 10-11 capture. Market comparison is "NO_MARKET" until then.
-2. **Mixed-sport Level A cards (#1244)** with the tested fallback patch. Ships OFF; ★ activation after a §7 package on a real slate.
-3. ★ **Terms and Privacy** (counsel), then public sign-up.
-4. ★ **NBA Top-10 board** and challenger-model promotion (evidence first).
-5. The remaining footer tap targets (above).
-6. `/results` page weight (1,366 KB against a 2,300 KB ceiling).
-7. Event-driven grading for EPL-only Level A cards. This needs `epl-settle` on the same conflict resolver first.
+### Open engineering follow-ups
+- NFL preseason hash still carries the run clock (inert until next preseason).
+- `grade-nba-top-boards.mjs` should read stored corrections (#1246 follow-up).
+- Event-driven grading for EPL-only Level A cards needs `epl-settle` on the conflict resolver first.
+- `/results` page weight: 1,366 KB against a 2,300 KB ceiling.
 
 ## Shipped
 
