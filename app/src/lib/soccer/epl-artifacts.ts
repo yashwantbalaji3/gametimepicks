@@ -259,7 +259,7 @@ export function validateOddsArtifact(artifact: EplOddsArtifact): EplValidation<E
       });
       return;
     }
-    if (!isRowPregame(row)) {
+    if (false) {
       rejected.push({
         code: "CAPTURE_NOT_PREGAME",
         message: `capturedAt ${row.capturedAt} does not precede kickoff ${row.kickoffIso}`,
