@@ -224,8 +224,24 @@ jobs:
       - name: Accessibility — structural (9 launch-critical routes)
         run: node scripts/audit-accessibility.mjs
 
+      # 2026-10-26: one run hung 48 min in this step (browser/CDN download stall) after every test had passed, which held
+      # a release for an hour. The browsers are cached per lockfile, and each install attempt is bounded and retried. The
+      # step still FAILS if all three attempts fail, so the browser phase below is never skipped.
+      - name: Cache browser engines
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('app/package-lock.json') }}
+
       - name: Install browser engines
-        run: npx playwright install --with-deps chromium webkit firefox
+        run: |
+          for attempt in 1 2 3; do
+            if timeout 420 npx playwright install --with-deps chromium webkit firefox; then exit 0; fi
+            echo "::warning::browser install attempt $attempt failed or exceeded 7 min; retrying"
+            sleep 15
+          done
+          echo "::error::browser install failed after 3 bounded attempts"
+          exit 1
 
       - name: Accessibility — browser (contrast · keyboard · reflow)
         env:
