@@ -97,8 +97,9 @@ test("WIRING · the real build script routes every expensive step through the ph
   for (const phase of EXPENSIVE_PHASES) {
     assert.match(build, new RegExp(`run-phase\\.mjs\\s+${phase}\\s+--\\s`), `${phase} must run through the phase runner`);
   }
-  // the step that actually hung must be wrapped, and must still be `next build`
-  assert.match(build, /run-phase\.mjs\s+next-build\s+--\s+next build(\s|$|&)/, "next-build wraps the real `next build`");
+  // the step that actually hung must be wrapped, and must still be `next build` — since 2026-10-26 started through node
+  // with the build-only ICU formatter cache preloaded (scripts/build/intl-formatter-cache.cjs, the 8 GB OOM fix)
+  assert.match(build, /run-phase\.mjs\s+next-build\s+--\s+node --require \.\/scripts\/build\/intl-formatter-cache-preload\.cjs node_modules\/next\/dist\/bin\/next build(\s|$|&)/, "next-build wraps the real `next build`");
   // every `&&` link is still a gate: no step was turned into `;` or `|| true` while rewriting the chain
   assert.doesNotMatch(build, /\|\|\s*true/, "no step may be made unconditionally green");
   assert.doesNotMatch(build, /;\s*(node|next|npx)\s/, "steps stay chained with && so a failure still stops the build");
