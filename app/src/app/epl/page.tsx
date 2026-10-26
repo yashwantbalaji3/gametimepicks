@@ -22,6 +22,7 @@
  * Cold-start clubs are flagged on the row they affect. Coventry City and Hull City are newly promoted
  * with no top-flight history, so they run at the league-average baseline.
  */
+import { HubSlipBar, HubSlipButton, hubSlipLegs, type HubSlipLeg } from "@/components/products/hub-slip";
 import type { Metadata } from "next";
 import { formatUpdatedEt } from "@/lib/format";
 import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
@@ -82,7 +83,7 @@ function byMatchday(rows: EplForecastRow[]): Array<{ key: string; label: string;
 }
 
 /** One fixture's team prediction. Every figure is read from the artifact; none is recomputed here. */
-function PredictionRow({ r }: { r: EplForecastRow }) {
+function PredictionRow({ r, slip = null }: { r: EplForecastRow; slip?: HubSlipLeg | null }) {
   const home = r.homeClub ?? r.matchup.split(" v ")[0];
   const away = r.awayClub ?? r.matchup.split(" v ")[1];
   const cold = Boolean(r.coldStart?.home || r.coldStart?.away);
@@ -122,6 +123,8 @@ function PredictionRow({ r }: { r: EplForecastRow }) {
           Newly promoted side with no top-flight history — running at the league-average baseline.
         </p>
       ) : null}
+      {/* Vehicle N: a Level A leg only (hub-slip); outside the row's link, so the button is its own target */}
+      {slip ? <div className="px-3 pb-3"><HubSlipButton leg={slip} /></div> : null}
     </li>
   );
 }
@@ -154,7 +157,7 @@ function SimulationCard({ r }: { r: EplForecastRow }) {
   );
 }
 
-export default function EplPage() {
+export default async function EplPage() {
   type Feed = { sport?: string; events?: unknown[]; totals?: { upcoming?: number }; sourceVerdict?: { sourceId?: string | null; fetchedAt?: string | null } };
   const feed = (allUpcoming({ nowIso: new Date().toISOString() }) as unknown as Feed[]).find((x) => x.sport === "epl");
   const set: EplForecastSet | null = loadEplForecasts();
@@ -187,6 +190,8 @@ export default function EplPage() {
   const nowIso = new Date().toISOString();
   const next = days.find((d) => d.rows.some((r) => Date.parse(r.kickoffUtc) > Date.parse(nowIso))) ?? days[0] ?? null;
   const reportable = priced.filter((r) => r.slug);
+  /* Vehicle N: the priced rows' Level A legs (exact leg or none); the bar renders once, and only when a button does. */
+  const slip = await hubSlipLegs("epl", priced.map((r) => String(r.eventId)));
   /** The matchweek every priced fixture belongs to, or null when they straddle more than one. */
   const weeks = new Set(priced.map((r) => r.matchweek).filter((w) => w != null));
   const matchweek = weeks.size === 1 ? [...weeks][0] : null;
@@ -355,7 +360,7 @@ export default function EplPage() {
                 className="rounded-[12px] overflow-hidden"
                 style={{ listStyle: "none", margin: 0, padding: 0, background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}
               >
-                {d.rows.map((r) => <PredictionRow key={r.eventId} r={r} />)}
+                {d.rows.map((r) => <PredictionRow key={r.eventId} r={r} slip={slip.get(String(r.eventId))} />)}
               </ul>
             </div>
           ))}
@@ -664,6 +669,7 @@ export default function EplPage() {
         Paper-only and educational. Not betting advice. Updated {formatUpdatedEt(set?.generatedAt)} from pregame inputs
         only; the model never sees a result from a match it is forecasting.
       </p>
+      <HubSlipBar legs={slip} />
     </div>
   );
 }
