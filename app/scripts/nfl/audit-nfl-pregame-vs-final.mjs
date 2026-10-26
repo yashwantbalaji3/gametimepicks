@@ -26,6 +26,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { isRecordEligible } from "../../src/lib/sports/nfl/record-eligibility.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -65,7 +66,7 @@ for (const dir of fs.existsSync(receiptRoot) ? fs.readdirSync(receiptRoot) : [])
 /** The forecast of record: the LATEST revision generated strictly before kickoff. Never the best-looking one. */
 const forecastOfRecord = (versions) => {
   const preStart = versions
-    .filter((r) => Date.parse(r.generatedAt) < Date.parse(r.kickoffUtc))
+    .filter((r) => isRecordEligible(r))
     .sort((a, b) => a.generatedAt.localeCompare(b.generatedAt));
   return preStart[preStart.length - 1] ?? null;
 };
