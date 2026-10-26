@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { expiredSimulationFor } from "./expired-simulation.mjs";
+import { loadExpiredGames } from "../expired/expired-games.mjs";
 
 type Notice = ReturnType<typeof expiredSimulationFor>;
 
@@ -15,9 +16,18 @@ const dayLabel = (d: string) => new Intl.DateTimeFormat("en-US", { timeZone: "UT
 /** [awayScore, homeScore, winnerSide, favouredSide] from the recorded final and the frozen Elo side (expired-games.mjs nbaExpiredFacts). */
 type Facts = Record<string, [number, number, "home" | "away", "home" | "away" | null]>;
 
-export default function ExpiredSimulationNotice({ map, facts = {} }: { map: Record<string, [string, string]>; facts?: Facts }) {
+export default function ExpiredSimulationNotice({ map }: { map: Record<string, [string, string]> }) {
   const [notice, setNotice] = useState<Notice>(null);
-  useEffect(() => { setNotice(expiredSimulationFor(window.location.pathname, map)); }, [map]);
+  const [facts, setFacts] = useState<Facts>({});
+  useEffect(() => {
+    const n = expiredSimulationFor(window.location.pathname, map);
+    setNotice(n);
+    // founder P1 2026-10-26: a known game also gets its recorded final, fetched only here (never a 404 prop — see EXPIRED_GAMES_URL)
+    if (n?.kind !== "KNOWN") return;
+    let live = true;
+    loadExpiredGames().then((idx) => { if (live && idx?.nba) setFacts(idx.nba); });
+    return () => { live = false; };
+  }, [map]);
   if (!notice) return null;
   return (
     <section

@@ -24,18 +24,12 @@ import { committedLaneDates, loadLaneForDate } from "@/components/nba/experiment
 import ExpiredSimulationNotice from "@/components/nba/expired-simulation-notice";
 import { expiredSimulationMap } from "@/components/nba/expired-simulation.mjs";
 import ExpiredGameNotice from "@/components/expired/expired-game-notice";
-import { expiredGamesIndex, expiredNbaFacts } from "@/components/expired/expired-games-index";
-import { currentEtDate } from "@/lib/freshness";
 
 export default function NotFound() {
   const primary = destinationsFor("top");
   /* Expired NBA Game Simulation links (audit F07 / A-T31): a small id → [date, matchup] map from the committed dated
      lanes, so a game-day link that 404s after the ET rollover names its game and links that day's frozen board. */
   const expired = expiredSimulationMap(committedLaneDates().map((date) => ({ date, games: loadLaneForDate(date)?.games ?? [] })));
-  /* Founder P1 2026-10-26: an expired simulation / game-report link also gets the game's recorded final and how the
-     published forecast did (NBA: frozen Elo side; MLB, UFC: graded rows), from committed public records only. */
-  const nbaFacts = expiredNbaFacts(expired, committedLaneDates().map((date) => ({ date, games: loadLaneForDate(date)?.games ?? [] })));
-  const expiredGames = expiredGamesIndex(currentEtDate());
   return (
     <div className="vault-page-shell px-3 sm:px-6 lg:px-8 py-5 sm:py-10 md:py-14 overflow-x-hidden">
       <PageHero
@@ -44,8 +38,10 @@ export default function NotFound() {
         sub="The link may be from before a route moved, or the address may have a typo. Nothing is broken — here is everywhere you can go from here."
       />
 
-      <ExpiredSimulationNotice map={expired} facts={nbaFacts} />
-      <ExpiredGameNotice index={expiredGames} />
+      <ExpiredSimulationNotice map={expired} />
+      {/* Founder P1 2026-10-26: expired MLB game report and UFC bout links. No props: the root not-found tree rides in
+          EVERY page's flight payload, so the index is a build-time file the notice fetches only on a matching path. */}
+      <ExpiredGameNotice />
 
       <nav aria-label="Primary destinations" className="mt-7 max-w-2xl flex flex-col gap-2">
         {primary.map((d) => (

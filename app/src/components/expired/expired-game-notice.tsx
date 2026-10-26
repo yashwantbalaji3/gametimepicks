@@ -7,18 +7,26 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { MLB_MARKET_WORDS, OUTCOME_WORDS, expiredGameFor } from "./expired-games.mjs";
+import { MLB_MARKET_WORDS, OUTCOME_WORDS, expiredGameFor, loadExpiredGames } from "./expired-games.mjs";
 
 type Notice = ReturnType<typeof expiredGameFor>;
-type Idx = { mlb: Record<string, unknown[]>; ufc: Record<string, unknown[]> };
 
 const dayLabel = (d: string) => new Intl.DateTimeFormat("en-US", { timeZone: "UTC", weekday: "short", month: "short", day: "numeric" }).format(new Date(`${d}T12:00:00Z`));
 const pct = (p: number) => `${Math.round(p * 1000) / 10}%`;
 const linkCls = "gtp-hit-44 inline-flex items-center rounded-full px-4 text-[13px] font-semibold no-underline";
 
-export default function ExpiredGameNotice({ index }: { index: Idx }) {
+export default function ExpiredGameNotice() {
   const [n, setN] = useState<Notice>(null);
-  useEffect(() => { setN(expiredGameFor(window.location.pathname, index)); }, [index]);
+  useEffect(() => {
+    const path = window.location.pathname;
+    // only an MLB game report or UFC bout path fetches the index; until it arrives (or if it cannot), the plain note shows
+    const plain = expiredGameFor(path, null);
+    if (!plain) return;
+    setN(plain);
+    let live = true;
+    loadExpiredGames().then((idx) => { if (live && idx) setN(expiredGameFor(path, idx)); });
+    return () => { live = false; };
+  }, []);
   if (!n) return null;
   const mlb = n.sport === "mlb";
   const title = n.kind !== "KNOWN" ? (mlb ? "MLB game report no longer available" : "UFC bout report no longer available")

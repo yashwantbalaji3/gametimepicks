@@ -3,11 +3,11 @@
  * (founder P1 2026-10-26, release-owner decision: no archive of past simulation pages — instead, every expired link lands
  * on the existing tombstone plus the game's final, its forecast against the result, and the results link).
  *
- * Pure: no fs, no React. The 404 page builds a small index on the server (expired-games-index.ts, from committed public
- * files only) and a tiny client component applies it to window.location. Every figure is a recorded final or a graded
+ * No fs, no React. The build writes a small index (expired-games-index.ts, from committed public files only) to
+ * EXPIRED_GAMES_URL, and the 404 notices fetch it and apply it to window.location. Every figure is a recorded final or a graded
  * row, verbatim; nothing is recomputed, and a game the records do not hold gets the plain expiry note — never a score.
  *
- * Index shapes (compact tuples, because the 404 page carries them):
+ * Index shapes (compact tuples, because every expired link fetches them):
  *   nba  { [providerEventId]: [awayScore, homeScore, winnerSide "home"|"away", favouredSide "home"|"away"|null] }
  *        (date + matchup come from the existing NBA map in components/nba/expired-simulation.mjs)
  *   mlb  { [slug]: [date, "AWY @ HOM", awayRuns, homeRuns, [[market, pick, modelProbability, outcome], ...]] }
@@ -18,6 +18,24 @@
 export const EXPIRED_GAMES_MAX_DAYS = 30;
 
 export const RESULTS_LINK = Object.freeze({ mlb: "/results/mlb/", ufc: "/results/picks/ufc/" });
+
+/**
+ * The build-time index file (app/data/expired-games.json/route.ts). Fetched by the 404 notices only on a matching path —
+ * never passed as a 404 prop, because the root not-found tree rides in every page's flight payload.
+ */
+export const EXPIRED_GAMES_URL = "/data/expired-games.json";
+
+/** @typedef {{ nba?: Record<string, [number, number, "home" | "away", "home" | "away" | null]>, mlb?: Record<string, any[]>, ufc?: Record<string, any[]> }} ExpiredGamesFile */
+/** @type {Promise<ExpiredGamesFile | null> | null} */
+let pending = null;
+/**
+ * The index `{ nba, mlb, ufc }`, fetched once per page; null when it cannot be read (the notices then say less, never guess).
+ * @returns {Promise<ExpiredGamesFile | null>}
+ */
+export function loadExpiredGames() {
+  pending ??= fetch(EXPIRED_GAMES_URL).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  return pending;
+}
 
 const MLB_PATH = /^\/games\/mlb\/([a-z0-9]+-vs-[a-z0-9]+-\d{4}-\d{2}-\d{2}(?:-[a-z0-9]+)?)\/?$/;
 const UFC_PATH = /^\/ufc\/bout\/(\d{6,12})\/?$/;

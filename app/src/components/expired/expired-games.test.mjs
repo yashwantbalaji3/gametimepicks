@@ -9,7 +9,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { EXPIRED_GAMES_MAX_DAYS, RESULTS_LINK, expiredGameFor, mlbExpiredIndex, nbaExpiredFacts, ufcExpiredIndex } from "./expired-games.mjs";
+import { EXPIRED_GAMES_MAX_DAYS, EXPIRED_GAMES_URL, RESULTS_LINK, expiredGameFor, mlbExpiredIndex, nbaExpiredFacts, ufcExpiredIndex } from "./expired-games.mjs";
 
 const APP = process.cwd();
 
@@ -65,11 +65,21 @@ test("REAL DATA: the committed records resolve real expired links; the index sta
   assert.ok(JSON.stringify(idx).length < 40_000, `index bytes ${JSON.stringify(idx).length} (${EXPIRED_GAMES_MAX_DAYS}-day window)`);
 });
 
-test("SOURCE PIN · the 404 page renders both notices from committed public records, and nothing private", () => {
+test("SOURCE PIN · the index is a build-time file the notices fetch on a matching path — never a 404 prop, nothing private", () => {
+  // the root not-found tree rides in EVERY page's flight payload: a prop here cost ~18 KB on every page (CI, 2026-10-26)
   const src = fs.readFileSync(path.join(APP, "src/app/not-found.tsx"), "utf8");
-  assert.match(src, /<ExpiredSimulationNotice map=\{expired\} facts=\{nbaFacts\} \/>/);
-  assert.match(src, /<ExpiredGameNotice index=\{expiredGames\} \/>/);
-  for (const f of ["src/components/expired/expired-games.mjs", "src/components/expired/expired-games-index.ts", "src/components/expired/expired-game-notice.tsx"]) {
+  assert.match(src, /<ExpiredSimulationNotice map=\{expired\} \/>/);
+  assert.match(src, /<ExpiredGameNotice \/>/);
+  assert.doesNotMatch(src, /expired-games-index|expiredGamesIndex|expiredNbaFacts/, "the 404 page builds no index");
+  const route = fs.readFileSync(path.join(APP, "src/app/data/expired-games.json/route.ts"), "utf8");
+  assert.match(route, /export const dynamic = "force-static"/);
+  assert.match(route, /expiredNbaFacts\(/);
+  assert.match(route, /expiredGamesIndex\(/);
+  assert.equal(EXPIRED_GAMES_URL, "/data/expired-games.json", "the literal path the post-build /data sweep keeps");
+  for (const f of ["src/components/expired/expired-game-notice.tsx", "src/components/nba/expired-simulation-notice.tsx"]) {
+    assert.match(fs.readFileSync(path.join(APP, f), "utf8"), /loadExpiredGames\(\)/, f);
+  }
+  for (const f of ["src/components/expired/expired-games.mjs", "src/components/expired/expired-games-index.ts", "src/components/expired/expired-game-notice.tsx", "src/app/data/expired-games.json/route.ts"]) {
     assert.doesNotMatch(fs.readFileSync(path.join(APP, f), "utf8").replace(/\/\*[\s\S]*?\*\//g, ""), /data\/internal|simulation-theater|possession/, f);
   }
 });
