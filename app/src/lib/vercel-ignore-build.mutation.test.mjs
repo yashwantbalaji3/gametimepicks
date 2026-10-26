@@ -90,10 +90,20 @@ function verdict(label, env = {}) {
   const r = spawnSync("bash", [SCRIPT], {
     cwd: path.join(repo, "app"),
     encoding: "utf8",
-    env: { ...process.env, VERCEL_PROJECT_PRODUCTION_URL: "", VERCEL_FORCE_BUILD: "", VERCEL_GIT_PREVIOUS_SHA: baseSha, ...env },
+    env: { ...process.env, VERCEL_PROJECT_PRODUCTION_URL: "", VERCEL_FORCE_BUILD: "", GTP_COALESCE_SECONDS: "", GTP_NOW_EPOCH: "", VERCEL_GIT_PREVIOUS_SHA: baseSha, ...env },
   });
   return { status: r.status, out: `${r.stdout}${r.stderr}` };
 }
+
+/*
+ * Coalescing gate (2026-10-26): this file pins the PATH RULE. A non-critical data input committed seconds ago is now
+ * batched for GTP_COALESCE_SECONDS, so every "(a) ⇒ BUILD" verdict is taken twice — with coalescing off (the documented
+ * rollback, GTP_COALESCE_SECONDS=0: exactly the pre-gate rule) and a day past the window — and both must BUILD. The
+ * time rule itself is pinned in vercel-ignore-build.behavior.test.mjs (COALESCE a–h).
+ */
+const PATH_RULE = { GTP_COALESCE_SECONDS: "0" };
+const PAST_WINDOW = () => ({ GTP_NOW_EPOCH: String(Math.floor(Date.now() / 1000) + 86400) });
+const bothBuild = (label) => [verdict(label, PATH_RULE), verdict(label, PAST_WINDOW())];
 
 before(() => {
   repo = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-ignore-mutation-"));
@@ -146,19 +156,24 @@ test("(a) the public reader paths used here are real: each file exists and its r
 
 test("(a) a content change to a file a public page reads ⇒ BUILD", () => {
   for (const [rel] of PUBLIC_READER_INPUTS) {
-    const r = verdict(`content:${rel}`);
-    assert.equal(r.status, 1, `${rel} is read by a public page — a content change must BUILD: ${r.out}`);
-    assert.match(r.out, /build inputs changed/);
+    for (const r of bothBuild(`content:${rel}`)) {
+      assert.equal(r.status, 1, `${rel} is read by a public page — a content change must BUILD: ${r.out}`);
+      assert.match(r.out, /build inputs changed/);
+    }
+    // Inside the window it is batched, never dropped: the skip says so.
+    assert.match(verdict(`content:${rel}`).out, /coalescing/);
   }
 });
 
 test("(a) a docs commit in the same push cannot hide a reader-input change ⇒ BUILD", () => {
-  assert.equal(verdict("docs+one-reader-input").status, 1);
+  for (const r of bothBuild("docs+one-reader-input")) assert.equal(r.status, 1, r.out);
 });
 
 test("(a/c converse) a STAMP-ONLY change to a reader input still BUILDS — the script never inspects content", () => {
   // This is why stamp-only suppression (#1088) lives in the writer, not here: the ignore step is a path rule.
-  for (const [rel] of PUBLIC_READER_INPUTS) assert.equal(verdict(`stamp:${rel}`).status, 1, `${rel}: stamp-only change to an input must BUILD`);
+  for (const [rel] of PUBLIC_READER_INPUTS) {
+    for (const r of bothBuild(`stamp:${rel}`)) assert.equal(r.status, 1, `${rel}: stamp-only change to an input must BUILD: ${r.out}`);
+  }
 });
 
 // ── (b) docs-only / repo-root scripts / .github-only ⇒ SKIP ────────────────────────────────────────

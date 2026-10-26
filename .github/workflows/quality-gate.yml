@@ -224,8 +224,32 @@ jobs:
       - name: Accessibility — structural (9 launch-critical routes)
         run: node scripts/audit-accessibility.mjs
 
+      # 2026-10-26: one run hung 48 min in this step (browser/CDN download stall) after every test had passed, which held
+      # a release for an hour. The browsers are cached per lockfile, and each install attempt is bounded and retried. The
+      # step still FAILS if all three attempts fail, so the browser phase below is never skipped.
+      - name: Cache browser engines
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('app/package-lock.json') }}
+
       - name: Install browser engines
-        run: npx playwright install --with-deps chromium webkit firefox
+        run: |
+          # apt waits are bounded, so a stalled mirror errors out instead of hanging the install.
+          printf 'Acquire::Retries "3";\nAcquire::http::Timeout "60";\nAcquire::https::Timeout "60";\n' | sudo tee /etc/apt/apt.conf.d/99gtp-bounded >/dev/null
+          for attempt in 1 2 3; do
+            if timeout 420 npx playwright install --with-deps chromium webkit firefox; then exit 0; fi
+            echo "::warning::browser install attempt $attempt failed or exceeded 7 min; retrying"
+            # timeout(1) stops npx but can orphan its apt-get child, which keeps the dpkg lock (seen 2026-10-26: every
+            # retry then failed "Could not get lock /var/lib/dpkg/lock-frontend"). Release it and repair dpkg first.
+            sudo pkill -9 -x apt-get || true
+            sudo pkill -9 -x dpkg || true
+            sudo rm -f /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock /var/cache/apt/archives/lock /var/lib/apt/lists/lock
+            sudo dpkg --configure -a || true
+            sleep 15
+          done
+          echo "::error::browser install failed after 3 bounded attempts"
+          exit 1
 
       - name: Accessibility — browser (contrast · keyboard · reflow)
         env:

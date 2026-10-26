@@ -30,6 +30,8 @@ export default function SupportEntry({ compact = false }: { compact?: boolean })
         // A support link that opens a mail client or a new tab must say so — an unexplained context
         // switch is disorienting for screen-reader and keyboard users alike.
         {...(external ? { target: "_blank", rel: "noreferrer noopener" } : {})}
+        /* In the footer it is one of the site-map links, so it takes their tap target (≥ 24 px, 44 px on touch). */
+        className={compact ? "ft-link" : undefined}
         style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}
       >
         Contact support

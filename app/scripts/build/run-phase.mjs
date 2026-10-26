@@ -113,16 +113,42 @@ function noteProgress(chunk) {
  * platform without either (macOS locally) yields "?" and costs nothing — a diagnostic that can
  * fail a build is worse than no diagnostic at all.
  */
+/*
+ * WHAT "mem" COUNTS (2026-10-15). memory.current is the cgroup's whole charge: process memory (anon)
+ * AND page cache (file) — the 1 GB+ of HTML the export writes, .next, node_modules reads. Page cache is
+ * reclaimed under pressure; anon memory is what an OOM kill or a swap-stall is made of. The first
+ * 4-worker Production build read 14.82G/16G and nobody could say how much of that was risk. When the
+ * cgroup exposes memory.stat (and, on cgroup v2, memory.peak), the line now splits the charge:
+ *   mem 14.82G/16.00G (anon 9.10G · file 5.40G · peak 15.01G)
+ * Same rules: every read optional, the "mem X/Y" prefix unchanged, nothing here can fail a build.
+ * GTP_CGROUP_ROOT exists only so the test can point the reader at a fixture directory.
+ */
 const readNum = (f) => { try { const v = Number(fs.readFileSync(f, "utf8").trim()); return Number.isFinite(v) ? v : null; } catch { return null; } };
 const gib = (b) => `${(b / 1073741824).toFixed(2)}G`;
+const CG = process.env.GTP_CGROUP_ROOT || "/sys/fs/cgroup";
+function memSplit() {
+  try {
+    /* v2: "anon" / "file"; v1: "total_rss" / "total_cache" (or "rss" / "cache"). */
+    const st = {};
+    let text = null;
+    for (const f of [`${CG}/memory.stat`, `${CG}/memory/memory.stat`]) { try { text = fs.readFileSync(f, "utf8"); break; } catch { /* next */ } }
+    if (text == null) return "";
+    for (const line of text.split("\n")) { const [k, v] = line.trim().split(/\s+/); if (k && Number.isFinite(Number(v))) st[k] = Number(v); }
+    const anon = st.anon ?? st.total_rss ?? st.rss;
+    const file = st.file ?? st.total_cache ?? st.cache;
+    const peak = readNum(`${CG}/memory.peak`) ?? readNum(`${CG}/memory/memory.max_usage_in_bytes`);
+    const parts = [anon != null && `anon ${gib(anon)}`, file != null && `file ${gib(file)}`, peak != null && `peak ${gib(peak)}`].filter(Boolean);
+    return parts.length ? ` (${parts.join(" · ")})` : "";
+  } catch { return ""; }
+}
 function resourceLine() {
   try {
     /* cgroup v2 first (Vercel's builders), then v1. "max" in v2 means unlimited → fall back to the host. */
-    const used = readNum("/sys/fs/cgroup/memory.current") ?? readNum("/sys/fs/cgroup/memory/memory.usage_in_bytes");
-    let limit = readNum("/sys/fs/cgroup/memory.max") ?? readNum("/sys/fs/cgroup/memory/memory.limit_in_bytes");
+    const used = readNum(`${CG}/memory.current`) ?? readNum(`${CG}/memory/memory.usage_in_bytes`);
+    let limit = readNum(`${CG}/memory.max`) ?? readNum(`${CG}/memory/memory.limit_in_bytes`);
     if (limit != null && limit > os.totalmem()) limit = null;
     const mem = used != null
-      ? `${gib(used)}/${limit != null ? gib(limit) : gib(os.totalmem())}`
+      ? `${gib(used)}/${limit != null ? gib(limit) : gib(os.totalmem())}${memSplit()}`
       : `${gib(os.totalmem() - os.freemem())}/${gib(os.totalmem())}`;
     const load = os.loadavg()[0].toFixed(1);
     const rss = `${Math.round(process.memoryUsage().rss / 1048576)}M`;
