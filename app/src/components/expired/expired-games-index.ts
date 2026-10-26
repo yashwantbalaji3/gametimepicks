@@ -1,6 +1,6 @@
 /**
  * The 404 page's index of recently expired game links — SERVER / BUILD TIME ONLY (see expired-games.mjs for the shapes).
- * Reads committed PUBLIC files only (the same records Results reads); nothing from data/internal, no network.
+ * Reads committed PUBLIC files only (the same records Results reads) — no private research file, no network.
  * Bounded to the last EXPIRED_GAMES_MAX_DAYS days, so the 404 page stays small.
  */
 import fs from "node:fs";
