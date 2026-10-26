@@ -7,14 +7,27 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { expiredSimulationFor } from "./expired-simulation.mjs";
+import { loadExpiredGames } from "../expired/expired-games.mjs";
 
 type Notice = ReturnType<typeof expiredSimulationFor>;
 
 const dayLabel = (d: string) => new Intl.DateTimeFormat("en-US", { timeZone: "UTC", weekday: "short", month: "short", day: "numeric" }).format(new Date(`${d}T12:00:00Z`));
 
+/** [awayScore, homeScore, winnerSide, favouredSide] from the recorded final and the frozen Elo side (expired-games.mjs nbaExpiredFacts). */
+type Facts = Record<string, [number, number, "home" | "away", "home" | "away" | null]>;
+
 export default function ExpiredSimulationNotice({ map }: { map: Record<string, [string, string]> }) {
   const [notice, setNotice] = useState<Notice>(null);
-  useEffect(() => { setNotice(expiredSimulationFor(window.location.pathname, map)); }, [map]);
+  const [facts, setFacts] = useState<Facts>({});
+  useEffect(() => {
+    const n = expiredSimulationFor(window.location.pathname, map);
+    setNotice(n);
+    // founder P1 2026-10-26: a known game also gets its recorded final, fetched only here (never a 404 prop — see EXPIRED_GAMES_URL)
+    if (n?.kind !== "KNOWN") return;
+    let live = true;
+    loadExpiredGames().then((idx) => { if (live && idx?.nba) setFacts(idx.nba); });
+    return () => { live = false; };
+  }, [map]);
   if (!notice) return null;
   return (
     <section
@@ -26,6 +39,16 @@ export default function ExpiredSimulationNotice({ map }: { map: Record<string, [
       <h2 id="expired-simulation-h" className="m-0 font-display text-[16px] font-bold" style={{ color: "var(--vault-text)" }}>
         {notice.kind === "KNOWN" ? `Game Simulation · ${notice.matchup} · ${dayLabel(notice.date)}` : "Game Simulation no longer available"}
       </h2>
+      {notice.kind === "KNOWN" && facts[notice.id] ? (() => {
+        const [awayScore, homeScore, winner, fav] = facts[notice.id];
+        const [away, home] = notice.matchup.split(" @ ");
+        return (
+          <p className="m-0 text-[14px] leading-relaxed" style={{ color: "var(--vault-text)" }} data-expired-final="">
+            <strong>Final: {away} {awayScore} – {homeScore} {home}.</strong>{" "}
+            {fav ? <span style={{ color: "var(--vault-text-mute)" }}>The Official Forecast favoured {fav === "home" ? home : away} (Elo rating) — {fav === winner ? "right" : "wrong"}.</span> : null}
+          </p>
+        );
+      })() : null}
       <p className="m-0 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
         Game Simulations are shown on game day only. The Official Forecast for every game stays available, frozen exactly as it was published before tip-off.
       </p>
