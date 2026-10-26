@@ -13,9 +13,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 globalThis.React = React; // the .tsx under test compiles to React.createElement
 
-const { default: Panel } = await import("./epl-match-what-happened.tsx");
-const { loadEplGradedRecord } = await import("../../lib/sports/epl/graded-record.ts");
-const { loadEplForecastArchive, findEplForecastAnywhere } = await import("../../lib/sports/epl/forecast-view.ts");
+const { default: Panel } = await import("../../../components/epl/epl-match-what-happened.tsx");
+const { loadEplGradedRecord } = await import("./graded-record.ts");
+const { loadEplForecastArchive, findEplForecastAnywhere } = await import("./forecast-view.ts");
 
 const text = (h) => h.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'").replace(/&amp;/g, "&").replace(/\s+/g, " ");
 const pct = (n) => `${Math.round(n * 1000) / 10}%`;
