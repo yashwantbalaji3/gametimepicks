@@ -44,7 +44,9 @@ odds step; dispatched windows pass `skip_odds`.
   - **The memory is real, not cache.** With #1095's split heartbeat, today's build peaks at **13.39 GB
     `anon`** with only about 0.6 GB `file`. That leaves about 2.6 GB of headroom on Vercel's 16 GB machine
     for everything else in the container, so out-of-memory during static generation is a measured risk.
-  - One slow page also holds generation at 2764/3004 for over 2 min while memory stays high.
+  - One slow page also holds generation at 2764/3004 for over 2 min while memory stays high. Across 5 local
+    builds the page restarted for exceeding 60 s was always a `/results/date/<day>` archive page (05-15,
+    05-16, 05-27) or `/today`. Those pages are the first place to cut build memory and time.
   - Vehicle K ships #1095, so the next Vercel wedge's log will show `anon` at the moment it stalls.
 - **Needs dashboard access (founder or Launch Readiness):** the last `[phase] ALIVE` line of one failed
   deployment (e.g. `9b117ac6ba`), the build machine class, and billed build CPU.
