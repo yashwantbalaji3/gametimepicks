@@ -43,7 +43,8 @@ test("every other missing path keeps the plain 404 (no notice)", () => {
 test("SOURCE PIN · the 404 page builds the map from the committed dated lanes and renders the notice", () => {
   const src = fs.readFileSync(path.join(process.cwd(), "src/app/not-found.tsx"), "utf8");
   assert.match(src, /expiredSimulationMap\(committedLaneDates\(\)\.map\(\(date\) => \(\{ date, games: loadLaneForDate\(date\)\?\.games \?\? \[\] \}\)\)\)/);
-  assert.match(src, /<ExpiredSimulationNotice map=\{expired\} \/>/);
+  // founder P1 2026-10-26: the notice also receives the recorded final + frozen Elo side (components/expired/expired-games.mjs)
+  assert.match(src, /<ExpiredSimulationNotice map=\{expired\} facts=\{nbaFacts\} \/>/);
   // the results link is the same anchor the Theater page's nav uses
   const theater = fs.readFileSync(path.join(process.cwd(), "src/components/simulation-theater/nba/possession/NbaPossessionGamePage.tsx"), "utf8");
   assert.match(theater, new RegExp(`NBA_RESULTS_HREF = "${NBA_RESULTS_LINK.replace(/[/#]/g, "\\$&")}"`));
