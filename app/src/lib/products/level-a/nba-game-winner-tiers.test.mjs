@@ -153,7 +153,10 @@ test("RECORDING: tiered NBA cards are recordable only while the public switch is
 
 test("SOURCE: the rule reads no receipt probability, simulation, market or file", () => {
   const src = fs.readFileSync(path.resolve(process.cwd(), "src/lib/products/level-a/nba-game-winner-tiers.mjs"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-  assert.deepEqual([...src.matchAll(/^import .* from "([^"]+)";$/gm)].map((m) => m[1]).sort(), ["../../parlays/multi-sport.mjs", "../../parlays/risk-odds-bands.mjs", "./suggestions.mjs"], "band constants and the tier helper only");
+  assert.deepEqual([...src.matchAll(/^import .* from "([^"]+)";$/gm)].map((m) => m[1]).sort(), ["../../parlays/multi-sport.mjs", "../../parlays/risk-odds-bands.mjs", "./engine.mjs", "./suggestions.mjs"], "band constants, the tier helper and the shared selection engine only");
+  const engine = fs.readFileSync(path.resolve(process.cwd(), "src/lib/products/level-a/engine.mjs"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  assert.deepEqual([...engine.matchAll(/^import .* from "([^"]+)";$/gm)].map((m) => m[1]), ["./suggestions.mjs"], "the engine imports only the tier helpers");
+  assert.doesNotMatch(engine.replace(/^import .*$/gm, ""), /node:fs|readFileSync|\.sim\b|\.elo\b|marketPrice|americanOdds|odds|fetch\(/, "the engine reads no file, simulation or market");
   const code = src.replace(/^import .*$/gm, "");
   assert.doesNotMatch(code, /node:fs|readFileSync|\.sim\b|sim\.pHome|\.elo\b|\.market\.|marketPrice|americanOdds|odds|fetch\(/);
   assert.deepEqual([...code.matchAll(/\.market\b/g)].length, 1, "the leg's market is read once, only to require \"winner\"");

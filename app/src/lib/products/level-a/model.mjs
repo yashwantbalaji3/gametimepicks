@@ -10,6 +10,7 @@ import { levelASources } from "./sources.mjs";
 import { levelASuggestions, productDayOf } from "./suggestions.mjs";
 import { nbaGameWinnerTiers, nbaGameWinnerTiersEnabled } from "./nba-game-winner-tiers.mjs";
 import { nbaGameWinnerDisplay } from "./nba-game-winner-source.mjs";
+import { levelAMixed, levelAMixedEnabled } from "./mixed.mjs";
 
 /**
  * THE LEVEL A SWITCH. One committed constant, default false: the release owner flips it to true in the release
@@ -36,7 +37,7 @@ export function nbaGameWinnersBlock({ answer, repoRoot, day, enabled = nbaGameWi
   return nbaGameWinnerTiers({ legs: (answer.untiered ?? []).filter((l) => l.sport === "nba"), accessor: d.accessor, receiptOf: d.receiptOf, disclosure: d.disclosure, enabled: true });
 }
 
-export function buildLevelAModel({ repoRoot = path.resolve(process.cwd(), ".."), now = new Date().toISOString(), productDay = null, nbaGameWinners: gw = {} } = {}) {
+export function buildLevelAModel({ repoRoot = path.resolve(process.cwd(), ".."), now = new Date().toISOString(), productDay = null, nbaGameWinners: gw = {}, mixed: mx = {} } = {}) {
   const day = productDay ?? productDayOf(now);
   const src = levelASources({ repoRoot, date: day });
   const answer = levelASuggestions({ selections: src.selections, now, productDay: day });
@@ -45,8 +46,14 @@ export function buildLevelAModel({ repoRoot = path.resolve(process.cwd(), ".."),
   for (const r of answer.refused) for (const c of r.reasons) if (c !== "OTHER_PRODUCT_DAY") refusedByReason[c] = (refusedByReason[c] ?? 0) + 1;
   const nbaGameWinners = nbaGameWinnersBlock({ answer, repoRoot, day, ...gw });
   const tierable = new Set((nbaGameWinners?.legs ?? []).map((l) => String(l.eventId)));
+  /* Mixed-sport cards (level-a-mixed@1, docs/LEVEL_A_MIXED_SPORT_DESIGN.md): only when their own switch is on; they then
+     replace the cross-sport cards on all three pages. Off: no key and nothing replaced (byte-identical). */
+  const mixed = (mx.enabled ?? levelAMixedEnabled())
+    ? levelAMixed({ crossSportLegs: answer.legs, nbaLegs: nbaGameWinners?.legs ?? [], disclosure: nbaGameWinners?.disclosure ?? null, enabled: true })
+    : null;
   return {
     ...answer,
+    ...(mixed ? { parlayLab: mixed.parlayLab, bankBuilder: mixed.bankBuilder, moonshot: mixed.moonshot, mixed: { public: mixed.public, policy: mixed.policy, sports: mixed.sports, disclosure: mixed.disclosure } } : {}),
     ...(nbaGameWinners ? { nbaGameWinners, untiered: answer.untiered.map((l) => (l.sport === "nba" && tierable.has(String(l.eventId)) ? { ...l, probabilityNote: NBA_GW_LEG_NOTE } : l)) } : {}),
     refusedByReason,
     nbaProjections: src.nbaProjections.filter((p) => productDayOf(p.startUtc) === day && Date.parse(p.startUtc) > Date.parse(now)).slice(0, 8),
