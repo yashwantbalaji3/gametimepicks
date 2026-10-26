@@ -12,12 +12,15 @@
  *     reads as an empty slip. Never `gtp.slip.v1` (paper slip) or `gtp.slip.v2` (Smart Betslip).
  *   · A leg's identity is sport | event | market | outcome; adding one already in the slip changes nothing.
  *   · Flags per leg: the same event twice (DUPLICATE_EVENT), two different outcomes of one event (CONFLICTING_OUTCOME),
- *     started (EXPIRED) or within the 30-minute publication cutoff (INSIDE_CUTOFF).
+ *     the same team in another game of the same sport (SAME_TEAM; teams are sport-scoped, so one city's teams in two
+ *     sports are not flagged), started (EXPIRED) or within the 30-minute publication cutoff (INSIDE_CUTOFF).
  *   · A combined model estimate and tier only when there are 2+ legs, every leg has a published estimate, the events
  *     are distinct (the shared engine's independentGames) and no leg is expired or inside the cutoff. Joint = product
  *     of the legs' published values; tier = the D2 band of the exact joint (tierForJoint); text = jointShownFor.
- *     Otherwise "No combined estimate" with the reason.
- *   · Model-only: no sportsbook price or payout anywhere; the copy text carries no link and no provider data.
+ *     Otherwise "No combined estimate" with the reason. A same-game correlation is never combined.
+ *   · Model-only: no sportsbook price or payout anywhere; the copy text carries no link and no provider data. The slip
+ *     says "model estimate", never "odds".
+ *   · An empty slip is not stored: removing the last leg or "Clear all" deletes the storage entry.
  */
 import { LEG_BOUNDS } from "../eligible-leg/contract.mjs";
 import { PUBLIC_RISK_LABELS } from "../../parlays/risk-odds-bands.mjs";
@@ -35,6 +38,7 @@ export const SLIP_CUTOFF_MS = LEG_BOUNDS.activationCutoffMs;
 export const LEG_FLAG = Object.freeze({
   DUPLICATE_EVENT: "Same game as another leg in this slip",
   CONFLICTING_OUTCOME: "Conflicts with another leg's outcome in the same game",
+  SAME_TEAM: "Same team as another leg in this sport",
   EXPIRED: "Started: no longer a pre-game suggestion",
   INSIDE_CUTOFF: "Starts within 30 minutes: past the publication cutoff",
 });
@@ -42,6 +46,7 @@ export const LEG_FLAG = Object.freeze({
 const norm = (s) => String(s ?? "").trim().toLowerCase();
 export const slipLegKey = (l) => [norm(l?.sport), norm(l?.eventId), norm(l?.market), norm(l?.outcome?.code)].join("|");
 const eventKey = (l) => `${norm(l?.sport)}|${norm(l?.eventId)}`;
+const teamKeys = (l) => (l?.teams ?? []).map((t) => `${norm(l.sport)}|${norm(t)}`);
 const isP = (x) => typeof x === "number" && Number.isFinite(x) && x > 0 && x < 1;
 
 /** The only fields a slip leg may hold (anything else is dropped). */
@@ -90,6 +95,8 @@ export function modelSlipView(slip, { nowMs }) {
     const flags = [];
     const same = byEvent.get(eventKey(l)) ?? [];
     if (same.length > 1) flags.push(same.some((o) => o !== l && o.market === l.market && o.outcome.code !== l.outcome.code) ? "CONFLICTING_OUTCOME" : "DUPLICATE_EVENT");
+    const mine = new Set(teamKeys(l));
+    if (legs.some((o) => eventKey(o) !== eventKey(l) && teamKeys(o).some((t) => mine.has(t)))) flags.push("SAME_TEAM");
     const t = Date.parse(l.startUtc ?? "");
     if (Number.isFinite(t) && Number.isFinite(nowMs)) {
       if (t <= nowMs) flags.push("EXPIRED");
@@ -105,7 +112,8 @@ function combinedEstimate(rows) {
   if (rows.length < 2) return none("add at least two legs from different games");
   const missing = rows.find((r) => !r.leg.estimate);
   if (missing) return none(`${missing.leg.outcome.label} has no published estimate`);
-  if (rows.some((r) => r.flags.includes("CONFLICTING_OUTCOME") || r.flags.includes("DUPLICATE_EVENT")) || !independentGames(rows.map((r) => r.leg))) return none("two legs are from the same game");
+  if (rows.some((r) => r.flags.includes("CONFLICTING_OUTCOME") || r.flags.includes("DUPLICATE_EVENT"))) return none("two legs are from the same game");
+  if (rows.some((r) => r.flags.includes("SAME_TEAM")) || !independentGames(rows.map((r) => r.leg))) return none("two legs involve the same team");
   const late = rows.find((r) => r.flags.includes("EXPIRED") || r.flags.includes("INSIDE_CUTOFF"));
   if (late) return none(`${late.leg.outcome.label} has started or starts within 30 minutes`);
   const joint = rows.reduce((p, r) => p * r.leg.estimate.value, 1);
@@ -139,5 +147,9 @@ export function readModelSlip(storage) {
   try { return parseModelSlip(storage?.getItem(MODEL_SLIP_STORAGE_KEY) ?? null); } catch { return emptyModelSlip(); }
 }
 export function writeModelSlip(storage, slip) {
-  try { storage?.setItem(MODEL_SLIP_STORAGE_KEY, serializeModelSlip(slip)); return true; } catch { return false; }
+  try {
+    if (slip.legs.length === 0) storage?.removeItem(MODEL_SLIP_STORAGE_KEY);
+    else storage?.setItem(MODEL_SLIP_STORAGE_KEY, serializeModelSlip(slip));
+    return true;
+  } catch { return false; }
 }
