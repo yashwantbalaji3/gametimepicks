@@ -60,7 +60,12 @@ test("REAL DATA: the NBA-scoped writer reproduces every committed all-NBA grade 
     const g = byId.get(r.entryId);
     assert.ok(g, `${r.entryId} (${r.productDay} ${r.policy}/${r.tier}) was not regraded`);
     assert.equal(g.result, r.result, `${r.entryId}: result`);
-    assert.deepEqual(g.legs.map((l) => [l.eventId, l.side, l.result]), r.legs.map((l) => [l.eventId, l.side, l.result]), `${r.entryId}: legs`);
+    /* A card is decided the moment one leg loses, so a grade written while other games were still on records those
+       legs "pending" (live 10-25: fd3ed4f7 lost on 401909862 with 401909863 and 401909867 unfinished). This replay sees
+       every final, so it may resolve them. Every leg that was DECIDED when the grade was written must match exactly,
+       and "pending" is only ever legitimate on a lost card. */
+    if (r.legs.some((l) => l.result === "pending")) assert.equal(r.result, "loss", `${r.entryId}: only a lost card is graded with legs pending`);
+    assert.deepEqual(g.legs.map((l, i) => [l.eventId, l.side, r.legs[i]?.result === "pending" ? "pending" : l.result]), r.legs.map((l) => [l.eventId, l.side, l.result]), `${r.entryId}: legs`);
     assert.equal(g.id, r.id, "the same grade id (entry + grader version)");
   }
   assert.deepEqual(gradeViolations({ beforeText: "", afterText: fs.readFileSync(gradesFile, "utf8") }), [], "no entry graded twice");
