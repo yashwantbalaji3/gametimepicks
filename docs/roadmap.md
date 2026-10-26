@@ -40,10 +40,12 @@ odds step; dispatched windows pass `skip_odds`.
 - Forecast records are unaffected. Pre-start `publishedAt` comes from git commit time, not deploy time.
 - Measured locally with Vercel's settings (4 workers): peak memory is flat across the onset.
   - 13.3 GB at 10-22 14:00Z, 13.6 GB at 10-23 14:16Z, 12.6 GB now, on a 15.7 GB host.
-  - The 10-23 onset is therefore not explained by build demand growth. Headroom stays thin, as in the
-    September and 10-15 investigations.
-  - These figures include page cache. Vehicle K's heartbeat (#1095) splits `anon` from `file`, so the next
-    wedge's log will say whether it is out-of-memory.
+  - The 10-23 onset is therefore not explained by build demand growth.
+  - **The memory is real, not cache.** With #1095's split heartbeat, today's build peaks at **13.39 GB
+    `anon`** with only about 0.6 GB `file`. That leaves about 2.6 GB of headroom on Vercel's 16 GB machine
+    for everything else in the container, so out-of-memory during static generation is a measured risk.
+  - One slow page also holds generation at 2764/3004 for over 2 min while memory stays high.
+  - Vehicle K ships #1095, so the next Vercel wedge's log will show `anon` at the moment it stalls.
 - **Needs dashboard access (founder or Launch Readiness):** the last `[phase] ALIVE` line of one failed
   deployment (e.g. `9b117ac6ba`), the build machine class, and billed build CPU.
 - #1094 (workers 4 → 3) stays a founder decision. Its expected memory saving is about 6%.
