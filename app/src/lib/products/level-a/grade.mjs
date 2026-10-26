@@ -13,6 +13,9 @@
  *     LOST; a void card is neither a win nor a loss.
  *   THE RECORD IS NEVER REWRITTEN. Grades go to their own append-only file, one row per entry, written once the
  *     entry is final. A later run that would grade an entry differently reports a CONFLICT and changes nothing.
+ *     A row's legs are a snapshot at gradedAt: a card already lost on one leg is final at once, so it is written while
+ *     its other legs may still be pending. Those legs are not regraded into the row (it is never rewritten); a conflict
+ *     is a different CARD result, never a pending leg that has since become final.
  * Card result: any leg lost → LOSS; else any leg pending → PENDING; else any leg void → VOID; else WIN.
  */
 import { createHash } from "node:crypto";
