@@ -11,6 +11,7 @@
  * published artifact — so the link is shareable and the seed is exactly the card of record.
  * ?sport= / ?game= / ?q= prefilter the pool ("Build from this game" deep links).
  */
+import Link from "next/link";
 import { buildEngineLegAtoms } from "@/lib/build-legs";
 import type { BuildLegAtoms } from "@/lib/build/leg-atoms";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
@@ -84,6 +85,15 @@ export default function ParlayCenterCustomPage() {
       />
 
       <ParlayCenterTabs active="custom" />
+
+      {/* Model-only picks have no price, so they never enter this priced builder (its gate is unchanged). One sentence
+          points to where they can be collected instead (release owner 2026-10-26). */}
+      {pool.length === 0 ? (
+        <p className="m-0 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }} data-model-slip-pointer="">
+          Model-only picks (no prices) can be collected in the model slip from the{" "}
+          <Link href="/build" style={{ color: "var(--vault-text)" }}>Parlay Center</Link>, Bank Builder and Moonshot.
+        </p>
+      ) : null}
 
       {/* The builder ALWAYS mounts (P209 · Release F): the reader's draft and card seeding live in
           it, and both must survive an empty pool — late at night every leg has started and the pool

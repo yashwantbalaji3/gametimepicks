@@ -1,5 +1,7 @@
 import Link from "next/link";
 import LevelACopy from "@/components/products/level-a-copy";
+import { AddToSlip, ModelSlipBar } from "@/components/products/level-a-slip";
+import { slipCatalogFor, slipLegOf } from "@/lib/products/level-a/slip-legs.mjs";
 import NbaGameWinners, { type NbaGameWinnersBlock } from "@/components/products/nba-game-winners";
 import { cardCopyText, jointShownFor, LEG_REFUSAL } from "@/lib/products/level-a/suggestions.mjs";
 import { levelACardKey } from "@/lib/products/level-a/engine.mjs";
@@ -52,6 +54,7 @@ function LegRow({ l }: { l: Leg }) {
         <span style={{ color: "var(--vault-text-mute)" }} data-nba-elo-wp={`${l.eventId}:${l.uncertainty.home}`}>{l.uncertainty.text}</span>
       ) : null}
       {l.probabilityNote ? <span style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }}>{l.probabilityNote}</span> : null}
+      <span><AddToSlip keys={[slipLegOf(l).key]} name={`${l.selection.label}, ${l.eventLabel}`} /></span>
     </li>
   );
 }
@@ -69,7 +72,10 @@ function CardBox({ title, slot }: { title: string; slot: Slot }) {
           <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{c.legs.length} legs from {c.sports.map((s) => SPORT[s] ?? s).join(", ")}. {c.whySelected}</p>
           <ul className="m-0 flex flex-col gap-1 p-0" role="list">{c.legs.map((l) => <LegRow key={`${l.sport}:${l.eventId}`} l={l} />)}</ul>
           <p className="m-0 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>{c.dependency} Unpriced: no sportsbook price, so no payout is shown.</p>
-          <LevelACopy text={cardCopyText(c)} />
+          <span className="flex flex-wrap items-center gap-2">
+            <AddToSlip keys={c.legs.map((l) => slipLegOf(l).key)} label="Add card to slip" name={`${title} (${c.legs.length} legs)`} />
+            <LevelACopy text={cardCopyText(c)} />
+          </span>
         </>
       ) : (
         <p className="m-0 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>No suggestion: {slot.reason}.</p>
@@ -135,6 +141,7 @@ export default function LevelASuggestions({ model, mode }: { model: LevelAModel 
         <Link href="/methodology" style={{ color: "var(--vault-text-mute)" }}>How suggestions are chosen →</Link>{" "}
         <a href="/data/level-a/v1/model.json" style={{ color: "var(--vault-text-mute)" }}>These suggestions as data</a>
       </p>
+      <ModelSlipBar catalog={slipCatalogFor(model, mode)} />
     </section>
   );
 }
