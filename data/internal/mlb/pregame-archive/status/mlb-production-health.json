@@ -3,59 +3,56 @@
   "approvedForProduction": false,
   "productEligible": false,
   "kind": "mlb-production-health",
-  "date": "2026-10-25",
-  "workflowRunId": "40204676385",
+  "date": "2026-10-26",
+  "workflowRunId": "40300102719",
   "boardGenerated": true,
-  "teamMarketsGenerated": false,
-  "playerPropsGenerated": false,
+  "teamMarketsGenerated": true,
+  "playerPropsGenerated": true,
   "simulationGenerated": true,
-  "slateStatus": "NO_GAMES",
-  "missingArtifacts": [
-    "teamMarkets",
-    "playerProps"
-  ],
-  "failureReason": "partial market data — missing teamMarkets, playerProps",
-  "creditsBefore": null,
-  "creditsAfter": null,
-  "creditsSpent": null,
-  "creditsRemaining": null,
+  "slateStatus": "READY",
+  "missingArtifacts": [],
+  "failureReason": null,
+  "creditsBefore": 18042,
+  "creditsAfter": 18031,
+  "creditsSpent": 11,
+  "creditsRemaining": 18031,
   "buildStatus": "success",
   "readyToPublish": true,
-  "publicLabel": "No games scheduled",
+  "publicLabel": "Slate ready",
   "artifactCounts": {
-    "boardGames": 0,
-    "teamMarketGames": 0,
-    "playerProps": 0,
-    "simGames": 0,
-    "simPicks": 0
+    "boardGames": 1,
+    "teamMarketGames": 1,
+    "playerProps": 118,
+    "simGames": 1,
+    "simPicks": 8
   },
   "artifacts": {
     "board": {
       "present": true,
-      "games": 0
+      "games": 1
     },
     "simulation": {
       "present": true,
-      "games": 0,
-      "picks": 0,
+      "games": 1,
+      "picks": 8,
       "runCount": 10000,
-      "artifactHash": "a576b17663faf172e375e894e5f04e44b17aeb90821ead03aa96069a85ec96d5"
+      "artifactHash": "62fa1d8cc16bb26bbb15562073edd89498a2509a913042c25147ac4696f85fe1"
     },
     "teamMarkets": {
-      "present": false,
-      "games": 0
+      "present": true,
+      "games": 1
     },
     "playerProps": {
-      "present": false,
-      "props": 0
+      "present": true,
+      "props": 118
     }
   },
   "credits": {
-    "before": null,
-    "after": null,
-    "spent": null,
-    "remaining": null,
-    "readings": 0,
+    "before": 18042,
+    "after": 18031,
+    "spent": 11,
+    "remaining": 18031,
+    "readings": 3,
     "floor": 2000,
     "note": "credits are read from the ingest sidecar (odds-credits.json); this gate never calls the paid API."
   },

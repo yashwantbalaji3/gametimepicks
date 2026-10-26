@@ -1,0 +1,78 @@
+{
+ "schemaVersion": 1,
+ "artifact": "mlb-input-snapshot",
+ "dataClass": "PRIVATE_RESEARCH",
+ "what": "The inputs each published full-game simulation actually consumed. Joined to the forecast by (date, gamePk) and by the forecast's own artifactHash. Provenance only — it changes no published number.",
+ "date": "2026-10-26",
+ "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+ "simulationVersion": 1,
+ "sourceBoardHash": "32d4b1cf156aaa2a557413f48d4c012c5b655304ab849d6caf52f19e6c0d27a1",
+ "updatedAt": "2026-10-26T09:31:48.000Z",
+ "games": [
+  {
+   "gamePk": 849804,
+   "date": "2026-10-26",
+   "slug": "mil-vs-tb-2026-10-26",
+   "awayTeam": "MIL",
+   "homeTeam": "TB",
+   "firstPitch": "2026-10-27T00:00:00Z",
+   "artifactHash": "e5e11b2ac9e914be5014778614ebe46beb07b85f49ca5f71693c64caf66de717",
+   "completenessLevel": "ready",
+   "startedBeforeGeneration": false,
+   "away": {
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
+    "batterIds": [
+     694192,
+     661388,
+     806198,
+     592885,
+     686217,
+     668930,
+     669003,
+     641343,
+     666152
+    ],
+    "realCount": 9,
+    "ratedCount": 9,
+    "paddedSlots": 0
+   },
+   "home": {
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
+    "batterIds": [
+     802415,
+     650490,
+     691406,
+     676356,
+     666018,
+     810938,
+     689414,
+     668723,
+     670764
+    ],
+    "realCount": 9,
+    "ratedCount": 9,
+    "paddedSlots": 0
+   },
+   "awayStarter": {
+    "playerId": 688107,
+    "name": "Robert Gasser",
+    "hasStrikeoutProjection": true
+   },
+   "homeStarter": {
+    "playerId": 642547,
+    "name": "Freddy Peralta",
+    "hasStrikeoutProjection": true
+   },
+   "missingFamilies": [
+    "confirmed_batting_order",
+    "park_run_factors",
+    "weather",
+    "batter_handedness_splits"
+   ]
+  }
+ ]
+}
