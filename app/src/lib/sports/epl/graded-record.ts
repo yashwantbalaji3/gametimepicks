@@ -44,6 +44,9 @@ export interface EplGradedMatch {
   probabilityOfActual: number | null;
   hit: boolean | null;
   predictedOutcome: string | null;
+  /** The revision the record graded: when it was published and its three probabilities (exactly as graded). */
+  forecastGeneratedAt: string | null;
+  forecastProbs: { home: number; draw: number; away: number } | null;
 }
 
 export interface EplGradedRecord {
@@ -139,6 +142,12 @@ export function loadEplGradedRecord(): EplGradedRecord | null {
         probabilityOfActual: num((r.scores as Record<string, unknown>)?.probabilityOfActual),
         hit: ((r.scores as Record<string, unknown>)?.hit as boolean | undefined) ?? null,
         predictedOutcome: ((r.scores as Record<string, unknown>)?.predictedOutcome as string | undefined) ?? null,
+        forecastGeneratedAt: typeof r.forecastGeneratedAt === "string" ? r.forecastGeneratedAt : null,
+        forecastProbs: (() => {
+          const p = (r.forecast as Record<string, unknown> | undefined)?.probs as Record<string, unknown> | undefined;
+          const h = num(p?.home), d = num(p?.draw), a = num(p?.away);
+          return h != null && d != null && a != null ? { home: h, draw: d, away: a } : null;
+        })(),
       })),
     },
     player: {

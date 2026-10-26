@@ -38,6 +38,8 @@ import { reportCardContext } from "@/lib/command-center/report-card";
 import path from "node:path";
 import { buildEplPresentation } from "@/lib/simulate/presentation/epl";
 import EtTime from "@/components/ui/et-time";
+import EplMatchWhatHappened from "@/components/epl/epl-match-what-happened";
+import { loadEplGradedRecord } from "@/lib/sports/epl/graded-record";
 import type React from "react";
 
 /**
@@ -154,6 +156,13 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
           </div>
         ) : null}
       </header>
+
+      {/* Founder P1 2026-10-26: a settled fixture leads with its official result, from the graded record (the same rows
+          /results/picks/epl grades). A fixture the record has not graded shows nothing here — never a guessed score. */}
+      {(() => {
+        const graded = loadEplGradedRecord()?.team.matchesList.find((m) => m.eventId === String(row.eventId)) ?? null;
+        return graded ? <EplMatchWhatHappened graded={graded} home={home} away={away} pageProbs={row.probs ?? null} /> : null;
+      })()}
 
       {/*
         ── The limitation, ABOVE the first number ──────────────────────────────────────────────
