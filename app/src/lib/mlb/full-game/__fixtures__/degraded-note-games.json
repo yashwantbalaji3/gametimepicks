@@ -1,0 +1,99 @@
+{
+ "source": "verbatim from public/data/mlb/full-game-simulations (fields the hub card and the degraded note read); degraded = 2026-10-26.json gamePk 849804 at artifactHash b45044739c57de6f43714e288640d4be928ed0d4d6cd56f24382ca67df409b13; ready = 2026-10-24.json tb-vs-mil-2026-10-24",
+ "degraded": {
+  "gamePk": 849804,
+  "date": "2026-10-26",
+  "slug": "mil-vs-tb-2026-10-26",
+  "awayTeam": "MIL",
+  "homeTeam": "TB",
+  "firstPitch": "2026-10-27T00:00:00Z",
+  "status": "degraded",
+  "completeness": {
+   "level": "degraded",
+   "notes": [
+    "MIL confirmed batting order used, all 9 with posted prop lines.",
+    "TB confirmed batting order used; 2 of 9 have no GTP projection (no posted prop line, or too little data) and are simulated at replacement-level rates; the box score marks each one."
+   ],
+   "awayLineupSource": "confirmed",
+   "homeLineupSource": "confirmed",
+   "awayRatedCount": 9,
+   "homeRatedCount": 7,
+   "awayLineupCount": 9,
+   "homeLineupCount": 9,
+   "hasAwayStarter": true,
+   "hasHomeStarter": true,
+   "startedBeforeGeneration": false,
+   "missingFamilies": [
+    "park_run_factors",
+    "weather",
+    "batter_handedness_splits"
+   ]
+  },
+  "winProbability": {
+   "away": 0.578,
+   "home": 0.422
+  },
+  "totalRuns": {
+   "median": 7,
+   "p10": 3,
+   "p90": 13
+  },
+  "finalScores": [
+   {
+    "away": 2,
+    "home": 3,
+    "probability": 0.035
+   }
+  ],
+  "runCount": 10000,
+  "artifactHash": "b45044739c57de6f43714e288640d4be928ed0d4d6cd56f24382ca67df409b13"
+ },
+ "ready": {
+  "gamePk": 849802,
+  "date": "2026-10-24",
+  "slug": "tb-vs-mil-2026-10-24",
+  "awayTeam": "TB",
+  "homeTeam": "MIL",
+  "firstPitch": "2026-10-25T00:00:00Z",
+  "status": "ready",
+  "completeness": {
+   "level": "ready",
+   "notes": [
+    "TB confirmed batting order used, all 9 with posted prop lines.",
+    "MIL confirmed batting order used, all 9 with posted prop lines."
+   ],
+   "awayLineupSource": "confirmed",
+   "homeLineupSource": "confirmed",
+   "awayRatedCount": 9,
+   "homeRatedCount": 9,
+   "awayLineupCount": 9,
+   "homeLineupCount": 9,
+   "hasAwayStarter": true,
+   "hasHomeStarter": true,
+   "startedBeforeGeneration": false,
+   "missingFamilies": [
+    "park_run_factors",
+    "weather",
+    "batter_handedness_splits"
+   ]
+  },
+  "winProbability": {
+   "away": 0.498,
+   "home": 0.502
+  },
+  "totalRuns": {
+   "median": 8,
+   "p10": 3,
+   "p90": 14
+  },
+  "finalScores": [
+   {
+    "away": 2,
+    "home": 3,
+    "probability": 0.036
+   }
+  ],
+  "runCount": 10000,
+  "artifactHash": "aad7cc2ad3b199eb0b4302d3e1e011fb2d6c47d419f3831587be5a3a48fa4039"
+ }
+}
