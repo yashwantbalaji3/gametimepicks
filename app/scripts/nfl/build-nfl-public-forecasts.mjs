@@ -47,6 +47,7 @@ import { pickNewestCapture } from "../../src/lib/sports/nfl/qb-starter-shadow.mj
 import { QB_CHART_MAX_AGE_MS } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
 import { INPUT_AFTER_KICKOFF, inputStampsOf, postKickoffInputs, refusalLine } from "../../src/lib/sports/nfl/input-stamps.mjs";
 import { forecastOfRecord } from "../../src/lib/forecast-ledger/adapters/nfl.mjs";
+import { samePublicForecastContent } from "../../src/lib/sports/nfl/public-forecast-content.mjs";
 
 /* A narrow root seam so tests can run THIS builder — not a copy of its rules — against a
  * disposable repo-shaped store. Production default is unchanged: the app directory above this
@@ -891,7 +892,11 @@ for (const banned of ["data/internal", "PRIVATE_RESEARCH", "apiKey", "p171-ledge
   if (frozenPayload.includes(banned)) { console.error(`REFUSED: frozen forecasts would carry "${banned}"`); process.exit(3); }
 }
 fs.mkdirSync(path.join(APP, "public/data/nfl/forecasts"), { recursive: true });
-fs.writeFileSync(path.join(APP, "public/data/nfl/forecasts", "frozen-latest.json"), frozenPayload);
+/* CONTENT-SENSITIVE (cost, 2026-10-26): these files are critical deploy paths. A run that changes nothing but its own
+   clock leaves the committed bytes alone (public-forecast-content.mjs); any content change writes the whole file. */
+const frozenPath = path.join(APP, "public/data/nfl/forecasts", "frozen-latest.json");
+const frozenUnchanged = samePublicForecastContent(read(frozenPath), JSON.parse(frozenPayload));
+if (!frozenUnchanged) fs.writeFileSync(frozenPath, frozenPayload);
 console.log(`frozen at kickoff: ${frozenForecasts.length} started game(s) carried from pre-kickoff receipts (current week + in-progress rollover)`);
 const publicArtifact = {
   schemaVersion: 1,
@@ -916,8 +921,15 @@ for (const banned of ["data/internal", "PRIVATE_RESEARCH", "apiKey", "p171-ledge
 }
 const outPath = path.join(APP, "public/data/nfl/forecasts", `${DATE}.json`);
 fs.mkdirSync(path.dirname(outPath), { recursive: true });
-fs.writeFileSync(outPath, payload);
-fs.writeFileSync(path.join(APP, "public/data/nfl/forecasts", "latest.json"), payload);
+const latestPath = path.join(APP, "public/data/nfl/forecasts", "latest.json");
+/* latest.json and today's dated copy move together: both are written when the content (date included) changed or the
+   dated copy does not exist yet; otherwise neither is touched. */
+const publicUnchanged = fs.existsSync(outPath) && samePublicForecastContent(read(latestPath), publicArtifact) && samePublicForecastContent(read(outPath), publicArtifact);
+if (!publicUnchanged) {
+  fs.writeFileSync(outPath, payload);
+  fs.writeFileSync(latestPath, payload);
+}
+console.log(`public forecast files: latest + ${DATE}.json ${publicUnchanged ? "UNCHANGED (content identical; not rewritten)" : "written"} · frozen-latest ${frozenUnchanged ? "UNCHANGED" : "written"}`);
 
 console.log(`forecasts: ${published.length} published · ${refused.length} refused`);
 for (const f of published.slice(0, 3)) {
