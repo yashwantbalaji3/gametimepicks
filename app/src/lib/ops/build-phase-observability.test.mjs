@@ -175,6 +175,41 @@ test("a stalled heartbeat also reports the MACHINE, so the next wedge says wheth
   assert.match(last, /Generating static pages \(1869\/2493\)/, "resource state must not displace the progress counter");
 });
 
+test("mem splits the cgroup charge into anon (risk) and file (reclaimable page cache) when memory.stat exists", () => {
+  /*
+   * memory.current counts page cache too, so "14.82G/16G" alone cannot say how close a build came to an OOM.
+   * Fixture cgroups (v2 and v1 layouts) stand in for Vercel's: the split must be printed from them, the
+   * "mem X/Y" prefix must be unchanged, and a cgroup without memory.stat must print exactly what it did before.
+   */
+  const G = 1073741824;
+  const lim = Math.floor(os.totalmem() / G) * G; // ≤ totalmem, so the reader keeps it as the limit
+  const v2 = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-cg2-"));
+  fs.writeFileSync(path.join(v2, "memory.current"), String(Math.round(lim * 0.9)));
+  fs.writeFileSync(path.join(v2, "memory.max"), String(lim));
+  fs.writeFileSync(path.join(v2, "memory.stat"), `anon ${3 * G}\nfile ${2 * G}\nkernel 1000\n`);
+  fs.writeFileSync(path.join(v2, "memory.peak"), String(Math.round(lim * 0.95)));
+  const v1 = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-cg1-"));
+  fs.mkdirSync(path.join(v1, "memory"));
+  fs.writeFileSync(path.join(v1, "memory", "memory.usage_in_bytes"), String(Math.round(lim * 0.5)));
+  fs.writeFileSync(path.join(v1, "memory", "memory.limit_in_bytes"), String(lim));
+  fs.writeFileSync(path.join(v1, "memory", "memory.stat"), `cache ${G}\nrss ${G / 2}\ntotal_cache ${G}\ntotal_rss ${G / 2}\n`);
+  const none = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-cg0-"));
+  fs.writeFileSync(path.join(none, "memory.current"), String(G));
+  fs.writeFileSync(path.join(none, "memory.max"), String(lim));
+  const line = (root) => {
+    const r = runPhase("t-split", ["-e", "setTimeout(() => {}, 1600)"], { heartbeat: 1, env: { GTP_CGROUP_ROOT: root } });
+    assert.equal(r.status, 0, "instrumentation never fails the phase");
+    return r.out.split("\n").filter((l) => /ALIVE\s+t-split/.test(l)).at(-1) ?? "";
+  };
+  const want = (x) => `${(x / G).toFixed(2)}G`;
+  assert.ok(line(v2).includes(`· mem ${want(Math.round(lim * 0.9))}/${want(lim)} (anon 3.00G · file 2.00G · peak ${want(Math.round(lim * 0.95))}) ·`), "cgroup v2: anon, file and peak");
+  assert.ok(line(v1).includes(`· mem ${want(Math.round(lim * 0.5))}/${want(lim)} (anon 0.50G · file 1.00G) ·`), "cgroup v1: total_rss / total_cache");
+  const plain = line(none);
+  assert.match(plain, /· mem \d+\.\d+G\/\d+\.\d+G · load /, "no memory.stat → the line is exactly the old shape");
+  // NEGATIVE CONTROL: the fixture really is being read (the prefix carries its numbers, not the host's)
+  assert.ok(plain.includes(`· mem 1.00G/${want(lim)} ·`), "GTP_CGROUP_ROOT is honoured");
+});
+
 test("START is printed BEFORE the child runs, so the last phase to start is identifiable when it never ends", () => {
   const r = runPhase("t-order", ["-e", 'console.log("CHILD-RAN")']);
   const iStart = r.out.indexOf("START  t-order");

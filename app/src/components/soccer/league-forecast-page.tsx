@@ -10,6 +10,7 @@ import SportSwitcher from "@/components/sports/sport-switcher";
 import TeamLogo from "@/components/team-logo";
 import { loadLeagueForecasts, loadLeagueGraded, type LeagueForecastRow } from "@/lib/sports/soccer/forecast-view";
 import { gradedCaption } from "@/lib/sports/soccer/grading.mjs";
+import { HubSlipBar, HubSlipButton, hubSlipLegs, type HubSlipLeg } from "@/components/products/hub-slip";
 
 const pct = (n: number | null | undefined) => (n == null || !Number.isFinite(n) ? "—" : `${Math.round(n * 1000) / 10}%`);
 const ET_DAY = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "long", month: "long", day: "numeric" });
@@ -51,7 +52,7 @@ function OutcomeBar({ r }: { r: LeagueForecastRow }) {
   );
 }
 
-function FixtureRow({ r }: { r: LeagueForecastRow }) {
+function FixtureRow({ r, slip = null }: { r: LeagueForecastRow; slip?: HubSlipLeg | null }) {
   const top = r.topScorelines?.[0];
   return (
     <li className="px-3 py-3" style={{ borderTop: "1px solid var(--vault-rule)" }}>
@@ -76,12 +77,17 @@ function FixtureRow({ r }: { r: LeagueForecastRow }) {
         <p style={{ margin: "6px 0 0", fontSize: 11, color: "var(--vault-text-faint)" }}>A newly promoted side with no league history runs at the league-average baseline.</p>
       ) : null}
       {r.sparseInput?.note ? <p style={{ margin: "6px 0 0", fontSize: 11, color: "var(--vault-text-faint)" }}>{r.sparseInput.note}</p> : null}
+      {/* Vehicle N: a Level A leg only (hub-slip) */}
+      {slip ? <div className="mt-2"><HubSlipButton leg={slip} /></div> : null}
     </li>
   );
 }
 
-export default function LeagueForecastPage({ leagueKey }: { leagueKey: string }) {
+export default async function LeagueForecastPage({ leagueKey }: { leagueKey: string }) {
   const set = loadLeagueForecasts(leagueKey);
+  /* Vehicle N: Ligue 1 is a Level A sport — its rows' exact legs (none for any other league: the helper knows no other
+     key), and one bar, only when a button renders. */
+  const slip = leagueKey === "ligue-1" ? await hubSlipLegs("ligue-1", (set?.rows ?? []).map((r) => String(r.eventId))) : new Map<string, HubSlipLeg>();
   const name = set?.competition ?? "League";
   const days = byDay(set?.rows ?? []);
   const v = set?.validation;
@@ -145,7 +151,7 @@ export default function LeagueForecastPage({ leagueKey }: { leagueKey: string })
           {days.map((d) => (
             <section key={d.key} aria-labelledby={`day-${d.key}`} className="rounded-[12px]" style={{ border: "1px solid var(--vault-rule)", background: "var(--vault-panel)" }}>
               <h2 id={`day-${d.key}`} className="px-3 pt-3 pb-2" style={{ margin: 0, fontSize: 14, color: "var(--vault-text)" }}>{d.label}</h2>
-              <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>{d.rows.map((r) => <FixtureRow key={r.eventId} r={r} />)}</ul>
+              <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>{d.rows.map((r) => <FixtureRow key={r.eventId} r={r} slip={slip.get(String(r.eventId))} />)}</ul>
             </section>
           ))}
         </div>
@@ -165,6 +171,7 @@ export default function LeagueForecastPage({ leagueKey }: { leagueKey: string })
           Fixtures: {set.sources.fixtures}. Results history: {set.sources.history}. Kick-off times in Eastern Time.
         </p>
       ) : null}
+      <HubSlipBar legs={slip} />
     </div>
   );
 }
