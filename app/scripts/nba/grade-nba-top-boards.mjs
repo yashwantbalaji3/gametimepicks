@@ -7,6 +7,11 @@
  * that its --fetch step fills — so in the nightly job this runs AFTER that grader and never touches the network.
  * A game with no final box score yet is PENDING (never a loss); a postponed / cancelled game is VOID.
  *
+ * STAT CORRECTIONS: a game whose box score the forecast grader re-checked and found corrected (a BOXSCORE_CORRECTION in
+ * any family's ledger; the original file is never rewritten, the corrected payload is stored beside it) is graded on
+ * the NEWEST correction — the same canonical box score every family and the public board read (latestCorrectionAcross).
+ * A row whose grade that changes is appended as a CORRECTION entry superseding the earlier one; nothing is rewritten.
+ *
  *   node scripts/nba/grade-nba-top-boards.mjs [--family v0.1] [--date YYYY-MM-DD] [--now ISO] [--write]
  *        [--boards-dir DIR] [--ledger FILE] [--boxscore-dir DIR ...]
  * Exit 0 ok · 1 usage / refused.
@@ -16,6 +21,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { FAMILIES } from "../../src/lib/sports/nba/experimental-forecast.mjs";
+import { latestCorrectionAcross, upgradeLedger } from "../../src/lib/sports/nba/experimental-grading-ledger.mjs";
 import { DEFAULT_BOARD_FAMILY } from "../../src/lib/sports/nba/top-boards.mjs";
 import { appendGrades, boardRows, emptyGradesLedger, gradeBoardRow, ledgerAppendOnlyViolations, SETTLEMENT } from "../../src/lib/sports/nba/top-board-grading.mjs";
 import { boardFamilySpec, parseArgs, V1_FALLBACK } from "./top-board-families.mjs";
@@ -25,14 +31,30 @@ const REPO = path.resolve(APP, "..");
 const NBA = path.join(REPO, "data", "internal", "research", "nba");
 const readJson = (f) => JSON.parse(fs.readFileSync(f, "utf8"));
 
-/** Box-score lookup across the canonical corpus and every family's fetch cache (plus any extra dirs). */
-export function boxscoreLocator(extraDirs = []) {
+/** Every family's forecast-grading ledger (where box-score corrections are logged); unreadable / absent → skipped. */
+export function correctionLedgers(nbaDir = NBA) {
+  return [...Object.values(FAMILIES), V1_FALLBACK].flatMap((f) => {
+    const file = path.join(nbaDir, f.dir, "ledger.json");
+    try { return fs.existsSync(file) ? [upgradeLedger(readJson(file))] : []; } catch { return []; }
+  });
+}
+
+/**
+ * Box-score lookup: the newest logged correction (across every family's ledger), else the canonical corpus, else every
+ * family's fetch cache (extra dirs first, for offline tests).
+ */
+export function boxscoreLocator(extraDirs = [], { ledgers = correctionLedgers(), nbaDir = NBA } = {}) {
   const dirs = [
     ...extraDirs.map((d) => [path.resolve(d), "extra"]),
     [path.join(NBA, "boxscores"), "corpus"],
     ...[...Object.values(FAMILIES), V1_FALLBACK].map((f) => [path.join(NBA, f.dir, "boxscores"), `${f.dir}-fetch`]),
   ];
   return (id) => {
+    const c = latestCorrectionAcross(ledgers, id);
+    if (c?.new?.file) {
+      const f = path.join(nbaDir, c.new.file); // logged relative to the NBA research dir, as the forecast grader reads it
+      if (fs.existsSync(f)) { try { return { doc: readJson(f), source: "experimental-correction", file: path.relative(REPO, f) }; } catch { /* unreadable → the first capture */ } }
+    }
     for (const [dir, source] of dirs) {
       const f = path.join(dir, `${id}.json`);
       if (fs.existsSync(f)) { try { return { doc: readJson(f), source, file: path.relative(REPO, f) }; } catch { /* unreadable → absent */ } }
