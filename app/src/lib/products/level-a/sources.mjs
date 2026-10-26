@@ -6,7 +6,10 @@
  *
  *   MLB      data/internal/mlb/prediction-snapshots/<date>/<latest>.json (official snapshot): predictedWinner +
  *            moneyline.simulationProbability; first pitch from its own source artifact (full-game-simulations/<date>).
- *            The snapshot's `market` block (de-vigged sportsbook prices) is NEVER read.
+ *            The snapshot's `market` block (de-vigged sportsbook prices) is NEVER read. EVERY game in the snapshot is
+ *            returned with its own `status` as `sourceStatus`; the leg contract refuses a game that is not "ready"
+ *            (SOURCE_NOT_READY / SOURCE_UNAVAILABLE), so a withheld game is counted, never silently dropped
+ *            (2026-10-26: a 20:40Z lineup refresh re-marked 849804 "degraded" and it vanished with no reason).
  *   NBA      app/public/data/nba/experimental-public/<date>.json, the public lane publication of the official
  *            composition (nba-official-composition@1): the Elo favoured SIDE; probability withheld (founder N2). With the
  *            Elo game-winner probability switched on (founder decision 2026-10-23) the row also carries that number for
@@ -37,12 +40,14 @@ export function mlbSelections({ repoRoot, date }) {
   if (!snap) return [];
   const sims = readJson(path.join(repoRoot, "app", "public", "data", "mlb", "full-game-simulations", `${date}.json`));
   const firstPitch = new Map((sims?.games ?? []).map((g) => [String(g.gamePk), g.firstPitch]));
-  return (snap.predictions ?? []).filter((p) => p?.status === "ready" && p?.completeness?.startedBeforeGeneration !== true).map((p) => {
+  return (snap.predictions ?? []).filter((p) => p?.gamePk != null).map((p) => {
     const side = p.moneyline?.side ?? p.predictedWinner?.side ?? null;
     const team = p.moneyline?.team ?? p.predictedWinner?.team ?? null;
     return {
       sport: "mlb", eventId: String(p.gamePk), eventLabel: `${p.awayTeamName ?? p.awayTeam} @ ${p.homeTeamName ?? p.homeTeam}`,
       startUtc: firstPitch.get(String(p.gamePk)) ?? null, market: "winner",
+      /* The owner's own readiness verdict, verbatim; a game generated after it started is not ready either. */
+      sourceStatus: p.completeness?.startedBeforeGeneration === true ? "started-before-generation" : (p.status ?? null),
       selection: side ? { code: side, label: `${team ?? side} to win` } : null,
       probability: typeof p.moneyline?.simulationProbability === "number" ? p.moneyline.simulationProbability : null,
       forecast: { owner: "mlb-prediction official snapshot", modelId: p.decisionEngineVersion ?? snap.decisionEngineVersion ?? null, stampedAt: snap.generatedAt ?? null, ref: `mlb-prediction-snapshot:${date}:${files.at(-1).replace(/\.json$/, "")}#${p.artifactHash ?? p.gamePk}` }, // an identifier, not a repo path: this ref reaches the public served model

@@ -199,3 +199,44 @@ test("🔴 every NBA lane day has a statically generated day page carrying its g
   const dates = nbaOfficialForecastDates();
   assert.ok(dates.length >= 4 && dates.every((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)));
 });
+
+/* Release owner 2026-10-26: a Level A card withdrawn before its start says so beside the card — a note from the
+   recorder's own withdrawn.jsonl, never a re-grade. The card was shown, so every count and denominator is unchanged. */
+const wd = (id, event, o = {}) => ({ schema: "gtp.level-a.withdrawal@1", id, event, servedFrom: "2031-07-01T20:45:13Z",
+  ...(event === "withdrawn" ? { lastServedFrom: "2031-07-01T20:45:13Z", firstNotServedFrom: "2031-07-01T20:51:41Z", reason: "nba:e-a is no longer in the served model" } : { reinstatedFrom: "2031-07-01T21:30:00Z" }), ...o });
+
+test("🔴 withdrawn: the LATEST event per entry decides; a reinstatement cancels; counts and grades never move", async () => {
+  const recs = [entry("a"), entry("b"), entry("c")];
+  const grades = [grade("a", "loss"), grade("b", "win")];
+  const { withWithdrawals } = await import("./level-a-withdrawals.mjs");
+  const plain = levelARecord(recs, grades);
+  const v = withWithdrawals(plain, [wd("a", "withdrawn"), wd("b", "withdrawn"), wd("b", "reinstated"), wd("zz", "withdrawn")]);
+  assert.deepEqual(v.byGroup, plain.byGroup, "withdrawal is a note: every count and denominator unchanged");
+  assert.deepEqual(v.totals, plain.totals);
+  const by = Object.fromEntries(v.entries.map((e) => [e.id, e]));
+  assert.deepEqual(by.a.withdrawn, { servedFrom: "2031-07-01T20:45:13Z", until: "2031-07-01T20:51:41Z", reason: "nba:e-a is no longer in the served model" });
+  assert.equal(by.a.status, "LOST", "still graded as recorded");
+  assert.equal(by.b.withdrawn, null, "reinstated later: no note");
+  assert.equal(by.c.withdrawn, null);
+  assert.equal(v.orphanWithdrawals, 1, "an event for an unrecorded id is reported, never attached");
+  const h = renderToStaticMarkup(React.createElement(ModelSuggestionsRecord, { view: v }));
+  assert.match(h, /data-withdrawn="a"[^>]*>Withdrawn before start \(served 4:45–4:51 PM ET\) · still graded as shown/);
+  assert.equal((h.match(/data-withdrawn=/g) ?? []).length, 1);
+});
+
+test("🔴 withdrawn, real data: exactly the 2026-10-26 mixed-sport cards the recorder withdrew carry the note", () => {
+  const read = (f) => (fs.existsSync(path.join(LEVEL_A_DIR, f)) ? fs.readFileSync(path.join(LEVEL_A_DIR, f), "utf8").split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l)) : []);
+  const events = read("withdrawn.jsonl");
+  const v = levelARecordView();
+  assert.equal(v.orphanWithdrawals, 0, "every withdrawal names a recorded entry");
+  const latest = new Map(); for (const e of events) latest.set(e.id, e.event);
+  const expected = [...latest].filter(([, ev]) => ev === "withdrawn").map(([id]) => id).sort();
+  assert.deepEqual(v.entries.filter((e) => e.withdrawn).map((e) => e.id).sort(), expected);
+  const mixed1026 = v.entries.filter((e) => e.productDay === "2026-10-26" && e.policy.startsWith("level-a-mixed@1/"));
+  assert.ok(mixed1026.length >= 5 && mixed1026.every((e) => e.withdrawn), "the five level-a-mixed@1 cards of 10-26");
+  const h = renderToStaticMarkup(React.createElement(ModelSuggestionsRecord, { view: v }));
+  for (const e of mixed1026) assert.match(h, new RegExp(`data-withdrawn="${e.id}"[^>]*>Withdrawn before start \\(served 4:45–4:51 PM ET\\)`));
+  const plain = levelARecord(read("suggestions.jsonl"), read("graded.jsonl"));
+  assert.deepEqual(v.byGroup, plain.byGroup, "real counts identical with and without the withdrawal file");
+  assert.deepEqual(v.totals, plain.totals);
+});

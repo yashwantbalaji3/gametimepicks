@@ -14,7 +14,12 @@
  * A refused run writes nothing and exits non-zero, so the workflow goes red instead of recording a card readers
  * never saw. A bot-challenged response is refused the same way (it proves nothing either way).
  *
- *   npx tsx scripts/products/record-level-a-from-deployment.mjs --sha <deployment sha> --served-from <ISO> [--origin URL] [--write]
+ * WITHDRAWALS. The same verified deployment also says which recorded entries it NO LONGER serves before their own
+ * cutoff: those get a `withdrawn` event in data/internal/products/level-a/withdrawn.jsonl (record.mjs
+ * withdrawalEvents; its own append-only file, guarded the same way). --last-served-from is the go-live of the
+ * Production deployment this one replaced (the workflow looks it up; omitted = unknown, recorded as null).
+ *
+ *   npx tsx scripts/products/record-level-a-from-deployment.mjs --sha <deployment sha> --served-from <ISO> [--last-served-from <ISO>] [--origin URL] [--write]
  *   --served-from: when the deployment went live (its success deployment_status). The first stdout line is the
  *   verdict, OK / SUPERSEDED / REFUSED with its reason; the JSON follows.
  *   Default: dry run (prints what would be appended).
@@ -22,7 +27,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { appendRecord, recordEntries, recordViolations } from "../../src/lib/products/level-a/record.mjs";
+import { appendRecord, recordEntries, recordViolations, withdrawalEvents, withdrawalViolations } from "../../src/lib/products/level-a/record.mjs";
 import { LEVEL_A_SERVED_PATH, LEVEL_A_SERVED_SCHEMA, modelSha256 } from "../../src/lib/products/level-a/model.mjs";
 import { jointShownFor } from "../../src/lib/products/level-a/suggestions.mjs";
 import { nbaGameWinnerCardKey } from "../../src/lib/products/level-a/nba-game-winner-tiers.mjs";
@@ -30,6 +35,7 @@ import { levelACardKey } from "../../src/lib/products/level-a/engine.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const LEVEL_A_RECORD_PATH = path.join(APP, "..", "data", "internal", "products", "level-a", "suggestions.jsonl");
+export const LEVEL_A_WITHDRAWN_PATH = path.join(APP, "..", "data", "internal", "products", "level-a", "withdrawn.jsonl");
 export const DEFAULT_ORIGIN = "https://gametimepicks.yashwantbalaji.com";
 /** Which page shows which part of the model. */
 export const PAGE_FOR = { "parlay-lab": "/build/", "bank-builder": "/bank-builder/", moonshot: "/moonshot/" };
@@ -95,7 +101,7 @@ async function get(url) {
  * Lagging: wait and re-read. Newer: that deployment's own run records what it shows, so this one is SUPERSEDED and
  * writes nothing. Its cards were shown only between the two builds; see the workflow note.
  */
-export async function runFromDeployment({ sha, servedFrom = null, origin = DEFAULT_ORIGIN, write = false, file = LEVEL_A_RECORD_PATH, now = new Date().toISOString(), fetchText = get, attempts = 1, waitMs = 60_000, isNewer = () => false, sleep = (ms) => new Promise((r) => setTimeout(r, ms)) }) {
+export async function runFromDeployment({ sha, servedFrom = null, lastServedFrom = null, origin = DEFAULT_ORIGIN, write = false, file = LEVEL_A_RECORD_PATH, withdrawnFile = null, now = new Date().toISOString(), fetchText = get, attempts = 1, waitMs = 60_000, isNewer = () => false, sleep = (ms) => new Promise((r) => setTimeout(r, ms)) }) {
   if (!/^[0-9a-f]{40}$/.test(sha ?? "")) throw new Error("--sha <40-hex deployment sha> required");
   let buildInfo = JSON.parse(await fetchText(`${origin}/data/build-info.json`));
   for (let a = 1; buildInfo?.commit?.sha !== sha; a++) {
@@ -116,20 +122,31 @@ export async function runFromDeployment({ sha, servedFrom = null, origin = DEFAU
   const afterText = beforeText + added.map((e) => `${JSON.stringify(e)}\n`).join("");
   const violations = recordViolations({ beforeText, afterText });
   if (violations.length) throw new Error(`record guard: ${violations.join("; ")}`);
-  if (write && added.length) {
-    fs.mkdirSync(path.dirname(file), { recursive: true });
-    if (beforeText) fs.appendFileSync(file, afterText.slice(beforeText.length));
-    else fs.writeFileSync(file, afterText, { flag: "wx" });
-    if (fs.readFileSync(file, "utf8") !== afterText) throw new Error("post-write check failed");
-  }
-  return { ok: true, problems: [], productDay: served.productDay, shownAt: served.asOf, servedFrom, added: added.length, wrote: write && added.length > 0, entries: added.map((e) => `${e.policy}/${e.tier}${e.revisionOf ? ` (revises ${e.revisionOf})` : ""}`) };
+  /* Withdrawals: only from servedFrom (a deployment with no go-live instant proves nothing about when readers lost a card). */
+  /* Beside the record unless named: a run on a scratch record never touches the real withdrawal file. */
+  withdrawnFile ??= file === LEVEL_A_RECORD_PATH ? LEVEL_A_WITHDRAWN_PATH : path.join(path.dirname(file), "withdrawn.jsonl");
+  const wBefore = fs.existsSync(withdrawnFile) ? fs.readFileSync(withdrawnFile, "utf8") : "";
+  const wEvents = servedFrom == null ? [] : withdrawalEvents({ existing, events: wBefore.split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l)), model: served.model, servedFrom, lastServedFrom, recordedAt: now, source: { kind: "production-deployment", sha, origin, servedModelSha256: served.modelSha256 } });
+  const wAfter = wBefore + wEvents.map((e) => `${JSON.stringify(e)}\n`).join("");
+  const wViolations = withdrawalViolations({ beforeText: wBefore, afterText: wAfter, recordIds: new Set([...existing, ...added].map((e) => e.id)) });
+  if (wViolations.length) throw new Error(`withdrawal guard: ${wViolations.join("; ")}`);
+  const appendTo = (f, before, after) => {
+    fs.mkdirSync(path.dirname(f), { recursive: true });
+    if (before) fs.appendFileSync(f, after.slice(before.length));
+    else fs.writeFileSync(f, after, { flag: "wx" });
+    if (fs.readFileSync(f, "utf8") !== after) throw new Error(`post-write check failed: ${f}`);
+  };
+  if (write && added.length) appendTo(file, beforeText, afterText);
+  if (write && wEvents.length) appendTo(withdrawnFile, wBefore, wAfter);
+  return { ok: true, problems: [], productDay: served.productDay, shownAt: served.asOf, servedFrom, added: added.length, wrote: write && (added.length > 0 || wEvents.length > 0), entries: added.map((e) => `${e.policy}/${e.tier}${e.revisionOf ? ` (revises ${e.revisionOf})` : ""}`), withdrawals: wEvents.map((e) => `${e.event} ${e.policy}/${e.tier} ${e.id}${e.reason ? ` (${e.reason})` : ""}`) };
 }
 
 /** The verdict line a run summary leads with, so a red run says why at a glance. */
 export function verdictLine(out) {
   if (out.superseded) return `SUPERSEDED: Production already serves the newer ${String(out.servedSha).slice(0, 10)}; that deployment's own run records it`;
   if (!out.ok) return `REFUSED: ${out.problems.join("; ")}`;
-  return `OK: ${out.added} new entr${out.added === 1 ? "y" : "ies"} recorded${out.added ? ` (${out.entries.join(", ")})` : ""}`;
+  const w = out.withdrawals ?? [];
+  return `OK: ${out.added} new entr${out.added === 1 ? "y" : "ies"} recorded${out.added ? ` (${out.entries.join(", ")})` : ""}${w.length ? `; ${w.length} withdrawal event${w.length === 1 ? "" : "s"} (${w.join(", ")})` : ""}`;
 }
 
 if (path.resolve(process.argv[1] ?? "") === fileURLToPath(import.meta.url)) {
@@ -139,7 +156,7 @@ if (path.resolve(process.argv[1] ?? "") === fileURLToPath(import.meta.url)) {
   const isNewer = (served, mine) => { try { execFileSync("git", ["merge-base", "--is-ancestor", mine, served], { stdio: "ignore" }); return served !== mine; } catch { return false; } };
   let out;
   try {
-    out = await runFromDeployment({ sha: arg("--sha"), servedFrom: arg("--served-from"), origin: arg("--origin") ?? DEFAULT_ORIGIN, write: process.argv.includes("--write"), attempts: Number(arg("--attempts") ?? 1), isNewer });
+    out = await runFromDeployment({ sha: arg("--sha"), servedFrom: arg("--served-from"), lastServedFrom: arg("--last-served-from") || null, origin: arg("--origin") ?? DEFAULT_ORIGIN, write: process.argv.includes("--write"), attempts: Number(arg("--attempts") ?? 1), isNewer });
   } catch (e) {
     /* A challenged or failed read, or a record-guard violation: still a verdict line, never a silent failure. */
     out = { ok: false, problems: [String(e?.message ?? e)], added: 0, wrote: false };
