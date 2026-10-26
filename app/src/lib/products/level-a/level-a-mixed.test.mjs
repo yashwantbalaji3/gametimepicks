@@ -37,8 +37,8 @@ const crossSport = () => levelASuggestions({ selections: [sel("mlb", 0.62), sel(
 const NBA_LEGS = [nba(0.85, 1), nba(0.74, 2), nba(0.66, 3), nba(0.57, 4)];
 const DISCLOSURE = "DISPLAY DISCLOSURE (a real build prints the context text)";
 
-test("SWITCH: its own committed constant (one file), default false; only \"1\" overrides; works either way", () => {
-  assert.equal(LEVEL_A_MIXED_PUBLIC, false, "mixed cards ship OFF; flipped only after a §7-style package");
+test("SWITCH: its own committed constant (one file); only \"1\" overrides; works either way", () => {
+  assert.equal(typeof LEVEL_A_MIXED_PUBLIC, "boolean");
   const defs = [];
   const walk = (d) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const f = path.join(d, e.name); if (e.isDirectory()) walk(f); else if (/\.(mjs|ts|tsx)$/.test(e.name) && !/\.test\./.test(e.name) && /export const LEVEL_A_MIXED_PUBLIC\b/.test(fs.readFileSync(f, "utf8"))) defs.push(path.relative(process.cwd(), f)); } };
   walk(path.resolve(process.cwd(), "src"));

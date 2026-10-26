@@ -42,12 +42,19 @@ test("STORE: own key, add/dedupe/remove/reorder/clear, a leg cap, guarded storag
   const many = addSlipLegs(emptyModelSlip(), Array.from({ length: 20 }, (_, i) => leg("mlb", String(i))));
   assert.equal(many.legs.length, MODEL_SLIP_MAX_LEGS);
   const mem = new Map();
-  const ok = { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, v) };
+  const ok = { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, v), removeItem: (k) => mem.delete(k) };
   assert.equal(writeModelSlip(ok, s), true);
   assert.deepEqual(readModelSlip(ok).legs.map((l) => l.key), s.legs.map((l) => l.key));
-  const broken = { getItem: () => { throw new Error("blocked"); }, setItem: () => { throw new Error("quota"); } };
+  assert.deepEqual([...mem.keys()], [MODEL_SLIP_STORAGE_KEY], "one entry, under the slip's own key");
+  assert.equal(writeModelSlip(ok, removeSlipLeg(s, s.legs[0].key)), true);
+  assert.equal(mem.has(MODEL_SLIP_STORAGE_KEY), false, "removing the last leg deletes the entry");
+  writeModelSlip(ok, s);
+  writeModelSlip(ok, clearModelSlip());
+  assert.equal(mem.size, 0, "Clear all deletes the entry");
+  const broken = { getItem: () => { throw new Error("blocked"); }, setItem: () => { throw new Error("quota"); }, removeItem: () => { throw new Error("blocked"); } };
   assert.deepEqual(readModelSlip(broken), emptyModelSlip());
   assert.equal(writeModelSlip(broken, s), false);
+  assert.equal(writeModelSlip(broken, clearModelSlip()), false);
   assert.deepEqual(parseModelSlip("{not json"), emptyModelSlip());
   assert.deepEqual(parseModelSlip(JSON.stringify({ version: 99, legs: [leg("mlb", "1")] })), emptyModelSlip());
   assert.doesNotMatch(serializeModelSlip(s), /"key"/, "the key is derived, not stored");
@@ -101,6 +108,85 @@ test("COPY: the model-only line, each leg's own estimate text or 'no published e
   assert.match(text, /no published estimate/);
   assert.match(text, /No combined estimate: H2 to win has no published estimate\./);
   assert.doesNotMatch(text, /https?:\/\/|www\.|\$\d|[+-]\d{3}\b|draftkings|fanduel|betmgm|caesars/i);
+});
+
+/* ─── founder requirements (release owner, 2026-10-26): one assertion block each ─────────────────────────────────── */
+test("FOUNDER 1 · DUPLICATES: the same leg added twice, or from two cards, is one entry", () => {
+  const a = leg("nba", "2");
+  let s = addSlipLegs(emptyModelSlip(), [a]);
+  s = addSlipLegs(s, [a]);
+  s = addSlipLegs(s, [{ ...a, eventLabel: a.eventLabel, estimate: { ...a.estimate } }]);
+  assert.equal(s.legs.length, 1);
+  assert.equal(addSlipLegs(s, [a]), s, "re-adding changes nothing");
+  const all = ["parlay-lab", "bank-builder", "moonshot"].flatMap((m) => slipCatalogFor(MODEL, m));
+  const distinct = new Set(all.map((l) => l.key));
+  assert.ok(all.length > distinct.size, "real data: some legs appear on more than one card or page");
+  const real = addSlipLegs(emptyModelSlip(), all);
+  assert.equal(real.legs.length, Math.min(distinct.size, MODEL_SLIP_MAX_LEGS));
+  assert.equal(new Set(real.legs.map((l) => l.key)).size, real.legs.length);
+});
+
+test("FOUNDER 2 · SHARED GAMES: two legs of one event are flagged and never combined", () => {
+  const cases = {
+    "both sides": [leg("nba", "4", { outcome: { code: "home", label: "H4" } }), leg("nba", "4", { outcome: { code: "away", label: "A4" } })],
+    "two markets": [leg("mlb", "5"), leg("mlb", "5", { market: "total", outcome: { code: "over", label: "Over" } })],
+  };
+  for (const [name, legs] of Object.entries(cases)) {
+    const v = modelSlipView(addSlipLegs(emptyModelSlip(), [...legs, leg("epl", "6")]), { nowMs: NOW });
+    assert.equal(v.rows.length, 3, name);
+    for (const r of v.rows.slice(0, 2)) assert.ok(r.flags.some((f) => f === "CONFLICTING_OUTCOME" || f === "DUPLICATE_EVENT"), name);
+    assert.deepEqual(v.rows[2].flags, [], `${name}: the other game is not flagged`);
+    assert.deepEqual(v.combined, { available: false, reason: "two legs are from the same game" }, name);
+  }
+});
+
+test("FOUNDER 3 · CORRELATION: one team name in two sports combines; the same team twice in one sport or one event never does", () => {
+  const boston = (sport, id, label) => leg(sport, id, { eventLabel: label, teams: label.split(" @ ") });
+  const cross = modelSlipView(addSlipLegs(emptyModelSlip(), [boston("mlb", "1", "New York @ Boston"), boston("nba", "1", "New York @ Boston")]), { nowMs: NOW });
+  assert.deepEqual(cross.rows.map((r) => r.flags), [[], []], "teams and events are scoped to their sport");
+  assert.equal(cross.combined.available, true);
+  const twice = modelSlipView(addSlipLegs(emptyModelSlip(), [boston("nba", "1", "New York @ Boston"), boston("nba", "3", "Boston @ Miami")]), { nowMs: NOW });
+  assert.deepEqual(twice.rows.map((r) => r.flags), [["SAME_TEAM"], ["SAME_TEAM"]]);
+  assert.equal(twice.rows[0].flagText[0], LEG_FLAG.SAME_TEAM);
+  assert.deepEqual(twice.combined, { available: false, reason: "two legs involve the same team" });
+  const sameEvent = modelSlipView(addSlipLegs(emptyModelSlip(), [leg("mlb", "1"), leg("mlb", "1", { market: "total", outcome: { code: "over", label: "Over" } }), leg("nba", "2")]), { nowMs: NOW });
+  assert.equal(sameEvent.combined.available, false, "a same-event correlation is never combined");
+});
+
+/** The slip's fixed wording, from the copy text and the rendered bar's source (comments stripped). */
+const SLIP_UI_SOURCE = fs.readFileSync(path.resolve(process.cwd(), "src/components/products/level-a-slip.tsx"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+const FIXED_DISCLAIMERS = [MODEL_SLIP_LABEL, "Not a bet and not a price."];
+const realSlip = () => addSlipLegs(emptyModelSlip(), ["parlay-lab", "bank-builder", "moonshot"].flatMap((m) => slipCatalogFor(MODEL, m)));
+
+test("FOUNDER 4 · WORDING: 'model estimate', never 'odds', in the bar, the panel and the copied text", () => {
+  assert.match(SLIP_UI_SOURCE, /Combined model estimate/);
+  assert.match(SLIP_UI_SOURCE, /no combined estimate/);
+  assert.doesNotMatch(SLIP_UI_SOURCE, /\bodds\b/i);
+  for (const s of [realSlip(), addSlipLegs(emptyModelSlip(), [leg("mlb", "1", { estimate: { value: 0.62, text: "a", source: "s" } }), leg("nba", "2")])]) {
+    const v = modelSlipView(s, { nowMs: NOW });
+    const text = modelSlipText(v);
+    assert.match(text, /model estimate/i);
+    assert.doesNotMatch(text, /\bodds\b/i);
+    assert.doesNotMatch(JSON.stringify(v), /\bodds\b/i);
+  }
+  for (const t of Object.values(LEG_FLAG)) assert.doesNotMatch(t, /\bodds\b/i);
+});
+
+test("FOUNDER 5 · NO PRICE OR PAYOUT: nothing priced in the stored slip, the view or the copied text (real 10-26 legs)", () => {
+  const s = realSlip();
+  assert.ok(s.legs.length >= 2);
+  const PRICED = /\$|€|£|[+−-]\d{3,}\b|\b\d+\.\d{2}x\b|\bpayout|\bprice|\bstake|\bto win \$|\breturns?\b|\bdecimal\b|\bsportsbook\b|draftkings|fanduel|betmgm|caesars|https?:\/\//i;
+  for (const nowMs of [NOW, Date.parse("2026-10-27T06:00:00Z")]) {
+    const v = modelSlipView(s, { nowMs });
+    let text = modelSlipText(v);
+    for (const d of FIXED_DISCLAIMERS) text = text.split(d).join("");
+    text = text.replace("Check any sportsbook's own line before acting.", "");
+    assert.doesNotMatch(text, PRICED, "copied text");
+    assert.doesNotMatch(JSON.stringify(v.rows), PRICED, "panel rows");
+  }
+  assert.doesNotMatch(serializeModelSlip(s), PRICED, "stored value");
+  const ui = FIXED_DISCLAIMERS.reduce((x, d) => x.split(d).join(""), SLIP_UI_SOURCE);
+  assert.doesNotMatch(ui.replace(/import[^\n]*\n/g, ""), /\bpayout|\$\{?price|americanOdds|decimalOdds/i, "the bar renders no price or payout");
 });
 
 /* ─── real data: the committed 10-26 slate ─────────────────────────────────────────────────────────────────────── */
