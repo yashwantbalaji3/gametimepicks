@@ -893,10 +893,11 @@ for (const banned of ["data/internal", "PRIVATE_RESEARCH", "apiKey", "p171-ledge
 }
 fs.mkdirSync(path.join(APP, "public/data/nfl/forecasts"), { recursive: true });
 /* CONTENT-SENSITIVE (cost, 2026-10-26): these files are critical deploy paths. A run that changes nothing but its own
-   clock leaves the committed bytes alone (public-forecast-content.mjs); any content change writes the whole file. */
+   clock leaves the committed bytes alone (public-forecast-content.mjs). The three files are ONE SET: readers union
+   latest + frozen only when their generatedAt is identical (public-forecast-union.mjs), so a content change in any of
+   them writes all three from this run, and an unchanged run writes none. Written below, after latest is assembled. */
 const frozenPath = path.join(APP, "public/data/nfl/forecasts", "frozen-latest.json");
 const frozenUnchanged = samePublicForecastContent(read(frozenPath), JSON.parse(frozenPayload));
-if (!frozenUnchanged) fs.writeFileSync(frozenPath, frozenPayload);
 console.log(`frozen at kickoff: ${frozenForecasts.length} started game(s) carried from pre-kickoff receipts (current week + in-progress rollover)`);
 const publicArtifact = {
   schemaVersion: 1,
@@ -925,11 +926,14 @@ const latestPath = path.join(APP, "public/data/nfl/forecasts", "latest.json");
 /* latest.json and today's dated copy move together: both are written when the content (date included) changed or the
    dated copy does not exist yet; otherwise neither is touched. */
 const publicUnchanged = fs.existsSync(outPath) && samePublicForecastContent(read(latestPath), publicArtifact) && samePublicForecastContent(read(outPath), publicArtifact);
-if (!publicUnchanged) {
+const samePair = read(frozenPath)?.generatedAt != null && read(frozenPath)?.generatedAt === read(latestPath)?.generatedAt;
+const setUnchanged = publicUnchanged && frozenUnchanged && samePair;
+if (!setUnchanged) {
   fs.writeFileSync(outPath, payload);
   fs.writeFileSync(latestPath, payload);
+  fs.writeFileSync(frozenPath, frozenPayload);
 }
-console.log(`public forecast files: latest + ${DATE}.json ${publicUnchanged ? "UNCHANGED (content identical; not rewritten)" : "written"} · frozen-latest ${frozenUnchanged ? "UNCHANGED" : "written"}`);
+console.log(`public forecast files (latest, ${DATE}.json, frozen-latest): ${setUnchanged ? "UNCHANGED (content identical; not rewritten)" : `written (${[!publicUnchanged && "live content", !frozenUnchanged && "frozen content", !samePair && "pairing"].filter(Boolean).join(", ")} changed)`}`);
 
 console.log(`forecasts: ${published.length} published · ${refused.length} refused`);
 for (const f of published.slice(0, 3)) {

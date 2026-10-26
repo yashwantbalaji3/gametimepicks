@@ -537,7 +537,7 @@ test("CONTENT-SENSITIVE (cost) · unchanged inputs leave every public forecast f
   writeParticipation("2026-09-09T15:30:00Z", []);
   const r1 = runBuilder(app, later);
   assert.equal(r1.status, 0, r1.stderr || r1.stdout);
-  assert.match(r1.stdout, /public forecast files: latest \+ \S+ UNCHANGED .* frozen-latest UNCHANGED/);
+  assert.match(r1.stdout, /public forecast files \(latest, \S+, frozen-latest\): UNCHANGED/);
   assert.deepEqual(snap(pubDir), pub0, "unchanged inputs → byte-identical public files (no commit, no build)");
   assert.deepEqual(snap(recDir), rec0, "…and no receipt");
 
@@ -559,6 +559,18 @@ test("CONTENT-SENSITIVE (cost) · unchanged inputs leave every public forecast f
   assert.equal(runBuilder(app, evenLater).status, 0);
   assert.deepEqual(snap(pubDir), pub2, "a newer capture of the same fact writes nothing");
   assert.deepEqual(Object.keys(snap(recDir)).filter((f) => f.includes("-rev-")), revs);
+
+  // 3b · the set is one unit: latest and frozen always carry the same generatedAt (readers union them only then), so a
+  //      frozen file whose content moved — here: tampered — is rewritten together with latest, from one run
+  const pairOk = () => JSON.parse(fs.readFileSync(path.join(pubDir, "latest.json"), "utf8")).generatedAt === JSON.parse(fs.readFileSync(path.join(pubDir, "frozen-latest.json"), "utf8")).generatedAt;
+  assert.ok(pairOk(), "after a write, latest and frozen are a pair");
+  const frozenFile = path.join(pubDir, "frozen-latest.json");
+  fs.writeFileSync(frozenFile, JSON.stringify({ ...JSON.parse(fs.readFileSync(frozenFile, "utf8")), note: "stale" }));
+  const r3b = runBuilder(app, evenLater);
+  assert.equal(r3b.status, 0, r3b.stderr || r3b.stdout);
+  assert.match(r3b.stdout, /written \(frozen content changed\)/);
+  assert.ok(pairOk(), "…written as a set from one run");
+  assert.equal(JSON.parse(fs.readFileSync(path.join(pubDir, "latest.json"), "utf8")).generatedAt, evenLater);
 
   // 4 · a changed forecast (a moved kickoff) writes, as before
   const schedFile = path.join(app, "public/data/nfl/schedule/latest.json");
