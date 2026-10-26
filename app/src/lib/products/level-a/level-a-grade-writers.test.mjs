@@ -60,7 +60,16 @@ test("REAL DATA: the NBA-scoped writer reproduces every committed all-NBA grade 
     const g = byId.get(r.entryId);
     assert.ok(g, `${r.entryId} (${r.productDay} ${r.policy}/${r.tier}) was not regraded`);
     assert.equal(g.result, r.result, `${r.entryId}: result`);
-    assert.deepEqual(g.legs.map((l) => [l.eventId, l.side, l.result]), r.legs.map((l) => [l.eventId, l.side, l.result]), `${r.entryId}: legs`);
+    /* A grade row is written once the CARD is final (grade.mjs): a card already lost on one leg is written while its other
+       legs may still be pending, and the row is never rewritten. So a committed "pending" leg is a snapshot of that
+       moment, allowed only on a card that a committed leg had already lost; a regrade today may know its final. Every
+       other leg must match exactly. */
+    assert.deepEqual(g.legs.map((l) => [l.eventId, l.side]), r.legs.map((l) => [l.eventId, l.side]), `${r.entryId}: the same legs`);
+    const decided = r.result === "loss" && r.legs.some((l) => l.result === "loss");
+    r.legs.forEach((l, i) => {
+      if (l.result === "pending") assert.ok(decided, `${r.entryId}: leg ${l.eventId} is pending on a card no committed leg had lost`);
+      else assert.equal(g.legs[i].result, l.result, `${r.entryId}: leg ${l.eventId}`);
+    });
     assert.equal(g.id, r.id, "the same grade id (entry + grader version)");
   }
   assert.deepEqual(gradeViolations({ beforeText: "", afterText: fs.readFileSync(gradesFile, "utf8") }), [], "no entry graded twice");
