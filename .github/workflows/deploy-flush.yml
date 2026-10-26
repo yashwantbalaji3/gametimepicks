@@ -1,0 +1,131 @@
+# DEPLOY FLUSH — the freshness backstop for the coalescing Vercel ignore step (build-cost reduction, 2026-10-26).
+#
+# WHY. app/scripts/vercel-ignore-build.sh now batches NON-critical data: a push whose undeployed span holds only such
+# data skips the Production build until its oldest change is GTP_COALESCE_SECONDS (90 min) old. Vercel evaluates the
+# ignore step only on a push, so in a quiet hour nothing would ever come back to build that data. Every 30 minutes this
+# workflow asks the SAME script "would main build now?" (app/scripts/ops/deploy-flush-decide.sh runs it against the
+# deployed SHA and reads its GTP_GATE line) and, if the answer is yes for a change that is overdue, pushes ONE empty
+# commit whose message carries [deploy]. Vercel builds it; GitHub Actions ignores it ([skip ci]).
+#
+# Overdue = non-critical data past the coalescing window, or a code / critical-forecast change still undeployed 10 min
+# after it landed (its own build was skipped, canceled or failed).
+#
+# NEVER FLOODS. Every uncertain answer is "do not flush": the live build-info.json cannot be fetched or is not JSON (a
+# bot challenge), its SHA is not on main, the GitHub status API errors, or a Vercel deployment for a newer commit is
+# still pending. A flush is not repeated while an earlier flush commit is still undeployed and younger than 2 h. The
+# next run retries in 30 minutes; GitHub's cron delivery is best-effort, so slots can arrive late or not at all.
+#
+# ROLLBACK. Disable this workflow (`gh workflow disable deploy-flush`) or revert it. With GTP_COALESCE_SECONDS=0 set in
+# Vercel the ignore step never coalesces and this workflow finds nothing to flush.
+name: deploy-flush
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-flush
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  statuses: read
+
+jobs:
+  flush:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 400
+          persist-credentials: true
+
+      - name: Read the deployed SHA from the live site
+        id: live
+        run: |
+          set -u
+          URL="https://gametimepicks.yashwantbalaji.com/data/build-info.json"
+          BODY="$(curl -fsS -m 30 --retry 2 -A 'gtp-deploy-flush/1.0' -H 'Accept: application/json' "$URL" 2>/dev/null)" || {
+            echo "::warning::could not fetch $URL — not flushing (no commit); the next run retries"; echo "sha=" >> "$GITHUB_OUTPUT"; exit 0; }
+          SHA="$(printf '%s' "$BODY" | jq -r '.commit.sha // empty' 2>/dev/null)" || SHA=""
+          if ! printf '%s' "$SHA" | grep -Eq '^[0-9a-f]{40}$'; then
+            echo "::warning::build-info.json carried no commit SHA (bot challenge or unexpected body) — not flushing (no commit)"
+            echo "sha=" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          echo "deployed: $SHA"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Reach the deployed SHA in the clone
+        if: steps.live.outputs.sha != ''
+        env:
+          DEPLOYED_SHA: ${{ steps.live.outputs.sha }}
+        run: |
+          set -u
+          if ! git cat-file -e "${DEPLOYED_SHA}^{commit}" 2>/dev/null; then
+            git fetch -q --deepen=2000 origin main || echo "::warning::deepen failed — the decision step will not flush"
+          fi
+
+      - name: Decide (runs the real Vercel ignore step against the deployed SHA)
+        id: decide
+        if: steps.live.outputs.sha != ''
+        env:
+          DEPLOYED_SHA: ${{ steps.live.outputs.sha }}
+        run: bash app/scripts/ops/deploy-flush-decide.sh
+
+      - name: Skip while Vercel is already deploying a newer commit
+        id: busy
+        if: steps.decide.outputs.flush == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPLOYED_SHA: ${{ steps.live.outputs.sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -u
+          NOW="$(date +%s)"
+          if ! NEWER="$(git rev-list --max-count=10 "${DEPLOYED_SHA}..HEAD")"; then
+            echo "::warning::could not list the commits after $DEPLOYED_SHA — not flushing (no commit)"
+            echo "busy=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          for SHA in $NEWER; do
+            # Newest Vercel status first. A pending status older than 60 min is a stuck record, not a running build.
+            if ! LATEST="$(gh api "repos/${REPO}/commits/${SHA}/statuses" --jq '[.[] | select(.context == "Vercel")][0] | if . == null then "none 0" else "\(.state) \(.created_at | fromdateiso8601)" end')"; then
+              echo "::warning::GitHub status query failed for $SHA — not flushing (no commit)"
+              echo "busy=true" >> "$GITHUB_OUTPUT"; exit 0
+            fi
+            STATE="${LATEST%% *}"
+            AT="${LATEST##* }"
+            case "$AT" in ''|*[!0-9]*)
+              echo "::warning::unexpected status record for $SHA ($LATEST) — not flushing (no commit)"
+              echo "busy=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
+            esac
+            if [ "$STATE" = "pending" ] && [ $(( NOW - AT )) -lt 3600 ]; then
+              echo "Vercel is deploying $SHA (pending for $(( NOW - AT ))s) — not flushing"
+              echo "busy=true" >> "$GITHUB_OUTPUT"; exit 0
+            fi
+          done
+          echo "busy=false" >> "$GITHUB_OUTPUT"
+
+      - name: Push the empty [deploy] commit
+        if: steps.decide.outputs.flush == 'true' && steps.busy.outputs.busy == 'false'
+        env:
+          REASON: ${{ steps.decide.outputs.reason }}
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          MSG="auto: deploy flush [deploy] [skip ci]"
+          for attempt in 1 2 3 4 5; do
+            git commit -q --allow-empty -m "$MSG" -m "Reason: ${REASON}. Written by .github/workflows/deploy-flush.yml."
+            if git push -q origin HEAD:main; then echo "pushed the flush commit (attempt $attempt, reason $REASON)"; exit 0; fi
+            echo "push rejected (attempt $attempt) — re-creating the empty commit on the new main tip"
+            # The commit is empty, so there is nothing to rebase: drop it, move to origin/main, commit again. A newer
+            # push that already builds just makes this flush span no new input, and Vercel skips it.
+            git fetch -q origin main
+            git reset -q --hard origin/main
+            sleep $(( attempt * 3 ))
+          done
+          echo "::error::deploy flush never landed after 5 attempts"; exit 1

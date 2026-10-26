@@ -616,7 +616,12 @@ test("VERCEL: a refresh commit under app/public/data/nba/results BUILDS; the wai
   const repo = fs.mkdtempSync(path.join(os.tmpdir(), "nba-waiter-vercel-"));
   const git = (...args) => { const r = spawnSync("git", args, { cwd: repo, encoding: "utf8" }); assert.equal(r.status, 0, r.stderr); return r.stdout.trim(); };
   const commit = (files) => { for (const [rel, c] of Object.entries(files)) { fs.mkdirSync(path.dirname(path.join(repo, rel)), { recursive: true }); fs.writeFileSync(path.join(repo, rel), c); } git("add", "-A"); git("-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "-m", "c", "--no-gpg-sign"); return git("rev-parse", "HEAD"); };
-  const ignore = (base) => spawnSync("bash", [script], { cwd: path.join(repo, "app"), encoding: "utf8", env: { ...process.env, VERCEL_GIT_PREVIOUS_SHA: base, VERCEL_PROJECT_PRODUCTION_URL: "", VERCEL_FORCE_BUILD: "" } }).status;
+  // Since the coalescing gate (2026-10-26) NBA results are non-critical data: batched for up to GTP_COALESCE_SECONDS,
+  // never dropped. `ignore` pins the path rule with coalescing off (the documented rollback); `ignoreLate` pins that the
+  // same commit builds once the window has passed.
+  const env = (base, extra) => ({ ...process.env, VERCEL_GIT_PREVIOUS_SHA: base, VERCEL_PROJECT_PRODUCTION_URL: "", VERCEL_FORCE_BUILD: "", GTP_COALESCE_SECONDS: "0", GTP_NOW_EPOCH: "", ...extra });
+  const ignore = (base) => spawnSync("bash", [script], { cwd: path.join(repo, "app"), encoding: "utf8", env: env(base) }).status;
+  const ignoreLate = (base) => spawnSync("bash", [script], { cwd: path.join(repo, "app"), encoding: "utf8", env: env(base, { GTP_COALESCE_SECONDS: "", GTP_NOW_EPOCH: String(Math.floor(Date.now() / 1000) + 86400) }) }).status;
   try {
     git("init", "-q");
     const base = commit({ "app/package.json": "{}", "app/public/data/nba/results/finals-2026-27.json": "{}\n", "app/public/data/nba/results/latest.json": "{}\n", "README.md": "x" });
@@ -624,6 +629,8 @@ test("VERCEL: a refresh commit under app/public/data/nba/results BUILDS; the wai
     assert.equal(ignore(base), 0, "the waiter's workflow and test are not build inputs");
     commit({ "app/public/data/nba/results/finals-2026-27.json": "{\"finals\":[1]}\n", "app/public/data/nba/results/latest.json": "{\"rows\":[1]}\n" });
     assert.equal(ignore(wf), 1, "a recorded final is a Production build");
+    assert.equal(ignoreLate(wf), 1, "a recorded final is a Production build once the coalescing window has passed");
+    assert.equal(ignoreLate(base), 1, "the waiter's files never change that");
   } finally { fs.rmSync(repo, { recursive: true, force: true }); }
 });
 
