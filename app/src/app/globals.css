@@ -1750,6 +1750,10 @@ body {
   color: var(--vault-text-mute);
   transition: border-color 180ms ease, color 180ms ease;
 }
+/* The footer's source chips are links: 27 px tall measured on a phone (2026-10-25), under the 44 px touch rule. */
+@media (pointer: coarse) {
+  a.gtp-source-chip { min-height: 44px; }
+}
 .gtp-source-chip:hover {
   border-color: var(--vault-border-strong);
   color: var(--vault-text);

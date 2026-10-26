@@ -42,3 +42,11 @@ test("standalone back / hub / prev-next links carry the same 24px (44px on touch
     assert.match(src.slice(src.lastIndexOf("<Link", at), at), /className="gtp-backlink/, `${file}: ${text} carries gtp-backlink`);
   }
 });
+
+test("the footer's last small targets: Contact support and the source-chip links (Production, 2026-10-25)", () => {
+  /* Measured on Production after Release J: "Contact support" 16 px on every width; source-chip links 27 px on a phone. */
+  const support = fs.readFileSync(path.join(process.cwd(), "src/components/support-entry.tsx"), "utf8");
+  assert.match(support, /className=\{compact \? "ft-link" : undefined\}/, "the footer's support link is a site-map link");
+  const css = fs.readFileSync(path.join(process.cwd(), "src/app/globals.css"), "utf8");
+  assert.match(css, /@media \(pointer: coarse\) \{\s*a\.gtp-source-chip \{ min-height: 44px; \}\s*\}/);
+});
