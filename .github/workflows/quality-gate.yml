@@ -235,9 +235,17 @@ jobs:
 
       - name: Install browser engines
         run: |
+          # apt waits are bounded, so a stalled mirror errors out instead of hanging the install.
+          printf 'Acquire::Retries "3";\nAcquire::http::Timeout "60";\nAcquire::https::Timeout "60";\n' | sudo tee /etc/apt/apt.conf.d/99gtp-bounded >/dev/null
           for attempt in 1 2 3; do
             if timeout 420 npx playwright install --with-deps chromium webkit firefox; then exit 0; fi
             echo "::warning::browser install attempt $attempt failed or exceeded 7 min; retrying"
+            # timeout(1) stops npx but can orphan its apt-get child, which keeps the dpkg lock (seen 2026-10-26: every
+            # retry then failed "Could not get lock /var/lib/dpkg/lock-frontend"). Release it and repair dpkg first.
+            sudo pkill -9 -x apt-get || true
+            sudo pkill -9 -x dpkg || true
+            sudo rm -f /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock /var/cache/apt/archives/lock /var/lib/apt/lists/lock
+            sudo dpkg --configure -a || true
             sleep 15
           done
           echo "::error::browser install failed after 3 bounded attempts"

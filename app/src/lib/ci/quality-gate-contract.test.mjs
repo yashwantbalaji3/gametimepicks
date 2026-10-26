@@ -65,6 +65,10 @@ test("QG3 the browser phase keeps three engines, both specs and its retry policy
   assert.match(quality, /for attempt in 1 2 3; do\s+if timeout \d+ npx playwright install --with-deps chromium webkit firefox; then exit 0; fi/);
   assert.match(quality, /browser install failed after 3 bounded attempts"\s+exit 1/);
   assert.match(quality, /path: ~\/\.cache\/ms-playwright/);
+  // apt network waits are bounded, and a timed-out attempt's orphaned apt-get cannot hold the dpkg lock across retries.
+  assert.match(quality, /Acquire::http::Timeout/);
+  assert.match(quality, /sudo pkill -9 -x apt-get/);
+  assert.match(quality, /sudo dpkg --configure -a/);
   assert.match(quality, /playwright test e2e\/accessibility\.spec\.ts e2e\/route-assurance\.spec\.ts/);
   for (const project of ["chromium", "webkit-a11y", "firefox-a11y"]) assert.ok(pw.includes(`name: "${project}"`), `${project} project exists`);
   assert.match(pw, /retries: process\.env\.CI \? 1 : 0/, "retry policy unchanged");
