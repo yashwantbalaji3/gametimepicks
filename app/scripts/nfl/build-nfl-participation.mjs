@@ -32,6 +32,7 @@ import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 
 import { PARTICIPATION_STATES, REQUIRES_AUTHORIZED_ACTIVES } from "../../src/lib/sports/nfl/participation-states.mjs";
+import { inputStampsOf, postKickoffInputs, refusalLine } from "../../src/lib/sports/nfl/input-stamps.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -176,7 +177,18 @@ function shareForRank(market, rankIndex) {
 const written = [];
 const refused = [];
 
+/* INPUTS MUST PRECEDE KICKOFF (event-window contract; 2026-10-25 PIT @ NO): an event whose injuries or rosters capture
+   is stamped (sourceAsOf) at/after its kickoff gets no rewrite — its pre-kickoff participation record stands. */
+const stampInputs = { injuries, rosters: read(path.join(APP, "public/data/nfl/rosters/latest.json")) };
 for (const ev of events) {
+  const lateInputs = postKickoffInputs(stampInputs, ev.dateUtc);
+  if (lateInputs.length) {
+    console.log(refusalLine("build-nfl-participation", ev.providerEventId, ev.dateUtc, lateInputs));
+    const kept = path.join(ROOT, "data/internal/nfl/participation", ev.dateUtc.slice(0, 10), `${ev.providerEventId}.json`);
+    const prior = fs.existsSync(kept) ? read(kept) : null;
+    if (prior?.teams) written.push({ providerEventId: ev.providerEventId, matchup: ev.shortName, kickoffUtc: ev.dateUtc, seasonType: ev.seasonType ?? null, teams: Object.keys(prior.teams) });
+    continue;
+  }
   excluded = [];
   const teams = {};
   let ok = true;
@@ -271,6 +283,8 @@ for (const ev of events) {
        a board loses a player nobody can account for. */
     excludedIneligible: excluded.filter((x) => x.team === ev.home?.abbr || x.team === ev.away?.abbr),
     injuriesAsOf: injuries.generatedAt ?? null,
+    /* each capture's own provider stamp — what the kickoff rule judges (generatedAt above is the window's clock) */
+    inputStamps: inputStampsOf(stampInputs),
     cutoffSafe: Date.parse(roleShares.rosterAsOf) < Date.parse(ev.dateUtc),
   };
   body.inputHash = crypto.createHash("md5").update(JSON.stringify({ e: ev.providerEventId, r: roleShares.generatedAt, f: RANK_SHARES, v: SHARE_MODEL_VERSION })).digest("hex").slice(0, 16);

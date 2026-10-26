@@ -458,3 +458,50 @@ test("the card states the availability blindness, and keeps the receipt out of p
       "plainEnglish is published verbatim — an internal path in it leaks the research tree to readers");
   }
 });
+
+test("⚠ INPUTS MUST PRECEDE KICKOFF · a capture stamped 12 s after kickoff writes no revision; the record keeps publishing", () => {
+  /* Live 2026-10-25 (PIT @ NO, 401873011): the 13:29:54Z window — its --now before the 13:30Z kickoff — read an injuries
+     capture whose own sourceAsOf was 13:30:12Z. The event-window orchestrator refused the event; this builder, which
+     checked only --now, wrote 401873011-rev-1329Z. Here: a real input change (a moved kickoff) that WOULD revise the
+     opener, read beside an injuries capture stamped 12 seconds after that kickoff. */
+  const rows = realWeek1Rows();
+  const { app } = makeRoot({ scheduleRows: rows });
+  const root = path.resolve(app, "..");
+  const dir = path.join(root, "data/internal/nfl/forecast-receipts", NOW.slice(0, 10));
+  const snap = () => Object.fromEntries(fs.readdirSync(dir).sort().map((f) => [f, fs.readFileSync(path.join(dir, f), "utf8")]));
+  assert.equal(runBuilder(app, NOW).status, 0);
+  const first = snap();
+  const target = rows.reduce((a, b) => (a.dateUtc <= b.dateUtc ? a : b));
+  const original = JSON.parse(first[`${target.providerEventId}.json`]);
+  const iso = (ms) => new Date(ms).toISOString().replace(".000Z", "Z");
+  const movedKickoff = iso(Date.parse(target.dateUtc) + 3600_000);
+  const later = iso(Date.parse(NOW) + 34 * 60_000);
+  const schedFile = path.join(app, "public/data/nfl/schedule/latest.json");
+  fs.writeFileSync(schedFile, JSON.stringify({ generatedAt: later, rows: rows.map((x) => (x.providerEventId === target.providerEventId ? { ...x, dateUtc: movedKickoff } : x)) }));
+  const injuriesFile = path.join(root, "data/internal/research/injuries/nfl/latest.json");
+  fs.mkdirSync(path.dirname(injuriesFile), { recursive: true });
+  const writeInjuries = (sourceAsOf) => fs.writeFileSync(injuriesFile, JSON.stringify({ generatedAt: later, sourceAsOf, entries: [] }));
+
+  writeInjuries(iso(Date.parse(movedKickoff) + 12_000)); // 12 s AFTER the (moved) kickoff
+  const r = runBuilder(app, later);
+  assert.equal(r.status, 0, r.stderr || r.stdout);
+  assert.match(r.stdout, new RegExp(`REFUSED INPUT_AFTER_KICKOFF build-nfl-public-forecasts ${target.providerEventId} .*injuries sourceAsOf`));
+  assert.deepEqual(snap(), first, "no revision, no receipt rewritten — for the late event or any other");
+  const published = JSON.parse(fs.readFileSync(path.join(app, "public/data/nfl/forecasts/latest.json"), "utf8")).forecasts;
+  const shown = published.find((f) => String(f.providerEventId) === String(target.providerEventId));
+  assert.ok(shown, "the game keeps publishing");
+  assert.equal(shown.generatedAt, original.generatedAt, "…as its forecast of record, frozen before kickoff");
+  assert.deepEqual(shown.forecastSummary, original.forecastSummary);
+  assert.equal(shown.inputs, undefined, "input stamps stay in the receipt, out of the public copy");
+
+  /* POSITIVE CONTROL: the same change beside a capture stamped a minute BEFORE kickoff is an ordinary revision, and
+     the revision records each input's own stamp. */
+  writeInjuries(iso(Date.parse(movedKickoff) - 60_000));
+  const r2 = runBuilder(app, later);
+  assert.equal(r2.status, 0, r2.stderr || r2.stdout);
+  assert.doesNotMatch(r2.stdout, /INPUT_AFTER_KICKOFF/);
+  const revs = Object.keys(snap()).filter((f) => f.includes("-rev-"));
+  assert.deepEqual(revs.map((f) => f.split("-rev-")[0]), [String(target.providerEventId)]);
+  const rev = JSON.parse(fs.readFileSync(path.join(dir, revs[0]), "utf8"));
+  assert.deepEqual(rev.inputs, { injuries: { sourceAsOf: iso(Date.parse(movedKickoff) - 60_000) }, rosters: { sourceAsOf: null } });
+});
