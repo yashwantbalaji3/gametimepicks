@@ -9,7 +9,7 @@
  * never imputed. Each leg keeps its own label (per-leg labelling, no cap — release owner 2026-10-24).
  * A mixed card has legs from at least two sports (a one-sport card is shown by that sport's own rule).
  *
- * Switch: LEVEL_A_MIXED_PUBLIC (default false). Off: the Level A model is byte-identical to the model without this.
+ * Switch: LEVEL_A_MIXED_PUBLIC. Off: the Level A model is byte-identical to the model without this.
  */
 import { PUBLIC_RISK_TIERS, PUBLIC_RISK_LABELS } from "../../parlays/risk-odds-bands.mjs";
 import { BAND_MAX_LEGS } from "../../parlays/multi-sport.mjs";
@@ -24,8 +24,9 @@ export const LEVEL_A_MIXED_POLICIES = Object.freeze({
   moonshot: `${LEVEL_A_MIXED_POLICY}/moonshot`,
 });
 
-/** THE SWITCH. One committed constant, default false; flipped only after a §7-style evidence package on a real day. */
-export const LEVEL_A_MIXED_PUBLIC = false;
+/** THE SWITCH. One committed constant. Flipped to true for the 10-26 release, after the §7 evidence on the committed
+ *  10-26 lane (release owner). Rollback = set it back to false. */
+export const LEVEL_A_MIXED_PUBLIC = true;
 export const LEVEL_A_MIXED_FLAG = "NEXT_PUBLIC_LEVEL_A_MIXED";
 export const levelAMixedEnabled = (env = { [LEVEL_A_MIXED_FLAG]: process.env.NEXT_PUBLIC_LEVEL_A_MIXED }) => LEVEL_A_MIXED_PUBLIC || env[LEVEL_A_MIXED_FLAG] === "1";
 
