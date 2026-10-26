@@ -2,112 +2,17 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-10-25T23:53:49Z",
+  "generatedAt": "2026-10-26T16:07:42Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
-    "upcomingEvents": 2,
-    "eventsWhereTeamForecastIsBlindToAnExclusion": 2,
-    "eventsWithAMaterialExclusion": 2,
+    "upcomingEvents": 1,
+    "eventsWhereTeamForecastIsBlindToAnExclusion": 1,
+    "eventsWithAMaterialExclusion": 1,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
-    {
-      "sport": "nfl",
-      "eventId": "401873022",
-      "matchup": "KC @ SEA",
-      "kickoffUtc": "2026-10-26T00:20Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "c712bd878fbd38d5",
-        "simulations": 10000,
-        "generatedAt": "2026-10-25T23:53:49Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-25T23:53:49Z",
-        "participationInputHash": "9657c1e145107bc5",
-        "excludedCount": 7,
-        "materialExclusions": [
-          {
-            "name": "Drew Lock",
-            "team": "SEA",
-            "state": "Out",
-            "statedAt": "2026-10-25T23:00Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          }
-        ],
-        "excluded": [
-          {
-            "name": "Drew Lock",
-            "team": "SEA",
-            "state": "Out",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Jadarian Price",
-            "team": "SEA",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Zach Charbonnet",
-            "team": "SEA",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Elijah Arroyo",
-            "team": "SEA",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Brashard Smith",
-            "team": "KC",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Rashee Rice",
-            "team": "KC",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Tyquan Thornton",
-            "team": "KC",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
     {
       "sport": "nfl",
       "eventId": "401873009",
@@ -116,15 +21,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "b7a401e2db3709d1",
+        "inputHash": "8c9253b4e86b496e",
         "simulations": 10000,
-        "generatedAt": "2026-10-25T23:53:49Z"
+        "generatedAt": "2026-10-26T16:07:42Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-25T23:53:49Z",
-        "participationInputHash": "7c936d3f06775e82",
+        "snapshotAsOf": "2026-10-26T16:07:42Z",
+        "participationInputHash": "54562f02aef06831",
         "excludedCount": 6,
         "materialExclusions": [
           {
