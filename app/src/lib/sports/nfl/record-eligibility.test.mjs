@@ -123,3 +123,34 @@ test("each pre-kickoff producer checks its inputs' own stamps per event before i
     assert.match(src, /refusalLine\(/, `${file} logs a typed refusal`);
   }
 });
+
+/* ───────────────────────────── public pages stand on the record, never on an excluded copy ───────────────────────────── */
+
+test("a public copy of an excluded revision stands for its recordInstead (hero and official snapshot), or fails closed", async () => {
+  const { publicRecordOf, loadForecastViews } = await import("./forecast-view-load.mjs");
+  for (const e of RECORD_EXCLUSIONS) {
+    // the public copy exactly as the producer publishes a receipt (lineage and input stamps removed)
+    const pub = { ...readRel(e.file) };
+    delete pub.revisionOf; delete pub.priorInputHash; delete pub.inputs;
+    const rec = readRel(e.recordInstead);
+    const mapped = publicRecordOf(pub, REPO);
+    assert.equal(mapped.generatedAt, rec.generatedAt, `${e.providerEventId}: the page stands on ${e.recordInstead}`);
+    assert.equal(mapped.model.inputHash, rec.model.inputHash);
+    assert.deepEqual(mapped.forecastSummary, rec.forecastSummary);
+    assert.equal(mapped.revisionOf, undefined, "published like any receipt: no lineage fields");
+    assert.equal(publicRecordOf(pub, "/nonexistent-root"), null, "an unreadable record fails closed");
+  }
+  const other = { providerEventId: "1", generatedAt: "2026-10-25T12:00:00Z", model: { inputHash: "a" } };
+  assert.equal(publicRecordOf(other, REPO), other, "a forecast that is not excluded is untouched");
+  // the committed public artifacts: wherever an excluded event is still carried, its page shows the record and the
+  // official snapshot (with its player table) resolves — the 2026-10-26 regression rendered PIT @ NO with neither
+  const views = new Map(loadForecastViews(path.join(APP, "public")).map((v) => [String(v.providerEventId), v]));
+  for (const e of RECORD_EXCLUSIONS) {
+    const v = views.get(e.providerEventId);
+    if (!v) continue; // the event has left the public window; the mapping above still holds
+    assert.ok(v.official?.snapshotId, `${e.providerEventId}: the official snapshot resolves (refusal: ${v.official?.refusal ?? "none"})`);
+    assert.ok(v.players.length > 0, `${e.providerEventId}: official player table`);
+    const rec = readRel(e.recordInstead);
+    assert.deepEqual([v.record.generatedAt, v.record.inputHash], [rec.generatedAt, rec.model.inputHash], "the page's forecast is the record, not the excluded copy");
+  }
+});
