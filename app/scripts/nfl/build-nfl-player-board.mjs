@@ -168,6 +168,16 @@ const newArrivalsByEvent = (() => {
 /* Session 9 overnight · D1: the ACTIVE roster — the practice squad is not membership (see activeRosterIndex). */
 const { active: rosterByTeam, practiceSquad } = activeRosterIndex(read(path.join(APP, "public/data/nfl/rosters/latest.json")));
 
+/*
+ * Release J (2026-10-26): WHICH forecast of record each board is published beside. The event window runs this
+ * builder after build-nfl-public-forecasts.mjs, so latest.json holds this window's forecasts; their inputHash is the
+ * receipt of record's. The consistency audit compares the two. It used to compare this board's source time with the
+ * receipt's generatedAt, which only matched while every window rewrote every receipt; unchanged forecasts no longer
+ * revise, so the time differs while the inputs are the same. Absent for an event with no published forecast.
+ */
+const forecastHashOf = new Map((read(path.join(APP, "public/data/nfl/forecasts/latest.json"))?.forecasts ?? [])
+  .filter((f) => f?.providerEventId && f.model?.inputHash).map((f) => [String(f.providerEventId), f.model.inputHash]));
+
 const ROLE_TO_BOARD = { OUT: "INACTIVE", INACTIVE: "INACTIVE", QUESTIONABLE: "QUESTIONABLE", ACTIVE_PROJECTED: "ACTIVE_PROJECTED", ACTIVE_UNCERTAIN: "AVAILABLE_ROLE_UNCERTAIN", SOURCE_STALE: "AVAILABLE_ROLE_UNCERTAIN" };
 const roleEvidenceDoc = read(path.join(ROOT, "data/internal/nfl/role-evidence/latest.json"));
 const designationByPlayer = (() => {
@@ -501,6 +511,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     dataClass: "PUBLIC_DERIVED",
     generatedAt: NOW,
     sourceGeneratedAt: doc.generatedAt,
+    ...(forecastHashOf.has(String(doc.providerEventId)) ? { forecastInputHash: forecastHashOf.get(String(doc.providerEventId)) } : {}),
     providerEventId: doc.providerEventId,
     matchup: doc.matchup,
     kickoffUtc: doc.kickoffUtc,
