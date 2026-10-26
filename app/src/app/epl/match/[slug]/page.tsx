@@ -38,6 +38,8 @@ import { reportCardContext } from "@/lib/command-center/report-card";
 import path from "node:path";
 import { buildEplPresentation } from "@/lib/simulate/presentation/epl";
 import EtTime from "@/components/ui/et-time";
+import EplMatchWhatHappened from "@/components/epl/epl-match-what-happened";
+import { loadEplGradedRecord } from "@/lib/sports/epl/graded-record";
 import type React from "react";
 
 /**
@@ -176,6 +178,14 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
           </p>
         </details>
       </section>
+
+      {/* Founder P1 2026-10-26: a settled fixture leads with its official result, from the graded record (the same rows
+          /results/picks/epl grades), right under the one-line limitation (which stays above the first number). A fixture
+          the record has not graded shows nothing here — never a guessed score. */}
+      {(() => {
+        const graded = loadEplGradedRecord()?.team.matchesList.find((m) => m.eventId === String(row.eventId)) ?? null;
+        return graded ? <EplMatchWhatHappened graded={graded} home={home} away={away} pageProbs={row.probs ?? null} /> : null;
+      })()}
 
       {/* P243 · C-EPL: a pre-odds forecast says so beside its numbers — what a missing market
           removes is the COMPARISON, and this row is not part of the paired evaluation. */}
