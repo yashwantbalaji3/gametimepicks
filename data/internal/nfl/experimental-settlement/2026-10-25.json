@@ -4,7 +4,7 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-10-25",
- "generatedAt": "2026-10-25T20:10:38Z",
+ "generatedAt": "2026-10-25T23:53:49Z",
  "modelVersion": "nfl-regular-season-public-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
@@ -317,6 +317,571 @@
     }
    },
    "marketBenchmark": null
+  },
+  {
+   "canonicalEventId": "nfl-401873012",
+   "providerEventId": "401873012",
+   "matchup": "CIN @ BAL",
+   "kickoffUtc": "2026-10-25T17:00Z",
+   "seasonType": 2,
+   "week": 7,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-25/401873012-rev-1658Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "c8d7625b6f40edf8",
+    "forecastGeneratedAt": "2026-10-25T16:58:30Z",
+    "revisionChain": [
+     {
+      "file": "401873012.json",
+      "generatedAt": "2026-10-25T11:46:15Z",
+      "inputHash": "c268e135add38204"
+     },
+     {
+      "file": "401873012-rev-1221Z.json",
+      "generatedAt": "2026-10-25T12:21:44Z",
+      "inputHash": "26e46bb25651123d"
+     },
+     {
+      "file": "401873012-rev-1236Z.json",
+      "generatedAt": "2026-10-25T12:36:05Z",
+      "inputHash": "1007232c46eac947"
+     },
+     {
+      "file": "401873012-rev-1329Z.json",
+      "generatedAt": "2026-10-25T13:29:54Z",
+      "inputHash": "4b00fa9293ae2dae"
+     },
+     {
+      "file": "401873012-rev-1343Z.json",
+      "generatedAt": "2026-10-25T13:43:46Z",
+      "inputHash": "826dd6786b8d4343"
+     },
+     {
+      "file": "401873012-rev-1506Z.json",
+      "generatedAt": "2026-10-25T15:06:54Z",
+      "inputHash": "579da5feac2c5503"
+     },
+     {
+      "file": "401873012-rev-1513Z.json",
+      "generatedAt": "2026-10-25T15:13:37Z",
+      "inputHash": "db2551009ae89389"
+     },
+     {
+      "file": "401873012-rev-1606Z.json",
+      "generatedAt": "2026-10-25T16:06:17Z",
+      "inputHash": "736f67165ad689d6"
+     },
+     {
+      "file": "401873012-rev-1640Z.json",
+      "generatedAt": "2026-10-25T16:40:00Z",
+      "inputHash": "4692635a70b97c54"
+     },
+     {
+      "file": "401873012-rev-1658Z.json",
+      "generatedAt": "2026-10-25T16:58:30Z",
+      "inputHash": "c8d7625b6f40edf8"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-10-25T20:10:38Z",
+    "settledAt": "2026-10-25T22:36:17Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 13,
+     "away": 35,
+     "margin": -22,
+     "total": 48,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "HOME",
+     "correct": false,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 4,
+     "actual": -22,
+     "absError": 26,
+     "insideInterval80": false
+    },
+    "total": {
+     "projected": 49,
+     "actual": 48,
+     "absError": 1,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 27,
+      "away": 22,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 27
+    },
+    "probabilistic": {
+     "brier": 0.335125,
+     "logLoss": 0.864885
+    }
+   },
+   "marketBenchmark": null
+  },
+  {
+   "canonicalEventId": "nfl-401873013",
+   "providerEventId": "401873013",
+   "matchup": "CLE @ TEN",
+   "kickoffUtc": "2026-10-25T17:00Z",
+   "seasonType": 2,
+   "week": 7,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-25/401873013-rev-1658Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "c57b12dfcea446a6",
+    "forecastGeneratedAt": "2026-10-25T16:58:30Z",
+    "revisionChain": [
+     {
+      "file": "401873013.json",
+      "generatedAt": "2026-10-25T11:46:15Z",
+      "inputHash": "84a4dc5686d889d3"
+     },
+     {
+      "file": "401873013-rev-1221Z.json",
+      "generatedAt": "2026-10-25T12:21:44Z",
+      "inputHash": "a0c3ec654cb1c1b0"
+     },
+     {
+      "file": "401873013-rev-1236Z.json",
+      "generatedAt": "2026-10-25T12:36:05Z",
+      "inputHash": "4a4a6059592f4609"
+     },
+     {
+      "file": "401873013-rev-1329Z.json",
+      "generatedAt": "2026-10-25T13:29:54Z",
+      "inputHash": "c915038f5cc63c27"
+     },
+     {
+      "file": "401873013-rev-1343Z.json",
+      "generatedAt": "2026-10-25T13:43:46Z",
+      "inputHash": "cf9fde287f7624f2"
+     },
+     {
+      "file": "401873013-rev-1506Z.json",
+      "generatedAt": "2026-10-25T15:06:54Z",
+      "inputHash": "c878fae6075cc356"
+     },
+     {
+      "file": "401873013-rev-1513Z.json",
+      "generatedAt": "2026-10-25T15:13:37Z",
+      "inputHash": "391697ba79312e49"
+     },
+     {
+      "file": "401873013-rev-1606Z.json",
+      "generatedAt": "2026-10-25T16:06:17Z",
+      "inputHash": "713c8b1cbff23a6e"
+     },
+     {
+      "file": "401873013-rev-1640Z.json",
+      "generatedAt": "2026-10-25T16:40:00Z",
+      "inputHash": "24ae912513aa7e9f"
+     },
+     {
+      "file": "401873013-rev-1658Z.json",
+      "generatedAt": "2026-10-25T16:58:30Z",
+      "inputHash": "c57b12dfcea446a6"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-10-25T20:10:38Z",
+    "settledAt": "2026-10-25T22:36:17Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 24,
+     "away": 27,
+     "margin": -3,
+     "total": 51,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "AWAY",
+     "correct": true,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": -3,
+     "actual": -3,
+     "absError": 0,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 38,
+     "actual": 51,
+     "absError": 13,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 18,
+      "away": 20,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 13
+    },
+    "probabilistic": {
+     "brier": 0.125883,
+     "logLoss": 0.438195
+    }
+   },
+   "marketBenchmark": null
+  },
+  {
+   "canonicalEventId": "nfl-401873015",
+   "providerEventId": "401873015",
+   "matchup": "MIA @ NYJ",
+   "kickoffUtc": "2026-10-25T17:00Z",
+   "seasonType": 2,
+   "week": 7,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-25/401873015-rev-1658Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "2d81977d7618b098",
+    "forecastGeneratedAt": "2026-10-25T16:58:30Z",
+    "revisionChain": [
+     {
+      "file": "401873015.json",
+      "generatedAt": "2026-10-25T11:46:15Z",
+      "inputHash": "a213f51be664da4e"
+     },
+     {
+      "file": "401873015-rev-1221Z.json",
+      "generatedAt": "2026-10-25T12:21:44Z",
+      "inputHash": "6a32757abe80b9ff"
+     },
+     {
+      "file": "401873015-rev-1236Z.json",
+      "generatedAt": "2026-10-25T12:36:05Z",
+      "inputHash": "e540df5ccd1f9fd8"
+     },
+     {
+      "file": "401873015-rev-1329Z.json",
+      "generatedAt": "2026-10-25T13:29:54Z",
+      "inputHash": "575b81fc1131ade0"
+     },
+     {
+      "file": "401873015-rev-1343Z.json",
+      "generatedAt": "2026-10-25T13:43:46Z",
+      "inputHash": "ad3c4780494b2d1b"
+     },
+     {
+      "file": "401873015-rev-1506Z.json",
+      "generatedAt": "2026-10-25T15:06:54Z",
+      "inputHash": "4bbd9611982a10e2"
+     },
+     {
+      "file": "401873015-rev-1513Z.json",
+      "generatedAt": "2026-10-25T15:13:37Z",
+      "inputHash": "281ba0a5656f8e2a"
+     },
+     {
+      "file": "401873015-rev-1606Z.json",
+      "generatedAt": "2026-10-25T16:06:17Z",
+      "inputHash": "1191ce003b13e6b7"
+     },
+     {
+      "file": "401873015-rev-1640Z.json",
+      "generatedAt": "2026-10-25T16:40:00Z",
+      "inputHash": "39a3b5ff2efcac35"
+     },
+     {
+      "file": "401873015-rev-1658Z.json",
+      "generatedAt": "2026-10-25T16:58:30Z",
+      "inputHash": "2d81977d7618b098"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-10-25T20:10:38Z",
+    "settledAt": "2026-10-25T22:36:17Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 25,
+     "away": 28,
+     "margin": -3,
+     "total": 53,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "HOME",
+     "correct": false,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 1,
+     "actual": -3,
+     "absError": 4,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 42,
+     "actual": 53,
+     "absError": 11,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 22,
+      "away": 20,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 11
+    },
+    "probabilistic": {
+     "brier": 0.297898,
+     "logLoss": 0.789218
+    }
+   },
+   "marketBenchmark": null
+  },
+  {
+   "canonicalEventId": "nfl-401873017",
+   "providerEventId": "401873017",
+   "matchup": "SF @ ATL",
+   "kickoffUtc": "2026-10-25T17:00Z",
+   "seasonType": 2,
+   "week": 7,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-25/401873017-rev-1658Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "2d781cea37975f18",
+    "forecastGeneratedAt": "2026-10-25T16:58:30Z",
+    "revisionChain": [
+     {
+      "file": "401873017.json",
+      "generatedAt": "2026-10-25T11:46:15Z",
+      "inputHash": "aa4d501b070d2747"
+     },
+     {
+      "file": "401873017-rev-1221Z.json",
+      "generatedAt": "2026-10-25T12:21:44Z",
+      "inputHash": "644fd940dcf9828a"
+     },
+     {
+      "file": "401873017-rev-1236Z.json",
+      "generatedAt": "2026-10-25T12:36:05Z",
+      "inputHash": "43759b2876838ed4"
+     },
+     {
+      "file": "401873017-rev-1329Z.json",
+      "generatedAt": "2026-10-25T13:29:54Z",
+      "inputHash": "c3b126e3f28d78e7"
+     },
+     {
+      "file": "401873017-rev-1343Z.json",
+      "generatedAt": "2026-10-25T13:43:46Z",
+      "inputHash": "25457c9ec39cdc31"
+     },
+     {
+      "file": "401873017-rev-1506Z.json",
+      "generatedAt": "2026-10-25T15:06:54Z",
+      "inputHash": "6a2dc254d3206c87"
+     },
+     {
+      "file": "401873017-rev-1513Z.json",
+      "generatedAt": "2026-10-25T15:13:37Z",
+      "inputHash": "027592b44d95906b"
+     },
+     {
+      "file": "401873017-rev-1606Z.json",
+      "generatedAt": "2026-10-25T16:06:17Z",
+      "inputHash": "40c600986c5f0cfb"
+     },
+     {
+      "file": "401873017-rev-1640Z.json",
+      "generatedAt": "2026-10-25T16:40:00Z",
+      "inputHash": "e1857733e708c074"
+     },
+     {
+      "file": "401873017-rev-1658Z.json",
+      "generatedAt": "2026-10-25T16:58:30Z",
+      "inputHash": "2d781cea37975f18"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-10-25T20:10:38Z",
+    "settledAt": "2026-10-25T22:36:17Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 29,
+     "away": 20,
+     "margin": 9,
+     "total": 49,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "HOME",
+     "modelFavoured": "AWAY",
+     "correct": false,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": -5,
+     "actual": 9,
+     "absError": 14,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 47,
+     "actual": 49,
+     "absError": 2,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 21,
+      "away": 26,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 14
+    },
+    "probabilistic": {
+     "brier": 0.538609,
+     "logLoss": 1.323883
+    }
+   },
+   "marketBenchmark": null
+  },
+  {
+   "canonicalEventId": "nfl-401873016",
+   "providerEventId": "401873016",
+   "matchup": "NYG @ HOU",
+   "kickoffUtc": "2026-10-25T17:00Z",
+   "seasonType": 2,
+   "week": 7,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-25/401873016-rev-1658Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "9a4907e61849ab1a",
+    "forecastGeneratedAt": "2026-10-25T16:58:30Z",
+    "revisionChain": [
+     {
+      "file": "401873016.json",
+      "generatedAt": "2026-10-25T11:46:15Z",
+      "inputHash": "dd8117fab06d4003"
+     },
+     {
+      "file": "401873016-rev-1221Z.json",
+      "generatedAt": "2026-10-25T12:21:44Z",
+      "inputHash": "5530bbbd444230ac"
+     },
+     {
+      "file": "401873016-rev-1236Z.json",
+      "generatedAt": "2026-10-25T12:36:05Z",
+      "inputHash": "80df5444a69b9482"
+     },
+     {
+      "file": "401873016-rev-1329Z.json",
+      "generatedAt": "2026-10-25T13:29:54Z",
+      "inputHash": "6f024ca55b357705"
+     },
+     {
+      "file": "401873016-rev-1343Z.json",
+      "generatedAt": "2026-10-25T13:43:46Z",
+      "inputHash": "c846c04a4e8992ac"
+     },
+     {
+      "file": "401873016-rev-1506Z.json",
+      "generatedAt": "2026-10-25T15:06:54Z",
+      "inputHash": "fad0c907c1211ed1"
+     },
+     {
+      "file": "401873016-rev-1513Z.json",
+      "generatedAt": "2026-10-25T15:13:37Z",
+      "inputHash": "965e9324f5fd2def"
+     },
+     {
+      "file": "401873016-rev-1606Z.json",
+      "generatedAt": "2026-10-25T16:06:17Z",
+      "inputHash": "f76f52083783ebb8"
+     },
+     {
+      "file": "401873016-rev-1640Z.json",
+      "generatedAt": "2026-10-25T16:40:00Z",
+      "inputHash": "4e6280e84bb8802b"
+     },
+     {
+      "file": "401873016-rev-1658Z.json",
+      "generatedAt": "2026-10-25T16:58:30Z",
+      "inputHash": "9a4907e61849ab1a"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-10-25T22:36:17Z",
+    "settledAt": "2026-10-25T22:58:59Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 21,
+     "away": 27,
+     "margin": -6,
+     "total": 48,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "HOME",
+     "correct": false,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 7,
+     "actual": -6,
+     "absError": 13,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 47,
+     "actual": 48,
+     "absError": 1,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 27,
+      "away": 20,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 13
+    },
+    "probabilistic": {
+     "brier": 0.462128,
+     "logLoss": 1.138809
+    }
+   },
+   "marketBenchmark": null
   }
  ],
  "pending": [
@@ -325,41 +890,6 @@
    "matchup": "DAL @ PHI",
    "state": "PRE_KICKOFF",
    "kickoffUtc": "2026-10-27T00:15Z"
-  },
-  {
-   "canonicalEventId": "nfl-401873012",
-   "matchup": "CIN @ BAL",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-10-25T17:00Z",
-   "observed": "STATUS_SCHEDULED"
-  },
-  {
-   "canonicalEventId": "nfl-401873013",
-   "matchup": "CLE @ TEN",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-10-25T17:00Z",
-   "observed": "STATUS_SCHEDULED"
-  },
-  {
-   "canonicalEventId": "nfl-401873015",
-   "matchup": "MIA @ NYJ",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-10-25T17:00Z",
-   "observed": "STATUS_SCHEDULED"
-  },
-  {
-   "canonicalEventId": "nfl-401873016",
-   "matchup": "NYG @ HOU",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-10-25T17:00Z",
-   "observed": "STATUS_SCHEDULED"
-  },
-  {
-   "canonicalEventId": "nfl-401873017",
-   "matchup": "SF @ ATL",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-10-25T17:00Z",
-   "observed": "STATUS_SCHEDULED"
   },
   {
    "canonicalEventId": "nfl-401873019",
@@ -371,14 +901,16 @@
   {
    "canonicalEventId": "nfl-401873020",
    "matchup": "GB @ DET",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-25T20:25Z"
+   "state": "AWAITING_OFFICIAL_RESULT",
+   "kickoffUtc": "2026-10-25T20:25Z",
+   "observed": "STATUS_SCHEDULED"
   },
   {
    "canonicalEventId": "nfl-401873021",
    "matchup": "LAR @ LV",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-25T20:25Z"
+   "state": "AWAITING_OFFICIAL_RESULT",
+   "kickoffUtc": "2026-10-25T20:25Z",
+   "observed": "STATUS_SCHEDULED"
   },
   {
    "canonicalEventId": "nfl-401873022",
@@ -391,24 +923,24 @@
  "recordElsewhere": [],
  "accounting": {
   "receipts": 13,
-  "settled": 3,
-  "pending": 10,
+  "settled": 8,
+  "pending": 5,
   "quarantined": 0,
   "recordElsewhere": 0,
   "reconciles": true
  },
  "metrics": {
-  "settledForecasts": 3,
-  "decisive": 3,
+  "settledForecasts": 8,
+  "decisive": 8,
   "ties": 0,
-  "winnerCorrect": 2,
-  "winnerAccuracy": 0.6667,
-  "marginMAE": 12,
-  "totalMAE": 14.6667,
-  "marginInterval80Coverage": 0.6667,
-  "totalInterval80Coverage": 0.6667,
-  "brier": 0.184,
-  "logLoss": 0.546
+  "winnerCorrect": 3,
+  "winnerAccuracy": 0.375,
+  "marginMAE": 11.625,
+  "totalMAE": 9,
+  "marginInterval80Coverage": 0.75,
+  "totalInterval80Coverage": 0.875,
+  "brier": 0.2889,
+  "logLoss": 0.7741
  },
  "marketBenchmark": null,
  "comparison": null

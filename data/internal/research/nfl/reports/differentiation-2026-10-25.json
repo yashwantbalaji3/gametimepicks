@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "artifact": "nfl-model-differentiation",
   "dataClass": "PRIVATE_RESEARCH",
-  "generatedAt": "2026-10-25T20:10:38Z",
+  "generatedAt": "2026-10-25T23:53:49Z",
   "slateDate": "2026-10-25",
-  "eventCount": 4,
+  "eventCount": 2,
   "engineVersion": "nfl-regular-season-public-v1@v2",
   "config": {
     "lambda": 0.25,
@@ -22,11 +22,11 @@
       "observedVariationIsNoise": false,
       "teamSignalState": "APPLIED",
       "tStatistic": -0.5746,
-      "distinctValues": 4,
-      "spread": 0.279818,
+      "distinctValues": 2,
+      "spread": 0.015098,
       "classification": "EVENT_SPECIFIC",
       "declaredSharedPrior": false,
-      "reading": "win probability spans 34.64%-62.62% across 4 events, so the engine is consuming team-specific evidence"
+      "reading": "win probability spans 61.11%-62.62% across 2 events, so the engine is consuming team-specific evidence"
     },
     {
       "head": "total",
@@ -36,73 +36,19 @@
       "driver": "matchup-totals-v3-play-efficiency — decayed per-team scoring plus play-by-play efficiency and pace, centred on the current league level, adopted on an ELIGIBLE preregistered receipt (historical replay, 5,878 held-out games 2000-2021: centred within a point in every era, lower error than the league-level baseline in every era and than v2 overall)",
       "eventSpecific": true,
       "observedVariationIsNoise": false,
-      "distinctValues": 4,
-      "spread": 9,
+      "distinctValues": 2,
+      "spread": 7,
       "classification": "EVENT_SPECIFIC",
       "declaredSharedPrior": false,
-      "reading": "published totals span 42-51 across 4 events from each matchup's own ratings — a per-game scoring read, evaluated before it was allowed to move a number."
+      "reading": "published totals span 42-49 across 2 events from each matchup's own ratings — a per-game scoring read, evaluated before it was allowed to move a number."
     }
   ],
   "events": [
     {
-      "canonicalEventId": "nfl-401873020",
-      "matchup": "GB @ DET",
-      "kickoffUtc": "2026-10-25T20:25Z",
-      "inputHash": "1e7a65f7b965b263",
-      "engineVersion": "nfl-regular-season-public-v1@v2",
-      "expected": {
-        "marginMean": 3,
-        "marginMedian": 3,
-        "totalMedian": 51,
-        "totalHead": "matchup-totals-v3-play-efficiency",
-        "winProbHome": 0.5524325653778706,
-        "winProbIsRounded": false,
-        "projected": {
-          "home": 27,
-          "away": 24,
-          "convention": "scores-derived-from-total-and-margin-v1"
-        }
-      },
-      "intervals": {
-        "marginP10": -14,
-        "marginP90": 19,
-        "totalP10": 34,
-        "totalP90": 69
-      },
-      "receiptGeneratedAt": "2026-10-25T20:10:38Z"
-    },
-    {
-      "canonicalEventId": "nfl-401873021",
-      "matchup": "LAR @ LV",
-      "kickoffUtc": "2026-10-25T20:25Z",
-      "inputHash": "5264ef2b187dc238",
-      "engineVersion": "nfl-regular-season-public-v1@v2",
-      "expected": {
-        "marginMean": -4,
-        "marginMedian": -4,
-        "totalMedian": 47,
-        "totalHead": "matchup-totals-v3-play-efficiency",
-        "winProbHome": 0.34637782395324884,
-        "winProbIsRounded": false,
-        "projected": {
-          "home": 22,
-          "away": 25,
-          "convention": "scores-derived-from-total-and-margin-v1"
-        }
-      },
-      "intervals": {
-        "marginP10": -20,
-        "marginP90": 13,
-        "totalP10": 31,
-        "totalP90": 65
-      },
-      "receiptGeneratedAt": "2026-10-25T20:10:38Z"
-    },
-    {
       "canonicalEventId": "nfl-401873022",
       "matchup": "KC @ SEA",
       "kickoffUtc": "2026-10-26T00:20Z",
-      "inputHash": "07f233ef87ffd7e9",
+      "inputHash": "c712bd878fbd38d5",
       "engineVersion": "nfl-regular-season-public-v1@v2",
       "expected": {
         "marginMean": 3,
@@ -123,13 +69,13 @@
         "totalP10": 25,
         "totalP90": 59
       },
-      "receiptGeneratedAt": "2026-10-25T20:10:38Z"
+      "receiptGeneratedAt": "2026-10-25T22:36:17Z"
     },
     {
       "canonicalEventId": "nfl-401873009",
       "matchup": "DAL @ PHI",
       "kickoffUtc": "2026-10-27T00:15Z",
-      "inputHash": "d989d0794bfc5d27",
+      "inputHash": "b7a401e2db3709d1",
       "engineVersion": "nfl-regular-season-public-v1@v2",
       "expected": {
         "marginMean": 5,
@@ -150,7 +96,7 @@
         "totalP10": 32,
         "totalP90": 66
       },
-      "receiptGeneratedAt": "2026-10-25T20:10:38Z"
+      "receiptGeneratedAt": "2026-10-25T22:36:17Z"
     }
   ],
   "fingerprintCollisions": [],
