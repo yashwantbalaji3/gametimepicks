@@ -25,11 +25,17 @@ been red on three unit tests since 10-24.
 | Footer site map | every page | ~30 links at 16 px | 40 of 44 links at ≥ 24 / 44 px |
 | Keyboard-reachable tables, labelled result dots | `/nba/simulation/<id>/`, `/results/nba/`, `/results/` | 5 + 11 + 1 axe violations | 0 |
 
+**NFL forecast revisions: verified on Production runs.**
+- Event window run 413 (22:35Z) wrote exactly the two expected one-time revisions, KC @ SEA and DAL @ PHI, each with a `forecastSummary` identical to the receipt it replaced.
+- The next four windows (22:59, 23:03, 23:27, 23:53Z; the last 27 min before KC @ SEA kicked off) wrote **none**.
+- Before, every window revised every game: 99 timestamp-only revisions for 12 games by 16:40Z on 10-25.
+
+**Regression found and fixed (follow-up release).**
+- **Problem:** the consistency audit tied each NFL player board to its forecast record by timestamp. That held only while every window rewrote every receipt. After the revisions stopped, main's `audit.test.mjs` failed on live data for 401873009 and 401873022, with identical numbers on both sides (no public effect).
+- **Fix:** the board now names the record it was published beside (`forecastInputHash`), and the audit compares hashes. A board left behind by a real revision still fails.
+
 **Released, verified before release, Production run still to observe:**
-- **NFL forecast revisions:** a revision now happens only when the game's own inputs change.
-  - The first event window after merge writes one revision per game not yet started, with identical numbers (a one-time formula change). After that, nothing until something real changes.
-  - Before, every window revised every game: 99 timestamp-only revisions for 12 games by 16:40Z on 10-25.
-- **NFL odds budget:** an exhausted allowance ends the capture green, with a `BUDGET_EXHAUSTED` warning and step summary, before any request. Before, 68 of 100 windows were red for this reason alone.
+- **NFL odds budget:** an exhausted allowance ends the capture green, with a `BUDGET_EXHAUSTED` warning and step summary, before any request. Before, 68 of 100 windows were red for this reason alone. Run 413 skipped the odds step (the kickoff dispatcher passes `skip_odds`); the first run that executes it is the 10-26 14:30Z cron.
 - **NBA Level A grading:** NBA-only cards are graded inside the `nba-results-refresh` finals commit, instead of about 5 h later in nightly-settle. A rebase that conflicts only on `graded.jsonl` is regraded instead of dropping the settlement commit.
 
 **Unresolved limitations**
