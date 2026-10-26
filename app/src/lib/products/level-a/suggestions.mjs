@@ -216,8 +216,10 @@ export function levelASuggestions({ selections = [], now, productDay = null }) {
 export function cardCopyText(card) {
   if (!card) return "";
   const lines = [`GameTimePicks model suggestion · ${card.tierLabel ?? "untiered"} · ${card.legs.length} legs · paper only, no price`];
-  for (const l of card.legs) lines.push(`- ${l.eventLabel} (${l.sport.toUpperCase()}): ${l.selection.label}${l.probability != null ? ` · model ${(l.probability * 100).toFixed(1)}%` : ""}`);
+  /* A leg that carries its source's own shown text (the NBA display: label + whole-percent text) prints that, verbatim. */
+  for (const l of card.legs) lines.push(`- ${l.eventLabel} (${l.sport.toUpperCase()}): ${l.selection.label}${l.shownPct && l.label ? ` · ${l.label}: ${l.shownPct}` : l.probability != null ? ` · model ${(l.probability * 100).toFixed(1)}%` : ""}`);
   if (card.jointProbability != null) lines.push(`Model joint probability ${jointShownFor(card.jointProbability, card.tier)} (legs from different games; assumes the games are independent).`);
+  if (card.disclosure) lines.push(card.disclosure);
   lines.push("Not a bet and not a price. Check any sportsbook's own line before acting.");
   return lines.join("\n");
 }
