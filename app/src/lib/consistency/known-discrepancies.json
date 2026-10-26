@@ -199,8 +199,7 @@
     "pipeline/mlb/mlb_model.py",
     "pipeline/mlb/mlb_odds.py",
     "pipeline/score_model.py",
-    "pipeline/settle_results.py",
-    "app/public/data/nfl/player-board/401873011.json"
+    "pipeline/settle_results.py"
   ],
   "manifest": {
     "app/public/data/nfl/live-props/401872980.json": "bcdcdea0479b08d40a034a6acf339df7cb9521496d017b3b822404762caf8d8f",
@@ -361,8 +360,7 @@
     "pipeline/mlb/mlb_model.py": null,
     "pipeline/mlb/mlb_odds.py": null,
     "pipeline/score_model.py": null,
-    "pipeline/settle_results.py": null,
-    "app/public/data/nfl/player-board/401873011.json": "f71443b0f375174b2b2345a93ac84128fb4009ca61e6b9fcae3fee59ce365de1"
+    "pipeline/settle_results.py": null
   },
   "entries": [
     {"f":"LEAN_CONTRADICTION|NFL|401872980|nfl-live-props.graded-side|*|player_reception_yds|SIDE_WITHOUT_PRICE_SUPPORT","n":3,"sev":"WARN","s":[0,15]},
@@ -900,7 +898,6 @@
     {"f":"STATIC|SIGMA_NBA_LAST10_FLOOR|pipeline/build_features.py|\"dispersion_pts\": _std(last10_pts, floor=","n":1,"sev":"WARN","s":[151]},
     {"f":"STATIC|SIGMA_NFL_EMPIRICAL_STRICT|app/src/lib/sports/nfl/player-props-v1.mjs|probOver: (line) => samples.reduce((a, v) => a + (v > line ? 1 : 0), 0) / n","n":1,"sev":"WARN","s":[88]},
     {"f":"STATIC|SIGMA_NFL_GAME_FROM_P10_P90|app/scripts/nfl/build-nfl-game-simulations.mjs|const sigMargin = (s.margin.p90 - s.margin.p10) / (2 * zFromP);","n":1,"sev":"WARN","s":[76]},
-    {"f":"STATIC|THEATER_SELF_TARGETS_NFL_SIM_V2|app/src/lib/sports/nfl/sim-v2/receipt.mjs|[\"MEDIAN_LIKE\", nearest(() => true, qt.p50, qm.p50)]","n":1,"sev":"WARN","s":[89]},
-    {"f":"MODEL_VERSION_MIX|NFL|401873011|nfl-player-board|401873011|-|OFFICIAL:inputRef","n":1,"sev":"ERROR","s":[159],"eventOnly":true,"review":"2026-10-26 release readiness. PIT @ NO (kickoff 2026-10-25T13:30Z): the 13:29:54Z event window, 6 s before kickoff, wrote a timestamp-only forecast revision (401873011-rev-1329Z: differs from rev-1236Z only in generatedAt, evidence.strengthCutoff, teamInputs.participationAsOf, sideDecision.frozenAt and model.inputHash; every published number identical). It became the forecast of record while the player board kept its 12:36:05Z source. Root cause fixed by PR 1247 (build-nfl-public-forecasts: no revision on unchanged inputs). Receipts are append-only, so this one historical event is acknowledged here; the class is NOT pinned, so any other board/record mismatch still fails."}
+    {"f":"STATIC|THEATER_SELF_TARGETS_NFL_SIM_V2|app/src/lib/sports/nfl/sim-v2/receipt.mjs|[\"MEDIAN_LIKE\", nearest(() => true, qt.p50, qm.p50)]","n":1,"sev":"WARN","s":[89]}
   ]
 }

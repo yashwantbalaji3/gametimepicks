@@ -20,6 +20,7 @@
  */
 import { eventState, EVENT_STATE } from "../event-lifecycle.mjs";
 import { NFL_DURATION_HOURS, effectiveLifecycle } from "./effective-lifecycle.mjs";
+import { isRecordEligible } from "./record-eligibility.mjs";
 
 /**
  * @param {{ receipts: Array<object>, currentPeriod: {seasonType:number, week:number}|null, nowIso: string,
@@ -35,7 +36,7 @@ export function selectFrozenReceipts({ receipts, currentPeriod, nowIso, liveIds,
     const kickoff = Date.parse(rec.kickoffUtc);
     if (!Number.isFinite(kickoff) || kickoff > nowMs) continue;              // not started: latest.json owns it
     if (liveIds.has(id)) continue;                                           // never published twice
-    if (!(Date.parse(rec.generatedAt) < kickoff)) continue;                   // frozen means pre-kickoff, always
+    if (!isRecordEligible(rec)) continue;                                     // frozen means of record: pre-kickoff, inputs too
     const currentWeek = !!currentPeriod && rec.seasonType === currentPeriod.seasonType && rec.week === currentPeriod.week;
     if (!currentWeek && !carriedThroughRollover(rec, nowIso, terminalIds)) continue;
     if (!best.has(id) || rec.generatedAt > best.get(id).generatedAt) best.set(id, rec);

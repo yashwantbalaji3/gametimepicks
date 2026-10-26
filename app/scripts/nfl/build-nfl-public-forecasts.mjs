@@ -45,6 +45,9 @@ import { teamInputCoherence } from "../../src/lib/sports/nfl/team-input-coherenc
 import { indexDepthCharts, depthChartAsOf } from "../../src/lib/sports/nfl/depth-chart.mjs";
 import { pickNewestCapture } from "../../src/lib/sports/nfl/qb-starter-shadow.mjs";
 import { QB_CHART_MAX_AGE_MS } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
+import { INPUT_AFTER_KICKOFF, inputStampsOf, postKickoffInputs, refusalLine } from "../../src/lib/sports/nfl/input-stamps.mjs";
+import { forecastOfRecord } from "../../src/lib/forecast-ledger/adapters/nfl.mjs";
+import { samePublicForecastContent } from "../../src/lib/sports/nfl/public-forecast-content.mjs";
 
 /* A narrow root seam so tests can run THIS builder — not a copy of its rules — against a
  * disposable repo-shaped store. Production default is unchanged: the app directory above this
@@ -370,6 +373,21 @@ const sortNum = (xs) => [...xs].sort((x, y) => x - y);
 const published = [];
 const refused = [];
 /*
+ * INPUTS MUST PRECEDE KICKOFF (event-window contract; 2026-10-25 PIT @ NO). This run's `--now` can precede a kickoff
+ * while a capture it reads was taken after it: the 13:29:54Z window read an injuries capture stamped sourceAsOf
+ * 13:30:12Z for a 13:30Z kickoff and wrote 401873011-rev-1329Z. The captures that reach a forecast (through the
+ * participation record and the QB1 rule) are judged by their own sourceAsOf against EACH event's kickoff; a late one
+ * means no receipt and no revision for that event — its newest pre-kickoff receipt keeps publishing, unchanged.
+ */
+const stampInputs = {
+  injuries: read(path.join(ROOT, "data/internal/research/injuries/nfl/latest.json")),
+  rosters: read(path.join(APP, "public/data/nfl/rosters/latest.json")),
+};
+const inputStamps = inputStampsOf(stampInputs);
+const heldAtLastPreKickoff = [];
+/** What a receipt records about the captures it was built beside: each one's own sourceAsOf (forecastOfRecord checks these). */
+const receiptInputs = () => Object.fromEntries(Object.entries(inputStamps).map(([k, v]) => [k, { sourceAsOf: v }]));
+/*
  * Stage 3D: the side-decision cutover, written ONCE, by the first receipt that freezes a side. From then on a winner
  * receipt with no side decision is graded as NO_PICK (lib/results/nfl-model-favored.mjs), never by the historical rule.
  */
@@ -410,6 +428,21 @@ for (const ev of events) {
   const kickoff = Date.parse(ev.dateUtc);
   if (!ev.home?.abbr || !ev.away?.abbr) { refused.push({ providerEventId: ev.providerEventId, state: "IDENTITY_MISSING", reason: "participants unresolved — identity is never guessed" }); continue; }
   if (ev.seasonType == null) { refused.push({ providerEventId: ev.providerEventId, state: "PHASE_UNRESOLVED", reason: "no seasonType on the schedule row — the phase decides which evaluated model applies, and it is never guessed" }); continue; }
+  const lateInputs = postKickoffInputs(stampInputs, ev.dateUtc);
+  if (lateInputs.length) {
+    console.log(refusalLine("build-nfl-public-forecasts", ev.providerEventId, ev.dateUtc, lateInputs));
+    const dayDir = path.join(ROOT, "data/internal/nfl/forecast-receipts", DATE);
+    const mine = fs.existsSync(dayDir) ? fs.readdirSync(dayDir).filter((f) => (f === `${ev.providerEventId}.json` || f.startsWith(`${ev.providerEventId}-rev-`)) && f.endsWith(".json")) : [];
+    const record = forecastOfRecord(mine.map((f) => ({ file: f, receipt: read(path.join(dayDir, f)) }))).get(String(ev.providerEventId)) ?? null;
+    heldAtLastPreKickoff.push({ providerEventId: ev.providerEventId, state: INPUT_AFTER_KICKOFF, late: lateInputs, publishing: record?.file ?? null });
+    if (record) {
+      // publish exactly the forecast of record — never a forecast built on post-kickoff evidence
+      const f = { ...record.receipt };
+      delete f.revisionOf; delete f.priorInputHash; delete f.inputs;
+      published.push(f);
+    }
+    continue;
+  }
 
   const market = marketByEvent.get(ev.providerEventId) ?? null;
   /* The ROW's own stamp, not the document's: rows outlive a single capture now (a game priced
@@ -790,13 +823,13 @@ for (const ev of events) {
     // pre-kickoff revision: new file with lineage, original preserved
     const revPath = path.join(ROOT, "data/internal/nfl/forecast-receipts", DATE, `${ev.providerEventId}-rev-${NOW.slice(11, 16).replace(":", "")}Z.json`);
     markSideCutover(forecast);
-    fs.writeFileSync(revPath, JSON.stringify({ ...forecast, revisionOf: path.basename(receiptPath), priorInputHash: latest?.model?.inputHash ?? null }, null, 1));
+    fs.writeFileSync(revPath, JSON.stringify({ ...forecast, revisionOf: path.basename(receiptPath), priorInputHash: latest?.model?.inputHash ?? null, inputs: receiptInputs() }, null, 1));
     published.push(forecast);
     continue;
   }
   fs.mkdirSync(path.dirname(receiptPath), { recursive: true });
   markSideCutover(forecast);
-  fs.writeFileSync(receiptPath, JSON.stringify(forecast, null, 1));
+  fs.writeFileSync(receiptPath, JSON.stringify({ ...forecast, inputs: receiptInputs() }, null, 1));
   published.push(forecast);
 }
 
@@ -843,7 +876,7 @@ const frozenForecasts = (() => {
   }
   const terminalIds = terminalEventIds({ resultsRows: read(path.join(APP, "public/data/nfl/results/latest.json"))?.rows ?? [], settledIds });
   return selectFrozenReceipts({ receipts, currentPeriod, nowIso: NOW, liveIds, terminalIds })
-    .map((rec) => { const f = { ...rec }; delete f.revisionOf; delete f.priorInputHash; return f; });
+    .map((rec) => { const f = { ...rec }; delete f.revisionOf; delete f.priorInputHash; delete f.inputs; return f; });
 })();
 const frozenPayload = JSON.stringify({
   schemaVersion: 1,
@@ -859,7 +892,12 @@ for (const banned of ["data/internal", "PRIVATE_RESEARCH", "apiKey", "p171-ledge
   if (frozenPayload.includes(banned)) { console.error(`REFUSED: frozen forecasts would carry "${banned}"`); process.exit(3); }
 }
 fs.mkdirSync(path.join(APP, "public/data/nfl/forecasts"), { recursive: true });
-fs.writeFileSync(path.join(APP, "public/data/nfl/forecasts", "frozen-latest.json"), frozenPayload);
+/* CONTENT-SENSITIVE (cost, 2026-10-26): these files are critical deploy paths. A run that changes nothing but its own
+   clock leaves the committed bytes alone (public-forecast-content.mjs). The three files are ONE SET: readers union
+   latest + frozen only when their generatedAt is identical (public-forecast-union.mjs), so a content change in any of
+   them writes all three from this run, and an unchanged run writes none. Written below, after latest is assembled. */
+const frozenPath = path.join(APP, "public/data/nfl/forecasts", "frozen-latest.json");
+const frozenUnchanged = samePublicForecastContent(read(frozenPath), JSON.parse(frozenPayload));
 console.log(`frozen at kickoff: ${frozenForecasts.length} started game(s) carried from pre-kickoff receipts (current week + in-progress rollover)`);
 const publicArtifact = {
   schemaVersion: 1,
@@ -884,8 +922,18 @@ for (const banned of ["data/internal", "PRIVATE_RESEARCH", "apiKey", "p171-ledge
 }
 const outPath = path.join(APP, "public/data/nfl/forecasts", `${DATE}.json`);
 fs.mkdirSync(path.dirname(outPath), { recursive: true });
-fs.writeFileSync(outPath, payload);
-fs.writeFileSync(path.join(APP, "public/data/nfl/forecasts", "latest.json"), payload);
+const latestPath = path.join(APP, "public/data/nfl/forecasts", "latest.json");
+/* latest.json and today's dated copy move together: both are written when the content (date included) changed or the
+   dated copy does not exist yet; otherwise neither is touched. */
+const publicUnchanged = fs.existsSync(outPath) && samePublicForecastContent(read(latestPath), publicArtifact) && samePublicForecastContent(read(outPath), publicArtifact);
+const samePair = read(frozenPath)?.generatedAt != null && read(frozenPath)?.generatedAt === read(latestPath)?.generatedAt;
+const setUnchanged = publicUnchanged && frozenUnchanged && samePair;
+if (!setUnchanged) {
+  fs.writeFileSync(outPath, payload);
+  fs.writeFileSync(latestPath, payload);
+  fs.writeFileSync(frozenPath, frozenPayload);
+}
+console.log(`public forecast files (latest, ${DATE}.json, frozen-latest): ${setUnchanged ? "UNCHANGED (content identical; not rewritten)" : `written (${[!publicUnchanged && "live content", !frozenUnchanged && "frozen content", !samePair && "pairing"].filter(Boolean).join(", ")} changed)`}`);
 
 console.log(`forecasts: ${published.length} published · ${refused.length} refused`);
 for (const f of published.slice(0, 3)) {

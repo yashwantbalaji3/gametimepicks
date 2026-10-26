@@ -27,6 +27,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { unionFrozenForecasts } from "../sports/nfl/public-forecast-union.mjs";
+import { nflPublicRecordResolver } from "../sports/nfl/public-record.mjs";
 
 export type EventSport = "mlb" | "nfl" | "epl" | "ufc";
 export type PeriodKind = "day" | "week" | "matchweek" | "card";
@@ -106,6 +107,7 @@ export function loadNflEvents(nowIso: string): CanonicalEvent[] {
   const forecasts = unionFrozenForecasts(
     readJson("nfl", "forecasts", "latest.json") as { generatedAt?: string; forecasts?: Array<{ providerEventId: string }> } | null,
     readJson("nfl", "forecasts", "frozen-latest.json") as { generatedAt?: string; forecasts?: Array<{ providerEventId: string }> } | null,
+    { resolve: nflPublicRecordResolver() },
   );
   /* graded-picks.json lists `picks[].eventId` ("nfl-<espn id>"); `rows[].providerEventId` is the older shape. */
   const graded = readJson("nfl", "graded-picks.json") as { rows?: Array<{ providerEventId?: string }>; picks?: Array<{ eventId?: string }> } | null;

@@ -2,7 +2,8 @@
  * A reviewed `eventOnly` baseline entry acknowledges exactly ONE fingerprint. It must not teach the baseline its class
  * or its event — otherwise acknowledging one historical artifact would silently downgrade every future occurrence of
  * that kind of inconsistency to "data drift". Release readiness 2026-10-26: main's third unit failure was one such
- * historical event (NFL 401873011, PIT @ NO), whose cause PR 1247 fixes; see known-discrepancies.json.
+ * historical event (NFL 401873011, PIT @ NO), whose cause PR 1247 fixes. That acknowledgement was retired once its
+ * post-kickoff revision left the record of record (PR 1253, sports/nfl/record-exclusions.mjs); the mechanism stays.
  * Run: npx tsx --test src/lib/consistency/baseline-event-only.test.mjs
  */
 import { test } from "node:test";
@@ -50,11 +51,11 @@ test("a full re-pin keeps the acknowledgement event-only (it never widens to the
   assert.equal(repinned.entries.find((x) => x.f === FP("401873099")).eventOnly, undefined, "only what was reviewed");
 });
 
-test("THE COMMITTED ACKNOWLEDGEMENT: one entry, event-only, with its review, and nothing else changed class", () => {
+test("THE COMMITTED BASELINE: no event-only acknowledgement remains, and no ordinary entry pins the board/record class", () => {
+  // Retired 2026-10-26 (release owner): the one acknowledgement (PIT @ NO 401873011, 48932e21b6) is no longer needed —
+  // its post-kickoff revision is excluded from the record (sports/nfl/record-exclusions.mjs), so the board agrees with
+  // the record of record and the audit raises nothing. A new acknowledgement must be added here, deliberately.
   const b = JSON.parse(fs.readFileSync(path.join(here, "known-discrepancies.json"), "utf8"));
-  const acks = b.entries.filter((e) => e.eventOnly);
-  assert.deepEqual(acks.map((e) => e.f), [FP("401873011")]);
-  assert.match(acks[0].review, /timestamp-only forecast revision/);
-  assert.match(acks[0].review, /class is NOT pinned/);
-  assert.ok(!b.entries.some((e) => !e.eventOnly && fingerprintClass(e.f) === fingerprintClass(FP("401873011"))), "no ordinary entry pins the board/record class");
+  assert.deepEqual(b.entries.filter((e) => e.eventOnly).map((e) => e.f), []);
+  assert.ok(!b.entries.some((e) => fingerprintClass(e.f) === fingerprintClass(FP("401873011"))), "no entry pins the board/record class");
 });

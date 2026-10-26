@@ -16,6 +16,9 @@ import { unionFrozenForecasts } from "./public-forecast-union.mjs";
 import { sanitizePlayerBoard } from "../odds/public-offer-sanitizer.mjs";
 import { readWorldModelArtifacts } from "./world-model-v2/read.mjs";
 import { nflOfficialSnapshot, SnapshotRefusal } from "../../consistency/official-snapshot.mjs";
+import { nflPublicRecordResolver, publicRecordOf } from "./public-record.mjs";
+
+export { publicRecordOf };
 
 const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
 
@@ -42,7 +45,10 @@ export function officialSnapshotFor(forecast, board, world = null) {
 /** @param {string} publicDir the app's public/ directory */
 export function loadForecastViews(publicDir) {
   const data = path.join(publicDir, "data/nfl");
-  const art = unionFrozenForecasts(readJson(path.join(data, "forecasts/latest.json")), readJson(path.join(data, "forecasts/frozen-latest.json")));
+  const repoRoot = path.resolve(publicDir, "..", "..");
+  // an excluded public copy stands for its record (public-record.mjs); if that cannot be read, the copy is kept for the
+  // page but the official snapshot below refuses it (isRecordEligible), so no excluded number is presented as official
+  const art = unionFrozenForecasts(readJson(path.join(data, "forecasts/latest.json")), readJson(path.join(data, "forecasts/frozen-latest.json")), { resolve: nflPublicRecordResolver(repoRoot) });
   const worlds = new Map(readWorldModelArtifacts(publicDir).map((a) => [a.identity.providerEventId, a]));
   return (art?.forecasts ?? [])
     .map((f) => {
