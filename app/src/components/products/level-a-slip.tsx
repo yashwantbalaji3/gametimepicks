@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { registerSlipCatalog, useModelSlip } from "@/lib/products/level-a/model-slip-store";
+import { registerSlipCatalog, useModelSlip } from "@/lib/products/level-a/slip-store";
 import { MODEL_SLIP_LABEL, modelSlipText, modelSlipView } from "@/lib/products/level-a/slip.mjs";
 import { etStamp } from "@/lib/et-stamp.mjs";
 
@@ -16,7 +16,7 @@ type SlipRow = { leg: SlipLeg & { key: string }; flags: string[]; flagText: stri
 type Combined = { available: true; joint: number; tier: string | null; tierLabel: string | null; shown: string; note: string | null; disclosure: string } | { available: false; reason: string };
 type SlipView = { rows: SlipRow[]; combined: Combined; label: string };
 
-const BTN: React.CSSProperties = { minHeight: 44, minWidth: 44, border: "1px solid var(--vault-border-strong)", color: "var(--vault-text)", fontSize: 12.5, fontWeight: 600, background: "transparent", borderRadius: 9999, padding: "0 14px" };
+const BTN: React.CSSProperties = { minHeight: 44, minWidth: 44, whiteSpace: "nowrap", border: "1px solid var(--vault-border-strong)", color: "var(--vault-text)", fontSize: 12.5, fontWeight: 600, background: "transparent", borderRadius: 9999, padding: "0 14px" };
 const SPORT: Record<string, string> = { mlb: "MLB", nba: "NBA", epl: "Premier League", "ligue-1": "Ligue 1" };
 
 /** "Add to slip" for one leg, or "Add card to slip" for a card's legs (by key: the bar carries the page's legs once).
@@ -50,9 +50,11 @@ export function ModelSlipBar({ catalog }: { catalog: SlipLeg[] }) {
   const c = view.combined;
   const copy = async () => { try { await navigator.clipboard.writeText(modelSlipText(view)); setCopied("copied"); } catch { setCopied("failed"); } };
   return (
-    <div className="sticky bottom-0 z-10" style={{ marginTop: 8 }} onKeyDown={(e) => { if (e.key === "Escape") setOpen(false); }}>
+    /* Fixed like the selected-slips tray (the page shell's overflow-x:hidden defeats position:sticky), clearing the
+       mobile bottom navigation (fixed, md:hidden) by 64px + the safe area; centred and capped on wide screens. */
+    <div className="fixed inset-x-0 z-30 mx-auto w-full max-w-[640px] px-3 bottom-[calc(env(safe-area-inset-bottom,0px)+64px)] md:bottom-4" onKeyDown={(e) => { if (e.key === "Escape") setOpen(false); }}>
       {(
-        <section id={panelId} hidden={!open} aria-labelledby={`${panelId}-h`} className="flex flex-col gap-2 rounded-t-xl px-4 py-3" style={{ border: "1px solid var(--vault-border-strong)", background: "var(--vault-panel)", maxHeight: "60vh", overflowY: "auto" }}>
+        <section id={panelId} hidden={!open} aria-labelledby={`${panelId}-h`} className="flex flex-col gap-2 rounded-t-xl px-4 py-3" style={{ border: "1px solid var(--vault-border-strong)", background: "var(--gtp-card)", boxShadow: "0 10px 30px color-mix(in srgb, var(--vault-ink-black) 40%, transparent)", maxHeight: "60vh", overflowY: "auto" }}>
           <h2 id={`${panelId}-h`} ref={heading} tabIndex={-1} className="m-0 font-semibold" style={{ color: "var(--vault-text)", fontSize: 15 }}>Model slip</h2>
           <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{MODEL_SLIP_LABEL}.</p>
           <ol className="m-0 flex flex-col gap-2 p-0" style={{ listStyle: "none" }}>
@@ -83,8 +85,9 @@ export function ModelSlipBar({ catalog }: { catalog: SlipLeg[] }) {
         </section>
       )}
       <button type="button" className="vault-press flex w-full items-center justify-between" aria-expanded={open} aria-controls={panelId}
+        aria-label={`Model slip, ${slip.legs.length} leg${slip.legs.length === 1 ? "" : "s"}, ${c.available ? `combined model estimate ${c.shown}` : "no combined estimate"}. ${open ? "Close" : "Open"} the slip`}
         onClick={() => setOpen((o) => !o)}
-        style={{ ...BTN, borderRadius: open ? "0 0 12px 12px" : 12, background: "var(--vault-panel)", padding: "0 16px" }}>
+        style={{ ...BTN, borderRadius: open ? "0 0 12px 12px" : 12, background: "var(--gtp-card)", boxShadow: "0 10px 30px color-mix(in srgb, var(--vault-ink-black) 40%, transparent)", padding: "0 16px" }}>
         <span>Model slip ({slip.legs.length})</span>
         <span style={{ color: "var(--vault-text-mute)", fontWeight: 400 }}>{c.available ? c.shown : "no combined estimate"} · {open ? "Close" : "Open"}</span>
       </button>
