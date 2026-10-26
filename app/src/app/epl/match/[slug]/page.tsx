@@ -122,7 +122,7 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
   // same fix /nfl and /mlb already carry — two <main> landmarks fail the accessibility contract).
   return (
     <div data-sport="epl" className="mx-auto w-full max-w-[900px] px-4 py-8" style={{ color: "var(--vault-text)" }}>
-      <Link href="/epl/" style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>← Premier League fixtures</Link>
+      <Link href="/epl/" className="gtp-backlink" style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>← Premier League fixtures</Link>
 
       {/* ── Identity ─────────────────────────────────────────────────────────────────────────── */}
       <header className="mt-4">

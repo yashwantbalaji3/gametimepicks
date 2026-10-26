@@ -566,7 +566,7 @@ export default function NflHubPage() {
           {nflPublic && !nflPublic.productEligible
             ? ` ${PUBLIC_TERMS.OFFICIAL_FORECAST}s do not enter paper products (Bank Builder, Moonshot, Parlays) until the model clears its preregistered bar.`
             : null}{" "}
-          <Link href={nflPublic?.features.modelPerformance.href ?? "/models/"} style={{ color: "var(--vault-gold-bright)" }}>{PUBLIC_TERMS.MODEL_PERFORMANCE} →</Link>
+          <Link href={nflPublic?.features.modelPerformance.href ?? "/models/"} style={{ color: "var(--vault-gold-bright)", textDecoration: "underline" }}>{PUBLIC_TERMS.MODEL_PERFORMANCE} →</Link>
         </p>
       </div>
 
@@ -1208,8 +1208,8 @@ export default function NflHubPage() {
         {PUBLIC_TERMS.OFFICIAL_FORECAST}s and {PUBLIC_TERMS.GAME_SIMULATION}s on this page are never presented as
         picks. Player markets and the Endzone Vault stay gated on their own separate evidence —
         team readiness never auto-publishes a player market. See{" "}
-        <Link href="/methodology" style={{ color: "var(--sport-nfl)" }}>methodology</Link> and{" "}
-        <Link href="/sports" style={{ color: "var(--sport-nfl)" }}>all sports coverage</Link>.
+        <Link href="/methodology" style={{ color: "var(--sport-nfl)", textDecoration: "underline" }}>methodology</Link> and{" "}
+        <Link href="/sports" style={{ color: "var(--sport-nfl)", textDecoration: "underline" }}>all sports coverage</Link>.
       </p>
     </div>
   );

@@ -3,7 +3,7 @@
   "schemaVersion": 1,
   "artifact": "cron-punctuality",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-10-25T13:54:42.000Z",
+  "generatedAt": "2026-10-26T17:08:48.000Z",
   "windowDays": 7,
   "bands": {
     "onTimeMaxMinutes": 60,
@@ -12,16 +12,16 @@
   "summary": {
     "measurableWorkflows": 15,
     "unmeasurableWorkflows": 19,
-    "fleetMedianDelayMinutes": 269,
+    "fleetMedianDelayMinutes": 266,
     "worstWorkflow": "ufc-post-card.yml",
     "missedTotal": 24,
     "underCoveredWorkflows": [
+      "nba-finals-waiter.yml",
       "nba-forecast-window.yml",
       "nba-props-pilot.yml",
       "nba-results-refresh.yml",
       "nfl-kickoff-refresh.yml",
       "nfl-live-props.yml",
-      "nfl-pregame-free-refresh.yml",
       "nfl-sim-v2-shadow.yml",
       "results-top-boards.yml"
     ],
@@ -35,27 +35,15 @@
       ],
       "minGapMinutes": 1440,
       "attributable": true,
-      "judgedSlots": 6,
-      "servedSlots": 6,
+      "judgedSlots": 7,
+      "servedSlots": 7,
       "missedSlots": 0,
-      "observedRuns": 64,
+      "observedRuns": 65,
       "coverageRatio": 1,
       "medianDelayMinutes": 325,
-      "maxDelayMinutes": 442,
+      "maxDelayMinutes": 417,
       "state": "SEVERE",
       "samples": [
-        {
-          "slot": "2026-10-20T08:00:00.000Z",
-          "run": "2026-10-20T13:24:34.000Z",
-          "delayMinutes": 325,
-          "state": "SEVERE"
-        },
-        {
-          "slot": "2026-10-21T08:00:00.000Z",
-          "run": "2026-10-21T13:34:31.000Z",
-          "delayMinutes": 335,
-          "state": "SEVERE"
-        },
         {
           "slot": "2026-10-22T08:00:00.000Z",
           "run": "2026-10-22T13:36:10.000Z",
@@ -73,6 +61,18 @@
           "run": "2026-10-24T12:30:03.000Z",
           "delayMinutes": 270,
           "state": "SEVERE"
+        },
+        {
+          "slot": "2026-10-25T08:00:00.000Z",
+          "run": "2026-10-25T13:01:38.000Z",
+          "delayMinutes": 302,
+          "state": "SEVERE"
+        },
+        {
+          "slot": "2026-10-26T08:00:00.000Z",
+          "run": "2026-10-26T14:56:35.000Z",
+          "delayMinutes": 417,
+          "state": "SEVERE"
         }
       ]
     },
@@ -83,27 +83,15 @@
       ],
       "minGapMinutes": 1440,
       "attributable": true,
-      "judgedSlots": 6,
-      "servedSlots": 6,
+      "judgedSlots": 7,
+      "servedSlots": 7,
       "missedSlots": 0,
-      "observedRuns": 77,
+      "observedRuns": 78,
       "coverageRatio": 1,
       "medianDelayMinutes": 308,
-      "maxDelayMinutes": 437,
+      "maxDelayMinutes": 416,
       "state": "SEVERE",
       "samples": [
-        {
-          "slot": "2026-10-20T09:07:00.000Z",
-          "run": "2026-10-20T14:14:50.000Z",
-          "delayMinutes": 308,
-          "state": "SEVERE"
-        },
-        {
-          "slot": "2026-10-21T09:07:00.000Z",
-          "run": "2026-10-21T14:26:41.000Z",
-          "delayMinutes": 320,
-          "state": "SEVERE"
-        },
         {
           "slot": "2026-10-22T09:07:00.000Z",
           "run": "2026-10-22T14:27:59.000Z",
@@ -121,6 +109,18 @@
           "run": "2026-10-24T13:14:16.000Z",
           "delayMinutes": 247,
           "state": "SEVERE"
+        },
+        {
+          "slot": "2026-10-25T09:07:00.000Z",
+          "run": "2026-10-25T13:39:52.000Z",
+          "delayMinutes": 273,
+          "state": "SEVERE"
+        },
+        {
+          "slot": "2026-10-26T09:07:00.000Z",
+          "run": "2026-10-26T16:03:26.000Z",
+          "delayMinutes": 416,
+          "state": "SEVERE"
         }
       ]
     },
@@ -134,18 +134,12 @@
       "judgedSlots": 6,
       "servedSlots": 6,
       "missedSlots": 0,
-      "observedRuns": 94,
+      "observedRuns": 95,
       "coverageRatio": 1,
-      "medianDelayMinutes": 290,
-      "maxDelayMinutes": 369,
+      "medianDelayMinutes": 285,
+      "maxDelayMinutes": 297,
       "state": "SEVERE",
       "samples": [
-        {
-          "slot": "2026-10-20T12:40:00.000Z",
-          "run": "2026-10-20T17:29:35.000Z",
-          "delayMinutes": 290,
-          "state": "SEVERE"
-        },
         {
           "slot": "2026-10-21T12:40:00.000Z",
           "run": "2026-10-21T17:37:09.000Z",
@@ -169,6 +163,12 @@
           "run": "2026-10-24T16:12:55.000Z",
           "delayMinutes": 213,
           "state": "SEVERE"
+        },
+        {
+          "slot": "2026-10-25T12:40:00.000Z",
+          "run": "2026-10-25T16:47:09.000Z",
+          "delayMinutes": 247,
+          "state": "SEVERE"
         }
       ]
     },
@@ -182,18 +182,12 @@
       "judgedSlots": 6,
       "servedSlots": 6,
       "missedSlots": 0,
-      "observedRuns": 43,
+      "observedRuns": 45,
       "coverageRatio": 1,
-      "medianDelayMinutes": 284,
-      "maxDelayMinutes": 414,
+      "medianDelayMinutes": 282,
+      "maxDelayMinutes": 296,
       "state": "SEVERE",
       "samples": [
-        {
-          "slot": "2026-10-20T09:45:00.000Z",
-          "run": "2026-10-20T14:29:25.000Z",
-          "delayMinutes": 284,
-          "state": "SEVERE"
-        },
         {
           "slot": "2026-10-21T09:45:00.000Z",
           "run": "2026-10-21T14:40:38.000Z",
@@ -217,6 +211,12 @@
           "run": "2026-10-24T13:36:09.000Z",
           "delayMinutes": 231,
           "state": "SEVERE"
+        },
+        {
+          "slot": "2026-10-25T09:45:00.000Z",
+          "run": "2026-10-25T13:55:41.000Z",
+          "delayMinutes": 251,
+          "state": "SEVERE"
         }
       ]
     },
@@ -230,18 +230,12 @@
       "judgedSlots": 6,
       "servedSlots": 6,
       "missedSlots": 0,
-      "observedRuns": 16,
+      "observedRuns": 17,
       "coverageRatio": 1,
-      "medianDelayMinutes": 282,
-      "maxDelayMinutes": 385,
+      "medianDelayMinutes": 277,
+      "maxDelayMinutes": 294,
       "state": "SEVERE",
       "samples": [
-        {
-          "slot": "2026-10-20T10:47:00.000Z",
-          "run": "2026-10-20T15:23:36.000Z",
-          "delayMinutes": 277,
-          "state": "SEVERE"
-        },
         {
           "slot": "2026-10-21T10:47:00.000Z",
           "run": "2026-10-21T15:39:11.000Z",
@@ -265,6 +259,12 @@
           "run": "2026-10-24T14:07:33.000Z",
           "delayMinutes": 201,
           "state": "SEVERE"
+        },
+        {
+          "slot": "2026-10-25T10:47:00.000Z",
+          "run": "2026-10-25T14:35:17.000Z",
+          "delayMinutes": 228,
+          "state": "SEVERE"
         }
       ]
     },
@@ -281,18 +281,12 @@
       "judgedSlots": 6,
       "servedSlots": 6,
       "missedSlots": 0,
-      "observedRuns": 65,
+      "observedRuns": 66,
       "coverageRatio": 1,
-      "medianDelayMinutes": 282,
-      "maxDelayMinutes": 368,
+      "medianDelayMinutes": 273,
+      "maxDelayMinutes": 297,
       "state": "SEVERE",
       "samples": [
-        {
-          "slot": "2026-10-20T11:00:00.000Z",
-          "run": "2026-10-20T15:33:13.000Z",
-          "delayMinutes": 273,
-          "state": "SEVERE"
-        },
         {
           "slot": "2026-10-21T13:00:00.000Z",
           "run": "2026-10-21T17:56:31.000Z",
@@ -316,102 +310,11 @@
           "run": "2026-10-24T14:08:52.000Z",
           "delayMinutes": 189,
           "state": "SEVERE"
-        }
-      ]
-    },
-    {
-      "workflow": "nfl-props-forward-shadow.yml",
-      "crons": [
-        "30 13 * 9-12,1 *",
-        "0 20 * 9-12,1 4"
-      ],
-      "minGapMinutes": 390,
-      "attributable": true,
-      "judgedSlots": 7,
-      "servedSlots": 7,
-      "missedSlots": 0,
-      "observedRuns": 46,
-      "coverageRatio": 1,
-      "medianDelayMinutes": 274,
-      "maxDelayMinutes": 355,
-      "state": "SEVERE",
-      "samples": [
-        {
-          "slot": "2026-10-21T13:30:00.000Z",
-          "run": "2026-10-21T18:09:55.000Z",
-          "delayMinutes": 280,
-          "state": "SEVERE"
         },
         {
-          "slot": "2026-10-22T13:30:00.000Z",
-          "run": "2026-10-22T18:06:25.000Z",
-          "delayMinutes": 276,
-          "state": "SEVERE"
-        },
-        {
-          "slot": "2026-10-22T20:00:00.000Z",
-          "run": "2026-10-22T23:04:13.000Z",
-          "delayMinutes": 184,
-          "state": "SEVERE"
-        },
-        {
-          "slot": "2026-10-23T13:30:00.000Z",
-          "run": "2026-10-23T17:55:46.000Z",
-          "delayMinutes": 266,
-          "state": "SEVERE"
-        },
-        {
-          "slot": "2026-10-24T13:30:00.000Z",
-          "run": "2026-10-24T16:47:25.000Z",
-          "delayMinutes": 197,
-          "state": "SEVERE"
-        }
-      ]
-    },
-    {
-      "workflow": "mlb-daily-production.yml",
-      "crons": [
-        "17 11 * * *"
-      ],
-      "minGapMinutes": 1440,
-      "attributable": true,
-      "judgedSlots": 6,
-      "servedSlots": 6,
-      "missedSlots": 0,
-      "observedRuns": 14,
-      "coverageRatio": 1,
-      "medianDelayMinutes": 269,
-      "maxDelayMinutes": 377,
-      "state": "SEVERE",
-      "samples": [
-        {
-          "slot": "2026-10-20T11:17:00.000Z",
-          "run": "2026-10-20T15:40:19.000Z",
-          "delayMinutes": 263,
-          "state": "SEVERE"
-        },
-        {
-          "slot": "2026-10-21T11:17:00.000Z",
-          "run": "2026-10-21T15:59:04.000Z",
-          "delayMinutes": 282,
-          "state": "SEVERE"
-        },
-        {
-          "slot": "2026-10-22T11:17:00.000Z",
-          "run": "2026-10-22T15:54:37.000Z",
-          "delayMinutes": 278,
-          "state": "SEVERE"
-        },
-        {
-          "slot": "2026-10-23T11:17:00.000Z",
-          "run": "2026-10-23T15:46:15.000Z",
-          "delayMinutes": 269,
-          "state": "SEVERE"
-        },
-        {
-          "slot": "2026-10-24T11:17:00.000Z",
-          "run": "2026-10-24T14:37:57.000Z",
-          "delayMinutes": 201,
+          "slot": "2026-10-25T13:00:00.000Z",
+          "run": "2026-10-25T16:59:21.000Z",
+          "delayMinutes": 239,
           "state": "SEVERE"
         }
       ]
@@ -448,49 +351,98 @@
       ]
     },
     {
-      "workflow": "daily-products.yml",
+      "workflow": "nfl-props-forward-shadow.yml",
       "crons": [
-        "41 11 * * *"
+        "30 13 * 9-12,1 *",
+        "0 20 * 9-12,1 4"
+      ],
+      "minGapMinutes": 390,
+      "attributable": true,
+      "judgedSlots": 7,
+      "servedSlots": 7,
+      "missedSlots": 0,
+      "observedRuns": 47,
+      "coverageRatio": 1,
+      "medianDelayMinutes": 266,
+      "maxDelayMinutes": 280,
+      "state": "SEVERE",
+      "samples": [
+        {
+          "slot": "2026-10-22T13:30:00.000Z",
+          "run": "2026-10-22T18:06:25.000Z",
+          "delayMinutes": 276,
+          "state": "SEVERE"
+        },
+        {
+          "slot": "2026-10-22T20:00:00.000Z",
+          "run": "2026-10-22T23:04:13.000Z",
+          "delayMinutes": 184,
+          "state": "SEVERE"
+        },
+        {
+          "slot": "2026-10-23T13:30:00.000Z",
+          "run": "2026-10-23T17:55:46.000Z",
+          "delayMinutes": 266,
+          "state": "SEVERE"
+        },
+        {
+          "slot": "2026-10-24T13:30:00.000Z",
+          "run": "2026-10-24T16:47:25.000Z",
+          "delayMinutes": 197,
+          "state": "SEVERE"
+        },
+        {
+          "slot": "2026-10-25T13:30:00.000Z",
+          "run": "2026-10-25T17:09:22.000Z",
+          "delayMinutes": 219,
+          "state": "SEVERE"
+        }
+      ]
+    },
+    {
+      "workflow": "mlb-daily-production.yml",
+      "crons": [
+        "17 11 * * *"
       ],
       "minGapMinutes": 1440,
       "attributable": true,
       "judgedSlots": 6,
       "servedSlots": 6,
       "missedSlots": 0,
-      "observedRuns": 12,
+      "observedRuns": 14,
       "coverageRatio": 1,
-      "medianDelayMinutes": 253,
-      "maxDelayMinutes": 363,
+      "medianDelayMinutes": 263,
+      "maxDelayMinutes": 282,
       "state": "SEVERE",
       "samples": [
         {
-          "slot": "2026-10-20T11:41:00.000Z",
-          "run": "2026-10-20T15:48:57.000Z",
-          "delayMinutes": 248,
+          "slot": "2026-10-21T11:17:00.000Z",
+          "run": "2026-10-21T15:59:04.000Z",
+          "delayMinutes": 282,
           "state": "SEVERE"
         },
         {
-          "slot": "2026-10-21T11:41:00.000Z",
-          "run": "2026-10-21T16:04:51.000Z",
-          "delayMinutes": 264,
+          "slot": "2026-10-22T11:17:00.000Z",
+          "run": "2026-10-22T15:54:37.000Z",
+          "delayMinutes": 278,
           "state": "SEVERE"
         },
         {
-          "slot": "2026-10-22T11:41:00.000Z",
-          "run": "2026-10-22T16:00:22.000Z",
-          "delayMinutes": 259,
+          "slot": "2026-10-23T11:17:00.000Z",
+          "run": "2026-10-23T15:46:15.000Z",
+          "delayMinutes": 269,
           "state": "SEVERE"
         },
         {
-          "slot": "2026-10-23T11:41:00.000Z",
-          "run": "2026-10-23T15:53:33.000Z",
-          "delayMinutes": 253,
+          "slot": "2026-10-24T11:17:00.000Z",
+          "run": "2026-10-24T14:37:57.000Z",
+          "delayMinutes": 201,
           "state": "SEVERE"
         },
         {
-          "slot": "2026-10-24T11:41:00.000Z",
-          "run": "2026-10-24T14:49:53.000Z",
-          "delayMinutes": 189,
+          "slot": "2026-10-25T11:17:00.000Z",
+          "run": "2026-10-25T14:57:47.000Z",
+          "delayMinutes": 221,
           "state": "SEVERE"
         }
       ]
@@ -520,6 +472,54 @@
       ]
     },
     {
+      "workflow": "daily-products.yml",
+      "crons": [
+        "41 11 * * *"
+      ],
+      "minGapMinutes": 1440,
+      "attributable": true,
+      "judgedSlots": 6,
+      "servedSlots": 6,
+      "missedSlots": 0,
+      "observedRuns": 12,
+      "coverageRatio": 1,
+      "medianDelayMinutes": 248,
+      "maxDelayMinutes": 264,
+      "state": "SEVERE",
+      "samples": [
+        {
+          "slot": "2026-10-21T11:41:00.000Z",
+          "run": "2026-10-21T16:04:51.000Z",
+          "delayMinutes": 264,
+          "state": "SEVERE"
+        },
+        {
+          "slot": "2026-10-22T11:41:00.000Z",
+          "run": "2026-10-22T16:00:22.000Z",
+          "delayMinutes": 259,
+          "state": "SEVERE"
+        },
+        {
+          "slot": "2026-10-23T11:41:00.000Z",
+          "run": "2026-10-23T15:53:33.000Z",
+          "delayMinutes": 253,
+          "state": "SEVERE"
+        },
+        {
+          "slot": "2026-10-24T11:41:00.000Z",
+          "run": "2026-10-24T14:49:53.000Z",
+          "delayMinutes": 189,
+          "state": "SEVERE"
+        },
+        {
+          "slot": "2026-10-25T11:41:00.000Z",
+          "run": "2026-10-25T15:01:57.000Z",
+          "delayMinutes": 201,
+          "state": "SEVERE"
+        }
+      ]
+    },
+    {
       "workflow": "weather-capture.yml",
       "crons": [
         "10 13 * * *",
@@ -530,24 +530,12 @@
       "judgedSlots": 13,
       "servedSlots": 13,
       "missedSlots": 0,
-      "observedRuns": 87,
+      "observedRuns": 89,
       "coverageRatio": 1,
       "medianDelayMinutes": 202,
-      "maxDelayMinutes": 366,
+      "maxDelayMinutes": 289,
       "state": "SEVERE",
       "samples": [
-        {
-          "slot": "2026-10-22T20:10:00.000Z",
-          "run": "2026-10-22T23:14:21.000Z",
-          "delayMinutes": 184,
-          "state": "SEVERE"
-        },
-        {
-          "slot": "2026-10-23T13:10:00.000Z",
-          "run": "2026-10-23T17:51:10.000Z",
-          "delayMinutes": 281,
-          "state": "SEVERE"
-        },
         {
           "slot": "2026-10-23T20:10:00.000Z",
           "run": "2026-10-23T23:02:54.000Z",
@@ -565,6 +553,18 @@
           "run": "2026-10-24T22:24:09.000Z",
           "delayMinutes": 134,
           "state": "SEVERE"
+        },
+        {
+          "slot": "2026-10-25T13:10:00.000Z",
+          "run": "2026-10-25T17:02:06.000Z",
+          "delayMinutes": 232,
+          "state": "SEVERE"
+        },
+        {
+          "slot": "2026-10-25T20:10:00.000Z",
+          "run": "2026-10-25T22:27:48.000Z",
+          "delayMinutes": 138,
+          "state": "SEVERE"
         }
       ]
     },
@@ -578,18 +578,12 @@
       "judgedSlots": 7,
       "servedSlots": 7,
       "missedSlots": 0,
-      "observedRuns": 85,
+      "observedRuns": 86,
       "coverageRatio": 1,
       "medianDelayMinutes": 181,
       "maxDelayMinutes": 210,
       "state": "SEVERE",
       "samples": [
-        {
-          "slot": "2026-10-20T19:30:00.000Z",
-          "run": "2026-10-20T22:31:07.000Z",
-          "delayMinutes": 181,
-          "state": "SEVERE"
-        },
         {
           "slot": "2026-10-21T19:30:00.000Z",
           "run": "2026-10-21T22:36:01.000Z",
@@ -613,6 +607,12 @@
           "run": "2026-10-24T21:45:28.000Z",
           "delayMinutes": 135,
           "state": "SEVERE"
+        },
+        {
+          "slot": "2026-10-25T19:30:00.000Z",
+          "run": "2026-10-25T21:58:45.000Z",
+          "delayMinutes": 149,
+          "state": "SEVERE"
         }
       ]
     },
@@ -626,18 +626,12 @@
       "judgedSlots": 7,
       "servedSlots": 7,
       "missedSlots": 0,
-      "observedRuns": 65,
+      "observedRuns": 66,
       "coverageRatio": 1,
       "medianDelayMinutes": 132,
       "maxDelayMinutes": 154,
       "state": "SEVERE",
       "samples": [
-        {
-          "slot": "2026-10-20T23:00:00.000Z",
-          "run": "2026-10-21T01:16:20.000Z",
-          "delayMinutes": 136,
-          "state": "SEVERE"
-        },
         {
           "slot": "2026-10-21T23:00:00.000Z",
           "run": "2026-10-22T01:12:15.000Z",
@@ -661,6 +655,12 @@
           "run": "2026-10-25T00:48:58.000Z",
           "delayMinutes": 109,
           "state": "DEGRADED"
+        },
+        {
+          "slot": "2026-10-25T23:00:00.000Z",
+          "run": "2026-10-26T00:58:12.000Z",
+          "delayMinutes": 118,
+          "state": "DEGRADED"
         }
       ]
     },
@@ -674,41 +674,41 @@
       "judgedSlots": 55,
       "servedSlots": 31,
       "missedSlots": 24,
-      "observedRuns": 47,
-      "coverageRatio": 0.85,
-      "medianDelayMinutes": 111,
+      "observedRuns": 52,
+      "coverageRatio": 0.95,
+      "medianDelayMinutes": 106,
       "maxDelayMinutes": 174,
       "state": "DEGRADED",
       "samples": [
         {
-          "slot": "2026-10-24T21:47:00.000Z",
-          "run": "2026-10-24T23:43:18.000Z",
-          "delayMinutes": 116,
-          "state": "DEGRADED"
-        },
-        {
-          "slot": "2026-10-25T00:47:00.000Z",
+          "slot": "2026-10-26T00:47:00.000Z",
           "run": null,
           "delayMinutes": null,
           "state": "MISSED"
         },
         {
-          "slot": "2026-10-25T03:47:00.000Z",
-          "run": "2026-10-25T05:18:53.000Z",
-          "delayMinutes": 92,
+          "slot": "2026-10-26T03:47:00.000Z",
+          "run": "2026-10-26T05:17:55.000Z",
+          "delayMinutes": 91,
           "state": "DEGRADED"
         },
         {
-          "slot": "2026-10-25T06:47:00.000Z",
+          "slot": "2026-10-26T06:47:00.000Z",
           "run": null,
           "delayMinutes": null,
           "state": "MISSED"
         },
         {
-          "slot": "2026-10-25T09:47:00.000Z",
-          "run": "2026-10-25T11:59:35.000Z",
-          "delayMinutes": 133,
-          "state": "SEVERE"
+          "slot": "2026-10-26T09:47:00.000Z",
+          "run": null,
+          "delayMinutes": null,
+          "state": "MISSED"
+        },
+        {
+          "slot": "2026-10-26T12:47:00.000Z",
+          "run": "2026-10-26T13:34:27.000Z",
+          "delayMinutes": 47,
+          "state": "ON_TIME"
         }
       ]
     },
@@ -775,7 +775,7 @@
       "judgedSlots": 18,
       "servedSlots": null,
       "missedSlots": null,
-      "observedRuns": 97,
+      "observedRuns": 98,
       "coverageRatio": 1,
       "medianDelayMinutes": null,
       "maxDelayMinutes": null,
@@ -798,7 +798,7 @@
       ],
       "minGapMinutes": 60,
       "attributable": false,
-      "judgedSlots": 70,
+      "judgedSlots": 69,
       "servedSlots": null,
       "missedSlots": null,
       "observedRuns": 99,
@@ -818,11 +818,11 @@
       ],
       "minGapMinutes": 120,
       "attributable": false,
-      "judgedSlots": 25,
+      "judgedSlots": 27,
       "servedSlots": null,
       "missedSlots": null,
       "observedRuns": 14,
-      "coverageRatio": 0.56,
+      "coverageRatio": 0.52,
       "medianDelayMinutes": null,
       "maxDelayMinutes": null,
       "state": "NOT_ATTRIBUTABLE",
@@ -838,7 +838,7 @@
       ],
       "minGapMinutes": 30,
       "attributable": false,
-      "judgedSlots": 56,
+      "judgedSlots": 55,
       "servedSlots": null,
       "missedSlots": null,
       "observedRuns": 100,
@@ -857,14 +857,14 @@
       ],
       "minGapMinutes": 120,
       "attributable": false,
-      "judgedSlots": 18,
+      "judgedSlots": 21,
       "servedSlots": null,
       "missedSlots": null,
       "observedRuns": 9,
-      "coverageRatio": 0.5,
+      "coverageRatio": 0.43,
       "medianDelayMinutes": null,
       "maxDelayMinutes": null,
-      "state": "NOT_ATTRIBUTABLE",
+      "state": "UNDER_COVERED",
       "samples": []
     },
     {
@@ -877,8 +877,8 @@
       "judgedSlots": 167,
       "servedSlots": null,
       "missedSlots": null,
-      "observedRuns": 20,
-      "coverageRatio": 0.12,
+      "observedRuns": 19,
+      "coverageRatio": 0.11,
       "medianDelayMinutes": null,
       "maxDelayMinutes": null,
       "state": "UNDER_COVERED",
@@ -891,7 +891,7 @@
       ],
       "minGapMinutes": 15,
       "attributable": false,
-      "judgedSlots": 96,
+      "judgedSlots": 120,
       "servedSlots": null,
       "missedSlots": null,
       "observedRuns": 1,
@@ -909,7 +909,7 @@
       ],
       "minGapMinutes": 15,
       "attributable": false,
-      "judgedSlots": 279,
+      "judgedSlots": 280,
       "servedSlots": null,
       "missedSlots": null,
       "observedRuns": 30,
@@ -934,7 +934,7 @@
       "judgedSlots": 24,
       "servedSlots": null,
       "missedSlots": null,
-      "observedRuns": 42,
+      "observedRuns": 37,
       "coverageRatio": 1,
       "medianDelayMinutes": null,
       "maxDelayMinutes": null,
@@ -953,8 +953,8 @@
       "judgedSlots": 55,
       "servedSlots": null,
       "missedSlots": null,
-      "observedRuns": 3,
-      "coverageRatio": 0.05,
+      "observedRuns": 7,
+      "coverageRatio": 0.13,
       "medianDelayMinutes": null,
       "maxDelayMinutes": null,
       "state": "UNDER_COVERED",
@@ -971,7 +971,7 @@
       ],
       "minGapMinutes": 15,
       "attributable": false,
-      "judgedSlots": 115,
+      "judgedSlots": 116,
       "servedSlots": null,
       "missedSlots": null,
       "observedRuns": 1,
@@ -999,14 +999,14 @@
       ],
       "minGapMinutes": 60,
       "attributable": false,
-      "judgedSlots": 12,
+      "judgedSlots": 11,
       "servedSlots": null,
       "missedSlots": null,
-      "observedRuns": 4,
-      "coverageRatio": 0.33,
+      "observedRuns": 8,
+      "coverageRatio": 0.73,
       "medianDelayMinutes": null,
       "maxDelayMinutes": null,
-      "state": "UNDER_COVERED",
+      "state": "NOT_ATTRIBUTABLE",
       "samples": []
     },
     {
@@ -1089,8 +1089,8 @@
       "judgedSlots": 195,
       "servedSlots": null,
       "missedSlots": null,
-      "observedRuns": 90,
-      "coverageRatio": 0.46,
+      "observedRuns": 96,
+      "coverageRatio": 0.49,
       "medianDelayMinutes": null,
       "maxDelayMinutes": null,
       "state": "UNDER_COVERED",
@@ -1108,7 +1108,7 @@
       "judgedSlots": 10,
       "servedSlots": null,
       "missedSlots": null,
-      "observedRuns": 65,
+      "observedRuns": 66,
       "coverageRatio": 1,
       "medianDelayMinutes": null,
       "maxDelayMinutes": null,

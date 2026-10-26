@@ -138,7 +138,7 @@ function Official({ official, teams, lane, elo }: { official: PbOfficial; teams:
         const shown = new Set(rows.map((p) => p.playerId));
         const none = (lane && String(lane.providerEventId) === String(official.eventId) ? lane.players.unavailable?.[side] ?? [] : []).filter((u) => !shown.has(String(u.providerAthleteId)));
         return (
-          <div key={side} className="nbx-scroll">
+          <div key={side} className="nbx-scroll" role="region" aria-label={`${teams[side].name} · ${PUBLIC_TERMS.PLAYER_STATISTICS}`} tabIndex={0}>
             <table className="nbx-ptable" data-nba-official-table={side}>
               <caption>{teams[side].name} · {PUBLIC_TERMS.PLAYER_STATISTICS}</caption>
               <thead><tr><th scope="col">Player</th><th scope="col">MIN</th>{STATS.map(([, l]) => <th key={l} scope="col">{l}</th>)}{COMBO_STATS.map(([, l]) => <th key={l} scope="col">{l}</th>)}</tr></thead>

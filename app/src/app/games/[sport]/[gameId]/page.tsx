@@ -79,7 +79,7 @@ function GameDisambiguation({ sport, options }: { sport: string; options: Array<
         ))}
       </div>
       <p className="mt-6">
-        <Link href={`/${sport === "world-cup" ? "world-cup" : sport}`} className="text-[12px]" style={{ color: "var(--vault-gold)" }}>← Back to the {sport === "world-cup" ? "World Cup" : sport.toUpperCase()} board</Link>
+        <Link href={`/${sport === "world-cup" ? "world-cup" : sport}`} className="gtp-backlink text-[12px]" style={{ color: "var(--vault-gold)" }}>← Back to the {sport === "world-cup" ? "World Cup" : sport.toUpperCase()} board</Link>
       </p>
     </div>
   );

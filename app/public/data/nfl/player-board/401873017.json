@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-25T13:43:46Z",
- "sourceGeneratedAt": "2026-10-25T13:43:46Z",
+ "generatedAt": "2026-10-25T16:58:30Z",
+ "sourceGeneratedAt": "2026-10-25T16:58:30Z",
  "providerEventId": "401873017",
  "matchup": "SF @ ATL",
  "kickoffUtc": "2026-10-25T17:00Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-25T13:43:46Z",
-  "roleEvidenceAt": "2026-10-25T13:43:46Z",
+  "injuriesCapturedAt": "2026-10-25T16:58:30Z",
+  "roleEvidenceAt": "2026-10-25T16:58:30Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -125,7 +125,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 51,
+  "absent": 47,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -274,8 +274,8 @@
   },
   "ATL": {
    "counts": {
-    "PROJECTED": 9,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 7,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -339,17 +339,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-3917914",
-     "name": "Olamide Zaccheaus",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
-    },
-    {
      "playerId": "nfl-athlete-4870612",
      "name": "Zachariah Branch",
      "state": "PROJECTED",
@@ -370,24 +359,20 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-5344782",
-     "name": "Jack Strand",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
-    },
-    {
      "playerId": "nfl-athlete-4241474",
      "name": "Brian Robinson Jr.",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-3917914",
+     "name": "Olamide Zaccheaus",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-5344782",
+     "name": "Jack Strand",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Out"
     },
@@ -412,21 +397,11 @@
    },
    {
     "team": "ATL",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-4360423",
-     "name": "Michael Penix Jr."
-    },
-    "snapshotAt": "2026-10-24T11:57:56Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-5344782",
-      "name": "Jack Strand"
-     }
-    ],
+    "state": "SINGLE_PASSER",
     "passers": [
      "nfl-athlete-4360423"
-    ]
+    ],
+    "removed": []
    }
   ],
   "passerShareFloor": [
@@ -916,36 +891,6 @@
    }
   },
   {
-   "playerId": "nfl-athlete-3917914",
-   "name": "Olamide Zaccheaus",
-   "team": "ATL",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 11.708,
-     "p10": 0,
-     "p25": 0,
-     "median": 5.74,
-     "p75": 17.77,
-     "p90": 33.14,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 1.2118,
-     "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.0888,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4870612",
    "name": "Zachariah Branch",
    "team": "ATL",
@@ -1022,18 +967,6 @@
     },
     "anytime_td": {
      "probability": 0.0702,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-5344782",
-   "name": "Jack Strand",
-   "team": "ATL",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.0646,
      "pricingState": "NOT_PROBED"
     }
    }

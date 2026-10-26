@@ -271,7 +271,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden nf">
       <ForecastStyles />
       <p style={{ margin: 0, fontSize: 11.5 }}>
-        <Link href="/nfl" style={{ color: "var(--vault-gold)" }}>← NFL hub</Link>
+        <Link href="/nfl" className="gtp-backlink" style={{ color: "var(--vault-gold)" }}>← NFL hub</Link>
       </p>
 
       <header style={{ marginTop: 12 }}>
@@ -596,7 +596,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
         <section aria-labelledby="score-shape" style={{ marginTop: 26 }}>
           <SectionHeader eyebrow="Exact score" title="The likeliest final scores"
             sub="from an event-based simulation of touchdowns and field goals, solved onto the median margin and total above" />
-          <div style={{ overflowX: "auto", marginTop: 12 }}>
+          <div role="region" aria-label="The likeliest final scores" tabIndex={0} style={{ overflowX: "auto", marginTop: 12 }}>
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 380 }}>
               <thead>
                 <tr>{[`Score (${f.away.abbr} – ${f.home.abbr})`, "Chance"].map((h) => (
@@ -621,7 +621,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           <div style={{ marginTop: 18 }}>
             <SectionHeader eyebrow="Key numbers" title="How often it lands on 3, 7, 10 or 14"
               sub="football's margins pile up on those four — this is the one thing a normal-draw model cannot show you" />
-            <div style={{ overflowX: "auto", marginTop: 12 }}>
+            <div role="region" aria-label="How often it lands on 3, 7, 10 or 14" tabIndex={0} style={{ overflowX: "auto", marginTop: 12 }}>
               <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 420 }}>
                 <thead>
                   <tr>{["Margin", "This game", shape!.keyNumberAccuracy ? "Last 3 regular seasons" : ""].filter(Boolean).map((h) => (

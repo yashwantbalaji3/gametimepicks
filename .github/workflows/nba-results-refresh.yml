@@ -81,7 +81,17 @@ jobs:
             # 5xx / malformed payloads exit 0 having written nothing (last-known-good stands).
             (cd app && node scripts/nba/capture-nba-results.mjs --now "$NOW") || { echo "::error::NBA results capture refused"; exit 1; }
             (cd app && node scripts/nba/build-nba-finals-record.mjs --now "$NOW") || { echo "::error::NBA finals record refused"; exit 1; }
+            # Level A: grade the ALL-NBA cards these finals settle, in this same commit — so a card is graded when its
+            # last final lands, not at the next nightly-settle (about 5 hours later), and with no build of its own.
+            # Idempotent and append-only; re-run from fresh main on every attempt below. Mixed cards stay with
+            # nightly-settle. Non-fatal: a grader problem never holds back the finals. Runs only when this capture
+            # changed a finals file (most refreshes do not), so a quiet run costs nothing extra.
+            if [ -n "$(git status --porcelain -- "$RESULTS"/finals-*.json)" ]; then
+              (cd app && npx --yes tsx scripts/products/grade-level-a-suggestions.mjs --now "$NOW" --only-sport nba --write) \
+                || echo "::warning::Level A NBA grading did not complete (exit $?) — nightly-settle grades these cards"
+            fi
             git add "$RESULTS/"
+            git add data/internal/products/level-a/graded.jsonl
             if git diff --cached --quiet; then echo "no change"; exit 0; fi
             # COST-001 Stage A (2026-10-09): commit latest.json only when it changes something a reader can see — a
             # final, a corrected final, a postponement, a schedule change or the window state

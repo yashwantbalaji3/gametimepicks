@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-25T13:43:46Z",
- "sourceGeneratedAt": "2026-10-25T13:43:46Z",
+ "generatedAt": "2026-10-25T16:58:30Z",
+ "sourceGeneratedAt": "2026-10-25T16:58:30Z",
  "providerEventId": "401873012",
  "matchup": "CIN @ BAL",
  "kickoffUtc": "2026-10-25T17:00Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-25T13:43:46Z",
-  "roleEvidenceAt": "2026-10-25T13:43:46Z",
+  "injuriesCapturedAt": "2026-10-25T16:58:30Z",
+  "roleEvidenceAt": "2026-10-25T16:58:30Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -52,16 +52,15 @@
      {
       "team": "BAL",
       "pool": "targets",
-      "originalSum": 1.0968,
+      "originalSum": 1.0278,
       "normalizedSum": 1,
-      "factor": 0.9117,
+      "factor": 0.973,
       "playerIds": [
        "nfl-athlete-4429615",
        "nfl-athlete-3116365",
        "nfl-athlete-4870847",
        "nfl-athlete-4360939",
        "nfl-athlete-4038441",
-       "nfl-athlete-5088338",
        "nfl-athlete-4876132",
        "nfl-athlete-4696882",
        "nfl-athlete-3043078"
@@ -138,7 +137,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 60,
+  "absent": 58,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -293,8 +292,8 @@
   },
   "BAL": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -410,18 +409,14 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-5088338",
-     "name": "Elijah Sarratt",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_receptions"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
      "playerId": "nfl-athlete-3916387",
      "name": "Lamar Jackson",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-5088338",
+     "name": "Elijah Sarratt",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Out"
     },
@@ -491,9 +486,9 @@
      "player_receptions"
     ],
     "sum": 1,
-    "originalSum": 1.0968,
+    "originalSum": 1.0278,
     "residualOther": 0,
-    "joined": 9,
+    "joined": 8,
     "missed": 0,
     "state": "NORMALIZED"
    },
@@ -556,15 +551,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.0993,
+     "mean": 1.1731,
      "p10": 0,
      "p25": 0,
-     "median": 0.9117,
-     "p75": 1.8235,
-     "p90": 2.7352,
+     "median": 0.973,
+     "p75": 1.9459,
+     "p90": 2.9189,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9117
+      "factor": 0.973
      },
      "pricingState": "NOT_PROBED"
     },
@@ -659,15 +654,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 6.1394,
-     "p10": 1.8235,
-     "p25": 3.647,
-     "median": 5.4705,
-     "p75": 8.2057,
-     "p90": 10.9409,
+     "mean": 6.5516,
+     "p10": 1.9459,
+     "p25": 3.8918,
+     "median": 5.8377,
+     "p75": 8.7566,
+     "p90": 11.6754,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9117
+      "factor": 0.973
      },
      "pricingState": "NOT_PROBED"
     },
@@ -723,15 +718,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.5277,
-     "p10": 0.9117,
-     "p25": 1.8235,
-     "median": 2.7352,
-     "p75": 4.5587,
-     "p90": 7.2939,
+     "mean": 3.7645,
+     "p10": 0.973,
+     "p25": 1.9459,
+     "median": 2.9189,
+     "p75": 4.8648,
+     "p90": 7.7836,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9117
+      "factor": 0.973
      },
      "pricingState": "NOT_PROBED"
     },
@@ -847,15 +842,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.6258,
+     "mean": 2.8021,
      "p10": 0,
-     "p25": 0.9117,
-     "median": 1.8235,
-     "p75": 3.647,
-     "p90": 5.4705,
+     "p25": 0.973,
+     "median": 1.9459,
+     "p75": 3.8918,
+     "p90": 5.8377,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9117
+      "factor": 0.973
      },
      "pricingState": "NOT_PROBED"
     },
@@ -890,15 +885,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.5738,
+     "mean": 1.6794,
      "p10": 0,
-     "p25": 0.9117,
-     "median": 0.9117,
-     "p75": 2.7352,
-     "p90": 3.647,
+     "p25": 0.973,
+     "median": 0.973,
+     "p75": 2.9189,
+     "p90": 3.8918,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9117
+      "factor": 0.973
      },
      "pricingState": "NOT_PROBED"
     },
@@ -924,15 +919,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.2576,
+     "mean": 2.4091,
      "p10": 0,
-     "p25": 0.9117,
-     "median": 1.8235,
-     "p75": 3.647,
-     "p90": 4.5587,
+     "p25": 0.973,
+     "median": 1.9459,
+     "p75": 3.8918,
+     "p90": 4.8648,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9117
+      "factor": 0.973
      },
      "pricingState": "NOT_PROBED"
     },
@@ -1009,15 +1004,15 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_receptions": {
-     "mean": 1.0135,
+     "mean": 1.0815,
      "p10": 0,
      "p25": 0,
-     "median": 0.9117,
-     "p75": 1.8235,
-     "p90": 2.7352,
+     "median": 0.973,
+     "p75": 1.9459,
+     "p90": 2.9189,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9117
+      "factor": 0.973
      },
      "pricingState": "NOT_PROBED"
     },
@@ -1043,45 +1038,20 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.185,
+     "mean": 1.2645,
      "p10": 0,
      "p25": 0,
-     "median": 0.9117,
-     "p75": 1.8235,
-     "p90": 2.7352,
+     "median": 0.973,
+     "p75": 1.9459,
+     "p90": 2.9189,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9117
+      "factor": 0.973
      },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
      "probability": 0.1015,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-5088338",
-   "name": "Elijah Sarratt",
-   "team": "BAL",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_receptions": {
-     "mean": 1.2466,
-     "p10": 0,
-     "p25": 0,
-     "median": 0.9117,
-     "p75": 1.8235,
-     "p90": 2.7352,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9117
-     },
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1002,
      "pricingState": "NOT_PROBED"
     }
    }

@@ -166,6 +166,21 @@ function nflFamilyModel(board, family) {
 }
 
 /**
+ * What ties an NFL player board to the forecast of record (Release J, 2026-10-26).
+ *
+ * A board names the record it was published beside (`forecastInputHash`), and that must equal the record's own
+ * inputHash: a board left behind by a real revision still fails. A board written before that field existed is held
+ * to its timestamps: its source must not be OLDER than the record (a board built before the record's last change is
+ * stale). It used to have to be EQUAL, which held only while every event window rewrote every receipt; a later
+ * window over unchanged inputs refreshes the board and, correctly, leaves the receipt alone.
+ */
+export function boardInputRefs(board, record) {
+  if (board?.forecastInputHash !== undefined) return { inputRef: board.forecastInputHash, expectedInputRef: record?.model?.inputHash ?? null };
+  const source = iso(board?.sourceGeneratedAt), frozen = iso(record?.generatedAt);
+  return { inputRef: source, expectedInputRef: source && frozen && source >= frozen ? source : frozen };
+}
+
+/**
  * @param {string} eventId  ESPN provider event id
  * @param {{ receipts: Array<{file: string, receipt: object, sha256?: string}>,
  *           playerBoard: {path?: string, doc: object, sha256?: string} | null,
@@ -253,7 +268,7 @@ export function nflOfficialSnapshot(eventId, { receipts = [], playerBoard = null
 
   const sources = [
     sourceEntry({ role: SOURCE_ROLE.OFFICIAL, path: rec.file, doc: r, sha256: rec.sha256, modelVersion: recordVersion, generatedAt: r.generatedAt, inputRef: r.model?.inputHash ?? null, expectedInputRef: r.model?.inputHash ?? null }),
-    sourceEntry({ role: SOURCE_ROLE.OFFICIAL, path: playerBoard.path, doc: board, sha256: playerBoard.sha256, modelVersion: `nfl-player-board@schema-${board.schemaVersion}`, generatedAt: board.generatedAt, inputRef: iso(board.sourceGeneratedAt), expectedInputRef: iso(r.generatedAt) }),
+    sourceEntry({ role: SOURCE_ROLE.OFFICIAL, path: playerBoard.path, doc: board, sha256: playerBoard.sha256, modelVersion: `nfl-player-board@schema-${board.schemaVersion}`, generatedAt: board.generatedAt, ...boardInputRefs(board, r) }),
   ];
   if (worldModel?.doc) {
     const w = worldModel.doc;

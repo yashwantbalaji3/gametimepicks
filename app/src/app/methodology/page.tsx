@@ -24,6 +24,7 @@ import path from "node:path";
 import { currentEtDate } from "@/lib/freshness";
 import { buildCommandCenter } from "@/lib/command-center/command-center";
 import { PUBLIC_SPORTS, PUBLIC_TERM_MEANING, PUBLIC_TERMS, type PublicFeature } from "@/lib/public-registry";
+import { canEnterModelSuggestions } from "@/lib/sport-capability-registry";
 
 /**
  * /methodology — how a number on this site is produced and how it is judged.
@@ -42,6 +43,12 @@ export default function MethodologyPage() {
   /* F04: the sport facts are the public registry's; Model Performance "now" lines are the Command Center's own lane
      statuses (receipts + health scorecard), read at build time from the same owners Home uses. */
   const productSports = PUBLIC_SPORTS.filter((x) => x.productEligible);
+  /* Level A (founder policy 2026-10-23) is a SEPARATE axis from the paper ladders above: these sports' official picks are
+     shown in Bank Builder, Moonshot and the Parlay Center as unpriced model suggestions. Saying they "never enter" those
+     pages contradicted the cards on them (audit 2026-10-25). Read from the registry, never typed per sport. */
+  const suggestionSports = PUBLIC_SPORTS.filter((x) => canEnterModelSuggestions(x.key));
+  const suggestionOnly = (x: { key: string; productEligible: boolean }) => !x.productEligible && canEnterModelSuggestions(x.key);
+  const andList = (xs: string[]) => new Intl.ListFormat("en", { type: "conjunction" }).format(xs);
   const statusLanes = buildCommandCenter({ dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), today: currentEtDate(), nowIso: new Date().toISOString(), days: {} });
 
   return (
@@ -273,6 +280,7 @@ export default function MethodologyPage() {
         <p className="text-[14px] sm:text-[15px] leading-relaxed mb-4" style={{ color: "var(--vault-text-mute)" }}>
           {PUBLIC_SPORTS.length} sports publish an {PUBLIC_TERMS.OFFICIAL_FORECAST}.{" "}
           {productSports.length ? `${productSports.map((x) => x.label).join(" and ")} ${productSports.length === 1 ? "is" : "are"} the only ${productSports.length === 1 ? "sport" : "sports"} whose forecasts may enter paper products.` : "No sport's forecasts enter paper products."}{" "}
+          {suggestionSports.length ? `Separately, ${andList(suggestionSports.map((x) => x.label))} official picks appear in Bank Builder, Moonshot and the Parlay Center as unpriced model suggestions: no sportsbook price, no payout, each recorded before the game and graded after it.` : null}{" "}
           Each sport&rsquo;s {PUBLIC_TERMS.MODEL_PERFORMANCE} is stated once, below, from its graded record.
         </p>
         <div className="space-y-4">
@@ -292,7 +300,7 @@ export default function MethodologyPage() {
                   ["Method", sp.method],
                   ["Top Boards", feature(sp.features.topBoards)],
                   [PUBLIC_TERMS.GAME_SIMULATION, feature(sp.features.gameSimulation)],
-                  ["Paper products", sp.productEligible ? "May enter Bank Builder, Moonshot and Parlays when a market qualifies." : "Never enters Bank Builder, Moonshot or Parlays."],
+                  ["Paper products", sp.productEligible ? "May enter Bank Builder, Moonshot and Parlays when a market qualifies." : suggestionOnly(sp) ? "Never enters the paper ladders. Its official picks appear in Bank Builder, Moonshot and the Parlay Center only as unpriced model suggestions (no price, no payout)." : "Never enters Bank Builder, Moonshot or Parlays."],
                   [PUBLIC_TERMS.HISTORICAL_RESULTS, sp.features.results.note],
                   [PUBLIC_TERMS.MODEL_PERFORMANCE, perf],
                 ]}
@@ -321,7 +329,7 @@ export default function MethodologyPage() {
         <div className="vault-deluxe-card p-5 sm:p-6">
           <ul className="space-y-3.5 text-[14px] sm:text-[15px] leading-relaxed list-none">
             <LimitationRow title="The market is still the better estimate" body="Scored on identical settled results, the de-vigged sportsbook price beats our probabilities. Nothing here has been shown to out-predict it, and a disagreement between the two is not evidence that we are right." />
-            <LimitationRow title="One sport enters paper products" body={`${productSports.map((x) => x.label).join(", ") || "No sport"} may enter paper products. ${PUBLIC_SPORTS.filter((x) => !x.productEligible).map((x) => x.label).join(", ")} publish ${PUBLIC_TERMS.OFFICIAL_FORECAST}s that never enter Bank Builder, Moonshot or Parlays until their models clear their bars.`} />
+            <LimitationRow title="One sport enters paper products" body={`${productSports.map((x) => x.label).join(", ") || "No sport"} may enter paper products. ${PUBLIC_SPORTS.filter((x) => !x.productEligible).map((x) => x.label).join(", ")} publish ${PUBLIC_TERMS.OFFICIAL_FORECAST}s that never enter the paper ladders until their models clear their bars${PUBLIC_SPORTS.some(suggestionOnly) ? `; ${andList(PUBLIC_SPORTS.filter(suggestionOnly).map((x) => x.label))} picks are shown there only as unpriced model suggestions` : ""}.`} />
             <LimitationRow title="Lines move" body="Boards reflect prices as captured, with the capture time shown. By the time you read them, prices have likely shifted, and there is no retained snapshot series to chart movement from." />
             <LimitationRow title="Missing context inputs" body="Park factor, weather, bullpen fatigue and handedness splits are not modelled for MLB." />
             <LimitationRow title="Some markets are switched off" body="Where a market's own settled record sits entirely below break-even across a large sample, predictions in it are disabled. The history stays visible and is never placed in a ranked or difference-ordered list." />
@@ -456,6 +464,9 @@ function Block({ title, children }: { title: string; children: ReactNode }) {
 function Formula({ children }: { children: ReactNode }) {
   return (
     <div
+      role="region"
+      aria-label="Formula"
+      tabIndex={0}
       className="relative my-3 rounded-[6px] px-4 py-3.5 font-mono text-[12px] sm:text-[13px] tabular leading-relaxed overflow-x-auto"
       style={{
         background: "linear-gradient(180deg, color-mix(in srgb, var(--vault-scrim-base) 92%, transparent), rgba(10, 16, 13, 0.92))",
@@ -542,7 +553,7 @@ function WorkflowDiagram() {
   ];
   return (
     <div className="surface p-5 rounded-[10px]">
-      <div className="overflow-x-auto -mx-1">
+      <div className="overflow-x-auto -mx-1" role="region" aria-label="Ladder steps" tabIndex={0}>
         <div className="flex items-center gap-2 px-1 min-w-min">
           {steps.map((step, i) => (
             <div key={i} className="flex items-center gap-2 shrink-0">

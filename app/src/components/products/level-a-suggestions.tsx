@@ -138,8 +138,8 @@ export default function LevelASuggestions({ model, mode }: { model: LevelAModel 
       ) : null}
       <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
         Every suggestion is recorded and graded forward in its own record, separate from the priced paper record.{" "}
-        <Link href="/methodology" style={{ color: "var(--vault-text-mute)" }}>How suggestions are chosen →</Link>{" "}
-        <a href="/data/level-a/v1/model.json" style={{ color: "var(--vault-text-mute)" }}>These suggestions as data</a>
+        <Link href="/methodology" style={{ color: "var(--vault-text-mute)", textDecoration: "underline" }}>How suggestions are chosen →</Link>{" "}
+        <a href="/data/level-a/v1/model.json" style={{ color: "var(--vault-text-mute)", textDecoration: "underline" }}>These suggestions as data</a>
       </p>
       <ModelSlipBar catalog={slipCatalogFor(model, mode)} />
     </section>

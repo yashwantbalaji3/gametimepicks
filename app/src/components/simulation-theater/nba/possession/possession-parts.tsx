@@ -79,7 +79,7 @@ export function OfficialProjectionPanel({ official, teams, unavailable = null }:
       <details className="nbp-details">
         <summary>{PREDICTED_STATS_TITLE} · {official.players.length} players{noneCount ? ` · ${noneCount} without a projection` : ""}</summary>
         {SIDES.map((side) => (
-          <div key={side} className="nbp-scroll">
+          <div key={side} className="nbp-scroll" role="region" aria-label={`${teams[side].abbr} ${PREDICTED_STATS_TITLE}`} tabIndex={0}>
             <table className="nbp-table" data-nbp-official-players={side}>
               <caption>{teams[side].abbr} · {PREDICTED_STATS_TITLE} · medians and expected minutes</caption>
               <thead><tr><th scope="col">Player</th><th scope="col">Exp. MIN</th><th scope="col">PTS</th><th scope="col">REB</th><th scope="col">AST</th><th scope="col">3PM</th></tr></thead>
@@ -209,7 +209,7 @@ export function PossessionIndicator({ teams, frame }: { teams: Teams; frame: Fra
 
 export function Linescore({ teams, frame, final }: { teams: Teams; frame: Frame; final: boolean }) {
   return (
-    <div className="nbp-scroll">
+    <div className="nbp-scroll" role="region" aria-label="Quarter-by-quarter scoring" tabIndex={0}>
       <table className="nbp-table" data-nbp-linescore="">
         <caption>Quarter-by-quarter scoring{final ? " · final" : " · so far"}</caption>
         <thead><tr><th scope="col">Team</th>{frame.periodScores.map((p) => <th key={p.q} scope="col">{p.label}</th>)}<th scope="col">T</th></tr></thead>
@@ -279,7 +279,7 @@ export function PossessionBoxScore({ rows, teams, final, idBase }: { rows: Rows;
   return (
     <div data-nbp-box={final ? "final" : "live"} id={`${idBase}-box`}>
       {SIDES.map((side) => (
-        <div key={side} className="nbp-scroll">
+        <div key={side} className="nbp-scroll" role="region" aria-label={`${SIM_BOX_TITLE} · ${teams[side].name}`} tabIndex={0}>
           <table className="nbp-table" data-nbp-box-team={side}>
             <caption>{SIM_BOX_TITLE} · {teams[side].name} · {final ? "final" : "so far"} · simulated game, not the Official Forecast</caption>
             <thead><tr><th scope="col">Player</th>{COLS.map(([, label]) => <th key={label} scope="col">{label}</th>)}</tr></thead>
@@ -316,7 +316,7 @@ export function ReconciliationChecks({ result }: { result: { ok: boolean; checks
 type Cmp = { playerId: string; team: string | null; name: string | null; families: { family: string; label: string; official: number | null; run: number | null; diff: number | null }[] };
 export function OfficialComparison({ rows, teams }: { rows: Cmp[]; teams: Teams }) {
   return (
-    <div className="nbp-scroll">
+    <div className="nbp-scroll" role="region" aria-label={COMPARE_TITLE} tabIndex={0}>
       <table className="nbp-table" data-nbp-compare="">
         <caption>{COMPARE_TITLE}, per player: this run&apos;s number / the Official Forecast&apos;s median (MIN is the official expected minutes)</caption>
         <thead><tr><th scope="col">Player</th>{rows[0]?.families.map((f) => <th key={f.family} scope="col">{f.label} run / official</th>)}</tr></thead>

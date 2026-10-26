@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-25T13:43:46Z",
- "sourceGeneratedAt": "2026-10-25T13:43:46Z",
+ "generatedAt": "2026-10-25T16:58:30Z",
+ "sourceGeneratedAt": "2026-10-25T16:58:30Z",
  "providerEventId": "401873014",
  "matchup": "IND @ MIN",
  "kickoffUtc": "2026-10-25T17:00Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-25T13:43:46Z",
-  "roleEvidenceAt": "2026-10-25T13:43:46Z",
+  "injuriesCapturedAt": "2026-10-25T16:58:30Z",
+  "roleEvidenceAt": "2026-10-25T16:58:30Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -104,17 +104,17 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 61,
+  "absent": 60,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "IND": {
    "counts": {
     "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
-    "NOT_MODELED_BY_FAMILY": 1,
+    "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
@@ -258,25 +258,18 @@
     {
      "playerId": "nfl-athlete-4683423",
      "name": "Riley Leonard",
-     "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     }
    ]
   },
   "MIN": {
    "counts": {
-    "PROJECTED": 12,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
-    "NOT_MODELED_BY_FAMILY": 1,
+    "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
@@ -406,26 +399,16 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4832846",
-     "name": "Demond Claiborne",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
      "playerId": "nfl-athlete-4573398",
      "name": "Max Brosmer",
-     "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-4832846",
+     "name": "Demond Claiborne",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     }
    ]
   }
@@ -444,10 +427,6 @@
      {
       "playerId": "nfl-athlete-4429084",
       "name": "Anthony Richardson Sr."
-     },
-     {
-      "playerId": "nfl-athlete-4683423",
-      "name": "Riley Leonard"
      }
     ],
     "passers": [
@@ -466,10 +445,6 @@
      {
       "playerId": "nfl-athlete-2573079",
       "name": "Carson Wentz"
-     },
-     {
-      "playerId": "nfl-athlete-4573398",
-      "name": "Max Brosmer"
      }
     ],
     "passers": [
@@ -1163,18 +1138,6 @@
     },
     "anytime_td": {
      "probability": 0.0667,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4832846",
-   "name": "Demond Claiborne",
-   "team": "MIN",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.0657,
      "pricingState": "NOT_PROBED"
     }
    }

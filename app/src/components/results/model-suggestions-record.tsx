@@ -83,7 +83,7 @@ export default function ModelSuggestionsRecord({ view }: { view: View }) {
         <p className="m-0 text-[13px]" style={{ color: "var(--vault-text-mute)" }}>No suggestion has been recorded yet.</p>
       ) : (
         <>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto" role="region" aria-label="Model suggestions by policy and tier" tabIndex={0}>
             <table className="w-full text-[12.5px] border-collapse" style={{ minWidth: 520 }}>
               <caption className="sr-only">Model suggestions by policy and tier</caption>
               <thead>

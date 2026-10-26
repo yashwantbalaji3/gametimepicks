@@ -38,6 +38,7 @@ export function strengthStateAt({ rows, cutoffIso, regressToSeason = null }) {
 
   let lastSeason = null;
   let folded = 0;
+  let lastFoldedUtc = null;
   for (const g of eligible) {
     const season = g.season ?? new Date(Date.parse(g.dateUtc)).getUTCFullYear();
     if (lastSeason !== null && season !== lastSeason) {
@@ -52,6 +53,7 @@ export function strengthStateAt({ rows, cutoffIso, regressToSeason = null }) {
     elo.set(home, get(home) + K * (score - exp));
     elo.set(away, get(away) + K * ((1 - score) - (1 - exp)));
     folded += 1;
+    lastFoldedUtc = g.dateUtc;
   }
   /*
    * THE SEASON BOUNDARY IS PART OF THE EVALUATED PROTOCOL, NOT AN OPTIONAL EXTRA (P240).
@@ -76,6 +78,9 @@ export function strengthStateAt({ rows, cutoffIso, regressToSeason = null }) {
     lastSeasonFolded: lastSeason,
     regressedToSeason: regressToSeason != null && lastSeason !== null && regressToSeason > lastSeason ? regressToSeason : null,
     gamesFolded: folded,
+    /* WHICH finals the state holds, as data: the newest one folded. Unlike cutoffIso (the caller's clock), it moves only
+       when a new final is folded, so a forecast's input hash can fingerprint the state without re-revising every run. */
+    lastFoldedUtc,
     ratings: Object.fromEntries([...elo.entries()].sort()),
     ratingFor: (team) => elo.get(team) ?? MEAN,
     winProbability: (home, away) => 1 / (1 + 10 ** (-((get(home) + HOME_ADVANTAGE - get(away)) / 400))),

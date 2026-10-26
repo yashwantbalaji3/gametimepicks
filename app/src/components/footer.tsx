@@ -116,7 +116,7 @@ export default function Footer() {
                 >
                   {NAV_GROUP_LABEL[group]}
                 </div>
-                <ul className="space-y-2 list-none p-0">
+                <ul className="ft-list list-none p-0">
                   {items.map((d) => (
                     <li key={d.href}>
                       <Link href={d.href} className="ft-link">

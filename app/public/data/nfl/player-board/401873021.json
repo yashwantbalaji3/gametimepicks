@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-25T13:43:46Z",
- "sourceGeneratedAt": "2026-10-25T13:43:46Z",
+ "generatedAt": "2026-10-25T20:10:38Z",
+ "sourceGeneratedAt": "2026-10-25T20:10:38Z",
  "providerEventId": "401873021",
  "matchup": "LAR @ LV",
  "kickoffUtc": "2026-10-25T20:25Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-25T13:43:46Z",
-  "roleEvidenceAt": "2026-10-25T13:43:46Z",
+  "injuriesCapturedAt": "2026-10-25T20:10:38Z",
+  "roleEvidenceAt": "2026-10-25T20:10:38Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -86,7 +86,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 53,
+  "absent": 52,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -143,7 +143,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-2573401",
@@ -204,8 +204,8 @@
   },
   "LV": {
    "counts": {
-    "PROJECTED": 13,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 12,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -232,7 +232,7 @@
       "anytime_td",
       "player_rush_yds"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4432665",
@@ -310,22 +310,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4260394",
-     "name": "Aidan O'Connell",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
-    },
-    {
      "playerId": "nfl-athlete-4698191",
      "name": "Chris Collier",
      "state": "PROJECTED",
@@ -357,6 +341,12 @@
      "name": "Dont'e Thornton Jr.",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-4260394",
+     "name": "Aidan O'Connell",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     }
    ]
   }
@@ -373,21 +363,11 @@
    },
    {
     "team": "LV",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-14880",
-     "name": "Kirk Cousins"
-    },
-    "snapshotAt": "2026-10-24T11:57:56Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4260394",
-      "name": "Aidan O'Connell"
-     }
-    ],
+    "state": "SINGLE_PASSER",
     "passers": [
      "nfl-athlete-14880"
-    ]
+    ],
+    "removed": []
    }
   ],
   "passerShareFloor": [
@@ -456,12 +436,12 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.4764,
-    "originalSum": 0.4764,
-    "residualOther": 0.5236,
-    "joined": 5,
+    "sum": 0.7861,
+    "originalSum": 0.7861,
+    "residualOther": 0.2139,
+    "joined": 6,
     "missed": 0,
-    "state": "UNDER_ALLOCATED"
+    "state": "CONSERVED"
    }
   ],
   "violations": 0
@@ -579,7 +559,7 @@
    "playerId": "nfl-athlete-4426515",
    "name": "Puka Nacua",
    "team": "LAR",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 65.526,
@@ -759,7 +739,7 @@
    "playerId": "nfl-athlete-4686658",
    "name": "Mike Washington Jr.",
    "team": "LV",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
      "mean": 24.924,
@@ -937,18 +917,6 @@
    "markets": {
     "anytime_td": {
      "probability": 0.0791,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4260394",
-   "name": "Aidan O'Connell",
-   "team": "LV",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.0597,
      "pricingState": "NOT_PROBED"
     }
    }
