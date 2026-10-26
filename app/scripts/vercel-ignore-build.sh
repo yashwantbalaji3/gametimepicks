@@ -19,7 +19,9 @@
 #
 # The deployment observer judges currency by buildEtDate (date-based), and bot data commits
 # always touch app/public/data — so at least one real build happens every slate day and a
-# skipped docs-only build can never make the site read as stale.
+# skipped docs-only build can never make the site read as stale. Non-critical data is batched
+# (coalescing gate at the end of this file); critical pre-start forecasts and code still build
+# on their own push.
 set -u
 
 # ── Duplicate-project guard (Vercel duplicate investigation, 2026-07-31) ─────────────────────
@@ -95,13 +97,16 @@ fi
 # route and every `npm run build` step, extracts each data/internal path they name, and FAILS when one is not
 # covered below (or when an entry below is no longer read by anything public). Keep the marker lines.
 #
-# Note on `[skip ci]`: it is a GitHub Actions convention. Vercel never reads the commit message —
-# THIS diff is the only thing that decides. A bot commit that writes app/public/data always builds,
-# by design: those files are baked into the HTML at build time, so a skip would serve stale pages.
+# Note on `[skip ci]`: it is a GitHub Actions convention. Nothing in a commit message can SKIP a build —
+# THIS diff decides. A bot commit that writes app/public/data is always a build input, by design: those
+# files are baked into the HTML at build time. Since 2026-10-26 a span of NON-critical data only is
+# batched for up to GTP_COALESCE_SECONDS (see the coalescing gate at the end); the one message token read
+# is [deploy], and it can only force a build.
 #
 # Note on VERCEL_GIT_PREVIOUS_SHA after a FAILED deploy: Vercel sets it to the last SUCCESSFUL
 # deployment, so the next push's diff spans the failed commit too and its data is delivered by the
-# next build. A failure therefore costs only the wait until the next app/-touching push.
+# next build. A failure therefore costs only the wait until the next app/-touching push — or, since
+# 2026-10-26, until the deploy-flush workflow notices the undeployed change and pushes a [deploy] commit.
 #
 # ':(top)' anchors each pathspec at the repo root regardless of the cwd Vercel runs us in.
 #
@@ -229,5 +234,156 @@ if git diff --quiet "$BASE" HEAD -- "${BUILD_INPUTS[@]}"; then
     exit 0
 fi
 
-echo "[ignore-build] build inputs changed since deployed $BASE — building"
-exit 1
+# ══ TWO-TIER COALESCING GATE (build-cost reduction, 2026-10-26) ════════════════════════════════════════════════════════
+# Reached only when a build input DID change since the deployed $BASE. Measured over the 7 days to 2026-10-26: 720 main
+# commits → 337 successful Production builds (~48/day, ~9.4 min each on the 8-vCPU Enhanced machine), 168 canceled and
+# 14 killed at the 45-minute limit; ~300 of the 337 were started by automation DATA commits, ~39 by merges. A data-only
+# span therefore no longer builds on every push. Tiers 1-3 build at once; only tier 4 can skip, and only for a while:
+#
+#   1. CODE    — anything under app/ outside app/public/data/ (NON_BUILD_GLOBS still excluded)  → build now
+#   2. MARKER  — the HEAD commit message carries the exact token [deploy]                       → build now
+#   3. CRITICAL DATA — a path in GTP-CRITICAL-DATA below: official pre-start forecasts and same-day publishes, where a
+#                late deploy could leave a pre-start forecast unserved at start                    → build now
+#   4. OTHER DATA — coalesce: build only once the OLDEST undeployed build-input commit is GTP_COALESCE_SECONDS old
+#                (default 5400 = 90 min); otherwise skip and let a later push, or the 30-minute deploy-flush workflow
+#                (.github/workflows/deploy-flush.yml), carry it. The flush pushes an empty [deploy] commit, so the
+#                worst case for non-critical data is ~window + 30 min + one build, about 2 h.
+#
+# The commit message is read for ONE purpose: the [deploy] token, whose only effect is exit 1. Nothing in a message can
+# skip a build — `[skip ci]` is still ignored, and a message that cannot be read BUILDS.
+#
+# Rollback without a code change: set GTP_COALESCE_SECONDS=0 in the Vercel project — 0 means never coalesce, i.e. every
+# build-input change builds exactly as before this gate existed.
+#
+# Fail-safe: every git error, empty output, non-numeric time, malformed window or clock anomaly BUILDS. The flush
+# workflow runs THIS script to decide, and reads the GTP_GATE line each decision prints, so the two cannot disagree on
+# which paths are code, critical or coalescible.
+
+# Prints the machine-readable decision line deploy-flush reads, then exits: 0 = skip, 1 = build.
+_gate() {
+    echo "[ignore-build] GTP_GATE verdict=$1 tier=$2 trigger_epoch=${3:-}"
+    if [ "$1" = "skip" ]; then exit 0; fi
+    exit 1
+}
+
+# Commit time of the OLDEST commit in BASE..HEAD that touched the given pathspecs. Empty on any error or no commit.
+# The minimum is taken over every line instead of trusting log order, so clock-skewed or rebased commits cannot hide.
+_oldest_epoch() {
+    local _out _t _min=""
+    _out="$(git log --format=%ct "$BASE..HEAD" -- "$@" 2>/dev/null)" || return 0
+    for _t in $_out; do
+        case "$_t" in ''|*[!0-9]*) echo ""; return 0 ;; esac
+        if [ -z "$_min" ] || [ "$_t" -lt "$_min" ]; then _min="$_t"; fi
+    done
+    echo "$_min"
+}
+
+_window="${GTP_COALESCE_SECONDS:-5400}"
+case "$_window" in
+    ''|*[!0-9]*)
+        echo "[ignore-build] GTP_COALESCE_SECONDS=${_window} is not a whole number of seconds — build inputs changed since deployed $BASE — building"
+        _gate build window-malformed ;;
+esac
+if [ "${#_window}" -gt 9 ]; then
+    echo "[ignore-build] GTP_COALESCE_SECONDS=${_window} is implausibly large — build inputs changed since deployed $BASE — building"
+    _gate build window-malformed
+fi
+if [ "$_window" -eq 0 ]; then
+    echo "[ignore-build] GTP_COALESCE_SECONDS=0 (coalescing off) — build inputs changed since deployed $BASE — building"
+    _gate build coalesce-off
+fi
+
+# ── Tier 1 · CODE ───────────────────────────────────────────────────────────────────────────────────────────────────
+CODE_INPUTS=( ':(top)app/' ':(top,exclude)app/public/data/' )
+for _g in "${NON_BUILD_GLOBS[@]}"; do
+    CODE_INPUTS+=( ":(top,exclude,glob)${_g}" )
+done
+git diff --quiet "$BASE" HEAD -- "${CODE_INPUTS[@]}"
+_rc=$?
+if [ "$_rc" -ne 0 ]; then
+    if [ "$_rc" -eq 1 ]; then
+        echo "[ignore-build] build inputs changed since deployed $BASE, including code under app/ outside app/public/data — building now"
+        _gate build code "$(_oldest_epoch "${CODE_INPUTS[@]}")"
+    fi
+    echo "[ignore-build] build inputs changed since deployed $BASE; the code-path comparison failed (git exit $_rc) — building"
+    _gate build git-error
+fi
+
+# ── Tier 2 · explicit [deploy] marker ───────────────────────────────────────────────────────────────────────────────
+if ! _msg="$(git log -1 --format=%B HEAD 2>/dev/null)"; then
+    echo "[ignore-build] build inputs changed since deployed $BASE; the HEAD commit message could not be read — building"
+    _gate build git-error
+fi
+case "$_msg" in
+    *"[deploy]"*)
+        echo "[ignore-build] build inputs changed since deployed $BASE and HEAD carries [deploy] — building now"
+        _gate build marker "$(git log -1 --format=%ct HEAD 2>/dev/null)" ;;
+esac
+
+# ── Tier 3 · CRITICAL data ──────────────────────────────────────────────────────────────────────────────────────────
+# Official pre-start forecasts and same-day publishes. A change here builds on its own push. Every entry is also a
+# BUILD_INPUT (vercel-ignore-build.behavior.test.mjs checks it) and names its producer. Results, settlement, grading and
+# odds captures are deliberately NOT here: they describe games already started, so 90 minutes of batching costs nothing
+# a reader can act on. Keep the marker lines; the tests and the deploy-flush workflow parse this block. Comments inside
+# the array must contain no quote and no closing round bracket.
+# GTP-CRITICAL-DATA-BEGIN
+CRITICAL_DATA_INPUTS=(
+    # NBA public lane file, the official composition - app/scripts/nba/publish-nba-experimental-lane.mjs, nba-forecast-window.yml
+    ':(top)app/public/data/nba/experimental-public/'
+    # NBA Simulation Theater runs, same once-per-slate lane commit - app/scripts/nba/research/build-theater-possession-runs.mjs
+    ':(top)data/internal/research/nba/theater-possession/'
+    # NFL public pre-kickoff forecasts - app/scripts/nfl/build-nfl-public-forecasts.mjs, nfl-event-window.yml
+    ':(top)app/public/data/nfl/forecasts/'
+    # NFL immutable pre-kickoff forecast receipts, same writer and commit - build-nfl-public-forecasts.mjs
+    ':(top)data/internal/nfl/forecast-receipts/'
+    # MLB pre-first-pitch prediction snapshots - app/scripts/generate-mlb-predictions.mjs, mlb-daily-production + mlb-lineup-refresh
+    ':(top)data/internal/mlb/prediction-snapshots/'
+    # MLB public game predictions, same writer and commit as the snapshots - generate-mlb-predictions.mjs
+    ':(top)app/public/data/mlb/predictions/'
+    # EPL public match forecasts - app/scripts/epl/build-epl-forecasts.mjs, epl-matchweek.yml
+    ':(top)app/public/data/soccer/epl/forecasts/'
+    # EPL public player projections, pre-match - app/scripts/epl/build-epl-player-projections.mjs, epl-matchweek.yml
+    ':(top)app/public/data/soccer/epl/player-projections/'
+    # Ligue 1 public match forecasts - app/scripts/soccer/build-league-forecasts.mjs, soccer-leagues.yml
+    ':(top)app/public/data/soccer/ligue-1/forecasts/'
+    # UFC public card with each bout model prediction, the only UFC forecast a public page reads - app/scripts/ufc/build-ufc-card.mjs, ufc-fight-week.yml
+    ':(top)app/public/data/ufc/card-latest.json'
+)
+# GTP-CRITICAL-DATA-END
+git diff --quiet "$BASE" HEAD -- "${CRITICAL_DATA_INPUTS[@]}"
+_rc=$?
+if [ "$_rc" -ne 0 ]; then
+    if [ "$_rc" -eq 1 ]; then
+        echo "[ignore-build] build inputs changed since deployed $BASE, including a critical pre-start forecast path — building now"
+        _gate build critical "$(_oldest_epoch "${CRITICAL_DATA_INPUTS[@]}")"
+    fi
+    echo "[ignore-build] build inputs changed since deployed $BASE; the critical-path comparison failed (git exit $_rc) — building"
+    _gate build git-error
+fi
+
+# ── Tier 4 · non-critical data: coalesce ────────────────────────────────────────────────────────────────────────────
+# "now" is the builder's clock, not HEAD's commit time: HEAD can be old (a push batch, a merge of an old branch), and
+# the question is how long the oldest change has been waiting. GTP_NOW_EPOCH exists for tests.
+_oldest="$(_oldest_epoch "${BUILD_INPUTS[@]}")"
+_now="${GTP_NOW_EPOCH:-$(date +%s 2>/dev/null)}"
+case "$_oldest" in
+    ''|*[!0-9]*)
+        echo "[ignore-build] build inputs changed since deployed $BASE but the oldest such commit time could not be read — building"
+        _gate build git-error ;;
+esac
+case "$_now" in
+    ''|*[!0-9]*)
+        echo "[ignore-build] build inputs changed since deployed $BASE but the current time could not be read — building"
+        _gate build clock-error "$_oldest" ;;
+esac
+_age=$(( _now - _oldest ))
+if [ "$_age" -lt 0 ]; then
+    echo "[ignore-build] build inputs changed since deployed $BASE; the oldest such commit is dated ${_age#-}s in the future (clock skew) — building"
+    _gate build clock-error "$_oldest"
+fi
+if [ "$_age" -ge "$_window" ]; then
+    echo "[ignore-build] build inputs changed since deployed $BASE (data only); the oldest undeployed change is ${_age}s old, at or past the ${_window}s coalescing window — building"
+    _gate build coalesce-expired "$_oldest"
+fi
+echo "[ignore-build] coalescing: only non-critical data changed since deployed $BASE; the oldest undeployed change is ${_age}s old, inside the ${_window}s window — skipping build (a later push or the deploy-flush backstop will carry it)"
+_gate skip coalesce-wait "$_oldest"
