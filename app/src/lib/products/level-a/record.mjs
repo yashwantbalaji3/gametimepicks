@@ -14,8 +14,19 @@
  * only if readers could see it before its first leg started. `source` names the deployment.
  * Writers: app/scripts/products/record-level-a-from-deployment.mjs (per Production deployment, the normal path) and
  * app/scripts/products/record-level-a-suggestions.mjs (manual).
+ *
+ * WITHDRAWALS (release owner 2026-10-26) live in their OWN append-only file, withdrawn.jsonl, so no reader of the
+ * suggestions record (grader, Results, the guard above) ever meets a second schema, and nothing recorded is edited or
+ * regraded. When a Production deployment no longer serves a recorded entry BEFORE that entry's own publication cutoff
+ * (first leg's start − 30 min), the recorder appends a `withdrawn` event: the entry's id, when it first went live
+ * (servedFrom, copied), lastServedFrom (the go-live of the Production deployment this one replaced) and
+ * firstNotServedFrom (this deployment's go-live: the entry stopped being served at or before it), and the reason
+ * where the served model says it. An entry served again before its cutoff gets a `reinstated` event. Disappearing
+ * at or after the cutoff is the normal end of a suggestion and records nothing. Grading is unchanged: every entry
+ * shown before its first leg started is still graded as recorded.
  */
 import { createHash } from "node:crypto";
+import { LEG_BOUNDS } from "../eligible-leg/contract.mjs";
 import { recordableNbaGameWinnerCards } from "./nba-game-winner-tiers.mjs";
 
 export const LEVEL_A_RECORD_SCHEMA = "gtp.level-a.suggestion@1";
@@ -68,6 +79,67 @@ export function recordViolations({ beforeText = "", afterText = "" }) {
     if (ids.has(e.id)) v.push(`line ${i + 1}: duplicate id ${e.id}`);
     ids.add(e.id);
     if (e.price !== null || e.payout !== null || e.priced !== false || /"(americanOdds|overAmerican|underAmerican|odds|book|bookmaker)"/.test(l)) v.push(`line ${i + 1}: a price field appears in a Level A record`);
+  });
+  return v;
+}
+
+/* ─── withdrawals: withdrawn.jsonl ─────────────────────────────────────────────────────────────────────────────── */
+export const LEVEL_A_WITHDRAWAL_SCHEMA = "gtp.level-a.withdrawal@1";
+const cutoffOf = (e) => Date.parse(e.firstStartUtc) - LEG_BOUNDS.activationCutoffMs;
+const liveFrom = (e) => Date.parse(e.servedFrom ?? e.shownAt ?? e.recordedAt);
+
+/** Why a recorded entry is not in `model` (pure): a leg refused, a leg gone, or its slot now holds another card. */
+export function withdrawalReason(entry, model, servedRows) {
+  const legKeyOf = (l) => `${l.sport}:${l.eventId}`;
+  const present = new Set([...(model?.legs ?? []), ...(model?.untiered ?? []), ...(model?.nbaGameWinners?.legs ?? [])].map(legKeyOf));
+  const refused = new Map((model?.refused ?? []).map((r) => [legKeyOf(r), r.reasons ?? []]));
+  const parts = [];
+  for (const l of entry.legs ?? []) {
+    const k = legKeyOf(l);
+    if (refused.has(k)) parts.push(`${k} refused: ${refused.get(k).join("+")}`);
+    else if (!present.has(k)) parts.push(`${k} is no longer in the served model`);
+  }
+  if (parts.length) return parts.join("; ");
+  const other = servedRows.find((r) => r.policy === entry.policy && r.tier === entry.tier);
+  return other ? `replaced by a different card for the same slot (${other.id})` : "the slot shows no card now";
+}
+
+/**
+ * The withdrawal events one verified Production deployment implies (pure). `existing` is the suggestions record,
+ * `events` the withdrawal file so far, `model` the deployment's served model, `servedFrom` its go-live and
+ * `lastServedFrom` the go-live of the deployment it replaced (null when unknown).
+ */
+export function withdrawalEvents({ existing, events = [], model, servedFrom, lastServedFrom = null, recordedAt, source = null }) {
+  const at = Date.parse(servedFrom);
+  if (!Number.isFinite(at) || !model) return [];
+  const servedRows = recordEntries(model, { recordedAt });
+  const served = new Set(servedRows.map((r) => r.id));
+  const latest = new Map();
+  for (const ev of events) latest.set(ev.id, ev);
+  const out = [];
+  for (const e of existing ?? []) {
+    if (!(at < cutoffOf(e)) || !(liveFrom(e) < at)) continue; // past its own cutoff, or not yet live before this deployment
+    const wasWithdrawn = latest.get(e.id)?.event === "withdrawn";
+    const base = { schema: LEVEL_A_WITHDRAWAL_SCHEMA, id: e.id, productDay: e.productDay, policy: e.policy, tier: e.tier, firstStartUtc: e.firstStartUtc, servedFrom: e.servedFrom ?? e.shownAt ?? null, recordedAt, ...(source ? { source } : {}) };
+    if (!served.has(e.id) && !wasWithdrawn) out.push({ ...base, event: "withdrawn", lastServedFrom, firstNotServedFrom: servedFrom, reason: withdrawalReason(e, model, servedRows) });
+    else if (served.has(e.id) && wasWithdrawn) out.push({ ...base, event: "reinstated", reinstatedFrom: servedFrom });
+  }
+  return out;
+}
+
+/** Guard over the withdrawal file: prefix-preserving, known entries only, events alternate per entry, no price. */
+export function withdrawalViolations({ beforeText = "", afterText = "", recordIds = new Set() }) {
+  const v = [];
+  if (!afterText.startsWith(beforeText)) v.push("the withdrawal file before this run is not an unchanged prefix of it after");
+  const last = new Map();
+  afterText.split("\n").filter((l) => l.trim()).forEach((l, i) => {
+    let e; try { e = JSON.parse(l); } catch { v.push(`line ${i + 1}: not JSON`); return; }
+    if (e.schema !== LEVEL_A_WITHDRAWAL_SCHEMA) v.push(`line ${i + 1}: schema`);
+    if (!recordIds.has(e.id)) v.push(`line ${i + 1}: ${e.id} is not an entry in the suggestions record`);
+    if (e.event !== "withdrawn" && e.event !== "reinstated") v.push(`line ${i + 1}: event ${e.event}`);
+    if ((last.get(e.id) ?? "reinstated") === e.event) v.push(`line ${i + 1}: ${e.id} is ${e.event} twice in a row`);
+    last.set(e.id, e.event);
+    if (/"(price|payout|americanOdds|odds|book|bookmaker)"/.test(l)) v.push(`line ${i + 1}: a price field appears in a withdrawal`);
   });
   return v;
 }

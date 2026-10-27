@@ -13,17 +13,22 @@
  * file left behind by an earlier run could otherwise resurrect another week's games beside this one.
  * Live forecasts win on any id collision.
  *
+ * `resolve` (optional) maps each forecast before it is returned — readers pass nflPublicRecordResolver()
+ * (public-record.mjs) so a public copy of an EXCLUDED revision is shown as its record, never as itself.
+ *
  * Typed as whatever artifact the caller reads, so pages keep their own Forecast shape.
  * @template {{generatedAt?: string, forecasts?: any[]} | null | undefined} T
  * @param {T} live
  * @param {{generatedAt?: string, forecasts?: any[]} | null | undefined} frozen
+ * @param {{ resolve?: (f: any) => any }} [opts]
  * @returns {T} the live artifact with the frozen forecasts appended (or the live artifact unchanged)
  */
-export function unionFrozenForecasts(live, frozen) {
+export function unionFrozenForecasts(live, frozen, { resolve } = {}) {
   if (!live) return live;
-  if (!frozen || !live.generatedAt || frozen.generatedAt !== live.generatedAt) return live;
+  const mapped = (a) => (resolve && a ? { ...a, forecasts: (a.forecasts ?? []).map(resolve) } : a);
+  if (!frozen || !live.generatedAt || frozen.generatedAt !== live.generatedAt) return mapped(live);
   const liveIds = new Set((live.forecasts ?? []).map((f) => String(f.providerEventId)));
   const carried = (frozen.forecasts ?? []).filter((f) => !liveIds.has(String(f.providerEventId)));
-  if (!carried.length) return live;
-  return { ...live, forecasts: [...(live.forecasts ?? []), ...carried] };
+  if (!carried.length) return mapped(live);
+  return mapped({ ...live, forecasts: [...(live.forecasts ?? []), ...carried] });
 }

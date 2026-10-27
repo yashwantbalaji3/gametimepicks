@@ -26,6 +26,7 @@ import { summariseByCohort } from "../../src/lib/sports/nfl/experimental-summary
 import { nflReceiptWinnerGrade, winnerOfRecord } from "../../src/lib/results/nfl-model-favored.mjs";
 import { nflSettlementSelection } from "../../src/lib/results/nfl-settlement-of-record.mjs";
 import { readGradedReceipt, readNflSideCutover, readNflWinnerCorrections } from "../../src/lib/results/nfl-model-favored-io.mjs";
+import { isRecordEligible } from "../../src/lib/sports/nfl/record-eligibility.mjs";
 
 const arg = (n, f = null) => { const i = process.argv.indexOf(n); return i !== -1 && process.argv[i + 1] ? process.argv[i + 1] : f; };
 
@@ -74,7 +75,7 @@ for (const f of fs.readdirSync(receiptDir).filter((x) => x.endsWith(".json"))) {
   const r = read(path.join(receiptDir, f));
   if (!r?.providerEventId) continue;
   const kickoff = Date.parse(r.kickoffUtc);
-  if (!(Date.parse(r.generatedAt) < kickoff)) continue; // post-start files are never of record
+  if (!isRecordEligible(r)) continue; // post-start files are never of record — nor pre-kickoff ones built on post-kickoff inputs (record-eligibility)
   const prev = receipts.get(r.providerEventId);
   (lineageChain.get(r.providerEventId) ?? lineageChain.set(r.providerEventId, []).get(r.providerEventId)).push({ file: f, generatedAt: r.generatedAt, inputHash: r.model?.inputHash });
   if (!prev || r.generatedAt > prev.r.generatedAt) receipts.set(r.providerEventId, { file: f, r });
@@ -95,7 +96,7 @@ const recordFolder = new Map();
 for (const d of fs.readdirSync(receiptsRoot).filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x))) {
   for (const f of fs.readdirSync(path.join(receiptsRoot, d)).filter((x) => x.endsWith(".json"))) {
     const r = read(path.join(receiptsRoot, d, f));
-    if (!r?.providerEventId || !(Date.parse(r.generatedAt) < Date.parse(r.kickoffUtc))) continue;
+    if (!r?.providerEventId || !isRecordEligible(r)) continue;
     const prev = recordFolder.get(r.providerEventId);
     if (!prev || r.generatedAt > prev.generatedAt) recordFolder.set(r.providerEventId, { folder: d, generatedAt: r.generatedAt });
   }

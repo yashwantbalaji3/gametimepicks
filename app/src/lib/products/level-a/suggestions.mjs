@@ -15,6 +15,9 @@
  *     BAD_PROBABILITY     the owner publishes a probability but it is not in (0, 1)
  *     UNAVAILABLE         a participant flagged out / inactive / DNP / injured / questionable / suspended
  *     OTHER_PRODUCT_DAY   the event's ET start date is not the product day (a card never mixes product days)
+ *     SOURCE_NOT_READY    the owner marks its own forecast "degraded" (incomplete inputs); withheld, and counted
+ *     SOURCE_UNAVAILABLE  the owner marks it anything else that is not "ready" (unavailable, generated after the start)
+ *                         (a source that publishes no readiness verdict, `sourceStatus` absent, is not checked)
  *   A leg whose owner does not publish a probability (NBA: side only, founder N2) is valid but UNTIERED.
  *
  * TIER RULE (documented; no new constant)
@@ -52,6 +55,8 @@ export const LEG_REFUSAL = Object.freeze({
   BAD_PROBABILITY: "The official forecast's probability is not a valid chance.",
   UNAVAILABLE: "A participant is listed out, inactive, injured, questionable or not playing.",
   OTHER_PRODUCT_DAY: "The event is not on this product day (the ET date of its start).",
+  SOURCE_NOT_READY: "The official forecast is marked degraded: incomplete inputs.",
+  SOURCE_UNAVAILABLE: "The official forecast is marked unavailable.",
 });
 const ET_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" });
 /** The product day of an instant: its America/New_York calendar date (a 00:30Z tip is the previous evening's slate). */
@@ -91,6 +96,7 @@ export function jointShownFor(joint, tier) {
  * @property {number|null} probability   the owner's published probability for that pick (null when withheld)
  * @property {{ owner: string, modelId: string, stampedAt: string, ref: string|null }} forecast
  * @property {object|null} uncertainty   what the owner publishes beside the pick (e.g. the other outcomes)
+ * @property {string|null} [sourceStatus]   the owner's own readiness verdict ("ready", "degraded", …), where it publishes one
  * @property {string[]} [participantStatuses]
  * @property {{ grader: string, market: string, side: string }} settlement
  */
@@ -111,6 +117,7 @@ export function levelALeg(sel, { now, productDay = null }) {
   const published = modelSuggestionOf(sel?.sport).probabilityPublished;
   if (published && !(typeof sel?.probability === "number" && sel.probability > 0 && sel.probability < 1)) reasons.push("BAD_PROBABILITY");
   if ((sel?.participantStatuses ?? []).some((s) => typeof s === "string" && UNAVAILABLE_RE.test(s.trim()))) reasons.push("UNAVAILABLE");
+  if (sel?.sourceStatus != null && sel.sourceStatus !== "ready") reasons.push(sel.sourceStatus === "degraded" ? "SOURCE_NOT_READY" : "SOURCE_UNAVAILABLE");
   const identity = { sport: sel?.sport ?? null, eventId: sel?.eventId ?? null, eventLabel: sel?.eventLabel ?? null, market: sel?.market ?? null };
   if (reasons.length) return { ok: false, refusal: { ...identity, reasons, text: reasons.map((r) => LEG_REFUSAL[r]) } };
   return {

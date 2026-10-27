@@ -8,9 +8,11 @@
  */
 import { jointShownFor } from "@/lib/products/level-a/suggestions.mjs";
 import type { levelARecord } from "@/lib/results/level-a-record.mjs";
+import type { withWithdrawals } from "@/lib/results/level-a-withdrawals.mjs";
 import { etDayLabel } from "@/lib/et-stamp.mjs";
 
-type View = ReturnType<typeof levelARecord>;
+/* The record view; withdrawn notes are present when the reader annotated it (lib/results/level-a-withdrawals.mjs). */
+type View = ReturnType<typeof levelARecord> & { entries: Array<Partial<ReturnType<typeof withWithdrawals>["entries"][number]>> };
 type Entry = View["entries"][number];
 
 /** The newest product days listed suggestion by suggestion; every older one is still in the counts above. */
@@ -18,6 +20,15 @@ const DAYS_LISTED = 7;
 
 const ET_TIME = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 const etTime = (iso: string | null) => { const t = Date.parse(String(iso ?? "")); return Number.isFinite(t) ? `${ET_TIME.format(new Date(t))} ET` : null; };
+const ET_CLOCK = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" });
+/** "4:45–4:51 PM ET" — the meridiem once when both ends share it. Null when either end is unknown (never guessed). */
+export function servedWindow(fromIso: string | null, toIso: string | null): string | null {
+  const a = Date.parse(String(fromIso ?? "")), b = Date.parse(String(toIso ?? ""));
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
+  const [x, y] = [ET_CLOCK.format(new Date(a)), ET_CLOCK.format(new Date(b))];
+  const [xm, ym] = [x.slice(-2), y.slice(-2)];
+  return `${xm === ym ? x.slice(0, -3) : x}–${y} ET`;
+}
 
 const STATUS_WORD: Record<string, string> = { WON: "Won", LOST: "Lost", VOID: "Void — not a loss", PENDING: "Pending — not a loss" };
 
@@ -50,6 +61,12 @@ function EntryCard({ e }: { e: Entry }) {
         </span>
         <Status s={e.status} />
       </div>
+      {e.withdrawn ? (
+        /* A note, never a re-grade: the card was shown, so its grade and every count above stay as recorded. */
+        <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-mute)" }} data-withdrawn={e.id}>
+          Withdrawn before start{servedWindow(e.withdrawn.servedFrom, e.withdrawn.until) ? ` (served ${servedWindow(e.withdrawn.servedFrom, e.withdrawn.until)})` : ""} · still graded as shown
+        </p>
+      ) : null}
       <ul className="m-0 p-0 list-none flex flex-col gap-1">
         {e.legs.map((l: Entry["legs"][number]) => (
           <li key={`${l.sport}-${l.eventId}`} className="flex flex-wrap items-baseline justify-between gap-x-3 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>

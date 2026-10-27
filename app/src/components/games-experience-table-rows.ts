@@ -19,6 +19,7 @@ import { buildSimulateDay, type SimDayEvent, type SimEventState } from "@/lib/si
 import { loadEplForecasts, reportableRows } from "@/lib/sports/epl/forecast-view";
 import { archivedEventIds } from "@/lib/sports/nfl/archived-forecast";
 import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
+import { nflPublicRecordResolver } from "@/lib/sports/nfl/public-record.mjs";
 import { committedLaneDates, loadLaneForDate } from "@/components/nba/experimental-lane";
 import { nbaExclusionText } from "@/lib/sport-hub/nba-hub";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
@@ -57,7 +58,7 @@ export function buildGamesTableRows(today: string): GamesTableRow[] {
   const nflIdx = new Map((readPublic<NflIdx>("nfl/index.json")?.events ?? []).map((e) => [String(e.providerEventId), e]));
   /* The NFL game pages this export serves: the same union /nfl/game/[eventId] generates its params from. */
   const nflPages = new Set<string>([
-    ...((unionFrozenForecasts(readPublic<{ forecasts?: unknown[] }>("nfl/forecasts/latest.json"), readPublic<{ forecasts?: unknown[] }>("nfl/forecasts/frozen-latest.json"))?.forecasts ?? []) as Array<{ providerEventId: string }>).map((f) => String(f.providerEventId)),
+    ...((unionFrozenForecasts(readPublic<{ forecasts?: unknown[] }>("nfl/forecasts/latest.json"), readPublic<{ forecasts?: unknown[] }>("nfl/forecasts/frozen-latest.json"), { resolve: nflPublicRecordResolver() })?.forecasts ?? []) as Array<{ providerEventId: string }>).map((f) => String(f.providerEventId)),
     ...archivedEventIds(dataRoot),
   ]);
   const epl = loadEplForecasts();

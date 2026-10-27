@@ -15,6 +15,7 @@ import SectionHeader from "@/components/section-header";
 import TeamLogo from "@/components/team-logo";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
+import { nflPublicRecordResolver } from "@/lib/sports/nfl/public-record.mjs";
 import { availableWeekKeys } from "@/lib/sports/nfl/week-keys";
 import PredictionBoard from "@/components/prediction/prediction-board";
 import { presentWeeklyBoard } from "@/lib/prediction-presentation/nfl";
@@ -70,7 +71,7 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
   const wb = read(`nfl/weekly-boards/${params.key}.json`) as WeeklyBoards | null;
   const [seasonType, week] = params.key.split("-").map(Number);
   /* P295: the week's started games come from frozen-latest.json, written by the same run. */
-  const forecasts = ((unionFrozenForecasts(read("nfl/forecasts/latest.json"), read("nfl/forecasts/frozen-latest.json"))?.forecasts ?? []) as Forecast[])
+  const forecasts = ((unionFrozenForecasts(read("nfl/forecasts/latest.json"), read("nfl/forecasts/frozen-latest.json"), { resolve: nflPublicRecordResolver() })?.forecasts ?? []) as Forecast[])
     .filter((f) => f.seasonType === seasonType && f.week === week)
     .sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc));
 
