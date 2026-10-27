@@ -73,6 +73,45 @@ test("the hub card and the Game Simulation render the label + reason for the deg
   assert.equal(sim, `2 of 9 TB batters have no projection (no posted prop line, or too little data) and are simulated at replacement-level rates. ${DEGRADED_REFUSAL} ${DEGRADED_SUGGESTIONS}`);
 });
 
+test("TOP READS (/mlb \"most confident\" list): a degraded row keeps its place, wears the label + short reason; a ready row has none", async () => {
+  const { default: TopReadsPanel } = await import("../../../components/top-reads-panel.tsx");
+  const row = (p) => ({
+    sport: "mlb", sportLabel: "MLB", kind: "team", headline: `${p.moneyline.team} to win`, subject: p.moneyline.team, team: p.moneyline.team, photoUrl: null,
+    probability: p.moneyline.simulationProbability, market: "Moneyline", context: `${p.awayTeam} @ ${p.homeTeam}`, href: `/games/mlb/${p.slug}/`,
+    eventEtDate: "2026-10-26", timeframe: "today", degraded: degradedInputsNote(p.status, p.completeness, { away: p.awayTeam, home: p.homeTeam }),
+  });
+  const deg = row(FIX.predictionDegraded), ready = row(FIX.predictionReady);
+  assert.equal(FIX.predictionDegraded.status, "degraded");
+  assert.equal(FIX.predictionReady.status, "ready");
+  assert.equal(deg.degraded.short, "2 of 9 TB batters have no projection · not in model suggestions");
+  assert.equal(ready.degraded, null);
+  const html = renderToStaticMarkup(React.createElement(TopReadsPanel, { set: { generatedAt: "", reads: [deg, ready], excluded: [], provenance: [] }, reads: [deg, ready], eyebrow: "MLB · model reads", title: "What the model is most confident about today" }));
+  assert.equal((html.match(/data-top-read-degraded/g) ?? []).length, 1, "only the degraded row is labelled");
+  const t = text(html);
+  assert.ok(t.includes("MIL to win MLB · Moneyline · MIL @ TB Degraded inputs 2 of 9 TB batters have no projection · not in model suggestions 57.8%"), t.slice(0, 300));
+  // the full reason is there too, as the row's tooltip
+  assert.ok(html.includes(`title="2 of 9 TB batters have no projection (no posted prop line, or too little data) and are simulated at replacement-level rates. It is not included in model suggestions while degraded."`));
+});
+
+test("TOP READS loader: every MLB team read carries the note from its own prediction row (source pin)", () => {
+  const src = fs.readFileSync(path.join(APP, "src/lib/top-reads.ts"), "utf8");
+  assert.match(src, /const degraded = degradedInputsNote\(p\.status, p\.completeness, \{ away: p\.awayTeam, home: p\.homeTeam \}\);/);
+  assert.equal((src.match(/^\s+degraded,$/gm) ?? []).length, 2, "moneyline and game-total rows both carry it");
+});
+
+test("short wording for every cause stays a few words (the homepage has a frozen word ceiling)", () => {
+  const base = { awayLineupSource: "confirmed", homeLineupSource: "confirmed", awayRatedCount: 9, homeRatedCount: 9, awayLineupCount: 9, homeLineupCount: 9, hasAwayStarter: true, hasHomeStarter: true };
+  const sh = (c) => degradedInputsNote("degraded", { ...base, ...c }, { away: "NYY", home: "BOS" }).short;
+  assert.equal(sh({ awayLineupSource: "prop-derived", awayRatedCount: 6 }), "NYY batting order not posted · not in model suggestions");
+  assert.equal(sh({ hasHomeStarter: false }), "no BOS probable starter posted · not in model suggestions");
+  assert.equal(sh({}), "some inputs incomplete · not in model suggestions");
+  const words = (x) => x.split(/\s+/).length;
+  // one cause (the usual case, 10-26 included) is at most 13 tokens; all four causes at once (never seen) at most 32
+  for (const c of [{ awayRatedCount: 8 }, { awayLineupSource: "prop-derived", awayRatedCount: 0 }, { hasAwayStarter: false }]) assert.ok(words(sh(c)) <= 13, sh(c));
+  const worst = sh({ awayRatedCount: 8, homeRatedCount: 5, hasAwayStarter: false, hasHomeStarter: false });
+  assert.ok(words(worst) <= 32, worst);
+});
+
 test("SOURCE PIN · the Game Simulation keeps its header chip and renders the reason from the same snapshot", () => {
   const src = fs.readFileSync(path.join(APP, "src/components/game/mlb-full-game-report.tsx"), "utf8");
   assert.match(src, /g\.status === "degraded" \? <Chip tone="warn">Degraded inputs<\/Chip>/);

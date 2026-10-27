@@ -36,7 +36,7 @@ export interface MlbSimCard {
   /** True when either side is still without a posted batting order. */
   awaitingLineup: boolean;
   /** "Degraded inputs" label + the snapshot's own reason, only when the snapshot's status is "degraded" (degraded-note.mjs). */
-  degraded: { label: string; reason: string; refusal: string; suggestions: string } | null;
+  degraded: { label: string; reason: string; short: string; refusal: string; suggestions: string } | null;
 }
 
 export interface MlbSimSet {

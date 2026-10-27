@@ -5,7 +5,7 @@
  * Contrast (AA, on --vault-panel #0F1512): label --vault-warn #F0C75E, text --vault-text-mute #B4BEB8 — pinned in
  * degraded-note.test.mjs from globals.css.
  */
-type Note = { label: string; reason: string; refusal: string; suggestions: string };
+type Note = { label: string; reason: string; short: string; refusal: string; suggestions: string };
 
 export default function MlbDegradedInputs({ note, compact = false, showLabel = true }: { note: Note; compact?: boolean; showLabel?: boolean }) {
   return (

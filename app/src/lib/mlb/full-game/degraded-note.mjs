@@ -26,23 +26,30 @@ const LINEUP_SIZE = 9;
  * @param {string | null | undefined} status  the snapshot's `status` ("ready" | "degraded" | "unavailable")
  * @param {Record<string, any> | null | undefined} completeness  the snapshot's `completeness`
  * @param {{ away: string, home: string }} teams  team abbreviations, as the snapshot names them
- * @returns {{ label: string, reason: string, refusal: string, suggestions: string } | null}
+ * @returns {{ label: string, reason: string, short: string, refusal: string, suggestions: string } | null}
  */
 export function degradedInputsNote(status, completeness, { away, home }) {
   if (status !== "degraded") return null;
   const c = completeness ?? {};
   const reasons = [];
+  const shorts = []; // the same causes in a few words, for a ranked-list row (the full reason rides as its tooltip)
   for (const [abbr, side] of [[away, "away"], [home, "home"]]) {
     const rated = c[`${side}RatedCount`];
     const size = typeof c[`${side}LineupCount`] === "number" ? c[`${side}LineupCount`] : LINEUP_SIZE;
     if (typeof rated !== "number" || rated >= size) continue;
     const missing = size - rated;
-    reasons.push(c[`${side}LineupSource`] === "confirmed"
+    const confirmed = c[`${side}LineupSource`] === "confirmed";
+    reasons.push(confirmed
       ? `${missing} of ${size} ${abbr} batters have no projection (no posted prop line, or too little data) and are simulated at replacement-level rates`
       : `${abbr} had not posted a batting order, so ${missing} of ${size} ${abbr} lineup slots are simulated at replacement-level rates`);
+    shorts.push(confirmed ? `${missing} of ${size} ${abbr} batters have no projection` : `${abbr} batting order not posted`);
   }
-  if (c.hasAwayStarter === false) reasons.push(`${away} has no posted probable starter, so a league bullpen aggregate pitches for ${away}`);
-  if (c.hasHomeStarter === false) reasons.push(`${home} has no posted probable starter, so a league bullpen aggregate pitches for ${home}`);
+  for (const [abbr, has] of [[away, c.hasAwayStarter], [home, c.hasHomeStarter]]) {
+    if (has !== false) continue;
+    reasons.push(`${abbr} has no posted probable starter, so a league bullpen aggregate pitches for ${abbr}`);
+    shorts.push(`no ${abbr} probable starter posted`);
+  }
   const reason = reasons.length ? `${reasons.join("; ")}.` : "Some pregame inputs for this game are incomplete.";
-  return { label: DEGRADED_LABEL, reason: reason.charAt(0).toUpperCase() + reason.slice(1), refusal: DEGRADED_REFUSAL, suggestions: DEGRADED_SUGGESTIONS };
+  const short = `${shorts.length ? shorts.join(", ") : "some inputs incomplete"} · not in model suggestions`;
+  return { label: DEGRADED_LABEL, reason: reason.charAt(0).toUpperCase() + reason.slice(1), short, refusal: DEGRADED_REFUSAL, suggestions: DEGRADED_SUGGESTIONS };
 }

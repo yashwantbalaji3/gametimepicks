@@ -1,5 +1,5 @@
 {
- "source": "verbatim from public/data/mlb/full-game-simulations (fields the hub card and the degraded note read); degraded = 2026-10-26.json gamePk 849804 at artifactHash b45044739c57de6f43714e288640d4be928ed0d4d6cd56f24382ca67df409b13; ready = 2026-10-24.json tb-vs-mil-2026-10-24",
+ "source": "verbatim from public/data/mlb/full-game-simulations (fields the hub card and the degraded note read); degraded = 2026-10-26.json gamePk 849804 at artifactHash b45044739c57de6f43714e288640d4be928ed0d4d6cd56f24382ca67df409b13; ready = 2026-10-24.json tb-vs-mil-2026-10-24; predictionDegraded / predictionReady = the same games verbatim from public/data/mlb/predictions/<date>.json (the rows the top-reads list reads)",
  "degraded": {
   "gamePk": 849804,
   "date": "2026-10-26",
@@ -94,6 +94,86 @@
    }
   ],
   "runCount": 10000,
+  "artifactHash": "aad7cc2ad3b199eb0b4302d3e1e011fb2d6c47d419f3831587be5a3a48fa4039"
+ },
+ "predictionDegraded": {
+  "gamePk": 849804,
+  "slug": "mil-vs-tb-2026-10-26",
+  "awayTeam": "MIL",
+  "homeTeam": "TB",
+  "status": "degraded",
+  "completeness": {
+   "level": "degraded",
+   "notes": [
+    "MIL confirmed batting order used, all 9 with posted prop lines.",
+    "TB confirmed batting order used; 2 of 9 have no GTP projection (no posted prop line, or too little data) and are simulated at replacement-level rates; the box score marks each one."
+   ],
+   "awayLineupSource": "confirmed",
+   "homeLineupSource": "confirmed",
+   "awayRatedCount": 9,
+   "homeRatedCount": 7,
+   "awayLineupCount": 9,
+   "homeLineupCount": 9,
+   "hasAwayStarter": true,
+   "hasHomeStarter": true,
+   "startedBeforeGeneration": false,
+   "missingFamilies": [
+    "park_run_factors",
+    "weather",
+    "batter_handedness_splits"
+   ]
+  },
+  "moneyline": {
+   "team": "MIL",
+   "simulationProbability": 0.578
+  },
+  "total": {
+   "line": 7,
+   "pick": "OVER",
+   "overProbability": 0.458,
+   "underProbability": 0.428,
+   "simulationMedian": 7
+  },
+  "artifactHash": "b45044739c57de6f43714e288640d4be928ed0d4d6cd56f24382ca67df409b13"
+ },
+ "predictionReady": {
+  "gamePk": 849802,
+  "slug": "tb-vs-mil-2026-10-24",
+  "awayTeam": "TB",
+  "homeTeam": "MIL",
+  "status": "ready",
+  "completeness": {
+   "level": "ready",
+   "notes": [
+    "TB confirmed batting order used, all 9 with posted prop lines.",
+    "MIL confirmed batting order used, all 9 with posted prop lines."
+   ],
+   "awayLineupSource": "confirmed",
+   "homeLineupSource": "confirmed",
+   "awayRatedCount": 9,
+   "homeRatedCount": 9,
+   "awayLineupCount": 9,
+   "homeLineupCount": 9,
+   "hasAwayStarter": true,
+   "hasHomeStarter": true,
+   "startedBeforeGeneration": false,
+   "missingFamilies": [
+    "park_run_factors",
+    "weather",
+    "batter_handedness_splits"
+   ]
+  },
+  "moneyline": {
+   "team": "MIL",
+   "simulationProbability": 0.502
+  },
+  "total": {
+   "line": 6.5,
+   "pick": "OVER",
+   "overProbability": 0.646,
+   "underProbability": 0.354,
+   "simulationMedian": 8
+  },
   "artifactHash": "aad7cc2ad3b199eb0b4302d3e1e011fb2d6c47d419f3831587be5a3a48fa4039"
  }
 }
