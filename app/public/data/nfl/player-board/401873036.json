@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-27T15:21:24Z",
- "sourceGeneratedAt": "2026-10-27T15:21:24Z",
+ "generatedAt": "2026-10-27T19:35:28Z",
+ "sourceGeneratedAt": "2026-10-27T19:35:28Z",
  "forecastInputHash": "b15fa639e3cb8fdf",
  "providerEventId": "401873036",
  "matchup": "CHI @ SEA",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-27T15:21:24Z",
-  "roleEvidenceAt": "2026-10-27T15:21:24Z",
+  "injuriesCapturedAt": "2026-10-27T19:35:28Z",
+  "roleEvidenceAt": "2026-10-27T19:35:28Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -21,8 +21,37 @@
   "player_pass_yds": {
    "label": "Passing yards",
    "state": "ESTIMATE",
-   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
-   "caveat": "on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast."
+   "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
+   "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
+   "model": "nfl-player-share-level-v1",
+   "withheldPassers": [
+    {
+     "team": "CHI",
+     "playerId": "nfl-athlete-15168",
+     "name": "Case Keenum",
+     "share": 0.464,
+     "reason": "withheld for Case Keenum (CHI): his modelled share of CHI's pass attempts is 0.46, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+    },
+    {
+     "team": "CHI",
+     "playerId": "nfl-athlete-4434153",
+     "name": "Tyson Bagent",
+     "share": 0.523,
+     "reason": "withheld for Tyson Bagent (CHI): his modelled share of CHI's pass attempts is 0.52, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+    },
+    {
+     "team": "SEA",
+     "playerId": "nfl-athlete-3924327",
+     "name": "Drew Lock",
+     "share": 0.696,
+     "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+    }
+   ],
+   "conservation": {
+    "version": "nfl-share-conservation-v1",
+    "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
+    "pools": []
+   }
   },
   "player_rush_yds": {
    "label": "Rushing yards",
@@ -38,7 +67,13 @@
   "player_receptions": {
    "label": "Receptions",
    "state": "PUBLISHED",
-   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
+   "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1129 graded player-games).",
+   "model": "nfl-player-share-level-v1",
+   "conservation": {
+    "version": "nfl-share-conservation-v1",
+    "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
+    "pools": []
+   }
   },
   "player_pass_int": {
    "label": "player_pass_int",
@@ -48,7 +83,8 @@
   "anytime_td": {
    "label": "Anytime touchdown",
    "state": "PUBLISHED",
-   "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing"
+   "basis": "Opportunity touchdown model: cleared every bar on a blind test of 2014–2021 (35,128 player-games never used to build it). Probabilities condition on playing — a player who does not play settles void. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1480 graded player-games).",
+   "model": "nfl-anytime-td-opportunity-v1"
   },
   "ordered_td": {
    "label": "First/last/2+ touchdown",
@@ -59,23 +95,38 @@
  "newArrivals": {},
  "arrivalsShadowed": 0,
  "departedFiltered": 0,
- "practiceSquadFiltered": 0,
- "practiceSquadFilteredPlayers": [],
- "shareLevel": null,
+ "practiceSquadFiltered": 1,
+ "practiceSquadFilteredPlayers": [
+  {
+   "playerId": "nfl-athlete-4428943",
+   "name": "Jacardia Wright",
+   "team": "SEA"
+  }
+ ],
+ "shareLevel": {
+  "markets": [
+   "anytime_td",
+   "player_pass_yds",
+   "player_receptions"
+  ],
+  "rows": 65,
+  "rosterDropped": 40,
+  "withoutEspnId": 0
+ },
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 42,
+  "absent": 54,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "CHI": {
    "counts": {
-    "PROJECTED": 9,
+    "PROJECTED": 10,
     "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
-    "NOT_MODELED_BY_FAMILY": 0,
+    "NOT_MODELED_BY_FAMILY": 1,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
@@ -84,6 +135,7 @@
      "name": "Caleb Williams",
      "state": "PROJECTED",
      "families": [
+      "anytime_td",
       "player_pass_yds",
       "player_rush_yds"
      ],
@@ -94,18 +146,10 @@
      "name": "D'Andre Swift",
      "state": "PROJECTED",
      "families": [
+      "anytime_td",
       "player_reception_yds",
       "player_receptions",
       "player_rush_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-15168",
-     "name": "Case Keenum",
-     "state": "PROJECTED",
-     "families": [
-      "player_pass_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
@@ -114,6 +158,7 @@
      "name": "Kyle Monangai",
      "state": "PROJECTED",
      "families": [
+      "anytime_td",
       "player_rush_yds"
      ],
      "participation": "QUESTIONABLE"
@@ -123,6 +168,7 @@
      "name": "Colston Loveland",
      "state": "PROJECTED",
      "families": [
+      "anytime_td",
       "player_reception_yds",
       "player_receptions"
      ],
@@ -133,6 +179,7 @@
      "name": "Luther Burden III",
      "state": "PROJECTED",
      "families": [
+      "anytime_td",
       "player_reception_yds",
       "player_receptions"
      ],
@@ -143,6 +190,7 @@
      "name": "Rome Odunze",
      "state": "PROJECTED",
      "families": [
+      "anytime_td",
       "player_reception_yds",
       "player_receptions"
      ],
@@ -153,6 +201,7 @@
      "name": "Kalif Raymond",
      "state": "PROJECTED",
      "families": [
+      "anytime_td",
       "player_reception_yds",
       "player_receptions"
      ],
@@ -163,7 +212,33 @@
      "name": "Roschon Johnson",
      "state": "PROJECTED",
      "families": [
+      "anytime_td",
       "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4434153",
+     "name": "Tyson Bagent",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "withheld for Tyson Bagent (CHI): his modelled share of CHI's pass attempts is 0.52, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4036032",
+     "name": "Brittain Brown",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
@@ -172,46 +247,42 @@
      "name": "Cole Kmet",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-15168",
+     "name": "Case Keenum",
+     "state": "NOT_MODELED_BY_FAMILY",
+     "reason": "withheld for Case Keenum (CHI): his modelled share of CHI's pass attempts is 0.46, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "withheld for Case Keenum (CHI): his modelled share of CHI's pass attempts is 0.46, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+      }
+     ]
     }
    ]
   },
   "SEA": {
    "counts": {
-    "PROJECTED": 12,
+    "PROJECTED": 10,
     "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
-    "NOT_MODELED_BY_FAMILY": 0,
+    "NOT_MODELED_BY_FAMILY": 1,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
-    {
-     "playerId": "nfl-athlete-3912547",
-     "name": "Sam Darnold",
-     "state": "PROJECTED",
-     "families": [
-      "player_pass_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-3924327",
-     "name": "Drew Lock",
-     "state": "PROJECTED",
-     "families": [
-      "player_pass_yds"
-     ],
-     "participation": "QUESTIONABLE"
-    },
     {
      "playerId": "nfl-athlete-4887558",
      "name": "Emanuel Wilson",
      "state": "PROJECTED",
      "families": [
       "anytime_td",
+      "player_receptions",
       "player_rush_yds"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4430878",
@@ -222,7 +293,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4426385",
@@ -230,6 +301,7 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
+      "player_receptions",
       "player_rush_yds"
      ],
      "participation": "QUESTIONABLE"
@@ -243,13 +315,14 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4032473",
      "name": "Rashid Shaheed",
      "state": "PROJECTED",
      "families": [
+      "anytime_td",
       "player_reception_yds",
       "player_receptions"
      ],
@@ -264,7 +337,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4429835",
@@ -276,13 +349,14 @@
       "player_receptions",
       "player_rush_yds"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4035693",
      "name": "Velus Jones Jr.",
      "state": "PROJECTED",
      "families": [
+      "anytime_td",
       "player_rush_yds"
      ],
      "participation": "QUESTIONABLE"
@@ -296,22 +370,36 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4360405",
-     "name": "Jake Bobo",
+     "playerId": "nfl-athlete-3912547",
+     "name": "Sam Darnold",
      "state": "PROJECTED",
      "families": [
-      "anytime_td"
+      "anytime_td",
+      "player_pass_yds"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4685512",
      "name": "Jadarian Price",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-3924327",
+     "name": "Drew Lock",
+     "state": "NOT_MODELED_BY_FAMILY",
+     "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+      }
+     ]
     }
    ]
   }
@@ -324,7 +412,8 @@
     "reason": "depth chart STALE",
     "passers": [
      "nfl-athlete-4431611",
-     "nfl-athlete-15168"
+     "nfl-athlete-15168",
+     "nfl-athlete-4434153"
     ],
     "removed": [],
     "snapshotAt": "2026-10-24T11:57:56Z"
@@ -347,13 +436,26 @@
     "floor": 0.75,
     "passers": [
      "nfl-athlete-4431611",
-     "nfl-athlete-15168"
+     "nfl-athlete-15168",
+     "nfl-athlete-4434153"
     ],
-    "withheld": [],
-    "unjoined": [
-     "nfl-athlete-4431611",
-     "nfl-athlete-15168"
-    ]
+    "withheld": [
+     {
+      "team": "CHI",
+      "playerId": "nfl-athlete-15168",
+      "name": "Case Keenum",
+      "share": 0.464,
+      "reason": "withheld for Case Keenum (CHI): his modelled share of CHI's pass attempts is 0.46, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     },
+     {
+      "team": "CHI",
+      "playerId": "nfl-athlete-4434153",
+      "name": "Tyson Bagent",
+      "share": 0.523,
+      "reason": "withheld for Tyson Bagent (CHI): his modelled share of CHI's pass attempts is 0.52, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     }
+    ],
+    "unjoined": []
    },
    {
     "team": "SEA",
@@ -362,238 +464,75 @@
      "nfl-athlete-3912547",
      "nfl-athlete-3924327"
     ],
-    "withheld": [],
-    "unjoined": [
-     "nfl-athlete-3912547",
-     "nfl-athlete-3924327"
-    ]
+    "withheld": [
+     {
+      "team": "SEA",
+      "playerId": "nfl-athlete-3924327",
+      "name": "Drew Lock",
+      "share": 0.696,
+      "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     }
+    ],
+    "unjoined": []
    }
   ],
-  "pools": [],
+  "pools": [
+   {
+    "team": "CHI",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.9529,
+    "originalSum": 0.9529,
+    "residualOther": 0.0471,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "SEA",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.9137,
+    "originalSum": 0.9137,
+    "residualOther": 0.0863,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "CHI",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.8201,
+    "originalSum": 0.8201,
+    "residualOther": 0.1799,
+    "joined": 5,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "SEA",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.8005,
+    "originalSum": 0.8005,
+    "residualOther": 0.1995,
+    "joined": 6,
+    "missed": 0,
+    "state": "CONSERVED"
+   }
+  ],
   "violations": 0
  },
  "players": [
-  {
-   "playerId": "nfl-athlete-4430878",
-   "name": "Jaxon Smith-Njigba",
-   "team": "SEA",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 93.642,
-     "p10": 33.09,
-     "p25": 55.76,
-     "median": 86.96,
-     "p75": 124.13,
-     "p90": 161.95,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 6.893,
-     "p10": 3,
-     "p25": 5,
-     "median": 7,
-     "p75": 9,
-     "p90": 11,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.507143,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4426385",
-   "name": "Zach Charbonnet",
-   "team": "SEA",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 21.985,
-     "p10": 1.78,
-     "p25": 6.88,
-     "median": 17.29,
-     "p75": 31.97,
-     "p90": 47.84,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.462619,
-     "participation": "QUESTIONABLE",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4887558",
-   "name": "Emanuel Wilson",
-   "team": "SEA",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 38.194,
-     "p10": 10.11,
-     "p25": 19.58,
-     "median": 33.94,
-     "p75": 52.52,
-     "p90": 71.77,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.395887,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4429835",
-   "name": "George Holani",
-   "team": "SEA",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 10.323,
-     "p10": 0,
-     "p25": 0.65,
-     "median": 5.93,
-     "p75": 15.46,
-     "p90": 27.71,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_reception_yds": {
-     "mean": 12.503,
-     "p10": 0,
-     "p25": 0,
-     "median": 6.37,
-     "p75": 19.08,
-     "p90": 34.61,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 1.238,
-     "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.308864,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4597703",
-   "name": "Tory Horton",
-   "team": "SEA",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 13.303,
-     "p10": 0,
-     "p25": 0,
-     "median": 6.87,
-     "p75": 20.48,
-     "p90": 37.7,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 1.177,
-     "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.175047,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4576297",
-   "name": "AJ Barner",
-   "team": "SEA",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 25.385,
-     "p10": 0,
-     "p25": 7.13,
-     "median": 19.94,
-     "p75": 37.79,
-     "p90": 57.65,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 2.471,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 5,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.136928,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4360405",
-   "name": "Jake Bobo",
-   "team": "SEA",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.128408,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-2977187",
-   "name": "Cooper Kupp",
-   "team": "SEA",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 24.605,
-     "p10": 0,
-     "p25": 5.5,
-     "median": 18.67,
-     "p75": 37.03,
-     "p90": 56.79,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 2.24,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 5,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.120692,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
   {
    "playerId": "nfl-athlete-4259545",
    "name": "D'Andre Swift",
@@ -619,12 +558,46 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.685,
+     "mean": 2.8052,
      "p10": 0,
      "p25": 1,
      "median": 2,
      "p75": 4,
-     "p90": 5,
+     "p90": 6,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.6687,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4430878",
+   "name": "Jaxon Smith-Njigba",
+   "team": "SEA",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 93.642,
+     "p10": 33.09,
+     "p25": 55.76,
+     "median": 86.96,
+     "p75": 124.13,
+     "p90": 161.95,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 8.2956,
+     "p10": 3,
+     "p25": 5,
+     "median": 8,
+     "p75": 11,
+     "p90": 15,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.5595,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -643,142 +616,69 @@
      "p75": 44.64,
      "p90": 64.77,
      "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4431611",
-   "name": "Caleb Williams",
-   "team": "CHI",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_pass_yds": {
-     "mean": 118.321,
-     "p10": 7.58,
-     "p25": 40.43,
-     "median": 102.47,
-     "p75": 181.36,
-     "p90": 245.66,
-     "pricingState": "NOT_PROBED"
     },
-    "player_rush_yds": {
-     "mean": 13.455,
-     "p10": 0,
-     "p25": 1.08,
-     "median": 7.91,
-     "p75": 19.69,
-     "p90": 35.8,
+    "anytime_td": {
+     "probability": 0.4727,
      "pricingState": "NOT_PROBED"
     }
    }
   },
   {
-   "playerId": "nfl-athlete-4426386",
-   "name": "Roschon Johnson",
-   "team": "CHI",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 10.395,
-     "p10": 0,
-     "p25": 0.35,
-     "median": 5.7,
-     "p75": 15.17,
-     "p90": 27.84,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4035693",
-   "name": "Velus Jones Jr.",
-   "team": "SEA",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 7.011,
-     "p10": 0,
-     "p25": 0,
-     "median": 1.91,
-     "p75": 9.92,
-     "p90": 20.5,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3912547",
-   "name": "Sam Darnold",
+   "playerId": "nfl-athlete-4887558",
+   "name": "Emanuel Wilson",
    "team": "SEA",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_pass_yds": {
-     "mean": 132.247,
-     "p10": 21.29,
-     "p25": 62.78,
-     "median": 121.86,
-     "p75": 191.78,
-     "p90": 254.07,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3924327",
-   "name": "Drew Lock",
-   "team": "SEA",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_pass_yds": {
-     "mean": 113.829,
-     "p10": 7.09,
-     "p25": 37.11,
-     "median": 97.97,
-     "p75": 171.9,
-     "p90": 245.27,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4032473",
-   "name": "Rashid Shaheed",
-   "team": "SEA",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 24.565,
-     "p10": 0,
-     "p25": 6.06,
-     "median": 18.97,
-     "p75": 37.2,
-     "p90": 56.97,
+    "player_rush_yds": {
+     "mean": 38.194,
+     "p10": 10.11,
+     "p25": 19.58,
+     "median": 33.94,
+     "p75": 52.52,
+     "p90": 71.77,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.261,
+     "mean": 1.1942,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 5,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.4396,
      "pricingState": "NOT_PROBED"
     }
    }
   },
   {
-   "playerId": "nfl-athlete-15168",
-   "name": "Case Keenum",
-   "team": "CHI",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "playerId": "nfl-athlete-4426385",
+   "name": "Zach Charbonnet",
+   "team": "SEA",
+   "participation": "QUESTIONABLE",
    "markets": {
-    "player_pass_yds": {
-     "mean": 69.323,
+    "player_rush_yds": {
+     "mean": 21.985,
+     "p10": 1.78,
+     "p25": 6.88,
+     "median": 17.29,
+     "p75": 31.97,
+     "p90": 47.84,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 1.3684,
      "p10": 0,
-     "p25": 8.79,
-     "median": 44.73,
-     "p75": 108.78,
-     "p90": 177.68,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.3835,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -799,12 +699,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 4.399,
-     "p10": 2,
-     "p25": 3,
+     "mean": 4.6865,
+     "p10": 1,
+     "p25": 2,
      "median": 4,
      "p75": 6,
-     "p90": 8,
+     "p90": 9,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.2695,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -825,12 +729,196 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 4.41,
+     "mean": 4.6876,
      "p10": 1,
-     "p25": 3,
+     "p25": 2,
      "median": 4,
      "p75": 6,
-     "p90": 8,
+     "p90": 9,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.2684,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4431611",
+   "name": "Caleb Williams",
+   "team": "CHI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 13.455,
+     "p10": 0,
+     "p25": 1.08,
+     "median": 7.91,
+     "p75": 19.69,
+     "p90": 35.8,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_pass_yds": {
+     "mean": 248.6043,
+     "p10": 131.2285,
+     "p25": 175.2907,
+     "median": 235.1034,
+     "p75": 307.2599,
+     "p90": 383.4391,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.2356,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4426386",
+   "name": "Roschon Johnson",
+   "team": "CHI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 10.395,
+     "p10": 0,
+     "p25": 0.35,
+     "median": 5.7,
+     "p75": 15.17,
+     "p90": 27.84,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.2212,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429835",
+   "name": "George Holani",
+   "team": "SEA",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 10.323,
+     "p10": 0,
+     "p25": 0.65,
+     "median": 5.93,
+     "p75": 15.46,
+     "p90": 27.71,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_reception_yds": {
+     "mean": 12.503,
+     "p10": 0,
+     "p25": 0,
+     "median": 6.37,
+     "p75": 19.08,
+     "p90": 34.61,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 1.4723,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.2168,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4576297",
+   "name": "AJ Barner",
+   "team": "SEA",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 25.385,
+     "p10": 0,
+     "p25": 7.13,
+     "median": 19.94,
+     "p75": 37.79,
+     "p90": 57.65,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 2.985,
+     "p10": 0,
+     "p25": 1,
+     "median": 3,
+     "p75": 4,
+     "p90": 6,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.1886,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4032473",
+   "name": "Rashid Shaheed",
+   "team": "SEA",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 24.565,
+     "p10": 0,
+     "p25": 6.06,
+     "median": 18.97,
+     "p75": 37.2,
+     "p90": 56.97,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 2.6612,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.1755,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-2977187",
+   "name": "Cooper Kupp",
+   "team": "SEA",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 24.605,
+     "p10": 0,
+     "p25": 5.5,
+     "median": 18.67,
+     "p75": 37.03,
+     "p90": 56.79,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 2.6703,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.1725,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -851,12 +939,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.414,
+     "mean": 3.5285,
      "p10": 1,
      "p25": 2,
      "median": 3,
      "p75": 5,
-     "p90": 6,
+     "p90": 7,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.1654,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -877,12 +969,112 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.717,
-     "p10": 1,
+     "mean": 2.8985,
+     "p10": 0,
      "p25": 1,
-     "median": 2,
+     "median": 3,
      "p75": 4,
-     "p90": 5,
+     "p90": 6,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.1487,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4036032",
+   "name": "Brittain Brown",
+   "team": "CHI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.1021,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4597703",
+   "name": "Tory Horton",
+   "team": "SEA",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 13.303,
+     "p10": 0,
+     "p25": 0,
+     "median": 6.87,
+     "p75": 20.48,
+     "p90": 37.7,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 1.041,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.0956,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4434153",
+   "name": "Tyson Bagent",
+   "team": "CHI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.0814,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4035693",
+   "name": "Velus Jones Jr.",
+   "team": "SEA",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 7.011,
+     "p10": 0,
+     "p25": 0,
+     "median": 1.91,
+     "p75": 9.92,
+     "p90": 20.5,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.0753,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3912547",
+   "name": "Sam Darnold",
+   "team": "SEA",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 218.1491,
+     "p10": 109.7532,
+     "p25": 149.7501,
+     "median": 204.8383,
+     "p75": 272.1043,
+     "p90": 343.7729,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.0482,
      "pricingState": "NOT_PROBED"
     }
    }
