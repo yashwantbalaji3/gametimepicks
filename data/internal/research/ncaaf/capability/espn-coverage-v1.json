@@ -1,0 +1,779 @@
+{
+  "schemaVersion": 1,
+  "sport": "ncaaf",
+  "dataClass": "PROVIDER_COVERAGE_PROBE",
+  "authorization": "PRIVATE_RESEARCH",
+  "generatedAt": "2026-10-09T18:00:00Z",
+  "source": {
+    "provider": "ESPN public site/core API (keyless, unofficial, undocumented)",
+    "scoreboard": "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=<season>&seasontype=<2|3>&week=<n>&groups=<80|81>&limit=500",
+    "membership": "https://sports.core.api.espn.com/v2/sports/football/leagues/college-football/seasons/<season>/types/2/groups/<80|81>/teams",
+    "rawBodies": "not committed — data/internal/research/ncaaf/.cache/ (gitignored)"
+  },
+  "network": {
+    "requests": 174,
+    "cacheHits": 188,
+    "cap": 400,
+    "throttleMs": 300
+  },
+  "failures": [],
+  "seasons": {
+    "2016": {
+      "calendar": {
+        "regularWeeks": 15,
+        "postseasonWeeks": [
+          1
+        ]
+      },
+      "requests": 32,
+      "capturedAtRange": [
+        "2026-10-09T21:09:24.447Z",
+        "2026-10-09T21:09:36.349Z"
+      ],
+      "refusedEvents": 1,
+      "refusedReasons": {
+        "event id is not a provider digit id": 1
+      },
+      "mergeConflicts": 0,
+      "eventsOutsideSeason": 0,
+      "membership": {
+        "fbs": 137,
+        "fcs": 125,
+        "inBothGroups": 0,
+        "fbsMembersWithoutAnyGame": [
+          "5",
+          "3144",
+          "3145",
+          "3146",
+          "3147",
+          "3193",
+          "3194",
+          "3197",
+          "3198"
+        ],
+        "fbsMembersPlaying": 128,
+        "fbsGroupTeamsSeenInFbsGames": 216
+      },
+      "coverage": {
+        "events": 1559,
+        "completed": 1550,
+        "playedFinal": 1550,
+        "forfeits": 0,
+        "otherCompleted": 0,
+        "byStatus": {
+          "STATUS_FINAL": 1550,
+          "STATUS_POSTPONED": 6,
+          "STATUS_CANCELED": 3
+        },
+        "bySeasonType": {
+          "2": 1514,
+          "3": 45
+        },
+        "divisionPairing": {
+          "FBS-FBS": 763,
+          "FCS-FCS": 623,
+          "UNKNOWN": 60,
+          "FBS-FCS": 113
+        },
+        "overtime": 72,
+        "overtimePeriods": {
+          "1": 40,
+          "2": 22,
+          "3": 7,
+          "4": 2,
+          "5": 1
+        },
+        "neutralSite": 78,
+        "neutralSiteUnknown": 0,
+        "kickoffTimeUnknown": 0,
+        "completedMissingScore": 0,
+        "lineScoreInconsistent": 0,
+        "lineScoreMissing": 0,
+        "tiesAtFinal": 0,
+        "teams": 306
+      }
+    },
+    "2017": {
+      "calendar": {
+        "regularWeeks": 15,
+        "postseasonWeeks": [
+          1
+        ]
+      },
+      "requests": 32,
+      "capturedAtRange": [
+        "2026-10-09T21:09:37.454Z",
+        "2026-10-09T21:09:49.410Z"
+      ],
+      "refusedEvents": 0,
+      "refusedReasons": {},
+      "mergeConflicts": 0,
+      "eventsOutsideSeason": 0,
+      "membership": {
+        "fbs": 138,
+        "fcs": 124,
+        "inBothGroups": 0,
+        "fbsMembersWithoutAnyGame": [
+          "3144",
+          "3145",
+          "3146",
+          "3147",
+          "3193",
+          "3194",
+          "3197",
+          "3198"
+        ],
+        "fbsMembersPlaying": 130,
+        "fbsGroupTeamsSeenInFbsGames": 212
+      },
+      "coverage": {
+        "events": 1568,
+        "completed": 1552,
+        "playedFinal": 1552,
+        "forfeits": 0,
+        "otherCompleted": 0,
+        "byStatus": {
+          "STATUS_FINAL": 1552,
+          "STATUS_POSTPONED": 4,
+          "STATUS_CANCELED": 12
+        },
+        "bySeasonType": {
+          "2": 1524,
+          "3": 44
+        },
+        "divisionPairing": {
+          "FCS-FCS": 631,
+          "FBS-FBS": 787,
+          "FBS-FCS": 100,
+          "UNKNOWN": 50
+        },
+        "overtime": 56,
+        "overtimePeriods": {
+          "1": 32,
+          "2": 17,
+          "3": 5,
+          "4": 1,
+          "7": 1
+        },
+        "neutralSite": 79,
+        "neutralSiteUnknown": 0,
+        "kickoffTimeUnknown": 2,
+        "completedMissingScore": 0,
+        "lineScoreInconsistent": 0,
+        "lineScoreMissing": 0,
+        "tiesAtFinal": 0,
+        "teams": 300
+      }
+    },
+    "2018": {
+      "calendar": {
+        "regularWeeks": 15,
+        "postseasonWeeks": [
+          1
+        ]
+      },
+      "requests": 32,
+      "capturedAtRange": [
+        "2026-10-09T21:09:50.504Z",
+        "2026-10-09T21:10:02.388Z"
+      ],
+      "refusedEvents": 0,
+      "refusedReasons": {},
+      "mergeConflicts": 0,
+      "eventsOutsideSeason": 0,
+      "membership": {
+        "fbs": 138,
+        "fcs": 125,
+        "inBothGroups": 0,
+        "fbsMembersWithoutAnyGame": [
+          "3144",
+          "3145",
+          "3146",
+          "3147",
+          "3193",
+          "3194",
+          "3197",
+          "3198"
+        ],
+        "fbsMembersPlaying": 130,
+        "fbsGroupTeamsSeenInFbsGames": 220
+      },
+      "coverage": {
+        "events": 1582,
+        "completed": 1559,
+        "playedFinal": 1559,
+        "forfeits": 0,
+        "otherCompleted": 0,
+        "byStatus": {
+          "STATUS_FINAL": 1559,
+          "STATUS_POSTPONED": 7,
+          "STATUS_CANCELED": 16
+        },
+        "bySeasonType": {
+          "2": 1538,
+          "3": 44
+        },
+        "divisionPairing": {
+          "FBS-FCS": 115,
+          "FCS-FCS": 620,
+          "FBS-FBS": 780,
+          "UNKNOWN": 67
+        },
+        "overtime": 53,
+        "overtimePeriods": {
+          "1": 38,
+          "2": 6,
+          "3": 5,
+          "5": 3,
+          "7": 1
+        },
+        "neutralSite": 78,
+        "neutralSiteUnknown": 0,
+        "kickoffTimeUnknown": 0,
+        "completedMissingScore": 0,
+        "lineScoreInconsistent": 0,
+        "lineScoreMissing": 0,
+        "tiesAtFinal": 0,
+        "teams": 313
+      }
+    },
+    "2019": {
+      "calendar": {
+        "regularWeeks": 16,
+        "postseasonWeeks": [
+          1
+        ]
+      },
+      "requests": 34,
+      "capturedAtRange": [
+        "2026-10-09T21:10:03.477Z",
+        "2026-10-09T21:10:16.486Z"
+      ],
+      "refusedEvents": 0,
+      "refusedReasons": {},
+      "mergeConflicts": 0,
+      "eventsOutsideSeason": 0,
+      "membership": {
+        "fbs": 140,
+        "fcs": 126,
+        "inBothGroups": 0,
+        "fbsMembersWithoutAnyGame": [
+          "3144",
+          "3145",
+          "3146",
+          "3147",
+          "3193",
+          "3194",
+          "3197",
+          "3198",
+          "16471",
+          "16472"
+        ],
+        "fbsMembersPlaying": 130,
+        "fbsGroupTeamsSeenInFbsGames": 217
+      },
+      "coverage": {
+        "events": 1626,
+        "completed": 1622,
+        "playedFinal": 1622,
+        "forfeits": 0,
+        "otherCompleted": 0,
+        "byStatus": {
+          "STATUS_FINAL": 1622,
+          "STATUS_CANCELED": 2,
+          "STATUS_POSTPONED": 2
+        },
+        "bySeasonType": {
+          "2": 1582,
+          "3": 44
+        },
+        "divisionPairing": {
+          "FCS-FCS": 669,
+          "FBS-FBS": 775,
+          "UNKNOWN": 68,
+          "FBS-FCS": 114
+        },
+        "overtime": 71,
+        "overtimePeriods": {
+          "1": 45,
+          "2": 13,
+          "3": 11,
+          "5": 1,
+          "6": 1
+        },
+        "neutralSite": 75,
+        "neutralSiteUnknown": 0,
+        "kickoffTimeUnknown": 0,
+        "completedMissingScore": 0,
+        "lineScoreInconsistent": 0,
+        "lineScoreMissing": 0,
+        "tiesAtFinal": 0,
+        "teams": 311
+      }
+    },
+    "2020": {
+      "calendar": {
+        "regularWeeks": 16,
+        "postseasonWeeks": [
+          1
+        ]
+      },
+      "requests": 34,
+      "capturedAtRange": [
+        "2026-10-09T21:10:17.546Z",
+        "2026-10-09T21:10:29.801Z"
+      ],
+      "refusedEvents": 14,
+      "refusedReasons": {
+        "competitor without a provider team id": 14
+      },
+      "mergeConflicts": 0,
+      "eventsOutsideSeason": 0,
+      "membership": {
+        "fbs": 140,
+        "fcs": 127,
+        "inBothGroups": 0,
+        "fbsMembersWithoutAnyGame": [
+          "41",
+          "166",
+          "295",
+          "3144",
+          "3145",
+          "3146",
+          "3147",
+          "3193",
+          "3194",
+          "3197",
+          "3198",
+          "16471",
+          "16472"
+        ],
+        "fbsMembersPlaying": 127,
+        "fbsGroupTeamsSeenInFbsGames": 143
+      },
+      "coverage": {
+        "events": 869,
+        "completed": 592,
+        "playedFinal": 592,
+        "forfeits": 0,
+        "otherCompleted": 0,
+        "byStatus": {
+          "STATUS_FINAL": 592,
+          "STATUS_POSTPONED": 211,
+          "STATUS_CANCELED": 66
+        },
+        "bySeasonType": {
+          "2": 838,
+          "3": 31
+        },
+        "divisionPairing": {
+          "FCS-FCS": 169,
+          "FBS-FCS": 39,
+          "FBS-FBS": 650,
+          "UNKNOWN": 11
+        },
+        "overtime": 22,
+        "overtimePeriods": {
+          "1": 13,
+          "2": 7,
+          "3": 1,
+          "4": 1
+        },
+        "neutralSite": 49,
+        "neutralSiteUnknown": 0,
+        "kickoffTimeUnknown": 136,
+        "completedMissingScore": 0,
+        "lineScoreInconsistent": 0,
+        "lineScoreMissing": 0,
+        "tiesAtFinal": 0,
+        "teams": 201
+      }
+    },
+    "2021": {
+      "calendar": {
+        "regularWeeks": 15,
+        "postseasonWeeks": [
+          1
+        ]
+      },
+      "requests": 32,
+      "capturedAtRange": [
+        "2026-10-09T03:36:49.143Z",
+        "2026-10-09T03:37:00.535Z"
+      ],
+      "refusedEvents": 3,
+      "refusedReasons": {
+        "event id is not a provider digit id": 1,
+        "competitor without a provider team id": 2
+      },
+      "mergeConflicts": 0,
+      "eventsOutsideSeason": 0,
+      "membership": {
+        "fbs": 142,
+        "fcs": 130,
+        "inBothGroups": 0,
+        "fbsMembersWithoutAnyGame": [
+          "3144",
+          "3145",
+          "3146",
+          "3147",
+          "3193",
+          "3194",
+          "3197",
+          "3198",
+          "16471",
+          "16472",
+          "125290",
+          "125291"
+        ],
+        "fbsMembersPlaying": 130,
+        "fbsGroupTeamsSeenInFbsGames": 227
+      },
+      "coverage": {
+        "events": 1576,
+        "completed": 1569,
+        "playedFinal": 1568,
+        "forfeits": 1,
+        "otherCompleted": 0,
+        "byStatus": {
+          "STATUS_FINAL": 1568,
+          "STATUS_CANCELED": 6,
+          "STATUS_FORFEIT": 1,
+          "STATUS_POSTPONED": 1
+        },
+        "bySeasonType": {
+          "2": 1529,
+          "3": 47
+        },
+        "divisionPairing": {
+          "FBS-FBS": 774,
+          "FCS-FCS": 636,
+          "FBS-FCS": 117,
+          "UNKNOWN": 49
+        },
+        "overtime": 58,
+        "overtimePeriods": {
+          "1": 46,
+          "2": 6,
+          "3": 2,
+          "4": 2,
+          "5": 1,
+          "9": 1
+        },
+        "neutralSite": 79,
+        "neutralSiteUnknown": 0,
+        "kickoffTimeUnknown": 0,
+        "completedMissingScore": 0,
+        "lineScoreInconsistent": 0,
+        "lineScoreMissing": 0,
+        "tiesAtFinal": 0,
+        "teams": 299
+      }
+    },
+    "2022": {
+      "calendar": {
+        "regularWeeks": 15,
+        "postseasonWeeks": [
+          1
+        ]
+      },
+      "requests": 32,
+      "capturedAtRange": [
+        "2026-10-09T03:37:01.626Z",
+        "2026-10-09T03:37:12.999Z"
+      ],
+      "refusedEvents": 0,
+      "refusedReasons": {},
+      "mergeConflicts": 0,
+      "eventsOutsideSeason": 0,
+      "membership": {
+        "fbs": 143,
+        "fcs": 132,
+        "inBothGroups": 0,
+        "fbsMembersWithoutAnyGame": [
+          "3144",
+          "3145",
+          "3146",
+          "3147",
+          "3193",
+          "3194",
+          "3197",
+          "3198",
+          "16471",
+          "16472",
+          "125290",
+          "125291"
+        ],
+        "fbsMembersPlaying": 131,
+        "fbsGroupTeamsSeenInFbsGames": 228
+      },
+      "coverage": {
+        "events": 1602,
+        "completed": 1597,
+        "playedFinal": 1597,
+        "forfeits": 0,
+        "otherCompleted": 0,
+        "byStatus": {
+          "STATUS_FINAL": 1597,
+          "STATUS_CANCELED": 3,
+          "STATUS_POSTPONED": 2
+        },
+        "bySeasonType": {
+          "2": 1556,
+          "3": 46
+        },
+        "divisionPairing": {
+          "FBS-FCS": 120,
+          "FBS-FBS": 780,
+          "FCS-FCS": 645,
+          "UNKNOWN": 57
+        },
+        "overtime": 73,
+        "overtimePeriods": {
+          "1": 44,
+          "2": 22,
+          "3": 2,
+          "4": 3,
+          "7": 2
+        },
+        "neutralSite": 78,
+        "neutralSiteUnknown": 0,
+        "kickoffTimeUnknown": 1,
+        "completedMissingScore": 0,
+        "lineScoreInconsistent": 0,
+        "lineScoreMissing": 0,
+        "tiesAtFinal": 0,
+        "teams": 306
+      }
+    },
+    "2023": {
+      "calendar": {
+        "regularWeeks": 15,
+        "postseasonWeeks": [
+          1
+        ]
+      },
+      "requests": 32,
+      "capturedAtRange": [
+        "2026-10-09T03:37:14.063Z",
+        "2026-10-09T03:37:25.417Z"
+      ],
+      "refusedEvents": 0,
+      "refusedReasons": {},
+      "mergeConflicts": 0,
+      "eventsOutsideSeason": 0,
+      "membership": {
+        "fbs": 145,
+        "fcs": 130,
+        "inBothGroups": 0,
+        "fbsMembersWithoutAnyGame": [
+          "3144",
+          "3145",
+          "3146",
+          "3147",
+          "3193",
+          "3194",
+          "3197",
+          "3198",
+          "16471",
+          "16472",
+          "125290",
+          "125291"
+        ],
+        "fbsMembersPlaying": 133,
+        "fbsGroupTeamsSeenInFbsGames": 229
+      },
+      "coverage": {
+        "events": 1603,
+        "completed": 1602,
+        "playedFinal": 1597,
+        "forfeits": 5,
+        "otherCompleted": 0,
+        "byStatus": {
+          "STATUS_FINAL": 1597,
+          "STATUS_CANCELED": 1,
+          "STATUS_FORFEIT": 5
+        },
+        "bySeasonType": {
+          "2": 1557,
+          "3": 46
+        },
+        "divisionPairing": {
+          "FBS-FBS": 792,
+          "FCS-FCS": 635,
+          "UNKNOWN": 58,
+          "FBS-FCS": 118
+        },
+        "overtime": 73,
+        "overtimePeriods": {
+          "1": 52,
+          "2": 18,
+          "3": 2,
+          "4": 1
+        },
+        "neutralSite": 83,
+        "neutralSiteUnknown": 0,
+        "kickoffTimeUnknown": 0,
+        "completedMissingScore": 0,
+        "lineScoreInconsistent": 0,
+        "lineScoreMissing": 0,
+        "tiesAtFinal": 0,
+        "teams": 302
+      }
+    },
+    "2024": {
+      "calendar": {
+        "regularWeeks": 16,
+        "postseasonWeeks": [
+          1,
+          999
+        ]
+      },
+      "requests": 36,
+      "capturedAtRange": [
+        "2026-10-09T03:37:26.458Z",
+        "2026-10-09T03:37:39.485Z"
+      ],
+      "refusedEvents": 0,
+      "refusedReasons": {},
+      "mergeConflicts": 0,
+      "eventsOutsideSeason": 0,
+      "membership": {
+        "fbs": 144,
+        "fcs": 131,
+        "inBothGroups": 0,
+        "fbsMembersWithoutAnyGame": [
+          "3144",
+          "3145",
+          "3146",
+          "3147",
+          "3193",
+          "3194",
+          "3197",
+          "3198",
+          "125290",
+          "125291"
+        ],
+        "fbsMembersPlaying": 134,
+        "fbsGroupTeamsSeenInFbsGames": 230
+      },
+      "coverage": {
+        "events": 1670,
+        "completed": 1665,
+        "playedFinal": 1665,
+        "forfeits": 0,
+        "otherCompleted": 0,
+        "byStatus": {
+          "STATUS_FINAL": 1665,
+          "STATUS_CANCELED": 5
+        },
+        "bySeasonType": {
+          "2": 1620,
+          "3": 50
+        },
+        "divisionPairing": {
+          "FBS-FBS": 799,
+          "FCS-FCS": 692,
+          "FBS-FCS": 121,
+          "UNKNOWN": 58
+        },
+        "overtime": 68,
+        "overtimePeriods": {
+          "1": 45,
+          "2": 17,
+          "4": 1,
+          "5": 3,
+          "6": 1,
+          "8": 1
+        },
+        "neutralSite": 76,
+        "neutralSiteUnknown": 0,
+        "kickoffTimeUnknown": 0,
+        "completedMissingScore": 0,
+        "lineScoreInconsistent": 0,
+        "lineScoreMissing": 0,
+        "tiesAtFinal": 0,
+        "teams": 311
+      }
+    },
+    "2025": {
+      "calendar": {
+        "regularWeeks": 16,
+        "postseasonWeeks": [
+          1,
+          999
+        ]
+      },
+      "requests": 36,
+      "capturedAtRange": [
+        "2026-10-09T03:37:40.529Z",
+        "2026-10-09T03:37:53.262Z"
+      ],
+      "refusedEvents": 1,
+      "refusedReasons": {
+        "event id is not a provider digit id": 1
+      },
+      "mergeConflicts": 0,
+      "eventsOutsideSeason": 0,
+      "membership": {
+        "fbs": 146,
+        "fcs": 131,
+        "inBothGroups": 0,
+        "fbsMembersWithoutAnyGame": [
+          "3144",
+          "3145",
+          "3146",
+          "3147",
+          "3193",
+          "3194",
+          "3197",
+          "3198",
+          "125290",
+          "125291"
+        ],
+        "fbsMembersPlaying": 136,
+        "fbsGroupTeamsSeenInFbsGames": 230
+      },
+      "coverage": {
+        "events": 1687,
+        "completed": 1686,
+        "playedFinal": 1686,
+        "forfeits": 0,
+        "otherCompleted": 0,
+        "byStatus": {
+          "STATUS_FINAL": 1686,
+          "STATUS_CANCELED": 1
+        },
+        "bySeasonType": {
+          "2": 1634,
+          "3": 53
+        },
+        "divisionPairing": {
+          "FBS-FBS": 808,
+          "FCS-FCS": 692,
+          "FBS-FCS": 126,
+          "UNKNOWN": 61
+        },
+        "overtime": 73,
+        "overtimePeriods": {
+          "1": 51,
+          "2": 20,
+          "4": 1,
+          "5": 1
+        },
+        "neutralSite": 75,
+        "neutralSiteUnknown": 0,
+        "kickoffTimeUnknown": 0,
+        "completedMissingScore": 0,
+        "lineScoreInconsistent": 0,
+        "lineScoreMissing": 0,
+        "tiesAtFinal": 0,
+        "teams": 315
+      }
+    }
+  },
+  "notes": [
+    "Counts describe what the provider returned at capture time; a current response about a past game is not evidence of what was knowable before kickoff.",
+    "groups=80/81 is the request filter (provenance). Division pairing uses the provider's season-scoped group membership, which this probe reconciles but does not validate against an official list."
+  ]
+}
