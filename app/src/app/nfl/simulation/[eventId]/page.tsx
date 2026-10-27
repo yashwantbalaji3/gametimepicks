@@ -19,6 +19,7 @@ import { notFound } from "next/navigation";
 import SimulationV2Report, { type CanonicalForecast } from "@/components/nfl/simulation-v2-report";
 import { readShadowReceipts, showableSimulationEvents, simulationOfRecord } from "@/lib/sports/nfl/sim-v2/public-receipt.mjs";
 import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
+import { nflPublicRecordResolver } from "@/lib/sports/nfl/public-record.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { PUBLIC_TERMS } from "@/lib/public-registry";
 
@@ -30,7 +31,7 @@ const readPublic = (rel: string) => {
 };
 
 function canonicalFor(eventId: string): CanonicalForecast | null {
-  const art = unionFrozenForecasts(readPublic("nfl/forecasts/latest.json"), readPublic("nfl/forecasts/frozen-latest.json"));
+  const art = unionFrozenForecasts(readPublic("nfl/forecasts/latest.json"), readPublic("nfl/forecasts/frozen-latest.json"), { resolve: nflPublicRecordResolver() });
   const f = (art?.forecasts ?? []).find((x: any) => String(x.providerEventId) === eventId);
   const s = f?.forecastSummary;
   if (!s?.winProbability || !s?.projectedScore) return null;

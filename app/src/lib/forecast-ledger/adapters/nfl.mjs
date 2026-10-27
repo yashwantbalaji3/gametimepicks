@@ -27,6 +27,7 @@ import { measureBinary, measureContinuous, withDirectional } from "../measure.mj
 import { makeRow, marketBlock } from "../row.mjs";
 import { NFL_WINNER_BASIS, nflReceiptWinnerGrade, winnerOfRecord } from "../../results/nfl-model-favored.mjs";
 import { nflSettlementSelection } from "../../results/nfl-settlement-of-record.mjs";
+import { isRecordEligible } from "../../sports/nfl/record-eligibility.mjs";
 
 const SPORT = "NFL";
 
@@ -43,8 +44,9 @@ const isNum = (v) => typeof v === "number" && Number.isFinite(v);
 export function forecastOfRecord(receipts) {
   const best = new Map();
   for (const { file, receipt: r } of receipts) {
-    if (!r?.providerEventId || !r.generatedAt || !r.kickoffUtc) continue;
-    if (!(Date.parse(r.generatedAt) < Date.parse(r.kickoffUtc))) continue;
+    /* Generated before kickoff AND every recorded input before kickoff AND not excluded (record-eligibility.mjs):
+       the event-window contract's stamp rule, applied by the reader too (2026-10-25 PIT @ NO rev-1329Z). */
+    if (!isRecordEligible(r)) continue;
     const prev = best.get(r.providerEventId);
     if (!prev || r.generatedAt > prev.receipt.generatedAt || (r.generatedAt === prev.receipt.generatedAt && file > prev.file)) {
       best.set(r.providerEventId, { file, receipt: r });

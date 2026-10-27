@@ -122,6 +122,17 @@ function combinedEstimate(rows) {
   return { available: true, joint, tier, tierLabel: PUBLIC_RISK_LABELS[tier], shown: jointShownFor(joint, tier), note: null, disclosure: SLIP_INDEPENDENCE };
 }
 
+/**
+ * An Add button's words. A card's button, once all its legs are in, removes ALL of them, including a leg the visitor
+ * added elsewhere (the slip does not record which button added a leg), so it says so: "Remove card (n legs)", and
+ * its label names the effect. A single leg keeps "In slip · remove".
+ */
+export function slipButtonText({ inSlip, count, label = "Add to slip", name }) {
+  if (!inSlip) return { text: label, aria: `${label}: ${name}` };
+  if (count > 1) return { text: `Remove card (${count} legs)`, aria: `Remove this card's ${count} legs from the model slip, including any added elsewhere: ${name}` };
+  return { text: "In slip · remove", aria: `Remove ${name} from the model slip` };
+}
+
 /** Copyable plain text: no link, no provider data, no price. */
 export function modelSlipText(view) {
   const lines = [`GameTimePicks model slip · ${view.rows.length} leg${view.rows.length === 1 ? "" : "s"} · ${MODEL_SLIP_LABEL}`];

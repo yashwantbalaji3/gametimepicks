@@ -15,7 +15,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { topBoards, gameView, gameTabs, boardTabs, formatValue, PLAYER_FAMILIES, CLEARED, SOURCES, SUPPORTING_LABEL, MARKET_KEY, ESTIMATE_NOTE } from "./forecast-view.mjs";
-import { loadForecastViews, officialSnapshotFor } from "./forecast-view-load.mjs";
+import { loadForecastViews, officialSnapshotFor, publicRecordOf } from "./forecast-view-load.mjs";
 import { unionFrozenForecasts } from "./public-forecast-union.mjs";
 import { readWorldModelArtifacts } from "./world-model-v2/read.mjs";
 import { PUBLIC_BOARD_CLEARED } from "./board-ranking.mjs";
@@ -148,7 +148,9 @@ test("OFFICIAL · every committed row equals the official snapshot's stored head
   const art = unionFrozenForecasts(readJson(path.join(data, "forecasts/latest.json")), readJson(path.join(data, "forecasts/frozen-latest.json")));
   const worlds = new Map(readWorldModelArtifacts(pub).map((a) => [a.identity.providerEventId, a]));
   let checked = 0;
-  for (const f of art?.forecasts ?? []) {
+  for (const pubF of art?.forecasts ?? []) {
+    // the record the page stands on: an excluded public copy is replaced by its recordInstead (record-exclusions.mjs)
+    const f = publicRecordOf(pubF, path.resolve(APP, "..")) ?? pubF;
     const v = views.find((x) => x.providerEventId === f.providerEventId);
     const { snapshot } = officialSnapshotFor(f, readJson(path.join(data, "player-board", `${f.providerEventId}.json`)), worlds.get(String(f.providerEventId)) ?? null);
     if (!snapshot) { assert.equal(v.players.length, 0, `${f.matchup}: no official snapshot means no official rows`); continue; }

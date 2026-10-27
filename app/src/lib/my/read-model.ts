@@ -29,6 +29,7 @@ import { projectMlbForecast } from "@/lib/live/forecast-join.mjs";
 import { loadCurrentNflResults } from "@/lib/sports/nfl/current-results.mjs";
 import { archivedEventIds } from "@/lib/sports/nfl/archived-forecast";
 import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
+import { nflPublicRecordResolver } from "@/lib/sports/nfl/public-record.mjs";
 import { LEDGER_URLS, parseLedger } from "@/lib/saved/results.mjs";
 import { compactLedgers } from "@/lib/my/saved-settlements.mjs";
 import { buildSavedRouteManifest, type SavedRouteManifest } from "@/lib/saved/saved-routes";
@@ -115,7 +116,7 @@ const round1 = (x: number) => Math.round(x * 10) / 10;
 
 /** NFL event ids that actually have a generated `/nfl/game/[id]` page — the same rule as that route. */
 export function nflPageIds(): Set<string> {
-  const live = unionFrozenForecasts(readJson("nfl/forecasts/latest.json"), readJson("nfl/forecasts/frozen-latest.json"));
+  const live = unionFrozenForecasts(readJson("nfl/forecasts/latest.json"), readJson("nfl/forecasts/frozen-latest.json"), { resolve: nflPublicRecordResolver() });
   const ids = new Set<string>(((live?.forecasts ?? []) as Array<{ providerEventId?: string }>).map((f) => String(f.providerEventId)));
   try {
     // Same root the /nfl/game route passes (its DATA_ROOT) — passing the repo root silently found nothing.

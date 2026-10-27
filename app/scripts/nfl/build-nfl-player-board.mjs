@@ -44,6 +44,7 @@ import { PUBLIC_BOARD_CLEARED } from "../../src/lib/sports/nfl/board-ranking.mjs
 import { splitMatchup } from "../../src/lib/sports/nfl/matchup.mjs";
 import { pickNewestCapture } from "../../src/lib/sports/nfl/qb-starter-shadow.mjs";
 import { SHARE_LEVEL_MODEL_ID, SHARE_LEVEL_TD_MODEL_ID, shareLevelAdoptedMarkets, shareLevelEstimateMarkets, shareLevelRowsForEvent, shareLevelBasis, seasonOfKickoff } from "../../src/lib/sports/nfl/share-level-board.mjs";
+import { postKickoffInputs, refusalLine } from "../../src/lib/sports/nfl/input-stamps.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -216,7 +217,23 @@ fs.mkdirSync(outDir, { recursive: true });
 const index = [];
 let publishedBoards = 0;
 
+/* INPUTS MUST PRECEDE KICKOFF (event-window contract; 2026-10-25 PIT @ NO): an event whose injuries or rosters capture
+   is stamped (sourceAsOf) at/after its kickoff is not rebuilt or restamped — its last pre-kickoff board stands and
+   stays in the index. */
+const stampInputs = {
+  injuries: read(path.join(ROOT, "data/internal/research/injuries/nfl/latest.json")),
+  rosters: read(path.join(APP, "public/data/nfl/rosters/latest.json")),
+};
+let heldBoards = 0;
 for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc))) {
+  const lateInputs = postKickoffInputs(stampInputs, doc.kickoffUtc);
+  if (lateInputs.length) {
+    console.log(refusalLine("build-nfl-player-board", doc.providerEventId, doc.kickoffUtc, lateInputs));
+    const prior = read(path.join(outDir, `${doc.providerEventId}.json`));
+    if (prior?.players) index.push({ providerEventId: prior.providerEventId, matchup: prior.matchup, kickoffUtc: prior.kickoffUtc, players: prior.players.length });
+    heldBoards += 1;
+    continue;
+  }
   const promotion = doc.families?.playerProps?.promotion ?? null;
   const tdReceipt = read(path.join(ROOT, "data/internal/research/nfl/reports/anytime-td-v1-calibration.json"));
   const tdBeatsBaselines = (() => {
@@ -571,4 +588,4 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
 fs.writeFileSync(path.join(outDir, "latest.json"), JSON.stringify({
   schemaVersion: 1, artifact: "nfl-player-board-index", dataClass: "PUBLIC_DERIVED", generatedAt: NOW, boards: index,
 }, null, 1));
-console.log(`nfl player board: ${publishedBoards} event board(s) published · families gated by their own receipts`);
+console.log(`nfl player board: ${publishedBoards} event board(s) published · ${heldBoards} held at their last pre-kickoff board (INPUT_AFTER_KICKOFF) · families gated by their own receipts`);
