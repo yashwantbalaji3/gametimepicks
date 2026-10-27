@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-forecasts",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-26T23:31:10Z",
- "date": "2026-10-26",
+ "generatedAt": "2026-10-27T00:12:24Z",
+ "date": "2026-10-27",
  "model": {
   "id": "nfl-regular-season-public-v1",
   "version": 2,
@@ -70,28 +70,28 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-10-26T23:31:10Z",
+   "generatedAt": "2026-10-27T00:12:24Z",
    "evidence": {
     "schedule": "2026-10-26T16:04:44Z",
-    "strengthCutoff": "2026-10-26T23:31:10Z",
+    "strengthCutoff": "2026-10-27T00:12:24Z",
     "strengthGamesFolded": 880,
     "regressedToSeason": null
    },
    "forecastSummary": {
     "projectedScore": {
-     "home": 27,
-     "away": 22,
+     "home": 28,
+     "away": 21,
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.6113,
-     "away": 0.362,
-     "tieMass": 0.0267,
-     "homeUnrounded": 0.6113489545907055,
+     "home": 0.6118,
+     "away": 0.3622,
+     "tieMass": 0.026,
+     "homeUnrounded": 0.6117886384170833,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
-     "median": 5,
+     "median": 6,
      "p10": -11,
      "p90": 22
     },
@@ -122,7 +122,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-10-26T23:31:10Z",
+    "participationAsOf": "2026-10-27T00:12:24Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -139,7 +139,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-10-26T16:07:42Z"
+    "frozenAt": "2026-10-27T00:12:24Z"
    }
   }
  ],
