@@ -3,7 +3,11 @@
  * 2026-10-26). .github/workflows/deploy-flush.yml + app/scripts/ops/deploy-flush-decide.sh.
  *
  * What is pinned here:
- *   SHAPE      cron every 30 min + manual dispatch, one run at a time, contents: write, a User-Agent on the fetch;
+ *   SHAPE      cron every 30 min + manual dispatch + Vercel's commit status, one flush at a time, contents: write, a
+ *              User-Agent on the fetch;
+ *   WAIT       on a final Vercel status for a main commit, sleep until the unchanged decision script first says
+ *              flush=true (executed here with a fake clock, curl and sleep); never for preview commits, a lagging live
+ *              read, or a span with nothing pending;
  *   ONE SOURCE the decision runs the real ignore step (no pathspec list of its own), so the flush and Vercel cannot
  *              disagree about what is code, critical or coalescible;
  *   NO FLOOD   a failed fetch, a bot challenge, a body without a SHA, a status-API error or a pending Vercel build all
@@ -62,11 +66,14 @@ const hasJq = spawnSync("jq", ["--version"], { encoding: "utf8" }).status === 0;
 
 // ── SHAPE ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-test("SHAPE: every 30 minutes and on demand, one run at a time, may push, identifies itself", () => {
+test("SHAPE: every 30 minutes, on demand and on Vercel's status; one flush at a time, may push, identifies itself", () => {
   assert.match(WF, /^\s+- cron: "\*\/30 \* \* \* \*"\s*$/m, "cron must be */30");
   assert.equal((WF.match(/- cron:/g) ?? []).length, 1, "exactly one schedule");
   assert.match(WF, /^\s+workflow_dispatch:/m);
-  assert.match(WF, /^concurrency:\n\s+group: deploy-flush\n\s+cancel-in-progress: false/m, "runs must not overlap");
+  assert.match(WF, /^ {2}status:\s*$/m, "Vercel's commit status wakes the wait job");
+  assert.doesNotMatch(WF, /^concurrency:/m, "no workflow-level group: a sleeping wait must not hold the flush queue");
+  assert.match(WF, /^ {2}flush:\n\s+needs: wait\n/m);
+  assert.match(WF, /\n {4}concurrency:\n\s+group: deploy-flush\n\s+cancel-in-progress: false\n {4}steps:/, "flush runs must not overlap");
   assert.match(WF, /^permissions:\n\s+contents: write\n\s+statuses: read/m);
   assert.match(WF, /https:\/\/gametimepicks\.yashwantbalaji\.com\/data\/build-info\.json/);
   assert.match(WF, /-A 'gtp-deploy-flush\/1\.0'/, "the fetch sends a User-Agent");
@@ -272,4 +279,104 @@ test("DECISION: a malformed, missing or non-ancestor deployed SHA, or a broken g
     fs.writeFileSync(path.join(f.dir, "app/scripts/vercel-ignore-build.sh"), "#!/usr/bin/env bash\necho building\nexit 1\n");
     assert.equal(f.decide(f.deployed, 86400).reason, "gate-unparsed");
   } finally { f.cleanup(); }
+});
+
+// ── WAIT (the status-triggered job) ──────────────────────────────────────────────────────────────────────────────────
+
+/** The `if:` of a job, folded onto one line. */
+function jobIf(job) {
+  const m = new RegExp(`\\n {2}${job}:\\n((?: {4}.*\\n|\\s*\\n)*)`).exec(WF);
+  assert.ok(m, `job ${job} not found`);
+  const at = /\n? {4}if: (>-\n((?: {6}.*\n)+)|.+\n)/.exec(m[1]);
+  return (at?.[2] ?? at?.[1] ?? "").replace(/\s+/g, " ").trim();
+}
+
+test("WAIT (static): only a final Vercel status starts it; a newer one replaces it; the flush follows only a due wait", () => {
+  assert.equal(jobIf("wait"), "github.event_name == 'status' && github.event.context == 'Vercel' && github.event.state != 'pending'");
+  assert.match(WF, /\n {2}wait:\n(?: {4}.*\n|\s*\n)*? {4}concurrency:\n\s+group: deploy-flush-wait\n\s+cancel-in-progress: true\n/, "a newer status cancels a sleeping wait");
+  assert.match(WF, /\n {2}wait:\n(?: {4}.*\n|\s*\n)*? {4}permissions:\n\s+contents: read\n/, "the wait job cannot push");
+  assert.equal(jobIf("flush"), "always() && github.ref == 'refs/heads/main' && ((github.event_name != 'status' && needs.wait.result == 'skipped') || (needs.wait.result == 'success' && needs.wait.outputs.due == 'true'))");
+  const wait = stepRun("Sleep until the oldest pending change falls due");
+  assert.match(wait, /bash app\/scripts\/ops\/deploy-flush-decide\.sh/, "the wait asks the same decision script");
+  assert.doesNotMatch(wait, /git (commit|push)|GTP_COALESCE_SECONDS|5400/, "the wait keeps no window or commit logic of its own");
+  assert.match(wait, /-A 'gtp-deploy-flush\/1\.0'/);
+});
+
+test("WAIT: sleeps to the first due minute, or not at all, on a throwaway repo with a fake clock", { skip: !hasJq && "jq not installed" }, () => {
+  const body = stepRun("Sleep until the oldest pending change falls due");
+  const run = (f, { statusSha, desc = "Canceled by Ignored Build Step", lives, offset }) => {
+    const bin = fakeBin({
+      // Each call serves the next body in lives (the last one repeats), as the live site would across reads.
+      curl: `n=$(cat "$(dirname "$0")/n" 2>/dev/null || echo 0); echo $((n+1)) > "$(dirname "$0")/n"; i=$n; [ $i -lt ${lives.length} ] || i=${lives.length - 1}; sed -n "$((i+1))p" "$(dirname "$0")/lives"`,
+      sleep: `echo "$1" >> "$(dirname "$0")/slept"`,
+    });
+    fs.writeFileSync(path.join(bin, "lives"), lives.map((sha) => (sha ? `{"commit":{"sha":"${sha}"}}` : "<html>challenge</html>")).join("\n") + "\n");
+    const out = path.join(bin, "out.txt");
+    fs.writeFileSync(out, "");
+    try {
+      const r = spawnSync("bash", ["-c", body], {
+        cwd: f.dir, encoding: "utf8",
+        env: { ...process.env, PATH: `${bin}${path.delimiter}${process.env.PATH}`, GITHUB_OUTPUT: out, STATUS_SHA: statusSha, STATUS_DESC: desc,
+          MAX_WAIT_MINUTES: "125", LIVE_RETRY_SECONDS: "30", GTP_NOW_EPOCH: String(T + offset), GTP_COALESCE_SECONDS: "", VERCEL_FORCE_BUILD: "" },
+      });
+      assert.equal(r.status, 0, `the wait never fails the run: ${r.stdout}${r.stderr}`);
+      const slept = fs.existsSync(path.join(bin, "slept")) ? fs.readFileSync(path.join(bin, "slept"), "utf8").trim().split("\n").map(Number) : [];
+      return { due: outputs(out).due, slept, log: r.stdout };
+    } finally { fs.rmSync(bin, { recursive: true, force: true }); }
+  };
+  const f = flushRepo();
+  try {
+    // Up to date: nothing to wait for.
+    let r = run(f, { statusSha: f.deployed, desc: "Deployment has completed", lives: [f.deployed], offset: 0 });
+    assert.deepEqual([r.due, r.slept], ["false", []], r.log);
+    assert.match(r.log, /reason=up-to-date — not waiting/);
+    // Docs only: not a build input, nothing pending.
+    const docs = f.commitAt("docs", { "docs/NOTES.md": "v2" }, T);
+    r = run(f, { statusSha: docs, lives: [f.deployed], offset: 600 });
+    assert.deepEqual([r.due, r.slept], ["false", []], r.log);
+    assert.match(r.log, /nothing undeployed is a build input — not waiting/, "stops at once instead of scanning the clock");
+    // Non-critical data pushed at T, skipped by the gate: 10 min later the wait sleeps 80 min to the window's end.
+    const data = f.commitAt("data", { "app/public/data/mlb/results/x.json": '{"v":1}' }, T);
+    r = run(f, { statusSha: data, lives: [f.deployed], offset: 600 });
+    assert.deepEqual([r.due, r.slept], ["true", [80 * 60 + 15]], r.log);
+    // Already overdue (a missed cron slot): flush at once.
+    r = run(f, { statusSha: data, lives: [f.deployed], offset: 5400 + 1200 });
+    assert.deepEqual([r.due, r.slept], ["true", []], r.log);
+    // A bot challenge: no wait (fail-safe).
+    r = run(f, { statusSha: data, lives: [""], offset: 600 });
+    assert.deepEqual([r.due, r.slept], ["false", []], r.log);
+    // A status for a commit that is not on main (a preview branch): no wait.
+    const main = f.g(["rev-parse", "HEAD"]);
+    f.g(["checkout", "-q", "-b", "preview/x", f.deployed]);
+    const preview = f.commitAt("preview", { "app/src/page.tsx": "preview" }, T);
+    f.g(["checkout", "-q", main]);
+    r = run(f, { statusSha: preview, lives: [f.deployed], offset: 600 });
+    assert.deepEqual([r.due, r.slept], ["false", []], r.log);
+    // A completed build whose live read lags: read again until it shows, then nothing is pending.
+    r = run(f, { statusSha: data, desc: "Deployment has completed", lives: [f.deployed, f.deployed, data], offset: 600 });
+    assert.deepEqual([r.due, r.slept], ["false", [30, 30]], r.log);
+    assert.match(r.log, /not waiting/);
+    // ...and a read that never catches up never turns into a flush.
+    r = run(f, { statusSha: data, desc: "Deployment has completed", lives: [f.deployed], offset: 5400 + 1200 });
+    assert.deepEqual([r.due, r.slept.length], ["false", 5], r.log);
+  } finally { f.cleanup(); }
+});
+
+test("WAIT: a code change's own build gets 10 minutes before the wait falls due", { skip: !hasJq && "jq not installed" }, () => {
+  const body = stepRun("Sleep until the oldest pending change falls due");
+  const f = flushRepo();
+  const bin = fakeBin({ curl: `echo '{"commit":{"sha":"${f.deployed}"}}'`, sleep: `echo "$1" >> "$(dirname "$0")/slept"` });
+  try {
+    const code = f.commitAt("code", { "app/src/page.tsx": "v2" }, T);
+    const out = path.join(bin, "out.txt");
+    fs.writeFileSync(out, "");
+    const r = spawnSync("bash", ["-c", body], {
+      cwd: f.dir, encoding: "utf8",
+      env: { ...process.env, PATH: `${bin}${path.delimiter}${process.env.PATH}`, GITHUB_OUTPUT: out, STATUS_SHA: code, STATUS_DESC: "",
+        MAX_WAIT_MINUTES: "125", LIVE_RETRY_SECONDS: "30", GTP_NOW_EPOCH: String(T + 120), GTP_COALESCE_SECONDS: "", VERCEL_FORCE_BUILD: "" },
+    });
+    assert.equal(r.status, 0, r.stderr);
+    assert.equal(outputs(out).due, "true", r.stdout);
+    assert.deepEqual(fs.readFileSync(path.join(bin, "slept"), "utf8").trim().split("\n").map(Number), [8 * 60 + 15], "600 s after the commit, rounded up to the minute");
+  } finally { fs.rmSync(bin, { recursive: true, force: true }); f.cleanup(); }
 });
