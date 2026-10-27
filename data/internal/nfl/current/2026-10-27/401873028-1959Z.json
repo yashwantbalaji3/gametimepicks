@@ -1,0 +1,963 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-current-event",
+ "dataClass": "PRIVATE_RESEARCH",
+ "generatedAt": "2026-10-27T19:59:37Z",
+ "artifactDate": "2026-10-27",
+ "providerEventId": "401873028",
+ "canonicalEventId": "nfl-401873028",
+ "matchup": "IND @ JAX",
+ "kickoffUtc": "2026-11-01T18:00Z",
+ "seasonType": 2,
+ "week": 8,
+ "evidence": {
+  "schedule": {
+   "asOf": "2026-10-27T15:18:23Z"
+  },
+  "rosters": {
+   "asOf": "2026-10-27T19:59:37Z"
+  },
+  "injuries": {
+   "asOf": "2026-10-27T20:00:00Z"
+  },
+  "odds": {
+   "asOf": "2026-10-11T11:41:55Z"
+  },
+  "strengthCutoff": "2026-10-27T19:59:37Z"
+ },
+ "families": {
+  "teamModel": {
+   "state": "READY_EXCEPT_ODDS",
+   "reason": "odds snapshot missing/stale/post-start or carries no h2h rows — probabilities are withheld until a fresh authorized market exists",
+   "note": "model-v1 applies in the regular season; the research sim below runs the evaluated fit and is RESEARCH_ONLY"
+  },
+  "market": {
+   "state": "NO_MARKET",
+   "reason": "no authorized capture row joined this event"
+  },
+  "playerProps": {
+   "state": "SEE_PROMOTION",
+   "reason": null,
+   "promotion": {
+    "player_pass_yds": {
+     "state": "RESEARCH_ONLY",
+     "evidence": {
+      "beatsRolling": false,
+      "beatsShareVol": false,
+      "coverOk": false,
+      "calOk": false,
+      "n": 580
+     }
+    },
+    "player_rush_yds": {
+     "state": "SHADOW_ELIGIBLE",
+     "evidence": {
+      "beatsRolling": true,
+      "beatsShareVol": true,
+      "coverOk": true,
+      "calOk": false,
+      "n": 1853
+     }
+    },
+    "player_reception_yds": {
+     "state": "PUBLIC_ELIGIBLE",
+     "evidence": {
+      "beatsRolling": true,
+      "beatsShareVol": true,
+      "coverOk": true,
+      "calOk": true,
+      "n": 3575
+     }
+    },
+    "player_receptions": {
+     "state": "PUBLIC_ELIGIBLE",
+     "evidence": {
+      "beatsRolling": true,
+      "beatsShareVol": true,
+      "coverOk": true,
+      "calOk": true,
+      "n": 3575
+     }
+    },
+    "player_pass_int": {
+     "state": "RESEARCH_ONLY",
+     "evidence": {
+      "note": "simulated component, never separately evaluated — cannot promote"
+     }
+    }
+   }
+  },
+  "anytimeTd": {
+   "state": "MODELLED_NOT_PUBLISHABLE",
+   "scorerPriceState": "NO_MARKET — the authorized probe covered this window and returned no anytime-TD market"
+  },
+  "vault": {
+   "state": "SEE_LEDGER",
+   "ledger": "data/internal/nfl/end-zone-vault/ledger.json"
+  }
+ },
+ "research": {
+  "gamesim": {
+   "variant": "REGULAR",
+   "evidenceTier": "REGULAR_SEASON_FIT",
+   "winProbability": {
+    "home": 0.6013,
+    "away": 0.3693,
+    "tie": 0.0294,
+    "homeUnrounded": 0.6012977990897833,
+    "head": "elo-logistic (replay-validated); tie mass from the score simulation"
+   },
+   "scores": {
+    "home": {
+     "mean": 28.18,
+     "quantiles": {
+      "p10": 16,
+      "p25": 22,
+      "p50": 28,
+      "p75": 35,
+      "p90": 41
+     }
+    },
+    "away": {
+     "mean": 22.31,
+     "quantiles": {
+      "p10": 10,
+      "p25": 16,
+      "p50": 22,
+      "p75": 29,
+      "p90": 34
+     }
+    },
+    "topBands": [
+     {
+      "band": "28-21",
+      "p": 0.079
+     },
+     {
+      "band": "21-21",
+      "p": 0.0755
+     },
+     {
+      "band": "28-14",
+      "p": 0.0677
+     },
+     {
+      "band": "21-14",
+      "p": 0.0621
+     },
+     {
+      "band": "28-28",
+      "p": 0.0534
+     }
+    ],
+    "support": "integer, non-negative, 1 snapped to 0 — key-number clustering (3/7) NOT modeled (documented limitation)"
+   },
+   "headAgreementGap": 0.0489
+  },
+  "perTeam": {
+   "JAX": {
+    "participationCounts": {
+     "ACTIVE_PROJECTED": 77,
+     "QUESTIONABLE": 3,
+     "INACTIVE": 1
+    },
+    "props": {
+     "version": 1,
+     "engineId": "nfl-player-props-v1-opportunity-efficiency",
+     "providerEventId": "401873028",
+     "teamAbbr": "JAX",
+     "state": "SIMULATED",
+     "variant": "REGULAR",
+     "evidenceTier": "REGULAR_SEASON_FIT",
+     "seedBasis": "nfl-player-props-v1-opportunity-efficiency::401873028::2026-10-27::REGULAR",
+     "teamScoreCheck": {
+      "ownMean": 27.9684,
+      "oppMean": 22.1962,
+      "note": "replayed game-sim stream — must equal the committed team artifact's score means bit-for-bit (compatibility pin)"
+     },
+     "reconciliation": {
+      "iterations": 5000,
+      "passOverflow": 0,
+      "rushOverflow": 0,
+      "receptionsOverTargets": 0,
+      "note": "multinomial allocation makes overflow impossible by construction; counters prove it stayed zero"
+     },
+     "players": [
+      {
+       "playerId": "nfl-athlete-4360310",
+       "name": "Trevor Lawrence",
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.60, g 50, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+       "markets": {
+        "player_pass_yds": {
+         "mean": 226.294,
+         "p10": 110.93,
+         "p25": 163.79,
+         "median": 223.52,
+         "p75": 286.94,
+         "p90": 341.87,
+         "samples": 5000
+        },
+        "player_rush_yds": {
+         "mean": 12.948,
+         "p10": 0,
+         "p25": 0.98,
+         "median": 7.62,
+         "p75": 19.47,
+         "p90": 34.29,
+         "samples": 5000
+        }
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4882093",
+       "name": "Bhayshul Tuten",
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.58, g 22, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+       "markets": {
+        "player_rush_yds": {
+         "mean": 56.421,
+         "p10": 20.91,
+         "p25": 33.89,
+         "median": 51.98,
+         "p75": 73.74,
+         "p90": 96.98,
+         "samples": 5000
+        },
+        "player_reception_yds": {
+         "mean": 17.003,
+         "p10": 0,
+         "p25": 0,
+         "median": 11.18,
+         "p75": 24.96,
+         "p90": 42.84,
+         "samples": 5000
+        },
+        "player_receptions": {
+         "mean": 1.622,
+         "p10": 0,
+         "p25": 0,
+         "median": 1,
+         "p75": 2,
+         "p90": 4,
+         "samples": 5000
+        }
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4432620",
+       "name": "Parker Washington",
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.60, g 45, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+       "markets": {
+        "player_reception_yds": {
+         "mean": 57.641,
+         "p10": 12.42,
+         "p25": 28.11,
+         "median": 51.18,
+         "p75": 80.02,
+         "p90": 109.69,
+         "samples": 5000
+        },
+        "player_receptions": {
+         "mean": 4.296,
+         "p10": 1,
+         "p25": 3,
+         "median": 4,
+         "p75": 6,
+         "p90": 7,
+         "samples": 5000
+        }
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4362619",
+       "name": "Chris Rodriguez Jr.",
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.06, g 6, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+       "markets": {
+        "player_rush_yds": {
+         "mean": 27.712,
+         "p10": 3.39,
+         "p25": 10.03,
+         "median": 22.75,
+         "p75": 39.24,
+         "p90": 59.75,
+         "samples": 5000
+        }
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4430539",
+       "name": "Brenton Strange",
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.57, g 39, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+       "markets": {
+        "player_reception_yds": {
+         "mean": 45.406,
+         "p10": 8.59,
+         "p25": 21.01,
+         "median": 39.45,
+         "p75": 63.95,
+         "p90": 90.12,
+         "samples": 5000
+        },
+        "player_receptions": {
+         "mean": 4.185,
+         "p10": 1,
+         "p25": 2,
+         "median": 4,
+         "p75": 6,
+         "p90": 7,
+         "samples": 5000
+        }
+       }
+      },
+      {
+       "playerId": "nfl-athlete-3916433",
+       "name": "Jakobi Meyers",
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.52, g 16, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+       "markets": {
+        "player_reception_yds": {
+         "mean": 40.963,
+         "p10": 3.93,
+         "p25": 16.85,
+         "median": 35.07,
+         "p75": 58.41,
+         "p90": 85.35,
+         "samples": 5000
+        },
+        "player_receptions": {
+         "mean": 3.376,
+         "p10": 1,
+         "p25": 2,
+         "median": 3,
+         "p75": 5,
+         "p90": 6,
+         "samples": 5000
+        }
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4432773",
+       "name": "Brian Thomas Jr.",
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.59, g 38, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+       "markets": {
+        "player_reception_yds": {
+         "mean": 21.21,
+         "p10": 0,
+         "p25": 2.78,
+         "median": 14.78,
+         "p75": 31.54,
+         "p90": 52.1,
+         "samples": 5000
+        },
+        "player_receptions": {
+         "mean": 1.823,
+         "p10": 0,
+         "p25": 1,
+         "median": 2,
+         "p75": 3,
+         "p90": 4,
+         "samples": 5000
+        }
+       }
+      },
+      {
+       "playerId": "nfl-athlete-3059989",
+       "name": "Nick Mullens",
+       "shareBasis": "corpus-role 2023-26 stint (nEff 1.66, g 5, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+       "markets": {
+        "player_rush_yds": {
+         "mean": 7.408,
+         "p10": 0,
+         "p25": 0,
+         "median": 3.16,
+         "p75": 10.79,
+         "p90": 21.28,
+         "samples": 5000
+        }
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4879194",
+       "name": "Josh Cameron",
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.06, g 6, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+       "markets": {
+        "player_reception_yds": {
+         "mean": 15.817,
+         "p10": 0,
+         "p25": 0,
+         "median": 9.08,
+         "p75": 24.36,
+         "p90": 42.82,
+         "samples": 5000
+        },
+        "player_receptions": {
+         "mean": 1.333,
+         "p10": 0,
+         "p25": 0,
+         "median": 1,
+         "p75": 2,
+         "p90": 3,
+         "samples": 5000
+        }
+       }
+      }
+     ],
+     "publicActivation": "OFF"
+    },
+    "anytimeTdBoard": {
+     "counts": {
+      "publishable": 0,
+      "modelled": 11
+     },
+     "teamTd": {
+      "lambda": 3.0767,
+      "receipt": "fit 2026-08-13T05:20:00Z on n=1140 train team-games (this file IS the committed calibration receipt the TD engine requires)"
+     },
+     "topRows": [
+      {
+       "playerId": "nfl-athlete-4882093",
+       "name": "Bhayshul Tuten",
+       "participation": "ACTIVE_PROJECTED",
+       "perTdShare": 0.1956776215909091,
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.58, g 22, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint; pool-flattened β=0.25 per nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z",
+       "modelProbability": 0.450434,
+       "gates": {
+        "participation": "PASS",
+        "roleShare": "PASS",
+        "scorerPrice": "FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market)",
+        "calibration": "PASS"
+       },
+       "state": "MODELLED_NOT_PUBLISHABLE"
+      },
+      {
+       "playerId": "nfl-athlete-4432620",
+       "name": "Parker Washington",
+       "participation": "ACTIVE_PROJECTED",
+       "perTdShare": 0.1907068840909091,
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.60, g 44, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint; pool-flattened β=0.25 per nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z",
+       "modelProbability": 0.44199,
+       "gates": {
+        "participation": "PASS",
+        "roleShare": "PASS",
+        "scorerPrice": "FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market)",
+        "calibration": "PASS"
+       },
+       "state": "MODELLED_NOT_PUBLISHABLE"
+      },
+      {
+       "playerId": "nfl-athlete-4362619",
+       "name": "Chris Rodriguez Jr.",
+       "participation": "ACTIVE_PROJECTED",
+       "perTdShare": 0.09873667909090908,
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.06, g 6, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint; pool-flattened β=0.25 per nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z",
+       "modelProbability": 0.260359,
+       "gates": {
+        "participation": "PASS",
+        "roleShare": "PASS",
+        "scorerPrice": "FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market)",
+        "calibration": "PASS"
+       },
+       "state": "MODELLED_NOT_PUBLISHABLE"
+      },
+      {
+       "playerId": "nfl-athlete-4432773",
+       "name": "Brian Thomas Jr.",
+       "participation": "ACTIVE_PROJECTED",
+       "perTdShare": 0.0810334465909091,
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.59, g 37, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint; pool-flattened β=0.25 per nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z",
+       "modelProbability": 0.219199,
+       "gates": {
+        "participation": "PASS",
+        "roleShare": "PASS",
+        "scorerPrice": "FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market)",
+        "calibration": "PASS"
+       },
+       "state": "MODELLED_NOT_PUBLISHABLE"
+      },
+      {
+       "playerId": "nfl-athlete-4685415",
+       "name": "Travis Hunter",
+       "participation": "ACTIVE_PROJECTED",
+       "perTdShare": 0.07231459159090908,
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.45, g 13, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint; pool-flattened β=0.25 per nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z",
+       "modelProbability": 0.198102,
+       "gates": {
+        "participation": "PASS",
+        "roleShare": "PASS",
+        "scorerPrice": "FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market)",
+        "calibration": "PASS"
+       },
+       "state": "MODELLED_NOT_PUBLISHABLE"
+      },
+      {
+       "playerId": "nfl-athlete-4686248",
+       "name": "Nate Boerkircher",
+       "participation": "ACTIVE_PROJECTED",
+       "perTdShare": 0.0663405040909091,
+       "shareBasis": "corpus-role 2023-26 stint (nEff 3.64, g 5, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint; pool-flattened β=0.25 per nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z",
+       "modelProbability": 0.183323,
+       "gates": {
+        "participation": "PASS",
+        "roleShare": "PASS",
+        "scorerPrice": "FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market)",
+        "calibration": "PASS"
+       },
+       "state": "MODELLED_NOT_PUBLISHABLE"
+      },
+      {
+       "playerId": "nfl-athlete-3916433",
+       "name": "Jakobi Meyers",
+       "participation": "ACTIVE_PROJECTED",
+       "perTdShare": 0.05880025909090909,
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.52, g 16, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint; pool-flattened β=0.25 per nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z",
+       "modelProbability": 0.164285,
+       "gates": {
+        "participation": "PASS",
+        "roleShare": "PASS",
+        "scorerPrice": "FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market)",
+        "calibration": "PASS"
+       },
+       "state": "MODELLED_NOT_PUBLISHABLE"
+      },
+      {
+       "playerId": "nfl-athlete-4879194",
+       "name": "Josh Cameron",
+       "participation": "ACTIVE_PROJECTED",
+       "perTdShare": 0.057901976590909086,
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.06, g 6, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint; pool-flattened β=0.25 per nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z",
+       "modelProbability": 0.161988,
+       "gates": {
+        "participation": "PASS",
+        "roleShare": "PASS",
+        "scorerPrice": "FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market)",
+        "calibration": "PASS"
+       },
+       "state": "MODELLED_NOT_PUBLISHABLE"
+      }
+     ]
+    }
+   },
+   "IND": {
+    "participationCounts": {
+     "ACTIVE_PROJECTED": 68,
+     "QUESTIONABLE": 6,
+     "INACTIVE": 2
+    },
+    "props": {
+     "version": 1,
+     "engineId": "nfl-player-props-v1-opportunity-efficiency",
+     "providerEventId": "401873028",
+     "teamAbbr": "IND",
+     "state": "SIMULATED",
+     "variant": "REGULAR",
+     "evidenceTier": "REGULAR_SEASON_FIT",
+     "seedBasis": "nfl-player-props-v1-opportunity-efficiency::401873028::2026-10-27::REGULAR",
+     "teamScoreCheck": {
+      "ownMean": 22.1962,
+      "oppMean": 27.9684,
+      "note": "replayed game-sim stream — must equal the committed team artifact's score means bit-for-bit (compatibility pin)"
+     },
+     "reconciliation": {
+      "iterations": 5000,
+      "passOverflow": 0,
+      "rushOverflow": 0,
+      "receptionsOverTargets": 0,
+      "note": "multinomial allocation makes overflow impossible by construction; counters prove it stayed zero"
+     },
+     "players": [
+      {
+       "playerId": "nfl-athlete-3917792",
+       "name": "Daniel Jones",
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.83, g 20, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+       "markets": {
+        "player_pass_yds": {
+         "mean": 139.991,
+         "p10": 36.15,
+         "p25": 79.62,
+         "median": 135.31,
+         "p75": 193.67,
+         "p90": 245.06,
+         "samples": 5000
+        },
+        "player_rush_yds": {
+         "mean": 8.729,
+         "p10": 0,
+         "p25": 0,
+         "median": 3.63,
+         "p75": 12.67,
+         "p90": 24.5,
+         "samples": 5000
+        }
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4242335",
+       "name": "Jonathan Taylor",
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.86, g 48, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+       "markets": {
+        "player_rush_yds": {
+         "mean": 59.116,
+         "p10": 21.07,
+         "p25": 34.59,
+         "median": 54.3,
+         "p75": 78.3,
+         "p90": 102.84,
+         "samples": 5000
+        },
+        "player_reception_yds": {
+         "mean": 20.423,
+         "p10": 0,
+         "p25": 3.41,
+         "median": 15.17,
+         "p75": 30.95,
+         "p90": 48.58,
+         "samples": 5000
+        },
+        "player_receptions": {
+         "mean": 1.911,
+         "p10": 0,
+         "p25": 1,
+         "median": 2,
+         "p75": 3,
+         "p90": 4,
+         "samples": 5000
+        }
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4431459",
+       "name": "Tyler Warren",
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.27, g 22, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+       "markets": {
+        "player_reception_yds": {
+         "mean": 36.024,
+         "p10": 6,
+         "p25": 15.73,
+         "median": 30.8,
+         "p75": 50.92,
+         "p90": 72.46,
+         "samples": 5000
+        },
+        "player_receptions": {
+         "mean": 3.881,
+         "p10": 1,
+         "p25": 2,
+         "median": 4,
+         "p75": 5,
+         "p90": 7,
+         "samples": 5000
+        }
+       }
+      },
+      {
+       "playerId": "nfl-athlete-15818",
+       "name": "Keenan Allen",
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.06, g 6, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+       "markets": {
+        "player_reception_yds": {
+         "mean": 34.219,
+         "p10": 4.02,
+         "p25": 13.28,
+         "median": 28.92,
+         "p75": 49.45,
+         "p90": 71.12,
+         "samples": 5000
+        },
+        "player_receptions": {
+         "mean": 3.405,
+         "p10": 1,
+         "p25": 2,
+         "median": 3,
+         "p75": 5,
+         "p90": 6,
+         "samples": 5000
+        }
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4429084",
+       "name": "Anthony Richardson Sr.",
+       "shareBasis": "corpus-role 2023-26 stint (nEff 0.70, g 17, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+       "markets": {
+        "player_rush_yds": {
+         "mean": 7.491,
+         "p10": 0,
+         "p25": 0,
+         "median": 1.96,
+         "p75": 11.09,
+         "p90": 22.35,
+         "samples": 5000
+        }
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4686468",
+       "name": "Seth McGowan",
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.42, g 7, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+       "markets": {
+        "player_rush_yds": {
+         "mean": 15.785,
+         "p10": 0,
+         "p25": 2.76,
+         "median": 10.79,
+         "p75": 23.11,
+         "p90": 38.73,
+         "samples": 5000
+        }
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4688813",
+       "name": "Josh Downs",
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.86, g 54, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+       "markets": {
+        "player_reception_yds": {
+         "mean": 32.954,
+         "p10": 2.04,
+         "p25": 11.82,
+         "median": 27.25,
+         "p75": 48.5,
+         "p90": 69.47,
+         "samples": 5000
+        },
+        "player_receptions": {
+         "mean": 2.966,
+         "p10": 1,
+         "p25": 1,
+         "median": 3,
+         "p75": 4,
+         "p90": 6,
+         "samples": 5000
+        }
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4874509",
+       "name": "DJ Giddens",
+       "shareBasis": "corpus-role 2023-26 stint (nEff 0.91, g 5, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+       "markets": {
+        "player_rush_yds": {
+         "mean": 10.505,
+         "p10": 0,
+         "p25": 0.15,
+         "median": 5.37,
+         "p75": 15.6,
+         "p90": 28.52,
+         "samples": 5000
+        }
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4360078",
+       "name": "Alec Pierce",
+       "shareBasis": "corpus-role 2023-26 stint (nEff 2.89, g 50, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+       "markets": {
+        "player_reception_yds": {
+         "mean": 26.79,
+         "p10": 0,
+         "p25": 5.12,
+         "median": 19.63,
+         "p75": 39.92,
+         "p90": 64.94,
+         "samples": 5000
+        },
+        "player_receptions": {
+         "mean": 2.037,
+         "p10": 0,
+         "p25": 1,
+         "median": 2,
+         "p75": 3,
+         "p90": 4,
+         "samples": 5000
+        }
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4362523",
+       "name": "Will Mallory",
+       "shareBasis": "corpus-role 2023-26 stint (nEff 2.20, g 21, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+       "markets": {
+        "player_reception_yds": {
+         "mean": 16.989,
+         "p10": 0,
+         "p25": 0.17,
+         "median": 11.45,
+         "p75": 26.07,
+         "p90": 43.24,
+         "samples": 5000
+        },
+        "player_receptions": {
+         "mean": 1.578,
+         "p10": 0,
+         "p25": 1,
+         "median": 1,
+         "p75": 2,
+         "p90": 4,
+         "samples": 5000
+        }
+       }
+      },
+      {
+       "playerId": "nfl-athlete-3051889",
+       "name": "Laquon Treadwell",
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.72, g 13, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+       "markets": {
+        "player_reception_yds": {
+         "mean": 20.158,
+         "p10": 0,
+         "p25": 2.39,
+         "median": 13.88,
+         "p75": 30.96,
+         "p90": 48.85,
+         "samples": 5000
+        },
+        "player_receptions": {
+         "mean": 1.749,
+         "p10": 0,
+         "p25": 1,
+         "median": 1,
+         "p75": 3,
+         "p90": 4,
+         "samples": 5000
+        }
+       }
+      }
+     ],
+     "publicActivation": "OFF"
+    },
+    "anytimeTdBoard": {
+     "counts": {
+      "publishable": 0,
+      "modelled": 11
+     },
+     "teamTd": {
+      "lambda": 2.337,
+      "receipt": "fit 2026-08-13T05:20:00Z on n=1140 train team-games (this file IS the committed calibration receipt the TD engine requires)"
+     },
+     "topRows": [
+      {
+       "playerId": "nfl-athlete-4242335",
+       "name": "Jonathan Taylor",
+       "participation": "ACTIVE_PROJECTED",
+       "perTdShare": 0.28366815,
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.86, g 46, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint; pool-flattened β=0.25 per nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z",
+       "modelProbability": 0.484325,
+       "gates": {
+        "participation": "PASS",
+        "roleShare": "PASS",
+        "scorerPrice": "FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market)",
+        "calibration": "PASS"
+       },
+       "state": "MODELLED_NOT_PUBLISHABLE"
+      },
+      {
+       "playerId": "nfl-athlete-4431459",
+       "name": "Tyler Warren",
+       "participation": "QUESTIONABLE",
+       "perTdShare": 0.19067865,
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.27, g 22, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint; pool-flattened β=0.25 per nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z",
+       "modelProbability": 0.359212,
+       "gates": {
+        "participation": "FAIL(QUESTIONABLE)",
+        "roleShare": "PASS",
+        "scorerPrice": "FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market)",
+        "calibration": "PASS"
+       },
+       "state": "MODELLED_NOT_PUBLISHABLE"
+      },
+      {
+       "playerId": "nfl-athlete-15818",
+       "name": "Keenan Allen",
+       "participation": "ACTIVE_PROJECTED",
+       "perTdShare": 0.09714889500000001,
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.06, g 6, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint; pool-flattened β=0.25 per nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z",
+       "modelProbability": 0.202815,
+       "gates": {
+        "participation": "PASS",
+        "roleShare": "PASS",
+        "scorerPrice": "FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market)",
+        "calibration": "PASS"
+       },
+       "state": "MODELLED_NOT_PUBLISHABLE"
+      },
+      {
+       "playerId": "nfl-athlete-4683423",
+       "name": "Riley Leonard",
+       "participation": "ACTIVE_PROJECTED",
+       "perTdShare": 0.08655739500000001,
+       "shareBasis": "corpus-role 2023-26 stint (nEff 0.91, g 5, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint; pool-flattened β=0.25 per nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z",
+       "modelProbability": 0.182861,
+       "gates": {
+        "participation": "PASS",
+        "roleShare": "PASS",
+        "scorerPrice": "FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market)",
+        "calibration": "PASS"
+       },
+       "state": "MODELLED_NOT_PUBLISHABLE"
+      },
+      {
+       "playerId": "nfl-athlete-2998565",
+       "name": "Mo Alie-Cox",
+       "participation": "ACTIVE_PROJECTED",
+       "perTdShare": 0.08505537750000002,
+       "shareBasis": "corpus-role 2023-26 stint (nEff 3.84, g 41, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint; pool-flattened β=0.25 per nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z",
+       "modelProbability": 0.179991,
+       "gates": {
+        "participation": "PASS",
+        "roleShare": "PASS",
+        "scorerPrice": "FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market)",
+        "calibration": "PASS"
+       },
+       "state": "MODELLED_NOT_PUBLISHABLE"
+      },
+      {
+       "playerId": "nfl-athlete-4360078",
+       "name": "Alec Pierce",
+       "participation": "INACTIVE",
+       "perTdShare": 0.065852415,
+       "shareBasis": "corpus-role 2023-26 stint (nEff 2.89, g 48, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint; pool-flattened β=0.25 per nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z",
+       "modelProbability": 0.142405,
+       "gates": {
+        "participation": "FAIL(INACTIVE)",
+        "roleShare": "PASS",
+        "scorerPrice": "FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market)",
+        "calibration": "PASS"
+       },
+       "state": "MODELLED_NOT_PUBLISHABLE"
+      },
+      {
+       "playerId": "nfl-athlete-4429084",
+       "name": "Anthony Richardson Sr.",
+       "participation": "ACTIVE_PROJECTED",
+       "perTdShare": 0.0600418875,
+       "shareBasis": "corpus-role 2023-26 stint (nEff 0.70, g 16, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint; pool-flattened β=0.25 per nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z",
+       "modelProbability": 0.130698,
+       "gates": {
+        "participation": "PASS",
+        "roleShare": "PASS",
+        "scorerPrice": "FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market)",
+        "calibration": "PASS"
+       },
+       "state": "MODELLED_NOT_PUBLISHABLE"
+      },
+      {
+       "playerId": "nfl-athlete-3917792",
+       "name": "Daniel Jones",
+       "participation": "ACTIVE_PROJECTED",
+       "perTdShare": 0.0477816075,
+       "shareBasis": "corpus-role 2023-26 stint (nEff 4.83, g 20, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint; pool-flattened β=0.25 per nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z",
+       "modelProbability": 0.10547,
+       "gates": {
+        "participation": "PASS",
+        "roleShare": "PASS",
+        "scorerPrice": "FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market)",
+        "calibration": "PASS"
+       },
+       "state": "MODELLED_NOT_PUBLISHABLE"
+      }
+     ]
+    }
+   }
+  }
+ },
+ "settlementTargets": null,
+ "publicActivation": "OFF"
+}
