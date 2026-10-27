@@ -13,8 +13,8 @@
 #   - Compares against VERCEL_GIT_PREVIOUS_SHA (the last successfully deployed commit) when
 #     available, so a push batch whose head is a docs commit cannot strand an earlier app/
 #     change — the diff spans everything since the last deploy, not just HEAD^..HEAD.
-#   - If the previous SHA is unknown or unreachable (first deploy, shallow clone gap, force
-#     push), we BUILD.
+#   - If the previous SHA is unknown or unreachable (first deploy, a shallow clone gap the fetch
+#     below cannot close, force push), we BUILD.
 #   - Any unexpected error → BUILD.
 #
 # The deployment observer judges currency by buildEtDate (date-based), and bot data commits
@@ -67,9 +67,79 @@ if [ -z "$BASE" ]; then
     exit 1
 fi
 
-if ! git cat-file -e "$BASE" 2>/dev/null; then
-    echo "[ignore-build] previous deployed SHA $BASE not in clone (shallow gap / force push) — building"
-    exit 1
+# ── The TRUE deployed baseline (gate leaks measured 2026-10-27) ───────────────────────────────────────────────────────
+# In the first 20 Production builds after the coalescing gate shipped, 2 built data that gate would have batched. Neither
+# was empty, but each was a full build the gate exists to avoid. The cause in both cases was the wrong base:
+#   1. SHALLOW CLONE. Vercel clones 10 commits deep. A burst of automation pushes left the deployed SHA 11 commits behind
+#      (3b527d35, 10-27 15:19Z), the lookup below failed and the script built. Now, in a shallow clone, it fetches
+#      GTP_GATE_FETCH_DEPTH (50) commits of HEAD's history, from the clone's remote or else the public GitHub repo
+#      Vercel names, and looks again. Measured from a home connection on 10-27: deepening 10 → 40 took 34 s and 23 MB and
+#      reached the base 11 behind; the widest gap between consecutive deploys since 10-23 was 16 commits.
+#   2. IN-FLIGHT BUILD. Vercel fixes VERCEL_GIT_PREVIOUS_SHA when a deployment is CREATED. A deployment queued behind a
+#      running build (Standard, one build at a time) runs this step only once that build has gone live, and still
+#      compares against the older base. 1a9b26d7 (10-27 09:40Z, one non-critical file) was pushed during a critical
+#      build, saw that build's critical change in its span, and built it again. Now a Production build reads the commit
+#      the live site serves (/data/build-info.json) and compares from there when it is NEWER than Vercel's base and an
+#      ancestor of HEAD. A build of commit L contains every file as of L, so nothing at or before L can be undeployed,
+#      and a critical change after L still builds at once.
+# Both only ever move the comparison to a commit proven deployed. Every failure (no remote, fetch error or timeout, no
+# network, a bot challenge, an unparseable body, a SHA not in the history, a rollback to an OLDER deploy, a non-Production
+# build) keeps Vercel's base, which is exactly the behaviour before this block: a base still missing BUILDS.
+_have_commit() { git cat-file -e "${1}^{commit}" 2>/dev/null; }
+
+# Runs a command under `timeout` where the builder has it, so a hung fetch cannot hold the build slot.
+_bounded() {
+    if command -v timeout >/dev/null 2>&1; then timeout "${GTP_GATE_FETCH_TIMEOUT:-120}" "$@"; else "$@"; fi
+}
+
+# Deepens a SHALLOW clone; never touches a full one (a developer running this locally keeps their history). 0 = fetched.
+_deepen_clone() {
+    local _depth="${GTP_GATE_FETCH_DEPTH:-50}" _head _url="${GTP_GATE_REPO_URL:-}" _src
+    [ "$(git rev-parse --is-shallow-repository 2>/dev/null)" = "true" ] || return 1
+    case "$_depth" in ''|*[!0-9]*) return 1 ;; esac
+    _head="$(git rev-parse HEAD 2>/dev/null)" || return 1
+    if [ -z "$_url" ] && [ -n "${VERCEL_GIT_REPO_OWNER:-}" ] && [ -n "${VERCEL_GIT_REPO_SLUG:-}" ]; then
+        _url="https://github.com/${VERCEL_GIT_REPO_OWNER}/${VERCEL_GIT_REPO_SLUG}.git"
+    fi
+    for _src in $(git remote 2>/dev/null) $_url; do
+        if GIT_TERMINAL_PROMPT=0 _bounded git fetch -q --no-tags --depth="$_depth" "$_src" "$_head" 2>/dev/null; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+# The commit the live Production site was built from, or nothing. Production builds only: a Preview has no live alias.
+_live_sha() {
+    local _body
+    [ "${VERCEL_ENV:-}" = "production" ] || return 0
+    _body="$(curl -fsS -m 10 -A 'gtp-ignore-build/1.0' -H 'Accept: application/json' \
+        "${GTP_GATE_LIVE_URL:-https://gametimepicks.yashwantbalaji.com/data/build-info.json}" 2>/dev/null)" || return 0
+    printf '%s' "$_body" | tr -d ' \t\r\n' | grep -o '"commit":{"sha":"[0-9a-f]\{40\}"' | head -1 | grep -o '[0-9a-f]\{40\}'
+}
+
+if ! _have_commit "$BASE"; then
+    if _deepen_clone && _have_commit "$BASE"; then
+        echo "[ignore-build] previous deployed SHA $BASE was outside the shallow clone — fetched ${GTP_GATE_FETCH_DEPTH:-50} commits of history and found it"
+    else
+        echo "[ignore-build] previous deployed SHA $BASE not in clone (shallow gap the fetch could not close / force push) — building"
+        exit 1
+    fi
+fi
+
+_live="$(_live_sha)"
+_head_sha="$(git rev-parse HEAD 2>/dev/null)"
+if [ -n "$_live" ] && [ "$_live" != "$BASE" ]; then
+    if [ "$_live" = "$_head_sha" ]; then
+        echo "[ignore-build] Production already serves HEAD $_live — keeping Vercel's base $BASE"
+    elif { _have_commit "$_live" || { _deepen_clone && _have_commit "$_live"; }; } \
+        && git merge-base --is-ancestor "$BASE" "$_live" 2>/dev/null \
+        && git merge-base --is-ancestor "$_live" HEAD 2>/dev/null; then
+        echo "[ignore-build] Vercel's base is $BASE, but Production already serves the newer $_live (a build that went live while this one waited) — comparing from $_live"
+        BASE="$_live"
+    else
+        echo "[ignore-build] Production serves $_live, which is not a newer ancestor of HEAD than $BASE — keeping Vercel's base"
+    fi
 fi
 
 # ── What is deploy-worthy (docs/V17_DEPLOY_TRIGGER_AUDIT.md, 2026-09-22) ──────────────────────

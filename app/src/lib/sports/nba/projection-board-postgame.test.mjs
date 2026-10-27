@@ -101,11 +101,19 @@ test("actuals on the COMMITTED record equal the shadow grader's own recorded act
        - the grade's own box score is the first capture → the board's GRADED value (the corrected-after-grading mark's
          value when a correction changed it, else the shown actual) equals the ledger's actual exactly, and a changed
          value is flagged and equals the stored correction exactly;
-       - the grade's box score is a correction (a grader that follows corrections) → the shown actual equals it exactly. */
+       - the grade's box score is a correction (a grader that follows corrections) → the shown actual equals it exactly,
+         and a value the board flags as corrected after grading is the grade that correction SUPERSEDED, exactly.
+     Since b1aadaacc8 (10-26) the Top Board grader follows corrections: on 10-27 it appended CORRECTION entries for the
+     Avdija row (PRA 38 → 39 superseding seq 387, P+R 32 → 33 superseding seq 398), so its latest grades are on the
+     correction while the board keeps flagging the earlier graded value. Both states are checked exactly below. */
   const ledgerFile = path.join(APP, "..", "data/internal/research/nba/top-boards/v0.1/ledger.json");
   if (!fs.existsSync(ledgerFile)) return; // a checkout without the research tree has nothing to compare
   const latest = new Map();
-  for (const e of JSON.parse(fs.readFileSync(ledgerFile, "utf8")).entries ?? []) if (!latest.has(e.rowId) || latest.get(e.rowId).seq < e.seq) latest.set(e.rowId, e);
+  const bySeq = new Map();
+  for (const e of JSON.parse(fs.readFileSync(ledgerFile, "utf8")).entries ?? []) {
+    bySeq.set(e.seq, e);
+    if (!latest.has(e.rowId) || latest.get(e.rowId).seq < e.seq) latest.set(e.rowId, e);
+  }
   const statAt = { points: "pts", rebounds: "reb", assists: "ast", threes: "threePm", threePm: "threePm" };
   const ix = Object.fromEntries(PROJECTION_BOARD_STATS.map(([k], i) => [k, i + 1]));
   const byDate = new Map();
@@ -122,6 +130,16 @@ test("actuals on the COMMITTED record equal the shadow grader's own recorded act
     const was = a.corrected?.[key] ?? {};
     if (gradedOnCorrection) {
       assert.equal(row[at], e.accuracy.actual, `${e.rowId}: graded on a correction → the board shows that value`);
+      if (at in was) {
+        // the flagged "graded value" is exactly the grade this correction superseded, which stays in the ledger
+        correctedRows += 1;
+        assert.equal(e.lineageReason, "CORRECTION", `${e.rowId}: a re-grade on a correction is a CORRECTION entry`);
+        const superseded = bySeq.get(e.supersedes);
+        assert.ok(superseded && superseded.rowId === e.rowId, `${e.rowId}: the superseded grade is in the ledger`);
+        assert.equal(was[at], superseded.accuracy.actual, `${e.rowId}: the flagged value is the superseded grade`);
+        assert.ok(a.corrections?.[e.eventId]?.correctedAt, `${e.rowId}: the correction is dated`);
+        assert.notEqual(row[at], was[at], `${e.rowId}: a flagged value really changed`);
+      }
     } else {
       assert.equal(at in was ? was[at] : row[at], e.accuracy.actual, `${e.rowId}: the graded value`);
       assert.equal(0 in was ? was[0] : row[0], e.accuracy.actualMinutes, `${e.rowId}: the graded minutes`);
