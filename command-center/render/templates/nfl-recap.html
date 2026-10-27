@@ -1,0 +1,122 @@
+<!doctype html>
+<!-- nfl-recap@0 — 1080×1350. Isolated and versioned: it must adopt the reassessment §5.2 design system
+     (Forecast card anatomy, terminology, status vocabulary) before any public post (checkpoint CP3).
+     Every double-brace slot is filled from the fact bundle's display strings, HTML-escaped. No league logos or player images. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --bg: #0A0705; --surface: #100B08; --surface-2: #1A130D;
+    --text: #F4F4F5; --mute: #C9BC97; --faint: #8A8FA3;
+    --accent: #34D399; --accent-mint: #7EE2A8; --miss: #F5B54A;
+    --border: rgba(255,255,255,0.08);
+    --home: {{homeColor}}; --home-ink: {{homeInk}};
+    --away: {{awayColor}}; --away-ink: {{awayInk}};
+    --headline: "Space Grotesk", "Geist", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --body: "Geist", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1350px; background: var(--bg); color: var(--text); font-family: var(--body); }
+  body {
+    position: relative; overflow: hidden; padding: 64px 72px 56px;
+    background:
+      radial-gradient(900px 520px at 85% -10%, rgba(52,211,153,0.16), transparent 70%),
+      radial-gradient(700px 500px at -10% 110%, rgba(52,211,153,0.08), transparent 70%),
+      var(--bg);
+  }
+  header { display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 18px; }
+  .brand img { height: 64px; width: auto; }
+  .brand span { font-family: var(--headline); font-weight: 700; font-size: 30px; letter-spacing: 0.04em; }
+  .chip { font-family: var(--mono); font-size: 22px; letter-spacing: 0.08em; color: var(--accent-mint);
+          border: 1px solid rgba(52,211,153,0.35); border-radius: 999px; padding: 10px 22px; }
+  h1 { margin-top: 40px; font-family: var(--headline); font-size: 64px; line-height: 1.05; font-weight: 700; letter-spacing: -0.01em; }
+  h1 em { font-style: normal; color: var(--accent); }
+
+  .scoreboard { margin-top: 34px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .team { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 24px;
+          padding: 30px 32px 28px; overflow: hidden; }
+  .team::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 10px; background: var(--c); }
+  .team.away { --c: var(--away); } .team.home { --c: var(--home); }
+  .team .side { font-family: var(--mono); font-size: 20px; letter-spacing: 0.1em; color: var(--faint); }
+  .team .abbr { margin-top: 10px; display: inline-block; font-family: var(--headline); font-weight: 700; font-size: 40px;
+                padding: 4px 16px; border-radius: 10px; background: var(--c); color: var(--ink); }
+  .team.away .abbr { --ink: var(--away-ink); } .team.home .abbr { --ink: var(--home-ink); }
+  .team .name { margin-top: 12px; font-size: 26px; color: var(--mute); }
+  .team .score { margin-top: 8px; font-family: var(--headline); font-weight: 700; font-size: 112px; line-height: 1; }
+  .team.winner { border-color: rgba(52,211,153,0.55); }
+  .team .final { position: absolute; right: 28px; top: 34px; font-family: var(--mono); font-size: 18px; color: var(--faint); letter-spacing: 0.12em; }
+
+  .forecast { margin-top: 22px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 24px; padding: 32px 36px; }
+  .label { font-family: var(--mono); font-size: 20px; letter-spacing: 0.1em; color: var(--accent-mint); text-transform: uppercase; }
+  .label .when { color: var(--faint); }
+  .winline { margin-top: 18px; display: flex; align-items: baseline; gap: 18px; }
+  .winline .pct { font-family: var(--headline); font-size: 72px; font-weight: 700; color: var(--accent); }
+  .winline .txt { font-size: 30px; color: var(--text); }
+  .bar { margin-top: 16px; height: 14px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; }
+  .bar i { display: block; height: 100%; width: {{barWidth}}; background: linear-gradient(90deg, var(--accent), var(--accent-mint)); }
+  .rows { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px 28px; }
+  .rows div { font-size: 26px; color: var(--mute); }
+  .rows b { display: block; margin-top: 4px; font-family: var(--headline); font-size: 40px; color: var(--text); font-weight: 600; }
+
+  .verdicts { margin-top: 20px; display: grid; gap: 14px; }
+  .verdict { display: flex; align-items: center; gap: 18px; font-size: 30px; font-weight: 600; border-radius: 18px; padding: 14px 24px; }
+  .verdict .mark { font-family: var(--headline); font-size: 34px; width: 46px; height: 46px; border-radius: 50%;
+                   display: inline-flex; align-items: center; justify-content: center; color: var(--bg); }
+  .verdict.hit { background: rgba(52,211,153,0.12); } .verdict.hit .mark { background: var(--accent); }
+  .verdict.miss { background: rgba(245,181,74,0.12); } .verdict.miss .mark { background: var(--miss); }
+
+  footer { position: absolute; left: 72px; right: 72px; bottom: 52px; display: flex; justify-content: space-between; align-items: flex-end;
+           border-top: 1px solid var(--border); padding-top: 22px; }
+  footer .disc { font-size: 21px; color: var(--mute); max-width: 640px; line-height: 1.35; }
+  footer .src { font-family: var(--mono); font-size: 17px; color: var(--faint); text-align: right; line-height: 1.5; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand"><img src="{{logoDataUri}}" alt=""><span>GAMETIMEPICKS</span></div>
+    <div class="chip">{{chip}}</div>
+  </header>
+
+  <h1>Official Forecast <em>vs</em> Final</h1>
+
+  <section class="scoreboard">
+    <div class="team away {{awayWinnerClass}}">
+      <div class="final">FINAL</div>
+      <div class="side">AWAY</div>
+      <div class="abbr">{{awayAbbr}}</div>
+      <div class="name">{{awayName}}</div>
+      <div class="score">{{awayFinal}}</div>
+    </div>
+    <div class="team home {{homeWinnerClass}}">
+      <div class="final">FINAL</div>
+      <div class="side">HOME</div>
+      <div class="abbr">{{homeAbbr}}</div>
+      <div class="name">{{homeName}}</div>
+      <div class="score">{{homeFinal}}</div>
+    </div>
+  </section>
+
+  <section class="forecast">
+    <div class="label">Pregame forecast <span class="when">· frozen {{frozenAt}}</span></div>
+    <div class="winline"><span class="pct">{{favPct}}</span><span class="txt">{{favName}} to win</span></div>
+    <div class="bar"><i></i></div>
+    <div class="rows">
+      <div>Projected score<b>{{homeAbbr}} {{projHome}} – {{awayAbbr}} {{projAway}}</b></div>
+      <div>Projected total<b>{{projTotal}} <span style="font-size:26px;color:var(--mute);font-weight:400">(80% range {{totalRange}})</span></b></div>
+    </div>
+  </section>
+
+  <section class="verdicts">
+    <div class="verdict {{sideVerdictClass}}"><span class="mark">{{sideMark}}</span>{{sideVerdict}}</div>
+    <div class="verdict {{totalVerdictClass}}"><span class="mark">{{totalMark}}</span>{{totalVerdict}}</div>
+  </section>
+
+  <footer>
+    <div class="disc">{{modelLine}} · {{disclaimer}}<br>gametimepicks.yashwantbalaji.com</div>
+    <div class="src">Source: Forecast Ledger<br>{{snapshotId}}</div>
+  </footer>
+</body>
+</html>
