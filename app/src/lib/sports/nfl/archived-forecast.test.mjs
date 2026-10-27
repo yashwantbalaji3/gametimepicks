@@ -92,3 +92,32 @@ test("a revision overwritten in the dated file survives as its per-revision rece
   assert.deepEqual(archivedEventIds(r, { receiptsRoot: receipts }), ["401"]);
   assert.equal(archivedForecastFor(r, "401", { receiptsRoot: path.join(receipts, "nope") }), null, "no receipt, no archive");
 });
+
+test("⚠ a SETTLED game graded against an EXCLUDED revision shows the official record; the graded revision is named, not shown", async () => {
+  /* Production 2026-10-27 (Vehicle O): after the week rolled, /nfl/game/401873011 read its forecast through this archive,
+     which returns the revision the reconciliation GRADED — 401873011-rev-1329Z, excluded from the record (an input
+     sourced after kickoff) — and printed its input hash 7b06983a4ac1245b as the forecast's provenance. */
+  const { RECORD_EXCLUSIONS } = await import("./record-exclusions.mjs");
+  const APP = process.cwd();
+  const REPO = path.resolve(APP, "..");
+  const DATA = path.join(APP, "public/data");
+  let checked = 0;
+  for (const e of RECORD_EXCLUSIONS) {
+    const a = archivedForecastFor(DATA, e.providerEventId);
+    if (!a || a.reconciliation.published.generatedAt !== e.generatedAt) continue; // not graded against the excluded revision
+    checked += 1;
+    const rec = JSON.parse(fs.readFileSync(path.join(REPO, e.recordInstead), "utf8"));
+    assert.equal(a.forecast.generatedAt, rec.generatedAt, "the forecast shown is the official record");
+    assert.equal(a.forecast.model.inputHash, rec.model.inputHash);
+    assert.deepEqual(a.forecast.forecastSummary, rec.forecastSummary);
+    assert.equal(a.sourceFile, e.recordInstead);
+    assert.deepEqual([a.graded.revision, a.graded.inputHash, a.graded.displayedValueDiffers], ["rev-1329Z", e.inputHash, false], "the graded revision is named");
+    assert.equal(a.official.revision, "rev-1236Z");
+    assert.equal(a.reconciliation.published.generatedAt, e.generatedAt, "the grade is history: the reconciliation is not rewritten");
+  }
+  assert.ok(checked >= 1, "PIT @ NO is reconciled against rev-1329Z in the committed data");
+  // a game graded against an eligible revision is untouched
+  const others = (await import("./archived-forecast.ts")).reconciledGames(DATA).map((x) => x.game.providerEventId).filter((id) => !RECORD_EXCLUSIONS.some((e) => e.providerEventId === id));
+  const one = archivedForecastFor(DATA, others[0]);
+  if (one) assert.equal(one.graded, undefined);
+});

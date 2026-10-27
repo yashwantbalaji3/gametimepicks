@@ -17,6 +17,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { readinessOf, type NflEligibleEvent } from "./simulate-eligibility";
+import { exclusionFor } from "./record-exclusions.mjs";
+import { publicRecordOf } from "./public-record.mjs";
 
 export interface ArchivedForecast {
   providerEventId: string;
@@ -50,6 +52,32 @@ export interface ArchivedGame {
   weekLabel: string;
   /** The file the frozen revision was read from: a public dated forecast file or a per-revision receipt. */
   sourceFile: string;
+  /** Set when the revision the reconciliation GRADED is excluded from the record (record-exclusions.mjs): the grade is
+   *  history and stands; `forecast` is then the official record, named in `official` (null if it could not be read). */
+  graded?: { revision: string; file: string; generatedAt: string; inputHash: string; reason: string; displayedValueDiffers: boolean } | null;
+  official?: { revision: string; file: string } | null;
+}
+
+/** "data/…/401873011-rev-1329Z.json" → "rev-1329Z"; an original receipt "…/401873011.json" → "original". */
+export const revisionLabel = (file: string): string => {
+  const m = path.basename(file).match(/^\d+-(rev-\d{4}Z)\.json$/);
+  return m ? m[1] : "original";
+};
+
+/**
+ * A graded revision that is EXCLUDED from the record (a pre-kickoff label on post-kickoff inputs — PIT @ NO
+ * 401873011-rev-1329Z) is history: the reconciliation keeps it and its grade stands. The page shows the OFFICIAL
+ * record (the exclusion's recordInstead) as the forecast, and says which revision was graded and why it is not the
+ * record. If the record cannot be read, the graded revision is kept but `official` is null and the page says so.
+ */
+function withOfficialRecord(a: ArchivedGame, receiptsRoot: string): ArchivedGame {
+  const ex = exclusionFor(a.forecast);
+  if (!ex) return a;
+  const graded = { revision: revisionLabel(ex.file), file: ex.file, generatedAt: ex.generatedAt, inputHash: ex.inputHash, reason: ex.reason, displayedValueDiffers: ex.displayedValueDiffers };
+  const repoRoot = path.resolve(receiptsRoot, "..", "..", "..", "..");
+  const rec = publicRecordOf(a.forecast, repoRoot) as ArchivedForecast | null;
+  if (!rec || rec === a.forecast) return { ...a, graded, official: null };
+  return { ...a, forecast: rec, sourceFile: ex.recordInstead, graded, official: { revision: revisionLabel(ex.recordInstead), file: ex.recordInstead } };
 }
 /** Where the per-revision receipts live, relative to the app's working directory. */
 export const DEFAULT_RECEIPTS_ROOT = path.join(process.cwd(), "..", "data", "internal", "nfl", "forecast-receipts");
@@ -93,6 +121,7 @@ function receiptsFor(receiptsRoot: string, providerEventId: string): Map<string,
 
 /** The frozen forecast of one reconciled game, or null when the named revision is not committed anywhere. */
 export function archivedForecastFor(root: string, providerEventId: string, opts: { receiptsRoot?: string } = {}): ArchivedGame | null {
+  const receiptsRoot = opts.receiptsRoot ?? DEFAULT_RECEIPTS_ROOT;
   const hit = reconciledGames(root).find((x) => x.game.providerEventId === providerEventId);
   if (!hit) return null;
   const want = hit.game.published.generatedAt;
@@ -102,10 +131,10 @@ export function archivedForecastFor(root: string, providerEventId: string, opts:
     const doc = readJson<{ generatedAt?: string; forecasts?: ArchivedForecast[] }>(root, `nfl/forecasts/${f}`);
     if (!doc || doc.generatedAt !== want) continue;
     const fc = (doc.forecasts ?? []).find((x) => x.providerEventId === providerEventId);
-    if (fc?.forecastSummary?.winProbability) return { forecast: fc, reconciliation: hit.game, weekKey: hit.weekKey, weekLabel: hit.weekLabel, sourceFile: `nfl/forecasts/${f}` };
+    if (fc?.forecastSummary?.winProbability) return withOfficialRecord({ forecast: fc, reconciliation: hit.game, weekKey: hit.weekKey, weekLabel: hit.weekLabel, sourceFile: `nfl/forecasts/${f}` }, receiptsRoot);
   }
-  const receipt = receiptsFor(opts.receiptsRoot ?? DEFAULT_RECEIPTS_ROOT, providerEventId).get(want);
-  if (receipt) return { forecast: receipt.doc, reconciliation: hit.game, weekKey: hit.weekKey, weekLabel: hit.weekLabel, sourceFile: receipt.file };
+  const receipt = receiptsFor(receiptsRoot, providerEventId).get(want);
+  if (receipt) return withOfficialRecord({ forecast: receipt.doc, reconciliation: hit.game, weekKey: hit.weekKey, weekLabel: hit.weekLabel, sourceFile: receipt.file }, receiptsRoot);
   return null;
 }
 

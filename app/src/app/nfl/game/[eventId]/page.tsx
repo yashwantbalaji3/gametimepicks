@@ -805,6 +805,16 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           <dt>kickoff</dt><dd style={{ margin: 0 }}><EtTime iso={f.kickoffUtc} /></dd>
           <dt>state</dt><dd style={{ margin: 0 }}>{lifecycle === "UPCOMING" ? <><KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={false} when="before">UPCOMING</KickoffSlot><KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={false} when="after">STARTED</KickoffSlot></> : lifecycle}</dd>
         </dl>
+        {/* #1253 follow-up: the graded revision is history and its grade stands; the receipt above is the official record.
+            One line says which revision was graded and why it is not the record — the only place an excluded revision is named. */}
+        {archived?.graded ? (
+          <p data-graded-revision="" style={{ marginTop: 8, fontSize: 12, color: "var(--vault-text-mute)", lineHeight: 1.5 }}>
+            Graded against revision {archived.graded.revision} ({archived.graded.displayedValueDiffers ? "different values" : "identical values"}; input hash {archived.graded.inputHash});{" "}
+            {archived.official
+              ? <>the official record is {archived.official.revision} because {archived.graded.revision} used an input sourced after kickoff.</>
+              : <>it is not the official record because it used an input sourced after kickoff, and the official record could not be read for this page.</>}
+          </p>
+        ) : null}
         {/* P250 · A15: the player board's model provenance — the receipt above names only the team
             forecast model, and nothing else on the page said which evaluation produced each player
             family. Read verbatim from the artifact's per-family basis lines. */}
