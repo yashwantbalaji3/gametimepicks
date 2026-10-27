@@ -1,0 +1,163 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "serie-a",
+ "season": "2026-27",
+ "date": "2026-10-27",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-10-27T15:34:25.000Z",
+ "runs": [
+  {
+   "at": "2026-10-27T15:34:25.000Z",
+   "added": 2
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Frosinone|Lecce",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401874976",
+   "providerEventId": "401874976",
+   "kickoffUtc": "2026-10-29T17:30:00.000Z",
+   "matchup": "Frosinone v Lecce",
+   "homeClub": "Frosinone",
+   "awayClub": "Lecce",
+   "historyNames": {
+    "home": "Frosinone",
+    "away": "Lecce"
+   },
+   "espnTeamIds": {
+    "home": "4057",
+    "away": "113"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-27T15:34:25.000Z",
+   "probs": {
+    "home": 0.565204,
+    "draw": 0.250561,
+    "away": 0.184235
+   },
+   "over25": 0.437649,
+   "under25": 0.562351,
+   "expectedGoals": {
+    "home": 1.6204,
+    "away": 0.8078
+   },
+   "lambdas": {
+    "home": 1.6204,
+    "away": 0.8078
+   },
+   "rho": -0.013766,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 43,
+    "away": 156
+   },
+   "fit": {
+    "cutoffIso": "2026-10-27T15:34:25.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 20
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.475254,
+     "draw": 0.260266,
+     "away": 0.26448
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Fiorentina|Atalanta",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401874969",
+   "providerEventId": "401874969",
+   "kickoffUtc": "2026-10-29T19:45:00.000Z",
+   "matchup": "Fiorentina v Atalanta",
+   "homeClub": "Fiorentina",
+   "awayClub": "Atalanta",
+   "historyNames": {
+    "home": "Fiorentina",
+    "away": "Atalanta"
+   },
+   "espnTeamIds": {
+    "home": "109",
+    "away": "105"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-27T15:34:25.000Z",
+   "probs": {
+    "home": 0.274882,
+    "draw": 0.25838,
+    "away": 0.466738
+   },
+   "over25": 0.491282,
+   "under25": 0.508718,
+   "expectedGoals": {
+    "home": 1.1119,
+    "away": 1.527
+   },
+   "lambdas": {
+    "home": 1.1119,
+    "away": 1.527
+   },
+   "rho": -0.013766,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 156,
+    "away": 156
+   },
+   "fit": {
+    "cutoffIso": "2026-10-27T15:34:25.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 20
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.304154,
+     "draw": 0.249254,
+     "away": 0.446592
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 2
+ }
+}
