@@ -18,8 +18,10 @@ import { levelALeg, tierForJoint } from "./suggestions.mjs";
 
 const REPO = path.resolve(process.cwd(), "..");
 const laneDir = path.join(REPO, "app/public/data/nba/experimental-public");
-const DAY = fs.readdirSync(laneDir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().at(-1).slice(0, 10);
-/** REAL NBA Level A legs for the latest lane day, evaluated well before its first tip. */
+/* PINNED to a committed, dated 9-game lane (published fe1effceb4 16:42:30Z; receipts 7391f6d21b; the §7-evidenced
+   day). "The newest lane" turned main red on the 4-game 10-27 slate: these real-day checks need >= 5 favourites. */
+const DAY = "2026-10-26";
+/** REAL NBA Level A legs for the pinned lane day, evaluated well before its first tip. */
 const NOW = new Date(Date.parse(`${DAY}T12:00:00Z`) - 3600_000).toISOString();
 const REAL = nbaSelections({ repoRoot: REPO, date: DAY }).selections.map((s) => levelALeg(s, { now: NOW, productDay: DAY })).filter((r) => r.ok).map((r) => r.leg);
 const LANE = JSON.parse(fs.readFileSync(path.join(laneDir, `${DAY}.json`), "utf8"));

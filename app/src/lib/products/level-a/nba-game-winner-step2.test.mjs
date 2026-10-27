@@ -26,7 +26,9 @@ const REPO = path.resolve(process.cwd(), "..");
    slots, so every model here pins it OFF explicitly: the rule is tested alone, whichever way that switch is set. */
 const MIXED_OFF = { enabled: false };
 const laneDir = path.join(REPO, "app/public/data/nba/experimental-public");
-const DAY = fs.readdirSync(laneDir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().at(-1).slice(0, 10);
+/* PINNED to a committed, dated 9-game lane (published fe1effceb4 16:42:30Z; receipts 7391f6d21b; the §7-evidenced
+   day). "The newest lane" turned main red on the 4-game 10-27 slate: these real-day checks need >= 5 favourites. */
+const DAY = "2026-10-26";
 const LANE = JSON.parse(fs.readFileSync(path.join(laneDir, `${DAY}.json`), "utf8"));
 const RECEIPTS = JSON.parse(fs.readFileSync(path.join(REPO, "data/internal/research/nba/experimental-v0.1/forecasts", `${DAY}.json`), "utf8"));
 const SRC = new Map(RECEIPTS.games.map((g) => [String(g.providerEventId), g]));
