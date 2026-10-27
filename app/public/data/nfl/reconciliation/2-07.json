@@ -20,59 +20,59 @@
   "sharpness": "A range can always be made to land 8 in 10 times by making it wider. So beside each success rate we show the typical miss (how far the middle of our range was from the final number) and the average width of the range. Getting better means both shrink while about 8 in 10 still land inside."
  },
  "summary": {
-  "gamesFinal": 13,
-  "gamesPending": 1,
+  "gamesFinal": 14,
+  "gamesPending": 0,
   "overall": {
-   "checks": 468,
-   "hits": 379,
-   "rate": 0.8098290598290598
+   "checks": 498,
+   "hits": 404,
+   "rate": 0.8112449799196787
   },
   "props": [
    {
     "id": "winner",
     "label": "Model-favored team won",
     "group": "team",
-    "checks": 13,
+    "checks": 14,
     "hits": 8,
     "voids": 0,
-    "rate": 0.6153846153846154,
-    "expectedHits": 8.2
+    "rate": 0.5714285714285714,
+    "expectedHits": 8.8
    },
    {
     "id": "total_range",
     "label": "Total points landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 13,
-    "hits": 11,
+    "checks": 14,
+    "hits": 12,
     "voids": 0,
-    "rate": 0.8461538461538461,
-    "typicalMiss": 9.3,
+    "rate": 0.8571428571428571,
+    "typicalMiss": 9.4,
     "rangeWidth": 34.1,
-    "lean": 1.3
+    "lean": 0.5
    },
    {
     "id": "margin_range",
     "label": "Winning margin landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 13,
+    "checks": 14,
     "hits": 11,
     "voids": 0,
-    "rate": 0.8461538461538461,
-    "typicalMiss": 9.9,
+    "rate": 0.7857142857142857,
+    "typicalMiss": 10.9,
     "rangeWidth": 33.4,
-    "lean": 4.8
+    "lean": 6.1
    },
    {
     "id": "player_receptions",
     "label": "Receptions landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 165,
-    "hits": 152,
-    "voids": 24,
-    "rate": 0.9212121212121213,
+    "checks": 175,
+    "hits": 162,
+    "voids": 25,
+    "rate": 0.9257142857142857,
     "status": "PUBLISHED",
     "typicalMiss": 1.4,
     "rangeWidth": 5.3,
@@ -83,13 +83,13 @@
     "label": "Receiving yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 147,
-    "hits": 116,
-    "voids": 23,
-    "rate": 0.7891156462585034,
+    "checks": 157,
+    "hits": 125,
+    "voids": 24,
+    "rate": 0.7961783439490446,
     "status": "PUBLISHED",
-    "typicalMiss": 22.1,
-    "rangeWidth": 61,
+    "typicalMiss": 21.9,
+    "rangeWidth": 60.8,
     "lean": -11.4
    },
    {
@@ -97,37 +97,37 @@
     "label": "Rushing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 79,
-    "hits": 53,
-    "voids": 14,
-    "rate": 0.6708860759493671,
+    "checks": 84,
+    "hits": 56,
+    "voids": 16,
+    "rate": 0.6666666666666666,
     "status": "ESTIMATE",
-    "typicalMiss": 22.2,
+    "typicalMiss": 23.2,
     "rangeWidth": 48.2,
-    "lean": -13.4
+    "lean": -14.8
    },
    {
     "id": "player_pass_yds",
     "label": "Passing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 26,
-    "hits": 22,
+    "checks": 27,
+    "hits": 23,
     "voids": 0,
-    "rate": 0.8461538461538461,
+    "rate": 0.8518518518518519,
     "status": "ESTIMATE",
-    "typicalMiss": 68,
-    "rangeWidth": 232.8,
-    "lean": -10.7
+    "typicalMiss": 66.5,
+    "rangeWidth": 233,
+    "lean": -9.3
    },
    {
     "id": "likeliest_scorer",
     "label": "Our likeliest touchdown scorer scored",
     "group": "player",
-    "checks": 12,
-    "hits": 6,
+    "checks": 13,
+    "hits": 7,
     "voids": 1,
-    "rate": 0.5
+    "rate": 0.5384615384615384
    }
   ],
   "context": {
@@ -135,12 +135,12 @@
     "oursCloser": 0,
     "booksCloser": 0,
     "even": 0,
-    "noLine": 13
+    "noLine": 14
    },
    "touchdowns": {
-    "playersGraded": 209,
-    "expectedScorers": 48.1,
-    "actualScorers": 52
+    "playersGraded": 223,
+    "expectedScorers": 51.8,
+    "actualScorers": 58
    }
   }
  },
@@ -7871,14 +7871,475 @@
     },
     "sportsbookTotal": null
    },
-   "state": "PENDING",
-   "final": null,
-   "team": [],
-   "players": [],
-   "touchdowns": [],
+   "state": "FINAL",
+   "final": {
+    "away": 38,
+    "home": 21,
+    "total": 59,
+    "margin": -17
+   },
+   "team": [
+    {
+     "prop": "winner",
+     "outcome": "MISS"
+    },
+    {
+     "prop": "total_range",
+     "outcome": "HIT",
+     "actual": 59
+    },
+    {
+     "prop": "margin_range",
+     "outcome": "MISS",
+     "actual": -17
+    },
+    {
+     "prop": "closer_than_sportsbook",
+     "outcome": "NO_LINE",
+     "oursOff": 10,
+     "booksOff": null
+    }
+   ],
+   "players": [
+    {
+     "name": "Javonte Williams",
+     "team": "DAL",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Javonte Williams",
+     "team": "DAL",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 12,
+     "low": 0,
+     "high": 42,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Javonte Williams",
+     "team": "DAL",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 50,
+     "low": 19,
+     "high": 95,
+     "actual": 155,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Dameon Pierce",
+     "team": "PHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Dameon Pierce",
+     "team": "PHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 10,
+     "low": 0,
+     "high": 39,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Dameon Pierce",
+     "team": "PHI",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 33,
+     "low": 11,
+     "high": 67,
+     "actual": 47,
+     "outcome": "HIT"
+    },
+    {
+     "name": "CeeDee Lamb",
+     "team": "DAL",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 6,
+     "low": 2,
+     "high": 12,
+     "actual": 5,
+     "outcome": "HIT"
+    },
+    {
+     "name": "CeeDee Lamb",
+     "team": "DAL",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 62,
+     "low": 21,
+     "high": 123,
+     "actual": 74,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Saquon Barkley",
+     "team": "PHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Saquon Barkley",
+     "team": "PHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 4,
+     "low": 0,
+     "high": 30,
+     "actual": 9,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Saquon Barkley",
+     "team": "PHI",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 27,
+     "low": 5,
+     "high": 66,
+     "actual": 62,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Dallas Goedert",
+     "team": "PHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 4,
+     "low": 1,
+     "high": 8,
+     "actual": 5,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Dallas Goedert",
+     "team": "PHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 25,
+     "low": 2,
+     "high": 66,
+     "actual": 48,
+     "outcome": "HIT"
+    },
+    {
+     "name": "George Pickens",
+     "team": "DAL",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 5,
+     "low": 2,
+     "high": 9,
+     "actual": 4,
+     "outcome": "HIT"
+    },
+    {
+     "name": "George Pickens",
+     "team": "DAL",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 49,
+     "low": 12,
+     "high": 107,
+     "actual": 57,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Malik Davis",
+     "team": "DAL",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 10,
+     "low": 0,
+     "high": 38,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Tank Bigsby",
+     "team": "PHI",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 12,
+     "low": 0,
+     "high": 39,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Ryan Flournoy",
+     "team": "DAL",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 1,
+     "high": 7,
+     "actual": 4,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Ryan Flournoy",
+     "team": "DAL",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 27,
+     "low": 2,
+     "high": 71,
+     "actual": 70,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jake Ferguson",
+     "team": "DAL",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jake Ferguson",
+     "team": "DAL",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 16,
+     "low": 0,
+     "high": 48,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Makai Lemon",
+     "team": "PHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 1,
+     "high": 7,
+     "actual": 7,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Makai Lemon",
+     "team": "PHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 18,
+     "low": 0,
+     "high": 50,
+     "actual": 67,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Darius Cooper",
+     "team": "PHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 4,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Darius Cooper",
+     "team": "PHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 8,
+     "low": 0,
+     "high": 43,
+     "actual": 17,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tyler Goodson",
+     "team": "DAL",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 6,
+     "low": 0,
+     "high": 27,
+     "actual": 38,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Zach Ertz",
+     "team": "PHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 4,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Zach Ertz",
+     "team": "PHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 7,
+     "low": 0,
+     "high": 36,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Dak Prescott",
+     "team": "DAL",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 3,
+     "low": 0,
+     "high": 25,
+     "actual": 8,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Dak Prescott",
+     "team": "DAL",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 239,
+     "low": 139,
+     "high": 378,
+     "actual": 212,
+     "outcome": "HIT"
+    }
+   ],
+   "touchdowns": [
+    {
+     "name": "Javonte Williams",
+     "team": "DAL",
+     "probability": 0.7593,
+     "outcome": "SCORED",
+     "likeliest": true
+    },
+    {
+     "name": "Dameon Pierce",
+     "team": "PHI",
+     "probability": 0.5641,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "CeeDee Lamb",
+     "team": "DAL",
+     "probability": 0.3656,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Saquon Barkley",
+     "team": "PHI",
+     "probability": 0.3041,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Dallas Goedert",
+     "team": "PHI",
+     "probability": 0.2923,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "George Pickens",
+     "team": "DAL",
+     "probability": 0.2598,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Malik Davis",
+     "team": "DAL",
+     "probability": 0.2478,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Tank Bigsby",
+     "team": "PHI",
+     "probability": 0.2268,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Ryan Flournoy",
+     "team": "DAL",
+     "probability": 0.204,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Jake Ferguson",
+     "team": "DAL",
+     "probability": 0.1892,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Makai Lemon",
+     "team": "PHI",
+     "probability": 0.1808,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Darius Cooper",
+     "team": "PHI",
+     "probability": 0.1743,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Tyler Goodson",
+     "team": "DAL",
+     "probability": 0.1371,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Zach Ertz",
+     "team": "PHI",
+     "probability": 0.1284,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Dak Prescott",
+     "team": "DAL",
+     "probability": 0.0955,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Tanner McKee",
+     "team": "PHI",
+     "probability": 0.0586,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Marquise Brown",
+     "team": "PHI",
+     "probability": 0.0499,
+     "outcome": "DID_NOT_SCORE"
+    }
+   ],
    "boardNote": null
   }
  ],
  "disclaimer": "Educational and paper-only — not betting advice. A range is not a bet: these are checks of how often what we published matched what happened.",
- "generatedAt": "2026-10-27T00:12:24Z"
+ "generatedAt": "2026-10-27T15:21:24Z"
 }

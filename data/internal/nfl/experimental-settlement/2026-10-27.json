@@ -4,19 +4,81 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-10-27",
- "generatedAt": "2026-10-27T00:15:30Z",
+ "generatedAt": "2026-10-27T15:21:24Z",
  "modelVersion": "nfl-regular-season-public-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
- "events": [],
- "pending": [
+ "events": [
   {
    "canonicalEventId": "nfl-401873009",
+   "providerEventId": "401873009",
    "matchup": "DAL @ PHI",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-10-27T00:15Z",
-   "observed": "no result row"
-  },
+   "seasonType": 2,
+   "week": 7,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-27/401873009.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "8c9253b4e86b496e",
+    "forecastGeneratedAt": "2026-10-27T00:12:24Z",
+    "revisionChain": [
+     {
+      "file": "401873009.json",
+      "generatedAt": "2026-10-27T00:12:24Z",
+      "inputHash": "8c9253b4e86b496e"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_scoreboard",
+    "resultObservedAt": "2026-10-27T15:18:29Z",
+    "settledAt": "2026-10-27T15:21:24Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 21,
+     "away": 38,
+     "margin": -17,
+     "total": 59,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "HOME",
+     "correct": false,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 6,
+     "actual": -17,
+     "absError": 23,
+     "insideInterval80": false
+    },
+    "total": {
+     "projected": 49,
+     "actual": 59,
+     "absError": 10,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 28,
+      "away": 21,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 24
+    },
+    "probabilistic": {
+     "brier": 0.374299,
+     "logLoss": 0.946235
+    }
+   },
+   "marketBenchmark": null
+  }
+ ],
+ "pending": [
   {
    "canonicalEventId": "nfl-401873023",
    "matchup": "CAR @ GB",
@@ -106,24 +168,24 @@
  "recordElsewhere": [],
  "accounting": {
   "receipts": 15,
-  "settled": 0,
-  "pending": 15,
+  "settled": 1,
+  "pending": 14,
   "quarantined": 0,
   "recordElsewhere": 0,
   "reconciles": true
  },
  "metrics": {
-  "settledForecasts": 0,
-  "decisive": 0,
+  "settledForecasts": 1,
+  "decisive": 1,
   "ties": 0,
   "winnerCorrect": 0,
-  "winnerAccuracy": null,
-  "marginMAE": null,
-  "totalMAE": null,
-  "marginInterval80Coverage": null,
-  "totalInterval80Coverage": null,
-  "brier": null,
-  "logLoss": null
+  "winnerAccuracy": 0,
+  "marginMAE": 23,
+  "totalMAE": 10,
+  "marginInterval80Coverage": 0,
+  "totalInterval80Coverage": 1,
+  "brier": 0.3743,
+  "logLoss": 0.9462
  },
  "marketBenchmark": null,
  "comparison": null
