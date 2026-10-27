@@ -8,6 +8,7 @@ import Link from "next/link";
 
 import SectionHeader from "@/components/section-header";
 import TeamLogo from "@/components/team-logo";
+import MlbDegradedInputs from "@/components/mlb/mlb-degraded-inputs";
 import type { MlbSimCard, MlbSimSet } from "@/lib/mlb/full-game/hub-cards";
 
 const ET_TIME = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" });
@@ -28,6 +29,9 @@ function SimCard({ c, href, isTodaysSlateRow = true }: { c: MlbSimCard; href: st
         </span>
       </div>
       <p style={{ margin: 0, fontSize: 13.5, fontWeight: 700 }}>{c.away} at {c.home}</p>
+      {/* Founder 2026-10-26: a degraded official forecast is shown, labelled, with the snapshot's own reason — and it is
+          out of model suggestions while degraded. A ready forecast carries no label. */}
+      {c.degraded ? <MlbDegradedInputs note={c.degraded} compact /> : null}
       <p className="font-mono mt-1" style={{ margin: 0, fontSize: 11.5, color: "var(--vault-text-mute)" }}>
         {/* A tie has no favourite and says so, rather than defaulting to the home side. */}
         {c.favourite ? `${c.favourite.team} ${pct(c.favourite.probability)}` : "even in the simulation"}
