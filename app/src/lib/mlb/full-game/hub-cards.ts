@@ -18,6 +18,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { degradedInputsNote } from "./degraded-note.mjs";
+
 export interface MlbSimCard {
   slug: string;
   gamePk: number | string;
@@ -33,6 +35,8 @@ export interface MlbSimCard {
   completeness: string | null;
   /** True when either side is still without a posted batting order. */
   awaitingLineup: boolean;
+  /** "Degraded inputs" label + the snapshot's own reason, only when the snapshot's status is "degraded" (degraded-note.mjs). */
+  degraded: { label: string; reason: string; short: string; refusal: string; suggestions: string } | null;
 }
 
 export interface MlbSimSet {
@@ -85,6 +89,7 @@ export function loadMlbSimCards(date: string | null): MlbSimSet | null {
       likeliestScore: top,
       completeness: comp?.level ?? null,
       awaitingLineup: comp?.awayLineupSource !== "confirmed" || comp?.homeLineupSource !== "confirmed",
+      degraded: degradedInputsNote(g.status as string | undefined, g.completeness as Record<string, unknown> | undefined, { away, home }),
     };
   }).sort((a, b) => String(a.firstPitch ?? "").localeCompare(String(b.firstPitch ?? "")));
 

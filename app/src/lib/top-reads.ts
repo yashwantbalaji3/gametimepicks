@@ -26,6 +26,7 @@ import fs from "node:fs";
 import { effectiveLifecycle } from "@/lib/sports/nfl/effective-lifecycle.mjs";
 import { pausedFamiliesFrom, MLB_TOTAL_FAMILY, MLB_MONEYLINE_FAMILY } from "@/lib/ops/live-record-gate.mjs";
 import { medianRunsCopy } from "@/lib/mlb/prediction/median-runs-copy.mjs";
+import { degradedInputsNote } from "@/lib/mlb/full-game/degraded-note.mjs";
 import path from "node:path";
 
 export interface TopRead {
@@ -48,6 +49,11 @@ export interface TopRead {
   eventEtDate: string | null;
   /** Derived at build: today's reads vs dated upcoming ones. Past reads never enter the set. */
   timeframe: "today" | "upcoming";
+  /**
+   * Founder 2026-10-26: an MLB game read whose official snapshot is "degraded" stays in this hub view (it is not a
+   * model-suggestion product) but wears the "Degraded inputs" label and the snapshot's own reason (degraded-note.mjs).
+   */
+  degraded?: { label: string; reason: string; short: string; refusal: string; suggestions: string } | null;
 }
 
 export interface TopReadsSet {
@@ -177,6 +183,7 @@ export function loadTopReads(): TopReadsSet | null {
     excluded.push({ sport: "mlb", reason: "winner calls paused — their live record is below a coin flip; still graded daily" });
   }
   for (const p of mlb?.predictions ?? []) {
+    const degraded = degradedInputsNote(p.status, p.completeness, { away: p.awayTeam, home: p.homeTeam });
     const ml = mlbMoneylinePaused ? null : p.moneyline;
     if (ml?.simulationProbability != null && p.slug) {
       // Two team medians, never "projected 4–4" (a tie beside a winner); missing medians print nothing, not "?".
@@ -190,6 +197,7 @@ export function loadTopReads(): TopReadsSet | null {
         context: `${p.awayTeam} @ ${p.homeTeam}${medians ? ` · median runs ${medians.text}` : ""}`,
         href: `/games/mlb/${p.slug}/`,
         eventEtDate: today,
+        degraded,
       });
     }
     const tot = p.total;
@@ -213,6 +221,7 @@ export function loadTopReads(): TopReadsSet | null {
          */
         context: `${p.awayTeam} @ ${p.homeTeam} · simulated median ${tot.simulationMedian} runs`,
         href: `/games/mlb/${p.slug}/`,
+        degraded,
       });
     }
   }

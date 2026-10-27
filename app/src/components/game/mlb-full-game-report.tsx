@@ -26,6 +26,8 @@ import { runLineOverviewRow } from "@/lib/mlb/full-game/market-overview";
 import { rowRateLabel, teamRateNote } from "@/lib/mlb/full-game/box-score-rates";
 import { forecastFrozenAt, simProvenance } from "@/lib/mlb/full-game/sim-provenance";
 import { exactWinCounts } from "@/lib/sim-frequency";
+import { degradedInputsNote } from "@/lib/mlb/full-game/degraded-note.mjs";
+import MlbDegradedInputs from "@/components/mlb/mlb-degraded-inputs";
 
 const int0 = (n: number): string => Math.round(n).toLocaleString("en-US");
 
@@ -737,6 +739,13 @@ export default function MlbFullGameReport({
           </span>
         ) : null}
       </div>
+
+      {/* Founder 2026-10-26: beside the "Degraded inputs" chip above, the snapshot's own reason, and that a degraded
+          official forecast is out of model suggestions (the Level A refusal, verbatim). A ready snapshot shows nothing. */}
+      {(() => {
+        const note = degradedInputsNote(g.status, g.completeness, { away: g.awayTeam, home: g.homeTeam });
+        return note ? <MlbDegradedInputs note={note} showLabel={false} /> : null;
+      })()}
 
       {/* Tab bar */}
       <div {...roving.listProps} aria-label="Game report sections" id={tablistId} className="flex gap-1 flex-wrap" style={{ borderBottom: "1px solid var(--vault-border)" }}>

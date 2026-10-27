@@ -47,6 +47,18 @@ function ReadRow({ r }: { r: TopRead }) {
             ) : null}
             {r.sportLabel} · {r.market}{r.context ? ` · ${r.context}` : ""}
           </span>
+          {/* Founder 2026-10-26: a degraded official MLB forecast stays in this hub view, labelled, with the snapshot's own
+              reason in a few words on the following line and in full as its tooltip (lib/mlb/full-game/degraded-note.mjs).
+              Short on purpose: a busy slate can rank many degraded rows, and the homepage has a frozen word ceiling. A
+              ready read carries nothing. */}
+          {r.degraded ? (
+            <span data-top-read-degraded="" title={`${r.degraded.reason} ${r.degraded.suggestions}`} style={{ display: "block", marginTop: 3, fontSize: 11, lineHeight: 1.45, color: "var(--vault-text-mute)", whiteSpace: "normal" }}>
+              <span className="font-mono uppercase tracking-[0.1em]" style={{ fontSize: 9, fontWeight: 700, color: "var(--vault-warn)", border: "1px solid color-mix(in srgb, var(--vault-warn) 45%, transparent)", borderRadius: 999, padding: "0 6px", marginRight: 6 }}>
+                {r.degraded.label}
+              </span>
+              {r.degraded.short}
+            </span>
+          ) : null}
         </span>
       </span>
       <span className="font-mono" style={{ fontSize: 14, fontWeight: 800, color: "var(--gtp-bank-heat)", flexShrink: 0 }}>{pct(r.probability)}</span>
