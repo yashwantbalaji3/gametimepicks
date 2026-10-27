@@ -187,13 +187,16 @@ const newest = (dir, re) => { try { return fs.readdirSync(path.join(REPO, dir)).
 /* The newest day file that actually HAS games. An MLB off day (or the end of the season) commits an empty day file —
    2026-10-20 has 0 games in all three day families — and the shape-drift check below needs a real row to perturb,
    so it reads the latest day with one instead of silently checking fewer artifacts. */
-const newestWithRows = (dir, re) => {
+/* `usable` narrows "has rows" to "has a row the perturbation can move": on 2026-10-27 the one World Series prediction was
+   `unavailable` with a null moneyline, so nudging predictions[0].moneyline moved nothing and the check failed on data,
+   not on the gate. Reading the latest day that has a priced row keeps the same assertion on a real artifact. */
+const newestWithRows = (dir, re, usable = (rows) => rows.length > 0) => {
   let files;
   try { files = fs.readdirSync(path.join(REPO, dir)).filter((f) => re.test(f)).sort().reverse(); } catch { return null; }
   for (const f of files) {
     try {
       const d = JSON.parse(fs.readFileSync(path.join(REPO, dir, f), "utf8"));
-      if ((d.games ?? d.predictions ?? []).length > 0) return f;
+      if (usable(d.games ?? d.predictions ?? [])) return f;
     } catch { /* unreadable → try the previous day */ }
   }
   return null;
@@ -201,14 +204,15 @@ const newestWithRows = (dir, re) => {
 
 test("on the newest committed MLB artifacts: re-stamping suppresses, one moved number publishes", () => {
   const cases = [
-    ["app/public/data/mlb/predictions", /^\d{4}-\d{2}-\d{2}\.json$/, (d) => { d.predictions[0].moneyline && (d.predictions[0].moneyline.simulationProbability += 0.01); }],
+    ["app/public/data/mlb/predictions", /^\d{4}-\d{2}-\d{2}\.json$/, (d) => { d.predictions.find((p) => p.moneyline).moneyline.simulationProbability += 0.01; },
+      (rows) => rows.some((p) => p.moneyline)],
     ["app/public/data/mlb/full-game-simulations", /^\d{4}-\d{2}-\d{2}\.json$/, (d) => { d.games[0].artifactHash = "changed"; }],
     ["app/public/data/mlb/game-simulations", /^\d{4}-\d{2}-\d{2}\.json$/, (d) => { d.games[0].status = "changed"; }],
     ["app/public/data/parlays/tier-grid", /^mlb-latest\.json$/, (d) => { d.evidence.pricesCapturedAt = "2099-01-01T00:00:00Z"; }],
   ];
   let checked = 0;
-  for (const [dir, re, perturb] of cases) {
-    const f = re.source.startsWith("^\\d{4}") ? newestWithRows(dir, re) : newest(dir, re);
+  for (const [dir, re, perturb, usable] of cases) {
+    const f = re.source.startsWith("^\\d{4}") ? newestWithRows(dir, re, usable) : newest(dir, re);
     if (!f) continue;
     const file = `${dir}/${f}`;
     const text = fs.readFileSync(path.join(REPO, file), "utf8");

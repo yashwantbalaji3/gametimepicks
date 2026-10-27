@@ -15,6 +15,17 @@
 # still pending. A flush is not repeated while an earlier flush commit is still undeployed and younger than 2 h. The
 # next run retries in 30 minutes; GitHub's cron delivery is best-effort, so slots can arrive late or not at all.
 #
+# WAKE-UP ON VERCEL'S STATUS (2026-10-27). The 30-minute cron alone did not work: GitHub delivered 3 of ~48 slots in
+# its first day (01:19, 06:42, 13:04Z; hourly crons elsewhere in this repo got 4 of 24), and non-critical data from
+# 10:39Z waited 2 h 19 min until an unrelated critical push carried it. Every push to main ends in a final Vercel commit
+# status (built, "Canceled by Ignored Build Step", or failed), and that `status` event is delivered when it happens. So
+# the `wait` job runs on each one: it reads the deployed SHA once, asks the UNCHANGED decision script the same
+# question at later clock readings a minute apart, and sleeps until the first minute the answer is flush=true. Only the
+# clock can change that answer inside one run: a new push or a finished build sends a new status, which cancels the
+# sleeping run (cancel-in-progress) and starts one on the new state. Then the flush job runs exactly as the cron does:
+# a fresh live read, the decision, the busy check and at most one empty [deploy] commit. The cron stays as a second
+# path; the flush job keeps one run at a time.
+#
 # ROLLBACK. Disable this workflow (`gh workflow disable deploy-flush`) or revert it. With GTP_COALESCE_SECONDS=0 set in
 # Vercel the ignore step never coalesces and this workflow finds nothing to flush.
 name: deploy-flush
@@ -23,20 +34,91 @@ on:
   schedule:
     - cron: "*/30 * * * *"
   workflow_dispatch:
-
-concurrency:
-  group: deploy-flush
-  cancel-in-progress: false
+  # Vercel's commit status on every push (see WAKE-UP). Runs from main's copy of this file whatever the commit.
+  status:
 
 permissions:
   contents: write
   statuses: read
 
 jobs:
+  wait:
+    if: github.event_name == 'status' && github.event.context == 'Vercel' && github.event.state != 'pending'
+    runs-on: ubuntu-latest
+    # The longest wait is an undeployed earlier flush (2 h repeat guard); the coalescing window is 90 min.
+    timeout-minutes: 140
+    concurrency:
+      group: deploy-flush-wait
+      cancel-in-progress: true
+    permissions:
+      contents: read
+    outputs:
+      due: ${{ steps.wait.outputs.due }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 400
+          persist-credentials: false
+
+      - name: Sleep until the oldest pending change falls due
+        id: wait
+        env:
+          STATUS_SHA: ${{ github.event.sha }}
+          STATUS_DESC: ${{ github.event.description }}
+          MAX_WAIT_MINUTES: "125"
+          LIVE_RETRY_SECONDS: "30"
+        run: |
+          set -u
+          URL="https://gametimepicks.yashwantbalaji.com/data/build-info.json"
+          none() { echo "$1 — not waiting (the next status or cron run asks again)"; echo "due=false" >> "$GITHUB_OUTPUT"; exit 0; }
+          printf '%s' "$STATUS_SHA" | grep -Eq '^[0-9a-f]{40}$' || none "the status carried no commit SHA"
+          { git cat-file -e "${STATUS_SHA}^{commit}" 2>/dev/null && git merge-base --is-ancestor "$STATUS_SHA" HEAD 2>/dev/null; } \
+            || none "the status is for $STATUS_SHA, which is not on main (a preview branch)"
+          # A completed build's status can land seconds before the live site serves it. Read until the live SHA contains
+          # the commit Vercel just deployed, so a lagging read never looks like undeployed work (an empty flush build).
+          for attempt in 1 2 3 4 5 6; do
+            BODY="$(curl -fsS -m 30 --retry 2 -A 'gtp-deploy-flush/1.0' -H 'Accept: application/json' "$URL" 2>/dev/null)" \
+              || none "could not fetch $URL"
+            DEPLOYED="$(printf '%s' "$BODY" | jq -r '.commit.sha // empty' 2>/dev/null)" || DEPLOYED=""
+            printf '%s' "$DEPLOYED" | grep -Eq '^[0-9a-f]{40}$' || none "build-info.json carried no commit SHA (bot challenge or unexpected body)"
+            git cat-file -e "${DEPLOYED}^{commit}" 2>/dev/null || git fetch -q --deepen=2000 origin main || true
+            [ "$STATUS_DESC" = "Deployment has completed" ] || break
+            git merge-base --is-ancestor "$STATUS_SHA" "$DEPLOYED" 2>/dev/null && break
+            [ "$attempt" -lt 6 ] || none "the live site still serves $DEPLOYED, not the build Vercel completed for $STATUS_SHA"
+            sleep "$LIVE_RETRY_SECONDS"
+          done
+          NOW="${GTP_NOW_EPOCH:-$(date +%s)}"
+          for m in $(seq 0 "$MAX_WAIT_MINUTES"); do
+            ANS="$(env -u GITHUB_OUTPUT DEPLOYED_SHA="$DEPLOYED" GTP_NOW_EPOCH=$(( NOW + m * 60 )) bash app/scripts/ops/deploy-flush-decide.sh)"
+            LAST="$(printf '%s\n' "$ANS" | tail -1)"
+            case "$LAST" in
+              "flush=true "*)
+                echo "deployed $DEPLOYED; a flush falls due in ${m} min ($LAST)"
+                if [ "$m" -gt 0 ]; then sleep $(( m * 60 + 15 )); fi
+                echo "due=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
+              "flush=false reason=nothing-due")
+                # Pending only when the gate is holding non-critical data inside its window; otherwise nothing is undeployed.
+                printf '%s\n' "$ANS" | grep -q 'GTP_GATE verdict=skip tier=coalesce-wait' || none "nothing undeployed is a build input" ;;
+              "flush=false reason="*-recent|"flush=false reason=flush-outstanding") ;;
+              *) none "$LAST" ;;
+            esac
+          done
+          none "nothing falls due within ${MAX_WAIT_MINUTES} min"
+
   flush:
-    if: github.ref == 'refs/heads/main'
+    needs: wait
+    # Cron and manual runs skip `wait` and flush as before. A status run flushes only after `wait` slept to a due
+    # minute; a superseded (cancelled) or empty wait ends here.
+    if: >-
+      always() && github.ref == 'refs/heads/main' &&
+      ((github.event_name != 'status' && needs.wait.result == 'skipped') ||
+      (needs.wait.result == 'success' && needs.wait.outputs.due == 'true'))
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    concurrency:
+      group: deploy-flush
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v5
         with:
