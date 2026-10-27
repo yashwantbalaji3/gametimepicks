@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-27T00:15:30Z",
- "sourceGeneratedAt": "2026-10-27T00:15:30Z",
- "forecastInputHash": "6571abd6268587d9",
+ "generatedAt": "2026-10-27T15:21:24Z",
+ "sourceGeneratedAt": "2026-10-27T15:21:24Z",
+ "forecastInputHash": "f681392c53d3204a",
  "providerEventId": "401873024",
  "matchup": "ARI @ DAL",
  "kickoffUtc": "2026-11-01T18:00Z",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-27T00:15:30Z",
-  "roleEvidenceAt": "2026-10-27T00:15:30Z",
+  "injuriesCapturedAt": "2026-10-27T15:21:24Z",
+  "roleEvidenceAt": "2026-10-27T15:21:24Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -65,14 +65,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 42,
+  "absent": 46,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "ARI": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 3,
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -89,6 +89,16 @@
       "player_rush_yds"
      ],
      "participation": "ACTIVE_PROJECTED"
+    },
+    {
+     "playerId": "nfl-athlete-4870808",
+     "name": "Jeremiyah Love",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4361307",
@@ -181,12 +191,6 @@
      "participation": "ACTIVE_PROJECTED"
     },
     {
-     "playerId": "nfl-athlete-4870808",
-     "name": "Jeremiyah Love",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
-    },
-    {
      "playerId": "nfl-athlete-3045147",
      "name": "James Conner",
      "state": "EXCLUDED_UNAVAILABLE",
@@ -202,8 +206,8 @@
   },
   "DAL": {
    "counts": {
-    "PROJECTED": 8,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 0,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -285,6 +289,15 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-4362478",
+     "name": "Emari Demercado",
+     "state": "PROJECTED",
+     "families": [
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
      "playerId": "nfl-athlete-4242355",
      "name": "Jake Ferguson",
      "state": "PROJECTED",
@@ -296,16 +309,13 @@
      "participation": "ACTIVE_PROJECTED"
     },
     {
-     "playerId": "nfl-athlete-4362478",
-     "name": "Emari Demercado",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
-    },
-    {
      "playerId": "nfl-athlete-3676833",
      "name": "KaVontae Turpin",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "QUESTIONABLE"
     }
    ]
   }
@@ -364,34 +374,34 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "player_rush_yds": {
-     "mean": 64.58,
-     "p10": 26.39,
-     "p25": 41.59,
-     "median": 60.57,
-     "p75": 83.05,
-     "p90": 107.24,
+     "mean": 69.368,
+     "p10": 27.96,
+     "p25": 44.25,
+     "median": 65.56,
+     "p75": 90.22,
+     "p90": 116.21,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 15.364,
+     "mean": 12.433,
      "p10": 0,
-     "p25": 1.57,
-     "median": 10.59,
-     "p75": 23.32,
-     "p90": 38.96,
+     "p25": 0,
+     "median": 7.17,
+     "p75": 19.72,
+     "p90": 33.24,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.826,
+     "mean": 1.478,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 4,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
-     "probability": 0.674972,
+     "probability": 0.645824,
      "participation": "ACTIVE_PROJECTED",
      "pricingState": "NOT_PROBED"
     }
@@ -442,93 +452,31 @@
    }
   },
   {
-   "playerId": "nfl-athlete-5083754",
-   "name": "Ryan Flournoy",
-   "team": "DAL",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 31.64,
-     "p10": 1.55,
-     "p25": 11.09,
-     "median": 26.2,
-     "p75": 45.89,
-     "p90": 68.61,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 2.919,
-     "p10": 1,
-     "p25": 1,
-     "median": 3,
-     "p75": 4,
-     "p90": 6,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.331949,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4241389",
    "name": "CeeDee Lamb",
    "team": "DAL",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "player_reception_yds": {
-     "mean": 62.69,
-     "p10": 17,
-     "p25": 33.01,
-     "median": 56.24,
-     "p75": 85.46,
-     "p90": 116.61,
+     "mean": 69.254,
+     "p10": 20.58,
+     "p25": 37.85,
+     "median": 62.26,
+     "p75": 94.36,
+     "p90": 126.42,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 5.389,
+     "mean": 5.903,
      "p10": 2,
-     "p25": 3,
-     "median": 5,
-     "p75": 7,
-     "p90": 9,
+     "p25": 4,
+     "median": 6,
+     "p75": 8,
+     "p90": 10,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
-     "probability": 0.330701,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4242355",
-   "name": "Jake Ferguson",
-   "team": "DAL",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 19.436,
-     "p10": 0,
-     "p25": 4.6,
-     "median": 14.65,
-     "p75": 29.04,
-     "p90": 45.45,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 2.121,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 4,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.298293,
+     "probability": 0.438834,
      "participation": "ACTIVE_PROJECTED",
      "pricingState": "NOT_PROBED"
     }
@@ -541,16 +489,16 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "player_reception_yds": {
-     "mean": 51.327,
-     "p10": 10.02,
-     "p25": 23.31,
-     "median": 44.82,
-     "p75": 71.48,
-     "p90": 102.31,
+     "mean": 52.936,
+     "p10": 9.77,
+     "p25": 24.92,
+     "median": 46.95,
+     "p75": 73.52,
+     "p90": 103.82,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 4.094,
+     "mean": 4.204,
      "p10": 1,
      "p25": 2,
      "median": 4,
@@ -559,7 +507,69 @@
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
-     "probability": 0.295218,
+     "probability": 0.342913,
+     "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-5083754",
+   "name": "Ryan Flournoy",
+   "team": "DAL",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 33.124,
+     "p10": 1.78,
+     "p25": 11.95,
+     "median": 27.16,
+     "p75": 47.97,
+     "p90": 70.87,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 2.971,
+     "p10": 1,
+     "p25": 1.75,
+     "median": 3,
+     "p75": 4,
+     "p90": 6,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.293014,
+     "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4242355",
+   "name": "Jake Ferguson",
+   "team": "DAL",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 16.622,
+     "p10": 0,
+     "p25": 1.9,
+     "median": 11.13,
+     "p75": 25.3,
+     "p90": 41.72,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 1.804,
+     "p10": 0,
+     "p25": 1,
+     "median": 1,
+     "p75": 3,
+     "p90": 4,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.264803,
      "participation": "ACTIVE_PROJECTED",
      "pricingState": "NOT_PROBED"
     }
@@ -572,17 +582,52 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "player_rush_yds": {
-     "mean": 18.142,
-     "p10": 0.12,
-     "p25": 3.58,
-     "median": 12.4,
-     "p75": 26.7,
-     "p90": 43.41,
+     "mean": 17.76,
+     "p10": 0.04,
+     "p25": 3.41,
+     "median": 12.56,
+     "p75": 26.34,
+     "p90": 42.88,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
-     "probability": 0.252749,
+     "probability": 0.254394,
      "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3676833",
+   "name": "KaVontae Turpin",
+   "team": "DAL",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.200782,
+     "participation": "QUESTIONABLE",
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4870808",
+   "name": "Jeremiyah Love",
+   "team": "ARI",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 29.776,
+     "p10": 5.96,
+     "p25": 13.42,
+     "median": 25.71,
+     "p75": 41.69,
+     "p90": 58.5,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.190859,
+     "participation": "QUESTIONABLE",
      "pricingState": "NOT_PROBED"
     }
    }
@@ -702,6 +747,23 @@
    }
   },
   {
+   "playerId": "nfl-athlete-4429676",
+   "name": "Tyler Goodson",
+   "team": "DAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 15.28,
+     "p10": 0,
+     "p25": 2.92,
+     "median": 10.6,
+     "p75": 22.43,
+     "p90": 36.71,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
    "playerId": "nfl-athlete-4429275",
    "name": "Trey Benson",
    "team": "ARI",
@@ -737,18 +799,18 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4429676",
-   "name": "Tyler Goodson",
+   "playerId": "nfl-athlete-4362478",
+   "name": "Emari Demercado",
    "team": "DAL",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 12.091,
+     "mean": 10.295,
      "p10": 0,
-     "p25": 0.89,
-     "median": 7.22,
-     "p75": 18.63,
-     "p90": 31.27,
+     "p25": 0.1,
+     "median": 5.12,
+     "p75": 15.41,
+     "p90": 28.3,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -760,21 +822,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_pass_yds": {
-     "mean": 197.164,
-     "p10": 98.27,
-     "p25": 142.78,
-     "median": 193.37,
-     "p75": 247.76,
-     "p90": 300.03,
+     "mean": 200.483,
+     "p10": 98.29,
+     "p25": 146.88,
+     "median": 197.46,
+     "p75": 250.42,
+     "p90": 306.23,
      "pricingState": "NOT_PROBED"
     },
     "player_rush_yds": {
-     "mean": 10.233,
+     "mean": 8.7,
      "p10": 0,
      "p25": 0,
-     "median": 4.74,
-     "p75": 14.69,
-     "p90": 28.44,
+     "median": 3.16,
+     "p75": 12.55,
+     "p90": 25.54,
      "pricingState": "NOT_PROBED"
     }
    }

@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-27T00:15:30Z",
- "sourceGeneratedAt": "2026-10-27T00:15:30Z",
- "forecastInputHash": "2e9492ae4d9d27e2",
+ "generatedAt": "2026-10-27T15:21:24Z",
+ "sourceGeneratedAt": "2026-10-27T15:21:24Z",
+ "forecastInputHash": "b15fa639e3cb8fdf",
  "providerEventId": "401873036",
  "matchup": "CHI @ SEA",
  "kickoffUtc": "2026-11-03T01:15Z",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-27T00:15:30Z",
-  "roleEvidenceAt": "2026-10-27T00:15:30Z",
+  "injuriesCapturedAt": "2026-10-27T15:21:24Z",
+  "roleEvidenceAt": "2026-10-27T15:21:24Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -65,17 +65,17 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 37,
+  "absent": 42,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "CHI": {
    "counts": {
-    "PROJECTED": 7,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
-    "NOT_MODELED_BY_FAMILY": 1,
+    "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
@@ -99,6 +99,24 @@
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-15168",
+     "name": "Case Keenum",
+     "state": "PROJECTED",
+     "families": [
+      "player_pass_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4608686",
+     "name": "Kyle Monangai",
+     "state": "PROJECTED",
+     "families": [
+      "player_rush_yds"
+     ],
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4723086",
@@ -150,36 +168,17 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4608686",
-     "name": "Kyle Monangai",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
-    },
-    {
      "playerId": "nfl-athlete-4258595",
      "name": "Cole Kmet",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
-    },
-    {
-     "playerId": "nfl-athlete-15168",
-     "name": "Case Keenum",
-     "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
     }
    ]
   },
   "SEA": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 3,
+    "PROJECTED": 12,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -194,6 +193,15 @@
       "player_pass_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3924327",
+     "name": "Drew Lock",
+     "state": "PROJECTED",
+     "families": [
+      "player_pass_yds"
+     ],
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4887558",
@@ -215,6 +223,16 @@
       "player_receptions"
      ],
      "participation": "ACTIVE_PROJECTED"
+    },
+    {
+     "playerId": "nfl-athlete-4426385",
+     "name": "Zach Charbonnet",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4576297",
@@ -290,22 +308,10 @@
      "participation": "ACTIVE_PROJECTED"
     },
     {
-     "playerId": "nfl-athlete-3924327",
-     "name": "Drew Lock",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
-    },
-    {
      "playerId": "nfl-athlete-4685512",
      "name": "Jadarian Price",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
-    },
-    {
-     "playerId": "nfl-athlete-4426385",
-     "name": "Zach Charbonnet",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
     }
    ]
   }
@@ -314,29 +320,25 @@
   "qbStarter": [
    {
     "team": "CHI",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-4431611",
-     "name": "Caleb Williams"
-    },
-    "snapshotAt": "2026-10-24T11:57:56Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-15168",
-      "name": "Case Keenum"
-     }
-    ],
+    "state": "UNRESOLVED",
+    "reason": "depth chart STALE",
     "passers": [
-     "nfl-athlete-4431611"
-    ]
+     "nfl-athlete-4431611",
+     "nfl-athlete-15168"
+    ],
+    "removed": [],
+    "snapshotAt": "2026-10-24T11:57:56Z"
    },
    {
     "team": "SEA",
-    "state": "SINGLE_PASSER",
+    "state": "UNRESOLVED",
+    "reason": "depth chart STALE",
     "passers": [
-     "nfl-athlete-3912547"
+     "nfl-athlete-3912547",
+     "nfl-athlete-3924327"
     ],
-    "removed": []
+    "removed": [],
+    "snapshotAt": "2026-10-24T11:57:56Z"
    }
   ],
   "passerShareFloor": [
@@ -344,22 +346,26 @@
     "team": "CHI",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4431611"
+     "nfl-athlete-4431611",
+     "nfl-athlete-15168"
     ],
     "withheld": [],
     "unjoined": [
-     "nfl-athlete-4431611"
+     "nfl-athlete-4431611",
+     "nfl-athlete-15168"
     ]
    },
    {
     "team": "SEA",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3912547"
+     "nfl-athlete-3912547",
+     "nfl-athlete-3924327"
     ],
     "withheld": [],
     "unjoined": [
-     "nfl-athlete-3912547"
+     "nfl-athlete-3912547",
+     "nfl-athlete-3924327"
     ]
    }
   ],
@@ -394,6 +400,28 @@
     "anytime_td": {
      "probability": 0.507143,
      "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4426385",
+   "name": "Zach Charbonnet",
+   "team": "SEA",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 21.985,
+     "p10": 1.78,
+     "p25": 6.88,
+     "median": 17.29,
+     "p75": 31.97,
+     "p90": 47.84,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.462619,
+     "participation": "QUESTIONABLE",
      "pricingState": "NOT_PROBED"
     }
    }
@@ -602,6 +630,23 @@
    }
   },
   {
+   "playerId": "nfl-athlete-4608686",
+   "name": "Kyle Monangai",
+   "team": "CHI",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 30.895,
+     "p10": 3.97,
+     "p25": 11.95,
+     "median": 25.66,
+     "p75": 44.64,
+     "p90": 64.77,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
    "playerId": "nfl-athlete-4431611",
    "name": "Caleb Williams",
    "team": "CHI",
@@ -679,6 +724,23 @@
    }
   },
   {
+   "playerId": "nfl-athlete-3924327",
+   "name": "Drew Lock",
+   "team": "SEA",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 113.829,
+     "p10": 7.09,
+     "p25": 37.11,
+     "median": 97.97,
+     "p75": 171.9,
+     "p90": 245.27,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
    "playerId": "nfl-athlete-4032473",
    "name": "Rashid Shaheed",
    "team": "SEA",
@@ -700,6 +762,23 @@
      "median": 2,
      "p75": 3,
      "p90": 5,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-15168",
+   "name": "Case Keenum",
+   "team": "CHI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 69.323,
+     "p10": 0,
+     "p25": 8.79,
+     "median": 44.73,
+     "p75": 108.78,
+     "p90": 177.68,
      "pricingState": "NOT_PROBED"
     }
    }

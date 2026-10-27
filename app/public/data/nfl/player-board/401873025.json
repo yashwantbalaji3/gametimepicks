@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-27T00:15:30Z",
- "sourceGeneratedAt": "2026-10-27T00:15:30Z",
- "forecastInputHash": "f02e069ed7bfdfdd",
+ "generatedAt": "2026-10-27T15:21:24Z",
+ "sourceGeneratedAt": "2026-10-27T15:21:24Z",
+ "forecastInputHash": "4d2f54c0ed924c5a",
  "providerEventId": "401873025",
  "matchup": "ATL @ TB",
  "kickoffUtc": "2026-11-01T18:00Z",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-27T00:15:30Z",
-  "roleEvidenceAt": "2026-10-27T00:15:30Z",
+  "injuriesCapturedAt": "2026-10-27T15:21:24Z",
+  "roleEvidenceAt": "2026-10-27T15:21:24Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -65,14 +65,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 41,
+  "absent": 48,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "ATL": {
    "counts": {
-    "PROJECTED": 8,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 0,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -113,6 +113,16 @@
      "participation": "ACTIVE_PROJECTED"
     },
     {
+     "playerId": "nfl-athlete-4241474",
+     "name": "Brian Robinson Jr.",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
      "playerId": "nfl-athlete-4360248",
      "name": "Kyle Pitts Sr.",
      "state": "PROJECTED",
@@ -133,6 +143,16 @@
       "player_receptions"
      ],
      "participation": "ACTIVE_PROJECTED"
+    },
+    {
+     "playerId": "nfl-athlete-3917914",
+     "name": "Olamide Zaccheaus",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4870612",
@@ -163,25 +183,13 @@
       "anytime_td"
      ],
      "participation": "ACTIVE_PROJECTED"
-    },
-    {
-     "playerId": "nfl-athlete-4241474",
-     "name": "Brian Robinson Jr.",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
-    },
-    {
-     "playerId": "nfl-athlete-3917914",
-     "name": "Olamide Zaccheaus",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
     }
    ]
   },
   "TB": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 0,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -214,16 +222,20 @@
      "name": "Jalon Daniels",
      "state": "PROJECTED",
      "families": [
+      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4567750",
+     "name": "Emeka Egbuka",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-3116165",
@@ -294,12 +306,6 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4567750",
-     "name": "Emeka Egbuka",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
     }
    ]
   }
@@ -316,21 +322,14 @@
    },
    {
     "team": "TB",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-3052587",
-     "name": "Baker Mayfield"
-    },
-    "snapshotAt": "2026-10-24T11:57:56Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4596472",
-      "name": "Jalon Daniels"
-     }
-    ],
+    "state": "UNRESOLVED",
+    "reason": "depth chart STALE",
     "passers": [
-     "nfl-athlete-3052587"
-    ]
+     "nfl-athlete-3052587",
+     "nfl-athlete-4596472"
+    ],
+    "removed": [],
+    "snapshotAt": "2026-10-24T11:57:56Z"
    }
   ],
   "passerShareFloor": [
@@ -349,11 +348,13 @@
     "team": "TB",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3052587"
+     "nfl-athlete-3052587",
+     "nfl-athlete-4596472"
     ],
     "withheld": [],
     "unjoined": [
-     "nfl-athlete-3052587"
+     "nfl-athlete-3052587",
+     "nfl-athlete-4596472"
     ]
    }
   ],
@@ -428,6 +429,28 @@
     "anytime_td": {
      "probability": 0.35135,
      "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4241474",
+   "name": "Brian Robinson Jr.",
+   "team": "ATL",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 25.26,
+     "p10": 2.87,
+     "p25": 9.18,
+     "median": 20.88,
+     "p75": 36.24,
+     "p90": 52.93,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.250048,
+     "participation": "QUESTIONABLE",
      "pricingState": "NOT_PROBED"
     }
    }
@@ -614,6 +637,15 @@
    "team": "TB",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_pass_yds": {
+     "mean": 69.696,
+     "p10": 0,
+     "p25": 18.15,
+     "median": 56.35,
+     "p75": 106.56,
+     "p90": 157.06,
+     "pricingState": "NOT_PROBED"
+    },
     "player_rush_yds": {
      "mean": 14.792,
      "p10": 0,
@@ -690,6 +722,32 @@
      "median": 2.6,
      "p75": 9.64,
      "p90": 18.56,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4567750",
+   "name": "Emeka Egbuka",
+   "team": "TB",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 45.096,
+     "p10": 10,
+     "p25": 22.35,
+     "median": 39.78,
+     "p75": 63.04,
+     "p90": 87.09,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 4.52,
+     "p10": 2,
+     "p25": 3,
+     "median": 4,
+     "p75": 6,
+     "p90": 8,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -811,6 +869,32 @@
      "median": 5.57,
      "p75": 19.1,
      "p90": 36.33,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 1.117,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3917914",
+   "name": "Olamide Zaccheaus",
+   "team": "ATL",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 11.293,
+     "p10": 0,
+     "p25": 0,
+     "median": 5.26,
+     "p75": 17.51,
+     "p90": 32.17,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {

@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-27T00:15:30Z",
- "sourceGeneratedAt": "2026-10-27T00:15:30Z",
- "forecastInputHash": "ac081c4a0673aedf",
+ "generatedAt": "2026-10-27T15:21:24Z",
+ "sourceGeneratedAt": "2026-10-27T15:21:24Z",
+ "forecastInputHash": "6bf347ed3bd2c536",
  "providerEventId": "401873030",
  "matchup": "MIN @ DET",
  "kickoffUtc": "2026-11-01T18:00Z",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-27T00:15:30Z",
-  "roleEvidenceAt": "2026-10-27T00:15:30Z",
+  "injuriesCapturedAt": "2026-10-27T15:21:24Z",
+  "roleEvidenceAt": "2026-10-27T15:21:24Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -87,7 +87,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 45,
+  "absent": 46,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -128,16 +128,10 @@
      "name": "Carson Wentz",
      "state": "PROJECTED",
      "families": [
+      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4360569",
@@ -314,21 +308,14 @@
   "qbStarter": [
    {
     "team": "MIN",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-3917315",
-     "name": "Kyler Murray"
-    },
-    "snapshotAt": "2026-10-24T11:57:56Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-2573079",
-      "name": "Carson Wentz"
-     }
-    ],
+    "state": "UNRESOLVED",
+    "reason": "depth chart STALE",
     "passers": [
-     "nfl-athlete-3917315"
-    ]
+     "nfl-athlete-3917315",
+     "nfl-athlete-2573079"
+    ],
+    "removed": [],
+    "snapshotAt": "2026-10-24T11:57:56Z"
    },
    {
     "team": "DET",
@@ -344,11 +331,13 @@
     "team": "MIN",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3917315"
+     "nfl-athlete-3917315",
+     "nfl-athlete-2573079"
     ],
     "withheld": [],
     "unjoined": [
-     "nfl-athlete-3917315"
+     "nfl-athlete-3917315",
+     "nfl-athlete-2573079"
     ]
    },
    {
@@ -797,6 +786,15 @@
    "team": "MIN",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_pass_yds": {
+     "mean": 97.171,
+     "p10": 1.69,
+     "p25": 27.54,
+     "median": 78.39,
+     "p75": 148.73,
+     "p90": 216.04,
+     "pricingState": "NOT_PROBED"
+    },
     "player_rush_yds": {
      "mean": 7.391,
      "p10": 0,

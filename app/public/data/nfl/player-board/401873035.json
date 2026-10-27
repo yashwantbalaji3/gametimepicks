@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-27T00:15:30Z",
- "sourceGeneratedAt": "2026-10-27T00:15:30Z",
- "forecastInputHash": "ef312cb626824d0f",
+ "generatedAt": "2026-10-27T15:21:24Z",
+ "sourceGeneratedAt": "2026-10-27T15:21:24Z",
+ "forecastInputHash": "3ff1fc67983072fd",
  "providerEventId": "401873035",
  "matchup": "PHI @ WSH",
  "kickoffUtc": "2026-11-02T01:20Z",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-27T00:15:30Z",
-  "roleEvidenceAt": "2026-10-27T00:15:30Z",
+  "injuriesCapturedAt": "2026-10-27T15:21:24Z",
+  "roleEvidenceAt": "2026-10-27T15:21:24Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -139,8 +139,8 @@
  "coverage": {
   "PHI": {
    "counts": {
-    "PROJECTED": 9,
-    "EXCLUDED_UNAVAILABLE": 4,
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -161,48 +161,73 @@
      "name": "Dameon Pierce",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
       "player_reception_yds",
       "player_receptions",
       "player_rush_yds"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-3929630",
      "name": "Saquon Barkley",
      "state": "PROJECTED",
      "families": [
-      "player_reception_yds",
-      "player_receptions",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
+    },
+    {
+     "playerId": "nfl-athlete-4241478",
+     "name": "DeVonta Smith",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4429013",
      "name": "Tank Bigsby",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
       "player_rush_yds"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-3121023",
      "name": "Dallas Goedert",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4870795",
      "name": "Makai Lemon",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4428850",
+     "name": "Dontayvion Wicks",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
+     "playerId": "nfl-athlete-4241555",
+     "name": "Elijah Mitchell",
      "state": "PROJECTED",
      "families": [
       "player_reception_yds",
@@ -225,38 +250,16 @@
      "name": "Darius Cooper",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "ACTIVE_PROJECTED"
-    },
-    {
-     "playerId": "nfl-athlete-4241374",
-     "name": "Grant Calcaterra",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td"
-     ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4040715",
      "name": "Jalen Hurts",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
-    },
-    {
-     "playerId": "nfl-athlete-4241478",
-     "name": "DeVonta Smith",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
-    },
-    {
-     "playerId": "nfl-athlete-4428850",
-     "name": "Dontayvion Wicks",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4431545",
@@ -298,16 +301,10 @@
      "name": "Athan Kaliakmanis",
      "state": "PROJECTED",
      "families": [
+      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-2576980",
@@ -440,21 +437,14 @@
    },
    {
     "team": "WSH",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-4426348",
-     "name": "Jayden Daniels"
-    },
-    "snapshotAt": "2026-10-24T11:57:56Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4432722",
-      "name": "Athan Kaliakmanis"
-     }
-    ],
+    "state": "UNRESOLVED",
+    "reason": "depth chart STALE",
     "passers": [
-     "nfl-athlete-4426348"
-    ]
+     "nfl-athlete-4426348",
+     "nfl-athlete-4432722"
+    ],
+    "removed": [],
+    "snapshotAt": "2026-10-24T11:57:56Z"
    }
   ],
   "passerShareFloor": [
@@ -473,11 +463,13 @@
     "team": "WSH",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4426348"
+     "nfl-athlete-4426348",
+     "nfl-athlete-4432722"
     ],
     "withheld": [],
     "unjoined": [
-     "nfl-athlete-4426348"
+     "nfl-athlete-4426348",
+     "nfl-athlete-4432722"
     ]
    }
   ],
@@ -511,77 +503,6 @@
     },
     "anytime_td": {
      "probability": 0.410881,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4715355",
-   "name": "Darius Cooper",
-   "team": "PHI",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 15.776,
-     "p10": 0,
-     "p25": 0,
-     "median": 8.3,
-     "p75": 24.45,
-     "p90": 43.97,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 1.271,
-     "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.365822,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4360238",
-   "name": "Dameon Pierce",
-   "team": "PHI",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 34.208,
-     "p10": 9.58,
-     "p25": 18.18,
-     "median": 30.74,
-     "p75": 46.75,
-     "p90": 63.11,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_reception_yds": {
-     "mean": 15.563,
-     "p10": 0,
-     "p25": 0.87,
-     "median": 10.32,
-     "p75": 23.82,
-     "p90": 39.46,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 1.678,
-     "p10": 0,
-     "p25": 1,
-     "median": 1,
-     "p75": 2,
-     "p90": 4,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.316838,
      "participation": "ACTIVE_PROJECTED",
      "pricingState": "NOT_PROBED"
     }
@@ -659,37 +580,6 @@
    }
   },
   {
-   "playerId": "nfl-athlete-3121023",
-   "name": "Dallas Goedert",
-   "team": "PHI",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 31.634,
-     "p10": 1.75,
-     "p25": 11.13,
-     "median": 26.23,
-     "p75": 46.57,
-     "p90": 67.81,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 3.006,
-     "p10": 1,
-     "p25": 1,
-     "median": 3,
-     "p75": 4,
-     "p90": 6,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.265297,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4426348",
    "name": "Jayden Daniels",
    "team": "WSH",
@@ -715,41 +605,6 @@
     },
     "anytime_td": {
      "probability": 0.259349,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4429013",
-   "name": "Tank Bigsby",
-   "team": "PHI",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 15.538,
-     "p10": 0,
-     "p25": 2.88,
-     "median": 10.68,
-     "p75": 23.13,
-     "p90": 37.53,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.152088,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4241374",
-   "name": "Grant Calcaterra",
-   "team": "PHI",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.151759,
      "participation": "ACTIVE_PROJECTED",
      "pricingState": "NOT_PROBED"
     }
@@ -787,36 +642,70 @@
    }
   },
   {
-   "playerId": "nfl-athlete-3929630",
-   "name": "Saquon Barkley",
+   "playerId": "nfl-athlete-4360238",
+   "name": "Dameon Pierce",
    "team": "PHI",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
-     "mean": 29.854,
-     "p10": 4,
-     "p25": 11.57,
-     "median": 25.06,
-     "p75": 42.7,
-     "p90": 62.6,
+     "mean": 33.029,
+     "p10": 9.23,
+     "p25": 17.28,
+     "median": 29.39,
+     "p75": 44.8,
+     "p90": 61.34,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 10.29,
+     "mean": 9.963,
      "p10": 0,
      "p25": 0,
-     "median": 4.33,
-     "p75": 16.05,
-     "p90": 30.01,
+     "median": 4.32,
+     "p75": 15.66,
+     "p90": 28.27,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.098,
+     "mean": 1.105,
      "p10": 0,
      "p25": 0,
      "median": 1,
      "p75": 2,
      "p90": 3,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3929630",
+   "name": "Saquon Barkley",
+   "team": "PHI",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 29.256,
+     "p10": 3.34,
+     "p25": 10.72,
+     "median": 23.62,
+     "p75": 41.58,
+     "p90": 61.9,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429013",
+   "name": "Tank Bigsby",
+   "team": "PHI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 15.48,
+     "p10": 0.03,
+     "p25": 2.93,
+     "median": 10.82,
+     "p75": 22.56,
+     "p90": 37.81,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -878,6 +767,15 @@
    "team": "WSH",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_pass_yds": {
+     "mean": 65.187,
+     "p10": 0,
+     "p25": 8.97,
+     "median": 46,
+     "p75": 102.26,
+     "p90": 161.76,
+     "pricingState": "NOT_PROBED"
+    },
     "player_rush_yds": {
      "mean": 8.033,
      "p10": 0,
@@ -948,12 +846,64 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_pass_yds": {
-     "mean": 77.224,
+     "mean": 85.397,
+     "p10": 3.99,
+     "p25": 25.99,
+     "median": 71.42,
+     "p75": 128.85,
+     "p90": 185.74,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4241478",
+   "name": "DeVonta Smith",
+   "team": "PHI",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 46.567,
+     "p10": 8.11,
+     "p25": 21.53,
+     "median": 41.12,
+     "p75": 64.97,
+     "p90": 91.42,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 4.026,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 5,
+     "p90": 7,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3121023",
+   "name": "Dallas Goedert",
+   "team": "PHI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 28.775,
      "p10": 0,
-     "p25": 20.45,
-     "median": 61.43,
-     "p75": 120.13,
-     "p90": 174.48,
+     "p25": 9.48,
+     "median": 23.41,
+     "p75": 41.97,
+     "p90": 62.47,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 2.751,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -965,21 +915,73 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 23.049,
+     "mean": 24.437,
      "p10": 0,
-     "p25": 6.26,
-     "median": 17.93,
-     "p75": 34.58,
-     "p90": 52.07,
+     "p25": 6.99,
+     "median": 19.26,
+     "p75": 35.84,
+     "p90": 54.84,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.411,
+     "mean": 2.528,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4428850",
+   "name": "Dontayvion Wicks",
+   "team": "PHI",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 26.226,
+     "p10": 0,
+     "p25": 6.14,
+     "median": 19.92,
+     "p75": 38.95,
+     "p90": 60.72,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 2.179,
      "p10": 0,
      "p25": 1,
      "median": 2,
      "p75": 3,
-     "p90": 5,
+     "p90": 4,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4241555",
+   "name": "Elijah Mitchell",
+   "team": "PHI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 13.163,
+     "p10": 0,
+     "p25": 0,
+     "median": 7.05,
+     "p75": 20.87,
+     "p90": 36.3,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 1.256,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -991,16 +993,42 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 13.207,
+     "mean": 11.433,
      "p10": 0,
      "p25": 0,
-     "median": 7.14,
-     "p75": 20.29,
-     "p90": 35.7,
+     "median": 5.58,
+     "p75": 17.65,
+     "p90": 32.05,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.279,
+     "mean": 1.094,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4715355",
+   "name": "Darius Cooper",
+   "team": "PHI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 13.703,
+     "p10": 0,
+     "p25": 0,
+     "median": 6.43,
+     "p75": 20.93,
+     "p90": 38.86,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 1.118,
      "p10": 0,
      "p25": 0,
      "median": 1,
