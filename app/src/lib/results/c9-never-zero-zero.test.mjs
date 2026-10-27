@@ -76,8 +76,12 @@ function visibleText(html) {
  * against a detector that had just matched the second. The stateless one is for asking; the global one
  * is only ever used with `String.prototype.match`, which resets it.
  */
-const ZERO_RECORD = /(?<![\d.\w])0\s*[–—-]\s*0(?![\d.\w])/;
-const ZERO_RECORD_ALL = /(?<![\d.\w])0\s*[–—-]\s*0(?![\d.\w])/g;
+/* "FT 0-0" is a SCORELINE, not a record: settled soccer legs on /results print their full-time score as `FT ${h}-${a}`
+   (lib/product-workflow/leg-settlement.ts), and a goalless draw is a real result. On 10-27 four Ligue 1 legs did exactly
+   that. Per the negative control below, the answer to a scoreline is to narrow the detector, never to change the page;
+   `\bFT` needs a word boundary, so a record printed after any other word still fires. */
+const ZERO_RECORD = /(?<!\bFT\s{0,2})(?<![\d.\w])0\s*[–—-]\s*0(?![\d.\w])/;
+const ZERO_RECORD_ALL = /(?<!\bFT\s{0,2})(?<![\d.\w])0\s*[–—-]\s*0(?![\d.\w])/g;
 
 const read = (rel) => fs.readFileSync(path.join(OUT, rel), "utf8");
 
@@ -93,6 +97,8 @@ test("POSITIVE CONTROL: the detector really does see a rendered zero record", ()
     '<span class="record">0–0</span>',
     "<p>Record 0 – 0 · 0 pending</p>",
     "<td>0—0</td>",
+    "<p>SOFT 0–0 record</p>",            // "FT" inside another word is not the full-time marker
+    "<p>Left 0-0 · FT 2-1</p>",          // a record beside a real scoreline still fires
   ]) assert.match(visibleText(sample), ZERO_RECORD, `must fire on: ${sample}`);
 
   // …and NOT on the things that merely look like one.
@@ -102,6 +108,8 @@ test("POSITIVE CONTROL: the detector really does see a rendered zero record", ()
     '<span>v0-0-1</span>',               // a version string — word boundaries exclude it
     '<time datetime="2026-09-22">Sep 22</time>',
     '<span>0.0–0.5</span>',
+    "<li>42.5% FT 0-0: draw, leg took away · Lost</li>",  // a settled leg's full-time score (Angers v Lorient, 10-27)
+    "<li>FT 0-0 (draw ⇒ push)</li>",
   ]) assert.doesNotMatch(visibleText(sample), ZERO_RECORD, `must not fire on: ${sample}`);
 });
 
