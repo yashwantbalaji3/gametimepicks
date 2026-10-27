@@ -1,0 +1,1122 @@
+{
+ "note": "FROZEN INPUTS. Level A selections for product day 2026-10-26 exactly as levelASources reads them from the files committed at 6437283f98 (the commit Production built at 2026-10-26T22:51:01Z): data/internal/mlb/prediction-snapshots/2026-10-26/snapshot-202610262040.json (then the latest), app/public/data/mlb/full-game-simulations/2026-10-26.json, app/public/data/nba/experimental-public/2026-10-26.json, the EPL forecast artifact and app/public/data/soccer/ligue-1/forecasts/latest.json. Pinned because later commits move the latest snapshot and the latest soccer files on. Never edit; regenerate only from that commit.",
+ "commit": "6437283f981c34ef465cd09e6b56dd0f5a9834ff",
+ "builtAt": "2026-10-26T22:51:01Z",
+ "productDay": "2026-10-26",
+ "selections": [
+  {
+   "sport": "mlb",
+   "eventId": "849804",
+   "eventLabel": "Milwaukee Brewers @ Tampa Bay Rays",
+   "startUtc": "2026-10-27T00:00:00Z",
+   "market": "winner",
+   "sourceStatus": "degraded",
+   "selection": {
+    "code": "away",
+    "label": "MIL to win"
+   },
+   "probability": 0.578,
+   "forecast": {
+    "owner": "mlb-prediction official snapshot",
+    "modelId": "mlb-prediction-2026.10-v2",
+    "stampedAt": "2026-10-26T20:40:22.000Z",
+    "ref": "mlb-prediction-snapshot:2026-10-26:snapshot-202610262040#b45044739c57de6f43714e288640d4be928ed0d4d6cd56f24382ca67df409b13"
+   },
+   "uncertainty": {
+    "kind": "win-probability",
+    "note": "Probability from the official full-game simulation (10,000 runs)."
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "mlb-official-final",
+    "market": "moneyline",
+    "side": "away"
+   }
+  },
+  {
+   "sport": "nba",
+   "eventId": "401909868",
+   "eventLabel": "WSH @ CHA",
+   "startUtc": "2026-10-26T23:00Z",
+   "market": "winner",
+   "selection": {
+    "code": "home",
+    "label": "CHA (official side)"
+   },
+   "probability": null,
+   "forecast": {
+    "owner": "nba-official-composition@1",
+    "modelId": "nba-preseason-experimental-v0.1",
+    "stampedAt": "2026-10-26T15:26:52Z",
+    "ref": "app/public/data/nba/experimental-public/2026-10-26.json#401909868"
+   },
+   "uncertainty": {
+    "kind": "elo-win-probability",
+    "home": 0.858,
+    "away": 0.142,
+    "text": "Elo-derived game-winner estimate: WSH 14% · CHA 86%",
+    "note": "Model Performance: the Elo rating’s game-outcome accuracy is not yet established — 43 regular-season games graded so far; the preregistration requires 300 before any accuracy claim. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation."
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "nba-settlement-contract",
+    "market": "moneyline",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "nba",
+   "eventId": "401909869",
+   "eventLabel": "MIN @ CLE",
+   "startUtc": "2026-10-26T23:00Z",
+   "market": "winner",
+   "selection": {
+    "code": "home",
+    "label": "CLE (official side)"
+   },
+   "probability": null,
+   "forecast": {
+    "owner": "nba-official-composition@1",
+    "modelId": "nba-preseason-experimental-v0.1",
+    "stampedAt": "2026-10-26T15:26:52Z",
+    "ref": "app/public/data/nba/experimental-public/2026-10-26.json#401909869"
+   },
+   "uncertainty": {
+    "kind": "elo-win-probability",
+    "home": 0.5969,
+    "away": 0.4031,
+    "text": "Elo-derived game-winner estimate: MIN 40% · CLE 60%",
+    "note": "Model Performance: the Elo rating’s game-outcome accuracy is not yet established — 43 regular-season games graded so far; the preregistration requires 300 before any accuracy claim. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation."
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "nba-settlement-contract",
+    "market": "moneyline",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "nba",
+   "eventId": "401909870",
+   "eventLabel": "CHI @ BOS",
+   "startUtc": "2026-10-26T23:30Z",
+   "market": "winner",
+   "selection": {
+    "code": "home",
+    "label": "BOS (official side)"
+   },
+   "probability": null,
+   "forecast": {
+    "owner": "nba-official-composition@1",
+    "modelId": "nba-preseason-experimental-v0.1",
+    "stampedAt": "2026-10-26T16:05:20Z",
+    "ref": "app/public/data/nba/experimental-public/2026-10-26.json#401909870"
+   },
+   "uncertainty": {
+    "kind": "elo-win-probability",
+    "home": 0.826,
+    "away": 0.174,
+    "text": "Elo-derived game-winner estimate: CHI 17% · BOS 83%",
+    "note": "Model Performance: the Elo rating’s game-outcome accuracy is not yet established — 43 regular-season games graded so far; the preregistration requires 300 before any accuracy claim. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation."
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "nba-settlement-contract",
+    "market": "moneyline",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "nba",
+   "eventId": "401909871",
+   "eventLabel": "DAL @ MIA",
+   "startUtc": "2026-10-26T23:30Z",
+   "market": "winner",
+   "selection": {
+    "code": "home",
+    "label": "MIA (official side)"
+   },
+   "probability": null,
+   "forecast": {
+    "owner": "nba-official-composition@1",
+    "modelId": "nba-preseason-experimental-v0.1",
+    "stampedAt": "2026-10-26T16:05:20Z",
+    "ref": "app/public/data/nba/experimental-public/2026-10-26.json#401909871"
+   },
+   "uncertainty": {
+    "kind": "elo-win-probability",
+    "home": 0.7255,
+    "away": 0.2745,
+    "text": "Elo-derived game-winner estimate: DAL 27% · MIA 73%",
+    "note": "Model Performance: the Elo rating’s game-outcome accuracy is not yet established — 43 regular-season games graded so far; the preregistration requires 300 before any accuracy claim. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation."
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "nba-settlement-contract",
+    "market": "moneyline",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "nba",
+   "eventId": "401909872",
+   "eventLabel": "IND @ MIL",
+   "startUtc": "2026-10-27T00:00Z",
+   "market": "winner",
+   "selection": {
+    "code": "home",
+    "label": "MIL (official side)"
+   },
+   "probability": null,
+   "forecast": {
+    "owner": "nba-official-composition@1",
+    "modelId": "nba-preseason-experimental-v0.1",
+    "stampedAt": "2026-10-26T16:05:20Z",
+    "ref": "app/public/data/nba/experimental-public/2026-10-26.json#401909872"
+   },
+   "uncertainty": {
+    "kind": "elo-win-probability",
+    "home": 0.664,
+    "away": 0.336,
+    "text": "Elo-derived game-winner estimate: IND 34% · MIL 66%",
+    "note": "Model Performance: the Elo rating’s game-outcome accuracy is not yet established — 43 regular-season games graded so far; the preregistration requires 300 before any accuracy claim. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation."
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "nba-settlement-contract",
+    "market": "moneyline",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "nba",
+   "eventId": "401909873",
+   "eventLabel": "PHX @ OKC",
+   "startUtc": "2026-10-27T00:00Z",
+   "market": "winner",
+   "selection": {
+    "code": "home",
+    "label": "OKC (official side)"
+   },
+   "probability": null,
+   "forecast": {
+    "owner": "nba-official-composition@1",
+    "modelId": "nba-preseason-experimental-v0.1",
+    "stampedAt": "2026-10-26T16:05:20Z",
+    "ref": "app/public/data/nba/experimental-public/2026-10-26.json#401909873"
+   },
+   "uncertainty": {
+    "kind": "elo-win-probability",
+    "home": 0.8193,
+    "away": 0.1807,
+    "text": "Elo-derived game-winner estimate: PHX 18% · OKC 82%",
+    "note": "Model Performance: the Elo rating’s game-outcome accuracy is not yet established — 43 regular-season games graded so far; the preregistration requires 300 before any accuracy claim. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation."
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "nba-settlement-contract",
+    "market": "moneyline",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "nba",
+   "eventId": "401909874",
+   "eventLabel": "ATL @ HOU",
+   "startUtc": "2026-10-27T00:30Z",
+   "market": "winner",
+   "selection": {
+    "code": "home",
+    "label": "HOU (official side)"
+   },
+   "probability": null,
+   "forecast": {
+    "owner": "nba-official-composition@1",
+    "modelId": "nba-preseason-experimental-v0.1",
+    "stampedAt": "2026-10-26T16:05:20Z",
+    "ref": "app/public/data/nba/experimental-public/2026-10-26.json#401909874"
+   },
+   "uncertainty": {
+    "kind": "elo-win-probability",
+    "home": 0.6289,
+    "away": 0.3711,
+    "text": "Elo-derived game-winner estimate: ATL 37% · HOU 63%",
+    "note": "Model Performance: the Elo rating’s game-outcome accuracy is not yet established — 43 regular-season games graded so far; the preregistration requires 300 before any accuracy claim. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation."
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "nba-settlement-contract",
+    "market": "moneyline",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "nba",
+   "eventId": "401909875",
+   "eventLabel": "MEM @ UTAH",
+   "startUtc": "2026-10-27T01:00Z",
+   "market": "winner",
+   "selection": {
+    "code": "home",
+    "label": "UTAH (official side)"
+   },
+   "probability": null,
+   "forecast": {
+    "owner": "nba-official-composition@1",
+    "modelId": "nba-preseason-experimental-v0.1",
+    "stampedAt": "2026-10-26T16:05:20Z",
+    "ref": "app/public/data/nba/experimental-public/2026-10-26.json#401909875"
+   },
+   "uncertainty": {
+    "kind": "elo-win-probability",
+    "home": 0.5736,
+    "away": 0.4264,
+    "text": "Elo-derived game-winner estimate: MEM 43% · UTAH 57%",
+    "note": "Model Performance: the Elo rating’s game-outcome accuracy is not yet established — 43 regular-season games graded so far; the preregistration requires 300 before any accuracy claim. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation."
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "nba-settlement-contract",
+    "market": "moneyline",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "nba",
+   "eventId": "401909876",
+   "eventLabel": "GS @ DEN",
+   "startUtc": "2026-10-27T02:00Z",
+   "market": "winner",
+   "selection": {
+    "code": "home",
+    "label": "DEN (official side)"
+   },
+   "probability": null,
+   "forecast": {
+    "owner": "nba-official-composition@1",
+    "modelId": "nba-preseason-experimental-v0.1",
+    "stampedAt": "2026-10-26T16:05:20Z",
+    "ref": "app/public/data/nba/experimental-public/2026-10-26.json#401909876"
+   },
+   "uncertainty": {
+    "kind": "elo-win-probability",
+    "home": 0.7658,
+    "away": 0.2342,
+    "text": "Elo-derived game-winner estimate: GS 23% · DEN 77%",
+    "note": "Model Performance: the Elo rating’s game-outcome accuracy is not yet established — 43 regular-season games graded so far; the preregistration requires 300 before any accuracy claim. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation."
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "nba-settlement-contract",
+    "market": "moneyline",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "epl",
+   "eventId": "soccer:epl:chelsea-v-manchester-united:20261031t1230",
+   "eventLabel": "Chelsea v Manchester United",
+   "startUtc": "2026-10-31T12:30:00Z",
+   "market": "1x2",
+   "selection": {
+    "code": "home",
+    "label": "Chelsea to win"
+   },
+   "probability": 0.380347,
+   "forecast": {
+    "owner": "epl-model-v2-elo-poisson public forecast",
+    "modelId": "epl-model-v2-elo-poisson",
+    "stampedAt": "2026-10-26T22:37:10Z",
+    "ref": "sports/epl/forecast-view.ts loadEplForecasts#soccer:epl:chelsea-v-manchester-united:20261031t1230"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.380347,
+    "draw": 0.253047,
+    "away": 0.366606,
+    "outcomeLabel": "home win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "epl",
+   "eventId": "soccer:epl:brighton-hove-albion-v-manchester-city:20261031t1500",
+   "eventLabel": "Manchester City v Brighton & Hove Albion",
+   "startUtc": "2026-10-31T15:00:00Z",
+   "market": "1x2",
+   "selection": {
+    "code": "home",
+    "label": "Manchester City to win"
+   },
+   "probability": 0.628076,
+   "forecast": {
+    "owner": "epl-model-v2-elo-poisson public forecast",
+    "modelId": "epl-model-v2-elo-poisson",
+    "stampedAt": "2026-10-26T22:37:10Z",
+    "ref": "sports/epl/forecast-view.ts loadEplForecasts#soccer:epl:brighton-hove-albion-v-manchester-city:20261031t1500"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.628076,
+    "draw": 0.213185,
+    "away": 0.158739,
+    "outcomeLabel": "home win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "epl",
+   "eventId": "soccer:epl:bournemouth-v-leeds-united:20261031t1500",
+   "eventLabel": "Bournemouth v Leeds United",
+   "startUtc": "2026-10-31T15:00:00Z",
+   "market": "1x2",
+   "selection": {
+    "code": "home",
+    "label": "Bournemouth to win"
+   },
+   "probability": 0.519627,
+   "forecast": {
+    "owner": "epl-model-v2-elo-poisson public forecast",
+    "modelId": "epl-model-v2-elo-poisson",
+    "stampedAt": "2026-10-26T22:37:10Z",
+    "ref": "sports/epl/forecast-view.ts loadEplForecasts#soccer:epl:bournemouth-v-leeds-united:20261031t1500"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.519627,
+    "draw": 0.239369,
+    "away": 0.241003,
+    "outcomeLabel": "home win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "epl",
+   "eventId": "soccer:epl:coventry-city-v-sunderland:20261031t1500",
+   "eventLabel": "Coventry City v Sunderland",
+   "startUtc": "2026-10-31T15:00:00Z",
+   "market": "1x2",
+   "selection": {
+    "code": "away",
+    "label": "Sunderland to win"
+   },
+   "probability": 0.397068,
+   "forecast": {
+    "owner": "epl-model-v2-elo-poisson public forecast",
+    "modelId": "epl-model-v2-elo-poisson",
+    "stampedAt": "2026-10-26T22:37:10Z",
+    "ref": "sports/epl/forecast-view.ts loadEplForecasts#soccer:epl:coventry-city-v-sunderland:20261031t1500"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.350235,
+    "draw": 0.252698,
+    "away": 0.397068,
+    "outcomeLabel": "away win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "away"
+   }
+  },
+  {
+   "sport": "epl",
+   "eventId": "soccer:epl:hull-city-v-ipswich-town:20261031t1500",
+   "eventLabel": "Hull City v Ipswich Town",
+   "startUtc": "2026-10-31T15:00:00Z",
+   "market": "1x2",
+   "selection": {
+    "code": "home",
+    "label": "Hull City to win"
+   },
+   "probability": 0.496573,
+   "forecast": {
+    "owner": "epl-model-v2-elo-poisson public forecast",
+    "modelId": "epl-model-v2-elo-poisson",
+    "stampedAt": "2026-10-26T22:37:10Z",
+    "ref": "sports/epl/forecast-view.ts loadEplForecasts#soccer:epl:hull-city-v-ipswich-town:20261031t1500"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.496573,
+    "draw": 0.243247,
+    "away": 0.260181,
+    "outcomeLabel": "home win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "epl",
+   "eventId": "soccer:epl:brentford-v-nottingham-forest:20261031t1500",
+   "eventLabel": "Brentford v Nottingham Forest",
+   "startUtc": "2026-10-31T15:00:00Z",
+   "market": "1x2",
+   "selection": {
+    "code": "home",
+    "label": "Brentford to win"
+   },
+   "probability": 0.521723,
+   "forecast": {
+    "owner": "epl-model-v2-elo-poisson public forecast",
+    "modelId": "epl-model-v2-elo-poisson",
+    "stampedAt": "2026-10-26T22:37:10Z",
+    "ref": "sports/epl/forecast-view.ts loadEplForecasts#soccer:epl:brentford-v-nottingham-forest:20261031t1500"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.521723,
+    "draw": 0.238987,
+    "away": 0.23929,
+    "outcomeLabel": "home win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "epl",
+   "eventId": "soccer:epl:crystal-palace-v-tottenham-hotspur:20261031t1730",
+   "eventLabel": "Tottenham Hotspur v Crystal Palace",
+   "startUtc": "2026-10-31T17:30:00Z",
+   "market": "1x2",
+   "selection": {
+    "code": "home",
+    "label": "Tottenham Hotspur to win"
+   },
+   "probability": 0.39551,
+   "forecast": {
+    "owner": "epl-model-v2-elo-poisson public forecast",
+    "modelId": "epl-model-v2-elo-poisson",
+    "stampedAt": "2026-10-26T22:37:10Z",
+    "ref": "sports/epl/forecast-view.ts loadEplForecasts#soccer:epl:crystal-palace-v-tottenham-hotspur:20261031t1730"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.39551,
+    "draw": 0.252746,
+    "away": 0.351744,
+    "outcomeLabel": "home win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "epl",
+   "eventId": "soccer:epl:aston-villa-v-fulham:20261031t2000",
+   "eventLabel": "Aston Villa v Fulham",
+   "startUtc": "2026-10-31T20:00:00Z",
+   "market": "1x2",
+   "selection": {
+    "code": "home",
+    "label": "Aston Villa to win"
+   },
+   "probability": 0.526539,
+   "forecast": {
+    "owner": "epl-model-v2-elo-poisson public forecast",
+    "modelId": "epl-model-v2-elo-poisson",
+    "stampedAt": "2026-10-26T22:37:10Z",
+    "ref": "sports/epl/forecast-view.ts loadEplForecasts#soccer:epl:aston-villa-v-fulham:20261031t2000"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.526539,
+    "draw": 0.238089,
+    "away": 0.235372,
+    "outcomeLabel": "home win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "epl",
+   "eventId": "soccer:epl:arsenal-v-liverpool:20261101t1630",
+   "eventLabel": "Liverpool v Arsenal",
+   "startUtc": "2026-11-01T16:30:00Z",
+   "market": "1x2",
+   "selection": {
+    "code": "away",
+    "label": "Arsenal to win"
+   },
+   "probability": 0.41718,
+   "forecast": {
+    "owner": "epl-model-v2-elo-poisson public forecast",
+    "modelId": "epl-model-v2-elo-poisson",
+    "stampedAt": "2026-10-26T22:37:10Z",
+    "ref": "sports/epl/forecast-view.ts loadEplForecasts#soccer:epl:arsenal-v-liverpool:20261101t1630"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.331035,
+    "draw": 0.251785,
+    "away": 0.41718,
+    "outcomeLabel": "away win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "away"
+   }
+  },
+  {
+   "sport": "epl",
+   "eventId": "soccer:epl:everton-v-newcastle-united:20261102t2000",
+   "eventLabel": "Newcastle United v Everton",
+   "startUtc": "2026-11-02T20:00:00Z",
+   "market": "1x2",
+   "selection": {
+    "code": "home",
+    "label": "Newcastle United to win"
+   },
+   "probability": 0.460441,
+   "forecast": {
+    "owner": "epl-model-v2-elo-poisson public forecast",
+    "modelId": "epl-model-v2-elo-poisson",
+    "stampedAt": "2026-10-26T22:37:10Z",
+    "ref": "sports/epl/forecast-view.ts loadEplForecasts#soccer:epl:everton-v-newcastle-united:20261102t2000"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.460441,
+    "draw": 0.248079,
+    "away": 0.29148,
+    "outcomeLabel": "home win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "ligue-1",
+   "eventId": "soccer:ligue-1:401876425",
+   "eventLabel": "AS Monaco v Lille",
+   "startUtc": "2026-10-25T14:00:00.000Z",
+   "market": "1x2",
+   "selection": {
+    "code": "home",
+    "label": "AS Monaco to win"
+   },
+   "probability": 0.408403,
+   "forecast": {
+    "owner": "soccer-league-forecasts (Ligue 1, model-only)",
+    "modelId": "epl-model-v1-split-poisson",
+    "stampedAt": "2026-10-25T13:44:17Z",
+    "ref": "app/public/data/soccer/ligue-1/forecasts/latest.json#soccer:ligue-1:401876425"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.408403,
+    "draw": 0.261671,
+    "away": 0.329926,
+    "outcomeLabel": "home win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "ligue-1",
+   "eventId": "soccer:ligue-1:401876429",
+   "eventLabel": "AJ Auxerre v Le Mans",
+   "startUtc": "2026-10-25T16:15:00.000Z",
+   "market": "1x2",
+   "selection": {
+    "code": "home",
+    "label": "AJ Auxerre to win"
+   },
+   "probability": 0.404343,
+   "forecast": {
+    "owner": "soccer-league-forecasts (Ligue 1, model-only)",
+    "modelId": "epl-model-v1-split-poisson",
+    "stampedAt": "2026-10-25T13:44:17Z",
+    "ref": "app/public/data/soccer/ligue-1/forecasts/latest.json#soccer:ligue-1:401876429"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.404343,
+    "draw": 0.24935,
+    "away": 0.346307,
+    "outcomeLabel": "home win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "ligue-1",
+   "eventId": "soccer:ligue-1:401876430",
+   "eventLabel": "Angers v Lorient",
+   "startUtc": "2026-10-25T16:15:00.000Z",
+   "market": "1x2",
+   "selection": {
+    "code": "away",
+    "label": "Lorient to win"
+   },
+   "probability": 0.424879,
+   "forecast": {
+    "owner": "soccer-league-forecasts (Ligue 1, model-only)",
+    "modelId": "epl-model-v1-split-poisson",
+    "stampedAt": "2026-10-25T13:44:17Z",
+    "ref": "app/public/data/soccer/ligue-1/forecasts/latest.json#soccer:ligue-1:401876430"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.313299,
+    "draw": 0.261822,
+    "away": 0.424879,
+    "outcomeLabel": "away win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "away"
+   }
+  },
+  {
+   "sport": "ligue-1",
+   "eventId": "soccer:ligue-1:401876426",
+   "eventLabel": "Marseille v Le Havre AC",
+   "startUtc": "2026-10-25T16:15:00.000Z",
+   "market": "1x2",
+   "selection": {
+    "code": "home",
+    "label": "Marseille to win"
+   },
+   "probability": 0.667575,
+   "forecast": {
+    "owner": "soccer-league-forecasts (Ligue 1, model-only)",
+    "modelId": "epl-model-v1-split-poisson",
+    "stampedAt": "2026-10-25T13:44:17Z",
+    "ref": "app/public/data/soccer/ligue-1/forecasts/latest.json#soccer:ligue-1:401876426"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.667575,
+    "draw": 0.18708,
+    "away": 0.145345,
+    "outcomeLabel": "home win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "ligue-1",
+   "eventId": "soccer:ligue-1:401876424",
+   "eventLabel": "Stade Rennais v Strasbourg",
+   "startUtc": "2026-10-25T16:15:00.000Z",
+   "market": "1x2",
+   "selection": {
+    "code": "home",
+    "label": "Stade Rennais to win"
+   },
+   "probability": 0.581674,
+   "forecast": {
+    "owner": "soccer-league-forecasts (Ligue 1, model-only)",
+    "modelId": "epl-model-v1-split-poisson",
+    "stampedAt": "2026-10-25T13:44:17Z",
+    "ref": "app/public/data/soccer/ligue-1/forecasts/latest.json#soccer:ligue-1:401876424"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.581674,
+    "draw": 0.212057,
+    "away": 0.206269,
+    "outcomeLabel": "home win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "ligue-1",
+   "eventId": "soccer:ligue-1:401876423",
+   "eventLabel": "Toulouse v Troyes",
+   "startUtc": "2026-10-25T16:15:00.000Z",
+   "market": "1x2",
+   "selection": {
+    "code": "home",
+    "label": "Toulouse to win"
+   },
+   "probability": 0.557172,
+   "forecast": {
+    "owner": "soccer-league-forecasts (Ligue 1, model-only)",
+    "modelId": "epl-model-v1-split-poisson",
+    "stampedAt": "2026-10-25T13:44:17Z",
+    "ref": "app/public/data/soccer/ligue-1/forecasts/latest.json#soccer:ligue-1:401876423"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.557172,
+    "draw": 0.204076,
+    "away": 0.238752,
+    "outcomeLabel": "home win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "ligue-1",
+   "eventId": "soccer:ligue-1:401876422",
+   "eventLabel": "Paris Saint-Germain v Lyon",
+   "startUtc": "2026-10-26T19:30:00.000Z",
+   "market": "1x2",
+   "selection": {
+    "code": "home",
+    "label": "Paris Saint-Germain to win"
+   },
+   "probability": 0.600006,
+   "forecast": {
+    "owner": "soccer-league-forecasts (Ligue 1, model-only)",
+    "modelId": "epl-model-v1-split-poisson",
+    "stampedAt": "2026-10-25T13:44:17Z",
+    "ref": "app/public/data/soccer/ligue-1/forecasts/latest.json#soccer:ligue-1:401876422"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.600006,
+    "draw": 0.197401,
+    "away": 0.202593,
+    "outcomeLabel": "home win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "ligue-1",
+   "eventId": "soccer:ligue-1:401876421",
+   "eventLabel": "Le Havre AC v Paris Saint-Germain",
+   "startUtc": "2026-10-30T18:00:00.000Z",
+   "market": "1x2",
+   "selection": {
+    "code": "away",
+    "label": "Paris Saint-Germain to win"
+   },
+   "probability": 0.811852,
+   "forecast": {
+    "owner": "soccer-league-forecasts (Ligue 1, model-only)",
+    "modelId": "epl-model-v1-split-poisson",
+    "stampedAt": "2026-10-25T13:44:17Z",
+    "ref": "app/public/data/soccer/ligue-1/forecasts/latest.json#soccer:ligue-1:401876421"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.059747,
+    "draw": 0.128401,
+    "away": 0.811852,
+    "outcomeLabel": "away win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "away"
+   }
+  },
+  {
+   "sport": "ligue-1",
+   "eventId": "soccer:ligue-1:401876420",
+   "eventLabel": "Lille v Lens",
+   "startUtc": "2026-10-30T20:05:00.000Z",
+   "market": "1x2",
+   "selection": {
+    "code": "home",
+    "label": "Lille to win"
+   },
+   "probability": 0.406124,
+   "forecast": {
+    "owner": "soccer-league-forecasts (Ligue 1, model-only)",
+    "modelId": "epl-model-v1-split-poisson",
+    "stampedAt": "2026-10-25T13:44:17Z",
+    "ref": "app/public/data/soccer/ligue-1/forecasts/latest.json#soccer:ligue-1:401876420"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.406124,
+    "draw": 0.27067,
+    "away": 0.323206,
+    "outcomeLabel": "home win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "ligue-1",
+   "eventId": "soccer:ligue-1:401876416",
+   "eventLabel": "Nice v Stade Rennais",
+   "startUtc": "2026-10-31T16:15:00.000Z",
+   "market": "1x2",
+   "selection": {
+    "code": "home",
+    "label": "Nice to win"
+   },
+   "probability": 0.469389,
+   "forecast": {
+    "owner": "soccer-league-forecasts (Ligue 1, model-only)",
+    "modelId": "epl-model-v1-split-poisson",
+    "stampedAt": "2026-10-25T13:44:17Z",
+    "ref": "app/public/data/soccer/ligue-1/forecasts/latest.json#soccer:ligue-1:401876416"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.469389,
+    "draw": 0.256678,
+    "away": 0.273934,
+    "outcomeLabel": "home win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "ligue-1",
+   "eventId": "soccer:ligue-1:401876419",
+   "eventLabel": "Lorient v Brest",
+   "startUtc": "2026-10-31T19:45:00.000Z",
+   "market": "1x2",
+   "selection": {
+    "code": "home",
+    "label": "Lorient to win"
+   },
+   "probability": 0.458658,
+   "forecast": {
+    "owner": "soccer-league-forecasts (Ligue 1, model-only)",
+    "modelId": "epl-model-v1-split-poisson",
+    "stampedAt": "2026-10-25T13:44:17Z",
+    "ref": "app/public/data/soccer/ligue-1/forecasts/latest.json#soccer:ligue-1:401876419"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.458658,
+    "draw": 0.235119,
+    "away": 0.306223,
+    "outcomeLabel": "home win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "ligue-1",
+   "eventId": "soccer:ligue-1:401876418",
+   "eventLabel": "Lyon v Angers",
+   "startUtc": "2026-10-31T19:45:00.000Z",
+   "market": "1x2",
+   "selection": {
+    "code": "home",
+    "label": "Lyon to win"
+   },
+   "probability": 0.691851,
+   "forecast": {
+    "owner": "soccer-league-forecasts (Ligue 1, model-only)",
+    "modelId": "epl-model-v1-split-poisson",
+    "stampedAt": "2026-10-25T13:44:17Z",
+    "ref": "app/public/data/soccer/ligue-1/forecasts/latest.json#soccer:ligue-1:401876418"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.691851,
+    "draw": 0.192855,
+    "away": 0.115294,
+    "outcomeLabel": "home win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "ligue-1",
+   "eventId": "soccer:ligue-1:401876413",
+   "eventLabel": "Troyes v Le Mans",
+   "startUtc": "2026-10-31T19:45:00.000Z",
+   "market": "1x2",
+   "selection": {
+    "code": "away",
+    "label": "Le Mans to win"
+   },
+   "probability": 0.531683,
+   "forecast": {
+    "owner": "soccer-league-forecasts (Ligue 1, model-only)",
+    "modelId": "epl-model-v1-split-poisson",
+    "stampedAt": "2026-10-25T13:44:17Z",
+    "ref": "app/public/data/soccer/ligue-1/forecasts/latest.json#soccer:ligue-1:401876413"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.250707,
+    "draw": 0.21761,
+    "away": 0.531683,
+    "outcomeLabel": "away win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "away"
+   }
+  },
+  {
+   "sport": "ligue-1",
+   "eventId": "soccer:ligue-1:401876414",
+   "eventLabel": "Strasbourg v AJ Auxerre",
+   "startUtc": "2026-11-01T14:00:00.000Z",
+   "market": "1x2",
+   "selection": {
+    "code": "home",
+    "label": "Strasbourg to win"
+   },
+   "probability": 0.580065,
+   "forecast": {
+    "owner": "soccer-league-forecasts (Ligue 1, model-only)",
+    "modelId": "epl-model-v1-split-poisson",
+    "stampedAt": "2026-10-25T13:44:17Z",
+    "ref": "app/public/data/soccer/ligue-1/forecasts/latest.json#soccer:ligue-1:401876414"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.580065,
+    "draw": 0.21854,
+    "away": 0.201396,
+    "outcomeLabel": "home win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "home"
+   }
+  },
+  {
+   "sport": "ligue-1",
+   "eventId": "soccer:ligue-1:401876415",
+   "eventLabel": "Paris FC v AS Monaco",
+   "startUtc": "2026-11-01T16:15:00.000Z",
+   "market": "1x2",
+   "selection": {
+    "code": "away",
+    "label": "AS Monaco to win"
+   },
+   "probability": 0.438694,
+   "forecast": {
+    "owner": "soccer-league-forecasts (Ligue 1, model-only)",
+    "modelId": "epl-model-v1-split-poisson",
+    "stampedAt": "2026-10-25T13:44:17Z",
+    "ref": "app/public/data/soccer/ligue-1/forecasts/latest.json#soccer:ligue-1:401876415"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.340628,
+    "draw": 0.220678,
+    "away": 0.438694,
+    "outcomeLabel": "away win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "away"
+   }
+  },
+  {
+   "sport": "ligue-1",
+   "eventId": "soccer:ligue-1:401876417",
+   "eventLabel": "Marseille v Toulouse",
+   "startUtc": "2026-11-01T19:45:00.000Z",
+   "market": "1x2",
+   "selection": {
+    "code": "home",
+    "label": "Marseille to win"
+   },
+   "probability": 0.539887,
+   "forecast": {
+    "owner": "soccer-league-forecasts (Ligue 1, model-only)",
+    "modelId": "epl-model-v1-split-poisson",
+    "stampedAt": "2026-10-25T13:44:17Z",
+    "ref": "app/public/data/soccer/ligue-1/forecasts/latest.json#soccer:ligue-1:401876417"
+   },
+   "uncertainty": {
+    "kind": "1x2",
+    "home": 0.539887,
+    "draw": 0.222366,
+    "away": 0.237747,
+    "outcomeLabel": "home win"
+   },
+   "participantStatuses": [],
+   "settlement": {
+    "grader": "soccer-1x2-official-final",
+    "market": "1x2",
+    "side": "home"
+   }
+  }
+ ]
+}

@@ -37,9 +37,10 @@ export function nbaGameWinnersBlock({ answer, repoRoot, day, enabled = nbaGameWi
   return nbaGameWinnerTiers({ legs: (answer.untiered ?? []).filter((l) => l.sport === "nba"), accessor: d.accessor, receiptOf: d.receiptOf, disclosure: d.disclosure, enabled: true });
 }
 
-export function buildLevelAModel({ repoRoot = path.resolve(process.cwd(), ".."), now = new Date().toISOString(), productDay = null, nbaGameWinners: gw = {}, mixed: mx = {} } = {}) {
+/** `sources` replaces the files read for the day (levelASources) — tests pin a past build's committed inputs with it. */
+export function buildLevelAModel({ repoRoot = path.resolve(process.cwd(), ".."), now = new Date().toISOString(), productDay = null, sources = null, nbaGameWinners: gw = {}, mixed: mx = {} } = {}) {
   const day = productDay ?? productDayOf(now);
-  const src = levelASources({ repoRoot, date: day });
+  const src = sources ?? levelASources({ repoRoot, date: day });
   const answer = levelASuggestions({ selections: src.selections, now, productDay: day });
   /** @type {Record<string, number>} */
   const refusedByReason = {};

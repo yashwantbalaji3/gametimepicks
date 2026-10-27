@@ -6,7 +6,8 @@
  *   2. withdrawn.jsonl: append-only events (withdrawn / reinstated) beside the suggestions record, never editing it.
  *   3. The 5 backfilled 10-26 mixed-card events, checked against the record and the deployment evidence.
  * Run: npx tsx --test src/lib/products/level-a/level-a-withdrawals.test.mjs
- * Selections and snapshots marked FIXTURE are test inputs; REAL-DATA tests read the committed 10-26 files.
+ * Selections and snapshots marked FIXTURE are test inputs. REAL-DATA tests read committed 10-26 inputs PINNED to the
+ * 22:51:01Z build (__fixtures__/level-a-sources-2026-10-26.json and the dated snapshot file), never "the latest" file.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -58,13 +59,32 @@ test("MLB READER: every game in the latest snapshot is returned with the owner's
   assert.deepEqual(rows.map((r) => [r.eventId, r.sourceStatus]), [["1", "ready"], ["2", "degraded"], ["3", "unavailable"], ["4", "started-before-generation"]]);
 });
 
-test("REAL DATA 10-26: 849804 (degraded at 20:40Z) is refused visibly; the cards are exactly what the silent filter produced", () => {
-  const model = buildLevelAModel({ repoRoot: REPO, now: "2026-10-26T22:51:01Z", productDay: "2026-10-26", mixed: { enabled: true } });
+/** The 22:51:01Z build's selections, frozen from the files committed at its commit (see the fixture's note). A later
+ *  lineup refresh (00:41Z) and the soccer lanes' latest files moved on; this proves the same property forever. */
+const PINNED_1026 = JSON.parse(fs.readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), "__fixtures__/level-a-sources-2026-10-26.json"), "utf8"));
+const BUILT_1026 = "2026-10-26T22:51:01Z";
+
+test("REAL DATA 10-26 (pinned): the frozen MLB row is exactly what the reader makes of the dated snapshot-202610262040 file", () => {
+  assert.equal(PINNED_1026.builtAt, BUILT_1026);
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "level-a-1026-"));
+  const rel = "data/internal/mlb/prediction-snapshots/2026-10-26/snapshot-202610262040.json";
+  fs.mkdirSync(path.join(root, path.dirname(rel)), { recursive: true });
+  fs.copyFileSync(path.join(REPO, rel), path.join(root, rel)); // the committed, dated file itself — it never changes
+  const sims = path.join(root, "app/public/data/mlb/full-game-simulations/2026-10-26.json");
+  fs.mkdirSync(path.dirname(sims), { recursive: true });
+  fs.writeFileSync(sims, JSON.stringify({ games: [{ gamePk: 849804, firstPitch: "2026-10-27T00:00:00Z" }] })); // first pitch as committed at the build
+  assert.deepEqual(mlbSelections({ repoRoot: root, date: "2026-10-26" }), PINNED_1026.selections.filter((s) => s.sport === "mlb"));
+  assert.equal(PINNED_1026.selections.find((s) => s.eventId === "849804").sourceStatus, "degraded");
+});
+
+test("REAL DATA 10-26 (pinned): 849804 (degraded at 20:40Z) is refused visibly; the cards are exactly what the silent filter produced", () => {
+  const sel = PINNED_1026.selections;
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "level-a-1026-")); // reads nothing for the day: every input is pinned
+  const model = buildLevelAModel({ repoRoot: root, now: BUILT_1026, productDay: "2026-10-26", sources: { selections: sel, nbaProjections: [] }, mixed: { enabled: true } });
   assert.deepEqual(model.refusedByReason, { SOURCE_NOT_READY: 1, INSIDE_CUTOFF: 2, EVENT_STARTED: 7 });
   const r = model.refused.find((x) => x.sport === "mlb" && x.eventId === "849804");
   assert.deepEqual([r.reasons, r.text], [["SOURCE_NOT_READY"], [LEG_REFUSAL.SOURCE_NOT_READY]]);
-  for (const now of ["2026-10-26T20:46:26.268Z", "2026-10-26T22:51:01Z"]) {
-    const sel = levelASources({ repoRoot: REPO, date: "2026-10-26" }).selections;
+  for (const now of ["2026-10-26T20:46:26.268Z", BUILT_1026]) {
     const all = levelASuggestions({ selections: sel, now, productDay: "2026-10-26" });
     const old = levelASuggestions({ selections: sel.filter((s) => s.sourceStatus == null || s.sourceStatus === "ready"), now, productDay: "2026-10-26" });
     for (const k of ["legs", "untiered", "parlayLab", "bankBuilder", "moonshot"]) assert.deepEqual(all[k], old[k], `${now}: ${k} unchanged`);
