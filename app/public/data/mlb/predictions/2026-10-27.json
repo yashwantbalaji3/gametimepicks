@@ -1,7 +1,7 @@
 {
   "sport": "mlb",
   "date": "2026-10-27",
-  "generatedAt": "2026-10-27T15:43:03.000Z",
+  "generatedAt": "2026-10-27T20:11:04.000Z",
   "decisionEngineVersion": "mlb-prediction-2026.10-v2",
   "sourceArtifact": "full-game-simulations/2026-10-27.json",
   "notBettingAdvice": true,
@@ -15,20 +15,20 @@
       "homeTeam": "TB",
       "awayTeamName": "Milwaukee Brewers",
       "homeTeamName": "Tampa Bay Rays",
-      "artifactHash": "561a975d71d8e291e070282a41f300a1305b34b8b69014a6e96136482d30fb8f",
+      "artifactHash": "aba2f99319c1b0ac1861b89892b067530edf63f0ed80a58c24ae5bd94e1a9690",
       "decisionEngineVersion": "mlb-prediction-2026.10-v2",
       "completeness": {
-        "level": "unavailable",
+        "level": "degraded",
         "notes": [
-          "TB lineup padded: 0/9 batters have a posted line and the rest are at replacement level; TB have not posted a batting order yet, and this refreshes hourly until they do.",
+          "TB confirmed batting order used; 9 of 9 have no GTP projection (no posted prop line, or too little data) and are simulated at replacement-level rates; the box score marks each one.",
           "MIL has no posted probable starter — simulated vs a league bullpen aggregate."
         ],
         "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
+        "homeLineupSource": "confirmed",
         "awayRatedCount": 9,
         "homeRatedCount": 0,
         "awayLineupCount": 9,
-        "homeLineupCount": 0,
+        "homeLineupCount": 9,
         "hasAwayStarter": false,
         "hasHomeStarter": true,
         "startedBeforeGeneration": false,
@@ -56,16 +56,148 @@
           "homeCover": 0.5913
         }
       },
-      "status": "unavailable",
-      "predictedWinner": null,
-      "projectedScore": null,
-      "moneyline": null,
-      "total": null,
-      "runLine": null,
-      "teamTotals": [],
-      "topPlayerPredictions": [],
+      "status": "degraded",
+      "predictedWinner": {
+        "side": "away",
+        "team": "MIL"
+      },
+      "projectedScore": {
+        "away": 4,
+        "home": 2,
+        "label": "Median simulation score"
+      },
+      "moneyline": {
+        "side": "away",
+        "team": "MIL",
+        "simulationProbability": 0.655,
+        "marketImpliedProbability": 0.559,
+        "marketAgreement": "MODEL HIGHER",
+        "strengthLabel": "STRONG SIMULATION"
+      },
+      "total": {
+        "line": 7,
+        "pick": "UNDER",
+        "overProbability": 0.392,
+        "underProbability": 0.489,
+        "pushProbability": 0.119,
+        "simulationMedian": 7,
+        "marketImpliedOver": 0.506,
+        "strengthLabel": "LEAN"
+      },
+      "runLine": {
+        "basis": "POSTED_LINE",
+        "favorite": "away",
+        "line": 1.5,
+        "homeLine": 1.5,
+        "pick": "MIL -1.5",
+        "pickSide": "away",
+        "pickLine": -1.5,
+        "coverProbability": 0.506,
+        "opposingCoverProbability": 0.494,
+        "pushProbability": 0,
+        "marketImpliedProbability": 0.4087,
+        "bookmaker": "draftkings",
+        "capturedAt": "2026-10-27T09:31:20.287Z",
+        "strengthLabel": "LEAN"
+      },
+      "teamTotals": [
+        {
+          "team": "MIL",
+          "side": "away",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 4,
+          "unavailableReason": "No posted team-total line."
+        },
+        {
+          "team": "TB",
+          "side": "home",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 2,
+          "unavailableReason": "No posted team-total line."
+        }
+      ],
+      "topPlayerPredictions": [
+        {
+          "player": "Brice Turang",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 0.5,
+          "pick": "OVER",
+          "simulationProbability": 0.762,
+          "marketImpliedProbability": 0.649,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Cooper Pratt",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 0.5,
+          "pick": "OVER",
+          "simulationProbability": 0.699,
+          "marketImpliedProbability": 0.608,
+          "strengthLabel": "STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Brice Turang",
+          "team": "",
+          "market": "batter_hits_runs_rbis",
+          "marketLabel": "Hits + Runs + RBIs",
+          "line": 1.5,
+          "pick": "OVER",
+          "simulationProbability": 0.69,
+          "marketImpliedProbability": 0.488,
+          "strengthLabel": "STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Jackson Chourio",
+          "team": "",
+          "market": "batter_hits_runs_rbis",
+          "marketLabel": "Hits + Runs + RBIs",
+          "line": 1.5,
+          "pick": "OVER",
+          "simulationProbability": 0.673,
+          "marketImpliedProbability": 0.571,
+          "strengthLabel": "STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "William Contreras",
+          "team": "",
+          "market": "batter_hits_runs_rbis",
+          "marketLabel": "Hits + Runs + RBIs",
+          "line": 1.5,
+          "pick": "OVER",
+          "simulationProbability": 0.605,
+          "marketImpliedProbability": 0.505,
+          "strengthLabel": "STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        }
+      ],
       "unavailableReasons": [
-        "Not enough pregame lineup data to simulate this game (TB lineup padded: 0/9 batters have a posted line and the rest are at replacement level; TB have not posted a batting order yet, and this refreshes hourly until they do. MIL has no posted probable starter — simulated vs a league bullpen aggregate.)."
+        "Team totals: no posted market lines (simulated team runs shown as evidence)."
       ]
     }
   ]
