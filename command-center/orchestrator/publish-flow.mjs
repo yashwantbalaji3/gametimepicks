@@ -34,6 +34,8 @@ import { checkFounder } from "./policy.mjs";
 export const MAX_SPEND_CAP_USD = 25;
 /** The exact words the founder types to authorize live publishing (and its cap). */
 export const liveAuthorizationText = (capUsd) => `I authorize live X publishing up to $${capUsd} per month`;
+/** Live TEST posts only (founder-triggered, one at a time): scheduled publishing stays in dry run. */
+export const liveTestAuthorizationText = (capUsd) => `I authorize live X test posts up to $${capUsd} per month`;
 // NBA Predicted Winner and stat lines go out together as the game post (V2.3), never on their own
 const SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board"]);
 /** The X scopes a send needs: posting, and media.write whenever the post carries images. */
@@ -88,12 +90,18 @@ export function createPublishFlow(ctx) {
       const withdrawn = cancelQueued((j) => j.manual && j.live, `scheduled publishing switched to dry run by ${actor.id ?? "founder"}`, actor);
       return { ok: true, mode: "dry-run", withdrawnLiveTests: withdrawn };
     }
-    if (mode !== "live") return { ok: false, code: "UNKNOWN_MODE", detail: String(mode) };
+    if (mode !== "live" && mode !== "test-only") return { ok: false, code: "UNKNOWN_MODE", detail: String(mode) };
     const cap = Number(capUsd);
     if (!(cap > 0 && cap <= MAX_SPEND_CAP_USD)) return { ok: false, code: "CAP_INVALID", detail: `a monthly cap between $1 and $${MAX_SPEND_CAP_USD}` };
-    if (String(authorization ?? "").trim() !== liveAuthorizationText(cap)) return { ok: false, code: "AUTHORIZATION_TEXT", detail: `type exactly: ${liveAuthorizationText(cap)}` };
+    const words = mode === "live" ? liveAuthorizationText(cap) : liveTestAuthorizationText(cap);
+    if (String(authorization ?? "").trim() !== words) return { ok: false, code: "AUTHORIZATION_TEXT", detail: `type exactly: ${words}` };
     const x = ctx.oauth ? await ctx.oauth.status() : { connected: false };
     if (!x.connected) return { ok: false, code: "X_NOT_CONNECTED", detail: "connect the X account first" };
+    if (mode === "test-only") {
+      // a cap for founder-triggered live tests; scheduled publishing stays a dry run
+      store.append("publish-policy", actor.id ?? "founder", { mode: "dry-run", liveTests: true, capUsd: cap, authorization: words, by: actor.id ?? "founder", authentication: actor.authentication ?? null });
+      return { ok: true, mode: "dry-run", liveTests: true, capUsd: cap };
+    }
     store.append("publish-policy", actor.id ?? "founder", { mode: "live", capUsd: cap, authorization: liveAuthorizationText(cap), by: actor.id ?? "founder", authentication: actor.authentication ?? null });
     return { ok: true, mode: "live", capUsd: cap };
   }

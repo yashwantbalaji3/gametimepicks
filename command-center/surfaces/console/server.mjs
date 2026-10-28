@@ -91,6 +91,7 @@ async function publishingAction(body) {
       return p.publishNow({ decisionId: body.decisionId, live: true }, { ...FOUNDER, authentication: "loopback console + macOS dialog confirmation" });
     }
     case "policy": {
+      if (body.mode === "test-only" && !(await confirmOnMac(`Allow founder-triggered live TEST posts to X, capped at $${Number(body.capUsd)} per month? Scheduled publishing stays a dry run.`, "Allow live tests"))) return { ok: false, code: "NOT_CONFIRMED_ON_MAC", detail: "the macOS confirmation was not given" };
       if (body.mode === "live" && !(await confirmOnMac(`Turn on SCHEDULED live publishing to X, capped at $${Number(body.capUsd)} per month?`))) return { ok: false, code: "NOT_CONFIRMED_ON_MAC", detail: "the macOS confirmation was not given" };
       return p.setPolicy({ mode: body.mode, capUsd: body.capUsd, authorization: body.authorization }, { ...FOUNDER, authentication: body.mode === "live" ? "loopback console + macOS dialog confirmation" : FOUNDER.authentication });
     }

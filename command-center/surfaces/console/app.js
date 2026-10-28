@@ -447,13 +447,13 @@
     if (!pub) return "";
     const x = pub.x ?? {};
     return `<div class="pubbar ${pub.paused ? "blocked" : "receipt"}">
-      <div><b>X publishing:</b> ${pub.mode === "live" ? `LIVE (scheduled), cap $${esc(pub.capUsd)}/month, $${esc(pub.spentThisMonthUsd)} spent` : "DRY RUN — nothing is sent to X"} · ${pub.paused ? "<b>PAUSED</b>" : "running"} · scheduler ${pub.lastTick ? `ticked ${esc(time(pub.lastTick))}` : `every ${esc(pub.schedulerIntervalSec ?? 30)} s`}</div>
+      <div><b>X publishing:</b> ${pub.mode === "live" ? `LIVE (scheduled), cap $${esc(pub.capUsd)}/month, $${esc(pub.spentThisMonthUsd)} spent` : pub.capUsd > 0 ? `Scheduled: DRY RUN · live TEST posts allowed, cap $${esc(pub.capUsd)}/month, $${esc(pub.spentThisMonthUsd)} spent` : "DRY RUN — nothing is sent to X"} · ${pub.paused ? "<b>PAUSED</b>" : "running"} · scheduler ${pub.lastTick ? `ticked ${esc(time(pub.lastTick))}` : `every ${esc(pub.schedulerIntervalSec ?? 30)} s`}</div>
       <div>X account: ${x.connected ? `connected (${esc((x.scopes ?? []).join(", "))}) · token refreshes ${x.refreshable ? "automatically" : "— reconnect needed"}` : x.clientConfigured ? "not connected" : "app Client ID not set (see docs/x-publisher-setup.md)"} · callback <code>${esc(x.redirectUri ?? "")}</code></div>
       ${x.connected && !(x.scopes ?? []).includes("media.write") ? `<div class="blocked"><b>X did not grant media.write.</b> Images can't be uploaded, so no game post can go out live. Disconnect X, check the app has Read and write permissions in the X Developer Console, then Connect again and allow every permission.</div>` : ""}
       <div class="row actions">
         <button class="btn small ${pub.publishingPaused ? "primary" : ""}" data-pub="${pub.publishingPaused ? "resume" : "pause"}">${pub.publishingPaused ? "Resume publishing" : "Pause publishing"}</button>
         ${x.clientConfigured ? `<button class="btn small" data-pub="${x.connected ? "x-disconnect" : "x-connect"}">${x.connected ? "Disconnect X" : "Connect X account"}</button>` : ""}
-        ${pub.mode === "live" ? `<button class="btn small" data-pub="policy-dry">Switch scheduled publishing to dry run</button>` : x.connected ? `<button class="btn small" data-pub="policy-live">Authorize scheduled live publishing…</button>` : ""}
+        ${pub.mode === "live" ? `<button class="btn small" data-pub="policy-dry">Switch scheduled publishing to dry run</button>` : x.connected ? `${pub.capUsd > 0 ? "" : `<button class="btn small" data-pub="policy-test">Authorize live test posts…</button>`}<button class="btn small" data-pub="policy-live">Authorize scheduled live publishing…</button>` : ""}
       </div>
       ${(pub.alerts ?? []).length ? `<details open><summary><b>${num(pub.alerts.length)} alert(s)</b></summary><ul class="warns">${pub.alerts.map((a) => `<li><b>${esc(a.severity)}</b> ${esc(a.code)} · ${esc(a.postId ?? "")} — ${esc(a.detail)} <span class="muted">${esc(time(a.at))}</span> <button class="btn small" data-pub="ack" data-alert="${esc(a.alertId)}">Acknowledge</button></li>`).join("")}</ul></details>` : ""}
       ${(pub.jobs ?? []).length ? `<details><summary>Publishing jobs (${num(pub.jobs.length)})</summary><ul>${pub.jobs.map((j) => `<li>${esc(JOB_LABEL[j.status] ?? j.status)} · ${esc(j.title ?? j.postId)} · due ${esc(new Date(j.dueAt).toLocaleString())}${j.results.at(-1)?.code ? ` · ${esc(j.results.at(-1).code)}` : ""}</li>`).join("")}</ul></details>` : ""}
@@ -878,6 +878,14 @@
         if (url.trim()) body.url = url.trim(); else body.notPosted = true;
       }
       if (a === "policy-dry") { body.action = "policy"; body.mode = "dry-run"; }
+      if (a === "policy-test") {
+        const cap = prompt("Monthly spend cap in US dollars for live TEST posts (1–25). Scheduled publishing stays a dry run:");
+        if (!cap) return;
+        const words = `I authorize live X test posts up to $${Number(cap)} per month`;
+        const typed = prompt(`To authorize, type exactly:\n\n${words}`);
+        if (typed === null) return;
+        Object.assign(body, { action: "policy", mode: "test-only", capUsd: Number(cap), authorization: typed });
+      }
       if (a === "policy-live") {
         const cap = prompt("Monthly spend cap in US dollars for scheduled live publishing (1–25):");
         if (!cap) return;

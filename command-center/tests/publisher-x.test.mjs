@@ -417,3 +417,25 @@ test("review fixes: 'not posted' lifts the block; an unrecorded attempt is UNKNO
   assert.ok((await P.setPolicy({ mode: "dry-run" }, FOUNDER)).ok);
   h.setNow("2026-10-28T16:30:00.000Z");
 });
+
+test("live TEST posts can be authorized on their own: scheduled jobs stay dry runs", { skip: hasSlate ? false : "slate commit missing", timeout: 600_000 }, async () => {
+  const { liveTestAuthorizationText } = await import("../orchestrator/publish-flow.mjs");
+  const h = await slate();
+  const P = h.o.publishing;
+  assert.ok((await P.setPolicy({ mode: "dry-run" }, FOUNDER)).ok);
+  assert.equal((await P.setPolicy({ mode: "test-only", capUsd: 3, authorization: liveAuthorizationText(3) }, FOUNDER)).code, "AUTHORIZATION_TEXT", "the scheduled sentence doesn't authorize tests");
+  const r = await P.setPolicy({ mode: "test-only", capUsd: 3, authorization: liveTestAuthorizationText(3) }, FOUNDER);
+  assert.deepEqual([r.ok, r.mode, r.liveTests], [true, "dry-run", true]);
+  const st = await P.state();
+  assert.equal(st.mode, "dry-run");
+  assert.equal(st.capUsd, 3);
+  const g = gamePost(h, "401909889");
+  assert.ok((await approve(h, g)).ok);
+  const s = P.schedule({ decisionId: g.decisionId }, FOUNDER);
+  assert.ok(s.ok, JSON.stringify(s));
+  h.setNow(new Date(Date.parse(s.job.dueAt) + 10_000).toISOString());
+  const x = h.setX(() => { throw new Error("a scheduled job must not call X in dry-run mode"); });
+  assert.deepEqual((await P.runDue()).ran.filter((j) => j.jobId === s.job.jobId).map((j) => j.state), ["DRY_RUN"]);
+  assert.equal(x.calls.length, 0);
+  h.setNow("2026-10-28T16:30:00.000Z");
+});
