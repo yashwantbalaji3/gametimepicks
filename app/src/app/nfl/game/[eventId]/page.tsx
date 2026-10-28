@@ -255,6 +255,9 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
    */
   const liveTop = started || !!archived;
   const postgame = started ? loadNflPostgame(params.eventId, { away: f.away, home: f.home }) : null;
+  /* The header's state comes from the facts the page itself renders: SETTLED, an official final box score, or the
+     archived record's reconciled final. */
+  const isFinal = lifecycle === "SETTLED" || Boolean(postgame) || Boolean(archived?.reconciliation?.final);
   const livePanel = (
     <LivePanel
       sport="nfl"
@@ -279,7 +282,10 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
       <header style={{ marginTop: 12 }}>
         <p style={{ margin: 0, fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
           {f.seasonType === 1 ? "Preseason" : "Regular season"} · week {f.week} · {etTime(f.kickoffUtc)}
-          <KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={started} when="after">{" · started"}</KickoffSlot>
+          {/* Overnight W8 (2026-10-28): a game whose final this page already shows reads "final", never "started" — the
+              same settled/final facts the page renders below (lifecycle SETTLED, the official box score, or the archive's
+              reconciled final). Before that, the kickoff-aware suffix as before. */}
+          {isFinal ? " · final" : <KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={started} when="after">{" · started"}</KickoffSlot>}
         </p>
         <h1 style={{ margin: "8px 0 0", fontSize: 26 }}>
           {f.away.name} <span style={{ color: "var(--vault-text-faint)", fontSize: 16 }}>at</span> {f.home.name}
