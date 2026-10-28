@@ -574,7 +574,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
       {/* Founder decision 2026-10-20: World Model V2 is a SUPPORTING simulation — its counted outcomes and sampled games
           render below the official numbers, in their own labelled block (forecast-view.mjs SUPPORTING_LABEL), never as a
           player row, a ranked board or a headline. */}
-      {view?.simulation ? <SimulationPanel sim={view.simulation} away={f.away.abbr} home={f.home.abbr} recordWinHome={s.winProbability.home} /> : null}
+      {view?.simulation ? <SimulationPanel sim={view.simulation} away={f.away.abbr} home={f.home.abbr} recordWin={s.winProbability} /> : null}
       {view?.simulation?.sampledWorlds?.length ? (
         <section id="sampled-games" className="nf-section" aria-labelledby="nf-explorer-h" data-role="supporting-simulation">
           <p className="nf-eyebrow">{view.simulation.label} · simulated game explorer</p>
