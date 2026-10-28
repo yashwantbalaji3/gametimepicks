@@ -189,3 +189,18 @@ test("EPL match page: model id and λ only in Technical details; the 'other fixt
   assert.match(page, /siblings\.every\(\(sib\) => sib\.matchweek === row\.matchweek\) \? `Other Matchweek \$\{row\.matchweek\} fixtures` : "Latest Premier League forecasts"/);
   assert.doesNotMatch(read("src/components/epl/epl-match-what-happened.tsx"), /archived pre-kickoff revision/);
 });
+
+// ── 5 · UFC hub ─────────────────────────────────────────────────────────────────────────────────────────────
+
+test("UFC hub: the board is the one visible listing of the card; previews fold; no model-reads repeat or second header", () => {
+  const hub = code("src/app/ufc/page.tsx");
+  assert.equal((hub.match(/<UfcPredictionBoard /g) ?? []).length, 1);
+  assert.doesNotMatch(hub, /<TopReadsPanel/, "the model-reads panel repeated the board's picks");
+  const folded = hub.slice(hub.indexOf('<MoreDisclosure title="Fight-by-fight previews"'), hub.indexOf("</MoreDisclosure>", hub.indexOf('<MoreDisclosure title="Fight-by-fight previews"')));
+  assert.match(folded, /<UfcCard card=\{card\} \/>/, "the per-bout previews sit inside the disclosure");
+  assert.equal((hub.match(/<UfcCard /g) ?? []).length, 1);
+  const overview = hub.slice(hub.indexOf('<header id="ufc-overview"'), hub.indexOf("</header>", hub.indexOf('<header id="ufc-overview"')));
+  assert.doesNotMatch(overview, /<h2|Live action → Today/, "no second title or link row mid-page");
+  assert.doesNotMatch(hub, /\b20\d\d-\d\d-\d\d\b/, "no ISO dates in the hub's copy");
+  assert.doesNotMatch(read("src/components/sports/ufc-card.tsx"), /\{m\.corpus\?\.from \?\? "\?"\}/, "the corpus span reads in words");
+});
