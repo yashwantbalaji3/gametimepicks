@@ -14,7 +14,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { moonshotInCore, coreBankrollNote, productLabelOf } from "./flagship.ts";
+import { moonshotInCore, coreBankrollNote, productLabelOf, buildCharts, CORE_RECORD_SCOPE } from "./flagship.ts";
 import { MOONSHOT_BANKROLL_RULE } from "../products/moonshot-state.mjs";
 import { SEED } from "./protected-fold.mjs";
 
@@ -66,4 +66,17 @@ test("no public surface says Moonshot is outside the core bankroll", () => {
     assert.doesNotMatch(code, /side lanes are (separate )?flat-stake paper/, f);
   }
   assert.match(MOONSHOT_BANKROLL_RULE, /move the core paper bankroll: a lost run costs the lane its \$25 seed/);
+});
+
+test("P0 U2: the core row's W–L carries its scope — it counts Bank Builder cards, not both products", () => {
+  const ml = read("mr-dub/master-ledger.json");
+  const perf = buildCharts([], ml).productPerformance;
+  const core = perf.find((p) => p.canonical);
+  assert.ok(core, "the core row is charted");
+  assert.equal(core.recordScope, CORE_RECORD_SCOPE);
+  assert.match(CORE_RECORD_SCOPE, /^Bank Builder cards only/);
+  for (const p of perf.filter((x) => !x.canonical)) assert.equal(p.recordScope, undefined, `${p.label} needs no scope note`);
+  const src = fs.readFileSync(path.join(APP, "src/components/mr-dub/flagship/analytics-charts.tsx"), "utf8");
+  assert.match(src, /p\.recordScope \? "\*" : ""/, "the starred W–L is rendered");
+  assert.match(src, /W–L on the core row: /, "and explained under the chart");
 });

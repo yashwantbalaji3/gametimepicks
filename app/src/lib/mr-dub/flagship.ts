@@ -88,7 +88,13 @@ export interface ProductPerf {
   productId: string; label: string; glyph: string;
   wins: number; losses: number; bets: number; profit: number; winRate: number;
   net: "positive" | "negative" | "flat"; canonical: boolean;
+  /** What the W–L counts when it is narrower than the row's label (P0 U2 2026-10-28). */
+  recordScope?: string;
 }
+/* The core row's MONEY is the core bankroll (Bank Builder + Moonshot under Rule S), but its W–L is the master ledger's
+   Bank Builder card record (47–52 since Jun 9). Printed bare beside "Core bankroll (Bank Builder + Moonshot)" it read as
+   both products' record; the scope travels with the number instead. */
+export const CORE_RECORD_SCOPE = "Bank Builder cards only, all-time";
 export interface FlagshipCharts {
   bankroll: { date: string; closing: number }[];
   dailyRoi: { date: string; pl: number; plPct: number }[];
@@ -316,6 +322,7 @@ export function buildCharts(timelineNewestFirst: TimelineDay[], masterLedger: an
       wins, losses, bets: wins + losses, profit,
       winRate: wins + losses > 0 ? round2((wins / (wins + losses)) * 100) : 0,
       net: profit > 0.009 ? "positive" : profit < -0.009 ? "negative" : "flat", canonical: !!p.canonical,
+      ...(p.canonical ? { recordScope: CORE_RECORD_SCOPE } : {}),
     };
   }).filter((p: ProductPerf) => p.bets > 0 || p.canonical);
   return { bankroll, dailyRoi, drawdown, productPerformance, heatmap };
