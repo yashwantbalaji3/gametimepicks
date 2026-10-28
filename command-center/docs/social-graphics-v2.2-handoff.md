@@ -69,3 +69,14 @@ Captions: `docs/captions-v2.2-before-after.md` (5 NBA + 5 NFL, before and both a
 - **Linux rendering:** still untested (hosted runner, CP-H1).
 - **No source for TD availability:** this stays your manual confirmation.
 - **Next milestone:** X Publisher V1, not started.
+
+## Update · 2026-10-28, 2:50 PM ET: gtp-social@2.2.1
+
+- **NBA stat values all white.** PTS was green, which reads as a signal. Green/red stays reserved for a verified Over/Under comparison (V2.3). A test asserts one neutral colour for all values.
+- **New template version `gtp-social@2.2.1`.** You approved `gtp-social@2.2` in the console at 1:57 PM ET. That record stays in the ledger, but it covered the green-PTS design, so it does not carry over: 2.2.1 needs one click.
+- **Queue rebuilt at data `eb40f68149`** (2:42 PM ET) for Oct 28, Oct 29, Nov 1 and Nov 2:
+  - 103 open (81 ready, 22 need verification); 85 graphics on 2.2.1; no decisions changed.
+  - Independent checks: 345/345 numbers match the published files.
+  - All 85 renders show the right footer once and the official logo, with one name size per group.
+  - Tests: 141/141, normal and offline.
+- **X publishing:** see `docs/x-publisher-v1-assessment.md`.
