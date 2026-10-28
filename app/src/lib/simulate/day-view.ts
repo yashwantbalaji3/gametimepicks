@@ -604,11 +604,11 @@ function nbaPastEvents(date: string, today: string, captured: UpcomingEvent[]): 
     const rec = r.inLane ? nbaRecord().get(id) ?? null : null;
     const f = rec?.final ? { away: rec.final.away, home: rec.final.home } : finals.has(id) ? { away: finals.get(id)!.ftAway, home: finals.get(id)!.ftHome } : null;
     const score = f && Number.isFinite(f.away) && Number.isFinite(f.home) ? `Final: ${r.awayCode} ${f.away} – ${f.home} ${r.homeCode}.` : null;
-    // the record's own disposition: a side won or lost (or a final it does not compare) → settled; held → awaiting; no final → started
+    /* A past date's game has started. The official record decides the rest through the one lifecycle rule
+       (postStartState): a final the record graded (won/lost, or a final it does not compare) → settled; a held game,
+       or a final the record has not graded → final, grading pending; no final → started. */
     const state: SimEventState = !r.inLane ? "SCHEDULE_ONLY"
-      : rec?.state === "HELD" ? "AWAITING_SETTLEMENT"
-        : rec?.final ? "SETTLED"
-          : "STARTED";
+      : postStartState({ started: true, final: rec?.state === "HELD" || f !== null, settled: !!rec?.final && rec.state !== "HELD" }) ?? "STARTED";
     const reason = !r.inLane
       ? `${score ? `${score} ` : ""}No ${PUBLIC_TERMS.OFFICIAL_FORECAST} was published for this game.`
       : `${score ? `${score} ` : ""}${settledVerdictText(rec?.state ?? "", r.favoured)}`;
