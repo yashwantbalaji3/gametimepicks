@@ -59,7 +59,7 @@ function fixtureSource({ siteHome = 0.62, ledgerReceipt = null } = {}) {
   if (ledgerReceipt) w("data/internal/forecast-ledger/v1/nfl.jsonl", `${JSON.stringify({ family: "nfl_game_winner", eventId: "999", publicationStatus: "PUBLISHED", forecastId: "fl1-x", receiptId: ledgerReceipt })}\n`);
   return dirDataSource(root);
 }
-const nums = (home) => ({ side: "home", sideTeam: "GB", sideProbability: home, sideProbabilityDisplay: `${(Math.round(home * 1000) / 10).toFixed(1)}%`, projected: { home: 24, away: 20 }, abstention: null });
+const nums = (home) => ({ side: "home", sideTeam: "GB", sideProbability: home, sideProbabilityDisplay: `${(home * 100).toFixed(1)}%`, projected: { home: 24, away: 20 }, abstention: null });
 
 test("freeze-time verifier: a version with no published side is BLOCKED and builds no caption", () => {
   const root = tempDir("gtp-cc-noside-");

@@ -1,0 +1,46 @@
+<!doctype html>
+<!-- nfl-social@2 shell — 1080×1350. Stage (team-colour light, beams, field, grain) + one format body. Every visible fact
+     is filled from a verified view-model (recap/social-v2.mjs), HTML-escaped; no remote request is ever made. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>{{rawCss}}</style>
+</head>
+<body style="{{rawVars}}">
+  <div class="stage">
+    <div class="half l"></div><div class="half r"></div>
+    <div class="ghost l">{{ghostA}}</div><div class="ghost r">{{ghostB}}</div>
+    <div class="crowd"></div>
+    <div class="lights"></div>
+    <div class="beams">
+      <div class="beam" style="left:60px;transform:rotate(-24deg)"></div>
+      <div class="beam" style="left:170px;transform:rotate(-15deg);opacity:.7"></div>
+      <div class="beam" style="right:60px;transform:rotate(24deg)"></div>
+      <div class="beam" style="right:170px;transform:rotate(15deg);opacity:.7"></div>
+    </div>
+    <div class="flare" style="left:-120px;top:-150px"></div><div class="flare" style="right:-120px;top:-150px"></div>
+    <div class="field"></div>
+    <div class="seam"></div>
+    <div class="vignette"></div>
+    <svg class="grain" width="1080" height="1350" xmlns="http://www.w3.org/2000/svg"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#g)"/></svg>
+  </div>
+  <div class="content">
+    <div class="top"><img class="logo" src="{{logoDataUri}}" alt=""><div class="chip" data-fit>{{chip}}</div></div>
+    {{rawBody}}
+  </div>
+  <script>
+    // Deterministic fit: shrink any [data-fit] element 2 px at a time until it fits its box (min 40% of its size);
+    // the renderer then reads window.__fit to fail the render if anything still overflows.
+    (function () {
+      var out = [];
+      document.querySelectorAll("[data-fit]").forEach(function (el) {
+        var size = parseFloat(getComputedStyle(el).fontSize), min = size * 0.4;
+        while ((el.scrollWidth > el.clientWidth + 1) && size > min) { size -= 2; el.style.fontSize = size + "px"; }
+        out.push({ text: el.textContent.trim().slice(0, 60), fits: el.scrollWidth <= el.clientWidth + 1, size: size });
+      });
+      var page = document.documentElement;
+      window.__fit = { items: out, pageOverflow: page.scrollWidth > 1080 || page.scrollHeight > 1350 };
+    })();
+  </script>
+</body>
+</html>

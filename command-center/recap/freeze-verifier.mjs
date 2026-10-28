@@ -33,7 +33,8 @@ const LEDGER = "data/internal/forecast-ledger/v1/nfl.jsonl";
 export const DEFAULT_MAX_DATA_AGE_MIN = 60;
 
 const sha = (s) => createHash("sha256").update(s).digest("hex");
-const pct = (p) => `${(Math.round(p * 1000) / 10).toFixed(1)}%`;
+/** The site's own formatter (app/src/app/nfl/game/[eventId]/page.tsx and friends): a post shows what the site shows. */
+const pct = (p) => `${(p * 100).toFixed(1)}%`;
 const parse = (src, p) => {
   const raw = src.read(p);
   return raw == null ? null : { json: JSON.parse(raw), sha256: sha(raw), path: p };

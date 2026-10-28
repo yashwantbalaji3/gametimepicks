@@ -29,7 +29,8 @@ const MAX_CAPTION = 280;
 const EXTRA_FORBIDDEN = ["odds", "bet now", "sure thing", "can't lose", "parlay", "bet", "betting", "picks"];
 
 const sha = (s) => createHash("sha256").update(s).digest("hex");
-const pct = (p) => `${(Math.round(p * 1000) / 10).toFixed(1)}%`;
+/** The site's own formatter (app/src/app/nfl/game/[eventId]/page.tsx and friends): a post shows what the site shows. */
+const pct = (p) => `${(p * 100).toFixed(1)}%`;
 const DAY = new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "short", day: "numeric" });
 export const dateLabel = (ymd) => DAY.format(new Date(`${ymd}T12:00:00Z`));
 const before = (a, b) => Date.parse(a) < Date.parse(b);

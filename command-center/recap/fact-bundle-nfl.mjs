@@ -17,7 +17,8 @@ const ET_TIME = new Intl.DateTimeFormat("en-US", {
 /** "Oct 25, 6:36 PM ET" */
 export const etDisplay = (iso) => `${ET_TIME.format(new Date(iso)).replace(" at ", ", ")} ET`;
 
-const pct = (p) => `${(Math.round(p * 1000) / 10).toFixed(1)}%`;
+/** The site's own formatter (app/src/app/nfl/game/[eventId]/page.tsx and friends): a post shows what the site shows. */
+const pct = (p) => `${(p * 100).toFixed(1)}%`;
 const nickname = (name) => String(name).split(" ").at(-1);
 
 /**

@@ -88,7 +88,7 @@ export function fillTemplate(templatePath, slots) {
 }
 export { escapeHtml };
 
-function loadChromium() {
+export function loadChromium() {
   const require = createRequire(path.join(REPO_ROOT, "app/package.json"));
   try {
     return require("@playwright/test").chromium;

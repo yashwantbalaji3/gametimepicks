@@ -1,0 +1,53 @@
+{
+  "schema": "gtp.cc.asset-manifest@1",
+  "manifestVersion": "nfl-social@2-assets.0",
+  "template": "nfl-social@2",
+  "status": "PROTOTYPE — founder design approval pending; not used by the daily queue",
+  "assets": [
+    {
+      "id": "gtp-logo",
+      "kind": "brand-logo",
+      "path": "app/public/brand/gametime-picks-logo.png",
+      "sha256": "193a2af6b65fe575a9eddcc67ffb6461ee36cf12bda9f4b2527b2b45798e524b",
+      "pixels": "600x450",
+      "provenance": "GameTimePicks' own logo, committed 8cf568d965 (2026-08-18, 'New green vault logo'). Inlined as-is: never redrawn, recoloured or regenerated.",
+      "rights": "owned by GameTimePicks"
+    },
+    {
+      "id": "nfl-team-colours",
+      "kind": "colour-data",
+      "path": "app/src/lib/simulation-theater/nfl-team-colors.mjs",
+      "evidence": "app/src/lib/simulation-theater/nfl-team-colors-evidence.json",
+      "evidenceSha256": "d6cbc3944efae924887cd095619c86d37529ccfa67e218855a138c1ac2b1d7c5",
+      "provenance": "Hex values cross-checked against public colour references (evidence accessed 2026-10-18; dev-route-colors.test.mjs recomputes every flag). Colours only — no logo, wordmark or uniform artwork.",
+      "rights": "colours alone; club names and abbreviations used nominatively to identify the teams in a factual result, with a non-affiliation line on every graphic. Trademark review before public use is a founder decision."
+    },
+    {
+      "id": "font-din-condensed",
+      "kind": "font",
+      "path": "/System/Library/Fonts/Supplemental/DIN Condensed Bold.ttf",
+      "sha256": "36958182a424e1e8a1307b2636a615a6323ce1bbfadda136735ab4fb3bd26ceb",
+      "rights": "UNVERIFIED for commercial social graphics: an Apple system font on this Mac, not vendored, absent on a Linux runner. Replace with a vendored OFL font before automation (see the review report)."
+    },
+    {
+      "id": "font-avenir-next-condensed",
+      "kind": "font",
+      "path": "/System/Library/Fonts/Avenir Next Condensed.ttc",
+      "sha256": "2648d9b6344edc3706a4ba14e8c08a03f4640b404090dfca9d991cadbaedeff8",
+      "rights": "UNVERIFIED for commercial social graphics (Apple system font). Same replacement plan."
+    },
+    {
+      "id": "font-avenir-next",
+      "kind": "font",
+      "path": "/System/Library/Fonts/Avenir Next.ttc",
+      "sha256": "98dec241f3ee712a37fad61aafdb83e225ed54c3e5b6e9f0abeb24eba13743ba",
+      "rights": "UNVERIFIED for commercial social graphics (Apple system font). Same replacement plan."
+    }
+  ],
+  "notUsed": [
+    { "kind": "player photography", "reason": "no licensed player photograph exists in the project; ESPN headshot URLs referenced in app/public/data/nfl/game-simulations/*.json are third-party images with no licence to republish and are NOT used" },
+    { "kind": "NFL shield or club logos", "reason": "none in the project and none licensed; not drawn or generated" },
+    { "kind": "AI-generated imagery", "reason": "none: every background element is CSS/SVG geometry with a fixed noise seed" },
+    { "kind": "jersey numbers / uniforms", "reason": "not shown" }
+  ]
+}

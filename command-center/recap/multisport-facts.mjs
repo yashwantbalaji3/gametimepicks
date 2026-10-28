@@ -28,7 +28,8 @@ const sha = (s) => crypto.createHash("sha256").update(s).digest("hex");
 const ET = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" });
 export const etDate = (iso) => ET.format(new Date(iso));
 const addDays = (ymd, n) => new Date(Date.parse(`${ymd}T12:00:00Z`) + n * 86400_000).toISOString().slice(0, 10);
-const pct = (p) => `${(Math.round(p * 1000) / 10).toFixed(1)}%`;
+/** The site's own formatter (app/src/app/nfl/game/[eventId]/page.tsx and friends): a post shows what the site shows. */
+const pct = (p) => `${(p * 100).toFixed(1)}%`;
 
 /** A read-only view of the data at one commit (git) or of a directory (tests). */
 export function gitDataSource(repoRoot, ref) {
