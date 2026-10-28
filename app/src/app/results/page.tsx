@@ -107,6 +107,7 @@ import { getTrustCenterModel } from "@/lib/results-trust-center";
 import { surfaceHref } from "@/lib/nav/date-sport-route";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import ModelSuggestionsRecord from "@/components/results/model-suggestions-record";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 import { levelARecordView } from "@/lib/results/nba-level-a-readers";
 
 export const metadata = withRouteMetadata("/results/", {
@@ -444,13 +445,23 @@ export default function ResultsPage() {
          stat, slates the integrity gate refused, and dates where no slate was ever built all stay in
          the count with a reason — dropping any of them would quietly improve every number beside
          them. */}
-      <ResultsAccountingSection rows={loadRecentAccounting(8)} />
+      {/* Overnight 10-28 (W5): eight day cards of eight counters each, open, and none named its sport — "Decisive record
+          51.22% (21 of 41 …)" read as the site's accuracy. It is the MLB player-prop ledger's accounting. Folded, with the
+          scope in its title; every row is still in the page. */}
+      <MoreDisclosure
+        className="mt-10"
+        title="MLB player-prop leans: every row we generated, day by day"
+        summary="The last eight slates, counted from what the model produced — including rows that never resolved and withheld slates."
+      >
+        <ResultsAccountingSection rows={loadRecentAccounting(8)} />
+      </MoreDisclosure>
 
       {/* The risk-ladder stream, in its own lane. Deliberately AFTER the settled product record and
           visibly separate: these paper cards never move the bankroll, and the bankroll's record
           never lends them credibility. */}
       <RiskLadderStream
-        published={loadPublishedBandRecord(path.join(process.cwd(), "public", "data"))}
+        published={loadPublishedBandRecord(path.join(process.cwd(), "public", "data"), "mlb")}
+        sportLabel="MLB"
         candidates={loadRiskLadderRecord(path.join(process.cwd(), "public", "data"))}
       />
 
