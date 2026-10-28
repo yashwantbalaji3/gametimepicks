@@ -475,12 +475,16 @@
     </article>`;
   }
   /** One status a person can read at a glance; "Sent" only with a real X receipt — a dry run is never "sent". */
-  function gameState(p, job) {
+  function gameState(p, job, design) {
+    const now = Date.now();
     if (p.receipt) return ["Sent", "life-published"];
+    if (design && p.package.template !== design.template && !p.resolution) return [`Outdated design (${p.package.template}) — not approvable`, "life-superseded"];
+    if (Date.parse(p.package.tipUtc) <= now) return ["Expired — tipped off", "life-superseded"];
     if (p.lifecycle === "superseded") return ["Superseded", "life-superseded"];
     if (p.package.status === "BLOCKED" || ["refused", "missed", "unknown", "failed_not_sent"].includes(job?.status)) return [job?.status === "unknown" ? "Outcome unknown — reconcile" : "Blocked / held", "life-rejected"];
     if (job?.status === "scheduled") return [`Scheduled ${new Date(job.dueAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`, "life-scheduled"];
     if (p.lifecycle === "approved") return [job?.status === "dry_run" ? "Approved · dry run passed (not sent)" : "Approved", "life-approved"];
+    if (Date.parse(p.package.suggestedPublishAt) <= now && job?.status !== "scheduled") return ["Ready to review · 45-min slot passed (before tip only)", "life-drafted"];
     if (["rejected", "revise", "deferred"].includes(p.lifecycle)) return [LIFE_LABEL[p.lifecycle], "life-rejected"];
     return [p.package.status === "NEEDS_VERIFICATION" ? "Ready to review · confirm availability" : "Ready to review", "life-drafted"];
   }
@@ -494,15 +498,17 @@
     const jobs = s.publishing?.jobs ?? [];
     const jobOf = (p) => jobs.find((j) => j.decisionId === p.decisionId);
     const when = (p) => jobOf(p)?.dueAt ?? p.package.suggestedPublishAt ?? p.package.tipUtc ?? "9999";
-    games.sort((a, b) => String(when(a)).localeCompare(String(when(b))));
+    // upcoming games first (by post time), then games that have tipped off
+    const tipped = (p) => Date.parse(p.package.tipUtc) <= Date.now();
+    games.sort((a, b) => Number(tipped(a)) - Number(tipped(b)) || String(when(a)).localeCompare(String(when(b))));
     const et = (iso) => (iso ? new Date(iso).toLocaleTimeString("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" }) + " ET" : "—");
-    const count = (label) => games.filter((p) => gameState(p, jobOf(p))[0].startsWith(label)).length;
-    return `<details class="cal-day game-day" open><summary><b>${esc(day === today ? "Today's" : new Date(`${day}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "long", timeZone: "UTC" }))} NBA game posts</b> · ${num(games.length)} game(s) · ${num(count("Ready"))} to review · ${num(count("Approved"))} approved · ${num(count("Scheduled"))} scheduled · ${num(count("Sent"))} sent · ${num(count("Blocked"))} held</summary>
+    const count = (label) => games.filter((p) => gameState(p, jobOf(p), s.design)[0].startsWith(label)).length;
+    return `<details class="cal-day game-day" open><summary><b>${esc(day === today ? "Today's" : new Date(`${day}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "long", timeZone: "UTC" }))} NBA game posts</b> · ${num(games.length)} game(s) · ${num(count("Ready"))} to review · ${num(count("Approved"))} approved · ${num(count("Scheduled"))} scheduled · ${num(count("Sent"))} sent · ${num(count("Blocked") + count("Outdated") + count("Expired"))} held or expired</summary>
       <div class="muted">One X post per game: the Predicted Winner graphic and the projected stat lines together, one caption. The separate NBA graphics are part of these posts and can't be approved or sent on their own.</div>
       ${games.map((p) => {
         const pkg = p.package;
         const job = jobOf(p);
-        const [state, cls] = gameState(p, job);
+        const [state, cls] = gameState(p, job, s.design);
         const check = p.checks.filter((c) => c.phase === "pre-publish").at(-1);
         return `<article class="post decision gamecard ${postOpen(p) ? "open" : ""}" id="post-${esc(p.decisionId)}">
           <div class="slot-head"><span class="tag life ${cls}">${esc(state)}</span><span class="tag">NBA game post</span><span class="tag ${p.designApproved ? "life-published" : "life-drafted"}">${esc(pkg.template)}${p.designApproved ? " · design ✓" : " · design not approved"}</span></div>
@@ -513,7 +519,7 @@
             <span>Post time</span><span>${esc(et(job?.dueAt ?? pkg.suggestedPublishAt))}${job?.status === "scheduled" ? " (scheduled)" : " (45 min before tip, not scheduled yet)"}</span>
             <span>Data</span><span>commit <code>${esc(String(pkg.dataCommit ?? "").slice(0, 10))}</code>${pkg.forecastVersion ? ` · forecast frozen ${esc(new Date(pkg.forecastVersion.frozenAt).toLocaleString())} · receipt <code>${esc(String(pkg.forecastVersion.receiptPayloadSha256 ?? "").slice(0, 10))}</code>` : ""}</span>
             <span>Freshness</span><span>${check ? `${esc(check.status)} at ${esc(time(check.checkedAt))}${check.reasons?.length ? ` — ${esc(check.reasons.join("; "))}` : ""}` : "not checked yet (re-checked automatically before any send)"}</span>
-            <span>Meter</span><span>${pkg.meterKey ? esc(pkg.meterKey.replace(/\|/g, " · ")) : "winner only (no eligible published estimate)"}</span>
+            <span>Meter</span><span>${pkg.meterKey ? esc(pkg.meterKey.replace(/\|/g, " · ")) : pkg.template !== s.design?.template ? `not shown: this package was built on ${esc(pkg.template)}, before the V2.3 meter existed` : "winner only (no eligible published estimate)"}</span>
             <span>X</span><span>${job ? esc(JOB_LABEL[job.status] ?? job.status) : "not scheduled"}${p.receipt ? ` · ${xLink(p.receipt.canonicalUrl)}` : ""}</span>
           </div>
           ${pkg.mediaSet ? `<div class="media-set">${pkg.mediaSet.map((m, i) => `<figure><img src="/media/${encodeURIComponent(m.file)}" alt="${esc(m.altText ?? "")}" data-zoom loading="lazy"><figcaption class="muted">Image ${i + 1}: ${i === 0 ? "Predicted Winner" : "Projected stat lines"}</figcaption></figure>`).join("")}</div>` : ""}
@@ -521,7 +527,7 @@
           ${pkg.featured?.length ? `<div class="muted">Featured: ${pkg.featured.map((f) => `<b>${esc(f.name ?? "none")}</b> (${esc(f.team)}) — ${esc(f.basis)}`).join(" · ")}. A caption highlight, not a ranking.</div>` : ""}
           ${postCaptions(p)}
           ${evidenceList(pkg)}
-          ${postActions(p)}
+          ${pkg.template !== s.design?.template && !p.resolution ? `<div class="blocked">Built on ${esc(pkg.template)}. The current design is ${esc(s.design?.template)}: rebuild the queue — this package can't be approved.</div>` : postActions(p)}
         </article>`;
       }).join("")}
     </details>`;
