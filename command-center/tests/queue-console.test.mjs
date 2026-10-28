@@ -38,7 +38,7 @@ async function builtQueue() {
 
 function startServer(port, outDir) {
   const child = spawn(process.execPath, [path.join(CC_ROOT, "surfaces/console/server.mjs")], {
-    env: { ...process.env, GTP_CC_PORT: String(port), GTP_CC_OUT_DIR: outDir, GTP_CC_STEP_DELAY_MS: "0", GTP_CC_X_HANDLE: "GameTimePicks" },
+    env: { ...process.env, GTP_CC_X_VAULT: "memory", GTP_CC_SCHEDULER: "off", GTP_CC_PORT: String(port), GTP_CC_OUT_DIR: outDir, GTP_CC_STEP_DELAY_MS: "0", GTP_CC_X_HANDLE: "GameTimePicks" },
     stdio: ["ignore", "pipe", "pipe"],
   });
   return new Promise((resolve, reject) => {

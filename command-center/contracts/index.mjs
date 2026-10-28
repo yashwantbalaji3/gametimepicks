@@ -81,6 +81,15 @@ export const LEDGER_KINDS = Object.freeze([
   "engagement",        // D1: numbers the founder copied from X analytics for a published post (not verified)
   "post-verification", // D1: a published pregame post re-checked against the forecast of record after kickoff
   "design-approval",   // V2.1: the founder approved a graphic template + asset-manifest version (never a post)
+  // X Publisher V1 (orchestrator/publish-flow.mjs) — tokens and secrets are never recorded
+  "publish-policy",    // dry-run / live mode and the founder's monthly spend cap (with the exact authorization words)
+  "publish-pause",     // the Pause Publishing switch
+  "publish-job",       // an approved post scheduled (or triggered by hand) for publishing
+  "publish-job-cancel",
+  "publish-attempt",   // the gate passed and a send started (the once-only claim key is recorded)
+  "publish-result",    // DRY_RUN · PUBLISHED · REFUSED · FAILED_NOT_SENT · UNKNOWN · MISSED
+  "publish-alert", "publish-alert-ack",
+  "publish-tick",      // a scheduler tick that ran at least one job
 ]);
 
 /** Refusal / reason codes shared by the orchestrator, the integrity gate and the publisher. */

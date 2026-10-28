@@ -28,7 +28,29 @@ export const ALLOWED_DELEGATIONS = Object.freeze({
   "product-strategist": [],
 });
 
-export const FOUNDER_ACTIONS = Object.freeze(["approve", "reject", "request-changes", "publish", "pause", "resume", "spend", "change-seat"]);
+export const FOUNDER_ACTIONS = Object.freeze(["approve", "reject", "request-changes", "publish", "pause", "resume", "spend", "change-seat", "publish-live", "publishing-policy", "connect-x", "manage-users", "draft"]);
+
+/**
+ * Roles (P0, founder 2026-10-28). Each role includes the ones before it. The founder is an administrator; collaborators
+ * are invited by an administrator to exactly one role. Every permission is enforced server-side here and in the
+ * hosted route table (hosted/app.mjs) — the console only hides what a role can't do.
+ */
+export const ROLE_ORDER = Object.freeze(["viewer", "drafter", "approver", "publisher", "admin"]);
+export const PERMISSIONS = Object.freeze({
+  view: "viewer", draft: "drafter", approve: "approver", publish: "publisher", administer: "admin",
+});
+/** Which permission each guarded action needs. Pausing is open to anyone who can approve: stopping is always safe. */
+export const ACTION_PERMISSION = Object.freeze({
+  draft: "draft", approve: "approve", reject: "approve", "request-changes": "approve", pause: "approve",
+  publish: "publish", resume: "publish", "publish-live": "publish",
+  spend: "administer", "change-seat": "administer", "publishing-policy": "administer", "connect-x": "administer", "manage-users": "administer",
+});
+export const roleRank = (role) => ROLE_ORDER.indexOf(role === "founder" ? "admin" : role);
+/** Does this role hold this permission? Unknown roles hold nothing. */
+export function can(role, permission) {
+  const need = PERMISSIONS[permission];
+  return Boolean(need) && roleRank(role) >= 0 && roleRank(role) >= ROLE_ORDER.indexOf(need);
+}
 
 /** Monthly budget in USD. Defaults to 0 — nothing paid runs until the founder raises it (CP5). */
 export function budgetUsd(env = {}) {
@@ -69,6 +91,8 @@ export function checkDelegation({ fromRole, toRole, hop, tasksSoFar }) {
  */
 export function checkFounder(action, actor) {
   if (!FOUNDER_ACTIONS.includes(action)) return { ok: true };
-  if (actor?.role !== "founder") return { ok: false, code: REASON.NOT_FOUNDER, detail: `${action} requires the founder` };
+  if (actor?.role === "founder") return { ok: true };
+  const permission = ACTION_PERMISSION[action];
+  if (!can(actor?.role, permission)) return { ok: false, code: REASON.NOT_FOUNDER, detail: `${action} needs the ${PERMISSIONS[permission] ?? "founder"} role or higher` };
   return { ok: true };
 }

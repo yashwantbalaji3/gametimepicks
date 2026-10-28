@@ -27,7 +27,7 @@ const PROPOSALS = { proposals: [
 
 function startServer(port) {
   const child = spawn(process.execPath, [path.join(CC_ROOT, "surfaces/console/server.mjs")], {
-    env: { ...process.env, GTP_CC_PORT: String(port), GTP_CC_OUT_DIR: tempDir("gtp-cc-team-console-"), GTP_CC_STEP_DELAY_MS: "0", GTP_CC_SLATE_DATE: TEST_SLATE },
+    env: { ...process.env, GTP_CC_X_VAULT: "memory", GTP_CC_SCHEDULER: "off", GTP_CC_PORT: String(port), GTP_CC_OUT_DIR: tempDir("gtp-cc-team-console-"), GTP_CC_STEP_DELAY_MS: "0", GTP_CC_SLATE_DATE: TEST_SLATE },
     stdio: ["ignore", "pipe", "pipe"],
   });
   return new Promise((resolve, reject) => {

@@ -474,6 +474,7 @@ export function createTeamFlow(ctx) {
     advance, onPasted, decideProposal, steps: (intent) => TEAM_WORKFLOWS[intent],
     decidePost: queue.decidePost, recordPost: queue.recordPost, posts: queue.posts, dataSource: () => dataSource(),
     approveDesign: queue.approveDesign, design: queue.design, inventory: queue.inventory,
+    recheck: queue.recheck, designApproval: queue.designApproval,
   };
 }
 

@@ -32,12 +32,14 @@ import { verifyPregame, confirmAfterStart, nflVersions, DEFAULT_MAX_DATA_AGE_MIN
 import { pregameWinner, touchdowns, topBoard, postgame, nbaPregame, nbaPlayers, nbaFinal, BOARD_FAMILIES } from "../recap/social-v2.mjs";
 import { renderSocial, SOCIAL_TEMPLATE, ASSET_MANIFEST } from "../render/social-v2.mjs";
 import {
-  baseIdOf, nflPregamePackage, nflTouchdownsPackage, nflTop5Package, nflPostgamePackage, nbaPregamePackage, nbaPlayersPackage, nbaFinalPackage,
+  baseIdOf, nflPregamePackage, nflTouchdownsPackage, nflTop5Package, nflPostgamePackage, nbaPregamePackage, nbaPlayersPackage, nbaFinalPackage, nbaGamePackage,
 } from "../contracts/social-packages.mjs";
 
 const SPORT_NAME = { NFL: "NFL", NBA: "NBA", MLB: "MLB", UFC: "UFC", EPL: "Premier League" };
 const addDay = (ymd, n) => new Date(Date.parse(`${ymd}T12:00:00Z`) + n * 86400_000).toISOString().slice(0, 10);
 const POST_VERDICTS = Object.freeze(["approve", "reject", "revise", "defer"]);
+/** NBA Top 5 posts the founder asked for (one per stat), published only from an official board. */
+const NBA_TOP5_STATS = Object.freeze(["points", "rebounds", "assists"]);
 
 /** The day the founder asked for: an explicit YYYY-MM-DD, "tomorrow", else today (US Eastern). */
 export function queueDateOf(text, now) {
@@ -207,7 +209,7 @@ export function createQueueFlow(ctx) {
         // same content does not invalidate (the approval re-checks the data anyway); a changed caption or graphic does.
         const was = prior.request.options?.find((o) => o.captionId === prior.decision.captionId)?.publishBundle;
         const now2 = s.captions.find((c) => c.id === prior.decision.captionId)?.publishBundle;
-        const contentOf = (b) => b && JSON.stringify([b.captionSha256, b.mediaSha256 ?? null, b.template ?? null, b.assetManifest ?? null]);
+        const contentOf = (b) => b && JSON.stringify([b.captionSha256, b.mediaSha256 ?? null, b.template ?? null, b.assetManifest ?? null, ...(b.mediaSetSha256 ? [b.mediaSetSha256] : [])]);
         const changed = prior.decision.verdict === "approve" && !prior.receipt && Boolean(was) && contentOf(was) !== contentOf(now2);
         if (!changed) { skips.push({ slotId: s.slotId, sport: s.sport, format: s.kind, opportunity: s.title, status: s.status, reason: `already decided: ${prior.decision.verdict} in ${prior.request.decisionId}${prior.receipt ? `, published ${prior.receipt.canonicalUrl}` : ""}` }); continue; }
         store.append("post-status", "integrity-reviewer", { decisionId: prior.request.decisionId, postId: prior.request.postId, status: "invalidated", reason: "the graphic, caption or evidence changed since approval; the new version needs its own approval", replacedBy: s.postId, recordedAt: now });
@@ -298,21 +300,34 @@ export function createQueueFlow(ctx) {
     if (laneRaw == null) skip("NBA", "NBA predictions", `today's NBA public lane (${date}) is not published at the data commit yet`, POST_STATUS.VERIFY);
     else {
       for (const g of JSON.parse(laneRaw).games ?? []) {
+        let pre = null;
+        let players = null;
         await one("NBA", `${g.away?.abbr} @ ${g.home?.abbr} prediction`, async () => {
           const m = nbaPregame({ src, eventId: g.providerEventId, date });
           if (!m.ok) return skip("NBA", `${g.away?.abbr} @ ${g.home?.abbr} prediction`, m.reason);
           let pkg = nbaPregamePackage({ date, m, extra: { ...extra, label: nbaLabel }, laneDate: date });
           if (Date.parse(now) >= Date.parse(g.tipUtc)) pkg = { ...pkg, status: POST_STATUS.BLOCKED, reasons: ["tip-off has passed"] };
-          packages.push(await withGraphic(pkg, m));
+          packages.push((pre = await withGraphic(pkg, m)));
         });
         await one("NBA", `${g.away?.abbr} @ ${g.home?.abbr} stat lines`, async () => {
           const m = nbaPlayers({ src, eventId: g.providerEventId, date });
           if (!m.ok) return skip("NBA", `${g.away?.abbr} @ ${g.home?.abbr} stat lines`, m.reason);
           let pkg = nbaPlayersPackage({ date, m, extra: { ...extra, label: nbaLabel }, laneDate: date });
           if (Date.parse(now) >= Date.parse(g.tipUtc)) pkg = { ...pkg, status: POST_STATUS.BLOCKED, reasons: ["tip-off has passed"] };
-          packages.push(await withGraphic(pkg, m));
+          packages.push((players = await withGraphic(pkg, m)));
+        });
+        // the game post (both graphics, one caption) — the unit the scheduler publishes 45 minutes before tip-off
+        if (pre && players) await one("NBA", `${g.away?.abbr} @ ${g.home?.abbr} game post`, async () => {
+          packages.push(nbaGamePackage({ date, pre, players, extra: { ...extra, label: nbaLabel }, laneDate: date }));
         });
       }
+    }
+    // NBA Top 5 points / rebounds / assists: only from an official, published board. The NBA Top Boards are private
+    // research today (data/internal/research/nba/top-boards), so nothing is ranked or posted from them.
+    for (const stat of NBA_TOP5_STATS) {
+      const board = src.read(`app/public/data/nba/top-boards/${date}.json`);
+      if (board == null) skip("NBA", `Top 5 ${stat}`, `held: no official published NBA Top Board for ${date} (the boards are private research, not on the site); a ranking is never derived from the stat-line lane`, POST_STATUS.VERIFY);
+      else skip("NBA", `Top 5 ${stat}`, `held: a published NBA board exists for ${date}, but its eligibility contract is not reviewed yet — add the reader before posting`, POST_STATUS.VERIFY);
     }
     const finalsRaw = src.read("app/public/data/nba/results/finals-2026-27.json");
     const nbaDates = [prev, ...(catchupSports.has("NBA") ? lookback.filter((d) => d !== prev) : [])];
@@ -342,6 +357,19 @@ export function createQueueFlow(ctx) {
       if (!Number.isFinite(Date.parse(pkg.firstKickoffUtc)) || Date.parse(now) >= Date.parse(pkg.firstKickoffUtc)) return { status: POST_STATUS.BLOCKED, reasons: ["the slate's first kickoff has passed (or is unknown)"] };
       const m = topBoard({ src, date: pkg.date, family: pkg.family });
       return m.ok && m.evidence[0]?.sha256 === pkg.boardSha256 ? { status: m.status, reasons: [] } : { status: POST_STATUS.BLOCKED, reasons: [m.ok ? "the frozen board file changed" : m.reason] };
+    }
+    if (pkg.kind === "nba-game") {
+      // both graphics' sources, the featured players and the start time, all as they were at approval
+      if (!Number.isFinite(Date.parse(pkg.tipUtc)) || Date.parse(now) >= Date.parse(pkg.tipUtc)) return { status: POST_STATUS.BLOCKED, reasons: ["tip-off has passed"] };
+      const pm = nbaPregame({ src, eventId: pkg.eventId, date: pkg.laneDate });
+      const pl = nbaPlayers({ src, eventId: pkg.eventId, date: pkg.laneDate });
+      if (!pm.ok || !pl.ok) return { status: POST_STATUS.BLOCKED, reasons: [pm.reason ?? pl.reason] };
+      const reasons = [];
+      if (pm.favouredTeam.abbr !== pkg.favoured) reasons.push(`the published predicted winner changed (${pkg.favoured} → ${pm.favouredTeam.abbr})`);
+      if ([...pl.awayPlayers, ...pl.homePlayers].map((p) => `${p.id}:${p.pts}/${p.reb}/${p.ast}`).join("|") !== pkg.playersKey) reasons.push("the published stat lines changed");
+      if (pl.featured.map((f) => `${f.team}:${f.player?.id ?? "-"}`).join("|") !== pkg.featuredKey) reasons.push("a featured player changed (injury report, lineup or availability)");
+      if (pl.tipUtc && pl.tipUtc !== pkg.tipUtc) reasons.push(`the scheduled tip-off moved (${pkg.tipUtc} → ${pl.tipUtc})`);
+      return reasons.length ? { status: POST_STATUS.BLOCKED, reasons: [...reasons, "rebuild the queue and approve the new version"] } : { status: POST_STATUS.READY, reasons: [] };
     }
     if (pkg.kind === "nba-pregame" || pkg.kind === "nba-players") {
       // fail closed: no start time on record means the window can't be shown to be open
@@ -598,5 +626,5 @@ export function createQueueFlow(ctx) {
     });
   }
 
-  return { build, consolidate, decidePost, recordPost, posts, approvedCalendar, publishBundleOf, approveDesign, design, inventory: () => queueInventory(posts()) };
+  return { build, consolidate, decidePost, recordPost, posts, approvedCalendar, publishBundleOf, approveDesign, design, recheck, designApproval, inventory: () => queueInventory(posts()) };
 }

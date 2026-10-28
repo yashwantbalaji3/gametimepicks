@@ -76,6 +76,8 @@ export function publishBundleOf(pkg, caption) {
     postId: pkg.postId, kind: pkg.kind, channel: "x", captionId: caption.id,
     captionSha256: sha256(caption.text),
     mediaSha256: pkg.media?.sha256 ?? null,
+    // a multi-image post binds every image, in order
+    ...(pkg.mediaSet ? { mediaSetSha256: sha256(pkg.mediaSet.map((m) => m.sha256).join("|")) } : {}),
     claimsDigest: digestOf(pkg.claims),
     // The verified VERSION (file, hash, numbers) — never the check's timestamp, which changes on every build.
     verificationDigest: pkg.verification ? digestOf({ version: pkg.verification.version ? { path: pkg.verification.version.path, sha256: pkg.verification.version.sha256, numbers: pkg.verification.version.numbers } : null, kickoffUtc: pkg.verification.kickoffUtc ?? null }) : null,

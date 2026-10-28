@@ -130,6 +130,34 @@ export function nbaPlayersPackage({ date, m, extra, laneDate, priority = 1 }) {
   };
 }
 
+/** How long before tip-off an NBA game post is scheduled (founder 2026-10-28). */
+export const NBA_GAME_LEAD_MIN = 45;
+
+/**
+ * NBA game post — ONE X post per game carrying both verified graphics (Predicted Winner first, projected stat lines
+ * second) and one caption. Built only from the two packages already built for that game, so every number and the
+ * winner are theirs; it is READY only when both are. The approval fingerprint binds both images (mediaSetSha256).
+ */
+export function nbaGamePackage({ date, pre, players, extra, laneDate, priority = 0 }) {
+  const both = [pre, players];
+  const blocked = both.filter((p) => p.status !== POST_STATUS.READY);
+  const mediaSet = both.every((p) => p.media) ? both.map((p) => ({ file: p.media.file, sha256: p.media.sha256, width: p.media.width, height: p.media.height, format: p.format, altText: p.media.altText })) : null;
+  const reasons = [...blocked.flatMap((p) => p.reasons.map((r) => `${p.format}: ${r}`)), ...(mediaSet ? [] : ["both graphics are needed for a game post"])];
+  const tip = Date.parse(players.tipUtc);
+  return {
+    ...base(players.model, extra), preModel: pre.model,
+    postId: `${date}:NBA:game:${players.eventId}${V2}`, slotId: "standing:nba-game", date, sport: "NBA", kind: "nba-game", format: "nba-game",
+    title: `${players.model.away.abbr} @ ${players.model.home.abbr}: game post (Predicted Winner + projected stat lines)`, eventId: players.eventId, priority,
+    tipUtc: players.tipUtc, laneDate, favoured: pre.favoured, playersKey: players.playersKey, featured: players.featured,
+    featuredKey: players.featured.map((f) => `${f.team}:${f.id ?? "-"}`).join("|"),
+    suggestedPublishAt: Number.isFinite(tip) ? new Date(tip - NBA_GAME_LEAD_MIN * 60_000).toISOString() : null,
+    media: mediaSet ? pre.media : null, mediaSet,
+    evidence: [...(pre.evidence ?? []), ...(players.evidence ?? [])].filter((e, i, a) => a.findIndex((x) => x.ref === e.ref) === i),
+    status: reasons.length ? POST_STATUS.BLOCKED : POST_STATUS.READY, reasons,
+    claims: [...pre.claims, ...players.claims], captions: captionsFor.nbaGame({ pre: pre.model, players: players.model }), noForecastClaims: true,
+  };
+}
+
 /** NBA final score — the write-once finals record. */
 export function nbaFinalPackage({ date, m, extra, priority = 2 }) {
   const r = ref0(m);

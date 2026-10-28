@@ -36,6 +36,7 @@ import { publishAtBoundary } from "../publishers/publisher.mjs";
 import { createMockPublisher } from "../publishers/mock.mjs";
 import { createEngineeringFlow } from "./engineering-flow.mjs";
 import { createTeamFlow, isTeamIntent } from "./team-flow.mjs";
+import { createPublishFlow } from "./publish-flow.mjs";
 import { apiSeat, executionOf, providerStatus, testProvider } from "../providers/catalog.mjs";
 import { specFacts } from "../engineering/prompts.mjs";
 
@@ -51,7 +52,7 @@ const etDay = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New
  *   engineering configures delegated engineering (repo, claude binary, environment, screenshots) — see
  *   engineering-flow.mjs; tests point it at a throwaway repo and a fake `claude`.
  */
-export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROOT, outDir, stepDelayMs = 0, publisher, slateDate, engineering = {}, execution = "inline", runnerId = "local", providerFetch = globalThis.fetch, providerSleep, hosted = false, calendarDataSource = null, queueRender = true, queueTemplate = "v2.1" }) {
+export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROOT, outDir, stepDelayMs = 0, publisher, slateDate, engineering = {}, execution = "inline", runnerId = "local", providerFetch = globalThis.fetch, providerSleep, hosted = false, calendarDataSource = null, queueRender = true, queueTemplate = "v2.1", publishing: publishingOpts = {} }) {
   if (!["inline", "jobs"].includes(execution)) throw new Error(`unknown execution mode ${execution}`);
   const pub = publisher ?? createMockPublisher({ clock });
   const mediaDir = path.join(outDir, "media");
@@ -97,6 +98,13 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
       latestStatus: (id) => latestStatus(id),
       report: (run, data) => store.append("report", "chief-of-staff", { commandId: run.commandId, ...data }),
     },
+  });
+
+  // X Publisher V1: scheduled / manual publishing of approved posts (dry run unless the founder authorizes live)
+  const publishing = createPublishFlow({
+    store, clock, posts: () => team.posts(), recheck: (pkg) => team.recheck(pkg), designApproved: (t, a) => Boolean(team.designApproval(t, a)),
+    isPaused: () => isPaused(), mediaDir, oauth: publishingOpts.oauth ?? null, fetch: publishingOpts.fetch ?? providerFetch, handle: env.GTP_CC_X_HANDLE || null,
+    refreshData: publishingOpts.refreshData ?? (async () => ({ ok: false, detail: "no data refresher is configured on this host" })),
   });
 
   // ── derived facts from the ledger ────────────────────────────────────────────────────────────────────────────
@@ -763,7 +771,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   }
 
   return {
-    handleCommand, decide, recordPost, approveDesign, submitManual, setSeat, testProviderConnection, setPaused, emergencyStop, state, runJob, activeJobs, jobDispatched, jobCancelled,
+    handleCommand, decide, recordPost, approveDesign, submitManual, setSeat, testProviderConnection, setPaused, emergencyStop, state, publishing, runJob, activeJobs, jobDispatched, jobCancelled,
     /** Jobs recorded by this session; the host dispatches them after its ledger flush commits. */
     takeOutbox: () => outbox.splice(0),
     execution,

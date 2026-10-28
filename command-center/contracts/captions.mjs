@@ -7,6 +7,8 @@
  * format has two voices; which one is caption A rotates deterministically per game (stable on rebuild, varied across a
  * slate), and the founder can pick either. Nothing here reads the clock.
  */
+import { xLength as xLengthOf } from "./post-queue.mjs";
+
 const SHARED_CITY = new Set(["Los Angeles", "LA", "New York"]);
 /** "Green Bay" / "Boston" — or "the Rams" / "the Clippers" where a city has two teams in the league. */
 export const placeOf = (t) => (!t.city || SHARED_CITY.has(t.city) ? `the ${t.nickname}` : t.city);
@@ -102,6 +104,24 @@ export const captionsFor = {
     return rotate(m.eventId, [
       { tone: "key players", text: `🏀 ${m.away.name} vs ${m.home.name} ${w}\n\nHere's how our model projects a few key players:\n\n🔥 ${a.name}: ${p3(a)}\n🔥 ${h.name}: ${p3(h)}\n\nFull player projections below 👇` },
       { tone: "two to watch", text: `🏀 ${m.away.nickname} at ${m.home.nickname} ${w}\n\nTwo players to watch, by our model's projections:\n\n🔥 ${a.name}: ${p3(a)}\n🔥 ${h.name}: ${p3(h)}\n\nEvery projected line is on the graphic 👇` },
+    ]);
+  },
+  /**
+   * One post per game carrying both graphics (Predicted Winner + projected stat lines). `pre` and `players` are the two
+   * verified view-models; the players named are the featured ones (a caption highlight, not a ranking). Full team
+   * names when they fit X's 280, nicknames otherwise — never a truncated line.
+   */
+  nbaGame({ pre, players }) {
+    const fav = pre.favouredTeam;
+    const w = when(players.tipUtc);
+    const ps = players.featured.map((f) => f.player).filter(Boolean);
+    const lines = ps.map((p) => `🔥 ${p.name}: ${p3(p)}`).join("\n");
+    const who = ps.length ? `\n\n${ps.length > 1 ? "Players to watch" : "One to watch"}, by our model's projections:\n${lines}` : "";
+    const head = (a, h) => `🏀 ${a} vs ${h} ${w}\n\nOur predicted winner: the ${fav.nickname}.${who}`;
+    const pick = (full, short) => (xLengthOf(full) <= 280 ? full : short);
+    return rotate(players.eventId, [
+      { tone: "game", text: pick(`${head(players.away.name, players.home.name)}\n\nFull projections below 👇`, `${head(players.away.nickname, players.home.nickname)}\n\nFull projections below 👇`) },
+      { tone: "short game", text: pick(`${head(players.away.nickname, players.home.nickname)}\n\nWho are you taking? 👀`, `${head(players.away.abbr, players.home.abbr)}\n\nWho are you taking? 👀`) },
     ]);
   },
   nbaFinal(m) {
