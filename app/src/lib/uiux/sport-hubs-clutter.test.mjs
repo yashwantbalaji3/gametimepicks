@@ -215,3 +215,18 @@ test("UFC bout page: model fingerprint and corpus source only in Technical detai
   assert.match(page.replace(tech, ""), /Educational and paper-only — not betting advice\./);
   assert.match(page.replace(tech, ""), /it has not been shown to\s+have an edge over the market/);
 });
+
+// ── 6 · Ligue 1 and the shared hub order ────────────────────────────────────────────────────────────────────
+
+test("Ligue 1: header + one disclosure line → fixtures → record; the holdout test folds, its market comparison stays visible", () => {
+  const page = code("src/components/soccer/league-forecast-page.tsx");
+  const at = (needle) => { const i = page.indexOf(needle); assert.ok(i > -1, `${needle} missing`); return i; };
+  const disclosure = at("data-hub-disclosure");
+  const fixtures = at("<LeagueFixtureBoard");
+  const record = at('aria-labelledby="graded-so-far"');
+  const tested = at('<MoreDisclosure className="mt-6" title="How it was tested"');
+  assert.ok(disclosure < fixtures && fixtures < record && record < tested, "header line → fixtures → record → how it was tested");
+  assert.match(page.slice(disclosure, fixtures), /not betting advice/);
+  assert.match(page.slice(disclosure, fixtures), /the sportsbook closing line was more accurate than this model/);
+  assert.match(page, /className="vault-page-shell /, "the shared hub width");
+});
