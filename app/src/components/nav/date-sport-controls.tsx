@@ -78,7 +78,7 @@ function fmtDay(date: string): string {
 }
 
 const PILL: React.CSSProperties = {
-  minHeight: 40,
+  minHeight: 44,
   borderRadius: 999,
   display: "inline-flex",
   alignItems: "center",
@@ -262,7 +262,7 @@ function DateBar({
                   if (target) router.push(target);
                 }}
                 className="rounded-[8px] px-2 py-1.5"
-                style={{ minHeight: 40, background: "color-mix(in srgb, var(--vault-scrim-base) 70%, transparent)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 12.5 }}
+                style={{ minHeight: 44, background: "color-mix(in srgb, var(--vault-scrim-base) 70%, transparent)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 12.5 }}
               >
                 {availableDates.map((d) => (
                   <option key={d} value={d}>{fmtDay(d)}{d === defaultDate ? ` · ${defaultLabel.toLowerCase()}` : ""}</option>

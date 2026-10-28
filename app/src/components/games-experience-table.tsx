@@ -42,7 +42,7 @@ export default function GamesTable({ table, today, dates, asOf }: { table: Packe
   }, [rows, sport, date, state, sort, today]);
 
   const SortButton = ({ k, children }: { k: SortKey; children: React.ReactNode }) => (
-    <button type="button" className="gt-sort" aria-pressed={sort === k} onClick={() => setSort(k)}>
+    <button type="button" className="gt-sort gtp-hit-area" aria-pressed={sort === k} onClick={() => setSort(k)}>
       {children}{sort === k ? " ↓" : ""}
     </button>
   );
