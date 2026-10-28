@@ -21,8 +21,9 @@ const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
 const code = (rel) => read(rel).replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 /** Text between the first `<MoreDisclosure title="Technical details"` and its closing tag. */
 function technicalDetails(src) {
-  const at = src.indexOf('<MoreDisclosure title="Technical details"');
-  if (at < 0) return "";
+  const m = /<MoreDisclosure[^>]*?title="Technical details"/.exec(src);
+  if (!m) return "";
+  const at = m.index;
   return src.slice(at, src.indexOf("</MoreDisclosure>", at));
 }
 
@@ -79,7 +80,7 @@ test("the tie note renders where the NFL bars render: the hub's games, and the g
 test("NFL hub: one header (no second hero mid-page) and one Technical details", () => {
   const hub = code("src/app/nfl/page.tsx");
   assert.doesNotMatch(hub, /<SportOverviewHero[\s>]/, "no second hero");
-  assert.equal((hub.match(/<MoreDisclosure title="Technical details"/g) ?? []).length, 1, "one Technical details");
+  assert.equal((hub.match(/<MoreDisclosure[^>]*?title="Technical details"/g) ?? []).length, 1, "one Technical details");
   assert.doesNotMatch(hub, /title="Model details, coverage and audits"/);
   // The coverage table, calibration, participation, audit and product evaluations live inside it.
   const tech = technicalDetails(hub);
@@ -130,4 +131,49 @@ test("NFL simulation page: engine version, seed algorithm and receipt id sit ins
   assert.doesNotMatch(report, /\} UTC`/, "no UTC stamp");
   const after = report.slice(report.indexOf("</MoreDisclosure>"));
   assert.match(after, /Not modelled:[\s\S]*Educational and paper-only; not betting advice\./, "the not-modelled list and disclaimer stay visible");
+});
+
+// ── 4 · EPL hub ─────────────────────────────────────────────────────────────────────────────────────────────
+
+test("EPL hub: the matchweek is listed once — no hero, prediction rows, simulation cards or model-reads panel repeating it", () => {
+  const hub = code("src/app/epl/page.tsx");
+  for (const dup of ["<SportOverviewHero", "<PredictionRow", "<SimulationCard", "<TopReadsPanel", 'title="Every simulation report"', 'eyebrow="Team predictions"']) {
+    assert.ok(!hub.includes(dup), `${dup} repeats the fixture list`);
+  }
+  assert.equal((hub.match(/<HubHeader /g) ?? []).length, 1, "one listing of the fixtures");
+  // The Add-to-slip buttons the prediction rows carried ride on the one listing.
+  assert.match(hub, /<HubHeader model=\{__hubModel\} extras=\{new Map\(\[\.\.\.slip\]\.map\(\(\[id, leg\]\) => \[id, <HubSlipButton/);
+});
+
+test("EPL hub: the identical expected total is stated once, with its reason, from the artifact — never per row", () => {
+  const hub = code("src/app/epl/page.tsx");
+  assert.doesNotMatch(hub, /\} xG</, "no per-row xG figure");
+  assert.doesNotMatch(hub, /over 2\.5 \$\{pct\(r\.totals\.over25\)\}/, "no per-card over-2.5 figure");
+  assert.match(hub, /function sharedTotal\(rows: EplForecastRow\[\]\)/);
+  assert.match(hub, /xgs\.size !== 1/, "stated only when every priced fixture carries the same total");
+  assert.match(hub, /Expected total goals is \{shared\.xg\} in every match/);
+  assert.match(hub, /sets\s+each match&rsquo;s total from the league&rsquo;s recent scoring rate/);
+});
+
+test("EPL hub: one Past matches table links every archived fixture and keeps every grade and its caveat", () => {
+  const hub = code("src/app/epl/page.tsx");
+  assert.equal((hub.match(/title="Past matches"/g) ?? []).length, 1);
+  assert.doesNotMatch(hub, /title="Played fixtures"|title="Settled record"/, "the two 76-row lists are one");
+  const past = hub.slice(hub.indexOf('title="Past matches"'), hub.indexOf("</MoreDisclosure>", hub.indexOf('title="Past matches"')));
+  assert.match(past, /archived\.map\(\(r\) => \{[\s\S]*<Link href=\{eplMatchHref\(r\.slug as string\)\}/, "every archived fixture links to its page");
+  assert.match(past, /These are past fixtures; nothing here is a current read\./);
+  assert.match(past, /far too short to say anything about accuracy|not evidence the model works/);
+  assert.match(past, /probabilityOfActual/);
+  assert.match(past, /a condition that did not hold is never scored as a miss/);
+  assert.doesNotMatch(past, /ET_KEY|en-CA/, "dates in words, not ISO keys");
+});
+
+test("EPL hub: the player model id is only in Technical details; the not-validated label stays in the reading path", () => {
+  const hub = code("src/app/epl/page.tsx");
+  const tech = technicalDetails(hub);
+  assert.match(tech, /\{players\.model\.id\}/);
+  assert.ok(!hub.replace(tech, "").includes("{players.model.id}"), "the id renders outside Technical details");
+  assert.match(hub, /Player model · not validated — the holdout test/);
+  assert.match(hub, /Team match model — (tested blind on past seasons|not validated out of sample)\./);
+  assert.match(hub, /\{set\?\.trackRecord \?\?/, "the artifact's own record sentence stays reachable");
 });

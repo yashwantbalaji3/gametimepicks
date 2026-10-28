@@ -31,9 +31,6 @@ import { eplHub } from "@/lib/sport-hub/adapters";
 import Link from "next/link";
 import { sourceDisplayName } from "@/lib/sports/source-registry.mjs";
 
-import SportOverviewHero from "@/components/sport-overview-hero";
-import TopReadsPanel from "@/components/top-reads-panel";
-import { loadTopReads, sportPanelReads } from "@/lib/top-reads";
 import SectionHeader from "@/components/section-header";
 import MoreDisclosure from "@/components/ui/more-disclosure";
 import SportHubNav from "@/components/sports/sport-hub-nav";
@@ -59,7 +56,6 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import path from "node:path";
 import ModelStatusPanel from "@/components/command-center/model-status-panel";
 import { modelStatusFor } from "@/lib/command-center/model-status";
-import { currentEtDate } from "@/lib/freshness";
 
 export const metadata: Metadata = withRouteMetadata("/epl/", {
   title: "Premier League — Simulation Center · GameTime Picks",
@@ -68,93 +64,22 @@ export const metadata: Metadata = withRouteMetadata("/epl/", {
 });
 
 const pct = (n: number) => `${Math.round(n * 1000) / 10}%`;
-const ET_DAY = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "long", month: "long", day: "numeric" });
-const ET_TIME = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" });
-const ET_KEY = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" });
 
-/** Group priced fixtures by ET matchday, soonest first. "That specific day" is the unit here. */
-function byMatchday(rows: EplForecastRow[]): Array<{ key: string; label: string; rows: EplForecastRow[] }> {
-  const days = new Map<string, EplForecastRow[]>();
-  for (const r of [...rows].sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc))) {
-    const k = ET_KEY.format(new Date(r.kickoffUtc));
-    days.set(k, [...(days.get(k) ?? []), r]);
-  }
-  return [...days].map(([key, rs]) => ({ key, label: ET_DAY.format(new Date(rs[0].kickoffUtc)), rows: rs }));
-}
+/** "Sat, Oct 31" — an ET day in words for a reader; the archive used to print the ISO key. */
+const ET_DAY_SHORT = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", month: "short", day: "numeric" });
 
-/** One fixture's team prediction. Every figure is read from the artifact; none is recomputed here. */
-function PredictionRow({ r, slip = null }: { r: EplForecastRow; slip?: HubSlipLeg | null }) {
-  const home = r.homeClub ?? r.matchup.split(" v ")[0];
-  const away = r.awayClub ?? r.matchup.split(" v ")[1];
-  const cold = Boolean(r.coldStart?.home || r.coldStart?.away);
-  const body = (
-    <>
-      <div className="flex items-center gap-2 min-w-0">
-        <TeamLogo team={home} sport="soccer" size="sm" ariaLabel={`${home} crest`} />
-        <span className="truncate font-semibold">{home}</span>
-        <span className="gtp-c-faint">v</span>
-        <span className="truncate font-semibold">{away}</span>
-        <TeamLogo team={away} sport="soccer" size="sm" ariaLabel={`${away} crest`} />
-      </div>
-      <div className="flex items-center gap-3 font-mono shrink-0 text-[12.5px]">
-        <span title={`${home} win`} className="gtp-c-accent">{pct(r.probs!.home)}</span>
-        <span title="Draw" className="gtp-c-mute">{pct(r.probs!.draw)}</span>
-        <span title={`${away} win`} className="gtp-c-soccer">{pct(r.probs!.away)}</span>
-        <span className="gtp-c-faint">·</span>
-        <span title="Expected total goals" className="gtp-c-mute">{r.expectedGoals?.toFixed(2) ?? "—"} xG</span>
-      </div>
-    </>
-  );
-  /* WEIGHT (2026-10-13): this row, the simulation card, the archive row and the record table render once per
-     fixture, and the export ships each twice (HTML + RSC flight). Their repeated declarations are classes in
-     globals.css (.gtp-c-*, .gtp-rule-top, .gtp-epl-*), byte-for-byte what was inlined — nothing renders
-     differently. MW7's publication had put this page 17KB over its 500KB ceiling. */
-  return (
-    <li className="gtp-rule-top">
-      {r.slug ? (
-        <Link href={eplMatchHref(r.slug)} className="flex items-center justify-between gap-4 px-3 py-3 gtp-c-text">
-          {body}
-        </Link>
-      ) : (
-        <div className="flex items-center justify-between gap-4 px-3 py-3">{body}</div>
-      )}
-      {cold ? (
-        <p className="px-3 pb-2" style={{ margin: 0, fontSize: 11, color: "var(--vault-text-faint)" }}>
-          Newly promoted side with no top-flight history — running at the league-average baseline.
-        </p>
-      ) : null}
-      {/* Vehicle N: a Level A leg only (hub-slip); outside the row's link, so the button is its own target */}
-      {slip ? <div className="px-3 pb-3"><HubSlipButton leg={slip} /></div> : null}
-    </li>
-  );
-}
-
-/** A per-fixture simulation card: what the reader opens to see the full distribution. */
-function SimulationCard({ r }: { r: EplForecastRow }) {
-  const home = r.homeClub ?? r.matchup.split(" v ")[0];
-  const away = r.awayClub ?? r.matchup.split(" v ")[1];
-  const top = r.topScorelines?.[0];
-  return (
-    <Link
-      href={eplMatchHref(r.slug as string)}
-      className="gtp-epl-sim block rounded-[12px] p-4"
-    >
-      <div className="flex items-center gap-2 mb-2">
-        <TeamLogo team={home} sport="soccer" size="sm" ariaLabel={`${home} crest`} />
-        <TeamLogo team={away} sport="soccer" size="sm" ariaLabel={`${away} crest`} />
-        <span className="font-mono ml-auto text-[10px] gtp-c-faint">
-          {ET_TIME.format(new Date(r.kickoffUtc))} ET
-        </span>
-      </div>
-      {/* The inline margin:0 these carried overrode their mt-1/mt-2, so the rendered margin was 0; m-0 keeps it 0. */}
-      <p className="m-0 text-[13.5px] font-bold">{home} v {away}</p>
-      <p className="font-mono m-0 text-[11.5px] gtp-c-mute">
-        {top ? `likeliest ${top.score.replace("-", "–")} at ${pct(top.p)}` : "distribution published"}
-        {r.totals ? ` · over 2.5 ${pct(r.totals.over25)}` : ""}
-      </p>
-      <p className="font-mono m-0 text-[10.5px] gtp-c-accent">Open the simulation →</p>
-    </Link>
-  );
+/**
+ * The expected-total-goals figure when it is the SAME for every priced fixture, else null. The team model sets each
+ * match's total from the league's recent scoring rate and only splits it between the sides, so on a normal matchweek
+ * every fixture carries one identical total and one identical over-2.5 chance. Printed on every row it read as a
+ * broken binding (audit 2026-10-27, "2.79 xG / 52.9% on every match"); it is a real property of the model, so the
+ * hub states it ONCE, with the reason, read from the artifact — never typed here.
+ */
+function sharedTotal(rows: EplForecastRow[]): { xg: string; over25: string | null } | null {
+  const xgs = new Set(rows.map((r) => (typeof r.expectedGoals === "number" ? r.expectedGoals.toFixed(2) : null)));
+  if (rows.length < 2 || xgs.size !== 1 || xgs.has(null)) return null;
+  const overs = new Set(rows.map((r) => (typeof r.totals?.over25 === "number" ? pct(r.totals.over25) : null)));
+  return { xg: [...xgs][0] as string, over25: overs.size === 1 && !overs.has(null) ? ([...overs][0] as string) : null };
 }
 
 export default async function EplPage() {
@@ -169,34 +94,21 @@ export default async function EplPage() {
   const archived: EplForecastRow[] = loadEplForecastArchive()
     .filter((r: EplForecastRow) => Boolean(r.slug) && Boolean(r.probs) && !liveSlugs.has(r.slug as string))
     .sort((a: EplForecastRow, b: EplForecastRow) => String(b.kickoffUtc ?? "").localeCompare(String(a.kickoffUtc ?? "")));
-  const topReads = loadTopReads();
   const priced = forecastRows(set);
   const unpriced = unpricedRows(set);
-  const days = byMatchday(priced);
-  /*
-   * THE NEXT MATCHDAY IS THE NEXT ONE, NOT THE EARLIEST ONE IN THE ARTIFACT.
-   *
-   * This was days[0] — the earliest priced day in the forecast set, whether or not it had already
-   * been played. On a Saturday evening that made a finished afternoon the page's "Next matchday",
-   * and because the Lab ladder is keyed to this day so a card built for another slate cannot appear
-   * here, a ladder correctly built for Sunday was refused and the lane rendered nothing.
-   *
-   * The forecast set legitimately holds both — a played fixture's prediction is still a record of
-   * what the model said. So the fixtures on the page are unchanged; only the day the page calls
-   * NEXT moves to the first one with a kickoff still ahead of it. If every priced fixture has
-   * kicked off, it falls back to the earliest rather than showing nothing, because "between
-   * matchweeks" and "we have no forecasts" are different facts.
-   */
   const nowIso = new Date().toISOString();
-  const next = days.find((d) => d.rows.some((r) => Date.parse(r.kickoffUtc) > Date.parse(nowIso))) ?? days[0] ?? null;
-  const reportable = priced.filter((r) => r.slug);
+  const gradedRecord = loadEplGradedRecord();
+  /* One statement of the shared total (see sharedTotal), and the cold-start clubs named once under the list. */
+  const shared = sharedTotal(priced);
+  const cold = [...new Set(priced.flatMap((r) => [
+    ...(r.coldStart?.home ? [r.homeClub ?? r.matchup.split(" v ")[0]] : []),
+    ...(r.coldStart?.away ? [r.awayClub ?? r.matchup.split(" v ")[1]] : []),
+  ]))];
+  /* Past matches: one row per played fixture — its pre-kickoff forecast link and, once graded, the result. */
+  const gradedById = new Map((gradedRecord?.team.matchesList ?? []).map((m) => [String(m.eventId), m]));
   /* Vehicle N: the priced rows' Level A legs (exact leg or none); the bar renders once, and only when a button does. */
   const slip = await hubSlipLegs("epl", priced.map((r) => String(r.eventId)));
-  /** The matchweek every priced fixture belongs to, or null when they straddle more than one. */
-  const weeks = new Set(priced.map((r) => r.matchweek).filter((w) => w != null));
-  const matchweek = weeks.size === 1 ? [...weeks][0] : null;
   const players = loadEplPlayerProjections();
-  const gradedRecord = loadEplGradedRecord();
   /*
    * THE LADDER'S DAY IS THE LADDER'S, NOT THE HUB'S.
    *
@@ -236,215 +148,75 @@ export default async function EplPage() {
           anchors={[
             /* Session 5 · B8: the Fixtures section always renders (HubHeader below), so its strip item must too. */
             "epl-games",
-            "epl-overview",
-            ...(days.length > 0 ? ["epl-fixtures"] : []),
-            ...(gradedRecord && gradedRecord.team.matches > 0 ? ["record"] : []),
+            ...(archived.length > 0 || (gradedRecord && gradedRecord.team.matches > 0) ? ["record"] : []),
             "schedule",
           ]}
         />
       </div>
-      <section id="epl-games" className="scroll-mt-24"><HubHeader model={__hubModel} /></section>
-      {/* P257: the same model, applied to Ligue 1 after its own preregistered backtest accepted it. */}
-      <p className="mb-4 text-[13px]" style={{ color: "var(--vault-text-mute)", margin: "0 0 16px" }}>
-        Also forecast with this model: <Link href="/soccer/ligue-1/" className="inline-flex items-center" style={{ color: "var(--vault-accent)", minHeight: 44 }}>Ligue 1 match forecasts →</Link>
-      </p>
-      <section id="epl-overview" className="scroll-mt-24">
-      <SportOverviewHero
-        headingLevel="h2"
-        compact
-        icon="⚽"
-        eyebrow={next ? `Simulation Center · ${next.label}` : "Simulation Center"}
-        sport="Premier League"
-        tagline="match result · scorelines · goals · margin"
-        statusKind={priced.length > 0 ? "live" : "linesPending"}
-        /* #761 PR 2: "Live" only on the matchday itself, on the reader's day — it said Live whenever
-           any fixture was priced, including a matchday a week away. */
-        statusSlateDate={next?.rows?.[0]?.kickoffUtc ? currentEtDate(new Date(next.rows[0].kickoffUtc)) : null}
-        statusSeedToday={currentEtDate()}
-        /* Forecast availability and price availability are DIFFERENT facts on different clocks
-           (P241 · A05): the forecast file legitimately empties between matchweeks while the next
-           matchday's ladder below carries real posted prices. A blanket "no priced fixtures" was
-           false against the page's own cards; the caption now states each fact from its own
-           owner. */
-        statusCaption={priced.length > 0
-          ? `${priced.length} fixture${priced.length === 1 ? "" : "s"} simulated`
-          : labLadder
-            ? `between matchweeks · ${ladderDayLabel(labLadder.date)} cards priced below`
-            : "between matchweeks · forecasts open ~4 days before kickoff"}
-        matchupLine={next ? `Next matchday · ${next.label}` : "Between matchweeks"}
-        accent="wc"
-        stats={[
-          { label: "Fixtures simulated", value: String(priced.length),
-            sub: priced.length + unpriced.length > 0
-              ? `of ${priced.length + unpriced.length} in the window`
-              : "forecast window opens ~96h before kickoff" },
-          // DERIVED, never a literal. This read "0 / no track record yet" as hard-coded text, which
-          // was true until the first match was graded and false immediately afterwards. The caption
-          // is owned by the loader so the small-sample warning cannot be dropped for a tidier hero.
-          { label: "Matches graded", value: gradedRecord ? String(gradedRecord.team.matches) : "—", sub: gradedRecordCaption(gradedRecord) },
-          { label: "Season", value: "2026-27", sub: "380 fixtures" },
-        ]}
-        ctas={[
-          ...(reportable[0] ? [{ href: eplMatchHref(reportable[0].slug as string), label: "Open the next simulation", primary: true }] : []),
-          { href: "/simulate/", label: "All simulations" },
-          { href: "#schedule", label: "Full schedule" },
-        ]}
-      />
-
       {/*
-        THE LIMITATION LEADS, above the first number. A reader who stops after the headline has still
-        been told that nothing here has been checked against a result.
+        THE LIMITATION LEADS, above the first number — now as the hub's ONE disclosure line (overnight W8, 2026-10-28).
+        SCOPE THE CLAIM TO ITS HEAD (P241 · A07): the headline is about the TEAM match model; the player head carries
+        its own line further down. The full test description and the graded-record sentence (both read from the
+        artifact, never typed here) are one tap away in "What these numbers are" — shortened, not removed.
       */}
       <section
-        className="mt-5 rounded-[12px] p-4"
+        className="mb-5 rounded-[12px] px-4 py-3"
         style={{ background: "var(--vault-panel)", border: "1px solid color-mix(in srgb, var(--sport-soccer) 40%, var(--vault-rule))" }}
       >
         <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.6 }}>
-          {/* SCOPE THE CLAIM TO ITS HEAD (P241 · A07): "not validated" here is about the TEAM
-              match model; a validated player head renders further down with its own receipt.
-              Unscoped, the two banners read as one model contradicting itself. */}
           {set?.validation === "VALIDATED_OUT_OF_SAMPLE_HISTORY" && set.validationNote ? (
-            <><strong style={{ color: "var(--sport-soccer)" }}>Team match model — tested blind on past seasons.</strong>{" "}{set.validationNote}{" "}</>
+            <strong style={{ color: "var(--sport-soccer)" }}>Team match model — tested blind on past seasons.</strong>
           ) : (
-            <><strong style={{ color: "var(--sport-soccer)" }}>Team match model — not validated out of sample.</strong>{" "}</>
-          )}
-          {/* The FALLBACK fires only when the artifact is unreadable, so it must not assert a record
-              either way. It used to claim no match had been graded, which was a statement about the
-              world made from an inability to read a file — and it became false the night the first
-              match settled. */}
-          {set?.trackRecord ?? "The graded record could not be read, so no accuracy claim is made here."}
+            <strong style={{ color: "var(--sport-soccer)" }}>Team match model — not validated out of sample.</strong>
+          )}{" "}
+          Probability distributions, not picks. Paper-only and educational.
         </p>
-        {/* P213 R-C2: the limitation still LEADS (the contract above); the what-these-numbers-are
-            explainer folds behind a disclosure so the state line stays one line. */}
-        <details className="mt-2">
-          <summary className="cursor-pointer font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
+        <details className="mt-1">
+          <summary className="cursor-pointer font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10.5, minHeight: 32 }}>
             What these numbers are
           </summary>
           <p className="mt-1.5" style={{ margin: 0, fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>
+            {set?.validation === "VALIDATED_OUT_OF_SAMPLE_HISTORY" && set.validationNote ? <>{set.validationNote}{" "}</> : null}
+            {/* The FALLBACK fires only when the artifact is unreadable, so it must not assert a record either way. */}
+            {set?.trackRecord ?? "The graded record could not be read, so no accuracy claim is made here."}
+          </p>
+          <p className="mt-1.5" style={{ margin: "6px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>
             These are the model&rsquo;s own probability distributions, published so you can see what it
             says — not picks, not advice, and not compared against any price.
           </p>
         </details>
       </section>
-
-      {/* P309: the model's standing in the public vocabulary every forecast card uses — validation, the blind
-          forward test against the model it replaced, and the live record — from receipts, never typed here. */}
+      {/* Overnight W8 (2026-10-28): the hub's ONE listing of the matchweek. The mid-page hero, the "Team predictions"
+          list, the "Every simulation report" cards and the "model reads" panel each listed the same ten fixtures (or
+          their scorers) again — removed; every fixture's full distribution is one tap away on its report. The
+          Add-to-slip buttons the predictions list carried ride on these cards instead (HubHeader extras). */}
+      <section id="epl-games" className="scroll-mt-24">
+        <HubHeader model={__hubModel} extras={new Map([...slip].map(([id, leg]) => [id, <HubSlipButton key={id} leg={leg} />]))} />
+        {shared ? (
+          <p data-shared-total="" className="m-0 mt-3 text-[12.5px]" style={{ color: "var(--vault-text-mute)", lineHeight: 1.6 }}>
+            Expected total goals is {shared.xg} in every match{shared.over25 ? ` (over 2.5 goals: ${shared.over25})` : ""}: the model sets
+            each match&rsquo;s total from the league&rsquo;s recent scoring rate and splits it between the two sides by strength. Each
+            report shows its own scorelines and each side&rsquo;s goals.
+          </p>
+        ) : null}
+        {cold.length > 0 ? (
+          <p className="m-0 mt-2 text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
+            Newly promoted, with no top-flight history, so running at the league-average baseline: {cold.join(", ")}.
+          </p>
+        ) : null}
+        {unpriced.length > 0 ? (
+          <p className="m-0 mt-2 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
+            {/* Naming what we could NOT price. Dropping it would make 9 of 10 read as 10 of 10. */}
+            <strong>Not forecast:</strong>{" "}
+            {unpriced.map((r) => `${r.matchup} (${r.unavailableReason ?? "unavailable"})`).join(" · ")}
+          </p>
+        ) : null}
       </section>
+      {/* P257: the same model, applied to Ligue 1 after its own preregistered backtest accepted it. */}
+      <p className="text-[13px]" style={{ color: "var(--vault-text-mute)", margin: "12px 0 0" }}>
+        Also forecast with this model: <Link href="/soccer/ligue-1/" className="inline-flex items-center" style={{ color: "var(--vault-accent)", minHeight: 44 }}>Ligue 1 match forecasts →</Link>
+      </p>
 
-      {/* ── 1 · TEAM PREDICTIONS for the matchday ──────────────────────────────────────────────── */}
-      {days.length > 0 ? (
-        <section className="mt-8 scroll-mt-24" id="epl-fixtures">
-          {/*
-            The title must cover what the SECTION contains, not just its first group. It read
-            "Friday, August 21" above a list that also held Saturday, Sunday and Monday fixtures —
-            a heading describing one day while four were rendered under it. Where every priced
-            fixture shares a matchweek, that is the honest unit; otherwise the span is stated.
-          */}
-          <SectionHeader
-            eyebrow="Team predictions"
-            title={
-              days.length === 1
-                ? days[0].label
-                : matchweek != null
-                  ? `Matchweek ${matchweek}`
-                  : `Next ${days.length} matchdays`
-            }
-            sub="Match-result probabilities and expected goals for every fixture the model can price. Open any fixture for its full distribution."
-          />
-          {days.map((d) => (
-            <div key={d.key} className="mt-4">
-              {days.length > 1 ? (
-                <p className="font-mono uppercase tracking-[0.1em]" style={{ margin: "0 0 6px", fontSize: 10, color: "var(--sport-soccer)" }}>{d.label}</p>
-              ) : null}
-              <ul
-                className="rounded-[12px] overflow-hidden"
-                style={{ listStyle: "none", margin: 0, padding: 0, background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}
-              >
-                {d.rows.map((r) => <PredictionRow key={r.eventId} r={r} slip={slip.get(String(r.eventId))} />)}
-              </ul>
-            </div>
-          ))}
-          <p className="font-mono mt-2" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>
-            home · draw · away, then expected total goals. Read left to right.
-          </p>
-          {unpriced.length > 0 ? (
-            <p className="mt-3" style={{ fontSize: 12.5, color: "var(--vault-text-mute)" }}>
-              {/* Naming what we could NOT price. Dropping it would make 9 of 10 read as 10 of 10. */}
-              <strong>Not forecast:</strong>{" "}
-              {unpriced.map((r) => `${r.matchup} (${r.unavailableReason ?? "unavailable"})`).join(" · ")}
-            </p>
-          ) : null}
-        </section>
-      ) : (
-        <section className="mt-8">
-          <SectionHeader
-            eyebrow="Team predictions"
-            title="No fixtures inside the forecast window"
-            sub="The model publishes team predictions only for fixtures inside its forecast window, and none are in it right now."
-          />
-        </section>
-      )}
-
-      {/* ── 1b · THE ARCHIVE ───────────────────────────────────────────────────────────────────
-           Every fixture this model has published a distribution for, whether or not it is still in
-           the forecast window. `/epl/match/[slug]` is generated for all of them and, until now,
-           nothing linked to the played ones: their pages were reachable only by typing the URL —
-           the same orphan-route class Program 234 closed for `/nfl/game/[eventId]`.
-
-           It also gives the Program 235 recovery somewhere to land. A forecast published before its
-           kickoff and then lost to a schema change is only genuinely recovered when a reader can
-           get to it, and a route with no path to it is not a delivered feature. */}
-      {archived.length > 0 ? (
-        <MoreDisclosure className="mt-8" title="Played fixtures" summary="The archive: each played fixture beside the forecast published before kickoff.">
-        <section className="mt-8 scroll-mt-24" id="epl-archive">
-          <SectionHeader
-            eyebrow={`Archive · ${archived.length} played`}
-            title="Every fixture we published a forecast for"
-            sub="What the model said before each kickoff, kept exactly as it was published. These are past fixtures; nothing here is a current read."
-          />
-          <ul className="mt-4 flex flex-col gap-2 m-0 p-0" style={{ listStyle: "none" }}>
-            {archived.map((r) => (
-              <li key={r.slug as string}>
-                {/* .gtp-epl-arc = this row's flex/gap/radius/padding utilities + its inline declarations,
-                    byte-for-byte (globals.css). One row per played fixture, so this is the weight that grows. */}
-                <Link href={eplMatchHref(r.slug as string)} className="vault-glow-hover gtp-epl-arc">
-                  <span className="gtp-epl-arc-m">{r.matchup}</span>
-                  <span className="font-mono gtp-epl-arc-d">
-                    {/* Session 5 · B8: the ET day, never the UTC instant's date (a 3 PM ET kickoff is fine; an evening one is not). */}
-                    {r.kickoffUtc ? ET_KEY.format(new Date(r.kickoffUtc)) : ""}
-                    {r.matchweek ? ` · matchweek ${r.matchweek}` : ""}
-                  </span>
-                  <span className="font-mono gtp-epl-arc-cta">
-                    Open forecast →
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-        </MoreDisclosure>
-      ) : null}
-
-      {/* ── 2 · SIMULATIONS ────────────────────────────────────────────────────────────────────── */}
-      {reportable.length > 0 ? (
-        <MoreDisclosure className="mt-8" title="Every simulation report" summary="One full simulation report per fixture the model can price.">
-        <section className="mt-8">
-          <SectionHeader
-            eyebrow={`Simulations · ${reportable.length} live`}
-            title="Open a fixture's full distribution"
-            sub="Ten likeliest scorelines, the goal-total ladder, each side's own goal curve, both teams to score, clean sheets and the winning margin — every figure an exact sum over one score matrix."
-          />
-          <div className="mt-4 grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))" }}>
-            {reportable.map((r) => <SimulationCard key={r.eventId} r={r} />)}
-          </div>
-          <p className="mt-3" style={{ fontSize: 12, color: "var(--vault-text-faint)", lineHeight: 1.6 }}>
-            {/* The honest method note. EPL must never borrow a run-count claim: nothing is sampled. */}
-            These are evaluated exactly rather than sampled, so there is no run count to quote — the same fixture
-            returns the same numbers for every visitor, every time.
-          </p>
-        </section>
-        </MoreDisclosure>
-      ) : null}
 
       {/* ── 3 · PLAYER PREDICTIONS ─────────────────────────────────────────────────────────────── */}
       {players && topScorers.length > 0 ? (
@@ -521,7 +293,7 @@ export default async function EplPage() {
               holdout numbers below are the test it was given, not a stamp of approval. */}
           <details className="mt-3">
             <summary className="cursor-pointer font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>
-              Player model · not validated ({players.model.id}) — the holdout test
+              Player model · not validated — the holdout test
             </summary>
             <p className="mt-1.5" style={{ fontSize: 12, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
               Fitted on {players.model.fittedAppearances.toLocaleString("en-US")} appearances,
@@ -533,7 +305,9 @@ export default async function EplPage() {
               expects that team to score.
             </p>
             <ul className="mt-2" style={{ margin: 0, paddingLeft: 16, fontSize: 12, lineHeight: 1.65, color: "var(--vault-text-faint)" }}>
-              {players.limitations.map((l) => <li key={l}>{l}</li>)}
+              {/* "see rejectedMarkets" names a data field, not a place a reader can go: the sentence before it already says
+                  the rejected markets are absent, so the pointer is dropped from the display (the artifact is unchanged). */}
+              {players.limitations.map((l) => <li key={l}>{l.replace(/;\s*see rejectedMarkets\.?$/, ".")}</li>)}
             </ul>
           </details>
         </section>
@@ -562,47 +336,62 @@ export default async function EplPage() {
         shown to work, which is a separate question answered by a preregistered backtest that has
         not been run for this sport.
       */}
-      {gradedRecord && gradedRecord.team.matches > 0 && (
-        <MoreDisclosure className="mt-8" title="Settled record" summary="How the published match forecasts have done, graded from official results.">
-        <section className="mt-8 scroll-mt-24" id="record">
+      {/* Overnight W8 (2026-10-28): CONSOLIDATED. The hub carried two folded 76-row lists of the same played fixtures —
+          "Played fixtures" (links to each pre-kickoff forecast) and "Settled record" (result and the probability the
+          model gave it). One table now carries both: every archived fixture still links to its own page (the
+          archive-reachability guard), and every graded result and its sample caveat stay. */}
+      {archived.length > 0 || (gradedRecord && gradedRecord.team.matches > 0) ? (
+        <MoreDisclosure className="mt-8" title="Past matches" summary="Each played fixture: the forecast published before kickoff, and the result once graded.">
+        <section className="scroll-mt-24" id="record">
           <SectionHeader
-            eyebrow="Settled"
-            title={`Graded so far · ${gradedRecord.team.matches} match${gradedRecord.team.matches === 1 ? "" : "es"}`}
-            sub={
-              /* The record line must not contradict the banner above it: when the artifact says the team
-                 model was tested blind on past seasons, say that is where its test lives; otherwise say
-                 none has been run. Either way this log is a count, never an accuracy claim. */
+            eyebrow={`Archive · ${archived.length} played${gradedRecord ? ` · ${gradedRecord.team.matches} graded` : ""}`}
+            title="Every fixture we published a forecast for"
+            sub={`What the model said before each kickoff, kept exactly as it was published. These are past fixtures; nothing here is a current read. ${
+              /* The record line must not contradict the banner: when the artifact says the team model was tested blind
+                 on past seasons, say that is where its test lives; otherwise say none has been run. Either way this log
+                 is a count, never an accuracy claim. */
               set?.validation === "VALIDATED_OUT_OF_SAMPLE_HISTORY"
-                ? "Read against the official result after full time. This is a log of what has been checked this season, far too short to say anything about accuracy — the model's test is the blind run on past seasons described above."
-                : "Read against the official result after full time. This is a log of what has been checked, not evidence the model works — that is a preregistered backtest, and it has not been run for this competition."
-            }
+                ? "Results are read against the official score after full time — a log far too short to say anything about accuracy; the model's test is the blind run on past seasons."
+                : "Results are read against the official score after full time — a log of what has been checked, not evidence the model works; that is a preregistered backtest, and it has not been run for this competition."}`}
           />
           <div className="mt-3 overflow-x-auto">
             <table className="gtp-epl-rec" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
               <thead>
                 <tr style={{ textAlign: "left", color: "var(--vault-text-mute)" }}>
                   <th style={{ padding: "6px 10px", fontWeight: 600 }}>Match</th>
+                  <th style={{ padding: "6px 10px", fontWeight: 600 }}>Date</th>
                   <th style={{ padding: "6px 10px", fontWeight: 600 }}>Result</th>
                   <th style={{ padding: "6px 10px", fontWeight: 600 }}>Model gave the actual outcome</th>
                 </tr>
               </thead>
               <tbody>
-                {gradedRecord.team.matchesList.map((m) => (
-                  /* Row rule and cell padding: .gtp-epl-rec (globals.css), byte-for-byte what each row inlined. */
-                  <tr key={m.eventId}>
+                {archived.map((r) => {
+                  const m = gradedById.get(String(r.eventId));
+                  return (
+                    /* Row rule and cell padding: .gtp-epl-rec (globals.css). */
+                    <tr key={r.slug as string}>
+                      <td><Link href={eplMatchHref(r.slug as string)} style={{ color: "var(--vault-text)" }}>{r.matchup}</Link></td>
+                      <td className="font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-faint)", whiteSpace: "nowrap" }}>
+                        {/* The ET day, never the UTC instant's date. */}
+                        {r.kickoffUtc ? ET_DAY_SHORT.format(new Date(r.kickoffUtc)) : ""}
+                      </td>
+                      <td>{m?.actual ? `${m.actual.homeGoalsFT}-${m.actual.awayGoalsFT}` : "not graded yet"}</td>
+                      <td>{typeof m?.probabilityOfActual === "number" ? `${(m.probabilityOfActual * 100).toFixed(1)}%` : "—"}</td>
+                    </tr>
+                  );
+                })}
+                {(gradedRecord?.team.matchesList ?? []).filter((m) => !archived.some((r) => String(r.eventId) === String(m.eventId))).map((m) => (
+                  <tr key={`g-${m.eventId}`}>
                     <td>{m.matchup}</td>
-                    <td>
-                      {m.actual ? `${m.actual.homeGoalsFT}-${m.actual.awayGoalsFT}` : "—"}
-                    </td>
-                    <td>
-                      {typeof m.probabilityOfActual === "number" ? `${(m.probabilityOfActual * 100).toFixed(1)}%` : "—"}
-                    </td>
+                    <td />
+                    <td>{m.actual ? `${m.actual.homeGoalsFT}-${m.actual.awayGoalsFT}` : "—"}</td>
+                    <td>{typeof m.probabilityOfActual === "number" ? `${(m.probabilityOfActual * 100).toFixed(1)}%` : "—"}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          {gradedRecord.player.rows > 0 && (
+          {gradedRecord && gradedRecord.player.rows > 0 && (
             <p style={{ margin: "10px 0 0", fontSize: 13, lineHeight: 1.65, color: "var(--vault-text-mute)" }}>
               {`Player markets: ${gradedRecord.player.rows} projection${gradedRecord.player.rows === 1 ? "" : "s"} graded`}
               {gradedRecord.player.voided > 0
@@ -612,7 +401,7 @@ export default async function EplPage() {
           )}
         </section>
         </MoreDisclosure>
-      )}
+      ) : null}
 
       {labLadder ? <SportLabCards ladder={labLadder} eyebrow={ladderDayLabel(labLadder.date)} tierRecords={loadSportLabStreamRecord("epl")?.byTier} /> : null}
 
@@ -626,22 +415,6 @@ export default async function EplPage() {
       {/* Phase A-2: model health follows results on every hub — collapsed, every family's state in its summary line. */}
       <ModelStatusPanel collapsed sportLabel="Premier League" items={modelStatusFor("epl", { dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: new Date().toISOString(), eplValidation: set?.validation ?? null })} />
 
-
-      {/* The five reads this sport's model is most confident about today — team markets and player
-          markets both, interleaved rather than sorted together, because a match favourite always
-          outranks any single player and a plain sort would make the list all-team. */}
-      {/* P243 · A-1: timeframe-pure panel — a "today" title only over today's ET events; a
-          future slate gets the honest "next event" heading instead. Never a mixed population. */}
-      {topReads && sportPanelReads(topReads, "epl", 5).timeframe ? (
-        <TopReadsPanel
-          set={topReads}
-          reads={sportPanelReads(topReads, "epl", 5).reads}
-          eyebrow="Premier League · model reads"
-          title={sportPanelReads(topReads, "epl", 5).timeframe === "today"
-            ? "What the model is most confident about today"
-            : "What the model is most confident about — next event"}
-        />
-      ) : null}
 
       {/* ── 4 · SCHEDULE — reference, deliberately last ────────────────────────────────────────── */}
       {/* GTP-20: reference list, folded; #schedule still lands (MoreDisclosure opens on hash). */}
@@ -664,6 +437,15 @@ export default async function EplPage() {
         </p>
       </section>
       </MoreDisclosure>
+
+      {/* Overnight W8 (2026-10-28): the page's one "Technical details" — internal model ids, RELOCATED from the reading path. */}
+      {players ? (
+        <MoreDisclosure className="mt-8" title="Technical details" summary="Internal model identifiers behind the numbers on this page.">
+          <p className="m-0 font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }} data-player-model-id="">
+            Player model: {players.model.id}
+          </p>
+        </MoreDisclosure>
+      ) : null}
 
       <p className="mt-6" style={{ fontSize: 12, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
         Paper-only and educational. Not betting advice. Updated {formatUpdatedEt(set?.generatedAt)} from pregame inputs
