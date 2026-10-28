@@ -195,3 +195,9 @@ test("the table-scroll affordance is wired: every table scroller is tracked, fad
   assert.match(CSS, /\[data-x-scroll\]:focus-visible \{ -webkit-mask-image: none; mask-image: none; \}/, "the focus ring is never masked");
   assert.match(CSS, /@media \(max-width: 767px\) \{\s*\[data-x-scroll\]\[data-x-hint\]::after \{ content: "Swipe sideways for more columns →";[^}]*visibility: hidden; \}\s*\[data-x-scroll="start"\]\[data-x-hint\]::after \{ visibility: visible; \}/);
 });
+
+test("a lane's state chip wraps inside its card instead of running into the next lane", () => {
+  const src = fs.readFileSync(path.join(process.cwd(), "src/components/command-center/command-center.tsx"), "utf8");
+  assert.match(src, /className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1"/, "the lane header row wraps");
+  assert.match(src, /gtp-calm-chip" style=\{\{[^}]*maxWidth: "100%", whiteSpace: "normal"/, "the lane chip may wrap within the card");
+});

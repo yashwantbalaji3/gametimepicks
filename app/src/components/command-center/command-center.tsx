@@ -61,9 +61,11 @@ function LaneGames({ lane }: { lane: CommandCenterLane }) {
 function Lane({ lane }: { lane: CommandCenterLane }) {
   return (
     <div className="gtp-lane flex flex-col gap-2 rounded-[14px] px-4 py-3.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)", borderTop: `2px solid ${SPORT_ACCENT[lane.sport]}` }} data-sport={lane.sport}>
-      <div className="flex items-center justify-between gap-2">
+      {/* Wraps: a long state ("In season · no qualified slate") drops under the sport name instead of running into the
+          next lane (overnight 10-28 local build, 1440). */}
+      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
         <Link href={lane.hubHref} className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800, textDecoration: "none", minHeight: 44, display: "inline-flex", alignItems: "center" }}>{lane.label}</Link>
-        <span className="gtp-calm-chip" style={{ ["--chip-tone" as string]: STATE_TONE[lane.state] ?? "var(--vault-text-faint)" }} data-lane-state={lane.state}>{lane.stateLabel}</span>
+        <span className="gtp-calm-chip" style={{ ["--chip-tone" as string]: STATE_TONE[lane.state] ?? "var(--vault-text-faint)", maxWidth: "100%", whiteSpace: "normal" }} data-lane-state={lane.state}>{lane.stateLabel}</span>
       </div>
       <p className="m-0 text-[12px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{lane.contextLine}</p>
       <span className="text-[12px]" style={{ color: FRESH_TONE[lane.freshness.state] }}>{lane.freshness.label}</span>
