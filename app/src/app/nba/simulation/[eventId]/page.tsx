@@ -35,7 +35,7 @@ export async function generateStaticParams() {
   // is what drops the dynamic imports below from a flag-OFF build (export-boundary.test.mjs scans out/ for their markers)
   if (process.env.GTP_NBA_THEATER_PUBLIC === "1") {
     const { publicPossessionEvents } = await import("@/lib/simulation-theater/nba/possession/public-loader.mjs");
-    const live = nbaPublicTheaterParams(() => publicPossessionEvents(REPO_ROOT)).filter((p) => p.eventId !== NBA_PUBLIC_THEATER_PLACEHOLDER);
+    const live: { eventId: string }[] = nbaPublicTheaterParams(() => publicPossessionEvents(REPO_ROOT)).filter((p: { eventId: string }) => p.eventId !== NBA_PUBLIC_THEATER_PLACEHOLDER);
     // past slates: the settled page at the same URL (never an id a current Game Simulation page builds)
     const settled = nbaPublicTheaterOn() ? settledSimulationParams(currentEtDate(), live.map((p) => p.eventId)).map((eventId) => ({ eventId })) : [];
     if (live.length || settled.length) return [...live, ...settled];
