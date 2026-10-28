@@ -293,3 +293,27 @@ export function queueMarkdown(q, { commandId }) {
   }
   return L.join("\n");
 }
+
+/**
+ * The queue's inventory, computed from the posts themselves — never typed by hand. Counts the OPEN posts (drafted, not
+ * superseded or decided) and throws if any open post is uncounted, so a report can't add up wrong (founder 2026-10-28:
+ * "61 graphics" vs "46 + 14").
+ */
+export function queueInventory(posts) {
+  const open = posts.filter((p) => p.lifecycle === "drafted");
+  const byStatus = { READY: 0, NEEDS_VERIFICATION: 0, BLOCKED: 0 };
+  const byKind = {};
+  for (const p of open) {
+    if (!(p.package.status in byStatus)) throw new Error(`queue inventory does not add up: unknown status ${p.package.status} on ${p.postId}`);
+    byStatus[p.package.status] += 1;
+    const k = `${p.package.sport} ${p.package.format ?? p.package.kind}`;
+    byKind[k] = (byKind[k] ?? 0) + 1;
+  }
+  const inv = {
+    open: open.length, graphics: open.filter((p) => p.package.media).length, textOnly: open.filter((p) => !p.package.media).length,
+    v21: open.filter((p) => p.package.template).length, byStatus, byKind,
+  };
+  const sum = Object.values(byStatus).reduce((a, b) => a + b, 0);
+  if (sum !== inv.open || inv.graphics + inv.textOnly !== inv.open) throw new Error(`queue inventory does not add up: ${JSON.stringify(inv)}`);
+  return inv;
+}

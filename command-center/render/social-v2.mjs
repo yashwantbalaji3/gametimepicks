@@ -31,7 +31,8 @@ const LOGO = path.join(REPO_ROOT, "app/public/brand/gametime-picks-logo.png");
 /** Social terminology → the canonical concept it presents (presentation layer only). */
 export const TERMS = Object.freeze({
   prediction: "GameTimePicks Prediction",     // OFFICIAL_FORECAST of the game winner
-  predictedWinner: "Predicted Winner",          // the published side
+  predictedWinner: "Predicted Winner",          // the published side (≥ 50%)
+  mostLikelyWinner: "Most Likely Winner",       // the published side, under 50% but the single most likely outcome
   winProbability: "Win Probability",            // the published side's probability
   topTd: "Top 3 TD Predictions",                // anytime_td forecasts of record / latest published
   vsFinal: "Prediction vs. Final",
@@ -68,7 +69,7 @@ function postgameBody(m) {
       <div class="side"><div class="score ${m.winner === "home" ? "" : "lose"}">${esc(m.finalHome)}</div>${slab(m.home)}</div>
     </div>
     <div class="banner ${hit ? "hit" : "miss"}"><div class="mark">${hit ? "✓" : "✗"}</div><div class="t">${tie ? "Game tied" : hit ? esc(TERMS.correct) : esc(TERMS.missed)}</div></div>
-    <div class="recall"><span class="k">${esc(TERMS.predictedWinner)}</span><span class="w">${esc(m.favouredTeam.nickname)}</span><span class="v">${esc(m.winProbabilityDisplay)}</span><span class="k">${esc(TERMS.winProbability)}</span></div>
+    <div class="recall"><span class="k">${esc(m.winnerLabel ?? TERMS.predictedWinner)}</span><span class="w">${esc(m.favouredTeam.nickname)}</span><span class="v">${esc(m.winProbabilityDisplay)}</span><span class="k">${esc(TERMS.winProbability)}</span></div>
     ${tdHtml}
     <div class="foot">Prediction frozen before kickoff <b>${esc(m.frozenLine)}</b><br>${esc(DISCLOSURE.NFL)}</div>`;
 }
@@ -78,7 +79,7 @@ function pregameBody(m) {
   return `<div class="kicker">${esc(TERMS.prediction)}</div>
     <div class="hero pre"><div class="side">${slab(m.away)}</div><div class="mid"><span>@</span></div><div class="side">${slab(m.home)}</div></div>
     <div class="ringwrap">${ring(m.winProbability)}<div class="in"><div class="k">${esc(TERMS.winProbability)}</div><div class="num">${esc(pct)}<small>%</small></div></div></div>
-    <div class="winner"><div class="k">${esc(TERMS.predictedWinner)}</div>${slab(m.favouredTeam)}</div>
+    <div class="winner"><div class="k">${esc(m.winnerLabel ?? TERMS.predictedWinner)}</div>${slab(m.favouredTeam)}</div>
     <div class="strip"><div><b data-fit>${esc(m.kickoffDay)}</b><span>Kickoff ${esc(m.kickoffTime)}</span></div>${m.venue ? `<div><b data-fit>${esc(m.venue)}</b><span>Venue</span></div>` : ""}<div><b data-fit>${esc(m.frozenShort)}</b><span>${esc(m.stampShort)}</span></div></div>
     <div class="legal">${esc(DISCLOSURE.NFL)}</div>`;
 }

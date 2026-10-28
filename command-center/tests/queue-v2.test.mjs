@@ -164,3 +164,44 @@ test("V2.1 postgame captions state TD misses on a correct prediction (CLE @ TEN:
     if (m.td?.complete && m.td.hits < m.td.shown) assert.ok(pkg.captions.every((c) => /missed/.test(c.text)), `${id}: every caption states the TD misses`);
   }
 });
+
+test("Most Likely Winner: only when the published side is under 50% and still the single most likely outcome", async () => {
+  const { winnerLabelOf } = await import("../recap/social-v2.mjs");
+  assert.equal(winnerLabelOf({ side: "home", home: 0.6376, away: 0.3352, tieMass: 0.0272 }), "Predicted Winner");
+  assert.equal(winnerLabelOf({ side: "away", home: 0.4724, away: 0.4993, tieMass: 0.0283 }), "Most Likely Winner");
+  assert.equal(winnerLabelOf({ side: "away", home: 0.495, away: 0.48, tieMass: 0.025 }), null, "a side that isn't the top outcome gets no winner graphic");
+  assert.equal(winnerLabelOf({ side: "home", home: 0.5, away: 0.47, tieMass: 0.03 }), "Predicted Winner");
+});
+
+test("Sunday: PHI @ WSH is a Most Likely Winner at the official 49.9%; the inventory adds up", { skip }, async () => {
+  const { o } = v2Orchestrator();
+  const r = await o.handleCommand("Team, prepare the content queue for 2026-11-01", FOUNDER);
+  const phi = postsOf(o, r.commandId).find((p) => p.package.title.startsWith("PHI @ WSH"));
+  assert.equal(phi.package.winnerLabel, "Most Likely Winner");
+  assert.match(phi.options[0].text, /Most Likely Winner: Philadelphia Eagles, 49\.9% Win Probability/);
+  assert.ok(phi.options.every((o2) => o2.check.ok));
+  const others = postsOf(o, r.commandId).filter((p) => p.package.kind === "pregame-forecast" && p.decisionId !== phi.decisionId);
+  assert.ok(others.every((p) => p.package.winnerLabel === "Predicted Winner"));
+  const inv = o.state().inventory;
+  const open = o.state().posts.filter((p) => p.lifecycle === "drafted");
+  assert.equal(inv.open, open.length);
+  assert.equal(inv.byStatus.READY + inv.byStatus.NEEDS_VERIFICATION + inv.byStatus.BLOCKED, inv.open);
+  assert.equal(inv.graphics + inv.textOnly, inv.open);
+  const { queueInventory } = await import("../contracts/post-queue.mjs");
+  assert.throws(() => queueInventory([{ lifecycle: "drafted", package: { status: "WEIRD", sport: "NFL" } }]), /does not add up/, "an uncounted status fails loudly");
+});
+
+test("Check before posting: an approved pregame post re-verifies against current data and records the result", { skip }, async () => {
+  const h = v2Orchestrator();
+  const r = await h.o.handleCommand("Team, prepare tomorrow's content queue", FOUNDER);
+  h.o.approveDesign({ template: SOCIAL_TEMPLATE, assetManifest: ASSET_MANIFEST }, FOUNDER);
+  const pre = postsOf(h.o, r.commandId).find((p) => p.package.kind === "pregame-forecast");
+  assert.equal(h.o.recordPost({ decisionId: pre.decisionId, action: "verify" }, FOUNDER).code, "APPROVAL_MISSING");
+  h.setNow("2026-10-28T13:40:00.000Z");
+  assert.ok((await h.o.decide({ decisionId: pre.decisionId, verdict: "approve", captionId: "A", digest: pre.options[0].digest }, FOUNDER)).ok);
+  assert.equal(h.o.recordPost({ decisionId: pre.decisionId, action: "verify" }, FOUNDER).status, "READY");
+  h.setNow("2026-10-28T15:30:00.000Z");
+  const late = h.o.recordPost({ decisionId: pre.decisionId, action: "verify" }, FOUNDER);
+  assert.equal(late.code, "NOT_CURRENT", "stale data: don't post");
+  assert.equal(h.store.list().filter((e) => e.kind === "post-verification" && e.data.phase === "pre-publish").length, 2);
+});

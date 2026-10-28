@@ -395,7 +395,8 @@
       return `<div class="receipt">Approved caption ${esc(p.resolution.captionId)} at ${esc(time(p.resolution.approvedAt))}${p.resolution.sourcesConfirmed ? " · you confirmed the cited posts" : ""} · digest ${esc(p.resolution.approvedExactDigest.slice(0, 12))}…<br>Post it yourself on X${pkg.media ? " with the graphic" : ""}, then record the link.${p.schedule ? `<br>Scheduled by you for ${esc(new Date(p.schedule.scheduledFor).toLocaleString())}` : ""}</div>
         ${pkg.media ? `<a class="btn small" href="/media/${encodeURIComponent(pkg.media.file)}" download>Download graphic</a>` : ""}
         <div class="field"><label for="xurl-${id}">X link of your post</label><input id="xurl-${id}" type="url" inputmode="url" autocapitalize="off" spellcheck="false" placeholder="https://x.com/…/status/…" data-draft="xurl:${id}" value="${draftVal(`xurl:${p.decisionId}`)}"></div>
-        <div class="row actions"><button class="btn primary" data-post-record="publish" data-post="${id}">Record X link</button></div>
+        <div class="row actions"><button class="btn" data-post-record="verify" data-post="${id}">Check before posting</button><button class="btn primary" data-post-record="publish" data-post="${id}">Record X link</button></div>
+        ${(() => { const c = p.checks.filter((x) => x.phase === "pre-publish").at(-1); return c ? `<div class="${c.status === "READY" ? "receipt" : "blocked"}">Checked ${esc(time(c.checkedAt))}: ${esc(c.status)}${c.reasons?.length ? ` — ${esc(c.reasons.join("; "))}` : ""}</div>` : ""; })()}
         ${p.lifecycle === "approved" ? `<div class="field"><label for="sched-${id}">Or: scheduled in X for</label><input id="sched-${id}" type="datetime-local" data-draft="sched:${id}" value="${draftVal(`sched:${p.decisionId}`)}"></div>
         <div class="row"><button class="btn small" data-post-record="schedule" data-post="${id}">Mark scheduled</button></div>` : ""}`;
     }
@@ -434,6 +435,11 @@
     const today = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date());
     const all = [...new Set(posts.map((p) => p.date))].sort();
     const dates = [...all.filter((d) => d >= today), ...all.filter((d) => d < today).reverse()];
+    // Up next: every open upcoming post (priority 1), soonest start first, ahead of anything else; catch-up last.
+    const startOf = (k) => k.startUtc ?? k.verification?.kickoffUtc ?? k.kickoffUtc ?? k.tipUtc ?? k.firstKickoffUtc ?? "9999";
+    const upNext = posts.filter((p) => postOpen(p) && p.package.priority === 1).sort((a, b) => String(startOf(a.package)).localeCompare(String(startOf(b.package))) || a.postId.localeCompare(b.postId));
+    const upIds = new Set(upNext.map((p) => p.decisionId));
+    const inv = s.inventory;
     const openDay = dates.find((d) => posts.some((p) => p.date === d && postOpen(p))) ?? dates[0];
     const latest = queues.at(-1);
     const counts = posts.reduce((m, p) => ({ ...m, [p.lifecycle]: (m[p.lifecycle] ?? 0) + 1 }), {});
@@ -441,10 +447,13 @@
     const designBar = dz ? `<div class="${dz.approved ? "receipt" : "blocked"}">Graphic design <b>${esc(dz.template)}</b> · ${esc(dz.assetManifest)}: ${dz.approved ? `approved ${esc(time(dz.approvedAt))} — design only; every post still needs its own approval` : "not approved yet — V2.1 posts can't be approved for publishing until it is"}
       ${dz.approved ? "" : `<div class="row" style="margin-top:6px"><button class="btn" data-design="1">Approve this design version</button></div>`}</div>` : "";
     return `<h2>Content queue <span class="count">${num(open)} open</span></h2>${designBar}
+      ${inv ? `<div class="muted">Open: ${num(inv.open)} · ${num(inv.byStatus.READY ?? 0)} ready · ${num(inv.byStatus.NEEDS_VERIFICATION ?? 0)} need verification · ${num(inv.byStatus.BLOCKED ?? 0)} blocked · ${num(inv.graphics)} with graphics</div>` : ""}
+      ${upNext.length ? `<details class="cal-day" open><summary><b>Up next</b> · ${num(upNext.length)} upcoming post(s), soonest first</summary>${upNext.map(postCard).join("")}</details>` : ""}
       <div class="cal-totals">${Object.entries(counts).map(([k, v]) => `<span class="tag life life-${esc(k)}">${esc(LIFE_LABEL[k])} ${num(v)}</span>`).join("")}</div>
       <div class="muted">Each post is approved on its own and published by you on X; the Command Center never posts.${latest?.file ? ` · <a href="/${esc(latest.file)}" target="_blank" rel="noopener">Queue export</a>` : ""}</div>
-      ${dates.map((d) => `<details class="cal-day" ${d === openDay ? "open" : ""}><summary><b>${esc(new Date(`${d}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric", timeZone: "UTC" }))}</b> · ${num(posts.filter((p) => p.date === d).length)} post(s) · ${num(posts.filter((p) => p.date === d && postOpen(p)).length)} open</summary>
-        ${posts.filter((p) => p.date === d).sort((a, b) => (a.package.priority ?? 2) - (b.package.priority ?? 2)).map(postCard).join("")}</details>`).join("")}
+      ${dates.map((d) => `<details class="cal-day" ${d === openDay && !upNext.length ? "open" : ""}><summary><b>${esc(new Date(`${d}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric", timeZone: "UTC" }))}</b> · ${num(posts.filter((p) => p.date === d).length)} post(s) · ${num(posts.filter((p) => p.date === d && postOpen(p)).length)} open</summary>
+        ${posts.filter((p) => p.date === d && !upIds.has(p.decisionId) && p.package.priority !== 3).sort((a, b) => (a.package.priority ?? 2) - (b.package.priority ?? 2)).map(postCard).join("")}</details>`).join("")}
+      ${posts.some((p) => p.package.priority === 3) ? `<details class="cal-day"><summary><b>Catch-up (older results)</b> · ${num(posts.filter((p) => p.package.priority === 3).length)}</summary>${posts.filter((p) => p.package.priority === 3).map(postCard).join("")}</details>` : ""}
       ${latest?.q?.skipped?.length ? `<details class="cal-day"><summary><b>Not in the ${esc(latest.q.date)} queue</b> · ${num(latest.q.skipped.length)}</summary><ul>${latest.q.skipped.map((x) => `<li><span class="st st-${esc(x.status)}">${esc(STATUS_LABEL[x.status] ?? x.status)}</span> ${esc(x.sport)} · ${esc(x.opportunity)} — <span class="muted">${esc(x.reason)}</span></li>`).join("")}</ul></details>` : ""}`;
   }
 
@@ -750,6 +759,7 @@
       if (action === "engagement") body.metrics = Object.fromEntries(["impressions", "likes", "reposts", "replies", "bookmarks"].map((k) => [k, ui.drafts[`m:${id}:${k}`] ?? ""]));
       t.disabled = true;
       const r = await post("/api/post", body);
+      if (action === "verify") { t.disabled = false; alert(r.ok ? "Current: matches the latest published version and passed its freshness checks. Post now." : `Do not post: ${r.detail ?? r.code}`); return; }
       if (!r.ok && !r.duplicate) { t.disabled = false; alert(`${r.code}: ${r.detail ?? ""}`); }
       else if (r.receipt?.warnings?.length) alert(`Recorded, with warnings:\n${r.receipt.warnings.join("\n")}`);
       return;

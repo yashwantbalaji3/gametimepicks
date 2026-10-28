@@ -33,6 +33,19 @@ const EXCLUDED = new Set(["OUT", "DOUBTFUL", "INACTIVE", "IR", "SUSPENDED", "PUP
 const ET = (opts) => new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", ...opts });
 const kickoffLine = (iso) => `${ET({ weekday: "short", month: "short", day: "numeric" }).format(new Date(iso))} · ${ET({ hour: "numeric", minute: "2-digit" }).format(new Date(iso))} ET`;
 
+/**
+ * The winner label (founder 2026-10-28): "Predicted Winner" when the published side is at least 50%; "Most Likely Winner"
+ * when it is under 50% but still the single most likely outcome (above the opponent AND the tie share); null when the
+ * published side is not the top outcome — then no graphic is made. The probability itself is never altered.
+ */
+export function winnerLabelOf({ side, home, away, tieMass }) {
+  const p = side === "home" ? home : away;
+  const other = side === "home" ? away : home;
+  if (![p, other].every(Number.isFinite)) return null;
+  if (p >= 0.5) return "Predicted Winner";
+  return p > other && p > (Number.isFinite(tieMass) ? tieMass : 0) ? "Most Likely Winner" : null;
+}
+
 /** A team as the graphic shows it: verified colours (nfl-team-colors.mjs, evidence-backed) and its own name. */
 export function teamOf(abbr, name) {
   const c = nflTeamColor(abbr);
@@ -71,9 +84,12 @@ export function pregameWinner({ src, eventId, now }) {
   const home = teamOf(r.home.abbr, r.home.name);
   const fav = v.numbers.side === "home" ? home : away;
   const afterKickoff = Date.parse(now) >= Date.parse(kickoff);
+  const wp = r.forecastSummary?.winProbability ?? {};
+  const winnerLabel = winnerLabelOf({ side: v.numbers.side, home: wp.home, away: wp.away, tieMass: wp.tieMass });
+  if (!winnerLabel) return { ok: false, reason: `the published side (${pct(v.numbers.sideProbability)}) is not the most likely outcome: refusing a winner graphic` };
   return {
     ok: true, format: "pregame-winner", spec: SOCIAL_V2_SPEC, eventId,
-    away, home, favoured: v.numbers.side, favouredTeam: fav,
+    away, home, favoured: v.numbers.side, favouredTeam: fav, winnerLabel,
     winProbability: v.numbers.sideProbability, winProbabilityDisplay: v.numbers.sideProbabilityDisplay,
     week: r.week ?? null, kickoff, kickoffLine: kickoffLine(kickoff), frozenAt: v.frozenAt, frozenLine: etDisplay(v.frozenAt),
     kickoffDay: ET({ weekday: "long" }).format(new Date(kickoff)), kickoffTime: `${ET({ hour: "numeric", minute: "2-digit" }).format(new Date(kickoff))} ET`,
@@ -149,6 +165,9 @@ export function postgame({ src, eventId, label }) {
   const home = teamOf(bundle.teams.home.abbr, bundle.teams.home.name);
   const fav = bundle.favouredSide === "home" ? home : away;
   const result = d("result.side").value;
+  const wp = candidate.receipt?.forecastSummary?.winProbability ?? {};
+  const winnerLabel = winnerLabelOf({ side: bundle.favouredSide, home: wp.home, away: wp.away, tieMass: wp.tieMass });
+  if (!winnerLabel) return { ok: false, reason: "the published side was not the most likely outcome: refusing a winner graphic" };
   const td = touchdowns({ src, eventId, mode: "record" });
   let tdSection = null;
   if (td.ok) {
@@ -161,7 +180,7 @@ export function postgame({ src, eventId, label }) {
     ok: true, format: "postgame", spec: SOCIAL_V2_SPEC, eventId,
     away, home, finalAway: d("final.away").value, finalHome: d("final.home").value,
     winner: d("final.home").value > d("final.away").value ? "home" : d("final.away").value > d("final.home").value ? "away" : "tie",
-    favoured: bundle.favouredSide, favouredTeam: fav, winProbabilityDisplay: d("favoured.winProbability").display,
+    favoured: bundle.favouredSide, favouredTeam: fav, winnerLabel, winProbabilityDisplay: d("favoured.winProbability").display,
     result, frozenLine: d("frozenAt").display, week: bundle.week, td: tdSection, tdUnavailable: td.ok ? null : td.reason,
     evidence: [{ label: "Forecast Ledger", ref: `${bundle.sources.ledger.path}@${src.commit?.slice(0, 12)}`, sha256: bundle.sources.ledger.sha256 },
       { label: "receipt", ref: bundle.sources.receipt.path, sha256: bundle.sources.receipt.sha256 }, ...(td.ok ? td.evidence : [])],

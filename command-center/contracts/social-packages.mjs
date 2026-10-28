@@ -36,12 +36,15 @@ export function nflPregamePackage({ date, m, verification, extra, slotId = "stan
   ];
   const fav = m.favouredTeam;
   const captions = [
-    { id: "A", tone: "prediction", text: `${TERMS.prediction} · ${m.away.nickname} at ${m.home.nickname}, ${m.kickoffLine}. ${TERMS.predictedWinner}: ${fav.name}, ${m.winProbabilityDisplay} ${TERMS.winProbability}. Latest published prediction (frozen ${m.frozenLine}). Not betting advice.` },
-    { id: "B", tone: "short", text: `${fav.nickname} ${m.winProbabilityDisplay} to win ${m.away.abbr} @ ${m.home.abbr}. Our latest published prediction, graded in public after the final.` },
+    { id: "A", tone: "prediction", text: `${TERMS.prediction} · ${m.away.nickname} at ${m.home.nickname}, ${m.kickoffLine}. ${m.winnerLabel}: ${fav.name}, ${m.winProbabilityDisplay} ${TERMS.winProbability}. Latest published prediction (frozen ${m.frozenLine}). Not betting advice.` },
+    m.winnerLabel === TERMS.mostLikelyWinner
+      ? { id: "B", tone: "short", text: `A near coin flip: our latest published prediction has the ${fav.nickname} as the most likely winner of ${m.away.abbr} @ ${m.home.abbr} at ${m.winProbabilityDisplay}. Graded in public after the final.` }
+      : { id: "B", tone: "short", text: `${fav.nickname} ${m.winProbabilityDisplay} to win ${m.away.abbr} @ ${m.home.abbr}. Our latest published prediction, graded in public after the final.` },
   ];
   return {
     ...base(m, extra), postId: `${date}:NFL:pregame:${m.eventId}${V2}`, slotId, date, sport: "NFL", kind: "pregame-forecast", format: "pregame-winner",
-    title: `${m.away.abbr} @ ${m.home.abbr}: ${TERMS.predictedWinner}`, eventId: m.eventId, priority,
+    title: `${m.away.abbr} @ ${m.home.abbr}: ${m.winnerLabel}`, eventId: m.eventId, priority, winnerLabel: m.winnerLabel,
+    startUtc: verification.kickoffUtc ?? null,
     status: verification.status, reasons: verification.reasons, verification, numbers: verification.version?.numbers ?? null, claims, captions,
   };
 }
@@ -101,7 +104,7 @@ export function nflPostgamePackage({ date, m, extra, slotId = "standing:nfl-post
   const tdLine = td ? ` ${TERMS.topTd}: ${td.hits} of ${td.shown} scored${td.hits < td.shown ? `, ${td.shown - td.hits} missed` : ""}.` : "";
   const captions = [
     { id: "A", tone: "result", text: `Final: ${win.name} ${ws}, ${lose.name} ${ls}. Our prediction had the ${m.favouredTeam.nickname} at ${m.winProbabilityDisplay}: ${verdict}${tdLine}` },
-    { id: "B", tone: "short", text: `${TERMS.vsFinal}: ${m.away.abbr} ${m.finalAway}, ${m.home.abbr} ${m.finalHome}. ${TERMS.predictedWinner} ${m.favouredTeam.abbr} (${m.winProbabilityDisplay}) — ${verdict}${td ? ` TD: ${td.hits} of ${td.shown} scored${td.hits < td.shown ? `, ${td.shown - td.hits} missed` : ""}.` : ""} Graded in public.` },
+    { id: "B", tone: "short", text: `${TERMS.vsFinal}: ${m.away.abbr} ${m.finalAway}, ${m.home.abbr} ${m.finalHome}. ${m.winnerLabel} ${m.favouredTeam.abbr} (${m.winProbabilityDisplay}) — ${verdict}${td ? ` TD: ${td.hits} of ${td.shown} scored${td.hits < td.shown ? `, ${td.shown - td.hits} missed` : ""}.` : ""} Graded in public.` },
   ];
   return {
     ...base(m, extra), postId: `${date}:NFL:recap:${m.eventId}${V2}`, slotId, date, sport: "NFL", kind: "nfl-recap", format: "postgame",

@@ -21,7 +21,7 @@ import { digestOf, sha256, shortId } from "../lib/util.mjs";
 import { REASON } from "../contracts/index.mjs";
 import {
   POST_STATUS, sealPackage, nflRecapPackage, resultsPackage, explainerPackage, engagementPackage, pregamePackage, xReplyPackage,
-  skipped, parseXPostUrl, parseMetrics, queueMarkdown, publishBundleOf,
+  skipped, parseXPostUrl, parseMetrics, queueMarkdown, publishBundleOf, queueInventory,
 } from "../contracts/post-queue.mjs";
 import { inspectSlate, buildRecapDraft } from "../recap/pipeline.mjs";
 import { resultsBundles, resultsCaptions, validateResultsCaption } from "../recap/results-bundle.mjs";
@@ -519,6 +519,13 @@ export function createQueueFlow(ctx) {
     const kickoff = pkg.verification?.kickoffUtc ?? pkg.kickoffUtc ?? pkg.tipUtc ?? pkg.firstKickoffUtc ?? null;
     const by = { recordedBy: actor.id ?? "founder", recordedAt: clock(), authentication: actor.authentication ?? "loopback-console (demo-grade)" };
 
+    if (action === "verify") {
+      // "Check before posting": re-run the package's freshness / latest-version check now and record the result.
+      const again = recheck(pkg);
+      const result = again ?? { status: POST_STATUS.READY, reasons: ["nothing time-sensitive to re-check for this kind"] };
+      store.append("post-verification", "founder", { decisionId, postId: rec.request.postId, phase: "pre-publish", status: result.status, reasons: result.reasons, checkedAt: clock(), dataCommit: ctx.dataSource().commit ?? null, ...by });
+      return { ok: result.status === POST_STATUS.READY, status: result.status, reasons: result.reasons, code: result.status === POST_STATUS.READY ? undefined : "NOT_CURRENT", detail: result.reasons.join("; ") };
+    }
     if (action === "schedule") {
       const t = Date.parse(scheduledFor);
       if (!Number.isFinite(t)) return { ok: false, code: "BAD_TIME", detail: "give the time you scheduled it for" };
@@ -590,5 +597,5 @@ export function createQueueFlow(ctx) {
     });
   }
 
-  return { build, consolidate, decidePost, recordPost, posts, approvedCalendar, publishBundleOf, approveDesign, design };
+  return { build, consolidate, decidePost, recordPost, posts, approvedCalendar, publishBundleOf, approveDesign, design, inventory: () => queueInventory(posts()) };
 }
