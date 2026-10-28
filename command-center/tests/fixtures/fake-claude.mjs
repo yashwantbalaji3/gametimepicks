@@ -23,7 +23,7 @@ let prompt = "";
 process.stdin.on("data", (d) => (prompt += d));
 process.stdin.on("end", async () => {
   const schema = argv[argv.indexOf("--json-schema") + 1] ?? "";
-  const mode = schema.includes("testPlan") ? "plan" : "build";
+  const mode = schema.includes("testPlan") ? "plan" : schema.includes("automationSteps") ? "review" : "build";
   fs.appendFileSync(path.join(home, ".fake-claude-calls.jsonl"), JSON.stringify({ mode, argv, envKeys: Object.keys(process.env).sort(), cwd: process.cwd(), promptHead: prompt.slice(0, 200) }) + "\n");
   out({ type: "system", subtype: "init", session_id: `fake-${mode}-session`, model: "claude-fake-1", tools: cfg.noStructuredTool ? ["Read", "Grep", "Glob"] : ["Read", "Grep", "Glob", "StructuredOutput"] });
   if (cfg.noStructuredTool) { setInterval(() => {}, 1000); return; }
@@ -42,6 +42,12 @@ process.stdin.on("end", async () => {
     process.exit(1);
   }
   if (cfg.hang === mode) { out({ type: "assistant", message: { content: [{ type: "text", text: "thinking for a long time" }] } }); setInterval(() => {}, 1000); return; }
+  if (mode === "review") {
+    out({ type: "assistant", message: { content: [{ type: "tool_use", name: "Read", input: { file_path: path.join(process.cwd(), "command-center/recap/pipeline.mjs") } }] } });
+    const review = cfg.review ?? { summary: "The recap pipeline covers most of it", automationSteps: [{ step: "Postgame recap card", reuses: "recap/pipeline.mjs", newWork: "schedule after settlement", risk: "late settlement" }], tests: ["node --test"], openQuestions: ["publisher choice (CP2)"] };
+    out({ type: "result", subtype: "success", is_error: false, session_id: "fake-review-session", num_turns: 2, total_cost_usd: 0.09, usage: { input_tokens: 900, output_tokens: 150 }, structured_output: review, result: "reviewed" });
+    process.exit(0);
+  }
   if (mode === "plan") {
     out({ type: "assistant", message: { content: [{ type: "tool_use", name: "Read", input: { file_path: path.join(process.cwd(), "command-center/surfaces/console/app.js") } }] } });
     const plan = cfg.plan ?? { summary: "Add a copy button and counter", files: [{ path: "command-center/surfaces/console/app.js", change: "render button and counter" }], steps: ["edit renderDecisions"], risks: [], testPlan: ["node --test"] };

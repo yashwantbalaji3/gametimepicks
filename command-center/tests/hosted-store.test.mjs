@@ -267,3 +267,26 @@ test("review fix N1: a test that rewrites the working copy after the diff was ta
   assert.equal(g3.options.find((o) => o.id === "keep").allowed, false);
   assert.ok(g3.warnings.some((w) => w.code === "WORKCOPY_CHANGED_BY_TESTS"), JSON.stringify(g3.warnings));
 });
+
+test("team workflow on the hosted path: facts on the worker, pastes and checks in stateless requests", async () => {
+  const h = await hosted();
+  const fence = (o) => "```json\n" + JSON.stringify(o) + "\n```";
+  const research = { query: "q", findings: [{ topic: "t", summary: "s", sources: [{ url: "https://x.com/a/status/1849000000000000001" }] }], caveats: [] };
+  const proposals = { proposals: [0, 0, 0].map((findingIndex, i) => ({ findingIndex, type: "post", text: `Our forecasts are frozen before kickoff, every week (${["one", "two", "three"][i]}).`, rationale: "r" })) };
+  const r1 = await h.request((o) => o.handleCommand("Team, analyze today's biggest NFL conversations on X and identify three opportunities for GameTimePicks to contribute useful content.", FOUNDER));
+  assert.equal(r1.outbox.length, 1);
+  assert.equal(r1.outbox[0].type, "team", "reading the forecast ledger is worker work");
+  assert.equal((await h.worker(r1.outbox[0].jobId)).ok, true);
+  let s = await h.read();
+  const grok = s.commands[0].tasks.find((t) => t.status === "AWAITING_INPUT");
+  assert.equal(grok.ownerRole, "social-intelligence");
+  const r2 = await h.request((o) => o.submitManual(grok.taskId, fence(research), FOUNDER));
+  assert.equal(r2.outbox.length, 0, "the evidence check is light and runs in the request");
+  s = await h.read();
+  const gpt = s.commands[0].tasks.find((t) => t.status === "AWAITING_INPUT");
+  assert.equal(gpt.ownerRole, "content-strategist");
+  await h.request((o) => o.submitManual(gpt.taskId, fence(proposals), FOUNDER));
+  s = await h.read();
+  assert.equal(s.decisions.filter((d) => d.kind === "proposal").length, 3);
+  assert.ok(s.commands[0].reports.at(-1).final);
+});

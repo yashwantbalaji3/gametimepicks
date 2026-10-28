@@ -3,7 +3,9 @@
  * reviewable, so Phase 1 maps a CEO message to one of a few typed intents instead of letting a model improvise a
  * plan. Control intents (pause/resume) are founder actions and are re-checked by identity in the orchestrator.
  */
-export const INTENTS = Object.freeze(["nfl-recap", "engineering-task", "pause", "resume", "status", "general"]);
+import { TEAM_WORKFLOWS } from "./team-flow.mjs";
+
+export const INTENTS = Object.freeze(["nfl-recap", "engineering-task", "x-social-research", "content-plan", "pause", "resume", "status", "general"]);
 
 export function parseIntent(text) {
   const t = String(text ?? "").toLowerCase();
@@ -11,6 +13,8 @@ export function parseIntent(text) {
   if (/^\s*resume\b/.test(t)) return "resume";
   if (/^\s*(status|what('s| is) (the )?status)\b/.test(t)) return "status";
   if (/\bclaude code\b/.test(t) && /\b(spec|specification|implement|implementation)\b/.test(t)) return "engineering-task";
+  if (/\bcontent[- ]plan\b|\bweekly\b.*\bplan\b|\bplan\b.*\bweekly\b/.test(t) && /\b(x|twitter|social)\b/.test(t)) return "content-plan";
+  if (/\b(on x|x conversations?|twitter|trending)\b/.test(t) && /\b(conversations?|trends?|opportunit(y|ies)|replies)\b/.test(t)) return "x-social-research";
   if (/\b(recap|postgame|post-game|last night|results?)\b/.test(t) && /\b(nfl|football|games?)\b/.test(t)) return "nfl-recap";
   return "general";
 }
@@ -34,6 +38,7 @@ export function planFor(intent) {
       { role: "chief-of-staff", title: "Report, then you keep or discard the change (G3)", artifact: "consolidated-report", seat: "fake", gate: "G3" },
     ];
   }
+  if (TEAM_WORKFLOWS[intent]) return TEAM_WORKFLOWS[intent].map((s) => ({ role: s.role, title: s.title, artifact: s.artifact, seat: s.seat }));
   return [
     { role: "prompt-architect", title: "Turn the request into a brief", artifact: "engineering-brief" },
     { role: "product-strategist", title: "Give a product/strategy view", artifact: "strategy-note" },

@@ -34,6 +34,8 @@ export const ROLE_IDS = Object.freeze([
   "publisher",
   "growth-analyst",
   "verifier",
+  "social-intelligence",   // Grok (xAI): public X research with source links
+  "content-strategist",    // ChatGPT (OpenAI): posts, replies, campaigns and plans from verified material
 ]);
 
 export const TASK_STATUS = Object.freeze(["QUEUED", "RUNNING", "AWAITING_INPUT", "DONE", "REFUSED", "FAILED"]);
@@ -54,6 +56,13 @@ export const ARTIFACT_TYPES = Object.freeze([
   "implementation-plan",
   "engineering-result",
   "verification",
+  "gtp-facts",            // verified GameTimePicks facts a team workflow may cite (deterministic)
+  "x-research",           // Grok: findings about public X conversations, each with source links
+  "evidence-check",       // deterministic: which findings are source-linked and usable
+  "content-proposals",    // ChatGPT: proposed posts / replies built on checked findings
+  "content-plan",         // ChatGPT: a weekly content plan
+  "content-check",        // deterministic: wording, length, number provenance of every draft
+  "feasibility-review",   // Claude Code: read-only review of how to automate a plan
 ]);
 
 /** Ledger entry kinds — the action history is exactly this list, in order. */
@@ -63,6 +72,7 @@ export const LEDGER_KINDS = Object.freeze([
   "progress", "preflight", "attestation",
   "job",          // H0: a unit of work handed to a worker (requested → started → finished/failed)
   "auth",         // H0: login, step-up and session events (audit only; secrets never recorded)
+  "provider-test", // provider onboarding: a connection test and its result (no credentials recorded)
 ]);
 
 /** Refusal / reason codes shared by the orchestrator, the integrity gate and the publisher. */

@@ -5,6 +5,8 @@
   const SUGGESTIONS = [
     "Team, prepare GameTimePicks' NFL postgame recap content for last night's games. Identify content opportunities, draft graphics and captions, and report what needs my approval.",
     "Team, add a Copy caption button and a live 280-character counter to each caption in the Approvals card. Have ChatGPT write the engineering spec, have Claude Code plan and implement it in an isolated working copy, verify it independently, and show me the result before anything is kept.",
+    "Team, analyze today's biggest NFL conversations on X and identify three opportunities for GameTimePicks to contribute useful content.",
+    "Team, review GameTimePicks' current NFL social-content opportunities and propose an improved weekly X content plan.",
     "Team, what should our next product improvement be for the Results page?",
     "status",
     "Pause publishing",
@@ -13,6 +15,7 @@
   const ROLE_ICON = {
     "chief-of-staff": "CoS", "prompt-architect": "PA", "product-strategist": "PS", "social-strategy": "SS",
     "engineering": "ENG", "integrity-reviewer": "IR", "creative-renderer": "CR", "publisher": "PUB", "growth-analyst": "GA", "verifier": "QA",
+    "social-intelligence": "GROK", "content-strategist": "GPT",
   };
 
   /** Phone views (≤760 px): one section at a time behind a bottom tab bar. Desktop shows everything at once. */
@@ -84,6 +87,22 @@
         return `${list("Files Claude says it changed", a.filesChanged)}${list("Notes", a.notes)}<div class="muted">Claude's own report. The Verifier checks it independently below.</div>`;
       case "verification":
         return verificationBody(a);
+      case "gtp-facts":
+        return `<div class="muted">${num(a.games?.length ?? 0)} settled game(s) from ${esc(a.slateDate)} · the only GameTimePicks numbers the team may use</div>`;
+      case "x-research":
+        return `<ol class="findings">${(a.findings ?? []).map((f) => `<li><b>${esc(f.topic)}</b> — ${esc(f.summary)}
+          <div class="links">${(f.sources ?? []).map((src) => xLink(src.url, src.author)).join(" ")}</div></li>`).join("")}</ol>
+          ${list("Caveats", a.caveats)}<div class="muted">Grok's findings. Links are as cited; open them before relying on a claim.</div>`;
+      case "evidence-check":
+        return `<ul>${(a.findings ?? []).map((f) => `<li><span class="${f.verdict === "SOURCE-LINKED" ? "check-ok" : "check-bad"}">${esc(f.verdict)}</span> ${esc(f.topic)} · ${num(f.linkedPosts?.length ?? 0)} cited post(s)</li>`).join("")}</ul><div class="muted">${esc(a.method)}</div>`;
+      case "content-proposals":
+        return `<ol class="findings">${(a.proposals ?? []).map((p) => `<li><span class="tag">${esc(p.type)}</span> on finding ${num(p.findingIndex)}${p.replyToUrl ? ` · reply to ${xLink(p.replyToUrl)}` : ""}<div class="caption">${esc(p.text)}</div><div class="muted">${esc(p.rationale)}</div></li>`).join("")}</ol>`;
+      case "content-check":
+        return `<ul>${(a.results ?? []).map((r) => `<li>Draft ${num(r.index) + 1}: ${r.ok ? `<span class="check-ok">passes</span>` : `<span class="check-bad">held back</span> — ${(r.problems ?? []).map((p) => esc(`${p.code} ${p.detail}`)).join("; ")}`}</li>`).join("")}</ul>`;
+      case "content-plan":
+        return planTable(a);
+      case "feasibility-review":
+        return `<div class="body">${esc(a.summary)}</div><ul>${(a.automationSteps ?? []).map((x) => `<li><b>${esc(x.step)}</b> — reuses ${esc(x.reuses)}; new: ${esc(x.newWork)}; risk: ${esc(x.risk)}</li>`).join("")}</ul>${list("Tests", a.tests)}${list("Open questions", a.openQuestions)}`;
       case "strategy-note":
         return a.recommendation ? `<div class="body"><b>Recommendation.</b> ${esc(a.recommendation)}</div><ul>${(a.rationale ?? []).map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : "";
       default:
@@ -111,6 +130,20 @@
       <details><summary>Test output</summary><pre>${esc(t.tail ?? "")}</pre></details>`;
   }
 
+  /** A link only when it is a specific public X post; anything else is shown as inert text. */
+  const X_POST = /^https:\/\/(?:www\.|mobile\.)?(?:x|twitter)\.com\/[A-Za-z0-9_]{1,15}\/status\/\d{5,25}(?:[/?#][^\s"'<>]*)?$/;
+  function xLink(url, label) {
+    const u = String(url ?? "");
+    return X_POST.test(u) ? `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(label || u.replace(/^https:\/\/(www\.)?/, ""))}</a>` : `<span class="check-bad" title="not a specific X post">${esc(u)}</span>`;
+  }
+
+  function planTable(a) {
+    return `<div class="body">${esc(a.summary)}</div><div class="plan-table">${(a.weekly ?? []).map((d) => `<div><b>${esc(d.day)}</b> · ${esc(d.format)}<br>${esc(d.theme)}<div class="muted">data: ${esc(d.dataSource)}${d.example ? ` · e.g. “${esc(d.example)}”` : ""}</div></div>`).join("")}</div>${list("KPIs", a.kpis)}${list("Risks", a.risks)}`;
+  }
+
+  const EXEC_CLASS = { "REAL CONNECTED AGENT": "real", "MANUAL PROVIDER HANDOFF": "manual", "SIMULATED AGENT OUTPUT": "sim", "DETERMINISTIC AUTOMATION": "det", "UNAVAILABLE / NOT CONFIGURED": "na" };
+  const execTag = (e) => (e ? `<span class="tag exec exec-${EXEC_CLASS[e] ?? "na"}">${esc(e)}</span>` : "");
+
   function runLine(r, cost) {
     if (!r) return "";
     return `<div class="runline">Session <code>${esc(r.sessionId ?? "?")}</code> · ${esc(r.model ?? "")}${r.effort ? ` · effort ${esc(r.effort)}` : ""} · ${Math.round((r.durationMs ?? 0) / 1000)} s · ${esc(r.numTurns ?? "?")} turns${r.lookups != null ? ` · ${num(r.lookups)} file lookups` : ""} ·
@@ -122,7 +155,7 @@
     if (c.artifactType === "consolidated-report") return "";
     const cost = c.cost ? `$${num(c.cost.usd)}` : "$0";
     return `<div class="msg">
-      <div class="who"><span class="tag">${esc(ROLE_ICON[c.role] ?? "")}</span><b>${esc(title(c.role))}</b>${seatTag(c.seat, c.simulated)}
+      <div class="who"><span class="tag">${esc(ROLE_ICON[c.role] ?? "")}</span><b>${esc(title(c.role))}</b>${execTag(c.execution)}${seatTag(c.seat, c.simulated)}
         ${c.contractValid === false ? `<span class="tag" style="color:var(--danger)">contract not met</span>` : ""}
         <span class="tag cost">${cost}</span><span>${time(c.at)}</span></div>
       <div class="body">${esc(c.summary)}</div>
@@ -223,7 +256,7 @@
     return out.join("");
   }
 
-  const isOpen = (d) => (d.kind === "gate" ? !d.resolution : !d.receipt && d.resolution?.verdict !== "reject");
+  const isOpen = (d) => (d.kind === "gate" || d.kind === "proposal" ? !d.resolution : !d.receipt && d.resolution?.verdict !== "reject");
 
   function gateSubject(d) {
     const x = d.subject ?? {};
@@ -250,12 +283,29 @@
     </div>`;
   }
 
+  function proposalCard(d) {
+    const r = d.resolution;
+    const x = d.subject ?? {};
+    const body = d.subjectType === "content-proposal"
+      ? `<div class="caption">${esc(x.proposal?.text)}</div><div class="muted">${esc(x.proposal?.type)} · ${esc(x.proposal?.rationale)}</div>
+         ${x.finding ? `<div class="section muted">Based on Grok's finding</div><div class="body">${esc(x.finding.topic)} — ${esc(x.finding.summary)}</div><div class="links">${(x.finding.sources ?? []).map((src) => xLink(src.url, src.author)).join(" ")}</div>` : ""}`
+      : `${planTable(x.plan ?? {})}${x.feasibility ? `<div class="section muted">Claude Code's automation review</div><div class="body">${esc(x.feasibility.summary)}</div>` : `<div class="muted">No Claude Code review (see the report for why).</div>`}`;
+    const label = { approve: "APPROVED AS A DRAFT (not published)", reject: "REJECTED", revise: "REVISION REQUESTED", defer: "DEFERRED" };
+    return `<div class="decision gate">
+      <div class="q">${esc(d.question)}</div>${body}
+      <div class="muted">Bound to sha256 ${esc(d.subjectDigest.slice(0, 16))}… · approving records a draft; nothing is posted</div>
+      ${r ? `<div class="${r.verdict === "approve" ? "receipt" : "blocked"}">${esc(label[r.verdict] ?? r.verdict)} at ${esc(time(r.approvedAt))}${r.note ? ` · “${esc(r.note)}”` : ""}</div>`
+        : `<div class="row actions" style="margin-top:8px">${d.options.map((o) => `<button class="btn ${o.id === "approve" ? "primary" : ""}" data-gate="${esc(d.decisionId)}" data-verdict="${esc(o.id)}">${esc(o.label)}</button>`).join("")}</div>`}
+    </div>`;
+  }
+
   function renderDecisions(s) {
     const items = s.decisions.slice().reverse();
     const open = items.filter(isOpen).length;
     if (!items.length) return `<h2>Decisions <span class="count">0</span></h2><div class="muted">Nothing needs you yet.</div>`;
     return `<h2>Decisions <span class="count">${open} open</span></h2>` + items.map((d) => {
       if (d.kind === "gate") return gateCard(d);
+      if (d.kind === "proposal") return proposalCard(d);
       const chosen = ui.choice[d.decisionId] ?? d.resolution?.captionId ?? d.recommended;
       const decided = d.resolution;
       for (const k of [...captionTextMap.keys()]) { if (k.startsWith(`${d.decisionId}:`)) captionTextMap.delete(k); }
@@ -320,14 +370,29 @@
       ${renderClaude(s)}`;
   }
 
+  const STATUS_CLASS = { CONNECTED: "check-ok", AVAILABLE: "check-ok", CONFIGURED: "warn", ERROR: "check-bad", BLOCKED: "muted", "NOT CONFIGURED": "muted", "NOT USED": "muted" };
+  function renderProviders(s) {
+    return `<h2>Providers</h2>${(s.providers ?? []).map((p) => `<div class="provider">
+      <div class="provider-head"><b>${esc(p.name)}</b><span class="muted">${esc(p.roles.join(" · "))}</span></div>
+      ${p.integrations.map((i) => `<div class="integration">
+        <div class="row"><span class="${STATUS_CLASS[i.status] ?? ""}"><b>${esc(i.status)}</b></span> <span>${esc(i.label)}</span> ${execTag(i.execution)}${i.whenConnected && i.whenConnected !== i.execution ? `<span class="muted">when connected: ${esc(i.whenConnected)}</span>` : ""}</div>
+        <div class="kv"><span>Runs</span><span>${esc(i.mode)}</span><span>Billing</span><span>${esc(i.billing)}</span><span>Limits</span><span>${esc(i.limits)}</span>
+          ${i.lastTest ? `<span>Last test</span><span>${i.lastTest.ok ? "OK" : "FAILED"} · ${esc(time(i.lastTest.at))} · ${esc(i.lastTest.detail)}</span>` : ""}
+          ${i.error ? `<span>Needs attention</span><span class="check-bad">${esc(i.error)}</span>` : ""}
+          ${i.founderAction ? `<span>Your action</span><span>${esc(i.founderAction)}</span>` : ""}</div>
+        ${i.id.startsWith("api:") && i.id !== "api:anthropic" && i.status !== "NOT CONFIGURED" ? `<button class="btn small" data-provider-test="${esc(i.id)}">Test connection (free)</button>` : ""}
+      </div>`).join("")}
+    </div>`).join("")}`;
+  }
+
   function renderTeam(s) {
     const rows = Object.entries(s.seats).map(([role, r]) => {
       if (r.seat === "deterministic") return `<div class="team-row"><span>${esc(r.title)}</span><span class="tag det">deterministic</span></div>`;
       const opts = [...r.options.map((o) => `<option value="${esc(o)}" ${o === r.seat ? "selected" : ""}>${esc(o)}</option>`),
-        ...Object.entries(STUB_SEATS).map(([o, cp]) => `<option value="${esc(o)}" disabled>${esc(o)} · ${esc(cp)}</option>`)].join("");
+        ...Object.entries(STUB_SEATS).filter(([o]) => !r.options.includes(o)).map(([o, cp]) => `<option value="${esc(o)}" disabled>${esc(o)} · ${esc(cp)}</option>`)].join("");
       return `<div class="team-row"><span>${esc(r.title)}</span><select data-seat="${esc(role)}" aria-label="Seat for ${esc(r.title)}">${opts}</select></div>`;
     }).join("");
-    return `<h2>Team seats</h2>${rows}<div class="muted" style="margin-top:6px">manual:* = you paste the prompt into your own ChatGPT/Claude/Grok. API and MCP seats unlock at CP5 / Phase 3.</div>`;
+    return `${renderProviders(s)}<h2>Team seats</h2>${rows}<div class="muted" style="margin-top:6px">manual:* = you paste the prompt into your own ChatGPT/Claude/Grok. api:* seats can be chosen once that provider is connected above, with a monthly cap.</div>`;
   }
 
   function renderTasks(s) {
@@ -484,13 +549,25 @@
   });
 
   document.addEventListener("click", async (e) => {
-    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],.lightbox");
+    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],.lightbox");
     if (!t) return;
     if (t.dataset.gate) {
       const d = ui.state.decisions.find((x) => x.decisionId === t.dataset.gate);
+      let note;
+      if (t.dataset.verdict === "revise") {
+        note = prompt("What should change?");
+        if (!note) return;
+      }
       t.disabled = true;
-      const r = await post("/api/decide", { decisionId: d.decisionId, verdict: t.dataset.verdict, digest: d.subjectDigest });
+      const r = await post("/api/decide", { decisionId: d.decisionId, verdict: t.dataset.verdict, digest: d.subjectDigest, ...(note ? { note } : {}) });
+      if (r.ok && r.next) alert(r.next);
       if (!r.ok && !r.duplicate) alert(`${r.code}: ${r.detail ?? ""}`);
+      return;
+    }
+    if (t.dataset.providerTest) {
+      t.disabled = true;
+      const r = await post("/api/provider-test", { integration: t.dataset.providerTest });
+      alert(r.ok ? `Connected: ${r.detail}` : `Not connected: ${r.detail ?? r.code}`);
       return;
     }
     if (t.dataset.attest) {

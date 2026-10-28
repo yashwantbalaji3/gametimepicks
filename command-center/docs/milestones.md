@@ -1,13 +1,35 @@
 # CEO Command Center: milestone status
 
+The single authoritative tracker. Labels: **REAL** = a provider called through a supported, authenticated
+integration · **MANUAL** = the founder ran the provider's own app and pasted the answer · **SIMULATED** = stand-in
+output, never presented as a provider's work.
+
+### Completed
+
 | Milestone | Status | Evidence |
 |---|---|---|
 | M0 feasibility and architecture | ✓ Done | [cp1-review-and-connected-roadmap.md](cp1-review-and-connected-roadmap.md) |
 | Phase 1: local CEO console and NFL recap PoC (iPhone layouts) | ✓ Done, CP1 accepted | commit `08e915d6a7` |
-| **M2: Connected PoC-1, the first real ChatGPT → Claude Code engineering workflow** | **✓ Done (2026-10-27)** | commits `03c76d92cd` (M2 system) and `4b8504c4c3` (the delegated change) |
-| H0: hosting-ready, still local (passkeys, Postgres ledger, stateless jobs, worker, deploy templates) | ✓ Done (2026-10-27), uncommitted | [h0-hosting-readiness.md](h0-hosting-readiness.md) |
-| **H1: hosted private Command Center, usable from the iPhone with the Mac off** | **Next; waits for CP-H1 (founder setup)** | [hosted-command-center-architecture.md](hosted-command-center-architecture.md) |
-| CP2 X publishing | Open investigation; no provider chosen | [x-publishing-evaluation.md](x-publishing-evaluation.md) |
+| M2: real ChatGPT (MANUAL) → Claude Code (REAL) engineering through G1–G3 | ✓ Done (2026-10-27) | commits `03c76d92cd`, `4b8504c4c3` |
+| H0: hosting readiness (passkeys, Postgres ledger, jobs, worker, deploy templates) | ✓ Done and committed | commit `e72fc5c53a` · [h0-hosting-readiness.md](h0-hosting-readiness.md) |
+| P0: provider-neutral team layer — provider onboarding panel, execution labels on every contribution, OpenAI and xAI adapters (mock credentials only), Grok → ChatGPT → Claude Code workflows | ✓ Built locally, 88/88 tests (uncommitted) | [provider-integration.md](provider-integration.md) |
+
+### Next, in order
+
+| Milestone | What "done" means | Blocked on |
+|---|---|---|
+| **3P-0: first genuine three-provider run (Mac on)** | You run "review … weekly X content plan": Grok (MANUAL, free X account), ChatGPT (MANUAL) and Claude Code (REAL, Max subscription, read-only) each contribute; one consolidated decision | **You only:** sign in to Grok with your X account; confirm usage credits OFF in the console. No accounts, no spend |
+| CP-H1 → **H1: private hosted Command Center on iPhone, Mac off** | Passkey login at team.gametimepicks.yashwantbalaji.com; conversations, approvals, Pause/Stop; manual Grok/ChatGPT handoffs from the phone | CP-H1 founder setup ([h0-hosting-readiness.md](h0-hosting-readiness.md)) |
+| CP-H2 → **H2: hosted Claude Code engineering** | A delegated task through G1–G3 on GitHub Actions with the Mac off | CP-H2: `claude setup-token` secret |
+| CP-X1 → **Grok integration PoC (REAL)** | One Grok research run through the xAI API with X Search, citations recorded, capped | CP-X1: xAI API account, prepaid credit, auto top-up OFF, cap |
+| CP-O1 → **OpenAI integration PoC (REAL)** | One Content Strategist run through the OpenAI API, capped and priced | CP-O1: OpenAI API account (separate from ChatGPT Plus), prepaid credit, cap |
+| **3P-1: three-provider collaboration, all REAL** | Grok + ChatGPT + Claude Code on one command with no copy/paste | CP-X1, CP-O1, H1/H2 |
+| H1.5: connector endpoint (MCP) | Grok and ChatGPT apps read tasks and submit answers without copy/paste, $0 API | H1; write tools on your plans UNVERIFIED until tested |
+
+### Later (phased, one at a time)
+
+Verified postgame recap pipeline on the hosted worker · human-approved X publishing (CP2: provider, cost, terms) ·
+automated social graphics · Simulation Theater short video · multi-platform growth operations · CEO dashboards.
 
 ## M2 close-out
 

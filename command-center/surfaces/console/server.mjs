@@ -96,6 +96,7 @@ const server = http.createServer(async (req, res) => {
       return send(res, 200, { ok: r.ok, code: r.code ?? null, detail: r.detail ?? null, evidence: r.evidence });
     }
     if (url.pathname === "/api/seat") return send(res, 200, orchestrator.setSeat(body.role, body.seat, FOUNDER));
+    if (url.pathname === "/api/provider-test") return send(res, 200, await orchestrator.testProviderConnection(String(body.integration ?? ""), FOUNDER));
     if (url.pathname === "/api/manual") {
       orchestrator.submitManual(body.taskId, String(body.text ?? ""), FOUNDER).catch((e) => console.error("manual failed:", e));
       return send(res, 202, { accepted: true });

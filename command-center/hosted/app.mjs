@@ -119,7 +119,7 @@ export function createHostedApp({ db, clock, origin, rpID, setupTokenSha256, dis
     await s.flush();
   }
 
-  const make = (session) => createOrchestrator({ store: session, clock, env, outDir, slateDate, engineering, execution: "jobs", runnerId: "web" });
+  const make = (session) => createOrchestrator({ store: session, clock, env, outDir, slateDate, engineering, execution: "jobs", runnerId: "web", hosted: true });
 
   /** One stateless orchestrator turn: fresh session, work, one flush (retried once on a lost claim), then dispatch. */
   async function turn(fn) {
@@ -238,6 +238,7 @@ export function createHostedApp({ db, clock, origin, rpID, setupTokenSha256, dis
       case "/api/stop": return turn(async (o) => ({ ...o.emergencyStop(actor), emergency: true }));
       case "/api/attest": return turn((o) => o.attestBilling({ usageCredits: body.usageCredits, capUsd: body.capUsd }, actor));
       case "/api/seat": return turn((o) => o.setSeat(body.role, body.seat, actor));
+      case "/api/provider-test": return turn((o) => o.testProviderConnection(String(body.integration ?? ""), actor));
       case "/api/manual": return turn((o) => o.submitManual(body.taskId, String(body.text ?? ""), actor));
       default: return null;
     }

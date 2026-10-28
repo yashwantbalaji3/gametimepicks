@@ -35,6 +35,8 @@ import { runIntegrityGate } from "../recap/integrity-gate.mjs";
 import { publishAtBoundary } from "../publishers/publisher.mjs";
 import { createMockPublisher } from "../publishers/mock.mjs";
 import { createEngineeringFlow } from "./engineering-flow.mjs";
+import { createTeamFlow, isTeamIntent } from "./team-flow.mjs";
+import { apiSeat, executionOf, providerStatus, testProvider } from "../providers/catalog.mjs";
 import { specFacts } from "../engineering/prompts.mjs";
 
 const sleep = (ms) => (ms > 0 ? new Promise((r) => setTimeout(r, ms)) : Promise.resolve());
@@ -49,7 +51,7 @@ const etDay = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New
  *   engineering configures delegated engineering (repo, claude binary, environment, screenshots) — see
  *   engineering-flow.mjs; tests point it at a throwaway repo and a fake `claude`.
  */
-export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROOT, outDir, stepDelayMs = 0, publisher, slateDate, engineering = {}, execution = "inline", runnerId = "local" }) {
+export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROOT, outDir, stepDelayMs = 0, publisher, slateDate, engineering = {}, execution = "inline", runnerId = "local", providerFetch = globalThis.fetch, providerSleep, hosted = false }) {
   if (!["inline", "jobs"].includes(execution)) throw new Error(`unknown execution mode ${execution}`);
   const pub = publisher ?? createMockPublisher({ clock });
   const mediaDir = path.join(outDir, "media");
@@ -81,6 +83,21 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
       release: (run) => runs.delete(run.commandId),
     },
   }, engineering);
+
+  const team = createTeamFlow({
+    store, clock, env, repoRoot, slateDate, fetch: providerFetch, sleep: providerSleep, engineering: flow,
+    execution: { deferred: () => deferHeavy(), requestJob: (job) => requestJob(job), jobDone: (id) => jobDone(id) },
+    helpers: {
+      makeTask: (...a) => makeTask(...a),
+      contribute: (...a) => contribute(...a),
+      refuseTask: (...a) => refuseTask(...a),
+      entries: () => entries(),
+      isPaused: () => isPaused(),
+      seatOf: (role) => seatOf(role),
+      latestStatus: (id) => latestStatus(id),
+      report: (run, data) => store.append("report", "chief-of-staff", { commandId: run.commandId, ...data }),
+    },
+  });
 
   // ── derived facts from the ledger ────────────────────────────────────────────────────────────────────────────
   const entries = () => store.list();
@@ -139,6 +156,11 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
       const seat = seatOf("prompt-architect").startsWith("manual:") ? seatOf("prompt-architect") : "manual:chatgpt";
       enqueue(run, run.plan[0], { hop: 1, parentTaskId: null, seat });
       await drain(run);
+      return { ok: true, commandId };
+    }
+    if (isTeamIntent(intent)) {
+      run.kind = "team";
+      await team.advance(run);
       return { ok: true, commandId };
     }
     for (const step of run.plan) {
@@ -235,6 +257,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
       step.created = run.tasks.some((t) => t.ownerRole === step.role)
         || all.some((e) => e.kind === "refusal" && e.data.commandId === commandId && e.data.toRole === step.role && e.data.fromRole === step.via);
     }
+    if (isTeamIntent(cmd.data.intent)) run.kind = "team";
     if (cmd.data.intent === "engineering-task") {
       run.kind = "engineering";
       flow.rehydrate(run);
@@ -484,6 +507,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     const request = entries().find((e) => e.kind === "decision-request" && e.data.decisionId === decisionId)?.data;
     if (!request) return { ok: false, code: "UNKNOWN_DECISION", detail: decisionId };
     if (request.kind === "gate") return flow.decideGate(request, { verdict, digest }, actor, getRun(request.commandId));
+    if (request.kind === "proposal") return team.decideProposal(request, { verdict, digest, note }, actor);
 
     if (verdict !== "approve") {
       const claim = store.claim(`decision|${decisionId}`, { verdict, note: note ?? null });
@@ -525,6 +549,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     if (!run || latestStatus(taskId) !== "AWAITING_INPUT") return { ok: false, code: "NOT_AWAITING", detail: taskId };
     const task = run.tasks.find((t) => t.taskId === taskId);
     if (run.kind === "engineering" && task.ownerRole === "prompt-architect") return flow.onSpecPasted(run, task, text);
+    if (run.kind === "team") return team.onPasted(run, task, text);
     const parsed = parseManualAnswer(text, task.expectedArtifactType);
     const app = { "manual:chatgpt": "ChatGPT", "manual:claude": "Claude", "manual:grok": "Grok" }[task.seat];
     contribute(run, task, {
@@ -541,10 +566,28 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     return { ok: true, contractValid: parsed.contractValid };
   }
 
+  /** Founder: run a provider connection test (free endpoints only) and record the result — never the credential. */
+  async function testProviderConnection(seat, actor) {
+    const f = checkFounder("change-seat", actor);
+    if (!f.ok) return { ok: false, ...f };
+    if (!["api:openai", "api:xai"].includes(seat)) return { ok: false, code: "NO_TEST", detail: `${seat} has no connection test` };
+    const r = await testProvider(seat, { env, entries: entries(), now: clock(), fetch: providerFetch, sleep: providerSleep });
+    store.append("provider-test", "founder", r);
+    return { ok: r.ok, ...r };
+  }
+
   function setSeat(role, seat, actor) {
     const f = checkFounder("change-seat", actor);
     if (!f.ok) return { ok: false, ...f };
     if (!ROLES[role]) return { ok: false, code: "UNKNOWN_ROLE" };
+    if (seat === "api:openai" || seat === "api:xai") {
+      // A metered seat is selectable only once it is configured, capped and tested (providers/catalog.mjs).
+      const api = apiSeat(seat, { env, entries: entries(), now: clock() });
+      if (!api.ok) return { ok: false, code: REASON.SEAT_NOT_ENABLED, detail: `${api.code}: ${api.detail} — ${api.founderAction}` };
+      if (!ROLES[role].seatOptions.includes(seat)) return { ok: false, code: "SEAT_NOT_OFFERED", detail: `${role} offers ${ROLES[role].seatOptions.join(", ")}` };
+      store.append("seat-change", "founder", { role, seat });
+      return { ok: true };
+    }
     const resolved = resolveSeat(seat, { env, spentUsd: spentUsd() });
     if (!resolved.ok) {
       store.append("refusal", "orchestrator", { role, seat, code: resolved.code, detail: resolved.detail });
@@ -571,7 +614,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
       if (!c) continue;
       if (e.kind === "plan") c.plan = e.data;
       else if (e.kind === "task") c.tasks.set(e.data.taskId, { ...(c.tasks.get(e.data.taskId) ?? {}), ...e.data, updatedAt: e.at });
-      else if (e.kind === "contribution") c.contributions.push({ ...e.data, at: e.at });
+      else if (e.kind === "contribution") c.contributions.push({ ...e.data, execution: executionOf(e.data.seat), at: e.at });
       else if (e.kind === "refusal") c.refusals.push({ ...e.data, at: e.at });
       else if (e.kind === "deliverable") c.deliverables.push({ ...e.data, at: e.at });
       else if (e.kind === "report") c.reports.push({ ...e.data, at: e.at });
@@ -595,6 +638,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
       budget: { limitUsd: budgetUsd(env), spentUsd: spentUsd() },
       publisher: { name: pub.name, network: pub.capabilities().network },
       seats,
+      providers: providerStatus({ env, entries: all, now: clock(), hosted }),
       commands: commands.map((c) => ({ ...c, tasks: [...c.tasks.values()] })),
       decisions,
       engineering: {
@@ -633,21 +677,22 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     const data = entries().find((e) => e.kind === "job" && e.data.jobId === job.jobId)?.data;
     if (!data || jobDone(job.jobId)) return;
     store.append("job", "host", { jobId: job.jobId, commandId: data.commandId, type: data.type, status: "cancelled", runner: job.runner ?? null, runId: job.runId ?? null, error: reason });
-    if (data.type !== "drive") {
+    if (data.type !== "drive" && data.type !== "team") {
       // An engineering step's working copy lived on the cancelled runner: this delegated task ends here, as a paused
       // local run does. Nothing was kept; the founder can send the objective again.
       store.append("report", "chief-of-staff", { commandId: data.commandId, headline: `${reason}: the ${data.type} job was cancelled on its runner. Nothing was kept.`, lines: [], deliverables: [], refusals: [], warnings: [], decisionsNeeded: [], final: true });
     }
   }
 
-  /** Resume (jobs mode): re-request the recap drives that Pause cancelled. */
+  /** Resume (jobs mode): re-request the recap drives and team steps that Pause cancelled. */
   function resumeJobs() {
     const all = entries();
-    const cancelled = all.filter((e) => e.kind === "job" && e.data.type === "drive" && e.data.status === "cancelled");
+    const cancelled = all.filter((e) => e.kind === "job" && ["drive", "team"].includes(e.data.type) && e.data.status === "cancelled");
     for (const c of cancelled) {
-      const later = all.some((e) => e.kind === "job" && e.data.type === "drive" && e.data.commandId === c.data.commandId && e.data.status === "requested" && e.at >= c.at && !jobDone(e.data.jobId));
+      const later = all.some((e) => e.kind === "job" && e.data.type === c.data.type && e.data.commandId === c.data.commandId && e.data.status === "requested" && e.at >= c.at && !jobDone(e.data.jobId));
       const run = later ? null : getRun(c.data.commandId);
-      if (run && run.queue.length) requestJob({ type: "drive", commandId: c.data.commandId });
+      if (run && c.data.type === "team") requestJob({ type: "team", commandId: c.data.commandId });
+      else if (run && run.queue.length) requestJob({ type: "drive", commandId: c.data.commandId });
     }
   }
 
@@ -683,6 +728,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
       const run = getRun(job.commandId);
       if (!run) throw new Error(`command ${job.commandId} is not active`);
       if (job.type === "drive") await drain(run);
+      else if (job.type === "team") await team.advance(run);
       else await flow.executeStep(run, job.type);
       store.append("job", "worker", { jobId, commandId: job.commandId, type: job.type, status: "finished" });
       return { ok: true };
@@ -695,7 +741,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   }
 
   return {
-    handleCommand, decide, submitManual, setSeat, setPaused, emergencyStop, state, runJob, activeJobs, jobDispatched, jobCancelled,
+    handleCommand, decide, submitManual, setSeat, testProviderConnection, setPaused, emergencyStop, state, runJob, activeJobs, jobDispatched, jobCancelled,
     /** Jobs recorded by this session; the host dispatches them after its ledger flush commits. */
     takeOutbox: () => outbox.splice(0),
     execution,
@@ -723,6 +769,7 @@ function historyLine(e) {
     case "attestation": return `Founder attestation: ${d.statement}`;
     case "job": return `Job ${d.type} ${d.status}${d.runner ? ` on ${d.runner}` : ""}${d.error ? `: ${d.error}` : ""}`;
     case "auth": return `Auth: ${d.event}${d.detail ? ` (${d.detail})` : ""}`;
+    case "provider-test": return `Provider test ${d.integration}: ${d.ok ? "OK" : "FAILED"} (${d.detail})`;
     case "report": return `Report: ${d.headline}`;
     case "seat-change": return `Seat: ${roleTitle(d.role)} → ${d.seat}`;
     default: return e.kind;

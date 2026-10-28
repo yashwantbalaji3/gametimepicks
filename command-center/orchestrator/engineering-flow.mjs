@@ -461,6 +461,28 @@ export function createEngineeringFlow(ctx, cfg = {}) {
     h.release(run);
   }
 
+  /**
+   * A read-only Claude Code review for a team workflow: the same checks as a plan run (billing attestation, not
+   * paused, per-command cap, preflight), the same read-only tool set and limits, in a throwaway working copy that
+   * is removed afterwards. Returns { structured, runRecord, cost } or null (the task was refused with the reason).
+   */
+  async function reviewReadOnly(run, task, { prompt, schema }) {
+    run.eng = run.eng ?? { gates: {}, progressCount: 0 };
+    const wcId = `${run.commandId.replace(/^cmd-/, "").slice(0, 8)}-r${Date.now().toString(36)}`;
+    const gate = canRun(run, "plan");
+    if (!gate.ok) {
+      h.refuseTask(run, task, gate.code, gate.detail);
+      return null;
+    }
+    run.eng.wc = createWorkcopy({ repoRoot, taskId: wcId, paths: cfg.workcopyPaths ?? WORKCOPY_PATHS, nodeModulesFrom: cfg.nodeModulesFrom, links: cfg.workcopyLinks ?? [] });
+    try {
+      return await claudeStep(run, task, "plan", prompt, schema);
+    } finally {
+      discardWorkcopy({ repoRoot, wc: run.eng.wc });
+      run.eng.wc = undefined;
+    }
+  }
+
   // ── jobs, pause, stop ───────────────────────────────────────────────────────────────────────────────────────
   function job(run, fn) {
     const p = (async () => {
@@ -487,7 +509,7 @@ export function createEngineeringFlow(ctx, cfg = {}) {
   }
 
   return {
-    attestBilling, billing, runPreflight, onSpecPasted, decideGate, cancelAll, whenIdle, rehydrate, executeStep,
+    attestBilling, billing, runPreflight, onSpecPasted, decideGate, cancelAll, whenIdle, rehydrate, executeStep, reviewReadOnly,
     activeRuns: () => [...active.entries()].map(([taskId, a]) => ({ taskId, commandId: a.commandId, pid: a.handle.pid })),
     start(run) {
       const fp = fingerprintHash(repoRoot);
