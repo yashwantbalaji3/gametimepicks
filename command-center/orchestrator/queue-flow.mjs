@@ -535,7 +535,9 @@ export function createQueueFlow(ctx) {
       approvedBy: actor.id ?? "founder", approvedAt: clock(), authentication: actor.authentication ?? "loopback-console (demo-grade)",
     });
     const next = {
-      approve: "Approved: this one post may go out. Post it yourself on X, then record the link here (Record X link). Nothing was published by the Command Center.",
+      approve: ["nba-game", "pregame-forecast", "td-top3", "top5-board"].includes(pkg.kind)
+        ? "Approved, not published: nothing was sent to X. Send it through the X publisher (Live test post, or Schedule for its slot) once live publishing is authorized; every send re-checks it first."
+        : "Approved: this one post may go out. Post it yourself on X, then record the link here (Record X link). Nothing was published by the Command Center.",
       reject: "Rejected. It won't be proposed again.",
       revise: "Revision requested and recorded with your note; it can be proposed again in a later queue.",
       defer: "Deferred. It can be proposed again in a later queue.",

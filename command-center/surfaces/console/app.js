@@ -403,7 +403,7 @@
         </div>`;
     }
     if (p.lifecycle === "approved" || p.lifecycle === "scheduled") {
-      return `${publishControls(p)}<div class="receipt">Approved caption ${esc(p.resolution.captionId)} at ${esc(time(p.resolution.approvedAt))}${p.resolution.sourcesConfirmed ? " · you confirmed the cited posts" : ""} · digest ${esc(p.resolution.approvedExactDigest.slice(0, 12))}…<br>Post it yourself on X${pkg.media ? " with the graphic" : ""}, then record the link.${p.schedule ? `<br>Scheduled by you for ${esc(new Date(p.schedule.scheduledFor).toLocaleString())}` : ""}</div>
+      return `${publishControls(p)}<div class="receipt">Approved caption ${esc(p.resolution.captionId)} at ${esc(time(p.resolution.approvedAt))}${p.resolution.sourcesConfirmed ? " · you confirmed the cited posts" : ""} · digest ${esc(p.resolution.approvedExactDigest.slice(0, 12))}…<br>${PUB_SCHEDULABLE.has(pkg.kind) ? "Approved, not published. Send it with the X publisher above (Live test post or Schedule); a manual post is recorded below." : `Post it yourself on X${pkg.media ? " with the graphic" : ""}, then record the link.`}${p.schedule ? `<br>Scheduled by you for ${esc(new Date(p.schedule.scheduledFor).toLocaleString())}` : ""}</div>
         ${pkg.media ? `<a class="btn small" href="/media/${encodeURIComponent(pkg.media.file)}" download>Download graphic</a>` : ""}
         <div class="field"><label for="xurl-${id}">X link of your post</label><input id="xurl-${id}" type="url" inputmode="url" autocapitalize="off" spellcheck="false" placeholder="https://x.com/…/status/…" data-draft="xurl:${id}" value="${draftVal(`xurl:${p.decisionId}`)}"></div>
         <div class="row actions"><button class="btn" data-post-record="verify" data-post="${id}">Check before posting</button><button class="btn primary" data-post-record="publish" data-post="${id}">Record X link</button></div>
@@ -557,7 +557,7 @@
       ${renderGamePosts(s)}
       ${upNext.length ? `<details class="cal-day"><summary><b>Up next (other posts)</b> · ${num(upNext.length)} upcoming post(s), soonest first</summary>${upNext.map(postCard).join("")}</details>` : ""}
       <div class="cal-totals">${Object.entries(counts).map(([k, v]) => `<span class="tag life life-${esc(k)}">${esc(LIFE_LABEL[k])} ${num(v)}</span>`).join("")}</div>
-      <div class="muted">Each post is approved on its own and published by you on X; the Command Center never posts.${latest?.file ? ` · <a href="/${esc(latest.file)}" target="_blank" rel="noopener">Queue export</a>` : ""}</div>
+      <div class="muted">Each post is approved on its own. Game posts and other scheduled formats are sent by the X publisher only after you authorize live publishing; everything else you post yourself and record the link.${latest?.file ? ` · <a href="/${esc(latest.file)}" target="_blank" rel="noopener">Queue export</a>` : ""}</div>
       ${dates.map((d) => `<details class="cal-day" ${d === openDay && !upNext.length ? "open" : ""}><summary><b>${esc(new Date(`${d}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric", timeZone: "UTC" }))}</b> · ${num(posts.filter((p) => p.date === d).length)} post(s) · ${num(posts.filter((p) => p.date === d && postOpen(p)).length)} open</summary>
         ${posts.filter((p) => p.date === d && !upIds.has(p.decisionId) && p.package.priority !== 3 && p.package.kind !== "nba-game").sort((a, b) => (a.package.priority ?? 2) - (b.package.priority ?? 2)).map(postCard).join("")}</details>`).join("")}
       ${posts.some((p) => p.package.priority === 3) ? `<details class="cal-day"><summary><b>Catch-up (older results)</b> · ${num(posts.filter((p) => p.package.priority === 3).length)}</summary>${posts.filter((p) => p.package.priority === 3).map(postCard).join("")}</details>` : ""}
@@ -930,7 +930,8 @@
       const r = await post("/api/decide", { decisionId: p.decisionId, verdict: "approve", captionId, digest: opt.digest,
         ...(p.package.kind === "x-reply" ? { sourcesConfirmed: Boolean(ui.drafts[`confirm:${p.decisionId}`]) } : {}),
         ...(p.package.kind === "td-top3" || (p.package.kind === "nba-game" && p.package.availabilityCheck?.length) ? { availabilityConfirmed: Boolean(ui.drafts[`avail:${p.decisionId}`]) } : {}) });
-      if (r.ok && r.next) alert(r.next);
+      const viaX = PUB_SCHEDULABLE.has(p.package.kind);
+      if (r.ok && r.next) alert(viaX ? "Approved, not published. Nothing has been sent to X.\n\nNext: send it through the X publisher on this card — Live test post… (needs \"Authorize live test posts…\" first) or Schedule for its 45-minute slot (needs \"Authorize scheduled live publishing…\"). Every send re-checks the approval, both images, fresh data and tip-off first." : r.next);
       if (!r.ok && !r.duplicate) { t.disabled = false; alert(`${r.code}: ${r.detail ?? ""}`); }
       return;
     }
