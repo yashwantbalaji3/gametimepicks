@@ -142,7 +142,7 @@ const OUT_TODAY = path.join(APP, "out/today/index.html");
 test("BUILT · / — the primary action, one record summary, no operator strings", () => {
   if (!fs.existsSync(OUT_HOME)) return; // buildless lane: assert-when-built
   const main = mainOf(fs.readFileSync(OUT_HOME, "utf8"));
-  assert.match(main, /<a [^>]*href="\/today\/?"[^>]*>See today(?:’|&#x27;|&rsquo;|')s forecasts →<\/a>/, "the hero's primary action opens /today");
+  assert.match(main, /<a [^>]*href="\/today\/?"[^>]*>See today(?:’|&#x27;|&rsquo;|')s forecasts →<\/a>/, "the hero's primary action opens /today (one text node)");
   const t = text(main);
   assert.equal((t.match(/Paper record · Bank Builder current era/gi) ?? []).length, 1, "the record summary appears once");
   for (const re of OPERATOR_STRINGS) assert.doesNotMatch(t, re, `/ must not render ${re}`);

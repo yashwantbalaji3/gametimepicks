@@ -1,7 +1,7 @@
 /**
  * FIRST-VIEWPORT COPY BUDGETS (P213 · Release A) — the founder's 2026-08-26 screenshot, made a
- * guard. The homepage hero is a launchpad: one short headline, three actions, one derived status
- * row. The badge stack and explanatory paragraph must never return, and the page's total rendered
+ * guard. The homepage hero is a launchpad: one short headline, one primary action (today's forecasts,
+ * W4 2026-10-28; it was three equal actions) and at most one secondary, one derived status line. The badge stack and explanatory paragraph must never return, and the page's total rendered
  * copy only shrinks. Evaluated on BUILT output (rendered truth), not source strings.
  *
  * Buildless CI lane: these skip when no export exists (assert-when-built convention).
@@ -110,4 +110,20 @@ test("the hero's live-status row derives from owners — its figures are digits,
      "Settled through" claimed every ledger was settled through a date only the newest one had reached. */
   assert.match(t, /Latest results \w+ \d+|See every settled result/, "the settled proof link anchors the row");
   assert.doesNotMatch(t, /Settled through \w+ \d+ →/, "never the site-wide 'Settled through' claim");
+});
+
+test("the hero's primary action is today's official forecasts — one filled button, to /today (W4)", () => {
+  // Source: the label and destination have one owner (HERO_PRIMARY), rendered by the first button.
+  const hero = fs.readFileSync(path.join(process.cwd(), "src/components/home/landing-hero.tsx"), "utf8");
+  assert.match(hero, /HERO_PRIMARY = Object\.freeze\(\{ label: "See today\\u2019s forecasts", href: "\/today" \}\)/);
+  assert.equal((hero.match(/background: "var\(--vault-gold-bright\)"/g) ?? []).length, 1, "exactly one filled (primary) button");
+  if (!hasBuild) return;
+  const h = fs.readFileSync(path.join(OUT, "index.html"), "utf8");
+  const at = h.search(/aria-label="Today(?:'|&#x27;|&#39;)s launchpad"/);
+  assert.ok(at > 0, "the launchpad section is on the page");
+  const launch = h.slice(at, h.indexOf("</section>", at));
+  const actions = [...launch.matchAll(/<a [^>]*class="vault-press inline-flex[^"]*rounded-full[^"]*"[^>]*href="([^"]+)"/g)].map((m) => m[1]);
+  assert.ok(actions.length >= 1 && actions.length <= 2, `one primary + at most one secondary (found ${actions.length})`);
+  assert.match(actions[0], /^\/today\/?$/, "the first hero action opens /today");
+  assert.match(launch.replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/gi, "'"), /See today.s forecasts →/);
 });

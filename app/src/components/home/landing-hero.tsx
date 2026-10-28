@@ -71,7 +71,7 @@ export default function LandingHero({ readyCount, activeSports, eventsToday, eve
             textDecoration: "none",
           }}
         >
-          {HERO_PRIMARY.label} →
+          {`${HERO_PRIMARY.label} →`}
         </Link>
         <Link
           href="/simulate"
