@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NBA_OFFICIAL_RECORD_LABEL } from "@/lib/results/nba-official-record.mjs";
 
 export type ResultsSportTab =
   | "overview"
@@ -15,15 +16,16 @@ export type ResultsSportTab =
  * The NHL and IPL tabs are gone with their routes: both were permanent
  * "pending" placeholders for sports with no ingest and no settlement,
  * and a tab is a claim of coverage. Only sports with a real settled
- * record appear — MLB (live), NFL (the weekly report, P296) and NBA (archive).
+ * record appear — MLB (live), NFL (the weekly report, P296) and NBA (its Official Forecast record, with the retired
+ * model's archive below it on the same page).
  */
 export default function ResultsSportTabs({
   activeSport,
-  nbaHasData,
   mlbHasData,
 }: {
   activeSport: ResultsSportTab;
-  nbaHasData: boolean;
+  /** Retired-archive presence. Kept for callers; the NBA tab now names the official record, which is always present. */
+  nbaHasData?: boolean;
   mlbHasData: boolean;
 }) {
   const tabs: Array<{
@@ -48,8 +50,10 @@ export default function ResultsSportTabs({
     {
       id: "nba",
       label: "NBA",
-      // NBA is HISTORICAL_ONLY: the record is real and settled, but nothing is still accruing.
-      note: nbaHasData ? "archive" : "no data",
+      /* P0 10-28: this said "archive" — but /results/nba leads with the NBA Official Forecast record, graded nightly from
+         Oct 20; the retired May–June model's archive sits below it. The tab names the page's current record, in the one
+         name lib/results/nba-official-record.mjs keeps (the Forecast Record's NBA line reads the same constant). */
+      note: NBA_OFFICIAL_RECORD_LABEL,
       href: "/results/nba",
     },
     {

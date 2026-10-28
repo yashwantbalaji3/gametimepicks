@@ -11,6 +11,8 @@
  * but shipping an empty one under a good name is how a placeholder becomes a promise.
  */
 
+import { officialForecastCoverage } from "@/lib/public-registry";
+
 export type SignatureState = "live" | "coming-soon";
 
 export interface SignatureProduct {
@@ -108,9 +110,13 @@ export const SIGNATURE_PRODUCTS: readonly SignatureProduct[] = [
     href: "/bucket-blitz",
     state: "coming-soon",
     question: "Who is filling it up tonight?",
+    /* P0 10-28: this said the NBA hub carried "the schedule and official finals only — no forecast, no live board"
+       while it published Official Forecasts daily (and /mr-dub prints this tile). The PRODUCT is still not built — that
+       stays true — but what its inputs are is read from the registry's families, never written here. */
     basis:
-      "Not built. The NBA hub carries the 2026-27 schedule and official finals only — no forecast, no live " +
-      "board, and no validated player model.",
+      `Not built as a product — but its inputs publish on the NBA hub. ${officialForecastCoverage("nba") ?? ""} ` +
+      "No NBA player model is validated yet. What is missing is the signature product assembled from them; until " +
+      "that is built and gated, nothing publishes here.",
   },
 ];
 

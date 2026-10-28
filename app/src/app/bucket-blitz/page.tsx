@@ -15,7 +15,7 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 export const metadata = withRouteMetadata("/bucket-blitz/", {
   title: "Bucket Blitz · GameTime Picks",
   description:
-    "The NBA signature product, in development. What is captured today, and every stage still standing between that and a published read. No picks — no NBA player model is validated yet. The 2026-27 schedule and official finals are on the NBA hub.",
+    "The NBA signature product, in development. What is captured today, and every stage still standing between that and a published read. No picks — no NBA player model is validated yet. The NBA Official Forecasts, schedule and official finals are on the NBA hub.",
 });
 
 export default function BucketBlitzPage() {
@@ -27,8 +27,8 @@ export default function BucketBlitzPage() {
     <ProductInDevelopment
       product={product}
       readiness={readiness}
-      scheduleHref="/nba/"  /* 2026-10-12: /nba is the live schedule-and-finals hub again; /results/nba/ is the retired May–June archive */
-      scheduleLabel="See the 2026-27 NBA schedule and finals"
+      scheduleHref="/nba/"  /* P0 10-28: /nba publishes the NBA Official Forecasts (with schedule and finals); the label says so */
+      scheduleLabel="See the NBA Official Forecasts, schedule and finals"
     />
   );
 }

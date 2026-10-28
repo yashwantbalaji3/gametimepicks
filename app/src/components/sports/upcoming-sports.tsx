@@ -17,6 +17,7 @@ import Link from "next/link";
 import { eventStatusLabel } from "@/lib/sports/schedule-contract.mjs";
 import { sourceDisplayName } from "@/lib/sports/source-registry.mjs";
 import { MatchupCrests } from "@/components/teams/matchup-crests";
+import { PUBLIC_SPORTS, officialForecastCoverage, publishesOfficialForecast } from "@/lib/public-registry";
 
 const ET_DATE = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", year: "numeric" });
 const ET_TIME = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit", hour12: true });
@@ -49,8 +50,15 @@ export interface SportSchedule {
 
 /* Registry source ids → public display names: one map, in lib/sports/source-registry.mjs (UXR1-07). */
 
-/** Sports with their own hub, so a schedule section can point at what actually publishes. */
-const SPORT_HUB: Record<string, string> = { ufc: "/ufc/", nfl: "/nfl/", epl: "/epl/" };
+/**
+ * Sports with their own hub, so a schedule section can point at what actually publishes. P0 10-28: this was a
+ * hand-kept map ({ ufc, nfl, epl }) and NBA was missing from it, so /sports rendered "Schedule only — not modelled"
+ * under NBA while /nba published Official Forecasts daily. It is now DERIVED from the public registry: every sport
+ * with an Official Forecast family links its hub, and a sport without one keeps the schedule-only words.
+ */
+const SPORT_HUB: Record<string, string> = Object.fromEntries(
+  PUBLIC_SPORTS.filter((p) => publishesOfficialForecast(p.key)).map((p) => [p.key, p.hub]),
+);
 
 /** Coverage state → rendered words. State is carried by TEXT; color never carries meaning alone. */
 const COVERAGE_WORDS: Record<string, string> = {
@@ -152,7 +160,8 @@ export function UpcomingSportSection({ s }: { s: SportSchedule }) {
         This section is the schedule only.
         {SPORT_HUB[s.sport] ? (
           <>
-            {" "}What is published for this sport, if anything, is on its{" "}
+            {/* P0 10-28: the hub's coverage in the registry's words (its families), not a sentence kept here. */}
+            {" "}{officialForecastCoverage(s.sport)} They publish on the{" "}
             <a href={SPORT_HUB[s.sport]} style={{ color: "var(--vault-gold)" }}>
               {s.competitionLabel} hub
             </a>.
