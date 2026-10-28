@@ -91,7 +91,17 @@ export function selectProvider(env = {}, opts = {}) {
   }
 
   /*
-   * NO EXPLICIT CHOICE. Anthropic stays the default while it is the verified provider, so a migration
+   * NO EXPLICIT CHOICE IN PRODUCTION IS A REFUSAL (2026-10-17, spend control). The founder's spending cap is set on ONE
+   * provider's console (the Gemini project, decided 2026-10-13). With the variable unset, the fallback below would bill
+   * whichever key happens to be present — Anthropic first, at roughly 10x the per-answer cost and outside that cap —
+   * with nothing telling anyone. Production must name its provider; previews and local development keep the fallback.
+   */
+  if (!asked && isProduction) {
+    return { ok: false, code: ASK_ERROR.PROVIDER_NOT_CONFIGURED, detail: "ASK_MODEL_PROVIDER must name the provider in production" };
+  }
+
+  /*
+   * NO EXPLICIT CHOICE (non-production). Anthropic stays the default while it is the verified provider, so a migration
    * that is half-configured cannot silently move production onto an unverified model. Switching is a
    * deliberate act: set ASK_MODEL_PROVIDER. (v1.6.1 §K flips this only after the canary passes.)
    */
