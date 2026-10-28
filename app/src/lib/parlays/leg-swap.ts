@@ -46,6 +46,8 @@ export interface SwapCandidate {
   readonly americanOdds: number;
   readonly gameId: string;
   readonly matchup: string;
+  /** The game's scheduled start (ISO) from the board artifact; the slip-add gate reads it. */
+  readonly startUtc?: string | null;
 }
 
 export interface SwapTarget {

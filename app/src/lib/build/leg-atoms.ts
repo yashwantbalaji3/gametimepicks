@@ -138,6 +138,8 @@ export function hydrateBuildLeg(a: BuildLegAtoms): BuildLeg {
       photoUrl: photo,
       teamAbbr: a.team ?? null,
       opponentAbbr: a.opponent ?? null,
+      /* Rides onto the slip so a leg added here is refused/labelled by the slip-add gate once it starts. */
+      startUtc: a.startTime ?? null,
     },
   };
 }
