@@ -257,7 +257,7 @@ export default function ParlayCenterSuggestedPage() {
           Each link is a 44px tap target (it measured 19px tall at 320px; release owner 2026-10-24). */}
       <section aria-label="Other suggested-card lanes and history" className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-[10px] px-4 py-3" style={{ border: "1px solid var(--vault-border-strong)", fontSize: 12.5 }}>
         <span className="font-mono uppercase tracking-[0.12em]" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>
-          Other lanes
+          Other sports
         </span>
         <Link className="inline-flex items-center" href="/cards/epl" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600, minHeight: 44 }}>Premier League cards</Link>
         <Link className="inline-flex items-center" href="/cards/ufc" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600, minHeight: 44 }}>UFC cards</Link>
