@@ -76,7 +76,11 @@ export function pregameWinner({ src, eventId, now }) {
     away, home, favoured: v.numbers.side, favouredTeam: fav,
     winProbability: v.numbers.sideProbability, winProbabilityDisplay: v.numbers.sideProbabilityDisplay,
     week: r.week ?? null, kickoff, kickoffLine: kickoffLine(kickoff), frozenAt: v.frozenAt, frozenLine: etDisplay(v.frozenAt),
+    kickoffDay: ET({ weekday: "long" }).format(new Date(kickoff)), kickoffTime: `${ET({ hour: "numeric", minute: "2-digit" }).format(new Date(kickoff))} ET`,
+    venue: typeof r.venue === "string" ? r.venue : r.venue?.name ?? null,
+    frozenShort: ET({ month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(v.frozenAt)).replace(" at ", ", "),
     stamp: afterKickoff ? "Final pregame forecast" : "Latest published pregame forecast",
+    stampShort: afterKickoff ? "Final pregame version" : "Latest published",
     status: afterKickoff ? "HISTORICAL_SAMPLE" : site && site.numbers.sideProbabilityDisplay === v.numbers.sideProbabilityDisplay ? "MATCHES_SITE" : "SITE_DIFFERS",
     evidence: [{ label: "frozen version", ref: `${v.path}@${src.commit?.slice(0, 12)}`, sha256: v.sha256 }, ...(site ? [{ label: "site file", ref: site.path, sha256: site.sha256 }] : [])],
   };
@@ -162,5 +166,97 @@ export function postgame({ src, eventId, label }) {
     evidence: [{ label: "Forecast Ledger", ref: `${bundle.sources.ledger.path}@${src.commit?.slice(0, 12)}`, sha256: bundle.sources.ledger.sha256 },
       { label: "receipt", ref: bundle.sources.receipt.path, sha256: bundle.sources.receipt.sha256 }, ...(td.ok ? td.evidence : [])],
     warnings: verdict.warnings,
+  };
+}
+
+
+// ── Top 5 boards (NFL) ─────────────────────────────────────────────────────────────────────────────────────────
+export const TOP_BOARDS_DIR = "app/public/data/results/top-boards";
+/** Social title and unit per board family; families not on the published board are never drawn. */
+export const BOARD_FAMILIES = Object.freeze({
+  anytime_td: { title: "Anytime Touchdown", unit: "TD PROBABILITY", isTd: true },
+  player_reception_yds: { title: "Receiving Yards", unit: "PROJECTED YDS" },
+  player_receptions: { title: "Receptions", unit: "PROJECTED REC" },
+  player_rush_yds: { title: "Rushing Yards", unit: "PROJECTED YDS" },
+  player_pass_yds: { title: "Passing Yards", unit: "PROJECTED YDS" },
+});
+
+/** One family's frozen Top Board, exactly as published (ranks, players, values); held when the family isn't on it. */
+export function topBoard({ src, date, family }) {
+  const p = `${TOP_BOARDS_DIR}/${date}.json`;
+  const raw = src.read(p);
+  if (raw == null) return { ok: false, reason: `no frozen Top Board for ${date} at the data commit` };
+  const j = JSON.parse(raw);
+  const def = BOARD_FAMILIES[family];
+  const board = j.boards.find((b) => b.sport === "nfl" && b.propFamily === family);
+  if (!board) {
+    const why = (j.ineligible ?? []).find((x) => x.propFamily === family);
+    return { ok: false, held: true, reason: why ? `${def?.title ?? family} is not on the published board: ${why.state} — ${why.reason}` : `${family} is not on the ${date} board` };
+  }
+  const rows = board.rows.filter((r) => !EXCLUDED.has(String(r.participation).toUpperCase()));
+  if (rows.length !== board.rows.length) return { ok: false, reason: "a published board row is now excluded by participation: hold for review rather than re-rank" };
+  const firstKick = j.firstKickoffUtc;
+  return {
+    ok: true, format: "top5", spec: SOCIAL_V2_SPEC, family, date, isTd: Boolean(def.isTd), title: def.title,
+    slateLine: ET({ weekday: "short", month: "short", day: "numeric" }).format(new Date(`${date}T16:00:00Z`)), week: null,
+    frozenLine: etDisplay(j.publishedAt), rule: j.rule,
+    note: def.isTd ? "Predicted chance to score a TD if he plays · passing TDs don't count · not a guarantee" : "Projected (median) for the game · not a guarantee",
+    rows: board.rows.map((r) => {
+      const c = nflTeamColor(r.team);
+      const v = def.isTd ? pct(r.projection.probability) : String(r.projection.median);
+      return { rank: r.rank, name: r.name, team: r.team, opponent: r.opponent, color: c?.primary ?? "#3A3F4B", ink: c?.ink ?? "#FFF", accent: c?.accent ?? "#3A3F4B",
+        valueDisplay: v, unit: def.unit, participation: r.participation, kickoffShort: ET({ weekday: "short", hour: "numeric", minute: "2-digit" }).format(new Date(r.kickoffUtc)), forecastId: r.forecastId };
+    }),
+    status: rows.some((r) => String(r.participation).toUpperCase() === "QUESTIONABLE") ? "NEEDS_VERIFICATION" : "READY",
+    evidence: [{ label: "frozen Top Board", ref: `${p}@${src.commit?.slice(0, 12)}`, sha256: sha(raw) }], firstKickoffUtc: firstKick,
+  };
+}
+
+// ── NBA ────────────────────────────────────────────────────────────────────────────────────────────────────────
+import { nbaTeamColor, bestInk } from "../../app/src/lib/simulation-theater/nba/nba-team-colors.mjs";
+import { relLuminance } from "../../app/src/lib/simulation-theater/nfl-team-colors.mjs";
+import fs from "node:fs";
+import { REPO_ROOT } from "../lib/util.mjs";
+const NBA_COLORS = JSON.parse(fs.readFileSync(`${REPO_ROOT}/app/src/lib/simulation-theater/nba/nba-team-colors.json`, "utf8"));
+export function nbaTeamOf(abbr, name) {
+  const c = nbaTeamColor(NBA_COLORS, abbr);
+  if (!c) throw new Error(`no verified NBA colour record for ${abbr}`);
+  const words = String(name).split(" ");
+  const accent = relLuminance(c.primary) < 0.03 ? c.secondary : c.primary;
+  return { abbr, name, city: words.slice(0, -1).join(" "), nickname: words.at(-1), color: c.primary, ink: bestInk(NBA_COLORS, c.primary), accent };
+}
+
+/**
+ * NBA pregame: the published favoured side only. The lane's Elo probability exists in the receipt but its public
+ * display switch is OFF (founder 2026-10-23), so no probability is drawn; team scores are WITHHELD.
+ */
+export function nbaPregame({ src, eventId, date = "latest" }) {
+  const p = `app/public/data/nba/experimental-public/${date}.json`;
+  const raw = src.read(p);
+  if (raw == null) return { ok: false, reason: `no NBA public lane file ${date}` };
+  const j = JSON.parse(raw);
+  const g = j.games.find((x) => String(x.providerEventId) === String(eventId));
+  if (!g) return { ok: false, reason: `${eventId} not in the ${j.date} lane` };
+  if (g.elo?.state !== "FAVOURED") return { ok: false, reason: `no published side (${g.elo?.state})` };
+  const away = nbaTeamOf(g.away.abbr, g.away.name);
+  const home = nbaTeamOf(g.home.abbr, g.home.name);
+  return {
+    ok: true, format: "nba-pregame", league: "NBA", spec: SOCIAL_V2_SPEC, eventId, away, home, favouredTeam: g.elo.favoured === home.abbr ? home : away,
+    tipLine: kickoffLine(g.tipUtc), kickoffLine: kickoffLine(g.tipUtc),
+    tipDay: ET({ weekday: "long" }).format(new Date(g.tipUtc)), tipTime: `${ET({ hour: "numeric", minute: "2-digit" }).format(new Date(g.tipUtc))} ET`, frozenShort: ET({ month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(g.frozenAt)).replace(" at ", ", "),
+    evidence: [{ label: "NBA public lane", ref: `${p}@${src.commit?.slice(0, 12)}`, sha256: sha(raw) }],
+  };
+}
+
+export function nbaFinal({ src, eventId, season = "2026-27" }) {
+  const p = `app/public/data/nba/results/finals-${season}.json`;
+  const raw = src.read(p);
+  const r = raw && JSON.parse(raw).finals.find((x) => String(x.providerEventId) === String(eventId));
+  if (!r) return { ok: false, reason: `${eventId} not in the finals record` };
+  return {
+    ok: true, format: "nba-final", league: "NBA", spec: SOCIAL_V2_SPEC, eventId,
+    away: nbaTeamOf(r.away.tricode, r.away.name), home: nbaTeamOf(r.home.tricode, r.home.name), finalAway: r.ftAway, finalHome: r.ftHome,
+    winner: r.winnerSide, dateLine: ET({ weekday: "long", month: "short", day: "numeric" }).format(new Date(r.dateUtc)),
+    evidence: [{ label: "NBA finals record", ref: `${p}@${src.commit?.slice(0, 12)}`, sha256: sha(raw) }],
   };
 }

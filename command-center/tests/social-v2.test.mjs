@@ -42,7 +42,9 @@ test("Format C miss example SF @ ATL: 49ers 70.6% missed; TD calls 1 of 3 with M
   assert.equal(cmc.probability, 0.7055);
   assert.equal(cmc.probabilityDisplay, "70.5%", "the site's formatter: (p * 100).toFixed(1)");
   const html = visibleText(socialHtml(m));
-  assert.match(html, /Forecast missed/);
+  assert.match(html, /Prediction Missed/);
+  assert.match(html, /Prediction vs\. Final/);
+  assert.match(html, /Predicted Winner/);
   assert.match(html, /1 of 3 scored/);
 });
 
@@ -116,4 +118,46 @@ test("every NFL team has a verified colour record (no team needs a hand-made des
     assert.match(x.color, /^#[0-9A-F]{6}$/i, t);
     assert.match(x.accent, /^#[0-9A-F]{6}$/i, t);
   }
+});
+
+test("terms: social wording is a presentation map; Top 5 rushing/passing are held exactly as the board holds them", { skip }, async () => {
+  const { TERMS } = await import("../render/social-v2.mjs");
+  assert.equal(TERMS.prediction, "GameTimePicks Prediction");
+  const { topBoard } = await import("../recap/social-v2.mjs");
+  const s = src();
+  for (const fam of ["anytime_td", "player_reception_yds", "player_receptions"]) {
+    const b = topBoard({ src: s, date: "2026-10-25", family: fam });
+    assert.ok(b.ok, b.reason);
+    assert.deepEqual(b.rows.map((r) => r.rank), [1, 2, 3, 4, 5], "the published order, never re-ranked");
+  }
+  for (const fam of ["player_rush_yds", "player_pass_yds"]) {
+    const b = topBoard({ src: s, date: "2026-10-25", family: fam });
+    assert.equal(b.ok, false);
+    assert.equal(b.held, true, `${fam} is not on the published board`);
+  }
+  const td = topBoard({ src: s, date: "2026-10-25", family: "anytime_td" });
+  assert.equal(td.rows[0].name, "Jahmyr Gibbs");
+  assert.equal(td.rows[0].valueDisplay, "84.3%");
+  assert.match(visibleText(socialHtml(td)), /Top 5 TD Predictions/);
+  const rec = topBoard({ src: s, date: "2026-10-25", family: "player_reception_yds" });
+  assert.match(visibleText(socialHtml(rec)), /Top 5 Projections[\s\S]*PROJECTED YDS/);
+});
+
+test("NBA: predicted winner only — no win probability is drawn; finals from the finals record", { skip }, async () => {
+  const { nbaPregame, nbaFinal } = await import("../recap/social-v2.mjs");
+  const p = nbaPregame({ src: src(), eventId: "401909877" });
+  assert.ok(p.ok, p.reason);
+  assert.equal(p.favouredTeam.abbr, "BOS");
+  const text = visibleText(socialHtml(p));
+  assert.doesNotMatch(text, /\d%/, "the NBA Elo probability display is switched off");
+  assert.match(text, /Predicted Winner/i);
+  const f = nbaFinal({ src: src(), eventId: "401909877" });
+  assert.deepEqual([f.finalAway, f.finalHome, f.winner], [124, 125, "home"]);
+});
+
+test("Format C shows the TD section only when the published cohort is completely graded", { skip }, () => {
+  const m = postgame({ src: src(), eventId: "401873011", label: label() });
+  const partial = { ...m, td: { ...m.td, complete: false, decided: 2 } };
+  assert.doesNotMatch(visibleText(socialHtml(partial)), /scored/, "an incomplete cohort is left off, never shown as misses");
+  assert.match(visibleText(socialHtml(m)), /0 of 3 scored/);
 });
