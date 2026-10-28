@@ -97,9 +97,26 @@ test("homepage + hubs consume the split selectors, never a mixed population unde
   }
   assert.ok(Number.isInteger(UPCOMING_READS_SHOWN) && UPCOMING_READS_SHOWN > 0 && UPCOMING_READS_SHOWN <= 10,
     `UPCOMING_READS_SHOWN is a sane preview size, got ${UPCOMING_READS_SHOWN}`);
+  /*
+   * REPOINTED overnight W8 (2026-10-28): /epl and /ufc no longer render a model-reads panel at all — on both hubs it
+   * repeated the fixture/bout list (or the scorers list) directly above it, so it was removed as a duplicate listing.
+   * The invariant this loop protects is "no hub shows a mixed population under a today title", and it is kept at
+   * full strength: a hub either renders NO reads panel (no TopReadsPanel and no reads loader in its source, so no
+   * population of any kind can reach it), or renders one ONLY through the timeframe-pure selectors (sportPanelReads /
+   * topToday / topUpcoming), never topOverall, with its heading derived from the panel's timeframe. /mlb still
+   * renders the panel, and is still required to.
+   */
   for (const hub of ["epl", "ufc", "mlb"]) {
     const s = fs.readFileSync(path.join(process.cwd(), `src/app/${hub}/page.tsx`), "utf8");
-    assert.match(s, /sportPanelReads\(topReads/, `${hub} hub uses the timeframe-pure selector`);
+    const rendersPanel = /<TopReadsPanel[\s>]/.test(s) || /loadTopReads\(/.test(s);
+    if (hub === "mlb") assert.ok(rendersPanel, "mlb hub still renders its model-reads panel");
+    if (!rendersPanel) {
+      assert.doesNotMatch(s, /TopReadsPanel|loadTopReads|topOverall|sportPanelReads|topToday|topUpcoming/,
+        `${hub} hub renders no reads panel, so no reads selector may linger in its source`);
+      continue;
+    }
+    assert.match(s, /sportPanelReads\(topReads|topToday\(topReads|topUpcoming\(topReads/, `${hub} hub uses the timeframe-pure selector`);
+    assert.doesNotMatch(s, /topOverall\(/, `${hub} hub never ranks a mixed population`);
     assert.doesNotMatch(s, /title="What the model is most confident about today"/,
       `${hub} hub must derive the heading from the panel's timeframe`);
   }

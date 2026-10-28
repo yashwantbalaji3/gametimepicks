@@ -214,9 +214,10 @@ test("SUPPORTING · World Model V2 is labelled, versioned, hashed, and says when
   const stale = view({ board: board({ players: [] }), world: world({ inputHash: "aaaa1111", forecastGeneratedAt: "2098-12-31T20:00:00Z" }) });
   assert.equal(stale.simulation.label, SUPPORTING_LABEL);
   /* REPOINTED overnight W8 (2026-10-28): the label pinned the internal engine name in the public reading path. The two
-     claims that matter — not the official forecast, not graded — are still required verbatim; the engine name moved to the
+     claims that matter — not the official projection, not graded — are still required verbatim (the consistency audit
+     keys its "labelled supporting simulation" check on the phrase "not the official projection"); the engine name moved to the
      panel's Technical details (asserted below). */
-  assert.equal(SUPPORTING_LABEL, "Supporting simulation (not the official forecast · not graded)");
+  assert.equal(SUPPORTING_LABEL, "Supporting simulation (not the official projection · not graded)");
   assert.equal(stale.simulation.version, "2.2.0");
   assert.equal(stale.simulation.inputHash, "aaaa1111");
   assert.equal(stale.simulation.recordInputHash, "rec00001");
