@@ -10,6 +10,7 @@
  */
 import SimulateDay from "@/components/simulate/simulate-day";
 import { availableSimulateDates, buildSimulateDay } from "@/lib/simulate/day-view";
+import { pastSlateSummary } from "@/lib/simulate/lifecycle-state.mjs";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
@@ -37,7 +38,7 @@ export default function SimulateDatePage({ params }: { params: { date: string } 
         </h1>
         <p className="m-0 max-w-[72ch]" style={{ color: "var(--vault-text-mute)", fontSize: 13, lineHeight: 1.6 }}>
           {view.date < view.today
-            ? <>A settled slate: {view.totals.settled} of {view.totals.events} events are final — results route to their reports and the record. Deeper history lives on <Link href="/results" style={{ color: "var(--vault-gold-bright)" }}>Results</Link>.</>
+            ? <>{pastSlateSummary(view.totals)} Each event routes to its report and the record. Deeper history lives on <Link href="/results" style={{ color: "var(--vault-gold-bright)" }}>Results</Link>.</>
             : <>{view.totals.ready} of {view.totals.events} events on this slate have a simulation report ready; every other state says exactly what it is.</>}
         </p>
       </header>
