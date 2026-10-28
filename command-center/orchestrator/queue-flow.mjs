@@ -29,7 +29,7 @@ import { renderResultsPng } from "../render/results-card.mjs";
 import { publicLabelOf, readPublicRegistry } from "../recap/public-registry.mjs";
 import { readCapabilities, multiSportFacts, etDate } from "../recap/multisport-facts.mjs";
 import { verifyPregame, confirmAfterStart, nflVersions, DEFAULT_MAX_DATA_AGE_MIN } from "../recap/freeze-verifier.mjs";
-import { pregameWinner, touchdowns, topBoard, postgame, nbaPregame, nbaPlayers, nbaFinal, BOARD_FAMILIES } from "../recap/social-v2.mjs";
+import { pregameWinner, touchdowns, topBoard, postgame, nbaPregame, nbaPlayers, nbaFinal, withNbaMeter, BOARD_FAMILIES } from "../recap/social-v2.mjs";
 import { renderSocial, SOCIAL_TEMPLATE, ASSET_MANIFEST } from "../render/social-v2.mjs";
 import {
   baseIdOf, nflPregamePackage, nflTouchdownsPackage, nflTop5Package, nflPostgamePackage, nbaPregamePackage, nbaPlayersPackage, nbaFinalPackage, nbaGamePackage,
@@ -303,18 +303,19 @@ export function createQueueFlow(ctx) {
         let pre = null;
         let players = null;
         await one("NBA", `${g.away?.abbr} @ ${g.home?.abbr} prediction`, async () => {
-          const m = nbaPregame({ src, eventId: g.providerEventId, date });
+          const m = await withNbaMeter(nbaPregame({ src, eventId: g.providerEventId, date }), { src, date });
           if (!m.ok) return skip("NBA", `${g.away?.abbr} @ ${g.home?.abbr} prediction`, m.reason);
           let pkg = nbaPregamePackage({ date, m, extra: { ...extra, label: nbaLabel }, laneDate: date });
           if (Date.parse(now) >= Date.parse(g.tipUtc)) pkg = { ...pkg, status: POST_STATUS.BLOCKED, reasons: ["tip-off has passed"] };
-          packages.push((pre = await withGraphic(pkg, m)));
+          // a component of the game post (both graphics in one post): built and kept, never proposed on its own
+          packages.push((pre = await withGraphic({ ...pkg, componentOf: `${date}:NBA:game:${g.providerEventId}@v2` }, m)));
         });
         await one("NBA", `${g.away?.abbr} @ ${g.home?.abbr} stat lines`, async () => {
           const m = nbaPlayers({ src, eventId: g.providerEventId, date });
           if (!m.ok) return skip("NBA", `${g.away?.abbr} @ ${g.home?.abbr} stat lines`, m.reason);
           let pkg = nbaPlayersPackage({ date, m, extra: { ...extra, label: nbaLabel }, laneDate: date });
           if (Date.parse(now) >= Date.parse(g.tipUtc)) pkg = { ...pkg, status: POST_STATUS.BLOCKED, reasons: ["tip-off has passed"] };
-          packages.push((players = await withGraphic(pkg, m)));
+          packages.push((players = await withGraphic({ ...pkg, componentOf: `${date}:NBA:game:${g.providerEventId}@v2` }, m)));
         });
         // the game post (both graphics, one caption) — the unit the scheduler publishes 45 minutes before tip-off
         if (pre && players) await one("NBA", `${g.away?.abbr} @ ${g.home?.abbr} game post`, async () => {
@@ -369,6 +370,14 @@ export function createQueueFlow(ctx) {
       if ([...pl.awayPlayers, ...pl.homePlayers].map((p) => `${p.id}:${p.pts}/${p.reb}/${p.ast}`).join("|") !== pkg.playersKey) reasons.push("the published stat lines changed");
       if (pl.featured.map((f) => `${f.team}:${f.player?.id ?? "-"}`).join("|") !== pkg.featuredKey) reasons.push("a featured player changed (injury report, lineup or availability)");
       if (pl.tipUtc && pl.tipUtc !== pkg.tipUtc) reasons.push(`the scheduled tip-off moved (${pkg.tipUtc} → ${pl.tipUtc})`);
+      // V2.3: the forecast version the graphics and meter came from (the lane game's freeze + receipt hash)
+      if (pkg.forecastVersion) {
+        const lane = JSON.parse(src.read(`app/public/data/nba/experimental-public/${pkg.laneDate}.json`) ?? "{}");
+        const lg = (lane.games ?? []).find((x) => String(x.providerEventId) === String(pkg.eventId));
+        if (!lg || lg.frozenAt !== pkg.forecastVersion.frozenAt || (lg.receipt?.payloadSha256 ?? null) !== pkg.forecastVersion.receiptPayloadSha256) reasons.push("the published forecast version changed");
+      }
+      // an injury designation that appeared (or cleared) on a featured player since the draft
+      if (Boolean(pl.featured.some((f) => f.verify)) !== Boolean(pkg.availabilityCheck?.length)) reasons.push("a featured player's injury designation changed");
       return reasons.length ? { status: POST_STATUS.BLOCKED, reasons: [...reasons, "rebuild the queue and approve the new version"] } : { status: POST_STATUS.READY, reasons: [] };
     }
     if (pkg.kind === "nba-pregame" || pkg.kind === "nba-players") {
@@ -435,7 +444,7 @@ export function createQueueFlow(ctx) {
       if (p.media) store.append("deliverable", "creative-renderer", { commandId: run.commandId, kind: "post-graphic", postId: p.postId, file: p.media.file, sha256: p.media.sha256, width: p.media.width, height: p.media.height, template: p.media.template, altText: p.media.altText });
     }
     const decidedNow = new Set(postRecords().filter((r) => r.decision && !["revise", "defer"].includes(r.decision.verdict) && !r.invalidated).map((r) => baseIdOf(r.request.postId)));
-    const requests = q.packages.filter((p) => p.status !== POST_STATUS.BLOCKED && !decidedNow.has(baseIdOf(p.postId))).sort((a, b) => (a.priority ?? 2) - (b.priority ?? 2)).map((p) => {
+    const requests = q.packages.filter((p) => p.status !== POST_STATUS.BLOCKED && !p.componentOf && !decidedNow.has(baseIdOf(p.postId))).sort((a, b) => (a.priority ?? 2) - (b.priority ?? 2)).map((p) => {
       const decisionId = shortId("post", { commandId: run.commandId, postId: p.postId });
       const d = {
         decisionId, commandId: run.commandId, kind: "post", subjectType: "post-package", postId: p.postId, date: q.date,
@@ -488,7 +497,12 @@ export function createQueueFlow(ctx) {
       if (!option.check?.ok) return { ok: false, code: "CAPTION_CHECK_FAILED", detail: option.check?.problems?.map((p) => `${p.code} ${p.detail}`).join("; ") };
       // Design approval is its own state: a V2.1 graphic can't be approved for publishing before its design version is.
       if (pkg.template && !designApproval(pkg.template, pkg.assetManifest)) return { ok: false, code: "DESIGN_NOT_APPROVED", detail: `approve the ${pkg.template} design (${pkg.assetManifest}) first — design approval and publishing approval are separate` };
-      if (pkg.kind === "td-top3") {
+      if (pkg.componentOf || ((pkg.kind === "nba-pregame" || pkg.kind === "nba-players") && postRecords().some((r) => r.request.package?.kind === "nba-game" && r.request.package.eventId === pkg.eventId))) {
+        return { ok: false, code: "SUPERSEDED_BY_GAME_POST", detail: "this graphic is part of the game post (both graphics in one post): approve the game post instead" };
+      }
+      if (pkg.kind === "nba-game" && pkg.availabilityCheck?.length) {
+        if (availabilityConfirmed !== true) return { ok: false, code: "AVAILABILITY_NOT_CONFIRMED", detail: `${pkg.availabilityCheck.join("; ")} — then approve with that confirmation` };
+      } else if (pkg.kind === "td-top3") {
         if (availabilityConfirmed !== true) return { ok: false, code: "AVAILABILITY_NOT_CONFIRMED", detail: "confirm each listed player is active and in his expected role (no source confirms it), then approve with that confirmation" };
       } else if (pkg.kind === "x-reply") {
         if (!pkg.xSources?.length) return { ok: false, code: "NO_SOURCES", detail: "this reply cites no specific X post: there is nothing to confirm" };
@@ -503,6 +517,7 @@ export function createQueueFlow(ctx) {
         ...(pkg.template ? { template: pkg.template, assetManifest: pkg.assetManifest } : {}),
         ...(pkg.kind === "x-reply" ? { sourcesConfirmed: true, sourcesConfirmedUrls: pkg.xSources } : {}),
         ...(pkg.kind === "td-top3" ? { availabilityConfirmed: true, availabilityConfirmedFor: pkg.candidatesKey } : {}),
+        ...(pkg.kind === "nba-game" && pkg.availabilityCheck?.length ? { availabilityConfirmed: true, availabilityConfirmedFor: pkg.featuredKey } : {}),
       };
     }
     if (approval) {
@@ -611,7 +626,10 @@ export function createQueueFlow(ctx) {
       const schedule = all.filter((e) => e.kind === "post-status" && e.data.decisionId === request.decisionId && e.data.status === "scheduled").at(-1)?.data ?? null;
       const engagement = all.filter((e) => e.kind === "engagement" && e.data.decisionId === request.decisionId).map((e) => ({ ...e.data, at: e.at }));
       const checks = all.filter((e) => e.kind === "post-verification" && e.data.decisionId === request.decisionId).map((e) => ({ ...e.data, at: e.at }));
-      const newer = records.find((r) => baseIdOf(r.request.postId) === baseIdOf(request.postId) && r.request.order > request.order)
+      // V2.3: an undecided standalone NBA graphic is superseded by its game post (both graphics in one post)
+      const game = !decision && ["nba-pregame", "nba-players"].includes(request.package?.kind)
+        ? records.find((r) => r.request.package?.kind === "nba-game" && r.request.package.eventId === request.package.eventId) : null;
+      const newer = game ?? records.find((r) => baseIdOf(r.request.postId) === baseIdOf(request.postId) && r.request.order > request.order)
         ?? (!decision ? records.find((r) => baseIdOf(r.request.postId) === baseIdOf(request.postId) && r.request.decisionId !== request.decisionId && r.decision && !["revise", "defer"].includes(r.decision.verdict) && !r.invalidated) : null);
       const lifecycle = receipt ? "published"
         : invalidated ? "invalidated"

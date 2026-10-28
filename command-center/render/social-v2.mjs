@@ -15,8 +15,11 @@ import path from "node:path";
 import { CC_ROOT, REPO_ROOT, sha256 } from "../lib/util.mjs";
 import { escapeHtml as esc, loadChromium, pngSize } from "./render-png.mjs";
 
-// 2.2.1 (founder 10-28): NBA stat values all white. A visual change is a new version, so the 2.2 design approval does not carry over.
-export const SOCIAL_TEMPLATE = "gtp-social@2.2.1";
+// 2.3 (founder 10-28): matchup meter, team marks inside the matchup boxes, X logo + @GameTimePicksHQ on every format,
+// team-accented stat rows. A visual change is a new version: the 2.2.1 design approval does not carry over.
+export const SOCIAL_TEMPLATE = "gtp-social@2.3";
+/** The one social identity printed on every graphic (shared component: socialLine in the shell). */
+export const SOCIAL_HANDLE = "@GameTimePicksHQ";
 const DIR = path.join(CC_ROOT, "render/templates/social-v2");
 const FONTS = path.join(CC_ROOT, "render/fonts");
 /** The asset manifest's version: bound into every V2.1 approval fingerprint with the template version. */
@@ -28,6 +31,46 @@ let fontCss = null;
 const fontFaces = () => (fontCss ??= FACES.map(([family, file, weight]) =>
   `@font-face{font-family:"${family}";font-weight:${weight};font-style:normal;src:url(data:font/ttf;base64,${fs.readFileSync(path.join(FONTS, file)).toString("base64")}) format("truetype");}`).join("\n"));
 const LOGO = path.join(REPO_ROOT, "app/public/brand/gametime-picks-logo.png");
+const MANIFEST = JSON.parse(fs.readFileSync(path.join(DIR, "asset-manifest.json"), "utf8"));
+/** The X mark (X brand toolkit: the logo may identify an X account), drawn as a single vector path. */
+const X_MARK = `<svg class="xmark" viewBox="0 0 1200 1227" aria-hidden="true"><path fill="currentColor" d="M714.163 519.284 1160.89 0h-105.86L667.137 450.887 357.328 0H0l468.492 681.821L0 1226.37h105.866l409.625-476.152 327.181 476.152H1200L714.137 519.284h.026ZM569.165 687.828l-47.468-67.894-377.686-540.24h162.604l304.797 435.991 47.468 67.894 396.2 566.721H892.476L569.165 687.854v-.026Z"/></svg>`;
+/**
+ * Team marks: a LICENSED logo from the asset manifest (teamLogos, each entry with its file, sha256 and rights), else a
+ * monogram in the team's colours — never a hot-linked or scraped logo. Today the manifest licenses none (the repository's
+ * asset audits record no licensed NBA/NFL/MLB logos), so every team shows its monogram.
+ */
+export function teamLogoOf(league, abbr) {
+  const e = MANIFEST.teamLogos?.[league]?.[abbr];
+  if (!e?.file || !e?.rights) return null;
+  const file = path.join(REPO_ROOT, e.file);
+  if (!fs.existsSync(file)) return null;
+  const bytes = fs.readFileSync(file);
+  if (e.sha256 && sha256(bytes) !== e.sha256) return null;
+  return `data:${e.file.endsWith(".svg") ? "image/svg+xml" : "image/png"};base64,${bytes.toString("base64")}`;
+}
+/** WCAG contrast; text on a team colour uses the team's ink only when it reads (≥ 4.5:1), else black or white. */
+const lumOf = (hex) => { const h = String(hex ?? "").replace("#", ""); if (h.length !== 6) return 0; return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)).reduce((a, v, i) => a + v * [0.2126, 0.7152, 0.0722][i], 0); };
+const contrast = (a, b) => { const [x, y] = [lumOf(a), lumOf(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+export const inkOn = (bg, ink) => (contrast(bg, ink) >= 4.5 ? ink : contrast(bg, "#050706") >= contrast(bg, "#F7F7F2") ? "#050706" : "#F7F7F2");
+const mark = (t, league) => {
+  const logo = t.abbr ? teamLogoOf(league, t.abbr) : null;
+  return logo
+    ? `<div class="mark logo" data-mark="logo"><img src="${logo}" alt=""></div>`
+    : `<div class="mark mono" data-mark="monogram" style="--c:${esc(t.color ?? "#1B1F1C")};--a:${esc(t.accent ?? "#39FF88")};--cink:${esc(inkOn(t.color ?? "#1B1F1C", t.ink ?? "#F7F7F2"))}"><span data-fit>${esc(t.abbr ?? (t.nickname ?? "").slice(0, 3).toUpperCase())}</span></div>`;
+};
+/** The matchup meter: published shares as widths, published values (by the sport's rounding rule) as labels. */
+function meterHtml(meter) {
+  if (!meter) return "";
+  const total = meter.segments.reduce((a, x) => a + x.share, 0);
+  const teams = meter.segments.filter((x) => !["tie", "draw"].includes(x.side));
+  const mid = meter.segments.find((x) => ["tie", "draw"].includes(x.side));
+  return `<div class="meter" data-meter="${esc(meter.kind)}">
+    <div class="meter-k">${esc(meter.label)}</div>
+    <div class="meter-labels"><div class="ml l"><b>${esc(teams[0].display)}</b><span data-fit>${esc(teams[0].name)}</span></div>${mid ? `<div class="ml c"><b>${esc(mid.display)}</b><span>${esc(mid.name)}</span></div>` : ""}<div class="ml r"><b>${esc(teams[1].display)}</b><span data-fit>${esc(teams[1].name)}</span></div></div>
+    <div class="meter-bar">${meter.segments.map((x) => `<i class="seg ${esc(x.side)}" data-share="${x.share}" style="width:${((100 * x.share) / total).toFixed(3)}%;--c:${esc(x.color)}"></i>`).join("")}</div>
+    ${meter.note ? `<div class="meter-note">${esc(meter.note)}</div>` : ""}
+  </div>`;
+}
 
 /** Social terminology → the canonical concept it presents (presentation layer only). */
 export const TERMS = Object.freeze({
@@ -63,6 +106,10 @@ const pname = (name, group, forms, cls) => `<span class="pname ${cls}" data-name
 
 const slab = (t) => `<div class="slab" style="--c:${esc(t.color)};--a:${esc(t.accent)};--cink:${esc(t.ink)}">
   <div class="city" data-fit>${esc(t.city)}</div><div class="nick" data-fit>${esc(t.nickname)}</div></div>`;
+/** V2.3 matchup box: the team mark inside the box, then city and nickname. */
+// a long name ("Manchester United", "Trail Blazers") wraps to two lines at one size instead of shrinking to nothing
+const mbox = (t, league) => `<div class="mbox ${String(t.nickname).length > 11 ? "long" : ""}" style="--c:${esc(t.color)};--a:${esc(t.accent)};--cink:${esc(inkOn(t.color, t.ink ?? "#F7F7F2"))}">${mark(t, league)}
+  <div class="mtext">${t.city ? `<div class="city" data-fit>${esc(t.city)}</div>` : ""}<div class="nick" data-fit>${esc(t.nickname)}</div></div></div>`;
 const tag = (team, color, ink) => `<span class="tag" style="--c:${esc(color)};--cink:${esc(ink)}">${esc(team)}</span>`;
 const pctNum = (d) => String(d).replace("%", "");
 const ring = (p) => {
@@ -92,11 +139,13 @@ function postgameBody(m) {
 }
 
 function pregameBody(m) {
-  const pct = pctNum(m.winProbabilityDisplay);
+  const lg = m.league ?? "NFL";
+  // soccer is written home v away; NFL / NBA away @ home
+  const [a, b, sep] = lg === "EPL" ? [m.home, m.away, "v"] : [m.away, m.home, "@"];
   return `<div class="kicker">${esc(TERMS.prediction)}</div>
-    <div class="hero pre"><div class="side">${slab(m.away)}</div><div class="mid"><span>@</span></div><div class="side">${slab(m.home)}</div></div>
-    <div class="ringwrap">${ring(m.winProbability)}<div class="in"><div class="k">${esc(TERMS.winProbability)}</div><div class="num">${esc(pct)}<small>%</small></div></div></div>
-    <div class="winner"><div class="k">${esc(m.winnerLabel ?? TERMS.predictedWinner)}</div>${slab(m.favouredTeam)}</div>
+    <div class="matchup">${mbox(a, lg)}<div class="vs2">${sep}</div>${mbox(b, lg)}</div>
+    ${meterHtml(m.meter)}
+    <div class="winner2"><div class="k">${esc(m.winnerLabel ?? TERMS.predictedWinner)}</div>${slab(m.favouredTeam)}</div>
     <div class="strip"><div><b data-fit>${esc(m.kickoffDay)}</b><span>Kickoff ${esc(m.kickoffTime)}</span></div>${m.venue ? `<div><b data-fit>${esc(m.venue)}</b><span>Venue</span></div>` : ""}</div>`;
 }
 
@@ -131,8 +180,9 @@ function top5Body(m) {
 
 function nbaPregameBody(m) {
   return `<div class="kicker">${esc(TERMS.prediction)}</div>
-    <div class="hero pre"><div class="side">${slab(m.away)}</div><div class="mid"><span>@</span></div><div class="side">${slab(m.home)}</div></div>
-    <div class="nbawin"><div class="k">${esc(TERMS.predictedWinner)}</div>${slab(m.favouredTeam)}<div class="abbr">${esc(m.favouredTeam.abbr)}</div></div>
+    <div class="matchup">${mbox(m.away, "NBA")}<div class="vs2">@</div>${mbox(m.home, "NBA")}</div>
+    ${meterHtml(m.meter)}
+    <div class="winner2 ${m.meter ? "" : "solo"}"><div class="k">${esc(m.winnerLabel ?? TERMS.predictedWinner)}</div>${slab(m.favouredTeam)}</div>
     <div class="strip"><div><b data-fit>${esc(m.tipDay)}</b><span>Tip-off</span></div><div><b data-fit>${esc(m.tipTime)}</b><span>Eastern time</span></div></div>`;
 }
 
@@ -148,7 +198,7 @@ function nbaFinalBody(m) {
 }
 
 function nbaPlayersBody(m) {
-  const col = (t, ps) => `<div class="lcol" style="--c:${esc(t.accent)}"><h3 data-fit>${esc(t.nickname)}</h3>
+  const col = (t, ps) => `<div class="lcol" style="--c:${esc(t.accent)}"><div class="lhead">${mark(t, "NBA")}<h3 data-fit>${esc(t.nickname)}</h3></div>
     <div class="lrow hd"><span>PLAYER</span><span>PTS</span><span>REB</span><span>AST</span></div>
     ${ps.map((p) => `<div class="lrow">${pname(p.fullName ?? p.name, "table", p.nameForms ?? [p.fullName ?? p.name], "table")}<b class="pts">${esc(p.pts)}</b><b>${esc(p.reb)}</b><b>${esc(p.ast)}</b></div>`).join("")}</div>`;
   return `<div class="kicker">Projected stat lines</div>
@@ -164,6 +214,7 @@ function chipOf(m) {
   const lg = m.league ?? "NFL";
   if (m.format === "postgame" || m.format === "nba-final") return `${lg}${m.week ? ` · Week ${m.week}` : ""} · Final`;
   if (m.format === "top5") return `NFL${m.week ? ` · Week ${m.week}` : ""} · ${m.slateLine}`;
+  if (lg === "EPL") return `Premier League${m.matchweek ? ` · Matchweek ${m.matchweek}` : ""} · ${m.kickoffLine}`;
   return `${lg}${m.week ? ` · Week ${m.week}` : ""} · ${m.kickoffLine ?? m.tipLine}`;
 }
 
@@ -175,7 +226,8 @@ export function socialHtml(m) {
   const res = m.format === "postgame" ? (m.result === "WIN" ? "res-hit" : m.result === "LOSS" ? "res-miss" : "") : "";
   const slots = {
     rawCss: css, rawVars: `--ca:${esc(m.away?.accent ?? "#12B865")};--cb:${esc(m.home?.accent ?? "#12B865")}`, ghostA: m.away?.abbr ?? "", ghostB: m.home?.abbr ?? "",
-    logoDataUri: logo, chip: chipOf(m), rawBody: body(m), rawBodyClass: res, disclosure: disclosureFor(m.league ?? "NFL"),
+    logoDataUri: logo, chip: chipOf(m), rawBody: body(m), rawBodyClass: `${res} fmt-${m.format}`.trim(), disclosure: disclosureFor(m.league ?? "NFL"),
+    rawSocial: `<div class="social" data-handle="${esc(SOCIAL_HANDLE)}">${X_MARK}<span>${esc(SOCIAL_HANDLE)}</span></div>`,
   };
   return fs.readFileSync(path.join(DIR, "shell.html"), "utf8").replace(/\{\{(\w+)\}\}/g, (_, k) => {
     if (!(k in slots)) throw new Error(`slot {{${k}}} has no value`);

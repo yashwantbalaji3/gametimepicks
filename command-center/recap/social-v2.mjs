@@ -15,6 +15,7 @@
  *
  * Every model carries `evidence` (file@commit + sha256 + ids) for the Command Center, never for the graphic.
  */
+import { nbaMeter, nflMeter, soccerMeter, winnerLabelFromShares } from "./probability-meter.mjs";
 import { createHash } from "node:crypto";
 import { nflTeamColor } from "../../app/src/lib/simulation-theater/nfl-team-colors.mjs";
 import { candidateFor } from "./pipeline.mjs";
@@ -88,8 +89,10 @@ export function pregameWinner({ src, eventId, now }) {
   const wp = r.forecastSummary?.winProbability ?? {};
   const winnerLabel = winnerLabelOf({ side: v.numbers.side, home: wp.home, away: wp.away, tieMass: wp.tieMass });
   if (!winnerLabel) return { ok: false, reason: `the published side (${pct(v.numbers.sideProbability)}) is not the most likely outcome: refusing a winner graphic` };
+  // V2.3 matchup meter: the same frozen, verified version's three published outcomes (null → winner only)
+  const meter = nflMeter({ winProbability: wp, favoured: v.numbers.side, away, home });
   return {
-    ok: true, format: "pregame-winner", spec: SOCIAL_V2_SPEC, eventId,
+    ok: true, format: "pregame-winner", spec: SOCIAL_V2_SPEC, eventId, meter,
     away, home, favoured: v.numbers.side, favouredTeam: fav, winnerLabel,
     winProbability: v.numbers.sideProbability, winProbabilityDisplay: v.numbers.sideProbabilityDisplay,
     week: r.week ?? null, kickoff, kickoffLine: kickoffLine(kickoff), frozenAt: v.frozenAt, frozenLine: etDisplay(v.frozenAt),
@@ -249,8 +252,8 @@ export function nbaTeamOf(abbr, name) {
 }
 
 /**
- * NBA pregame: the published favoured side only. The lane's Elo probability exists in the receipt but its public
- * display switch is OFF (founder 2026-10-23), so no probability is drawn; team scores are WITHHELD.
+ * NBA pregame: the published favoured side. V2.3 adds the website's Elo-derived game-winner estimate when its own
+ * accessor allows it (withNbaMeter); team scores stay WITHHELD.
  */
 export function nbaPregame({ src, eventId, date = "latest" }) {
   const p = `app/public/data/nba/experimental-public/${date}.json`;
@@ -268,6 +271,22 @@ export function nbaPregame({ src, eventId, date = "latest" }) {
     tipDay: ET({ weekday: "long" }).format(new Date(g.tipUtc)), tipTime: `${ET({ hour: "numeric", minute: "2-digit" }).format(new Date(g.tipUtc))} ET`, frozenShort: ET({ month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(g.frozenAt)).replace(" at ", ", "),
     evidence: [{ label: "NBA public lane", ref: `${p}@${src.commit?.slice(0, 12)}`, sha256: sha(raw) }],
   };
+}
+
+/**
+ * V2.3: the NBA matchup meter, through the website's own accessor at the same data commit (recap/probability-meter.mjs).
+ * Not eligible → no meter (winner only). The forecast version (freeze time + receipt hash) is bound into the package.
+ */
+export async function withNbaMeter(m, { src, date }) {
+  if (!m?.ok) return m;
+  const raw = src.read(`app/public/data/nba/experimental-public/${date}.json`);
+  const g = raw && JSON.parse(raw).games.find((x) => String(x.providerEventId) === String(m.eventId));
+  if (!g) return { ...m, meter: null };
+  const meter = await nbaMeter({ src, game: g, away: m.away, home: m.home });
+  const side = m.favouredTeam.abbr === m.home.abbr ? "home" : "away";
+  const winnerLabel = meter ? winnerLabelFromShares(meter, side) : "Predicted Winner";
+  if (!winnerLabel) return { ok: false, reason: "the published side is not the most likely outcome on its own published estimate" };
+  return { ...m, meter, winnerLabel, forecastVersion: { frozenAt: g.frozenAt, receiptPayloadSha256: g.receipt?.payloadSha256 ?? null } };
 }
 
 export function nbaFinal({ src, eventId, season = "2026-27" }) {
@@ -326,18 +345,69 @@ export function nbaPlayers({ src, eventId, date = "latest" }) {
 // ── featured players for caption highlights (founder 2026-10-28) ────────────────────────────────────────────────
 const FEATURED = JSON.parse(fs.readFileSync(new URL("../editorial/featured-players.json", import.meta.url), "utf8"));
 /**
- * One player per team for a caption: an approved editorial entry when he is in this graphic with valid medians and no
- * injury flag; otherwise the player with the most published expected minutes and no injury flag. Never a player who
- * isn't in the published projections; null (with a reason) when nobody qualifies.
+ * FEATURED-PLAYER POLICY (V2.3, founder 2026-10-28) — one player per team for a caption, a highlight and never a model
+ * ranking or a "star" label:
+ *   1. an entry on the founder-approved editorial list, if he is in this game's published projections with medians;
+ *      if he carries ANY injury designation (the lane's "Day-To-Day") he stays featured but the post is held for the
+ *      founder's availability confirmation (`verify`) — never silently swapped, never an availability claim;
+ *   2. otherwise the team's highest published projected scorer (PTS median) among players with at least
+ *      FEATURED_MIN_MINUTES published expected minutes and no injury designation — labelled with that basis;
+ *   3. otherwise nobody (null, with the reason): the caption names no player for that team.
+ * Ruled-out players never appear (the lane lists them as unavailable, not in the projections).
  */
+export const FEATURED_MIN_MINUTES = 20;
 export function featuredFor(sport, team, players) {
-  const ok = players.filter((p) => !p.injuryStatus && [p.pts, p.reb, p.ast].every((v) => v != null));
+  const hasLine = (p) => [p.pts, p.reb, p.ast].every((v) => v != null);
   const listed = (FEATURED[sport]?.[team] ?? []).filter((e) => e.approvedBy);
   for (const e of listed) {
-    const p = ok.find((x) => String(x.id) === String(e.providerAthleteId));
-    if (p) return { team, player: p, basis: `editorial list (${e.source})` };
+    const p = players.find((x) => String(x.id) === String(e.providerAthleteId) && hasLine(x));
+    if (!p) continue;
+    if (p.injuryStatus) return { team, player: p, basis: `editorial list (${e.source})`, verify: `${p.name} is listed ${p.injuryStatus}: confirm he is playing before approving` };
+    return { team, player: p, basis: `editorial list (${e.source})` };
   }
-  const why = listed.length ? `listed player not eligible today (${listed.map((e) => e.name).join(", ")})` : "no editorial entry";
-  const best = [...ok].sort((a, b) => (b.expectedMinutes ?? 0) - (a.expectedMinutes ?? 0) || String(a.id).localeCompare(String(b.id)))[0];
-  return best ? { team, player: best, basis: `most published expected minutes, no injury flag (${why})` } : { team, player: null, basis: `no eligible player (${why})` };
+  const why = listed.length ? `listed player not in today's projections (${listed.map((e) => e.name).join(", ")})` : "no editorial entry";
+  const pool = players.filter((p) => !p.injuryStatus && hasLine(p) && (p.expectedMinutes ?? 0) >= FEATURED_MIN_MINUTES);
+  const best = [...pool].sort((a, b) => b.pts - a.pts || (b.expectedMinutes ?? 0) - (a.expectedMinutes ?? 0) || String(a.id).localeCompare(String(b.id)))[0];
+  return best
+    ? { team, player: best, basis: `highest published projected points, ${FEATURED_MIN_MINUTES}+ projected minutes, no injury designation (${why})` }
+    : { team, player: null, basis: `no eligible player (${why})` };
+}
+
+// ── V2.3 cross-sport: soccer (three outcomes) and design specimens ──────────────────────────────────────────────
+/**
+ * EPL pregame from the published forecast row (home / draw / away). The meter keeps all three outcomes; the label is
+ * Predicted Winner only above 50%, Most Likely Winner when the top outcome is a team under 50%, and Most Likely Result
+ * when the draw is the top outcome. Club colours are not in the repository, so clubs use the neutral GameTimePicks
+ * palette (no invented colours). Not a queue format: EPL has no freeze-time source yet (design review only).
+ */
+export function soccerPregame({ src, eventId, file = "app/public/data/soccer/epl/forecasts/latest.json" }) {
+  const raw = src.read(file);
+  if (raw == null) return { ok: false, reason: `no ${file}` };
+  const row = (JSON.parse(raw).rows ?? []).find((r) => r.eventId === eventId);
+  if (!row) return { ok: false, reason: `${eventId} not in ${file}` };
+  const club = (name, side) => ({ abbr: name.split(/\s+/).map((w) => w[0]).join("").slice(0, 3).toUpperCase(), name, city: "", nickname: name, color: side === "home" ? "#123A2A" : "#1D2733", accent: side === "home" ? "#39FF88" : "#B9BDB4", ink: "#F7F7F2" });
+  const home = club(row.homeClub, "home");
+  const away = club(row.awayClub, "away");
+  const meter = soccerMeter({ probs: row.probs, home, away });
+  if (!meter) return { ok: false, reason: "the published probabilities don't sum to one" };
+  const top = [...meter.segments].sort((a, b) => b.share - a.share)[0];
+  const favouredTeam = top.side === "draw" ? { abbr: "DRAW", name: "Draw", city: "Most likely result", nickname: "Draw", color: "#2A2F2B", accent: "#9AA19A", ink: "#F7F7F2" } : top.side === "home" ? home : away;
+  const winnerLabel = top.side === "draw" ? "Most Likely Result" : top.share > 0.5 ? "Predicted Winner" : "Most Likely Winner";
+  const k = new Date(row.kickoffUtc);
+  return {
+    ok: true, format: "pregame-winner", league: "EPL", spec: SOCIAL_V2_SPEC, eventId, home, away, favouredTeam, winnerLabel, meter, matchweek: row.matchweek ?? null,
+    kickoff: row.kickoffUtc, kickoffLine: kickoffLine(row.kickoffUtc), kickoffDay: ET({ weekday: "long" }).format(k), kickoffTime: `${ET({ hour: "numeric", minute: "2-digit" }).format(k)} ET`, venue: null,
+    evidence: [{ label: "EPL published forecast", ref: `${file}@${src.commit?.slice(0, 12)}`, sha256: sha(raw) }],
+  };
+}
+
+/** A design SPECIMEN (no data source): placeholder identities, never a forecast, never a package. */
+export function designSpecimen({ league, away, home, winner = null, kickoffDay = "Saturday", kickoffTime = "7:00 PM ET" }) {
+  const t = (x) => ({ abbr: x.abbr, name: x.name, city: x.city ?? "", nickname: x.nickname, color: x.color ?? "#1D2733", accent: x.accent ?? "#B9BDB4", ink: "#F7F7F2" });
+  const a = t(away), h = t(home);
+  return {
+    ok: true, format: "pregame-winner", league, specimen: true, eventId: "specimen", away: a, home: h, meter: null,
+    favouredTeam: winner ? (winner === "home" ? h : a) : { abbr: "TBD", name: "No prediction", city: "Design specimen", nickname: "No forecast", color: "#2A2F2B", accent: "#9AA19A", ink: "#F7F7F2" },
+    winnerLabel: winner ? "Predicted Winner" : "No official forecast", kickoffLine: "Design specimen · not a forecast", kickoffDay, kickoffTime, venue: null, evidence: [],
+  };
 }

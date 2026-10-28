@@ -133,8 +133,9 @@ test("V2.1 Sunday Nov 1: a predicted-winner package for all 12 games, and 12 Top
   assert.ok(q.packages.filter((p) => p.kind === "td-top3").every((p) => p.status === "NEEDS_VERIFICATION"), "no TD post is ever READY on its own");
 });
 
-test("V2.1 NBA: predicted winner without probability, non-ranked stat lines, finals; blocked after tip-off", { skip }, async () => {
-  const h = v2Orchestrator({ now: "2026-10-27T14:00:00.000Z", window: { from: "2026-10-27", lookbackFrom: "2026-10-26", to: "2026-11-02" } });
+test("V2.1 NBA: predicted winner without probability, non-ranked stat lines, finals; blocked after tip-off", { skip, timeout: 600_000 }, async () => {
+  // rendered: a game post carries both graphics, so without them it is (rightly) blocked and never proposed
+  const h = v2Orchestrator({ now: "2026-10-27T14:00:00.000Z", window: { from: "2026-10-27", lookbackFrom: "2026-10-26", to: "2026-11-02" }, render: true });
   const r = await h.o.handleCommand("Team, prepare today's content queue", FOUNDER);
   const q = queueOf(h.o, r.commandId);
   const pre = q.packages.filter((p) => p.kind === "nba-pregame");
@@ -145,9 +146,14 @@ test("V2.1 NBA: predicted winner without probability, non-ranked stat lines, fin
   assert.equal(finals.length, 9, "every Oct 26 final");
   assert.ok([...pre, ...finals].every((p) => p.captions.every((c) => c.check.ok)));
   h.o.approveDesign({ template: SOCIAL_TEMPLATE, assetManifest: ASSET_MANIFEST }, FOUNDER);
-  const bos = postsOf(h.o, r.commandId).find((p) => p.package.kind === "nba-pregame");
+  // V2.3: the two NBA graphics are components of one game post — never proposed (or approvable) on their own
+  assert.ok([...pre, ...q.packages.filter((p) => p.kind === "nba-players")].every((p) => p.componentOf === `2026-10-27:NBA:game:${p.eventId}@v2`));
+  assert.equal(postsOf(h.o, r.commandId).filter((p) => ["nba-pregame", "nba-players"].includes(p.package.kind)).length, 0, "no standalone NBA graphic is proposed");
+  const games = postsOf(h.o, r.commandId).filter((p) => p.package.kind === "nba-game");
+  assert.equal(games.length, 4, "one game post per game");
+  const bos = games[0];
   h.setNow("2026-10-28T03:00:00.000Z"); // after every tip-off
-  assert.equal((await h.o.decide({ decisionId: bos.decisionId, verdict: "approve", captionId: "A", digest: bos.options[0].digest }, FOUNDER)).code, "VERIFICATION_CHANGED");
+  assert.equal((await h.o.decide({ decisionId: bos.decisionId, verdict: "approve", captionId: "A", digest: bos.options[0].digest, availabilityConfirmed: true }, FOUNDER)).code, "VERIFICATION_CHANGED");
 });
 
 test("V2.1 postgame captions state TD misses on a correct prediction (CLE @ TEN: 2 of 3, 1 missed)", { skip }, async () => {

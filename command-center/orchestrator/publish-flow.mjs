@@ -34,7 +34,10 @@ import { checkFounder } from "./policy.mjs";
 export const MAX_SPEND_CAP_USD = 25;
 /** The exact words the founder types to authorize live publishing (and its cap). */
 export const liveAuthorizationText = (capUsd) => `I authorize live X publishing up to $${capUsd} per month`;
-const SCHEDULABLE = new Set(["nba-game", "nba-pregame", "nba-players", "pregame-forecast", "td-top3", "top5-board"]);
+// NBA Predicted Winner and stat lines go out together as the game post (V2.3), never on their own
+const SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board"]);
+/** The X scopes a send needs: posting, and media.write whenever the post carries images. */
+export const requiredScopes = (mediaCount) => ["tweet.write", ...(mediaCount ? ["media.write"] : [])];
 const startOf = (pkg) => pkg.tipUtc ?? pkg.kickoffUtc ?? pkg.verification?.kickoffUtc ?? pkg.firstKickoffUtc ?? null;
 const mediaOf = (pkg) => pkg.mediaSet ?? (pkg.media ? [pkg.media] : []);
 const monthOf = (iso) => iso.slice(0, 7);
@@ -131,7 +134,7 @@ export function createPublishFlow(ctx) {
     const rec = recordOf(decisionId);
     if (!rec) return { ok: false, code: "UNKNOWN_POST", detail: decisionId };
     const pkg = rec.package;
-    if (!SCHEDULABLE.has(pkg.kind)) return { ok: false, code: "NOT_SCHEDULABLE", detail: `${pkg.kind} posts are published by hand` };
+    if (!SCHEDULABLE.has(pkg.kind)) return { ok: false, code: "NOT_SCHEDULABLE", detail: pkg.kind === "nba-pregame" || pkg.kind === "nba-players" ? "NBA graphics go out together as the game post: schedule the game post" : `${pkg.kind} posts are published by hand` };
     if (rec.resolution?.verdict !== "approve" || rec.invalidated) return { ok: false, code: "NOT_APPROVED", detail: "only an approved, current post can be scheduled" };
     if (rec.receipt) return { ok: false, code: "ALREADY_PUBLISHED", detail: rec.receipt.canonicalUrl };
     const start = startOf(pkg);
@@ -217,7 +220,10 @@ export function createPublishFlow(ctx) {
     if (live) {
       if (trigger === "schedule" && pol.mode !== "live") return refuse("LIVE_NOT_AUTHORIZED", "scheduled publishing is in dry-run mode");
       if (!(pol.capUsd > 0)) return refuse("SPEND_NOT_AUTHORIZED", "no monthly spend cap is authorized");
-      if (!ctx.oauth || !(await ctx.oauth.status()).connected) return refuse("X_NOT_CONNECTED", "connect the X account");
+      const xs = ctx.oauth ? await ctx.oauth.status() : { connected: false };
+      if (!xs.connected) return refuse("X_NOT_CONNECTED", "connect the X account");
+      const missing = requiredScopes(media.length).filter((sc) => !(xs.scopes ?? []).includes(sc));
+      if (missing.length) return refuse("X_SCOPE_MISSING", `the connected X account did not grant ${missing.join(", ")}: reconnect X and allow it (images can't be uploaded without media.write)`, "critical");
     }
     const provider = createXPublisher({ mode: live ? "live" : "dry-run", oauth: ctx.oauth, fetch: ctx.fetch, readMedia: (f) => fs.readFileSync(path.join(ctx.mediaDir, path.basename(f))), sendBefore: start, clock });
     const bundle = { text: option.text, media: media.map((m) => ({ file: path.basename(m.file), sha256: m.sha256 })) };

@@ -1,8 +1,8 @@
 {
   "schema": "gtp.cc.asset-manifest@1",
-  "manifestVersion": "gtp-social@2.1-assets.1",
-  "template": "gtp-social@2.1",
-  "status": "PRODUCTION DESIGN (founder approved the V2.1 direction 2026-10-28; each post still needs its own approval)",
+  "manifestVersion": "gtp-social@2.3-assets.1",
+  "template": "gtp-social@2.3",
+  "status": "PROTOTYPE gtp-social@2.3 — needs the founder's design approval (the 2.2.1 approval does not carry over); each post still needs its own approval",
   "assets": [
     {
       "id": "gtp-logo",
@@ -19,7 +19,7 @@
       "path": "app/src/lib/simulation-theater/nfl-team-colors.mjs",
       "evidence": "app/src/lib/simulation-theater/nfl-team-colors-evidence.json",
       "evidenceSha256": "d6cbc3944efae924887cd095619c86d37529ccfa67e218855a138c1ac2b1d7c5",
-      "provenance": "Hex values cross-checked against public colour references (evidence accessed 2026-10-18; dev-route-colors.test.mjs recomputes every flag). Colours only \u2014 no logo, wordmark or uniform artwork.",
+      "provenance": "Hex values cross-checked against public colour references (evidence accessed 2026-10-18; dev-route-colors.test.mjs recomputes every flag). Colours only — no logo, wordmark or uniform artwork.",
       "rights": "colours alone; club names and abbreviations used nominatively to identify the teams in a factual result, with a non-affiliation line on every graphic. Trademark review before public use is a founder decision."
     },
     {
@@ -70,6 +70,13 @@
       "path": "command-center/render/fonts/BarlowCondensed-SemiBold.ttf",
       "sha256": "7b619d14bc2327509a9ef32b0890f709626f7ecc9ff61191c2a4314c5499d2d9",
       "rights": "SIL Open Font License 1.1 (render/fonts/OFL-*.txt), Copyright 2017 The Barlow Project Authors; bundled and inlined, no system font"
+    },
+    {
+      "id": "x-mark",
+      "kind": "platform-mark",
+      "path": "command-center/render/social-v2.mjs (X_MARK, inline vector)",
+      "provenance": "The X logo as published in X's brand toolkit, drawn as one vector path; used only to identify the @GameTimePicksHQ account, unmodified, in white.",
+      "rights": "X brand guidelines allow the logo to reference an X account; no alteration, no implied endorsement."
     }
   ],
   "notUsed": [
@@ -89,5 +96,12 @@
       "kind": "jersey numbers / uniforms",
       "reason": "not shown"
     }
-  ]
+  ],
+  "teamLogos": {
+    "_rule": "Only LICENSED logos may be listed here: { file (repo path), sha256, rights, licensor, grantedAt }. Hot-linked or scraped images (e.g. a sports-media CDN) are never used. Empty = every team shows its monogram (team abbreviation in team colours).",
+    "NBA": {},
+    "NFL": {},
+    "MLB": {},
+    "EPL": {}
+  }
 }

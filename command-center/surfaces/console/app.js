@@ -390,10 +390,11 @@
     if (p.lifecycle === "superseded") return `<div class="muted">A newer queue proposed this post again; decide there.</div>`;
     if (p.lifecycle === "drafted") {
       const designOk = p.designApproved !== false;
-      const ready = designOk && (pkg.status === "READY" || pkg.kind === "x-reply" || pkg.kind === "td-top3");
+      const ready = designOk && (pkg.status === "READY" || pkg.kind === "x-reply" || pkg.kind === "td-top3" || (pkg.kind === "nba-game" && pkg.status === "NEEDS_VERIFICATION" && pkg.availabilityCheck?.length));
       const why = !designOk ? "Approve the design first" : `Not approvable: ${esc(STATUS_LABEL[pkg.status] ?? pkg.status)}`;
       return `${pkg.kind === "x-reply" ? `<label class="confirm"><input type="checkbox" data-confirm="${id}" ${ui.drafts[`confirm:${p.decisionId}`] ? "checked" : ""}> I opened the cited posts and they say what the finding claims</label>` : ""}
         ${pkg.kind === "td-top3" ? `<label class="confirm"><input type="checkbox" data-avail="${id}" ${ui.drafts[`avail:${p.decisionId}`] ? "checked" : ""}> I confirmed all three players are active and in their expected roles</label>` : ""}
+        ${pkg.kind === "nba-game" && pkg.availabilityCheck?.length ? `<label class="confirm"><input type="checkbox" data-avail="${id}" ${ui.drafts[`avail:${p.decisionId}`] ? "checked" : ""}> I confirmed the featured players are playing (${esc(pkg.availabilityCheck.join("; "))})</label>` : ""}
         <div class="row actions">
           <button class="btn ${ready ? "primary" : ""}" data-post-approve="${id}" ${ready ? "" : "disabled"}>${ready ? "Approve this caption" : why}</button>
           <button class="btn" data-post-verdict="reject" data-post="${id}">Reject</button>
@@ -423,7 +424,7 @@
     }
     return `<div class="blocked">${esc(LIFE_LABEL[p.lifecycle])}${p.resolution?.note ? ` · “${esc(p.resolution.note)}”` : ""}</div>`;
   }
-  const PUB_SCHEDULABLE = new Set(["nba-game", "nba-pregame", "nba-players", "pregame-forecast", "td-top3", "top5-board"]);
+  const PUB_SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board"]);
   const JOB_LABEL = { scheduled: "Scheduled", dry_run: "Dry run done", published: "Published", refused: "Refused", failed_not_sent: "Failed (not sent)", unknown: "Outcome unknown — reconcile", missed: "Missed (after start)", cancelled: "Cancelled" };
   /** X Publisher V1 controls on an approved post: schedule (default 45 min before tip), dry run, one live test. */
   function publishControls(p) {
@@ -448,6 +449,7 @@
     return `<div class="pubbar ${pub.paused ? "blocked" : "receipt"}">
       <div><b>X publishing:</b> ${pub.mode === "live" ? `LIVE (scheduled), cap $${esc(pub.capUsd)}/month, $${esc(pub.spentThisMonthUsd)} spent` : "DRY RUN — nothing is sent to X"} · ${pub.paused ? "<b>PAUSED</b>" : "running"} · scheduler ${pub.lastTick ? `ticked ${esc(time(pub.lastTick))}` : `every ${esc(pub.schedulerIntervalSec ?? 30)} s`}</div>
       <div>X account: ${x.connected ? `connected (${esc((x.scopes ?? []).join(", "))}) · token refreshes ${x.refreshable ? "automatically" : "— reconnect needed"}` : x.clientConfigured ? "not connected" : "app Client ID not set (see docs/x-publisher-setup.md)"} · callback <code>${esc(x.redirectUri ?? "")}</code></div>
+      ${x.connected && !(x.scopes ?? []).includes("media.write") ? `<div class="blocked"><b>X did not grant media.write.</b> Images can't be uploaded, so no game post can go out live. Disconnect X, check the app has Read and write permissions in the X Developer Console, then Connect again and allow every permission.</div>` : ""}
       <div class="row actions">
         <button class="btn small ${pub.publishingPaused ? "primary" : ""}" data-pub="${pub.publishingPaused ? "resume" : "pause"}">${pub.publishingPaused ? "Resume publishing" : "Pause publishing"}</button>
         ${x.clientConfigured ? `<button class="btn small" data-pub="${x.connected ? "x-disconnect" : "x-connect"}">${x.connected ? "Disconnect X" : "Connect X account"}</button>` : ""}
@@ -472,6 +474,58 @@
       ${postActions(p)}
     </article>`;
   }
+  /** One status a person can read at a glance; "Sent" only with a real X receipt — a dry run is never "sent". */
+  function gameState(p, job) {
+    if (p.receipt) return ["Sent", "life-published"];
+    if (p.lifecycle === "superseded") return ["Superseded", "life-superseded"];
+    if (p.package.status === "BLOCKED" || ["refused", "missed", "unknown", "failed_not_sent"].includes(job?.status)) return [job?.status === "unknown" ? "Outcome unknown — reconcile" : "Blocked / held", "life-rejected"];
+    if (job?.status === "scheduled") return [`Scheduled ${new Date(job.dueAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`, "life-scheduled"];
+    if (p.lifecycle === "approved") return [job?.status === "dry_run" ? "Approved · dry run passed (not sent)" : "Approved", "life-approved"];
+    if (["rejected", "revise", "deferred"].includes(p.lifecycle)) return [LIFE_LABEL[p.lifecycle], "life-rejected"];
+    return [p.package.status === "NEEDS_VERIFICATION" ? "Ready to review · confirm availability" : "Ready to review", "life-drafted"];
+  }
+  /** V2.3 default view: today's NBA game posts — one card per game, soonest scheduled first. */
+  function renderGamePosts(s) {
+    const today = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date());
+    const all = (s.posts ?? []).filter((p) => p.package?.kind === "nba-game" && p.lifecycle !== "superseded");
+    const day = [...new Set(all.map((p) => p.date))].sort().find((d) => d >= today) ?? [...new Set(all.map((p) => p.date))].sort().at(-1);
+    const games = all.filter((p) => p.date === day);
+    if (!games.length) return "";
+    const jobs = s.publishing?.jobs ?? [];
+    const jobOf = (p) => jobs.find((j) => j.decisionId === p.decisionId);
+    const when = (p) => jobOf(p)?.dueAt ?? p.package.suggestedPublishAt ?? p.package.tipUtc ?? "9999";
+    games.sort((a, b) => String(when(a)).localeCompare(String(when(b))));
+    const et = (iso) => (iso ? new Date(iso).toLocaleTimeString("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" }) + " ET" : "—");
+    const count = (label) => games.filter((p) => gameState(p, jobOf(p))[0].startsWith(label)).length;
+    return `<details class="cal-day game-day" open><summary><b>${esc(day === today ? "Today's" : new Date(`${day}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "long", timeZone: "UTC" }))} NBA game posts</b> · ${num(games.length)} game(s) · ${num(count("Ready"))} to review · ${num(count("Approved"))} approved · ${num(count("Scheduled"))} scheduled · ${num(count("Sent"))} sent · ${num(count("Blocked"))} held</summary>
+      <div class="muted">One X post per game: the Predicted Winner graphic and the projected stat lines together, one caption. The separate NBA graphics are part of these posts and can't be approved or sent on their own.</div>
+      ${games.map((p) => {
+        const pkg = p.package;
+        const job = jobOf(p);
+        const [state, cls] = gameState(p, job);
+        const check = p.checks.filter((c) => c.phase === "pre-publish").at(-1);
+        return `<article class="post decision gamecard ${postOpen(p) ? "open" : ""}" id="post-${esc(p.decisionId)}">
+          <div class="slot-head"><span class="tag life ${cls}">${esc(state)}</span><span class="tag">NBA game post</span><span class="tag ${p.designApproved ? "life-published" : "life-drafted"}">${esc(pkg.template)}${p.designApproved ? " · design ✓" : " · design not approved"}</span></div>
+          <div class="q">${esc(pkg.title.split(":")[0])}</div>
+          <div class="kv gamekv">
+            <span>Event ID</span><span><code>${esc(pkg.eventId)}</code></span>
+            <span>Tip-off</span><span>${esc(et(pkg.tipUtc))}</span>
+            <span>Post time</span><span>${esc(et(job?.dueAt ?? pkg.suggestedPublishAt))}${job?.status === "scheduled" ? " (scheduled)" : " (45 min before tip, not scheduled yet)"}</span>
+            <span>Data</span><span>commit <code>${esc(String(pkg.dataCommit ?? "").slice(0, 10))}</code>${pkg.forecastVersion ? ` · forecast frozen ${esc(new Date(pkg.forecastVersion.frozenAt).toLocaleString())} · receipt <code>${esc(String(pkg.forecastVersion.receiptPayloadSha256 ?? "").slice(0, 10))}</code>` : ""}</span>
+            <span>Freshness</span><span>${check ? `${esc(check.status)} at ${esc(time(check.checkedAt))}${check.reasons?.length ? ` — ${esc(check.reasons.join("; "))}` : ""}` : "not checked yet (re-checked automatically before any send)"}</span>
+            <span>Meter</span><span>${pkg.meterKey ? esc(pkg.meterKey.replace(/\|/g, " · ")) : "winner only (no eligible published estimate)"}</span>
+            <span>X</span><span>${job ? esc(JOB_LABEL[job.status] ?? job.status) : "not scheduled"}${p.receipt ? ` · ${xLink(p.receipt.canonicalUrl)}` : ""}</span>
+          </div>
+          ${pkg.mediaSet ? `<div class="media-set">${pkg.mediaSet.map((m, i) => `<figure><img src="/media/${encodeURIComponent(m.file)}" alt="${esc(m.altText ?? "")}" data-zoom loading="lazy"><figcaption class="muted">Image ${i + 1}: ${i === 0 ? "Predicted Winner" : "Projected stat lines"}</figcaption></figure>`).join("")}</div>` : ""}
+          ${(pkg.reasons ?? []).length ? `<ul class="warns">${pkg.reasons.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>` : ""}
+          ${pkg.featured?.length ? `<div class="muted">Featured: ${pkg.featured.map((f) => `<b>${esc(f.name ?? "none")}</b> (${esc(f.team)}) — ${esc(f.basis)}`).join(" · ")}. A caption highlight, not a ranking.</div>` : ""}
+          ${postCaptions(p)}
+          ${evidenceList(pkg)}
+          ${postActions(p)}
+        </article>`;
+      }).join("")}
+    </details>`;
+  }
   function renderQueue(s) {
     const posts = (s.posts ?? []).filter((p) => p.lifecycle !== "superseded");
     const open = posts.filter(postOpen).length;
@@ -483,7 +537,7 @@
     const dates = [...all.filter((d) => d >= today), ...all.filter((d) => d < today).reverse()];
     // Up next: every open upcoming post (priority 1), soonest start first, ahead of anything else; catch-up last.
     const startOf = (k) => k.startUtc ?? k.verification?.kickoffUtc ?? k.kickoffUtc ?? k.tipUtc ?? k.firstKickoffUtc ?? "9999";
-    const upNext = posts.filter((p) => postOpen(p) && p.package.priority === 1).sort((a, b) => String(startOf(a.package)).localeCompare(String(startOf(b.package))) || a.postId.localeCompare(b.postId));
+    const upNext = posts.filter((p) => postOpen(p) && p.package.priority === 1 && p.package.kind !== "nba-game").sort((a, b) => String(startOf(a.package)).localeCompare(String(startOf(b.package))) || a.postId.localeCompare(b.postId));
     const upIds = new Set(upNext.map((p) => p.decisionId));
     const inv = s.inventory;
     const openDay = dates.find((d) => posts.some((p) => p.date === d && postOpen(p))) ?? dates[0];
@@ -494,11 +548,12 @@
       ${dz.approved ? "" : `<div class="row" style="margin-top:6px"><button class="btn" data-design="1">Approve this design version</button></div>`}</div>` : "";
     return `<h2>Content queue <span class="count">${num(open)} open</span></h2>${designBar}${publishingBar(s.publishing)}
       ${inv ? `<div class="muted">Open: ${num(inv.open)} · ${num(inv.byStatus.READY ?? 0)} ready · ${num(inv.byStatus.NEEDS_VERIFICATION ?? 0)} need verification · ${num(inv.byStatus.BLOCKED ?? 0)} blocked · ${num(inv.graphics)} with graphics</div>` : ""}
-      ${upNext.length ? `<details class="cal-day" open><summary><b>Up next</b> · ${num(upNext.length)} upcoming post(s), soonest first</summary>${upNext.map(postCard).join("")}</details>` : ""}
+      ${renderGamePosts(s)}
+      ${upNext.length ? `<details class="cal-day"><summary><b>Up next (other posts)</b> · ${num(upNext.length)} upcoming post(s), soonest first</summary>${upNext.map(postCard).join("")}</details>` : ""}
       <div class="cal-totals">${Object.entries(counts).map(([k, v]) => `<span class="tag life life-${esc(k)}">${esc(LIFE_LABEL[k])} ${num(v)}</span>`).join("")}</div>
       <div class="muted">Each post is approved on its own and published by you on X; the Command Center never posts.${latest?.file ? ` · <a href="/${esc(latest.file)}" target="_blank" rel="noopener">Queue export</a>` : ""}</div>
       ${dates.map((d) => `<details class="cal-day" ${d === openDay && !upNext.length ? "open" : ""}><summary><b>${esc(new Date(`${d}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric", timeZone: "UTC" }))}</b> · ${num(posts.filter((p) => p.date === d).length)} post(s) · ${num(posts.filter((p) => p.date === d && postOpen(p)).length)} open</summary>
-        ${posts.filter((p) => p.date === d && !upIds.has(p.decisionId) && p.package.priority !== 3).sort((a, b) => (a.package.priority ?? 2) - (b.package.priority ?? 2)).map(postCard).join("")}</details>`).join("")}
+        ${posts.filter((p) => p.date === d && !upIds.has(p.decisionId) && p.package.priority !== 3 && p.package.kind !== "nba-game").sort((a, b) => (a.package.priority ?? 2) - (b.package.priority ?? 2)).map(postCard).join("")}</details>`).join("")}
       ${posts.some((p) => p.package.priority === 3) ? `<details class="cal-day"><summary><b>Catch-up (older results)</b> · ${num(posts.filter((p) => p.package.priority === 3).length)}</summary>${posts.filter((p) => p.package.priority === 3).map(postCard).join("")}</details>` : ""}
       ${latest?.q?.skipped?.length ? `<details class="cal-day"><summary><b>Not in the ${esc(latest.q.date)} queue</b> · ${num(latest.q.skipped.length)}</summary><ul>${latest.q.skipped.map((x) => `<li><span class="st st-${esc(x.status)}">${esc(STATUS_LABEL[x.status] ?? x.status)}</span> ${esc(x.sport)} · ${esc(x.opportunity)} — <span class="muted">${esc(x.reason)}</span></li>`).join("")}</ul></details>` : ""}`;
   }
@@ -860,7 +915,7 @@
       t.disabled = true;
       const r = await post("/api/decide", { decisionId: p.decisionId, verdict: "approve", captionId, digest: opt.digest,
         ...(p.package.kind === "x-reply" ? { sourcesConfirmed: Boolean(ui.drafts[`confirm:${p.decisionId}`]) } : {}),
-        ...(p.package.kind === "td-top3" ? { availabilityConfirmed: Boolean(ui.drafts[`avail:${p.decisionId}`]) } : {}) });
+        ...(p.package.kind === "td-top3" || (p.package.kind === "nba-game" && p.package.availabilityCheck?.length) ? { availabilityConfirmed: Boolean(ui.drafts[`avail:${p.decisionId}`]) } : {}) });
       if (r.ok && r.next) alert(r.next);
       if (!r.ok && !r.duplicate) { t.disabled = false; alert(`${r.code}: ${r.detail ?? ""}`); }
       return;

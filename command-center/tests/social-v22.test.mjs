@@ -32,7 +32,7 @@ test("the one footer per sport: exact text, and nothing else", () => {
   });
   assert.equal(disclosureFor("UFC"), DISCLOSURES.UFC);
   assert.throws(() => disclosureFor("NHL"), /no disclosure configured/, "an unconfigured sport gets no graphic");
-  assert.equal(SOCIAL_TEMPLATE, "gtp-social@2.2.1", "every visual change is a new template version, so an earlier design approval (V2.1, 2.2) does not carry over");
+  assert.equal(SOCIAL_TEMPLATE, "gtp-social@2.3", "every visual change is a new template version, so an earlier design approval (V2.1, 2.2, 2.2.1) does not carry over");
 });
 
 test("NBA (all 12 Oct 28 games): one footer, no removed provenance text, one name size per table, values unchanged", { skip: skipSlate }, async () => {
@@ -93,14 +93,22 @@ test("name formatting: suffixes, hyphens, particles, initials and duplicate shor
   assert.deepEqual(formsForGroup(["Jalen Williams", "Jaylin Williams"]), [["Jalen Williams"], ["Jaylin Williams"]], "two players never share a short form");
 });
 
-test("featured players: the editorial list first, else most published minutes; never injured, never outside the graphic", () => {
-  const P = (id, name, mins, inj = null) => ({ id, name, pts: "10.0", reb: "5.0", ast: "3.0", expectedMinutes: mins, injuryStatus: inj });
-  const mia = [P("1", "Davion Mitchell", 27.3), P("4066261", "Bam Adebayo", 27.2)];
+test("featured players (V2.3 policy): editorial list first; an injury designation holds for confirmation; else the leading projected scorer with real minutes", () => {
+  const P = (id, name, mins, pts, inj = null) => ({ id, name, pts, reb: "5.0", ast: "3.0", expectedMinutes: mins, injuryStatus: inj });
+  const mia = [P("1", "Davion Mitchell", 27.3, "10.8"), P("4066261", "Bam Adebayo", 27.2, "14.3")];
   assert.equal(featuredFor("nba", "MIA", mia).player.name, "Bam Adebayo");
   assert.match(featuredFor("nba", "MIA", mia).basis, /editorial list/);
-  assert.equal(featuredFor("nba", "MIA", [P("1", "Davion Mitchell", 27.3), P("4066261", "Bam Adebayo", 27.2, "Day-To-Day")]).player.name, "Davion Mitchell", "a listed player with an injury flag is not featured");
-  assert.equal(featuredFor("nba", "BOS", [P("9", "A B", 20), P("8", "C D", 30, "Questionable"), P("7", "E F", 25)]).player.name, "E F");
-  assert.equal(featuredFor("nba", "BOS", [P("8", "C D", 30, "Out")]).player, null);
+  assert.equal(featuredFor("nba", "MIA", mia).verify, undefined);
+  // a listed player with an injury designation stays featured, and the post is held for the founder's confirmation
+  const dtd = featuredFor("nba", "MIA", [P("1", "Davion Mitchell", 27.3, "10.8"), P("4066261", "Bam Adebayo", 27.2, "14.3", "Day-To-Day")]);
+  assert.equal(dtd.player.name, "Bam Adebayo");
+  assert.match(dtd.verify, /Bam Adebayo is listed Day-To-Day: confirm he is playing/);
+  // fallback: the highest projected points among 20+ minute players with no designation — not the most minutes
+  const bos = [P("9", "Minutes Man", 34, "9.0"), P("8", "Hurt Scorer", 30, "25.0", "Day-To-Day"), P("7", "Bench Scorer", 12, "18.0"), P("6", "Lead Scorer", 29, "21.4")];
+  const f = featuredFor("nba", "BOS", bos);
+  assert.equal(f.player.name, "Lead Scorer");
+  assert.match(f.basis, /highest published projected points, 20\+ projected minutes, no injury designation/);
+  assert.equal(featuredFor("nba", "BOS", [P("8", "C D", 30, "20.0", "Out")]).player, null);
 });
 
 test("captions: real line breaks, X-weighted length, featured players, and the fingerprint follows the caption", { skip: skipSlate }, () => {

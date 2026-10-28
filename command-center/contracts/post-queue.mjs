@@ -55,7 +55,9 @@ export function checkCaption(text, pkg) {
   const problems = [];
   const allowed = new Set(pkg.claims.flatMap((c) => numbersIn(c.display)));
   for (const n of numbersIn(text)) if (!allowed.has(n)) problems.push({ code: REASON.UNTRACEABLE_NUMBER, detail: `"${n}" is not in this post's evidence` });
-  const plain = String(text).replace(/\bnot betting advice\b/gi, "");
+  // Founder-approved phrase (V2.3, 2026-10-28): "Our model picks <team> to win" states the published winner; "picks"
+  // stays forbidden everywhere else ("our picks", "free picks", "lock").
+  const plain = String(text).replace(/\bnot betting advice\b/gi, "").replace(/\bour model picks\b(?=[^\n]{1,40}\bto win\b)/gi, "");
   for (const t of [...FORBIDDEN_TERMS, ...EXTRA_FORBIDDEN]) if (new RegExp(`\\b${escapeRe(t)}\\b`, "i").test(plain)) problems.push({ code: REASON.FORBIDDEN_TERM, detail: `"${t}"` });
   if (/https?:\/\/|www\.|\b[a-z0-9-]+\.(com|net|org|io|co)\b/i.test(text)) problems.push({ code: REASON.URL_IN_CAPTION, detail: "no links in post text" });
   if (xLength(text) > MAX_CAPTION) problems.push({ code: REASON.TOO_LONG, detail: `${xLength(text)} > ${MAX_CAPTION} (X-weighted length)` });
@@ -78,6 +80,8 @@ export function publishBundleOf(pkg, caption) {
     mediaSha256: pkg.media?.sha256 ?? null,
     // a multi-image post binds every image, in order
     ...(pkg.mediaSet ? { mediaSetSha256: sha256(pkg.mediaSet.map((m) => m.sha256).join("|")) } : {}),
+    // V2.3 game post: the event, the forecast version (freeze + receipt hash) and the requested publishing time are bound
+    ...(pkg.kind === "nba-game" ? { eventId: pkg.eventId, forecastVersion: pkg.forecastVersion ?? null, requestedPublishAt: pkg.suggestedPublishAt ?? null, featuredKey: pkg.featuredKey ?? null } : {}),
     claimsDigest: digestOf(pkg.claims),
     // The verified VERSION (file, hash, numbers) — never the check's timestamp, which changes on every build.
     verificationDigest: pkg.verification ? digestOf({ version: pkg.verification.version ? { path: pkg.verification.version.path, sha256: pkg.verification.version.sha256, numbers: pkg.verification.version.numbers } : null, kickoffUtc: pkg.verification.kickoffUtc ?? null }) : null,

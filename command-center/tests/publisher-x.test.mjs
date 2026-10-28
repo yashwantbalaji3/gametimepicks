@@ -183,7 +183,8 @@ test("NBA game posts: one per game, both graphics bound in the fingerprint, feat
   assert.equal(g.package.suggestedPublishAt, "2026-10-28T22:15:00.000Z");
   const a = g.options.find((x) => x.captionId === "A");
   assert.ok(a.publishBundle.mediaSetSha256, "both images are in what is approved");
-  assert.match(a.text, /Our predicted winner: the Hawks\./);
+  assert.match(a.text, /^🏀 Miami Heat vs Atlanta Hawks tonight!\n\nOur model picks Atlanta to win\.\n\nTwo players to watch:\n/, "the founder's V2.3 caption style");
+  assert.match(a.text, /\n\nFull predictions below 👇$/);
   assert.match(a.text, /🔥 Bam Adebayo: 14\.3 PTS \| 8\.8 REB \| 3\.5 AST\n🔥 Jalen Johnson: 14\.2 PTS \| 6\.5 REB \| 3\.7 AST/);
   assert.doesNotMatch(games.map((p) => p.options.map((x) => x.text).join(" ")).join(" "), /%|odds|bet/i, "no NBA probability, no betting words");
   assert.ok(games.every((p) => p.options.every((x) => x.check.ok && xLength(x.text) <= 280)));

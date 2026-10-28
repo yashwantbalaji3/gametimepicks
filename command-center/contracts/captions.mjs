@@ -107,21 +107,22 @@ export const captionsFor = {
     ]);
   },
   /**
-   * One post per game carrying both graphics (Predicted Winner + projected stat lines). `pre` and `players` are the two
-   * verified view-models; the players named are the featured ones (a caption highlight, not a ranking). Full team
-   * names when they fit X's 280, nicknames otherwise — never a truncated line.
+   * One post per game carrying both graphics (founder V2.3 style): both teams, the published winner, one featured
+   * player per team with his published line, real line breaks. The players are a caption highlight (featuredFor policy),
+   * never a ranking. Full team names when they fit X's 280, nicknames otherwise — never a truncated line.
    */
   nbaGame({ pre, players }) {
     const fav = pre.favouredTeam;
     const w = when(players.tipUtc);
     const ps = players.featured.map((f) => f.player).filter(Boolean);
     const lines = ps.map((p) => `🔥 ${p.name}: ${p3(p)}`).join("\n");
-    const who = ps.length ? `\n\n${ps.length > 1 ? "Players to watch" : "One to watch"}, by our model's projections:\n${lines}` : "";
-    const head = (a, h) => `🏀 ${a} vs ${h} ${w}\n\nOur predicted winner: the ${fav.nickname}.${who}`;
+    const who = ps.length ? `\n\n${ps.length > 1 ? "Two players to watch" : "One player to watch"}:\n${lines}` : "";
     const pick = (full, short) => (xLengthOf(full) <= 280 ? full : short);
+    const a = (aw, hm) => `🏀 ${aw} vs ${hm} ${w}!\n\nOur model picks ${placeOf(fav)} to win.${who}\n\nFull predictions below 👇`;
+    const b = (aw, hm) => `🏀 ${aw} at ${hm} ${w}\n\nOur model picks the ${fav.nickname} to win.${who}\n\nWho are you taking? 👀`;
     return rotate(players.eventId, [
-      { tone: "game", text: pick(`${head(players.away.name, players.home.name)}\n\nFull projections below 👇`, `${head(players.away.nickname, players.home.nickname)}\n\nFull projections below 👇`) },
-      { tone: "short game", text: pick(`${head(players.away.nickname, players.home.nickname)}\n\nWho are you taking? 👀`, `${head(players.away.abbr, players.home.abbr)}\n\nWho are you taking? 👀`) },
+      { tone: "game", text: pick(a(players.away.name, players.home.name), a(players.away.nickname, players.home.nickname)) },
+      { tone: "short game", text: pick(b(players.away.nickname, players.home.nickname), b(players.away.abbr, players.home.abbr)) },
     ]);
   },
   nbaFinal(m) {

@@ -18,6 +18,8 @@ export const V2 = "@v2";
 export const baseIdOf = (postId) => String(postId).replace(/@v\d+$/, "");
 const claim = (key, display, evidenceRef) => ({ key, display: String(display), evidenceRef });
 const ref0 = (m) => m.evidence?.[0]?.ref ?? null;
+/** V2.3: every number on the matchup meter is a claim of the package (traceable, and bound by the fingerprint). */
+const meterClaims = (m, r) => (m.meter?.segments ?? []).map((s) => claim(`meter.${s.side}`, `${s.name} ${s.display}`, r));
 /** Join list items into one caption that fits 280, dropping trailing items (never truncating one). */
 function fit(head, items, tail, sep = " · ") {
   for (let n = items.length; n >= 1; n--) {
@@ -33,7 +35,7 @@ export function nflPregamePackage({ date, m, verification, extra, slotId = "stan
   const r = ref0(m);
   const claims = [
     claim("kickoff", m.kickoffLine, r), claim("frozenAt", m.frozenLine, r),
-    claim("winProbability", m.winProbabilityDisplay, r), claim("predictedWinner", m.favouredTeam.name, r),
+    claim("winProbability", m.winProbabilityDisplay, r), claim("predictedWinner", m.favouredTeam.name, r), ...meterClaims(m, r),
   ];
   const fav = m.favouredTeam;
   const captions = captionsFor.nflPregame(m);
@@ -103,12 +105,13 @@ export function nflPostgamePackage({ date, m, extra, slotId = "standing:nfl-post
 /** NBA pregame — predicted winner only; no probability is published for NBA. */
 export function nbaPregamePackage({ date, m, extra, laneDate, priority = 1 }) {
   const r = ref0(m);
-  const claims = [claim("tip", m.tipLine, r), claim("predictedWinner", m.favouredTeam.name, r), claim("frozenAt", m.frozenShort, r)];
+  const claims = [claim("tip", m.tipLine, r), claim("predictedWinner", m.favouredTeam.name, r), claim("frozenAt", m.frozenShort, r), ...meterClaims(m, r)];
   const captions = captionsFor.nbaPregame(m);
   const fresh = laneDate === date;
   return {
     ...base(m, extra), postId: `${date}:NBA:pregame:${m.eventId}${V2}`, slotId: "standing:nba-pregame", date, sport: "NBA", kind: "nba-pregame", format: "nba-pregame",
-    title: `${m.away.abbr} @ ${m.home.abbr}: ${TERMS.predictedWinner}`, eventId: m.eventId, priority, tipUtc: m.tipUtc, favoured: m.favouredTeam.abbr, laneDate,
+    title: `${m.away.abbr} @ ${m.home.abbr}: ${m.winnerLabel ?? TERMS.predictedWinner}`, eventId: m.eventId, priority, tipUtc: m.tipUtc, favoured: m.favouredTeam.abbr, laneDate,
+    forecastVersion: m.forecastVersion ?? null, meterKey: m.meter ? m.meter.segments.map((s) => `${s.side}:${s.display}`).join("|") : null,
     status: fresh ? POST_STATUS.READY : POST_STATUS.BLOCKED, reasons: fresh ? [] : [`the NBA public lane at the data commit is for ${laneDate}, not ${date}`], claims, captions, noForecastClaims: true,
   };
 }
@@ -144,17 +147,22 @@ export function nbaGamePackage({ date, pre, players, extra, laneDate, priority =
   const mediaSet = both.every((p) => p.media) ? both.map((p) => ({ file: p.media.file, sha256: p.media.sha256, width: p.media.width, height: p.media.height, format: p.format, altText: p.media.altText })) : null;
   const reasons = [...blocked.flatMap((p) => p.reasons.map((r) => `${p.format}: ${r}`)), ...(mediaSet ? [] : ["both graphics are needed for a game post"])];
   const tip = Date.parse(players.tipUtc);
+  // a featured player with an injury designation holds the post for the founder's availability confirmation
+  const verify = players.featured.map((f) => f.verify).filter(Boolean);
+  const status = reasons.length ? POST_STATUS.BLOCKED : verify.length ? POST_STATUS.VERIFY : POST_STATUS.READY;
   return {
     ...base(players.model, extra), preModel: pre.model,
     postId: `${date}:NBA:game:${players.eventId}${V2}`, slotId: "standing:nba-game", date, sport: "NBA", kind: "nba-game", format: "nba-game",
     title: `${players.model.away.abbr} @ ${players.model.home.abbr}: game post (Predicted Winner + projected stat lines)`, eventId: players.eventId, priority,
     tipUtc: players.tipUtc, laneDate, favoured: pre.favoured, playersKey: players.playersKey, featured: players.featured,
+    forecastVersion: pre.forecastVersion ?? null, meterKey: pre.meterKey ?? null, availabilityCheck: verify.length ? verify : null,
     featuredKey: players.featured.map((f) => `${f.team}:${f.id ?? "-"}`).join("|"),
     suggestedPublishAt: Number.isFinite(tip) ? new Date(tip - NBA_GAME_LEAD_MIN * 60_000).toISOString() : null,
     media: mediaSet ? pre.media : null, mediaSet,
     evidence: [...(pre.evidence ?? []), ...(players.evidence ?? [])].filter((e, i, a) => a.findIndex((x) => x.ref === e.ref) === i),
-    status: reasons.length ? POST_STATUS.BLOCKED : POST_STATUS.READY, reasons,
-    claims: [...pre.claims, ...players.claims], captions: captionsFor.nbaGame({ pre: pre.model, players: players.model }), noForecastClaims: true,
+    status, reasons: [...reasons, ...verify],
+    // the game post states the published winner (a claim of its first graphic), so it is not a "no forecast" post
+    claims: [...pre.claims, ...players.claims], captions: captionsFor.nbaGame({ pre: pre.model, players: players.model }),
   };
 }
 

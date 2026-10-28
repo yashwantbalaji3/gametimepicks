@@ -326,3 +326,80 @@ body.res-miss .frame { border: 4px solid rgba(255,178,63,.9); box-shadow: 0 0 60
 /* Top 3 feature surnames: one size for all three; a long compound surname breaks at its hyphen or space (two lines max)
    instead of being shrunk alone or refused */
 .pname.feature { white-space: normal; overflow-wrap: normal; word-break: normal; line-height: 1.02; overflow: visible; }
+
+/* ── V2.3 (founder 10-28): matchup boxes with team marks, matchup meter, X identity ─────────────────────────── */
+.matchup { margin-top: 34px; display: grid; grid-template-columns: 1fr 70px 1fr; align-items: stretch; }
+.vs2 { align-self: center; text-align: center; font: 900 48px/1 var(--display); color: var(--neon); text-shadow: 0 0 18px rgba(57,255,136,.8); }
+.mbox { display: flex; align-items: center; gap: 16px; min-width: 0; padding: 18px 20px; border-radius: 18px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--c) 92%, #000), color-mix(in srgb, var(--c) 60%, #000));
+  border: 3px solid color-mix(in srgb, var(--a) 75%, #fff 10%); box-shadow: 0 16px 40px rgba(0,0,0,.55); color: var(--cink); }
+.mtext { min-width: 0; flex: 1; }
+.mtext .city { font: 700 24px/1.05 var(--display); letter-spacing: 3px; text-transform: uppercase; opacity: .85; white-space: nowrap; overflow: hidden; }
+.mtext .nick { font: 900 64px/0.95 var(--headline); text-transform: uppercase; white-space: nowrap; overflow: hidden; }
+.mark { flex: none; width: 96px; height: 96px; border-radius: 50%; display: grid; place-items: center; overflow: hidden; }
+.mark.logo { background: rgba(255,255,255,.92); }
+.mark.logo img { width: 84%; height: 84%; object-fit: contain; }
+.mark.mono { background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 70%, #fff 18%), var(--c) 70%);
+  border: 4px solid var(--a); box-shadow: inset 0 0 0 3px rgba(0,0,0,.35); }
+.mark.mono span { display: block; max-width: 84px; font: 900 34px/1 var(--display); letter-spacing: 1px; color: var(--cink); white-space: nowrap; overflow: hidden; text-align: center; }
+
+.meter { margin-top: 26px; padding: 16px 22px 18px; border-radius: 18px; background: rgba(0,0,0,.62); border: 1px solid rgba(255,255,255,.14); }
+.meter-k { text-align: center; font: 700 22px/1 var(--display); letter-spacing: 6px; color: var(--neon-soft); text-transform: uppercase; }
+.meter-labels { margin-top: 12px; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.ml { min-width: 0; display: flex; flex-direction: column; }
+.ml.l { align-items: flex-start; flex: 1; } .ml.r { align-items: flex-end; flex: 1; text-align: right; } .ml.c { align-items: center; flex: none; }
+.ml b { font: 900 64px/0.9 var(--display); color: var(--ink); letter-spacing: -1px; }
+.ml.c b { font-size: 40px; color: var(--mute); }
+.ml span { margin-top: 4px; max-width: 100%; font: 700 22px/1 var(--display); letter-spacing: 3px; color: var(--mute); text-transform: uppercase; white-space: nowrap; overflow: hidden; }
+.meter-bar { margin-top: 12px; height: 34px; display: flex; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,.08); box-shadow: inset 0 0 0 2px rgba(255,255,255,.18); }
+.meter-bar .seg { display: block; height: 100%; background: linear-gradient(180deg, color-mix(in srgb, var(--c) 85%, #fff 15%), var(--c)); }
+.meter-bar .seg + .seg { box-shadow: inset 3px 0 0 rgba(5,7,6,.85); }
+.meter-bar .seg.tie, .meter-bar .seg.draw { background: repeating-linear-gradient(135deg, #9AA19A 0 8px, #7D847C 8px 16px); }
+.meter-note { margin-top: 10px; text-align: center; font: 600 17px/1.2 var(--body); color: var(--faint); }
+
+.winner2 { margin-top: 24px; text-align: center; }
+.winner2 .k { font: 700 28px/1 var(--display); letter-spacing: 10px; color: var(--neon); text-transform: uppercase; text-shadow: 0 0 18px rgba(57,255,136,.6); }
+.winner2 .slab { display: inline-block; width: auto; min-width: 600px; max-width: 100%; margin-top: 14px; padding: 16px 44px 12px; }
+.winner2 .slab .nick { font-size: 112px; }
+.winner2.solo { margin-top: 70px; }
+.winner2.solo .slab .nick { font-size: 150px; }
+
+.social { margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--ink); opacity: .92;
+  font: 700 26px/1 var(--body); letter-spacing: .5px; }
+.social .xmark { width: 24px; height: 24px; flex: none; }
+.social + .disclosure { margin-top: 8px; padding-top: 0; }
+.strip + .social { margin-top: 16px; }
+
+.lhead { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 14px; min-width: 0; }
+.lhead .mark { width: 64px; height: 64px; }
+.lhead .mark.mono span { font-size: 24px; max-width: 56px; }
+.lhead h3 { margin-bottom: 0 !important; min-width: 0; }
+/* restrained team accent on each player row (names stay white) */
+.lrow:not(.hd) { border-left: 4px solid color-mix(in srgb, var(--c) 80%, #fff 10%); padding-left: 12px !important; }
+/* V2.3 sizing pass: legible at 390 px feed width; the winner block fills the space above the strip */
+.meter { margin-top: 28px; padding: 20px 26px 22px; }
+.meter-k { font-size: 28px; letter-spacing: 7px; }
+.ml b { font-size: 92px; }
+.ml.c b { font-size: 52px; }
+.ml span { font-size: 28px; }
+.meter-bar { height: 48px; margin-top: 14px; }
+.meter-note { font-size: 20px; }
+.mbox { padding: 22px 22px; }
+.mark { width: 108px; height: 108px; }
+.mark.mono span { font-size: 38px; max-width: 94px; }
+.mtext .city { font-size: 26px; }
+.mtext .nick { font-size: 70px; }
+.winner2 { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 10px; }
+.winner2 .k { font-size: 32px; }
+.winner2 .slab .nick { font-size: 132px; }
+.winner2.solo .slab .nick { font-size: 160px; }
+.social { font-size: 28px; }
+.social .xmark { width: 26px; height: 26px; }
+/* the row accent takes its width from the panel padding, never from the names (one 32 px size on every slate) */
+.lcol { padding-left: 8px !important; padding-right: 8px !important; }
+.lrow:not(.hd) { padding-left: 8px !important; }
+.mbox.long .nick { white-space: normal; overflow-wrap: normal; font-size: 50px; line-height: 0.98; }
+/* the X identity + disclosure sit at the foot of every format */
+.social { margin-top: auto; padding-top: 14px; }
+.strip + .social { margin-top: 16px; padding-top: 0; }
+.mtext .city { opacity: .9; }
