@@ -80,6 +80,9 @@ export function createFileStore({ dir, clock }) {
   }
 
   /** Every record in write order. */
+  // Ledger files are write-once (O_EXCL, never rewritten), so a parsed entry can be kept: each list() parses only files
+  // it hasn't seen. Callers get frozen copies, so nothing can change a cached entry in place.
+  const parsed = new Map();
   function list() {
     const files = [];
     const walk = (d) => {
@@ -90,7 +93,10 @@ export function createFileStore({ dir, clock }) {
       }
     };
     walk(ledgerDir);
-    return files.map((f) => JSON.parse(fs.readFileSync(f, "utf8")));
+    return files.map((f) => {
+      if (!parsed.has(f)) parsed.set(f, deepFreeze(JSON.parse(fs.readFileSync(f, "utf8"))));
+      return parsed.get(f);
+    });
   }
 
   /**
@@ -105,4 +111,12 @@ export function createFileStore({ dir, clock }) {
     discard: () => {},
   });
   return store;
+}
+
+function deepFreeze(o) {
+  if (o && typeof o === "object" && !Object.isFrozen(o)) {
+    Object.freeze(o);
+    for (const v of Object.values(o)) deepFreeze(v);
+  }
+  return o;
 }

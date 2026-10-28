@@ -577,6 +577,7 @@ export function createQueueFlow(ctx) {
   /** Read model: every proposed post with its lifecycle status. */
   function posts() {
     const all = h.entries();
+    const approvedDesigns = new Set(all.filter((e) => e.kind === "design-approval").map((e) => `${e.data.template}|${e.data.assetManifest}`));
     const records = postRecords();
     return records.map(({ request, decision, receipt, invalidated }) => {
       const schedule = all.filter((e) => e.kind === "post-status" && e.data.decisionId === request.decisionId && e.data.status === "scheduled").at(-1)?.data ?? null;
@@ -592,7 +593,7 @@ export function createQueueFlow(ctx) {
         : decision?.verdict === "defer" ? "deferred"
         : newer ? "superseded" : "drafted";
       const { order, ...req } = request;
-      const designApproved = req.package?.template ? Boolean(designApproval(req.package.template, req.package.assetManifest)) : null;
+      const designApproved = req.package?.template ? approvedDesigns.has(`${req.package.template}|${req.package.assetManifest}`) : null;
       return { ...req, resolution: decision, receipt, schedule, engagement, checks, lifecycle, invalidated, designApproved, supersededBy: newer && !decision ? newer.request.decisionId : null };
     });
   }
