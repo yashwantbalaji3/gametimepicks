@@ -31,7 +31,7 @@ async function builtQueue() {
   const clock = () => QUEUE_NOW;
   const store = createFileStore({ dir: path.join(dir, "ledger"), clock });
   seedApprovedCalendar(store);
-  const o = createOrchestrator({ store, clock, outDir: dir, queueRender: false, calendarDataSource: gitDataSource(REPO_ROOT, QUEUE_PINNED) });
+  const o = createOrchestrator({ store, clock, outDir: dir, queueRender: false, queueTemplate: "v1", calendarDataSource: gitDataSource(REPO_ROOT, QUEUE_PINNED) });
   await o.handleCommand("Team, prepare today's content queue", FOUNDER);
   return dir;
 }

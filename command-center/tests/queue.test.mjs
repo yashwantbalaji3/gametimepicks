@@ -180,7 +180,8 @@ function queueOrchestrator({ tamper = false, seed = true, env = {} } = {}) {
   const clock = () => now;
   const store = createFileStore({ dir: path.join(dir, "ledger"), clock });
   if (seed) seedApprovedCalendar(store, undefined, { tamper });
-  const o = createOrchestrator({ store, clock, outDir: dir, queueRender: false, calendarDataSource: pinned(), env: { GTP_CC_X_HANDLE: "GameTimePicks", ...env } });
+  // V1 template: these tests pin D1's original package kinds; V2.1 integration is covered in queue-v2.test.mjs.
+  const o = createOrchestrator({ store, clock, outDir: dir, queueRender: false, queueTemplate: "v1", calendarDataSource: pinned(), env: { GTP_CC_X_HANDLE: "GameTimePicks", ...env } });
   return { o, store, dir, setNow: (t) => { now = t; } };
 }
 const posts = (o, commandId) => o.state().posts.filter((p) => p.commandId === commandId);

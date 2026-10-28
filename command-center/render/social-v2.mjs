@@ -17,6 +17,15 @@ import { escapeHtml as esc, loadChromium, pngSize } from "./render-png.mjs";
 
 export const SOCIAL_TEMPLATE = "gtp-social@2.1";
 const DIR = path.join(CC_ROOT, "render/templates/social-v2");
+const FONTS = path.join(CC_ROOT, "render/fonts");
+/** The asset manifest's version: bound into every V2.1 approval fingerprint with the template version. */
+export const ASSET_MANIFEST = JSON.parse(fs.readFileSync(path.join(DIR, "asset-manifest.json"), "utf8")).manifestVersion;
+const FACES = [["GTP Condensed", "BarlowCondensed-SemiBold.ttf", 600], ["GTP Condensed", "BarlowCondensed-Bold.ttf", 700], ["GTP Condensed", "BarlowCondensed-ExtraBold.ttf", 800],
+  ["GTP Condensed", "BarlowCondensed-Black.ttf", 900], ["GTP Body", "Barlow-Medium.ttf", 500], ["GTP Body", "Barlow-SemiBold.ttf", 600], ["GTP Body", "Barlow-Bold.ttf", 700]];
+let fontCss = null;
+/** @font-face rules with the bundled OFL fonts inlined as data URIs (the page makes no request at all). */
+const fontFaces = () => (fontCss ??= FACES.map(([family, file, weight]) =>
+  `@font-face{font-family:"${family}";font-weight:${weight};font-style:normal;src:url(data:font/ttf;base64,${fs.readFileSync(path.join(FONTS, file)).toString("base64")}) format("truetype");}`).join("\n"));
 const LOGO = path.join(REPO_ROOT, "app/public/brand/gametime-picks-logo.png");
 
 /** Social terminology → the canonical concept it presents (presentation layer only). */
@@ -122,7 +131,18 @@ function nbaFinalBody(m) {
     <div class="foot">Official final from the NBA finals record · ${esc(DISCLOSURE.NBA)}</div>`;
 }
 
-const BODIES = { postgame: postgameBody, "pregame-winner": pregameBody, touchdowns: touchdownsBody, top5: top5Body, "nba-pregame": nbaPregameBody, "nba-final": nbaFinalBody };
+function nbaPlayersBody(m) {
+  const col = (t, ps) => `<div class="lcol" style="--c:${esc(t.accent)}"><h3 data-fit>${esc(t.nickname)}</h3>
+    <div class="lrow hd"><span>PLAYER</span><span style="text-align:right">PTS</span><span style="text-align:right">REB</span><span style="text-align:right">AST</span></div>
+    ${ps.map((p) => `<div class="lrow"><span class="pn" data-fit>${esc(p.name)}</span><b class="pts">${esc(p.pts)}</b><b>${esc(p.reb)}</b><b>${esc(p.ast)}</b></div>`).join("")}</div>`;
+  return `<div class="kicker">Projected stat lines</div>
+    <div class="sub" data-fit>${esc(m.away.abbr)} @ ${esc(m.home.abbr)} · ${esc(m.tipLine)}</div>
+    <div class="lines">${col(m.away, m.awayPlayers)}${col(m.home, m.homePlayers)}</div>
+    <div class="foot">Projected medians · players as published, not ranked · frozen <b>${esc(m.frozenShort)}</b><br>${esc(DISCLOSURE.NBA)}</div>`;
+}
+
+const BODIES = {
+  "nba-players": nbaPlayersBody, postgame: postgameBody, "pregame-winner": pregameBody, touchdowns: touchdownsBody, top5: top5Body, "nba-pregame": nbaPregameBody, "nba-final": nbaFinalBody };
 
 function chipOf(m) {
   const lg = m.league ?? "NFL";
@@ -134,7 +154,7 @@ function chipOf(m) {
 export function socialHtml(m) {
   const body = BODIES[m.format];
   if (!body) throw new Error(`no social body for ${m.format}`);
-  const css = fs.readFileSync(path.join(DIR, "social-v2.css"), "utf8");
+  const css = `${fontFaces()}\n${fs.readFileSync(path.join(DIR, "social-v2.css"), "utf8")}`;
   const logo = `data:image/png;base64,${fs.readFileSync(LOGO).toString("base64")}`;
   const res = m.format === "postgame" ? (m.result === "WIN" ? "res-hit" : m.result === "LOSS" ? "res-miss" : "") : "";
   const slots = {
@@ -155,13 +175,14 @@ export async function renderSocial(m, { outFile }) {
     const page = await browser.newPage({ viewport: { width: 1080, height: 1350 }, deviceScaleFactor: 1 });
     await page.route("**/*", (route) => route.abort());
     await page.setContent(html, { waitUntil: "load" });
+    await page.evaluate(() => document.fonts.ready);
     const fit = await page.evaluate(() => window.__fit);
     const bad = fit.items.filter((i) => !i.fits);
     if (bad.length || fit.pageOverflow) throw new Error(`text does not fit: ${bad.map((b) => b.text).join(" | ") || "page overflow"}`);
     const png = await page.screenshot({ type: "png", animations: "disabled", caret: "hide" });
     fs.mkdirSync(path.dirname(outFile), { recursive: true });
     fs.writeFileSync(outFile, png);
-    return { template: SOCIAL_TEMPLATE, format: m.format, file: path.basename(outFile), ...pngSize(png), sha256: sha256(png), htmlSha256: sha256(html), fit: fit.items };
+    return { template: SOCIAL_TEMPLATE, assetManifest: ASSET_MANIFEST, format: m.format, file: path.basename(outFile), ...pngSize(png), sha256: sha256(png), htmlSha256: sha256(html), fit: fit.items };
   } finally {
     await browser.close();
   }

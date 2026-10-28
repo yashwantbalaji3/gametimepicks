@@ -462,7 +462,7 @@ export function createTeamFlow(ctx) {
   }
 
   const queue = createQueueFlow({
-    store, clock, env, outDir: ctx.outDir, repoRoot: ctx.repoRoot, render: ctx.queueRender, dataSource: () => dataSource(),
+    store, clock, env, outDir: ctx.outDir, repoRoot: ctx.repoRoot, render: ctx.queueRender, template: ctx.queueTemplate, dataSource: () => dataSource(),
     helpers: { entries: h.entries, contribute: h.contribute, refuseTask: h.refuseTask, report: h.report },
   });
 
@@ -473,6 +473,7 @@ export function createTeamFlow(ctx) {
   return {
     advance, onPasted, decideProposal, steps: (intent) => TEAM_WORKFLOWS[intent],
     decidePost: queue.decidePost, recordPost: queue.recordPost, posts: queue.posts, dataSource: () => dataSource(),
+    approveDesign: queue.approveDesign, design: queue.design,
   };
 }
 

@@ -349,7 +349,7 @@
   }
 
   // ── D1 content queue ──────────────────────────────────────────────────────────────────────────────────────
-  const LIFE_LABEL = { drafted: "Needs your decision", approved: "Approved · post it yourself", scheduled: "Scheduled by you", published: "Published by you", rejected: "Rejected", revise: "Revision requested", deferred: "Deferred", superseded: "Superseded" };
+  const LIFE_LABEL = { invalidated: "Approval invalidated · content changed", drafted: "Needs your decision", approved: "Approved · post it yourself", scheduled: "Scheduled by you", published: "Published by you", rejected: "Rejected", revise: "Revision requested", deferred: "Deferred", superseded: "Superseded" };
   const postOpen = (p) => p.lifecycle === "drafted";
   const draftVal = (k) => esc(ui.drafts[k] ?? "");
   function evidenceList(pkg) {
@@ -379,10 +379,13 @@
     const id = esc(p.decisionId);
     if (p.lifecycle === "superseded") return `<div class="muted">A newer queue proposed this post again; decide there.</div>`;
     if (p.lifecycle === "drafted") {
-      const ready = pkg.status === "READY" || pkg.kind === "x-reply";
+      const designOk = p.designApproved !== false;
+      const ready = designOk && (pkg.status === "READY" || pkg.kind === "x-reply" || pkg.kind === "td-top3");
+      const why = !designOk ? "Approve the design first" : `Not approvable: ${esc(STATUS_LABEL[pkg.status] ?? pkg.status)}`;
       return `${pkg.kind === "x-reply" ? `<label class="confirm"><input type="checkbox" data-confirm="${id}" ${ui.drafts[`confirm:${p.decisionId}`] ? "checked" : ""}> I opened the cited posts and they say what the finding claims</label>` : ""}
+        ${pkg.kind === "td-top3" ? `<label class="confirm"><input type="checkbox" data-avail="${id}" ${ui.drafts[`avail:${p.decisionId}`] ? "checked" : ""}> I confirmed all three players are active and in their expected roles</label>` : ""}
         <div class="row actions">
-          <button class="btn ${ready ? "primary" : ""}" data-post-approve="${id}" ${ready ? "" : "disabled"}>${ready ? "Approve this caption" : `Not approvable: ${esc(STATUS_LABEL[pkg.status] ?? pkg.status)}`}</button>
+          <button class="btn ${ready ? "primary" : ""}" data-post-approve="${id}" ${ready ? "" : "disabled"}>${ready ? "Approve this caption" : why}</button>
           <button class="btn" data-post-verdict="reject" data-post="${id}">Reject</button>
           <button class="btn" data-post-verdict="revise" data-post="${id}">Revise</button>
           <button class="btn" data-post-verdict="defer" data-post="${id}">Defer</button>
@@ -412,7 +415,7 @@
   function postCard(p) {
     const pkg = p.package;
     return `<article class="post decision ${postOpen(p) ? "open" : ""}" id="post-${esc(p.decisionId)}">
-      <div class="slot-head"><span class="st st-${esc(pkg.status)}">${esc(STATUS_LABEL[pkg.status] ?? pkg.status)}</span><span class="tag life life-${esc(p.lifecycle)}">${esc(LIFE_LABEL[p.lifecycle])}</span><span class="tag">${esc(pkg.sport)}</span><span class="tag">${esc(pkg.kind)}</span></div>
+      <div class="slot-head"><span class="st st-${esc(pkg.status)}">${esc(STATUS_LABEL[pkg.status] ?? pkg.status)}</span><span class="tag life life-${esc(p.lifecycle)}">${esc(LIFE_LABEL[p.lifecycle])}</span><span class="tag">${esc(pkg.sport)}</span><span class="tag">${esc(pkg.format ?? pkg.kind)}</span>${pkg.priority === 3 ? `<span class="tag">catch-up</span>` : ""}${pkg.template ? `<span class="tag ${p.designApproved ? "life-published" : "life-drafted"}" title="design ${esc(pkg.template)} · ${esc(pkg.assetManifest)}">${esc(pkg.template)}${p.designApproved ? " · design ✓" : " · design not approved"}</span>` : ""}</div>
       <div class="q">${esc(pkg.title)}</div>
       ${pkg.media ? `<img src="/media/${encodeURIComponent(pkg.media.file)}" alt="${esc(pkg.media.altText)}" data-zoom loading="lazy">` : `<div class="muted">Text post (no graphic).</div>`}
       ${(pkg.reasons ?? []).length ? `<ul class="warns">${pkg.reasons.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>` : ""}
@@ -434,11 +437,14 @@
     const openDay = dates.find((d) => posts.some((p) => p.date === d && postOpen(p))) ?? dates[0];
     const latest = queues.at(-1);
     const counts = posts.reduce((m, p) => ({ ...m, [p.lifecycle]: (m[p.lifecycle] ?? 0) + 1 }), {});
-    return `<h2>Content queue <span class="count">${num(open)} open</span></h2>
+    const dz = s.design;
+    const designBar = dz ? `<div class="${dz.approved ? "receipt" : "blocked"}">Graphic design <b>${esc(dz.template)}</b> · ${esc(dz.assetManifest)}: ${dz.approved ? `approved ${esc(time(dz.approvedAt))} — design only; every post still needs its own approval` : "not approved yet — V2.1 posts can't be approved for publishing until it is"}
+      ${dz.approved ? "" : `<div class="row" style="margin-top:6px"><button class="btn" data-design="1">Approve this design version</button></div>`}</div>` : "";
+    return `<h2>Content queue <span class="count">${num(open)} open</span></h2>${designBar}
       <div class="cal-totals">${Object.entries(counts).map(([k, v]) => `<span class="tag life life-${esc(k)}">${esc(LIFE_LABEL[k])} ${num(v)}</span>`).join("")}</div>
       <div class="muted">Each post is approved on its own and published by you on X; the Command Center never posts.${latest?.file ? ` · <a href="/${esc(latest.file)}" target="_blank" rel="noopener">Queue export</a>` : ""}</div>
       ${dates.map((d) => `<details class="cal-day" ${d === openDay ? "open" : ""}><summary><b>${esc(new Date(`${d}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric", timeZone: "UTC" }))}</b> · ${num(posts.filter((p) => p.date === d).length)} post(s) · ${num(posts.filter((p) => p.date === d && postOpen(p)).length)} open</summary>
-        ${posts.filter((p) => p.date === d).map(postCard).join("")}</details>`).join("")}
+        ${posts.filter((p) => p.date === d).sort((a, b) => (a.package.priority ?? 2) - (b.package.priority ?? 2)).map(postCard).join("")}</details>`).join("")}
       ${latest?.q?.skipped?.length ? `<details class="cal-day"><summary><b>Not in the ${esc(latest.q.date)} queue</b> · ${num(latest.q.skipped.length)}</summary><ul>${latest.q.skipped.map((x) => `<li><span class="st st-${esc(x.status)}">${esc(STATUS_LABEL[x.status] ?? x.status)}</span> ${esc(x.sport)} · ${esc(x.opportunity)} — <span class="muted">${esc(x.reason)}</span></li>`).join("")}</ul></details>` : ""}`;
   }
 
@@ -693,7 +699,7 @@
   });
 
   document.addEventListener("click", async (e) => {
-    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-post-record],.lightbox");
+    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-post-record],[data-design],.lightbox");
     if (!t) return;
     if (t.dataset.gate) {
       const d = ui.state.decisions.find((x) => x.decisionId === t.dataset.gate);
@@ -714,9 +720,18 @@
       const opt = p.options.find((o) => o.captionId === captionId);
       if (!opt) return alert("Choose a caption that passes its check.");
       t.disabled = true;
-      const r = await post("/api/decide", { decisionId: p.decisionId, verdict: "approve", captionId, digest: opt.digest, ...(p.package.kind === "x-reply" ? { sourcesConfirmed: Boolean(ui.drafts[`confirm:${p.decisionId}`]) } : {}) });
+      const r = await post("/api/decide", { decisionId: p.decisionId, verdict: "approve", captionId, digest: opt.digest,
+        ...(p.package.kind === "x-reply" ? { sourcesConfirmed: Boolean(ui.drafts[`confirm:${p.decisionId}`]) } : {}),
+        ...(p.package.kind === "td-top3" ? { availabilityConfirmed: Boolean(ui.drafts[`avail:${p.decisionId}`]) } : {}) });
       if (r.ok && r.next) alert(r.next);
       if (!r.ok && !r.duplicate) { t.disabled = false; alert(`${r.code}: ${r.detail ?? ""}`); }
+      return;
+    }
+    if (t.dataset.design) {
+      const dz = ui.state.design;
+      if (!confirm(`Approve the graphic design ${dz.template} (${dz.assetManifest})? This approves the visual design only — no post.`)) return;
+      const r = await post("/api/design", { template: dz.template, assetManifest: dz.assetManifest });
+      if (!r.ok && !r.duplicate) alert(`${r.code}: ${r.detail ?? ""}`);
       return;
     }
     if (t.dataset.postVerdict) {
@@ -819,6 +834,7 @@
   });
   document.addEventListener("change", (e) => {
     if (e.target.dataset.confirm) ui.drafts[`confirm:${e.target.dataset.confirm}`] = e.target.checked;
+    if (e.target.dataset.avail) ui.drafts[`avail:${e.target.dataset.avail}`] = e.target.checked;
   });
   document.addEventListener("change", (e) => {
     if (e.target.dataset.choose) {

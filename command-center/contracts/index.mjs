@@ -80,6 +80,7 @@ export const LEDGER_KINDS = Object.freeze([
   "post-status",       // D1: the founder scheduled an approved post in X (manual)
   "engagement",        // D1: numbers the founder copied from X analytics for a published post (not verified)
   "post-verification", // D1: a published pregame post re-checked against the forecast of record after kickoff
+  "design-approval",   // V2.1: the founder approved a graphic template + asset-manifest version (never a post)
 ]);
 
 /** Refusal / reason codes shared by the orchestrator, the integrity gate and the publisher. */

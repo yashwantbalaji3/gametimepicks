@@ -61,9 +61,11 @@ export function checkCaption(text, pkg) {
   if (String(text).length > MAX_CAPTION) problems.push({ code: REASON.TOO_LONG, detail: `${String(text).length} > ${MAX_CAPTION} characters` });
   const retired = retiredPhraseIn(text, pkg.label?.retiredPhrases ?? []);
   if (retired) problems.push({ code: REASON.RETIRED_PHRASE, detail: `"${retired}" was retired from public surfaces` });
-  if (pkg.hasMiss && /\bforecast/i.test(text) && !/\bmiss(ed)?\b/i.test(text)) problems.push({ code: REASON.MISS_NOT_DISCLOSED, detail: "a forecast here missed; say so" });
+  // The public terms are Prediction / Projection (founder 2026-10-28); the factual rule is unchanged: talk about the
+  // prediction and a miss must be said.
+  if (pkg.hasMiss && /\b(forecast|prediction|predicted)/i.test(text) && !/\bmiss(ed)?\b/i.test(text)) problems.push({ code: REASON.MISS_NOT_DISCLOSED, detail: "a prediction here missed; say so" });
   // A post with no forecast in its evidence may mention forecasting, but may not assert a forecast value.
-  if (pkg.noForecastClaims && /\bforecast/i.test(text) && /%|\bfavou?rite\b|\bto win\b/i.test(text)) problems.push({ code: "FORECAST_NOT_IN_EVIDENCE", detail: "this post has no forecast in its evidence: it can't state a forecast value" });
+  if (pkg.noForecastClaims && /\b(forecast|prediction|predicted)/i.test(text) && /%|\bfavou?rite\b|\bto win\b/i.test(text)) problems.push({ code: "FORECAST_NOT_IN_EVIDENCE", detail: "this post has no forecast in its evidence: it can't state a forecast value" });
   return { ok: problems.length === 0, problems };
 }
 
@@ -75,8 +77,11 @@ export function publishBundleOf(pkg, caption) {
     captionSha256: sha256(caption.text),
     mediaSha256: pkg.media?.sha256 ?? null,
     claimsDigest: digestOf(pkg.claims),
-    verificationDigest: pkg.verification ? digestOf(pkg.verification) : null,
+    // The verified VERSION (file, hash, numbers) — never the check's timestamp, which changes on every build.
+    verificationDigest: pkg.verification ? digestOf({ version: pkg.verification.version ? { path: pkg.verification.version.path, sha256: pkg.verification.version.sha256, numbers: pkg.verification.version.numbers } : null, kickoffUtc: pkg.verification.kickoffUtc ?? null }) : null,
     dataCommit: pkg.dataCommit,
+    // V2.1: the approved design is part of what is approved — a new template or asset manifest is a new fingerprint.
+    ...(pkg.template ? { template: pkg.template, assetManifest: pkg.assetManifest } : {}),
   };
 }
 

@@ -1,8 +1,8 @@
 {
   "schema": "gtp.cc.asset-manifest@1",
-  "manifestVersion": "nfl-social@2-assets.0",
-  "template": "nfl-social@2",
-  "status": "PROTOTYPE — founder design approval pending; not used by the daily queue",
+  "manifestVersion": "gtp-social@2.1-assets.1",
+  "template": "gtp-social@2.1",
+  "status": "PRODUCTION DESIGN (founder approved the V2.1 direction 2026-10-28; each post still needs its own approval)",
   "assets": [
     {
       "id": "gtp-logo",
@@ -19,35 +19,75 @@
       "path": "app/src/lib/simulation-theater/nfl-team-colors.mjs",
       "evidence": "app/src/lib/simulation-theater/nfl-team-colors-evidence.json",
       "evidenceSha256": "d6cbc3944efae924887cd095619c86d37529ccfa67e218855a138c1ac2b1d7c5",
-      "provenance": "Hex values cross-checked against public colour references (evidence accessed 2026-10-18; dev-route-colors.test.mjs recomputes every flag). Colours only — no logo, wordmark or uniform artwork.",
+      "provenance": "Hex values cross-checked against public colour references (evidence accessed 2026-10-18; dev-route-colors.test.mjs recomputes every flag). Colours only \u2014 no logo, wordmark or uniform artwork.",
       "rights": "colours alone; club names and abbreviations used nominatively to identify the teams in a factual result, with a non-affiliation line on every graphic. Trademark review before public use is a founder decision."
     },
     {
-      "id": "font-din-condensed",
+      "id": "font-barlow-bold",
       "kind": "font",
-      "path": "/System/Library/Fonts/Supplemental/DIN Condensed Bold.ttf",
-      "sha256": "36958182a424e1e8a1307b2636a615a6323ce1bbfadda136735ab4fb3bd26ceb",
-      "rights": "UNVERIFIED for commercial social graphics: an Apple system font on this Mac, not vendored, absent on a Linux runner. Replace with a vendored OFL font before automation (see the review report)."
+      "path": "command-center/render/fonts/Barlow-Bold.ttf",
+      "sha256": "84e6a4d61e7c3e21f3c50ea6a4f7e5303a3467864c038be6ea3759bab8d547f9",
+      "rights": "SIL Open Font License 1.1 (render/fonts/OFL-*.txt), Copyright 2017 The Barlow Project Authors; bundled and inlined, no system font"
     },
     {
-      "id": "font-avenir-next-condensed",
+      "id": "font-barlow-medium",
       "kind": "font",
-      "path": "/System/Library/Fonts/Avenir Next Condensed.ttc",
-      "sha256": "2648d9b6344edc3706a4ba14e8c08a03f4640b404090dfca9d991cadbaedeff8",
-      "rights": "UNVERIFIED for commercial social graphics (Apple system font). Same replacement plan."
+      "path": "command-center/render/fonts/Barlow-Medium.ttf",
+      "sha256": "f8906f762cb73dca441da034bc363b2d8e2e68bc10d5c05e58717646c20cc4b4",
+      "rights": "SIL Open Font License 1.1 (render/fonts/OFL-*.txt), Copyright 2017 The Barlow Project Authors; bundled and inlined, no system font"
     },
     {
-      "id": "font-avenir-next",
+      "id": "font-barlow-semibold",
       "kind": "font",
-      "path": "/System/Library/Fonts/Avenir Next.ttc",
-      "sha256": "98dec241f3ee712a37fad61aafdb83e225ed54c3e5b6e9f0abeb24eba13743ba",
-      "rights": "UNVERIFIED for commercial social graphics (Apple system font). Same replacement plan."
+      "path": "command-center/render/fonts/Barlow-SemiBold.ttf",
+      "sha256": "86577cb32f8abe3673db53ca0f4221e6856751a4f6730c867e00f720f8bb1fc5",
+      "rights": "SIL Open Font License 1.1 (render/fonts/OFL-*.txt), Copyright 2017 The Barlow Project Authors; bundled and inlined, no system font"
+    },
+    {
+      "id": "font-barlowcondensed-black",
+      "kind": "font",
+      "path": "command-center/render/fonts/BarlowCondensed-Black.ttf",
+      "sha256": "e74b750df582c608f35db467b711b2b60d2217618e85e60b72b42dfd00446cab",
+      "rights": "SIL Open Font License 1.1 (render/fonts/OFL-*.txt), Copyright 2017 The Barlow Project Authors; bundled and inlined, no system font"
+    },
+    {
+      "id": "font-barlowcondensed-bold",
+      "kind": "font",
+      "path": "command-center/render/fonts/BarlowCondensed-Bold.ttf",
+      "sha256": "e476562ec9c1e16cf16475895b511f08c804f438cc9a9f80a44ea50a0eeb5b65",
+      "rights": "SIL Open Font License 1.1 (render/fonts/OFL-*.txt), Copyright 2017 The Barlow Project Authors; bundled and inlined, no system font"
+    },
+    {
+      "id": "font-barlowcondensed-extrabold",
+      "kind": "font",
+      "path": "command-center/render/fonts/BarlowCondensed-ExtraBold.ttf",
+      "sha256": "724c9c25952d5f4a2d87185d9767aa006144c5f0d944dc05bf7d5d603551c260",
+      "rights": "SIL Open Font License 1.1 (render/fonts/OFL-*.txt), Copyright 2017 The Barlow Project Authors; bundled and inlined, no system font"
+    },
+    {
+      "id": "font-barlowcondensed-semibold",
+      "kind": "font",
+      "path": "command-center/render/fonts/BarlowCondensed-SemiBold.ttf",
+      "sha256": "7b619d14bc2327509a9ef32b0890f709626f7ecc9ff61191c2a4314c5499d2d9",
+      "rights": "SIL Open Font License 1.1 (render/fonts/OFL-*.txt), Copyright 2017 The Barlow Project Authors; bundled and inlined, no system font"
     }
   ],
   "notUsed": [
-    { "kind": "player photography", "reason": "no licensed player photograph exists in the project; ESPN headshot URLs referenced in app/public/data/nfl/game-simulations/*.json are third-party images with no licence to republish and are NOT used" },
-    { "kind": "NFL shield or club logos", "reason": "none in the project and none licensed; not drawn or generated" },
-    { "kind": "AI-generated imagery", "reason": "none: every background element is CSS/SVG geometry with a fixed noise seed" },
-    { "kind": "jersey numbers / uniforms", "reason": "not shown" }
+    {
+      "kind": "player photography",
+      "reason": "no licensed player photograph exists in the project; ESPN headshot URLs referenced in app/public/data/nfl/game-simulations/*.json are third-party images with no licence to republish and are NOT used"
+    },
+    {
+      "kind": "NFL shield or club logos",
+      "reason": "none in the project and none licensed; not drawn or generated"
+    },
+    {
+      "kind": "AI-generated imagery",
+      "reason": "none: every background element is CSS/SVG geometry with a fixed noise seed"
+    },
+    {
+      "kind": "jersey numbers / uniforms",
+      "reason": "not shown"
+    }
   ]
 }

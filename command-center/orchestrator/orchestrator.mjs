@@ -51,7 +51,7 @@ const etDay = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New
  *   engineering configures delegated engineering (repo, claude binary, environment, screenshots) — see
  *   engineering-flow.mjs; tests point it at a throwaway repo and a fake `claude`.
  */
-export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROOT, outDir, stepDelayMs = 0, publisher, slateDate, engineering = {}, execution = "inline", runnerId = "local", providerFetch = globalThis.fetch, providerSleep, hosted = false, calendarDataSource = null, queueRender = true }) {
+export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROOT, outDir, stepDelayMs = 0, publisher, slateDate, engineering = {}, execution = "inline", runnerId = "local", providerFetch = globalThis.fetch, providerSleep, hosted = false, calendarDataSource = null, queueRender = true, queueTemplate = "v2.1" }) {
   if (!["inline", "jobs"].includes(execution)) throw new Error(`unknown execution mode ${execution}`);
   const pub = publisher ?? createMockPublisher({ clock });
   const mediaDir = path.join(outDir, "media");
@@ -85,7 +85,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   }, engineering);
 
   const team = createTeamFlow({
-    store, clock, env, repoRoot, slateDate, outDir, dataSource: calendarDataSource, queueRender, fetch: providerFetch, sleep: providerSleep, engineering: flow,
+    store, clock, env, repoRoot, slateDate, outDir, dataSource: calendarDataSource, queueRender, queueTemplate, fetch: providerFetch, sleep: providerSleep, engineering: flow,
     execution: { deferred: () => deferHeavy(), requestJob: (job) => requestJob(job), jobDone: (id) => jobDone(id) },
     helpers: {
       makeTask: (...a) => makeTask(...a),
@@ -505,14 +505,14 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     return { ok: true, paused: true, stoppedRuns: stopped, cancelJobs: activeJobs() };
   }
 
-  async function decide({ decisionId, verdict, captionId, digest, note, sourcesConfirmed }, actor) {
+  async function decide({ decisionId, verdict, captionId, digest, note, sourcesConfirmed, availabilityConfirmed }, actor) {
     const f = checkFounder(verdict === "approve" ? "approve" : "reject", actor);
     if (!f.ok) return { ok: false, ...f };
     const request = entries().find((e) => e.kind === "decision-request" && e.data.decisionId === decisionId)?.data;
     if (!request) return { ok: false, code: "UNKNOWN_DECISION", detail: decisionId };
     if (request.kind === "gate") return flow.decideGate(request, { verdict, digest }, actor, getRun(request.commandId));
     if (request.kind === "proposal") return team.decideProposal(request, { verdict, digest, note }, actor);
-    if (request.kind === "post") return team.decidePost(request, { verdict, captionId, digest, note, sourcesConfirmed }, actor);
+    if (request.kind === "post") return team.decidePost(request, { verdict, captionId, digest, note, sourcesConfirmed, availabilityConfirmed }, actor);
 
     if (verdict !== "approve") {
       const claim = store.claim(`decision|${decisionId}`, { verdict, note: note ?? null });
@@ -576,6 +576,13 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     const f = checkFounder("publish", actor);
     if (!f.ok) return { ok: false, ...f };
     return team.recordPost(body ?? {}, actor);
+  }
+
+  /** Founder: approve a graphic design version (template + asset manifest). Never approves a post. */
+  function approveDesign(body, actor) {
+    const f = checkFounder("approve", actor);
+    if (!f.ok) return { ok: false, ...f };
+    return team.approveDesign({ template: body?.template, assetManifest: body?.assetManifest }, actor);
   }
 
   /** Founder: run a provider connection test (free endpoints only) and record the result — never the credential. */
@@ -654,6 +661,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
       commands: commands.map((c) => ({ ...c, tasks: [...c.tasks.values()] })),
       decisions,
       posts: team.posts(),
+      design: team.design(),
       engineering: {
         billing: flow.billing(),
         lastPreflight: lastPreflight ? { ...lastPreflight.data, at: lastPreflight.at } : null,
@@ -754,7 +762,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   }
 
   return {
-    handleCommand, decide, recordPost, submitManual, setSeat, testProviderConnection, setPaused, emergencyStop, state, runJob, activeJobs, jobDispatched, jobCancelled,
+    handleCommand, decide, recordPost, approveDesign, submitManual, setSeat, testProviderConnection, setPaused, emergencyStop, state, runJob, activeJobs, jobDispatched, jobCancelled,
     /** Jobs recorded by this session; the host dispatches them after its ledger flush commits. */
     takeOutbox: () => outbox.splice(0),
     execution,
@@ -778,6 +786,7 @@ function historyLine(e) {
     case "publish-receipt": return d.provider === "manual-handoff" ? `Founder posted on X by hand: ${d.canonicalUrl} (${d.postId})` : `Published (${d.provider}): ${d.providerPostId}`;
     case "post-status": return `Founder scheduled ${d.postId} for ${d.scheduledFor} (in X)`;
     case "engagement": return `Engagement for ${d.postId} (founder-entered): ${Object.entries(d.metrics ?? {}).map(([k, v]) => `${k} ${v}`).join(", ")}`;
+    case "design-approval": return `Founder approved the graphic design ${d.template} (${d.assetManifest}) — design only, no post`;
     case "post-verification": return `After kickoff, ${d.postId}: ${d.status} — ${d.reasons?.[0] ?? ""}`;
     case "control": return d.emergency ? "EMERGENCY STOP by founder: all Claude Code runs killed, everything paused" : `${d.paused ? "PAUSED" : "RESUMED"} by founder (publishing and Claude Code runs)`;
     case "progress": return `· ${d.line}`;

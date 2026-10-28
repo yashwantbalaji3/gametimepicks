@@ -29,6 +29,8 @@ CREATE POLICY ledger_read ON ledger_entries FOR SELECT TO gtp_cc_app, gtp_cc_wor
 CREATE POLICY ledger_app_append ON ledger_entries FOR INSERT TO gtp_cc_app WITH CHECK (true);
 CREATE POLICY ledger_worker_append ON ledger_entries FOR INSERT TO gtp_cc_worker WITH CHECK (
   kind IN ('task', 'contribution', 'progress', 'deliverable', 'report', 'refusal', 'job', 'decision-request', 'preflight', 'post-verification')
+  -- V2.1: a queue build may invalidate an approval whose content changed; it can never record a schedule or a receipt
+  OR (kind = 'post-status' AND data->>'status' = 'invalidated')
 );
 
 CREATE POLICY claims_read ON ledger_claims FOR SELECT TO gtp_cc_app, gtp_cc_worker USING (true);

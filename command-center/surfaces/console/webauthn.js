@@ -48,6 +48,7 @@
     if (url === "/api/attest") return "attest";
     if (url === "/api/seat") return "seat";
     if (url === "/api/post") return body.action === "publish" ? "attest" : null;
+    if (url === "/api/design") return "approve";
     return null;
   }
 

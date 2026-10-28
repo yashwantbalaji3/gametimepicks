@@ -241,7 +241,7 @@ export function nbaPregame({ src, eventId, date = "latest" }) {
   const away = nbaTeamOf(g.away.abbr, g.away.name);
   const home = nbaTeamOf(g.home.abbr, g.home.name);
   return {
-    ok: true, format: "nba-pregame", league: "NBA", spec: SOCIAL_V2_SPEC, eventId, away, home, favouredTeam: g.elo.favoured === home.abbr ? home : away,
+    ok: true, format: "nba-pregame", league: "NBA", spec: SOCIAL_V2_SPEC, eventId, away, home, favouredTeam: g.elo.favoured === home.abbr ? home : away, tipUtc: g.tipUtc,
     tipLine: kickoffLine(g.tipUtc), kickoffLine: kickoffLine(g.tipUtc),
     tipDay: ET({ weekday: "long" }).format(new Date(g.tipUtc)), tipTime: `${ET({ hour: "numeric", minute: "2-digit" }).format(new Date(g.tipUtc))} ET`, frozenShort: ET({ month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(g.frozenAt)).replace(" at ", ", "),
     evidence: [{ label: "NBA public lane", ref: `${p}@${src.commit?.slice(0, 12)}`, sha256: sha(raw) }],
@@ -258,5 +258,33 @@ export function nbaFinal({ src, eventId, season = "2026-27" }) {
     away: nbaTeamOf(r.away.tricode, r.away.name), home: nbaTeamOf(r.home.tricode, r.home.name), finalAway: r.ftAway, finalHome: r.ftHome,
     winner: r.winnerSide, dateLine: ET({ weekday: "long", month: "short", day: "numeric" }).format(new Date(r.dateUtc)),
     evidence: [{ label: "NBA finals record", ref: `${p}@${src.commit?.slice(0, 12)}`, sha256: sha(raw) }],
+  };
+}
+
+/**
+ * NBA per-game projected stat lines: the lane's published medians for each team, in the lane's own published order
+ * (never re-sorted by a statistic — the lane publishes no rankings), up to NBA_LINES_PER_TEAM per team.
+ */
+export const NBA_LINES_PER_TEAM = 6;
+export function nbaPlayers({ src, eventId, date = "latest" }) {
+  const p = `app/public/data/nba/experimental-public/${date}.json`;
+  const raw = src.read(p);
+  if (raw == null) return { ok: false, reason: `no NBA public lane file ${date}` };
+  const j = JSON.parse(raw);
+  const g = j.games.find((x) => String(x.providerEventId) === String(eventId));
+  if (!g) return { ok: false, reason: `${eventId} not in the ${j.date} lane` };
+  const one = (x) => (typeof x === "number" ? x.toFixed(1) : null);
+  const lines = (arr) => (arr ?? []).filter((x) => !x.injuryStatus || !EXCLUDED.has(String(x.injuryStatus).toUpperCase()))
+    .filter((x) => x.medians && one(x.medians.pts) != null).slice(0, NBA_LINES_PER_TEAM)
+    .map((x) => ({ name: x.name, pts: one(x.medians.pts), reb: one(x.medians.reb), ast: one(x.medians.ast), id: x.providerAthleteId }));
+  const awayPlayers = lines(g.players?.away);
+  const homePlayers = lines(g.players?.home);
+  if (!awayPlayers.length || !homePlayers.length) return { ok: false, reason: "a team has no published player medians" };
+  return {
+    ok: true, format: "nba-players", league: "NBA", spec: SOCIAL_V2_SPEC, eventId,
+    away: nbaTeamOf(g.away.abbr, g.away.name), home: nbaTeamOf(g.home.abbr, g.home.name), awayPlayers, homePlayers,
+    tipLine: kickoffLine(g.tipUtc), kickoffLine: kickoffLine(g.tipUtc), tipUtc: g.tipUtc, laneDate: j.date,
+    frozenShort: ET({ month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(g.frozenAt)).replace(" at ", ", "),
+    evidence: [{ label: "NBA public lane", ref: `${p}@${src.commit?.slice(0, 12)}`, sha256: sha(raw) }],
   };
 }

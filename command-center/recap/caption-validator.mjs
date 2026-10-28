@@ -40,7 +40,7 @@ export function validateCaption(text, bundle) {
     if (new RegExp(`\\b${escapeRe(term)}\\b`, "i").test(text)) problems.push({ code: REASON.FORBIDDEN_TERM, detail: `"${term}"` });
   }
   if (/https?:\/\/|www\.|\b[a-z0-9-]+\.(com|net|org|io|co)\b/i.test(text)) problems.push({ code: REASON.URL_IN_CAPTION, detail: "captions carry no links" });
-  if (!/\bforecast/i.test(text)) problems.push({ code: REASON.MISSING_FORECAST_WORD, detail: 'must call the number a "forecast"' });
+  if (!/\b(forecast|prediction|predicted|projection|projected)/i.test(text)) problems.push({ code: REASON.MISSING_FORECAST_WORD, detail: 'must call the number a prediction / projection (or "forecast")' });
   if (claimOf(bundle, "result.side")?.value === "LOSS" && !/\bmiss(ed)?\b|\bwrong\b/i.test(text)) {
     problems.push({ code: REASON.MISS_NOT_DISCLOSED, detail: "the forecast missed the winner; the caption must say so" });
   }
