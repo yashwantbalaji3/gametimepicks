@@ -143,7 +143,9 @@ test("pending cards: matchup, clock status (SSR 'Upcoming'), no link and no side
   assert.equal((h.match(/<article/g) ?? []).length, 2);
   assert.equal((h.match(/<a /g) ?? []).length, 0, "no forecast link before it is published, no Game Simulation link without a built page");
   assert.match(h, /Upcoming/);
-  assert.match(text(h), /Official Forecast not published yet/); // founder directive 2026-10-23 public readiness: registry terms
+  // overnight W7 2026-10-28: the pending state is said ONCE, in the overview, with the first tip-off — not on every card
+  assert.doesNotMatch(text(h), /not published yet/, "no repeated per-card pending line");
+  assert.match(text(renderToStaticMarkup(React.createElement(NbaSlateOverview, { slate: s }))), /Today’s Official Forecast is not published yet\. It publishes before the first tip-off \(7:00 PM ET\)/);
   assert.doesNotMatch(h, /favours/);
   assert.match(h, /https:\/\/a\.espncdn\.com\/i\/teamlogos\/nba\/500\/phi\.png/);
 });
@@ -274,15 +276,16 @@ test("Forecast vs. Actual: a played game shows a side only from the forecasts it
   assert.match(page, /for \(const d of boardDates\.filter\(\(x\) => x < today\)\.slice\(-4\)\) \{\n\s+for \(const g of loadLaneForDate\(d\)\?\.games \?\? \[\]\)/, "past sides come only from committed dated snapshots");
 });
 
-test("reader words: no engineering jargon in the hub's visible text outside the Model details disclosure", () => {
+test("reader words: no engineering jargon in the hub's visible text outside the Technical details disclosure", () => {
   const snap = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nba/experimental-public/2026-10-20.json"), "utf8"));
   const html = [
     renderToStaticMarkup(React.createElement(NbaSlateOverview, { slate: slate(), boardDates: ["2026-10-20", "2026-10-21"] })),
     renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: slate() })),
     renderToStaticMarkup(React.createElement(ForecastLane, { snapshot: snap })),
   ].join("");
-  assert.match(html, /<summary>Model details<\/summary>[\s\S]*nba-preseason-experimental-v0\.1/, "the model id is kept — in Model details");
-  const visible = text(html.replace(/<details class="nbx-details">[\s\S]*?<\/details>/g, ""));
+  // overnight W7 2026-10-28: the site's one shape (MoreDisclosure, "Technical details") replaced the hand-rolled "Model details"
+  assert.match(html, /<details class="gtp-more-disclosure[^"]*"[^>]*>[\s\S]*?Technical details[\s\S]*nba-preseason-experimental-v0\.1[\s\S]*?<\/details>/, "the model id is kept — in Technical details");
+  const visible = text(html.replace(/<details class="gtp-more-disclosure[^"]*"[^>]*>[\s\S]*?<\/details>/g, ""));
   assert.doesNotMatch(visible, /experimental|\blane\b|candidate|\bN2\b|v0\.\d|receipt|payload|roster-gated/i);
   // release owner 2026-10-25: one code per team on every NBA surface — the lane's own (ESPN's), never the canonical alias
   assert.match(visible, /PHI @ NY\b/, "the forecast table prints the snapshot's code");

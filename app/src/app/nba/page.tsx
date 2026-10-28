@@ -76,6 +76,7 @@ export default async function NbaHubPage() {
     }
   }
   const finals = model.rows.filter((r) => r.status === "final").length;
+  const simLinks = slate.games.some((g) => g.theaterHref);
   /* A recorded FINAL (from the same finals record the list below uses) is the only status the forecast section states. */
   const statuses: Record<string, string> = {};
   for (const r of model.rows) if (r.status === "final" && lane?.games.some((g) => g.providerEventId === r.id)) statuses[r.id] = `final · ${r.reportNote}`;
@@ -89,7 +90,7 @@ export default async function NbaHubPage() {
         Every forecast is frozen before tip-off and graded against the official final.
       </p>
       <NbaSlateOverview slate={slate} boardDates={boardDates} />
-      <SportHubNav sport="nba" anchors={[S.games, ...(lane ? [S.forecast] : []), S.simulations, S.results]} />
+      <SportHubNav sport="nba" anchors={[S.games, ...(lane ? [S.forecast] : []), ...(simLinks ? [S.simulations] : []), S.results]} />
 
       {/* 1 · TODAY'S GAMES — a card per game (each links to its Official Forecast and its Game Simulation), then the week */}
       <section id="nba-games" className="scroll-mt-24 flex flex-col gap-3" aria-labelledby="nba-games-h">
@@ -120,14 +121,17 @@ export default async function NbaHubPage() {
         <p className="m-0"><Link href="/nba/projections/" className="gtp-hit-44 nbx-pill no-underline">All player projections →</Link></p>
       </section>
 
-      {/* 5 · GAME SIMULATIONS — opened from each of today's game cards; never the forecast */}
-      <section id="nba-simulations" className="scroll-mt-24 flex flex-col gap-2" aria-labelledby="nba-simulations-h">
-        <h2 id="nba-simulations-h" className={H2} style={{ color: "var(--vault-text)" }}>{PUBLIC_TERMS.GAME_SIMULATION}s</h2>
-        <p className={MUTE} style={{ color: "var(--vault-text-mute)" }}>
-          {NBA_PUBLIC.features.gameSimulation.note} A simulation is one possible game, not a real one, and it never changes the {PUBLIC_TERMS.OFFICIAL_FORECAST}.{" "}
-          {slate.games.some((g) => g.theaterHref) ? <>Open one from any of <a href={`#${S.games}`} className="underline nbx-inl">today&rsquo;s games</a>.</> : <>They open from today&rsquo;s game cards on game days.</>}
-        </p>
-      </section>
+      {/* 5 · GAME SIMULATIONS — opened from each of today's game cards; never the forecast. Overnight W7 2026-10-28: shown
+          only when today has one to open (a section with no link was a dead end); "How it works" still explains them. */}
+      {simLinks ? (
+        <section id="nba-simulations" className="scroll-mt-24 flex flex-col gap-2" aria-labelledby="nba-simulations-h">
+          <h2 id="nba-simulations-h" className={H2} style={{ color: "var(--vault-text)" }}>{PUBLIC_TERMS.GAME_SIMULATION}s</h2>
+          <p className={MUTE} style={{ color: "var(--vault-text-mute)" }}>
+            {NBA_PUBLIC.features.gameSimulation.note} A simulation is one possible game, not a real one, and it never changes the {PUBLIC_TERMS.OFFICIAL_FORECAST}.{" "}
+            Open one from any of <a href={`#${S.games}`} className="underline nbx-inl">today&rsquo;s games</a>.
+          </p>
+        </section>
+      ) : null}
 
       {/* 6 · RESULTS & MODEL PERFORMANCE — official finals beside the forecast that was frozen for them */}
       <section id="nba-results" className="scroll-mt-24 flex flex-col gap-2" aria-labelledby="nba-results-h">

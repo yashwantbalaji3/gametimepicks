@@ -59,9 +59,12 @@ export function NbaSlateOverview({ slate, boardDates = [] }: { slate: NbaTodaySl
             published.
           </>
         ) : slate.forecast === "PENDING" ? (
+          /* Overnight W7 2026-10-28: ONE line for the slate, with the one time the records hold — the first tip-off it
+             publishes before — instead of the same "not published yet" on every card. No typical publish hour is
+             claimed: none is a sourced constant (the forecast window builds each game up to 8 hours before its tip). */
           <>
-            <strong>Today&rsquo;s {PUBLIC_TERMS.OFFICIAL_FORECAST} is not published yet.</strong> It is frozen before tip-off and appears here
-            once published: the favoured side and {PUBLIC_TERMS.PLAYER_STATISTICS}. Until then the games below show the schedule only.
+            <strong>Today&rsquo;s {PUBLIC_TERMS.OFFICIAL_FORECAST} is not published yet.</strong> It publishes before the first tip-off
+            {first ? ` (${first.tipLabel})` : ""}: the favoured side and {PUBLIC_TERMS.PLAYER_STATISTICS} for every game.
           </>
         ) : slate.forecast === "NO_GAMES" ? (
           <>Schedule and official finals today. The {PUBLIC_TERMS.OFFICIAL_FORECAST} publishes on game days, frozen before tip-off.</>
@@ -85,12 +88,13 @@ export function NbaSlateOverview({ slate, boardDates = [] }: { slate: NbaTodaySl
   );
 }
 
-/** What a card says about the game's Official Forecast, true at build time. */
-function forecastLine(g: NbaTodayGame, pending: boolean): string {
+/** What a card says about the game's Official Forecast, true at build time. Null while the slate's forecast is pending:
+ *  the overview says that once, with the first tip-off (overnight W7 2026-10-28: no repeated "not published yet" cards). */
+function forecastLine(g: NbaTodayGame, pending: boolean): string | null {
   if (g.favoured) return `${PUBLIC_TERMS.OFFICIAL_FORECAST}: ${g.favoured.name ?? g.favoured.abbr} favoured`;
   if (g.excludedReason) return `${PUBLIC_TERMS.UNAVAILABLE}: ${nbaExclusionText(g.excludedReason)}`;
   if (g.status === "final") return `Final recorded · no ${PUBLIC_TERMS.OFFICIAL_FORECAST} was published for this game.`;
-  return pending ? `${PUBLIC_TERMS.OFFICIAL_FORECAST} not published yet — it is frozen before tip-off.` : `No ${PUBLIC_TERMS.OFFICIAL_FORECAST} for this game.`;
+  return pending ? null : `No ${PUBLIC_TERMS.OFFICIAL_FORECAST} for this game.`;
 }
 
 /**
@@ -104,10 +108,15 @@ export function NbaTodayGames({ slate, slip }: { slate: NbaTodaySlate; slip?: Hu
     <div className="nbx-grid">
       {slate.games.map((g) => (
         <MatchupCard key={g.id} favoured={g.favoured?.abbr ?? null} game={{ id: g.id, tipUtc: g.tipUtc, status: g.status, away: { ...g.away, logo: g.away.logoTeam }, home: { ...g.home, logo: g.home.logoTeam } }}>
-          <div className="nbx-read">
-            {g.finalNote ? <strong>Final · {g.finalNote}</strong> : null}
-            <p>{forecastLine(g, pending)}</p>
-          </div>
+          {(() => {
+            const line = forecastLine(g, pending);
+            return g.finalNote || line ? (
+              <div className="nbx-read">
+                {g.finalNote ? <strong>Final · {g.finalNote}</strong> : null}
+                {line ? <p>{line}</p> : null}
+              </div>
+            ) : null;
+          })()}
           {g.favoured || g.theaterHref || slip?.has(g.id) ? (
             <p className="nbx-acts">
               {g.favoured ? <Link href={g.theaterHref ? `${g.theaterHref}#official-predictions` : `#${forecastRowId(g.id)}`} prefetch={false}>{PUBLIC_TERMS.OFFICIAL_FORECAST} →</Link> : null}
