@@ -32,7 +32,7 @@ test("the one footer per sport: exact text, and nothing else", () => {
   });
   assert.equal(disclosureFor("UFC"), DISCLOSURES.UFC);
   assert.throws(() => disclosureFor("NHL"), /no disclosure configured/, "an unconfigured sport gets no graphic");
-  assert.equal(SOCIAL_TEMPLATE, "gtp-social@2.3.1", "every visual change is a new template version, so an earlier design approval (V2.1, 2.2, 2.2.1) does not carry over");
+  assert.equal(SOCIAL_TEMPLATE, "gtp-social@2.3.2", "every visual change is a new template version, so an earlier design approval (V2.1, 2.2, 2.2.1) does not carry over");
 });
 
 test("NBA (all 12 Oct 28 games): one footer, no removed provenance text, one name size per table, values unchanged", { skip: skipSlate }, async () => {
