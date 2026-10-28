@@ -15,7 +15,7 @@ import path from "node:path";
 import { CC_ROOT, REPO_ROOT, sha256 } from "../lib/util.mjs";
 import { escapeHtml as esc, loadChromium, pngSize } from "./render-png.mjs";
 
-export const SOCIAL_TEMPLATE = "gtp-social@2.1";
+export const SOCIAL_TEMPLATE = "gtp-social@2.2";
 const DIR = path.join(CC_ROOT, "render/templates/social-v2");
 const FONTS = path.join(CC_ROOT, "render/fonts");
 /** The asset manifest's version: bound into every V2.1 approval fingerprint with the template version. */
@@ -41,8 +41,24 @@ export const TERMS = Object.freeze({
   top5Td: "Top 5 TD Predictions",
   top5Proj: "Top 5 Projections",
 });
-/** Short disclosures kept on every graphic. */
-export const DISCLOSURE = { NFL: "Model prediction · not betting advice · not affiliated with the NFL or its clubs", NBA: "Model prediction · not betting advice · not affiliated with the NBA or its teams" };
+/**
+ * The ONE public footer per sport (founder 2026-10-28, V2.2): exact text, rendered by the shell for every format. No
+ * provenance, timestamps or ids on the graphic — those stay in the package evidence and the ledger.
+ */
+export const DISCLOSURES = Object.freeze({
+  NFL: "Model projections · Not betting advice · Not affiliated with the NFL or its clubs",
+  NBA: "Model projections · Not betting advice · Not affiliated with the NBA or its teams",
+  MLB: "Model projections · Not betting advice · Not affiliated with MLB or its clubs",
+  UFC: "Model projections · Not betting advice · Not affiliated with UFC",
+  EPL: "Model projections · Not betting advice · Not affiliated with the Premier League or its clubs",
+});
+export const disclosureFor = (sport) => {
+  const d = DISCLOSURES[sport];
+  if (!d) throw new Error(`no disclosure configured for ${sport}: no graphic`);
+  return d;
+};
+/** A player name the fit pass can re-form (never shrink alone): every name in a group shares one size. */
+const pname = (name, group, forms, cls) => `<span class="pname ${cls}" data-name-group="${esc(group)}" data-forms="${esc(JSON.stringify(forms))}">${esc(forms[0])}</span>`;
 
 const slab = (t) => `<div class="slab" style="--c:${esc(t.color)};--a:${esc(t.accent)};--cink:${esc(t.ink)}">
   <div class="city" data-fit>${esc(t.city)}</div><div class="nick" data-fit>${esc(t.nickname)}</div></div>`;
@@ -61,7 +77,7 @@ function postgameBody(m) {
   const tdHtml = td ? `<div class="panel tds">
       <div class="head"><div class="label">${esc(TERMS.topTd)}</div><div class="count">${td.hits} of ${td.shown} scored</div></div>
       <div class="row">${td.candidates.map((c) => `<div class="td ${c.outcome}"><div class="m">${c.outcome === "hit" ? "✓" : "✗"}</div>
-        <div style="min-width:0"><div class="n" data-fit>${esc(c.last)}</div><div class="p">${esc(c.team)} · ${esc(c.probabilityDisplay)}</div></div></div>`).join("")}</div></div>` : "";
+        <div style="min-width:0">${pname(c.last, "td-chips", [c.last], "chip")}<div class="p">${esc(c.team)} · ${esc(c.probabilityDisplay)}</div></div></div>`).join("")}</div></div>` : "";
   return `<div class="kicker">${esc(TERMS.vsFinal)}</div>
     <div class="hero">
       <div class="side"><div class="score ${m.winner === "away" ? "" : "lose"}">${esc(m.finalAway)}</div>${slab(m.away)}</div>
@@ -71,7 +87,7 @@ function postgameBody(m) {
     <div class="banner ${hit ? "hit" : "miss"}"><div class="mark">${hit ? "✓" : "✗"}</div><div class="t">${tie ? "Game tied" : hit ? esc(TERMS.correct) : esc(TERMS.missed)}</div></div>
     <div class="recall"><span class="k">${esc(m.winnerLabel ?? TERMS.predictedWinner)}</span><span class="w">${esc(m.favouredTeam.nickname)}</span><span class="v">${esc(m.winProbabilityDisplay)}</span><span class="k">${esc(TERMS.winProbability)}</span></div>
     ${tdHtml}
-    <div class="foot">Prediction frozen before kickoff <b>${esc(m.frozenLine)}</b><br>${esc(DISCLOSURE.NFL)}</div>`;
+`;
 }
 
 function pregameBody(m) {
@@ -80,8 +96,7 @@ function pregameBody(m) {
     <div class="hero pre"><div class="side">${slab(m.away)}</div><div class="mid"><span>@</span></div><div class="side">${slab(m.home)}</div></div>
     <div class="ringwrap">${ring(m.winProbability)}<div class="in"><div class="k">${esc(TERMS.winProbability)}</div><div class="num">${esc(pct)}<small>%</small></div></div></div>
     <div class="winner"><div class="k">${esc(m.winnerLabel ?? TERMS.predictedWinner)}</div>${slab(m.favouredTeam)}</div>
-    <div class="strip"><div><b data-fit>${esc(m.kickoffDay)}</b><span>Kickoff ${esc(m.kickoffTime)}</span></div>${m.venue ? `<div><b data-fit>${esc(m.venue)}</b><span>Venue</span></div>` : ""}<div><b data-fit>${esc(m.frozenShort)}</b><span>${esc(m.stampShort)}</span></div></div>
-    <div class="legal">${esc(DISCLOSURE.NFL)}</div>`;
+    <div class="strip"><div><b data-fit>${esc(m.kickoffDay)}</b><span>Kickoff ${esc(m.kickoffTime)}</span></div>${m.venue ? `<div><b data-fit>${esc(m.venue)}</b><span>Venue</span></div>` : ""}</div>`;
 }
 
 function touchdownsBody(m) {
@@ -89,36 +104,35 @@ function touchdownsBody(m) {
   // columns 2 · 1 · 3 so the top prediction sits in the centre
   const order = [m.candidates[1], m.candidates[0], m.candidates[2]].filter(Boolean);
   return `<div class="kicker">${esc(TERMS.topTd)}</div>
-    <div class="sub" data-fit>${esc(m.away.abbr)} @ ${esc(m.home.abbr)} · ${esc(m.kickoffLine)}</div>
+    <div class="sub" data-fit>${esc(m.away.abbr)} @ ${esc(m.home.abbr)} · Anytime TD · if he plays · passing TDs don't count</div>
     <div class="feat" style="grid-template-columns:${order.map((c) => (c.rank === 1 ? "1.16fr" : "1fr")).join(" ")}">${order.map((c) => `<div class="pcol r${c.rank}" style="--c:${esc(c.accent)}">
         <div class="bign">${c.rank}</div>
         <div class="rk">#${c.rank}</div>
-        <div class="first" data-fit>${esc(c.first)}</div><div class="last" data-fit>${esc(c.last)}</div>
+        ${pname(c.first || " ", "td-first", [c.first || " "], "feature-first")}${pname(c.last, "td-last", [c.last], "feature")}
         <div class="tm">${tag(c.team, c.color, c.ink)}</div>
         <div class="pv">${esc(c.probabilityDisplay)}</div><div class="pl">TD PROBABILITY</div>
         ${String(c.participation).toUpperCase() === "QUESTIONABLE" ? `<div class="fl"><span class="flag" style="font:700 20px/1 var(--display);letter-spacing:3px;padding:7px 10px 4px;border-radius:6px;border:1px solid rgba(255,178,63,.7);color:var(--miss)">QUESTIONABLE</span></div>` : ""}
         ${graded ? `<div class="rs ${c.outcome}">${c.outcome === "hit" ? "✓ SCORED" : c.outcome === "miss" ? "✗ NO TD" : "NOT GRADED"}</div>` : ""}
       </div>`).join("")}</div>
-    <div class="foot">Predicted chance to score a TD if he plays · passing TDs don't count · not a guarantee<br>
-      ${m.mode === "record" ? "Published before kickoff" : "Latest published"} <b>${esc(m.frozenLine)}</b> · not betting advice · not affiliated with the NFL or its clubs</div>`;
+`;
 }
 
 function top5Body(m) {
   return `<div class="kicker">${esc(m.isTd ? TERMS.top5Td : TERMS.top5Proj)}</div>
     <div class="title" style="font-size:84px;margin-top:14px">${esc(m.title)}</div>
+    <div class="sub" data-fit>${m.isTd ? "Anytime TD · if he plays · passing TDs don't count" : "Projected median for the game"}</div>
     <div class="t5">${m.rows.map((r) => `<div class="t5row r${r.rank}" style="--c:${esc(r.accent)}">
         <div class="n">${r.rank}</div>
-        <div style="min-width:0"><div class="nm" data-fit>${esc(r.name)}</div><div class="sb">${tag(r.team, r.color, r.ink)}<span>vs ${esc(r.opponent)} · ${esc(r.kickoffShort)}</span></div></div>
+        <div style="min-width:0">${pname(r.name, "board", r.nameForms ?? [r.name], "board")}<div class="sb">${tag(r.team, r.color, r.ink)}<span>vs ${esc(r.opponent)} · ${esc(r.kickoffShort)}</span></div></div>
         <div class="v"><b>${esc(r.valueDisplay)}</b><span>${esc(r.unit)}</span></div></div>`).join("")}</div>
-    <div class="foot">${esc(m.note)}<br>Frozen before the first kickoff <b>${esc(m.frozenLine)}</b> · not betting advice · not affiliated with the NFL or its clubs</div>`;
+`;
 }
 
 function nbaPregameBody(m) {
   return `<div class="kicker">${esc(TERMS.prediction)}</div>
     <div class="hero pre"><div class="side">${slab(m.away)}</div><div class="mid"><span>@</span></div><div class="side">${slab(m.home)}</div></div>
     <div class="nbawin"><div class="k">${esc(TERMS.predictedWinner)}</div>${slab(m.favouredTeam)}<div class="abbr">${esc(m.favouredTeam.abbr)}</div></div>
-    <div class="strip"><div><b data-fit>${esc(m.tipDay)}</b><span>Tip-off ${esc(m.tipTime)}</span></div><div><b data-fit>${esc(m.frozenShort)}</b><span>Frozen before tip-off</span></div></div>
-    <div class="legal">${esc(DISCLOSURE.NBA)}</div>`;
+    <div class="strip"><div><b data-fit>${esc(m.tipDay)}</b><span>Tip-off</span></div><div><b data-fit>${esc(m.tipTime)}</b><span>Eastern time</span></div></div>`;
 }
 
 function nbaFinalBody(m) {
@@ -129,17 +143,17 @@ function nbaFinalBody(m) {
       <div class="side"><div class="score ${m.winner === "home" ? "" : "lose"}" style="font-size:250px">${esc(m.finalHome)}</div>${slab(m.home)}</div>
     </div>
     <div class="sub" style="margin-top:34px">${esc(m.dateLine)}</div>
-    <div class="foot">Official final from the NBA finals record · ${esc(DISCLOSURE.NBA)}</div>`;
+`;
 }
 
 function nbaPlayersBody(m) {
   const col = (t, ps) => `<div class="lcol" style="--c:${esc(t.accent)}"><h3 data-fit>${esc(t.nickname)}</h3>
-    <div class="lrow hd"><span>PLAYER</span><span style="text-align:right">PTS</span><span style="text-align:right">REB</span><span style="text-align:right">AST</span></div>
-    ${ps.map((p) => `<div class="lrow"><span class="pn" data-fit>${esc(p.name)}</span><b class="pts">${esc(p.pts)}</b><b>${esc(p.reb)}</b><b>${esc(p.ast)}</b></div>`).join("")}</div>`;
+    <div class="lrow hd"><span>PLAYER</span><span>PTS</span><span>REB</span><span>AST</span></div>
+    ${ps.map((p) => `<div class="lrow">${pname(p.fullName ?? p.name, "table", p.nameForms ?? [p.fullName ?? p.name], "table")}<b class="pts">${esc(p.pts)}</b><b>${esc(p.reb)}</b><b>${esc(p.ast)}</b></div>`).join("")}</div>`;
   return `<div class="kicker">Projected stat lines</div>
-    <div class="sub" data-fit>${esc(m.away.abbr)} @ ${esc(m.home.abbr)} · ${esc(m.tipLine)}</div>
+    <div class="sub" data-fit>${esc(m.away.abbr)} @ ${esc(m.home.abbr)}</div>
     <div class="lines">${col(m.away, m.awayPlayers)}${col(m.home, m.homePlayers)}</div>
-    <div class="foot">Projected medians · players as published, not ranked · frozen <b>${esc(m.frozenShort)}</b><br>${esc(DISCLOSURE.NBA)}</div>`;
+`;
 }
 
 const BODIES = {
@@ -160,7 +174,7 @@ export function socialHtml(m) {
   const res = m.format === "postgame" ? (m.result === "WIN" ? "res-hit" : m.result === "LOSS" ? "res-miss" : "") : "";
   const slots = {
     rawCss: css, rawVars: `--ca:${esc(m.away?.accent ?? "#12B865")};--cb:${esc(m.home?.accent ?? "#12B865")}`, ghostA: m.away?.abbr ?? "", ghostB: m.home?.abbr ?? "",
-    logoDataUri: logo, chip: chipOf(m), rawBody: body(m), rawBodyClass: res,
+    logoDataUri: logo, chip: chipOf(m), rawBody: body(m), rawBodyClass: res, disclosure: disclosureFor(m.league ?? "NFL"),
   };
   return fs.readFileSync(path.join(DIR, "shell.html"), "utf8").replace(/\{\{(\w+)\}\}/g, (_, k) => {
     if (!(k in slots)) throw new Error(`slot {{${k}}} has no value`);

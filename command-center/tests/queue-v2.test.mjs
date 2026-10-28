@@ -39,11 +39,11 @@ test("V2.1 TNF queue: CAR @ GB prediction READY, Top 3 TD needs availability, ve
   assert.equal(pre.assetManifest, ASSET_MANIFEST);
   assert.ok(pre.captions.every((c) => c.check.ok), JSON.stringify(pre.captions.map((c) => c.check)));
   assert.ok(pre.captions.every((c) => c.publishBundle.template === SOCIAL_TEMPLATE && c.publishBundle.assetManifest === ASSET_MANIFEST));
-  assert.match(pre.captions[0].text, /GameTimePicks Prediction · Panthers at Packers.*Predicted Winner: Green Bay Packers, 63\.8% Win Probability/);
+  assert.ok(pre.captions.some((c) => /Our model gives Green Bay a 63\.8% chance to win\./.test(c.text) && /Thursday Night Football/.test(c.text)), pre.captions.map((c) => c.text).join("\n---\n"));
   assert.doesNotMatch(pre.captions.map((c) => c.text).join(" "), /projected|total|33\.5/i, "no projections, no opponent probability");
   const td = q.packages.find((p) => p.kind === "td-top3");
   assert.equal(td.status, "NEEDS_VERIFICATION");
-  assert.match(td.captions[0].text, /Chuba Hubbard 54\.9%.*Josh Jacobs 46\.4%.*Christian Watson 39\.5%/);
+  assert.match(td.captions[0].text, /1\. Chuba Hubbard — 54\.9%\n2\. Josh Jacobs — 46\.4%\n3\. Christian Watson — 39\.5%/);
   assert.ok(q.skipped.some((s) => /Top 5 boards/.test(s.opportunity) && /no frozen Top Board/.test(s.reason)), "no board yet: said, not invented");
   assert.ok(q.skipped.some((s) => s.sport === "NBA" && /not published at the data commit/.test(s.reason)));
 });
@@ -118,7 +118,7 @@ test("V2.1 Sunday-style slate: Top 5 boards from the frozen public board; rushin
   const top5 = q.packages.filter((p) => p.kind === "top5-board");
   assert.deepEqual(top5.map((p) => p.family).sort(), ["anytime_td", "player_reception_yds", "player_receptions"]);
   assert.ok(top5.every((p) => p.status === "READY" && p.captions.every((c) => c.check.ok)));
-  assert.match(top5.find((p) => p.family === "anytime_td").captions[0].text, /1\. Jahmyr Gibbs \(DET\) 84\.3%/);
+  assert.ok(top5.find((p) => p.family === "anytime_td").captions.every((c) => /1\. Jahmyr Gibbs \(DET\) — 84\.3%/.test(c.text)));
   for (const fam of ["Rushing Yards", "Passing Yards"]) assert.ok(q.skipped.some((s) => s.opportunity.includes(fam) && /held/.test(s.reason)), fam);
 });
 
@@ -178,7 +178,7 @@ test("Sunday: PHI @ WSH is a Most Likely Winner at the official 49.9%; the inven
   const r = await o.handleCommand("Team, prepare the content queue for 2026-11-01", FOUNDER);
   const phi = postsOf(o, r.commandId).find((p) => p.package.title.startsWith("PHI @ WSH"));
   assert.equal(phi.package.winnerLabel, "Most Likely Winner");
-  assert.match(phi.options[0].text, /Most Likely Winner: Philadelphia Eagles, 49\.9% Win Probability/);
+  assert.ok(phi.options.some((o2) => /Our model has Philadelphia as the most likely winner at 49\.9%/.test(o2.text)));
   assert.ok(phi.options.every((o2) => o2.check.ok));
   const others = postsOf(o, r.commandId).filter((p) => p.package.kind === "pregame-forecast" && p.decisionId !== phi.decisionId);
   assert.ok(others.every((p) => p.package.winnerLabel === "Predicted Winner"));

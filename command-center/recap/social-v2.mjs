@@ -21,6 +21,7 @@ import { candidateFor } from "./pipeline.mjs";
 import { runIntegrityGate } from "./integrity-gate.mjs";
 import { buildFactBundle, claimOf, etDisplay } from "./fact-bundle-nfl.mjs";
 import { nflVersions, siteForecast } from "./freeze-verifier.mjs";
+import { formsForGroup, parseName } from "./player-names.mjs";
 
 export const SOCIAL_V2_SPEC = "nfl-social@2";
 const LEDGER = "data/internal/forecast-ledger/v1/nfl.jsonl";
@@ -135,16 +136,17 @@ export function touchdowns({ src, eventId, mode, now = null, showResults = mode 
   if (eligible.length > 3 && eligible[2].probability === eligible[3].probability) return { ok: false, reason: `tie at rank 3 (${pct(eligible[2].probability)})` };
   if (!top.length) return { ok: false, reason: "no eligible candidate" };
   const [awayAbbr, homeAbbr] = String(meta.matchup).split(" @ ");
+  const names = nflVersions(src, eventId).at(-1)?.receipt ?? null;
   const flags = top.filter((p) => String(p.participation).toUpperCase() === "QUESTIONABLE").map((p) => `${p.name} is QUESTIONABLE`);
   return {
     ok: true, format: "touchdowns", spec: SOCIAL_V2_SPEC, eventId, mode, showResults: mode === "record" && showResults,
-    away: teamOf(awayAbbr, awayAbbr), home: teamOf(homeAbbr, homeAbbr),
+    // full team names from the event's own frozen receipt (the board only carries abbreviations)
+    away: teamOf(awayAbbr, names?.away?.name ?? awayAbbr), home: teamOf(homeAbbr, names?.home?.name ?? homeAbbr),
     kickoff: meta.kickoff, kickoffLine: kickoffLine(meta.kickoff), week: meta.week, frozenAt: meta.frozenAt, frozenLine: etDisplay(meta.frozenAt),
     candidates: top.map((p, i) => {
       const c = nflTeamColor(p.team);
-      const parts = String(p.name).split(" ");
-      const suffix = /^(Jr\.?|Sr\.?|II|III|IV)$/i.test(parts.at(-1)) ? parts.pop() : null;
-      return { rank: i + 1, name: p.name, first: parts.slice(0, -1).join(" "), last: `${parts.at(-1)}${suffix ? ` ${suffix}` : ""}`, team: p.team,
+      const n = parseName(p.name);
+      return { rank: i + 1, name: p.name, first: n.first, last: `${n.surname}${n.suffix ? ` ${n.suffix}` : ""}`, team: p.team,
         color: c?.primary ?? "#3A3F4B", ink: c?.ink ?? "#FFFFFF", accent: c?.accent ?? c?.primary ?? "#3A3F4B", probability: p.probability, probabilityDisplay: pct(p.probability),
         participation: p.participation, outcome: p.outcome ?? null, id: p.id };
     }),
@@ -217,13 +219,14 @@ export function topBoard({ src, date, family }) {
   const firstKick = j.firstKickoffUtc;
   return {
     ok: true, format: "top5", spec: SOCIAL_V2_SPEC, family, date, isTd: Boolean(def.isTd), title: def.title,
+    dayName: ET({ weekday: "long" }).format(new Date(`${date}T16:00:00Z`)), unitShort: family === "player_receptions" ? "rec" : "yds",
     slateLine: ET({ weekday: "short", month: "short", day: "numeric" }).format(new Date(`${date}T16:00:00Z`)), week: null,
     frozenLine: etDisplay(j.publishedAt), rule: j.rule,
     note: def.isTd ? "Predicted chance to score a TD if he plays · passing TDs don't count · not a guarantee" : "Projected (median) for the game · not a guarantee",
-    rows: board.rows.map((r) => {
+    rows: board.rows.map((r, i, all) => {
       const c = nflTeamColor(r.team);
       const v = def.isTd ? pct(r.projection.probability) : String(r.projection.median);
-      return { rank: r.rank, name: r.name, team: r.team, opponent: r.opponent, color: c?.primary ?? "#3A3F4B", ink: c?.ink ?? "#FFF", accent: c?.accent ?? "#3A3F4B",
+      return { rank: r.rank, name: r.name, nameForms: formsForGroup(all.map((x) => x.name))[i], team: r.team, opponent: r.opponent, color: c?.primary ?? "#3A3F4B", ink: c?.ink ?? "#FFF", accent: c?.accent ?? "#3A3F4B",
         valueDisplay: v, unit: def.unit, participation: r.participation, kickoffShort: ET({ weekday: "short", hour: "numeric", minute: "2-digit" }).format(new Date(r.kickoffUtc)), forecastId: r.forecastId };
     }),
     status: rows.some((r) => String(r.participation).toUpperCase() === "QUESTIONABLE") ? "NEEDS_VERIFICATION" : "READY",
@@ -300,15 +303,41 @@ export function nbaPlayers({ src, eventId, date = "latest" }) {
   const one = (x) => (typeof x === "number" ? x.toFixed(1) : null);
   const lines = (arr) => (arr ?? []).filter((x) => !x.injuryStatus || !EXCLUDED.has(String(x.injuryStatus).toUpperCase()))
     .filter((x) => x.medians && one(x.medians.pts) != null).slice(0, NBA_LINES_PER_TEAM)
-    .map((x) => ({ name: shortName(x.name), fullName: x.name, pts: one(x.medians.pts), reb: one(x.medians.reb), ast: one(x.medians.ast), id: x.providerAthleteId }));
+    .map((x) => ({ name: shortName(x.name), fullName: x.name, pts: one(x.medians.pts), reb: one(x.medians.reb), ast: one(x.medians.ast), id: x.providerAthleteId,
+      expectedMinutes: x.expectedMinutes ?? null, injuryStatus: x.injuryStatus ?? null }));
   const awayPlayers = lines(g.players?.away);
   const homePlayers = lines(g.players?.home);
+  // one name system for the whole graphic (a shared short form falls back to full names for both players)
+  const forms = formsForGroup([...awayPlayers, ...homePlayers].map((p) => p.fullName));
+  [...awayPlayers, ...homePlayers].forEach((p, i) => { p.nameForms = forms[i]; p.name = p.fullName; });
   if (!awayPlayers.length || !homePlayers.length) return { ok: false, reason: "a team has no published player medians" };
+  const away = nbaTeamOf(g.away.abbr, g.away.name);
+  const home = nbaTeamOf(g.home.abbr, g.home.name);
   return {
+    featured: [featuredFor("nba", g.away.abbr, awayPlayers), featuredFor("nba", g.home.abbr, homePlayers)],
     ok: true, format: "nba-players", league: "NBA", spec: SOCIAL_V2_SPEC, eventId,
-    away: nbaTeamOf(g.away.abbr, g.away.name), home: nbaTeamOf(g.home.abbr, g.home.name), awayPlayers, homePlayers,
+    away, home, awayPlayers, homePlayers,
     tipLine: kickoffLine(g.tipUtc), kickoffLine: kickoffLine(g.tipUtc), tipUtc: g.tipUtc, laneDate: j.date,
     frozenShort: ET({ month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(g.frozenAt)).replace(" at ", ", "),
     evidence: [{ label: "NBA public lane", ref: `${p}@${src.commit?.slice(0, 12)}`, sha256: sha(raw) }],
   };
+}
+
+// ── featured players for caption highlights (founder 2026-10-28) ────────────────────────────────────────────────
+const FEATURED = JSON.parse(fs.readFileSync(new URL("../editorial/featured-players.json", import.meta.url), "utf8"));
+/**
+ * One player per team for a caption: an approved editorial entry when he is in this graphic with valid medians and no
+ * injury flag; otherwise the player with the most published expected minutes and no injury flag. Never a player who
+ * isn't in the published projections; null (with a reason) when nobody qualifies.
+ */
+export function featuredFor(sport, team, players) {
+  const ok = players.filter((p) => !p.injuryStatus && [p.pts, p.reb, p.ast].every((v) => v != null));
+  const listed = (FEATURED[sport]?.[team] ?? []).filter((e) => e.approvedBy);
+  for (const e of listed) {
+    const p = ok.find((x) => String(x.id) === String(e.providerAthleteId));
+    if (p) return { team, player: p, basis: `editorial list (${e.source})` };
+  }
+  const why = listed.length ? `listed player not eligible today (${listed.map((e) => e.name).join(", ")})` : "no editorial entry";
+  const best = [...ok].sort((a, b) => (b.expectedMinutes ?? 0) - (a.expectedMinutes ?? 0) || String(a.id).localeCompare(String(b.id)))[0];
+  return best ? { team, player: best, basis: `most published expected minutes, no injury flag (${why})` } : { team, player: null, basis: `no eligible player (${why})` };
 }

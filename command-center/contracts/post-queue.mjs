@@ -58,7 +58,7 @@ export function checkCaption(text, pkg) {
   const plain = String(text).replace(/\bnot betting advice\b/gi, "");
   for (const t of [...FORBIDDEN_TERMS, ...EXTRA_FORBIDDEN]) if (new RegExp(`\\b${escapeRe(t)}\\b`, "i").test(plain)) problems.push({ code: REASON.FORBIDDEN_TERM, detail: `"${t}"` });
   if (/https?:\/\/|www\.|\b[a-z0-9-]+\.(com|net|org|io|co)\b/i.test(text)) problems.push({ code: REASON.URL_IN_CAPTION, detail: "no links in post text" });
-  if (String(text).length > MAX_CAPTION) problems.push({ code: REASON.TOO_LONG, detail: `${String(text).length} > ${MAX_CAPTION} characters` });
+  if (xLength(text) > MAX_CAPTION) problems.push({ code: REASON.TOO_LONG, detail: `${xLength(text)} > ${MAX_CAPTION} (X-weighted length)` });
   const retired = retiredPhraseIn(text, pkg.label?.retiredPhrases ?? []);
   if (retired) problems.push({ code: REASON.RETIRED_PHRASE, detail: `"${retired}" was retired from public surfaces` });
   // The public terms are Prediction / Projection (founder 2026-10-28); the factual rule is unchanged: talk about the
@@ -89,7 +89,7 @@ export function publishBundleOf(pkg, caption) {
 export function sealPackage(pkg, { check = checkCaption } = {}) {
   const captions = pkg.captions.map((c) => {
     const result = c.check ?? check(c.text, pkg);
-    const sealed = { ...c, chars: Array.from(c.text).length, check: result };
+    const sealed = { ...c, chars: xLength(c.text), check: result };
     const bundle = publishBundleOf(pkg, sealed);
     return { ...sealed, publishBundle: bundle, digest: digestOf(bundle) };
   });
@@ -316,4 +316,22 @@ export function queueInventory(posts) {
   const sum = Object.values(byStatus).reduce((a, b) => a + b, 0);
   if (sum !== inv.open || inv.graphics + inv.textOnly !== inv.open) throw new Error(`queue inventory does not add up: ${JSON.stringify(inv)}`);
   return inv;
+}
+
+/**
+ * X's weighted length (twitter-text v3 rules): an emoji sequence counts 2, characters in the light ranges count 1,
+ * anything else counts 2; line breaks count 1. The 280 limit is checked on this, not on string.length.
+ */
+const LIGHT = [[0, 4351], [8192, 8205], [8208, 8223], [8242, 8247]];
+export function xLength(text) {
+  let n = 0;
+  for (const { segment } of new Intl.Segmenter("en", { granularity: "grapheme" }).segment(String(text))) {
+    if (/\p{Extended_Pictographic}/u.test(segment)) { n += 2; continue; }
+    for (const ch of segment) {
+      const cp = ch.codePointAt(0);
+      if (cp === 0xfe0f || cp === 0x200d) continue;
+      n += LIGHT.some(([a, b]) => cp >= a && cp <= b) ? 1 : 2;
+    }
+  }
+  return n;
 }

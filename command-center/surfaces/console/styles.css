@@ -290,3 +290,6 @@ body.signed-out .layout, body.signed-out .tabbar, body.signed-out .topbar { visi
 .metrics label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--faint); }
 .confirm { display: flex; align-items: center; gap: 8px; font-size: 13px; margin: 8px 0; }
 .confirm input { width: 20px; height: 20px; accent-color: var(--accent); flex: none; }
+
+/* V2.2: captions shown as they will read on X — real line breaks, X-like type */
+.option .txt.xpost { white-space: pre-wrap; font-size: 15px; line-height: 1.45; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; }

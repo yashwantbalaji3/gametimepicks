@@ -279,3 +279,49 @@ body.res-miss .frame { border: 4px solid rgba(255,178,63,.9); box-shadow: 0 0 60
 .lrow b { font-size: 44px; }
 .sub { text-shadow: 0 2px 12px rgba(0,0,0,.85); }
 .kicker { text-shadow: 0 0 18px rgba(57,255,136,.6), 0 2px 10px rgba(0,0,0,.9); }
+
+/* ── V2.2 shared standards (founder 2026-10-28): one footer, one name system ─────────────────────────── */
+:root {
+  /* player-name tokens: one size per component, same weight / tracking / case everywhere */
+  --pname-weight: 800; --pname-track: 0.5px;
+  --pname-table: 36px;   /* NBA stat tables, future MLB/soccer tables */
+  --pname-board: 52px;   /* Top 5 boards */
+  --pname-feature: 52px; /* Top 3 feature columns (surname line) */
+  --pname-feature-first: 24px;
+  --pname-chip: 26px;    /* compact rows (postgame TD results) */
+  --disclosure-size: 20px;
+}
+.pname { display: block; font-family: var(--headline); font-weight: var(--pname-weight); letter-spacing: var(--pname-track);
+  text-transform: uppercase; white-space: nowrap; overflow: hidden; line-height: 1.05; min-width: 0; }
+.pname.table { font-size: var(--pname-table); }
+.pname.board { font-size: var(--pname-board); }
+.pname.feature { font-size: var(--pname-feature); text-align: center; position: relative; }
+.pname.feature-first { font-size: var(--pname-feature-first); font-weight: 700; letter-spacing: 3px; color: var(--mute); text-align: center; position: relative; }
+.pname.chip { font-size: var(--pname-chip); }
+/* stat tables: a fixed grid so every name starts on the same line and the numbers never crowd it */
+.lrow { grid-template-columns: minmax(0, 1fr) repeat(3, 64px); align-items: center; min-height: 66px; }
+.lrow b { font-size: 40px; }
+.lcol { align-self: stretch; }
+/* the one footer: centred, single line, readable, secondary */
+.foot, .legal { display: none; }
+.disclosure { margin-top: auto; padding-top: 14px; text-align: center; font: 600 var(--disclosure-size)/1.25 var(--body); color: var(--mute);
+  letter-spacing: 0.2px; white-space: nowrap; }
+/* V2.2 stat table: the name gets the full column width, stats sit beneath it on a fixed 3-column grid */
+.lrow { grid-template-columns: repeat(3, 1fr); row-gap: 4px; padding: 12px 6px; min-height: 0; }
+.lrow .pname.table { grid-column: 1 / -1; }
+.lrow b { text-align: center; font-size: 38px; }
+.lrow.hd { grid-template-columns: repeat(3, 1fr); padding: 4px 6px 10px; }
+.lrow.hd span { text-align: center !important; }
+.lrow.hd span:first-child { display: none; }
+/* one table size for every game: 32px names in a slightly wider column (tested over a full 12-game slate) */
+:root { --pname-table: 32px; }
+.lcol { padding: 20px 14px 16px; }
+.lrow { padding: 12px 2px; }
+/* one grid for every board row: same border width (the #1 row differs only in colour/glow), so names share a left edge */
+.t5row { border-width: 3px; border-style: solid; }
+.t5row:not(.r1) { border-color: color-mix(in srgb, var(--c) 60%, #fff 10%); }
+.pcol { border-width: 3px; }
+
+/* Top 3 feature surnames: one size for all three; a long compound surname breaks at its hyphen or space (two lines max)
+   instead of being shrunk alone or refused */
+.pname.feature { white-space: normal; overflow-wrap: normal; word-break: normal; line-height: 1.02; overflow: visible; }

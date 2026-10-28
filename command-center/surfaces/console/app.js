@@ -351,6 +351,16 @@
   // ── D1 content queue ──────────────────────────────────────────────────────────────────────────────────────
   const LIFE_LABEL = { invalidated: "Approval invalidated · content changed", drafted: "Needs your decision", approved: "Approved · post it yourself", scheduled: "Scheduled by you", published: "Published by you", rejected: "Rejected", revise: "Revision requested", deferred: "Deferred", superseded: "Superseded" };
   const postOpen = (p) => p.lifecycle === "drafted";
+  /** X's weighted length (same rules as contracts/post-queue.mjs xLength): emoji 2, light ranges 1, others 2. */
+  const LIGHT = [[0, 4351], [8192, 8205], [8208, 8223], [8242, 8247]];
+  function xLen(text) {
+    let n = 0;
+    for (const { segment } of new Intl.Segmenter("en", { granularity: "grapheme" }).segment(String(text))) {
+      if (/\p{Extended_Pictographic}/u.test(segment)) { n += 2; continue; }
+      for (const ch of segment) { const cp = ch.codePointAt(0); if (cp === 0xfe0f || cp === 0x200d) continue; n += LIGHT.some(([a, b]) => cp >= a && cp <= b) ? 1 : 2; }
+    }
+    return n;
+  }
   const draftVal = (k) => esc(ui.drafts[k] ?? "");
   function evidenceList(pkg) {
     const ref = (r) => (typeof r === "string" ? r : r ? `${r.path ?? ""}${r.forecastId ? `#${r.forecastId}` : ""}${r.commit ? `@${String(r.commit).slice(0, 12)}` : ""}${r.sha256 ? ` · ${String(r.sha256).slice(0, 12)}` : ""}` : "");
@@ -362,14 +372,14 @@
     const chosen = ui.choice[p.decisionId] ?? decided?.captionId ?? p.options.find((o) => o.check?.ok)?.captionId;
     return p.options.map((o) => {
       captionTextMap.set(`${p.decisionId}:${o.captionId}`, o.text);
-      const n = Array.from(o.text).length;
+      const n = xLen(o.text);
       const approvedThis = decided?.verdict === "approve" && decided.captionId === o.captionId;
       if (decided && decided.verdict === "approve" && !approvedThis) return "";
       return `<label class="option ${chosen === o.captionId ? "selected" : ""}">
         <input type="radio" name="opt-${esc(p.decisionId)}" value="${esc(o.captionId)}" ${chosen === o.captionId ? "checked" : ""} ${decided || !o.check?.ok ? "disabled" : ""} data-choose="${esc(p.decisionId)}">
-        <div><div class="txt">${esc(o.text)}</div>
+        <div><div class="txt xpost">${esc(o.text)}</div>
         <div class="meta">${approvedThis ? `<b class="check-ok">APPROVED</b> · ` : ""}Caption ${esc(o.captionId)} · ${esc(o.tone)}${o.source === "chatgpt-calendar-draft" ? " · ChatGPT's wording" : " · template from the evidence"} · ${o.check?.ok ? `<span class="check-ok">check ✓</span>` : `<span class="check-bad">check ✗ ${esc((o.check?.problems ?? []).map((x) => `${x.code} ${x.detail}`).join("; "))}</span>`}</div>
-        <span class="caption-counter${n > 280 ? " over" : ""}">${num(n)}/280</span>
+        <span class="caption-counter${n > 280 ? " over" : ""}" title="X-weighted length (emoji count 2)">${num(n)}/280 on X</span>
         <button type="button" class="btn small" data-copy-caption="${esc(p.decisionId)}:${esc(o.captionId)}">Copy caption</button></div>
       </label>`;
     }).join("");
@@ -420,6 +430,7 @@
       <div class="q">${esc(pkg.title)}</div>
       ${pkg.media ? `<img src="/media/${encodeURIComponent(pkg.media.file)}" alt="${esc(pkg.media.altText)}" data-zoom loading="lazy">` : `<div class="muted">Text post (no graphic).</div>`}
       ${(pkg.reasons ?? []).length ? `<ul class="warns">${pkg.reasons.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>` : ""}
+      ${pkg.featured?.length ? `<div class="muted">Featured in the caption: ${pkg.featured.map((f) => `<b>${esc(f.name ?? "none")}</b> (${esc(f.team)}) — ${esc(f.basis)}`).join(" · ")}. A caption highlight, not a model ranking.</div>` : ""}
       ${pkg.xSources?.length ? `<div class="section muted">Open these first</div><div class="links">${pkg.xSources.map((u) => xLink(u)).join(" ")}</div>` : ""}
       ${postCaptions(p)}
       ${evidenceList(pkg)}
@@ -470,9 +481,9 @@
       return `<div class="decision">
         <div class="q">${esc(d.question)}</div>
         <img src="/media/${encodeURIComponent(d.media.file)}" alt="${esc(d.media.altText)}" data-zoom>
-        ${d.options.map((o) => { captionTextMap.set(`${d.decisionId}:${o.captionId}`, o.text); const cpCount = Array.from(o.text).length; const over = cpCount > 280; return `<label class="option ${chosen === o.captionId ? "selected" : ""}">
+        ${d.options.map((o) => { captionTextMap.set(`${d.decisionId}:${o.captionId}`, o.text); const cpCount = xLen(o.text); const over = cpCount > 280; return `<label class="option ${chosen === o.captionId ? "selected" : ""}">
           <input type="radio" name="opt-${esc(d.decisionId)}" value="${esc(o.captionId)}" ${chosen === o.captionId ? "checked" : ""} ${decided ? "disabled" : ""} data-choose="${esc(d.decisionId)}">
-          <div><div class="txt">${esc(o.text)}</div>
+          <div><div class="txt xpost">${esc(o.text)}</div>
           <div class="meta">${decided?.captionId === o.captionId && decided.verdict === "approve" ? `<b class="check-ok">APPROVED</b> · ` : ""}Caption ${esc(o.captionId)} · ${esc(o.tone)}${d.recommended === o.captionId ? " · recommended" : ""} · ${o.check?.ok ? "validator ✓" : "validator ✗"} · digest ${esc(o.digest.slice(0, 12))}…</div>
           <span class="caption-counter${over ? " over" : ""}" aria-label="${cpCount} of 280 characters">${cpCount}/280</span>
           <button type="button" class="btn small" data-copy-caption="${esc(d.decisionId)}:${esc(o.captionId)}" aria-label="Copy caption ${esc(o.captionId)}">Copy caption</button></div>

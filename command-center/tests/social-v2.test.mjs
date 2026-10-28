@@ -11,7 +11,7 @@ import { REPO_ROOT } from "../lib/util.mjs";
 import { gitDataSource, dirDataSource } from "../recap/multisport-facts.mjs";
 import { publicLabelOf } from "../recap/public-registry.mjs";
 import { pregameWinner, touchdowns, postgame, teamOf } from "../recap/social-v2.mjs";
-import { socialHtml, renderSocial } from "../render/social-v2.mjs";
+import { socialHtml, renderSocial, DISCLOSURES } from "../render/social-v2.mjs";
 import { pngSize } from "../render/render-png.mjs";
 import { tempDir } from "./helpers.mjs";
 import { QUEUE_PINNED, QUEUE_NOW, hasPinned } from "./queue-fixtures.mjs";
@@ -57,11 +57,13 @@ test("graphics carry none of the removed clutter: no projections, totals, ranges
   ];
   for (const m of models) {
     assert.ok(m.ok, m.reason);
-    const text = visibleText(socialHtml(m));
+    const full = visibleText(socialHtml(m));
+    // the mandated footer ("Model projections · …") appears exactly once; everything else is checked without it
+    assert.equal(full.split(DISCLOSURES.NFL).length - 1, 1, `${m.format}: exactly one standard footer`);
+    const text = full.replace(DISCLOSURES.NFL, " ");
     assert.doesNotMatch(text, /projected|projection|total|80%|range/i, `${m.format}: projected scores/totals/ranges stay off the graphic`);
     assert.doesNotMatch(text, /fl1-|sha256|[0-9a-f]{12}|https?:|\.com|Model Performance|anytime_td|nfl_game/i, `${m.format}: no internal ids, hashes, URLs or field names`);
-    assert.match(text, /not betting advice/i, "the short disclosure stays");
-    assert.match(text, /not affiliated with the NFL/i);
+    assert.match(full, /Model projections · Not betting advice · Not affiliated with the NFL or its clubs/, "the standard disclosure stays");
   }
 });
 
