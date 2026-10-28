@@ -29,7 +29,13 @@ export interface OverviewPopulation {
   group?: string | null; tag?: string | null;
   days: Array<{ date: string; won: number; lost: number; push: number; void: number }>;
 }
-export interface OverviewProduct { id: string; label: string; recordLabel: string | null; pendingLabel: string | null; window: string | null; note: string; href: string }
+export interface OverviewProduct {
+  id: string; label: string; recordLabel: string | null; pendingLabel: string | null; window: string | null; note: string; href: string;
+  /** P0 U2 · what `recordLabel` measures ("Current era"), printed beside it. Absent for a record with its own name. */
+  scopeLabel?: string | null;
+  /** P0 U2 · other scopes of the same product, each pre-formatted by the shared reader ("All-time 47–52 · …"). */
+  otherScopes?: string[];
+}
 
 const WINDOWS = [
   { key: "today", label: "Today" }, { key: "d7", label: "7 days" }, { key: "d30", label: "30 days" },
@@ -199,14 +205,16 @@ export default function ResultsOverview({ populations, products, seedToday, init
       </div>
 
       <div>
-        <h3 className="m-0 mb-2 font-mono text-[11px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)" }}>Products · each its own record, all time</h3>
+        <h3 className="m-0 mb-2 font-mono text-[11px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)" }}>Products · each its own record, current era first</h3>
         <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-3 gap-3">
           {products.map((x) => (
             <li key={x.id} className="rounded-xl p-4 flex flex-col gap-1.5" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-border-strong)" }}>
               <h4 className="m-0 text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>{x.label}</h4>
+              {x.scopeLabel && x.recordLabel ? <span className="font-mono text-[10.5px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-mute)" }}>{x.scopeLabel}</span> : null}
               {x.recordLabel ? <span className="text-[22px] font-bold" style={{ color: "var(--vault-text)" }}>{x.recordLabel}</span> : <span className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>No settled record yet</span>}
               {x.pendingLabel ? <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{x.pendingLabel}</span> : null}
               {x.window ? <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{x.window}</span> : null}
+              {(x.otherScopes ?? []).map((o) => <span key={o} className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{o}</span>)}
               <p className="m-0 text-[12px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{x.note}</p>
               <a href={x.href} className="mt-auto text-[13px] font-medium no-underline" style={{ color: "var(--vault-text)", minHeight: 44, display: "inline-flex", alignItems: "center" }}>Open →</a>
             </li>

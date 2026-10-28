@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { SETTLED_LABELS, shortDay } from "@/lib/results/settled-through.mjs";
+
 /**
  * RECENT RESULTS — the homepage's proof section (P208 · Release B).
  *
@@ -10,18 +12,19 @@ import Link from "next/link";
  * figure renders nothing rather than a stand-in.
  */
 export default function RecentResultsStrip({
-  recordLabel, pendingLabel, lastSettledDate,
+  recordLabel, scopeLabel, pendingLabel, settledThrough,
 }: {
-  /** e.g. "19–14" — from mr-dub/portfolio.json (the one record owner). Null = omit the figure. */
+  /** e.g. "28–38" — from the one Results reader (lib/results/current-record.ts). Null = omit the figure. */
   recordLabel: string | null;
-  /** e.g. "3 pending · 33 settled" — same owner. */
+  /** P0 U2 · what the figure measures, e.g. "Current era" — printed beside it so it is never read as all-time. */
+  scopeLabel?: string | null;
+  /** e.g. "0 pending · 66 settled" — same owner, same scope. */
   pendingLabel: string | null;
-  /** ISO date of the newest settled day across products and sports (lib/home/settled-through.mjs). */
-  lastSettledDate: string | null;
+  /** P0 U1 · the paper ledger's "results settled through" day (lib/results/settled-through.mjs) — the record beside
+   *  it is that ledger's, so the date is too (it printed the site-wide newest date as "Last settled"). */
+  settledThrough: string | null;
 }) {
-  const settledLabel = lastSettledDate
-    ? new Date(`${lastSettledDate}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric" })
-    : null;
+  const settledLabel = shortDay(settledThrough);
   return (
     <section
       aria-labelledby="recent-results-h"
@@ -39,11 +42,11 @@ export default function RecentResultsStrip({
       <div className="flex flex-wrap items-center gap-x-5 gap-y-1 font-mono" style={{ fontSize: 12.5 }}>
         {recordLabel ? (
           <span style={{ color: "var(--vault-text)" }}>
-            Paper record <strong style={{ fontWeight: 700 }}>{recordLabel}</strong>
+            Paper record{scopeLabel ? ` · Bank Builder ${scopeLabel.charAt(0).toLowerCase()}${scopeLabel.slice(1)}` : ""} <strong style={{ fontWeight: 700 }}>{recordLabel}</strong>
           </span>
         ) : null}
         {pendingLabel ? <span style={{ color: "var(--vault-text-mute)" }}>{pendingLabel}</span> : null}
-        {settledLabel ? <span style={{ color: "var(--vault-text-mute)" }}>Last settled {settledLabel}</span> : null}
+        {settledLabel ? <span style={{ color: "var(--vault-text-mute)" }}>{SETTLED_LABELS.ledger} {settledLabel}</span> : null}
       </div>
       <Link
         href="/results"

@@ -107,9 +107,16 @@ export interface ClimbCompletedLadder {
 }
 export interface ClimbHeroProps {
   currentBankroll: number;   // dailyPortfolio.activeBankroll
-  peakBankroll: number;      // dailyPortfolio.peakBankroll (the all-time high-water mark)
+  peakBankroll: number;      // dailyPortfolio.peakBankroll (the all-time high-water mark) — shown under History only
   openExposure: number;      // dailyPortfolio.openExposure
-  recordLabel: string;       // public record, e.g. "15–7"
+  /** The ALL-TIME record label (currentProductRecord("bank-builder").recordLabel, the COMPOSITE) — History only. */
+  recordLabel: string;
+  /** P0 U2 · the CURRENT-ERA record, pre-formatted by the shared reader (scopedRecordText) — what the hero leads with. */
+  currentEraText: string | null;
+  /** P0 U2 · the core bankroll's settled P/L across the current era (lib/mr-dub/current-era-money.ts); null = not shown. */
+  currentEraPl: number | null;
+  /** P0 U2 · the all-time record with its dates, pre-formatted by the shared reader — History only. */
+  allTimeText: string | null;
   lanes: ClimbLane[];        // Lane A, Lane B (already filtered/derived on the page)
   completedLadders: ClimbCompletedLadder[]; // the banked $100 → $10K ladders (real finals)
 }
@@ -124,6 +131,7 @@ const money = (n: number | null | undefined) =>
   n == null || !Number.isFinite(n)
     ? "—"
     : `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const signedMoney = (n: number) => `${n >= 0 ? "+" : "−"}${money(Math.abs(n))}`;
 const money0 = (n: number | null | undefined) =>
   n == null || !Number.isFinite(n) ? "—" : `$${Math.round(n).toLocaleString("en-US")}`;
 const american = (o: number | null | undefined) =>
@@ -154,6 +162,9 @@ export default function ClimbHero({
   peakBankroll,
   openExposure,
   recordLabel,
+  currentEraText,
+  currentEraPl,
+  allTimeText,
   lanes,
   completedLadders,
 }: ClimbHeroProps) {
@@ -206,9 +217,11 @@ export default function ClimbHero({
           Where the ladder stands now
         </p>
         <div className="grid grid-cols-3 gap-2">
+          {/* P0 U2: the second tile was "Peak paper bankroll $20,465.40" — a June figure leading the current
+              hero. It now shows the current era's settled P/L; the peak moved, unchanged, to History below. */}
           {([
             ["Current paper bankroll", money(currentBankroll), "var(--risk-low)"],
-            ["Peak paper bankroll", money(peakBankroll), "var(--vault-gold-bright)"],
+            ["Current era P/L", currentEraPl == null ? "—" : signedMoney(currentEraPl), currentEraPl != null && currentEraPl < 0 ? "var(--gtp-bank-heat)" : "var(--vault-gold-bright)"],
             // TRUTH-001: the scope is today's Bank Builder lanes, and the amount is their seeds — a loss costs the
             // core bankroll the seed, not the rolled stake (lib/mr-dub/lane-risk.ts).
             ["At risk today (Bank Builder lane seeds)", money(openExposure), "var(--gtp-bank-heat)"],
@@ -237,7 +250,9 @@ export default function ClimbHero({
               Next kickoff {nextKickoff}
             </span>
           ) : null}
-          <span className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>Record {dash(recordLabel)}</span>
+          {/* P0 U2: "Record 47–52" was the all-time figure (June base + current era) printed as the hero's
+              record. The hero now names the current era; the all-time figure is in History, labelled. */}
+          <span className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>Bank Builder · {dash(currentEraText ? currentEraText.charAt(0).toLowerCase() + currentEraText.slice(1) : null)}</span>
         </div>
 
         <Link
@@ -258,11 +273,23 @@ export default function ClimbHero({
         </div>
       ) : null}
 
-      {/* 5 · Completed ladders — LEGACY HISTORY (C3 · corrected in C2) */}
+      {/* 5 · HISTORY (P0 U2) — the all-time record and the June peak, moved out of the current hero, unchanged. */}
+      <section aria-label="History" className="mt-4 rounded-2xl px-5 py-4" style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 25%, transparent)" }}>
+        <p className="m-0 font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)" }}>History</p>
+        <div className="mt-1.5 flex flex-wrap items-baseline gap-x-5 gap-y-1 font-mono text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
+          <span>{allTimeText ? `Bank Builder · ${allTimeText.charAt(0).toLowerCase()}${allTimeText.slice(1)}` : `Bank Builder · all-time ${dash(recordLabel)}`}</span>
+          <span>Peak paper bankroll {money(peakBankroll)} · all-time high-water mark (June)</span>
+        </div>
+        <p className="m-0 mt-1 text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
+          All-time includes the June 2026 multi-sport era and the July protected base; the current era above is the Bank Builder running today.
+        </p>
+      </section>
+
+      {/* 5b · Completed ladders — LEGACY HISTORY (C3 · corrected in C2) */}
       {completedLadders.length > 0 ? (
         <div
           aria-label="Completed ladders — legacy history"
-          className="mt-4 rounded-2xl px-5 py-4"
+          className="mt-3 rounded-2xl px-5 py-4"
           style={{ border: "1px solid color-mix(in srgb, var(--gtp-success-on-dark) 30%, transparent)", background: "linear-gradient(135deg, color-mix(in srgb, var(--gtp-success-on-dark) 7%, transparent), color-mix(in srgb, var(--vault-scrim-base) 25%, transparent))" }}
         >
           {/*

@@ -46,7 +46,9 @@ function labText(html) {
   assert.ok(scoped.length > 400, `the Lab region is only ${scoped.length} characters`);
   // The shared status bar's own marker (#794 PR 2 retired "Pregame slate"; a marker the bar no longer
   // renders would make this check pass without looking).
-  assert.ok(!scoped.includes("Settled ·"), "the scope still contains the shared status bar");
+  // P0 U1 (2026-10-28): the bar's settled chip reads "Latest results · <date>" (it read "Settled · <date>", the
+  // optimizer index alone); the marker follows it so this check keeps looking at something the bar renders.
+  assert.ok(!scoped.includes("Latest results ·"), "the scope still contains the shared status bar");
   return scoped;
 }
 

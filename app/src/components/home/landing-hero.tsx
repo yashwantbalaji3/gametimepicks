@@ -11,6 +11,8 @@
  */
 import Link from "next/link";
 
+import { SETTLED_LABELS } from "@/lib/results/settled-through.mjs";
+
 export interface LandingHeroProps {
   /** Count of sim-ready games today (from featuredSimulations). */
   readyCount: number;
@@ -24,8 +26,9 @@ export interface LandingHeroProps {
   qualifiedPicks: number | null;
   /** Active signature-product cards right now (0 is an honest state, not a gap). */
   activeProducts: number;
-  /** Newest settled date (YYYY-MM-DD) across products and sports (lib/home/settled-through.mjs) — the proof link's anchor. */
-  lastSettledDate: string | null;
+  /** The SITE's "Latest results" date (YYYY-MM-DD) — the newest day any current official record is settled through,
+   *  from the one owner (lib/results/settled-through.mjs), the same date as the global header chip. */
+  latestResultsDate: string | null;
 }
 
 const fmtDay = (d: string) => {
@@ -44,7 +47,7 @@ function Stat({ value, label }: { value: string; label: string }) {
   );
 }
 
-export default function LandingHero({ readyCount, activeSports, eventsToday, eventsKnown = false, qualifiedPicks, activeProducts, lastSettledDate }: LandingHeroProps) {
+export default function LandingHero({ readyCount, activeSports, eventsToday, eventsKnown = false, qualifiedPicks, activeProducts, latestResultsDate }: LandingHeroProps) {
   return (
     <section aria-label="Today's launchpad" className="flex flex-col gap-4">
       <h1
@@ -136,7 +139,9 @@ export default function LandingHero({ readyCount, activeSports, eventsToday, eve
           )}
         </span>
         <Link href="/results" className="vault-press" style={{ color: "var(--vault-success)", fontWeight: 700, textDecoration: "none", minHeight: 44, display: "inline-flex", alignItems: "center" }}>
-          {lastSettledDate ? `Settled through ${fmtDay(lastSettledDate)} →` : "See every settled result →"}
+          {/* P0 U1: worded "Latest results", not "Settled through" — the date speaks for the newest record across
+              the site, not for every ledger (each ledger's own settled-through date is on its page). */}
+          {latestResultsDate ? `${SETTLED_LABELS.site} ${fmtDay(latestResultsDate)} →` : "See every settled result →"}
         </Link>
       </div>
     </section>

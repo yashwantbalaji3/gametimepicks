@@ -7,6 +7,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { reconcileMoney } from "./money-movements.mjs";
 import { computeOpenExposure } from "./open-exposure";
+import { corePaperSettledThrough } from "@/lib/results/settled-through.mjs";
+import { loadResultsProjection } from "@/lib/results/projection";
 import type { MoneyMovementsView } from "@/components/mr-dub/money-movements-panel";
 
 const readJson = (f: string) => JSON.parse(fs.readFileSync(f, "utf8"));
@@ -29,8 +31,9 @@ export function buildMoneyMovementsView(root: string, today: string, limit = 12)
       currentBankroll: s.currentBankroll, peak: s.peak, peakDate: s.peakDate, deltaToPeak: s.deltaToPeak,
       openExposure: computeOpenExposure(root, today).total,
       rows: r.movements.slice(-limit).reverse(), totalRows: r.movements.length, foldedThrough: s.foldedThrough,
+      settledThrough: corePaperSettledThrough(loadResultsProjection(root)),
     };
   } catch {
-    return { ok: false, currentBankroll: 0, peak: 0, peakDate: null, deltaToPeak: 0, openExposure: 0, rows: [], totalRows: 0, foldedThrough: null };
+    return { ok: false, currentBankroll: 0, peak: 0, peakDate: null, deltaToPeak: 0, openExposure: 0, rows: [], totalRows: 0, foldedThrough: null, settledThrough: null };
   }
 }

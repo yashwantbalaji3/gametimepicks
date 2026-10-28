@@ -6,6 +6,7 @@
  *
  * Factual language only: "Historical peak" and "Difference" — never a target, a recovery, or an amount to win.
  */
+import { SETTLED_LABELS, shortDay } from "@/lib/results/settled-through.mjs";
 import SectionHeader from "@/components/section-header";
 
 export interface MoneyMovementRow {
@@ -17,6 +18,8 @@ export interface MoneyMovementsView {
   ok: boolean;
   currentBankroll: number; peak: number; peakDate: string | null; deltaToPeak: number; openExposure: number;
   rows: MoneyMovementRow[]; totalRows: number; foldedThrough: string | null;
+  /** P0 U1 · the core ledger's "results settled through" day, from the one owner (lib/results/settled-through.mjs). */
+  settledThrough: string | null;
 }
 
 const usd = (n: number) => `${n < 0 ? "−" : ""}$${Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -49,7 +52,7 @@ export default function MoneyMovementsPanel({ view }: { view: MoneyMovementsView
       ) : (
         <>
           <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4" id="money-movements">
-            <Tile label="Current bankroll" value={usd(view.currentBankroll)} sub={view.foldedThrough ? `settled through ${view.foldedThrough}` : undefined} />
+            <Tile label="Current bankroll" value={usd(view.currentBankroll)} sub={view.settledThrough ? `${SETTLED_LABELS.ledger.toLowerCase()} ${shortDay(view.settledThrough)}` : undefined} />
             <Tile label="Historical peak" value={usd(view.peak)} sub={view.peakDate ? `on ${view.peakDate}` : undefined} />
             <Tile label="Difference" value={usd(view.deltaToPeak)} sub="current minus peak" />
             <Tile label="Open exposure" value={usd(view.openExposure)} sub="placed, not yet settled" />
