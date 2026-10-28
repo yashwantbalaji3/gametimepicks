@@ -1,4 +1,6 @@
-# GameTimePicks CEO Command Center (Phase 1)
+# GameTimePicks CEO Command Center
+
+**Status:** Phase 1 ✓ · M2, the first real ChatGPT → Claude Code workflow, ✓ · **next: the hosted private Command Center, usable from the iPhone with the Mac off** (awaiting approval). See [docs/milestones.md](docs/milestones.md) and [docs/hosted-command-center-architecture.md](docs/hosted-command-center-architecture.md).
 
 A local proof of concept for one CEO conversation in which specialised agent roles plan, contribute, deliver and
 ask the founder for decisions. It is a **dry run**: there are no accounts and no paid inference, the publisher is a
@@ -90,7 +92,7 @@ Details: [docs/connected-poc-1-plan.md](docs/connected-poc-1-plan.md).
 | `surfaces/console/` | Loopback-only local web console |
 | `docs/` | Architecture, approval security, and the open X-publishing evaluation |
 | `engineering/` | M2: isolated working copy (snapshot → sparse worktree → keep/discard), verifier (tests, screenshots), prompts |
-| `tests/` | 44 tests: core rules, no-network run, iPhone 390/430 flow, and M2 delegated engineering against a fake `claude` |
+| `tests/` | 51 tests: core rules, no-network run, iPhone 390/430 flow, M2 delegated engineering against a fake `claude`, and the caption controls Claude Code added |
 
 ## Boundaries
 

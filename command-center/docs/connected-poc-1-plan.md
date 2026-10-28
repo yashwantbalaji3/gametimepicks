@@ -1,6 +1,12 @@
 # Connected PoC-1: execution plan (awaiting founder authorization)
 
-**Status (2026-10-27): implemented, verified offline, and the real CLI path is proven. Ready for the founder demo.**
+**Status (2026-10-27): ✓ COMPLETE.**
+
+- The founder ran the real workflow end to end, G1 → G2 → G3 keep.
+- The kept commit `28bacbf89d` (4 files) is integrated as `4b8504c4c3` on the feature branch.
+- See [milestones.md](milestones.md).
+
+Earlier status notes follow.
 
 **Real smoke run, after the founder re-ran `claude auth login`:**
 - Session `4cdac33a…` on `claude-opus-4-7`, Max subscription, no API key.
