@@ -24,6 +24,8 @@
  * PublicGameDetail, so callers pass `buildAllGameDetails()` rows as-is.
  */
 
+import { mlbForecastState } from "../mlb/full-game/forecast-state.mjs";
+
 export type AvailabilityLevel = "simulation" | "model-read" | "market-read" | "report" | "unavailable";
 
 /** Has the scheduled first pitch passed? `scheduled` = not yet; `started` = clock proves it began. */
@@ -48,6 +50,12 @@ export interface GameAvailabilityInput {
   gameCenter?: { firstPitch?: string | null } | null;
   /** Game-to-artifact reconciliation. `ok === false` forbids the sim/model/market tiers (fail-closed). */
   reconciled?: { ok: boolean; reason: string } | null;
+  /**
+   * The OFFICIAL MLB full-game snapshot (status + completeness, as the prediction snapshot carries them). When it is
+   * degraded or unavailable, a ready simulation keeps its tier but never its "Simulation ready" label — the label and
+   * explanation are the forecast state's own words (lib/mlb/full-game/forecast-state.mjs). Absent → unchanged.
+   */
+  fullGameSim?: { status?: string | null; completeness?: unknown; awayTeam?: string | null; homeTeam?: string | null } | null;
   /** Per-module data status (player props etc.) — used to explain a REPORT_ONLY game's actual gap. */
   dataStatus?: Array<{ status: "live" | "pending" | "unavailable" | "model_only"; label?: string }> | null;
 }
@@ -132,6 +140,24 @@ export function deriveGameAvailability(d: GameAvailabilityInput, opts?: { nowMs?
   if (simReady) {
     evidence.push("ready-sim");
     if (d.reconciled?.ok) evidence.push("reconciled-ok");
+    const forecast = d.sport === "mlb" ? mlbForecastState(d.fullGameSim ?? null) : null;
+    if (forecast && !forecast.ready) {
+      evidence.push(`official-${forecast.status}`);
+      return {
+        level: "simulation",
+        label: forecast.label,
+        explanation: forecast.status === "degraded"
+          ? `${forecast.causes}. The simulation report is available; this forecast is not included in model suggestions.`
+          : `${forecast.reason} The player-prop simulation report is still available.`,
+        actionLabel: started ? "Review simulation →" : "Open simulation →",
+        canonicalHref: href,
+        startState,
+        firstPitchIso,
+        freshnessState: "fresh",
+        evidence,
+        tone: forecast.status === "degraded" ? "gold" : "mute",
+      };
+    }
     return {
       level: "simulation",
       label: "Simulation ready",

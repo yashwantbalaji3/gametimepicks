@@ -8,6 +8,7 @@ import type { GamePredictionDecision, PlayerPrediction } from "./types";
 import type { StrengthLabel } from "./strength";
 import { simulationFrequency } from "./story";
 import { isCalibrationFailed, isPredictionDisabled } from "../model-calibration-status";
+import { mlbForecastState } from "../full-game/forecast-state.mjs";
 
 /** One game's inputs, normalized from a PublicGameDetail by the /today page. */
 export interface SlatePredictionGame {
@@ -41,6 +42,12 @@ export interface GamePredictionRow {
   awayLogo: string | null;
   firstPitchIso: string | null;
   status: "ready" | "degraded" | "unavailable";
+  /**
+   * Overnight 10-28: the official snapshot's public state when it is NOT ready ("Official forecast · degraded inputs:
+   * <cause>" / "Forecast unavailable: <reason>"), from the one reader (full-game/forecast-state.mjs). The table prints
+   * it beside the row's numbers so a degraded forecast is never shown unqualified. Absent for a ready snapshot.
+   */
+  forecastQualifier?: string;
   moneyline: { team: string; probability: number; strength: StrengthLabel } | null;
   score: { away: number; home: number } | null;
   total: { pick: "OVER" | "UNDER"; line: number; probability: number } | null;
@@ -67,6 +74,7 @@ export function buildTodayPredictionRows(games: SlatePredictionGame[]): GamePred
             probability: (p.total.pick === "OVER" ? p.total.overProbability : p.total.underProbability) ?? 0,
           }
         : null;
+    const forecast = mlbForecastState(p);
     rows.push({
       gamePk: g.gamePk,
       slug: g.slug,
@@ -79,6 +87,7 @@ export function buildTodayPredictionRows(games: SlatePredictionGame[]): GamePred
       awayLogo: g.awayLogo,
       firstPitchIso: g.firstPitchIso,
       status: p.status,
+      ...(forecast && !forecast.ready ? { forecastQualifier: forecast.headline } : {}),
       moneyline: p.moneyline ? { team: p.moneyline.team, probability: p.moneyline.simulationProbability, strength: p.moneyline.strengthLabel } : null,
       score: p.projectedScore ? { away: p.projectedScore.away, home: p.projectedScore.home } : null,
       total,

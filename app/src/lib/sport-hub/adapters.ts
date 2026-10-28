@@ -16,6 +16,7 @@ import path from "node:path";
 import { productDayFor } from "@/lib/product-day/product-day";
 import { currentEtDate } from "@/lib/freshness";
 import { etStamp } from "@/lib/et-stamp.mjs";
+import { mlbForecastState } from "@/lib/mlb/full-game/forecast-state.mjs";
 import { DEFAULT_LABELS, hubStatusWord, type HubGameRow, type HubRead, type SportHubModel } from "./contract";
 import { loadNflEvents, currentPeriodKey, eventsInPeriod } from "@/lib/events/read-model";
 
@@ -106,8 +107,11 @@ export function mlbLineFavorite(line: unknown, away: unknown, home: unknown): st
 function readForGame(d: Record<string, any>): HubRead | null {
   if (typeof d.predictionLine === "string" && d.predictionLine.trim()) {
     const favored = mlbLineFavorite(d.predictionLine, d.awayTeam, d.homeTeam);
+    /* Overnight 10-28: an MLB read names its official snapshot's state (lib/mlb/full-game/forecast-state.mjs) — a
+       degraded forecast carries its qualifier and cause on the card, never a bare model id. */
+    const forecast = d.sport === "mlb" ? mlbForecastState(d.fullGameSim ?? d.prediction ?? null) : null;
     return {
-      label: humanizeMlbPredictionLine(d.predictionLine), kind: "MODEL_FORECAST", detail: d.prediction?.modelVersion ?? "simulation",
+      label: humanizeMlbPredictionLine(d.predictionLine), kind: "MODEL_FORECAST", detail: forecast?.headline ?? d.prediction?.modelVersion ?? "simulation",
       ...(favored ? { favored } : {}),
     };
   }

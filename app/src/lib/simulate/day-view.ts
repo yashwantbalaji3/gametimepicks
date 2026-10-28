@@ -75,6 +75,12 @@ export interface SimDayEvent {
   readonly markets: readonly string[];
   readonly href: string;
   readonly actionLabel: string;
+  /**
+   * MLB only (overnight 10-28): the official snapshot's state, in the one reader's words
+   * (lib/mlb/full-game/forecast-state.mjs → forecastEventBadge). Before the start `badge` replaces the lifecycle
+   * label (a degraded/unavailable snapshot is never "Simulation ready"); after it, `note` adds a non-ready state.
+   */
+  readonly forecastBadge?: { readonly badge: string | null; readonly tone: "ok" | "warn" | "mute" | null; readonly note: string | null } | null;
 }
 
 export interface SportDaySection {
@@ -119,6 +125,7 @@ export const STATE_ACTION: Record<SimEventState, string> = {
  * question without pulling `node:fs` into the browser bundle. One definition, two entry points.
  */
 import { READY_STATES } from "./ready-states.mjs";
+import { forecastEventBadge, mlbForecastStateForGame } from "../mlb/full-game/forecast-state.mjs";
 import { pinnedBuildEtDate } from "./build-today.mjs";
 
 /** One "today" per build for the date window (params and selector agree across midnight ET); live clock elsewhere. */
@@ -218,6 +225,8 @@ function mlbSection(date: string, today: string): SportDaySection {
       .map((g) => String(g.gamePk ?? "")),
   );
   const gradedPks = mlbSettledPks();
+  /* The official prediction snapshot for this date — the authority on each game's forecast state. */
+  const predictions = readJson<{ predictions?: Array<Record<string, unknown>> }>(`mlb/predictions/${date}.json`);
   const nowMs = Date.now();
   const events: SimDayEvent[] = games.map((g) => {
     const pk = String(g.gamePk ?? "");
@@ -276,6 +285,10 @@ function mlbSection(date: string, today: string): SportDaySection {
       markets: state === "MISSED_COVERAGE" ? [] : state === "ARTIFACT_READY" || simReady ? ["Moneyline", "Run line", "Total", ...(board.propsAvailable ? ["Player props"] : [])] : [],
       href,
       actionLabel: STATE_ACTION[state],
+      forecastBadge: (() => {
+        const f = mlbForecastStateForGame(predictions, pk);
+        return f ? forecastEventBadge(f, !!post) : null;
+      })(),
     };
   });
   /*

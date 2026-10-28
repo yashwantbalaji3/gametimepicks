@@ -66,6 +66,8 @@ import { loadMlbSimCards } from "@/lib/mlb/full-game/hub-cards";
 import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
 import QuickActionRail from "@/components/quick-action-rail";
 import SectionHeader from "@/components/section-header";
+import MoreDisclosure from "@/components/ui/more-disclosure";
+import { etDayLabel } from "@/lib/et-stamp.mjs";
 import ModelStatusPanel from "@/components/command-center/model-status-panel";
 import { modelStatusFor } from "@/lib/command-center/model-status";
 import FreshnessBadge from "@/components/ui/freshness-badge";
@@ -213,14 +215,12 @@ export default async function MlbLandingPage() {
     propsAvailable && summary.leans > 0 ? "live" : gameCount > 0 ? "linesPending" : "upcoming";
   const statusCaption = gameCount > 0 ? `${gameCount} game${gameCount === 1 ? "" : "s"}` : undefined;
 
+  /* Overnight 10-28 (light pass): the hero speaks in reader words — the slate's day, not its ISO key; the internal
+     confidence-tier counts ("Category A · Category C") and the unscoped record line move to Technical details below. */
+  const slateDay = etDayLabel(date) ?? date;
   const heroStats = [
-    { label: isTodaysSlate ? "Games today" : "Games on this slate", value: String(gameCount), sub: date },
+    { label: isTodaysSlate ? "Games today" : "Games on this slate", value: String(gameCount), sub: slateDay },
     { label: "Projections", value: String(summary.leans), sub: propsAvailable ? "real prop lines" : "lines pending" },
-    {
-      label: "Category A · Category C",
-      value: `${summary.highConfidence} · ${summary.anomalies}`,
-      sub: mlbLifetime?.hitRate != null ? `track record ${(mlbLifetime.hitRate * 100).toFixed(1)}% on ${mlbLifetime.decisive}` : "results pending",
-    },
   ];
 
   const slateTiles =
@@ -513,7 +513,7 @@ export default async function MlbLandingPage() {
         statusSlateDate={date}
         statusSeedToday={currentEtDate()}
         statusCaption={statusCaption}
-        matchupLine={`Slate · ${date}`}
+        matchupLine={`Slate · ${slateDay}`}
         stats={heroStats}
         accent="mlb"
         ctas={[
@@ -524,6 +524,14 @@ export default async function MlbLandingPage() {
       />
 
 
+      {/* RELOCATED from the hero (overnight 10-28): kept for audit, one tap away, with what each count means. */}
+      <MoreDisclosure className="mt-3" title="Technical details" summary="Confidence-tier counts for this slate and the player-prop record.">
+        <ul className="m-0 pl-4 flex flex-col gap-1" style={{ fontSize: 12.5, color: "var(--vault-text-mute)", lineHeight: 1.55 }}>
+          <li>Category A (model and market differ by 5 percentage points or more): {summary.highConfidence} of {summary.leans} projections on the {slateDay} slate.</li>
+          <li>Anomaly-flagged projections, shown separately: {summary.anomalies}.</li>
+          <li>{mlbLifetime?.hitRate != null ? `Player-prop projection record: ${(mlbLifetime.hitRate * 100).toFixed(1)}% of ${mlbLifetime.decisive.toLocaleString("en-US")} decisive picks — a hit rate, not proof of beating the market.` : "Player-prop projection record: results pending."}</li>
+        </ul>
+      </MoreDisclosure>
       </section>
       {simSet ? (
         <div id="mlb-sims" className="scroll-mt-24">

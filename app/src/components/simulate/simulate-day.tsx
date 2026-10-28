@@ -44,8 +44,17 @@ export const STATE_TONE: Record<SimDayEvent["state"], { fg: string; bg: string; 
   SETTLED: { fg: "var(--vault-text-mute)", bg: "var(--vault-wash-soft)", label: "Final" },
 };
 
+/* Overnight 10-28: an MLB game's official-forecast state (day-view → forecastBadge) replaces the lifecycle label before
+   the start, so a degraded or unavailable snapshot never wears "Simulation ready". */
+const FORECAST_TONE: Record<"ok" | "warn" | "mute", { fg: string; bg: string }> = {
+  ok: { fg: "var(--vault-success)", bg: "var(--vault-success-dim)" },
+  warn: { fg: "var(--vault-warn)", bg: "var(--vault-warn-dim)" },
+  mute: { fg: "var(--vault-text-mute)", bg: "var(--vault-wash-soft)" },
+};
+
 function EventCard({ e, onOpen }: { e: SimDayEvent; onOpen: (e: SimDayEvent) => void }) {
-  const tone = STATE_TONE[e.state];
+  const fb = e.forecastBadge ?? null;
+  const tone = fb?.badge && fb.tone ? { ...FORECAST_TONE[fb.tone], label: fb.badge } : STATE_TONE[e.state];
   /*
    * P242 — EVERY ready state navigates directly to its full report; the `?play=1` presentation
    * hand-off was retired with the recording experience. Non-ready states still open the stage,
@@ -76,6 +85,9 @@ function EventCard({ e, onOpen }: { e: SimDayEvent; onOpen: (e: SimDayEvent) => 
         ))}
         {e.venue ? <span style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{e.venue}</span> : null}
       </span>
+      {fb?.note ? (
+        <span data-mlb-forecast-qualifier="" style={{ color: "var(--vault-warn)", fontSize: 11, lineHeight: 1.5 }}>{fb.note}</span>
+      ) : null}
       {e.stateReason ? (
         <span style={{ color: "var(--vault-text-mute)", fontSize: 11, lineHeight: 1.5 }}>{e.stateReason}</span>
       ) : null}

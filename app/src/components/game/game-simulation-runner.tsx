@@ -25,6 +25,8 @@ import Link from "next/link";
 import type { GameSimulationView } from "@/lib/game-simulations/game-lab-view";
 import type { SimGeneratedPick } from "@/lib/game-simulations/types";
 import { etStamp } from "@/lib/et-stamp.mjs";
+import MoreDisclosure from "@/components/ui/more-disclosure";
+import type { MlbForecastState } from "@/lib/mlb/full-game/forecast-state.mjs";
 
 // ── formatters (always fall back to an em dash; never render undefined/NaN) ──
 const dash = (v: string | number | null | undefined) =>
@@ -295,6 +297,8 @@ export default function GameSimulationRunner({
   marketSnapshot,
   homeLogo,
   awayLogo,
+  forecastState = null,
+  forecastFrozenAt = null,
 }: {
   view: GameSimulationView;
   /** The dense report + spotlight + tabs shell, rendered below the dashboard. */
@@ -304,6 +308,14 @@ export default function GameSimulationRunner({
   marketSnapshot?: React.ReactNode;
   homeLogo?: string | null;
   awayLogo?: string | null;
+  /**
+   * Overnight 10-28: the OFFICIAL MLB forecast's state (lib/mlb/full-game/forecast-state.mjs) and its own freeze time.
+   * When present, the header states that state and that ONE time; the player-prop simulation's own run time — a
+   * different artifact, generated at a different moment — moves into Technical details under its own name, so the
+   * page never shows two competing "generated" times for one forecast.
+   */
+  forecastState?: MlbForecastState | null;
+  forecastFrozenAt?: string | null;
 }) {
   /*
    * DIRECT BY DECISION (P242). This component used to gate the precomputed dashboard behind a
@@ -313,6 +325,18 @@ export default function GameSimulationRunner({
    */
   // ── Unavailable: calm, non-broken. The existing Game Lab report stays visible above this. ──
   if (view.status === "unavailable" || view.status === "error") {
+    /* An official forecast exists even though the player-prop simulation does not: say exactly that, and still
+       render the official report, so the page never reads "Official forecast" above "Simulation not available". */
+    if (forecastState && postReveal) {
+      return (
+        <section className="flex flex-col gap-3">
+          <p className="m-0" style={{ color: "var(--vault-text-faint)", fontSize: 11.5, lineHeight: 1.5 }}>
+            The player-prop simulation is not available for this game; the official game forecast is below.
+          </p>
+          <div className="flex flex-col gap-5">{postReveal}</div>
+        </section>
+      );
+    }
     return (
       <section
         className="flex flex-col gap-1.5 rounded-[14px] px-4 py-4"
@@ -371,12 +395,24 @@ export default function GameSimulationRunner({
             style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--vault-accent-deep) 10%, transparent) 0%, transparent 55%), linear-gradient(140deg, color-mix(in srgb, var(--vault-scrim-slate) 94%, transparent) 0%, color-mix(in srgb, var(--vault-scrim-neutral) 98%, transparent) 100%)" }}
           >
             <div className="flex flex-wrap items-center gap-2">
+              {forecastState ? (
+                <span
+                  data-mlb-forecast-state={forecastState.status}
+                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-mono uppercase tracking-[0.12em]"
+                  style={forecastState.tone === "ok"
+                    ? { color: "var(--gtp-success-on-dark)", border: "1px solid color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)", fontSize: 9, background: "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)" }
+                    : { color: forecastState.tone === "warn" ? "var(--vault-warn)" : "var(--vault-text-mute)", border: "1px solid color-mix(in srgb, var(--vault-warn) 45%, transparent)", fontSize: 9 }}
+                >
+                  {forecastState.label}
+                </span>
+              ) : (
               <span
                 className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-mono uppercase tracking-[0.12em]"
                 style={{ color: "var(--gtp-success-on-dark)", border: "1px solid color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)", fontSize: 9, background: "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)" }}
               >
                 <span aria-hidden>✓</span> Simulation complete
               </span>
+              )}
               <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
                 Precomputed for this game
               </span>
@@ -386,6 +422,15 @@ export default function GameSimulationRunner({
                 {dash(view.teams.away)} <span style={{ color: "var(--vault-text-faint)" }}>@</span> {dash(view.teams.home)}
               </h2>
             ) : null}
+            {forecastState ? (
+              /* ONE time in the reading path: the official forecast's own freeze instant (null → no time is stated). */
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono" style={{ fontSize: 10 }}>
+                {etStamp(forecastFrozenAt) ? <span style={{ color: "var(--vault-text-faint)" }}><span style={{ color: "var(--vault-text-mute)" }}>Forecast frozen</span> {etStamp(forecastFrozenAt)}</span> : null}
+                {view.allowsRunCountClaim && view.runCount != null ? (
+                  <span style={{ color: "var(--vault-text-faint)" }}><span style={{ color: "var(--vault-text-mute)" }}>Player-prop runs</span> {view.runCount.toLocaleString("en-US")}</span>
+                ) : null}
+              </div>
+            ) : (
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono" style={{ fontSize: 10 }}>
               <span style={{ color: "var(--vault-text-faint)" }}><span style={{ color: "var(--vault-text-mute)" }}>Model</span> {dash(view.modelVersion)}</span>
               {view.allowsRunCountClaim && view.runCount != null ? (
@@ -393,6 +438,7 @@ export default function GameSimulationRunner({
               ) : null}
               {generatedLabel(view.generatedAt) ? <span style={{ color: "var(--vault-text-faint)" }}>{generatedLabel(view.generatedAt)}</span> : null}
             </div>
+            )}
             {view.simulationSummary?.headline ? (
               <p style={{ color: "var(--vault-text)", fontSize: 13.5, lineHeight: 1.5 }}>{dash(view.simulationSummary.headline)}</p>
             ) : null}
@@ -415,6 +461,17 @@ export default function GameSimulationRunner({
               </div>
             ) : null}
           </section>
+
+          {/* RELOCATED (overnight 10-28): with an official forecast in the header, the player-prop simulation's model id
+              and run time are audit detail for a different artifact — kept, under its own name, one tap away. */}
+          {forecastState ? (
+            <MoreDisclosure title="Technical details" summary="Model version and when the player-prop simulation ran.">
+              <div className="flex flex-col gap-1 font-mono" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>
+                <span><span style={{ color: "var(--vault-text-mute)" }}>Player-prop model</span> {dash(view.modelVersion)}</span>
+                {etStamp(view.generatedAt) ? <span><span style={{ color: "var(--vault-text-mute)" }}>Player-prop simulation run</span> {etStamp(view.generatedAt)}</span> : null}
+              </div>
+            </MoreDisclosure>
+          ) : null}
 
           {/* PRIMARY REPORT — the unified V2.5 report renders right after the "Simulation complete" header.
               It owns the market snapshot (its §10), the player board, leans, agreement, distributions, settlement,
