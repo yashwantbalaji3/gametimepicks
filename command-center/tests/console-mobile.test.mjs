@@ -51,8 +51,9 @@ async function minHeight(locator, px, label) {
 for (const [i, phone] of PHONES.entries()) {
   test(`console on ${phone.name}: chat, approvals with Pause, tasks, activity, team`, async () => {
     const port = 4290 + i + Math.floor(Math.random() * 500);
-    const server = await startServer(port);
+    // Browser first: if it can't launch, no server has been started that could be left running.
     const browser = await chromium.launch();
+    const server = await startServer(port).catch(async (err) => { await browser.close(); throw err; });
     fs.mkdirSync(SCREENS, { recursive: true });
     try {
       const page = await browser.newPage({ viewport: { width: phone.width, height: phone.height }, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
@@ -113,8 +114,8 @@ for (const [i, phone] of PHONES.entries()) {
       await noHorizontalOverflow(page, "team");
       await page.screenshot({ path: path.join(SCREENS, `${phone.name}-team.png`) });
     } finally {
-      await browser.close();
       server.kill();
+      await browser.close();
     }
   });
 }

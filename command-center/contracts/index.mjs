@@ -19,6 +19,7 @@ export const SEATS = Object.freeze([
   "manual:chatgpt", "manual:claude", "manual:grok",
   "api:openai", "api:anthropic", "api:xai",
   "mcp:chatgpt", "mcp:claude", "mcp:grok",
+  "cli:claude-code",   // Claude Code CLI on this Mac, authenticated with the founder's subscription (M2)
   "deterministic",
 ]);
 
@@ -32,6 +33,7 @@ export const ROLE_IDS = Object.freeze([
   "creative-renderer",
   "publisher",
   "growth-analyst",
+  "verifier",
 ]);
 
 export const TASK_STATUS = Object.freeze(["QUEUED", "RUNNING", "AWAITING_INPUT", "DONE", "REFUSED", "FAILED"]);
@@ -48,12 +50,17 @@ export const ARTIFACT_TYPES = Object.freeze([
   "media-artifact",
   "caption-set",
   "publish-bundle",
+  "engineering-spec",
+  "implementation-plan",
+  "engineering-result",
+  "verification",
 ]);
 
 /** Ledger entry kinds — the action history is exactly this list, in order. */
 export const LEDGER_KINDS = Object.freeze([
   "command", "plan", "task", "contribution", "refusal", "deliverable",
   "decision-request", "decision", "publish-receipt", "control", "report", "seat-change",
+  "progress", "preflight", "attestation",
 ]);
 
 /** Refusal / reason codes shared by the orchestrator, the integrity gate and the publisher. */
@@ -86,6 +93,18 @@ export const REASON = Object.freeze({
   MISS_NOT_DISCLOSED: "MISS_NOT_DISCLOSED",
   MISSING_FORECAST_WORD: "MISSING_FORECAST_WORD",
   TOO_LONG: "TOO_LONG",
+  // engineering (M2)
+  BILLING_NOT_CONFIRMED: "BILLING_NOT_CONFIRMED",
+  SUBSCRIPTION_AUTH_NOT_CONFIRMED: "SUBSCRIPTION_AUTH_NOT_CONFIRMED",
+  SPEC_CONTRACT_INVALID: "SPEC_CONTRACT_INVALID",
+  SPEC_NOT_REAL: "SPEC_NOT_REAL",
+  PLAN_OUT_OF_SCOPE: "PLAN_OUT_OF_SCOPE",
+  OUT_OF_SCOPE: "OUT_OF_SCOPE",
+  GATE_ORDER: "GATE_ORDER",
+  RUN_FAILED: "RUN_FAILED",
+  RUN_TIMEOUT: "RUN_TIMEOUT",
+  RUN_CANCELLED: "RUN_CANCELLED",
+  USAGE_CAP: "USAGE_CAP",
 });
 
 const isStr = (v) => typeof v === "string" && v.length > 0;

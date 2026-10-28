@@ -57,6 +57,24 @@ mock publish receipt. Every number comes from the append-only Forecast Ledger
 (`data/internal/forecast-ledger/v1/nfl.jsonl`) and the receipt each ledger row names. Nothing is scraped from a
 page.
 
+## M2 — delegated engineering (Connected PoC-1)
+
+One real task goes from a **ChatGPT spec** (you paste it via the `manual:chatgpt` seat) through three founder gates:
+
+1. **G1** approves the spec.
+2. A **Claude Code read-only plan run** follows, on your subscription through the local CLI.
+3. **G2** approves the implementation.
+4. A **Claude Code build run** happens in an isolated sparse working copy (`.claude/worktrees/cc-*`, branch `cc/*`).
+5. The **Verifier** runs the diff, scope, tests and desktop/iPhone screenshots itself; Claude's report is not used as proof.
+6. **G3** keeps the change (local commit on `cc/*`, never pushed) or discards it.
+
+**Safety rails:**
+- The Claude Code panel (in Controls) shows the billing confirmation, preflight, active runs, usage and limits.
+- Pause cancels a run gracefully; **Stop now** kills it immediately.
+- Edits are restricted to `command-center/surfaces/console/` and `command-center/tests/`.
+
+Details: [docs/connected-poc-1-plan.md](docs/connected-poc-1-plan.md).
+
 ## Layout
 
 | Path | What |
@@ -71,7 +89,8 @@ page.
 | `publishers/` | Send-boundary checks + the mock publisher. No real provider is selected (CP2) |
 | `surfaces/console/` | Loopback-only local web console |
 | `docs/` | Architecture, approval security, and the open X-publishing evaluation |
-| `tests/` | 31 tests: the core rules, a run with network stubbed to throw, and the iPhone 390/430 console flow |
+| `engineering/` | M2: isolated working copy (snapshot → sparse worktree → keep/discard), verifier (tests, screenshots), prompts |
+| `tests/` | 44 tests: core rules, no-network run, iPhone 390/430 flow, and M2 delegated engineering against a fake `claude` |
 
 ## Boundaries
 

@@ -43,9 +43,9 @@ export const ROLES = Object.freeze({
   "engineering": {
     title: "Engineering",
     mission: "agents/data-engineer/mission.md",
-    produces: ["feasibility-report"],
+    produces: ["feasibility-report", "implementation-plan", "engineering-result"],
     defaultSeat: "fake",
-    seatOptions: ["fake"],
+    seatOptions: ["fake"], // delegated engineering tasks always run on cli:claude-code (orchestrator-assigned)
     budget: { tokens: 6000, usd: 0 },
     tools: ["repo.facts", "recap.pipeline"],
   },
@@ -75,6 +75,15 @@ export const ROLES = Object.freeze({
     seatOptions: ["deterministic"],
     budget: { tokens: 0, usd: 0 },
     tools: ["publisher.mock"],
+  },
+  "verifier": {
+    title: "Verifier",
+    mission: "agents/qa-engineer/mission.md",
+    produces: ["verification"],
+    defaultSeat: "deterministic",
+    seatOptions: ["deterministic"],
+    budget: { tokens: 0, usd: 0 },
+    tools: ["workcopy.diff", "tests.run", "screens.capture"],
   },
   "growth-analyst": {
     title: "Growth Analyst",

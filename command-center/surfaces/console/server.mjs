@@ -66,6 +66,12 @@ const server = http.createServer(async (req, res) => {
       if (url.pathname === "/app.js" || url.pathname === "/styles.css") return sendFile(res, path.join(STATIC, url.pathname.slice(1)));
       if (url.pathname === "/brand/logo.png") return sendFile(res, LOGO);
       if (url.pathname === "/api/state") return send(res, 200, orchestrator.state());
+      if (url.pathname.startsWith("/runs/")) {
+        const name = path.basename(decodeURIComponent(url.pathname.slice(6)));
+        if (!name.endsWith(".jsonl")) return send(res, 404, { error: "not found" });
+        const file = path.join(OUT, "runs", name);
+        return fs.existsSync(file) ? send(res, 200, fs.readFileSync(file), "text/plain; charset=utf-8") : send(res, 404, { error: "not found" });
+      }
       if (url.pathname.startsWith("/media/")) {
         const name = path.basename(decodeURIComponent(url.pathname.slice(7)));
         return sendFile(res, path.join(OUT, "media", name));
@@ -82,6 +88,12 @@ const server = http.createServer(async (req, res) => {
     }
     if (url.pathname === "/api/decide") return send(res, 200, await orchestrator.decide(body, FOUNDER));
     if (url.pathname === "/api/pause") return send(res, 200, orchestrator.setPaused(Boolean(body.paused), FOUNDER));
+    if (url.pathname === "/api/stop") return send(res, 200, orchestrator.emergencyStop(FOUNDER));
+    if (url.pathname === "/api/attest") return send(res, 200, orchestrator.attestBilling({ usageCredits: body.usageCredits, capUsd: body.capUsd }, FOUNDER));
+    if (url.pathname === "/api/preflight") {
+      const r = orchestrator.runPreflight();
+      return send(res, 200, { ok: r.ok, code: r.code ?? null, detail: r.detail ?? null, evidence: r.evidence });
+    }
     if (url.pathname === "/api/seat") return send(res, 200, orchestrator.setSeat(body.role, body.seat, FOUNDER));
     if (url.pathname === "/api/manual") {
       orchestrator.submitManual(body.taskId, String(body.text ?? ""), FOUNDER).catch((e) => console.error("manual failed:", e));

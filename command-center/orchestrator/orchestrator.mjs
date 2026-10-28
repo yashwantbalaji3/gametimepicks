@@ -14,7 +14,7 @@
  * publisher re-checks pause, approval and budget at the send boundary.
  */
 import path from "node:path";
-import { digestOf, shortId, REPO_ROOT } from "../lib/util.mjs";
+import { digestOf, shortId, REPO_ROOT, CC_ROOT } from "../lib/util.mjs";
 import { REASON, validateContribution, validateTaskEnvelope } from "../contracts/index.mjs";
 import { ROLES, roleTitle } from "../roles/roles.mjs";
 import { parseIntent, planFor } from "./intents.mjs";
@@ -25,6 +25,8 @@ import { inspectSlate, buildRecapDraft } from "../recap/pipeline.mjs";
 import { runIntegrityGate } from "../recap/integrity-gate.mjs";
 import { publishAtBoundary } from "../publishers/publisher.mjs";
 import { createMockPublisher } from "../publishers/mock.mjs";
+import { createEngineeringFlow } from "./engineering-flow.mjs";
+import { specFacts } from "../engineering/prompts.mjs";
 
 const sleep = (ms) => (ms > 0 ? new Promise((r) => setTimeout(r, ms)) : Promise.resolve());
 const ZERO_COST = Object.freeze({ tokensIn: 0, tokensOut: 0, usd: 0 });
@@ -33,14 +35,28 @@ const etDay = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New
 
 /**
  * @param {{ store: object, clock: () => string, env?: object, repoRoot?: string, outDir: string,
- *           stepDelayMs?: number, publisher?: object, slateDate?: string }} opts
+ *           stepDelayMs?: number, publisher?: object, slateDate?: string, engineering?: object }} opts
  *   slateDate pins the NFL slate (Eastern date) the recap uses; default is the latest settled one.
+ *   engineering configures delegated engineering (repo, claude binary, environment, screenshots) — see
+ *   engineering-flow.mjs; tests point it at a throwaway repo and a fake `claude`.
  */
-export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROOT, outDir, stepDelayMs = 0, publisher, slateDate }) {
+export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROOT, outDir, stepDelayMs = 0, publisher, slateDate, engineering = {} }) {
   const pub = publisher ?? createMockPublisher({ clock });
   const mediaDir = path.join(outDir, "media");
   /** commandId → run state for commands still in flight */
   const runs = new Map();
+  const flow = createEngineeringFlow({
+    store, clock, outDir,
+    helpers: {
+      makeTask: (...a) => makeTask(...a),
+      contribute: (...a) => contribute(...a),
+      refuseTask: (...a) => refuseTask(...a),
+      entries: () => entries(),
+      isPaused: () => isPaused(),
+      report: (run, data) => store.append("report", "chief-of-staff", { commandId: run.commandId, ...data }),
+      release: (run) => runs.delete(run.commandId),
+    },
+  }, engineering);
 
   // ── derived facts from the ledger ────────────────────────────────────────────────────────────────────────────
   const entries = () => store.list();
@@ -84,13 +100,23 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     store.append("plan", "chief-of-staff", {
       commandId,
       intent,
-      steps: plan.map((s, i) => ({ n: i + 1, role: s.role, roleTitle: roleTitle(s.role), title: s.title, seat: s.role === "chief-of-staff" ? "fake" : seatOf(s.role), via: s.via ?? null, after: s.after ?? null })),
+      steps: plan.map((s, i) => ({ n: i + 1, role: s.role, roleTitle: roleTitle(s.role), title: s.title, seat: s.seat ?? (s.role === "chief-of-staff" ? "fake" : seatOf(s.role)), via: s.via ?? null, after: s.after ?? null, gate: s.gate ?? null })),
       limits: { maxHops: 3, maxTasks: MAX_TASKS_PER_COMMAND, budgetUsd: budgetUsd(env) },
       simulated: true,
     });
 
     const run = { commandId, text, intent, plan: plan.map((s) => ({ ...s, created: false })), queue: [], tasks: [], doneRoles: new Set(), ctx: {} };
     runs.set(commandId, run);
+    if (intent === "engineering-task") {
+      // The spec must come from a real assistant you operate: the Prompt Architect sits on a manual seat here,
+      // whatever its default, so a simulated spec can never reach Claude Code.
+      run.kind = "engineering";
+      flow.start(run);
+      const seat = seatOf("prompt-architect").startsWith("manual:") ? seatOf("prompt-architect") : "manual:chatgpt";
+      enqueue(run, run.plan[0], { hop: 1, parentTaskId: null, seat });
+      await drain(run);
+      return { ok: true, commandId };
+    }
     for (const step of run.plan) {
       if (!step.via && !step.after) enqueue(run, step, { hop: 1, parentTaskId: null });
     }
@@ -98,7 +124,14 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     return { ok: true, commandId };
   }
 
-  function enqueue(run, step, { hop, parentTaskId }) {
+  function enqueue(run, step, opts) {
+    const envelope = makeTask(run, step, opts);
+    run.queue.push(envelope);
+    return envelope;
+  }
+
+  /** Create and record a task (QUEUED). The engineering flow runs its tasks directly instead of queueing them. */
+  function makeTask(run, step, { hop, parentTaskId, seat = null }) {
     step.created = true;
     const role = step.role;
     const n = run.tasks.length + 1;
@@ -108,7 +141,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
       parentTaskId,
       hop,
       ownerRole: role,
-      seat: DETERMINISTIC_ROLES.has(role) ? "deterministic" : role === "chief-of-staff" ? "fake" : seatOf(role),
+      seat: seat ?? step.seat ?? (DETERMINISTIC_ROLES.has(role) ? "deterministic" : role === "chief-of-staff" ? "fake" : seatOf(role)),
       title: step.title,
       inputDigest: digestOf({ text: run.text, role, parentTaskId }),
       expectedArtifactType: step.artifact,
@@ -118,7 +151,6 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     const v = validateTaskEnvelope(envelope);
     if (!v.ok) throw new Error(`invalid task envelope: ${v.errors.join(", ")}`);
     run.tasks.push(envelope);
-    run.queue.push(envelope);
     store.append("task", "orchestrator", { ...envelope, status: "QUEUED" });
     return envelope;
   }
@@ -138,7 +170,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
       scheduleFollowOns(run);
     }
     const waiting = run.tasks.some((t) => latestStatus(t.taskId) === "AWAITING_INPUT");
-    if (!waiting) runs.delete(run.commandId);
+    if (!waiting && run.kind !== "engineering") runs.delete(run.commandId);
   }
 
   function latestStatus(taskId) {
@@ -187,6 +219,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     if (role === "creative-renderer") return renderDraft(run, task);
 
     let facts = { intent: run.intent, commandText: run.text };
+    if (run.kind === "engineering" && role === "prompt-architect") facts = specFacts(run.text, CC_ROOT);
     if (role === "engineering") facts = engineeringFacts(run);
     if (role === "social-strategy") facts = socialFacts(run);
 
@@ -351,6 +384,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
       "creative-renderer": ["PNG is 1080×1350; both captions pass the validator."],
       "social-strategy": ["Angles come only from games that passed the gate."],
       "chief-of-staff": ["One report: done, blocked, decisions needed."],
+      "verifier": ["Diff, scope, tests and screenshots produced by the orchestrator itself, not by the engineer."],
     }[role] ?? ["Artifact matches its contract."];
   }
 
@@ -359,7 +393,17 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     const f = checkFounder(paused ? "pause" : "resume", actor);
     if (!f.ok) return { ok: false, ...f };
     store.append("control", "founder", { paused, text });
-    return { ok: true, paused };
+    const stopped = paused ? flow.cancelAll({ reason: "Paused by the founder" }) : 0;
+    return { ok: true, paused, stoppedRuns: stopped };
+  }
+
+  /** Emergency stop: pause everything and SIGKILL every running Claude Code process immediately. */
+  function emergencyStop(actor) {
+    const f = checkFounder("pause", actor);
+    if (!f.ok) return { ok: false, ...f };
+    store.append("control", "founder", { paused: true, emergency: true, text: "Emergency stop" });
+    const stopped = flow.cancelAll({ reason: "Emergency stop", immediate: true });
+    return { ok: true, paused: true, stoppedRuns: stopped };
   }
 
   async function decide({ decisionId, verdict, captionId, digest, note }, actor) {
@@ -367,6 +411,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     if (!f.ok) return { ok: false, ...f };
     const request = entries().find((e) => e.kind === "decision-request" && e.data.decisionId === decisionId)?.data;
     if (!request) return { ok: false, code: "UNKNOWN_DECISION", detail: decisionId };
+    if (request.kind === "gate") return flow.decideGate(request, { verdict, digest }, actor, runs.get(request.commandId));
 
     if (verdict !== "approve") {
       const claim = store.claim(`decision|${decisionId}`, { verdict, note: note ?? null });
@@ -406,6 +451,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     const run = [...runs.values()].find((r) => r.tasks.some((t) => t.taskId === taskId));
     if (!run || latestStatus(taskId) !== "AWAITING_INPUT") return { ok: false, code: "NOT_AWAITING", detail: taskId };
     const task = run.tasks.find((t) => t.taskId === taskId);
+    if (run.kind === "engineering" && task.ownerRole === "prompt-architect") return flow.onSpecPasted(run, task, text);
     const parsed = parseManualAnswer(text, task.expectedArtifactType);
     const app = { "manual:chatgpt": "ChatGPT", "manual:claude": "Claude", "manual:grok": "Grok" }[task.seat];
     contribute(run, task, {
@@ -443,7 +489,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     const commands = [];
     for (const e of all) {
       if (e.kind === "command") {
-        const c = { ...e.data, at: e.at, plan: null, tasks: new Map(), contributions: [], refusals: [], deliverables: [], reports: [] };
+        const c = { ...e.data, at: e.at, plan: null, tasks: new Map(), contributions: [], refusals: [], deliverables: [], reports: [], progress: [] };
         byCommand.set(e.data.commandId, c);
         commands.push(c);
         continue;
@@ -456,6 +502,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
       else if (e.kind === "refusal") c.refusals.push({ ...e.data, at: e.at });
       else if (e.kind === "deliverable") c.deliverables.push({ ...e.data, at: e.at });
       else if (e.kind === "report") c.reports.push({ ...e.data, at: e.at });
+      else if (e.kind === "progress") c.progress.push({ taskId: e.data.taskId, line: e.data.line, at: e.at });
     }
     const decisions = all.filter((e) => e.kind === "decision-request").map((e) => {
       const d = e.data;
@@ -464,7 +511,11 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
       const blocked = all.filter((x) => x.kind === "refusal" && x.data.decisionId === d.decisionId).at(-1)?.data ?? null;
       return { ...d, at: e.at, resolution, receipt, blocked: receipt ? null : blocked };
     });
-    const seats = Object.fromEntries(Object.keys(ROLES).map((r) => [r, { seat: DETERMINISTIC_ROLES.has(r) || r === "publisher" ? "deterministic" : seatOf(r), options: ROLES[r].seatOptions, title: ROLES[r].title }]));
+    const seats = Object.fromEntries(Object.keys(ROLES).map((r) => [r, { seat: DETERMINISTIC_ROLES.has(r) || r === "publisher" || r === "verifier" ? "deterministic" : seatOf(r), options: ROLES[r].seatOptions, title: ROLES[r].title }]));
+    const lastPreflight = all.filter((e) => e.kind === "preflight").at(-1) ?? null;
+    const lastControl = all.filter((e) => e.kind === "control").at(-1)?.data ?? null;
+    const claudeUsage = all.filter((e) => e.kind === "contribution" && e.data.seat === "cli:claude-code")
+      .reduce((a, e) => ({ runs: a.runs + 1, estUsageUsd: a.estUsageUsd + (e.data.cost?.estUsageUsd ?? 0), durationMs: a.durationMs + (e.data.run?.durationMs ?? 0) }), { runs: 0, estUsageUsd: 0, durationMs: 0 });
     return {
       phase: "Phase 1 · local · dry run",
       paused: isPaused(),
@@ -473,11 +524,24 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
       seats,
       commands: commands.map((c) => ({ ...c, tasks: [...c.tasks.values()] })),
       decisions,
+      engineering: {
+        billing: flow.billing(),
+        lastPreflight: lastPreflight ? { ...lastPreflight.data, at: lastPreflight.at } : null,
+        activeRuns: flow.activeRuns(),
+        emergency: Boolean(lastControl?.paused && lastControl?.emergency),
+        claudeUsage,
+        limits: { plan: "20 turns · $1 est. · 10 min", build: "40 turns · $3 est. · 15 min", perCommand: "$5 est." },
+      },
       history: all.map((e) => ({ at: e.at, kind: e.kind, actor: e.actor, line: historyLine(e) })),
     };
   }
 
-  return { handleCommand, decide, submitManual, setSeat, setPaused, state };
+  return {
+    handleCommand, decide, submitManual, setSeat, setPaused, emergencyStop, state,
+    attestBilling: (a, actor) => flow.attestBilling(a, actor),
+    runPreflight: () => flow.runPreflight(null),
+    whenIdle: () => flow.whenIdle(),
+  };
 }
 
 function historyLine(e) {
@@ -488,11 +552,14 @@ function historyLine(e) {
     case "task": return `${d.status}${d.ownerRole ? ` ${roleTitle(d.ownerRole)} (hop ${d.hop}, seat ${d.seat})` : ""} ${d.taskId}${d.code ? ` [${d.code}]` : ""}${d.error ? `: ${d.error}` : ""}`;
     case "contribution": return `${roleTitle(d.role)} → ${d.artifactType} [${d.seat}, $${d.cost?.usd ?? 0}]`;
     case "refusal": return `REFUSED ${d.code}: ${d.detail}`;
-    case "deliverable": return `Deliverable: ${d.kind}${d.file ? ` ${d.file}` : ""}`;
+    case "deliverable": return `Deliverable: ${d.kind}${d.file ? ` ${d.file}` : ""}${d.commit ? ` ${d.branch} @ ${d.commit.slice(0, 10)}` : ""}`;
     case "decision-request": return `Decision requested: ${d.question}`;
-    case "decision": return `Founder ${d.verdict}${d.captionId ? ` caption ${d.captionId}` : ""} (digest ${String(d.approvedExactDigest ?? "").slice(0, 12)})`;
+    case "decision": return `Founder ${d.verdict}${d.gate ? ` at ${d.gate}` : ""}${d.captionId ? ` caption ${d.captionId}` : ""} (digest ${String(d.approvedExactDigest ?? "").slice(0, 12)})`;
     case "publish-receipt": return `Published (${d.provider}): ${d.providerPostId}`;
-    case "control": return `Publishing ${d.paused ? "PAUSED" : "RESUMED"} by founder`;
+    case "control": return d.emergency ? "EMERGENCY STOP by founder: all Claude Code runs killed, everything paused" : `${d.paused ? "PAUSED" : "RESUMED"} by founder (publishing and Claude Code runs)`;
+    case "progress": return `· ${d.line}`;
+    case "preflight": return d.ok ? `Preflight OK: Claude Code ${d.evidence?.cliVersion} · ${d.evidence?.authMethod} · ${d.evidence?.subscriptionType}` : `Preflight REFUSED: ${d.detail}`;
+    case "attestation": return `Founder attestation: ${d.statement}`;
     case "report": return `Report: ${d.headline}`;
     case "seat-change": return `Seat: ${roleTitle(d.role)} → ${d.seat}`;
     default: return e.kind;

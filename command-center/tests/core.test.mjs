@@ -89,6 +89,7 @@ test("manual seat: pasted JSON is held to the same contract", () => {
   const bad = parseManualAnswer('```json\n{"objective":"o"}\n```', "engineering-brief");
   assert.equal(bad.contractValid, false);
   assert.equal(parseManualAnswer("no json here", "engineering-brief").contractValid, false);
+  assert.equal(parseManualAnswer('{"objective":"o","constraints":["c"],"dependencies":[],"tests":[],"acceptanceCriteria":["a"]}', "engineering-brief").contractValid, true, "bare JSON is accepted");
 });
 
 test("intents: control words and the recap command", () => {

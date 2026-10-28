@@ -10,8 +10,13 @@
  * Cost: $0 of API spend. It is not a claim that the subscription permits automation; a human does every step.
  */
 import { validateEngineeringBrief } from "../contracts/index.mjs";
+import { ENGINEERING_SPEC_SCHEMA, validateSchema } from "../contracts/engineering.mjs";
 
 const SHAPES = {
+  "engineering-spec": {
+    example: { objective: "", userStories: [""], constraints: [""], filesInScope: [""], tests: [""], acceptanceCriteria: [""], nonGoals: [""] },
+    validate: (a) => validateSchema(ENGINEERING_SPEC_SCHEMA, a),
+  },
   "engineering-brief": {
     example: { objective: "", constraints: [""], dependencies: [""], tests: [""], acceptanceCriteria: [""] },
     validate: validateEngineeringBrief,
@@ -62,11 +67,15 @@ export function manualSeat(seat) {
 
 /** Parse a pasted answer. Returns { artifact, contractValid, errors }. */
 export function parseManualAnswer(text, artifactType) {
-  const match = /```json\s*([\s\S]*?)```/i.exec(String(text ?? ""));
-  if (!match) return { artifact: { raw: String(text ?? "") }, contractValid: false, errors: ["no ```json block found"] };
+  const raw = String(text ?? "");
+  // Prefer a fenced ```json block; otherwise accept a bare JSON object (ChatGPT often omits the fence on copy).
+  const fenced = /```(?:json)?\s*([\s\S]*?)```/i.exec(raw)?.[1];
+  const bare = raw.indexOf("{") >= 0 && raw.lastIndexOf("}") > raw.indexOf("{") ? raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1) : null;
+  const body = fenced ?? bare;
+  if (!body) return { artifact: { raw }, contractValid: false, errors: ["no JSON object found (paste the whole answer, with or without the ```json fence)"] };
   let parsed;
   try {
-    parsed = JSON.parse(match[1]);
+    parsed = JSON.parse(body);
   } catch (e) {
     return { artifact: { raw: String(text) }, contractValid: false, errors: [`invalid JSON: ${e.message}`] };
   }

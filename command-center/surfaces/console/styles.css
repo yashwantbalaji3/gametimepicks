@@ -115,6 +115,28 @@ select { background: var(--bg); border: 1px solid var(--border-strong); border-r
 .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: flex; align-items: center; justify-content: center; z-index: 10; cursor: zoom-out; }
 .lightbox img { max-height: 92vh; max-width: 92vw; border-radius: 12px; }
 
+/* M2: delegated engineering */
+.tag.claude { color: #F0B27A; }
+code { font: 12px var(--mono); background: var(--bg); border: 1px solid var(--border); border-radius: 5px; padding: 1px 4px; word-break: break-all; }
+.msg.run { border-color: rgba(240,178,122,.35); }
+.msg.run.live { border-color: rgba(240,178,122,.75); box-shadow: 0 0 0 1px rgba(240,178,122,.2) inset; }
+.progress { margin: 6px 0 0; padding-left: 0; list-style: none; font: 12px/1.55 var(--mono); color: var(--mute); }
+.progress li { padding: 1px 0; word-break: break-word; }
+.progress .t { color: var(--faint); margin-right: 8px; }
+.runline { font: 11.5px/1.5 var(--mono); color: var(--faint); margin: 4px 0; }
+.runline a { color: var(--accent-mint); }
+.shots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
+.shots figure { margin: 0; }
+.shots img { width: 100%; border-radius: 8px; border: 1px solid var(--border); cursor: zoom-in; display: block; }
+.shots figcaption { font: 11px var(--mono); color: var(--faint); margin-top: 3px; }
+pre.diff { max-height: 360px; white-space: pre; }
+.claude-box { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border-strong); }
+.attest { margin-top: 8px; padding: 8px 10px; border: 1px solid rgba(245,181,74,.4); border-radius: 10px; background: rgba(245,181,74,.06); }
+.attest input { background: var(--bg); border: 1px solid var(--border-strong); border-radius: 8px; padding: 4px 6px; }
+.stop-top { color: #fff; background: var(--danger); border-color: var(--danger); }
+.stop-top[hidden] { display: none !important; }
+.status.CANCELLED { color: var(--warn); }
+
 .mobile-only { display: none; }
 
 /* Tablet: one column, panels after the conversation. */
@@ -184,6 +206,8 @@ select { background: var(--bg); border: 1px solid var(--border-strong); border-r
   .tab .dot { position: absolute; top: 5px; right: calc(50% - 22px); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px;
     background: var(--warn); color: #241503; font: 700 11px/18px var(--mono); }
   .goto { margin-top: 8px; }
+  .shots { grid-template-columns: 1fr 1fr; }
+  .stop-top { min-height: 40px; }
   /* Approve / Reject stay reachable while the caption options scroll. */
   .decision .actions { position: sticky; bottom: 0; z-index: 2; margin: 8px -14px -12px; padding: 10px 14px 12px;
     background: linear-gradient(180deg, rgba(16,11,8,0.85), var(--surface) 35%); border-top: 1px solid var(--border); }
