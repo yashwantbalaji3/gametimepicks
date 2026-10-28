@@ -3,6 +3,7 @@ import LevelACopy from "@/components/products/level-a-copy";
 import { AddToSlip, ModelSlipBar } from "@/components/products/level-a-slip";
 import { slipCatalogFor, slipLegOf } from "@/lib/products/level-a/slip-legs.mjs";
 import NbaGameWinners, { type NbaGameWinnersBlock } from "@/components/products/nba-game-winners";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 import { cardCopyText, jointShownFor, LEG_REFUSAL } from "@/lib/products/level-a/suggestions.mjs";
 import { levelACardKey } from "@/lib/products/level-a/engine.mjs";
 import { etStamp } from "@/lib/et-stamp.mjs";
@@ -46,8 +47,10 @@ function LegRow({ l }: { l: Leg }) {
         {SPORT[l.sport] ?? l.sport} · {l.eventLabel} · starts {etStamp(l.startUtc) ?? l.startUtc}
         {l.uncertainty?.kind === "1x2" ? ` · home ${pct(l.uncertainty.home ?? null)} / draw ${pct(l.uncertainty.draw ?? null)} / away ${pct(l.uncertainty.away ?? null)}` : ""}
       </span>
+      {/* Overnight 10-28 (RELOCATE): the reader sees "Official forecast · frozen <time ET>"; the forecast owner and model
+          id (e.g. "nba-official-composition@1 (nba-preseason-experimental-v0.1)") are listed once, in Technical details. */}
       <span style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }}>
-        Source: {l.forecast.owner}{l.forecast.modelId ? ` (${l.forecast.modelId})` : ""} · frozen {etStamp(l.forecast.stampedAt) ?? l.forecast.stampedAt} · no sportsbook price · settles on the official final
+        Official forecast · frozen {etStamp(l.forecast.stampedAt) ?? l.forecast.stampedAt} · no sportsbook price · settles on the official final
       </span>
       {/* founder decision 2026-10-23: the Elo rating's game-winner probability — the shared accessor's text, display only */}
       {l.uncertainty?.kind === "elo-win-probability" && l.uncertainty.text ? (
@@ -84,6 +87,13 @@ function CardBox({ title, slot }: { title: string; slot: Slot }) {
   );
 }
 
+/** The forecast owners (and model ids) behind the legs this section renders in `mode`, once each — for Technical details. */
+export function levelAForecastSources(model: LevelAModel, mode: "parlay-lab" | "bank-builder" | "moonshot"): string[] {
+  const slots = mode === "parlay-lab" ? model.parlayLab : [mode === "bank-builder" ? model.bankBuilder : model.moonshot];
+  const legs = [...slots.flatMap((s) => s.card?.legs ?? []), ...model.untiered];
+  return [...new Set(legs.map((l) => `${l.forecast.owner}${l.forecast.modelId ? ` (${l.forecast.modelId})` : ""}`))];
+}
+
 /**
  * @param mode  "parlay-lab" shows the four tiers; "bank-builder" / "moonshot" show that product's own Level A policy.
  */
@@ -110,6 +120,39 @@ export default function LevelASuggestions({ model, mode }: { model: LevelAModel 
           game winners block below already prints it on this page. */}
       {model.mixed?.disclosure && !(model.nbaGameWinners?.public && model.nbaGameWinners.disclosure) ? <p className="m-0 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }} data-level-a-mixed-disclosure="">{model.mixed.disclosure}</p> : null}
       <NbaGameWinners block={model.nbaGameWinners} mode={mode} />
+      {mode === "parlay-lab" ? <LevelAReference model={model} refused={refused} /> : (
+        /* Overnight 10-28 (CONSOLIDATE): the untiered sides, the NBA medians and the unavailable-leg count were copied in
+           full on /build, /bank-builder and /moonshot. The Parlay Center keeps them open (it is that page's purpose); the
+           two product pages fold the same content (still server-rendered) behind one line and link to the full block. */
+        <details className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
+          <summary className="cursor-pointer" style={{ minHeight: 40, color: "var(--vault-text)" }}>
+            Every model suggestion today{model.untiered.length ? ` · ${model.untiered.length} official side${model.untiered.length === 1 ? "" : "s"} not tiered` : ""}
+          </summary>
+          <div className="mt-2 flex flex-col gap-3">
+            <p className="m-0"><Link href="/build#level-a-parlay-lab" style={{ color: "var(--vault-text-mute)", textDecoration: "underline" }}>All four risk tiers on the Parlay Center →</Link></p>
+            <LevelAReference model={model} refused={refused} />
+          </div>
+        </details>
+      )}
+      <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
+        Every suggestion is recorded and graded forward in its own record, separate from the priced paper record.{" "}
+        <Link href="/methodology" style={{ color: "var(--vault-text-mute)", textDecoration: "underline" }}>How suggestions are chosen →</Link>
+      </p>
+      <MoreDisclosure title="Technical details" summary="Forecast sources and the published data file">
+        <div className="flex flex-col gap-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+          {levelAForecastSources(model, mode).length ? <p className="m-0">Forecast source{levelAForecastSources(model, mode).length === 1 ? "" : "s"}: {levelAForecastSources(model, mode).join(" · ")}</p> : null}
+          <p className="m-0"><a href="/data/level-a/v1/model.json" style={{ color: "var(--vault-text-mute)", textDecoration: "underline" }}>These suggestions as data</a></p>
+        </div>
+      </MoreDisclosure>
+      <ModelSlipBar catalog={slipCatalogFor(model, mode)} />
+    </section>
+  );
+}
+
+/** The untiered official sides, the NBA medians and the unavailable-leg count — open on the Parlay Center, folded elsewhere. */
+function LevelAReference({ model, refused }: { model: LevelAModel; refused: Array<[string, number]> }) {
+  return (
+    <>
       {model.untiered.length ? (
         <div className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
           <p className="m-0 font-semibold" style={{ color: "var(--vault-text)" }}>Official sides that are not tiered</p>
@@ -136,12 +179,6 @@ export default function LevelASuggestions({ model, mode }: { model: LevelAModel 
           Unavailable today: {refused.map(([code, n]) => `${n} × ${LEG_REFUSAL[code as keyof typeof LEG_REFUSAL] ?? code}`).join(" ")}
         </p>
       ) : null}
-      <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
-        Every suggestion is recorded and graded forward in its own record, separate from the priced paper record.{" "}
-        <Link href="/methodology" style={{ color: "var(--vault-text-mute)", textDecoration: "underline" }}>How suggestions are chosen →</Link>{" "}
-        <a href="/data/level-a/v1/model.json" style={{ color: "var(--vault-text-mute)", textDecoration: "underline" }}>These suggestions as data</a>
-      </p>
-      <ModelSlipBar catalog={slipCatalogFor(model, mode)} />
-    </section>
+    </>
   );
 }
