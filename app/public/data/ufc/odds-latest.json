@@ -254,6 +254,40 @@
    ]
   },
   {
+   "boutId": "401931617",
+   "eventId": "401931617",
+   "providerEventId": "bcace46c2ac73a12c347366092a7329e",
+   "joinMethod": "alias",
+   "red": {
+    "name": "Mickey Gall",
+    "price": {
+     "american": 255,
+     "books": 7
+    }
+   },
+   "blue": {
+    "name": "Zach Reese",
+    "price": {
+     "american": -320,
+     "books": 7
+    }
+   },
+   "sides": [
+    {
+     "name": "Mickey Gall",
+     "price": 255,
+     "american": 255,
+     "books": 7
+    },
+    {
+     "name": "Zach Reese",
+     "price": -320,
+     "american": -320,
+     "books": 7
+    }
+   ]
+  },
+  {
    "boutId": "401914106",
    "eventId": "401914106",
    "providerEventId": "db6e188beac0b1d61e66fcf162c7307c",
@@ -354,54 +388,9 @@
      "books": 7
     }
    ]
-  },
-  {
-   "boutId": "401931617",
-   "eventId": "401931617",
-   "providerEventId": "bcace46c2ac73a12c347366092a7329e",
-   "joinMethod": "alias",
-   "red": {
-    "name": "Mickey Gall",
-    "price": {
-     "american": 255,
-     "books": 7
-    }
-   },
-   "blue": {
-    "name": "Zach Reese",
-    "price": {
-     "american": -320,
-     "books": 7
-    }
-   },
-   "sides": [
-    {
-     "name": "Mickey Gall",
-     "price": 255,
-     "american": 255,
-     "books": 7
-    },
-    {
-     "name": "Zach Reese",
-     "price": -320,
-     "american": -320,
-     "books": 7
-    }
-   ]
   }
  ],
  "unpricedBouts": [
-  {
-   "boutId": "401928108",
-   "red": "Andre Petroski",
-   "blue": "Azamat Bekoev",
-   "matchup": "Andre Petroski vs Azamat Bekoev",
-   "weightClass": "Middleweight",
-   "startUtc": "2026-10-31T21:00Z",
-   "state": "JOIN_FAILED",
-   "reason": "1 provider event(s) naming a fighter from this card matched no bout — this bout may be one of them",
-   "nextCheck": "the next scheduled ufc-odds-refresh slot"
-  },
   {
    "boutId": "401928109",
    "red": "Julian Erosa",
@@ -415,10 +404,11 @@
   }
  ],
  "coverage": {
-  "cardBouts": 13,
+  "cardBouts": 12,
   "priced": 11,
   "marketNotOpen": 0,
-  "joinFailed": 2,
+  "joinFailed": 1,
+  "addedAfterCapture": 0,
   "unmatchedProviderEvents": 1
  },
  "aliasJoins": [
@@ -443,7 +433,7 @@
  "oddsReady": false,
  "partiallyPriced": true,
  "blockers": [
-  "2 bout(s) could not be joined to a provider event that exists — a defect, not a closed market"
+  "1 bout(s) could not be joined to a provider event that exists — a defect, not a closed market"
  ],
  "creditCost": 1,
  "derivedFrom": null,
@@ -453,5 +443,12 @@
   "ceiling": 500,
   "cumulative": 40
  },
- "note": "Fight-winner prices only, median across posted US books. Paper-only; no wagers are placed."
+ "note": "Fight-winner prices only, median across posted US books. Paper-only; no wagers are placed.",
+ "coverageRecomputed": {
+  "at": "2026-10-28T18:45:23Z",
+  "againstCardGeneratedAt": "2026-10-28T18:45:13Z",
+  "providerCalls": 0,
+  "creditsSpent": 0,
+  "pricesFrom": "2026-10-27T16:19:48Z"
+ }
 }
