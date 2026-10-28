@@ -56,5 +56,7 @@ test("hubs hand the pill a slate date; none decides tense on the build clock any
   assert.doesNotMatch(read("src/app/nfl/page.tsx"), /slateDay && slateDay [<>] currentEtDate\(\)/, "no build-clock tense on /nfl");
   assert.doesNotMatch(read("src/app/mlb/page.tsx"), /const statusKind[^;]*isTodaysSlate/, "no build-clock tense in /mlb's pill kind");
   assert.match(read("src/components/sport-overview-hero.tsx"), /<DayAwareStatusPill slateDate=\{statusSlateDate\} seedToday=\{statusSeedToday\}/);
-  assert.match(read("src/app/page.tsx"), /seedToday=\{serverToday\}\s+hasGames=\{mlbGames > 0\}/, "Home's chip reads the reader's day");
+  /* REPOINTED W4 (2026-10-28): Home's MLB hook (and its chip) left the page — the hero's primary action opens /today for
+     every sport. Home therefore carries no build-clock slate chip at all. */
+  assert.doesNotMatch(read("src/app/page.tsx"), /<HomeTodayMlb\b/, "no MLB slate chip on Home");
 });

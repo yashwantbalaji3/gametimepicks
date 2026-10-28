@@ -21,15 +21,18 @@ test("the old dense-board headings/blocks are removed from the compact hub", () 
   }
 });
 
-test("the Daily Model Hub leads with its own header + at-a-glance, then the top model reads", () => {
+test("the Daily Model Hub leads with its own header, then today's games, then the top model reads", () => {
+  /* REPOINTED W4 (2026-10-28): the at-a-glance strip (five status cards repeating the sections below it) is gone;
+     today's games, grouped started / upcoming / final, lead after the header. */
   const header = src.indexOf("<TodayDailySlateHeader");
-  const glance = src.indexOf("<TodayAtAGlance");
+  const games = src.indexOf("<TodayGames");
   const picks = src.indexOf("<TodayTopModelPicks");
   assert.ok(header > 0, "Today-specific slate header present");
-  assert.ok(glance > 0, "at-a-glance status strip present");
+  assert.ok(games > 0, "today's games present");
   assert.ok(picks > 0, "top model reads present");
-  assert.ok(header < glance, "header leads the at-a-glance strip");
-  assert.ok(glance < picks, "at-a-glance precedes the top model reads");
+  assert.ok(header < games, "header leads today's games");
+  assert.ok(games < picks, "today's games precede the top model reads");
+  assert.ok(!src.includes("<TodayAtAGlance"), "no duplicate status strip");
 });
 
 test("product status modules link out (no duplicated full flagship ladders/boards on the hub)", () => {
