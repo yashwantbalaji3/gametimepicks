@@ -14,7 +14,7 @@ import { assignSlugs } from "./slugs.mjs";
 import { buildTeamResearch, TEAM_ROW, eventDate } from "./team-read-model.mjs";
 import { buildPlayerResearch, recordsParticipation, PLAYER_ROW } from "./player-read-model.mjs";
 import { playerEligibility, teamEligibility, ELIGIBILITY_RULES, THRESHOLDS, RESEARCH_PAGE_BUDGET } from "./eligibility.mjs";
-import { coverageFor } from "./coverage.mjs";
+import { coverageFor, playerCoverage } from "./coverage.mjs";
 
 export const PROJECTION_BUILDER_ID = "gametime-research-projection@1";
 
@@ -113,12 +113,7 @@ export function assembleResearchProjection(platform) {
     for (const { player, rows, el } of builtPlayers) {
       const p = buildPlayerResearch({ sportId, player, statRows: rows, gamesById, teamStatsByGame, seasonLabel });
       if (p.lastDate && (!latest || p.lastDate > latest)) latest = p.lastDate;
-      const seasonIds = p.seasons.map((s) => s.id);
-      const coverage = coverageFor({
-        kind: "player", sport: sportId, seasons: seasonIds,
-        firstSeasonLabel: p.seasons[p.seasons.length - 1]?.label ?? null, lastSeasonLabel: p.seasons[0]?.label ?? null,
-        hasPre2023: sportId === "NFL" && seasonIds.some((s) => s < "NFL-2023"),
-      });
+      const coverage = playerCoverage(sportId, p.seasons);
       const extra = {};
       if (sportId === "UFC") {
         const opp = new Set(p.gameLog.map((r) => r[PLAYER_ROW.OPP]).filter(Boolean));

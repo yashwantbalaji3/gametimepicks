@@ -12,6 +12,7 @@
 import Link from "next/link";
 
 import { gameHref } from "@/lib/research-pages/game-links";
+import { formatGameDate } from "@/lib/research-pages/format.mjs";
 import type { ResearchSport } from "@/lib/research-pages/projection-store";
 import { familyHref, subjectRows } from "@/lib/results/v2/forecast-ledger-reader";
 import { FAMILY_LABELS } from "@/lib/results/v2/forecast-record.mjs";
@@ -60,7 +61,9 @@ function Rows({ rows }: { rows: any[] }) {
             return (
               <tr key={r.forecastId}>
                 <td style={{ ...CELL, whiteSpace: "nowrap" }}>
-                  <span className="font-mono">{String(r.eventStart ?? r.publishedAt ?? "").slice(0, 10) || "—"}</span>
+                  {/* Audit 2026-10-28 F07: the game's ET date from its start instant (the factual game log's own rule) — the
+                      raw UTC prefix put a Sunday-night game on Monday. */}
+                  <span className="font-mono">{r.eventStart ? formatGameDate(r.eventStart) : r.publishedAt ? `published ${formatGameDate(r.publishedAt)}` : "—"}</span>
                   <div style={{ fontSize: 11, color: "var(--vault-text-faint)" }}>
                     {game ? <Link href={game} style={{ color: "var(--gtp-bank-heat)" }}>{r.matchup ?? "Game"}</Link> : r.matchup ?? ""}
                   </div>
