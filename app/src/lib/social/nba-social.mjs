@@ -12,6 +12,8 @@
  * Nothing here is a pick, a price, a ranking or an accuracy claim. Pure: no fs, no clock (the build date is passed in).
  */
 import { eloWinProbabilityOf, ELO_WIN_PROBABILITY_LABEL } from "../sports/nba/elo-win-probability.mjs";
+import { NBA_LINE_DISPLAY } from "../sports/nba/line-board.mjs";
+import { COMPARISON_LEGEND, LINE_COMPARISON_RULE, LINE_MAX_AGE_HOURS, UNAVAILABLE_REASON } from "../sports/nba/line-comparison.mjs";
 
 export const NBA_SOCIAL_SCHEMA = "gtp-social-nba@1";
 export const NBA_SOCIAL_BASE = "/data/social/nba/v1/";
@@ -48,7 +50,21 @@ const num = (v) => (typeof v === "number" && Number.isFinite(v) ? v : null);
  * server loader — products never read the Theater library (research boundary), and this pure module imports no component.
  * @param {{ lane: any, recordGames: any[], buildEtDate: string, laneSha256?: string|null, eloEnabled?: boolean, recordCounts?: { matched: number, missed: number, graded: number }|null, reasonText?: (reason: string|null, status: string|null) => string }} input
  */
-export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, laneSha256 = null, eloEnabled, recordCounts = null, reasonText = (r) => String(r ?? "") }) {
+export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, laneSha256 = null, eloEnabled, recordCounts = null, reasonText = (r) => String(r ?? ""), lineBoard = null, lineDisplay = NBA_LINE_DISPLAY }) {
+  /* Model-versus-line (launch program P0): per player and family, from the private line board (line-board.mjs) — only when
+     the social display switch allows it. Otherwise the block says so and carries NO line, price, book or difference. */
+  const lineRow = new Map((lineBoard?.rows ?? []).map((r) => [`${r.eventId}|${r.athleteId}|${r.family}`, r]));
+  const lineComparison = (eventId, athleteId, family) => {
+    if (!lineDisplay?.social) return { status: "NOT_AUTHORIZED", displayPermission: "PRIVATE", reason: lineDisplay?.reason ?? "Not authorized for display." };
+    const r = lineRow.get(`${eventId}|${athleteId}|${family}`);
+    if (!r) return { status: "UNAVAILABLE", displayPermission: "PUBLIC", direction: "UNAVAILABLE", reason: "NO_LINE", reasonText: UNAVAILABLE_REASON.NO_LINE };
+    if (r.direction === "UNAVAILABLE") return { status: "UNAVAILABLE", displayPermission: "PUBLIC", direction: "UNAVAILABLE", reason: r.reason, reasonText: UNAVAILABLE_REASON[r.reason] ?? null };
+    return {
+      status: "COMPARED", displayPermission: "PUBLIC", rule: LINE_COMPARISON_RULE,
+      line: r.line, overPrice: r.overPrice, underPrice: r.underPrice, book: r.book, marketKey: r.marketKey, capturedAt: r.capturedAt,
+      difference: r.difference, direction: r.direction, freshness: `captured before tip, within ${LINE_MAX_AGE_HOURS} h`,
+    };
+  };
   const byId = new Map((recordGames ?? []).map((r) => [String(r.providerEventId), r]));
   const games = lane?.games ?? [];
   const events = games.map((g) => {
@@ -60,6 +76,7 @@ export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, laneSha
       id: String(p.providerAthleteId), name: p.name ?? null, team, position: p.position ?? null,
       expectedMinutes: num(p.expectedMinutes), injuryStatus: p.injuryStatus ?? null,
       medians: Object.fromEntries(PLAYER_FAMILIES.map((f) => [f.key, num(f.combo ? p.comboMedians?.[f.key] : p.medians?.[f.key])])),
+      lineComparison: Object.fromEntries(PLAYER_FAMILIES.map((f) => [f.key, lineComparison(id, String(p.providerAthleteId), f.key)])),
     });
     const unavailable = ["away", "home"].flatMap((side) => (g.players?.unavailable?.[side] ?? []).map((u) => ({
       id: String(u.providerAthleteId), name: u.name ?? null, team: g[side]?.abbr ?? null, reason: u.reason ?? null,
@@ -80,6 +97,8 @@ export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, laneSha
       home: { abbr: g.home?.abbr ?? null, name: g.home?.name ?? null },
       frozenAt: g.frozenAt ?? null,
       receipt: { modelVersion: g.receipt?.modelVersion ?? null, payloadSha256: g.receipt?.payloadSha256 ?? null },
+      // The snapshot every projection in this event belongs to: one frozen receipt (never a re-run).
+      snapshotId: g.receipt?.payloadSha256 && g.frozenAt ? `${g.receipt.payloadSha256.slice(0, 16)}@${g.frozenAt}` : null,
       official: {
         favouredSide: fav,
         favouredTeam: fav ? g[fav]?.abbr ?? null : null,
@@ -113,6 +132,14 @@ export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, laneSha
       simulations: "NOT_INCLUDED", topBoards: "NOT_AUTHORIZED",
     },
     playerFamilies: PLAYER_FAMILIES,
+    lineComparisons: {
+      rule: LINE_COMPARISON_RULE,
+      displayPermission: lineDisplay?.social ? "PUBLIC" : "PRIVATE",
+      reason: lineDisplay?.social ? null : lineDisplay?.reason ?? null,
+      legend: COMPARISON_LEGEND,
+      graphicRule: "Colour a stat only when its lineComparison.status is COMPARED; otherwise use the projections-only graphic. Always print the legend beside coloured stats.",
+      coverage: lineDisplay?.social && lineBoard ? lineBoard.coverage : null,
+    },
     events,
     record: recordCounts ? { ...recordCounts, minForClaim: NBA_RECORD_MIN_FOR_CLAIM, accuracyClaim: false, href: "/results/nba/" } : null,
     usageRules: USAGE_RULES,
