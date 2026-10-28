@@ -108,7 +108,7 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
             className="font-mono uppercase tracking-[0.16em]"
             style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
           >
-            Highest model probabilities · {clean.length} loaded
+            Highest model probabilities · {clean.length} shown
           </span>
         </div>
         <span
