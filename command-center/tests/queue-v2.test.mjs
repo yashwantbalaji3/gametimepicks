@@ -149,3 +149,18 @@ test("V2.1 NBA: predicted winner without probability, non-ranked stat lines, fin
   h.setNow("2026-10-28T03:00:00.000Z"); // after every tip-off
   assert.equal((await h.o.decide({ decisionId: bos.decisionId, verdict: "approve", captionId: "A", digest: bos.options[0].digest }, FOUNDER)).code, "VERIFICATION_CHANGED");
 });
+
+test("V2.1 postgame captions state TD misses on a correct prediction (CLE @ TEN: 2 of 3, 1 missed)", { skip }, async () => {
+  const { postgame } = await import("../recap/social-v2.mjs");
+  const { nflPostgamePackage } = await import("../contracts/social-packages.mjs");
+  const { sealPackage } = await import("../contracts/post-queue.mjs");
+  const { publicLabelOf } = await import("../recap/public-registry.mjs");
+  const src = gitDataSource(REPO_ROOT, QUEUE_PINNED);
+  for (const id of ["401873013", "401873014", "401873020", "401873021", "401873022", "401873011", "401873017"]) {
+    const m = postgame({ src, eventId: id, label: publicLabelOf("NFL", src) });
+    const pkg = sealPackage(nflPostgamePackage({ date: "2026-10-28", m, extra: { template: SOCIAL_TEMPLATE, assetManifest: ASSET_MANIFEST, dataCommit: QUEUE_PINNED } }));
+    assert.equal(pkg.status, "READY", `${id}: ${JSON.stringify(pkg.captions.map((c) => c.check.problems))}`);
+    assert.ok(pkg.captions.every((c) => c.check.ok), id);
+    if (m.td?.complete && m.td.hits < m.td.shown) assert.ok(pkg.captions.every((c) => /missed/.test(c.text)), `${id}: every caption states the TD misses`);
+  }
+});

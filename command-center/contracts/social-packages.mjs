@@ -96,12 +96,12 @@ export function nflPostgamePackage({ date, m, extra, slotId = "standing:nfl-post
   const td = m.td?.complete ? m.td : null;
   const claims = [claim("final.away", `${m.away.abbr} ${m.finalAway}`, r), claim("final.home", `${m.home.abbr} ${m.finalHome}`, r),
     claim("winProbability", m.winProbabilityDisplay, r), claim("frozenAt", m.frozenLine, r),
-    ...(td ? [claim("td.hits", `${td.hits} of ${td.shown}`, td.evidence?.[0]?.ref), ...td.candidates.map((c) => claim(`td.${c.rank}`, `${c.name} ${c.probabilityDisplay} ${c.outcome}`, td.evidence?.[0]?.ref))] : [])];
+    ...(td ? [claim("td.hits", `${td.hits} of ${td.shown}`, td.evidence?.[0]?.ref), claim("td.misses", `${td.shown - td.hits} missed`, td.evidence?.[0]?.ref), ...td.candidates.map((c) => claim(`td.${c.rank}`, `${c.name} ${c.probabilityDisplay} ${c.outcome}`, td.evidence?.[0]?.ref))] : [])];
   const verdict = m.result === "TIE" ? "Game tied." : hit ? `${TERMS.correct}.` : `${TERMS.missed}.`;
   const tdLine = td ? ` ${TERMS.topTd}: ${td.hits} of ${td.shown} scored${td.hits < td.shown ? `, ${td.shown - td.hits} missed` : ""}.` : "";
   const captions = [
     { id: "A", tone: "result", text: `Final: ${win.name} ${ws}, ${lose.name} ${ls}. Our prediction had the ${m.favouredTeam.nickname} at ${m.winProbabilityDisplay}: ${verdict}${tdLine}` },
-    { id: "B", tone: "short", text: `${TERMS.vsFinal}: ${m.away.abbr} ${m.finalAway}, ${m.home.abbr} ${m.finalHome}. ${TERMS.predictedWinner} ${m.favouredTeam.abbr} (${m.winProbabilityDisplay}) — ${verdict} Graded in public.` },
+    { id: "B", tone: "short", text: `${TERMS.vsFinal}: ${m.away.abbr} ${m.finalAway}, ${m.home.abbr} ${m.finalHome}. ${TERMS.predictedWinner} ${m.favouredTeam.abbr} (${m.winProbabilityDisplay}) — ${verdict}${td ? ` TD: ${td.hits} of ${td.shown} scored${td.hits < td.shown ? `, ${td.shown - td.hits} missed` : ""}.` : ""} Graded in public.` },
   ];
   return {
     ...base(m, extra), postId: `${date}:NFL:recap:${m.eventId}${V2}`, slotId, date, sport: "NFL", kind: "nfl-recap", format: "postgame",
