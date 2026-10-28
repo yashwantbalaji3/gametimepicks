@@ -133,3 +133,19 @@ test("LIVE · an indexed EPL player is one the fixture page actually names", { s
     assert.ok(byPage.get(f).includes(p.l), `${p.l} is indexed to ${p.h}, and that page never names him`);
   }
 });
+
+test("LIVE · an indexed NBA team or player is named by the projections page it opens (overnight 2026-10-28)", { skip: !hasExport && "no export" }, () => {
+  /*
+   * NBA has no team or player pages, so its rows open /nba/projections/<date>/. That page renders the first rows in
+   * HTML and the rest from its embedded board after hydration, so the name is looked for in the whole document
+   * (markup and payload), decoded — never only the visible first screen.
+   */
+  const nba = idx.rows.filter((r) => (r.k === 1 || r.k === 2) && /^NBA ·/.test(r.s));
+  const pages = new Map();
+  for (const r of nba) {
+    assert.match(r.h, /^\/nba\/projections\/\d{4}-\d{2}-\d{2}\/$/, `${r.l} → ${r.h}`);
+    const f = path.join(OUT, r.h.replace(/^\//, "").replace(/\/$/, ""), "index.html");
+    if (!pages.has(f)) pages.set(f, fs.existsSync(f) ? decodeEntities(fs.readFileSync(f, "utf8")).replace(/\\u0027/g, "'") : "");
+    assert.ok(pages.get(f).includes(r.l), `${r.l} is indexed to ${r.h}, and that page never names it`);
+  }
+});

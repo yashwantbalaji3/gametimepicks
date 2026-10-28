@@ -60,6 +60,19 @@ const ITEMS: RailItem[] = destinationsFor("rail").map((d, i, list) => ({
  */
 type RailGroup = { key: NavGroup; label: string; items: RailItem[] };
 const ALWAYS_OPEN: readonly NavGroup[] = ["now", "sports"];
+/*
+ * Overnight 2026-10-28 (W3): folded by default, "Picks & parlays" hid Parlays, Bank Builder and Moonshot — the products
+ * themselves — from every first-time visitor on desktop. It now STARTS open (still a <details>, so a reader can fold
+ * it). The two groups that stay folded name their first destinations in the heading, so How It Works or My GameTime is
+ * visible without opening anything. The reader's fold is not remembered across pages: the rail had no stored
+ * preference to extend, and adding one is a separate decision.
+ */
+const OPEN_BY_DEFAULT: readonly NavGroup[] = ["products"];
+const PREVIEW_COUNT = 3;
+const previewOf = (items: readonly RailItem[]): string => {
+  const shown = items.slice(0, PREVIEW_COUNT).map((i) => i.label).join(" · ");
+  return items.length > PREVIEW_COUNT ? `${shown} · +${items.length - PREVIEW_COUNT} more` : shown;
+};
 const GROUPS: RailGroup[] = destinationsFor("rail").reduce<RailGroup[]>((acc, d) => {
   const item = ITEMS.find((i) => i.href === d.href)!;
   const last = acc.at(-1);
@@ -146,14 +159,18 @@ export default function CommandRail() {
           }
           const holdsActive = g.items.some((item) => isActive(item));
           return (
-            <details key={`${g.key}:${holdsActive}`} open={holdsActive} className="gtp-rail-group flex flex-col">
+            <details key={`${g.key}:${holdsActive}`} open={holdsActive || OPEN_BY_DEFAULT.includes(g.key)} className="gtp-rail-group group flex flex-col">
               <summary
-                className="gtp-rail-group-summary flex items-center gap-2 px-3 pt-4 pb-1 font-mono uppercase tracking-[0.18em] cursor-pointer select-none"
-                style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
+                className="gtp-rail-group-summary flex flex-wrap items-center gap-x-2 px-3 pt-4 pb-1 cursor-pointer select-none"
+                style={{ color: "var(--vault-text-faint)" }}
               >
                 {headingDot}
-                <span className="flex-1">{g.label}</span>
+                <span className="flex-1 font-mono uppercase tracking-[0.18em]" style={{ fontSize: 10 }}>{g.label}</span>
                 <span aria-hidden className="gtp-rail-group-caret">›</span>
+                {/* Folded: say what is inside. Open: the rows themselves say it, so the preview hides. */}
+                <span className="gtp-rail-group-preview basis-full pl-[13px] pt-0.5 text-[11px] leading-snug tracking-tight group-open:hidden">
+                  {previewOf(g.items)}
+                </span>
               </summary>
               <div className="flex flex-col gap-0.5">{rows}</div>
             </details>

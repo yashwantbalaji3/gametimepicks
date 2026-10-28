@@ -32,6 +32,7 @@ import SiteSearch from "@/components/search/site-search";
 import { destinationsFor, NAV_GROUP_LABEL, groupChangedAt } from "@/lib/navigation";
 import { useSavedForecasts } from "@/lib/saved/saved-store";
 import { useDialogFocus } from "@/components/a11y/use-dialog-focus";
+import { useScrollLock } from "@/components/nav/use-scroll-lock";
 
 // Lightweight inline glyphs. Tiny SVGs keep the bundle slim and let
 // us use `currentColor` for active/inactive theming. Not branded icons.
@@ -158,13 +159,25 @@ export function MenuSheet({ onClose, pathname, withSearch = false }: {
    * straight out of the open menu into the page behind it. `useDialogFocus` owns all of it, and the
    * same hook now serves every dialog in the product.
    */
-  useDialogFocus(sheetRef, { onClose, initialFocus: closeRef });
+  /* Overnight 2026-10-28 (W3): search opens as its own dialog (portaled to <body>) from inside this sheet on tablets.
+     While it is open this sheet's trap stands down — two document-level traps would fight over every Tab, and one Escape
+     would close both. The page behind stays still while either is open (useScrollLock). */
+  const [searchOpen, setSearchOpen] = useState(false);
+  /* The trap re-arms after search closes and then remembers the search trigger as its opener, which is gone once the
+     sheet closes. So the sheet keeps its OWN opener (the Menu button), read before the hook moves focus — this effect is
+     declared first for that reason — and returns focus to it when the sheet unmounts. */
+  useEffect(() => {
+    const menuOpener = document.activeElement as HTMLElement | null;
+    return () => { if (menuOpener?.isConnected) menuOpener.focus(); };
+  }, []);
+  useDialogFocus(sheetRef, { onClose, initialFocus: closeRef, active: !searchOpen });
+  useScrollLock();
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end lg:hidden" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 60%, transparent)" }} onClick={onClose}>
       <div
         ref={sheetRef}
         role="dialog" aria-modal="true" aria-label="Menu"
-        className="rounded-t-[16px] max-h-[78vh] overflow-y-auto px-4 pb-8 pt-3"
+        className="rounded-t-[16px] max-h-[78vh] overflow-y-auto overscroll-contain px-4 pb-8 pt-3"
         onClick={(e) => e.stopPropagation()}
         style={{ background: "var(--vault-panel-elevated)", borderTop: "1px solid var(--vault-border-strong)", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 24px)" }}
       >
@@ -174,7 +187,7 @@ export function MenuSheet({ onClose, pathname, withSearch = false }: {
             Close ✕
           </button>
         </div>
-        {withSearch ? <div className="mt-2 mb-1"><SiteSearch /></div> : null}
+        {withSearch ? <div className="mt-2 mb-1"><SiteSearch onOpenChange={setSearchOpen} /></div> : null}
         <ul className="list-none m-0 p-0 flex flex-col">
           {items.map((d, i) => {
             const groupStart = groupChangedAt(items, i);
@@ -182,7 +195,7 @@ export function MenuSheet({ onClose, pathname, withSearch = false }: {
             return (
               <li key={d.href}>
                 {groupStart && NAV_GROUP_LABEL[groupStart] ? (
-                  <span className="block font-mono uppercase tracking-[0.16em] pt-3 pb-1" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+                  <span className="block font-mono uppercase tracking-[0.16em] pt-3 pb-1" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>
                     {NAV_GROUP_LABEL[groupStart]}
                   </span>
                 ) : null}
@@ -195,8 +208,8 @@ export function MenuSheet({ onClose, pathname, withSearch = false }: {
                 >
                   {d.glyph ? <span aria-hidden style={{ width: 18, textAlign: "center", fontSize: 13 }}>{d.glyph}</span> : null}
                   <span style={{ fontSize: 14, fontWeight: 600 }}>{d.label}</span>
-                  {d.note ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{d.note}</span> : null}
-                  {d.href === "/saved" && savedCount > 0 ? <span className="font-mono" style={{ color: "var(--vault-gold)", fontSize: 10 }}>{savedCount} on this device</span> : null}
+                  {d.note ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{d.note}</span> : null}
+                  {d.href === "/saved" && savedCount > 0 ? <span className="font-mono" style={{ color: "var(--vault-gold)", fontSize: 11 }}>{savedCount} on this device</span> : null}
                 </Link>
               </li>
             );
