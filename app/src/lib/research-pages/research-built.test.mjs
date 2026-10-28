@@ -89,10 +89,14 @@ test("RX3 representative pages: sport-aware content, coverage copy, nothing unsu
   assert.doesNotMatch(mainText(epl), /\bRecord\b|\bW–L\b|Points scored|Goals for/);
   assert.match(mainText(epl), /Final team results are not yet available/);
   assert.doesNotMatch(epl, /gtp-follow-toggle/, "Follow is not extended to EPL");
-  // NFL player: 2026 gap copy; windows with n.
+  // NFL player: current-season coverage stated from the player's own rows; windows with n.
+  // REPOINTED (independent audit 2026-10-28 F08): this pinned "2026 logs are not available yet" on a page that shows six
+  // 2026 games. A player WITH 2026 rows says they are partial; one without says none is recorded yet.
   const allen = partition("players", "NFL").find((p) => p.name === "Keenan Allen" && p.id === "nfl-athlete-15818");
   const allenText = mainText(htmlOf(`players/nfl/${allen.slug}`));
-  assert.match(allenText, /Current-season \(2026\) factual game logs are not available yet/);
+  assert.ok(allen.seasons.some((s) => s.id === "NFL-2026"), "positive control: 2026 rows recorded");
+  assert.match(allenText, /2026 game logs cover the games recorded so far this season/);
+  assert.doesNotMatch(allenText, /not available yet|Recorded history through 2025 is shown/);
   const w = allen.windows.receivingYards[1];
   assert.ok(allenText.includes(`${w.avg} (n=${w.n})`), "Last-5 average and its n come from the projection");
   assert.doesNotMatch(allenText, /career|all-time|trending|hot streak|due for/i);
