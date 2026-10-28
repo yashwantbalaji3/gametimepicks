@@ -55,7 +55,9 @@ test("ONE INSTANT: the three pages render levelAPageModel (the build's stamped a
     if (s.includes("const levelAModel = ")) {
       assert.match(s, /const levelAModel = LEVEL_A \? levelAPageModel\(\) : null;/, f);
       assert.match(s, /model=\{levelAModel as unknown as LevelAModel\}/, `${f}: the section renders that one model`);
-      assert.match(s, /levelASports=\{levelAModel \? levelASportsShown\(levelAModel, "(bank-builder|moonshot)"\) : null\}/, `${f}: and the priced-universe pointer reads the same one`);
+      /* /build has no priced-universe block (eligibility-wording-scope pins that); it reads the one model to know whether
+         the page holds a card (overnight 10-28, one empty state). The two product pages' pointer must read the same one. */
+      if (f !== "src/app/build/page.tsx") assert.match(s, /levelASports=\{levelAModel \? levelASportsShown\(levelAModel, "(bank-builder|moonshot)"\) : null\}/, `${f}: and the priced-universe pointer reads the same one`);
     } else assert.match(s, /model=\{levelAPageModel\(\) as unknown as LevelAModel\}/, f);
   }
   assert.match(read("src/app/data/level-a/v1/model.json/route.ts"), /Response\.json\(levelAServedDoc\(\)\)/);
