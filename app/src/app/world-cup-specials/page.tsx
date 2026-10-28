@@ -53,7 +53,7 @@ export default function WorldCupSpecialsPage() {
       {result?.dailySpecials?.length ? <DailySpecialsSection cards={result.dailySpecials} /> : null}
 
       {result ? (
-        <WorldCupSpecialsTracker result={result} nowIso={nowIso} mode="full" />
+        <WorldCupSpecialsTracker result={result} nowIso={nowIso} mode="full" retired />
       ) : (
         <div className="rounded-xl px-4 py-8 text-center" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
           <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>World Cup Specials — retired</p>

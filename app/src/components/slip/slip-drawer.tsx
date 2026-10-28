@@ -1,4 +1,5 @@
 "use client";
+import { selectionText } from "@/lib/slip/selection-text.mjs";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import PlayerAvatar from "@/components/ui/player-avatar";
@@ -128,7 +129,7 @@ export default function SlipDrawer() {
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-semibold leading-tight" style={{ color: "var(--vault-text)", fontSize: 12 }}>{l.player}</span>
                   <span className="block font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-                    {l.side} {l.line} {l.marketLabel} · {american(l.americanOdds)}
+                    {selectionText(l.side, l.line, l.marketLabel)} · {american(l.americanOdds)}
                   </span>
                 </span>
                 <label className="shrink-0 inline-flex items-center rounded-[6px]"
