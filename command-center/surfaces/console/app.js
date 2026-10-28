@@ -455,7 +455,7 @@
     const latest = queues.at(-1);
     const counts = posts.reduce((m, p) => ({ ...m, [p.lifecycle]: (m[p.lifecycle] ?? 0) + 1 }), {});
     const dz = s.design;
-    const designBar = dz ? `<div class="${dz.approved ? "receipt" : "blocked"}">Graphic design <b>${esc(dz.template)}</b> · ${esc(dz.assetManifest)}: ${dz.approved ? `approved ${esc(time(dz.approvedAt))} — design only; every post still needs its own approval` : "not approved yet — V2.1 posts can't be approved for publishing until it is"}
+    const designBar = dz ? `<div class="${dz.approved ? "receipt" : "blocked"}">Graphic design <b>${esc(dz.template)}</b> · ${esc(dz.assetManifest)}: ${dz.approved ? `approved ${esc(time(dz.approvedAt))} — design only; every post still needs its own approval` : `not approved yet — ${esc(dz.template)} posts can't be approved for publishing until it is`}
       ${dz.approved ? "" : `<div class="row" style="margin-top:6px"><button class="btn" data-design="1">Approve this design version</button></div>`}</div>` : "";
     return `<h2>Content queue <span class="count">${num(open)} open</span></h2>${designBar}
       ${inv ? `<div class="muted">Open: ${num(inv.open)} · ${num(inv.byStatus.READY ?? 0)} ready · ${num(inv.byStatus.NEEDS_VERIFICATION ?? 0)} need verification · ${num(inv.byStatus.BLOCKED ?? 0)} blocked · ${num(inv.graphics)} with graphics</div>` : ""}
