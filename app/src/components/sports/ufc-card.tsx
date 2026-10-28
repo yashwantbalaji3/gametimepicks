@@ -262,7 +262,7 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
             <p className="font-mono m-0" style={{ fontSize: 10.5, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>
               Three markets publish — winner, method and ending round — each tested separately by walking forward through
               {" "}{m.evidence?.heldOutFights?.toLocaleString("en-US") ?? "—"} held-out fights from a corpus of
-              {" "}{m.corpus?.fights?.toLocaleString("en-US") ?? "—"} bouts ({m.corpus?.from ?? "?"} to {m.corpus?.to ?? "?"}).
+              {" "}{m.corpus?.fights?.toLocaleString("en-US") ?? "—"} bouts ({monthYear(m.corpus?.from)} to {monthYear(m.corpus?.to)}).
               A head that fails its bar is withheld while the others still publish.
             </p>
             <div className="overflow-x-auto">
@@ -298,4 +298,10 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
       </div>
     </section>
   );
+}
+
+/** "1994-03-11" → "Mar 1994": the corpus span in words (overnight W8); an unreadable day stays "?". */
+function monthYear(day: string | null | undefined): string {
+  const ms = Date.parse(`${day ?? ""}T12:00:00Z`);
+  return Number.isFinite(ms) ? new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "short", year: "numeric" }).format(ms) : "?";
 }

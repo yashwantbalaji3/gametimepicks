@@ -130,7 +130,13 @@ export function eplUpcoming({ nowIso, artifact }) {
 export function resultsTrackingNote(sport) {
   const artifact = sport === "epl" ? readJson("soccer", "epl", "results", "latest.json") : readJson(sport, "results", "latest.json");
   if (!artifact?.state) return null;
-  const checked = (artifact.sourceAsOf ?? artifact.generatedAt ?? "").slice(0, 10);
+  /* Overnight W8 (2026-10-28): the ET day in words ("Oct 28, 2026"). `.slice(0, 10)` printed the UTC calendar day as an
+     ISO key, so an evening ET check read as the next day. An unreadable stamp keeps its raw first ten characters. */
+  const stamp = artifact.sourceAsOf ?? artifact.generatedAt ?? "";
+  const ms = Date.parse(stamp);
+  const checked = Number.isFinite(ms)
+    ? new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", year: "numeric" }).format(ms)
+    : stamp.slice(0, 10);
   switch (artifact.state) {
     case "PRESEASON": return `Results tracking is armed for the season — nothing grades before league play starts (checked ${checked}).`;
     case "NO_RESULTS_YET": return `Results tracking is active — no completed games in the current capture window yet (checked ${checked}).`;

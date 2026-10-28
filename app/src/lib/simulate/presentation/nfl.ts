@@ -31,6 +31,13 @@ export function etDateOf(kickoffUtc: string | null | undefined): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(ms));
 }
 
+/** The same ET day in words ("Sun, Oct 25") for sentences a reader reads; `etDateOf` stays the machine key. */
+export function etDayWordsOf(kickoffUtc: string | null | undefined): string {
+  const ms = Date.parse(kickoffUtc ?? "");
+  if (!Number.isFinite(ms)) return etDateOf(kickoffUtc);
+  return new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", month: "short", day: "numeric" }).format(new Date(ms));
+}
+
 const HOLD = { light: 4200, normal: 5200, dense: 6400 } as const;
 const pctOf = (n: number) => Math.round(n * 100);
 
@@ -82,7 +89,7 @@ export function buildNflPresentation(
     id: "event", kind: "event",
     title: e.matchup,
     line: archived
-      ? `${e.away.name} at ${e.home.name}, ${etDateOf(e.kickoffUtc)}. This game has been played — what follows is the forecast as it was frozen BEFORE kickoff, not a current read.`
+      ? `${e.away.name} at ${e.home.name}, ${etDayWordsOf(e.kickoffUtc)}. This game has been played — what follows is the forecast as it was frozen BEFORE kickoff, not a current read.`
       : baseline
         ? `${e.away.name} at ${e.home.name}. This is a BASELINE read: a real, reproducible run whose team numbers come from a shared prior rather than from anything specific to these two teams.`
         : `${e.away.name} at ${e.home.name}${e.venue ? ` at ${e.venue}` : ""}.`,
@@ -136,7 +143,7 @@ export function buildNflPresentation(
   if (archived) {
     limits.push({
       label: "Archived",
-      detail: `This is the frozen pre-event forecast for a game played on ${etDateOf(e.kickoffUtc)}. It is shown after the fact and was not regenerated; no forecast may be made for a game that has started.`,
+      detail: `This is the frozen pre-event forecast for a game played on ${etDayWordsOf(e.kickoffUtc)}. It is shown after the fact and was not regenerated; no forecast may be made for a game that has started.`,
     });
   }
   limits.push({ label: e.readiness === "BASELINE_ONLY" ? "Baseline only" : "Readiness", detail: e.readinessReason });

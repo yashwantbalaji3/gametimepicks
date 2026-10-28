@@ -7,6 +7,7 @@
  * rating were both more accurate. Model-only forecasts; not betting advice.
  */
 import SportSwitcher from "@/components/sports/sport-switcher";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 import TeamLogo from "@/components/team-logo";
 import { loadLeagueForecasts, loadLeagueGraded, type LeagueForecastRow } from "@/lib/sports/soccer/forecast-view";
 import { gradedCaption } from "@/lib/sports/soccer/grading.mjs";
@@ -99,7 +100,7 @@ export default async function LeagueForecastPage({ leagueKey }: { leagueKey: str
   const recent = [...(graded?.matches ?? [])].sort((a, b) => b.kickoffUtc.localeCompare(a.kickoffUtc)).slice(0, 5);
   const OUTCOME = { H: "home win", D: "draw", A: "away win" } as const;
   return (
-    <div data-sport="soccer" className="mx-auto w-full max-w-[1100px] px-4 py-6">
+    <div data-sport="soccer" className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
       <SportSwitcher current={leagueKey} />
       <header className="mb-5">
         <p className="font-mono uppercase" style={{ margin: 0, fontSize: 11, letterSpacing: "0.08em", color: "var(--vault-text-faint)" }}>Soccer · model-only forecasts</p>
@@ -109,21 +110,36 @@ export default async function LeagueForecastPage({ leagueKey }: { leagueKey: str
         </p>
         {set ? <p className="font-mono" style={{ margin: "8px 0 0", fontSize: 11, color: "var(--vault-text-faint)" }}>Updated {ET_STAMP.format(new Date(set.generatedAt))} ET · fit on {set.model.matchesFitted.toLocaleString("en-US")} {name} matches</p> : null}
         {set ? <LeagueDataFreshness leagueName={name} generatedAt={set.generatedAt} serverNowMs={serverNowMs} /> : null}
+        <p data-hub-disclosure="" style={{ margin: "10px 0 0", maxWidth: "75ch", fontSize: 12.5, color: "var(--vault-text-mute)" }}>
+          Model-only forecasts for research and entertainment — not betting advice.
+          {v?.limitations?.closingMarketBetterBy != null ? " On a season it had never seen, the sportsbook closing line was more accurate than this model." : ""}
+        </p>
       </header>
 
-      {v ? (
-        <section aria-labelledby="how-it-tested" className="mb-6 rounded-[12px] p-4" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}>
-          <h2 id="how-it-tested" style={{ margin: 0, fontSize: 15, color: "var(--vault-text)" }}>How this model did on a season it had never seen</h2>
-          <ul className="mt-2 flex flex-col gap-1.5" style={{ margin: "8px 0 0", paddingLeft: 18, fontSize: 13.5, color: "var(--vault-text-mute)", maxWidth: "75ch" }}>
-            <li>Across {v.holdout.matches} matches of the {v.holdout.season} season it was more accurate than knowing nothing about the clubs (log loss {v.holdout.logLoss} against {v.holdout.empiricalLogLoss}).</li>
-            <li>Its draw probabilities were calibrated: stated and observed draw rates differed by {(v.holdout.drawEceAllScored * 100).toFixed(1)} percentage points on average.</li>
-            {v.limitations.closingMarketBetterBy != null ? <li>The sportsbook closing line was more accurate than this model, by {v.limitations.closingMarketBetterBy} log loss, and so was a plain Elo rating{v.limitations.eloBetterBy != null ? ` (by ${v.limitations.eloBetterBy})` : ""}.</li> : null}
+      {!set ? (
+        <p role="status" style={{ fontSize: 14, color: "var(--vault-text-mute)" }}>The {leagueKey} forecast file isn&rsquo;t available right now.</p>
+      ) : (
+        <LeagueFixtureBoard
+          leagueName={name}
+          serverNowMs={serverNowMs}
+          rows={rows.map((r) => ({ eventId: String(r.eventId), kickoffUtc: r.kickoffUtc, homeClub: r.homeClub, awayClub: r.awayClub }))}
+          finals={finals}
+          rowNodes={Object.fromEntries(upcomingAtBuild.map((r) => [String(r.eventId), <FixtureRow key={r.eventId} r={r} slip={slip.get(String(r.eventId))} />]))}
+        />
+      )}
+
+      {set && set.refused.length > 0 ? (
+        <section aria-labelledby="not-forecast" className="mt-6">
+          <h2 id="not-forecast" style={{ margin: 0, fontSize: 14, color: "var(--vault-text)" }}>Fixtures we did not forecast</h2>
+          <ul style={{ margin: "6px 0 0", paddingLeft: 18, fontSize: 12.5, color: "var(--vault-text-mute)" }}>
+            {set.refused.map((r) => <li key={r.eventId}>{r.matchup ?? "A fixture"}: {r.reason}</li>)}
           </ul>
-          <p style={{ margin: "10px 0 0", fontSize: 12.5, color: "var(--vault-text-faint)" }}>Model-only forecasts for research and entertainment — not betting advice.</p>
         </section>
       ) : null}
 
-      <section aria-labelledby="graded-so-far" className="mb-6">
+      {/* Overnight W8 (2026-10-28): the shared hub order — header and one disclosure line, the fixtures, then the record.
+          The season-holdout test folds behind "How it was tested" (verbatim); its market comparison is in the line above. */}
+      <section aria-labelledby="graded-so-far" className="mt-6">
         <h2 id="graded-so-far" style={{ margin: 0, fontSize: 15, color: "var(--vault-text)" }}>How it&rsquo;s doing now</h2>
         <p style={{ margin: "6px 0 0", fontSize: 13.5, color: "var(--vault-text-mute)", maxWidth: "75ch" }}>
           {graded && graded.summary.matches > 0
@@ -147,25 +163,18 @@ export default async function LeagueForecastPage({ leagueKey }: { leagueKey: str
         ) : null}
       </section>
 
-      {!set ? (
-        <p role="status" style={{ fontSize: 14, color: "var(--vault-text-mute)" }}>The {leagueKey} forecast file isn&rsquo;t available right now.</p>
-      ) : (
-        <LeagueFixtureBoard
-          leagueName={name}
-          serverNowMs={serverNowMs}
-          rows={rows.map((r) => ({ eventId: String(r.eventId), kickoffUtc: r.kickoffUtc, homeClub: r.homeClub, awayClub: r.awayClub }))}
-          finals={finals}
-          rowNodes={Object.fromEntries(upcomingAtBuild.map((r) => [String(r.eventId), <FixtureRow key={r.eventId} r={r} slip={slip.get(String(r.eventId))} />]))}
-        />
-      )}
-
-      {set && set.refused.length > 0 ? (
-        <section aria-labelledby="not-forecast" className="mt-6">
-          <h2 id="not-forecast" style={{ margin: 0, fontSize: 14, color: "var(--vault-text)" }}>Fixtures we did not forecast</h2>
-          <ul style={{ margin: "6px 0 0", paddingLeft: 18, fontSize: 12.5, color: "var(--vault-text-mute)" }}>
-            {set.refused.map((r) => <li key={r.eventId}>{r.matchup ?? "A fixture"}: {r.reason}</li>)}
+      {v ? (
+        <MoreDisclosure className="mt-6" title="How it was tested" summary="Its result on a full season it had never seen, against a no-information guess, a plain rating and the sportsbook closing line.">
+        <section aria-labelledby="how-it-tested">
+          <h2 id="how-it-tested" style={{ margin: 0, fontSize: 15, color: "var(--vault-text)" }}>How this model did on a season it had never seen</h2>
+          <ul className="mt-2 flex flex-col gap-1.5" style={{ margin: "8px 0 0", paddingLeft: 18, fontSize: 13.5, color: "var(--vault-text-mute)", maxWidth: "75ch" }}>
+            <li>Across {v.holdout.matches} matches of the {v.holdout.season} season it was more accurate than knowing nothing about the clubs (log loss {v.holdout.logLoss} against {v.holdout.empiricalLogLoss}).</li>
+            <li>Its draw probabilities were calibrated: stated and observed draw rates differed by {(v.holdout.drawEceAllScored * 100).toFixed(1)} percentage points on average.</li>
+            {v.limitations.closingMarketBetterBy != null ? <li>The sportsbook closing line was more accurate than this model, by {v.limitations.closingMarketBetterBy} log loss, and so was a plain Elo rating{v.limitations.eloBetterBy != null ? ` (by ${v.limitations.eloBetterBy})` : ""}.</li> : null}
           </ul>
+          <p style={{ margin: "10px 0 0", fontSize: 12.5, color: "var(--vault-text-faint)" }}>Model-only forecasts for research and entertainment — not betting advice.</p>
         </section>
+        </MoreDisclosure>
       ) : null}
 
       {set ? (

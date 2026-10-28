@@ -68,6 +68,7 @@ import { PUBLIC_TERMS, PUBLIC_TERM_MEANING } from "@/lib/public-registry";
 import ForecastStyles from "@/components/nfl/forecast/styles";
 import NotInTheseNumbers from "@/components/nfl/not-in-these-numbers";
 import GameHero from "@/components/nfl/forecast/game-hero";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 import SimulationPanel from "@/components/nfl/forecast/simulation-panel";
 import FamilyTabs from "@/components/nfl/forecast/family-tabs";
 import GameExplorer from "@/components/nfl/forecast/game-explorer";
@@ -797,9 +798,13 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
         </dl>
       </section>
 
+      {/* Overnight W8 (2026-10-28): the model id, input hashes and revision ids are audit detail — RELOCATED into the
+          page's one collapsed "Technical details", verbatim. The model's own measured limit and the paper-only
+          disclaimer stay visible below it: those are disclosures, not provenance. */}
       <section aria-labelledby="receipt" style={{ marginTop: 26 }}>
-        <SectionHeader eyebrow="Provenance" title="Where this came from" />
-        <dl style={{ marginTop: 12, fontSize: 12, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)", display: "grid", gridTemplateColumns: "auto 1fr", gap: "4px 12px" }}>
+        <MoreDisclosure title="Technical details" summary="Model version, input fingerprint, timestamps and the per-family evaluation basis.">
+        <h2 id="receipt" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>Where this came from</h2>
+        <dl style={{ margin: 0, fontSize: 12, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)", display: "grid", gridTemplateColumns: "auto 1fr", gap: "4px 12px" }}>
           <dt>model</dt><dd style={{ margin: 0 }}>{f.model.id} v{f.model.version}</dd>
           <dt>simulations</dt><dd style={{ margin: 0 }}>{f.model.simulations.toLocaleString("en-US")}</dd>
           <dt>input hash</dt><dd style={{ margin: 0 }}>{f.model.inputHash}</dd>
@@ -836,6 +841,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
             </ul>
           </details>
         ) : null}
+        </MoreDisclosure>
         {card?.honestLimit ? (
           <p style={{ margin: "12px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)", maxWidth: 760, lineHeight: 1.6 }}>{card.honestLimit}</p>
         ) : null}

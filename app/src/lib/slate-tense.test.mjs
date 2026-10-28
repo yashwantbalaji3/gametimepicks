@@ -50,9 +50,14 @@ test("hubs hand the pill a slate date; none decides tense on the build clock any
   const read = (rel) => fs.readFileSync(path.join(process.cwd(), rel), "utf8");
   for (const rel of ["src/app/mlb/page.tsx", "src/app/nfl/page.tsx", "src/app/epl/page.tsx"]) {
     const src = read(rel);
+    /* Overnight W8 (2026-10-28): /nfl and /epl no longer render the mid-page hero, so they carry no status pill at
+       all — no tense claim is the strongest form of "not decided on the build clock". Any hub that renders the hero
+       must still hand it the slate date and seed. */
+    if (!/<SportOverviewHero[\s>]/.test(src)) continue;
     assert.match(src, /statusSlateDate=\{/, `${rel} passes the slate date`);
     assert.match(src, /statusSeedToday=\{currentEtDate\(\)\}/, `${rel} seeds with the build day`);
   }
+  assert.match(read("src/app/mlb/page.tsx"), /statusSlateDate=\{/, "the MLB hub still renders its pill from the slate date");
   assert.doesNotMatch(read("src/app/nfl/page.tsx"), /slateDay && slateDay [<>] currentEtDate\(\)/, "no build-clock tense on /nfl");
   assert.doesNotMatch(read("src/app/mlb/page.tsx"), /const statusKind[^;]*isTodaysSlate/, "no build-clock tense in /mlb's pill kind");
   assert.match(read("src/components/sport-overview-hero.tsx"), /<DayAwareStatusPill slateDate=\{statusSlateDate\} seedToday=\{statusSeedToday\}/);

@@ -8,6 +8,7 @@
  */
 import { Histogram } from "@/components/distribution-chart";
 import { simulatedShareNote } from "@/lib/sports/nfl/forecast-view.mjs";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 
 const pct = (p: number) => `${(p * 100).toFixed(1)}%`;
 const signed = (x: number) => (x > 0 ? `+${x}` : `${x}`);
@@ -28,8 +29,14 @@ export default function SimulationPanel({ sim, away, home, recordWin }: { sim: a
       <p className="nf-eyebrow" data-supporting-label="">{sim.label}</p>
       <h2 id="nf-sim-h" className="nf-h2">Simulated game outcomes</h2>
       <p className="nf-sub">
-        World Model V2 {sim.version} · {sim.runs.toLocaleString("en-US")} simulated games · forecast input {sim.inputHash ?? "not recorded"}. The official win chance, score and player projections are the ones above; these simulated games are a supporting view.
+        {sim.runs.toLocaleString("en-US")} simulated games. The official win chance, score and player projections are the ones above; these simulated games are a supporting view.
       </p>
+      {/* Overnight W8 (2026-10-28): the engine name, version and input fingerprint are audit detail — RELOCATED here, verbatim. */}
+      <MoreDisclosure title="Technical details" summary="Simulation engine version and the forecast input it was built from." className="mt-3">
+        <p className="nf-faint" style={{ margin: 0 }} data-sim-provenance="">
+          World Model V2 {sim.version} · forecast input {sim.inputHash ?? "not recorded"}
+        </p>
+      </MoreDisclosure>
       {sim.revisionNotice ? <p className="nf-withheld" role="note" data-revision-notice="">{sim.revisionNotice}</p> : null}
       <div className="nf-card" style={{ marginTop: 12 }}>
         <p className="nf-eyebrow">Who won the simulated games</p>

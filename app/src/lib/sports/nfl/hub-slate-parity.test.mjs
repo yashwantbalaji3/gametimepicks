@@ -127,27 +127,26 @@ test("the hub CONSUMES canonical state and does not recompute lifecycle", () => 
      render (P252, so two rows are never judged against two clocks), and banning that outright would
      be a detector that fires on the convention instead of the defect. What must never read a clock
      is the capture stamp — "today" there is the build day, not the reader's. */
-  const labelFn = hub.slice(hub.indexOf("function capturedLabel"), hub.indexOf("function lastCaptureLabel"));
+  const labelFn = hub.slice(hub.indexOf("function capturedLabel"), hub.indexOf("const CAPTURE_ET"));
   assert.ok(labelFn.length > 50, "the capture-label helper must be found for this check to mean anything");
   assert.doesNotMatch(labelFn, /Date\.now\(\)|new Date\(/, "the capture stamp must not be decided from the build clock");
-  // REBASED P246: the hero's price count is the WEEK's own (the index's counts block still
-  // carried the archived Aug capture after authorization expired — "1" beside a slate with no
-  // current prices). The count derives from rows scoped to the selected week, and the zero
-  // state names why. The index still owns lifecycle; only this stat moved to the honest scope.
-  assert.match(hub, /String\(slateMarketRows\.length\)/);
-  /* REPOINTED 2026-09-12: the zero state said "capture not authorized", which stopped being true
-     on 2026-09-10 when the founder's renewed NFL receipt landed (500-credit ceiling, expiry at the
-     ceiling). What was missing was a RUN, not a permission — and a guard that pins a false reason
-     keeps it false. The copy now states only what is observable: the date of the last capture. */
-  assert.match(hub, /none current — last capture/);
+  /* REPOINTED overnight W8 (2026-10-28): the hero that carried the "Sportsbook prices" stat is removed (it repeated
+     the games list mid-page). What these assertions protected still holds, now where prices actually render: the
+     only price rows the hub shows are the WEEK's own (never the index's archived capture), the prices section renders
+     only when there are some, and the capture stamp always carries its date — in ET, like every other time. */
+  assert.match(hub, /slateMarketRows\.length \? \(\s*<section aria-labelledby="nfl-markets"/, "the prices section renders only for this week's own rows");
+  assert.doesNotMatch(hub, /index\??\.counts\??\.market/i, "no price count from the index's archived capture");
   assert.doesNotMatch(hub, /capture not authorized/, "the reason must not outlive the authorization it describes");
-  // And the capture stamp always carries its date: a bare clock reads as today whatever day it is.
-  assert.match(hub, /captured \$\{month\} \$\{Number\(iso\.slice\(8, 10\)\)\}/);
+  assert.match(hub, /const CAPTURE_ET = new Intl\.DateTimeFormat\("en-US", \{ timeZone: "America\/New_York", month: "short", day: "numeric"/, "the stamp carries its ET date");
+  assert.match(labelFn, /`captured \$\{CAPTURE_ET\.format\(ms\)\} ET`/);
 });
 
 test("SHARED OWNERS · the five parity rows are closed by adoption, not by forking", () => {
+  /* REPOINTED overnight W8 (2026-10-28): SportOverviewHero is no longer required here — on /nfl it was a SECOND hero
+     mid-page restating the title's week and the games list's count (the founder's "one listing, one header" brief).
+     The guard now refuses it coming back, and still requires the shared owners that remain. */
+  assert.ok(!/<SportOverviewHero[\s>]/.test(hub), "/nfl has one header (the hub title), not a second hero mid-page");
   for (const [owner, mod] of [
-    ["SportOverviewHero", "@/components/sport-overview-hero"],
     ["FreshnessBadge", "@/components/ui/freshness-badge"],
     ["SectionHeader", "@/components/section-header"],
     ["EventCard", "@/components/event-card"],

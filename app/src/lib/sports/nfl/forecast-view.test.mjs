@@ -213,7 +213,10 @@ test("OFFICIAL · joins are by nfl-athlete-* id only — a matching name never j
 test("SUPPORTING · World Model V2 is labelled, versioned, hashed, and says when it was built on an older forecast revision", () => {
   const stale = view({ board: board({ players: [] }), world: world({ inputHash: "aaaa1111", forecastGeneratedAt: "2098-12-31T20:00:00Z" }) });
   assert.equal(stale.simulation.label, SUPPORTING_LABEL);
-  assert.equal(SUPPORTING_LABEL, "Supporting simulation (World Model V2 · not the official projection · not graded)");
+  /* REPOINTED overnight W8 (2026-10-28): the label pinned the internal engine name in the public reading path. The two
+     claims that matter — not the official forecast, not graded — are still required verbatim; the engine name moved to the
+     panel's Technical details (asserted below). */
+  assert.equal(SUPPORTING_LABEL, "Supporting simulation (not the official forecast · not graded)");
   assert.equal(stale.simulation.version, "2.2.0");
   assert.equal(stale.simulation.inputHash, "aaaa1111");
   assert.equal(stale.simulation.recordInputHash, "rec00001");
@@ -227,6 +230,7 @@ test("SUPPORTING · World Model V2 is labelled, versioned, hashed, and says when
   assert.match(panel, /\{sim\.label\}/, "the panel prints the shared label");
   assert.match(panel, /sim\.revisionNotice \?/, "and the notice when there is one");
   assert.match(panel, /\{sim\.inputHash \?\? "not recorded"\}/, "and its input hash");
+  assert.match(panel, /<MoreDisclosure title="Technical details"[\s\S]*World Model V2 \{sim\.version\}[\s\S]*\{sim\.inputHash \?\? "not recorded"\}[\s\S]*<\/MoreDisclosure>/, "engine name, version and input hash sit inside Technical details");
   const page = fs.readFileSync(path.join(APP, "src/app/nfl/game/[eventId]/page.tsx"), "utf8");
   assert.ok(page.indexOf('<section id="players"') < page.indexOf("<SimulationPanel"), "the official projections come before the supporting simulation");
 });
