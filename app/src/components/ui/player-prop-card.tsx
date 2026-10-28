@@ -33,14 +33,14 @@ export default function PlayerPropCard({ p }: { p: PublicProjection }) {
         <div className="flex flex-col min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2 min-w-0">
             <span className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{pl.name}</span>
-            <span className="font-mono shrink-0" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{formatAmerican(p.americanOdds ?? null)}</span>
+            <span className="font-mono shrink-0" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>{formatAmerican(p.americanOdds ?? null)}</span>
           </div>
           <div className="flex items-center justify-between gap-2 min-w-0">
-            <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
+            <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>
               {p.pickLabel} · {pl.team}
               {p.bookmaker ? ` · ${p.bookmaker}` : ""}
             </span>
-            <span className="font-mono shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>mdl {pct(p.modelProbability)} · mkt {pct(p.marketProbability)}</span>
+            <span className="font-mono shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>mdl {pct(p.modelProbability)} · mkt {pct(p.marketProbability)}</span>
           </div>
         </div>
         {p.parlayEligible
@@ -51,12 +51,12 @@ export default function PlayerPropCard({ p }: { p: PublicProjection }) {
 
       {/* Details drawer — real evidence only, never fabricated. */}
       <div className="px-3 pb-3 pt-2 flex flex-col gap-2" style={{ borderTop: "1px solid var(--vault-rule)" }}>
-        <span className="font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)" }}>
+        <span className="font-mono text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
           {p.marketLabel}{p.line != null ? ` · line ${p.line}` : ""}{p.projectionValue != null ? ` · model projects ${p.projectionValue}` : ""} · edge {(p.edgePct ?? 0) >= 0 ? "+" : ""}{(p.edgePct ?? 0).toFixed(1)}%
         </span>
         {recent.length > 0 ? (
           <div className="flex flex-col gap-1">
-            <span className="font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-mute)" }}>
+            <span className="font-mono text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
               Last {recent.length} games — {p.marketLabel}
             </span>
             <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${recent.length}, minmax(0, 1fr))` }}>
@@ -65,18 +65,18 @@ export default function PlayerPropCard({ p }: { p: PublicProjection }) {
                 return (
                   <div key={i} className="rounded-[6px] px-1.5 py-1.5 text-center" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: `1px solid ${hit == null ? "var(--vault-rule)" : hit ? "color-mix(in srgb, var(--gtp-success-on-dark) 40%, transparent)" : "color-mix(in srgb, var(--vault-danger-soft) 35%, transparent)"}` }}>
                     <div className="font-display tabular" style={{ color: hit == null ? "var(--vault-text)" : hit ? "var(--gtp-success-on-dark)" : "var(--vault-danger-soft)", fontSize: 14, fontWeight: 700 }}>{g.value}</div>
-                    <div className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{g.isHome ? "vs" : "@"}{g.opponent}</div>
-                    <div className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{(g.date ?? "").slice(5)}</div>
+                    <div className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>{g.isHome ? "vs" : "@"}{g.opponent}</div>
+                    <div className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>{(g.date ?? "").slice(5)}</div>
                   </div>
                 );
               })}
             </div>
-            <span className="font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
+            <span className="font-mono text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
               Green / red = landed on / against the picked side. Official box-score values.
             </span>
           </div>
         ) : (
-          <span className="text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
+          <span className="text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
             Recent-game log unavailable for this market — only the model/market read above is shown. Stats are never invented.
           </span>
         )}
@@ -85,7 +85,7 @@ export default function PlayerPropCard({ p }: { p: PublicProjection }) {
           // artifact's "pre-lineup" caveat on all 200+ cards was the noise users hated.
           const caveat = (p.caveats ?? []).find((c) => !/pre-?lineup/i.test(c));
           return caveat ? (
-            <span className="text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>· {caveat}</span>
+            <span className="text-[12px]" style={{ color: "var(--vault-text-faint)" }}>· {caveat}</span>
           ) : null;
         })()}
       </div>

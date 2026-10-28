@@ -44,14 +44,14 @@ export default function PlayerPropGroup({ group, defaultOpen }: { group: ReturnT
         <PlayerAvatar name={group.name} photo={group.photo} size={32} />
         <div className="flex flex-col min-w-0 flex-1">
           <span className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 700 }}>{group.name}</span>
-          <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
+          <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>
             {group.team ? `${group.team} · ` : ""}{n} market{n === 1 ? "" : "s"}
           </span>
         </div>
         {edge > -99 ? (
           <span
             className="gtp-chip-heat shrink-0 rounded-full px-2 py-0.5 font-mono"
-            style={{ fontSize: 10, fontWeight: 700 }}
+            style={{ fontSize: 12, fontWeight: 700 }}
           >
             {edge >= 0 ? "+" : ""}{edge.toFixed(1)}% best edge
           </span>
