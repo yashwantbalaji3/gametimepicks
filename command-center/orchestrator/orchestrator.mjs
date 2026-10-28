@@ -6,8 +6,17 @@
  * consolidated report and digest-bound decision requests. Roles never call each other; a proposal the policy
  * refuses becomes a recorded refusal that the CEO sees, not a silent drop.
  *
- * State is event-sourced: everything the console shows is rebuilt from the append-only ledger by state(). The
- * only in-memory state is the run queue of commands still in flight (lost on restart; the history is not).
+ * State is event-sourced: everything the console shows is rebuilt from the append-only ledger by state(), and a
+ * command still in flight is rebuilt from the ledger too (getRun → rehydrate), so the orchestrator can live in a
+ * stateless function or a short-lived worker (H0).
+ *
+ * EXECUTION MODES
+ *   inline  (local console, tests): every step runs in this process, as in Phase 1 / M2.
+ *   jobs    (hosted): steps that need the repository, a browser or Claude Code — recap facts/rendering, Claude
+ *           plan/build/verify, keep/discard — are recorded as `job` entries and returned by takeOutbox() for the
+ *           host to dispatch AFTER its ledger flush commits (an outbox: no job exists that the ledger doesn't).
+ *           A worker then calls runJob(jobId) against the same ledger. Light steps (manual seats, fake seats, gates,
+ *           pause/stop) still run in the request.
  *
  * Surfaces (console today; Discord and MCP later) call exactly five methods: handleCommand, decide, submitManual,
  * setSeat, state. None of them can publish without a founder approval bound to the exact bundle digest, and the
@@ -40,13 +49,28 @@ const etDay = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New
  *   engineering configures delegated engineering (repo, claude binary, environment, screenshots) — see
  *   engineering-flow.mjs; tests point it at a throwaway repo and a fake `claude`.
  */
-export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROOT, outDir, stepDelayMs = 0, publisher, slateDate, engineering = {} }) {
+export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROOT, outDir, stepDelayMs = 0, publisher, slateDate, engineering = {}, execution = "inline", runnerId = "local" }) {
+  if (!["inline", "jobs"].includes(execution)) throw new Error(`unknown execution mode ${execution}`);
   const pub = publisher ?? createMockPublisher({ clock });
   const mediaDir = path.join(outDir, "media");
-  /** commandId → run state for commands still in flight */
+  /** commandId → run state for commands still in flight (a cache: getRun() rebuilds from the ledger when absent) */
   const runs = new Map();
+  /** Jobs recorded in this session, waiting for the host to dispatch them after it flushes. */
+  const outbox = [];
+  /** True while this process is executing a job as a worker: everything runs here, nothing is re-dispatched. */
+  let inWorker = false;
+  const deferHeavy = () => execution === "jobs" && !inWorker;
+
+  function requestJob(job) {
+    const jobId = shortId("job", { ...job, at: clock() });
+    store.append("job", "orchestrator", { jobId, status: "requested", ...job });
+    outbox.push({ jobId, ...job });
+    return jobId;
+  }
+
   const flow = createEngineeringFlow({
     store, clock, outDir,
+    execution: { deferred: () => deferHeavy(), requestJob: (job) => requestJob(job) },
     helpers: {
       makeTask: (...a) => makeTask(...a),
       contribute: (...a) => contribute(...a),
@@ -156,8 +180,18 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   }
 
   /** Run queued tasks until the queue is empty or every remaining task waits on the founder. */
+  /** Recap steps that read repository data or render with a browser: worker-only in jobs mode. */
+  const isHeavy = (run, task) => run.intent === "nfl-recap" && ["engineering", "integrity-reviewer", "creative-renderer"].includes(task.ownerRole);
+
   async function drain(run) {
     while (run.queue.length) {
+      if (deferHeavy() && isHeavy(run, run.queue[0])) {
+        // Everything from here on (facts, gate, render, then social and the report that use them) runs in one worker.
+        if (!entries().some((e) => e.kind === "job" && e.data.commandId === run.commandId && e.data.type === "drive" && e.data.status === "requested" && !jobDone(e.data.jobId))) {
+          requestJob({ type: "drive", commandId: run.commandId });
+        }
+        return;
+      }
       const task = run.queue.shift();
       await sleep(stepDelayMs);
       store.append("task", "orchestrator", { taskId: task.taskId, commandId: run.commandId, status: "RUNNING" });
@@ -171,6 +205,43 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     }
     const waiting = run.tasks.some((t) => latestStatus(t.taskId) === "AWAITING_INPUT");
     if (!waiting && run.kind !== "engineering") runs.delete(run.commandId);
+  }
+
+  const jobDone = (jobId) => entries().some((e) => e.kind === "job" && e.data.jobId === jobId && ["finished", "failed", "cancelled"].includes(e.data.status));
+
+  /** The run for a command: from this process's cache, or rebuilt from the ledger (stateless hosts). */
+  function getRun(commandId) {
+    if (runs.has(commandId)) return runs.get(commandId);
+    const all = entries();
+    const cmd = all.find((e) => e.kind === "command" && e.data.commandId === commandId);
+    if (!cmd || !planFor(cmd.data.intent)) return null;
+    const run = { commandId, text: cmd.data.text, intent: cmd.data.intent, plan: planFor(cmd.data.intent).map((s) => ({ ...s, created: false })), queue: [], tasks: [], doneRoles: new Set(), ctx: {} };
+    const latest = new Map();
+    for (const e of all) {
+      if (e.kind !== "task" || e.data.commandId !== commandId) continue;
+      if (e.data.status === "QUEUED" && e.data.ownerRole) {
+        const { status, ...envelope } = e.data;
+        run.tasks.push(envelope);
+      }
+      latest.set(e.data.taskId, e.data.status);
+    }
+    for (const t of run.tasks) {
+      const st = latest.get(t.taskId);
+      // A task left RUNNING belonged to a worker that was cancelled mid-step; recap steps are deterministic, so redo it.
+      if (st === "QUEUED" || (st === "RUNNING" && cmd.data.intent !== "engineering-task")) run.queue.push(t);
+      if (["DONE", "REFUSED", "FAILED", "CANCELLED"].includes(st)) run.doneRoles.add(t.ownerRole);
+    }
+    for (const step of run.plan) {
+      step.created = run.tasks.some((t) => t.ownerRole === step.role)
+        || all.some((e) => e.kind === "refusal" && e.data.commandId === commandId && e.data.toRole === step.role && e.data.fromRole === step.via);
+    }
+    if (cmd.data.intent === "engineering-task") {
+      run.kind = "engineering";
+      flow.rehydrate(run);
+      if (run.eng.finished) return null;
+    }
+    runs.set(commandId, run);
+    return run;
   }
 
   function latestStatus(taskId) {
@@ -394,7 +465,8 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     if (!f.ok) return { ok: false, ...f };
     store.append("control", "founder", { paused, text });
     const stopped = paused ? flow.cancelAll({ reason: "Paused by the founder" }) : 0;
-    return { ok: true, paused, stoppedRuns: stopped };
+    if (!paused && execution === "jobs") resumeJobs();
+    return { ok: true, paused, stoppedRuns: stopped, cancelJobs: paused ? activeJobs() : [] };
   }
 
   /** Emergency stop: pause everything and SIGKILL every running Claude Code process immediately. */
@@ -403,7 +475,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     if (!f.ok) return { ok: false, ...f };
     store.append("control", "founder", { paused: true, emergency: true, text: "Emergency stop" });
     const stopped = flow.cancelAll({ reason: "Emergency stop", immediate: true });
-    return { ok: true, paused: true, stoppedRuns: stopped };
+    return { ok: true, paused: true, stoppedRuns: stopped, cancelJobs: activeJobs() };
   }
 
   async function decide({ decisionId, verdict, captionId, digest, note }, actor) {
@@ -411,7 +483,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     if (!f.ok) return { ok: false, ...f };
     const request = entries().find((e) => e.kind === "decision-request" && e.data.decisionId === decisionId)?.data;
     if (!request) return { ok: false, code: "UNKNOWN_DECISION", detail: decisionId };
-    if (request.kind === "gate") return flow.decideGate(request, { verdict, digest }, actor, runs.get(request.commandId));
+    if (request.kind === "gate") return flow.decideGate(request, { verdict, digest }, actor, getRun(request.commandId));
 
     if (verdict !== "approve") {
       const claim = store.claim(`decision|${decisionId}`, { verdict, note: note ?? null });
@@ -448,7 +520,8 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   async function submitManual(taskId, text, actor) {
     const f = checkFounder("change-seat", actor);
     if (!f.ok) return { ok: false, ...f };
-    const run = [...runs.values()].find((r) => r.tasks.some((t) => t.taskId === taskId));
+    const taskEntry = entries().find((e) => e.kind === "task" && e.data.taskId === taskId && e.data.status === "QUEUED");
+    const run = taskEntry ? getRun(taskEntry.data.commandId) : null;
     if (!run || latestStatus(taskId) !== "AWAITING_INPUT") return { ok: false, code: "NOT_AWAITING", detail: taskId };
     const task = run.tasks.find((t) => t.taskId === taskId);
     if (run.kind === "engineering" && task.ownerRole === "prompt-architect") return flow.onSpecPasted(run, task, text);
@@ -528,6 +601,8 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
         billing: flow.billing(),
         lastPreflight: lastPreflight ? { ...lastPreflight.data, at: lastPreflight.at } : null,
         activeRuns: flow.activeRuns(),
+        activeJobs: activeJobs(),
+        execution,
         emergency: Boolean(lastControl?.paused && lastControl?.emergency),
         claudeUsage,
         limits: { plan: "20 turns · $1 est. · 10 min", build: "40 turns · $3 est. · 15 min", perCommand: "$5 est." },
@@ -536,8 +611,94 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     };
   }
 
+  /** Jobs dispatched or started but not finished: what Pause/Stop must cancel on the runner side. */
+  function activeJobs() {
+    const all = entries();
+    const live = new Map();
+    for (const e of all) {
+      if (e.kind !== "job" || !["dispatched", "started"].includes(e.data.status) || jobDone(e.data.jobId)) continue;
+      const prev = live.get(e.data.jobId);
+      live.set(e.data.jobId, { jobId: e.data.jobId, runner: e.data.runner ?? prev?.runner ?? null, runId: e.data.runId ?? prev?.runId ?? null });
+    }
+    return [...live.values()];
+  }
+
+  /** The host records where it sent a job (e.g. the GitHub Actions run id) so Stop can cancel it before it starts. */
+  function jobDispatched(job, { runner, runId = null, ok = true, detail = null }) {
+    store.append("job", "host", { jobId: job.jobId, commandId: job.commandId, type: job.type, status: ok ? "dispatched" : "dispatch-failed", runner, runId, error: ok ? undefined : detail });
+  }
+
+  /** After Pause/Stop cancelled a job's runner: it will never report back, so close it in the ledger. */
+  function jobCancelled(job, reason) {
+    const data = entries().find((e) => e.kind === "job" && e.data.jobId === job.jobId)?.data;
+    if (!data || jobDone(job.jobId)) return;
+    store.append("job", "host", { jobId: job.jobId, commandId: data.commandId, type: data.type, status: "cancelled", runner: job.runner ?? null, runId: job.runId ?? null, error: reason });
+    if (data.type !== "drive") {
+      // An engineering step's working copy lived on the cancelled runner: this delegated task ends here, as a paused
+      // local run does. Nothing was kept; the founder can send the objective again.
+      store.append("report", "chief-of-staff", { commandId: data.commandId, headline: `${reason}: the ${data.type} job was cancelled on its runner. Nothing was kept.`, lines: [], deliverables: [], refusals: [], warnings: [], decisionsNeeded: [], final: true });
+    }
+  }
+
+  /** Resume (jobs mode): re-request the recap drives that Pause cancelled. */
+  function resumeJobs() {
+    const all = entries();
+    const cancelled = all.filter((e) => e.kind === "job" && e.data.type === "drive" && e.data.status === "cancelled");
+    for (const c of cancelled) {
+      const later = all.some((e) => e.kind === "job" && e.data.type === "drive" && e.data.commandId === c.data.commandId && e.data.status === "requested" && e.at >= c.at && !jobDone(e.data.jobId));
+      const run = later ? null : getRun(c.data.commandId);
+      if (run && run.queue.length) requestJob({ type: "drive", commandId: c.data.commandId });
+    }
+  }
+
+  /**
+   * Execute one recorded job in this process (the worker side of jobs mode). Idempotent: a job can only be
+   * started once (a claim), so a duplicated dispatch is harmless.
+   * @param {string} jobId
+   * @param {{ runId?: string|null }} [meta]   e.g. the GitHub Actions run id, so Stop can cancel it
+   */
+  async function runJob(jobId, meta = {}) {
+    const job = entries().find((e) => e.kind === "job" && e.data.jobId === jobId && e.data.status === "requested")?.data;
+    if (!job) return { ok: false, code: "UNKNOWN_JOB", detail: jobId };
+    if (jobDone(jobId)) return { ok: false, code: "JOB_ALREADY_DONE", detail: jobId };
+    if (isPaused()) {
+      // Paused between dispatch and start: close it; Resume re-requests recap drives.
+      jobCancelled({ jobId, runner: runnerId, runId: meta.runId ?? null }, "Paused before the job started");
+      return { ok: false, code: "PAUSED", detail: jobId };
+    }
+    const c = store.claim(`job|${jobId}|start`, { runnerId });
+    if (!c.won) return { ok: false, code: "JOB_ALREADY_STARTED", detail: jobId };
+    store.append("job", "worker", { jobId, commandId: job.commandId, type: job.type, status: "started", runner: runnerId, runId: meta.runId ?? null });
+    if (meta.commitStart) {
+      // Make the start claim durable before doing any work, so two runners given the same job can't both work.
+      try {
+        await meta.commitStart();
+      } catch (err) {
+        if (err.code === "CLAIM_CONFLICT") return { ok: false, code: "JOB_ALREADY_STARTED", detail: jobId };
+        throw err;
+      }
+    }
+    inWorker = true;
+    try {
+      const run = getRun(job.commandId);
+      if (!run) throw new Error(`command ${job.commandId} is not active`);
+      if (job.type === "drive") await drain(run);
+      else await flow.executeStep(run, job.type);
+      store.append("job", "worker", { jobId, commandId: job.commandId, type: job.type, status: "finished" });
+      return { ok: true };
+    } catch (err) {
+      store.append("job", "worker", { jobId, commandId: job.commandId, type: job.type, status: "failed", error: String(err.message ?? err) });
+      return { ok: false, code: "JOB_FAILED", detail: String(err.message ?? err) };
+    } finally {
+      inWorker = false;
+    }
+  }
+
   return {
-    handleCommand, decide, submitManual, setSeat, setPaused, emergencyStop, state,
+    handleCommand, decide, submitManual, setSeat, setPaused, emergencyStop, state, runJob, activeJobs, jobDispatched, jobCancelled,
+    /** Jobs recorded by this session; the host dispatches them after its ledger flush commits. */
+    takeOutbox: () => outbox.splice(0),
+    execution,
     attestBilling: (a, actor) => flow.attestBilling(a, actor),
     runPreflight: () => flow.runPreflight(null),
     whenIdle: () => flow.whenIdle(),
@@ -560,6 +721,8 @@ function historyLine(e) {
     case "progress": return `· ${d.line}`;
     case "preflight": return d.ok ? `Preflight OK: Claude Code ${d.evidence?.cliVersion} · ${d.evidence?.authMethod} · ${d.evidence?.subscriptionType}` : `Preflight REFUSED: ${d.detail}`;
     case "attestation": return `Founder attestation: ${d.statement}`;
+    case "job": return `Job ${d.type} ${d.status}${d.runner ? ` on ${d.runner}` : ""}${d.error ? `: ${d.error}` : ""}`;
+    case "auth": return `Auth: ${d.event}${d.detail ? ` (${d.detail})` : ""}`;
     case "report": return `Report: ${d.headline}`;
     case "seat-change": return `Seat: ${roleTitle(d.role)} → ${d.seat}`;
     default: return e.kind;

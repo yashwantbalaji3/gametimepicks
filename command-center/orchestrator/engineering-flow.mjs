@@ -15,8 +15,9 @@
  * Pause cancels running Claude processes (SIGTERM, SIGKILL after the grace period) and blocks new runs; Emergency
  * stop does the same with SIGKILL at once. Gates that would start work are refused while paused.
  */
+import fs from "node:fs";
 import path from "node:path";
-import { digestOf, shortId, REPO_ROOT } from "../lib/util.mjs";
+import { digestOf, shortId, sha256, REPO_ROOT } from "../lib/util.mjs";
 import { REASON } from "../contracts/index.mjs";
 import {
   IMPLEMENTATION_PLAN_SCHEMA, ENGINEERING_RESULT_SCHEMA, RUN_LIMITS, ALLOWED_PREFIXES, validateSchema, planScope,
@@ -24,8 +25,10 @@ import {
 import { parseManualAnswer } from "../providers/manual.mjs";
 import { preflight, childEnv, resolveClaudeBin } from "../providers/claude-preflight.mjs";
 import { startClaudeRun } from "../providers/claude-code-cli.mjs";
-import { createWorkcopy, workcopyChanges, keepWorkcopy, discardWorkcopy, checkoutFingerprint, WORKCOPY_PATHS } from "../engineering/workcopy.mjs";
-import { runTests, captureScreens } from "../engineering/verify.mjs";
+import {
+  createWorkcopy, reattachWorkcopy, workcopyChanges, workcopyPatch, applyWorkcopyPatch, keepWorkcopy, pushKept, discardWorkcopy, checkoutFingerprint, WORKCOPY_PATHS,
+} from "../engineering/workcopy.mjs";
+import { runTests, captureScreens, reapSandbox } from "../engineering/verify.mjs";
 import { planPrompt, buildPrompt, contextPacket } from "../engineering/prompts.mjs";
 
 const PLAN_TOOLS = { allowed: ["Read", "Grep", "Glob"], disallowed: ["Bash", "Edit", "Write", "NotebookEdit", "WebFetch", "WebSearch", "Task", "Agent"] };
@@ -42,6 +45,8 @@ const GATE_ORDER = { G1: null, G2: "G1", G3: "G2" };
  */
 export function createEngineeringFlow(ctx, cfg = {}) {
   const { store, clock, outDir, helpers: h } = ctx;
+  /** Jobs mode (hosted): steps that need a runner are recorded as jobs instead of running in the request. */
+  const execution = ctx.execution ?? { deferred: () => false, requestJob: () => { throw new Error("jobs mode is not configured"); } };
   const repoRoot = cfg.repoRoot ?? REPO_ROOT;
   const claudeEnv = cfg.claudeEnv ?? process.env;
   const bin = cfg.claudeBin ?? resolveClaudeBin(claudeEnv);
@@ -69,7 +74,7 @@ export function createEngineeringFlow(ctx, cfg = {}) {
   }
 
   function runPreflight(commandId = null) {
-    const r = preflight({ env: claudeEnv, bin, home: cfg.home });
+    const r = preflight({ env: claudeEnv, bin, home: cfg.home, allowOauthToken: cfg.allowOauthToken === true });
     store.append("preflight", "orchestrator", { commandId, ok: r.ok, code: r.code ?? null, detail: r.detail ?? null, evidence: { ...r.evidence, checkedAt: clock() } });
     return r;
   }
@@ -128,13 +133,13 @@ export function createEngineeringFlow(ctx, cfg = {}) {
       authentication: actor.authentication ?? "loopback-console (demo-grade)",
     });
 
-    if (verdict === "reject") {
-      job(run, async () => finishRun(run, `Stopped at ${request.gate}: you rejected the ${request.gate === "G1" ? "spec" : "plan"}. Nothing further runs.`, { discard: true }));
-    } else if (request.gate === "G1") job(run, () => runPlan(run));
-    else if (request.gate === "G2") job(run, () => runBuild(run));
-    else if (verdict === "keep") job(run, () => keep(run));
-    else job(run, () => finishRun(run, "Discarded at G3: the working copy and its branch were removed. Nothing was kept.", { discard: true }));
-    return { ok: true, verdict, started: true };
+    if (verdict === "reject" && !run.eng.wc) {
+      finishRun(run, `Stopped at ${request.gate}: you rejected the ${request.gate === "G1" ? "spec" : "plan"}. Nothing further runs.`, { discard: false });
+      return { ok: true, verdict, started: false };
+    }
+    const type = verdict === "reject" ? `reject-${request.gate}` : request.gate === "G1" ? "plan" : request.gate === "G2" ? "build" : verdict === "keep" ? "keep" : "discard";
+    const jobId = step(run, type);
+    return { ok: true, verdict, started: true, jobId };
   }
 
   // ── spec (Prompt Architect, manual seat) ────────────────────────────────────────────────────────────────────
@@ -161,6 +166,50 @@ export function createEngineeringFlow(ctx, cfg = {}) {
     return { ok: true, contractValid: true };
   }
 
+  // ── steps: in this process (inline / worker) or as a recorded job (hosted request) ─────────────────────────
+  const STEPS = {
+    plan: (run) => runPlan(run),
+    build: (run) => runBuild(run),
+    keep: (run) => keep(run),
+    discard: (run) => finishRun(run, "Discarded at G3: the working copy and its branch were removed. Nothing was kept.", { discard: true }),
+    "reject-G1": (run) => finishRun(run, "Stopped at G1: you rejected the spec. Nothing further runs.", { discard: true }),
+    "reject-G2": (run) => finishRun(run, "Stopped at G2: you rejected the plan. Nothing further runs.", { discard: true }),
+  };
+
+  function step(run, type) {
+    if (!STEPS[type]) throw new Error(`unknown engineering step ${type}`);
+    if (execution.deferred()) return execution.requestJob({ type, commandId: run.commandId });
+    job(run, () => STEPS[type](run));
+    return null;
+  }
+
+  /** Worker side: run one step to completion in this process. */
+  async function executeStep(run, type) {
+    if (!STEPS[type]) throw new Error(`unknown engineering step ${type}`);
+    await STEPS[type](run);
+  }
+
+  /** Rebuild run.eng from the ledger, for a stateless request or worker. */
+  function rehydrate(run) {
+    const mine = h.entries().filter((e) => e.data?.commandId === run.commandId);
+    const lastOf = (pred) => mine.filter(pred).at(-1)?.data;
+    const spec = lastOf((e) => e.kind === "contribution" && e.data.artifactType === "engineering-spec");
+    const plan = lastOf((e) => e.kind === "contribution" && e.data.artifactType === "implementation-plan");
+    const start = lastOf((e) => e.kind === "deliverable" && e.data.kind === "engineering-start");
+    const wc = lastOf((e) => e.kind === "deliverable" && e.data.kind === "workcopy");
+    const verification = lastOf((e) => e.kind === "contribution" && e.data.artifactType === "verification");
+    run.eng = {
+      gates: Object.fromEntries(mine.filter((e) => e.kind === "decision-request" && e.data.kind === "gate").map((e) => [e.data.gate, { decisionId: e.data.decisionId, subjectDigest: e.data.subjectDigest }])),
+      fingerprint: start?.fingerprintHash ?? null,
+      spec: spec?.artifact ?? undefined, specTaskId: spec?.taskId,
+      plan: plan?.artifact ?? undefined, planTaskId: plan?.taskId,
+      wc: wc ? { dir: wc.dir, branch: wc.branch, base: wc.base, head: wc.head, paths: wc.paths, links: wc.links } : undefined,
+      verification: verification?.artifact ?? undefined,
+      progressCount: mine.filter((e) => e.kind === "progress").length,
+      finished: mine.some((e) => e.kind === "report" && e.data.final),
+    };
+  }
+
   // ── Claude Code runs ────────────────────────────────────────────────────────────────────────────────────────
   function progress(run, task, line) {
     run.eng.progressCount = (run.eng.progressCount ?? 0) + 1;
@@ -179,16 +228,22 @@ export function createEngineeringFlow(ctx, cfg = {}) {
     const lim = limits[mode];
     const tools = mode === "plan" ? PLAN_TOOLS : BUILD_TOOLS;
     const handle = startClaudeRun({
-      bin, cwd: run.eng.wc.dir, env: childEnv(claudeEnv), prompt, schema,
-      allowedTools: tools.allowed, disallowedTools: tools.disallowed,
+      bin, cwd: run.eng.wc.dir, env: childEnv(claudeEnv, { allowOauthToken: cfg.allowOauthToken === true }), prompt, schema,
+      allowedTools: tools.allowed, disallowedTools: [...tools.disallowed, ...(cfg.extraDisallowedTools ?? [])],
       maxTurns: lim.maxTurns, maxBudgetUsd: lim.maxBudgetUsd, timeoutMs: lim.timeoutMs, killGraceMs: limits.killGraceMs,
       model: lim.model ?? null, effort: lim.effort ?? null, tools: mode === "plan" ? ["Read", "Grep", "Glob"] : ["Read", "Grep", "Glob", "Edit", "Write"],
       rawLogFile: path.join(outDir, "runs", `${task.taskId}.jsonl`),
       onProgress: (line) => progress(run, task, line),
     });
     active.set(task.taskId, { handle, commandId: run.commandId });
+    // A worker can't be reached by the founder's Pause directly: it re-reads the ledger and stops itself.
+    const pausePoll = setInterval(async () => {
+      try { await store.refresh?.(); } catch { /* transient; next tick */ }
+      if (h.isPaused()) handle.cancel("Paused by the founder (seen by the worker)");
+    }, cfg.pausePollMs ?? 3000);
     progress(run, task, `Claude Code started (${mode === "plan" ? "read-only plan run" : "build run"}) · pid ${handle.pid} · model ${lim.model ?? "CLI default"}, effort ${lim.effort ?? "default"} · limits ${lim.maxTurns} turns, $${lim.maxBudgetUsd} est., ${Math.round(lim.timeoutMs / 60000)} min`);
     const res = await handle.done;
+    clearInterval(pausePoll);
     active.delete(task.taskId);
     const runRecord = {
       mode, sessionId: res.sessionId, model: res.model, requestedModel: res.requestedModel, effort: res.effort,
@@ -230,7 +285,9 @@ export function createEngineeringFlow(ctx, cfg = {}) {
     if (!run.eng.wc) {
       // Unique per run (command id + time) so a rerun never collides with a branch an earlier run kept.
       const wcId = `${run.commandId.replace(/^cmd-/, "").slice(0, 8)}-${Date.now().toString(36)}`;
-      run.eng.wc = createWorkcopy({ repoRoot, taskId: wcId, paths: cfg.workcopyPaths ?? WORKCOPY_PATHS, nodeModulesFrom: cfg.nodeModulesFrom });
+      run.eng.wc = createWorkcopy({ repoRoot, taskId: wcId, paths: cfg.workcopyPaths ?? WORKCOPY_PATHS, nodeModulesFrom: cfg.nodeModulesFrom, links: cfg.workcopyLinks ?? [] });
+      // Recorded so a later job (possibly another process) can find and reattach the same working copy.
+      store.append("deliverable", "engineering", { commandId: run.commandId, kind: "workcopy", ...run.eng.wc });
       progress(run, task, `Isolated working copy ready: ${path.relative(path.dirname(repoRoot), run.eng.wc.dir)} on branch ${run.eng.wc.branch} (base ${run.eng.wc.base.slice(0, 10)})`);
     }
     const specDigest = digestOf(run.eng.spec);
@@ -257,6 +314,7 @@ export function createEngineeringFlow(ctx, cfg = {}) {
   }
 
   async function runBuild(run) {
+    await reattach(run);
     const task = h.makeTask(run, { role: "engineering", title: "Implement in the isolated working copy (Claude Code)", artifact: "engineering-result" }, { hop: 2, parentTaskId: run.eng.planTaskId, seat: "cli:claude-code" });
     const prompt = buildPrompt({ spec: run.eng.spec, specDigest: digestOf(run.eng.spec), plan: run.eng.plan, planDigest: digestOf({ plan: run.eng.plan, specDigest: digestOf(run.eng.spec) }), packet: contextPacket(run.eng.wc.dir) });
     const out = await claudeStep(run, task, "build", prompt, ENGINEERING_RESULT_SCHEMA);
@@ -276,25 +334,36 @@ export function createEngineeringFlow(ctx, cfg = {}) {
     store.append("task", "orchestrator", { taskId: task.taskId, commandId: run.commandId, status: "RUNNING" });
     progress(run, task, "Verifier: reading the working copy's changes");
     const changes = workcopyChanges(run.eng.wc);
+    // The change set is fixed NOW, before any code Claude wrote runs: the founder's G3 diff and the stored patch are
+    // both this. If the tests or the console server alter the working copy, Keep is withdrawn below.
+    const patchText = changes.files.length ? workcopyPatch(run.eng.wc) : "";
     progress(run, task, `Verifier: ${changes.files.length} file(s) changed, ${changes.outOfScope.length} out of scope. Running the test suite…`);
-    const tests = await runTests(run.eng.wc.dir);
+    const tests = await runTests(run.eng.wc.dir, { sandbox: cfg.sandbox ?? null });
     progress(run, task, `Verifier: tests ${tests.ok ? "passed" : "FAILED"} (${tests.pass} pass, ${tests.fail} fail, ${Math.round(tests.durationMs / 1000)} s)`);
     let screenshots = [];
     let screenError = null;
     if (screensOn && changes.files.length) {
       progress(run, task, "Verifier: capturing desktop, iPhone 390 and iPhone 430 screenshots of the working copy's console");
       try {
-        screenshots = await captureScreens(run.eng.wc.dir, { outDir: path.join(outDir, "media"), prefix: `verify-${task.taskId}` });
+        screenshots = await captureScreens(run.eng.wc.dir, { outDir: path.join(outDir, "media"), prefix: `verify-${task.taskId}`, sandbox: cfg.sandbox ?? null });
       } catch (err) {
         screenError = String(err.message ?? err);
       }
     }
-    const checkoutUnchanged = run.eng.fingerprint ? run.eng.fingerprint === checkoutFingerprint(repoRoot) : null;
+    const checkoutUnchanged = run.eng.fingerprint ? run.eng.fingerprint === fingerprintHash(repoRoot) : null;
+    reapSandbox(cfg.sandbox);
+    const unchangedByTests = (changes.files.length ? workcopyPatch(run.eng.wc) : "") === patchText;
+    // Hosted: the keep job runs on another runner, so the exact change set is stored and bound into G3.
+    let patch = null;
+    if (cfg.patchStore && patchText) {
+      patch = { key: `patches/${task.taskId}.patch`, sha256: sha256(patchText), bytes: Buffer.byteLength(patchText) };
+      await cfg.patchStore.put(patch.key, Buffer.from(patchText), "text/x-diff; charset=utf-8");
+    }
     const verification = {
       buildOk, files: changes.files, outOfScope: changes.outOfScope,
       diff: changes.diff.length > 60_000 ? `${changes.diff.slice(0, 60_000)}\n… (truncated)` : changes.diff,
       tests: { ok: tests.ok, exitCode: tests.exitCode, pass: tests.pass, fail: tests.fail, failing: tests.failing, durationMs: tests.durationMs, tail: tests.tail, timedOut: tests.timedOut },
-      screenshots, screenError, checkoutUnchanged,
+      screenshots, screenError, checkoutUnchanged, patch,
       workcopy: { branch: run.eng.wc.branch, base: run.eng.wc.base, dir: path.relative(path.dirname(repoRoot), run.eng.wc.dir) },
     };
     h.contribute(run, task, {
@@ -304,18 +373,22 @@ export function createEngineeringFlow(ctx, cfg = {}) {
     });
     // Keep needs everything green: a completed build, at least one change, all of it in scope, the orchestrator's
     // own test run passing, and the founder's checkout untouched. Anything else offers Discard only.
-    const keepAllowed = buildOk && changes.files.length > 0 && changes.outOfScope.length === 0 && tests.ok && checkoutUnchanged !== false;
+    const keepAllowed = buildOk && changes.files.length > 0 && changes.outOfScope.length === 0 && tests.ok && checkoutUnchanged !== false && unchangedByTests;
     const warnings = [
       ...(!buildOk ? [{ code: REASON.RUN_FAILED, detail: "the build run did not complete; only Discard is offered" }] : []),
       ...(changes.outOfScope.length ? [{ code: REASON.OUT_OF_SCOPE, detail: `changed outside the allowed paths: ${changes.outOfScope.join(", ")}` }] : []),
       ...(!tests.ok ? [{ code: "TESTS_FAILED", detail: `${tests.fail} failing (Keep is unavailable): ${tests.failing.slice(0, 5).join("; ")}` }] : []),
       ...(!changes.files.length ? [{ code: "NO_CHANGES", detail: "the working copy has no changes" }] : []),
+      ...(!unchangedByTests ? [{ code: "WORKCOPY_CHANGED_BY_TESTS", detail: "running the tests or the console changed the working copy after the diff was taken, so Keep is unavailable" }] : []),
       ...(checkoutUnchanged === false ? [{ code: "CHECKOUT_CHANGED", detail: "your own checkout changed during the run, so Keep is unavailable; discard and run again" }] : []),
     ];
+    run.eng.verification = verification;
     report(run, verification);
     requestGate(run, "G3", {
       subjectType: "verification", subject: { verificationDigest: digestOf(verification), files: changes.files, branch: run.eng.wc.branch },
-      question: "G3 · Keep these changes (a local commit on the cc/ branch, never pushed) or discard them?",
+      question: cfg.pushKept
+        ? "G3 · Keep these changes (a commit on the cc/ branch, pushed to the private ops repo for review, never merged) or discard them?"
+        : "G3 · Keep these changes (a local commit on the cc/ branch, never pushed) or discard them?",
       keepAllowed, warnings,
     });
   }
@@ -348,20 +421,38 @@ export function createEngineeringFlow(ctx, cfg = {}) {
     });
   }
 
+  /** Make sure the working copy exists here; on a fresh runner, rebuild it and re-apply the stored G3 patch. */
+  async function reattach(run, { withPatch = false } = {}) {
+    if (!run.eng.wc || fs.existsSync(run.eng.wc.dir)) return;
+    reattachWorkcopy({ repoRoot, wc: run.eng.wc, nodeModulesFrom: cfg.nodeModulesFrom, links: cfg.workcopyLinks ?? [] });
+    const p = run.eng.verification?.patch;
+    if (!withPatch || !p) return;
+    const text = (await cfg.patchStore?.get(p.key))?.body?.toString("utf8");
+    if (text == null || sha256(text) !== p.sha256) throw new Error(`the stored change set ${p.key} is missing or does not match the sha256 approved at G3`);
+    applyWorkcopyPatch(run.eng.wc, text);
+  }
+
   async function keep(run) {
-    const task = h.makeTask(run, { role: "chief-of-staff", title: "Keep the change (local commit)", artifact: "consolidated-report" }, { hop: 1, parentTaskId: null, seat: "fake" });
+    const task = h.makeTask(run, { role: "chief-of-staff", title: cfg.pushKept ? "Keep the change (commit + push the cc/ branch)" : "Keep the change (local commit)", artifact: "consolidated-report" }, { hop: 1, parentTaskId: null, seat: "fake" });
     try {
-      const sha = keepWorkcopy(run.eng.wc, { message: `command-center: ${run.eng.spec.objective.slice(0, 60)}\n\nDelegated via the CEO Command Center (${run.commandId}). Spec by ChatGPT (G1), plan and implementation by Claude Code (G2), verified and kept by the founder (G3). Local only; not pushed.` });
-      store.append("deliverable", "chief-of-staff", { commandId: run.commandId, kind: "kept", branch: run.eng.wc.branch, commit: sha, dir: path.relative(path.dirname(repoRoot), run.eng.wc.dir) });
+      await reattach(run, { withPatch: true });
+      const where = cfg.pushKept ? "Only this cc/ branch goes to the private ops repo; nothing merged." : "Local only; not pushed.";
+      const sha = keepWorkcopy(run.eng.wc, { message: `command-center: ${run.eng.spec.objective.slice(0, 60)}\n\nDelegated via the CEO Command Center (${run.commandId}). Spec by ChatGPT (G1), plan and implementation by Claude Code (G2), verified and kept by the founder (G3). ${where}` });
+      // true: push from here. "workflow": the hosted worker hands the branch to its workflow's separate push job,
+      // so the job that runs Claude Code never holds repository write permission.
+      if (cfg.pushKept === true) pushKept({ repoRoot, wc: run.eng.wc, remote: cfg.pushRemote ?? "origin" });
+      store.append("deliverable", "chief-of-staff", { commandId: run.commandId, kind: "kept", branch: run.eng.wc.branch, commit: sha, pushed: Boolean(cfg.pushKept), dir: path.relative(path.dirname(repoRoot), run.eng.wc.dir) });
       store.append("task", "orchestrator", { taskId: task.taskId, commandId: run.commandId, status: "DONE" });
-      finishRun(run, `Kept: commit ${sha.slice(0, 10)} on local branch ${run.eng.wc.branch}. Not pushed, not merged into your branch.`, { discard: false });
+      finishRun(run, cfg.pushKept
+        ? `Kept: commit ${sha.slice(0, 10)} on ${run.eng.wc.branch}, ${cfg.pushKept === true ? "pushed" : "handed to the workflow's push step"} for your review in the private ops repo. Not merged.`
+        : `Kept: commit ${sha.slice(0, 10)} on local branch ${run.eng.wc.branch}. Not pushed, not merged into your branch.`, { discard: false });
     } catch (err) {
       h.refuseTask(run, task, REASON.OUT_OF_SCOPE, String(err.message ?? err));
     }
   }
 
   function finishRun(run, headline, { discard }) {
-    if (discard && run.eng.wc) {
+    if (discard && run.eng.wc && fs.existsSync(run.eng.wc.dir)) {
       discardWorkcopy({ repoRoot, wc: run.eng.wc });
       store.append("deliverable", "chief-of-staff", { commandId: run.commandId, kind: "discarded", branch: run.eng.wc.branch });
     }
@@ -396,17 +487,20 @@ export function createEngineeringFlow(ctx, cfg = {}) {
   }
 
   return {
-    attestBilling, billing, runPreflight, onSpecPasted, decideGate, cancelAll, whenIdle,
+    attestBilling, billing, runPreflight, onSpecPasted, decideGate, cancelAll, whenIdle, rehydrate, executeStep,
     activeRuns: () => [...active.entries()].map(([taskId, a]) => ({ taskId, commandId: a.commandId, pid: a.handle.pid })),
     start(run) {
-      run.eng = { gates: {}, fingerprint: safeFingerprint(repoRoot) };
+      const fp = fingerprintHash(repoRoot);
+      run.eng = { gates: {}, fingerprint: fp };
+      store.append("deliverable", "engineering", { commandId: run.commandId, kind: "engineering-start", fingerprintHash: fp });
     },
   };
 }
 
-function safeFingerprint(repoRoot) {
+/** sha256 of the founder checkout's HEAD + status, or null where there is no git checkout (e.g. some hosts). */
+function fingerprintHash(repoRoot) {
   try {
-    return checkoutFingerprint(repoRoot);
+    return sha256(checkoutFingerprint(repoRoot));
   } catch {
     return null;
   }

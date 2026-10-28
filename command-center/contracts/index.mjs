@@ -61,6 +61,8 @@ export const LEDGER_KINDS = Object.freeze([
   "command", "plan", "task", "contribution", "refusal", "deliverable",
   "decision-request", "decision", "publish-receipt", "control", "report", "seat-change",
   "progress", "preflight", "attestation",
+  "job",          // H0: a unit of work handed to a worker (requested → started → finished/failed)
+  "auth",         // H0: login, step-up and session events (audit only; secrets never recorded)
 ]);
 
 /** Refusal / reason codes shared by the orchestrator, the integrity gate and the publisher. */

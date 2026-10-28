@@ -5,7 +5,8 @@
 | M0 feasibility and architecture | ✓ Done | [cp1-review-and-connected-roadmap.md](cp1-review-and-connected-roadmap.md) |
 | Phase 1: local CEO console and NFL recap PoC (iPhone layouts) | ✓ Done, CP1 accepted | commit `08e915d6a7` |
 | **M2: Connected PoC-1, the first real ChatGPT → Claude Code engineering workflow** | **✓ Done (2026-10-27)** | commits `03c76d92cd` (M2 system) and `4b8504c4c3` (the delegated change) |
-| **H: hosted private Command Center, usable from the iPhone with the Mac off** | **Next primary milestone; awaiting approval** | [hosted-command-center-architecture.md](hosted-command-center-architecture.md) |
+| H0: hosting-ready, still local (passkeys, Postgres ledger, stateless jobs, worker, deploy templates) | ✓ Done (2026-10-27), uncommitted | [h0-hosting-readiness.md](h0-hosting-readiness.md) |
+| **H1: hosted private Command Center, usable from the iPhone with the Mac off** | **Next; waits for CP-H1 (founder setup)** | [hosted-command-center-architecture.md](hosted-command-center-architecture.md) |
 | CP2 X publishing | Open investigation; no provider chosen | [x-publishing-evaluation.md](x-publishing-evaluation.md) |
 
 ## M2 close-out

@@ -216,3 +216,20 @@ pre.diff { max-height: 360px; white-space: pre; }
     background: linear-gradient(180deg, rgba(16,11,8,0.85), var(--surface) 35%); border-top: 1px solid var(--border); }
   .decision .actions .btn { flex: 1; }
 }
+
+/* ── hosted sign-in (H0) ── */
+.auth-screen { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px;
+  background: radial-gradient(circle at 50% 0%, rgba(52,211,153,0.10), transparent 60%), var(--bg); overflow-y: auto; }
+.auth-screen[hidden] { display: none; }
+.auth-card { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 10px; text-align: center; }
+.auth-card img { width: 120px; margin: 0 auto; }
+.auth-card h1 { font-family: var(--headline); font-size: 22px; margin: 0; }
+.auth-card #auth-setup, .auth-card #auth-new-passkey, .auth-card #auth-login, .auth-card #auth-codes { display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.auth-card [hidden] { display: none !important; }
+.auth-card input { min-height: 44px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); font: inherit; }
+.auth-card details { text-align: left; color: var(--mute); }
+.auth-card details summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
+.auth-card details[open] { display: flex; flex-direction: column; gap: 8px; }
+.auth-card pre { text-align: center; font-size: 15px; letter-spacing: 0.04em; user-select: all; }
+.btn.wide { width: 100%; min-height: 48px; justify-content: center; }
+body.signed-out .layout, body.signed-out .tabbar, body.signed-out .topbar { visibility: hidden; }

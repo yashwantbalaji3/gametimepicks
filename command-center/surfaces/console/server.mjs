@@ -35,7 +35,8 @@ function boot() {
   return createOrchestrator({ store, clock: wallClock, env: process.env, outDir: OUT, stepDelayMs: STEP_DELAY_MS, slateDate: process.env.GTP_CC_SLATE_DATE || undefined });
 }
 
-const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".png": "image/png" };
+const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".png": "image/png", ".webmanifest": "application/manifest+json" };
+const STATIC_FILES = new Set(["app.js", "webauthn.js", "styles.css", "manifest.webmanifest", "sw.js", "icon-192.png", "icon-512.png", "apple-touch-icon.png"]);
 
 function send(res, status, body, type = "application/json; charset=utf-8") {
   res.writeHead(status, { "Content-Type": type, "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" });
@@ -63,7 +64,7 @@ const server = http.createServer(async (req, res) => {
   try {
     if (req.method === "GET") {
       if (url.pathname === "/") return sendFile(res, path.join(STATIC, "index.html"));
-      if (url.pathname === "/app.js" || url.pathname === "/styles.css") return sendFile(res, path.join(STATIC, url.pathname.slice(1)));
+      if (STATIC_FILES.has(url.pathname.slice(1))) return sendFile(res, path.join(STATIC, url.pathname.slice(1)));
       if (url.pathname === "/brand/logo.png") return sendFile(res, LOGO);
       if (url.pathname === "/api/state") return send(res, 200, orchestrator.state());
       if (url.pathname.startsWith("/runs/")) {

@@ -47,11 +47,15 @@ export function resolveClaudeBin(env = process.env) {
   return null;
 }
 
-/** The scrubbed environment every Claude child process gets. */
-export function childEnv(parent = process.env) {
+/**
+ * The scrubbed environment every Claude child process gets. On the hosted runner (`allowOauthToken`) the founder's
+ * subscription arrives as CLAUDE_CODE_OAUTH_TOKEN (from `claude setup-token`), and that one variable is passed on.
+ */
+export function childEnv(parent = process.env, { allowOauthToken = false } = {}) {
   const env = {};
   for (const k of ENV_ALLOWLIST) if (parent[k] != null) env[k] = parent[k];
   if (parent.ANTHROPIC_BASE_URL === DEFAULT_BASE_URL) env.ANTHROPIC_BASE_URL = DEFAULT_BASE_URL;
+  if (allowOauthToken && parent.CLAUDE_CODE_OAUTH_TOKEN) env.CLAUDE_CODE_OAUTH_TOKEN = parent.CLAUDE_CODE_OAUTH_TOKEN;
   return env;
 }
 
@@ -76,18 +80,25 @@ function settingsOverrides(home) {
 /**
  * @returns {{ ok: boolean, code?: string, detail?: string, evidence: object }}
  */
-export function preflight({ env = process.env, bin = resolveClaudeBin(env), home = env.HOME ?? os.homedir() } = {}) {
+/**
+ * `allowOauthToken` is the hosted-runner variant: CLAUDE_CODE_OAUTH_TOKEN (a subscription token from
+ * `claude setup-token`) is then REQUIRED and is the only credential allowed; every API-billing source above it must
+ * still be absent. What `claude auth status` reports for a token login is UNVERIFIED until CP-H2, so the runner
+ * accepts "claude.ai" or "oauth_token" as the method and records the plan as reported (possibly null).
+ */
+export function preflight({ env = process.env, bin = resolveClaudeBin(env), home = env.HOME ?? os.homedir(), allowOauthToken = false } = {}) {
   const evidence = { checkedAt: null, cliPath: bin ? path.basename(bin) : null, cliVersion: null, authMethod: null, apiProvider: null, subscriptionType: null, forbiddenEnv: [], settingsOverrides: [], baseUrl: env.ANTHROPIC_BASE_URL ? new URL(env.ANTHROPIC_BASE_URL).origin : "(default)" };
   const fail = (detail) => ({ ok: false, code: REASON.SUBSCRIPTION_AUTH_NOT_CONFIRMED, detail, evidence });
 
-  evidence.forbiddenEnv = FORBIDDEN_ENV.filter((k) => env[k] != null && env[k] !== "");
+  evidence.forbiddenEnv = FORBIDDEN_ENV.filter((k) => env[k] != null && env[k] !== "" && !(allowOauthToken && k === "CLAUDE_CODE_OAUTH_TOKEN"));
   if (evidence.forbiddenEnv.length) return fail(`API-billing variables are set: ${evidence.forbiddenEnv.join(", ")} (they outrank the subscription)`);
   if (env.ANTHROPIC_BASE_URL && env.ANTHROPIC_BASE_URL !== DEFAULT_BASE_URL) return fail(`ANTHROPIC_BASE_URL points at ${evidence.baseUrl}, not ${DEFAULT_BASE_URL}`);
   evidence.settingsOverrides = settingsOverrides(home);
   if (evidence.settingsOverrides.length) return fail(`settings can override auth: ${evidence.settingsOverrides.join("; ")}`);
   if (!bin) return fail("claude CLI not found on PATH");
+  if (allowOauthToken && !env.CLAUDE_CODE_OAUTH_TOKEN) return fail("hosted runner: CLAUDE_CODE_OAUTH_TOKEN (subscription token) is not set");
 
-  const cenv = childEnv(env);
+  const cenv = childEnv(env, { allowOauthToken });
   const version = spawnSync(bin, ["--version"], { env: cenv, encoding: "utf8", timeout: 20_000 });
   evidence.cliVersion = String(version.stdout ?? "").trim().split(/\s+/)[0] || null;
   const status = spawnSync(bin, ["auth", "status", "--json"], { env: cenv, encoding: "utf8", timeout: 20_000 });
@@ -101,6 +112,13 @@ export function preflight({ env = process.env, bin = resolveClaudeBin(env), home
   evidence.apiProvider = s.apiProvider ?? null;
   evidence.subscriptionType = s.subscriptionType ?? null;
   if (!s.loggedIn) return fail("Claude Code is not logged in");
+  if (allowOauthToken) {
+    if (!["claude.ai", "oauth_token"].includes(s.authMethod)) return fail(`auth method is ${s.authMethod}, not a subscription token`);
+    if (s.apiProvider !== "firstParty") return fail(`API provider is ${s.apiProvider}, not first-party Anthropic`);
+    if (s.subscriptionType != null && !SUBSCRIPTIONS.has(s.subscriptionType)) return fail(`subscription type is ${s.subscriptionType}`);
+    evidence.subscriptionType = s.subscriptionType ?? "unreported (OAuth token)";
+    return { ok: true, evidence };
+  }
   if (s.authMethod !== "claude.ai") return fail(`auth method is ${s.authMethod}, not a claude.ai subscription login`);
   if (s.apiProvider !== "firstParty") return fail(`API provider is ${s.apiProvider}, not first-party Anthropic`);
   if (!SUBSCRIPTIONS.has(s.subscriptionType)) return fail(`subscription type is ${s.subscriptionType}`);

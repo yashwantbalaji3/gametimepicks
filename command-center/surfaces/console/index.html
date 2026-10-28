@@ -6,6 +6,10 @@
   <meta name="theme-color" content="#0A0705">
   <title>GTP CEO Command Center</title>
   <link rel="stylesheet" href="/styles.css">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="GTP CEO">
 </head>
 <body data-view="chat">
   <header class="topbar">
@@ -43,6 +47,41 @@
   </main>
 
   <nav class="tabbar mobile-only" id="tabbar" aria-label="Sections"></nav>
+
+  <div class="auth-screen" id="auth" hidden>
+    <div class="auth-card">
+      <img src="/brand/logo.png" alt="GameTimePicks">
+      <h1>CEO Command Center</h1>
+      <p class="muted" id="auth-msg" role="status"></p>
+      <div id="auth-login" hidden>
+        <button type="button" class="btn primary wide" data-login>Sign in with passkey</button>
+      </div>
+      <div id="auth-setup" hidden>
+        <label class="muted" for="setup-token">One-time setup token</label>
+        <input id="setup-token" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <label class="muted" for="passkey-label">Name this passkey</label>
+        <input id="passkey-label" value="iPhone" maxlength="60">
+        <button type="button" class="btn primary wide" data-register>Create passkey</button>
+      </div>
+      <div id="auth-new-passkey" hidden>
+        <label class="muted" for="new-passkey-label">Name the new passkey</label>
+        <input id="new-passkey-label" value="New iPhone" maxlength="60">
+        <button type="button" class="btn primary wide" data-register-recovery>Create replacement passkey</button>
+      </div>
+      <details id="auth-recover" hidden>
+        <summary>Lost your passkey?</summary>
+        <input id="recovery-code" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="xxxxx-xxxxx-xxxxx-xxxxx" aria-label="Recovery code">
+        <button type="button" class="btn wide" data-recover>Use a recovery code</button>
+      </details>
+      <div id="auth-codes" hidden>
+        <p><b>Save these 10 recovery codes now.</b> Each works once if you lose every passkey. They will not be shown again.</p>
+        <pre id="recovery-codes"></pre>
+        <button type="button" class="btn primary wide" data-codes-saved>I saved them</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/webauthn.js"></script>
   <script src="/app.js"></script>
 </body>
 </html>

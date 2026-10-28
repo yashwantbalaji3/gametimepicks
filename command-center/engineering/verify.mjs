@@ -9,11 +9,14 @@
  *                1440×900 and iPhone 390×844 / 430×932. Every non-loopback request is aborted.
  *
  * Both run code that Claude may have written, so they are bounded: a timeout, a scrubbed environment, loopback only.
+ * On the hosted runner (`sandbox`) that code also runs as a separate Linux user with no sudo and an empty
+ * environment — the worker's process environment (database URL, OAuth token) is unreadable to it — and the test
+ * suite runs in its own network namespace with no network at all.
  */
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
 import { CC_ROOT, REPO_ROOT, sha256 } from "../lib/util.mjs";
 
@@ -26,19 +29,50 @@ const testEnv = () => ({
   ...(process.env.PLAYWRIGHT_BROWSERS_PATH ? { PLAYWRIGHT_BROWSERS_PATH: process.env.PLAYWRIGHT_BROWSERS_PATH } : {}),
 });
 
+/**
+ * The command line that runs `cmd args` for Claude-written code: unchanged locally; on the hosted runner, as
+ * `sandbox.user` via sudo with `env -i` (only `env`), a hard timeout, and optionally no network namespace access.
+ * @param {{ user: string, home: string }|null} sandbox
+ */
+export function sandboxedCommand(cmd, args, env, { sandbox = null, network = true, timeoutSec = 600 } = {}) {
+  if (!sandbox) return { cmd, args, env };
+  const vars = Object.entries({ ...env, HOME: sandbox.home, TMPDIR: sandbox.home }).map(([k, v]) => `${k}=${v}`);
+  const asUser = ["-n", "-u", sandbox.user, "--", "env", "-i", ...vars, "timeout", "--kill-after=10", String(timeoutSec), cmd, ...args];
+  if (network) return { cmd: "sudo", args: asUser, env: { PATH: process.env.PATH } };
+  // A fresh network namespace has loopback down; bring it up (as root, inside the namespace) so tests can bind
+  // 127.0.0.1, then drop to the sandbox user. Nothing else exists in that namespace.
+  return { cmd: "sudo", args: ["-n", "unshare", "--net", "--", "sh", "-c", 'ip link set lo up && exec "$@"', "sh", "sudo", ...asUser], env: { PATH: process.env.PATH } };
+}
+
+/**
+ * Kill everything the sandbox user is running. The runner user can't signal another user's processes and a
+ * `setsid` daemon escapes `timeout`, so after every sandboxed step (and before the change set is re-read) the
+ * whole user is reaped through sudo.
+ */
+export function reapSandbox(sandbox) {
+  if (sandbox) spawnSync("sudo", ["-n", "pkill", "-KILL", "-u", sandbox.user]);
+}
+
+/** The sandbox user must be able to read and write the working copy (tests write their own scratch dirs). */
+function openForSandbox(dir, sandbox) {
+  if (sandbox) spawnSync("chmod", ["-R", "a+rwX", dir]);
+}
+
 /** Kill a detached child and everything it started (servers, browsers), so nothing outlives a timeout. */
 const killGroup = (child, signal = "SIGKILL") => {
   try { process.kill(-child.pid, signal); } catch { /* already gone */ }
 };
 
 /** Run the working copy's test suite. Returns { ok, exitCode, pass, fail, durationMs, tail, timedOut }. */
-export function runTests(wcDir, { timeoutMs = 6 * 60_000 } = {}) {
+export function runTests(wcDir, { timeoutMs = 6 * 60_000, sandbox = null } = {}) {
   const testsDir = path.join(wcDir, "command-center/tests");
   const files = fs.existsSync(testsDir) ? fs.readdirSync(testsDir).filter((f) => f.endsWith(".test.mjs")).sort().map((f) => path.join("command-center/tests", f)) : [];
   const started = Date.now();
   return new Promise((resolve) => {
     if (!files.length) return resolve({ ok: false, exitCode: null, pass: 0, fail: 0, durationMs: 0, tail: "no test files", timedOut: false, files: [] });
-    const child = spawn(process.execPath, ["--import", GUARD, "--test", ...files], { cwd: wcDir, env: testEnv(), stdio: ["ignore", "pipe", "pipe"], detached: true });
+    openForSandbox(wcDir, sandbox);
+    const c = sandboxedCommand(process.execPath, ["--import", GUARD, "--test", ...files], testEnv(), { sandbox, network: false, timeoutSec: Math.ceil(timeoutMs / 1000) });
+    const child = spawn(c.cmd, c.args, { cwd: wcDir, env: c.env, stdio: ["ignore", "pipe", "pipe"], detached: true });
     let out = "";
     child.stdout.on("data", (d) => (out = (out + d).slice(-200_000)));
     child.stderr.on("data", (d) => (out = (out + d).slice(-200_000)));
@@ -47,6 +81,7 @@ export function runTests(wcDir, { timeoutMs = 6 * 60_000 } = {}) {
     child.on("close", (exitCode) => {
       clearTimeout(timer);
       killGroup(child); // anything the tests left behind
+      reapSandbox(sandbox);
 
       const num = (k) => Number((out.match(new RegExp(`^# ${k} (\\d+)`, "m")) ?? [])[1] ?? 0);
       const failing = [...out.matchAll(/^not ok \d+ - (.+)$/gm)].map((m) => m[1]);
@@ -60,11 +95,14 @@ export function runTests(wcDir, { timeoutMs = 6 * 60_000 } = {}) {
   });
 }
 
-function startConsole(wcDir, port) {
-  const child = spawn(process.execPath, [path.join(wcDir, "command-center/surfaces/console/server.mjs")], {
-    env: { ...testEnv(), GTP_CC_PORT: String(port), GTP_CC_OUT_DIR: fs.mkdtempSync(path.join(os.tmpdir(), "gtp-cc-verify-")), GTP_CC_STEP_DELAY_MS: "0", GTP_CC_SLATE_DATE: TEST_SLATE },
-    stdio: ["ignore", "pipe", "pipe"],
-  });
+function startConsole(wcDir, port, sandbox) {
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-cc-verify-"));
+  openForSandbox(wcDir, sandbox);
+  openForSandbox(out, sandbox);
+  // The browser stays outside the sandbox and must reach this server, so the server keeps loopback networking.
+  const c = sandboxedCommand(process.execPath, [path.join(wcDir, "command-center/surfaces/console/server.mjs")],
+    { ...testEnv(), GTP_CC_PORT: String(port), GTP_CC_OUT_DIR: out, GTP_CC_STEP_DELAY_MS: "0", GTP_CC_SLATE_DATE: TEST_SLATE }, { sandbox, timeoutSec: 300 });
+  const child = spawn(c.cmd, c.args, { env: c.env, stdio: ["ignore", "pipe", "pipe"] });
   return new Promise((resolve, reject) => {
     let err = "";
     const t = setTimeout(() => { child.kill("SIGKILL"); reject(new Error("console did not start in 20 s")); }, 20_000);
@@ -85,10 +123,10 @@ const VIEWPORTS = [
  * @param {string} wcDir
  * @param {{ outDir: string, prefix: string }} o
  */
-export async function captureScreens(wcDir, { outDir, prefix }) {
+export async function captureScreens(wcDir, { outDir, prefix, sandbox = null }) {
   const { chromium } = createRequire(path.join(REPO_ROOT, "app/package.json"))("@playwright/test");
   const port = 4600 + Math.floor(Math.random() * 300);
-  const server = await startConsole(wcDir, port);
+  const server = await startConsole(wcDir, port, sandbox);
   const browser = await chromium.launch({ args: ["--disable-background-networking"] });
   const shots = [];
   try {
@@ -116,6 +154,7 @@ export async function captureScreens(wcDir, { outDir, prefix }) {
   } finally {
     await browser.close();
     server.kill();
+    reapSandbox(sandbox);
   }
   return shots;
 }

@@ -27,12 +27,22 @@
   const ui = { last: "", choice: {}, drafts: {}, state: null, view: VIEWS.some((v) => v.id === savedView) ? savedView : "chat" };
   const captionTextMap = new Map();
   const $ = (id) => document.getElementById(id);
+  /** Ledger numbers are rendered through Number(): a non-number can never become markup. */
+  const num = (x) => Number(x);
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   const time = (iso) => (iso ? new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "");
   const title = (role) => ui.state?.seats?.[role]?.title ?? role;
 
+  const Auth = window.GTPAuth;
   async function post(url, body) {
-    const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json", "X-CC-Console": "1" }, body: JSON.stringify(body ?? {}) });
+    let payload = body ?? {};
+    try {
+      payload = await Auth.withStepUp(url, payload);
+    } catch (err) {
+      return { ok: false, code: err.code ?? "STEP_UP_CANCELLED", detail: "Face ID / Touch ID confirmation was not completed" };
+    }
+    const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json", "X-CC-Console": "1" }, body: JSON.stringify(payload), credentials: "same-origin" });
+    if (res.status === 401) { showAuth("Your session ended. Sign in again."); return { ok: false, code: "NOT_AUTHENTICATED" }; }
     return res.json();
   }
 
@@ -54,7 +64,7 @@
           <div class="section muted">Constraints</div><ul>${(a.constraints ?? []).map((x) => `<li>${esc(x)}</li>`).join("")}</ul>
           <div class="section muted">Acceptance criteria</div><ul>${(a.acceptanceCriteria ?? []).map((x) => `<li>${esc(x)}</li>`).join("")}</ul>`;
       case "feasibility-report":
-        return `<div class="kv"><span>Slate</span><span>${esc(a.slateDate)}</span><span>Games gated</span><span>${a.gamesChecked}</span>
+        return `<div class="kv"><span>Slate</span><span>${esc(a.slateDate)}</span><span>Games gated</span><span>${num(a.gamesChecked)}</span>
           <span>Eligible</span><span>${(a.eligible ?? []).length}</span><span>Refused</span><span>${(a.refused ?? []).length}</span>
           <span>Drafting</span><span>${esc(a.chosen ? `${a.chosen.matchup} (${a.chosen.eventId})` : "none")}</span></div>
           ${(a.notFeasibleNow ?? []).length ? `<div class="section muted">Not feasible yet</div><ul>${a.notFeasibleNow.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}`;
@@ -90,11 +100,11 @@
     return `<div class="kv">
         <span>Changed files</span><span>${(a.files ?? []).map((f) => `<span class="${f.inScope ? "check-ok" : "check-bad"}">${esc(f.status)} ${esc(f.file)}</span>`).join("<br>") || "none"}</span>
         <span>Scope</span><span>${a.outOfScope?.length ? `<span class="check-bad">OUT OF SCOPE: ${esc(a.outOfScope.join(", "))}</span>` : `<span class="check-ok">all inside console/ and tests/</span>`}</span>
-        <span>Tests (run by the orchestrator)</span><span>${t.ok ? `<span class="check-ok">passed</span>` : `<span class="check-bad">FAILED</span>`} · ${t.pass} pass · ${t.fail} fail · ${Math.round((t.durationMs ?? 0) / 1000)} s</span>
+        <span>Tests (run by the orchestrator)</span><span>${t.ok ? `<span class="check-ok">passed</span>` : `<span class="check-bad">FAILED</span>`} · ${num(t.pass)} pass · ${num(t.fail)} fail · ${Math.round((t.durationMs ?? 0) / 1000)} s</span>
         <span>Your checkout</span><span>${a.checkoutUnchanged === false ? `<span class="check-bad">changed</span>` : `<span class="check-ok">unchanged</span>`}</span>
         <span>Working copy</span><span><code>${esc(a.workcopy?.dir)}</code> · ${esc(a.workcopy?.branch)}</span>
       </div>
-      ${a.screenshots?.length ? `<div class="shots">${a.screenshots.map((x) => `<figure><img src="/media/${encodeURIComponent(x.file)}" alt="${esc(x.name)} screenshot of the changed console" data-zoom><figcaption>${esc(x.name)} · ${x.width}px${x.overflow > 0 ? ` · <span class="check-bad">overflow ${x.overflow}px</span>` : ""}</figcaption></figure>`).join("")}</div>` : ""}
+      ${a.screenshots?.length ? `<div class="shots">${a.screenshots.map((x) => `<figure><img src="/media/${encodeURIComponent(x.file)}" alt="${esc(x.name)} screenshot of the changed console" data-zoom><figcaption>${esc(x.name)} · ${num(x.width)}px${x.overflow > 0 ? ` · <span class="check-bad">overflow ${num(x.overflow)}px</span>` : ""}</figcaption></figure>`).join("")}</div>` : ""}
       ${a.screenError ? `<div class="warns">Screenshots failed: ${esc(a.screenError)}</div>` : ""}
       ${t.failing?.length ? `<ul class="warns">${t.failing.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>` : ""}
       <details><summary>Diff (${(a.files ?? []).length} file(s))</summary><pre class="diff">${esc(a.diff || "(no changes)")}</pre></details>
@@ -103,14 +113,14 @@
 
   function runLine(r, cost) {
     if (!r) return "";
-    return `<div class="runline">Session <code>${esc(r.sessionId ?? "?")}</code> · ${esc(r.model ?? "")}${r.effort ? ` · effort ${esc(r.effort)}` : ""} · ${Math.round((r.durationMs ?? 0) / 1000)} s · ${r.numTurns ?? "?"} turns${r.lookups != null ? ` · ${r.lookups} file lookups` : ""} ·
-      est. usage $${(cost?.estUsageUsd ?? 0).toFixed(2)} (API-equivalent, from your Max allowance; cash $0) ·
-      tokens ${cost?.tokensIn ?? 0} in / ${cost?.tokensOut ?? 0} out · <a href="/${esc(r.rawLog)}" target="_blank" rel="noopener">raw log</a></div>`;
+    return `<div class="runline">Session <code>${esc(r.sessionId ?? "?")}</code> · ${esc(r.model ?? "")}${r.effort ? ` · effort ${esc(r.effort)}` : ""} · ${Math.round((r.durationMs ?? 0) / 1000)} s · ${esc(r.numTurns ?? "?")} turns${r.lookups != null ? ` · ${num(r.lookups)} file lookups` : ""} ·
+      est. usage $${num(cost?.estUsageUsd ?? 0).toFixed(2)} (API-equivalent, from your Max allowance; cash $0) ·
+      tokens ${num(cost?.tokensIn ?? 0)} in / ${num(cost?.tokensOut ?? 0)} out · <a href="/${esc(r.rawLog)}" target="_blank" rel="noopener">raw log</a></div>`;
   }
 
   function contributionCard(c) {
     if (c.artifactType === "consolidated-report") return "";
-    const cost = c.cost ? `$${c.cost.usd}` : "$0";
+    const cost = c.cost ? `$${num(c.cost.usd)}` : "$0";
     return `<div class="msg">
       <div class="who"><span class="tag">${esc(ROLE_ICON[c.role] ?? "")}</span><b>${esc(title(c.role))}</b>${seatTag(c.seat, c.simulated)}
         ${c.contractValid === false ? `<span class="tag" style="color:var(--danger)">contract not met</span>` : ""}
@@ -129,7 +139,7 @@
       <div class="deliverable">
         <img src="/media/${encodeURIComponent(d.file)}" alt="${esc(d.altText)}" data-zoom>
         <div>
-          <div class="muted">${esc(d.template)} · ${d.width}×${d.height} · sha256 ${esc(d.sha256.slice(0, 12))}…</div>
+          <div class="muted">${esc(d.template)} · ${num(d.width)}×${num(d.height)} · sha256 ${esc(d.sha256.slice(0, 12))}…</div>
           ${(captions?.variants ?? []).map((v) => `<div class="caption"><div class="meta">Caption ${esc(v.id)} · ${esc(v.tone)} · ${v.text.length} chars ·
             ${v.check?.ok ? `<span class="check-ok">validator ✓</span>` : `<span class="check-bad">validator ✗ ${esc((v.check?.problems ?? []).map((p) => p.code).join(", "))}</span>`}
             ${captions.simulated ? ` · <span style="color:var(--warn)">template (fake seat)</span>` : ""}</div>${esc(v.text)}</div>`).join("")}
@@ -160,8 +170,8 @@
       ${r.decisionsNeeded?.length ? `<button type="button" class="btn primary small goto mobile-only" data-goto="decisions">Review in Approvals</button>` : ""}
       ${list("Blocked or refused (by policy)", r.refusals)}
       ${list("Warnings", r.warnings)}
-      ${r.usage ? `<div class="section">Claude Code usage</div><div class="body">${r.usage.claudeRuns} run(s) · ${r.usage.durationS} s · est. $${r.usage.estUsageUsd.toFixed(2)} of your Max allowance. ${esc(r.usage.note)}</div>` : ""}
-      ${r.cost ? `<div class="section">Cost</div><div class="body">$${r.cost.usd} · ${esc(r.cost.note ?? "")}</div>` : ""}
+      ${r.usage ? `<div class="section">Claude Code usage</div><div class="body">${num(r.usage.claudeRuns)} run(s) · ${num(r.usage.durationS)} s · est. $${num(r.usage.estUsageUsd).toFixed(2)} of your Max allowance. ${esc(r.usage.note)}</div>` : ""}
+      ${r.cost ? `<div class="section">Cost</div><div class="body">$${num(r.cost.usd)} · ${esc(r.cost.note ?? "")}</div>` : ""}
     </div>`;
   }
 
@@ -187,8 +197,8 @@
       out.push(`<div class="msg ceo"><div class="who"><b>You (CEO)</b><span>${time(c.at)}</span><span class="tag">intent ${esc(c.intent)}</span></div><div class="body">${esc(c.text)}</div></div>`);
       if (c.plan) {
         out.push(`<div class="msg"><div class="who"><span class="tag">CoS</span><b>Chief of Staff</b><span class="tag sim">plan</span><span>${time(c.at)}</span></div>
-          <div class="body">Here is how the team will handle this. Limits: ≤${c.plan.limits.maxHops} delegation hops, ≤${c.plan.limits.maxTasks} tasks, $${c.plan.limits.budgetUsd} budget.</div>
-          <ul class="plan">${c.plan.steps.map((st) => `<li><span class="n">${st.n}</span><span><b>${esc(st.roleTitle)}</b> — ${esc(st.title)} <span class="tag ${st.seat.startsWith("manual:") ? "seat-manual" : ""}">seat ${esc(st.seat)}</span>${st.via ? ` <span class="muted">(handed over by ${esc(st.via)})</span>` : ""}</span></li>`).join("")}</ul></div>`);
+          <div class="body">Here is how the team will handle this. Limits: ≤${num(c.plan.limits.maxHops)} delegation hops, ≤${num(c.plan.limits.maxTasks)} tasks, $${num(c.plan.limits.budgetUsd)} budget.</div>
+          <ul class="plan">${c.plan.steps.map((st) => `<li><span class="n">${num(st.n)}</span><span><b>${esc(st.roleTitle)}</b> — ${esc(st.title)} <span class="tag ${st.seat.startsWith("manual:") ? "seat-manual" : ""}">seat ${esc(st.seat)}</span>${st.via ? ` <span class="muted">(handed over by ${esc(st.via)})</span>` : ""}</span></li>`).join("")}</ul></div>`);
       }
       const captions = c.deliverables.find((d) => d.kind === "captions");
       const events = [
@@ -196,7 +206,7 @@
         ...c.refusals.map((x) => ({ at: x.at, html: `<div class="msg refusal"><div class="who"><b>${x.decisionId ? "Publisher" : "Orchestrator"}</b><span class="tag" style="color:var(--warn)">${esc(x.code)}</span><span>${time(x.at)}</span></div>
           <div class="body">${x.decisionId ? `Publisher refused to send the approved draft: ${esc(x.detail)}. Nothing left this machine.` : x.fromRole ? `${esc(title(x.fromRole))} proposed handing work to ${esc(title(x.toRole))}${x.proposal ? ` (“${esc(x.proposal)}”)` : ""}. Refused: ${esc(x.detail)}. It goes into the report for you instead.` : esc(x.detail)}</div>
           ${runLine(x.run, x.cost)}
-          ${x.partialOutput ? `<details><summary>Partial output — diagnostic only (${x.partialOutput.attempts} attempt(s), last one ${x.partialOutput.schemaValid ? "matched the schema" : "did not match the schema"})</summary>
+          ${x.partialOutput ? `<details><summary>Partial output — diagnostic only (${num(x.partialOutput.attempts)} attempt(s), last one ${x.partialOutput.schemaValid ? "matched the schema" : "did not match the schema"})</summary>
             <div class="warns">${esc(x.partialOutput.note)}</div><pre>${esc(JSON.stringify(x.partialOutput.artifact, null, 2))}</pre></details>` : ""}</div>` })),
         ...c.deliverables.map((x) => ({ at: x.at, html: deliverableCard(x, captions) })),
         ...c.reports.map((x) => ({ at: x.at, html: reportCard(x) })),
@@ -222,7 +232,7 @@
     if (d.subjectType === "verification") {
       const shots = ui.state.commands.flatMap((c) => c.contributions).filter((c) => c.artifactType === "verification").at(-1)?.artifact;
       return `<div class="body">Branch <code>${esc(x.branch)}</code> · ${(x.files ?? []).length} file(s): ${(x.files ?? []).map((f) => `<span class="${f.inScope ? "check-ok" : "check-bad"}">${esc(f.file)}</span>`).join(", ")}</div>
-        ${shots ? `<div class="kv"><span>Tests</span><span>${shots.tests?.ok ? `<span class="check-ok">passed (${shots.tests.pass})</span>` : `<span class="check-bad">FAILED (${shots.tests?.fail})</span>`}</span></div>` : ""}
+        ${shots ? `<div class="kv"><span>Tests</span><span>${shots.tests?.ok ? `<span class="check-ok">passed (${num(shots.tests.pass)})</span>` : `<span class="check-bad">FAILED (${num(shots.tests?.fail)})</span>`}</span></div>` : ""}
         ${shots?.screenshots?.length ? `<div class="shots">${shots.screenshots.map((sh) => `<figure><img src="/media/${encodeURIComponent(sh.file)}" alt="${esc(sh.name)}" data-zoom><figcaption>${esc(sh.name)}</figcaption></figure>`).join("")}</div>` : ""}`;
     }
     return "";
@@ -261,7 +271,7 @@
         </label>`; }).join("")}
         ${(d.warnings ?? []).length ? `<ul class="warns">${d.warnings.map((w) => `<li>${esc(w.code)}: ${esc(w.detail)}</li>`).join("")}</ul>` : ""}
         <div class="muted">${esc(d.note)}</div>
-        ${d.receipt ? `<div class="receipt">✓ ${esc(d.receipt.state)} via ${esc(d.receipt.provider)} · ${esc(d.receipt.providerPostId)}<br>caption ${esc(d.resolution?.captionId)} · approved ${esc(time(d.resolution?.approvedAt))} · cost $${d.receipt.costUsd}<br>digest ${esc(d.receipt.bundleDigest.slice(0, 16))}…</div>`
+        ${d.receipt ? `<div class="receipt">✓ ${esc(d.receipt.state)} via ${esc(d.receipt.provider)} · ${esc(d.receipt.providerPostId)}<br>caption ${esc(d.resolution?.captionId)} · approved ${esc(time(d.resolution?.approvedAt))} · cost $${num(d.receipt.costUsd)}<br>digest ${esc(d.receipt.bundleDigest.slice(0, 16))}…</div>`
           : d.resolution?.verdict === "reject" ? `<div class="blocked">Rejected by you.</div>`
           : `${d.blocked ? `<div class="blocked">Approved, not sent: ${esc(d.blocked.code)} — ${esc(d.blocked.detail)}</div>` : ""}
              <div class="row actions" style="margin-top:8px">
@@ -282,8 +292,8 @@
       <div class="kv">
         <span>Billing check</span><span>${b ? `<span class="check-ok">${esc(b.statement)}</span>` : `<span class="check-bad">Not confirmed — Claude Code is locked</span>`}</span>
         <span>Preflight</span><span>${pf ? (pf.ok ? `<span class="check-ok">OK</span> · CLI ${esc(pf.evidence?.cliVersion)} · ${esc(pf.evidence?.authMethod)} · ${esc(pf.evidence?.subscriptionType)} · no API key · ${esc(time(pf.at))}` : `<span class="check-bad">REFUSED</span> · ${esc(pf.detail)}`) : "not run yet"}</span>
-        <span>Running now</span><span>${e.activeRuns?.length ? e.activeRuns.map((r) => `pid ${r.pid}`).join(", ") : "none"}</span>
-        <span>Usage so far</span><span>${e.claudeUsage?.runs ?? 0} run(s) · ${Math.round((e.claudeUsage?.durationMs ?? 0) / 1000)} s · est. $${(e.claudeUsage?.estUsageUsd ?? 0).toFixed(2)} of your allowance · cash $0</span>
+        <span>Running now</span><span>${e.activeRuns?.length ? e.activeRuns.map((r) => `pid ${num(r.pid)}`).join(", ") : "none"}</span>
+        <span>Usage so far</span><span>${num(e.claudeUsage?.runs ?? 0)} run(s) · ${Math.round((e.claudeUsage?.durationMs ?? 0) / 1000)} s · est. $${num(e.claudeUsage?.estUsageUsd ?? 0).toFixed(2)} of your allowance · cash $0</span>
         <span>Limits</span><span>plan ${esc(e.limits?.plan)} · build ${esc(e.limits?.build)} · ${esc(e.limits?.perCommand)} per command</span>
       </div>
       ${b ? "" : `<div class="attest">
@@ -291,7 +301,7 @@
         <div class="row" style="margin-top:6px"><button class="btn small primary" data-attest="off">Usage credits are OFF</button>
           <input id="cap-usd" type="number" min="0" step="1" placeholder="$ cap" aria-label="Monthly cap in dollars" style="width:90px">
           <button class="btn small" data-attest="capped">Capped at this amount</button></div></div>`}
-      <div class="row" style="margin-top:8px"><button class="btn small" data-preflight>Run preflight now</button></div>
+      ${Auth.hosted ? `<div class="muted" style="margin-top:8px">Preflight runs on the worker before every Claude Code run.</div>` : `<div class="row" style="margin-top:8px"><button class="btn small" data-preflight>Run preflight now</button></div>`}
     </div>`;
   }
 
@@ -300,11 +310,13 @@
     return `<h2>Controls</h2>
       <div class="switch"><div><b>Publishing</b><div class="muted">${s.paused ? "Paused: every send is refused at the boundary." : "Enabled — mock publisher only."}</div></div>
         <button class="btn ${s.paused ? "primary" : "danger"} small" data-pause="${s.paused ? "0" : "1"}">${s.paused ? "Resume" : "Pause all"}</button></div>
-      <div class="kv"><span>Budget</span><span>$${s.budget.spentUsd} of $${s.budget.limitUsd}${s.budget.limitUsd === 0 ? " · paid seats locked" : ""}</span>
+      <div class="kv"><span>Budget</span><span>$${num(s.budget.spentUsd)} of $${num(s.budget.limitUsd)}${s.budget.limitUsd === 0 ? " · paid seats locked" : ""}</span>
         <span>Publisher</span><span>${esc(s.publisher.name)} · network ${s.publisher.network ? "yes" : "none"}</span>
         <span>Mode</span><span>${esc(s.phase)}</span></div>
       <div class="meter"><i style="width:${pct}%"></i></div>
-      <div class="row" style="margin-top:10px"><button class="btn small" data-reset>Reset demo</button></div>
+      <div class="row" style="margin-top:10px">${Auth.hosted
+        ? `<button class="btn small" data-logout>Sign out</button><button class="btn small" data-logout-all>Sign out everywhere</button><button class="btn small" data-add-passkey>Add a backup passkey</button>`
+        : `<button class="btn small" data-reset>Reset demo</button>`}</div>
       ${renderClaude(s)}`;
   }
 
@@ -322,7 +334,7 @@
     const c = s.commands.at(-1);
     if (!c) return `<h2>Tasks</h2><div class="muted">No command yet.</div>`;
     return `<h2>Tasks <span class="count">${c.tasks.length}</span></h2>` + c.tasks.map((t) =>
-      `<div class="task"><span class="status ${esc(t.status)}">${esc(t.status)}</span><span>${esc(title(t.ownerRole))} <span class="muted">hop ${t.hop}</span></span><span class="muted">${esc(t.seat)}</span></div>`).join("");
+      `<div class="task"><span class="status ${esc(t.status)}">${esc(t.status)}</span><span>${esc(title(t.ownerRole))} <span class="muted">hop ${num(t.hop)}</span></span><span class="muted">${esc(t.seat)}</span></div>`).join("");
   }
 
   function renderHistory(s) {
@@ -333,7 +345,7 @@
   function renderBadges(s) {
     return [
       `<span class="badge ok">dry run</span>`,
-      `<span class="badge ${s.budget.limitUsd === 0 ? "ok" : "warn"}">budget $${s.budget.limitUsd}</span>`,
+      `<span class="badge ${s.budget.limitUsd === 0 ? "ok" : "warn"}">budget $${num(s.budget.limitUsd)}</span>`,
       `<span class="badge ok">publisher: ${esc(s.publisher.name)}</span>`,
       s.paused ? `<span class="badge danger">publishing paused</span>` : `<span class="badge">publishing enabled (mock)</span>`,
       `<span class="badge warn">demo-grade approvals</span>`,
@@ -377,18 +389,86 @@
     if (atBottom) thread.scrollTop = thread.scrollHeight;
   }
 
+  /**
+   * Local: poll every 0.7 s. Hosted: every 3 s while the page is visible and something is moving, easing to 15 s
+   * when nothing has changed for a minute, and not at all while hidden — every poll wakes the database.
+   */
+  const poller = { timer: null, quietSince: Date.now(), running: false };
+  function nextDelay() {
+    if (!Auth.hosted) return 700;
+    return Date.now() - poller.quietSince > 60_000 ? 15_000 : 3000;
+  }
   async function poll() {
+    poller.timer = null;
+    if (!poller.running || (Auth.hosted && document.hidden)) return;
     try {
-      const res = await fetch("/api/state", { cache: "no-store" });
+      const res = await fetch("/api/state", { cache: "no-store", credentials: "same-origin" });
+      if (res.status === 401) return showAuth("Sign in with your passkey.");
       const text = await res.text();
       if (text !== ui.last) {
         ui.last = text;
         ui.state = JSON.parse(text);
+        poller.quietSince = Date.now();
         render(ui.state);
       }
     } catch { /* server restarting; try again */ }
-    setTimeout(poll, 700);
+    poller.timer = setTimeout(poll, nextDelay());
   }
+  function startPolling() {
+    poller.running = true;
+    poller.quietSince = Date.now();
+    if (!poller.timer) poll();
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && poller.running && !poller.timer) { poller.quietSince = Date.now(); poll(); }
+  });
+  /** Any action the founder takes makes the next minute "busy" again. */
+  document.addEventListener("click", () => { poller.quietSince = Date.now(); if (poller.running && poller.timer && Auth.hosted) { clearTimeout(poller.timer); poller.timer = setTimeout(poll, 600); } }, true);
+
+  // ── hosted sign-in ──
+  function showAuth(msg, mode) {
+    poller.running = false;
+    document.body.classList.add("signed-out");
+    $("auth").hidden = false;
+    $("auth-msg").textContent = msg ?? "";
+    const m = mode ?? (ui.authStatus?.hasPasskey ? "login" : "setup");
+    $("auth-login").hidden = m !== "login";
+    $("auth-setup").hidden = m !== "setup";
+    $("auth-new-passkey").hidden = m !== "recovered";
+    $("auth-recover").hidden = m !== "login";
+    $("auth-codes").hidden = m !== "codes";
+  }
+  function signedIn() {
+    document.body.classList.remove("signed-out");
+    $("auth").hidden = true;
+    startPolling();
+  }
+  async function authAction(t) {
+    t.disabled = true;
+    try {
+      if (t.dataset.login !== undefined) { await Auth.login(); return signedIn(); }
+      if (t.dataset.register !== undefined) {
+        const r = await Auth.register({ setupToken: $("setup-token").value.trim(), label: $("passkey-label").value.trim() || "passkey" });
+        ui.authStatus = { hasPasskey: true };
+        if (r.recoveryCodes) { $("recovery-codes").textContent = r.recoveryCodes.join("\n"); return showAuth("Passkey created.", "codes"); }
+        return signedIn();
+      }
+      if (t.dataset.registerRecovery !== undefined) { await Auth.register({ label: $("new-passkey-label").value.trim() || "passkey" }); return signedIn(); }
+      if (t.dataset.recover !== undefined) {
+        const r = await Auth.recover($("recovery-code").value.trim());
+        return showAuth(`Recovery code accepted (${r.remaining ?? "?"} left). Every other session was signed out. Create a replacement passkey now.`, "recovered");
+      }
+      if (t.dataset.codesSaved !== undefined) { $("recovery-codes").textContent = ""; return signedIn(); }
+    } catch (err) {
+      $("auth-msg").textContent = { SETUP_TOKEN_REQUIRED: "That setup token is not right.", RECOVERY_CODE_INVALID: "That recovery code is not valid.", RATE_LIMITED: "Too many attempts. Wait a few minutes.", NotAllowedError: "The passkey prompt was cancelled." }[err.code ?? err.name] ?? `Could not complete that (${err.code ?? err.name ?? "error"}).`;
+    } finally {
+      t.disabled = false;
+    }
+  }
+  document.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-login],[data-register],[data-register-recovery],[data-recover],[data-codes-saved]");
+    if (t) authAction(t);
+  });
 
   // ── events ──
   $("chips").innerHTML = SUGGESTIONS.map((s, i) => `<button type="button" class="chip" data-chip="${i}">${esc(s.length > 60 ? s.slice(0, 58) + "…" : s)}</button>`).join("");
@@ -404,7 +484,7 @@
   });
 
   document.addEventListener("click", async (e) => {
-    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],.lightbox");
+    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],.lightbox");
     if (!t) return;
     if (t.dataset.gate) {
       const d = ui.state.decisions.find((x) => x.decisionId === t.dataset.gate);
@@ -428,7 +508,10 @@
     if (t.dataset.zoom !== undefined) {
       const box = document.createElement("div");
       box.className = "lightbox";
-      box.innerHTML = `<img src="${t.getAttribute("src")}" alt="${esc(t.getAttribute("alt"))}">`;
+      const img = document.createElement("img");
+      img.src = t.getAttribute("src");
+      img.alt = t.getAttribute("alt") ?? "";
+      box.appendChild(img);
       return document.body.appendChild(box);
     }
     if (t.dataset.chip !== undefined) { $("input").value = SUGGESTIONS[Number(t.dataset.chip)]; return $("input").focus(); }
@@ -442,6 +525,17 @@
     if (t.dataset.reject) return post("/api/decide", { decisionId: t.dataset.reject, verdict: "reject" });
     if (t.dataset.pause !== undefined) return post("/api/pause", { paused: t.dataset.pause === "1" });
     if (t.dataset.reset !== undefined) { ui.drafts = {}; ui.choice = {}; return post("/api/reset"); }
+    if (t.dataset.logout !== undefined) { await Auth.logout(); ui.last = ""; return showAuth("Signed out.", "login"); }
+    if (t.dataset.logoutAll !== undefined) {
+      if (!confirm("Sign out on every device, including this one?")) return;
+      await Auth.logoutAll(); ui.last = ""; return showAuth("Signed out everywhere.", "login");
+    }
+    if (t.dataset.addPasskey !== undefined) {
+      const label = prompt("Name the backup passkey (e.g. Mac):", "Mac");
+      if (!label) return;
+      try { await Auth.addPasskey(label.slice(0, 60)); alert("Backup passkey added. Other sessions were signed out."); } catch (err) { alert(`Could not add it (${err.code ?? err.name}).`); }
+      return;
+    }
     if (t.dataset.copy) {
       const text = document.getElementById(`prompt-${t.dataset.copy}`)?.textContent ?? "";
       try { await navigator.clipboard.writeText(text); t.textContent = "Copied"; } catch { t.textContent = "Select and copy the prompt above"; }
@@ -480,5 +574,15 @@
   });
 
   setView(ui.view);
-  poll();
+  (async () => {
+    let st = { hosted: false };
+    try { st = await Auth.status(); } catch { /* local console */ }
+    ui.authStatus = st;
+    if (!st.hosted) return startPolling();
+    document.body.classList.add("hosted");
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
+    if (st.authenticated) return signedIn();
+    if (st.recovery) return showAuth("Recovery session: create a replacement passkey.", "recovered");
+    showAuth(st.hasPasskey ? "Sign in with your passkey." : "First setup: enter the one-time setup token, then create your passkey.");
+  })();
 })();

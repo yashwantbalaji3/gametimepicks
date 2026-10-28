@@ -6,10 +6,11 @@
  *   create     `git worktree add --no-checkout -b cc/<task>` at that snapshot, then check out only the paths the
  *              command center needs (≈12 MB, not the 2.9 GB repo), and link app/node_modules for tests;
  *   changes    what the run changed, against the checked-out paths only (git diff + untracked files);
- *   keep       commit exactly the in-scope changes on cc/<task> through a temporary index (local; never pushed);
+ *   keep       commit exactly the in-scope changes on cc/<task> through a temporary index (local; the hosted
+ *              keep job alone pushes that one branch to the private ops repo, after the founder's G3);
  *   discard    remove the worktree and its branch.
  *
- * Nothing here pushes, merges, or edits a tracked file outside the working copy.
+ * Nothing here merges or edits a tracked file outside the working copy; `pushKept` is the only push.
  */
 import fs from "node:fs";
 import os from "node:os";
@@ -48,13 +49,18 @@ function withTempIndex(repo, fn) {
   }
 }
 
-/** Commit object = HEAD + the current (possibly uncommitted) command-center/ tree. No ref, index or file changes. */
+/**
+ * Commit object = HEAD + the current (possibly uncommitted) command-center/ tree. No ref, index or file changes.
+ * When the subtree has no uncommitted changes the base is HEAD itself, so a hosted runner's base also exists in the
+ * remote repository and a later job on another machine can fetch it.
+ */
 export function snapshotBase(repoRoot, { subtree = "command-center" } = {}) {
   const head = git(repoRoot, ["rev-parse", "HEAD"]);
   return withTempIndex(repoRoot, (env) => {
     git(repoRoot, ["read-tree", head], { env });
     git(repoRoot, ["add", "-A", "--", subtree], { env });
     const tree = git(repoRoot, ["write-tree"], { env });
+    if (tree === git(repoRoot, ["rev-parse", `${head}^{tree}`])) return { sha: head, head };
     const sha = git(repoRoot, ["commit-tree", tree, "-p", head, "-m", `command-center snapshot for delegated engineering (base ${head.slice(0, 10)})`], { env });
     return { sha, head };
   });
@@ -67,18 +73,69 @@ export function worktreesDir(repoRoot) {
 }
 
 /**
- * @param {{ repoRoot: string, taskId: string, paths?: string[], nodeModulesFrom?: string|null }} o
+ * Symlinks a working copy needs but must never commit: app/node_modules for tests, and on a hosted runner the
+ * read-only public-repo data paths (`links`, each { path, from }). They are excluded from changes and keeps.
  */
-export function createWorkcopy({ repoRoot, taskId, paths = WORKCOPY_PATHS, nodeModulesFrom = path.join(repoRoot, NODE_MODULES_LINK) }) {
+function linkInto(dir, links) {
+  for (const l of links) {
+    if (!l.from || !fs.existsSync(l.from)) continue;
+    const dest = path.join(dir, l.path);
+    if (fs.existsSync(dest)) continue;
+    if (l.path === NODE_MODULES_LINK && !fs.existsSync(path.dirname(dest))) continue;
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.symlinkSync(l.from, dest, "dir");
+  }
+}
+const defaultLinks = (repoRoot, nodeModulesFrom) => (nodeModulesFrom === null ? [] : [{ path: NODE_MODULES_LINK, from: nodeModulesFrom ?? path.join(repoRoot, NODE_MODULES_LINK) }]);
+
+/**
+ * @param {{ repoRoot: string, taskId: string, paths?: string[], nodeModulesFrom?: string|null, links?: {path: string, from: string}[] }} o
+ */
+export function createWorkcopy({ repoRoot, taskId, paths = WORKCOPY_PATHS, nodeModulesFrom, links = [] }) {
   const { sha, head } = snapshotBase(repoRoot);
   const branch = `cc/${taskId}`;
   const dir = path.join(worktreesDir(repoRoot), `cc-${taskId}`);
   git(repoRoot, ["worktree", "add", "--no-checkout", "-b", branch, dir, sha]);
   git(dir, ["checkout", sha, "--", ...paths]);
-  if (nodeModulesFrom && fs.existsSync(nodeModulesFrom) && fs.existsSync(path.join(dir, "app"))) {
-    fs.symlinkSync(nodeModulesFrom, path.join(dir, NODE_MODULES_LINK), "dir");
-  }
-  return { dir, branch, base: sha, head, paths: [...paths] };
+  const allLinks = [...defaultLinks(repoRoot, nodeModulesFrom), ...links];
+  linkInto(dir, allLinks);
+  return { dir, branch, base: sha, head, paths: [...paths], links: allLinks.map((l) => l.path) };
+}
+
+/**
+ * Re-create a working copy whose directory is gone (a different worker process, or a fresh hosted runner) at its
+ * snapshot base. On a fresh clone the cc/ branch doesn't exist yet and the base may need fetching.
+ */
+export function reattachWorkcopy({ repoRoot, wc, nodeModulesFrom, links = [] }) {
+  git(repoRoot, ["worktree", "prune"], { allowFail: true });
+  const hasBase = typeof git(repoRoot, ["cat-file", "-e", `${wc.base}^{commit}`], { allowFail: true }) === "string";
+  if (!hasBase) git(repoRoot, ["fetch", "--no-tags", "origin", wc.base]);
+  const hasBranch = typeof git(repoRoot, ["rev-parse", "--verify", "--quiet", `refs/heads/${wc.branch}`], { allowFail: true }) === "string";
+  if (hasBranch) git(repoRoot, ["worktree", "add", "--no-checkout", wc.dir, wc.branch]);
+  else git(repoRoot, ["worktree", "add", "--no-checkout", "-b", wc.branch, wc.dir, wc.base]);
+  git(wc.dir, ["checkout", wc.base, "--", ...wc.paths]);
+  linkInto(wc.dir, [...defaultLinks(repoRoot, nodeModulesFrom), ...links]);
+  return wc;
+}
+
+/**
+ * The working copy's full change set as one binary-safe patch against its base (tracked edits and new files,
+ * links excluded). A hosted build job stores it so the keep job — on another runner — can re-apply exactly what
+ * the founder approved at G3 (its sha256 is part of the G3 subject).
+ */
+export function workcopyPatch(wc) {
+  const changes = workcopyChanges(wc);
+  if (!changes.files.length) return "";
+  return withTempIndex(wc.dir, (env) => {
+    git(wc.dir, ["read-tree", wc.base], { env });
+    git(wc.dir, ["add", "-A", "--", ...changes.files.map((f) => f.file)], { env });
+    return `${git(wc.dir, ["diff", "--cached", "--binary", "--no-color", wc.base], { env })}\n`;
+  });
+}
+
+export function applyWorkcopyPatch(wc, patch) {
+  if (!patch.trim()) return;
+  git(wc.dir, ["apply", "--whitespace=nowarn", "-"], { input: patch });
 }
 
 /** What changed in the working copy since checkout, with a scope verdict per file. */
@@ -91,7 +148,7 @@ export function workcopyChanges(wc) {
   }
   const untracked = git(wc.dir, ["ls-files", "--others", "--exclude-standard"]);
   for (const f of untracked.split("\n").filter(Boolean)) {
-    if (f === NODE_MODULES_LINK) continue;
+    if (f === NODE_MODULES_LINK || (wc.links ?? []).some((l) => f === l || f.startsWith(`${l}/`))) continue;
     files.set(f, "A");
   }
   const list = [...files.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([file, status]) => ({ file, status, inScope: inScope(file) }));
@@ -128,4 +185,9 @@ export function discardWorkcopy({ repoRoot, wc }) {
 /** sha256-style fingerprint of the founder's checkout state (status + HEAD), to prove it did not change. */
 export function checkoutFingerprint(repoRoot) {
   return `${git(repoRoot, ["rev-parse", "HEAD"])}\n${git(repoRoot, ["status", "--porcelain", "-uall"])}`;
+}
+
+/** Hosted only, after G3 keep: push exactly the kept branch to `remote`. Never a force push, never another ref. */
+export function pushKept({ repoRoot, wc, remote = "origin" }) {
+  git(repoRoot, ["push", "--no-verify", remote, `refs/heads/${wc.branch}:refs/heads/${wc.branch}`]);
 }

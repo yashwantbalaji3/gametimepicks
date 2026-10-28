@@ -1,0 +1,160 @@
+# Copy to .github/workflows/cc-worker.yml in the PRIVATE ops repo (gtp-ops) at CP-H2. Never in the public repo.
+#
+# One ledger job per run, dispatched by the web app (workflow_dispatch, input job_id). Two jobs:
+#   work  runs the worker — and, for engineering steps, Claude Code on the founder's subscription — with a
+#         read-only repository token. Code Claude wrote (tests, the console for screenshots) runs as the no-sudo
+#         user `ccsandbox` with an empty environment and, for tests, no network; a self-test proves that user
+#         cannot read the worker's environment before any secret is loaded;
+#   push  only after a G3 keep: checks the bundle against the founder's keep in the ledger (read-only role), then
+#         pushes exactly that new cc/* branch. The only job with contents: write; it runs no Claude or project code
+#         beyond the checker, taken from main.
+# Both jobs run only from main (a dispatch on any other ref is refused).
+# Pin every action to a full commit SHA at CP-H2 (tags below are placeholders for review).
+name: cc-worker
+run-name: cc job ${{ inputs.job_id }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      job_id:
+        description: Ledger job id (job-<12 hex>)
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: cc-job-${{ inputs.job_id }}
+  cancel-in-progress: false
+
+jobs:
+  work:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    outputs:
+      kept_branch: ${{ steps.worker.outputs.kept_branch }}
+    steps:
+      - name: Validate the job id
+        env:
+          JOB_ID: ${{ inputs.job_id }}
+        run: '[[ "$JOB_ID" =~ ^job-[0-9a-f]{12}$ ]] || { echo "malformed job id"; exit 1; }'
+
+      - name: Create the sandbox user and prove it cannot read this job's environment
+        env:
+          CANARY: canary-${{ github.run_id }}
+        run: |
+          sudo useradd --system --create-home --home-dir /tmp/ccsandbox --shell /usr/sbin/nologin ccsandbox
+          if sudo -n -u ccsandbox sudo -n true 2>/dev/null; then echo "sandbox user has sudo"; exit 1; fi
+          sleep 300 & SLEEPER=$!
+          if sudo -n -u ccsandbox cat "/proc/$SLEEPER/environ" 2>/dev/null | tr '\0' '\n' | grep -q "^CANARY="; then
+            echo "sandbox user can read the runner's process environment"; exit 1
+          fi
+          kill $SLEEPER
+          # the sandbox user may use loopback only (the console it serves for screenshots), never the network
+          sudo iptables -A OUTPUT -m owner --uid-owner ccsandbox ! -o lo -j REJECT
+          sudo ip6tables -A OUTPUT -m owner --uid-owner ccsandbox ! -o lo -j REJECT
+          if sudo -n -u ccsandbox curl -s -m 5 https://api.github.com >/dev/null; then echo "sandbox user reached the network"; exit 1; fi
+          sudo mkdir -p /opt/pw-browsers && sudo chmod 755 /opt/pw-browsers && sudo chown "$USER" /opt/pw-browsers
+          chmod o+x "$HOME" "$HOME/work" "$GITHUB_WORKSPACE/.." "$GITHUB_WORKSPACE"
+
+      - name: Refuse API-billing credentials
+        run: |
+          for v in ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN CLAUDE_CODE_USE_BEDROCK CLAUDE_CODE_USE_VERTEX; do
+            if [ -n "${!v:-}" ]; then echo "$v is set; refusing"; exit 1; fi
+          done
+
+      - uses: actions/checkout@v4   # pin SHA at CP-H2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Read-only sparse checkout of the public repo (data the recap and tests read)
+        uses: actions/checkout@v4   # pin SHA at CP-H2
+        with:
+          repository: yashwantbalaji3/gametimepicks
+          path: .public
+          persist-credentials: false
+          sparse-checkout: |
+            app/package.json
+            app/public/brand
+            app/scripts/build-mlb-social-content.mjs
+            app/src/lib/simulation-theater
+            data/internal/forecast-ledger/v1/nfl.jsonl
+            data/internal/nfl/forecast-receipts
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/setup-node@v4   # pin SHA at CP-H2
+        with:
+          node-version: 22
+
+      - name: Install (lockfile only, pinned CLI and browser)
+        run: |
+          ln -s .public/app app
+          ln -s .public/data data
+          npm ci --prefix command-center
+          npm install --no-save --prefix .public/app @playwright/test@1.59.1
+          PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers npx --prefix .public/app playwright install --with-deps chromium
+          npm install -g @anthropic-ai/claude-code@<pin-at-CP-H2>
+
+      - name: Run the job
+        id: worker
+        env:
+          JOB_ID: ${{ inputs.job_id }}
+          DATABASE_URL: ${{ secrets.CC_WORKER_DATABASE_URL }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GTP_CC_PUBLIC_ROOT: ${{ github.workspace }}/.public
+          GTP_CC_OUT_DIR: ${{ runner.temp }}/gtp-cc
+          GTP_CC_SANDBOX_USER: ccsandbox
+          GTP_CC_SANDBOX_HOME: /tmp/ccsandbox
+          PLAYWRIGHT_BROWSERS_PATH: /opt/pw-browsers
+        run: node command-center/worker/run-job.mjs
+
+      - name: Hand the kept branch to the push job
+        if: steps.worker.outputs.kept_branch != ''
+        uses: actions/upload-artifact@v4   # pin SHA at CP-H2
+        with:
+          name: kept-${{ inputs.job_id }}
+          path: ${{ runner.temp }}/kept.bundle
+          retention-days: 1
+
+  push:
+    needs: work
+    if: github.ref == 'refs/heads/main' && needs.work.outputs.kept_branch != ''
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4   # pin SHA at CP-H2
+        with:
+          fetch-depth: 0
+          persist-credentials: false   # the write token is used only by the final push command
+      - uses: actions/download-artifact@v4   # pin SHA at CP-H2
+        with:
+          name: kept-${{ inputs.job_id }}
+          path: ${{ runner.temp }}
+      - uses: actions/setup-node@v4   # pin SHA at CP-H2
+        with:
+          node-version: 22
+      - name: Check the bundle against the founder's G3 keep in the ledger
+        env:
+          BRANCH: ${{ needs.work.outputs.kept_branch }}
+          JOB_ID: ${{ inputs.job_id }}
+          DATABASE_URL: ${{ secrets.CC_READER_DATABASE_URL }}
+        run: |
+          [[ "$BRANCH" =~ ^cc/[a-z0-9]+-[a-z0-9]+$ ]] || { echo "unexpected branch name"; exit 1; }
+          git bundle verify "$RUNNER_TEMP/kept.bundle"
+          git fetch "$RUNNER_TEMP/kept.bundle" "refs/heads/$BRANCH:refs/heads/$BRANCH"
+          npm ci --prefix command-center --omit=dev --ignore-scripts
+          TIP=$(git rev-parse "refs/heads/$BRANCH") node command-center/worker/check-kept.mjs
+      - name: Push exactly the kept cc/ branch (new branch only, never a force push)
+        env:
+          BRANCH: ${{ needs.work.outputs.kept_branch }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          REMOTE="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git ls-remote --exit-code "$REMOTE" "refs/heads/$BRANCH" >/dev/null; then echo "branch already exists"; exit 1; fi
+          git push "$REMOTE" "refs/heads/$BRANCH:refs/heads/$BRANCH"

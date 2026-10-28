@@ -93,5 +93,16 @@ export function createFileStore({ dir, clock }) {
     return files.map((f) => JSON.parse(fs.readFileSync(f, "utf8")));
   }
 
-  return { dir, append, claim, readClaim, list };
+  /**
+   * Session API (same shape as the Postgres store): a local file store writes through immediately, so a session is
+   * the store itself and flush/refresh have nothing to do.
+   */
+  const store = { kind: "file", dir, append, claim, readClaim, list };
+  Object.assign(store, {
+    open: async () => store,
+    flush: async () => ({ entries: 0, claims: 0 }),
+    refresh: async () => {},
+    discard: () => {},
+  });
+  return store;
 }
