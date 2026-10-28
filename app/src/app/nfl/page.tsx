@@ -187,6 +187,15 @@ function capturedLabel(capturedAt: string): string {
 }
 const CAPTURE_ET = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 
+/** The zero state names what is observable — the age of the last capture — and claims nothing else. Restored
+ *  2026-10-28 pre-merge review: W8 removed the hero that carried it, which left a week with no current prices silent. */
+function lastCaptureLabel(capturedAt?: string | null): string {
+  const ms = Date.parse(String(capturedAt ?? ""));
+  if (!Number.isFinite(ms)) return "none current — no capture on file";
+  return `none current — last capture ${LAST_CAPTURE_ET.format(ms)} ET`;
+}
+const LAST_CAPTURE_ET = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric" });
+
 /** The receipts' closed lane-state set (scripts/nfl/build-nfl-product-receipts.mjs) in reader words. */
 const NFL_LANE_STATE_LABEL: Record<string, string> = {
   ACTIVE: "Card published",
@@ -888,7 +897,12 @@ export default function NflHubPage() {
             {propAbsence ? " The same authorized capture probed player markets for this window and found none offered — so no player or touchdown prices appear anywhere on this page." : ""}
           </p>
         </section>
-      ) : null}
+      ) : (
+        /* No current prices for this week is stated, never left silent (a missed capture is a real gap). */
+        <p data-nfl-no-prices="" className="m-0 text-[13px]" style={{ color: "var(--vault-text-mute)" }}>
+          Sportsbook prices for this slate: {lastCaptureLabel(markets?.capturedAt)}.
+        </p>
+      )}
 
       {/* Overnight W8 (2026-10-28): the finals list is reference — the graded record right below says how the forecasts
           did — so it folds (the #nfl-results anchor still opens it: MoreDisclosure opens on hash). The matching rule is

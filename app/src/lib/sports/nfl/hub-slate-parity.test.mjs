@@ -139,6 +139,13 @@ test("the hub CONSUMES canonical state and does not recompute lifecycle", () => 
   assert.doesNotMatch(hub, /capture not authorized/, "the reason must not outlive the authorization it describes");
   assert.match(hub, /const CAPTURE_ET = new Intl\.DateTimeFormat\("en-US", \{ timeZone: "America\/New_York", month: "short", day: "numeric"/, "the stamp carries its ET date");
   assert.match(labelFn, /`captured \$\{CAPTURE_ET\.format\(ms\)\} ET`/);
+  /* RESTORED 2026-10-28 (pre-merge review of #1275): a week with no current prices must SAY so — the zero state
+     went away with the hero above, which turned a missed capture into silence. It names only what is observable. */
+  const zeroFn = hub.slice(hub.indexOf("function lastCaptureLabel"), hub.indexOf("const LAST_CAPTURE_ET"));
+  assert.ok(zeroFn.length > 50, "the zero-state helper must be found");
+  assert.doesNotMatch(zeroFn, /Date\.now\(\)|new Date\(/, "the zero state must not be decided from the build clock");
+  assert.match(zeroFn, /none current — last capture/);
+  assert.match(hub, /\) : \(\s*(?:\/\*[^]*?\*\/\s*)?<p data-nfl-no-prices=""[^]*?\{lastCaptureLabel\(markets\?\.capturedAt\)\}/, "…and renders exactly where the prices would");
 });
 
 test("SHARED OWNERS · the five parity rows are closed by adoption, not by forking", () => {
