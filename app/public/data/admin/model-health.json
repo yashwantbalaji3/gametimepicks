@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-10-27T15:38:45Z",
+ "generatedAt": "2026-10-28T09:28:04Z",
  "worst": "BREACHED",
  "counts": {
   "INSUFFICIENT_SAMPLE": 5,
@@ -53,7 +53,7 @@
    "label": "NFL blind forward test · reception yds",
    "baseline": "its preregistered forward bars",
    "state": "BREACHED",
-   "n": 947,
+   "n": 1129,
    "judgement": {
     "receiptState": "FORWARD_BREACHED",
     "bars": {
@@ -79,7 +79,7 @@
    "label": "NFL blind forward test · rush yds",
    "baseline": "its preregistered forward bars",
    "state": "BREACHED",
-   "n": 511,
+   "n": 604,
    "judgement": {
     "receiptState": "FORWARD_BREACHED",
     "bars": {
@@ -157,20 +157,20 @@
    "label": "MLB moneyline picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "WATCH",
-   "n": 824,
+   "n": 825,
    "judgement": {
     "state": "WATCH",
-    "n": 824,
+    "n": 825,
     "needed": 200,
-    "meanDiff": 0.0067,
-    "lo95": -0.0061,
-    "hi95": 0.0195
+    "meanDiff": 0.0071,
+    "lo95": -0.0053,
+    "hi95": 0.0201
    },
    "context": {
-    "hitRate": 0.5133,
-    "meanPickProbability": 0.5715,
-    "modelMinusMarket": 0.0312,
-    "pairedWithMarket": 819
+    "hitRate": 0.5127,
+    "meanPickProbability": 0.5716,
+    "modelMinusMarket": 0.0314,
+    "pairedWithMarket": 820
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
    "bar": {
@@ -359,7 +359,7 @@
    "label": "NFL blind forward test · anytime td",
    "baseline": "its preregistered forward bars",
    "state": "HOLDING",
-   "n": 1248,
+   "n": 1480,
    "judgement": {
     "receiptState": "FORWARD_HOLDING",
     "bars": {
@@ -382,7 +382,7 @@
    "label": "NFL blind forward test · receptions",
    "baseline": "its preregistered forward bars",
    "state": "HOLDING",
-   "n": 947,
+   "n": 1129,
    "judgement": {
     "receiptState": "FORWARD_HOLDING",
     "bars": {
@@ -745,20 +745,20 @@
    "label": "MLB run line posted picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 14,
+   "n": 15,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 14,
+    "n": 15,
     "needed": 200,
-    "meanDiff": 0.0319,
+    "meanDiff": 0.03,
     "lo95": null,
     "hi95": null
    },
    "context": {
-    "hitRate": 0.5,
-    "meanPickProbability": 0.6321,
-    "modelMinusMarket": 0.0189,
-    "pairedWithMarket": 14
+    "hitRate": 0.4667,
+    "meanPickProbability": 0.6235,
+    "modelMinusMarket": 0.0291,
+    "pairedWithMarket": 15
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
    "bar": {
@@ -776,7 +776,7 @@
    "label": "NFL blind forward test · pass yds",
    "baseline": "its preregistered forward bars",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 158,
+   "n": 188,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "bars": null,
@@ -815,14 +815,6 @@
    "from": "INSUFFICIENT_SAMPLE",
    "to": "HOLDING",
    "at": "2026-10-14T09:29:57Z"
-  },
-  {
-   "id": "nfl_player_pass_yds",
-   "sport": "nfl",
-   "label": "NFL passing yards 80% range",
-   "from": "INSUFFICIENT_SAMPLE",
-   "to": "HOLDING",
-   "at": "2026-10-13T17:11:57Z"
   }
  ]
 }
