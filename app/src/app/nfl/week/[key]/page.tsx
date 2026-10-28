@@ -78,7 +78,7 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
           {next ? <Link href={`/nfl/week/${next}/`} className="gtp-backlink" style={{ color: "var(--vault-gold)" }}>{weekTitle(next)} →</Link> : null}
           {!prev && !next ? <span style={{ color: "var(--vault-text-faint)" }}>the only captured week so far — neighbors appear when their data exists</span> : null}
         </nav>
-        <Link href="/nfl/" className="font-mono uppercase tracking-[0.12em]" style={{ fontSize: 10.5, color: "var(--vault-gold-bright)", marginLeft: "auto" }}>
+        <Link href="/nfl/" className="gtp-hit-44 font-mono uppercase tracking-[0.12em]" style={{ fontSize: 10.5, color: "var(--vault-gold-bright)", marginLeft: "auto" }}>
           NFL hub →
         </Link>
       </div>
@@ -116,7 +116,7 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
                       <td className="font-mono" style={td({ whiteSpace: "nowrap" })}>{f.away.abbr} {s.projectedScore.away} — {s.projectedScore.home} {f.home.abbr}</td>
                       <td className="font-mono" style={td()}>{s.total.median} <span style={{ color: "var(--vault-text-faint)" }}>({s.total.p10}–{s.total.p90})</span></td>
                       <td style={td({ whiteSpace: "nowrap" })}>
-                        <Link href={`/nfl/game/${f.providerEventId}/`} className="font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10, color: "var(--vault-gold-bright)" }}>View game →</Link>
+                        <Link href={`/nfl/game/${f.providerEventId}/`} className="gtp-hit-44 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10, color: "var(--vault-gold-bright)" }}>View game →</Link>
                       </td>
                     </tr>
                   );

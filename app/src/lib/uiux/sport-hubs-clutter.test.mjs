@@ -243,3 +243,31 @@ test("/sports: the chooser leads and the per-sport schedules fold; the results n
     assert.match(note, /checked [A-Z][a-z]{2} \d{1,2}, \d{4}\)/, `${sport}: the ET day in words`);
   }
 });
+
+// ── 7 · coordinator follow-ups (route-ledger 2026-10-28) ────────────────────────────────────────────────────
+
+test("NFL game header: a game whose final the page shows reads 'final', never 'started'", () => {
+  const page = code("src/app/nfl/game/[eventId]/page.tsx");
+  assert.match(page, /const isFinal = lifecycle === "SETTLED" \|\| Boolean\(postgame\) \|\| Boolean\(archived\?\.reconciliation\?\.final\);/);
+  assert.match(page, /\{isFinal \? " · final" : <KickoffSlot kickoffUtc=\{f\.kickoffUtc\} startedAtBuild=\{started\} when="after">\{" · started"\}<\/KickoffSlot>\}/);
+  assert.ok(page.indexOf("const isFinal") > page.indexOf("const postgame"), "derived from the box score the page renders");
+});
+
+test("/games/nfl report: plain market words, one uniform risk tier stated once, the model id only in Technical details", () => {
+  const report = code("src/components/game/mlb-simulation-report-v2.tsx");
+  for (const [k, w] of [["rushAtt", "Rush attempts"], ["recYds", "Receiving yards"], ["passCmp", "Completions"], ["targets", "Targets"]]) {
+    assert.match(report, new RegExp(`${k}: "${w}"`), `${k} has a reader label`);
+  }
+  assert.match(report, /const DETERMINISTIC_SETTLE = new Set\(Object\.keys\(MARKET_LABEL\)\);/, "eligibility still reads the MLB set only");
+  assert.match(report, /\.\.\.\(uniformRisk \? \[\] : \[\["Risk", "right", false\]/);
+  assert.match(report, /\{uniformRisk \? null : <td/);
+  assert.match(report, /sportCode === "NFL" && modelVersion \? \(\s*<MoreDisclosure title="Technical details"/);
+  const runner = code("src/components/game/game-simulation-runner.tsx");
+  assert.match(runner, /view\.sport === "nfl" \? null : <span[^\n]*>Model<\/span> \{dash\(view\.modelVersion\)\}/);
+  assert.match(runner, /same model output for every user\{view\.sport === "nfl" \? "" : ` · \$\{versionNote\}`\}/);
+});
+
+test("/nfl/week: the 'View game' link carries the shared 44px tap target", () => {
+  const week = code("src/app/nfl/week/[key]/page.tsx");
+  assert.match(week, /className="gtp-hit-44 font-mono uppercase tracking-\[0\.1em\]"[^>]*>View game →<\/Link>/);
+});
