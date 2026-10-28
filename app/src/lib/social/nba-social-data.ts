@@ -9,6 +9,7 @@ import path from "node:path";
 import { committedLaneDates, loadLaneForDate } from "@/components/nba/experimental-lane";
 import { nbaForecastVsActualView } from "@/lib/results/nba-level-a-readers";
 import { currentEtDate } from "@/lib/freshness";
+import { unavailableReasonText } from "@/components/nba/official-predictions";
 import { buildNbaSocialDay, NBA_SOCIAL_BASE, NBA_SOCIAL_SCHEMA } from "./nba-social.mjs";
 
 /** How many dated day files ship (bytes stay bounded; the index lists exactly these). */
@@ -33,6 +34,7 @@ export function nbaSocialDay(date: string) {
   return buildNbaSocialDay({
     lane, recordGames: r.games as any[], buildEtDate: currentEtDate(), laneSha256: laneSha(date),
     recordCounts: { matched: r.counts.matched, missed: r.counts.missed, graded: r.counts.graded },
+    reasonText: (reason: string | null, status: string | null) => unavailableReasonText(reason, status),
   });
 }
 

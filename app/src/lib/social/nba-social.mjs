@@ -12,7 +12,6 @@
  * Nothing here is a pick, a price, a ranking or an accuracy claim. Pure: no fs, no clock (the build date is passed in).
  */
 import { eloWinProbabilityOf, ELO_WIN_PROBABILITY_LABEL } from "../sports/nba/elo-win-probability.mjs";
-import { unavailableReasonText } from "../simulation-theater/nba/possession/labels.mjs";
 
 export const NBA_SOCIAL_SCHEMA = "gtp-social-nba@1";
 export const NBA_SOCIAL_BASE = "/data/social/nba/v1/";
@@ -45,9 +44,11 @@ const etTime = (iso) => {
 const num = (v) => (typeof v === "number" && Number.isFinite(v) ? v : null);
 
 /**
- * @param {{ lane: any, recordGames: any[], buildEtDate: string, laneSha256?: string|null, eloEnabled?: boolean, recordCounts?: { matched: number, missed: number, graded: number }|null }} input
+ * `reasonText` is the NBA pages' own unavailable-reason wording (components/nba/official-predictions.tsx), passed in by the
+ * server loader — products never read the Theater library (research boundary), and this pure module imports no component.
+ * @param {{ lane: any, recordGames: any[], buildEtDate: string, laneSha256?: string|null, eloEnabled?: boolean, recordCounts?: { matched: number, missed: number, graded: number }|null, reasonText?: (reason: string|null, status: string|null) => string }} input
  */
-export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, laneSha256 = null, eloEnabled, recordCounts = null }) {
+export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, laneSha256 = null, eloEnabled, recordCounts = null, reasonText = (r) => String(r ?? "") }) {
   const byId = new Map((recordGames ?? []).map((r) => [String(r.providerEventId), r]));
   const games = lane?.games ?? [];
   const events = games.map((g) => {
@@ -62,7 +63,7 @@ export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, laneSha
     });
     const unavailable = ["away", "home"].flatMap((side) => (g.players?.unavailable?.[side] ?? []).map((u) => ({
       id: String(u.providerAthleteId), name: u.name ?? null, team: g[side]?.abbr ?? null, reason: u.reason ?? null,
-      reasonText: unavailableReasonText(u.reason, u.status ?? null),
+      reasonText: reasonText(u.reason ?? null, u.status ?? null),
     })));
     const withheld = [
       { family: "teamScores", reason: "Team score, margin and total are not published: the player-sum score ignores the opponent and has not met its historical checks." },

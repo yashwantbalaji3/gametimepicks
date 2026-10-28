@@ -106,8 +106,10 @@ const ALWAYS_PUBLIC_DATA = ["build-info.json", "search/index.json"];
  */
 /* Session 5 · B7: nfl/reconciliation/ — the week reconciliation (PUBLIC_DERIVED, the NFL grading owner). The
    /results/nfl season drill-down fetches `/data/nfl/reconciliation/<week>.json` for the week a reader opens. */
-/* Launch program 2026-10-28: social/nba/v1/ — the read-only NBA social data contract (gtp-social-nba@1), built from the
-   same public lane + record the NBA pages render; consumers fetch `/data/social/nba/v1/<date>.json` by date. */
+/* Launch program 2026-10-28: social/nba/v1/ — the read-only NBA social data contract (gtp-social-nba@1). An intentional
+   publication decision (founder request; ships only with PR #1278's approval): data class PUBLIC_DERIVED — built from the
+   same public lane + record the NBA pages render, no prices, no picks; consumers fetch `/data/social/nba/v1/<date>.json`
+   by date. Guards: lib/social/nba-social*.test.mjs, lib/live/live-props-public.test.mjs. */
 const ALWAYS_PUBLIC_DATA_DIRS = ["compare/v1/", "lab/v1/", "ask/v1/", "nfl/live-props/", "nfl/reconciliation/", "social/nba/v1/"];
 const underPublicDir = (rel) => ALWAYS_PUBLIC_DATA_DIRS.some((d) => rel === d.slice(0, -1) || rel.startsWith(d));
 
