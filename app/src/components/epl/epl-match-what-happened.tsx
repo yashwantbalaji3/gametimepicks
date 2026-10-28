@@ -43,7 +43,7 @@ export default function EplMatchWhatHappened({ graded, home, away, pageProbs }: 
       {differs && gp ? (
         <p style={{ margin: "6px 0 0", fontSize: 12, lineHeight: 1.55, color: "var(--vault-text-faint)" }} data-epl-graded-revision="">
           The record grades the forecast published {graded.forecastGeneratedAt ? et(graded.forecastGeneratedAt) : "before kickoff"} ({home} {pct(gp.home)} · draw {pct(gp.draw)} · {away} {pct(gp.away)}).
-          The figures below are this page&apos;s archived pre-kickoff revision, which differs slightly.
+          The figures below are another version of the forecast, also saved before kickoff, and differ slightly.
         </p>
       ) : null}
       <p style={{ margin: "8px 0 0", fontSize: 12.5 }}>

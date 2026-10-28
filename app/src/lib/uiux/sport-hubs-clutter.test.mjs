@@ -177,3 +177,15 @@ test("EPL hub: the player model id is only in Technical details; the not-validat
   assert.match(hub, /Team match model — (tested blind on past seasons|not validated out of sample)\./);
   assert.match(hub, /\{set\?\.trackRecord \?\?/, "the artifact's own record sentence stays reachable");
 });
+
+test("EPL match page: model id and λ only in Technical details; the 'other fixtures' heading names a matchweek only when true", () => {
+  const page = code("src/app/epl/match/[slug]/page.tsx");
+  const tech = technicalDetails(page);
+  for (const token of ['<Meta k="Model"', 'k="Scoring rates (λ)"']) {
+    assert.ok(tech.includes(token), `${token} inside Technical details`);
+    assert.ok(!page.replace(tech, "").includes(token), `${token} also outside it`);
+  }
+  assert.match(page, /<Meta k="Validation" v=\{validationLine\} \/>/, "the validation line stays in the reading path");
+  assert.match(page, /siblings\.every\(\(sib\) => sib\.matchweek === row\.matchweek\) \? `Other Matchweek \$\{row\.matchweek\} fixtures` : "Latest Premier League forecasts"/);
+  assert.doesNotMatch(read("src/components/epl/epl-match-what-happened.tsx"), /archived pre-kickoff revision/);
+});
