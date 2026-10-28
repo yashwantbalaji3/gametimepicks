@@ -80,6 +80,9 @@ for (const [i, phone] of PHONES.entries()) {
       await page.locator(".msg.report [data-goto=decisions]").tap();
       await page.locator("#decisions .decision img").waitFor();
       await minHeight(page.locator("#decisions [data-approve]"), 44, "Approve");
+      assert.ok((await page.locator("#decisions .option [data-copy-caption]").count()) > 0, "copy caption buttons present");
+      assert.ok((await page.locator("#decisions .option .caption-counter").count()) > 0, "caption counters present");
+      await minHeight(page.locator("#decisions .option [data-copy-caption]").first(), 44, "Copy caption button");
       await noHorizontalOverflow(page, "approvals");
       await page.screenshot({ path: path.join(SCREENS, `${phone.name}-approvals.png`), fullPage: false });
 

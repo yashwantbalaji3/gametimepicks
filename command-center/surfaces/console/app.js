@@ -25,6 +25,7 @@
   ];
   const savedView = (() => { try { return localStorage.getItem("gtp-cc-view"); } catch { return null; } })();
   const ui = { last: "", choice: {}, drafts: {}, state: null, view: VIEWS.some((v) => v.id === savedView) ? savedView : "chat" };
+  const captionTextMap = new Map();
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   const time = (iso) => (iso ? new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "");
@@ -247,14 +248,17 @@
       if (d.kind === "gate") return gateCard(d);
       const chosen = ui.choice[d.decisionId] ?? d.resolution?.captionId ?? d.recommended;
       const decided = d.resolution;
+      for (const k of [...captionTextMap.keys()]) { if (k.startsWith(`${d.decisionId}:`)) captionTextMap.delete(k); }
       return `<div class="decision">
         <div class="q">${esc(d.question)}</div>
         <img src="/media/${encodeURIComponent(d.media.file)}" alt="${esc(d.media.altText)}" data-zoom>
-        ${d.options.map((o) => `<label class="option ${chosen === o.captionId ? "selected" : ""}">
+        ${d.options.map((o) => { captionTextMap.set(`${d.decisionId}:${o.captionId}`, o.text); const cpCount = Array.from(o.text).length; const over = cpCount > 280; return `<label class="option ${chosen === o.captionId ? "selected" : ""}">
           <input type="radio" name="opt-${esc(d.decisionId)}" value="${esc(o.captionId)}" ${chosen === o.captionId ? "checked" : ""} ${decided ? "disabled" : ""} data-choose="${esc(d.decisionId)}">
           <div><div class="txt">${esc(o.text)}</div>
-          <div class="meta">${decided?.captionId === o.captionId && decided.verdict === "approve" ? `<b class="check-ok">APPROVED</b> · ` : ""}Caption ${esc(o.captionId)} · ${esc(o.tone)}${d.recommended === o.captionId ? " · recommended" : ""} · ${o.check?.ok ? "validator ✓" : "validator ✗"} · digest ${esc(o.digest.slice(0, 12))}…</div></div>
-        </label>`).join("")}
+          <div class="meta">${decided?.captionId === o.captionId && decided.verdict === "approve" ? `<b class="check-ok">APPROVED</b> · ` : ""}Caption ${esc(o.captionId)} · ${esc(o.tone)}${d.recommended === o.captionId ? " · recommended" : ""} · ${o.check?.ok ? "validator ✓" : "validator ✗"} · digest ${esc(o.digest.slice(0, 12))}…</div>
+          <span class="caption-counter${over ? " over" : ""}" aria-label="${cpCount} of 280 characters">${cpCount}/280</span>
+          <button type="button" class="btn small" data-copy-caption="${esc(d.decisionId)}:${esc(o.captionId)}" aria-label="Copy caption ${esc(o.captionId)}">Copy caption</button></div>
+        </label>`; }).join("")}
         ${(d.warnings ?? []).length ? `<ul class="warns">${d.warnings.map((w) => `<li>${esc(w.code)}: ${esc(w.detail)}</li>`).join("")}</ul>` : ""}
         <div class="muted">${esc(d.note)}</div>
         ${d.receipt ? `<div class="receipt">✓ ${esc(d.receipt.state)} via ${esc(d.receipt.provider)} · ${esc(d.receipt.providerPostId)}<br>caption ${esc(d.resolution?.captionId)} · approved ${esc(time(d.resolution?.approvedAt))} · cost $${d.receipt.costUsd}<br>digest ${esc(d.receipt.bundleDigest.slice(0, 16))}…</div>`
@@ -400,7 +404,7 @@
   });
 
   document.addEventListener("click", async (e) => {
-    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-copy],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],.lightbox");
+    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],.lightbox");
     if (!t) return;
     if (t.dataset.gate) {
       const d = ui.state.decisions.find((x) => x.decisionId === t.dataset.gate);
@@ -441,6 +445,20 @@
     if (t.dataset.copy) {
       const text = document.getElementById(`prompt-${t.dataset.copy}`)?.textContent ?? "";
       try { await navigator.clipboard.writeText(text); t.textContent = "Copied"; } catch { t.textContent = "Select and copy the prompt above"; }
+      return;
+    }
+    if (t.dataset.copyCaption !== undefined) {
+      const text = captionTextMap.get(t.dataset.copyCaption);
+      if (text === undefined) return;
+      const orig = t.textContent;
+      try {
+        if (!navigator.clipboard) throw new Error("Clipboard API unavailable");
+        await navigator.clipboard.writeText(text);
+        t.textContent = "Copied!";
+      } catch {
+        t.textContent = "Copy failed";
+      }
+      setTimeout(() => { if (t.isConnected) t.textContent = orig; }, 2000);
       return;
     }
     if (t.dataset.submit) {
