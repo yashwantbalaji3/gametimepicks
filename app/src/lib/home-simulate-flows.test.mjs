@@ -22,12 +22,15 @@ test("Home's Simulate CTA points to the clean /simulate route", () => {
   assert.match(hero, /Simulate Today.{0,10}s Games/i, "the CTA is simulate-first");
 });
 
-test("Home also pushes users to Today's Picks (a distinct CTA, not a duplicate of Simulate)", () => {
-  // P208 (J1): the picks CTA opens the PICKS destination itself (/markets, nav label "Picks") —
-  // it used to open /today while the nav's picks item pointed elsewhere, one concept, three names.
-  assert.match(hero, /href="\/markets"/, "the hero's picks CTA opens the picks owner");
-  // {0,10} tolerates the JSX apostrophe entity (&rsquo; is 7 chars), same as the Simulate CTA pin above.
-  assert.match(hero, /See Today.{0,10}s Picks/i, "the hero CTA is 'See Today's Picks'");
+test("Home's PRIMARY action opens today's official forecasts (/today), not a priced picks page", () => {
+  /* REPOINTED W4 (2026-10-28) — this pinned the defect. The hero carried three equal buttons (Simulate / "See Today's
+     Picks" → /markets, a priced market-comparison page / Parlay Center) and none led to today's official forecasts, the
+     core product. The primary action is now "See today's forecasts" → /today; Simulate stays as the one secondary.
+     /markets is unchanged and stays in the navigation ("Picks"). */
+  assert.match(hero, /HERO_PRIMARY = Object\.freeze\(\{ label: "See today\\u2019s forecasts", href: "\/today" \}\)/, "the primary action is 'See today's forecasts' → /today");
+  assert.match(hero, /href=\{HERO_PRIMARY\.href\}/, "the first button renders it");
+  assert.ok(hero.indexOf("href={HERO_PRIMARY.href}") < hero.indexOf('href="/simulate"'), "the forecasts action comes before Simulate");
+  assert.doesNotMatch(hero, /href="\/markets"|See Today.{0,10}s Picks/i, "the hero no longer sends first-time visitors to the priced picks page");
 });
 
 test("/today is NOT mislabeled as the simulation lobby (it is the picks/no-play board)", () => {

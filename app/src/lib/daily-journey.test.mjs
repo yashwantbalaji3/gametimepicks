@@ -11,9 +11,11 @@ import path from "node:path";
 const app = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
 
-test("Homepage → Today: the homepage routes into the daily brief", () => {
-  assert.match(read("src/components/home/home-today-mlb.tsx"), /href="\/today"/, "homepage hook links to /today");
-  assert.match(read("src/app/page.tsx"), /<HomeTodayMlb\b/, "homepage renders the daily-MLB hook");
+test("Homepage → Today: the homepage routes into /today", () => {
+  /* REPOINTED W4 (2026-10-28): the hop is the hero's PRIMARY action ("See today's forecasts" → /today) for every sport,
+     not the retired MLB-only hook. */
+  assert.match(read("src/components/home/landing-hero.tsx"), /href: "\/today"/, "the hero's primary action links to /today");
+  assert.match(read("src/app/page.tsx"), /<LandingHero\b/, "homepage renders the hero");
 });
 
 test("Today → Game Report: the brief + slate rows link to canonical /games/<sport>/<slug> reports", () => {
@@ -44,7 +46,7 @@ test("Results → Today (Return): the recap routes back to today's slate", () =>
 
 test("the loop is closed: every hop of Homepage→Today→Report→Results→Today is present", () => {
   const hops = [
-    ["src/components/home/home-today-mlb.tsx", /href="\/today"/],
+    ["src/components/home/landing-hero.tsx", /href: "\/today"/],
     ["src/lib/today/daily-brief.ts", /\/games\/\$\{d\.sport\}/],
     ["src/components/today/status-modules.tsx", /href="\/results"/],
     ["src/app/results/page.tsx", /href="\/today\/?"/],

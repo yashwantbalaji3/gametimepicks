@@ -71,13 +71,15 @@ test("2 · Home leads with sport simulation cards + Bank Builder/Moonshot flagsh
 });
 
 // 3 — Home links to /simulate, /today, /bank-builder, /results (across the home surface).
-test("3 · Home links to /simulate, /markets, /build, /results, /today, /bank-builder", () => {
+test("3 · Home links to /today, /simulate, /build, /results, /bank-builder", () => {
+  /* REPOINTED W4 (2026-10-28): the hero's three equal actions (Simulate / Picks → /markets / Parlay Center) were the
+     defect — none opened today's official forecasts. The hero now has ONE primary action (today's forecasts → /today),
+     one secondary (/simulate) and the Results proof link; /build is reached from the suggested-parlays preview and the
+     phone summary, /markets from the navigation. */
+  assert.match(hero, /href: "\/today"/, "the hero's primary action opens /today");
   assert.match(hero, /href="\/simulate"/, "hero links to /simulate");
-  // P208: the hero's three actions are Simulate / Picks (/markets) / Parlay Center (/build), with
-  // Results as the proof link; /today stays linked from the home sections (the Today hook).
-  assert.match(hero, /href="\/markets"/, "hero links to /markets (Picks)");
-  assert.match(hero, /href="\/build"/, "hero links to /build (Parlay Center)");
   assert.match(hero, /href="\/results"/, "hero carries the Results proof link");
+  assert.match(page, /href: "\/build\/"/, "home links to /build (Parlay Center) from the phone summary");
   // The footer/sections reach these destinations (literal href or an href map entry).
   for (const href of ["/simulate", "/today", "/results"]) {
     assert.ok(sections.includes(`"${href}"`), `home sections link to ${href}`);
@@ -103,9 +105,10 @@ test("5 · Bank Builder status is derived honestly (no-play / awaiting), never a
   assert.match(page, /buildBankBuilderProposal\(/, "derives from the proposal loader");
   assert.match(page, /bbProposal\.available/, "no-play keys off proposal.available");
   assert.match(page, /const bbNoPlay = !bbProposal\.available/, "explicit no-play branch");
-  // The awaiting step comes from the real public dual-ladder view, not a literal "3".
-  assert.match(page, /buildPublicDualLadder\(/, "awaiting step from the dual-ladder view");
-  assert.match(page, /status === "awaiting"/, "reads the awaiting rung");
+  /* REPOINTED W4 (2026-10-28): Home no longer prints the ladder position ("Lane A awaiting Step 2 · Lane B awaiting
+     Step 1") — operator state on the front door. It lives, lane by lane and derived from the receipts, on /bank-builder
+     and /today (bank-builder-lane-summary.test). So Home must not print a step at all, derived or literal. */
+  assert.doesNotMatch(page, /awaiting Step|bankBuilderLaneSummary|Lane A/, "no ladder-position phrase on the front door");
   assert.match(page, /No-play/i, "renders a no-play label");
   // Never asserts a fabricated active card.
   assert.ok(!/status: "active"/.test(page) || /some\(\(c\) => c\.product === "bank-builder" && c\.status === "active"\)/.test(page),

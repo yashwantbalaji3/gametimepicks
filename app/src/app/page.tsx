@@ -13,9 +13,6 @@
  * components as PRE-FORMATTED string/number props. Nothing is recomputed or hardcoded — no record and no
  * dollar literal lives in a component; the components never touch fs/data.
  */
-import { positionFromReceipts, readReceipts } from "@/lib/products/ladder-position.mjs";
-import { BANK_BUILDER_LADDER } from "@/lib/bank-builder-ladder";
-import { bankBuilderLaneSummary } from "@/lib/products/bank-builder-lane-summary.mjs";
 import path from "node:path";
 import fs from "node:fs";
 
@@ -31,39 +28,29 @@ import { sportStateFromProductDay, stateLabel, partitionSports, SPORT_STATES } f
 import { buildHomeGameAnswers } from "@/lib/home/game-answers";
 import TopReadsPanel from "@/components/top-reads-panel";
 import { loadTopReads, topToday, topUpcoming, UPCOMING_READS_SHOWN } from "@/lib/top-reads";
-import { buildDailyBrief } from "@/lib/today/daily-brief";
 import { buildProductDays, buildSportToday, crossSportToday, type ProductDay } from "@/lib/product-day/product-day";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
-import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
-import { resolveLadderStep } from "@/lib/bank-builder-ladder";
-import { buildTop10Board } from "@/lib/top10/top10-picks";
-import { loadTodaySlate } from "@/lib/parlays/ui-loader";
-import { buildPublicDualLadder } from "@/lib/bank-builder/public-dual-ladder";
-import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 
 import LandingHero from "@/components/home/landing-hero";
 import LiveNow from "@/components/live/live-now";
 import RecentResultsStrip from "@/components/home/recent-results-strip";
 import { corePaperSettlement, siteLatestResults } from "@/lib/results/settled-through-server";
-import HomeTodayMlb from "@/components/home/home-today-mlb";
 import FlagshipCards, { type FlagshipCard } from "@/components/home/flagship-cards";
 import CommandCenter from "@/components/command-center/command-center";
 import { buildCommandCenter } from "@/lib/command-center/command-center";
 import SuggestedParlaysPreview from "@/components/home/suggested-parlays-preview";
 import { loadSuggestedParlaysPreview, TIER_INTENT } from "@/lib/home/suggested-parlays.mjs";
 import FeaturedSimulationsSection from "@/components/home/featured-simulations";
-import { UpcomingSportsStrip, type SportSchedule } from "@/components/sports/upcoming-sports";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
 import { readPublicationSlo } from "@/lib/ops/read-publication-slo";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
-import YesterdayCard from "@/components/recap/yesterday-card";
-import { buildYesterdayRecap } from "@/lib/recap/yesterday.mjs";
 import { currentProductRecord } from "@/lib/results/current-record";
 import { RECORD_SCOPE_LABEL } from "@/lib/results/current-record";
 import { committedLaneDates, loadCurrentLane } from "@/components/nba/experimental-lane";
 import { nbaTodaySlate } from "@/lib/sport-hub/nba-hub";
 import { nbaLane } from "@/lib/command-center/nba-lane";
 import { HomeTools, MobileMore, SportsToday } from "@/components/home/mobile-home-parts";
+import { withPlainStatus } from "@/components/home/plain-lanes";
 import { LANE as NBA_LANE } from "@/lib/sports/nba/experimental-public-lane.mjs";
 
 export const metadata = withRouteMetadata("/", {
@@ -116,13 +103,17 @@ export default function HomePage() {
   // ── Featured simulations — REAL ready artifacts only, via the shared selector (no new data path) ──
   const details = buildAllGameDetails();
   const { featured, readyCount, allCurrent } = featuredSimulations(details, currentEtDate());
-  // P1-E: the hero's "N simulation-ready" is /simulate's own count (started games excluded), never a second derivation.
+  // P1-E: /simulate's own ready count (started games excluded), never a second derivation — it decides whether the hero's
+  // secondary action says "Simulate Today's Games".
   const simulationReadyNow = simulationReadyCount(buildSimulateDay(currentEtDate(), { today: currentEtDate() }));
   const topReads = loadTopReads();
+  /* W4: a "highest-probability call" on the front door is one the model rates more likely than not. Display filter
+     only — the ranking, its order and the /today list are untouched. */
+  const HOME_CALL_MIN = 0.5;
+  const homeToday = topToday(topReads, 10).filter((r) => r.probability > HOME_CALL_MIN);
+  const homeUpcoming = topUpcoming(topReads, UPCOMING_READS_SHOWN).filter((r) => r.probability > HOME_CALL_MIN);
   // What each featured simulation CONCLUDED — a lookup over the canonical objects.
   const gameAnswers = buildHomeGameAnswers(details);
-  // Daily-MLB destination hook — the SAME brief overview /today leads with (factual counts, no picks).
-  const homeBrief = buildDailyBrief(details, today, { nowMs: Date.now() });
   // P200: the pre-sportsbook availability strip moved off Home — that derivation (buildMarketCoverage)
   // still renders at its canonical destination, /today, from the same lib. Home previews and routes.
 
@@ -132,39 +123,17 @@ export default function HomePage() {
 
   // ── MLB slate — same loader the Today board uses ──
   const mlb = getMlbBoardForDate(today);
-  const mlbGames = mlb.summary.scheduledGames ?? 0;
   const mlbLeans = mlb.summary.leans ?? 0;
 
-  // ── Top model picks count — only surfaced when real (else omitted) ──
-  const top10 = buildTop10Board(dataRoot, today, Date.now());
-  const topPicks = top10.overall?.length ? top10.overall.length : null;
-
   // ── Bank Builder status — derived HONESTLY from the loaders (never a hardcoded "active" card) ──
-  // `available === false` ⇒ no qualified card ⇒ NO-PLAY. The current awaiting rung is read from the
-  // public dual-ladder view (Lane A cleared Step 1+2, now awaiting Step 3); the exposure is the
-  // canonical open exposure ($0 while there is no active card). `resolveLadderStep` still guards the
-  // crown-ladder step for the copy fallback.
+  // `available === false` ⇒ no qualified card ⇒ NO-PLAY. A Bank Builder card is "active" ONLY when an approved lane is
+  // placed (status "active"); a proposal / candidate is not a placed card.
+  /* W4 (2026-10-28): the front door no longer prints each lane's ladder position (lane letter + next step) — that is the
+     product's own operating state and lives, named lane by lane, on /bank-builder and in /today's product fold (both read
+     the lane-summary helper). Home says whether a card is live and the open exposure. */
   const bbProposal = buildBankBuilderProposal(dataRoot, today);
-  const bbSummary = loadPublicBankBuilderSummary();
-  const crownRung = bbSummary ? resolveLadderStep(bbSummary.currentBankrollUnits) : null; // null when the crown ladder is complete
-  const bbPreview = loadTodaySlate().bankBuilderPreview;
-  const laneAView = buildPublicDualLadder(bbPreview.laneA, "lane-a");
-  /* G-3: the rung comes from the placed-card RECEIPTS — the same owner /bank-builder reads — so the two surfaces
-     cannot disagree. The dual-ladder store (frozen since 2026-08-17) is only the fallback when no receipt exists. */
-  const laneAPosition = positionFromReceipts({ receipts: readReceipts(dataRoot, today), product: "bank-builder", lane: "A", ladder: BANK_BUILDER_LADDER as never, seed: BANK_BUILDER_LADDER[0].start });
-  const awaitingRung =
-    (laneAPosition.basis ? laneAPosition.nextStep : null) ??
-    laneAView?.steps.find((s) => s.status === "awaiting")?.step ??
-    laneAView?.currentStep ??
-    crownRung?.step ??
-    null;
-  // A Bank Builder card is "active" ONLY when an approved lane is placed (status "active"); a proposal /
-  // candidate is not a placed card. Today there is none → no active card.
   const bbHasActiveCard = dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.status === "active");
   const bbNoPlay = !bbProposal.available && !bbHasActiveCard;
-  /* Audit F10 (2026-10-23): BOTH lanes, named, from the receipts /bank-builder reads (bank-builder-lane-summary.mjs). */
-  const bbStepPhrase = bankBuilderLaneSummary({ dataRoot, today, ladder: BANK_BUILDER_LADDER as never }).phrase
-    ?? (awaitingRung != null ? `Lane A awaiting Step ${awaitingRung}` : "awaiting next card");
 
   // ── Longshot / Moonshot status — no active Moonshot card today ⇒ honest no-play ──
   const moonshotActive = dailyPortfolio.cards.some((c) => c.product === "moonshot" && c.status === "active");
@@ -296,9 +265,14 @@ export default function HomePage() {
   const afterNfl = cardLanes.findIndex((l) => l.sport === "nfl") + 1;
   const commandLanes = [...cardLanes.slice(0, afterNfl), nbaHomeLane, ...cardLanes.slice(afterNfl)];
   const primaryLaneIds = new Set(primarySports.map((s) => s.id));
-  const primaryLanes = commandLanes.filter((l) => primaryLaneIds.has(l.sport));
-  const secondaryLanes = commandLanes.filter((l) => !primaryLaneIds.has(l.sport));
+  /* W4 (2026-10-28): each lane's status chips are said as ONE plain line on the lane (components/home/plain-lanes.ts) —
+     same public labels, nothing re-derived; "what the statuses mean" still links the full explanation. */
+  const primaryLanes = withPlainStatus(commandLanes.filter((l) => primaryLaneIds.has(l.sport)));
+  const secondaryLanes = withPlainStatus(commandLanes.filter((l) => !primaryLaneIds.has(l.sport)));
   // ── FLAGSHIP PRODUCTS — paper products powered BY the simulations (+ the track record) ──
+  /* W4 (2026-10-28): the Results card left this row — its record was the second of three record summaries on the page
+     (Results card, the Suggested Parlays recap, the Recent results band). The record now appears ONCE, in the Recent
+     results band below, from the same shared current-era reader. */
   const productCards: FlagshipCard[] = [
     {
       href: "/bank-builder",
@@ -308,8 +282,8 @@ export default function HomePage() {
          appended beside a live exposure figure. */
       status: bbHasActiveCard
         ? `${dailyPortfolio.cards.filter((c) => c.product === "bank-builder" && c.status === "active").length} paper card(s) active today`
-        : bbNoPlay ? `No-play · ${bbStepPhrase}` : bbStepPhrase,
-      statusSub: `Open exposure ${openExposureLabel}${bbHasActiveCard ? "" : " · no active card"}`,
+        : bbNoPlay ? "No-play today · the ladder waits for a qualifying card" : "A card is awaiting approval",
+      statusSub: `Open exposure ${openExposureLabel}`,
       cta: "View Bank Builder",
       accent: "var(--vault-gold)",
     },
@@ -321,15 +295,6 @@ export default function HomePage() {
       statusSub: "high-variance",
       cta: "View Moonshot",
       accent: "var(--gtp-bank-heat)",
-    },
-    {
-      href: "/results",
-      label: "Results",
-      blurb: "Settled and pending cards.",
-      status: recordLabel ? `${recordScope ?? "Record"} ${recordLabel}` : "Track record",
-      statusSub: pendingLabel ? `${pendingLabel} · official settlement only` : "Official settlement only",
-      cta: "View Results",
-      accent: "var(--vault-success)",
     },
   ];
 
@@ -343,7 +308,6 @@ export default function HomePage() {
   // sum of product days — the product-day sum read 0 during PHI @ CHI once the NFL index rolled to
   // Week 4. A scheduled game counts with or without our forecast.
   const eventsTodayTotal = todayAcross.eventsToday;
-  const activeProductCards = dailyPortfolio.cards.filter((c) => c.status === "active").length;
   // P0 U1: two dates, each from the ONE settled-through owner (lib/results/settled-through.mjs), each by its name.
   // The hero's link names no product, so it is the SITE's "Latest results" — the same accessor as the global header
   // chip. The Recent-results strip sits beside the paper record, so it prints THAT ledger's "results settled
@@ -351,9 +315,6 @@ export default function HomePage() {
   const latestResultsDate = siteLatestResults();
   const paperSettlement = corePaperSettlement();
 
-  const dateLabel = new Date(`${today}T12:00:00Z`).toLocaleDateString("en-US", {
-    weekday: "long", month: "long", day: "numeric",
-  });
 
   // Real ET clock for the liveness banner (never the slate date). Stale/random event spotlights were
   // removed from the homepage in the simulation-first reset — the sim hub + liveness banner lead instead.
@@ -386,8 +347,6 @@ export default function HomePage() {
         activeSports={primarySports.length}
         eventsToday={eventsTodayTotal}
         eventsKnown={todayAcross.state !== "UNKNOWN"}
-        qualifiedPicks={topPicks}
-        activeProducts={activeProductCards}
         latestResultsDate={latestResultsDate}
       />
 
@@ -418,12 +377,17 @@ export default function HomePage() {
       */}
       {/* P243 · A-1: the "today" ranking holds ONLY today's ET events; future reads get their own
           explicitly-upcoming section. A date chip on a future row never made it belong to today. */}
-      {topReads && topToday(topReads, 10).length > 0 ? (
+      {/* W4 (2026-10-28): renamed from "The model's strongest reads today". The list is ranked by the model's OWN
+          probability, not by an edge, and on a thin day it filled with 12–17% home-run chances under the word
+          "strongest". Home shows only calls the model rates more likely than not (HOME_CALL_MIN); the per-sport ranked
+          reads, long shots included, stay on /today. */}
+      {homeToday.length > 0 ? (
         <TopReadsPanel
-          set={topReads}
-          reads={topToday(topReads, 10)}
+          set={topReads!}
+          reads={homeToday}
           eyebrow="Across every sport"
-          title="The model's strongest reads today"
+          title="Highest-probability calls today"
+          sub="Ranked by each model's own probability — how likely, not an edge over the sportsbook. More ranked reads, long shots included, are on Today."
         />
       ) : null}
       {/*
@@ -439,17 +403,17 @@ export default function HomePage() {
       */}
       {/* Release B (benchmark PR 1193 gap 2): secondary sections render from sm up; phones get the summary (MobileMore) */}
       <div className="hidden sm:contents">
-      {topReads && topUpcoming(topReads, UPCOMING_READS_SHOWN).length > 0 ? (
+      {homeUpcoming.length > 0 ? (
         <TopReadsPanel
-          set={topReads}
-          reads={topUpcoming(topReads, UPCOMING_READS_SHOWN)}
+          set={topReads!}
+          reads={homeUpcoming}
           eyebrow="Dated ahead"
-          title="The model's next reads — upcoming"
+          title="Highest-probability calls coming up"
           /* Its own id: the today panel keeps "#top-reads", which the filter scrolls to. */
           domId="top-reads-upcoming"
           sub="Ranked by the model's own probability."
           /* Compact when today's panel already carried the provenance + paper-only block. */
-          compact={topToday(topReads, 10).length > 0}
+          compact={homeToday.length > 0}
         />
       ) : null}
       </div>
@@ -474,12 +438,8 @@ export default function HomePage() {
       />
       </div>
 
-      {/* 5b — How the last settled day went (P251). UX System V2 (founder directive 2026-10-13, homepage order:
-              hero → live → today's predictions → sports → … → "Track our results"): it moved from directly under
-              the hero — where a first-time reader met "1 card published · 0 hit, 1 missed · 57.9% of 38 decisive
-              projections" before knowing what the site is — to here, opening the results section. Unchanged
-              content, same owner (buildYesterdayRecap); still on the homepage, still above the fold on /today. */}
-      <YesterdayCard recap={buildYesterdayRecap(dataRoot)} />
+      {/* W4 (2026-10-28): the Suggested Parlays recap (YesterdayCard, P251) left Home — it was a second results summary
+          beside the Recent results band. It still closes /today's product fold, and every settled card is on /results. */}
       {/* 6 — Recent results: the proof section (charter 5B order). Same owners as /results — the
           record label and pending line arrive from the one Results reader above (current era, labelled); the date is the
           paper ledger's "results settled through" (lib/results/settled-through.mjs). The homepage composes NOTHING. */}
@@ -490,16 +450,8 @@ export default function HomePage() {
         settledThrough={paperSettlement.settledThrough}
       />
 
-      {/* 5 — Today's MLB destination hook: freshness + availability + one path into the /today brief. */}
-      <HomeTodayMlb
-        dateLabel={dateLabel}
-        games={homeBrief.overview.games}
-        simulationsReady={homeBrief.overview.simulationsReady}
-        lastUpdatedIso={homeBrief.lastUpdatedIso}
-        slateDate={today}
-        seedToday={serverToday}
-        hasGames={mlbGames > 0}
-      />
+      {/* W4 (2026-10-28): the MLB-only "Today's MLB · latest slate" hook left Home. The hero's primary action now opens
+          /today for every sport, so a one-sport pointer — which on a morning printed yesterday's finished slate — is gone. */}
 
       {/* Historical / not-yet-live coverage, kept reachable but clearly secondary. Nothing is hidden —
           it is simply no longer presented as something running today. */}
@@ -512,12 +464,9 @@ export default function HomePage() {
         />
       ) : null}
 
-      {/* Upcoming Sports schedules (Program 148 · Release B) — a deliberately quiet strip, OUTSIDE the
-          Simulation Hub by contract: schedule availability is not simulation coverage, and these
-          sports must never render as hub peers of MLB. One line per sport, status in words. */}
-      <section aria-label="Upcoming sports schedule status" style={{ marginTop: 8 }}>
-        <UpcomingSportsStrip sports={allUpcoming({ nowIso: new Date().toISOString() }) as SportSchedule[]} />
-      </section>
+      {/* W4 (2026-10-28): the "Upcoming sports schedule status" strip ("NBA: 455 upcoming", "Premier League: 300
+          upcoming") left Home: raw season-schedule counts told a visitor nothing about today. Each sport's lane above and
+          its hub carry the schedule. */}
 
       {/* 7 — Featured simulations (real ready artifacts only) */}
       <div className="hidden sm:contents"><FeaturedSimulationsSection featured={featured} readyCount={readyCount} answers={gameAnswers} allCurrent={allCurrent} /></div>

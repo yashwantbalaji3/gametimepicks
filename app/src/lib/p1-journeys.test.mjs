@@ -17,7 +17,9 @@ test("🔴 'Today's Picks' names exactly one destination — the picks page (/ma
     const re = /Today(?:&rsquo;|’|'|\\')s Picks/g; let m;
     while ((m = re.exec(src))) hits.push({ f: path.relative(process.cwd(), f), near: src.slice(Math.max(0, m.index - 1200), m.index) });
   }
-  assert.ok(hits.length >= 1, "the Home picks CTA still exists — otherwise this scan proves nothing");
+  /* REPOINTED W4 (2026-10-28): Home's "See Today's Picks" button (the only use) left the hero, so the scan may find no
+     label at all. It must still be able to find one: prove the matcher on the label as it was written. */
+  assert.ok(/Today(?:&rsquo;|’|'|\\')s Picks/.test("See Today&rsquo;s Picks"), "the scan's matcher recognises the label");
   for (const h of hits) {
     const href = [...h.near.matchAll(/href[=:]\s*["{]?["`]?([^"`}\s]+)/g)].map((x) => x[1]).at(-1);
     assert.equal(href?.replace(/\/$/, ""), "/markets", `${h.f}: "Today's Picks" must lead to /markets (found ${href})`);
