@@ -14,7 +14,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { topBoards, gameView, gameTabs, boardTabs, formatValue, PLAYER_FAMILIES, CLEARED, SOURCES, SUPPORTING_LABEL, MARKET_KEY, ESTIMATE_NOTE } from "./forecast-view.mjs";
+import { topBoards, gameView, gameTabs, boardTabs, formatValue, PLAYER_FAMILIES, CLEARED, SOURCES, SUPPORTING_LABEL, MARKET_KEY, ESTIMATE_NOTE, NOT_CLEARED_GAME, notClearedBoardNote, simulatedShareNote } from "./forecast-view.mjs";
 import { loadForecastViews, officialSnapshotFor, publicRecordOf } from "./forecast-view-load.mjs";
 import { unionFrozenForecasts } from "./public-forecast-union.mjs";
 import { readWorldModelArtifacts } from "./world-model-v2/read.mjs";
@@ -231,13 +231,80 @@ test("SUPPORTING · World Model V2 is labelled, versioned, hashed, and says when
   assert.ok(page.indexOf('<section id="players"') < page.indexOf("<SimulationPanel"), "the official projections come before the supporting simulation");
 });
 
-test("ESTIMATE · a family the board marks ESTIMATE says so once on its list, on the game page and the boards", () => {
-  const v = view({ board: board({ families: { player_pass_yds: { state: "ESTIMATE" }, player_rush_yds: { state: "PUBLISHED" } }, players: [bp(1, "A", { player_pass_yds: { mean: 230, median: 228, p10: 150, p90: 300 }, player_rush_yds: { mean: 20, median: 18 } })] }) });
+/*
+ * P0 2026-10-28 — this test used to assert the defect: an ESTIMATE family rendered its numbers under "Every number here is
+ * the official player board's projection" with an "Estimate · not cleared" note (ESTIMATE_NOTE) beneath them, on the game
+ * page and the Top boards. Not cleared is not official: the family now carries no official row; the game page says "Not
+ * published yet" with the board's reason, and a Top board says how many games it could not rank.
+ */
+test("ESTIMATE · a family the board did not clear carries no number under the official projections — game page and boards say why", () => {
+  const v = view({ board: board({ families: { player_pass_yds: { state: "ESTIMATE", reason: "SECOND_LOOK_REJECTED — failed bar: threshold calibration" }, player_rush_yds: { state: "PUBLISHED" } }, players: [bp(1, "A", { player_pass_yds: { mean: 230, median: 228, p10: 150, p90: 300 }, player_rush_yds: { mean: 20, median: 18 } })] }) });
+  assert.equal(v.players[0].families.passingYards, undefined, "no official row for a family that was not cleared");
+  assert.equal(v.players[0].families.rushingYards.value, 18, "a published family is untouched");
+  assert.deepEqual(v.notCleared, { passingYards: { state: "ESTIMATE", reason: "SECOND_LOOK_REJECTED — failed bar: threshold calibration" } });
   const tabs = gameTabs(v);
-  assert.equal(tabs.families.find((x) => x.key === "passingYards").estimate, ESTIMATE_NOTE.all);
-  assert.equal(tabs.families.find((x) => x.key === "rushingYards").estimate, null);
+  const pass = tabs.families.find((x) => x.key === "passingYards");
+  assert.deepEqual(tabs.lists.passingYards, []);
+  assert.equal(pass.withheld, `${NOT_CLEARED_GAME} Evaluation: not cleared on a second review — failed bar: threshold calibration.`, "Not published, with the board's reason in reader words");
+  assert.equal(pass.estimate, null);
+  assert.equal(tabs.families.find((x) => x.key === "rushingYards").withheld, null);
   const bt = boardTabs(topBoards([v], { now: "2098-01-01T00:00Z" }).boards);
-  assert.equal(bt.families.find((x) => x.key === "passingYards").estimate, ESTIMATE_NOTE.all);
+  assert.deepEqual(bt.lists.passingYards, [], "a Top board never ranks a family that was not cleared");
+  assert.equal(bt.families.find((x) => x.key === "passingYards").notCleared, notClearedBoardNote(1, 1));
+  assert.equal(bt.families.find((x) => x.key === "passingYards").estimate, null);
+  assert.equal(bt.families.find((x) => x.key === "rushingYards").notCleared, null);
+  // ESTIMATE_NOTE stays defined for any row that ever carries an ESTIMATE state; none reaches an official list now
+  assert.ok(ESTIMATE_NOTE.all.length > 20);
+});
+
+test("ESTIMATE · the supporting simulation's players are not listed under a family that is not published", () => {
+  const w = world({ players: [wp(1, "A", { passingYards: { median: 240 } }), wp(2, "A", { receivingYards: { median: 50 } })] });
+  const b = board({ families: { player_pass_yds: { state: "ESTIMATE" }, player_reception_yds: { state: "PUBLISHED" }, anytime_td: { state: "PUBLISHED" } }, players: [bp(1, "A", { player_pass_yds: { mean: 230, median: 228 } })] });
+  const v = view({ board: b, world: w });
+  assert.equal(v.unprojected.passingYards, undefined, "the family as a whole is Not published yet — naming players under it would contradict that");
+  assert.deepEqual(v.unprojected.receivingYards.map((x) => x.playerId), ["nfl-athlete-2"], "a published family still names who it does not project");
+});
+
+test("committed data · no official row carries an uncleared family, and CHI @ SEA's passing and rushing read Not published", () => {
+  for (const v of views) {
+    for (const p of v.players) for (const [k, e] of Object.entries(p.families)) assert.equal(e.familyState, "PUBLISHED", `${v.matchup} ${p.name} ${k}: ${e.familyState} under the official heading`);
+    const tabs = gameTabs(v);
+    for (const k of Object.keys(v.notCleared)) {
+      assert.deepEqual(tabs.lists[k], [], `${v.matchup} ${k}: no row`);
+      assert.ok(tabs.families.find((x) => x.key === k).withheld.startsWith(NOT_CLEARED_GAME), `${v.matchup} ${k}: says Not published, with the reason`);
+    }
+  }
+  const chiSea = views.find((v) => v.providerEventId === "401873036");
+  if (!chiSea) return; // once CHI @ SEA leaves the union the generic loop above still holds
+  const states = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/player-board/401873036.json"), "utf8")).families;
+  for (const [k, mk] of [["passingYards", "player_pass_yds"], ["rushingYards", "player_rush_yds"]]) {
+    if (states[mk]?.state !== "ESTIMATE") continue;
+    assert.ok(chiSea.notCleared[k], `CHI @ SEA ${k} is not cleared`);
+    assert.ok(!chiSea.players.some((p) => p.families[k]), `CHI @ SEA ${k}: no number in the all-players table or the tabs`);
+  }
+});
+
+test("the simulated share says 'matches' only when both sides print the same; otherwise both pairs and the tie-mass reason", () => {
+  const same = simulatedShareNote({ home: 0.6561, away: 0.3439, tie: 0 }, { home: 0.6564, away: 0.3436 }, { away: "CHI", home: "SEA" });
+  assert.equal(same, "This share is counted from the simulated games and matches the headline win chance.");
+  // the Production case: home within half a point, away 2.5 points apart, ~3% tie mass unallocated by the official forecast
+  const chiSea = simulatedShareNote({ home: 0.657, away: 0.341, tie: 0.002 }, { home: 0.656, away: 0.316, tieMass: 0.028 }, { away: "CHI", home: "SEA" });
+  assert.doesNotMatch(chiSea, /matches/);
+  assert.match(chiSea, /CHI 34\.1% · SEA 65\.7%/);
+  assert.match(chiSea, /CHI 31\.6% · SEA 65\.6%/);
+  assert.match(chiSea, /leaves the 2\.8% chance of a tie after regulation unallocated/);
+  assert.match(chiSea, /differ by 2\.5 points for CHI and 0\.1 points for SEA\.$/);
+  const noTie = simulatedShareNote({ home: 0.6, away: 0.4 }, { home: 0.62, away: 0.38, tieMass: 0 }, { away: "A", home: "B" });
+  assert.doesNotMatch(noTie, /tie after regulation/, "no tie-mass claim when the forecast states none");
+  const panel = fs.readFileSync(path.join(APP, "src/components/nfl/forecast/simulation-panel.tsx"), "utf8");
+  assert.match(panel, /\{simulatedShareNote\(w, recordWin, \{ away, home \}\)\}/, "the panel prints this sentence and no other");
+  assert.doesNotMatch(panel, /matches the headline win chance/, "the claim lives in one place");
+  for (const v of views.filter((x) => x.simulation)) {
+    const r = v.record.winProbability;
+    const n = simulatedShareNote(v.simulation.winProbability, { home: r.home, away: r.away, tieMass: r.tieAfterRegulation }, { away: v.away.abbr, home: v.home.abbr });
+    const pct = (p) => `${(p * 100).toFixed(1)}%`;
+    if (/matches/.test(n)) assert.ok(pct(v.simulation.winProbability.home) === pct(r.home) && pct(v.simulation.winProbability.away) === pct(r.away), `${v.matchup}: "matches" printed for shares that differ`);
+  }
 });
 
 test("RESULTS INTEGRITY · every surface that shows World Model V2 player numbers says the existing results do not grade them", () => {

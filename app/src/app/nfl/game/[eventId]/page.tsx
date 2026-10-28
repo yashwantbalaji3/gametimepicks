@@ -60,9 +60,9 @@ import SaveForecastButton from "@/components/saved/save-forecast-button";
 import { cardFromNflEvent, type NflEvent } from "@/lib/command-center/featured";
 import { saveCardOf } from "@/lib/saved/saved-schema.mjs";
 import { reportCardContext } from "@/lib/command-center/report-card";
-import { archivedEventFrom, archivedEventIds, archivedForecastFor, reconciledGames } from "@/lib/sports/nfl/archived-forecast";
+import { archivedEventIds, archivedForecastFor, reconciledGames } from "@/lib/sports/nfl/archived-forecast";
 import { buildNflPresentation } from "@/lib/simulate/presentation/nfl";
-import { nflSimulateEligibility } from "@/lib/sports/nfl/simulate-eligibility";
+import { nflGameStoryInputs } from "@/lib/simulate/presentation/nfl-game-story";
 import SimulationV2Link from "@/components/nfl/simulation-v2-link";
 import { PUBLIC_TERMS, PUBLIC_TERM_MEANING } from "@/lib/public-registry";
 import ForecastStyles from "@/components/nfl/forecast/styles";
@@ -375,7 +375,9 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
       {/* P308: the inline simulation story (under the hero, as on every report page), from the same eligibility verdict the lobby uses; a started game is told
           in the past tense by the adapter, and a refusal states its reason. */}
       <div style={{ marginTop: 22 }}>
-        <SimulationStorySection manifest={buildNflPresentation(nflSimulateEligibility(storyNowIso).events.find((e) => e.providerEventId === params.eventId) ?? (archived ? archivedEventFrom(archived) : null), { indexGeneratedAt: nflSimulateEligibility(storyNowIso).indexGeneratedAt, runCount: Number.isInteger(f.model?.simulations) && f.model.simulations > 0 ? f.model.simulations : null, modelVersion: f.model?.id ?? null, nowIso: storyNowIso })} />
+        {/* P0 2026-10-28: the story's "produced" is the forecast revision's own time (the freeze, for a played game) — never
+            the index rebuild stamp, which dated every settled week-7 story after its game (nfl-game-story.ts). */}
+        <SimulationStorySection manifest={buildNflPresentation(...nflGameStoryInputs(params.eventId, f, archived, storyNowIso))} />
       </div>
 
       {/* Founder directive 2026-10-08 — ONE NFL forecast experience. The projected scorecard (expected statistical
@@ -572,7 +574,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
       {/* Founder decision 2026-10-20: World Model V2 is a SUPPORTING simulation — its counted outcomes and sampled games
           render below the official numbers, in their own labelled block (forecast-view.mjs SUPPORTING_LABEL), never as a
           player row, a ranked board or a headline. */}
-      {view?.simulation ? <SimulationPanel sim={view.simulation} away={f.away.abbr} home={f.home.abbr} recordWinHome={s.winProbability.home} /> : null}
+      {view?.simulation ? <SimulationPanel sim={view.simulation} away={f.away.abbr} home={f.home.abbr} recordWin={s.winProbability} /> : null}
       {view?.simulation?.sampledWorlds?.length ? (
         <section id="sampled-games" className="nf-section" aria-labelledby="nf-explorer-h" data-role="supporting-simulation">
           <p className="nf-eyebrow">{view.simulation.label} · simulated game explorer</p>

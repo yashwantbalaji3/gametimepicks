@@ -140,8 +140,18 @@ export function reportableRows(set: EplForecastSet | null): EplForecastRow[] {
  * forecast of record, exactly what an archived report should show.
  */
 export function loadEplForecastArchive(): EplForecastRow[] {
+  return [...archiveEntries().values()].map((x) => x.row);
+}
+
+/**
+ * Every archived fixture with the time ITS revision was generated: the dated file's own `generatedAt` (or, for a
+ * recovered row, the `forecastGeneratedAt` its recovery names; for a current row, the live set's). The match page
+ * printed the LIVE set's `generatedAt` as every fixture's "Generated" time — "Oct 26" on a Sep 6 match (P0 ·
+ * 2026-10-28) — so a played match's report claimed a forecast made seven weeks after it.
+ */
+function archiveEntries(): Map<string, { row: EplForecastRow; generatedAt: string | null }> {
   const dir = path.join(process.cwd(), "public/data/soccer/epl/forecasts");
-  const bySlug = new Map<string, EplForecastRow>();
+  const bySlug = new Map<string, { row: EplForecastRow; generatedAt: string | null }>();
 
   /*
    * RECOVERED ROWS FIRST, so anything else supersedes them (P235 · Release C).
@@ -159,7 +169,7 @@ export function loadEplForecastArchive(): EplForecastRow[] {
    */
   try {
     const recovered = JSON.parse(fs.readFileSync(path.join(dir, "recovered.json"), "utf8"));
-    for (const r of recovered?.rows ?? []) if (r?.slug && r?.probs) bySlug.set(r.slug, r as EplForecastRow);
+    for (const r of recovered?.rows ?? []) if (r?.slug && r?.probs) bySlug.set(r.slug, { row: r as EplForecastRow, generatedAt: r.recovery?.forecastGeneratedAt ?? null });
   } catch { /* no recovery artifact — the archive is simply what the dated files hold */ }
 
   let files: string[] = [];
@@ -169,15 +179,27 @@ export function loadEplForecastArchive(): EplForecastRow[] {
       const raw = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
       for (const r of raw?.rows ?? []) {
         // Later files win: the newest pre-event revision is the forecast of record.
-        if (r?.slug && r?.probs) bySlug.set(r.slug, r as EplForecastRow);
+        if (r?.slug && r?.probs) bySlug.set(r.slug, { row: r as EplForecastRow, generatedAt: typeof raw.generatedAt === "string" ? raw.generatedAt : null });
       }
     } catch { /* an unreadable day never hides the rest of the archive */ }
   }
   // Current rows (when any) supersede their archived copies.
-  for (const r of loadEplForecasts()?.rows ?? []) {
-    if (r.slug && r.probs) bySlug.set(r.slug, r);
+  const live = loadEplForecasts();
+  for (const r of live?.rows ?? []) {
+    if (r.slug && r.probs) bySlug.set(r.slug, { row: r, generatedAt: live?.generatedAt ?? null });
   }
-  return [...bySlug.values()];
+  return bySlug;
+}
+
+/**
+ * When the forecast shown for this fixture was generated — the revision `findEplForecastAnywhere` returns, by the same
+ * precedence (current set first, then the archive). Null when it cannot be read: the page then names no time rather
+ * than borrow another revision's.
+ */
+export function eplForecastGeneratedAt(slug: string): string | null {
+  const set = loadEplForecasts();
+  if (findEplForecast(set, slug)) return set?.generatedAt ?? null;
+  return archiveEntries().get(slug)?.generatedAt ?? null;
 }
 
 /** Resolve one fixture's forecast of record: current when live, archived otherwise. */
