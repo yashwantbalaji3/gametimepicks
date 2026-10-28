@@ -76,3 +76,28 @@ test("Game Simulations section: rendered only when today has a Game Simulation t
   assert.match(page, /\.\.\.\(simLinks \? \[S\.simulations\] : \[\]\)/);
   assert.doesNotMatch(page, /They open from today&rsquo;s game cards on game days/, "no linkless dead-end paragraph");
 });
+
+test("availability (committed data): no published projection row is a ruled-out player; every pre-tip injury status reaches the board row", async () => {
+  const { boardRows, packBoard, unpackBoard } = await import("../../lib/sports/nba/projection-board-ops.mjs");
+  const { PROJECTION_BOARD_STATS } = await import("../../lib/sports/nba/experimental-public-lane.mjs");
+  const dir = path.join(APP, "public/data/nba/experimental-public");
+  let flagged = 0;
+  for (const f of fs.readdirSync(dir).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x))) {
+    const snap = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+    for (const g of snap.games) for (const side of ["away", "home"]) {
+      const published = new Set(g.players[side].map((p) => String(p.providerAthleteId)));
+      for (const p of g.players[side]) assert.doesNotMatch(String(p.injuryStatus ?? ""), /^(out|suspended|inactive)$/i, `${f} ${p.name}: a ruled-out player is never presented as projected`);
+      for (const u of g.players.unavailable?.[side] ?? []) assert.ok(!published.has(String(u.providerAthleteId)), `${f} ${u.name}: unavailable and projected at once`);
+    }
+    // the board (packed island wire → rows) keeps the status beside the name ("Name · Day-To-Day")
+    const rows = boardRows(snap, PROJECTION_BOARD_STATS);
+    const back = unpackBoard(JSON.parse(JSON.stringify(packBoard(rows, null, null, null, null))));
+    const byName = new Map(back.map((r) => [r.name, r.injury]));
+    for (const g of snap.games) for (const side of ["away", "home"]) for (const p of g.players[side]) {
+      if (!p.injuryStatus) continue;
+      flagged += 1;
+      assert.equal(byName.get(p.name), p.injuryStatus, `${f} ${p.name}: status shown on the board`);
+    }
+  }
+  assert.ok(flagged > 0, "the committed slates carry flagged players — the check is looking");
+});
