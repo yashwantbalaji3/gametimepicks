@@ -31,5 +31,8 @@ export function startedAt(startUtc, nowMs) {
 export const POST_START_PHRASE = Object.freeze({
   SETTLED: "Settled — the graded outcome is on Results; the report shows the frozen forecast beside it.",
   AWAITING_SETTLEMENT: "Final — grading against the official result is pending. The report shows the frozen pregame forecast.",
-  STARTED: "Started — no final is recorded yet. The report shows the frozen pregame forecast; the result arrives when it is graded.",
+  /* W9 (audit 2026-10-28): this said "no final is recorded yet" on /simulate/d/2026-10-27 while MIL@TB's own page
+     showed "Final 3–4 · grading pending" from the live feed. A static day view does not read live finals, so it
+     claims only what it knows — the result is not graded — and never the absence of a final. */
+  STARTED: "Started — not graded yet. The report shows the frozen pregame forecast; the result arrives when it is graded.",
 });

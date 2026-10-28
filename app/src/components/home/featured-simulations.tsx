@@ -10,6 +10,7 @@ import TeamMark from "@/components/ui/team-mark";
 import TeamLogo from "@/components/team-logo";
 import type { FeaturedSimulation } from "@/lib/simulate-lobby-featured";
 import type { HomeGameAnswer } from "@/lib/home/game-answers";
+import { HideOnceStarted, WhenAllStarted } from "@/components/home/featured-start-gate";
 
 export interface FeaturedSimulationsProps {
   /** The capped featured cards from `featuredSimulations()` (already sliced to <=5). */
@@ -143,6 +144,18 @@ export default function FeaturedSimulationsSection({ featured, readyCount, answe
   const sharedRunCount = hasFeatured && featured.every((s) => s.runCountLabel != null && s.runCountLabel === featured[0].runCountLabel)
     ? featured[0].runCountLabel
     : null;
+  const emptyState = (
+    <div
+      className="rounded-[12px] px-4 py-5 text-[13px] leading-snug"
+      style={{ background: "var(--vault-wash-faint)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-mute)" }}
+    >
+      <span className="font-semibold" style={{ color: "var(--vault-text)" }}>No simulation-ready games right now.</span>{" "}
+      Simulations return when the next slate&rsquo;s model artifacts are posted.{" "}
+      <Link href="/today" className="underline" style={{ color: "var(--vault-gold-bright)" }}>
+        See today&rsquo;s picks →
+      </Link>
+    </div>
+  );
   return (
     <section aria-label="Featured simulations" className="flex flex-col gap-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -163,8 +176,13 @@ export default function FeaturedSimulationsSection({ featured, readyCount, answe
       {hasFeatured ? (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-            {featured.map((s) => (
+            {featured.map((s) => archival ? (
               <SimCard key={s.slug} s={s} answer={answers?.[s.slug]} archival={archival} showRunCount={!sharedRunCount} />
+            ) : (
+              /* A featured game is a pregame game: once it starts on the reader's clock, its card goes. */
+              <HideOnceStarted key={s.slug} startUtc={s.startUtc}>
+                <SimCard s={s} answer={answers?.[s.slug]} archival={archival} showRunCount={!sharedRunCount} />
+              </HideOnceStarted>
             ))}
           </div>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -178,18 +196,9 @@ export default function FeaturedSimulationsSection({ featured, readyCount, answe
             </Link>
           </div>
         </>
-      ) : (
-        <div
-          className="rounded-[12px] px-4 py-5 text-[13px] leading-snug"
-          style={{ background: "var(--vault-wash-faint)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-mute)" }}
-        >
-          <span className="font-semibold" style={{ color: "var(--vault-text)" }}>No simulation-ready games right now.</span>{" "}
-          Simulations return when the next slate&rsquo;s model artifacts are posted.{" "}
-          <Link href="/today" className="underline" style={{ color: "var(--vault-gold-bright)" }}>
-            See today&rsquo;s picks →
-          </Link>
-        </div>
-      )}
+      ) : emptyState}
+      {/* Every featured game has started since the page was built: the cards hid themselves, so say so. */}
+      {hasFeatured && !archival ? <WhenAllStarted starts={featured.map((s) => s.startUtc)}>{emptyState}</WhenAllStarted> : null}
     </section>
   );
 }
