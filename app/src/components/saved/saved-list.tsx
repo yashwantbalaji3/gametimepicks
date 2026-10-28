@@ -28,28 +28,28 @@ function Row({ s, r, onRemove, routes }: { s: SavedForecast; r: Resolved; onRemo
   return (
     <li className="flex flex-col gap-1.5 rounded-[12px] px-3 py-2.5" style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)" }}>
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{SPORT_LABEL[s.sport] ?? s.sport}{s.context ? ` · ${s.context}` : ""}{s.startUtc ? ` · ${etStamp(s.startUtc)}` : ""}</span>
+        <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>{SPORT_LABEL[s.sport] ?? s.sport}{s.context ? ` · ${s.context}` : ""}{s.startUtc ? ` · ${etStamp(s.startUtc)}` : ""}</span>
         <ModelStatusChip state={s.modelState as PublicModelState} label={PUBLIC_STATE_LABEL[s.modelState as PublicModelState] ?? s.modelState} family={s.modelFamily ?? undefined} />
       </div>
       {dest.href && dest.kind !== "BOARD" ? (
-        <Link href={dest.href} className="font-display" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 800, textDecoration: "none" }}>{s.matchup}</Link>
+        <Link href={dest.href} className="font-display gtp-hit-area" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 800, textDecoration: "none" }}>{s.matchup}</Link>
       ) : (
         <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 800 }}>{s.matchup}</span>
       )}
-      {dest.kind === "BOARD" ? <Link href={dest.href as string} className="font-mono self-start" style={{ color: "var(--vault-gold-bright)", fontSize: 10.5 }}>{dest.label} →</Link> : null}
-      {dest.kind === "NONE" ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>No game page is published for this date any more — the saved forecast and its result stay here.</span> : null}
-      <span style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}><span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{s.family} </span><strong style={{ color: "var(--vault-text)" }}>{s.value}</strong>{s.sub ? ` · ${s.sub}` : ""}</span>
-      {s.signal ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{s.signal}</span> : null}
+      {dest.kind === "BOARD" ? <Link href={dest.href as string} className="font-mono self-start gtp-hit-44" style={{ color: "var(--vault-gold-bright)", fontSize: 12 }}>{dest.label} →</Link> : null}
+      {dest.kind === "NONE" ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>No game page is published for this date any more — the saved forecast and its result stay here.</span> : null}
+      <span style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}><span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>{s.family} </span><strong style={{ color: "var(--vault-text)" }}>{s.value}</strong>{s.sub ? ` · ${s.sub}` : ""}</span>
+      {s.signal ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>{s.signal}</span> : null}
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <span className="font-mono" style={{ color: tone, fontSize: 10.5 }}>
+        <span className="font-mono" style={{ color: tone, fontSize: 12 }}>
           {r.state === "FINAL" ? `Final${r.actual ? ` ${r.actual}` : ""} · ${r.outcome === "HIT" ? "the forecast landed" : r.outcome === "MISS" ? "the forecast missed" : "no result (void)"}` : r.state === "PENDING" ? "Started · result not graded yet" : "Upcoming"}
         </span>
         {/* GTP-23: `updatedAt` is the sport board's source stamp at save time (report-card.ts), not
             the forecast's freeze instant — "numbers as of" read as the latter and disagreed with the
             report. Relabelled, never rewritten: the stored value is what was saved. */}
-        <span className="font-mono" style={{ color: savedAfterStart(s) ? "var(--vault-warn)" : "var(--vault-text-faint)", fontSize: 9.5 }}>saved {etStamp(s.savedAt)}{savedAfterStart(s) ? " · after the start, so not a pre-event pick" : ""}{s.updatedAt ? ` · board updated ${etStamp(s.updatedAt)}` : ""}</span>
+        <span className="font-mono" style={{ color: savedAfterStart(s) ? "var(--vault-warn)" : "var(--vault-text-faint)", fontSize: 12 }}>saved {etStamp(s.savedAt)}{savedAfterStart(s) ? " · after the start, so not a pre-event pick" : ""}{s.updatedAt ? ` · board updated ${etStamp(s.updatedAt)}` : ""}</span>
       </div>
-      <button type="button" onClick={onRemove} className="self-start font-mono uppercase tracking-[0.08em]" style={{ minHeight: 36, padding: "0 12px", borderRadius: 999, border: "1px solid var(--vault-rule)", background: "transparent", color: "var(--vault-text-faint)", fontSize: 9.5, cursor: "pointer" }}>Remove</button>
+      <button type="button" onClick={onRemove} className="self-start font-mono" style={{ minHeight: 44, padding: "0 12px", borderRadius: 999, border: "1px solid var(--vault-rule)", background: "transparent", color: "var(--vault-text-faint)", fontSize: 12, cursor: "pointer" }}>Remove</button>
     </li>
   );
 }
@@ -79,7 +79,7 @@ export default function SavedList({ routes }: { routes: SavedRouteManifest }) {
     return () => { alive = false; };
   }, [ready, items.length]);
 
-  if (!ready) return <p className="font-mono m-0" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>Loading your saved forecasts…</p>;
+  if (!ready) return <p className="font-mono m-0" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>Loading your saved forecasts…</p>;
   if (!items.length) {
     return (
       <div className="rounded-[12px] px-4 py-5 flex flex-col gap-2" style={{ border: "1px dashed var(--vault-rule)" }}>
@@ -101,16 +101,16 @@ export default function SavedList({ routes }: { routes: SavedRouteManifest }) {
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex flex-wrap gap-1" role="group" aria-label="Filter by sport">
           {["all", ...sports].map((k) => (
-            <button key={k} type="button" onClick={() => setSport(k)} aria-pressed={sport === k} className="font-mono uppercase tracking-[0.08em]" style={{ minHeight: 36, padding: "0 12px", borderRadius: 999, border: `1px solid ${sport === k ? "var(--vault-border-active)" : "var(--vault-rule)"}`, background: sport === k ? "var(--vault-panel-elevated)" : "transparent", color: sport === k ? "var(--vault-text)" : "var(--vault-text-mute)", fontSize: 9.5, cursor: "pointer" }}>{k === "all" ? "All" : SPORT_LABEL[k] ?? k}</button>
+            <button key={k} type="button" onClick={() => setSport(k)} aria-pressed={sport === k} className="font-mono" style={{ minHeight: 44, padding: "0 12px", borderRadius: 999, border: `1px solid ${sport === k ? "var(--vault-border-active)" : "var(--vault-rule)"}`, background: sport === k ? "var(--vault-panel-elevated)" : "transparent", color: sport === k ? "var(--vault-text)" : "var(--vault-text-mute)", fontSize: 12, cursor: "pointer" }}>{k === "all" ? "All" : SPORT_LABEL[k] ?? k}</button>
           ))}
         </div>
-        <button type="button" onClick={() => { if (window.confirm("Remove every saved forecast from this browser?")) clear(); }} className="font-mono uppercase tracking-[0.08em]" style={{ minHeight: 36, padding: "0 12px", borderRadius: 999, border: "1px solid var(--vault-rule)", background: "transparent", color: "var(--vault-text-faint)", fontSize: 9.5, cursor: "pointer" }}>Clear all</button>
+        <button type="button" onClick={() => { if (window.confirm("Remove every saved forecast from this browser?")) clear(); }} className="font-mono" style={{ minHeight: 44, padding: "0 12px", borderRadius: 999, border: "1px solid var(--vault-rule)", background: "transparent", color: "var(--vault-text-faint)", fontSize: 12, cursor: "pointer" }}>Clear all</button>
       </div>
-      {ledgerError ? <p className="m-0 font-mono" style={{ color: "var(--vault-warn)", fontSize: 10.5 }}>Some result ledgers could not be loaded, so a graded result may show as pending. Nothing is guessed.</p> : null}
-      {!ledgers && items.length ? <p className="m-0 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>Checking results…</p> : null}
+      {ledgerError ? <p className="m-0 font-mono" style={{ color: "var(--vault-warn)", fontSize: 12 }}>Some result ledgers could not be loaded, so a graded result may show as pending. Nothing is guessed.</p> : null}
+      {!ledgers && items.length ? <p className="m-0 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>Checking results…</p> : null}
       {groups.map(([key, label, list]) => list.length ? (
         <section key={key} aria-labelledby={`saved-${key}-h`} className="flex flex-col gap-2">
-          <h2 id={`saved-${key}-h`} className="font-mono uppercase tracking-[0.14em] m-0" style={{ color: "var(--vault-gold)", fontSize: 11 }}>{label} · {list.length}</h2>
+          <h2 id={`saved-${key}-h`} className="font-mono uppercase tracking-[0.14em] m-0" style={{ color: "var(--vault-gold)", fontSize: 12 }}>{label} · {list.length}</h2>
           <ul className="m-0 p-0 list-none flex flex-col gap-2">
             {list.map(({ s, r }) => <Row key={s.id} s={s} r={r} routes={routes} onRemove={() => unsave(s.id)} />)}
           </ul>
