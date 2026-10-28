@@ -10,6 +10,8 @@
  */
 import Link from "next/link";
 
+import { mlbMarketLabel } from "@/lib/format-mlb";
+
 import {
   STATE_LABEL,
   type TerminalView,
@@ -33,6 +35,12 @@ export default function TerminalSummaryPanel({ terminal }: { terminal: TerminalV
   const cal = terminal.calibration;
   const reg = terminal.registry;
   const status = terminal.systemStatus;
+  /* Overnight 10-28 (W5): these three figures are the MLB player-prop research contract's
+     (scripts/build-public-research-contract.mjs reads public/data/mlb/results/settled_leans.jsonl) — not the site's
+     accuracy across sports. They used to print as "Model history 50.31% · Behind" with no sport or market named.
+     The markets are listed from the contract's own registry, so the scope cannot drift from the figures. */
+  const markets = (reg?.markets ?? []).map((m) => mlbMarketLabel(m.market).toLowerCase());
+  const marketList = markets.length ? new Intl.ListFormat("en", { type: "conjunction" }).format(markets) : null;
 
   return (
     <section
@@ -67,14 +75,14 @@ export default function TerminalSummaryPanel({ terminal }: { terminal: TerminalV
         {mu ? (
           <div>
             <dt className="text-[12px] uppercase tracking-wide text-[var(--text-mute)]">
-              Model history
+              MLB player props · hit rate
             </dt>
             <dd className="mt-1 text-[20px] font-bold tabular-nums text-[var(--text)]">
               {formatRate(mu.hitRate)}
             </dd>
-            <dd className="text-[12px] leading-snug text-[var(--text-mute)]">
-              {mu.decisiveRows.toLocaleString("en-US")} settled results
-              {mu.dateRange ? `, ${mu.dateRange[0]} → ${mu.dateRange[1]}` : ""}
+            <dd className="text-[12px] leading-snug text-[var(--text-mute)]" data-scope="mlb-props-history">
+              {mu.decisiveRows.toLocaleString("en-US")} settled MLB player-prop leans{marketList ? ` (${marketList})` : ""}
+              {mu.dateRange ? `, ${mu.dateRange[0]} → ${mu.dateRange[1]}` : ""}. Other sports are graded separately on Results.
             </dd>
           </div>
         ) : null}
@@ -82,7 +90,7 @@ export default function TerminalSummaryPanel({ terminal }: { terminal: TerminalV
         {cal ? (
           <div>
             <dt className="text-[12px] uppercase tracking-wide text-[var(--text-mute)]">
-              vs the sportsbook
+              MLB player props · vs the sportsbook
             </dt>
             {/* The number a homepage most wants to omit. Stated plainly, in the same size as the rest. */}
             <dd className="mt-1 text-[20px] font-bold text-[var(--text)]">
@@ -90,7 +98,8 @@ export default function TerminalSummaryPanel({ terminal }: { terminal: TerminalV
             </dd>
             <dd className="text-[12px] leading-snug text-[var(--text-mute)]">
               Their no-vig price scored {cal.marketBrier.toFixed(4)}; ours {cal.calibratedBrier.toFixed(4)}
-              {" "}on the same {cal.heldOutWindow.rows.toLocaleString("en-US")} held-out results. Lower is better.
+              {" "}on the same {cal.heldOutWindow.rows.toLocaleString("en-US")} held-out MLB prop results
+              {cal.heldOutWindow.from && cal.heldOutWindow.to ? `, ${cal.heldOutWindow.from} → ${cal.heldOutWindow.to}` : ""} (Brier score). Lower is better.
             </dd>
           </div>
         ) : null}
@@ -98,7 +107,7 @@ export default function TerminalSummaryPanel({ terminal }: { terminal: TerminalV
         {reg ? (
           <div>
             <dt className="text-[12px] uppercase tracking-wide text-[var(--text-mute)]">
-              Markets approved
+              MLB prop markets approved
             </dt>
             <dd className="mt-1 text-[20px] font-bold tabular-nums text-[var(--text)]">
               {reg.counts.APPROVED ?? 0}

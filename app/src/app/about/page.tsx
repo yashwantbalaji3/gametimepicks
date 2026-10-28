@@ -43,19 +43,22 @@ export default function AboutPage() {
 
       <div className="space-y-6 max-w-3xl mt-6">
         <Section title="What is GameTimePicks?">
-          GameTimePicks is an educational sports analytics project. We
-          compare a statistical model's per-game player projections
-          against the line the bookmaker is offering, then grade every
-          projection after the game so the track record stays honest.
-          It's a research lab — not betting advice.
+          GameTimePicks is an educational sports analytics project. For each
+          sport we cover, a model publishes its forecast before the game starts
+          — who is favoured, likely scores, player numbers — and every forecast
+          is graded against the official result afterwards, losses included, so
+          the track record stays honest. Where a sportsbook price exists it is
+          shown beside ours for comparison. It&apos;s a research lab — not
+          betting advice.
         </Section>
 
         <Section title="How projections work">
           For each event on the slate we pull the inputs the sport&apos;s own
           model declares — game logs, season rates and home/away context for
-          MLB player markets; team-strength ratings for NFL; goal-rate models
-          for the Premier League; tracked fight history for UFC — and run a
-          deterministic simulation. Where a sportsbook line exists it is shown
+          MLB player markets; team-strength ratings for NFL; an Elo team rating
+          and a player simulation for NBA; a goal-rate match model for the
+          Premier League, applied unchanged to Ligue 1; tracked fight history
+          for UFC — and run a deterministic simulation. Where a sportsbook line exists it is shown
           for context, never as an input. We never invent inputs; if a
           player&apos;s log or a fighter&apos;s history is missing, the read is
           suppressed and the page says so.
@@ -132,7 +135,8 @@ export default function AboutPage() {
           </ul>
           <p className="mt-3 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
             Those rates are measured over{" "}
-            {CATEGORY_SETTLED_RATES.cohort.toLocaleString("en-US")} settled outcomes, and they run in
+            {CATEGORY_SETTLED_RATES.cohort.toLocaleString("en-US")} settled MLB player-prop leans (as of{" "}
+            {CATEGORY_SETTLED_RATES.measuredOn}), and they run in
             the opposite direction to what the old labels implied. A larger
             disagreement with the market has historically settled{" "}
             <em>worse</em>, not better &mdash; which is why these are neutral
@@ -178,17 +182,27 @@ export default function AboutPage() {
 
         <Section title="What's coming next">
           <ul className="space-y-1 list-disc pl-5">
+            {/* Overnight 10-28 (W5): "Parlay-slip persistence" shipped (saved slips are graded on /results/parlays), and
+                "the four live sports" had become six. */}
             <li>
-              Parlay-slip persistence so candidate slips can be graded with
-              a real hit rate after games settle.
-            </li>
-            <li>
-              Wider market coverage across the four live sports as each
-              market clears its own evaluation bar — never before.
+              Wider market coverage in each sport we cover, as each market
+              clears its own evaluation bar — never before.
             </li>
           </ul>
         </Section>
 
+        {/* Overnight 10-28 (W5): this May snapshot was ~40% of /about, open, between the explainer and the footer. It is
+            kept word for word, folded into a dated History disclosure. A native <details> (no client script), so /about
+            stays the static script baseline the compare and Lab chunk guards diff against. */}
+        <details className="gtp-more-disclosure rounded-[12px]" style={{ border: "1px solid var(--vault-border)" }} data-about-history>
+          <summary className="gtp-more-disclosure-summary flex items-center justify-between gap-3 px-4 py-3 cursor-pointer select-none">
+            <span className="flex flex-col gap-0.5 min-w-0">
+              <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 600 }}>History · the model watchlist as it read on May 24, 2026</span>
+              <span style={{ color: "var(--vault-text-mute)", fontSize: 13, lineHeight: 1.45 }}>An archived snapshot from the NBA/MLB era of the site. It does not update; current model states are on System Status and each sport hub.</span>
+            </span>
+            <span aria-hidden className="gtp-more-disclosure-caret" style={{ color: "var(--vault-text-faint)", fontSize: 18 }}>›</span>
+          </summary>
+          <div className="px-2 pb-3 pt-1">
         <Section title="Model watchlist — archived snapshot (May 24, 2026)">
           {/* ARCHIVED, NOT CURRENT (P241 · A24): this section describes the NBA/MLB era and is
               kept as a dated snapshot of how the watchlist read then. The CURRENT model states
@@ -319,6 +333,8 @@ export default function AboutPage() {
             we run a real out-of-sample backtest.
           </p>
         </Section>
+          </div>
+        </details>
       </div>
 
       {/* Footer links to the technical surfaces */}

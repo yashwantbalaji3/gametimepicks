@@ -90,7 +90,10 @@ export function resultsV2Populations(today: string): V2Population[] {
   const nfl = owners.nflPicks();
   if (nfl) pops.push(population({
     id: "nfl-games", sport: "nfl", label: "NFL game winners", klass: "PUBLIC", kind: "GAME",
-    owner: "data/internal/nfl/experimental-settlement", note: "Experimental. A tie is a void, never a miss.",
+    /* Overnight 10-28 (W5): this record joins two bases (graded-picks.json `what`): games before the site froze a
+       published side are historical model-favored accuracy (61–44 on 10-28), later games the published pick (24–18). The
+       card said only "Experimental", under "Public forecasts". It now names both bases; /results/forecasts splits them. */
+    owner: "data/internal/nfl/experimental-settlement", note: "The team the frozen forecast favoured, graded against the official final. Games before the site published a frozen side count as historical model-favored accuracy, not published picks; later games are the published pick. Experimental. A tie is a void, never a miss.",
     seasonStart: SEASON.nfl.start, seasonLabel: SEASON.nfl.label, today, rows: fromPicks(nfl),
   }) as V2Population);
 

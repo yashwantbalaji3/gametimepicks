@@ -131,7 +131,12 @@ test("🔴 the suggestions record says what it is, shows counts not rates, and l
     legs: [{ ...entry("s").legs[0] }, { sport: "ligue-1", eventId: "x", eventLabel: "Brest v Nice", startUtc: "2031-07-01T19:00:00Z", selection: { code: "home", label: "Brest to win" }, probability: 0.42 }] })],
     [grade("a", "win"), grade("b", "void"), grade("s", "loss", [{ sport: "nba", eventId: "e-s", result: "loss", reason: "final 1-2" }, { sport: "ligue-1", eventId: "x", result: "pending", reason: "no gradeable result — status missing (only FULL_TIME grades)" }])]);
   const h = renderToStaticMarkup(React.createElement(ModelSuggestionsRecord, { view: v }));
-  assert.match(h, /live from [^·]+ · Production deployment c948636e1a/, "the recorder's source object in reader words");
+  /* Overnight 10-28: the deployment stamp moved off each card into the section's one "Technical details" disclosure
+     (it printed on every card — 85 lines on /results). The old assertion pinned it beside "live from", i.e. the defect. */
+  const [cards, technical = ""] = h.split(/Technical details/);
+  assert.match(technical, /Production deployment c948636e1a/, "the recorder's source object in reader words, inside Technical details");
+  assert.doesNotMatch(cards, /Production deployment/, "no deployment hash in the reading path");
+  assert.match(cards, /live from [^<·]+ET/, "the card keeps when it was shown");
   assert.doesNotMatch(h, /\[object Object\]|FULL_TIME/, "no object and no status code reaches the page (post-build guards)");
   assert.match(h, /Brest to win[\s\S]*?No official final yet/, "a pending leg says so instead of its grader code");
   assert.match(h, /Paper suggestions, no price, accuracy not yet established at this sample size\./);

@@ -15,6 +15,7 @@
  * Server component (calls a couple of read-only loaders for the settled
  * Bank Builder steps). Presentational otherwise.
  */
+import { sampleStateFor, SAMPLE_STATE } from "@/lib/sports/graded-picks.mjs";
 import Link from "next/link";
 import { LIFECYCLE_PHRASE, mayBeCalledNoPlay } from "@/lib/lifecycle/card-lifecycle.mjs";
 
@@ -38,6 +39,14 @@ function usd(n: number): string {
 function pct(r: number | null): string {
   if (r == null || !Number.isFinite(r)) return "—";
   return `${(r * 100).toFixed(1)}%`;
+}
+
+/** The site's one small-sample rule (sampleStateFor), in the words the /results overview cards use. */
+function oneSlateCaveat(decided: number): string {
+  const st = sampleStateFor(decided);
+  if (st === SAMPLE_STATE.TOO_SMALL) return " — far too few decided to judge accuracy";
+  if (st === SAMPLE_STATE.EMERGING) return " — still a small sample, with a wide margin of error";
+  return "";
 }
 
 /** A legacy ladder's completion date — C3 permits these figures only with their exact dates. */
@@ -504,34 +513,34 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
         </p>
         {mlb.daily ? (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <div className="rounded-[8px] px-3 py-2.5 flex flex-col gap-0.5" style={{ background: "var(--gtp-card-sunken)", border: "1px solid var(--vault-rule)" }}>
-                <Eyebrow>Latest date</Eyebrow>
-                <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 15 }}>
-                  {mlb.latestDate}
-                </span>
-              </div>
-              <div className="rounded-[8px] px-3 py-2.5 flex flex-col gap-0.5" style={{ background: "var(--gtp-card-sunken)", border: "1px solid var(--vault-rule)" }}>
-                <Eyebrow>Decisive leans</Eyebrow>
-                <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 15 }}>
-                  {mlb.daily.decisive}
-                </span>
-              </div>
-              <div className="rounded-[8px] px-3 py-2.5 flex flex-col gap-0.5" style={{ background: "var(--gtp-card-sunken)", border: "1px solid var(--vault-rule)" }}>
-                <Eyebrow>Day hit rate</Eyebrow>
+            {/* Overnight 10-28 (W5): each figure names its market, timeframe and sample. The tiles used to read "Day hit
+                rate 51.2%" beside "Lifetime hit rate 50.3%" — one slate (41 leans) and 130 slates (49,850) under labels
+                that said neither. The full sample leads; the latest slate follows, named as one slate. */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" data-mlb-performance-tiles>
+              {mlb.lifetime ? (
+                <div className="rounded-[8px] px-3 py-2.5 flex flex-col gap-0.5" style={{ background: "var(--gtp-card-sunken)", border: "1px solid var(--vault-rule)" }} data-scope="all-settled">
+                  <Eyebrow>MLB player-prop leans · every settled slate{mlb.lifetime.newestDate ? ` through ${mlb.lifetime.newestDate}` : ""}</Eyebrow>
+                  <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 18 }}>
+                    {pct(mlb.lifetime.hitRate)}
+                  </span>
+                  <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+                    {mlb.lifetime.wins.toLocaleString("en-US")}–{mlb.lifetime.losses.toLocaleString("en-US")} · {mlb.lifetime.decisive.toLocaleString("en-US")} decided over {mlb.lifetime.totalDates} slates
+                  </span>
+                </div>
+              ) : null}
+              <div className="rounded-[8px] px-3 py-2.5 flex flex-col gap-0.5" style={{ background: "var(--gtp-card-sunken)", border: "1px solid var(--vault-rule)" }} data-scope="latest-slate">
+                <Eyebrow>MLB player-prop leans · latest slate only{mlb.latestDate ? ` · ${mlb.latestDate}` : ""}</Eyebrow>
                 <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 15 }}>
                   {pct(mlb.daily.hitRate)}
                 </span>
-              </div>
-              <div className="rounded-[8px] px-3 py-2.5 flex flex-col gap-0.5" style={{ background: "var(--gtp-card-sunken)", border: "1px solid var(--vault-rule)" }}>
-                <Eyebrow>Lifetime hit rate</Eyebrow>
-                <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 15 }}>
-                  {mlb.lifetime ? pct(mlb.lifetime.hitRate) : "—"}
+                <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+                  {mlb.daily.wins}–{mlb.daily.losses} · {mlb.daily.decisive} decided on one slate{oneSlateCaveat(mlb.daily.decisive)}
                 </span>
               </div>
             </div>
             {mlb.byMarket.length > 0 && (
               <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+                <span className="text-[12px]" style={{ color: "var(--vault-text-faint)" }}>Latest slate by market:</span>
                 {mlb.byMarket.map((m) => (
                   <span key={m.key} className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
                     {m.label}{" "}

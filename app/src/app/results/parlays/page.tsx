@@ -48,6 +48,16 @@ export default function ResultsParlaysPage() {
   const lifetime = summary?.lifetime;
   const hasGradedHistory =
     !!lifetime && (lifetime.decisive ?? 0) > 0 && lifetime.hitRate !== null;
+  /* Overnight 10-28 (W5): the hero led with the lifetime rate as the H1 ("17.7%") beside a "Settled · Oct 15" chip,
+     while the newest graded slate was Sep 22 — a closed history reading as a live number. The page is now named by
+     what it is; the rate follows with its sports, its date span, its slate count and its last graded slate. */
+  const slateDates = (summary?.byDate ?? []).map((d) => d.date).sort();
+  const firstSlate = slateDates[0] ?? null;
+  const lastSlate = slateDates.at(-1) ?? null;
+  const SPORT_NAME: Record<string, string> = { mlb: "MLB", nba: "NBA", nfl: "NFL", epl: "Premier League", ufc: "UFC", multi: "mixed-sport" };
+  const sports = hasGradedHistory
+    ? [...new Set(gradedDates.flatMap((d) => getGradedForDate(d)?.sportsIncluded ?? []))].map((x) => SPORT_NAME[x] ?? x)
+    : [];
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 sm:py-12">
@@ -74,45 +84,42 @@ export default function ResultsParlaysPage() {
           </span>
         </div>
 
+        <h1
+          className="font-display font-semibold tracking-tight leading-tight m-0"
+          style={{
+            color: "var(--vault-text)",
+            fontSize: hasGradedHistory ? "clamp(28px, 4.6vw, 40px)" : "clamp(40px, 7vw, 64px)",
+          }}
+        >
+          {hasGradedHistory ? "Saved slip history" : "Saved slip history starts here."}
+        </h1>
+
         {hasGradedHistory ? (
-          <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
-            <h1
-              className="font-display font-semibold tracking-tightest leading-[0.95]"
-              style={{
-                color: "var(--vault-gold-bright)",
-                fontSize: "clamp(48px, 10vw, 96px)",
-                textShadow:
-                  "0 0 24px color-mix(in srgb, var(--vault-accent) 45%, transparent), 0 0 8px color-mix(in srgb, var(--vault-accent) 55%, transparent)",
-              }}
-            >
-              {((lifetime!.hitRate as number) * 100).toFixed(1)}%
-            </h1>
-            <span
-              className="font-display tracking-tight"
-              style={{
-                color: "var(--vault-text)",
-                fontSize: "clamp(18px, 2.6vw, 22px)",
-              }}
-            >
-              Saved-slip hit rate · {lifetime!.wins}–{lifetime!.losses}
-              {lifetime!.pushes > 0 ? `–${lifetime!.pushes}P` : ""} on{" "}
-              <span style={{ color: "var(--vault-gold-bright)" }}>
-                {lifetime!.decisive}
-              </span>{" "}
-              graded slips
+          <div className="mt-3 flex flex-col gap-1" data-parlays-scope>
+            <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
+              {sports.length ? `${new Intl.ListFormat("en", { type: "conjunction" }).format(sports)} slips · ` : ""}
+              {firstSlate && lastSlate ? `${firstSlate} → ${lastSlate} · ` : ""}
+              {slateDates.length} slate{slateDates.length === 1 ? "" : "s"}
             </span>
+            <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+              <span className="font-display font-semibold" style={{ color: "var(--vault-gold-bright)", fontSize: "clamp(28px, 5vw, 40px)" }}>
+                {((lifetime!.hitRate as number) * 100).toFixed(1)}%
+              </span>
+              <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(15px, 2.2vw, 18px)" }}>
+                of {lifetime!.decisive.toLocaleString("en-US")} graded slips · {lifetime!.wins.toLocaleString("en-US")}–{lifetime!.losses.toLocaleString("en-US")}
+                {lifetime!.pushes > 0 ? `–${lifetime!.pushes}P` : ""}
+              </span>
+            </div>
+            {latestGradedDate ? (
+              <span className="text-[13px]" style={{ color: "var(--vault-warn)" }} data-parlays-last-graded>
+                Last graded slate: {latestGradedDate}.{" "}
+                {pendingSnapshot
+                  ? `A newer saved slate (${pendingSnapshot.date}) is awaiting final stats and is not counted.`
+                  : "No newer saved slip has been graded, so this is a closed history, not a live record."}
+              </span>
+            ) : null}
           </div>
-        ) : (
-          <h1
-            className="font-display font-semibold tracking-tightest leading-tight"
-            style={{
-              color: "var(--vault-text)",
-              fontSize: "clamp(40px, 7vw, 64px)",
-            }}
-          >
-            Saved slip history starts here.
-          </h1>
-        )}
+        ) : null}
 
         <p
           className="mt-4 text-[14px] leading-relaxed max-w-2xl"
@@ -120,7 +127,7 @@ export default function ResultsParlaysPage() {
         >
           {hasGradedHistory ? (
             <>
-              Every slip above was saved <strong>before games started</strong>{" "}
+              Every slip here was saved <strong>before games started</strong>{" "}
               and graded against real final box scores. Pushes excluded from
               the denominator; pending slips never count as losses.
               Educational analytics — not betting advice.

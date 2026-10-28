@@ -7,7 +7,7 @@
 import Link from "next/link";
 import SectionHeader from "@/components/section-header";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
-import { NBA_FORECAST_DISCLOSURE, officialForecastCoverage } from "@/lib/public-registry";
+import { NBA_FORECAST_DISCLOSURE, officialForecastCoverage, publicSport } from "@/lib/public-registry";
 import { NBA_OFFICIAL_RECORD_LABEL } from "@/lib/results/nba-official-record.mjs";
 
 export const metadata = withRouteMetadata("/learn/", {
@@ -43,7 +43,10 @@ const SPORTS: Array<{ name: string; note: string }> = [
      Forecasts daily. The capability sentence is the registry's (its families), so it cannot drift again; the record and
      the retired model's archive are named for what they are. */
   { name: "NBA", note: `${officialForecastCoverage("nba") ?? ""} On the NBA hub, with the official side graded game by game in its ${NBA_OFFICIAL_RECORD_LABEL} on Results. ${NBA_FORECAST_DISCLOSURE} The NBA player model is not validated. A retired May–June 2026 player-prop model's settled record stays readable as an archive.` },
-  { name: "World Cup", note: "Closed. Kept as an archive of what was published at the time." },
+  /* Overnight 10-28 (W5): Ligue 1 publishes Official Forecasts but was missing here. Its sentence is the registry's own
+     (coverage + method), so the soccer description here and on /methodology is one description. */
+  { name: "Ligue 1", note: `${officialForecastCoverage("ligue-1") ?? ""} ${publicSport("ligue-1")?.method ?? ""}`.trim() },
+  { name: "World Cup", note: "Closed. Kept as an archive of what was published at the time. Its markets were a market-implied read from sportsbook prices, not the league match model." },
 ];
 
 const GATES: Array<{ label: string; note: string }> = [
