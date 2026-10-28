@@ -19,6 +19,7 @@ import type { GamePredictionDecision } from "@/lib/mlb/prediction/types";
 import { GameHeader, PlayerCard } from "@/components/entity";
 import SimulationStory from "@/components/entity/simulation-story";
 import { approxFrequency, exactFrequency, exactWinCounts } from "@/lib/sim-frequency";
+import { mlbForecastState } from "@/lib/mlb/full-game/forecast-state.mjs";
 
 /** A probability with no persisted count, as an APPROXIMATE "≈ N / 10,000 games" (TRUTH-001). */
 function frequency(probability: number | null | undefined, runCount: number | null | undefined): string | null {
@@ -38,6 +39,8 @@ export interface SimulationCardInput {
 export default function SimulationCard({ card }: { card: SimulationCardInput }) {
   const { game: g, prediction: p } = card;
   const ready = g.status !== "unavailable" && !!g.winProbability;
+  /* Overnight 10-28: a degraded official snapshot's prediction is never shown unqualified on the lobby either. */
+  const forecast = mlbForecastState(g);
   const exactWins = exactWinCounts(g);
   const winnerFreq = p?.moneyline
     ? exactWins
@@ -76,7 +79,8 @@ export default function SimulationCard({ card }: { card: SimulationCardInput }) 
             <div className="rounded-[10px] px-3 py-2.5 flex items-center justify-between gap-3 flex-wrap"
               style={{ background: "color-mix(in srgb, var(--vault-crown) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-crown) 30%, transparent)" }}>
               <div className="flex flex-col min-w-0">
-                <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold)", fontSize: 8.5 }}>Prediction</span>
+                <span className="font-mono uppercase tracking-[0.12em]" style={{ color: forecast && !forecast.ready ? "var(--vault-warn)" : "var(--vault-gold)", fontSize: 8.5 }}>{forecast && !forecast.ready ? forecast.label : "Prediction"}</span>
+                {forecast && !forecast.ready && forecast.causes ? <span data-mlb-forecast-qualifier="" style={{ color: "var(--vault-text-mute)", fontSize: 10.5, lineHeight: 1.4 }}>{forecast.causes}</span> : null}
                 <span className="font-display truncate" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>
                   {p.predictedWinner.team} <span style={{ color: "var(--vault-text-mute)", fontWeight: 500, fontSize: 13 }}>moneyline</span>
                 </span>

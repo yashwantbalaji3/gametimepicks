@@ -8,7 +8,9 @@
  *
  *   [date, startUtc, time, sport, matchup, status#, forecast#, read, note# (-1 = none), eventHref, resultHref]
  */
-export type ForecastState = "Published" | "Frozen" | "Pending" | "Unavailable";
+/* "Degraded inputs" (overnight 10-28): an MLB official snapshot marked degraded — a forecast exists, but it is never
+   "Published"/"Frozen" without its qualifier. Appended last so a packed row's state index keeps its meaning. */
+export type ForecastState = "Published" | "Frozen" | "Pending" | "Unavailable" | "Degraded inputs";
 export interface GamesTableRow {
   id: string;
   date: string;
@@ -31,7 +33,7 @@ export type PackedGamesRow = [string, string | null, string, string, string, num
 export interface PackedGamesTable { strings: string[]; rows: PackedGamesRow[] }
 
 export const SPORT_LABEL: Record<string, string> = { nfl: "NFL", nba: "NBA", mlb: "MLB", epl: "Premier League", ufc: "UFC" };
-export const FORECAST_STATES: readonly ForecastState[] = ["Published", "Frozen", "Pending", "Unavailable"];
+export const FORECAST_STATES: readonly ForecastState[] = ["Published", "Frozen", "Pending", "Unavailable", "Degraded inputs"];
 
 export function packGamesTable(rows: GamesTableRow[]): PackedGamesTable {
   const strings: string[] = [];

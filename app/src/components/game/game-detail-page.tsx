@@ -18,6 +18,7 @@ import MlbSimulationResultSummary from "@/components/game/mlb-simulation-result-
 import MlbSimulationReportV2 from "@/components/game/mlb-simulation-report-v2";
 import MlbFullGameReport from "@/components/game/mlb-full-game-report";
 import { forecastFrozenAt } from "@/lib/mlb/full-game/sim-provenance";
+import { mlbForecastState } from "@/lib/mlb/full-game/forecast-state.mjs";
 import ModelMarketComparison from "@/components/game/model-market-comparison";
 import { loadProductTagMap } from "@/lib/game-detail-product-tags";
 import { reportWordsFor } from "@/lib/game-detail-vocabulary";
@@ -827,6 +828,8 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
   // the same artifact contract, so gating on the sport would have forced a forked page for an
   // identical shape — the exact drift this codebase keeps closing.
   const isMlbSim = SIMULATION_SPORTS.has(detail.sport) && !!detail.gameLabSimulation;
+  /* The official MLB snapshot's public state (ready / degraded / unavailable) — null when this game has none. */
+  const mlbForecast = detail.sport === "mlb" ? mlbForecastState(detail.fullGameSim ?? null) : null;
 
   if (isMlbSim) {
     const sim = detail.gameLabSimulation!;
@@ -884,6 +887,18 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
                 fixture yet" (LAD @ CHC, 2026-08-03, whose books never posted). Presence of a
                 fixture is not readiness of a simulation. */}
             {(() => {
+              /* Overnight 10-28: an MLB game with an official snapshot states THAT snapshot's state (one reader,
+                 lib/mlb/full-game/forecast-state.mjs) — a degraded or unavailable official forecast never sits
+                 under a green "Simulation Ready" badge. The badge below remains for games with no snapshot. */
+              if (mlbForecast) {
+                return (
+                  <span data-mlb-forecast-state={mlbForecast.status} className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.12em]" style={mlbForecast.tone === "ok"
+                    ? { background: "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)", color: "var(--gtp-success-on-dark)", fontSize: 9 }
+                    : { background: "color-mix(in srgb, var(--vault-warn) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-warn) 45%, transparent)", color: mlbForecast.tone === "warn" ? "var(--vault-warn)" : "var(--vault-text-mute)", fontSize: 9 }}>
+                    {mlbForecast.label}
+                  </span>
+                );
+              }
               const sim = detail.gameLabSimulation;
               const simIsReady =
                 !!sim && sim.status !== "unavailable" && sim.status !== "error" && (sim.generatedPicks?.length ?? 0) > 0;
@@ -937,6 +952,8 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           homeLogo={detail.homeLogo}
           awayLogo={detail.awayLogo}
           postReveal={mlbGameFirstReport}
+          forecastState={mlbForecast}
+          forecastFrozenAt={detail.sport === "mlb" ? forecastFrozenAt(detail.fullGameSim ?? null, detail.fullGameSimMeta ?? null) : null}
         />
 
         {/* P250-W2: GameSimulationRunner already closes with the single paper-only disclosure
