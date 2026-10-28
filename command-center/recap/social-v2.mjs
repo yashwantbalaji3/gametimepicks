@@ -285,6 +285,11 @@ export function nbaFinal({ src, eventId, season = "2026-27" }) {
  * (never re-sorted by a statistic — the lane publishes no rankings), up to NBA_LINES_PER_TEAM per team.
  */
 export const NBA_LINES_PER_TEAM = 6;
+/** A long name keeps the full surname and the first initial ("N. Alexander-Walker") — still the real, published player. */
+export const shortName = (name, max = 18) => {
+  const parts = String(name).split(" ");
+  return String(name).length <= max || parts.length < 2 ? String(name) : `${parts[0][0]}. ${parts.slice(1).join(" ")}`;
+};
 export function nbaPlayers({ src, eventId, date = "latest" }) {
   const p = `app/public/data/nba/experimental-public/${date}.json`;
   const raw = src.read(p);
@@ -295,7 +300,7 @@ export function nbaPlayers({ src, eventId, date = "latest" }) {
   const one = (x) => (typeof x === "number" ? x.toFixed(1) : null);
   const lines = (arr) => (arr ?? []).filter((x) => !x.injuryStatus || !EXCLUDED.has(String(x.injuryStatus).toUpperCase()))
     .filter((x) => x.medians && one(x.medians.pts) != null).slice(0, NBA_LINES_PER_TEAM)
-    .map((x) => ({ name: x.name, pts: one(x.medians.pts), reb: one(x.medians.reb), ast: one(x.medians.ast), id: x.providerAthleteId }));
+    .map((x) => ({ name: shortName(x.name), fullName: x.name, pts: one(x.medians.pts), reb: one(x.medians.reb), ast: one(x.medians.ast), id: x.providerAthleteId }));
   const awayPlayers = lines(g.players?.away);
   const homePlayers = lines(g.players?.home);
   if (!awayPlayers.length || !homePlayers.length) return { ok: false, reason: "a team has no published player medians" };

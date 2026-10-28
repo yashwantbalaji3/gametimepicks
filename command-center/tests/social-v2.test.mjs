@@ -161,3 +161,9 @@ test("Format C shows the TD section only when the published cohort is completely
   assert.doesNotMatch(visibleText(socialHtml(partial)), /scored/, "an incomplete cohort is left off, never shown as misses");
   assert.match(visibleText(socialHtml(m)), /0 of 3 scored/);
 });
+
+test("NBA stat lines: a long name shows as initial + full surname, so the card still renders", async () => {
+  const { shortName } = await import("../recap/social-v2.mjs");
+  assert.equal(shortName("Nickeil Alexander-Walker"), "N. Alexander-Walker");
+  assert.equal(shortName("Jayson Tatum"), "Jayson Tatum");
+});
