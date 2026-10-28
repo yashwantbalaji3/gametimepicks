@@ -119,3 +119,15 @@ test("NFL game page: model id, input hash and revision ids sit inside Technical 
   assert.match(panelTech, /World Model V2 \{sim\.version\}/, "the engine name reads only in the panel's Technical details");
   assert.ok(!panel.replace(panelTech, "").includes("World Model V2"), "and nowhere else in the panel");
 });
+
+test("NFL simulation page: engine version, seed algorithm and receipt id sit inside Technical details; times are ET", () => {
+  const report = code("src/components/nfl/simulation-v2-report.tsx");
+  const tech = technicalDetails(report);
+  for (const token of ["{r.simulationEngine} {r.simulationEngineVersion}", "{r.baseSeed} · {r.seedStrategy}", "{r.simulationReceiptId}"]) {
+    assert.ok(tech.includes(token), `${token} is inside Technical details`);
+    assert.ok(!report.replace(tech, "").includes(token), `${token} also renders outside it`);
+  }
+  assert.doesNotMatch(report, /\} UTC`/, "no UTC stamp");
+  const after = report.slice(report.indexOf("</MoreDisclosure>"));
+  assert.match(after, /Not modelled:[\s\S]*Educational and paper-only; not betting advice\./, "the not-modelled list and disclaimer stay visible");
+});
