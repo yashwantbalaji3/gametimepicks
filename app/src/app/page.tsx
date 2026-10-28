@@ -390,7 +390,8 @@ export default function HomePage() {
           reads={homeToday}
           eyebrow="Across every sport"
           title="Highest-probability calls today"
-          sub="Ranked by each model's own probability — how likely, not an edge over the sportsbook. More ranked reads, long shots included, are on Today."
+          /* Founder 2026-10-28: keep the >50% filter, and say it is a presentation threshold — not a value claim. */
+          sub="Ranked by each model's own probability. Only calls above 50% are shown here: a display cutoff, not a sign of betting value or an edge over the sportsbook. Every ranked read, long shots included, is on Today."
         />
       ) : null}
       {/*

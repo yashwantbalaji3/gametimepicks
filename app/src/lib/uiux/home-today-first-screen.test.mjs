@@ -77,6 +77,9 @@ test("home · no operator strings in the page's own copy; lane chips said as one
   }
   assert.match(page, /title="Highest-probability calls today"/, "the ranked panel is named for what it is");
   assert.match(page, /\.filter\(\(r\) => r\.probability > HOME_CALL_MIN\)/, "…and shows only calls rated more likely than not");
+  assert.match(page, /Only calls above 50% are shown here: a display cutoff, not a sign of betting value or an edge over the sportsbook\./,
+    "the filter is explained as a presentation threshold, not a value claim (founder 2026-10-28)");
+  assert.equal(page.match(/const HOME_CALL_MIN = ([\d.]+);/)?.[1], "0.5", "the explained threshold is the one applied — change both together");
   assert.match(page, /withPlainStatus\(commandLanes\.filter/, "the lanes pass through the plain-status line");
   const { plainStatusLine, withPlainStatus } = await import("../../components/home/plain-lanes.ts");
   const st = (family, state) => ({ id: family, family, state, headline: "h", detail: "d", n: 1, source: "scorecard" });
