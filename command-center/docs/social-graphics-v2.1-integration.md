@@ -16,7 +16,7 @@
 | Wed Oct 28 (catch-up) | 13 NFL Prediction vs. Final (Oct 25–26) · 20 NBA finals (Oct 25–27) | All READY, ranked below upcoming posts; the older V1 versions are superseded |
 
 **Total:** 61 V2.1 graphics, all 1080×1350.
-- **Ready:** 46 (14 predictions, 13 recaps, 20 NBA finals).
+- **Ready:** 47 (14 predictions, 13 recaps, 20 NBA finals). This line first said 46, a hand-count error; counts now come from `queueInventory` (see below).
 - **Needs verification:** 14 TD drafts.
 - **Blocked:** none in this build.
 
@@ -105,3 +105,15 @@ The V1 items from the approved calendar remain (explainers, X replies, EPL resul
 2. **Each individual post**, including TD availability confirmation, and then posting it yourself on X.
 3. Your call on the **sub-50% predicted-winner wording** (PHI @ WSH).
 4. Anything hosted, pushed, merged or paid: separately.
+
+
+## Update · 2026-10-28, 12:30 PM ET (founder corrections)
+
+- **Most Likely Winner:** used when the published side is under 50% but is still the single most likely outcome (PHI @ WSH: Eagles 49.9%). If the side isn't the top outcome, no graphic is made. Probabilities are unchanged.
+- **Counts are code-derived:** `queueInventory` throws if open posts and status totals disagree. Live: **103 open = 81 ready + 22 needs verification + 0 blocked; 92 graphics + 11 text posts.**
+- **NBA, Oct 28 (lane landed 12:04 PM ET):** 12 Predicted Winner cards (no probability) and 12 non-ranked stat-line cards, all READY. One long name ("Nickeil Alexander-Walker") was first refused by the fit guard; it now shows as "N. Alexander-Walker".
+- **TNF:** re-verified on the version frozen Oct 28, 12:00 PM ET (Packers 63.8%, matches the site). The TD draft still needs your availability confirmation.
+- **"Up next"** lists upcoming posts soonest-first; older recaps sit in a collapsed "Catch-up" section.
+- **"Check before posting"** re-runs the freshness and latest-version check on an approved post and records it. Use it right before you post.
+- **Console speed:** state took 16 s per poll as the ledger grew. Parsed ledger entries are now cached (write-once files), bringing it to about 0.1–1 s.
+- **Still open from the first queue:** 5 V1 NBA multi-game results cards. They overlap the V2.1 per-game finals; reject or ignore them.
