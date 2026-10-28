@@ -27,7 +27,7 @@ import { notFound } from "next/navigation";
 
 import TeamLogo from "@/components/team-logo";
 import SectionHeader from "@/components/section-header";
-import { loadEplForecasts, findEplForecastAnywhere, loadEplForecastArchive, loadEplPlayerProjections, playersForFixture, reportableRows } from "@/lib/sports/epl/forecast-view";
+import { loadEplForecasts, findEplForecastAnywhere, eplForecastGeneratedAt, loadEplForecastArchive, loadEplPlayerProjections, playersForFixture, reportableRows } from "@/lib/sports/epl/forecast-view";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { researchTeamsForGame } from "@/lib/research-pages/projection-store";
 import SimulationStorySection from "@/components/simulate/simulation-story-section";
@@ -88,7 +88,9 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
      so those lines fall back to the row's own era truths rather than crashing the archive page. */
   const set = loadEplForecasts();
   const trackRecordLine = set?.trackRecord ?? "The graded record could not be read, so no accuracy claim is made here.";
-  const generatedLine = set?.generatedAt ?? "see the dated forecast artifact for this fixture";
+  /* P0 2026-10-28: THIS fixture's revision time (its last pre-match revision, for a played match) — not the live set's
+     `generatedAt`, which dated a Sep 6 match "Generated Oct 26". */
+  const forecastAt = eplForecastGeneratedAt(params.slug);
   /* The raw validation enum is mapped to words at render time; it is never printed as-is. */
   const validationLine = set?.validation === "VALIDATED_OUT_OF_SAMPLE_HISTORY"
     ? "Team match model tested blind on past seasons · not shown to outperform market prices"
@@ -471,7 +473,7 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
           <dl style={{ display: "grid", gap: 6, gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", margin: 0 }}>
             <Meta k="Model" v={row.modelId ?? "epl-model-v1-split-poisson"} />
             {row.lambdas ? <Meta k="Scoring rates (λ)" v={`${home} ${dec(row.lambdas.home)} · ${away} ${dec(row.lambdas.away)}`} /> : null}
-            <Meta k="Generated" v={set?.generatedAt ? <EtTime iso={set.generatedAt} /> : generatedLine} />
+            <Meta k="Forecast generated" v={forecastAt ? <EtTime iso={forecastAt} /> : "see the dated forecast artifact for this fixture"} />
             <Meta k="Validation" v={validationLine} />
           </dl>
         </div>

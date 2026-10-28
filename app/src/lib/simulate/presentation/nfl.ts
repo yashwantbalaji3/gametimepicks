@@ -18,6 +18,7 @@
 import type { NflEligibleEvent } from "@/lib/sports/nfl/simulate-eligibility";
 import type { ChapterKind, PresentationChapter, PresentationManifest, PresentationResult } from "./types";
 import { hasStarted } from "@/lib/sports/nfl/effective-lifecycle.mjs";
+import { etStamp } from "@/lib/et-stamp.mjs";
 
 /**
  * The event's calendar day in ET (YYYY-MM-DD), like every other date on this site. `kickoffUtc.slice(0, 10)`
@@ -37,6 +38,13 @@ export function buildNflPresentation(
   e: NflEligibleEvent | null | undefined,
   opts?: {
     indexGeneratedAt?: string | null;
+    /**
+     * The forecast revision's OWN `generatedAt` — for a started game, the revision frozen before kickoff. It is the
+     * only time the story footer prints as "produced". The index stamp is when the slate index was last rebuilt (on
+     * 2026-10-27 the week-8 regeneration stamped every settled week-7 story "produced Oct 27, 3:59 PM ET" beside a
+     * forecast frozen two days earlier), so it is never presented as the forecast's time.
+     */
+    forecastGeneratedAt?: string | null;
     /** The forecast artifact's own trial count. Carried only when the artifact states one. */
     runCount?: number | null;
     modelVersion?: string | null;
@@ -74,7 +82,7 @@ export function buildNflPresentation(
     id: "event", kind: "event",
     title: e.matchup,
     line: archived
-      ? `${e.away.name} at ${e.home.name}, ${(e.kickoffUtc ?? "").slice(0, 10)}. This game has been played — what follows is the forecast as it was frozen BEFORE kickoff, not a current read.`
+      ? `${e.away.name} at ${e.home.name}, ${etDateOf(e.kickoffUtc)}. This game has been played — what follows is the forecast as it was frozen BEFORE kickoff, not a current read.`
       : baseline
         ? `${e.away.name} at ${e.home.name}. This is a BASELINE read: a real, reproducible run whose team numbers come from a shared prior rather than from anything specific to these two teams.`
         : `${e.away.name} at ${e.home.name}${e.venue ? ` at ${e.venue}` : ""}.`,
@@ -160,7 +168,9 @@ export function buildNflPresentation(
         ? "A baseline read stays a baseline read. It is listed and labelled, never counted or featured as a game-specific simulation."
         : "The full report carries the distribution, the market state and the definitions behind this.",
     stats: [], bars: [],
-    rows: opts?.indexGeneratedAt ? [{ label: "Index", detail: opts.indexGeneratedAt }] : [],
+    /* The index stamp is said for what it is — when the game index was refreshed — and only for a game not yet played:
+       for a frozen forecast it is a later, unrelated time and has no place in the story. */
+    rows: !archived && opts?.indexGeneratedAt ? [{ label: "Game index refreshed", detail: etStamp(opts.indexGeneratedAt) ?? opts.indexGeneratedAt }] : [],
     holdMs: HOLD.normal,
   });
 
@@ -181,7 +191,7 @@ export function buildNflPresentation(
          carried when the caller has it and left null when nobody stated one — never counted off an
          array length. */
       runCount: typeof opts?.runCount === "number" && opts.runCount > 0 ? opts.runCount : null,
-      generatedAt: opts?.indexGeneratedAt ?? null, marketCapturedAt: null, bookmaker: null,
+      generatedAt: opts?.forecastGeneratedAt ?? null, marketCapturedAt: null, bookmaker: null,
     },
     supportedChapters: chapters.map((c) => c.kind) as ChapterKind[],
     chapters,
