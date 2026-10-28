@@ -24,6 +24,7 @@ import {
 } from "./experimental-public-lane.mjs";
 import { COMBO_KEYS } from "./game-sim.mjs";
 import { eloWinProbabilityForPublish } from "./elo-win-probability.mjs";
+const { NBA_MODEL_PERFORMANCE_NOTE } = await import("../../public-registry.ts");
 import { gamePayloadHash } from "./forecast-receipt.mjs";
 import { boardRows, filterRows, sortRows, statGroups, boardOptions, packBoard, unpackBoard } from "./projection-board-ops.mjs";
 
@@ -151,7 +152,9 @@ test("every view carries the one Predicted Player Statistics note, freeze times,
   // Founder vocabulary (overnight directive 2026-10-23): the experimental banner became ONE concise note (wording:
   // release owner decision 2026-10-23, the registry's NBA_MODEL_PERFORMANCE_NOTE).
   const { PREDICTED_NOTE } = await import("../../../components/nba/projections-view.tsx");
-  assert.equal(PREDICTED_NOTE, "NBA forecasts are graded after every game; a public Model Performance record for NBA has not been published yet.");
+  // REPOINTED (audit 2026-10-28 F04): the board prints the registry's one sentence, not a copy of it.
+  assert.equal(PREDICTED_NOTE, NBA_MODEL_PERFORMANCE_NOTE);
+  assert.equal(PREDICTED_NOTE, "NBA forecasts are graded after every game. The favoured-side record is published as counts on NBA results; it is not judged before 300 graded games.");
   assert.equal(html.split(PREDICTED_NOTE).length - 1, 1);
   assert.doesNotMatch(html, /UNVALIDATED EXPERIMENTAL SIMULATION|experimental, not validated/);
   for (const g of PUB.games) {

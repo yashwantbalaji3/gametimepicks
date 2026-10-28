@@ -96,7 +96,7 @@ test("rendered lane: the UNVALIDATED banner, freeze times and sources show; no p
   const { default: Lane } = await import("../../../components/nba/experimental-lane.tsx");
   const html = renderToStaticMarkup(React.createElement(Lane, { snapshot: JSON.parse(JSON.stringify(snap())) }));
   // founder directive 2026-10-23 public readiness: the registry banner (Official Forecast + its one disclosure)
-  assert.match(html, /Frozen before tip-off and shown exactly as frozen\. Not a betting recommendation\. NBA forecasts are graded after every game; a public Model Performance record for NBA has not been published yet\./); // release owner 2026-10-23 exact text
+  assert.match(html, /Frozen before tip-off and shown exactly as frozen\. Not a betting recommendation\. NBA forecasts are graded after every game\. The favoured-side record is published as counts on NBA results; it is not judged before 300 graded games\./); // REPOINTED audit 2026-10-28 F04 (was the 10-23 "not published yet" text beside a published record)
   // founder mandate 2026-10-24: one table row per game — the slate date in the heading, each game's freeze time in its row
   assert.match(html, /Official Forecasts · Oct 20/);
   assert.match(html, /<th scope="col">Frozen<\/th>/);

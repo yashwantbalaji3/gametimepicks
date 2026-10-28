@@ -10,6 +10,7 @@
 import Link from "next/link";
 
 import MoreDisclosure from "@/components/ui/more-disclosure";
+import { surfaceHref } from "@/lib/nav/date-sport-route";
 import { SETTLED_MARKET_WORDS, outcomeWord, type SettledMlbGame } from "@/lib/mlb/settled-games";
 
 /** The page's own marker (the built guard finds settled pages by it). */
@@ -28,11 +29,13 @@ export default function MlbSettledGame({ game: g, names }: { game: SettledMlbGam
   const right = g.calls.filter((c) => c.outcome === "WIN").length;
   const decided = g.calls.filter((c) => c.outcome === "WIN" || c.outcome === "LOSS").length;
   const attrs = { [MLB_SETTLED_ATTR]: g.slug };
+  // the archived lobby for the game's date, through the one date-url owner
+  const dayHref = surfaceHref("simulate", { date: g.date }) ?? "/simulate/";
   return (
     <article className="mx-auto flex max-w-3xl flex-col gap-5 px-4 py-8" {...attrs}>
       <nav aria-label="This game" className="flex flex-wrap gap-x-4 gap-y-1 text-[14px]">
         <Link href="/mlb/" className="gtp-backlink gtp-hit-44 inline-flex items-center" style={{ color: "var(--vault-accent)" }}>← MLB hub</Link>
-        <Link href={`/simulate/d/${g.date}/`} prefetch={false} className="gtp-hit-44 inline-flex items-center" style={{ color: "var(--vault-accent)" }}>Games · {dayLabel(g.date)}</Link>
+        <Link href={dayHref} prefetch={false} className="gtp-hit-44 inline-flex items-center" style={{ color: "var(--vault-accent)" }}>Games · {dayLabel(g.date)}</Link>
         <Link href={MLB_RESULTS_HREF} prefetch={false} className="gtp-hit-44 inline-flex items-center" style={{ color: "var(--vault-accent)" }}>MLB results</Link>
       </nav>
 
@@ -59,7 +62,7 @@ export default function MlbSettledGame({ game: g, names }: { game: SettledMlbGam
                   <th scope="row" className="text-left text-[14px] font-medium" style={{ padding: "10px 10px 10px 0", color: "var(--vault-text)" }}>{SETTLED_MARKET_WORDS[c.market]}</th>
                   <td className="text-[14px]" style={{ padding: "10px 10px 10px 0", color: "var(--vault-text)" }}>{c.pick}</td>
                   <td className="text-[14px] tabular-nums" style={{ padding: "10px 10px 10px 0", color: "var(--vault-text)" }}>{pct(c.modelProbability)}</td>
-                  <td className="text-[14px] font-semibold" style={{ padding: "10px 0", color: c.outcome === "WIN" ? "var(--vault-success)" : c.outcome === "LOSS" ? "var(--vault-danger, var(--vault-text))" : "var(--vault-text-mute)" }}>{outcomeWord(c.outcome)}</td>
+                  <td className="text-[14px] font-semibold" style={{ padding: "10px 0", color: c.outcome === "WIN" ? "var(--vault-success)" : c.outcome === "LOSS" ? "var(--vault-danger)" : "var(--vault-text-mute)" }}>{outcomeWord(c.outcome)}</td>
                 </tr>
               ))}
             </tbody>
@@ -79,7 +82,7 @@ export default function MlbSettledGame({ game: g, names }: { game: SettledMlbGam
         </p>
         <p className="m-0 flex flex-wrap gap-2">
           <Link href={MLB_RESULTS_HREF} prefetch={false} className="gtp-hit-44 inline-flex items-center rounded-full px-4 no-underline" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)" }}>MLB results →</Link>
-          <Link href={`/simulate/d/${g.date}/`} prefetch={false} className="gtp-hit-44 inline-flex items-center rounded-full px-4 no-underline" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)" }}>All games · {dayLabel(g.date)} →</Link>
+          <Link href={dayHref} prefetch={false} className="gtp-hit-44 inline-flex items-center rounded-full px-4 no-underline" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)" }}>All games · {dayLabel(g.date)} →</Link>
         </p>
       </section>
 
