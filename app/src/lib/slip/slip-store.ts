@@ -14,6 +14,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { legKey as canonicalLegKey, migrateSlipLegs, type SlipLegInput } from "@/lib/slip/leg-identity";
 import { americanToDecimal, decimalToAmerican } from "@/lib/odds-math";
+import { slipLegStarted } from "@/lib/slip/slip-add-gate";
 
 export interface SlipLeg extends SlipLegInput {
   /** Canonical identity — always `legKey(fields)`. See lib/slip/leg-identity for the one rule. */
@@ -91,6 +92,9 @@ export function useSlip() {
     const cur = read();
     if (cur.legs.some((l) => l.key === leg.key)) return;      // adding twice is a no-op, not a duplicate
     if (cur.legs.length >= SLIP_MAX_LEGS) return;
+    // A game at/after its start is not a selection any more (lib/slip/slip-add-gate): refused on the
+    // reader's clock, whatever button or seeded card offered it.
+    if (slipLegStarted(leg, new Date().toISOString())) return;
     /*
      * NO DEFAULT STAKE. A leg lands on the slip at zero and stays there until the reader types a
      * number. Pre-filling one — $10, or a unit derived from a stated bankroll — is the site

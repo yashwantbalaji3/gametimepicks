@@ -6057,7 +6057,7 @@ a.ft-link, a.ft-link[data-prose-link] { color: var(--vault-text-mute); text-deco
 a.ft-link { display: inline-block; min-height: 24px; padding-block: 2px; }
 .ft-list > li + li { margin-top: 0.25rem; }
 @media (pointer: coarse) {
-  a.ft-link { min-height: 44px; padding-block: 12px; }
+  a.ft-link { min-height: 44px; min-width: 44px; padding-block: 12px; } /* W9: + a 44px WIDTH for short labels (Home 36px, Picks 32px at 390) */
   .ft-list > li + li { margin-top: 0; }
 }
 .ft-note { color: var(--vault-text-faint); font-size: 11px; }

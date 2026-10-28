@@ -24,6 +24,8 @@ export function toSwapCandidate(p: BoardProp): SwapCandidate {
     teamAbbr: p.teamAbbr ?? null, opponentAbbr: p.opponentAbbr ?? null,
     market: p.marketLabel, marketLabel: p.marketLabel, side: p.selection, line: p.point,
     americanOdds: p.americanOdds, gameId: p.gameId, matchup: p.matchup,
+    /* Only when the board carries it — a row without one keeps the exact packed shape (and bytes) it had. */
+    ...(p.startUtc ? { startUtc: p.startUtc } : {}),
   };
 }
 
@@ -95,6 +97,9 @@ export function loadMlbPropsBoard(root: string, date: string): BoardProp[] {
     group: String(p.group ?? ""), selection: String(p.selection ?? ""), point: typeof p.point === "number" ? p.point : null,
     americanOdds: Number(p.americanOdds ?? p.odds ?? 0), provider: p.provider ?? null,
     matchup: String(p.matchup ?? ""), gameId: String(p.gameId ?? ""),
+    /* The artifact's own first-pitch time, so the slip-add gate can refuse a started game on the reader's
+       clock (lib/slip/slip-add-gate). Absent on an older capture → null, never invented. */
+    startUtc: typeof p.startTimeUtc === "string" && p.startTimeUtc ? p.startTimeUtc : null,
     ...(() => {
       const id = identity.get(`${String(p.gameId ?? "")}|${String(p.player ?? "")}`);
       return {

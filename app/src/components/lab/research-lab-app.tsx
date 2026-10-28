@@ -347,11 +347,13 @@ export default function ResearchLabApp() {
           </FilterGroup>
         ) : null}
         <FilterGroup legend="Dates and page size">
+          {/* W9 (audit 2026-10-28): both date inputs were reported without an accessible name at every width. Each now
+              carries its own name, which contains the visible label (WCAG 2.5.3), as well as the label's for= link. */}
           <Field id="lab-from" label="From">
-            <input id="lab-from" type="date" value={dateBound(query, "gte") ?? ""} onChange={(e) => setDate(query, patch, "gte", e.target.value)} style={selectStyle} />
+            <input id="lab-from" type="date" aria-label="From date" value={dateBound(query, "gte") ?? ""} onChange={(e) => setDate(query, patch, "gte", e.target.value)} style={selectStyle} />
           </Field>
           <Field id="lab-to" label="To">
-            <input id="lab-to" type="date" value={dateBound(query, "lte") ?? ""} onChange={(e) => setDate(query, patch, "lte", e.target.value)} style={selectStyle} />
+            <input id="lab-to" type="date" aria-label="To date" value={dateBound(query, "lte") ?? ""} onChange={(e) => setDate(query, patch, "lte", e.target.value)} style={selectStyle} />
           </Field>
           <Field id="lab-size" label="Rows per page">
             <select id="lab-size" value={query.pageSize} onChange={(e) => patch({ pageSize: Number(e.target.value) })} style={selectStyle}>

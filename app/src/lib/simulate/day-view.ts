@@ -105,7 +105,8 @@ export interface SimulateDayView {
   readonly nextDate: string | null;
   readonly availableDates: readonly string[];
   readonly sections: readonly SportDaySection[];
-  readonly totals: { events: number; ready: number; settled: number };
+  /** Per-state counts; `awaiting` = AWAITING_SETTLEMENT, `started` = STARTED (lifecycle-state.mjs). */
+  readonly totals: { events: number; ready: number; settled: number; awaiting: number; started: number };
 }
 
 /** The action vocabulary of the state matrix — never a bare Open/View/Enter (charter 2B). */
@@ -739,6 +740,8 @@ export function buildSimulateDay(date?: string, opts?: { today?: string }): Simu
       events: all.length,
       ready: all.filter((e) => (READY_STATES as readonly string[]).includes(e.state)).length,
       settled: all.filter((e) => e.state === "SETTLED").length,
+      awaiting: all.filter((e) => e.state === "AWAITING_SETTLEMENT").length,
+      started: all.filter((e) => e.state === "STARTED").length,
     },
   };
 }

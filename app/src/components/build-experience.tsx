@@ -34,6 +34,7 @@ import { gradeLeg } from "@/lib/build/grade.mjs";
 import { getSportIdentity } from "@/lib/sport-identity";
 import { useSlip, type SlipLeg } from "@/lib/slip/slip-store";
 import { legKey, type SlipLegInput } from "@/lib/slip/leg-identity";
+import { slipLegStarted, STARTED_UNAVAILABLE } from "@/lib/slip/slip-add-gate";
 import { SEARCH_PLAYERS_OR_TEAMS, SEARCH_PLAYERS_OR_TEAMS_LABEL } from "@/lib/ui/search-labels";
 import SlipGauges from "@/components/parlays/lab/slip-gauges";
 import type { LegRecordView } from "@/components/parlays/lab/leg-record-list";
@@ -228,9 +229,20 @@ export default function BuildExperience({
     setSeedNote(parts.join(" · ") + ". Edit it like any draft — remove or add legs below.");
   }, [ready, cards, slipLegs, add]);
 
+  /*
+   * A SLIP ITEM FOR A STARTED GAME IS NOT CARRIED INTO THE CARD (audit 2026-10-28: an MLB leg added on /mlb
+   * after first pitch rode in here as "View card · 1 leg -265"). A leg still in today's pool is pre-game by
+   * the pool's own start rule; one outside it is checked by the shared slip-add gate on the reader's clock,
+   * listed as "Started — no longer available", and left out of the price, the count and the checks.
+   */
+  const startedKeys = useMemo(() => new Set(
+    slipLegs.filter((s) => !poolByKey.has(s.key) && slipLegStarted(s, nowIso)).map((s) => s.key),
+  ), [slipLegs, poolByKey, nowIso]);
+  const startedLegs = useMemo(() => slipLegs.filter((s) => startedKeys.has(s.key)), [slipLegs, startedKeys]);
+
   /** The draft, resolved against today's pool. Stub legs stay conflict-neutral (nothing provable). */
   const draft: DraftLeg[] = useMemo(() =>
-    slipLegs.map((s) => {
+    slipLegs.filter((s) => !startedKeys.has(s.key)).map((s) => {
       const poolLeg = poolByKey.get(s.key) ?? null;
       const engineLeg: BuildLeg = poolLeg ?? {
         id: `slip:${s.key}`, sport: (s.sport as BuildLeg["sport"]), sportLabel: SPORT_LABEL[s.sport] ?? s.sport.toUpperCase(),
@@ -242,7 +254,7 @@ export default function BuildExperience({
         searchKey: "", slipLeg: s,
       };
       return { key: s.key, slip: s, pool: poolLeg, engineLeg };
-    }), [slipLegs, poolByKey]);
+    }), [slipLegs, poolByKey, startedKeys]);
 
   const selectedEngine = useMemo(() => draft.map((d) => d.engineLeg), [draft]);
   const selectedKeys = useMemo(() => new Set(draft.map((d) => d.key)), [draft]);
@@ -307,6 +319,19 @@ export default function BuildExperience({
           </p>
         );
       })() : null}
+      {startedLegs.length > 0 ? (
+        <ul className="m-0 p-0 list-none flex flex-col gap-1.5" data-slip-started-legs>
+          {startedLegs.map((s) => (
+            <li key={s.key} className="flex items-center justify-between gap-2 min-w-0">
+              <span className="min-w-0 flex flex-col">
+                <span className="truncate" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, textDecoration: "line-through" }}>{s.player} · {s.marketLabel}{s.side ? ` ${s.side}` : ""}{s.line != null ? ` ${s.line}` : ""}</span>
+                <span style={{ color: "var(--vault-warn)", fontSize: 12, lineHeight: 1.4 }}>{STARTED_UNAVAILABLE}</span>
+              </span>
+              <button type="button" onClick={() => remove(s.key)} aria-label={`Remove ${s.player} (started)`} className="flex items-center justify-center" style={{ color: "var(--vault-text-faint)", fontSize: 14, minWidth: 44, minHeight: 44 }}>×</button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
       {draft.length === 0 ? (
         <div className="flex flex-col gap-2">
           <p style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>Build a paper card in three steps:</p>

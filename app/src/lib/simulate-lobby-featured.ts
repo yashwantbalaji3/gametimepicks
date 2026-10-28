@@ -25,6 +25,7 @@
  *
  * No React/Next imports so tsx can unit-test it directly and the server component can import it as-is.
  */
+import { legHasStarted } from "@/lib/parlays/explorer-legs";
 
 export interface FeaturedSimView {
   status: "ready" | "stale" | "unavailable" | "error";
@@ -62,6 +63,14 @@ export interface FeaturedDetailInput {
    * the featured row is a claim of the second kind.
    */
   simulationReady?: boolean | null;
+  /** First pitch / kickoff carriers on the real detail (MLB game center; the full-game simulation for MLB and NFL). */
+  gameCenter?: { firstPitch?: string | null } | null;
+  fullGameSim?: { firstPitch?: string | null } | null;
+}
+
+/** The game's scheduled start from the detail's own data (never UI text), or null when it carries none. */
+export function featuredStartUtc(d: FeaturedDetailInput): string | null {
+  return d.gameCenter?.firstPitch || d.fullGameSim?.firstPitch || null;
 }
 
 export interface FeaturedSimulation {
@@ -86,6 +95,8 @@ export interface FeaturedSimulation {
   headline: string | null;
   /** How the card should read: an MLB run-simulation, or a WC market-implied report. */
   mode: "simulation" | "market-implied";
+  /** Scheduled start (ISO) from the detail's data, or null. The homepage hides a card once it passes. */
+  startUtc: string | null;
 }
 
 export const FEATURED_CAP = 5;
@@ -135,7 +146,17 @@ export interface FeaturedResult {
  * @param today real ET date (YYYY-MM-DD). When supplied, stale slates are dropped once a current/upcoming
  *   game exists — this is what stops a July-11 slate from being featured on July-14.
  */
-export function featuredSimulations(details: readonly FeaturedDetailInput[], today?: string): FeaturedResult {
+export function featuredSimulations(
+  details: readonly FeaturedDetailInput[],
+  today?: string,
+  /**
+   * `pregameAt` (the homepage, W9 2026-10-28): feature ONLY games that have not started at this instant — by the
+   * one start rule, fail-closed on an unknown start — and never fall back to the archive. MIL@TB was still the
+   * homepage's featured card ("MIL wins 65% …") the morning after it was played. No pregame game → an empty
+   * result, and the section shows its empty state.
+   */
+  opts: { pregameAt?: string } = {},
+): FeaturedResult {
   const cards: FeaturedSimulation[] = [];
 
   for (const d of details) {
@@ -163,6 +184,7 @@ export function featuredSimulations(details: readonly FeaturedDetailInput[], tod
         runCountLabel: runCountLabel(sim),
         headline: sim.simulationSummary?.headline ?? null,
         mode: "simulation",
+        startUtc: featuredStartUtc(d),
       });
       continue;
     }
@@ -183,18 +205,22 @@ export function featuredSimulations(details: readonly FeaturedDetailInput[], tod
         runCountLabel: null, // market-implied — never a run count
         headline: null,
         mode: "market-implied",
+        startUtc: featuredStartUtc(d),
       });
     }
   }
 
   // Recency: prefer current/upcoming (date >= today). Drop stale ones when any current exists. When no
   // `today` is supplied, skip recency entirely (edge-sorted, back-compatible).
-  const current = today ? cards.filter((c) => c.date != null && c.date >= today) : [];
-  const pool = current.length > 0 ? current : cards;
+  const pregameAt = opts.pregameAt;
+  const current = pregameAt
+    ? cards.filter((c) => !legHasStarted(c.startUtc, pregameAt))
+    : today ? cards.filter((c) => c.date != null && c.date >= today) : [];
+  const pool = current.length > 0 || pregameAt ? current : cards;
   const allCurrent = current.length > 0;
   /* The archive rule applies only when a day is supplied and nothing on it or after it is ready; without a day the
-     selector stays edge/coverage-sorted and back-compatible. */
-  const archive = today != null && !allCurrent;
+     selector stays edge/coverage-sorted and back-compatible. Never with `pregameAt`, which has no archive. */
+  const archive = today != null && !allCurrent && !pregameAt;
 
   pool.sort((a, b) => {
     if (allCurrent) {

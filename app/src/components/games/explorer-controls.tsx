@@ -24,7 +24,7 @@ function Chip({ active, children, onClick }: { active: boolean; children: React.
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className="font-mono uppercase tracking-[0.08em] rounded-full px-2.5 py-1"
+      className="gtp-hit-area font-mono uppercase tracking-[0.08em] rounded-full px-2.5 py-1"
       style={{
         fontSize: 9,
         cursor: "pointer",
@@ -47,12 +47,12 @@ export default function ExplorerControls({ cards }: { cards: SimulationCardInput
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-1.5 flex-wrap" role="group" aria-label="Filter simulations">
+        <div className="flex items-center gap-x-1.5 gap-y-3 flex-wrap" role="group" aria-label="Filter simulations">
           {FILTER_LABELS.map((f) => (
             <Chip key={f.key} active={filter === f.key} onClick={() => setFilter(f.key)}>{f.label}</Chip>
           ))}
         </div>
-        <div className="flex items-center gap-1.5 flex-wrap" role="group" aria-label="Sort simulations">
+        <div className="flex items-center gap-x-1.5 gap-y-3 flex-wrap" role="group" aria-label="Sort simulations">
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Sort</span>
           {SORT_LABELS.map((s) => (
             <Chip key={s.key} active={sort === s.key} onClick={() => setSort(s.key)}>{s.label}</Chip>

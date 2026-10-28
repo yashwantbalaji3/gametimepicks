@@ -6,6 +6,7 @@
  * a page, keeps tabs in step through the storage event, and loads after mount (the server render is an empty slip).
  */
 import { useSyncExternalStore } from "react";
+import { slipLegStarted } from "@/lib/slip/slip-add-gate";
 import { MODEL_SLIP_STORAGE_KEY, addSlipLegs, clearModelSlip, emptyModelSlip, readModelSlip, removeSlipLeg, reorderSlipLeg, writeModelSlip } from "./slip.mjs";
 
 type Slip = { version: number; legs: Array<{ key: string } & Record<string, unknown>> };
@@ -15,6 +16,10 @@ const listeners = new Set<() => void>();
 /** The page's slip legs, sent ONCE (by the bar) so every button carries only leg keys. */
 const catalog = new Map<string, unknown>();
 export function registerSlipCatalog(legs: Array<{ key: string }>) { for (const l of legs) catalog.set(l.key, l); }
+/** Has the catalog leg behind `key` started, on the reader's clock (the shared slip-add gate)? Unknown → false. */
+export function catalogLegStarted(key: string, nowIso: string): boolean {
+  return slipLegStarted(catalog.get(key) as { startUtc?: string | null } | undefined, nowIso);
+}
 
 function storage(): Storage | null {
   try { return typeof window === "undefined" ? null : window.localStorage; } catch { return null; }
@@ -40,7 +45,11 @@ export function useModelSlip() {
   const slip = useSyncExternalStore(subscribe, get, () => SERVER);
   return {
     slip,
-    add: (keys: string[]) => set(addSlipLegs(get(), keys.map((k) => catalog.get(k)).filter(Boolean)) as Slip),
+    /* A started game is not added (lib/slip/slip-add-gate) — the same rule the paper slip applies. */
+    add: (keys: string[]) => {
+      const now = new Date().toISOString();
+      set(addSlipLegs(get(), keys.filter((k) => !catalogLegStarted(k, now)).map((k) => catalog.get(k)).filter(Boolean)) as Slip);
+    },
     remove: (key: string) => set(removeSlipLeg(get(), key) as Slip),
     move: (from: number, to: number) => set(reorderSlipLeg(get(), from, to) as Slip),
     clear: () => set(clearModelSlip() as Slip),

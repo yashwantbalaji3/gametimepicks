@@ -111,7 +111,7 @@ export default function MatchupPage({ params }: { params: { sport: string; gameI
             <span style={{ fontVariantNumeric: "tabular-nums", fontWeight: 650 }}>{g.own}–{g.opp}</span>
             <span style={{ color: "var(--vault-text-mute)" }}>{g.ha === "A" ? "@" : "vs"} {g.opponentId ? labels[g.opponentId]?.name ?? "Opponent not recorded" : "Opponent not recorded"}</span>
             <span style={{ fontFamily: MONO, fontSize: 11, color: "var(--vault-text-faint)" }}>{formatGameDate(g.date)}</span>
-            {links[g.gameId] ? <Link href={links[g.gameId]} style={{ fontFamily: MONO, fontSize: 11, color: "var(--vault-gold-bright)" }}>Game →</Link> : null}
+            {links[g.gameId] ? <Link href={links[g.gameId]} style={{ fontFamily: MONO, fontSize: 11, color: "var(--vault-gold-bright)", minHeight: 44, display: "inline-flex", alignItems: "center" }}>Game →</Link> : null}
           </li>
         ))}
       </ul>

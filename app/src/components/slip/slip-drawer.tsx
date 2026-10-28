@@ -1,9 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import TeamLogo from "@/components/team-logo";
 import { useSlip, combinedDecimal, decimalOdds, toAmerican } from "@/lib/slip/slip-store";
+import { useDialogFocus } from "@/components/a11y/use-dialog-focus";
+import { slipLegStarted, STARTED_UNAVAILABLE } from "@/lib/slip/slip-add-gate";
+import { useReaderNowIso } from "@/components/slip/use-reader-now";
 
 /**
  * THE SLIP DRAWER — what a reader has picked out, what each would return, and what the whole set
@@ -33,6 +36,24 @@ export default function SlipDrawer() {
   const { legs, stakes, ready, remove, setStake, clear } = useSlip();
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const nowIso = useReaderNowIso();
+  const titleId = useId();
+  /*
+   * THE OPEN PANEL IS A DIALOG (audit 2026-10-28: it had no role, no name, no Escape and left focus on the
+   * page). It consumes the shared keyboard contract — focus moves in, Tab stays in, Escape closes — and,
+   * because the trigger UNMOUNTS while the panel is open, focus is handed back to it after the close
+   * render (the same pattern as the /build/custom sheet). useCallback is load-bearing: the hook lists
+   * onClose in its deps.
+   */
+  const panelRef = useRef<HTMLElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const close = useCallback(() => setOpen(false), []);
+  useDialogFocus(panelRef, { onClose: close, active: open });
+  const wasOpen = useRef(false);
+  useEffect(() => {
+    if (wasOpen.current && !open) triggerRef.current?.focus();
+    wasOpen.current = open;
+  }, [open]);
 
   // Nothing to show, and nothing to announce, until there is a selection.
   if (!ready || legs.length === 0) return null;
@@ -40,18 +61,27 @@ export default function SlipDrawer() {
   // views of one state on one screen is a duplicate, so the drawer yields to the builder there.
   if (pathname?.startsWith("/build/custom")) return null;
 
-  const totalStake = legs.reduce((n, l) => n + (stakes[l.key] ?? 0), 0);
-  const singlesReturn = legs.reduce((n, l) => n + (stakes[l.key] ?? 0) * decimalOdds(l.americanOdds), 0);
-  const parlayDecimal = combinedDecimal(legs);
+  /* A leg whose game has started (lib/slip/slip-add-gate, on the reader's clock) stays listed so the reader
+     can see and remove it, but it is no longer a selection: it says so and leaves every total below. */
+  const isStarted = (l: (typeof legs)[number]) => nowIso != null && slipLegStarted(l, nowIso);
+  const live = legs.filter((l) => !isStarted(l));
+  const totalStake = live.reduce((n, l) => n + (stakes[l.key] ?? 0), 0);
+  const singlesReturn = live.reduce((n, l) => n + (stakes[l.key] ?? 0) * decimalOdds(l.americanOdds), 0);
+  const parlayDecimal = combinedDecimal(live);
   // One ticket across the whole slip is staked ONCE — the smallest single stake, so the comparison
   // never quietly inflates the parlay by staking it at the sum of the singles.
-  const parlayStake = Math.min(...legs.map((l) => stakes[l.key] ?? 0));
+  const parlayStake = live.length ? Math.min(...live.map((l) => stakes[l.key] ?? 0)) : 0;
 
   return (
-    <div className="fixed z-40" style={{ right: 16, bottom: 16, maxWidth: "min(420px, calc(100vw - 32px))" }}>
+    /* Phones: the fixed bottom navigation (md:hidden, 48px + the safe area) owns the bottom edge, so the slip
+       sits 64px + the safe area above it — the same clearance as the model slip bar. md+ keeps 16px. */
+    <div className="fixed z-40 right-4 bottom-[calc(env(safe-area-inset-bottom,0px)+64px)] md:bottom-4" data-slip-drawer style={{ maxWidth: "min(420px, calc(100vw - 32px))" }}>
       {open ? (
         <section
-          aria-label="Your slip"
+          ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={titleId}
           className="flex flex-col gap-2.5 rounded-[14px] p-3.5"
           style={{
             background: "var(--vault-panel-elevated)",
@@ -61,9 +91,9 @@ export default function SlipDrawer() {
           }}
         >
           <header className="flex items-center gap-2">
-            <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 9.5 }}>
+            <h2 id={titleId} className="m-0 font-mono uppercase tracking-[0.14em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 9.5, fontWeight: 400 }}>
               Your slip · {legs.length}
-            </span>
+            </h2>
             <button type="button" onClick={clear}
               className="ml-auto font-mono uppercase tracking-[0.1em]"
               style={{ color: "var(--vault-text-faint)", fontSize: 9, background: "none", border: "none", cursor: "pointer" }}>
@@ -76,7 +106,19 @@ export default function SlipDrawer() {
           </header>
 
           <ul className="flex flex-col gap-2 list-none m-0 p-0 overflow-y-auto" style={{ maxHeight: "38vh" }}>
-            {legs.map((l) => (
+            {legs.map((l) => isStarted(l) ? (
+              <li key={l.key} className="flex items-center gap-2 rounded-[10px] px-2.5 py-2" data-slip-started
+                style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-semibold leading-tight" style={{ color: "var(--vault-text-mute)", fontSize: 12, textDecoration: "line-through" }}>{l.player}</span>
+                  <span className="block" style={{ color: "var(--vault-warn)", fontSize: 12 }}>{STARTED_UNAVAILABLE}</span>
+                </span>
+                <button type="button" onClick={() => remove(l.key)} aria-label={`Remove ${l.player} (started)`}
+                  style={{ color: "var(--vault-text-faint)", fontSize: 13, background: "none", border: "none", cursor: "pointer" }}>
+                  ×
+                </button>
+              </li>
+            ) : (
               <li key={l.key} className="flex items-center gap-2 rounded-[10px] px-2.5 py-2"
                 style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
                 <span className="relative shrink-0">
@@ -110,9 +152,10 @@ export default function SlipDrawer() {
           </ul>
 
           <div className="flex flex-col gap-1.5 pt-2" style={{ borderTop: "1px solid var(--vault-rule)" }}>
+            {live.length > 0 ? (<>
             <div className="flex items-baseline justify-between">
               <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-                As {legs.length} singles · {money(totalStake)} staked
+                As {live.length} singles · {money(totalStake)} staked
               </span>
               <span className="font-mono tabular-nums" style={{ color: "var(--vault-text)", fontSize: 12 }}>
                 {money(singlesReturn)} if all land
@@ -126,6 +169,7 @@ export default function SlipDrawer() {
                 {money(parlayStake * parlayDecimal)} at {american(toAmerican(parlayDecimal))}
               </span>
             </div>
+            </>) : null}
             <p className="m-0" style={{ color: "var(--vault-text-faint)", fontSize: 10, lineHeight: 1.5 }}>
               A parlay pays more and needs every leg. Paper only — nothing here is placed, sent
               anywhere, or added to the site&rsquo;s record.
@@ -133,7 +177,7 @@ export default function SlipDrawer() {
           </div>
         </section>
       ) : (
-        <button type="button" onClick={() => setOpen(true)}
+        <button ref={triggerRef} type="button" onClick={() => setOpen(true)} aria-haspopup="dialog"
           className="gtp-sim-cta flex items-center gap-2 rounded-[12px] px-3.5 py-2.5"
           style={{ background: "var(--vault-panel-elevated)", border: "1px solid var(--vault-border-strong)", boxShadow: "0 12px 34px -18px color-mix(in srgb, var(--vault-ink-black) 80%, transparent)", cursor: "pointer" }}>
           <span aria-hidden style={{ fontSize: 14 }}>🧾</span>

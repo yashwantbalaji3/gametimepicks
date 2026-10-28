@@ -23,6 +23,7 @@ import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { buildAllGameDetails } from "@/lib/game-detail";
 import { featuredSimulations } from "@/lib/simulate-lobby-featured";
+import { buildAsOfIso } from "@/lib/build-asof";
 import { buildSimulateDay, simulationReadyCount } from "@/lib/simulate/day-view";
 import { sportStateFromProductDay, stateLabel, partitionSports, SPORT_STATES } from "@/lib/home/simulation-hub.mjs";
 import { buildHomeGameAnswers } from "@/lib/home/game-answers";
@@ -102,7 +103,9 @@ export default function HomePage() {
 
   // ── Featured simulations — REAL ready artifacts only, via the shared selector (no new data path) ──
   const details = buildAllGameDetails();
-  const { featured, readyCount, allCurrent } = featuredSimulations(details, currentEtDate());
+  /* W9: the homepage features only games that have not started (no archive fallback) — MIL@TB was featured with its
+     pregame "MIL wins 65%" the morning after it was played. The cards re-check on the reader's clock. */
+  const { featured, readyCount, allCurrent } = featuredSimulations(details, currentEtDate(), { pregameAt: buildAsOfIso() });
   // P1-E: /simulate's own ready count (started games excluded), never a second derivation — it decides whether the hero's
   // secondary action says "Simulate Today's Games".
   const simulationReadyNow = simulationReadyCount(buildSimulateDay(currentEtDate(), { today: currentEtDate() }));
