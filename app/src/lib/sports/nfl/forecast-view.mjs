@@ -42,7 +42,7 @@ export const SOURCES = Object.freeze({
 /** The one label every World Model V2 block carries. */
 /* Overnight W8 (2026-10-28): the public label drops the internal engine name ("World Model V2"); the name and version
    still print in the panel's Technical details. */
-export const SUPPORTING_LABEL = "Supporting simulation (not the official forecast · not graded)";
+export const SUPPORTING_LABEL = "Supporting simulation (not the official projection · not graded)";
 export const NO_OFFICIAL_PROJECTION = "No official projection";
 
 /**
