@@ -1,0 +1,439 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "bundesliga",
+ "season": "2026-27",
+ "date": "2026-10-28",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-10-28T16:18:17.000Z",
+ "runs": [
+  {
+   "at": "2026-10-28T16:18:17.000Z",
+   "added": 6
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Elversberg|Mainz",
+   "league": "bundesliga",
+   "season": "2026-27",
+   "eventId": "soccer:bundesliga:401884746",
+   "providerEventId": "401884746",
+   "kickoffUtc": "2026-10-30T19:30:00.000Z",
+   "matchup": "SV Elversberg v Mainz",
+   "homeClub": "SV Elversberg",
+   "awayClub": "Mainz",
+   "historyNames": {
+    "home": "Elversberg",
+    "away": "Mainz"
+   },
+   "espnTeamIds": {
+    "home": "10388",
+    "away": "2950"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-28T16:18:17.000Z",
+   "probs": {
+    "home": 0.566491,
+    "draw": 0.219521,
+    "away": 0.213989
+   },
+   "over25": 0.667882,
+   "under25": 0.332118,
+   "expectedGoals": {
+    "home": 2.1578,
+    "away": 1.2819
+   },
+   "lambdas": {
+    "home": 2.158,
+    "away": 1.2819
+   },
+   "rho": -0.083856,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 4,
+    "away": 140
+   },
+   "fit": {
+    "cutoffIso": "2026-10-28T16:18:17.000Z",
+    "matchesFitted": 1260,
+    "lastFoldedUtc": "2026-09-20T17:30:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 18
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.367948,
+     "draw": 0.207865,
+     "away": 0.424187
+    },
+    "empirical": {
+     "home": 0.436263,
+     "draw": 0.250198,
+     "away": 0.313539
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Leverkusen|Stuttgart",
+   "league": "bundesliga",
+   "season": "2026-27",
+   "eventId": "soccer:bundesliga:401884753",
+   "providerEventId": "401884753",
+   "kickoffUtc": "2026-10-31T14:30:00.000Z",
+   "matchup": "Bayer Leverkusen v VfB Stuttgart",
+   "homeClub": "Bayer Leverkusen",
+   "awayClub": "VfB Stuttgart",
+   "historyNames": {
+    "home": "Leverkusen",
+    "away": "Stuttgart"
+   },
+   "espnTeamIds": {
+    "home": "131",
+    "away": "134"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-28T16:18:17.000Z",
+   "probs": {
+    "home": 0.533042,
+    "draw": 0.224018,
+    "away": 0.24294
+   },
+   "over25": 0.679465,
+   "under25": 0.320535,
+   "expectedGoals": {
+    "home": 2.1109,
+    "away": 1.3907
+   },
+   "lambdas": {
+    "home": 2.111,
+    "away": 1.3907
+   },
+   "rho": -0.083856,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 140,
+    "away": 140
+   },
+   "fit": {
+    "cutoffIso": "2026-10-28T16:18:17.000Z",
+    "matchesFitted": 1260,
+    "lastFoldedUtc": "2026-09-20T17:30:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 18
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.598269,
+     "draw": 0.193941,
+     "away": 0.207791
+    },
+    "empirical": {
+     "home": 0.436263,
+     "draw": 0.250198,
+     "away": 0.313539
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|M'gladbach|Paderborn",
+   "league": "bundesliga",
+   "season": "2026-27",
+   "eventId": "soccer:bundesliga:401884749",
+   "providerEventId": "401884749",
+   "kickoffUtc": "2026-10-31T14:30:00.000Z",
+   "matchup": "Borussia Mönchengladbach v SC Paderborn 07",
+   "homeClub": "Borussia Mönchengladbach",
+   "awayClub": "SC Paderborn 07",
+   "historyNames": {
+    "home": "M'gladbach",
+    "away": "Paderborn"
+   },
+   "espnTeamIds": {
+    "home": "268",
+    "away": "3307"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-28T16:18:17.000Z",
+   "probs": {
+    "home": 0.418624,
+    "draw": 0.300264,
+    "away": 0.281111
+   },
+   "over25": 0.410263,
+   "under25": 0.589737,
+   "expectedGoals": {
+    "home": 1.3022,
+    "away": 1.0216
+   },
+   "lambdas": {
+    "home": 1.3022,
+    "away": 1.0216
+   },
+   "rho": -0.083856,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 140,
+    "away": 4
+   },
+   "fit": {
+    "cutoffIso": "2026-10-28T16:18:17.000Z",
+    "matchesFitted": 1260,
+    "lastFoldedUtc": "2026-09-20T17:30:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 18
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.743214,
+     "draw": 0.244672,
+     "away": 0.012114
+    },
+    "empirical": {
+     "home": 0.436263,
+     "draw": 0.250198,
+     "away": 0.313539
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Augsburg|Freiburg",
+   "league": "bundesliga",
+   "season": "2026-27",
+   "eventId": "soccer:bundesliga:401884751",
+   "providerEventId": "401884751",
+   "kickoffUtc": "2026-10-31T14:30:00.000Z",
+   "matchup": "FC Augsburg v SC Freiburg",
+   "homeClub": "FC Augsburg",
+   "awayClub": "SC Freiburg",
+   "historyNames": {
+    "home": "Augsburg",
+    "away": "Freiburg"
+   },
+   "espnTeamIds": {
+    "home": "3841",
+    "away": "126"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-28T16:18:17.000Z",
+   "probs": {
+    "home": 0.376134,
+    "draw": 0.264284,
+    "away": 0.359582
+   },
+   "over25": 0.565971,
+   "under25": 0.434029,
+   "expectedGoals": {
+    "home": 1.4947,
+    "away": 1.4573
+   },
+   "lambdas": {
+    "home": 1.4947,
+    "away": 1.4573
+   },
+   "rho": -0.083856,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 140,
+    "away": 140
+   },
+   "fit": {
+    "cutoffIso": "2026-10-28T16:18:17.000Z",
+    "matchesFitted": 1260,
+    "lastFoldedUtc": "2026-09-20T17:30:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 18
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.397069,
+     "draw": 0.276761,
+     "away": 0.32617
+    },
+    "empirical": {
+     "home": 0.436263,
+     "draw": 0.250198,
+     "away": 0.313539
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Schalke 04|RB Leipzig",
+   "league": "bundesliga",
+   "season": "2026-27",
+   "eventId": "soccer:bundesliga:401884747",
+   "providerEventId": "401884747",
+   "kickoffUtc": "2026-10-31T14:30:00.000Z",
+   "matchup": "Schalke 04 v RB Leipzig",
+   "homeClub": "Schalke 04",
+   "awayClub": "RB Leipzig",
+   "historyNames": {
+    "home": "Schalke 04",
+    "away": "RB Leipzig"
+   },
+   "espnTeamIds": {
+    "home": "133",
+    "away": "11420"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-28T16:18:17.000Z",
+   "probs": {
+    "home": 0.25695,
+    "draw": 0.286611,
+    "away": 0.456439
+   },
+   "over25": 0.444864,
+   "under25": 0.555136,
+   "expectedGoals": {
+    "home": 1.0187,
+    "away": 1.4373
+   },
+   "lambdas": {
+    "home": 1.0187,
+    "away": 1.4373
+   },
+   "rho": -0.083856,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 38,
+    "away": 140
+   },
+   "fit": {
+    "cutoffIso": "2026-10-28T16:18:17.000Z",
+    "matchesFitted": 1260,
+    "lastFoldedUtc": "2026-09-20T17:30:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 18
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.179128,
+     "draw": 0.204281,
+     "away": 0.616591
+    },
+    "empirical": {
+     "home": 0.436263,
+     "draw": 0.250198,
+     "away": 0.313539
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Werder Bremen|Hoffenheim",
+   "league": "bundesliga",
+   "season": "2026-27",
+   "eventId": "soccer:bundesliga:401884748",
+   "providerEventId": "401884748",
+   "kickoffUtc": "2026-10-31T14:30:00.000Z",
+   "matchup": "Werder Bremen v TSG Hoffenheim",
+   "homeClub": "Werder Bremen",
+   "awayClub": "TSG Hoffenheim",
+   "historyNames": {
+    "home": "Werder Bremen",
+    "away": "Hoffenheim"
+   },
+   "espnTeamIds": {
+    "home": "137",
+    "away": "7911"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-28T16:18:17.000Z",
+   "probs": {
+    "home": 0.382852,
+    "draw": 0.246826,
+    "away": 0.370322
+   },
+   "over25": 0.641608,
+   "under25": 0.358392,
+   "expectedGoals": {
+    "home": 1.6674,
+    "away": 1.6377
+   },
+   "lambdas": {
+    "home": 1.6675,
+    "away": 1.6377
+   },
+   "rho": -0.083856,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 140,
+    "away": 140
+   },
+   "fit": {
+    "cutoffIso": "2026-10-28T16:18:17.000Z",
+    "matchesFitted": 1260,
+    "lastFoldedUtc": "2026-09-20T17:30:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 18
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.331511,
+     "draw": 0.228049,
+     "away": 0.44044
+    },
+    "empirical": {
+     "home": 0.436263,
+     "draw": 0.250198,
+     "away": 0.313539
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 6
+ }
+}
