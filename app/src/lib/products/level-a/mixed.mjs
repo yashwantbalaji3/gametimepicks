@@ -58,7 +58,7 @@ const range = (sizes) => (sizes.length === 1 ? (sizes[0] === 2 ? "two" : String(
 export function levelAMixed({ crossSportLegs = [], nbaLegs = [], disclosure = null, enabled = levelAMixedEnabled() }) {
   const pool = [...crossSportLegs.filter((l) => l.tierable && typeof l.probability === "number"), ...nbaLegs.filter((l) => l.sport === "nba" && typeof l.probability === "number")];
   const sports = sportsOf(pool);
-  const tooFew = sports.length < 2 ? `a mixed card needs legs from two sports; today only ${sports.length === 0 ? "no sport has" : `${sports.map((s) => SPORT_NAME[s] ?? s).join("")} has`} a leg with a published probability` : null;
+  const tooFew = sports.length < 2 ? `a mixed card needs legs from two sports; today ${sports.length === 0 ? "no sport has" : `only ${sports.map((s) => SPORT_NAME[s] ?? s).join("")} has`} a leg with a published probability` : null;
   const parlayLab = PUBLIC_RISK_TIERS.map((tier) => {
     const sizes = Array.from({ length: BAND_MAX_LEGS[tier] - 1 }, (_, i) => i + 2);
     const top = tooFew ? null : best(pool, sizes, [tier], null, twoSports);

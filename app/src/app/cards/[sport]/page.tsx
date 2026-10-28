@@ -112,7 +112,7 @@ export default function SportCardsPage({ params }: { params: { sport: string } }
             <p className="mt-4" style={{ fontSize: 13, lineHeight: 1.7, color: "var(--vault-text-mute)" }}>
               No {lane.label} cards are published right now.{" "}
               {blocker
-                ? <>This lane is not producing cards: {blocker}. Model forecasts stay published on the <Link href={lane.hub} style={{ color: "var(--vault-gold-bright)" }}>{lane.hubLabel}</Link> — a missing authorized price removes the card, never the forecast.</>
+                ? <>These cards are paused: {blocker}. Model forecasts stay published on the <Link href={lane.hub} style={{ color: "var(--vault-gold-bright)" }}>{lane.hubLabel}</Link> — a missing authorized price removes the card, never the forecast.</>
                 : <>A ladder is built only from events that have not started, so it empties as the day&rsquo;s {params.sport === "ufc" ? "card approaches" : "matches kick off"} — the next one appears when the following slate is priced.</>}
             </p>
           );
@@ -127,7 +127,7 @@ export default function SportCardsPage({ params }: { params: { sport: string } }
       */}
       {streamRecord ? (
         <p className="mt-6" style={{ fontSize: 12.5, lineHeight: 1.7, color: "var(--vault-text-mute)" }}>
-          This lane&rsquo;s settled record so far: <strong style={{ color: "var(--vault-text)" }}>
+          The settled record of these cards so far: <strong style={{ color: "var(--vault-text)" }}>
           {streamRecord.wins}&ndash;{streamRecord.losses}{streamRecord.pushes ? ` (${streamRecord.pushes} push)` : ""}</strong>{" "}
           across {streamRecord.settledDays} settled day{streamRecord.settledDays === 1 ? "" : "s"} — far too few to
           support any performance claim. Every leg settles from an official result; the full card-by-card
@@ -135,7 +135,7 @@ export default function SportCardsPage({ params }: { params: { sport: string } }
         </p>
       ) : (
         <p className="mt-6" style={{ fontSize: 12.5, lineHeight: 1.7, color: "var(--vault-text-mute)" }}>
-          No {lane.label} card has been settled yet, so this lane has no win/loss record to show. Every leg
+          No {lane.label} card has been settled yet, so there is no win/loss record to show. Every leg
           here settles from an official result once the {params.sport === "ufc" ? "card is fought" : "matches finish"} —
           a card that could not be graded would never be published.
         </p>

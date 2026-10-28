@@ -112,7 +112,7 @@ test("P256 · folded days count their Bank Builder steps — history is not rest
     const july = byDate.filter((t) => t.date <= base.asOf).at(-1);
     assert.deepEqual([july.cumWins, july.cumLosses], [base.record.wins, base.record.losses], `the ${base.asOf} row still reads the July record, not the folded one`);
     for (const t of timeline.filter((x) => x.events.some((e) => e.type === "folded_day") && x.sign === "loss"))
-      assert.match(t.headline, /Bank Builder step|Moonshot lane/, `${t.date}: a folded loss names what was lost`);
+      assert.match(t.headline, /Bank Builder step|Moonshot run/, `${t.date}: a folded loss names what was lost`);
   }
 });
 

@@ -253,7 +253,9 @@ function RowCard({
             {row.line == null ? "" : ` ${row.line}`}
           </div>
           <div className="font-mono" style={{ fontSize: 11, color: "var(--vault-text-faint)", marginTop: 2 }}>
-            {row.matchup} · {clockEt(row.startTime)} ET · {row.lineageLabel}
+            {/* Overnight 10-28 (RELOCATE): the capture-record label ("Provenance on file", 41× on /markets) moved into the
+                row's own detail below — every listed row has a pregame capture record (the heading above says how many). */}
+            {row.matchup} · {clockEt(row.startTime)} ET
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -284,7 +286,7 @@ function RowCard({
           <p style={{ fontSize: 12, color: "var(--vault-text)", lineHeight: 1.75 }}>{row.interpretation}</p>
 
           <div className="grid gap-1" style={{ marginTop: 10, fontSize: 11, color: "var(--vault-text-mute)" }}>
-            <Detail label="What this row is" text={row.lineageMeaning} />
+            <Detail label="Capture record" text={`${row.lineageLabel} — ${row.lineageMeaning}`} />
             <Detail label="Price observed" text={row.capturedAt ?? "not recorded"} />
             <Detail label="Game started" text={row.eventStart ?? "not recorded"} />
             <Detail

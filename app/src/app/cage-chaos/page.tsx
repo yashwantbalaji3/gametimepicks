@@ -79,17 +79,20 @@ export default function CageChaosPage() {
           <section>
             <SectionHeader eyebrow="The card" title="Ranked by how decisively the model reads it"
               sub="Card order lives on the UFC hub; this is the product's own ordering. Every row opens the full bout report." />
-            <div style={{ overflowX: "auto", marginTop: 12 }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 620 }}>
-                <thead>
+            {/* Overnight 10-28: at 390/430px the 620px-wide table pushed "Likeliest ending" and "Likeliest round" off-screen
+                behind a horizontal scroll with no cue. Below the sm breakpoint each row now stacks as a card — the bout on
+                top, the four reads in a labelled 2×2 grid — so every column is visible on a phone. Desktop is unchanged. */}
+            <div className="sm:overflow-x-auto" style={{ marginTop: 12 }}>
+              <table className="w-full max-sm:block sm:min-w-[620px]" style={{ borderCollapse: "collapse" }}>
+                <thead className="max-sm:hidden">
                   <tr>{["Bout", "Model pick", "Win chance", "Likeliest ending", "Likeliest round"].map((h) => (
                     <th key={h} scope="col" style={{ textAlign: "left", padding: "7px 10px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
                   ))}</tr>
                 </thead>
-                <tbody>
+                <tbody className="max-sm:flex max-sm:flex-col max-sm:gap-2">
                   {ranked.map((b) => (
-                    <tr key={b.boutId}>
-                      <td style={{ padding: "8px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5 }}>
+                    <tr key={b.boutId} className="max-sm:grid max-sm:grid-cols-2 max-sm:overflow-hidden max-sm:rounded-[10px] max-sm:border max-sm:border-[color:var(--vault-border)]" data-cage-chaos-row="">
+                      <td className="max-sm:col-span-2 max-sm:block" style={{ padding: "8px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5 }}>
                         <Link href={`/ufc/bout/${b.boutId}/`} style={{ color: "var(--vault-text)", textDecoration: "none" }}>
                           {/* GTP-16: each fighter's portrait from the card artifact (exact athleteId); initials otherwise.
                               Decorative — the names follow in text. */}
@@ -101,12 +104,14 @@ export default function CageChaosPage() {
                           <span style={{ display: "block", color: "var(--vault-text-faint)", fontSize: 11 }}>{b.weightClass}{b.titleFight ? " · title fight" : ""}</span>
                         </Link>
                       </td>
-                      <td style={{ padding: "8px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontWeight: 600 }}>{b.prediction!.winner!.name}</td>
-                      <td className="font-mono" style={{ padding: "8px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5 }}>{pct(b.prediction!.winner!.probability)}</td>
-                      <td style={{ padding: "8px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12, color: "var(--vault-text-mute)" }}>
+                      <td className="max-sm:block" style={{ padding: "8px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontWeight: 600 }}><CellLabel>Model pick</CellLabel>{b.prediction!.winner!.name}</td>
+                      <td className="font-mono max-sm:block" style={{ padding: "8px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5 }}><CellLabel>Win chance</CellLabel>{pct(b.prediction!.winner!.probability)}</td>
+                      <td className="max-sm:block" style={{ padding: "8px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12, color: "var(--vault-text-mute)" }}>
+                        <CellLabel>Likeliest ending</CellLabel>
                         {b.prediction?.method ? `${METHOD_LABEL[b.prediction.method.most] ?? b.prediction.method.most} ${pct(b.prediction.method.probabilities[b.prediction.method.most === "KO" ? "ko" : b.prediction.method.most === "SUB" ? "submission" : "decision"])}` : "—"}
                       </td>
-                      <td style={{ padding: "8px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12, color: "var(--vault-text-mute)" }}>
+                      <td className="max-sm:block" style={{ padding: "8px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12, color: "var(--vault-text-mute)" }}>
+                        <CellLabel>Likeliest round</CellLabel>
                         {b.prediction?.rounds ? `${b.prediction.rounds.endsIn === "3+" ? "R3 or later" : `R${b.prediction.rounds.endsIn}`} · distance ${pct(b.prediction.rounds.goesTheDistance)}` : "—"}
                       </td>
                     </tr>
@@ -162,5 +167,15 @@ export default function CageChaosPage() {
         <Link href="/mr-dub/" style={{ color: "var(--vault-gold-bright)" }}>Every signature product →</Link>
       </nav>
     </div>
+  );
+}
+
+/** The column name, shown inside the cell only below the sm breakpoint (where the table header is hidden). */
+function CellLabel({ children }: { children: string }) {
+  return (
+    /* display comes from the classes only: an inline display would override sm:hidden. */
+    <span className="block sm:hidden" style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)", fontWeight: 400 }}>
+      {children}
+    </span>
   );
 }

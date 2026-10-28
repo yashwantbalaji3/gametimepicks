@@ -25,10 +25,10 @@ const AV = { date: "2026-10-22", asOf: "2026-10-22T12:00:00Z", totalEligible: 0,
 
 test("a scoped universe names the products it decides and points to the Parlay Center's own rule", () => {
   const html = renderToStaticMarkup(React.createElement(EligibleUniverse, { availability: AV, compact: true, scope: "Bank Builder" }));
-  assert.match(html, /Priced-card universe \(Level B\) for Bank Builder · evaluated/);
+  assert.match(html, /Sports that can join a priced card for Bank Builder · evaluated/);
   assert.match(html, /Parlay Center&#x27;s suggested-card lanes use their own rule/);
   const plain = renderToStaticMarkup(React.createElement(EligibleUniverse, { availability: AV, compact: true }));
-  assert.match(plain, /Priced-card universe \(Level B\) · evaluated/, "unscoped use is unchanged");
+  assert.match(plain, /Sports that can join a priced card · evaluated/, "unscoped use is unchanged");
 });
 
 test("Bank Builder and Moonshot pass the scope; the Parlay Center pages do not use the product universe", () => {
@@ -54,15 +54,15 @@ test("TWO LEVELS: where Level A is OPEN, no row says a bare \"not eligible for p
     const levelA = shown != null;
     const html = renderToStaticMarkup(React.createElement(EligibleUniverse, { availability: av, compact: true, scope: "Bank Builder", levelASports: shown }));
     assert.doesNotMatch(html, /eligible for prediction products/, `levelA=${levelA}: the bare Level B verdict never renders`);
-    assert.match(html, /Priced-card universe \(Level B\)/);
+    assert.match(html, /Sports that can join a priced card/);
     for (const k of sports) {
       const row = universeRowReason(k, "not eligible for prediction products", shown);
       assert.match(row, /^not eligible for priced cards/, k);
-      assert.equal(/model suggestions \(Level A\) below/.test(row), levelA && canEnterModelSuggestions(k), `${k}: the Level A pointer follows the registry's Level A axis, and only when that section is on the page`);
+      assert.equal(/model suggestions below/.test(row), levelA && canEnterModelSuggestions(k), `${k}: the Level A pointer follows the registry's Level A axis, and only when that section is on the page`);
     }
   }
   const other = universeRowReason("nba", "no events", ["nba"]);
-  assert.equal(other, "no events · model suggestions (Level A) below", "other reasons are kept verbatim");
+  assert.equal(other, "no events · model suggestions below", "other reasons are kept verbatim");
 });
 
 test("TWO LEVELS: no page or component prints the bare Level B verdict itself", () => {
@@ -78,7 +78,7 @@ test("POINTER ONLY WHERE SHOWN: Level A on and the sport OPEN, but no pick for i
   assert.doesNotMatch(html, /not eligible for priced cards · model suggestions/, "EPL is OPEN for Level A but this page shows no EPL pick");
   assert.equal(canEnterModelSuggestions("epl"), true);
   assert.equal(universeRowReason("epl", "not eligible for prediction products", ["nba"]), "not eligible for priced cards");
-  assert.equal(universeRowReason("epl", "not eligible for prediction products", ["epl", "nba"]), "not eligible for priced cards · model suggestions (Level A) below");
+  assert.equal(universeRowReason("epl", "not eligible for prediction products", ["epl", "nba"]), "not eligible for priced cards · model suggestions below");
   assert.equal(universeRowReason("epl", "not eligible for prediction products", []), "not eligible for priced cards", "Level A on, nothing shown at all");
   /* FIXTURE answer: one EPL-only Moonshot-sized pool, no Bank Builder card, one untiered NBA side. */
   const sel = (o) => ({ sport: "epl", eventId: `fx-${Math.random()}`, eventLabel: "H v A", startUtc: "2026-10-23T19:00:00Z", market: "1x2", selection: { code: "home", label: "H to win" }, probability: 0.45, forecast: { owner: "fx", modelId: null, stampedAt: "2026-10-23T08:00:00Z", ref: null }, uncertainty: null, participantStatuses: [], settlement: { grader: "x", market: "1x2", side: "home" }, ...o });

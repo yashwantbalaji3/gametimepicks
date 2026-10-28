@@ -40,6 +40,15 @@ import LevelASuggestions, { type LevelAModel } from "@/components/products/level
 import { levelAPageModel, levelAEnabled } from "@/lib/products/level-a/model.mjs";
 import { lastCardPerTier } from "@/lib/results/v2/suggested-history.mjs";
 import { loadLabRecord } from "@/lib/parlays/lab-record";
+import ParlayCenterNoCard, { type OtherLaneCards } from "@/components/parlays/parlay-center-no-card";
+import { loadCurrentSportLabLadder } from "@/lib/parlays/sport-lab-cards";
+
+/* The other suggested-card lanes, each with its own page (the "Other lanes" links below). */
+const OTHER_LANES = [
+  { sport: "epl", label: "Premier League", href: "/cards/epl" },
+  { sport: "ufc", label: "UFC", href: "/cards/ufc" },
+  { sport: "nfl", label: "NFL", href: "/cards/nfl" },
+] as const;
 
 /* Parlay Lab V2 (four-tier board + compare slip) — OFF unless the build sets NEXT_PUBLIC_PARLAY_LAB_V2=1. When off,
    nothing below is computed or rendered and the page is unchanged. */
@@ -92,6 +101,104 @@ export default function ParlayCenterSuggestedPage() {
   const v2Model = PARLAY_LAB_V2
     ? (buildParlayLabV2Model({ dataRoot, repoRoot: path.resolve(process.cwd(), ".."), date: ladderDate, now: new Date().toISOString() }) as ParlayLabV2Model)
     : null;
+  /* The page's ONE Level A evaluation (at the build's stamped instant), read here so the page knows whether it holds a card. */
+  const levelAModel = LEVEL_A ? levelAPageModel() : null;
+  const levelA = levelAModel as unknown as LevelAModel | null;
+  const levelAHasCard = !!levelA && (levelA.parlayLab.some((t) => t.card) || !!levelA.nbaGameWinners?.tiers.some((t) => t.card && levelA.nbaGameWinners?.public));
+  /* Overnight 10-28 (CONSOLIDATE): when the producer ran (or the season is over) and NOTHING on this page has a card —
+     no risk-ladder card, no suggested card, no model suggestion — the page shows ONE empty state, and the per-tier
+     blocks fold inside it. Other lanes' real, current-or-future cards are named there with their prices. */
+  const noCardToday = !v2Model && ladderProducerRan && ladderCardCount === 0 && suggestedCards.length === 0 && !levelAHasCard;
+  const otherLaneCards: OtherLaneCards[] = noCardToday
+    ? OTHER_LANES.flatMap((l) => {
+        const ladder = loadCurrentSportLabLadder(l.sport);
+        return ladder && ladder.cards.length ? [{ ...l, date: ladder.date, cards: ladder.cards.map((c) => ({ tier: c.tier, combinedAmerican: c.combinedAmerican })) }] : [];
+      })
+    : [];
+  const lastCardDate = (noCardToday ? (lastTierCards.length ? lastTierCards : lastCardPerTier(ladderDate, dataRoot)) : [])
+    .map((t) => t.last?.date ?? "").filter(Boolean).sort().at(-1) ?? null;
+
+  /* The page's own blocks for today. On a no-card day they fold inside ParlayCenterNoCard (one empty state); otherwise
+     they render in place, exactly as before. */
+  const todayBlocks = (
+    <>
+        {/* The guided entry, first. */}
+        {/* P234 · D — the published card as a recordable presentation. It reads the FIRST card of the
+            same ladder the board below renders; it creates nothing and publishes nothing, and it puts
+            the tier's own record beside the combined price rather than showing the price alone. */}
+        <RiskLadderBoard
+          entryShowsTitle={false}
+          cards={riskLadder?.cards ?? []}
+          skipped={offSeasonReason ? (["low", "medium", "high", "longshot"] as const).map((tier) => ({ tier, reason: offSeasonReason })) : riskLadder?.skipped ?? []}
+          overallRoi={riskLadder?.record.overall.roi ?? null}
+          gradedDays={riskLadder?.record.gradedDays ?? 0}
+          bettorTiers={riskLadder?.bettorTiers ?? []}
+          ledger={labLedger}
+          pool={swapPool}
+          grid={tierGrid}
+          /* The artifact's own date and the real ET date, so the heading's "Today's" is a claim the
+             data supports rather than a word baked into the component. */
+          slateDate={riskLadder?.date ?? null}
+          replay={replay}
+          recordSince={riskLadder?.record.firstDay ?? null}
+        />
+
+        {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="parlay-lab" /> : null}
+
+        <EmptyTierContext emptyTiers={[...emptyTiers]} lastCards={lastTierCards} lanes={emptyTiers.length ? (loadLabRecord()?.streams ?? []).map((l) => ({ id: l.id, label: l.label, live: l.live, blocked: l.blocked })) : []} />
+    </>
+  );
+  const suggestedSection = (
+    <>
+        {/* ── SUGGESTED CARDS (shared loader; the optimizer's full pool) ───────────────────────────
+            Addressable at /build#suggested-cards — the anchor every legacy alias and in-page link
+            targets — so those links land exactly here with no redirect chain. */}
+        <section id="suggested-cards" aria-labelledby="suggested-cards-heading" className="flex flex-col gap-3 scroll-mt-6">
+          <FocusOnHash hash="suggested-cards" targetId="suggested-cards-heading" />
+          <div>
+            <h2
+              id="suggested-cards-heading"
+              className="font-semibold"
+              style={{ color: "var(--vault-text)", fontSize: 17 }}
+            >
+              Every suggested card
+            </h2>
+            <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6, maxWidth: "72ch" }}>
+              Every suggested card behind the ladder above, by sport and risk tier. Enter any stake to see the
+              projected paper return — arithmetic on the odds, not an expectation of profit; nothing here is placed.
+            </p>
+          </div>
+          {suggestedCards.length > 0 ? (
+            /* P260: eighteen near-identical cards used to follow the ladder open, and read as the page's
+               answer. They are the optimizer's full pool — worth browsing, not worth leading with — so
+               they sit behind one tap. The markup is still in the page (details, not a lazy load). */
+            <details className="gtp-disclose rounded-[12px]" style={{ border: "1px solid var(--vault-border)" }}>
+              <summary className="vault-press cursor-pointer flex items-center justify-between gap-2 px-4 py-3"
+                style={{ minHeight: 48, color: "var(--vault-text)", fontWeight: 700, fontSize: 14 }}>
+                <span>See all {suggestedCards.length} suggested cards today</span>
+                <span aria-hidden="true" style={{ color: "var(--vault-text-faint)" }}>▾</span>
+              </summary>
+              <div className="px-2 pb-3 sm:px-3">
+                <PicksExperience cards={suggestedCards} slateDate={ladderDate} slateIsCurrent={ladderDate >= currentEtDate()} />
+              </div>
+            </details>
+          ) : (
+            <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
+              <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No suggested cards for today</p>
+              <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
+                {/* F-2: the ladder's own recorded reason when the card-leg rule emptied the day — never a generic claim. */}
+                {riskLadder?.eligibility?.withheldMarketContext
+                  ? <>{riskLadder.eligibility.withheldMarketContext} candidate cards were withheld: every one uses a market-context family ({(riskLadder.eligibility.withheldFamilies ?? []).join(", ")}) — the model behind it was demoted and is not a published GameTime projection. </>
+                  : <>The slate was assessed and nothing cleared the card gates. That is the model&rsquo;s answer for today, not a missing update. </>}
+                <Link href="/build/custom" style={{ color: "var(--vault-gold-bright)" }}>Build your own card</Link>,
+                or see the ranked markets on{" "}
+                <Link href="/markets" style={{ color: "var(--vault-gold-bright)" }}>Picks</Link>.
+              </p>
+            </div>
+          )}
+        </section>
+    </>
+  );
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
@@ -119,30 +226,13 @@ export default function ParlayCenterSuggestedPage() {
 
       {v2Model ? <TierBoard model={v2Model} /> : null}
 
-      {/* The guided entry, first. */}
-      {/* P234 · D — the published card as a recordable presentation. It reads the FIRST card of the
-          same ladder the board below renders; it creates nothing and publishes nothing, and it puts
-          the tier's own record beside the combined price rather than showing the price alone. */}
-      <RiskLadderBoard
-        entryShowsTitle={false}
-        cards={riskLadder?.cards ?? []}
-        skipped={offSeasonReason ? (["low", "medium", "high", "longshot"] as const).map((tier) => ({ tier, reason: offSeasonReason })) : riskLadder?.skipped ?? []}
-        overallRoi={riskLadder?.record.overall.roi ?? null}
-        gradedDays={riskLadder?.record.gradedDays ?? 0}
-        bettorTiers={riskLadder?.bettorTiers ?? []}
-        ledger={labLedger}
-        pool={swapPool}
-        grid={tierGrid}
-        /* The artifact's own date and the real ET date, so the heading's "Today's" is a claim the
-           data supports rather than a word baked into the component. */
-        slateDate={riskLadder?.date ?? null}
-        replay={replay}
-        recordSince={riskLadder?.record.firstDay ?? null}
-      />
-
-      {LEVEL_A ? <LevelASuggestions model={levelAPageModel() as unknown as LevelAModel} mode="parlay-lab" /> : null}
-
-      <EmptyTierContext emptyTiers={[...emptyTiers]} lastCards={lastTierCards} lanes={emptyTiers.length ? (loadLabRecord()?.streams ?? []).map((l) => ({ id: l.id, label: l.label, live: l.live, blocked: l.blocked })) : []} />
+      {noCardToday ? (
+        <ParlayCenterNoCard lastCardDate={lastCardDate} otherLanes={otherLaneCards}
+          reason={offSeasonReason ?? `Nothing on the ${etDayLabel(ladderDate) ?? ladderDate} slate cleared the card rules, so no card is published rather than forcing one.`}>
+          {todayBlocks}
+          {suggestedSection}
+        </ParlayCenterNoCard>
+      ) : todayBlocks}
 
       {/* ── HOW OUR LEGS HAVE SETTLED (P268) ───────────────────────────────────────────────────────
           The tier records answer "have cards like this landed". This answers the question a person
@@ -167,7 +257,7 @@ export default function ParlayCenterSuggestedPage() {
           Each link is a 44px tap target (it measured 19px tall at 320px; release owner 2026-10-24). */}
       <section aria-label="Other suggested-card lanes and history" className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-[10px] px-4 py-3" style={{ border: "1px solid var(--vault-border-strong)", fontSize: 12.5 }}>
         <span className="font-mono uppercase tracking-[0.12em]" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>
-          Other lanes
+          Other sports
         </span>
         <Link className="inline-flex items-center" href="/cards/epl" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600, minHeight: 44 }}>Premier League cards</Link>
         <Link className="inline-flex items-center" href="/cards/ufc" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600, minHeight: 44 }}>UFC cards</Link>
@@ -176,53 +266,7 @@ export default function ParlayCenterSuggestedPage() {
         <Link className="inline-flex items-center" href="/results/parlay-lab" style={{ color: "var(--vault-text-mute)", minHeight: 44, textDecoration: "underline" }}>Every settled card (history)</Link>
       </section>
 
-      {/* ── SUGGESTED CARDS (shared loader; the optimizer's full pool) ───────────────────────────
-          Addressable at /build#suggested-cards — the anchor every legacy alias and in-page link
-          targets — so those links land exactly here with no redirect chain. */}
-      <section id="suggested-cards" aria-labelledby="suggested-cards-heading" className="flex flex-col gap-3 scroll-mt-6">
-        <FocusOnHash hash="suggested-cards" targetId="suggested-cards-heading" />
-        <div>
-          <h2
-            id="suggested-cards-heading"
-            className="font-semibold"
-            style={{ color: "var(--vault-text)", fontSize: 17 }}
-          >
-            Every suggested card
-          </h2>
-          <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6, maxWidth: "72ch" }}>
-            Every suggested card behind the ladder above, by sport and risk tier. Enter any stake to see the
-            projected paper return — arithmetic on the odds, not an expectation of profit; nothing here is placed.
-          </p>
-        </div>
-        {suggestedCards.length > 0 ? (
-          /* P260: eighteen near-identical cards used to follow the ladder open, and read as the page's
-             answer. They are the optimizer's full pool — worth browsing, not worth leading with — so
-             they sit behind one tap. The markup is still in the page (details, not a lazy load). */
-          <details className="gtp-disclose rounded-[12px]" style={{ border: "1px solid var(--vault-border)" }}>
-            <summary className="vault-press cursor-pointer flex items-center justify-between gap-2 px-4 py-3"
-              style={{ minHeight: 48, color: "var(--vault-text)", fontWeight: 700, fontSize: 14 }}>
-              <span>See all {suggestedCards.length} suggested cards today</span>
-              <span aria-hidden="true" style={{ color: "var(--vault-text-faint)" }}>▾</span>
-            </summary>
-            <div className="px-2 pb-3 sm:px-3">
-              <PicksExperience cards={suggestedCards} slateDate={ladderDate} slateIsCurrent={ladderDate >= currentEtDate()} />
-            </div>
-          </details>
-        ) : (
-          <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
-            <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No suggested cards for today</p>
-            <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
-              {/* F-2: the ladder's own recorded reason when the card-leg rule emptied the day — never a generic claim. */}
-              {riskLadder?.eligibility?.withheldMarketContext
-                ? <>{riskLadder.eligibility.withheldMarketContext} candidate cards were withheld: every one uses a market-context family ({(riskLadder.eligibility.withheldFamilies ?? []).join(", ")}) — the model behind it was demoted and is not a published GameTime projection. </>
-                : <>The slate was assessed and nothing cleared the card gates. That is the model&rsquo;s answer for today, not a missing update. </>}
-              <Link href="/build/custom" style={{ color: "var(--vault-gold-bright)" }}>Build your own card</Link>,
-              or see the ranked markets on{" "}
-              <Link href="/markets" style={{ color: "var(--vault-gold-bright)" }}>Picks</Link>.
-            </p>
-          </div>
-        )}
-      </section>
+      {noCardToday ? null : suggestedSection}
 
       {/* ── LEGACY ANCHOR SIGNPOST ───────────────────────────────────────────────────────────────
           /build#advanced-builder was the builder's address for months. The builder now lives in

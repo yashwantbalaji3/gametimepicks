@@ -3,6 +3,7 @@ import LevelACopy from "@/components/products/level-a-copy";
 import { AddToSlip, ModelSlipBar } from "@/components/products/level-a-slip";
 import { slipCatalogFor, slipLegOf } from "@/lib/products/level-a/slip-legs.mjs";
 import NbaGameWinners, { type NbaGameWinnersBlock } from "@/components/products/nba-game-winners";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 import { cardCopyText, jointShownFor, LEG_REFUSAL } from "@/lib/products/level-a/suggestions.mjs";
 import { levelACardKey } from "@/lib/products/level-a/engine.mjs";
 import { etStamp } from "@/lib/et-stamp.mjs";
@@ -46,8 +47,10 @@ function LegRow({ l }: { l: Leg }) {
         {SPORT[l.sport] ?? l.sport} · {l.eventLabel} · starts {etStamp(l.startUtc) ?? l.startUtc}
         {l.uncertainty?.kind === "1x2" ? ` · home ${pct(l.uncertainty.home ?? null)} / draw ${pct(l.uncertainty.draw ?? null)} / away ${pct(l.uncertainty.away ?? null)}` : ""}
       </span>
+      {/* Overnight 10-28 (RELOCATE): the reader sees "Official forecast · frozen <time ET>"; the forecast owner and model
+          id (e.g. "nba-official-composition@1 (nba-preseason-experimental-v0.1)") are listed once, in Technical details. */}
       <span style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }}>
-        Source: {l.forecast.owner}{l.forecast.modelId ? ` (${l.forecast.modelId})` : ""} · frozen {etStamp(l.forecast.stampedAt) ?? l.forecast.stampedAt} · no sportsbook price · settles on the official final
+        Official forecast · frozen {etStamp(l.forecast.stampedAt) ?? l.forecast.stampedAt} · no sportsbook price · settles on the official final
       </span>
       {/* founder decision 2026-10-23: the Elo rating's game-winner probability — the shared accessor's text, display only */}
       {l.uncertainty?.kind === "elo-win-probability" && l.uncertainty.text ? (
@@ -84,21 +87,29 @@ function CardBox({ title, slot }: { title: string; slot: Slot }) {
   );
 }
 
+/** The forecast owners (and model ids) behind the legs this section renders in `mode`, once each — for Technical details. */
+export function levelAForecastSources(model: LevelAModel, mode: "parlay-lab" | "bank-builder" | "moonshot"): string[] {
+  const slots = mode === "parlay-lab" ? model.parlayLab : [mode === "bank-builder" ? model.bankBuilder : model.moonshot];
+  const legs = [...slots.flatMap((s) => s.card?.legs ?? []), ...model.untiered];
+  return [...new Set(legs.map((l) => `${l.forecast.owner}${l.forecast.modelId ? ` (${l.forecast.modelId})` : ""}`))];
+}
+
 /**
  * @param mode  "parlay-lab" shows the four tiers; "bank-builder" / "moonshot" show that product's own Level A policy.
  */
 export default function LevelASuggestions({ model, mode }: { model: LevelAModel | null; mode: "parlay-lab" | "bank-builder" | "moonshot" }) {
   if (!model) return null;
   const refused = Object.entries(model.refusedByReason);
-  return (
-    <section aria-labelledby={`level-a-${mode}`} className="flex flex-col gap-3 rounded-xl px-4 py-4" style={{ border: "1px solid var(--vault-border-strong)", background: "var(--vault-panel)" }}>
-      <div>
-        <h2 id={`level-a-${mode}`} className="m-0 font-semibold" style={{ color: "var(--vault-text)", fontSize: 16 }}>Model suggestions · {model.productDay}</h2>
-        <p className="mt-1 text-[12.5px]" style={{ color: "var(--vault-text-mute)", maxWidth: "72ch" }}>
-          {model.label} Each leg is the Official Forecast&rsquo;s own pick, frozen before its game. Its accuracy over a large forward sample
-          is not yet established. {model.method}
-        </p>
-      </div>
+  /* Overnight 10-28 (CONSOLIDATE): on /bank-builder and /moonshot, a day with neither the product's own suggestion nor
+     its NBA game-winner card printed two more "no card" boxes under the page's own no-card state. That day now reads as
+     ONE line with the product's reason and a link to every suggestion; the boxes, reasons and disclosures render
+     unchanged inside the fold. Any real card keeps the block open, exactly as before. */
+  const productSlot = mode === "bank-builder" ? model.bankBuilder : mode === "moonshot" ? model.moonshot : null;
+  const nbaSlot = model.nbaGameWinners?.public ? (mode === "bank-builder" ? model.nbaGameWinners.bankBuilder : mode === "moonshot" ? model.nbaGameWinners.moonshot : null) : null;
+  const foldedNoCard = mode !== "parlay-lab" && !productSlot?.card && !nbaSlot?.card;
+  const productName = mode === "bank-builder" ? "Bank Builder" : "Moonshot";
+  const body = (
+    <>
       {mode === "parlay-lab" ? (
         <div className="grid gap-3 lg:grid-cols-2">{model.parlayLab.map((t) => <CardBox key={t.tier} title={t.tierLabel} slot={t} />)}</div>
       ) : mode === "bank-builder" ? (
@@ -110,6 +121,62 @@ export default function LevelASuggestions({ model, mode }: { model: LevelAModel 
           game winners block below already prints it on this page. */}
       {model.mixed?.disclosure && !(model.nbaGameWinners?.public && model.nbaGameWinners.disclosure) ? <p className="m-0 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }} data-level-a-mixed-disclosure="">{model.mixed.disclosure}</p> : null}
       <NbaGameWinners block={model.nbaGameWinners} mode={mode} />
+      {mode === "parlay-lab" ? <LevelAReference model={model} refused={refused} /> : (
+        /* Overnight 10-28 (CONSOLIDATE): the untiered sides, the NBA medians and the unavailable-leg count were copied in
+           full on /build, /bank-builder and /moonshot. The Parlay Center keeps them open (it is that page's purpose); the
+           two product pages fold the same content (still server-rendered) behind one line and link to the full block. */
+        <details className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
+          <summary className="cursor-pointer" style={{ minHeight: 40, color: "var(--vault-text)" }}>
+            Every model suggestion today{model.untiered.length ? ` · ${model.untiered.length} official side${model.untiered.length === 1 ? "" : "s"} not tiered` : ""}
+          </summary>
+          <div className="mt-2 flex flex-col gap-3">
+            <p className="m-0"><Link href="/build#level-a-parlay-lab" style={{ color: "var(--vault-text-mute)", textDecoration: "underline" }}>All four risk tiers on the Parlay Center →</Link></p>
+            <LevelAReference model={model} refused={refused} />
+          </div>
+        </details>
+      )}
+      <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
+        Every suggestion is recorded and graded forward in its own record, separate from the priced paper record.{" "}
+        <Link href="/methodology" style={{ color: "var(--vault-text-mute)", textDecoration: "underline" }}>How suggestions are chosen →</Link>
+      </p>
+      <MoreDisclosure title="Technical details" summary="Forecast sources and the published data file">
+        <div className="flex flex-col gap-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+          {levelAForecastSources(model, mode).length ? <p className="m-0">Forecast source{levelAForecastSources(model, mode).length === 1 ? "" : "s"}: {levelAForecastSources(model, mode).join(" · ")}</p> : null}
+          <p className="m-0"><a href="/data/level-a/v1/model.json" style={{ color: "var(--vault-text-mute)", textDecoration: "underline" }}>These suggestions as data</a></p>
+        </div>
+      </MoreDisclosure>
+    </>
+  );
+  return (
+    <section aria-labelledby={`level-a-${mode}`} className="flex flex-col gap-3 rounded-xl px-4 py-4" style={{ border: "1px solid var(--vault-border-strong)", background: "var(--vault-panel)" }}>
+      <div>
+        <h2 id={`level-a-${mode}`} className="m-0 font-semibold" style={{ color: "var(--vault-text)", fontSize: 16 }}>Model suggestions · {model.productDay}</h2>
+        <p className="mt-1 text-[12.5px]" style={{ color: "var(--vault-text-mute)", maxWidth: "72ch" }}>
+          {model.label} Each leg is the Official Forecast&rsquo;s own pick, frozen before its game. Its accuracy over a large forward sample
+          is not yet established. {model.method}
+        </p>
+      </div>
+      {foldedNoCard ? (
+        <>
+          <p className="m-0 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }} data-level-a-folded-no-card="">
+            No {productName} model suggestion today{productSlot?.reason ? `: ${productSlot.reason}` : ""}.{" "}
+            <Link href="/build#level-a-parlay-lab" style={{ color: "var(--vault-text-mute)", textDecoration: "underline" }}>All model suggestions on the Parlay Center →</Link>
+          </p>
+          <details className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
+            <summary className="cursor-pointer" style={{ minHeight: 40, color: "var(--vault-text)" }}>Why, card by card</summary>
+            <div className="mt-2 flex flex-col gap-3">{body}</div>
+          </details>
+        </>
+      ) : body}
+      <ModelSlipBar catalog={slipCatalogFor(model, mode)} />
+    </section>
+  );
+}
+
+/** The untiered official sides, the NBA medians and the unavailable-leg count — open on the Parlay Center, folded elsewhere. */
+function LevelAReference({ model, refused }: { model: LevelAModel; refused: Array<[string, number]> }) {
+  return (
+    <>
       {model.untiered.length ? (
         <div className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
           <p className="m-0 font-semibold" style={{ color: "var(--vault-text)" }}>Official sides that are not tiered</p>
@@ -136,12 +203,6 @@ export default function LevelASuggestions({ model, mode }: { model: LevelAModel 
           Unavailable today: {refused.map(([code, n]) => `${n} × ${LEG_REFUSAL[code as keyof typeof LEG_REFUSAL] ?? code}`).join(" ")}
         </p>
       ) : null}
-      <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
-        Every suggestion is recorded and graded forward in its own record, separate from the priced paper record.{" "}
-        <Link href="/methodology" style={{ color: "var(--vault-text-mute)", textDecoration: "underline" }}>How suggestions are chosen →</Link>{" "}
-        <a href="/data/level-a/v1/model.json" style={{ color: "var(--vault-text-mute)", textDecoration: "underline" }}>These suggestions as data</a>
-      </p>
-      <ModelSlipBar catalog={slipCatalogFor(model, mode)} />
-    </section>
+    </>
   );
 }
