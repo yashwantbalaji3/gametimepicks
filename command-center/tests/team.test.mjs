@@ -13,6 +13,7 @@ import { createOrchestrator } from "../orchestrator/orchestrator.mjs";
 import { EXECUTION, executionOf, providerStatus, apiSeat, testProvider } from "../providers/catalog.mjs";
 import { callJson } from "../providers/api-common.mjs";
 import { checkEvidence } from "../contracts/team.mjs";
+import { teamRunEvidence, evidenceMarkdown } from "../orchestrator/team-evidence.mjs";
 import { RUN_LIMITS } from "../contracts/engineering.mjs";
 import { stepClock } from "../lib/util.mjs";
 import { FOUNDER, tempDir, TEST_SLATE } from "./helpers.mjs";
@@ -278,4 +279,24 @@ test("three-provider content plan: Grok + ChatGPT (pasted) and Claude Code (real
   const d = s.decisions.find((x) => x.kind === "proposal");
   assert.equal(d.subject.feasibility.summary, review.artifact.summary);
   assert.equal(execFileSync("git", ["worktree", "list"], { cwd: repo, encoding: "utf8" }).trim().split("\n").length, 1, "the review's working copy was removed");
+  assert.match(review.run.preflight ? "ok" : "", /ok/);
+
+  // the evidence report, read from the ledger alone
+  await t2.o.decide({ decisionId: d.decisionId, verdict: "approve", digest: d.subjectDigest }, FOUNDER);
+  const ev = teamRunEvidence(t2.store.list());
+  assert.deepEqual(ev.verdict.genuineProviders, ["Grok", "ChatGPT", "Claude Code"]);
+  assert.equal(ev.verdict.simulated, 0);
+  assert.equal(ev.verdict.ok, true, JSON.stringify(ev.checks));
+  assert.ok(ev.checks.some((c) => /every checked Grok finding/.test(c.check) && c.ok));
+  assert.ok(ev.checks.some((c) => /exact Claude Code review/.test(c.check) && c.ok));
+  assert.equal(ev.steps.find((s) => s.step === "research").execution, EXECUTION.MANUAL);
+  assert.equal(ev.steps.find((s) => s.step === "feasibility").execution, EXECUTION.REAL);
+  const md = evidenceMarkdown(ev);
+  assert.match(md, /all three/);
+  assert.match(md, /session `fake-review-session`/);
+
+  // the first run (no billing confirmation) is reported honestly: Claude Code refused, not faked
+  const ev1 = teamRunEvidence(t.store.list());
+  assert.deepEqual(ev1.verdict.genuineProviders, ["Grok", "ChatGPT"]);
+  assert.match(ev1.steps.find((s) => s.step === "feasibility").status, /REFUSED BILLING_NOT_CONFIRMED/);
 });
