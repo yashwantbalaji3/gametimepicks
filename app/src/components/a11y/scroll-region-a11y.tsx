@@ -21,12 +21,47 @@
  *     stops overflowing it is restored, so it never adds a dead Tab stop on a wide screen;
  *   - an inline link with no underline whose block also holds other text gets `data-prose-link`.
  *
+ * W6 (2026-10-28) — a third job, for wide TABLES on phones: every sideways-scrolling box that holds a <table> gets
+ * `data-x-scroll` = start | middle | end (scroll-edge.ts), kept current as the reader scrolls and removed when the
+ * table fits. globals.css fades the edge that still hides columns and, below 768px, prints a one-line "swipe" hint
+ * under the table until the first scroll (`data-x-hint`, only on a block box, where the hint lands under the table).
+ * Before this, 23+ table boxes clipped their last columns with no sign that more existed.
+ *
  * It only adds attributes React does not render, so it cannot cause hydration mismatches, and an
  * underline changes no layout. It renders nothing.
  */
 import { useEffect } from "react";
+import { scrollEdge } from "./scroll-edge";
 
 const MARK = "data-scroll-a11y";
+/** W6: the table-scroll affordance (globals.css § W6 d). */
+const EDGE = "data-x-scroll";
+const HINT = "data-x-hint";
+const watched = new WeakSet<HTMLElement>();
+
+function syncEdge(el: HTMLElement) {
+  const edge = scrollEdge(el.scrollLeft, el.scrollWidth, el.clientWidth);
+  if (edge === null) {
+    if (el.hasAttribute(EDGE)) { el.removeAttribute(EDGE); el.removeAttribute(HINT); }
+    return;
+  }
+  if (el.getAttribute(EDGE) !== edge) el.setAttribute(EDGE, edge);
+}
+
+/** Mark a table's sideways scroller, or unmark it once the table fits. Scroll listeners are passive and added once. */
+function trackTableScroll(el: HTMLElement, scrolls: boolean) {
+  if (!scrolls) {
+    if (el.hasAttribute(EDGE)) syncEdge(el);
+    return;
+  }
+  if (!el.querySelector("table")) return;
+  if (!watched.has(el)) {
+    watched.add(el);
+    el.addEventListener("scroll", () => syncEdge(el), { passive: true });
+  }
+  if (!el.hasAttribute(HINT) && getComputedStyle(el).display === "block") el.setAttribute(HINT, "");
+  syncEdge(el);
+}
 const FOCUSABLE = "a[href], button, input, select, textarea, summary, [tabindex]";
 
 function textOf(el: Element | null): string {
@@ -78,9 +113,10 @@ function regionName(box: HTMLElement): string {
 function fixScrollRegions(main: HTMLElement) {
   for (const el of Array.from(main.querySelectorAll<HTMLElement>("*"))) {
     const ours = el.hasAttribute(MARK);
-    if (!ours && el.scrollWidth <= el.clientWidth + 1) continue; // cheap check first; most elements stop here
+    if (!ours && !el.hasAttribute(EDGE) && el.scrollWidth <= el.clientWidth + 1) continue; // cheap check first; most elements stop here
     const overflowX = getComputedStyle(el).overflowX;
     const scrolls = (overflowX === "auto" || overflowX === "scroll") && el.scrollWidth > el.clientWidth + 1;
+    trackTableScroll(el, scrolls);
     if (scrolls && !ours && !el.hasAttribute("tabindex") && !focusReachesEnd(el)) {
       el.setAttribute(MARK, "");
       el.tabIndex = 0;

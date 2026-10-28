@@ -18,20 +18,27 @@ import { SEARCH_PLAYERS, SEARCH_PLAYERS_LABEL } from "@/lib/ui/search-labels";
 
 const TOP_N = 12;
 
+/* W6 (2026-10-28): the button is the 44px touch target; the visible pill inside keeps its 32px look. */
 function Pill({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="gtp-pressable rounded-full px-3 py-1.5 transition-colors shrink-0"
-      style={{
-        background: on ? "var(--vault-gold-dim)" : "transparent",
-        border: `1px solid ${on ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`,
-        color: on ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
-        fontSize: 12, fontWeight: 600, whiteSpace: "nowrap",
-      }}
+      aria-pressed={on}
+      className="gtp-pressable inline-flex items-center shrink-0"
+      style={{ minHeight: 44, background: "transparent", border: 0, padding: 0 }}
     >
-      {children}
+      <span
+        className="rounded-full px-3 py-1.5 transition-colors"
+        style={{
+          background: on ? "var(--vault-gold-dim)" : "transparent",
+          border: `1px solid ${on ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`,
+          color: on ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
+          fontSize: 12, fontWeight: 600, whiteSpace: "nowrap",
+        }}
+      >
+        {children}
+      </span>
     </button>
   );
 }
@@ -95,7 +102,7 @@ export default function PlayerPropsExplorer({ props }: { props: PublicProjection
         <Pill on={market === "byplayer"} onClick={() => setMarket("byplayer")}>👤 By player</Pill>
         {markets.map(([m, n]) => (
           <Pill key={m} on={market === m} onClick={() => setMarket(m)}>
-            {m} <span className="font-mono" style={{ fontSize: 10, opacity: 0.8 }}>{n}</span>
+            {m} <span className="font-mono" style={{ fontSize: 12, opacity: 0.8 }}>{n}</span>
           </Pill>
         ))}
       </div>
@@ -111,16 +118,16 @@ export default function PlayerPropsExplorer({ props }: { props: PublicProjection
           placeholder={SEARCH_PLAYERS}
           aria-label={SEARCH_PLAYERS_LABEL}
           className="ml-1 rounded-full px-3 py-1.5 min-w-[140px]"
-          style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 70%, transparent)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 12 }}
+          style={{ minHeight: 44, background: "color-mix(in srgb, var(--vault-scrim-base) 70%, transparent)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 12 }}
         />
       </div>
 
       {market === "top" ? (
-        <span className="font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)" }}>
+        <span className="font-mono text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
           Top {filtered.length} model-ranked picks across all markets — recommended side only. Tap a row for the evidence; use the market tabs for the full board.
         </span>
       ) : market === "byplayer" ? (
-        <span className="font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)" }}>
+        <span className="font-mono text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
           {playerGroups.length} player{playerGroups.length === 1 ? "" : "s"} — each card opens to show all of that player&apos;s markets, strongest edge first.
         </span>
       ) : null}
@@ -135,7 +142,7 @@ export default function PlayerPropsExplorer({ props }: { props: PublicProjection
         ) : (
           <div className="rounded-[10px] px-4 py-6 text-center" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
             <p style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>No players match this filter</p>
-            <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 11.5 }}>Clear the team filter or search to see everyone.</p>
+            <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>Clear the team filter or search to see everyone.</p>
           </div>
         )
       ) : filtered.length > 0 ? (
@@ -145,7 +152,7 @@ export default function PlayerPropsExplorer({ props }: { props: PublicProjection
       ) : (
         <div className="rounded-[10px] px-4 py-6 text-center" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
           <p style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>No props match this filter</p>
-          <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 11.5 }}>Try another market or clear the search.</p>
+          <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>Try another market or clear the search.</p>
         </div>
       )}
     </div>

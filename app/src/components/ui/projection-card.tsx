@@ -14,7 +14,7 @@ export default function ProjectionCard({ p, hideModel = false }: { p: PublicProj
     <article className="rounded-[8px] px-3.5 py-3 flex flex-col gap-2"
              style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
       <div className="flex items-center justify-between gap-2 min-w-0">
-        <span className="font-mono uppercase tracking-[0.1em] truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+        <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>
           {p.sportLabel} · {p.marketLabel}
         </span>
         <StatusChip label={hideModel ? "Market-implied" : p.parlayEligible ? "Card eligible" : "Projection view"} />
@@ -28,18 +28,18 @@ export default function ProjectionCard({ p, hideModel = false }: { p: PublicProj
         <span className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>{p.gameLabel}</span>
       </div>
       <div className="flex items-center justify-between gap-2">
-        <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
+        <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
           {p.pickLabel} · {formatAmerican(p.americanOdds ?? null)}
         </span>
         {hideModel ? (
-          <span className="font-mono tabular" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{pct(p.marketProbability)} market</span>
+          <span className="font-mono tabular" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>{pct(p.marketProbability)} market</span>
         ) : (
-          <span className="font-mono tabular" style={{ color: edgePos ? "var(--vault-success)" : "var(--vault-text-faint)", fontSize: 11, fontWeight: 600 }}>
+          <span className="font-mono tabular" style={{ color: edgePos ? "var(--vault-success)" : "var(--vault-text-faint)", fontSize: 12, fontWeight: 600 }}>
             {edgePos ? "+" : ""}{(p.edgePct ?? 0).toFixed(1)}%
           </span>
         )}
       </div>
-      <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+      <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>
         {hideModel ? `Market-implied · de-vigged ${pct(p.marketProbability)}` : `Model ${pct(p.modelProbability)} · Market ${pct(p.marketProbability)}`}
       </span>
     </article>

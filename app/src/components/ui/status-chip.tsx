@@ -1,5 +1,8 @@
 /**
  * StatusChip — shared status pill with a consistent vocabulary + tone across all sports.
+ *
+ * W6 (2026-10-28): the calm chip (globals.css `.gtp-calm-chip`, the same one the Model status chips use): sentence
+ * case at 12px in muted text, the tone on a dot. Was 10px uppercase in the tone colour. Same labels, same tones.
  */
 import { friendlyStatusLabel } from "@/lib/public-visibility";
 
@@ -22,10 +25,7 @@ export default function StatusChip({ status, label }: { status?: string; label?:
   if (!text) return null;
   const tone = TONE[text] ?? "var(--vault-text-mute)";
   return (
-    <span
-      className="font-mono uppercase tracking-[0.08em] px-1.5 py-0.5 rounded-[3px] shrink-0"
-      style={{ color: tone, border: `1px solid ${tone}`, fontSize: 10, whiteSpace: "nowrap" }}
-    >
+    <span className="gtp-calm-chip shrink-0" style={{ ["--chip-tone" as string]: tone }}>
       {text}
     </span>
   );

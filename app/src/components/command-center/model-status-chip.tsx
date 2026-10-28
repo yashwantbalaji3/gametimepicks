@@ -2,10 +2,15 @@
  * ModelStatusChip — one status, in the public vocabulary, never by colour alone: the label is the state, the tone
  * only echoes it. The evidence sentence rides in the title so a hover or a screen reader gets it without the
  * homepage paying for it in copy; the sport hub prints it in full.
+ *
+ * W6 (2026-10-28): the calm chip (globals.css `.gtp-calm-chip`) — sentence case at 12px in muted text, the tone on a
+ * small dot. It was 8.5px uppercase in the tone colour, and a lane of them read as a wall of alarms
+ * ("NOT MARKET-VALIDATED"). Same labels (PUBLIC_STATE_LABEL), same states, same title.
  */
 import type { PublicModelState } from "@/lib/command-center/contract";
 
-const TONE: Record<PublicModelState, string> = {
+/** One tone per meaning: good standing, being tested, needs watching, withdrawn, and "nothing to judge yet". */
+export const MODEL_STATE_TONE: Record<PublicModelState, string> = {
   VALIDATED: "var(--vault-success)",
   FORWARD_TEST: "var(--vault-info)",
   HOLDING: "var(--vault-success)",
@@ -21,8 +26,8 @@ const TONE: Record<PublicModelState, string> = {
 export default function ModelStatusChip({ state, label, family, title }: { state: PublicModelState; label: string; family?: string; title?: string }) {
   return (
     <span
-      className="gtp-status-chip inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em] whitespace-nowrap"
-      style={{ fontSize: 8.5, color: TONE[state], border: "1px solid var(--vault-rule)" }}
+      className="gtp-status-chip gtp-calm-chip"
+      style={{ ["--chip-tone" as string]: MODEL_STATE_TONE[state] }}
       title={title}
       data-state={state}
     >

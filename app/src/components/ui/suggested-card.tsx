@@ -49,7 +49,7 @@ export default function SuggestedCard({
             {formatAmerican(card.combinedAmericanOdds)}
           </span>
         ) : (
-          <span className="font-mono uppercase" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>model</span>
+          <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>Model</span>
         )}
       </div>
 
@@ -59,7 +59,7 @@ export default function SuggestedCard({
         </span>
         {card.result && CARD_RESULT_CHIP[card.result] ? (
           <span
-            className="shrink-0 rounded px-2 py-0.5 font-mono text-[10px] font-bold tracking-[0.1em]"
+            className="shrink-0 rounded px-2 py-0.5 font-mono text-[12px] font-bold"
             style={{ color: CARD_RESULT_CHIP[card.result].color, background: CARD_RESULT_CHIP[card.result].bg }}
           >
             {CARD_RESULT_CHIP[card.result].label}
@@ -90,11 +90,11 @@ export default function SuggestedCard({
             <div className="flex flex-col min-w-0 flex-1">
               <span className="truncate" style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{l.label}</span>
               {l.sublabel ? (
-                <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{l.sublabel}</span>
+                <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>{l.sublabel}</span>
               ) : null}
             </div>
             {l.americanOdds !== 0 ? (
-              <span className="font-mono shrink-0" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{formatAmerican(l.americanOdds)}</span>
+              <span className="font-mono shrink-0" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>{formatAmerican(l.americanOdds)}</span>
             ) : null}
             {l.result && LEG_RESULT_GLYPH[l.result] ? (
               <span
@@ -112,7 +112,7 @@ export default function SuggestedCard({
       {card.result && CARD_RESULT_CHIP[card.result] ? (
         // Settled card — the outcome is final, so no interactive paper-stake calculator.
         <div className="rounded-[8px] px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 30%, transparent)", border: "1px solid var(--vault-rule)" }}>
-          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+          <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>
             Settled from official results · 90-minute regulation for soccer legs
           </span>
         </div>
@@ -120,26 +120,26 @@ export default function SuggestedCard({
         <StakePayoutInput combinedAmerican={card.combinedAmericanOdds} combinedDecimal={card.combinedDecimal} defaultStake={card.defaultStake} lockedStake={lockedStake} />
       ) : (
         <div className="rounded-[8px] px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 30%, transparent)", border: "1px solid var(--vault-rule)" }}>
-          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+          <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>
             Card · no market odds (no paper payout)
           </span>
         </div>
       )}
 
       {card.whyThisCard && card.whyThisCard.length > 0 ? (
-        <p className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>
+        <p className="text-[12px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>
           {card.whyThisCard[0]}
         </p>
       ) : null}
 
       {card.caveats && card.caveats.length > 0 ? (
         <details>
-          <summary className="font-mono uppercase tracking-[0.12em] cursor-pointer" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+          <summary className="font-mono cursor-pointer" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>
             Details
           </summary>
           <ul className="mt-1.5 flex flex-col gap-0.5">
             {card.caveats.slice(0, 4).map((c, i) => (
-              <li key={i} className="text-[10px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>· {c}</li>
+              <li key={i} className="text-[12px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>· {c}</li>
             ))}
           </ul>
         </details>
@@ -158,7 +158,7 @@ export default function SuggestedCard({
             Customize this card →
           </Link>
         ) : (
-          <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10, lineHeight: 1.5 }}>
+          <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 12, lineHeight: 1.5 }}>
             Browse-and-stake card — its source doesn&rsquo;t carry per-leg builder identity, so it can&rsquo;t seed the custom draft.
           </span>
         )
