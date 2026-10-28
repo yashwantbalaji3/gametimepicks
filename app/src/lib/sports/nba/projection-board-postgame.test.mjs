@@ -161,7 +161,7 @@ test("actuals on the COMMITTED record equal the shadow grader's own recorded act
   }
 });
 
-test("stat corrections render honestly: corrected figure + dagger + the graded value for screen readers; legend, chip and Model details say so", () => {
+test("stat corrections render honestly: corrected figure + dagger + the graded value for screen readers; legend, chip and Technical details say so", () => {
   const snap = lane();
   const acts = boardActuals(snap, PROJECTION_BOARD_STATS, { boxscoreOf: boxes(), finals: finalsFor(PUB.games) });
   const key = `${G0.providerEventId}:${G0.players.home[0].providerAthleteId}`;
@@ -171,7 +171,7 @@ test("stat corrections render honestly: corrected figure + dagger + the graded v
   acts.corrections = { [G0.providerEventId]: { firstCapturedAt: "2026-10-21T13:16:03Z", correctedAt: "2026-10-22T13:41:38Z" } };
   const html = render({ lane: snap, role: "past", date: "2026-10-20", dates: ["2026-10-20"], dated: true, actuals: acts });
   const text = visibleText(html);
-  assert.match(text, /† stat corrected by ESPN after grading: the corrected figure is shown, and the graded one is listed in Model details\./);
+  assert.match(text, /† stat corrected by ESPN after grading: the corrected figure is shown, and the graded one is listed in Technical details\./);
   assert.match(html, /6<span aria-hidden="true">†<\/span><span class="sr-only"> \(stat corrected after grading; graded on 5\)<\/span>/);
   assert.match(text, new RegExp(`${G0.away.abbr} @ ${G0.home.abbr} · \\S+ · stat corrected after grading`));
   assert.match(visibleText(detailsOf(html)), new RegExp(`${G0.away.abbr} @ ${G0.home.abbr}: ESPN corrected the final box score \\(captured Oct 22, 9:41 AM ET\\) after grading on the first final box score \\(captured Oct 21, 9:16 AM ET\\)\\. Graded → corrected: ${G0.players.home[0].name} REB 5 → 6, PRA \\d+ → \\d+, P\\+R \\d+ → \\d+\\.`));
@@ -349,14 +349,15 @@ test("weight: postgame adds a bounded per-row cost (actual cells + wire), not pe
 const detailsOf = (html) => html.slice(html.indexOf("<details"), html.indexOf("</details>"));
 const outsideDetails = (html) => html.slice(0, html.indexOf("<details")) + html.slice(html.indexOf("</details>"));
 
-test("consumer language: model ids, receipts and engine notes only inside Model details, each model id once", () => {
+test("consumer language: model ids, receipts and engine notes only inside Technical details, each model id once", () => {
   const acts = boardActuals(lane(), PROJECTION_BOARD_STATS, { boxscoreOf: boxes(), finals: finalsFor(PUB.games) });
   for (const props of [{ lane: lane() }, { lane: lane(), role: "past", date: "2026-10-20", dated: true, actuals: acts }]) {
     const html = render(props);
     const out = visibleText(outsideDetails(html));
-    assert.doesNotMatch(out, /experimental|v0\.1|v0 engine|receipt|nba-preseason/i, "nothing model-internal outside Model details");
+    assert.doesNotMatch(out, /experimental|v0\.1|v0 engine|receipt|nba-preseason/i, "nothing model-internal outside Technical details");
     const det = visibleText(detailsOf(html));
-    assert.match(det, /^ ?Model details · freeze times, receipts and method · 3 games/);
+    // overnight W7 2026-10-28: the shared MoreDisclosure, titled "Technical details" (was a hand-rolled "Model details")
+    assert.match(det, /^ ?Technical details Freeze times, receipts and method · 3 games/);
     assert.equal(det.split(PUB.games[0].receipt.modelVersion).length - 1, 2, "the model id once in the Model line, once in the Source line");
     for (const g of PUB.games) assert.ok(det.includes(g.receipt.payloadSha256.slice(0, 12)), "each receipt hash stays");
     assert.equal(html.split(PREDICTED_NOTE).length - 1, 1);

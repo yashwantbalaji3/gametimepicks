@@ -117,7 +117,7 @@ function Official({ official, teams, lane, elo }: { official: PbOfficial; teams:
     <>
       <dl className="nbx-kv">
         <dt>Favoured side</dt><dd data-nba-official-side=""><strong>{fav ? `${fav.name} (${fav.abbr})` : "Neither side"}</strong> · Elo rating</dd>
-        {/* Founder mandate 2026-10-24: the models in words; the exact ids are kept, verbatim, under Model details below. */}
+        {/* Founder mandate 2026-10-24: the models in words; the exact ids are kept, verbatim, under Technical details below. */}
         <dt>Game winner</dt><dd>{OFFICIAL_MODEL_PLAIN.game}</dd>
         <dt>Player statistics</dt><dd>{OFFICIAL_MODEL_PLAIN.players} · medians</dd>
         <dt>Frozen</dt><dd>{et(official.frozenAt)}{official.lockAt ? ` · locked at tip-off, ${et(official.lockAt)}` : ""}</dd>
@@ -125,7 +125,7 @@ function Official({ official, teams, lane, elo }: { official: PbOfficial; teams:
         <dt>Withheld</dt><dd>{eloShown ? "Team scores" : "Win chance, team scores"}, margin and total, player ranges, prices{w.teamScores ? <span className="sr-only"> · {w.teamScores}</span> : null}</dd>
       </dl>
       <details className="nbx-model-details" data-nba-model-details="">
-        <summary style={{ minHeight: 44, lineHeight: "44px", cursor: "pointer" }}>Model details</summary>
+        <summary style={{ minHeight: 44, lineHeight: "44px", cursor: "pointer" }}>Technical details</summary>
         <dl className="nbx-kv">
           <dt>Game winner model</dt><dd>{official.models.game ?? "—"}</dd>
           <dt>Player model</dt><dd>{official.models.players.join(", ") || "—"}</dd>

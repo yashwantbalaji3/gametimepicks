@@ -23,7 +23,7 @@ const COLS = BOX_COLUMNS as unknown as [string, string][];
 const SIDES: NbaSide[] = ["away", "home"];
 const fmt1 = (v: number | null | undefined) => (typeof v === "number" && Number.isFinite(v) ? v.toFixed(1) : "—");
 const fmtUtc = (iso: string | null) => (iso ? `${iso.replace("T", " ").replace(/\.\d+Z$/, "Z").replace(/:\d\dZ$/, "Z").replace("Z", " UTC")}` : "—");
-/* Reader-facing instants in ET, as the Official Forecast section below prints them; the exact UTC stays in Model details. */
+/* Reader-facing instants in ET, as the Official Forecast section below prints them; the exact UTC stays in Technical details. */
 const fmtEt = (iso: string | null) => (iso && Number.isFinite(Date.parse(iso)) ? new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(iso)) + " ET" : "—");
 
 /**
