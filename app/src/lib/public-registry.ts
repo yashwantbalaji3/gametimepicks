@@ -236,6 +236,20 @@ export function officialForecastCoverage(key: string): string | null {
   return `${PUBLIC_TERMS.OFFICIAL_FORECAST}s: ${list(official)}.${withheld.length ? ` Withheld: ${list(withheld)}.` : ""}`;
 }
 
+/**
+ * W9 (audit 2026-10-28): the sports that publish Official Forecasts, in registry order, read from the families — so
+ * "which sports publish" is never a hand-written list ("MLB, NFL, Premier League" on /ask; "the two that publish
+ * today" on /bucket-blitz) that goes stale when a sport's composition changes.
+ */
+export function officialForecastSportLabels(): string[] {
+  return PUBLIC_SPORTS.filter((s) => publishesOfficialForecast(s.key)).map((s) => s.label);
+}
+
+/** "A, B and C" — the list form the sentences above use. */
+export function listInWords(xs: ReadonlyArray<string>): string {
+  return xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`;
+}
+
 /** The sports Ask GameTime reads live game state for — the live gateway's public list, through the same gateway. */
 export const ASSISTANT_LIVE_SPORTS: ReadonlyArray<string> = Object.freeze(PUBLIC_SPORTS.filter((s) => s.assistant.liveState).map((s) => s.label));
 
