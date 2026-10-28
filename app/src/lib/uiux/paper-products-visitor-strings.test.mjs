@@ -130,7 +130,9 @@ test("Parlay Center no-card state: one 'No card today', other lanes' real cards 
   assert.equal((outside.match(/No card today/g) ?? []).length, 1, "exactly one empty state outside the fold");
   assert.match(outside, /Last card Sun, Sep 27, 2026/);
   assert.match(outside, /next expected: Premier League cards for Sat, Oct 31/);
-  assert.match(outside, /Premier League · Sat, Oct 31 · 2 cards from posted prices \(medium \+150 · high \+356\)/, "a real card is never hidden");
+  assert.match(outside, /Premier League · Sat, Oct 31 · 2 cards \(medium · high\)/, "a real card is never hidden");
+  // Price display terms are a pending founder decision: the empty state names the cards and links them, it adds no prices.
+  assert.doesNotMatch(outside, /[+−-]\d{3}\b/, "no sportsbook price is surfaced by the empty state");
   assert.match(html, /<details[\s\S]*Low Risk No card today[\s\S]*<\/details>/, "the per-tier reasons are folded, not removed");
 });
 

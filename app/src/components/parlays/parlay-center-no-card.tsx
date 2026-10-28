@@ -10,7 +10,7 @@ import { etDayLabel } from "@/lib/et-stamp.mjs";
  * suggestions, four NBA game-winner tiers, a "no risk tier" panel and "No suggested cards for today" — while
  * real future cards in another sport (Premier League, Oct 31) sat behind a link at the bottom. This is the
  * one answer: no card today, when the last one was, what comes next and where to go — and every real card
- * that does exist in another lane is named here with its prices, never hidden.
+ * that does exist in another lane is named here (tiers and a link; its prices stay on the linked card page), never hidden.
  *
  * The per-tier reasons are not removed: the page passes the same blocks (risk ladder, model suggestions,
  * empty-tier context, every-suggested-card list) as `children`, and they render, unchanged and server-side,
@@ -23,8 +23,6 @@ export type OtherLaneCards = {
   date: string;
   cards: Array<{ tier: string; combinedAmerican: number }>;
 };
-
-const signed = (n: number) => (n > 0 ? `+${n}` : `${n}`.replace("-", "−"));
 
 export default function ParlayCenterNoCard({
   lastCardDate,
@@ -58,8 +56,10 @@ export default function ParlayCenterNoCard({
           {otherLanes.map((l) => (
             <li key={l.sport} className="flex flex-wrap items-center justify-between gap-x-3 text-[13px]">
               <span style={{ color: "var(--vault-text)" }}>
-                <strong>{l.label}</strong> · {etDayLabel(l.date) ?? l.date} · {l.cards.length} card{l.cards.length === 1 ? "" : "s"} from posted prices
-                <span style={{ color: "var(--vault-text-mute)" }}> ({l.cards.map((c) => `${c.tier} ${signed(c.combinedAmerican)}`).join(" · ")})</span>
+                {/* Tiers only, no prices: whether sportsbook prices may be displayed more widely is a pending founder decision
+                   (provider display terms). The prices stay where they already were — on the linked card page. */}
+                <strong>{l.label}</strong> · {etDayLabel(l.date) ?? l.date} · {l.cards.length} card{l.cards.length === 1 ? "" : "s"}
+                <span style={{ color: "var(--vault-text-mute)" }}> ({l.cards.map((c) => c.tier).join(" · ")})</span>
               </span>
               <Link href={l.href} className="inline-flex items-center" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600, minHeight: 44 }}>See the cards →</Link>
             </li>
