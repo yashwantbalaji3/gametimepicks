@@ -15,7 +15,8 @@ import path from "node:path";
 import { CC_ROOT, REPO_ROOT, sha256 } from "../lib/util.mjs";
 import { escapeHtml as esc, loadChromium, pngSize } from "./render-png.mjs";
 
-export const SOCIAL_TEMPLATE = "gtp-social@2.2";
+// 2.2.1 (founder 10-28): NBA stat values all white. A visual change is a new version, so the 2.2 design approval does not carry over.
+export const SOCIAL_TEMPLATE = "gtp-social@2.2.1";
 const DIR = path.join(CC_ROOT, "render/templates/social-v2");
 const FONTS = path.join(CC_ROOT, "render/fonts");
 /** The asset manifest's version: bound into every V2.1 approval fingerprint with the template version. */

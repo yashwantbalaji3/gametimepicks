@@ -32,7 +32,7 @@ test("the one footer per sport: exact text, and nothing else", () => {
   });
   assert.equal(disclosureFor("UFC"), DISCLOSURES.UFC);
   assert.throws(() => disclosureFor("NHL"), /no disclosure configured/, "an unconfigured sport gets no graphic");
-  assert.equal(SOCIAL_TEMPLATE, "gtp-social@2.2", "a new template version, so the V2.1 design approval does not carry over");
+  assert.equal(SOCIAL_TEMPLATE, "gtp-social@2.2.1", "every visual change is a new template version, so an earlier design approval (V2.1, 2.2) does not carry over");
 });
 
 test("NBA (all 12 Oct 28 games): one footer, no removed provenance text, one name size per table, values unchanged", { skip: skipSlate }, async () => {
@@ -156,4 +156,20 @@ test("review fix: long compound surnames in Top 3 TD columns render at one share
   assert.equal(last.length, 3);
   assert.ok(last.every((f) => f.fits), JSON.stringify(last));
   assert.equal(new Set(last.map((f) => f.size)).size, 1);
+});
+
+test("NBA stat lines: PTS, REB and AST share one neutral colour (no green/red signal without verified lines)", { skip: skipSlate }, async () => {
+  const { loadChromium } = await import("../render/render-png.mjs");
+  const src = gitDataSource(REPO_ROOT, SLATE);
+  const lane = JSON.parse(src.read("app/public/data/nba/experimental-public/2026-10-28.json"));
+  const m = nbaPlayers({ src, eventId: lane.games[0].providerEventId, date: "2026-10-28" });
+  const b = await loadChromium().launch();
+  try {
+    const pg = await b.newPage({ viewport: { width: 1080, height: 1350 } });
+    await pg.route("**/*", (r) => r.abort());
+    await pg.setContent(socialHtml(m), { waitUntil: "load" });
+    const colours = await pg.evaluate(() => [...document.querySelectorAll(".lrow:not(.hd) b")].map((e) => getComputedStyle(e).color));
+    assert.ok(colours.length >= 3 * (m.awayPlayers.length + m.homePlayers.length));
+    assert.deepEqual([...new Set(colours)], ["rgb(247, 247, 242)"], "every stat value is the template's ink white");
+  } finally { await b.close(); }
 });
