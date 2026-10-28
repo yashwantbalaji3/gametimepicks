@@ -2,12 +2,12 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-28T09:43:58Z",
+ "generatedAt": "2026-10-28T16:46:29Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
-  "PUBLISHED": 3,
-  "NO_PLAY": 1,
-  "LANE_CLOSED": 16,
+  "PUBLISHED": 0,
+  "NO_PLAY": 0,
+  "LANE_CLOSED": 20,
   "MISSING": 0
  },
  "rows": [
@@ -38,24 +38,24 @@
   {
    "lane": "epl",
    "date": "2026-10-31",
-   "laneState": "LIVE",
-   "laneReason": null,
+   "laneState": "CLOSED",
+   "laneReason": "the last price capture (Oct 25) is more than 3 days old",
    "tiers": {
     "low": {
-     "state": "NO_PLAY",
-     "reason": "no combination of today's prices lands in this band — 2 legs → +150 (medium) … +415 (high)"
+     "state": "LANE_CLOSED",
+     "reason": "the last price capture (Oct 25) is more than 3 days old"
     },
     "medium": {
-     "state": "PUBLISHED",
-     "slipId": "epl-medium-2026-10-31"
+     "state": "LANE_CLOSED",
+     "reason": "the last price capture (Oct 25) is more than 3 days old"
     },
     "high": {
-     "state": "PUBLISHED",
-     "slipId": "epl-high-2026-10-31"
+     "state": "LANE_CLOSED",
+     "reason": "the last price capture (Oct 25) is more than 3 days old"
     },
     "longshot": {
-     "state": "PUBLISHED",
-     "slipId": "epl-longshot-2026-10-31"
+     "state": "LANE_CLOSED",
+     "reason": "the last price capture (Oct 25) is more than 3 days old"
     }
    }
   },
@@ -111,23 +111,23 @@
    "lane": "multi",
    "date": "2026-10-26",
    "laneState": "CLOSED",
-   "laneReason": "a cross-sport card needs two sports with an open suggested-card lane; only Premier League's lane is open (Bank Builder and Moonshot use a separate, stricter gate)",
+   "laneReason": "a cross-sport card needs two sports with an open suggested-card lane; no lane is open (Bank Builder and Moonshot use a separate, stricter gate)",
    "tiers": {
     "low": {
      "state": "LANE_CLOSED",
-     "reason": "a cross-sport card needs two sports with an open suggested-card lane; only Premier League's lane is open (Bank Builder and Moonshot use a separate, stricter gate)"
+     "reason": "a cross-sport card needs two sports with an open suggested-card lane; no lane is open (Bank Builder and Moonshot use a separate, stricter gate)"
     },
     "medium": {
      "state": "LANE_CLOSED",
-     "reason": "a cross-sport card needs two sports with an open suggested-card lane; only Premier League's lane is open (Bank Builder and Moonshot use a separate, stricter gate)"
+     "reason": "a cross-sport card needs two sports with an open suggested-card lane; no lane is open (Bank Builder and Moonshot use a separate, stricter gate)"
     },
     "high": {
      "state": "LANE_CLOSED",
-     "reason": "a cross-sport card needs two sports with an open suggested-card lane; only Premier League's lane is open (Bank Builder and Moonshot use a separate, stricter gate)"
+     "reason": "a cross-sport card needs two sports with an open suggested-card lane; no lane is open (Bank Builder and Moonshot use a separate, stricter gate)"
     },
     "longshot": {
      "state": "LANE_CLOSED",
-     "reason": "a cross-sport card needs two sports with an open suggested-card lane; only Premier League's lane is open (Bank Builder and Moonshot use a separate, stricter gate)"
+     "reason": "a cross-sport card needs two sports with an open suggested-card lane; no lane is open (Bank Builder and Moonshot use a separate, stricter gate)"
     }
    }
   }
