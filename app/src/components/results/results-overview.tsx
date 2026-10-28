@@ -193,7 +193,8 @@ export default function ResultsOverview({ populations, products, seedToday, init
       <p className="m-0 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)", maxWidth: 720 }}>
         Every record is graded against official results and kept separate — a game call, a fight pick and a match
         forecast are different questions, so they are never added into one percentage. Pushes and voids are never
-        losses. Windows use your day ({etDayLabel(today)}).
+        losses. Every figure names its window and how many results it counts; shorter windows are one tap away.
+        Windows use your day ({etDayLabel(today)}).
       </p>
 
       <div {...windowTabs.panelProps(w)} className="flex flex-col gap-5">

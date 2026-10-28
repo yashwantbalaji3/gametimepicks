@@ -171,7 +171,14 @@ function overviewProducts(): OverviewProduct[] {
         otherScopes: [scopedRecordText(r.allTime), ...history].filter((x): x is string => typeof x === "string"),
       };
     }
-    return { id, label, href, note, recordLabel: r.recordLabel, pendingLabel: r.pendingLabel, window: windowOf(r.cell as never) };
+    /* Overnight 10-28 (W5): an open-ended record (Suggested cards · MLB runs from Aug 17 with no end date) printed no
+       window and no denominator. It now says when it starts and how many settled — both from the same shared reader. */
+    const from = (r.cell as { window?: { from?: string | null; to?: string | null } } | null)?.window?.from ?? null;
+    return {
+      id, label, href, note, recordLabel: r.recordLabel,
+      pendingLabel: r.pendingLabel ?? (typeof r.settled === "number" ? `${r.settled.toLocaleString("en-US")} settled` : null),
+      window: windowOf(r.cell as never) ?? (from ? `Since ${etDayLabel(from) ?? from}` : null),
+    };
   });
 }
 
@@ -308,7 +315,10 @@ export default function ResultsPage() {
       {/* RESULTS V2 · B-2: the page answers "how did GameTimePicks do?" first — one card per graded record, the
           products' canonical headlines, research kept apart, and a day-by-day tracker. The explorer and every
           receipt below stay as the detailed record. */}
-      <ResultsOverview populations={overviewPopulations()} products={overviewProducts()} seedToday={currentEtDate()} />
+      {/* Overnight 10-28 (W5): the overview OPENS on the season. On 7 days every card read "far too few decided to judge"
+          (6–14 decided each); the season window is the same records over their full sample, each labelled with its
+          season and denominator. 7 days, 30 days and Today stay one tap away. */}
+      <ResultsOverview populations={overviewPopulations()} products={overviewProducts()} seedToday={currentEtDate()} initialWindow="season" />
       {/* Founder mandate 2026-10-24: the model's paper suggestions (Level A), recorded as shown and graded against the
           official final, in their own record — never pooled with the priced products below. */}
       <ModelSuggestionsRecord view={levelARecordView()} />
