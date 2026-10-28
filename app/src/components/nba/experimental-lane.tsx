@@ -19,6 +19,7 @@ import { LANE, STATS, LANE_SNAPSHOT_SCHEMA, AMENDMENT_A, laneIsCurrent } from "@
 import { THEATER_LINK_TEXT, publicTheaterHref } from "@/lib/simulation-theater/nba/possession/public-route.mjs";
 import Link from "next/link";
 import TeamLogo from "@/components/team-logo";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 import { NBA_FORECAST_DISCLOSURE, PUBLIC_TERMS } from "@/lib/public-registry";
 import GameStatusOnClock from "@/components/nba/projection-game-status";
 import { EloAccuracyDisclosure, EloWinProbability, type EloCtx } from "@/components/nba/elo-win-probability";
@@ -225,21 +226,18 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
               {statuses[g.providerEventId] ? <p className="m-0 text-[12px]" style={{ color: "var(--vault-text)" }}>Game status: {statuses[g.providerEventId]}</p> : null}
             </header>
             <p className="m-0 text-[13px]" style={{ color: "var(--vault-text)" }}>
-              <strong>Elo rating favours {favouredName(g) ?? "neither side"}.</strong>{" "}
-              <span style={{ color: "var(--vault-text-mute)" }}>Source: {g.elo.source}.</span>
+              <strong>Elo rating favours {favouredName(g) ?? "neither side"}.</strong>
             </p>
             <EloWinProbability as="p" className="m-0 text-[13px]" game={g} ctx={elo} />
             <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>Team scores: {g.teamScores.reason}</p>
             <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
-              Player medians — source: {g.players.source}. Players listed by expected minutes, not ranked.
+              Player medians from the player simulation. Players listed by expected minutes, not ranked.
             </p>
             <div className="grid gap-3 sm:grid-cols-2">
               <TeamTable team={g.away.name ?? g.away.abbr ?? "Away"} rows={g.players.away} />
               <TeamTable team={g.home.name ?? g.home.abbr ?? "Home"} rows={g.players.home} />
             </div>
-            <p className="m-0 text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
-              Receipt {g.receipt.modelVersion} · {g.receipt.payloadSha256.slice(0, 12)} · simulation engine {g.engine.simulation}
-            </p>
+            {/* sources, model version and receipt: in Technical details below, once for the slate */}
             <TheaterLink id={g.providerEventId} theaterIds={theaterIds} />
           </article>
         ))
@@ -249,16 +247,16 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
       <ul className="m-0 pl-5 text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
         {Object.entries(snapshot.withheld).map(([k, v]) => <li key={k}>{v}</li>)}
       </ul>
-      {/* founder mandate 2026-10-24: model ids, sources and receipts move here — out of the consumer text, never deleted */}
-      <details className="nbx-details">
-        <summary>Model details</summary>
+      {/* founder mandate 2026-10-24: model ids, sources and receipts move here — out of the consumer text, never deleted.
+          Overnight W7 2026-10-28: the site's one shape for it — MoreDisclosure, "Technical details" */}
+      <MoreDisclosure title="Technical details" summary="Model versions and receipts">
         <ul className="nbx-md">
-          <li>Favoured side: {snapshot.games[0]?.elo.source}</li>
+          <li>Favoured side: {snapshot.games[0]?.elo.source}{snapshot.games[0]?.elo.rule ? ` · rule ${snapshot.games[0].elo.rule}` : ""}</li>
           <li>{PUBLIC_TERMS.PLAYER_STATISTICS}: {snapshot.games[0]?.players.source}</li>
-          <li>Model version: {versions.join(", ")}</li>
+          <li>Model version: {versions.join(", ")} · simulation engine {[...new Set(snapshot.games.map((g) => g.engine.simulation ?? "—"))].join(", ")}</li>
           <li>Receipts (payload hash of each frozen forecast): {snapshot.games.map((g) => `${code(g.away.abbr)} @ ${code(g.home.abbr)} ${g.receipt.payloadSha256.slice(0, 12)}`).join(" · ")}</li>
         </ul>
-      </details>
+      </MoreDisclosure>
     </section>
   );
 }

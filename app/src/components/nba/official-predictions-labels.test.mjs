@@ -1,6 +1,6 @@
 /**
  * Official Forecast section on /nba/simulation/<id> (founder mandate 2026-10-24): the models are named in words; the
- * exact model ids stay on the page, verbatim, only inside "Model details". The words equal the Theater panel's.
+ * exact model ids stay on the page, verbatim, only inside "Technical details". The words equal the Theater panel's.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -18,18 +18,19 @@ const { loadNbaPossessionTheater } = await import("../../lib/simulation-theater/
 const REPO = path.resolve(process.cwd(), "..");
 const text = (h) => h.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'").replace(/&amp;/g, "&").replace(/\s+/g, " ");
 
-test("models in words outside Model details; exact ids only inside it; same words as the Theater panel", () => {
+test("models in words outside Technical details; exact ids only inside it; same words as the Theater panel", () => {
   assert.deepEqual({ ...OFFICIAL_MODEL_PLAIN }, { ...MODEL_PLAIN });
   const load = loadNbaPossessionTheater(REPO, "401909088");
   assert.equal(load.ok, true);
   const h = renderToStaticMarkup(React.createElement(Official, { official: load.payload.official, teams: load.payload.teams, lane: null, finalNote: null, resultsHref: "/nba/#nba-results", eloCtx: { enabled: false, disclosure: "" } }));
   const i = h.indexOf("data-nba-model-details");
-  assert.ok(i > 0, "Model details disclosure");
+  assert.ok(i > 0, "Technical details disclosure");
+  assert.match(h.slice(i, h.indexOf("</summary>", i)), />Technical details$/, "the site-wide title");
   const outside = text(h.slice(0, h.lastIndexOf("<details", i))) + text(h.slice(h.indexOf("</details>", i)));
   assert.ok(outside.includes(`Game winner ${MODEL_PLAIN.game}`) && outside.includes(`Player statistics ${MODEL_PLAIN.players}`));
   for (const id of [load.payload.official.models.game, ...load.payload.official.models.players]) {
-    assert.ok(!outside.includes(id), `${id} is not printed outside Model details`);
-    assert.ok(text(h.slice(i, h.indexOf("</details>", i))).includes(id), `${id} kept inside Model details`);
+    assert.ok(!outside.includes(id), `${id} is not printed outside Technical details`);
+    assert.ok(text(h.slice(i, h.indexOf("</details>", i))).includes(id), `${id} kept inside Technical details`);
   }
   assert.doesNotMatch(outside, /\(side\)|\(players\)/);
 });

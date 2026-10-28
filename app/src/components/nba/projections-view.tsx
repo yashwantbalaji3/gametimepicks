@@ -22,7 +22,7 @@
  *
  * Public-readiness pass (founder mandate 2026-10-24): consumer language first. Headings say Predicted Player
  * Statistics, Official Forecast and Forecast vs. Actual; model ids, receipts, engine notes and the withheld list live in
- * one "Model details" disclosure (each model id once, not once per game). Game chips (island) carry each game's status
+ * one "Technical details" disclosure (each model id once, not once per game). Game chips (island) carry each game's status
  * and its actual state; a finished slate without verified actuals says "awaiting final box scores" explicitly.
  *
  * Founder decision 2026-10-23 (behind its switch): each game's line in that list also carries the Elo rating's
@@ -31,6 +31,7 @@
  */
 import React from "react";
 import Link from "next/link";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 import type { Snapshot } from "@/components/nba/experimental-lane";
 import type { BoardGame, BoardToday, SlateRole } from "@/components/nba/projection-board-context";
 import type { BoardActuals, GameActualState } from "@/lib/sports/nba/projection-board-actuals";
@@ -94,7 +95,7 @@ function noProjectionRows(lane: Snapshot, a: BoardActuals | null) {
 }
 /**
  * Stat corrections shown on this board (projection-board-actuals): per game, when ESPN's corrected box score was
- * captured and each changed value as "graded on → corrected", for the Model details list. Server-rendered, once.
+ * captured and each changed value as "graded on → corrected", for the Technical details list. Server-rendered, once.
  */
 function correctionLines(lane: Snapshot, a: BoardActuals) {
   if (!a.corrected || !a.corrections) return [];
@@ -258,7 +259,7 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
               <p className="m-0 rounded-md p-2 text-[12.5px] leading-relaxed" role="note" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)" }}>
                 <strong>Forecast</strong>: the Official Forecast, frozen before tip-off and never changed. <strong>Actual</strong>: the
                 final box score (ESPN), after the official final. A dash means did not play &mdash; never a zero.
-                {post.corrected ? <> <strong>†</strong> stat corrected by ESPN after grading: the corrected figure is shown, and the graded one is listed in Model details.</> : null}
+                {post.corrected ? <> <strong>†</strong> stat corrected by ESPN after grading: the corrected figure is shown, and the graded one is listed in Technical details.</> : null}
               </p>
             </section>
           ) : pendingActuals ? (
@@ -273,12 +274,10 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
               : `Coverage list not recorded for this slate.${post ? " Players who played without a projection are listed from the final box score." : ""}`}
           </p>
           <ProjectionBoard board={packBoard(rows, post ? post.rows : null, post ? awaiting : null, noProjectionRows(live, post), post?.corrected ?? null)} stats={stats} groups={groups} matchups={matchups} teams={teams} games={nav} defaultGroup={post ? "core" : undefined} />
-          {/* Model ids, receipts, engine notes and the withheld list: one tap away, each model id once. */}
-          <details className="text-[12px]" style={MUTE}>
-            <summary className="cursor-pointer min-h-[44px] py-3 underline decoration-dotted" style={TEXT}>
-              Model details · freeze times, receipts and method · {live.games.length} game{live.games.length === 1 ? "" : "s"}
-            </summary>
-            <div className="flex flex-col gap-2 pb-2">
+          {/* Model ids, receipts, engine notes and the withheld list: one tap away, each model id once. Overnight W7
+              2026-10-28: the site's one shape for it — MoreDisclosure, "Technical details". */}
+          <MoreDisclosure title="Technical details" summary={`Freeze times, receipts and method · ${live.games.length} game${live.games.length === 1 ? "" : "s"}`}>
+            <div className="flex flex-col gap-2 text-[12px]" style={MUTE}>
               <p className="m-0 leading-relaxed">
                 Model: {models.join(", ")}. Source: {live.games[0].players.source}. PRA, P+R and P+A: {COMBO_LABEL} — the median of
                 each simulated game&rsquo;s sum, so it need not equal the sum of the separate medians. Players with at least 10
@@ -305,7 +304,7 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
                 {Object.entries(live.withheld).map(([k, v]) => <li key={k}>{v}</li>)}
               </ul>
             </div>
-          </details>
+          </MoreDisclosure>
         </>
       ) : today ? (
         <TodaySlate today={today} />

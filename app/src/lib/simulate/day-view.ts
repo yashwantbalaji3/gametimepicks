@@ -28,6 +28,10 @@ import { getSportIdentity } from "@/lib/sport-identity";
 import fs from "node:fs";
 import { PUBLIC_TERMS, availabilityLine } from "@/lib/public-registry";
 import { hubLaneAnchor } from "@/lib/sports/nba/projection-board-ops.mjs";
+import { nbaForecastVsActualView } from "@/lib/results/nba-level-a-readers";
+import { nbaTheaterPublicEnabled } from "@/lib/simulation-theater/nba/feature-manifest.mjs";
+import { settledVerdictText } from "@/components/nba/expired-simulation.mjs";
+import { settledSimulationParams } from "@/components/nba/settled-simulation-data";
 import path from "node:path";
 
 /** The charter's navigation-state matrix, verbatim. Unknown owners fail closed to SCHEDULE_ONLY. */
@@ -545,11 +549,84 @@ function nbaLaneIds(date: string): Set<string> | null {
   return doc && doc.date === date && Array.isArray(doc.games) ? new Set(doc.games.map((g) => String(g.providerEventId ?? ""))) : null;
 }
 
+/*
+ * Overnight W7 2026-10-28 (audit B NEW-1: /simulate/d/2026-10-26 went from 10 NBA games to 0 the next day). The schedule
+ * capture holds today onward only, so a played slate vanished from its own date. A PAST date's rows come from the
+ * committed records instead: the date's lane file (the games the Official Forecast covered), the finals record (every
+ * played game) and any capture row still present. Each row says what the OFFICIAL RECORD says
+ * (lib/results/nba-forecast-vs-actual.mjs — the /results/nba record: side won / lost, pending, held), never recomputed,
+ * and opens the game's settled page when one is built (components/nba/settled-simulation-data.ts), else that day's
+ * frozen board. Today and later dates are unchanged.
+ */
+type NbaRecordRow = { providerEventId: string; state: string; side: string | null; final: { away: number; home: number } | null };
+let nbaRecordMemo: Map<string, NbaRecordRow> | null = null;
+const nbaRecord = () => (nbaRecordMemo ??= new Map((nbaForecastVsActualView().games as NbaRecordRow[]).map((g) => [String(g.providerEventId), g])));
+type NbaFinalRow = { providerEventId?: string; dateEt?: string; dateUtc?: string; ftAway?: number; ftHome?: number; home?: { tricode?: string; name?: string }; away?: { tricode?: string; name?: string } };
+/** Every season's write-once finals record (finals-<season>.json), read once. */
+let nbaFinalsMemo: NbaFinalRow[] | null = null;
+const nbaFinalsAll = (): NbaFinalRow[] => {
+  if (nbaFinalsMemo) return nbaFinalsMemo;
+  let files: string[] = [];
+  try { files = fs.readdirSync(path.join(process.cwd(), "public", "data", "nba", "results")).filter((f) => /^finals-\d{4}-\d{2}\.json$/.test(f)); } catch { files = []; }
+  return (nbaFinalsMemo = files.flatMap((f) => readJson<{ finals?: NbaFinalRow[] }>(`nba/results/${f}`)?.finals ?? []));
+};
+const nbaFinalsOn = (date: string): NbaFinalRow[] => nbaFinalsAll().filter((r) => r.dateEt === date);
+type NbaLaneDoc = { date?: string; games?: Array<{ providerEventId?: string; tipUtc?: string; away?: { abbr?: string | null; name?: string | null }; home?: { abbr?: string | null; name?: string | null }; elo?: { favoured?: string | null; state?: string } }> };
+
+/** ET dates the finals record holds a game on (every season file). */
+const nbaPlayedDates = (): string[] => [...new Set(nbaFinalsAll().map((r) => String(r.dateEt ?? "")).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)))];
+
+function nbaPastEvents(date: string, today: string, captured: UpcomingEvent[]): SimDayEvent[] {
+  const laneDoc = readJson<NbaLaneDoc>(`nba/experimental-public/${date}.json`);
+  const laneGames = laneDoc?.date === date ? laneDoc.games ?? [] : [];
+  const settledBuilt = new Set(nbaTheaterPublicEnabled() ? settledSimulationParams(today) : []);
+  const rows = new Map<string, { away: string; home: string; awayCode: string; homeCode: string; startUtc: string | null; venue: string | null; favoured: string | null; inLane: boolean }>();
+  for (const f of nbaFinalsOn(date)) {
+    const id = String(f.providerEventId ?? "");
+    if (id) rows.set(id, { away: f.away?.name ?? f.away?.tricode ?? "?", home: f.home?.name ?? f.home?.tricode ?? "?", awayCode: f.away?.tricode ?? "?", homeCode: f.home?.tricode ?? "?", startUtc: f.dateUtc ?? null, venue: null, favoured: null, inLane: false });
+  }
+  for (const e of captured) {
+    const id = String(e.providerEventId ?? "");
+    if (!id || etDayOf(e.scheduledStartUtc) !== date) continue;
+    const prev = rows.get(id);
+    rows.set(id, { away: e.competitors?.away?.name ?? prev?.away ?? "?", home: e.competitors?.home?.name ?? prev?.home ?? "?", awayCode: prev?.awayCode ?? e.competitors?.away?.id ?? "?", homeCode: prev?.homeCode ?? e.competitors?.home?.id ?? "?", startUtc: e.scheduledStartUtc ?? prev?.startUtc ?? null, venue: e.venue ?? null, favoured: null, inLane: false });
+  }
+  for (const g of laneGames) {
+    const id = String(g.providerEventId ?? "");
+    if (!id) continue;
+    const prev = rows.get(id);
+    const fav = g.elo?.state === "FAVOURED" ? (g.elo.favoured === g.home?.abbr ? g.home?.name : g.elo.favoured === g.away?.abbr ? g.away?.name : null) ?? null : null;
+    // the lane's own codes (the ones the official record and /results/nba print)
+    rows.set(id, { away: g.away?.name ?? prev?.away ?? "?", home: g.home?.name ?? prev?.home ?? "?", awayCode: g.away?.abbr ?? prev?.awayCode ?? "?", homeCode: g.home?.abbr ?? prev?.homeCode ?? "?", startUtc: g.tipUtc ?? prev?.startUtc ?? null, venue: prev?.venue ?? null, favoured: fav, inLane: true });
+  }
+  const finals = new Map(nbaFinalsOn(date).map((f) => [String(f.providerEventId), f]));
+  return [...rows.entries()].map(([id, r]): SimDayEvent => {
+    const rec = r.inLane ? nbaRecord().get(id) ?? null : null;
+    const f = rec?.final ? { away: rec.final.away, home: rec.final.home } : finals.has(id) ? { away: finals.get(id)!.ftAway, home: finals.get(id)!.ftHome } : null;
+    const score = f && Number.isFinite(f.away) && Number.isFinite(f.home) ? `Final: ${r.awayCode} ${f.away} – ${f.home} ${r.homeCode}.` : null;
+    // the record's own disposition: a side won or lost (or a final it does not compare) → settled; held → awaiting; no final → started
+    const state: SimEventState = !r.inLane ? "SCHEDULE_ONLY"
+      : rec?.state === "HELD" ? "AWAITING_SETTLEMENT"
+        : rec?.final ? "SETTLED"
+          : "STARTED";
+    const reason = !r.inLane
+      ? `${score ? `${score} ` : ""}No ${PUBLIC_TERMS.OFFICIAL_FORECAST} was published for this game.`
+      : `${score ? `${score} ` : ""}${settledVerdictText(rec?.state ?? "", r.favoured)}`;
+    return {
+      sport: "nba", id: `nba:${id}`,
+      matchup: `${r.away} @ ${r.home}`, away: { name: r.away, logo: null }, home: { name: r.home, logo: null },
+      startUtc: r.startUtc, startLabel: r.startUtc ? etTime(r.startUtc) : "TBD", venue: r.venue, state, stateReason: reason, markets: [],
+      href: !r.inLane ? "/nba" : settledBuilt.has(id) ? `/nba/simulation/${id}/` : `/nba/projections/${date}/`,
+      actionLabel: !r.inLane ? STATE_ACTION.SCHEDULE_ONLY : settledBuilt.has(id) ? STATE_ACTION[state] : `View the ${PUBLIC_TERMS.OFFICIAL_FORECAST}`,
+    };
+  }).sort((a, b) => String(a.startUtc ?? "").localeCompare(String(b.startUtc ?? "")) || a.id.localeCompare(b.id));
+}
+
 function nbaSection(date: string, today: string): SportDaySection {
   const up = nbaCapturedEvents(date, today);
-  const events: SimDayEvent[] = [];
+  const events: SimDayEvent[] = date < today ? nbaPastEvents(date, today, up?.events ?? []) : [];
   const lane = nbaLaneIds(date);
-  for (const e of up?.events ?? []) {
+  for (const e of date < today ? [] : up?.events ?? []) {
     if (etDayOf(e.scheduledStartUtc) !== date) continue;
     const home = e.competitors?.home?.name ?? "?";
     const away = e.competitors?.away?.name ?? "?";
@@ -607,6 +684,8 @@ export function availableSimulateDates(opts?: { today?: string }): string[] {
     for (const e of s.events ?? []) add(etDayOf(e.scheduledStartUtc));
   }
   for (const e of nbaCapturedEvents(today, today)?.events ?? []) add(etDayOf(e.scheduledStartUtc));
+  // W7: played NBA dates stay selectable after the capture drops them (the finals record, ET dates before today)
+  for (const d of nbaPlayedDates()) if (d < today) add(d);
   for (const e of (ufcUpcoming({ nowIso: new Date().toISOString(), displayCap: Infinity }) as UpcomingSection).events ?? []) add(etDayOf(e.scheduledStartUtc));
   return [...dates].sort();
 }

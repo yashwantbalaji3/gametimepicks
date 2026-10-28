@@ -1,20 +1,22 @@
 "use client";
 /**
  * The 404 page's notice for an expired NBA Game Simulation link (see expired-simulation.mjs). Renders nothing on the
- * server and nothing for any other missing path, so every other 404 is unchanged.
+ * server and nothing for any other missing path, so every other 404 is unchanged. Since the settled pages (overnight W7
+ * 2026-10-28) a past slate's link inside the window opens its own page; this notice covers older links, a flag-OFF
+ * build, and a current-slate game without a Game Simulation — with the settled page's own words.
  */
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { expiredSimulationFor } from "./expired-simulation.mjs";
+import { SIMULATION_ARCHIVED_NOTE, expiredSimulationFor, settledVerdictText } from "./expired-simulation.mjs";
 import { loadExpiredGames } from "../expired/expired-games.mjs";
 
 type Notice = ReturnType<typeof expiredSimulationFor>;
 
 const dayLabel = (d: string) => new Intl.DateTimeFormat("en-US", { timeZone: "UTC", weekday: "short", month: "short", day: "numeric" }).format(new Date(`${d}T12:00:00Z`));
 
-/** [awayScore, homeScore, winnerSide, favouredSide] from the recorded final and the frozen Elo side (expired-games.mjs nbaExpiredFacts). */
-type Facts = Record<string, [number, number, "home" | "away", "home" | "away" | null]>;
+/** [awayScore, homeScore, recordState, favouredAbbr] — the official record's row (expired-games.mjs nbaExpiredFacts). */
+type Facts = Record<string, [number, number, string, string | null]>;
 
 export default function ExpiredSimulationNotice({ map }: { map: Record<string, [string, string]> }) {
   const [notice, setNotice] = useState<Notice>(null);
@@ -40,17 +42,18 @@ export default function ExpiredSimulationNotice({ map }: { map: Record<string, [
         {notice.kind === "KNOWN" ? `Game Simulation · ${notice.matchup} · ${dayLabel(notice.date)}` : "Game Simulation no longer available"}
       </h2>
       {notice.kind === "KNOWN" && facts[notice.id] ? (() => {
-        const [awayScore, homeScore, winner, fav] = facts[notice.id];
+        // the same words as the settled page (expired-simulation.mjs settledVerdictText), from the record's own state
+        const [awayScore, homeScore, state, fav] = facts[notice.id];
         const [away, home] = notice.matchup.split(" @ ");
         return (
           <p className="m-0 text-[14px] leading-relaxed" style={{ color: "var(--vault-text)" }} data-expired-final="">
-            <strong>Final: {away} {awayScore} – {homeScore} {home}.</strong>{" "}
-            {fav ? <span style={{ color: "var(--vault-text-mute)" }}>The Official Forecast favoured {fav === "home" ? home : away} (Elo rating) — {fav === winner ? "right" : "wrong"}.</span> : null}
+            <strong>Final{state === "HELD" ? " (under review)" : ""}: {away} {awayScore} – {homeScore} {home}.</strong>{" "}
+            <span style={{ color: "var(--vault-text-mute)" }}>{settledVerdictText(state, fav)}</span>
           </p>
         );
       })() : null}
       <p className="m-0 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-        Game Simulations are shown on game day only. The Official Forecast for every game stays available, frozen exactly as it was published before tip-off.
+        {SIMULATION_ARCHIVED_NOTE}
       </p>
       <div className="flex flex-wrap gap-2 pt-1">
         {notice.kind === "KNOWN" ? (

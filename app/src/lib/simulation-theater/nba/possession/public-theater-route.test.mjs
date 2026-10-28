@@ -41,7 +41,9 @@ test("page source: static imports are the gate only; the loader and the island s
   const statics = [...code.matchAll(/^import (?!type )[^;]+ from "([^"]+)";$/gm)].map((m) => m[1]);
   const typeOnly = [...code.matchAll(/^import type [^;]+ from "([^"]+)";$/gm)].map((m) => m[1]).filter((x) => x.startsWith("@/")).sort();
   assert.deepEqual(typeOnly, ["@/components/simulation-theater/nba/possession/possession-types"], "the only type-only alias import is the island's load type");
-  assert.deepEqual(statics.filter((s) => s.startsWith("@/")).sort(), ["@/lib/seo/route-metadata", "@/lib/simulation-theater/nba/possession/public-route.mjs"]);
+  // + the SETTLED page for past slates (overnight W7 2026-10-28): committed PUBLIC files only (lane + official record),
+  // nothing from the possession library or the research tree (settled-simulation.test.mjs pins that) — it ships no island
+  assert.deepEqual(statics.filter((s) => s.startsWith("@/")).sort(), ["@/components/nba/settled-simulation", "@/components/nba/settled-simulation-data", "@/lib/freshness", "@/lib/seo/route-metadata", "@/lib/simulation-theater/nba/possession/public-route.mjs"]);
   // the flag test is a LITERAL condition at each branch (the NFL pattern): webpack folds `"0" === "1"` and drops the dynamic
   // imports from a flag-OFF build only then. Behind a helper call it cannot, and the island shipped in a shared chunk
   // (CI run 39547873081, export-boundary: nba-possession-sim-v0 + data-nbp- in _next/static/chunks).

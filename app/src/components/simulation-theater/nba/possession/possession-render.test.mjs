@@ -275,16 +275,17 @@ test("scenario transparency (founder 2026-10-21): the default run is described a
   }
 });
 
-test("consumer wording (founder mandate 2026-10-24): models named in words, exact ids only inside Model details; predicted vs simulated tables never share a title", () => {
+test("consumer wording (founder mandate 2026-10-24): models named in words, exact ids only inside Technical details; predicted vs simulated tables never share a title", () => {
   for (const load of LOADS) {
     const sec = officialSection(render(load));
     const i = sec.indexOf("data-nbp-model-details");
-    assert.ok(i > 0, "a Model details disclosure exists");
+    assert.ok(i > 0, "a Technical details disclosure exists");
+    assert.equal(LABELS.MODEL_DETAILS_TITLE, "Technical details");
     const outside = text(sec.slice(0, sec.lastIndexOf("<details", i)));
     assert.ok(outside.includes(`Game winner ${LABELS.MODEL_PLAIN.game}`) && outside.includes(`Player statistics ${LABELS.MODEL_PLAIN.players}`), "plain model labels");
     for (const id of [load.payload.official.models.game, ...load.payload.official.models.players]) {
-      assert.ok(!outside.includes(id), `${id} is not printed outside Model details`);
-      assert.ok(text(sec.slice(i)).includes(id), `${id} is kept verbatim inside Model details`);
+      assert.ok(!outside.includes(id), `${id} is not printed outside Technical details`);
+      assert.ok(text(sec.slice(i)).includes(id), `${id} is kept verbatim inside Technical details`);
     }
     assert.doesNotMatch(text(sec), /as the NBA lane prints them/);
     assert.ok(text(sec).includes(LABELS.PREDICTED_STATS_TITLE), "the official medians are the Predicted Player Statistics");
