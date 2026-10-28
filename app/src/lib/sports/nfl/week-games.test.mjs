@@ -105,7 +105,7 @@ function fixture({ liveWeek7 }) {
   w("nfl/forecasts/frozen-latest.json", { generatedAt: "2026-10-28T00:16:05Z", forecasts: liveWeek7 ? [mnf] : [] });
   return r;
 }
-const noReceipts = { receiptsRoot: path.join(os.tmpdir(), "gtp-week-games-no-receipts"), resolve: (f) => f };
+const noReceipts = { receiptsRoot: path.join(os.tmpdir(), "gtp-week-games-no-receipts") };
 
 test("rollover, union still carrying one game: the page lists both week-7 games — the carried one from the union, the other from its archived revision", () => {
   const { games, unavailable } = weekGames(fixture({ liveWeek7: true }), "2-07", noReceipts);

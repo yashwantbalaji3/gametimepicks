@@ -45,10 +45,10 @@ const readJson = (root: string, rel: string) => {
 export function weekGames(
   root: string,
   key: string,
-  opts: { receiptsRoot?: string; resolve?: (f: unknown) => unknown } = {},
+  opts: { receiptsRoot?: string } = {},
 ): { games: WeekGame[]; unavailable: ReconciledGame[] } {
   const [seasonType, week] = key.split("-").map(Number);
-  const union = unionFrozenForecasts(readJson(root, "nfl/forecasts/latest.json"), readJson(root, "nfl/forecasts/frozen-latest.json"), { resolve: opts.resolve ?? nflPublicRecordResolver() }) as { forecasts?: Array<WeekGame & { seasonType: number; week: number }> } | null;
+  const union = unionFrozenForecasts(readJson(root, "nfl/forecasts/latest.json"), readJson(root, "nfl/forecasts/frozen-latest.json"), { resolve: nflPublicRecordResolver() }) as { forecasts?: Array<WeekGame & { seasonType: number; week: number }> } | null;
   const live = (union?.forecasts ?? [])
     .filter((f) => f.seasonType === seasonType && f.week === week)
     .map((f) => ({ ...f, source: "live" as const }));
