@@ -31,6 +31,8 @@ concurrency:
 
 permissions:
   contents: write
+  # P0 10-28 (U7): the failure step below opens or updates ONE tracking issue. Nothing else uses it.
+  issues: write
 
 jobs:
   forecasts:
@@ -96,3 +98,25 @@ jobs:
             sleep $((a * 5))
           done
           echo "::error::push never landed after 4 attempts"; exit 1
+
+      # P0 10-28 (U7): the 10-26 run failed and nobody heard — Ligue 1 then showed played matches as upcoming for two
+      # days. A failed SCHEDULED run now opens or updates ONE tracking issue (the data-contract-check.yml pattern). It
+      # runs only after a failure, commits nothing and changes nothing about what the job publishes or when.
+      - name: Open or update the tracking issue (scheduled run failed)
+        if: failure() && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -u
+          {
+            echo "The scheduled soccer-leagues run failed at $(date -u +%Y-%m-%dT%H:%M:%SZ) — $RUN_URL"
+            echo
+            echo "Leagues: ${{ steps.leagues.outputs.keys }}. Until a run succeeds, the league pages keep their last forecast set;"
+            echo "they mark kicked-off matches and show a stale banner once the data is more than 30 hours old."
+            echo
+            echo "main HEAD $(git rev-parse --short HEAD)"
+          } > /tmp/body.md
+          n="$(gh issue list --state open --search 'soccer-leagues scheduled run failing in:title' --json number --jq '.[0].number // empty')"
+          if [ -n "$n" ]; then gh issue comment "$n" --body-file /tmp/body.md
+          else gh issue create --title "soccer-leagues scheduled run failing" --body-file /tmp/body.md; fi
