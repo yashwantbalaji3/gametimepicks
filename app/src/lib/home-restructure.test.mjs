@@ -138,9 +138,11 @@ test("6 · record + open exposure come from canonical artifacts (no hardcoded li
 // 7 — /today is its own distinct DAILY MODEL HUB (2026-07-09 rebuild), separate from Home.
 test("7 · /today is the distinct Daily Model Hub with its own identity + top model reads", () => {
   assert.match(todayPage, /title: "Today · GameTime Picks"/, "/today keeps its own metadata");
-  // The hub leads with its Today-specific slate header + at-a-glance status (NOT Home's landing components).
+  // The hub leads with its Today-specific slate header + today's games (NOT Home's landing components).
+  /* REPOINTED W4 (2026-10-28): the at-a-glance strip repeated the sections below it (reads, product modules, record)
+     and is gone; today's games, grouped, follow the header. */
   assert.match(todayPage, /<TodayDailySlateHeader/, "/today renders its own daily slate header");
-  assert.match(todayPage, /<TodayAtAGlance/, "/today renders its own at-a-glance status");
+  assert.match(todayPage, /<TodayGames\b/, "/today renders today's games");
   // The top model reads are still SOURCED from the canonical Top-10 board (intent preserved), now rendered
   // as the compact TodayTopModelPicks list rather than the full Top10BoardSection wall.
   assert.match(todayPage, /buildTop10Board\(/, "/today still derives the canonical Top-10 board");

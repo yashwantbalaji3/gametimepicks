@@ -89,6 +89,52 @@ test("home · no operator strings in the page's own copy; lane chips said as one
   assert.equal(quiet.contextLine, "12 games today", "a lane with no statuses is untouched");
 });
 
+/* ── /today ──────────────────────────────────────────────────────────────────────────────────────────────────── */
+const { default: TodayGames, groupTodayGames, forecastText } = await import("../../components/today/today-games.tsx");
+const row = (o) => ({ date: "2026-10-28", startUtc: "2026-10-28T23:00:00Z", time: "7:00 PM ET", sport: "nba", sportLabel: "NBA", matchup: "MIA @ ATL", status: "Scheduled", forecast: "Pending", read: null, note: "The NBA Official Forecast is frozen on game day, before tip-off.", eventHref: "/nba/#nba-exp-1", resultHref: null, ...o });
+
+test("/today · each game once, grouped started / upcoming / final, every row linking to its game page", () => {
+  const rows = [
+    row({ matchup: "A @ B", status: "Final", forecast: "Frozen", read: "B favoured · no win chance published", eventHref: "/nba/#nba-exp-2", resultHref: "/results/nba/" }),
+    row({ matchup: "C @ D", status: "Started", sport: "mlb", sportLabel: "MLB", forecast: "Frozen", eventHref: "/games/mlb/c-d/" }),
+    row({}),
+    row({ matchup: "E @ F", sport: "nfl", sportLabel: "NFL", forecast: "Published", read: "F 63.8% to win", eventHref: "/nfl/game/9/" }),
+    row({ matchup: "G @ H", sport: "mlb", sportLabel: "MLB", forecast: "Unavailable", note: "Official scheduled game (MLB StatsAPI). No board.", eventHref: "/games/mlb/g-h/" }),
+  ];
+  assert.deepEqual(groupTodayGames(rows).map((g) => [g.title, g.rows.length]), [["Started", 1], ["Upcoming", 3], ["Final today", 1]]);
+  const h = renderToStaticMarkup(React.createElement(TodayGames, { rows, dayLabel: "Wednesday, October 28", asOf: "Oct 28, 12:20 AM ET" }));
+  /* Outside a Next build, next/link drops the trailing slash ("/nba#x", "/games/mlb/g-h"); compare without it. */
+  const norm = (u) => u.replace(/\/?\??(#|$)/, "$1");
+  const hrefs = [...h.matchAll(/href="([^"]+)"/g)].map((m) => norm(m[1]));
+  for (const r of rows) assert.equal(hrefs.filter((x) => x === norm(r.eventHref)).length, 1, `${r.matchup}: one link to its game page`);
+  const t = text(h);
+  assert.match(t, /F 63\.8% to win · official forecast, can update until the start/, "a published number is printed verbatim");
+  assert.match(t, /Forecast pending · publishes on game day, before tip-off/, "pending says when it publishes");
+  assert.match(t, /No official forecast for this game/, "an unavailable forecast says so — no number fills the space");
+  for (const re of OPERATOR_STRINGS) assert.doesNotMatch(t, re, `today's games must not render ${re}`);
+  assert.doesNotMatch(t, /\b0(\.0)?%/, "a missing value never renders as 0");
+});
+
+test("/today · a day without games says so and shows the next day's games; an unknown forecast state is printed as written", () => {
+  const h = renderToStaticMarkup(React.createElement(TodayGames, { rows: [], dayLabel: "Monday, November 2", asOf: "Nov 2, 9:00 AM ET", next: { dayLabel: "Tuesday, November 3", rows: [row({ date: "2026-11-03" })] } }));
+  assert.match(text(h), /No games are scheduled today\. Next up · Tuesday, November 3/);
+  assert.equal(forecastText(row({ forecast: "Degraded" })), "Degraded", "a state this component does not know is shown as its owner wrote it, never re-labelled");
+});
+
+test("/today · the reading path: header → live → today's games → ranked reads, then folds; nothing above the folds repeats a section", () => {
+  const page = code(read("src/app/today/page.tsx"));
+  const firstFold = page.indexOf("<MoreDisclosure");
+  const at = (tag) => { const i = page.indexOf(tag); assert.ok(i > 0, `${tag} is mounted`); return i; };
+  assert.ok(at("<TodayDailySlateHeader") < at("<LiveNow") && at("<LiveNow") < at("<TodayGames") && at("<TodayGames") < at("<TopReadsFilter"), "order");
+  assert.ok(at("<TopReadsFilter") < firstFold, "the ranked reads sit above the folds");
+  const lead = page.slice(0, firstFold);
+  for (const folded of ["<GamesTable", "<TodayGamePredictions", "<TodayFullSlate", "<BankBuilderStatus", "<NoPlayNotes", "<SuggestedParlaysPreview", "<YesterdayCard", "<TodayAtAGlance"]) {
+    assert.ok(!lead.slice(lead.indexOf("return (")).includes(folded), `${folded} is folded, not in the reading path`);
+  }
+  assert.equal((page.match(/<ResultsReminder\b/g) ?? []).length, 1, "the track record appears once");
+  for (const keep of ["paper-only, educational"]) assert.match(read("src/components/today/daily-slate-header.tsx"), new RegExp(keep), "the disclosure stays in the header");
+});
+
 /* ── BUILT: the export a visitor actually receives ─────────────────────────────────────────────────────────────── */
 const OUT_HOME = path.join(APP, "out/index.html");
 const OUT_TODAY = path.join(APP, "out/today/index.html");
@@ -100,4 +146,12 @@ test("BUILT · / — the primary action, one record summary, no operator strings
   const t = text(main);
   assert.equal((t.match(/Paper record · Bank Builder current era/gi) ?? []).length, 1, "the record summary appears once");
   for (const re of OPERATOR_STRINGS) assert.doesNotMatch(t, re, `/ must not render ${re}`);
+});
+
+test("BUILT · /today — the reading path (outside the folds) carries no operator strings", () => {
+  if (!fs.existsSync(OUT_TODAY)) return; // buildless lane: assert-when-built
+  const main = mainOf(fs.readFileSync(OUT_TODAY, "utf8"));
+  const visible = text(unfolded(main));
+  for (const re of OPERATOR_STRINGS) assert.doesNotMatch(visible, re, `/today's reading path must not render ${re}`);
+  assert.match(main, /id="today-games"/, "today's games lead the page");
 });

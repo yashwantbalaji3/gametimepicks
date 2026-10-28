@@ -172,8 +172,8 @@ test("9 · /today is distinct from Home (no Home landing components imported/ren
   for (const mod of ["home/landing-hero", "home/flagship-cards", "home/home-sections"]) {
     assert.ok(!code.includes(mod), `/today does not import from ${mod}`);
   }
-  // Today has its own hub sections Home does not use.
-  assert.match(todayPage, /<TodayAtAGlance/, "Today has its own at-a-glance section");
+  // Today has its own hub sections Home does not use (W4: today's games replaced the at-a-glance strip).
+  assert.match(todayPage, /<TodayGames\b/, "Today has its own games section");
   assert.match(todayPage, /<TodayTopModelPicks/, "Today has its own top-model-reads section");
 });
 

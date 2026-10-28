@@ -93,8 +93,11 @@ test("/today is a STATUS hub (MLB slate surfaced) that does NOT duplicate the fu
   // ladders/boards (ProductLanesLadder, the WC Specials box, the Top10 wall) are NOT re-rendered here;
   // Bank Builder / Longshot / Build-a-Pick appear ONLY as one-figure status cards that link out.
   const today = read("src/app/today/page.tsx");
-  assert.match(today, /getMlbBoardForDate\(today\)/, "today surfaces the real MLB slate");
-  assert.match(today, /<TodayAtAGlance/, "compact at-a-glance status cards present");
+  /* REPOINTED W4 (2026-10-28): the at-a-glance strip repeated the sections below it and is gone; the MLB slate is
+     surfaced by its own fold (brief, predictions, every game), built from the real slate details. */
+  assert.match(today, /buildDailyBrief\(details, today, \{ nowMs \}\)/, "today surfaces the real MLB slate");
+  assert.match(today, /<TodayMlbBrief\b/, "the MLB brief is on the page");
+  assert.doesNotMatch(today, /<TodayAtAGlance\b/, "no duplicate status strip");
   for (const dup of ["ProductLanesLadder", "WorldCupSpecialsBox", "Top10BoardSection", "MoonshotLadderV2"]) {
     assert.ok(!today.includes(dup), `${dup} full flagship surface is not duplicated on the compact hub`);
   }

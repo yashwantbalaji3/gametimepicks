@@ -191,7 +191,12 @@ test("safe-fix · the /today header + /mlb eyebrow read 'latest slate' when the 
   const header = fs.readFileSync(path.join(APP, "src/components/today/daily-slate-header.tsx"), "utf8");
   assert.match(header, /slateRelative\s*\?/, "header renders the relative qualifier when present");
   const todayPage = fs.readFileSync(path.join(APP, "src/app/today/page.tsx"), "utf8");
-  assert.match(todayPage, /slateRelative=\{today < serverToday \? "Latest slate"/, "/today passes 'Latest slate' when the slate date is before the real ET clock");
+  /* REPOINTED W4 (2026-10-28): the /today header is framed on the reader's ET day (the games below it are that day's),
+     so it no longer describes the MLB slate; the MLB fold carries the slate's own date and says "latest slate" when that
+     slate is behind the real ET clock. */
+  assert.match(todayPage, /const mlbSlateQualifier = today < serverToday \? "Latest slate" : null;/, "/today names a behind MLB slate 'Latest slate'");
+  assert.match(todayPage, /title=\{mlbSlateQualifier \? `MLB slate in detail · \$\{mlbSlateQualifier\.toLowerCase\(\)\}, \$\{dateLabel\}`/, "…on the MLB fold, with its date");
+  assert.match(todayPage, /<TodayDailySlateHeader\s+dateLabel=\{dayName\(serverToday\)\}/, "the header names the reader's ET day");
   const mlbPage = fs.readFileSync(path.join(APP, "src/app/mlb/page.tsx"), "utf8");
   // The page derives "is this slate today's?" ONCE and every present-tense claim hangs off it.
   assert.match(mlbPage, /const isTodaysSlate = date >= currentEtDate\(\)/, "/mlb derives today-ness from the real ET clock");
