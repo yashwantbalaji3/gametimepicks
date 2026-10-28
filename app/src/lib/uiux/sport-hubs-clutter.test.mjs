@@ -230,3 +230,16 @@ test("Ligue 1: header + one disclosure line → fixtures → record; the holdout
   assert.match(page.slice(disclosure, fixtures), /the sportsbook closing line was more accurate than this model/);
   assert.match(page, /className="vault-page-shell /, "the shared hub width");
 });
+
+test("/sports: the chooser leads and the per-sport schedules fold; the results note dates in ET words", async () => {
+  const page = code("src/app/sports/page.tsx");
+  assert.ok(page.indexOf("<SportChooser />") < page.indexOf('<MoreDisclosure className="mt-6" title="Every sport\'s schedule"'));
+  assert.match(page, /title="Every sport's schedule"[\s\S]*<UpcomingSportsSections sports=\{sports\} \/>[\s\S]*<\/MoreDisclosure>/);
+  const { resultsTrackingNote } = await import("../sports/upcoming/adapters.mjs");
+  for (const sport of ["nfl", "epl", "nba", "ufc", "mlb"]) {
+    const note = resultsTrackingNote(sport);
+    if (!note) continue;
+    assert.doesNotMatch(note, /checked \d{4}-\d\d-\d\d/, `${sport}: an ISO key in the results note`);
+    assert.match(note, /checked [A-Z][a-z]{2} \d{1,2}, \d{4}\)/, `${sport}: the ET day in words`);
+  }
+});
