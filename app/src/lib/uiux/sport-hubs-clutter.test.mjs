@@ -204,3 +204,14 @@ test("UFC hub: the board is the one visible listing of the card; previews fold; 
   assert.doesNotMatch(hub, /\b20\d\d-\d\d-\d\d\b/, "no ISO dates in the hub's copy");
   assert.doesNotMatch(read("src/components/sports/ufc-card.tsx"), /\{m\.corpus\?\.from \?\? "\?"\}/, "the corpus span reads in words");
 });
+
+test("UFC bout page: model fingerprint and corpus source only in Technical details; the disclaimer stays visible", () => {
+  const page = code("src/app/ufc/bout/[boutId]/page.tsx");
+  const tech = technicalDetails(page);
+  for (const token of ["model {card.model.id}", "card.model.corpus.source"]) {
+    assert.ok(tech.includes(token), `${token} inside Technical details`);
+    assert.ok(!page.replace(tech, "").includes(token), `${token} also outside it`);
+  }
+  assert.match(page.replace(tech, ""), /Educational and paper-only — not betting advice\./);
+  assert.match(page.replace(tech, ""), /it has not been shown to\s+have an edge over the market/);
+});
