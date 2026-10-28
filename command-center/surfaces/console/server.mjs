@@ -24,7 +24,7 @@ import path from "node:path";
 import { CC_ROOT, REPO_ROOT, wallClock } from "../../lib/util.mjs";
 import { createFileStore } from "../../ledger/store.mjs";
 import { createOrchestrator } from "../../orchestrator/orchestrator.mjs";
-import { spawnSync } from "node:child_process";
+import { spawnSync, execFile } from "node:child_process";
 import { createKeychainVault, createMemoryVault } from "../../publishers/token-vault.mjs";
 import { createXOAuth, createMemoryStateStore, CALLBACK_PATH } from "../../publishers/x-oauth.mjs";
 
@@ -49,12 +49,20 @@ async function refreshData() {
   return r.status === 0 ? { ok: true, detail: `fetched origin/main at ${wallClock()}` } : { ok: false, detail: `git fetch failed (${r.status ?? r.signal})` };
 }
 
-/** A native macOS dialog the founder must click for a live action. Anything but "Publish live" is a no. */
-function confirmOnMac(message) {
-  if (process.platform !== "darwin") return false;
-  const script = `display dialog ${JSON.stringify(message)} with title "GameTimePicks — live X publishing" buttons {"Cancel", "Publish live"} default button "Cancel" cancel button "Cancel" with icon caution giving up after 120`;
-  const r = spawnSync("osascript", ["-e", script], { encoding: "utf8", timeout: 130_000 });
-  return r.status === 0 && /button returned:Publish live/.test(r.stdout) && !/gave up:true/.test(r.stdout);
+/**
+ * A native macOS dialog the founder must click for a live or account action. Anything but the action button is a no.
+ * Asynchronous: the console and the scheduler keep running while it is open.
+ */
+function confirmOnMac(message, button = "Publish live") {
+  if (process.platform !== "darwin") return Promise.resolve(false);
+  // AppleScript: quotes and backslashes neutralised; line breaks joined with `return` (no raw newline in a literal)
+  const text = String(message).replace(/["\\]/g, "'").slice(0, 900).split("\n").join('" & return & "');
+  const script = `display dialog "${text}" with title "GameTimePicks Command Center" buttons {"Cancel", "${button}"} default button "Cancel" cancel button "Cancel" with icon caution giving up after 120`;
+  return new Promise((resolve) => {
+    execFile("osascript", ["-e", script], { encoding: "utf8", timeout: 130_000 }, (err, stdout) => {
+      resolve(!err && stdout.includes(`button returned:${button}`) && !/gave up:true/.test(stdout));
+    });
+  });
 }
 
 function boot() {
@@ -75,18 +83,26 @@ async function publishingAction(body) {
     case "cancel": return p.cancel({ jobId: body.jobId }, FOUNDER);
     case "dry-run-now": return p.publishNow({ decisionId: body.decisionId, live: false }, FOUNDER);
     case "live-test": {
-      if (!confirmOnMac(`Publish this approved post to X now?\n\n${String(body.title ?? body.decisionId).slice(0, 200)}\n\nThis sends one real post and spends X API credits.`)) return { ok: false, code: "NOT_CONFIRMED_ON_MAC", detail: "the macOS confirmation was not given" };
+      // the dialog describes the post from the ledger, never from the request
+      const rec = orchestrator.state().posts.find((x) => x.decisionId === body.decisionId);
+      if (!rec) return { ok: false, code: "UNKNOWN_POST", detail: String(body.decisionId) };
+      const caption = rec.options.find((o) => o.captionId === rec.resolution?.captionId)?.text ?? "(no approved caption)";
+      if (!(await confirmOnMac(`Publish ONE real post to X now? It spends X API credits.\n\n${rec.package.title}\n\n${caption}`))) return { ok: false, code: "NOT_CONFIRMED_ON_MAC", detail: "the macOS confirmation was not given" };
       return p.publishNow({ decisionId: body.decisionId, live: true }, { ...FOUNDER, authentication: "loopback console + macOS dialog confirmation" });
     }
     case "policy": {
-      if (body.mode === "live" && !confirmOnMac(`Turn on SCHEDULED live publishing to X, capped at $${Number(body.capUsd)} per month?`)) return { ok: false, code: "NOT_CONFIRMED_ON_MAC", detail: "the macOS confirmation was not given" };
+      if (body.mode === "live" && !(await confirmOnMac(`Turn on SCHEDULED live publishing to X, capped at $${Number(body.capUsd)} per month?`))) return { ok: false, code: "NOT_CONFIRMED_ON_MAC", detail: "the macOS confirmation was not given" };
       return p.setPolicy({ mode: body.mode, capUsd: body.capUsd, authorization: body.authorization }, { ...FOUNDER, authentication: body.mode === "live" ? "loopback console + macOS dialog confirmation" : FOUNDER.authentication });
     }
     case "reconcile": return p.reconcile({ jobId: body.jobId, url: body.url ?? null, notPosted: body.notPosted === true, lookup: body.lookup === true }, FOUNDER);
     case "ack": return p.acknowledge({ alertId: body.alertId }, FOUNDER);
     case "run-due": return p.runDue();
-    case "x-connect": return oauth.start({ binding: LOCAL_BINDING });
-    case "x-disconnect": return oauth.disconnect();
+    case "x-connect":
+      if (!(await confirmOnMac("Connect an X account to the Command Center? Sign in as the GameTimePicks account on the next page.", "Connect"))) return { ok: false, code: "NOT_CONFIRMED_ON_MAC", detail: "the macOS confirmation was not given" };
+      return oauth.start({ binding: LOCAL_BINDING });
+    case "x-disconnect":
+      if (!(await confirmOnMac("Disconnect the X account from the Command Center? Scheduled posts stop until it is reconnected.", "Disconnect"))) return { ok: false, code: "NOT_CONFIRMED_ON_MAC", detail: "the macOS confirmation was not given" };
+      return oauth.disconnect();
     default: return { ok: false, code: "UNKNOWN_ACTION", detail: String(body.action) };
   }
 }

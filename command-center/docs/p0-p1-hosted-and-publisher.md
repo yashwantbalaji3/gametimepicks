@@ -28,10 +28,10 @@
 
 ## 2. Local test results
 
-- **Full suite:** 157 / 157 normal and 157 / 157 network-blocked.
+- **Full suite:** 160 / 160 normal and 160 / 160 network-blocked, after the review fixes.
   - One browser test failed once under full-suite load. It passed alone twice and on the rerun of the whole suite.
 - **New tests:**
-  - `tests/publisher-x.test.mjs` (9): OAuth, the adapter, and the gate end to end on the real Oct 28 NBA slate. Covers:
+  - `tests/publisher-x.test.mjs` (12, including 3 for the review fixes): OAuth, the adapter, and the gate end to end on the real Oct 28 NBA slate. Covers:
     - scheduling, dry run and pause;
     - an injured featured player, a changed stat line or a moved tip-off is refused;
     - a tampered image is refused; a missed window is recorded;
@@ -139,11 +139,42 @@ Nothing secret is in the repository, the ledger or logs.
 - [ ] B3: run `cc-publisher.yml` once as a dry run on real Actions + Neon (pins, sparse paths, `git fetch` in a sparse checkout).
 - [ ] B4: real X consent and one live test post (your credits + approval).
 - [ ] B5: confirm the media-upload price on your X usage page after the first post, and adjust `PRICE_USD` if it differs.
-- [ ] Security review findings (section 7) closed.
+- [x] Security review findings (section 7) closed.
 
-## 7. Independent security review
+## 7. Independent security review (read-only reviewer, 8 findings; all fixed and tested)
 
-To be filled in when the review completes.
+1. **High — local X tokens could never be saved to the Keychain.** The JSON value contains quotes, which the `security -i` helper refused, so connecting X would always fail and drop the issued tokens.
+   - Fix: values are base64url-encoded for the Keychain.
+   - Test: a stand-in `security` that parses exactly what is sent; JSON round-trips, and no value appears on a command line.
+2. **Medium — "confirmed not posted" never lifted the once-only block.**
+   - Fix: the block is judged on each job's latest state.
+   - Test: UNKNOWN → not posted → a new send succeeds.
+3. **Medium — hosted: records written after X answered were only buffered**, so a crash or claim conflict could leave a real post with no receipt and nothing to reconcile.
+   - Fix: the result and receipt are committed on their own right after the send; claims follow separately.
+   - A live attempt with no recorded outcome now counts as UNKNOWN and can be reconciled.
+   - Test included.
+4. **Medium — queued live tests weren't re-authorized when they ran.**
+   - Fix: they expire after 15 minutes. Switching to dry run withdraws them, and disabling or demoting the requester withdraws their queued jobs.
+   - The receipt names who asked.
+   - Tests included.
+5. **Low — no start-time check right before the send.**
+   - Fix: re-checked after the data fetch, and by the adapter immediately before every request.
+   - Test: the clock passes tip-off mid-send, and the post is never requested.
+6. **Low — the local macOS dialog showed text supplied by the caller**, X connect/disconnect needed no dialog, and the dialog blocked the server.
+   - Fix: the dialog shows the ledger's title and approved caption, connect/disconnect need it too, and it no longer blocks.
+7. **Low — some ledger records named "founder" whoever acted.**
+   - Fix: commands, controls and decisions record the signed-in person.
+8. **Low — reconcile lookups spent outside the cap.**
+   - Fix: a lookup needs room under the cap and its cost is recorded (`publish-spend`).
+   - Test included.
+
+The reviewer also confirmed as sound:
+- once-only sending across processes, and dry run sending nothing;
+- the fingerprint and image re-hashing;
+- the NOT_SENT / UNKNOWN split, and no token leaks;
+- OAuth state, PKCE and session binding;
+- invite-only accounts, step-up with your own passkey, role and status re-read on every request, last-admin protection and session expiry;
+- the cron secret, and the publisher database role's row-level security.
 
 ## 8. Your remaining one-time actions
 

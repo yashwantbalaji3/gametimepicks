@@ -56,7 +56,14 @@ export function createPublishFlow(ctx) {
   const policy = () => of("publish-policy").at(-1)?.data ?? { mode: "dry-run", capUsd: 0 };
   const publishingPaused = () => Boolean(of("publish-pause").at(-1)?.data?.paused);
   const paused = () => publishingPaused() || ctx.isPaused();
-  const spentThisMonth = () => of("publish-result").filter((e) => e.data.live && monthOf(e.at) === monthOf(clock())).reduce((s, e) => s + (e.data.costUsd ?? 0), 0);
+  const spentThisMonth = () => [...of("publish-result").filter((e) => e.data.live), ...of("publish-spend")].filter((e) => monthOf(e.at) === monthOf(clock())).reduce((s, e) => s + (e.data.costUsd ?? 0), 0);
+  /** Commit what is buffered (hosted SQL ledger); a lost claim race is not an error for records that follow a send. */
+  const durable = async () => {
+    if (typeof store.flush !== "function") return;
+    try { await store.flush(); } catch (err) { if (err.code !== "CLAIM_CONFLICT") throw err; }
+  };
+  /** A queued live test is valid this long; after that it must be asked for again. */
+  const LIVE_TEST_TTL_MS = 15 * 60_000;
 
   function setPaused(value, actor) {
     const f = checkFounder(value ? "pause" : "resume", actor);
@@ -74,7 +81,9 @@ export function createPublishFlow(ctx) {
     if (!f.ok) return f;
     if (mode === "dry-run") {
       store.append("publish-policy", actor.id ?? "founder", { mode: "dry-run", capUsd: policy().capUsd ?? 0, by: actor.id ?? "founder" });
-      return { ok: true, mode: "dry-run" };
+      // turning live off also withdraws any live test still waiting in the queue
+      const withdrawn = cancelQueued((j) => j.manual && j.live, `scheduled publishing switched to dry run by ${actor.id ?? "founder"}`, actor);
+      return { ok: true, mode: "dry-run", withdrawnLiveTests: withdrawn };
     }
     if (mode !== "live") return { ok: false, code: "UNKNOWN_MODE", detail: String(mode) };
     const cap = Number(capUsd);
@@ -90,13 +99,29 @@ export function createPublishFlow(ctx) {
   function jobs() {
     const results = of("publish-result");
     const cancels = new Set(of("publish-job-cancel").map((e) => e.data.jobId));
+    // a live attempt is committed before the request: one with no recorded outcome (a crash, a timeout, a lost write)
+    // may have posted, so it counts as UNKNOWN until reconciled
+    const liveAttempts = new Map(of("publish-attempt").filter((e) => e.data.live).map((e) => [e.data.jobId, e]));
     return of("publish-job").map((e) => {
       const r = results.filter((x) => x.data.jobId === e.data.jobId).map((x) => ({ ...x.data, at: x.at }));
       const last = r.at(-1) ?? null;
-      const status = cancels.has(e.data.jobId) ? "cancelled" : last ? last.state.toLowerCase() : "scheduled";
-      return { ...e.data, scheduledAt: e.at, status, results: r };
+      const a = liveAttempts.get(e.data.jobId);
+      const status = last ? last.state.toLowerCase() : a ? "unknown" : cancels.has(e.data.jobId) ? "cancelled" : "scheduled";
+      const results2 = !last && a ? [{ state: "UNKNOWN", code: "NO_OUTCOME_RECORDED", detail: "the send started but its outcome was never recorded — check X, then reconcile", live: true, attemptedAt: a.at, text: a.data.text ?? null }] : r;
+      return { ...e.data, scheduledAt: e.at, status, results: results2 };
     });
   }
+  /** Withdraw queued jobs (a live test whose requester lost the right, or live switched off). */
+  function cancelQueued(match, reason, actor = { id: "system" }) {
+    const out = [];
+    for (const j of jobs().filter((x) => x.status === "scheduled" && match(x))) {
+      store.append("publish-job-cancel", actor.id ?? "system", { jobId: j.jobId, by: actor.id ?? "system", reason });
+      out.push(j.jobId);
+    }
+    return out;
+  }
+  /** Hosted: an account was disabled or lost publish rights — its queued jobs go with it. */
+  const cancelQueuedBy = (userId, reason, actor) => cancelQueued((j) => j.by === userId, reason, actor);
   const recordOf = (decisionId) => ctx.posts().find((p) => p.decisionId === decisionId) ?? null;
 
   /** Founder: schedule an approved post. Default time: the package's suggested time (NBA game: 45 min before tip). */
@@ -177,12 +202,16 @@ export function createPublishFlow(ctx) {
     const start = startOf(pkg);
     if (!start || !Number.isFinite(Date.parse(start))) return refuse("NO_START_TIME", "no start time on record: the window can't be shown to be open");
     if (trigger === "schedule" && now < Date.parse(job.dueAt)) return { ok: false, state: "WAITING", code: "NOT_DUE", detail: job.dueAt };
+    if (trigger === "founder-live-test" && now - Date.parse(job.dueAt) > LIVE_TEST_TTL_MS) return refuse("LIVE_TEST_EXPIRED", "a live test must run within 15 minutes of being asked for: ask again");
     // 5. fresh data + re-check against it
     const fresh = await ctx.refreshData();
     if (!fresh.ok) return refuse("DATA_NOT_REFRESHED", fresh.detail ?? "could not fetch the latest published data");
     const again = ctx.recheck(pkg);
     if (!again) return refuse("NO_RECHECK", `${pkg.kind} has no pre-publish re-check`);
     if (again.status !== "READY") return refuse("VERIFICATION_CHANGED", again.reasons.join("; "), "critical");
+    // the data fetch can take a while: the window is checked again here, and the provider checks it once more
+    // immediately before each request
+    if (Date.parse(clock()) >= Date.parse(start)) return refuse("AFTER_START", `start ${start} passed while checking`);
     // 6. live requirements
     const pol = policy();
     if (live) {
@@ -190,19 +219,20 @@ export function createPublishFlow(ctx) {
       if (!(pol.capUsd > 0)) return refuse("SPEND_NOT_AUTHORIZED", "no monthly spend cap is authorized");
       if (!ctx.oauth || !(await ctx.oauth.status()).connected) return refuse("X_NOT_CONNECTED", "connect the X account");
     }
-    const provider = createXPublisher({ mode: live ? "live" : "dry-run", oauth: ctx.oauth, fetch: ctx.fetch, readMedia: (f) => fs.readFileSync(path.join(ctx.mediaDir, path.basename(f))) });
+    const provider = createXPublisher({ mode: live ? "live" : "dry-run", oauth: ctx.oauth, fetch: ctx.fetch, readMedia: (f) => fs.readFileSync(path.join(ctx.mediaDir, path.basename(f))), sendBefore: start, clock });
     const bundle = { text: option.text, media: media.map((m) => ({ file: path.basename(m.file), sha256: m.sha256 })) };
     const quote = provider.quoteCost(bundle);
     if (live && spentThisMonth() + quote.maxUsd > pol.capUsd) return refuse("SPEND_CAP_REACHED", `$${spentThisMonth().toFixed(3)} spent + $${quote.maxUsd} > $${pol.capUsd} cap`, "critical");
     // 7. once-only
-    const prior = of("publish-result").filter((e) => e.data.baseId === base && e.data.live);
-    const done = prior.find((e) => ["PUBLISHED", "UNKNOWN"].includes(e.data.state));
-    if (live && done) return refuse(done.data.state === "PUBLISHED" ? "ALREADY_PUBLISHED" : "OUTCOME_UNKNOWN", done.data.state === "PUBLISHED" ? done.data.canonicalUrl : "an earlier attempt's outcome is unknown: reconcile it first", done.data.state === "PUBLISHED" ? "info" : "critical");
-    const attempt = prior.filter((e) => e.data.state === "FAILED_NOT_SENT").length;
+    // judged on each earlier job's LATEST state: a reconciled "not posted" lifts the block, an unrecorded attempt doesn't
+    const earlier = jobs().filter((j) => j.baseId === base && j.jobId !== job.jobId);
+    const done = earlier.find((j) => j.status === "published") ?? earlier.find((j) => j.status === "unknown");
+    if (live && done) return refuse(done.status === "published" ? "ALREADY_PUBLISHED" : "OUTCOME_UNKNOWN", done.status === "published" ? done.results.at(-1)?.canonicalUrl ?? done.jobId : "an earlier attempt's outcome is unknown: reconcile it first", done.status === "published" ? "info" : "critical");
+    const attempt = of("publish-attempt").filter((e) => e.data.live && baseIdOf(e.data.postId) === base).length;
     const claimKey = live ? `xlive|${base}|${attempt}` : `xdry|${job.jobId}`;
     const claim = store.claim(claimKey, { jobId: job.jobId, at: clock() });
     if (!claim.won) return refuse("IN_FLIGHT", `attempt ${attempt} of ${base} was already started by ${claim.record.value.jobId}`, "critical");
-    store.append("publish-attempt", "publisher", { jobId: job.jobId, postId: pkg.postId, live, trigger, attempt, claimKey, digest: nowDigest, dataFetched: fresh.detail ?? null });
+    store.append("publish-attempt", "publisher", { jobId: job.jobId, postId: pkg.postId, live, trigger, attempt, claimKey, digest: nowDigest, dataFetched: fresh.detail ?? null, text: live ? option.text : null });
     // Durable before the request: a hosted (SQL) ledger buffers writes, so the claim and the attempt are committed now —
     // a crash after X answers can then never lead to a second send. A lost race here means another process has it.
     if (typeof store.flush === "function") {
@@ -214,26 +244,35 @@ export function createPublishFlow(ctx) {
 
     try {
       const r = await provider.publish(bundle);
-      if (r.state === "DRY_RUN") return result(job, "DRY_RUN", { live: false, trigger, digest: nowDigest, requests: r.requests, wouldCostUsd: createXPublisher({ mode: "live", readMedia: () => Buffer.alloc(0) }).quoteCost(bundle).maxUsd });
+      if (r.state === "DRY_RUN") { const d = result(job, "DRY_RUN", { live: false, trigger, digest: nowDigest, requests: r.requests, wouldCostUsd: createXPublisher({ mode: "live", readMedia: () => Buffer.alloc(0) }).quoteCost(bundle).maxUsd }); await durable(); return d; }
       const receipt = {
         schema: "gtp.cc.publish-receipt@1", provider: "x-api", channel: "x", state: "PUBLISHED",
         decisionId: job.decisionId, commandId: rec.commandId, postId: pkg.postId, captionId: option.captionId, bundleDigest: nowDigest,
         canonicalUrl: r.canonicalUrl, handle: ctx.handle ?? null, providerPostId: r.providerPostId, publishedAt: clock(), costUsd: quote.maxUsd,
         warnings: [], verification: "posted by the X API; post id returned by X", approvedBy: rec.resolution.approvedBy, approvedAt: rec.resolution.approvedAt,
-        recordedBy: "publisher", recordedAt: clock(), authentication: trigger === "schedule" ? `scheduled under ${pol.authorization}` : `founder-triggered live test`,
+        recordedBy: "publisher", recordedAt: clock(), authentication: trigger === "schedule" ? `scheduled under ${pol.authorization}` : `live test requested by ${job.by ?? "unknown"}`,
       };
-      const once = store.claim(`publish|${job.decisionId}`, { receipt });
-      if (once.won) store.append("publish-receipt", "publisher", receipt);
+      // The result and the receipt are committed first, on their own (no claim can make this write fail); the claims
+      // that index them follow in a second commit, where losing a race is harmless.
+      const done2 = result(job, "PUBLISHED", { live: true, trigger, providerPostId: r.providerPostId, canonicalUrl: r.canonicalUrl, costUsd: quote.maxUsd });
+      if (!store.readClaim?.(`publish|${job.decisionId}`)) store.append("publish-receipt", "publisher", receipt);
+      await durable();
+      store.claim(`publish|${job.decisionId}`, { receipt });
       store.claim(`xpost|${r.providerPostId}`, { decisionId: job.decisionId });
-      return result(job, "PUBLISHED", { live: true, trigger, providerPostId: r.providerPostId, canonicalUrl: r.canonicalUrl, costUsd: quote.maxUsd });
+      await durable();
+      return done2;
     } catch (err) {
       const e = err instanceof XPublishError ? err : new XPublishError("UNKNOWN", "PUBLISHER_ERROR", String(err.message ?? err).slice(0, 200));
       if (e.outcome === "NOT_SENT") {
         alert(job, "critical", e.code, e.detail);
-        return result(job, "FAILED_NOT_SENT", { live, trigger, code: e.code, detail: e.detail, costUsd: live ? PRICE_FOR_UPLOADS(e.mediaIds) : 0 });
+        const f2 = result(job, "FAILED_NOT_SENT", { live, trigger, code: e.code, detail: e.detail, costUsd: live ? PRICE_FOR_UPLOADS(e.mediaIds) : 0 });
+        await durable();
+        return f2;
       }
       alert(job, "critical", "OUTCOME_UNKNOWN", `${e.code}: ${e.detail} — check X, then reconcile (never re-sent automatically)`);
-      return result(job, "UNKNOWN", { live, trigger, code: e.code, detail: e.detail, costUsd: live ? quote.maxUsd : 0, text: option.text, attemptedAt: clock() });
+      const u = result(job, "UNKNOWN", { live, trigger, code: e.code, detail: e.detail, costUsd: live ? quote.maxUsd : 0, text: option.text, attemptedAt: clock() });
+      await durable();
+      return u;
     }
   }
 
@@ -302,8 +341,14 @@ export function createPublishFlow(ctx) {
     if (!j || j.status !== "unknown") return { ok: false, code: "NOTHING_TO_RECONCILE", detail: j?.status ?? jobId };
     const last = j.results.at(-1);
     if (lookup) {
+      // reads cost money too: within the cap, and recorded
+      const pol = policy();
+      const LOOKUP_MAX_USD = 0.06;
+      if (!(pol.capUsd > 0) || spentThisMonth() + LOOKUP_MAX_USD > pol.capUsd) return { ok: false, code: "SPEND_NOT_AUTHORIZED", detail: "an API lookup costs up to $0.06 and needs room under the monthly cap — check X yourself and paste the link instead" };
+      if (!last.text) return { ok: false, code: "NO_TEXT", detail: "the attempted caption isn't on record: check X yourself" };
       const p = createXPublisher({ mode: "live", oauth: ctx.oauth, fetch: ctx.fetch, readMedia: () => Buffer.alloc(0) });
       const r = await p.reconcile({ text: last.text, notBefore: last.attemptedAt });
+      if (r.costUsd) store.append("publish-spend", actor.id ?? "founder", { jobId, reason: "reconcile lookup", costUsd: r.costUsd });
       if (!r.ok) return r;
       if (!r.found) return { ok: true, found: false, detail: "not among the account's 10 latest posts — check X, then record what you see" };
       url = r.canonicalUrl;
@@ -340,7 +385,7 @@ export function createPublishFlow(ctx) {
     };
   }
 
-  return { setPaused, setPolicy, schedule, cancel, runDue, publishNow, queueNow, dueSoon, reconcile, acknowledge, jobs, policy, state, execute };
+  return { setPaused, setPolicy, schedule, cancel, cancelQueuedBy, runDue, publishNow, queueNow, dueSoon, reconcile, acknowledge, jobs, policy, state, execute };
 }
 
 /** A NOT_SENT failure after some images uploaded still spent those uploads. */

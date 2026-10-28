@@ -447,7 +447,7 @@ export function createTeamFlow(ctx) {
     if (verdict === "revise" && !String(note ?? "").trim()) return { ok: false, code: "NOTE_REQUIRED", detail: "say what should change" };
     const claim = store.claim(`decision|${request.decisionId}`, { verdict });
     if (!claim.won) return { ok: true, duplicate: true, verdict: claim.record.value.verdict };
-    store.append("decision", "founder", {
+    store.append("decision", actor?.id ?? "founder", {
       decisionId: request.decisionId, commandId: request.commandId, verdict, note: note ? String(note).slice(0, 1000) : null,
       approvedExactDigest: verdict === "approve" ? request.subjectDigest : null, approvedBy: actor.id ?? "founder", approvedAt: clock(),
       authentication: actor.authentication ?? "loopback-console (demo-grade)",

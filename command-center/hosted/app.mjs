@@ -333,8 +333,14 @@ export function createHostedApp({ db, clock, origin, rpID, setupTokenSha256, dis
     }
     if (pathname === "/api/users/update") {
       const r = await auth.updateAccount({ sessionToken: token, userId: body.userId, role: body.role, status: body.status });
-      if (r.ok) await audit([r.audit]);
-      return r.ok ? { ok: true } : r;
+      if (!r.ok) return r;
+      await audit([r.audit]);
+      // losing the right to publish withdraws that person's queued publishing jobs (e.g. a live test) at once
+      if (body.status === "disabled" || (body.role !== undefined && !can(body.role, "publish"))) {
+        const withdrawn = await turn((o) => o.publishing.cancelQueuedBy(String(body.userId), `account ${body.status === "disabled" ? "disabled" : `now ${body.role}`}`, { id: "admin" }));
+        return { ok: true, withdrawnJobs: withdrawn };
+      }
+      return { ok: true };
     }
     if (pathname === "/api/users/revoke-invite") {
       const r = await auth.revokeInvite({ sessionToken: token, inviteId: body.inviteId });

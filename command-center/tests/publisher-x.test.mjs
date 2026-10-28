@@ -321,3 +321,98 @@ test("live: an unknown outcome is never retried; reconciling with the X link rec
   assert.ok((await P.setPolicy({ mode: "dry-run" }, FOUNDER)).ok, "turning live off always works");
   assert.equal((await P.state()).mode, "dry-run");
 });
+
+// ── review fixes (independent security review, 2026-10-28) ────────────────────────────────────────────────────
+test("Keychain vault: JSON tokens round-trip (encoded for `security -i`), and no value is ever on a command line", async () => {
+  const { createKeychainVault } = await import("../publishers/token-vault.mjs");
+  const kc = new Map();
+  const argvSeen = [];
+  // a stand-in for /usr/bin/security that parses exactly what the vault sends
+  const run = (cmd, args, opts = {}) => {
+    argvSeen.push(args.join(" "));
+    if (args[0] === "-i") {
+      const m = /^add-generic-password -U -s "([^"]+)" -a "([^"]+)" -w "([^"]*)"\n$/.exec(opts.input);
+      if (!m) return { status: 1 };
+      kc.set(`${m[1]}|${m[2]}`, m[3]);
+      return { status: 0 };
+    }
+    if (args[0] === "find-generic-password") { const v = kc.get(`${args[2]}|${args[4]}`); return v ? { status: 0, stdout: `${v}\n` } : { status: 44, stdout: "" }; }
+    if (args[0] === "delete-generic-password") { kc.delete(`${args[2]}|${args[4]}`); return { status: 0 }; }
+    return { status: 1 };
+  };
+  const v = createKeychainVault({ run });
+  const tokens = JSON.stringify({ access_token: "AT-\"quoted\"\\x", refresh_token: "RT-1", scope: "tweet.read tweet.write" });
+  await v.set(SECRET.tokens, tokens);
+  assert.equal(await v.get(SECRET.tokens), tokens);
+  assert.ok(argvSeen.every((a) => !a.includes("AT-") && !a.includes("RT-1")), "never in argv");
+  await v.delete(SECRET.tokens);
+  assert.equal(await v.get(SECRET.tokens), null);
+});
+
+test("X adapter: nothing is sent at or after the start time, even mid-send", async () => {
+  const m = mediaFixture();
+  let now = "2026-10-28T22:59:59.000Z";
+  const x = fakeX((url) => { now = "2026-10-28T23:00:01.000Z"; return url === X_MEDIA_UPLOAD_URL ? { status: 200, body: { data: { id: "M" } } } : { status: 201, body: { data: { id: "1" } } }; });
+  const e = await createXPublisher({ mode: "live", oauth: connected, fetch: x.fetch, readMedia: m.readMedia, sendBefore: "2026-10-28T23:00:00.000Z", clock: () => now }).publish({ text: "hi", media: m.files }).then(() => null, (err) => err);
+  assert.deepEqual([e.outcome, e.code], ["NOT_SENT", "AFTER_START"]);
+  assert.equal(x.calls.filter((c) => c.url === X_CREATE_POST_URL).length, 0, "the post itself was never requested");
+});
+
+test("review fixes: 'not posted' lifts the block; an unrecorded attempt is UNKNOWN; queued live tests expire and are withdrawn", { skip: hasSlate ? false : "slate commit missing", timeout: 600_000 }, async () => {
+  const h = await slate();
+  const P = h.o.publishing;
+  assert.ok((await P.setPolicy({ mode: "live", capUsd: 5, authorization: liveAuthorizationText(5) }, FOUNDER)).ok);
+  // 1. UNKNOWN → founder confirms it is NOT on X → a new attempt is allowed and succeeds
+  const g = gamePost(h, "401909885");
+  assert.ok((await approve(h, g)).ok);
+  h.setX((url) => (url === X_MEDIA_UPLOAD_URL ? { status: 200, body: { data: { id: "M" } } } : new Error("timeout")));
+  assert.equal((await P.publishNow({ decisionId: g.decisionId, live: true }, FOUNDER)).state, "UNKNOWN");
+  const unknownJob = P.jobs().find((j) => j.decisionId === g.decisionId && j.status === "unknown");
+  assert.equal((await P.reconcile({ jobId: unknownJob.jobId, lookup: true }, { role: "approver", id: "c1" })).code, "NOT_FOUNDER");
+  assert.equal((await P.reconcile({ jobId: unknownJob.jobId, notPosted: true }, FOUNDER)).state, "FAILED_NOT_SENT");
+  h.setX((url, init, n) => (url === X_MEDIA_UPLOAD_URL ? { status: 200, body: { data: { id: `M${n}` } } } : { status: 201, body: { data: { id: "2115300000000000888" } } }));
+  assert.equal((await P.publishNow({ decisionId: g.decisionId, live: true }, FOUNDER)).state, "PUBLISHED", "confirmed not posted → may be sent");
+
+  // 2. a live attempt whose outcome was never recorded (crash after the request) counts as UNKNOWN
+  const g2 = gamePost(h, "401909886");
+  assert.ok((await approve(h, g2)).ok);
+  h.store.append("publish-job", "founder", { jobId: "pubjob-crashed00001", decisionId: g2.decisionId, postId: g2.package.postId, baseId: g2.package.postId.replace(/@v\d+$/, ""), dueAt: "2026-10-28T16:30:00.000Z", manual: true, live: true, by: "founder" });
+  h.store.append("publish-attempt", "publisher", { jobId: "pubjob-crashed00001", postId: g2.package.postId, live: true, attempt: 0, text: "x" });
+  assert.equal(P.jobs().find((j) => j.jobId === "pubjob-crashed00001").status, "unknown");
+  const sent = h.setX(() => ({ status: 201, body: { data: { id: "9" } } }));
+  assert.equal((await P.publishNow({ decisionId: g2.decisionId, live: true }, FOUNDER)).code, "OUTCOME_UNKNOWN");
+  assert.equal(sent.calls.length, 0);
+  assert.equal((await P.reconcile({ jobId: "pubjob-crashed00001", url: "https://x.com/GameTimePicksHQ/status/2115300000000000999" }, FOUNDER)).state, "PUBLISHED");
+
+  // 3. queued live tests: withdrawn when live is switched off or the requester loses the right; expire after 15 min
+  const g3 = gamePost(h, "401909887");
+  assert.ok((await approve(h, g3)).ok);
+  const q1 = P.queueNow({ decisionId: g3.decisionId, live: true }, { role: "publisher", id: "pat" });
+  assert.ok(q1.ok);
+  assert.deepEqual((await P.setPolicy({ mode: "dry-run" }, FOUNDER)).withdrawnLiveTests, [q1.job.jobId]);
+  assert.ok((await P.setPolicy({ mode: "live", capUsd: 5, authorization: liveAuthorizationText(5) }, FOUNDER)).ok);
+  const q2 = P.queueNow({ decisionId: g3.decisionId, live: true }, { role: "publisher", id: "pat" });
+  assert.deepEqual(P.cancelQueuedBy("pat", "account disabled", { id: "admin" }), [q2.job.jobId]);
+  const q3 = P.queueNow({ decisionId: g3.decisionId, live: true }, FOUNDER);
+  h.setNow("2026-10-28T16:46:00.000Z");
+  const late = h.setX(() => ({ status: 201, body: { data: { id: "9" } } }));
+  const r3 = await P.runDue();
+  assert.deepEqual(r3.ran.find((x) => x.jobId === q3.job.jobId), { jobId: q3.job.jobId, state: "REFUSED", code: "LIVE_TEST_EXPIRED" });
+  assert.equal(late.calls.length, 0);
+
+  // 4. an API lookup is spend: it needs room under the cap and is counted
+  h.setNow("2026-10-28T16:30:00.000Z");
+  const g4 = gamePost(h, "401909888");
+  assert.ok((await approve(h, g4)).ok);
+  h.setX((url) => (url === X_MEDIA_UPLOAD_URL ? { status: 200, body: { data: { id: "M" } } } : new Error("timeout")));
+  assert.equal((await P.publishNow({ decisionId: g4.decisionId, live: true }, FOUNDER)).state, "UNKNOWN");
+  const j4 = P.jobs().find((j) => j.decisionId === g4.decisionId && j.status === "unknown");
+  const before = (await P.state()).spentThisMonthUsd;
+  const caption = g4.options.find((x) => x.captionId === "A").text;
+  h.setX((url) => (url.endsWith("/2/users/me") ? { body: { data: { id: "42", username: "GameTimePicksHQ" } } } : url.includes("/2/users/42/tweets") ? { body: { data: [{ id: "2115300000000001234", text: caption, created_at: "2026-10-28T16:30:00.000Z" }] } } : { status: 404 }));
+  const found = await P.reconcile({ jobId: j4.jobId, lookup: true }, FOUNDER);
+  assert.equal(found.state, "PUBLISHED");
+  assert.ok((await P.state()).spentThisMonthUsd > before, "the lookup's cost is counted against the cap");
+  assert.ok((await P.setPolicy({ mode: "dry-run" }, FOUNDER)).ok);
+  h.setNow("2026-10-28T16:30:00.000Z");
+});

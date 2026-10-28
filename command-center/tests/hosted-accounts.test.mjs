@@ -162,7 +162,9 @@ test("no privilege escalation: roles are enforced server-side, step-up only with
   assert.equal((await h.founder.stepped("/api/users/update", { userId: "founder", status: "disabled" }, "manage-users")).body.code, "LAST_ADMIN");
 
   // disabling ends her sessions at once, and she can't sign back in
-  assert.equal((await h.founder.stepped("/api/users/update", { userId: annId, status: "disabled" }, "manage-users")).status, 200);
+  const dis = await h.founder.stepped("/api/users/update", { userId: annId, status: "disabled" }, "manage-users");
+  assert.equal(dis.status, 200);
+  assert.deepEqual(dis.body.withdrawnJobs, [], "her queued publishing jobs (none here) are withdrawn with the account");
   assert.equal((await ann.call("GET", "/api/state")).status, 401);
   assert.equal((await ann.login()).body.code, "ACCOUNT_DISABLED");
   // the audit trail names who did what, without secrets

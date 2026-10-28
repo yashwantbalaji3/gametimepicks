@@ -21,8 +21,13 @@ export function createMemoryVault(initial = {}) {
   return { kind: "memory", get: async (k) => m.get(k) ?? null, set: async (k, v) => void m.set(k, String(v)), delete: async (k) => void m.delete(k) };
 }
 
-/** `security -i` reads commands from stdin; values are double-quoted, so a quote, backslash or newline is refused. */
-const safeForSecurity = (v) => /^[\x20-\x7e]+$/.test(v) && !/["\\]/.test(v);
+/**
+ * `security -i` reads commands from stdin, so a value is written base64url-encoded (letters, digits, - and _ only:
+ * nothing the command parser could misread, whatever the value — JSON tokens included) and decoded on read.
+ */
+const ENC = "b64u:";
+const encodeForKeychain = (v) => `${ENC}${Buffer.from(String(v), "utf8").toString("base64url")}`;
+const decodeFromKeychain = (v) => (v.startsWith(ENC) ? Buffer.from(v.slice(ENC.length), "base64url").toString("utf8") : v);
 
 export function createKeychainVault({ service = KEYCHAIN_SERVICE, run = spawnSync } = {}) {
   if (process.platform !== "darwin" && run === spawnSync) throw new Error("the Keychain vault needs macOS");
@@ -31,12 +36,12 @@ export function createKeychainVault({ service = KEYCHAIN_SERVICE, run = spawnSyn
     async get(name) {
       const r = run("security", ["find-generic-password", "-s", service, "-a", name, "-w"], { encoding: "utf8" });
       if (r.status !== 0) return null;
-      return String(r.stdout).replace(/\n$/, "") || null;
+      const raw = String(r.stdout).replace(/\n$/, "");
+      return raw ? decodeFromKeychain(raw) : null;
     },
     async set(name, value) {
-      const v = String(value);
-      if (!safeForSecurity(v)) throw new Error(`${name}: value has characters the Keychain helper refuses (quote, backslash or non-ASCII)`);
-      const r = run("security", ["-i"], { input: `add-generic-password -U -s "${service}" -a "${name}" -w "${v}"\n`, encoding: "utf8" });
+      if (!/^[a-z0-9-]+$/.test(name)) throw new Error("invalid secret name");
+      const r = run("security", ["-i"], { input: `add-generic-password -U -s "${service}" -a "${name}" -w "${encodeForKeychain(value)}"\n`, encoding: "utf8" });
       if (r.status !== 0) throw new Error(`could not save ${name} to the Keychain (security exited ${r.status})`);
     },
     async delete(name) {

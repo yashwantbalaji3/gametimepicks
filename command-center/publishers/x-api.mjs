@@ -41,7 +41,7 @@ export class XPublishError extends Error {
  * @param {{ mode: "dry-run"|"live", oauth?: object, fetch?: typeof fetch, readMedia: (file: string) => Buffer,
  *           timeoutMs?: number }} o
  */
-export function createXPublisher({ mode = "dry-run", oauth = null, fetch = globalThis.fetch, readMedia, timeoutMs = 30_000 }) {
+export function createXPublisher({ mode = "dry-run", oauth = null, fetch = globalThis.fetch, readMedia, timeoutMs = 30_000, sendBefore = null, clock = () => new Date().toISOString() }) {
   if (!["dry-run", "live"].includes(mode)) throw new Error(`unknown publisher mode ${mode}`);
   const live = mode === "live";
 
@@ -60,6 +60,10 @@ export function createXPublisher({ mode = "dry-run", oauth = null, fetch = globa
     return { images, problems };
   }
 
+  /** The start time is checked once more immediately before every request: nothing goes out at or after it. */
+  const inWindow = (what, mediaIds = []) => {
+    if (sendBefore && Date.parse(clock()) >= Date.parse(sendBefore)) throw new XPublishError("NOT_SENT", "AFTER_START", `${what}: the start time (${sendBefore}) has passed`, { mediaIds });
+  };
   const timed = async (url, init) => {
     const ac = new AbortController();
     const t = setTimeout(() => ac.abort(), timeoutMs);
@@ -90,6 +94,7 @@ export function createXPublisher({ mode = "dry-run", oauth = null, fetch = globa
       const auth = { Authorization: `Bearer ${tok.token}` };
       const mediaIds = [];
       for (const i of images) {
+        inWindow(`upload ${i.file}`, mediaIds);
         const form = new FormData();
         form.append("media", new Blob([i.data], { type: "image/png" }), i.file);
         form.append("media_category", "tweet_image");
@@ -103,6 +108,7 @@ export function createXPublisher({ mode = "dry-run", oauth = null, fetch = globa
         if (!res.ok || !j?.data?.id) throw new XPublishError("NOT_SENT", res.status === 402 ? "X_CREDITS_REQUIRED" : "MEDIA_UPLOAD_FAILED", `${i.file}: HTTP ${res.status} ${xError(j)}`, { httpStatus: res.status, mediaIds });
         mediaIds.push(String(j.data.id));
       }
+      inWindow("create post", mediaIds);
       let res;
       try {
         res = await timed(X_CREATE_POST_URL, { method: "POST", headers: { ...auth, "Content-Type": "application/json" }, body: JSON.stringify({ text: bundle.text, media: { media_ids: mediaIds } }) });

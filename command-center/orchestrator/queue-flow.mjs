@@ -514,7 +514,7 @@ export function createQueueFlow(ctx) {
     }
     const claim = store.claim(`decision|${request.decisionId}`, { verdict, ...(approval ? { captionId } : {}) });
     if (!claim.won) return { ok: true, duplicate: true, verdict: claim.record.value.verdict };
-    store.append("decision", "founder", {
+    store.append("decision", actor?.id ?? "founder", {
       decisionId: request.decisionId, commandId: request.commandId, postId: request.postId, verdict,
       note: note ? String(note).slice(0, 1000) : null, ...(approval ?? { approvedExactDigest: null }),
       approvedBy: actor.id ?? "founder", approvedAt: clock(), authentication: actor.authentication ?? "loopback-console (demo-grade)",

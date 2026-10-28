@@ -90,6 +90,7 @@ export const LEDGER_KINDS = Object.freeze([
   "publish-result",    // DRY_RUN · PUBLISHED · REFUSED · FAILED_NOT_SENT · UNKNOWN · MISSED
   "publish-alert", "publish-alert-ack",
   "publish-tick",      // a scheduler tick that ran at least one job
+  "publish-spend",     // X API spend outside a send (a reconcile lookup), counted against the monthly cap
 ]);
 
 /** Refusal / reason codes shared by the orchestrator, the integrity gate and the publisher. */

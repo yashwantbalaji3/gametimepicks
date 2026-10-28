@@ -133,7 +133,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     const claim = store.claim(key, { commandId });
     if (!claim.won) return { ok: true, commandId: claim.record.value.commandId, duplicate: true };
 
-    store.append("command", "founder", { commandId, text, intent, surface: actor?.surface ?? "console" });
+    store.append("command", actor?.id ?? "founder", { commandId, text, intent, surface: actor?.surface ?? "console" });
     if (intent === "status") {
       const s = state();
       store.append("report", "chief-of-staff", {
@@ -498,7 +498,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   function setPaused(paused, actor, text = null) {
     const f = checkFounder(paused ? "pause" : "resume", actor);
     if (!f.ok) return { ok: false, ...f };
-    store.append("control", "founder", { paused, text });
+    store.append("control", actor?.id ?? "founder", { paused, text });
     const stopped = paused ? flow.cancelAll({ reason: "Paused by the founder" }) : 0;
     if (!paused && execution === "jobs") resumeJobs();
     return { ok: true, paused, stoppedRuns: stopped, cancelJobs: paused ? activeJobs() : [] };
@@ -508,7 +508,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   function emergencyStop(actor) {
     const f = checkFounder("pause", actor);
     if (!f.ok) return { ok: false, ...f };
-    store.append("control", "founder", { paused: true, emergency: true, text: "Emergency stop" });
+    store.append("control", actor?.id ?? "founder", { paused: true, emergency: true, text: "Emergency stop" });
     const stopped = flow.cancelAll({ reason: "Emergency stop", immediate: true });
     return { ok: true, paused: true, stoppedRuns: stopped, cancelJobs: activeJobs() };
   }
@@ -524,7 +524,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
 
     if (verdict !== "approve") {
       const claim = store.claim(`decision|${decisionId}`, { verdict, note: note ?? null });
-      if (claim.won) store.append("decision", "founder", { decisionId, commandId: request.commandId, verdict, note: note ?? null });
+      if (claim.won) store.append("decision", actor?.id ?? "founder", { decisionId, commandId: request.commandId, verdict, note: note ?? null, decidedBy: actor?.id ?? "founder" });
       return { ok: true, verdict: claim.record.value.verdict, duplicate: !claim.won };
     }
 
@@ -536,7 +536,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     }
     const approval = { verdict: "approve", captionId, approvedExactDigest: option.digest, approvedBy: actor.id ?? "founder", approvedAt: clock(), authentication: actor.authentication ?? "loopback-console (demo-grade)" };
     const claim = store.claim(`decision|${decisionId}`, approval);
-    if (claim.won) store.append("decision", "founder", { decisionId, commandId: request.commandId, ...approval });
+    if (claim.won) store.append("decision", actor?.id ?? "founder", { decisionId, commandId: request.commandId, ...approval });
     const recorded = claim.record.value;
     if (recorded.verdict !== "approve") return { ok: false, code: "ALREADY_DECIDED", detail: recorded.verdict };
     const bound = request.options.find((o) => o.captionId === recorded.captionId);
