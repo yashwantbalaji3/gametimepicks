@@ -302,12 +302,15 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   { href: "/results/nba", label: "NBA record", note: "Official Forecast record · retired May–June 2026 archive", group: "sports",
     desc: "The NBA Official Forecast record, with a retired player-prop model's settled archive kept for transparency",
     surfaces: ["footer"] },
-  { href: "/results/model-audit", label: "Deep-dive track record", group: "record",
+  /* Overnight 2026-10-28 label parity: one name per URL, the page's own — its H1 and title say "Model audit deep-dive". */
+  { href: "/results/model-audit", label: "Model audit deep-dive", group: "record",
     desc: "Every settled receipt, in depth", surfaces: ["footer"] },
   { href: "/market-guide", label: "Market Guide", group: "record",
     desc: "How to read a price", surfaces: ["footer"] },
-  { href: "/research", label: "Research engine", group: "record",
-    desc: "What the model is being tested against", surfaces: ["footer"] },
+  /* Overnight 2026-10-28 label parity: "Research engine · what the model is being tested against" was the page this
+     route replaced on 2026-10-05; the page is "Research" (its eyebrow and title), and its H1 says what it holds. */
+  { href: "/research", label: "Research", group: "record",
+    desc: "Teams, players and how our forecasts did", surfaces: ["footer"] },
   /*
    * v1.5 · Research Lab. A SECONDARY destination on the rail and the footer sitemap, never a primary: P243
    * charter E fixes the primaries at five, and this is a tool a reader reaches for deliberately rather than a
@@ -330,7 +333,7 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    */
   { href: "/ask", label: "Ask GameTime", group: "record", glyph: "◇", note: "Answers from GameTime's own data",
     desc: "Ask about games, players, forecasts and the site", surfaces: ["rail", "footer"] },
-  { href: "/responsible-use", label: "Responsible use", group: "record",
+  { href: "/responsible-use", label: "Responsible Use", group: "record",
     desc: "Paper-only, educational, no stake is ever filled", surfaces: ["footer"] },
 ];
 
