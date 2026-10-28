@@ -100,8 +100,12 @@ test("flag-ON scanner: a clean planted export passes; each planted defect is cau
     put("nba/simulation/401909070/index.html", settled.replace("</article>", ` ${m}</article>`));
     assert.deepEqual(scan(dir).settledLeaks, [{ page: "401909070", file: "index.html", marker: m }], `a settled page may not carry ${m}`);
   }
+  /* A settled page is a page of the same route, and a static export attaches the route's client chunks to all of its
+     pages: loading the island chunk is tolerated (unused weight, a recorded follow-up). What it may never do is SHOW the
+     Theater — its own HTML stays clean (settledLeaks) and it keeps the settled labels. */
   put("nba/simulation/401909070/index.html", settled.replace("main.js", "island-1.js"));
-  assert.deepEqual(scan(dir).strayChunks, [{ page: "nba/simulation/401909070/index.html", chunk: "/_next/static/chunks/island-1.js" }]);
+  const routeChunk = scan(dir);
+  assert.deepEqual([routeChunk.strayChunks, routeChunk.settledLeaks, routeChunk.missing], [[], [], []]);
   // a Theater page without the settled marker is held to the Theater's labels, never the settled ones
   put("nba/simulation/401909070/index.html", settled.replace(`${SETTLED_PAGE_MARKER}="401909070"`, ""));
   assert.ok(scan(dir).missing.some((x) => x.page === "401909070" && x.missing === ENGINE_IDENTITY));

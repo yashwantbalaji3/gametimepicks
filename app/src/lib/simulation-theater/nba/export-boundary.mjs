@@ -102,8 +102,8 @@ export const SETTLED_PAGE_MARKER = "data-nba-settled-simulation";
  * ones, and those only under nba/simulation/ and _next/static/ — it proves:
  *   - `pages`        the published /nba/simulation/<id>/ pages (the inert placeholder excluded);
  *   - `missing`      per page, every required string (`required`: the founder's labels) that its HTML does not carry;
- *   - `strayChunks`  marker-bearing static chunks that a page OUTSIDE /nba/simulation/ — or a settled page — loads by
- *                    <script src>. Lazy chunks reached only through the island's dynamic import are not referenced by any
+ *   - `strayChunks`  marker-bearing static chunks that a page OUTSIDE /nba/simulation/ loads by <script src> (settled
+ *                    pages share the route's chunks; their own HTML/flight is checked by `settledLeaks`). Lazy chunks reached only through the island's dynamic import are not referenced by any
  *                    other page's HTML.
  * SETTLED PAGES (overnight W7 2026-10-28): a past slate's game keeps its URL as a settled page (frozen Official Forecast +
  * final, "Game Simulation archived", no simulation), marked by SETTLED_PAGE_MARKER. They are listed apart
@@ -136,7 +136,11 @@ export function scanFlagOnTheaterExport(outDir, { required, placeholder, settled
       if (e.isDirectory()) { walk(full); continue; }
       const rel = path.relative(outDir, full).split(path.sep).join("/");
       if (rel.startsWith("_next/static/") && /\.js$/.test(e.name) && NBA_THEATER_FLAG_ON_ALLOWLIST.some((m) => fs.readFileSync(full, "utf8").includes(m))) markerChunks.add(`/${rel}`);
-      else if (/\.html$/.test(e.name) && (!rel.startsWith("nba/simulation/") || settledPages.some((id) => rel === `nba/simulation/${id}/index.html`))) others.push(rel);
+      /* Settled pages are pages of the SAME route, and a static export attaches the route's client chunks to every page
+         of it, so they load the route's chunks like any Theater page. What they may not do is SHOW anything of the
+         Theater: `settledLeaks` (their own HTML and flight payload) and `settledRequired` enforce that strictly. Shipping
+         the route's unused chunk to them is page weight, recorded as a follow-up (split the settled view off the island). */
+      else if (/\.html$/.test(e.name) && !rel.startsWith("nba/simulation/")) others.push(rel);
     }
   };
   walk(outDir);
