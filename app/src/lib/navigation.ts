@@ -337,6 +337,31 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
     desc: "Paper-only, educational, no stake is ever filled", surfaces: ["footer"] },
 ];
 
+/*
+ * ── The footer's four columns (overnight 2026-10-28) ────────────────────────────────────────────
+ * The sitemap used to reuse the rail's groups, which put Results in "Main" beside Home and the deep record pages under
+ * "Learn & record" with the legal page — 48 links in columns that did not say what was in them. The footer now answers
+ * four plain questions: which SPORT, which PICKS, what were the RESULTS, and what is this site (About & legal). The
+ * column is derived from the destination, never hand-listed, so a new destination lands in a column automatically, and
+ * the canonical order within a column is kept.
+ */
+export type FooterColumn = "sports" | "picks" | "results" | "about";
+export const FOOTER_COLUMNS: readonly FooterColumn[] = ["sports", "picks", "results", "about"];
+export const FOOTER_COLUMN_LABEL: Record<FooterColumn, string> = {
+  sports: "Sports",
+  /* The rail's own heading for these destinations, so the two surfaces name the cluster the same way. */
+  picks: NAV_GROUP_LABEL.products,
+  results: "Results",
+  about: "About & legal",
+};
+export function footerColumnOf(d: Pick<NavDestination, "href" | "group" | "bucket">): FooterColumn {
+  if (d.href === "/results" || d.href.startsWith("/results/") || d.href === "/models" || d.href === "/system-status") return "results";
+  /* The account destination is matched by its bucket: its URL is written once, inside its build-time gate above. */
+  if (d.group === "products" || d.href === "/saved" || d.bucket === "account") return "picks";
+  if (d.group === "record") return "about";
+  return "sports";
+}
+
 /** Destinations carried by one surface, in canonical order. */
 export const destinationsFor = (surface: NavSurface): readonly NavDestination[] =>
   NAV_DESTINATIONS.filter((d) => d.surfaces.includes(surface));

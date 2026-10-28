@@ -18,7 +18,7 @@ const LEGAL_LINKS = [
   { id: "terms" as const, label: "Terms of Use" },
   { id: "privacy" as const, label: "Privacy" },
 ].filter((l) => legalRouteIsPublic(l.id)).map((l) => ({ ...l, href: `${LEGAL_ROUTES[l.id]}/` }));
-import { destinationsFor, NAV_GROUP_LABEL } from "@/lib/navigation";
+import { destinationsFor, FOOTER_COLUMNS, FOOTER_COLUMN_LABEL, footerColumnOf } from "@/lib/navigation";
 import { liveDataSources, type DataSource } from "@/lib/data-sources";
 
 const FOOTER_DESTINATIONS = destinationsFor("footer");
@@ -74,17 +74,19 @@ export default function Footer() {
             aria-label="GameTimePicks home"
             className="vault-glow-hover rounded-[4px] py-1 px-1 -ml-1"
           >
-            <BrandMark variant="compact" marker="model lab" ambient />
+            {/* Overnight 2026-10-28: the mark carried a "MODEL LAB" marker — the name of one page (/models), painted as
+                the site's brand on every route. The brand is GameTimePicks; the wordmark alone says it. */}
+            <BrandMark variant="compact" ambient />
           </Link>
           <span
             className="text-[12px]"
             style={{ color: "var(--vault-text-faint)" }}
           >
-            {/* Just what this is. The About block below describes the product and the legal line
-                under it states the paper-only, not-advice position (pinned by footer-identity.test).
-                Saying "paper-only, educational" a third time inside one footer — on all 16 routes —
-                added no disclosure, only noise. */}
-            Simulation-first model picks.
+            {/* Just what this is, in words true of every sport the site covers: forecasts, game simulations and a
+                record of how they did. ("Simulation-first model picks" promised picks from every simulation, which not
+                every sport has.) The About block below states the paper-only, not-advice position (pinned by
+                footer-identity.test); saying it a third time inside one footer added no disclosure, only noise. */}
+            Sports forecasts, game simulations and a public record of how they did.
           </span>
         </div>
 
@@ -103,18 +105,19 @@ export default function Footer() {
           className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 mb-10 text-[13px]"
           style={{ color: "var(--vault-text-mute)" }}
         >
-          {/* UX System V2: the rail gives "you" (My GameTime) its own group; the sitemap keeps its four columns and lists
-              those links under Main, where they sat before — a fifth column only added a row on phones and tablets. */}
-          {(["now", "sports", "products", "record"] as const).map((group) => {
-            const items = FOOTER_DESTINATIONS.filter((d) => d.group === group || (group === "now" && d.group === "you"));
+          {/* Overnight 2026-10-28: four columns that say what is in them — Sports · Picks & parlays · Results · About &
+              legal (lib/navigation.ts footerColumnOf). Every destination the footer carried before is still here. */}
+          {FOOTER_COLUMNS.map((column) => {
+            const items = FOOTER_DESTINATIONS.filter((d) => footerColumnOf(d) === column);
+            const legal = column === "about";
             if (!items.length) return null;
             return (
-              <div key={group}>
+              <div key={column}>
                 <div
                   className="vault-quiet-label mb-3"
                   style={{ color: "var(--vault-text-faint)", letterSpacing: "0.06em" }}
                 >
-                  {NAV_GROUP_LABEL[group]}
+                  {FOOTER_COLUMN_LABEL[column]}
                 </div>
                 <ul className="ft-list list-none p-0">
                   {items.map((d) => (
@@ -131,12 +134,12 @@ export default function Footer() {
                   ))}
                   {/* Terms and Privacy appear only once they may publish — a link to a 404, or to an
                       unapproved draft, is worse than no link. */}
-                  {group === "record" ? LEGAL_LINKS.map((l) => (
+                  {legal ? LEGAL_LINKS.map((l) => (
                     <li key={l.href}>
                       <Link href={l.href} className="ft-link">{l.label}</Link>
                     </li>
                   )) : null}
-                  {group === "record" && supportConfigured ? (
+                  {legal && supportConfigured ? (
                     /* Renders nothing unless a real support destination is configured — see
                        SupportEntry. A dead "Contact support" link is worse than none, so there is
                        no placeholder here — and no empty <li> either, which is what an
@@ -214,36 +217,21 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Status: demoted from a third column to a single quiet inline row.
-            Version + last refresh + freshness sit together at low visual
-            weight; mode chip becomes a small dot indicator. */}
-        <div
-          className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-[11px]"
+        {/* SITE BUILD — one small line for operators, under its own label (overnight 2026-10-28): the data mode, the
+            build stamp and its freshness, which ops reads ("live data", "last build" and "freshness" are pinned by
+            e2e/navigation.spec.ts and e2e/freshness.spec.ts). The export is exactly as fresh as its build; each product
+            states its own data date where it matters (product-state.mjs). */}
+        <p
+          className="mt-10 mb-0 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px]"
           style={{ color: "var(--vault-text-faint)" }}
         >
+          <span style={{ color: "var(--vault-text-mute)" }}>Site build</span>
           <span className="inline-flex items-center gap-1.5">
-            <span
-              aria-hidden
-              className="inline-block w-1.5 h-1.5 rounded-full"
-              style={{
-                background: meta.isDemo
-                  ? "var(--vault-warn)"
-                  : "var(--vault-success)",
-              }}
-            />
-            <span style={{ color: "var(--vault-text-mute)" }}>
-              {meta.isDemo ? "demo data" : "live data"}
-            </span>
+            <span aria-hidden className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: meta.isDemo ? "var(--vault-warn)" : "var(--vault-success)" }} />
+            <span>{meta.isDemo ? "demo data" : "live data"}</span>
           </span>
-          {/* P251-F12: the "version 0.5.0" chip was the legacy meta.json's app version — a number
-              that has not moved in months and means nothing to a reader. Freshness and the last
-              refresh are the two facts on this row a visitor can act on. */}
-          {/* v1.7 (2026-09-22): "last refresh" was `meta.lastPipelineRun` — the clock of the LEGACY
-              NBA board generator (stats.nba.com, dead from CI since June; meta.json says
-              dataMode ScheduleUnavailable). Every page stamped itself with a pipeline that
-              produces nothing. The build marker is the one sitewide fact that is true of every
-              page at once: the export is exactly as fresh as its build, and each product states
-              its own artifact date where it matters (product-state.mjs). */}
+          {/* P251-F12: the legacy app-version chip is gone (a number that meant nothing to a reader). v1.7: the stamp is
+              the build's own clock, never the dead legacy pipeline's "last refresh". */}
           <span>
             last build{" "}
             <span style={{ color: "var(--vault-text-mute)" }}>
@@ -254,7 +242,7 @@ export default function Footer() {
             <span>freshness</span>{" "}
             <FooterFreshness lastRun={build?.builtAt ?? null} />
           </span>
-        </div>
+        </p>
 
         <div
           className="mt-10 pt-6 flex flex-wrap justify-between gap-3 text-[11px] font-mono uppercase tracking-[0.15em]"
