@@ -1,3 +1,4 @@
+import { ELO_WIN_PROBABILITY } from "../sports/nba/elo-win-probability.mjs";
 /**
  * THE NBA OFFICIAL FORECAST RECORD — its one public name, and where its first game comes from (P0 trust fix, 10-28).
  *
@@ -12,7 +13,8 @@
  * the Forecast Record's declared gap via lib/forecast-ledger/compose.mjs). "First game" is read from the record
  * itself — the earliest game whose official side was graded against an official final — or it is not shown.
  *
- * Pure and import-free: compose.mjs (run by plain node in nightly-settle) and client-reachable components import it.
+ * Pure; its one import is the import-free Elo display switch (audit 2026-10-28 F03). compose.mjs (run by plain node in
+ * nightly-settle) and client-reachable components import it.
  * Whether NBA joins the cross-sport aggregate totals is a PENDING founder decision; nothing here adds it to any total.
  */
 
@@ -35,7 +37,10 @@ export const NBA_OFFICIAL_RECORD_GAP = Object.freeze({
     "The official NBA forecast (the Elo favoured side and the player medians) publishes before every slate, and the " +
     `official side is graded game by game against the official final on ${NBA_OFFICIAL_RECORD_HREF}. Those games are ` +
     "not rows in this ledger yet, so they are not in the totals above; whether NBA joins them is a pending decision. " +
-    "NBA team scores and win chances are withheld and never published.",
+    // Audit 2026-10-28 F03: since the 2026-10-23 switch the boards show an Elo-derived estimate — say what is withheld now.
+    (ELO_WIN_PROBABILITY.enabled
+      ? "NBA team scores, margins, totals and ranges are withheld; the Elo-derived game-winner estimate on the boards is not a validated probability and is not graded here."
+      : "NBA team scores and win chances are withheld and never published."),
 });
 
 /**

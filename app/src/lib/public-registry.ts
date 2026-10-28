@@ -23,6 +23,7 @@
  * Exported for the Results and Forecast Record owners to adopt (PUBLIC_TERMS, PUBLIC_TERM_MEANING, RETIRED_PUBLIC_PHRASES).
  */
 import { canEnterPredictionProducts, capabilityOf, type CapabilityState } from "./sport-capability-registry";
+import { ELO_WIN_PROBABILITY, ELO_WIN_PROBABILITY_LABEL } from "./sports/nba/elo-win-probability.mjs";
 
 export const PUBLIC_TERMS = Object.freeze({
   OFFICIAL_FORECAST: "Official Forecast",
@@ -109,10 +110,20 @@ export interface PublicSport {
 
 const MODEL_PERFORMANCE_HREF = "/models/";
 /**
- * The ONE NBA Model Performance sentence (release owner decision 2026-10-23, exact text): nightly grading runs, and no
- * public NBA Model Performance record exists yet. Every NBA surface — /nba, the Theater, Top Boards — prints this literal.
+ * The ONE NBA Model Performance sentence. Every NBA surface — /nba, the Theater, Top Boards — prints this literal.
+ * REVISED (independent audit 2026-10-28 F04): the 2026-10-23 text said no public record existed, beside /results/nba
+ * printing the favoured-side record (34 won, 22 lost on 10-28). The record IS published as counts; what is not made is an
+ * accuracy claim, before the preregistered minimum of graded games.
  */
-export const NBA_MODEL_PERFORMANCE_NOTE = "NBA forecasts are graded after every game; a public Model Performance record for NBA has not been published yet.";
+export const NBA_RECORD_MIN_FOR_CLAIM = 300;
+export const NBA_MODEL_PERFORMANCE_NOTE = `NBA forecasts are graded after every game. The favoured-side record is published as counts on NBA results; no accuracy claim is made before ${NBA_RECORD_MIN_FOR_CLAIM} graded games.`;
+/**
+ * NBA forecast families, from the switch that decides what is shown (audit 2026-10-28 F03: "win chance withheld" sat
+ * beside a displayed Elo-derived estimate). The estimate is its own family while the 2026-10-23 founder switch is ON;
+ * OFF folds it back into the withheld family. One source: every "withheld" line on an NBA surface reads this.
+ */
+export const NBA_ELO_ESTIMATE_SHOWN = ELO_WIN_PROBABILITY.enabled === true;
+export const NBA_WITHHELD_LABEL = NBA_ELO_ESTIMATE_SHOWN ? "Team scores, margin, total and ranges" : "Team scores, win chance and ranges";
 const fam = (id: string, label: string, publication: ForecastFamily["publication"], performanceId: string | null = null): ForecastFamily => ({ id, label, publication, performanceId });
 const sport = (s: Omit<PublicSport, "capability" | "productEligible">): PublicSport => ({ ...s, capability: capabilityOf(s.key).state, productEligible: canEnterPredictionProducts(s.key) });
 
@@ -148,13 +159,18 @@ export const PUBLIC_SPORTS: ReadonlyArray<PublicSport> = Object.freeze([
   }),
   sport({
     key: "nba", label: "NBA", hub: "/nba/",
-    families: [fam("nba_winner_side", "Favoured side (Elo rating)", "OFFICIAL_FORECAST"), fam("nba_player_medians", "Predicted Player Statistics (PTS, REB, AST, 3PM, PRA, P+R, P+A medians)", "OFFICIAL_FORECAST"), fam("nba_team_scores", "Team scores, win chance and ranges", "WITHHELD")],
+    families: [
+      fam("nba_winner_side", "Favoured side (Elo rating)", "OFFICIAL_FORECAST"),
+      ...(NBA_ELO_ESTIMATE_SHOWN ? [fam("nba_elo_estimate", `${ELO_WIN_PROBABILITY_LABEL} (accuracy not established)`, "OFFICIAL_FORECAST")] : []),
+      fam("nba_player_medians", "Predicted Player Statistics (PTS, REB, AST, 3PM, PRA, P+R, P+A medians)", "OFFICIAL_FORECAST"),
+      fam("nba_team_scores", NBA_WITHHELD_LABEL, "WITHHELD"),
+    ],
     features: {
       officialForecast: { availability: "PER_SLATE", href: "/nba/", note: "The favoured side and player medians for every game on the slate, frozen before tip-off." },
       topBoards: { availability: "PER_SLATE", href: "/nba/projections/", note: "Every player median for the slate, filterable and sortable." },
       gameSimulation: { availability: "PER_SLATE", href: "/nba/", note: "A possession-by-possession Game Simulation of each game on the current slate, with What-if Scenarios." },
       results: { availability: "AVAILABLE", href: "/nba/#nba-results", note: "Official finals from the write-once finals record." },
-      modelPerformance: { availability: "NOT_SUPPORTED", href: null, note: NBA_MODEL_PERFORMANCE_NOTE },
+      modelPerformance: { availability: "AVAILABLE", href: "/results/nba/", note: NBA_MODEL_PERFORMANCE_NOTE },
     },
     assistant: { forecasts: false, liveState: false, results: false },
     navNote: "Official Forecasts · Top Boards · Game Simulations",

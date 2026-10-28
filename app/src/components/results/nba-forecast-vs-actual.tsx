@@ -4,6 +4,7 @@
  * games are labelled, never counted as misses. Model Performance is stated as counts against the preregistered
  * minimum — no accuracy or calibration claim below it.
  */
+import { NBA_ELO_ESTIMATE_SHOWN } from "@/lib/public-registry";
 import type { nbaForecastVsActual } from "@/lib/results/nba-forecast-vs-actual.mjs";
 import { etDayLabel } from "@/lib/et-stamp.mjs";
 import { surfaceHref } from "@/lib/nav/date-sport-route";
@@ -66,7 +67,7 @@ export default function NbaForecastVsActual({ view, date = null }: { view: View;
           </p>
           <p className="m-0 text-[12px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>
             {view.belowMinimum
-              ? `Counts, not an accuracy claim: the preregistered minimum before any judgment of the winner side is ${view.minGraded} graded games, and this is ${c.graded}. No win probability is published and no calibration is claimed.`
+              ? `Counts, not an accuracy claim: the preregistered minimum before any judgment of the winner side is ${view.minGraded} graded games, and this is ${c.graded}. ${NBA_ELO_ESTIMATE_SHOWN ? "The Elo-derived estimate shown on the boards is not a validated probability, and no calibration is claimed." : "No win probability is published and no calibration is claimed."}`
               : `The preregistered minimum of ${view.minGraded} graded games is met. Any accuracy judgment follows the preregistered bars and a founder-approved decision; none is claimed here, and no calibration is claimed.`}
           </p>
           <div className="flex flex-col gap-2">
