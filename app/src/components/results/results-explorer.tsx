@@ -20,6 +20,7 @@ import { RECORD_TYPES, RISK_TIERS, filterRows, poolRows } from "@/lib/results/re
 /* The PURE module. `dated-cards.mjs` reads node:fs, and importing from it here put fs in the
    client bundle and failed the export build — the second time this exact wall was hit. */
 import { dailySeries } from "@/lib/results/card-math.mjs";
+import { publicRiskLabel } from "@/lib/parlays/risk-odds-bands.mjs";
 import ResultsTrend from "@/components/results/results-trend";
 
 export interface ResultRow {
@@ -287,7 +288,7 @@ export default function ResultsExplorer({
   const scopeLabel = [
     TYPE_LABEL[recordType] ?? recordType,
     sport === "all" ? "all sports together" : SPORT_LABEL[sport] ?? sport,
-    tier === "all" ? "all risk tiers" : `${tier} risk`,
+    tier === "all" ? "all risk tiers" : publicRiskLabel(tier) ?? tier,
     rangeLabel,
   ].join(" · ");
 

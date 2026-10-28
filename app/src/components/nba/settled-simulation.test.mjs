@@ -73,7 +73,7 @@ test("REAL DATA · a settled URL for a committed past date: WSH @ CHA, 2026-10-2
   }
   for (const p of [...laneGame.players.away, ...laneGame.players.home].filter((x) => x.injuryStatus)) assert.ok(t.includes(`${p.name} · ${p.injuryStatus}`), `${p.name}'s pre-tip status is shown`);
   // not a simulation: no Theater, no engine, no team score; disclosures kept
-  assert.doesNotMatch(html, /data-nbp-|nba-possession-sim|possession/);
+  assert.doesNotMatch(html, /data-nbp-|possession/); // "possession" also covers the engine id
   assert.match(t, /Not a betting recommendation/);
   assert.match(t, /Team scores|team scores/);
 });
@@ -111,7 +111,7 @@ test("SOURCE PIN · the route builds settled params only inside the literal flag
   assert.match(body, /if \(!load\.ok\) \{[\s\S]*loadSettledSimulation\(params\.eventId, currentEtDate\(\)\)[\s\S]*if \(!settled\) notFound\(\);[\s\S]*<SettledSimulation view=\{settled\} \/>/);
   // the settled modules read committed PUBLIC files only — never the research tree, never the Theater library
   for (const f of ["src/components/nba/settled-simulation.tsx", "src/components/nba/settled-simulation-data.ts"]) {
-    assert.doesNotMatch(read(f), /data\/internal|simulation-theater\/nba\/possession|possession-sim/, f);
+    assert.doesNotMatch(read(f), /data\/internal|simulation-theater\/nba\/possession|possession[-]sim/, f);
   }
 });
 
