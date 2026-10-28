@@ -8,6 +8,7 @@
     "Team, analyze today's biggest NFL conversations on X and identify three opportunities for GameTimePicks to contribute useful content.",
     "Team, review GameTimePicks' current NFL social-content opportunities and propose an improved weekly X content plan.",
     "Team, turn the revised weekly plan into a seven-day content calendar covering NFL, NBA, MLB, UFC and EPL.",
+    "Team, prepare today's content queue from the approved calendar.",
     "Team, what should our next product improvement be for the Results page?",
     "status",
     "Pause publishing",
@@ -22,6 +23,7 @@
   /** Phone views (≤760 px): one section at a time behind a bottom tab bar. Desktop shows everything at once. */
   const VIEWS = [
     { id: "chat", label: "Chat", ico: "◆" },
+    { id: "queue", label: "Queue", ico: "▤" },
     { id: "decisions", label: "Approvals", ico: "✓" },
     { id: "tasks", label: "Tasks", ico: "≡" },
     { id: "history", label: "Activity", ico: "⟲" },
@@ -114,6 +116,13 @@
         return `<div class="body">${esc(a.summary)}</div><div class="muted">${num(a.picks?.length ?? 0)} picks${a.additions?.length ? ` · ${num(a.additions.length)} additions` : ""}</div>`;
       case "calendar-check":
         return `<div class="muted">${num(a.calendar?.totals?.slots ?? 0)} opportunities · ${num(a.calendar?.totals?.READY ?? 0)} ready · ${num(a.calendar?.totals?.NEEDS_VERIFICATION ?? 0)} verify · ${num(a.calendar?.totals?.BLOCKED ?? 0)} blocked · ${num(a.problems?.length ?? 0)} draft problem(s). The full calendar is in Approvals.</div>`;
+      case "post-queue": {
+        const by = (st) => (a.packages ?? []).filter((p) => p.status === st).length;
+        return `<div class="kv"><span>Day</span><span>${esc(a.date)} (US Eastern)</span><span>From</span><span>approved calendar ${esc(a.calendar?.decisionId)} · digest re-checked</span>
+          <span>Data</span><span>${esc(a.dataLabel)}${a.dataCommittedAt ? ` · committed ${esc(time(a.dataCommittedAt))}` : ""}</span>
+          <span>Posts</span><span>${num((a.packages ?? []).length)} · ${num(by("READY"))} ready · ${num(by("NEEDS_VERIFICATION"))} verify · ${num(by("BLOCKED"))} blocked · ${num((a.skipped ?? []).length)} not queued</span></div>
+          <button type="button" class="btn small goto" data-goto="queue">Open the queue</button>`;
+      }
       case "feasibility-review":
         return `<div class="body">${esc(a.summary)}</div><ul>${(a.automationSteps ?? []).map((x) => `<li><b>${esc(x.step)}</b> — reuses ${esc(x.reuses)}; new: ${esc(x.newWork)}; risk: ${esc(x.risk)}</li>`).join("")}</ul>${list("Tests", a.tests)}${list("Open questions", a.openQuestions)}`;
       case "strategy-note":
@@ -339,6 +348,100 @@
     </div>`;
   }
 
+  // ── D1 content queue ──────────────────────────────────────────────────────────────────────────────────────
+  const LIFE_LABEL = { drafted: "Needs your decision", approved: "Approved · post it yourself", scheduled: "Scheduled by you", published: "Published by you", rejected: "Rejected", revise: "Revision requested", deferred: "Deferred", superseded: "Superseded" };
+  const postOpen = (p) => p.lifecycle === "drafted";
+  const draftVal = (k) => esc(ui.drafts[k] ?? "");
+  function evidenceList(pkg) {
+    const ref = (r) => (typeof r === "string" ? r : r ? `${r.path ?? ""}${r.forecastId ? `#${r.forecastId}` : ""}${r.commit ? `@${String(r.commit).slice(0, 12)}` : ""}${r.sha256 ? ` · ${String(r.sha256).slice(0, 12)}` : ""}` : "");
+    return `<details><summary>Evidence (${num(pkg.claims?.length ?? 0)} facts)</summary><ul class="evidence">${(pkg.claims ?? []).map((c) => `<li><b>${esc(c.display)}</b> <span class="muted">${esc(c.key)} · ${esc(ref(c.evidenceRef))}</span></li>`).join("")}</ul>
+      ${(pkg.evidence ?? []).length ? `<div class="muted">${pkg.evidence.map((e) => `${esc(e.label)}: ${esc(e.ref)}`).join("<br>")}</div>` : ""}</details>`;
+  }
+  function postCaptions(p) {
+    const decided = p.resolution;
+    const chosen = ui.choice[p.decisionId] ?? decided?.captionId ?? p.options.find((o) => o.check?.ok)?.captionId;
+    return p.options.map((o) => {
+      captionTextMap.set(`${p.decisionId}:${o.captionId}`, o.text);
+      const n = Array.from(o.text).length;
+      const approvedThis = decided?.verdict === "approve" && decided.captionId === o.captionId;
+      if (decided && decided.verdict === "approve" && !approvedThis) return "";
+      return `<label class="option ${chosen === o.captionId ? "selected" : ""}">
+        <input type="radio" name="opt-${esc(p.decisionId)}" value="${esc(o.captionId)}" ${chosen === o.captionId ? "checked" : ""} ${decided || !o.check?.ok ? "disabled" : ""} data-choose="${esc(p.decisionId)}">
+        <div><div class="txt">${esc(o.text)}</div>
+        <div class="meta">${approvedThis ? `<b class="check-ok">APPROVED</b> · ` : ""}Caption ${esc(o.captionId)} · ${esc(o.tone)}${o.source === "chatgpt-calendar-draft" ? " · ChatGPT's wording" : " · template from the evidence"} · ${o.check?.ok ? `<span class="check-ok">check ✓</span>` : `<span class="check-bad">check ✗ ${esc((o.check?.problems ?? []).map((x) => `${x.code} ${x.detail}`).join("; "))}</span>`}</div>
+        <span class="caption-counter${n > 280 ? " over" : ""}">${num(n)}/280</span>
+        <button type="button" class="btn small" data-copy-caption="${esc(p.decisionId)}:${esc(o.captionId)}">Copy caption</button></div>
+      </label>`;
+    }).join("");
+  }
+  function postActions(p) {
+    const pkg = p.package;
+    const id = esc(p.decisionId);
+    if (p.lifecycle === "superseded") return `<div class="muted">A newer queue proposed this post again; decide there.</div>`;
+    if (p.lifecycle === "drafted") {
+      const ready = pkg.status === "READY" || pkg.kind === "x-reply";
+      return `${pkg.kind === "x-reply" ? `<label class="confirm"><input type="checkbox" data-confirm="${id}" ${ui.drafts[`confirm:${p.decisionId}`] ? "checked" : ""}> I opened the cited posts and they say what the finding claims</label>` : ""}
+        <div class="row actions">
+          <button class="btn ${ready ? "primary" : ""}" data-post-approve="${id}" ${ready ? "" : "disabled"}>${ready ? "Approve this caption" : `Not approvable: ${esc(STATUS_LABEL[pkg.status] ?? pkg.status)}`}</button>
+          <button class="btn" data-post-verdict="reject" data-post="${id}">Reject</button>
+          <button class="btn" data-post-verdict="revise" data-post="${id}">Revise</button>
+          <button class="btn" data-post-verdict="defer" data-post="${id}">Defer</button>
+        </div>`;
+    }
+    if (p.lifecycle === "approved" || p.lifecycle === "scheduled") {
+      return `<div class="receipt">Approved caption ${esc(p.resolution.captionId)} at ${esc(time(p.resolution.approvedAt))}${p.resolution.sourcesConfirmed ? " · you confirmed the cited posts" : ""} · digest ${esc(p.resolution.approvedExactDigest.slice(0, 12))}…<br>Post it yourself on X${pkg.media ? " with the graphic" : ""}, then record the link.${p.schedule ? `<br>Scheduled by you for ${esc(new Date(p.schedule.scheduledFor).toLocaleString())}` : ""}</div>
+        ${pkg.media ? `<a class="btn small" href="/media/${encodeURIComponent(pkg.media.file)}" download>Download graphic</a>` : ""}
+        <div class="field"><label for="xurl-${id}">X link of your post</label><input id="xurl-${id}" type="url" inputmode="url" autocapitalize="off" spellcheck="false" placeholder="https://x.com/…/status/…" data-draft="xurl:${id}" value="${draftVal(`xurl:${p.decisionId}`)}"></div>
+        <div class="row actions"><button class="btn primary" data-post-record="publish" data-post="${id}">Record X link</button></div>
+        ${p.lifecycle === "approved" ? `<div class="field"><label for="sched-${id}">Or: scheduled in X for</label><input id="sched-${id}" type="datetime-local" data-draft="sched:${id}" value="${draftVal(`sched:${p.decisionId}`)}"></div>
+        <div class="row"><button class="btn small" data-post-record="schedule" data-post="${id}">Mark scheduled</button></div>` : ""}`;
+    }
+    if (p.lifecycle === "published") {
+      const r = p.receipt;
+      const m = p.engagement.at(-1)?.metrics;
+      return `<div class="receipt">✓ Posted by you · ${xLink(r.canonicalUrl)}<br>${esc(new Date(r.publishedAt).toLocaleString())} · caption ${esc(r.captionId)} · digest ${esc(r.bundleDigest.slice(0, 12))}…<br>${esc(r.verification)}</div>
+        ${(r.warnings ?? []).length ? `<ul class="warns">${r.warnings.map((w) => `<li>${esc(w)}</li>`).join("")}</ul>` : ""}
+        ${p.checks.map((c) => `<div class="${c.status === "CONFIRMED" ? "receipt" : "blocked"}">After kickoff: ${esc(c.status)} — ${esc(c.reasons?.[0])} <span class="muted">(${esc(c.basis)})</span></div>`).join("")}
+        <details ${m ? "" : "open"}><summary>Engagement${m ? `: ${Object.entries(m).map(([k, v]) => `${esc(k)} ${num(v)}`).join(" · ")}` : ""}</summary>
+          <div class="metrics">${["impressions", "likes", "reposts", "replies", "bookmarks"].map((k) => `<label>${esc(k)}<input type="number" inputmode="numeric" min="0" step="1" data-draft="m:${id}:${k}" value="${draftVal(`m:${p.decisionId}:${k}`)}"></label>`).join("")}</div>
+          <div class="row"><button class="btn small" data-post-record="engagement" data-post="${id}">Save numbers</button><span class="muted">From X analytics, entered by you; not verified.</span></div>
+        </details>`;
+    }
+    return `<div class="blocked">${esc(LIFE_LABEL[p.lifecycle])}${p.resolution?.note ? ` · “${esc(p.resolution.note)}”` : ""}</div>`;
+  }
+  function postCard(p) {
+    const pkg = p.package;
+    return `<article class="post decision ${postOpen(p) ? "open" : ""}" id="post-${esc(p.decisionId)}">
+      <div class="slot-head"><span class="st st-${esc(pkg.status)}">${esc(STATUS_LABEL[pkg.status] ?? pkg.status)}</span><span class="tag life life-${esc(p.lifecycle)}">${esc(LIFE_LABEL[p.lifecycle])}</span><span class="tag">${esc(pkg.sport)}</span><span class="tag">${esc(pkg.kind)}</span></div>
+      <div class="q">${esc(pkg.title)}</div>
+      ${pkg.media ? `<img src="/media/${encodeURIComponent(pkg.media.file)}" alt="${esc(pkg.media.altText)}" data-zoom loading="lazy">` : `<div class="muted">Text post (no graphic).</div>`}
+      ${(pkg.reasons ?? []).length ? `<ul class="warns">${pkg.reasons.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>` : ""}
+      ${pkg.xSources?.length ? `<div class="section muted">Open these first</div><div class="links">${pkg.xSources.map((u) => xLink(u)).join(" ")}</div>` : ""}
+      ${postCaptions(p)}
+      ${evidenceList(pkg)}
+      ${postActions(p)}
+    </article>`;
+  }
+  function renderQueue(s) {
+    const posts = (s.posts ?? []).filter((p) => p.lifecycle !== "superseded");
+    const open = posts.filter(postOpen).length;
+    const queues = s.commands.filter((c) => c.intent === "daily-queue").map((c) => ({ c, q: c.contributions.find((x) => x.artifactType === "post-queue")?.artifact, file: c.deliverables.find((d) => d.kind === "queue-export")?.file })).filter((x) => x.q);
+    if (!posts.length && !queues.length) return `<h2>Content queue <span class="count">0</span></h2><div class="muted">No queue yet. Ask: “Team, prepare today's content queue from the approved calendar.” Approving the calendar authorized no post; each post gets its own decision here.</div>`;
+    // Today first (US Eastern), then upcoming days, then earlier ones; the first day with open posts starts expanded.
+    const today = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date());
+    const all = [...new Set(posts.map((p) => p.date))].sort();
+    const dates = [...all.filter((d) => d >= today), ...all.filter((d) => d < today).reverse()];
+    const openDay = dates.find((d) => posts.some((p) => p.date === d && postOpen(p))) ?? dates[0];
+    const latest = queues.at(-1);
+    const counts = posts.reduce((m, p) => ({ ...m, [p.lifecycle]: (m[p.lifecycle] ?? 0) + 1 }), {});
+    return `<h2>Content queue <span class="count">${num(open)} open</span></h2>
+      <div class="cal-totals">${Object.entries(counts).map(([k, v]) => `<span class="tag life life-${esc(k)}">${esc(LIFE_LABEL[k])} ${num(v)}</span>`).join("")}</div>
+      <div class="muted">Each post is approved on its own and published by you on X; the Command Center never posts.${latest?.file ? ` · <a href="/${esc(latest.file)}" target="_blank" rel="noopener">Queue export</a>` : ""}</div>
+      ${dates.map((d) => `<details class="cal-day" ${d === openDay ? "open" : ""}><summary><b>${esc(new Date(`${d}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric", timeZone: "UTC" }))}</b> · ${num(posts.filter((p) => p.date === d).length)} post(s) · ${num(posts.filter((p) => p.date === d && postOpen(p)).length)} open</summary>
+        ${posts.filter((p) => p.date === d).map(postCard).join("")}</details>`).join("")}
+      ${latest?.q?.skipped?.length ? `<details class="cal-day"><summary><b>Not in the ${esc(latest.q.date)} queue</b> · ${num(latest.q.skipped.length)}</summary><ul>${latest.q.skipped.map((x) => `<li><span class="st st-${esc(x.status)}">${esc(STATUS_LABEL[x.status] ?? x.status)}</span> ${esc(x.sport)} · ${esc(x.opportunity)} — <span class="muted">${esc(x.reason)}</span></li>`).join("")}</ul></details>` : ""}`;
+  }
+
   function renderDecisions(s) {
     const items = s.decisions.slice().reverse();
     const open = items.filter(isOpen).length;
@@ -461,7 +564,7 @@
     const open = s.decisions.filter(isOpen).length;
     const c = s.commands.at(-1);
     const active = c ? c.tasks.filter((t) => ["QUEUED", "RUNNING", "AWAITING_INPUT"].includes(t.status)).length : 0;
-    const dots = { decisions: open, tasks: active };
+    const dots = { decisions: open, tasks: active, queue: (s.posts ?? []).filter((p) => p.lifecycle === "drafted").length };
     return VIEWS.map((v) => `<button type="button" class="tab" data-tab="${v.id}" ${ui.view === v.id ? 'aria-current="page"' : ""}>
       <span class="ico" aria-hidden="true">${v.ico}</span>${esc(v.label)}${dots[v.id] ? `<span class="dot" aria-label="${dots[v.id]} pending">${dots[v.id]}</span>` : ""}</button>`).join("");
   }
@@ -486,6 +589,7 @@
     const atBottom = thread.scrollHeight - thread.scrollTop - thread.clientHeight < 80;
     $("badges").innerHTML = renderBadges(s);
     thread.innerHTML = renderThread(s);
+    $("queue").innerHTML = renderQueue(s);
     $("decisions").innerHTML = renderDecisions(s);
     $("controls").innerHTML = renderControls(s);
     $("team").innerHTML = renderTeam(s);
@@ -589,7 +693,7 @@
   });
 
   document.addEventListener("click", async (e) => {
-    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],.lightbox");
+    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-post-record],.lightbox");
     if (!t) return;
     if (t.dataset.gate) {
       const d = ui.state.decisions.find((x) => x.decisionId === t.dataset.gate);
@@ -602,6 +706,37 @@
       const r = await post("/api/decide", { decisionId: d.decisionId, verdict: t.dataset.verdict, digest: d.subjectDigest, ...(note ? { note } : {}) });
       if (r.ok && r.next) alert(r.next);
       if (!r.ok && !r.duplicate) alert(`${r.code}: ${r.detail ?? ""}`);
+      return;
+    }
+    if (t.dataset.postApprove) {
+      const p = ui.state.posts.find((x) => x.decisionId === t.dataset.postApprove);
+      const captionId = ui.choice[p.decisionId] ?? p.options.find((o) => o.check?.ok)?.captionId;
+      const opt = p.options.find((o) => o.captionId === captionId);
+      if (!opt) return alert("Choose a caption that passes its check.");
+      t.disabled = true;
+      const r = await post("/api/decide", { decisionId: p.decisionId, verdict: "approve", captionId, digest: opt.digest, ...(p.package.kind === "x-reply" ? { sourcesConfirmed: Boolean(ui.drafts[`confirm:${p.decisionId}`]) } : {}) });
+      if (r.ok && r.next) alert(r.next);
+      if (!r.ok && !r.duplicate) { t.disabled = false; alert(`${r.code}: ${r.detail ?? ""}`); }
+      return;
+    }
+    if (t.dataset.postVerdict) {
+      let note;
+      if (t.dataset.postVerdict === "revise") { note = prompt("What should change?"); if (!note) return; }
+      const r = await post("/api/decide", { decisionId: t.dataset.post, verdict: t.dataset.postVerdict, ...(note ? { note } : {}) });
+      if (!r.ok && !r.duplicate) alert(`${r.code}: ${r.detail ?? ""}`);
+      return;
+    }
+    if (t.dataset.postRecord) {
+      const id = t.dataset.post;
+      const action = t.dataset.postRecord;
+      const body = { decisionId: id, action };
+      if (action === "publish") body.url = ui.drafts[`xurl:${id}`] ?? "";
+      if (action === "schedule") { const v = ui.drafts[`sched:${id}`]; if (!v) return alert("Pick the time you scheduled it for."); body.scheduledFor = new Date(v).toISOString(); }
+      if (action === "engagement") body.metrics = Object.fromEntries(["impressions", "likes", "reposts", "replies", "bookmarks"].map((k) => [k, ui.drafts[`m:${id}:${k}`] ?? ""]));
+      t.disabled = true;
+      const r = await post("/api/post", body);
+      if (!r.ok && !r.duplicate) { t.disabled = false; alert(`${r.code}: ${r.detail ?? ""}`); }
+      else if (r.receipt?.warnings?.length) alert(`Recorded, with warnings:\n${r.receipt.warnings.join("\n")}`);
       return;
     }
     if (t.dataset.providerTest) {
@@ -681,6 +816,9 @@
   });
   document.addEventListener("input", (e) => {
     if (e.target.dataset.draft) ui.drafts[e.target.dataset.draft] = e.target.value;
+  });
+  document.addEventListener("change", (e) => {
+    if (e.target.dataset.confirm) ui.drafts[`confirm:${e.target.dataset.confirm}`] = e.target.checked;
   });
   document.addEventListener("change", (e) => {
     if (e.target.dataset.choose) {

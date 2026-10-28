@@ -66,6 +66,7 @@ export const ARTIFACT_TYPES = Object.freeze([
   "calendar-facts",       // deterministic: five-sport schedules, forecasts, results at a pinned commit + the opportunity grid
   "content-calendar-draft", // ChatGPT: picks, priorities and draft copy for grid slots
   "calendar-check",       // deterministic: the final calendar with independently derived readiness
+  "post-queue",           // D1 deterministic: one day's post packages from the approved calendar (captions, graphics, checks)
 ]);
 
 /** Ledger entry kinds — the action history is exactly this list, in order. */
@@ -76,6 +77,9 @@ export const LEDGER_KINDS = Object.freeze([
   "job",          // H0: a unit of work handed to a worker (requested → started → finished/failed)
   "auth",         // H0: login, step-up and session events (audit only; secrets never recorded)
   "provider-test", // provider onboarding: a connection test and its result (no credentials recorded)
+  "post-status",       // D1: the founder scheduled an approved post in X (manual)
+  "engagement",        // D1: numbers the founder copied from X analytics for a published post (not verified)
+  "post-verification", // D1: a published pregame post re-checked against the forecast of record after kickoff
 ]);
 
 /** Refusal / reason codes shared by the orchestrator, the integrity gate and the publisher. */
@@ -108,6 +112,7 @@ export const REASON = Object.freeze({
   MISS_NOT_DISCLOSED: "MISS_NOT_DISCLOSED",
   MISSING_FORECAST_WORD: "MISSING_FORECAST_WORD",
   TOO_LONG: "TOO_LONG",
+  RETIRED_PHRASE: "RETIRED_PHRASE",
   // engineering (M2)
   BILLING_NOT_CONFIRMED: "BILLING_NOT_CONFIRMED",
   SUBSCRIPTION_AUTH_NOT_CONFIRMED: "SUBSCRIPTION_AUTH_NOT_CONFIRMED",

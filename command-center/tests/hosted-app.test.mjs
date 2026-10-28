@@ -13,7 +13,8 @@ import { migrate } from "../ledger/sql-store.mjs";
 import { dirObjectStore, sqlObjectStore } from "../ledger/object-store.mjs";
 import { githubDispatcher } from "../jobs/dispatchers.mjs";
 import { runWorkerJob } from "../worker/worker.mjs";
-import { createHostedApp } from "../hosted/app.mjs";
+import fs from "node:fs";
+import { createHostedApp, stepUpActionFor } from "../hosted/app.mjs";
 import { sha256, stepClock } from "../lib/util.mjs";
 import { tempDir, TEST_SLATE, RECAP_COMMAND } from "./helpers.mjs";
 
@@ -262,4 +263,12 @@ test("sign out everywhere ends every session", async () => {
   const out = await h.call("POST", "/api/auth/logout-all", {});
   assert.equal(out.status, 200);
   assert.equal((await h.call("GET", "/api/state", undefined, { cookie: first })).status, 401);
+});
+
+test("D1: recording an X link (the publication receipt) needs a step-up, and the console's mirror agrees", () => {
+  assert.equal(stepUpActionFor("/api/post", { action: "publish" }), "attest");
+  assert.equal(stepUpActionFor("/api/post", { action: "schedule" }), null);
+  assert.equal(stepUpActionFor("/api/decide", { verdict: "approve", sourcesConfirmed: true }), "approve");
+  const client = fs.readFileSync(new URL("../surfaces/console/webauthn.js", import.meta.url), "utf8");
+  assert.match(client, /url === "\/api\/post"\) return body\.action === "publish" \? "attest" : null/);
 });

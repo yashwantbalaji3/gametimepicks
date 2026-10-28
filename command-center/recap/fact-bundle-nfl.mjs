@@ -20,8 +20,12 @@ export const etDisplay = (iso) => `${ET_TIME.format(new Date(iso)).replace(" at 
 const pct = (p) => `${(Math.round(p * 1000) / 10).toFixed(1)}%`;
 const nickname = (name) => String(name).split(" ").at(-1);
 
-/** @param {object} c  a gate-passed candidate from select-game.enrichCandidate */
-export function buildFactBundle(c) {
+/**
+ * @param {object} c  a gate-passed candidate from select-game.enrichCandidate
+ * @param {{ label?: object }} opts  the NFL public label (recap/public-registry.mjs publicLabelOf). Without it the bundle
+ *        has no publicLabel and the renderer refuses — the headline and disclosure are never guessed.
+ */
+export function buildFactBundle(c, { label = null } = {}) {
   const rc = c.receipt;
   const home = rc.home;
   const away = rc.away;
@@ -81,6 +85,10 @@ export function buildFactBundle(c) {
     week: rc.week ?? null,
     model: { id: c.winner.modelId, version: c.winner.modelVersion, statusAtPublish: c.winner.modelStatusAtPublish },
     disclaimer: rc.disclaimer ?? "Educational and paper-only — not betting advice.",
+    publicLabel: label ? {
+      term: label.term, capability: label.capability, productEligible: label.productEligible,
+      modelPerformanceNote: label.modelPerformanceNote, retiredPhrases: label.retiredPhrases, source: label.source,
+    } : null,
     settlementSource: c.winner.settlement.source,
     claims,
     sources: {

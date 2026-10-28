@@ -14,7 +14,9 @@ import { buildFactBundle, claimOf } from "../recap/fact-bundle-nfl.mjs";
 import { validateCaption } from "../recap/caption-validator.mjs";
 import { templateCaptions } from "../recap/captions.mjs";
 import { pngSize, templateSlots } from "../render/render-png.mjs";
-import { sha256 } from "../lib/util.mjs";
+import { sha256, REPO_ROOT } from "../lib/util.mjs";
+import { publicLabelOf } from "../recap/public-registry.mjs";
+import { dirDataSource } from "../recap/multisport-facts.mjs";
 import { tempDir } from "./helpers.mjs";
 
 const EVENT = "401873022";
@@ -93,11 +95,20 @@ test("captions: both template variants pass; invented numbers, banned words, lin
   for (const v of lossCaptions) assert.ok(/miss/i.test(v.text), v.text);
 });
 
-test("template slots carry the experimental label and never a logo or odds", () => {
-  const { bundle } = buildFactBundle(fresh());
+test("template slots take the public registry's term and Model Performance line, never a logo or odds", () => {
+  const label = publicLabelOf("NFL", dirDataSource(REPO_ROOT));
+  const { bundle } = buildFactBundle(fresh(), { label });
   const slots = templateSlots(bundle);
-  assert.equal(slots.modelLine, "Experimental model");
+  assert.equal(slots.term, "Official Forecast");
+  assert.equal(label.capability, "EXPERIMENTAL_PUBLIC");
+  assert.equal(label.productEligible, false);
+  assert.equal(slots.modelLine, `Model Performance: ${label.modelPerformanceNote}`);
   assert.match(slots.disclaimer, /not betting advice/);
+  // no label from the registry → no graphic (never a guessed headline)
+  assert.throws(() => templateSlots(buildFactBundle(fresh()).bundle), /no public label/);
+  // retired phrases are refused in captions
+  const bad = validateCaption("Experimental model projections: our forecast had it right.", bundle);
+  assert.ok(bad.problems.some((p) => p.code === "RETIRED_PHRASE"));
   const tpl = fs.readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), "../render/templates/nfl-recap.html"), "utf8");
   assert.doesNotMatch(tpl, /odds|\+\d{3}|-1\d\d\b/i);
 });

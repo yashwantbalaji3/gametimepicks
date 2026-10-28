@@ -13,7 +13,7 @@ import { REPO_ROOT, CC_ROOT, sha256 } from "../lib/util.mjs";
 import { nflTeamColor } from "../../app/src/lib/simulation-theater/nfl-team-colors.mjs";
 import { claimOf, display } from "../recap/fact-bundle-nfl.mjs";
 
-export const TEMPLATE_ID = "nfl-recap@0";
+export const TEMPLATE_ID = "nfl-recap@1";
 export const SIZE = Object.freeze({ width: 1080, height: 1350 });
 const TEMPLATE_PATH = path.join(CC_ROOT, "render/templates/nfl-recap.html");
 const LOGO_PATH = path.join(REPO_ROOT, "app/public/brand/gametime-picks-logo.png");
@@ -35,8 +35,13 @@ export function templateSlots(bundle) {
   const awayFinal = Number(display(bundle, "final.away"));
   const hp = teamPaint(home.abbr);
   const ap = teamPaint(away.abbr);
-  const modelLine = bundle.model.statusAtPublish === "PUBLIC_EXPERIMENTAL" ? "Experimental model" : "Model forecast";
+  // Terminology is the public registry's (recap/public-registry.mjs): the term, and the sport's one Model Performance
+  // sentence as the disclosure — never a per-card "experimental" hedge (retired 2026-10-23). No label, no graphic.
+  const label = bundle.publicLabel;
+  if (!label?.term || !label.modelPerformanceNote) throw new Error(`fact bundle ${bundle.eventId} has no public label from the registry: refusing to render`);
+  const modelLine = `Model Performance: ${label.modelPerformanceNote}`;
   return {
+    term: label.term,
     chip: `NFL${bundle.week ? ` · WEEK ${bundle.week}` : ""} · FINAL`,
     homeColor: hp.color, homeInk: hp.ink, awayColor: ap.color, awayInk: ap.ink,
     homeAbbr: home.abbr, homeName: home.name, awayAbbr: away.abbr, awayName: away.name,
@@ -64,19 +69,24 @@ export function altText(bundle) {
   const s = templateSlots(bundle);
   return `GameTimePicks recap graphic. Final: ${s.awayName} ${s.awayFinal}, ${s.homeName} ${s.homeFinal}. ` +
     `Pregame forecast frozen ${s.frozenAt}: ${s.favName} ${s.favPct} to win; projected ${s.homeAbbr} ${s.projHome}, ${s.awayAbbr} ${s.projAway}; ` +
-    `projected total ${s.projTotal} (80% range ${s.totalRange}). ${s.sideVerdict}. ${s.totalVerdict}. ${s.modelLine}. ${s.disclaimer}`;
+    `projected total ${s.projTotal} (80% range ${s.totalRange}). ${s.sideVerdict}. ${s.totalVerdict}. ${s.term}. ${s.modelLine} ${s.disclaimer}`;
 }
 
 export function renderHtml(bundle) {
-  const slots = templateSlots(bundle);
+  return fillTemplate(TEMPLATE_PATH, templateSlots(bundle));
+}
+
+/** Fill a template's double-brace slots (HTML-escaped; "raw:" slots are pre-built markup from escaped parts). */
+export function fillTemplate(templatePath, slots) {
   const logo = `data:image/png;base64,${fs.readFileSync(LOGO_PATH).toString("base64")}`;
-  const html = fs.readFileSync(TEMPLATE_PATH, "utf8").replace(/\{\{(\w+)\}\}/g, (_, key) => {
+  return fs.readFileSync(templatePath, "utf8").replace(/\{\{(\w+)\}\}/g, (_, key) => {
     if (key === "logoDataUri") return logo;
+    if (key.startsWith("raw") && key in slots) return slots[key];
     if (!(key in slots)) throw new Error(`template slot {{${key}}} has no value`);
     return escapeHtml(slots[key]);
   });
-  return html;
 }
+export { escapeHtml };
 
 function loadChromium() {
   const require = createRequire(path.join(REPO_ROOT, "app/package.json"));
@@ -99,7 +109,11 @@ export function pngSize(buf) {
  * @param {{ outFile: string }} opts
  */
 export async function renderPng(bundle, { outFile }) {
-  const html = renderHtml(bundle);
+  return renderHtmlToPng(renderHtml(bundle), { outFile, template: TEMPLATE_ID, altText: altText(bundle) });
+}
+
+/** Any 1080×1350 template page → PNG, offline (every request aborted), deterministic on one machine. */
+export async function renderHtmlToPng(html, { outFile, template, altText: alt }) {
   const chromium = loadChromium();
   const browser = await chromium.launch({ args: ["--disable-background-networking", "--no-first-run", "--font-render-hinting=none"] });
   try {
@@ -112,14 +126,14 @@ export async function renderPng(bundle, { outFile }) {
     const size = pngSize(png);
     return {
       schema: "gtp.cc.media-artifact@1",
-      template: TEMPLATE_ID,
+      template,
       file: path.basename(outFile),
       mime: "image/png",
       width: size.width,
       height: size.height,
       sha256: sha256(png),
       htmlSha256: sha256(html),
-      altText: altText(bundle),
+      altText: alt,
     };
   } finally {
     await browser.close();

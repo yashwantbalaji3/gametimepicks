@@ -8,7 +8,7 @@
  * with reasons); `buildRecapDraft` produces the deliverable for one game.
  */
 import path from "node:path";
-import { digestOf } from "../lib/util.mjs";
+import { digestOf, REPO_ROOT } from "../lib/util.mjs";
 import { validateFactBundle, validateCaptionSet } from "../contracts/index.mjs";
 import { loadNflLedger, groupGames, enrichCandidate, latestSettledSlate, slateGames, etDate } from "./select-game.mjs";
 import { runIntegrityGate } from "./integrity-gate.mjs";
@@ -16,37 +16,42 @@ import { buildFactBundle, display } from "./fact-bundle-nfl.mjs";
 import { templateCaptions } from "./captions.mjs";
 import { validateCaption } from "./caption-validator.mjs";
 import { renderPng } from "../render/render-png.mjs";
+import { publicLabelOf } from "./public-registry.mjs";
+import { dirDataSource } from "./multisport-facts.mjs";
+
+const defaultNflLabel = () => publicLabelOf("NFL", dirDataSource(REPO_ROOT));
 
 /** Gate every game of one Eastern date. Defaults to the latest date with a settled game ("last night"). */
-export function inspectSlate({ repoRoot, date } = {}) {
-  const ledger = loadNflLedger(repoRoot);
+export function inspectSlate({ repoRoot, date, src = null } = {}) {
+  const ledger = loadNflLedger(repoRoot, src);
   const games = groupGames(ledger.rows);
   const slateDate = date ?? latestSettledSlate(games);
   const rows = slateGames(games, slateDate).map((g) => {
-    const candidate = enrichCandidate(g, ledger, repoRoot);
+    const candidate = enrichCandidate(g, ledger, repoRoot, src);
     const verdict = runIntegrityGate(candidate);
     return { eventId: g.eventId, matchup: g.matchup, eventStart: g.eventStart, candidate, verdict };
   });
-  return { ledger: { path: ledger.path, sha256: ledger.sha256 }, slateDate, games: rows };
+  return { ledger: { path: ledger.path, sha256: ledger.sha256, commit: ledger.commit }, slateDate, games: rows };
 }
 
 /** Find one event (on any date) and enrich it. */
-export function candidateFor(eventId, { repoRoot } = {}) {
-  const ledger = loadNflLedger(repoRoot);
+export function candidateFor(eventId, { repoRoot, src = null } = {}) {
+  const ledger = loadNflLedger(repoRoot, src);
   const game = groupGames(ledger.rows).find((g) => g.eventId === String(eventId));
   if (!game) throw new Error(`event ${eventId} has no game rows in the ledger`);
-  return { candidate: enrichCandidate(game, ledger, repoRoot), slateDate: etDate(game.eventStart) };
+  return { candidate: enrichCandidate(game, ledger, repoRoot, src), slateDate: etDate(game.eventStart) };
 }
 
 /**
  * @param {object} candidate   enriched candidate (from inspectSlate or candidateFor)
- * @param {{ outDir: string, accountId?: string, channel?: string, render?: boolean }} opts
+ * @param {{ outDir: string, accountId?: string, channel?: string, render?: boolean, label?: object }} opts
+ *        label: the NFL public label (recap/public-registry.mjs publicLabelOf); default: this checkout's registries
  */
-export async function buildRecapDraft(candidate, { outDir, accountId = "gametimepicks-x-unassigned", channel = "x", render = true }) {
+export async function buildRecapDraft(candidate, { outDir, accountId = "gametimepicks-x-unassigned", channel = "x", render = true, label = defaultNflLabel() }) {
   const verdict = runIntegrityGate(candidate);
   if (!verdict.pass) return { ok: false, verdict };
 
-  const { bundle, digest: factBundleDigest } = buildFactBundle(candidate);
+  const { bundle, digest: factBundleDigest } = buildFactBundle(candidate, { label });
   const fb = validateFactBundle(bundle);
   if (!fb.ok) throw new Error(`fact bundle invalid: ${fb.errors.join(", ")}`);
 

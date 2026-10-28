@@ -8,11 +8,14 @@
  *   • it says "forecast" (the product's word for the graded number) and contains no URL (link posts cost 13× more
  *     on the X API, and link policy is a founder decision);
  *   • a forecast that missed the winner says so plainly;
- *   • it fits one X post (280 characters).
+ *   • it fits one X post (280 characters);
+ *   • it uses none of the phrases the founder retired from public surfaces (public-registry.ts RETIRED_PUBLIC_PHRASES,
+ *     carried on the bundle's publicLabel).
  */
 import { FORBIDDEN_TERMS } from "../../app/scripts/build-mlb-social-content.mjs";
 import { REASON } from "../contracts/index.mjs";
 import { claimOf } from "./fact-bundle-nfl.mjs";
+import { retiredPhraseIn } from "./public-registry.mjs";
 
 export const MAX_CAPTION_CHARS = 280;
 const EXTRA_FORBIDDEN = ["odds", "bet now", "sure thing", "can't lose", "parlay"];
@@ -41,6 +44,8 @@ export function validateCaption(text, bundle) {
   if (claimOf(bundle, "result.side")?.value === "LOSS" && !/\bmiss(ed)?\b|\bwrong\b/i.test(text)) {
     problems.push({ code: REASON.MISS_NOT_DISCLOSED, detail: "the forecast missed the winner; the caption must say so" });
   }
+  const retired = retiredPhraseIn(text, bundle.publicLabel?.retiredPhrases ?? []);
+  if (retired) problems.push({ code: REASON.RETIRED_PHRASE, detail: `"${retired}" was retired from public surfaces (public-registry.ts)` });
   if (text.length > MAX_CAPTION_CHARS) problems.push({ code: REASON.TOO_LONG, detail: `${text.length} > ${MAX_CAPTION_CHARS} characters` });
   return { ok: problems.length === 0, problems };
 }

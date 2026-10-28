@@ -1,4 +1,6 @@
-# Morning briefing: CEO Command Center, 2026-10-29
+# Morning briefing: CEO Command Center, 2026-10-28
+
+> **Date reconciled 2026-10-28 (founder request).** This briefing was first filed as `morning-briefing-2026-10-29.md`. The work ran overnight from Tuesday Oct 27 to Wednesday Oct 28, US Eastern, and the briefing is for the morning of **Wednesday Oct 28 ET**. The earlier "Oct 28" run labels used UTC dates; they are corrected to Eastern below. The ledger's own timestamps are UTC and unchanged. The commit that added the file (`170bb9cbb5`) keeps its original subject.
 
 Everything below was checked overnight against the code, the console's ledger and the committed data. Nothing was pushed, deployed, published, bought or connected. No Claude Code run was started.
 
@@ -23,11 +25,11 @@ Everything below was checked overnight against the code, the console's ledger an
 
 | Provider | Genuinely operational | Manual | Built, tested on stubs only, not connected |
 |---|---|---|---|
-| Claude Code | **Yes**: the CLI on your Mac with your Max subscription. Real runs: M2, and the Oct 28 content-plan review (Sonnet, 2 turns, ≈ $0.10 estimated of your allowance, preflight claude.ai · max) | — | The hosted worker (`CLAUDE_CODE_OAUTH_TOKEN`, CP-H2) |
+| Claude Code | **Yes**: the CLI on your Mac with your Max subscription. Real runs: M2, and the Oct 27 (11:22 PM ET) content-plan review (Sonnet, 2 turns, ≈ $0.10 estimated of your allowance, preflight claude.ai · max) | — | The hosted worker (`CLAUDE_CODE_OAUTH_TOKEN`, CP-H2) |
 | ChatGPT | — | **Yes**: your app, copy/paste. 5 real contributions so far (3 engineering specs, the NFL plan, the calendar) | OpenAI API adapter (CP-O1) |
 | Grok | — | **Yes**: your app, copy/paste. 1 real research round (5 NFL findings, 10 cited posts) | xAI API adapter with X Search (CP-X1) |
 
-**Proof from the ledger** (`node orchestrator/team-evidence.mjs <commandId>`): the Oct 28 content-plan run `cmd-a2f77c554c33` has genuine Grok, ChatGPT and Claude Code contributions in one workflow. Every hand-off check passes and nothing is simulated.
+**Proof from the ledger** (`node orchestrator/team-evidence.mjs <commandId>`): the Oct 27 (11:22 PM ET) content-plan run `cmd-a2f77c554c33` has genuine Grok, ChatGPT and Claude Code contributions in one workflow. Every hand-off check passes and nothing is simulated.
 
 **Decisions:** none open.
 - The obsolete G2 (`gate-ade48ed08d41`) is recorded as **rejected**, and its working copy was removed.
@@ -44,8 +46,8 @@ Everything below was checked overnight against the code, the console's ledger an
 1. **The recap favourite fix renders correctly.** SF @ ATL (an away pick) rebuilt through the real pipeline shows "70.6% San Francisco 49ers to win" and "Forecast missed: San Francisco 49ers lost". Both captions pass the validator.
 2. **Export hashes** now match `shasum -a 256` of the file.
 3. **Fail-closed data guard.** On the hosted worker, the calendar's data source would have pointed at the private repo and produced an *empty* calendar silently. It now refuses with a clear error unless `GTP_CC_DATA_REPO` / `GTP_CC_DATA_REF` point at the public GameTimePicks data.
-4. **Earlier NFL plan run.** The facts ChatGPT received in the Oct 28 NFL plan run named the wrong favourite for 5 games (PIT@NO, CLE@TEN, SF@ATL, DEN@ARI, LAR@LV). That plan's game-specific claims should not be reused without re-checking them. The calendar run used the corrected facts.
-5. **Terminology risk (not changed):** the recap card's headline reads "Official Forecast vs Final", but the site's registry classifies NFL as *experimental* ("nothing enters official prediction products"). The footer does say "Experimental model". This is a wording decision for you (CP3).
+4. **Earlier NFL plan run.** The facts ChatGPT received in the Oct 27 (11:22 PM ET) NFL plan run named the wrong favourite for 5 games (PIT@NO, CLE@TEN, SF@ATL, DEN@ARI, LAR@LV). That plan's game-specific claims should not be reused without re-checking them. The calendar run used the corrected facts.
+5. **Terminology (resolved 2026-10-28, see [d1-daily-content-queue.md](d1-daily-content-queue.md) §2).** The recap card's headline reads "Official Forecast vs Final" while the capability registry classifies NFL as EXPERIMENTAL_PUBLIC. The authoritative public registry (`app/src/lib/public-registry.ts`) answers it: "Official Forecast" is the public term for NFL's published forecast, and EXPERIMENTAL_PUBLIC means it is not product-eligible. The headline stays. The per-card "Experimental model" footer is replaced by the registry's Model Performance sentence.
 
 ## 3. Five-sport content readiness
 
@@ -174,8 +176,8 @@ Until these are fixed, the data guard makes the hosted calendar fail loudly inst
 | Action | Type | Effort |
 |---|---|---|
 | Say "go" on D1 + the freeze-time verifier (or choose differently) | Approval of local work | 1 minute |
-| Decide the card headline: "Official Forecast" vs "Experimental Forecast" for NFL / EPL (CP3) | Brand decision | 1 minute |
-| Don't reuse the Oct 28 NFL plan's game-specific numbers without re-checking (wrong favourite for 5 games) | Awareness | — |
+| ~~Decide the card headline~~: resolved from the public registry on 2026-10-28 (keep "Official Forecast"; disclosure via Model Performance) | Done | — |
+| Don't reuse the Oct 27 NFL plan's game-specific numbers without re-checking (wrong favourite for 5 games) | Awareness | — |
 | Optional: run Grok research rounds for NBA, MLB, UFC and EPL in the console ($0, manual) | Manual handoff | ~10 min |
 | Optional: post the four READY explainers and one NFL recap card by hand after reading them | Your publishing decision | ~10 min |
 | When ready: CP-H1 hosting setup and approval to push and deploy | External, needs authorization | ~45 min |
@@ -189,4 +191,4 @@ Until these are fixed, the data guard makes the hosted calendar fail loudly inst
 - **Manual provenance:** the ledger proves what was pasted and when, not which app wrote it.
 - **Local console approvals are demo-grade** (loopback). Passkey step-up arrives with hosting.
 - **X links are not opened by the system.** Every reply needs your check.
-- **The "Official Forecast" headline on an experimental model** (see §2).
+- ~~The "Official Forecast" headline on an experimental model~~: resolved from the public registry (see §2 and the D1 doc).

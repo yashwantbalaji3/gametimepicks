@@ -9,7 +9,7 @@
  *                                     citing a fact id or a checked X post). It cannot set a status.
  *   3. checkCalendar(grid, answer)    deterministic: the final status of every slot is the grid's status, lowered —
  *                                     never raised — by the draft check (wording, length, links, number provenance,
- *                                     the experimental label).
+ *                                     retired public phrases — recap/public-registry.mjs).
  *
  * Status, by the founder's definitions:
  *   READY               every fact the slot needs is verified at the pinned commit (finished results with settled
@@ -71,7 +71,7 @@ export function opportunityGrid(facts, base = {}) {
         } else {
           status = STATUS.VERIFY;
           reasons.push("a pre-start snapshot is not the forecast of record until it is frozen at start: re-read and match it in the publishing window");
-          if (cap.state === "EXPERIMENTAL_PUBLIC") reasons.push('must carry the "experimental" label (capability EXPERIMENTAL_PUBLIC)');
+          if (cap.state === "EXPERIMENTAL_PUBLIC") reasons.push("quote it as the Official Forecast, exactly as frozen; capability EXPERIMENTAL_PUBLIC means not product-eligible, so never a pick (public registry)");
           for (const e of withFc.filter((x) => x.forecast.status && x.forecast.status !== "ok")) reasons.push(`${e.matchup}: prediction status "${e.forecast.status}"`);
         }
         if (facts.stale.some((p) => events.some((e) => e.scheduleRef.startsWith(p)))) reasons.push("schedule capture is more than 3 days old: confirm the game is still on");
@@ -81,7 +81,7 @@ export function opportunityGrid(facts, base = {}) {
           purpose: forecastOk ? "show the model's frozen pre-start read so it can be graded honestly afterwards" : "not offered: no validated forecast for this sport",
           publishWindow: `${date}, before ${startEt(first)}`,
           responsibleAgent: forecastOk ? "ChatGPT drafts · Command Center re-checks the forecast of record · founder approves each post" : "—",
-          evidenceRequired: forecastOk ? "the forecast of record frozen at start, quoted verbatim, with its experimental/official label" : "a validated, product-eligible forecast (none exists)",
+          evidenceRequired: forecastOk ? "the forecast of record frozen at start, quoted verbatim as the Official Forecast (freeze-time verifier, daily queue)" : "a validated, product-eligible forecast (none exists)",
           sourceRefs: [...withFc.map((e) => ref(e.forecast.ref)), ...events.filter((e) => !e.forecast).map((e) => ref(e.scheduleRef))].slice(0, 16),
           facts: withFc.map((e) => `${e.matchup}: ${e.forecast.display} [${e.forecast.class}]`).concat(events.filter((e) => !e.forecast).map((e) => `${e.matchup} (${startEt(e.startUtc)})`)).slice(0, 16),
           events: list,
@@ -153,7 +153,7 @@ export function opportunityGrid(facts, base = {}) {
     add({
       key: "explainer", date: explainerDay(facts, sport), sport, format: "educational", status: STATUS.READY,
       reasons: ["quotes the site's own capability statement; no numbers"],
-      opportunity: forecastOk ? `How GameTimePicks ${sport} forecasts work (${cap.state === "EXPERIMENTAL_PUBLIC" ? "experimental" : "official"})` : `Why GameTimePicks publishes no ${sport} forecast yet`,
+      opportunity: forecastOk ? `How GameTimePicks ${sport} forecasts work (Official Forecast${cap.state === "EXPERIMENTAL_PUBLIC" ? ", not product-eligible" : ""})` : `Why GameTimePicks publishes no ${sport} forecast yet`,
       purpose: "trust: explain what we do and don't claim", publishWindow: "midday ET",
       responsibleAgent: "ChatGPT drafts · Claude Code/renderer for an explainer graphic later · founder approves each post",
       evidenceRequired: "the capability registry statement", sourceRefs: [ref("app/src/lib/sport-capability-registry.ts")], facts: [`${sport}: ${cap.state} — ${cap.reason}`], events: [],
@@ -234,7 +234,7 @@ const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const FORBIDDEN = ["odds", "bet", "bets", "betting", "parlay", "lock", "guaranteed", "sure thing", "can't lose", "pick", "picks", "free money"];
 
 /** Check one draft against its slot's facts. Returns problems; never upgrades a status. */
-export function checkDraft(draft, slot, { forbidden = [] } = {}) {
+export function checkDraft(draft, slot, { forbidden = [], retired = [] } = {}) {
   const out = [];
   if (!draft) return out;
   const allowed = new Set([...numbersIn(slot.facts.join(" ")), ...numbersIn(slot.date), ...numbersIn(slot.publishWindow)]);
@@ -242,7 +242,11 @@ export function checkDraft(draft, slot, { forbidden = [] } = {}) {
   for (const t of [...forbidden, ...FORBIDDEN]) if (new RegExp(`\\b${escapeRe(t)}\\b`, "i").test(draft)) out.push({ code: REASON.FORBIDDEN_TERM, status: STATUS.BLOCKED, detail: `"${t}"` });
   if (/https?:\/\/|www\.|\b[a-z0-9-]+\.(com|net|org|io|co)\b/i.test(draft)) out.push({ code: REASON.URL_IN_CAPTION, status: STATUS.VERIFY, detail: "no links in post text" });
   if (draft.length > 280) out.push({ code: REASON.TOO_LONG, status: STATUS.VERIFY, detail: `${draft.length} > 280 characters` });
-  if (slot.format === "pregame-forecast" && slot.reasons.some((r) => /experimental/.test(r)) && !/experimental/i.test(draft)) out.push({ code: "EXPERIMENTAL_LABEL_MISSING", status: STATUS.VERIFY, detail: 'say "experimental"' });
+  // Terminology is the public registry's (founder resolution 2026-10-28): no per-post "experimental" hedge, and none of
+  // the phrases retired from public surfaces.
+  const lower = draft.toLowerCase();
+  const phrase = retired.find((p) => lower.includes(p.toLowerCase()));
+  if (phrase) out.push({ code: REASON.RETIRED_PHRASE, status: STATUS.VERIFY, detail: `"${phrase}" was retired from public surfaces` });
   return out;
 }
 
@@ -250,7 +254,7 @@ export function checkDraft(draft, slot, { forbidden = [] } = {}) {
  * The final calendar: grid ∪ ChatGPT's picks and additions, every status re-derived here.
  * @returns {{ calendar: object, problems: object[] }}
  */
-export function checkCalendar(grid, answer, { checkedXUrls = [], forbidden = [] } = {}) {
+export function checkCalendar(grid, answer, { checkedXUrls = [], forbidden = [], retired = [] } = {}) {
   const slots = grid.slots.map((s) => ({ ...s, reasons: [...s.reasons] }));
   const byId = new Map(slots.map((s) => [s.id, s]));
   const problems = [];
@@ -258,7 +262,7 @@ export function checkCalendar(grid, answer, { checkedXUrls = [], forbidden = [] 
     const s = byId.get(p.slotId);
     if (!s) continue;
     Object.assign(s, { chosen: true, priority: p.priority, angle: p.angle, draft: p.draft ?? null });
-    for (const pr of checkDraft(p.draft, s, { forbidden })) {
+    for (const pr of checkDraft(p.draft, s, { forbidden, retired })) {
       s.status = worst(s.status, pr.status);
       s.reasons.push(`draft: ${pr.code} ${pr.detail}`);
       problems.push({ slotId: s.id, ...pr });
@@ -277,7 +281,7 @@ export function checkCalendar(grid, answer, { checkedXUrls = [], forbidden = [] 
       purpose: "added by ChatGPT", publishWindow: viaFact?.publishWindow ?? "—", responsibleAgent: "ChatGPT drafts · founder approves each post",
       evidenceRequired: "as cited", sourceRefs: [x.sourceRef], facts: viaFact?.facts ?? [], events: [], chosen: true, priority: 3, angle: x.opportunity, draft: x.draft ?? null, addedBy: "ChatGPT",
     };
-    for (const pr of checkDraft(x.draft, s, { forbidden })) { s.status = worst(s.status, pr.status); s.reasons.push(`draft: ${pr.code} ${pr.detail}`); problems.push({ slotId: s.id, ...pr }); }
+    for (const pr of checkDraft(x.draft, s, { forbidden, retired })) { s.status = worst(s.status, pr.status); s.reasons.push(`draft: ${pr.code} ${pr.detail}`); problems.push({ slotId: s.id, ...pr }); }
     slots.push(s);
   }
   slots.sort((a, b) => a.date.localeCompare(b.date) || SPORTS.indexOf(a.sport) - SPORTS.indexOf(b.sport) || FORMATS.indexOf(a.format) - FORMATS.indexOf(b.format));

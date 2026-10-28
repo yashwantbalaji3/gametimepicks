@@ -30,6 +30,8 @@ import { inspectSlate } from "../recap/pipeline.mjs";
 import { buildFactBundle } from "../recap/fact-bundle-nfl.mjs";
 import { FORBIDDEN_TERMS } from "../../app/scripts/build-mlb-social-content.mjs";
 import { multiSportFacts, gitDataSource, dirDataSource, etDate } from "../recap/multisport-facts.mjs";
+import { createQueueFlow } from "./queue-flow.mjs";
+import { readPublicRegistry } from "../recap/public-registry.mjs";
 import {
   opportunityGrid, gridForPrompt, CALENDAR_ANSWER_SCHEMA, validateCalendarAnswer, checkCalendar, calendarBacklog, calendarMarkdown,
 } from "../contracts/calendar.mjs";
@@ -70,6 +72,11 @@ export const TEAM_WORKFLOWS = Object.freeze({
     { key: "calendar", role: "content-strategist", artifact: "content-calendar-draft", title: "Choose, prioritise and draft the week's content from the grid" },
     { key: "calendarCheck", role: "integrity-reviewer", artifact: "calendar-check", title: "Check every slot's readiness independently" },
     { key: "consolidate", role: "chief-of-staff", artifact: "consolidated-report", title: "Present the calendar for your decision, with a Markdown export" },
+  ],
+  // D1: one day's posts from the APPROVED calendar — one package and one decision per post (orchestrator/queue-flow.mjs).
+  "daily-queue": [
+    { key: "queueBuild", role: "integrity-reviewer", artifact: "post-queue", title: "Build the day's post packages from the approved calendar: captions, graphics, freeze-time checks", heavy: true },
+    { key: "queueConsolidate", role: "chief-of-staff", artifact: "consolidated-report", title: "One decision per post, with a Markdown export" },
   ],
 });
 
@@ -208,7 +215,8 @@ export function createTeamFlow(ctx) {
   function calendarCheck(run, task) {
     const cf = contributionOf(run, "calendar-facts").artifact;
     const answer = contributionOf(run, "content-calendar-draft").artifact;
-    const { calendar, problems } = checkCalendar(cf.grid, answer, { checkedXUrls: cf.base?.checkedXUrls ?? [], forbidden: FORBIDDEN_TERMS });
+    const { retired } = readPublicRegistry(dataSource());
+    const { calendar, problems } = checkCalendar(cf.grid, answer, { checkedXUrls: cf.base?.checkedXUrls ?? [], forbidden: FORBIDDEN_TERMS, retired });
     const backlog = calendarBacklog(calendar, baseRun()?.review);
     h.contribute(run, task, {
       seat: "deterministic", provider: "deterministic", model: null, artifactType: "calendar-check", artifact: { calendar, backlog, problems },
@@ -453,8 +461,19 @@ export function createTeamFlow(ctx) {
     return { ok: true, verdict, next };
   }
 
-  const RUNNERS = { facts, research: providerStep, evidence, proposals: providerStep, plan: providerStep, check: contentCheck, feasibility, consolidate, calendarFacts, calendar: providerStep, calendarCheck };
-  return { advance, onPasted, decideProposal, steps: (intent) => TEAM_WORKFLOWS[intent] };
+  const queue = createQueueFlow({
+    store, clock, env, outDir: ctx.outDir, repoRoot: ctx.repoRoot, render: ctx.queueRender, dataSource: () => dataSource(),
+    helpers: { entries: h.entries, contribute: h.contribute, refuseTask: h.refuseTask, report: h.report },
+  });
+
+  const RUNNERS = {
+    facts, research: providerStep, evidence, proposals: providerStep, plan: providerStep, check: contentCheck, feasibility, consolidate, calendarFacts, calendar: providerStep, calendarCheck,
+    queueBuild: (run, task) => queue.build(run, task), queueConsolidate: (run, task) => queue.consolidate(run, task),
+  };
+  return {
+    advance, onPasted, decideProposal, steps: (intent) => TEAM_WORKFLOWS[intent],
+    decidePost: queue.decidePost, recordPost: queue.recordPost, posts: queue.posts, dataSource: () => dataSource(),
+  };
 }
 
 /** One line per command-center module (its first doc-comment line), so a review needn't explore the repository. */

@@ -1,6 +1,7 @@
 <!doctype html>
-<!-- nfl-recap@0 — 1080×1350. Isolated and versioned: it must adopt the reassessment §5.2 design system
-     (Forecast card anatomy, terminology, status vocabulary) before any public post (checkpoint CP3).
+<!-- nfl-recap@1 — 1080×1350. The headline term and the Model Performance line come from the public registry
+     (app/src/lib/public-registry.ts via recap/public-registry.mjs), never from this file. Card anatomy beyond the
+     terminology still waits for the reassessment §5.2 design system (checkpoint CP3).
      Every double-brace slot is filled from the fact bundle's display strings, HTML-escaped. No league logos or player images. -->
 <html lang="en">
 <head>
@@ -80,7 +81,7 @@
     <div class="chip">{{chip}}</div>
   </header>
 
-  <h1>Official Forecast <em>vs</em> Final</h1>
+  <h1>{{term}} <em>vs</em> Final</h1>
 
   <section class="scoreboard">
     <div class="team away {{awayWinnerClass}}">
@@ -115,7 +116,7 @@
   </section>
 
   <footer>
-    <div class="disc">{{modelLine}} · {{disclaimer}}<br>gametimepicks.yashwantbalaji.com</div>
+    <div class="disc">{{modelLine}}<br>{{disclaimer}} · gametimepicks.yashwantbalaji.com</div>
     <div class="src">Source: Forecast Ledger<br>{{snapshotId}}</div>
   </footer>
 </body>

@@ -11,7 +11,8 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { createFileStore } from "../ledger/store.mjs";
 import { createOrchestrator } from "../orchestrator/orchestrator.mjs";
-import { gitDataSource, multiSportFacts } from "../recap/multisport-facts.mjs";
+import { gitDataSource, dirDataSource, multiSportFacts } from "../recap/multisport-facts.mjs";
+import { readPublicRegistry } from "../recap/public-registry.mjs";
 import { opportunityGrid, checkCalendar, STATUS } from "../contracts/calendar.mjs";
 import { teamRunEvidence } from "../orchestrator/team-evidence.mjs";
 import { REPO_ROOT, sha256, stepClock } from "../lib/util.mjs";
@@ -71,18 +72,18 @@ test("ChatGPT can choose and draft but never raise a status; drafts are checked 
     picks: [
       { slotId: id("NBA", "pregame-forecast"), priority: 1, angle: "NBA picks for tonight", draft: "Tonight's NBA slate: our forecasts." },
       { slotId: id("NFL", "postgame-recap", "catchup"), priority: 1, angle: "Week 7 forecast vs final", draft: "Seattle 20, Kansas City 3: our forecast had Seattle. San Francisco lost at Atlanta 29-20; we had the 49ers." },
-      { slotId: id("NFL", "pregame-forecast"), priority: 2, angle: "TNF", draft: "Packers 63.8% to win tonight." },
+      { slotId: id("NFL", "pregame-forecast"), priority: 2, angle: "TNF", draft: "Experimental model projections: Packers 63.8% to win tonight." },
       { slotId: id("EPL", "educational"), priority: 3, angle: "how it works", draft: "Lock in: we're 99% sure you'll like our EPL model." },
     ],
     additions: [{ date: "2026-10-29", sport: "NFL", format: "engagement", opportunity: "made-up hype post", sourceRef: "trust me" }],
   };
-  const { calendar, problems } = checkCalendar(g, answer, { checkedXUrls: [FINDINGS[0].sources[0].url] });
+  const { calendar, problems } = checkCalendar(g, answer, { checkedXUrls: [FINDINGS[0].sources[0].url], retired: readPublicRegistry(dirDataSource(REPO_ROOT)).retired });
   const get = (slotId) => calendar.slots.find((s) => s.id === slotId);
   assert.equal(get(id("NBA", "pregame-forecast")).status, STATUS.BLOCKED, "a BLOCKED slot stays blocked when picked");
   assert.equal(get(id("NFL", "postgame-recap", "catchup")).status, STATUS.READY, "every number traces to the slot's facts");
   const tnf = get(id("NFL", "pregame-forecast"));
   assert.equal(tnf.status, STATUS.VERIFY);
-  assert.ok(tnf.reasons.some((r) => /EXPERIMENTAL_LABEL_MISSING/.test(r)));
+  assert.ok(tnf.reasons.some((r) => /RETIRED_PHRASE/.test(r)), "a phrase retired from public surfaces is caught");
   const epl = get(id("EPL", "educational"));
   assert.equal(epl.status, STATUS.BLOCKED, "forbidden wording blocks");
   assert.ok(problems.some((p) => p.code === "UNTRACEABLE_NUMBER" && /99/.test(p.detail)));

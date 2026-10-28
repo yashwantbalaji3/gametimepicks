@@ -51,7 +51,7 @@ const etDay = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New
  *   engineering configures delegated engineering (repo, claude binary, environment, screenshots) — see
  *   engineering-flow.mjs; tests point it at a throwaway repo and a fake `claude`.
  */
-export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROOT, outDir, stepDelayMs = 0, publisher, slateDate, engineering = {}, execution = "inline", runnerId = "local", providerFetch = globalThis.fetch, providerSleep, hosted = false, calendarDataSource = null }) {
+export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROOT, outDir, stepDelayMs = 0, publisher, slateDate, engineering = {}, execution = "inline", runnerId = "local", providerFetch = globalThis.fetch, providerSleep, hosted = false, calendarDataSource = null, queueRender = true }) {
   if (!["inline", "jobs"].includes(execution)) throw new Error(`unknown execution mode ${execution}`);
   const pub = publisher ?? createMockPublisher({ clock });
   const mediaDir = path.join(outDir, "media");
@@ -85,7 +85,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   }, engineering);
 
   const team = createTeamFlow({
-    store, clock, env, repoRoot, slateDate, outDir, dataSource: calendarDataSource, fetch: providerFetch, sleep: providerSleep, engineering: flow,
+    store, clock, env, repoRoot, slateDate, outDir, dataSource: calendarDataSource, queueRender, fetch: providerFetch, sleep: providerSleep, engineering: flow,
     execution: { deferred: () => deferHeavy(), requestJob: (job) => requestJob(job), jobDone: (id) => jobDone(id) },
     helpers: {
       makeTask: (...a) => makeTask(...a),
@@ -116,7 +116,11 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     const intent = parseIntent(text);
     if (intent === "pause" || intent === "resume") return setPaused(intent === "pause", actor, text);
 
-    const key = `command|${etDay(clock())}|${String(text).trim().toLowerCase()}`;
+    // The same words on the same day are one command — except a content queue, which is rebuilt when the data moves on.
+    let key = `command|${etDay(clock())}|${String(text).trim().toLowerCase()}`;
+    if (intent === "daily-queue") {
+      try { key += `|data:${team.dataSource().commit ?? "working-tree"}`; } catch { /* no data source: the build step refuses */ }
+    }
     const commandId = shortId("cmd", key);
     const claim = store.claim(key, { commandId });
     if (!claim.won) return { ok: true, commandId: claim.record.value.commandId, duplicate: true };
@@ -501,13 +505,14 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     return { ok: true, paused: true, stoppedRuns: stopped, cancelJobs: activeJobs() };
   }
 
-  async function decide({ decisionId, verdict, captionId, digest, note }, actor) {
+  async function decide({ decisionId, verdict, captionId, digest, note, sourcesConfirmed }, actor) {
     const f = checkFounder(verdict === "approve" ? "approve" : "reject", actor);
     if (!f.ok) return { ok: false, ...f };
     const request = entries().find((e) => e.kind === "decision-request" && e.data.decisionId === decisionId)?.data;
     if (!request) return { ok: false, code: "UNKNOWN_DECISION", detail: decisionId };
     if (request.kind === "gate") return flow.decideGate(request, { verdict, digest }, actor, getRun(request.commandId));
     if (request.kind === "proposal") return team.decideProposal(request, { verdict, digest, note }, actor);
+    if (request.kind === "post") return team.decidePost(request, { verdict, captionId, digest, note, sourcesConfirmed }, actor);
 
     if (verdict !== "approve") {
       const claim = store.claim(`decision|${decisionId}`, { verdict, note: note ?? null });
@@ -566,6 +571,13 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     return { ok: true, contractValid: parsed.contractValid };
   }
 
+  /** Founder: after posting an approved post by hand — schedule it, record its X link (the receipt), or its engagement. */
+  function recordPost(body, actor) {
+    const f = checkFounder("publish", actor);
+    if (!f.ok) return { ok: false, ...f };
+    return team.recordPost(body ?? {}, actor);
+  }
+
   /** Founder: run a provider connection test (free endpoints only) and record the result — never the credential. */
   async function testProviderConnection(seat, actor) {
     const f = checkFounder("change-seat", actor);
@@ -620,7 +632,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
       else if (e.kind === "report") c.reports.push({ ...e.data, at: e.at });
       else if (e.kind === "progress") c.progress.push({ taskId: e.data.taskId, line: e.data.line, at: e.at });
     }
-    const decisions = all.filter((e) => e.kind === "decision-request").map((e) => {
+    const decisions = all.filter((e) => e.kind === "decision-request" && e.data.kind !== "post").map((e) => {
       const d = e.data;
       const resolution = all.find((x) => x.kind === "decision" && x.data.decisionId === d.decisionId)?.data ?? null;
       const receipt = all.find((x) => x.kind === "publish-receipt" && x.data.decisionId === d.decisionId)?.data ?? null;
@@ -641,6 +653,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
       providers: providerStatus({ env, entries: all, now: clock(), hosted }),
       commands: commands.map((c) => ({ ...c, tasks: [...c.tasks.values()] })),
       decisions,
+      posts: team.posts(),
       engineering: {
         billing: flow.billing(),
         lastPreflight: lastPreflight ? { ...lastPreflight.data, at: lastPreflight.at } : null,
@@ -741,7 +754,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   }
 
   return {
-    handleCommand, decide, submitManual, setSeat, testProviderConnection, setPaused, emergencyStop, state, runJob, activeJobs, jobDispatched, jobCancelled,
+    handleCommand, decide, recordPost, submitManual, setSeat, testProviderConnection, setPaused, emergencyStop, state, runJob, activeJobs, jobDispatched, jobCancelled,
     /** Jobs recorded by this session; the host dispatches them after its ledger flush commits. */
     takeOutbox: () => outbox.splice(0),
     execution,
@@ -761,8 +774,11 @@ function historyLine(e) {
     case "refusal": return `REFUSED ${d.code}: ${d.detail}`;
     case "deliverable": return `Deliverable: ${d.kind}${d.file ? ` ${d.file}` : ""}${d.commit ? ` ${d.branch} @ ${d.commit.slice(0, 10)}` : ""}`;
     case "decision-request": return `Decision requested: ${d.question}`;
-    case "decision": return `Founder ${d.verdict}${d.gate ? ` at ${d.gate}` : ""}${d.captionId ? ` caption ${d.captionId}` : ""} (digest ${String(d.approvedExactDigest ?? "").slice(0, 12)})`;
-    case "publish-receipt": return `Published (${d.provider}): ${d.providerPostId}`;
+    case "decision": return `Founder ${d.verdict}${d.gate ? ` at ${d.gate}` : ""}${d.postId ? ` post ${d.postId}` : ""}${d.captionId ? ` caption ${d.captionId}` : ""}${d.approvedExactDigest ? ` (digest ${d.approvedExactDigest.slice(0, 12)})` : ""}${d.note ? `: “${d.note}”` : ""}`;
+    case "publish-receipt": return d.provider === "manual-handoff" ? `Founder posted on X by hand: ${d.canonicalUrl} (${d.postId})` : `Published (${d.provider}): ${d.providerPostId}`;
+    case "post-status": return `Founder scheduled ${d.postId} for ${d.scheduledFor} (in X)`;
+    case "engagement": return `Engagement for ${d.postId} (founder-entered): ${Object.entries(d.metrics ?? {}).map(([k, v]) => `${k} ${v}`).join(", ")}`;
+    case "post-verification": return `After kickoff, ${d.postId}: ${d.status} — ${d.reasons?.[0] ?? ""}`;
     case "control": return d.emergency ? "EMERGENCY STOP by founder: all Claude Code runs killed, everything paused" : `${d.paused ? "PAUSED" : "RESUMED"} by founder (publishing and Claude Code runs)`;
     case "progress": return `· ${d.line}`;
     case "preflight": return d.ok ? `Preflight OK: Claude Code ${d.evidence?.cliVersion} · ${d.evidence?.authMethod} · ${d.evidence?.subscriptionType}` : `Preflight REFUSED: ${d.detail}`;

@@ -34,6 +34,7 @@ const pct = (p) => `${(Math.round(p * 1000) / 10).toFixed(1)}%`;
 export function gitDataSource(repoRoot, ref) {
   const commit = execFileSync("git", ["rev-parse", `${ref}^{commit}`], { cwd: repoRoot, encoding: "utf8" }).trim();
   const cache = new Map();
+  const lists = new Map();
   return {
     label: `git ${ref} @ ${commit.slice(0, 12)}`, commit,
     read(p) {
@@ -47,12 +48,17 @@ export function gitDataSource(repoRoot, ref) {
       return cache.get(p);
     },
     list(dir) {
-      try {
-        return execFileSync("git", ["ls-tree", "--name-only", `${commit}:${dir}`], { cwd: repoRoot, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim().split("\n").filter(Boolean);
-      } catch {
-        return [];
+      if (!lists.has(dir)) {
+        try {
+          lists.set(dir, execFileSync("git", ["ls-tree", "--name-only", `${commit}:${dir}`], { cwd: repoRoot, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim().split("\n").filter(Boolean));
+        } catch {
+          lists.set(dir, []);
+        }
       }
+      return lists.get(dir);
     },
+    /** When the commit was made: how fresh the data can be. */
+    committedAt: execFileSync("git", ["show", "-s", "--format=%cI", commit], { cwd: repoRoot, encoding: "utf8" }).trim(),
   };
 }
 

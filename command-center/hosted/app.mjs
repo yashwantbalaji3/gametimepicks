@@ -61,6 +61,7 @@ export function stepUpActionFor(pathname, body) {
   if (pathname === "/api/pause") return body.paused === false ? "resume" : null;
   if (pathname === "/api/command") return null; // a typed "resume" is refused in hosted mode (use the control)
   if (pathname === "/api/attest") return "attest";
+  if (pathname === "/api/post") return body.action === "publish" ? "attest" : null; // the X link is the founder's attestation
   if (pathname === "/api/seat") return "seat";
   return null;
 }
@@ -231,7 +232,8 @@ export function createHostedApp({ db, clock, origin, rpID, setupTokenSha256, dis
         if (parseIntent(text) === "resume") return { ok: false, code: "USE_RESUME_CONTROL", detail: "Resume with the Resume button (it asks for Face ID)." };
         return turn((o) => o.handleCommand(text, actor));
       }
-      case "/api/decide": return turn((o) => o.decide({ decisionId: body.decisionId, verdict: body.verdict, captionId: body.captionId, digest: body.digest, note: body.note }, actor));
+      case "/api/decide": return turn((o) => o.decide({ decisionId: body.decisionId, verdict: body.verdict, captionId: body.captionId, digest: body.digest, note: body.note, sourcesConfirmed: body.sourcesConfirmed === true }, actor));
+      case "/api/post": return turn((o) => o.recordPost({ decisionId: body.decisionId, action: body.action, url: body.url, publishedAt: body.publishedAt, scheduledFor: body.scheduledFor, metrics: body.metrics }, actor));
       case "/api/pause":
         if (typeof body.paused !== "boolean") return { ok: false, code: "INVALID_REQUEST", detail: "paused must be true or false" };
         return turn((o) => o.setPaused(body.paused, actor));

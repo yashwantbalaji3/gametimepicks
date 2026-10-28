@@ -34,7 +34,7 @@ export function templateCaptions(bundle, factBundleDigest) {
     `Our pregame forecast (frozen ${frozen}) had the ${fav.nickname} at ${p} to win and projected ${home.abbr} ${projLine.split("–")[0]}, ${away.abbr} ${projLine.split("–")[1]}.`,
     sideSentence,
     totalSentence,
-    "Experimental model, not betting advice.",
+    "Not betting advice.",
   ].join(" ");
 
   const narrative = [

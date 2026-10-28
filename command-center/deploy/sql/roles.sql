@@ -28,7 +28,7 @@ ALTER TABLE ledger_claims ENABLE ROW LEVEL SECURITY;
 CREATE POLICY ledger_read ON ledger_entries FOR SELECT TO gtp_cc_app, gtp_cc_worker, gtp_cc_reader USING (true);
 CREATE POLICY ledger_app_append ON ledger_entries FOR INSERT TO gtp_cc_app WITH CHECK (true);
 CREATE POLICY ledger_worker_append ON ledger_entries FOR INSERT TO gtp_cc_worker WITH CHECK (
-  kind IN ('task', 'contribution', 'progress', 'deliverable', 'report', 'refusal', 'job', 'decision-request', 'preflight')
+  kind IN ('task', 'contribution', 'progress', 'deliverable', 'report', 'refusal', 'job', 'decision-request', 'preflight', 'post-verification')
 );
 
 CREATE POLICY claims_read ON ledger_claims FOR SELECT TO gtp_cc_app, gtp_cc_worker USING (true);

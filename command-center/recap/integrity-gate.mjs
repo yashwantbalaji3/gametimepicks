@@ -8,7 +8,8 @@
  *
  * Warnings do not block but travel with the verdict to the founder's decision card, so a known gap is seen rather
  * than assumed away: Phase 1 runs offline and does not consult served-revision deployment evidence (Option B,
- * app/src/lib/publication-evidence/served-revision.mjs); the NFL model is published as PUBLIC_EXPERIMENTAL.
+ * app/src/lib/publication-evidence/served-revision.mjs); the NFL model is published as PUBLIC_EXPERIMENTAL — an
+ * Official Forecast that is not eligible for prediction products (recap/public-registry.mjs).
  */
 import { REASON } from "../contracts/index.mjs";
 import { GAME_FAMILIES } from "./select-game.mjs";
@@ -78,7 +79,7 @@ export function runIntegrityGate(c) {
 
   warnings.push({ code: "SERVED_REVISION_NOT_CHECKED", detail: "Phase 1 is offline: deployment (Option B) evidence for this revision was not consulted" });
   if (c.winner?.modelStatusAtPublish === "PUBLIC_EXPERIMENTAL") {
-    warnings.push({ code: "MODEL_EXPERIMENTAL", detail: "published as PUBLIC_EXPERIMENTAL — the graphic and captions must say so" });
+    warnings.push({ code: "MODEL_EXPERIMENTAL", detail: "published as PUBLIC_EXPERIMENTAL: an Official Forecast that is not product-eligible — never call it a pick or a bet; the graphic carries the registry's Model Performance sentence" });
   }
 
   // De-duplicate identical refusals (one row can trip the same rule through two paths).
