@@ -17,6 +17,8 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import MlbSettledGame from "@/components/mlb/settled-game";
 import { settledMlbGame, settledMlbGames, settledTeamNames } from "@/lib/mlb/settled-games-data";
 import { currentEtDate } from "@/lib/freshness";
+import { availableSimulateDates } from "@/lib/simulate/day-view";
+import { surfaceHref } from "@/lib/nav/date-sport-route";
 
 export const dynamicParams = false;
 
@@ -114,7 +116,11 @@ export default function GameDetailRoute({ params }: { params: { sport: string; g
     const dis = getGameDisambiguation(params.sport, params.gameId);
     if (dis) return <GameDisambiguation sport={params.sport} options={dis.options} />;
     const settled = settledFor(params.sport, params.gameId);
-    if (settled) return <MlbSettledGame game={settled} names={settledTeamNames(settled)} />;
+    if (settled) {
+      // link the archived lobby only when the export builds that date's page (older dates have none)
+      const lobbyHref = availableSimulateDates().includes(settled.date) ? surfaceHref("simulate", { date: settled.date }) : null;
+      return <MlbSettledGame game={settled} names={settledTeamNames(settled)} lobbyHref={lobbyHref} />;
+    }
     notFound();
   }
   // Engine game-specific suggested cards mapped to this fixture (World Cup only for now).

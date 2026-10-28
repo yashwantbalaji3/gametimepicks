@@ -10,7 +10,6 @@
 import Link from "next/link";
 
 import MoreDisclosure from "@/components/ui/more-disclosure";
-import { surfaceHref } from "@/lib/nav/date-sport-route";
 import { SETTLED_MARKET_WORDS, outcomeWord, type SettledMlbGame } from "@/lib/mlb/settled-games";
 
 /** The page's own marker (the built guard finds settled pages by it). */
@@ -25,17 +24,16 @@ const et = (iso: string | null | undefined) => {
 };
 const pct = (p: number | null) => (typeof p === "number" && Number.isFinite(p) ? `${(p * 100).toFixed(1)}%` : "—");
 
-export default function MlbSettledGame({ game: g, names }: { game: SettledMlbGame; names: { away: string; home: string } }) {
+/** `lobbyHref`: the archived lobby for the game's date when the export builds one (older dates have none), else null. */
+export default function MlbSettledGame({ game: g, names, lobbyHref }: { game: SettledMlbGame; names: { away: string; home: string }; lobbyHref: string | null }) {
   const right = g.calls.filter((c) => c.outcome === "WIN").length;
   const decided = g.calls.filter((c) => c.outcome === "WIN" || c.outcome === "LOSS").length;
   const attrs = { [MLB_SETTLED_ATTR]: g.slug };
-  // the archived lobby for the game's date, through the one date-url owner
-  const dayHref = surfaceHref("simulate", { date: g.date }) ?? "/simulate/";
   return (
     <article className="mx-auto flex max-w-3xl flex-col gap-5 px-4 py-8" {...attrs}>
       <nav aria-label="This game" className="flex flex-wrap gap-x-4 gap-y-1 text-[14px]">
         <Link href="/mlb/" className="gtp-backlink gtp-hit-44 inline-flex items-center" style={{ color: "var(--vault-accent)" }}>← MLB hub</Link>
-        <Link href={dayHref} prefetch={false} className="gtp-hit-44 inline-flex items-center" style={{ color: "var(--vault-accent)" }}>Games · {dayLabel(g.date)}</Link>
+        {lobbyHref ? <Link href={lobbyHref} prefetch={false} className="gtp-hit-44 inline-flex items-center" style={{ color: "var(--vault-accent)" }}>Games · {dayLabel(g.date)}</Link> : null}
         <Link href={MLB_RESULTS_HREF} prefetch={false} className="gtp-hit-44 inline-flex items-center" style={{ color: "var(--vault-accent)" }}>MLB results</Link>
       </nav>
 
@@ -82,7 +80,7 @@ export default function MlbSettledGame({ game: g, names }: { game: SettledMlbGam
         </p>
         <p className="m-0 flex flex-wrap gap-2">
           <Link href={MLB_RESULTS_HREF} prefetch={false} className="gtp-hit-44 inline-flex items-center rounded-full px-4 no-underline" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)" }}>MLB results →</Link>
-          <Link href={dayHref} prefetch={false} className="gtp-hit-44 inline-flex items-center rounded-full px-4 no-underline" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)" }}>All games · {dayLabel(g.date)} →</Link>
+          {lobbyHref ? <Link href={lobbyHref} prefetch={false} className="gtp-hit-44 inline-flex items-center rounded-full px-4 no-underline" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)" }}>All games · {dayLabel(g.date)} →</Link> : null}
         </p>
       </section>
 
