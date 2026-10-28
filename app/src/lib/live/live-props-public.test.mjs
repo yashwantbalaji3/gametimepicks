@@ -33,8 +33,12 @@ test("every other runtime-assembled /data/ path still refuses", () => {
   /* Session 5 · B7: the fifth — nfl/reconciliation/, the NFL week reconciliation (PUBLIC_DERIVED; the graded rows
      /results/nfl already renders), fetched per week by the season drill-down. Its note is in prune-internal-routes.mjs
      and its guard (every file PUBLIC_DERIVED) in lib/results/v2/nfl-family-record.test.mjs. */
-  assert.deepEqual(dirs.sort(), ["ask/v1/", "compare/v1/", "lab/v1/", "nfl/live-props/", "nfl/reconciliation/"],
-    "exactly five prefixes are tolerated; a sixth needs its own decision and its own note");
+  /* Launch program 2026-10-28 (founder request: an NBA social-data contract for the Command Center, read-only): the sixth —
+     social/nba/v1/, PUBLIC_DERIVED from the same lane + record the NBA pages render. Its note is in prune-internal-routes.mjs
+     and its guards (mirrors the lanes, no price fields, ships through the prune) in lib/social/nba-social*.test.mjs. It
+     ships only if the founder approves PR #1278. */
+  assert.deepEqual(dirs.sort(), ["ask/v1/", "compare/v1/", "lab/v1/", "nfl/live-props/", "nfl/reconciliation/", "social/nba/v1/"],
+    "exactly six prefixes are tolerated; a seventh needs its own decision and its own note");
 });
 
 test("what we are publishing is what we said we are publishing", () => {
