@@ -55,7 +55,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
   {
     id: "market-implied", term: "Market-implied", category: "method",
     short: "A read taken straight from the de-vigged betting line — not a simulation.",
-    long: "For soccer and full-game markets we show the market's own probability (vig removed). It is labelled 'market-implied' precisely because it is NOT an independent model or a run-count simulation.",
+    long: "For the 2026 World Cup's soccer markets and full-game markets we show the market's own probability (vig removed). It is labelled 'market-implied' precisely because it is NOT an independent model or a run-count simulation. Premier League and Ligue 1 forecasts are different: they come from our own match model.",
   },
   {
     id: "simulation", term: "Simulation", category: "method",
