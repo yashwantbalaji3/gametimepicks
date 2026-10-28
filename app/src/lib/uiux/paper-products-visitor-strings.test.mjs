@@ -38,6 +38,7 @@ export const BANNED_OUTSIDE_TECHNICAL = [
   [/[a-z][\w-]*@\d+\b/, "a versioned internal id (owner@N)"],
   [/\bv\d+\.\d+\b/, "a model version"],
   [/Provenance on file/, "a per-row provenance label"],
+  [/\b[a-z][a-z-]*:[a-z]:c\d+:s\d+:\d{4}-\d{2}-\d{2}\b/, "a ledger card id"],
 ];
 
 const decode = (s) => s.replace(/&rsquo;|&#x27;|&#39;/g, "'").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&nbsp;/g, " ").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
@@ -154,6 +155,22 @@ test("pages: the relocated detail is still on the page, inside Technical details
   if (/Not yet updated for today/.test(visibleText(bb))) assert.ok(visibleText(bb).includes(`Next check ${by}.`), "a not-run status names the next check in ET");
 });
 
+test("product pages: a day with no model-suggestion card reads as one line, the boxes folded (fixture)", async () => {
+  const { default: LevelASuggestions } = await import("../../components/products/level-a-suggestions.tsx");
+  const none = { ...MODEL, bankBuilder: { card: null, reason: "a mixed card needs legs from two sports; today no sport has a leg with a published probability" } };
+  for (const mode of ["bank-builder", "moonshot"]) {
+    const html = renderToStaticMarkup(React.createElement(LevelASuggestions, { model: none, mode }));
+    const outside = decode(html.replace(/<details[\s\S]*<\/details>/, " ").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ");
+    assert.doesNotMatch(outside, /No suggestion:|No card:/, `${mode}: no per-card empty box outside the fold`);
+    assert.match(outside, /No (Bank Builder|Moonshot) model suggestion today/, `${mode}: one line says so`);
+    assert.match(outside, /paper only\. No sportsbook price, no payout, not a bet\./, `${mode}: the disclosure stays visible`);
+    assert.match(html, /<details[\s\S]*No suggestion: [\s\S]*<\/details>/, `${mode}: the box is folded, not removed`);
+  }
+  /* A real card keeps the block open. */
+  const open = renderToStaticMarkup(React.createElement(LevelASuggestions, { model: MODEL, mode: "bank-builder" }));
+  assert.doesNotMatch(open, /data-level-a-folded-no-card/);
+});
+
 test("/mr-dub: the fold's notes render in words; 'lane' only shrinks", async () => {
   const html = renderToStaticMarkup(await (await import("../../app/mr-dub/page.tsx")).default());
   const text = visibleText(html);
@@ -170,7 +187,8 @@ test("/mr-dub: the fold's notes render in words; 'lane' only shrinks", async () 
 test("probe: each banned shape is caught outside Technical details and allowed inside", () => {
   const td = (inner) => `<details class="gtp-more-disclosure"><summary><span>Technical details</span></summary><div>${inner}</div></details>`;
   for (const s of ["Rule S: 1 Bank Builder step(s) lost", "Priced-card universe (Level B)", "(backstop 11:41 UTC)", "A watchdog re-runs", "Open decision: build it?",
-    "This is an operational gap", "Source: nba-official-composition@1", "(nba-preseason-experimental-v0.1)", "TB @ CLE · Provenance on file"]) {
+    "This is an operational gap", "Source: nba-official-composition@1", "(nba-preseason-experimental-v0.1)", "TB @ CLE · Provenance on file",
+    "Won bank-builder:a:c3:s1:2026-08-17"]) {
     assert.notDeepEqual(offences(visibleText(`<p>${s}</p>`)), [], `probe missed: ${s}`);
     assert.deepEqual(offences(visibleText(td(`<p>${s}</p>`))), [], `false positive inside Technical details: ${s}`);
     assert.notDeepEqual(offences(visibleText(`<details><summary>More</summary><p>${s}</p></details>`)), [], `another disclosure is not a licence: ${s}`);

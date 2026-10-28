@@ -231,7 +231,8 @@ export default function VerticalLadderClimb({ lane }: { lane: ClimbLane }) {
             </div>
           ))}
         </div>
-      ) : (
+      ) : !isActive ? null /* Overnight 10-28 (REMOVE): with no card placed, the money row was four "—" boxes and
+                               "Combined —" — dead placeholders under the lane's own no-card note below. */ : (
         <>
           {/* Money row */}
           <div className="mt-3 grid grid-cols-4 gap-1.5">
@@ -288,7 +289,7 @@ export default function VerticalLadderClimb({ lane }: { lane: ClimbLane }) {
         </div>
       ) : null}
       <p className="mt-2 font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>
-        {isReview ? "Paper review · $0 placed · nothing is live." : "Paper-only · pending official settlement."}
+        {isReview ? "Paper review · $0 placed · nothing is live." : isActive ? "Paper-only · pending official settlement." : "Paper-only · nothing placed today."}
       </p>
     </div>
   );

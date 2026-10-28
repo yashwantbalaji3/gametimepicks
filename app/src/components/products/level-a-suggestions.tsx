@@ -100,15 +100,16 @@ export function levelAForecastSources(model: LevelAModel, mode: "parlay-lab" | "
 export default function LevelASuggestions({ model, mode }: { model: LevelAModel | null; mode: "parlay-lab" | "bank-builder" | "moonshot" }) {
   if (!model) return null;
   const refused = Object.entries(model.refusedByReason);
-  return (
-    <section aria-labelledby={`level-a-${mode}`} className="flex flex-col gap-3 rounded-xl px-4 py-4" style={{ border: "1px solid var(--vault-border-strong)", background: "var(--vault-panel)" }}>
-      <div>
-        <h2 id={`level-a-${mode}`} className="m-0 font-semibold" style={{ color: "var(--vault-text)", fontSize: 16 }}>Model suggestions · {model.productDay}</h2>
-        <p className="mt-1 text-[12.5px]" style={{ color: "var(--vault-text-mute)", maxWidth: "72ch" }}>
-          {model.label} Each leg is the Official Forecast&rsquo;s own pick, frozen before its game. Its accuracy over a large forward sample
-          is not yet established. {model.method}
-        </p>
-      </div>
+  /* Overnight 10-28 (CONSOLIDATE): on /bank-builder and /moonshot, a day with neither the product's own suggestion nor
+     its NBA game-winner card printed two more "no card" boxes under the page's own no-card state. That day now reads as
+     ONE line with the product's reason and a link to every suggestion; the boxes, reasons and disclosures render
+     unchanged inside the fold. Any real card keeps the block open, exactly as before. */
+  const productSlot = mode === "bank-builder" ? model.bankBuilder : mode === "moonshot" ? model.moonshot : null;
+  const nbaSlot = model.nbaGameWinners?.public ? (mode === "bank-builder" ? model.nbaGameWinners.bankBuilder : mode === "moonshot" ? model.nbaGameWinners.moonshot : null) : null;
+  const foldedNoCard = mode !== "parlay-lab" && !productSlot?.card && !nbaSlot?.card;
+  const productName = mode === "bank-builder" ? "Bank Builder" : "Moonshot";
+  const body = (
+    <>
       {mode === "parlay-lab" ? (
         <div className="grid gap-3 lg:grid-cols-2">{model.parlayLab.map((t) => <CardBox key={t.tier} title={t.tierLabel} slot={t} />)}</div>
       ) : mode === "bank-builder" ? (
@@ -144,6 +145,29 @@ export default function LevelASuggestions({ model, mode }: { model: LevelAModel 
           <p className="m-0"><a href="/data/level-a/v1/model.json" style={{ color: "var(--vault-text-mute)", textDecoration: "underline" }}>These suggestions as data</a></p>
         </div>
       </MoreDisclosure>
+    </>
+  );
+  return (
+    <section aria-labelledby={`level-a-${mode}`} className="flex flex-col gap-3 rounded-xl px-4 py-4" style={{ border: "1px solid var(--vault-border-strong)", background: "var(--vault-panel)" }}>
+      <div>
+        <h2 id={`level-a-${mode}`} className="m-0 font-semibold" style={{ color: "var(--vault-text)", fontSize: 16 }}>Model suggestions · {model.productDay}</h2>
+        <p className="mt-1 text-[12.5px]" style={{ color: "var(--vault-text-mute)", maxWidth: "72ch" }}>
+          {model.label} Each leg is the Official Forecast&rsquo;s own pick, frozen before its game. Its accuracy over a large forward sample
+          is not yet established. {model.method}
+        </p>
+      </div>
+      {foldedNoCard ? (
+        <>
+          <p className="m-0 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }} data-level-a-folded-no-card="">
+            No {productName} model suggestion today{productSlot?.reason ? `: ${productSlot.reason}` : ""}.{" "}
+            <Link href="/build#level-a-parlay-lab" style={{ color: "var(--vault-text-mute)", textDecoration: "underline" }}>All model suggestions on the Parlay Center →</Link>
+          </p>
+          <details className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
+            <summary className="cursor-pointer" style={{ minHeight: 40, color: "var(--vault-text)" }}>Why, card by card</summary>
+            <div className="mt-2 flex flex-col gap-3">{body}</div>
+          </details>
+        </>
+      ) : body}
       <ModelSlipBar catalog={slipCatalogFor(model, mode)} />
     </section>
   );
