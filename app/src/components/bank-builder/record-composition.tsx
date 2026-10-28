@@ -15,12 +15,16 @@ export interface FoldBacklogView {
   decided: Record<string, { won: number; lost: number }>;
 }
 
-const ERA_LABEL: Record<string, string> = { PROTECTED_BASE: "July protected base", RECEIPT_ERA: "settled receipts" };
+const ERA_LABEL: Record<string, string> = { PROTECTED_BASE: "July protected base", RECEIPT_ERA: "current era · settled receipts" };
 const rec = (c: Counts) => (c.won != null && c.lost != null ? `${c.won}–${c.lost}` : "—");
 const day = (d: string | null) => (d ? etDayLabel(d) ?? d : "—");
 
-export default function RecordComposition({ recordLabel, window, composition, backlog, product = "bank-builder" }: {
+export default function RecordComposition({ recordLabel, scopeLabel, window, composition, backlog, product = "bank-builder" }: {
   recordLabel: string; window: Win | null; composition: Era[] | null; backlog: FoldBacklogView | null;
+  /** P0 U2 · what the figure measures, from RECORD_SCOPE_LABEL ("All-time" for Bank Builder's composite,
+   *  "Current era" for Moonshot's receipts) — so "Record" never names two different numbers on two pages. Every
+   *  page passes it (pinned by product-record-scopes.test.mjs); absent, the line reads "Record …" as before. */
+  scopeLabel?: string;
   /** Whose record this is — the backlog line counts that product's decided results (H: Moonshot reuses it). */
   product?: "bank-builder" | "moonshot";
 }) {
@@ -30,7 +34,7 @@ export default function RecordComposition({ recordLabel, window, composition, ba
   return (
     <section aria-label="How this record is built" className="mt-4 rounded-xl px-4 py-3 text-[12.5px] leading-relaxed" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)" }}>
       <p className="m-0">
-        <strong style={{ color: "var(--vault-text)" }}>Record {recordLabel}</strong>
+        <strong style={{ color: "var(--vault-text)" }}>{scopeLabel ? `${productLabel} · ${scopeLabel.charAt(0).toLowerCase()}${scopeLabel.slice(1)} record ${recordLabel}` : `Record ${recordLabel}`}</strong>
         {window ? <> · {day(window.from)} to {day(window.to)}</> : null}
         {composition?.length ? <> · {composition.map((e) => `${ERA_LABEL[e.era] ?? e.era} ${rec(e.counts)}${e.window ? ` (${day(e.window.from)}–${day(e.window.to)})` : ""}`).join(" + ")}</> : null}
       </p>

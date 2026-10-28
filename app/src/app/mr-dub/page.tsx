@@ -32,7 +32,11 @@ import {
 import { loadLifecycleHistory, settledCardIds } from "@/lib/products/lifecycle-view";
 import { currentEtHour } from "@/lib/daily-freshness-slo.mjs";
 import FreshnessBadge from "@/components/ui/freshness-badge";
-import { ExecutiveDashboard, TodayStatusStrip } from "@/components/mr-dub/flagship/flagship-dashboard";
+import { ExecutiveDashboard, HistoryPanel, TodayStatusStrip } from "@/components/mr-dub/flagship/flagship-dashboard";
+import { currentProductRecord, recordWindowText, scopedRecordText } from "@/lib/results/current-record";
+import { productHistoryRecords } from "@/lib/results/product-history";
+import { loadResultsProjection } from "@/lib/results/projection";
+import { loadCurrentEraMoney } from "@/lib/mr-dub/current-era-money";
 import BankBuilderJourneySection from "@/components/mr-dub/flagship/bank-builder-journey";
 import InteractiveTimeline from "@/components/mr-dub/flagship/interactive-timeline";
 import AnalyticsCharts from "@/components/mr-dub/flagship/analytics-charts";
@@ -66,6 +70,12 @@ export default function MrDubPage() {
   const today = currentSlateDate() ?? currentEtDate();
   const root = path.join(process.cwd(), "public", "data");
   const f = buildFlagship(root, new Date().toISOString(), today);
+  /* P0 U2: each product's record through the ONE shared reader, by scope — the hero leads with the current era,
+     History carries the all-time and June-era figures. */
+  const projection = loadResultsProjection(root);
+  const bbRecords = currentProductRecord("bank-builder", projection);
+  const msRecords = currentProductRecord("moonshot", projection);
+  const msHistory = productHistoryRecords("moonshot", projection);
   // Wider-platform appendix data — today's four-product candidate plan + the separate Moonshot side lane.
   const portfolio = (() => { try { return JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "portfolio.json"), "utf8")); } catch { return null; } })();
   const dailyPortfolio = buildDailyPortfolio(root, new Date().toISOString(), today);
@@ -93,8 +103,6 @@ export default function MrDubPage() {
           two ladders is a sample of two, and the banner copy says so. */}
       {/* The flagship read per sport, including the two that are named but not built. */}
       <SignatureProductsBand />
-
-      <AchievementBanner />
 
       {/* 1 — Flagship brand header (slim) — the avatar + who Mr. Dub is, then straight into the terminal. */}
       <header className="gtp-cinematic-rise flex items-center gap-3.5">
@@ -134,7 +142,8 @@ export default function MrDubPage() {
       </header>
 
       {/* 2 — Executive dashboard (Bloomberg-terminal KPI band + grid). Phase 2. */}
-      <ExecutiveDashboard kpis={f.kpis} journey={f.journey} todayStatus={f.todayStatus} />
+      <ExecutiveDashboard kpis={f.kpis} journey={f.journey} todayStatus={f.todayStatus}
+        era={{ bankBuilder: bbRecords, moonshot: msRecords, money: loadCurrentEraMoney(root) }} />
 
       {/* 3 — Today's status (pending cards, current Bank Builder, exposure, settlement window). Phase 7. */}
       <TodayStatusStrip todayStatus={f.todayStatus} />
@@ -142,6 +151,17 @@ export default function MrDubPage() {
       {/* 3b — Money movements: bankroll, historical peak, difference, open exposure, and every recent official
           movement with its card (Session 8 · A). Reconciled card by card before it renders. */}
       <MoneyMovementsPanel view={buildMoneyMovementsView(root, today)} />
+
+      {/* 3c — HISTORY (P0 U2). The all-time and June-era figures that used to lead this page — the $100-on-Jun-9
+          return, the June peak, all-time ROI/win rate/streaks — and the completed-ladders panel that sat above the
+          header. Kept in full, unchanged, under one clearly labelled heading; never the headline again. */}
+      <section aria-label="History">
+        <SectionHeader eyebrow="History" title="All-time and June-era figures" sub="Everything since the first $100 on Jun 9, 2026, including the two June ladders run under a different process. History — not the current record above." />
+        <div className="mt-2 flex flex-col gap-3">
+          <AchievementBanner />
+          <HistoryPanel kpis={f.kpis} allTime={bbRecords.allTime} />
+        </div>
+      </section>
 
       {/* 4 — The Bank Builder journey — the visual $100 → $10K ladders. Phase 4. */}
       <section>
@@ -200,23 +220,23 @@ export default function MrDubPage() {
             {/* Founder decision 2026-09-22: the current record is the receipt/fold era; the June ledger is a
                 labelled legacy detail, collapsed, never combined with it. */}
             <p className="mt-1 mb-2 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>
-              Settled record{" "}
+              {/* P0 U2: through the one shared reader, by scope ("Current era 7–48 · Aug 15 – Oct 26, 2026"). */}
               <span className="font-mono" style={{ color: "var(--vault-moonshot-bright)" }}>
-                {moonshotState.displayRecord ? `${moonshotState.displayRecord.wins}–${moonshotState.displayRecord.losses}` : "—"}
+                {scopedRecordText(msRecords.currentEra) ?? "—"}
               </span>
-              {moonshotState.displayRecord?.era === "receipts" ? ` · since ${moonshotState.displayRecord.fromDate} · settled receipts` : moonshotState.displayRecord ? " · legacy era" : ""}
+              {msRecords.currentEra ? " · settled receipts" : ""}
               {moonshotState.openCardCount ? ` · ${moonshotState.openCardCount} legacy card(s) left open and ungraded` : ""}
               . Kept on its own line — it is not part of the Bank Builder record. Paper-only.{" "}
               <Link href="/moonshot" style={{ color: "var(--vault-moonshot-bright)" }}>Full reconciliation →</Link>
             </p>
-            {moonshotState.legacyRecord && moonshotState.displayRecord?.era === "receipts" ? (
+            {msHistory.length && msRecords.currentEra ? (
               <details className="mb-2 text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
-                <summary className="cursor-pointer font-mono">{moonshotState.legacyRecord.label}</summary>
+                <summary className="cursor-pointer font-mono">History · {msHistory.map((h) => scopedRecordText(h)).join(" · ")}</summary>
                 <span className="block mt-1">A different product era — June multi-leg cards from the June 2026 ledger. History only; never added to the current record.</span>
               </details>
             ) : null}
             {moonshotLane ? (
-              <MoonshotLaneTracker lane={moonshotLane} record={moonshotState.displayRecord ?? undefined} recordLabel={moonshotState.displayRecord?.label ?? undefined} exposure={portfolio.moonshot.exposure} running={moonshotState.running} mode="compact" />
+              <MoonshotLaneTracker lane={moonshotLane} record={msRecords.currentEra ? { wins: msRecords.currentEra.won, losses: msRecords.currentEra.lost, voids: 0, pending: 0 } : undefined} recordLabel={msRecords.currentEra ? `${msRecords.currentEra.scopeLabel} · ${recordWindowText(msRecords.currentEra) ?? ""}` : undefined} exposure={portfolio.moonshot.exposure} running={moonshotState.running} mode="compact" />
             ) : (
               <Link href="/moonshot" className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-moonshot-bright)", textDecoration: "none" }}>Open the Moonshot Lane tracker →</Link>
             )}

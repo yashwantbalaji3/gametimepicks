@@ -23,6 +23,7 @@ import BankBuilderResults from "@/components/bank-builder-results";
 import { getBankBuilderSettledSteps } from "@/lib/bank-builder-results";
 import { currentEtDate } from "@/lib/freshness";
 import type { TrustCenterModel } from "@/lib/results-trust-center";
+import { RECORD_SCOPE_LABEL, recordWindowText, scopedRecordText } from "@/lib/results/current-record";
 
 /** $19,065.40 · $0 (no trailing cents on an exact zero). */
 function usd(n: number): string {
@@ -151,20 +152,23 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
         <section aria-label="Official record and exposure" className="flex flex-col gap-2">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
             {[
+              /* P0 U2: led with "Official record 47-52" (all-time, June base included) and "Peak (crown)". The
+                 strip now leads with the CURRENT era, names the all-time figure as all-time, and labels the June
+                 peak as history — every record through the shared reader, never formatted from the owner here. */
               {
-                k: "Official record",
-                v: `${money.record.wins}-${money.record.losses}`,
-                sub: money.record.pending > 0 ? `${money.record.pending} pending` : "paper cards",
+                k: "Bank Builder · current era",
+                v: model.bankBuilderCurrentEra?.recordLabel ?? "—",
+                sub: recordWindowText(model.bankBuilderCurrentEra) ?? "paper cards",
               },
               { k: "Paper bankroll", v: usd(money.bankroll), sub: "current" },
-              { k: "Peak (crown)", v: usd(money.crown), sub: "high-water mark" },
+              {
+                k: "Bank Builder · all-time",
+                v: model.bankBuilderAllTime?.recordLabel ?? "—",
+                sub: model.bankBuilderAllTime ? `${model.bankBuilderAllTime.settled} settled · ${recordWindowText(model.bankBuilderAllTime) ?? ""}` : "paper cards",
+              },
               { k: "Open exposure", v: usd(money.openExposure), sub: money.openExposure === 0 ? "nothing at stake" : "at stake now" },
               { k: "Pending cards", v: String(money.record.pending), sub: "awaiting official grade" },
-              {
-                k: "Settled cards",
-                v: String(money.record.wins + money.record.losses),
-                sub: "decisive · graded to date",
-              },
+              { k: "Peak (crown) · history", v: usd(money.crown), sub: "June high-water mark" },
             ].map((cell) => (
               <div key={cell.k} className="rounded-[10px] px-3.5 py-3 flex flex-col gap-1" style={CARD}>
                 <Eyebrow>{cell.k}</Eyebrow>
@@ -290,9 +294,11 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
                * for Moonshot (its comment names the same founder decision); Bank Builder was missed.
                * It now carries the CURRENT record, through the one canonical reader, or no figure.
                */
-              detail: model.bankBuilderRecordLabel
-                ? `Settled record ${model.bankBuilderRecordLabel}`
-                : "Flagship paper ladder",
+              detail: model.bankBuilderCurrentEra
+                ? [scopedRecordText(model.bankBuilderCurrentEra, { dates: false }), scopedRecordText(model.bankBuilderAllTime, { dates: false })].filter(Boolean).join(" · ")
+                : model.bankBuilderRecordLabel
+                  ? `${RECORD_SCOPE_LABEL["all-time"]} ${model.bankBuilderRecordLabel}`
+                  : "Flagship paper ladder",
             },
             {
               label: "Moonshot",
@@ -306,8 +312,8 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
               /* The record comes from the ONE Moonshot state owner — the same derivation /moonshot
                  renders. Founder decision 2026-09-22: it is the receipt/fold-era record, named with its
                  era and sample; the June legacy era is never combined into it. */
-              detail: model.moonshotDisplayRecord
-                ? `${model.moonshotDisplayRecord.label ?? `Settled record ${model.moonshotDisplayRecord.wins}-${model.moonshotDisplayRecord.losses}`} · separate paper lane`
+              detail: model.moonshotCurrentEra
+                ? `${scopedRecordText(model.moonshotCurrentEra)} · separate paper lane`
                 : "Separate paper lane",
             },
             {
@@ -438,9 +444,9 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
         <div className="rounded-[10px] px-4 py-3.5 flex flex-col gap-1.5" style={CARD}>
           <Eyebrow>Settled</Eyebrow>
           <span className="text-[13px]" style={{ color: "var(--vault-text)" }}>
-            {money ? money.record.wins + money.record.losses : 0} settled card
-            {(money ? money.record.wins + money.record.losses : 0) === 1 ? "" : "s"}{" "}
-            ({money ? `${money.record.wins}-${money.record.losses}` : "—"}) ·{" "}
+            {model.bankBuilderAllTime ? model.bankBuilderAllTime.settled : 0} settled card
+            {(model.bankBuilderAllTime ? model.bankBuilderAllTime.settled : 0) === 1 ? "" : "s"}{" "}
+            ({model.bankBuilderAllTime ? `all-time ${model.bankBuilderAllTime.recordLabel}` : "—"}) ·{" "}
             {model.completedCards.length} completed ladder
             {model.completedCards.length === 1 ? "" : "s"}
           </span>
@@ -493,7 +499,7 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
         >
           Raw model-performance ledger — every published MLB projection graded
           against official box scores. This is <strong>not</strong> part of the{" "}
-          {money ? `${money.record.wins}-${money.record.losses}` : "official"}{" "}
+          {model.bankBuilderAllTime ? `Bank Builder ${model.bankBuilderAllTime.recordLabel} all-time` : "official"}{" "}
           product-card record above, and the two are never combined.
         </p>
         {mlb.daily ? (

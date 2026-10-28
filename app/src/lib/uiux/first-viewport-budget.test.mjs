@@ -106,5 +106,8 @@ test("the hero's live-status row derives from owners — its figures are digits,
   if (/\d+ events? today\b/.test(t)) {
     assert.match(home, /eventsKnown=\{todayAcross\.state !== "UNKNOWN"\}/, "a day claim is only made through the known-schedule gate");
   }
-  assert.match(t, /Settled through|See every settled result/, "the settled proof link anchors the row");
+  /* REPOINTED P0 U1 (2026-10-28): the link names the SITE's newest settled day, so it reads "Latest results <date>" —
+     "Settled through" claimed every ledger was settled through a date only the newest one had reached. */
+  assert.match(t, /Latest results \w+ \d+|See every settled result/, "the settled proof link anchors the row");
+  assert.doesNotMatch(t, /Settled through \w+ \d+ →/, "never the site-wide 'Settled through' claim");
 });
