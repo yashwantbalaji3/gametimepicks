@@ -17,6 +17,7 @@
 import Link from "next/link";
 import type { SignatureProduct } from "@/lib/products/signature-products";
 import type { ProductReadiness } from "@/lib/products/product-readiness";
+import { listInWords, officialForecastSportLabels } from "@/lib/public-registry";
 
 const STATUS_COPY: Record<string, string> = {
   PROVEN: "Done",
@@ -40,6 +41,8 @@ export default function ProductInDevelopment({
   scheduleHref: string;
   scheduleLabel: string;
 }) {
+  /* W9: read from the registry's families, never a hand-written count ("the two that publish today"). */
+  const publishingSports = officialForecastSportLabels();
   return (
     <div className="mx-auto w-full max-w-3xl px-4 pb-28 pt-6 sm:pt-8 flex flex-col gap-7 overflow-x-hidden">
       <header className="flex flex-col gap-2.5">
@@ -84,9 +87,10 @@ export default function ProductInDevelopment({
             What has to be true before it publishes
           </h2>
           <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-faint)", margin: 0 }}>
-            {readiness.met.length} of {readiness.met.length + readiness.missing.length} stages complete. Every sport on this site
-            passes the same list — the two that publish today did, and this one has not yet. A stage only counts as done when
-            there is a receipt for it.
+            {readiness.met.length} of {readiness.met.length + readiness.missing.length} stages complete. Every product on this
+            site has to pass the same list before it publishes, and {product.name} has not yet. {publishingSports.length} sports
+            publish Official Forecasts today ({listInWords(publishingSports)}). A stage only counts as done when there is a
+            record of it.
           </p>
         </div>
 

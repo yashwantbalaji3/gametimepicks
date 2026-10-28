@@ -85,8 +85,10 @@ test("the MNF game (DAL @ PHI, Mon Oct 26 8:15 PM ET = 00:15Z Oct 27) is dated O
   assert.ok(isPresentable(story), "the archived story renders");
   assert.equal(story.displayDate, "2026-10-26");
   const text = JSON.stringify(story.chapters);
-  assert.match(story.chapters[0].line, /Dallas Cowboys at Philadelphia Eagles, 2026-10-26\./);
-  assert.doesNotMatch(text, /2026-10-27/, "the UTC day appears nowhere in the story");
+  /* Overnight W8 (2026-10-28): the sentence names the ET day in words ("Mon, Oct 26"), not as an ISO key — the
+     claim (the ET day, never the UTC day) is unchanged and now also refuses the UTC day in words. */
+  assert.match(story.chapters[0].line, /Dallas Cowboys at Philadelphia Eagles, Mon, Oct 26\./);
+  assert.doesNotMatch(text, /2026-10-27|Oct 27/, "the UTC day appears nowhere in the story");
   assert.equal(etDateOf(f.kickoffUtc), "2026-10-26");
 });
 

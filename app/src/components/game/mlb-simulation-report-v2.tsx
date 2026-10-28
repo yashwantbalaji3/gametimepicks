@@ -27,6 +27,7 @@
  */
 import type { PublicProjection } from "@/lib/normalize";
 import Explain from "@/components/ui/explain";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 import PlayerAvatar from "@/components/player-avatar";
 import type { SimGeneratedPick, SimDistributions } from "@/lib/game-simulations/types";
 import type { MlbGameCenter } from "@/lib/mlb-team-markets";
@@ -104,7 +105,15 @@ const MARKET_LABEL: Record<string, string> = {
   batter_doubles: "Doubles",
   batter_stolen_bases: "Stolen bases",
 };
-const marketLabel = (m: string) => MARKET_LABEL[m] ?? m.replace(/^batter_|^pitcher_/, "").replace(/_/g, " ");
+/* Overnight W8 (2026-10-28): the NFL player-prop artifact keys its markets by field name (rushAtt, recYds …), which this
+   report printed raw on the preseason NFL pages. Display words only — DETERMINISTIC_SETTLE stays the MLB set above, so no
+   eligibility count moves. */
+const NFL_MARKET_LABEL: Record<string, string> = {
+  passAtt: "Pass attempts", passCmp: "Completions", passYds: "Passing yards", passTd: "Passing TDs", passInt: "Interceptions",
+  rushAtt: "Rush attempts", rushYds: "Rushing yards", rushTd: "Rushing TDs",
+  targets: "Targets", rec: "Receptions", recYds: "Receiving yards", recTd: "Receiving TDs", anytimeTd: "Anytime TD",
+};
+const marketLabel = (m: string) => MARKET_LABEL[m] ?? NFL_MARKET_LABEL[m] ?? m.replace(/^batter_|^pitcher_/, "").replace(/_/g, " ");
 const DETERMINISTIC_SETTLE = new Set(Object.keys(MARKET_LABEL));
 
 const RISK_TONE: Record<string, string> = {
@@ -213,6 +222,11 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
   const simMarkets = [...new Set(picks.map((p) => marketLabel(p.market)))];
   const eligible = picks.filter((p) => (p.edgePct ?? 0) > 0 && DETERMINISTIC_SETTLE.has(p.market) && p.riskTier !== "longshot");
   const boardPicks = [...picks].sort((a, b) => (b.edgePct ?? 0) - (a.edgePct ?? 0));
+  /* The one risk tier every board line shares, or null when they differ (then each row prints its own). */
+  const uniformRisk: string | null = (() => {
+    const tiers = new Set<string>(boardPicks.map((p) => String(p.riskTier ?? "")));
+    return boardPicks.length > 1 && tiers.size === 1 && !tiers.has("") ? [...tiers][0] : null;
+  })();
   const watchlist = boardPicks.filter((p) => (p.edgePct ?? 0) > 0).slice(0, 5);
   const aboveMarket = picks.filter((p) => (p.edgePct ?? 0) > 0).length;
   // Phase 7 — market-vs-simulation explanation for the single biggest lead. Uses ONLY factors actually attached
@@ -478,7 +492,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
                   {([
                     ["Player", "left", true], ["Market", "left", true], ["Proj", "right", false],
                     ["Model %", "right", true], ["Mkt %", "right", false], ["Gap", "right", true],
-                    ["Risk", "right", false], ["Product", "left", true],
+                    ...(uniformRisk ? [] : [["Risk", "right", false] as [string, "left" | "right", boolean]]), ["Product", "left", true],
                   ] as Array<[string, "left" | "right", boolean]>).map(([h, align, mobile]) => (
                     <th key={h} className={`font-mono uppercase tracking-[0.06em] py-2 px-1.5${mobile ? "" : " hidden sm:table-cell"}`} style={{ fontSize: 8.5, textAlign: align, borderBottom: "1px solid var(--vault-border-strong)", whiteSpace: "nowrap" }}>{h}</th>
                   ))}
@@ -500,7 +514,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
                       <td className="py-2 px-1.5 font-mono tabular text-right" style={{ color: "var(--vault-text)", fontWeight: 700 }}>{pct(p.modelProbability)}</td>
                       <td className="py-2 px-1.5 font-mono tabular text-right hidden sm:table-cell" style={{ color: "var(--vault-text-faint)" }}>{pct(p.marketProbability)}</td>
                       <td className="py-2 px-1.5 font-mono tabular text-right" style={{ color: (p.edgePct ?? 0) > 0 ? "var(--vault-gold)" : "var(--vault-text-faint)", fontWeight: 700 }}>{p.edgePct == null ? "—" : `${(p.edgePct ?? 0) > 0 ? "+" : ""}${p.edgePct.toFixed(0)}`}</td>
-                      <td className="py-2 px-1.5 text-right hidden sm:table-cell"><span className="font-mono uppercase" style={{ fontSize: 8.5, color: RISK_TONE[p.riskTier] ?? "var(--vault-text-mute)" }}>{p.riskTier}</span></td>
+                      {uniformRisk ? null : <td className="py-2 px-1.5 text-right hidden sm:table-cell"><span className="font-mono uppercase" style={{ fontSize: 8.5, color: RISK_TONE[p.riskTier] ?? "var(--vault-text-mute)" }}>{p.riskTier}</span></td>}
                       <td className="py-2 px-1.5"><ProductChip tag={tag} /></td>
                     </tr>
                   );
@@ -508,9 +522,16 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
               </tbody>
             </table>
             <p className="mt-2 font-mono text-[9.5px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
-              Proj = the model's projected stat (from the artifact) · Model % / Mkt % = probabilities to clear the line ·
+              Proj = the model's projected stat · Model % / Mkt % = probabilities to clear the line ·
               Gap = model − market, in points.
             </p>
+            {uniformRisk ? (
+              /* Overnight W8: one risk tier on every line (215× "EXPERIMENTAL" on a preseason NFL page) is stated once. */
+              <p data-uniform-risk={uniformRisk} className="mt-1 text-[12px] leading-relaxed m-0" style={{ color: "var(--vault-text-mute)" }}>
+                Risk tier on every line: <strong style={{ color: RISK_TONE[uniformRisk] ?? "var(--vault-text)" }}>{uniformRisk}</strong>
+                {uniformRisk === "experimental" ? " — these lines come from a model that has not been validated." : "."}
+              </p>
+            ) : null}
           </div>
         ) : <p className="text-[12.5px] m-0" style={{ color: "var(--vault-text-mute)" }}>No simulated player lines for this game yet.</p>}
       </Section>
@@ -748,7 +769,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
         <div id="mlbr-methodology" />
         <div className="flex flex-wrap gap-1.5 mb-2">
           <span className="font-mono rounded-full px-2 py-0.5" style={{ fontSize: 9, color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)" }}>slate {date}</span>
-          {modelVersion ? <span className="font-mono rounded-full px-2 py-0.5" style={{ fontSize: 9, color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)" }}>model {modelVersion}</span> : null}
+          {modelVersion && sportCode !== "NFL" ? <span className="font-mono rounded-full px-2 py-0.5" style={{ fontSize: 9, color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)" }}>model {modelVersion}</span> : null}
           {isPreviousSlate ? <span className="font-mono rounded-full px-2 py-0.5" style={{ fontSize: 9, color: "var(--vault-warn)", border: "1px solid color-mix(in srgb, var(--vault-risk) 35%, transparent)" }}>previous slate</span> : null}
         </div>
         {/* Data freshness — honest ET provenance: sim generated time + when the compared market line was captured
@@ -811,6 +832,12 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
               </div>
             ))}
           </div>
+        ) : null}
+        {/* Overnight W8 (2026-10-28): on NFL reports the internal model id is audit detail — RELOCATED here, verbatim. */}
+        {sportCode === "NFL" && modelVersion ? (
+          <MoreDisclosure title="Technical details" summary="The internal model version behind this report.">
+            <p className="m-0 font-mono" data-nfl-report-model="" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>Model {modelVersion}</p>
+          </MoreDisclosure>
         ) : null}
       </Section>
 

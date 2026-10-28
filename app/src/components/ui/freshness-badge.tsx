@@ -43,8 +43,8 @@ export default function FreshnessBadge({
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 font-mono uppercase tracking-[0.1em] px-2 py-0.5 rounded-full shrink-0${className ? ` ${className}` : ""}`}
-      style={{ color: t.color, background: t.bg, border: `1px solid ${t.border}`, fontSize: 10, whiteSpace: "nowrap" }}
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full shrink-0${className ? ` ${className}` : ""}`}
+      style={{ color: t.color, background: t.bg, border: `1px solid ${t.border}`, fontSize: 12, whiteSpace: "nowrap" }}
       title={f.warning ?? undefined}
     >
       <span

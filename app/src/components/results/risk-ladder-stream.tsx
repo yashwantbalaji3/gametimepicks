@@ -83,9 +83,11 @@ function rowsSentence(rows: { tier: string; r: Row }[], overall: Row, noun: stri
   return `${rows.length - positive.length} of the ${rows.length} tiers are negative; ${names.join(" and ")}. A positive return on a sample this size is a handful of cards landing, not an edge — the overall stream is ${signed(overall.roi)}.`;
 }
 
-export default function RiskLadderStream({ published, candidates }: {
+export default function RiskLadderStream({ published, candidates, sportLabel = null }: {
   published: PublishedBandRecord | null;
   candidates: RiskLadder["record"] | null;
+  /** Overnight 10-28 (W5): the sport the published record is read for (loadPublishedBandRecord's `sport`), named in the eyebrow. */
+  sportLabel?: string | null;
 }) {
   const pubRows = published ? ORDER.map((t) => ({ tier: t, r: published.byTier[t] as Row | undefined })).filter((x): x is { tier: string; r: Row } => !!x.r) : [];
   const candRows = candidates ? ORDER.map((t) => ({ tier: t, r: candidates.byTier[t] as Row | undefined })).filter((x): x is { tier: string; r: Row } => !!x.r) : [];
@@ -95,7 +97,7 @@ export default function RiskLadderStream({ published, candidates }: {
     <section aria-labelledby="risk-ladder-record" className="mt-10 flex flex-col gap-3" data-record-population="published-cards">
       <div className="flex flex-col gap-1">
         <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-          Risk ladder · paper stream
+          Risk ladder · paper stream{sportLabel ? ` · ${sportLabel} cards only` : ""}
         </span>
         <h2 id="risk-ladder-record" className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 800 }}>
           Our published cards by risk level

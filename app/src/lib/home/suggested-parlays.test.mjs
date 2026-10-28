@@ -62,11 +62,14 @@ test("component renders refusals honestly: no-play and unavailable are distinct 
   assert.ok(!/\block\b|\bsafe\b|\bedge\b|guaranteed|profit/i.test(component), "no banned copy");
 });
 
-test("homepage renders the preview from the lib and the hero carries all three journey actions", () => {
+test("homepage renders the preview from the lib; the Parlay Center is reached from the preview, not a third hero button", () => {
   assert.match(page, /loadSuggestedParlaysPreview\(/, "page derives via the lib owner");
   assert.match(page, /<SuggestedParlaysPreview\b/, "page renders the preview");
-  assert.match(hero, /Open Parlay Center/, "hero has the Parlay Center action (P208 name = destination)");
-  assert.match(hero, /href="\/build"/, "parlays action routes to /build");
+  /* REPOINTED W4 (2026-10-28): the hero's third equal button ("Open Parlay Center") was part of the defect — three
+     equal actions, none to today's forecasts. The hero keeps one primary + one secondary; the Parlay Center is linked
+     from this preview (href="/build", asserted on the component above) and from the navigation. */
+  assert.doesNotMatch(hero, /Open Parlay Center/, "the hero no longer carries a third, equal action");
+  assert.match(page, /\{ label: "Suggested parlays", href: "\/build\/" \}/, "phones still reach the Parlay Center from Home's summary");
 });
 
 test("tier intent language exists for exactly the four canonical tiers", () => {

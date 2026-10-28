@@ -7,6 +7,7 @@
  */
 import { useState } from "react";
 import type { TimelineDay, FlagshipEvent } from "@/lib/mr-dub/flagship";
+import { plainEventLabel } from "@/lib/mr-dub/plain-notes.mjs";
 
 const usd = (n: number | null | undefined) => n == null ? "—" : `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const signed = (n: number) => `${n >= 0 ? "+" : "−"}${usd(Math.abs(n))}`;
@@ -21,7 +22,7 @@ function WagerDetail({ e }: { e: FlagshipEvent }) {
   const lost = e.result === "lost";
   const open = e.status === "open" || e.status === "queued";
   const t = won ? "var(--vault-success)" : lost ? "var(--gtp-bank-heat)" : open ? "var(--vault-gold)" : "var(--vault-text-faint)";
-  const label = e.type === "dual_lane_losses" ? "Dual-lane phase seeds" : e.type?.replace(/_/g, " ") ?? "settlement";
+  const label = plainEventLabel(e.type);
   return (
     <div className="rounded-lg px-3 py-2" style={{ border: "1px solid var(--vault-rule)", background: "var(--vault-wash-faint)", borderLeft: `2px solid ${t}` }}>
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -83,10 +84,27 @@ function Row({ d, defaultOpen }: { d: TimelineDay; defaultOpen: boolean }) {
   );
 }
 
+/* Overnight 10-28: the timeline printed every settled day open in the reading path (~70 rows, a large share of the
+   page's 21 phone screens). The newest RECENT_DAYS stay in view; the earlier days — June ladders included — render in
+   the same markup inside one native <details>, so every day stays in the HTML and find-in-page still reaches it. */
+const RECENT_DAYS = 10;
+
 export default function InteractiveTimeline({ timeline }: { timeline: TimelineDay[] }) {
+  const recent = timeline.slice(0, RECENT_DAYS);
+  const earlier = timeline.slice(RECENT_DAYS);
   return (
     <div className="flex flex-col gap-2">
-      {timeline.map((d, i) => <Row key={d.date} d={d} defaultOpen={i === 0} />)}
+      {recent.map((d, i) => <Row key={d.date} d={d} defaultOpen={i === 0} />)}
+      {earlier.length ? (
+        <details className="gtp-disclose rounded-xl" style={{ border: "1px solid var(--vault-border)" }}>
+          <summary className="cursor-pointer px-3.5 py-2.5 text-[12px] font-semibold" style={{ color: "var(--vault-text)", minHeight: 44 }}>
+            Show the {earlier.length} earlier settled day{earlier.length === 1 ? "" : "s"} ({earlier[earlier.length - 1].date} – {earlier[0].date})
+          </summary>
+          <div className="flex flex-col gap-2 px-2 pb-2">
+            {earlier.map((d) => <Row key={d.date} d={d} defaultOpen={false} />)}
+          </div>
+        </details>
+      ) : null}
     </div>
   );
 }

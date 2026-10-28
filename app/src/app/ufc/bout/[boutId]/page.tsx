@@ -19,6 +19,7 @@
 import { roundPhrase } from "@/lib/sports/ufc/round-phrase.mjs";
 import type { Metadata } from "next";
 import Link from "next/link";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 import { notFound } from "next/navigation";
 
 import { Histogram, ProbabilityBar } from "@/components/distribution-chart";
@@ -296,17 +297,23 @@ export default function UfcBoutPage({ params }: { params: { boutId: string } }) 
             <EvidenceRow label="Method" e={card.model?.evidence?.method} />
             <EvidenceRow label="Round" e={card.model?.evidence?.round} />
           </div>
-          <div className="font-mono" style={{ fontSize: 11, color: "var(--vault-text-faint)", lineHeight: 1.7 }}>
-            {card.model?.id ? <div>model {card.model.id}</div> : null}
-            {card.model?.corpus?.fights ? (
-              <div>
-                corpus {card.model.corpus.fights.toLocaleString("en-US")} fights
-                {card.model.corpus.from && card.model.corpus.to ? ` · ${card.model.corpus.from} to ${card.model.corpus.to}` : ""}
-                {card.model.corpus.source ? ` · ${card.model.corpus.source}` : ""}
-              </div>
-            ) : null}
-            {card.generatedAt ? <div>generated <EtTime iso={card.generatedAt} /></div> : null}
-          </div>
+          {card.generatedAt ? (
+            <p className="m-0" style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }}>Generated <EtTime iso={card.generatedAt} /></p>
+          ) : null}
+          {/* Overnight W8 (2026-10-28): the model fingerprint and the corpus's source and span are audit detail —
+              RELOCATED, verbatim (dates as ISO keys, as recorded), into one collapsed "Technical details". */}
+          <MoreDisclosure title="Technical details" summary="Model fingerprint and the fight corpus it was fitted on.">
+            <div className="font-mono" style={{ fontSize: 11, color: "var(--vault-text-faint)", lineHeight: 1.7 }}>
+              {card.model?.id ? <div>model {card.model.id}</div> : null}
+              {card.model?.corpus?.fights ? (
+                <div>
+                  corpus {card.model.corpus.fights.toLocaleString("en-US")} fights
+                  {card.model.corpus.from && card.model.corpus.to ? ` · ${card.model.corpus.from} to ${card.model.corpus.to}` : ""}
+                  {card.model.corpus.source ? ` · ${card.model.corpus.source}` : ""}
+                </div>
+              ) : null}
+            </div>
+          </MoreDisclosure>
           <p className="m-0" style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }}>
             Educational and paper-only — not betting advice.
           </p>

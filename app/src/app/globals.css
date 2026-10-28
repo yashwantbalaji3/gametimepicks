@@ -6057,7 +6057,7 @@ a.ft-link, a.ft-link[data-prose-link] { color: var(--vault-text-mute); text-deco
 a.ft-link { display: inline-block; min-height: 24px; padding-block: 2px; }
 .ft-list > li + li { margin-top: 0.25rem; }
 @media (pointer: coarse) {
-  a.ft-link { min-height: 44px; padding-block: 12px; }
+  a.ft-link { min-height: 44px; min-width: 44px; padding-block: 12px; } /* W9: + a 44px WIDTH for short labels (Home 36px, Picks 32px at 390) */
   .ft-list > li + li { margin-top: 0; }
 }
 .ft-note { color: var(--vault-text-faint); font-size: 11px; }
@@ -6093,3 +6093,48 @@ a.ent-link, a.ent-link[data-prose-link] { color: var(--vault-gold-bright); text-
    recent-games opponents and player list) — the links are flex items, not running text, so the inline-link
    exception does not apply. Each becomes a 44 px target; the label keeps its size. */
 .gtp-hit-44-links a { display: inline-flex; align-items: center; min-height: 44px; }
+
+/* ── W6 · mobile and accessibility (overnight 2026-10-28) ──────────────────────────────────────────────────────────
+   Shared rules, so every page improves without each page re-solving it. Measured against the 10-28 audit
+   (390/430/768/1440 on Production): 99/99 phone routes had a tap target under 44px and text under 12px. */
+
+/* (a) A 44px touch target that does NOT make the control heavier: the pseudo-element grows the HIT AREA, never the box,
+       so a 20px link in a card keeps its line (audit: /models family links 107–162×20). For standalone links and
+       summaries that sit apart from their neighbours — never a dense list where two grown areas would overlap. */
+.gtp-hit-area { position: relative; }
+.gtp-hit-area::after { content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, 44px); height: max(100%, 44px); transform: translate(-50%, -50%); }
+
+/* (b) The calm status chip: sentence case, 12px, muted text, one tone per meaning carried by a 6px dot (--chip-tone).
+       The label IS the state, so colour is never the only signal; a row of statuses no longer reads as a wall of
+       uppercase alarms ("EVENT THIS WEEK", "NOT MARKET-VALIDATED" at 8.5px). */
+.gtp-calm-chip { display: inline-flex; align-items: center; gap: 6px; padding: 1px 8px; border-radius: 9999px; border: 1px solid var(--vault-rule); color: var(--vault-text-mute); font-size: 12px; line-height: 1.4; font-weight: 500; letter-spacing: 0; text-transform: none; white-space: nowrap; }
+.gtp-calm-chip::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 9999px; background: var(--chip-tone, var(--vault-text-faint)); }
+
+/* (c) Keyboard focus on the controls the baseline above did not list: native disclosures (every hand-rolled
+       <details>, including the shared Explain and "What does this mean?") and text areas. Component rules still win. */
+summary:focus-visible,
+textarea:focus-visible { outline: none; box-shadow: var(--vault-focus-ring); border-radius: 4px; }
+
+/* (d) Wide tables on phones. components/a11y/scroll-region-a11y.tsx marks every sideways-scrolling box that holds a
+       table with data-x-scroll = start | middle | end (and removes it when the table fits). The edge with more
+       columns fades out — a mask, so it works on any panel colour — and below 768px a one-line hint sits under the
+       table until the reader first scrolls it. Keyboard focus drops the mask so the focus ring is never clipped. */
+[data-x-scroll="start"] { -webkit-mask-image: linear-gradient(to right, black calc(100% - 28px), transparent); mask-image: linear-gradient(to right, black calc(100% - 28px), transparent); }
+[data-x-scroll="middle"] { -webkit-mask-image: linear-gradient(to right, transparent, black 28px, black calc(100% - 28px), transparent); mask-image: linear-gradient(to right, transparent, black 28px, black calc(100% - 28px), transparent); }
+[data-x-scroll="end"] { -webkit-mask-image: linear-gradient(to right, transparent, black 28px); mask-image: linear-gradient(to right, transparent, black 28px); }
+[data-x-scroll]:focus-visible { -webkit-mask-image: none; mask-image: none; }
+@media (max-width: 767px) {
+  [data-x-scroll][data-x-hint]::after { content: "Swipe sideways for more columns →"; content: "Swipe sideways for more columns →" / ""; display: block; width: max-content; padding-top: 6px; font-size: 12px; line-height: 1.4; color: var(--vault-text-faint); visibility: hidden; }
+  [data-x-scroll="start"][data-x-hint]::after { visibility: visible; }
+}
+
+/* (e) Links in research tables on touch screens (audit: /teams/mlb/new-york-yankees 277 targets under 44px, "TB @ NYY"
+       54×13, "Game →" 40×13; /players/mlb/adley-rutschman 157). A cell's single link takes the whole cell as its hit
+       area — bounded by the cell, so neighbouring rows never overlap and the table keeps its density. */
+@media (pointer: coarse) {
+  td:has(> a.ent-link:only-of-type), td:has(> a.prv-glink) { position: relative; }
+  td > a.ent-link:only-of-type::after, td > a.prv-glink::after { content: ""; position: absolute; inset: 0; }
+}
+/* (b′) The same tone dot without the pill, for a status said inline in a sentence-like row (homepage lanes). */
+.gtp-calm-dot { display: inline-flex; align-items: center; gap: 6px; }
+.gtp-calm-dot::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 9999px; background: var(--chip-tone, var(--vault-text-faint)); }

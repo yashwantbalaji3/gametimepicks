@@ -30,6 +30,7 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
  * (components/sports/sport-chooser.tsx, shared with /live's quiet-day state).
  */
 import SportChooser from "@/components/sports/sport-chooser";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 import { PUBLIC_SPORTS, publicSport, publishesOfficialForecast } from "@/lib/public-registry";
 
 /*
@@ -85,9 +86,11 @@ export default function UpcomingSportsPage() {
           </>
         ) : null}
       </p>
-      <div style={{ marginTop: 24 }}>
+      {/* Overnight W8 (2026-10-28): each sport's next dozen games repeated the hubs the chooser above already links;
+          the lists fold behind one disclosure (every section, its source and its coverage words are unchanged inside). */}
+      <MoreDisclosure className="mt-6" title="Every sport's schedule" summary="The next games for each sport, where the schedule comes from, and what each hub publishes.">
         <UpcomingSportsSections sports={sports} />
-      </div>
+      </MoreDisclosure>
     </div>
   );
 }

@@ -94,7 +94,7 @@ export function UpcomingSportSection({ s }: { s: SportSchedule }) {
              validated scorer model and priced cards). The coverage AXIS stays closed; only the
              rendered words become hub-aware. */}
           {s.coverage === "SCHEDULE_ONLY" && SPORT_HUB[s.sport]
-            ? "Schedule section — model output lives on the hub"
+            ? "Schedule section — forecasts are on the hub"
             : COVERAGE_WORDS[s.coverage] ?? s.coverage}
         </span>
       </div>

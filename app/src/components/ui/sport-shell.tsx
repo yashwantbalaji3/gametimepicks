@@ -66,7 +66,7 @@ export default function SportShell({ tabs }: { tabs: ShellTab[] }) {
                 {t.badge != null && t.badge !== "" ? (
                   <span
                     className="font-mono rounded-full px-1.5"
-                    style={{ background: on ? "var(--vault-gold-bright)" : "var(--vault-rule)", color: on ? "var(--vault-on-accent)" : "var(--vault-text-faint)", fontSize: 10 }}
+                    style={{ background: on ? "var(--vault-gold-bright)" : "var(--vault-rule)", color: on ? "var(--vault-on-accent)" : "var(--vault-text-faint)", fontSize: 12 }}
                   >
                     {t.badge}
                   </span>

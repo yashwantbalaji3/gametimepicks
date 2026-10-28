@@ -76,26 +76,26 @@ export default function HeadToHead({
         <div className="flex flex-col items-center gap-1.5 min-w-0" style={{ flex: 1 }}>
           <Portrait side={left} size={portraitSize} accent={accent} />
           <span className="text-center truncate w-full" style={{ color: "var(--vault-text)", fontWeight: 700, fontSize: 13.5, lineHeight: 1.2 }}>{left.name}</span>
-          {left.subtitle ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{left.subtitle}</span> : null}
+          {left.subtitle ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>{left.subtitle}</span> : null}
         </div>
 
         <div className="flex flex-col items-center justify-center gap-1 shrink-0" style={{ paddingTop: portraitSize * 0.32 }}>
-          <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>vs</span>
+          <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>vs</span>
         </div>
 
         <div className="flex flex-col items-center gap-1.5 min-w-0" style={{ flex: 1 }}>
           <Portrait side={right} size={portraitSize} accent={accent} />
           <span className="text-center truncate w-full" style={{ color: "var(--vault-text)", fontWeight: 700, fontSize: 13.5, lineHeight: 1.2 }}>{right.name}</span>
-          {right.subtitle ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{right.subtitle}</span> : null}
+          {right.subtitle ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>{right.subtitle}</span> : null}
         </div>
       </div>
 
       {verdict ? (
         <div className="flex flex-col items-center gap-0.5 rounded-[12px] px-3 py-2"
           style={{ border: `1px solid ${accent}`, background: `color-mix(in srgb, ${accent} 10%, transparent)` }}>
-          <span className="font-mono uppercase tracking-[0.14em]" style={{ color: accent, fontSize: 9 }}>{verdict.label}</span>
+          <span className="font-mono" style={{ color: accent, fontSize: 12 }}>{verdict.label}</span>
           <span style={{ color: "var(--vault-text)", fontWeight: 800, fontSize: 16, textAlign: "center" }}>{verdict.value}</span>
-          {verdict.sub ? <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10.5, textAlign: "center" }}>{verdict.sub}</span> : null}
+          {verdict.sub ? <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 12, textAlign: "center" }}>{verdict.sub}</span> : null}
         </div>
       ) : null}
 
@@ -106,7 +106,7 @@ export default function HeadToHead({
             <div key={r.label} className="grid items-center gap-2 py-1.5"
               style={{ gridTemplateColumns: "1fr auto 1fr", borderTop: i === 0 ? "none" : "1px solid var(--vault-rule)" }}>
               <span style={{ textAlign: "right", color: r.better === "left" ? "var(--vault-text)" : "var(--vault-text-mute)", fontWeight: r.better === "left" ? 700 : 500, fontSize: 13, fontVariantNumeric: "tabular-nums" }}>{r.left}</span>
-              <span className="font-mono uppercase tracking-[0.1em] text-center" style={{ color: "var(--vault-text-faint)", fontSize: 9, minWidth: 92 }}>{r.label}</span>
+              <span className="font-mono text-center" style={{ color: "var(--vault-text-faint)", fontSize: 12, minWidth: 92 }}>{r.label}</span>
               <span style={{ textAlign: "left", color: r.better === "right" ? "var(--vault-text)" : "var(--vault-text-mute)", fontWeight: r.better === "right" ? 700 : 500, fontSize: 13, fontVariantNumeric: "tabular-nums" }}>{r.right}</span>
             </div>
           ))}
@@ -114,7 +114,7 @@ export default function HeadToHead({
       ) : null}
 
       {note ? (
-        <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 11.5, lineHeight: 1.55 }}>{note}</p>
+        <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.55 }}>{note}</p>
       ) : null}
     </div>
   );

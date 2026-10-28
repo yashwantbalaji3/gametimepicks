@@ -35,7 +35,7 @@ test("tools row: Top Boards, Research Lab, Results, Forecast Record and Model Pe
 
 test("phone homepage: secondary sections render from sm up, summarised by 44px links on phones; the five sports sit under the hero", () => {
   const page = read("src/app/page.tsx");
-  for (const s of ["topUpcoming(topReads, UPCOMING_READS_SHOWN)", "<SuggestedParlaysPreview", "<FlagshipCards", "<FeaturedSimulationsSection"]) {
+  for (const s of ["reads={homeUpcoming}", "<SuggestedParlaysPreview", "<FlagshipCards", "<FeaturedSimulationsSection"]) {
     const i = page.indexOf(s);
     assert.ok(i > 0, s);
     assert.ok(page.lastIndexOf('<div className="hidden sm:contents">', i) > page.lastIndexOf("</div>", i - 1) || page.slice(Math.max(0, i - 60), i).includes('hidden sm:contents'), `${s} is inside a sm-and-up wrapper`);

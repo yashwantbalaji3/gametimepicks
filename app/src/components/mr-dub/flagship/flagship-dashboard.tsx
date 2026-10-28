@@ -59,7 +59,7 @@ export function ExecutiveDashboard({ kpis, journey, todayStatus, era }: { kpis: 
                 <span className="mb-1 rounded-full px-2 py-0.5 font-mono text-[11px] font-bold" style={{ color: plColor(era.money.pl), border: "1px solid var(--vault-rule)" }}>{signed(era.money.pl)} this era</span>
               ) : null}
               {/* Sprint 035: a figure never renders without its sample size adjacent. */}
-              {bb ? <span className="mb-1 font-mono text-[12px]" style={{ color: "var(--vault-text-mute)" }}>on {bb.won + bb.lost} settled Bank Builder steps{ms ? ` + ${ms.won + ms.lost} Moonshot lanes` : ""}</span> : null}
+              {bb ? <span className="mb-1 font-mono text-[12px]" style={{ color: "var(--vault-text-mute)" }}>on {bb.won + bb.lost} settled Bank Builder steps{ms ? ` + ${ms.won + ms.lost} Moonshot runs` : ""}</span> : null}
             </div>
             {era.money ? (
               <div className="mt-1.5 font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
@@ -82,7 +82,7 @@ export function ExecutiveDashboard({ kpis, journey, todayStatus, era }: { kpis: 
       {/* Current KPIs only. The all-time and June-era KPIs (peak, total ROI, all-time win rate, largest days,
           streaks) moved to <HistoryPanel> — unchanged figures, under a History heading. */}
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <Kpi label="Active ladder" value={activeLabel} sub={activeLane?.kind === "value" ? "value lane" : "survival lane"} accent="var(--vault-gold)" />
+        <Kpi label="Active ladder" value={activeLabel} sub={activeLane?.kind === "value" ? "value ladder" : "lower-volatility ladder"} accent="var(--vault-gold)" />
         <Kpi label="Pending exposure" value={usd(todayStatus.pendingExposure)} sub={`${todayStatus.products.filter((p) => p.live).length} product(s) live`} accent={todayStatus.pendingExposure > 0 ? "var(--gtp-bank-heat)" : "var(--vault-text)"} />
         <Kpi label="Products active today" value={`${todayStatus.products.filter((p) => p.live).length}`} sub={todayStatus.products.filter((p) => p.live).map((p) => p.glyph).join(" ") || "settlement pending"} />
         {todayStatus.lastSettledDate ? (

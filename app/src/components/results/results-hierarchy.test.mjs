@@ -12,7 +12,7 @@ const strip = (s) => s.replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\/\*[\s\S]*
 test("🔴 the explorer shows the selected record BEFORE its filter controls", () => {
   const src = strip(read("src/components/results/results-explorer.tsx"));
   const heading = src.indexOf('id="results-explorer-h"');
-  const answer = src.indexOf("{rangeLabel}");
+  const answer = src.indexOf("{scopeLabel}"); // the headline names its scope (overnight 10-28); was {rangeLabel}
   const firstControl = src.indexOf('htmlFor="results-record-type"');
   assert.ok(heading > 0 && answer > 0 && firstControl > 0, "markers found — a guard that finds nothing proves nothing");
   assert.ok(heading < answer && answer < firstControl, "heading → the record → the controls");

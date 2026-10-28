@@ -13,6 +13,9 @@ import { gateKeyFor, signatureFor } from "@/lib/products/signature-products";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const metadata = withRouteMetadata("/bucket-blitz/", {
+  /* W9 (audit row 27): an in-development placeholder with no pick is not a search result. noindex, links followed; the
+     route inventory marks it indexable: false, and it was never in the sitemap (classification "product"). */
+  robots: { index: false, follow: true },
   title: "Bucket Blitz · GameTime Picks",
   description:
     "The NBA signature product, in development. What is captured today, and every stage still standing between that and a published read. No picks — no NBA player model is validated yet. The NBA Official Forecasts, schedule and official finals are on the NBA hub.",

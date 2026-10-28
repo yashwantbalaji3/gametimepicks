@@ -67,6 +67,7 @@ export default function TodayGamePredictions({ rows, nowMs }: { rows: GamePredic
                     <span className="font-mono uppercase tracking-[0.08em]" style={{ fontSize: 10.5 }}>
                       {started ? "Started" : "Upcoming"}
                     </span>
+                    {r.forecastQualifier ? <span data-mlb-forecast-qualifier="" className="block whitespace-normal" style={{ color: "var(--vault-warn)", fontSize: 10.5, maxWidth: 220 }}>{r.forecastQualifier}</span> : null}
                   </Cell>
                   <Cell>
                     {r.moneyline ? (

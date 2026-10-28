@@ -28,6 +28,10 @@ import { buildAllGameDetails } from "../src/lib/game-detail.ts";
 import { soccerLeaguePages } from "../src/lib/sports/soccer/leagues.mjs";
 import { familyHref, ledgerFamilies } from "../src/lib/results/v2/forecast-ledger-reader.ts";
 import { FAMILY_LABELS, SPORT_LABELS } from "../src/lib/results/v2/forecast-record.mjs";
+import { searchPageRows } from "../src/lib/search/search-pages.ts";
+import { nbaSearchRows } from "../src/lib/search/nba-search-rows.mjs";
+import { eplPlayerHref, eplPlayerPageIndex } from "../src/lib/search/epl-player-pages.mjs";
+import { AMENDMENT_A, LANE, LANE_SNAPSHOT_SCHEMA } from "../src/lib/sports/nba/experimental-public-lane.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = path.join(APP, "public", "data");
@@ -137,6 +141,10 @@ for (const lg of soccerLeaguePages().map((l) => l.key)) {
       [r.homeClub, r.awayClub, String(set.competition ?? "").toLowerCase(), "soccer", "football"].filter(Boolean));
   }
 }
+/* The research registry (read again below for its own rows): a player with a page opens it (lib/search/epl-player-pages). */
+const eplPlayerPages = eplPlayerPageIndex((() => {
+  try { return JSON.parse(fs.readFileSync(path.join(APP, "..", "data", "research-projection", "v1", "index.json"), "utf8")); } catch { return null; }
+})());
 for (const f of read("soccer/epl/player-projections/latest.json")?.fixtures ?? []) {
   if (!f.slug) continue;
   const shown = [...(f.players ?? [])]
@@ -145,7 +153,7 @@ for (const f of read("soccer/epl/player-projections/latest.json")?.fixtures ?? [
   for (const p of shown) {
     if (!p.name) continue;
     add("player", p.name, `Premier League · ${p.teamName ?? ""} · ${f.matchup}`.replace(" ·  ·", " ·"),
-      `/epl/match/${f.slug}/`, [p.teamName, "epl", "premier league", "soccer", "football"].filter(Boolean));
+      eplPlayerHref(p, f.slug, eplPlayerPages), [p.teamName, "epl", "premier league", "soccer", "football"].filter(Boolean));
   }
 }
 
@@ -187,6 +195,26 @@ for (const r of read("soccer/epl/forecasts/latest.json")?.rows ?? []) {
   addTeam(r.homeClub, null, `Premier League · ${r.matchup}`, href, ["epl", "soccer"]);
   addTeam(r.awayClub, null, `Premier League · ${r.matchup}`, href, ["epl", "soccer"]);
 }
+/* Overnight 2026-10-28 (W3): leagues beyond the Premier League indexed their fixtures but not their clubs, so typing a
+   Ligue 1 club found only a matchup row. Same destination as the fixture row: the league page that lists it. */
+for (const lg of soccerLeaguePages().map((l) => l.key)) {
+  const set = read(`soccer/${lg}/forecasts/latest.json`);
+  for (const r of set?.rows ?? []) {
+    const sub = `${set.competition} · ${r.matchup}`;
+    addTeam(r.homeClub, null, sub, `/soccer/${lg}/`, [String(set.competition ?? "").toLowerCase(), "soccer"]);
+    addTeam(r.awayClub, null, sub, `/soccer/${lg}/`, [String(set.competition ?? "").toLowerCase(), "soccer"]);
+  }
+}
+
+// ── NBA (overnight 2026-10-28 · W3) ────────────────────────────────────────────────────────────
+/* No NBA name was searchable. NBA has no team or player pages, so each row opens the dated projections page that names
+   them, and says so (lib/search/nba-search-rows.mjs). Teams go through addTeam, so a team is listed once. */
+for (const r of nbaSearchRows(path.join(DATA, "nba", "experimental-public"), {
+  enabled: LANE.enabled && AMENDMENT_A.enabled, schema: LANE_SNAPSHOT_SCHEMA,
+})) {
+  if (r.kind === "team") addTeam(r.label, r.abbr, r.sub, r.href, r.terms);
+  else add(r.kind, r.label, r.sub, r.href, r.terms);
+}
 
 // ── RESEARCH (v1.3) ────────────────────────────────────────────────────────────────────────────
 /* Team and player research pages, from the committed research PROJECTION registry (never the Data Platform store).
@@ -207,27 +235,9 @@ if (researchIndex && researchIndex.schemaVersion === 1) {
 }
 
 // ── PAGES ──────────────────────────────────────────────────────────────────────────────────────
-for (const [label, sub, href, terms] of [
-  ["Today's Picks", "The day's model reads", "/today/", ["slate", "daily"]],
-  ["Simulations", "Pick a game, open its report", "/simulate/", ["simulate", "games"]],
-  ["Picks", "Model probabilities beside the sportsbook price", "/markets/", ["markets", "odds", "prices"]],
-  ["Parlay Center", "Suggested cards, or build your own", "/build/", ["parlay", "cards", "builder"]],
-  ["Results", "The settled record", "/results/", ["record", "receipts", "settled"]],
-  ["Forecast record", "Every published forecast, measured against the result", "/results/forecasts/", ["accuracy", "how accurate", "calibration", "track record", "brier", "forecast history"]],
-  ["Model Lab", "What is live, being tested or paused", "/models/", ["models", "model status", "calibration", "experiments"]],
-  ["NFL", "Football hub", "/nfl/", ["football"]],
-  ["MLB", "Baseball hub", "/mlb/", ["baseball"]],
-  ["Premier League", "Soccer hub", "/epl/", ["epl", "soccer", "football"]],
-  ["UFC", "Fight card and archive", "/ufc/", ["mma", "fights"]],
-  ["Endzone Vault", "Who reaches the end zone today", "/endzone-vault/", ["touchdown", "td", "scorer"]],
-  ["Cage Chaos", "How each fight ends", "/cage-chaos/", ["ufc", "method", "round"]],
-  ["Homer Nukes", "Today's likeliest home runs", "/homer-nukes/", ["home run", "hr", "power"]],
-  ["Bank Builder", "The paper ladder", "/bank-builder/", ["ladder", "bankroll"]],
-  ["Moonshot", "High-variance paper longshots", "/moonshot/", ["longshot"]],
-  ["Methodology", "How every number is built", "/methodology/", ["method", "how it works"]],
-  ["How It Works", "A two-minute guide", "/learn/", ["learn", "guide", "help"]],
-  ["System status", "What is running right now", "/system-status/", ["status", "health"]],
-]) add("page", label, sub, href, terms);
+/* Every menu destination under its menu label, then the pages no menu carries — the Forecast Record overview
+   ("/results/forecasts/") among them, beside Model Lab ("/models/"). See lib/search/search-pages.ts. */
+for (const p of searchPageRows()) add("page", p.label, p.sub, p.href, p.terms);
 
 // ── FORECAST RECORD (Session 13): one entry per forecast type the ledger measures, from the page owner's own reader,
 // so "receiving yards accuracy" lands on that family's record. Families with no ledger rows have no page and no entry.

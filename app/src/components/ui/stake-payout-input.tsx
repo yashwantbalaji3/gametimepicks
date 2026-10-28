@@ -63,10 +63,10 @@ export default function StakePayoutInput({
       style={{ background: "color-mix(in srgb, var(--vault-ink-black) 30%, transparent)", border: "1px solid var(--vault-rule)" }}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+        <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>
           Paper stake{lockedStake ? " · locked" : ""}
         </span>
-        <span className="font-mono tabular" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
+        <span className="font-mono tabular" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
           {formatAmerican(combinedAmerican)} · {dec.toFixed(2)}×
         </span>
       </div>
@@ -86,6 +86,7 @@ export default function StakePayoutInput({
               onChange={(e) => setRaw(e.target.value)}
               className="w-full rounded-[6px] px-2.5 py-1.5 font-display tabular"
               style={{
+                minHeight: 44,
                 background: "color-mix(in srgb, var(--vault-scrim-base) 70%, transparent)",
                 border: `1px solid ${HARD_INVALID.has(v.state) ? "var(--vault-danger-soft)" : "var(--vault-rule)"}`,
                 color: "var(--vault-text)",
@@ -96,20 +97,26 @@ export default function StakePayoutInput({
           </div>
           <div className="flex items-center gap-1.5">
             {QUICK.map((q) => (
+              /* W6 (2026-10-28): a 44px touch target around the same 26px pill. */
               <button
                 key={q}
                 type="button"
                 onClick={() => setRaw(String(q))}
-                className="flex-1 rounded-full py-1 transition-colors"
-                style={{
-                  background: stake === q ? "var(--vault-gold-dim)" : "transparent",
-                  border: `1px solid ${stake === q ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`,
-                  color: stake === q ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
-                  fontSize: 11,
-                  fontWeight: 600,
-                }}
+                className="flex-1 inline-flex items-center"
+                style={{ minHeight: 44, background: "transparent", border: 0, padding: 0 }}
               >
-                ${q}
+                <span
+                  className="w-full rounded-full py-1 text-center transition-colors"
+                  style={{
+                    background: stake === q ? "var(--vault-gold-dim)" : "transparent",
+                    border: `1px solid ${stake === q ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`,
+                    color: stake === q ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
+                    fontSize: 12,
+                    fontWeight: 600,
+                  }}
+                >
+                  ${q}
+                </span>
               </button>
             ))}
           </div>
@@ -123,7 +130,7 @@ export default function StakePayoutInput({
         <div
           role="status"
           className="font-mono"
-          style={{ color: HARD_INVALID.has(v.state) ? "var(--vault-danger-soft)" : "var(--vault-text-mute)", fontSize: 10, lineHeight: 1.4 }}
+          style={{ color: HARD_INVALID.has(v.state) ? "var(--vault-danger-soft)" : "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.4 }}
         >
           {v.message}
         </div>
@@ -133,7 +140,7 @@ export default function StakePayoutInput({
         {payout ? (
           <>
             <div className="flex flex-col">
-              <span className="font-mono uppercase" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>To return</span>
+              <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>To return</span>
               {/* P262 · number-transition: the reader's own stake drives this, so the figure travels
                   to its new value instead of snapping. A PUBLISHED number would never animate here. */}
               <AnimatedNumber
@@ -144,7 +151,7 @@ export default function StakePayoutInput({
               />
             </div>
             <div className="flex flex-col items-end">
-              <span className="font-mono uppercase" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Profit</span>
+              <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>Profit</span>
               <AnimatedNumber
                 value={payout.profit}
                 format={(n) => `+${money(n)}`}

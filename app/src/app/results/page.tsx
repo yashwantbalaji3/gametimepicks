@@ -107,6 +107,7 @@ import { getTrustCenterModel } from "@/lib/results-trust-center";
 import { surfaceHref } from "@/lib/nav/date-sport-route";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import ModelSuggestionsRecord from "@/components/results/model-suggestions-record";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 import { levelARecordView } from "@/lib/results/nba-level-a-readers";
 
 export const metadata = withRouteMetadata("/results/", {
@@ -171,7 +172,14 @@ function overviewProducts(): OverviewProduct[] {
         otherScopes: [scopedRecordText(r.allTime), ...history].filter((x): x is string => typeof x === "string"),
       };
     }
-    return { id, label, href, note, recordLabel: r.recordLabel, pendingLabel: r.pendingLabel, window: windowOf(r.cell as never) };
+    /* Overnight 10-28 (W5): an open-ended record (Suggested cards · MLB runs from Aug 17 with no end date) printed no
+       window and no denominator. It now says when it starts and how many settled — both from the same shared reader. */
+    const from = (r.cell as { window?: { from?: string | null; to?: string | null } } | null)?.window?.from ?? null;
+    return {
+      id, label, href, note, recordLabel: r.recordLabel,
+      pendingLabel: r.pendingLabel ?? (typeof r.settled === "number" ? `${r.settled.toLocaleString("en-US")} settled` : null),
+      window: windowOf(r.cell as never) ?? (from ? `Since ${etDayLabel(from) ?? from}` : null),
+    };
   });
 }
 
@@ -308,7 +316,10 @@ export default function ResultsPage() {
       {/* RESULTS V2 · B-2: the page answers "how did GameTimePicks do?" first — one card per graded record, the
           products' canonical headlines, research kept apart, and a day-by-day tracker. The explorer and every
           receipt below stay as the detailed record. */}
-      <ResultsOverview populations={overviewPopulations()} products={overviewProducts()} seedToday={currentEtDate()} />
+      {/* Overnight 10-28 (W5): the overview OPENS on the season. On 7 days every card read "far too few decided to judge"
+          (6–14 decided each); the season window is the same records over their full sample, each labelled with its
+          season and denominator. 7 days, 30 days and Today stay one tap away. */}
+      <ResultsOverview populations={overviewPopulations()} products={overviewProducts()} seedToday={currentEtDate()} initialWindow="season" />
       {/* Founder mandate 2026-10-24: the model's paper suggestions (Level A), recorded as shown and graded against the
           official final, in their own record — never pooled with the priced products below. */}
       <ModelSuggestionsRecord view={levelARecordView()} />
@@ -434,13 +445,23 @@ export default function ResultsPage() {
          stat, slates the integrity gate refused, and dates where no slate was ever built all stay in
          the count with a reason — dropping any of them would quietly improve every number beside
          them. */}
-      <ResultsAccountingSection rows={loadRecentAccounting(8)} />
+      {/* Overnight 10-28 (W5): eight day cards of eight counters each, open, and none named its sport — "Decisive record
+          51.22% (21 of 41 …)" read as the site's accuracy. It is the MLB player-prop ledger's accounting. Folded, with the
+          scope in its title; every row is still in the page. */}
+      <MoreDisclosure
+        className="mt-10"
+        title="MLB player-prop leans: every row we generated, day by day"
+        summary="The last eight slates, counted from what the model produced — including rows that never resolved and withheld slates."
+      >
+        <ResultsAccountingSection rows={loadRecentAccounting(8)} />
+      </MoreDisclosure>
 
       {/* The risk-ladder stream, in its own lane. Deliberately AFTER the settled product record and
           visibly separate: these paper cards never move the bankroll, and the bankroll's record
           never lends them credibility. */}
       <RiskLadderStream
-        published={loadPublishedBandRecord(path.join(process.cwd(), "public", "data"))}
+        published={loadPublishedBandRecord(path.join(process.cwd(), "public", "data"), "mlb")}
+        sportLabel="MLB"
         candidates={loadRiskLadderRecord(path.join(process.cwd(), "public", "data"))}
       />
 

@@ -123,9 +123,10 @@ test("WIRING · neither the hub selector nor the homepage imports schedule captu
     assert.ok(!pattern.test(hub) && !pattern.test(home), `${name} must have no import path into hub membership`);
   }
   // The upcoming-schedule adapters feed ONLY the strip section, never the hub cards.
-  const stripIdx = home.indexOf("UpcomingSportsStrip");
+  /* W4 (2026-10-28): the schedule strip ("NBA: 455 upcoming") left Home, so the adapters may be absent entirely; when
+     present they must still come after hub membership is decided (below). */
   const hubIdx = home.indexOf("simHubCards");
-  assert.ok(stripIdx > -1 && hubIdx > -1);
+  assert.ok(hubIdx > -1);
   assert.ok(!home.slice(0, home.indexOf("const allSports")).includes("allUpcoming(") || home.indexOf("allUpcoming(") > home.indexOf("partitionSports"),
     "allUpcoming (schedule adapters) is consumed after hub membership is decided — it cannot feed allSports");
 });

@@ -26,7 +26,7 @@ const LINEUP_SIZE = 9;
  * @param {string | null | undefined} status  the snapshot's `status` ("ready" | "degraded" | "unavailable")
  * @param {Record<string, any> | null | undefined} completeness  the snapshot's `completeness`
  * @param {{ away: string, home: string }} teams  team abbreviations, as the snapshot names them
- * @returns {{ label: string, reason: string, short: string, refusal: string, suggestions: string } | null}
+ * @returns {{ label: string, reason: string, short: string, causes: string, refusal: string, suggestions: string } | null}
  */
 export function degradedInputsNote(status, completeness, { away, home }) {
   if (status !== "degraded") return null;
@@ -50,6 +50,8 @@ export function degradedInputsNote(status, completeness, { away, home }) {
     shorts.push(`no ${abbr} probable starter posted`);
   }
   const reason = reasons.length ? `${reasons.join("; ")}.` : "Some pregame inputs for this game are incomplete.";
-  const short = `${shorts.length ? shorts.join(", ") : "some inputs incomplete"} · not in model suggestions`;
-  return { label: DEGRADED_LABEL, reason: reason.charAt(0).toUpperCase() + reason.slice(1), short, refusal: DEGRADED_REFUSAL, suggestions: DEGRADED_SUGGESTIONS };
+  /* The causes alone, in a few words — the forecast-state headline qualifier (forecast-state.mjs) carries these. */
+  const causes = shorts.length ? shorts.join(", ") : "some inputs incomplete";
+  const short = `${causes} · not in model suggestions`;
+  return { label: DEGRADED_LABEL, reason: reason.charAt(0).toUpperCase() + reason.slice(1), short, causes, refusal: DEGRADED_REFUSAL, suggestions: DEGRADED_SUGGESTIONS };
 }

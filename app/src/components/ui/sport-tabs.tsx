@@ -28,11 +28,11 @@ export default function SportTabs({ tabs }: { tabs: SportTabDef[] }) {
           const on = active === t.key;
           return (
             <button key={t.key} type="button" onClick={() => go(t.key)} aria-current={on ? "true" : undefined}
-                    className="flex items-center gap-1.5 rounded-full px-3.5 py-1.5 transition-colors"
+                    className="gtp-hit-44 flex items-center gap-1.5 rounded-full px-3.5 py-1.5 transition-colors"
                     style={{ background: on ? "var(--vault-gold-dim)" : "transparent", border: `1px solid ${on ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`, color: on ? "var(--vault-gold-bright)" : "var(--vault-text-mute)", fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap" }}>
               {t.label}
               {t.badge != null && t.badge !== "" ? (
-                <span className="font-mono rounded-full px-1.5" style={{ background: on ? "var(--vault-gold-bright)" : "var(--vault-rule)", color: on ? "var(--vault-on-accent)" : "var(--vault-text-faint)", fontSize: 10 }}>{t.badge}</span>
+                <span className="font-mono rounded-full px-1.5" style={{ background: on ? "var(--vault-gold-bright)" : "var(--vault-rule)", color: on ? "var(--vault-on-accent)" : "var(--vault-text-faint)", fontSize: 12 }}>{t.badge}</span>
               ) : null}
             </button>
           );

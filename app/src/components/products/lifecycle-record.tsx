@@ -8,6 +8,16 @@ const OUTCOME: Record<string, { label: string; tone: string }> = {
   pending: { label: "Not settled", tone: "var(--vault-text-mute)" },
 };
 
+const ET_DAY = new Intl.DateTimeFormat("en-US", { timeZone: "UTC", weekday: "short", month: "short", day: "numeric", year: "numeric" });
+/** Overnight 10-28 (SIMPLIFY): the card's ledger id ("bank-builder:a:c3:s1:2026-08-17") said in words —
+ *  "Lane A · run 3, step 1 · Mon, Aug 17, 2026". The raw id stays on the element as data-card-id; an id this does
+ *  not recognise renders nothing rather than a guess. */
+export function cardIdLabel(id: string): string | null {
+  const m = /^[^:]+:([a-z]+):c(\d+):s(\d+):(\d{4}-\d{2}-\d{2})$/.exec(id);
+  if (!m) return null;
+  return `Lane ${m[1].toUpperCase()} · run ${Number(m[2])}, step ${Number(m[3])} · ${ET_DAY.format(new Date(`${m[4]}T12:00:00Z`))}`;
+}
+
 /**
  * The settled record for one product. Shows the legs, the official number each was graded against,
  * and where the ladder stands afterwards — the things a reader needs to check the result themselves.
@@ -34,15 +44,15 @@ export default function LifecycleRecord({
           )}
           <ul className="m-0 p-0 list-none flex flex-col gap-4">
             {cards.map((c) => (
-              <li key={c.id} className="rounded-xl p-4" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-border)" }}>
+              <li key={c.id} data-card-id={c.id} className="rounded-xl p-4" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-border)" }}>
                 <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                   <span className="text-[13px] font-semibold" style={{ color: OUTCOME[c.result]?.tone ?? "var(--vault-text)" }}>
                     {OUTCOME[c.result]?.label ?? c.result}
                   </span>
-                  <span className="text-[12px] font-mono" style={{ color: "var(--vault-text-mute)" }}>{c.id}</span>
+                  {cardIdLabel(c.id) ? <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{cardIdLabel(c.id)}</span> : null}
                 </div>
                 <p className="mt-1 mb-3 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{cardSummary(c)}</p>
-                <div className="overflow-x-auto" role="region" aria-label={`Legs of card ${c.id}`} tabIndex={0}>
+                <div className="overflow-x-auto" role="region" aria-label={`Legs of the ${OUTCOME[c.result]?.label.toLowerCase() ?? c.result} card${cardIdLabel(c.id) ? `, ${cardIdLabel(c.id)}` : ""}`} tabIndex={0}>
                   <table className="w-full text-[12px] border-collapse" style={{ minWidth: 380 }}>
                     <thead>
                       <tr style={{ color: "var(--vault-text-mute)" }}>

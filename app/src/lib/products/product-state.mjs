@@ -158,7 +158,8 @@ export function productStateExplanation(state) {
     case PRODUCT_STATES.INPUTS_STALE: return "Today's source data has not arrived yet, so no card has been assessed.";
     case PRODUCT_STATES.NOT_RUN:
     default:
-      return "This product has not been updated for today's slate, so no card has been assessed. This is an operational gap, not a decision by the model.";
+      // Overnight 10-28 (SIMPLIFY): same fact, plainer words — was "… This is an operational gap, not a decision by the model."
+      return "Not yet updated for today's slate, so no card has been assessed — a delay on our side, not a decision by the model.";
   }
 }
 

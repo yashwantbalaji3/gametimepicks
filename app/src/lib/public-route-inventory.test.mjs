@@ -366,7 +366,11 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
   // STRICTER: it now pins that the page cannot hardcode a phase at all.
   // founder directive 2026-10-23 public readiness: the tagline reads "Official Forecasts · <phase>" instead of
   // "Experimental <phase> simulations"; the phase is still the index's own phaseLabel, never a literal.
-  assert.match(nflHub, /\$\{PUBLIC_TERMS\.OFFICIAL_FORECAST\}s\$\{index\?\.model\?\.phaseLabel/, "the page derives its phase from the canonical index, never a hardcoded literal");
+  /* Overnight W8 (2026-10-28): the tagline lived in the mid-page hero, which is removed (the week and its phase read
+     in the hub title, from the shared read model). The invariant stands: wherever the hub names the phase it is the
+     index's own phaseLabel, and no phase is ever a literal in the hub's code. */
+  if (/phaseLabel/.test(nflHub)) assert.match(nflHub, /index\?\.model\?\.phaseLabel/, "the page derives its phase from the canonical index, never a hardcoded literal");
+  assert.doesNotMatch(nflHub.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, ""), /["'`][^"'`\n]*\b(?:preseason|regular-season) (?:simulations|forecasts)\b/i, "no hardcoded phase tagline");
   /*
    * P250-W2: the non-claim had THREE retyped homes on this page — the header framing, a lead
    * sentence, and the model's own recorded honestLimit — and a reader met all three before a

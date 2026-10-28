@@ -26,6 +26,7 @@ import PicksSurfaceHeader, { type PicksSurfaceStatus } from "@/components/picks-
 import { presentFromArtifact } from "@/lib/signature-presentation.mjs";
 import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
 import EligibleUniverse from "@/components/products/eligible-universe";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 import LevelASuggestions, { type LevelAModel } from "@/components/products/level-a-suggestions";
 import { levelAPageModel, levelAEnabled, levelASportsShown } from "@/lib/products/level-a/model.mjs";
 import { loadProductAvailability } from "@/lib/products/availability";
@@ -187,7 +188,7 @@ export default function MoonshotPage() {
           className="rounded-xl px-4 py-4 flex flex-col gap-3"
           style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}
         >
-          <h2 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 15 }}>What this product&rsquo;s records actually say</h2>
+          <h2 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 15 }}>Where Moonshot stands</h2>
 
           <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {/* Each tile names WHICH record it reads (P250 · A01): the first pair describe TODAY's
@@ -238,23 +239,29 @@ export default function MoonshotPage() {
             </details>
           ) : null}
 
-          {moonshot.contradictions.length ? (
-            <div className="flex flex-col gap-1.5">
-              <p className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-                What the stored records say, side by side
-              </p>
-              <ul className="flex flex-col gap-1">
-                {moonshot.contradictions.map((c) => (
-                  <li key={c} className="font-mono leading-relaxed" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>· {c}</li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-
-          {moonshot.founderDecision ? (
-            <p className="font-mono leading-relaxed" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
-              Open decision: {moonshot.founderDecision}
-            </p>
+          {/* Overnight 10-28 (RELOCATE): how the stored records reconcile ("The old lane record … not updated in N days",
+              the two eras' counts) and the open accounting question are audit detail. Both stay public, word for word
+              (founder-token-boundary: the reason and the open question are never hidden) — folded, not removed. */}
+          {moonshot.contradictions.length || moonshot.founderDecision ? (
+            <MoreDisclosure title="Technical details" summary="How the stored Moonshot records reconcile, and what is still open">
+              {moonshot.contradictions.length ? (
+                <div className="flex flex-col gap-1.5">
+                  <p className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+                    What the stored records say, side by side
+                  </p>
+                  <ul className="flex flex-col gap-1">
+                    {moonshot.contradictions.map((c) => (
+                      <li key={c} className="font-mono leading-relaxed" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>· {c}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {moonshot.founderDecision ? (
+                <p className="font-mono leading-relaxed" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+                  Still open: {moonshot.founderDecision}
+                </p>
+              ) : null}
+            </MoreDisclosure>
           ) : null}
         </section>
       ) : null}

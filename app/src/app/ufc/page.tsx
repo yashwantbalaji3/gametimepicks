@@ -20,8 +20,7 @@ import { hubCounts } from "@/lib/sport-hub/contract";
 import SportSwitcher from "@/components/sports/sport-switcher";
 import { ufcHub } from "@/lib/sport-hub/adapters";
 import Explain from "@/components/ui/explain";
-import TopReadsPanel from "@/components/top-reads-panel";
-import { loadTopReads, sportPanelReads } from "@/lib/top-reads";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 import UfcCard, { type UfcCardArtifact } from "@/components/sports/ufc-card";
 import UfcPredictionBoard from "@/components/ufc/prediction-board";
 import { ScheduleList } from "@/components/sports/sport-schedule-page";
@@ -97,7 +96,6 @@ export default function UfcArchivePage() {
    */
   const cardState = eventState({ startUtc: card?.event?.startUtc ?? null, nowIso: new Date().toISOString() });
   const ufcGraded = loadGradedPicks("ufc");
-  const topReads = loadTopReads();
   /* Keyed to the CARD'S OWN date. A ladder built for another event must never appear under this one:
      the UFC ladder previously carried three dates at once — written 08-18, fighting 08-22, published
      as 08-21 — and a reader could not have told which fights they were looking at. */
@@ -264,12 +262,18 @@ export default function UfcArchivePage() {
             to say about it and we publish no read. The card below is the next one it can read.
           </p>
         ))}
+        {/* Overnight W8 (2026-10-28): the card was listed three times on this page — the board above, these
+            per-bout previews, and the "model reads" panel. The board stays the one listing; the previews (records,
+            recent results, how each bout is expected to end) fold behind one disclosure, and every bout's full
+            analysis is still one tap away from the board. */}
+        <MoreDisclosure title="Fight-by-fight previews" summary="Each bout's records, recent results and how the model expects it to end.">
         {card?.bouts?.length
           ? <UfcCard card={card} />
           : <ScheduleList events={(feed?.events ?? []) as never[]} sides={["red", "blue"]} joiner="vs" />}
         <p className=" text-[12.5px]" style={{ color: "var(--vault-text-faint)", margin: 0 }}>
           Schedule source: {sourceDisplayName(feed?.sourceVerdict?.sourceId, "ESPN")}
         </p>
+        </MoreDisclosure>
       </section>
 
       {/* P308 → UFC-001 · UX Phase A2: the card's simulation story is kept whole but made secondary — the board and the
@@ -283,20 +287,9 @@ export default function UfcArchivePage() {
         </div>
       </details>
 
+      {/* Overnight W8 (2026-10-28): this was a second hub header mid-page (an "UFC" title, an "Official Forecasts" chip
+          and a row of site links). It keeps what only it says — the scope line and what changed — and drops the repeat. */}
       <header id="ufc-overview" className="flex flex-col gap-2 scroll-mt-24">
-        <div className="flex flex-wrap items-center gap-2">
-          {/* P246 a11y: HubTitle above already carries the page's one <h1>; this local title was a
-              second identical <h1> (heading-one-unique). Same text, subordinate level. */}
-          <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 24, fontWeight: 700, margin: 0 }}>
-            UFC
-          </h2>
-          <span
-            className="rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold uppercase tracking-[0.1em]"
-            style={{ color: "var(--sport-ufc)", border: "1px solid var(--sport-ufc)", background: "color-mix(in srgb, var(--vault-crown) 8%, transparent)" }}
-          >
-            {PUBLIC_TERMS.OFFICIAL_FORECAST}s
-          </span>
-        </div>
         <p className="max-w-2xl text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
           Winner, method and finishing round for every bout with enough tracked fighter history; the rest are marked{" "}
           {PUBLIC_TERMS.UNAVAILABLE} with the reason. Paper and educational.
@@ -314,21 +307,16 @@ export default function UfcArchivePage() {
           different things, and only the first has changed.
         */}
         <Explain label="What changed, and what is still refused">
-          The de-vigged-price read that ran until 2026-07-23 was retired: it restated the sportsbook
+          The de-vigged-price read that ran until Jul 23, 2026 was retired: it restated the sportsbook
           rather than forming an opinion. What publishes now is a fight model trained on 8,642
           decisive bouts, with each of its three markets tested separately against a base-rate
           baseline. Posted fight-winner prices are captured, but no paper cards are shown here while UFC
-          is not cleared for forward-looking model cards — and since 2026-08-22 the model
+          is not cleared for forward-looking model cards — and since Aug 22, 2026 the model
           IS scored against the de-vigged line, bout by bout, in the graded record below: both probabilities recorded before each
           card, graded on the official result. The sample is far too small to support any claim in
           either direction, and the cumulative comparison currently favours the market. The settled
           record from the retired era is kept below, behind its own label.
         </Explain>
-        <nav className="gtp-hit-44-links flex flex-wrap gap-x-3 font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
-          <Link href="/today" style={{ color: "var(--gtp-bank-heat)" }}>Live action → Today</Link>
-          <Link href="/results" style={{ color: "var(--vault-text-mute)" }}>Track record → Results</Link>
-          <Link href="/methodology" style={{ color: "var(--vault-text-mute)" }}>How everything is graded → Methodology</Link>
-        </nav>
       </header>
 
       {labLadder ? <SportLabCards ladder={labLadder} nameEvent={false} tierRecords={loadSportLabStreamRecord("ufc")?.byTier} /> : null}
@@ -425,21 +413,6 @@ export default function UfcArchivePage() {
           before the event; no model picks were published for it and no official settlement was ingested, so no record
           is claimed for it.
         </p>
-      ) : null}
-      {/* The five reads this sport's model is most confident about today — team markets and player
-          markets both, interleaved rather than sorted together, because a match favourite always
-          outranks any single player and a plain sort would make the list all-team. */}
-      {/* P243 · A-1: timeframe-pure panel — a "today" title only over today's ET events; a
-          future slate gets the honest "next event" heading instead. Never a mixed population. */}
-      {topReads && sportPanelReads(topReads, "ufc", 5).timeframe ? (
-        <TopReadsPanel
-          set={topReads}
-          reads={sportPanelReads(topReads, "ufc", 5).reads}
-          eyebrow="UFC · model reads"
-          title={sportPanelReads(topReads, "ufc", 5).timeframe === "today"
-            ? "What the model is most confident about today"
-            : "What the model is most confident about — next event"}
-        />
       ) : null}
 
     </div>

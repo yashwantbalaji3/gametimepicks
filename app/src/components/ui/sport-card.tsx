@@ -27,7 +27,7 @@ export default function SportCard({ summary }: { summary: SportSummary }) {
           <span className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700 }}>{summary.label}</span>
         </span>
         <span className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-full shrink-0"
-              style={{ color: summary.live ? "var(--vault-success)" : "var(--vault-text-faint)", border: `1px solid ${summary.live ? "var(--vault-success)" : "var(--vault-rule)"}`, fontSize: 10 }}>
+              style={{ color: summary.live ? "var(--vault-success)" : "var(--vault-text-faint)", border: `1px solid ${summary.live ? "var(--vault-success)" : "var(--vault-rule)"}`, fontSize: 12 }}>
           {summary.live ? "Live today" : "Off today"}
         </span>
       </div>
@@ -35,11 +35,11 @@ export default function SportCard({ summary }: { summary: SportSummary }) {
         {summary.stats.map((s) => (
           <div key={s.label} className="flex flex-col">
             <span className="font-display tabular" style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 700 }}>{s.value}</span>
-            <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{s.label}</span>
+            <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>{s.label}</span>
           </div>
         ))}
       </div>
-      <span className="font-mono uppercase tracking-[0.16em]" style={{ color: accent, fontSize: 10 }}>View {summary.label} &rarr;</span>
+      <span className="font-mono" style={{ color: accent, fontSize: 12 }}>View {summary.label} &rarr;</span>
     </Link>
   );
 }

@@ -10,6 +10,7 @@ import { jointShownFor } from "@/lib/products/level-a/suggestions.mjs";
 import type { levelARecord } from "@/lib/results/level-a-record.mjs";
 import type { withWithdrawals } from "@/lib/results/level-a-withdrawals.mjs";
 import { etDayLabel } from "@/lib/et-stamp.mjs";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 
 /* The record view; withdrawn notes are present when the reader annotated it (lib/results/level-a-withdrawals.mjs). */
 type View = ReturnType<typeof levelARecord> & { entries: Array<Partial<ReturnType<typeof withWithdrawals>["entries"][number]>> };
@@ -42,13 +43,39 @@ function joint(e: Entry) {
   return jointShownFor(e.jointProbability, e.tier);
 }
 
+/* Overnight 10-28 (W5): the reader's evidence is WHEN a suggestion was shown. WHICH deployment served it is audit
+   detail — it used to print on every card (85 "Production deployment <hash>" lines on /results at its peak). It now
+   sits in the section's one "Technical details" disclosure (DeploymentEvidence below), entry by entry, nothing dropped. */
 function Evidence({ e }: { e: Entry }) {
   const shown = etTime(e.shownAt);
   const served = etTime(e.servedFrom);
   if (served || shown) {
-    return <>Shown {shown ?? "—"}{served ? ` · live from ${served}` : ""}{e.source ? ` · ${e.source}` : ""}</>;
+    return <>Shown {shown ?? "—"}{served ? ` · live from ${served}` : ""}</>;
   }
-  return <>Recorded {etTime(e.recordedAt) ?? "—"} · no deployment stamp on this entry</>;
+  return <>Recorded {etTime(e.recordedAt) ?? "—"}</>;
+}
+
+/** Which deployment served each listed suggestion — the publication evidence, folded out of the reading path. */
+function DeploymentEvidence({ days, entries }: { days: string[]; entries: Entry[] }) {
+  return (
+    <MoreDisclosure title="Technical details" summary="Which site deployment served each suggestion listed above — the publication evidence behind “live from”.">
+      <div className="flex flex-col gap-3" data-deployment-evidence>
+        {days.map((d) => (
+          <div key={d} className="flex flex-col gap-1">
+            <h3 className="m-0 text-[12.5px] font-semibold" style={{ color: "var(--vault-text)" }}>{etDayLabel(d)}</h3>
+            <ul className="m-0 p-0 list-none flex flex-col gap-0.5">
+              {entries.filter((e) => e.productDay === d).map((e) => (
+                <li key={e.id} className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }} data-evidence-entry={e.id}>
+                  {e.label}{e.tier !== "untiered" ? ` · ${e.tierLabel}` : ""} · {e.legs.map((l: Entry["legs"][number]) => l.selection ?? "—").join(" + ")}
+                  {" — "}{e.source ?? "no deployment stamp on this entry"}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </MoreDisclosure>
+  );
 }
 
 function EntryCard({ e }: { e: Entry }) {
@@ -150,6 +177,7 @@ export default function ModelSuggestionsRecord({ view }: { view: View }) {
               </p>
             ) : null}
           </div>
+          <DeploymentEvidence days={listed} entries={view.entries} />
         </>
       )}
     </section>

@@ -7,6 +7,7 @@
 import TeamLogo from "@/components/team-logo";
 
 import ModelStatus from "./model-status";
+import { tieNote, unassignedTieShare } from "@/lib/sports/nfl/tie-note.mjs";
 
 const pct = (p: number) => `${(p * 100).toFixed(1)}%`;
 const signed = (x: number) => (x > 0 ? `+${x}` : `${x}`);
@@ -32,6 +33,9 @@ export default function GameHero({ away, home, kickoffLabel, venue, record: r, l
   const favIsHome = r.favourite === home.abbr;
   const favP = favIsHome ? r.winProbability.home : r.winProbability.away;
   const fav = favIsHome ? home : away;
+  /* The share of the outcome neither side is given (a tie after regulation) — stated, never folded into a side. */
+  const tieShare = unassignedTieShare(r.winProbability);
+  const tieLine = tieNote(r.winProbability);
   return (
     <section className="nf-card nf-hero" aria-labelledby="nf-hero-h" data-hero="record">
       <p className="nf-eyebrow">{kickoffLabel}{venue ? ` · ${venue}` : ""}</p>
@@ -60,13 +64,18 @@ export default function GameHero({ away, home, kickoffLabel, venue, record: r, l
         </div>
       </div>
       <div>
-        <div className="nf-split" role="img" aria-label={`Win chance: ${away.abbr} ${pct(r.winProbability.away)}, ${home.abbr} ${pct(r.winProbability.home)}`}>
+        {/* Each side's bar is its OWN published number. The home bar used to be `flex: 1`, which quietly drew the
+            unassigned tie share (~3%) as home win chance; the remainder now sits between the sides, untinted, and the
+            note under the bar says what it is. Nothing is reallocated (founder decision pending). */}
+        <div className="nf-split" role="img" aria-label={`Win chance: ${away.abbr} ${pct(r.winProbability.away)}, ${home.abbr} ${pct(r.winProbability.home)}${tieShare != null ? `, tie after regulation ${pct(tieShare)}` : ""}`}>
           <div style={{ width: `${r.winProbability.away * 100}%`, background: favIsHome ? "color-mix(in srgb, var(--vault-text-faint) 70%, transparent)" : "var(--vault-gold-bright)" }} />
-          <div style={{ flex: 1, background: favIsHome ? "var(--vault-gold-bright)" : "color-mix(in srgb, var(--vault-text-faint) 70%, transparent)" }} />
+          {tieShare != null ? <div data-tie-share="" style={{ width: `${tieShare * 100}%`, background: "transparent" }} /> : null}
+          <div style={{ width: tieShare != null ? `${r.winProbability.home * 100}%` : undefined, flex: tieShare != null ? undefined : 1, background: favIsHome ? "var(--vault-gold-bright)" : "color-mix(in srgb, var(--vault-text-faint) 70%, transparent)" }} />
         </div>
         <p className="nf-sub" style={{ marginTop: 8 }}>
           <strong style={{ color: "var(--vault-text)" }}>{fav.name}</strong> {started ? "were" : "are"} the projected winner, {pct(favP)} to win.
         </p>
+        {tieLine ? <p className="nf-faint" data-tie-note="" style={{ margin: "4px 0 0" }}>{tieLine}</p> : null}
       </div>
       <div className="nf-stats">
         <div className="nf-stat"><p className="nf-k">Expected margin</p><p className="nf-v nf-num">{home.abbr} {signed(r.margin.median)}</p><p className="nf-s">8 in 10 outcomes between {signed(r.margin.p10)} and {signed(r.margin.p90)}</p></div>

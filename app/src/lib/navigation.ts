@@ -302,12 +302,15 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   { href: "/results/nba", label: "NBA record", note: "Official Forecast record · retired May–June 2026 archive", group: "sports",
     desc: "The NBA Official Forecast record, with a retired player-prop model's settled archive kept for transparency",
     surfaces: ["footer"] },
-  { href: "/results/model-audit", label: "Deep-dive track record", group: "record",
+  /* Overnight 2026-10-28 label parity: one name per URL, the page's own — its H1 and title say "Model audit deep-dive". */
+  { href: "/results/model-audit", label: "Model audit deep-dive", group: "record",
     desc: "Every settled receipt, in depth", surfaces: ["footer"] },
   { href: "/market-guide", label: "Market Guide", group: "record",
     desc: "How to read a price", surfaces: ["footer"] },
-  { href: "/research", label: "Research engine", group: "record",
-    desc: "What the model is being tested against", surfaces: ["footer"] },
+  /* Overnight 2026-10-28 label parity: "Research engine · what the model is being tested against" was the page this
+     route replaced on 2026-10-05; the page is "Research" (its eyebrow and title), and its H1 says what it holds. */
+  { href: "/research", label: "Research", group: "record",
+    desc: "Teams, players and how our forecasts did", surfaces: ["footer"] },
   /*
    * v1.5 · Research Lab. A SECONDARY destination on the rail and the footer sitemap, never a primary: P243
    * charter E fixes the primaries at five, and this is a tool a reader reaches for deliberately rather than a
@@ -330,9 +333,34 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    */
   { href: "/ask", label: "Ask GameTime", group: "record", glyph: "◇", note: "Answers from GameTime's own data",
     desc: "Ask about games, players, forecasts and the site", surfaces: ["rail", "footer"] },
-  { href: "/responsible-use", label: "Responsible use", group: "record",
+  { href: "/responsible-use", label: "Responsible Use", group: "record",
     desc: "Paper-only, educational, no stake is ever filled", surfaces: ["footer"] },
 ];
+
+/*
+ * ── The footer's four columns (overnight 2026-10-28) ────────────────────────────────────────────
+ * The sitemap used to reuse the rail's groups, which put Results in "Main" beside Home and the deep record pages under
+ * "Learn & record" with the legal page — 48 links in columns that did not say what was in them. The footer now answers
+ * four plain questions: which SPORT, which PICKS, what were the RESULTS, and what is this site (About & legal). The
+ * column is derived from the destination, never hand-listed, so a new destination lands in a column automatically, and
+ * the canonical order within a column is kept.
+ */
+export type FooterColumn = "sports" | "picks" | "results" | "about";
+export const FOOTER_COLUMNS: readonly FooterColumn[] = ["sports", "picks", "results", "about"];
+export const FOOTER_COLUMN_LABEL: Record<FooterColumn, string> = {
+  sports: "Sports",
+  /* The rail's own heading for these destinations, so the two surfaces name the cluster the same way. */
+  picks: NAV_GROUP_LABEL.products,
+  results: "Results",
+  about: "About & legal",
+};
+export function footerColumnOf(d: Pick<NavDestination, "href" | "group" | "bucket">): FooterColumn {
+  if (d.href === "/results" || d.href.startsWith("/results/") || d.href === "/models" || d.href === "/system-status") return "results";
+  /* The account destination is matched by its bucket: its URL is written once, inside its build-time gate above. */
+  if (d.group === "products" || d.href === "/saved" || d.bucket === "account") return "picks";
+  if (d.group === "record") return "about";
+  return "sports";
+}
 
 /** Destinations carried by one surface, in canonical order. */
 export const destinationsFor = (surface: NavSurface): readonly NavDestination[] =>

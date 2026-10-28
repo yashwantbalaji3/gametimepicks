@@ -20,6 +20,7 @@ import { RECORD_TYPES, RISK_TIERS, filterRows, poolRows } from "@/lib/results/re
 /* The PURE module. `dated-cards.mjs` reads node:fs, and importing from it here put fs in the
    client bundle and failed the export build — the second time this exact wall was hit. */
 import { dailySeries } from "@/lib/results/card-math.mjs";
+import { publicRiskLabel } from "@/lib/parlays/risk-odds-bands.mjs";
 import ResultsTrend from "@/components/results/results-trend";
 
 export interface ResultRow {
@@ -281,6 +282,15 @@ export default function ResultsExplorer({
   const rangeLabel = from || to
     ? `${from || covered[0] || "the beginning"} → ${to || "now"}`
     : "all settled history";
+  /* Overnight 10-28 (W5): the selected figure names what it counts — record type, sport(s), tier and period — in the
+     headline itself, not only in the dropdowns below it. "All settled history 21.5%" did not say it was suggested
+     parlays across three sports' cards. */
+  const scopeLabel = [
+    TYPE_LABEL[recordType] ?? recordType,
+    sport === "all" ? "all sports together" : SPORT_LABEL[sport] ?? sport,
+    tier === "all" ? "all risk tiers" : publicRiskLabel(tier) ?? tier,
+    rangeLabel,
+  ].join(" · ");
 
   const control: React.CSSProperties = {
     minHeight: 44, borderRadius: 8, padding: "0 10px", fontSize: 13,
@@ -298,8 +308,8 @@ export default function ResultsExplorer({
       {/* ── THE SELECTED PERIOD, from the cards themselves ────────────────────────────────────── */}
       {dateFilterable && !rangeError ? (
         <div style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "12px 14px", background: "var(--vault-wash-faint)" }}>
-          <div style={{ fontSize: 10.5, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
-            {rangeLabel}
+          <div style={{ fontSize: 10.5, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--vault-text-faint)" }} data-explorer-scope>
+            {scopeLabel}
           </div>
           <div style={{ marginTop: 4, display: "flex", flexWrap: "wrap", gap: 16, alignItems: "baseline" }}>
             {cardPool.decisive > 0 ? (

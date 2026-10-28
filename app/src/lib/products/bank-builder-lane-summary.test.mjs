@@ -46,10 +46,13 @@ test("Today reads its Bank Builder summary from this helper, and its fallback na
   assert.match(page, /const bbStepPhrase = bbLanes\.phrase \?\? \(awaitingRung != null \? `Lane A awaiting Step \$\{awaitingRung\}`/);
 });
 
-test("Home, Today and /bank-builder state the same two lanes from the same receipts", () => {
+test("Today and /bank-builder state the same two lanes from the same receipts; Home states no lane position", () => {
   const read = (f) => fs.readFileSync(path.resolve(process.cwd(), f), "utf8");
-  // Home and Today both phrase the summary through the helper, with the same arguments.
-  for (const f of ["src/app/page.tsx", "src/app/today/page.tsx"]) {
+  /* REPOINTED W4 (2026-10-28): Home no longer prints the lane positions at all (operator state on the front door; it
+     says whether a card is live and the open exposure). It can therefore never state a different pair of lanes. */
+  assert.doesNotMatch(read("src/app/page.tsx"), /awaiting Step|Lane [AB]\b/, "Home prints no ladder position");
+  // Today phrases the summary through the helper, with the same arguments.
+  for (const f of ["src/app/today/page.tsx"]) {
     assert.match(read(f), /bankBuilderLaneSummary\(\{ dataRoot, today, ladder: BANK_BUILDER_LADDER as never \}\)/, f);
     assert.doesNotMatch(read(f), /bbStepPhrase = awaitingRung != null \? `awaiting Step/, `${f}: no unnamed single-lane summary`);
   }

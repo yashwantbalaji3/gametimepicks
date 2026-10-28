@@ -13,10 +13,13 @@ const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
 const homePage = read("src/app/page.tsx");
 const strip = read("src/components/home/home-today-mlb.tsx");
 
-test("homepage builds the daily-MLB hook from the SAME shared brief as /today", () => {
-  assert.match(homePage, /import \{ buildDailyBrief \} from "@\/lib\/today\/daily-brief"/, "reuses the brief selector");
-  assert.match(homePage, /buildDailyBrief\(details, today, \{ nowMs: Date\.now\(\) \}\)/, "builds from real details + a real clock");
-  assert.match(homePage, /<HomeTodayMlb\b/, "renders the daily-MLB hook");
+test("the homepage's path into /today is the hero's primary action — the MLB-only hook is retired from Home", () => {
+  /* REPOINTED W4 (2026-10-28): the hook was Home's only route into /today, and it spoke for one sport ("Today's MLB ·
+     Latest slate" — on a morning, yesterday's finished slate). The hero's PRIMARY action now opens /today for every
+     sport, so Home no longer mounts the hook or builds its brief. The component and its contract below are unchanged. */
+  assert.doesNotMatch(homePage, /<HomeTodayMlb\b|buildDailyBrief\(/, "Home mounts no MLB-only hook");
+  assert.match(read("src/components/home/landing-hero.tsx"), /href: "\/today"/, "the hero's primary action opens /today");
+  assert.match(read("src/app/today/page.tsx"), /buildDailyBrief\(details, today, \{ nowMs \}\)/, "/today still builds the shared brief");
 });
 
 test("the hook shows freshness + availability + a clear path to the /today brief", () => {

@@ -27,7 +27,7 @@ const LEVEL_B_REASON = "not eligible for priced cards";
  *  null when that section is not on the page. */
 export function universeRowReason(sport: string, reason: string, shown: ReadonlyArray<string> | null): string {
   const priced = reason === "not eligible for prediction products" ? LEVEL_B_REASON : reason;
-  return shown?.includes(sport) && canEnterModelSuggestions(sport) ? `${priced} · model suggestions (Level A) below` : priced;
+  return shown?.includes(sport) && canEnterModelSuggestions(sport) ? `${priced} · model suggestions below` : priced;
 }
 
 export default function EligibleUniverse({ availability, compact = false, scope = null, levelASports = null }: { availability: ProductAvailability | null; compact?: boolean; scope?: string | null; levelASports?: ReadonlyArray<string> | null }) {
@@ -37,7 +37,9 @@ export default function EligibleUniverse({ availability, compact = false, scope 
      the eligible-leg builder). It decides Bank Builder and Moonshot, not the Parlay Center's suggested-card lanes,
      which follow their own lane rule. A `scope` names the products it speaks for, so "not eligible for prediction
      products" can never read as a verdict on a lane that is publishing. */
-  const title = `Priced-card universe (Level B)${scope ? ` for ${scope}` : ""}`;
+  /* Overnight 10-28 (SIMPLIFY): the heading said "Priced-card universe (Level B)" — an internal tier name. It now says
+     what the list is; the priced level is still the one named, and the separate model-suggestion rule is still stated. */
+  const title = `Sports that can join a priced card${scope ? ` for ${scope}` : ""}`;
   const marketOnly = availability.sports.some((s) => s.eligibleLegs > 0 && s.marketPricedOnly);
   const contributing = availability.sports.filter((s) => s.eligibleLegs > 0);
   const day = universeDayLabel(availability.date);
@@ -58,7 +60,7 @@ export default function EligibleUniverse({ availability, compact = false, scope 
       ))}
     </ul>
   );
-  const rule = <p className="mt-1 text-[12px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>A sport enters only when its model has earned product eligibility for priced cards. The selector never requires a sport to appear, and a day with no qualifying card publishes no card.{scope ? " The Parlay Center's suggested-card lanes use their own rule (real posted prices, an official settlement path and enough priced games), shown on the Parlay Center." : ""}{levelA ? " Model suggestions (Level A) follow a separate rule, an official forecast frozen before the game, and carry no price." : ""}</p>;
+  const rule = <p className="mt-1 text-[12px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>A sport enters only when its model has earned product eligibility for priced cards. The selector never requires a sport to appear, and a day with no qualifying card publishes no card.{scope ? " The Parlay Center's suggested-card lanes use their own rule (real posted prices, an official settlement path and enough priced games), shown on the Parlay Center." : ""}{levelA ? " Model suggestions follow a separate rule, an official forecast frozen before the game, and carry no price." : ""}</p>;
 
   /*
    * S1 (2026-09-30): COMPACT = ONE LINE, THEN THE DETAIL ON DEMAND. On /bank-builder and /moonshot this

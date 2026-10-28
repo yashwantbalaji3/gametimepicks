@@ -67,9 +67,11 @@ test("🔴 G-1 · the Bank Builder pool loads no demoted model picks and passes 
   assert.doesNotMatch(src("src/lib/daily-portfolio/sport-eligibility.ts"), /model-qualified MLB legs/, "the stated source is market-priced team markets");
 });
 
-test("🔴 G-3 · home reads Lane A's rung from the placed-card receipts — the same owner /bank-builder reads", () => {
+test("🔴 G-3 · home prints no Lane A rung that could disagree with the receipts /bank-builder reads", () => {
+  /* REPOINTED W4 (2026-10-28): G-3 made Home read Lane A's rung from the receipts so it could not disagree with
+     /bank-builder. Home now prints no rung at all (operator state on the front door), which closes the same gap: there
+     is no second rung to disagree. /bank-builder still reads the receipts (below). */
   const home = src("src/app/page.tsx");
-  assert.match(home, /positionFromReceipts\(\{ receipts: readReceipts\(dataRoot, today\), product: "bank-builder", lane: "A"/);
-  assert.ok(home.indexOf("laneAPosition.basis ? laneAPosition.nextStep") < home.indexOf("laneAView?.steps.find"), "receipts first; the frozen store only as a fallback");
+  assert.doesNotMatch(home, /laneAView|awaitingRung|awaiting Step/, "no rung derivation or phrase on Home");
   assert.match(src("src/app/bank-builder/page.tsx"), /positionFromReceipts\(\{ receipts: bbReceipts, product: "bank-builder", lane: "A"/);
 });

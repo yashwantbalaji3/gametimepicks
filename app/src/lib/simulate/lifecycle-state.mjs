@@ -31,5 +31,25 @@ export function startedAt(startUtc, nowMs) {
 export const POST_START_PHRASE = Object.freeze({
   SETTLED: "Settled — the graded outcome is on Results; the report shows the frozen forecast beside it.",
   AWAITING_SETTLEMENT: "Final — grading against the official result is pending. The report shows the frozen pregame forecast.",
-  STARTED: "Started — no final is recorded yet. The report shows the frozen pregame forecast; the result arrives when it is graded.",
+  /* W9 (audit 2026-10-28): this said "no final is recorded yet" on /simulate/d/2026-10-27 while MIL@TB's own page
+     showed "Final 3–4 · grading pending" from the live feed. A static day view does not read live finals, so it
+     claims only what it knows — the result is not graded — and never the absence of a final. */
+  STARTED: "Started — not graded yet. The report shows the frozen pregame forecast; the result arrives when it is graded.",
 });
+
+/**
+ * W9 (audit 2026-10-28): a past date's header read "A settled slate: 0 of 5 events are final" — "settled" for a
+ * slate with nothing graded, and "0 final" counting only the graded. The summary is built from the per-event
+ * states this module decides, so it can only say what those states say.
+ * @param {{ events: number, settled: number, awaiting: number, started: number }} t
+ */
+export function pastSlateSummary({ events, settled, awaiting, started }) {
+  if (!events) return "No events on this date.";
+  if (settled === events) return `All ${events} event${events === 1 ? " is" : "s are"} graded.`;
+  const parts = [`${settled} of ${events} event${events === 1 ? "" : "s"} graded`];
+  if (awaiting > 0) parts.push(`${awaiting} final, grading pending`);
+  if (started > 0) parts.push(`${started} started, not graded yet`);
+  const other = events - settled - awaiting - started;
+  if (other > 0) parts.push(`${other} with no result yet`);
+  return `A past slate: ${parts.join(" · ")}.`;
+}

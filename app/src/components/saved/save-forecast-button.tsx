@@ -28,12 +28,13 @@ export default function SaveForecastButton({ card, compact = true, placement = "
   const [eligibility, setEligibility] = useState<{ ok: boolean; reason: string | null }>(() => saveEligibility(card, card.freshness?.updatedAt ?? "1970-01-01T00:00:00Z"));
   useEffect(() => { setEligibility(saveEligibility(card, new Date().toISOString())); }, [card]);
   const minHeight = 44; // Release B (benchmark PR 1193 gap 8): compact or not, a tap target is ≥ 44px
-  const style = { minHeight, padding: compact ? "0 8px" : "0 14px", fontSize: compact ? 9.5 : 11 } as const;
+  /* W6 (2026-10-28): sentence case at 12px (was 9.5/11px uppercase) — the card around it no longer shouts. */
+  const style = { minHeight, padding: compact ? "0 8px" : "0 14px", fontSize: 12 } as const;
 
   if (!eligibility.ok && eligibility.reason === "NO_CALL") return null;
   if (!eligibility.ok && !saved) {
     return (
-      <span className="gtp-save-btn inline-flex items-center gap-1 rounded-full font-mono uppercase tracking-[0.08em]" aria-label="This event has started, so its forecast can no longer be saved" style={{ ...style, border: "1px dashed var(--vault-rule)", color: "var(--vault-text-faint)" }}>
+      <span className="gtp-save-btn inline-flex items-center gap-1 rounded-full" aria-label="This event has started, so its forecast can no longer be saved" style={{ ...style, border: "1px dashed var(--vault-rule)", color: "var(--vault-text-faint)" }}>
         Started · not saveable
       </span>
     );
@@ -47,7 +48,7 @@ export default function SaveForecastButton({ card, compact = true, placement = "
       }}
       aria-pressed={saved}
       aria-label={saved ? `Remove ${sides.first} and ${sides.second} from your saved forecasts` : `Save the ${sides.first} and ${sides.second} forecast`}
-      className="gtp-save-btn inline-flex items-center gap-1 rounded-full font-mono uppercase tracking-[0.08em]"
+      className="gtp-save-btn inline-flex items-center gap-1 rounded-full"
       style={{ ...style, border: `1px solid ${saved ? "var(--vault-gold)" : "var(--vault-rule)"}`, color: saved ? "var(--vault-gold)" : "var(--vault-text-mute)", background: "transparent", cursor: "pointer" }}
     >
       <span aria-hidden="true">{saved ? "★" : "☆"}</span>

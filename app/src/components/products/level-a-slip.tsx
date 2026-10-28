@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { registerSlipCatalog, useModelSlip } from "@/lib/products/level-a/slip-store";
+import { catalogLegStarted, registerSlipCatalog, useModelSlip } from "@/lib/products/level-a/slip-store";
+import { STARTED_UNAVAILABLE } from "@/lib/slip/slip-add-gate";
+import { useReaderNowIso } from "@/components/slip/use-reader-now";
 import { MODEL_SLIP_LABEL, modelSlipText, modelSlipView, slipButtonText } from "@/lib/products/level-a/slip.mjs";
 import { etStamp } from "@/lib/et-stamp.mjs";
 
@@ -24,7 +26,18 @@ const SPORT: Record<string, string> = { mlb: "MLB", nba: "NBA", epl: "Premier Le
 export function AddToSlip({ keys, label = "Add to slip", name }: { keys: string[]; label?: string; name: string }) {
   const { slip, add, remove } = useModelSlip();
   const inSlip = keys.length > 0 && keys.every((k) => slip.legs.some((x: { key: string }) => x.key === k));
+  const nowIso = useReaderNowIso();
+  /* Every leg behind the button has started (shared slip-add gate): nothing left to add, and it says so. */
+  const started = !inSlip && nowIso != null && keys.length > 0 && keys.every((k) => catalogLegStarted(k, nowIso));
   const words = slipButtonText({ inSlip, count: keys.length, label, name });
+  if (started) {
+    return (
+      <button type="button" className="inline-flex items-center" disabled aria-label={`${name}: ${STARTED_UNAVAILABLE}`}
+        style={{ ...BTN, opacity: 0.55, cursor: "not-allowed" }}>
+        {STARTED_UNAVAILABLE}
+      </button>
+    );
+  }
   return (
     <button type="button" className="vault-press inline-flex items-center" style={BTN} aria-pressed={inSlip}
       aria-label={words.aria}

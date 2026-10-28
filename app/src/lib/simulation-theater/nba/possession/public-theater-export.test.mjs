@@ -21,7 +21,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { NBA_PRIVATE_MARKERS, NBA_THEATER_FLAG_ON_ALLOWLIST, scanFlagOnTheaterExport } from "../export-boundary.mjs";
+import { NBA_PRIVATE_MARKERS, NBA_THEATER_FLAG_ON_ALLOWLIST, SETTLED_PAGE_MARKER, scanFlagOnTheaterExport } from "../export-boundary.mjs";
 import { NBA_PUBLIC_THEATER_PLACEHOLDER } from "./public-route.mjs";
 import { ENGINE_IDENTITY, OFFICIAL_PANEL_TITLE, POSSESSION_BANNER, ROLE_C_NOTE, WITHHELD } from "./labels.mjs";
 
@@ -34,7 +34,10 @@ const FLAG_ON = process.env.GTP_NBA_THEATER_PUBLIC === "1";
 // founder directive 2026-10-23 public readiness: the engine is identified by name + id (ENGINE_IDENTITY), replacing the
 // superseded role C label as the required on-page identity
 const REQUIRED = [ENGINE_IDENTITY, ...ROLE_C_NOTE, POSSESSION_BANNER, OFFICIAL_PANEL_TITLE, WITHHELD];
-const scan = (dir) => scanFlagOnTheaterExport(dir, { required: REQUIRED, placeholder: NBA_PUBLIC_THEATER_PLACEHOLDER });
+/** What every SETTLED page (a past slate's game, overnight W7 2026-10-28) must print: the archived note and the official
+ *  forecast's title and disclosure (components/nba/settled-simulation.tsx; literals, as this post-build file reads no TSX). */
+const SETTLED_REQUIRED = ["Game Simulation archived", "replays are not kept", "GameTimePicks Official Forecast", "Not a betting recommendation"];
+const scan = (dir) => scanFlagOnTheaterExport(dir, { required: REQUIRED, placeholder: NBA_PUBLIC_THEATER_PLACEHOLDER, settledRequired: SETTLED_REQUIRED });
 
 test("flag ON: every published page carries the founder's labels; only the allowlisted markers, only on the route and its chunks", { skip: !BUILT ? "no export at app/out (run the build first)" : !FLAG_ON ? "flag OFF build (GTP_NBA_THEATER_PUBLIC not 1)" : false }, () => {
   // The placeholder never ships, in any build (prune-internal-routes.mjs).
@@ -49,10 +52,12 @@ test("flag ON: every published page carries the founder's labels; only the allow
     return;
   }
   const r = scan(OUT);
-  assert.ok(r.pages.length > 0, "out/nba/simulation/ exists but carries no game page");
+  assert.ok(r.pages.length + r.settledPages.length > 0, "out/nba/simulation/ exists but carries no game page");
   assert.deepEqual(r.leaks, [], "no §5 private marker outside the allowlist, its route and its chunks");
-  assert.deepEqual(r.missing, [], "every page carries the role C label, the five-point note, the banner and the official panel");
-  assert.ok(r.markerChunks.length > 0, "the island's chunk carries its data attributes — the scan is looking");
+  assert.deepEqual(r.missing, [], "every Theater page carries the role C label, the five-point note, the banner and the official panel; every settled page the archived note and the official forecast");
+  assert.deepEqual(r.settledLeaks, [], "a settled page carries no Theater marker at all (no engine, no playback, no island)");
+  if (r.pages.length) assert.ok(r.markerChunks.length > 0, "the island's chunk carries its data attributes — the scan is looking");
+  for (const id of r.settledPages) assert.match(fs.readFileSync(path.join(SIM, id, "index.html"), "utf8"), /<meta name="robots" content="noindex/, `${id}: settled page kept out of search like the family`);
   assert.deepEqual(r.strayChunks, [], "no page outside /nba/simulation/ loads a chunk carrying the Theater markers");
   for (const id of r.pages) {
     const html = fs.readFileSync(path.join(SIM, id, "index.html"), "utf8");
@@ -64,7 +69,7 @@ test("flag ON: every published page carries the founder's labels; only the allow
     const theater = html.slice(at, html.indexOf("</main>", at) > 0 ? html.indexOf("</main>", at) : undefined).replace(/<script[\s\S]*?<\/script>/g, "").replace(/<[^>]+>/g, " ");
     assert.doesNotMatch(theater.replace(/NOT A REAL OR LIVE GAME/g, "").replace(/overtime is rarer than in real games/g, ""), /\blive\b|\breal game|happening now/i, `${id}: nothing in the Theater implies a live or real game`);
   }
-  console.log(`# NBA theater ON: ${r.pages.length} page(s) labelled, ${r.files} files scanned, ${r.markerChunks.length} island chunk(s)`);
+  console.log(`# NBA theater ON: ${r.pages.length} page(s) labelled, ${r.settledPages.length} settled page(s), ${r.files} files scanned, ${r.markerChunks.length} island chunk(s)`);
 });
 
 test("flag OFF: the public route is pruned from the export", { skip: !BUILT ? "no export at app/out (run the build first)" : FLAG_ON ? "flag ON build" : false }, () => {
@@ -81,9 +86,30 @@ test("flag-ON scanner: a clean planted export passes; each planted defect is cau
   put(`nba/simulation/${NBA_PUBLIC_THEATER_PLACEHOLDER}/index.html`, "<html>404</html>");
   put("_next/static/chunks/island-1.js", 'e.setAttribute("data-nbp-run","x")');
   put("_next/static/chunks/main.js", "console.log(1)");
+  const settled = `<html><head><meta name="robots" content="noindex"><script src="/_next/static/chunks/main.js"></script></head><body><article ${SETTLED_PAGE_MARKER}="401909070">${SETTLED_REQUIRED.join(" ")}</article></body></html>`;
+  put("nba/simulation/401909070/index.html", settled);
+  put("nba/simulation/401909070/index.txt", '"official":"frozen"');
   const clean = scan(dir);
-  assert.deepEqual([clean.pages, clean.leaks, clean.missing, clean.strayChunks], [["401909088"], [], [], []]);
+  assert.deepEqual([clean.pages, clean.settledPages, clean.leaks, clean.missing, clean.settledLeaks, clean.strayChunks], [["401909088"], ["401909070"], [], [], [], []]);
   assert.deepEqual(clean.markerChunks, ["/_next/static/chunks/island-1.js"]);
+
+  // a settled page missing its archived note; carrying the engine id or a playback marker; loading the island chunk
+  put("nba/simulation/401909070/index.html", settled.replace("Game Simulation archived", ""));
+  assert.deepEqual(scan(dir).missing, [{ page: "401909070", missing: "Game Simulation archived" }]);
+  for (const m of NBA_THEATER_FLAG_ON_ALLOWLIST) {
+    put("nba/simulation/401909070/index.html", settled.replace("</article>", ` ${m}</article>`));
+    assert.deepEqual(scan(dir).settledLeaks, [{ page: "401909070", file: "index.html", marker: m }], `a settled page may not carry ${m}`);
+  }
+  /* A settled page is a page of the same route, and a static export attaches the route's client chunks to all of its
+     pages: loading the island chunk is tolerated (unused weight, a recorded follow-up). What it may never do is SHOW the
+     Theater — its own HTML stays clean (settledLeaks) and it keeps the settled labels. */
+  put("nba/simulation/401909070/index.html", settled.replace("main.js", "island-1.js"));
+  const routeChunk = scan(dir);
+  assert.deepEqual([routeChunk.strayChunks, routeChunk.settledLeaks, routeChunk.missing], [[], [], []]);
+  // a Theater page without the settled marker is held to the Theater's labels, never the settled ones
+  put("nba/simulation/401909070/index.html", settled.replace(`${SETTLED_PAGE_MARKER}="401909070"`, ""));
+  assert.ok(scan(dir).missing.some((x) => x.page === "401909070" && x.missing === ENGINE_IDENTITY));
+  put("nba/simulation/401909070/index.html", settled);
 
   // a label missing from a page
   put("nba/simulation/401909089/index.html", page.replace(ROLE_C_NOTE[3], ""));

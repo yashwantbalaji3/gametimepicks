@@ -39,11 +39,9 @@ import { presentVaultCandidate } from "@/lib/prediction-presentation/nfl";
 import QuickActionRail from "@/components/quick-action-rail";
 import SectionHeader from "@/components/section-header";
 import MoreDisclosure from "@/components/ui/more-disclosure";
-import SportOverviewHero from "@/components/sport-overview-hero";
 import TeamLogo from "@/components/team-logo";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { currentEtDate } from "@/lib/freshness";
-import { getSportIdentity } from "@/lib/sport-identity";
 import { deriveSlateAnchor } from "@/lib/sports/nfl/slate-anchor.mjs";
 import { loadNflEvents, currentPeriodKey, eventsInPeriod, periodCounts } from "@/lib/events/read-model";
 import { seasonContextFor } from "@/lib/sports/nfl/season-context.mjs";
@@ -67,6 +65,7 @@ import { formatUpdatedEt } from "@/lib/format";
 import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 import { sanitizeVaultArtifact } from "@/lib/sports/odds/public-offer-sanitizer.mjs";
 import { PUBLIC_TERMS, publicSport } from "@/lib/public-registry";
+import { tieNoteForList } from "@/lib/sports/nfl/tie-note.mjs";
 
 export const metadata: Metadata = withRouteMetadata("/nfl/", {
   title: "NFL Hub — Official Forecasts, Game Simulations & Coverage Status · GameTime Picks",
@@ -166,11 +165,10 @@ type IndexEvent = {
  * dead link that looks correct in source. The route-integrity guard caught exactly that here.
  */
 function etDaySlug(iso: string): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" })
+  /* Overnight W8: a day in words ("Sun, Oct 25"), not an ISO key — still the ET day, never the UTC date. */
+  return new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", month: "short", day: "numeric" })
     .format(new Date(iso));
 }
-
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 /**
  * When a capture happened, said so a reader cannot misread it.
@@ -181,18 +179,22 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
  * build time and a page built on Saturday is still being read on Sunday.
  */
 function capturedLabel(capturedAt: string): string {
-  const iso = String(capturedAt ?? "");
-  const month = MONTHS[Number(iso.slice(5, 7)) - 1] ?? iso.slice(5, 7);
-  return `captured ${month} ${Number(iso.slice(8, 10))} · ${iso.slice(11, 16)}Z`;
+  /* Overnight W8 (2026-10-28): ET, like every other time on the site — it printed "captured Oct 11 · 17:45Z". Still
+     no clock read: the label formats the capture's own instant (a number, not the build's "now"). */
+  const ms = Date.parse(String(capturedAt ?? ""));
+  if (!Number.isFinite(ms)) return "capture time not recorded";
+  return `captured ${CAPTURE_ET.format(ms)} ET`;
 }
+const CAPTURE_ET = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 
-/** The zero state names what is observable — the age of the last capture — and claims nothing else. */
+/** The zero state names what is observable — the age of the last capture — and claims nothing else. Restored
+ *  2026-10-28 pre-merge review: W8 removed the hero that carried it, which left a week with no current prices silent. */
 function lastCaptureLabel(capturedAt?: string | null): string {
   const ms = Date.parse(String(capturedAt ?? ""));
   if (!Number.isFinite(ms)) return "none current — no capture on file";
-  const day = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric" }).format(new Date(ms));
-  return `none current — last capture ${day} ET`;
+  return `none current — last capture ${LAST_CAPTURE_ET.format(ms)} ET`;
 }
+const LAST_CAPTURE_ET = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric" });
 
 /** The receipts' closed lane-state set (scripts/nfl/build-nfl-product-receipts.mjs) in reader words. */
 const NFL_LANE_STATE_LABEL: Record<string, string> = {
@@ -397,7 +399,7 @@ export default function NflHubPage() {
       : { layer, state: "UNKNOWN", detail: fallback };
 
   const coverage = [
-    { layer: "Schedule & identities", state: "LIVE", detail: `daily capture · ${schedule ? `${schedule.rows.length} events in window, captured ${schedule.generatedAt}` : "capture unavailable — shown as missing, never guessed"}` },
+    { layer: "Schedule & identities", state: "LIVE", detail: `daily capture · ${schedule ? `${schedule.rows.length} events in window, captured ${formatUpdatedEt(schedule.generatedAt)}` : "capture unavailable — shown as missing, never guessed"}` },
     { layer: "Results", state: "LIVE", detail: `official finals join by durable event id; results without pre-event schedule lineage are quarantined and say so` },
     layerRow("Team game simulation", modelStatus?.teamSimulation, "no model evaluation is readable — no claim is made"),
     layerRow("Moneyline / spread / total prices", modelStatus?.market, "no price capture is readable"),
@@ -426,7 +428,6 @@ export default function NflHubPage() {
      registry's own NFL entry decides product eligibility and where Model Performance lives — never re-decided here. */
   const nflPublic = publicSport("nfl");
 
-  const identity = getSportIdentity("nfl");
   const slateLabel = slateDay ? etDayLabel(`${slateDay}T18:00:00Z`) : "the next slate";
   const officialChip = (
     <span style={{ fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: "var(--sport-nfl)", border: "1px solid var(--vault-border)", borderRadius: 6, padding: "2px 6px", verticalAlign: "middle" }}>
@@ -439,6 +440,9 @@ export default function NflHubPage() {
      simulation and no market snapshot, so it is a preseason archive and says so. */
   // founder directive 2026-10-23 public readiness: the per-card qualifier ("Official Forecast") is the adapter's own (nflReadFor)
   const __hubModel = nflHub(nowIso);
+  /* The bars' unassigned tie share, read from the very splits the game cards draw (two sides, no draw outcome). */
+  const weekTieNote = tieNoteForList(__hubModel.rows.flatMap((r) =>
+    r.read?.split?.length === 2 ? [{ away: r.read.split[0].p, home: r.read.split[1].p }] : []));
 
 
   return (
@@ -469,7 +473,12 @@ export default function NflHubPage() {
         ]}
       />
       {/* Founder directive 2026-10-08: the evaluation status, stated once for the whole NFL experience. */}
-      <div className="nf"><ForecastStyles /><ModelStatus /></div>
+      {/* Overnight W8 (2026-10-28): the hub's ONE header — title above, this one disclosure line, then the games. The
+          mid-page SportOverviewHero is REMOVED: it repeated the week, the game count and a "See the slate" button
+          for the list directly above it. Its freshness badge moves here, so a page left open overnight still stops
+          calling the slate "tomorrow"; its zero-price stat is stated in Technical details (Coverage), where the
+          capture's date already lives. */}
+      <div className="nf flex flex-wrap items-center gap-2"><ForecastStyles /><ModelStatus /><FreshnessBadge slateDate={slateDay} serverToday={currentEtDate()} noun="slate" /></div>
       {/* P250-W1: the canonical weekly table (projected scores + totals, permalinked, guard-tested)
           renders a few sections below — the hub's generic list was a second 16-row copy of the same
           games directly above it, so it collapses to a counts line with the quick list one click
@@ -479,6 +488,9 @@ export default function NflHubPage() {
             canonical week table below still carries every game's projected score and total (P250-W1's rule was
             "never two tables of one population", and that holds). */}
         <HubHeader model={__hubModel} />
+        {/* The win-chance bars above sum to about 97%: the remainder is the model's tie-after-regulation chance, which
+            it assigns to neither team. Stated once under the bars, never reallocated (founder decision pending). */}
+        {weekTieNote ? <p data-tie-note="" className="m-0 mt-3 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{weekTieNote}</p> : null}
       </section>
       {carriedStarted.length ? (
         <section aria-label="An earlier week's game still being played" className="gtp-nfl-carried" style={{ border: "1px solid color-mix(in srgb, var(--gtp-bank-heat) 45%, transparent)", borderRadius: 10, padding: "10px 14px", display: "grid", gap: 6 }}>
@@ -491,60 +503,6 @@ export default function NflHubPage() {
           ))}
         </section>
       ) : null}
-      {/* P177-A: the shared sport hero. The freshness badge rides in the badge slot and
-          re-derives the REAL browser ET date after mount, so a slate page left open overnight
-          stops claiming to be today's. */}
-      <SportOverviewHero
-        headingLevel="h2"
-        eyebrow={`NFL · ${PUBLIC_TERMS.OFFICIAL_FORECAST}s`}
-        sport="NFL"
-        tagline={`${PUBLIC_TERMS.OFFICIAL_FORECAST}s${index?.model?.phaseLabel ? ` · ${index.model.phaseLabel}` : ""}`}
-        accent="nfl"
-        icon={identity.icon}
-        iconGradient={identity.gradient}
-        iconLabel={identity.ballLabel}
-        /* "Live" must mean the games are ON, not that we published simulations for them. Keyed to
-           simulation count alone, this pill read "Live · 2 games" beside its own freshness badge
-           reading "Upcoming · 2026-08-20" — two contradictory claims on one line, three days early.
-           The slate day decides tense; the simulation count only distinguishes ready from pending. */
-        statusKind={simulatedOnSlate > 0 ? "live" : slateGames.length > 0 ? "linesPending" : "upcoming"}
-        /* #761 PR 2: the slate day decides tense on the READER'S day (it was the build's). */
-        statusSlateDate={slateDay ?? null}
-        statusSeedToday={currentEtDate()}
-        statusCaption={slateGames.length > 0 ? `${slateGames.length} game${slateGames.length === 1 ? "" : "s"}` : undefined}
-        matchupLine={weekLabel ? `${weekLabel} · ${slateGames.length} game${slateGames.length === 1 ? "" : "s"}` : slateDay ? `${slateLabel} · ${slateGames.length} game${slateGames.length === 1 ? "" : "s"} on the slate` : undefined}
-        badge={<FreshnessBadge slateDate={slateDay} serverToday={currentEtDate()} noun="slate" />}
-        stats={[
-          { label: weekLabel ? "Games this week" : "Games on the slate", value: String(slateGames.length), sub: weekLabel ?? slateDay ?? "no capture" },
-          { label: "Simulated", value: String(simulatedOnSlate), sub: simulatedOnSlate > 0 ? (uniformRuns ? `${uniformRuns.toLocaleString("en-US")} runs each` : "run count on each report") : "none published" },
-          /* P246 §6: the hero counted the INDEX's market events — which still held the archived
-             Aug-29 capture after authorization expired, advertising "1" beside a Week-1 slate with
-             no current prices. The stat is the WEEK's own count, and zero says why. */
-          /* The time alone said "captured 17:45Z", which reads as today whatever day it was — a
-             capture taken the day before a slate would have worn today's clock. And the zero state
-             blamed authorization, which has been valid since 2026-09-10: what is missing is a RUN,
-             not a permission, and a wrong reason is worse than none. Both now state what is true. */
-          { label: "Sportsbook prices", value: String(slateMarketRows.length), sub: slateMarketRows.length ? capturedLabel(markets.capturedAt) : lastCaptureLabel(markets?.capturedAt) },
-        ]}
-        ctas={[
-          { href: "#nfl-slate", label: "See the slate", primary: true },
-          /* A CTA to a section that did not render is a dead button — the second slot follows
-             what this build actually shows. */
-          /* …and "Weekly top boards" only while a game is still to kick off (the section renders only then): after the
-             week's last kickoff the button would have pointed at nothing (2026-10-20, after Monday night). Results
-             always renders. */
-          slateMarketRows.length ? { href: "#nfl-markets", label: "Sportsbook prices" }
-            : unifiedBoards.games ? { href: "#nfl-boards", label: "Weekly top boards" }
-            : { href: "#nfl-results", label: "Results" },
-        ]}
-        /* P250-W2: this said the same thing the lead paragraph below says, one line apart — a
-           reader met three consecutive disclaimers before a single number. The hero states the
-           frame; the model's own recorded result states the limit, once. */
-        /* Founder directive 2026-10-23 public readiness: the frame in the public vocabulary; the limit is the
-           Model Performance lead just below, stated once. */
-        framing={`${PUBLIC_TERMS.OFFICIAL_FORECAST}s · ${PUBLIC_TERMS.GAME_SIMULATION}s · educational · paper-only.`}
-      />
-
       <div style={{ maxWidth: 680 }}>
         {/* THE HONEST LIMIT IS READ FROM THE MODEL ARTIFACT, not retyped here.
          *
@@ -728,7 +686,7 @@ export default function NflHubPage() {
         ) : null}
         {weather?.rows?.length ? (
           <p style={{ margin: "6px 0 0", fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-faint)", maxWidth: 760 }}>
-            Conditions are the forecast nearest kickoff, captured {String(weather.capturedAt).slice(0, 16).replace("T", " ")}Z.{" "}
+            Conditions are the forecast nearest kickoff, captured {formatUpdatedEt(weather.capturedAt)}.{" "}
             <strong>The model does not use them</strong> — no weather term enters the total or the win chance, and these
             are shown beside the forecast so you can see what it is not accounting for. {weather.attribution}
           </p>
@@ -805,7 +763,7 @@ export default function NflHubPage() {
                             UTC calendar day, so every night game was listed a day late: the games
                             list said "Mon, Sep 14 · 8:15 PM ET" for DEN at KC and this list said
                             2026-09-15 for the same kickoff. */}
-                        {etDay(f.kickoffUtc)} · {f.seasonType === 1 ? "preseason" : "regular season"} week {f.week}
+                        {etDaySlug(f.kickoffUtc)} · {f.seasonType === 1 ? "preseason" : "regular season"} week {f.week}
                       </span>
                       <span
                         className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]"
@@ -899,7 +857,7 @@ export default function NflHubPage() {
       {slateMarketRows.length ? (
         <section aria-labelledby="nfl-markets" id="nfl-markets" className="scroll-mt-24">
           <SectionHeader
-            eyebrow={`Prices · captured ${markets.capturedAt}`}
+            eyebrow={`Prices · ${capturedLabel(markets.capturedAt)}`}
             title="Sportsbook prices for this slate"
             sub="These are the sportsbooks' own numbers, shown as facts with attribution — captured before every kickoff below, and GameTimePicks publishes no NFL prediction beside them. The win percentages are each book's price with its margin removed, then the median across books; they describe the market, not a forecast of ours."
           />
@@ -939,13 +897,22 @@ export default function NflHubPage() {
             {propAbsence ? " The same authorized capture probed player markets for this window and found none offered — so no player or touchdown prices appear anywhere on this page." : ""}
           </p>
         </section>
-      ) : null}
+      ) : (
+        /* No current prices for this week is stated, never left silent (a missed capture is a real gap). */
+        <p data-nfl-no-prices="" className="m-0 text-[13px]" style={{ color: "var(--vault-text-mute)" }}>
+          Sportsbook prices for this slate: {lastCaptureLabel(markets?.capturedAt)}.
+        </p>
+      )}
 
+      {/* Overnight W8 (2026-10-28): the finals list is reference — the graded record right below says how the forecasts
+          did — so it folds (the #nfl-results anchor still opens it: MoreDisclosure opens on hash). The matching rule is
+          SIMPLIFIED to plain words; its exact wording stays in Technical details (Coverage · Results). */}
+      <MoreDisclosure title="Recent final scores" summary={`${finals.length} official final${finals.length === 1 ? "" : "s"} from the scoreboard.`}>
       <section aria-labelledby="nfl-results" id="nfl-results" className="scroll-mt-24">
         <SectionHeader
           eyebrow="Results"
           title="Recent finals"
-          sub="Finals join by durable event identity; a result without pre-event schedule lineage is quarantined and reported, never settled."
+          sub="Official final scores. A result we cannot match to a game we listed before kickoff is held back and reported, never graded."
         />
         {finals.length ? (
           <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: 8 }}>
@@ -959,9 +926,10 @@ export default function NflHubPage() {
             ))}
           </ul>
         ) : (
-          <p style={{ fontSize: 12.5, color: "var(--vault-text-mute)" }}>No finals in the current capture window{results ? ` (captured ${results.generatedAt})` : ""}.</p>
+          <p style={{ fontSize: 12.5, color: "var(--vault-text-mute)" }}>No finals in the current capture window{results ? ` (captured ${formatUpdatedEt(results.generatedAt)})` : ""}.</p>
         )}
       </section>
+      </MoreDisclosure>
 
       {/*
         RECENT FINALS SHOWED SCORES AND NOT PICKS. A reader could see how the games ended and
@@ -975,7 +943,9 @@ export default function NflHubPage() {
       {/* GTP-19 (Release 2B): the model-detail sections — calibration, coverage, participation, the pregame audit,
           differentiation, product receipts and eligibility — fold into one disclosure. Nothing is removed and every
           anchor (#nfl-coverage from the hub nav and "Model details") still lands: MoreDisclosure opens on hash. */}
-      <MoreDisclosure title="Model details, coverage and audits" summary="Calibration, what the model covers, participation, the pregame audit and product receipts.">
+      {/* Overnight W8: the hub's ONE "Technical details" (was "Model details, coverage and audits") — internal ids, bar
+          names and evaluation records are RELOCATED here, never deleted. */}
+      <MoreDisclosure title="Technical details" summary="Calibration, coverage by market, playing time, the pregame audit and product evaluations.">
       <IntervalCalibrationPanel cal={nflCalibration} />
 
       <section aria-labelledby="nfl-coverage" id="nfl-coverage" className="scroll-mt-24">
@@ -1035,7 +1005,7 @@ export default function NflHubPage() {
       {pregameAudit ? (
         <section aria-labelledby="nfl-audit" id="nfl-audit">
           <SectionHeader
-            eyebrow={`Graded · ${pregameAudit.etDate}`}
+            eyebrow={`Graded · ${etDaySlug(`${pregameAudit.etDate}T16:00:00Z`)}`}
             title={pregameAudit.headline}
             sub={`${pregameAudit.whatThisIs} ${pregameAudit.honestLimit}`}
           />

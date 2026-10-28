@@ -27,6 +27,7 @@ import { rowRateLabel, teamRateNote } from "@/lib/mlb/full-game/box-score-rates"
 import { forecastFrozenAt, simProvenance } from "@/lib/mlb/full-game/sim-provenance";
 import { exactWinCounts } from "@/lib/sim-frequency";
 import { degradedInputsNote } from "@/lib/mlb/full-game/degraded-note.mjs";
+import { mlbForecastState } from "@/lib/mlb/full-game/forecast-state.mjs";
 import MlbDegradedInputs from "@/components/mlb/mlb-degraded-inputs";
 
 const int0 = (n: number): string => Math.round(n).toLocaleString("en-US");
@@ -170,6 +171,7 @@ function PredictionHero({ p, runCount , spreadLabel, g, modelVersion }: { p: Gam
   const moneylinePaused = Boolean(p.pausedReasons?.moneyline);
   if (!p.predictedWinner && !moneylinePaused) return null;
   const winnerName = p.predictedWinner ? (p.predictedWinner.side === "home" ? p.homeTeamName : p.awayTeamName) : "Winner call paused";
+  const forecast = mlbForecastState(p);
   const ml = p.moneyline;
   const total = p.total;
   const rl = p.runLine;
@@ -183,6 +185,11 @@ function PredictionHero({ p, runCount , spreadLabel, g, modelVersion }: { p: Gam
         <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>GameTimePicks simulation read</span>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>from {runCount && runCount > 0 ? `${runCount.toLocaleString("en-US")} ` : ""}simulated games · not validated to out-predict the market</span>
       </div>
+      {/* Overnight 10-28: a degraded official snapshot is never an unqualified headline — the qualifier and its
+          one-line cause sit in the hero itself, above the winner (lib/mlb/full-game/forecast-state.mjs). */}
+      {forecast && !forecast.ready ? (
+        <p data-mlb-forecast-qualifier="" className="m-0 font-mono" style={{ color: "var(--vault-warn)", fontSize: 11, lineHeight: 1.45 }}>{forecast.headline}</p>
+      ) : null}
       <div className="flex items-end justify-between gap-3 flex-wrap">
         <span className="font-display" style={{ color: p.predictedWinner ? "var(--vault-text)" : "var(--vault-text-mute)", fontSize: p.predictedWinner ? 26 : 18, fontWeight: 800, lineHeight: 1.05 }}>{winnerName}</span>
         <div className="text-right">
@@ -288,6 +295,12 @@ function SimulationOutcomeCenter({ g, awayCode, homeCode }: { g: FullGameSimGame
   );
 }
 
+/** The forecast-state qualifier for a headline number — null for a ready snapshot (its headline stays as it was). */
+function headlineQualifier(g: FullGameSimGame): string | null {
+  const f = mlbForecastState(g);
+  return f && !f.ready ? f.headline : null;
+}
+
 function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo, storySlot, saveSlot, modelVersion }: { g: FullGameSimGame; prediction: GamePredictionDecision | null; modelVersion?: string | null; awayCode: string; homeCode: string; awayLogo?: string | null; homeLogo?: string | null; storySlot?: ReactNode; saveSlot?: ReactNode }) {
   const V = g.vocabulary ?? BASEBALL_VOCAB;
   if (!g.winProbability || !g.runs || !g.totalRuns) return null;
@@ -329,7 +342,8 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo, story
           verdict={{
             label: `Expected ${V.scoreUnit}`,
             value: `${awayCode} ${one(g.runs.away.mean)} – ${one(g.runs.home.mean)} ${homeCode}`,
-            sub: `${g.winProbability.home >= g.winProbability.away ? homeCode : awayCode} ${Math.round(Math.max(g.winProbability.away, g.winProbability.home) * 100)}% · from ${g.runCount.toLocaleString("en-US")} simulated games`,
+            /* Overnight 10-28: a degraded official snapshot carries its qualifier and cause IN this headline. */
+            sub: `${g.winProbability.home >= g.winProbability.away ? homeCode : awayCode} ${Math.round(Math.max(g.winProbability.away, g.winProbability.home) * 100)}% · ${headlineQualifier(g) ?? `from ${g.runCount.toLocaleString("en-US")} simulated games`}`,
           }}
           rows={[
             { label: "Win chance",

@@ -36,8 +36,8 @@ export default function StatusBadge({
   const showDot = live ?? meta.tone === "live";
   return (
     <span
-      className={`inline-flex items-center gap-1 font-mono uppercase tracking-[0.08em] px-1.5 py-0.5 rounded-[3px] shrink-0${className ? ` ${className}` : ""}`}
-      style={{ color: t.color, background: t.bg, border: `1px solid ${t.border}`, fontSize: 10, whiteSpace: "nowrap" }}
+      className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[3px] shrink-0${className ? ` ${className}` : ""}`}
+      style={{ color: t.color, background: t.bg, border: `1px solid ${t.border}`, fontSize: 12, whiteSpace: "nowrap" }}
     >
       {showDot ? (
         <span aria-hidden className="gtp-slate-dot gtp-slate-dot-live" style={{ margin: 0, width: 5, height: 5, background: t.color }} />

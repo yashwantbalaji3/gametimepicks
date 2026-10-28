@@ -1,12 +1,18 @@
-import type { MlbComparisonReport } from "@/lib/types-mlb-results";
+import type { MlbComparisonReport, MlbLifetimeSummary } from "@/lib/types-mlb-results";
+import { getMlbLifetimeSummary } from "@/lib/data-mlb-results";
 
 /**
- * MlbResultsSummary — hero hit-rate panel mirroring the NBA Results
- * `Model audit · graded against final box scores` strip. Renders the
- * big hit rate, W/L/P, decisive count, and the partial-audit context.
+ * MlbResultsSummary — the hero of /results/mlb (and its legacy alias /mlb/results).
+ *
+ * Overnight 10-28 (W5): the H1 used to BE the latest slate's hit rate — "51.2%" from one game's 41 leans
+ * (2026-10-26, MIL @ TB) — with nothing above it saying it was one day. The page is now named by what it audits,
+ * the every-settled-slate figure leads (market, window and n stated), and the latest slate follows, labelled as
+ * one slate. The figures themselves are unchanged and come from the same two artifacts.
  */
 interface Props {
   report: MlbComparisonReport;
+  /** Every settled slate (lifetime_summary.json). Defaults to the shared reader so callers need not change. */
+  lifetime?: MlbLifetimeSummary | null;
 }
 
 function formatPercent(p: number | null): string {
@@ -14,9 +20,10 @@ function formatPercent(p: number | null): string {
   return `${(p * 100).toFixed(1)}%`;
 }
 
-export default function MlbResultsSummary({ report }: Props) {
+export default function MlbResultsSummary({ report, lifetime = getMlbLifetimeSummary() }: Props) {
   const hit = formatPercent(report.hitRate);
   const partial = report.partial;
+  const n = (x: number) => x.toLocaleString("en-US");
 
   return (
     <section
@@ -43,39 +50,47 @@ export default function MlbResultsSummary({ report }: Props) {
           MLB model audit · graded against final box scores
         </span>
       </div>
-      <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
-        <h1
-          className="font-display font-semibold tracking-tightest leading-[0.95]"
-          style={{
-            color: "var(--vault-gold-bright)",
-            fontSize: "clamp(48px, 10vw, 96px)",
-            textShadow:
-              "0 0 24px color-mix(in srgb, var(--vault-accent) 45%, transparent), 0 0 8px color-mix(in srgb, var(--vault-accent) 55%, transparent)",
-          }}
-        >
-          {hit}
-        </h1>
-        <span
-          className="font-display tracking-tight"
-          style={{
-            color: "var(--vault-text)",
-            fontSize: "clamp(18px, 2.6vw, 22px)",
-          }}
-        >
-          hit rate · {report.wins}–{report.losses}
-          {report.pushes > 0 ? `–${report.pushes}P` : ""} on{" "}
-          <span style={{ color: "var(--vault-gold-bright)" }}>
-            {report.decisive}
-          </span>{" "}
-          decisive picks
+      <h1
+        className="font-display font-semibold tracking-tight m-0"
+        style={{ color: "var(--vault-text)", fontSize: "clamp(26px, 4.4vw, 38px)", lineHeight: 1.1 }}
+      >
+        MLB player-prop leans: how the model did
+      </h1>
+
+      {lifetime && lifetime.decisive > 0 ? (
+        <div className="mt-4 flex flex-col gap-1" data-mlb-scope="all-settled">
+          <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
+            Every settled slate{lifetime.oldestDate && lifetime.newestDate ? ` · ${lifetime.oldestDate} → ${lifetime.newestDate}` : ""}
+          </span>
+          <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
+            <span
+              className="font-display font-semibold tracking-tightest leading-[0.95]"
+              style={{ color: "var(--vault-gold-bright)", fontSize: "clamp(40px, 8vw, 72px)" }}
+            >
+              {formatPercent(lifetime.hitRate)}
+            </span>
+            <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(16px, 2.4vw, 20px)" }}>
+              hit rate · {n(lifetime.wins)}–{n(lifetime.losses)} on {n(lifetime.decisive)} decided leans over {n(lifetime.totalDates)} slates
+            </span>
+          </div>
+        </div>
+      ) : null}
+
+      <div className="mt-4 flex flex-col gap-1" data-mlb-scope="latest-slate">
+        <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
+          Latest slate only · {report.date}
+        </span>
+        <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(16px, 2.4vw, 20px)" }}>
+          {hit} hit rate · {report.wins}–{report.losses}
+          {report.pushes > 0 ? `–${report.pushes}P` : ""} on {report.decisive} decided leans
         </span>
       </div>
       <p
         className="mt-4 text-[14px] leading-relaxed max-w-2xl"
         style={{ color: "var(--vault-text-mute)" }}
       >
-        Every model lean is logged when the board is generated and graded
-        against the verified MLB box score after the game is final.{" "}
+        Every model lean on a strikeout, hit, total-base or hits + runs + RBIs line is logged when the board is
+        generated and graded against the verified MLB box score after the game is final.{" "}
         <span style={{ color: "var(--vault-text)" }}>
           {report.finalGamesSettled} of {report.scheduledGames}
         </span>{" "}

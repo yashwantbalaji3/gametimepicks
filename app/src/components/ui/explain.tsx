@@ -28,7 +28,7 @@ export default function Explain({
     <details className="group" style={{ marginTop: 6 }}>
       <summary
         className="cursor-pointer list-none inline-flex items-center gap-1.5 font-mono"
-        style={{ color: accent, fontSize: 10, letterSpacing: "0.04em" }}
+        style={{ color: accent, fontSize: 12, letterSpacing: "0.04em" }}
       >
         <span
           aria-hidden
@@ -44,7 +44,7 @@ export default function Explain({
         style={{
           borderLeft: `1px solid ${tone === "notice" ? "var(--vault-gold)" : "var(--vault-rule)"}`,
           color: "var(--vault-text-mute)",
-          fontSize: 11,
+          fontSize: 12,
           lineHeight: 1.6,
         }}
       >

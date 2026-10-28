@@ -13,6 +13,7 @@
 import Link from "next/link";
 import { formatUpdatedEt } from "@/lib/format";
 import { PUBLIC_TERMS } from "@/lib/public-registry";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 
 const CSS = `
 .s2 table{width:100%;border-collapse:collapse}
@@ -87,7 +88,8 @@ export default function SimulationV2Report({ r, canonical, gameHref }: { r: any;
   const kickoff = new Date(r.eventStart);
   // margin is home minus away; say it as who leads, the same way everywhere on the page
   const lead = (m: number) => (m > 0 ? `${H} by ${m}` : m < 0 ? `${A} by ${-m}` : "Even");
-  const stamp = (iso: string) => `${String(iso).slice(0, 16).replace("T", " ")} UTC`;
+  /* Overnight W8 (2026-10-28): ET, like every other time on the site (it printed "2026-10-25 12:46 UTC"). */
+  const stamp = (iso: string) => formatUpdatedEt(iso);
 
   return (
     <div className="s2">
@@ -242,7 +244,7 @@ export default function SimulationV2Report({ r, canonical, gameHref }: { r: any;
 
       <section aria-labelledby="s2-rep">
         <h2 id="s2-rep">Representative simulated games</h2>
-        <p className="f" style={{ margin: "4px 0 0" }}>Real runs from this batch, picked by a fixed rule and replayed from their seed. Each is one possible game, not the forecast.</p>
+        <p className="f" style={{ margin: "4px 0 0" }}>Real runs from this batch, picked by a fixed rule and replayed exactly. Each is one possible game, not the forecast.</p>
         {(r.representativeRuns ?? []).slice(0, 3).map((g: any) => (
           <details key={g.kind} style={{ borderTop: "1px solid var(--vault-border)" }}>
             <summary>
@@ -262,8 +264,12 @@ export default function SimulationV2Report({ r, canonical, gameHref }: { r: any;
         ))}
       </section>
 
+      {/* Overnight W8 (2026-10-28): engine version ("2.0.0-shadow"), seed algorithm and receipt id are audit detail —
+          RELOCATED, verbatim, into the page's one collapsed "Technical details". The not-modelled list and the paper-only
+          line stay visible below it. */}
       <section aria-labelledby="s2-prov">
-        <h2 id="s2-prov">Provenance</h2>
+        <MoreDisclosure title="Technical details" summary="Engine version, run checks, timestamps, seed and receipt id.">
+        <h2 id="s2-prov" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>Provenance</h2>
         <Region label="Simulation receipt provenance">
           <table>
             <tbody>
@@ -279,6 +285,7 @@ export default function SimulationV2Report({ r, canonical, gameHref }: { r: any;
             </tbody>
           </table>
         </Region>
+        </MoreDisclosure>
         <p className="f" style={{ margin: "6px 0 0" }}>
           Not modelled: downs and distance, penalties, timeouts, weather, kickers as players, defensive player stats, and exact
           final-score frequencies. Those are absent here rather than estimated. Educational and paper-only; not betting advice.

@@ -34,6 +34,9 @@ export interface SlipLegInput extends SlipLegIdentity {
   readonly photoUrl?: string | null;
   readonly teamAbbr?: string | null;
   readonly opponentAbbr?: string | null;
+  /** The game's scheduled start (ISO, from the data the surface was built from). Display/gating only —
+   *  never part of identity. Read by the slip-add gate (lib/slip/slip-add-gate). */
+  readonly startUtc?: string | null;
 }
 
 const norm = (v: unknown): string => String(v ?? "").trim().toLowerCase();

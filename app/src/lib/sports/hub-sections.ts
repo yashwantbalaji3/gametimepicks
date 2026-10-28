@@ -58,7 +58,9 @@ export const HUB_SECTIONS: Record<HubSport, readonly HubSection[]> = {
   epl: [
     { kind: "anchor", target: "epl-games", label: "Fixtures" },
     { kind: "link", target: "/cards/epl", label: "Products" },
-    { kind: "anchor", target: "epl-fixtures", label: "Simulations" },
+    /* Overnight 10-28 (W8): the separate "Team predictions" section (#epl-fixtures) was folded into the one fixture listing;
+       each fixture card opens its match simulation, so Simulations lands on that listing. */
+    { kind: "anchor", target: "epl-games", label: "Simulations" },
     /* Session 5 · B8: this section is the full 2026-27 fixture list, not model picks. */
     { kind: "anchor", target: "schedule", label: "Fixture list" },
     { kind: "anchor", target: "record", label: "Results" },

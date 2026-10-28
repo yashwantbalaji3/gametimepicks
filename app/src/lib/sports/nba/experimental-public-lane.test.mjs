@@ -103,8 +103,8 @@ test("rendered lane: the UNVALIDATED banner, freeze times and sources show; no p
   assert.match(html, /<td>8:29 AM ET<\/td>/);
   assert.match(html, /<strong>New York Knicks<\/strong>/, "team names, never mixed NY/NYK codes");
   assert.match(html, /favoured side comes from a team rating \(Elo\)/);
-  // the sources (model ids) moved into the Model details disclosure — present, not deleted
-  assert.match(html, /<summary>Model details<\/summary>/);
+  // the sources (model ids) moved into the Technical details disclosure (MoreDisclosure) — present, not deleted
+  assert.match(html, /<details class="gtp-more-disclosure[\s\S]*Technical details/);
   assert.ok(html.includes(snap().games[0].players.source.replace(/'/g, "&#x27;")), "the player source is still printed");
   assert.match(html, /Not a betting recommendation\./); // founder directive 2026-10-23 public readiness
   assert.match(html, /not ranked/);

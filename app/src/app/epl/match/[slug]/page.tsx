@@ -23,6 +23,7 @@
 import type { Metadata } from "next";
 import { Histogram, ProbabilityBar as Bar } from "@/components/distribution-chart";
 import Link from "next/link";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 import { notFound } from "next/navigation";
 
 import TeamLogo from "@/components/team-logo";
@@ -471,11 +472,17 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
             forecasting. Team-level only: no lineup, injury or team-news input exists in this model, by design.
           </p>
           <dl style={{ display: "grid", gap: 6, gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", margin: 0 }}>
-            <Meta k="Model" v={row.modelId ?? "epl-model-v1-split-poisson"} />
-            {row.lambdas ? <Meta k="Scoring rates (λ)" v={`${home} ${dec(row.lambdas.home)} · ${away} ${dec(row.lambdas.away)}`} /> : null}
-            <Meta k="Forecast generated" v={forecastAt ? <EtTime iso={forecastAt} /> : "see the dated forecast artifact for this fixture"} />
+            <Meta k="Forecast generated" v={forecastAt ? <EtTime iso={forecastAt} /> : "not recorded for this fixture"} />
             <Meta k="Validation" v={validationLine} />
           </dl>
+          {/* Overnight W8 (2026-10-28): the internal model id and the raw scoring rates (λ — the same numbers as each
+              side's expected goals above) are audit detail, RELOCATED verbatim into one collapsed "Technical details". */}
+          <MoreDisclosure title="Technical details" summary="Internal model id and the fitted scoring rates.">
+            <dl style={{ display: "grid", gap: 6, gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", margin: 0 }}>
+              <Meta k="Model" v={row.modelId ?? "epl-model-v1-split-poisson"} />
+              {row.lambdas ? <Meta k="Scoring rates (λ)" v={`${home} ${dec(row.lambdas.home)} · ${away} ${dec(row.lambdas.away)}`} /> : null}
+            </dl>
+          </MoreDisclosure>
         </div>
       </section>
 
@@ -487,7 +494,9 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
       */}
       {siblings.length ? (
         <section className="mt-8">
-          <SectionHeader eyebrow="More" title={`Other ${row.matchweek ? `Matchweek ${row.matchweek}` : "Premier League"} fixtures`} />
+          {/* The strip lists the CURRENT forecast set; on a played match from an earlier matchweek it was headed
+              "Other Matchweek 3 fixtures" above matchweek 9's games. The heading names the matchweek only when it is true. */}
+          <SectionHeader eyebrow="More" title={row.matchweek != null && siblings.every((sib) => sib.matchweek === row.matchweek) ? `Other Matchweek ${row.matchweek} fixtures` : "Latest Premier League forecasts"} />
           <ul style={{ margin: "12px 0 0", padding: 0, listStyle: "none", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 8 }}>
             {siblings.map((sib) => (
               <li key={sib.slug}>

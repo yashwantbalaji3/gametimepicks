@@ -28,7 +28,7 @@ export default function MoneyPath({
           {fmt(stake)} <span style={{ color: "var(--vault-text-faint)", fontSize: 14, fontWeight: 600 }}>starting path</span>
         </div>
         {ret != null ? <div className="mt-1 font-mono text-[12px]" style={{ color: "var(--vault-gold-bright)" }}>Target: {fmt(ret)}+</div> : null}
-        {step ? <div className="mt-0.5 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>Step {step} of {totalSteps}</div> : null}
+        {step ? <div className="mt-0.5 font-mono text-[12px]" style={{ color: "var(--vault-text-faint)" }}>Step {step} of {totalSteps}</div> : null}
       </div>
     );
   }
@@ -39,14 +39,14 @@ export default function MoneyPath({
         <span className="font-display tabular tracking-tight" style={{ color: "var(--vault-text)", fontSize: 22, fontWeight: 800, lineHeight: 1 }}>{fmt(stake)}</span>
         <span aria-hidden style={{ color: "var(--vault-text-faint)", fontSize: 18 }}>→</span>
         <span className="font-display tabular tracking-tight" style={{ color: retColor, fontSize: 26, fontWeight: 800, lineHeight: 1 }}>{fmt(ret)}</span>
-        {retLabel ? <span className="font-mono uppercase tracking-wide" style={{ color: retColor, fontSize: 10, opacity: 0.85 }}>{retLabel}</span> : null}
+        {retLabel ? <span className="font-mono" style={{ color: retColor, fontSize: 12, opacity: 0.85 }}>{retLabel}</span> : null}
       </div>
       {computedProfit != null ? (
         <div className="mt-1 font-mono text-[12px]" style={{ color: computedProfit >= 0 ? "var(--vault-success)" : "var(--gtp-bank-heat)" }}>
           {computedProfit >= 0 ? "+" : ""}{fmt(computedProfit)} paper {computedProfit >= 0 ? "profit" : "result"}
         </div>
       ) : null}
-      {step ? <div className="mt-0.5 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>Step {step} of {totalSteps}</div> : null}
+      {step ? <div className="mt-0.5 font-mono text-[12px]" style={{ color: "var(--vault-text-faint)" }}>Step {step} of {totalSteps}</div> : null}
     </div>
   );
 }

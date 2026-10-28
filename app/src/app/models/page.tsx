@@ -41,16 +41,18 @@ export default function ModelLabPage() {
   const forecastRecord = forecastRecordView();
   const statesInUse = new Set<PublicModelState>([...lab.live.flatMap((l) => l.items.map((i) => i.state)), ...lab.experiments.map((e) => e.state)]);
   return (
-    <div className="vault-page-shell flex flex-col gap-8">
+    /* W6 (2026-10-28): the shell had no gutter — text ran from the rail edge (x=232) to the viewport edge (x=1440) at
+       1440 and from x=0 at 768 (audit 10-28). Same gutters as /results: 16px phone, 32px from sm. */
+    <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 10.5 }}>Model Lab</span>
+        <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 12 }}>Model Lab</span>
         <h1 className="font-display tracking-tight m-0" style={{ color: "var(--vault-text)", fontSize: "clamp(24px,5vw,34px)", fontWeight: 800, lineHeight: 1.05 }}>What is live, what is being tested, what is paused</h1>
         <p className="m-0 max-w-2xl text-[14px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
           Every model here was scored on past games it had never seen before it went live, is graded on every new game after, and can be paused or replaced by its own record. This page reads those receipts; it does not restate them.
         </p>
-        <nav aria-label="Model Lab sections" className="flex flex-wrap gap-2 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10 }}>
+        <nav aria-label="Model Lab sections" className="flex flex-wrap gap-2" style={{ fontSize: 12.5 }}>
           {[["#live", "Live models"], ["#forecast-record", "Measured record"], ["#experiments", "Experiments"], ["#decisions", "Recent decisions"], ["#paused", "Why a model pauses"], ["#glossary", "The words we use"]].map(([href, label]) => (
-            <a key={href} href={href} className="rounded-full px-2.5 py-1" style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", minHeight: 36, display: "inline-flex", alignItems: "center" }}>{label}</a>
+            <a key={href} href={href} className="rounded-full px-2.5 py-1" style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", minHeight: 44, display: "inline-flex", alignItems: "center" }}>{label}</a>
           ))}
         </nav>
       </header>
@@ -67,8 +69,8 @@ export default function ModelLabPage() {
           <ul className="m-0 p-0 list-none grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {forecastRecord.sports.flatMap((s: any) => s.families.map((f: any) => (
               <li key={`${s.sport}-${f.family}`} className="flex items-center justify-between gap-2 rounded-[10px] px-3 py-2" style={{ border: "1px solid var(--vault-rule)" }}>
-                <Link href={familyHref(s.sport, f.family)} style={{ color: "var(--gtp-bank-heat)", fontWeight: 600, fontSize: 13 }}>{s.label} · {f.label}</Link>
-                <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{f.counts.measured.toLocaleString("en-US")} measured</span>
+                <Link href={familyHref(s.sport, f.family)} className="gtp-hit-area" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600, fontSize: 13 }}>{s.label} · {f.label}</Link>
+                <span className="font-mono shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>{f.counts.measured.toLocaleString("en-US")} measured</span>
               </li>
             )))}
           </ul>
@@ -87,7 +89,7 @@ export default function ModelLabPage() {
                   <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 700 }}>{e.label}</span>
                   <ModelStatusChip state={e.state} label={e.kind === "SHADOW" ? PUBLIC_STATE_LABEL.SHADOW : PUBLIC_STATE_LABEL[e.state]} />
                 </div>
-                <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{e.headline}</span>
+                <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>{e.headline}</span>
                 <p className="m-0 text-[12px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{e.detail}</p>
               </li>
             ))}
@@ -102,8 +104,8 @@ export default function ModelLabPage() {
           {lab.decisions.map((d, i) => (
             <li key={`${d.when}-${i}`} className="flex flex-col gap-1 rounded-[10px] px-3 py-2.5" style={{ border: "1px solid var(--vault-rule)" }}>
               <div className="flex items-center justify-between gap-2 flex-wrap">
-                <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{fmtDay(d.when)} · {d.sport.toUpperCase()}</span>
-                <span className="font-mono uppercase tracking-[0.1em]" style={{ color: OUTCOME_TONE[d.outcome], fontSize: 9.5 }}>{OUTCOME_LABEL[d.outcome]}</span>
+                <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>{fmtDay(d.when)} · {d.sport.toUpperCase()}</span>
+                <span className="gtp-calm-chip" style={{ ["--chip-tone" as string]: OUTCOME_TONE[d.outcome] }}>{OUTCOME_LABEL[d.outcome]}</span>
               </div>
               <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 700 }}>{d.what}</span>
               <p className="m-0 text-[12px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{d.detail}</p>
@@ -122,7 +124,7 @@ export default function ModelLabPage() {
         <dl className="grid gap-3 sm:grid-cols-2">
           {(Object.keys(PUBLIC_STATE_LABEL) as PublicModelState[]).filter((k) => statesInUse.has(k)).map((k) => (
             <div key={k} className="rounded-[10px] px-3 py-2.5" style={{ border: "1px solid var(--vault-rule)" }}>
-              <dt className="font-mono uppercase tracking-[0.12em] mb-1" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>{PUBLIC_STATE_LABEL[k]}</dt>
+              <dt className="font-display mb-1" style={{ color: "var(--vault-gold)", fontSize: 13, fontWeight: 700 }}>{PUBLIC_STATE_LABEL[k]}</dt>
               <dd className="m-0 text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{PUBLIC_STATE_MEANING[k]}</dd>
             </div>
           ))}

@@ -16,7 +16,7 @@ import { useMemo, useState } from "react";
 import { FORECAST_STATES, SPORT_LABEL, unpackGamesTable, type ForecastState, type PackedGamesTable, type ShownRow } from "./games-experience-table-wire";
 
 type SortKey = "time" | "sport" | "forecast";
-const FORECAST_ORDER: Record<ForecastState, number> = { Frozen: 0, Published: 1, Pending: 2, Unavailable: 3 };
+const FORECAST_ORDER: Record<ForecastState, number> = { Frozen: 0, Published: 1, "Degraded inputs": 2, Pending: 3, Unavailable: 4 };
 const COLUMNS = ["Time (ET)", "Matchup", "Sport", "Status", "Official Forecast", "Links"] as const;
 
 const dayLabel = (d: string) => new Intl.DateTimeFormat("en-US", { timeZone: "UTC", weekday: "short", month: "short", day: "numeric" }).format(new Date(`${d}T12:00:00Z`));
@@ -42,7 +42,7 @@ export default function GamesTable({ table, today, dates, asOf }: { table: Packe
   }, [rows, sport, date, state, sort, today]);
 
   const SortButton = ({ k, children }: { k: SortKey; children: React.ReactNode }) => (
-    <button type="button" className="gt-sort" aria-pressed={sort === k} onClick={() => setSort(k)}>
+    <button type="button" className="gt-sort gtp-hit-area" aria-pressed={sort === k} onClick={() => setSort(k)}>
       {children}{sort === k ? " ↓" : ""}
     </button>
   );

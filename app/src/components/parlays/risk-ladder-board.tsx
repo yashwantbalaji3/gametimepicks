@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { isPublishedRecord } from "@/lib/parlays/published-band-record.mjs";
 import { publicRiskLabel } from "@/lib/parlays/risk-odds-bands.mjs";
 import Link from "next/link";
@@ -49,6 +49,8 @@ export interface LadderLeg {
   readonly line: number | null;
   readonly odds: number | null;
   readonly result: string | null;
+  /** The artifact's game id; joins the leg to its first pitch on the board (the slip-add gate). */
+  readonly gameId?: string | null;
 }
 
 export interface LadderCard {
@@ -146,6 +148,9 @@ function BandRecordRow({ record, edited }: { record: NonNullable<LadderCard["tie
  */
 function LadderCardView({ card, pool, unit }: { card: LadderCard; pool: readonly SwapCandidate[]; unit: number | null }) {
   const [legs, setLegs] = useState<LadderLeg[]>([...card.legs]);
+  /* First pitch per game, from the same board the swap bench is built from — so "+ Slip" on a started
+     game is refused by the shared slip-add gate. A game the board does not carry stays unknown. */
+  const startByGame = useMemo(() => new Map(pool.map((c) => [c.gameId, c.startUtc ?? null])), [pool]);
   const edited = legs.some((l, i) => l.player !== card.legs[i]?.player || l.line !== card.legs[i]?.line);
   const priced = legs.every((l) => l.odds != null);
   const price = priced
@@ -200,7 +205,7 @@ function LadderCardView({ card, pool, unit }: { card: LadderCard; pool: readonly
                     onSwap={(inc) => setLegs((prev) => prev.map((x, j) => j === i ? {
                       player: inc.player, team: inc.teamAbbr, opponent: inc.opponentAbbr,
                       playerId: null, marketLabel: inc.marketLabel, side: inc.side,
-                      line: inc.line, odds: inc.americanOdds, result: null,
+                      line: inc.line, odds: inc.americanOdds, result: null, gameId: inc.gameId,
                     } : x))}
                   />
                   {l.odds != null ? (
@@ -208,6 +213,7 @@ function LadderCardView({ card, pool, unit }: { card: LadderCard; pool: readonly
                       sport: "mlb", player: l.player, photoUrl: l.playerId ? mlbHeadshotUrl(l.playerId) : null,
                       teamAbbr: l.team, opponentAbbr: l.opponent, marketLabel: l.marketLabel,
                       side: l.side, line: l.line, americanOdds: l.odds, matchup: l.opponent,
+                      startUtc: l.gameId ? startByGame.get(l.gameId) ?? null : null,
                     }} />
                   ) : null}
                 </span>

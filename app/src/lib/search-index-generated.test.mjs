@@ -49,8 +49,13 @@ test("every way the site is served generates it first", () => {
 
 test("Session 13: search reaches the Forecast Record — the overview, Model Lab and every measured forecast type", () => {
   const src = fs.readFileSync(path.join(APP, "scripts/build-search-index.mjs"), "utf8");
-  assert.match(src, /"\/results\/forecasts\/"/, "the Forecast Record overview is a search page");
-  assert.match(src, /"\/models\/"/, "Model Lab is a search page");
+  /* Overnight 2026-10-28 (W3): the page rows moved to lib/search/search-pages.ts (menu destinations under their menu
+     labels, then the pages no menu carries); the generator adds every one of them. Same two pages, read where they
+     now live. */
+  const pages = fs.readFileSync(path.join(APP, "src/lib/search/search-pages.ts"), "utf8");
+  assert.match(src, /for \(const p of searchPageRows\(\)\) add\("page"/, "the generator adds every page row");
+  assert.match(pages, /"\/results\/forecasts\/"/, "the Forecast Record overview is a search page");
+  assert.match(pages, /"\/models\/"/, "Model Lab is a search page");
   assert.match(src, /for \(const \{ sport, family \} of ledgerFamilies\(\)\)/, "one entry per forecast type, from the page owner's reader");
   assert.match(src, /familyHref\(sport, family\)/, "entries link the family's own page — the same href the pages use");
 });

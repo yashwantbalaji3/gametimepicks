@@ -68,6 +68,7 @@ import { PUBLIC_TERMS, PUBLIC_TERM_MEANING } from "@/lib/public-registry";
 import ForecastStyles from "@/components/nfl/forecast/styles";
 import NotInTheseNumbers from "@/components/nfl/not-in-these-numbers";
 import GameHero from "@/components/nfl/forecast/game-hero";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 import SimulationPanel from "@/components/nfl/forecast/simulation-panel";
 import FamilyTabs from "@/components/nfl/forecast/family-tabs";
 import GameExplorer from "@/components/nfl/forecast/game-explorer";
@@ -254,6 +255,9 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
    */
   const liveTop = started || !!archived;
   const postgame = started ? loadNflPostgame(params.eventId, { away: f.away, home: f.home }) : null;
+  /* The header's state comes from the facts the page itself renders: SETTLED, an official final box score, or the
+     archived record's reconciled final. */
+  const isFinal = lifecycle === "SETTLED" || Boolean(postgame) || Boolean(archived?.reconciliation?.final);
   const livePanel = (
     <LivePanel
       sport="nfl"
@@ -278,7 +282,10 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
       <header style={{ marginTop: 12 }}>
         <p style={{ margin: 0, fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
           {f.seasonType === 1 ? "Preseason" : "Regular season"} · week {f.week} · {etTime(f.kickoffUtc)}
-          <KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={started} when="after">{" · started"}</KickoffSlot>
+          {/* Overnight W8 (2026-10-28): a game whose final this page already shows reads "final", never "started" — the
+              same settled/final facts the page renders below (lifecycle SETTLED, the official box score, or the archive's
+              reconciled final). Before that, the kickoff-aware suffix as before. */}
+          {isFinal ? " · final" : <KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={started} when="after">{" · started"}</KickoffSlot>}
         </p>
         <h1 style={{ margin: "8px 0 0", fontSize: 26 }}>
           {f.away.name} <span style={{ color: "var(--vault-text-faint)", fontSize: 16 }}>at</span> {f.home.name}
@@ -797,9 +804,13 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
         </dl>
       </section>
 
+      {/* Overnight W8 (2026-10-28): the model id, input hashes and revision ids are audit detail — RELOCATED into the
+          page's one collapsed "Technical details", verbatim. The model's own measured limit and the paper-only
+          disclaimer stay visible below it: those are disclosures, not provenance. */}
       <section aria-labelledby="receipt" style={{ marginTop: 26 }}>
-        <SectionHeader eyebrow="Provenance" title="Where this came from" />
-        <dl style={{ marginTop: 12, fontSize: 12, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)", display: "grid", gridTemplateColumns: "auto 1fr", gap: "4px 12px" }}>
+        <MoreDisclosure title="Technical details" summary="Model version, input fingerprint, timestamps and the per-family evaluation basis.">
+        <h2 id="receipt" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>Where this came from</h2>
+        <dl style={{ margin: 0, fontSize: 12, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)", display: "grid", gridTemplateColumns: "auto 1fr", gap: "4px 12px" }}>
           <dt>model</dt><dd style={{ margin: 0 }}>{f.model.id} v{f.model.version}</dd>
           <dt>simulations</dt><dd style={{ margin: 0 }}>{f.model.simulations.toLocaleString("en-US")}</dd>
           <dt>input hash</dt><dd style={{ margin: 0 }}>{f.model.inputHash}</dd>
@@ -836,6 +847,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
             </ul>
           </details>
         ) : null}
+        </MoreDisclosure>
         {card?.honestLimit ? (
           <p style={{ margin: "12px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)", maxWidth: 760, lineHeight: 1.6 }}>{card.honestLimit}</p>
         ) : null}

@@ -196,15 +196,22 @@ export default function MrDubPage() {
 
       {/* 7 — Product attribution (every wager tagged to its flagship, filterable). Phase 6. */}
       <section>
-        <SectionHeader eyebrow="Attribution" title="Every wager, by product" sub="Which flagship generated each settled paper wager — filter by product. The canonical bankroll is the core paper bankroll: Bank Builder and, since the Sep 10 reconciliation, Moonshot." />
-        <div className="mt-2"><ProductAttribution wagers={f.wagers} coreNote={coreBankrollNote(f.moonshotInCore)} /></div>
+        <SectionHeader eyebrow="Attribution" title="Every wager, by product" sub="Which product each settled paper wager came from — filter by product. The paper bankroll holds Bank Builder and, since Sep 10, 2026, Moonshot." />
+        {/* Overnight 10-28: the full wager list (every settled paper wager, ~86 rows) folds behind one line; it is still
+            server-rendered in full, and its filter works the same once open. */}
+        <details className="gtp-disclose mt-2 rounded-xl" style={{ border: "1px solid var(--vault-border)" }}>
+          <summary className="cursor-pointer px-3.5 py-2.5 text-[12px] font-semibold" style={{ color: "var(--vault-text)", minHeight: 44 }}>
+            Show all {f.wagers.length} settled paper wagers
+          </summary>
+          <div className="px-1 pb-1"><ProductAttribution wagers={f.wagers} coreNote={coreBankrollNote(f.moonshotInCore)} /></div>
+        </details>
       </section>
 
       {/* 8 — Wider platform appendix: today's full four-product plan + the separate Moonshot side lane.
             Answers "what's pending / what happens next" and keeps the side lanes discoverable, below the
             premium flagship story. */}
       <div className="mt-2 flex flex-col gap-6 border-t pt-6" style={{ borderColor: "var(--vault-rule)" }}>
-        <p className="-mb-2 font-mono uppercase tracking-[0.14em] text-[10px]" style={{ color: "var(--vault-text-faint)" }}>The wider platform · side lanes &amp; today&rsquo;s plan</p>
+        <p className="-mb-2 font-mono uppercase tracking-[0.14em] text-[10px]" style={{ color: "var(--vault-text-faint)" }}>The wider platform · today&rsquo;s plan across the paper products</p>
         <DailyPortfolioSection portfolio={dailyPortfolio} bankBuilderAlternatives={bankBuilderAlternatives} bankBuilderProposal={bbProposal} />
         {portfolio?.moonshot ? (
           <section>
@@ -213,7 +220,7 @@ export default function MrDubPage() {
                 nothing generates them, and the cards already published carry no game identity to
                 settle against. It also printed the portfolio's 0-1 as the record while the product
                 ledger holds seven. */}
-            <SectionHeader eyebrow="Separate · high-volatility" title="Moonshot Lane" sub="A separate, higher-volatility paper lane — tracked apart from the core ladder and never blended into its record." />
+            <SectionHeader eyebrow="Separate · high-volatility" title="Moonshot Lane" sub="A separate, higher-volatility paper ladder — tracked apart from the Bank Builder ladder and never blended into its record." />
             <p className="mt-1 mb-2 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>
               🌙 {moonshotState.publicNote}
             </p>
@@ -227,7 +234,7 @@ export default function MrDubPage() {
               {msRecords.currentEra ? " · settled receipts" : ""}
               {moonshotState.openCardCount ? ` · ${moonshotState.openCardCount} legacy card(s) left open and ungraded` : ""}
               . Kept on its own line — it is not part of the Bank Builder record. Paper-only.{" "}
-              <Link href="/moonshot" style={{ color: "var(--vault-moonshot-bright)" }}>Full reconciliation →</Link>
+              <Link href="/moonshot" style={{ color: "var(--vault-moonshot-bright)" }}>Full Moonshot record →</Link>
             </p>
             {msHistory.length && msRecords.currentEra ? (
               <details className="mb-2 text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
@@ -251,7 +258,7 @@ export default function MrDubPage() {
       </div>
 
       <p className="text-[11px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>
-        Paper-only educational tracking. No wagers are placed. Mr. Dub is not a sportsbook and this is not financial advice. Canonical money moves only through official settlement; every figure on this page is derived from the settled ledger and reconciles to the {`$${f.kpis.bankroll.toLocaleString("en-US", { minimumFractionDigits: 2 })}`} paper bankroll.
+        Paper-only educational tracking. No wagers are placed. Mr. Dub is not a sportsbook and this is not financial advice. The bankroll moves only through official settlement; every figure on this page is derived from the settled ledger and reconciles to the {`$${f.kpis.bankroll.toLocaleString("en-US", { minimumFractionDigits: 2 })}`} paper bankroll.
       </p>
     </div>
   );

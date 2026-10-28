@@ -514,26 +514,31 @@ test.describe("disclosure widgets", () => {
 });
 
 test.describe("desktop rail groups (UX System V2)", () => {
-  // The rail folds Picks & parlays, My GameTime and Learn & record into native <details>. A folded group must start
-  // closed, open by keyboard, expose its links, and close again; the group holding the current page starts open.
+  // The rail folds My GameTime and Learn & record into native <details>. A folded group must start closed, open by
+  // keyboard, expose its links, and close again; the group holding the current page starts open.
+  // Overnight 2026-10-28 (W3): Picks & parlays — Parlays, Bank Builder, Moonshot — now STARTS open, because folded it hid
+  // the products from every first-time visitor. The fold behaviour is proved on Learn & record, which stays folded.
   test.skip(({ browserName }) => browserName === "webkit", "WebKit excludes summary from Tab order by default");
   test.use({ viewport: { width: 1440, height: 900 } });
 
   test("a folded rail group opens by keyboard and reveals its links; the active group starts open", async ({ page }) => {
     await page.goto("/results/", { waitUntil: "domcontentloaded" });
     const rail = page.locator('nav[aria-label="Primary (rail)"]');
-    const group = rail.locator("details").filter({ has: page.locator('a[href^="/bank-builder"]') });
+    const products = rail.locator("details").filter({ has: page.locator('a[href^="/bank-builder"]') });
+    expect(await products.evaluate((d: HTMLDetailsElement) => d.open), "Picks & parlays starts open on every page").toBe(true);
+    await expect(products.locator('a[href^="/bank-builder"]')).toBeVisible();
+    const group = rail.locator("details").filter({ has: page.locator('a[href^="/methodology"]') });
     expect(await group.evaluate((d: HTMLDetailsElement) => d.open), "a group without the current page starts closed").toBe(false);
     const summary = group.locator("summary");
     await summary.focus();
     expect(await summary.evaluate((el) => el === document.activeElement), "the group summary is focusable").toBe(true);
     await page.keyboard.press("Enter");
     expect(await group.evaluate((d: HTMLDetailsElement) => d.open), "Enter opens the group").toBe(true);
-    await expect(group.locator('a[href^="/bank-builder"]')).toBeVisible();
+    await expect(group.locator('a[href^="/methodology"]')).toBeVisible();
     await page.keyboard.press("Enter");
     expect(await group.evaluate((d: HTMLDetailsElement) => d.open), "Enter closes it again").toBe(false);
 
-    await page.goto("/bank-builder/", { waitUntil: "domcontentloaded" });
+    await page.goto("/methodology/", { waitUntil: "domcontentloaded" });
     const active = page.locator('nav[aria-label="Primary (rail)"] details').filter({ has: page.locator('a[aria-current="page"]') });
     expect(await active.evaluate((d: HTMLDetailsElement) => d.open), "the group holding the current page starts open").toBe(true);
   });

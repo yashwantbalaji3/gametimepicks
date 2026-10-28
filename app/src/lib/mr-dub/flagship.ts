@@ -18,6 +18,7 @@ import { buildMasterLedger } from "./master-ledger";
 import { computeOpenExposure } from "./open-exposure";
 import { SEED } from "./protected-fold.mjs";
 import { corePaperSettlement } from "@/lib/results/settled-through-server";
+import { plainSettlementNote } from "./plain-notes.mjs";
 
 const MOONSHOT_SEED = SEED.moonshot;
 
@@ -226,7 +227,8 @@ export function buildTimeline(days: DailyDay[], portfolio: PortfolioDoc): { time
     const folded = (d.events ?? []).find((e) => e.type === "folded_day");
     const foldedLoss = folded && s === "loss"
       ? [folded.bankBuilder?.lost ? `${folded.bankBuilder.lost} Bank Builder step${folded.bankBuilder.lost === 1 ? "" : "s"}` : null,
-         folded.moonshot?.lost ? `${folded.moonshot.lost} Moonshot lane${folded.moonshot.lost === 1 ? "" : "s"}` : null].filter(Boolean).join(" + ")
+         /* Overnight 10-28: a lost Moonshot lane is a lost RUN ($25 seed) — "run" is the word /moonshot uses. */
+         folded.moonshot?.lost ? `${folded.moonshot.lost} Moonshot run${folded.moonshot.lost === 1 ? "" : "s"}` : null].filter(Boolean).join(" + ")
       : null;
     const headline =
       foldedLoss ? `Down ${money(Math.abs(d.pl))} — ${foldedLoss} lost, bankroll ${money(closing)}` :
@@ -367,7 +369,8 @@ export function buildWagerLog(days: DailyDay[], masterLedger: any): WagerRow[] {
       rows.push({
         date: e.date ?? d.date, productId: "bank-builder", productLabel: "Bank Builder", glyph: "🏦",
         outcome, stake: round2(e.paperStake ?? 0), payout: round2(e.paperReturn ?? 0), profit: round2(e.paperProfit ?? 0),
-        canonical: true, detail: e.type === "dual_lane_losses" ? (e.notes ?? "Dual-lane phase seeds") : detail,
+        /* The fold's note ("Rule S: …") is read verbatim from the ledger and said in words here (display only). */
+        canonical: true, detail: plainSettlementNote(e.type === "dual_lane_losses" ? (e.notes ?? "Two-ladder phase seeds") : detail),
       });
     }
   }

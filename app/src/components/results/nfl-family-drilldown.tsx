@@ -24,7 +24,7 @@ function WeekRows({ familyId, weekKey, label }: { familyId: string; weekKey: str
   };
   return (
     <details onToggle={(e) => { if ((e.target as HTMLDetailsElement).open) void load(); }}>
-      <summary className="k m" style={{ cursor: "pointer", minHeight: 32 }}>{label}</summary>
+      <summary className="k m" style={{ cursor: "pointer", minHeight: 44, alignContent: "center" }}>{label}</summary>
       {failed ? <p className="note">This week&rsquo;s rows could not be loaded.</p> : null}
       {rows ? (
         rows.length ? (
@@ -46,7 +46,7 @@ function WeekRows({ familyId, weekKey, label }: { familyId: string; weekKey: str
 export default function NflFamilyDrilldown({ familyId, weeks }: { familyId: string; weeks: { key: string; label: string; checks: number }[] }) {
   return (
     <details>
-      <summary className="k m" style={{ cursor: "pointer", minHeight: 32 }}>Every graded row</summary>
+      <summary className="k m" style={{ cursor: "pointer", minHeight: 44, alignContent: "center" }}>Every graded row</summary>
       <div style={{ display: "grid", gap: 4, marginTop: 4 }}>
         {weeks.map((w) => <WeekRows key={w.key} familyId={familyId} weekKey={w.key} label={`${w.label} · ${w.checks} decided`} />)}
       </div>
