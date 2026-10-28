@@ -12,7 +12,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { sha256 } from "../lib/util.mjs";
 
-const KEY = /^(media|runs|patches)\/[A-Za-z0-9._-]{1,160}$/;
+const KEY = /^(media|runs|patches|strategies)\/[A-Za-z0-9._-]{1,160}$/;
 export const MAX_OBJECT_BYTES = 8 * 1024 * 1024;
 
 function check(key, bytes) {
@@ -76,9 +76,9 @@ export function sqlObjectStore({ db, clock }) {
  * marker) so the hosted app can serve them. Returns the keys uploaded.
  */
 export async function uploadOutputs(objects, outDir, { maxLogBytes = 2 * 1024 * 1024 } = {}) {
-  const TYPES = { ".png": "image/png", ".jsonl": "text/plain; charset=utf-8" };
+  const TYPES = { ".png": "image/png", ".jsonl": "text/plain; charset=utf-8", ".md": "text/markdown; charset=utf-8" };
   const done = [];
-  for (const sub of ["media", "runs"]) {
+  for (const sub of ["media", "runs", "strategies"]) {
     const dir = path.join(outDir, sub);
     if (!fs.existsSync(dir)) continue;
     for (const name of fs.readdirSync(dir).sort()) {

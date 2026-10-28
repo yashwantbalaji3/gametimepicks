@@ -63,6 +63,9 @@ export const ARTIFACT_TYPES = Object.freeze([
   "content-plan",         // ChatGPT: a weekly content plan
   "content-check",        // deterministic: wording, length, number provenance of every draft
   "feasibility-review",   // Claude Code: read-only review of how to automate a plan
+  "calendar-facts",       // deterministic: five-sport schedules, forecasts, results at a pinned commit + the opportunity grid
+  "content-calendar-draft", // ChatGPT: picks, priorities and draft copy for grid slots
+  "calendar-check",       // deterministic: the final calendar with independently derived readiness
 ]);
 
 /** Ledger entry kinds — the action history is exactly this list, in order. */

@@ -236,6 +236,13 @@ test("review fixes: no resume by typed command or non-boolean, objects served wi
   assert.equal(evil.headers.get("content-type"), "image/png");
   assert.equal(evil.headers.get("content-security-policy"), "sandbox; default-src 'none'");
   assert.equal(evil.headers.get("x-content-type-options"), "nosniff");
+  // calendar exports: same rules, downloaded rather than rendered, never without a session
+  await h.db.query("INSERT INTO stored_objects (key, content_type, bytes, sha256, size, created_at) VALUES ('strategies/cmd-x.md', 'text/html', $1, 'x', 4, 'now')", [Buffer.from("# hi")]);
+  const md = await h.call("GET", "/strategies/cmd-x.md");
+  assert.equal(md.headers.get("content-type"), "text/markdown; charset=utf-8");
+  assert.equal(md.headers.get("content-disposition"), "attachment");
+  assert.equal(md.headers.get("content-security-policy"), "sandbox; default-src 'none'");
+  assert.equal((await h.call("GET", "/strategies/cmd-x.md", undefined, { cookie: null })).status, 401);
 
   // refused unauthenticated attempts leave nothing in the permanent ledger
   const before = (await h.db.query("SELECT count(*)::int AS n FROM ledger_entries")).rows[0].n;

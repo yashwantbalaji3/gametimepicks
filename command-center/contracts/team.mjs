@@ -121,7 +121,8 @@ export function checkEvidence(research) {
   };
 }
 
-const numbersIn = (s) => String(s ?? "").match(/\d+(?:\.\d+)?/g) ?? [];
+/** Numbers a draft states (team names that contain digits — 49ers, 76ers — are names, not numbers). */
+const numbersIn = (s) => String(s ?? "").replace(/\b(49ers|76ers)\b/gi, "").match(/\d+(?:\.\d+)?/g) ?? [];
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const EXTRA_FORBIDDEN = ["odds", "bet", "bets", "betting", "parlay", "lock", "guaranteed", "sure thing", "can't lose", "pick", "picks"];
 

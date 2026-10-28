@@ -35,7 +35,7 @@ const RESEARCH = {
 const PROPOSALS = {
   proposals: [
     { findingIndex: 0, type: "reply", replyToUrl: "https://x.com/nflfan/status/1849000000000000001", text: "Our pregame forecast had Seattle at 62.6% to win. Final: Seahawks 20, Chiefs 3.", rationale: "joins the top thread with our frozen forecast" },
-    { findingIndex: 1, type: "post", text: "Pittsburgh won 16-10 in New Orleans. Our forecast missed that one: we had the Saints at 32.6%... and 99 other things.", rationale: "own the miss" },
+    { findingIndex: 1, type: "post", text: "Pittsburgh won 16-10 in New Orleans, as our forecast had it (64.8%)... and 99 other things.", rationale: "credit where due" },
     { findingIndex: 2, type: "post", text: "Big trade coming? Lock it in.", rationale: "trend" },
   ],
 };

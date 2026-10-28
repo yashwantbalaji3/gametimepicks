@@ -5,13 +5,15 @@
  */
 import { TEAM_WORKFLOWS } from "./team-flow.mjs";
 
-export const INTENTS = Object.freeze(["nfl-recap", "engineering-task", "x-social-research", "content-plan", "pause", "resume", "status", "general"]);
+export const INTENTS = Object.freeze(["nfl-recap", "engineering-task", "content-calendar", "x-social-research", "content-plan", "pause", "resume", "status", "general"]);
 
 export function parseIntent(text) {
   const t = String(text ?? "").toLowerCase();
   if (/^\s*(pause|stop)\b.*publish/.test(t) || /^\s*pause\b/.test(t)) return "pause";
   if (/^\s*resume\b/.test(t)) return "resume";
   if (/^\s*(status|what('s| is) (the )?status)\b/.test(t)) return "status";
+  // A seven-day multi-sport calendar is the content workflow, even when the request mentions Claude Code's role.
+  if (/\bcalendar\b/.test(t) && (/\b(five|5|multi)[- ]sports?\b/.test(t) || ["nba", "mlb", "ufc", "epl"].filter((x) => t.includes(x)).length >= 2)) return "content-calendar";
   if (/\bclaude code\b/.test(t) && /\b(spec|specification|implement|implementation)\b/.test(t)) return "engineering-task";
   if (/\bcontent[- ]plan\b|\bweekly\b.*\bplan\b|\bplan\b.*\bweekly\b/.test(t) && /\b(x|twitter|social)\b/.test(t)) return "content-plan";
   if (/\b(on x|x conversations?|twitter|trending)\b/.test(t) && /\b(conversations?|trends?|opportunit(y|ies)|replies)\b/.test(t)) return "x-social-research";

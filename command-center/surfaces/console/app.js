@@ -7,6 +7,7 @@
     "Team, add a Copy caption button and a live 280-character counter to each caption in the Approvals card. Have ChatGPT write the engineering spec, have Claude Code plan and implement it in an isolated working copy, verify it independently, and show me the result before anything is kept.",
     "Team, analyze today's biggest NFL conversations on X and identify three opportunities for GameTimePicks to contribute useful content.",
     "Team, review GameTimePicks' current NFL social-content opportunities and propose an improved weekly X content plan.",
+    "Team, turn the revised weekly plan into a seven-day content calendar covering NFL, NBA, MLB, UFC and EPL.",
     "Team, what should our next product improvement be for the Results page?",
     "status",
     "Pause publishing",
@@ -101,6 +102,18 @@
         return `<ul>${(a.results ?? []).map((r) => `<li>Draft ${num(r.index) + 1}: ${r.ok ? `<span class="check-ok">passes</span>` : `<span class="check-bad">held back</span> — ${(r.problems ?? []).map((p) => esc(`${p.code} ${p.detail}`)).join("; ")}`}</li>`).join("")}</ul>`;
       case "content-plan":
         return planTable(a);
+      case "calendar-facts": {
+        const t = (a.grid?.slots ?? []).reduce((m, x) => ({ ...m, [x.status]: (m[x.status] ?? 0) + 1 }), {});
+        return `<div class="kv"><span>Window</span><span>${esc(a.grid?.window?.from)} → ${esc(a.grid?.window?.to)} (US Eastern)</span>
+          <span>Data</span><span>${esc(a.facts?.source?.label)} · ${num(a.facts?.files?.length ?? 0)} files hashed</span>
+          <span>Opportunities</span><span>${num(a.grid?.slots?.length ?? 0)} · ${num(t.READY ?? 0)} ready · ${num(t.NEEDS_VERIFICATION ?? 0)} verify · ${num(t.BLOCKED ?? 0)} blocked</span>
+          ${a.base ? `<span>Reuses</span><span>${esc(a.base.commandId)} (Grok research, ChatGPT plan, Claude Code review)</span>` : ""}</div>
+          <ul>${Object.entries(a.facts?.sports ?? {}).map(([sp, v]) => `<li><b>${esc(sp)}</b> · ${esc(v.capability.state)} · ${num(v.events.length)} event(s), ${num(v.results.length)} recent result(s)</li>`).join("")}</ul>`;
+      }
+      case "content-calendar-draft":
+        return `<div class="body">${esc(a.summary)}</div><div class="muted">${num(a.picks?.length ?? 0)} picks${a.additions?.length ? ` · ${num(a.additions.length)} additions` : ""}</div>`;
+      case "calendar-check":
+        return `<div class="muted">${num(a.calendar?.totals?.slots ?? 0)} opportunities · ${num(a.calendar?.totals?.READY ?? 0)} ready · ${num(a.calendar?.totals?.NEEDS_VERIFICATION ?? 0)} verify · ${num(a.calendar?.totals?.BLOCKED ?? 0)} blocked · ${num(a.problems?.length ?? 0)} draft problem(s). The full calendar is in Approvals.</div>`;
       case "feasibility-review":
         return `<div class="body">${esc(a.summary)}</div><ul>${(a.automationSteps ?? []).map((x) => `<li><b>${esc(x.step)}</b> — reuses ${esc(x.reuses)}; new: ${esc(x.newWork)}; risk: ${esc(x.risk)}</li>`).join("")}</ul>${list("Tests", a.tests)}${list("Open questions", a.openQuestions)}`;
       case "strategy-note":
@@ -283,10 +296,37 @@
     </div>`;
   }
 
+  const STATUS_LABEL = { READY: "Ready", NEEDS_VERIFICATION: "Needs verification", BLOCKED: "Blocked" };
+  function sourceItem(ref) {
+    const u = String(ref ?? "");
+    return /^https:\/\//.test(u) ? xLink(u) : `<code>${esc(u)}</code>`;
+  }
+  function calendarBody(x, d) {
+    const c = x.calendar ?? {};
+    const exportFile = ui.state.commands.find((k) => k.commandId === d.commandId)?.deliverables?.find((v) => v.kind === "calendar-export")?.file;
+    const dates = [...new Set((c.slots ?? []).map((s) => s.date))];
+    const day = (date) => new Date(`${date}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric", timeZone: "UTC" });
+    return `<div class="body">${esc(c.summary)}</div>
+      <div class="cal-totals"><span class="st st-READY">${num(c.totals?.READY ?? 0)} ready</span><span class="st st-NEEDS_VERIFICATION">${num(c.totals?.NEEDS_VERIFICATION ?? 0)} need verification</span><span class="st st-BLOCKED">${num(c.totals?.BLOCKED ?? 0)} blocked</span><span class="muted">${num(c.totals?.chosen ?? 0)} chosen by ChatGPT · ${esc(c.window?.from)} → ${esc(c.window?.to)}</span></div>
+      <div class="muted">${esc(c.rule)}</div>
+      ${dates.map((date) => `<details class="cal-day" ${date === dates[0] ? "open" : ""}><summary><b>${esc(day(date))}</b> · ${num(c.slots.filter((s) => s.date === date).length)} opportunities</summary>
+        ${c.slots.filter((s) => s.date === date).map((s) => `<div class="slot ${s.chosen ? "chosen" : ""}">
+          <div class="slot-head"><span class="st st-${esc(s.status)}">${esc(STATUS_LABEL[s.status] ?? s.status)}</span><span class="tag">${esc(s.sport)}</span><span class="tag">${esc(s.format)}</span>${s.chosen ? `<span class="tag exec exec-real">P${num(s.priority)}</span>` : ""}</div>
+          <div><b>${esc(s.opportunity)}</b>${s.angle && s.angle !== s.opportunity ? ` — ${esc(s.angle)}` : ""}</div>
+          ${s.draft ? `<div class="caption">${esc(s.draft)}</div>` : ""}
+          <div class="kv"><span>Purpose</span><span>${esc(s.purpose)}</span><span>Window</span><span>${esc(s.publishWindow)}</span><span>Agent</span><span>${esc(s.responsibleAgent)}</span><span>Evidence</span><span>${esc(s.evidenceRequired)}</span>
+            ${s.reasons?.length ? `<span>Why</span><span>${esc(s.reasons.join("; "))}${s.unblocksWhen ? ` · unblocks when ${esc(s.unblocksWhen)}` : ""}</span>` : ""}</div>
+          ${s.facts?.length ? `<details><summary>Facts (${num(s.facts.length)})</summary><ul>${s.facts.map((f) => `<li>${esc(f)}</li>`).join("")}</ul></details>` : ""}
+          ${s.sourceRefs?.length ? `<details><summary>Sources (${num(s.sourceRefs.length)})</summary><div class="links">${s.sourceRefs.map(sourceItem).join(" ")}</div></details>` : ""}
+        </div>`).join("")}</details>`).join("")}
+      ${(x.backlog ?? []).length ? `<details class="cal-day"><summary><b>Implementation backlog</b> · ${num(x.backlog.length)} items</summary><ol>${x.backlog.map((b) => `<li><b>${esc(b.item)}</b> — ${esc(b.owner)}; depends on ${esc(b.dependsOn)}${b.acceptance ? `; ${esc(b.acceptance)}` : ""}</li>`).join("")}</ol></details>` : ""}
+      <div class="muted">Data commit <code>${esc(String(x.dataCommit ?? "working tree").slice(0, 12))}</code>${x.base ? ` · reuses ${esc(x.base)}` : ""}${exportFile ? ` · <a href="/${esc(exportFile)}" target="_blank" rel="noopener">Markdown export</a>` : ""}</div>`;
+  }
+
   function proposalCard(d) {
     const r = d.resolution;
     const x = d.subject ?? {};
-    const body = d.subjectType === "content-proposal"
+    const body = d.subjectType === "content-calendar" ? calendarBody(x, d) : d.subjectType === "content-proposal"
       ? `<div class="caption">${esc(x.proposal?.text)}</div><div class="muted">${esc(x.proposal?.type)} · ${esc(x.proposal?.rationale)}</div>
          ${x.finding ? `<div class="section muted">Based on Grok's finding</div><div class="body">${esc(x.finding.topic)} — ${esc(x.finding.summary)}</div><div class="links">${(x.finding.sources ?? []).map((src) => xLink(src.url, src.author)).join(" ")}</div>` : ""}`
       : `${planTable(x.plan ?? {})}${x.feasibility ? `<div class="section muted">Claude Code's automation review</div><div class="body">${esc(x.feasibility.summary)}</div>` : `<div class="muted">No Claude Code review (see the report for why).</div>`}`;

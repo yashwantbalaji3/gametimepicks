@@ -51,7 +51,7 @@ const etDay = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New
  *   engineering configures delegated engineering (repo, claude binary, environment, screenshots) — see
  *   engineering-flow.mjs; tests point it at a throwaway repo and a fake `claude`.
  */
-export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROOT, outDir, stepDelayMs = 0, publisher, slateDate, engineering = {}, execution = "inline", runnerId = "local", providerFetch = globalThis.fetch, providerSleep, hosted = false }) {
+export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROOT, outDir, stepDelayMs = 0, publisher, slateDate, engineering = {}, execution = "inline", runnerId = "local", providerFetch = globalThis.fetch, providerSleep, hosted = false, calendarDataSource = null }) {
   if (!["inline", "jobs"].includes(execution)) throw new Error(`unknown execution mode ${execution}`);
   const pub = publisher ?? createMockPublisher({ clock });
   const mediaDir = path.join(outDir, "media");
@@ -85,7 +85,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   }, engineering);
 
   const team = createTeamFlow({
-    store, clock, env, repoRoot, slateDate, fetch: providerFetch, sleep: providerSleep, engineering: flow,
+    store, clock, env, repoRoot, slateDate, outDir, dataSource: calendarDataSource, fetch: providerFetch, sleep: providerSleep, engineering: flow,
     execution: { deferred: () => deferHeavy(), requestJob: (job) => requestJob(job), jobDone: (id) => jobDone(id) },
     helpers: {
       makeTask: (...a) => makeTask(...a),

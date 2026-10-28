@@ -73,6 +73,12 @@ const server = http.createServer(async (req, res) => {
         const file = path.join(OUT, "runs", name);
         return fs.existsSync(file) ? send(res, 200, fs.readFileSync(file), "text/plain; charset=utf-8") : send(res, 404, { error: "not found" });
       }
+      if (url.pathname.startsWith("/strategies/")) {
+        const name = path.basename(decodeURIComponent(url.pathname.slice(12)));
+        if (!name.endsWith(".md")) return send(res, 404, { error: "not found" });
+        const file = path.join(OUT, "strategies", name);
+        return fs.existsSync(file) ? send(res, 200, fs.readFileSync(file), "text/markdown; charset=utf-8") : send(res, 404, { error: "not found" });
+      }
       if (url.pathname.startsWith("/media/")) {
         const name = path.basename(decodeURIComponent(url.pathname.slice(7)));
         return sendFile(res, path.join(OUT, "media", name));

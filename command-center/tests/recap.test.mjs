@@ -8,7 +8,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { REASON } from "../contracts/index.mjs";
-import { candidateFor, buildRecapDraft } from "../recap/pipeline.mjs";
+import { candidateFor, buildRecapDraft, inspectSlate } from "../recap/pipeline.mjs";
 import { runIntegrityGate } from "../recap/integrity-gate.mjs";
 import { buildFactBundle, claimOf } from "../recap/fact-bundle-nfl.mjs";
 import { validateCaption } from "../recap/caption-validator.mjs";
@@ -55,6 +55,14 @@ test("fact bundle: every claim traces to a file hash, and the numbers match the 
   const { bundle } = buildFactBundle(fresh());
   for (const claim of bundle.claims) assert.match(claim.evidenceRef.sha256, /^[0-9a-f]{64}$/, claim.key);
   assert.equal(claimOf(bundle, "favoured.winProbability").display, "62.6%");
+
+  // an AWAY pick: the favoured team and its probability come from the published side (regression: the home team at
+  // its home-win probability was shown as "favoured" whenever the pick was the away team)
+  const pit = inspectSlate({ date: "2026-10-25" }).games.find((g) => g.matchup === "PIT @ NO");
+  const pitBundle = buildFactBundle(pit.candidate).bundle;
+  assert.equal(claimOf(pitBundle, "favoured.team").display, "Pittsburgh Steelers");
+  assert.equal(claimOf(pitBundle, "favoured.winProbability").display, "64.8%");
+  assert.equal(claimOf(pitBundle, "result.side").display, "WIN", "Pittsburgh won 16–10");
   assert.equal(claimOf(bundle, "final.home").value, 20);
   assert.equal(claimOf(bundle, "final.away").value, 3);
   assert.equal(claimOf(bundle, "projected.total").value, 42);

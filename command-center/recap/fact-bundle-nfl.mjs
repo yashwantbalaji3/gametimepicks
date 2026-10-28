@@ -29,8 +29,17 @@ export function buildFactBundle(c) {
   const awayScore = c.teamScores.find((r) => r.teamId === away.abbr);
   if (!homeScore || !awayScore) throw new Error(`team-score rows do not match ${away.abbr} @ ${home.abbr}`);
 
-  const favouredSide = c.winner.direction === "AWAY_WIN" ? "away" : "home";
+  // The side is the PUBLISHED pick (receipt sideDecision, else the ledger's categoryPrediction) — never inferred from
+  // the row's `direction`, which names the event the probability is OF (HOME_WIN), not the side we picked. Its
+  // probability is the one the receipt published for that side, verbatim: for an away pick that is not 1 − P(home),
+  // because the published distribution keeps a tie mass.
+  const pickRaw = String(rc.sideDecision?.publishedSide ?? c.winner.categoryPrediction ?? "").toUpperCase();
+  if (!["HOME", "AWAY"].includes(pickRaw)) throw new Error(`no published side for ${away.abbr} @ ${home.abbr}`);
+  const favouredSide = pickRaw === "AWAY" ? "away" : "home";
   const favoured = favouredSide === "home" ? home : away;
+  const publishedSideProb = rc.forecastSummary?.winProbability?.[favouredSide];
+  const favouredProb = publishedSideProb ?? (favouredSide === "home" && c.winner.direction === "HOME_WIN" ? c.winner.probability : null);
+  if (favouredProb == null) throw new Error(`no published win probability for the ${favouredSide} pick in ${away.abbr} @ ${home.abbr}`);
   const finalCategory = c.winner.settlement.finalCategory; // HOME | AWAY | TIE
   const result = finalCategory === "TIE" ? "TIE" : c.winner.measurement?.directionalResult ?? (finalCategory === c.winner.categoryPrediction ? "WIN" : "LOSS");
   const frozenAt = rc.sideDecision?.frozenAt ?? rc.generatedAt;
@@ -45,7 +54,7 @@ export function buildFactBundle(c) {
     { key: "frozenAt", value: frozenAt, display: etDisplay(frozenAt), family: "nfl_game_winner", evidenceRef: receiptRef },
     { key: "kickoff", value: c.eventStart, display: etDisplay(rc.kickoffUtc ?? c.eventStart), family: "nfl_game_winner", evidenceRef: receiptRef },
     { key: "favoured.team", value: favoured.abbr, display: favoured.name, family: "nfl_game_winner", evidenceRef: ledgerRef(c.winner) },
-    { key: "favoured.winProbability", value: c.winner.probability, display: pct(c.winner.probability), family: "nfl_game_winner", evidenceRef: ledgerRef(c.winner) },
+    { key: "favoured.winProbability", value: favouredProb, display: pct(favouredProb), family: "nfl_game_winner", evidenceRef: publishedSideProb != null ? receiptRef : ledgerRef(c.winner) },
     { key: "projected.home", value: homeScore.projection, display: String(homeScore.projection), family: "nfl_team_score", evidenceRef: ledgerRef(homeScore) },
     { key: "projected.away", value: awayScore.projection, display: String(awayScore.projection), family: "nfl_team_score", evidenceRef: ledgerRef(awayScore) },
     { key: "projected.total", value: c.total.projection, display: String(c.total.projection), family: "nfl_game_total", evidenceRef: ledgerRef(c.total) },

@@ -42,7 +42,7 @@ const STATIC = {
 };
 const MAX_BODY = 200_000;
 /** Stored objects are served with a type fixed by their prefix, never the stored one, and sandboxed. */
-const OBJECT_TYPES = { media: "image/png", runs: "text/plain; charset=utf-8" };
+const OBJECT_TYPES = { media: "image/png", runs: "text/plain; charset=utf-8", strategies: "text/markdown; charset=utf-8" };
 
 /**
  * The caller's address for per-client limits: Vercel's own header first (set by its edge, not the client), IPv6
@@ -286,7 +286,7 @@ export function createHostedApp({ db, clock, origin, rpID, setupTokenSha256, dis
       const session = await sql.open();
       return json(200, { ...make(session).state(), hosted: { runner: dispatcher.runner } });
     }
-    const m = pathname.match(/^\/(media|runs)\/([A-Za-z0-9._-]{1,160})$/);
+    const m = pathname.match(/^\/(media|runs|strategies)\/([A-Za-z0-9._-]{1,160})$/);
     if (m) {
       const obj = await objects.get(`${m[1]}/${m[2]}`);
       if (!obj) return json(404, { error: "not found" });
@@ -294,7 +294,7 @@ export function createHostedApp({ db, clock, origin, rpID, setupTokenSha256, dis
         status: 200,
         headers: {
           ...headers, "Content-Type": OBJECT_TYPES[m[1]], "Content-Security-Policy": "sandbox; default-src 'none'",
-          ...(m[1] === "runs" ? { "Content-Disposition": "attachment" } : {}),
+          ...(m[1] === "runs" || m[1] === "strategies" ? { "Content-Disposition": "attachment" } : {}),
         },
       });
     }
