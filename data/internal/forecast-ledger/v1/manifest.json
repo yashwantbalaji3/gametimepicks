@@ -4,22 +4,22 @@
   "dataClass": "PUBLIC_DERIVED",
   "rule": "One row per published/frozen forecast observation, read from its owner; append-only; missing stays missing.",
   "totals": {
-    "rows": 19887,
+    "rows": 19898,
     "settlement": {
       "NO_MEASUREMENT": 928,
       "PENDING": 27,
-      "SETTLED": 14951,
-      "VOID": 3981
+      "SETTLED": 14961,
+      "VOID": 3982
     },
     "publication": {
-      "PUBLISHED": 19887
+      "PUBLISHED": 19898
     }
   },
   "sports": {
     "NFL": {
       "file": "nfl.jsonl",
       "rows": 6319,
-      "contentHash": "16458d544238e79f",
+      "contentHash": "dda0c3b9ac313053",
       "families": {
         "anytime_td": 1773,
         "nfl_game_margin": 155,
@@ -53,36 +53,36 @@
     },
     "MLB": {
       "file": "mlb.jsonl",
-      "rows": 5254,
-      "contentHash": "addf881b7631f1a1",
+      "rows": 5265,
+      "contentHash": "d346863705fc7e81",
       "families": {
-        "mlb_homer_nukes": 315,
-        "mlb_moneyline": 824,
-        "mlb_projected_runs": 1648,
-        "mlb_projected_total": 824,
+        "mlb_homer_nukes": 320,
+        "mlb_moneyline": 825,
+        "mlb_projected_runs": 1650,
+        "mlb_projected_total": 825,
         "mlb_run_line": 810,
-        "mlb_run_line_posted": 14,
-        "mlb_total": 819
+        "mlb_run_line_posted": 15,
+        "mlb_total": 820
       },
       "settlement": {
         "NO_MEASUREMENT": 42,
         "PENDING": 2,
-        "SETTLED": 5167,
-        "VOID": 43
+        "SETTLED": 5177,
+        "VOID": 44
       },
       "publication": {
-        "PUBLISHED": 5254
+        "PUBLISHED": 5265
       },
       "recoverability": {
-        "OWNER_GRADED_LOG": 4939,
-        "OWNER_SETTLED_UNFROZEN": 315
+        "OWNER_GRADED_LOG": 4945,
+        "OWNER_SETTLED_UNFROZEN": 320
       },
       "provenance": {
-        "RECEIPT": 2833,
+        "RECEIPT": 2839,
         "GIT_HISTORY": 2391,
-        "LEGACY_UNKNOWN": 30
+        "LEGACY_UNKNOWN": 35
       },
-      "latestSettledAt": "2026-10-27T09:25:59Z"
+      "latestSettledAt": "2026-10-28T09:27:28Z"
     },
     "EPL": {
       "file": "epl.jsonl",
@@ -195,8 +195,8 @@
     },
     {
       "sport": "NBA",
-      "family": "game model (v0 / v0.1)",
-      "reason": "SHADOW / PRIVATE_RESEARCH — never public forecast history."
+      "family": "Official Forecast record",
+      "reason": "The official NBA forecast (the Elo favoured side and the player medians) publishes before every slate, and the official side is graded game by game against the official final on /results/nba/. Those games are not rows in this ledger yet, so they are not in the totals above; whether NBA joins them is a pending decision. NBA team scores and win chances are withheld and never published."
     }
   ]
 }
