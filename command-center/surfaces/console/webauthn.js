@@ -49,6 +49,14 @@
     if (url === "/api/seat") return "seat";
     if (url === "/api/post") return body.action === "publish" ? "attest" : null;
     if (url === "/api/design") return "approve";
+    if (url === "/api/publishing") {
+      if (body.action === "live-test") return "publish-live";
+      if (body.action === "policy") return body.mode === "dry-run" ? null : "publishing-policy";
+      if (body.action === "x-connect") return "connect-x";
+      if (body.action === "resume") return "resume";
+      return null;
+    }
+    if (url === "/api/users/invite" || url === "/api/users/update") return "manage-users";
     return null;
   }
 
@@ -61,12 +69,15 @@
       this.hosted = Boolean(s.hosted);
       return s;
     },
-    async register({ setupToken, label }) {
-      const o = await api("/api/auth/register/options", { setupToken });
+    async inviteInfo(inviteToken) {
+      return api("/api/auth/invite/info", { inviteToken });
+    },
+    async register({ setupToken, inviteToken, label }) {
+      const o = await api("/api/auth/register/options", { setupToken, inviteToken });
       if (!o.ok) fail(o.code ?? "REGISTER_REFUSED");
       const cred = await navigator.credentials.create({ publicKey: creation(o.options) });
       if (!cred) fail("CANCELLED");
-      const r = await api("/api/auth/register/verify", { challengeId: o.challengeId, response: regJSON(cred), label, setupToken });
+      const r = await api("/api/auth/register/verify", { challengeId: o.challengeId, response: regJSON(cred), label, setupToken, inviteToken });
       if (!r.ok) fail(r.code ?? "REGISTER_REFUSED");
       return r;
     },

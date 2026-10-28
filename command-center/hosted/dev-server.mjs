@@ -22,6 +22,8 @@ import { dirObjectStore } from "../ledger/object-store.mjs";
 import { localDispatcher } from "../jobs/dispatchers.mjs";
 import { runWorkerJob } from "../worker/worker.mjs";
 import { createHostedApp } from "./app.mjs";
+import { createSqlVault } from "../publishers/token-vault.mjs";
+import { createXOAuth, createSqlStateStore, CALLBACK_PATH } from "../publishers/x-oauth.mjs";
 
 const PORT = Number(process.env.GTP_CC_HOSTED_PORT ?? 4191);
 const ORIGIN = `http://localhost:${PORT}`;
@@ -48,7 +50,11 @@ const slateDate = process.env.GTP_CC_SLATE_DATE || undefined;
 const dispatcher = localDispatcher({
   runWorker: (jobId) => runWorkerJob({ db, clock, jobId, runnerId: "local-worker", outDir, objects, env: process.env, slateDate }),
 });
-const app = createHostedApp({ db, clock, origin: ORIGIN, rpID: "localhost", setupTokenSha256, dispatcher, objects, outDir, env: process.env, slateDate });
+// X: tokens AES-GCM in PGlite under a dev key kept beside the database (dev only; hosted uses GTP_CC_SECRET_KEY)
+const keyFile = path.join(ROOT, "secret-key.b64");
+if (!fs.existsSync(keyFile)) fs.writeFileSync(keyFile, crypto.randomBytes(32).toString("base64"), { mode: 0o600 });
+const oauth = createXOAuth({ vault: createSqlVault({ db, key: fs.readFileSync(keyFile, "utf8").trim(), clock }), states: createSqlStateStore(db), redirectUri: `${ORIGIN}${CALLBACK_PATH}`, clock, clientId: process.env.GTP_CC_X_CLIENT_ID || null });
+const app = createHostedApp({ db, clock, origin: ORIGIN, rpID: "localhost", setupTokenSha256, dispatcher, objects, outDir, env: process.env, slateDate, oauth, cronSecret: process.env.CRON_SECRET || null });
 
 const server = http.createServer(async (req, res) => {
   if (req.headers.host !== `localhost:${PORT}`) {

@@ -1,0 +1,81 @@
+# Copy to .github/workflows/cc-publisher.yml in the PRIVATE ops repo (gtp-ops). Never in the public repo.
+#
+# X Publisher V1: runs every DUE publishing job through the gate (command-center/orchestrator/publish-flow.mjs).
+# Dispatched by the web app's Vercel Cron (/api/cron/publish, every 5 minutes, only when a job is due within
+# 10 minutes) and by a founder's "Dry run now" / "Live test". No Claude Code and no model run here; only main's code.
+# One run at a time (concurrency), so two runs can never race the same post — and the once-only ledger claims would
+# refuse the second anyway.
+# Pin every action to a full commit SHA before enabling.
+name: cc-publisher
+run-name: publisher ${{ inputs.job_id }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      job_id:
+        description: Dispatch tag (job-<12 hex>)
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: cc-publisher
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Validate the tag
+        env:
+          JOB_ID: ${{ inputs.job_id }}
+        run: '[[ "$JOB_ID" =~ ^job-[0-9a-f]{12}$ ]] || { echo "malformed tag"; exit 1; }'
+
+      - uses: actions/checkout@v4   # pin SHA
+        with:
+          persist-credentials: false
+
+      - name: Read-only sparse checkout of the public repo (the published predictions the gate re-checks)
+        uses: actions/checkout@v4   # pin SHA
+        with:
+          repository: yashwantbalaji3/gametimepicks
+          path: .public
+          persist-credentials: false
+          fetch-depth: 1
+          sparse-checkout: |
+            app/package.json
+            app/scripts/build-mlb-social-content.mjs
+            app/src/lib
+            app/public/data/nba/experimental-public
+            app/public/data/nba/results
+            app/public/data/nfl
+            app/public/data/results/top-boards
+            data/internal/forecast-ledger/v1/nfl.jsonl
+            data/internal/nfl/forecast-receipts
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/setup-node@v4   # pin SHA
+        with:
+          node-version: 22
+
+      - name: Install (lockfile only)
+        run: |
+          ln -s .public/app app
+          ln -s .public/data data
+          npm ci --prefix command-center --omit=dev
+
+      - name: Publish what is due
+        env:
+          DATABASE_URL: ${{ secrets.CC_PUBLISHER_DATABASE_URL }}
+          GTP_CC_SECRET_KEY: ${{ secrets.GTP_CC_SECRET_KEY }}
+          GTP_CC_X_CLIENT_ID: ${{ vars.GTP_CC_X_CLIENT_ID }}
+          GTP_CC_X_HANDLE: ${{ vars.GTP_CC_X_HANDLE }}
+          GTP_CC_ORIGIN: https://team.gametimepicks.yashwantbalaji.com
+          GTP_CC_PUBLIC_ROOT: ${{ github.workspace }}/.public
+          GTP_CC_OUT_DIR: ${{ runner.temp }}/gtp-publisher
+        run: node command-center/worker/run-publish.mjs

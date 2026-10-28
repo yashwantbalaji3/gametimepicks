@@ -64,6 +64,13 @@
         <input id="passkey-label" value="iPhone" maxlength="60">
         <button type="button" class="btn primary wide" data-register>Create passkey</button>
       </div>
+      <div id="auth-invite" hidden>
+        <p id="invite-who"></p>
+        <label class="muted" for="invite-label">Name this passkey</label>
+        <input id="invite-label" value="iPhone" maxlength="60">
+        <button type="button" class="btn primary wide" data-register-invite>Create my account with a passkey</button>
+        <p class="muted">Your account uses a passkey (Face ID, Touch ID or a security key) — no password to remember or leak.</p>
+      </div>
       <div id="auth-new-passkey" hidden>
         <label class="muted" for="new-passkey-label">Name the new passkey</label>
         <input id="new-passkey-label" value="New iPhone" maxlength="60">

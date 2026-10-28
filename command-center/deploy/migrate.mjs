@@ -27,7 +27,7 @@ const t = await db.query("SELECT table_name FROM information_schema.tables WHERE
 console.log(`migrated: ${t.rows.map((r) => r.table_name).join(", ")}`);
 
 if (process.argv.includes("--roles")) {
-  const pw = { app_pw: crypto.randomBytes(24).toString("base64url"), worker_pw: crypto.randomBytes(24).toString("base64url"), reader_pw: crypto.randomBytes(24).toString("base64url") };
+  const pw = { app_pw: crypto.randomBytes(24).toString("base64url"), worker_pw: crypto.randomBytes(24).toString("base64url"), reader_pw: crypto.randomBytes(24).toString("base64url"), publisher_pw: crypto.randomBytes(24).toString("base64url") };
   let sql = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "sql/roles.sql"), "utf8");
   for (const [k, v] of Object.entries(pw)) sql = sql.replace(`:'${k}'`, `'${v}'`);
   await db.exec(sql);
@@ -37,5 +37,6 @@ if (process.argv.includes("--roles")) {
   console.log(`  Vercel  DATABASE_URL           = ${conn("gtp_cc_app", pw.app_pw)}`);
   console.log(`  GitHub  CC_WORKER_DATABASE_URL = ${conn("gtp_cc_worker", pw.worker_pw)}`);
   console.log(`  GitHub  CC_READER_DATABASE_URL = ${conn("gtp_cc_reader", pw.reader_pw)}`);
+  console.log(`  GitHub  CC_PUBLISHER_DATABASE_URL = ${conn("gtp_cc_publisher", pw.publisher_pw)}`);
 }
 await db.close();

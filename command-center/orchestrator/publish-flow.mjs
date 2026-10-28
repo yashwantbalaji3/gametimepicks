@@ -203,6 +203,14 @@ export function createPublishFlow(ctx) {
     const claim = store.claim(claimKey, { jobId: job.jobId, at: clock() });
     if (!claim.won) return refuse("IN_FLIGHT", `attempt ${attempt} of ${base} was already started by ${claim.record.value.jobId}`, "critical");
     store.append("publish-attempt", "publisher", { jobId: job.jobId, postId: pkg.postId, live, trigger, attempt, claimKey, digest: nowDigest, dataFetched: fresh.detail ?? null });
+    // Durable before the request: a hosted (SQL) ledger buffers writes, so the claim and the attempt are committed now —
+    // a crash after X answers can then never lead to a second send. A lost race here means another process has it.
+    if (typeof store.flush === "function") {
+      try { await store.flush(); } catch (err) {
+        if (err.code === "CLAIM_CONFLICT") return { ok: false, state: "IN_FLIGHT", code: "IN_FLIGHT", detail: "another publisher process took this attempt" };
+        throw err;
+      }
+    }
 
     try {
       const r = await provider.publish(bundle);
@@ -237,7 +245,9 @@ export function createPublishFlow(ctx) {
     try {
       const now = Date.parse(clock());
       for (const j of jobs().filter((x) => x.status === "scheduled" && Date.parse(x.dueAt) <= now).sort((a, b) => a.dueAt.localeCompare(b.dueAt))) {
-        const r = await execute(j, { live: policy().mode === "live", trigger: "schedule" });
+        // a founder-queued job carries its own mode (a dry run stays a dry run; a live test is live); scheduled jobs
+        // follow the publishing policy at the moment they run
+        const r = await execute(j, j.manual ? { live: j.live === true, trigger: j.live ? "founder-live-test" : "founder-dry-run" } : { live: policy().mode === "live", trigger: "schedule" });
         out.push({ jobId: j.jobId, state: r.state, code: r.code ?? null });
       }
     } finally {
@@ -262,6 +272,24 @@ export function createPublishFlow(ctx) {
     store.append("publish-job", actor.id ?? "founder", job);
     return execute(job, { live, trigger: live ? "founder-live-test" : "founder-dry-run" });
   }
+
+  /**
+   * Hosted: the web app can't fetch fresh data or reach X, so a founder's "dry run now" / "live test" is queued as a
+   * job due now; the publisher job (worker/run-publish.mjs) runs it through the same gate within minutes.
+   */
+  function queueNow({ decisionId, live = false }, actor) {
+    const f = checkFounder(live ? "publish-live" : "publish", actor);
+    if (!f.ok) return f;
+    const rec = recordOf(decisionId);
+    if (!rec) return { ok: false, code: "UNKNOWN_POST", detail: decisionId };
+    if (rec.resolution?.verdict !== "approve" || rec.invalidated) return { ok: false, code: "NOT_APPROVED", detail: "only an approved, current post" };
+    const pkg = rec.package;
+    const job = { jobId: shortId("pubjob", { decisionId, now: clock(), live, n: of("publish-job").length }), decisionId, postId: pkg.postId, baseId: baseIdOf(pkg.postId), title: pkg.title, sport: pkg.sport, dueAt: clock(), startUtc: startOf(pkg), by: actor.id ?? "founder", manual: true, live };
+    store.append("publish-job", actor.id ?? "founder", job);
+    return { ok: true, queued: true, job };
+  }
+  /** Jobs due within the next `withinMs` (the hosted cron dispatches the publisher job when this is non-empty). */
+  const dueSoon = (withinMs = 10 * 60_000) => jobs().filter((j) => j.status === "scheduled" && Date.parse(j.dueAt) <= Date.parse(clock()) + withinMs);
 
   /**
    * After an UNKNOWN outcome: the founder records the X link they found (or "not posted"), or asks the API to look
@@ -312,7 +340,7 @@ export function createPublishFlow(ctx) {
     };
   }
 
-  return { setPaused, setPolicy, schedule, cancel, runDue, publishNow, reconcile, acknowledge, jobs, policy, state, execute };
+  return { setPaused, setPolicy, schedule, cancel, runDue, publishNow, queueNow, dueSoon, reconcile, acknowledge, jobs, policy, state, execute };
 }
 
 /** A NOT_SENT failure after some images uploaded still spent those uploads. */

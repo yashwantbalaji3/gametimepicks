@@ -402,7 +402,7 @@
         </div>`;
     }
     if (p.lifecycle === "approved" || p.lifecycle === "scheduled") {
-      return `<div class="receipt">Approved caption ${esc(p.resolution.captionId)} at ${esc(time(p.resolution.approvedAt))}${p.resolution.sourcesConfirmed ? " · you confirmed the cited posts" : ""} · digest ${esc(p.resolution.approvedExactDigest.slice(0, 12))}…<br>Post it yourself on X${pkg.media ? " with the graphic" : ""}, then record the link.${p.schedule ? `<br>Scheduled by you for ${esc(new Date(p.schedule.scheduledFor).toLocaleString())}` : ""}</div>
+      return `${publishControls(p)}<div class="receipt">Approved caption ${esc(p.resolution.captionId)} at ${esc(time(p.resolution.approvedAt))}${p.resolution.sourcesConfirmed ? " · you confirmed the cited posts" : ""} · digest ${esc(p.resolution.approvedExactDigest.slice(0, 12))}…<br>Post it yourself on X${pkg.media ? " with the graphic" : ""}, then record the link.${p.schedule ? `<br>Scheduled by you for ${esc(new Date(p.schedule.scheduledFor).toLocaleString())}` : ""}</div>
         ${pkg.media ? `<a class="btn small" href="/media/${encodeURIComponent(pkg.media.file)}" download>Download graphic</a>` : ""}
         <div class="field"><label for="xurl-${id}">X link of your post</label><input id="xurl-${id}" type="url" inputmode="url" autocapitalize="off" spellcheck="false" placeholder="https://x.com/…/status/…" data-draft="xurl:${id}" value="${draftVal(`xurl:${p.decisionId}`)}"></div>
         <div class="row actions"><button class="btn" data-post-record="verify" data-post="${id}">Check before posting</button><button class="btn primary" data-post-record="publish" data-post="${id}">Record X link</button></div>
@@ -423,12 +423,47 @@
     }
     return `<div class="blocked">${esc(LIFE_LABEL[p.lifecycle])}${p.resolution?.note ? ` · “${esc(p.resolution.note)}”` : ""}</div>`;
   }
+  const PUB_SCHEDULABLE = new Set(["nba-game", "nba-pregame", "nba-players", "pregame-forecast", "td-top3", "top5-board"]);
+  const JOB_LABEL = { scheduled: "Scheduled", dry_run: "Dry run done", published: "Published", refused: "Refused", failed_not_sent: "Failed (not sent)", unknown: "Outcome unknown — reconcile", missed: "Missed (after start)", cancelled: "Cancelled" };
+  /** X Publisher V1 controls on an approved post: schedule (default 45 min before tip), dry run, one live test. */
+  function publishControls(p) {
+    const pkg = p.package;
+    if (!PUB_SCHEDULABLE.has(pkg.kind)) return "";
+    const pub = ui.state.publishing ?? {};
+    const mine = (pub.jobs ?? []).filter((j) => j.decisionId === p.decisionId);
+    const open = mine.find((j) => j.status === "scheduled");
+    const id = esc(p.decisionId);
+    const when = pkg.suggestedPublishAt ? new Date(pkg.suggestedPublishAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : null;
+    return `<div class="pubbox"><div class="section">Publish to X ${pub.mode === "live" ? `<span class="tag life-published">LIVE · cap $${esc(pub.capUsd)}/month</span>` : `<span class="tag">DRY RUN</span>`}</div>
+      ${mine.slice(0, 4).map((j) => `<div class="${["published", "dry_run", "scheduled"].includes(j.status) ? "receipt" : "blocked"}">${esc(JOB_LABEL[j.status] ?? j.status)}${j.status === "scheduled" ? ` for ${esc(new Date(j.dueAt).toLocaleString())}` : ""}${j.results.at(-1)?.detail ? ` — ${esc(j.results.at(-1).detail)}` : ""}${j.results.at(-1)?.canonicalUrl ? ` · ${xLink(j.results.at(-1).canonicalUrl)}` : ""}${j.status === "unknown" ? ` <button class="btn small" data-pub="reconcile" data-job="${esc(j.jobId)}">Reconcile…</button>` : ""}</div>`).join("")}
+      <div class="row actions">
+        ${open ? `<button class="btn small" data-pub="cancel" data-job="${esc(open.jobId)}">Cancel schedule</button>` : `<button class="btn small primary" data-pub="schedule" data-post="${id}" ${pkg.suggestedPublishAt ? "" : "disabled"}>${when ? `Schedule for ${esc(when)} (45 min before tip)` : "No suggested time"}</button>`}
+        <button class="btn small" data-pub="dry-run-now" data-post="${id}">Dry run now</button>
+        <button class="btn small" data-pub="live-test" data-post="${id}" data-title="${esc(pkg.title)}" ${pub.x?.connected ? "" : "disabled title=\"Connect X first\""}>Live test post…</button>
+      </div></div>`;
+  }
+  function publishingBar(pub) {
+    if (!pub) return "";
+    const x = pub.x ?? {};
+    return `<div class="pubbar ${pub.paused ? "blocked" : "receipt"}">
+      <div><b>X publishing:</b> ${pub.mode === "live" ? `LIVE (scheduled), cap $${esc(pub.capUsd)}/month, $${esc(pub.spentThisMonthUsd)} spent` : "DRY RUN — nothing is sent to X"} · ${pub.paused ? "<b>PAUSED</b>" : "running"} · scheduler ${pub.lastTick ? `ticked ${esc(time(pub.lastTick))}` : `every ${esc(pub.schedulerIntervalSec ?? 30)} s`}</div>
+      <div>X account: ${x.connected ? `connected (${esc((x.scopes ?? []).join(", "))}) · token refreshes ${x.refreshable ? "automatically" : "— reconnect needed"}` : x.clientConfigured ? "not connected" : "app Client ID not set (see docs/x-publisher-setup.md)"} · callback <code>${esc(x.redirectUri ?? "")}</code></div>
+      <div class="row actions">
+        <button class="btn small ${pub.publishingPaused ? "primary" : ""}" data-pub="${pub.publishingPaused ? "resume" : "pause"}">${pub.publishingPaused ? "Resume publishing" : "Pause publishing"}</button>
+        ${x.clientConfigured ? `<button class="btn small" data-pub="${x.connected ? "x-disconnect" : "x-connect"}">${x.connected ? "Disconnect X" : "Connect X account"}</button>` : ""}
+        ${pub.mode === "live" ? `<button class="btn small" data-pub="policy-dry">Switch scheduled publishing to dry run</button>` : x.connected ? `<button class="btn small" data-pub="policy-live">Authorize scheduled live publishing…</button>` : ""}
+      </div>
+      ${(pub.alerts ?? []).length ? `<details open><summary><b>${num(pub.alerts.length)} alert(s)</b></summary><ul class="warns">${pub.alerts.map((a) => `<li><b>${esc(a.severity)}</b> ${esc(a.code)} · ${esc(a.postId ?? "")} — ${esc(a.detail)} <span class="muted">${esc(time(a.at))}</span> <button class="btn small" data-pub="ack" data-alert="${esc(a.alertId)}">Acknowledge</button></li>`).join("")}</ul></details>` : ""}
+      ${(pub.jobs ?? []).length ? `<details><summary>Publishing jobs (${num(pub.jobs.length)})</summary><ul>${pub.jobs.map((j) => `<li>${esc(JOB_LABEL[j.status] ?? j.status)} · ${esc(j.title ?? j.postId)} · due ${esc(new Date(j.dueAt).toLocaleString())}${j.results.at(-1)?.code ? ` · ${esc(j.results.at(-1).code)}` : ""}</li>`).join("")}</ul></details>` : ""}
+    </div>`;
+  }
   function postCard(p) {
     const pkg = p.package;
     return `<article class="post decision ${postOpen(p) ? "open" : ""}" id="post-${esc(p.decisionId)}">
       <div class="slot-head"><span class="st st-${esc(pkg.status)}">${esc(STATUS_LABEL[pkg.status] ?? pkg.status)}</span><span class="tag life life-${esc(p.lifecycle)}">${esc(LIFE_LABEL[p.lifecycle])}</span><span class="tag">${esc(pkg.sport)}</span><span class="tag">${esc(pkg.format ?? pkg.kind)}</span>${pkg.priority === 3 ? `<span class="tag">catch-up</span>` : ""}${pkg.template ? `<span class="tag ${p.designApproved ? "life-published" : "life-drafted"}" title="design ${esc(pkg.template)} · ${esc(pkg.assetManifest)}">${esc(pkg.template)}${p.designApproved ? " · design ✓" : " · design not approved"}</span>` : ""}</div>
       <div class="q">${esc(pkg.title)}</div>
-      ${pkg.media ? `<img src="/media/${encodeURIComponent(pkg.media.file)}" alt="${esc(pkg.media.altText)}" data-zoom loading="lazy">` : `<div class="muted">Text post (no graphic).</div>`}
+      ${pkg.mediaSet ? `<div class="media-set">${pkg.mediaSet.map((m, i) => `<figure><img src="/media/${encodeURIComponent(m.file)}" alt="${esc(m.altText ?? "")}" data-zoom loading="lazy"><figcaption class="muted">Image ${i + 1} of ${pkg.mediaSet.length}</figcaption></figure>`).join("")}</div>`
+        : pkg.media ? `<img src="/media/${encodeURIComponent(pkg.media.file)}" alt="${esc(pkg.media.altText)}" data-zoom loading="lazy">` : `<div class="muted">Text post (no graphic).</div>`}
       ${(pkg.reasons ?? []).length ? `<ul class="warns">${pkg.reasons.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>` : ""}
       ${pkg.featured?.length ? `<div class="muted">Featured in the caption: ${pkg.featured.map((f) => `<b>${esc(f.name ?? "none")}</b> (${esc(f.team)}) — ${esc(f.basis)}`).join(" · ")}. A caption highlight, not a model ranking.</div>` : ""}
       ${pkg.xSources?.length ? `<div class="section muted">Open these first</div><div class="links">${pkg.xSources.map((u) => xLink(u)).join(" ")}</div>` : ""}
@@ -457,7 +492,7 @@
     const dz = s.design;
     const designBar = dz ? `<div class="${dz.approved ? "receipt" : "blocked"}">Graphic design <b>${esc(dz.template)}</b> · ${esc(dz.assetManifest)}: ${dz.approved ? `approved ${esc(time(dz.approvedAt))} — design only; every post still needs its own approval` : `not approved yet — ${esc(dz.template)} posts can't be approved for publishing until it is`}
       ${dz.approved ? "" : `<div class="row" style="margin-top:6px"><button class="btn" data-design="1">Approve this design version</button></div>`}</div>` : "";
-    return `<h2>Content queue <span class="count">${num(open)} open</span></h2>${designBar}
+    return `<h2>Content queue <span class="count">${num(open)} open</span></h2>${designBar}${publishingBar(s.publishing)}
       ${inv ? `<div class="muted">Open: ${num(inv.open)} · ${num(inv.byStatus.READY ?? 0)} ready · ${num(inv.byStatus.NEEDS_VERIFICATION ?? 0)} need verification · ${num(inv.byStatus.BLOCKED ?? 0)} blocked · ${num(inv.graphics)} with graphics</div>` : ""}
       ${upNext.length ? `<details class="cal-day" open><summary><b>Up next</b> · ${num(upNext.length)} upcoming post(s), soonest first</summary>${upNext.map(postCard).join("")}</details>` : ""}
       <div class="cal-totals">${Object.entries(counts).map(([k, v]) => `<span class="tag life life-${esc(k)}">${esc(LIFE_LABEL[k])} ${num(v)}</span>`).join("")}</div>
@@ -536,8 +571,53 @@
       <div class="row" style="margin-top:10px">${Auth.hosted
         ? `<button class="btn small" data-logout>Sign out</button><button class="btn small" data-logout-all>Sign out everywhere</button><button class="btn small" data-add-passkey>Add a backup passkey</button>`
         : `<button class="btn small" data-reset>Reset demo</button>`}</div>
+      ${s.me ? `<div class="muted" style="margin-top:6px">Signed in as <b>${esc(s.me.displayName)}</b> · ${esc(s.me.role)}</div>` : ""}
+      ${s.me?.role === "admin" ? renderAccounts() : ""}
       ${renderClaude(s)}`;
   }
+
+  /** Administrators: people, roles and invites (loaded on demand; changes need Face ID / Touch ID). */
+  function renderAccounts() {
+    const a = ui.accounts;
+    const ROLE_OPTS = ["viewer", "drafter", "approver", "publisher", "admin"];
+    return `<details class="accounts" ${ui.accountsOpen ? "open" : ""} data-accounts><summary><b>People and roles</b></summary>
+      <div class="muted">Viewer sees · Drafter asks the team · Approver approves and pauses · Publisher schedules and publishes · Admin manages people, X and live publishing. Invite-only; no one can sign up.</div>
+      ${a ? `<ul>${a.users.map((u) => `<li><b>${esc(u.displayName)}</b> <span class="muted">${esc(u.id)}</span> · <select data-user-role="${esc(u.id)}">${ROLE_OPTS.map((r) => `<option ${r === u.role ? "selected" : ""}>${r}</option>`).join("")}</select> · ${esc(u.status)} <button class="btn small" data-user-status="${esc(u.id)}" data-to="${u.status === "active" ? "disabled" : "active"}">${u.status === "active" ? "Disable" : "Enable"}</button></li>`).join("")}</ul>
+        ${a.invites.length ? `<div class="section">Invites</div><ul>${a.invites.map((i) => `<li>${esc(i.displayName)} · ${esc(i.role)} · ${esc(i.status)} · expires ${esc(new Date(i.expiresAt).toLocaleString())}${i.status === "open" ? ` <button class="btn small" data-invite-revoke="${esc(i.inviteId)}">Revoke</button>` : ""}</li>`).join("")}</ul>` : ""}` : `<button class="btn small" data-accounts-load>Show people</button>`}
+      <div class="row"><input id="invite-name" placeholder="Name" maxlength="60"><select id="invite-role">${ROLE_OPTS.map((r) => `<option ${r === "viewer" ? "selected" : ""}>${r}</option>`).join("")}</select><button class="btn small" data-invite-create>Create invite link</button></div>
+      ${ui.inviteLink ? `<div class="receipt">Send this link privately; it works once and expires in 72 hours. It won't be shown again.<br><code>${esc(ui.inviteLink)}</code> <button class="btn small" data-copy-invite>Copy</button></div>` : ""}
+    </details>`;
+  }
+  async function loadAccounts() {
+    const r = await post("/api/users/list", {});
+    if (r.ok) ui.accounts = r;
+    render(ui.state);
+  }
+  document.addEventListener("click", async (e) => {
+    const t = e.target.closest("[data-accounts-load],[data-invite-create],[data-invite-revoke],[data-user-status],[data-copy-invite]");
+    if (!t) return;
+    ui.accountsOpen = true;
+    if (t.dataset.accountsLoad !== undefined) return loadAccounts();
+    if (t.dataset.copyInvite !== undefined) { await navigator.clipboard?.writeText(ui.inviteLink); return; }
+    if (t.dataset.inviteCreate !== undefined) {
+      const r = await post("/api/users/invite", { displayName: $("invite-name").value.trim(), role: $("invite-role").value });
+      if (!r.ok) return alert(`${r.code}: ${r.detail ?? ""}`);
+      ui.inviteLink = r.link;
+      return loadAccounts();
+    }
+    if (t.dataset.inviteRevoke) { await post("/api/users/revoke-invite", { inviteId: t.dataset.inviteRevoke }); return loadAccounts(); }
+    if (t.dataset.userStatus) {
+      const r = await post("/api/users/update", { userId: t.dataset.userStatus, status: t.dataset.to });
+      if (!r.ok) alert(`${r.code}: ${r.detail ?? ""}`);
+      return loadAccounts();
+    }
+  });
+  document.addEventListener("change", async (e) => {
+    if (!e.target.dataset.userRole) return;
+    const r = await post("/api/users/update", { userId: e.target.dataset.userRole, role: e.target.value });
+    if (!r.ok) alert(`${r.code}: ${r.detail ?? ""}`);
+    loadAccounts();
+  });
 
   const STATUS_CLASS = { CONNECTED: "check-ok", AVAILABLE: "check-ok", CONFIGURED: "warn", ERROR: "check-bad", BLOCKED: "muted", "NOT CONFIGURED": "muted", "NOT USED": "muted" };
   function renderProviders(s) {
@@ -672,6 +752,7 @@
     $("auth-new-passkey").hidden = m !== "recovered";
     $("auth-recover").hidden = m !== "login";
     $("auth-codes").hidden = m !== "codes";
+    $("auth-invite").hidden = m !== "invite";
   }
   function signedIn() {
     document.body.classList.remove("signed-out");
@@ -688,6 +769,11 @@
         if (r.recoveryCodes) { $("recovery-codes").textContent = r.recoveryCodes.join("\n"); return showAuth("Passkey created.", "codes"); }
         return signedIn();
       }
+      if (t.dataset.registerInvite !== undefined) {
+        await Auth.register({ inviteToken: ui.inviteToken, label: $("invite-label").value.trim() || "passkey" });
+        ui.inviteToken = null;
+        return signedIn();
+      }
       if (t.dataset.registerRecovery !== undefined) { await Auth.register({ label: $("new-passkey-label").value.trim() || "passkey" }); return signedIn(); }
       if (t.dataset.recover !== undefined) {
         const r = await Auth.recover($("recovery-code").value.trim());
@@ -695,13 +781,13 @@
       }
       if (t.dataset.codesSaved !== undefined) { $("recovery-codes").textContent = ""; return signedIn(); }
     } catch (err) {
-      $("auth-msg").textContent = { SETUP_TOKEN_REQUIRED: "That setup token is not right.", RECOVERY_CODE_INVALID: "That recovery code is not valid.", RATE_LIMITED: "Too many attempts. Wait a few minutes.", NotAllowedError: "The passkey prompt was cancelled." }[err.code ?? err.name] ?? `Could not complete that (${err.code ?? err.name ?? "error"}).`;
+      $("auth-msg").textContent = { INVITE_INVALID: "This invite link is not valid any more (used, revoked or expired). Ask for a new one.", ACCOUNT_DISABLED: "This account is disabled.", SETUP_TOKEN_REQUIRED: "That setup token is not right.", RECOVERY_CODE_INVALID: "That recovery code is not valid.", RATE_LIMITED: "Too many attempts. Wait a few minutes.", NotAllowedError: "The passkey prompt was cancelled." }[err.code ?? err.name] ?? `Could not complete that (${err.code ?? err.name ?? "error"}).`;
     } finally {
       t.disabled = false;
     }
   }
   document.addEventListener("click", (e) => {
-    const t = e.target.closest("[data-login],[data-register],[data-register-recovery],[data-recover],[data-codes-saved]");
+    const t = e.target.closest("[data-login],[data-register],[data-register-invite],[data-register-recovery],[data-recover],[data-codes-saved]");
     if (t) authAction(t);
   });
 
@@ -719,8 +805,40 @@
   });
 
   document.addEventListener("click", async (e) => {
-    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-post-record],[data-design],.lightbox");
+    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-post-record],[data-design],[data-pub],.lightbox");
     if (!t) return;
+    if (t.dataset.pub) {
+      const a = t.dataset.pub;
+      const body = { action: a };
+      if (["schedule", "dry-run-now", "live-test"].includes(a)) body.decisionId = t.dataset.post;
+      if (["cancel", "reconcile"].includes(a)) body.jobId = t.dataset.job;
+      if (a === "ack") body.alertId = t.dataset.alert;
+      if (a === "live-test") {
+        if (!confirm(`Send ONE real post to X now?\n\n${t.dataset.title}\n\nIt spends X API credits. A macOS dialog will ask you to confirm again.`)) return;
+        body.title = t.dataset.title;
+      }
+      if (a === "reconcile") {
+        const url = prompt("Paste the X link if the post is on X. Leave empty and press OK if it is NOT on X.");
+        if (url === null) return;
+        if (url.trim()) body.url = url.trim(); else body.notPosted = true;
+      }
+      if (a === "policy-dry") { body.action = "policy"; body.mode = "dry-run"; }
+      if (a === "policy-live") {
+        const cap = prompt("Monthly spend cap in US dollars for scheduled live publishing (1–25):");
+        if (!cap) return;
+        const words = `I authorize live X publishing up to $${Number(cap)} per month`;
+        const typed = prompt(`To authorize, type exactly:\n\n${words}`);
+        if (typed === null) return;
+        Object.assign(body, { action: "policy", mode: "live", capUsd: Number(cap), authorization: typed });
+      }
+      t.disabled = true;
+      const r = await post("/api/publishing", body);
+      t.disabled = false;
+      if (a === "x-connect" && r.ok && r.authorizeUrl) { window.location.assign(r.authorizeUrl); return; }
+      if (["dry-run-now", "live-test"].includes(a)) alert(r.state ? `${r.state}${r.code ? ` · ${r.code}` : ""}${r.detail ? ` — ${r.detail}` : ""}${r.canonicalUrl ? `\n${r.canonicalUrl}` : ""}` : `${r.code}: ${r.detail ?? ""}`);
+      else if (!r.ok && !r.duplicate && r.state !== "HELD") alert(`${r.code}: ${r.detail ?? ""}`);
+      return;
+    }
     if (t.dataset.gate) {
       const d = ui.state.decisions.find((x) => x.decisionId === t.dataset.gate);
       let note;
@@ -873,6 +991,18 @@
     if (!st.hosted) return startPolling();
     document.body.classList.add("hosted");
     if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
+    // an invite link: #invite=<token> — taken out of the address bar at once (never sent anywhere but the API)
+    const inv = /^#invite=([A-Za-z0-9_-]{30,100})$/.exec(location.hash);
+    if (inv) {
+      history.replaceState(null, "", location.pathname);
+      const info = await Auth.inviteInfo(inv[1]).catch(() => ({ ok: false }));
+      if (info.ok) {
+        ui.inviteToken = inv[1];
+        $("invite-who").textContent = `Invitation for ${info.displayName} · role: ${info.role}. Expires ${new Date(info.expiresAt).toLocaleString()}.`;
+        return showAuth("You've been invited to the GameTimePicks Command Center.", "invite");
+      }
+      return showAuth("This invite link is not valid any more (used, revoked or expired). Ask for a new one.", st.hasPasskey ? "login" : "setup");
+    }
     if (st.authenticated) return signedIn();
     if (st.recovery) return showAuth("Recovery session: create a replacement passkey.", "recovered");
     showAuth(st.hasPasskey ? "Sign in with your passkey." : "First setup: enter the one-time setup token, then create your passkey.");
