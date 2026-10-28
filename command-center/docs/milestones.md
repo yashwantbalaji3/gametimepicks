@@ -12,13 +12,16 @@ output, never presented as a provider's work.
 | Phase 1: local CEO console and NFL recap PoC (iPhone layouts) | ✓ Done, CP1 accepted | commit `08e915d6a7` |
 | M2: real ChatGPT (MANUAL) → Claude Code (REAL) engineering through G1–G3 | ✓ Done (2026-10-27) | commits `03c76d92cd`, `4b8504c4c3` |
 | H0: hosting readiness (passkeys, Postgres ledger, jobs, worker, deploy templates) | ✓ Done and committed | commit `e72fc5c53a` · [h0-hosting-readiness.md](h0-hosting-readiness.md) |
-| P0: provider-neutral team layer — provider onboarding panel, execution labels on every contribution, OpenAI and xAI adapters (mock credentials only), Grok → ChatGPT → Claude Code workflows | ✓ Built locally, 88/88 tests (uncommitted) | [provider-integration.md](provider-integration.md) |
+| P0: provider-neutral team layer — provider onboarding panel, execution labels on every contribution, OpenAI and xAI adapters (mock credentials only), Grok → ChatGPT → Claude Code workflows | ✓ Committed | commit `a3a66a5bb0` · [provider-integration.md](provider-integration.md) |
+| **3P-0: first genuine three-provider run** — Grok (manual) + ChatGPT (manual) + Claude Code (real CLI) in one workflow, all hand-off checks green | ✓ Done 2026-10-28 | `cmd-a2f77c554c33` · `node orchestrator/team-evidence.mjs cmd-a2f77c554c33` |
+| C1: seven-day, five-sport content calendar (87 opportunities, 28 chosen) — approved as a draft | ✓ Done 2026-10-28 | `cmd-4dac0382737d` · commit `d86361dce2` · [morning-briefing-2026-10-29.md](morning-briefing-2026-10-29.md) |
 
 ### Next, in order
 
 | Milestone | What "done" means | Blocked on |
 |---|---|---|
-| **3P-0: first genuine three-provider run (Mac on)** | You run "review … weekly X content plan": Grok (MANUAL, free X account), ChatGPT (MANUAL) and Claude Code (REAL, Max subscription, read-only) each contribute; one consolidated decision | **You only:** sign in to Grok with your X account; confirm usage credits OFF in the console. No accounts, no spend |
+| **D1: daily content queue** | Approved calendar slot → post package (NFL recap card / checked ChatGPT copy) → per-post approval → manual-handoff publishing receipt (your X post URL) → status tracking; plus a freeze-time check that lets pregame posts reach READY | **Your go-ahead** (local engineering only) |
+| D2: result cards + caption templates for NBA and EPL | Non-NFL recaps at NFL's standard | Your go-ahead (local) |
 | CP-H1 → **H1: private hosted Command Center on iPhone, Mac off** | Passkey login at team.gametimepicks.yashwantbalaji.com; conversations, approvals, Pause/Stop; manual Grok/ChatGPT handoffs from the phone | CP-H1 founder setup ([h0-hosting-readiness.md](h0-hosting-readiness.md)) |
 | CP-H2 → **H2: hosted Claude Code engineering** | A delegated task through G1–G3 on GitHub Actions with the Mac off | CP-H2: `claude setup-token` secret |
 | CP-X1 → **Grok integration PoC (REAL)** | One Grok research run through the xAI API with X Search, citations recorded, capped | CP-X1: xAI API account, prepaid credit, auto top-up OFF, cap |
