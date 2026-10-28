@@ -24,9 +24,13 @@ test("summary is honest about scope: player-prop sim, full-game markets are de-v
   assert.match(SUMMARY, /separate independent full-game simulation/i, "available branch points at the Overview simulation");
 });
 
-test("summary surfaces the strongest simulated player-prop leans (ranked by edge)", () => {
-  assert.match(SUMMARY, /Strongest simulated player-prop leans/);
-  assert.match(SUMMARY, /sort\(\(a, b\) => \(b\.edgePct \?\? 0\) - \(a\.edgePct \?\? 0\)\)/, "ranks by edge desc");
+/* REPOINTED (independent audit 2026-10-28 F13): this pinned the defect — a "strongest leans" list ranked by the model-vs-market
+   gap, against the site's stated rule (Learn: nothing is ranked or recommended by the size of that disagreement). */
+test("summary surfaces player props ranked by the model's own simulated probability, never by the gap", () => {
+  assert.match(SUMMARY, /Highest simulated probabilities · player props/);
+  assert.match(SUMMARY, /sort\(\(a, b\) => \(b\.modelProbability \?\? 0\) - \(a\.modelProbability \?\? 0\)\)/, "ranks by model probability desc");
+  assert.doesNotMatch(SUMMARY, /sort\([^)]*edgePct/, "no ranking by the gap");
+  assert.doesNotMatch(SUMMARY, /Strongest simulated/);
   assert.match(SUMMARY, /model .*vs market/i, "shows model vs market probability");
 });
 

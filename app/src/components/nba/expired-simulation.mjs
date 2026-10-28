@@ -21,8 +21,16 @@ export const EXPIRED_SIMULATION_MAX_DATES = 30;
 export const NBA_RESULTS_LINK = "/results/nba/";
 
 /** One sentence for the settled page and the 404 tombstone alike: what was not kept, and what was. */
+/* Audit 2026-10-28 (Theater inventory): "their replays are not kept" was not true — the stored runs are committed; what the
+   retention decision means is that the site does not SHOW a replay after game day. */
 export const SIMULATION_ARCHIVED_NOTE =
-  "Game Simulations are shown on game day only, and their replays are not kept. The Official Forecast stays available, frozen exactly as it was published before tip-off.";
+  "Game Simulations are shown on game day only. The Official Forecast stays available, frozen exactly as it was published before tip-off.";
+
+/** A Game Simulation link the 404 map does not know: it may be a game whose slate has not published yet (never "no longer
+ *  available" — the audit found tonight's games answered that way before their slate's build was live). */
+export const SIMULATION_UNKNOWN_HEADING = "Game Simulation not available at this link";
+export const SIMULATION_UNKNOWN_NOTE =
+  "If this game is on today's or an upcoming slate, its Game Simulation appears here once the slate's Official Forecast is frozen and published, before tip-off. A finished game keeps its Official Forecast and result on NBA results.";
 
 /**
  * The official record's state for a game (lib/results/nba-forecast-vs-actual.mjs) in reader words — the same states,

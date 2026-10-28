@@ -74,7 +74,9 @@ function LeanRow({ p, lead }: { p: SummaryPick; lead?: boolean }) {
 }
 
 export default function MlbSimulationResultSummary({ headline, picks, runCount, allowsRunCountClaim, isPreviousSlate, slateDate, fullGameAvailable = false, spreadLabel = "run line" }: MlbSimulationResultSummaryProps) {
-  const ranked = [...picks].filter((p) => typeof p.edgePct === "number").sort((a, b) => (b.edgePct ?? 0) - (a.edgePct ?? 0));
+  /* Audit 2026-10-28 F13: ranked by the model's OWN simulated probability, not by the model-vs-market gap — the site's
+     stated rule (Learn) is that nothing is ranked or recommended by the size of that disagreement. */
+  const ranked = [...picks].filter((p) => typeof p.modelProbability === "number").sort((a, b) => (b.modelProbability ?? 0) - (a.modelProbability ?? 0));
   const top = ranked.slice(0, 3);
   const runLabel = allowsRunCountClaim && runCount != null && runCount > 0 ? `${runCount.toLocaleString("en-US")}-run` : "deterministic";
 
@@ -93,7 +95,7 @@ export default function MlbSimulationResultSummary({ headline, picks, runCount, 
 
       {top.length > 0 ? (
         <div className="flex flex-col">
-          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Strongest simulated player-prop leans</span>
+          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Highest simulated probabilities · player props</span>
           {top.map((p, i) => <LeanRow key={`${p.player}-${p.market}-${p.line}`} p={p} lead={i === 0} />)}
         </div>
       ) : (

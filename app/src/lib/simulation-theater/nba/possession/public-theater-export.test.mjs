@@ -36,7 +36,7 @@ const FLAG_ON = process.env.GTP_NBA_THEATER_PUBLIC === "1";
 const REQUIRED = [ENGINE_IDENTITY, ...ROLE_C_NOTE, POSSESSION_BANNER, OFFICIAL_PANEL_TITLE, WITHHELD];
 /** What every SETTLED page (a past slate's game, overnight W7 2026-10-28) must print: the archived note and the official
  *  forecast's title and disclosure (components/nba/settled-simulation.tsx; literals, as this post-build file reads no TSX). */
-const SETTLED_REQUIRED = ["Game Simulation archived", "replays are not kept", "GameTimePicks Official Forecast", "Not a betting recommendation"];
+const SETTLED_REQUIRED = ["Game Simulation archived", "shown on game day only", "GameTimePicks Official Forecast", "Not a betting recommendation"];
 const scan = (dir) => scanFlagOnTheaterExport(dir, { required: REQUIRED, placeholder: NBA_PUBLIC_THEATER_PLACEHOLDER, settledRequired: SETTLED_REQUIRED });
 
 test("flag ON: every published page carries the founder's labels; only the allowlisted markers, only on the route and its chunks", { skip: !BUILT ? "no export at app/out (run the build first)" : !FLAG_ON ? "flag OFF build (GTP_NBA_THEATER_PUBLIC not 1)" : false }, () => {
