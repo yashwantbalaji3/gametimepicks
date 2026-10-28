@@ -33,7 +33,7 @@ test("THE DEFECT · a current slate + a 15-day-old product artifact is NOT_RUN a
 test("NOT_RUN is never described as a no-play — we do not know that, nothing ran", () => {
   const s = deriveProductState({ productDate: TODAY, artifactDate: "2026-07-21" });
   assert.doesNotMatch(productStateLabel(s, { artifactDate: "2026-07-21", productDate: TODAY }), /no qualified/i);
-  assert.match(productStateExplanation(s), /operational gap, not a decision by the model/);
+  assert.match(productStateExplanation(s), /a delay on our side, not a decision by the model/);
 });
 
 test("a REAL no-play — generator completed today, nothing qualified — is current but not live", () => {

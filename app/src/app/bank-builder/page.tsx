@@ -57,6 +57,7 @@ import {
 } from "@/lib/data-bank-builder";
 import { loadStep5TargetStatus } from "@/lib/bank-builder-step5-target";
 import { RUNBOOKS } from "@/lib/launch/runbook-registry.mjs";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { currentProductRecord } from "@/lib/results/current-record";
 import { RECORD_SCOPE_LABEL, scopedRecordText } from "@/lib/results/current-record";
@@ -165,6 +166,9 @@ export const metadata = withRouteMetadata("/bank-builder/", {
 
 /* Level A model suggestions (founder policy 2026-10-23): shown when level-a/model.mjs levelAEnabled() says so. */
 const LEVEL_A = levelAEnabled();
+
+/* The reader-facing part of the runbook's schedule ("by 8:00 AM ET"); the full row (UTC backstop) is in Technical details. */
+const NEXT_EVALUATION_ET = RUNBOOKS.mlb.products.when.match(/by \d{1,2}:\d{2} [AP]M ET/)?.[0] ?? null;
 
 export default function BankBuilderPage() {
   /* One Level A evaluation per page, at the build's stamped instant: the section and the priced-universe pointer read the same model. */
@@ -501,16 +505,14 @@ export default function BankBuilderPage() {
         >
           {bbStateLabel}
         </span>
+        {/* Overnight 10-28 (SIMPLIFY): ONE plain status line. The state's explanation and the next transition read as one
+            sentence; the runbook's full schedule (cron backstop in UTC, the watchdog re-run) moved to Technical details
+            at the foot of the page. P211 R-E still holds: the time is quoted from the ONE registry, never hand-kept. */}
         <span style={{ color: "var(--vault-text-faint)", fontSize: 11, maxWidth: "52ch", textAlign: "right" }}>
-          {bbStateExplanation}
-        </span>
-        {/* P211 R-E: the next transition is a fact the runbook already owns — quoted from the ONE
-            registry (guard-tied to the workflow's real cron), never hand-kept here. A live card's
-            next transition is settlement; a waiting lane's is tomorrow's evaluation. */}
-        <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+          {bbStateExplanation}{" "}
           {isLive(bbProductState)
-            ? "Next transition: settles overnight from official box scores — the ladder advances or restarts on the graded result."
-            : `Next daily evaluation: ${RUNBOOKS.mlb.products.when}. A watchdog re-runs a missed morning before 7:00 AM ET.`}
+            ? "It settles overnight from official box scores — the ladder advances or restarts on the graded result."
+            : NEXT_EVALUATION_ET ? `Next check ${NEXT_EVALUATION_ET}.` : null}
         </span>
       </div>
 
@@ -582,7 +584,13 @@ export default function BankBuilderPage() {
           DIFFERENT measures of different eras; both render under their own names, and any typed
           divergence between the generator's step and the lifecycle store's rule-derived position is
           stated instead of silently resolved (that resolution is the founder-gated accounting). */}
-      <section aria-label="Record reconciliation" className="mt-5 rounded-[12px] px-4 py-3 flex flex-col gap-1.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)", border: "1px solid var(--vault-border)" }}>
+      {/* Overnight 10-28 (RELOCATE): the record-systems reconciliation and the daily schedule are audit detail — kept in
+          full, folded into this page's one Technical details disclosure. */}
+      <MoreDisclosure title="Technical details" summary="Daily schedule and how the two record systems agree" className="mt-5">
+      <p className="m-0 font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
+        Daily evaluation: {RUNBOOKS.mlb.products.when}. A watchdog re-runs a missed morning before 7:00 AM ET.
+      </p>
+      <section aria-label="Record reconciliation" className="rounded-[12px] px-4 py-3 flex flex-col gap-1.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)", border: "1px solid var(--vault-border)" }}>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>What the record systems say</span>
         <p className="m-0 font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
           Today&rsquo;s paper exposure (generated lanes): {bbDerived.exposure.live != null ? `$${Number(bbDerived.exposure.live).toFixed(2)}` : "—"} ·
@@ -607,6 +615,7 @@ export default function BankBuilderPage() {
           <p className="m-0 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>The ladder step and the retired record agree today.</p>
         )}
       </section>
+      </MoreDisclosure>
 
       {/* Moonshot is now its OWN product at /moonshot (mirrors Bank Builder). It is no longer surfaced
           here — Bank Builder stays focused on the core ladder. */}

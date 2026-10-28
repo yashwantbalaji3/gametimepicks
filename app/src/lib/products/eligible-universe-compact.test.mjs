@@ -23,7 +23,7 @@ test("compact · closed state still names the evaluated day, the count and the c
   const h = render({ availability, compact: true });
   assert.match(h, /<details/);
   const summary = h.match(/<summary[\s\S]*<\/summary>/)?.[0] ?? "";
-  assert.match(summary, /Priced-card universe \(Level B\) · evaluated Sun, Jul 13/);
+  assert.match(summary, /Sports that can join a priced card · evaluated Sun, Jul 13/);
   assert.match(summary, /24 eligible legs from MLB/);
   assert.doesNotMatch(h, /today/i);
 });
@@ -40,5 +40,5 @@ test("compact · no market-only leg, no caveat; the full variant is unchanged in
   assert.doesNotMatch(render({ availability: modelled, compact: true }), /no forecast behind it/);
   const full = render({ availability });
   assert.doesNotMatch(full, /<details/);
-  for (const t of [/Priced-card universe \(Level B\) · evaluated Sun, Jul 13/, /24 eligible legs · 4 games/, /no forecast behind it/, /A sport enters only/]) assert.match(full, t);
+  for (const t of [/Sports that can join a priced card · evaluated Sun, Jul 13/, /24 eligible legs · 4 games/, /no forecast behind it/, /A sport enters only/]) assert.match(full, t);
 });
