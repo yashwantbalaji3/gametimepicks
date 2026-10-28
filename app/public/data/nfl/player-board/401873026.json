@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-28T00:16:05Z",
- "sourceGeneratedAt": "2026-10-28T00:16:05Z",
- "forecastInputHash": "4ac66aaa39ca309a",
+ "generatedAt": "2026-10-28T16:00:30Z",
+ "sourceGeneratedAt": "2026-10-28T16:00:30Z",
+ "forecastInputHash": "d43655c8c8da28ac",
  "providerEventId": "401873026",
  "matchup": "BAL @ BUF",
  "kickoffUtc": "2026-11-01T18:00Z",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-28T00:16:05Z",
-  "roleEvidenceAt": "2026-10-28T00:16:05Z",
+  "injuriesCapturedAt": "2026-10-28T16:00:30Z",
+  "roleEvidenceAt": "2026-10-28T16:00:30Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -111,7 +111,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 62,
+  "absent": 61,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -153,10 +153,16 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4429615",
@@ -388,14 +394,21 @@
   "qbStarter": [
    {
     "team": "BAL",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-3916387",
-     "nfl-athlete-4035671"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3916387",
+     "name": "Lamar Jackson"
+    },
+    "snapshotAt": "2026-10-28T13:58:02Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4035671",
+      "name": "Tyler Huntley"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-24T11:57:56Z"
+    "passers": [
+     "nfl-athlete-3916387"
+    ]
    },
    {
     "team": "BUF",
@@ -411,8 +424,7 @@
     "team": "BAL",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3916387",
-     "nfl-athlete-4035671"
+     "nfl-athlete-3916387"
     ],
     "withheld": [],
     "unjoined": []
@@ -464,19 +476,6 @@
     "originalSum": 0.943,
     "residualOther": 0.057,
     "joined": 8,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "BAL",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 0.8371,
-    "originalSum": 0.8371,
-    "residualOther": 0.1629,
-    "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
    }
@@ -929,15 +928,6 @@
      "median": 9.88,
      "p75": 22.32,
      "p90": 37.11,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_pass_yds": {
-     "mean": 176.9916,
-     "p10": 85.5559,
-     "p25": 118.8144,
-     "median": 165.1779,
-     "p75": 222.3555,
-     "p90": 283.7289,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {

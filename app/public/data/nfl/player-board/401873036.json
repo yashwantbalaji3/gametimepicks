@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-28T00:16:05Z",
- "sourceGeneratedAt": "2026-10-28T00:16:05Z",
- "forecastInputHash": "b15fa639e3cb8fdf",
+ "generatedAt": "2026-10-28T16:00:30Z",
+ "sourceGeneratedAt": "2026-10-28T16:00:30Z",
+ "forecastInputHash": "68596e3fc3e02fb5",
  "providerEventId": "401873036",
  "matchup": "CHI @ SEA",
  "kickoffUtc": "2026-11-03T01:15Z",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-28T00:16:05Z",
-  "roleEvidenceAt": "2026-10-28T00:16:05Z",
+  "injuriesCapturedAt": "2026-10-28T16:00:30Z",
+  "roleEvidenceAt": "2026-10-28T16:00:30Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -24,29 +24,6 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
-   "withheldPassers": [
-    {
-     "team": "CHI",
-     "playerId": "nfl-athlete-15168",
-     "name": "Case Keenum",
-     "share": 0.464,
-     "reason": "withheld for Case Keenum (CHI): his modelled share of CHI's pass attempts is 0.46, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "CHI",
-     "playerId": "nfl-athlete-4434153",
-     "name": "Tyson Bagent",
-     "share": 0.523,
-     "reason": "withheld for Tyson Bagent (CHI): his modelled share of CHI's pass attempts is 0.52, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "SEA",
-     "playerId": "nfl-athlete-3924327",
-     "name": "Drew Lock",
-     "share": 0.696,
-     "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    }
-   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -229,7 +206,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Tyson Bagent (CHI): his modelled share of CHI's pass attempts is 0.52, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -252,12 +229,12 @@
      "playerId": "nfl-athlete-15168",
      "name": "Case Keenum",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "withheld for Case Keenum (CHI): his modelled share of CHI's pass attempts is 0.46, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Case Keenum (CHI): his modelled share of CHI's pass attempts is 0.46, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     }
@@ -392,12 +369,12 @@
      "playerId": "nfl-athlete-3924327",
      "name": "Drew Lock",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     }
@@ -408,26 +385,43 @@
   "qbStarter": [
    {
     "team": "CHI",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4431611",
-     "nfl-athlete-15168",
-     "nfl-athlete-4434153"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4431611",
+     "name": "Caleb Williams"
+    },
+    "snapshotAt": "2026-10-28T13:58:02Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-15168",
+      "name": "Case Keenum"
+     },
+     {
+      "playerId": "nfl-athlete-4434153",
+      "name": "Tyson Bagent"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-24T11:57:56Z"
+    "passers": [
+     "nfl-athlete-4431611"
+    ]
    },
    {
     "team": "SEA",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-3912547",
-     "nfl-athlete-3924327"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3912547",
+     "name": "Sam Darnold"
+    },
+    "snapshotAt": "2026-10-28T13:58:02Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-3924327",
+      "name": "Drew Lock"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-24T11:57:56Z"
+    "passers": [
+     "nfl-athlete-3912547"
+    ]
    }
   ],
   "passerShareFloor": [
@@ -435,44 +429,18 @@
     "team": "CHI",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4431611",
-     "nfl-athlete-15168",
-     "nfl-athlete-4434153"
+     "nfl-athlete-4431611"
     ],
-    "withheld": [
-     {
-      "team": "CHI",
-      "playerId": "nfl-athlete-15168",
-      "name": "Case Keenum",
-      "share": 0.464,
-      "reason": "withheld for Case Keenum (CHI): his modelled share of CHI's pass attempts is 0.46, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     },
-     {
-      "team": "CHI",
-      "playerId": "nfl-athlete-4434153",
-      "name": "Tyson Bagent",
-      "share": 0.523,
-      "reason": "withheld for Tyson Bagent (CHI): his modelled share of CHI's pass attempts is 0.52, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    },
    {
     "team": "SEA",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3912547",
-     "nfl-athlete-3924327"
+     "nfl-athlete-3912547"
     ],
-    "withheld": [
-     {
-      "team": "SEA",
-      "playerId": "nfl-athlete-3924327",
-      "name": "Drew Lock",
-      "share": 0.696,
-      "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    }
   ],

@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-28T00:16:05Z",
- "sourceGeneratedAt": "2026-10-28T00:16:05Z",
- "forecastInputHash": "4d2f54c0ed924c5a",
+ "generatedAt": "2026-10-28T16:00:30Z",
+ "sourceGeneratedAt": "2026-10-28T16:00:30Z",
+ "forecastInputHash": "8cf18cb15add8902",
  "providerEventId": "401873025",
  "matchup": "ATL @ TB",
  "kickoffUtc": "2026-11-01T18:00Z",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-28T00:16:05Z",
-  "roleEvidenceAt": "2026-10-28T00:16:05Z",
+  "injuriesCapturedAt": "2026-10-28T16:00:30Z",
+  "roleEvidenceAt": "2026-10-28T16:00:30Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -24,22 +24,6 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
-   "withheldPassers": [
-    {
-     "team": "ATL",
-     "playerId": "nfl-athlete-5344782",
-     "name": "Jack Strand",
-     "share": 0.469,
-     "reason": "withheld for Jack Strand (ATL): his modelled share of ATL's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "TB",
-     "playerId": "nfl-athlete-4596472",
-     "name": "Jalon Daniels",
-     "share": 0.599,
-     "reason": "withheld for Jalon Daniels (TB): his modelled share of TB's pass attempts is 0.60, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    }
-   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -226,7 +210,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Jack Strand (ATL): his modelled share of ATL's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -293,7 +277,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Jalon Daniels (TB): his modelled share of TB's pass attempts is 0.60, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -390,25 +374,39 @@
   "qbStarter": [
    {
     "team": "ATL",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4360423",
-     "nfl-athlete-5344782"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4360423",
+     "name": "Michael Penix Jr."
+    },
+    "snapshotAt": "2026-10-28T13:58:02Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-5344782",
+      "name": "Jack Strand"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-24T11:57:56Z"
+    "passers": [
+     "nfl-athlete-4360423"
+    ]
    },
    {
     "team": "TB",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-3052587",
-     "nfl-athlete-4596472"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3052587",
+     "name": "Baker Mayfield"
+    },
+    "snapshotAt": "2026-10-28T13:58:02Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4596472",
+      "name": "Jalon Daniels"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-24T11:57:56Z"
+    "passers": [
+     "nfl-athlete-3052587"
+    ]
    }
   ],
   "passerShareFloor": [
@@ -416,36 +414,18 @@
     "team": "ATL",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4360423",
-     "nfl-athlete-5344782"
+     "nfl-athlete-4360423"
     ],
-    "withheld": [
-     {
-      "team": "ATL",
-      "playerId": "nfl-athlete-5344782",
-      "name": "Jack Strand",
-      "share": 0.469,
-      "reason": "withheld for Jack Strand (ATL): his modelled share of ATL's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    },
    {
     "team": "TB",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3052587",
-     "nfl-athlete-4596472"
+     "nfl-athlete-3052587"
     ],
-    "withheld": [
-     {
-      "team": "TB",
-      "playerId": "nfl-athlete-4596472",
-      "name": "Jalon Daniels",
-      "share": 0.599,
-      "reason": "withheld for Jalon Daniels (TB): his modelled share of TB's pass attempts is 0.60, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    }
   ],

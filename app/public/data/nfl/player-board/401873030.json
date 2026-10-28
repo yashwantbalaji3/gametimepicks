@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-28T00:16:05Z",
- "sourceGeneratedAt": "2026-10-28T00:16:05Z",
- "forecastInputHash": "6bf347ed3bd2c536",
+ "generatedAt": "2026-10-28T16:00:30Z",
+ "sourceGeneratedAt": "2026-10-28T16:00:30Z",
+ "forecastInputHash": "82428f19b85f6bca",
  "providerEventId": "401873030",
  "matchup": "MIN @ DET",
  "kickoffUtc": "2026-11-01T18:00Z",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-28T00:16:05Z",
-  "roleEvidenceAt": "2026-10-28T00:16:05Z",
+  "injuriesCapturedAt": "2026-10-28T16:00:30Z",
+  "roleEvidenceAt": "2026-10-28T16:00:30Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -24,31 +24,10 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
-   "withheldPassers": [
-    {
-     "team": "MIN",
-     "playerId": "nfl-athlete-4573398",
-     "name": "Max Brosmer",
-     "share": 0.474,
-     "reason": "withheld for Max Brosmer (MIN): his modelled share of MIN's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    }
-   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "MIN",
-      "pool": "passAttempts",
-      "originalSum": 1.8043,
-      "normalizedSum": 1,
-      "factor": 0.5542,
-      "playerIds": [
-       "nfl-athlete-2573079",
-       "nfl-athlete-3917315"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_rush_yds": {
@@ -130,7 +109,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 53,
+  "absent": 52,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -173,10 +152,16 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4360569",
@@ -267,12 +252,12 @@
      "playerId": "nfl-athlete-4573398",
      "name": "Max Brosmer",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "withheld for Max Brosmer (MIN): his modelled share of MIN's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Max Brosmer (MIN): his modelled share of MIN's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     }
@@ -387,15 +372,25 @@
   "qbStarter": [
    {
     "team": "MIN",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-3917315",
-     "nfl-athlete-2573079",
-     "nfl-athlete-4573398"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3917315",
+     "name": "Kyler Murray"
+    },
+    "snapshotAt": "2026-10-28T13:58:02Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-2573079",
+      "name": "Carson Wentz"
+     },
+     {
+      "playerId": "nfl-athlete-4573398",
+      "name": "Max Brosmer"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-24T11:57:56Z"
+    "passers": [
+     "nfl-athlete-3917315"
+    ]
    },
    {
     "team": "DET",
@@ -411,19 +406,9 @@
     "team": "MIN",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3917315",
-     "nfl-athlete-2573079",
-     "nfl-athlete-4573398"
+     "nfl-athlete-3917315"
     ],
-    "withheld": [
-     {
-      "team": "MIN",
-      "playerId": "nfl-athlete-4573398",
-      "name": "Max Brosmer",
-      "share": 0.474,
-      "reason": "withheld for Max Brosmer (MIN): his modelled share of MIN's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    },
    {
@@ -438,19 +423,6 @@
   ],
   "pools": [
    {
-    "team": "MIN",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 1,
-    "originalSum": 1.8043,
-    "residualOther": 0,
-    "joined": 2,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
-   {
     "team": "DET",
     "pool": "passAttempts",
     "markets": [
@@ -459,6 +431,19 @@
     "sum": 0.9993,
     "originalSum": 0.9993,
     "residualOther": 0.0007,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "MIN",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.8913,
+    "originalSum": 0.8913,
+    "residualOther": 0.1087,
     "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
@@ -851,16 +836,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
-     "mean": 99.0876,
-     "p10": 48.1415,
-     "p25": 66.7062,
-     "median": 92.5465,
-     "p75": 124.374,
-     "p90": 158.5053,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.5542
-     },
+     "mean": 178.7838,
+     "p10": 86.8617,
+     "p25": 120.358,
+     "median": 166.9816,
+     "p75": 224.408,
+     "p90": 285.9912,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1002,19 +983,6 @@
      "median": 2.68,
      "p75": 9.93,
      "p90": 20.76,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_pass_yds": {
-     "mean": 107.9574,
-     "p10": 51.7932,
-     "p25": 72.167,
-     "median": 100.6334,
-     "p75": 135.8049,
-     "p90": 173.6094,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.5542
-     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
