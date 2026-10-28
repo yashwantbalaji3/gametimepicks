@@ -62,7 +62,8 @@ test("the footer states coverage honestly: MLB's hub, NBA archive, and NO schedu
     // founder directive 2026-10-23 public readiness: the note is the public registry's ("Game Simulations · Official
     // Forecasts" — the MLB hub is the simulation center), still naming what the hub is, still not an archive
     assert.match(builtFooter, /MLB<span[^>]*> · Game Simulations · Official Forecasts/, "MLB is labelled by what its hub is");
-    assert.match(builtFooter, /NBA archive<span[^>]*> · retired model/, "the NBA archive is labelled a retired model's record, not current coverage");
+    // P0 2026-10-28: /results/nba leads with the NBA Official Forecast record; the retired archive is still named, after it
+    assert.match(builtFooter, /NBA record<span[^>]*> · Official Forecast record · retired May–June 2026 archive/, "the NBA record names the official record and the retired archive, never current coverage alone");
     // NBA preregistration §13 (founder decision 2026-10-20): with the experimental public lane on, the hub's label must
     // say its projections are NOT validated; with it off, factual-only. Never an unqualified forecast claim.
     // founder directive 2026-10-23 public readiness: the registry's note — what the hub publishes, never a validation claim;
@@ -76,8 +77,8 @@ test("the footer states coverage honestly: MLB's hub, NBA archive, and NO schedu
   // founder directive 2026-10-23 public readiness: catalog notes are the public registry's (navNote) — asserted on the value
   assert.match(registry, /href: "\/mlb", label: "MLB", note: navNote\("mlb"\)/, "MLB declares its coverage");
   assert.equal(publicSport("mlb").navNote, "Game Simulations · Official Forecasts");
-  assert.match(registry, /href: "\/results\/nba", label: "NBA archive", note: "retired model/,
-    "the NBA archive declares itself a retired model's archive");
+  assert.match(registry, /href: "\/results\/nba", label: "NBA record", note: "Official Forecast record · retired May–June 2026 archive"/,
+    "the NBA record entry names the official record and keeps the retired archive's label");
   // Session 6 (founder decision 3): /nba is a factual hub in the sports group, and its entry says it publishes no forecast.
   assert.match(registry, /href: "\/nba", label: "NBA", note: navNote\("nba"\)/, "the NBA hub's nav entry is the registry's");
   assert.doesNotMatch(publicSport("nba").navNote, /\bvalidated\b/, "the NBA hub's nav entry must not imply a validated model");

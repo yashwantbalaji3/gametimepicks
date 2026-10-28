@@ -3,9 +3,11 @@
  * is a labelled supporting simulation, never the official projection, not graded). The block carries the one shared
  * label (forecast-view.mjs SUPPORTING_LABEL), its version, the forecast input hash it was built from, and — when that
  * is not the forecast of record's — the "older forecast revision" notice. Its win share is a count of the worlds and
- * can differ from the forecast's win chance (which comes from a separate rating) — stated once, here.
+ * can differ from the forecast's win chance (which comes from a separate rating and leaves the tie-after-regulation
+ * chance unallocated) — stated once, here, with both pairs of numbers whenever they differ at display precision.
  */
 import { Histogram } from "@/components/distribution-chart";
+import { simulatedShareNote } from "@/lib/sports/nfl/forecast-view.mjs";
 
 const pct = (p: number) => `${(p * 100).toFixed(1)}%`;
 const signed = (x: number) => (x > 0 ? `+${x}` : `${x}`);
@@ -18,9 +20,8 @@ function binLabel(h: { from: number; width: number; bins: number }, i: number, s
   return f(lo);
 }
 
-export default function SimulationPanel({ sim, away, home, recordWinHome }: { sim: any; away: string; home: string; recordWinHome: number }) {
+export default function SimulationPanel({ sim, away, home, recordWin }: { sim: any; away: string; home: string; recordWin: { home: number; away: number; tieMass?: number | null } }) {
   const w = sim.winProbability;
-  const diffPts = Math.round((w.home - recordWinHome) * 1000) / 10;
   const teams: Array<[string, any]> = [[away, sim.teams.away], [home, sim.teams.home]];
   return (
     <section id="simulation" className="nf-section" aria-labelledby="nf-sim-h" data-source="world-model-v2" data-role="supporting-simulation">
@@ -41,9 +42,8 @@ export default function SimulationPanel({ sim, away, home, recordWinHome }: { si
           {away} {pct(w.away)} · {home} {pct(w.home)} · went to overtime {pct(sim.overtime.levelAfterRegulation)}{w.tie > 0 ? ` · still tied after overtime ${pct(w.tie)}` : ""}
         </p>
         <p className="nf-faint" style={{ margin: "6px 0 0" }}>
-          {Math.abs(diffPts) >= 0.5
-            ? `This share is counted from the simulated games, which draw the score from the forecast's margin and total; the headline win chance comes from a separate team rating, so the two differ by ${Math.abs(diffPts).toFixed(1)} points for ${home}.`
-            : "This share is counted from the simulated games and matches the headline win chance."}
+          {/* "matches" only when both sides print the same; otherwise both pairs and why (forecast-view.mjs). */}
+          {simulatedShareNote(w, recordWin, { away, home })}
         </p>
       </div>
       <div className="nf-grid2" style={{ marginTop: 12 }}>

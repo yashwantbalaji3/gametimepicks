@@ -69,6 +69,7 @@ import YesterdayCard from "@/components/recap/yesterday-card";
 import { buildYesterdayRecap } from "@/lib/recap/yesterday.mjs";
 import { legacyNameMap } from "@/lib/follow/entity-registry";
 import { currentProductRecord } from "@/lib/results/current-record";
+import { scopedRecordText } from "@/lib/results/current-record";
 import { buildSimulateDay, simulationReadyCount } from "@/lib/simulate/day-view";
 import LiveNow from "@/components/live/live-now";
 import MoreDisclosure from "@/components/ui/more-disclosure";
@@ -190,8 +191,13 @@ export default function TodayPage() {
    * `settled` still gates the brief's yesterday link, and stays null (not 0) when the cell cannot be read,
    * so an unreadable projection hides the recap link rather than claiming nothing has settled.
    */
-  const { recordLabel, pendingLabel, settled: settledCount } = currentProductRecord("bank-builder");
+  const bbRecord = currentProductRecord("bank-builder");
+  const { settled: settledCount } = bbRecord;
   const hasSettledResults = (settledCount ?? 0) > 0;
+  /* P0 U2: the reminder leads with the CURRENT era, labelled ("Bank Builder · current era 28–38") — it printed the
+     all-time 47–52 as "Track record". Same reader, same scope label as Home and the product pages. */
+  const recordLabel = bbRecord.currentEra ? scopedRecordText(bbRecord.currentEra, { product: "Bank Builder", dates: false }) : bbRecord.recordLabel;
+  const pendingLabel = bbRecord.currentEra ? bbRecord.currentEraPendingLabel : bbRecord.pendingLabel;
 
   // ── Bank Builder status — derived HONESTLY (never a hardcoded "active" card), same pattern as Home.
   //    `available === false` ⇒ no qualified card ⇒ NO-PLAY. The awaiting rung is read from the public
@@ -292,8 +298,8 @@ export default function TodayPage() {
     },
     {
       label: "Results",
-      value: recordLabel ?? "Track record",
-      sub: pendingLabel ?? "official settlement only",
+      value: (bbRecord.currentEra ? scopedRecordText(bbRecord.currentEra, { dates: false }) : recordLabel) ?? "Track record",
+      sub: pendingLabel ? `Bank Builder · ${pendingLabel}` : "official settlement only",
       href: "/results",
       tone: "gold",
     },

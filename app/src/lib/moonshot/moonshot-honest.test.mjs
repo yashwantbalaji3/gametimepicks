@@ -30,7 +30,11 @@ test("🔴 M-2 · the record says how far it runs and what the fold has not take
   assert.match(html, /Not yet in this record: 5 decided Moonshot results after Tue, Sep 22 \(0–5\)/, "Moonshot's own decided results, not Bank Builder's");
   const page = src("src/app/moonshot/page.tsx");
   assert.match(page, /<RecordComposition product="moonshot"/);
-  assert.match(page, /\$\{moonshot\.displayRecord\.fromDate \?\? "—"\} to \$\{moonshotFoldedThrough \?\? "—"\}/, "the tile names its end date");
+  /* P0 U1/U2 (2026-10-28): the tile still names its start AND end date, now from the ONE shared reader (the
+     current-era cell's window, whose end is the ledger's settled-through day) instead of a date this page derived
+     itself from the backlog (`moonshotFoldedThrough`) — a page computing its own settled date is the defect U1 removes. */
+  assert.match(page, /recordWindowText\(msEra\)/, "the tile names its window (start and end date)");
+  assert.doesNotMatch(page, /moonshotFoldedThrough/, "no page-local settled-through date");
 });
 
 test("🔴 the legacy tracker never prints the current record, never invents 0–0, and treats batter_/pitcher_ keys as props", () => {

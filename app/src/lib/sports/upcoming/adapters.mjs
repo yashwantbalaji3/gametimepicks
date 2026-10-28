@@ -23,6 +23,7 @@ import {
   SCHEDULE_CONTRACT_VERSION, EVENT_STATUS, canonicalEventId, normalizeEventStatus,
   validateEvent, classifySnapshotFreshness,
 } from "../schedule-contract.mjs";
+import { nbaFirstGradedGameDate } from "../../results/nba-official-record-reader.mjs";
 
 const DATA = () => path.join(process.cwd(), "public", "data");
 const readJson = (...seg) => {
@@ -198,8 +199,8 @@ export function nflUpcoming({ nowIso, capture: captureOverride } = {}) {
  * renders as partial, never as the season. The stale June market probe stopped being a display
  * source 2026-08-09 (the probe file stays on disk as research history).
  */
-/** @param {{ nowIso?: string, capture?: any, displayCap?: number }} [opts] */
-export function nbaUpcoming({ nowIso, capture: captureOverride, displayCap = 12 } = {}) {
+/** @param {{ nowIso?: string, capture?: any, displayCap?: number, firstGameDate?: string | null }} [opts] */
+export function nbaUpcoming({ nowIso, capture: captureOverride, displayCap = 12, firstGameDate } = {}) {
   const capture = captureOverride ?? readJson("nba", "schedule", "latest.json");
   if (!capture?.rows?.length) {
     return {
@@ -234,10 +235,16 @@ export function nbaUpcoming({ nowIso, capture: captureOverride, displayCap = 12 
      `displayCap: Infinity` — reading the capped list there skipped NBA opening night (Oct 20) entirely,
      because the first twelve upcoming rows were all preseason. */
   const DISPLAY_CAP = displayCap;
-  const firstDate = events[0] ? dateEtOf(events[0].scheduledStartUtc) : null;
+  /* P0 10-28 (NEW-1): "first game" was events[0] — the first UPCOMING row of a ROLLING capture, so on 10-27 /sports
+     said "first game 2026-10-27" beside an official record with 52 graded games from Oct 20. The first game now comes
+     from the record itself (the earliest game whose official side was graded), or is not shown. The capture is a
+     rolling window of confirmed events, not an unpublished schedule, and the label says so. `firstGameDate` injects
+     for tests (null = nothing graded). */
+  const firstDate = firstGameDate === undefined ? nbaFirstGradedGameDate() : firstGameDate;
+  const windowNote = Number.isFinite(capture.windowDays) ? `, captured ${capture.windowDays} days ahead` : "";
   return {
     sport: "nba", competitionLabel: "NBA",
-    seasonContext: `2026-27 — confirmed events only (full schedule not yet published)${firstDate ? `; first game ${firstDate}` : ""}`,
+    seasonContext: `2026-27${firstDate ? ` — first game ${firstDate}` : ""} · confirmed events only${windowNote}`,
     coverage: "SCHEDULE_ONLY",
     sourceVerdict: {
       sourceId: "espn_scoreboard", configured: true, fetchedAt: capture.generatedAt,

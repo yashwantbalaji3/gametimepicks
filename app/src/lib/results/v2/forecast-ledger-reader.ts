@@ -7,6 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { forecastRecord } from "./forecast-record.mjs";
+import { DECLARED_GAPS } from "../../forecast-ledger/compose.mjs";
 
 export const LEDGER_DIR = path.resolve(process.cwd(), "..", "data/internal/forecast-ledger/v1");
 export const SPORT_SLUGS: Record<string, string> = { NFL: "nfl", MLB: "mlb", EPL: "epl", LIGUE_1: "ligue-1", UFC: "ufc" };
@@ -34,7 +35,12 @@ export function readForecastLedger(dir: string = LEDGER_DIR): { rows: LedgerRow[
 
 export function forecastRecordView() {
   const { rows, manifest } = readForecastLedger();
-  return forecastRecord(rows, { declaredGaps: manifest?.declaredGaps ?? [] });
+  /* The declared gaps are CODE (compose.mjs DECLARED_GAPS); the manifest holds a copy as of its last regeneration. The
+     page reads the declaration itself, so a corrected gap (P0 10-28: the NBA official record was listed as "SHADOW /
+     private research") is right on the next build rather than after the next ledger run — and the two cannot drift.
+     No ledger row, count or hash is read from here. */
+  const declaredGaps: any = manifest ? [...DECLARED_GAPS] : []; // forecast-record.mjs's JSDoc default infers never[]
+  return forecastRecord(rows, { declaredGaps });
 }
 
 export const sportFromSlug = (slug: string) => SLUG_TO_SPORT[slug] ?? null;

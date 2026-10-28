@@ -54,9 +54,16 @@ test("🔴 nothing settled → null (the hero falls back to 'See every settled r
   assert.equal(newestSettledDate({ projection: { cells: "nope" }, optimizerSettledDates: [null, "x"] }), null);
 });
 
-test("🔴 Home feeds the hero and the Recent results strip from this rule, with both sources", () => {
+/* REPOINTED P0 U1 (2026-10-28). This pinned the hero AND the Recent-results strip to this one site-wide date. The
+   strip sits beside the PAPER record, so printing the site-wide newest date there as "Last settled" was the bug: it
+   read as the paper ledger's date. The hero keeps this rule (now through the server reader, with both sources); the
+   strip prints the paper ledger's own settled-through day. Both come from lib/results/settled-through.mjs. */
+test("🔴 Home feeds the hero from this rule (both sources) and the strip from the paper ledger's settled-through", () => {
   const page = fs.readFileSync(path.join(APP, "src/app/page.tsx"), "utf8");
-  assert.match(page, /const lastSettledDate = newestSettledDate\(\{ projection: loadResultsProjection\(\), optimizerSettledDates: getOptimizerSettledDates\(\) \}\);/);
-  assert.doesNotMatch(page, /getOptimizerSettledDates\(\)\.sort\(\)/, "no second, optimizer-only copy of the date");
-  assert.equal((page.match(/lastSettledDate=\{lastSettledDate\}/g) ?? []).length, 2, "hero + Recent results strip share the one date");
+  const server = fs.readFileSync(path.join(APP, "src/lib/results/settled-through-server.ts"), "utf8");
+  assert.match(server, /siteLatestResultsDate\(\{ projection: loadResultsProjection\(\), optimizerSettledDates: getOptimizerSettledDates\(\) \}\)/, "the site date still reads both sources");
+  assert.match(page, /const latestResultsDate = siteLatestResults\(\);/);
+  assert.match(page, /latestResultsDate=\{latestResultsDate\}/, "the hero reads the site date");
+  assert.match(page, /settledThrough=\{paperSettlement\.settledThrough\}/, "the strip reads the paper ledger's own date");
+  assert.doesNotMatch(page, /getOptimizerSettledDates/, "no second, optimizer-only copy of the date on Home");
 });

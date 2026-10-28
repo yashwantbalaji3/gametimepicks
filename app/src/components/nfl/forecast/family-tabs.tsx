@@ -4,7 +4,8 @@
  * projections and the hub's Top boards, so a family reads identically in both places. Rows come pre-computed from
  * forecast-view.mjs (the client never ranks, rounds differently or recomputes) and are the OFFICIAL player board's
  * projections only (founder decision 2026-10-20). A family with no published model shows its reason, never a
- * placeholder number; a family the board marks ESTIMATE says so once above its list; a player the supporting
+ * placeholder number; a family the board did not clear (ESTIMATE) carries no official row — the game page says "Not
+ * published yet" with the board's reason, a Top board says how many games it could not rank; a player the supporting
  * simulation carries but the board does not project is named under "No official projection", without a number.
  *
  * Optional, per surface:
@@ -27,7 +28,7 @@ import { BOOK_AVAILABILITY_NOTE, isEligibleProvider } from "@/lib/sports/odds/el
 
 import PlayerRow, { type RowEntry, type RowFamily, type RowPlayer } from "./player-row";
 
-export interface TabFamily extends RowFamily { withheld: string | null; metric: string; sourceLabel: string | null; asOf: string | null; estimate?: string | null }
+export interface TabFamily extends RowFamily { withheld: string | null; metric: string; sourceLabel: string | null; asOf: string | null; estimate?: string | null; notCleared?: string | null }
 export interface UnprojectedPlayer { playerId: string; name: string; team: string }
 export interface TabRow { player: RowPlayer; entry: RowEntry; rank?: number }
 
@@ -103,6 +104,8 @@ export default function FamilyTabs({ families, lists, unprojected = {}, linkToGa
         return (
           <div key={f.key} role="tabpanel" id={`panel-${label}-${f.key}`} aria-labelledby={`tab-${label}-${f.key}`} hidden={f.key !== fam.key}>
             {f.estimate && rows.length ? <p className="nf-faint" data-estimate={f.key} style={{ margin: "8px 0 0" }}><strong style={{ color: "var(--vault-text)" }}>{f.estimate}</strong></p> : null}
+            {/* Top boards: games whose board did not clear this family are not ranked, and the list says how many. */}
+            {f.notCleared ? <p className="nf-faint" data-not-cleared={f.key} style={{ margin: "8px 0 0" }}>{f.notCleared}</p> : null}
             {f.withheld ? (
               <p className="nf-withheld" data-withheld={f.key}><strong style={{ color: "var(--vault-text)" }}>Not published yet.</strong> {f.withheld}</p>
             ) : rows.length ? (

@@ -17,7 +17,8 @@
  */
 import Link from "next/link";
 
-import { getOptimizerSettledDates } from "@/lib/parlay-results";
+import { siteLatestResults } from "@/lib/results/settled-through-server";
+import { SETTLED_LABELS } from "@/lib/results/settled-through.mjs";
 import { currentEtDate } from "@/lib/freshness";
 import path from "node:path";
 
@@ -45,10 +46,13 @@ function Chip({
   href,
   children,
   accent,
+  title,
 }: {
   href?: string;
   children: React.ReactNode;
   accent?: string;
+  /** What the chip's figure covers, for a reader who hovers or uses assistive tech. */
+  title?: string;
 }) {
   const style: React.CSSProperties = {
     minHeight: 44, /* Release B (benchmark PR 1193 gap 8): ≥ 44px tap target, like the slate chips beside it */
@@ -60,11 +64,11 @@ function Chip({
   };
   const cls = "inline-flex items-center gap-1.5 rounded-full px-3 py-1 whitespace-nowrap";
   return href ? (
-    <Link href={href} className={`${cls} vault-press`} style={style}>
+    <Link href={href} className={`${cls} vault-press`} style={style} title={title}>
       {children}
     </Link>
   ) : (
-    <span className={cls} style={style}>{children}</span>
+    <span className={cls} style={style} title={title}>{children}</span>
   );
 }
 
@@ -73,11 +77,15 @@ export default function SlateStatusBar() {
   // product's slate. Settled freshness still comes from the officially graded record.
   const realToday = currentEtDate();
   const day = todayAcrossFor(realToday);
-  // SPRINT 051: settled means DECIDED, not "a graded file exists". On 2026-07-28 the settlement gate
-  // refused the slate, the snapshot was written with every leg pending, and this bar told every
-  // visitor "Slate settled · Jul 28". See getOptimizerSettledDates.
-  const gradedDates = getOptimizerSettledDates();
-  const latestSettled = gradedDates.length ? [...gradedDates].sort().slice(-1)[0] : null;
+  // P0 U1 (2026-10-28): the chip speaks for the WHOLE site, so it reads the site-wide owner — the newest day
+  // through which any current official record is settled (lib/results/settled-through.mjs, the same accessor
+  // Home's hero reads). It used to read ONLY the MLB priced-card optimizer's newest decided slate, which froze
+  // at "Settled · Oct 15" on every page once that optimizer stopped producing cards, while the paper ledger and
+  // the MLB ledger were settled through Oct 26. Worded "Latest results", never "settled through": it names the
+  // newest record, and a lagging ledger says so on its own page.
+  // SPRINT 051 still holds: settled means DECIDED — the optimizer dates feeding the owner are decided slates
+  // only (getOptimizerSettledDates), and projection cells count only when settled (isSettledRecordCell).
+  const latestSettled = siteLatestResults();
 
   return (
     <div
@@ -102,8 +110,8 @@ export default function SlateStatusBar() {
         homepage Recent-results section, /mr-dub, /bank-builder); the strip is now what a top bar
         is for: date, slate phase, freshness.
       */}
-      <Chip href="/results" accent="var(--vault-success)">
-        <span style={{ color: "var(--vault-success)" }}>Settled</span>
+      <Chip href="/results" accent="var(--vault-success)" title="The newest day through which a current official record is settled, across sports and products. Each record's own settled-through date is on its page.">
+        <span style={{ color: "var(--vault-success)" }}>{SETTLED_LABELS.site}</span>
         <span>· {fmtShort(latestSettled)}</span>
       </Chip>
       {/*

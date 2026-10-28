@@ -1,10 +1,11 @@
 /**
- * /results/nba — the NBA settled archive.
+ * /results/nba — the NBA Official Forecast record, then the retired May–June 2026 model's settled archive.
  *
- * NBA is HISTORICAL_ONLY in the capability registry: the source stopped producing on 2026-06-13 and
- * there is no live projection path, so nothing forward-looking may publish for this sport. What is
- * real is the settled record — every lean already graded against an official final box score — and
- * that record stays published rather than being quietly deleted.
+ * P0 10-28: this page was titled "NBA Model Audit (archive)" and its tab said "archive", while its first section is
+ * the 2026-27 NBA Official Forecast record (the founder-approved composition's official side vs the official final,
+ * graded nightly from Oct 20). The page and its tab now name that record (lib/results/nba-official-record.mjs — the
+ * Forecast Record's NBA line reads the same name); the retired player-prop model below keeps its "archive" labels,
+ * because that is what it is: its source stopped producing on 2026-06-13 and nothing new is graded there.
  *
  * This is the canonical URL. The sport-namespaced twin /nba/results is a redirect stub pointing here,
  * so this page holds the body: a page that re-exported the stub would redirect to itself.
@@ -33,17 +34,21 @@ import { nbaArchiveGames, nbaArchiveGameAnchor } from "@/lib/results/nba-archive
 import { surfaceHref } from "@/lib/nav/date-sport-route";
 import NbaForecastVsActual from "@/components/results/nba-forecast-vs-actual";
 import { nbaForecastVsActualView } from "@/lib/results/nba-level-a-readers";
+import { NBA_OFFICIAL_RECORD_LABEL, NBA_OFFICIAL_RECORD_TITLE } from "@/lib/results/nba-official-record.mjs";
+import { NBA_FORECAST_DISCLOSURE, officialForecastCoverage } from "@/lib/public-registry";
 
 export const metadata = withRouteMetadata("/results/nba/", {
-  title: "NBA Model Audit (archive) · GameTime Picks",
+  title: `${NBA_OFFICIAL_RECORD_TITLE} · GameTime Picks`,
   description:
-    "The settled May–June NBA archive — every lean graded against the verified final box score. Historical record only; the current season's schedule, finals and frozen pregame experimental player projections (not validated, not betting recommendations) are on /nba, with no validated forecast published.",
+    `The ${NBA_OFFICIAL_RECORD_TITLE}: each game's official side, frozen before tip, against the official final. Below it, the settled archive of a player-prop model retired after June 13, 2026. ${NBA_FORECAST_DISCLOSURE}`,
 });
 
 /**
  * The archive is the retired May–June 2026 player-prop model's settled record. A reader arriving from Results during
- * the 2026-27 season must not read its hit rate as the current NBA model: this says what the page is and where the
- * current season lives. The 2026-27 model is in validation; /nba shows only its frozen experimental projections (preregistration §13).
+ * the 2026-27 season must not read its hit rate as the current NBA model: this says what the archive is and where the
+ * current season lives. P0 10-28: it said "No validated NBA forecast is published while the new model is in
+ * validation" — the NBA Official Forecast publishes daily and its record is the section above. What the hub publishes
+ * is the registry's sentence (its families); the disclosure is the registry's NBA one, unchanged in substance.
  */
 function NbaArchiveNotice() {
   return (
@@ -58,11 +63,11 @@ function NbaArchiveNotice() {
     >
       <strong style={{ color: "var(--vault-text)" }}>Archive.</strong> These are settled leans from a
       player-prop model that was retired after June 13, 2026. Nothing new is graded here, and these numbers
-      do not describe a current NBA model. For the 2026-27 season, the{" "}
+      do not describe a current NBA model. For the 2026-27 season, the {NBA_OFFICIAL_RECORD_LABEL} is above, and the{" "}
       <Link href="/nba/" className="underline" style={{ color: "var(--vault-gold-bright)" }}>
         NBA hub
       </Link>{" "}
-      has the schedule, official finals and frozen pregame experimental player projections (not validated, not betting recommendations). No validated NBA forecast is published while the new model is in validation.
+      publishes the schedule and official finals. {officialForecastCoverage("nba")} {NBA_FORECAST_DISCLOSURE} The NBA player model is not validated.
     </aside>
   );
 }

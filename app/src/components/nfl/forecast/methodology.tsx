@@ -5,8 +5,11 @@
  */
 import { NFL_RESULTS_COVERAGE_NOTE } from "@/lib/sports/nfl/results-coverage.mjs";
 import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
+import { formatUpdatedEt } from "@/lib/format";
 
-const ts = (iso: string | null | undefined) => (iso ? `${iso.slice(0, 16).replace("T", " ")} UTC` : "—");
+/* ET, like every other time on this site (P0 2026-10-28): the forecast row's time is its freeze, printed as the page's
+   "Forecast frozen at" line prints it. The exact ISO value stays in the artifacts. */
+const ts = (iso: string | null | undefined) => (iso ? formatUpdatedEt(iso) : "—");
 
 const LADDER: Array<[string, string]> = [["developmentTested", "Tested on past seasons"], ["prospectivelyCaptured", "Frozen before kickoff and recorded"], ["forwardEvaluated", "Graded on games played since"], ["productEligible", "Eligible for picks products"], ["productionPromoted", "Promoted as the official forecast"]];
 

@@ -11,21 +11,13 @@ import TeamLogo from "@/components/team-logo";
 import { loadLeagueForecasts, loadLeagueGraded, type LeagueForecastRow } from "@/lib/sports/soccer/forecast-view";
 import { gradedCaption } from "@/lib/sports/soccer/grading.mjs";
 import { HubSlipBar, HubSlipButton, hubSlipLegs, type HubSlipLeg } from "@/components/products/hub-slip";
+import { LeagueDataFreshness, LeagueFixtureBoard } from "@/components/soccer/league-fixture-board";
+import { partitionFixtures } from "@/lib/sports/soccer/fixture-timing.mjs";
 
 const pct = (n: number | null | undefined) => (n == null || !Number.isFinite(n) ? "—" : `${Math.round(n * 1000) / 10}%`);
-const ET_DAY = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "long", month: "long", day: "numeric" });
 const ET_TIME = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" });
-const ET_KEY = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" });
 const ET_STAMP = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 
-function byDay(rows: LeagueForecastRow[]) {
-  const days = new Map<string, LeagueForecastRow[]>();
-  for (const r of [...rows].sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc))) {
-    const k = ET_KEY.format(new Date(r.kickoffUtc));
-    days.set(k, [...(days.get(k) ?? []), r]);
-  }
-  return [...days].map(([key, rs]) => ({ key, label: ET_DAY.format(new Date(rs[0].kickoffUtc)), rows: rs }));
-}
 
 function OutcomeBar({ r }: { r: LeagueForecastRow }) {
   const segs = [
@@ -85,13 +77,25 @@ function FixtureRow({ r, slip = null }: { r: LeagueForecastRow; slip?: HubSlipLe
 
 export default async function LeagueForecastPage({ leagueKey }: { leagueKey: string }) {
   const set = loadLeagueForecasts(leagueKey);
-  /* Vehicle N: Ligue 1 is a Level A sport — its rows' exact legs (none for any other league: the helper knows no other
-     key), and one bar, only when a button renders. */
-  const slip = leagueKey === "ligue-1" ? await hubSlipLegs("ligue-1", (set?.rows ?? []).map((r) => String(r.eventId))) : new Map<string, HubSlipLeg>();
-  const name = set?.competition ?? "League";
-  const days = byDay(set?.rows ?? []);
-  const v = set?.validation;
+  /*
+   * P0 10-28 · U7: A KICKED-OFF MATCH IS NEVER LISTED AS UPCOMING. When the soccer-leagues run failed (10-26) this page
+   * listed played matches as upcoming for two days. Every row is now split at the build clock here (the static HTML) and
+   * again at the viewer's clock in the browser (LeagueFixtureBoard); a started match without a recorded final says
+   * "Kicked off — result pending", and stale league data gets a banner with its last update time (LeagueDataFreshness).
+   * Rules: lib/sports/soccer/fixture-timing.mjs. This serves every league the registry publishes here (today Ligue 1).
+   */
+  const serverNowMs = Date.now();
   const graded = loadLeagueGraded(leagueKey);
+  const finals: Record<string, { home: number; away: number }> = Object.fromEntries(
+    (graded?.matches ?? []).filter((m) => m.final).map((m) => [String(m.eventId), { home: m.final.home, away: m.final.away }]),
+  );
+  const rows = [...(set?.rows ?? [])].sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc));
+  const upcomingAtBuild = partitionFixtures(rows, serverNowMs, finals).upcoming;
+  /* Vehicle N: Ligue 1 is a Level A sport — its rows' exact legs (none for any other league: the helper knows no other
+     key), and one bar, only when a button renders. Only fixtures still to play at build time are offered. */
+  const slip = leagueKey === "ligue-1" ? await hubSlipLegs("ligue-1", upcomingAtBuild.map((r) => String(r.eventId))) : new Map<string, HubSlipLeg>();
+  const name = set?.competition ?? "League";
+  const v = set?.validation;
   const recent = [...(graded?.matches ?? [])].sort((a, b) => b.kickoffUtc.localeCompare(a.kickoffUtc)).slice(0, 5);
   const OUTCOME = { H: "home win", D: "draw", A: "away win" } as const;
   return (
@@ -104,6 +108,7 @@ export default async function LeagueForecastPage({ leagueKey }: { leagueKey: str
           Win, draw or win, expected goals, over 2.5, both teams to score and the likeliest scorelines for every {name} fixture in the next eight days — from the same model as our Premier League page.
         </p>
         {set ? <p className="font-mono" style={{ margin: "8px 0 0", fontSize: 11, color: "var(--vault-text-faint)" }}>Updated {ET_STAMP.format(new Date(set.generatedAt))} ET · fit on {set.model.matchesFitted.toLocaleString("en-US")} {name} matches</p> : null}
+        {set ? <LeagueDataFreshness leagueName={name} generatedAt={set.generatedAt} serverNowMs={serverNowMs} /> : null}
       </header>
 
       {v ? (
@@ -144,17 +149,14 @@ export default async function LeagueForecastPage({ leagueKey }: { leagueKey: str
 
       {!set ? (
         <p role="status" style={{ fontSize: 14, color: "var(--vault-text-mute)" }}>The {leagueKey} forecast file isn&rsquo;t available right now.</p>
-      ) : days.length === 0 ? (
-        <p role="status" style={{ fontSize: 14, color: "var(--vault-text-mute)" }}>No {name} fixtures in the next eight days. Forecasts appear here once the next round is scheduled.</p>
       ) : (
-        <div className="flex flex-col gap-5">
-          {days.map((d) => (
-            <section key={d.key} aria-labelledby={`day-${d.key}`} className="rounded-[12px]" style={{ border: "1px solid var(--vault-rule)", background: "var(--vault-panel)" }}>
-              <h2 id={`day-${d.key}`} className="px-3 pt-3 pb-2" style={{ margin: 0, fontSize: 14, color: "var(--vault-text)" }}>{d.label}</h2>
-              <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>{d.rows.map((r) => <FixtureRow key={r.eventId} r={r} slip={slip.get(String(r.eventId))} />)}</ul>
-            </section>
-          ))}
-        </div>
+        <LeagueFixtureBoard
+          leagueName={name}
+          serverNowMs={serverNowMs}
+          rows={rows.map((r) => ({ eventId: String(r.eventId), kickoffUtc: r.kickoffUtc, homeClub: r.homeClub, awayClub: r.awayClub }))}
+          finals={finals}
+          rowNodes={Object.fromEntries(upcomingAtBuild.map((r) => [String(r.eventId), <FixtureRow key={r.eventId} r={r} slip={slip.get(String(r.eventId))} />]))}
+        />
       )}
 
       {set && set.refused.length > 0 ? (

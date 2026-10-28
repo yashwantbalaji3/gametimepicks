@@ -46,7 +46,7 @@ import { buildDailyPortfolio } from "./mr-dub/daily-portfolio";
 import { currentSlateDate } from "./parlays/ui-loader";
 import { currentEtDate } from "./freshness";
 
-import { currentProductRecord } from "./results/current-record";
+import { currentProductRecord, type ScopedRecord } from "./results/current-record";
 
 const MR_DUB_DIR = path.join(process.cwd(), "public", "data", "mr-dub");
 
@@ -179,6 +179,11 @@ export interface TrustCenterModel {
    * "Road to $10K completed 5–0" beside "2 paper cards published today". Null ⇒ the tile prints no figure.
    */
   bankBuilderRecordLabel: string | null;
+  /** P0 U2 · Bank Builder's records by scope, each pre-formatted by the shared reader (scopedRecordText). */
+  bankBuilderCurrentEra: ScopedRecord | null;
+  bankBuilderAllTime: ScopedRecord | null;
+  /** P0 U2 · Moonshot's current-era record, through the same shared reader as /moonshot. */
+  moonshotCurrentEra: ScopedRecord | null;
   /** The June completed ladders, dated, for an explicitly labelled legacy-history panel only. */
   legacyLadders: TrustLegacyLadder[];
   completedCards: TrustCompletedCard[];
@@ -472,6 +477,9 @@ export function getTrustCenterModel(): TrustCenterModel {
     money,
     /* No presentation context is passed anywhere on this path, so a legacy era cannot answer. */
     bankBuilderRecordLabel: currentProductRecord("bank-builder").recordLabel,
+    bankBuilderCurrentEra: currentProductRecord("bank-builder").currentEra,
+    bankBuilderAllTime: currentProductRecord("bank-builder").allTime,
+    moonshotCurrentEra: currentProductRecord("moonshot").currentEra,
     legacyLadders,
     completedCards,
     awaitingCards,

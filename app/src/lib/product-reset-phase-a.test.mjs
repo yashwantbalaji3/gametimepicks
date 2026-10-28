@@ -159,7 +159,12 @@ test("/sports revival keeps the retirement's invariant: coverage stated in words
   assert.match(shared, /SPORT_HUB\[s\.sport\]/,
     "a sport with its own hub links to it rather than being written off here");
   assert.match(page, /MLB Simulation Center/, "the modelled products are named so the contrast is explicit");
-  assert.match(page, /href="\/nfl\/"/, "NFL is named, now that it publishes simulations");
+  /* P0 10-28: the hub links were hand-typed (NFL, EPL, UFC — and not NBA, which the same paragraph called "schedules
+     only" while it published Official Forecasts). They are now read from the public registry, so the invariant is
+     asserted on the derivation and on the registry row it reads: NFL is still named and linked. */
+  assert.match(page, /href=\{h\.hub\}/, "the modelled sports' hubs are linked from the registry, not hand-typed");
+  assert.match(page, /publishesOfficialForecast/, "which hubs are linked is the registry's answer");
+  assert.match(read("src/lib/public-registry.ts"), /key: "nfl", label: "NFL", hub: "\/nfl\/"/, "NFL is named, now that it publishes simulations");
 });
 
 test("the ONE modelled sport keeps 'Simulation Center' framing; retired sport routes claim none", () => {

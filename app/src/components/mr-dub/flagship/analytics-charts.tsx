@@ -91,10 +91,10 @@ function ProductBars({ data, coreNote }: { data: FlagshipCharts["productPerforma
             <div className="absolute top-0 bottom-0 rounded-sm" style={{ [p.profit >= 0 ? "left" : "right"]: "50%", width: `${Math.abs(scale(p.profit)) / 2}%`, background: p.net === "positive" ? GREEN : p.net === "negative" ? RED : FAINT, opacity: 0.85 } as any} />
           </div>
           <span className="w-[92px] shrink-0 text-right font-mono text-[11px] tabular" style={{ color: p.net === "positive" ? GREEN : p.net === "negative" ? RED : MUTE }}>{signed0(p.profit)}</span>
-          <span className="w-[52px] shrink-0 text-right font-mono text-[10px]" style={{ color: FAINT }}>{p.wins}-{p.losses}</span>
+          <span className="w-[52px] shrink-0 text-right font-mono text-[10px]" style={{ color: FAINT }} title={p.recordScope ? `W–L: ${p.recordScope}` : undefined}>{p.wins}-{p.losses}{p.recordScope ? "*" : ""}</span>
         </div>
       ))}
-      <p className="mt-1 font-mono text-[9.5px]" style={{ color: FAINT }}>Bar length is √-scaled so the smaller rows stay visible beside the core bankroll. {coreNote}</p>
+      <p className="mt-1 font-mono text-[9.5px]" style={{ color: FAINT }}>Bar length is √-scaled so the smaller rows stay visible beside the core bankroll. {data.some((p) => p.recordScope) ? `* W–L on the core row: ${data.find((p) => p.recordScope)!.recordScope}. ` : ""}{coreNote}</p>
     </div>
   );
 }

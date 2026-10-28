@@ -42,8 +42,10 @@ import {
   getOptimizerSummary,
   getOptimizerSettledDates,
   getOptimizerGradedForDate,
+  getOptimizerGradedDates,
   sortGradedSlipsForDisplay,
 } from "@/lib/parlay-results";
+import { SETTLED_LABELS, slatesSinceLastCard } from "@/lib/results/settled-through.mjs";
 import {
   getLatestOptimizerSnapshot,
 } from "@/lib/data-parlays";
@@ -94,7 +96,8 @@ import TrendingOnOurBoards from "@/components/results/trending";
 import { latestTrending } from "@/lib/results/v2/trending";
 import { formatDateLong } from "@/lib/format";
 import { resultsV2Populations } from "@/lib/results/v2/overview";
-import { currentProductRecord } from "@/lib/results/current-record";
+import { currentProductRecord, scopedRecordText } from "@/lib/results/current-record";
+import { productHistoryRecords } from "@/lib/results/product-history";
 import { loadResultsProjection } from "@/lib/results/projection";
 import { etDayLabel } from "@/lib/et-stamp.mjs";
 import { loadSettledCards, DATE_BASIS_NOTE } from "@/lib/results/dated-cards.mjs";
@@ -156,6 +159,18 @@ function overviewProducts(): OverviewProduct[] {
   ];
   return rows.map(([id, label, href, note]) => {
     const r = currentProductRecord(id, projection);
+    /* P0 U2: a product with a current era leads with it, labelled; its other scopes follow, each named by the
+       shared reader. This grid was headed "all time" and printed Bank Builder's all-time 47–52 beside Moonshot's
+       current-era 7–48 — two different scopes under one heading. */
+    if (r.currentEra) {
+      const history = productHistoryRecords(id, projection).map((h) => `History · ${scopedRecordText(h)}`);
+      return {
+        id, label, href, note,
+        recordLabel: r.currentEra.recordLabel, scopeLabel: r.currentEra.scopeLabel,
+        pendingLabel: r.currentEraPendingLabel, window: windowOf({ window: { from: r.currentEra.from, to: r.currentEra.to } }),
+        otherScopes: [scopedRecordText(r.allTime), ...history].filter((x): x is string => typeof x === "string"),
+      };
+    }
     return { id, label, href, note, recordLabel: r.recordLabel, pendingLabel: r.pendingLabel, window: windowOf(r.cell as never) };
   });
 }
@@ -519,17 +534,28 @@ export default function ResultsPage() {
         if (!settled) return null;
         const days = Math.round((Date.parse(`${currentEtDate()}T00:00:00Z`) - Date.parse(`${settled}T00:00:00Z`)) / 86400000);
         if (!Number.isFinite(days) || days <= 7) return null;
+        /* P0 U1: this date is the newest slate with a DECIDED card — "last card settled", not "settled through". The
+           banner said every newer slate was "awaiting grading"; on 10-28 each one (Oct 16 → 27) had been graded and
+           had generated no suggested parlay. The one owner counts which is which. */
+        const since = slatesSinceLastCard({
+          lastCardSettled: settled,
+          slates: getOptimizerGradedDates().map((d) => ({ date: d, cards: getOptimizerGradedForDate(d)?.uniqueSlips?.length ?? 0 })),
+        });
+        const sinceText = [
+          since.noCard ? `${since.noCard} newer slate${since.noCard === 1 ? "" : "s"} generated no suggested parlay` : null,
+          since.awaiting ? `${since.awaiting} newer slate${since.awaiting === 1 ? " is" : "s are"} awaiting grading` : null,
+        ].filter(Boolean).join(" and ") || "no newer slate has a decided card";
         return (
           <div className="rounded-[8px] px-4 py-3 mb-4 flex flex-col gap-1"
             style={{ background: "color-mix(in srgb, var(--vault-crown) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-gold-bright) 35%, transparent)" }}>
             <span className="flex flex-wrap items-center gap-2">
-              <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>Suggested-parlay grading · settled through {settled}</span>
+              <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>Suggested parlays · {SETTLED_LABELS.lastCard} {settled}</span>
               {/* Client badge re-computes "N days ago" with the real browser clock — the static-export
                   build date can't freeze this banner's honesty. */}
-              <FreshnessBadge slateDate={settled} serverToday={currentEtDate()} noun="grading" />
+              <FreshnessBadge slateDate={settled} serverToday={currentEtDate()} noun="settled card" />
             </span>
             <p className="text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-              The suggested-parlay track record below is settled through <span style={{ color: "var(--vault-text)" }}>{settled}</span> ({days} days ago) — newer slates are awaiting grading, so this is NOT a live scoreboard. World Cup and MLB settle in their own products (World Cup on the Track Record / Bank Builder pages). Nothing here is counted as a win or loss until officially graded.
+              The suggested-parlay track record below ends with the last card that settled, on <span style={{ color: "var(--vault-text)" }}>{settled}</span> ({days} days ago): {sinceText}, so this is NOT a live scoreboard. World Cup and MLB settle in their own products (World Cup on the Track Record / Bank Builder pages). Nothing here is counted as a win or loss until officially graded.
             </p>
           </div>
         );

@@ -12,6 +12,8 @@
  * Server component; reads committed artifacts.
  */
 import RecordComposition from "@/components/bank-builder/record-composition";
+import { currentProductRecord, RECORD_SCOPE_LABEL, recordWindowText, scopedRecordText } from "@/lib/results/current-record";
+import { productHistoryRecords } from "@/lib/results/product-history";
 import { loadFoldBacklog } from "@/lib/mr-dub/fold-backlog-view";
 import fs from "node:fs";
 import path from "node:path";
@@ -74,7 +76,11 @@ export default function MoonshotPage() {
   const record = portfolioMoonshot?.record;
   /* H · M-2: the fold's own backlog (read-only) — the record stops at foldedThrough while a placed leg is unsettled. */
   const moonshotBacklog = loadFoldBacklog(path.join(process.cwd(), "public", "data"));
-  const moonshotFoldedThrough = moonshotBacklog?.after ?? null;
+  /* P0 U2 + U1: the record, its dates and its settled-through day come from the ONE shared reader — the
+     current-era cell's window ends on the ledger's settled-through day (lib/results/settled-through.mjs). */
+  const msRecords = currentProductRecord("moonshot");
+  const msEra = msRecords.currentEra;
+  const msHistory = productHistoryRecords("moonshot");
   // Today's ET slate is resolved below; the lane's own date comes from the artifact so a stale
   // file can never borrow today's date.
   const etToday = currentEtDate();
@@ -193,10 +199,10 @@ export default function MoonshotPage() {
               /* Founder decision 2026-09-22: the CURRENT record is the receipt/fold era (mr-dub/portfolio.json
                  .moonshot, graded nightly from official results). The June ledger is a legacy era, shown
                  collapsed below — never combined into this tile. */
-              ["Settled record", moonshot.displayRecord ? `${moonshot.displayRecord.wins}–${moonshot.displayRecord.losses}` : "—",
-                moonshot.displayRecord?.era === "receipts"
-                  ? `${moonshot.displayRecord.fromDate ?? "—"} to ${moonshotFoldedThrough ?? "—"} · settled receipts`
-                  : moonshot.displayRecord ? "legacy era · no current-era record" : ""],
+              /* P0 U2: labelled by scope ("Current era"), through the shared reader — it was "Settled record", the
+                 same words /results used for Bank Builder's all-time figure. */
+              [`${RECORD_SCOPE_LABEL["current-era"]} record`, msEra ? msEra.recordLabel : "—",
+                msEra ? `${recordWindowText(msEra) ?? "—"} · settled receipts` : moonshot.displayRecord ? "legacy era · no current-era record" : ""],
               ["Legacy open cards", String(moonshot.openCardCount), moonshot.openCardCount === 0 ? "legacy lane fully graded" : moonshot.unsettleableCardCount ? "cannot be graded" : "awaiting results"],
               ["Legacy stranded stake", `$${moonshot.openExposure.toFixed(2)}`, "legacy lane · paper"],
             ].map(([k, v, sub]) => (
@@ -212,17 +218,19 @@ export default function MoonshotPage() {
             ))}
           </dl>
 
-          {moonshot.displayRecord?.era === "receipts" ? (
-            <RecordComposition product="moonshot" recordLabel={`${moonshot.displayRecord.wins}–${moonshot.displayRecord.losses}`}
-              window={{ from: moonshot.displayRecord.fromDate ?? null, to: moonshotFoldedThrough }} composition={null} backlog={moonshotBacklog} />
+          {msEra ? (
+            <RecordComposition product="moonshot" recordLabel={msEra.recordLabel} scopeLabel={RECORD_SCOPE_LABEL["current-era"]}
+              window={{ from: msEra.from, to: msEra.to }} composition={null} backlog={moonshotBacklog} />
           ) : null}
 
           {/* The legacy era, as a labelled detail (founder decision 2026-09-22 · UX M-2): a different
               population — June multi-leg cards — never combined with the current era's headline. */}
-          {moonshot.legacyRecord && moonshot.displayRecord?.era === "receipts" ? (
+          {moonshot.legacyRecord && msEra && msHistory.length ? (
             <details className="rounded-[10px] px-3 py-2" style={{ background: "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)" }}>
               <summary className="cursor-pointer font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-                {moonshot.legacyRecord.label}
+                {/* P0 U2: "History · June single-card lane 0–7 · Jun 23 – Jul 6, 2026" — the shared reader's name and
+                    dates, so the June figure can never be read as a rival to the current-era record above. */}
+                History · {msHistory.map((h) => scopedRecordText(h)).join(" · ")}
               </summary>
               <p className="mt-1.5 font-mono leading-relaxed" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
                 The June 2026 Moonshot was a different product — {moonshot.legacyRecord.settled} multi-leg card{moonshot.legacyRecord.settled === 1 ? "" : "s"} settled in the June 2026 ledger. It is kept here as history and is never added to the current record above.

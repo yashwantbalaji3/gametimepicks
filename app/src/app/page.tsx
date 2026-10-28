@@ -44,9 +44,7 @@ import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 import LandingHero from "@/components/home/landing-hero";
 import LiveNow from "@/components/live/live-now";
 import RecentResultsStrip from "@/components/home/recent-results-strip";
-import { getOptimizerSettledDates } from "@/lib/parlay-results";
-import { loadResultsProjection } from "@/lib/results/projection";
-import { newestSettledDate } from "@/lib/home/settled-through.mjs";
+import { corePaperSettlement, siteLatestResults } from "@/lib/results/settled-through-server";
 import HomeTodayMlb from "@/components/home/home-today-mlb";
 import FlagshipCards, { type FlagshipCard } from "@/components/home/flagship-cards";
 import CommandCenter from "@/components/command-center/command-center";
@@ -61,6 +59,7 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import YesterdayCard from "@/components/recap/yesterday-card";
 import { buildYesterdayRecap } from "@/lib/recap/yesterday.mjs";
 import { currentProductRecord } from "@/lib/results/current-record";
+import { RECORD_SCOPE_LABEL } from "@/lib/results/current-record";
 import { committedLaneDates, loadCurrentLane } from "@/components/nba/experimental-lane";
 import { nbaTodaySlate } from "@/lib/sport-hub/nba-hub";
 import { nbaLane } from "@/lib/command-center/nba-lane";
@@ -104,7 +103,13 @@ export default function HomePage() {
    * protected record, 36–35, exactly what this printed before); no context is passed, so a legacy era can
    * never answer a front-door question. Absent artifact or absent cell ⇒ null ⇒ the card omits the figure.
    */
-  const { recordLabel, pendingLabel } = currentProductRecord("bank-builder");
+  const bbRecord = currentProductRecord("bank-builder");
+  /* P0 U2: Home's record figures lead with the CURRENT era (28–38 since Aug 15), labelled — it printed the all-time
+     47–52 as "Paper record" / "Record". The all-time figure keeps its own label on /results and /bank-builder. */
+  const eraRecord = bbRecord.currentEra;
+  const recordLabel = eraRecord ? eraRecord.recordLabel : bbRecord.recordLabel;
+  const recordScope = eraRecord ? eraRecord.scopeLabel : bbRecord.scope ? RECORD_SCOPE_LABEL[bbRecord.scope] : null;
+  const pendingLabel = eraRecord ? bbRecord.currentEraPendingLabel : bbRecord.pendingLabel;
 
   const openExposureLabel = usd2(dailyPortfolio.openExposure);
 
@@ -321,7 +326,7 @@ export default function HomePage() {
       href: "/results",
       label: "Results",
       blurb: "Settled and pending cards.",
-      status: recordLabel ? `Record ${recordLabel}` : "Track record",
+      status: recordLabel ? `${recordScope ?? "Record"} ${recordLabel}` : "Track record",
       statusSub: pendingLabel ? `${pendingLabel} · official settlement only` : "Official settlement only",
       cta: "View Results",
       accent: "var(--vault-success)",
@@ -339,10 +344,12 @@ export default function HomePage() {
   // Week 4. A scheduled game counts with or without our forecast.
   const eventsTodayTotal = todayAcross.eventsToday;
   const activeProductCards = dailyPortfolio.cards.filter((c) => c.status === "active").length;
-  // Housekeeping 10-22: "Settled through" names no product, so it is the NEWEST settled date across the products and
-  // sports Home summarizes (the canonical results projection's settled records + the optimizer index) — not the
-  // optimizer index alone, which read Oct 15 while MLB had settled through 10-19 and the products through 10-20.
-  const lastSettledDate = newestSettledDate({ projection: loadResultsProjection(), optimizerSettledDates: getOptimizerSettledDates() });
+  // P0 U1: two dates, each from the ONE settled-through owner (lib/results/settled-through.mjs), each by its name.
+  // The hero's link names no product, so it is the SITE's "Latest results" — the same accessor as the global header
+  // chip. The Recent-results strip sits beside the paper record, so it prints THAT ledger's "results settled
+  // through" (the fold). Before, the strip printed the site-wide date as "Last settled" beside the paper record.
+  const latestResultsDate = siteLatestResults();
+  const paperSettlement = corePaperSettlement();
 
   const dateLabel = new Date(`${today}T12:00:00Z`).toLocaleDateString("en-US", {
     weekday: "long", month: "long", day: "numeric",
@@ -381,7 +388,7 @@ export default function HomePage() {
         eventsKnown={todayAcross.state !== "UNKNOWN"}
         qualifiedPicks={topPicks}
         activeProducts={activeProductCards}
-        lastSettledDate={lastSettledDate}
+        latestResultsDate={latestResultsDate}
       />
 
       {/* Release B (benchmark PR 1193 gap 3): on phones every sport is above the fold — the lanes' own label + state */}
@@ -474,12 +481,13 @@ export default function HomePage() {
               content, same owner (buildYesterdayRecap); still on the homepage, still above the fold on /today. */}
       <YesterdayCard recap={buildYesterdayRecap(dataRoot)} />
       {/* 6 — Recent results: the proof section (charter 5B order). Same owners as /results — the
-          record label and pending line arrive from portfolio.json above; the last settled date is the newest
-          settled date across products and sports (lib/home/settled-through.mjs). The homepage composes NOTHING. */}
+          record label and pending line arrive from the one Results reader above (current era, labelled); the date is the
+          paper ledger's "results settled through" (lib/results/settled-through.mjs). The homepage composes NOTHING. */}
       <RecentResultsStrip
         recordLabel={recordLabel}
+        scopeLabel={recordScope}
         pendingLabel={pendingLabel}
-        lastSettledDate={lastSettledDate}
+        settledThrough={paperSettlement.settledThrough}
       />
 
       {/* 5 — Today's MLB destination hook: freshness + availability + one path into the /today brief. */}

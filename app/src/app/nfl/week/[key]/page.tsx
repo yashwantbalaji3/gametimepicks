@@ -14,9 +14,8 @@ import path from "node:path";
 import SectionHeader from "@/components/section-header";
 import TeamLogo from "@/components/team-logo";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
-import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
-import { nflPublicRecordResolver } from "@/lib/sports/nfl/public-record.mjs";
 import { availableWeekKeys } from "@/lib/sports/nfl/week-keys";
+import { weekGames } from "@/lib/sports/nfl/week-games";
 import PredictionBoard from "@/components/prediction/prediction-board";
 import { presentWeeklyBoard } from "@/lib/prediction-presentation/nfl";
 import EtTime from "@/components/ui/et-time";
@@ -25,15 +24,6 @@ const read = (rel: string) => {
   try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data", rel), "utf8")); } catch { return null; }
 };
 
-type Forecast = {
-  providerEventId: string; matchup: string; kickoffUtc: string; seasonType: number; week: number;
-  home: { abbr: string; name: string }; away: { abbr: string; name: string };
-  forecastSummary: {
-    projectedScore: { home: number; away: number };
-    winProbability: { home: number; away: number };
-    total: { median: number; p10: number; p90: number; head?: string };
-  };
-};
 type BoardRow = { playerId: string; name: string; team: string; opponent: string; providerEventId: string; kickoffUtc: string; participation: string; value: number; median?: number; p10?: number; p90?: number; probability?: number; pricingState?: string };
 type WeeklyBoards = {
   generatedAt: string; period: { seasonType: number; week: number };
@@ -69,11 +59,10 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
   const prev = idx > 0 ? keys[idx - 1] : null;
   const next = idx >= 0 && idx < keys.length - 1 ? keys[idx + 1] : null;
   const wb = read(`nfl/weekly-boards/${params.key}.json`) as WeeklyBoards | null;
-  const [seasonType, week] = params.key.split("-").map(Number);
-  /* P295: the week's started games come from frozen-latest.json, written by the same run. */
-  const forecasts = ((unionFrozenForecasts(read("nfl/forecasts/latest.json"), read("nfl/forecasts/frozen-latest.json"), { resolve: nflPublicRecordResolver() })?.forecasts ?? []) as Forecast[])
-    .filter((f) => f.seasonType === seasonType && f.week === week)
-    .sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc));
+  /* P295 + 2026-10-28: the live union (this week, started games from frozen-latest.json) PLUS every game the graded record
+     names for this week, read from its frozen pre-kickoff revision — so a week that has rolled over keeps every game
+     (lib/sports/nfl/week-games.ts). Listing the union alone left /nfl/week/2-07/ with one game after rollover. */
+  const { games: forecasts, unavailable } = weekGames(path.join(process.cwd(), "public", "data"), params.key);
 
   const td = (extra: Record<string, string | number> = {}) => ({ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, ...extra });
 
@@ -135,6 +124,12 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
               </tbody>
             </table>
           </div>
+          {unavailable.length ? (
+            <p style={{ margin: "8px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)", maxWidth: 720 }}>
+              Also played this week, with no committed copy of the forecast revision its grade names, so no numbers are shown:{" "}
+              {unavailable.map((g) => g.matchup).join(", ")}.
+            </p>
+          ) : null}
         </section>
       ) : (
         <p style={{ fontSize: 13, color: "var(--vault-text-mute)" }}>

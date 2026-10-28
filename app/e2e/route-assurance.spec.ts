@@ -19,9 +19,9 @@ import path from "node:path";
 
 import { ASSURED_ROUTES } from "../src/lib/launch/browser-assurance.mjs";
 import { STATE_LABEL } from "../src/lib/research/public-contract-adapter";
+import { currentProductRecord } from "../src/lib/results/current-record";
 
 const APP = process.cwd();
-const readJson = (rel: string) => JSON.parse(fs.readFileSync(path.join(APP, rel), "utf8"));
 
 /** Collect console + page errors; assert empty AFTER the page settles. */
 function armErrorCapture(page: Page): string[] {
@@ -44,13 +44,16 @@ for (const { route } of ASSURED_ROUTES) {
   });
 }
 
-test("state · home money strip matches portfolio.json verbatim", async ({ page }) => {
-  const p = readJson("public/data/mr-dub/portfolio.json");
+test("state · home money strip shows the shared current-era record verbatim", async ({ page }) => {
+  /* P0 U2 (2026-10-28): Home leads with Bank Builder's CURRENT era (lib/results/current-record.ts), labelled — it used to
+     print the all-time 47–52 (portfolio.json's combined record) as "Paper record". The all-time figure keeps its own
+     label on /results and /bank-builder. The strip must show exactly the shared definition's current-era record. */
+  const era = currentProductRecord("bank-builder").currentEra;
+  expect(era?.recordLabel, "premise: Bank Builder has a live current-era record").toBeTruthy();
   await page.goto("/");
   await page.waitForLoadState("networkidle");
-  // The strip renders `${wins}–${losses}` with an en dash (slate-status-bar).
-  await expect(page.getByText(`${p.record.wins}–${p.record.losses}`).first()).toBeVisible();
-  await expect(page.getByText(/paper record/i).first()).toBeVisible();
+  await expect(page.getByText(era!.recordLabel!).first()).toBeVisible();
+  await expect(page.getByText(/paper record · bank builder current era/i).first()).toBeVisible();
 });
 
 test("state · /sports speaks the adapter's honest vocabulary for all four sports", async ({ page }) => {

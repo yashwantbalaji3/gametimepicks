@@ -59,6 +59,8 @@ import { loadStep5TargetStatus } from "@/lib/bank-builder-step5-target";
 import { RUNBOOKS } from "@/lib/launch/runbook-registry.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { currentProductRecord } from "@/lib/results/current-record";
+import { RECORD_SCOPE_LABEL, scopedRecordText } from "@/lib/results/current-record";
+import { loadCurrentEraMoney } from "@/lib/mr-dub/current-era-money";
 
 const BANK = getSportIdentity("bank_builder");
 
@@ -520,17 +522,23 @@ export default function BankBuilderPage() {
       {/* FLAGSHIP — the "live climb" hero: a plain-English, mobile-first front door to the ladder. It is
           purely presentational (every figure is read verbatim from the data loaded above) and sits ABOVE
           the existing dense ladder components, which remain below unchanged. */}
+      {/* P0 U2: the hero leads with the CURRENT era (record + settled P/L, through the shared reader); the
+          all-time record and the June peak sit in its History block, labelled. */}
       <ClimbHero
         currentBankroll={dailyPortfolio.activeBankroll}
         peakBankroll={dailyPortfolio.peakBankroll}
         openExposure={dailyPortfolio.exposure.core}
         recordLabel={recordLabel}
+        currentEraText={scopedRecordText(officialRecord.currentEra)}
+        currentEraPl={loadCurrentEraMoney()?.pl ?? null}
+        allTimeText={scopedRecordText(officialRecord.allTime)}
         lanes={climbLanes}
         completedLadders={completedLadders}
       />
 
       {officialRecordLabel ? (
-        <RecordComposition recordLabel={officialRecordLabel} window={officialRecord.cell?.window ?? null}
+        <RecordComposition recordLabel={officialRecordLabel} scopeLabel={officialRecord.scope ? RECORD_SCOPE_LABEL[officialRecord.scope] : RECORD_SCOPE_LABEL["all-time"]}
+          window={officialRecord.cell?.window ?? null}
           composition={(officialRecord.cell?.composition as never) ?? null} backlog={foldBacklogView} />
       ) : null}
 

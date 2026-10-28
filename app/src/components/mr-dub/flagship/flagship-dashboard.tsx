@@ -5,6 +5,8 @@
  */
 import Link from "next/link";
 import type { FlagshipKpis, TodayStatus, BankBuilderJourney } from "@/lib/mr-dub/flagship";
+import type { CurrentEraMoney } from "@/lib/mr-dub/current-era-money";
+import { RECORD_SCOPE_LABEL, recordWindowText, scopedRecordText, type CurrentProductRecord, type ScopedRecord } from "@/lib/results/current-record";
 
 const usd = (n: number | null | undefined, dp = 2) => n == null ? "—" : `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: dp, maximumFractionDigits: dp })}`;
 const usd0 = (n: number | null | undefined) => usd(n, 0);
@@ -23,29 +25,52 @@ function Kpi({ label, value, sub, accent, glow, span }: { label: string; value: 
   );
 }
 
-export function ExecutiveDashboard({ kpis, journey, todayStatus }: { kpis: FlagshipKpis; journey: BankBuilderJourney; todayStatus: TodayStatus }) {
+/** P0 U2 · the current era the hero leads with — every figure from its one owner, nothing computed here. */
+export interface CurrentEraView {
+  /** currentProductRecord("bank-builder") — `.currentEra` leads; `.allTime` belongs to History. */
+  bankBuilder: CurrentProductRecord;
+  /** currentProductRecord("moonshot") — `.currentEra`. */
+  moonshot: CurrentProductRecord;
+  /** The core bankroll's move across the current era (lib/mr-dub/current-era-money.ts); null when it does not reconcile. */
+  money: CurrentEraMoney | null;
+}
+
+export function ExecutiveDashboard({ kpis, journey, todayStatus, era }: { kpis: FlagshipKpis; journey: BankBuilderJourney; todayStatus: TodayStatus; era: CurrentEraView }) {
   const activeLane = journey.activeLanes.find((l) => l.lane === "A") ?? journey.activeLanes[0] ?? null;
   const activeLabel = activeLane ? `Lane ${activeLane.lane} · Step ${activeLane.step}` : "—";
+  const bb = era.bankBuilder.currentEra;
+  const ms = era.moonshot.currentEra;
+  const eraWindow = recordWindowText(bb);
+  const bbRate = bb && bb.won + bb.lost > 0 ? ((bb.won / (bb.won + bb.lost)) * 100).toFixed(1) : null;
   return (
     <section className="gtp-cinematic-rise flex flex-col gap-3">
-      {/* Headline money band — the one-glance proof. */}
+      {/* Headline band — the CURRENT ERA (P0 U2). It led with the June ladder's "$100 on Jun 9 → $14,065.40 ·
+          139.65×" and "Peak $20,465.40" while the era running today is 28–38 and down $5,000. Those June-era
+          figures are kept, unchanged, in the History panel below — never deleted, never the headline. */}
       <div className="relative overflow-hidden rounded-2xl px-5 py-5 sm:px-6 sm:py-6" style={{ border: "1px solid var(--vault-edge-gold)", background: "linear-gradient(135deg, color-mix(in srgb, var(--vault-warn) 10%, transparent), rgba(20,14,10,0.55) 60%)" }}>
         <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
           <div className="min-w-0">
-            <div className="font-mono uppercase tracking-[0.14em] text-[9.5px]" style={{ color: "var(--vault-gold)" }}>Paper bankroll · official settlement only</div>
+            <div className="font-mono uppercase tracking-[0.14em] text-[9.5px]" style={{ color: "var(--vault-gold)" }}>
+              {RECORD_SCOPE_LABEL["current-era"]}{eraWindow ? ` · ${eraWindow}` : ""} · official settlement only
+            </div>
             <div className="mt-1 flex flex-wrap items-end gap-x-3 gap-y-1">
               <span className="font-display tabular tracking-tight gtp-stat-value" style={{ fontSize: 44, fontWeight: 850, color: "var(--vault-text)", lineHeight: 0.95 }}>{usd(kpis.bankroll)}</span>
-              <span className="mb-1 rounded-full px-2 py-0.5 font-mono text-[11px] font-bold" style={{ color: "var(--vault-success)", background: "var(--gtp-success-soft)", border: "1px solid var(--vault-success-dim)" }}>{signed(kpis.profit)}</span>
-              {/* Sprint 035: a return figure never renders without its sample size adjacent. */}
-              <span className="mb-1 font-mono text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{kpis.roiMultiple}× on {kpis.record.wins + kpis.record.losses} settled bets</span>
+              {era.money ? (
+                <span className="mb-1 rounded-full px-2 py-0.5 font-mono text-[11px] font-bold" style={{ color: plColor(era.money.pl), border: "1px solid var(--vault-rule)" }}>{signed(era.money.pl)} this era</span>
+              ) : null}
+              {/* Sprint 035: a figure never renders without its sample size adjacent. */}
+              {bb ? <span className="mb-1 font-mono text-[12px]" style={{ color: "var(--vault-text-mute)" }}>on {bb.won + bb.lost} settled Bank Builder steps{ms ? ` + ${ms.won + ms.lost} Moonshot lanes` : ""}</span> : null}
             </div>
-            <div className="mt-1.5 font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
-              {usd0(kpis.startingBankroll)} on {longDate(kpis.startingDate)} → {usd(kpis.bankroll)} · {kpis.settledDays} settled days
-            </div>
+            {era.money ? (
+              <div className="mt-1.5 font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
+                Paper bankroll {usd(era.money.startBankroll)} at the era&rsquo;s start → {usd(era.money.bankroll)} now · paper only
+              </div>
+            ) : null}
           </div>
           <div className="flex flex-col items-end gap-1">
-            <span className="font-display tabular" style={{ fontSize: 30, fontWeight: 850, color: "var(--vault-success)", lineHeight: 1 }}>{kpis.record.wins}–{kpis.record.losses}</span>
-            <span className="font-mono uppercase tracking-[0.1em] text-[9px]" style={{ color: "var(--vault-text-faint)" }}>Bank Builder official record · {kpis.winRate}% win</span>
+            <span className="font-display tabular" style={{ fontSize: 30, fontWeight: 850, color: "var(--vault-text)", lineHeight: 1 }}>{bb ? bb.recordLabel : "—"}</span>
+            <span className="font-mono uppercase tracking-[0.1em] text-[9px]" style={{ color: "var(--vault-text-faint)" }}>Bank Builder · current era{bbRate ? ` · ${bbRate}% win` : ""}</span>
+            {ms ? <span className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-mute)" }}>{scopedRecordText(ms, { product: "Moonshot", dates: false })}</span> : null}
             <span className="mt-1 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-[10px]" style={{ color: todayStatus.pendingExposure > 0 ? "var(--gtp-bank-heat)" : "var(--vault-text-mute)", border: "1px solid var(--vault-rule)" }}>
               <span aria-hidden style={{ width: 6, height: 6, borderRadius: 99, background: todayStatus.pendingExposure > 0 ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)", display: "inline-block" }} />
               {todayStatus.settlementStatus}
@@ -54,22 +79,51 @@ export function ExecutiveDashboard({ kpis, journey, todayStatus }: { kpis: Flags
         </div>
       </div>
 
-      {/* Dense KPI grid. */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-        <Kpi label="Peak bankroll" value={usd(kpis.peak)} sub="all-time high-water mark" accent="var(--vault-gold)" glow />
-        <Kpi label="Current drawdown" value={usd(kpis.drawdown)} sub={`${(kpis.drawdownPct * 100).toFixed(2)}% off peak`} accent={kpis.drawdown > 0 ? "var(--gtp-bank-heat)" : "var(--vault-text)"} />
-        <Kpi label="Total ROI" value={`${kpis.roiMultiple}×`} sub={`${kpis.record.wins + kpis.record.losses} settled bets · paper only`} accent="var(--vault-text)" />
-        <Kpi label="Win rate" value={`${kpis.winRate}%`} sub={`${kpis.record.wins}W · ${kpis.record.losses}L`} accent="var(--vault-success)" />
-        <Kpi label="Largest winning day" value={kpis.largestWinDay ? signed(kpis.largestWinDay.pl) : "—"} sub={kpis.largestWinDay ? longDate(kpis.largestWinDay.date) : undefined} accent="var(--vault-success)" />
-        <Kpi label="Largest losing day" value={kpis.largestLossDay ? signed(kpis.largestLossDay.pl) : "—"} sub={kpis.largestLossDay ? longDate(kpis.largestLossDay.date) : undefined} accent="var(--gtp-bank-heat)" />
-        <Kpi label="Longest win streak" value={`${kpis.longestWinStreak}`} sub={`consecutive wins of ${kpis.record.wins + kpis.record.losses} settled`} accent="var(--vault-text)" />
-        <Kpi label="Longest losing streak" value={`${kpis.longestLossStreak}`} sub={`consecutive losses of ${kpis.record.wins + kpis.record.losses} settled`} accent={kpis.longestLossStreak > 0 ? "var(--gtp-bank-heat)" : "var(--vault-text)"} />
+      {/* Current KPIs only. The all-time and June-era KPIs (peak, total ROI, all-time win rate, largest days,
+          streaks) moved to <HistoryPanel> — unchanged figures, under a History heading. */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <Kpi label="Active ladder" value={activeLabel} sub={activeLane?.kind === "value" ? "value lane" : "survival lane"} accent="var(--vault-gold)" />
         <Kpi label="Pending exposure" value={usd(todayStatus.pendingExposure)} sub={`${todayStatus.products.filter((p) => p.live).length} product(s) live`} accent={todayStatus.pendingExposure > 0 ? "var(--gtp-bank-heat)" : "var(--vault-text)"} />
         <Kpi label="Products active today" value={`${todayStatus.products.filter((p) => p.live).length}`} sub={todayStatus.products.filter((p) => p.live).map((p) => p.glyph).join(" ") || "settlement pending"} />
-        <Kpi label="As of" value={longDate(kpis.currentDate).replace(`, ${kpis.currentDate.slice(0, 4)}`, "")} sub={kpis.currentDate} />
+        {todayStatus.lastSettledDate ? (
+          <Kpi label="Results settled through" value={longDate(todayStatus.lastSettledDate).replace(`, ${todayStatus.lastSettledDate.slice(0, 4)}`, "")} sub={todayStatus.lastCardSettledDate && todayStatus.lastCardSettledDate !== todayStatus.lastSettledDate ? `last card settled ${longDate(todayStatus.lastCardSettledDate)}` : todayStatus.lastSettledDate} />
+        ) : null}
       </div>
     </section>
+  );
+}
+
+/**
+ * HISTORY (P0 U2) — the all-time and June-era figures that used to lead the page. Every number is the one it
+ * was; only its place and its label changed: the all-time Bank Builder record through the shared reader, and
+ * the June ladder's start, total ROI, peak and the drawdown measured from that peak.
+ */
+export function HistoryPanel({ kpis, allTime }: { kpis: FlagshipKpis; allTime: ScopedRecord | null }) {
+  const n = allTime ? allTime.won + allTime.lost : null;
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="rounded-xl px-4 py-3" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card)" }}>
+        {allTime ? (
+          <div className="font-mono text-[12px]" style={{ color: "var(--vault-text)" }}>{scopedRecordText(allTime, { product: "Bank Builder" })}</div>
+        ) : null}
+        <div className="mt-1 font-mono text-[11px]" style={{ color: "var(--vault-text-mute)" }}>
+          {usd0(kpis.startingBankroll)} on {longDate(kpis.startingDate)} → {usd(kpis.bankroll)} · {signed(kpis.profit)} · {kpis.roiMultiple}×{n != null ? ` on ${n} settled bets` : ""} · {kpis.settledDays} settled days
+        </div>
+        <p className="m-0 mt-1 text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
+          Since the first $100 on {longDate(kpis.startingDate)}, including the two June ladders — a different era from the one running today, so these are history, not the current record.
+        </p>
+      </div>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+        <Kpi label="Peak bankroll" value={usd(kpis.peak)} sub="all-time high-water mark (June)" accent="var(--vault-gold)" />
+        <Kpi label="Below the June peak" value={usd(kpis.drawdown)} sub={`${(kpis.drawdownPct * 100).toFixed(2)}% off peak`} accent={kpis.drawdown > 0 ? "var(--gtp-bank-heat)" : "var(--vault-text)"} />
+        <Kpi label="Total ROI · all-time" value={`${kpis.roiMultiple}×`} sub={n != null ? `${n} settled bets · paper only` : "paper only"} accent="var(--vault-text)" />
+        <Kpi label="Win rate · all-time" value={`${kpis.winRate}%`} sub={allTime ? `${allTime.won}W · ${allTime.lost}L` : undefined} accent="var(--vault-text)" />
+        <Kpi label="Largest winning day" value={kpis.largestWinDay ? signed(kpis.largestWinDay.pl) : "—"} sub={kpis.largestWinDay ? longDate(kpis.largestWinDay.date) : undefined} accent="var(--vault-success)" />
+        <Kpi label="Largest losing day" value={kpis.largestLossDay ? signed(kpis.largestLossDay.pl) : "—"} sub={kpis.largestLossDay ? longDate(kpis.largestLossDay.date) : undefined} accent="var(--gtp-bank-heat)" />
+        <Kpi label="Longest win streak" value={`${kpis.longestWinStreak}`} sub={n != null ? `consecutive wins of ${n} settled` : undefined} accent="var(--vault-text)" />
+        <Kpi label="Longest losing streak" value={`${kpis.longestLossStreak}`} sub={n != null ? `consecutive losses of ${n} settled` : undefined} accent={kpis.longestLossStreak > 0 ? "var(--gtp-bank-heat)" : "var(--vault-text)"} />
+      </div>
+    </div>
   );
 }
 

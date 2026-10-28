@@ -297,8 +297,10 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    * archive. Putting them in the top nav or the rail would dilute the four questions those surfaces
    * answer; leaving them OUT of the canonical list is how the footer drifted in the first place.
    */
-  { href: "/results/nba", label: "NBA archive", note: "retired model · May–June 2026", group: "sports",
-    desc: "A retired NBA player-prop model's settled record — kept for transparency",
+  /* P0 2026-10-28: /results/nba now leads with the NBA Official Forecast record (lib/results/nba-official-record.mjs);
+     the retired May–June player-prop archive stays on the same page, below it. The entry names both, in that order. */
+  { href: "/results/nba", label: "NBA record", note: "Official Forecast record · retired May–June 2026 archive", group: "sports",
+    desc: "The NBA Official Forecast record, with a retired player-prop model's settled archive kept for transparency",
     surfaces: ["footer"] },
   { href: "/results/model-audit", label: "Deep-dive track record", group: "record",
     desc: "Every settled receipt, in depth", surfaces: ["footer"] },

@@ -17,6 +17,7 @@ import path from "node:path";
 import { buildMasterLedger } from "./master-ledger";
 import { computeOpenExposure } from "./open-exposure";
 import { SEED } from "./protected-fold.mjs";
+import { corePaperSettlement } from "@/lib/results/settled-through-server";
 
 const MOONSHOT_SEED = SEED.moonshot;
 
@@ -87,7 +88,13 @@ export interface ProductPerf {
   productId: string; label: string; glyph: string;
   wins: number; losses: number; bets: number; profit: number; winRate: number;
   net: "positive" | "negative" | "flat"; canonical: boolean;
+  /** What the W–L counts when it is narrower than the row's label (P0 U2 2026-10-28). */
+  recordScope?: string;
 }
+/* The core row's MONEY is the core bankroll (Bank Builder + Moonshot under Rule S), but its W–L is the master ledger's
+   Bank Builder card record (47–52 since Jun 9). Printed bare beside "Core bankroll (Bank Builder + Moonshot)" it read as
+   both products' record; the scope travels with the number instead. */
+export const CORE_RECORD_SCOPE = "Bank Builder cards only, all-time";
 export interface FlagshipCharts {
   bankroll: { date: string; closing: number }[];
   dailyRoi: { date: string; pl: number; plPct: number }[];
@@ -315,6 +322,7 @@ export function buildCharts(timelineNewestFirst: TimelineDay[], masterLedger: an
       wins, losses, bets: wins + losses, profit,
       winRate: wins + losses > 0 ? round2((wins / (wins + losses)) * 100) : 0,
       net: profit > 0.009 ? "positive" : profit < -0.009 ? "negative" : "flat", canonical: !!p.canonical,
+      ...(p.canonical ? { recordScope: CORE_RECORD_SCOPE } : {}),
     };
   }).filter((p: ProductPerf) => p.bets > 0 || p.canonical);
   return { bankroll, dailyRoi, drawdown, productPerformance, heatmap };
@@ -384,8 +392,13 @@ export function buildWagerLog(days: DailyDay[], masterLedger: any): WagerRow[] {
 export interface TodayStatus {
   date: string;
   pendingExposure: number;
-  settlementStatus: string;                 // "Settled through Jul 2 · Jul 3 in progress"
+  /** "Results settled through Oct 26 · last card settled Oct 15" — the core ledger's line from the ONE
+   *  settled-through owner (lib/results/settled-through.mjs). Never computed here (P0 U1). */
+  settlementStatus: string;
+  /** Results settled through — the core paper ledger's fold (every day ≤ it is decided, no-play days included). */
   lastSettledDate: string | null;
+  /** The newest day a core-ledger card settled; older than `lastSettledDate` when no card was offered since. */
+  lastCardSettledDate: string | null;
   products: { productId: string; label: string; glyph: string; exposure: number; href: string; live: boolean }[];
   activeBankBuilder: JourneyActiveLane[];
 }
@@ -408,16 +421,19 @@ export function buildFlagship(root: string, nowIso: string, today: string): Flag
   const wagers = buildWagerLog(days, masterLedger);
 
   const oe = computeOpenExposure(root, today);
-  const lastSettledDate = timeline[0]?.date ?? null;
-  const settlementStatus = lastSettledDate
-    ? (lastSettledDate < today ? `Settled through ${fmtDate(lastSettledDate)} · ${fmtDate(today)} in progress` : `Settled through ${fmtDate(lastSettledDate)}`)
-    : "Awaiting first settlement";
+  /* P0 U1: this read `timeline[0].date` — the newest day a card SETTLED (Oct 15) — and printed it as "Settled
+     through Oct 15 · Oct 27 in progress" while the same ledger was settled through Oct 26 (no card was offered
+     Oct 16–26). The two dates answer different questions; both now come from the one owner, each by its name. */
+  const settlement = corePaperSettlement(root);
+  const lastSettledDate = settlement.settledThrough;
+  const settlementStatus = settlement.line ?? "Awaiting first settlement";
   const products = oe.byProduct.map((p) => ({
     productId: p.productId, label: p.label, glyph: p.glyph, exposure: round2(p.amount),
     href: HREF[p.productId] ?? "/", live: p.amount > 0,
   }));
   const todayStatus: TodayStatus = {
     date: today, pendingExposure: round2(oe.total), settlementStatus, lastSettledDate,
+    lastCardSettledDate: settlement.lastCardSettled,
     products, activeBankBuilder: journey.activeLanes,
   };
 

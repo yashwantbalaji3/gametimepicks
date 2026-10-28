@@ -136,6 +136,11 @@ test("no built page announces a settled date the contract calls withheld", () =>
         !text.includes(`Settled · ${label}`),
         `${route} announces "Settled · ${label}" for a withheld date`,
       );
+      // P0 U1: the header chip now reads "Latest results · <date>" — the same withheld-date rule applies to it.
+      assert.ok(
+        !text.includes(`Latest results · ${label}`),
+        `${route} announces "Latest results · ${label}" for a withheld date`,
+      );
     }
   }
 });
