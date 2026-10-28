@@ -37,11 +37,13 @@ test("UFC: joined by the ESPN bout id and BOTH fighter names on the card date (U
   assert.deepEqual(idx["401897389"], ["2026-10-17", "Card A", "A One", "B Two", null, null, null, null], "no winner recorded, no graded pick: nothing invented");
 });
 
-test("NBA facts: the recorded final and the frozen Elo side, only for games the existing map names and the finals record holds", () => {
-  const facts = nbaExpiredFacts({ "401909095": ["2026-10-23", "NY @ BOS"], "401909999": ["2026-10-23", "A @ B"] },
-    [{ providerEventId: "401909095", ftAway: 103, ftHome: 107, winnerSide: "home", statusRaw: "STATUS_FINAL" }],
-    [{ date: "2026-10-23", games: [{ providerEventId: "401909095", away: { abbr: "NY" }, home: { abbr: "BOS" }, elo: { state: "FAVOURED", favoured: "NY" } }] }]);
-  assert.deepEqual(facts, { "401909095": [103, 107, "home", "away"] });
+test("NBA facts: the official record's row — final, state and side — only for games the existing map names and the record has a final for", () => {
+  const facts = nbaExpiredFacts({ "401909095": ["2026-10-23", "NY @ BOS"], "401909096": ["2026-10-23", "A @ B"], "401909999": ["2026-10-23", "C @ D"] }, [
+    { providerEventId: "401909095", state: "MISSED", side: "NY", final: { away: 103, home: 107, winnerSide: "home" } },
+    { providerEventId: "401909096", state: "HELD", side: "B", final: { away: 98, home: 117, winnerSide: "home" } },
+    { providerEventId: "401909999", state: "PENDING", side: "C", final: null },
+  ]);
+  assert.deepEqual(facts, { "401909095": [103, 107, "MISSED", "NY"], "401909096": [98, 117, "HELD", "B"] }, "pending: no score invented; held: the state says so");
 });
 
 test("paths: MLB report and UFC bout URLs only; every other missing path keeps the plain 404", () => {

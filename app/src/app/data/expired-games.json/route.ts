@@ -20,5 +20,5 @@ export const dynamic = "force-static";
 
 export function GET() {
   const lanes = committedLaneDates().map((date) => ({ date, games: loadLaneForDate(date)?.games ?? [] }));
-  return Response.json({ nba: expiredNbaFacts(expiredSimulationMap(lanes), lanes), ...expiredGamesIndex(currentEtDate()) });
+  return Response.json({ nba: expiredNbaFacts(expiredSimulationMap(lanes)), ...expiredGamesIndex(currentEtDate()) });
 }

@@ -7,6 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { EXPIRED_GAMES_MAX_DAYS, mlbExpiredIndex, nbaExpiredFacts, ufcExpiredIndex } from "./expired-games.mjs";
+import { nbaForecastVsActualView } from "@/lib/results/nba-level-a-readers";
 
 const DATA = () => path.join(process.cwd(), "public", "data");
 const readJson = <T,>(rel: string): T | null => { try { return JSON.parse(fs.readFileSync(path.join(DATA(), rel), "utf8")) as T; } catch { return null; } };
@@ -25,12 +26,9 @@ export function expiredGamesIndex(today: string): ExpiredGamesIndex {
   };
 }
 
-/** NBA: the recorded final and the frozen Elo side for the ids the existing NBA expired map names. */
-export type NbaExpiredFacts = Record<string, [number, number, "home" | "away", "home" | "away" | null]>;
-export function expiredNbaFacts(nbaMap: Record<string, [string, string]>, lanes: { date: string; games: unknown[] }[]): NbaExpiredFacts {
-  // every season's write-once finals record (finals-<season>.json), not one hard-coded season
-  let files: string[] = [];
-  try { files = fs.readdirSync(path.join(DATA(), "nba", "results")).filter((f) => /^finals-\d{4}-\d{2}\.json$/.test(f)); } catch { files = []; }
-  const finals = files.flatMap((f) => readJson<{ finals?: unknown[] }>(`nba/results/${f}`)?.finals ?? []);
-  return nbaExpiredFacts(nbaMap, finals, lanes) as NbaExpiredFacts;
+/** NBA: the recorded final and the official record's state + side for the ids the existing NBA expired map names. */
+export type NbaExpiredFacts = Record<string, [number, number, string, string | null]>;
+export function expiredNbaFacts(nbaMap: Record<string, [string, string]>): NbaExpiredFacts {
+  // the /results/nba record itself (lane side vs. the season's finals record, holds and team checks included)
+  return nbaExpiredFacts(nbaMap, nbaForecastVsActualView().games) as NbaExpiredFacts;
 }

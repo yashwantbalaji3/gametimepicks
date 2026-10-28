@@ -8,8 +8,9 @@
  * row, verbatim; nothing is recomputed, and a game the records do not hold gets the plain expiry note — never a score.
  *
  * Index shapes (compact tuples, because every expired link fetches them):
- *   nba  { [providerEventId]: [awayScore, homeScore, winnerSide "home"|"away", favouredSide "home"|"away"|null] }
- *        (date + matchup come from the existing NBA map in components/nba/expired-simulation.mjs)
+ *   nba  { [providerEventId]: [awayScore, homeScore, recordState, favouredAbbr|null] } — the OFFICIAL RECORD's row
+ *        (lib/results/nba-forecast-vs-actual.mjs, what /results/nba prints: MATCHED / MISSED / HELD …), never recomputed
+ *        here (date + matchup come from the existing NBA map in components/nba/expired-simulation.mjs)
  *   mlb  { [slug]: [date, "AWY @ HOM", awayRuns, homeRuns, [[market, pick, modelProbability, outcome], ...]] }
  *   ufc  { [providerBoutId]: [date, card, red, blue, winner|null, predicted|null, modelProbability|null, hit|null] }
  */
@@ -25,7 +26,7 @@ export const RESULTS_LINK = Object.freeze({ mlb: "/results/mlb/", ufc: "/results
  */
 export const EXPIRED_GAMES_URL = "/data/expired-games.json";
 
-/** @typedef {{ nba?: Record<string, [number, number, "home" | "away", "home" | "away" | null]>, mlb?: Record<string, any[]>, ufc?: Record<string, any[]> }} ExpiredGamesFile */
+/** @typedef {{ nba?: Record<string, [number, number, string, string | null]>, mlb?: Record<string, any[]>, ufc?: Record<string, any[]> }} ExpiredGamesFile */
 /** @type {Promise<ExpiredGamesFile | null> | null} */
 let pending = null;
 /**
@@ -96,20 +97,18 @@ export function ufcExpiredIndex(resultRows, gradedPicks, { sinceDate }) {
   return out;
 }
 
-/** NBA facts for the ids the existing NBA map names: the recorded final and the frozen Elo side. */
-export function nbaExpiredFacts(nbaMap, finals, lanes) {
-  const fin = new Map((finals ?? []).filter((f) => f?.statusRaw === "STATUS_FINAL" || f?.winnerSide).map((f) => [String(f.providerEventId), f]));
-  const side = new Map();
-  for (const l of lanes ?? []) for (const g of l?.games ?? []) {
-    const fav = g?.elo?.state === "FAVOURED" ? g.elo.favoured : null;
-    side.set(String(g.providerEventId), fav && fav === g.home?.abbr ? "home" : fav && fav === g.away?.abbr ? "away" : null);
-  }
+/**
+ * NBA facts for the ids the existing NBA map names, from the official record's rows (nbaForecastVsActual().games): the
+ * recorded final and the record's own state and side — only for a game whose final the record holds.
+ */
+export function nbaExpiredFacts(nbaMap, recordGames) {
+  const rows = new Map((recordGames ?? []).map((g) => [String(g?.providerEventId), g]));
   /** @type {Record<string, any[]>} */
   const out = {};
   for (const id of Object.keys(nbaMap ?? {})) {
-    const f = fin.get(id);
-    if (!f || !Number.isFinite(f.ftAway) || !Number.isFinite(f.ftHome) || (f.winnerSide !== "home" && f.winnerSide !== "away")) continue;
-    out[id] = [f.ftAway, f.ftHome, f.winnerSide, side.get(id) ?? null];
+    const g = rows.get(id);
+    if (!g?.final || !Number.isFinite(g.final.away) || !Number.isFinite(g.final.home)) continue;
+    out[id] = [g.final.away, g.final.home, String(g.state), g.side ?? null];
   }
   return out;
 }
