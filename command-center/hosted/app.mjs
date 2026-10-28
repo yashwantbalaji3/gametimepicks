@@ -22,7 +22,7 @@
  * X OAuth: GET /oauth/x/callback is the ONE unauthenticated non-auth route. It only validates the state and keeps
  * the code; the browser is then sent (same-site, so the SameSite=Strict cookie comes along) to /oauth/x/finish,
  * which needs an administrator's session — the same session that started the connection — to exchange the code.
- * Scheduled publishing: /api/cron/publish (Vercel Cron, Bearer CRON_SECRET) dispatches the publisher job
+ * Scheduled publishing: /api/cron/publish (Vercel Cron every 10 min in game windows, Bearer CRON_SECRET) dispatches the publisher job
  * (cc-publisher.yml) when a job is due within 10 minutes; the web app itself never sends anything to X.
  *
  * Auth events go to the ledger as kind "auth" with no secrets. There is no reset and no preflight endpoint here:
@@ -346,7 +346,10 @@ export function createHostedApp({ db, clock, origin, rpID, setupTokenSha256, dis
 
   const html = (status, title, line, extraHead = "") => new Response(`<!doctype html><meta charset="utf-8"><meta name="referrer" content="no-referrer">${extraHead}<title>${title}</title><body style="font:16px system-ui;padding:40px"><h1 style="font-size:20px">${title}</h1><p>${line}</p><p><a href="/">Back to the Command Center</a></p>`, { status, headers: { ...headers, "Content-Type": "text/html; charset=utf-8" } });
 
-  /** Vercel Cron → dispatch the publisher job when something is due within 10 minutes (at most once per 5 minutes). */
+  /**
+   * Vercel Cron (every 10 min, 10 AM–2 AM ET) → dispatch the publisher job when something is due within 10 minutes,
+   * at most once per 10-minute window. The job waits for each exact due time.
+   */
   async function cron(request) {
     const given = (request.headers.get("authorization") ?? "").replace(/^Bearer /, "");
     if (!cronSecret || given.length !== cronSecret.length || !crypto.timingSafeEqual(Buffer.from(given), Buffer.from(cronSecret))) return json(404, { error: "not found" });
@@ -354,9 +357,9 @@ export function createHostedApp({ db, clock, origin, rpID, setupTokenSha256, dis
     const o = make(session);
     const due = o.publishing.dueSoon(10 * 60_000);
     if (!due.length) return json(200, { ok: true, due: 0 });
-    const bucket = new Date(Math.floor(Date.parse(clock()) / 300_000) * 300_000).toISOString();
+    const bucket = new Date(Math.floor(Date.parse(clock()) / 600_000) * 600_000).toISOString();
     const c = session.claim(`publisher-dispatch|${bucket}`, { due: due.map((j) => j.jobId) });
-    if (!c.won) return json(200, { ok: true, due: due.length, dispatched: false, note: "already dispatched in this 5-minute window" });
+    if (!c.won) return json(200, { ok: true, due: due.length, dispatched: false, note: "already dispatched in this 10-minute window" });
     await session.flush();
     const d = await kickPublisher();
     return json(200, { ok: true, due: due.length, dispatched: d.ok, detail: d.detail ?? null });

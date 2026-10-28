@@ -1,8 +1,8 @@
 # Copy to .github/workflows/cc-publisher.yml in the PRIVATE ops repo (gtp-ops). Never in the public repo.
 #
 # X Publisher V1: runs every DUE publishing job through the gate (command-center/orchestrator/publish-flow.mjs).
-# Dispatched by the web app's Vercel Cron (/api/cron/publish, every 5 minutes, only when a job is due within
-# 10 minutes) and by a founder's "Dry run now" / "Live test". No Claude Code and no model run here; only main's code.
+# Dispatched by the web app's Vercel Cron (/api/cron/publish, every 10 minutes 10 AM–2 AM ET, only when a job is
+# due within 10 minutes; the job waits for each exact due time) and by a founder's "Dry run now" / "Live test". No Claude Code and no model run here; only main's code.
 # One run at a time (concurrency), so two runs can never race the same post — and the once-only ledger claims would
 # refuse the second anyway.
 # Pin every action to a full commit SHA before enabling.
@@ -27,7 +27,7 @@ jobs:
   publish:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     permissions:
       contents: read
     steps:

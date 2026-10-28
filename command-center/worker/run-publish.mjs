@@ -46,21 +46,49 @@ const refreshData = async () => {
   return r.status === 0 ? { ok: true, detail: `fetched origin/main at ${clock()}` } : { ok: false, detail: `git fetch failed (${r.status ?? r.signal})` };
 };
 
-const session = await createSqlStore({ db, clock }).open();
-const o = createOrchestrator({
-  store: session, clock, outDir, env: { GTP_CC_BUDGET_USD: "0", GTP_CC_DATA_REPO: publicRoot, GTP_CC_X_HANDLE: env.GTP_CC_X_HANDLE ?? "" },
-  execution: "jobs", runnerId: "publisher", hosted: true, publishing: { oauth, refreshData },
-});
+const sqlStore = createSqlStore({ db, clock });
+/** A fresh view of the ledger: a Pause or a cancellation made in the web app while this job waits is seen. */
+async function fresh() {
+  const session = await sqlStore.open();
+  const o = createOrchestrator({
+    store: session, clock, outDir, env: { GTP_CC_BUDGET_USD: "0", GTP_CC_DATA_REPO: publicRoot, GTP_CC_X_HANDLE: env.GTP_CC_X_HANDLE ?? "" },
+    execution: "jobs", runnerId: "publisher", hosted: true, publishing: { oauth, refreshData },
+  });
+  return { session, o };
+}
 
 // The approved images live in the object store; put each due job's images where the gate reads them.
-for (const j of o.publishing.dueSoon(0)) {
-  const rec = o.state().posts.find((p) => p.decisionId === j.decisionId);
-  for (const m of rec?.package?.mediaSet ?? (rec?.package?.media ? [rec.package.media] : [])) {
-    const obj = await objects.get(`media/${path.basename(m.file)}`);
-    if (obj) fs.writeFileSync(path.join(outDir, "media", path.basename(m.file)), obj.body);
+async function stage(o, jobs) {
+  for (const j of jobs) {
+    const rec = o.state().posts.find((p) => p.decisionId === j.decisionId);
+    for (const m of rec?.package?.mediaSet ?? (rec?.package?.media ? [rec.package.media] : [])) {
+      const file = path.join(outDir, "media", path.basename(m.file));
+      if (fs.existsSync(file)) continue;
+      const obj = await objects.get(`media/${path.basename(m.file)}`);
+      if (obj) fs.writeFileSync(file, obj.body);
+    }
   }
 }
-const r = await o.publishing.runDue();
-await session.flush();
-console.log(JSON.stringify({ ran: r.ran ?? [], at: clock() }));
+// The cron dispatches this job up to 10 minutes early; it waits for each due time (so a post goes out on time, not
+// early), re-reading the ledger before every send, and stops when nothing more can run. Hard stop at 12 minutes.
+const ran = [];
+const until = Date.now() + 12 * 60_000;
+for (;;) {
+  let { session, o } = await fresh();
+  const soon = o.publishing.dueSoon(10 * 60_000);
+  if (!soon.length || Date.now() > until) break;
+  const next = Math.min(...soon.map((j) => Date.parse(j.dueAt)));
+  const wait = next - Date.parse(clock());
+  if (wait > 0) {
+    await new Promise((res) => setTimeout(res, Math.max(0, Math.min(wait + 2_000, until - Date.now()))));
+    ({ session, o } = await fresh());
+  }
+  await stage(o, o.publishing.dueSoon(0));
+  const r = await o.publishing.runDue();
+  await session.flush();
+  ran.push(...(r.ran ?? []));
+  // held (paused) or nothing ran: stop instead of spinning; the next cron tick tries again
+  if (!(r.ran ?? []).some((x) => !["HELD", "WAITING"].includes(x.state))) break;
+}
+console.log(JSON.stringify({ ran, at: clock() }));
 await db.close?.();
