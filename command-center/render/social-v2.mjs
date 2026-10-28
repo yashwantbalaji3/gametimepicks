@@ -17,7 +17,8 @@ import { escapeHtml as esc, loadChromium, pngSize } from "./render-png.mjs";
 
 // 2.3 (founder 10-28): matchup meter, team marks inside the matchup boxes, X logo + @GameTimePicksHQ on every format,
 // team-accented stat rows. A visual change is a new version: the 2.2.1 design approval does not carry over.
-export const SOCIAL_TEMPLATE = "gtp-social@2.3";
+// 2.3.1 (founder 10-28): meter heading "Game winner estimate"; the accuracy qualification moves to the footer.
+export const SOCIAL_TEMPLATE = "gtp-social@2.3.1";
 /** The one social identity printed on every graphic (shared component: socialLine in the shell). */
 export const SOCIAL_HANDLE = "@GameTimePicksHQ";
 const DIR = path.join(CC_ROOT, "render/templates/social-v2");
@@ -68,7 +69,6 @@ function meterHtml(meter) {
     <div class="meter-k">${esc(meter.label)}</div>
     <div class="meter-labels"><div class="ml l"><b>${esc(teams[0].display)}</b><span data-fit>${esc(teams[0].name)}</span></div>${mid ? `<div class="ml c"><b>${esc(mid.display)}</b><span>${esc(mid.name)}</span></div>` : ""}<div class="ml r"><b>${esc(teams[1].display)}</b><span data-fit>${esc(teams[1].name)}</span></div></div>
     <div class="meter-bar">${meter.segments.map((x) => `<i class="seg ${esc(x.side)}" data-share="${x.share}" style="width:${((100 * x.share) / total).toFixed(3)}%;--c:${esc(x.color)}"></i>`).join("")}</div>
-    ${meter.note ? `<div class="meter-note">${esc(meter.note)}</div>` : ""}
   </div>`;
 }
 
@@ -227,7 +227,7 @@ export function socialHtml(m) {
   const slots = {
     rawCss: css, rawVars: `--ca:${esc(m.away?.accent ?? "#12B865")};--cb:${esc(m.home?.accent ?? "#12B865")}`, ghostA: m.away?.abbr ?? "", ghostB: m.home?.abbr ?? "",
     logoDataUri: logo, chip: chipOf(m), rawBody: body(m), rawBodyClass: `${res} fmt-${m.format}`.trim(), disclosure: disclosureFor(m.league ?? "NFL"),
-    rawSocial: `<div class="social" data-handle="${esc(SOCIAL_HANDLE)}">${X_MARK}<span>${esc(SOCIAL_HANDLE)}</span></div>`,
+    rawSocial: `<div class="social" data-handle="${esc(SOCIAL_HANDLE)}">${X_MARK}<span>${esc(SOCIAL_HANDLE)}</span></div>${m.meter?.footnote ? `<div class="estimate-note">${esc(m.meter.footnote)}</div>` : ""}`,
   };
   return fs.readFileSync(path.join(DIR, "shell.html"), "utf8").replace(/\{\{(\w+)\}\}/g, (_, k) => {
     if (!(k in slots)) throw new Error(`slot {{${k}}} has no value`);

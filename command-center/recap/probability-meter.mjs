@@ -21,6 +21,8 @@
  */
 import crypto from "node:crypto";
 
+/** The one heading every meter shows (founder 2026-10-28, V2.3.1); each source's own classification stays in provenance. */
+export const METER_HEADING = "Game winner estimate";
 export const METER_RULES = Object.freeze({
   NBA: { source: "app/public/data/nba/experimental-public/<date>.json · game.elo.winProbability via the site accessor eloWinProbabilityOf", outcomes: 2, label: "Elo-derived game-winner estimate", rounding: "site rule: whole %, decimals only to break a tie, <1 / >99", note: "Not an independently validated probability · accuracy not yet established" },
   NFL: { source: "frozen receipt forecastSummary.winProbability {home, away, tieMass} (the verified version)", outcomes: 3, label: "Win probability", rounding: "one decimal, (p × 100).toFixed(1), as on the site", note: null },
@@ -52,12 +54,12 @@ export async function nbaMeter({ src, game, away, home }) {
   const view = acc?.eloWinProbabilityOf?.(game) ?? null;
   if (!view) return null;
   return {
-    kind: "two", sport: "NBA", label: acc.ELO_WIN_PROBABILITY_LABEL ?? METER_RULES.NBA.label, note: METER_RULES.NBA.note,
+    kind: "two", sport: "NBA", label: METER_HEADING, footnote: "Model estimate · Historical accuracy not yet established",
     segments: [
       { side: "away", name: away.name, color: barColor(away), ink: away.ink, share: view.away, display: `${view.awayPct}%` },
       { side: "home", name: home.name, color: barColor(home), ink: home.ink, share: view.home, display: `${view.homePct}%` },
     ],
-    provenance: { ...view.provenance, accessor: NBA_ACCESSOR, accessorId: acc.ELO_WIN_PROBABILITY?.id ?? null, text: acc.eloWinProbabilityText?.(view) ?? null },
+    provenance: { ...view.provenance, sourceLabel: acc.ELO_WIN_PROBABILITY_LABEL ?? METER_RULES.NBA.label, qualification: METER_RULES.NBA.note, accessor: NBA_ACCESSOR, accessorId: acc.ELO_WIN_PROBABILITY?.id ?? null, text: acc.eloWinProbabilityText?.(view) ?? null },
   };
 }
 
@@ -68,28 +70,28 @@ export function nflMeter({ winProbability: wp, favoured, away, home }) {
   if (Math.abs(wp.home + wp.away + tie - 1) > 0.002) return null;
   if ((favoured === "home" && !(wp.home > wp.away)) || (favoured === "away" && !(wp.away > wp.home))) return null;
   return {
-    kind: tie > 0 ? "three" : "two", sport: "NFL", label: METER_RULES.NFL.label, note: null,
+    kind: tie > 0 ? "three" : "two", sport: "NFL", label: METER_HEADING, footnote: "Model estimate",
     segments: [
       { side: "away", name: away.name, color: barColor(away), ink: away.ink, share: wp.away, display: one(wp.away) },
       ...(tie > 0 ? [{ side: "tie", name: "Tie", color: "#9AA19A", ink: "#050706", share: tie, display: one(tie) }] : []),
       { side: "home", name: home.name, color: barColor(home), ink: home.ink, share: wp.home, display: one(wp.home) },
     ],
-    provenance: { field: "forecastSummary.winProbability", values: { home: wp.home, away: wp.away, tieMass: tie } },
+    provenance: { sourceLabel: METER_RULES.NFL.label, field: "forecastSummary.winProbability", values: { home: wp.home, away: wp.away, tieMass: tie } },
   };
 }
 
 /** Soccer (EPL): home / draw / away, never forced to two outcomes. */
-export function soccerMeter({ probs, away, home, label = METER_RULES.EPL.label }) {
+export function soccerMeter({ probs, away, home, label = METER_HEADING }) {
   if (!probs || !isP(probs.home) || !isP(probs.draw) || !isP(probs.away)) return null;
   if (Math.abs(probs.home + probs.draw + probs.away - 1) > 0.002) return null;
   return {
-    kind: "three", sport: "EPL", label, note: null,
+    kind: "three", sport: "EPL", label, footnote: "Model estimate",
     segments: [
       { side: "home", name: home.name, color: barColor(home), ink: home.ink, share: probs.home, display: one(probs.home) },
       { side: "draw", name: "Draw", color: "#9AA19A", ink: "#050706", share: probs.draw, display: one(probs.draw) },
       { side: "away", name: away.name, color: barColor(away), ink: away.ink, share: probs.away, display: one(probs.away) },
     ],
-    provenance: { field: "row.probs", values: probs },
+    provenance: { sourceLabel: METER_RULES.EPL.label, field: "row.probs", values: probs },
   };
 }
 

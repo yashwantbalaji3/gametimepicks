@@ -32,8 +32,10 @@ test("NBA meter: exactly the website's accessor view at the same commit; label n
     assert.ok(view && m, `${g.away.abbr}@${g.home.abbr} is published with the estimate`);
     assert.deepEqual(m.segments.map((s) => s.display), [`${view.awayPct}%`, `${view.homePct}%`], "the site's own rounding");
     assert.deepEqual(m.segments.map((s) => s.share), [view.away, view.home], "the receipt's own numbers as widths");
-    assert.equal(m.label, "Elo-derived game-winner estimate");
-    assert.doesNotMatch(`${m.label} ${m.note}`, /\bwin probability\b/i);
+    assert.equal(m.label, "Game winner estimate", "the one heading (founder 2.3.1)");
+    assert.equal(m.provenance.sourceLabel, "Elo-derived game-winner estimate", "the source's own classification is kept in the evidence");
+    assert.equal(m.footnote, "Model estimate · Historical accuracy not yet established");
+    assert.doesNotMatch(`${m.label} ${m.footnote}`, /\bprobability\b/i, "never called a probability");
     assert.equal(m.provenance.receiptPayloadSha256, g.receipt.payloadSha256);
   }
   // Oct 23 was published WITHOUT the field: the accessor refuses, so the graphic shows the winner only
@@ -88,7 +90,7 @@ test("soccer: home / draw / away never forced to two outcomes; draw on top → M
 
 test("every format: one X identity line with exactly @GameTimePicksHQ above one disclosure; no overlap; team marks never hot-linked", { skip, timeout: 300_000 }, async () => {
   assert.equal(SOCIAL_HANDLE, "@GameTimePicksHQ");
-  assert.equal(SOCIAL_TEMPLATE, "gtp-social@2.3");
+  assert.equal(SOCIAL_TEMPLATE, "gtp-social@2.3.1");
   const src = gitDataSource(REPO_ROOT, SLATE);
   const g = lane(src, "2026-10-28").games[0];
   const models = [
@@ -106,6 +108,9 @@ test("every format: one X identity line with exactly @GameTimePicksHQ above one 
     assert.equal((html.match(/class="social"/g) ?? []).length, 1, m.format);
     assert.equal((html.match(/@GameTimePicksHQ/g) ?? []).length, 2, "the handle (text + data attribute) once");
     assert.match(html, /class="xmark"/);
+    // 2.3.1: no qualification line inside the meter panel; the footnote sits in the footer, only beside a meter
+    assert.doesNotMatch(html, /class="meter-note"/);
+    assert.equal((html.match(/class="estimate-note"/g) ?? []).length, m.meter ? 1 : 0, m.format);
     assert.doesNotMatch(html, /<img[^>]+src="https?:/, "no remote image of any kind");
     const r = await renderSocial(m, { outFile: path.join(dir, `${m.format}.png`) });
     assert.equal(`${r.width}x${r.height}`, "1080x1350");
