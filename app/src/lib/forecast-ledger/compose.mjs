@@ -9,6 +9,7 @@
 import { validateRow } from "./contract.mjs";
 import { fnv1a64 } from "./identity.mjs";
 import { provenanceCounts } from "./provenance.mjs";
+import { NBA_OFFICIAL_RECORD_GAP } from "../results/nba-official-record.mjs";
 
 /** JSON with keys in insertion order — rows are built in canonical order, so this is stable. */
 export const serializeRow = (row) => JSON.stringify(row);
@@ -57,7 +58,11 @@ export const DECLARED_GAPS = Object.freeze([
   { sport: "EPL", family: "double chance", reason: "Not a separate observation: each double-chance number is exactly 1 − one 1X2 class, so it is already measured inside the 1X2 family (its Brier terms are the 1X2 Brier's). Counting it again would score the same forecast twice." },
   { sport: "LIGUE_1", family: "over 2.5 / both teams to score / likeliest score", reason: "Shown on the Ligue 1 page beside the measured 1X2, but no owner grades them yet. UNMEASURED." },
   { sport: "UFC", family: "method / round", reason: "Published, but the official results we capture by fight id (ESPN) record only the winner; method and round exist only in a source keyed by fighter names, and the pre-fight snapshots freeze only the winner chance. Grading would mean joining fights by name, which the UFC identity gate does not allow yet." },
-  { sport: "NBA", family: "game model (v0 / v0.1)", reason: "SHADOW / PRIVATE_RESEARCH — never public forecast history." },
+  /* P0 10-28: this read "game model (v0 / v0.1): SHADOW / PRIVATE_RESEARCH — never public forecast history" while the
+     founder-approved NBA composition (Elo side + v0.1 player medians) published daily and its official side was graded
+     on /results/nba. The record is public; it is simply not ledger rows yet (and NBA joining the totals is a pending
+     founder decision). Its name and reason live once, in lib/results/nba-official-record.mjs. */
+  NBA_OFFICIAL_RECORD_GAP,
 ]);
 
 function count(rows, key) {

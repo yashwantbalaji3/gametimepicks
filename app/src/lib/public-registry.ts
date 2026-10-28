@@ -209,6 +209,33 @@ export function publicSport(key: string): PublicSport | null {
   return BY_KEY.get(String(key ?? "").trim().toLowerCase()) ?? null;
 }
 
+/**
+ * P0 10-28 · CAPABILITY WORDS COME FROM THE FAMILIES, NOT FROM PROSE. /sports, /learn, /bucket-blitz and /mr-dub each
+ * kept their own sentence about NBA ("Schedule only — not modelled", "No validated NBA forecast is published", "no
+ * forecast") and every one went stale the day the NBA composition became official. A surface that states what a
+ * sport publishes reads these two instead, so the statement changes when the families change and at no other time.
+ */
+/** Does the sport publish at least one Official Forecast family (its catalog entry is modelled)? */
+export function publishesOfficialForecast(key: string): boolean {
+  return (publicSport(key)?.families ?? []).some((f) => f.publication === "OFFICIAL_FORECAST");
+}
+
+/**
+ * One plain statement of a sport's Official Forecast, from its families: what publishes, then what is withheld.
+ * NBA → "Official Forecasts: favoured side (Elo rating) and Predicted Player Statistics (…). Withheld: team scores,
+ * win chance and ranges." Null for a sport with no Official Forecast family (and then nothing is claimed).
+ */
+export function officialForecastCoverage(key: string): string | null {
+  const fams = publicSport(key)?.families ?? [];
+  const list = (xs: string[]) => (xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
+  /* mid-sentence a label reads lower-case, except a public term ("Predicted Player Statistics"), which keeps its name */
+  const inline = (l: string) => (Object.values(PUBLIC_TERMS).some((t) => l.startsWith(t)) ? l : l.charAt(0).toLowerCase() + l.slice(1));
+  const official = fams.filter((f) => f.publication === "OFFICIAL_FORECAST").map((f) => inline(f.label));
+  if (!official.length) return null;
+  const withheld = fams.filter((f) => f.publication === "WITHHELD").map((f) => inline(f.label));
+  return `${PUBLIC_TERMS.OFFICIAL_FORECAST}s: ${list(official)}.${withheld.length ? ` Withheld: ${list(withheld)}.` : ""}`;
+}
+
 /** The sports Ask GameTime reads live game state for — the live gateway's public list, through the same gateway. */
 export const ASSISTANT_LIVE_SPORTS: ReadonlyArray<string> = Object.freeze(PUBLIC_SPORTS.filter((s) => s.assistant.liveState).map((s) => s.label));
 

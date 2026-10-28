@@ -7,6 +7,8 @@
 import Link from "next/link";
 import SectionHeader from "@/components/section-header";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { NBA_FORECAST_DISCLOSURE, officialForecastCoverage } from "@/lib/public-registry";
+import { NBA_OFFICIAL_RECORD_LABEL } from "@/lib/results/nba-official-record.mjs";
 
 export const metadata = withRouteMetadata("/learn/", {
   title: "Learn · GameTime Picks",
@@ -37,7 +39,10 @@ const SPORTS: Array<{ name: string; note: string }> = [
   { name: "NFL", note: "Experimental team simulations — projected score and win probability per game, clearly labelled, with the evaluation receipts on the hub." },
   { name: "Premier League", note: "Match-result and total-goals forecasts each matchweek, plus an anytime-goalscorer player model (not validated) and matchday cards when current prices are captured." },
   { name: "UFC", note: "A fight model trained on tracked bout history: winner, method and finishing round for every bout with enough data — the unmodelled ones say so." },
-  { name: "NBA", note: "Schedule, official final scores and frozen pregame experimental player projections (not validated, not betting recommendations) for 2026-27 on the NBA hub. No validated NBA forecast is published yet, and the settled record from earlier seasons stays readable as an archive." },
+  /* P0 10-28: this said "No validated NBA forecast is published yet" while the NBA composition published Official
+     Forecasts daily. The capability sentence is the registry's (its families), so it cannot drift again; the record and
+     the retired model's archive are named for what they are. */
+  { name: "NBA", note: `${officialForecastCoverage("nba") ?? ""} On the NBA hub, with the official side graded game by game in its ${NBA_OFFICIAL_RECORD_LABEL} on Results. ${NBA_FORECAST_DISCLOSURE} The NBA player model is not validated. A retired May–June 2026 player-prop model's settled record stays readable as an archive.` },
   { name: "World Cup", note: "Closed. Kept as an archive of what was published at the time." },
 ];
 

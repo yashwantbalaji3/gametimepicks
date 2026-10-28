@@ -20,6 +20,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { SPORT_ASSESSMENTS } from "@/lib/sports/sport-assessments.mjs";
 import { GATE_STAGES } from "@/lib/sports/sport-gate.mjs";
+import { nbaFirstGradedGameDate } from "@/lib/results/nba-official-record-reader.mjs";
 
 export interface StageGap {
   readonly id: string;
@@ -113,9 +114,16 @@ function feedFacts(sport: string, root: string): FeedFact[] {
     const regular = rows.filter((r) => r.seasonType === 2);
     const preseason = rows.filter((r) => r.seasonType === 1).length;
     const next = regular.map((r) => r.dateUtc).filter((d): d is string => Boolean(d)).sort()[0];
+    /* P0 10-28: the capture is a ROLLING window of upcoming games, so once the season is under way its first regular
+       row is just the next game — this printed "Regular season opens October 27, 2026" a week after opening night, beside
+       an official record graded from Oct 20. Once any official NBA game is graded, the first graded game is the fact
+       (read from the record itself); "Regular season opens" is printed only before that, from a pre-season capture. */
+    const firstGraded = nbaFirstGradedGameDate(root);
     return [
       { label: "Games captured", detail: `${n} confirmed 2026-27 dates${preseason ? ` (${regular.length} regular season, ${preseason} preseason)` : ""} — the schedule is captured as the league releases it, never inferred` },
-      ...(next ? [{ label: "Regular season opens", detail: prettyDate(next) }] : []),
+      ...(firstGraded
+        ? [{ label: "First graded Official Forecast game", detail: prettyDate(`${firstGraded}T12:00:00Z`) }]
+        : next ? [{ label: "Regular season opens", detail: prettyDate(next) }] : []),
     ];
   }
   return [];
