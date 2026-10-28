@@ -63,6 +63,10 @@ test("state · /sports speaks the adapter's honest vocabulary for all four sport
   // explicit "nothing published yet" sentence — never a heading over a blank calendar.
   for (const sport of ["epl", "nfl", "nba", "ufc"]) {
     const section = page.locator(`section[aria-labelledby="upcoming-${sport}-h"]`);
+    /* Overnight 10-28 (W8): /sports leads with the sport chooser and folds the per-sport schedules into a disclosure —
+       still server-rendered, one tap away. Open the fold the way a reader would, then hold the same contract. */
+    const fold = page.locator(`details:has(section[aria-labelledby="upcoming-${sport}-h"])`);
+    if ((await fold.count()) > 0 && !(await fold.first().evaluate((d) => (d as HTMLDetailsElement).open))) await fold.first().locator(":scope > summary").click();
     await expect(section, `${sport} section present`).toBeVisible();
     const events = await section.locator("ul > li").count();
     const empty = await section.getByText("No upcoming events are published here yet").count();
@@ -102,6 +106,10 @@ test("state · /system-status uses only the closed state vocabulary", async ({ p
 test("state · /results renders the canonical accounting section", async ({ page }) => {
   await page.goto("/results");
   await page.waitForLoadState("networkidle");
+  /* Overnight 10-28 (W5): the accounting section sits in a disclosure (content unchanged, server-rendered). Open it as a
+     reader would; the canonical heading must then be visible. */
+  const fold = page.locator("details:has(#accounting-heading)");
+  if ((await fold.count()) > 0 && !(await fold.first().evaluate((d) => (d as HTMLDetailsElement).open))) await fold.first().locator(":scope > summary").click();
   await expect(page.locator("#accounting-heading")).toBeVisible();
 });
 
