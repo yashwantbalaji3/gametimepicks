@@ -98,7 +98,7 @@ The check re-runs at approval (refused if anything changed) and when you record 
   - `tests/queue.test.mjs`: registry labels, verifier branches on synthetic and real data, NBA/EPL bundles, card determinism, every decision and receipt refusal, supersession, and pregame approval → schedule → publish → after-kickoff CONFIRMED;
   - `tests/queue-console.test.mjs`: desktop 1440 and iPhone 390/430. Approve a caption, record the X link, save engagement, refuse an unconfirmed X reply; no sideways scroll, touch targets of 40 px or more.
 - **Real data (copy of the console ledger, `origin/main` @ fe6b9212b879):**
-  - today's queue: 24 posts: 13 NFL recap cards, 5 NBA and 2 EPL result cards, 2 explainers, 2 X replies, 1 engagement post;
+  - today's queue: 25 packages: 13 NFL recap cards, 5 NBA and 2 EPL result cards, 2 explainers, 2 X replies, 1 engagement post. That dry run raised 24 decisions because one X reply was wrongly BLOCKED by an over-strict check, fixed before commit. The first real run (`cmd-6cc2f9d69867`, data `6e8b6d41be`) has 25 packages and 25 decisions;
   - tomorrow's: CAR @ GB pregame READY at 63.8%.
 - **Found and fixed while building it:**
   - the verifier initially missed same-day revisions;
