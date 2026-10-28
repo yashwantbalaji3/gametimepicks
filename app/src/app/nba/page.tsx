@@ -147,9 +147,10 @@ export default async function NbaHubPage() {
         </p>
         <p className="m-0 text-[13.5px]">
           <Link href="/results/nba/" className="underline inline-flex items-center" style={{ color: "var(--vault-text)", minHeight: 44 }}>
-            May–June 2026 player-prop archive
+            NBA results: the official favoured-side record
           </Link>
-          <span style={{ color: "var(--vault-text-mute)" }}> — a retired model&rsquo;s settled record, kept for transparency.</span>
+          {/* Audit 2026-10-28 F04: this link led to the current record under an archive label. */}
+          <span style={{ color: "var(--vault-text-mute)" }}> — game by game against the official finals, with the retired May–June player-prop archive kept below it.</span>
         </p>
       </section>
 

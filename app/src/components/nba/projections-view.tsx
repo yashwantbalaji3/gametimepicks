@@ -32,6 +32,7 @@
 import React from "react";
 import Link from "next/link";
 import MoreDisclosure from "@/components/ui/more-disclosure";
+import { NBA_MODEL_PERFORMANCE_NOTE } from "@/lib/public-registry";
 import type { Snapshot } from "@/components/nba/experimental-lane";
 import type { BoardGame, BoardToday, SlateRole } from "@/components/nba/projection-board-context";
 import type { BoardActuals, GameActualState } from "@/lib/sports/nba/projection-board-actuals";
@@ -54,7 +55,8 @@ const CHIP_STYLE = { border: "1px solid var(--vault-border)", color: "var(--vaul
 
 /** The one disclosure for these pages (release owner decision 2026-10-23; the same literal as the UI session's registry
     constant NBA_MODEL_PERFORMANCE_NOTE — switch to the import once both have merged). */
-export const PREDICTED_NOTE = "NBA forecasts are graded after every game; a public Model Performance record for NBA has not been published yet.";
+// The registry's one sentence (audit 2026-10-28 F04: this was a stale duplicate literal).
+export const PREDICTED_NOTE = NBA_MODEL_PERFORMANCE_NOTE;
 /** Why a FINAL game shows no actuals — once per game, in its line. */
 const ACTUAL_UNAVAILABLE: Partial<Record<GameActualState, string>> = {
   "no-boxscore": "Actual: Unavailable (final box score not yet recorded)",

@@ -177,11 +177,13 @@ function SpecialTicket({ card, status, idx }: { card: WorldCupSpecialCard; statu
 }
 
 export default function WorldCupSpecialsTracker({
-  result, nowIso, mode = "full",
+  result, nowIso, mode = "full", retired = false,
 }: {
   result: WorldCupSpecialsResult | null;
   nowIso: string;
   mode?: "full" | "compact" | "summary";
+  /** The product is retired: the empty state says nothing new posts, never "a fresh box posts…" (audit 2026-10-28 F20). */
+  retired?: boolean;
 }) {
   const t = deriveSpecialsTracker(result, nowIso);
   const compact = mode === "compact";
@@ -293,8 +295,12 @@ export default function WorldCupSpecialsTracker({
           ) : null}
           {t.pending.length + t.candidates.length + t.settled.length + coverageRows.length === 0 ? (
             <div className="rounded-xl px-4 py-6 text-center" style={{ border: "1px dashed var(--vault-border)", background: "var(--vault-wash-faint)" }}>
-              <p style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>No World Cup Specials on the current slate</p>
-              <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>A fresh box of model-ranked specials posts once the next multi-game slate&apos;s odds and props are available.</p>
+              <p style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{retired ? "No open World Cup Specials" : "No World Cup Specials on the current slate"}</p>
+              <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
+                {retired
+                  ? "This product is retired, so no new boxes post. The archived slates below are past candidates, kept as a record."
+                  : <>A fresh box of model-ranked specials posts once the next multi-game slate&apos;s odds and props are available.</>}
+              </p>
             </div>
           ) : null}
           {compact ? (

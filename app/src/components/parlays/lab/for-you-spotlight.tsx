@@ -1,4 +1,5 @@
 "use client";
+import { selectionText } from "@/lib/slip/selection-text.mjs";
 import Link from "next/link";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import { mlbHeadshotUrl } from "@/lib/player-headshots";
@@ -169,7 +170,7 @@ function SpotlightBody({
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-semibold leading-tight" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>{l.player}</span>
                 <span className="block truncate" style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }}>
-                  {l.side} {l.line} {l.marketLabel}{l.opponent ? ` · vs ${l.opponent}` : ""}
+                  {selectionText(l.side, l.line, l.marketLabel)}{l.opponent ? ` · vs ${l.opponent}` : ""}
                 </span>
               </span>
               <span className="shrink-0 font-mono tabular-nums" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>{american(l.odds)}</span>

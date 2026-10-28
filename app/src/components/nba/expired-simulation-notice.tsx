@@ -8,7 +8,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { SIMULATION_ARCHIVED_NOTE, expiredSimulationFor, settledVerdictText } from "./expired-simulation.mjs";
+import { SIMULATION_ARCHIVED_NOTE, SIMULATION_UNKNOWN_HEADING, SIMULATION_UNKNOWN_NOTE, expiredSimulationFor, settledVerdictText } from "./expired-simulation.mjs";
 import { loadExpiredGames } from "../expired/expired-games.mjs";
 
 type Notice = ReturnType<typeof expiredSimulationFor>;
@@ -39,7 +39,7 @@ export default function ExpiredSimulationNotice({ map }: { map: Record<string, [
       style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)" }}
     >
       <h2 id="expired-simulation-h" className="m-0 font-display text-[16px] font-bold" style={{ color: "var(--vault-text)" }}>
-        {notice.kind === "KNOWN" ? `Game Simulation · ${notice.matchup} · ${dayLabel(notice.date)}` : "Game Simulation no longer available"}
+        {notice.kind === "KNOWN" ? `Game Simulation · ${notice.matchup} · ${dayLabel(notice.date)}` : SIMULATION_UNKNOWN_HEADING}
       </h2>
       {notice.kind === "KNOWN" && facts[notice.id] ? (() => {
         // the same words as the settled page (expired-simulation.mjs settledVerdictText), from the record's own state
@@ -53,7 +53,7 @@ export default function ExpiredSimulationNotice({ map }: { map: Record<string, [
         );
       })() : null}
       <p className="m-0 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-        {SIMULATION_ARCHIVED_NOTE}
+        {notice.kind === "KNOWN" ? SIMULATION_ARCHIVED_NOTE : SIMULATION_UNKNOWN_NOTE}
       </p>
       <div className="flex flex-wrap gap-2 pt-1">
         {notice.kind === "KNOWN" ? (

@@ -44,12 +44,19 @@ function claimsAbout(t, label) {
 
 const MODELLED = COMPETITIONS.filter((c) => publishesOfficialForecast(c.key));
 
-test("the catalog's modelled sports are read from the registry's families (NBA is one: sides + player medians, team scores withheld)", () => {
+test("the catalog's modelled sports are read from the registry's families (NBA is one: sides + player medians, team scores withheld)", async () => {
   assert.ok(MODELLED.some((c) => c.key === "nba"), "NBA publishes Official Forecast families");
   const nba = publicSport("nba");
-  assert.deepEqual(nba.families.filter((f) => f.publication === "OFFICIAL_FORECAST").map((f) => f.id), ["nba_winner_side", "nba_player_medians"]);
+  /* REPOINTED (audit 2026-10-28 F03): the families follow the Elo display switch (founder 2026-10-23). While it is ON the
+     estimate is its own family and "win chance" is NOT in the withheld family — the old pin encoded the contradiction. */
+  const { ELO_WIN_PROBABILITY } = await import("../sports/nba/elo-win-probability.mjs");
+  const shown = ELO_WIN_PROBABILITY.enabled === true;
+  assert.deepEqual(nba.families.filter((f) => f.publication === "OFFICIAL_FORECAST").map((f) => f.id), ["nba_winner_side", ...(shown ? ["nba_elo_estimate"] : []), "nba_player_medians"]);
   assert.deepEqual(nba.families.filter((f) => f.publication === "WITHHELD").map((f) => f.id), ["nba_team_scores"]);
-  assert.match(officialForecastCoverage("nba"), /^Official Forecasts: favoured side \(Elo rating\) and Predicted Player Statistics .*\. Withheld: team scores/);
+  const withheld = nba.families.find((f) => f.id === "nba_team_scores").label;
+  if (shown) assert.doesNotMatch(withheld, /win chance/i, "a shown estimate is never also listed as withheld");
+  else assert.match(withheld, /win chance/i);
+  assert.match(officialForecastCoverage("nba"), /^Official Forecasts: favoured side \(Elo rating\).*Predicted Player Statistics .*\. Withheld: team scores/);
   assert.equal(officialForecastCoverage("nhl"), null, "a sport with no Official Forecast family is claimed nothing");
 });
 

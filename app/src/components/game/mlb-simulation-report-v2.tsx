@@ -275,12 +275,12 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
     };
   };
   const allBoardRows = leanRows.map(toBoardRow);
-  // Group by team — away team first, then home, biggest |model gap| first within each team.
+  // Group by team — away team first, then home, highest simulated probability first within each team (audit F13: never by gap).
   const teamOrder = [gameLab?.awayTeamAbbr, gameLab?.homeTeamAbbr].filter(Boolean) as string[];
   const teamGroups = (() => {
     const m = new Map<string, BoardRow[]>();
     for (const r of allBoardRows) { const t = r.team ?? "—"; if (!m.has(t)) m.set(t, []); m.get(t)!.push(r); }
-    for (const arr of m.values()) arr.sort((a, b) => Math.abs(b.gap ?? 0) - Math.abs(a.gap ?? 0));
+    for (const arr of m.values()) arr.sort((a, b) => (b.modelProb ?? -1) - (a.modelProb ?? -1));
     const ordered = [...teamOrder.filter((t) => m.has(t)), ...[...m.keys()].filter((t) => !teamOrder.includes(t))];
     return ordered.map((t) => ({ team: t, rows: m.get(t)! }));
   })();
@@ -447,7 +447,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
           <div className="flex flex-col gap-3">
             <SignalLegend />
             <p className="font-mono text-[9.5px] m-0" style={{ color: "var(--vault-text-faint)" }}>
-              All {allBoardRows.length} simulated lines across {modeledMarkets.length} market{modeledMarkets.length === 1 ? "" : "s"} ({modeledMarkets.join(" · ")}). Grouped by team, biggest model gap first.
+              All {allBoardRows.length} simulated lines across {modeledMarkets.length} market{modeledMarkets.length === 1 ? "" : "s"} ({modeledMarkets.join(" · ")}). Grouped by team, highest simulated probability first. The gap to the market is shown for research; it is not a ranking or a sign of value.
             </p>
             {teamGroups.map((grp) => (
               <div key={grp.team} className="overflow-x-auto -mx-1">

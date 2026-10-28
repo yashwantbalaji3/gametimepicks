@@ -13,6 +13,7 @@ import path from "node:path";
 import zlib from "node:zlib";
 
 import { RESEARCH_PROJECTION_DIR, assertProjectionVersion, researchPath } from "./contract.mjs";
+import { playerCoverage } from "./coverage.mjs";
 
 export type ResearchSport = "MLB" | "NFL" | "EPL" | "UFC";
 export const SPORT_SEGMENTS: Record<string, ResearchSport> = { mlb: "MLB", nfl: "NFL", epl: "EPL", ufc: "UFC" };
@@ -135,7 +136,10 @@ export function teamBySlug(sport: ResearchSport, slug: string): TeamProjection |
 }
 
 export function playerBySlug(sport: ResearchSport, slug: string): PlayerProjection | null {
-  return partition<PlayerProjection>(`players/${sport}.jsonl.gz`).get(slug) ?? null;
+  const p = partition<PlayerProjection>(`players/${sport}.jsonl.gz`).get(slug) ?? null;
+  // Coverage is re-derived from the player's own recorded seasons (one rule, coverage.mjs#playerCoverage), so a stored
+  // note from an older projection can never contradict the rows on the page (audit 2026-10-28 F08).
+  return p ? { ...p, coverage: { ...p.coverage, ...playerCoverage(p.sport, p.seasons) } as Coverage } : null;
 }
 
 /** A team projection by canonical id (for a player page's "current team" context). Exact id only. */

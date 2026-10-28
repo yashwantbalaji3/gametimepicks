@@ -115,7 +115,8 @@ test("/sports revival keeps the retirement's invariant: coverage stated in words
          it neither claims nor disclaims validation. */
       assert.match(src, /PUBLIC_TERMS\.OFFICIAL_FORECAST/, `${href} names its Official Forecast`);
       assert.match(src, /PUBLIC_TERMS\.MODEL_PERFORMANCE\}<\/strong>: \{NBA_PUBLIC\.features\.modelPerformance\.note\}/, `${href} carries its one Model Performance disclosure`);
-      assert.match(src, /a public Model Performance record for NBA has not been published yet/, `${href}'s Model Performance states the record is not published yet (release owner 2026-10-23 exact text)`);
+      // REPOINTED (audit 2026-10-28 F04): the note now says the record is published as counts and not judged before 300.
+      assert.match(src, /The favoured-side record is published as counts on NBA results; it is not judged before \$\{NBA_RECORD_MIN_FOR_CLAIM\} graded games/, `${href}'s Model Performance states the record's real status`);
       assert.match(src, /Schedule only — no public forecast/, `${href} keeps the factual-only wording for a disabled lane`);
       assert.match(nav, new RegExp(`href: "${href}"[\\s\\S]{0,80}?note: navNote\\("nba"\\)`), `${href}'s nav entry is the registry's note`);
       assert.doesNotMatch(src, /simulation pending/, `${href} must not imply a model is coming`);

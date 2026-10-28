@@ -59,7 +59,7 @@ test("REAL DATA · a settled URL for a committed past date: WSH @ CHA, 2026-10-2
   assert.ok(html.includes(`${SETTLED_SIMULATION_ATTR}="401909868"`));
   assert.ok(t.includes(`Final: WSH ${finals.ftAway} – ${finals.ftHome} CHA`), "the official final, verbatim");
   assert.ok(t.includes("The Official Forecast favoured Charlotte Hornets — the side won."));
-  assert.ok(t.includes(SETTLED_ARCHIVED_HEADING) && /replays are not kept/.test(t), "the simulation is marked archived");
+  assert.ok(t.includes(SETTLED_ARCHIVED_HEADING) && /Game Simulations are shown on game day only\./.test(t) && !/replays are not kept/.test(t), "the simulation is marked archived (REPOINTED audit 2026-10-28: the runs ARE kept; the page says they are not shown)");
   // (next/link drops the trailing slash outside a Next build; the export's trailingSlash config restores it)
   assert.match(html, /href="\/nba\/projections\/2026-10-26\/?"/, "links that day's board");
   assert.equal(NBA_RESULTS_LINK, "/results/nba/");

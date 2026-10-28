@@ -1,4 +1,5 @@
 "use client";
+import { selectionText } from "@/lib/slip/selection-text.mjs";
 import { useState } from "react";
 import { PUBLIC_RISK_LABELS } from "@/lib/parlays/risk-odds-bands.mjs";
 import PlayerAvatar from "@/components/ui/player-avatar";
@@ -105,7 +106,7 @@ export default function LegSwapPanel({
                           {cand.player}
                         </span>
                         <span className="block font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-                          {cand.side} {cand.line} {cand.marketLabel} · {american(cand.americanOdds)}
+                          {selectionText(cand.side, cand.line, cand.marketLabel)} · {american(cand.americanOdds)}
                         </span>
                       </span>
                       <span className="shrink-0 text-right">

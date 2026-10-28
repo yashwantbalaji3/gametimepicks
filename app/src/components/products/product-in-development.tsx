@@ -87,8 +87,11 @@ export default function ProductInDevelopment({
             What has to be true before it publishes
           </h2>
           <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-faint)", margin: 0 }}>
-            {readiness.met.length} of {readiness.met.length + readiness.missing.length} stages complete. Every product on this
-            site has to pass the same list before it publishes, and {product.name} has not yet. {publishingSports.length} sports
+            {/* Audit 2026-10-28 F19: "9 of 10 stages complete" read as nearly shipped beside "not built". The count is of
+                pipeline stages with a record; the public product is a separate, unmet requirement and is said so first. */}
+            The public product is not built yet. {readiness.met.length} of {readiness.met.length + readiness.missing.length} pipeline
+            stages behind it have a record. Every product on this site has to pass the same list and a public review before it
+            publishes, and {product.name} has not yet. {publishingSports.length} sports
             publish Official Forecasts today ({listInWords(publishingSports)}). A stage only counts as done when there is a
             record of it.
           </p>

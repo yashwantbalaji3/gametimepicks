@@ -208,7 +208,12 @@ test("CV1 coverage copy is centralised, provider-free, never claims 'career' or 
   }
   const nfl = coverageFor({ kind: "player", sport: "NFL", seasons: ["NFL-2025", "NFL-2019"], firstSeasonLabel: "2019", lastSeasonLabel: "2025", hasPre2023: true });
   assert.deepEqual(nfl.notes, ["NFL_PLAYER_2026_BLOCKED", "NFL_PLAYER_PRE_2023_PARTIAL"]);
-  assert.match(coverageNoteText("NFL_PLAYER_2026_BLOCKED", nfl), /not available yet/);
+  /* REPOINTED (audit 2026-10-28 F08): the note now names the player's own last season instead of a hard-coded 2025. */
+  assert.match(coverageNoteText("NFL_PLAYER_2026_BLOCKED", nfl), /No 2026 game logs are recorded for this player yet\. Recorded history through 2025/);
+  // A player WITH 2026 rows is never told 2026 is unavailable: partial, and the current-season logs are not listed missing.
+  const cur = coverageFor({ kind: "player", sport: "NFL", seasons: ["NFL-2026", "NFL-2025"], firstSeasonLabel: "2025", lastSeasonLabel: "2026", hasPre2023: false });
+  assert.deepEqual([cur.status, cur.notes, cur.unavailable], ["PARTIAL", ["NFL_PLAYER_2026_PARTIAL"], []]);
+  assert.doesNotMatch(coverageNoteText(cur.notes[0], cur), /not available|not recorded yet\. Recorded history/);
   assert.match(coverageNoteText("EPL_PLAYER_2026_27_BLOCKED", { from: "2022-23", to: "2025-26" }), /2022-23 to 2025-26/);
   assert.deepEqual(coverageFor({ kind: "team", sport: "EPL", seasons: [] }).unavailable, ["RESULTS_UNAVAILABLE"]);
   assert.throws(() => coverageNoteText("NOPE", nfl), /unknown note code/);

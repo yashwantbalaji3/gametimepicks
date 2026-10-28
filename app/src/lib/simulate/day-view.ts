@@ -32,6 +32,7 @@ import { nbaForecastVsActualView } from "@/lib/results/nba-level-a-readers";
 import { nbaTheaterPublicEnabled } from "@/lib/simulation-theater/nba/feature-manifest.mjs";
 import { settledVerdictText } from "@/components/nba/expired-simulation.mjs";
 import { settledSimulationParams } from "@/components/nba/settled-simulation-data";
+import { settledMlbGames } from "@/lib/mlb/settled-games-data";
 import path from "node:path";
 
 /** The charter's navigation-state matrix, verbatim. Unknown owners fail closed to SCHEDULE_ONLY. */
@@ -230,6 +231,8 @@ function mlbSection(date: string, today: string): SportDaySection {
       .map((g) => String(g.gamePk ?? "")),
   );
   const gradedPks = mlbSettledPks();
+  // Audit 2026-10-28 F02: a settled game opens its own settled page (/games/mlb/<slug>/) when the record holds it.
+  const settledSlugByPk = new Map(settledMlbGames(today).map((s) => [s.gamePk, s.slug]));
   /* The official prediction snapshot for this date — the authority on each game's forecast state. */
   const predictions = readJson<{ predictions?: Array<Record<string, unknown>> }>(`mlb/predictions/${date}.json`);
   const nowMs = Date.now();
@@ -254,8 +257,9 @@ function mlbSection(date: string, today: string): SportDaySection {
      * P242 — a ready game opens its REPORT, directly. The `?play=1` presentation hand-off was
      * retired with the recording experience; the full dashboard renders on arrival.
      */
+    const settledSlug = settledSlugByPk.get(pk);
     const href = settled
-      ? "/results"
+      ? settledSlug ? `/games/mlb/${settledSlug}/` : "/results/mlb/"
       : detail
         ? `/games/mlb/${detail.slug}/`
         : post ? "/results" : "/mlb";

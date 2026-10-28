@@ -14,11 +14,26 @@ import { getGameSpecificCardsForGame, getWorldCupMultiGameCardsForGame } from "@
 import { buildGamePropParlays } from "@/lib/world-cup/game-prop-parlays";
 import GameDetailPage from "@/components/game/game-detail-page";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import MlbSettledGame from "@/components/mlb/settled-game";
+import { settledMlbGame, settledMlbGames, settledTeamNames } from "@/lib/mlb/settled-games-data";
+import { currentEtDate } from "@/lib/freshness";
+import { availableSimulateDates } from "@/lib/simulate/day-view";
+import { surfaceHref } from "@/lib/nav/date-sport-route";
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return gameDetailParams();
+  const live = gameDetailParams();
+  /* Audit 2026-10-28 F02: an MLB game URL keeps working after its day — a settled page from the graded record for every
+     recent game the current slate no longer builds (the live report wins when both exist). */
+  const taken = new Set(live.map((p) => `${p.sport}/${p.gameId}`));
+  const settled = settledMlbGames(currentEtDate()).filter((g) => !taken.has(`mlb/${g.slug}`)).map((g) => ({ sport: "mlb", gameId: g.slug }));
+  return [...live, ...settled];
+}
+
+/** The settled MLB view for a URL the current slate does not build, or null. */
+function settledFor(sport: string, gameId: string) {
+  return sport === "mlb" && !getGameDetail(sport, gameId) ? settledMlbGame(gameId, currentEtDate()) : null;
 }
 
 export function generateMetadata({ params }: { params: { sport: string; gameId: string } }) {
@@ -48,6 +63,15 @@ export function generateMetadata({ params }: { params: { sport: string; gameId: 
       robots: { index: false, follow: true },
       openGraph: { url: here, title: "Two games share this matchup", description: "This matchup has more than one game on this date. Pick the game you want." },
     };
+  }
+  const settled = settledFor(params.sport, params.gameId);
+  if (settled) {
+    const n = settledTeamNames(settled);
+    return withRouteMetadata(`/games/mlb/${settled.slug}/`, {
+      title: `${n.away} at ${n.home} · final · MLB · GameTime Picks`,
+      description: `${n.away} at ${n.home}: the official final and how the forecast of record did. Educational, paper-only.`,
+      alternates: { canonical: `/games/mlb/${settled.slug}` },
+    });
   }
   return withRouteMetadata(`/games/${params.sport}/${params.gameId}/`, { title: "Game · GameTime Picks", description: "Game detail — educational, paper-only." });
 }
@@ -91,6 +115,12 @@ export default function GameDetailRoute({ params }: { params: { sport: string; g
     // Not a unique game — is it an ambiguous doubleheader base slug? If so, disambiguate; never guess.
     const dis = getGameDisambiguation(params.sport, params.gameId);
     if (dis) return <GameDisambiguation sport={params.sport} options={dis.options} />;
+    const settled = settledFor(params.sport, params.gameId);
+    if (settled) {
+      // link the archived lobby only when the export builds that date's page (older dates have none)
+      const lobbyHref = availableSimulateDates().includes(settled.date) ? surfaceHref("simulate", { date: settled.date }) : null;
+      return <MlbSettledGame game={settled} names={settledTeamNames(settled)} lobbyHref={lobbyHref} />;
+    }
     notFound();
   }
   // Engine game-specific suggested cards mapped to this fixture (World Cup only for now).

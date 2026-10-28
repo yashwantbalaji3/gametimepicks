@@ -120,7 +120,7 @@ function feedFacts(sport: string, root: string): FeedFact[] {
        (read from the record itself); "Regular season opens" is printed only before that, from a pre-season capture. */
     const firstGraded = nbaFirstGradedGameDate(root);
     return [
-      { label: "Games captured", detail: `${n} confirmed 2026-27 dates${preseason ? ` (${regular.length} regular season, ${preseason} preseason)` : ""} — the schedule is captured as the league releases it, never inferred` },
+      { label: "Games captured", detail: `${n} scheduled 2026-27 games${preseason ? ` (${regular.length} regular season, ${preseason} preseason)` : ""} — the schedule is captured as the league releases it, never inferred` },
       ...(firstGraded
         ? [{ label: "First graded Official Forecast game", detail: prettyDate(`${firstGraded}T12:00:00Z`) }]
         : next ? [{ label: "Regular season opens", detail: prettyDate(next) }] : []),

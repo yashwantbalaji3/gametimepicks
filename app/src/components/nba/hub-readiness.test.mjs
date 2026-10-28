@@ -55,8 +55,10 @@ test("the hub has no model ids outside Technical details — and keeps every one
   }
   assert.doesNotMatch(outside, /preseason|experimental|v0\.\d|receipt|payload|sha256|@1\b/i, "no internal vocabulary outside");
   assert.doesNotMatch(outside, /UNVALIDATED|Model details/, "the retired label and the old disclosure title are gone");
-  // KEEP: the one disclosure — frozen, not a betting recommendation, no public Model Performance record yet
-  assert.match(outside, /Not a betting recommendation\. NBA forecasts are graded after every game; a public Model Performance record for NBA has not been published yet\./);
+  // KEEP: the one disclosure — frozen, not a betting recommendation, and the record's status.
+  // REPOINTED (audit 2026-10-28 F04): the record IS published as counts; the note says so and that it is not judged yet.
+  assert.match(outside, /Not a betting recommendation\. NBA forecasts are graded after every game\. The favoured-side record is published as counts on NBA results; it is not judged before 300 graded games\./);
+  assert.doesNotMatch(outside, /has not been published/, "never claims the published record is missing");
 });
 
 test("before the morning publish: one pending line with the first tip-off; cards carry no repeated pending text", () => {

@@ -194,9 +194,12 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
           removes is the COMPARISON, and this row is not part of the paired evaluation. */}
       {row.modelOnly ? (
         <p className="mt-3" style={{ fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>
-          <strong style={{ color: "var(--vault-text)" }}>Model-only, pre-odds:</strong> no authorized market
-          snapshot covers this fixture yet, so there is no market comparison here — only the model&apos;s own
-          numbers. Prices join closer to kickoff, and this snapshot refreshes until then.
+          {/* Audit 2026-10-28 F15: "no authorized snapshot covers this fixture" was false when an OLDER capture existed (the
+              forecast pairs only with prices inside its freshness window; suggested cards accept older captures). */}
+          <strong style={{ color: "var(--vault-text)" }}>Model-only for now:</strong> no market snapshot recent
+          enough to compare covers this fixture yet, so there is no market comparison here — only the model&apos;s own
+          numbers. An older captured price may still appear on a suggested card, which accepts older captures and shows
+          the price it used. Prices join this forecast closer to kickoff, and this snapshot refreshes until then.
         </p>
       ) : null}
 

@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import path from "node:path";
 import { loadWorldCupSpecials } from "./world-cup/world-cup-specials.ts";
 import { deriveSpecialsTracker } from "./world-cup/specials-tracker.ts";
 import { loadMoonshotLane } from "./moonshot/moonshot-lane.ts";
@@ -105,4 +106,11 @@ test("Moonshot activation rule: candidate cannot activate after kickoff (no late
   assert.equal(candidateReadiness(cand, "2026-06-23T20:30:00Z").state, "expired", "expired after kickoff");
   // The synthetic candidate is never activated → the activation rule never authorizes late exposure.
   assert.equal(cand.activated, false, "candidate is not activated (no exposure placed)");
+});
+
+test("F20 (audit 2026-10-28): the retired archive never promises a fresh box", () => {
+  const page = fs.readFileSync(path.join(process.cwd(), "src/app/world-cup-specials/page.tsx"), "utf8");
+  assert.match(page, /<WorldCupSpecialsTracker[^>]*\bretired\b/, "the archive renders the tracker in its retired state");
+  const tracker = fs.readFileSync(path.join(process.cwd(), "src/components/specials/world-cup-specials-tracker.tsx"), "utf8");
+  assert.match(tracker, /retired\s*\?\s*"This product is retired, so no new boxes post\./);
 });

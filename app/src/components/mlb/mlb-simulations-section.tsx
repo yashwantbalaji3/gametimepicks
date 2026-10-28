@@ -64,7 +64,7 @@ export default function MlbSimulationsSection({ set, hrefFor, isTodaysSlate = tr
       <SectionHeader
         eyebrow={`Simulations · ${rows.length} game${rows.length === 1 ? "" : "s"}`}
         title="Open a game's full distribution"
-        sub="Every game on the slate simulated pitch by pitch from the posted lineups — win probability, the run-total distribution, the likeliest final scores, the run line and a simulated box score. These are the model's own numbers and are not compared against any sportsbook price."
+        sub="Every game on the slate simulated plate appearance by plate appearance from the posted lineups — win probability, the run-total distribution, the likeliest final scores, the run line and a simulated box score. These are the model's own numbers and are not compared against any sportsbook price."
       />
       <div className="mt-4 grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))" }}>
         {rows.map(({ c, href }) => <SimCard key={c.slug} c={c} href={href} isTodaysSlateRow={isTodaysSlate} />)}
