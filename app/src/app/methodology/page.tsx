@@ -19,6 +19,7 @@ import TerminalSummaryPanel from "@/components/research/terminal-summary-panel";
 import { loadTerminal } from "@/lib/research/public-contract-adapter";
 import SportOverviewHero from "@/components/sport-overview-hero";
 import SimulationCoverageMatrix from "@/components/simulation-coverage-matrix";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import path from "node:path";
 import { currentEtDate } from "@/lib/freshness";
@@ -119,8 +120,21 @@ export default function MethodologyPage() {
         <WorkflowDiagram />
       </Section>
 
+      {/* Overnight 10-28 (W5): /methodology ran 25 phone screens. The long reference sections below are folded into the
+          shared MoreDisclosure — every word is still server-rendered, findable and deep-linkable (#terms, #model-status
+          open their disclosure). What stays open: the scoped comparison panel, the workflow, what each sport publishes,
+          data integrity and the standing limitations. */}
+      {/* Honest per-market coverage — what each sport simulates + every gap with the reason. */}
+      <Folded title="Every market we cover, and the ones we don't" summary="Market by market for each sport, with the reason any market is unavailable or kept out of products." id="coverage">
+        <SimulationCoverageMatrix />
+      </Folded>
+
+      {/* The reader's questions, answered from the SAME canonical artifact the rest of the site
+         renders, so an explanation cannot drift from the numbers it explains. */}
+      <HowToReadThis terminal={loadTerminal()} />
+
       {/* SECTION 2 — Universal math */}
-      <Section title="Universal math">
+      <Folded title="The math behind every number" summary="Seven steps: odds to probability, removing the bookmaker's margin, model probability, the model–market difference, calibration, data quality and parlay odds." id="math">
         <div className="space-y-5">
           <Block title="01 · American odds → implied probability">
             <Formula>
@@ -213,13 +227,13 @@ export default function MethodologyPage() {
             </p>
           </Block>
         </div>
-      </Section>
+      </Folded>
 
       {/* SECTION 2.5 — What a prediction is allowed to use. Trimmed from a nine-block framework tour
           that described a cross-sport engine in the present tense and named product surfaces by old
           labels. What survives is the part a reader needs to judge the numbers: the no-leakage rule
           and the difference between a probability and our confidence in it. */}
-      <Section title="What a prediction is allowed to use">
+      <Folded title="What a prediction is allowed to use" summary="The no-leakage rule, why confidence is not probability, and how missing data is shown." id="inputs">
         <p className="text-[14px] sm:text-[15px] leading-relaxed mb-4" style={{ color: "var(--vault-text-mute)" }}>
           Every input has to exist before the event starts. That sounds obvious and is the single
           easiest way for a backtest to flatter itself, so it is enforced rather than assumed.
@@ -256,13 +270,13 @@ export default function MethodologyPage() {
             </p>
           </Block>
         </div>
-      </Section>
+      </Folded>
 
       {/* SECTION 3 — Sport coverage. These cards state what is TRUE TODAY per sport, which for most of
           them is "not modelled". They previously described NBA and soccer models in the present tense
           long after either stopped producing anything. */}
       {/* founder directive 2026-10-23 public readiness: the public vocabulary, defined once (lib/public-registry.ts) */}
-      <Section title="The words we use" id="terms">
+      <Folded title="The words we use" summary="Official Forecast, Game Simulation, Model Performance and the other terms on every page." id="terms">
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {Object.values(PUBLIC_TERMS).map((t) => (
             <div key={t} className="vault-deluxe-card p-4">
@@ -271,7 +285,7 @@ export default function MethodologyPage() {
             </div>
           ))}
         </dl>
-      </Section>
+      </Folded>
 
       <Section title="By sport — what is published">
         {/* F04 (audit 2026-10-23 · founder directive public readiness): every sport claim below is read from the public
@@ -341,7 +355,7 @@ export default function MethodologyPage() {
       {/* P309: the status vocabulary every forecast card carries, explained once, in reader words. The
           labels and sentences are the contract's own (lib/command-center/contract.ts), so the chip on a
           card and this glossary cannot drift apart. */}
-      <Section title="What a model status means" id="model-status">
+      <Folded title="What a model status means" summary="The status chip every forecast carries, explained once." id="model-status">
         <p className="text-[14px] leading-relaxed mb-4" style={{ color: "var(--vault-text-mute)" }}>
           Every forecast carries the status of the model behind it. Health is an alarm, not a demotion: only a
           preregistered forward test or the live-record gate changes what publishes.
@@ -354,7 +368,7 @@ export default function MethodologyPage() {
             </div>
           ))}
         </dl>
-      </Section>
+      </Folded>
     </div>
   );
 }
@@ -362,6 +376,17 @@ export default function MethodologyPage() {
 // ---------------------------------------------------------------------------
 // Section + concept helpers
 // ---------------------------------------------------------------------------
+/** A long reference section, folded: the shared MoreDisclosure (content server-rendered, #id deep links open it). */
+function Folded({ title, summary, id, children }: { title: string; summary: string; id: string; children: ReactNode }) {
+  return (
+    <section className="mt-6" aria-label={title}>
+      <MoreDisclosure title={title} summary={summary} id={id}>
+        {children}
+      </MoreDisclosure>
+    </section>
+  );
+}
+
 function Section({ title, children, id }: { title: ReactNode; children: ReactNode; id?: string }) {
   return (
     <section className="mt-12 reveal" id={id}>
@@ -568,15 +593,6 @@ function WorkflowDiagram() {
           ))}
         </div>
       </div>
-
-      {/* Honest per-market coverage — what each sport simulates + every gap with the reason. */}
-      <div className="mt-10">
-        <SimulationCoverageMatrix />
-      </div>
-
-      {/* The reader's questions, answered from the SAME canonical artifact the rest of the site
-         renders, so an explanation cannot drift from the numbers it explains. */}
-      <HowToReadThis terminal={loadTerminal()} />
     </div>
   );
 }
