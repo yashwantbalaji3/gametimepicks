@@ -30,6 +30,7 @@ import { familyHref, ledgerFamilies } from "../src/lib/results/v2/forecast-ledge
 import { FAMILY_LABELS, SPORT_LABELS } from "../src/lib/results/v2/forecast-record.mjs";
 import { searchPageRows } from "../src/lib/search/search-pages.ts";
 import { nbaSearchRows } from "../src/lib/search/nba-search-rows.mjs";
+import { eplPlayerHref, eplPlayerPageIndex } from "../src/lib/search/epl-player-pages.mjs";
 import { AMENDMENT_A, LANE, LANE_SNAPSHOT_SCHEMA } from "../src/lib/sports/nba/experimental-public-lane.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -140,6 +141,10 @@ for (const lg of soccerLeaguePages().map((l) => l.key)) {
       [r.homeClub, r.awayClub, String(set.competition ?? "").toLowerCase(), "soccer", "football"].filter(Boolean));
   }
 }
+/* The research registry (read again below for its own rows): a player with a page opens it (lib/search/epl-player-pages). */
+const eplPlayerPages = eplPlayerPageIndex((() => {
+  try { return JSON.parse(fs.readFileSync(path.join(APP, "..", "data", "research-projection", "v1", "index.json"), "utf8")); } catch { return null; }
+})());
 for (const f of read("soccer/epl/player-projections/latest.json")?.fixtures ?? []) {
   if (!f.slug) continue;
   const shown = [...(f.players ?? [])]
@@ -148,7 +153,7 @@ for (const f of read("soccer/epl/player-projections/latest.json")?.fixtures ?? [
   for (const p of shown) {
     if (!p.name) continue;
     add("player", p.name, `Premier League · ${p.teamName ?? ""} · ${f.matchup}`.replace(" ·  ·", " ·"),
-      `/epl/match/${f.slug}/`, [p.teamName, "epl", "premier league", "soccer", "football"].filter(Boolean));
+      eplPlayerHref(p, f.slug, eplPlayerPages), [p.teamName, "epl", "premier league", "soccer", "football"].filter(Boolean));
   }
 }
 
