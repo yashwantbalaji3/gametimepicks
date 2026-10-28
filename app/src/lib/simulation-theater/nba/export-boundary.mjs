@@ -93,26 +93,41 @@ export function scanExportForNbaPrivate(outDir, { publicTheaterOn = false } = {}
   return res;
 }
 
+/** The settled page's own attribute (components/nba/settled-simulation.tsx SETTLED_SIMULATION_ATTR — pinned equal in tests). */
+export const SETTLED_PAGE_MARKER = "data-nba-settled-simulation";
+
 /**
  * FLAG-ON SCAN (activation checklist §6, founder decision 2026-10-21): an export built with the NBA public Theater gate
  * on. Beyond scanExportForNbaPrivate({ publicTheaterOn: true }) — every §5 marker a leak except the three allowlisted
  * ones, and those only under nba/simulation/ and _next/static/ — it proves:
  *   - `pages`        the published /nba/simulation/<id>/ pages (the inert placeholder excluded);
  *   - `missing`      per page, every required string (`required`: the founder's labels) that its HTML does not carry;
- *   - `strayChunks`  marker-bearing static chunks that a page OUTSIDE /nba/simulation/ loads by <script src>. Lazy chunks
- *                    reached only through the island's dynamic import are not referenced by any other page's HTML.
+ *   - `strayChunks`  marker-bearing static chunks that a page OUTSIDE /nba/simulation/ — or a settled page — loads by
+ *                    <script src>. Lazy chunks reached only through the island's dynamic import are not referenced by any
+ *                    other page's HTML.
+ * SETTLED PAGES (overnight W7 2026-10-28): a past slate's game keeps its URL as a settled page (frozen Official Forecast +
+ * final, "Game Simulation archived", no simulation), marked by SETTLED_PAGE_MARKER. They are listed apart
+ * (`settledPages`), must carry `settledRequired`, and may carry NO Theater marker at all, allowlisted or not
+ * (`settledLeaks`): a settled page that showed the engine or a playback would be re-publishing a past scenario.
  * @param {string} outDir
- * @param {{ required: string[], placeholder: string }} opts
+ * @param {{ required: string[], placeholder: string, settledRequired?: string[] }} opts
  */
-export function scanFlagOnTheaterExport(outDir, { required, placeholder }) {
+export function scanFlagOnTheaterExport(outDir, { required, placeholder, settledRequired = [] }) {
   const base = scanExportForNbaPrivate(outDir, { publicTheaterOn: true });
   const simDir = path.join(outDir, "nba", "simulation");
-  const pages = fs.existsSync(simDir) ? fs.readdirSync(simDir, { withFileTypes: true }).filter((d) => d.isDirectory() && d.name !== placeholder && fs.existsSync(path.join(simDir, d.name, "index.html"))).map((d) => d.name).sort() : [];
+  const all = fs.existsSync(simDir) ? fs.readdirSync(simDir, { withFileTypes: true }).filter((d) => d.isDirectory() && d.name !== placeholder && fs.existsSync(path.join(simDir, d.name, "index.html"))).map((d) => d.name).sort() : [];
   const decode = (s) => s.replace(/&#x27;|&#39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
-  const missing = pages.flatMap((id) => {
-    const html = decode(fs.readFileSync(path.join(simDir, id, "index.html"), "utf8"));
-    return required.filter((r) => !html.includes(r)).map((r) => ({ page: id, missing: r }));
-  });
+  const htmlOf = (id) => decode(fs.readFileSync(path.join(simDir, id, "index.html"), "utf8"));
+  const settledPages = all.filter((id) => htmlOf(id).includes(`${SETTLED_PAGE_MARKER}=`));
+  const pages = all.filter((id) => !settledPages.includes(id));
+  const missing = [
+    ...pages.flatMap((id) => { const html = htmlOf(id); return required.filter((r) => !html.includes(r)).map((r) => ({ page: id, missing: r })); }),
+    ...settledPages.flatMap((id) => { const html = htmlOf(id); return settledRequired.filter((r) => !html.includes(r)).map((r) => ({ page: id, missing: r })); }),
+  ];
+  const settledLeaks = settledPages.flatMap((id) => fs.readdirSync(path.join(simDir, id)).filter((f) => TEXT_EXT.test(f)).flatMap((f) => {
+    const body = fs.readFileSync(path.join(simDir, id, f), "utf8");
+    return NBA_THEATER_FLAG_ON_ALLOWLIST.filter((m) => body.includes(m)).map((marker) => ({ page: id, file: f, marker }));
+  }));
   const markerChunks = new Set();
   const others = [];
   const walk = (dir) => {
@@ -121,10 +136,10 @@ export function scanFlagOnTheaterExport(outDir, { required, placeholder }) {
       if (e.isDirectory()) { walk(full); continue; }
       const rel = path.relative(outDir, full).split(path.sep).join("/");
       if (rel.startsWith("_next/static/") && /\.js$/.test(e.name) && NBA_THEATER_FLAG_ON_ALLOWLIST.some((m) => fs.readFileSync(full, "utf8").includes(m))) markerChunks.add(`/${rel}`);
-      else if (/\.html$/.test(e.name) && !rel.startsWith("nba/simulation/")) others.push(rel);
+      else if (/\.html$/.test(e.name) && (!rel.startsWith("nba/simulation/") || settledPages.some((id) => rel === `nba/simulation/${id}/index.html`))) others.push(rel);
     }
   };
   walk(outDir);
   const strayChunks = others.flatMap((rel) => [...fs.readFileSync(path.join(outDir, rel), "utf8").matchAll(/src="(\/_next\/static\/[^"]+\.js)"/g)].map((m) => m[1]).filter((src) => markerChunks.has(src)).map((chunk) => ({ page: rel, chunk })));
-  return { ...base, pages, missing, markerChunks: [...markerChunks].sort(), strayChunks };
+  return { ...base, pages, settledPages, missing, settledLeaks, markerChunks: [...markerChunks].sort(), strayChunks };
 }

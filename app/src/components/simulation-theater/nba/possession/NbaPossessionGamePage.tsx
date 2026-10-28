@@ -18,7 +18,7 @@ import { loadCurrentLane, loadLaneForDate } from "@/components/nba/experimental-
 import { nbaTodaySlate } from "@/lib/sport-hub/nba-hub";
 import { etDateOf } from "@/lib/sports/nba/finals-record.mjs";
 
-export const NBA_RESULTS_HREF = "/nba/#nba-results";
+export const NBA_RESULTS_HREF = "/results/nba/"; // the official record (expired-simulation.mjs NBA_RESULTS_LINK)
 
 /* Only what the panel prints (id, name, reason, pre-cutoff status) crosses into the client island's props. */
 type LaneUnavailableRow = { providerAthleteId: string; name: string | null; reason: string; status?: string | null };
