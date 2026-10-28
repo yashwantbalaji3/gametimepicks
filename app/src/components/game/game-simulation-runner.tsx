@@ -432,7 +432,8 @@ export default function GameSimulationRunner({
               </div>
             ) : (
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono" style={{ fontSize: 10 }}>
-              <span style={{ color: "var(--vault-text-faint)" }}><span style={{ color: "var(--vault-text-mute)" }}>Model</span> {dash(view.modelVersion)}</span>
+              {/* Overnight W8: on NFL reports the model id reads in the report's Technical details, not here. */}
+              {view.sport === "nfl" ? null : <span style={{ color: "var(--vault-text-faint)" }}><span style={{ color: "var(--vault-text-mute)" }}>Model</span> {dash(view.modelVersion)}</span>}
               {view.allowsRunCountClaim && view.runCount != null ? (
                 <span style={{ color: "var(--vault-text-faint)" }}><span style={{ color: "var(--vault-text-mute)" }}>Runs</span> {view.runCount.toLocaleString("en-US")}</span>
               ) : null}
@@ -481,7 +482,7 @@ export default function GameSimulationRunner({
 
           {/* Paper-only — the single closing disclaimer (detailed disclaimers live in the report methodology). */}
           <p className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-            Paper-only · educational · not betting advice · same model output for every user · {versionNote}
+            Paper-only · educational · not betting advice · same model output for every user{view.sport === "nfl" ? "" : ` · ${versionNote}`}
           </p>
 
           {/* Post-reveal navigation — a primary "run another" plus quiet secondaries (back to the lobby /
