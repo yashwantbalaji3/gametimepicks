@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-28T16:00:30Z",
- "sourceGeneratedAt": "2026-10-28T16:00:30Z",
+ "generatedAt": "2026-10-28T19:48:43Z",
+ "sourceGeneratedAt": "2026-10-28T19:48:43Z",
  "forecastInputHash": "1ea4f3e73c19a7c0",
  "providerEventId": "401873024",
  "matchup": "ARI @ DAL",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-28T16:00:30Z",
-  "roleEvidenceAt": "2026-10-28T16:00:30Z",
+  "injuriesCapturedAt": "2026-10-28T19:48:43Z",
+  "roleEvidenceAt": "2026-10-28T19:48:43Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -72,8 +72,14 @@
  "newArrivals": {},
  "arrivalsShadowed": 0,
  "departedFiltered": 0,
- "practiceSquadFiltered": 0,
- "practiceSquadFilteredPlayers": [],
+ "practiceSquadFiltered": 1,
+ "practiceSquadFilteredPlayers": [
+  {
+   "playerId": "nfl-athlete-3059722",
+   "name": "Zay Jones",
+   "team": "ARI"
+  }
+ ],
  "shareLevel": {
   "markets": [
    "anytime_td",
@@ -87,13 +93,13 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 54,
+  "absent": 52,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "ARI": {
    "counts": {
-    "PROJECTED": 11,
+    "PROJECTED": 10,
     "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
@@ -195,16 +201,6 @@
      "state": "PROJECTED",
      "families": [
       "player_reception_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-3059722",
-     "name": "Zay Jones",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
@@ -415,19 +411,6 @@
     "state": "CONSERVED"
    },
    {
-    "team": "ARI",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.9516,
-    "originalSum": 0.9516,
-    "residualOther": 0.0484,
-    "joined": 7,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
     "team": "DAL",
     "pool": "targets",
     "markets": [
@@ -436,6 +419,19 @@
     "sum": 0.8953,
     "originalSum": 0.8953,
     "residualOther": 0.1047,
+    "joined": 6,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "ARI",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.8925,
+    "originalSum": 0.8925,
+    "residualOther": 0.1075,
     "joined": 6,
     "missed": 0,
     "state": "CONSERVED"
@@ -932,27 +928,6 @@
     },
     "anytime_td": {
      "probability": 0.0856,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3059722",
-   "name": "Zay Jones",
-   "team": "ARI",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_receptions": {
-     "mean": 1.4514,
-     "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.0855,
      "pricingState": "NOT_PROBED"
     }
    }
