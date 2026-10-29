@@ -143,5 +143,5 @@ test("the World Model V2 routes fold into the game page and the hub (redirects, 
   const page = fs.readFileSync(path.join(APP, "src/app/nfl/game/[eventId]/page.tsx"), "utf8");
   for (const c of ["<GameHero", "<SimulationPanel", "<FamilyTabs {...gameTabs(view)}", "<GameExplorer", "<Methodology"]) assert.ok(page.includes(c), `game page renders ${c}`);
   const hub = fs.readFileSync(path.join(APP, "src/app/nfl/page.tsx"), "utf8");
-  assert.ok(hub.includes("<ModelStatus />") && /\{\.\.\.boardTabs\(unifiedBoards\.boards\)\}/.test(hub), "the hub states the model status once and ranks from the shared view");
+  assert.ok(hub.includes("<ModelStatus />") && /\{\.\.\.topBoardTabs\(topBoardsBlock\.weekly\)\}/.test(hub), "the hub states the model status once and renders the one ranking owner's Top boards");
 });
