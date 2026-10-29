@@ -317,12 +317,14 @@ test("payload: the client gets no private path / hash / supporting-engine id; th
     assert.equal(t.ok, true, JSON.stringify(t.error));
     const json = JSON.stringify(t.payload);
     for (const m of [...ALWAYS, "PRIVATE_RESEARCH", "data/internal", "gitBlobCommit", "payloadSha256", "experimental-v1", DOC.engine.fitReport.sha256]) assert.ok(!json.includes(m), `${id} payload carries ${m}`);
-    const def = t.payload.runs.filter((r) => !r.hypothetical);
-    assert.equal(def.length, 1);
-    assert.equal(def[0].kind, "default");
-    assert.equal(def[0].role, "SUPPORTING_RUN");
-    for (const r of t.payload.runs.filter((x) => x.kind !== "default")) { assert.equal(r.hypothetical, true); assert.equal(r.role, "WHAT_IF"); }
-    assert.equal(t.payload.selection.defaultKind, "default");
+    // Track C 2026-10-29: every run is a hypothetical simulated scenario; exactly one is the CENTRAL scenario (chosen
+    // from the engine's own pool, without the official side) and the page opens on it
+    assert.ok(t.payload.runs.every((r) => r.hypothetical === true), `${id}: every run is hypothetical`);
+    const central = t.payload.runs.filter((r) => r.role === "CENTRAL_SCENARIO");
+    assert.equal(central.length, 1);
+    for (const r of t.payload.runs.filter((x) => x !== central[0])) assert.equal(r.role, "WHAT_IF");
+    assert.equal(t.payload.selection.defaultKind, central[0].kind);
+    assert.equal(t.payload.selection.central.runIndex, central[0].runIndex);
     assert.equal(t.payload.official.favouredSide, snapshotOf(id).game.winner.side);
     assert.ok(Object.keys(t.payload.official.withheld).includes("winProbability"));
   }
@@ -359,12 +361,18 @@ test("loader refusals: no artifact, game absent, wrong schema, official forecast
 });
 
 test("public loader: same payload as the full loader (byte-identical), reading only the possession artifact; embedded panel drift is refused", async () => {
-  const { loadPublicPossessionTheater, publicPossessionEvents } = await import("./public-loader.mjs");
+  const { loadPublicPossessionTheater, publicPossessionEvents, readLaneDay } = await import("./public-loader.mjs");
+  const { officialPanelFromLane } = await import("./payload.mjs");
+  const { eloWinProbabilityOf, eloWinProbabilityText } = await import("../../../sports/nba/elo-win-probability.mjs");
   for (const id of IDS) {
     const full = loadNbaPossessionTheater(REPO, id);
     const pub = loadPublicPossessionTheater(REPO, id, { date: DATE });
     assert.equal(pub.ok, true, JSON.stringify(pub.error));
-    assert.equal(JSON.stringify(pub.payload), JSON.stringify(full.payload), `${id}: public payload ≠ full payload`);
+    // Track C: the public page prints the LANE's numbers (the canonical accessor); everything else is the full loader's
+    const laneGame = readLaneDay(REPO, DATE).games.find((g) => String(g.providerEventId) === id);
+    const elo = eloWinProbabilityOf(laneGame);
+    const expected = { ...full.payload, official: officialPanelFromLane(full.payload.official, laneGame, elo, elo ? eloWinProbabilityText(elo) : null) };
+    assert.equal(JSON.stringify(pub.payload), JSON.stringify(expected), `${id}: public payload ≠ full payload with the lane's printed numbers`);
     assert.equal(JSON.stringify(pub.palettes), JSON.stringify(full.palettes));
   }
   assert.deepEqual(publicPossessionEvents(REPO, { date: DATE, now: `${DATE}T15:00:00Z` }), IDS, "the slate's own day publishes every game");

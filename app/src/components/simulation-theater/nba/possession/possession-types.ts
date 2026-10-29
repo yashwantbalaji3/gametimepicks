@@ -7,7 +7,7 @@ export type PbEvent = {
   n?: number; of?: number; kind?: string; steal?: string | null; on?: string | null; fouledOut?: boolean; final?: [number, number];
 };
 export type PbRun = {
-  kind: string; title: string; role: "SUPPORTING_RUN" | "WHAT_IF"; hypothetical: boolean; runIndex: number; rule: string; distance: number | null;
+  kind: string; title: string; role: "CENTRAL_SCENARIO" | "WHAT_IF"; hypothetical: boolean; runIndex: number; rule: string; distance: number | null;
   final: { home: number; away: number }; periods: [number[], number[]]; overtimePeriods: number; events: PbEvent[];
 };
 export type PbOfficialPlayer = { playerId: string; team: "home" | "away" | null; displayName: string | null; participation: string | null; medians: Record<string, number | null>; expectedMinutes: number | null };
@@ -15,13 +15,15 @@ export type PbOfficial = {
   snapshotId: string; eventId: string; publication: string | null; favouredSide: "HOME" | "AWAY" | null; sideRule: string | null;
   models: { game: string | null; players: string[] }; frozenAt: string | null; lockAt: string | null;
   withheld: Record<string, string>; players: PbOfficialPlayer[];
+  /** the lane's Elo-derived game-winner estimate through the shared accessor (null → withheld, as on every surface) */
+  source?: "LANE"; elo?: { home: number; away: number; homePct: string | number; awayPct: string | number; label: string; text: string | null; attr: string } | null;
 };
 export type PbPayload = {
   schema: string; eventId: string; dateUtc: string | null; venue: string | null;
   teams: { home: { abbr: string; name: string }; away: { abbr: string; name: string } };
   engine: { id: string; label: string; inputAsOf: string; poolSize: number; poolChecked: number | null; poolViolations: number | null; checker: string };
   rosters: { home: { id: string; name: string | null }[]; away: { id: string; name: string | null }[] };
-  selection: { rules: Record<string, string>; defaultKind: string | null };
+  selection: { rules: Record<string, string>; defaultKind: string | null; central?: { rule: string; runIndex: number; poolSize: number; poolHomeWinShare: number } | null };
   official: PbOfficial | null;
   runs: PbRun[];
 };

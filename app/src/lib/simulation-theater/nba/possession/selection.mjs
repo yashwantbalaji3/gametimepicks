@@ -44,7 +44,9 @@ export const POSSESSION_SELECTION_RULES = Object.freeze({
 
 /** Kind → the reader-facing title of the run selector chip. */
 export const POSSESSION_KIND_TITLE = Object.freeze({
-  [POSSESSION_RUN_KIND.DEFAULT]: "Default run",
+  // Track C 2026-10-29: this kind is picked among runs the Elo favourite WON, so its title says so; the Theater no longer
+  // opens on it (payload.mjs centralScenario chooses the opening run without the official side).
+  [POSSESSION_RUN_KIND.DEFAULT]: "Favoured side wins",
   [POSSESSION_RUN_KIND.UPSET]: "Upset",
   [POSSESSION_RUN_KIND.HIGH]: "High-scoring",
   [POSSESSION_RUN_KIND.LOW]: "Low-scoring",

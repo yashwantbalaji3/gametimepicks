@@ -14,7 +14,7 @@ import { BOX_COLUMNS, fmtMinutes } from "@/lib/simulation-theater/nba/possession
 import { fmtClockDs, periodLabel } from "@/lib/simulation-theater/nba/possession/playback.mjs";
 import {
   ACCURACY_NOTE, ACCURACY_TITLE, DEFAULT_RUN_SUBTITLE, DEFAULT_RUN_TAG, DEFAULT_RUN_TITLE, INPUTS_AS_OF_NOTE, VERIFIED_NOTE, VERIFIED_TITLE, ENGINE_IDENTITY, ROLE_C_NOTE, OFFICIAL_PANEL_NOTE, OFFICIAL_PANEL_TITLE, OUTCOME_PANEL_TITLE, POSSESSION_BANNER,
-  POSSESSION_NOT_MODELLED, WHAT_IF_BANNER, WHAT_IF_TAG, WHAT_IS_REAL, WITHHELD,
+  POSSESSION_NOT_MODELLED, SCENARIO_LABEL, WHAT_IF_BANNER, WHAT_IF_TAG, WHAT_IS_REAL, WITHHELD, poolShareLine,
   COMPARE_TITLE, MODEL_DETAILS_TITLE, MODEL_PLAIN, PREDICTED_STATS_TITLE, SIM_BOX_TITLE, unavailableReasonText,
 } from "@/lib/simulation-theater/nba/possession/labels.mjs";
 
@@ -66,7 +66,9 @@ export function OfficialProjectionPanel({ official, teams, unavailable = null }:
       <p className="nbp-note" style={{ marginTop: 0 }}>{OFFICIAL_PANEL_NOTE}</p>
       <dl className="nbp-kv">
         <dt>Favoured side</dt><dd data-nbp-official-side="">{fav ? `${fav.name} (${fav.abbr}, ${official.favouredSide === "HOME" ? "home" : "away"}) · Elo rating` : WITHHELD}</dd>
-        <dt>Win probability</dt><dd><Withheld why={w.winProbability} /></dd>
+        {/* one accessor (lib/sports/nba/elo-win-probability.mjs, via public-loader.mjs officialPanelFromLane): the same text the
+            Official Forecast section below prints, or Withheld on both when the accessor refuses */}
+        {official.elo ? <><dt>Win probability</dt><dd data-nba-elo-wp={official.elo.attr}>{official.elo.text}</dd></> : <><dt>Win probability</dt><dd><Withheld why={w.winProbability} /></dd></>}
         <dt>Projected score</dt><dd><Withheld why={w.teamScores} /></dd>
         <dt>Margin and total</dt><dd><Withheld why={w.teamScores} /></dd>
         <dt>Player ranges</dt><dd><Withheld why={w.playerRanges} /> · medians only</dd>
@@ -122,7 +124,7 @@ export function RunSelector({ runs, selected, onSelect, idBase }: { runs: PbRun[
       }}>
       {runs.map((r, i) => (
         <button key={r.kind} type="button" role="radio" aria-checked={i === selected} tabIndex={i === selected ? 0 : -1} className="nbp-run" data-nbp-run-kind={r.kind} onClick={() => onSelect(i)}>
-          <span className="nbp-run-tag">{r.hypothetical ? WHAT_IF_TAG : DEFAULT_RUN_TAG}</span>
+          <span className="nbp-run-tag">{r.role === "CENTRAL_SCENARIO" ? DEFAULT_RUN_TAG : WHAT_IF_TAG}</span>
           {r.title} · run {r.runIndex}
         </button>
       ))}
@@ -130,19 +132,22 @@ export function RunSelector({ runs, selected, onSelect, idBase }: { runs: PbRun[
   );
 }
 
-export function RunRole({ run }: { run: PbRun }) {
-  if (!run.hypothetical) {
+export function RunRole({ run, central = null, teams = null }: { run: PbRun; central?: PbPayload["selection"]["central"]; teams?: Teams | null }) {
+  const share = teams ? poolShareLine(teams, central ?? null) : null;
+  if (run.role === "CENTRAL_SCENARIO") {
     return (
-      <div className="nbp-role" role="note" data-nbp-role="default">
+      <div className="nbp-role" role="note" data-nbp-role="central">
         <p><b>{DEFAULT_RUN_TITLE} · run {run.runIndex}</b> · {DEFAULT_RUN_SUBTITLE}</p>
-        <p className="nbp-note">Chosen by rule, not by hand: {run.rule}{run.distance != null ? ` (distance ${run.distance.toFixed(2)})` : ""}.</p>
+        <p className="nbp-note">Chosen by rule, not by hand: {central?.rule ?? run.rule}.</p>
+        {share ? <p className="nbp-note" data-nbp-pool-share="">{share}</p> : null}
       </div>
     );
   }
   return (
     <div className="nbp-role is-whatif" role="note" data-nbp-role="what-if">
       <p className="nbp-whatif-banner" data-nbp-whatif-banner="">{WHAT_IF_BANNER}</p>
-      <p><b>{run.title}</b> · one stored run, picked by rule: {run.rule}.</p>
+      <p><b>{SCENARIO_LABEL} · {run.title}</b> · one stored run, picked by rule: {run.rule}.</p>
+      {share ? <p className="nbp-note" data-nbp-pool-share="">{share}</p> : null}
     </div>
   );
 }
@@ -342,7 +347,7 @@ export function EndCard({ run, teams, official, onReplay, boxHref }: { run: PbRu
       <h3>Final · this simulated game{run.overtimePeriods ? ` · ${run.overtimePeriods === 1 ? "overtime" : `${run.overtimePeriods} overtimes`}` : ""}</h3>
       <p><b>{teams.away.abbr} {run.final.away} – {run.final.home} {teams.home.abbr}</b> · {winner.name} win this run.</p>
       <p>{fav ? `The official projection favours ${fav.name}; in this run ${winner.abbr === fav.abbr ? "the favoured side won" : "the favoured side lost"}. One run is not the forecast.` : "There is no official favoured side for this game."}</p>
-      {run.hypothetical ? <p className="nbp-whatif-banner">{WHAT_IF_BANNER}</p> : null}
+      {run.role === "CENTRAL_SCENARIO" ? <p className="nbp-whatif-banner">{SCENARIO_LABEL} — not the Official Forecast, not a real result</p> : <p className="nbp-whatif-banner">{WHAT_IF_BANNER}</p>}
       <div className="nbp-actions">
         <button type="button" className="nbp-ctl is-primary" onClick={onReplay}>Replay from tip-off</button>
         <a className="nbp-switch" href={boxHref}>Jump to the box score</a>

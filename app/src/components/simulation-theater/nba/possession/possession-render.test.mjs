@@ -97,8 +97,8 @@ test("default run is labelled one run of the unvalidated research possession eng
     const d = text(render(load));
     assert.ok(d.includes(LABELS.DEFAULT_RUN_TITLE), "the default run names the research engine");
     assert.ok(!d.includes(REP.SUPPORTING_RUN_TITLE), "Gate V2's v1 run label is not used for the possession engine");
-    assert.match(render(load), /data-nbp-role="default"/);
-    for (const r of load.payload.runs.filter((x) => x.hypothetical)) {
+    assert.match(render(load), /data-nbp-role="central"/);
+    for (const r of load.payload.runs.filter((x) => x.role === "WHAT_IF")) {
       const h = render(load, r.kind);
       assert.match(h, /data-nbp-role="what-if"/);
       assert.ok(text(h).includes(LABELS.WHAT_IF_BANNER), `${r.kind} carries the What-if Scenario banner`); // founder directive 2026-10-23 public readiness
@@ -260,16 +260,18 @@ test("inputs-as-of disclosure (release owner 2026-10-21, identical cutoffs): the
 
 
 test("scenario transparency (founder 2026-10-21): the default run is described as a SELECTED illustrative scenario — never a random draw or independent confirmation; every what-if stays hypothetical", () => {
-  assert.match(LABELS.DEFAULT_RUN_SUBTITLE, /selected illustrative run/); // founder directive 2026-10-23 public readiness: "scenario" is reserved for What-if Scenarios
-  assert.match(LABELS.DEFAULT_RUN_SUBTITLE, /among the runs the Elo favourite won/);
-  assert.match(LABELS.DEFAULT_RUN_SUBTITLE, /not a random draw/);
-  assert.match(LABELS.DEFAULT_RUN_SUBTITLE, /not an independent confirmation of the Official Forecast/);
+  // Track C 2026-10-29: the opening run is the CENTRAL scenario, chosen without the official side (so it can never be
+  // read as a confirmation of the Official Forecast); it is labelled a hypothetical simulated scenario
+  assert.match(LABELS.DEFAULT_RUN_TITLE, /^Simulated scenario \(hypothetical\)/);
+  assert.match(LABELS.DEFAULT_RUN_SUBTITLE, /chosen without looking at the Official Forecast/);
+  assert.match(LABELS.DEFAULT_RUN_SUBTITLE, /either side may win it/);
+  assert.match(LABELS.DEFAULT_RUN_SUBTITLE, /not the Official Forecast/);
   for (const load of LOADS) {
     const t = text(render(load));
     assert.ok(t.includes(LABELS.DEFAULT_RUN_SUBTITLE), `${load.eventId}: the default run carries the transparency note`);
     assert.doesNotMatch(t, /\b(random(ly)? (chosen|selected|sampled) run|typical run|confirms the (official )?forecast)\b/i, `${load.eventId}: no unbiased-draw or confirmation wording`);
-    for (const kind of ["upset", "high", "low", "overtime"]) {
-      if (!load.payload.runs?.some?.((r) => r.kind === kind) && !JSON.stringify(load.payload).includes(`"kind":"${kind}"`)) continue;
+    for (const kind of ["default", "upset", "high", "low", "overtime"]) {
+      if (!load.payload.runs?.some?.((r) => r.kind === kind && r.role === "WHAT_IF")) continue;
       assert.ok(text(render(load, kind)).includes(LABELS.WHAT_IF_BANNER), `${load.eventId} ${kind}: What-if Scenario banner`); // founder directive 2026-10-23 public readiness
     }
   }

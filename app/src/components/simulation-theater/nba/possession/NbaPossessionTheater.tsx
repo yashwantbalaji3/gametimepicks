@@ -217,7 +217,7 @@ export default function NbaPossessionTheater({ wire, palette, devHooks = false, 
         <section className="nbp-panel is-outcome" aria-label={OUTCOME_PANEL_TITLE} data-nbp-outcome={run.kind}>
           <h2>{OUTCOME_PANEL_TITLE}</h2>
           <RunSelector runs={payload.runs} selected={runIdx} onSelect={selectRun} idBase={uid} />
-          <RunRole run={run} />
+          <RunRole run={run} central={payload.selection.central ?? null} teams={teams} />
           <Linescore teams={teams} frame={frame} final={isFinal} />
           <p className="nbp-note">{isFinal ? `Final of run ${run.runIndex}: ${teams.away.abbr} ${run.final.away} – ${run.final.home} ${teams.home.abbr}${run.overtimePeriods ? ` (${run.overtimePeriods} OT)` : ""}.` : "The outcome fills in as the game plays; skip to the final at any time."}</p>
         </section>

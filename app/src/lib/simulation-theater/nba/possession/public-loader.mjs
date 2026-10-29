@@ -14,7 +14,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { buildPlaybackPayload } from "./payload.mjs";
+import { buildPlaybackPayload, officialPanelFromLane } from "./payload.mjs";
+import { eloWinProbabilityOf, eloWinProbabilityText } from "../../../sports/nba/elo-win-probability.mjs";
 import { etDateOf, readPossessionArtifact, replayGateProblems, sideConstraintProblem, validatedGame } from "./stored-run.mjs";
 import { NBA_THEATER_REPLAY_ENGINE } from "../../../consistency/theater-replay-engine.mjs";
 import { nbaPalette } from "../nba-team-colors.mjs";
@@ -90,9 +91,12 @@ export function loadPublicPossessionTheater(repoRoot, eventId, { date = publicTh
   const mismatch = laneAgreementProblem(game, panel, laneDoc);
   if (mismatch) return fail(id, "LANE_MISMATCH", mismatch);
   const colors = readColors(repoRoot);
+  // the PRINTED official numbers are the lane's (the canonical accessor), never the artifact's embedded copy
+  const laneGame = (laneDoc?.games ?? []).find((g) => String(g.providerEventId) === id) ?? null;
+  const elo = eloWinProbabilityOf(laneGame);
   return {
     eventId: id, ok: true, error: null,
-    payload: buildPlaybackPayload(game, panel),
+    payload: buildPlaybackPayload(game, officialPanelFromLane(panel, laneGame, elo, elo ? eloWinProbabilityText(elo) : null)),
     palettes: { team: nbaPalette(colors, game.home.abbr, game.away.abbr), neutral: nbaPalette(colors, game.home.abbr, game.away.abbr, { neutral: true }) },
   };
 }
