@@ -1,4 +1,4 @@
-# Founder Odds-API Authorization — NBA player props, PRIVATE capture, 2026-10-28 → 2026-10-31
+# Founder Odds-API Authorization — NBA player props, PRIVATE capture, 2026-10-28 (closed)
 
 **Provenance:** delivered by the founder in the release-owner session ("GameTimePicks Launch Readiness") on 2026-10-28,
 after the NBA lines plan (`GameTimePicks_Launch_Program_2026-10-28/NBA_LINES_PLAN.md`, draft PR #1279). Committed so the NBA
@@ -33,7 +33,7 @@ Effective cumulative ceiling: 1,011 credits
 | Cadence | at most ONE successful capture per game, 20–75 minutes before tip; never at or after tip |
 | Credit floor | every paid call requires remaining − cost ≥ `ODDS_API_MIN_CREDITS_REMAINING` (2000); an unreadable balance stops the run before any paid call |
 | Failures | any 401/429/5xx/unmodelled status or transport error stops the run; do not retry blindly; a transport error is booked as charged |
-| Expiry | the 1,011-credit cumulative ceiling, or 2026-10-31 23:59 ET, whichever comes first |
+| Expiry | the 1,011-credit cumulative ceiling, or 2026-10-28 23:59 ET, whichever comes first (closed early by the founder on 2026-10-29 after the 401 stop; any new capture needs a new dated receipt with verified date, games, markets and ceiling) |
 | Storage | price records ONLY in a private directory outside every repository (founder storage decision 2026-10-22); the capture runs on the release owner's machine, never on a GitHub-hosted runner (public logs, no private storage); only the credit ledger (no line, no price) may be committed |
 | Output | PRIVATE_RESEARCH, productEligible false; no price, line or book name reaches any public page, export or social graphic; no recommendation, product leg or promotion threshold changes |
 | Kill switch | stop the local schedule (no further runs); the receipt refuses on its own after its expiry or ceiling |
