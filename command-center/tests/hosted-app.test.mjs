@@ -15,6 +15,7 @@ import { githubDispatcher } from "../jobs/dispatchers.mjs";
 import { runWorkerJob } from "../worker/worker.mjs";
 import fs from "node:fs";
 import { createHostedApp, stepUpActionFor } from "../hosted/app.mjs";
+import { CC_ROOT as CC_ROOT_FOR_TEST } from "../lib/util.mjs";
 import { sha256, stepClock } from "../lib/util.mjs";
 import { tempDir, TEST_SLATE, RECAP_COMMAND } from "./helpers.mjs";
 
@@ -272,4 +273,37 @@ test("D1: recording an X link (the publication receipt) needs a step-up, and the
   assert.equal(stepUpActionFor("/api/decide", { verdict: "approve", sourcesConfirmed: true }), "approve");
   const client = fs.readFileSync(new URL("../surfaces/console/webauthn.js", import.meta.url), "utf8");
   assert.match(client, /url === "\/api\/post"\) return body\.action === "publish" \? "attest" : null/);
+});
+
+test("new recovery codes: signed-in founder + step-up only; returned once, no-store; the ledger records counts, never codes", async () => {
+  const h = await setup();
+  assert.equal((await h.call("POST", "/api/auth/recovery-codes", {})).status, 401, "no session");
+  const first = await h.register();
+  assert.equal((await h.call("POST", "/api/auth/recovery-codes", {})).body.code, "STEP_UP_REQUIRED");
+  const r = await h.withStepUp("/api/auth/recovery-codes", {}, "recovery-codes");
+  assert.equal(r.status, 200, JSON.stringify(r.body));
+  assert.equal(r.headers.get("cache-control"), "no-store");
+  assert.equal(r.body.recoveryCodes.length, 10);
+  assert.ok(r.body.recoveryCodes.every((c) => !first.body.recoveryCodes.includes(c)));
+  const st = await h.call("GET", "/api/state");
+  assert.equal(st.status, 200, "the session that asked is still signed in");
+  assert.ok(st.body.history.some((x) => x.kind === "auth" && /recovery-codes-replaced/.test(x.line)));
+  const everything = JSON.stringify(st.body);
+  for (const c of [...r.body.recoveryCodes, ...first.body.recoveryCodes]) assert.ok(!everything.includes(c), "no code in state or the ledger");
+});
+
+test("the browser asks for Face ID on exactly the requests the server requires it for", async () => {
+  const vm = await import("node:vm");
+  const src = fs.readFileSync(path.join(CC_ROOT_FOR_TEST, "surfaces/console/webauthn.js"), "utf8");
+  const window = {};
+  vm.runInNewContext(src, { window, navigator: {}, fetch: () => { throw new Error("no network"); }, atob, btoa, Uint8Array, TextEncoder, TextDecoder });
+  const cases = [
+    ["/api/decide", { verdict: "approve" }], ["/api/decide", { verdict: "keep" }], ["/api/decide", { verdict: "reject" }],
+    ["/api/pause", { paused: true }], ["/api/pause", { paused: false }], ["/api/command", { text: "resume" }],
+    ["/api/attest", {}], ["/api/seat", {}], ["/api/design", {}], ["/api/post", { action: "publish" }], ["/api/post", { action: "verdict" }],
+    ...["live-test", "x-connect", "publisher-host", "resume", "schedule", "cancel", "dry-run-now", "reconcile"].map((a) => ["/api/publishing", { action: a }]),
+    ["/api/publishing", { action: "policy", mode: "dry-run" }], ["/api/publishing", { action: "policy", mode: "live" }],
+    ["/api/users/invite", {}], ["/api/users/update", {}], ["/api/caption", {}],
+  ];
+  for (const [url, body] of cases) assert.equal(window.GTPAuth.stepUpActionFor(url, body), stepUpActionFor(url, body), `${url} ${JSON.stringify(body)}`);
 });

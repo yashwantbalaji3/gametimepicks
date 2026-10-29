@@ -209,3 +209,47 @@ test("review fixes: a malformed setup hash fails closed instead of crashing; rec
   s.advance(16 * 60_000);
   assert.equal(await s.auth.session(r.session.token), null);
 });
+
+test("the founder can replace recovery codes with a fresh step-up: old unused codes die, passkeys and sessions stay", async () => {
+  const s = await registered();
+  const spent = s.recoveryCodes[0];
+  const used = await s.auth.recover(spent); // one old code already used: stays used
+  assert.equal(used.ok, true);
+  const o = await s.auth.registerOptions({ sessionToken: used.session.token });
+  s.device.id = "cred-2";
+  const reg = await s.auth.registerVerify({ challengeId: o.challengeId, response: s.device.register(o.options), label: "iPhone", sessionToken: used.session.token });
+  const token = reg.session.token;
+  const other = (await s.auth.loginVerify(await (async () => { const lo = await s.auth.loginOptions(); return { challengeId: lo.challengeId, response: s.device.sign(lo.options) }; })())).session.token;
+
+  assert.equal((await s.auth.rotateRecoveryCodes({ sessionToken: token })).code, "STEP_UP_REQUIRED", "a stolen cookie can't mint codes");
+  assert.equal((await s.auth.rotateRecoveryCodes({ sessionToken: "nope" })).code, "NOT_AUTHENTICATED");
+  const wrong = await s.auth.stepUpOptions({ sessionToken: token, action: "approve", payload: {} });
+  assert.equal((await s.auth.rotateRecoveryCodes({ sessionToken: token, stepUp: { challengeId: wrong.challengeId, response: s.device.sign(wrong.options) } })).code, "STEP_UP_MISMATCH", "an approval step-up can't be reused");
+
+  const su = await s.auth.stepUpOptions({ sessionToken: token, action: "recovery-codes", payload: {} });
+  const r = await s.auth.rotateRecoveryCodes({ sessionToken: token, stepUp: { challengeId: su.challengeId, response: s.device.sign(su.options) } });
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.equal(r.recoveryCodes.length, 10);
+  assert.equal(new Set(r.recoveryCodes).size, 10);
+  assert.ok(r.recoveryCodes.every((c) => !s.recoveryCodes.includes(c)));
+  assert.match(r.audit.detail, /10 new codes; 9 unused old code\(s\) stopped working/);
+  assert.ok(!JSON.stringify(r.audit).includes(r.recoveryCodes[0]), "the audit record never carries a code");
+  assert.equal((await s.auth.passkeys()).length, 2, "passkeys kept");
+  assert.ok(await s.auth.session(token), "this session kept");
+  assert.ok(await s.auth.session(other), "other sessions kept");
+  const stored = (await s.db.query("SELECT code_hash FROM auth_recovery_codes WHERE used_at IS NULL")).rows;
+  assert.equal(stored.length, 10);
+  assert.ok(stored.every((x) => !r.recoveryCodes.some((c) => x.code_hash.includes(c))), "stored as hashes only");
+
+  for (const old of s.recoveryCodes.slice(1)) assert.equal((await s.auth.recover(old)).code, "RECOVERY_CODE_INVALID", "old codes stopped working");
+  const fresh = await s.auth.recover(r.recoveryCodes[4]);
+  assert.equal(fresh.ok, true, "a new code works");
+  assert.equal(fresh.remaining, 9);
+});
+
+test("only the founder account replaces recovery codes", async () => {
+  const s = await registered();
+  await s.db.query("INSERT INTO auth_users (id, display_name, role, created_at) VALUES ('u2', 'Second admin', 'admin', '2026-10-27T12:00:00.000Z')");
+  await s.db.query("UPDATE auth_sessions SET user_id = 'u2' WHERE token_hash = $1", [sha256(s.token)]);
+  assert.equal((await s.auth.rotateRecoveryCodes({ sessionToken: s.token })).code, "FORBIDDEN");
+});

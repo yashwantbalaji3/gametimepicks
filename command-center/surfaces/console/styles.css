@@ -238,7 +238,7 @@ pre.diff { max-height: 360px; white-space: pre; }
 .auth-card details { text-align: left; color: var(--mute); }
 .auth-card details summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
 .auth-card details[open] { display: flex; flex-direction: column; gap: 8px; }
-.auth-card pre { text-align: center; font-size: 15px; letter-spacing: 0.04em; user-select: all; }
+.auth-card pre { text-align: center; font-size: 15px; letter-spacing: 0.04em; user-select: all; max-height: none; overflow: visible; } /* all 10 codes, never a scroll box */
 .btn.wide { width: 100%; min-height: 48px; justify-content: center; }
 body.signed-out .layout, body.signed-out .tabbar, body.signed-out .topbar { visibility: hidden; }
 

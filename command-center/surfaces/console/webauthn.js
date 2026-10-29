@@ -53,6 +53,7 @@
       if (body.action === "live-test") return "publish-live";
       if (body.action === "policy") return body.mode === "dry-run" ? null : "publishing-policy";
       if (body.action === "x-connect") return "connect-x";
+      if (body.action === "publisher-host") return "publishing-policy";
       if (body.action === "resume") return "resume";
       return null;
     }
@@ -109,6 +110,14 @@
     async logoutAll() {
       return api("/api/auth/logout-all", {});
     },
+    /** Replace the founder's recovery codes: Face ID / Touch ID confirms, then the new set comes back once. */
+    async newRecoveryCodes() {
+      const stepUp = await assertion("/api/auth/stepup/options", { action: "recovery-codes", payload: {} });
+      const r = await api("/api/auth/recovery-codes", { stepUp });
+      if (!r.ok) fail(r.code ?? "RECOVERY_CODES_REFUSED");
+      return r.recoveryCodes;
+    },
+    stepUpActionFor,
     /** For a hosted action that needs it, a passkey assertion bound to exactly this request body. */
     async withStepUp(url, body) {
       const action = this.hosted ? stepUpActionFor(url, body) : null;

@@ -41,6 +41,8 @@ test("hosted mode on iPhone 390: passkey setup, step-up approvals, Pause without
     const problems = [];
     page.on("console", (m) => { if (m.type() === "error" && !/401/.test(m.text())) problems.push(m.text()); });
     page.on("pageerror", (e) => problems.push(String(e)));
+    const dialogs = [];
+    page.on("dialog", (d) => { dialogs.push(d.message()); d.accept(); });
     const cdp = await context.newCDPSession(page);
     await cdp.send("WebAuthn.enable");
     const { authenticatorId } = await cdp.send("WebAuthn.addVirtualAuthenticator", {
@@ -63,6 +65,7 @@ test("hosted mode on iPhone 390: passkey setup, step-up approvals, Pause without
     await page.locator("#auth-codes").waitFor();
     const codes = (await page.locator("#recovery-codes").innerText()).trim().split("\n");
     assert.equal(codes.length, 10);
+    assert.ok(await page.locator("#recovery-codes").evaluate((el) => el.scrollHeight <= el.clientHeight + 1), "all 10 first codes visible");
     await page.locator("[data-codes-saved]").tap();
     await page.locator(".tabbar").waitFor();
     const cookies = await context.cookies();
@@ -100,6 +103,24 @@ test("hosted mode on iPhone 390: passkey setup, step-up approvals, Pause without
     assert.match(hist, /Auth: passkey-registered/);
     assert.match(hist, /Auth: stepup \(approve\)/);
     for (const c of codes) assert.ok(!hist.includes(c));
+
+    // new recovery codes from the phone: Face ID confirms, the new set shows once, then "I saved them" (confirmed)
+    await page.locator('.tab[data-tab="team"]').tap();
+    const beforeCodes = await assertions();
+    await page.locator("[data-new-codes]").tap();
+    await page.locator("#auth-codes").waitFor();
+    const fresh = (await page.locator("#recovery-codes").innerText()).trim().split("\n");
+    assert.equal(fresh.length, 10);
+    assert.ok(await page.locator("#recovery-codes").evaluate((el) => el.scrollHeight <= el.clientHeight + 1), "all 10 codes visible without scrolling the box");
+    assert.ok(fresh.every((c) => !codes.includes(c)), "a new set");
+    assert.equal(await assertions(), beforeCodes + 1, "exactly one Face ID / Touch ID confirmation");
+    await page.screenshot({ path: path.join(SCREENS, "hosted-390-new-codes.png") });
+    await page.locator("[data-codes-saved]").tap();
+    await page.locator(".tabbar").waitFor();
+    assert.equal(await page.locator("#recovery-codes").innerText(), "", "the codes leave the page once saved");
+    assert.ok(dialogs.some((d) => /Every unused code you have now stops working/.test(d)) && dialogs.some((d) => /saved all 10 codes/.test(d)), dialogs.join(" | "));
+    const hist2 = await page.locator("#history").innerText().catch(() => "");
+    for (const c of fresh) assert.ok(!hist2.includes(c));
 
     // sign out, then back in with the passkey
     await page.locator('.tab[data-tab="team"]').tap();

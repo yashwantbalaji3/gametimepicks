@@ -19,7 +19,8 @@
  *                   (this session, this action, sha256 of this exact payload) and is single-use for 5 minutes.
  *                   A stolen cookie therefore cannot approve, keep, resume, attest or change seats.
  *   Recovery codes  10 single-use codes, shown once at first registration, stored as scrypt hashes. Using one
- *                   revokes every session and opens a recovery session.
+ *                   revokes every session and opens a recovery session. The founder can replace the whole set from
+ *                   a full session with a fresh step-up: every unused old code stops working; passkeys and sessions stay.
  *
  * Every event is returned as an audit record ({ event, detail }) for the caller to write to the ledger; no secret,
  * token, code or key material ever goes into those records.
@@ -43,7 +44,7 @@ export const MAX_OPEN_CHALLENGES = 200;
 export const MAX_RECOVERY_FAILURES_PER_CLIENT_HOUR = 10;
 export const RECOVERY_SESSION_MS = 15 * 60_000;
 /** Actions that need a fresh passkey assertion bound to their exact payload. Pause and Stop deliberately don't. */
-export const STEP_UP_ACTIONS = Object.freeze(["approve", "keep", "resume", "attest", "seat", "register-passkey", "publish-live", "publishing-policy", "manage-users", "connect-x"]);
+export const STEP_UP_ACTIONS = Object.freeze(["approve", "keep", "resume", "attest", "seat", "register-passkey", "publish-live", "publishing-policy", "manage-users", "connect-x", "recovery-codes"]);
 export const ROLES = Object.freeze(["viewer", "drafter", "approver", "publisher", "admin"]);
 export const INVITE_TTL_MS = 72 * 3600_000;
 
@@ -335,6 +336,27 @@ export function createAuth({ db, clock, rpID, rpName = "GameTimePicks CEO Comman
     return { ok: true, session: sess, remaining: rows.length - 1, audit: audit("recovery-used", `${rows.length - 1} code(s) left; all sessions revoked`) };
   }
 
+  /**
+   * A new set of recovery codes for the founder (the account they recover), after a fresh step-up. In one transaction
+   * every unused old code is marked spent and 10 new ones are stored as hashes; the codes are returned once, to this
+   * session only. Passkeys and sessions are kept: replacing codes is not a sign of compromise.
+   */
+  async function rotateRecoveryCodes({ sessionToken, stepUp }) {
+    const s = await session(sessionToken);
+    if (!s || s.scope !== "full") return { ok: false, code: "NOT_AUTHENTICATED", audit: null };
+    if (s.user.id !== "founder") return { ok: false, code: "FORBIDDEN", detail: "recovery codes belong to the founder account", audit: null };
+    const su = await verifyStepUp({ sessionToken, action: "recovery-codes", payload: {}, stepUp });
+    if (!su.ok) return su;
+    const recoveryCodes = Array.from({ length: RECOVERY_CODE_COUNT }, newRecoveryCode);
+    const now = clock();
+    const replaced = await db.transaction(async (tx) => {
+      const old = await tx.query("UPDATE auth_recovery_codes SET used_at = $1 WHERE used_at IS NULL RETURNING code_hash", [now]);
+      for (const code of recoveryCodes) await tx.query("INSERT INTO auth_recovery_codes (code_hash, created_at) VALUES ($1, $2)", [hashCode(code), now]);
+      return old.rows.length;
+    });
+    return { ok: true, recoveryCodes, audit: audit("recovery-codes-replaced", `founder: ${RECOVERY_CODE_COUNT} new codes; ${replaced} unused old code(s) stopped working; passkeys and sessions kept`) };
+  }
+
   /** Sign out every device (no step-up: ending sessions is always safe). The caller's own session ends too. */
   async function logoutAll(token) {
     const s = await session(token);
@@ -400,5 +422,5 @@ export function createAuth({ db, clock, rpID, rpName = "GameTimePicks CEO Comman
     return inv ? { ok: true, displayName: inv.display_name, role: inv.role, expiresAt: inv.expires_at } : { ok: false, code: "INVITE_INVALID" };
   }
 
-  return { status, session, logout, logoutAll, registerOptions, registerVerify, loginOptions, loginVerify, stepUpOptions, verifyStepUp, recover, passkeys, createInvite, listAccounts, updateAccount, revokeInvite, inviteInfo };
+  return { status, session, logout, logoutAll, rotateRecoveryCodes, registerOptions, registerVerify, loginOptions, loginVerify, stepUpOptions, verifyStepUp, recover, passkeys, createInvite, listAccounts, updateAccount, revokeInvite, inviteInfo };
 }

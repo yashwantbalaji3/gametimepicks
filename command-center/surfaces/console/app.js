@@ -664,7 +664,7 @@
         <span>Mode</span><span>${esc(s.phase)}</span></div>
       <div class="meter"><i style="width:${pct}%"></i></div>
       <div class="row" style="margin-top:10px">${Auth.hosted
-        ? `<button class="btn small" data-logout>Sign out</button><button class="btn small" data-logout-all>Sign out everywhere</button><button class="btn small" data-add-passkey>Add a backup passkey</button>`
+        ? `<button class="btn small" data-logout>Sign out</button><button class="btn small" data-logout-all>Sign out everywhere</button><button class="btn small" data-add-passkey>Add a backup passkey</button>${s.me?.role === "admin" ? `<button class="btn small" data-new-codes>New recovery codes</button>` : ""}`
         : `<button class="btn small" data-reset>Reset demo</button>`}</div>
       ${s.me ? `<div class="muted" style="margin-top:6px">Signed in as <b>${esc(s.me.displayName)}</b> · ${esc(s.me.role)}</div>` : ""}
       ${s.me?.role === "admin" ? renderAccounts() : ""}
@@ -877,7 +877,10 @@
         const r = await Auth.recover($("recovery-code").value.trim());
         return showAuth(`Recovery code accepted (${r.remaining ?? "?"} left). Every other session was signed out. Create a replacement passkey now.`, "recovered");
       }
-      if (t.dataset.codesSaved !== undefined) { $("recovery-codes").textContent = ""; return signedIn(); }
+      if (t.dataset.codesSaved !== undefined) {
+        if (!confirm("Have you saved all 10 codes in your password manager? They can't be shown again.")) return;
+        $("recovery-codes").textContent = ""; return signedIn();
+      }
     } catch (err) {
       $("auth-msg").textContent = { INVITE_INVALID: "This invite link is not valid any more (used, revoked or expired). Ask for a new one.", ACCOUNT_DISABLED: "This account is disabled.", SETUP_TOKEN_REQUIRED: "That setup token is not right.", RECOVERY_CODE_INVALID: "That recovery code is not valid.", RATE_LIMITED: "Too many attempts. Wait a few minutes.", NotAllowedError: "The passkey prompt was cancelled." }[err.code ?? err.name] ?? `Could not complete that (${err.code ?? err.name ?? "error"}).`;
     } finally {
@@ -903,7 +906,7 @@
   });
 
   document.addEventListener("click", async (e) => {
-    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-post-record],[data-design],[data-pub],[data-caption-open],[data-caption-save],[data-caption-cancel],.lightbox");
+    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-new-codes],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-post-record],[data-design],[data-pub],[data-caption-open],[data-caption-save],[data-caption-cancel],.lightbox");
     if (!t) return;
     if (t.dataset.captionOpen) {
       e.preventDefault(); // the button sits inside the option's <label>
@@ -1079,6 +1082,15 @@
     if (t.dataset.logoutAll !== undefined) {
       if (!confirm("Sign out on every device, including this one?")) return;
       await Auth.logoutAll(); ui.last = ""; return showAuth("Signed out everywhere.", "login");
+    }
+    if (t.dataset.newCodes !== undefined) {
+      if (!confirm("Make 10 new recovery codes? Every unused code you have now stops working. Your passkeys and sessions stay. Face ID / Touch ID confirms.")) return;
+      try {
+        const codes = await Auth.newRecoveryCodes();
+        $("recovery-codes").textContent = codes.join("\n");
+        return showAuth("New recovery codes. Your old ones no longer work.", "codes");
+      } catch (err) { alert(`No new codes were made (${err.code ?? err.name}).`); }
+      return;
     }
     if (t.dataset.addPasskey !== undefined) {
       const label = prompt("Name the backup passkey (e.g. Mac):", "Mac");

@@ -259,6 +259,13 @@ export function createHostedApp({ db, clock, origin, rpID, setupTokenSha256, dis
         if (await auth.session(token)) await audit([await auth.logout(token)]);
         return json(200, { ok: true }, { "Set-Cookie": clearCookie() });
       }
+      case "/api/auth/recovery-codes": {
+        // the new codes go to this signed-in session only (no-store, never logged; the audit record has counts only)
+        const r = await auth.rotateRecoveryCodes({ sessionToken: token, stepUp: body.stepUp });
+        if (!r.ok) return json(r.code === "FORBIDDEN" ? 403 : 401, { ok: false, code: r.code });
+        await audit([r.audit]);
+        return json(200, { ok: true, recoveryCodes: r.recoveryCodes });
+      }
       case "/api/auth/logout-all": {
         const r = await auth.logoutAll(token);
         if (!r.ok) return json(401, { ok: false, code: r.code });
