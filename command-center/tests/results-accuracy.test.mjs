@@ -31,6 +31,8 @@ test("Oct 28 recomputed from committed data: 8 of 12 correct, 4 missed (ATL, MIN
   const b = await resultsAccuracy({ src, date: DATE });
   assert.equal(b.ok, true);
   assert.deepEqual([b.correct, b.total, b.missed, b.excluded.length, b.period, b.sport], [8, 12, 4, 0, "single day", "NBA"]);
+  assert.deepEqual([b.accuracyDisplay, b.sampleSize.days, b.sampleSize.games], ["66.7%", 1, 12]);
+  assert.ok(Math.abs(b.accuracy - 8 / 12) < 1e-12);
   assert.deepEqual(b.games.filter((g) => !g.correct).map((g) => g.predictedWinner), ["ATL", "MIN", "OKC", "LAC"]);
   const mia = b.games.find((g) => g.eventId === "401909881");
   assert.deepEqual([mia.away.abbr, mia.finalAway, mia.home.abbr, mia.finalHome, mia.predictedWinner, mia.estimateDisplay, mia.actualWinner, mia.correct], ["MIA", 129, "ATL", 117, "ATL", "66%", "MIA", false]);
@@ -80,18 +82,19 @@ test("exclusions: no published side, frozen after tip, no forecast, conflicting 
 test("card: own unapproved version, misses drawn as visibly as hits, brand footer, no betting words or 'probability'", { skip: skipFull }, async () => {
   const b = await resultsAccuracy({ src: gitDataSource(REPO_ROOT, FULL), date: DATE });
   assert.notEqual(RESULTS_TEMPLATE, SOCIAL_TEMPLATE);
-  assert.equal(RESULTS_TEMPLATE, "gtp-social-results@1.0");
+  assert.equal(RESULTS_TEMPLATE, "gtp-social-results@1.1");
   for (const variant of ["portrait", "square"]) {
     const html = resultsHtml(b, { variant });
     assert.equal((html.match(/data-outcome="miss"/g) ?? []).length, 4);
     assert.equal((html.match(/data-result="miss"/g) ?? []).length, 4, "every miss carries a Missed pill");
     assert.equal((html.match(/data-outcome="hit"/g) ?? []).length, 8);
     assert.ok(html.includes(DISCLOSURES.NBA) && html.includes(SOCIAL_HANDLE));
-    assert.ok(html.includes("One day of results. Not a long-term accuracy claim."));
-    assert.match(html, /data-correct="8" data-missed="4" data-total="12"/);
+    // 1.1: accuracy is the lead KPI with its sample size; the subtitle and the context / estimate lines are internal only
+    assert.match(html, /data-correct="8" data-missed="4" data-total="12" data-accuracy="66.7%"/);
     const text = visibleText(html);
     assert.match(text, /predicted winner vs final/);
-    assert.match(text, /1 day · 12 games/);
+    assert.match(text, /66\.7% accuracy 8 of 12 graded games/);
+    assert.doesNotMatch(text, /1 day ·|one day of results|long-term accuracy|estimate =|published before tip/);
     const plain = text.replace("not betting advice", "");
     for (const w of [...FORBIDDEN_TERMS, "odds", "bet", "parlay", "probability", "picks"]) assert.ok(!new RegExp(`\\b${w}\\b`).test(plain), w);
     assert.ok(!/approved/i.test(html), "the card never claims approval");
@@ -110,7 +113,7 @@ test("render: portrait PNG exactly 1080×1350, square 1080×1080, text ≥ 22 px
   assert.ok(a.minFontPx >= 22, `smallest text ${a.minFontPx}px`);
   assert.equal(a.designApproved, false);
   assert.equal(a.template, RESULTS_TEMPLATE);
-  assert.match(a.altText, /8 correct, 4 missed, 12 games/);
+  assert.match(a.altText, /66\.7% accuracy, 8 correct, 4 missed, 8 of 12 graded games/);
   const s = await renderResults(b, { outFile: path.join(dir, "s.png"), variant: "square" });
   assert.deepEqual([s.width, s.height], [1080, 1080]);
   assert.ok(s.minFontPx >= 22);
@@ -135,4 +138,12 @@ test("captions: factual + narrative state the miss count and sample size, and pa
   assert.ok(bad("Predicted winners: 9 of 12 correct, 4 missed, 12 games.").includes("UNTRACEABLE_NUMBER"));
   assert.ok(bad("Predicted winners 8 of 12, 4 missed, 12 games. Bet on us.").includes("FORBIDDEN_TERM"));
   assert.ok(bad("Predicted winners 8 of 12, 4 missed, 12 games, by win probability.").includes("FORBIDDEN_TERM"));
+});
+
+test("sport adapters: the card is sport-agnostic; a sport without an adapter refuses instead of guessing colours", { skip: skipFull }, async () => {
+  const { SPORT_ADAPTERS } = await import("../render/social-results.mjs");
+  assert.deepEqual(Object.keys(SPORT_ADAPTERS), ["NBA"]);
+  for (const k of ["league", "teamOf", "finalsWord", "separator"]) assert.ok(k in SPORT_ADAPTERS.NBA, k);
+  const b = await resultsAccuracy({ src: gitDataSource(REPO_ROOT, FULL), date: DATE });
+  assert.throws(() => resultsHtml({ ...b, sport: "MLB" }), /no results-card adapter for MLB/);
 });
