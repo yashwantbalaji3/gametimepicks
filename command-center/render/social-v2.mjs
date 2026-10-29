@@ -19,7 +19,10 @@ import { escapeHtml as esc, loadChromium, pngSize } from "./render-png.mjs";
 // team-accented stat rows. A visual change is a new version: the 2.2.1 design approval does not carry over.
 // 2.3.1 (founder 10-28): meter heading "Game winner estimate". 2.3.2: no estimate line in the footer either — the
 // qualification (Elo provenance, accuracy not yet established) lives in the meter's evidence, not on the graphic.
-export const SOCIAL_TEMPLATE = "gtp-social@2.3.2";
+// 2.3.3 (founder 10-29): the Anytime TD graphics (Top 3, Top 5 TD) lose the "if he plays · passing TDs don't count"
+// subtitle; the heading is the matchup + "Anytime TD Predictions", centred. The qualification stays in the package
+// evidence note (internal); availability is the founder's confirmation at approval. Other formats render as in 2.3.2.
+export const SOCIAL_TEMPLATE = "gtp-social@2.3.3";
 /** The one social identity printed on every graphic (shared component: socialLine in the shell). */
 export const SOCIAL_HANDLE = "@GameTimePicksHQ";
 const DIR = path.join(CC_ROOT, "render/templates/social-v2");
@@ -84,6 +87,8 @@ export const TERMS = Object.freeze({
   correct: "Prediction Correct",
   missed: "Prediction Missed",
   top5Td: "Top 5 TD Predictions",
+  anytimeTd: "Anytime TD Predictions",          // the TD graphics' heading (2.3.3): the market, named; no subtitle
+  top5AnytimeTd: "Top 5 Anytime TD Predictions",
   top5Proj: "Top 5 Projections",
 });
 /**
@@ -154,8 +159,10 @@ function touchdownsBody(m) {
   const graded = Boolean(m.showResults);
   // columns 2 · 1 · 3 so the top prediction sits in the centre
   const order = [m.candidates[1], m.candidates[0], m.candidates[2]].filter(Boolean);
-  return `<div class="kicker">${esc(TERMS.topTd)}</div>
-    <div class="sub" data-fit>${esc(m.away.abbr)} @ ${esc(m.home.abbr)} · Anytime TD · if he plays · passing TDs don't count</div>
+  // 2.3.3: the matchup in its team colours over the prediction type, centred; no qualifying subtitle on the image
+  const t = (x) => `<span class="tag" style="--c:${esc(x.color)};--cink:${esc(inkOn(x.color, x.ink ?? "#F7F7F2"))}">${esc(x.abbr)}</span>`;
+  return `<div class="tdhead" data-head="matchup">${t(m.away)}<span class="at">@</span>${t(m.home)}</div>
+    <div class="kicker tdkick" data-fit>${esc(TERMS.anytimeTd)}</div>
     <div class="feat" style="grid-template-columns:${order.map((c) => (c.rank === 1 ? "1.16fr" : "1fr")).join(" ")}">${order.map((c) => `<div class="pcol r${c.rank}" style="--c:${esc(c.accent)}">
         <div class="bign">${c.rank}</div>
         <div class="rk">#${c.rank}</div>
@@ -169,9 +176,9 @@ function touchdownsBody(m) {
 }
 
 function top5Body(m) {
-  return `<div class="kicker">${esc(m.isTd ? TERMS.top5Td : TERMS.top5Proj)}</div>
+  return `<div class="kicker" data-fit>${esc(m.isTd ? TERMS.top5AnytimeTd : TERMS.top5Proj)}</div>
     <div class="title" style="font-size:84px;margin-top:14px">${esc(m.title)}</div>
-    <div class="sub" data-fit>${m.isTd ? "Anytime TD · if he plays · passing TDs don't count" : "Projected median for the game"}</div>
+    ${m.isTd ? "" : `<div class="sub" data-fit>Projected median for the game</div>`}
     <div class="t5">${m.rows.map((r) => `<div class="t5row r${r.rank}" style="--c:${esc(r.accent)}">
         <div class="n">${r.rank}</div>
         <div style="min-width:0">${pname(r.name, "board", r.nameForms ?? [r.name], "board")}<div class="sb">${tag(r.team, r.color, r.ink)}<span>vs ${esc(r.opponent)} · ${esc(r.kickoffShort)}</span></div></div>

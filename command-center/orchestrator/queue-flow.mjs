@@ -410,6 +410,10 @@ export function createQueueFlow(ctx) {
       const m = touchdowns({ src, eventId: pkg.eventId, mode: "pregame", now });
       if (!m.ok) return { status: POST_STATUS.BLOCKED, reasons: [m.reason] };
       const key = m.candidates.map((c) => `${c.id}:${c.probabilityDisplay}`).join("|");
+      // 2.3.3: the image no longer says "if he plays", so a designation that appeared after the draft (a listed player now
+      // QUESTIONABLE) voids the founder's availability confirmation; OUT/DOUBTFUL/INACTIVE drop the player, changing the key.
+      const newFlags = (m.reasons ?? []).filter((r) => !(pkg.reasons ?? []).includes(r));
+      if (newFlags.length) return { status: POST_STATUS.BLOCKED, reasons: [`a listed player's injury designation changed since this draft (${newFlags.join("; ")}): rebuild the queue and confirm availability again`] };
       return key === pkg.candidatesKey ? { status: POST_STATUS.READY, reasons: [] } : { status: POST_STATUS.BLOCKED, reasons: ["the published top three changed since this draft: rebuild the queue"] };
     }
     if (pkg.kind === "top5-board") {

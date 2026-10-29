@@ -91,7 +91,7 @@ test("soccer: home / draw / away never forced to two outcomes; draw on top → M
 
 test("every format: one X identity line with exactly @GameTimePicksHQ above one disclosure; no overlap; team marks never hot-linked", { skip, timeout: 300_000 }, async () => {
   assert.equal(SOCIAL_HANDLE, "@GameTimePicksHQ");
-  assert.equal(SOCIAL_TEMPLATE, "gtp-social@2.3.2");
+  assert.equal(SOCIAL_TEMPLATE, "gtp-social@2.3.3");
   const src = gitDataSource(REPO_ROOT, SLATE);
   const g = lane(src, "2026-10-28").games[0];
   const models = [
