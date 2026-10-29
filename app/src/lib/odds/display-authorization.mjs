@@ -4,7 +4,12 @@
  * repository until provider display rights are confirmed; display decision "D3" pending). Pure, import-free, server-only
  * by convention (nothing under lib/odds/ may reach a client bundle: prop-line-switch-off.test.mjs).
  *
- * NFL (2026-10-29): the same record, the same fields, all OFF — NFL_LINE_DISPLAY (lib/sports/nfl/line-display.mjs) is
+ * SITE DISPLAY AUTHORIZED (founder 2026-10-29) for NBA and NFL, after the provider-terms review recorded in
+ * docs/odds/ODDS_API_DISPLAY_TERMS_2026-10-29.md. The social feed and social graphics stay NOT authorized (socialDisplay,
+ * socialFeedPrices false). A build without the display key, or a date/game without an artifact, renders every page exactly
+ * as it is without the feature.
+ *
+ * NFL (2026-10-29): the same record, the same fields — NFL_LINE_DISPLAY (lib/sports/nfl/line-display.mjs) is
  * derived from it exactly as NBA's is, and the NFL build-time reader (lib/sports/nfl/public-line-records.mjs) re-checks it.
  *
  * Every NBA line surface derives from this record: NBA_LINE_DISPLAY (lib/sports/nba/line-board.mjs) is computed from it,
@@ -37,17 +42,27 @@
  * and `qualified: true` (directionAuthorization / publicDirectionGate below). Otherwise the shared view
  * (lib/odds/prop-line-view.mjs) shows the state "Comparison not shown": projection and line visible, no badge, no
  * colour, no difference. Private diagnostics (evidence scripts, coverage reports) still compute every direction.
- * Committed state: EVERY family `qualified: false`. Qualifying a family is a founder decision through review; the
- * recommended (unapproved) criterion is in docs/nba/NBA_LINES_RUNBOOK.md "Direction qualification". A family missing
+ * Committed state: NBA pts, reb, ast, pra, ptsReb, ptsAst qualified (founder 2026-10-29); NBA threePm and every NFL
+ * family unqualified. Qualifying a family is a founder decision through review under the APPROVED rule (founder
+ * 2026-10-29): graded official above-median share in [0.45, 0.55] with n ≥ 300, supplementary to every other check —
+ * not proof of advantage (docs/nba/NBA_LINES_RUNBOOK.md "Direction qualification"). A family missing
  * from the record is unqualified; a malformed entry (non-boolean, blank evidence/approver, bad date) is unqualified.
  */
 
 export const DISPLAY_AUTHORIZATION_RULE = "odds-display-authorization@1";
 
-/** A family entry that is NOT qualified (the committed state of every family). `evidence` records why. */
+/** A family entry that is NOT qualified. `evidence` records why. */
 function unqualified(evidence) {
   return Object.freeze({ qualified: false, evidence, approvedBy: null, approvedAt: null });
 }
+
+/** A family entry the founder qualified (a public direction may show). `evidence` records the basis. */
+function qualified(evidence, approvedBy, approvedAt) {
+  return Object.freeze({ qualified: true, evidence, approvedBy, approvedAt });
+}
+
+/** The committed record of the provider's display terms (both sports). */
+export const ODDS_API_TERMS_REF = "docs/odds/ODDS_API_DISPLAY_TERMS_2026-10-29.md";
 
 /** Surface → the record field that switches it. Unknown surfaces refuse. */
 export const DISPLAY_SURFACE_FIELD = Object.freeze({ site: "siteDisplay", social: "socialDisplay", socialPrices: "socialFeedPrices" });
@@ -55,56 +70,59 @@ export const DISPLAY_SURFACE_FIELD = Object.freeze({ site: "siteDisplay", social
 /** Provenance fields every authorized record must carry (non-blank strings; approvedAt a real YYYY-MM-DD date). */
 export const DISPLAY_AUTHORIZATION_REQUIRED = Object.freeze(["providerTermsRef", "approvedBy", "approvedAt"]);
 
-/** The reader-facing sentence while a sport's lines are not authorized (the social feed prints it verbatim). */
+/** The reader-facing sentence for a surface that is not authorized (the social feed prints it verbatim). Site display is
+    authorized for both sports (2026-10-29); the social feed and social graphics are not. */
 export const NOT_AUTHORIZED_REASON = Object.freeze({
-  nba: "Provider display terms for NBA lines are not confirmed for this site (founder decision pending).",
-  nfl: "Provider display terms for NFL lines are not confirmed for this site (founder decision pending).",
+  nba: "NBA sportsbook lines are shown on the website only; the social feed and social graphics are not authorized to carry them.",
+  nfl: "NFL sportsbook lines are shown on the website only; the social feed and social graphics are not authorized to carry them.",
 });
 
 /**
- * THE RECORD. Committed state: nothing is authorized. Changing any value here is the founder's display decision and goes
- * through review with the runbook's checklist; a guard fails CI if a line artifact is committed while "site" is off.
+ * THE RECORD. Committed state (founder 2026-10-29): "site" authorized for NBA and NFL; "social" and "socialPrices" not.
+ * Changing any value here is the founder's display decision and goes through review with the runbook's checklist; a
+ * guard fails CI if a line artifact is committed while "site" is off, or if a committed artifact is not a valid envelope.
  */
 export const DISPLAY_AUTHORIZATION = Object.freeze({
   nba: Object.freeze({
-    siteDisplay: false,
+    siteDisplay: true,
     socialDisplay: false,
     // The committed record of the provider's display terms. The Odds API terms (updated 2026-08-31) permit display in a
     // UI or website and forbid redistribution "as a standalone data product" (API, data feed, downloadable files).
-    providerTermsRef: null,
+    providerTermsRef: ODDS_API_TERMS_REF,
     attribution: null, // optional: the provider does not require attribution
-    approvedBy: null,
-    approvedAt: null,
+    approvedBy: "founder",
+    approvedAt: "2026-10-29",
     // Prices and book names in the public social JSON feed: a data feed under the clause above. Needs WRITTEN provider
     // confirmation, referenced here, before it may be true.
     socialFeedPrices: false,
     socialFeedPricesConfirmationRef: null,
-    // Which statistics may show a public direction. All unqualified (see the header). Evidence: NBA v0.1 graded official
-    // above-median shares, 54 games / 910 rows (founder message 2026-10-29); recommended gate [0.45, 0.55] with n ≥ 300.
+    // Which statistics may show a public direction (see the header). Evidence: NBA v0.1 graded official above-median
+    // shares, 54 games / 910 graded played rows per family (founder message 2026-10-29); approved rule [0.45, 0.55], n ≥ 300.
     directionQualified: Object.freeze({
-      pts: unqualified("v0.1 graded official above-median share 0.524 (54 games, 910 rows; 2026-10-29). Inside the recommended [0.45, 0.55] band; per-family n ≥ 300 to be confirmed. Awaiting founder approval."),
-      reb: unqualified("v0.1 graded official above-median share 0.545 (54 games, 910 rows; 2026-10-29). Inside the recommended [0.45, 0.55] band; per-family n ≥ 300 to be confirmed. Awaiting founder approval."),
-      ast: unqualified("v0.1 graded official above-median share 0.509 (54 games, 910 rows; 2026-10-29). Inside the recommended [0.45, 0.55] band; per-family n ≥ 300 to be confirmed. Awaiting founder approval."),
-      threePm: unqualified("v0.1 graded official above-median share 0.438 (54 games, 910 rows; 2026-10-29). Below the recommended [0.45, 0.55] band: the median runs high. Fails."),
-      pra: unqualified("v0.1 graded official above-median share 0.546 (54 games, 910 rows; 2026-10-29). Inside the recommended [0.45, 0.55] band; per-family n ≥ 300 to be confirmed. Awaiting founder approval."),
-      ptsReb: unqualified("v0.1 graded official above-median share 0.540 (54 games, 910 rows; 2026-10-29). Inside the recommended [0.45, 0.55] band; per-family n ≥ 300 to be confirmed. Awaiting founder approval."),
-      ptsAst: unqualified("v0.1 graded official above-median share 0.533 (54 games, 910 rows; 2026-10-29). Inside the recommended [0.45, 0.55] band; per-family n ≥ 300 to be confirmed. Awaiting founder approval."),
+      pts: qualified("v0.1 graded official above-median share 0.524 (54 games; n = 910 graded played rows per family (≥300); 2026-10-29). Inside [0.45, 0.55]; approved by founder 2026-10-29 under the [0.45, 0.55] rule. Supplementary to every other check; not proof of advantage.", "founder", "2026-10-29"),
+      reb: qualified("v0.1 graded official above-median share 0.545 (54 games; n = 910 graded played rows per family (≥300); 2026-10-29). Inside [0.45, 0.55]; approved by founder 2026-10-29 under the [0.45, 0.55] rule. Supplementary to every other check; not proof of advantage.", "founder", "2026-10-29"),
+      ast: qualified("v0.1 graded official above-median share 0.509 (54 games; n = 910 graded played rows per family (≥300); 2026-10-29). Inside [0.45, 0.55]; approved by founder 2026-10-29 under the [0.45, 0.55] rule. Supplementary to every other check; not proof of advantage.", "founder", "2026-10-29"),
+      threePm: unqualified("v0.1 graded official above-median share 0.438 (54 games, 910 rows; 2026-10-29). Below the approved [0.45, 0.55] band: the median runs high. Fails."),
+      pra: qualified("v0.1 graded official above-median share 0.546 (54 games; n = 910 graded played rows per family (≥300); 2026-10-29). Inside [0.45, 0.55]; approved by founder 2026-10-29 under the [0.45, 0.55] rule. Supplementary to every other check; not proof of advantage.", "founder", "2026-10-29"),
+      ptsReb: qualified("v0.1 graded official above-median share 0.540 (54 games; n = 910 graded played rows per family (≥300); 2026-10-29). Inside [0.45, 0.55]; approved by founder 2026-10-29 under the [0.45, 0.55] rule. Supplementary to every other check; not proof of advantage.", "founder", "2026-10-29"),
+      ptsAst: qualified("v0.1 graded official above-median share 0.533 (54 games; n = 910 graded played rows per family (≥300); 2026-10-29). Inside [0.45, 0.55]; approved by founder 2026-10-29 under the [0.45, 0.55] rule. Supplementary to every other check; not proof of advantage.", "founder", "2026-10-29"),
     }),
   }),
-  // NFL player props (week 8 private capture 2026-10-29): same fields, same meaning, nothing authorized. Turning NFL on
-  // is its own reviewed decision — an NBA approval never carries over.
+  // NFL player props: same fields, same meaning. Site display approved by the founder 2026-10-29 as its own decision (an
+  // NBA approval never carries over); social not authorized.
   nfl: Object.freeze({
-    siteDisplay: false,
+    siteDisplay: true,
     socialDisplay: false,
-    providerTermsRef: null,
+    providerTermsRef: ODDS_API_TERMS_REF,
     attribution: null,
-    approvedBy: null,
-    approvedAt: null,
+    approvedBy: "founder",
+    approvedAt: "2026-10-29",
     socialFeedPrices: false,
     socialFeedPricesConfirmationRef: null,
-    // Over/under families only (anytime touchdown is a yes/no market and never carries a direction). All unqualified.
+    // Over/under families only (anytime touchdown is a yes/no market and never carries a direction). All unqualified
+    // under the approved [0.45, 0.55] / n ≥ 300 rule.
     directionQualified: Object.freeze({
-      receptions: unqualified("Official over-median share 0.42–0.45 historically (the median runs slightly high). Borderline below the recommended [0.45, 0.55] band. Fails."),
+      receptions: unqualified("Official over-median share 0.42–0.45 historically (the median runs slightly high). Borderline below the approved [0.45, 0.55] band. Fails. A tie-adjusted (mid-p) share ≈0.50 is pending a founder decision on tie treatment."),
       reception_yds: unqualified("Published v1: actuals beat the median 56.6% historically (interval level 0.845, runs low); week-8 lines: model median/line 0.80 (median below line 95/112) while mean/line 1.04 — genuine median bias plus skew. Fails; must stay withheld."),
       pass_yds: unqualified("Not an official forecast in week 8 (ESTIMATE): never compared publicly."),
       rush_yds: unqualified("Not an official forecast in week 8 (ESTIMATE): never compared publicly."),

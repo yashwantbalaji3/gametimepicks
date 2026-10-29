@@ -1,9 +1,10 @@
 # NBA lines: capture to site, end to end (runbook)
 
-Status, 2026-10-29: **switched off and refusing by default.** The display authorization record is all false or null.
-The exporter refuses. The build-time reader returns null. Pages render exactly as they did before this path existed.
-The social feed carries no line, price or book. When the founder confirms display rights, turning this on should be a
-reviewed config change, with no new code.
+Status, 2026-10-29: **site display authorized for NBA and NFL** (founder, after the provider-terms review in
+[`docs/odds/ODDS_API_DISPLAY_TERMS_2026-10-29.md`](../odds/ODDS_API_DISPLAY_TERMS_2026-10-29.md)). Social display and
+social feed prices stay **off**: the social feed carries no line, price or book. A page renders the comparison only when
+an encrypted artifact for its date or game exists AND the build has the display key. Without one (every CI build, every
+historical date) the page is byte-identical to the page without this feature: no section, no "Unavailable" block.
 
 This runbook covers **NBA and NFL** (the same record, the same encryption, the same direction gate). Three
 founder-decided rules, all fail-closed, apply to both sports:
@@ -13,7 +14,8 @@ founder-decided rules, all fail-closed, apply to both sports:
 2. **Encrypted at rest.** Artifacts are committed only as `data/odds-display/<sport>/lines/<key>.json.enc`. See
    [Encryption at rest](#encryption-at-rest).
 3. **A captured line does not make a direction publishable.** OVER / UNDER / NEUTRAL appears publicly only for a
-   statistic whose forecast the founder has direction-qualified. Every family is unqualified today. See
+   statistic whose forecast the founder has direction-qualified. Qualified today: NBA points, rebounds, assists, PRA,
+   points + rebounds, points + assists. NBA 3-pointers made and every NFL family are not. See
    [Direction qualification](#direction-qualification).
 
 ## The provider terms that shape this design
@@ -111,24 +113,25 @@ Private diagnostics (coverage reports, evidence renders) still compute every dir
 `app/src/lib/odds/prop-line-view.mjs`). The view's default gate withholds everything, so a surface that forgets the
 gate never leaks a direction.
 
-**Committed state: every family `qualified: false`.**
+**Committed state (founder 2026-10-29): NBA `pts`, `reb`, `ast`, `pra`, `ptsReb`, `ptsAst` qualified (n = 910 graded
+played rows per family); NBA `threePm` and every NFL family `qualified: false`.**
 
-### Recommended criterion (NOT approved; the founder decides)
+### The rule (APPROVED by the founder 2026-10-29)
 
-Proposal: qualify a family when its **graded official above-median share is within [0.45, 0.55] with n ≥ 300**. This
-is the NBA gate (e) band. A calibrated median puts about half of actuals above it, and a share outside the band means
+Qualify a family when its **graded official above-median share is within [0.45, 0.55] with n ≥ 300**. It is
+supplementary to every other check and is not proof of advantage. This is the NBA gate (e) band. A calibrated median puts about half of actuals above it, and a share outside the band means
 the median is biased, so the direction against a line is mostly that bias.
 
-| Sport | Family | Evidence (founder message, 2026-10-29) | Would pass today? |
+| Sport | Family | Evidence (founder message, 2026-10-29) | Decision (2026-10-29) |
 |---|---|---|---|
-| NBA | Points (`pts`) | above-median share 0.524 (v0.1, 54 games, 910 rows) | Pass, if per-family n ≥ 300 is confirmed |
-| NBA | Rebounds (`reb`) | 0.545 | Pass, if per-family n ≥ 300 is confirmed |
-| NBA | Assists (`ast`) | 0.509 | Pass, if per-family n ≥ 300 is confirmed |
+| NBA | Points (`pts`) | above-median share 0.524 (v0.1, 54 games, 910 rows) | **Qualified** (n = 910 ≥ 300) |
+| NBA | Rebounds (`reb`) | 0.545 | **Qualified** (n = 910 ≥ 300) |
+| NBA | Assists (`ast`) | 0.509 | **Qualified** (n = 910 ≥ 300) |
 | NBA | 3-pointers made (`threePm`) | 0.438 | **Fail**: the median runs high |
-| NBA | PRA (`pra`) | 0.546 | Pass, if per-family n ≥ 300 is confirmed |
-| NBA | Points + rebounds (`ptsReb`) | 0.540 | Pass, if per-family n ≥ 300 is confirmed |
-| NBA | Points + assists (`ptsAst`) | 0.533 | Pass, if per-family n ≥ 300 is confirmed |
-| NFL | Receptions (`receptions`) | official over-median share 0.42 to 0.45 | **Borderline fail**: the median is slightly high |
+| NBA | PRA (`pra`) | 0.546 | **Qualified** (n = 910 ≥ 300) |
+| NBA | Points + rebounds (`ptsReb`) | 0.540 | **Qualified** (n = 910 ≥ 300) |
+| NBA | Points + assists (`ptsAst`) | 0.533 | **Qualified** (n = 910 ≥ 300) |
+| NFL | Receptions (`receptions`) | official over-median share 0.42 to 0.45 | **Borderline fail**: the median is slightly high. A tie-adjusted (mid-p) share ≈ 0.50 is pending a founder decision on tie treatment |
 | NFL | Receiving yards (`reception_yds`) | actuals beat the median 56.6% historically (interval level 0.845, runs low). On week-8 lines, model median/line = 0.80 (median below the line 95 of 112 times) while mean/line = 1.04 | **Fail**: genuine median bias plus skew. Must stay withheld |
 | NFL | Passing / rushing yards | not an official forecast in week 8 (ESTIMATE) | Not applicable: never compared publicly |
 | NFL | Anytime touchdown | a yes/no market | Not applicable: never a direction |
@@ -200,7 +203,7 @@ This is a separate decision from authorizing the site.
 
 | Piece | Path |
 |---|---|
-| Record and direction gate | `DISPLAY_AUTHORIZATION.nfl` (all off; every family unqualified) |
+| Record and direction gate | `DISPLAY_AUTHORIZATION.nfl` (site on 2026-10-29, social off; every family unqualified) |
 | Derived switch | `app/src/lib/sports/nfl/line-display.mjs` `NFL_LINE_DISPLAY` |
 | Adapter (the page's rule) | `app/src/lib/sports/nfl/prop-line-adapter.mjs` (12 h freshness, before kickoff, eligible books, exact identity) |
 | Exporter | `app/scripts/nfl/publish-nfl-line-board.mjs`, rules in `app/src/lib/sports/nfl/line-publication-build.mjs` |
