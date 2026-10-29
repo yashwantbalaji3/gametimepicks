@@ -301,3 +301,28 @@ test("NFL: an excluded public copy reaches every resolver-wired consumer as its 
     assert.equal(shown.model?.inputHash, record.model?.inputHash);
   }
 });
+
+test("NFL settled week 7: Results week report == the archived record the settled game page and week page show", async () => {
+  const { archivedForecastFor } = await import("../sports/nfl/archived-forecast.ts");
+  const rec = readJson(path.join(DATA, "nfl/reconciliation/2-07.json"));
+  let n = 0;
+  for (const g of rec.games) {
+    const a = archivedForecastFor(DATA, g.providerEventId);
+    assert.ok(a, `${g.matchup}: the settled page has its frozen record`);
+    const s = a.forecast.forecastSummary;
+    const pick = s.winProbability.home >= s.winProbability.away ? { abbr: a.forecast.home.abbr, probability: s.winProbability.home } : { abbr: a.forecast.away.abbr, probability: s.winProbability.away };
+    const values = [g.published.projectedScore.home, g.published.projectedScore.away, g.published.pick.abbr, g.published.pick.probability, g.published.total.median];
+    const shown = [s.projectedScore.home, s.projectedScore.away, pick.abbr, pick.probability, s.total.median];
+    if (a.graded) {
+      // a graded EXCLUDED revision: the grade stands, the page shows the record and says so; values may differ only
+      // when the exclusion itself records that they do
+      assert.equal(a.graded.generatedAt, g.published.generatedAt, `${g.matchup}: Results names the graded revision`);
+      if (!a.graded.displayedValueDiffers) assert.deepEqual(values, shown, `${g.matchup}: excluded revision's values equal the record's`);
+    } else {
+      assert.ok(sameInstant(a.forecast.generatedAt, g.published.generatedAt), `${g.matchup}: Results graded the revision the page shows`);
+      assert.deepEqual(values, shown, `${g.matchup}: Results == settled game page`);
+    }
+    n += 1;
+  }
+  assert.ok(n >= 10, `checked ${n} settled games`);
+});
