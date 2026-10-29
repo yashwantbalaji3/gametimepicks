@@ -1,4 +1,4 @@
-/* gtp-social-results@1.0 — "Predicted winner vs final" scoreboard card (1080×1350 portrait, 1080×1080 square).
+/* gtp-social-results@1.1 (was 1.0) — "Predicted winner vs final" scoreboard card (1080×1350 portrait, 1080×1080 square).
    GameTimePicks tokens + the two team colours per game only. Photo-free and logo-free (no league or club marks): team
    identity is the abbreviation on its own colour. A hit and a miss get the same weight: a solid pill, a stripe and a tint
    each, neon for correct and amber for missed. Every text size is ≥ 22 px at 1080 wide. */
@@ -127,3 +127,24 @@ body { position: relative; }
 .v-square .res .m { font-size: 24px; }
 .v-square .foot { padding-top: 12px; gap: 6px; }
 .v-square .context { font-size: 24px; }
+
+/* ── 1.1: accuracy KPI first; every KPI is its number over its label; no subtitle / context lines ───────── */
+.stats { grid-template-columns: 1.3fr 2px 1fr 2px 1fr; }
+.stats .sep { height: 120px; }
+.stat { flex-direction: column; gap: 10px; min-width: 0; }
+.stat span { text-align: center; }
+.stat.acc b { color: var(--ink); text-shadow: 0 0 30px rgba(255,255,255,.22); letter-spacing: -2px; }
+.stat.acc span { color: var(--neon-soft); }
+.stat.acc .graded { max-width: 100%; white-space: nowrap; overflow: hidden; font: 700 24px/1 var(--display); letter-spacing: 3px; text-transform: uppercase; color: var(--mute); }
+.title { margin-top: 22px; }
+.tally { margin-top: 24px; padding-top: 22px; }
+.v-square .title { margin-top: 16px; }
+.v-square .tally { margin-top: 14px; padding-top: 14px; }
+.v-square .stats .sep { height: 90px; }
+.v-square .stat { gap: 6px; }
+.v-square .stat.acc .graded { font-size: 22px; letter-spacing: 2px; }
+/* only the game rows give way when space is short; the header, tally and footer keep their size */
+.content > * { flex-shrink: 0; }
+.content > .rows { flex-shrink: 1; }
+.v-portrait .stat b { font-size: 100px; }
+.v-portrait .stats .sep { height: 110px; }

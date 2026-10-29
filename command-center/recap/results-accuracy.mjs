@@ -123,6 +123,9 @@ export async function resultsAccuracy({ src, date, sport = "NBA", season = nbaSe
   const correct = games.filter((g) => g.correct).length;
   const total = games.length;
   const missed = total - correct;
+  // the day's share of graded games whose predicted winner won, one decimal (shown on the card with its sample size)
+  const accuracy = total ? correct / total : null;
+  const accuracyDisplay = total ? `${((100 * correct) / total).toFixed(1)}%` : null;
   const dateLabel = DAY({ weekday: "short", month: "short", day: "numeric" }).format(noon(date)); // "Wed, Oct 28"
   const dayName = DAY({ weekday: "long" }).format(noon(date));
   const claims = [
@@ -131,6 +134,7 @@ export async function resultsAccuracy({ src, date, sport = "NBA", season = nbaSe
     { key: "games.total", display: `${total} games`, value: total, evidenceRef: sources[1] },
     { key: "games.correct", display: `${correct} correct`, value: correct, evidenceRef: sources[1] },
     { key: "games.missed", display: `${missed} missed`, value: missed, evidenceRef: sources[1] },
+    { key: "accuracy", display: accuracyDisplay ?? "none graded", value: accuracy, evidenceRef: sources[1] },
     // read by recap/caption-validator.mjs: when any predicted winner lost, a caption must say "missed"
     { key: "result.side", display: missed ? `${missed} missed` : "none missed", value: missed ? "LOSS" : "WIN", evidenceRef: sources[1] },
   ];
@@ -143,7 +147,9 @@ export async function resultsAccuracy({ src, date, sport = "NBA", season = nbaSe
   return {
     ok: true, schema: RESULTS_ACCURACY_SCHEMA, contentKind: "results-accuracy",
     date, sport, period: "single day", season, dateLabel, dayName,
-    games, correct, total, missed, excluded,
+    games, correct, total, missed, accuracy, accuracyDisplay, excluded,
+    // internal methodology (bundle, docs, captions; not printed on the 1.1 card)
+    sampleSize: { days: 1, games: total, note: "one day of results; not a long-term accuracy claim" },
     estimateLabel: ESTIMATE_LABEL, contextLine: CONTEXT_LINE,
     publicLabel: { term: label.term, officialFamilies: label.officialFamilies, retiredPhrases: label.retiredPhrases, source: label.source },
     claims, sources, dataSource: { label: src.label, commit },
