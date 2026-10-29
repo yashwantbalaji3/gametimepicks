@@ -104,7 +104,7 @@ export const COMPARISON_LEGEND = Object.freeze({
 
 /**
  * One line per (event, athlete, market) from several books: the deterministic choice is the MOST RECENT capture before
- * tip; ties (books captured in the same request) are broken by the fixed REFERENCE_BOOK_ORDER (founder 2026-10-29: prefer
+ * tip, grouped by our capture request (fetchedAt); within one request the fixed REFERENCE_BOOK_ORDER decides (founder 2026-10-29: prefer
  * DraftKings, then FanDuel), then by book key — never by which line suits the model, and never an average of books
  * (an average line is not a line anyone offered).
  * @param {Array<{ book: string, capturedAt: string, line: number }>} offers
@@ -116,6 +116,9 @@ const bookRank = (b) => { const i = REFERENCE_BOOK_ORDER.indexOf(String(b)); ret
 export function chooseOffer(offers, tipUtc) {
   const tip = Date.parse(tipUtc);
   const ok = (offers ?? []).filter((o) => isNum(o?.line) && Number.isFinite(Date.parse(o.capturedAt)) && Date.parse(o.capturedAt) < tip);
-  ok.sort((a, b) => Date.parse(b.capturedAt) - Date.parse(a.capturedAt) || bookRank(a.book) - bookRank(b.book) || String(a.book).localeCompare(String(b.book)));
+  // Group by OUR capture request (fetchedAt — shared by every book in one response); a book's own capturedAt is its
+  // provider last_update, which differs by seconds inside one request and must not decide between books of the same capture.
+  const run = (o) => { const f = Date.parse(o.fetchedAt ?? ""); return Number.isFinite(f) ? f : Date.parse(o.capturedAt); };
+  ok.sort((a, b) => run(b) - run(a) || bookRank(a.book) - bookRank(b.book) || Date.parse(b.capturedAt) - Date.parse(a.capturedAt) || String(a.book).localeCompare(String(b.book)));
   return ok[0] ?? null;
 }

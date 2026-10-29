@@ -58,6 +58,14 @@ test("several books: the most recent pre-tip capture, ties by the reference-book
   assert.deepEqual(chooseOffer(offers, CTX.tipUtc), offers[1], "draftkings wins the 19:00 tie by the reference order (not alphabetically: betmgm sorts first); the after-tip offer is ignored");
   const unknown = [{ book: "zbook", capturedAt: "2026-10-28T19:00:00Z", line: 1.5 }, { book: "abook", capturedAt: "2026-10-28T19:00:00Z", line: 2.5 }];
   assert.equal(chooseOffer(unknown, CTX.tipUtc).book, "abook", "books outside the order fall back to key order");
+  // Same capture request (one fetchedAt), different provider last_update stamps: the reference order decides, not seconds.
+  const sameRun = [
+    { book: "betmgm", capturedAt: "2026-10-28T19:00:40Z", fetchedAt: "2026-10-28T19:00:41Z", line: 21.5 },
+    { book: "draftkings", capturedAt: "2026-10-28T18:59:10Z", fetchedAt: "2026-10-28T19:00:41Z", line: 22.5 },
+  ];
+  assert.equal(chooseOffer(sameRun, CTX.tipUtc).book, "draftkings", "within one capture, DraftKings first even if BetMGM updated later");
+  const laterRun = [...sameRun, { book: "fanduel", capturedAt: "2026-10-28T19:30:00Z", fetchedAt: "2026-10-28T19:30:02Z", line: 23.5 }];
+  assert.equal(chooseOffer(laterRun, CTX.tipUtc).book, "fanduel", "a later capture request still wins");
   assert.equal(chooseOffer([], CTX.tipUtc), null);
 });
 
