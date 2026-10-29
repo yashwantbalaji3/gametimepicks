@@ -20,6 +20,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { test, expect, type Page } from "@playwright/test";
 
+import { centralScenario } from "../src/lib/simulation-theater/nba/possession/payload.mjs";
 import { ENGINE_IDENTITY, ENGINE_LABEL, POSSESSION_BANNER, ROLE_C_NOTE, WHAT_IF_BANNER as POSSESSION_WHAT_IF_BANNER } from "../src/lib/simulation-theater/nba/possession/labels.mjs";
 
 // GTP_THEATER_TARGET=public: the PUBLIC route /nba/simulation/<id>/ of a flag-ON local build (both acts: the constant flipped
@@ -180,7 +181,9 @@ test("two-panel immutability: the official panel is byte-identical for the defau
       await chip(page, r.kind).click();
       await expect(root(page)).toHaveAttribute("data-nbp-run", r.kind);
       expect(await official(page).evaluate((el) => el.outerHTML)).toBe(base);
-      if (r.kind === "default") await expect(page.locator('[data-nbp-role="default"]')).toBeVisible();
+      // Track C 2026-10-29: the central scenario (centralScenario, chosen without the official side) carries the central
+      // note; every other run carries the what-if banner
+      if (r.runIndex === centralScenario(g)?.runIndex) await expect(page.locator('[data-nbp-role="central"]')).toBeVisible();
       else await expect(page.locator("[data-nbp-whatif-banner]")).toHaveText(WHAT_IF_BANNER);
     }
   }

@@ -212,7 +212,7 @@ for (const [w, h] of [[390, 844], [1440, 900]] as const) {
     const errors = await open(page, "?t=100000");
     const card = page.locator('[data-st-card="FINAL"]');
     await expect(card).toBeVisible();
-    const btn = card.getByRole("button", { name: "Projected box score" });
+    const btn = card.getByRole("button", { name: "Box score (simulated scenario)" });
     await btn.click();
     const d = dialog(page);
     await expect(d).toBeVisible();
@@ -252,7 +252,7 @@ test("the default run is the labelled default (supporting run under Gate V2, els
     await expect(page.locator('[data-st-role-note="supporting"]')).toContainText(/distance \d+\.\d\d from the official projection/);
     await expect(page.locator('[data-st-role-note="official"]')).toHaveCount(0);
   } else {
-    await expect(page.locator('[data-st-role-note="official"]')).toContainText(/Official representative simulation · closest stored run to the official forecast · distance \d+\.\d\d/);
+    await expect(page.locator('[data-st-role-note="official"]')).toContainText(/Simulated scenario \(hypothetical\) · central run · the stored run closest to the Official Forecast, chosen by rule; one simulated game, not the forecast · distance \d+\.\d\d/);
   }
   await expect(page.locator("[data-st-official]")).toContainText("Official forecast");
   // exactly one non-hypothetical chip: the labelled supporting run under Gate V2, the official representative otherwise

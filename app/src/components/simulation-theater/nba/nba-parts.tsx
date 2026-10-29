@@ -391,7 +391,7 @@ export function BreakCard({ kind, manifest, sample, palette, onDismiss, variant,
         <>
           <Leaders sample={sample} teams={teams} palette={palette} />
           {onOpenBoxScore ? (
-            <button type="button" className="st-btn nba-card-boxbtn" aria-haspopup="dialog" onClick={onOpenBoxScore}>{runRole(manifest, sample.runIndex).hypothetical ? "What-if box score (hypothetical)" : "Projected box score"}</button>
+            <button type="button" className="st-btn nba-card-boxbtn" aria-haspopup="dialog" onClick={onOpenBoxScore}>{runRole(manifest, sample.runIndex).hypothetical ? "What-if box score (hypothetical)" : "Box score (simulated scenario)"}</button>
           ) : null}
           {variant === "sheet" ? (
             <details className="nba-card-more">

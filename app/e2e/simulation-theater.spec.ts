@@ -949,8 +949,8 @@ test.describe("integrated public route", () => {
 // node from the same receipt of record; the page must print exactly those strings.
 const BOX_WATERMARK = "SIMULATED · PROJECTED · NOT ACTUAL GAME STATISTICS";
 const NOT_MODELED = "Not modeled by this engine";
-const boxDialog = (page: Page) => page.getByRole("dialog", { name: /^Projected box score · run #/ });
-const boxButton = (page: Page) => page.getByRole("button", { name: "Projected box score", exact: true });
+const boxDialog = (page: Page) => page.getByRole("dialog", { name: /^Box score · Simulated scenario \(hypothetical\) · run #/ });
+const boxButton = (page: Page) => page.getByRole("button", { name: "Box score (simulated scenario)", exact: true });
 
 /** Every category cell of both team tabs equals F.box; NOT_MODELED rows read as words; player sections are listed. */
 async function expectBoxNumbers(page: Page) {
@@ -1129,8 +1129,8 @@ test.describe("official representative and what-ifs", () => {
     const errors = await open(page, {});
     expect(F.officialRun, "the receipt of record has an official representative").not.toBeNull();
     await expect(root(page)).toHaveAttribute("data-st-run", String(F.officialRun));
-    await expect(page.locator('[data-st-role-note="official"]')).toContainText(`Official representative simulation · closest stored run to the official forecast · distance ${F.officialDistance!.toFixed(2)}`);
-    await expect(page.locator("[data-st-official]").first()).toContainText("Official forecast");
+    await expect(page.locator('[data-st-role-note="official"]')).toContainText(`Simulated scenario (hypothetical) · central run · the stored run closest to the Official Forecast, chosen by rule; one simulated game, not the forecast · distance ${F.officialDistance!.toFixed(2)}`);
+    await expect(page.locator("[data-st-official]").first()).toContainText("Official Forecast");
     await expect(page.locator('.st-chips:not(.is-vertical) [data-st-role="official"]')).toHaveCount(1);
     expect(await page.locator('.st-chips:not(.is-vertical) [data-st-role="what-if"]').count()).toBeGreaterThanOrEqual(F.whatIfRuns.length);
     expect(errors).toEqual([]);
