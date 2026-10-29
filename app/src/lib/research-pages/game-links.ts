@@ -10,7 +10,7 @@
  *                                              MlbBoardBody renders the per-game `id="game-<pk>"` sections only in its
  *                                              projection state; a schedule-only date has no anchors (found by RX4)
  *   EPL   /epl/match/<slug>/                   the forecast archive the match route enumerates, keyed by shipped event id
- *   UFC   /ufc/bout/<boutId>/                  the current card's bouts
+ *   UFC   /ufc/bout/<boutId>/                  the current card's bouts + every settled bout in the forecast ledger
  *
  * Anything else → no link (a known 404 is worse than plain text). Every emitted link is proven against out/ by
  * research-links-built.test.mjs.

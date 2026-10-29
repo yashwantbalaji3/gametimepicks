@@ -32,6 +32,7 @@ import UfcEventResultsRecap, { type UfcSettlement } from "@/components/ufc/event
 import SportLabCards from "@/components/sport-lab-cards";
 import GradedPicksSection from "@/components/sports/graded-picks-section";
 import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
+import { ufcSettledBoutHrefByKey } from "@/lib/sports/ufc/bout";
 import { eventState, eventHeading, EVENT_STATE } from "@/lib/sports/event-lifecycle.mjs";
 import { loadSportLabLadder, loadSportLabStreamRecord } from "@/lib/parlays/sport-lab-cards";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
@@ -354,7 +355,7 @@ export default function UfcArchivePage() {
           the other half, from the graded ledger — with the market's answer beside every pick.
         */}
         {ufcGraded ? (
-          <GradedPicksSection record={ufcGraded} href="/results/picks/ufc" />
+          <GradedPicksSection record={ufcGraded} href="/results/picks/ufc" rowHrefs={ufcSettledBoutHrefByKey()} />
         ) : (
           <p className=" text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)", margin: 0 }}>
             No bout has been graded under the current fight model yet. The record starts with the first
