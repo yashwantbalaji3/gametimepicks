@@ -1,0 +1,163 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "bundesliga",
+ "season": "2026-27",
+ "date": "2026-10-29",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-10-29T16:26:21.000Z",
+ "runs": [
+  {
+   "at": "2026-10-29T16:26:21.000Z",
+   "added": 2
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Bayern Munich|Dortmund",
+   "league": "bundesliga",
+   "season": "2026-27",
+   "eventId": "soccer:bundesliga:401884754",
+   "providerEventId": "401884754",
+   "kickoffUtc": "2026-10-31T17:30:00.000Z",
+   "matchup": "Bayern Munich v Borussia Dortmund",
+   "homeClub": "Bayern Munich",
+   "awayClub": "Borussia Dortmund",
+   "historyNames": {
+    "home": "Bayern Munich",
+    "away": "Dortmund"
+   },
+   "espnTeamIds": {
+    "home": "132",
+    "away": "124"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-29T16:26:21.000Z",
+   "probs": {
+    "home": 0.629835,
+    "draw": 0.193562,
+    "away": 0.176603
+   },
+   "over25": 0.725546,
+   "under25": 0.274454,
+   "expectedGoals": {
+    "home": 2.4817,
+    "away": 1.2838
+   },
+   "lambdas": {
+    "home": 2.4822,
+    "away": 1.2838
+   },
+   "rho": -0.083857,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 140,
+    "away": 140
+   },
+   "fit": {
+    "cutoffIso": "2026-10-29T16:26:21.000Z",
+    "matchesFitted": 1260,
+    "lastFoldedUtc": "2026-09-20T17:30:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 18
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.712679,
+     "draw": 0.156518,
+     "away": 0.130803
+    },
+    "empirical": {
+     "home": 0.436263,
+     "draw": 0.250198,
+     "away": 0.313539
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Union Berlin|FC Koln",
+   "league": "bundesliga",
+   "season": "2026-27",
+   "eventId": "soccer:bundesliga:401884750",
+   "providerEventId": "401884750",
+   "kickoffUtc": "2026-11-01T14:30:00.000Z",
+   "matchup": "1. FC Union Berlin v FC Cologne",
+   "homeClub": "1. FC Union Berlin",
+   "awayClub": "FC Cologne",
+   "historyNames": {
+    "home": "Union Berlin",
+    "away": "FC Koln"
+   },
+   "espnTeamIds": {
+    "home": "598",
+    "away": "122"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-29T16:26:21.000Z",
+   "probs": {
+    "home": 0.41841,
+    "draw": 0.266938,
+    "away": 0.314653
+   },
+   "over25": 0.546616,
+   "under25": 0.453384,
+   "expectedGoals": {
+    "home": 1.5499,
+    "away": 1.3182
+   },
+   "lambdas": {
+    "home": 1.5499,
+    "away": 1.3182
+   },
+   "rho": -0.083857,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 140,
+    "away": 106
+   },
+   "fit": {
+    "cutoffIso": "2026-10-29T16:26:21.000Z",
+    "matchesFitted": 1260,
+    "lastFoldedUtc": "2026-09-20T17:30:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 18
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.509489,
+     "draw": 0.251476,
+     "away": 0.239036
+    },
+    "empirical": {
+     "home": 0.436263,
+     "draw": 0.250198,
+     "away": 0.313539
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 2
+ }
+}

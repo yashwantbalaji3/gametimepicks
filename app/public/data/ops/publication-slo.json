@@ -1,15 +1,15 @@
 {
   "kind": "publication-slo",
-  "date": "2026-10-28",
+  "date": "2026-10-29",
   "platformState": "PUBLISHING",
   "sports": {
     "mlb": {
-      "state": "PUBLISHED",
-      "reason": "all 1 event(s) in the horizon carry a forecast",
+      "state": "NO_EVENT",
+      "reason": "no events in this sport's forward horizon",
       "deadlineUtc": null,
       "counts": {
-        "scheduled": 1,
-        "published": 1,
+        "scheduled": 0,
+        "published": 0,
         "missedCoverage": 0,
         "awaiting": 0
       }
@@ -27,13 +27,13 @@
     },
     "ufc": {
       "state": "PUBLISHING",
-      "reason": "2 event(s) still awaiting a forecast, none of them late yet",
+      "reason": "1 event(s) still awaiting a forecast, none of them late yet",
       "deadlineUtc": "2026-10-31T19:30:00.000Z",
       "counts": {
-        "scheduled": 13,
+        "scheduled": 12,
         "published": 11,
         "missedCoverage": 0,
-        "awaiting": 2
+        "awaiting": 1
       },
       "missed": []
     },
@@ -50,31 +50,22 @@
       "missed": []
     }
   },
-  "checkedAt": "2026-10-28T18:21:41.547Z",
+  "checkedAt": "2026-10-29T15:25:48.832Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
-  "state": "PUBLISHED",
-  "reason": "board published with 40 rows",
+  "state": "NO_EVENT",
+  "reason": "no games are scheduled for this date",
   "publishDeadlineUtc": null,
-  "scheduledGames": 1,
-  "pregameRemaining": 1,
+  "scheduledGames": 0,
+  "pregameRemaining": 0,
   "alreadyStarted": 0,
   "board": {
     "present": true,
-    "leans": 40,
-    "pendingReason": null,
-    "generatedAt": "2026-10-28T09:30:55.344102+00:00",
-    "scheduledGames": 1,
+    "leans": 0,
+    "pendingReason": "no_events",
+    "generatedAt": "2026-10-29T09:28:59.164297+00:00",
+    "scheduledGames": 0,
     "startedBeforeGeneration": 0
   },
-  "games": [
-    {
-      "gamePk": 849799,
-      "startUtc": "2026-10-29T00:00:00Z",
-      "away": "Milwaukee Brewers",
-      "home": "Tampa Bay Rays",
-      "detailedState": "Scheduled",
-      "pregameAtCheck": true
-    }
-  ]
+  "games": []
 }

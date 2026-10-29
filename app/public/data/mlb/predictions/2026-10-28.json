@@ -1,7 +1,7 @@
 {
   "sport": "mlb",
   "date": "2026-10-28",
-  "generatedAt": "2026-10-28T16:36:40.000Z",
+  "generatedAt": "2026-10-29T00:06:15.000Z",
   "decisionEngineVersion": "mlb-prediction-2026.10-v2",
   "sourceArtifact": "full-game-simulations/2026-10-28.json",
   "notBettingAdvice": true,
@@ -15,17 +15,19 @@
       "homeTeam": "TB",
       "awayTeamName": "Milwaukee Brewers",
       "homeTeamName": "Tampa Bay Rays",
-      "artifactHash": "1bb2f99d2014e0b7157a0ade5d8362ea6fa0277cbe6cf54857e4edccf88c6dcf",
+      "artifactHash": "4278f0a563bcf010fdfa9e7f28a807dd3b8e772adbff037a8e3623e5400cd3b8",
       "decisionEngineVersion": "mlb-prediction-2026.10-v2",
       "completeness": {
         "level": "degraded",
         "notes": [
+          "MIL confirmed batting order used, all 9 with posted prop lines.",
+          "TB confirmed batting order used; 2 of 9 have no GTP projection (no posted prop line, or too little data) and are simulated at replacement-level rates; the box score marks each one.",
           "TB has no posted probable starter — simulated vs a league bullpen aggregate."
         ],
-        "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
+        "awayLineupSource": "confirmed",
+        "homeLineupSource": "confirmed",
         "awayRatedCount": 9,
-        "homeRatedCount": 9,
+        "homeRatedCount": 7,
         "awayLineupCount": 9,
         "homeLineupCount": 9,
         "hasAwayStarter": true,
@@ -33,7 +35,6 @@
         "startedBeforeGeneration": false,
         "missingFamilies": [
           "home_probable_starter",
-          "confirmed_batting_order",
           "park_run_factors",
           "weather",
           "batter_handedness_splits"
@@ -68,7 +69,7 @@
       "moneyline": {
         "side": "home",
         "team": "TB",
-        "simulationProbability": 0.532,
+        "simulationProbability": 0.506,
         "marketImpliedProbability": 0.429,
         "marketAgreement": "MODEL HIGHER",
         "strengthLabel": "LEAN"
@@ -76,8 +77,8 @@
       "total": {
         "line": 6.5,
         "pick": "OVER",
-        "overProbability": 0.665,
-        "underProbability": 0.335,
+        "overProbability": 0.647,
+        "underProbability": 0.353,
         "pushProbability": 0,
         "simulationMedian": 8,
         "marketImpliedOver": 0.522,
@@ -91,8 +92,8 @@
         "pick": "TB +1.5",
         "pickSide": "home",
         "pickLine": 1.5,
-        "coverProbability": 0.654,
-        "opposingCoverProbability": 0.346,
+        "coverProbability": 0.639,
+        "opposingCoverProbability": 0.361,
         "pushProbability": 0,
         "marketImpliedProbability": 0.5809,
         "bookmaker": "draftkings",
