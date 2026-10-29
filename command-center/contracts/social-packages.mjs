@@ -15,7 +15,8 @@ import { TERMS } from "../render/social-v2.mjs";
 import { captionsFor } from "./captions.mjs";
 
 export const V2 = "@v2";
-export const baseIdOf = (postId) => String(postId).replace(/@v\d+$/, "");
+// "@v2" (V2.1 template generation) or "|v<n>" (Top 5 publishing version, contracts/top5-packages.mjs)
+export const baseIdOf = (postId) => String(postId).replace(/(@v\d+|\|v\d+)$/, "");
 const claim = (key, display, evidenceRef) => ({ key, display: String(display), evidenceRef });
 const ref0 = (m) => m.evidence?.[0]?.ref ?? null;
 /** V2.3: every number on the matchup meter is a claim of the package (traceable, and bound by the fingerprint). */

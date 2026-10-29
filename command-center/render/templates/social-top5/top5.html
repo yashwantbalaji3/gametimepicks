@@ -1,0 +1,48 @@
+<!doctype html>
+<!-- {{template}} — Top 5 board ({{variant}}, 1080×1350). Every visible fact is filled from an official published Top
+     Board model (recap/top5-boards.mjs), HTML-escaped; the page makes no remote request. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>{{rawCss}}</style>
+</head>
+<body class="v-{{variant}}" data-template="{{template}}">
+  <div class="bg">
+    <div class="glow g1"></div><div class="glow g2"></div>
+    <div class="stripes"></div>
+    <svg class="grain" width="1080" height="1350" xmlns="http://www.w3.org/2000/svg"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#g)"/></svg>
+    <div class="vig"></div>
+    <div class="edge"></div>
+  </div>
+  <div class="content">{{rawBody}}</div>
+  <script>
+    // Deterministic fit, run by the renderer after fonts load. [data-fit] lines shrink 2 px at a time (never below 70%).
+    // Player names (data-name-group): each takes the first display form that fits; only if one still doesn't, the whole
+    // group steps down together (never below 80%). Anything that still overflows refuses the render.
+    window.__runFit = function () {
+      var out = [];
+      document.querySelectorAll("[data-fit]").forEach(function (el) {
+        var size = parseFloat(getComputedStyle(el).fontSize), min = size * 0.7;
+        while (el.scrollWidth > el.clientWidth + 1 && size - 2 >= min) { size -= 2; el.style.fontSize = size + "px"; }
+        out.push({ text: el.textContent.trim().slice(0, 60), fits: el.scrollWidth <= el.clientWidth + 1, size: size });
+      });
+      var fits = function (el) { return el.scrollWidth <= el.clientWidth + 1; };
+      var groups = {};
+      document.querySelectorAll("[data-name-group]").forEach(function (el) { (groups[el.dataset.nameGroup] = groups[el.dataset.nameGroup] || []).push(el); });
+      Object.keys(groups).forEach(function (g) {
+        var els = groups[g];
+        var pick = function () { els.forEach(function (el) { var forms = JSON.parse(el.dataset.forms); for (var i = 0; i < forms.length; i++) { el.textContent = forms[i]; if (fits(el)) break; } }); };
+        pick();
+        var size = parseFloat(getComputedStyle(els[0]).fontSize), min = size * 0.8;
+        while (els.some(function (e) { return !fits(e); }) && size - 1 >= min) { size -= 1; els.forEach(function (e) { e.style.fontSize = size + "px"; }); pick(); }
+        els.forEach(function (el) { out.push({ text: el.textContent.trim().slice(0, 60), fits: fits(el), size: parseFloat(getComputedStyle(el).fontSize), group: g }); });
+      });
+      var c = document.querySelector(".content"), r = c.getBoundingClientRect(), last = c.lastElementChild.getBoundingClientRect();
+      var minFont = 1e9, walker = document.createTreeWalker(c, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) { var n = walker.currentNode; if (n.textContent.trim()) minFont = Math.min(minFont, parseFloat(getComputedStyle(n.parentElement).fontSize)); }
+      var page = document.documentElement;
+      return { items: out, minFontPx: minFont, pageOverflow: page.scrollWidth > 1080 || page.scrollHeight > 1350 || last.bottom > r.bottom + 1 };
+    };
+  </script>
+</body>
+</html>
