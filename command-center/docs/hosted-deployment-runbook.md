@@ -157,3 +157,17 @@ Between steps 2 and 3, *neither* side sends. A due post can be missed for that w
 - **Updating later:** assemble into a new folder, compare it with the ops repo, and copy the changes over as a normal commit. Never force-push.
 - **Push (only after you create the empty private repo and say go):** `git -C ~/Downloads/gtp-ops remote add origin https://github.com/<owner>/gtp-ops.git`, then `git -C ~/Downloads/gtp-ops push -u origin main`.
 
+## 10. Live state (2026-10-29)
+
+- **Vercel `gtp-team`** (`prj_IRjYGAG80NwQOlMag0GP7uNIr9Ut`):
+  - Node 22.x, Git-connected to `yashwantbalaji3/gtp-ops` (production branch `main`);
+  - Private Blob store `gtp-cc-media` (`iad1`, Production only);
+  - settings all PASS on `preflight --remote`; `GH_PUBLISHER_WORKFLOW` absent, so hosted publishing is off.
+- **Deploying:** a push to `gtp-ops` `main` deploys to Production by itself (it did on 10-29 despite the project showing Git deployments "disabled"). **Deploy = one push.** Never also run `vercel deploy`: that is a second build of the same code.
+- **First deploy:**
+  - 3 builds: 1 failed (Vercel refuses an empty `public/`; the build now writes a crawl-nothing `robots.txt`), and 2 identical READY builds of about 10 s (push + manual deploy).
+  - Local rehearsal for next time: `vercel pull` into a temporary copy, delete `.vercel/.env.*`, run `vercel build --prod`, and check `.vercel/output/functions/api/index.func/.vc-config.json` `filePathMap` for the console pages, editorial data and logo.
+- **Domain:** `team.gametimepicks.yashwantbalaji.com` is added and verified.
+  - DNS record (from Vercel's domain config, rank 1): **CNAME `team.gametimepicks` → `0cc985e6e1730dd3.vercel-dns-016.com`**.
+  - Vercel auto-assigned `gtp-team.vercel.app`; remove it in Settings → Domains (the app's passkeys and origin checks are bound to the team domain only).
+
