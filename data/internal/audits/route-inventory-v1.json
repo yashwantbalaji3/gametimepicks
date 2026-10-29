@@ -4,8 +4,8 @@
  "dataClass": "PRIVATE_AUDIT",
  "generatedAt": "2026-10-08T21:59:42Z",
  "totals": {
-  "routes": 102,
-  "public": 71,
+  "routes": 103,
+  "public": 72,
   "internal": 10,
   "redirects": 18,
   "archive": 1,
@@ -793,6 +793,15 @@
    "dataOwner": "public/data/<sport>/graded-picks.json, built from each sport's own graded ledger",
    "freshness": "artifact generatedAt; rebuilt whenever a sport settles",
    "built": "FAMILY (4 generated page(s))"
+  },
+  {
+   "route": "/results/picks/ligue-1",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "Ligue 1's graded match-result record (1X2 log loss, every graded fixture newest first) — the league's record page, linked from the hub, /results/picks and /today",
+   "dataOwner": "public/data/soccer/ligue-1/results/graded.json",
+   "freshness": "graded.json generatedAt; rebuilt when the league settles",
+   "built": "UNVERIFIED (no export provided)"
   },
   {
    "route": "/saved",
