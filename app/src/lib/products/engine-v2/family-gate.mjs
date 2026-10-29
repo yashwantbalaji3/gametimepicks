@@ -79,6 +79,18 @@ export function grantedFamilyKeys(gates) {
 }
 
 /**
+ * The forward-test entry that judges the model behind `family`, or null. The forward receipt is the share-level
+ * program's: it judges ONLY the share-level / opportunity models. A family whose board number comes from another
+ * model (props-v1, …) has no forward receipt of its own. One helper, so the eligibility artifact and the weekly
+ * top boards' readiness lines quote the same forward evidence.
+ * @param {{ family: string, modelVersion: string|null|undefined, forwardReceipt: any }} o
+ */
+export function forwardEvidenceFor({ family, modelVersion, forwardReceipt }) {
+  const forwardKey = family === "anytime_td" ? "anytime_td" : `player_${String(family).replace(/^player_/, "")}`;
+  return /share-level|opportunity/.test(String(modelVersion ?? "")) ? forwardReceipt?.families?.[forwardKey] ?? null : null;
+}
+
+/**
  * The NFL families from the slate's own receipts plus the committed status / forward evidence.
  * @param {{ receipts: Array, forwardReceipt: object|null, familyState: Map }} o
  *   receipts = RecommendationReceiptV2 rows for NFL player boards on the slate.
@@ -99,10 +111,7 @@ export function deriveNflFamilyGates({ receipts, forwardReceipt, familyState, gr
   }
   return [...byFamily.entries()].sort(([a], [b]) => String(a).localeCompare(String(b))).map(([family, s]) => {
     const modelVersion = s.modelVersions.size === 1 ? [...s.modelVersions][0] : null;
-    /* The forward receipt is the share-level program's: it judges ONLY the share-level models. A family whose
-       board number comes from another model (props-v1, anytime-td-v1) has no forward receipt of its own. */
-    const forwardKey = family === "anytime_td" ? "anytime_td" : `player_${String(family).replace(/^player_/, "")}`;
-    const forward = /share-level|opportunity/.test(String(modelVersion ?? "")) ? forwardReceipt?.families?.[forwardKey] ?? null : null;
+    const forward = forwardEvidenceFor({ family, modelVersion, forwardReceipt });
     const slate = { candidates: s.candidates, modelProbability: s.modelProbability, roleConfirmed: s.roleConfirmed, priced: s.priced, settlementProven: s.settlementProven };
     return deriveFamilyGate({ sport: "nfl", family, publicationState: familyState?.get?.(family) ?? null, modelVersion, forward, slate, grants });
   });
