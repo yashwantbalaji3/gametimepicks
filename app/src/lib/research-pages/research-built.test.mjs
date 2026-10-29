@@ -146,7 +146,9 @@ test("RX5 research pages are discoverable from game pages, the player board, /fo
   assert.ok(nflGames.some((g) => /href="\/teams\/nfl\/[a-z0-9-]+\/"/.test(htmlOf(`nfl/game/${g}`))), "an NFL game page links a team's research page");
   const mlbDir = path.join(OUT, "games/mlb");
   if (fs.existsSync(mlbDir)) {
-    const pages = fs.readdirSync(mlbDir).filter((d) => fs.existsSync(path.join(mlbDir, d, "index.html")));
+    // Live game pages only: a settled page (data-mlb-settled-game) is the forecast of record after the game, not a
+    // research entry point. Off-season exports hold settled pages alone, and then the MLB half has no subject.
+    const pages = fs.readdirSync(mlbDir).filter((d) => fs.existsSync(path.join(mlbDir, d, "index.html")) && !htmlOf(`games/mlb/${d}`).includes("data-mlb-settled-game"));
     if (pages.length) assert.ok(pages.some((g) => /href="\/teams\/mlb\/[a-z0-9-]+\/"/.test(htmlOf(`games/mlb/${g}`))), "an MLB game page links a team research page");
   }
   const following = htmlOf("following");
