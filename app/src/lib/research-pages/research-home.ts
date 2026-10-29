@@ -29,7 +29,7 @@ export function inclusionCopy(sport: ResearchSport, t: Thresholds): { team: stri
       player: `at least ${t.MLB_MIN} recorded games in a captured stat category; these pages cover captured categories only`,
     };
     case "EPL": return {
-      team: `in the ${seasonLabel(t.EPL_CURRENT_SEASON)} fixture list; final results are not yet recorded by ID, so team pages show fixtures, not a record`,
+      team: `in the ${seasonLabel(t.EPL_CURRENT_SEASON)} fixture list; this season's graded results are on each team page; earlier seasons are fixtures only`,
       player: `at least ${t.EPL_MIN} appearances in ${seasonLabel(t.EPL_SEASON)}`,
     };
     case "UFC": return {

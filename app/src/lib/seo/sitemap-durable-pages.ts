@@ -24,6 +24,7 @@ import path from "node:path";
 import { settledMlbGames } from "@/lib/mlb/settled-games-data";
 import { archivedEventIds, reconciledGames } from "@/lib/sports/nfl/archived-forecast";
 import { currentEtDate } from "@/lib/freshness";
+import { ufcSettledBouts } from "@/lib/sports/ufc/bout";
 
 export interface DurablePage {
   /** Site path with the export's trailing slash. */
@@ -53,10 +54,19 @@ export function nflArchivedGamePages(root: string = DATA_ROOT()): DurablePage[] 
   });
 }
 
+/** UFC settled bout pages: /ufc/bout/[boutId] generateStaticParams' settled half (ufcSettledBouts, the forecast ledger). */
+export function ufcSettledBoutPages(): DurablePage[] {
+  return ufcSettledBouts().map((b) => {
+    const t = b.cardStartUtc ? Date.parse(b.cardStartUtc) : NaN;
+    return { path: `/ufc/bout/${b.boutId}/`, ...(Number.isFinite(t) ? { lastModified: currentEtDate(new Date(t)) } : {}) };
+  });
+}
+
 /** Every durable page source, in sitemap order. */
 export const DURABLE_PAGE_SOURCES: ReadonlyArray<{ family: string; pages: () => DurablePage[] }> = [
   { family: "/games/[sport]/[gameId]", pages: () => mlbSettledGamePages() },
   { family: "/nfl/game/[eventId]", pages: () => nflArchivedGamePages() },
+  { family: "/ufc/bout/[boutId]", pages: () => ufcSettledBoutPages() },
 ];
 
 /** All durable pages, de-duplicated by path (first source wins). */

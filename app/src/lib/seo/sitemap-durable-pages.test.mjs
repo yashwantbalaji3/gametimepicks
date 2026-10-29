@@ -15,6 +15,7 @@ import path from "node:path";
 import * as sitemapModule from "../../app/sitemap.ts";
 import * as gamesPage from "../../app/games/[sport]/[gameId]/page.tsx";
 import * as nflGamePage from "../../app/nfl/game/[eventId]/page.tsx";
+import * as ufcBoutPage from "../../app/ufc/bout/[boutId]/page.tsx";
 import { ROUTE_TABLE } from "../audits/route-inventory.mjs";
 import { durablePages } from "./sitemap-durable-pages.ts";
 
@@ -30,8 +31,9 @@ const paths = entries.map((e) => pathOf(e.url));
 const exported = new Set([
   ...unwrap(gamesPage, "generateStaticParams")().map((p) => `/games/${p.sport}/${p.gameId}/`),
   ...unwrap(nflGamePage, "generateStaticParams")().map((p) => `/nfl/game/${p.eventId}/`),
+  ...unwrap(ufcBoutPage, "generateStaticParams")().map((p) => `/ufc/bout/${p.boutId}/`),
 ]);
-const DYNAMIC = /^\/(games\/[^/]+\/[^/]+|nfl\/game\/[^/]+)\/$/;
+const DYNAMIC = /^\/(games\/[^/]+\/[^/]+|nfl\/game\/[^/]+|ufc\/bout\/[^/]+)\/$/;
 
 test("SD1 every durable game URL in the sitemap is in its page's own generateStaticParams", () => {
   const dynamic = paths.filter((p) => DYNAMIC.test(p));
@@ -73,6 +75,7 @@ test("SD3 lastmod: durable pages only, a YYYY-MM-DD event date, never build time
 
 test("SD4 settled MLB and archived NFL game pages and /results/nba are listed", () => {
   assert.ok(paths.some((p) => p.startsWith("/nfl/game/")), "archived NFL game pages are listed");
+  assert.ok(paths.some((p) => p.startsWith("/ufc/bout/")), "settled UFC bout pages are listed");
   assert.ok(paths.includes("/results/nba/"), "/results/nba (the NBA Official Record) is listed");
   // MLB settled pages exist only inside the expired-link window; when the window holds graded games they are listed
   const mlb = durablePages().filter((d) => d.path.startsWith("/games/mlb/"));

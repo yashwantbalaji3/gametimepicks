@@ -23,6 +23,7 @@ import {
   MODEL_REPORT_READY_LABEL, STATE_ACTION,
 } from "./day-view.ts";
 import { loadEplForecastArchive, eplMatchHref } from "../sports/epl/forecast-view.ts";
+import { ufcBoutIds } from "../sports/ufc/bout.ts";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const DATA = path.join(APP, "public", "data");
@@ -72,14 +73,17 @@ test("regression 2026-10-24: Premier League and UFC 333 are on the date, settled
   assert.match(card.stateReason, new RegExp(`picks graded: ${picks.filter((p) => p.hit).length} of ${picks.length} correct`), "pick tally from the graded record");
 });
 
-test("settled UFC cards link only to exported pages; the settled-bout hook is unset until those pages exist", () => {
-  assert.equal(ufcSettledBoutHref("UFC 333: Volkanovski vs. Evloev"), null, "TODO(b1-ufc-bouts): no settled bout page on main yet");
+test("settled UFC cards link only to exported pages: a settled bout page from the ledger, else the graded record", () => {
+  // Integration (vehicle): the card opens its headline bout's settled page — Evloev vs Volkanovski, bout 401911632.
+  assert.equal(ufcSettledBoutHref("UFC 333: Volkanovski vs. Evloev"), "/ufc/bout/401911632/", "the headline bout's settled page");
+  assert.equal(ufcSettledBoutHref("UFC 999: Nobody vs. Nobody"), null, "a card with no settled ledger bout gets no bout link");
   const results = json("ufc/results-latest.json").results;
   const dates = availableSimulateDates({ today: TODAY }).filter((d) => d < TODAY && results.some((r) => r.eventDate === d && r.winner));
   assert.ok(dates.length > 0, "played cards are selectable dates");
   for (const d of dates) {
     for (const e of buildSimulateDay(d, { today: TODAY }).sections.find((s) => s.sport === "ufc").events) {
-      assert.ok(["/results/picks/ufc", "/ufc"].includes(e.href), `${e.matchup}: ${e.href} is an exported page`);
+      const bout = /^\/ufc\/bout\/(\d+)\/$/.exec(e.href);
+      assert.ok(bout ? ufcBoutIds().includes(bout[1]) : ["/results/picks/ufc", "/ufc"].includes(e.href), `${e.matchup}: ${e.href} is an exported page`);
       assert.match(e.stateReason, /^Final: /);
     }
   }

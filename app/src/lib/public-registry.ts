@@ -197,7 +197,7 @@ export const PUBLIC_SPORTS: ReadonlyArray<PublicSport> = Object.freeze([
       officialForecast: { availability: "PER_SLATE", href: "/soccer/ligue-1/", note: "Model-only match forecasts for every fixture, frozen before kickoff." },
       topBoards: { availability: "NOT_SUPPORTED", href: null, note: "No player markets for Ligue 1." },
       gameSimulation: { availability: "NOT_SUPPORTED", href: null, note: "No simulated-match view for Ligue 1." },
-      results: { availability: "AVAILABLE", href: "/soccer/ligue-1/", note: "Graded fixtures on the league page." },
+      results: { availability: "AVAILABLE", href: "/results/picks/ligue-1/", note: "Every graded fixture, newest first (match result only)." },
       modelPerformance: { availability: "AVAILABLE", href: "/soccer/ligue-1/", note: "Accepted on a preregistered league backtest; too few matches yet to grade forward." },
     },
     assistant: { forecasts: false, liveState: false, results: false },

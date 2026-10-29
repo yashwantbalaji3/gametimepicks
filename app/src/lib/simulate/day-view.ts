@@ -34,6 +34,7 @@ import { settledVerdictText } from "@/components/nba/expired-simulation.mjs";
 import { settledSimulationParams } from "@/components/nba/settled-simulation-data";
 import { settledMlbGames } from "@/lib/mlb/settled-games-data";
 import { allowsRunCountClaim } from "@/lib/game-simulations/validate";
+import { ufcSettledBouts } from "@/lib/sports/ufc/bout";
 import { loadEplForecastArchive } from "@/lib/sports/epl/forecast-view";
 import path from "node:path";
 
@@ -535,10 +536,19 @@ export function ufcEarliestStart(card: Pick<UfcCard, "event" | "bouts"> | null |
  * (ufc/graded-picks.json, the /results/picks/ufc record). A card with graded picks is SETTLED; a card with results
  * but no published picks was not modelled here and says so (schedule-only, like an NBA game outside the lane).
  *
- * HOOK (ufcSettledBoutHref): settled UFC bout pages are being added on branch claude/b1-ufc-bouts. Until they exist
- * on main, a settled card opens the graded-picks record — the only exported page that holds its results.
+ * ufcSettledBoutHref: a settled card opens its headline bout's settled page (/ufc/bout/<id>, built from the forecast
+ * ledger); a card with no settled ledger bout opens the graded-picks record.
  */
-export const ufcSettledBoutHref = (_eventName: string): string | null => null; // TODO(b1-ufc-bouts): link the settled card/bout page once exported
+export function ufcSettledBoutHref(eventName: string): string | null {
+  // The card's settled bout pages (ufcSettledBouts — the same ids /ufc/bout/[boutId] exports). Prefer the headline bout
+  // (both surnames in the card title); otherwise the card's first settled bout. No settled bout → no link.
+  const bouts = ufcSettledBouts().filter((b) => b.competition === eventName);
+  if (!bouts.length) return null;
+  const title = eventName.split(":").slice(1).join(":").toLowerCase();
+  const surnames = (m: string) => m.split(/\s+vs\.?\s+/i).map((n) => n.trim().split(/\s+/).pop()?.toLowerCase() ?? "");
+  const main = title ? bouts.find((b) => { const s = surnames(b.matchup); return s.length === 2 && s.every((x) => x && title.includes(x)); }) : undefined;
+  return `/ufc/bout/${(main ?? bouts[0]).boutId}/`;
+}
 function ufcSettledCards(date: string): SimDayEvent[] {
   const graded = ufcGradedByCard();
   const byCard = new Map<string, UfcResultRow[]>();
