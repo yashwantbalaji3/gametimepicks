@@ -32,3 +32,7 @@ Effective cumulative ceiling: 761 credits
 | Kill switch | stop the local schedule (no further runs); the receipt refuses on its own after its expiry or ceiling |
 
 Approved by: founder 2026-10-29
+
+## Amendment 1 (founder 2026-10-29, verbatim approval: "I approve Amendment 1 (early NBA snapshot) as written.")
+
+Early snapshot: one per game, 75 minutes to 6 hours before tip, in addition to the single pregame capture; same markets, books, ceiling, floor, stop conditions and private storage.

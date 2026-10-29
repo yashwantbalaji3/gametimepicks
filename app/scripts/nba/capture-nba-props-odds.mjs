@@ -81,6 +81,8 @@ if (has("--authorized")) {
     now: NOW, receiptText, receiptRel: rel, ledger, scheduleRows: schedule.rows ?? [], rosterFor, markets: MARKETS,
     // --lead-minutes MIN,MAX (pilot: 20,75 → T-60 with a T-30 fallback, never after tip); default: 0 to the lookahead.
     minLeadMinutes: LEAD[0], maxLeadMinutes: LEAD[1],
+    // --phase early: the receipt-authorized early snapshot (its own once-per-game slot); default pregame.
+    phase: arg("--phase") ?? "pregame",
     // The repository's own odds guards, read from the environment the workflow passes.
     minCreditsRemaining: Number(process.env.ODDS_API_MIN_CREDITS_REMAINING ?? "2000"),
     maxEventsPerRun: Number(process.env.ODDS_MAX_EVENTS_PER_RUN ?? "2"),
