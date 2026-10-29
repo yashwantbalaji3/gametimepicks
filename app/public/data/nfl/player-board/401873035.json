@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-29T19:47:39Z",
- "sourceGeneratedAt": "2026-10-29T19:47:39Z",
+ "generatedAt": "2026-10-29T23:45:20Z",
+ "sourceGeneratedAt": "2026-10-29T23:45:20Z",
  "forecastInputHash": "c42cf8eedd2aa620",
  "providerEventId": "401873035",
  "matchup": "PHI @ WSH",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-29T19:47:39Z",
-  "roleEvidenceAt": "2026-10-29T19:47:39Z",
+  "injuriesCapturedAt": "2026-10-29T23:45:20Z",
+  "roleEvidenceAt": "2026-10-29T23:45:20Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -383,7 +383,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4360635",
@@ -573,6 +573,19 @@
     "state": "CONSERVED"
    },
    {
+    "team": "WSH",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.7785,
+    "originalSum": 0.7785,
+    "residualOther": 0.2215,
+    "joined": 6,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
     "team": "PHI",
     "pool": "targets",
     "markets": [
@@ -584,19 +597,6 @@
     "joined": 6,
     "missed": 0,
     "state": "CONSERVED"
-   },
-   {
-    "team": "WSH",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.5492,
-    "originalSum": 0.5492,
-    "residualOther": 0.4508,
-    "joined": 5,
-    "missed": 0,
-    "state": "UNDER_ALLOCATED"
    }
   ],
   "violations": 0
@@ -636,7 +636,7 @@
    "playerId": "nfl-athlete-2976212",
    "name": "Stefon Diggs",
    "team": "WSH",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 37.192,

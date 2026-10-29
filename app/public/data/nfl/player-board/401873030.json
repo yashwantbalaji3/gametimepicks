@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-29T19:47:39Z",
- "sourceGeneratedAt": "2026-10-29T19:47:39Z",
+ "generatedAt": "2026-10-29T23:45:20Z",
+ "sourceGeneratedAt": "2026-10-29T23:45:20Z",
  "forecastInputHash": "40f19058df324534",
  "providerEventId": "401873030",
  "matchup": "MIN @ DET",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-29T19:47:39Z",
-  "roleEvidenceAt": "2026-10-29T19:47:39Z",
+  "injuriesCapturedAt": "2026-10-29T23:45:20Z",
+  "roleEvidenceAt": "2026-10-29T23:45:20Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -226,7 +226,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-3886598",
@@ -294,7 +294,7 @@
       "player_receptions",
       "player_rush_yds"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4374302",
@@ -305,7 +305,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4426388",
@@ -436,6 +436,19 @@
     "state": "CONSERVED"
    },
    {
+    "team": "DET",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.9438,
+    "originalSum": 0.9438,
+    "residualOther": 0.0562,
+    "joined": 5,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
     "team": "MIN",
     "pool": "passAttempts",
     "markets": [
@@ -454,25 +467,12 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.8626,
-    "originalSum": 0.8626,
-    "residualOther": 0.1374,
-    "joined": 6,
+    "sum": 0.7872,
+    "originalSum": 0.7872,
+    "residualOther": 0.2128,
+    "joined": 5,
     "missed": 0,
     "state": "CONSERVED"
-   },
-   {
-    "team": "DET",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.4334,
-    "originalSum": 0.4334,
-    "residualOther": 0.5666,
-    "joined": 3,
-    "missed": 0,
-    "state": "UNDER_ALLOCATED"
    }
   ],
   "violations": 0
@@ -482,7 +482,7 @@
    "playerId": "nfl-athlete-4429795",
    "name": "Jahmyr Gibbs",
    "team": "DET",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
      "mean": 95.126,
@@ -521,7 +521,7 @@
    "playerId": "nfl-athlete-4374302",
    "name": "Amon-Ra St. Brown",
    "team": "DET",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 74.489,
@@ -854,7 +854,7 @@
    "playerId": "nfl-athlete-4708049",
    "name": "Gavin Bartholomew",
    "team": "MIN",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 17.006,
