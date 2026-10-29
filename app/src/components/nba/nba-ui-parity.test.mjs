@@ -113,7 +113,9 @@ test("the homepage renders NBA as a Command Center lane from the hub's own view 
   assert.match(home, /const commandLanes = \[\.\.\.cardLanes\.slice\(0, afterNfl\), nbaHomeLane, \.\.\.cardLanes\.slice\(afterNfl\)\];/);
   // every /nba card the homepage links exists: the hub renders a MatchupCard (id laneCardId) for EVERY one of today's games
   const hub = read("src/app/nba/page.tsx");
-  assert.match(hub, /<NbaTodayGames slate=\{slate\} slip=\{slip\} \/>/); // Vehicle N: + the Level A slip legs (hub-slip.test)
+  // Vehicle N: + the Level A slip legs (hub-slip.test); Batch 1 fix #2 (2026-10-29): + the exported game page ids
+  // (game-page-links.test.mjs pins where they come from) — the cards themselves are unchanged: one per game
+  assert.match(hub, /<NbaTodayGames slate=\{slate\} slip=\{slip\} gamePages=\{gamePages\} \/>/);
   assert.match(read("src/components/nba/hub-overview.tsx"), /\{slate\.games\.map\(\(g\) => \(\n\s+<MatchupCard key=\{g\.id\}/);
   // weight: today's carded games are not listed a second time in the window's one-line lists
   assert.match(hub, /const rest = model\.rows\.filter\(\(r\) => !carded\.has\(String\(r\.id\)\)\);/);

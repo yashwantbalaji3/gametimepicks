@@ -22,6 +22,8 @@ import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs
 import { nflPublicRecordResolver } from "@/lib/sports/nfl/public-record.mjs";
 import { committedLaneDates, loadLaneForDate } from "@/components/nba/experimental-lane";
 import { nbaExclusionText } from "@/lib/sport-hub/nba-hub";
+import { nbaExportedGamePageIds } from "@/components/nba/settled-simulation-data";
+import { nbaGamePageHrefIfExported } from "@/components/nba/game-page-link.mjs";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { forecastTableCell, mlbForecastStateForGame } from "@/lib/mlb/full-game/forecast-state.mjs";
 
@@ -66,6 +68,10 @@ export function buildGamesTableRows(today: string): GamesTableRow[] {
   const eplById = new Map((epl ? reportableRows(epl) : []).map((r) => [r.eventId, r]));
   const laneDates = new Set(committedLaneDates());
   const nbaFinals = new Set((readPublic<{ finals?: Array<{ providerEventId?: string }> }>("nba/results/finals-2026-27.json")?.finals ?? []).map((f) => String(f.providerEventId ?? "")).filter(Boolean));
+  /* Batch 1 fix #2 (2026-10-29): the NBA game pages this export serves at the build's ET date — the settled pages of past
+     slates (the route's own list). Today's Game Simulation ids are read only by the /nba hub (research boundary), so a
+     game today opens its hub card, which links its page when one is built. */
+  const nbaGamePages = new Set(nbaExportedGamePageIds(today));
   const nowMs = Date.now();
 
   const rows: GamesTableRow[] = [];
@@ -73,7 +79,7 @@ export function buildGamesTableRows(today: string): GamesTableRow[] {
     const day = buildSimulateDay(date, { today });
     const lane = loadLaneForDate(date);
     for (const section of day.sections) {
-      for (const e of section.events) rows.push(rowFor(e, date, { nflIdx, nflPages, eplById, lane, laneDates, nbaFinals, nowMs, today }));
+      for (const e of section.events) rows.push(rowFor(e, date, { nflIdx, nflPages, eplById, lane, laneDates, nbaFinals, nbaGamePages, nowMs, today }));
     }
   }
   return rows.sort((a, b) => String(a.startUtc ?? a.date).localeCompare(String(b.startUtc ?? b.date)) || a.matchup.localeCompare(b.matchup));
@@ -86,6 +92,8 @@ type Ctx = {
   lane: ReturnType<typeof loadLaneForDate>;
   laneDates: Set<string>;
   nbaFinals: Set<string>;
+  /** Exported /nba/simulation/<id>/ pages (settled-simulation-data nbaExportedGamePageIds); absent → none. */
+  nbaGamePages?: ReadonlySet<string>;
   nowMs: number;
   /** The build's ET day: each of today's NBA games has a card on /nba. */
   today?: string;
@@ -125,8 +133,9 @@ function rowFor(e: SimDayEvent, date: string, ctx: Ctx): GamesTableRow {
     const pid = tail(e.id);
     const g = ctx.lane?.games.find((x) => x.providerEventId === pid);
     /* founder mandate 2026-10-24: a game today opens its /nba card (its Official Forecast and Game Simulation links); an
-       earlier date's opens that date's board. */
-    const page = date === ctx.today && pid ? `/nba/#nba-exp-${pid}` : ctx.laneDates.has(date) ? `/nba/projections/${date}/` : "/nba/";
+       earlier date's opens its game page when that page is exported (Batch 1 fix #2), else that date's board. */
+    const gamePage = date !== ctx.today && pid ? nbaGamePageHrefIfExported(pid, ctx.nbaGamePages) : null;
+    const page = date === ctx.today && pid ? `/nba/#nba-exp-${pid}` : gamePage ?? (ctx.laneDates.has(date) ? `/nba/projections/${date}/` : "/nba/");
     if (g) {
       const side = g.elo?.favoured ? `${g.elo.favoured} favoured · no win chance published` : null;
       return { ...base, forecast: "Frozen", read: side, note: null, eventHref: page };

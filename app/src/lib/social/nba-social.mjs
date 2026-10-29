@@ -10,6 +10,24 @@
  *   - player medians are the lane's published medians, with the market definition of each family;
  *   - finals and the side's result are the official record's rows (nba-forecast-vs-actual), never recomputed.
  * Nothing here is a pick, a price, a ranking or an accuracy claim. Pure: no fs, no clock (the build date is passed in).
+ *
+ * ADDITIVE FIELDS (Batch 1 fix #9, 2026-10-29 — schemaVersion stays gtp-social-nba@1: nothing renamed, removed or
+ * re-meant; the new keys are appended after every existing key, so the existing fields' bytes are unchanged). All are
+ * derived from the file's own data and `builtForEtDate` (the build's ET date — the SAME date `stale` is computed
+ * against); no new clock read.
+ *   isLatest    boolean — true only on the newest day file this build ships (latest.json is that file). An archived day
+ *               carries `stale: true` (its slate is before the build's date); `isLatest: false` says it is simply an
+ *               archive, not a broken "today".
+ *   slateState  "UPCOMING" | "IN_PROGRESS" | "SETTLED" | null — from the events' own `result.final` (the official
+ *               record's finals) as of the build: every event has a final → SETTLED; some do, or none do but the slate's
+ *               date is before builtForEtDate → IN_PROGRESS (played, finals not all recorded); none do and the date is
+ *               builtForEtDate or later → UPCOMING. null when the file has no events. Never a live status.
+ *   today       (latest.json and index.json only) { etDate, status } — etDate is builtForEtDate; status is
+ *               "PUBLISHED" (a lane file for etDate is committed with games — then latest.json IS that day),
+ *               "NOT_YET_PUBLISHED" (the schedule has NBA games on etDate; its Official Forecast is not in this build —
+ *               latest.json is then an earlier slate, `stale: true`), "NO_GAMES" (no NBA game on the schedule on etDate),
+ *               or "DISABLED" (the lane's rollback switch is off). The /nba hub's own today state (nba-hub
+ *               nbaTodaySlate.forecast), mapped one-to-one.
  */
 import { eloWinProbabilityOf, ELO_WIN_PROBABILITY_LABEL } from "../sports/nba/elo-win-probability.mjs";
 
@@ -37,6 +55,37 @@ export const USAGE_RULES = Object.freeze([
   "Refuse a day whose `publication.status` is not PUBLISHED, or whose `stale` is true, for any 'tonight' claim.",
 ]);
 
+export const NBA_SOCIAL_SLATE_STATES = Object.freeze(["UPCOMING", "IN_PROGRESS", "SETTLED"]);
+export const NBA_SOCIAL_TODAY_STATUSES = Object.freeze(["PUBLISHED", "NOT_YET_PUBLISHED", "NO_GAMES", "DISABLED"]);
+
+/**
+ * The slate's state from the file's own events (see the header): finals recorded by the official record, and the slate
+ * date against the build's ET date. Null when there are no events.
+ * @param {{ result?: { final?: unknown } }[]} events
+ * @param {string|null} date
+ * @param {string|null} buildEtDate
+ */
+export function nbaSocialSlateState(events, date, buildEtDate) {
+  if (!events?.length) return null;
+  const finals = events.filter((e) => e?.result?.final != null).length;
+  if (finals === events.length) return "SETTLED";
+  if (finals > 0) return "IN_PROGRESS";
+  return date && buildEtDate && date < buildEtDate ? "IN_PROGRESS" : "UPCOMING";
+}
+
+/** The hub's today state (lib/sport-hub/nba-hub.ts NbaForecastState) in the feed's words. */
+const TODAY_STATUS = Object.freeze({ PUBLISHED: "PUBLISHED", PENDING: "NOT_YET_PUBLISHED", NO_GAMES: "NO_GAMES", DISABLED: "DISABLED" });
+/**
+ * `today` for latest.json / index.json.
+ * @param {string} buildEtDate
+ * @param {"PUBLISHED"|"PENDING"|"NO_GAMES"|"DISABLED"} hubForecast
+ */
+export function nbaSocialToday(buildEtDate, hubForecast) {
+  const status = TODAY_STATUS[hubForecast];
+  if (!status) throw new Error(`nbaSocialToday: unknown hub state ${hubForecast}`);
+  return { etDate: buildEtDate, status };
+}
+
 const etTime = (iso) => {
   const t = Date.parse(String(iso ?? ""));
   return Number.isFinite(t) ? new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(t)) + " ET" : null;
@@ -46,9 +95,11 @@ const num = (v) => (typeof v === "number" && Number.isFinite(v) ? v : null);
 /**
  * `reasonText` is the NBA pages' own unavailable-reason wording (components/nba/official-predictions.tsx), passed in by the
  * server loader — products never read the Theater library (research boundary), and this pure module imports no component.
- * @param {{ lane: any, recordGames: any[], buildEtDate: string, laneSha256?: string|null, eloEnabled?: boolean, recordCounts?: { matched: number, missed: number, graded: number }|null, reasonText?: (reason: string|null, status: string|null) => string }} input
+ * `latestDate` is the newest date this build ships a day file for (nba-social-data nbaSocialDates().at(-1)); `isLatest` is
+ * true only when it equals the lane's date.
+ * @param {{ lane: any, recordGames: any[], buildEtDate: string, latestDate?: string|null, laneSha256?: string|null, eloEnabled?: boolean, recordCounts?: { matched: number, missed: number, graded: number }|null, reasonText?: (reason: string|null, status: string|null) => string }} input
  */
-export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, laneSha256 = null, eloEnabled, recordCounts = null, reasonText = (r) => String(r ?? "") }) {
+export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, latestDate = null, laneSha256 = null, eloEnabled, recordCounts = null, reasonText = (r) => String(r ?? "") }) {
   const byId = new Map((recordGames ?? []).map((r) => [String(r.providerEventId), r]));
   const games = lane?.games ?? [];
   const events = games.map((g) => {
@@ -116,5 +167,8 @@ export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, laneSha
     events,
     record: recordCounts ? { ...recordCounts, minForClaim: NBA_RECORD_MIN_FOR_CLAIM, accuracyClaim: false, href: "/results/nba/" } : null,
     usageRules: USAGE_RULES,
+    // additive (2026-10-29), appended last — see the header
+    isLatest: !!(lane?.date && latestDate && lane.date === latestDate),
+    slateState: nbaSocialSlateState(events, lane?.date ?? null, buildEtDate ?? null),
   };
 }

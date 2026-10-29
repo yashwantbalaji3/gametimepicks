@@ -12,6 +12,11 @@
  * boards and /today link here, so every one of today's games has one). A card says what is true at build time and links
  * straight to the game's Official Forecast and its Game Simulation, each only when it exists: no link before the
  * forecast is published, none to a Game Simulation page that was not built.
+ *
+ * GAME PAGES (Batch 1 fix #2, 2026-10-29): a card and a "Forecast vs. Actual" row link to the game's page
+ * (/nba/simulation/<id>/ — today's Game Simulation page or a past slate's settled page) ONLY when `gamePages` (the
+ * exported ids: settled-simulation-data nbaExportedGamePageIds) holds it — "Game page →", named "Game page: AWAY vs HOME",
+ * a 44px target. No ids passed → no link.
  */
 import Link from "next/link";
 import TeamLogo from "@/components/team-logo";
@@ -20,6 +25,7 @@ import { hubStatusDisplay, type HubGameRow } from "@/lib/sport-hub/contract";
 import { MatchupCard, forecastRowId } from "@/components/nba/experimental-lane";
 import { PUBLIC_TERMS } from "@/lib/public-registry";
 import { HubSlipButton, type HubSlipLegs } from "@/components/products/hub-slip";
+import { NBA_GAME_PAGE_TEXT, nbaGamePageHrefIfExported, nbaGamePageLabel } from "@/components/nba/game-page-link.mjs";
 
 const etTime = (iso: string) => new Date(iso).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/New_York" }) + " ET";
 const shortDate = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
@@ -101,7 +107,7 @@ function forecastLine(g: NbaTodayGame, pending: boolean): string | null {
  * Today's games: a card per game. The Official Forecast link opens the game's full forecast (favoured side and every
  * player's statistics) on its Game Simulation page when that page is built, else this page's forecast row.
  */
-export function NbaTodayGames({ slate, slip }: { slate: NbaTodaySlate; slip?: HubSlipLegs }) {
+export function NbaTodayGames({ slate, slip, gamePages }: { slate: NbaTodaySlate; slip?: HubSlipLegs; gamePages?: ReadonlySet<string> }) {
   if (!slate.games.length) return null;
   const pending = slate.forecast === "PENDING";
   return (
@@ -117,8 +123,9 @@ export function NbaTodayGames({ slate, slip }: { slate: NbaTodaySlate; slip?: Hu
               </div>
             ) : null;
           })()}
-          {g.favoured || g.theaterHref || slip?.has(g.id) ? (
+          {g.favoured || g.theaterHref || gamePages?.has(g.id) || slip?.has(g.id) ? (
             <p className="nbx-acts">
+              {gamePages?.has(g.id) ? <Link href={nbaGamePageHrefIfExported(g.id, gamePages)!} prefetch={false} aria-label={nbaGamePageLabel(g.away.abbr, g.home.abbr)} data-nba-game-page={g.id}>{NBA_GAME_PAGE_TEXT}</Link> : null}
               {g.favoured ? <Link href={g.theaterHref ? `${g.theaterHref}#official-predictions` : `#${forecastRowId(g.id)}`} prefetch={false}>{PUBLIC_TERMS.OFFICIAL_FORECAST} →</Link> : null}
               {g.theaterHref ? <Link href={g.theaterHref} prefetch={false} data-nba-theater-link={g.id}>{PUBLIC_TERMS.GAME_SIMULATION} →</Link> : null}
               {/* Vehicle N: only a Level A leg (hub-slip → levelASlipLegFor) — a game without one gets no button */}
@@ -137,12 +144,13 @@ export function NbaTodayGames({ slate, slip }: { slate: NbaTodaySlate; slip?: Hu
  * official final and, beside it, the side that was frozen for that game — only from `forecasts` (that date's committed
  * snapshot), never inferred.
  */
-export function NbaGameList({ rows, heading, collapsed = false, forecasts }: { rows: HubGameRow[]; heading: string; collapsed?: boolean; forecasts?: ReadonlyMap<string, string> }) {
+export function NbaGameList({ rows, heading, collapsed = false, forecasts, gamePages }: { rows: HubGameRow[]; heading: string; collapsed?: boolean; forecasts?: ReadonlyMap<string, string>; gamePages?: ReadonlySet<string> }) {
   if (!rows.length) return null;
   const list = (
     <ul className="m-0 p-0 list-none">
       {rows.map((r) => {
         const side = forecasts?.get(String(r.id));
+        const page = nbaGamePageHrefIfExported(r.id, gamePages);
         return (
           <li key={r.id} className="gtp-cr">
             <span className="gtp-cr-t">{r.startLabel}</span>
@@ -157,6 +165,9 @@ export function NbaGameList({ rows, heading, collapsed = false, forecasts }: { r
               {r.reportNote}
               {forecasts ? (side ? ` · ${PUBLIC_TERMS.OFFICIAL_FORECAST}: ${side} favoured` : r.started ? ` · no ${PUBLIC_TERMS.OFFICIAL_FORECAST} published` : "") : ""}
             </span>
+            {page ? (
+              <Link href={page} prefetch={false} className="gtp-hit-44 underline" aria-label={nbaGamePageLabel(r.participants?.[0]?.name, r.participants?.[1]?.name)}>{NBA_GAME_PAGE_TEXT}</Link>
+            ) : null}
           </li>
         );
       })}
