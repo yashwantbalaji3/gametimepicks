@@ -1,9 +1,9 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-10-29",
-  "checkedAt": "2026-10-29T13:51:13.424Z",
-  "treeHead": "cd1a34b47",
-  "state": "STALE",
+  "checkedAt": "2026-10-29T14:02:31.066Z",
+  "treeHead": "ab9a72f81",
+  "state": "INCIDENT",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 0,
   "owners": [
@@ -55,8 +55,8 @@
     },
     {
       "id": "settlement",
-      "state": "DUE",
-      "reason": "past 2026-10-29T12:00:00.000Z, inside grace",
+      "state": "INCIDENT",
+      "reason": "no receipt for 2026-10-29; due 2026-10-29T12:00:00.000Z plus 120m grace has passed",
       "dueAtIso": "2026-10-29T12:00:00.000Z",
       "label": "Nightly settlement (previous day)",
       "workflow": "nightly-settle",
@@ -125,7 +125,7 @@
     {
       "id": "epl-lane",
       "state": "STALE",
-      "reason": "receipt is 63.0h old against a 30h bound",
+      "reason": "receipt is 63.2h old against a 30h bound",
       "dueAtIso": "2026-10-29T21:00:00.000Z",
       "receiptAt": "2026-10-26T22:52:08Z",
       "label": "EPL lane status",
@@ -136,7 +136,7 @@
     {
       "id": "nfl-markets",
       "state": "STALE",
-      "reason": "receipt is 434.2h old against a 48h bound",
+      "reason": "receipt is 434.3h old against a 48h bound",
       "dueAtIso": "2026-10-29T15:00:00.000Z",
       "receiptAt": "2026-10-11T11:41:55Z",
       "label": "NFL market capture",
