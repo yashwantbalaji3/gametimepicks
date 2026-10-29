@@ -19,7 +19,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { neon, pglite } from "../ledger/pg-adapters.mjs";
 import { createSqlStore } from "../ledger/sql-store.mjs";
-import { sqlObjectStore } from "../ledger/object-store.mjs";
+import { sqlObjectStore, blobObjectStore } from "../ledger/object-store.mjs";
 import { createOrchestrator } from "../orchestrator/orchestrator.mjs";
 import { createSqlVault } from "../publishers/token-vault.mjs";
 import { createXOAuth, createSqlStateStore, CALLBACK_PATH } from "../publishers/x-oauth.mjs";
@@ -36,7 +36,7 @@ const db = env.DATABASE_URL ? await neon(env.DATABASE_URL) : await pglite(env.GT
 const clock = wallClock;
 const outDir = path.resolve(env.GTP_CC_OUT_DIR ?? path.join(env.RUNNER_TEMP ?? os.tmpdir(), "gtp-publisher"));
 fs.mkdirSync(path.join(outDir, "media"), { recursive: true });
-const objects = sqlObjectStore({ db, clock });
+const objects = env.BLOB_READ_WRITE_TOKEN ? blobObjectStore({ db, clock }) : sqlObjectStore({ db, clock });
 const oauth = createXOAuth({
   vault: createSqlVault({ db, key: env.GTP_CC_SECRET_KEY, clock }), states: createSqlStateStore(db),
   redirectUri: `${env.GTP_CC_ORIGIN ?? "https://team.gametimepicks.yashwantbalaji.com"}${CALLBACK_PATH}`, clock, clientId: env.GTP_CC_X_CLIENT_ID || null,

@@ -5,7 +5,7 @@
  * (deploy/sql/roles.sql); deploy/migrate.mjs runs them with the owner role.
  */
 import { neon } from "../command-center/ledger/pg-adapters.mjs";
-import { sqlObjectStore } from "../command-center/ledger/object-store.mjs";
+import { sqlObjectStore, blobObjectStore } from "../command-center/ledger/object-store.mjs";
 import { githubDispatcher } from "../command-center/jobs/dispatchers.mjs";
 import { createHostedApp } from "../command-center/hosted/app.mjs";
 import { wallClock } from "../command-center/lib/util.mjs";
@@ -30,7 +30,8 @@ const app = createHostedApp({
   origin: env.GTP_CC_ORIGIN, rpID: env.GTP_CC_RP_ID,
   setupTokenSha256: env.GTP_CC_SETUP_TOKEN_SHA256 || null,
   dispatcher: githubDispatcher({ token: env.GH_DISPATCH_TOKEN, owner: env.GH_OPS_OWNER, repo: env.GH_OPS_REPO, workflow: env.GH_WORKER_WORKFLOW || "cc-worker.yml", ref: "main" }),
-  objects: sqlObjectStore({ db, clock: wallClock }),
+  // media bytes in the PRIVATE Blob store connected to this project (OIDC on Vercel); references stay in Postgres
+  objects: env.BLOB_STORE_ID || env.BLOB_READ_WRITE_TOKEN ? blobObjectStore({ db, clock: wallClock }) : sqlObjectStore({ db, clock: wallClock }),
   outDir: "/tmp/gtp-cc",
   env: { GTP_CC_BUDGET_USD: "0", GTP_CC_X_HANDLE: env.GTP_CC_X_HANDLE ?? "" },
   oauth,

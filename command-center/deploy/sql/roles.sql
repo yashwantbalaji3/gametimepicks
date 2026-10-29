@@ -19,6 +19,10 @@ GRANT USAGE ON SEQUENCE ledger_entries_seq_seq, ledger_claims_seq_seq TO gtp_cc_
 GRANT SELECT ON ledger_entries TO gtp_cc_reader;
 GRANT SELECT, INSERT ON ledger_entries, ledger_claims TO gtp_cc_publisher;
 GRANT SELECT ON stored_objects TO gtp_cc_publisher;
+-- Hosted media (005): references are written by whoever uploads (app, worker); the publisher only reads them.
+-- Deletions (retention) are recorded only by the owner-run retention script, never by a runtime role.
+GRANT SELECT, INSERT ON stored_object_refs TO gtp_cc_app, gtp_cc_worker;
+GRANT SELECT ON stored_object_refs, stored_object_deletions TO gtp_cc_publisher, gtp_cc_app, gtp_cc_worker;
 GRANT USAGE ON SEQUENCE ledger_entries_seq_seq, ledger_claims_seq_seq TO gtp_cc_publisher;
 
 -- Authentication state: the web app only.

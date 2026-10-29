@@ -19,7 +19,7 @@ import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { neon, pglite } from "../ledger/pg-adapters.mjs";
-import { sqlObjectStore } from "../ledger/object-store.mjs";
+import { sqlObjectStore, blobObjectStore } from "../ledger/object-store.mjs";
 import { wallClock } from "../lib/util.mjs";
 import { runWorkerJob } from "./worker.mjs";
 
@@ -40,7 +40,7 @@ const links = publicRoot ? ["app", "data"].map((p) => ({ path: p, from: path.joi
 
 const r = await runWorkerJob({
   db, clock: wallClock, jobId, runId: env.GITHUB_RUN_ID ?? null, runnerId: "github-actions", outDir,
-  objects: sqlObjectStore({ db, clock: wallClock }),
+  objects: env.BLOB_READ_WRITE_TOKEN ? blobObjectStore({ db, clock: wallClock }) : sqlObjectStore({ db, clock: wallClock }),
   env: { GTP_CC_BUDGET_USD: "0" },
   engineering: {
     claudeEnv: env, allowOauthToken: true, pushKept: "workflow",
