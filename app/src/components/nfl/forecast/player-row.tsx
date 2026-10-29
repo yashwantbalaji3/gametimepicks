@@ -36,8 +36,11 @@ export default function PlayerRow({ player: p, entry: e, family: f, rank, linkTo
         {name}
         <span className="nf-meta">
           <TeamLogo team={p.team} sport="nfl" size="sm" ariaLabel={`${p.team} logo`} />
-          {p.position ? `${p.position} · ` : ""}{p.team} vs {p.opponent}
-          {linkToGame ? <> · {kickoff(p.kickoffUtc)}</> : null}
+          {p.position ? `${p.position} · ` : ""}
+          {/* V3 identity line (presentation spec): on a ranked board the Matchup / Start keys are read aloud before the
+              values, as on PredictionBoard rows; sighted readers see the values only. */}
+          {linkToGame ? <span className="sr-only">Matchup</span> : null}{p.team} vs {p.opponent}
+          {linkToGame ? <> · <span className="sr-only">Start</span>{kickoff(p.kickoffUtc)}</> : null}
           {p.availabilityLabel ? <span className="nf-flag">{p.availabilityLabel}</span> : null}
         </span>
       </div>

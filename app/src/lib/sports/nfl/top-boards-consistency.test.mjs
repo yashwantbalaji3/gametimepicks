@@ -145,7 +145,9 @@ test("SOURCE · the hub and the week page render the artifact's topBoards throug
   const hub = fs.readFileSync(path.join(APP, "src/app/nfl/page.tsx"), "utf8");
   const week = fs.readFileSync(path.join(APP, "src/app/nfl/week/[key]/page.tsx"), "utf8");
   assert.deepEqual([...hub.matchAll(/topBoardTabs\(([^)]*)\)/g)].map((m) => m[1]).sort(), ["todayLive", "topBoardsBlock.weekly"]);
-  assert.deepEqual([...week.matchAll(/topBoardTabs\(([^)]*)\)/g)].map((m) => m[1]).sort(), ["todayBoards", "wb.topBoards.weekly"]);
+  /* The week page renders the same rows in the V3 PredictionBoard layout (presentTopBoard); see the digits test below. */
+  assert.deepEqual([...week.matchAll(/<TopBoardsList artifact=\{wb\} scope=\{([^}]*)\} \/>/g)].map((m) => m[1]).sort(), ["todayBoards", "wb.topBoards.weekly"]);
+  assert.match(week, /const rows = presentTopBoard\(artifact, b\);/);
   assert.match(hub, /weeklyBoards\?\.topBoards/, "the hub reads the one ranking owner's artifact");
   for (const [name, src] of [["hub", hub], ["week page", week]]) {
     assert.doesNotMatch(src, /\btopBoards\(\s*(loadForecastViews|views)/, `${name}: no second ranking from the forecast view`);
@@ -154,4 +156,27 @@ test("SOURCE · the hub and the week page render the artifact's topBoards throug
   /* The week page no longer prints an ESTIMATE family's rows as a ranking (founder 2026-10-29). */
   assert.match(week, /b\.state === "PUBLISHED" && b\.rows\?\.length \?/);
   assert.doesNotMatch(week, /b\.state === "PUBLISHED" \|\| b\.state === "ESTIMATE"/);
+});
+
+test("week page (V3 PredictionBoard): every presented Top-board row prints the game page's digits", async () => {
+  if (!wb?.topBoards) return;
+  const { presentTopBoard } = await import("../../prediction-presentation/nfl.ts");
+  let n = 0;
+  for (const scope of [wb.topBoards.weekly, ...wb.topBoards.daily]) for (const b of scope.boards) {
+    const pres = presentTopBoard(wb, b);
+    if (b.state !== "PUBLISHED") { assert.equal(pres.length, 0, `${b.id}: a not-qualified family presents no row`); continue; }
+    assert.equal(pres.length, b.rows.length);
+    const vk = VIEW_KEY[b.family];
+    pres.forEach((p, i) => {
+      const r = b.rows[i];
+      assert.equal(p.player.playerId, r.playerId, "artifact order");
+      const view = views.get(String(r.providerEventId));
+      const gt = gameTabs(view).lists[vk].find((x) => x.player.playerId === r.playerId).entry;
+      const shown = p.model.kind === "PROBABILITY" ? `${(p.model.probability * 100).toFixed(1)}%` : p.model.displayValue;
+      assert.equal(shown, formatValue(KIND[vk], gt.value), `${r.name} ${b.family}: week page digits == game page digits`);
+      if (p.model.p10 != null) assert.deepEqual([String(p.model.p10), String(p.model.p90)], [formatValue("yards", gt.p10), formatValue("yards", gt.p90)], `${r.name}: range digits`);
+      n += 1;
+    });
+  }
+  assert.ok(n >= 15, `checked ${n} presented rows`);
 });
