@@ -38,12 +38,22 @@ function StatusPill({ status, market }: { status: MarketStatus; market?: string 
   );
 }
 
-function Row({ m }: { m: MarketCoverage }) {
+/** An archived group's rows (a finished tournament): never an "Available" pill, whatever the registry status. */
+function ArchivedPill() {
+  return (
+    <span data-coverage-archived="" className="font-mono uppercase tracking-[0.1em] rounded-[10px] px-2 py-0.5 text-right max-w-[60%]"
+      style={{ fontSize: 9.5, color: "var(--vault-text-faint)", background: "var(--vault-wash-soft)", border: "1px solid var(--vault-border)" }}>
+      Archived · not offered
+    </span>
+  );
+}
+
+function Row({ m, archived = false }: { m: MarketCoverage; archived?: boolean }) {
   return (
     <div className="flex flex-col gap-1 py-2.5" style={{ borderTop: "1px solid var(--vault-border)" }}>
       <div className="flex items-center justify-between gap-2">
         <span className="min-w-0" style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{m.publicLabel}</span>
-        <StatusPill status={m.status} market={m.market} />
+        {archived ? <ArchivedPill /> : <StatusPill status={m.status} market={m.market} />}
       </div>
       <p className="text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{m.publicExplanation}</p>
       {m.settlementSupport !== "supported" && (
@@ -56,10 +66,17 @@ function Row({ m }: { m: MarketCoverage }) {
   );
 }
 
-export default function SimulationCoverageMatrix({ sport }: { sport?: "mlb" | "nfl" | "soccer" | "ufc" }) {
-  const groups = sport
+export default function SimulationCoverageMatrix({ sport, hideArchived = false }: {
+  sport?: "mlb" | "nfl" | "soccer" | "ufc";
+  /** Batch 1 #5: omit archived groups (the finished 2026 World Cup) — /simulate lists only what can be simulated now. */
+  hideArchived?: boolean;
+}) {
+  const groups = (sport
     ? COVERAGE_SPORTS.filter((s) => s.key === sport)
-    : COVERAGE_SPORTS;
+    : COVERAGE_SPORTS).filter((s) => !(hideArchived && s.archived));
+  /* The footer's counts cover live groups only: an archived group's "supported" rows are not available markets. */
+  const archivedKeys = new Set(COVERAGE_SPORTS.filter((s) => s.archived).map((s) => s.key));
+  const live = MARKET_COVERAGE.filter((m) => !archivedKeys.has(m.sport));
 
   return (
     <section aria-label="Market coverage" className="flex flex-col gap-4">
@@ -88,15 +105,15 @@ export default function SimulationCoverageMatrix({ sport }: { sport?: "mlb" | "n
                   {g.note}
                 </span>
               </div>
-              {rows.map((m) => <Row key={`${m.sport}-${m.market}`} m={m} />)}
+              {rows.map((m) => <Row key={`${m.sport}-${m.market}`} m={m} archived={!!g.archived} />)}
             </div>
           );
         })}
       </div>
 
       <p className="font-mono text-[10px] uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)" }}>
-        {MARKET_COVERAGE.filter((m) => m.status === "supported").length} supported ·{" "}
-        {MARKET_COVERAGE.filter((m) => m.status === "provider_needed" || m.status === "coming_soon").length} need a provider/build ·{" "}
+        {live.filter((m) => m.status === "supported").length} supported ·{" "}
+        {live.filter((m) => m.status === "provider_needed" || m.status === "coming_soon").length} need a provider/build ·{" "}
         markets that are unavailable or not in products are never in Bank Builder / Moonshot.
       </p>
     </section>

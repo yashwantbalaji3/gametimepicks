@@ -117,6 +117,8 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
   const green = "var(--vault-accent)";
   /* A separate artifact and a separate model — same loader module, so the two cannot drift apart. */
   const playerFixture = playersForFixture(loadEplPlayerProjections(), params.slug);
+  /* The graded record's row for THIS fixture (same eventId) — the one source of "finished" and of the final score. */
+  const gradedMatch = loadEplGradedRecord()?.team.matchesList.find((m) => m.eventId === String(row.eventId)) ?? null;
   const playerRows = playerFixture?.players ?? [];
   /* Whether this fixture's rows actually carry the shots-on-target model. Derived, because the
      market is published per-run and a column of em dashes would be furniture, not information. */
@@ -152,8 +154,16 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
             </p>
           );
         })()}
-        {/* P319: save exactly this forecast — the card the homepage would feature for this fixture. */}
-        {row.probs && row.homeClub && row.awayClub ? (
+        {/* P319: save exactly this forecast — the card the homepage would feature for this fixture.
+            Batch 1 #6 (2026-10-29): a match the graded record holds is FINISHED — it shows its final state, not the save
+            control's "Started · not saveable" refusal (the result itself leads the page just below). */}
+        {gradedMatch ? (
+          <p data-epl-final-badge="" className="mt-3 font-mono" style={{ margin: "12px 0 0", fontSize: 12 }}>
+            <span className="inline-flex items-center rounded-full" style={{ minHeight: 32, padding: "0 12px", border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)" }}>
+              Final · full time
+            </span>
+          </p>
+        ) : row.probs && row.homeClub && row.awayClub ? (
           <div className="mt-3">
             <SaveForecastButton placement="report" compact={false} card={saveCardOf(cardFromEplRow(row, reportCardContext("epl", { dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: new Date().toISOString(), eplValidation: set?.validation ?? null })))} />
           </div>
@@ -185,10 +195,7 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
       {/* Founder P1 2026-10-26: a settled fixture leads with its official result, from the graded record (the same rows
           /results/picks/epl grades), right under the one-line limitation (which stays above the first number). A fixture
           the record has not graded shows nothing here — never a guessed score. */}
-      {(() => {
-        const graded = loadEplGradedRecord()?.team.matchesList.find((m) => m.eventId === String(row.eventId)) ?? null;
-        return graded ? <EplMatchWhatHappened graded={graded} home={home} away={away} pageProbs={row.probs ?? null} /> : null;
-      })()}
+      {gradedMatch ? <EplMatchWhatHappened graded={gradedMatch} home={home} away={away} pageProbs={row.probs ?? null} /> : null}
 
       {/* P243 · C-EPL: a pre-odds forecast says so beside its numbers — what a missing market
           removes is the COMPARISON, and this row is not part of the paired evaluation. */}

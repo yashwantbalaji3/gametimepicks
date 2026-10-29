@@ -58,7 +58,9 @@ const SPORTS = ["MLB", "Premier League", "NFL", "UFC"] as const;
 for (const sport of SPORTS) {
   for (const state of ["SIMULATION_READY", "SCHEDULE_ONLY", "SETTLED"] as const) {
     const hit = pick(sport, state);
-    const chip = CHIP[state];
+    /* Batch 1 #5: closed-form models (EPL, UFC) record no run count, so their ready chip reads "Model report ready"
+       (day-view readyStateLabel) — "Simulation ready" is kept for MLB/NFL simulations with a run count. */
+    const chip = state === "SIMULATION_READY" && (sport === "Premier League" || sport === "UFC") ? "Model report ready" : CHIP[state];
     test(`${sport} · ${state} — ${hit ? `proven on ${hit.date}` : "not in the current window (reality-typed skip)"}`, async ({ page }) => {
       test.skip(!hit, `${sport} exhibits no ${state} event in the exported window — a skip is the honest state`);
       if (!hit) return;

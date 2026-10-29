@@ -317,7 +317,18 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
         )}
       </header>
 
-      <KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={liveTop} when="after"><div style={{ marginTop: 16 }}>{livePanel}</div></KickoffSlot>
+      {/* Batch 1 #6 (2026-10-29): a FINAL game (isFinal — the same settled/final facts the header reads) shows no live
+          block. It rendered "Live game state … Checking the live feed…" on games graded days earlier. The final itself
+          is on the page already (the header's archived final or the official box score below); a game settled on the
+          index with neither gets the graded record's final here, and nothing when the record has none. */}
+      {isFinal ? (
+        !postgame && !archived?.reconciliation?.final && reconciledFinal ? (
+          <p data-nfl-final-score="" style={{ margin: "16px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)" }}>
+            <strong style={{ color: "var(--vault-text)" }}>Final</strong>{" "}
+            <span style={{ fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text)" }}>{f.away.abbr} {reconciledFinal.away} – {reconciledFinal.home} {f.home.abbr}</span>, from the graded record.
+          </p>
+        ) : null
+      ) : <KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={liveTop} when="after"><div style={{ marginTop: 16 }}>{livePanel}</div></KickoffSlot>}
 
       {/* Gap 5 (2026-10-23): the played game — official quarter scores and player lines, each beside the graded Official
           Forecast. Rendered only from a FINAL official file committed by the grading pipeline; a game without one shows
@@ -375,7 +386,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           * Self-gates on `liveReadyFor("nfl")`: with the flag off it renders nothing and fetches
           * nothing.
           */}
-        <KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={liveTop} when="before">{livePanel}</KickoffSlot>
+        {isFinal ? null : <KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={liveTop} when="before">{livePanel}</KickoffSlot>}
 
       </section>
 
