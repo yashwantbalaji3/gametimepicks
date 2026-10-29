@@ -40,6 +40,8 @@ import ProjectionBoard, { type BoardGameNav } from "@/components/nba/projection-
 import GameStatusOnClock from "@/components/nba/projection-game-status";
 import { COMBO_STATS, PROJECTION_BOARD_STATS, COMBO_LABEL } from "@/lib/sports/nba/experimental-public-lane.mjs";
 import { EloAccuracyDisclosure, EloWinProbability, type EloCtx } from "@/components/nba/elo-win-probability";
+import NbaPropLines from "@/components/nba/nba-prop-lines";
+import { NBA_LINE_DISPLAY } from "@/lib/sports/nba/line-board.mjs";
 
 const ELO_OFF: EloCtx = { enabled: false, disclosure: "" };
 import { boardOptions, boardRows, packBoard, statGroups, GAME_STATUS_LABEL, slateHref, slateNav } from "@/lib/sports/nba/projection-board-ops.mjs";
@@ -198,7 +200,7 @@ function TodaySlate({ today }: { today: BoardToday }) {
   );
 }
 
-export default function NbaProjectionsView({ lane, role = "current", date = null, games = [], dates = [], dated = false, today = null, actuals = null, eloCtx = ELO_OFF }: {
+export default function NbaProjectionsView({ lane, role = "current", date = null, games = [], dates = [], dated = false, today = null, actuals = null, eloCtx = ELO_OFF, asOf = "", lineDisplay = NBA_LINE_DISPLAY, priceRecords = null }: {
   lane: Snapshot | null;
   /** "past" = a slate before the build's ET date: labelled as a past frozen slate, never as current. */
   role?: SlateRole;
@@ -216,6 +218,11 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
   actuals?: BoardActuals | null;
   /** The Elo game-winner probability context (elo-win-probability-context.mjs), loaded by the page. */
   eloCtx?: EloCtx;
+  /** Model vs. sportsbook line (founder P0 2026-10-29): the build's clock, the NBA display switch and the verified price
+      records (none public today). Switch off → the section renders nothing (nba-prop-lines.tsx). */
+  asOf?: string;
+  lineDisplay?: { public: boolean };
+  priceRecords?: unknown[] | null;
 }) {
   const live = lane && lane.games.length > 0 ? lane : null;
   const past = role === "past";
@@ -276,6 +283,7 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
               : `Coverage list not recorded for this slate.${post ? " Players who played without a projection are listed from the final box score." : ""}`}
           </p>
           <ProjectionBoard board={packBoard(rows, post ? post.rows : null, post ? awaiting : null, noProjectionRows(live, post), post?.corrected ?? null)} stats={stats} groups={groups} matchups={matchups} teams={teams} games={nav} defaultGroup={post ? "core" : undefined} />
+          <NbaPropLines lane={live} asOf={asOf} display={lineDisplay} priceRecords={priceRecords} />
           {/* Model ids, receipts, engine notes and the withheld list: one tap away, each model id once. Overnight W7
               2026-10-28: the site's one shape for it — MoreDisclosure, "Technical details". */}
           <MoreDisclosure title="Technical details" summary={`Freeze times, receipts and method · ${live.games.length} game${live.games.length === 1 ? "" : "s"}`}>

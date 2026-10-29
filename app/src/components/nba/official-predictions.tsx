@@ -23,6 +23,7 @@ import { PUBLIC_TERMS } from "@/lib/public-registry";
 import { EloWinProbability, type EloCtx } from "@/components/nba/elo-win-probability";
 import { eloWinProbabilityOf, ELO_WIN_PROBABILITY_LABEL } from "@/lib/sports/nba/elo-win-probability.mjs";
 import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
+import NbaPropLines from "@/components/nba/nba-prop-lines";
 
 /* The official panel's shape (possession-types PbOfficial — payload.mjs officialPanel), declared here structurally so
    this official component imports nothing from the research Theater library (public-theater-route research boundary). */
@@ -95,6 +96,8 @@ export default function NbaOfficialPredictions({ official, teams, lane, finalNot
       {official ? <Official official={official} teams={teams} lane={lane} elo={elo} /> : (
         <p>{PUBLIC_TERMS.UNAVAILABLE}: no Official Forecast receipt for this game. Nothing on this page is an Official Forecast.</p>
       )}
+      {/* Model vs. sportsbook line for this game (founder P0 2026-10-29): renders nothing while NBA_LINE_DISPLAY.public is false. */}
+      {official ? <NbaPropLines eventId={official.eventId} id="nba-game-prop-lines" /> : null}
       <h3>What each part of this page is</h3>
       <ul className="nbx-legend">
         <li><b>{PUBLIC_TERMS.OFFICIAL_FORECAST}</b> — this section: frozen before tip-off. It is what GameTimePicks forecasts.</li>

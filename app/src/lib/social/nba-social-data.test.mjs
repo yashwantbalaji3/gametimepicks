@@ -9,7 +9,8 @@ const { nbaSocialDates, nbaSocialDay, nbaSocialIndex, nbaSocialLatest, nbaSocial
 const { NBA_SOCIAL_SLATE_STATES, NBA_SOCIAL_TODAY_STATUSES } = await import("./nba-social.mjs");
 const { currentEtDate } = await import("../freshness.ts");
 
-const KEYS_V1 = ["schemaVersion", "date", "publication", "builtForEtDate", "stale", "contract", "playerFamilies", "events", "record", "usageRules"];
+// lineComparisons is #1279's additive block (display PRIVATE), merged in the same vehicle.
+const KEYS_V1 = ["schemaVersion", "date", "publication", "builtForEtDate", "stale", "contract", "playerFamilies", "lineComparisons", "events", "record", "usageRules"];
 
 test("day files: only the newest shipped date is isLatest; archived days stay stale: true with isLatest: false; slateState from the file", (t) => {
   const dates = nbaSocialDates();
