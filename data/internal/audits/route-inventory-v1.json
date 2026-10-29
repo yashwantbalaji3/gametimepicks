@@ -4,11 +4,11 @@
  "dataClass": "PRIVATE_AUDIT",
  "generatedAt": "2026-10-08T21:59:42Z",
  "totals": {
-  "routes": 101,
-  "public": 70,
+  "routes": 102,
+  "public": 71,
   "internal": 10,
-  "redirects": 17,
-  "archive": 2,
+  "redirects": 18,
+  "archive": 1,
   "findings": 0,
   "p0": 0
  },
@@ -649,6 +649,14 @@
    "built": true
   },
   {
+   "route": "/record",
+   "classification": "redirect",
+   "owner": "settlement",
+   "purpose": "alias for the track record",
+   "redirectTo": "/results",
+   "built": "UNVERIFIED (no export provided)"
+  },
+  {
    "route": "/research",
    "classification": "public",
    "owner": "research",
@@ -733,11 +741,11 @@
   },
   {
    "route": "/results/nba",
-   "classification": "archive",
+   "classification": "public",
    "owner": "settlement",
-   "purpose": "NBA settled archive (HISTORICAL_ONLY)",
-   "dataOwner": "frozen archive",
-   "freshness": "frozen — archive is dated by design",
+   "purpose": "NBA Official Record (official side frozen before tip vs. official final) + the retired player-prop archive below it",
+   "dataOwner": "NBA official record readers (lib/results/nba-level-a-readers) + frozen archive",
+   "freshness": "settled-through date of the official record; archive frozen",
    "built": true
   },
   {
