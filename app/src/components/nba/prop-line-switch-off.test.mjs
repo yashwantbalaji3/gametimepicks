@@ -75,6 +75,19 @@ test("every wired surface passes through the gate: projections (+ dated), the ga
   assert.match(read("components/nba/nba-prop-lines.tsx"), /if \(!display\.public\) return null;\n  const src =/, "the gate is the first statement — nothing is read before it");
 });
 
+test("published-artifact source: the section reads nbaPublicLineRecords (the gated build-time reader), which is null while authorization is off", async () => {
+  const src = fs.readFileSync(path.join(SRC, "components/nba/nba-prop-lines.tsx"), "utf8");
+  assert.match(src, /const published = priceRecords \?\? \(snap\.date \? nbaPublicLineRecords\(snap\.date\) : null\);/, "omitted/null priceRecords → the published artifact");
+  assert.ok(src.indexOf("if (!display.public) return null;") < src.indexOf("nbaPublicLineRecords(snap.date)"), "nothing is read before the gate");
+  const { nbaPublicLineRecords } = await import("../../lib/sports/nba/public-line-records.mjs");
+  const { committedLaneDates } = await import("./experimental-lane.tsx");
+  for (const d of committedLaneDates()) assert.equal(nbaPublicLineRecords(d), null, `${d}: authorization off → no records, whatever exists on disk`);
+  // switch forced on for the render while the record is off: the reader still refuses → "Unavailable", never a line
+  const on = renderToStaticMarkup(React.createElement(NbaPropLines, { lane: JSON.parse(LANE_TEXT), asOf: AS_OF, display: { public: true } }));
+  assert.match(on, /Sportsbook lines: Unavailable/);
+  assert.doesNotMatch(on, /data-prop-line-notes|availability varies/);
+});
+
 test("switch off: the settled game page and the Official Forecast panel render exactly as without the section", async () => {
   const { default: Settled } = await import("./settled-simulation.tsx");
   const { loadSettledSimulation } = await import("./settled-simulation-data.ts");
@@ -122,7 +135,7 @@ function graph(root) {
 /** Line, price and prop-view modules plus the synthetic fixtures: server-only, never in a browser bundle. */
 const FORBIDDEN = [
   /^src\/lib\/odds\//, /^src\/components\/odds\//, /__fixtures__\/prop-line-synthetic/,
-  /^src\/lib\/sports\/nba\/(line-comparison|line-board|prop-line-adapter)\.mjs$/, /^src\/components\/nba\/(nba-prop-lines|line-comparison-cell)\.tsx$/,
+  /^src\/lib\/sports\/nba\/(line-comparison|line-board|prop-line-adapter|line-publication|line-publication-build|public-line-records)\.mjs$/, /^src\/components\/nba\/(nba-prop-lines|line-comparison-cell)\.tsx$/,
   // the NBA price capture / parse / identity modules (contract.mjs is the shared market-key list the slip already uses)
   /^src\/lib\/sports\/odds\/nba-props\/(?!contract\.mjs$)/,
 ];
