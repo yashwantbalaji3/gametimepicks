@@ -9,7 +9,7 @@ import { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
 import { CC_ROOT, REPO_ROOT } from "../lib/util.mjs";
-import { tempDir, TEST_SLATE, RECAP_COMMAND } from "./helpers.mjs";
+import { tempDir, TEST_SLATE, RECAP_COMMAND, openView } from "./helpers.mjs";
 
 const { chromium } = createRequire(path.join(REPO_ROOT, "app/package.json"))("@playwright/test");
 const SCREENS = path.join(CC_ROOT, "out/screens");
@@ -70,6 +70,7 @@ for (const [i, phone] of [{ name: "iphone-390", width: 390, height: 844 }, { nam
       });
       const page = await context.newPage();
       await page.goto(`http://127.0.0.1:${port}/`);
+      await openView(page, "team");
 
       // Run the team to get an Approvals card.
       await page.locator("#input").fill(RECAP_COMMAND);

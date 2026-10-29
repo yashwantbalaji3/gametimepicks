@@ -11,44 +11,60 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="GTP CEO">
 </head>
-<body data-view="chat">
-  <header class="topbar">
+<body data-view="overview">
+  <aside class="sidebar" aria-label="Sections">
     <div class="brand">
       <img src="/brand/logo.png" alt="">
       <div>
         <div class="brand-name">GameTimePicks</div>
-        <div class="brand-sub">CEO Command Center</div>
+        <div class="brand-sub">Command Center</div>
       </div>
     </div>
-    <div class="badges" id="badges"></div>
+    <nav class="sidenav" id="sidenav" aria-label="Sections"></nav>
+    <div class="side-foot" id="side-foot"></div>
+  </aside>
+  <header class="topbar">
+    <div class="brand topbrand"><img src="/brand/logo.png" alt=""></div>
+    <h1 class="page-title" id="page-title">Overview</h1>
+    <div class="statusline" id="badges" aria-live="polite"></div>
     <button type="button" class="btn small stop-top" id="stop-top" data-stop hidden>Stop now</button>
-    <button type="button" class="btn small pause-top mobile-only" id="pause-top" data-pause="1">Pause all</button>
+    <button type="button" class="btn small pause-top" id="pause-top" data-pause="1">Pause all</button>
   </header>
-
   <main class="layout">
-    <section class="conversation view-chat" aria-label="Conversation">
-      <div class="thread" id="thread"></div>
-      <form class="composer" id="composer">
-        <div class="chips" id="chips"></div>
-        <div class="composer-row">
-          <textarea id="input" rows="2" placeholder="Give the team an objective…" aria-label="Message to the team"></textarea>
-          <button type="submit" class="btn primary">Send</button>
+    <section class="view view-overview" id="overview" aria-label="Overview"></section>
+    <section class="view view-queue" id="queue" aria-label="Review and approvals"></section>
+    <section class="view view-calendar" id="calendar" aria-label="Content calendar"></section>
+    <section class="view view-publishing" id="publishing" aria-label="Publishing"></section>
+    <section class="view view-reports" id="reports" aria-label="Reports"></section>
+    <section class="view view-team" aria-label="AI team">
+      <div class="team-grid">
+        <section class="conversation" aria-label="Conversation with the team">
+          <div class="thread" id="thread"></div>
+          <form class="composer" id="composer">
+            <div class="chips" id="chips"></div>
+            <div class="composer-row">
+              <textarea id="input" rows="2" placeholder="Give the team an objective…" aria-label="Message to the team"></textarea>
+              <button type="submit" class="btn primary">Send</button>
+            </div>
+          </form>
+        </section>
+        <div class="team-side">
+          <section class="panel" id="agents"></section>
+          <section class="panel" id="tasks"></section>
+          <section class="panel" id="decisions"></section>
         </div>
-      </form>
+      </div>
     </section>
-
-    <aside class="side" aria-label="Decisions and controls">
-      <section class="panel view-queue" id="queue"></section>
-      <section class="panel view-decisions" id="decisions"></section>
-      <section class="panel view-team" id="controls"></section>
-      <section class="panel view-team" id="team"></section>
-      <section class="panel view-tasks" id="tasks"></section>
-      <section class="panel view-history" id="history"></section>
-    </aside>
+    <section class="view view-ops" aria-label="Operations and settings">
+      <div class="ops-grid">
+        <section class="panel" id="controls"></section>
+        <section class="panel" id="team"></section>
+        <section class="panel ops-wide" id="history"></section>
+      </div>
+    </section>
   </main>
-
-  <nav class="tabbar mobile-only" id="tabbar" aria-label="Sections"></nav>
-
+  <nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
+  <div class="sheet-backdrop" id="more-sheet" hidden><div class="sheet" role="dialog" aria-label="More sections" id="more-list"></div></div>
   <div class="auth-screen" id="auth" hidden>
     <div class="auth-card">
       <img src="/brand/logo.png" alt="GameTimePicks">

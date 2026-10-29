@@ -15,7 +15,7 @@ import { CC_ROOT, REPO_ROOT } from "../lib/util.mjs";
 import { createFileStore } from "../ledger/store.mjs";
 import { createOrchestrator } from "../orchestrator/orchestrator.mjs";
 import { gitDataSource } from "../recap/multisport-facts.mjs";
-import { FOUNDER, tempDir } from "./helpers.mjs";
+import { FOUNDER, tempDir, openView, expandPost } from "./helpers.mjs";
 import { QUEUE_PINNED, QUEUE_NOW, X_URL, hasPinned, seedApprovedCalendar } from "./queue-fixtures.mjs";
 
 const { chromium } = createRequire(path.join(REPO_ROOT, "app/package.json"))("@playwright/test");
@@ -62,7 +62,7 @@ for (const [i, vp] of VIEWPORTS.entries()) {
       page.on("dialog", (d) => { dialogs.push(d.message()); d.accept(); });
       await page.goto(`http://127.0.0.1:${port}/`);
       await page.waitForSelector("#queue .post", { state: "attached" });
-      if (vp.phone) await page.click('[data-tab="queue"]');
+      await openView(page, "queue");
       const queue = page.locator("#queue");
       await assert.doesNotReject(queue.locator(".post").first().waitFor({ state: "visible" }));
       const overflow = async (label) => {
@@ -74,6 +74,7 @@ for (const [i, vp] of VIEWPORTS.entries()) {
 
       // An X reply can't be approved until the founder confirms the cited posts.
       const reply = queue.locator(".post", { hasText: "Join: trade deadline talk" });
+      await expandPost(reply);
       await reply.locator("[data-post-approve]").click();
       await page.waitForFunction(() => true);
       await page.waitForTimeout(300);
@@ -81,6 +82,7 @@ for (const [i, vp] of VIEWPORTS.entries()) {
 
       // Approve SF @ ATL with caption B.
       const card = queue.locator(".post", { hasText: "SF @ ATL" });
+      await expandPost(card);
       await card.locator('input[type="radio"][value="B"]').check({ force: true });
       const approve = card.locator("[data-post-approve]");
       if (vp.phone) { const box = await approve.boundingBox(); assert.ok(box.height >= 44, `approve is ${box.height}px`); }
@@ -92,9 +94,9 @@ for (const [i, vp] of VIEWPORTS.entries()) {
       // Record the X link → published, then engagement.
       await card.locator("input[type=url]").fill(X_URL);
       await card.locator('[data-post-record="publish"]').click();
-      await queue.locator(".post", { hasText: "SF @ ATL" }).locator(".life-published").waitFor();
+      await queue.locator(".post", { hasText: "SF @ ATL" }).locator(".pill-ok", { hasText: "Posted manually" }).waitFor();
       const published = queue.locator(".post", { hasText: "SF @ ATL" });
-      assert.match(await published.locator(".receipt").first().innerText(), /Posted by you/);
+      assert.match(await published.locator(".receipt").first().innerText(), /Posted manually; link recorded/);
       await published.locator('input[data-draft$=":likes"]').fill("12");
       await published.locator('[data-post-record="engagement"]').click();
       await published.locator("summary", { hasText: "likes 12" }).waitFor();

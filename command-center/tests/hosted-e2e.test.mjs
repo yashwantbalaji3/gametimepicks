@@ -11,7 +11,7 @@ import { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
 import { CC_ROOT, REPO_ROOT } from "../lib/util.mjs";
-import { tempDir, TEST_SLATE, RECAP_COMMAND } from "./helpers.mjs";
+import { tempDir, TEST_SLATE, RECAP_COMMAND, openView } from "./helpers.mjs";
 
 const { chromium } = createRequire(path.join(REPO_ROOT, "app/package.json"))("@playwright/test");
 const SCREENS = path.join(CC_ROOT, "out/screens");
@@ -73,7 +73,8 @@ test("hosted mode on iPhone 390: passkey setup, step-up approvals, Pause without
     assert.equal(cookies[0].httpOnly, true);
     assert.equal(cookies[0].sameSite, "Strict");
 
-    // the team works through the in-process worker
+    // the team works through the in-process worker (AI Team section)
+    await openView(page, "team");
     await page.locator("#input").fill(RECAP_COMMAND);
     await page.locator("#composer button[type=submit]").tap();
     await page.locator(".msg.report").waitFor({ timeout: 90_000 });
@@ -98,14 +99,14 @@ test("hosted mode on iPhone 390: passkey setup, step-up approvals, Pause without
     await page.screenshot({ path: path.join(SCREENS, "hosted-390-receipt.png") });
 
     // Activity shows the audit trail without secrets
-    await page.locator('.tab[data-tab="history"]').tap();
+    await openView(page, "ops");
     const hist = await page.locator("#history").innerText();
     assert.match(hist, /Auth: passkey-registered/);
     assert.match(hist, /Auth: stepup \(approve\)/);
     for (const c of codes) assert.ok(!hist.includes(c));
 
     // new recovery codes from the phone: Face ID confirms, the new set shows once, then "I saved them" (confirmed)
-    await page.locator('.tab[data-tab="team"]').tap();
+    await openView(page, "ops");
     const beforeCodes = await assertions();
     await page.locator("[data-new-codes]").tap();
     await page.locator("#auth-codes").waitFor();
@@ -123,13 +124,13 @@ test("hosted mode on iPhone 390: passkey setup, step-up approvals, Pause without
     for (const c of fresh) assert.ok(!hist2.includes(c));
 
     // sign out, then back in with the passkey
-    await page.locator('.tab[data-tab="team"]').tap();
+    await openView(page, "ops");
     await page.locator("[data-logout]").tap();
     await page.locator("#auth-login").waitFor();
     assert.equal(await page.evaluate(async () => (await fetch("/api/state")).status), 401);
     await page.locator("[data-login]").tap();
     await page.locator(".tabbar").waitFor();
-    await page.locator('.tab[data-tab="decisions"]').tap();
+    await openView(page, "team");
     await page.locator("#decisions .receipt").waitFor();
 
     const sw = await page.evaluate(async () => Boolean(await navigator.serviceWorker?.getRegistration()));

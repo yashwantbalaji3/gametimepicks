@@ -10,7 +10,7 @@ import { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
 import { CC_ROOT, REPO_ROOT } from "../lib/util.mjs";
-import { tempDir, TEST_SLATE } from "./helpers.mjs";
+import { tempDir, TEST_SLATE, openView } from "./helpers.mjs";
 
 const { chromium } = createRequire(path.join(REPO_ROOT, "app/package.json"))("@playwright/test");
 const SCREENS = path.join(CC_ROOT, "out/screens");
@@ -49,6 +49,7 @@ test("team workflow in the console at 390 px: paste Grok and ChatGPT, labelled c
     page.on("pageerror", (e) => errors.push(String(e)));
     page.on("dialog", (d) => d.accept(d.type() === "prompt" ? "Shorter, and mention the frozen time" : undefined));
     await page.goto(`http://127.0.0.1:${port}/`);
+    await openView(page, "team");
     await page.locator("#input").fill(CMD);
     await page.locator("#composer button[type=submit]").tap();
 
@@ -68,7 +69,7 @@ test("team workflow in the console at 390 px: paste Grok and ChatGPT, labelled c
     assert.equal(await page.locator(".tag.exec-sim").count(), 0, "nothing simulated");
     await page.screenshot({ path: path.join(SCREENS, "team-390-chat.png"), fullPage: false });
 
-    await page.locator('.tab[data-tab="decisions"]').tap();
+    await openView(page, "team");
     const cards = page.locator("#decisions .decision");
     assert.equal(await cards.count(), 2, "two drafts passed the content check");
     for (const v of ["approve", "reject", "revise", "defer"]) assert.equal(await cards.first().locator(`[data-verdict="${v}"]`).count(), 1);
@@ -78,7 +79,7 @@ test("team workflow in the console at 390 px: paste Grok and ChatGPT, labelled c
     await page.locator("#decisions .blocked", { hasText: "REVISION REQUESTED" }).waitFor();
     await page.screenshot({ path: path.join(SCREENS, "team-390-decisions.png"), fullPage: false });
 
-    await page.locator('.tab[data-tab="team"]').tap();
+    await openView(page, "ops");
     await page.locator(".provider").first().waitFor();
     const text = await page.locator("#team").innerText();
     assert.match(text, /ChatGPT · OpenAI/);

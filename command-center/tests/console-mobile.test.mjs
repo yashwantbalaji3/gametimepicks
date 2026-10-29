@@ -59,19 +59,27 @@ for (const [i, phone] of PHONES.entries()) {
       const page = await browser.newPage({ viewport: { width: phone.width, height: phone.height }, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
       await page.goto(`http://127.0.0.1:${port}/`);
       const tab = (id) => page.locator(`.tab[data-tab="${id}"]`);
+      /** The phone path to a section that isn't on the bar: More → the section, from the sheet. */
+      const viaMore = async (id) => { await page.locator(".tab[data-more]").tap(); await page.locator(`#more-list [data-tab="${id}"]`).tap(); await page.locator(`body[data-view="${id}"]`).waitFor(); };
 
-      // Chat: the default view, with the tab bar and the top-bar Pause always on screen.
+      // Overview by default; the bar holds the four daily sections + More; Pause is always in the top bar.
       await page.locator(".tabbar").waitFor();
-      for (const id of ["chat", "decisions", "tasks", "history", "team"]) await minHeight(tab(id), 44, `tab ${id}`);
+      await page.locator("body[data-view=overview] #overview .kpis").waitFor();
+      for (const id of ["overview", "queue", "publishing", "reports"]) await minHeight(tab(id), 44, `tab ${id}`);
+      await minHeight(page.locator(".tab[data-more]"), 44, "More");
       await minHeight(page.locator("#pause-top"), 40, "top-bar Pause");
+      assert.equal(await page.locator("#queue").isVisible(), false, "only one section at a time");
+      await noHorizontalOverflow(page, "overview (empty)");
+
+      // AI Team (the conversation) through More
+      await viaMore("team");
       await minHeight(page.locator("#composer button[type=submit]"), 44, "Send");
-      assert.equal(await page.locator("#decisions").isVisible(), false, "only one section at a time");
-      await noHorizontalOverflow(page, "chat (empty)");
+      await noHorizontalOverflow(page, "AI team (empty)");
 
       await page.locator("#input").fill(RECAP_COMMAND);
       await page.locator("#composer button[type=submit]").tap();
       await page.locator(".msg.report").waitFor({ timeout: 60_000 });
-      await page.locator('.tab[data-tab="decisions"] .dot').waitFor();
+      await page.locator(".tab[data-more] .dot").waitFor();
       assert.ok(await page.locator(".msg .deliverable img").first().isVisible(), "the graphic shows in the chat");
       await noHorizontalOverflow(page, "chat (after the team ran)");
       await page.screenshot({ path: path.join(SCREENS, `${phone.name}-chat.png`) });
@@ -100,18 +108,17 @@ for (const [i, phone] of PHONES.entries()) {
       await page.locator("#decisions [data-approve]").tap();
       await page.locator("#decisions .receipt").waitFor();
       assert.match(await page.locator("#decisions .receipt").innerText(), /PUBLISHED_MOCK/);
-      assert.equal(await page.locator('.tab[data-tab="decisions"] .dot').count(), 0, "no open approvals left");
+      assert.equal(await page.locator(".tab[data-more] .dot").count(), 0, "no open approvals left");
       await page.screenshot({ path: path.join(SCREENS, `${phone.name}-receipt.png`) });
 
-      // Tasks, Activity, Team.
-      await tab("tasks").tap();
+      // Tasks (AI Team), Activity and settings (Operations).
+      await page.locator("#tasks").scrollIntoViewIfNeeded();
       assert.equal(await page.locator("#tasks .task").count(), 6);
       await noHorizontalOverflow(page, "tasks");
       await page.screenshot({ path: path.join(SCREENS, `${phone.name}-tasks.png`) });
-      await tab("history").tap();
+      await viaMore("ops");
       assert.ok((await page.locator("#history .hist div").count()) > 20);
       await noHorizontalOverflow(page, "activity");
-      await tab("team").tap();
       assert.ok(await page.locator("#controls").isVisible());
       assert.ok(await page.locator("#team select").first().isVisible());
       await noHorizontalOverflow(page, "team");

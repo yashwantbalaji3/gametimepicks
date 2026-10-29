@@ -10,7 +10,7 @@ import { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
 import { CC_ROOT, REPO_ROOT } from "../lib/util.mjs";
-import { tempDir, TEST_SLATE } from "./helpers.mjs";
+import { tempDir, TEST_SLATE, openView } from "./helpers.mjs";
 
 const { chromium } = createRequire(path.join(REPO_ROOT, "app/package.json"))("@playwright/test");
 const SCREENS = path.join(CC_ROOT, "out/screens");
@@ -42,7 +42,7 @@ test("calendar in the console at 390 px", { skip: available ? false : "pinned da
     page.on("pageerror", (e) => errors.push(String(e)));
     page.on("dialog", (d) => d.accept(d.type() === "prompt" ? "Expand to NFL, NBA, MLB, UFC and EPL." : undefined));
     await page.goto(`http://127.0.0.1:${port}/`);
-    const send = async (text) => { await page.locator('.tab[data-tab="chat"]').tap(); await page.locator("#input").fill(text); await page.locator("#composer button[type=submit]").tap(); };
+    const send = async (text) => { await openView(page, "team"); await page.locator("#input").fill(text); await page.locator("#composer button[type=submit]").tap(); };
     const paste = async (obj) => {
       const box = page.locator("textarea[data-draft]").last();
       await box.waitFor();
@@ -58,7 +58,7 @@ test("calendar in the console at 390 px", { skip: available ? false : "pinned da
       const st = await page.evaluate(async () => (await fetch("/api/state")).json());
       throw new Error(`no report: ${JSON.stringify(st.commands.at(-1).tasks.map((t) => [t.ownerRole, t.status])).slice(0, 600)} ${JSON.stringify(st.commands.at(-1).refusals).slice(0, 600)}`);
     });
-    await page.locator('.tab[data-tab="decisions"]').tap();
+    await openView(page, "team");
     await page.locator('#decisions [data-verdict="revise"]').first().tap();
     await page.locator("#decisions .blocked", { hasText: "REVISION REQUESTED" }).waitFor();
 
@@ -71,7 +71,7 @@ test("calendar in the console at 390 px", { skip: available ? false : "pinned da
     assert.ok(ids.length >= 2, "ready / verify slots listed for ChatGPT");
     await paste({ summary: "Recap-led week across five sports", picks: ids.slice(0, 3).map((slotId, i) => ({ slotId, priority: i + 1, angle: `angle ${i + 1}` })) });
 
-    await page.locator('.tab[data-tab="decisions"]').tap();
+    await openView(page, "team");
     const card = page.locator("#decisions .decision", { hasText: "Seven-day content calendar" });
     await card.waitFor({ timeout: 30_000 });
     assert.ok(await card.locator(".cal-day").count() >= 2, "grouped by day");

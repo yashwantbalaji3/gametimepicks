@@ -15,7 +15,7 @@ import { createFileStore } from "../ledger/store.mjs";
 import { createOrchestrator } from "../orchestrator/orchestrator.mjs";
 import { gitDataSource } from "../recap/multisport-facts.mjs";
 import { routePermission } from "../hosted/app.mjs";
-import { FOUNDER, tempDir } from "./helpers.mjs";
+import { FOUNDER, tempDir, openView, expandPost } from "./helpers.mjs";
 import { QUEUE_PINNED, QUEUE_NOW, hasPinned, seedApprovedCalendar } from "./queue-fixtures.mjs";
 
 const { chromium } = createRequire(path.join(REPO_ROOT, "app/package.json"))("@playwright/test");
@@ -111,8 +111,9 @@ for (const [i, vp] of VIEWPORTS.entries()) {
       page.on("dialog", (d) => { dialogs.push(d.message()); d.accept(); });
       await page.goto(`http://127.0.0.1:${port}/`);
       await page.waitForSelector("#queue .post", { state: "attached" });
-      if (vp.phone) await page.click('[data-tab="queue"]');
+      await openView(page, "queue");
       const post = page.locator("#queue .post", { hasText: TITLE });
+      await expandPost(post);
       const edit = post.locator('[data-caption-open][data-based-on="B"]');
       if (vp.phone) { const box = await edit.boundingBox(); assert.ok(box.height >= 40, `Edit is ${box.height}px`); }
       await edit.click();

@@ -37,3 +37,15 @@ export function ledgerSnapshot(dir) {
   walk(path.join(dir, "ledger"));
   return out;
 }
+
+/** v3 console navigation: open a section by id on any width (the sidebar holds every section, even when hidden). */
+export async function openView(page, id) {
+  await page.locator(`.sidenav [data-tab="${id}"]`).waitFor({ state: "attached" });
+  await page.evaluate((v) => document.querySelector(`.sidenav [data-tab="${v}"]`).click(), id);
+  await page.locator(`body[data-view="${id}"]`).waitFor();
+}
+/** Review cards start compact: expand one (no-op if it already is). */
+export async function expandPost(post) {
+  if (!(await post.evaluate((el) => el.classList.contains("expanded")))) await post.locator("[data-expand]").first().click();
+  await post.locator(".rbody").waitFor();
+}

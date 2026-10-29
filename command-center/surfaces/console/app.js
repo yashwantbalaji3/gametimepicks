@@ -20,17 +20,22 @@
     "social-intelligence": "GROK", "content-strategist": "GPT",
   };
 
-  /** Phone views (≤760 px): one section at a time behind a bottom tab bar. Desktop shows everything at once. */
+  /** One section at a time: a sidebar on wide screens; on phones and tablets a bottom bar (daily four + More). */
   const VIEWS = [
-    { id: "chat", label: "Chat", ico: "◆" },
-    { id: "queue", label: "Queue", ico: "▤" },
-    { id: "decisions", label: "Approvals", ico: "✓" },
-    { id: "tasks", label: "Tasks", ico: "≡" },
-    { id: "history", label: "Activity", ico: "⟲" },
-    { id: "team", label: "Team", ico: "☰" },
+    { id: "overview", label: "Overview", ico: "◉", bar: true },
+    { id: "queue", label: "Review", ico: "✓", bar: true },
+    { id: "publishing", label: "Publishing", ico: "↗", bar: true },
+    { id: "reports", label: "Reports", ico: "▥", bar: true },
+    { id: "calendar", label: "Calendar", ico: "▦" },
+    { id: "team", label: "AI Team", ico: "◆" },
+    { id: "ops", label: "Operations", ico: "⚙" },
   ];
+  /** Old section names (links in earlier reports, saved views) land on their new home. */
+  const VIEW_ALIAS = { chat: "team", decisions: "team", tasks: "team", history: "ops", approvals: "queue" };
+  const viewId = (v) => (VIEWS.some((x) => x.id === v) ? v : VIEW_ALIAS[v] ?? "overview");
   const savedView = (() => { try { return localStorage.getItem("gtp-cc-view"); } catch { return null; } })();
-  const ui = { last: "", choice: {}, drafts: {}, editing: {}, pendingRender: false, state: null, view: VIEWS.some((v) => v.id === savedView) ? savedView : "chat" };
+  const ui = { last: "", choice: {}, drafts: {}, editing: {}, pendingRender: false, state: null, view: viewId(savedView),
+    filter: { status: "auto", sport: "all" }, expanded: null, calMode: "week", calDay: null, pubTab: "all" };
   const captionTextMap = new Map();
   const $ = (id) => document.getElementById(id);
   /** Ledger numbers are rendered through Number(): a non-number can never become markup. */
@@ -222,7 +227,7 @@
       ${list("What the team did", r.lines)}
       ${list("Deliverables", r.deliverables)}
       ${list("Needs your decision", r.decisionsNeeded)}
-      ${r.decisionsNeeded?.length ? `<button type="button" class="btn primary small goto mobile-only" data-goto="decisions">Review in Approvals</button>` : ""}
+      ${r.decisionsNeeded?.length ? `<button type="button" class="btn primary small goto" data-goto="decisions">Review the decisions</button>` : ""}
       ${list("Blocked or refused (by policy)", r.refusals)}
       ${list("Warnings", r.warnings)}
       ${r.usage ? `<div class="section">Claude Code usage</div><div class="body">${num(r.usage.claudeRuns)} run(s) · ${num(r.usage.durationS)} s · est. $${num(r.usage.estUsageUsd).toFixed(2)} of your Max allowance. ${esc(r.usage.note)}</div>` : ""}
@@ -349,7 +354,7 @@
   }
 
   // ── D1 content queue ──────────────────────────────────────────────────────────────────────────────────────
-  const LIFE_LABEL = { invalidated: "Approval invalidated · content changed", drafted: "Needs your decision", approved: "Approved · post it yourself", scheduled: "Scheduled by you", published: "Published by you", rejected: "Rejected", revise: "Revision requested", deferred: "Deferred", superseded: "Superseded" };
+  const LIFE_LABEL = { invalidated: "Approval invalidated · content changed", drafted: "Needs your decision", approved: "Approved", scheduled: "Scheduled", published: "Published", rejected: "Rejected", revise: "Revision requested", deferred: "Deferred", superseded: "Superseded" };
   const postOpen = (p) => p.lifecycle === "drafted";
   /** X's weighted length (same rules as contracts/post-queue.mjs xLength): emoji 2, light ranges 1, others 2. */
   const LIGHT = [[0, 4351], [8192, 8205], [8208, 8223], [8242, 8247]];
@@ -430,7 +435,7 @@
     if (p.lifecycle === "published") {
       const r = p.receipt;
       const m = p.engagement.at(-1)?.metrics;
-      return `<div class="receipt">✓ Posted by you · ${xLink(r.canonicalUrl)}<br>${esc(new Date(r.publishedAt).toLocaleString())} · caption ${esc(r.captionId)} · digest ${esc(r.bundleDigest.slice(0, 12))}…<br>${esc(r.verification)}</div>
+      return `<div class="receipt">✓ ${r.provider === "x-api" ? "Sent through the X API" : "Posted manually; link recorded"} · ${xLink(r.canonicalUrl)}<br>${esc(new Date(r.publishedAt).toLocaleString())} · caption ${esc(r.captionId)} · digest ${esc(r.bundleDigest.slice(0, 12))}…<br>${esc(r.verification)}</div>
         ${(r.warnings ?? []).length ? `<ul class="warns">${r.warnings.map((w) => `<li>${esc(w)}</li>`).join("")}</ul>` : ""}
         ${p.checks.map((c) => `<div class="${c.status === "CONFIRMED" ? "receipt" : "blocked"}">After kickoff: ${esc(c.status)} — ${esc(c.reasons?.[0])} <span class="muted">(${esc(c.basis)})</span></div>`).join("")}
         <details ${m ? "" : "open"}><summary>Engagement${m ? `: ${Object.entries(m).map(([k, v]) => `${esc(k)} ${num(v)}`).join(" · ")}` : ""}</summary>
@@ -492,112 +497,6 @@
       ${(pub.jobs ?? []).length ? `<details><summary>Publishing jobs (${num(pub.jobs.length)})</summary><ul>${pub.jobs.map((j) => `<li>${esc(JOB_LABEL[j.status] ?? j.status)} · ${esc(j.title ?? j.postId)} · due ${esc(new Date(j.dueAt).toLocaleString())}${j.results.at(-1)?.code ? ` · ${esc(j.results.at(-1).code)}` : ""}</li>`).join("")}</ul></details>` : ""}
     </div>`;
   }
-  function postCard(p) {
-    const pkg = p.package;
-    return `<article class="post decision ${postOpen(p) ? "open" : ""}" id="post-${esc(p.decisionId)}">
-      <div class="slot-head"><span class="st st-${esc(pkg.status)}">${esc(STATUS_LABEL[pkg.status] ?? pkg.status)}</span><span class="tag life life-${esc(p.lifecycle)}">${esc(LIFE_LABEL[p.lifecycle])}</span><span class="tag">${esc(pkg.sport)}</span><span class="tag">${esc(pkg.format ?? pkg.kind)}</span>${pkg.priority === 3 ? `<span class="tag">catch-up</span>` : ""}${pkg.template ? `<span class="tag ${p.designApproved ? "life-published" : "life-drafted"}" title="design ${esc(pkg.template)} · ${esc(pkg.assetManifest)}">${esc(pkg.template)}${p.designApproved ? " · design ✓" : " · design not approved"}</span>` : ""}</div>
-      <div class="q">${esc(pkg.title)}</div>
-      ${pkg.mediaSet ? `<div class="media-set">${pkg.mediaSet.map((m, i) => `<figure><img src="/media/${encodeURIComponent(m.file)}" alt="${esc(m.altText ?? "")}" data-zoom loading="lazy"><figcaption class="muted">Image ${i + 1} of ${pkg.mediaSet.length}</figcaption></figure>`).join("")}</div>`
-        : pkg.media ? `<img src="/media/${encodeURIComponent(pkg.media.file)}" alt="${esc(pkg.media.altText)}" data-zoom loading="lazy">` : `<div class="muted">Text post (no graphic).</div>`}
-      ${(pkg.reasons ?? []).length ? `<ul class="warns">${pkg.reasons.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>` : ""}
-      ${pkg.featured?.length ? `<div class="muted">Featured in the caption: ${pkg.featured.map((f) => `<b>${esc(f.name ?? "none")}</b> (${esc(f.team)}) — ${esc(f.basis)}`).join(" · ")}. A caption highlight, not a model ranking.</div>` : ""}
-      ${pkg.xSources?.length ? `<div class="section muted">Open these first</div><div class="links">${pkg.xSources.map((u) => xLink(u)).join(" ")}</div>` : ""}
-      ${postCaptions(p)}
-      ${evidenceList(pkg)}
-      ${postActions(p)}
-    </article>`;
-  }
-  /** One status a person can read at a glance; "Sent" only with a real X receipt — a dry run is never "sent". */
-  function gameState(p, job, design) {
-    const now = Date.now();
-    if (p.receipt) return ["Sent", "life-published"];
-    if (design && p.package.template !== design.template && !p.resolution) return [`Outdated design (${p.package.template}) — not approvable`, "life-superseded"];
-    if (Date.parse(p.package.tipUtc) <= now) return ["Expired — tipped off", "life-superseded"];
-    if (p.lifecycle === "superseded") return ["Superseded", "life-superseded"];
-    if (sending(job)) return ["Sending…", "life-approved"];
-    if (p.package.status === "BLOCKED" || ["refused", "missed", "unknown", "failed_not_sent"].includes(job?.status)) return [job?.status === "unknown" ? "Outcome unknown — reconcile" : "Blocked / held", "life-rejected"];
-    if (job?.status === "scheduled") return [`Scheduled ${new Date(job.dueAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`, "life-scheduled"];
-    if (p.lifecycle === "approved") return [job?.status === "dry_run" ? "Approved · dry run passed (not sent)" : "Approved", "life-approved"];
-    if (Date.parse(p.package.suggestedPublishAt) <= now && job?.status !== "scheduled") return ["Ready to review · 45-min slot passed (before tip only)", "life-drafted"];
-    if (["rejected", "revise", "deferred"].includes(p.lifecycle)) return [LIFE_LABEL[p.lifecycle], "life-rejected"];
-    return [p.package.status === "NEEDS_VERIFICATION" ? "Ready to review · confirm availability" : "Ready to review", "life-drafted"];
-  }
-  /** V2.3 default view: today's NBA game posts — one card per game, soonest scheduled first. */
-  function renderGamePosts(s) {
-    const today = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date());
-    const all = (s.posts ?? []).filter((p) => p.package?.kind === "nba-game" && p.lifecycle !== "superseded");
-    const day = [...new Set(all.map((p) => p.date))].sort().find((d) => d >= today) ?? [...new Set(all.map((p) => p.date))].sort().at(-1);
-    const games = all.filter((p) => p.date === day);
-    if (!games.length) return "";
-    const jobs = s.publishing?.jobs ?? [];
-    const jobOf = (p) => jobs.find((j) => j.decisionId === p.decisionId);
-    const when = (p) => jobOf(p)?.dueAt ?? p.package.suggestedPublishAt ?? p.package.tipUtc ?? "9999";
-    // upcoming games first (by post time), then games that have tipped off
-    const tipped = (p) => Date.parse(p.package.tipUtc) <= Date.now();
-    games.sort((a, b) => Number(tipped(a)) - Number(tipped(b)) || String(when(a)).localeCompare(String(when(b))));
-    const et = (iso) => (iso ? new Date(iso).toLocaleTimeString("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" }) + " ET" : "—");
-    const count = (label) => games.filter((p) => gameState(p, jobOf(p), s.design)[0].startsWith(label)).length;
-    return `<details class="cal-day game-day" open><summary><b>${esc(day === today ? "Today's" : new Date(`${day}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "long", timeZone: "UTC" }))} NBA game posts</b> · ${num(games.length)} game(s) · ${num(count("Ready"))} to review · ${num(count("Approved"))} approved · ${num(count("Scheduled"))} scheduled · ${num(count("Sent"))} sent · ${num(count("Blocked") + count("Outdated") + count("Expired"))} held or expired</summary>
-      <div class="muted">One X post per game: the Predicted Winner graphic and the projected stat lines together, one caption. The separate NBA graphics are part of these posts and can't be approved or sent on their own.</div>
-      ${games.map((p) => {
-        const pkg = p.package;
-        const job = jobOf(p);
-        const [state, cls] = gameState(p, job, s.design);
-        const check = p.checks.filter((c) => c.phase === "pre-publish").at(-1);
-        return `<article class="post decision gamecard ${postOpen(p) ? "open" : ""}" id="post-${esc(p.decisionId)}">
-          <div class="slot-head"><span class="tag life ${cls}">${esc(state)}</span><span class="tag">NBA game post</span><span class="tag ${p.designApproved ? "life-published" : "life-drafted"}">${esc(pkg.template)}${p.designApproved ? " · design ✓" : " · design not approved"}</span></div>
-          <div class="q">${esc(pkg.title.split(":")[0])}</div>
-          <div class="kv gamekv">
-            <span>Event ID</span><span><code>${esc(pkg.eventId)}</code></span>
-            <span>Tip-off</span><span>${esc(et(pkg.tipUtc))}</span>
-            <span>Post time</span><span>${esc(et(job?.dueAt ?? pkg.suggestedPublishAt))}${job?.status === "scheduled" ? " (scheduled)" : " (45 min before tip, not scheduled yet)"}</span>
-            <span>Data</span><span>commit <code>${esc(String(pkg.dataCommit ?? "").slice(0, 10))}</code>${pkg.forecastVersion ? ` · forecast frozen ${esc(new Date(pkg.forecastVersion.frozenAt).toLocaleString())} · receipt <code>${esc(String(pkg.forecastVersion.receiptPayloadSha256 ?? "").slice(0, 10))}</code>` : ""}</span>
-            <span>Freshness</span><span>${check ? `${esc(check.status)} at ${esc(time(check.checkedAt))}${check.reasons?.length ? ` — ${esc(check.reasons.join("; "))}` : ""}` : "not checked yet (re-checked automatically before any send)"}</span>
-            <span>Meter</span><span>${pkg.meterKey ? esc(pkg.meterKey.replace(/\|/g, " · ")) : pkg.template !== s.design?.template ? `not shown: this package was built on ${esc(pkg.template)}, before the V2.3 meter existed` : "winner only (no eligible published estimate)"}</span>
-            <span>X</span><span>${job ? esc(JOB_LABEL[job.status] ?? job.status) : "not scheduled"}${p.receipt ? ` · ${xLink(p.receipt.canonicalUrl)}` : ""}</span>
-          </div>
-          ${pkg.mediaSet ? `<div class="media-set">${pkg.mediaSet.map((m, i) => `<figure><img src="/media/${encodeURIComponent(m.file)}" alt="${esc(m.altText ?? "")}" data-zoom loading="lazy"><figcaption class="muted">Image ${i + 1}: ${i === 0 ? "Predicted Winner" : "Projected stat lines"}</figcaption></figure>`).join("")}</div>` : ""}
-          ${(pkg.reasons ?? []).length ? `<ul class="warns">${pkg.reasons.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>` : ""}
-          ${pkg.featured?.length ? `<div class="muted">Featured: ${pkg.featured.map((f) => `<b>${esc(f.name ?? "none")}</b> (${esc(f.team)}) — ${esc(f.basis)}`).join(" · ")}. A caption highlight, not a ranking.</div>` : ""}
-          ${postCaptions(p)}
-          ${evidenceList(pkg)}
-          ${pkg.template !== s.design?.template && !p.resolution ? `<div class="blocked">Built on ${esc(pkg.template)}. The current design is ${esc(s.design?.template)}: rebuild the queue — this package can't be approved.</div>` : postActions(p)}
-        </article>`;
-      }).join("")}
-    </details>`;
-  }
-  function renderQueue(s) {
-    const posts = (s.posts ?? []).filter((p) => p.lifecycle !== "superseded");
-    const open = posts.filter(postOpen).length;
-    const queues = s.commands.filter((c) => c.intent === "daily-queue").map((c) => ({ c, q: c.contributions.find((x) => x.artifactType === "post-queue")?.artifact, file: c.deliverables.find((d) => d.kind === "queue-export")?.file })).filter((x) => x.q);
-    if (!posts.length && !queues.length) return `<h2>Content queue <span class="count">0</span></h2><div class="muted">No queue yet. Ask: “Team, prepare today's content queue from the approved calendar.” Approving the calendar authorized no post; each post gets its own decision here.</div>`;
-    // Today first (US Eastern), then upcoming days, then earlier ones; the first day with open posts starts expanded.
-    const today = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date());
-    const all = [...new Set(posts.map((p) => p.date))].sort();
-    const dates = [...all.filter((d) => d >= today), ...all.filter((d) => d < today).reverse()];
-    // Up next: every open upcoming post (priority 1), soonest start first, ahead of anything else; catch-up last.
-    const startOf = (k) => k.startUtc ?? k.verification?.kickoffUtc ?? k.kickoffUtc ?? k.tipUtc ?? k.firstKickoffUtc ?? "9999";
-    const upNext = posts.filter((p) => postOpen(p) && p.package.priority === 1 && p.package.kind !== "nba-game").sort((a, b) => String(startOf(a.package)).localeCompare(String(startOf(b.package))) || a.postId.localeCompare(b.postId));
-    const upIds = new Set(upNext.map((p) => p.decisionId));
-    const inv = s.inventory;
-    const openDay = dates.find((d) => posts.some((p) => p.date === d && postOpen(p))) ?? dates[0];
-    const latest = queues.at(-1);
-    const counts = posts.reduce((m, p) => ({ ...m, [p.lifecycle]: (m[p.lifecycle] ?? 0) + 1 }), {});
-    const dz = s.design;
-    const designBar = dz ? `<div class="${dz.approved ? "receipt" : "blocked"}">Graphic design <b>${esc(dz.template)}</b> · ${esc(dz.assetManifest)}: ${dz.approved ? `approved ${esc(time(dz.approvedAt))} — design only; every post still needs its own approval` : `not approved yet — ${esc(dz.template)} posts can't be approved for publishing until it is`}
-      ${dz.approved ? "" : `<div class="row" style="margin-top:6px"><button class="btn" data-design="1">Approve this design version</button></div>`}</div>` : "";
-    return `<h2>Content queue <span class="count">${num(open)} open</span></h2>${designBar}${publishingBar(s.publishing)}
-      ${inv ? `<div class="muted">Open: ${num(inv.open)} · ${num(inv.byStatus.READY ?? 0)} ready · ${num(inv.byStatus.NEEDS_VERIFICATION ?? 0)} need verification · ${num(inv.byStatus.BLOCKED ?? 0)} blocked · ${num(inv.graphics)} with graphics</div>` : ""}
-      ${renderGamePosts(s)}
-      ${upNext.length ? `<details class="cal-day"><summary><b>Up next (other posts)</b> · ${num(upNext.length)} upcoming post(s), soonest first</summary>${upNext.map(postCard).join("")}</details>` : ""}
-      <div class="cal-totals">${Object.entries(counts).map(([k, v]) => `<span class="tag life life-${esc(k)}">${esc(LIFE_LABEL[k])} ${num(v)}</span>`).join("")}</div>
-      <div class="muted">Each post is approved on its own. Game posts and other scheduled formats are sent by the X publisher only after you authorize live publishing; everything else you post yourself and record the link.${latest?.file ? ` · <a href="/${esc(latest.file)}" target="_blank" rel="noopener">Queue export</a>` : ""}</div>
-      ${dates.map((d) => `<details class="cal-day" ${d === openDay && !upNext.length ? "open" : ""}><summary><b>${esc(new Date(`${d}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric", timeZone: "UTC" }))}</b> · ${num(posts.filter((p) => p.date === d).length)} post(s) · ${num(posts.filter((p) => p.date === d && postOpen(p)).length)} open</summary>
-        ${posts.filter((p) => p.date === d && !upIds.has(p.decisionId) && p.package.priority !== 3 && p.package.kind !== "nba-game").sort((a, b) => (a.package.priority ?? 2) - (b.package.priority ?? 2)).map(postCard).join("")}</details>`).join("")}
-      ${posts.some((p) => p.package.priority === 3) ? `<details class="cal-day"><summary><b>Catch-up (older results)</b> · ${num(posts.filter((p) => p.package.priority === 3).length)}</summary>${posts.filter((p) => p.package.priority === 3).map(postCard).join("")}</details>` : ""}
-      ${latest?.q?.skipped?.length ? `<details class="cal-day"><summary><b>Not in the ${esc(latest.q.date)} queue</b> · ${num(latest.q.skipped.length)}</summary><ul>${latest.q.skipped.map((x) => `<li><span class="st st-${esc(x.status)}">${esc(STATUS_LABEL[x.status] ?? x.status)}</span> ${esc(x.sport)} · ${esc(x.opportunity)} — <span class="muted">${esc(x.reason)}</span></li>`).join("")}</ul></details>` : ""}`;
-  }
-
   function renderDecisions(s) {
     const items = s.decisions.slice().reverse();
     const open = items.filter(isOpen).length;
@@ -624,7 +523,7 @@
           : d.resolution?.verdict === "reject" ? `<div class="blocked">Rejected by you.</div>`
           : `${d.blocked ? `<div class="blocked">Approved, not sent: ${esc(d.blocked.code)} — ${esc(d.blocked.detail)}</div>` : ""}
              <div class="row actions" style="margin-top:8px">
-               <button class="btn primary" data-approve="${esc(d.decisionId)}">${decided ? "Retry publish (mock)" : "Approve & publish (mock)"}</button>
+               <button class="btn primary" data-approve="${esc(d.decisionId)}">${decided ? "Retry (demo publisher — never posts)" : "Approve (demo publisher — never posts)"}</button>
                ${decided ? "" : `<button class="btn" data-reject="${esc(d.decisionId)}">Reject</button>`}
              </div>`}
       </div>`;
@@ -656,11 +555,11 @@
 
   function renderControls(s) {
     const pct = s.budget.limitUsd > 0 ? Math.min(100, (100 * s.budget.spentUsd) / s.budget.limitUsd) : 0;
-    return `<h2>Controls</h2>
-      <div class="switch"><div><b>Publishing</b><div class="muted">${s.paused ? "Paused: every send is refused at the boundary." : "Enabled — mock publisher only."}</div></div>
+    return `<h2>Controls & account</h2>
+      <div class="switch"><div><b>Publishing</b><div class="muted">${s.paused ? "Paused: every send is refused at the boundary." : "Running. Pause stops the AI team and every send at once."}</div></div>
         <button class="btn ${s.paused ? "primary" : "danger"} small" data-pause="${s.paused ? "0" : "1"}">${s.paused ? "Resume" : "Pause all"}</button></div>
-      <div class="kv"><span>Budget</span><span>$${num(s.budget.spentUsd)} of $${num(s.budget.limitUsd)}${s.budget.limitUsd === 0 ? " · paid seats locked" : ""}</span>
-        <span>Publisher</span><span>${esc(s.publisher.name)} · network ${s.publisher.network ? "yes" : "none"}</span>
+      <div class="kv"><span>Paid AI models</span><span>$${num(s.budget.spentUsd)} of $${num(s.budget.limitUsd)}${s.budget.limitUsd === 0 ? " · off (no paid model calls)" : ""}</span>
+        <span>Recap demo publisher</span><span>${esc(s.publisher.name)} (never posts; X sending is under Publishing)</span>
         <span>Mode</span><span>${esc(s.phase)}</span></div>
       <div class="meter"><i style="width:${pct}%"></i></div>
       <div class="row" style="margin-top:10px">${Auth.hosted
@@ -751,33 +650,346 @@
       `<div><span class="t">${time(h.at)}</span>${esc(h.line)}</div>`).join("")}</div>`;
   }
 
-  function renderBadges(s) {
+  // ── v3 product views: Overview, Review, Calendar, Publishing, Reports, AI Team, Operations ──────────────────────
+  // Everything here is a read of the same state the server returns; approvals, edits and publishing still go through
+  // postCaptions / postActions / publishControls (exact digests, step-ups, once-only claims are unchanged).
+  const ET = "America/New_York";
+  const etDay = (d) => new Intl.DateTimeFormat("en-CA", { timeZone: ET }).format(d);
+  const etTime = (iso) => (iso ? `${new Date(iso).toLocaleTimeString("en-US", { timeZone: ET, hour: "numeric", minute: "2-digit" })} ET` : "");
+  const dayLabel = (d) => {
+    const today = etDay(new Date());
+    const tomorrow = etDay(new Date(Date.now() + 864e5));
+    const yesterday = etDay(new Date(Date.now() - 864e5));
+    const named = d === today ? "Today" : d === tomorrow ? "Tomorrow" : d === yesterday ? "Yesterday" : null;
+    const long = new Date(`${d}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" });
+    return named ? `${named} · ${long}` : long;
+  };
+  const startOfPkg = (k) => k.tipUtc ?? k.startUtc ?? k.verification?.kickoffUtc ?? k.kickoffUtc ?? k.firstKickoffUtc ?? null;
+  const KIND_LABEL = { "nba-game": "Game post", "nba-final": "Final scores", "results-recap": "Results recap", "nfl-recap": "Forecast vs final", "pregame-forecast": "Pregame forecast", "td-top3": "Top 3 TD", "top5-board": "Top 5 board", engagement: "Engagement", explainer: "Explainer", "x-reply": "Reply", "nba-results": "Prediction vs final" };
+  const SPORTS = ["NBA", "NFL", "MLB", "UFC", "EPL"];
+  const sportChip = (sp) => `<span class="sport sport-${esc(String(sp ?? "").toLowerCase())}">${esc(sp ?? "—")}</span>`;
+  const jobsOf = (s, p) => (s.publishing?.jobs ?? []).filter((j) => j.decisionId === p.decisionId);
+  const imagesOf = (pkg) => (pkg.mediaSet?.length ? pkg.mediaSet : pkg.media ? [pkg.media] : []);
+  const claimOf = (pkg, key) => (pkg.claims ?? []).find((c) => c.key === key)?.display ?? null;
+
+  /**
+   * One status per post a person can read at a glance. "Sent" needs a real X receipt (a dry run is never sent);
+   * a pregame post whose event has started can no longer be sent ("Expired") — the server enforces the same rule.
+   */
+  function postStatus(s, p) {
+    const job = jobsOf(s, p).at(-1);
+    const start = startOfPkg(p.package);
+    if (p.receipt) return p.receipt.provider === "x-api" ? { key: "sent", label: "Sent", cls: "ok" } : { key: "sent", label: "Posted manually", cls: "ok" };
+    if (sending(job)) return { key: "scheduled", label: "Sending…", cls: "info" };
+    if (job && ["unknown", "refused", "failed_not_sent", "missed"].includes(job.status)) return { key: "problem", label: JOB_LABEL[job.status], cls: "bad" };
+    if (p.lifecycle === "superseded") return { key: "other", label: "Superseded", cls: "dim" };
+    if (["rejected", "revise", "deferred", "invalidated"].includes(p.lifecycle)) return { key: "other", label: LIFE_LABEL[p.lifecycle], cls: "dim" };
+    if (start && Date.parse(start) <= Date.now() && PUB_SCHEDULABLE.has(p.package.kind)) return { key: "expired", label: "Expired · started", cls: "dim" };
+    if (job?.status === "scheduled") return { key: "scheduled", label: `Scheduled ${etTime(job.dueAt)}`, cls: "info" };
+    if (p.lifecycle === "approved" || p.lifecycle === "scheduled") return { key: "approved", label: job?.status === "dry_run" ? "Approved · dry run OK" : "Approved", cls: "info" };
+    if (p.lifecycle === "drafted") return { key: "needs", label: p.package.status === "NEEDS_VERIFICATION" ? "Needs decision · verify" : p.package.status === "BLOCKED" ? "Blocked" : "Needs decision", cls: p.package.status === "BLOCKED" ? "bad" : "warn" };
+    return { key: "other", label: LIFE_LABEL[p.lifecycle] ?? p.lifecycle, cls: "dim" };
+  }
+  const pill = (st) => `<span class="pill pill-${st.cls}">${esc(st.label)}</span>`;
+
+  function counts(s) {
+    const posts = (s.posts ?? []).filter((p) => p.lifecycle !== "superseded");
+    const by = { needs: [], approved: [], scheduled: [], sent: [], expired: [], problem: [], other: [] };
+    for (const p of posts) by[postStatus(s, p).key].push(p);
+    const today = etDay(new Date());
+    const month = today.slice(0, 7);
+    const receipts = posts.filter((p) => p.receipt);
+    return { posts, by, today, sentToday: receipts.filter((p) => etDay(new Date(p.receipt.publishedAt)) === today).length, sentMonth: receipts.filter((p) => etDay(new Date(p.receipt.publishedAt)).startsWith(month)).length, viaApi: receipts.filter((p) => p.receipt.provider === "x-api").length, receipts };
+  }
+
+  /** The one sentence about who may send to X, from this host's point of view. Never claims more than the state says. */
+  function senderSentence(pub) {
+    if (!pub) return "Publishing state unavailable.";
+    const h = pub.publisherHost;
+    const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+    const where = h && h.active !== h.self ? `${cap(HOST_NAME[h.active])} sends to X; this ${HOST_NAME[h.self].replace(/^the /, "")} reviews, approves and edits but sends nothing.` : `This ${h ? HOST_NAME[h.self].replace(/^the /, "") : "console"} is the live X sender.`;
+    const mode = pub.publishingPaused ? "Publishing is paused." : pub.mode === "live" ? "Scheduled posts go out live." : "Scheduled posts are dry runs (nothing is sent).";
+    return `${where} ${mode}`;
+  }
+
+  function renderStatusline(s) {
+    const pub = s.publishing ?? {};
+    const h = pub.publisherHost;
+    const sender = h ? (h.active === h.self ? "Live sender: here" : `Live sender: ${h.active === "local" ? "Mac" : "hosted"}`) : null;
     return [
-      `<span class="badge ok">dry run</span>`,
-      `<span class="badge ${s.budget.limitUsd === 0 ? "ok" : "warn"}">budget $${num(s.budget.limitUsd)}</span>`,
-      `<span class="badge ok">publisher: ${esc(s.publisher.name)}</span>`,
-      s.paused ? `<span class="badge danger">publishing paused</span>` : `<span class="badge">publishing enabled (mock)</span>`,
-      `<span class="badge warn">demo-grade approvals</span>`,
+      s.paused || pub.publishingPaused ? `<span class="spill bad">${s.paused ? "Paused" : "Publishing paused"}</span>` : "",
+      sender ? `<span class="spill">${esc(sender)}</span>` : "",
+      pub.mode ? `<span class="spill ${pub.mode === "live" ? "ok" : ""}">X ${pub.mode === "live" ? "live" : "dry run"} · $${num(pub.spentThisMonthUsd ?? 0).toFixed(2)} of $${num(pub.capUsd ?? 0)}</span>` : "",
     ].join("");
   }
 
-  function renderTabbar(s) {
-    const open = s.decisions.filter(isOpen).length;
+  const pageHead = (title, sub, right = "") => `<div class="page-head"><div><h2 class="h2">${esc(title)}</h2>${sub ? `<div class="sub">${sub}</div>` : ""}</div>${right}</div>`;
+  const kpi = (label, value, note, go, cls = "") => `<${go ? `button type="button" data-goto="${go}"` : "div"} class="kpi ${cls}"><div class="kpi-v">${value}</div><div class="kpi-l">${esc(label)}</div>${note ? `<div class="kpi-n">${note}</div>` : ""}</${go ? "button" : "div"}>`;
+  const PREP_TEXT = "Team, prepare today's content queue from the approved calendar.";
+
+  function renderOverview(s) {
+    const c = counts(s);
+    const pub = s.publishing ?? {};
+    const pct = pub.capUsd > 0 ? Math.min(100, (100 * (pub.spentThisMonthUsd ?? 0)) / pub.capUsd) : 0;
+    const upcoming = [...c.by.needs, ...c.by.approved, ...c.by.scheduled]
+      .map((p) => ({ p, at: jobsOf(s, p).find((j) => j.status === "scheduled")?.dueAt ?? p.package.suggestedPublishAt ?? startOfPkg(p.package) }))
+      .sort((a, b) => String(a.at ?? "9").localeCompare(String(b.at ?? "9"))).slice(0, 6);
+    const todays = c.posts.filter((p) => p.date === c.today);
+    const events = new Map();
+    // events only (a start time), not engagement or recap posts about the day
+    for (const p of todays) { if (!startOfPkg(p.package)) continue; const k = p.package.eventId ?? p.package.title.split(":")[0]; if (!events.has(k)) events.set(k, p); }
+    const slate = SPORTS.concat(["Other"]).map((sp) => [sp, [...events.values()].filter((p) => (SPORTS.includes(p.package.sport) ? p.package.sport : "Other") === sp)]).filter(([, v]) => v.length);
+    const rep = resultsByDay(s).find((d) => d.withFinal > 0);
+    const cmds = s.commands.slice(-4).reverse();
+    const problems = c.by.problem.length + (pub.alerts ?? []).length;
+    return `${pageHead(dayLabel(c.today), esc(senderSentence(pub)))}
+      <div class="kpis">
+        ${kpi("Need your decision", num(c.by.needs.length), c.by.needs.length ? "Open Review" : "Nothing waiting", "queue", c.by.needs.length ? "warn" : "")}
+        ${kpi("Approved, not sent", num(c.by.approved.length), c.by.scheduled.length ? `${num(c.by.scheduled.length)} scheduled` : "none scheduled", "publishing")}
+        ${kpi("Sent to X", num(c.sentToday), `today · ${num(c.sentMonth)} this month · ${num(c.receipts.length)} all time`, "publishing", "ok")}
+        ${kpi("Problems", num(problems), problems ? "failed, unknown or alerts" : "none", "publishing", problems ? "bad" : "")}
+        <div class="kpi"><div class="kpi-v">$${num(pub.spentThisMonthUsd ?? 0).toFixed(2)}</div><div class="kpi-l">X spend this month</div><div class="meter"><i style="width:${pct}%"></i></div><div class="kpi-n">cap $${num(pub.capUsd ?? 0)} · ${s.budget.limitUsd > 0 ? `paid AI models $${num(s.budget.spentUsd)} of $${num(s.budget.limitUsd)}` : "paid AI models off"}</div></div>
+      </div>
+      <div class="grid2">
+        <section class="card"><h3>Next up</h3>${upcoming.length ? `<ul class="rows">${upcoming.map(({ p, at }) => `<li><button type="button" class="rowlink" data-open-post="${esc(p.decisionId)}"><span class="t">${esc(at ? `${dayLabel(etDay(new Date(at))).split(" · ")[0]} ${etTime(at)}` : "—")}</span>${sportChip(p.package.sport)}<span class="grow">${esc(p.package.title.split(":")[0])} <span class="muted">${esc(KIND_LABEL[p.package.kind] ?? "")}</span></span>${pill(postStatus(s, p))}</button></li>`).join("")}</ul>` : `<div class="empty-s">Nothing upcoming. ${c.by.needs.length ? "" : "Prepare a queue to get started."}</div>`}</section>
+        <section class="card"><h3>Today's slate <span class="muted">· events with prepared posts</span></h3>${slate.length ? slate.map(([sp, ps]) => `<div class="slate"><div class="slate-h">${sportChip(sp)} <span class="muted">${num(ps.length)} event(s)</span></div><ul class="rows">${ps.sort((a, b) => String(startOfPkg(a.package)).localeCompare(String(startOfPkg(b.package)))).map((p) => `<li><span class="t">${esc(etTime(startOfPkg(p.package)) || "—")}</span><span class="grow">${esc(p.package.title.split(":")[0])}</span></li>`).join("")}</ul></div>`).join("")
+          : `<div class="empty-s">No queue has been prepared for today yet.${s.me && s.me.role === "viewer" ? "" : ` <button type="button" class="btn small primary" data-command="${esc(PREP_TEXT)}">Prepare today's queue</button>`}</div>`}</section>
+        <section class="card"><h3>Publishing</h3><div class="kv">
+          <span>Live sender</span><span>${esc(pub.publisherHost ? HOST_NAME[pub.publisherHost.active] : "—")}${pub.publisherHost && pub.publisherHost.active !== pub.publisherHost.self ? " (not this server)" : ""}</span>
+          <span>Mode</span><span>${pub.publishingPaused ? "Paused" : pub.mode === "live" ? "Live (scheduled posts)" : "Dry run"}</span>
+          <span>History</span><span>${num(c.viaApi)} sent through the X API · ${num(c.receipts.length - c.viaApi)} posted manually</span>
+          <span>X account here</span><span>${pub.x?.connected ? "connected" : "not connected on this server"}</span>
+          ${pub.queuePrep ? `<span>Daily queue</span><span>${pub.queuePrep.enabled ? `prepared ${esc(pub.queuePrep.timeEt)} ET${pub.queuePrep.activeHere ? "" : " (by the live sender)"}` : "prepared on request"}</span>` : ""}
+        </div><button type="button" class="btn small" data-goto="publishing">Open Publishing</button></section>
+        <section class="card"><h3>Prediction results</h3>${rep ? `<div class="bigstat"><b>${num(rep.correct)} of ${num(rep.withFinal)}</b> predicted winners correct · ${esc(dayLabel(rep.date))}</div><div class="muted">One day of results — not a long-term accuracy figure.${rep.withFinal < rep.games.length ? ` ${num(rep.games.length - rep.withFinal)} game(s) without a final in the ledger yet.` : ""}</div>`
+          : `<div class="empty-s">No finals matched to predictions in the ledger yet. Results appear after the next queue build brings in the finals.</div>`}<button type="button" class="btn small" data-goto="reports">Open Reports</button></section>
+        <section class="card wide"><h3>AI team</h3>${cmds.length ? `<ul class="rows">${cmds.map((cm) => { const done = cm.tasks.filter((t) => t.status === "DONE").length; const live = cm.tasks.filter((t) => ["QUEUED", "RUNNING", "AWAITING_INPUT"].includes(t.status)).length; return `<li><span class="t">${esc(dayLabel(etDay(new Date(cm.at ?? Date.now()))).split(" · ")[0])}</span><span class="grow">${esc(String(cm.text).slice(0, 110))}</span><span class="pill pill-${live ? "info" : "dim"}">${live ? `${num(live)} working` : `${num(done)}/${num(cm.tasks.length)} done`}</span></li>`; }).join("")}</ul>` : `<div class="empty-s">No requests yet.</div>`}<button type="button" class="btn small" data-goto="team">Open AI Team</button></section>
+      </div>`;
+  }
+
+  // ── Review & approvals: compact cards, one expanded at a time, prev/next, full-screen gallery ──
+  const REVIEW_FILTERS = [["needs", "Needs decision"], ["approved", "Approved"], ["scheduled", "Scheduled"], ["sent", "Sent"], ["expired", "Expired"], ["problem", "Problems"], ["all", "All"]];
+  function reviewList(s) {
+    const c = counts(s);
+    const f = ui.filter;
+    const status = f.status === "auto" ? (c.by.needs.length ? "needs" : "all") : f.status;
+    const list = (status === "all" ? c.posts : [...(c.by[status] ?? []), ...c.posts.filter((p) => p.decisionId === ui.expanded && postStatus(s, p).key !== status)])
+      .filter((p) => f.sport === "all" || p.package.sport === f.sport || p.decisionId === ui.expanded);
+    const order = (p) => String(jobsOf(s, p).find((j) => j.status === "scheduled")?.dueAt ?? p.package.suggestedPublishAt ?? startOfPkg(p.package) ?? "9");
+    const today = c.today;
+    // upcoming days first (soonest first), then earlier days (most recent first)
+    list.sort((a, b) => (a.date >= today) !== (b.date >= today) ? (a.date >= today ? -1 : 1)
+      : a.date !== b.date ? (a.date >= today ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date))
+      : (a.package.priority ?? 2) - (b.package.priority ?? 2) || order(a).localeCompare(order(b)));
+    return { c, status, list };
+  }
+  function renderReview(s) {
+    const { c, status, list } = reviewList(s);
+    const dz = s.design;
+    const sports = SPORTS.filter((sp) => c.posts.some((p) => p.package.sport === sp));
+    let lastDay = null;
+    return `${pageHead("Review & approvals", `${num(c.by.needs.length)} need your decision · ${num(c.by.approved.length + c.by.scheduled.length)} approved · ${num(c.receipts.length)} sent`)}
+      ${dz && !dz.approved ? `<div class="notice warn">Graphic design <b>${esc(dz.template)}</b> is not approved yet: its posts can't be approved until it is. <button class="btn small" data-design="1">Approve this design version</button></div>` : ""}
+      <div class="filters" role="toolbar" aria-label="Filter posts">
+        <div class="seg">${REVIEW_FILTERS.map(([k, label]) => `<button type="button" class="segbtn" data-filter-status="${k}" aria-pressed="${status === k}">${esc(label)}${k !== "all" ? ` <span class="n">${num((c.by[k] ?? []).length)}</span>` : ""}</button>`).join("")}</div>
+        <div class="seg">${["all", ...sports].map((sp) => `<button type="button" class="segbtn" data-filter-sport="${sp}" aria-pressed="${ui.filter.sport === sp}">${sp === "all" ? "All sports" : esc(sp)}</button>`).join("")}</div>
+      </div>
+      ${list.length ? `<div class="rlist">${list.map((p) => { const head = p.date !== lastDay ? `<div class="rday">${esc(dayLabel(p.date))}</div>` : ""; lastDay = p.date; return head + reviewCard(s, p); }).join("")}</div>`
+        : `<div class="empty-s">${status === "needs" ? "Nothing needs your decision right now." : "No posts match this filter."}</div>`}`;
+  }
+  function reviewCard(s, p) {
+    const pkg = p.package;
+    const st = postStatus(s, p);
+    const imgs = imagesOf(pkg);
+    const open = ui.expanded === p.decisionId;
+    const chosen = p.resolution?.captionId ?? ui.choice[p.decisionId] ?? p.options.find((o) => o.check?.ok)?.captionId;
+    const cap = p.options.find((o) => o.captionId === chosen)?.text ?? p.options[0]?.text ?? "";
+    const start = startOfPkg(pkg);
+    const postAt = jobsOf(s, p).find((j) => j.status === "scheduled")?.dueAt ?? pkg.suggestedPublishAt;
+    const when = [start ? `${pkg.sport === "NBA" ? "Tip" : "Start"} ${etTime(start)}` : "", postAt && PUB_SCHEDULABLE.has(pkg.kind) ? `post ${etTime(postAt)}` : ""].filter(Boolean).join(" · ");
+    const winner = claimOf(pkg, "predictedWinner");
+    return `<article class="post rcard ${open ? "expanded" : ""} ${st.key === "needs" ? "open" : ""}" id="post-${esc(p.decisionId)}">
+      <button type="button" class="rhead" data-expand="${esc(p.decisionId)}" aria-expanded="${open}">
+        ${imgs.length ? `<img class="thumb" src="/media/${encodeURIComponent(imgs[0].file)}" alt="" loading="lazy">` : `<span class="thumb thumb-text" aria-hidden="true">Aa</span>`}
+        <span class="rmain">
+          <span class="rtop">${sportChip(pkg.sport)}<span class="kind">${esc(KIND_LABEL[pkg.kind] ?? pkg.format ?? pkg.kind)}</span>${when ? `<span class="when">${esc(when)}</span>` : ""}</span>
+          <span class="rtitle">${esc(pkg.title.split(": ").length > 1 && pkg.kind === "nba-game" ? pkg.title.split(":")[0] : pkg.title)}</span>
+          ${winner ? `<span class="rwin">Predicted winner: <b>${esc(winner)}</b></span>` : ""}
+          <span class="rcap">${esc(cap)}</span>
+        </span>
+        ${pill(st)}
+      </button>
+      ${open ? reviewBody(s, p) : ""}
+    </article>`;
+  }
+  function reviewBody(s, p) {
+    const pkg = p.package;
+    const imgs = imagesOf(pkg);
+    const check = (p.checks ?? []).filter((c) => c.phase === "pre-publish").at(-1);
+    return `<div class="rbody">
+      ${imgs.length ? `<div class="gallery" data-gallery="${esc(p.decisionId)}">${imgs.map((m, i) => `<figure><img src="/media/${encodeURIComponent(m.file)}" alt="${esc(m.altText ?? "")}" data-zoom data-index="${i}" loading="lazy"><figcaption>${imgs.length > 1 ? `${i + 1} of ${imgs.length}${pkg.kind === "nba-game" ? ` · ${i === 0 ? "Predicted winner" : "Projected stat lines"}` : ""}` : "Graphic"} · <a href="/media/${encodeURIComponent(m.file)}" download>Download</a></figcaption></figure>`).join("")}</div>` : `<div class="muted">Text post — no graphic.</div>`}
+      ${pkg.featured?.length ? `<div class="muted">Featured in the caption: ${pkg.featured.map((f) => `<b>${esc(f.name ?? "none")}</b> (${esc(f.team)})`).join(" · ")} — a caption highlight, not a ranking.</div>` : ""}
+      ${pkg.xSources?.length ? `<div class="section">Open these first</div><div class="links">${pkg.xSources.map((u) => xLink(u)).join(" ")}</div>` : ""}
+      <div class="section">Caption${p.options.length > 1 ? "s — choose one" : ""}</div>
+      ${postCaptions(p)}
+      <div class="ractions">${postActions(p)}</div>
+      <details class="more"><summary>Details, evidence and provenance${(pkg.reasons ?? []).length ? ` · ${num(pkg.reasons.length)} note(s)` : ""}</summary>
+        ${(pkg.reasons ?? []).length ? `<ul class="warns">${pkg.reasons.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>` : ""}
+        <div class="kv">
+          ${pkg.eventId ? `<span>Event ID</span><span><code>${esc(pkg.eventId)}</code></span>` : ""}
+          ${pkg.dataCommit ? `<span>Data</span><span>commit <code>${esc(String(pkg.dataCommit).slice(0, 10))}</code>${pkg.forecastVersion ? ` · forecast frozen ${esc(new Date(pkg.forecastVersion.frozenAt).toLocaleString())}` : ""}</span>` : ""}
+          ${pkg.template ? `<span>Design</span><span>${esc(pkg.template)}${p.designApproved ? " · approved" : " · not approved"}</span>` : ""}
+          <span>Freshness</span><span>${check ? `${esc(check.status)} at ${esc(time(check.checkedAt))}` : "re-checked automatically before any send"}</span>
+          ${pkg.meterKey ? `<span>Meter</span><span>${esc(pkg.meterKey.replace(/\|/g, " · "))}</span>` : ""}
+          <span>Decision</span><span><code>${esc(p.decisionId)}</code></span>
+        </div>
+        ${evidenceList(pkg)}
+      </details>
+      <div class="rnav"><button type="button" class="btn small" data-step="-1">‹ Previous</button><button type="button" class="btn small" data-collapse>Close</button><button type="button" class="btn small" data-step="1">Next ›</button></div>
+    </div>`;
+  }
+
+  // ── Calendar: day / week, sport filter; one row per post with its time and state ──
+  function renderCalendar(s) {
+    const c = counts(s);
+    const base = ui.calDay ?? c.today;
+    const days = ui.calMode === "day" ? [base] : Array.from({ length: 7 }, (_, i) => etDay(new Date(Date.parse(`${base}T12:00:00Z`) + i * 864e5)));
+    const inRange = c.posts.filter((p) => days.includes(p.date) && (ui.filter.sport === "all" || p.package.sport === ui.filter.sport));
+    const shift = (n) => etDay(new Date(Date.parse(`${base}T12:00:00Z`) + n * 864e5));
+    return `${pageHead("Content calendar", `${esc(ui.calMode === "day" ? dayLabel(base) : `${dayLabel(days[0]).split(" · ").at(-1)} – ${dayLabel(days[6]).split(" · ").at(-1)}`)} · ${num(inRange.length)} post(s)`,
+      `<div class="seg"><button class="segbtn" data-cal-shift="${ui.calMode === "day" ? -1 : -7}" aria-label="Earlier">‹</button><button class="segbtn" data-cal-today>Today</button><button class="segbtn" data-cal-shift="${ui.calMode === "day" ? 1 : 7}" aria-label="Later">›</button></div>`)}
+      <div class="filters"><div class="seg">${["week", "day"].map((m) => `<button type="button" class="segbtn" data-cal-mode="${m}" aria-pressed="${ui.calMode === m}">${m === "week" ? "Week" : "Day"}</button>`).join("")}</div>
+        <div class="seg">${["all", ...SPORTS].map((sp) => `<button type="button" class="segbtn" data-filter-sport="${sp}" aria-pressed="${ui.filter.sport === sp}">${sp === "all" ? "All sports" : esc(sp)}</button>`).join("")}</div></div>
+      <div class="cal ${ui.calMode}">${days.map((d) => {
+        const ps = inRange.filter((p) => p.date === d).sort((a, b) => String(startOfPkg(a.package) ?? a.package.suggestedPublishAt ?? "9").localeCompare(String(startOfPkg(b.package) ?? b.package.suggestedPublishAt ?? "9")));
+        return `<div class="calday ${d === c.today ? "today" : ""}"><div class="calday-h">${esc(dayLabel(d))} <span class="muted">${num(ps.length)}</span></div>
+          ${ps.length ? ps.map((p) => `<button type="button" class="calitem" data-open-post="${esc(p.decisionId)}"><span class="t">${esc(etTime(startOfPkg(p.package) ?? p.package.suggestedPublishAt) || "any time")}</span>${sportChip(p.package.sport)}<span class="grow">${esc(p.package.title.split(":")[0])} <span class="muted">${esc(KIND_LABEL[p.package.kind] ?? p.package.kind)}</span></span>${pill(postStatus(s, p))}</button>`).join("") : `<div class="empty-s">—</div>`}</div>`;
+      }).join("")}</div>
+      <div class="muted">Posts come from the prepared queues; a day with nothing here has no prepared content yet. Shift ‹ › to move ${ui.calMode === "day" ? "a day" : "a week"}.</div>`;
+  }
+
+  // ── Publishing: who sends, mode, money, controls, and every job and receipt ──
+  function renderPublishing(s) {
+    const pub = s.publishing ?? {};
+    const c = counts(s);
+    const x = pub.x ?? {};
+    const jobs = (pub.jobs ?? []).slice().sort((a, b) => String(b.dueAt).localeCompare(String(a.dueAt)));
+    const groups = { scheduled: jobs.filter((j) => j.status === "scheduled"), sent: jobs.filter((j) => j.status === "published"), problems: jobs.filter((j) => ["unknown", "refused", "failed_not_sent", "missed"].includes(j.status)), dry: jobs.filter((j) => j.status === "dry_run"), cancelled: jobs.filter((j) => j.status === "cancelled") };
+    const tab = ui.pubTab;
+    const manual = c.receipts.filter((p) => p.receipt.provider !== "x-api");
+    const pct = pub.capUsd > 0 ? Math.min(100, (100 * (pub.spentThisMonthUsd ?? 0)) / pub.capUsd) : 0;
+    const row = (j) => { const r = j.results.at(-1); const p = (s.posts ?? []).find((q) => q.decisionId === j.decisionId); return `<tr><td>${pill(sending(j) ? { label: "Sending…", cls: "info" } : { label: JOB_LABEL[j.status] ?? j.status, cls: j.status === "published" ? "ok" : j.status === "scheduled" ? "info" : groups.problems.includes(j) ? "bad" : "dim" })}</td><td>${sportChip(j.sport ?? p?.package.sport)} ${esc(j.title ?? j.postId)}</td><td>${esc(dayLabel(etDay(new Date(j.dueAt))).split(" · ")[0])} ${esc(etTime(j.dueAt))}</td><td>${r?.canonicalUrl ? xLink(r.canonicalUrl, "View on X") : r?.code ? `<span class="muted">${esc(r.code)}</span>` : ""}${j.status === "unknown" ? ` <button class="btn small" data-pub="reconcile" data-job="${esc(j.jobId)}">Reconcile…</button>` : ""}${j.status === "scheduled" ? ` <button class="btn small" data-pub="cancel" data-job="${esc(j.jobId)}">Cancel</button>` : ""}</td></tr>`; };
+    const list = tab === "manual" ? null : groups[tab] ?? jobs;
+    return `${pageHead("Publishing", esc(senderSentence(pub)))}
+      <div class="kpis">
+        ${kpi("Live sender", esc(pub.publisherHost ? (pub.publisherHost.active === "local" ? "Mac console" : "Hosted") : "—"), pub.publisherHost ? (pub.publisherHost.active === pub.publisherHost.self ? "this server sends" : "this server does not send") : "")}
+        ${kpi("Mode", pub.publishingPaused ? "Paused" : pub.mode === "live" ? "Live" : "Dry run", pub.mode === "live" ? "scheduled posts go out" : "nothing is sent", null, pub.publishingPaused ? "bad" : pub.mode === "live" ? "ok" : "")}
+        <div class="kpi"><div class="kpi-v">$${num(pub.spentThisMonthUsd ?? 0).toFixed(2)}</div><div class="kpi-l">X API spend this month</div><div class="meter"><i style="width:${pct}%"></i></div><div class="kpi-n">hard cap $${num(pub.capUsd ?? 0)} · about $0.045 per two-image post</div></div>
+        ${kpi("Sent", num(c.receipts.length), `${num(c.viaApi)} via X API · ${num(manual.length)} manual`, null, "ok")}
+        ${kpi("Problems", num(groups.problems.length + (pub.alerts ?? []).length), "unknown outcomes are never retried automatically", null, groups.problems.length ? "bad" : "")}
+      </div>
+      ${(pub.alerts ?? []).length ? `<section class="card alert"><h3>${num(pub.alerts.length)} alert(s)</h3><ul class="rows">${pub.alerts.map((a) => `<li><span class="pill pill-bad">${esc(a.severity)}</span><span class="grow">${esc(a.code)} · ${esc(a.detail)}</span><span class="t">${esc(time(a.at))}</span><button class="btn small" data-pub="ack" data-alert="${esc(a.alertId)}">Acknowledge</button></li>`).join("")}</ul></section>` : ""}
+      <section class="card"><div class="tabs" role="tablist">${[["all", `All (${jobs.length})`], ["scheduled", `Scheduled (${groups.scheduled.length})`], ["sent", `Sent (${groups.sent.length})`], ["problems", `Problems (${groups.problems.length})`], ["dry", `Dry runs (${groups.dry.length})`], ["manual", `Manual posts (${manual.length})`]].map(([k, l]) => `<button type="button" class="segbtn" data-pub-tab="${k}" aria-pressed="${tab === k}">${esc(l)}</button>`).join("")}</div>
+        ${list ? (list.length ? `<div class="tablewrap"><table class="tbl"><thead><tr><th>Status</th><th>Post</th><th>Due</th><th>Result</th></tr></thead><tbody>${list.map(row).join("")}</tbody></table></div>` : `<div class="empty-s">No jobs here.</div>`)
+          : manual.length ? `<ul class="rows">${manual.map((p) => `<li><span class="grow">${esc(p.package.title)}</span>${xLink(p.receipt.canonicalUrl, "View on X")}</li>`).join("")}</ul>` : `<div class="empty-s">No manual posts recorded.</div>`}
+      </section>
+      <section class="card"><h3>Controls</h3>
+        <div class="kv"><span>X account on this server</span><span>${x.connected ? `connected (${esc((x.scopes ?? []).join(", "))})` : x.clientConfigured ? "not connected" : "not configured on this server (the X app's Client ID isn't set here)"}</span>
+          <span>Scheduler</span><span>${pub.lastTick ? `last check ${esc(time(pub.lastTick))}` : `every ${esc(pub.schedulerIntervalSec ?? 30)} s`}${pub.publisherHost && pub.publisherHost.active !== pub.publisherHost.self ? " · idle here (not the live sender)" : ""}</span>
+          ${pub.queuePrep ? `<span>Daily queue</span><span>${pub.queuePrep.enabled ? `prepared automatically at ${esc(pub.queuePrep.timeEt)} ET by the live sender${pub.queuePrep.lastRun ? ` · last ${esc(pub.queuePrep.lastRun.date)} ${pub.queuePrep.lastRun.ok ? "✓" : "✕"}` : ""}` : "off — prepared when you ask"}${pub.queuePrep.activeHere ? "" : " · change this on the live sender"}</span>` : ""}
+          <span>Safeguards</span><span>each post approved on its own (exact caption, images and data) · once-only sends · never after start · fresh-data re-check before every send · unknown outcomes are reconciled by hand</span></div>
+        ${hostLine(pub.publisherHost)}
+        ${x.connected && !(x.scopes ?? []).includes("media.write") ? `<div class="notice bad"><b>X did not grant media.write.</b> Disconnect, check the app has Read and write permission, then connect again.</div>` : ""}
+        <div class="row actions">
+          <button class="btn small ${pub.publishingPaused ? "primary" : ""}" data-pub="${pub.publishingPaused ? "resume" : "pause"}">${pub.publishingPaused ? "Resume publishing" : "Pause publishing"}</button>
+          ${x.clientConfigured ? `<button class="btn small" data-pub="${x.connected ? "x-disconnect" : "x-connect"}">${x.connected ? "Disconnect X" : "Connect X account"}</button>` : ""}
+          ${pub.mode === "live" ? `<button class="btn small" data-pub="policy-dry">Switch scheduled publishing to dry run</button>` : x.connected ? `${pub.capUsd > 0 ? "" : `<button class="btn small" data-pub="policy-test">Authorize live test posts…</button>`}<button class="btn small" data-pub="policy-live">Authorize scheduled live publishing…</button>` : ""}
+          ${pub.queuePrep?.activeHere && s.me?.role !== "viewer" ? `<button class="btn small" data-queue-prep="${pub.queuePrep.enabled ? "off" : "on"}">${pub.queuePrep.enabled ? "Turn off daily preparation" : "Prepare the queue daily…"}</button>` : ""}
+        </div>
+        <details class="more"><summary>OAuth callback and raw state</summary><div class="kv"><span>Callback</span><span><code>${esc(x.redirectUri ?? "")}</code></span><span>Hand-off #</span><span>${num(pub.publisherHost?.generation ?? 0)}</span></div></details>
+      </section>`;
+  }
+
+  // ── Reports: predicted winner vs final, from the ledger only (no numbers that aren't recorded there) ──
+  const parseFinal = (d) => { const m = /^(.*\S)\s+(\d+)$/.exec(String(d ?? "")); return m ? { team: m[1], pts: Number(m[2]) } : null; };
+  function resultsByDay(s) {
+    const posts = s.posts ?? [];
+    const finals = new Map();
+    for (const p of posts) if (p.package.kind === "nba-final" && p.package.eventId) finals.set(String(p.package.eventId), p.package);
+    const days = new Map();
+    for (const p of posts) {
+      if (p.package.kind !== "nba-game" || p.lifecycle === "superseded") continue;
+      const g = p.package;
+      const f = finals.get(String(g.eventId));
+      const away = f && parseFinal(claimOf(f, "final.away"));
+      const home = f && parseFinal(claimOf(f, "final.home"));
+      const winner = away && home ? (away.pts > home.pts ? away.team : home.team) : null;
+      const predicted = claimOf(g, "predictedWinner");
+      const row = { matchup: g.title.split(":")[0], predicted, final: away && home ? `${away.team} ${away.pts} – ${home.team} ${home.pts}` : null, correct: winner && predicted ? winner === predicted : null, sent: Boolean(p.receipt), receipt: p.receipt };
+      if (!days.has(g.date)) days.set(g.date, []);
+      days.get(g.date).push(row);
+    }
+    // results packages built by the results graphic (when present) carry the full, verified tally
+    return [...days.entries()].sort((a, b) => b[0].localeCompare(a[0])).map(([date, games]) => ({ date, games, withFinal: games.filter((x) => x.correct !== null).length, correct: games.filter((x) => x.correct === true).length }));
+  }
+  function renderReports(s) {
+    const days = resultsByDay(s);
+    const scored = days.filter((d) => d.withFinal);
+    const tot = scored.reduce((a, d) => ({ n: a.n + d.withFinal, c: a.c + d.correct }), { n: 0, c: 0 });
+    const c = counts(s);
+    const eng = c.receipts.map((p) => ({ p, m: p.engagement?.at(-1)?.metrics ?? null }));
+    const resultsPosts = c.posts.filter((p) => p.package.kind === "nba-results");
+    return `${pageHead("Reports & performance", "Every number here comes from the ledger: published predictions, official finals and receipts. Small samples are labelled as such.")}
+      <section class="card"><h3>NBA · predicted winner vs final</h3>
+        ${scored.length ? `<div class="bigstat"><b>${num(tot.c)} of ${num(tot.n)}</b> correct across ${num(scored.length)} day(s) with finals${tot.n < 50 ? ` <span class="pill pill-warn">small sample</span>` : ""}</div>` : `<div class="notice">No prediction has its official final in the ledger yet. Finals arrive with the next prepared queue (the results recap step); this page then fills in by itself.</div>`}
+        ${days.map((d) => `<details class="rep" ${d === days[0] ? "open" : ""}><summary><b>${esc(dayLabel(d.date))}</b> · ${num(d.games.length)} prediction(s) · ${d.withFinal ? `${num(d.correct)}/${num(d.withFinal)} correct` : "finals not in the ledger yet"}</summary>
+          <div class="tablewrap"><table class="tbl"><thead><tr><th>Game</th><th>Predicted winner</th><th>Final</th><th>Result</th><th>X</th></tr></thead><tbody>${d.games.map((g) => `<tr><td>${esc(g.matchup)}</td><td>${esc(g.predicted ?? "—")}</td><td>${esc(g.final ?? "awaiting final")}</td><td>${g.correct === null ? `<span class="pill pill-dim">pending</span>` : g.correct ? `<span class="pill pill-ok">✓ correct</span>` : `<span class="pill pill-bad">✕ missed</span>`}</td><td>${g.receipt ? xLink(g.receipt.canonicalUrl, "post") : ""}</td></tr>`).join("")}</tbody></table></div></details>`).join("") || `<div class="empty-s">No NBA game predictions in the ledger.</div>`}
+        <div class="muted">A day of results is not a long-term accuracy claim. Only games with a published pre-tip prediction and an official final are counted.</div>
+      </section>
+      ${resultsPosts.length ? `<section class="card"><h3>Results graphics</h3><div class="muted">${num(resultsPosts.length)} prediction-vs-final post(s) in the queue — review them in Review.</div><button class="btn small" data-goto="queue">Open Review</button></section>` : ""}
+      <section class="card"><h3>Player projections</h3><div class="notice">Not evaluated. Verified box scores aren't in the data yet, so no projection-vs-actual numbers are shown — none are estimated.</div></section>
+      <section class="card"><h3>Engagement on sent posts</h3>${eng.length ? `<div class="tablewrap"><table class="tbl"><thead><tr><th>Post</th><th>Sent</th><th>Impressions</th><th>Likes</th><th>Reposts</th><th>Replies</th></tr></thead><tbody>${eng.map(({ p, m }) => `<tr><td>${xLink(p.receipt.canonicalUrl, p.package.title.split(":")[0])}</td><td>${esc(new Date(p.receipt.publishedAt).toLocaleDateString())}</td>${["impressions", "likes", "reposts", "replies"].map((k) => `<td>${m && m[k] !== undefined ? num(m[k]) : `<span class="muted">—</span>`}</td>`).join("")}</tr>`).join("")}</tbody></table></div><div class="muted">Entered by you from X analytics (reading metrics through the X API costs money and is off). Open a sent post in Review to add numbers.</div>` : `<div class="empty-s">Nothing sent yet.</div>`}</section>`;
+  }
+
+  // ── AI team: who is connected how, what they are doing ──
+  const EXEC_WORD = (i) => ({ real: "connected", manual: "manual hand-off", sim: "simulated", det: "automation" })[EXEC_CLASS[i.execution]] ?? String(i.status ?? "—").toLowerCase();
+  function renderAgents(s) {
     const c = s.commands.at(-1);
-    const active = c ? c.tasks.filter((t) => ["QUEUED", "RUNNING", "AWAITING_INPUT"].includes(t.status)).length : 0;
-    const dots = { decisions: open, tasks: active, queue: (s.posts ?? []).filter((p) => p.lifecycle === "drafted").length };
-    return VIEWS.map((v) => `<button type="button" class="tab" data-tab="${v.id}" ${ui.view === v.id ? 'aria-current="page"' : ""}>
-      <span class="ico" aria-hidden="true">${v.ico}</span>${esc(v.label)}${dots[v.id] ? `<span class="dot" aria-label="${dots[v.id]} pending">${dots[v.id]}</span>` : ""}</button>`).join("");
+    return `<h2>Agents</h2>${(s.providers ?? []).map((p) => `<div class="agent"><div class="agent-h"><b>${esc(p.name)}</b><span class="muted">${esc(p.roles.slice(0, 3).join(" · "))}</span></div>
+      <div class="row">${p.integrations.map((i) => `<span class="pill pill-${/connected/.test(EXEC_WORD(i)) ? "ok" : /manual/.test(EXEC_WORD(i)) ? "info" : "dim"}" title="${esc(i.label)} · ${esc(i.mode)}">${esc(i.label.split(" (")[0])}: ${esc(EXEC_WORD(i))}</span>`).join("")}</div></div>`).join("")}
+      <div class="muted">“Manual hand-off” means you paste the prompt into your own app and paste the answer back. Settings and seats: Operations.</div>
+      ${c ? `<div class="section">Latest request</div><div class="muted">${esc(String(c.text).slice(0, 160))}</div>` : ""}`;
   }
 
+  function navCounts(s) {
+    const c = counts(s);
+    return { queue: c.by.needs.length, publishing: c.by.problem.length + (s.publishing?.alerts ?? []).length, team: (s.commands.at(-1)?.tasks.filter((t) => ["QUEUED", "RUNNING", "AWAITING_INPUT"].includes(t.status)).length ?? 0) + s.decisions.filter(isOpen).length };
+  }
+  const navItem = (v, n, cls) => `<button type="button" class="${cls}" data-tab="${v.id}" ${ui.view === v.id ? 'aria-current="page"' : ""}><span class="ico" aria-hidden="true">${v.ico}</span><span class="lbl">${esc(v.label)}</span>${n ? `<span class="dot" aria-label="${n} pending">${n}</span>` : ""}</button>`;
+  function renderTabbar(s) {
+    const n = navCounts(s);
+    const more = VIEWS.filter((v) => !v.bar);
+    const moreActive = more.some((v) => v.id === ui.view);
+    const moreN = more.reduce((a, v) => a + (n[v.id] ?? 0), 0);
+    return VIEWS.filter((v) => v.bar).map((v) => navItem(v, n[v.id], "tab")).join("")
+      + `<button type="button" class="tab" data-more ${moreActive ? 'aria-current="page"' : ""}><span class="ico" aria-hidden="true">⋯</span><span class="lbl">${moreActive ? esc(VIEWS.find((v) => v.id === ui.view).label) : "More"}</span>${moreN ? `<span class="dot">${moreN}</span>` : ""}</button>`;
+  }
+  function renderSidenav(s) {
+    const n = navCounts(s);
+    return VIEWS.map((v) => navItem(v, n[v.id], "navlink")).join("");
+  }
   function setView(view) {
-    ui.view = view;
-    document.body.dataset.view = view;
-    try { localStorage.setItem("gtp-cc-view", view); } catch { /* private mode: view resets on reload */ }
-    if (ui.state) $("tabbar").innerHTML = renderTabbar(ui.state);
+    ui.view = viewId(view);
+    document.body.dataset.view = ui.view;
+    $("page-title").textContent = VIEWS.find((v) => v.id === ui.view).label;
+    $("more-sheet").hidden = true;
+    try { localStorage.setItem("gtp-cc-view", ui.view); } catch { /* private mode: view resets on reload */ }
+    if (ui.state) render(ui.state, true);
+    window.scrollTo(0, 0);
+    document.querySelector("main")?.scrollTo?.(0, 0);
   }
 
-  function render(s) {
+  function render(s, force = false) {
     // never rebuild the page under someone typing a caption (on a phone that drops the keyboard): catch up on blur
     if (document.activeElement?.dataset?.captionEdit) { ui.pendingRender = true; return; }
     ui.pendingRender = false;
@@ -785,15 +997,22 @@
     const pauseTop = $("pause-top");
     pauseTop.dataset.pause = s.paused ? "0" : "1";
     pauseTop.textContent = s.paused ? "Paused · Resume" : "Pause all";
-    pauseTop.className = `btn small pause-top mobile-only ${s.paused ? "paused" : "live"}`;
+    pauseTop.className = `btn small pause-top ${s.paused ? "paused" : "live"}`;
     pauseTop.setAttribute("aria-pressed", String(s.paused));
     $("tabbar").innerHTML = renderTabbar(s);
+    $("sidenav").innerHTML = renderSidenav(s);
+    $("side-foot").innerHTML = s.me ? `<div class="muted">${esc(s.me.displayName)} · ${esc(s.me.role)}</div>` : `<div class="muted">Local console</div>`;
     const stopTop = $("stop-top");
     stopTop.hidden = !(s.engineering?.activeRuns?.length);
     const atBottom = thread.scrollHeight - thread.scrollTop - thread.clientHeight < 80;
-    $("badges").innerHTML = renderBadges(s);
+    $("badges").innerHTML = renderStatusline(s);
+    $("overview").innerHTML = renderOverview(s);
+    keepOpen($("queue"), renderReview(s));
+    $("calendar").innerHTML = renderCalendar(s);
+    keepOpen($("publishing"), renderPublishing(s));
+    keepOpen($("reports"), renderReports(s));
+    $("agents").innerHTML = renderAgents(s);
     thread.innerHTML = renderThread(s);
-    keepOpen($("queue"), renderQueue(s));
     keepOpen($("decisions"), renderDecisions(s));
     $("controls").innerHTML = renderControls(s);
     $("team").innerHTML = renderTeam(s);
@@ -857,10 +1076,10 @@
    * Queue; the day being worked on must stay open). Sections are matched by their title, not their counts.
    */
   function keepOpen(el, html) {
-    const key = (d) => d.querySelector(":scope > summary > b")?.textContent ?? null;
-    const was = new Map([...el.querySelectorAll("details.cal-day")].map((d) => [key(d), d.open]).filter(([k]) => k));
+    const key = (d) => `${d.closest("[id]")?.id ?? ""}|${d.querySelector(":scope > summary > b")?.textContent ?? d.querySelector(":scope > summary")?.textContent.replace(/[\d·]+/g, "").trim() ?? ""}`;
+    const was = new Map([...el.querySelectorAll("details")].map((d) => [key(d), d.open]));
     el.innerHTML = html;
-    for (const d of el.querySelectorAll("details.cal-day")) if (was.has(key(d))) d.open = was.get(key(d));
+    for (const d of el.querySelectorAll("details")) if (was.has(key(d))) d.open = was.get(key(d));
   }
   function signedIn() {
     document.body.classList.remove("signed-out");
@@ -915,9 +1134,96 @@
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("composer").requestSubmit(); }
   });
 
+  /** Navigation, filters, cards and the gallery: nothing here changes server state (except an explicit command or setting). */
+  function openPost(id) {
+    ui.expanded = id;
+    const p = ui.state.posts.find((x) => x.decisionId === id);
+    if (p) {
+      const st = postStatus(ui.state, p).key;
+      const status = ui.filter.status === "auto" ? (counts(ui.state).by.needs.length ? "needs" : "all") : ui.filter.status;
+      if (status !== "all" && status !== st) ui.filter.status = "all";
+      if (ui.filter.sport !== "all" && ui.filter.sport !== p.package.sport) ui.filter.sport = "all";
+    }
+    if (ui.view !== "queue") setView("queue"); else render(ui.state, true);
+    requestAnimationFrame(() => $(`post-${id}`)?.scrollIntoView({ block: "start", behavior: "smooth" }));
+  }
+  function gallery(img) {
+    const box = img.closest("[data-gallery]");
+    const all = box ? [...box.querySelectorAll("img[data-zoom]")] : [img];
+    let i = Math.max(0, all.indexOf(img));
+    const lb = document.createElement("div");
+    lb.className = "lightbox";
+    lb.setAttribute("role", "dialog");
+    lb.setAttribute("aria-label", "Graphic preview");
+    const show = () => {
+      lb.innerHTML = `<img src="${esc(all[i].getAttribute("src"))}" alt="${esc(all[i].getAttribute("alt") ?? "")}">
+        ${all.length > 1 ? `<button type="button" class="lb-nav prev" data-gal="-1" aria-label="Previous image">‹</button><button type="button" class="lb-nav next" data-gal="1" aria-label="Next image">›</button><div class="lb-count">${i + 1} / ${all.length}</div>` : ""}
+        <button type="button" class="lb-close" aria-label="Close">✕</button>`;
+    };
+    lb.step = (d) => { i = (i + d + all.length) % all.length; show(); };
+    let x0 = null;
+    lb.addEventListener("touchstart", (ev) => { x0 = ev.touches[0].clientX; }, { passive: true });
+    lb.addEventListener("touchend", (ev) => { if (x0 === null) return; const dx = ev.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 40 && all.length > 1) { ev.preventDefault(); lb.step(dx < 0 ? 1 : -1); } });
+    show();
+    document.body.appendChild(lb);
+  }
+  document.addEventListener("keydown", (e) => {
+    const lb = document.querySelector(".lightbox");
+    if (!lb) return;
+    if (e.key === "Escape") lb.remove();
+    if (e.key === "ArrowRight") lb.step?.(1);
+    if (e.key === "ArrowLeft") lb.step?.(-1);
+  });
+  async function navAction(t, e) {
+    const d = t.dataset;
+    if (d.gal) { e.stopPropagation(); t.closest(".lightbox").step(Number(d.gal)); return true; }
+    if (t.classList.contains("lightbox")) { t.remove(); return true; }
+    if (d.zoom !== undefined) { e.preventDefault(); gallery(t); return true; }
+    if (t.classList.contains("sheet-backdrop")) { if (e.target === t) t.hidden = true; return e.target === t; }
+    if (d.more !== undefined) {
+      $("more-list").innerHTML = VIEWS.filter((v) => !v.bar).map((v) => navItem(v, navCounts(ui.state)[v.id], "navlink")).join("") + `<button type="button" class="navlink" data-close-sheet><span class="ico">✕</span><span class="lbl">Close</span></button>`;
+      $("more-sheet").hidden = false;
+      return true;
+    }
+    if (d.expand) { ui.expanded = ui.expanded === d.expand ? null : d.expand; render(ui.state, true); if (ui.expanded) requestAnimationFrame(() => $(`post-${d.expand}`)?.scrollIntoView({ block: "start", behavior: "smooth" })); return true; }
+    if (d.collapse !== undefined) { const id = ui.expanded; ui.expanded = null; render(ui.state, true); $(`post-${id}`)?.scrollIntoView({ block: "nearest" }); return true; }
+    if (d.step) {
+      const { list } = reviewList(ui.state);
+      const at = list.findIndex((p) => p.decisionId === ui.expanded);
+      const next = list[at + Number(d.step)];
+      if (next) openPost(next.decisionId);
+      return true;
+    }
+    if (d.openPost) { openPost(d.openPost); return true; }
+    if (d.filterStatus) { ui.filter.status = d.filterStatus; ui.expanded = null; render(ui.state, true); return true; }
+    if (d.filterSport) { ui.filter.sport = d.filterSport; render(ui.state, true); return true; }
+    if (d.calShift) { ui.calDay = etDay(new Date(Date.parse(`${ui.calDay ?? etDay(new Date())}T12:00:00Z`) + Number(d.calShift) * 864e5)); render(ui.state, true); return true; }
+    if (d.calToday !== undefined) { ui.calDay = null; render(ui.state, true); return true; }
+    if (d.calMode) { ui.calMode = d.calMode; render(ui.state, true); return true; }
+    if (d.pubTab) { ui.pubTab = d.pubTab; render(ui.state, true); return true; }
+    if (d.command) {
+      if (!confirm(`Ask the team: “${d.command}”`)) return true;
+      const r = await post("/api/command", { text: d.command });
+      if (r && r.ok === false) alert(`${r.code ?? "Refused"}${r.detail ? `: ${r.detail}` : ""}`);
+      else setView("team");
+      return true;
+    }
+    if (d.queuePrep) {
+      const on = d.queuePrep === "on";
+      let timeEt = ui.state.publishing?.queuePrep?.timeEt ?? "10:00";
+      if (on) { timeEt = prompt("Prepare the content queue every day at (ET, 24-hour HH:MM). Only the live sender prepares it.", timeEt); if (!timeEt) return true; if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(timeEt.trim())) { alert("Use HH:MM, e.g. 10:00"); return true; } }
+      const r = await post("/api/publishing", { action: "queue-prep", enabled: on, timeEt: timeEt.trim() });
+      if (r && r.ok === false) alert(`${r.code ?? "Refused"}${r.detail ? `: ${r.detail}` : ""}`);
+      return true;
+    }
+    return false;
+  }
+  document.addEventListener("click", (e) => { if (e.target.closest("[data-close-sheet]")) $("more-sheet").hidden = true; });
+
   document.addEventListener("click", async (e) => {
-    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-new-codes],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-post-record],[data-design],[data-pub],[data-caption-open],[data-caption-save],[data-caption-cancel],.lightbox");
+    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-new-codes],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-post-record],[data-design],[data-pub],[data-caption-open],[data-caption-save],[data-caption-cancel],[data-expand],[data-step],[data-collapse],[data-filter-status],[data-filter-sport],[data-open-post],[data-command],[data-more],[data-cal-shift],[data-cal-today],[data-cal-mode],[data-pub-tab],[data-queue-prep],[data-gal],.sheet-backdrop,.lightbox");
     if (!t) return;
+    if (await navAction(t, e)) return;
     if (t.dataset.captionOpen) {
       e.preventDefault(); // the button sits inside the option's <label>
       const p = ui.state.posts.find((x) => x.decisionId === t.dataset.captionOpen);
@@ -1067,16 +1373,6 @@
     if (t.dataset.stop !== undefined) return post("/api/stop");
     if (t.dataset.tab) return setView(t.dataset.tab);
     if (t.dataset.goto) return setView(t.dataset.goto);
-    if (t.classList.contains("lightbox")) return t.remove();
-    if (t.dataset.zoom !== undefined) {
-      const box = document.createElement("div");
-      box.className = "lightbox";
-      const img = document.createElement("img");
-      img.src = t.getAttribute("src");
-      img.alt = t.getAttribute("alt") ?? "";
-      box.appendChild(img);
-      return document.body.appendChild(box);
-    }
     if (t.dataset.chip !== undefined) { $("input").value = SUGGESTIONS[Number(t.dataset.chip)]; return $("input").focus(); }
     if (t.dataset.approve) {
       const d = ui.state.decisions.find((x) => x.decisionId === t.dataset.approve);
