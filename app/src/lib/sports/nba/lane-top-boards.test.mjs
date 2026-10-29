@@ -144,13 +144,15 @@ test("MISMATCH FAILS · a doctored board value is caught against the lane and /n
   assert.notEqual(r.value, proj.v[0]);
 });
 
-test("GATE · no 'chance to beat the line' and no public NBA ranking until the founder decides", () => {
+test("GATE · prepared, not public: no 'chance to beat the line', every title names its metric", () => {
   assert.equal(NBA_LANE_TOP_BOARDS_PUBLICATION.public, false);
-  assert.equal(NBA_LANE_TOP_BOARDS_PUBLICATION.state, "GATED_PENDING_FOUNDER_DECISION");
+  assert.equal(NBA_LANE_TOP_BOARDS_PUBLICATION.state, "APPROVED_FOR_PREPARATION");
   const lane = laneOf("2026-10-29");
   const doc = buildLaneTopBoards(lane, { nowIso: preTip(lane) });
   for (const b of doc.boards) {
-    assert.equal(b.publication, "GATED_PENDING_FOUNDER_DECISION");
+    assert.equal(b.publication, "APPROVED_FOR_PREPARATION");
+    assert.match(b.title, new RegExp(`^Highest projected ${b.label.toLowerCase().replace(/[+]/g, "\\+")} \\(model median\\)$`));
+    assert.doesNotMatch(b.title + b.methodText, /chance to (go )?over(?! any line)|probability|odds/i);
     for (const r of b.rows) for (const k of Object.keys(r)) assert.doesNotMatch(k, /prob|over|under|edge|\bev\b|side|lean|direction|line|odds|price/i, `${b.key} row key ${k}`);
   }
   for (const [k, m] of Object.entries(NBA_LANE_BOARD_METHOD)) assert.equal(m.metric, "median", k);

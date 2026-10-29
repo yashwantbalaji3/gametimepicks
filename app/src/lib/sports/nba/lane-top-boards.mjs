@@ -31,8 +31,11 @@ export const NBA_LANE_TOP_BOARD_SOURCE = "NBA_PUBLIC_LANE_V0_1_MEDIANS";
 
 export const NBA_LANE_TOP_BOARDS_PUBLICATION = Object.freeze({
   public: false,
-  state: "GATED_PENDING_FOUNDER_DECISION",
-  reason: "The public NBA lane states that it publishes no rankings (it lists players by expected minutes and allows only a reader's own sort on /nba/projections). A published NBA Top board needs a founder decision and a lane amendment first.",
+  state: "APPROVED_FOR_PREPARATION",
+  // Founder 2026-10-29: "I approve preparing NBA daily Top Boards from official canonical forecasts, provided the rankings are
+  // explicitly labeled by their actual metric … and are not misrepresented as sportsbook OVER probabilities. Before enabling
+  // their public publication, verify snapshot provenance and cross-page consistency."
+  reason: "Prepared, not public: titles name the ranked metric (projected median points, rebounds, …). Public publication waits on the snapshot-provenance and cross-page checks passing on the slate being shown (lane-top-boards.test.mjs) and the lane's no-rankings statement being amended.",
 });
 
 const LABEL = Object.freeze({ pts: "Points", reb: "Rebounds", ast: "Assists", threePm: "Threes made", pra: "Points + rebounds + assists", ptsReb: "Points + rebounds", ptsAst: "Points + assists" });
@@ -78,7 +81,7 @@ export function buildLaneTopBoards(lane, { nowIso, size = NBA_LANE_TOP_BOARD_SIZ
   }
 
   const boards = PROJECTION_BOARD_STATS.map(([k, short]) => {
-    const head = { key: k, short, label: LABEL[k], method: NBA_LANE_BOARD_METHOD[k].metric, methodText: NBA_LANE_BOARD_METHOD[k].text, source: NBA_LANE_TOP_BOARD_SOURCE, topN: size, publication: NBA_LANE_TOP_BOARDS_PUBLICATION.state };
+    const head = { key: k, short, label: LABEL[k], title: `Highest projected ${LABEL[k].toLowerCase()} (model median)`, method: NBA_LANE_BOARD_METHOD[k].metric, methodText: NBA_LANE_BOARD_METHOD[k].text, source: NBA_LANE_TOP_BOARD_SOURCE, topN: size, publication: NBA_LANE_TOP_BOARDS_PUBLICATION.state };
     const ranked = pool
       .map(({ base, row }) => ({ base, value: laneValue(row, k) }))
       .filter((x) => isNum(x.value))
