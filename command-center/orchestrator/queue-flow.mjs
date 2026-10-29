@@ -21,7 +21,7 @@ import { digestOf, sha256, shortId } from "../lib/util.mjs";
 import { REASON } from "../contracts/index.mjs";
 import {
   POST_STATUS, sealPackage, nflRecapPackage, resultsPackage, explainerPackage, engagementPackage, pregamePackage, xReplyPackage,
-  skipped, parseXPostUrl, parseMetrics, queueMarkdown, publishBundleOf, queueInventory,
+  skipped, parseXPostUrl, parseMetrics, queueMarkdown, publishBundleOf, queueInventory, checkCaption, xLength,
 } from "../contracts/post-queue.mjs";
 import { inspectSlate, buildRecapDraft } from "../recap/pipeline.mjs";
 import { resultsBundles, resultsCaptions, validateResultsCaption } from "../recap/results-bundle.mjs";
@@ -38,6 +38,30 @@ import {
 const SPORT_NAME = { NFL: "NFL", NBA: "NBA", MLB: "MLB", UFC: "UFC", EPL: "Premier League" };
 const addDay = (ymd, n) => new Date(Date.parse(`${ymd}T12:00:00Z`) + n * 86400_000).toISOString().slice(0, 10);
 const POST_VERDICTS = Object.freeze(["approve", "reject", "revise", "defer"]);
+export const MAX_CAPTION_EDITS = 10;
+/**
+ * An edited caption (founder or drafter, from any surface) is a NEW option on the same post — E1, E2, … — checked by
+ * the same rules as the generated ones (every number in the evidence, no forbidden term, no link, ≤ 280), plus each
+ * kind's own rules: NFL recaps call the number a prediction and say a miss (recap/caption-validator.mjs); a results
+ * recap with no forecast in it doesn't talk about forecasts (validateResultsCaption); NBA captions carry no
+ * percentage (the Elo estimate is not called a probability). Its fingerprint is computed
+ * here from the package and the text, never taken from the request, so approving E1 binds exactly that text.
+ */
+export function editedOption(pkg, edit) {
+  const problems = [...checkCaption(edit.text, pkg).problems];
+  if (pkg.sport === "NBA" && /%/.test(edit.text)) problems.push({ code: "NO_PERCENT_IN_NBA_CAPTION", detail: "NBA captions don't state the estimate as a percentage" });
+  if (pkg.kind === "nfl-recap") {
+    if (!/\b(forecast|prediction|predicted|projection|projected)/i.test(edit.text)) problems.push({ code: REASON.MISSING_FORECAST_WORD, detail: 'must call the number a prediction / projection (or "forecast")' });
+    if (pkg.hasMiss && !/\bmiss(ed)?\b|\bwrong\b/i.test(edit.text) && !problems.some((x) => x.code === REASON.MISS_NOT_DISCLOSED)) problems.push({ code: REASON.MISS_NOT_DISCLOSED, detail: "the forecast missed the winner; the caption must say so" });
+  }
+  if (pkg.kind === "results-recap" && pkg.noForecastClaims && /\b(forecast|prediction|predicted)/i.test(edit.text)) problems.push({ code: REASON.UNTRACEABLE_NUMBER, detail: "this post has no forecast claims: a results-only caption may not talk about forecasts" });
+  const caption = { id: edit.captionId, text: edit.text };
+  const publishBundle = publishBundleOf(pkg, caption);
+  return {
+    captionId: edit.captionId, tone: `Edited by ${edit.by} (from ${edit.basedOn})`, source: "caption-edit", basedOn: edit.basedOn,
+    editedBy: edit.by, editedAt: edit.at, text: edit.text, chars: xLength(edit.text), check: { ok: problems.length === 0, problems }, publishBundle, digest: digestOf(publishBundle),
+  };
+}
 /** NBA Top 5 posts the founder asked for (one per stat), published only from an official board. */
 const NBA_TOP5_STATS = Object.freeze(["points", "rebounds", "assists"]);
 
@@ -71,13 +95,47 @@ export function createQueueFlow(ctx) {
     return { ok: false, code: "NO_APPROVED_CALENDAR", detail: "approve a seven-day content calendar first; the queue only draws from an approved one" };
   }
 
+  function withEdits(request, edits = h.entries().filter((e) => e.kind === "caption-edit")) {
+    const mine = edits.filter((e) => e.data.decisionId === request.decisionId);
+    return mine.length ? { ...request, options: [...request.options, ...mine.map((e) => editedOption(request.package, { ...e.data, at: e.at }))] } : request;
+  }
+
+  /**
+   * Edit a caption: a new option on an undecided, current post. The generated options stay as they were; nothing is
+   * approved by editing. Refused once the post is decided, superseded or published.
+   */
+  function editCaption(rawRequest, { basedOn, text }, actor) {
+    const request = withEdits(rawRequest);
+    const rec = postRecords().find((p) => p.request.decisionId === request.decisionId);
+    const pkg = request.package;
+    if (pkg.componentOf || ["nba-pregame", "nba-players"].includes(pkg.kind) && postRecords().some((r) => r.request.package?.kind === "nba-game" && r.request.package.eventId === pkg.eventId)) return { ok: false, code: "SUPERSEDED_BY_GAME_POST", detail: "edit the game post's caption" };
+    if (rec?.decision) return { ok: false, code: "ALREADY_DECIDED", detail: `${rec.decision.verdict}: edits are for undecided posts` };
+    if (rec?.receipt) return { ok: false, code: "ALREADY_PUBLISHED", detail: rec.receipt.canonicalUrl };
+    const newer = supersededBy(request);
+    if (newer) return { ok: false, code: "SUPERSEDED", detail: `a newer queue proposed this post again (${newer}); edit there` };
+    if (!request.options.some((o) => o.captionId === basedOn)) return { ok: false, code: "UNKNOWN_OPTION", detail: `caption ${basedOn}` };
+    const clean = String(text ?? "").replace(/\r\n?/g, "\n").trim();
+    if (!clean) return { ok: false, code: "EMPTY_CAPTION", detail: "write the caption" };
+    if (clean.length > 1000) return { ok: false, code: "TOO_LONG", detail: "over 1000 characters" };
+    if (request.options.some((o) => o.text === clean)) return { ok: false, code: "UNCHANGED", detail: "that is already one of the captions" };
+    const n = request.options.filter((o) => o.source === "caption-edit").length;
+    if (n >= MAX_CAPTION_EDITS) return { ok: false, code: "TOO_MANY_EDITS", detail: `${MAX_CAPTION_EDITS} edits on one post: rebuild the queue or request a revision` };
+    const captionId = `E${n + 1}`;
+    const claim = store.claim(`caption-edit|${request.decisionId}|${captionId}`, { text: clean });
+    if (!claim.won) return { ok: false, code: "EDIT_CONFLICT", detail: `someone saved ${captionId} at the same moment: reload` };
+    const entry = store.append("caption-edit", actor.id ?? "founder", { decisionId: request.decisionId, postId: request.postId, captionId, basedOn, text: clean, by: actor.id ?? "founder", authentication: actor.authentication ?? null });
+    const option = editedOption(pkg, { ...entry.data, at: entry.at });
+    return { ok: true, option, next: option.check.ok ? `Saved as caption ${captionId}. It is not approved: review it, then approve ${captionId} like any other caption.` : `Saved as caption ${captionId}, but it can't be approved yet: ${option.check.problems.map((p) => p.detail).join("; ")}` };
+  }
+
   /** Every proposed post so far, with what happened to it (for de-duplication and the read model). */
   function postRecords() {
     const all = h.entries();
     // `order` is the ledger position: commit order, never a timestamp (two queues can share one).
     const reqs = all.map((e, order) => ({ e, order })).filter(({ e }) => e.kind === "decision-request" && e.data.kind === "post").map(({ e, order }) => ({ ...e.data, at: e.at, order }));
+    const edits = all.filter((e) => e.kind === "caption-edit");
     return reqs.map((r) => ({
-      request: r,
+      request: withEdits(r, edits),
       decision: all.find((e) => e.kind === "decision" && e.data.decisionId === r.decisionId)?.data ?? null,
       receipt: all.find((e) => e.kind === "publish-receipt" && e.data.decisionId === r.decisionId)?.data ?? null,
       invalidated: all.filter((e) => e.kind === "post-status" && e.data.decisionId === r.decisionId && e.data.status === "invalidated").at(-1)?.data ?? null,
@@ -483,8 +541,9 @@ export function createQueueFlow(ctx) {
     return records.filter((p) => baseIdOf(p.request.postId) === baseIdOf(request.postId) && p.request.order > mine.request.order).at(-1)?.request.decisionId ?? null;
   }
 
-  function decidePost(request, { verdict, captionId, digest, note, sourcesConfirmed, availabilityConfirmed }, actor) {
+  function decidePost(rawRequest, { verdict, captionId, digest, note, sourcesConfirmed, availabilityConfirmed }, actor) {
     if (!POST_VERDICTS.includes(verdict)) return { ok: false, code: "UNKNOWN_OPTION", detail: verdict };
+    const request = withEdits(rawRequest);
     const newer = supersededBy(request);
     if (newer) return { ok: false, code: "SUPERSEDED", detail: `a newer queue proposed this post again (${newer}); decide there` };
     if (verdict === "revise" && !String(note ?? "").trim()) return { ok: false, code: "NOTE_REQUIRED", detail: "say what should change" };
@@ -646,5 +705,5 @@ export function createQueueFlow(ctx) {
     });
   }
 
-  return { build, consolidate, decidePost, recordPost, posts, approvedCalendar, publishBundleOf, approveDesign, design, recheck, designApproval, inventory: () => queueInventory(posts()) };
+  return { build, consolidate, decidePost, editCaption, recordPost, posts, approvedCalendar, publishBundleOf, approveDesign, design, recheck, designApproval, inventory: () => queueInventory(posts()) };
 }

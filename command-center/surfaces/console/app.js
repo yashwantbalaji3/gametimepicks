@@ -30,7 +30,7 @@
     { id: "team", label: "Team", ico: "☰" },
   ];
   const savedView = (() => { try { return localStorage.getItem("gtp-cc-view"); } catch { return null; } })();
-  const ui = { last: "", choice: {}, drafts: {}, state: null, view: VIEWS.some((v) => v.id === savedView) ? savedView : "chat" };
+  const ui = { last: "", choice: {}, drafts: {}, editing: {}, pendingRender: false, state: null, view: VIEWS.some((v) => v.id === savedView) ? savedView : "chat" };
   const captionTextMap = new Map();
   const $ = (id) => document.getElementById(id);
   /** Ledger numbers are rendered through Number(): a non-number can never become markup. */
@@ -378,11 +378,27 @@
       return `<label class="option ${chosen === o.captionId ? "selected" : ""}">
         <input type="radio" name="opt-${esc(p.decisionId)}" value="${esc(o.captionId)}" ${chosen === o.captionId ? "checked" : ""} ${decided || !o.check?.ok ? "disabled" : ""} data-choose="${esc(p.decisionId)}">
         <div><div class="txt xpost">${esc(o.text)}</div>
-        <div class="meta">${approvedThis ? `<b class="check-ok">APPROVED</b> · ` : ""}Caption ${esc(o.captionId)} · ${esc(o.tone)}${o.source === "chatgpt-calendar-draft" ? " · ChatGPT's wording" : " · template from the evidence"} · ${o.check?.ok ? `<span class="check-ok">check ✓</span>` : `<span class="check-bad">check ✗ ${esc((o.check?.problems ?? []).map((x) => `${x.code} ${x.detail}`).join("; "))}</span>`}</div>
+        <div class="meta">${approvedThis ? `<b class="check-ok">APPROVED</b> · ` : ""}Caption ${esc(o.captionId)} · ${esc(o.tone)}${o.source === "chatgpt-calendar-draft" ? " · ChatGPT's wording" : o.source === "caption-edit" ? " · edited wording, checked like the rest" : " · template from the evidence"} · ${o.check?.ok ? `<span class="check-ok">check ✓</span>` : `<span class="check-bad">check ✗ ${esc((o.check?.problems ?? []).map((x) => `${x.code} ${x.detail}`).join("; "))}</span>`}</div>
         <span class="caption-counter${n > 280 ? " over" : ""}" title="X-weighted length (emoji count 2)">${num(n)}/280 on X</span>
-        <button type="button" class="btn small" data-copy-caption="${esc(p.decisionId)}:${esc(o.captionId)}">Copy caption</button></div>
+        <button type="button" class="btn small" data-copy-caption="${esc(p.decisionId)}:${esc(o.captionId)}">Copy caption</button>
+        ${editable(p) ? `<button type="button" class="btn small" data-caption-open="${esc(p.decisionId)}" data-based-on="${esc(o.captionId)}" aria-label="Edit caption ${esc(o.captionId)}">Edit</button>` : ""}</div>
       </label>`;
-    }).join("");
+    }).join("") + captionEditor(p);
+  }
+  const editable = (p) => p.lifecycle === "drafted";
+  /** The edit box: a new caption option is saved (and checked) on the server; nothing is approved by saving. */
+  function captionEditor(p) {
+    const ed = ui.editing[p.decisionId];
+    if (!ed || !editable(p)) return "";
+    const key = `edit:${p.decisionId}`;
+    const n = xLen(ui.drafts[key] ?? "");
+    return `<div class="caption-editor">
+      <label class="muted" for="ce-${esc(p.decisionId)}">Edit caption ${esc(ed.basedOn)} — saved as a new caption; approve it separately</label>
+      <textarea id="ce-${esc(p.decisionId)}" data-draft="${esc(key)}" data-caption-edit="${esc(p.decisionId)}" rows="6" maxlength="1000">${esc(ui.drafts[key] ?? "")}</textarea>
+      <div class="row"><span class="caption-counter${n > 280 ? " over" : ""}" data-caption-count="${esc(p.decisionId)}">${num(n)}/280 on X</span></div>
+      <div class="row actions"><button type="button" class="btn primary" data-caption-save="${esc(p.decisionId)}">Save as new caption</button>
+        <button type="button" class="btn" data-caption-cancel="${esc(p.decisionId)}">Cancel</button></div>
+    </div>`;
   }
   function postActions(p) {
     const pkg = p.package;
@@ -390,8 +406,8 @@
     if (p.lifecycle === "superseded") return `<div class="muted">A newer queue proposed this post again; decide there.</div>`;
     if (p.lifecycle === "drafted") {
       const designOk = p.designApproved !== false;
-      const ready = designOk && (pkg.status === "READY" || pkg.kind === "x-reply" || pkg.kind === "td-top3" || (pkg.kind === "nba-game" && pkg.status === "NEEDS_VERIFICATION" && pkg.availabilityCheck?.length));
-      const why = !designOk ? "Approve the design first" : `Not approvable: ${esc(STATUS_LABEL[pkg.status] ?? pkg.status)}`;
+      const ready = !ui.editing[p.decisionId] && designOk && (pkg.status === "READY" || pkg.kind === "x-reply" || pkg.kind === "td-top3" || (pkg.kind === "nba-game" && pkg.status === "NEEDS_VERIFICATION" && pkg.availabilityCheck?.length));
+      const why = ui.editing[p.decisionId] ? "Save or cancel the edit first" : !designOk ? "Approve the design first" : `Not approvable: ${esc(STATUS_LABEL[pkg.status] ?? pkg.status)}`;
       return `${pkg.kind === "x-reply" ? `<label class="confirm"><input type="checkbox" data-confirm="${id}" ${ui.drafts[`confirm:${p.decisionId}`] ? "checked" : ""}> I opened the cited posts and they say what the finding claims</label>` : ""}
         ${pkg.kind === "td-top3" ? `<label class="confirm"><input type="checkbox" data-avail="${id}" ${ui.drafts[`avail:${p.decisionId}`] ? "checked" : ""}> I confirmed all three players are active and in their expected roles</label>` : ""}
         ${pkg.kind === "nba-game" && pkg.availabilityCheck?.length ? `<label class="confirm"><input type="checkbox" data-avail="${id}" ${ui.drafts[`avail:${p.decisionId}`] ? "checked" : ""}> I confirmed the featured players are playing (${esc(pkg.availabilityCheck.join("; "))})</label>` : ""}
@@ -425,6 +441,12 @@
     return `<div class="blocked">${esc(LIFE_LABEL[p.lifecycle])}${p.resolution?.note ? ` · “${esc(p.resolution.note)}”` : ""}</div>`;
   }
   const PUB_SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board"]);
+  /**
+   * Display only: an attempt with no recorded outcome during its first 2 minutes is a send in progress ("Sending…");
+   * after that it is "Outcome unknown — reconcile". The gate treats both as unknown (never retried) either way.
+   */
+  const SENDING_MS = 2 * 60_000;
+  const sending = (j) => j?.status === "unknown" && j.results.at(-1)?.code === "NO_OUTCOME_RECORDED" && Date.now() - Date.parse(j.results.at(-1).attemptedAt) < SENDING_MS;
   const JOB_LABEL = { scheduled: "Scheduled", dry_run: "Dry run done", published: "Published", refused: "Refused", failed_not_sent: "Failed (not sent)", unknown: "Outcome unknown — reconcile", missed: "Missed (after start)", cancelled: "Cancelled" };
   /** X Publisher V1 controls on an approved post: schedule (default 45 min before tip), dry run, one live test. */
   function publishControls(p) {
@@ -436,7 +458,7 @@
     const id = esc(p.decisionId);
     const when = pkg.suggestedPublishAt ? new Date(pkg.suggestedPublishAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : null;
     return `<div class="pubbox"><div class="section">Publish to X ${pub.mode === "live" ? `<span class="tag life-published">LIVE · cap $${esc(pub.capUsd)}/month</span>` : `<span class="tag">DRY RUN</span>`}</div>
-      ${mine.slice(0, 4).map((j) => `<div class="${["published", "dry_run", "scheduled"].includes(j.status) ? "receipt" : "blocked"}">${esc(JOB_LABEL[j.status] ?? j.status)}${j.status === "scheduled" ? ` for ${esc(new Date(j.dueAt).toLocaleString())}` : ""}${j.results.at(-1)?.detail ? ` — ${esc(j.results.at(-1).detail)}` : ""}${j.results.at(-1)?.canonicalUrl ? ` · ${xLink(j.results.at(-1).canonicalUrl)}` : ""}${j.status === "unknown" ? ` <button class="btn small" data-pub="reconcile" data-job="${esc(j.jobId)}">Reconcile…</button>` : ""}</div>`).join("")}
+      ${mine.slice(0, 4).map((j) => sending(j) ? `<div class="receipt">Sending… — started ${esc(time(j.results.at(-1).attemptedAt))}; the X link appears here when X answers</div>` : `<div class="${["published", "dry_run", "scheduled"].includes(j.status) ? "receipt" : "blocked"}">${esc(JOB_LABEL[j.status] ?? j.status)}${j.status === "scheduled" ? ` for ${esc(new Date(j.dueAt).toLocaleString())}` : ""}${j.results.at(-1)?.detail ? ` — ${esc(j.results.at(-1).detail)}` : ""}${j.results.at(-1)?.canonicalUrl ? ` · ${xLink(j.results.at(-1).canonicalUrl)}` : ""}${j.status === "unknown" ? ` <button class="btn small" data-pub="reconcile" data-job="${esc(j.jobId)}">Reconcile…</button>` : ""}</div>`).join("")}
       <div class="row actions">
         ${open ? `<button class="btn small" data-pub="cancel" data-job="${esc(open.jobId)}">Cancel schedule</button>` : `<button class="btn small primary" data-pub="schedule" data-post="${id}" ${pkg.suggestedPublishAt ? "" : "disabled"}>${when ? `Schedule for ${esc(when)} (45 min before tip)` : "No suggested time"}</button>`}
         <button class="btn small" data-pub="dry-run-now" data-post="${id}">Dry run now</button>
@@ -481,6 +503,7 @@
     if (design && p.package.template !== design.template && !p.resolution) return [`Outdated design (${p.package.template}) — not approvable`, "life-superseded"];
     if (Date.parse(p.package.tipUtc) <= now) return ["Expired — tipped off", "life-superseded"];
     if (p.lifecycle === "superseded") return ["Superseded", "life-superseded"];
+    if (sending(job)) return ["Sending…", "life-approved"];
     if (p.package.status === "BLOCKED" || ["refused", "missed", "unknown", "failed_not_sent"].includes(job?.status)) return [job?.status === "unknown" ? "Outcome unknown — reconcile" : "Blocked / held", "life-rejected"];
     if (job?.status === "scheduled") return [`Scheduled ${new Date(job.dueAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`, "life-scheduled"];
     if (p.lifecycle === "approved") return [job?.status === "dry_run" ? "Approved · dry run passed (not sent)" : "Approved", "life-approved"];
@@ -744,6 +767,9 @@
   }
 
   function render(s) {
+    // never rebuild the page under someone typing a caption (on a phone that drops the keyboard): catch up on blur
+    if (document.activeElement?.dataset?.captionEdit) { ui.pendingRender = true; return; }
+    ui.pendingRender = false;
     const thread = $("thread");
     const pauseTop = $("pause-top");
     pauseTop.dataset.pause = s.paused ? "0" : "1";
@@ -866,8 +892,39 @@
   });
 
   document.addEventListener("click", async (e) => {
-    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-post-record],[data-design],[data-pub],.lightbox");
+    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-post-record],[data-design],[data-pub],[data-caption-open],[data-caption-save],[data-caption-cancel],.lightbox");
     if (!t) return;
+    if (t.dataset.captionOpen) {
+      e.preventDefault(); // the button sits inside the option's <label>
+      const p = ui.state.posts.find((x) => x.decisionId === t.dataset.captionOpen);
+      const base = p?.options.find((o) => o.captionId === t.dataset.basedOn);
+      if (!base) return;
+      ui.editing[p.decisionId] = { basedOn: base.captionId };
+      ui.drafts[`edit:${p.decisionId}`] = base.text;
+      render(ui.state);
+      const box = $(`ce-${p.decisionId}`);
+      if (box) { box.focus(); box.setSelectionRange(box.value.length, box.value.length); box.scrollIntoView({ block: "center" }); }
+      return;
+    }
+    if (t.dataset.captionCancel) {
+      delete ui.editing[t.dataset.captionCancel];
+      delete ui.drafts[`edit:${t.dataset.captionCancel}`];
+      return render(ui.state);
+    }
+    if (t.dataset.captionSave) {
+      const id = t.dataset.captionSave;
+      const ed = ui.editing[id];
+      if (!ed) return;
+      t.disabled = true;
+      const r = await post("/api/caption", { decisionId: id, basedOn: ed.basedOn, text: ui.drafts[`edit:${id}`] ?? "" });
+      t.disabled = false;
+      if (!r.ok) return alert(`${r.code}: ${r.detail ?? ""}`);
+      delete ui.editing[id];
+      delete ui.drafts[`edit:${id}`];
+      ui.choice[id] = r.option.captionId;
+      alert(r.next);
+      return;
+    }
     if (t.dataset.pub) {
       const a = t.dataset.pub;
       const body = { action: a };
@@ -1040,6 +1097,13 @@
   });
   document.addEventListener("input", (e) => {
     if (e.target.dataset.draft) ui.drafts[e.target.dataset.draft] = e.target.value;
+    if (e.target.dataset.captionEdit) {
+      const c = document.querySelector(`[data-caption-count="${CSS.escape(e.target.dataset.captionEdit)}"]`);
+      if (c) { const n = xLen(e.target.value); c.textContent = `${n}/280 on X`; c.classList.toggle("over", n > 280); }
+    }
+  });
+  document.addEventListener("focusout", (e) => {
+    if (e.target.dataset?.captionEdit && ui.pendingRender) setTimeout(() => { if (!document.activeElement?.dataset?.captionEdit && ui.state) render(ui.state); }, 400); // after a Save/Cancel tap lands
   });
   document.addEventListener("change", (e) => {
     if (e.target.dataset.confirm) ui.drafts[`confirm:${e.target.dataset.confirm}`] = e.target.checked;

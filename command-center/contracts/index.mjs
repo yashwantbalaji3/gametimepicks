@@ -79,6 +79,7 @@ export const LEDGER_KINDS = Object.freeze([
   "provider-test", // provider onboarding: a connection test and its result (no credentials recorded)
   "post-status",       // D1: the founder scheduled an approved post in X (manual)
   "engagement",        // D1: numbers the founder copied from X analytics for a published post (not verified)
+  "caption-edit",      // a caption edited on the Queue: a new option (E1, E2, …) checked like the rest; approves nothing
   "post-verification", // D1: a published pregame post re-checked against the forecast of record after kickoff
   "design-approval",   // V2.1: the founder approved a graphic template + asset-manifest version (never a post)
   // X Publisher V1 (orchestrator/publish-flow.mjs) — tokens and secrets are never recorded

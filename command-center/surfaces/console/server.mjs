@@ -183,6 +183,7 @@ const server = http.createServer(async (req, res) => {
       return send(res, 202, { accepted: true });
     }
     if (url.pathname === "/api/decide") return send(res, 200, await orchestrator.decide(body, FOUNDER));
+    if (url.pathname === "/api/caption") return send(res, 200, orchestrator.editCaption({ decisionId: body.decisionId, basedOn: body.basedOn, text: body.text }, FOUNDER));
     if (url.pathname === "/api/pause") return send(res, 200, orchestrator.setPaused(Boolean(body.paused), FOUNDER));
     if (url.pathname === "/api/stop") return send(res, 200, orchestrator.emergencyStop(FOUNDER));
     if (url.pathname === "/api/attest") return send(res, 200, orchestrator.attestBilling({ usageCredits: body.usageCredits, capUsd: body.capUsd }, FOUNDER));

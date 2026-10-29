@@ -76,7 +76,7 @@ const PUBLISHING_PERMISSION = Object.freeze({
 /** The permission a request needs. Unknown paths and actions need "administer" (fail closed). */
 export function routePermission(pathname, body = {}) {
   if (pathname === "/api/state") return "view";
-  if (pathname === "/api/command" || pathname === "/api/manual") return "draft";
+  if (pathname === "/api/command" || pathname === "/api/manual" || pathname === "/api/caption") return "draft";
   if (pathname === "/api/decide" || pathname === "/api/design" || pathname === "/api/stop") return "approve";
   if (pathname === "/api/pause") return body.paused === false ? "publish" : "approve";
   if (pathname === "/api/post") return "publish";
@@ -279,6 +279,7 @@ export function createHostedApp({ db, clock, origin, rpID, setupTokenSha256, dis
         return turn((o) => o.handleCommand(text, actor));
       }
       case "/api/decide": return turn((o) => o.decide({ decisionId: body.decisionId, verdict: body.verdict, captionId: body.captionId, digest: body.digest, note: body.note, sourcesConfirmed: body.sourcesConfirmed === true, availabilityConfirmed: body.availabilityConfirmed === true }, actor));
+      case "/api/caption": return turn((o) => o.editCaption({ decisionId: body.decisionId, basedOn: body.basedOn, text: body.text }, actor));
       case "/api/design": return turn((o) => o.approveDesign({ template: body.template, assetManifest: body.assetManifest }, actor));
       case "/api/post": return turn((o) => o.recordPost({ decisionId: body.decisionId, action: body.action, url: body.url, publishedAt: body.publishedAt, scheduledFor: body.scheduledFor, metrics: body.metrics }, actor));
       case "/api/pause":

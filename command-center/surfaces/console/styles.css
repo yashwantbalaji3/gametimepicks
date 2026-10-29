@@ -92,6 +92,9 @@ textarea:focus, select:focus, button:focus-visible { outline: 2px solid var(--ac
 .option .meta { font: 11px var(--mono); color: var(--faint); margin-top: 4px; }
 .caption-counter { font: 11px var(--mono); color: var(--faint); margin-top: 4px; display: block; }
 .caption-counter.over { color: #f87171; font-weight: 600; }
+.caption-editor { margin: 8px 0 12px; display: grid; gap: 6px; }
+/* 16px keeps iOS Safari from zooming the page when the box takes focus */
+.caption-editor textarea { width: 100%; box-sizing: border-box; font-family: inherit; font-size: 16px; line-height: 1.4; min-height: 9em; resize: vertical; }
 .warns { font-size: 12px; color: var(--warn); margin: 6px 0; padding-left: 16px; }
 .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .receipt { font: 12px/1.5 var(--mono); color: var(--accent-mint); background: rgba(52,211,153,.07); border: 1px solid rgba(52,211,153,.35);

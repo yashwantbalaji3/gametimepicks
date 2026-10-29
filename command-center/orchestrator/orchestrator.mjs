@@ -513,6 +513,15 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     return { ok: true, paused: true, stoppedRuns: stopped, cancelJobs: activeJobs() };
   }
 
+  /** Edit a post's caption (drafters and up): a new, checked option; approving it is a separate decision. */
+  function editCaption({ decisionId, basedOn, text }, actor) {
+    const f = checkFounder("draft", actor);
+    if (!f.ok) return { ok: false, ...f };
+    const request = entries().find((e) => e.kind === "decision-request" && e.data.decisionId === decisionId)?.data;
+    if (!request || request.kind !== "post") return { ok: false, code: "UNKNOWN_POST", detail: String(decisionId) };
+    return team.editCaption(request, { basedOn, text }, actor);
+  }
+
   async function decide({ decisionId, verdict, captionId, digest, note, sourcesConfirmed, availabilityConfirmed }, actor) {
     const f = checkFounder(verdict === "approve" ? "approve" : "reject", actor);
     if (!f.ok) return { ok: false, ...f };
@@ -771,7 +780,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   }
 
   return {
-    handleCommand, decide, recordPost, approveDesign, submitManual, setSeat, testProviderConnection, setPaused, emergencyStop, state, publishing, runJob, activeJobs, jobDispatched, jobCancelled,
+    handleCommand, decide, editCaption, recordPost, approveDesign, submitManual, setSeat, testProviderConnection, setPaused, emergencyStop, state, publishing, runJob, activeJobs, jobDispatched, jobCancelled,
     /** Jobs recorded by this session; the host dispatches them after its ledger flush commits. */
     takeOutbox: () => outbox.splice(0),
     execution,
