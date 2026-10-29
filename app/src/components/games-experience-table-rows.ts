@@ -9,6 +9,9 @@
  *   EPL  the published forecast row's home/draw/away probabilities (the match page's own numbers), by event id
  *   NBA  the frozen Official Forecast snapshot for the date (the Elo winner side; it publishes no probability)
  *   MLB / UFC  forecast status only: MLB publishes its game-day board in the late morning; a UFC card is many bouts
+ *   Ligue 1    (Batch 1 · #7) the league hub's own rows — forecasts/latest.json for fixtures and their 1X2 probabilities,
+ *              results/graded.json for played matches — added here because the day selector has no Ligue 1 section
+ *              (lib/sports/soccer/league-cross-site.mjs). A row is final only when graded.json records its final.
  *
  * Nothing is computed from a model here, and an event with no published number shows none.
  */
@@ -26,13 +29,15 @@ import { nbaExportedGamePageIds } from "@/components/nba/settled-simulation-data
 import { nbaGamePageHrefIfExported } from "@/components/nba/game-page-link.mjs";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { forecastTableCell, mlbForecastStateForGame } from "@/lib/mlb/full-game/forecast-state.mjs";
+import { loadLeagueForecasts, loadLeagueGraded } from "@/lib/sports/soccer/forecast-view";
+import { leagueGamesTableRows } from "@/lib/sports/soccer/league-cross-site.mjs";
 
 import { SPORT_LABEL, type ForecastState, type GamesTableRow } from "./games-experience-table-wire";
 
 export type { ForecastState, GamesTableRow };
 
 /* Where each sport's graded results live. NBA official forecasts are not graded on a results page yet, so no link. */
-const RESULT_HREF: Record<string, string> = { nfl: "/results/nfl/", mlb: "/results/mlb/", epl: "/results/picks/epl/", ufc: "/results/picks/ufc/" };
+const RESULT_HREF: Record<string, string> = { nfl: "/results/nfl/", mlb: "/results/mlb/", epl: "/results/picks/epl/", ufc: "/results/picks/ufc/", "ligue-1": "/results/picks/ligue-1/" };
 
 const addDays = (date: string, n: number) => {
   const d = new Date(`${date}T12:00:00Z`);
@@ -82,6 +87,10 @@ export function buildGamesTableRows(today: string): GamesTableRow[] {
       for (const e of section.events) rows.push(rowFor(e, date, { nflIdx, nflPages, eplById, lane, laneDates, nbaFinals, nbaGamePages, nowMs, today }));
     }
   }
+  rows.push(...(leagueGamesTableRows({
+    league: "ligue-1", label: SPORT_LABEL["ligue-1"], hubHref: "/soccer/ligue-1/", resultHref: RESULT_HREF["ligue-1"],
+    forecasts: loadLeagueForecasts("ligue-1"), graded: loadLeagueGraded("ligue-1"), dates: gamesTableDates(today), nowMs,
+  }) as GamesTableRow[]));
   return rows.sort((a, b) => String(a.startUtc ?? a.date).localeCompare(String(b.startUtc ?? b.date)) || a.matchup.localeCompare(b.matchup));
 }
 

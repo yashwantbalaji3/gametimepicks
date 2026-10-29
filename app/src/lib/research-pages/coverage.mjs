@@ -15,6 +15,9 @@ export const COVERAGE_COPY = Object.freeze({
   MLB_TEAM_2026_FROM_JULY: "2026 results are recorded from July 4, 2026. Earlier 2026 games show the schedule only.",
   NFL_TEAM_2026_WINDOW: "Some 2026 results are not recorded yet; those games show no final rather than a guessed score.",
   EPL_TEAM_NO_RESULTS: "Fixture history is available. Final team results are not yet available from GameTime's ID-based data, so no record or table is shown.",
+  /* Batch 1 · #8: a club page that lists its current-season results (lib/sports/epl/team-results.mjs) says where they come
+     from and that earlier seasons are still fixtures only. */
+  EPL_TEAM_CURRENT_RESULTS: "Current-season results are the official full-time scores of every graded Premier League match, the same record the Premier League hub shows. Earlier seasons show fixtures only.",
   NFL_PLAYER_2026_BLOCKED: "No 2026 game logs are recorded for this player yet. Recorded history through {to} is shown below.",
   /* Audit 2026-10-28 F08: 425 NFL player pages showed 2026 game logs under a note saying 2026 logs were not available.
      A page that HAS 2026 rows says they are partial — never that they are absent. */
@@ -42,7 +45,28 @@ export const AVAILABLE_COPY = Object.freeze({
   FULL_BOX_SCORES: "Complete box scores",
   CURRENT_SEASON_LOGS: "Current-season game logs",
   METHOD_ROUND: "Method and round",
+  CURRENT_RESULTS: "Current-season final results",
+  EARLIER_RESULTS: "Final results for earlier seasons",
 });
+
+/**
+ * An EPL club's coverage once its current-season results are listed (Batch 1 · #8). The projection's stored coverage
+ * says no results; the page that joins the graded record says which results it shows and which it still does not.
+ * Unchanged when nothing was joined.
+ * @template {{ available: string[], unavailable: string[], notes: string[] }} C
+ * @param {C} coverage
+ * @param {number} resultCount
+ * @returns {C}
+ */
+export function eplTeamCoverageWithResults(coverage, resultCount) {
+  if (!(resultCount > 0)) return coverage;
+  return {
+    ...coverage,
+    available: ["CURRENT_RESULTS", ...coverage.available.filter((k) => k !== "CURRENT_RESULTS")],
+    unavailable: [...coverage.unavailable.filter((k) => k !== "RESULTS_UNAVAILABLE"), "EARLIER_RESULTS"],
+    notes: [...coverage.notes.filter((k) => k !== "EPL_TEAM_NO_RESULTS"), "EPL_TEAM_CURRENT_RESULTS"],
+  };
+}
 
 /**
  * @param {{ kind: "team"|"player", sport: string, seasons: string[], firstSeasonLabel?: string|null, lastSeasonLabel?: string|null, hasPre2023?: boolean }} e

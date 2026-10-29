@@ -3,7 +3,8 @@
  *
  * UX-001 phase 2 (2026-10-09): the hubs come from lib/sports/catalog.ts (sport first — Football, Basketball, Baseball,
  * Soccer, MMA — then the competition), so NBA and Ligue 1 are no longer missing. Competitions the product day does not
- * cover (NBA, Ligue 1) show their coverage note — what the page is — and never a count.
+ * cover (NBA, Ligue 1) show their coverage note — what the page is — and never a count; Ligue 1 shows its next fixture
+ * date ("Next: …") from its hub's own fixture file when one is still to play (Batch 1 · #7).
  *
  * Server component, build time. Used where a reader needs to pick a sport: /sports (the "Sports"
  * primary) and /live on a day with nothing to follow. Each fact is a dated count (cross-sport owner) or
@@ -16,6 +17,9 @@ import Link from "next/link";
 import { buildProductDays, buildSportToday, crossSportToday } from "@/lib/product-day/product-day";
 import { currentEtDate } from "@/lib/freshness";
 import { COMPETITIONS } from "@/lib/sports/catalog";
+import { loadLeagueForecasts, loadLeagueGraded } from "@/lib/sports/soccer/forecast-view";
+import { leagueNextFixtureUtc } from "@/lib/sports/soccer/league-cross-site.mjs";
+import { soccerLeaguePages } from "@/lib/sports/soccer/leagues.mjs";
 
 /** The competitions the product day counts, and the word for one event. */
 const UNIT: Record<string, string> = { nfl: "game", mlb: "game", epl: "match", ufc: "bout" };
@@ -28,13 +32,17 @@ export default function SportChooser({ label = "Choose a sport" }: { label?: str
   const dataRoot = path.join(process.cwd(), "public", "data");
   const days = buildProductDays(dataRoot, { today });
   const across = crossSportToday(today, buildSportToday(dataRoot, { today, days }));
+  /* Batch 1 · #7: a registry soccer league (Ligue 1) is not a product day, so its tile had no dated fact. Its next fixture
+     still to play comes from the same file its hub renders (no recorded final, kickoff after the build clock). */
+  const nowMs = Date.now();
+  const leagueNext = new Map(soccerLeaguePages().map((l) => [l.key, leagueNextFixtureUtc(loadLeagueForecasts(l.key), loadLeagueGraded(l.key), nowMs)]));
   return (
     <nav aria-label={label} style={{ marginTop: 18, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
       {COMPETITIONS.map((h) => {
         const unit = UNIT[h.key];
         const n = unit ? across.bySport.find((x) => x.sport === h.key)?.eventsToday ?? 0 : 0;
         const day = unit ? days.find((d) => d.sport === h.key) : undefined;
-        const next = day?.nextEventUtc ?? null;
+        const next = day?.nextEventUtc ?? leagueNext.get(h.key) ?? null;
         /* #797 PR D: the fallback said "No scheduled events" — an absence the product day cannot prove (EPL had
            fixtures ahead with no current forecast yet). With no dated fact, the tile claims nothing. */
         const upcomingDay = day?.state === "EVENT_UPCOMING" && day.productDate > today ? day.productDate : null;

@@ -81,7 +81,7 @@ import { loadCurrentLane } from "@/components/nba/experimental-lane";
 export const metadata = withRouteMetadata("/today/", {
   title: "Today · GameTime Picks",
   description:
-    "Every game today across NFL, NBA, MLB, Premier League and UFC with its official forecast, plus the model's ranked reads and each paper product's status. Paper-only, educational.",
+    "Every game today across NFL, NBA, MLB, Premier League, Ligue 1 and UFC with its official forecast, plus the model's ranked reads and each paper product's status. Paper-only, educational.",
 });
 
 const etStamp = (ms: number) =>

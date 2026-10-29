@@ -140,6 +140,7 @@ export default function GradedPicksPage({ params }: { params: { sport: string } 
             {HUBS[s].label} record →
           </Link>
         ))}
+        <Link href="/results/picks/ligue-1/" style={{ color: "var(--vault-text-mute)" }}>Ligue 1 record →</Link>
         <Link href="/methodology" style={{ color: "var(--vault-text-mute)" }}>How everything is graded → Methodology</Link>
       </nav>
     </div>
