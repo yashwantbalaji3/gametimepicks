@@ -242,7 +242,8 @@ test("the NFL game page mounts the game-level panel WITHOUT the player board", (
   // A game with no simulation keeps its original player board (history is not re-presented) — never both on one page.
   const legacy = page.slice(page.indexOf("{!view?.simulation ? ("), page.indexOf("      ) : null}", page.indexOf("P245 · the promotion-gated")) );
   assert.ok((page.match(/<NflPlayerBoard/g) ?? []).length === 1 && legacy.includes("<NflPlayerBoard"), "the player board renders only on the no-simulation branch");
-  assert.match(page, /\{view\?\.simulation \? \(\n\s*<section id="players"/, "the unified rows render only where a simulation exists");
+  // (withNflPropLines — the gated model-vs-line hook — wraps this slot and returns it unchanged while NFL lines are off.)
+  assert.match(page, /\{(?:withNflPropLines\()?view\?\.simulation \? \(\n\s*<section id="players"/, "the unified rows render only where a simulation exists");
   assert.match(read("src/components/nfl/forecast/family-tabs.tsx"), /useLiveEvent\("nfl", live\?\.eventId \?\? null/, "through the single live poller");
 });
 
