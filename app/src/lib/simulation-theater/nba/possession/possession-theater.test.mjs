@@ -379,6 +379,39 @@ test("public loader: same payload as the full loader (byte-identical), reading o
   assert.doesNotMatch(src, /experimental-v|\.\.\/loader\.mjs|official-representative|official-snapshot/);
 });
 
+test("one official snapshot (engine audit 2026-10-29): the public loader refuses a panel that is not the lane's published snapshot", async () => {
+  const { loadPublicPossessionTheater, readLaneDay } = await import("./public-loader.mjs");
+  const lane = readLaneDay(REPO, DATE);
+  assert.ok(lane, "the 10-20 lane is committed");
+  const id = IDS[0];
+  assert.equal(loadPublicPossessionTheater(REPO, id, { date: DATE, lane }).ok, true, "the committed lane agrees");
+  const lg = (l) => l.games.find((g) => String(g.providerEventId) === id);
+  const probe = (mut) => { const l = clone(lane); mut(l); return loadPublicPossessionTheater(REPO, id, { date: DATE, lane: l }).error?.code; };
+  assert.equal(probe((l) => { lg(l).receipt.payloadSha256 = "0".repeat(64); }), "LANE_MISMATCH", "a different receipt");
+  assert.equal(probe((l) => { lg(l).elo.favoured = lg(l).elo.favoured === lg(l).home.abbr ? lg(l).away.abbr : lg(l).home.abbr; }), "LANE_MISMATCH", "the other side");
+  assert.equal(probe((l) => { lg(l).players.home[0].medians.pts += 0.2; }), "LANE_MISMATCH", "a different median");
+  assert.equal(probe((l) => { lg(l).players.home.pop(); }), "LANE_MISMATCH", "a different player set");
+  assert.equal(probe((l) => { l.games = l.games.filter((g) => String(g.providerEventId) !== id); }), "LANE_MISMATCH", "a game the lane does not publish");
+  assert.equal(loadPublicPossessionTheater(REPO, id, { date: DATE, lane: null }).error?.code, "LANE_MISMATCH", "no lane file");
+  // the probes were in memory: the committed lane still agrees
+  assert.equal(loadPublicPossessionTheater(REPO, id, { date: DATE }).ok, true);
+});
+
+test("one official snapshot (data): every committed possession artifact's official panel is its lane's published snapshot", async () => {
+  const { laneAgreementProblem, readLaneDay } = await import("./public-loader.mjs");
+  const dir = path.join(REPO, "data/internal/research/nba/theater-possession");
+  let n = 0;
+  for (const d of fs.readdirSync(dir).filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x)).sort()) {
+    const lane = readLaneDay(REPO, d);
+    for (const f of fs.readdirSync(path.join(dir, d)).filter((x) => x.endsWith(".json"))) {
+      const g = JSON.parse(fs.readFileSync(path.join(dir, d, f), "utf8")).game;
+      assert.equal(laneAgreementProblem(g, g.official.panel, lane), null, `${d}/${f}`);
+      n += 1;
+    }
+  }
+  assert.ok(n >= 3, `checked ${n} artifacts`);
+});
+
 test("G2 (founder decision 2026-10-21): every game the public route would publish has the consistency gate OPEN for the possession replay engine", async () => {
   const { runConsistencyAudit, theaterActivationGate } = await import("../../../consistency/audit.mjs");
   const { publicPossessionEvents } = await import("./public-loader.mjs");
