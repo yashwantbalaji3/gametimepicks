@@ -20,14 +20,20 @@ import NflLiveHub from "./nfl-live-hub";
 
 const MONO = "var(--font-mono)";
 
-/** The rollout flags decide which sports are tracked; the sentence follows them (never a hard-coded claim). */
-export function liveCoverageLine(tracked: string[]): string {
+/**
+ * The rollout flags decide which sports are tracked; the sentence follows them (never a hard-coded claim).
+ * `mlbOffSeason` (the committed season-state's own sentence, lib/mlb/season-complete.mjs) takes MLB out of the tracked
+ * list once no MLB game is left: a flag that is on does not make an empty season trackable.
+ */
+export function liveCoverageLine(tracked: string[], mlbOffSeason: string | null = null): string {
   const untracked = "NBA, Premier League and UFC are not tracked live yet — their schedules and forecasts are on each sport's hub.";
-  if (tracked.length === 0) return `Live tracking is turned off right now. ${untracked}`;
-  return `Live tracking: ${tracked.join(" and ")}. ${untracked}`;
+  const t = mlbOffSeason ? tracked.filter((s) => s !== "MLB") : tracked;
+  const season = mlbOffSeason ? ` ${mlbOffSeason}` : "";
+  if (t.length === 0) return `Live tracking is turned off right now.${season} ${untracked}`;
+  return `Live tracking: ${t.join(" and ")}.${season} ${untracked}`;
 }
 
-export default function LiveSportTabs({ nfl, mlb, quietDay }: { nfl: NflHubRoster; mlb: HubRoster; quietDay?: ReactNode }) {
+export default function LiveSportTabs({ nfl, mlb, quietDay, mlbOffSeason = null }: { nfl: NflHubRoster; mlb: HubRoster; quietDay?: ReactNode; mlbOffSeason?: string | null }) {
   const tabs = [
     { key: "ALL", label: "All" },
     ...(nfl.games.length > 0 ? [{ key: "NFL", label: "NFL" }] : []),
@@ -70,7 +76,7 @@ export default function LiveSportTabs({ nfl, mlb, quietDay }: { nfl: NflHubRoste
       {/* LIVE-F: which sports Live tracks, said once, so an absent tab is never read as "no games". NBA, the
           Premier League and UFC have no validated live adapter yet; they are never presented as tracked. */}
       <p style={{ fontFamily: "var(--font-display)", fontSize: 12, color: "var(--vault-text-mute)", margin: "0 0 18px" }}>
-        {liveCoverageLine((["nfl", "mlb"] as const).filter((s) => liveReadyFor(s)).map((s) => s.toUpperCase()))}
+        {liveCoverageLine((["nfl", "mlb"] as const).filter((s) => liveReadyFor(s)).map((s) => s.toUpperCase()), mlbOffSeason)}
       </p>
 
       <div {...(tabs.length > 1 ? roving.panelProps(active) : {})}>

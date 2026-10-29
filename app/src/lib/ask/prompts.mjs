@@ -16,6 +16,27 @@ export const ASK_STARTER_GROUPS = Object.freeze([
   { label: "Dig in", prompts: ["Compare the Yankees and the Red Sox", "Build me a medium-risk card"] },
 ]);
 
+/**
+ * OFF-SEASON (2026-10-29). "Which MLB games are live right now?" is a promise only while MLB has games: Ask's live tool
+ * reads MLB only, so after the last game of the season the starter offers a question with nothing to answer it. While
+ * the committed season-state says no MLB game is left (lib/mlb/season-complete.mjs, read by the /ask page at build), the
+ * live starter is withdrawn and this one — a game-finder question in the grounded golden set (scripts/ask/golden.mjs
+ * game-02) — takes a place under "How it went".
+ */
+export const ASK_MLB_OFF_SEASON_STARTER = "Find MLB games from this season";
+
+/** The starters for the page, by whether MLB is out of season. In season this is exactly ASK_STARTER_GROUPS. */
+export function askStarterGroups({ mlbOffSeason = false } = {}) {
+  if (!mlbOffSeason) return ASK_STARTER_GROUPS;
+  return Object.freeze(ASK_STARTER_GROUPS.map((g) => Object.freeze({
+    label: g.label,
+    prompts: Object.freeze([
+      ...g.prompts.filter((p) => p !== Q.live),
+      ...(g.label === "How it went" ? [ASK_MLB_OFF_SEASON_STARTER] : []),
+    ]),
+  })));
+}
+
 const Q = Object.freeze({
   forecasts: "What are today's GameTime forecasts?",
   live: "Which MLB games are live right now?",
@@ -51,5 +72,5 @@ export function supportedFollowUps(intent, question) {
   return (NEXT_BY_INTENT[intent] ?? DEFAULT_NEXT).filter((q) => fold(q) !== asked).slice(0, 2);
 }
 
-/** Every question Ask may offer, for the guard that keeps follow-ups inside the starters. */
-export const ASK_OFFERED_QUESTIONS = Object.freeze(ASK_STARTER_GROUPS.flatMap((g) => g.prompts));
+/** Every question Ask may offer (in or out of season), for the guard that keeps follow-ups inside the starters. */
+export const ASK_OFFERED_QUESTIONS = Object.freeze([...ASK_STARTER_GROUPS.flatMap((g) => g.prompts), ASK_MLB_OFF_SEASON_STARTER]);

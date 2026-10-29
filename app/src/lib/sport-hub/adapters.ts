@@ -17,6 +17,7 @@ import { productDayFor } from "@/lib/product-day/product-day";
 import { currentEtDate } from "@/lib/freshness";
 import { etStamp } from "@/lib/et-stamp.mjs";
 import { mlbForecastState } from "@/lib/mlb/full-game/forecast-state.mjs";
+import { mlbSeasonCompleteCopyFor } from "@/lib/mlb/season-complete-data";
 import { DEFAULT_LABELS, hubStatusWord, type HubGameRow, type HubRead, type SportHubModel } from "./contract";
 import { loadNflEvents, currentPeriodKey, eventsInPeriod } from "@/lib/events/read-model";
 
@@ -177,16 +178,23 @@ function rangeOf(rows: HubGameRow[]): string | null {
 export function mlbHub(nowIso: string): SportHubModel {
   const rows = gameRows("mlb", Date.parse(nowIso));
   const official = rows.length === 0 ? mlbOfficialOnly(nowIso) : null;
+  /* OFF-SEASON (2026-10-29): with no row and the committed season-state saying no game is left, the empty state says
+     the season is over (lib/mlb/season-complete.mjs) — not "the board is generated each morning". */
+  const seasonCopy = rows.length === 0 && !official ? mlbSeasonCompleteCopyFor() : null;
   return {
     sport: "mlb", sportLabel: "MLB", labels: DEFAULT_LABELS,
     // The day the board is FOR, taken from the rows rather than the clock: at 2am ET the current
     // board is still yesterday's slate, and calling it "Today" would be the oldest lie on this site.
-    periodLabel: rows[0]?.startLabel?.split(" · ")[0] ?? official?.label ?? "No slate",
+    periodLabel: rows[0]?.startLabel?.split(" · ")[0] ?? official?.label ?? (seasonCopy ? seasonCopy.pill : "No slate"),
     periodRange: null,
     freshness: null,
     rows,
     present: ["games", "products", "simulations", "picks", "results"],
-    ...(rows.length === 0 && official ? official.empty : {
+    ...(rows.length === 0 && official ? official.empty : seasonCopy ? {
+      emptyCounts: "No games left this season",
+      emptyReason: seasonCopy.short,
+      emptyLink: { href: "/results/mlb/", label: "See the full MLB record" },
+    } : {
       /* No schedule evidence either way ⇒ no claim that nothing is scheduled; the board's absence is all we know. */
       emptyReason: "No MLB games are on the board for this date. The board is generated each morning.",
     }),

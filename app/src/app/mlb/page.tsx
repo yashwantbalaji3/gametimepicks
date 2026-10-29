@@ -80,6 +80,8 @@ import PlayerPropsExplorer from "@/components/ui/player-props-explorer";
 import { toExplorerProjection } from "@/lib/ui/explorer-projection";
 import StatusChip from "@/components/ui/status-chip";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { loadMlbSeasonComplete, mlbSeasonCompleteCopyFor } from "@/lib/mlb/season-complete-data";
+import MlbSeasonCompletePanel from "@/components/mlb/mlb-season-complete-panel";
 
 export const metadata = withRouteMetadata("/mlb/", {
   /* Phase 6 · P606: the description still called this page "player-prop analytics" — the shape it had before the
@@ -115,6 +117,12 @@ export default async function MlbLandingPage() {
   }));
   const schedule = getMlbScheduleForDate(date);
   const mlbLifetime = getMlbLifetimeSummary();
+  /* OFF-SEASON (2026-10-29): once the committed season-state says no MLB game is left, the hub stops speaking in the
+     slate's tense — no "Live today", no "Upcoming", no "lines pending" — and says the season is over, with the
+     champion and series score only when the committed finals verify them (lib/mlb/season-complete.mjs). */
+  const seasonComplete = loadMlbSeasonComplete();
+  const seasonCopy = mlbSeasonCompleteCopyFor();
+  const offSeasonEmpty = !!seasonCopy && !(board.propsAvailable && board.summary.leans > 0);
 
   // ── Availability parity with /today — SAME shared contract + SAME slate pointer, so the two hubs can
   //    never disagree on what analysis is available. Compact lens only (the full board lives on /today). ──
@@ -218,7 +226,10 @@ export default async function MlbLandingPage() {
   /* Overnight 10-28 (light pass): the hero speaks in reader words — the slate's day, not its ISO key; the internal
      confidence-tier counts ("Category A · Category C") and the unscoped record line move to Technical details below. */
   const slateDay = etDayLabel(date) ?? date;
-  const heroStats = [
+  const heroStats = offSeasonEmpty && seasonComplete ? [
+    ...(seasonComplete.champion ? [{ label: "World Series", value: `${seasonComplete.champion.abbr} ${seasonComplete.wins}–${seasonComplete.losses}`, sub: `over ${seasonComplete.runnerUp?.abbr ?? ""}`.trim() }] : []),
+    ...(seasonComplete.record ? [{ label: "Graded slates", value: seasonComplete.record.slates.toLocaleString("en-US"), sub: "player-prop leans" }] : []),
+  ] : [
     { label: isTodaysSlate ? "Games today" : "Games on this slate", value: String(gameCount), sub: slateDay },
     { label: "Projections", value: String(summary.leans), sub: propsAvailable ? "real prop lines" : "lines pending" },
   ];
@@ -285,7 +296,7 @@ export default async function MlbLandingPage() {
         </section>
       )}
       <section aria-label={isTodaysSlate ? "Today's slate" : `Slate for ${date}`}>
-        <SectionHeader eyebrow={`Slate · ${date}`} title={games.length === 0 ? "Schedule warming up" : `${games.length} game${games.length === 1 ? "" : "s"} on the slate`} />
+        <SectionHeader eyebrow={`Slate · ${date}`} title={games.length === 0 ? (seasonCopy ? seasonCopy.headline : "Schedule warming up") : `${games.length} game${games.length === 1 ? "" : "s"} on the slate`} />
         {slateTiles}
       </section>
       {/* Availability lens — same shared contract as /today, with a bridge to the full daily board. */}
@@ -299,7 +310,11 @@ export default async function MlbLandingPage() {
         <SectionHeader eyebrow={`Slate · ${date}`} title={isTodaysSlate ? `${games.length} game${games.length === 1 ? "" : "s"} today` : `${games.length} game${games.length === 1 ? "" : "s"} · ${date}`} rightSlot={games.length > 0 ? <Link href="/mlb/board" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold)", fontSize: 11 }}>Open board →</Link> : undefined} />
         {slateTiles}
       </section>
-      <UpcomingSlateStrip title="Upcoming · next 7 days" days={buildMlbUpcomingDays(date)} boardHrefBase="/mlb/board" emptyMessage="No MLB games are scheduled in the next 7 days yet." />
+      {seasonCopy ? (
+        <p className="text-[13px] m-0" style={{ color: "var(--vault-text-mute)" }}>{seasonCopy.short}</p>
+      ) : (
+        <UpcomingSlateStrip title="Upcoming · next 7 days" days={buildMlbUpcomingDays(date)} boardHrefBase="/mlb/board" emptyMessage="No MLB games are scheduled in the next 7 days yet." />
+      )}
     </div>
   );
 
@@ -361,7 +376,9 @@ export default async function MlbLandingPage() {
       <QuickActionRail
         heading="More on MLB"
         cards={[
-          { href: "/mlb/board", eyebrow: date === currentEtDate() ? "Today" : date > currentEtDate() ? "Next slate" : "Latest slate", title: "Model board", sub: propsAvailable ? `${summary.leans} projections across ${gameCount} game${gameCount === 1 ? "" : "s"}.` : date < currentEtDate() ? "No prop lines were posted for this slate." : "No prop lines posted for this slate yet." },
+          offSeasonEmpty && seasonCopy
+            ? { href: "/mlb/board", eyebrow: "Off-season", title: "Model board", sub: seasonCopy.short }
+            : { href: "/mlb/board", eyebrow: date === currentEtDate() ? "Today" : date > currentEtDate() ? "Next slate" : "Latest slate", title: "Model board", sub: propsAvailable ? `${summary.leans} projections across ${gameCount} game${gameCount === 1 ? "" : "s"}.` : date < currentEtDate() ? "No prop lines were posted for this slate." : "No prop lines posted for this slate yet." },
           { href: "/results/mlb", eyebrow: "Results", title: "MLB results", sub: mlbLifetime?.hitRate != null ? `${(mlbLifetime.hitRate * 100).toFixed(1)}% on ${mlbLifetime.decisive} settled.` : "Pending first settlement." },
           { href: "/results/model-audit", eyebrow: "Performance", title: "Model performance", sub: "Per-market, per-edge, per-game dispersion." },
           { href: "/homer-nukes", eyebrow: "Home runs", title: "Homer Nukes", sub: "The five most likely home runs on the latest slate, each with its own probability." }, // GTP-25
@@ -442,7 +459,7 @@ export default async function MlbLandingPage() {
 
       {/* Slate liveness (real ET clock) — on an MLB no-games day (e.g. the All-Star break) this says so
           plainly instead of presenting the most-recent board as live. Hidden on a live day. */}
-      <div className="mb-4">
+      {offSeasonEmpty ? null : <div className="mb-4">
         <SlateLivenessBanner
           publishDeadlineUtc={publicationDeadlineUtc()}
           buildTimeToday={currentEtDate()}
@@ -456,7 +473,7 @@ export default async function MlbLandingPage() {
           includeMlbNote
           includeWcFocus={false}
         />
-      </div>
+      </div>}
 
       {/* Compact identity strip. The tall shared hero — big glyph, tagline, framing paragraph and
           three stat CARDS — spent most of the first screen introducing a page the reader already
@@ -464,10 +481,12 @@ export default async function MlbLandingPage() {
           down to the methodology panel, where someone who wants it goes looking. */}
 
       {/* Honest slate freshness — always visible (the tabbed board below is deferred/client-rendered). */}
-      <div className="mt-4 flex items-center justify-end gap-2">
-        <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>MLB board</span>
-        {freshnessSlot}
-      </div>
+      {offSeasonEmpty ? null : (
+        <div className="mt-4 flex items-center justify-end gap-2">
+          <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>MLB board</span>
+          {freshnessSlot}
+        </div>
+      )}
 
       {/*
        * HOMER NUKES LEADS. The model's own read comes before the market's.
@@ -480,7 +499,7 @@ export default async function MlbLandingPage() {
       {/* The board is rendered INSIDE MlbFlagshipSections now, so it leads the same grid the three
           market columns sit in rather than floating above an unrelated block. */}
       <div className="mt-4 scroll-mt-24" id="mlb-board">
-        <MlbFlagshipSections
+        {offSeasonEmpty && seasonCopy ? <MlbSeasonCompletePanel copy={seasonCopy} /> : <MlbFlagshipSections
           isTodaysSlate={isTodaysSlate}
           slateDate={flagshipDate}
           props={mlbProps}
@@ -490,7 +509,7 @@ export default async function MlbLandingPage() {
           homerBoard={homerNukesBoard}
           homerRecord={homerNukesRecord}
           simHref={featuredSimHref}
-        />
+        />}
       </div>
 
       {/*
@@ -506,19 +525,22 @@ export default async function MlbLandingPage() {
         compact
         badge={<CompetitionBadge sport="mlb" size="sm" />}
         icon={getSportIdentity("mlb").icon}
-        eyebrow={isTodaysSlate ? "Simulation Center" : "Simulation Center · latest slate"}
+        eyebrow={offSeasonEmpty ? "Simulation Center · season complete" : isTodaysSlate ? "Simulation Center" : "Simulation Center · latest slate"}
         sport="MLB"
         tagline="projections · track record · power board"
-        statusKind={statusKind}
+        /* Off-season: "Season complete" in the settled colour. The off-season board date is never after the reader's day,
+           so the day-aware tense can only resolve to this settled kind — never Live or Upcoming. */
+        statusKind={offSeasonEmpty ? "settled" : statusKind}
+        statusLabel={offSeasonEmpty && seasonCopy ? seasonCopy.pill : undefined}
         statusSlateDate={date}
         statusSeedToday={currentEtDate()}
-        statusCaption={statusCaption}
-        matchupLine={`Slate · ${slateDay}`}
+        statusCaption={offSeasonEmpty ? undefined : statusCaption}
+        matchupLine={offSeasonEmpty && seasonCopy ? seasonCopy.headline : `Slate · ${slateDay}`}
         stats={heroStats}
         accent="mlb"
         ctas={[
           { href: "/homer-nukes", label: "Homer Nukes", primary: true },
-          { href: "/mlb/board", label: !isTodaysSlate ? "Latest board" : "Full model board" },
+          { href: "/mlb/board", label: offSeasonEmpty ? "Model board" : !isTodaysSlate ? "Latest board" : "Full model board" },
           { href: "/results/mlb", label: "Results" },
         ]}
       />
