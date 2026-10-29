@@ -176,8 +176,12 @@ test("CB6 discovery CTAs appear only where their destination exists", () => {
     for (const m of htmlOf(`/games/mlb/${slug}/`).matchAll(/href="\/matchups\/mlb\/(\d+)\/"/g)) { assert.ok(ids.has(m[1]), `${slug} → ${m[1]}`); mlbCta += 1; }
   }
   assert.ok(nflCta > 0, `non-vacuous: NFL ${nflCta}`);
-  if (mlbPages.length === 0) console.log("[CB6] no MLB game page in this export (no MLB slate today) — the MLB half has no subject");
-  else assert.ok(mlbCta > 0, `non-vacuous: ${mlbPages.length} MLB game pages but ${mlbCta} matchup CTAs`);
+  /* Settled MLB pages (data-mlb-settled-game, components/mlb/settled-game.tsx, since 2026-10-28) are the forecast of
+     record after the game — no matchup page exists for them, so they carry no CTA. The per-page rule above still runs on
+     them; the non-vacuity claim is about LIVE game pages, the only ones a matchup CTA belongs on. */
+  const liveMlb = mlbPages.filter((slug) => !htmlOf(`/games/mlb/${slug}/`).includes("data-mlb-settled-game"));
+  if (liveMlb.length === 0) console.log(`[CB6] no live MLB game page in this export (${mlbPages.length} settled) — the MLB half has no subject`);
+  else assert.ok(mlbCta > 0, `non-vacuous: ${liveMlb.length} live MLB game pages but ${mlbCta} matchup CTAs`);
 });
 
 test("CB7 compare and matchup page code makes no Live request and no provider call", () => {
