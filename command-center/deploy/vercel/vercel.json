@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "buildCommand": "rm -rf app public && mkdir public && cp -R public-snapshot/app app",
+  "buildCommand": "rm -rf app public && mkdir public && printf 'User-agent: *\\nDisallow: /\\n' > public/robots.txt && cp -R public-snapshot/app app",
   "installCommand": "npm ci --prefix command-center --omit=dev",
   "outputDirectory": "public",
   "functions": {

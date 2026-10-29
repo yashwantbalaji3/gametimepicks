@@ -71,6 +71,9 @@ test("ops repo: assembled from committed files; the real Vercel entry loads and 
   // what Vercel does: the build command, then the function bundle (includeFiles) must hold every file it loads
   const vercel = JSON.parse(fs.readFileSync(path.join(out, "vercel.json"), "utf8"));
   execFileSync("sh", ["-c", vercel.buildCommand], { cwd: out });
+  // Vercel refuses an empty output directory; the only static file is a crawl-nothing robots.txt
+  assert.deepEqual(fs.readdirSync(path.join(out, vercel.outputDirectory)), ["robots.txt"]);
+  assert.equal(fs.readFileSync(path.join(out, vercel.outputDirectory, "robots.txt"), "utf8"), "User-agent: *\nDisallow: /\n");
   const micromatch = createRequire(path.join(REPO_ROOT, "app/package.json"))("micromatch");
   const include = vercel.functions["api/index.mjs"].includeFiles;
   fs.symlinkSync(path.join(CC_ROOT, "node_modules"), path.join(out, "command-center/node_modules"));
