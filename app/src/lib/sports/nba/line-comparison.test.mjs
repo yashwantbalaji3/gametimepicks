@@ -60,5 +60,5 @@ test("several books: the most recent pre-tip capture, ties by book — never an 
 });
 
 test("the legend says what colours are and are not", () => {
-  assert.match(COMPARISON_LEGEND.caveat, /not a probability, a pick or a sign of betting value/);
+  assert.match(COMPARISON_LEGEND.caveat, /not a probability, a pick or a betting recommendation/);
 });

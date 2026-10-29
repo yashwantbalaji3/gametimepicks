@@ -13,7 +13,7 @@
  */
 import { eloWinProbabilityOf, ELO_WIN_PROBABILITY_LABEL } from "../sports/nba/elo-win-probability.mjs";
 import { NBA_LINE_DISPLAY } from "../sports/nba/line-board.mjs";
-import { COMPARISON_LEGEND, LINE_COMPARISON_RULE, LINE_MAX_AGE_HOURS, UNAVAILABLE_REASON } from "../sports/nba/line-comparison.mjs";
+import { COMPARISON_LEGEND, LINE_COMPARISON_RULE, LINE_MAX_AGE_HOURS, UNAVAILABLE_REASON, USER_SIDE } from "../sports/nba/line-comparison.mjs";
 
 export const NBA_SOCIAL_SCHEMA = "gtp-social-nba@1";
 export const NBA_SOCIAL_BASE = "/data/social/nba/v1/";
@@ -62,7 +62,7 @@ export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, laneSha
     return {
       status: "COMPARED", displayPermission: "PUBLIC", rule: LINE_COMPARISON_RULE,
       line: r.line, overPrice: r.overPrice, underPrice: r.underPrice, book: r.book, marketKey: r.marketKey, capturedAt: r.capturedAt,
-      difference: r.difference, direction: r.direction, freshness: `captured before tip, within ${LINE_MAX_AGE_HOURS} h`,
+      difference: r.difference, direction: r.direction, side: USER_SIDE[r.direction] ?? null, freshness: `captured before tip, within ${LINE_MAX_AGE_HOURS} h`,
     };
   };
   const byId = new Map((recordGames ?? []).map((r) => [String(r.providerEventId), r]));

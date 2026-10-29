@@ -33,6 +33,9 @@ export const COMBO_FAMILIES = Object.freeze(new Set(["pra", "ptsReb", "ptsAst"])
 export const LINE_MAX_AGE_HOURS = 6;
 
 export const DIRECTION = Object.freeze({ ABOVE: "ABOVE", BELOW: "BELOW", EQUAL: "EQUAL", UNAVAILABLE: "UNAVAILABLE" });
+/** The READER-facing word for a valid direction (founder P0 2026-10-29: users read OVER / UNDER / NEUTRAL, never ABOVE /
+    BELOW). Additive: `direction` keeps its internal enum; `side` carries this word. Same mapping as lib/odds/prop-line-view.mjs. */
+export const USER_SIDE = Object.freeze({ ABOVE: "OVER", BELOW: "UNDER", EQUAL: "NEUTRAL" });
 
 /** Every reason a comparison is withheld. Words are the reader-facing sentence (no jargon). */
 export const UNAVAILABLE_REASON = Object.freeze({
@@ -73,7 +76,7 @@ export function compareToLine(projection, line, ctx) {
   const difference = r1(projection.median - line.line);
   const direction = difference > 0 ? DIRECTION.ABOVE : difference < 0 ? DIRECTION.BELOW : DIRECTION.EQUAL;
   return out(direction, {
-    median: projection.median, line: line.line, difference,
+    side: USER_SIDE[direction], median: projection.median, line: line.line, difference,
     overPrice: isNum(line.overPrice) ? line.overPrice : null, underPrice: isNum(line.underPrice) ? line.underPrice : null,
     book: line.book, marketKey: line.marketKey, capturedAt: line.capturedAt,
   });
@@ -88,10 +91,10 @@ export const TONE_TOKEN = Object.freeze({ above: "var(--vault-success)", below: 
 
 /** The legend every surface (and the social graphic) carries beside a coloured comparison. */
 export const COMPARISON_LEGEND = Object.freeze({
-  above: "Green: the model's median projection is above this sportsbook line.",
-  below: "Red: the model's median projection is below this sportsbook line.",
-  neutral: "Grey: equal, no line, a stale or unmatched line, or not cleared for comparison.",
-  caveat: "A colour describes where the model's middle outcome sits against one line. It is not a probability, a pick or a sign of betting value, and it guarantees nothing.",
+  above: "OVER (green): the model's median projection is above this sportsbook line.",
+  below: "UNDER (red): the model's median projection is below this sportsbook line.",
+  neutral: "Grey: NEUTRAL when the projection equals the line; also no line, a stale or unmatched line, or not cleared for comparison.",
+  caveat: "OVER, UNDER and NEUTRAL describe where the model's middle outcome sits against one line. They are not a probability, a pick or a betting recommendation, and they guarantee nothing.",
 });
 
 /**

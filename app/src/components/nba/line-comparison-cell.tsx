@@ -31,7 +31,7 @@ export function LineComparisonCell({ median, comparison, display = NBA_LINE_DISP
       <span>{one(median)}</span>
       <span style={{ color: TONE_TOKEN[tone], fontSize: 12 }}>
         {sign}{one(comparison!.difference)} vs {one(comparison!.line)}
-        <span className="sr-only"> ({comparison!.direction === "ABOVE" ? "projection above the line" : comparison!.direction === "BELOW" ? "projection below the line" : "projection equals the line"})</span>
+        <span className="sr-only"> ({comparison!.direction === "ABOVE" ? "Over: projection above the line" : comparison!.direction === "BELOW" ? "Under: projection below the line" : "Neutral: projection equals the line"})</span>
       </span>
       <span style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>{comparison!.book} · {et(comparison!.capturedAt)}</span>
     </span>

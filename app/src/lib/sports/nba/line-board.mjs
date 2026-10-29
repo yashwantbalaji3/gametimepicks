@@ -27,9 +27,12 @@ const COMBO = new Set(["pra", "ptsReb", "ptsAst"]);
 const medianOf = (p, family) => (COMBO.has(family) ? p.comboMedians?.[family] : p.medians?.[family]);
 
 /**
- * @param {{ lane: any, priceRecords: any[], asOf: string }} input
+ * The ONE pairing of the slate's published players × official families with their chosen offer (chooseOffer: the most
+ * recent pre-tip capture, never an average). Shared by the board below and the display adapter
+ * (prop-line-adapter.mjs), so the page and the private board can never pick different lines.
+ * @param {{ lane: any, priceRecords: any[] }} input
  */
-export function buildNbaLineBoard({ lane, priceRecords = [], asOf }) {
+export function nbaLineCandidates({ lane, priceRecords = [] }) {
   const slateDate = lane?.date ?? null;
   const games = lane?.games ?? [];
   const laneEvents = new Set(games.map((g) => String(g.providerEventId)));
@@ -40,7 +43,7 @@ export function buildNbaLineBoard({ lane, priceRecords = [], asOf }) {
     const k = `${r.eventId}|${r.providerAthleteId}|${r.family}`;
     byKey.set(k, [...(byKey.get(k) ?? []), r]);
   }
-  const rows = [];
+  const out = [];
   for (const g of games) {
     const eventId = String(g.providerEventId);
     for (const side of ["away", "home"]) {
@@ -53,14 +56,24 @@ export function buildNbaLineBoard({ lane, priceRecords = [], asOf }) {
             marketKey: pick.providerMarketKey, line: pick.line, overPrice: pick.overAmerican ?? null, underPrice: pick.underAmerican ?? null,
             book: pick.book, capturedAt: pick.capturedAt, eventId, athleteId, slateDate,
           } : null;
-          const c = compareToLine({ family, median: medianOf(p, family) ?? null }, line, { eventId, athleteId, slateDate, tipUtc: g.tipUtc, asOf });
-          rows.push({
-            eventId, athleteId, name: p.name ?? null, team: g[side]?.abbr ?? null, family, booksOffering: new Set(offers.map((o) => o.book)).size, ...c,
-          });
+          out.push({ eventId, athleteId, name: p.name ?? null, team: g[side]?.abbr ?? null, family, median: medianOf(p, family) ?? null, tipUtc: g.tipUtc, slateDate, booksOffering: new Set(offers.map((o) => o.book)).size, line });
         }
       }
     }
   }
+  return out;
+}
+
+/**
+ * @param {{ lane: any, priceRecords: any[], asOf: string }} input
+ */
+export function buildNbaLineBoard({ lane, priceRecords = [], asOf }) {
+  const slateDate = lane?.date ?? null;
+  const games = lane?.games ?? [];
+  const rows = nbaLineCandidates({ lane, priceRecords }).map(({ eventId, athleteId, name, team, family, median, tipUtc, booksOffering, line }) => {
+    const c = compareToLine({ family, median }, line, { eventId, athleteId, slateDate, tipUtc, asOf });
+    return { eventId, athleteId, name, team, family, booksOffering, ...c };
+  });
   const compared = rows.filter((r) => r.direction !== DIRECTION.UNAVAILABLE);
   const byReason = {};
   for (const r of rows) if (r.direction === DIRECTION.UNAVAILABLE) byReason[r.reason] = (byReason[r.reason] ?? 0) + 1;

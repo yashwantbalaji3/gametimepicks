@@ -21,7 +21,7 @@ test("authorized + valid: +2.3 vs 22.5 in green with book and ET capture time; l
   assert.match(html, /\+2\.3 vs 22\.5/);
   assert.match(html, /var\(--vault-success\)/);
   assert.match(html, /draftkings · 4:00 PM ET/);
-  assert.match(r(React.createElement(LineComparisonLegend, { display: { public: true } })), /not a probability, a pick or a sign of betting value/);
+  assert.match(r(React.createElement(LineComparisonLegend, { display: { public: true } })), /not a probability, a pick or a betting recommendation/);
 });
 
 test("authorized but unavailable: projection only, neutral, with the reason as a title", () => {
