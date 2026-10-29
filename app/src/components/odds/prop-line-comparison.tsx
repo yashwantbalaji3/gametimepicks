@@ -27,18 +27,20 @@ import React from "react";
 import Link from "next/link";
 
 type Price = { value: number | null; text: string; spoken: string };
-export type PropLineState = "COMPARED" | "STALE" | "AFTER_CUTOFF" | "MISMATCH" | "UNAVAILABLE" | "UNSUPPORTED" | "SUSPENDED";
+export type PropLineState = "COMPARED" | "STALE" | "AFTER_CUTOFF" | "MISMATCH" | "UNAVAILABLE" | "UNSUPPORTED" | "SUSPENDED" | "NOT_PUBLISHED" | "YES_NO";
 export type PropLineViewRow = {
   key: string | null; state: PropLineState; side: "OVER" | "UNDER" | "NEUTRAL" | null; glyph?: string | null; color: string; reason?: string | null;
   player: { name: string; team: string | null }; market: { label: string }; projection: { text: string };
   line: { text: string } | null; difference: { text: string } | null; book: { label: string } | null;
   overPrice: Price | null; underPrice: Price | null; quotedAt: { text: string } | null;
+  /** A yes/no market's one price (state YES_NO only): printed as "Yes +150", never as an Over price. */
+  yesPrice?: Price | null;
   statusText: string; reasonText: string | null; spoken: string;
 };
 export type PropLineLegendText = Record<"over" | "under" | "neutral" | "difference" | "states" | "prices" | "caveat", string>;
 export type PropLineViewModel = {
   sport: string; maxAgeHours: number; legend: PropLineLegendText; rows: PropLineViewRow[];
-  counts: { compared: number; stale: number; afterCutoff: number; mismatch: number; unavailable: number; unsupported: number; suspended: number };
+  counts: { compared: number; stale: number; afterCutoff: number; mismatch: number; unavailable: number; unsupported: number; suspended: number; notPublished?: number; yesNo?: number };
   sides?: { OVER: number; UNDER: number; NEUTRAL: number };
   coverage?: { qualified: number; projections: number; text: string | null } | null;
 };
@@ -144,8 +146,17 @@ export function PropLineRow({ row }: { row: PropLineViewRow }) {
       {row.book ? (
         <div role="none" className="plc-sec">
           <div role="cell" className="plc-c plc-book">{row.book.label}</div>
-          <div role="cell" className="plc-c plc-over plc-n"><span className="plc-li">Over </span>{row.overPrice?.value != null ? row.overPrice.text : dash("Over price not posted")}</div>
-          <div role="cell" className="plc-c plc-under plc-n"><span className="plc-li">Under </span>{row.underPrice?.value != null ? row.underPrice.text : dash("Under price not posted")}</div>
+          {row.yesPrice ? (
+            <>
+              <div role="cell" className="plc-c plc-over plc-n" data-prop-line-yes=""><span>Yes </span>{row.yesPrice.value != null ? row.yesPrice.text : dash("Yes price not posted")}</div>
+              <div role="cell" className="plc-c plc-under plc-n">{dash("no Under side: a yes/no market")}</div>
+            </>
+          ) : (
+            <>
+              <div role="cell" className="plc-c plc-over plc-n"><span className="plc-li">Over </span>{row.overPrice?.value != null ? row.overPrice.text : dash("Over price not posted")}</div>
+              <div role="cell" className="plc-c plc-under plc-n"><span className="plc-li">Under </span>{row.underPrice?.value != null ? row.underPrice.text : dash("Under price not posted")}</div>
+            </>
+          )}
           <div role="cell" className="plc-c plc-quoted"><span className="plc-li">Quoted </span>{row.quotedAt?.text ?? "—"}{compared ? null : " · not compared"}</div>
         </div>
       ) : null}
@@ -190,8 +201,9 @@ export function PropLineLegend({ legend, display }: { legend: PropLineLegendText
 const STATE_COUNT_WORDS: Array<[keyof PropLineViewModel["counts"], string]> = [
   ["stale", "line stale"], ["afterCutoff", "captured after cutoff"], ["mismatch", "line not matched"],
   ["unavailable", "line unavailable"], ["unsupported", "market not supported"], ["suspended", "market suspended"],
+  ["notPublished", "official projection not published"], ["yesNo", "yes/no market (not over/under)"],
 ];
-const notCompared = (c: PropLineViewModel["counts"]) => STATE_COUNT_WORDS.filter(([k]) => c[k] > 0).map(([k, w]) => `${c[k]} ${w}`);
+const notCompared = (c: PropLineViewModel["counts"]) => STATE_COUNT_WORDS.filter(([k]) => (c[k] ?? 0) > 0).map(([k, w]) => `${c[k]} ${w}`);
 
 /**
  * The whole section: heading, coverage line ("N of M projections have a qualified sportsbook line"), the table / cards,

@@ -163,7 +163,7 @@ test("reader: null when unauthorized EVEN IF a file exists; null when no file; r
   const { inputs } = nbaPropLineInputs({ lane: LANE, priceRecords: records, asOf: FIXTURE_AS_OF });
   const view = buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER);
   assert.deepEqual(view.rows.map((r) => r.side), ["OVER", "UNDER", "NEUTRAL"]);
-  assert.deepEqual(view.counts, { compared: 3, stale: 0, afterCutoff: 0, mismatch: 0, unavailable: 0, unsupported: 0, suspended: 0 });
+  assert.deepEqual(view.counts, { compared: 3, stale: 0, afterCutoff: 0, mismatch: 0, unavailable: 0, unsupported: 0, suspended: 0, notPublished: 0, yesNo: 0 });
   fs.rmSync(t.root, { recursive: true, force: true });
 });
 

@@ -4,6 +4,9 @@
  * repository until provider display rights are confirmed; display decision "D3" pending). Pure, import-free, server-only
  * by convention (nothing under lib/odds/ may reach a client bundle: prop-line-switch-off.test.mjs).
  *
+ * NFL (2026-10-29): the same record, the same fields, all OFF — NFL_LINE_DISPLAY (lib/sports/nfl/line-display.mjs) is
+ * derived from it exactly as NBA's is, and the NFL build-time reader (lib/sports/nfl/public-line-records.mjs) re-checks it.
+ *
  * Every NBA line surface derives from this record: NBA_LINE_DISPLAY (lib/sports/nba/line-board.mjs) is computed from it,
  * the exporter (scripts/nba/publish-nba-line-board.mjs) asserts "site" before writing, the build-time reader
  * (lib/sports/nba/public-line-records.mjs) re-checks it before reading, and the social feed asserts "social" (and, for
@@ -40,6 +43,7 @@ export const DISPLAY_AUTHORIZATION_REQUIRED = Object.freeze(["providerTermsRef",
 /** The reader-facing sentence while a sport's lines are not authorized (the social feed prints it verbatim). */
 export const NOT_AUTHORIZED_REASON = Object.freeze({
   nba: "Provider display terms for NBA lines are not confirmed for this site (founder decision pending).",
+  nfl: "Provider display terms for NFL lines are not confirmed for this site (founder decision pending).",
 });
 
 /**
@@ -58,6 +62,18 @@ export const DISPLAY_AUTHORIZATION = Object.freeze({
     approvedAt: null,
     // Prices and book names in the public social JSON feed: a data feed under the clause above. Needs WRITTEN provider
     // confirmation, referenced here, before it may be true.
+    socialFeedPrices: false,
+    socialFeedPricesConfirmationRef: null,
+  }),
+  // NFL player props (week 8 private capture 2026-10-29): same fields, same meaning, nothing authorized. Turning NFL on
+  // is its own reviewed decision — an NBA approval never carries over.
+  nfl: Object.freeze({
+    siteDisplay: false,
+    socialDisplay: false,
+    providerTermsRef: null,
+    attribution: null,
+    approvedBy: null,
+    approvedAt: null,
     socialFeedPrices: false,
     socialFeedPricesConfirmationRef: null,
   }),

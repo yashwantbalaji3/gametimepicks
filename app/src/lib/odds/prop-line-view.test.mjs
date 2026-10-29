@@ -174,7 +174,7 @@ test("NBA adapter: every official family has a label; the board's own pairing fe
   const { projections } = nbaPropLineInputs({ lane: FIXTURE_LANE, priceRecords: FIXTURE_PRICE_RECORDS, asOf: FIXTURE_AS_OF });
   assert.equal(projections, 28, "the coverage denominator counts every published projection, with or without a line");
   const view = buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER, { projections });
-  assert.deepEqual(view.counts, { compared: 3, stale: 1, afterCutoff: 0, mismatch: 0, unavailable: 0, unsupported: 1, suspended: 0 });
+  assert.deepEqual(view.counts, { compared: 3, stale: 1, afterCutoff: 0, mismatch: 0, unavailable: 0, unsupported: 1, suspended: 0, notPublished: 0, yesNo: 0 });
   assert.deepEqual(view.sides, { OVER: 1, UNDER: 1, NEUTRAL: 1 });
   assert.equal(view.coverage.text, "3 of 28 projections have a qualified sportsbook line");
   assert.deepEqual(view.rows.filter((r) => r.state === "COMPARED").map((r) => [r.player.name, r.market.label, r.side, r.difference.text]), [

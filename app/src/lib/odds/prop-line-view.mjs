@@ -41,9 +41,19 @@
  * `compare` returns { direction: ABOVE|BELOW|EQUAL|UNAVAILABLE, reason?, line?, difference?, differenceExact?, book?,
  * overPrice?, underPrice?, capturedAt?, side? } — the nba-line-comparison@1 result shape. Engineering reason codes stay in
  * `reason` (rendered only as a data attribute); readers see the state's sentence.
+ *
+ * Two optional input fields (prop-line-view@3, added for NFL; NBA never sets them, so NBA rows are unchanged):
+ *   projectionFormat: "probability"  the projection is a 0–1 probability (a yes/no market such as anytime touchdown) and
+ *                                    prints as a percentage ("54.9%"), never as a median;
+ *   offer.price                      the ONE price of a one-sided (yes/no) market. Such a market is NEVER an over/under:
+ *                                    the adapter returns reason YES_NO_MARKET and the row is in state YES_NO — the book's
+ *                                    "Yes" price and quote time are printed, no line, no direction, no difference, and no
+ *                                    model-versus-implied-probability comparison (not in scope for display).
+ * A family whose model figure is NOT an official forecast (NFL: an ESTIMATE / WITHHELD family) is state NOT_PUBLISHED:
+ * the adapter passes projection null (the unofficial figure is never printed) and no direction is ever produced.
  */
 
-export const PROP_LINE_VIEW_RULE = "prop-line-view@2";
+export const PROP_LINE_VIEW_RULE = "prop-line-view@3";
 
 /** Reader-facing direction words. Internal comparators may say ABOVE/BELOW/EQUAL; readers never see those. */
 export const SIDE = Object.freeze({ OVER: "OVER", UNDER: "UNDER", NEUTRAL: "NEUTRAL" });
@@ -65,6 +75,8 @@ export const PROP_LINE_STATE = Object.freeze({
   UNAVAILABLE: "UNAVAILABLE", // no line for this player and market
   UNSUPPORTED: "UNSUPPORTED", // the market measures something the model does not project
   SUSPENDED: "SUSPENDED", // the market was suspended, or the line is not eligible for comparison
+  NOT_PUBLISHED: "NOT_PUBLISHED", // the model's figure for this market is not an official forecast (withheld family)
+  YES_NO: "YES_NO", // a one-sided yes/no market (anytime touchdown): price carried, never an over/under comparison
 });
 export const SECTION_STATE = Object.freeze({ PROVIDER_UNAVAILABLE: "PROVIDER_UNAVAILABLE", NOT_AUTHORIZED: "NOT_AUTHORIZED" });
 
@@ -80,6 +92,8 @@ export function stateCopy(maxAgeHours) {
     UNAVAILABLE: Object.freeze({ label: "Line unavailable", text: "No sportsbook line was found for this player and market." }),
     UNSUPPORTED: Object.freeze({ label: "Market not supported", text: "This sportsbook market measures something our model does not project." }),
     SUSPENDED: Object.freeze({ label: "Market suspended", text: "The sportsbook suspended this market, or its line is not eligible for comparison." }),
+    NOT_PUBLISHED: Object.freeze({ label: "Official projection not published", text: "Our model's figure for this statistic is not an official forecast, so it is not compared." }),
+    YES_NO: Object.freeze({ label: "Not an over/under market", text: "This is a yes/no market with one price, not an over/under line, so it is not compared." }),
   });
 }
 /** Section-level wording (no rows). NOT_AUTHORIZED is never printed: the section renders nothing. */
@@ -88,6 +102,8 @@ export const SECTION_COPY = Object.freeze({
 });
 /** States whose (matched) quote is still printed, muted and marked "not compared". The others never show a line. */
 const SHOWS_QUOTE = new Set([PROP_LINE_STATE.STALE, PROP_LINE_STATE.AFTER_CUTOFF]);
+/** A yes/no market's single price: printed (book, "Yes" price, quote time), never a line or a direction. */
+const SHOWS_YES_PRICE = new Set([PROP_LINE_STATE.YES_NO]);
 
 /** The legend every surface prints beside these rows. `maxAgeHours` is the sport adapter's freshness rule. */
 export function propLineLegend(maxAgeHours) {
@@ -116,6 +132,8 @@ export const DISPLAY_ROUNDING_POLICY = Object.freeze({
 const mag1 = (v) => Math.round(Math.abs(v) * 10 + 1e-9) / 10;
 /** One decimal, as the projections print (half away from zero). */
 export const fmt1 = (v) => (isNum(v) ? `${v < 0 && mag1(v) !== 0 ? MINUS : ""}${mag1(v).toFixed(1)}` : "—");
+/** A 0–1 probability as a percentage with one decimal ("54.9%"), as the NFL board prints it; anything else is "—". */
+export const pct1 = (v) => (isNum(v) && v >= 0 && v <= 1 ? `${mag1(v * 100).toFixed(1)}%` : "—");
 /** A line exactly as the sportsbook provided it: 29.5 → "29.5", 30 → "30.0", 29.25 → "29.25" (never rounded). */
 export function lineText(v) {
   if (!isNum(v)) return "—";
@@ -155,22 +173,26 @@ export function buildPropLineView(input, adapter) {
     rule: PROP_LINE_VIEW_RULE, sport: adapter.sport, key: input.key ?? null,
     player: { id: input.player?.id ?? null, name: input.player?.name ?? "—", team: input.player?.team ?? null },
     market: { key: input.marketKey, label: marketLabel ?? String(input.marketKey ?? "—") },
-    projection: { value: isNum(input.projection) ? input.projection : null, text: fmt1(input.projection) },
+    projection: { value: isNum(input.projection) ? input.projection : null, text: input.projectionFormat === "probability" ? pct1(input.projection) : fmt1(input.projection) },
   };
   const who = `${base.player.name}, ${base.market.label}`;
   const muted = (state, reason, offer) => {
-    const showOffer = SHOWS_QUOTE.has(state) && offer && isNum(offer.line);
+    const showLine = SHOWS_QUOTE.has(state) && offer && isNum(offer.line);
+    const showYes = SHOWS_YES_PRICE.has(state) && offer && americanPrice(offer.price).value != null;
+    const showOffer = showLine || showYes;
     const book = showOffer ? adapter.bookLabel(offer.book) : null;
-    const line = showOffer ? { value: offer.line, text: lineText(offer.line) } : null;
+    const line = showLine ? { value: offer.line, text: lineText(offer.line) } : null;
+    const yes = showYes ? americanPrice(offer.price) : null;
     const c = copy[state];
     return {
       ...base, state, side: null, glyph: null, tone: "MUTED", color: SIDE_TOKEN.MUTED, reason: reason ?? null,
       statusText: c.label, reasonText: c.text,
       line, difference: null,
       book: showOffer ? { key: offer.book, label: book } : null,
-      overPrice: showOffer ? americanPrice(offer.overPrice) : null, underPrice: showOffer ? americanPrice(offer.underPrice) : null,
+      overPrice: showLine ? americanPrice(offer.overPrice) : null, underPrice: showLine ? americanPrice(offer.underPrice) : null,
+      ...(showYes ? { yesPrice: yes } : {}),
       quotedAt: showOffer ? { iso: offer.capturedAt ?? null, text: quoteTimeEt(offer.capturedAt) } : null,
-      spoken: `${who}. ${c.label}: ${c.text} Model ${base.projection.text}.${showOffer ? ` ${book} line ${line.text}, quoted ${quoteTimeEt(offer.capturedAt)}, not compared.` : ""}`,
+      spoken: `${who}. ${c.label}: ${c.text} Model ${base.projection.text}.${showLine ? ` ${book} line ${line.text}, quoted ${quoteTimeEt(offer.capturedAt)}, not compared.` : ""}${showYes ? ` ${book} Yes ${yes.spoken}, quoted ${quoteTimeEt(offer.capturedAt)}, not compared.` : ""}`,
     };
   };
   if (marketLabel == null) return muted(PROP_LINE_STATE.UNSUPPORTED, "UNSUPPORTED_MARKET", null);
@@ -219,7 +241,7 @@ export function buildPropLineViews(inputs, adapter, opts = {}) {
   const counts = {
     compared: count(PROP_LINE_STATE.COMPARED), stale: count(PROP_LINE_STATE.STALE), afterCutoff: count(PROP_LINE_STATE.AFTER_CUTOFF),
     mismatch: count(PROP_LINE_STATE.MISMATCH), unavailable: count(PROP_LINE_STATE.UNAVAILABLE), unsupported: count(PROP_LINE_STATE.UNSUPPORTED),
-    suspended: count(PROP_LINE_STATE.SUSPENDED),
+    suspended: count(PROP_LINE_STATE.SUSPENDED), notPublished: count(PROP_LINE_STATE.NOT_PUBLISHED), yesNo: count(PROP_LINE_STATE.YES_NO),
   };
   const sides = { OVER: rows.filter((r) => r.side === SIDE.OVER).length, UNDER: rows.filter((r) => r.side === SIDE.UNDER).length, NEUTRAL: rows.filter((r) => r.side === SIDE.NEUTRAL).length };
   const projections = Number.isInteger(opts.projections) ? opts.projections : null;
