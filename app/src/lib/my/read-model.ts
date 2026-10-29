@@ -28,6 +28,7 @@ import { gameHrefByMatchId } from "@/lib/game-detail";
 import { projectMlbForecast } from "@/lib/live/forecast-join.mjs";
 import { loadCurrentNflResults } from "@/lib/sports/nfl/current-results.mjs";
 import { archivedEventIds } from "@/lib/sports/nfl/archived-forecast";
+import { MARKET_KEY, PLAYER_FAMILIES, formatValue } from "@/lib/sports/nfl/forecast-view.mjs";
 import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
 import { nflPublicRecordResolver } from "@/lib/sports/nfl/public-record.mjs";
 import { LEDGER_URLS, parseLedger } from "@/lib/saved/results.mjs";
@@ -74,8 +75,8 @@ export interface MyPlayerRow {
   href: string | null;
   /** v1.3: this athlete's Player Research page, when the exact id has one (never by name). */
   researchHref: string | null;
-  /** PUBLISHED families only, each as its frozen p10–median–p90. */
-  markets: Array<{ key: string; label: string; median: number; p10: number; p90: number }>;
+  /** PUBLISHED families only, each as its frozen p10–median–p90 (numbers kept at 1 dp for Ask / My GameTime). */
+  markets: Array<{ key: string; label: string; median: number; p10: number; p90: number; display: NflMarketDisplay }>;
   /** Session 4: the PUBLISHED anytime-TD probability (conditioned on playing), exactly as the game page shows it; null when absent. */
   anytimeTd?: number | null;
 }
@@ -113,6 +114,25 @@ function bandsOf(proj: any): MyGame["forecast"] {
 }
 
 const round1 = (x: number) => Math.round(x * 10) / 10;
+
+/**
+ * Track B (2026-10-29, one official number, one rendering): the strings a public page prints for an NFL player market,
+ * formatted from the EXACT board values by the view's own formatValue with the game page's PlayerRow rule (headline by
+ * the family's kind — yards whole, receptions one decimal; the 80% range whole). Rendering the 1-dp numbers above
+ * printed "86.5 (range 32–164.4)" on /players beside "87 (32–164)" on the game page and Top boards; formatting an
+ * already-rounded number could also double-round (86.46 → 86.5 → 87 vs 86).
+ */
+export interface NflMarketDisplay { value: string; range: string }
+const NFL_KIND_BY_MARKET: Record<string, string> = Object.fromEntries(
+  (PLAYER_FAMILIES as ReadonlyArray<{ key: string; kind: string }>).map((f) => [(MARKET_KEY as Record<string, string>)[f.key], f.kind]).filter(([k]) => k),
+);
+export function nflMarketDisplay(marketKey: string, exact: { median: number; p10: number; p90: number }): NflMarketDisplay {
+  const kind = NFL_KIND_BY_MARKET[marketKey] ?? "yards";
+  const rangeKind = kind === "count" ? "yards" : kind;
+  return { value: formatValue(kind, exact.median), range: `${formatValue(rangeKind, exact.p10)}–${formatValue(rangeKind, exact.p90)}` };
+}
+/** The anytime-TD chance exactly as the game page prints it. */
+export const nflAnytimeTdDisplay = (p: number): string => formatValue("probability", p);
 
 /** NFL event ids that actually have a generated `/nfl/game/[id]` page — the same rule as that route. */
 export function nflPageIds(): Set<string> {
@@ -279,7 +299,7 @@ export function buildMyPlayerRows(): MyPlayerRow[] {
           const m = p.markets?.[key];
           // A range family only: probability families (anytime TD) are not rendered as a range here.
           if (!m || typeof m.median !== "number" || typeof m.p10 !== "number" || typeof m.p90 !== "number") return null;
-          return { key, label, median: round1(m.median), p10: round1(m.p10), p90: round1(m.p90) };
+          return { key, label, median: round1(m.median), p10: round1(m.p10), p90: round1(m.p90), display: nflMarketDisplay(key, m) };
         })
         .filter((m): m is NonNullable<typeof m> => m !== null);
       /* Session 4 (Ask parity): the game page's "Likely TD scorers" read this same board field. Ask had no

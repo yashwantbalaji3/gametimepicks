@@ -24,6 +24,7 @@ import UpcomingList, { type UpcomingItem } from "@/components/research-pages/upc
 import { normalizeRef } from "@/lib/follow/follow-schema.mjs";
 import type { FollowRef } from "@/lib/follow/follow-store";
 import { nflPlayerForecasts, ufcFighterForecast } from "@/lib/research-pages/forecast-join";
+import { nflAnytimeTdDisplay } from "@/lib/my/read-model";
 import { boutOutcomeLabel, formatFightRecord, formatGameDate, formatKickoff } from "@/lib/research-pages/format.mjs";
 import { gameHrefs } from "@/lib/research-pages/game-links";
 import { comparePath } from "@/lib/compare/contract.mjs";
@@ -122,9 +123,16 @@ export default function PlayerResearchPage({ params }: { params: { sport: string
                 {f.markets.map((m) => (
                   <div key={m.key} style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 13.5 }}>
                     <dt style={{ color: "var(--vault-text-mute)" }}>{m.label}</dt>
-                    <dd style={{ margin: 0, fontFamily: MONO }}>{m.median} <span style={{ color: "var(--vault-text-faint)" }}>(range {m.p10}–{m.p90})</span></dd>
+                    {/* Track B: the game page's own strings (read-model nflMarketDisplay → forecast-view formatValue). */}
+                    <dd style={{ margin: 0, fontFamily: MONO }}>{m.display.value} <span style={{ color: "var(--vault-text-faint)" }}>(range {m.display.range})</span></dd>
                   </div>
                 ))}
+                {f.anytimeTd != null ? (
+                  <div key="anytime_td" style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 13.5 }}>
+                    <dt style={{ color: "var(--vault-text-mute)" }}>Anytime touchdown</dt>
+                    <dd style={{ margin: 0, fontFamily: MONO }}>{nflAnytimeTdDisplay(f.anytimeTd)} <span style={{ color: "var(--vault-text-faint)" }}>chance to score, if he plays</span></dd>
+                  </div>
+                ) : null}
               </dl>
               {f.href ? <Link href={f.href} style={{ display: "inline-flex", minHeight: 44, alignItems: "center", fontFamily: MONO, fontSize: 11.5, color: "var(--vault-gold-bright)" }}>Why and risk: open the game forecast →</Link> : null}
             </div>
