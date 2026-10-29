@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-29T16:04:09Z",
- "sourceGeneratedAt": "2026-10-29T16:04:09Z",
+ "generatedAt": "2026-10-29T19:47:39Z",
+ "sourceGeneratedAt": "2026-10-29T19:47:39Z",
  "forecastInputHash": "d045a1dd80cf2498",
  "providerEventId": "401873023",
  "matchup": "CAR @ GB",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-29T16:04:09Z",
-  "roleEvidenceAt": "2026-10-29T16:04:09Z",
+  "injuriesCapturedAt": "2026-10-29T19:47:39Z",
+  "roleEvidenceAt": "2026-10-29T19:47:39Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -111,14 +111,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 68,
+  "absent": 70,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "CAR": {
    "counts": {
-    "PROJECTED": 12,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 13,
+    "EXCLUDED_UNAVAILABLE": 0,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -167,6 +167,16 @@
       "anytime_td",
       "player_reception_yds",
       "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4678008",
+     "name": "Jonathon Brooks",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
@@ -253,12 +263,6 @@
       "anytime_td"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4678008",
-     "name": "Jonathon Brooks",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Injured Reserve"
     }
    ]
   },
@@ -821,6 +825,27 @@
     },
     "anytime_td": {
      "probability": 0.2191,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4678008",
+   "name": "Jonathon Brooks",
+   "team": "CAR",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 14.295,
+     "p10": 0,
+     "p25": 2.07,
+     "median": 9.46,
+     "p75": 21.23,
+     "p90": 35.63,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.2109,
      "pricingState": "NOT_PROBED"
     }
    }

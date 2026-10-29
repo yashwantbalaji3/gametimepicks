@@ -9274,6 +9274,5879 @@
      "emptyReason": "R+A is not modelled: no forecast family simulates reb + ast jointly, and adding marginal projections is not its distribution — it is never computed"
     }
    }
+  },
+  {
+   "edition": 2,
+   "frozenAt": "2026-10-29T18:36:18Z",
+   "source": {
+    "path": "data/internal/research/nba/experimental-v1/forecasts/2026-10-29.json",
+    "sha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+    "artifactGeneratedAt": "2026-10-29T16:43:59Z",
+    "artifactInputAsOf": "2026-10-29T16:43:59Z",
+    "runs": 2,
+    "modelVersion": "nba-sim-v1-coherent"
+   },
+   "gamesOnBoard": 1,
+   "games": [
+    {
+     "eventId": "401909893",
+     "tipoffUtc": "2026-10-30T00:00Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "Atlanta Hawks",
+      "abbr": "ATL",
+      "espnAbbr": "ATL",
+      "providerTeamId": "1"
+     },
+     "away": {
+      "name": "Cleveland Cavaliers",
+      "abbr": "CLE",
+      "espnAbbr": "CLE",
+      "providerTeamId": "5"
+     },
+     "forecastGeneratedAt": "2026-10-29T16:43:59Z",
+     "forecastInputAsOf": "2026-10-29T16:43:59Z",
+     "gamePayloadSha256": "922a34683ae371574f48922f4342da5ce531725211ed9443b7496d7a225f37cd",
+     "state": "ON_EARLIER_EDITION",
+     "flags": []
+    },
+    {
+     "eventId": "401909894",
+     "tipoffUtc": "2026-10-30T00:00Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "New Orleans Pelicans",
+      "abbr": "NOP",
+      "espnAbbr": "NO",
+      "providerTeamId": "3"
+     },
+     "away": {
+      "name": "Sacramento Kings",
+      "abbr": "SAC",
+      "espnAbbr": "SAC",
+      "providerTeamId": "23"
+     },
+     "forecastGeneratedAt": "2026-10-29T16:43:59Z",
+     "forecastInputAsOf": "2026-10-29T16:43:59Z",
+     "gamePayloadSha256": "9d6f64f92173a29821afc60ff997b8608b64016704977b0960663804a75c4641",
+     "state": "ON_EARLIER_EDITION",
+     "flags": []
+    },
+    {
+     "eventId": "401909895",
+     "tipoffUtc": "2026-10-30T02:00Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "Portland Trail Blazers",
+      "abbr": "POR",
+      "espnAbbr": "POR",
+      "providerTeamId": "22"
+     },
+     "away": {
+      "name": "Memphis Grizzlies",
+      "abbr": "MEM",
+      "espnAbbr": "MEM",
+      "providerTeamId": "29"
+     },
+     "forecastGeneratedAt": "2026-10-29T18:36:18Z",
+     "forecastInputAsOf": "2026-10-29T18:36:18Z",
+     "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9",
+     "state": "ON_BOARD",
+     "flags": []
+    }
+   ],
+   "boards": {
+    "points": {
+     "category": "points",
+     "label": "Points",
+     "stat": "pts",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-29|v1|e2|points|401909895|4683021",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Deni Avdija",
+        "providerAthleteId": "4683021"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 20,
+        "mean": 20.87
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 26,
+        "p90": 32
+       },
+       "playRate": 0.9619,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.36,
+       "minutesSd": 7.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.87,
+        "expectedMinutes": 29.36,
+        "p90": 32
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-29|v1|e2|points|401909895|4279888",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ja Morant",
+        "providerAthleteId": "4279888"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.32
+       },
+       "range": {
+        "p10": 8,
+        "p25": 11,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.9701,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.61,
+       "minutesSd": 6.99,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.32,
+        "expectedMinutes": 24.61,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-29|v1|e2|points|401909895|3995",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 14,
+        "mean": 14.58
+       },
+       "range": {
+        "p10": 7,
+        "p25": 10,
+        "p75": 19,
+        "p90": 24
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.44,
+       "minutesSd": 6.46,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.58,
+        "expectedMinutes": 26.44,
+        "p90": 24
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-29|v1|e2|points|401909895|4431736",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 12,
+        "mean": 12.13
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 16,
+        "p90": 20
+       },
+       "playRate": 0.9761,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.45,
+       "minutesSd": 7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 12.13,
+        "expectedMinutes": 28.45,
+        "p90": 20
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-29|v1|e2|points|401909895|2991070",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jerami Grant",
+        "providerAthleteId": "2991070"
+       },
+       "team": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "away",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 11,
+        "mean": 11.92
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 15,
+        "p90": 20
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.13,
+       "minutesSd": 5.33,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 11.92,
+        "expectedMinutes": 21.13,
+        "p90": 20
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-29|v1|e2|points|401909895|4683678",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 11,
+        "mean": 11.66
+       },
+       "range": {
+        "p10": 4,
+        "p25": 7,
+        "p75": 15,
+        "p90": 20
+       },
+       "playRate": 0.9764,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.29,
+       "minutesSd": 6.4,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 11.66,
+        "expectedMinutes": 21.29,
+        "p90": 20
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-29|v1|e2|points|401909895|5105565",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 10,
+        "mean": 10.43
+       },
+       "range": {
+        "p10": 4,
+        "p25": 7,
+        "p75": 14,
+        "p90": 18
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.57,
+       "minutesSd": 5.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 10.43,
+        "expectedMinutes": 22.57,
+        "p90": 18
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 18,
+       "LOW_EXPECTED_MINUTES": 6,
+       "AVAILABILITY_OUT": 2,
+       "INSUFFICIENT_HISTORY": 2
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 18,
+       "LOW_EXPECTED_MINUTES": 22,
+       "MINUTES_TOO_UNCERTAIN": 12,
+       "AVAILABILITY_OUT": 2,
+       "INJURY_DESIGNATION": 2,
+       "NULL_MINUTES": 4,
+       "TEAM_POOL_FALLBACK_RATES": 4,
+       "MISSING_DISTRIBUTION": 4,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "4065733",
+        "name": "Ty Jerome",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431785",
+        "name": "Scotty Pippen Jr.",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432810",
+        "name": "Isaiah Stewart",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433083",
+        "name": "Cam Spencer",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593016",
+        "name": "Quinten Post",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4594326",
+        "name": "Kris Murray",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4595400",
+        "name": "Olivier-Maxence Prosper",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4600663",
+        "name": "Zach Edey",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683934",
+        "name": "Jahmai Mashack",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684806",
+        "name": "Taylor Hendricks",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4781746",
+        "name": "Javon Small",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4903027",
+        "name": "Cedric Coward",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5041935",
+        "name": "Cameron Boozer",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105550",
+        "name": "GG Jackson",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105817",
+        "name": "Carson Cooper",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5112087",
+        "name": "Jaylen Wells",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5231919",
+        "name": "Karim Lopez",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "6606",
+        "name": "Damian Lillard",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebounds": {
+     "category": "rebounds",
+     "label": "Rebounds",
+     "stat": "reb",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-29|v1|e2|rebounds|401909895|5105565",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 9,
+        "mean": 9.16
+       },
+       "range": {
+        "p10": 4,
+        "p25": 6,
+        "p75": 12,
+        "p90": 15
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.57,
+       "minutesSd": 5.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 9.16,
+        "expectedMinutes": 22.57,
+        "p90": 15
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-29|v1|e2|rebounds|401909895|4683021",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Deni Avdija",
+        "providerAthleteId": "4683021"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 6,
+        "mean": 5.95
+       },
+       "range": {
+        "p10": 2,
+        "p25": 4,
+        "p75": 8,
+        "p90": 10
+       },
+       "playRate": 0.9619,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.36,
+       "minutesSd": 7.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.95,
+        "expectedMinutes": 29.36,
+        "p90": 10
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-29|v1|e2|rebounds|401909895|4431736",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.2
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 6,
+        "p90": 7
+       },
+       "playRate": 0.9761,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.45,
+       "minutesSd": 7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.2,
+        "expectedMinutes": 28.45,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-29|v1|e2|rebounds|401909895|3995",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.11
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 6,
+        "p90": 7
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.44,
+       "minutesSd": 6.46,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.11,
+        "expectedMinutes": 26.44,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-29|v1|e2|rebounds|401909895|4279888",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ja Morant",
+        "providerAthleteId": "4279888"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 2.94
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 6
+       },
+       "playRate": 0.9701,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.61,
+       "minutesSd": 6.99,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.94,
+        "expectedMinutes": 24.61,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-29|v1|e2|rebounds|401909895|2991070",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jerami Grant",
+        "providerAthleteId": "2991070"
+       },
+       "team": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "away",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.49
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 5
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.13,
+       "minutesSd": 5.33,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.49,
+        "expectedMinutes": 21.13,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-29|v1|e2|rebounds|401909895|4683678",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.36
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 5
+       },
+       "playRate": 0.9764,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.29,
+       "minutesSd": 6.4,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.36,
+        "expectedMinutes": 21.29,
+        "p90": 5
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 18,
+       "LOW_EXPECTED_MINUTES": 6,
+       "AVAILABILITY_OUT": 2,
+       "INSUFFICIENT_HISTORY": 2
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 18,
+       "LOW_EXPECTED_MINUTES": 22,
+       "MINUTES_TOO_UNCERTAIN": 12,
+       "AVAILABILITY_OUT": 2,
+       "INJURY_DESIGNATION": 2,
+       "NULL_MINUTES": 4,
+       "TEAM_POOL_FALLBACK_RATES": 4,
+       "MISSING_DISTRIBUTION": 4,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "4065733",
+        "name": "Ty Jerome",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431785",
+        "name": "Scotty Pippen Jr.",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432810",
+        "name": "Isaiah Stewart",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433083",
+        "name": "Cam Spencer",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593016",
+        "name": "Quinten Post",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4594326",
+        "name": "Kris Murray",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4595400",
+        "name": "Olivier-Maxence Prosper",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4600663",
+        "name": "Zach Edey",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683934",
+        "name": "Jahmai Mashack",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684806",
+        "name": "Taylor Hendricks",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4781746",
+        "name": "Javon Small",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4903027",
+        "name": "Cedric Coward",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5041935",
+        "name": "Cameron Boozer",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105550",
+        "name": "GG Jackson",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105817",
+        "name": "Carson Cooper",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5112087",
+        "name": "Jaylen Wells",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5231919",
+        "name": "Karim Lopez",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "6606",
+        "name": "Damian Lillard",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "assists": {
+     "category": "assists",
+     "label": "Assists",
+     "stat": "ast",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-29|v1|e2|assists|401909895|4279888",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ja Morant",
+        "providerAthleteId": "4279888"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 6,
+        "mean": 6.25
+       },
+       "range": {
+        "p10": 3,
+        "p25": 4,
+        "p75": 8,
+        "p90": 10
+       },
+       "playRate": 0.9701,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.61,
+       "minutesSd": 6.99,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6.25,
+        "expectedMinutes": 24.61,
+        "p90": 10
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-29|v1|e2|assists|401909895|4683021",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Deni Avdija",
+        "providerAthleteId": "4683021"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 6,
+        "mean": 5.78
+       },
+       "range": {
+        "p10": 2,
+        "p25": 4,
+        "p75": 7,
+        "p90": 9
+       },
+       "playRate": 0.9619,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.36,
+       "minutesSd": 7.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.78,
+        "expectedMinutes": 29.36,
+        "p90": 9
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-29|v1|e2|assists|401909895|3995",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 5,
+        "mean": 5
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 7,
+        "p90": 8
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.44,
+       "minutesSd": 6.46,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5,
+        "expectedMinutes": 26.44,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-29|v1|e2|assists|401909895|4683678",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 2.93
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9764,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.29,
+       "minutesSd": 6.4,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.93,
+        "expectedMinutes": 21.29,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-29|v1|e2|assists|401909895|4431736",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.1
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9761,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.45,
+       "minutesSd": 7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.1,
+        "expectedMinutes": 28.45,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-29|v1|e2|assists|401909895|5105565",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.88
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.57,
+       "minutesSd": 5.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.88,
+        "expectedMinutes": 22.57,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-29|v1|e2|assists|401909895|2991070",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jerami Grant",
+        "providerAthleteId": "2991070"
+       },
+       "team": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "away",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.52
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.13,
+       "minutesSd": 5.33,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.52,
+        "expectedMinutes": 21.13,
+        "p90": 3
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 18,
+       "LOW_EXPECTED_MINUTES": 6,
+       "AVAILABILITY_OUT": 2,
+       "INSUFFICIENT_HISTORY": 2
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 18,
+       "LOW_EXPECTED_MINUTES": 22,
+       "MINUTES_TOO_UNCERTAIN": 12,
+       "AVAILABILITY_OUT": 2,
+       "INJURY_DESIGNATION": 2,
+       "NULL_MINUTES": 4,
+       "TEAM_POOL_FALLBACK_RATES": 4,
+       "MISSING_DISTRIBUTION": 4,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "4065733",
+        "name": "Ty Jerome",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431785",
+        "name": "Scotty Pippen Jr.",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432810",
+        "name": "Isaiah Stewart",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433083",
+        "name": "Cam Spencer",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593016",
+        "name": "Quinten Post",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4594326",
+        "name": "Kris Murray",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4595400",
+        "name": "Olivier-Maxence Prosper",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4600663",
+        "name": "Zach Edey",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683934",
+        "name": "Jahmai Mashack",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684806",
+        "name": "Taylor Hendricks",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4781746",
+        "name": "Javon Small",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4903027",
+        "name": "Cedric Coward",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5041935",
+        "name": "Cameron Boozer",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105550",
+        "name": "GG Jackson",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105817",
+        "name": "Carson Cooper",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5112087",
+        "name": "Jaylen Wells",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5231919",
+        "name": "Karim Lopez",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "6606",
+        "name": "Damian Lillard",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "threes": {
+     "category": "threes",
+     "label": "3PM",
+     "stat": "threePm",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-29|v1|e2|threes|401909895|4431736",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.4
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 5
+       },
+       "playRate": 0.9761,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.45,
+       "minutesSd": 7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.4,
+        "expectedMinutes": 28.45,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-29|v1|e2|threes|401909895|3995",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.24
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.44,
+       "minutesSd": 6.46,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.24,
+        "expectedMinutes": 26.44,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-29|v1|e2|threes|401909895|4683021",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Deni Avdija",
+        "providerAthleteId": "4683021"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.67
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9619,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.36,
+       "minutesSd": 7.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.67,
+        "expectedMinutes": 29.36,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-29|v1|e2|threes|401909895|2991070",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jerami Grant",
+        "providerAthleteId": "2991070"
+       },
+       "team": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "away",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.59
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.13,
+       "minutesSd": 5.33,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.59,
+        "expectedMinutes": 21.13,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-29|v1|e2|threes|401909895|4683678",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.51
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9764,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.29,
+       "minutesSd": 6.4,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.51,
+        "expectedMinutes": 21.29,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-29|v1|e2|threes|401909895|4279888",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ja Morant",
+        "providerAthleteId": "4279888"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.15
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9701,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.61,
+       "minutesSd": 6.99,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.15,
+        "expectedMinutes": 24.61,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-29|v1|e2|threes|401909895|5105565",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.01
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 2
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.57,
+       "minutesSd": 5.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.01,
+        "expectedMinutes": 22.57,
+        "p90": 2
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 18,
+       "LOW_EXPECTED_MINUTES": 6,
+       "AVAILABILITY_OUT": 2,
+       "INSUFFICIENT_HISTORY": 2
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 18,
+       "LOW_EXPECTED_MINUTES": 22,
+       "MINUTES_TOO_UNCERTAIN": 12,
+       "AVAILABILITY_OUT": 2,
+       "INJURY_DESIGNATION": 2,
+       "NULL_MINUTES": 4,
+       "TEAM_POOL_FALLBACK_RATES": 4,
+       "MISSING_DISTRIBUTION": 4,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "4065733",
+        "name": "Ty Jerome",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431785",
+        "name": "Scotty Pippen Jr.",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432810",
+        "name": "Isaiah Stewart",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433083",
+        "name": "Cam Spencer",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593016",
+        "name": "Quinten Post",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4594326",
+        "name": "Kris Murray",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4595400",
+        "name": "Olivier-Maxence Prosper",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4600663",
+        "name": "Zach Edey",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683934",
+        "name": "Jahmai Mashack",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684806",
+        "name": "Taylor Hendricks",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4781746",
+        "name": "Javon Small",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4903027",
+        "name": "Cedric Coward",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5041935",
+        "name": "Cameron Boozer",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105550",
+        "name": "GG Jackson",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105817",
+        "name": "Carson Cooper",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5112087",
+        "name": "Jaylen Wells",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5231919",
+        "name": "Karim Lopez",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "6606",
+        "name": "Damian Lillard",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "pra": {
+     "category": "pra",
+     "label": "PRA",
+     "stat": "pra",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-29|v1|e2|pra|401909895|4683021",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Deni Avdija",
+        "providerAthleteId": "4683021"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 32,
+        "mean": 32.6
+       },
+       "range": {
+        "p10": 19,
+        "p25": 25,
+        "p75": 40,
+        "p90": 47
+       },
+       "playRate": 0.9619,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.36,
+       "minutesSd": 7.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 32.6,
+        "expectedMinutes": 29.36,
+        "p90": 47
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-29|v1|e2|pra|401909895|4279888",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ja Morant",
+        "providerAthleteId": "4279888"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 25,
+        "mean": 25.51
+       },
+       "range": {
+        "p10": 14,
+        "p25": 19,
+        "p75": 32,
+        "p90": 38
+       },
+       "playRate": 0.9701,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.61,
+       "minutesSd": 6.99,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 25.51,
+        "expectedMinutes": 24.61,
+        "p90": 38
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-29|v1|e2|pra|401909895|3995",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 23,
+        "mean": 23.7
+       },
+       "range": {
+        "p10": 13,
+        "p25": 18,
+        "p75": 29,
+        "p90": 35
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.44,
+       "minutesSd": 6.46,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 23.7,
+        "expectedMinutes": 26.44,
+        "p90": 35
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-29|v1|e2|pra|401909895|5105565",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 21,
+        "mean": 21.46
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 27,
+        "p90": 32
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.57,
+       "minutesSd": 5.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.46,
+        "expectedMinutes": 22.57,
+        "p90": 32
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-29|v1|e2|pra|401909895|4431736",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.43
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 23,
+        "p90": 28
+       },
+       "playRate": 0.9761,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.45,
+       "minutesSd": 7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.43,
+        "expectedMinutes": 28.45,
+        "p90": 28
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-29|v1|e2|pra|401909895|4683678",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.95
+       },
+       "range": {
+        "p10": 8,
+        "p25": 12,
+        "p75": 22,
+        "p90": 27
+       },
+       "playRate": 0.9764,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.29,
+       "minutesSd": 6.4,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.95,
+        "expectedMinutes": 21.29,
+        "p90": 27
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-29|v1|e2|pra|401909895|2991070",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jerami Grant",
+        "providerAthleteId": "2991070"
+       },
+       "team": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "away",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 15,
+        "mean": 15.94
+       },
+       "range": {
+        "p10": 8,
+        "p25": 11,
+        "p75": 20,
+        "p90": 25
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.13,
+       "minutesSd": 5.33,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 15.94,
+        "expectedMinutes": 21.13,
+        "p90": 25
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 18,
+       "LOW_EXPECTED_MINUTES": 6,
+       "AVAILABILITY_OUT": 2,
+       "INSUFFICIENT_HISTORY": 2
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 18,
+       "LOW_EXPECTED_MINUTES": 22,
+       "MINUTES_TOO_UNCERTAIN": 12,
+       "AVAILABILITY_OUT": 2,
+       "INJURY_DESIGNATION": 2,
+       "NULL_MINUTES": 4,
+       "TEAM_POOL_FALLBACK_RATES": 4,
+       "MISSING_DISTRIBUTION": 4,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "4065733",
+        "name": "Ty Jerome",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431785",
+        "name": "Scotty Pippen Jr.",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432810",
+        "name": "Isaiah Stewart",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433083",
+        "name": "Cam Spencer",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593016",
+        "name": "Quinten Post",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4594326",
+        "name": "Kris Murray",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4595400",
+        "name": "Olivier-Maxence Prosper",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4600663",
+        "name": "Zach Edey",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683934",
+        "name": "Jahmai Mashack",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684806",
+        "name": "Taylor Hendricks",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4781746",
+        "name": "Javon Small",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4903027",
+        "name": "Cedric Coward",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5041935",
+        "name": "Cameron Boozer",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105550",
+        "name": "GG Jackson",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105817",
+        "name": "Carson Cooper",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5112087",
+        "name": "Jaylen Wells",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5231919",
+        "name": "Karim Lopez",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "6606",
+        "name": "Damian Lillard",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsReb": {
+     "category": "ptsReb",
+     "label": "P+R",
+     "stat": "ptsReb",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-29|v1|e2|ptsReb|401909895|4683021",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Deni Avdija",
+        "providerAthleteId": "4683021"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 26,
+        "mean": 26.82
+       },
+       "range": {
+        "p10": 15,
+        "p25": 20,
+        "p75": 33,
+        "p90": 40
+       },
+       "playRate": 0.9619,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.36,
+       "minutesSd": 7.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 26.82,
+        "expectedMinutes": 29.36,
+        "p90": 40
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-29|v1|e2|ptsReb|401909895|5105565",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.58
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 24,
+        "p90": 30
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.57,
+       "minutesSd": 5.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.58,
+        "expectedMinutes": 22.57,
+        "p90": 30
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-29|v1|e2|ptsReb|401909895|4279888",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ja Morant",
+        "providerAthleteId": "4279888"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.26
+       },
+       "range": {
+        "p10": 10,
+        "p25": 13,
+        "p75": 24,
+        "p90": 30
+       },
+       "playRate": 0.9701,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.61,
+       "minutesSd": 6.99,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.26,
+        "expectedMinutes": 24.61,
+        "p90": 30
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-29|v1|e2|ptsReb|401909895|3995",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.69
+       },
+       "range": {
+        "p10": 10,
+        "p25": 13,
+        "p75": 23,
+        "p90": 29
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.44,
+       "minutesSd": 6.46,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.69,
+        "expectedMinutes": 26.44,
+        "p90": 29
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-29|v1|e2|ptsReb|401909895|4431736",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.33
+       },
+       "range": {
+        "p10": 8,
+        "p25": 11,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.9761,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.45,
+       "minutesSd": 7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.33,
+        "expectedMinutes": 28.45,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-29|v1|e2|ptsReb|401909895|2991070",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jerami Grant",
+        "providerAthleteId": "2991070"
+       },
+       "team": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "away",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 14,
+        "mean": 14.41
+       },
+       "range": {
+        "p10": 7,
+        "p25": 10,
+        "p75": 18,
+        "p90": 23
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.13,
+       "minutesSd": 5.33,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.41,
+        "expectedMinutes": 21.13,
+        "p90": 23
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-29|v1|e2|ptsReb|401909895|4683678",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 13,
+        "mean": 14.02
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 18,
+        "p90": 23
+       },
+       "playRate": 0.9764,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.29,
+       "minutesSd": 6.4,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.02,
+        "expectedMinutes": 21.29,
+        "p90": 23
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 18,
+       "LOW_EXPECTED_MINUTES": 6,
+       "AVAILABILITY_OUT": 2,
+       "INSUFFICIENT_HISTORY": 2
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 18,
+       "LOW_EXPECTED_MINUTES": 22,
+       "MINUTES_TOO_UNCERTAIN": 12,
+       "AVAILABILITY_OUT": 2,
+       "INJURY_DESIGNATION": 2,
+       "NULL_MINUTES": 4,
+       "TEAM_POOL_FALLBACK_RATES": 4,
+       "MISSING_DISTRIBUTION": 4,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "4065733",
+        "name": "Ty Jerome",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431785",
+        "name": "Scotty Pippen Jr.",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432810",
+        "name": "Isaiah Stewart",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433083",
+        "name": "Cam Spencer",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593016",
+        "name": "Quinten Post",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4594326",
+        "name": "Kris Murray",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4595400",
+        "name": "Olivier-Maxence Prosper",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4600663",
+        "name": "Zach Edey",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683934",
+        "name": "Jahmai Mashack",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684806",
+        "name": "Taylor Hendricks",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4781746",
+        "name": "Javon Small",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4903027",
+        "name": "Cedric Coward",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5041935",
+        "name": "Cameron Boozer",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105550",
+        "name": "GG Jackson",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105817",
+        "name": "Carson Cooper",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5112087",
+        "name": "Jaylen Wells",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5231919",
+        "name": "Karim Lopez",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "6606",
+        "name": "Damian Lillard",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsAst": {
+     "category": "ptsAst",
+     "label": "P+A",
+     "stat": "ptsAst",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-29|v1|e2|ptsAst|401909895|4683021",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Deni Avdija",
+        "providerAthleteId": "4683021"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 26,
+        "mean": 26.66
+       },
+       "range": {
+        "p10": 15,
+        "p25": 20,
+        "p75": 33,
+        "p90": 39
+       },
+       "playRate": 0.9619,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.36,
+       "minutesSd": 7.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 26.66,
+        "expectedMinutes": 29.36,
+        "p90": 39
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-29|v1|e2|ptsAst|401909895|4279888",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ja Morant",
+        "providerAthleteId": "4279888"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 22,
+        "mean": 22.57
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 28,
+        "p90": 34
+       },
+       "playRate": 0.9701,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.61,
+       "minutesSd": 6.99,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 22.57,
+        "expectedMinutes": 24.61,
+        "p90": 34
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-29|v1|e2|ptsAst|401909895|3995",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.59
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 25,
+        "p90": 30
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.44,
+       "minutesSd": 6.46,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.59,
+        "expectedMinutes": 26.44,
+        "p90": 30
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-29|v1|e2|ptsAst|401909895|4683678",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 14,
+        "mean": 14.59
+       },
+       "range": {
+        "p10": 6,
+        "p25": 10,
+        "p75": 19,
+        "p90": 24
+       },
+       "playRate": 0.9764,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.29,
+       "minutesSd": 6.4,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.59,
+        "expectedMinutes": 21.29,
+        "p90": 24
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-29|v1|e2|ptsAst|401909895|4431736",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 14,
+        "mean": 14.23
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 18,
+        "p90": 23
+       },
+       "playRate": 0.9761,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.45,
+       "minutesSd": 7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.23,
+        "expectedMinutes": 28.45,
+        "p90": 23
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-29|v1|e2|ptsAst|401909895|2991070",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jerami Grant",
+        "providerAthleteId": "2991070"
+       },
+       "team": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "away",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 13,
+        "mean": 13.44
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 17,
+        "p90": 22
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.13,
+       "minutesSd": 5.33,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.44,
+        "expectedMinutes": 21.13,
+        "p90": 22
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-29|v1|e2|ptsAst|401909895|5105565",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Memphis Grizzlies",
+        "abbr": "MEM",
+        "espnAbbr": "MEM",
+        "providerTeamId": "29"
+       },
+       "homeAway": "home",
+       "eventId": "401909895",
+       "tipoffUtc": "2026-10-30T02:00Z",
+       "projection": {
+        "p50": 12,
+        "mean": 12.31
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 16,
+        "p90": 20
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 22.57,
+       "minutesSd": 5.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-29T18:36:18Z",
+        "generatedAt": "2026-10-29T18:36:18Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "32b93db2df35d847aa61e0c19b0ecb3c75d9da7bb1fe3480e5bfdb55e5562a85",
+        "gamePayloadSha256": "94b2004ae6b8550c09c52a9cfed8f364eb5d72122891c67b4ed150635a4e6ba9"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 12.31,
+        "expectedMinutes": 22.57,
+        "p90": 20
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 18,
+       "LOW_EXPECTED_MINUTES": 6,
+       "AVAILABILITY_OUT": 2,
+       "INSUFFICIENT_HISTORY": 2
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 18,
+       "LOW_EXPECTED_MINUTES": 22,
+       "MINUTES_TOO_UNCERTAIN": 12,
+       "AVAILABILITY_OUT": 2,
+       "INJURY_DESIGNATION": 2,
+       "NULL_MINUTES": 4,
+       "TEAM_POOL_FALLBACK_RATES": 4,
+       "MISSING_DISTRIBUTION": 4,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "4065733",
+        "name": "Ty Jerome",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431785",
+        "name": "Scotty Pippen Jr.",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432810",
+        "name": "Isaiah Stewart",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433083",
+        "name": "Cam Spencer",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593016",
+        "name": "Quinten Post",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4594326",
+        "name": "Kris Murray",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4595400",
+        "name": "Olivier-Maxence Prosper",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4600663",
+        "name": "Zach Edey",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683934",
+        "name": "Jahmai Mashack",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684806",
+        "name": "Taylor Hendricks",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4781746",
+        "name": "Javon Small",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4903027",
+        "name": "Cedric Coward",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5041935",
+        "name": "Cameron Boozer",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105550",
+        "name": "GG Jackson",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105817",
+        "name": "Carson Cooper",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5112087",
+        "name": "Jaylen Wells",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5231919",
+        "name": "Karim Lopez",
+        "team": "MEM",
+        "eventId": "401909895",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "6606",
+        "name": "Damian Lillard",
+        "team": "POR",
+        "eventId": "401909895",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebAst": {
+     "category": "rebAst",
+     "label": "R+A",
+     "stat": null,
+     "marketBasis": "NOT_MODELLED",
+     "basisText": "not modelled — no family simulates it jointly, and adding marginal projections is not its distribution",
+     "components": [
+      "reb",
+      "ast"
+     ],
+     "state": "NOT_MODELLED",
+     "rankingMetric": null,
+     "rows": [],
+     "eligibleCount": 0,
+     "shownCount": 0,
+     "withheld": {
+      "count": 0,
+      "byPrimaryReason": {},
+      "byReason": {},
+      "players": []
+     },
+     "emptyReason": "R+A is not modelled: no forecast family simulates reb + ast jointly, and adding marginal projections is not its distribution — it is never computed"
+    }
+   }
   }
  ]
 }

@@ -122,7 +122,8 @@ test("the /nfl hub shows ONE set of boards, whose rows conserve opportunity by c
      hub no longer renders it as a second public board. The hub's boards rank World Model V2 rows, where every team's
      targets / carries / attempts are allocated once per simulated game, so a team's named shares cannot exceed 1. */
   const hub = fs.readFileSync(path.join(process.cwd(), "src/app/nfl/page.tsx"), "utf8");
-  assert.match(hub, /<FamilyTabs\s+\{\.\.\.boardTabs\(unifiedBoards\.boards\)\}/);
+  /* 2026-10-29: the one set is the weekly-boards artifact's founder Top boards (topBoards.weekly), official board only. */
+  assert.match(hub, /<FamilyTabs\s+\{\.\.\.topBoardTabs\(topBoardsBlock\.weekly\)\}/);
   assert.doesNotMatch(hub, /<NflWeeklyBoards/);
   assert.ok(!fs.existsSync(path.join(process.cwd(), "src/components/nfl/weekly-boards.tsx")), "the retired second board is gone, not hidden");
   assert.match(fs.readFileSync(path.join(process.cwd(), "src/lib/sports/nfl/world-model-v2/engine.mjs"), "utf8"), /shares\[fam\] = \[\.\.\.s, Math\.max\(0, 1 - s\.reduce/, "OTHER takes exactly the remainder of each family");

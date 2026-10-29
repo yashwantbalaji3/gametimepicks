@@ -79,8 +79,9 @@ const PUB = "app/public/data/nfl";
 const VIEW_OF = Object.freeze(Object.fromEntries(Object.entries(MARKET_KEY).map(([v, m]) => [m, v])));
 const SIM_STAT = Object.freeze({ player_pass_yds: "passYds", player_rush_yds: "rushYds", player_reception_yds: "recYds", player_receptions: "rec" });
 const WM_FAMILY = Object.freeze({ player_pass_yds: "passingYards", player_rush_yds: "rushingYards", player_reception_yds: "receivingYards", player_receptions: "receptions" });
-/** The headline value each surface shows for a family: expected receptions, median yards, the anytime-TD probability. */
-const officialHeadline = (fam, e) => (fam === "anytime_td" ? e.expected : fam === "player_receptions" ? e.expected : e.median);
+/** The headline value each surface shows for a family: the median for yards and receptions (founder 2026-10-29: one
+    headline definition everywhere), the anytime-TD probability. */
+const officialHeadline = (fam, e) => (fam === "anytime_td" ? e.expected : e.median);
 
 /** NFL events with every source committed. */
 export function nflEventsWithAllSources(repoRoot) {
@@ -280,7 +281,6 @@ function auditNflEvent(ctx, id) {
   if (wb) {
     const pairs = [];
     const lateRows = [];
-    const headlineSplit = [];
     for (const b of wb.doc.boards ?? []) {
       for (const r of b.rows ?? []) {
         if (String(r.providerEventId) !== id) continue;
@@ -288,17 +288,13 @@ function auditNflEvent(ctx, id) {
         if (!o) { pairs.push({ subjectId: r.playerId, label: r.name, family: b.family, field: "noOfficialCounterpart", expected: 0, actual: 1 }); continue; }
         const isProb = b.metric === "probability";
         pairs.push({ subjectId: r.playerId, label: r.name, family: b.family, field: "value", expected: isProb ? o.expected : o.median, actual: r.value, tolerance: TOLERANCE.fourDp });
-        if (b.family === "player_receptions" && b.metric === "median") headlineSplit.push({ subjectId: r.playerId, label: r.name, family: b.family, field: "headlineDefinition", groupSubject: "headlineDefinition", expected: o.expected, actual: r.value, tolerance: TOLERANCE.fourDp });
         if (!isProb && isNum(r.median)) pairs.push({ subjectId: r.playerId, label: r.name, family: b.family, field: "median", expected: o.median, actual: r.median, tolerance: TOLERANCE.wholeNumber });
       }
       if ((b.rows ?? []).some((r) => String(r.providerEventId) === id)) lateRows.push(b.id);
     }
     out.push(...projectionMismatches({ snapshot, surface: "nfl-weekly-boards", sources: [wbRel, boardPath], pairs, owner: OWNERS.weeklyBoards, correction: "Weekly boards copy the official snapshot's numbers exactly (value and the printed median)." }));
-    out.push(...projectionMismatches({
-      snapshot, surface: "nfl-weekly-boards", sources: [wbRel, boardPath], pairs: headlineSplit, severity: SEVERITY.WARN, owner: OWNERS.weeklyBoards,
-      detail: "receptions: weekly boards headline the median, the game page and /nfl Top boards headline the expected count (forecast-view)",
-      correction: "One headline definition per family across every surface (pick expected or median for receptions and use it everywhere).",
-    }));
+    /* The receptions headline split (weekly boards = median, game page = expected) closed 2026-10-29: every surface
+       headlines the official median (forecast-view.mjs playerRows reads BOARD_METRIC). */
     if (lateRows.length) out.push(...postLockRewrites({ snapshot, artifacts: [{ surface: "nfl-weekly-boards", path: wbRel, generatedAt: wb.doc.generatedAt, detail: `boards ${lateRows.join(",")} still list this event` }], owner: OWNERS.weeklyBoards }));
     out.push(...nameKeyedRows({ snapshot, surface: "nfl-weekly-boards", rows: (wb.doc.boards ?? []).flatMap((b) => b.rows ?? []).filter((r) => String(r.providerEventId) === id), owner: OWNERS.weeklyBoards, correction: "Rows carry the owner id." }));
   }

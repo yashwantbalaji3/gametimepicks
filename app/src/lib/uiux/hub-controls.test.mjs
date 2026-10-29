@@ -31,24 +31,21 @@ test("BUILT · the NFL hub's ranked boards can be filtered", { skip: !exists("nf
      comes from the same owner, evaluated at the export's own build instant: one team chip per club on those boards,
      every club reachable. After the week's last kickoff there are no boards to filter, and the hub must say so by
      omission: no #nfl-boards section and no link to one (2026-10-20, after Monday night). */
-  const { loadForecastViews } = await import("../sports/nfl/forecast-view-load.mjs");
-  const { topBoards } = await import("../sports/nfl/forecast-view.mjs");
+  /* 2026-10-29: the hub renders the weekly-boards artifact's founder Top boards; the section shows while one of its
+     games is still to kick off at the build instant. */
   const builtAt = JSON.parse(fs.readFileSync(path.join(OUT, "data", "build-info.json"), "utf8")).builtAt;
   assert.ok(Number.isFinite(Date.parse(builtAt)), "the export records its build instant");
-  // The page renders a few minutes after build-info is stamped, so a kickoff inside the build is either state;
-  // outside that window the page must match the owner exactly.
-  const views = loadForecastViews(path.join(process.cwd(), "public"));
-  const early = topBoards(views, { now: builtAt });
-  const late = topBoards(views, { now: new Date(Date.parse(builtAt) + 45 * 60_000).toISOString() });
+  const wbDoc = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nfl/weekly-boards/latest.json"), "utf8"));
+  const kick = new Map((JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nfl/forecasts/latest.json"), "utf8")).forecasts ?? []).map((f) => [String(f.providerEventId), f.kickoffUtc]));
+  const liveAt = (iso) => (wbDoc.topBoards?.weekly?.scope?.events ?? []).some((id) => Date.parse(kick.get(id) ?? "") > Date.parse(iso));
   const present = /id="nfl-boards"/.test(main);
   if (!present) {
-    assert.equal(late.games, 0, "the boards section is omitted only when no game is left to kick off");
+    assert.ok(!liveAt(new Date(Date.parse(builtAt) + 45 * 60_000).toISOString()), "the boards section is omitted only when no game is left to kick off");
     assert.doesNotMatch(main, /href="#nfl-boards"/, "…and then nothing links to it");
     return;
   }
-  assert.ok(early.games > 0, "a boards section renders only while a game is still to kick off");
-  const unified = late.games ? late : early;
-  const teams = new Set(Object.values(unified.boards).flatMap((b) => (b.rows ?? []).map((r) => r.team))).size;
+  assert.ok(liveAt(builtAt), "a boards section renders only while a game is still to kick off");
+  const teams = new Set((wbDoc.topBoards.weekly.boards ?? []).flatMap((b) => (b.rows ?? []).map((r) => r.team))).size;
   assert.ok(buttons >= 1 + teams, `the NFL hub renders ${buttons} controls for ${teams} clubs on its ranked boards — every club needs a way in`);
   assert.match(main, /All teams/, "a team filter is offered");
   assert.match(main, /type="search"/, "…and a player search beside it");
@@ -96,8 +93,8 @@ test("BUILT · the client boundary ships only what it renders", () => {
   const page = fs.readFileSync(path.join(process.cwd(), "src/app/nfl/page.tsx"), "utf8");
   assert.ok(!/boards=\{weeklyBoards\.boards( as never)?\}/.test(page),
     "the whole artifact object must not cross the boundary — project the rendered fields");
-  // 2026-10-08: the hub boards cross as boardTabs(...) — the shared view's slim projection, which names its fields.
-  assert.match(page, /\{\.\.\.boardTabs\(unifiedBoards\.boards\)\}/);
+  // 2026-10-29: the hub boards cross as topBoardTabs(...) of the artifact's topBoards scope — a projection that names its fields.
+  assert.match(page, /\{\.\.\.topBoardTabs\(topBoardsBlock\.weekly\)\}/);
   const view = fs.readFileSync(path.join(process.cwd(), "src/lib/sports/nfl/forecast-view.mjs"), "utf8");
   assert.match(view, /const slim = \(p\) => \(\{ playerId: p\.playerId, name: p\.name,/, "the projection names the fields it ships");
   const slimEntry = view.slice(view.indexOf("const slimEntry"), view.indexOf("\n", view.indexOf("const slimEntry")));
