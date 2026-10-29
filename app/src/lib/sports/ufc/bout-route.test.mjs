@@ -15,16 +15,19 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { loadUfcCard, findUfcBout, ufcBoutIds, boutPositionLabel } from "./bout.ts";
+import { loadUfcCard, findUfcBout, ufcBoutIds, ufcCardBoutIds, boutPositionLabel } from "./bout.ts";
 
 const APP = process.cwd();
 
 test("every bout on the current card is addressable", () => {
   const card = loadUfcCard();
   if (!card?.bouts?.length) return; // between cards there is nothing to address
-  const ids = ufcBoutIds();
-  assert.equal(ids.length, card.bouts.length, "the static-params list covers the whole card");
-  assert.equal(new Set(ids).size, ids.length, "no bout id appears twice");
+  /* Batch 1 #3: the static params are now the current card PLUS every settled ledger bout (settled-bout-pages.test.mjs
+     owns that half). The card half is unchanged: the whole card, in card order, each id once. */
+  const ids = ufcCardBoutIds();
+  assert.equal(ids.length, card.bouts.length, "the card list covers the whole card");
+  assert.deepEqual(ufcBoutIds().slice(0, ids.length), ids, "the static-params list carries the whole card, first, in card order");
+  assert.equal(new Set(ufcBoutIds()).size, ufcBoutIds().length, "no bout id appears twice");
   for (const id of ids) {
     const ctx = findUfcBout(id);
     assert.ok(ctx, `bout ${id} resolves`);

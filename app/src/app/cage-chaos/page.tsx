@@ -11,6 +11,7 @@ import Link from "next/link";
 import SectionHeader from "@/components/section-header";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import { loadUfcCard } from "@/lib/sports/ufc/bout";
+import { ufcMethodRead, ufcPct, ufcRoundRead } from "@/lib/sports/ufc/round-phrase.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const metadata = withRouteMetadata("/cage-chaos/", {
@@ -22,8 +23,7 @@ export const metadata = withRouteMetadata("/cage-chaos/", {
 const ET = (iso: string) =>
   new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })
     .format(new Date(iso));
-const pct = (n: number) => `${Math.round(n * 1000) / 10}%`;
-const METHOD_LABEL: Record<string, string> = { KO: "KO / TKO", SUB: "Submission", DEC: "Decision" };
+const pct = (n: number) => ufcPct(n) ?? "—";
 
 const PANEL: React.CSSProperties = {
   background: "var(--vault-panel)", border: "1px solid var(--vault-rule)", borderRadius: 12,
@@ -108,11 +108,17 @@ export default function CageChaosPage() {
                       <td className="font-mono max-sm:block" style={{ padding: "8px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5 }}><CellLabel>Win chance</CellLabel>{pct(b.prediction!.winner!.probability)}</td>
                       <td className="max-sm:block" style={{ padding: "8px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12, color: "var(--vault-text-mute)" }}>
                         <CellLabel>Likeliest ending</CellLabel>
-                        {b.prediction?.method ? `${METHOD_LABEL[b.prediction.method.most] ?? b.prediction.method.most} ${pct(b.prediction.method.probabilities[b.prediction.method.most === "KO" ? "ko" : b.prediction.method.most === "SUB" ? "submission" : "decision"])}` : "—"}
+                        {ufcMethodRead(b.prediction?.method)?.text ?? "—"}
                       </td>
                       <td className="max-sm:block" style={{ padding: "8px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12, color: "var(--vault-text-mute)" }}>
                         <CellLabel>Likeliest round</CellLabel>
-                        {b.prediction?.rounds ? `${b.prediction.rounds.endsIn === "3+" ? "R3 or later" : `R${b.prediction.rounds.endsIn}`} · distance ${pct(b.prediction.rounds.goesTheDistance)}` : "—"}
+                        {/* Batch 1 #4: was "R3 or later · distance 47%" — the 47% was the decision share, not the round mass.
+                            Both quantities now print under their own labels, from the one accessor the hub and bout page read. */}
+                        {(() => {
+                          const r = ufcRoundRead(b.prediction?.rounds);
+                          const parts = [r?.likeliest?.text, r?.goesTheDistance?.text].filter(Boolean);
+                          return parts.length ? parts.join(" · ") : "—";
+                        })()}
                       </td>
                     </tr>
                   ))}
