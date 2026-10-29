@@ -17,10 +17,8 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { availableWeekKeys } from "@/lib/sports/nfl/week-keys";
 import { weekGames } from "@/lib/sports/nfl/week-games";
 import PredictionBoard from "@/components/prediction/prediction-board";
-import { presentWeeklyBoard } from "@/lib/prediction-presentation/nfl";
+import { presentWeeklyBoard, presentTopBoard, type TopBoard } from "@/lib/prediction-presentation/nfl";
 import EtTime from "@/components/ui/et-time";
-import FamilyTabs from "@/components/nfl/forecast/family-tabs";
-import { topBoardTabs } from "@/lib/sports/nfl/forecast-view.mjs";
 import { dailyFor, etDateOfKickoff } from "@/lib/sports/nfl/top-boards.mjs";
 import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 
@@ -37,7 +35,32 @@ type WeeklyBoards = {
   /* Founder Top boards (2026-10-29, lib/sports/nfl/top-boards.mjs). Absent on weeks built before it. */
   topBoards?: { weekly: TopScope; daily: Array<TopScope & { etDate: string }> };
 };
-type TopScope = { scope: { kind: string; eventsIncluded: number; eventsDroppedAfterKickoff: number }; boards: Array<Record<string, unknown>> };
+type TopScope = { scope: { kind: string; eventsIncluded: number; eventsDroppedAfterKickoff: number }; boards: TopBoard[] };
+
+/**
+ * The five Top boards of one scope (weekly or today), in the V3 PredictionBoard layout (header row, identity line with
+ * its Matchup/Start keys). Rows and order are the artifact's; digits come from the one formatter (presentTopBoard), so
+ * they match the hub and every game page. A not-qualified family prints its readiness line, never a ranking.
+ */
+function TopBoardsList({ artifact, scope }: { artifact: WeeklyBoards; scope: TopScope }) {
+  return (
+    <div className="flex flex-col gap-5">
+      {scope.boards.map((b) => {
+        const rows = presentTopBoard(artifact, b);
+        return rows.length ? (
+          <div key={b.id} data-top-board={b.family}>
+            <h3 style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color: "var(--vault-text)" }}>{b.title}</h3>
+            <PredictionBoard predictions={rows} gameHref={(p) => `/nfl/game/${p.game.providerEventId}/`} />
+          </div>
+        ) : (
+          <p key={b.id} data-readiness={b.family} style={{ margin: 0, fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720, border: "1px dashed var(--vault-rule)", borderRadius: 10, padding: "8px 12px" }}>
+            {b.readiness?.text ?? `${b.label ?? b.title}: not yet published`}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
 
 export function generateStaticParams() {
   return availableWeekKeys().map((key) => ({ key }));
@@ -156,13 +179,13 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
             title="Top boards"
             sub="The official player board's top five per statistic; a list is a maximum, not a quota; a statistic that has not cleared its publication standard says so instead of ranking."
           />
-          <FamilyTabs {...topBoardTabs(wb.topBoards.weekly)} linkToGame label="week-boards" listLabel="Weekly leaders by statistic" staticPanels="all" emptyText="No player is cleared for this list." />
+          <TopBoardsList artifact={wb} scope={wb.topBoards.weekly} />
           {todayBoards ? (
             <div style={{ marginTop: 18 }} data-top-boards-day={todayBoards.etDate}>
               <h2 style={{ margin: "0 0 2px", fontSize: 14, fontWeight: 700, color: "var(--vault-text)" }}>
                 Today · {todayBoards.scope.eventsIncluded} {todayBoards.scope.eventsIncluded === 1 ? "game" : "games"}
               </h2>
-              <FamilyTabs {...topBoardTabs(todayBoards)} linkToGame label="week-boards-today" listLabel="Today's leaders by statistic" staticPanels="all" emptyText="No player is cleared for this list in today's games still to kick off." />
+              <TopBoardsList artifact={wb} scope={todayBoards} />
             </div>
           ) : null}
           <p className="font-mono" style={{ margin: "10px 0 0", fontSize: 10.5, color: "var(--vault-text-faint)" }}>

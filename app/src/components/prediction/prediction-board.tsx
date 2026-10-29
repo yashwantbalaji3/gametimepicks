@@ -85,7 +85,7 @@ export const participationLabel = (s: string) =>
 function modelValue(m: ModelForecast): string {
   if (m.kind === "PROBABILITY") return m.probability != null ? `${(m.probability * 100).toFixed(1)}%` : "—";
   if (m.predictedValue == null) return "—";
-  return `${m.predictedValue}${m.unit ? ` ${m.unit}` : ""}`;
+  return `${m.displayValue ?? m.predictedValue}${m.unit ? ` ${m.unit}` : ""}`;
 }
 
 /**

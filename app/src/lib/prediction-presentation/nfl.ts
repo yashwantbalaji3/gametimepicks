@@ -34,6 +34,7 @@ import type {
   PredictionPresentation,
 } from "./contract";
 import { marketFromCapturedOffer } from "./contract";
+import { formatValue } from "../sports/nfl/forecast-view.mjs";
 
 /**
  * ESPN athlete id out of the canonical player key ("nfl-athlete-4430807" -> 4430807).
@@ -181,6 +182,30 @@ export function presentWeeklyBoard(artifact: WeeklyBoardsArtifact, board: Weekly
   return (board.rows ?? [])
     .map((r) => presentWeeklyBoardRow(artifact, board, r))
     .filter((p): p is PredictionPresentation => p !== null);
+}
+
+/**
+ * FOUNDER TOP BOARDS (2026-10-29) — one `topBoards` board (weekly or daily scope) as presentations, for the V3
+ * PredictionBoard. Rows come from the artifact in its own order; the numbers are printed through the SAME formatter the
+ * game page and the hub use (forecast-view.mjs `formatValue`): yards whole, receptions one decimal, the range whole,
+ * a probability one-decimal percent — so every surface shows the same digits. A board that is not PUBLISHED (or not
+ * from the official player board) presents nothing; the page shows its readiness line instead.
+ */
+export interface TopBoardRow extends Omit<WeeklyBoardRow, "p10" | "p90"> { rank: number; p10?: number | null; p90?: number | null }
+export interface TopBoard { id: string; family: string; method: string; title: string; label?: string; source: string; state: string; rows?: TopBoardRow[]; readiness?: { text?: string | null; detail?: string | null } }
+export function presentTopBoard(artifact: WeeklyBoardsArtifact, board: TopBoard): PredictionPresentation[] {
+  if (board.state !== "PUBLISHED" || board.source !== "OFFICIAL_PLAYER_BOARD") return [];
+  const kind = board.method === "probability" ? "probability" : board.family === "player_receptions" ? "count" : "yards";
+  const whole = (v: number | undefined | null) => (v == null || !Number.isFinite(v) ? undefined : Math.round(v));
+  return (board.rows ?? []).flatMap((r) => {
+    const p = presentWeeklyBoardRow(artifact, { id: board.id, family: board.family, title: board.title, state: "PUBLISHED" }, { ...r, median: undefined, p10: whole(r.p10), p90: whole(r.p90) });
+    if (!p) return [];
+    if (p.model.kind === "NUMERIC") {
+      const shown = formatValue(kind, r.value);
+      p.model = { ...p.model, predictedValue: Number(shown), displayValue: shown };
+    }
+    return [p];
+  });
 }
 
 // ── ENDZONE VAULT (anytime touchdown, the /nfl hub) ─────────────────────────────────────────────────
