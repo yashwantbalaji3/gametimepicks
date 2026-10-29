@@ -48,14 +48,16 @@ test("market keys cover all seven official families, one key each", () => {
   assert.equal(new Set(Object.values(MARKET_KEYS)).size, 7);
 });
 
-test("several books: the most recent pre-tip capture, ties by book — never an average", () => {
+test("several books: the most recent pre-tip capture, ties by the reference-book order (DraftKings first) — never an average", () => {
   const offers = [
     { book: "fanduel", capturedAt: "2026-10-28T18:00:00Z", line: 22.5 },
     { book: "draftkings", capturedAt: "2026-10-28T19:00:00Z", line: 23.5 },
     { book: "betmgm", capturedAt: "2026-10-28T19:00:00Z", line: 21.5 },
     { book: "late", capturedAt: "2026-10-28T23:30:00Z", line: 30.5 },
   ];
-  assert.deepEqual(chooseOffer(offers, CTX.tipUtc), offers[2], "betmgm wins the 19:00 tie alphabetically; the after-tip offer is ignored");
+  assert.deepEqual(chooseOffer(offers, CTX.tipUtc), offers[1], "draftkings wins the 19:00 tie by the reference order (not alphabetically: betmgm sorts first); the after-tip offer is ignored");
+  const unknown = [{ book: "zbook", capturedAt: "2026-10-28T19:00:00Z", line: 1.5 }, { book: "abook", capturedAt: "2026-10-28T19:00:00Z", line: 2.5 }];
+  assert.equal(chooseOffer(unknown, CTX.tipUtc).book, "abook", "books outside the order fall back to key order");
   assert.equal(chooseOffer([], CTX.tipUtc), null);
 });
 

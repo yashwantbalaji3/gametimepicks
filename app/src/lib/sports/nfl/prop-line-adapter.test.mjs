@@ -83,7 +83,7 @@ test("eligible operators only: an ineligible book is never chosen (even when lat
   assert.deepEqual([r.state, r.reason, r.side], ["SUSPENDED", "INELIGIBLE", null]);
 });
 
-test("reference-book selection is NBA's chooseOffer: latest pre-kickoff, ties by book name, never averaged; alternate lines are ambiguous", () => {
+test("reference-book selection is NBA's chooseOffer: latest pre-kickoff, ties by the reference-book order, never averaged; alternate lines are ambiguous", () => {
   const off = (book, line, h) => ({ canonicalEventId: `nfl-${FX_EVENT}`, playerId: "nfl-athlete-1", market: "player_receptions", book, line, capturedAt: new Date(Date.parse(FX_KICKOFF) - h * 3600_000).toISOString() });
   assert.equal(nflChooseOffer([off("fanduel", 4.5, 5), off("draftkings", 5.5, 2)], FX_KICKOFF).book, "draftkings", "latest");
   assert.equal(nflChooseOffer([off("fanduel", 4.5, 2), off("draftkings", 5.5, 2)], FX_KICKOFF).book, "draftkings", "tie → book name");
