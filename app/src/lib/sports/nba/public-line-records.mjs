@@ -3,11 +3,13 @@
  * model-versus-line comparisons (`gtp.nba.line-comparisons@1`, lib/sports/nba/line-publication.mjs).
  *
  * Returns null — and reads NOTHING — unless the surface is authorized in the display authorization record
- * (lib/odds/display-authorization.mjs). With authorization on, it reads <date>.json from:
+ * (lib/odds/display-authorization.mjs) AND the display key GTP_ODDS_DISPLAY_KEY is in the environment. With both, it
+ * reads and decrypts <date>.json.enc (AES-256-GCM, lib/odds/display-crypto.mjs — plaintext is never committed) from:
  *   GTP_NBA_LINES_DIR      when set: an absolute, private build-time directory (never inside out/ or app/public/);
  *   otherwise              <repo>/data/odds-display/nba/lines/ — a build input OUTSIDE app/public, so the static export
  *                          never serves it as a downloadable file (provider terms: display yes, redistribution no).
- * A missing file → null (pages then say "Sportsbook lines: Unavailable"). A PRESENT file that fails validation (wrong
+ * A missing file, or one encrypted under a different key → null (pages then say "Sportsbook lines: Unavailable"). A
+ * tampered file (authentication fails under the right key) THROWS. A PRESENT file that fails validation (wrong
  * schema, the lane changed since publication, an ineligible book, a stale row…) THROWS: that is a release error, and the
  * guard test (nba-line-publication-guard.test.mjs) catches it in CI before any build.
  */
@@ -15,11 +17,15 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { DISPLAY_AUTHORIZATION, displayAuthorization } from "../../odds/display-authorization.mjs";
+import { decryptDisplayArtifact, ODDS_DISPLAY_ENC_EXT, readDisplayKey } from "../../odds/display-crypto.mjs";
 import {
   NBA_LINES_DIR_ENV, NBA_LINES_REPO_DIR, linePublicationToPriceRecords, linePublicationToSocialBoard, validateNbaLinePublication,
 } from "./line-publication.mjs";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** The authenticated identity of one NBA artifact (bound into the ciphertext: a file renamed to another date fails). */
+export const nbaLinesAad = (date) => `nba/lines/${date}`;
 
 /** The directory the artifact is read from (see the header). `appRoot` is app/ (the build's cwd). */
 export function nbaLinesDir({ appRoot = process.cwd(), env = process.env } = {}) {
@@ -46,9 +52,13 @@ const laneSha256 = (appRoot, date) => {
 export function readNbaLinePublication(date, { surface = "site", appRoot = process.cwd(), env = process.env, authorization = DISPLAY_AUTHORIZATION } = {}) {
   if (!displayAuthorization("nba", surface, authorization).ok) return null;
   if (!DATE_RE.test(String(date ?? ""))) return null;
-  const file = path.join(nbaLinesDir({ appRoot, env }), `${date}.json`);
+  const k = readDisplayKey(env);
+  if (!k.ok) return null;
+  const file = path.join(nbaLinesDir({ appRoot, env }), `${date}${ODDS_DISPLAY_ENC_EXT}`);
   if (!fs.existsSync(file)) return null;
-  const artifact = JSON.parse(fs.readFileSync(file, "utf8"));
+  const text = decryptDisplayArtifact(fs.readFileSync(file, "utf8"), k.key, nbaLinesAad(date));
+  if (text == null) return null; // encrypted under another key: not available to this build
+  const artifact = JSON.parse(text);
   const v = validateNbaLinePublication(artifact, { date, laneSha256: laneSha256(appRoot, date) });
   if (!v.ok) throw new Error(`NBA line publication ${file} is invalid:\n  - ${v.errors.slice(0, 10).join("\n  - ")}`);
   return artifact;

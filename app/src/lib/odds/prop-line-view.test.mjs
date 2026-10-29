@@ -4,13 +4,15 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   buildPropLineView, buildPropLineViews, propLineLegend, signedDifference, americanPrice, quoteTimeEt, sideOf, SIDE, SIDE_BY_DIRECTION, SIDE_TOKEN, PROP_LINE_STATE,
-  fmt1, lineText, coverageText, stateCopy, DISPLAY_ROUNDING_POLICY,
+  fmt1, lineText, coverageText, stateCopy, DISPLAY_ROUNDING_POLICY, PRIVATE_DIRECTIONS, DIRECTIONS_WITHHELD, DIRECTION_WITHHELD_TEXT,
 } from "./prop-line-view.mjs";
+import { DISPLAY_AUTHORIZATION, publicDirectionGate } from "./display-authorization.mjs";
 import { NBA_PROP_LINE_ADAPTER, nbaPropLineInputs, NBA_MARKET_LABEL, NBA_STATE_OF_REASON } from "../sports/nba/prop-line-adapter.mjs";
 import { USER_SIDE, LINE_MAX_AGE_HOURS, MARKET_KEYS, UNAVAILABLE_REASON } from "../sports/nba/line-comparison.mjs";
 import { FIXTURE_STATE_INPUTS as S, FIXTURE_LANE, FIXTURE_PRICE_RECORDS, FIXTURE_AS_OF } from "./__fixtures__/prop-line-synthetic.mjs";
 
-const v = (k) => buildPropLineView(S[k], NBA_PROP_LINE_ADAPTER);
+// These tests exercise the comparison itself: every direction computed (the private gate). The public gate has its own tests below.
+const v = (k) => buildPropLineView(S[k], NBA_PROP_LINE_ADAPTER, { directions: PRIVATE_DIRECTIONS });
 
 test("OVER / UNDER / NEUTRAL: the reader's words, mapped from the comparator's ABOVE / BELOW / EQUAL; one mapping everywhere", () => {
   assert.deepEqual(SIDE_BY_DIRECTION, { ABOVE: "OVER", BELOW: "UNDER", EQUAL: "NEUTRAL" });
@@ -173,8 +175,8 @@ test("NBA adapter: every official family has a label; the board's own pairing fe
   assert.equal(withoutLine, 28 - 5);
   const { projections } = nbaPropLineInputs({ lane: FIXTURE_LANE, priceRecords: FIXTURE_PRICE_RECORDS, asOf: FIXTURE_AS_OF });
   assert.equal(projections, 28, "the coverage denominator counts every published projection, with or without a line");
-  const view = buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER, { projections });
-  assert.deepEqual(view.counts, { compared: 3, stale: 1, afterCutoff: 0, mismatch: 0, unavailable: 0, unsupported: 1, suspended: 0, notPublished: 0, yesNo: 0 });
+  const view = buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER, { projections, directions: PRIVATE_DIRECTIONS });
+  assert.deepEqual(view.counts, { compared: 3, stale: 1, afterCutoff: 0, mismatch: 0, unavailable: 0, unsupported: 1, suspended: 0, notPublished: 0, yesNo: 0, directionWithheld: 0 });
   assert.deepEqual(view.sides, { OVER: 1, UNDER: 1, NEUTRAL: 1 });
   assert.equal(view.coverage.text, "3 of 28 projections have a qualified sportsbook line");
   assert.deepEqual(view.rows.filter((r) => r.state === "COMPARED").map((r) => [r.player.name, r.market.label, r.side, r.difference.text]), [
@@ -189,4 +191,46 @@ test("NBA adapter: every official family has a label; the board's own pairing fe
 test("quote time: Eastern Time, '—' for an unreadable instant", () => {
   assert.equal(quoteTimeEt("2099-07-01T20:00:00Z"), "Jul 1, 4:00 PM ET");
   assert.equal(quoteTimeEt("nope"), "—");
+});
+
+/* ── direction gate (founder 2026-10-29): a captured line does not make a direction publishable ─────────────────────── */
+const SITE_ON = { siteDisplay: true, socialDisplay: false, providerTermsRef: "docs/legal/FIXTURE_TERMS.md", attribution: null, approvedBy: "fixture-founder", approvedAt: "2099-01-01", socialFeedPrices: false, socialFeedPricesConfirmationRef: null };
+const qualifiedFamily = (family) => ({ [family]: { qualified: true, evidence: "fixture evidence", approvedBy: "fixture-founder", approvedAt: "2099-01-02" } });
+
+test("fail closed: with no gate, the committed gate, or a site-authorized record whose family is unqualified, NO direction is shown", () => {
+  const unqualified = { nba: { ...SITE_ON, directionQualified: DISPLAY_AUTHORIZATION.nba.directionQualified } };
+  for (const [why, opts] of [["no gate", {}], ["withheld gate", { directions: DIRECTIONS_WITHHELD }], ["committed record", { directions: publicDirectionGate("nba") }], ["site authorized, family unqualified", { directions: publicDirectionGate("nba", "site", unqualified) }], ["site authorized, no qualification block", { directions: publicDirectionGate("nba", "site", { nba: SITE_ON }) }]]) {
+    for (const k of ["over", "under", "neutral", "tinyOver", "tinyUnder"]) {
+      const r = buildPropLineView(S[k], NBA_PROP_LINE_ADAPTER, opts);
+      assert.equal(r.state, PROP_LINE_STATE.DIRECTION_WITHHELD, `${why}: ${k}`);
+      assert.deepEqual([r.side, r.glyph, r.difference, r.color, r.tone], [null, null, null, "var(--vault-text-mute)", "MUTED"], `${why}: ${k}`);
+      assert.deepEqual([r.statusText, r.reasonText, r.reason], ["Comparison not shown", DIRECTION_WITHHELD_TEXT, "DIRECTION_NOT_QUALIFIED"]);
+      assert.equal(r.projection.text, buildPropLineView(S[k], NBA_PROP_LINE_ADAPTER, { directions: PRIVATE_DIRECTIONS }).projection.text, "projection still shown");
+      assert.equal(r.line.text, buildPropLineView(S[k], NBA_PROP_LINE_ADAPTER, { directions: PRIVATE_DIRECTIONS }).line.text, "line still shown");
+      assert.doesNotMatch(r.spoken, /(Over|Under), model|Neutral|[▲▼]|difference/i, `${why}: ${k}: the spoken text reveals no side or difference`);
+    }
+  }
+  assert.equal(DIRECTION_WITHHELD_TEXT, "Model and sportsbook line shown; a direction is not shown for this statistic yet because its forecast has not met our calibration standard.");
+});
+
+test("a QUALIFIED family on an authorized site shows its direction; other families stay withheld; non-comparable states are unchanged", () => {
+  const rec = { nba: { ...SITE_ON, directionQualified: { ...DISPLAY_AUTHORIZATION.nba.directionQualified, ...qualifiedFamily("pts") } } };
+  const gate = publicDirectionGate("nba", "site", rec);
+  const over = buildPropLineView(S.over, NBA_PROP_LINE_ADAPTER, { directions: gate });
+  assert.deepEqual([over.market.key, over.state, over.side, over.difference.text], ["pts", "COMPARED", "OVER", "+6.5"]);
+  const under = buildPropLineView(S.under, NBA_PROP_LINE_ADAPTER, { directions: gate }); // rebounds: unqualified
+  assert.deepEqual([under.market.key, under.state, under.side], ["reb", "DIRECTION_WITHHELD", null]);
+  for (const k of ["stale", "afterTip", "unmatched", "noLine", "unsupported", "suspended"]) assert.equal(buildPropLineView(S[k], NBA_PROP_LINE_ADAPTER, { directions: gate }).state, buildPropLineView(S[k], NBA_PROP_LINE_ADAPTER, { directions: PRIVATE_DIRECTIONS }).state, k);
+  // site OFF: qualification alone never shows a direction
+  const off = publicDirectionGate("nba", "site", { nba: { ...rec.nba, siteDisplay: false } });
+  assert.equal(buildPropLineView(S.over, NBA_PROP_LINE_ADAPTER, { directions: off }).state, "DIRECTION_WITHHELD");
+});
+
+test("withheld rows count toward line coverage, never toward sides; the view records its direction scope", () => {
+  const { inputs, projections } = nbaPropLineInputs({ lane: FIXTURE_LANE, priceRecords: FIXTURE_PRICE_RECORDS, asOf: FIXTURE_AS_OF });
+  const view = buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER, { projections });
+  assert.deepEqual([view.counts.compared, view.counts.directionWithheld, view.directionScope], [0, 3, "withheld"]);
+  assert.deepEqual(view.sides, { OVER: 0, UNDER: 0, NEUTRAL: 0 });
+  assert.equal(view.coverage.text, "3 of 28 projections have a qualified sportsbook line");
+  assert.equal(buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER, { projections, directions: PRIVATE_DIRECTIONS }).directionScope, "private");
 });

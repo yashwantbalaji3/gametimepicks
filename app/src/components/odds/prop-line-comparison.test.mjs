@@ -6,13 +6,17 @@ import fs from "node:fs";
 import path from "node:path";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { buildPropLineViews } from "../../lib/odds/prop-line-view.mjs";
+import { buildPropLineViews, DIRECTION_WITHHELD_TEXT } from "../../lib/odds/prop-line-view.mjs";
 import { NBA_PROP_LINE_ADAPTER } from "../../lib/sports/nba/prop-line-adapter.mjs";
 import { FIXTURE_STATE_INPUTS as S } from "../../lib/odds/__fixtures__/prop-line-synthetic.mjs";
 
 const { default: PropLineComparison, PropLineRow, PropLineLegend, PropLineSummary } = await import("./prop-line-comparison.tsx");
 const ON = { public: true }, OFF = { public: false };
-const view = (keys, opts) => buildPropLineViews(keys.map((k) => S[k]), NBA_PROP_LINE_ADAPTER, opts);
+/* The section renders whatever the view decided. These tests render rows as a QUALIFIED family would (a test gate that
+   shows every direction); the withheld state has its own test below with the fail-closed default. */
+const QUALIFIED = { scope: "public", shows: () => true };
+const view = (keys, opts) => buildPropLineViews(keys.map((k) => S[k]), NBA_PROP_LINE_ADAPTER, { directions: QUALIFIED, ...opts });
+const withheldView = (keys, opts) => buildPropLineViews(keys.map((k) => S[k]), NBA_PROP_LINE_ADAPTER, opts);
 const r = (el) => renderToStaticMarkup(el);
 const row = (k) => r(React.createElement(PropLineRow, { row: view([k]).rows[0] }));
 const dec = (s) => s.replace(/&#x27;/g, "'").replace(/&amp;/g, "&");
@@ -146,4 +150,27 @@ test("design: tokens only (no literal colour, no fallback inside var()), text �
   assert.match(src, /@container \(min-width:560px\)/);
   assert.match(src, /@container \(min-width:880px\)/);
   assert.doesNotMatch(src, /^"use client"/m, "server component");
+});
+
+test("direction withheld (family not qualified — the default): 'Comparison not shown', model and line visible, no badge, no colour, no difference", () => {
+  for (const k of ["over", "under", "neutral", "tinyOver"]) {
+    const h = r(React.createElement(PropLineRow, { row: withheldView([k]).rows[0] }));
+    const compared = row(k);
+    assert.equal(cell(h, "plc-model"), cell(compared, "plc-model"), `${k}: projection shown`);
+    assert.equal(cell(h, "plc-line"), cell(compared, "plc-line"), `${k}: line shown`);
+    assert.equal(cell(h, "plc-dir"), "Status Comparison not shown", k);
+    assert.equal(cell(h, "plc-why"), DIRECTION_WITHHELD_TEXT, k);
+    assert.equal(cell(h, "plc-book"), "Fixturebook");
+    assert.doesNotMatch(cell(h, "plc-quoted"), /not compared/);
+    assert.match(h, /data-prop-line="DIRECTION_WITHHELD"/);
+    assert.doesNotMatch(visible(h), /\bOVER\b|\bUNDER\b|NEUTRAL|[▲▼=]|Difference/, `${k}: no direction word, shape or difference`);
+    assert.doesNotMatch(h, /data-prop-line-diff|plc-b"|vault-(success|danger)|data-prop-line-side="(OVER|UNDER|NEUTRAL)"/, `${k}: no badge, no colour, no side attribute`);
+  }
+  const sec = r(React.createElement(PropLineComparison, { view: withheldView(["over", "under", "stale"], { projections: 10 }), display: ON }));
+  assert.match(visible(sec), /2 of 10 projections have a qualified sportsbook line\. Not compared: 1 line stale\. Direction not shown: 2\./);
+  assert.match(visible(sec), /Comparison not shown means the model and the sportsbook line are both shown without a direction/);
+  assert.doesNotMatch(visible(sec), /OVER means|UNDER means|NEUTRAL means/, "no direction legend when no direction is shown");
+  assert.doesNotMatch(sec, /vault-(success|danger)/);
+  assert.equal(r(React.createElement(PropLineSummary, { view: withheldView(["over", "under"], { projections: 10 }), display: ON, href: "/x/" })), "", "the compact summary counts directions: nothing to show");
+  assert.equal(r(React.createElement(PropLineComparison, { view: withheldView(["over"], { projections: 10 }), display: OFF })), "", "switch off: still nothing");
 });

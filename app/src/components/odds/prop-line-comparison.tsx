@@ -10,6 +10,9 @@
  * signal. A row in a STATE (stale, captured after cutoff, not matched, unavailable, unsupported, suspended) shows a dashed
  * grey chip with the state's label and one plain sentence — never a direction, never a difference, never a zero. The
  * engineering reason code is a data attribute only (data-prop-line-reason).
+ * DIRECTION_WITHHELD ("Comparison not shown" — the family's forecast is not direction-qualified, lib/odds/prop-line-view.mjs
+ * direction gate): the model and the line print as normal text with the book, prices and quote time, beside the grey chip
+ * and the founder's sentence — no badge, no colour, no difference.
  *
  * Layout (one markup, CSS container queries on the section's own width, so a narrow panel gets cards too):
  *   < 560 px   stacked compact cards: name / market, then a Model · Line · Direction · Difference row, then the
@@ -27,7 +30,7 @@ import React from "react";
 import Link from "next/link";
 
 type Price = { value: number | null; text: string; spoken: string };
-export type PropLineState = "COMPARED" | "STALE" | "AFTER_CUTOFF" | "MISMATCH" | "UNAVAILABLE" | "UNSUPPORTED" | "SUSPENDED" | "NOT_PUBLISHED" | "YES_NO";
+export type PropLineState = "COMPARED" | "STALE" | "AFTER_CUTOFF" | "MISMATCH" | "UNAVAILABLE" | "UNSUPPORTED" | "SUSPENDED" | "NOT_PUBLISHED" | "YES_NO" | "DIRECTION_WITHHELD";
 export type PropLineViewRow = {
   key: string | null; state: PropLineState; side: "OVER" | "UNDER" | "NEUTRAL" | null; glyph?: string | null; color: string; reason?: string | null;
   player: { name: string; team: string | null }; market: { label: string }; projection: { text: string };
@@ -37,10 +40,10 @@ export type PropLineViewRow = {
   yesPrice?: Price | null;
   statusText: string; reasonText: string | null; spoken: string;
 };
-export type PropLineLegendText = Record<"over" | "under" | "neutral" | "difference" | "states" | "prices" | "caveat", string>;
+export type PropLineLegendText = Record<"over" | "under" | "neutral" | "difference" | "states" | "prices" | "caveat", string> & { withheld?: string };
 export type PropLineViewModel = {
   sport: string; maxAgeHours: number; legend: PropLineLegendText; rows: PropLineViewRow[];
-  counts: { compared: number; stale: number; afterCutoff: number; mismatch: number; unavailable: number; unsupported: number; suspended: number; notPublished?: number; yesNo?: number };
+  counts: { compared: number; stale: number; afterCutoff: number; mismatch: number; unavailable: number; unsupported: number; suspended: number; notPublished?: number; yesNo?: number; directionWithheld?: number };
   sides?: { OVER: number; UNDER: number; NEUTRAL: number };
   coverage?: { qualified: number; projections: number; text: string | null } | null;
 };
@@ -122,7 +125,8 @@ function Direction({ row }: { row: PropLineViewRow }) {
 /** One row (a card below 560 px, a table row above). */
 export function PropLineRow({ row }: { row: PropLineViewRow }) {
   const compared = row.state === "COMPARED";
-  const lineMuted = !compared && row.line;
+  const withheld = row.state === "DIRECTION_WITHHELD";
+  const lineMuted = !compared && !withheld && row.line;
   return (
     <div role="row" className="plc-r" data-prop-line={row.state} data-prop-line-reason={row.reason ?? undefined}>
       <div role="cell" className="plc-c plc-player">{row.player.name}{row.player.team ? <span className="plc-team"> · {row.player.team}</span> : null}</div>
@@ -157,7 +161,7 @@ export function PropLineRow({ row }: { row: PropLineViewRow }) {
               <div role="cell" className="plc-c plc-under plc-n"><span className="plc-li">Under </span>{row.underPrice?.value != null ? row.underPrice.text : dash("Under price not posted")}</div>
             </>
           )}
-          <div role="cell" className="plc-c plc-quoted"><span className="plc-li">Quoted </span>{row.quotedAt?.text ?? "—"}{compared ? null : " · not compared"}</div>
+          <div role="cell" className="plc-c plc-quoted"><span className="plc-li">Quoted </span>{row.quotedAt?.text ?? "—"}{compared || withheld ? null : " · not compared"}</div>
         </div>
       ) : null}
       {!compared && row.reasonText ? <div role="cell" className="plc-c plc-why">{row.reasonText}</div> : null}
@@ -182,17 +186,27 @@ function HeaderRow() {
   );
 }
 
-export function PropLineLegend({ legend, display }: { legend: PropLineLegendText; display: Display }) {
+export function PropLineLegend({ legend, display, show = { sides: true, withheld: true } }: {
+  legend: PropLineLegendText; display: Display;
+  /** Which explanations apply: the OVER / UNDER / NEUTRAL lines only when a direction is shown, "Comparison not shown" only
+      when a row is withheld. */
+  show?: { sides: boolean; withheld: boolean };
+}) {
   if (!display.public) return null;
   const sw = (side: string) => <span aria-hidden="true" style={{ color: SIDE_COLOR[side], fontWeight: 700 }}>{GLYPH[side]}</span>;
   return (
     <ul data-prop-line-legend="" className="m-0" style={{ ...MUTE, fontSize: 12, lineHeight: 1.6, paddingLeft: 0, listStyle: "none" }}>
-      <li>{sw("OVER")} {legend.over}</li>
-      <li>{sw("UNDER")} {legend.under}</li>
-      <li>{sw("NEUTRAL")} {legend.neutral}</li>
-      <li>{legend.difference}</li>
+      {show.sides ? (
+        <>
+          <li>{sw("OVER")} {legend.over}</li>
+          <li>{sw("UNDER")} {legend.under}</li>
+          <li>{sw("NEUTRAL")} {legend.neutral}</li>
+          <li>{legend.difference}</li>
+        </>
+      ) : null}
       <li>{legend.states}</li>
       <li>{legend.prices}</li>
+      {show.withheld && legend.withheld ? <li>{legend.withheld}</li> : null}
       <li style={TEXT}>{legend.caveat}</li>
     </ul>
   );
@@ -203,6 +217,7 @@ const STATE_COUNT_WORDS: Array<[keyof PropLineViewModel["counts"], string]> = [
   ["unavailable", "line unavailable"], ["unsupported", "market not supported"], ["suspended", "market suspended"],
   ["notPublished", "official projection not published"], ["yesNo", "yes/no market (not over/under)"],
 ];
+const withheldNote = (c: PropLineViewModel["counts"]) => ((c.directionWithheld ?? 0) > 0 ? ` Direction not shown: ${c.directionWithheld}.` : "");
 const notCompared = (c: PropLineViewModel["counts"]) => STATE_COUNT_WORDS.filter(([k]) => (c[k] ?? 0) > 0).map(([k, w]) => `${c[k]} ${w}`);
 
 /**
@@ -229,6 +244,7 @@ export default function PropLineComparison({ view, display, heading = "Model vs.
         <p className="m-0" data-prop-line-coverage="" style={{ ...MUTE, fontSize: 12 }}>
           {cov ? <span style={TEXT}>{cov}.</span> : <>{c!.compared} compared{withoutLine ? ` · ${withoutLine} projections have no sportsbook line and show the projection only` : ""}.</>}
           {skipped.length ? ` Not compared: ${skipped.join(" · ")}.` : ""}
+          {withheldNote(c!)}
         </p>
       ) : (
         <p className="m-0" role="status" data-prop-line-section-state={cov ? "NO_LINES" : "PROVIDER_UNAVAILABLE"} style={{ ...TEXT, fontSize: 13 }}>
@@ -241,7 +257,7 @@ export default function PropLineComparison({ view, display, heading = "Model vs.
           {rows.map((r, i) => <PropLineRow key={r.key ?? i} row={r} />)}
         </div>
       ) : null}
-      {rows.length && view ? <PropLineLegend legend={view.legend} display={display} /> : null}
+      {rows.length && view ? <PropLineLegend legend={view.legend} display={display} show={{ sides: (c?.compared ?? 0) > 0, withheld: (c?.directionWithheld ?? 0) > 0 }} /> : null}
       {rows.length && notes?.length ? <p data-prop-line-notes="" className="m-0" style={{ ...MUTE, fontSize: 12 }}>{notes.join(" ")}</p> : null}
     </section>
   );

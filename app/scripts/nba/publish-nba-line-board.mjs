@@ -7,7 +7,9 @@
  * Reads:  the committed lane     app/public/data/nba/experimental-public/<date>.json   (frozen medians, verbatim)
  *         private price records  <private dir>/odds/nba/props/*.json                    (capture CLI output)
  *         the capture receipt    docs/receipts/<file>.md                                (committed)
- * Writes: ONE file, <date>.json, to
+ * Writes: ONE file, <date>.json.enc — the artifact ENCRYPTED (AES-256-GCM, lib/odds/display-crypto.mjs) under the
+ *         display key from the environment (GTP_ODDS_DISPLAY_KEY; never an argument, never printed). Plaintext is never
+ *         written anywhere. To
  *         default   <repo>/data/odds-display/nba/lines/   (a build input outside app/public — never a downloadable file)
  *         --out     an absolute directory OUTSIDE every repository (private build-time path; pass it to the build as
  *                   GTP_NBA_LINES_DIR)
@@ -15,6 +17,7 @@
  *
  * REFUSES — exit non-zero, writes nothing — when (in this order):
  *   2  the "site" display surface is not authorized (lib/odds/display-authorization.mjs) — the committed state today;
+ *   2  the display key GTP_ODDS_DISPLAY_KEY is missing or malformed (the value is never echoed);
  *   2  bad arguments: --date / --as-of (required: no wall-clock default, output is deterministic) / --receipt;
  *   2  --out inside a repository, app/public or out/; or no private input directory;
  *   2  the receipt is not a committed file under docs/receipts/, does not parse for NBA player props at every record's
@@ -35,6 +38,8 @@ import { fileURLToPath } from "node:url";
 import { displayAuthorization } from "../../src/lib/odds/display-authorization.mjs";
 import { resolvePrivateDataDir, gitTreeContaining } from "../../src/lib/ops/private-data-dir.mjs";
 import { NBA_LINES_REPO_DIR } from "../../src/lib/sports/nba/line-publication.mjs";
+import { nbaLinesAad } from "../../src/lib/sports/nba/public-line-records.mjs";
+import { encryptDisplayArtifact, ODDS_DISPLAY_ENC_EXT, readDisplayKey } from "../../src/lib/odds/display-crypto.mjs";
 import { buildNbaLinePublication } from "../../src/lib/sports/nba/line-publication-build.mjs";
 
 const argv = process.argv.slice(2);
@@ -44,6 +49,10 @@ const refuse = (code, msg) => { console.error(`REFUSED: ${msg}`); process.exit(c
 // 1. Authorization first: with the committed record nothing else is even read.
 const auth = displayAuthorization("nba", "site");
 if (!auth.ok) refuse(2, `NBA lines are not authorized for site display — nothing is written:\n  - ${auth.reasons.join("\n  - ")}`);
+
+// 2. The display key (environment only). Without it nothing can be written: plaintext is never an option.
+const KEY = readDisplayKey();
+if (!KEY.ok) refuse(2, `${KEY.reason} — the artifact is committed only encrypted; nothing is written`);
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.resolve(APP, "..");
@@ -92,12 +101,13 @@ const res = buildNbaLinePublication({
 });
 if (!res.ok) refuse(res.code, res.reasons.join("\n  - "));
 
-const out = path.join(outDir, `${DATE}.json`);
-const unchanged = fs.existsSync(out) && fs.readFileSync(out, "utf8") === res.text;
+const out = path.join(outDir, `${DATE}${ODDS_DISPLAY_ENC_EXT}`);
+const sealed = encryptDisplayArtifact(res.text, KEY.key, nbaLinesAad(DATE)); // deterministic: same inputs → same bytes
+const unchanged = fs.existsSync(out) && fs.readFileSync(out, "utf8") === sealed;
 if (!unchanged) {
   fs.mkdirSync(outDir, { recursive: true });
   const tmp = `${out}.tmp-${process.pid}`;
-  fs.writeFileSync(tmp, res.text);
+  fs.writeFileSync(tmp, sealed);
   fs.renameSync(tmp, out);
 }
 // Counts only on stdout — never a line or a price in a log.

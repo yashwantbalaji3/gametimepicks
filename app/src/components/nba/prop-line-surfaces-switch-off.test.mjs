@@ -38,6 +38,8 @@ const GAMES = (slate) => slate.games.map((g) => [g.id, g.id, `/nba/simulation/${
 const LEAK = /fixturebook|Fixturebook|sportsbook line|data-prop-line|\bOVER\b|\bUNDER\b|NEUTRAL|−137|\+117|qualified sportsbook/;
 
 test("the switch is off in this commit", () => assert.equal(NBA_LINE_DISPLAY.public, false));
+// "switch on" below also qualifies every family (a test gate); with the committed gate no family shows a direction.
+const QUALIFIED = { scope: "public", shows: () => true };
 
 test("/nba hub cards, switch off: no summary map, nothing read, cards byte-identical; switch on: the summary appears", () => {
   const slate = nbaTodaySlateFrom({ nowIso: `${DATE}T15:00:00Z`, schedule: null, finals: null, lane: LANE });
@@ -50,7 +52,8 @@ test("/nba hub cards, switch off: no summary map, nothing read, cards byte-ident
   const base = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate }));
   assert.equal(renderToStaticMarkup(React.createElement(NbaTodayGames, { slate, lineSummaries: off })), base);
   assert.doesNotMatch(base, LEAK);
-  const on = nbaPropLineSummaries({ lane: lazy, games: GAMES(slate), asOf: AS_OF, priceRecords: RECORDS, display: { public: true } });
+  assert.equal(nbaPropLineSummaries({ lane: () => LANE, games: GAMES(slate), asOf: AS_OF, priceRecords: RECORDS, display: { public: true } }), undefined, "switch on, committed direction gate: no direction anywhere → no summary");
+  const on = nbaPropLineSummaries({ lane: lazy, games: GAMES(slate), asOf: AS_OF, priceRecords: RECORDS, display: { public: true }, directions: QUALIFIED });
   assert.equal(reads, 1);
   assert.deepEqual([...on.keys()], [String(g0.providerEventId)], "only the game with a compared line gets a summary");
   const withSummary = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate, lineSummaries: on }));
@@ -71,7 +74,7 @@ test("/today NBA rows, switch off: rows byte-identical; switch on: the row carri
   assert.equal(off, undefined);
   assert.equal(renderToStaticMarkup(React.createElement(TodayGames, { ...props, lineSummaries: off })), base);
   assert.doesNotMatch(base, LEAK);
-  const on = nbaPropLineSummaries({ lane: LANE, games, asOf: AS_OF, priceRecords: RECORDS, display: { public: true } });
+  const on = nbaPropLineSummaries({ lane: LANE, games, asOf: AS_OF, priceRecords: RECORDS, display: { public: true }, directions: QUALIFIED });
   const h = renderToStaticMarkup(React.createElement(TodayGames, { ...props, lineSummaries: on }));
   assert.notEqual(h, base);
   assert.match(h, /data-prop-line-summary="nba"/);
@@ -83,7 +86,8 @@ test("NbaPropLineSummary: off → nothing; on without a published source or a co
   const ON = { public: true };
   assert.equal(renderToStaticMarkup(React.createElement(NbaPropLineSummary, { lane: LANE, eventId: String(g0.providerEventId), asOf: AS_OF, display: ON })), "", "authorization off → the reader returns no records → nothing");
   assert.equal(renderToStaticMarkup(React.createElement(NbaPropLineSummary, { lane: LANE, eventId: String(LANE.games[1]?.providerEventId ?? "x"), asOf: AS_OF, priceRecords: RECORDS, display: ON })), "", "a game without a compared line");
-  const h = renderToStaticMarkup(React.createElement(NbaPropLineSummary, { lane: LANE, eventId: String(g0.providerEventId), asOf: AS_OF, priceRecords: RECORDS, display: ON }));
+  assert.equal(renderToStaticMarkup(React.createElement(NbaPropLineSummary, { lane: LANE, eventId: String(g0.providerEventId), asOf: AS_OF, priceRecords: RECORDS, display: ON })), "", "committed direction gate → nothing");
+  const h = renderToStaticMarkup(React.createElement(NbaPropLineSummary, { lane: LANE, eventId: String(g0.providerEventId), asOf: AS_OF, priceRecords: RECORDS, display: ON, directions: QUALIFIED }));
   assert.match(h, /▲<\/span> 1 OVER/);
 });
 

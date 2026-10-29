@@ -113,14 +113,16 @@ test("line comparisons: PRIVATE by default — the feed carries no line, price, 
   assert.match(d.events[0].snapshotId, /^[0-9a-f]{16}@/);
 });
 
+// A test gate that qualifies every family (the committed gate qualifies none: nba-social-side.test.mjs, line-publication.test.mjs).
+const QUALIFIED = { scope: "public", shows: () => true };
 test("line comparisons when authorized: COMPARED rows carry line, prices, book, capture, difference, direction; others say why", () => {
   const g = lane.games[0], p = g.players.away[0];
   const board = { rows: [{ eventId: String(g.providerEventId), athleteId: String(p.providerAthleteId), family: "pts", direction: "ABOVE", line: 10.5, overPrice: -110, underPrice: -110, book: "draftkings", marketKey: "player_points", capturedAt: "2026-10-27T20:00:00Z", difference: 0.9 }], coverage: { compared: 1 } };
   // Prices and book in the public feed need the SEPARATE socialPrices permission (provider written confirmation).
-  const d = buildNbaSocialDay({ lane, buildEtDate: "2026-10-27", lineBoard: board, lineDisplay: { public: true, social: true, socialPrices: true } });
+  const d = buildNbaSocialDay({ lane, buildEtDate: "2026-10-27", lineBoard: board, lineDisplay: { public: true, social: true, socialPrices: true }, lineDirections: QUALIFIED });
   const lc = d.events[0].players.find((x) => x.id === String(p.providerAthleteId)).lineComparison;
   assert.deepEqual([lc.pts.status, lc.pts.direction, lc.pts.difference, lc.pts.book, lc.pts.overPrice], ["COMPARED", "ABOVE", 0.9, "draftkings", -110]);
-  const noPrices = buildNbaSocialDay({ lane, buildEtDate: "2026-10-27", lineBoard: board, lineDisplay: { public: true, social: true } });
+  const noPrices = buildNbaSocialDay({ lane, buildEtDate: "2026-10-27", lineBoard: board, lineDisplay: { public: true, social: true }, lineDirections: QUALIFIED });
   const np = noPrices.events[0].players.find((x) => x.id === String(p.providerAthleteId)).lineComparison.pts;
   assert.deepEqual([np.status, np.direction, np.difference, np.line, "book" in np, "overPrice" in np, "underPrice" in np], ["COMPARED", "ABOVE", 0.9, 10.5, false, false, false]);
   assert.doesNotMatch(JSON.stringify(noPrices), /draftkings|"overPrice"|"underPrice"/);

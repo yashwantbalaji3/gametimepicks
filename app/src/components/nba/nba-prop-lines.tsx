@@ -12,6 +12,9 @@
  * authorization record (lib/odds/display-authorization.mjs) authorizes the "site" surface AND an artifact exists for the
  * lane's date; then the section says "Sportsbook lines: Unavailable" rather than inventing a line. A caller (a test) may
  * still hand `priceRecords` in directly; omitted or null means "read the published artifact".
+ *
+ * DIRECTION: OVER / UNDER / NEUTRAL only for a family the display authorization record direction-qualifies
+ * (publicDirectionGate("nba")); every other comparable row is "Comparison not shown". All families unqualified today.
  */
 import React from "react";
 import PropLineComparison, { PropLineSummary, type PropLineViewModel } from "@/components/odds/prop-line-comparison";
@@ -20,7 +23,7 @@ import { NBA_PROP_LINE_ADAPTER, nbaPropLineInputs } from "@/lib/sports/nba/prop-
 import { buildPropLineViews } from "@/lib/odds/prop-line-view.mjs";
 import { committedLaneDates, loadLaneForDate } from "@/components/nba/experimental-lane";
 import { nbaPublicLineRecords } from "@/lib/sports/nba/public-line-records.mjs";
-import { displayAuthorization } from "@/lib/odds/display-authorization.mjs";
+import { displayAuthorization, publicDirectionGate } from "@/lib/odds/display-authorization.mjs";
 import { BOOK_AVAILABILITY_NOTE } from "@/lib/sports/odds/eligible-operators.mjs";
 
 type LaneLike = { date: string | null; games: { providerEventId: string }[] } | null;
@@ -34,7 +37,7 @@ export const laneHoldingEvent = (eventId: string) => (): LaneLike => {
   return null;
 };
 
-export default function NbaPropLines({ lane, eventId = null, priceRecords = null, asOf, display = NBA_LINE_DISPLAY, id = "nba-prop-lines" }: {
+export default function NbaPropLines({ lane, eventId = null, priceRecords = null, asOf, display = NBA_LINE_DISPLAY, directions = publicDirectionGate("nba"), id = "nba-prop-lines" }: {
   /** The frozen lane snapshot the projections come from (or a function, so nothing is loaded while the switch is off).
       Omitted on a game page: the newest committed lane holding `eventId`. */
   lane?: LaneLike | (() => LaneLike);
@@ -45,6 +48,8 @@ export default function NbaPropLines({ lane, eventId = null, priceRecords = null
   /** The comparison instant (default: the build's clock); comparisons freeze at tip-off. */
   asOf?: string;
   display?: { public: boolean };
+  /** The direction gate (lib/odds/prop-line-view.mjs). Default: the committed record's public gate (fail closed). */
+  directions?: { scope?: string; shows: (family: string) => boolean };
   id?: string;
 }) {
   if (!display.public) return null;
@@ -55,7 +60,7 @@ export default function NbaPropLines({ lane, eventId = null, priceRecords = null
   const published = priceRecords ?? (snap.date ? nbaPublicLineRecords(snap.date) : null);
   // No published source → view null: the section says the lines are unavailable (provider / source state), never a row.
   const { inputs, withoutLine, projections } = published ? nbaPropLineInputs({ lane: snap, priceRecords: published, asOf: at, eventId }) : { inputs: [], withoutLine: 0, projections: 0 };
-  const view = published ? (buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER, { projections }) as PropLineViewModel) : null;
+  const view = published ? (buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER, { projections, directions }) as PropLineViewModel) : null;
   // Lines read from the published artifact carry the authorization's attribution (optional) and the book-availability note.
   const attribution = priceRecords == null && published ? displayAuthorization("nba", "site").attribution : null;
   const notes = priceRecords == null && published ? [...(attribution ? [attribution] : []), BOOK_AVAILABILITY_NOTE] : undefined;
@@ -64,12 +69,12 @@ export default function NbaPropLines({ lane, eventId = null, priceRecords = null
 
 /** The one game's view for the compact summary, or null when there is no published source or no COMPARED row (the
     summary then shows nothing). Used by nba-prop-line-summaries.tsx; call only behind the display gate. */
-export function nbaGameLineSummaryView(snap: LaneLike, eventId: string, priceRecords: unknown[] | null, asOf?: string): PropLineViewModel | null {
+export function nbaGameLineSummaryView(snap: LaneLike, eventId: string, priceRecords: unknown[] | null, asOf?: string, directions: { scope?: string; shows: (family: string) => boolean } = publicDirectionGate("nba")): PropLineViewModel | null {
   if (!snap || !snap.games.some((g) => String(g.providerEventId) === String(eventId))) return null;
   const published = priceRecords ?? (snap.date ? nbaPublicLineRecords(snap.date) : null);
   if (!published) return null;
   const { inputs, projections } = nbaPropLineInputs({ lane: snap, priceRecords: published, asOf: asOf || new Date().toISOString(), eventId });
-  const view = buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER, { projections }) as PropLineViewModel;
+  const view = buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER, { projections, directions }) as PropLineViewModel;
   return view.counts.compared > 0 ? view : null;
 }
 export type { LaneLike };

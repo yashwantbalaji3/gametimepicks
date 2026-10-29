@@ -9,8 +9,10 @@
  * updated 2026-08-31) allow displaying its data in a website UI but forbid redistributing it as a standalone data
  * product — "your own API, data feed, downloadable files". A JSON file under app/public/data would be served by the
  * static export as exactly such a downloadable file. So the artifact is a BUILD INPUT outside public/:
- *   default   <repo>/data/odds-display/nba/lines/<date>.json   (committed — the repo is public, so committing it is itself
- *             the founder's decision; a guard fails CI if one is committed while display is not authorized)
+ *   default   <repo>/data/odds-display/nba/lines/<date>.json.enc   ENCRYPTED at rest (AES-256-GCM under GTP_ODDS_DISPLAY_KEY,
+ *             lib/odds/display-crypto.mjs): the repo is public, so a plaintext price file there would itself be a
+ *             downloadable file. Plaintext is never committed (guard: odds-display-at-rest.test.mjs), and a guard fails
+ *             CI if any file is committed while display is not authorized
  *   private   any absolute directory outside every repository, handed to the build as GTP_NBA_LINES_DIR
  * It is read only at build time (lib/sports/nba/public-line-records.mjs) and rendered into page HTML; it is never copied
  * into out/ (odds-display-export.test.mjs proves no exported /data JSON carries a price or a book).

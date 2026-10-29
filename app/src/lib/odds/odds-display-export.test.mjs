@@ -7,7 +7,10 @@
  *   - no JSON under out/data/nba/ or out/data/social/nba/ carries a price (overPrice / underPrice / overAmerican /
  *     underAmerican) or a book with a value, unless the display authorization record allows prices in the social feed
  *     (socialPrices — written provider confirmation);
- *   - a social-feed lineComparison carries a `line` only when the social surface is authorized.
+ *   - a social-feed lineComparison carries a `line` only when the social surface is authorized;
+ *   - (2026-10-29, encrypted at rest) no `.json.enc` envelope and no DECRYPTED display artifact (gtp.nba.line-comparisons@1,
+ *     gtp.nfl.prop-lines@1) appears ANYWHERE in the export — not as data, not inside a page payload or script. (NFL team markets under
+ *     data/nfl/markets are a pre-existing, separately governed surface and are not in scope here.)
  * Run after `npm run build`: npx tsx --test src/lib/odds/odds-display-export.test.mjs
  */
 import test from "node:test";
@@ -33,6 +36,14 @@ test("the line-comparison artifact is never part of the export", { skip: !built 
   assert.ok(!fs.existsSync(path.join(DATA, "nba", "lines")), "out/data/nba/lines must not exist");
   assert.ok(!fs.existsSync(path.join(DATA, "odds-display")), "out/data/odds-display must not exist");
   const hits = walk(DATA).filter((f) => f.endsWith(".json") && fs.readFileSync(f, "utf8").includes("gtp.nba.line-comparisons@1"));
+  assert.deepEqual(hits.map((f) => path.relative(OUT, f)), []);
+});
+
+const SCHEMAS = ["gtp.nba.line-comparisons@1", "gtp.nfl.prop-lines@1", "gtp.odds-display.enc@1"];
+test("no encrypted envelope and no decrypted display artifact anywhere in the export (data, pages, payloads, scripts)", { skip: !built && "no built export (post-build phase only)" }, () => {
+  const files = walk(OUT);
+  assert.deepEqual(files.filter((f) => f.endsWith(".enc")).map((f) => path.relative(OUT, f)), [], "no .json.enc is ever exported");
+  const hits = files.filter((f) => /\.(json|txt|js|html|rsc)$/.test(f)).filter((f) => { const t = fs.readFileSync(f, "utf8"); return SCHEMAS.some((x) => t.includes(x)); });
   assert.deepEqual(hits.map((f) => path.relative(OUT, f)), []);
 });
 

@@ -45,7 +45,14 @@ test("off: renders nothing and reads nothing, with or without offers", () => {
 
 test("on (test only): PUBLISHED families only; anytime TD is a yes/no row; passing / rushing yards never listed", () => {
   assert.deepEqual(publishedNflFamilies(FX_BOARD), ["receptions", "reception_yds", "anytime_td"]);
-  const on = r({ board: FX_BOARD, offers: FX_OFFERS, asOf: FX_AS_OF, display: { public: true } });
+  // with the committed direction gate (no NFL family qualified): model and line, "Comparison not shown", no direction
+  const pub = r({ board: FX_BOARD, offers: FX_OFFERS, asOf: FX_AS_OF, display: { public: true } });
+  assert.match(pub, /3 of 6 projections have a qualified sportsbook line\./);
+  assert.equal((pub.match(/data-prop-line="DIRECTION_WITHHELD"/g) ?? []).length, 3);
+  assert.doesNotMatch(pub, /data-prop-line-side="(OVER|UNDER|NEUTRAL)"|vault-(success|danger)|data-prop-line-diff/);
+  assert.match(pub, /a direction is not shown for this statistic yet because its forecast has not met our calibration standard/);
+  // as if every family were qualified (test gate)
+  const on = r({ board: FX_BOARD, offers: FX_OFFERS, asOf: FX_AS_OF, display: { public: true }, directions: { scope: "public", shows: () => true } });
   assert.match(on, /3 of 6 projections have a qualified sportsbook line\./);
   assert.doesNotMatch(on, /Passing yards|Rushing yards|Official projection not published/);
   assert.match(on, /data-prop-line="YES_NO"[^]*?Not an over\/under market/);

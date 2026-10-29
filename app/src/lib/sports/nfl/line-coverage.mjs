@@ -25,7 +25,7 @@
  * The public summary carries counts and percentages only — no player, line, price or book name.
  */
 import { NFL_FAMILIES, NFL_FAMILY_BY_MARKET, NFL_PROP_LINE_ADAPTER, NFL_LINE_MAX_AGE_HOURS, nflOffersFromCapture, nflPropLineInputs } from "./prop-line-adapter.mjs";
-import { buildPropLineView } from "../../odds/prop-line-view.mjs";
+import { buildPropLineView, PRIVATE_DIRECTIONS } from "../../odds/prop-line-view.mjs";
 import { displayAuthorization, DISPLAY_AUTHORIZATION } from "../../odds/display-authorization.mjs";
 import { isEligibleOperator } from "../odds/eligible-operators.mjs";
 
@@ -82,7 +82,7 @@ export function buildNflLineCoverage({ boards, captures, ledger = null, asOf, au
       const states = {};
       let qualified = 0, staleByKickoff = 0;
       for (const i of officialInputs) {
-        const v = buildPropLineView(i, NFL_PROP_LINE_ADAPTER);
+        const v = buildPropLineView(i, NFL_PROP_LINE_ADAPTER, { directions: PRIVATE_DIRECTIONS }); // private report: every direction
         const s = v.state === "SUSPENDED" || v.state === "UNAVAILABLE" ? `${v.state}:${v.reason}` : v.state;
         states[s] = (states[s] ?? 0) + 1;
         const ok = d.kind === "YES_NO" ? v.state === "YES_NO" : v.state === "COMPARED";

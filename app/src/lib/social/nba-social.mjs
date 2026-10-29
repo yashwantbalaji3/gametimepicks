@@ -31,6 +31,8 @@
  */
 import { eloWinProbabilityOf, ELO_WIN_PROBABILITY_LABEL } from "../sports/nba/elo-win-probability.mjs";
 import { NBA_LINE_DISPLAY } from "../sports/nba/line-board.mjs";
+import { publicDirectionGate } from "../odds/display-authorization.mjs";
+import { DIRECTION_WITHHELD_TEXT } from "../odds/prop-line-view.mjs";
 import { COMPARISON_LEGEND, LINE_COMPARISON_RULE, LINE_MAX_AGE_HOURS, UNAVAILABLE_REASON, USER_SIDE } from "../sports/nba/line-comparison.mjs";
 
 export const NBA_SOCIAL_SCHEMA = "gtp-social-nba@1";
@@ -102,9 +104,12 @@ const num = (v) => (typeof v === "number" && Number.isFinite(v) ? v : null);
  * server loader — products never read the Theater library (research boundary), and this pure module imports no component.
  * `latestDate` is the newest date this build ships a day file for (nba-social-data nbaSocialDates().at(-1)); `isLatest` is
  * true only when it equals the lane's date.
- * @param {{ lane: any, recordGames: any[], buildEtDate: string, latestDate?: string|null, laneSha256?: string|null, eloEnabled?: boolean, recordCounts?: { matched: number, missed: number, graded: number }|null, reasonText?: (reason: string|null, status: string|null) => string, lineBoard?: { rows: any[], coverage?: any, attribution?: string|null }|null, lineDisplay?: { public?: boolean, social?: boolean, socialPrices?: boolean, reason?: string|null } }} input
+ * `lineDirections` is the social surface's direction gate (lib/odds/display-authorization.mjs publicDirectionGate("nba",
+ * "social")): a COMPARED row of a family that is not direction-qualified becomes status DIRECTION_WITHHELD — line and
+ * capture time only, no direction, side or difference (founder 2026-10-29; every family unqualified today).
+ * @param {{ lane: any, recordGames: any[], buildEtDate: string, latestDate?: string|null, laneSha256?: string|null, eloEnabled?: boolean, recordCounts?: { matched: number, missed: number, graded: number }|null, reasonText?: (reason: string|null, status: string|null) => string, lineBoard?: { rows: any[], coverage?: any, attribution?: string|null }|null, lineDisplay?: { public?: boolean, social?: boolean, socialPrices?: boolean, reason?: string|null }, lineDirections?: { scope?: string, shows: (family: string) => boolean } }} input
  */
-export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, latestDate = null, laneSha256 = null, eloEnabled, recordCounts = null, reasonText = (r) => String(r ?? ""), lineBoard = null, lineDisplay = NBA_LINE_DISPLAY }) {
+export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, latestDate = null, laneSha256 = null, eloEnabled, recordCounts = null, reasonText = (r) => String(r ?? ""), lineBoard = null, lineDisplay = NBA_LINE_DISPLAY, lineDirections = publicDirectionGate("nba", "social") }) {
   /* Model-versus-line (launch program P0): per player and family, from the published comparison artifact
      (lib/sports/nba/public-line-records.mjs nbaSocialLineBoard — the SAME artifact the pages render) — only when the social
      display switch allows it. Otherwise the block says so and carries NO line, price, book or difference. */
@@ -118,6 +123,13 @@ export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, latestD
        a public JSON feed may carry them; lib/odds/display-authorization.mjs). Without it a COMPARED row carries the
        side, difference, line and capture time only. */
     const priced = lineDisplay?.socialPrices === true ? { overPrice: r.overPrice, underPrice: r.underPrice, book: r.book } : {};
+    if (lineDirections?.shows?.(family) !== true) {
+      return {
+        status: "DIRECTION_WITHHELD", displayPermission: "PUBLIC", rule: LINE_COMPARISON_RULE,
+        line: r.line, ...priced, marketKey: r.marketKey, capturedAt: r.capturedAt,
+        reason: "DIRECTION_NOT_QUALIFIED", reasonText: DIRECTION_WITHHELD_TEXT, freshness: `captured before tip, within ${LINE_MAX_AGE_HOURS} h`,
+      };
+    }
     return {
       status: "COMPARED", displayPermission: "PUBLIC", rule: LINE_COMPARISON_RULE,
       line: r.line, ...priced, marketKey: r.marketKey, capturedAt: r.capturedAt,

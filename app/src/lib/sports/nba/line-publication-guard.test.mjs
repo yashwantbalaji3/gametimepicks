@@ -4,7 +4,8 @@
  *   1. while the "site" surface is not authorized, NO file exists under <repo>/data/odds-display/nba/lines/ — CI fails if
  *      someone commits prices before rights are confirmed;
  *   2. no file ever exists under app/public/data/nba/lines/ (authorized or not);
- *   3. when authorized, every committed artifact validates against its committed lane (the reader would throw);
+ *   3. when authorized and the display key is present, every committed (encrypted) artifact decrypts and validates
+ *      against its committed lane (the reader would throw); plaintext is never stored (odds-display-at-rest.test.mjs);
  *   4. the artifact's home is a build input (vercel-ignore-build.sh) and is NOT an always-public export directory;
  *   5. no shipped module names the app/public lines path.
  * The exported-JSON check (no price or book in any served /data file) is the post-build guard odds-display-export.test.mjs.
@@ -16,6 +17,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { displayAuthorization } from "../../odds/display-authorization.mjs";
 import { NBA_LINES_REPO_DIR, validateNbaLinePublication } from "./line-publication.mjs";
+import { decryptDisplayArtifact, ODDS_DISPLAY_ENC_EXT, readDisplayKey } from "../../odds/display-crypto.mjs";
+import { nbaLinesAad } from "./public-line-records.mjs";
 
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
@@ -31,12 +34,16 @@ test("no NBA line file is ever placed under app/public (the export would serve i
   assert.deepEqual(filesIn(path.join(APP, "public/data/odds-display")), []);
 });
 
-test("when authorized, every committed artifact validates against its committed lane", () => {
+test("when authorized and the key is present, every committed artifact decrypts and validates against its committed lane", { skip: !readDisplayKey().ok && "no display key in this environment (the at-rest guard still checks the envelopes)" }, () => {
+  const key = readDisplayKey().key;
   for (const f of filesIn(LINES)) {
-    const date = path.basename(f, ".json");
+    assert.ok(f.endsWith(ODDS_DISPLAY_ENC_EXT), `${f}: only encrypted artifacts are stored`);
+    const date = path.basename(f, ODDS_DISPLAY_ENC_EXT);
     let sha = null;
     try { sha = crypto.createHash("sha256").update(fs.readFileSync(path.join(APP, "public/data/nba/experimental-public", `${date}.json`))).digest("hex"); } catch { /* no lane */ }
-    const v = validateNbaLinePublication(JSON.parse(fs.readFileSync(path.join(LINES, f), "utf8")), { date, laneSha256: sha });
+    const text = decryptDisplayArtifact(fs.readFileSync(path.join(LINES, f), "utf8"), key, nbaLinesAad(date));
+    assert.ok(text, `${f}: encrypted under another key`);
+    const v = validateNbaLinePublication(JSON.parse(text), { date, laneSha256: sha });
     assert.equal(v.ok, true, `${f}: ${v.errors.join("; ")}`);
   }
 });

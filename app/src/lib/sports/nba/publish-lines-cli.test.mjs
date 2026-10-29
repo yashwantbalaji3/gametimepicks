@@ -26,10 +26,20 @@ test("refuses (exit 2) while the committed display authorization is off — and 
 test("the CLI makes no network call, reads no credential, and can never target app/public or the export directory", () => {
   const src = fs.readFileSync(CLI, "utf8");
   assert.doesNotMatch(src, /fetch\(|https?:\/\/|ODDS_API_KEY|process\.env\.[A-Z_]*KEY/);
+  // the ONE secret it uses is the display key, read through readDisplayKey (env only) and only to encrypt
+  assert.match(src, /const KEY = readDisplayKey\(\);/);
+  assert.ok(src.indexOf('displayAuthorization("nba", "site")') < src.indexOf("readDisplayKey()"), "authorization precedes the key");
   // authorization is the first executable check — before arguments, inputs or the receipt are read
   const body = src.slice(src.indexOf("\nimport"));
   assert.ok(body.indexOf('displayAuthorization("nba", "site")') < body.indexOf("readFileSync"), "authorization precedes every read");
   assert.match(src, /path\.join\(APP, "public"\), path\.join\(APP, "out"\)/, "app/public and the export directory are refused output targets");
   assert.match(src, /gitTreeContaining\(o\)/, "--out inside any git working tree is refused");
   assert.doesNotMatch(src, /--authorize|--force|DISPLAY_AUTHORIZATION\s*=/, "no flag bypasses the authorization record");
+});
+
+test("authorized (test record) but no display key: refuses before writing — plaintext is never an option", () => {
+  const src = fs.readFileSync(CLI, "utf8");
+  assert.match(src, /if \(!KEY\.ok\) refuse\(2, `\$\{KEY\.reason\} — the artifact is committed only encrypted; nothing is written`\);/);
+  assert.match(src, /const out = path\.join\(outDir, `\$\{DATE\}\$\{ODDS_DISPLAY_ENC_EXT\}`\);/);
+  assert.match(src, /encryptDisplayArtifact\(res\.text, KEY\.key, nbaLinesAad\(DATE\)\)/);
 });

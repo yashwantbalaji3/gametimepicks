@@ -14,7 +14,8 @@ import path from "node:path";
 import { FIXTURE_LANE, FIXTURE_TIP, FIXTURE_AS_OF } from "../../odds/__fixtures__/prop-line-synthetic.mjs";
 import { validateNbaLinePublication, linePublicationToPriceRecords, linePublicationToSocialBoard, NBA_LINE_PUBLICATION_SCHEMA, NBA_LINES_DIR_ENV } from "./line-publication.mjs";
 import { buildNbaLinePublication, receiptAllowsPublication } from "./line-publication-build.mjs";
-import { readNbaLinePublication, nbaPublicLineRecords, nbaSocialLineBoard, nbaLinesDir } from "./public-line-records.mjs";
+import { readNbaLinePublication, nbaPublicLineRecords, nbaSocialLineBoard, nbaLinesDir, nbaLinesAad } from "./public-line-records.mjs";
+import { encryptDisplayArtifact, ODDS_DISPLAY_KEY_ENV, DisplayArtifactTamperedError } from "../../odds/display-crypto.mjs";
 import { nbaPropLineInputs, NBA_PROP_LINE_ADAPTER } from "./prop-line-adapter.mjs";
 import { buildPropLineViews } from "../../odds/prop-line-view.mjs";
 import { buildNbaSocialDay } from "../../social/nba-social.mjs";
@@ -145,14 +146,19 @@ function tempApp() {
   fs.writeFileSync(path.join(app, "public/data/nba/experimental-public/2099-01-15.json"), LANE_TEXT);
   const lines = path.join(root, "data/odds-display/nba/lines");
   fs.mkdirSync(lines, { recursive: true });
-  fs.writeFileSync(path.join(lines, "2099-01-15.json"), pub().text);
+  fs.writeFileSync(path.join(lines, "2099-01-15.json.enc"), encryptDisplayArtifact(pub().text, KEY, nbaLinesAad("2099-01-15")));
   return { root, app, lines };
 }
-const NOENV = {};
+// A throwaway key generated for this run only: never written, never printed.
+const KEY = crypto.randomBytes(32);
+const NOENV = { [ODDS_DISPLAY_KEY_ENV]: KEY.toString("hex") }; // the key, and no GTP_NBA_LINES_DIR
 
 test("reader: null when unauthorized EVEN IF a file exists; null when no file; records when authorized", () => {
   const t = tempApp();
   assert.equal(nbaPublicLineRecords("2099-01-15", { appRoot: t.app, env: NOENV }), null, "committed record: off");
+  assert.equal(nbaPublicLineRecords("2099-01-15", { appRoot: t.app, env: {}, authorization: AUTH }), null, "authorized but no key → null");
+  assert.equal(nbaPublicLineRecords("2099-01-15", { appRoot: t.app, env: { [ODDS_DISPLAY_KEY_ENV]: "not-hex" }, authorization: AUTH }), null, "malformed key → null");
+  assert.equal(nbaPublicLineRecords("2099-01-15", { appRoot: t.app, env: { [ODDS_DISPLAY_KEY_ENV]: crypto.randomBytes(32).toString("hex") }, authorization: AUTH }), null, "another key → null");
   assert.equal(nbaPublicLineRecords("2099-01-15", { appRoot: t.app, env: NOENV, authorization: OFF }), null);
   assert.equal(nbaPublicLineRecords("2099-01-14", { appRoot: t.app, env: NOENV, authorization: AUTH }), null, "no file → null");
   assert.equal(nbaPublicLineRecords("../x", { appRoot: t.app, env: NOENV, authorization: AUTH }), null);
@@ -161,9 +167,20 @@ test("reader: null when unauthorized EVEN IF a file exists; null when no file; r
   assert.deepEqual(Object.keys(records[0]).sort(), ["book", "capturedAt", "eventId", "family", "line", "overAmerican", "provider", "providerAthleteId", "providerMarketKey", "schema", "underAmerican"]);
   // the page runs the SAME pairing + comparison and reaches the same sides
   const { inputs } = nbaPropLineInputs({ lane: LANE, priceRecords: records, asOf: FIXTURE_AS_OF });
-  const view = buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER);
+  const view = buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER, { directions: { scope: "public", shows: () => true } }); // as if every family were qualified
   assert.deepEqual(view.rows.map((r) => r.side), ["OVER", "UNDER", "NEUTRAL"]);
-  assert.deepEqual(view.counts, { compared: 3, stale: 0, afterCutoff: 0, mismatch: 0, unavailable: 0, unsupported: 0, suspended: 0, notPublished: 0, yesNo: 0 });
+  assert.deepEqual(view.counts, { compared: 3, stale: 0, afterCutoff: 0, mismatch: 0, unavailable: 0, unsupported: 0, suspended: 0, notPublished: 0, yesNo: 0, directionWithheld: 0 });
+  // the page's default gate (committed record: nothing qualified) withholds every direction from the same records
+  assert.deepEqual(buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER).rows.map((r) => [r.state, r.side]), [["DIRECTION_WITHHELD", null], ["DIRECTION_WITHHELD", null], ["DIRECTION_WITHHELD", null]]);
+  // a tampered ciphertext under the right key throws (a release error), and a plaintext file is never read
+  const enc = path.join(t.lines, "2099-01-15.json.enc");
+  const env = JSON.parse(fs.readFileSync(enc, "utf8"));
+  const ct = Buffer.from(env.ct, "base64"); ct[0] ^= 1;
+  fs.writeFileSync(enc, JSON.stringify({ ...env, ct: ct.toString("base64") }));
+  assert.throws(() => nbaPublicLineRecords("2099-01-15", { appRoot: t.app, env: NOENV, authorization: AUTH }), DisplayArtifactTamperedError);
+  fs.rmSync(enc);
+  fs.writeFileSync(path.join(t.lines, "2099-01-15.json"), pub().text);
+  assert.equal(nbaPublicLineRecords("2099-01-15", { appRoot: t.app, env: NOENV, authorization: AUTH }), null, "plaintext is never read");
   fs.rmSync(t.root, { recursive: true, force: true });
 });
 
@@ -186,9 +203,9 @@ test("reader directory: default is <repo>/data/odds-display/nba/lines; GTP_NBA_L
   assert.throws(() => nbaLinesDir({ appRoot: app, env: { [NBA_LINES_DIR_ENV]: path.join(app, EXPORT_DIR, "data") } }), /may not point into app\/public/);
   const t = tempApp();
   const priv = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-nba-lines-priv-"));
-  fs.renameSync(path.join(t.lines, "2099-01-15.json"), path.join(priv, "2099-01-15.json"));
+  fs.renameSync(path.join(t.lines, "2099-01-15.json.enc"), path.join(priv, "2099-01-15.json.enc"));
   assert.equal(nbaPublicLineRecords("2099-01-15", { appRoot: t.app, env: NOENV, authorization: AUTH }), null);
-  assert.equal(nbaPublicLineRecords("2099-01-15", { appRoot: t.app, env: { [NBA_LINES_DIR_ENV]: priv }, authorization: AUTH }).length, 3);
+  assert.equal(nbaPublicLineRecords("2099-01-15", { appRoot: t.app, env: { ...NOENV, [NBA_LINES_DIR_ENV]: priv }, authorization: AUTH }).length, 3);
   fs.rmSync(t.root, { recursive: true, force: true }); fs.rmSync(priv, { recursive: true, force: true });
 });
 
@@ -197,7 +214,9 @@ test("social: the SAME artifact feeds lineComparison; side/difference/line/captu
   assert.equal(nbaSocialLineBoard("2099-01-15", { appRoot: t.app, env: NOENV, authorization: { nba: { ...AUTH.nba, socialDisplay: false } } }), null, "social is its own surface");
   const board = nbaSocialLineBoard("2099-01-15", { appRoot: t.app, env: NOENV, authorization: AUTH });
   assert.equal(board.rows.length, 3);
-  const day = (lineDisplay) => buildNbaSocialDay({ lane: LANE, buildEtDate: "2099-01-15", lineBoard: board, lineDisplay });
+  // A test gate that qualifies every family; the committed (default) gate withholds every direction — asserted below.
+  const QUALIFIED = { scope: "public", shows: () => true };
+  const day = (lineDisplay, lineDirections = QUALIFIED) => buildNbaSocialDay({ lane: LANE, buildEtDate: "2099-01-15", lineBoard: board, lineDisplay, lineDirections });
   const d = day({ public: true, social: true, socialPrices: false });
   const lc = d.events[0].players.find((p) => p.id === "FX-1").lineComparison.pts;
   assert.deepEqual([lc.status, lc.side, lc.difference, lc.line, lc.capturedAt], ["COMPARED", "OVER", 6.5, 29.5, hBefore(3)]);
@@ -207,8 +226,13 @@ test("social: the SAME artifact feeds lineComparison; side/difference/line/captu
   const priced = day({ public: true, social: true, socialPrices: true }).events[0].players.find((p) => p.id === "FX-1").lineComparison.pts;
   assert.deepEqual([priced.book, priced.overPrice, priced.underPrice], ["draftkings", -115, -105]);
   // pages and feed agree on side for every published row (single source)
-  const rows = linePublicationToSocialBoard(JSON.parse(fs.readFileSync(path.join(t.lines, "2099-01-15.json"), "utf8"))).rows;
+  const rows = linePublicationToSocialBoard(pub().artifact).rows;
   for (const r of rows) assert.equal(d.events[0].players.find((p) => p.id === r.athleteId).lineComparison[r.family].direction, r.direction);
   assert.equal(linePublicationToPriceRecords(null).length, 0);
+  // the committed direction gate (no family qualified): line and capture time only — no direction, side or difference
+  const withheld = buildNbaSocialDay({ lane: LANE, buildEtDate: "2099-01-15", lineBoard: board, lineDisplay: { public: true, social: true, socialPrices: false } });
+  const w = withheld.events[0].players.find((p) => p.id === "FX-1").lineComparison.pts;
+  assert.deepEqual([w.status, w.line, w.reason, "side" in w, "direction" in w, "difference" in w], ["DIRECTION_WITHHELD", 29.5, "DIRECTION_NOT_QUALIFIED", false, false, false]);
+  assert.doesNotMatch(JSON.stringify(withheld), /"side"|"difference"|"direction":"(ABOVE|BELOW|EQUAL)"/);
   fs.rmSync(t.root, { recursive: true, force: true });
 });
