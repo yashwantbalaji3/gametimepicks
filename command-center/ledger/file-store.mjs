@@ -52,7 +52,21 @@ export function createFileStore({ dir, clock }) {
   function append(kind, actor, data) {
     if (!LEDGER_KINDS.includes(kind)) throw new Error(`unknown ledger kind: ${kind}`);
     const at = clock();
-    const entry = { id: shortId(kind, { at, actor, data }), at, kind, actor, data };
+    return write({ id: shortId(kind, { at, actor, data }), at, kind, actor, data });
+  }
+  /**
+   * Ledger sync only (deploy/sync-ledger.mjs): add an entry another store already holds, keeping its id and time.
+   * An id already present is a no-op; the id is a hash of the content, so a different entry can't reuse it.
+   */
+  function importEntry(entry) {
+    if (!LEDGER_KINDS.includes(entry.kind)) throw new Error(`unknown ledger kind: ${entry.kind}`);
+    if (shortId(entry.kind, { at: entry.at, actor: entry.actor, data: entry.data }) !== entry.id) throw new Error(`entry ${entry.id} does not match its content`);
+    if (list().some((e) => e.id === entry.id)) return { imported: false };
+    write({ id: entry.id, at: entry.at, kind: entry.kind, actor: entry.actor, data: entry.data });
+    return { imported: true };
+  }
+  function write(entry) {
+    const { at, kind } = entry;
     const dayDir = path.join(ledgerDir, at.slice(0, 4), at.slice(5, 7), at.slice(8, 10));
     fs.mkdirSync(dayDir, { recursive: true });
     const stamp = at.replace(/[-:.]/g, "");
@@ -103,7 +117,9 @@ export function createFileStore({ dir, clock }) {
    * Session API (same shape as the Postgres store): a local file store writes through immediately, so a session is
    * the store itself and flush/refresh have nothing to do.
    */
-  const store = { kind: "file", dir, append, claim, readClaim, list };
+  /** Every claim record (ledger sync and backups). */
+  const listClaims = () => fs.readdirSync(claimsDir).filter((n) => n.endsWith(".json")).sort().map((n) => JSON.parse(fs.readFileSync(path.join(claimsDir, n), "utf8")));
+  const store = { kind: "file", dir, append, claim, readClaim, list, importEntry, listClaims };
   Object.assign(store, {
     open: async () => store,
     flush: async () => ({ entries: 0, claims: 0 }),

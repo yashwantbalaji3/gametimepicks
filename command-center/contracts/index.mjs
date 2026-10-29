@@ -91,6 +91,7 @@ export const LEDGER_KINDS = Object.freeze([
   "publish-alert", "publish-alert-ack",
   "publish-tick",      // a scheduler tick that ran at least one job
   "publish-spend",     // X API spend outside a send (a reconcile lookup), counted against the monthly cap
+  "publisher-host",    // which host may send live (local Mac or hosted); a host can only hand it away (cutover)
 ]);
 
 /** Refusal / reason codes shared by the orchestrator, the integrity gate and the publisher. */

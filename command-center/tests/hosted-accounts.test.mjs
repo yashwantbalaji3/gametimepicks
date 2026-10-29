@@ -109,6 +109,7 @@ test("permission model: every role holds exactly its own and the lower permissio
   assert.equal(can(undefined, "view"), false);
   assert.equal(routePermission("/api/reset"), "administer");
   assert.equal(routePermission("/api/publishing", { action: "made-up" }), "administer");
+  assert.equal(routePermission("/api/publishing", { action: "publisher-host" }), "administer", "only an administrator hands off live publishing");
   assert.equal(routePermission("/api/pause", { paused: true }), "approve");
   assert.equal(routePermission("/api/pause", { paused: false }), "publish");
 });

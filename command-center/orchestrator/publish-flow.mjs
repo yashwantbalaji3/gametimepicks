@@ -32,6 +32,9 @@ import { createXPublisher, XPublishError } from "../publishers/x-api.mjs";
 import { checkFounder } from "./policy.mjs";
 
 export const MAX_SPEND_CAP_USD = 25;
+export const PUBLISHER_HOSTS = Object.freeze(["local", "hosted"]);
+/** The exact words the founder types to hand live sending from this host to the other one. */
+export const handOffText = (to) => `I hand live X publishing to the ${to} publisher`;
 /** The exact words the founder types to authorize live publishing (and its cap). */
 export const liveAuthorizationText = (capUsd) => `I authorize live X publishing up to $${capUsd} per month`;
 /** Live TEST posts only (founder-triggered, one at a time): scheduled publishing stays in dry run. */
@@ -61,6 +64,16 @@ export function createPublishFlow(ctx) {
   const policy = () => of("publish-policy").at(-1)?.data ?? { mode: "dry-run", capUsd: 0 };
   const publishingPaused = () => Boolean(of("publish-pause").at(-1)?.data?.paused);
   const paused = () => publishingPaused() || ctx.isPaused();
+  /**
+   * ONE live publisher. The publisher-host record with the highest generation names the only host allowed to send
+   * live; with none it is the local Mac. Generation n+1 can only be written by the holder of generation n, so the
+   * order never depends on either machine's clock and two ledgers holding the same records always agree. A host can only hand publishing AWAY
+   * (setPublisherHost); the other host learns of it only when the ledger sync copies that record — together with
+   * every once-only send claim — so at any moment zero or one host can send, never two.
+   */
+  const thisHost = ctx.publisherHost ?? "local";
+  const hostRecord = () => of("publisher-host").reduce((best, e) => (!best || e.data.generation > best.data.generation ? e : best), null);
+  const activeHost = () => hostRecord()?.data.host ?? "local";
   const spentThisMonth = () => [...of("publish-result").filter((e) => e.data.live), ...of("publish-spend")].filter((e) => monthOf(e.at) === monthOf(clock())).reduce((s, e) => s + (e.data.costUsd ?? 0), 0);
   /** Commit what is buffered (hosted SQL ledger); a lost claim race is not an error for records that follow a send. */
   const durable = async () => {
@@ -226,6 +239,7 @@ export function createPublishFlow(ctx) {
     // 6. live requirements
     const pol = policy();
     if (live) {
+      if (activeHost() !== thisHost) return refuse("OTHER_PUBLISHER_HOST", `live sending belongs to the ${activeHost()} publisher; this is the ${thisHost} one`, "critical");
       if (trigger === "schedule" && pol.mode !== "live") return refuse("LIVE_NOT_AUTHORIZED", "scheduled publishing is in dry-run mode");
       if (!(pol.capUsd > 0)) return refuse("SPEND_NOT_AUTHORIZED", "no monthly spend cap is authorized");
       const xs = ctx.oauth ? await ctx.oauth.status() : { connected: false };
@@ -387,9 +401,26 @@ export function createPublishFlow(ctx) {
     return { ok: true };
   }
 
+  /**
+   * Founder, from the ACTIVE host only: hand live sending to the other host (cutover, or rollback). Refused while any
+   * attempt's outcome is unknown or a live send is in progress, so nothing in flight is left between two hosts.
+   */
+  function setPublisherHost({ to, confirmation }, actor) {
+    const f = checkFounder("publishing-policy", actor);
+    if (!f.ok) return f;
+    if (!PUBLISHER_HOSTS.includes(to) || to === thisHost) return { ok: false, code: "INVALID_REQUEST", detail: `hand off to the other host (${PUBLISHER_HOSTS.filter((h) => h !== thisHost).join("")})` };
+    if (activeHost() !== thisHost) return { ok: false, code: "NOT_ACTIVE_HOST", detail: `live sending already belongs to the ${activeHost()} publisher` };
+    if (String(confirmation ?? "").trim() !== handOffText(to)) return { ok: false, code: "AUTHORIZATION_TEXT", detail: `type exactly: ${handOffText(to)}` };
+    const open = jobs().filter((j) => j.status === "unknown" || j.status === "sending");
+    if (open.length || running) return { ok: false, code: "SEND_IN_PROGRESS", detail: open.length ? `reconcile first: ${open.map((j) => j.jobId).join(", ")}` : "a send is running: try again in a minute" };
+    store.append("publisher-host", actor.id ?? "founder", { host: to, from: thisHost, generation: (hostRecord()?.data.generation ?? 0) + 1, by: actor.id ?? "founder", authentication: actor.authentication ?? null });
+    return { ok: true, activeHost: to, detail: `this ${thisHost} publisher will no longer send live; the ${to} publisher sends once the ledger sync delivers this record` };
+  }
+
   async function state() {
     const acked = new Set(of("publish-alert-ack").map((e) => e.data.alertId));
     return {
+      publisherHost: { self: thisHost, active: activeHost(), generation: hostRecord()?.data.generation ?? 0 },
       mode: policy().mode, capUsd: policy().capUsd ?? 0, authorization: policy().authorization ?? null,
       paused: paused(), publishingPaused: publishingPaused(), spentThisMonthUsd: Number(spentThisMonth().toFixed(4)),
       x: ctx.oauth ? await ctx.oauth.status() : { clientConfigured: false, connected: false },
@@ -399,7 +430,7 @@ export function createPublishFlow(ctx) {
     };
   }
 
-  return { setPaused, setPolicy, schedule, cancel, cancelQueuedBy, runDue, publishNow, queueNow, dueSoon, reconcile, acknowledge, jobs, policy, state, execute };
+  return { setPaused, setPolicy, setPublisherHost, schedule, cancel, cancelQueuedBy, runDue, publishNow, queueNow, dueSoon, reconcile, acknowledge, jobs, policy, state, execute };
 }
 
 /** A NOT_SENT failure after some images uploaded still spent those uploads. */

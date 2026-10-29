@@ -103,7 +103,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   // X Publisher V1: scheduled / manual publishing of approved posts (dry run unless the founder authorizes live)
   const publishing = createPublishFlow({
     store, clock, posts: () => team.posts(), recheck: (pkg) => team.recheck(pkg), designApproved: (t, a) => Boolean(team.designApproval(t, a)),
-    isPaused: () => isPaused(), mediaDir, oauth: publishingOpts.oauth ?? null, fetch: publishingOpts.fetch ?? providerFetch, handle: env.GTP_CC_X_HANDLE || null,
+    isPaused: () => isPaused(), mediaDir, publisherHost: publishingOpts.publisherHost ?? (hosted ? "hosted" : "local"), oauth: publishingOpts.oauth ?? null, fetch: publishingOpts.fetch ?? providerFetch, handle: env.GTP_CC_X_HANDLE || null,
     refreshData: publishingOpts.refreshData ?? (async () => ({ ok: false, detail: "no data refresher is configured on this host" })),
   });
 

@@ -95,6 +95,10 @@ async function publishingAction(body) {
       if (body.mode === "live" && !(await confirmOnMac(`Turn on SCHEDULED live publishing to X, capped at $${Number(body.capUsd)} per month?`))) return { ok: false, code: "NOT_CONFIRMED_ON_MAC", detail: "the macOS confirmation was not given" };
       return p.setPolicy({ mode: body.mode, capUsd: body.capUsd, authorization: body.authorization }, { ...FOUNDER, authentication: body.mode === "live" ? "loopback console + macOS dialog confirmation" : FOUNDER.authentication });
     }
+    case "publisher-host": {
+      if (!(await confirmOnMac(`Hand live X publishing from this Mac to the ${String(body.to)} publisher? This Mac stops sending live immediately.`, "Hand off"))) return { ok: false, code: "NOT_CONFIRMED_ON_MAC", detail: "the macOS confirmation was not given" };
+      return p.setPublisherHost({ to: body.to, confirmation: body.confirmation }, { ...FOUNDER, authentication: "loopback console + macOS dialog confirmation" });
+    }
     case "reconcile": return p.reconcile({ jobId: body.jobId, url: body.url ?? null, notPosted: body.notPosted === true, lookup: body.lookup === true }, FOUNDER);
     case "ack": return p.acknowledge({ alertId: body.alertId }, FOUNDER);
     case "run-due": return p.runDue();

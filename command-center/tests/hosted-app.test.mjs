@@ -268,6 +268,7 @@ test("sign out everywhere ends every session", async () => {
 test("D1: recording an X link (the publication receipt) needs a step-up, and the console's mirror agrees", () => {
   assert.equal(stepUpActionFor("/api/post", { action: "publish" }), "attest");
   assert.equal(stepUpActionFor("/api/post", { action: "schedule" }), null);
+  assert.equal(stepUpActionFor("/api/publishing", { action: "publisher-host", to: "local" }), "publishing-policy", "a hand-off needs a fresh passkey");
   assert.equal(stepUpActionFor("/api/decide", { verdict: "approve", sourcesConfirmed: true }), "approve");
   const client = fs.readFileSync(new URL("../surfaces/console/webauthn.js", import.meta.url), "utf8");
   assert.match(client, /url === "\/api\/post"\) return body\.action === "publish" \? "attest" : null/);

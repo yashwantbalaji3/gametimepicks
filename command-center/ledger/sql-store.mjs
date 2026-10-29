@@ -25,7 +25,7 @@ import { canonicalJson, sha256, shortId } from "../lib/util.mjs";
 import { LEDGER_KINDS } from "../contracts/index.mjs";
 
 /** Advisory-lock id serializing ledger writers ("gtp-cc" as an integer). */
-const LEDGER_LOCK = 0x6774702d6363;
+export const LEDGER_LOCK = 0x6774702d6363;
 const MIGRATIONS = path.join(path.dirname(fileURLToPath(import.meta.url)), "migrations");
 
 export class ClaimConflictError extends Error {

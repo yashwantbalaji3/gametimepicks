@@ -71,7 +71,7 @@ export function clientKeyOf(request) {
 const PUBLISHING_PERMISSION = Object.freeze({
   pause: "approve", ack: "approve",
   resume: "publish", schedule: "publish", cancel: "publish", "dry-run-now": "publish", "live-test": "publish", reconcile: "publish",
-  policy: "administer", "x-connect": "administer", "x-disconnect": "administer",
+  policy: "administer", "x-connect": "administer", "x-disconnect": "administer", "publisher-host": "administer",
 });
 /** The permission a request needs. Unknown paths and actions need "administer" (fail closed). */
 export function routePermission(pathname, body = {}) {
@@ -97,6 +97,7 @@ export function stepUpActionFor(pathname, body) {
     if (body.action === "live-test") return "publish-live";
     if (body.action === "policy") return body.mode === "dry-run" ? null : "publishing-policy";
     if (body.action === "x-connect") return "connect-x";
+    if (body.action === "publisher-host") return "publishing-policy";
     if (body.action === "resume") return "resume";
     return null;
   }
@@ -302,6 +303,7 @@ export function createHostedApp({ db, clock, origin, rpID, setupTokenSha256, dis
       case "cancel": return turn((o) => o.publishing.cancel({ jobId: body.jobId }, actor));
       case "ack": return turn((o) => o.publishing.acknowledge({ alertId: body.alertId }, actor));
       case "policy": return turn((o) => o.publishing.setPolicy({ mode: body.mode, capUsd: body.capUsd, authorization: body.authorization }, actor));
+      case "publisher-host": return turn((o) => o.publishing.setPublisherHost({ to: body.to, confirmation: body.confirmation }, actor));
       case "reconcile": return turn((o) => o.publishing.reconcile({ jobId: body.jobId, url: body.url ?? null, notPosted: body.notPosted === true, lookup: body.lookup === true }, actor));
       case "dry-run-now":
       case "live-test": {
