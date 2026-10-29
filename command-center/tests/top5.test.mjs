@@ -367,3 +367,12 @@ test("individual NFL game posts get the 45-minute publishing time (pregame winne
   assert.equal(pg.suggestedPublishAt, "2026-10-29T23:30:00.000Z");
   assert.deepEqual([td.error, pg.error], [undefined, undefined], "both builders run on the model");
 });
+
+test("the Anytime TD board keeps its qualification in the record, never on the image (founder 10-29)", async () => {
+  const { NFL_MARKETS } = await import("../recap/top5-boards.mjs");
+  assert.doesNotMatch(NFL_MARKETS.anytime_td.note, /if he plays|passing TD/i);
+  assert.match(NFL_MARKETS.anytime_td.qualification, /if he plays · passing TDs don't count/);
+  const fs = await import("node:fs");
+  const src = fs.readFileSync(new URL("../render/social-top5.mjs", import.meta.url), "utf8");
+  assert.doesNotMatch(src, /qualification/, "the renderer never draws the qualification");
+});

@@ -48,7 +48,7 @@ export const METHODS = Object.freeze({
 
 /** NFL market definitions (the site's own families). priority = deterministic image order. */
 export const NFL_MARKETS = Object.freeze({
-  anytime_td: { title: "Anytime Touchdown", short: "anytime TD", method: "probability", unit: "TD CHANCE", note: "Ranked by predicted chance to score · if he plays · passing TDs don't count", priority: 1 },
+  anytime_td: { title: "Anytime Touchdown", short: "anytime TD", method: "probability", unit: "TD CHANCE", note: "Ranked by predicted chance to score", qualification: "if he plays · passing TDs don't count", priority: 1 }, // founder 10-29: the qualification stays in the record, never on the image
   player_reception_yds: { title: "Receiving Yards", short: "receiving yards", method: "median", unit: "PROJ. YDS", note: "Ranked by projected median for his game", priority: 2 },
   player_receptions: { title: "Receptions", short: "receptions", method: "median", unit: "PROJ. REC", note: "Ranked by projected median for his game", priority: 3 },
   player_rush_yds: { title: "Rushing Yards", short: "rushing yards", method: "median", unit: "PROJ. YDS", note: "Ranked by projected median for his game", priority: 4 },
@@ -146,7 +146,7 @@ export function marketFromBoard({ sport, board, defs, source }) {
   return {
     ok: true,
     market: {
-      sport, market: family, title: def.title, short: def.short, unit: def.unit, note: def.note, priority: def.priority, method, methodId: METHODS[method].id, methodLabel: METHODS[method].label,
+      sport, market: family, title: def.title, short: def.short, unit: def.unit, note: def.note, qualification: def.qualification ?? null, priority: def.priority, method, methodId: METHODS[method].id, methodLabel: METHODS[method].label,
       publishedTitle: board.title ?? board.label ?? null, publishedTopN: board.topN ?? published.length, publishedRows: published.length, shownRows: rows.length,
       questionable: rows.filter((r) => String(r.participation).toUpperCase() === "QUESTIONABLE").map((r) => r.name),
       rows, source,

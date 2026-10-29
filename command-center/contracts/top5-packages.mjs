@@ -110,7 +110,7 @@ export function top5Draft({ model, leadMin, now, extra }) {
     contentKey: model.contentKey, boardSha256: model.evidence.at(-1)?.sha256 ?? null, boardPath: model.evidence.at(-1)?.path ?? null,
     evidence: ev, status, reasons, claims, captions: top5Captions(model, shown, totalPublished),
     // the immutable record of what appears: every row of every shown market, as published
-    appeared: shown.map((m) => ({ market: m.market, method: m.methodId, publishedTopN: m.publishedTopN, rows: m.rows.map((r) => ({ rank: r.rank, playerId: r.playerId, name: r.name, team: r.team, eventId: r.eventId, display: r.display })) })),
+    appeared: shown.map((m) => ({ market: m.market, method: m.methodId, qualification: m.qualification ?? null, publishedTopN: m.publishedTopN, rows: m.rows.map((r) => ({ rank: r.rank, playerId: r.playerId, name: r.name, team: r.team, eventId: r.eventId, display: r.display })) })),
   };
 }
 
