@@ -71,10 +71,11 @@ test("NFL box score: official run = projected + official expectations; every wha
   const off = defaultSample(m);
   const so = html(React.createElement(BoxScoreForRun, { manifest: m, sample: off }));
   assert.match(so, /data-stbx-role="official"/);
-  assert.match(visible(so), /Projected box score · run #/);
+  assert.match(visible(so), /Box score · Simulated scenario \(hypothetical\) · run #/);
   assert.ok(visible(so).includes(L.COMPARISON_TITLE));
   assert.ok(visible(so).includes(L.RECONCILIATION_NOTE));
-  assert.ok(visible(so).includes(L.fmtExpectation(rep.official.team.total.expected)), "the fractional official total, unrounded to 2 dp");
+  assert.ok(visible(so).includes(L.fmtExpectation(rep.official.team.total.median)), "the published official total median (as the game page prints it)");
+  if (!Number.isInteger(rep.official.team.total.expected)) assert.ok(!visible(so).includes(L.fmtExpectation(rep.official.team.total.expected)), "the unrounded mean is not printed as a second official number");
   assert.ok(visible(so).includes(L.NFL_PLAYERS_NOT_MODELED_NOTE));
   for (const c of m.chips.filter((x) => x.available && x.runIndex !== rep.officialRunIndex)) {
     const s = m.samples[c.sampleIndex];
@@ -108,7 +109,7 @@ test("no official forecast: the card says so, the comparison invents nothing, an
   const cmp = visible(html(React.createElement(OfficialComparison, { manifest: mm, final: { home: 100, away: 99 }, teams, hypothetical: true })));
   assert.ok(cmp.includes(L.NO_OFFICIAL_NBA));
   assert.doesNotMatch(cmp, /\d+\.\d\d/, "no expectation figure");
-  assert.match(html(React.createElement(RoleTag, { manifest: mm, runIndex: 1 })), /What-if · hypothetical/);
+  assert.match(html(React.createElement(RoleTag, { manifest: mm, runIndex: 1 })), /Simulated scenario \(hypothetical\) · what-if/);
 });
 
 // the fixture is a byte copy of real 2026-10-20 v1 output: measure it against the committed OFFICIAL v0.1 file of that date

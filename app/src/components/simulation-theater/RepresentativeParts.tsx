@@ -7,7 +7,7 @@
  * lib/simulation-theater/official-representative.mjs) through lib/simulation-theater/representative-labels.mjs:
  *
  *   OfficialForecastCard   the official forecast's own numbers — the headline, never the drive engine's batch
- *   RunRoleNotice          per selected run: "Official representative simulation · … · distance d" or the persistent
+ *   RunRoleNotice          per selected run: "Simulated scenario (hypothetical) · central run · … · distance d" or the persistent
  *                          "Hypothetical scenario — not the forecast" banner + "What-if · hypothetical · <kind>"
  *   RoleTag                the short tag on a run chip
  *   OfficialComparison     official expectation vs this simulated game (team terms) + the reconciliation note
@@ -15,7 +15,7 @@
 import type { TheaterRepresentative } from "./types";
 import {
   COMPARISON_TITLE, NO_OFFICIAL_NBA, NO_OFFICIAL_NFL, NO_OFFICIAL_RUNS_NOTE, OFFICIAL_FORECAST_TITLE, OFFICIAL_RUN_SUBTITLE, OFFICIAL_RUN_TITLE,
-  RECONCILIATION_NOTE, WHAT_IF_BANNER, WHAT_IF_TAG, fmtDistance, fmtExpectation, fmtPct, fmtSignedDiff, runRole, teamComparison, ROLE, SUPPORTING_RUN_TITLE, SUPPORTING_RUN_SUBTITLE } from "@/lib/simulation-theater/representative-labels.mjs";
+  CENTRAL_ROLE_TAG, RECONCILIATION_NOTE, officialDisplay, WHAT_IF_BANNER, WHAT_IF_TAG, fmtDistance, fmtExpectation, fmtPct, fmtSignedDiff, runRole, teamComparison, ROLE, SUPPORTING_RUN_TITLE, SUPPORTING_RUN_SUBTITLE } from "@/lib/simulation-theater/representative-labels.mjs";
 
 type Team = { abbr: string; name?: string | null };
 type Teams = { home: Team; away: Team };
@@ -36,19 +36,18 @@ export function OfficialForecastCard({ manifest, teams }: { manifest: WithRep; t
       </section>
     );
   }
-  const t = o.team;
-  const ps = o.projectedScore;
+  const d = officialDisplay(o) as { winProbability: { home: number | null; away: number | null }; projectedScore: { home: number | null; away: number | null }; margin: number | null; total: number | null };
+  const ps = d.projectedScore;
   return (
     <section className="st-official" aria-label={OFFICIAL_FORECAST_TITLE} data-st-official="" data-st-official-snapshot={o.snapshotId}>
       <p className="st-official-h"><b>{OFFICIAL_FORECAST_TITLE}</b> <span className="st-official-src">· {o.modelVersion ?? "official model"}{o.publication === "PRIVATE" ? " · private" : ""}</span></p>
       <dl className="st-official-kv">
-        <div><dt>Win probability</dt><dd data-st-official-win="">{teams.away.abbr} {fmtPct(o.pAway)} · {teams.home.abbr} {fmtPct(o.pHomePublished ?? o.pHome)}</dd></div>
+        <div><dt>Win probability</dt><dd data-st-official-win="">{teams.away.abbr} {fmtPct(d.winProbability.away)} · {teams.home.abbr} {fmtPct(d.winProbability.home)}</dd></div>
         {ps.home != null && ps.away != null ? <div><dt>Projected score</dt><dd data-st-official-score="">{teams.away.abbr} {fmtExpectation(ps.away)} – {fmtExpectation(ps.home)} {teams.home.abbr}</dd></div> : null}
-        <div><dt>Expected points</dt><dd>{teams.away.abbr} {fmtExpectation(t.away?.expected)} · {teams.home.abbr} {fmtExpectation(t.home?.expected)}</dd></div>
-        <div><dt>Margin ({teams.home.abbr} − {teams.away.abbr})</dt><dd>{fmtExpectation(t.margin?.expected)}{t.margin?.median != null ? ` · median ${fmtExpectation(t.margin.median)}` : ""}</dd></div>
-        <div><dt>Total points</dt><dd>{fmtExpectation(t.total?.expected)}{t.total?.median != null ? ` · median ${fmtExpectation(t.total.median)}` : ""}</dd></div>
+        {d.margin != null ? <div><dt>Margin ({teams.home.abbr} − {teams.away.abbr}) · median</dt><dd data-st-official-margin="">{fmtExpectation(d.margin)}</dd></div> : null}
+        {d.total != null ? <div><dt>Total points · median</dt><dd data-st-official-total="">{fmtExpectation(d.total)}</dd></div> : null}
       </dl>
-      <p className="st-official-note">These are the forecast&apos;s own numbers. Each run below is one simulated game; the default is the stored run closest to them.</p>
+      <p className="st-official-note">These are the Official Forecast&apos;s published numbers, as on the game page. Each run below is one simulated scenario (hypothetical); the Theater opens on the stored run closest to them.</p>
     </section>
   );
 }
@@ -57,7 +56,7 @@ export function OfficialForecastCard({ manifest, teams }: { manifest: WithRep; t
 export function RoleTag({ manifest, runIndex }: { manifest: WithRep; runIndex: number }) {
   const r = runRole(manifest, runIndex);
   if (r.role === ROLE.SUPPORTING_RUN) return <span className="st-roletag is-supporting" data-st-role="supporting">Simulated run</span>;
-  return <span className={`st-roletag${r.hypothetical ? " is-whatif" : " is-official"}`} data-st-role={r.hypothetical ? "what-if" : "official"}>{r.hypothetical ? WHAT_IF_TAG : "Official representative"}</span>;
+  return <span className={`st-roletag${r.hypothetical ? " is-whatif" : " is-official"}`} data-st-role={r.hypothetical ? "what-if" : "official"}>{r.hypothetical ? WHAT_IF_TAG : CENTRAL_ROLE_TAG}</span>;
 }
 
 /** Under the run selector: what the selected run IS. A what-if always carries the persistent hypothetical banner. */
@@ -76,7 +75,7 @@ export function RunRoleNotice({ manifest, runIndex, kindTitle }: { manifest: Wit
     return (
       <div className="st-rolenote is-official" role="note" data-st-role-note="official" data-st-distance={rep.distance ?? ""}>
         <p><b>{OFFICIAL_RUN_TITLE}</b> · {OFFICIAL_RUN_SUBTITLE} · distance {fmtDistance(rep.distance)}{rep.withinTolerance ? "" : ` (outside the ${rep.tolerance} tolerance: no stored run is closer)`}</p>
-        <p className="st-rolenote-fine">One real stored run, chosen by {rep.rule}: the smallest normalised distance to the official expected home and away points, margin and total{rep.sport === "NBA" ? " and player averages" : ""}. It is one simulated game, not the forecast&apos;s average.</p>
+        <p className="st-rolenote-fine">One real stored run, chosen by {rep.rule}: the smallest normalised distance to the Official Forecast&apos;s home and away points, margin and total{rep.sport === "NBA" ? " and player averages" : ""}. It is a hypothetical simulated scenario, not the Official Forecast, and its numbers are never substituted for it.</p>
       </div>
     );
   }
@@ -88,14 +87,14 @@ export function RunRoleNotice({ manifest, runIndex, kindTitle }: { manifest: Wit
   );
 }
 
-/** Official expectation beside the run's whole-number result, for the team terms, with the reconciliation rule. */
+/** The Official Forecast's published numbers beside the scenario's whole-number result, with the reconciliation rule. */
 export function OfficialComparison({ manifest, final, teams, hypothetical }: { manifest: WithRep; final: Final; teams: Teams; hypothetical: boolean }) {
   const rep = manifest.representative ?? null;
   const rows = teamComparison(manifest, final, teams) as { term: string; label: string; official: number | null; median: number | null; run: number; diff: number | null }[];
   if (!rep?.official || !rows.length) {
     return (
       <section className="st-compare is-none" data-st-compare="none" aria-label={COMPARISON_TITLE}>
-        <p className="st-official-note"><b>{noOfficialText(rep)}</b>: no official expectation to show beside this run.</p>
+        <p className="st-official-note"><b>{noOfficialText(rep)}</b>: no published Official Forecast number to show beside this run.</p>
       </section>
     );
   }
@@ -105,13 +104,13 @@ export function OfficialComparison({ manifest, final, teams, hypothetical }: { m
       <table className="st-compare-table">
         <caption>{COMPARISON_TITLE}{hypothetical ? ` · ${WHAT_IF_TAG}` : ""}</caption>
         <thead>
-          <tr><th scope="col">Term</th><th scope="col">Official expectation</th><th scope="col">{hypothetical ? "This hypothetical game" : "This simulated game"}</th><th scope="col">Difference</th></tr>
+          <tr><th scope="col">Term</th><th scope="col">Official Forecast</th><th scope="col">{hypothetical ? "This hypothetical game" : "This simulated game"}</th><th scope="col">Difference</th></tr>
         </thead>
         <tbody>
           {rows.map((r) => (
             <tr key={r.term} data-st-compare-term={r.term}>
               <th scope="row">{r.label}</th>
-              <td data-st-official-exp="">{fmtExpectation(r.official)}{r.median != null ? <span className="st-compare-med"> · median {fmtExpectation(r.median)}</span> : null}</td>
+              <td data-st-official-exp="">{fmtExpectation(r.official)}</td>
               <td data-st-run-value="">{r.run}</td>
               <td>{fmtSignedDiff(r.diff)}</td>
             </tr>

@@ -11,6 +11,10 @@ import path from "node:path";
 import { readShadowReceipts, simulationOfRecord } from "../sports/nfl/sim-v2/public-receipt.mjs";
 import { adaptReceipt } from "./adapter-nfl-sim-v2.mjs";
 import { nflOfficial, withNflRepresentative } from "./official-representative.mjs";
+import { officialSnapshotFor } from "../sports/nfl/forecast-view-load.mjs";
+import { unionFrozenForecasts } from "../sports/nfl/public-forecast-union.mjs";
+import { nflPublicRecordResolver } from "../sports/nfl/public-record.mjs";
+import { readWorldModelArtifacts } from "../sports/nfl/world-model-v2/read.mjs";
 
 /**
  * OFFICIAL FORECAST INPUTS (Cross-Product Prediction Consistency, 2026-10-20). The Theater's default run is the stored run
@@ -45,9 +49,31 @@ export function readNflOfficialInputs(repoRoot, eventId) {
   return { receipts, playerBoard };
 }
 
-/** The official snapshot (or its typed refusal) for one event. */
+/**
+ * ONE OFFICIAL FORECAST (Track C, 2026-10-29). The game page reads the official snapshot through the forecast-view loader
+ * (lib/sports/nfl/forecast-view-load.mjs: the public forecast union latest ∪ frozen-latest → officialSnapshotFor with the
+ * raw player board and the World Model artifact). The Theater used to rebuild it from the internal receipts instead: the
+ * same numbers, but a DIFFERENT snapshotId (CAR @ GB 401873023: game page f993be25…, Theater 9b927788…), so the two
+ * pages named two snapshots for one forecast. The Theater now uses the game page's accessor whenever the game page has
+ * the event; only an event the public union no longer carries (a settled week) falls back to the receipt path.
+ * @returns {{ snapshot: object|null, refusal: object|null, source: "GAME_PAGE_ACCESSOR"|"FORECAST_RECEIPTS" }}
+ */
+export function nflGamePageOfficial(repoRoot, eventId) {
+  const id = String(eventId);
+  const publicDir = path.join(repoRoot, "app", "public");
+  const data = path.join(publicDir, "data", "nfl");
+  const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
+  const art = unionFrozenForecasts(readJson(path.join(data, "forecasts/latest.json")), readJson(path.join(data, "forecasts/frozen-latest.json")), { resolve: nflPublicRecordResolver(repoRoot) });
+  const f = (art?.forecasts ?? []).find((x) => String(x.providerEventId) === id) ?? null;
+  if (!f) return null;
+  const world = readWorldModelArtifacts(publicDir).find((a) => String(a.identity?.providerEventId) === id) ?? null;
+  const { snapshot, refusal } = officialSnapshotFor(f, readJson(path.join(data, "player-board", `${id}.json`)), world);
+  return { snapshot, refusal: refusal ? { code: refusal, message: `game-page official snapshot refused: ${refusal}` } : null, source: "GAME_PAGE_ACCESSOR" };
+}
+
+/** The official snapshot (or its typed refusal) for one event: the game page's accessor first (see above). */
 export function nflTheaterOfficial(repoRoot, eventId) {
-  return nflOfficial(String(eventId), readNflOfficialInputs(repoRoot, eventId));
+  return nflGamePageOfficial(repoRoot, eventId) ?? { ...nflOfficial(String(eventId), readNflOfficialInputs(repoRoot, eventId)), source: "FORECAST_RECEIPTS" };
 }
 
 /**
