@@ -30,7 +30,7 @@ export default function SimulatePage() {
         </h1>
         <p className="m-0 max-w-[72ch]" style={{ color: "var(--vault-text-mute)", fontSize: 13, lineHeight: 1.6 }}>
           Choose a sport and a date, then open the event&rsquo;s report. {view.totals.ready} of {view.totals.events} events
-          on this slate have a simulation report ready; every other state says exactly what it is.
+          on this slate have a report ready; every other state says exactly what it is.
         </p>
       </header>
 
@@ -41,13 +41,16 @@ export default function SimulatePage() {
         view={view}
         mlbExplorer={<SimulationExplorer selectedDate={currentEtDate()} />}
         coverage={{
-          all: <SimulationCoverageMatrix />,
+          /* Batch 1 #5: the finished 2026 World Cup group is archived — never listed as available here. Its "soccer"
+             group was also what ?sport=epl showed, which is not the Premier League's coverage; EPL has no rows in this
+             registry (its match model is described by lib/public-registry.ts), so the EPL filter shows no matrix. */
+          all: <SimulationCoverageMatrix hideArchived />,
           bySport: {
-            mlb: <SimulationCoverageMatrix sport="mlb" />,
-            nfl: <SimulationCoverageMatrix sport="nfl" />,
-            epl: <SimulationCoverageMatrix sport="soccer" />,
-            ufc: <SimulationCoverageMatrix sport="ufc" />,
+            mlb: <SimulationCoverageMatrix sport="mlb" hideArchived />,
+            nfl: <SimulationCoverageMatrix sport="nfl" hideArchived />,
+            ufc: <SimulationCoverageMatrix sport="ufc" hideArchived />,
           },
+          none: ["epl"],
         }}
       />
 
