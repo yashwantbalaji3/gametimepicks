@@ -27,6 +27,8 @@ import { NBA_HUB_SECTIONS, NbaGameList, NbaSlateOverview, NbaTodayGames } from "
 import { LANE } from "@/lib/sports/nba/experimental-public-lane.mjs";
 import { nbaExportedGamePageIds } from "@/components/nba/settled-simulation-data";
 import { NBA_MODEL_PERFORMANCE_NOTE, PUBLIC_TERMS, publicSport } from "@/lib/public-registry";
+import { nbaPropLineSummaries } from "@/components/nba/nba-prop-line-summaries";
+import { nbaGamePageHrefIfExported } from "@/components/nba/game-page-link.mjs";
 
 const NBA_PUBLIC = publicSport("nba")!;
 const S = NBA_HUB_SECTIONS;
@@ -65,6 +67,15 @@ export default async function NbaHubPage() {
   /* Vehicle N: "Add to slip" only on a game Level A suggests (its exact leg, or nothing); the bar renders once, and only
      when a button does, so the slip island never ships to a /nba without one. */
   const slip = await hubSlipLegs("nba", slate.games.map((g) => g.id));
+  /* Founder P0 2026-10-29: a compact model-vs-sportsbook-line summary per game card — only when the NBA line display is
+     authorized AND the game has a compared line (nba-prop-lines.tsx). Undefined while the switch is off: the cards are
+     then exactly the cards without it (prop-line-surfaces-switch-off.test.mjs). Each summary links to the game's full
+     table: its Game Simulation page's Official Forecast panel, its settled game page, or the slate's projections page. */
+  const lineSummaries = lane ? nbaPropLineSummaries({
+    lane,
+    asOf: nowIso,
+    games: slate.games.map((g) => [g.id, g.id, g.theaterHref ? `${g.theaterHref}#nba-game-prop-lines` : gamePages.has(g.id) ? `${nbaGamePageHrefIfExported(g.id, gamePages)}#nba-settled-prop-lines` : "/nba/projections/#nba-prop-lines"] as const),
+  }) : undefined;
   /* Page weight (/nba ceiling 245 KiB at 15 games): today's games render once, as the cards; the window's other games are
      one line each — upcoming under the cards, started or final under Results. */
   const carded = new Set(slate.games.map((g) => g.id));
@@ -100,7 +111,7 @@ export default async function NbaHubPage() {
       {/* 1 · TODAY'S GAMES — a card per game (each links to its Official Forecast and its Game Simulation), then the week */}
       <section id="nba-games" className="scroll-mt-24 flex flex-col gap-3" aria-labelledby="nba-games-h">
         <h2 id="nba-games-h" className={H2} style={{ color: "var(--vault-text)" }}>{slate.games.length ? `Today’s games · ${slate.dateLabel}` : "Games"}</h2>
-        <NbaTodayGames slate={slate} slip={slip} gamePages={gamePages} />
+        <NbaTodayGames slate={slate} slip={slip} gamePages={gamePages} lineSummaries={lineSummaries} />
         <NbaGameList rows={upcoming} heading={`Coming up · ${upcoming.length} game${upcoming.length === 1 ? "" : "s"} in the next 7 days`} collapsed />
       </section>
 

@@ -14,7 +14,7 @@
  * still hand `priceRecords` in directly; omitted or null means "read the published artifact".
  */
 import React from "react";
-import PropLineComparison, { type PropLineViewModel } from "@/components/odds/prop-line-comparison";
+import PropLineComparison, { PropLineSummary, type PropLineViewModel } from "@/components/odds/prop-line-comparison";
 import { NBA_LINE_DISPLAY } from "@/lib/sports/nba/line-board.mjs";
 import { NBA_PROP_LINE_ADAPTER, nbaPropLineInputs } from "@/lib/sports/nba/prop-line-adapter.mjs";
 import { buildPropLineViews } from "@/lib/odds/prop-line-view.mjs";
@@ -53,10 +53,24 @@ export default function NbaPropLines({ lane, eventId = null, priceRecords = null
   const at = asOf || new Date().toISOString();
   if (!snap || (eventId != null && !snap.games.some((g) => String(g.providerEventId) === String(eventId)))) return null;
   const published = priceRecords ?? (snap.date ? nbaPublicLineRecords(snap.date) : null);
-  const { inputs, withoutLine } = published ? nbaPropLineInputs({ lane: snap, priceRecords: published, asOf: at, eventId }) : { inputs: [], withoutLine: 0 };
-  const view = buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER) as PropLineViewModel;
+  // No published source → view null: the section says the lines are unavailable (provider / source state), never a row.
+  const { inputs, withoutLine, projections } = published ? nbaPropLineInputs({ lane: snap, priceRecords: published, asOf: at, eventId }) : { inputs: [], withoutLine: 0, projections: 0 };
+  const view = published ? (buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER, { projections }) as PropLineViewModel) : null;
   // Lines read from the published artifact carry the authorization's attribution (optional) and the book-availability note.
   const attribution = priceRecords == null && published ? displayAuthorization("nba", "site").attribution : null;
   const notes = priceRecords == null && published ? [...(attribution ? [attribution] : []), BOOK_AVAILABILITY_NOTE] : undefined;
   return <PropLineComparison view={view} display={display} id={id} withoutLine={withoutLine} notes={notes} heading="Model vs. sportsbook line · NBA player props" />;
 }
+
+/** The one game's view for the compact summary, or null when there is no published source or no COMPARED row (the
+    summary then shows nothing). Used by nba-prop-line-summaries.tsx; call only behind the display gate. */
+export function nbaGameLineSummaryView(snap: LaneLike, eventId: string, priceRecords: unknown[] | null, asOf?: string): PropLineViewModel | null {
+  if (!snap || !snap.games.some((g) => String(g.providerEventId) === String(eventId))) return null;
+  const published = priceRecords ?? (snap.date ? nbaPublicLineRecords(snap.date) : null);
+  if (!published) return null;
+  const { inputs, projections } = nbaPropLineInputs({ lane: snap, priceRecords: published, asOf: asOf || new Date().toISOString(), eventId });
+  const view = buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER, { projections }) as PropLineViewModel;
+  return view.counts.compared > 0 ? view : null;
+}
+export type { LaneLike };
+export { PropLineSummary };

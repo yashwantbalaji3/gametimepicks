@@ -115,8 +115,11 @@ test("the homepage renders NBA as a Command Center lane from the hub's own view 
   const hub = read("src/app/nba/page.tsx");
   // Vehicle N: + the Level A slip legs (hub-slip.test); Batch 1 fix #2 (2026-10-29): + the exported game page ids
   // (game-page-links.test.mjs pins where they come from) — the cards themselves are unchanged: one per game
-  assert.match(hub, /<NbaTodayGames slate=\{slate\} slip=\{slip\} gamePages=\{gamePages\} \/>/);
-  assert.match(read("src/components/nba/hub-overview.tsx"), /\{slate\.games\.map\(\(g\) => \(\n\s+<MatchupCard key=\{g\.id\}/);
+  // Founder P0 2026-10-29: + the gated model-vs-line summaries (undefined while the NBA line display is off —
+  // prop-line-surfaces-switch-off.test.mjs); still one MatchupCard per game, the summary only inserted into it
+  assert.match(hub, /<NbaTodayGames slate=\{slate\} slip=\{slip\} gamePages=\{gamePages\} lineSummaries=\{lineSummaries\} \/>/);
+  assert.match(read("src/components/nba/hub-overview.tsx"), /\{slate\.games\.map\(\(g\) => withLineSummary\(lineSummaries\?\.get\(g\.id\),\n\s+<MatchupCard key=\{g\.id\}/);
+  assert.match(read("src/components/nba/hub-overview.tsx"), /if \(summary == null\) return card;/, "no summary → the card itself, untouched");
   // weight: today's carded games are not listed a second time in the window's one-line lists
   assert.match(hub, /const rest = model\.rows\.filter\(\(r\) => !carded\.has\(String\(r\.id\)\)\);/);
   assert.match(hub, /<NbaGameList rows=\{upcoming\}/);

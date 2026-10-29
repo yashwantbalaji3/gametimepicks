@@ -97,7 +97,7 @@ test("/nba Forecast vs. Actual rows: a 44px 'Game page' link only for exported i
 test("SOURCE PIN · /nba draws both from the route's own exported list (live Theater ids + settled), today's ET date", () => {
   const src = read("src/app/nba/page.tsx");
   assert.match(src, /const gamePages = new Set\(nbaExportedGamePageIds\(today, theaterIds\)\);/);
-  assert.match(src, /<NbaTodayGames slate=\{slate\} slip=\{slip\} gamePages=\{gamePages\} \/>/);
+  assert.match(src, /<NbaTodayGames slate=\{slate\} slip=\{slip\} gamePages=\{gamePages\} lineSummaries=\{lineSummaries\} \/>/);
   assert.match(src, /<NbaGameList rows=\{played\} heading="Forecast vs\. Actual · recent games" forecasts=\{pastSide\} gamePages=\{gamePages\} \/>/);
   assert.match(src, /const today = currentEtDate\(\);/, "the route's own date source");
 });

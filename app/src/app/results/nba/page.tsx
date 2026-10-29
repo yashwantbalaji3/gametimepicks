@@ -166,6 +166,12 @@ export default function NbaResultsPage() {
           under the page's one <h1>. */}
       <h1 className="m-0 mb-4 font-display text-[26px]" style={{ color: "var(--vault-text)", lineHeight: 1.15 }}>NBA results</h1>
       <NbaForecastVsActual view={nbaForecastVsActualView()} />
+      {/* TODO(nba-line-history, founder P0 2026-10-29): a historical "model vs sportsbook line" record belongs here, read
+          ONLY from recorded pre-tip snapshots (the published gtp.nba.line-comparisons@1 artifact for each past slate,
+          frozen at tip — never a line captured after the start, never recomputed from today's lines) and rendered with the
+          shared section (components/odds/prop-line-comparison.tsx) behind the same gate (NBA_LINE_DISPLAY.public via
+          lib/odds/display-authorization.mjs). No pre-tip snapshot has been recorded and display is not authorized, so
+          nothing renders here yet; adding an element now would change this page's output while the switch is off. */}
 
       <NbaArchiveNotice />
 

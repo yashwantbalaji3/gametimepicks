@@ -48,7 +48,10 @@ test("switch off: /nba/projections HTML is identical with or without price recor
   const on = render({ asOf: AS_OF, priceRecords: LANE_RECORDS, lineDisplay: { public: true } });
   assert.notEqual(on, base);
   assert.match(on, /Model vs\. sportsbook line/);
-  assert.match(on.replace(/<!-- -->/g, ""), /Fixturebook<\/span> · Over \u2212137 · Under \+117/);
+  const onText = on.replace(/<!-- -->/g, "");
+  assert.match(onText, /class="plc-c plc-book">Fixturebook<\/div>/);
+  assert.match(onText, /class="plc-c plc-over plc-n"><span class="plc-li">Over <\/span>\u2212137<\/div>/);
+  assert.match(onText, /class="plc-c plc-under plc-n"><span class="plc-li">Under <\/span>\+117<\/div>/);
 });
 
 test("NbaPropLines off: renders nothing and never calls the lane resolver; on without a source: 'Unavailable', never a line", () => {
@@ -58,10 +61,10 @@ test("NbaPropLines off: renders nothing and never calls the lane resolver; on wi
   assert.equal(called, 0, "default display (the switch) is off: nothing is read");
   const on = renderToStaticMarkup(React.createElement(NbaPropLines, { lane: lazy, asOf: FIXTURE_AS_OF, display: { public: true } }));
   assert.equal(called, 1);
-  assert.match(on, /Sportsbook lines: Unavailable/);
-  assert.doesNotMatch(on, /<li/);
+  assert.match(on, /data-prop-line-section-state="PROVIDER_UNAVAILABLE"[^>]*>Sportsbook lines: Unavailable/);
+  assert.doesNotMatch(on, /role="row"|<li/);
   const one = renderToStaticMarkup(React.createElement(NbaPropLines, { lane: FIXTURE_LANE, eventId: "FIXTURE-EVT-1", asOf: FIXTURE_AS_OF, priceRecords: FIXTURE_PRICE_RECORDS, display: { public: true } }));
-  assert.match(one, /3 compared · 1 stale · 0 unavailable · 1 unsupported · 23 projections have no captured line/);
+  assert.match(one.replace(/<!-- -->/g, ""), /3 of 28 projections have a qualified sportsbook line\.<\/span> Not compared: 1 line stale · 1 market not supported\./, "true denominator: every projection on the game");
   assert.equal(renderToStaticMarkup(React.createElement(NbaPropLines, { lane: FIXTURE_LANE, eventId: "NOT-ON-THIS-LANE", asOf: FIXTURE_AS_OF, priceRecords: FIXTURE_PRICE_RECORDS, display: { public: true } })), "", "a game page whose game is not on the lane shows no section");
 });
 
@@ -135,7 +138,7 @@ function graph(root) {
 /** Line, price and prop-view modules plus the synthetic fixtures: server-only, never in a browser bundle. */
 const FORBIDDEN = [
   /^src\/lib\/odds\//, /^src\/components\/odds\//, /__fixtures__\/prop-line-synthetic/,
-  /^src\/lib\/sports\/nba\/(line-comparison|line-board|prop-line-adapter|line-publication|line-publication-build|public-line-records)\.mjs$/, /^src\/components\/nba\/(nba-prop-lines|line-comparison-cell)\.tsx$/,
+  /^src\/lib\/sports\/nba\/(line-comparison|line-board|prop-line-adapter|line-publication|line-publication-build|public-line-records)\.mjs$/, /^src\/components\/nba\/(nba-prop-lines|nba-prop-line-summaries|line-comparison-cell)\.tsx$/,
   // the NBA price capture / parse / identity modules (contract.mjs is the shared market-key list the slip already uses)
   /^src\/lib\/sports\/odds\/nba-props\/(?!contract\.mjs$)/,
 ];

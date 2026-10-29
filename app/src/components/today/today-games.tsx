@@ -9,6 +9,7 @@
  * The row's own note is not printed: several are pipeline notes ("Official scheduled game (MLB StatsAPI) …"); the game
  * page carries the detail.
  */
+import React from "react";
 import Link from "next/link";
 import type { ShownRow } from "@/components/games-experience-table-wire";
 
@@ -45,9 +46,9 @@ export function forecastText(r: ShownRow): string {
   return String(r.forecast);
 }
 
-function Row({ r }: { r: ShownRow }) {
+function Row({ r, extra }: { r: ShownRow; extra?: React.ReactNode }) {
   const has = r.forecast === "Published" || r.forecast === "Frozen";
-  return (
+  const row = (
     <li className="flex flex-col gap-0.5 py-2" style={{ borderTop: "1px solid var(--vault-rule)" }}>
       <div className="flex flex-wrap items-baseline gap-x-2">
         <span className="tabular-nums" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, minWidth: 72 }}>{r.time}</span>
@@ -62,9 +63,14 @@ function Row({ r }: { r: ShownRow }) {
       <span style={{ color: has ? "var(--vault-text)" : "var(--vault-text-mute)", fontSize: 13 }}>{forecastText(r)}</span>
     </li>
   );
+  /* Founder P0 2026-10-29: an NBA row's compact model-vs-sportsbook-line summary (nba-prop-lines.tsx), appended only when
+     the page hands one in — absent, the row is exactly the row without it (no extra child slot). */
+  if (extra == null) return row;
+  const kids = row.props.children as React.ReactNode[];
+  return React.cloneElement(row, undefined, ...kids, extra);
 }
 
-export default function TodayGames({ rows, dayLabel, asOf, next }: {
+export default function TodayGames({ rows, dayLabel, asOf, next, lineSummaries }: {
   /** Today's rows (ET day), in start order. */
   rows: ShownRow[];
   /** e.g. "Wednesday, October 28". */
@@ -73,6 +79,9 @@ export default function TodayGames({ rows, dayLabel, asOf, next }: {
   asOf: string;
   /** On a day with no games: the next day that has games, so the page still answers "what's next?". */
   next?: { dayLabel: string; rows: ShownRow[] } | null;
+  /** Compact model-vs-sportsbook-line summaries keyed by the row's eventHref (NBA rows only; undefined while the NBA line
+      display switch is off — nba-prop-lines.tsx nbaPropLineSummaries). */
+  lineSummaries?: ReadonlyMap<string, React.ReactNode>;
 }) {
   const groups = groupTodayGames(rows);
   return (
@@ -92,7 +101,7 @@ export default function TodayGames({ rows, dayLabel, asOf, next }: {
         <div key={g.key} className="flex flex-col">
           <h3 className="m-0 font-display" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>{g.title} · {g.rows.length}</h3>
           <ul className="m-0 list-none p-0">
-            {g.rows.map((r) => <Row key={`${r.sport}-${r.eventHref}-${r.matchup}-${r.time}`} r={r} />)}
+            {g.rows.map((r) => <Row key={`${r.sport}-${r.eventHref}-${r.matchup}-${r.time}`} r={r} extra={lineSummaries?.get(r.eventHref)} />)}
           </ul>
         </div>
       ))}

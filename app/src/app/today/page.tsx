@@ -77,6 +77,7 @@ import { buildGamesTableRows, gamesTableDates } from "@/components/games-experie
 import { packGamesTable } from "@/components/games-experience-table-wire";
 import { publicSport } from "@/lib/public-registry";
 import { loadCurrentLane } from "@/components/nba/experimental-lane";
+import { nbaPropLineSummaries } from "@/components/nba/nba-prop-line-summaries";
 
 export const metadata = withRouteMetadata("/today/", {
   title: "Today · GameTime Picks",
@@ -265,6 +266,14 @@ export default function TodayPage() {
   // ── Today's games, grouped (W4): the games table's own rows for the ET day, shown once. On a day with no games the
   //    next day that has games answers "what's next?". Rows are the table's, so status and forecast state match it.
   const todayRows = gamesRows.filter((r) => r.date === serverToday);
+  /* Founder P0 2026-10-29: today's NBA rows carry a compact model-vs-sportsbook-line summary — only when the NBA line
+     display is authorized and the game has a compared line (undefined while the switch is off: the rows are unchanged).
+     Each links to the slate's full table on /nba/projections. */
+  const nbaLineSummaries = nbaToday?.date === serverToday ? nbaPropLineSummaries({
+    lane: nbaToday,
+    asOf: new Date(nowMs).toISOString(),
+    games: todayRows.filter((r) => r.sport === "nba").map((r) => [/(\d+)$/.exec(r.id)?.[1] ?? "", r.eventHref, "/nba/projections/#nba-prop-lines"] as const),
+  }) : undefined;
   const nextDate = todayRows.length ? null : gamesRows.map((r) => r.date).filter((d) => d > serverToday).sort()[0] ?? null;
   const dayName = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" });
   /* The MLB detail below is framed on the presented MLB slate, which can be the previous day's in the morning: its fold
@@ -344,6 +353,7 @@ export default function TodayPage() {
         dayLabel={dayName(serverToday)}
         asOf={etStamp(nowMs)}
         next={nextDate ? { dayLabel: dayName(nextDate), rows: gamesRows.filter((r) => r.date === nextDate) } : null}
+        lineSummaries={nbaLineSummaries}
       />
 
       {/* 1b — P251-F9: the payoff for following a club. Renders nothing until a reader has followed one. v1.1.2: the strip
