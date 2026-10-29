@@ -30,12 +30,12 @@ const FACES = [["GTP Condensed", "BarlowCondensed-SemiBold.ttf", 600], ["GTP Con
   ["GTP Condensed", "BarlowCondensed-Black.ttf", 900], ["GTP Body", "Barlow-Medium.ttf", 500], ["GTP Body", "Barlow-SemiBold.ttf", 600], ["GTP Body", "Barlow-Bold.ttf", 700]];
 let fontCss = null;
 /** @font-face rules with the bundled OFL fonts inlined as data URIs (the page makes no request at all). */
-const fontFaces = () => (fontCss ??= FACES.map(([family, file, weight]) =>
+export const fontFaces = () => (fontCss ??= FACES.map(([family, file, weight]) =>
   `@font-face{font-family:"${family}";font-weight:${weight};font-style:normal;src:url(data:font/ttf;base64,${fs.readFileSync(path.join(FONTS, file)).toString("base64")}) format("truetype");}`).join("\n"));
 const LOGO = path.join(REPO_ROOT, "app/public/brand/gametime-picks-logo.png");
 const MANIFEST = JSON.parse(fs.readFileSync(path.join(DIR, "asset-manifest.json"), "utf8"));
 /** The X mark (X brand toolkit: the logo may identify an X account), drawn as a single vector path. */
-const X_MARK = `<svg class="xmark" viewBox="0 0 1200 1227" aria-hidden="true"><path fill="currentColor" d="M714.163 519.284 1160.89 0h-105.86L667.137 450.887 357.328 0H0l468.492 681.821L0 1226.37h105.866l409.625-476.152 327.181 476.152H1200L714.137 519.284h.026ZM569.165 687.828l-47.468-67.894-377.686-540.24h162.604l304.797 435.991 47.468 67.894 396.2 566.721H892.476L569.165 687.854v-.026Z"/></svg>`;
+export const X_MARK = `<svg class="xmark" viewBox="0 0 1200 1227" aria-hidden="true"><path fill="currentColor" d="M714.163 519.284 1160.89 0h-105.86L667.137 450.887 357.328 0H0l468.492 681.821L0 1226.37h105.866l409.625-476.152 327.181 476.152H1200L714.137 519.284h.026ZM569.165 687.828l-47.468-67.894-377.686-540.24h162.604l304.797 435.991 47.468 67.894 396.2 566.721H892.476L569.165 687.854v-.026Z"/></svg>`;
 /**
  * Team marks: a LICENSED logo from the asset manifest (teamLogos, each entry with its file, sha256 and rights), else a
  * monogram in the team's colours — never a hot-linked or scraped logo. Today the manifest licenses none (the repository's
