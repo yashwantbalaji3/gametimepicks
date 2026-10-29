@@ -3,15 +3,15 @@
   "approvedForProduction": false,
   "productEligible": false,
   "kind": "mlb-feature-attachment",
-  "lastUpdated": "2026-10-28T20:00:28.898Z",
-  "totalObservations": 28,
+  "lastUpdated": "2026-10-29T17:19:37.729Z",
+  "totalObservations": 34,
   "families": [
     {
       "family": "pitcherWorkload",
       "dir": "pitcher-workload",
       "captureFiles": 4971,
       "eligibleFiles": 4963,
-      "attachedObservations": 28,
+      "attachedObservations": 34,
       "coveragePct": 100,
       "failureReason": null,
       "status": "OK"
@@ -21,7 +21,7 @@
       "dir": "team-offensive-form",
       "captureFiles": 9906,
       "eligibleFiles": 9906,
-      "attachedObservations": 28,
+      "attachedObservations": 34,
       "coveragePct": 100,
       "failureReason": null,
       "status": "OK"
@@ -31,7 +31,7 @@
       "dir": "lineup",
       "captureFiles": 5040,
       "eligibleFiles": 5040,
-      "attachedObservations": 28,
+      "attachedObservations": 34,
       "coveragePct": 100,
       "failureReason": null,
       "status": "OK"
@@ -41,7 +41,7 @@
       "dir": "bullpen",
       "captureFiles": 919,
       "eligibleFiles": 919,
-      "attachedObservations": 28,
+      "attachedObservations": 34,
       "coveragePct": 100,
       "failureReason": null,
       "status": "OK"
@@ -51,7 +51,7 @@
       "dir": "matchup",
       "captureFiles": 919,
       "eligibleFiles": 919,
-      "attachedObservations": 28,
+      "attachedObservations": 34,
       "coveragePct": 100,
       "failureReason": null,
       "status": "OK"
@@ -61,7 +61,7 @@
       "dir": "park-factors",
       "captureFiles": 919,
       "eligibleFiles": 919,
-      "attachedObservations": 28,
+      "attachedObservations": 34,
       "coveragePct": 100,
       "failureReason": null,
       "status": "OK"
@@ -111,7 +111,7 @@
       "dir": "(snapshots/join)",
       "captureFiles": null,
       "eligibleFiles": null,
-      "attachedObservations": 28,
+      "attachedObservations": 34,
       "coveragePct": 100,
       "failureReason": null,
       "status": "obs-only"
@@ -121,7 +121,7 @@
       "dir": "(snapshots/join)",
       "captureFiles": null,
       "eligibleFiles": null,
-      "attachedObservations": 28,
+      "attachedObservations": 34,
       "coveragePct": 100,
       "failureReason": null,
       "status": "obs-only"
@@ -131,8 +131,8 @@
       "dir": "(snapshots/join)",
       "captureFiles": null,
       "eligibleFiles": null,
-      "attachedObservations": 18,
-      "coveragePct": 64.3,
+      "attachedObservations": 22,
+      "coveragePct": 64.7,
       "failureReason": null,
       "status": "obs-only"
     }
@@ -179,6 +179,20 @@
       "environment": 100,
       "market": 75,
       "totalObservations": 8
+    },
+    "2026-10-28": {
+      "pitcherStatus": 100,
+      "pitcherWorkload": 100,
+      "lineup": 100,
+      "bullpen": 100,
+      "matchup": 100,
+      "teamOffensiveForm": 100,
+      "opponentDefense": 100,
+      "travelRest": 100,
+      "park": 100,
+      "environment": 100,
+      "market": 66.7,
+      "totalObservations": 6
     }
   },
   "note": "Coverage % = attached observations / total observations. eligibleFiles=0 while captureFiles>0 ⇒ a cadence gap (captured after first pitch, correctly excluded as leakage), not an attachment bug. No fabrication."

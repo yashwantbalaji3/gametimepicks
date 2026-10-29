@@ -1,0 +1,2982 @@
+{
+ "artifact": "nba-champion-challenger-report",
+ "evaluatorVersion": "nba-champion-challenger-2",
+ "computedAt": "2026-10-29T16:02:15Z",
+ "preregistration": "docs/V18_NBA_REGULAR_SEASON_PREREGISTRATION.md",
+ "dataClass": "PRIVATE_RESEARCH",
+ "productEligible": false,
+ "promotes": false,
+ "rule": "report only — a verdict is an input to a founder decision (promotion-record.json), never a promotion; markets are judged separately (§7)",
+ "bootstrap": {
+  "B": 2000,
+  "seed": 20261020,
+  "alpha": 0.05,
+  "fewClustersBelow": 10,
+  "method": "game-clustered percentile bootstrap of the pooled mean paired difference"
+ },
+ "champion": "v0.1",
+ "comparisons": {
+  "v0.2": {
+   "pairedGames": 68,
+   "excluded": {
+    "onlyChampion": 12,
+    "onlyChallenger": 0,
+    "notRegularSeason": 53,
+    "notPreTip": 0,
+    "receiptNotVerified": 0,
+    "disputedFinal": 0,
+    "finalMismatch": 0,
+    "boxscoreMismatch": 0
+   },
+   "paired": {
+    "winnerSimLogLoss": {
+     "n": 68,
+     "clusters": 68,
+     "champion": 0.7937,
+     "challenger": 2.6966,
+     "diff": 1.9029,
+     "ci95": [
+      0.3544,
+      3.5556
+     ],
+     "direction": "CHAMPION_LOWER",
+     "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+    },
+    "winnerSimBrier": {
+     "n": 68,
+     "clusters": 68,
+     "champion": 0.2829,
+     "challenger": 0.3169,
+     "diff": 0.034,
+     "ci95": [
+      -0.0257,
+      0.0948
+     ],
+     "direction": "CI_INCLUDES_0",
+     "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+    },
+    "winnerEloLogLoss": {
+     "n": 68,
+     "clusters": 68,
+     "champion": 0.6309,
+     "challenger": 0.6262,
+     "diff": -0.0047,
+     "ci95": [
+      -0.016,
+      0.008
+     ],
+     "direction": "CI_INCLUDES_0",
+     "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+    },
+    "marginAbsErr": {
+     "n": 68,
+     "clusters": 68,
+     "champion": 16.7106,
+     "challenger": 25.5415,
+     "diff": 8.8309,
+     "ci95": [
+      1.7449,
+      17.4087
+     ],
+     "direction": "CHAMPION_LOWER",
+     "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+    },
+    "totalAbsErr": {
+     "n": 68,
+     "clusters": 68,
+     "champion": 18.0003,
+     "challenger": 113.2438,
+     "diff": 95.2435,
+     "ci95": [
+      70.0309,
+      120.3649
+     ],
+     "direction": "CHAMPION_LOWER",
+     "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+    },
+    "players": {
+     "minutesAbsErr": {
+      "n": 564,
+      "clusters": 68,
+      "champion": 5.7873,
+      "challenger": 5.0443,
+      "diff": -0.7429,
+      "ci95": [
+       -1.1142,
+       -0.3863
+      ],
+      "direction": "CHALLENGER_LOWER",
+      "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+     },
+     "pts": {
+      "absErr": {
+       "n": 329,
+       "clusters": 41,
+       "champion": 5.7729,
+       "challenger": 6.1729,
+       "diff": 0.4,
+       "ci95": [
+        -0.0542,
+        0.9036
+       ],
+       "direction": "CI_INCLUDES_0",
+       "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+      },
+      "coverage80": {
+       "n": 329,
+       "champion": 0.6535,
+       "challenger": 0.6292,
+       "nominal": 0.8,
+       "band": [
+        0.76,
+        0.84
+       ]
+      }
+     },
+     "reb": {
+      "absErr": {
+       "n": 329,
+       "clusters": 41,
+       "champion": 2.2597,
+       "challenger": 2.3101,
+       "diff": 0.0504,
+       "ci95": [
+        -0.0946,
+        0.1917
+       ],
+       "direction": "CI_INCLUDES_0",
+       "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+      },
+      "coverage80": {
+       "n": 329,
+       "champion": 0.7052,
+       "challenger": 0.6869,
+       "nominal": 0.8,
+       "band": [
+        0.76,
+        0.84
+       ]
+      }
+     },
+     "ast": {
+      "absErr": {
+       "n": 329,
+       "clusters": 41,
+       "champion": 1.697,
+       "challenger": 1.8033,
+       "diff": 0.1063,
+       "ci95": [
+        -0.0158,
+        0.2264
+       ],
+       "direction": "CI_INCLUDES_0",
+       "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+      },
+      "coverage80": {
+       "n": 329,
+       "champion": 0.6869,
+       "challenger": 0.6809,
+       "nominal": 0.8,
+       "band": [
+        0.76,
+        0.84
+       ]
+      }
+     },
+     "threePm": {
+      "absErr": {
+       "n": 155,
+       "clusters": 39,
+       "champion": 1.3252,
+       "challenger": 1.4353,
+       "diff": 0.1101,
+       "ci95": [
+        0.0213,
+        0.2101
+       ],
+       "direction": "CHAMPION_LOWER",
+       "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+      },
+      "coverage80": {
+       "n": 155,
+       "champion": 0.7355,
+       "challenger": 0.6774,
+       "nominal": 0.8,
+       "band": [
+        0.74,
+        0.86
+       ]
+      }
+     }
+    },
+    "distribution": {
+     "label": "diagnostic, promotes nothing",
+     "players": {
+      "pts": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 564,
+        "clusters": 68,
+        "champion": 3.7623,
+        "challenger": 8.9772,
+        "diff": 5.2149,
+        "ci95": [
+         3.792,
+         6.6256
+        ],
+        "direction": "CHAMPION_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 564,
+        "clusters": 68,
+        "champion": 27.7086,
+        "challenger": 83.7586,
+        "diff": 56.05,
+        "ci95": [
+         40.9004,
+         71.2704
+        ],
+        "direction": "CHAMPION_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {
+        "ge10": {
+         "n": 564,
+         "clusters": 68,
+         "champion": 0.4992,
+         "challenger": 9.0514,
+         "diff": 8.5523,
+         "ci95": [
+          6.2199,
+          10.9659
+         ],
+         "direction": "CHAMPION_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge15": {
+         "n": 564,
+         "clusters": 68,
+         "champion": 0.6921,
+         "challenger": 6.635,
+         "diff": 5.9429,
+         "ci95": [
+          4.3176,
+          7.6797
+         ],
+         "direction": "CHAMPION_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge20": {
+         "n": 564,
+         "clusters": 68,
+         "champion": 0.6247,
+         "challenger": 3.9538,
+         "diff": 3.3291,
+         "ci95": [
+          2.2455,
+          4.5039
+         ],
+         "direction": "CHAMPION_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge25": {
+         "n": 564,
+         "clusters": 68,
+         "champion": 0.4126,
+         "challenger": 1.8058,
+         "diff": 1.3932,
+         "ci95": [
+          0.8697,
+          2.0109
+         ],
+         "direction": "CHAMPION_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge30": {
+         "n": 564,
+         "clusters": 68,
+         "champion": 0.2523,
+         "challenger": 0.7262,
+         "diff": 0.4739,
+         "ci95": [
+          0.2112,
+          0.7855
+         ],
+         "direction": "CHAMPION_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        }
+       }
+      },
+      "reb": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 564,
+        "clusters": 68,
+        "champion": 1.4852,
+        "challenger": 3.1957,
+        "diff": 1.7105,
+        "ci95": [
+         1.22,
+         2.2035
+        ],
+        "direction": "CHAMPION_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 564,
+        "clusters": 68,
+        "champion": 10.8596,
+        "challenger": 29.7324,
+        "diff": 18.8728,
+        "ci95": [
+         13.5838,
+         24.1748
+        ],
+        "direction": "CHAMPION_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {
+        "ge5": {
+         "n": 564,
+         "clusters": 68,
+         "champion": 0.5923,
+         "challenger": 6.626,
+         "diff": 6.0337,
+         "ci95": [
+          4.2292,
+          7.9028
+         ],
+         "direction": "CHAMPION_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge10": {
+         "n": 564,
+         "clusters": 68,
+         "champion": 0.3878,
+         "challenger": 1.6313,
+         "diff": 1.2434,
+         "ci95": [
+          0.6942,
+          1.8841
+         ],
+         "direction": "CHAMPION_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        }
+       }
+      },
+      "ast": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 564,
+        "clusters": 68,
+        "champion": 1.1199,
+        "challenger": 2.2827,
+        "diff": 1.1627,
+        "ci95": [
+         0.8579,
+         1.4849
+        ],
+        "direction": "CHAMPION_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 564,
+        "clusters": 68,
+        "champion": 8.2106,
+        "challenger": 21.0706,
+        "diff": 12.8601,
+        "ci95": [
+         9.4524,
+         16.3673
+        ],
+        "direction": "CHAMPION_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {
+        "ge5": {
+         "n": 564,
+         "clusters": 68,
+         "champion": 0.5802,
+         "challenger": 4.3947,
+         "diff": 3.8145,
+         "ci95": [
+          2.7474,
+          4.992
+         ],
+         "direction": "CHAMPION_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge10": {
+         "n": 564,
+         "clusters": 68,
+         "champion": 0.198,
+         "challenger": 0.7526,
+         "diff": 0.5546,
+         "ci95": [
+          0.2735,
+          0.887
+         ],
+         "direction": "CHAMPION_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        }
+       }
+      },
+      "threePm": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 564,
+        "clusters": 68,
+        "champion": 0.6687,
+        "challenger": 1.1742,
+        "diff": 0.5055,
+        "ci95": [
+         0.3854,
+         0.6368
+        ],
+        "direction": "CHAMPION_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 564,
+        "clusters": 68,
+        "champion": 4.8267,
+        "challenger": 10.563,
+        "diff": 5.7363,
+        "ci95": [
+         4.3345,
+         7.2236
+        ],
+        "direction": "CHAMPION_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {
+        "ge1": {
+         "n": 564,
+         "clusters": 68,
+         "champion": 0.6617,
+         "challenger": 9.2636,
+         "diff": 8.6019,
+         "ci95": [
+          6.2172,
+          11.0309
+         ],
+         "direction": "CHAMPION_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge2": {
+         "n": 564,
+         "clusters": 68,
+         "champion": 0.7553,
+         "challenger": 6.3351,
+         "diff": 5.5798,
+         "ci95": [
+          4.0377,
+          7.1782
+         ],
+         "direction": "CHAMPION_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge3": {
+         "n": 564,
+         "clusters": 68,
+         "champion": 0.6101,
+         "challenger": 3.6749,
+         "diff": 3.0649,
+         "ci95": [
+          2.1434,
+          4.0636
+         ],
+         "direction": "CHAMPION_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        }
+       }
+      },
+      "pra": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 564,
+        "clusters": 68,
+        "champion": 4.9521,
+        "challenger": 13.4476,
+        "diff": 8.4955,
+        "ci95": [
+         6.1561,
+         10.8856
+        ],
+        "direction": "CHAMPION_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 564,
+        "clusters": 68,
+        "champion": 36.3034,
+        "challenger": 126.9334,
+        "diff": 90.63,
+        "ci95": [
+         65.7783,
+         115.6352
+        ],
+        "direction": "CHAMPION_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {}
+      },
+      "ptsReb": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 564,
+        "clusters": 68,
+        "champion": 4.5284,
+        "challenger": 11.6456,
+        "diff": 7.1172,
+        "ci95": [
+         5.1577,
+         9.1012
+        ],
+        "direction": "CHAMPION_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 564,
+        "clusters": 68,
+        "champion": 33.1414,
+        "challenger": 109.2215,
+        "diff": 76.0801,
+        "ci95": [
+         55.1177,
+         97.5608
+        ],
+        "direction": "CHAMPION_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {}
+      },
+      "ptsAst": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 564,
+        "clusters": 68,
+        "champion": 4.1849,
+        "challenger": 10.7603,
+        "diff": 6.5754,
+        "ci95": [
+         4.7513,
+         8.3669
+        ],
+        "direction": "CHAMPION_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 564,
+        "clusters": 68,
+        "champion": 30.8595,
+        "challenger": 101.3391,
+        "diff": 70.4797,
+        "ci95": [
+         51.4643,
+         89.6316
+        ],
+        "direction": "CHAMPION_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {}
+      },
+      "minutes": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 564,
+        "clusters": 68,
+        "champion": 3.8745,
+        "challenger": 3.6006,
+        "diff": -0.2739,
+        "ci95": [
+         -0.5358,
+         -0.0376
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 564,
+        "clusters": 68,
+        "champion": 29.1648,
+        "challenger": 28.7839,
+        "diff": -0.3809,
+        "ci95": [
+         -2.7559,
+         1.8459
+        ],
+        "direction": "CI_INCLUDES_0",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {}
+      }
+     },
+     "team": {
+      "margin": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 68,
+        "clusters": 68,
+        "champion": 10.8794,
+        "challenger": 20.8225,
+        "diff": 9.9431,
+        "ci95": [
+         3.7275,
+         17.7912
+        ],
+        "direction": "CHAMPION_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 68,
+        "clusters": 68,
+        "champion": 79.8824,
+        "challenger": 185.1324,
+        "diff": 105.25,
+        "ci95": [
+         44.4559,
+         180.8529
+        ],
+        "direction": "CHAMPION_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {}
+      },
+      "total": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 68,
+        "clusters": 68,
+        "champion": 11.5441,
+        "challenger": 108.4608,
+        "diff": 96.9167,
+        "ci95": [
+         71.599,
+         122.1275
+        ],
+        "direction": "CHAMPION_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 68,
+        "clusters": 68,
+        "champion": 83.8235,
+        "challenger": 1060.5147,
+        "diff": 976.6912,
+        "ci95": [
+         719.5441,
+         1233.0882
+        ],
+        "direction": "CHAMPION_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {}
+      }
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "market": "winner (sim log loss)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 68,
+     "minN": 300,
+     "reasons": [
+      "paired n 68 < §6 minimum 300"
+     ]
+    },
+    {
+     "market": "margin (|error|)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 68,
+     "minN": 300,
+     "reasons": [
+      "paired n 68 < §6 minimum 300"
+     ]
+    },
+    {
+     "market": "total (|error|)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 68,
+     "minN": 300,
+     "reasons": [
+      "paired n 68 < §6 minimum 300"
+     ]
+    },
+    {
+     "market": "pts (|error|, expectedMinutes ≥ 20 in both)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 329,
+     "minN": 1500,
+     "reasons": [
+      "paired n 329 < §6 minimum 1500"
+     ]
+    },
+    {
+     "market": "reb (|error|, expectedMinutes ≥ 20 in both)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 329,
+     "minN": 1500,
+     "reasons": [
+      "paired n 329 < §6 minimum 1500"
+     ]
+    },
+    {
+     "market": "ast (|error|, expectedMinutes ≥ 20 in both)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 329,
+     "minN": 1500,
+     "reasons": [
+      "paired n 329 < §6 minimum 1500"
+     ]
+    },
+    {
+     "market": "threePm (|error|, expectedMinutes ≥ 20 in both)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 155,
+     "minN": 800,
+     "reasons": [
+      "paired n 155 < §6 minimum 800"
+     ]
+    }
+   ],
+   "overall": "INSUFFICIENT_N",
+   "eloHeadNote": "the Elo head is reported (winnerEloLogLoss) but carries no verdict: §7's winner bar names the sim; scoring the Elo side for promotion is founder reading N6"
+  },
+  "v1": {
+   "pairedGames": 68,
+   "excluded": {
+    "onlyChampion": 65,
+    "onlyChallenger": 0,
+    "notRegularSeason": 0,
+    "notPreTip": 0,
+    "receiptNotVerified": 0,
+    "disputedFinal": 0,
+    "finalMismatch": 0,
+    "boxscoreMismatch": 0
+   },
+   "paired": {
+    "winnerSimLogLoss": {
+     "n": 68,
+     "clusters": 68,
+     "champion": 0.7937,
+     "challenger": 0.6066,
+     "diff": -0.1871,
+     "ci95": [
+      -0.3668,
+      -0.0214
+     ],
+     "direction": "CHALLENGER_LOWER",
+     "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+    },
+    "winnerSimBrier": {
+     "n": 68,
+     "clusters": 68,
+     "champion": 0.2829,
+     "challenger": 0.2103,
+     "diff": -0.0726,
+     "ci95": [
+      -0.1465,
+      -0.0031
+     ],
+     "direction": "CHALLENGER_LOWER",
+     "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+    },
+    "winnerEloLogLoss": {
+     "n": 68,
+     "clusters": 68,
+     "champion": 0.6309,
+     "challenger": 0.6262,
+     "diff": -0.0047,
+     "ci95": [
+      -0.016,
+      0.008
+     ],
+     "direction": "CI_INCLUDES_0",
+     "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+    },
+    "marginAbsErr": {
+     "n": 68,
+     "clusters": 68,
+     "champion": 16.7106,
+     "challenger": 11.9963,
+     "diff": -4.7143,
+     "ci95": [
+      -8.0337,
+      -1.6615
+     ],
+     "direction": "CHALLENGER_LOWER",
+     "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+    },
+    "totalAbsErr": {
+     "n": 68,
+     "clusters": 68,
+     "champion": 18.0003,
+     "challenger": 17.3138,
+     "diff": -0.6865,
+     "ci95": [
+      -2.7007,
+      1.3513
+     ],
+     "direction": "CI_INCLUDES_0",
+     "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+    },
+    "players": {
+     "minutesAbsErr": {
+      "n": 609,
+      "clusters": 68,
+      "champion": 6.3129,
+      "challenger": 5.7986,
+      "diff": -0.5143,
+      "ci95": [
+       -0.8007,
+       -0.255
+      ],
+      "direction": "CHALLENGER_LOWER",
+      "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+     },
+     "pts": {
+      "absErr": {
+       "n": 609,
+       "clusters": 68,
+       "champion": 5.8333,
+       "challenger": 5.567,
+       "diff": -0.2663,
+       "ci95": [
+        -0.4808,
+        -0.0507
+       ],
+       "direction": "CHALLENGER_LOWER",
+       "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+      },
+      "coverage80": {
+       "n": 609,
+       "champion": 0.6568,
+       "challenger": 0.8046,
+       "nominal": 0.8,
+       "band": [
+        0.76,
+        0.84
+       ]
+      }
+     },
+     "reb": {
+      "absErr": {
+       "n": 609,
+       "clusters": 68,
+       "champion": 2.2652,
+       "challenger": 2.1628,
+       "diff": -0.1025,
+       "ci95": [
+        -0.1673,
+        -0.037
+       ],
+       "direction": "CHALLENGER_LOWER",
+       "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+      },
+      "coverage80": {
+       "n": 609,
+       "champion": 0.6929,
+       "challenger": 0.8456,
+       "nominal": 0.8,
+       "band": [
+        0.76,
+        0.84
+       ]
+      }
+     },
+     "ast": {
+      "absErr": {
+       "n": 609,
+       "clusters": 68,
+       "champion": 1.7457,
+       "challenger": 1.6222,
+       "diff": -0.1235,
+       "ci95": [
+        -0.1902,
+        -0.0557
+       ],
+       "direction": "CHALLENGER_LOWER",
+       "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+      },
+      "coverage80": {
+       "n": 609,
+       "champion": 0.6765,
+       "challenger": 0.8801,
+       "nominal": 0.8,
+       "band": [
+        0.76,
+        0.84
+       ]
+      }
+     },
+     "threePm": {
+      "absErr": {
+       "n": 313,
+       "clusters": 68,
+       "champion": 1.2705,
+       "challenger": 1.2371,
+       "diff": -0.0334,
+       "ci95": [
+        -0.0851,
+        0.0161
+       ],
+       "direction": "CI_INCLUDES_0",
+       "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+      },
+      "coverage80": {
+       "n": 313,
+       "champion": 0.7284,
+       "challenger": 0.9233,
+       "nominal": 0.8,
+       "band": [
+        0.74,
+        0.86
+       ]
+      }
+     }
+    },
+    "distribution": {
+     "label": "diagnostic, promotes nothing",
+     "players": {
+      "pts": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 609,
+        "clusters": 68,
+        "champion": 3.8188,
+        "challenger": 3.4832,
+        "diff": -0.3356,
+        "ci95": [
+         -0.4819,
+         -0.1902
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 609,
+        "clusters": 68,
+        "champion": 28.1776,
+        "challenger": 24.4401,
+        "diff": -3.7375,
+        "ci95": [
+         -5.234,
+         -2.3105
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {
+        "ge10": {
+         "n": 609,
+         "clusters": 68,
+         "champion": 0.5304,
+         "challenger": 0.4942,
+         "diff": -0.0362,
+         "ci95": [
+          -0.0712,
+          -0.0022
+         ],
+         "direction": "CHALLENGER_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge15": {
+         "n": 609,
+         "clusters": 68,
+         "champion": 0.6774,
+         "challenger": 0.5415,
+         "diff": -0.1359,
+         "ci95": [
+          -0.2549,
+          -0.0486
+         ],
+         "direction": "CHALLENGER_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge20": {
+         "n": 609,
+         "clusters": 68,
+         "champion": 0.5943,
+         "challenger": 0.4784,
+         "diff": -0.1159,
+         "ci95": [
+          -0.2333,
+          -0.0335
+         ],
+         "direction": "CHALLENGER_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge25": {
+         "n": 609,
+         "clusters": 68,
+         "champion": 0.3857,
+         "challenger": 0.2863,
+         "diff": -0.0993,
+         "ci95": [
+          -0.2119,
+          -0.0234
+         ],
+         "direction": "CHALLENGER_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge30": {
+         "n": 609,
+         "clusters": 68,
+         "champion": 0.2344,
+         "challenger": 0.1636,
+         "diff": -0.0708,
+         "ci95": [
+          -0.1304,
+          -0.0204
+         ],
+         "direction": "CHALLENGER_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        }
+       }
+      },
+      "reb": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 609,
+        "clusters": 68,
+        "champion": 1.4618,
+        "challenger": 1.3498,
+        "diff": -0.112,
+        "ci95": [
+         -0.1578,
+         -0.0663
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 609,
+        "clusters": 68,
+        "champion": 10.6344,
+        "challenger": 9.4499,
+        "diff": -1.1844,
+        "ci95": [
+         -1.6986,
+         -0.7014
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {
+        "ge5": {
+         "n": 609,
+         "clusters": 68,
+         "champion": 0.572,
+         "challenger": 0.5349,
+         "diff": -0.0371,
+         "ci95": [
+          -0.0801,
+          -0.0015
+         ],
+         "direction": "CHALLENGER_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge10": {
+         "n": 609,
+         "clusters": 68,
+         "champion": 0.353,
+         "challenger": 0.2808,
+         "diff": -0.0722,
+         "ci95": [
+          -0.1144,
+          -0.0347
+         ],
+         "direction": "CHALLENGER_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        }
+       }
+      },
+      "ast": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 609,
+        "clusters": 68,
+        "champion": 1.1275,
+        "challenger": 1.0039,
+        "diff": -0.1236,
+        "ci95": [
+         -0.162,
+         -0.0838
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 609,
+        "clusters": 68,
+        "champion": 8.2462,
+        "challenger": 7.1363,
+        "diff": -1.1099,
+        "ci95": [
+         -1.5028,
+         -0.7162
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {
+        "ge5": {
+         "n": 609,
+         "clusters": 68,
+         "champion": 0.5547,
+         "challenger": 0.4497,
+         "diff": -0.105,
+         "ci95": [
+          -0.1515,
+          -0.0628
+         ],
+         "direction": "CHALLENGER_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge10": {
+         "n": 609,
+         "clusters": 68,
+         "champion": 0.1849,
+         "challenger": 0.1586,
+         "diff": -0.0263,
+         "ci95": [
+          -0.071,
+          0.0133
+         ],
+         "direction": "CI_INCLUDES_0",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        }
+       }
+      },
+      "threePm": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 609,
+        "clusters": 68,
+        "champion": 0.6525,
+        "challenger": 0.6003,
+        "diff": -0.0522,
+        "ci95": [
+         -0.0794,
+         -0.026
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 609,
+        "clusters": 68,
+        "champion": 4.6897,
+        "challenger": 4.1773,
+        "diff": -0.5123,
+        "ci95": [
+         -0.78,
+         -0.251
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {
+        "ge1": {
+         "n": 609,
+         "clusters": 68,
+         "champion": 0.6681,
+         "challenger": 0.5137,
+         "diff": -0.1544,
+         "ci95": [
+          -0.3068,
+          -0.028
+         ],
+         "direction": "CHALLENGER_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge2": {
+         "n": 609,
+         "clusters": 68,
+         "champion": 0.6848,
+         "challenger": 0.5864,
+         "diff": -0.0985,
+         "ci95": [
+          -0.2283,
+          0.0045
+         ],
+         "direction": "CI_INCLUDES_0",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge3": {
+         "n": 609,
+         "clusters": 68,
+         "champion": 0.5869,
+         "challenger": 0.4781,
+         "diff": -0.1088,
+         "ci95": [
+          -0.2262,
+          -0.0322
+         ],
+         "direction": "CHALLENGER_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        }
+       }
+      },
+      "pra": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 609,
+        "clusters": 68,
+        "champion": 5.1091,
+        "challenger": 4.5771,
+        "diff": -0.532,
+        "ci95": [
+         -0.7438,
+         -0.3322
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 609,
+        "clusters": 68,
+        "champion": 37.7931,
+        "challenger": 32.2775,
+        "diff": -5.5156,
+        "ci95": [
+         -7.5457,
+         -3.5132
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {}
+      },
+      "ptsReb": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 609,
+        "clusters": 68,
+        "champion": 4.6225,
+        "challenger": 4.1803,
+        "diff": -0.4422,
+        "ci95": [
+         -0.6277,
+         -0.2583
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 609,
+        "clusters": 68,
+        "champion": 34.0778,
+        "challenger": 29.1741,
+        "diff": -4.9037,
+        "ci95": [
+         -6.8189,
+         -3.0422
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {}
+      },
+      "ptsAst": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 609,
+        "clusters": 68,
+        "champion": 4.2987,
+        "challenger": 3.8697,
+        "diff": -0.4289,
+        "ci95": [
+         -0.6043,
+         -0.2645
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 609,
+        "clusters": 68,
+        "champion": 31.8987,
+        "challenger": 27.1511,
+        "diff": -4.7476,
+        "ci95": [
+         -6.4546,
+         -3.1926
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {}
+      },
+      "minutes": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 609,
+        "clusters": 68,
+        "champion": 4.2986,
+        "challenger": 3.6587,
+        "diff": -0.6399,
+        "ci95": [
+         -0.8512,
+         -0.4542
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 609,
+        "clusters": 68,
+        "champion": 32.9003,
+        "challenger": 25.4245,
+        "diff": -7.4758,
+        "ci95": [
+         -9.5244,
+         -5.659
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {}
+      }
+     },
+     "team": {
+      "margin": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 68,
+        "clusters": 68,
+        "champion": 10.8794,
+        "challenger": 7.7686,
+        "diff": -3.1108,
+        "ci95": [
+         -4.8637,
+         -1.4049
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 68,
+        "clusters": 68,
+        "champion": 79.8824,
+        "challenger": 56.3088,
+        "diff": -23.5735,
+        "ci95": [
+         -36.4559,
+         -10.6765
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {}
+      },
+      "total": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 68,
+        "clusters": 68,
+        "champion": 11.5441,
+        "challenger": 11.049,
+        "diff": -0.4951,
+        "ci95": [
+         -2.0069,
+         1.0176
+        ],
+        "direction": "CI_INCLUDES_0",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 68,
+        "clusters": 68,
+        "champion": 83.8235,
+        "challenger": 79.2647,
+        "diff": -4.5588,
+        "ci95": [
+         -18.8235,
+         10.1912
+        ],
+        "direction": "CI_INCLUDES_0",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {}
+      }
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "market": "winner (sim log loss)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 68,
+     "minN": 300,
+     "reasons": [
+      "paired n 68 < §6 minimum 300"
+     ]
+    },
+    {
+     "market": "margin (|error|)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 68,
+     "minN": 300,
+     "reasons": [
+      "paired n 68 < §6 minimum 300"
+     ]
+    },
+    {
+     "market": "total (|error|)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 68,
+     "minN": 300,
+     "reasons": [
+      "paired n 68 < §6 minimum 300"
+     ]
+    },
+    {
+     "market": "pts (|error|, expectedMinutes ≥ 20 in both)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 609,
+     "minN": 1500,
+     "reasons": [
+      "paired n 609 < §6 minimum 1500"
+     ]
+    },
+    {
+     "market": "reb (|error|, expectedMinutes ≥ 20 in both)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 609,
+     "minN": 1500,
+     "reasons": [
+      "paired n 609 < §6 minimum 1500"
+     ]
+    },
+    {
+     "market": "ast (|error|, expectedMinutes ≥ 20 in both)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 609,
+     "minN": 1500,
+     "reasons": [
+      "paired n 609 < §6 minimum 1500"
+     ]
+    },
+    {
+     "market": "threePm (|error|, expectedMinutes ≥ 20 in both)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 313,
+     "minN": 800,
+     "reasons": [
+      "paired n 313 < §6 minimum 800"
+     ]
+    }
+   ],
+   "overall": "INSUFFICIENT_N",
+   "eloHeadNote": "the Elo head is reported (winnerEloLogLoss) but carries no verdict: §7's winner bar names the sim; scoring the Elo side for promotion is founder reading N6"
+  },
+  "v0.3": {
+   "pairedGames": 54,
+   "excluded": {
+    "onlyChampion": 79,
+    "onlyChallenger": 0,
+    "notRegularSeason": 0,
+    "notPreTip": 0,
+    "receiptNotVerified": 0,
+    "disputedFinal": 0,
+    "finalMismatch": 0,
+    "boxscoreMismatch": 0
+   },
+   "paired": {
+    "winnerSimLogLoss": {
+     "n": 54,
+     "clusters": 54,
+     "champion": 0.7946,
+     "challenger": 0.6799,
+     "diff": -0.1147,
+     "ci95": [
+      -0.2381,
+      -0.0037
+     ],
+     "direction": "CHALLENGER_LOWER",
+     "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+    },
+    "winnerSimBrier": {
+     "n": 54,
+     "clusters": 54,
+     "champion": 0.2807,
+     "challenger": 0.2439,
+     "diff": -0.0368,
+     "ci95": [
+      -0.0832,
+      0.0062
+     ],
+     "direction": "CI_INCLUDES_0",
+     "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+    },
+    "winnerEloLogLoss": {
+     "n": 54,
+     "clusters": 54,
+     "champion": 0.6338,
+     "challenger": 0.6338,
+     "diff": 0,
+     "ci95": [
+      0,
+      0
+     ],
+     "direction": "CI_INCLUDES_0",
+     "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+    },
+    "marginAbsErr": {
+     "n": 54,
+     "clusters": 54,
+     "champion": 15.9002,
+     "challenger": 14.0022,
+     "diff": -1.898,
+     "ci95": [
+      -4.9313,
+      1.2552
+     ],
+     "direction": "CI_INCLUDES_0",
+     "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+    },
+    "totalAbsErr": {
+     "n": 54,
+     "clusters": 54,
+     "champion": 17.7207,
+     "challenger": 18.5515,
+     "diff": 0.8307,
+     "ci95": [
+      -2.2987,
+      4.0911
+     ],
+     "direction": "CI_INCLUDES_0",
+     "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+    },
+    "players": {
+     "minutesAbsErr": {
+      "n": 445,
+      "clusters": 54,
+      "champion": 6.1915,
+      "challenger": 5.4163,
+      "diff": -0.7751,
+      "ci95": [
+       -1.1229,
+       -0.4232
+      ],
+      "direction": "CHALLENGER_LOWER",
+      "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+     },
+     "pts": {
+      "absErr": {
+       "n": 445,
+       "clusters": 54,
+       "champion": 5.5388,
+       "challenger": 5.3696,
+       "diff": -0.1692,
+       "ci95": [
+        -0.4496,
+        0.0991
+       ],
+       "direction": "CI_INCLUDES_0",
+       "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+      },
+      "coverage80": {
+       "n": 445,
+       "champion": 0.6876,
+       "challenger": 0.7978,
+       "nominal": 0.8,
+       "band": [
+        0.76,
+        0.84
+       ]
+      }
+     },
+     "reb": {
+      "absErr": {
+       "n": 445,
+       "clusters": 54,
+       "champion": 2.3423,
+       "challenger": 2.1889,
+       "diff": -0.1534,
+       "ci95": [
+        -0.2481,
+        -0.0625
+       ],
+       "direction": "CHALLENGER_LOWER",
+       "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+      },
+      "coverage80": {
+       "n": 445,
+       "champion": 0.6764,
+       "challenger": 0.7461,
+       "nominal": 0.8,
+       "band": [
+        0.76,
+        0.84
+       ]
+      }
+     },
+     "ast": {
+      "absErr": {
+       "n": 445,
+       "clusters": 54,
+       "champion": 1.734,
+       "challenger": 1.5918,
+       "diff": -0.1422,
+       "ci95": [
+        -0.2215,
+        -0.0568
+       ],
+       "direction": "CHALLENGER_LOWER",
+       "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+      },
+      "coverage80": {
+       "n": 445,
+       "champion": 0.6899,
+       "challenger": 0.7933,
+       "nominal": 0.8,
+       "band": [
+        0.76,
+        0.84
+       ]
+      }
+     },
+     "threePm": {
+      "absErr": {
+       "n": 226,
+       "clusters": 54,
+       "champion": 1.2042,
+       "challenger": 1.2144,
+       "diff": 0.0101,
+       "ci95": [
+        -0.0545,
+        0.0681
+       ],
+       "direction": "CI_INCLUDES_0",
+       "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+      },
+      "coverage80": {
+       "n": 226,
+       "champion": 0.7434,
+       "challenger": 0.8097,
+       "nominal": 0.8,
+       "band": [
+        0.74,
+        0.86
+       ]
+      }
+     }
+    },
+    "distribution": {
+     "label": "diagnostic, promotes nothing",
+     "players": {
+      "pts": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 445,
+        "clusters": 54,
+        "champion": 3.6155,
+        "challenger": 3.3554,
+        "diff": -0.26,
+        "ci95": [
+         -0.4563,
+         -0.072
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 445,
+        "clusters": 54,
+        "champion": 26.5072,
+        "challenger": 23.5915,
+        "diff": -2.9157,
+        "ci95": [
+         -4.747,
+         -1.1507
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {
+        "ge10": {
+         "n": 445,
+         "clusters": 54,
+         "champion": 0.5108,
+         "challenger": 0.4804,
+         "diff": -0.0304,
+         "ci95": [
+          -0.0732,
+          0.0103
+         ],
+         "direction": "CI_INCLUDES_0",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge15": {
+         "n": 445,
+         "clusters": 54,
+         "champion": 0.6543,
+         "challenger": 0.5464,
+         "diff": -0.1079,
+         "ci95": [
+          -0.2522,
+          0
+         ],
+         "direction": "CI_INCLUDES_0",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge20": {
+         "n": 445,
+         "clusters": 54,
+         "champion": 0.5482,
+         "challenger": 0.4775,
+         "diff": -0.0707,
+         "ci95": [
+          -0.2202,
+          0.0139
+         ],
+         "direction": "CI_INCLUDES_0",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge25": {
+         "n": 445,
+         "clusters": 54,
+         "champion": 0.3815,
+         "challenger": 0.2948,
+         "diff": -0.0867,
+         "ci95": [
+          -0.2299,
+          -0.0006
+         ],
+         "direction": "CHALLENGER_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge30": {
+         "n": 445,
+         "clusters": 54,
+         "champion": 0.1728,
+         "challenger": 0.1576,
+         "diff": -0.0152,
+         "ci95": [
+          -0.053,
+          0.0237
+         ],
+         "direction": "CI_INCLUDES_0",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        }
+       }
+      },
+      "reb": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 445,
+        "clusters": 54,
+        "champion": 1.5244,
+        "challenger": 1.3959,
+        "diff": -0.1285,
+        "ci95": [
+         -0.1983,
+         -0.061
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 445,
+        "clusters": 54,
+        "champion": 11.1601,
+        "challenger": 10.0069,
+        "diff": -1.1533,
+        "ci95": [
+         -1.8453,
+         -0.4725
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {
+        "ge5": {
+         "n": 445,
+         "clusters": 54,
+         "champion": 0.5841,
+         "challenger": 0.5299,
+         "diff": -0.0542,
+         "ci95": [
+          -0.1122,
+          -0.0057
+         ],
+         "direction": "CHALLENGER_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge10": {
+         "n": 445,
+         "clusters": 54,
+         "champion": 0.4015,
+         "challenger": 0.3164,
+         "diff": -0.0851,
+         "ci95": [
+          -0.1459,
+          -0.0344
+         ],
+         "direction": "CHALLENGER_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        }
+       }
+      },
+      "ast": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 445,
+        "clusters": 54,
+        "champion": 1.132,
+        "challenger": 1.0024,
+        "diff": -0.1296,
+        "ci95": [
+         -0.1829,
+         -0.0731
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 445,
+        "clusters": 54,
+        "champion": 8.3399,
+        "challenger": 7.1522,
+        "diff": -1.1877,
+        "ci95": [
+         -1.7338,
+         -0.6722
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {
+        "ge5": {
+         "n": 445,
+         "clusters": 54,
+         "champion": 0.5561,
+         "challenger": 0.452,
+         "diff": -0.1041,
+         "ci95": [
+          -0.1573,
+          -0.0549
+         ],
+         "direction": "CHALLENGER_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge10": {
+         "n": 445,
+         "clusters": 54,
+         "champion": 0.2216,
+         "challenger": 0.181,
+         "diff": -0.0406,
+         "ci95": [
+          -0.1106,
+          0.0117
+         ],
+         "direction": "CI_INCLUDES_0",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        }
+       }
+      },
+      "threePm": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 445,
+        "clusters": 54,
+        "champion": 0.6438,
+        "challenger": 0.6137,
+        "diff": -0.0301,
+        "ci95": [
+         -0.0611,
+         -0.0031
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 445,
+        "clusters": 54,
+        "champion": 4.6655,
+        "challenger": 4.1591,
+        "diff": -0.5064,
+        "ci95": [
+         -0.7865,
+         -0.2531
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {
+        "ge1": {
+         "n": 445,
+         "clusters": 54,
+         "champion": 0.5629,
+         "challenger": 0.4792,
+         "diff": -0.0836,
+         "ci95": [
+          -0.181,
+          -0.0127
+         ],
+         "direction": "CHALLENGER_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge2": {
+         "n": 445,
+         "clusters": 54,
+         "champion": 0.6699,
+         "challenger": 0.5878,
+         "diff": -0.0821,
+         "ci95": [
+          -0.2159,
+          0.0053
+         ],
+         "direction": "CI_INCLUDES_0",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        },
+        "ge3": {
+         "n": 445,
+         "clusters": 54,
+         "champion": 0.6534,
+         "challenger": 0.5173,
+         "diff": -0.136,
+         "ci95": [
+          -0.2955,
+          -0.0385
+         ],
+         "direction": "CHALLENGER_LOWER",
+         "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+        }
+       }
+      },
+      "pra": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 445,
+        "clusters": 54,
+        "champion": 4.9063,
+        "challenger": 4.4164,
+        "diff": -0.4898,
+        "ci95": [
+         -0.7893,
+         -0.2079
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 445,
+        "clusters": 54,
+        "champion": 35.8943,
+        "challenger": 31.6611,
+        "diff": -4.2331,
+        "ci95": [
+         -6.956,
+         -1.5443
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {}
+      },
+      "ptsReb": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 445,
+        "clusters": 54,
+        "champion": 4.4464,
+        "challenger": 4.031,
+        "diff": -0.4155,
+        "ci95": [
+         -0.6772,
+         -0.1688
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 445,
+        "clusters": 54,
+        "champion": 32.4345,
+        "challenger": 28.4465,
+        "diff": -3.988,
+        "ci95": [
+         -6.4905,
+         -1.5487
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {}
+      },
+      "ptsAst": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 445,
+        "clusters": 54,
+        "champion": 4.0734,
+        "challenger": 3.72,
+        "diff": -0.3534,
+        "ci95": [
+         -0.5835,
+         -0.1315
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 445,
+        "clusters": 54,
+        "champion": 29.8507,
+        "challenger": 26.3563,
+        "diff": -3.4944,
+        "ci95": [
+         -5.6248,
+         -1.4318
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {}
+      },
+      "minutes": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 445,
+        "clusters": 54,
+        "champion": 4.1662,
+        "challenger": 3.4469,
+        "diff": -0.7192,
+        "ci95": [
+         -0.9948,
+         -0.4592
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 445,
+        "clusters": 54,
+        "champion": 31.5223,
+        "challenger": 24.6242,
+        "diff": -6.8981,
+        "ci95": [
+         -9.4925,
+         -4.5807
+        ],
+        "direction": "CHALLENGER_LOWER",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {}
+      }
+     },
+     "team": {
+      "margin": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 54,
+        "clusters": 54,
+        "champion": 10.6407,
+        "challenger": 9.7778,
+        "diff": -0.863,
+        "ci95": [
+         -2.1444,
+         0.3765
+        ],
+        "direction": "CI_INCLUDES_0",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 54,
+        "clusters": 54,
+        "champion": 79.9815,
+        "challenger": 76.2963,
+        "diff": -3.6852,
+        "ci95": [
+         -10.7407,
+         2.3704
+        ],
+        "direction": "CI_INCLUDES_0",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {}
+      },
+      "total": {
+       "levels": [
+        "p10",
+        "p50",
+        "p90"
+       ],
+       "crps": {
+        "n": 54,
+        "clusters": 54,
+        "champion": 11.242,
+        "challenger": 12.2444,
+        "diff": 1.0025,
+        "ci95": [
+         -0.9617,
+         2.9951
+        ],
+        "direction": "CI_INCLUDES_0",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games",
+        "levels": [
+         "p10",
+         "p50",
+         "p90"
+        ]
+       },
+       "is80": {
+        "n": 54,
+        "clusters": 54,
+        "champion": 80.7593,
+        "challenger": 92.3704,
+        "diff": 11.6111,
+        "ci95": [
+         -5.7407,
+         27.6852
+        ],
+        "direction": "CI_INCLUDES_0",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "is50": {
+        "n": 0,
+        "clusters": 0,
+        "champion": null,
+        "challenger": null,
+        "diff": null,
+        "ci95": [
+         null,
+         null
+        ],
+        "direction": "NO_INTERVAL",
+        "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+       },
+       "thresholdLogScore": {}
+      }
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "market": "winner (sim log loss)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 54,
+     "minN": 300,
+     "reasons": [
+      "paired n 54 < §6 minimum 300"
+     ]
+    },
+    {
+     "market": "margin (|error|)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 54,
+     "minN": 300,
+     "reasons": [
+      "paired n 54 < §6 minimum 300"
+     ]
+    },
+    {
+     "market": "total (|error|)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 54,
+     "minN": 300,
+     "reasons": [
+      "paired n 54 < §6 minimum 300"
+     ]
+    },
+    {
+     "market": "pts (|error|, expectedMinutes ≥ 20 in both)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 445,
+     "minN": 1500,
+     "reasons": [
+      "paired n 445 < §6 minimum 1500"
+     ]
+    },
+    {
+     "market": "reb (|error|, expectedMinutes ≥ 20 in both)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 445,
+     "minN": 1500,
+     "reasons": [
+      "paired n 445 < §6 minimum 1500"
+     ]
+    },
+    {
+     "market": "ast (|error|, expectedMinutes ≥ 20 in both)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 445,
+     "minN": 1500,
+     "reasons": [
+      "paired n 445 < §6 minimum 1500"
+     ]
+    },
+    {
+     "market": "threePm (|error|, expectedMinutes ≥ 20 in both)",
+     "verdict": "INSUFFICIENT_N",
+     "n": 226,
+     "minN": 800,
+     "reasons": [
+      "paired n 226 < §6 minimum 800"
+     ]
+    }
+   ],
+   "overall": "INSUFFICIENT_N",
+   "eloHeadNote": "the Elo head is reported (winnerEloLogLoss) but carries no verdict: §7's winner bar names the sim; scoring the Elo side for promotion is founder reading N6"
+  }
+ },
+ "underReview": [
+  "401901822"
+ ],
+ "winnerHeads": {
+  "n": 68,
+  "excluded": {
+   "onlyChampion": 65,
+   "onlyChallenger": 0,
+   "notRegularSeason": 0,
+   "notPreTip": 0,
+   "receiptNotVerified": 0,
+   "disputedFinal": 0,
+   "finalMismatch": 0,
+   "boxscoreMismatch": 0
+  },
+  "eloSource": "v0.1 receipt forecast.elo.pHome (the frozen N2 winner side)",
+  "meanPHome": {
+   "elo": 0.6098,
+   "v01Sim": 0.5079,
+   "v1Sim": 0.5714,
+   "realisedHomeWinRate": 0.4853,
+   "n": 68
+  },
+  "logLoss": {
+   "v1SimMinusElo": {
+    "n": 68,
+    "clusters": 68,
+    "champion": 0.6309,
+    "challenger": 0.6066,
+    "diff": -0.0243,
+    "ci95": [
+     -0.047,
+     -0.0008
+    ],
+    "direction": "CHALLENGER_LOWER",
+    "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+   },
+   "v01SimMinusElo": {
+    "n": 68,
+    "clusters": 68,
+    "champion": 0.6309,
+    "challenger": 0.7937,
+    "diff": 0.1628,
+    "ci95": [
+     -0.0046,
+     0.3471
+    ],
+    "direction": "CI_INCLUDES_0",
+    "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+   },
+   "v1SimMinusV01Sim": {
+    "n": 68,
+    "clusters": 68,
+    "champion": 0.7937,
+    "challenger": 0.6066,
+    "diff": -0.1871,
+    "ci95": [
+     -0.3668,
+     -0.0214
+    ],
+    "direction": "CHALLENGER_LOWER",
+    "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+   }
+  },
+  "brier": {
+   "v1SimMinusElo": {
+    "n": 68,
+    "clusters": 68,
+    "champion": 0.2219,
+    "challenger": 0.2103,
+    "diff": -0.0116,
+    "ci95": [
+     -0.0218,
+     -0.0013
+    ],
+    "direction": "CHALLENGER_LOWER",
+    "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+   },
+   "v01SimMinusElo": {
+    "n": 68,
+    "clusters": 68,
+    "champion": 0.2219,
+    "challenger": 0.2829,
+    "diff": 0.061,
+    "ci95": [
+     -0.0088,
+     0.1365
+    ],
+    "direction": "CI_INCLUDES_0",
+    "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+   },
+   "v1SimMinusV01Sim": {
+    "n": 68,
+    "clusters": 68,
+    "champion": 0.2829,
+    "challenger": 0.2103,
+    "diff": -0.0726,
+    "ci95": [
+     -0.1465,
+     -0.0031
+    ],
+    "direction": "CHALLENGER_LOWER",
+    "rule": "challenger − champion; lower is better, so a negative difference favours the challenger; a direction is claimed only when the 95% interval excludes 0 over at least 10 games"
+   }
+  },
+  "rule": "second head − first head; lower is better; a direction only when the 95% interval excludes 0; no verdict (N6)"
+ },
+ "proposedChallengers": [
+  {
+   "id": "elo-home-advantage-refit",
+   "text": "Elo home-advantage refit (fit on 2023-24 only): refit NBA_ELO_PARAMS.HOME_ADVANTAGE (today 70) on the 2023-24 regular season alone, freeze it, look once at 2024-25 development, then shadow forward as a new version string beside the frozen N2 Elo side. Never replaces the published side automatically.",
+   "motivation": "Coordinator-relayed historical evidence (research PR 1152, 2024-25 development season, n 1005, NOT re-derived here): mean pHome Elo 0.584 vs v1 0.547 vs realised home-win rate 0.530 — Elo overstates home; paired v1 − Elo log loss −0.0059 (95% CI −0.0110 to −0.0009), Brier −0.0026 (−0.0049 to −0.0004). Historical development evidence only; it promotes nothing and is not forward-shadow evidence (§8)."
+  }
+ ],
+ "asOfSlate": "2026-10-28"
+}

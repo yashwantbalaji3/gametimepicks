@@ -1,7 +1,7 @@
 {
   "sport": "mlb",
   "date": "2026-10-28",
-  "generatedAt": "2026-10-28T16:36:39.000Z",
+  "generatedAt": "2026-10-29T00:06:15.000Z",
   "modelVersion": "mlb-fullgame-2026.08-pa-v2",
   "simulationVersion": 1,
   "runCount": 10000,
@@ -20,12 +20,14 @@
       "completeness": {
         "level": "degraded",
         "notes": [
+          "MIL confirmed batting order used, all 9 with posted prop lines.",
+          "TB confirmed batting order used; 2 of 9 have no GTP projection (no posted prop line, or too little data) and are simulated at replacement-level rates; the box score marks each one.",
           "TB has no posted probable starter — simulated vs a league bullpen aggregate."
         ],
-        "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
+        "awayLineupSource": "confirmed",
+        "homeLineupSource": "confirmed",
         "awayRatedCount": 9,
-        "homeRatedCount": 9,
+        "homeRatedCount": 7,
         "awayLineupCount": 9,
         "homeLineupCount": 9,
         "hasAwayStarter": true,
@@ -33,7 +35,6 @@
         "startedBeforeGeneration": false,
         "missingFamilies": [
           "home_probable_starter",
-          "confirmed_batting_order",
           "park_run_factors",
           "weather",
           "batter_handedness_splits"
@@ -58,25 +59,25 @@
       "status": "degraded",
       "runCount": 10000,
       "winProbability": {
-        "away": 0.468,
-        "home": 0.532
+        "away": 0.494,
+        "home": 0.506
       },
       "runs": {
         "away": {
-          "mean": 4.28,
+          "mean": 4.27,
           "median": 4,
           "p10": 1,
           "p90": 8
         },
         "home": {
-          "mean": 4.32,
+          "mean": 4.09,
           "median": 4,
           "p10": 1,
           "p90": 8
         }
       },
       "totalRuns": {
-        "mean": 8.6,
+        "mean": 8.36,
         "median": 8,
         "p10": 3,
         "p90": 14,
@@ -90,68 +91,68 @@
           {
             "value": 1,
             "label": "1",
-            "count": 228,
-            "probability": 0.0228
+            "count": 263,
+            "probability": 0.0263
           },
           {
             "value": 2,
             "label": "2",
-            "count": 210,
-            "probability": 0.021
+            "count": 223,
+            "probability": 0.0223
           },
           {
             "value": 3,
             "label": "3",
-            "count": 634,
-            "probability": 0.0634
+            "count": 639,
+            "probability": 0.0639
           },
           {
             "value": 4,
             "label": "4",
-            "count": 552,
-            "probability": 0.0552
+            "count": 531,
+            "probability": 0.0531
           },
           {
             "value": 5,
             "label": "5",
-            "count": 1013,
-            "probability": 0.1013
+            "count": 1128,
+            "probability": 0.1128
           },
           {
             "value": 6,
             "label": "6",
-            "count": 717,
-            "probability": 0.0717
+            "count": 745,
+            "probability": 0.0745
           },
           {
             "value": 7,
             "label": "7",
-            "count": 1116,
-            "probability": 0.1116
+            "count": 1227,
+            "probability": 0.1227
           },
           {
             "value": 8,
             "label": "8",
-            "count": 773,
-            "probability": 0.0773
+            "count": 793,
+            "probability": 0.0793
           },
           {
             "value": 9,
             "label": "9",
-            "count": 1019,
-            "probability": 0.1019
+            "count": 1020,
+            "probability": 0.102
           },
           {
             "value": 10,
             "label": "10",
-            "count": 696,
-            "probability": 0.0696
+            "count": 645,
+            "probability": 0.0645
           },
           {
             "value": 11,
             "label": "11",
-            "count": 781,
-            "probability": 0.0781
+            "count": 727,
+            "probability": 0.0727
           },
           {
             "value": 12,
@@ -162,61 +163,61 @@
           {
             "value": 13,
             "label": "13",
-            "count": 538,
-            "probability": 0.0538
+            "count": 488,
+            "probability": 0.0488
           },
           {
             "value": 14,
             "label": "14",
-            "count": 299,
-            "probability": 0.0299
+            "count": 244,
+            "probability": 0.0244
           },
           {
             "value": 15,
             "label": "15",
-            "count": 301,
-            "probability": 0.0301
+            "count": 275,
+            "probability": 0.0275
           },
           {
             "value": 16,
             "label": "16",
-            "count": 172,
-            "probability": 0.0172
+            "count": 139,
+            "probability": 0.0139
           },
           {
             "value": 17,
             "label": "17",
-            "count": 178,
-            "probability": 0.0178
+            "count": 147,
+            "probability": 0.0147
           },
           {
             "value": 18,
             "label": "18",
-            "count": 90,
-            "probability": 0.009
+            "count": 111,
+            "probability": 0.0111
           },
           {
             "value": 19,
             "label": "19",
-            "count": 84,
-            "probability": 0.0084
+            "count": 68,
+            "probability": 0.0068
           },
           {
             "value": 20,
             "label": "20",
-            "count": 43,
-            "probability": 0.0043
+            "count": 29,
+            "probability": 0.0029
           },
           {
             "value": 21,
             "label": "21+",
-            "count": 89,
-            "probability": 0.0089
+            "count": 91,
+            "probability": 0.0091
           }
         ]
       },
       "runDifferential": {
-        "mean": 0.03,
+        "mean": -0.18,
         "median": 1,
         "p10": -5,
         "p90": 5,
@@ -224,80 +225,80 @@
           {
             "value": -13,
             "label": "≤-13",
-            "count": 26,
-            "probability": 0.0026
+            "count": 30,
+            "probability": 0.003
           },
           {
             "value": -12,
             "label": "-12",
-            "count": 15,
-            "probability": 0.0015
+            "count": 24,
+            "probability": 0.0024
           },
           {
             "value": -11,
             "label": "-11",
-            "count": 38,
-            "probability": 0.0038
+            "count": 41,
+            "probability": 0.0041
           },
           {
             "value": -10,
             "label": "-10",
-            "count": 59,
-            "probability": 0.0059
+            "count": 55,
+            "probability": 0.0055
           },
           {
             "value": -9,
             "label": "-9",
-            "count": 88,
-            "probability": 0.0088
+            "count": 75,
+            "probability": 0.0075
           },
           {
             "value": -8,
             "label": "-8",
-            "count": 111,
-            "probability": 0.0111
+            "count": 119,
+            "probability": 0.0119
           },
           {
             "value": -7,
             "label": "-7",
-            "count": 201,
-            "probability": 0.0201
+            "count": 199,
+            "probability": 0.0199
           },
           {
             "value": -6,
             "label": "-6",
-            "count": 253,
-            "probability": 0.0253
+            "count": 295,
+            "probability": 0.0295
           },
           {
             "value": -5,
             "label": "-5",
-            "count": 388,
-            "probability": 0.0388
+            "count": 449,
+            "probability": 0.0449
           },
           {
             "value": -4,
             "label": "-4",
-            "count": 576,
-            "probability": 0.0576
+            "count": 560,
+            "probability": 0.056
           },
           {
             "value": -3,
             "label": "-3",
-            "count": 738,
-            "probability": 0.0738
+            "count": 770,
+            "probability": 0.077
           },
           {
             "value": -2,
             "label": "-2",
-            "count": 963,
-            "probability": 0.0963
+            "count": 990,
+            "probability": 0.099
           },
           {
             "value": -1,
             "label": "-1",
-            "count": 1224,
-            "probability": 0.1224
+            "count": 1334,
+            "probability": 0.1334
           },
           {
             "value": 0,
@@ -308,118 +309,118 @@
           {
             "value": 1,
             "label": "1",
-            "count": 1847,
-            "probability": 0.1847
+            "count": 1790,
+            "probability": 0.179
           },
           {
             "value": 2,
             "label": "2",
-            "count": 1057,
-            "probability": 0.1057
+            "count": 1010,
+            "probability": 0.101
           },
           {
             "value": 3,
             "label": "3",
-            "count": 732,
-            "probability": 0.0732
+            "count": 769,
+            "probability": 0.0769
           },
           {
             "value": 4,
             "label": "4",
-            "count": 543,
-            "probability": 0.0543
+            "count": 476,
+            "probability": 0.0476
           },
           {
             "value": 5,
             "label": "5",
-            "count": 380,
-            "probability": 0.038
+            "count": 356,
+            "probability": 0.0356
           },
           {
             "value": 6,
             "label": "6",
-            "count": 252,
-            "probability": 0.0252
+            "count": 236,
+            "probability": 0.0236
           },
           {
             "value": 7,
             "label": "7",
-            "count": 177,
-            "probability": 0.0177
+            "count": 144,
+            "probability": 0.0144
           },
           {
             "value": 8,
             "label": "8",
-            "count": 119,
-            "probability": 0.0119
+            "count": 117,
+            "probability": 0.0117
           },
           {
             "value": 9,
             "label": "9",
-            "count": 92,
-            "probability": 0.0092
+            "count": 62,
+            "probability": 0.0062
           },
           {
             "value": 10,
             "label": "10",
-            "count": 54,
-            "probability": 0.0054
+            "count": 49,
+            "probability": 0.0049
           },
           {
             "value": 11,
             "label": "11",
-            "count": 26,
-            "probability": 0.0026
+            "count": 30,
+            "probability": 0.003
           },
           {
             "value": 12,
             "label": "12",
-            "count": 26,
-            "probability": 0.0026
+            "count": 6,
+            "probability": 0.0006
           },
           {
             "value": 13,
             "label": "13+",
-            "count": 15,
-            "probability": 0.0015
+            "count": 14,
+            "probability": 0.0014
           }
         ]
       },
       "runLine": [
         {
           "line": 1.5,
-          "homeCover": 0.347,
-          "awayCover": 0.346
+          "homeCover": 0.327,
+          "awayCover": 0.361
         },
         {
           "line": 2.5,
-          "homeCover": 0.242,
-          "awayCover": 0.249
+          "homeCover": 0.226,
+          "awayCover": 0.262
         }
       ],
       "teamTotals": {
         "away": [
           {
             "line": 3.5,
-            "over": 0.548,
-            "under": 0.452
+            "over": 0.546,
+            "under": 0.454
           },
           {
             "line": 4.5,
-            "over": 0.415,
-            "under": 0.585
+            "over": 0.416,
+            "under": 0.584
           }
         ],
         "home": [
           {
             "line": 3.5,
-            "over": 0.556,
-            "under": 0.444
+            "over": 0.53,
+            "under": 0.47
           },
           {
             "line": 4.5,
-            "over": 0.421,
-            "under": 0.579
+            "over": 0.392,
+            "under": 0.609
           }
         ]
       },
@@ -427,35 +428,35 @@
         {
           "away": 2,
           "home": 3,
-          "probability": 0.035
+          "probability": 0.037
         },
         {
           "away": 3,
           "home": 4,
-          "probability": 0.033
+          "probability": 0.035
         },
         {
           "away": 4,
           "home": 5,
-          "probability": 0.03
-        },
-        {
-          "away": 1,
-          "home": 2,
-          "probability": 0.025
-        },
-        {
-          "away": 4,
-          "home": 3,
-          "probability": 0.023
+          "probability": 0.028
         },
         {
           "away": 3,
           "home": 2,
+          "probability": 0.026
+        },
+        {
+          "away": 4,
+          "home": 3,
+          "probability": 0.024
+        },
+        {
+          "away": 1,
+          "home": 2,
           "probability": 0.023
         }
       ],
-      "extraInningsProbability": 0.101,
+      "extraInningsProbability": 0.111,
       "players": {
         "batters": [
           {
@@ -463,104 +464,104 @@
             "name": "Jackson Chourio",
             "team": "MIL",
             "battingOrder": 1,
-            "plateAppearances": 4.872,
-            "hits": 1.475,
-            "totalBases": 2.405,
-            "homeRuns": 0.198,
-            "runs": 0.764,
-            "rbi": 0.572,
-            "walks": 0.415,
+            "plateAppearances": 4.877,
+            "hits": 1.453,
+            "totalBases": 2.33,
+            "homeRuns": 0.186,
+            "runs": 0.71,
+            "rbi": 0.556,
+            "walks": 0.416,
             "strikeouts": 1.169,
-            "rateSource": "projection"
-          },
-          {
-            "playerId": 661388,
-            "name": "William Contreras",
-            "team": "MIL",
-            "battingOrder": 2,
-            "plateAppearances": 4.769,
-            "hits": 1.205,
-            "totalBases": 1.862,
-            "homeRuns": 0.132,
-            "runs": 0.569,
-            "rbi": 0.515,
-            "walks": 0.394,
-            "strikeouts": 1.149,
-            "rateSource": "projection"
-          },
-          {
-            "playerId": 806198,
-            "name": "Cooper Pratt",
-            "team": "MIL",
-            "battingOrder": 3,
-            "plateAppearances": 4.659,
-            "hits": 1.138,
-            "totalBases": 1.805,
-            "homeRuns": 0.138,
-            "runs": 0.502,
-            "rbi": 0.562,
-            "walks": 0.395,
-            "strikeouts": 1.125,
-            "rateSource": "projection"
-          },
-          {
-            "playerId": 668930,
-            "name": "Brice Turang",
-            "team": "MIL",
-            "battingOrder": 4,
-            "plateAppearances": 4.547,
-            "hits": 1.379,
-            "totalBases": 2.158,
-            "homeRuns": 0.161,
-            "runs": 0.506,
-            "rbi": 0.699,
-            "walks": 0.378,
-            "strikeouts": 1.084,
-            "rateSource": "projection"
-          },
-          {
-            "playerId": 686217,
-            "name": "Sal Frelick",
-            "team": "MIL",
-            "battingOrder": 5,
-            "plateAppearances": 4.452,
-            "hits": 0.64,
-            "totalBases": 0.999,
-            "homeRuns": 0.074,
-            "runs": 0.311,
-            "rbi": 0.381,
-            "walks": 0.386,
-            "strikeouts": 1.057,
-            "rateSource": "projection"
-          },
-          {
-            "playerId": 592885,
-            "name": "Christian Yelich",
-            "team": "MIL",
-            "battingOrder": 6,
-            "plateAppearances": 4.329,
-            "hits": 0.839,
-            "totalBases": 1.316,
-            "homeRuns": 0.096,
-            "runs": 0.382,
-            "rbi": 0.417,
-            "walks": 0.367,
-            "strikeouts": 1.041,
             "rateSource": "projection"
           },
           {
             "playerId": 641343,
             "name": "Jake Bauers",
             "team": "MIL",
+            "battingOrder": 2,
+            "plateAppearances": 4.771,
+            "hits": 1.05,
+            "totalBases": 1.656,
+            "homeRuns": 0.124,
+            "runs": 0.52,
+            "rbi": 0.473,
+            "walks": 0.406,
+            "strikeouts": 1.138,
+            "rateSource": "projection"
+          },
+          {
+            "playerId": 592885,
+            "name": "Christian Yelich",
+            "team": "MIL",
+            "battingOrder": 3,
+            "plateAppearances": 4.657,
+            "hits": 0.887,
+            "totalBases": 1.406,
+            "homeRuns": 0.106,
+            "runs": 0.445,
+            "rbi": 0.427,
+            "walks": 0.392,
+            "strikeouts": 1.123,
+            "rateSource": "projection"
+          },
+          {
+            "playerId": 661388,
+            "name": "William Contreras",
+            "team": "MIL",
+            "battingOrder": 4,
+            "plateAppearances": 4.538,
+            "hits": 1.16,
+            "totalBases": 1.789,
+            "homeRuns": 0.124,
+            "runs": 0.527,
+            "rbi": 0.549,
+            "walks": 0.382,
+            "strikeouts": 1.075,
+            "rateSource": "projection"
+          },
+          {
+            "playerId": 668930,
+            "name": "Brice Turang",
+            "team": "MIL",
+            "battingOrder": 5,
+            "plateAppearances": 4.435,
+            "hits": 1.338,
+            "totalBases": 2.092,
+            "homeRuns": 0.151,
+            "runs": 0.519,
+            "rbi": 0.667,
+            "walks": 0.39,
+            "strikeouts": 1.06,
+            "rateSource": "projection"
+          },
+          {
+            "playerId": 686217,
+            "name": "Sal Frelick",
+            "team": "MIL",
+            "battingOrder": 6,
+            "plateAppearances": 4.335,
+            "hits": 0.631,
+            "totalBases": 0.989,
+            "homeRuns": 0.074,
+            "runs": 0.326,
+            "rbi": 0.358,
+            "walks": 0.369,
+            "strikeouts": 1.044,
+            "rateSource": "projection"
+          },
+          {
+            "playerId": 806198,
+            "name": "Cooper Pratt",
+            "team": "MIL",
             "battingOrder": 7,
-            "plateAppearances": 4.217,
-            "hits": 0.921,
-            "totalBases": 1.459,
-            "homeRuns": 0.11,
-            "runs": 0.418,
-            "rbi": 0.428,
-            "walks": 0.361,
-            "strikeouts": 1.016,
+            "plateAppearances": 4.213,
+            "hits": 1.034,
+            "totalBases": 1.636,
+            "homeRuns": 0.125,
+            "runs": 0.455,
+            "rbi": 0.49,
+            "walks": 0.354,
+            "strikeouts": 1.013,
             "rateSource": "projection"
           },
           {
@@ -568,14 +569,14 @@
             "name": "Garrett Mitchell",
             "team": "MIL",
             "battingOrder": 8,
-            "plateAppearances": 4.106,
-            "hits": 0.775,
-            "totalBases": 1.232,
+            "plateAppearances": 4.109,
+            "hits": 0.762,
+            "totalBases": 1.215,
             "homeRuns": 0.094,
-            "runs": 0.408,
-            "rbi": 0.369,
-            "walks": 0.362,
-            "strikeouts": 0.984,
+            "runs": 0.377,
+            "rbi": 0.391,
+            "walks": 0.352,
+            "strikeouts": 0.982,
             "rateSource": "projection"
           },
           {
@@ -583,149 +584,149 @@
             "name": "David Hamilton",
             "team": "MIL",
             "battingOrder": 9,
-            "plateAppearances": 3.992,
+            "plateAppearances": 3.993,
             "hits": 0.732,
-            "totalBases": 1.165,
+            "totalBases": 1.169,
             "homeRuns": 0.09,
-            "runs": 0.424,
-            "rbi": 0.342,
+            "runs": 0.391,
+            "rbi": 0.357,
             "walks": 0.337,
-            "strikeouts": 0.966,
+            "strikeouts": 0.958,
             "rateSource": "projection"
           },
           {
             "playerId": 650490,
-            "name": "Yandy Diaz",
+            "name": "Yandy Díaz",
             "team": "TB",
             "battingOrder": 1,
-            "plateAppearances": 4.693,
-            "hits": 1.149,
-            "totalBases": 1.597,
-            "homeRuns": 0.071,
-            "runs": 0.588,
-            "rbi": 0.348,
-            "walks": 0.399,
-            "strikeouts": 1.209,
-            "rateSource": "projection"
-          },
-          {
-            "playerId": 691406,
-            "name": "Junior Caminero",
-            "team": "TB",
-            "battingOrder": 2,
-            "plateAppearances": 4.576,
-            "hits": 1.14,
-            "totalBases": 1.809,
-            "homeRuns": 0.138,
-            "runs": 0.609,
-            "rbi": 0.481,
-            "walks": 0.398,
-            "strikeouts": 1.186,
-            "rateSource": "projection"
-          },
-          {
-            "playerId": 676356,
-            "name": "Jonny Deluca",
-            "team": "TB",
-            "battingOrder": 3,
-            "plateAppearances": 4.458,
-            "hits": 1.092,
-            "totalBases": 1.725,
-            "homeRuns": 0.128,
-            "runs": 0.557,
-            "rbi": 0.516,
-            "walks": 0.379,
-            "strikeouts": 1.157,
-            "rateSource": "projection"
-          },
-          {
-            "playerId": 802415,
-            "name": "Chandler Simpson",
-            "team": "TB",
-            "battingOrder": 4,
-            "plateAppearances": 4.353,
-            "hits": 1.408,
-            "totalBases": 2.224,
-            "homeRuns": 0.167,
-            "runs": 0.602,
-            "rbi": 0.73,
-            "walks": 0.367,
-            "strikeouts": 1.124,
+            "plateAppearances": 4.671,
+            "hits": 1.146,
+            "totalBases": 1.584,
+            "homeRuns": 0.069,
+            "runs": 0.536,
+            "rbi": 0.349,
+            "walks": 0.404,
+            "strikeouts": 1.217,
             "rateSource": "projection"
           },
           {
             "playerId": 666018,
             "name": "Jonathan Aranda",
             "team": "TB",
-            "battingOrder": 5,
-            "plateAppearances": 4.253,
-            "hits": 0.943,
-            "totalBases": 1.501,
-            "homeRuns": 0.116,
-            "runs": 0.426,
-            "rbi": 0.556,
-            "walks": 0.362,
-            "strikeouts": 1.114,
+            "battingOrder": 2,
+            "plateAppearances": 4.553,
+            "hits": 1.007,
+            "totalBases": 1.602,
+            "homeRuns": 0.125,
+            "runs": 0.534,
+            "rbi": 0.425,
+            "walks": 0.392,
+            "strikeouts": 1.19,
+            "rateSource": "projection"
+          },
+          {
+            "playerId": 691406,
+            "name": "Junior Caminero",
+            "team": "TB",
+            "battingOrder": 3,
+            "plateAppearances": 4.438,
+            "hits": 1.116,
+            "totalBases": 1.758,
+            "homeRuns": 0.132,
+            "runs": 0.521,
+            "rbi": 0.507,
+            "walks": 0.373,
+            "strikeouts": 1.143,
             "rateSource": "projection"
           },
           {
             "playerId": 689414,
             "name": "Liam Hicks",
             "team": "TB",
-            "battingOrder": 6,
-            "plateAppearances": 4.155,
-            "hits": 0.962,
-            "totalBases": 1.519,
-            "homeRuns": 0.112,
-            "runs": 0.421,
-            "rbi": 0.503,
-            "walks": 0.351,
-            "strikeouts": 1.066,
+            "battingOrder": 4,
+            "plateAppearances": 4.328,
+            "hits": 0.98,
+            "totalBases": 1.563,
+            "homeRuns": 0.122,
+            "runs": 0.488,
+            "rbi": 0.507,
+            "walks": 0.361,
+            "strikeouts": 1.129,
             "rateSource": "projection"
           },
           {
-            "playerId": 683748,
-            "name": "Victor Mesa Jr.",
+            "playerId": 676356,
+            "name": "Jonny DeLuca",
+            "team": "TB",
+            "battingOrder": 5,
+            "plateAppearances": 4.223,
+            "hits": 1.05,
+            "totalBases": 1.648,
+            "homeRuns": 0.122,
+            "runs": 0.509,
+            "rbi": 0.54,
+            "walks": 0.358,
+            "strikeouts": 1.106,
+            "rateSource": "projection"
+          },
+          {
+            "playerId": 802415,
+            "name": "Chandler Simpson",
+            "team": "TB",
+            "battingOrder": 6,
+            "plateAppearances": 4.122,
+            "hits": 1.326,
+            "totalBases": 2.083,
+            "homeRuns": 0.153,
+            "runs": 0.5,
+            "rbi": 0.646,
+            "walks": 0.354,
+            "strikeouts": 1.078,
+            "rateSource": "projection"
+          },
+          {
+            "playerId": 810938,
+            "name": "Ben Williamson",
             "team": "TB",
             "battingOrder": 7,
-            "plateAppearances": 4.047,
-            "hits": 0.905,
-            "totalBases": 1.421,
-            "homeRuns": 0.107,
-            "runs": 0.389,
-            "rbi": 0.462,
-            "walks": 0.351,
-            "strikeouts": 1.054,
-            "rateSource": "projection"
+            "plateAppearances": 4.026,
+            "hits": 0.733,
+            "totalBases": 1.161,
+            "homeRuns": 0.086,
+            "runs": 0.322,
+            "rbi": 0.404,
+            "walks": 0.343,
+            "strikeouts": 1.047,
+            "rateSource": "replacement"
           },
           {
-            "playerId": 680700,
-            "name": "Richie Palacios",
+            "playerId": 668723,
+            "name": "Ryan Vilade",
             "team": "TB",
             "battingOrder": 8,
-            "plateAppearances": 3.936,
-            "hits": 0.757,
-            "totalBases": 1.205,
-            "homeRuns": 0.092,
-            "runs": 0.349,
-            "rbi": 0.386,
-            "walks": 0.335,
-            "strikeouts": 0.994,
-            "rateSource": "projection"
+            "plateAppearances": 3.914,
+            "hits": 0.702,
+            "totalBases": 1.106,
+            "homeRuns": 0.084,
+            "runs": 0.33,
+            "rbi": 0.367,
+            "walks": 0.339,
+            "strikeouts": 0.99,
+            "rateSource": "replacement"
           },
           {
             "playerId": 670764,
             "name": "Taylor Walls",
             "team": "TB",
             "battingOrder": 9,
-            "plateAppearances": 3.816,
-            "hits": 0.698,
-            "totalBases": 1.106,
-            "homeRuns": 0.083,
-            "runs": 0.376,
-            "rbi": 0.334,
-            "walks": 0.328,
-            "strikeouts": 0.983,
+            "plateAppearances": 3.794,
+            "hits": 0.682,
+            "totalBases": 1.088,
+            "homeRuns": 0.084,
+            "runs": 0.348,
+            "rbi": 0.344,
+            "walks": 0.323,
+            "strikeouts": 0.957,
             "rateSource": "projection"
           }
         ],
@@ -735,20 +736,26 @@
             "name": "Jacob Misiorowski",
             "team": "MIL",
             "role": "starter",
-            "battersFaced": 24.761,
-            "strikeouts": 6.628,
-            "hitsAllowed": 5.894,
-            "runsAllowed": 2.643,
-            "outsRecorded": 16.751
+            "battersFaced": 24.773,
+            "strikeouts": 6.658,
+            "hitsAllowed": 5.764,
+            "runsAllowed": 2.534,
+            "outsRecorded": 16.9
           }
         ]
       },
       "gameStory": [
-        "Across 10,000 simulated games, TB won 53% of the time — essentially a coin flip.",
+        "Across 10,000 simulated games, TB won 51% of the time — essentially a coin flip.",
         "The simulation's median final was MIL 4 — TB 4, with a median of 8 total runs (10th–90th percentile 3–14).",
-        "About 10% of simulated games went to extra innings."
+        "About 11% of simulated games went to extra innings."
       ],
-      "artifactHash": "1bb2f99d2014e0b7157a0ade5d8362ea6fa0277cbe6cf54857e4edccf88c6dcf"
+      "artifactHash": "4278f0a563bcf010fdfa9e7f28a807dd3b8e772adbff037a8e3623e5400cd3b8"
     }
-  ]
+  ],
+  "frozenPregame": {
+    "849799": {
+      "forecastGeneratedAt": "2026-10-28T21:13:36.000Z",
+      "artifactHash": "4278f0a563bcf010fdfa9e7f28a807dd3b8e772adbff037a8e3623e5400cd3b8"
+    }
+  }
 }

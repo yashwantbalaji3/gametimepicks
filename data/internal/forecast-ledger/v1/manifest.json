@@ -4,15 +4,15 @@
   "dataClass": "PUBLIC_DERIVED",
   "rule": "One row per published/frozen forecast observation, read from its owner; append-only; missing stays missing.",
   "totals": {
-    "rows": 19898,
+    "rows": 19909,
     "settlement": {
       "NO_MEASUREMENT": 928,
       "PENDING": 27,
-      "SETTLED": 14961,
+      "SETTLED": 14972,
       "VOID": 3982
     },
     "publication": {
-      "PUBLISHED": 19898
+      "PUBLISHED": 19909
     }
   },
   "sports": {
@@ -53,36 +53,36 @@
     },
     "MLB": {
       "file": "mlb.jsonl",
-      "rows": 5265,
-      "contentHash": "d346863705fc7e81",
+      "rows": 5276,
+      "contentHash": "267e6aa864bdff40",
       "families": {
-        "mlb_homer_nukes": 320,
-        "mlb_moneyline": 825,
-        "mlb_projected_runs": 1650,
-        "mlb_projected_total": 825,
+        "mlb_homer_nukes": 325,
+        "mlb_moneyline": 826,
+        "mlb_projected_runs": 1652,
+        "mlb_projected_total": 826,
         "mlb_run_line": 810,
-        "mlb_run_line_posted": 15,
-        "mlb_total": 820
+        "mlb_run_line_posted": 16,
+        "mlb_total": 821
       },
       "settlement": {
         "NO_MEASUREMENT": 42,
         "PENDING": 2,
-        "SETTLED": 5177,
+        "SETTLED": 5188,
         "VOID": 44
       },
       "publication": {
-        "PUBLISHED": 5265
+        "PUBLISHED": 5276
       },
       "recoverability": {
-        "OWNER_GRADED_LOG": 4945,
-        "OWNER_SETTLED_UNFROZEN": 320
+        "OWNER_GRADED_LOG": 4951,
+        "OWNER_SETTLED_UNFROZEN": 325
       },
       "provenance": {
-        "RECEIPT": 2839,
+        "RECEIPT": 2845,
         "GIT_HISTORY": 2391,
-        "LEGACY_UNKNOWN": 35
+        "LEGACY_UNKNOWN": 40
       },
-      "latestSettledAt": "2026-10-28T09:27:28Z"
+      "latestSettledAt": "2026-10-29T09:25:23Z"
     },
     "EPL": {
       "file": "epl.jsonl",
@@ -196,7 +196,7 @@
     {
       "sport": "NBA",
       "family": "Official Forecast record",
-      "reason": "The official NBA forecast (the Elo favoured side and the player medians) publishes before every slate, and the official side is graded game by game against the official final on /results/nba/. Those games are not rows in this ledger yet, so they are not in the totals above; whether NBA joins them is a pending decision. NBA team scores and win chances are withheld and never published."
+      "reason": "The official NBA forecast (the Elo favoured side and the player medians) publishes before every slate, and the official side is graded game by game against the official final on /results/nba/. Those games are not rows in this ledger yet, so they are not in the totals above; whether NBA joins them is a pending decision. NBA team scores, margins, totals and ranges are withheld; the Elo-derived game-winner estimate on the boards is not a validated probability and is not graded here."
     }
   ]
 }
