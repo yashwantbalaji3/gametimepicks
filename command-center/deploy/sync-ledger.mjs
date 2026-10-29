@@ -3,7 +3,7 @@
  * Copy the ledger (entries + once-only claims) and the approved media between this Mac and the hosted Command
  * Center. DRY RUN unless --apply. Never edits or removes a record; verifies afterwards. See ledger/ledger-sync.mjs.
  *
- *   node command-center/deploy/sync-ledger.mjs --to-hosted [--apply]     Mac → hosted (migration; cutover re-sync)
+ *   node command-center/deploy/sync-ledger.mjs --to-hosted [--apply]     (--apply shows the plan, then asks you to type COPY)     Mac → hosted (migration; cutover re-sync)
  *     node command-center/deploy/sync-ledger.mjs --to-local  [--apply]     hosted → Mac (rollback)
  *   options: --ledger <dir> (default command-center/out/console/ledger) · --media <dir> (default …/out/console/media)
  *            --pglite <dir> instead of DATABASE_URL_OWNER (a local staging database) · --no-media (ledger only)
@@ -19,6 +19,8 @@ import { createFileStore } from "../ledger/file-store.mjs";
 import { blobObjectStore, sqlObjectStore } from "../ledger/object-store.mjs";
 import { readSql, readFile, planSync, verifySync, applyToSql, applyToFile, mediaKeysOf, pushMedia, pullMedia } from "../ledger/ledger-sync.mjs";
 import { ownerUrl, secretInput } from "./owner-url.mjs";
+import { blobTokenFromVercel } from "./configure-hosted.mjs";
+import readline from "node:readline/promises";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const arg = (name, dflt) => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : dflt; };
@@ -32,7 +34,11 @@ const pg = arg("--pglite");
 // Neon: the owner string and (unless --no-media) the Blob token come from hidden prompts, so the images go to the
 // private Blob store and never into Postgres. Either may instead be set in the environment.
 if (!pg) await ownerUrl().then((u) => { process.env.DATABASE_URL_OWNER = u; });
-if (!pg && !has("--no-media")) await secretInput("BLOB_READ_WRITE_TOKEN", "Vercel Blob read-write token");
+if (!pg && !has("--no-media") && !process.env.BLOB_READ_WRITE_TOKEN) {
+  // the hosted project's own Blob connection token, read without showing it; a hidden prompt if that isn't possible
+  try { process.env.BLOB_READ_WRITE_TOKEN = blobTokenFromVercel(arg("--vercel-project", "gtp-team")); console.log("Blob token: read from the hosted project's settings (not shown)."); }
+  catch { await secretInput("BLOB_READ_WRITE_TOKEN", "Vercel Blob read-write token"); }
+}
 
 const clock = () => new Date().toISOString();
 const db = pg ? await pglite(path.resolve(pg)) : await neon(process.env.DATABASE_URL_OWNER);
@@ -52,6 +58,12 @@ const keys = mediaKeysOf(from.entries);
 console.log(`  media referenced by posts: ${keys.length} (store: ${objects.kind})`);
 if (plan.conflicts.length || plan.badIds.length) { console.error("Refused: resolve the conflicts above first. Nothing was written."); process.exit(1); }
 
+if (apply && !pg && process.stdin.isTTY) {
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  const answer = (await rl.question(`\nType COPY to copy this ${where}, or anything else to stop: `)).trim();
+  rl.close();
+  if (answer !== "COPY") { console.log("Stopped. Nothing was written."); await db.close(); process.exit(0); }
+}
 if (apply) {
   const r = toHosted ? await applyToSql(db, plan) : applyToFile(files, plan);
   console.log(`  copied ${r.entries} entries, ${r.claims} claims`);

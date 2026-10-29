@@ -61,7 +61,7 @@ export function planConfig({ project, vercelEnv, ghSecrets }, { dispatchToken = 
 }
 
 /** The Blob connection's token, read from Production env into a 0700 temp dir and deleted before returning. */
-function blobTokenFromVercel(project) {
+export function blobTokenFromVercel(project) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-blob-"));
   const file = path.join(dir, ".env.pull");
   try {
