@@ -145,6 +145,7 @@ for (const [i, vp] of VIEWPORTS.entries()) {
       await post.locator("[data-post-approve]").click();
       await post.locator(".receipt").waitFor();
       assert.match(await post.locator(".receipt").innerText(), /Approved caption E1/);
+      assert.notEqual(await post.evaluate((el) => el.closest("details.cal-day")?.open ?? true), false, "the day being worked on stays open after approving");
       await post.scrollIntoViewIfNeeded();
       await page.screenshot({ path: path.join(SCREENS, `caption-edit-${vp.name}-approved.png`) });
     } finally {

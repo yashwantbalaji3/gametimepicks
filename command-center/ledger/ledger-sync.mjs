@@ -87,13 +87,20 @@ export function applyToFile(fileStore, plan) {
   return { entries: n, claims: plan.claims.length };
 }
 
-/** Media keys ("media/<file>") the ledger's post packages point at. */
+/**
+ * Media keys ("media/<file>") the ledger points at: post graphics (package.media / mediaSet) and any other image an
+ * entry names in a `file` field (e.g. engineering verification screenshots). A key with no local file is reported by
+ * pushMedia as missing, never invented.
+ */
 export function mediaKeysOf(entries) {
   const keys = new Set();
-  for (const e of entries) {
-    const pkg = e.kind === "decision-request" ? e.data?.package : null;
-    for (const m of [...(pkg?.mediaSet ?? []), ...(pkg?.media ? [pkg.media] : [])]) if (m?.file) keys.add(`media/${path.basename(m.file)}`);
-  }
+  const walk = (v) => {
+    if (Array.isArray(v)) return v.forEach(walk);
+    if (!v || typeof v !== "object") return;
+    if (typeof v.file === "string" && /\.(png|jpe?g|webp|gif)$/i.test(v.file)) keys.add(`media/${path.basename(v.file)}`);
+    for (const x of Object.values(v)) if (x && typeof x === "object") walk(x);
+  };
+  for (const e of entries) walk(e.data);
   return [...keys].sort();
 }
 

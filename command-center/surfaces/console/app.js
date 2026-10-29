@@ -793,8 +793,8 @@
     const atBottom = thread.scrollHeight - thread.scrollTop - thread.clientHeight < 80;
     $("badges").innerHTML = renderBadges(s);
     thread.innerHTML = renderThread(s);
-    $("queue").innerHTML = renderQueue(s);
-    $("decisions").innerHTML = renderDecisions(s);
+    keepOpen($("queue"), renderQueue(s));
+    keepOpen($("decisions"), renderDecisions(s));
     $("controls").innerHTML = renderControls(s);
     $("team").innerHTML = renderTeam(s);
     $("tasks").innerHTML = renderTasks(s);
@@ -851,6 +851,16 @@
     $("auth-recover").hidden = m !== "login";
     $("auth-codes").hidden = m !== "codes";
     $("auth-invite").hidden = m !== "invite";
+  }
+  /**
+   * Re-render a panel without folding the sections the person opened or closed (approving on a phone re-renders the
+   * Queue; the day being worked on must stay open). Sections are matched by their title, not their counts.
+   */
+  function keepOpen(el, html) {
+    const key = (d) => d.querySelector(":scope > summary > b")?.textContent ?? null;
+    const was = new Map([...el.querySelectorAll("details.cal-day")].map((d) => [key(d), d.open]).filter(([k]) => k));
+    el.innerHTML = html;
+    for (const d of el.querySelectorAll("details.cal-day")) if (was.has(key(d))) d.open = was.get(key(d));
   }
   function signedIn() {
     document.body.classList.remove("signed-out");

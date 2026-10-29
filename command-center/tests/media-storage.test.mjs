@@ -179,3 +179,12 @@ test("deploy preflight: never prints a value; refuses the owner role, model keys
   const ok = checkEnv("vercel", { ...env, DATABASE_URL: env.DATABASE_URL.replace("gtp_cc_owner", "gtp_cc_app"), OPENAI_API_KEY: "", GH_PUBLISHER_WORKFLOW: "", BLOB_STORE_ID: "store_1" }, { staging: true });
   assert.deepEqual(ok.filter((r) => r.level === "FAIL"), []);
 });
+
+test("migration carries every image the ledger names: post graphics and engineering screenshots", async () => {
+  const { mediaKeysOf } = await import("../ledger/ledger-sync.mjs");
+  const keys = mediaKeysOf([
+    { kind: "decision-request", data: { package: { mediaSet: [{ file: "a.png" }, { file: "b.png" }], media: { file: "c.png" } } } },
+    { kind: "contribution", data: { artifact: { screenshots: [{ file: "verify-task-1-desktop.png" }], changes: [{ file: "command-center/x.css" }] } } },
+  ]);
+  assert.deepEqual(keys, ["media/a.png", "media/b.png", "media/c.png", "media/verify-task-1-desktop.png"]);
+});
