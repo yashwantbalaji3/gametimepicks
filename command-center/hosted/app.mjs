@@ -71,7 +71,7 @@ export function clientKeyOf(request) {
 const PUBLISHING_PERMISSION = Object.freeze({
   pause: "approve", ack: "approve",
   resume: "publish", schedule: "publish", cancel: "publish", "dry-run-now": "publish", "live-test": "publish", reconcile: "publish",
-  policy: "administer", "x-connect": "administer", "x-disconnect": "administer", "publisher-host": "administer",
+  policy: "administer", "x-connect": "administer", "x-disconnect": "administer", "publisher-host": "administer", "queue-prep": "administer",
 });
 /** The permission a request needs. Unknown paths and actions need "administer" (fail closed). */
 export function routePermission(pathname, body = {}) {
@@ -98,6 +98,7 @@ export function stepUpActionFor(pathname, body) {
     if (body.action === "policy") return body.mode === "dry-run" ? null : "publishing-policy";
     if (body.action === "x-connect") return "connect-x";
     if (body.action === "publisher-host") return "publishing-policy";
+    if (body.action === "queue-prep") return "publishing-policy"; // on or off, a fresh passkey
     if (body.action === "resume") return "resume";
     return null;
   }
@@ -312,6 +313,7 @@ export function createHostedApp({ db, clock, origin, rpID, setupTokenSha256, dis
       case "ack": return turn((o) => o.publishing.acknowledge({ alertId: body.alertId }, actor));
       case "policy": return turn((o) => o.publishing.setPolicy({ mode: body.mode, capUsd: body.capUsd, authorization: body.authorization }, actor));
       case "publisher-host": return turn((o) => o.publishing.setPublisherHost({ to: body.to, confirmation: body.confirmation }, actor));
+      case "queue-prep": return turn((o) => o.publishing.setQueuePrep({ enabled: body.enabled, timeEt: body.timeEt }, actor));
       case "reconcile": return turn((o) => o.publishing.reconcile({ jobId: body.jobId, url: body.url ?? null, notPosted: body.notPosted === true, lookup: body.lookup === true }, actor));
       case "dry-run-now":
       case "live-test": {
@@ -365,20 +367,31 @@ export function createHostedApp({ db, clock, origin, rpID, setupTokenSha256, dis
   /**
    * Vercel Cron (every 10 min, 10 AM–2 AM ET) → dispatch the publisher job when something is due within 10 minutes,
    * at most once per 10-minute window. The job waits for each exact due time.
+   * Also daily queue preparation: when the founder turned it on and this is the active publisher host, the first tick
+   * at or after the set time prepares today's queue once (claim queue-prep|<ET date>); its build jobs are dispatched
+   * after the ledger commits, like any command's. On the inactive host this does nothing and records nothing.
    */
   async function cron(request) {
     const given = (request.headers.get("authorization") ?? "").replace(/^Bearer /, "");
     if (!cronSecret || given.length !== cronSecret.length || !crypto.timingSafeEqual(Buffer.from(given), Buffer.from(cronSecret))) return json(404, { error: "not found" });
+    let queuePrep;
+    try {
+      const p = await turn((o) => o.publishing.prepDue());
+      queuePrep = p.ran ? { ran: true, ok: p.ok, date: p.date, commandId: p.commandId, code: p.code } : { ran: false, skipped: p.skipped };
+    } catch (err) {
+      log(`queue preparation failed: ${err.stack ?? err}`);
+      queuePrep = { ran: false, error: "queue preparation failed (details in the server log)" };
+    }
     const session = await sql.open();
     const o = make(session);
     const due = o.publishing.dueSoon(10 * 60_000);
-    if (!due.length) return json(200, { ok: true, due: 0 });
+    if (!due.length) return json(200, { ok: true, due: 0, queuePrep });
     const bucket = new Date(Math.floor(Date.parse(clock()) / 600_000) * 600_000).toISOString();
     const c = session.claim(`publisher-dispatch|${bucket}`, { due: due.map((j) => j.jobId) });
-    if (!c.won) return json(200, { ok: true, due: due.length, dispatched: false, note: "already dispatched in this 10-minute window" });
+    if (!c.won) return json(200, { ok: true, due: due.length, dispatched: false, note: "already dispatched in this 10-minute window", queuePrep });
     await session.flush();
     const d = await kickPublisher();
-    return json(200, { ok: true, due: due.length, dispatched: d.ok, detail: d.detail ?? null });
+    return json(200, { ok: true, due: due.length, dispatched: d.ok, detail: d.detail ?? null, queuePrep });
   }
 
   async function handle(request) {

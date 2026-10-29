@@ -93,6 +93,9 @@ export const LEDGER_KINDS = Object.freeze([
   "publish-tick",      // a scheduler tick that ran at least one job
   "publish-spend",     // X API spend outside a send (a reconcile lookup), counted against the monthly cap
   "publisher-host",    // which host may send live (local Mac or hosted); a host can only hand it away (cutover)
+  // Daily queue preparation (orchestrator/publish-flow.mjs prepDue) — only the active publisher host prepares
+  "queue-prep",        // the founder's setting: { enabled, timeEt "HH:MM" America/New_York, by }; no record = off
+  "queue-prep-run",    // one automatic preparation (once per ET day, claim queue-prep|<date>): { date, commandId, ok, code, detail }
 ]);
 
 /** Refusal / reason codes shared by the orchestrator, the integrity gate and the publisher. */

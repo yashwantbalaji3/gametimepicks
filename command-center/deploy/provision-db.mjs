@@ -63,7 +63,7 @@ export const PROBES = [
   allowed("gtp_cc_publisher", "record an X receipt", entry("publish-receipt", '{"provider":"x-api"}')),
   allowed("gtp_cc_publisher", "claim a once-only X send", claim("xlive|probe|0")),
   allowed("gtp_cc_publisher", "read the encrypted X tokens (to refresh them)", "SELECT 1 FROM cc_secrets LIMIT 1"),
-  ...["decision", "design-approval", "caption-edit", "publish-policy", "publish-job", "publish-pause", "publisher-host", "control", "auth", "command"]
+  ...["decision", "design-approval", "caption-edit", "publish-policy", "publish-job", "publish-pause", "publisher-host", "queue-prep", "queue-prep-run", "control", "auth", "command"]
     .map((k) => denied("gtp_cc_publisher", `forge a "${k}" entry`, entry(k))),
   denied("gtp_cc_publisher", "forge a non-X receipt", entry("publish-receipt", '{"provider":"manual-handoff"}')),
   ...["decision|probe", "post-approval|probe|0", "design|probe|a", "job|probe|start"].map((k) => denied("gtp_cc_publisher", `claim "${k.split("|")[0]}|…"`, claim(k))),
@@ -73,7 +73,8 @@ export const PROBES = [
   denied("gtp_cc_publisher", "change a user's role", "UPDATE auth_users SET role = role"),
   // the worker drafts; it can't approve, schedule or publish
   allowed("gtp_cc_worker", "record progress", entry("progress")),
-  ...["decision", "publish-receipt", "publish-job", "publish-policy", "publisher-host", "control"].map((k) => denied("gtp_cc_worker", `forge a "${k}" entry`, entry(k))),
+  ...["decision", "publish-receipt", "publish-job", "publish-policy", "publisher-host", "queue-prep", "control"].map((k) => denied("gtp_cc_worker", `forge a "${k}" entry`, entry(k))),
+  denied("gtp_cc_worker", "claim a daily queue preparation", claim("queue-prep|2026-01-01")),
   denied("gtp_cc_worker", "claim a once-only X send", claim("xlive|probe|0")),
   ...["cc_secrets", "auth_users", "auth_sessions"].map((t) => denied("gtp_cc_worker", `read ${t}`, `SELECT 1 FROM ${t} LIMIT 1`)),
   // the reader only reads the ledger

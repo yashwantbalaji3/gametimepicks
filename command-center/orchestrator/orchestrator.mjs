@@ -27,7 +27,7 @@ import { digestOf, shortId, REPO_ROOT, CC_ROOT } from "../lib/util.mjs";
 import { REASON, validateContribution, validateTaskEnvelope } from "../contracts/index.mjs";
 import { ROLES, roleTitle } from "../roles/roles.mjs";
 import { parseIntent, planFor } from "./intents.mjs";
-import { budgetUsd, checkDelegation, checkFounder, MAX_TASKS_PER_COMMAND } from "./policy.mjs";
+import { budgetUsd, checkDelegation, checkFounder, isSystemActor, DAILY_QUEUE_COMMAND, MAX_TASKS_PER_COMMAND } from "./policy.mjs";
 import { resolveSeat } from "../providers/registry.mjs";
 import { parseManualAnswer } from "../providers/manual.mjs";
 import { inspectSlate, buildRecapDraft } from "../recap/pipeline.mjs";
@@ -105,6 +105,8 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     store, clock, posts: () => team.posts(), recheck: (pkg) => team.recheck(pkg), designApproved: (t, a) => Boolean(team.designApproval(t, a)),
     isPaused: () => isPaused(), mediaDir, publisherHost: publishingOpts.publisherHost ?? (hosted ? "hosted" : "local"), oauth: publishingOpts.oauth ?? null, fetch: publishingOpts.fetch ?? providerFetch, handle: env.GTP_CC_X_HANDLE || null,
     refreshData: publishingOpts.refreshData ?? (async () => ({ ok: false, detail: "no data refresher is configured on this host" })),
+    // daily queue preparation (founder-enabled): the same command path the founder uses, as the scheduler actor
+    prepareQueue: (text, actor) => handleCommand(text, actor),
   });
 
   // ── derived facts from the ledger ────────────────────────────────────────────────────────────────────────────
@@ -122,6 +124,12 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   // ── commands ────────────────────────────────────────────────────────────────────────────────────────────────
   async function handleCommand(text, actor) {
     const intent = parseIntent(text);
+    // the scheduler (system actor) may issue exactly one command — the daily queue, in the founder's own words
+    if (isSystemActor(actor)) {
+      const f = checkFounder("prepare-daily-queue", actor);
+      if (!f.ok) return { ok: false, ...f };
+      if (text !== DAILY_QUEUE_COMMAND || intent !== "daily-queue") return { ok: false, code: REASON.NOT_FOUNDER, detail: "the scheduler may only prepare today's content queue" };
+    }
     if (intent === "pause" || intent === "resume") return setPaused(intent === "pause", actor, text);
 
     // The same words on the same day are one command — except a content queue, which is rebuilt when the data moves on.
@@ -815,6 +823,8 @@ function historyLine(e) {
     case "provider-test": return `Provider test ${d.integration}: ${d.ok ? "OK" : "FAILED"} (${d.detail})`;
     case "report": return `Report: ${d.headline}`;
     case "seat-change": return `Seat: ${roleTitle(d.role)} → ${d.seat}`;
+    case "queue-prep": return d.enabled ? `Daily queue preparation ON at ${d.timeEt} ET (set by ${d.by})` : `Daily queue preparation OFF (set by ${d.by})`;
+    case "queue-prep-run": return `Daily queue preparation for ${d.date}: ${d.ok ? "started" : `FAILED ${d.code ?? ""}`}${d.commandId ? ` (${d.commandId})` : ""}${d.detail ? `: ${d.detail}` : ""}`;
     default: return e.kind;
   }
 }

@@ -16,7 +16,8 @@
  * Because anything on this Mac can call the console, the two live actions — authorizing live publishing and a live
  * test post — also need a click in a native macOS dialog (not agent-proof against screen control, but no script can
  * answer it through the API). The X OAuth callback is http://127.0.0.1:4190/oauth/x/callback.
- * A scheduler tick runs every 30 s (GTP_CC_SCHEDULER=off disables it).
+ * A scheduler tick runs every 30 s (GTP_CC_SCHEDULER=off disables it): due publishing jobs, and the daily queue
+ * preparation when the founder turned it on (once per Eastern day, only while this Mac is the active publisher host).
  */
 import http from "node:http";
 import fs from "node:fs";
@@ -98,6 +99,12 @@ async function publishingAction(body) {
     case "publisher-host": {
       if (!(await confirmOnMac(`Hand live X publishing from this Mac to the ${String(body.to)} publisher? This Mac stops sending live immediately.`, "Hand off"))) return { ok: false, code: "NOT_CONFIRMED_ON_MAC", detail: "the macOS confirmation was not given" };
       return p.setPublisherHost({ to: body.to, confirmation: body.confirmation }, { ...FOUNDER, authentication: "loopback console + macOS dialog confirmation" });
+    }
+    case "queue-prep": {
+      // turning it ON (or moving its time) lets the scheduler start queue builds: a macOS click, like the other
+      // policy changes that let something run without you; turning it off is always safe
+      if (body.enabled === true && !(await confirmOnMac(`Prepare the content queue automatically every day at ${String(body.timeEt ?? "").replace(/[^0-9:]/g, "").slice(0, 5) || "the saved time"} ET on this Mac (while it is the active publisher)? Nothing is approved or posted automatically.`, "Turn on"))) return { ok: false, code: "NOT_CONFIRMED_ON_MAC", detail: "the macOS confirmation was not given" };
+      return p.setQueuePrep({ enabled: body.enabled, timeEt: body.timeEt }, { ...FOUNDER, authentication: body.enabled === true ? "loopback console + macOS dialog confirmation" : FOUNDER.authentication });
     }
     case "reconcile": return p.reconcile({ jobId: body.jobId, url: body.url ?? null, notPosted: body.notPosted === true, lookup: body.lookup === true }, FOUNDER);
     case "ack": return p.acknowledge({ alertId: body.alertId }, FOUNDER);
@@ -212,7 +219,11 @@ const server = http.createServer(async (req, res) => {
 });
 
 if (process.env.GTP_CC_SCHEDULER !== "off") {
-  setInterval(() => { orchestrator.publishing.runDue().catch((e) => console.error("publishing tick failed:", e.message)); }, 30_000).unref();
+  setInterval(() => {
+    orchestrator.publishing.runDue().catch((e) => console.error("publishing tick failed:", e.message));
+    // daily queue preparation: a no-op unless the founder turned it on and this Mac is the active publisher host
+    orchestrator.publishing.prepDue().catch((e) => console.error("queue preparation tick failed:", e.message));
+  }, 30_000).unref();
 }
 
 server.listen(PORT, HOST, () => {

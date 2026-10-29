@@ -54,6 +54,7 @@
       if (body.action === "policy") return body.mode === "dry-run" ? null : "publishing-policy";
       if (body.action === "x-connect") return "connect-x";
       if (body.action === "publisher-host") return "publishing-policy";
+      if (body.action === "queue-prep") return "publishing-policy";
       if (body.action === "resume") return "resume";
       return null;
     }

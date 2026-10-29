@@ -29,7 +29,7 @@ import { digestOf, shortId } from "../lib/util.mjs";
 import { publishBundleOf, parseXPostUrl } from "../contracts/post-queue.mjs";
 import { baseIdOf } from "../contracts/social-packages.mjs";
 import { createXPublisher, XPublishError } from "../publishers/x-api.mjs";
-import { checkFounder } from "./policy.mjs";
+import { checkFounder, SCHEDULER_ACTOR, DAILY_QUEUE_COMMAND } from "./policy.mjs";
 
 export const MAX_SPEND_CAP_USD = 25;
 export const PUBLISHER_HOSTS = Object.freeze(["local", "hosted"]);
@@ -46,6 +46,29 @@ export const requiredScopes = (mediaCount) => ["tweet.write", ...(mediaCount ? [
 const startOf = (pkg) => pkg.tipUtc ?? pkg.kickoffUtc ?? pkg.verification?.kickoffUtc ?? pkg.firstKickoffUtc ?? null;
 const mediaOf = (pkg) => pkg.mediaSet ?? (pkg.media ? [pkg.media] : []);
 const monthOf = (iso) => iso.slice(0, 7);
+
+// ── US Eastern wall clock (America/New_York; DST handled by Intl) ─────────────────────────────────────────────────
+const ET_FORMAT = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+/** The Eastern date ("YYYY-MM-DD") and wall time ("HH:MM", 24 h) of an instant. */
+export function etParts(iso) {
+  const p = Object.fromEntries(ET_FORMAT.formatToParts(new Date(iso)).map((x) => [x.type, x.value]));
+  return { date: `${p.year}-${p.month}-${p.day}`, time: `${p.hour === "24" ? "00" : p.hour}:${p.minute}` };
+}
+const wallMs = (date, hhmm) => { const [y, m, d] = date.split("-").map(Number); const [h, mi] = hhmm.split(":").map(Number); return Date.UTC(y, m - 1, d, h, mi); };
+/**
+ * The instant (ISO) at which the Eastern wall clock reads `hhmm` on `date`. Eastern is UTC−4 (EDT) or UTC−5 (EST):
+ * the earlier matching instant wins (the first 01:30 on the fall-back night); a time the spring-forward jump skips
+ * (02:30) resolves to the later candidate, just after the jump.
+ */
+export function etInstant(date, hhmm) {
+  const want = wallMs(date, hhmm);
+  const candidates = [want + 4 * 3600_000, want + 5 * 3600_000];
+  const hit = candidates.find((t) => { const p = etParts(new Date(t).toISOString()); return p.date === date && p.time === hhmm; });
+  return new Date(hit ?? candidates[1]).toISOString();
+}
+export const addDays = (date, n) => { const [y, m, d] = date.split("-").map(Number); return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10); };
+/** "HH:MM", 24-hour. */
+export const TIME_ET = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 /**
  * @param {{ store: object, clock: () => string, posts: () => object[], recheck: (pkg: object) => object|null,
@@ -420,6 +443,89 @@ export function createPublishFlow(ctx) {
     return { ok: true, activeHost: to, detail: `this ${thisHost} publisher will no longer send live; the ${to} publisher sends once the ledger sync delivers this record` };
   }
 
+  // ── daily queue preparation ───────────────────────────────────────────────────────────────────────────────
+  /**
+   * The founder's setting (append-only: the latest `queue-prep` record wins; none = off). When on, the ACTIVE publisher
+   * host prepares today's content queue once per Eastern day at or after timeEt, through the same command the founder
+   * types, as the scheduler actor. Like sending, only the active host does it, so the two hosts never both build;
+   * the inactive host does nothing and records nothing.
+   */
+  const queuePrepSetting = () => {
+    const d = of("queue-prep").at(-1)?.data;
+    return { enabled: d?.enabled === true, timeEt: d?.timeEt ?? null };
+  };
+  const prepClaimKey = (date) => `queue-prep|${date}`;
+  /** Founder (administrator): turn daily preparation on/off and set its Eastern time. Hosted: passkey step-up (publishing-policy). */
+  function setQueuePrep({ enabled, timeEt } = {}, actor) {
+    const f = checkFounder("publishing-policy", actor);
+    if (!f.ok) return f;
+    if (typeof enabled !== "boolean") return { ok: false, code: "INVALID_REQUEST", detail: "enabled must be true or false" };
+    const time = timeEt === undefined || timeEt === null || timeEt === "" ? queuePrepSetting().timeEt : String(timeEt);
+    if ((enabled || time !== null) && !TIME_ET.test(time ?? "")) return { ok: false, code: "INVALID_TIME", detail: "give the time as HH:MM, 24-hour, US Eastern (e.g. 09:30)" };
+    store.append("queue-prep", actor.id ?? "founder", { enabled, timeEt: time, by: actor.id ?? "founder", authentication: actor.authentication ?? null });
+    const activeHere = activeHost() === thisHost;
+    return { ok: true, enabled, timeEt: time, activeHere, ...(activeHere ? {} : { detail: `the ${activeHost()} publisher prepares the queue; this ${thisHost} copy only records the setting` }) };
+  }
+  /** A build that refused or failed: a refusal, a refused/failed task, or a failed job under its command. */
+  function failureOf(commandId) {
+    if (!commandId) return null;
+    const e = entries().find((x) => x.data?.commandId === commandId && (x.kind === "refusal" || (x.kind === "task" && ["FAILED", "REFUSED"].includes(x.data.status)) || (x.kind === "job" && x.data.status === "failed")));
+    return e ? { code: e.data.code ?? (e.kind === "job" ? "JOB_FAILED" : e.data.status), detail: e.data.detail ?? e.data.error ?? null } : null;
+  }
+  let preparing = false;
+  /**
+   * Scheduler tick (Mac: the 30 s tick; hosted: the cron). Prepares today's queue when: the setting is on, this is the
+   * active publisher host, nothing is paused, the Eastern time is at or past timeEt, and today's claim
+   * `queue-prep|<ET date>` is still free. The claim is taken first (first writer wins), so there is ONE automatic
+   * attempt per Eastern day, however many ticks or processes run; a failure raises an alert and is not retried (the
+   * founder re-runs it by typing the command).
+   */
+  async function prepDue() {
+    const s = queuePrepSetting();
+    if (!s.enabled || !TIME_ET.test(s.timeEt ?? "")) return { ok: true, skipped: "off" };
+    if (activeHost() !== thisHost) return { ok: true, skipped: `the ${activeHost()} publisher prepares the queue` };
+    if (paused()) return { ok: true, skipped: "paused" };
+    const now = clock();
+    const { date, time } = etParts(now);
+    if (time < s.timeEt) return { ok: true, skipped: "not yet", next: etInstant(date, s.timeEt) };
+    if (preparing || store.readClaim?.(prepClaimKey(date))) return { ok: true, skipped: "already prepared today" };
+    if (typeof ctx.prepareQueue !== "function") return { ok: true, skipped: "no queue builder on this host" };
+    const claim = store.claim(prepClaimKey(date), { host: thisHost, at: now });
+    if (!claim.won) return { ok: true, skipped: "already prepared today" };
+    preparing = true;
+    try {
+      let r;
+      try { r = await ctx.prepareQueue(DAILY_QUEUE_COMMAND, SCHEDULER_ACTOR); } catch (err) { r = { ok: false, code: "PREP_ERROR", detail: String(err?.message ?? err).slice(0, 300) }; }
+      r = r ?? { ok: false, code: "PREP_ERROR", detail: "no result" };
+      const failure = r.ok ? failureOf(r.commandId) : { code: r.code ?? "PREP_ERROR", detail: r.detail ?? null };
+      const ok = Boolean(r.ok) && !failure;
+      const run = { date, timeEt: s.timeEt, host: thisHost, commandId: r.commandId ?? null, ok, duplicate: r.duplicate === true, code: failure?.code ?? null, detail: failure?.detail ?? null };
+      store.append("queue-prep-run", SCHEDULER_ACTOR.id, run);
+      if (!ok) {
+        store.append("publish-alert", SCHEDULER_ACTOR.id, {
+          alertId: shortId("alert", { queuePrep: date, at: clock() }), jobId: null, postId: null, source: "queue-prep", severity: "warning", code: "QUEUE_PREP_FAILED",
+          detail: `today's content queue (${date}) was not prepared automatically — ${run.code}${run.detail ? `: ${run.detail}` : ""}. It is not retried today: type "${DAILY_QUEUE_COMMAND}" to run it yourself.`,
+        });
+      }
+      return { ok, ran: true, ...run };
+    } finally {
+      preparing = false;
+    }
+  }
+  function queuePrepState() {
+    const s = queuePrepSetting();
+    const activeHere = activeHost() === thisHost;
+    const last = of("queue-prep-run").at(-1) ?? null;
+    // a hosted build runs later as a job: its failure is folded in when it is recorded
+    const lastRun = last ? { date: last.data.date, at: last.at, commandId: last.data.commandId ?? null, ok: Boolean(last.data.ok) && !failureOf(last.data.commandId) } : null;
+    let next = null;
+    if (s.enabled && activeHere && TIME_ET.test(s.timeEt ?? "")) {
+      const today = etParts(clock()).date;
+      next = etInstant(store.readClaim?.(prepClaimKey(today)) ? addDays(today, 1) : today, s.timeEt);
+    }
+    return { enabled: s.enabled, timeEt: s.timeEt, activeHere, lastRun, next };
+  }
+
   async function state() {
     const acked = new Set(of("publish-alert-ack").map((e) => e.data.alertId));
     return {
@@ -430,10 +536,11 @@ export function createPublishFlow(ctx) {
       lastTick: lastTickAt ?? of("publish-tick").at(-1)?.at ?? null, schedulerIntervalSec: 30,
       jobs: jobs().reverse().slice(0, 100),
       alerts: of("publish-alert").filter((e) => !acked.has(e.data.alertId)).map((e) => ({ ...e.data, at: e.at })).reverse().slice(0, 50),
+      queuePrep: queuePrepState(),
     };
   }
 
-  return { setPaused, setPolicy, setPublisherHost, schedule, cancel, cancelQueuedBy, runDue, publishNow, queueNow, dueSoon, reconcile, acknowledge, jobs, policy, state, execute };
+  return { setPaused, setPolicy, setPublisherHost, setQueuePrep, prepDue, schedule, cancel, cancelQueuedBy, runDue, publishNow, queueNow, dueSoon, reconcile, acknowledge, jobs, policy, state, execute };
 }
 
 /** A NOT_SENT failure after some images uploaded still spent those uploads. */

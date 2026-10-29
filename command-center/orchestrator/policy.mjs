@@ -86,10 +86,25 @@ export function checkDelegation({ fromRole, toRole, hop, tasksSoFar }) {
 }
 
 /**
+ * THE SCHEDULER (system actor). Daily queue preparation runs as this actor, never as the founder. It holds no role in
+ * ROLE_ORDER (so `can` gives it nothing) and checkFounder refuses it every action except the ones listed here — today
+ * exactly one: issuing the daily-queue command with the exact text below (orchestrator.handleCommand checks the text).
+ * Hosted accounts can never carry the "system" role (auth-service only accepts ROLE_ORDER roles).
+ */
+export const SYSTEM_ROLE = "system";
+export const SCHEDULER_ACTOR = Object.freeze({ id: "scheduler", role: SYSTEM_ROLE, surface: "scheduler", authentication: "daily queue preparation (founder-enabled setting)" });
+export const SYSTEM_ACTIONS = Object.freeze(["prepare-daily-queue"]);
+/** The only command the scheduler may issue: the same words the founder types. */
+export const DAILY_QUEUE_COMMAND = "Team, prepare today's content queue";
+export const isSystemActor = (actor) => actor?.role === SYSTEM_ROLE;
+
+/**
  * Founder-only actions. `actor` comes from the surface's authenticated identity — in Phase 1 the loopback console,
  * which is demo-grade (see docs/approval-security.md); never from the text of a message.
  */
 export function checkFounder(action, actor) {
+  // the system actor: only its listed actions, and nothing else — not even actions that are open to everyone
+  if (isSystemActor(actor)) return SYSTEM_ACTIONS.includes(action) ? { ok: true } : { ok: false, code: REASON.NOT_FOUNDER, detail: `the ${actor.id ?? "system"} actor may not ${action}` };
   if (!FOUNDER_ACTIONS.includes(action)) return { ok: true };
   if (actor?.role === "founder") return { ok: true };
   const permission = ACTION_PERMISSION[action];
