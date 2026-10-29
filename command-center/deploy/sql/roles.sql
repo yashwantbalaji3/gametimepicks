@@ -1,4 +1,4 @@
--- Applied ONCE at CP-H1 by `deploy/migrate.mjs --roles` (owner role), which generates the three passwords and fills
+-- Applied ONCE by `deploy/provision-db.mjs` (owner role), which generates the passwords, fills
 -- the :'…' placeholders; nothing is committed. tests/db-roles.test.mjs runs this exact file.
 --
 -- Three least-privilege roles. None can change the schema, drop the append-only triggers, or UPDATE/DELETE ledger

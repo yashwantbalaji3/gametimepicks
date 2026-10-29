@@ -143,7 +143,7 @@ Runbook §5, in summary:
 1. Run `npx vercel@latest login`.
 2. Create the **empty, private** repo `gtp-ops` on GitHub (no README). Its contents are already assembled locally at `~/Downloads/gtp-ops` (one commit, no remote; runbook §9). Say go and I push it.
 3. Create the Neon project.
-4. Run `DATABASE_URL_OWNER=… node command-center/deploy/migrate.mjs --roles` and paste the four URLs into Vercel/GitHub settings.
+4. Run `node command-center/deploy/provision-db.mjs` in Terminal: it asks for the owner string at a hidden prompt and sends each role's credential straight to GitHub/Vercel (none printed).
 5. Create a **Private** Blob store and connect it to the new project.
 6. Set the variables from `deploy/env.example`. **Leave `GH_PUBLISHER_WORKFLOW` unset (staging).**
 7. Run the preflight `--target vercel --staging` and `--target github`.

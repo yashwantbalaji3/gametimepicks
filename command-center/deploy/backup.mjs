@@ -5,9 +5,9 @@
  * of every image an approved or published post used (the audit evidence; drafts are re-renderable and left out).
  *
  *   node command-center/deploy/backup.mjs --new-key                       print a fresh key (keep it in your password manager)
- *   DATABASE_URL_OWNER='postgres://…' BLOB_READ_WRITE_TOKEN='…' GTP_CC_BACKUP_KEY='…' \
- *     node command-center/deploy/backup.mjs --out ~/GTP-backups            write gtp-cc-backup-<time>.enc
- *   GTP_CC_BACKUP_KEY='…' node command-center/deploy/backup.mjs --verify <file>   decrypt + check counts and hashes
+ *   node command-center/deploy/backup.mjs --out ~/GTP-backups            write gtp-cc-backup-<time>.enc
+ *   node command-center/deploy/backup.mjs --verify <file>                decrypt + check counts and hashes
+ * The owner string, Blob token and backup key are asked for at hidden prompts (or taken from the environment).
  *
  * Format: "GTPCCB1" | 12-byte IV | 16-byte GCM tag | AES-256-GCM(gzip(JSON)). Tampering fails the tag check.
  */
@@ -17,6 +17,7 @@ import path from "node:path";
 import zlib from "node:zlib";
 import crypto from "node:crypto";
 import { sha256 } from "../lib/util.mjs";
+import { ownerUrl, secretInput } from "./owner-url.mjs";
 
 const MAGIC = Buffer.from("GTPCCB1");
 const arg = (name) => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : undefined; };
@@ -50,12 +51,13 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   if (process.argv.includes("--new-key")) {
     console.log(crypto.randomBytes(32).toString("base64url"));
   } else if (arg("--verify")) {
-    const r = check(open(fs.readFileSync(arg("--verify")), keyFrom(process.env.GTP_CC_BACKUP_KEY)));
+    const r = check(open(fs.readFileSync(arg("--verify")), keyFrom(await secretInput("GTP_CC_BACKUP_KEY", "Backup key"))));
     console.log(`${r.ok ? "OK" : "FAILED"} ${JSON.stringify(r.counts)}${r.badMedia.length ? ` bad media: ${r.badMedia.join(", ")}` : ""}`);
     process.exitCode = r.ok ? 0 : 1;
   } else {
-    const key = keyFrom(process.env.GTP_CC_BACKUP_KEY);
-    if (!process.env.DATABASE_URL_OWNER) { console.error("Set DATABASE_URL_OWNER for this one command."); process.exit(2); }
+    const key = keyFrom(await secretInput("GTP_CC_BACKUP_KEY", "Backup key"));
+    const owner = await ownerUrl();
+    await secretInput("BLOB_READ_WRITE_TOKEN", "Vercel Blob read-write token");
     const { neon } = await import("../ledger/pg-adapters.mjs");
     const { readSql } = await import("../ledger/ledger-sync.mjs");
     const { blobObjectStore, sqlObjectStore } = await import("../ledger/object-store.mjs");
@@ -63,7 +65,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const { createOrchestrator } = await import("../orchestrator/orchestrator.mjs");
     const { planRetention } = await import("../ledger/media-retention.mjs");
     const clock = () => new Date().toISOString();
-    const db = await neon(process.env.DATABASE_URL_OWNER);
+    const db = await neon(owner);
     const { entries, claims } = await readSql(db);
     const refs = (await db.query("SELECT * FROM stored_object_refs ORDER BY created_at")).rows;
     const deletions = (await db.query("SELECT * FROM stored_object_deletions ORDER BY deleted_at")).rows;

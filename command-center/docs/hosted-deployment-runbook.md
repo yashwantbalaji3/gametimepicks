@@ -22,9 +22,9 @@
 |---|---|---|---|
 | 1 | Sign in to the Vercel CLI: `npx vercel@latest login` (or a scoped token) | you | — |
 | 2 | Private GitHub repo `gtp-ops`: you create it **empty**; the contents are assembled locally by `deploy/assemble-ops-repo.mjs` (§9) and pushed only when you say go | you create, I prepare | $0 (2,000 Actions min/month free) |
-| 3 | Neon project (Free) → `node command-center/deploy/migrate.mjs --roles` with `DATABASE_URL_OWNER` | you create; the command prints 4 role URLs once | $0 (0.5 GB) |
-| 4 | Vercel project `gtp-team` on your existing Pro team, root = the ops repo | you | $0 extra on Pro |
-| 5 | Vercel Blob store, **access: Private**, connected to `gtp-team` only | you | about $0.05/month (see §6) |
+| 3 | Neon project (Free) → `node command-center/deploy/provision-db.mjs` (asks for the owner string hidden; creates the roles, proves their limits, sends each credential straight to GitHub/Vercel, prints none) | you create; the command prints 4 role URLs once | $0 (0.5 GB) |
+| 4 | Vercel project `gtp-ops` (exists; holds an older CLI-deployed Next.js app that the first Git deploy replaces) on your existing Pro team, root = the ops repo | you | $0 extra on Pro |
+| 5 | Vercel Blob store, **access: Private**, connected to `gtp-ops` only | you | about $0.05/month (see §6) |
 | 6 | Environment variables (`deploy/env.example`); then `node command-center/deploy/preflight.mjs --target vercel --env-file <pulled file> --staging` and `--target github` | you set, preflight checks | — |
 | 7 | Domain (§2) | you | $0 |
 | 8 | X callback (§3) | you | $0 |
@@ -33,7 +33,7 @@
 
 ## 2. DNS: use the exact record Vercel shows
 
-1. Vercel → `gtp-team` → Settings → Domains → **Add** `team.gametimepicks.yashwantbalaji.com`.
+1. Vercel → `gtp-ops` → Settings → Domains → **Add** `team.gametimepicks.yashwantbalaji.com`.
 2. Vercel then shows the record to add, usually a **CNAME** for `team.gametimepicks`, with a target specific to your project/team. If the domain is already used elsewhere, it may also show a **TXT** record for verification.
    - **Copy those values exactly.** Don't reuse the public site's CNAME (`c099500b2442b08e.vercel-dns-017.com`) and don't guess one.
 3. Add them at the DNS host for `yashwantbalaji.com`.
@@ -58,8 +58,8 @@
 ## 4. Migration (no cutover): Mac → hosted, repeatable
 
 ```bash
-DATABASE_URL_OWNER='…' BLOB_READ_WRITE_TOKEN='…' node command-center/deploy/sync-ledger.mjs --to-hosted          # dry run: counts, conflicts
-DATABASE_URL_OWNER='…' BLOB_READ_WRITE_TOKEN='…' node command-center/deploy/sync-ledger.mjs --to-hosted --apply  # copy + verify
+node command-center/deploy/sync-ledger.mjs --to-hosted          # dry run: counts, conflicts
+node command-center/deploy/sync-ledger.mjs --to-hosted --apply  # copy + verify
 ```
 
 - **What it copies:**
@@ -129,7 +129,8 @@ Between steps 2 and 3, *neither* side sends. A due post can be missed for that w
 
 | Purpose | Command |
 |---|---|
-| Schema (+ roles once) | `DATABASE_URL_OWNER=… node command-center/deploy/migrate.mjs [--roles]` |
+| First-time database setup (roles + credentials) | `node command-center/deploy/provision-db.mjs` · `--check` (schema only) |
+| Schema after a migration change | `node command-center/deploy/migrate.mjs` |
 | Config check | `node command-center/deploy/preflight.mjs --target vercel\|github --env-file … [--staging]` |
 | Live host check | `node command-center/deploy/preflight.mjs --probe https://team.gametimepicks.yashwantbalaji.com` |
 | Ledger + media sync | `node command-center/deploy/sync-ledger.mjs --to-hosted\|--to-local [--apply]` |

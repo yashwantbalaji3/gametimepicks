@@ -4,7 +4,7 @@
  * Run from the Mac with the Neon OWNER connection string (only the owner may write stored_object_deletions) and the
  * Blob token; neither is stored anywhere by this script:
  *
- *   DATABASE_URL_OWNER='postgres://…' BLOB_READ_WRITE_TOKEN='…' node command-center/deploy/media-retention.mjs [--keep-days 14] [--apply]
+ *   node command-center/deploy/media-retention.mjs [--keep-days 14] [--apply]   (asks for both, hidden)
  *
  * Removes only bytes; every key keeps its reference row and sha256, and each removal is recorded with its reason.
  * Media of any approved or published post is never a candidate.
@@ -14,20 +14,19 @@ import { createSqlStore } from "../ledger/sql-store.mjs";
 import { blobObjectStore } from "../ledger/object-store.mjs";
 import { planRetention, DEFAULT_KEEP_DAYS } from "../ledger/media-retention.mjs";
 import { createOrchestrator } from "../orchestrator/orchestrator.mjs";
+import { ownerUrl, secretInput } from "./owner-url.mjs";
 
 const arg = (name) => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : undefined; };
 const apply = process.argv.includes("--apply");
 const keepDays = Number(arg("--keep-days") ?? DEFAULT_KEEP_DAYS);
-if (!process.env.DATABASE_URL_OWNER || !process.env.BLOB_READ_WRITE_TOKEN) {
-  console.error("Set DATABASE_URL_OWNER and BLOB_READ_WRITE_TOKEN for this one command.");
-  process.exit(2);
-}
 if (!(keepDays >= 7)) {
   console.error("--keep-days must be at least 7.");
   process.exit(2);
 }
 const clock = () => new Date().toISOString();
-const db = await neon(process.env.DATABASE_URL_OWNER);
+const owner = await ownerUrl();
+await secretInput("BLOB_READ_WRITE_TOKEN", "Vercel Blob read-write token");
+const db = await neon(owner);
 const session = await createSqlStore({ db, clock }).open();
 const o = createOrchestrator({ store: session, clock, outDir: "/tmp/gtp-cc-retention", env: { GTP_CC_BUDGET_USD: "0" }, execution: "jobs", hosted: true });
 const objects = blobObjectStore({ db, clock });

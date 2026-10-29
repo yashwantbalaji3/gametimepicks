@@ -3,8 +3,7 @@
  * Copy the ledger (entries + once-only claims) and the approved media between this Mac and the hosted Command
  * Center. DRY RUN unless --apply. Never edits or removes a record; verifies afterwards. See ledger/ledger-sync.mjs.
  *
- *   DATABASE_URL_OWNER='postgres://…' BLOB_READ_WRITE_TOKEN='…' \
- *     node command-center/deploy/sync-ledger.mjs --to-hosted [--apply]     Mac → hosted (migration; cutover re-sync)
+ *   node command-center/deploy/sync-ledger.mjs --to-hosted [--apply]     Mac → hosted (migration; cutover re-sync)
  *     node command-center/deploy/sync-ledger.mjs --to-local  [--apply]     hosted → Mac (rollback)
  *   options: --ledger <dir> (default command-center/out/console/ledger) · --media <dir> (default …/out/console/media)
  *            --pglite <dir> instead of DATABASE_URL_OWNER (a local staging database) · --no-media (ledger only)
@@ -19,6 +18,7 @@ import { migrate } from "../ledger/sql-store.mjs";
 import { createFileStore } from "../ledger/file-store.mjs";
 import { blobObjectStore, sqlObjectStore } from "../ledger/object-store.mjs";
 import { readSql, readFile, planSync, verifySync, applyToSql, applyToFile, mediaKeysOf, pushMedia, pullMedia } from "../ledger/ledger-sync.mjs";
+import { ownerUrl, secretInput } from "./owner-url.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const arg = (name, dflt) => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : dflt; };
@@ -29,7 +29,10 @@ const apply = has("--apply");
 const ledgerDir = path.resolve(arg("--ledger", path.join(HERE, "../out/console/ledger")));
 const mediaDir = path.resolve(arg("--media", path.join(HERE, "../out/console/media")));
 const pg = arg("--pglite");
-if (!pg && !process.env.DATABASE_URL_OWNER) { console.error("Set DATABASE_URL_OWNER (or --pglite <dir> for a local staging database)."); process.exit(2); }
+// Neon: the owner string and (unless --no-media) the Blob token come from hidden prompts, so the images go to the
+// private Blob store and never into Postgres. Either may instead be set in the environment.
+if (!pg) await ownerUrl().then((u) => { process.env.DATABASE_URL_OWNER = u; });
+if (!pg && !has("--no-media")) await secretInput("BLOB_READ_WRITE_TOKEN", "Vercel Blob read-write token");
 
 const clock = () => new Date().toISOString();
 const db = pg ? await pglite(path.resolve(pg)) : await neon(process.env.DATABASE_URL_OWNER);
