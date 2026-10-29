@@ -25,6 +25,8 @@ import BoardDateRail, {
   type BoardDateEntry,
 } from "@/components/board-date-rail";
 import { surfaceHref } from "@/lib/nav/date-sport-route";
+import { loadMlbSeasonComplete, mlbSeasonCompleteCopyFor } from "@/lib/mlb/season-complete-data";
+import MlbSeasonCompletePanel from "@/components/mlb/mlb-season-complete-panel";
 
 /**
  * Shared MLB Board body used by:
@@ -85,6 +87,13 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
   const tierCount = (t: string) => leans.filter((l) => l.confidence === t && !isAnomalyLean(l)).length;
   const anomalyCount = leans.filter((l) => isAnomalyLean(l)).length;
   const hasLeans = leans.length > 0;
+  /* OFF-SEASON (2026-10-29): a no-game date after the season's last game is not an "off-day" with a next slate coming —
+     the committed season-state says no game is left (lib/mlb/season-complete.mjs). Dated archives of real slates are
+     untouched: this applies only to a date with no games, after the final game. */
+  const seasonComplete = loadMlbSeasonComplete();
+  const seasonCopy = mlbSeasonCompleteCopyFor();
+  const offSeason = !!seasonComplete && !!seasonCopy && !hasGames
+    && (seasonComplete.finalDate ? date > seasonComplete.finalDate : date >= seasonComplete.asOf);
 
   // Team list for the filter console (only used in projection state).
   const teamSet = new Set<string>();
@@ -134,27 +143,31 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
 
       {/* Slate liveness (real ET clock) — only on the latest-view route (not dated archives). */}
-      {liveness ? <div className="mb-4">{liveness}</div> : null}
+      {liveness && !offSeason ? <div className="mb-4">{liveness}</div> : null}
 
       {/* Status banner — settled / live / upcoming / lines-pending.
           Surfaces 'view audit' link when the date is settled so the
           board page never becomes a dead end for historical slates. */}
-      <BoardDateStatusBanner
-        date={date}
-        gameCount={totalGames}
-        leanCount={leans.length}
-        isSettled={!!mlbReport}
-        sport="MLB"
-        settled={settledSummary}
-      />
+      {offSeason && seasonCopy ? (
+        <MlbSeasonCompletePanel copy={seasonCopy} />
+      ) : (
+        <BoardDateStatusBanner
+          date={date}
+          gameCount={totalGames}
+          leanCount={leans.length}
+          isSettled={!!mlbReport}
+          sport="MLB"
+          settled={settledSummary}
+        />
+      )}
       {(() => {
-        const rail = buildMlbBoardRail(date);
+        const rail = buildMlbBoardRail(date, offSeason);
         if (rail.length === 0) return null;
         return (
           <BoardDateRail
             entries={rail}
             activeDate={date}
-            eyebrow="Slate · pick a date"
+            eyebrow={offSeason ? "Final slates · pick a date" : "Slate · pick a date"}
           />
         );
       })()}
@@ -173,7 +186,9 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
         >
           {hasGames
             ? `${totalGames} MLB games · ${leans.length} model-vs-market reads`
-            : "Off-day — no MLB games scheduled"}
+            : offSeason
+              ? "Off-season — no MLB games left to play"
+              : "Off-day — no MLB games scheduled"}
         </h1>
         <p
           className="mt-3 max-w-2xl text-[13px] leading-relaxed"
@@ -199,7 +214,7 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
       </section>
 
       {!hasGames ? (
-        <OffDayPanel />
+        offSeason ? null : <OffDayPanel />
       ) : (
         <>
           {/* KPI strip — the size of each read's model-vs-market gap (P2-A: not a confidence tier; a
@@ -499,7 +514,7 @@ function BackToOverviewLink() {
  * to /mlb/board/<date>. Window: 4 days back + every forward date on
  * disk, capped at 10 pills for mobile width.
  */
-function buildMlbBoardRail(active: string): BoardDateEntry[] {
+function buildMlbBoardRail(active: string, offSeason = false): BoardDateEntry[] {
   const today = currentEtDate();
   const schedDates = getMlbAvailableScheduleDates();
   const settledDates = new Set(getMlbAvailableResultDates().dates ?? []);
@@ -510,6 +525,8 @@ function buildMlbBoardRail(active: string): BoardDateEntry[] {
 
   const sorted = Array.from(candidates).sort();
   const filtered = sorted.filter((d) => {
+    /* Off-season: only slates that were played. A future date has no game coming, so no "Upcoming" pill. */
+    if (offSeason) return settledDates.has(d);
     if (d >= today) return true;
     return settledDates.has(d) || d === active;
   });

@@ -25,6 +25,8 @@ import SlateLivenessBanner from "@/components/slate-liveness-banner";
 import { publicationDeadlineUtc } from "@/lib/ops/read-publication-slo";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { homerNukesRecord } from "@/lib/results/homer-nukes-record";
+import { loadMlbSeasonComplete, mlbSeasonCompleteCopyFor } from "@/lib/mlb/season-complete-data";
+import MlbSeasonCompletePanel from "@/components/mlb/mlb-season-complete-panel";
 
 export const metadata = withRouteMetadata("/homer-nukes/", {
   title: "Homer Nukes · GameTime Picks",
@@ -48,6 +50,12 @@ export default function HomerNukesPage() {
   const mlbSlateGames = (() => {
     try { const b = JSON.parse(fs.readFileSync(path.join(dataRoot, "mlb", "boards", `${date}.json`), "utf8")); return Array.isArray(b?.games) ? b.games.length : null; } catch { return null; }
   })();
+  /* OFF-SEASON (2026-10-29): no board and the committed season-state says no MLB game is left — there is no "next game
+     day" to promise a board for (lib/mlb/season-complete.mjs). A published board always wins. */
+  const seasonComplete = loadMlbSeasonComplete(dataRoot);
+  const seasonCopy = mlbSeasonCompleteCopyFor(dataRoot);
+  const offSeason = !board && !!seasonComplete && !!seasonCopy
+    && (seasonComplete.finalDate ? date > seasonComplete.finalDate : date >= seasonComplete.asOf);
   const gradedPicks = split.public.gradedPicks;
   const gradedHits = split.public.actual;
 
@@ -58,7 +66,7 @@ export default function HomerNukesPage() {
           <span aria-hidden>💣</span> Homer Nukes · MLB
         </span>
         <h1 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 30, fontWeight: 800, lineHeight: 1.1 }}>
-          The five most likely home runs today
+          {offSeason ? "The five most likely home runs, every game day" : "The five most likely home runs today"}
         </h1>
         <p className="m-0 max-w-[68ch]" style={{ color: "var(--vault-text-mute)", fontSize: 14, lineHeight: 1.6 }}>
           Each pick carries its own probability and settles on its own — this is a list, not a parlay.
@@ -66,7 +74,7 @@ export default function HomerNukesPage() {
         </p>
       </header>
 
-      <SlateLivenessBanner
+      {offSeason && seasonCopy ? <MlbSeasonCompletePanel copy={seasonCopy} /> : <SlateLivenessBanner
         publishDeadlineUtc={publicationDeadlineUtc()}
         buildTimeToday={date}
         latestSlate={date}
@@ -76,10 +84,15 @@ export default function HomerNukesPage() {
         archiveLabel="See results & receipts"
         includeMlbNote
         includeWcFocus={false}
-      />
+      />}
 
       {board ? (
         <HomerNukesBoardSection board={board} record={split.public} />
+      ) : offSeason && seasonCopy ? (
+        <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 14 }}>
+          There is no home-run board in the off-season. {seasonCopy.returnsLabel} The track record of the{" "}
+          {seasonComplete?.season} boards is below.
+        </p>
       ) : mlbSlateGames === 0 ? (
         <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 14 }}>
           No MLB games are scheduled today, so there is no home-run board. The next one is built the
