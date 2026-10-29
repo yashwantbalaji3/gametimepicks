@@ -92,8 +92,10 @@ export function PropLineLegend({ legend, display }: { legend: PropLineLegendText
  * The whole section: heading, coverage line, rows, legend. `withoutLine` counts the projections with no captured line
  * (shown on the board as projections only).
  */
-export default function PropLineComparison({ view, display, heading = "Model vs. sportsbook line", id = "prop-lines", withoutLine = 0 }: {
+export default function PropLineComparison({ view, display, heading = "Model vs. sportsbook line", id = "prop-lines", withoutLine = 0, notes }: {
   view: PropLineViewModel | null; display: Display; heading?: string; id?: string; withoutLine?: number;
+  /** Source notes printed under the legend when rows are shown (provider attribution, book availability). Omitted → nothing. */
+  notes?: string[];
 }) {
   if (!display.public) return null;
   const rows = view?.rows ?? [];
@@ -111,6 +113,7 @@ export default function PropLineComparison({ view, display, heading = "Model vs.
       )}
       {rows.length ? <ul className="m-0" style={{ listStyle: "none", padding: 0 }}>{rows.map((r, i) => <PropLineRow key={r.key ?? i} row={r} />)}</ul> : null}
       {rows.length && view ? <PropLineLegend legend={view.legend} display={display} /> : null}
+      {rows.length && notes?.length ? <p data-prop-line-notes="" className="m-0" style={{ ...MUTE, fontSize: 12 }}>{notes.join(" ")}</p> : null}
     </section>
   );
 }

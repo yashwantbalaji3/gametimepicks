@@ -57,6 +57,9 @@ export const USAGE_RULES = Object.freeze([
   "Refuse a day whose `publication.status` is not PUBLISHED, or whose `stale` is true, for any 'tonight' claim.",
 ]);
 
+/** Replaces USAGE_RULES[2] only when line comparisons are authorized for this feed (the default rules are unchanged). */
+export const USAGE_RULE_LINES_AUTHORIZED = "Player figures are medians, not picks or predictions to bet; pair a median with a sportsbook line only through its lineComparison when status is COMPARED, with the legend beside it.";
+
 export const NBA_SOCIAL_SLATE_STATES = Object.freeze(["UPCOMING", "IN_PROGRESS", "SETTLED"]);
 export const NBA_SOCIAL_TODAY_STATUSES = Object.freeze(["PUBLISHED", "NOT_YET_PUBLISHED", "NO_GAMES", "DISABLED"]);
 
@@ -99,23 +102,30 @@ const num = (v) => (typeof v === "number" && Number.isFinite(v) ? v : null);
  * server loader — products never read the Theater library (research boundary), and this pure module imports no component.
  * `latestDate` is the newest date this build ships a day file for (nba-social-data nbaSocialDates().at(-1)); `isLatest` is
  * true only when it equals the lane's date.
- * @param {{ lane: any, recordGames: any[], buildEtDate: string, latestDate?: string|null, laneSha256?: string|null, eloEnabled?: boolean, recordCounts?: { matched: number, missed: number, graded: number }|null, reasonText?: (reason: string|null, status: string|null) => string }} input
+ * @param {{ lane: any, recordGames: any[], buildEtDate: string, latestDate?: string|null, laneSha256?: string|null, eloEnabled?: boolean, recordCounts?: { matched: number, missed: number, graded: number }|null, reasonText?: (reason: string|null, status: string|null) => string, lineBoard?: { rows: any[], coverage?: any, attribution?: string|null }|null, lineDisplay?: { public?: boolean, social?: boolean, socialPrices?: boolean, reason?: string|null } }} input
  */
 export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, latestDate = null, laneSha256 = null, eloEnabled, recordCounts = null, reasonText = (r) => String(r ?? ""), lineBoard = null, lineDisplay = NBA_LINE_DISPLAY }) {
-  /* Model-versus-line (launch program P0): per player and family, from the private line board (line-board.mjs) — only when
-     the social display switch allows it. Otherwise the block says so and carries NO line, price, book or difference. */
+  /* Model-versus-line (launch program P0): per player and family, from the published comparison artifact
+     (lib/sports/nba/public-line-records.mjs nbaSocialLineBoard — the SAME artifact the pages render) — only when the social
+     display switch allows it. Otherwise the block says so and carries NO line, price, book or difference. */
   const lineRow = new Map((lineBoard?.rows ?? []).map((r) => [`${r.eventId}|${r.athleteId}|${r.family}`, r]));
   const lineComparison = (eventId, athleteId, family) => {
     if (!lineDisplay?.social) return { status: "NOT_AUTHORIZED", displayPermission: "PRIVATE", reason: lineDisplay?.reason ?? "Not authorized for display." };
     const r = lineRow.get(`${eventId}|${athleteId}|${family}`);
     if (!r) return { status: "UNAVAILABLE", displayPermission: "PUBLIC", direction: "UNAVAILABLE", reason: "NO_LINE", reasonText: UNAVAILABLE_REASON.NO_LINE };
     if (r.direction === "UNAVAILABLE") return { status: "UNAVAILABLE", displayPermission: "PUBLIC", direction: "UNAVAILABLE", reason: r.reason, reasonText: UNAVAILABLE_REASON[r.reason] ?? null };
+    /* Prices and book names are a SEPARATE permission (lineDisplay.socialPrices — the provider's written confirmation that
+       a public JSON feed may carry them; lib/odds/display-authorization.mjs). Without it a COMPARED row carries the
+       side, difference, line and capture time only. */
+    const priced = lineDisplay?.socialPrices === true ? { overPrice: r.overPrice, underPrice: r.underPrice, book: r.book } : {};
     return {
       status: "COMPARED", displayPermission: "PUBLIC", rule: LINE_COMPARISON_RULE,
-      line: r.line, overPrice: r.overPrice, underPrice: r.underPrice, book: r.book, marketKey: r.marketKey, capturedAt: r.capturedAt,
+      line: r.line, ...priced, marketKey: r.marketKey, capturedAt: r.capturedAt,
       difference: r.difference, direction: r.direction, side: USER_SIDE[r.direction] ?? null, freshness: `captured before tip, within ${LINE_MAX_AGE_HOURS} h`,
     };
   };
+  // Prices + books in this feed: only with the separate socialPrices permission AND published rows to carry them.
+  const feedPrices = lineDisplay?.socialPrices === true && lineDisplay?.social === true && !!lineBoard;
   const byId = new Map((recordGames ?? []).map((r) => [String(r.providerEventId), r]));
   const games = lane?.games ?? [];
   const events = games.map((g) => {
@@ -136,7 +146,7 @@ export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, latestD
     const withheld = [
       { family: "teamScores", reason: "Team score, margin and total are not published: the player-sum score ignores the opponent and has not met its historical checks." },
       { family: "playerRanges", reason: "Medians only: the model's ranges have not yet shown reliable coverage." },
-      { family: "prices", reason: "No sportsbook prices are published for NBA." },
+      ...(feedPrices ? [] : [{ family: "prices", reason: "No sportsbook prices are published for NBA." }]),
       ...(est ? [] : [{ family: "eloEstimate", reason: eloEnabled === false ? "The Elo-derived estimate is switched off." : "No Elo-derived estimate was published with this game's frozen forecast." }]),
     ];
     return {
@@ -179,7 +189,7 @@ export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, latestD
       favouredSide: "OFFICIAL",
       eloEstimate: events.some((e) => e.official.eloEstimate) ? "SHOWN_ACCURACY_NOT_ESTABLISHED" : "WITHHELD",
       playerMedians: "OFFICIAL",
-      teamScores: "WITHHELD", playerRanges: "WITHHELD", prices: "NOT_PUBLISHED",
+      teamScores: "WITHHELD", playerRanges: "WITHHELD", prices: feedPrices ? "COMPARED_ROWS_ONLY" : "NOT_PUBLISHED",
       simulations: "NOT_INCLUDED", topBoards: "NOT_AUTHORIZED",
     },
     playerFamilies: PLAYER_FAMILIES,
@@ -190,10 +200,12 @@ export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, latestD
       legend: COMPARISON_LEGEND,
       graphicRule: "Colour a stat only when its lineComparison.status is COMPARED; otherwise use the projections-only graphic. Always print the legend beside coloured stats.",
       coverage: lineDisplay?.social && lineBoard ? lineBoard.coverage : null,
+      // additive, only when the social surface is authorized and the authorization carries an attribution sentence
+      ...(lineDisplay?.social && lineBoard?.attribution ? { attribution: lineBoard.attribution } : {}),
     },
     events,
     record: recordCounts ? { ...recordCounts, minForClaim: NBA_RECORD_MIN_FOR_CLAIM, accuracyClaim: false, href: "/results/nba/" } : null,
-    usageRules: USAGE_RULES,
+    usageRules: lineDisplay?.social && lineBoard ? USAGE_RULES.map((r, i) => (i === 2 ? USAGE_RULE_LINES_AUTHORIZED : r)) : USAGE_RULES,
     // additive (2026-10-29), appended last — see the header
     isLatest: !!(lane?.date && latestDate && lane.date === latestDate),
     slateState: nbaSocialSlateState(events, lane?.date ?? null, buildEtDate ?? null),

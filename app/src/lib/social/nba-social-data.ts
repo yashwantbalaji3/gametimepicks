@@ -1,6 +1,8 @@
 /**
  * NBA social data — SERVER / BUILD TIME ONLY. Reads the committed public lane files and the /results/nba record (the
- * same owners the NBA pages read) and hands them to the pure contract builder (nba-social.mjs). No private file.
+ * same owners the NBA pages read) and hands them to the pure contract builder (nba-social.mjs). No private file. Line
+ * comparisons come from the published comparison artifact the pages render, and only when the display authorization
+ * record authorizes the social surface (lib/odds/display-authorization.mjs).
  */
 import crypto from "node:crypto";
 import fs from "node:fs";
@@ -12,6 +14,7 @@ import { LANE } from "@/lib/sports/nba/experimental-public-lane.mjs";
 import { nbaForecastVsActualView } from "@/lib/results/nba-level-a-readers";
 import { currentEtDate } from "@/lib/freshness";
 import { unavailableReasonText } from "@/components/nba/official-predictions";
+import { nbaSocialLineBoard } from "@/lib/sports/nba/public-line-records.mjs";
 import { buildNbaSocialDay, nbaSocialToday, NBA_SOCIAL_BASE, NBA_SOCIAL_SCHEMA } from "./nba-social.mjs";
 
 /** How many dated day files ship (bytes stay bounded; the index lists exactly these). */
@@ -37,6 +40,8 @@ export function nbaSocialDay(date: string) {
     lane, recordGames: r.games as any[], buildEtDate: currentEtDate(), latestDate: nbaSocialDates().at(-1) ?? null, laneSha256: laneSha(date),
     recordCounts: { matched: r.counts.matched, missed: r.counts.missed, graded: r.counts.graded },
     reasonText: (reason: string | null, status: string | null) => unavailableReasonText(reason, status),
+    // Model-versus-line rows from the published artifact; null (and nothing read) unless the "social" surface is authorized.
+    lineBoard: nbaSocialLineBoard(date),
   });
 }
 
