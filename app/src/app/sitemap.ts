@@ -4,13 +4,18 @@ import { PLAYER_COMPARE_SPORTS, TEAM_COMPARE_SPORTS, comparePath } from "@/lib/c
 import { matchupEntries } from "@/lib/compare/compare-store";
 import { researchIndex } from "@/lib/research-pages/projection-store";
 import { COMPETITIONS } from "@/lib/sports/catalog";
+import { durablePages } from "@/lib/seo/sitemap-durable-pages";
 
 /**
  * sitemap.xml (P208 · Release H) — DERIVED from the route inventory, the same table the route
  * guards reconcile against source and export. Public classification only: redirects would send
  * crawlers through hops, internal routes are pruned from the export, and the archive route is a
- * deliberate non-destination. Dynamic event pages are reachable from their listed hubs; listing
+ * deliberate non-destination. Live event pages are reachable from their listed hubs; listing
  * every dated report here would churn the file daily for no crawl benefit.
+ *
+ * Batch 1 · #10: SETTLED game pages are durable (the URL outlives its game), so they ARE listed — from the same id
+ * sources their generateStaticParams use (lib/seo/sitemap-durable-pages.ts), each with its event date as <lastmod>.
+ * No other entry carries <lastmod>: a static route has no deterministic data date, and build time is not one.
  */
 export const dynamic = "force-static";
 
@@ -49,5 +54,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const listed = new Set(routes.map((r) => r.url));
   const hubs = COMPETITIONS.map((c) => `${BASE}${c.href}/`).filter((u) => !listed.has(u))
     .map((url) => ({ url, changeFrequency: "weekly" as const }));
-  return [...routes, ...hubs, ...research, ...compare, ...matchups];
+  const durable = durablePages()
+    .map((p) => ({ url: `${BASE}${p.path}`, ...(p.lastModified ? { lastModified: p.lastModified } : {}), changeFrequency: "monthly" as const }));
+  return [...routes, ...hubs, ...research, ...compare, ...matchups, ...durable];
 }
