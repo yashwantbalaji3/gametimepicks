@@ -31,6 +31,12 @@ test("odds comparison: a COMPARED row shows the site's side and difference verba
   assert.match(r.view.disclaimer, /not a pick/);
 });
 
+test("odds comparison: works without prices or book (the default under the provider terms)", () => {
+  const r = comparisonView({ ...base, lineComparison: lc({ overPrice: undefined, underPrice: undefined, book: undefined }) });
+  assert.equal(r.mode, "comparison");
+  assert.deepEqual([r.view.side, r.view.difference, r.view.line, r.view.book, r.view.overPrice, r.view.bookNote], ["OVER", 6.5, 29.5, null, null, null]);
+});
+
 test("odds comparison: today's feed (every row NOT_AUTHORIZED) and every unsafe input fall back to projection-only", () => {
   const cases = {
     "LINE_NOT_COMPARED:NOT_AUTHORIZED": { lineComparison: { status: "NOT_AUTHORIZED" } },

@@ -6,6 +6,8 @@
 - Today every feed row is `NOT_AUTHORIZED`, so no social graphic shows a line.
 - Aligned with the GameTimePicks launch-readiness session on 2026-10-29.
 
+**Update 2026-10-29 (provider terms):** `overPrice`, `underPrice` and `book` stay out of the feed behind a separate authorization (`socialFeedPrices`), which needs written confirmation from The Odds API (its terms forbid redistributing odds as a data feed). COMPARED rows carry `side`, `difference`, `line` and `capturedAt` once social display is authorized. Graphics work without prices: price lines optional, absent by default.
+
 **Principle:** the website owns odds and the comparison. The Command Center reads the website's **public social feed** verbatim. It never fetches prices, picks a book, compares, or re-runs any evaluator. Raw prices stay private under the 10-22 storage rule: the repo is public.
 
 ## Source: `/data/social/nba/v1/<date>.json` (contract `gtp-social-nba@1`)

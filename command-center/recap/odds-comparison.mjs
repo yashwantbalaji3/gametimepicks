@@ -40,7 +40,8 @@ export function comparisonView(input) {
   if (!socialDisplayPermitted) reasons.push(REFUSAL.NOT_PERMITTED);
   if (lc?.status !== "COMPARED") reasons.push(`${REFUSAL.NOT_COMPARED}:${lc?.status ?? "NONE"}${lc?.reason ? `:${lc.reason}` : ""}`);
   else {
-    if (!num(lc.line) || !lc.book || !lc.capturedAt || !num(lc.difference) || !SIDES[lc.side]) reasons.push(REFUSAL.INCOMPLETE);
+    // book and prices are optional: the feed carries them only under a separate, provider-confirmed authorization
+    if (!num(lc.line) || !lc.capturedAt || !num(lc.difference) || !SIDES[lc.side]) reasons.push(REFUSAL.INCOMPLETE);
     if (lc.book && !eligibleBooks.includes(lc.book)) reasons.push(REFUSAL.OPERATOR);
   }
   if (startUtc && Date.parse(startUtc) <= Date.parse(now)) reasons.push(REFUSAL.AFTER_START);
@@ -54,11 +55,11 @@ export function comparisonView(input) {
     contract: ODDS_COMPARISON_CONTRACT, mode: "comparison", lineDependentHeld: false, reasons: [],
     view: {
       ...base,
-      line: lc.line, book: lc.book, marketKey: lc.marketKey ?? null,
+      line: lc.line, book: lc.book ?? null, marketKey: lc.marketKey ?? null, // book/prices absent by default
       overPrice: num(lc.overPrice) ? lc.overPrice : null, underPrice: num(lc.underPrice) ? lc.underPrice : null, // missing = "price unavailable", never 0
       side: lc.side, style: SIDES[lc.side], difference: lc.difference, // copied verbatim from the website
       capturedAt: lc.capturedAt, freshness: lc.freshness ?? null,
-      bookNote: BOOK_AVAILABILITY_NOTE,
+      bookNote: lc.book ? BOOK_AVAILABILITY_NOTE : null,
       disclaimer: "Model direction vs the line — not a pick or an expected-value claim.",
     },
   };
