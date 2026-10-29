@@ -108,7 +108,7 @@ jobs:
           npm ci --prefix command-center
           npm install --no-save --prefix .public/app @playwright/test@1.59.1
           PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers npx --prefix .public/app playwright install --with-deps chromium
-          npm install -g @anthropic-ai/claude-code@<pin-at-CP-H2>
+          npm install -g @anthropic-ai/claude-code@2.1.300   # pinned (released 2026-10-14); runs only with CLAUDE_CODE_OAUTH_TOKEN (CP-H2)
 
       - name: Run the job
         id: worker

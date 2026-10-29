@@ -26,6 +26,12 @@ test("ops workflows: every action is pinned to a full commit SHA", () => {
   }
 });
 
+test("ops workflows: every npm install is pinned to an exact version (no placeholders)", () => {
+  for (const [name, text] of WORKFLOWS) {
+    for (const m of text.matchAll(/npm install[^\n]*?(@[\w.-]+\/[\w.-]+|[\w.-]+)@(\S+)/g)) assert.match(m[2], /^\d+\.\d+\.\d+$/, `${name}: ${m[1]}@${m[2]} is not an exact version`);
+  }
+});
+
 test("ops workflows: the sparse checkout covers every public-repo path the code reads", () => {
   const read = new Set();
   for (const d of CODE_DIRS) {
