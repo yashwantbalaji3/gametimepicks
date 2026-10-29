@@ -9,8 +9,9 @@
 import React from "react";
 import { COMPARISON_LEGEND, comparisonTone, TONE_TOKEN, UNAVAILABLE_REASON } from "@/lib/sports/nba/line-comparison.mjs";
 import { NBA_LINE_DISPLAY } from "@/lib/sports/nba/line-board.mjs";
+import { signedDifference } from "@/lib/odds/prop-line-view.mjs";
 
-type Comparison = { direction: string; median?: number | null; line?: number; difference?: number; book?: string; capturedAt?: string; reason?: string };
+type Comparison = { direction: string; median?: number | null; line?: number; difference?: number; differenceExact?: number; book?: string; capturedAt?: string; reason?: string };
 
 const one = (v: number | null | undefined) => (typeof v === "number" && Number.isFinite(v) ? v.toFixed(1) : "—");
 const et = (iso?: string) => {
@@ -25,12 +26,13 @@ export function LineComparisonCell({ median, comparison, display = NBA_LINE_DISP
     return <span data-line-cmp="projection-only" title={why ?? undefined}>{one(median)}</span>;
   }
   const tone = comparisonTone(comparison);
-  const sign = (comparison!.difference ?? 0) > 0 ? "+" : "";
+  // Display rounding policy (lib/odds/prop-line-view.mjs): signed from the full-precision difference (+0.0 / −0.0 keep the direction).
+  const diff = signedDifference(comparison!.differenceExact ?? comparison!.difference ?? null);
   return (
     <span data-line-cmp={comparison!.direction} className="inline-flex flex-col leading-tight">
       <span>{one(median)}</span>
       <span style={{ color: TONE_TOKEN[tone], fontSize: 12 }}>
-        {sign}{one(comparison!.difference)} vs {one(comparison!.line)}
+        {diff.text} vs {one(comparison!.line)}
         <span className="sr-only"> ({comparison!.direction === "ABOVE" ? "Over: projection above the line" : comparison!.direction === "BELOW" ? "Under: projection below the line" : "Neutral: projection equals the line"})</span>
       </span>
       <span style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>{comparison!.book} · {et(comparison!.capturedAt)}</span>

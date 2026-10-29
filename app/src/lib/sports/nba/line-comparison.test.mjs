@@ -62,3 +62,15 @@ test("several books: the most recent pre-tip capture, ties by book — never an 
 test("the legend says what colours are and are not", () => {
   assert.match(COMPARISON_LEGEND.caveat, /not a probability, a pick or a betting recommendation/);
 });
+
+test("rounding policy: the direction comes from the FULL-precision difference (24.54 vs 24.5 is ABOVE, never EQUAL)", () => {
+  const up = compareToLine({ family: "pts", median: 22.54 }, LINE(), CTX);
+  assert.deepEqual([up.direction, up.side, up.difference], ["ABOVE", "OVER", 0], "`difference` stays the one-decimal published figure");
+  assert.ok(Math.abs(up.differenceExact - 0.04) < 1e-9, "full precision is kept");
+  assert.equal(comparisonTone(up), "above");
+  const down = compareToLine({ family: "pts", median: 22.46 }, LINE(), CTX);
+  assert.deepEqual([down.direction, down.side], ["BELOW", "UNDER"]);
+  assert.ok(down.differenceExact < 0);
+  const eq = compareToLine({ family: "pts", median: 22.5 }, LINE(), CTX);
+  assert.deepEqual([eq.direction, eq.differenceExact], ["EQUAL", 0], "EQUAL only when the projection equals the line");
+});

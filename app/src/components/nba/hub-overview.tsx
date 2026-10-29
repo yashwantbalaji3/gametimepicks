@@ -18,6 +18,7 @@
  * exported ids: settled-simulation-data nbaExportedGamePageIds) holds it — "Game page →", named "Game page: AWAY vs HOME",
  * a 44px target. No ids passed → no link.
  */
+import React from "react";
 import Link from "next/link";
 import TeamLogo from "@/components/team-logo";
 import { nbaExclusionText, type NbaTodayGame, type NbaTodaySlate } from "@/lib/sport-hub/nba-hub";
@@ -107,12 +108,18 @@ function forecastLine(g: NbaTodayGame, pending: boolean): string | null {
  * Today's games: a card per game. The Official Forecast link opens the game's full forecast (favoured side and every
  * player's statistics) on its Game Simulation page when that page is built, else this page's forecast row.
  */
-export function NbaTodayGames({ slate, slip, gamePages }: { slate: NbaTodaySlate; slip?: HubSlipLegs; gamePages?: ReadonlySet<string> }) {
+export function NbaTodayGames({ slate, slip, gamePages, lineSummaries }: {
+  slate: NbaTodaySlate; slip?: HubSlipLegs; gamePages?: ReadonlySet<string>;
+  /** Founder P0 2026-10-29: a compact "model vs sportsbook line" summary per game id (nba-prop-lines.tsx
+      nbaPropLineSummaries — undefined while the display switch is off, and a game without a compared line has no entry).
+      Absent → each card is exactly the card without it (withLineSummary adds no child slot). */
+  lineSummaries?: ReadonlyMap<string, React.ReactNode>;
+}) {
   if (!slate.games.length) return null;
   const pending = slate.forecast === "PENDING";
   return (
     <div className="nbx-grid">
-      {slate.games.map((g) => (
+      {slate.games.map((g) => withLineSummary(lineSummaries?.get(g.id),
         <MatchupCard key={g.id} favoured={g.favoured?.abbr ?? null} game={{ id: g.id, tipUtc: g.tipUtc, status: g.status, away: { ...g.away, logo: g.away.logoTeam }, home: { ...g.home, logo: g.home.logoTeam } }}>
           {(() => {
             const line = forecastLine(g, pending);
@@ -132,10 +139,18 @@ export function NbaTodayGames({ slate, slip, gamePages }: { slate: NbaTodaySlate
               <HubSlipButton leg={slip?.get(g.id)} />
             </p>
           ) : null}
-        </MatchupCard>
+        </MatchupCard>,
       ))}
     </div>
   );
+}
+
+/** The card with the summary inserted after its forecast read — or the card itself, untouched, when there is none. */
+function withLineSummary(summary: React.ReactNode, card: React.ReactElement<{ children?: React.ReactNode }>) {
+  if (summary == null) return card;
+  const kids = card.props.children;
+  const [read, ...rest] = Array.isArray(kids) ? kids : [kids];
+  return React.cloneElement(card, undefined, read, <div className="nbx-read" data-nba-line-summary="">{summary}</div>, ...rest);
 }
 
 /**

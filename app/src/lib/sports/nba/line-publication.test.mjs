@@ -131,6 +131,10 @@ test("validator rejects tampering: wrong lane, ineligible book, edited differenc
   assert.equal(v((c) => { c.events[0].rows[0].side = "UNDER"; }).ok, false);
   assert.equal(v((c) => { c.events[0].rows[0].underPrice = null; }).ok, false);
   assert.equal(v((c) => { c.events[0].rows[0].capturedAt = hBefore(9); }).ok, false);
+  // rounding policy: direction from full precision — a row whose projection is 0.04 above its line is OVER, never NEUTRAL
+  const tiny = (c, side, direction) => { const r = c.events[0].rows[0]; r.projection = r.line + 0.04; r.difference = 0; r.direction = direction; r.side = side; };
+  assert.equal(v((c) => tiny(c, "OVER", "ABOVE")).ok, true, "OVER with a one-decimal difference of 0 is consistent");
+  assert.equal(v((c) => tiny(c, "NEUTRAL", "EQUAL")).ok, false, "a rounded-to-zero difference never neutralizes the direction");
 });
 
 // ── the build-time reader ────────────────────────────────────────────────────────────────────────────────────────
@@ -159,7 +163,7 @@ test("reader: null when unauthorized EVEN IF a file exists; null when no file; r
   const { inputs } = nbaPropLineInputs({ lane: LANE, priceRecords: records, asOf: FIXTURE_AS_OF });
   const view = buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER);
   assert.deepEqual(view.rows.map((r) => r.side), ["OVER", "UNDER", "NEUTRAL"]);
-  assert.deepEqual(view.counts, { compared: 3, stale: 0, unavailable: 0, unsupported: 0 });
+  assert.deepEqual(view.counts, { compared: 3, stale: 0, afterCutoff: 0, mismatch: 0, unavailable: 0, unsupported: 0, suspended: 0 });
   fs.rmSync(t.root, { recursive: true, force: true });
 });
 

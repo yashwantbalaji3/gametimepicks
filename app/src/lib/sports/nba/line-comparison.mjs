@@ -73,10 +73,15 @@ export function compareToLine(projection, line, ctx) {
   // The comparison instant is never after tip: a started game keeps the pregame comparison as of tip.
   const at = Number.isFinite(asOf) ? Math.min(asOf, tip) : tip;
   if (at - cap > LINE_MAX_AGE_HOURS * 3600_000 || cap > at) return out(DIRECTION.UNAVAILABLE, { reason: "STALE", median: projection.median });
-  const difference = r1(projection.median - line.line);
-  const direction = difference > 0 ? DIRECTION.ABOVE : difference < 0 ? DIRECTION.BELOW : DIRECTION.EQUAL;
+  // PRECISION (founder display-rounding policy 2026-10-29, lib/odds/prop-line-view.mjs DISPLAY_ROUNDING_POLICY): the
+  // direction comes from the FULL-precision difference, never from a rounded one — a median 0.04 above the line is OVER,
+  // not NEUTRAL. `differenceExact` carries that full-precision value; `difference` is the one-decimal figure the published
+  // artifact and the social feed already carry (unchanged for every one-decimal median against a half-point line).
+  const differenceExact = projection.median - line.line;
+  const difference = r1(differenceExact);
+  const direction = differenceExact > 0 ? DIRECTION.ABOVE : differenceExact < 0 ? DIRECTION.BELOW : DIRECTION.EQUAL;
   return out(direction, {
-    side: USER_SIDE[direction], median: projection.median, line: line.line, difference,
+    side: USER_SIDE[direction], median: projection.median, line: line.line, difference, differenceExact,
     overPrice: isNum(line.overPrice) ? line.overPrice : null, underPrice: isNum(line.underPrice) ? line.underPrice : null,
     book: line.book, marketKey: line.marketKey, capturedAt: line.capturedAt,
   });

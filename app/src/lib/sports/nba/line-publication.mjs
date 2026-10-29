@@ -60,7 +60,9 @@ export function validateNbaLinePublication(a, { date, laneSha256 }) {
       if (MARKET_KEYS[r.family] !== r.marketKey) errs.push(`${id}: market does not match family`);
       if (!isNum(r.projection) || !isNum(r.line) || r.line < 0) errs.push(`${id}: projection/line not numbers`);
       else if (r.difference !== r1(r.projection - r.line)) errs.push(`${id}: difference is not projection − line`);
-      const dir = r.difference > 0 ? "ABOVE" : r.difference < 0 ? "BELOW" : "EQUAL";
+      // Direction from the full-precision projection − line (line-comparison.mjs), never from the rounded difference.
+      const exact = isNum(r.projection) && isNum(r.line) ? r.projection - r.line : r.difference;
+      const dir = exact > 0 ? "ABOVE" : exact < 0 ? "BELOW" : "EQUAL";
       if (r.state !== "COMPARED" || r.direction !== dir || r.side !== USER_SIDE[dir]) errs.push(`${id}: state/direction/side inconsistent`);
       const two = isAmerican(r.overPrice) && isAmerican(r.underPrice), none = r.overPrice === null && r.underPrice === null;
       if (!(two && r.prices === "TWO_SIDED") && !(none && r.prices === "PRICE_UNAVAILABLE")) errs.push(`${id}: prices must be two-sided or explicitly unavailable`);
