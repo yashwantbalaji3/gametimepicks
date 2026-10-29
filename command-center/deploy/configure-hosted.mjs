@@ -5,6 +5,8 @@
  *   node command-center/deploy/configure-hosted.mjs --vercel-project gtp-team                     config + generated secrets
  *   node command-center/deploy/configure-hosted.mjs --vercel-project gtp-team --dispatch-token    + the GitHub PAT (hidden prompt)
  *   node command-center/deploy/configure-hosted.mjs --vercel-project gtp-team --blob-token        + the Blob token for Actions (hidden prompt)
+ *   node command-center/deploy/configure-hosted.mjs --vercel-project gtp-team --blob-from-vercel  + the same token, copied from the project's
+ *        Blob connection straight into GitHub (pulled to a private temp file that is deleted at once; never shown)
  *
  * Only ADDS what is missing (names are read first; nothing existing is overwritten):
  *   Vercel Production   GTP_CC_ORIGIN, GTP_CC_RP_ID, GH_OPS_OWNER, GH_OPS_REPO, GH_WORKER_WORKFLOW (plain config);
@@ -13,6 +15,10 @@
  * Never sets GH_PUBLISHER_WORKFLOW (hosted publishing stays off) and refuses the operator console project.
  */
 import crypto from "node:crypto";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { parseEnvFile } from "./preflight.mjs";
 import { spawnSync } from "node:child_process";
 import { OPERATOR_CONSOLE_PROJECT, fetchRemote, checkRemote } from "./preflight.mjs";
 import { hiddenPrompt } from "./owner-url.mjs";
@@ -52,6 +58,18 @@ export function planConfig({ project, vercelEnv, ghSecrets }, { dispatchToken = 
   return { vercel, github, refuse };
 }
 
+/** The Blob connection's token, read from Production env into a 0700 temp dir and deleted before returning. */
+function blobTokenFromVercel(project) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-blob-"));
+  const file = path.join(dir, ".env.pull");
+  try {
+    const r = spawnSync("npx", ["-y", CLI, "env", "pull", file, "--environment", "production", "--yes", "--project", project], { encoding: "utf8", cwd: dir });
+    const token = r.status === 0 && fs.existsSync(file) ? parseEnvFile(fs.readFileSync(file, "utf8")).BLOB_READ_WRITE_TOKEN : null;
+    if (!token || !/^vercel_blob_rw_\w{16,}$/.test(token)) throw new Error("couldn't read the Blob token from the project's Production settings; nothing was changed");
+    return token;
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+}
+
 const toVercel = (project, name, value, sensitive) => spawnSync("npx", ["-y", CLI, "env", "add", name, "production", "--project", project, sensitive ? "--sensitive" : "--no-sensitive", "--yes"], { input: value, encoding: "utf8" }).status === 0;
 const toGitHub = (name, value) => spawnSync("gh", ["secret", "set", name, "--repo", REPO], { input: value, encoding: "utf8" }).status === 0;
 
@@ -64,6 +82,10 @@ async function main() {
   if (plan.refuse.length) { plan.refuse.forEach((r) => console.error(`refused: ${r}`)); console.error("Nothing was changed."); process.exit(1); }
 
   const values = {};
+  if (process.argv.includes("--blob-from-vercel") && !remote.ghSecrets.includes("CC_BLOB_READ_WRITE_TOKEN")) {
+    plan.github.push({ name: "CC_BLOB_READ_WRITE_TOKEN", kind: "from-vercel" });
+    values.CC_BLOB_READ_WRITE_TOKEN = blobTokenFromVercel(project);
+  }
   const sharedKey = crypto.randomBytes(32).toString("base64");
   for (const x of [...plan.vercel, ...plan.github]) {
     if (x.kind === "plain") values[x.name] = PLAIN[x.name];
