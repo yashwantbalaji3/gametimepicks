@@ -61,6 +61,8 @@ import { ASK_DAILY_FILES, ASK_PROJECTION_DIR, ASK_PROJECTION_SCHEMA_VERSION, ASK
 import { canEnterPredictionProducts, canShowLiveProjections, capabilityOf } from "../../src/lib/sport-capability-registry.ts";
 import { buildAllGameDetails } from "../../src/lib/game-detail.ts";
 import { nflPageIds, buildMyPlayerRows } from "../../src/lib/my/read-model.ts";
+import { unionFrozenForecasts } from "../../src/lib/sports/nfl/public-forecast-union.mjs";
+import { nflPublicRecordResolver } from "../../src/lib/sports/nfl/public-record.mjs";
 import { loadEplForecasts, reportableRows, eplMatchHref } from "../../src/lib/sports/epl/forecast-view.ts";
 import { combinedParlayPayoutPer100 } from "../../src/lib/odds-math.ts";
 import { MARKET_COVERAGE } from "../../src/lib/market-coverage.ts";
@@ -288,7 +290,10 @@ function mlbForecasts() {
 function nflForecasts() {
   const file = path.join(APP, "public/data/nfl/forecasts/latest.json");
   if (!fs.existsSync(file)) { notes.push("nfl forecasts absent"); return []; }
-  const doc = JSON.parse(fs.readFileSync(file, "utf8"));
+  /* Track B (2026-10-29, one canonical number): an EXCLUDED public copy is answered as its record — the same resolver
+     the game report Ask links to uses — so Ask never quotes a number the report does not show. Same population
+     (latest.json only); a copy whose record cannot be read is kept, as every other reader keeps it. */
+  const doc = unionFrozenForecasts(JSON.parse(fs.readFileSync(file, "utf8")), null, { resolve: nflPublicRecordResolver(REPO) });
   const pageIds = nflPageIds();
 
   // Player ranges come from the PUBLISHED board only — buildMyPlayerRows has already excluded
