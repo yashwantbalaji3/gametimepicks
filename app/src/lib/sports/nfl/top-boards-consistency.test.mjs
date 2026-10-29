@@ -146,7 +146,7 @@ test("SOURCE · the hub and the week page render the artifact's topBoards throug
   const week = fs.readFileSync(path.join(APP, "src/app/nfl/week/[key]/page.tsx"), "utf8");
   assert.deepEqual([...hub.matchAll(/topBoardTabs\(([^)]*)\)/g)].map((m) => m[1]).sort(), ["todayLive", "topBoardsBlock.weekly"]);
   /* The week page renders the same rows in the V3 PredictionBoard layout (presentTopBoard); see the digits test below. */
-  assert.deepEqual([...week.matchAll(/<TopBoardsList artifact=\{wb\} scope=\{([^}]*)\} \/>/g)].map((m) => m[1]).sort(), ["todayBoards", "wb.topBoards.weekly"]);
+  assert.deepEqual([...week.matchAll(/<TopBoardsList artifact=\{wb\} scope=\{([^}]*)\} \/>/g)].map((m) => m[1]).sort(), ["todayBoards", "weeklyPregame"]);
   assert.match(week, /const rows = presentTopBoard\(artifact, b\);/);
   assert.match(hub, /weeklyBoards\?\.topBoards/, "the hub reads the one ranking owner's artifact");
   for (const [name, src] of [["hub", hub], ["week page", week]]) {
@@ -179,4 +179,78 @@ test("week page (V3 PredictionBoard): every presented Top-board row prints the g
     });
   }
   assert.ok(n >= 15, `checked ${n} presented rows`);
+});
+
+/* ── Track D (2026-10-29): the PLAYER PAGE and the snapshot's identity, for every Top-board row of the committed week ── */
+
+test("every Top-board row: player page value == artifact value (at the player page's precision); a missing one is explicit", async () => {
+  if (!wb?.topBoards) return;
+  const { buildMyPlayerRows } = await import("../../my/read-model.ts");
+  const pageRows = buildMyPlayerRows();
+  const round1 = (v) => Math.round(v * 10) / 10;
+  const missing = []; let n = 0;
+  for (const scope of [wb.topBoards.weekly, ...wb.topBoards.daily]) for (const b of scope.boards) {
+    if (b.state !== "PUBLISHED") continue;
+    for (const r of b.rows) {
+      const pr = pageRows.find((x) => x.playerId === r.playerId && x.href === `/nfl/game/${r.providerEventId}/`);
+      assert.ok(pr, `${r.name} (${r.providerEventId}): the player page reads this player's forecast`);
+      if (b.method === "probability") {
+        /* The player page's forecast join carries the TD probability (Ask/My read it); the research page does not print it. */
+        assert.equal(pr.anytimeTd, r.value, `${r.name} anytime TD: player page join == artifact`);
+      } else {
+        const m = pr.markets.find((x) => x.key === b.family);
+        if (!m) { missing.push(`${r.name} ${b.family}`); continue; }
+        assert.equal(m.median, round1(r.value), `${r.name} ${b.family}: player page median == artifact (1 dp)`);
+        assert.deepEqual([m.p10, m.p90], [round1(r.p10), round1(r.p90)], `${r.name} ${b.family}: player page range`);
+      }
+      n += 1;
+    }
+  }
+  assert.deepEqual(missing, [], "a ranked published family missing from the player page");
+  assert.ok(n >= 15, `checked ${n} rows`);
+});
+
+test("every Top-board row comes from the same per-game board edition the official snapshot records (same model version)", () => {
+  if (!wb?.topBoards) return;
+  let n = 0;
+  for (const scope of [wb.topBoards.weekly, ...wb.topBoards.daily]) for (const b of scope.boards) {
+    if (b.state !== "PUBLISHED") continue;
+    for (const r of b.rows) {
+      const pb = playerBoard(r.providerEventId);
+      const snap = snapshotFor(r.providerEventId);
+      assert.ok(snap?.snapshotId, `${r.providerEventId}: an official snapshot exists`);
+      const src = snap.sources.find((x) => x.path === `app/public/data/nfl/player-board/${r.providerEventId}.json`);
+      assert.ok(src, `${r.providerEventId}: the snapshot names the per-game board`);
+      assert.equal(src.alignedWithOfficial, true, `${r.providerEventId}: per-game board aligned with the forecast of record`);
+      assert.equal(src.generatedAt, pb.generatedAt, `${r.providerEventId}: snapshot read this board edition`);
+      assert.equal(pb.generatedAt, wb.generatedAt, `${r.providerEventId}: the Top board was ranked from the same board edition`);
+      const fam = snap.players.find((p) => p.playerId === r.playerId)?.families?.[b.family];
+      assert.equal(fam?.state, "PUBLISHED", `${r.name} ${b.family}: published in the snapshot`);
+      assert.equal(fam.modelVersion, snap.modelVersions.players[b.family], `${r.name} ${b.family}: one model version`);
+      if (pb.families?.[b.family]?.model) assert.ok(fam.modelVersion.startsWith(`${pb.families[b.family].model}@`), `${b.family}: snapshot model == board model`);
+      n += 1;
+    }
+  }
+  assert.ok(n >= 15);
+});
+
+test("MISMATCH FAILS · a one-unit change to a ranked value is caught by the cross-surface checker", () => {
+  if (!wb?.topBoards) return;
+  const doctored = structuredClone(wb);
+  const b = doctored.topBoards.weekly.boards.find((x) => x.state === "PUBLISHED" && x.method === "median");
+  b.rows[0].value += 1;
+  const found = mismatches(doctored);
+  for (const re of [/≠ player board/, /≠ official snapshot/, /≠ game page/]) assert.ok(found.some((m) => re.test(m)), String(re));
+});
+
+test("UNAVAILABLE · a row whose player the game page does not project renders the explicit unavailable state", async () => {
+  if (!wb?.topBoards) return;
+  const { NO_OFFICIAL_PROJECTION } = await import("./forecast-view.mjs");
+  assert.equal(formatValue("yards", null), "—");
+  assert.equal(formatValue("probability", undefined), "—");
+  assert.equal(NO_OFFICIAL_PROJECTION, "No official projection");
+  const doctored = structuredClone(wb);
+  const b = doctored.topBoards.weekly.boards.find((x) => x.state === "PUBLISHED");
+  b.rows[0].playerId = "nfl-athlete-0";
+  assert.ok(mismatches(doctored).some((m) => /≠ player board undefined|≠ official snapshot —|≠ game page undefined/.test(m)), "a row with no canonical value is a failure, never a silent pass");
 });

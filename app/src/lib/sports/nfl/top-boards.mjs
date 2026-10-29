@@ -164,3 +164,93 @@ export function buildTopBoards({ weekBoards, now, slotFor, forwardFor = () => nu
 export function dailyFor(topBoards, etDate) {
   return (topBoards?.daily ?? []).find((d) => d.etDate === etDate) ?? null;
 }
+
+/**
+ * RANKING METHOD, STATED (Track D, 2026-10-29). What each Top board is ordered by, in the words every surface prints
+ * beside the board. A yardage or receptions board is ordered by the model's PROJECTED MEDIAN — the middle of its range —
+ * and is never relabelled as a chance to go over a line: no line enters any Top board, and no probability is derived by
+ * comparing a projection (or one simulated outcome) to a line. Only the anytime-touchdown board orders by a probability,
+ * and that probability is the official opportunity-TD model's own output. A family that is not official prints its
+ * readiness line instead of a method (it is not ranked).
+ */
+export const TOP_BOARD_METHOD = Object.freeze({
+  anytime_td: Object.freeze({ metric: "probability", text: "Ranked by the official touchdown model's chance that the player scores at least one touchdown." }),
+  player_receptions: Object.freeze({ metric: "median", text: "Ranked by projected median receptions (the middle of the model's range). Not a chance to go over any line." }),
+  player_reception_yds: Object.freeze({ metric: "median", text: "Ranked by projected median receiving yards (the middle of the model's range). Not a chance to go over any line." }),
+  player_rush_yds: Object.freeze({ metric: "median", text: "Ranked by projected median rushing yards, only once the family is official. Not a chance to go over any line." }),
+  player_pass_yds: Object.freeze({ metric: "median", text: "Ranked by projected median passing yards, only once the family is official. Not a chance to go over any line." }),
+});
+
+/** The method sentence a surface prints for a board (null for an unknown family — such a board never renders). */
+export function rankingMethodText(board) {
+  const m = TOP_BOARD_METHOD[board?.family];
+  if (!m) return null;
+  if (board.method && board.method !== m.metric) throw new Error(`rankingMethodText: ${board.id ?? board.family} ranks by ${board.method}, the stated method is ${m.metric}`);
+  return m.text;
+}
+
+/**
+ * PREGAME SCOPE AT RENDER TIME (Track D, 2026-10-29). A weekly (or daily) Top board is a PREGAME ranking: it ranks only
+ * games that have not kicked off. The artifact fixes its scope when it is generated; a page built later (e.g. after
+ * Thursday night's kickoff, before the next regeneration) must not show a ranking that still carries the started game.
+ *
+ * Rule, applied by every surface that renders `topBoards` (week page, hub):
+ *   - an event whose kickoff is at or before `nowIso` (or whose kickoff is unknown — fail closed) has STARTED;
+ *   - the scope keeps only the remaining events; with none left the scope is null (no pregame board to show);
+ *   - a PUBLISHED board with NO row from a started event stays as ranked: its Top-N, all from remaining games, is exactly
+ *     the Top-N over the remaining games (every dropped candidate ranked below them);
+ *   - a PUBLISHED board WITH a row from a started event is NOT re-ranked here (the next-best players from the remaining
+ *     games are not in the artifact): it becomes NOT_PUBLISHED with code PREGAME_SCOPE_STALE and a plain readiness line
+ *     until the artifact is regenerated for the remaining games.
+ * Pure; never changes a value or an order.
+ * @param {any} scope   a `topBoards.weekly` or `topBoards.daily[i]` entry
+ * @param {string} nowIso
+ * @param {(eventId: string) => string|null|undefined} [kickoffOf]  kickoff instant per event (rows' own kickoff is used when absent)
+ */
+export function pregameScope(scope, nowIso, kickoffOf = () => null) {
+  if (!scope) return null;
+  const now = Date.parse(nowIso ?? "");
+  if (!Number.isFinite(now)) throw new Error("pregameScope: nowIso (ISO) is required");
+  const rowKick = new Map();
+  for (const b of scope.boards ?? []) for (const r of b.rows ?? []) if (r?.kickoffUtc) rowKick.set(String(r.providerEventId), r.kickoffUtc);
+  const startedSet = new Set();
+  const events = (scope.scope?.events ?? []).map(String);
+  for (const id of events) {
+    const k = kickMs(kickoffOf(id) || rowKick.get(id));
+    if (!Number.isFinite(k) || k <= now) startedSet.add(id);
+  }
+  /* a row whose own event is not in the scope's list, or whose own kickoff has passed, is started too */
+  for (const b of scope.boards ?? []) for (const r of b.rows ?? []) {
+    const id = String(r.providerEventId);
+    const k = kickMs(kickoffOf(id) || r.kickoffUtc);
+    if (!events.includes(id) || !Number.isFinite(k) || k <= now) startedSet.add(id);
+  }
+  const remaining = events.filter((id) => !startedSet.has(id));
+  if (!remaining.length) return null;
+  const started = events.filter((id) => startedSet.has(id));
+  if (!startedSet.size) return scope;
+  const boards = (scope.boards ?? []).map((b) => {
+    if (b.state !== "PUBLISHED" || !(b.rows ?? []).some((r) => startedSet.has(String(r.providerEventId)))) return b;
+    const label = b.label ?? b.title;
+    const n = started.length;
+    return {
+      ...b, state: "NOT_PUBLISHED", rows: [],
+      readiness: {
+        state: "NOT_PUBLISHED", boardState: "PUBLISHED", code: "PREGAME_SCOPE_STALE",
+        ...say(label, "not ranked right now", `this list was ranked before ${n} ${n === 1 ? "game" : "games"} in it kicked off, and a pregame list never includes a game that has started; it returns when the board is rebuilt for the ${remaining.length} ${remaining.length === 1 ? "game" : "games"} still to come`),
+      },
+    };
+  });
+  return {
+    ...scope,
+    scope: {
+      ...scope.scope,
+      kind: "REMAINING_EVENTS",
+      eventsIncluded: remaining.length,
+      eventsDroppedAfterKickoff: (scope.scope?.eventsDroppedAfterKickoff ?? 0) + started.length,
+      events: remaining,
+      startedSinceBuild: started,
+    },
+    boards,
+  };
+}
