@@ -28,5 +28,5 @@ export default function NbaProjectionsPage() {
   // Amendment A's rollback switch, then the lane's own switch and slate-date gate (inside loadCurrentLane).
   const now = new Date();
   const ctx = boardContext({ date: null, nowIso: now.toISOString(), buildEtDate: currentEtDate(now), enabled: AMENDMENT_A.enabled });
-  return <NbaProjectionsView lane={ctx.lane} role={ctx.role} date={ctx.date} games={ctx.games} dates={ctx.dates} today={ctx.today} actuals={ctx.actuals} eloCtx={loadEloWinProbabilityContext()} />;
+  return <NbaProjectionsView lane={ctx.lane} role={ctx.role} date={ctx.date} games={ctx.games} dates={ctx.dates} today={ctx.today} actuals={ctx.actuals} eloCtx={loadEloWinProbabilityContext()} asOf={now.toISOString()} />;
 }

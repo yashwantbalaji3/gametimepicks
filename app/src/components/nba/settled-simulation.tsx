@@ -20,6 +20,7 @@ import { COMBO_STATS, STATS } from "@/lib/sports/nba/experimental-public-lane.mj
 import { ELO_WIN_PROBABILITY_LABEL, eloWinProbabilityOf } from "@/lib/sports/nba/elo-win-probability.mjs";
 import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
 import { NBA_FORECAST_DISCLOSURE, PUBLIC_TERMS } from "@/lib/public-registry";
+import NbaPropLines from "@/components/nba/nba-prop-lines";
 
 /** The page's own marker: the flag-ON export scan tells a settled page from a Game Simulation page by it. */
 export const SETTLED_SIMULATION_ATTR = "data-nba-settled-simulation";
@@ -95,6 +96,9 @@ export default function SettledSimulation({ view }: { view: SettledView }) {
           <Link href={NBA_RESULTS_LINK} prefetch={false} className="gtp-hit-44 nbx-pill no-underline">NBA results →</Link>
         </p>
       </section>
+
+      {/* Model vs. sportsbook line, frozen as of tip (founder P0 2026-10-29): nothing while NBA_LINE_DISPLAY.public is false. */}
+      <NbaPropLines lane={{ date: view.date, games: [g] }} eventId={view.id} id="nba-settled-prop-lines" />
 
       <MoreDisclosure title="Technical details" summary="Model versions, the frozen receipt and the rule behind the favoured side">
         <dl className="nbx-kv">

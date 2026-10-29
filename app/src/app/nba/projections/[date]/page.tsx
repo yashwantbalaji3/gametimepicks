@@ -39,5 +39,5 @@ export function generateMetadata({ params }: { params: { date: string } }): Meta
 export default function NbaProjectionsDatePage({ params }: { params: { date: string } }) {
   const now = new Date();
   const ctx = boardContext({ date: params.date, nowIso: now.toISOString(), buildEtDate: currentEtDate(now), enabled: AMENDMENT_A.enabled });
-  return <NbaProjectionsView lane={ctx.lane} role={ctx.role} date={ctx.date} games={ctx.games} dates={ctx.dates} today={ctx.today} actuals={ctx.actuals} eloCtx={loadEloWinProbabilityContext()} dated />;
+  return <NbaProjectionsView lane={ctx.lane} role={ctx.role} date={ctx.date} games={ctx.games} dates={ctx.dates} today={ctx.today} actuals={ctx.actuals} eloCtx={loadEloWinProbabilityContext()} asOf={now.toISOString()} dated />;
 }
