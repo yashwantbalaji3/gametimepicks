@@ -32,7 +32,7 @@ export type ShownRow = Omit<GamesTableRow, "id">;
 export type PackedGamesRow = [string, string | null, string, string, string, number, number, string | null, number, string, string | null];
 export interface PackedGamesTable { strings: string[]; rows: PackedGamesRow[] }
 
-export const SPORT_LABEL: Record<string, string> = { nfl: "NFL", nba: "NBA", mlb: "MLB", epl: "Premier League", ufc: "UFC" };
+export const SPORT_LABEL: Record<string, string> = { nfl: "NFL", nba: "NBA", mlb: "MLB", epl: "Premier League", "ligue-1": "Ligue 1", ufc: "UFC" };
 export const FORECAST_STATES: readonly ForecastState[] = ["Published", "Frozen", "Pending", "Unavailable", "Degraded inputs"];
 
 export function packGamesTable(rows: GamesTableRow[]): PackedGamesTable {

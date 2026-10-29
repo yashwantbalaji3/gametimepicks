@@ -17,6 +17,8 @@ import Link from "next/link";
 
 import SectionHeader from "@/components/section-header";
 import { loadAllGradedPicks, loadMlbGameRecord, mlbGameFamilyLabel } from "@/lib/sports/graded-picks-loader";
+import { loadLeagueGraded } from "@/lib/sports/soccer/forecast-view";
+import { leagueRecord } from "@/lib/sports/soccer/league-cross-site.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const metadata: Metadata = withRouteMetadata("/results/picks/", {
@@ -31,6 +33,9 @@ const SHOW_RATE = new Set(["ASSESSABLE", "EMERGING"]);
 export default function AllGradedPicksPage() {
   const records = loadAllGradedPicks();
   const mlbGames = loadMlbGameRecord();
+  /* Batch 1 · #7: Ligue 1's record is the hub's graded.json — log loss over 1X2 probabilities, with no pick and so no
+     hit/miss count. Its row says so rather than printing a hit count graded.json does not hold. */
+  const ligue1 = leagueRecord(loadLeagueGraded("ligue-1"));
 
   return (
     <div className="mx-auto w-full max-w-[1100px] px-4 py-6">
@@ -76,6 +81,20 @@ export default function AllGradedPicksPage() {
                     <td className="py-2" style={{ color: "var(--vault-text-mute)", maxWidth: 420 }}>{r.what}</td>
                   </tr>
                 ))}
+                {ligue1 && ligue1.matches > 0 ? (
+                  <tr data-ligue-1-row="" style={{ borderTop: "1px solid var(--vault-rule)" }}>
+                    <td className="py-2 pr-3" style={{ fontWeight: 600 }}>
+                      <Link href="/results/picks/ligue-1/" style={{ color: "var(--gtp-bank-heat)" }}>Ligue 1</Link>
+                    </td>
+                    <td className="font-mono py-2 pr-3">{ligue1.matches.toLocaleString("en-US")}</td>
+                    <td className="font-mono py-2 pr-3" style={{ color: "var(--vault-text-mute)" }}>—</td>
+                    <td className="font-mono py-2 pr-3" style={{ color: "var(--vault-text-mute)" }}>—</td>
+                    <td className="font-mono py-2 pr-3" style={{ color: "var(--vault-text-mute)" }}>no picks — log loss {ligue1.logLoss ?? "—"}</td>
+                    <td className="py-2" style={{ color: "var(--vault-text-mute)", maxWidth: 420 }}>
+                      Match-result (win/draw/win) probabilities, scored by log loss against the official final score — no pick is made, so there is no hit or miss. Over 2.5, both teams to score and scorelines are not graded yet.
+                    </td>
+                  </tr>
+                ) : null}
               </tbody>
             </table>
           </div>
@@ -86,7 +105,7 @@ export default function AllGradedPicksPage() {
               down this column and picking a winner is the natural thing to do and the wrong thing to
               do, and saying so is cheaper than hoping nobody does it.
             */}
-            These four numbers are not comparable with each other. They come from different models
+            These numbers are not comparable with each other. They come from different models
             answering different questions over samples that differ by four orders of magnitude — thousands
             of player-prop projections against a handful of fight winners — so reading down this column
             and picking a best model is not something the numbers support. Each row links to its own
