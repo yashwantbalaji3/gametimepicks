@@ -128,19 +128,20 @@ Runbook §5, in summary:
 
 ## 11. Remaining blockers
 
-1. Vercel sign-in / project, Neon project, private Blob store, `gtp-ops` repo: yours to create.
+1. Vercel sign-in / project, Neon project, private Blob store, the empty `gtp-ops` repo: yours to create. The repo contents are ready locally.
 2. DNS record (from Vercel) and X callback registration: yours.
 3. One real `cc-publisher.yml` dry run on Actions + Neon.
 4. A real-iPhone Face ID check.
 5. Database growth decision in about two months (§5).
-6. Not built this round:
+6. `cc-worker.yml` still has a placeholder Claude Code version (`<pin-at-CP-H2>`): hosted queue builds stay off until CP-H2. The publisher workflow is complete.
+7. Not built this round:
    - an automatic preflight warning for database size;
    - automatic engagement metrics (X reads cost money).
 
 ## 12. Your next actions, in order
 
 1. Run `npx vercel@latest login`.
-2. Tell me to prepare the `gtp-ops` repo. I'll push nothing until you create it and say go.
+2. Create the **empty, private** repo `gtp-ops` on GitHub (no README). Its contents are already assembled locally at `~/Downloads/gtp-ops` (one commit, no remote; runbook §9). Say go and I push it.
 3. Create the Neon project.
 4. Run `DATABASE_URL_OWNER=… node command-center/deploy/migrate.mjs --roles` and paste the four URLs into Vercel/GitHub settings.
 5. Create a **Private** Blob store and connect it to the new project.
