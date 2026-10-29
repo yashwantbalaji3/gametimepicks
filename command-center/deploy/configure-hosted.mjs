@@ -5,6 +5,8 @@
  *   node command-center/deploy/configure-hosted.mjs --vercel-project gtp-team                     config + generated secrets
  *   node command-center/deploy/configure-hosted.mjs --vercel-project gtp-team --dispatch-token    + the GitHub PAT (hidden prompt)
  *   node command-center/deploy/configure-hosted.mjs --vercel-project gtp-team --blob-token        + the Blob token for Actions (hidden prompt)
+ *   node command-center/deploy/configure-hosted.mjs --vercel-project gtp-team --setup-token       + a one-time passkey setup token: its
+ *        sha256 goes to Vercel; the token itself is shown ONCE, only in your own Terminal (refused when not a terminal)
  *   node command-center/deploy/configure-hosted.mjs --vercel-project gtp-team --blob-from-vercel  + the same token, copied from the project's
  *        Blob connection straight into GitHub (pulled to a private temp file that is deleted at once; never shown)
  *
@@ -82,12 +84,20 @@ async function main() {
   if (plan.refuse.length) { plan.refuse.forEach((r) => console.error(`refused: ${r}`)); console.error("Nothing was changed."); process.exit(1); }
 
   const values = {};
+  let setupToken = null;
+  if (process.argv.includes("--setup-token")) {
+    if (!process.stdout.isTTY) { console.error("--setup-token shows the token once and only in a Terminal window. Nothing was changed."); process.exit(1); }
+    setupToken = crypto.randomBytes(18).toString("base64url");
+    plan.vercel.push({ name: "GTP_CC_SETUP_TOKEN_SHA256", kind: "plain" });
+    values.GTP_CC_SETUP_TOKEN_SHA256 = crypto.createHash("sha256").update(setupToken).digest("hex");
+  }
   if (process.argv.includes("--blob-from-vercel") && !remote.ghSecrets.includes("CC_BLOB_READ_WRITE_TOKEN")) {
     plan.github.push({ name: "CC_BLOB_READ_WRITE_TOKEN", kind: "from-vercel" });
     values.CC_BLOB_READ_WRITE_TOKEN = blobTokenFromVercel(project);
   }
   const sharedKey = crypto.randomBytes(32).toString("base64");
   for (const x of [...plan.vercel, ...plan.github]) {
+    if (x.name in values) continue;
     if (x.kind === "plain") values[x.name] = PLAIN[x.name];
     else if (x.kind === "random") values[x.name] = crypto.randomBytes(36).toString("base64url");
     else if (x.kind === "shared-key") values[x.name] = sharedKey;
@@ -103,6 +113,10 @@ async function main() {
   for (const x of plan.github) { const ok = toGitHub(x.name, values[x.name]); failed += ok ? 0 : 1; console.log(`  ${ok ? "PASS" : "FAIL"}  GitHub ${REPO}  ${x.name}`); }
   for (const x of plan.vercel) { const ok = toVercel(project, x.name, values[x.name], x.kind !== "plain"); failed += ok ? 0 : 1; console.log(`  ${ok ? "PASS" : "FAIL"}  Vercel ${project} (Production)  ${x.name}${x.kind === "plain" ? ` = ${values[x.name]}` : " (sensitive)"}`); }
   if (!plan.github.length && !plan.vercel.length) console.log("  nothing to add");
+  if (setupToken && !failed) {
+    console.log(`\nYour one-time passkey setup token (shown once; save it in your password manager, not in a note or chat):\n\n    ${setupToken}\n`);
+    console.log("You will type it once on your iPhone to register your Face ID passkey. After that it no longer works.");
+  }
   console.log("\nWhat is configured now (names only):");
   for (const r of checkRemote(fetchRemote({ project, repo: REPO }))) console.log(`  ${r.level.padEnd(4)}  ${r.name.padEnd(42)} ${r.why}`);
   process.exitCode = failed ? 1 : 0;
