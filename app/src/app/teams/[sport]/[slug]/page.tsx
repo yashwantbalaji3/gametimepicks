@@ -5,8 +5,9 @@
  * presentation: generateStaticParams enumerates the projection registry and dynamicParams is false, so an unknown
  * slug is a 404 and nothing is ever looked up by name.
  *
- * Sport-aware by construction: MLB shows runs, NFL points, and EPL shows fixtures WITHOUT any record, because its
- * platform has no id-keyed final scores (§31). Upcoming games are decided on the reader's clock; this page makes
+ * Sport-aware by construction: MLB shows runs, NFL points, and EPL shows fixtures — the research platform has no id-keyed
+ * final scores for EPL (§31). Batch 1 · #8: an EPL club page now also lists its CURRENT-SEASON results, joined by event id
+ * from the graded ledger the /epl hub reads (lib/sports/epl/team-results.mjs); earlier seasons stay fixtures only. Upcoming games are decided on the reader's clock; this page makes
  * no Live request — each game link carries its own report.
  *
  * Research home PR (2026-10-05): the one forecast this page shows is the team's OWN Forecast Record rows — ledger rows
@@ -36,6 +37,9 @@ import { formatGameDate, formatRecord, recentFormSentence } from "@/lib/research
 import { gameHrefs } from "@/lib/research-pages/game-links";
 import { SPORT_SEGMENTS, hrefsFor, playerBySlug, researchIndex, staticParams, teamBySlug, teamLabels, type ResearchSport } from "@/lib/research-pages/projection-store";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { loadEplGradedRecord } from "@/lib/sports/epl/graded-record";
+import { eplTeamResults } from "@/lib/sports/epl/team-results.mjs";
+import { eplTeamCoverageWithResults } from "@/lib/research-pages/coverage.mjs";
 
 export const dynamicParams = false;
 
@@ -51,10 +55,24 @@ function load(params: { sport: string; slug: string }) {
   return sport ? teamBySlug(sport, params.slug) : null;
 }
 
+/** An EPL club's recorded results from the /epl hub's graded ledger, joined by event id; null for other sports. */
+function eplResultsFor(t: NonNullable<ReturnType<typeof load>>) {
+  if (t.sport !== "EPL") return null;
+  return eplTeamResults({ teamName: t.name, games: t.games, ledger: loadEplGradedRecord()?.team.matchesList ?? [] });
+}
+
 export function generateMetadata({ params }: { params: { sport: string; slug: string } }): Metadata {
   const t = load(params);
   if (!t) return { title: "Team research · GameTimePicks" };
   const route = `/teams/${params.sport}/${t.slug}/`;
+  const eplPlayed = eplResultsFor(t)?.record.played ?? 0;
+  if (eplPlayed > 0) {
+    return withRouteMetadata(route, {
+      title: `${t.name} results, fixtures and squad | GameTimePicks`,
+      description: `${t.name} Premier League ${t.seasons[0]?.label ?? "current-season"} results from official full-time scores, upcoming fixtures and player research.`,
+      ...(t.indexable ? {} : { robots: { index: false, follow: true } }),
+    });
+  }
   const title = t.supportsResults ? `${t.name} results, recent games and schedule | GameTimePicks` : `${t.name} fixtures and squad | GameTimePicks`;
   const period = t.coverage.from && t.coverage.to ? `${t.coverage.from}–${t.coverage.to}` : "recorded seasons";
   const description = t.supportsResults
@@ -75,9 +93,16 @@ export default function TeamResearchPage({ params }: { params: { sport: string; 
   const followRef: FollowRef | null = sport === "MLB" || sport === "NFL" ? (normalizeRef({ sport, entityType: "team", id: t.id, label: t.name }) as FollowRef | null) : null;
   const current = t.seasons.find((s) => s.id === t.defaultSeason) ?? null;
   const recentFinals = t.games.filter((g) => g[8]).slice(0, 5);
+  /* Batch 1 · #8: an EPL club's current-season results (newest first) and the coverage that says so. */
+  const eplResults = eplResultsFor(t);
+  const eplRows = eplResults?.rows ?? [];
+  const eplPlayedIds = new Set(eplRows.map((r) => r.eventId));
+  const coverage = sport === "EPL" ? eplTeamCoverageWithResults(t.coverage, eplRows.length) : t.coverage;
+  const seasonLabelOf = (id: string) => t.seasons.find((x) => x.id === id)?.label ?? null;
+  const eplSeasonLabels = [...new Set(eplRows.map((r) => seasonLabelOf(r.seasonId)).filter(Boolean))];
 
   const upcoming: UpcomingItem[] = t.games
-    .filter((g) => g[5] === "S" && g[1] && /T\d{2}:/.test(g[1]))
+    .filter((g) => g[5] === "S" && g[1] && /T\d{2}:/.test(g[1]) && !eplPlayedIds.has(g[0]))
     .map((g) => ({
       id: g[0], startUtc: g[1] as string, prefix: g[3] === "H" ? "vs" : g[3] === "A" ? "@" : "vs",
       opponentLabel: g[4] ? labels[g[4]]?.name ?? "Opponent not recorded" : "Opponent not recorded",
@@ -117,7 +142,7 @@ export default function TeamResearchPage({ params }: { params: { sport: string; 
         {labHref("games", sport, t.id) ? <CompareCta href={labHref("games", sport, t.id)!}>Find games</CompareCta> : null}
       </header>
 
-      <CoverageStrip coverage={t.coverage} period={period} />
+      <CoverageStrip coverage={coverage} period={period} />
 
       {t.supportsResults && current?.record ? (
         <Section id="snapshot" title={`${current.label} season snapshot`} sub="Derived only from games with an official final score recorded for both teams. Pending and postponed games are not counted.">
@@ -152,6 +177,32 @@ export default function TeamResearchPage({ params }: { params: { sport: string; 
         </Section>
       ) : null}
 
+      {eplResults && eplRows.length ? (
+        <Section
+          id="results"
+          title={eplSeasonLabels.length === 1 ? `${eplSeasonLabels[0]} results` : "Recorded results"}
+          sub={`${eplResults.record.played} played · ${eplResults.record.w} won, ${eplResults.record.d} drawn, ${eplResults.record.l} lost · ${eplResults.record.scored} scored, ${eplResults.record.conceded} conceded. Official full-time scores from the graded Premier League record, newest first.`}
+        >
+          <ul data-epl-team-results="" style={{ ...PANEL, listStyle: "none", margin: 0, display: "grid", gap: 6 }}>
+            {eplRows.map((r) => (
+              <li key={r.eventId} data-result-id={r.eventId} style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px", alignItems: "center", justifyContent: "space-between" }}>
+                <span className="gtp-hit-44-links" style={{ display: "inline-flex", gap: 8, alignItems: "center", flexWrap: "wrap", minWidth: 0 }}>
+                  <ResultBadge code={r.result} />
+                  <span style={{ fontVariantNumeric: "tabular-nums", fontWeight: 700 }}>{r.own}–{r.opp}</span>
+                  <span style={{ fontFamily: MONO, fontSize: 11, color: "var(--vault-text-faint)" }}>{r.ha === "A" ? "away @" : "home vs"}</span>
+                  <EntityLink href={r.opponentId ? teamHrefs[r.opponentId] : null}>{r.opponentId ? labels[r.opponentId]?.name ?? "Opponent not recorded" : "Opponent not recorded"}</EntityLink>
+                </span>
+                <span style={{ display: "inline-flex", gap: 10, alignItems: "center" }}>
+                  <span style={{ fontFamily: MONO, fontSize: 11.5, color: "var(--vault-text-mute)" }}>{formatGameDate(r.kickoffUtc)}</span>
+                  {links[r.eventId] ? <Link href={links[r.eventId]} style={{ fontFamily: MONO, fontSize: 11, color: "var(--vault-gold-bright)", minHeight: 44, display: "inline-flex", alignItems: "center" }}>Match report →</Link> : null}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p style={{ margin: "6px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)" }}>W won · D drawn · L lost, from this club&rsquo;s side of the full-time score.</p>
+        </Section>
+      ) : null}
+
       {/* The team's own published forecasts from the Forecast Record (subject id = this team's id). */}
       <ForecastHistorySection subjectId={t.id} name={t.name} />
 
@@ -159,7 +210,7 @@ export default function TeamResearchPage({ params }: { params: { sport: string; 
         <UpcomingList items={upcoming} emptyText={`No upcoming ${sport === "EPL" ? "fixtures" : "games"} in the committed schedule.`} />
       </Section>
 
-      <Section id="season-log" title={t.supportsResults ? "Season results" : "Fixture history"} sub={t.supportsResults ? "Every game GameTime records for the season, newest first." : "Fixtures by season. Final scores are not shown because they are not yet an ID-based fact in GameTime data."}>
+      <Section id="season-log" title={t.supportsResults ? "Season results" : "Fixture history"} sub={t.supportsResults ? "Every game GameTime records for the season, newest first." : eplRows.length ? "Fixtures by season. Current-season final scores are listed under results above; earlier seasons show fixtures only." : "Fixtures by season. Final scores are not shown because they are not yet an ID-based fact in GameTime data."}>
         <TeamSeasonLog teamName={t.name} seasons={t.seasons} defaultSeason={t.defaultSeason} games={t.games} labels={labels} teamHrefs={teamHrefs} gameHrefs={links} supportsResults={t.supportsResults} />
       </Section>
 

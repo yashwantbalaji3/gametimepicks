@@ -18,6 +18,18 @@
    whether `venue` may be null. */
 import type { UfcBout, UfcCardArtifact } from "@/components/sports/ufc-card";
 import type { ChapterKind, PresentationChapter, PresentationManifest, PresentationResult } from "./types";
+import { ufcRoundRead } from "@/lib/sports/ufc/round-phrase.mjs";
+
+/* Batch 1 #4: "Goes the distance" prints the one accessor's label and number (the bout page's tile, the hub card and
+   /cage-chaos read the same), so the story cannot round it differently from the page it sits on. */
+const distanceLine = (rounds: { goesTheDistance?: number | null; endsIn?: string | null }): string => {
+  const g = ufcRoundRead(rounds)?.goesTheDistance;
+  return g ? `It goes the distance in ${g.pct} of reads.` : `The model's most likely ending is ${rounds.endsIn}.`;
+};
+const distanceStats = (rounds: { goesTheDistance?: number | null }) => {
+  const g = ufcRoundRead(rounds)?.goesTheDistance;
+  return g ? [{ label: g.label, value: g.p, format: "text" as const, text: g.pct }] : [];
+};
 
 const HOLD = { light: 4200, normal: 5200, dense: 6400 } as const;
 const pctOf = (n: number) => Math.round(n * 100);
@@ -99,12 +111,8 @@ export function buildUfcPresentation(card: UfcCardArtifact | null | undefined): 
     chapters.push({
       id: "margin", kind: "margin",
       title: "How long it lasts",
-      line: Number.isFinite(rounds.goesTheDistance)
-        ? `It goes the distance in ${pctOf(rounds.goesTheDistance as number)}% of reads.`
-        : `The model's most likely ending is ${rounds.endsIn}.`,
-      stats: Number.isFinite(rounds.goesTheDistance)
-        ? [{ label: "Goes the distance", value: rounds.goesTheDistance as number, format: "probability" as const }]
-        : [],
+      line: distanceLine(rounds),
+      stats: distanceStats(rounds),
       bars: Object.entries(rounds.probabilities).map(([k, p]) => ({
         label: ROUND_LABEL[k] ?? k, p, highlight: k.includes(String(rounds.endsIn ?? "").replace("+", "plus")),
       })),
@@ -243,8 +251,8 @@ export function buildUfcBoutPresentation(bout: UfcBout | null | undefined, card:
     chapters.push({
       id: "margin", kind: "margin",
       title: "How long it lasts",
-      line: Number.isFinite(rounds.goesTheDistance) ? `It goes the distance in ${pctOf(rounds.goesTheDistance as number)}% of reads.` : `The model's most likely ending is ${rounds.endsIn}.`,
-      stats: Number.isFinite(rounds.goesTheDistance) ? [{ label: "Goes the distance", value: rounds.goesTheDistance as number, format: "probability" as const }] : [],
+      line: distanceLine(rounds),
+      stats: distanceStats(rounds),
       bars: Object.entries(rounds.probabilities).map(([k, p]) => ({ label: ROUND_LABEL[k] ?? k, p, highlight: k.includes(String(rounds.endsIn ?? "").replace("+", "plus")) })),
       rows: [], holdMs: HOLD.normal,
     });

@@ -33,7 +33,12 @@ const BASIS_LABEL: Record<string, string> = {
   PUBLISHED: "Sides frozen before kickoff",
 };
 
-export default function GradedPicksSection({ record, rows = 6, href }: { record: GradedRecord; rows?: number; href: string }) {
+/**
+ * `rowHrefs` (optional, keyed by the row's `eventId`): the exported page for each settled event, so a row links to the
+ * event it grades. A row with no entry renders as plain text — never a guessed URL. UFC passes its settled bout pages
+ * (Batch 1 #3); other sports pass nothing and render exactly as before.
+ */
+export default function GradedPicksSection({ record, rows = 6, href, rowHrefs }: { record: GradedRecord; rows?: number; href: string; rowHrefs?: Readonly<Record<string, string>> }) {
   const c = record.counts;
   /* P246 (UFC labeling audit): the UFC caveat said the market's de-vigged probability "is shown
      alongside" while no column rendered it — a rendered caveat asserting an unrendered number.
@@ -86,7 +91,9 @@ export default function GradedPicksSection({ record, rows = 6, href }: { record:
                   {/* The subject IS the matchup ("DET @ IND"), so the row can wear both clubs. */}
                   <span className="inline-flex items-center gap-1.5">
                     <MatchupCrests matchup={p.subject} sport={record.sport} size="sm" />
-                    <span>{p.subject}</span>
+                    {p.eventId && rowHrefs?.[p.eventId]
+                      ? <Link href={rowHrefs[p.eventId]} style={{ color: "var(--vault-text)", textDecoration: "underline", textUnderlineOffset: 2 }}>{p.subject}</Link>
+                      : <span>{p.subject}</span>}
                   </span>
                 </td>
                 <td className="py-2 pr-3" style={{ color: "var(--vault-text-mute)" }}>

@@ -107,7 +107,10 @@ test("P256 · a day's receipt agrees with that day's published portfolio", () =>
   for (const product of ["bank-builder", "moonshot"]) {
     const active = dp.lanes.filter((l) => l.product === product && l.status === "active");
     const entry = r.products.find((p) => p.product === product);
-    assert.equal(entry.state, active.length ? "ACTIVE" : entry.state === "INPUTS_MISSING" ? "INPUTS_MISSING" : "NO_PLAY",
+    // OFF_SEASON (build-daily-product-receipts --mlb-off-season, 05d262ce48) is a closed non-active state: it is only
+    // accepted with zero active lanes and an off-season reason; any active lane still requires ACTIVE.
+    const idle = entry.state === "INPUTS_MISSING" ? "INPUTS_MISSING" : entry.state === "OFF_SEASON" && /out of season/i.test(entry.reason ?? "") ? "OFF_SEASON" : "NO_PLAY";
+    assert.equal(entry.state, active.length ? "ACTIVE" : idle,
       `${dp.date} ${product}: the portfolio has ${active.length} active lane(s), the receipt says ${entry.state}`);
     if (active.length) assert.equal(entry.card.length, active.length, `${product}: one card per active lane`);
   }

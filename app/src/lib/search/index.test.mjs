@@ -102,7 +102,10 @@ test("LIVE · a sport's players are indexed exactly when the export has pages th
    *   That is stronger than before — it also fails an index that names players with no page to land on.
    */
   const players = idx.rows.filter((r) => r.k === 1);
-  const pagesIn = (rel) => { const d = path.join(OUT, rel); return fs.existsSync(d) && fs.readdirSync(d).some((x) => fs.existsSync(path.join(d, x, "index.html"))); };
+  /* A settled MLB page (data-mlb-settled-game, since 2026-10-28) names no player — it is the game's forecast of record —
+     so it is not a player-bearing page; every other sport's pages are unchanged. */
+  const playerBearing = (f) => fs.existsSync(f) && !fs.readFileSync(f, "utf8").includes("data-mlb-settled-game");
+  const pagesIn = (rel) => { const d = path.join(OUT, rel); return fs.existsSync(d) && fs.readdirSync(d).some((x) => playerBearing(path.join(d, x, "index.html"))); };
   let checkedWithPages = 0;
   for (const [sport, marker, rel] of [["NFL", /NFL ·/, "nfl/game"], ["MLB", /MLB ·/, "games/mlb"], ["UFC", /UFC ·/, "ufc/bout"], ["Premier League", /Premier League ·/, "epl/match"]]) {
     const indexed = players.some((p) => marker.test(p.s));

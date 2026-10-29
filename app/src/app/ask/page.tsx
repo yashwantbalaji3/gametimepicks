@@ -17,6 +17,8 @@ import AskApp from "@/components/ask/ask-app";
 import { Eyebrow, ResearchShell } from "@/components/research-pages/research-primitives";
 import { ASK_ROUTE } from "@/lib/ask/contract.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { askStarterGroups } from "@/lib/ask/prompts.mjs";
+import { mlbSeasonCompleteCopyFor } from "@/lib/mlb/season-complete-data";
 
 const ASSISTANT_FORECAST_SPORTS = PUBLIC_SPORTS.filter((s) => s.assistant.forecasts).map((s) => s.label);
 /* W9 (audit row 33): the list above is Ask's OWN read access, and on its own it read as if those were the only sports
@@ -46,7 +48,8 @@ export default function AskPage() {
       </p>
 
       <Suspense fallback={null}>
-        <AskApp />
+        {/* Off-season: no "Which MLB games are live right now?" starter once the committed season-state says no game is left. */}
+        <AskApp starterGroups={askStarterGroups({ mlbOffSeason: mlbSeasonCompleteCopyFor() != null })} />
       </Suspense>
 
       <section style={{ margin: "28px 0 0" }}>

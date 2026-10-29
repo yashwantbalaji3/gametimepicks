@@ -33,6 +33,9 @@ import { nbaTheaterPublicEnabled } from "@/lib/simulation-theater/nba/feature-ma
 import { settledVerdictText } from "@/components/nba/expired-simulation.mjs";
 import { settledSimulationParams } from "@/components/nba/settled-simulation-data";
 import { settledMlbGames } from "@/lib/mlb/settled-games-data";
+import { allowsRunCountClaim } from "@/lib/game-simulations/validate";
+import { ufcSettledBouts } from "@/lib/sports/ufc/bout";
+import { loadEplForecastArchive } from "@/lib/sports/epl/forecast-view";
 import path from "node:path";
 
 /** The charter's navigation-state matrix, verbatim. Unknown owners fail closed to SCHEDULE_ONLY. */
@@ -86,6 +89,12 @@ export interface SimDayEvent {
    * label (a degraded/unavailable snapshot is never "Simulation ready"); after it, `note` adds a non-ready state.
    */
   readonly forecastBadge?: { readonly badge: string | null; readonly tone: "ok" | "warn" | "mute" | null; readonly note: string | null } | null;
+  /**
+   * Batch 1 #5 (2026-10-29): the chip's words when they differ from the state's default. "Simulation ready" is a
+   * run-count claim; an event whose model is closed-form (EPL's exact Poisson grid, the UFC fight model) records no
+   * run count and reads "Model report ready" instead (readyStateLabel). Null/absent = the state's own label.
+   */
+  readonly stateLabel?: string | null;
 }
 
 export interface SportDaySection {
@@ -108,6 +117,21 @@ export interface SimulateDayView {
   readonly sections: readonly SportDaySection[];
   /** Per-state counts; `awaiting` = AWAITING_SETTLEMENT, `started` = STARTED (lifecycle-state.mjs). */
   readonly totals: { events: number; ready: number; settled: number; awaiting: number; started: number };
+}
+
+/** The chip for a SIMULATION_READY event whose model records no run count (closed-form). */
+export const MODEL_REPORT_READY_LABEL = "Model report ready";
+
+/**
+ * Batch 1 #5: SIMULATION_READY may wear "Simulation ready" only when a simulation with a run count exists —
+ * the same gate every "N-run" phrase passes (allowsRunCountClaim, lib/game-simulations/validate). A closed-form
+ * model (no runs) is relabelled and its action names a model report; every other state is unchanged.
+ */
+export function readyStateLabel(state: SimEventState, runCount: number | null | undefined): { stateLabel: string | null; actionLabel: string } {
+  if (state === "SIMULATION_READY" && !allowsRunCountClaim({ runCount: runCount ?? null })) {
+    return { stateLabel: MODEL_REPORT_READY_LABEL, actionLabel: STATE_ACTION.MODEL_ONLY_NO_MARKET };
+  }
+  return { stateLabel: null, actionLabel: STATE_ACTION[state] };
 }
 
 /** The action vocabulary of the state matrix — never a bare Open/View/Enter (charter 2B). */
@@ -185,8 +209,29 @@ const nflFinalIds = () => new Set((readJson<{ rows?: Array<{ providerEventId?: s
   .filter((r) => /^STATUS_FINAL/.test(r.statusRaw ?? "")).map((r) => String(r.providerEventId ?? "")));
 /** UFC: bouts with a recorded winner on a date mean the card's results are in. There is no populated
     settled record for UFC, so a finished card reads "Final · grading pending", never "Settled". */
-const ufcResultDates = () => new Set((readJson<{ rows?: Array<{ eventDate?: string; winner?: string | null }> }>("ufc/results-latest.json")?.rows ?? [])
-  .filter((r) => r.winner).map((r) => String(r.eventDate ?? "")));
+type UfcResultRow = { eventName?: string; eventDate?: string; fighterA?: string; fighterB?: string; winner?: string | null; loser?: string | null; resultStatus?: string; method?: string | null; round?: number | null; time?: string | null };
+/* Batch 1 #5: the committed file's array is `results` (it read `rows`, which does not exist, so this set was always
+   empty and no UFC card ever read final). */
+const ufcResultRows = (): UfcResultRow[] => readJson<{ results?: UfcResultRow[] }>("ufc/results-latest.json")?.results ?? [];
+const ufcResultDates = () => new Set(ufcResultRows().filter((r) => r.winner).map((r) => String(r.eventDate ?? "")));
+/** UFC graded fight-winner picks (the /results/picks/ufc record), by card name. */
+const ufcGradedByCard = () => {
+  const m = new Map<string, { hits: number; counted: number }>();
+  for (const p of readJson<{ picks?: Array<{ eventName?: string; hit?: boolean | null }> }>("ufc/graded-picks.json")?.picks ?? []) {
+    if (!p.eventName || typeof p.hit !== "boolean") continue;
+    const c = m.get(p.eventName) ?? { hits: 0, counted: 0 };
+    c.counted += 1; if (p.hit) c.hits += 1;
+    m.set(p.eventName, c);
+  }
+  return m;
+};
+/** EPL final scores from the graded-forecast ledger (FULL_TIME rows only), by eventId. */
+const eplFinals = () => new Map(readJsonl<{ eventId?: string; status?: string; actual?: { homeGoalsFT?: number; awayGoalsFT?: number } }>("soccer/epl/results/graded-forecasts.jsonl")
+  .filter((r) => r.status === "FULL_TIME" && Number.isFinite(r.actual?.homeGoalsFT) && Number.isFinite(r.actual?.awayGoalsFT))
+  .map((r) => [String(r.eventId ?? ""), { home: r.actual!.homeGoalsFT as number, away: r.actual!.awayGoalsFT as number }]));
+/** NFL forecast run counts (model.simulations), by providerEventId — the same number the game page prints. */
+const nflRunCounts = () => new Map((readJson<{ forecasts?: Array<{ providerEventId?: string; model?: { simulations?: number } }> }>("nfl/forecasts/latest.json")?.forecasts ?? [])
+  .map((f) => [String(f.providerEventId ?? ""), f.model?.simulations ?? null]));
 
 interface UfcCard {
   event?: { name?: string; date?: string; startUtc?: string } | null;
@@ -293,7 +338,7 @@ function mlbSection(date: string, today: string): SportDaySection {
       // falsehood than the silent readiness that came with it.
       markets: state === "MISSED_COVERAGE" ? [] : state === "ARTIFACT_READY" || simReady ? ["Moneyline", "Run line", "Total", ...(board.propsAvailable ? ["Player props"] : [])] : [],
       href,
-      actionLabel: STATE_ACTION[state],
+      ...readyStateLabel(state, simReady && detail?.gameLabSimulation?.allowsRunCountClaim ? detail.gameLabSimulation.runCount : null),
       forecastBadge: (() => {
         const f = mlbForecastStateForGame(predictions, pk);
         return f ? forecastEventBadge(f, !!post) : null;
@@ -342,9 +387,19 @@ function mlbSection(date: string, today: string): SportDaySection {
 function eplSection(date: string, today: string): SportDaySection {
   const set = loadEplForecasts();
   const rows: EplForecastRow[] = set ? reportableRows(set) : [];
-  const onDate = rows.filter((r) => etDayOf(r.kickoffUtc) === date);
   const graded = eplSettledIds();
+  /*
+   * Batch 1 #5 (2026-10-29): `latest.json` carries CURRENT pre-event rows only, so once a matchday was played its
+   * fixtures left it and /simulate/d/2026-10-24 read "No Premier League fixtures on this date" beside four graded
+   * matches. A fixture that has started or been graded is read from the forecast archive — the same rows the
+   * /epl/match/<slug>/ pages are exported from (generateStaticParams), so every such row links to a page that exists.
+   * Current rows win on a shared slug.
+   */
   const nowMs = Date.now();
+  const seen = new Set(rows.map((r) => r.slug));
+  const archived = loadEplForecastArchive().filter((r) => !seen.has(r.slug) && (graded.has(r.eventId) || date < today || startedAt(r.kickoffUtc, nowMs)));
+  const onDate = [...rows, ...archived].filter((r) => etDayOf(r.kickoffUtc) === date);
+  const finals = eplFinals();
   const events: SimDayEvent[] = onDate.map((r) => {
     // #808: settled only when the graded-forecast ledger grades this fixture — not "3 hours after kickoff".
     const post = postStartState({ started: date < today || startedAt(r.kickoffUtc, nowMs), final: false, settled: graded.has(r.eventId) });
@@ -353,6 +408,11 @@ function eplSection(date: string, today: string): SportDaySection {
     /* P234 · C — a fixture with a published forecast opens its presentation on arrival. eplMatchHref
        already ends in a slash, so the query attaches without tripping the trailingSlash redirect. */
     const href = r.slug ? eplMatchHref(r.slug) : "/epl";
+    /* The final score comes only from the graded ledger (FULL_TIME), never from a feed or a guess. */
+    const fin = finals.get(r.eventId);
+    const homeName = r.homeClub ?? r.matchup.split(" v ")[0];
+    const awayName = r.awayClub ?? r.matchup.split(" v ")[1] ?? "?";
+    const score = post && fin ? `Final: ${homeName} ${fin.home} – ${fin.away} ${awayName}. ` : "";
     return {
       sport: "epl", id: `epl:${r.eventId}`,
       matchup: r.matchup,
@@ -360,10 +420,11 @@ function eplSection(date: string, today: string): SportDaySection {
       home: r.homeClub ? { name: r.homeClub, logo: null } : null,
       startUtc: r.kickoffUtc, startLabel: etTime(r.kickoffUtc), venue: null,
       state,
-      stateReason: state === "ARTIFACT_READY" ? (r.unavailableReason ?? "This fixture has not qualified for a published forecast.") : post ? POST_START_PHRASE[post] : null,
+      stateReason: state === "ARTIFACT_READY" ? (r.unavailableReason ?? "This fixture has not qualified for a published forecast.") : post ? `${score}${POST_START_PHRASE[post]}` : null,
       markets: hasProbs ? ["Win/Draw/Win", "Total goals"] : [],
       href,
-      actionLabel: STATE_ACTION[state],
+      /* Closed-form: the exact Poisson grid is computed, not sampled — no run count, so never "Simulation ready". */
+      ...readyStateLabel(state, null),
     };
   });
   // Beyond the forecast window the schedule adapter still knows the fixture list.
@@ -399,23 +460,30 @@ function ufcSection(date: string, today: string): SportDaySection {
     const bouts = card.bouts ?? [];
     const predicted = bouts.filter((b) => b.prediction?.winner?.probability != null).length;
     const head = bouts[0];
+    /* Batch 1 #5: the card starts at its EARLIEST start — the prelims — not the main event's walkout. Oct 31 read
+       "8:00 PM ET" (bouts[0], the main event) while the card's event start and its prelims are 5:00 PM ET. */
+    const cardStart = ufcEarliestStart(card);
     // #808: a finished card with recorded results is final; UFC publishes no settled record, so never "Settled".
-    const post = postStartState({ started: date < today || startedAt(card.event?.startUtc ?? head?.startUtc ?? null, Date.now()), final: ufcResultDates().has(cardDay ?? ""), settled: false });
+    const post = postStartState({ started: date < today || startedAt(cardStart, Date.now()), final: ufcResultDates().has(cardDay ?? ""), settled: false });
     const state: SimEventState = post ?? (predicted > 0 ? "SIMULATION_READY" : "SCHEDULE_ONLY");
     events.push({
       sport: "ufc", id: `ufc:${card.event?.name ?? cardDay}`,
       matchup: card.event?.name ?? `UFC card · ${bouts.length} bouts`,
       away: head?.red?.name ? { name: head.red.name, logo: head.red.photoUrl ?? null } : null,
       home: head?.blue?.name ? { name: head.blue.name, logo: head.blue.photoUrl ?? null } : null,
-      startUtc: card.event?.startUtc ?? head?.startUtc ?? null,
-      startLabel: head?.startUtc ? etTime(head.startUtc) : "Card",
+      startUtc: cardStart,
+      startLabel: cardStart ? etTime(cardStart) : "Card",
       venue: null,
       state,
+      /* Closed-form fight model: no run count, so the ready chip reads "Model report ready" (readyStateLabel). */
+      stateLabel: readyStateLabel(state, null).stateLabel,
       stateReason: post ? POST_START_PHRASE[post] : predicted === 0 ? "No bout on this card has enough fighter history to model — the schedule is shown without a read." : null,
       markets: predicted > 0 ? ["Fight winner"] : [],
       href: post ? "/results/picks/ufc" : "/ufc",
       actionLabel: post ? STATE_ACTION[post] : predicted > 0 ? `View ${predicted} of ${bouts.length} bout reads` : STATE_ACTION.SCHEDULE_ONLY,
     });
+  } else if (ufcResultRows().some((r) => r.eventDate === date && r.winner)) {
+    events.push(...ufcSettledCards(date));
   } else {
     /*
      * GTP-09 (2026-10-14): the schedule's UFC events are BOUTS keyed red/blue, and this read them as home/away — so
@@ -454,11 +522,74 @@ function ufcSection(date: string, today: string): SportDaySection {
   };
 }
 
+/** The earliest start a card publishes: its event start or any bout's, whichever is first (prelims open the card). */
+export function ufcEarliestStart(card: Pick<UfcCard, "event" | "bouts"> | null | undefined): string | null {
+  const starts = [card?.event?.startUtc, ...(card?.bouts ?? []).map((b) => b.startUtc)]
+    .filter((x): x is string => typeof x === "string" && Number.isFinite(Date.parse(x)));
+  return starts.sort((a, b) => Date.parse(a) - Date.parse(b))[0] ?? null;
+}
+
+/**
+ * Batch 1 #5 (2026-10-29): a PAST card. `card-latest.json` holds only the next card, so a played card vanished from
+ * its own date — /simulate/d/2026-10-24 read "No UFC card on this date" the week after UFC 333. Its rows come from the
+ * committed results record (ufc/results-latest.json: winner, method, round) and the graded fight-winner picks
+ * (ufc/graded-picks.json, the /results/picks/ufc record). A card with graded picks is SETTLED; a card with results
+ * but no published picks was not modelled here and says so (schedule-only, like an NBA game outside the lane).
+ *
+ * ufcSettledBoutHref: a settled card opens its headline bout's settled page (/ufc/bout/<id>, built from the forecast
+ * ledger); a card with no settled ledger bout opens the graded-picks record.
+ */
+export function ufcSettledBoutHref(eventName: string): string | null {
+  // The card's settled bout pages (ufcSettledBouts — the same ids /ufc/bout/[boutId] exports). Prefer the headline bout
+  // (both surnames in the card title); otherwise the card's first settled bout. No settled bout → no link.
+  const bouts = ufcSettledBouts().filter((b) => b.competition === eventName);
+  if (!bouts.length) return null;
+  const title = eventName.split(":").slice(1).join(":").toLowerCase();
+  const surnames = (m: string) => m.split(/\s+vs\.?\s+/i).map((n) => n.trim().split(/\s+/).pop()?.toLowerCase() ?? "");
+  const main = title ? bouts.find((b) => { const s = surnames(b.matchup); return s.length === 2 && s.every((x) => x && title.includes(x)); }) : undefined;
+  return `/ufc/bout/${(main ?? bouts[0]).boutId}/`;
+}
+function ufcSettledCards(date: string): SimDayEvent[] {
+  const graded = ufcGradedByCard();
+  const byCard = new Map<string, UfcResultRow[]>();
+  for (const r of ufcResultRows()) {
+    if (r.eventDate !== date || !r.eventName) continue;
+    byCard.set(r.eventName, [...(byCard.get(r.eventName) ?? []), r]);
+  }
+  return [...byCard.entries()].map(([name, rows]): SimDayEvent => {
+    const g = graded.get(name) ?? null;
+    const decided = rows.filter((r) => r.winner).length;
+    /* The card's own name carries its headliners ("UFC 333: Volkanovski vs. Evloev"); the headline result is the bout
+       whose two surnames both appear in it. No positional guess: without that match no single bout is named. */
+    const title = name.split(":").slice(1).join(":").toLowerCase();
+    const surname = (n?: string | null) => String(n ?? "").trim().split(/\s+/).pop()?.toLowerCase() ?? "";
+    const main = title ? rows.find((r) => r.winner && r.loser && title.includes(surname(r.winner)) && title.includes(surname(r.loser))) : undefined;
+    const method = main?.method ? ({ ko_tko: "KO/TKO", submission: "submission", decision: "decision" } as Record<string, string>)[main.method] ?? null : null;
+    const mainLine = main ? `${main.winner} def. ${main.loser}${method ? ` (${method}${main.round ? `, R${main.round}` : ""}${main.time ? ` ${main.time}` : ""})` : ""}. ` : "";
+    const resultLine = `Final: ${mainLine}${decided} of ${rows.length} bout${rows.length === 1 ? "" : "s"} decided.`;
+    /* The one lifecycle rule: graded picks settle the card; a card we published nothing for stays schedule-only. */
+    const state: SimEventState = !g ? "SCHEDULE_ONLY" : postStartState({ started: true, final: decided > 0, settled: true }) ?? "STARTED";
+    return {
+      sport: "ufc", id: `ufc:${name}:${date}`,
+      matchup: name, away: null, home: null,
+      startUtc: null, startLabel: "Card", venue: null,
+      state,
+      stateReason: g
+        ? `${resultLine} Fight-winner picks graded: ${g.hits} of ${g.counted} correct.`
+        : `${resultLine} No GameTime forecast was published for this card.`,
+      markets: g ? ["Fight winner"] : [],
+      href: ufcSettledBoutHref(name) ?? (g ? "/results/picks/ufc" : "/ufc"),
+      actionLabel: STATE_ACTION[state],
+    };
+  });
+}
+
 function nflSection(date: string, today: string): SportDaySection {
   /* P252: see simulate-lobby — the render site supplies the clock. */
   const nowIso = new Date().toISOString();
   const elig = nflSimulateEligibility(nowIso);
   const finals = nflFinalIds();
+  const nflRuns = nflRunCounts();
   const events: SimDayEvent[] = [];
   /* UXJ-05: a GRADED game is not lobby-eligible ("graded games belong in results", simulate-eligibility.ts), so a
      past date read "No NFL games on this date" beside a game that was played and graded — SEA @ DEN, Thu Oct 15.
@@ -496,7 +627,8 @@ function nflSection(date: string, today: string): SportDaySection {
       markets: e.hasMarket ? ["Moneyline", "Total"] : [],
       /* A settled game's action is "View result": the graded outcome lives on the NFL results record. */
       href: post === "SETTLED" ? "/results/nfl/" : `/nfl/game/${e.providerEventId}/`,
-      actionLabel: STATE_ACTION[state],
+      /* The forecast records its simulation count (model.simulations, 10,000) — the run-count gate decides the chip. */
+      ...readyStateLabel(state, nflRuns.get(String(e.providerEventId)) ?? null),
     });
   }
   if (events.length === 0) {
@@ -681,6 +813,9 @@ export function availableSimulateDates(opts?: { today?: string }): string[] {
   for (const d of getMlbAvailableScheduleDates()) add(d);
   const set = loadEplForecasts();
   for (const r of set ? reportableRows(set) : []) add(etDayOf(r.kickoffUtc));
+  // Batch 1 #5: played fixtures and cards stay selectable on their own dates (archive / results record, before today).
+  for (const r of loadEplForecastArchive()) { const d = etDayOf(r.kickoffUtc); if (d && d < today) add(d); }
+  for (const r of ufcResultRows()) if (r.winner && r.eventDate && r.eventDate < today) add(r.eventDate);
   for (const e of nflSimulateEligibility().events ?? []) add(etDayOf(e.kickoffUtc));
   const card = readJson<UfcCard>("ufc/card-latest.json");
   add(etDayOf(card?.event?.startUtc ?? card?.event?.date ?? card?.bouts?.[0]?.startUtc ?? null));

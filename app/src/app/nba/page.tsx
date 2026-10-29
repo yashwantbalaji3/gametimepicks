@@ -25,6 +25,7 @@ import { nbaTodaySlate } from "@/lib/sport-hub/nba-hub";
 import { HubSlipBar, hubSlipLegs } from "@/components/products/hub-slip";
 import { NBA_HUB_SECTIONS, NbaGameList, NbaSlateOverview, NbaTodayGames } from "@/components/nba/hub-overview";
 import { LANE } from "@/lib/sports/nba/experimental-public-lane.mjs";
+import { nbaExportedGamePageIds } from "@/components/nba/settled-simulation-data";
 import { NBA_MODEL_PERFORMANCE_NOTE, PUBLIC_TERMS, publicSport } from "@/lib/public-registry";
 
 const NBA_PUBLIC = publicSport("nba")!;
@@ -52,6 +53,10 @@ export default async function NbaHubPage() {
     const { publicPossessionEvents } = await import("@/lib/simulation-theater/nba/possession/public-loader.mjs");
     theaterIds = publicTheaterRouteIds(() => publicPossessionEvents(REPO_ROOT));
   }
+  /* Batch 1 fix #2 (2026-10-29): every exported /nba/simulation/<id>/ page — today's Game Simulation pages above plus the
+     past slates' settled pages, exactly the route's generateStaticParams list — so a card or a Forecast vs. Actual row
+     links its game page only when that page exists (the post-build dead-link guard fails on any other). */
+  const gamePages = new Set(nbaExportedGamePageIds(today, theaterIds));
   const nowIso = new Date().toISOString();
   const model = nbaHub(nowIso, lane ? new Set(lane.games.map((g) => g.providerEventId)) : null);
   /* NBA UI parity (2026-10-22): today's slate — the same view the homepage NBA lane reads — leads the page. */
@@ -95,7 +100,7 @@ export default async function NbaHubPage() {
       {/* 1 · TODAY'S GAMES — a card per game (each links to its Official Forecast and its Game Simulation), then the week */}
       <section id="nba-games" className="scroll-mt-24 flex flex-col gap-3" aria-labelledby="nba-games-h">
         <h2 id="nba-games-h" className={H2} style={{ color: "var(--vault-text)" }}>{slate.games.length ? `Today’s games · ${slate.dateLabel}` : "Games"}</h2>
-        <NbaTodayGames slate={slate} slip={slip} />
+        <NbaTodayGames slate={slate} slip={slip} gamePages={gamePages} />
         <NbaGameList rows={upcoming} heading={`Coming up · ${upcoming.length} game${upcoming.length === 1 ? "" : "s"} in the next 7 days`} collapsed />
       </section>
 
@@ -139,7 +144,7 @@ export default async function NbaHubPage() {
         <p className={MUTE} style={{ color: "var(--vault-text-mute)" }}>
           <strong style={{ color: "var(--vault-text)" }}>{PUBLIC_TERMS.MODEL_PERFORMANCE}:</strong> {NBA_MODEL_PERFORMANCE_NOTE}
         </p>
-        <NbaGameList rows={played} heading="Forecast vs. Actual · recent games" forecasts={pastSide} />
+        <NbaGameList rows={played} heading="Forecast vs. Actual · recent games" forecasts={pastSide} gamePages={gamePages} />
         <p className={MUTE} style={{ color: "var(--vault-text-mute)" }}>
           {finals > 0
             ? `${finals} official final${finals === 1 ? "" : "s"} in the last ${NBA_HUB_BEHIND_DAYS} days, from the official finals record.`

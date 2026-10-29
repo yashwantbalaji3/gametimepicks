@@ -11,6 +11,7 @@
 import { committedLaneDates, loadLaneForDate, type Snapshot } from "@/components/nba/experimental-lane";
 import { settledSimulationIds } from "@/components/nba/expired-simulation.mjs";
 import { nbaForecastVsActualView } from "@/lib/results/nba-level-a-readers";
+import { nbaTheaterPublicEnabled } from "@/lib/simulation-theater/nba/feature-manifest.mjs";
 
 export type SettledLaneGame = Snapshot["games"][number];
 /** One row of the official record (lib/results/nba-forecast-vs-actual.mjs). */
@@ -35,6 +36,20 @@ const recordOf = (id: string) => {
 /** The ids that get a settled page at build date `today`, minus the ids a current Game Simulation page builds. */
 export function settledSimulationParams(today: string, exclude: readonly string[] = []): string[] {
   return settledSimulationIds(lanes(), { today, exclude });
+}
+
+/**
+ * EVERY EXPORTED /nba/simulation/<id>/ PAGE (Batch 1 fix #2, 2026-10-29) — the ids the route's generateStaticParams
+ * publishes, from the same pieces: `liveIds` (today's Game Simulation pages: the caller's publicTheaterRouteIds — only the
+ * /nba hub may compute them, inside its literal flag branch; anywhere else passes none) plus the settled pages
+ * (settledSimulationParams at the build's ET date, minus the live ids), and nothing at all unless the two-act gate is on
+ * (feature-manifest nbaTheaterPublicEnabled — the same test as public-route nbaPublicTheaterOn). Links to NBA game pages
+ * are drawn from this list only (components/nba/game-page-link.mjs), so a link exists iff its page does.
+ */
+export function nbaExportedGamePageIds(today: string, liveIds: readonly string[] = [], on: boolean = nbaTheaterPublicEnabled()): string[] {
+  if (!on) return [];
+  const live = liveIds.map(String);
+  return [...live, ...settledSimulationParams(today, live)];
 }
 
 /** The settled page's view for `id`, or null when the id is not a past-slate game in the window (the route then 404s). */

@@ -6,6 +6,8 @@
  * tested on a season it had never seen — including that the sportsbook closing line and a plain Elo
  * rating were both more accurate. Model-only forecasts; not betting advice.
  */
+import Link from "next/link";
+
 import SportSwitcher from "@/components/sports/sport-switcher";
 import MoreDisclosure from "@/components/ui/more-disclosure";
 import TeamLogo from "@/components/team-logo";
@@ -49,13 +51,20 @@ function FixtureRow({ r, slip = null }: { r: LeagueForecastRow; slip?: HubSlipLe
   const top = r.topScorelines?.[0];
   return (
     <li className="px-3 py-3" style={{ borderTop: "1px solid var(--vault-rule)" }}>
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2">
-          <TeamLogo team={r.homeClub} sport="soccer" size="sm" ariaLabel={`${r.homeClub} crest`} />
-          <span className="truncate" style={{ fontWeight: 600 }}>{r.homeClub}</span>
+      {/* Batch 1 · #7: at 390px the two club names were truncated ("Le Havr…", "Paris Saint-G…"). Names now WRAP — each
+          side keeps its crest beside its name, and the line breaks between the sides (or inside a long name) instead of
+          clipping it. */}
+      <div className="flex items-start justify-between gap-3">
+        <div data-fixture-teams="" className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+          <span className="inline-flex min-w-0 items-center gap-2">
+            <TeamLogo team={r.homeClub} sport="soccer" size="sm" ariaLabel={`${r.homeClub} crest`} />
+            <span style={{ fontWeight: 600, overflowWrap: "anywhere" }}>{r.homeClub}</span>
+          </span>
           <span style={{ color: "var(--vault-text-faint)" }}>v</span>
-          <span className="truncate" style={{ fontWeight: 600 }}>{r.awayClub}</span>
-          <TeamLogo team={r.awayClub} sport="soccer" size="sm" ariaLabel={`${r.awayClub} crest`} />
+          <span className="inline-flex min-w-0 items-center gap-2">
+            <span style={{ fontWeight: 600, overflowWrap: "anywhere" }}>{r.awayClub}</span>
+            <TeamLogo team={r.awayClub} sport="soccer" size="sm" ariaLabel={`${r.awayClub} crest`} />
+          </span>
         </div>
         <span className="shrink-0 font-mono" style={{ fontSize: 11, color: "var(--vault-text-faint)" }}>{ET_TIME.format(new Date(r.kickoffUtc))} ET</span>
       </div>
@@ -152,6 +161,12 @@ export default async function LeagueForecastPage({ leagueKey }: { leagueKey: str
         <p style={{ margin: "6px 0 0", fontSize: 12.5, color: "var(--vault-text-faint)", maxWidth: "75ch" }}>
           Only the win/draw/win forecast is graded so far. Over 2.5, both teams to score and the likeliest score are published here but not yet graded.
         </p>
+        {/* Batch 1 · #7: the full graded list lives on the cross-sport record, which reads the same graded.json. */}
+        {leagueKey === "ligue-1" && graded && graded.summary.matches > 0 ? (
+          <p style={{ margin: "6px 0 0", fontSize: 12.5 }}>
+            <Link href="/results/picks/ligue-1/" style={{ color: "var(--vault-gold)" }}>Every graded {name} match →</Link>
+          </p>
+        ) : null}
         {recent.length ? (
           <ul style={{ margin: "8px 0 0", paddingLeft: 18, fontSize: 12.5, color: "var(--vault-text-mute)" }}>
             {recent.map((m) => (

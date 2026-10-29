@@ -42,7 +42,7 @@ export default function TeamIndexPage({ params }: { params: { sport: string } })
       <h1 style={{ fontSize: "clamp(22px, 4vw, 32px)", fontWeight: 800, margin: "6px 0 0" }}>{SPORT_NAME[sport]} teams</h1>
       <p style={{ margin: "8px 0 0", fontSize: 14, color: "var(--vault-text-mute)", maxWidth: 680, lineHeight: 1.6 }}>
         Every {SPORT_NAME[sport]} team with a research page.
-        {sport === "EPL" ? " Premier League final results are not yet recorded by match, so club pages show fixtures and squads, not a record." : " Each page shows recorded results, recent games, upcoming games and links to its players."}
+        {sport === "EPL" ? " Each club page shows its current-season results from the official full-time scores of every graded Premier League match, plus fixtures, upcoming matches and its players. Earlier seasons show fixtures only." : " Each page shows recorded results, recent games, upcoming games and links to its players."}
       </p>
       <EntityDirectory base={`/teams/${params.sport}/`} rows={rows} noun="teams" groupLabel={null} />
       <p style={{ marginTop: 22, fontSize: 12.5, color: "var(--vault-text-mute)", lineHeight: 1.6 }}>

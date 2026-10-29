@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { buildNbaSocialDay, NBA_SOCIAL_SCHEMA, PLAYER_FAMILIES } from "./nba-social.mjs";
+import { buildNbaSocialDay, nbaSocialSlateState, nbaSocialToday, NBA_SOCIAL_SCHEMA, NBA_SOCIAL_SLATE_STATES, NBA_SOCIAL_TODAY_STATUSES, PLAYER_FAMILIES } from "./nba-social.mjs";
 import { eloWinProbabilityOf } from "../sports/nba/elo-win-probability.mjs";
 
 const DIR = path.join(process.cwd(), "public/data/nba/experimental-public");
@@ -54,4 +54,71 @@ test("deterministic: same inputs → identical bytes (no wall-clock field)", () 
   const b = JSON.stringify(buildNbaSocialDay({ lane, recordGames: rec, buildEtDate: "2026-10-27", laneSha256: "x" }));
   assert.equal(a, b);
   assert.doesNotMatch(a, /generatedAt"(?!:)|"builtAt"/);
+});
+
+/* ADDITIVE FIELDS (Batch 1 fix #9, 2026-10-29): isLatest, slateState, today — schemaVersion unchanged. */
+// lineComparisons is #1279's additive block (display PRIVATE; NOT_AUTHORIZED rows), merged in the same vehicle.
+const KEYS_V1 = ["schemaVersion", "date", "publication", "builtForEtDate", "stale", "contract", "playerFamilies", "lineComparisons", "events", "record", "usageRules"];
+
+test("additive only: every existing key keeps its place and value; the new keys are appended after them", () => {
+  const d = buildNbaSocialDay({ lane, recordGames: rec, buildEtDate: "2026-10-29", latestDate: "2026-10-28", laneSha256: "x" });
+  assert.equal(d.schemaVersion, "gtp-social-nba@1");
+  assert.deepEqual(Object.keys(d), [...KEYS_V1, "isLatest", "slateState"]);
+  // the existing fields' bytes do not depend on the new input
+  const strip = (o) => { const c = { ...o }; delete c.isLatest; delete c.slateState; return JSON.stringify(c); };
+  assert.equal(strip(d), strip(buildNbaSocialDay({ lane, recordGames: rec, buildEtDate: "2026-10-29", laneSha256: "x" })));
+  assert.equal(d.stale, true, "an archived day keeps stale: true, unchanged");
+});
+
+test("isLatest: true only on the newest shipped date; an archived day is false, never a broken today", () => {
+  assert.equal(buildNbaSocialDay({ lane, buildEtDate: "2026-10-29", latestDate: "2026-10-27" }).isLatest, true);
+  assert.equal(buildNbaSocialDay({ lane, buildEtDate: "2026-10-29", latestDate: "2026-10-28" }).isLatest, false);
+  assert.equal(buildNbaSocialDay({ lane, buildEtDate: "2026-10-29" }).isLatest, false, "no latest date given → false");
+  assert.equal(buildNbaSocialDay({ lane: null, buildEtDate: "2026-10-29", latestDate: "2026-10-29" }).isLatest, false);
+});
+
+test("slateState comes from the file's own finals and the build's ET date — no clock", () => {
+  const ev = (final) => ({ result: { state: final ? "MATCHED" : "PENDING", final: final ? { away: 1, home: 2, winnerSide: "home" } : null } });
+  assert.equal(nbaSocialSlateState([], "2026-10-27", "2026-10-27"), null, "no games → null");
+  assert.equal(nbaSocialSlateState([ev(true), ev(true)], "2026-10-27", "2026-10-28"), "SETTLED");
+  assert.equal(nbaSocialSlateState([ev(true), ev(false)], "2026-10-27", "2026-10-27"), "IN_PROGRESS");
+  assert.equal(nbaSocialSlateState([ev(false)], "2026-10-27", "2026-10-28"), "IN_PROGRESS", "a past slate without finals is played, not upcoming");
+  assert.equal(nbaSocialSlateState([ev(false)], "2026-10-27", "2026-10-27"), "UPCOMING");
+  assert.equal(nbaSocialSlateState([ev(false)], "2026-10-28", "2026-10-27"), "UPCOMING");
+  // through the builder: the record's finals decide (a HELD final still has `final`)
+  const all = lane.games.map((g) => ({ providerEventId: g.providerEventId, state: "HELD", final: { away: 100, home: 101, winnerSide: "home" } }));
+  assert.equal(buildNbaSocialDay({ lane, recordGames: all, buildEtDate: "2026-10-28" }).slateState, "SETTLED");
+  assert.equal(buildNbaSocialDay({ lane, recordGames: rec, buildEtDate: "2026-10-28" }).slateState, "IN_PROGRESS");
+  assert.equal(buildNbaSocialDay({ lane, buildEtDate: "2026-10-27" }).slateState, "UPCOMING");
+  assert.equal(buildNbaSocialDay({ lane: { date: "2026-10-28", games: [] }, buildEtDate: "2026-10-28" }).slateState, null, "NO_GAMES day");
+  for (const s of ["SETTLED", "IN_PROGRESS", "UPCOMING"]) assert.ok(NBA_SOCIAL_SLATE_STATES.includes(s));
+});
+
+test("today: the build's ET date and the /nba hub's own state, mapped one-to-one", () => {
+  assert.deepEqual(nbaSocialToday("2026-10-29", "PUBLISHED"), { etDate: "2026-10-29", status: "PUBLISHED" });
+  assert.deepEqual(nbaSocialToday("2026-10-29", "PENDING"), { etDate: "2026-10-29", status: "NOT_YET_PUBLISHED" });
+  assert.deepEqual(nbaSocialToday("2026-10-29", "NO_GAMES"), { etDate: "2026-10-29", status: "NO_GAMES" });
+  assert.deepEqual(nbaSocialToday("2026-10-29", "DISABLED"), { etDate: "2026-10-29", status: "DISABLED" });
+  assert.throws(() => nbaSocialToday("2026-10-29", "LIVE"), /unknown hub state/);
+  assert.deepEqual([...NBA_SOCIAL_TODAY_STATUSES], ["PUBLISHED", "NOT_YET_PUBLISHED", "NO_GAMES", "DISABLED"]);
+});
+
+test("line comparisons: PRIVATE by default — the feed carries no line, price, book or difference", () => {
+  const d = buildNbaSocialDay({ lane, buildEtDate: "2026-10-27" });
+  assert.equal(d.lineComparisons.displayPermission, "PRIVATE");
+  const lc = d.events[0].players[0].lineComparison;
+  assert.deepEqual(Object.keys(lc).sort(), PLAYER_FAMILIES.map((f) => f.key).sort());
+  for (const v of Object.values(lc)) assert.deepEqual([v.status, v.displayPermission], ["NOT_AUTHORIZED", "PRIVATE"]);
+  assert.doesNotMatch(JSON.stringify(d), /"overPrice"|"underPrice"|"difference"|"book":/, "nothing priced leaks while private");
+  assert.match(d.events[0].snapshotId, /^[0-9a-f]{16}@/);
+});
+
+test("line comparisons when authorized: COMPARED rows carry line, prices, book, capture, difference, direction; others say why", () => {
+  const g = lane.games[0], p = g.players.away[0];
+  const board = { rows: [{ eventId: String(g.providerEventId), athleteId: String(p.providerAthleteId), family: "pts", direction: "ABOVE", line: 10.5, overPrice: -110, underPrice: -110, book: "draftkings", marketKey: "player_points", capturedAt: "2026-10-27T20:00:00Z", difference: 0.9 }], coverage: { compared: 1 } };
+  const d = buildNbaSocialDay({ lane, buildEtDate: "2026-10-27", lineBoard: board, lineDisplay: { public: true, social: true } });
+  const lc = d.events[0].players.find((x) => x.id === String(p.providerAthleteId)).lineComparison;
+  assert.deepEqual([lc.pts.status, lc.pts.direction, lc.pts.difference, lc.pts.book, lc.pts.overPrice], ["COMPARED", "ABOVE", 0.9, "draftkings", -110]);
+  assert.deepEqual([lc.reb.status, lc.reb.reason], ["UNAVAILABLE", "NO_LINE"]);
+  assert.equal(d.lineComparisons.displayPermission, "PUBLIC");
 });

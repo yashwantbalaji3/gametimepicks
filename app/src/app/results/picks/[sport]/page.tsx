@@ -18,6 +18,7 @@ import SectionHeader from "@/components/section-header";
 import GradedPicksSection from "@/components/sports/graded-picks-section";
 import { loadGradedPicks, loadMlbGameRecord, mlbGameFamilyLabel, PICK_SPORTS } from "@/lib/sports/graded-picks-loader";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { ufcSettledBoutHrefByKey } from "@/lib/sports/ufc/bout";
 
 const HUBS: Record<string, { label: string; hub: string }> = {
   mlb: { label: "MLB", hub: "/mlb" },
@@ -62,7 +63,9 @@ export default function GradedPicksPage({ params }: { params: { sport: string } 
 
       {record ? (
         <>
-          <GradedPicksSection record={record} rows={record.picks.length} href={lane.hub} />
+          {/* Batch 1 #3: each settled UFC row opens its bout page (frozen forecast + official result). */}
+          <GradedPicksSection record={record} rows={record.picks.length} href={lane.hub}
+            rowHrefs={params.sport === "ufc" ? ufcSettledBoutHrefByKey() : undefined} />
           <p className="mt-4" style={{ fontSize: 12, lineHeight: 1.7, color: "var(--vault-text-faint)" }}>
             {/*
               The one thing a reader must not take from a hit rate. Being right more often than not
@@ -137,6 +140,7 @@ export default function GradedPicksPage({ params }: { params: { sport: string } 
             {HUBS[s].label} record →
           </Link>
         ))}
+        <Link href="/results/picks/ligue-1/" style={{ color: "var(--vault-text-mute)" }}>Ligue 1 record →</Link>
         <Link href="/methodology" style={{ color: "var(--vault-text-mute)" }}>How everything is graded → Methodology</Link>
       </nav>
     </div>

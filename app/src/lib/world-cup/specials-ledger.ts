@@ -6,6 +6,9 @@
  * HONEST: realized figures come only from cards the history marks settled (won/lost/push). Pending
  * cards contribute open exposure, never P&L. Pure read-side; never mutates money state.
  */
+import fs from "node:fs";
+import path from "node:path";
+
 import { loadWorldCupSpecialsHistory, type SpecialsHistoryDay } from "./world-cup-specials";
 
 export const SPECIALS_STAKE_PER_CARD = 20;
@@ -100,4 +103,48 @@ export function buildSpecialsLedger(root: string, today: string): SpecialsLedger
       ? `Realized from ${settledCards} settled card${settledCards === 1 ? "" : "s"} · ${days.length} slate${days.length === 1 ? "" : "s"} archived. Pending cards are open exposure, not P&L.`
       : `No World Cup Specials have settled yet — ${openExposure > 0 ? `$${openExposure} open across today's cards` : "no open cards"}. Every slate is archived; the record fills in on official settlement.`,
   };
+}
+
+/**
+ * The CANONICAL settled record (Batch 1 · #10): product-ledger/wc-specials.json, the per-card settlement the
+ * settlement collector wrote from the official results (world-cup/settlement/<date>.json) and the same source Mr. Dub's
+ * master ledger reads. The history file above never received those results, so buildSpecialsLedger reads 0 settled
+ * and its "no specials have settled yet" line was false for a retired product with graded cards. Stake and payout are
+ * as recorded per card — never the ledger's $20 planning constant. Null when the file is absent or holds no graded card.
+ */
+export interface SpecialsSettledRecord {
+  cards: number;
+  wins: number;
+  losses: number;
+  pushes: number;
+  staked: number;
+  pnl: number;
+  firstDate: string;
+  lastDate: string;
+}
+
+export function specialsSettledRecord(root: string): SpecialsSettledRecord | null {
+  let rows: Array<{ date?: unknown; outcome?: unknown; stake?: unknown; payout?: unknown }> = [];
+  try {
+    const doc = JSON.parse(fs.readFileSync(path.join(root, "product-ledger", "wc-specials.json"), "utf8")) as { results?: unknown };
+    rows = Array.isArray(doc.results) ? doc.results : [];
+  } catch {
+    return null;
+  }
+  let wins = 0, losses = 0, pushes = 0, staked = 0, pnl = 0;
+  const dates: string[] = [];
+  for (const r of rows) {
+    const o = classify(typeof r.outcome === "string" ? r.outcome : null);
+    if (o === "pending") continue;
+    const stake = Number(r.stake), payout = Number(r.payout);
+    if (!Number.isFinite(stake) || !Number.isFinite(payout) || typeof r.date !== "string") continue;
+    if (o === "won") wins++; else if (o === "lost") losses++; else pushes++;
+    staked += stake;
+    pnl += payout - stake;
+    dates.push(r.date);
+  }
+  const cards = wins + losses + pushes;
+  if (cards === 0) return null;
+  dates.sort();
+  return { cards, wins, losses, pushes, staked: round2(staked), pnl: round2(pnl), firstDate: dates[0], lastDate: dates[dates.length - 1] };
 }

@@ -10,7 +10,7 @@
  *   · the R3+ round bar includes EVERY decision, not only round-3+ finishes;
  *   · "goes the distance" is the method head's decision probability, not a separate model.
  */
-import { roundPhrase } from "@/lib/sports/ufc/round-phrase.mjs";
+import { ufcEndingLine, ufcRoundRead } from "@/lib/sports/ufc/round-phrase.mjs";
 import Link from "next/link";
 import HeadToHead from "@/components/ui/head-to-head";
 import { Histogram, ProbabilityBar } from "@/components/distribution-chart";
@@ -92,8 +92,6 @@ const ET = (iso: string) =>
   new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })
     .format(new Date(iso));
 
-const METHOD_LABEL: Record<string, string> = { KO: "KO / TKO", SUB: "Submission", DEC: "Decision" };
-
 /** One predicted market: the headline answer, with the full distribution underneath it. */
 function Head({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
@@ -162,7 +160,8 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
                 </span>
                 {b.prediction?.rounds ? (
                   <span className="font-mono" style={{ fontSize: 10, color: "var(--vault-text-mute)" }}>
-                    Goes the distance <strong style={{ color: "var(--vault-text)" }}>{Math.round(b.prediction.rounds.goesTheDistance * 100)}%</strong>
+                    {/* Batch 1 #4: label + number from the one round accessor — the same pair the bout page and /cage-chaos print. */}
+                    {ufcRoundRead(b.prediction.rounds)?.goesTheDistance?.label} <strong style={{ color: "var(--vault-text)" }}>{ufcRoundRead(b.prediction.rounds)?.goesTheDistance?.pct}</strong>
                   </span>
                 ) : null}
               </div>
@@ -175,9 +174,7 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
                 verdict={b.prediction?.winner ? {
                   label: "Model pick",
                   value: `${b.prediction.winner.name} · ${Math.round(b.prediction.winner.probability * 100)}%`,
-                  sub: b.prediction.method && b.prediction.rounds
-                    ? `${METHOD_LABEL[b.prediction.method.most] ?? b.prediction.method.most} · ${roundPhrase(b.prediction.rounds)}`
-                    : undefined,
+                  sub: ufcEndingLine(b.prediction) ?? undefined,
                 } : null}
                 note={b.prediction?.reason ?? b.unmodelledReason ?? undefined}
               />

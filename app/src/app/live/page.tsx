@@ -28,13 +28,19 @@ import SportChooser, { etDayLabel } from "@/components/sports/sport-chooser";
 import { buildHubRoster } from "@/lib/live/hub-data";
 import { buildNflHubRoster } from "@/lib/live/nfl-hub-data";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { mlbSeasonCompleteCopyFor } from "@/lib/mlb/season-complete-data";
+
+/* OFF-SEASON (2026-10-29): once the committed season-state says no MLB game is left (lib/mlb/season-complete.mjs),
+   Live stops advertising MLB tracking — in its metadata, its coverage line and its quiet-day copy. */
+const MLB_SEASON_COPY = mlbSeasonCompleteCopyFor();
+const LIVE_SPORTS = MLB_SEASON_COPY ? "NFL" : "NFL and MLB";
 
 export const metadata = withRouteMetadata("/live/", {
   /* Truthful and sport-honest: NFL and MLB are the sports with a public live roster, so the
      description names those two and does not advertise EPL/UFC Live while they are unavailable. */
-  title: "Live · NFL and MLB scores beside frozen GameTime forecasts · GameTime Picks",
+  title: `Live · ${LIVE_SPORTS} scores beside frozen GameTime forecasts · GameTime Picks`,
   description:
-    "Live NFL and MLB scores and game state, shown beside the GameTime forecasts made before kickoff — which stay frozen while the game is played. Educational, paper-only.",
+    `Live ${LIVE_SPORTS} scores and game state, shown beside the GameTime forecasts made before kickoff — which stay frozen while the game is played. Educational, paper-only.`,
   alternates: { canonical: "/live" },
 });
 
@@ -68,11 +74,13 @@ export default function LivePage() {
       <LiveSportTabs
         nfl={nfl}
         mlb={mlb}
+        mlbOffSeason={MLB_SEASON_COPY?.short ?? null}
         quietDay={
           <div>
             <p style={{ fontSize: 14, color: "var(--vault-text)", lineHeight: 1.6, margin: 0, maxWidth: 680 }}>
-              Nothing to follow on Live for {etDayLabel(nfl.etDate)}. Live follows NFL and MLB games that
+              Nothing to follow on Live for {etDayLabel(nfl.etDate)}. Live follows {LIVE_SPORTS} games that
               carry a published GameTime forecast; a game gets a card here once its forecast is published.
+              {MLB_SEASON_COPY ? <> {MLB_SEASON_COPY.short}</> : null}
             </p>
             <SportChooser label="Sports and what is next" />
             <p style={{ fontSize: 13.5, margin: "16px 0 0", display: "flex", gap: 18, flexWrap: "wrap" }}>

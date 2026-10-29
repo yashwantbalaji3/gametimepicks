@@ -54,7 +54,9 @@ test("🔴 THE #808 CASE — an NFL game the index stamps STARTED, mid-game, rea
 
 test("the one owner: day-view assigns post-start states only through postStartState, never from a clock or date", () => {
   const src = fs.readFileSync(path.join(process.cwd(), "src/lib/simulate/day-view.ts"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-  assert.equal((src.match(/postStartState\(/g) ?? []).length, 5, "MLB, EPL, UFC, NFL and NBA (past dates) each call the rule");
+  /* Batch 1 #5 (2026-10-29): 5 → 6 — a PAST UFC card (ufcSettledCards, from the results + graded-picks records) is a
+     second UFC call site, and it too must reach SETTLED only through the rule. */
+  assert.equal((src.match(/postStartState\(/g) ?? []).length, 6, "MLB, EPL, UFC (current card + past cards), NFL and NBA (past dates) each call the rule");
   assert.doesNotMatch(src, /[?:]\s*"SETTLED"/, "no ternary hands out SETTLED directly");
   assert.doesNotMatch(src, /lifecycle === "STARTED"/, "a started stamp is never read as settled");
   assert.doesNotMatch(src, /Date\.now\(\) - 3 \* 3600_000/, "no 'three hours after kickoff means settled'");

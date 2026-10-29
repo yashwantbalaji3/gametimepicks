@@ -49,10 +49,11 @@ interface Preferences {
 
 const ENDPOINT = "/api/ask/";
 
-/* STARTERS ARE PROMISES (Session 2) — and follow-ups now come from the same verified list (lib/ask/prompts.mjs). */
-const STARTER_GROUPS = ASK_STARTER_GROUPS;
+/* STARTERS ARE PROMISES (Session 2) — and follow-ups now come from the same verified list (lib/ask/prompts.mjs).
+   The page may pass the season-aware set (askStarterGroups); the default is the in-season list. */
+type StarterGroups = ReadonlyArray<{ label: string; prompts: ReadonlyArray<string> }>;
 
-export default function AskApp({ context }: { context?: { pageType: string; id?: string; sport?: string } | null }) {
+export default function AskApp({ context, starterGroups = ASK_STARTER_GROUPS }: { context?: { pageType: string; id?: string; sport?: string } | null; starterGroups?: StarterGroups }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
@@ -211,7 +212,7 @@ export default function AskApp({ context }: { context?: { pageType: string; id?:
         aria-live="polite"
         aria-relevant="additions text"
       >
-        {empty ? <EmptyState onPick={(s) => void send(s)} /> : messages.map((m) => <Bubble key={m.id} message={m} onFollowUp={(f) => void send(f)} />)}
+        {empty ? <EmptyState groups={starterGroups} onPick={(s) => void send(s)} /> : messages.map((m) => <Bubble key={m.id} message={m} onFollowUp={(f) => void send(f)} />)}
 
         {/*
           The tool-activity line is its own polite region rather than part of the log, so a screen
@@ -248,12 +249,12 @@ export default function AskApp({ context }: { context?: { pageType: string; id?:
 
 /* ─────────────────────────────────────  pieces  ───────────────────────────────────── */
 
-function EmptyState({ onPick }: { onPick: (s: string) => void }) {
+function EmptyState({ groups, onPick }: { groups: StarterGroups; onPick: (s: string) => void }) {
   return (
     <div className="ask-empty">
       <p className="ask-empty-lead">Try asking</p>
       <div className="ask-starter-groups">
-        {STARTER_GROUPS.map((g) => (
+        {groups.map((g) => (
           <section key={g.label} className="ask-starter-group" aria-label={g.label}>
             <h2 className="ask-starter-label">{g.label}</h2>
             <ul className="ask-starters">

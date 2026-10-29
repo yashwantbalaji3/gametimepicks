@@ -281,7 +281,10 @@ export function coverageForSport(sport: MarketSport): MarketCoverage[] {
 /** Sports in the registry, ordered by current activity: MLB is the live sport; the soccer group is the 2026 World Cup's
  *  market-implied capability (complete) — the Premier League and Ligue 1 match model is described by the public
  *  registry, not here; UFC publishes model-only forecasts. */
-export const COVERAGE_SPORTS: { key: MarketSport; label: string; note: string }[] = [
+/* Batch 1 #5 (2026-10-29): `archived` marks a group whose event is over (the 2026 World Cup). Its rows keep their
+   registry status for the record, but a surface never presents them as available — the coverage matrix prints them as
+   archived and /simulate omits the group (components/simulation-coverage-matrix.tsx). */
+export const COVERAGE_SPORTS: { key: MarketSport; label: string; note: string; archived?: true }[] = [
   { key: "mlb", label: "MLB", note: "market-anchored + 10k player-prop sim" },
   // P175-C: NFL joins the SHARED coverage registry rather than getting a forked matrix.
   { key: "nfl", label: "NFL", note: "Official Forecast · 10k score simulation — not product-eligible" },
@@ -289,6 +292,6 @@ export const COVERAGE_SPORTS: { key: MarketSport; label: string; note: string }[
      that soccer is "a market-implied read (not an independent soccer sim)" a few screens above the Premier League card
      saying "an exact-Poisson match model gives the 1X2 split" — two contradictory descriptions of soccer. It now names
      what it covers and points at the league model (lib/public-registry.ts: EPL's method; Ligue 1 applies it unchanged). */
-  { key: "soccer", label: "Soccer · 2026 World Cup (complete)", note: "World Cup markets were a market-implied 90' read, not an independent model. Premier League and Ligue 1 forecasts come from their own match model" },
+  { key: "soccer", label: "Soccer · 2026 World Cup (complete)", note: "World Cup markets were a market-implied 90' read, not an independent model. Premier League and Ligue 1 forecasts come from their own match model", archived: true },
   { key: "ufc", label: "UFC", note: "Official Forecast · fight model — model-only, not product-eligible" },
 ];

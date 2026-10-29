@@ -4,11 +4,11 @@
  "dataClass": "PRIVATE_AUDIT",
  "generatedAt": "2026-10-08T21:59:42Z",
  "totals": {
-  "routes": 101,
-  "public": 70,
+  "routes": 103,
+  "public": 72,
   "internal": 10,
-  "redirects": 17,
-  "archive": 2,
+  "redirects": 18,
+  "archive": 1,
   "findings": 0,
   "p0": 0
  },
@@ -649,6 +649,14 @@
    "built": true
   },
   {
+   "route": "/record",
+   "classification": "redirect",
+   "owner": "settlement",
+   "purpose": "alias for the track record",
+   "redirectTo": "/results",
+   "built": "UNVERIFIED (no export provided)"
+  },
+  {
    "route": "/research",
    "classification": "public",
    "owner": "research",
@@ -733,11 +741,11 @@
   },
   {
    "route": "/results/nba",
-   "classification": "archive",
+   "classification": "public",
    "owner": "settlement",
-   "purpose": "NBA settled archive (HISTORICAL_ONLY)",
-   "dataOwner": "frozen archive",
-   "freshness": "frozen — archive is dated by design",
+   "purpose": "NBA Official Record (official side frozen before tip vs. official final) + the retired player-prop archive below it",
+   "dataOwner": "NBA official record readers (lib/results/nba-level-a-readers) + frozen archive",
+   "freshness": "settled-through date of the official record; archive frozen",
    "built": true
   },
   {
@@ -785,6 +793,15 @@
    "dataOwner": "public/data/<sport>/graded-picks.json, built from each sport's own graded ledger",
    "freshness": "artifact generatedAt; rebuilt whenever a sport settles",
    "built": "FAMILY (4 generated page(s))"
+  },
+  {
+   "route": "/results/picks/ligue-1",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "Ligue 1's graded match-result record (1X2 log loss, every graded fixture newest first) — the league's record page, linked from the hub, /results/picks and /today",
+   "dataOwner": "public/data/soccer/ligue-1/results/graded.json",
+   "freshness": "graded.json generatedAt; rebuilt when the league settles",
+   "built": "UNVERIFIED (no export provided)"
   },
   {
    "route": "/saved",

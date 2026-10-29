@@ -68,6 +68,7 @@ const OWNERS: ReadonlyArray<readonly [string, readonly string[]]> = [
   ["/methodology", ["/methodology", "/learn"]],
   ["/responsible-use", ["/responsible-use", "/learn"]],
   ["/results/model-audit", ["/results/model-audit", "/learn", "/results"]],
+  ["/record", ["/results"]],
   ["/nhl", ["/sports"]], ["/ipl", ["/sports"]], ["/world-cup", ["/sports"]], ["/world-cup-specials", ["/sports"]],
   ["/trends", []],
 ];

@@ -21,6 +21,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { allUpcoming, resultsTrackingNote } from "@/lib/sports/upcoming/adapters.mjs";
+import { loadLeagueForecasts, loadLeagueGraded } from "@/lib/sports/soccer/forecast-view";
+import { leagueUpcomingSection } from "@/lib/sports/soccer/league-cross-site.mjs";
+import { soccerLeaguePages } from "@/lib/sports/soccer/leagues.mjs";
 import { UpcomingSportsSections, type SportSchedule } from "@/components/sports/upcoming-sports";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 /*
@@ -45,12 +48,21 @@ const MODELLED = PUBLIC_SPORTS.filter((p) => publishesOfficialForecast(p.key)).m
 export const metadata: Metadata = withRouteMetadata("/sports/", {
   title: "Upcoming Sports — Schedules · GameTime Picks",
   description:
-    `Premier League, NFL, NBA and UFC schedule status — what data exists, where it comes from, and what is honestly not published yet. ${listWords(MODELLED)} publish Official Forecasts on their own hubs.`,
+    `Premier League, Ligue 1, NFL, NBA and UFC schedule status — what data exists, where it comes from, and what is honestly not published yet. ${listWords(MODELLED)} publish Official Forecasts on their own hubs.`,
 });
 
 export default function UpcomingSportsPage() {
-  const sports = (allUpcoming({ nowIso: new Date().toISOString() }) as SportSchedule[])
+  const nowMs = Date.now();
+  /* Batch 1 · #7: the registry's published soccer leagues (today Ligue 1) join the list after the Premier League, read from
+     the same fixture file their hub renders. They are added HERE, not to allUpcoming — that list also feeds the simulate
+     day selector, which has no Ligue 1 section. */
+  const leagues = soccerLeaguePages().map((l) => ({
+    ...(leagueUpcomingSection({ league: l.key, label: l.name, forecasts: loadLeagueForecasts(l.key), graded: loadLeagueGraded(l.key), nowMs }) as SportSchedule),
+    resultsNote: null,
+  }));
+  const schedules = (allUpcoming({ nowIso: new Date(nowMs).toISOString() }) as SportSchedule[])
     .map((s) => ({ ...s, resultsNote: resultsTrackingNote(s.sport) }));
+  const sports = [...schedules.slice(0, 1), ...leagues, ...schedules.slice(1)];
   /* The sections' sports, split by what the registry says each publishes (never by a sentence kept on this page). */
   const hubs = sports.filter((s) => publishesOfficialForecast(s.sport)).map((s) => publicSport(s.sport)!);
   const scheduleOnly = sports.filter((s) => !publishesOfficialForecast(s.sport)).map((s) => s.competitionLabel);
