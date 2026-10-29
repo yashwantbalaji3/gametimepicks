@@ -357,3 +357,13 @@ test("versions in the queue: a changed official board before approval drafts v2 
   assert.equal(r.code, "VERIFICATION_CHANGED");
   assert.equal(C.xcalls.length, 0);
 });
+
+test("individual NFL game posts get the 45-minute publishing time (pregame winner and Top 3 TD)", async () => {
+  const { nflPregamePackage, nflTouchdownsPackage } = await import("../contracts/social-packages.mjs");
+  const m = { eventId: "e1", away: { abbr: "CAR" }, home: { abbr: "GB" }, kickoff: "2026-10-30T00:15:00Z", candidates: [], favouredTeam: { name: "Green Bay Packers" }, winnerLabel: "Predicted Winner", kickoffLine: "k", frozenLine: "f", winProbabilityDisplay: "63.8%" };
+  const td = (() => { try { return nflTouchdownsPackage({ date: "2026-10-29", m, extra: { template: "t", assetManifest: "a", dataCommit: "c" } }); } catch (err) { return { error: err.message }; } })();
+  assert.equal(td.suggestedPublishAt, "2026-10-29T23:30:00.000Z");
+  const pg = (() => { try { return nflPregamePackage({ date: "2026-10-29", m, extra: { template: "t", assetManifest: "a", dataCommit: "c" }, verification: { kickoffUtc: "2026-10-30T00:15:00Z", status: "READY", reasons: [] } }); } catch (err) { return { error: err.message }; } })();
+  assert.equal(pg.suggestedPublishAt, "2026-10-29T23:30:00.000Z");
+  assert.deepEqual([td.error, pg.error], [undefined, undefined], "both builders run on the model");
+});

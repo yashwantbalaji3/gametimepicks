@@ -44,6 +44,8 @@ export function nflPregamePackage({ date, m, verification, extra, slotId = "stan
     ...base(m, extra), postId: `${date}:NFL:pregame:${m.eventId}${V2}`, slotId, date, sport: "NFL", kind: "pregame-forecast", format: "pregame-winner",
     title: `${m.away.abbr} @ ${m.home.abbr}: ${m.winnerLabel}`, eventId: m.eventId, priority, winnerLabel: m.winnerLabel,
     startUtc: verification.kickoffUtc ?? null,
+    // individual game posts: 45 minutes before the verified start (same rule as NBA game posts)
+    suggestedPublishAt: gamePostAt(verification.kickoffUtc),
     status: verification.status, reasons: verification.reasons, verification, numbers: verification.version?.numbers ?? null, claims, captions,
   };
 }
@@ -59,6 +61,7 @@ export function nflTouchdownsPackage({ date, m, extra, slotId = "standing:nfl-td
   return {
     ...base(m, extra), postId: `${date}:NFL:td-top3:${m.eventId}${V2}`, slotId, date, sport: "NFL", kind: "td-top3", format: "touchdowns",
     title: `${m.away.abbr} @ ${m.home.abbr}: ${TERMS.topTd}`, eventId: m.eventId, priority, kickoffUtc: m.kickoff,
+    suggestedPublishAt: gamePostAt(m.kickoff),
     candidatesKey: m.candidates.map((c) => `${c.id}:${c.probabilityDisplay}`).join("|"),
     status: POST_STATUS.VERIFY, reasons, claims, captions,
   };
@@ -136,6 +139,11 @@ export function nbaPlayersPackage({ date, m, extra, laneDate, priority = 1 }) {
 
 /** How long before tip-off an NBA game post is scheduled (founder 2026-10-28). */
 export const NBA_GAME_LEAD_MIN = 45;
+/** The publishing time of an individual game post: NBA_GAME_LEAD_MIN before a verified start (null without one). */
+function gamePostAt(startUtc) {
+  const t = Date.parse(startUtc ?? "");
+  return Number.isFinite(t) ? new Date(t - NBA_GAME_LEAD_MIN * 60_000).toISOString() : null;
+}
 
 /**
  * NBA game post — ONE X post per game carrying both verified graphics (Predicted Winner first, projected stat lines
