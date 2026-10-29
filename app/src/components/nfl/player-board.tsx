@@ -179,7 +179,7 @@ export default function NflPlayerBoard({ board, teams, researchHrefs = {} }: { b
               : true,
         )
         .filter((p) => (q ? p.name.toLowerCase().includes(q.toLowerCase()) : true))
-        /* The combined view ranks by expected receptions — ALL eligible players, never a silent cap. */
+        /* The combined view ranks by median receptions (the official headline) — ALL eligible players, never a silent cap. */
         .sort((a, b) =>
           isCombined
             ? (b.markets.player_receptions?.median ?? -1) - (a.markets.player_receptions?.median ?? -1)
@@ -289,7 +289,7 @@ export default function NflPlayerBoard({ board, teams, researchHrefs = {} }: { b
 
       {isCombined ? (
         <p className="mt-2" style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720 }}>
-          Every receiving family for one player on one row, ranked by expected receptions.
+          Every receiving family for one player on one row, ranked by median receptions.
         </p>
       ) : null}
 

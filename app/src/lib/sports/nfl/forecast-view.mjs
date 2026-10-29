@@ -26,7 +26,7 @@
  * Nothing in this file promotes a model: every NFL output remains PUBLIC_EXPERIMENTAL ("under forward evaluation").
  */
 
-import { PUBLIC_BOARD_CLEARED } from "./board-ranking.mjs";
+import { BOARD_METRIC, PUBLIC_BOARD_CLEARED } from "./board-ranking.mjs";
 import { isWithheldOffer, sanitizeOffer } from "../odds/public-offer-sanitizer.mjs";
 import { plainCodes } from "../../uiux/plain-codes.mjs";
 
@@ -233,8 +233,9 @@ export function playerRows({ forecast: f, official, board }) {
       /* Official rows are PUBLISHED families only. An ESTIMATE family did not clear its bar: it is not shown under an
          official heading (NOT_CLEARED_GAME above), and the page says so instead. */
       if (o.state !== "PUBLISHED") continue;
-      /* headline: the median for yards (skewed); the expected count for receptions (a whole-number median ties) */
-      const value = fam === "receptions" ? o.expected : o.median;
+      /* headline: the official median for yards AND receptions (founder requirement 2026-10-29: one canonical value
+         everywhere — the weekly and daily Top boards rank receptions by the same median; ties break on the mean). */
+      const value = BOARD_METRIC[MARKET_KEY[fam]] === "median" ? o.median : o.expected;
       if (!isNum(value)) continue;
       families[fam] = { source: "playerBoard", value, mean: o.expected ?? null, median: o.median ?? null, p10: quantile(o, 0.1), p90: quantile(o, 0.9), familyState: o.state, modelVersion: o.modelVersion ?? null, snapshotId: official.snapshotId, asOf };
     }
@@ -281,7 +282,7 @@ function unprojectedByFamily(world, rows, notCleared = {}) {
 
 /**
  * Top boards across games, from the SAME official rows the game pages render. Ranking metric per family: the official
- * projected value shown (median yards; expected receptions; the probability for anytime TD), ties by the official
+ * projected value shown (median yards and receptions; the probability for anytime TD), ties by the official
  * expected value, then name. Only cleared players, only games that have not kicked off at `now`; fewer than `size`
  * rather than fill. No supporting-simulation number ever ranks.
  */
@@ -308,7 +309,7 @@ export const FAMILY_METRIC = Object.freeze({
   passingYards: "Projected = the official player board's median passing yards; 80% of outcomes fall in the range shown",
   rushingYards: "Projected = the official player board's median rushing yards; 80% of outcomes fall in the range shown",
   receivingYards: "Projected = the official player board's median receiving yards; 80% of outcomes fall in the range shown",
-  receptions: "Projected = the official player board's expected receptions (its average); 80% of outcomes fall in the range shown",
+  receptions: "Projected = the official player board's median receptions; 80% of outcomes fall in the range shown",
   anytimeTd: "Chance to score at least one rushing or receiving touchdown if he plays — from the published touchdown model on the official player board",
 });
 
@@ -366,4 +367,33 @@ export function boardTabs(boards) {
     est[k] = estimateOf(b.rows.map((r) => r.entry));
   }
   return familyTabs(lists, { asOfByFamily: asOf, sourcesByFamily: src, estimateByFamily: est, notClearedByFamily: nc });
+}
+
+/**
+ * FOUNDER TOP BOARDS (2026-10-29) — the weekly-boards artifact's `topBoards` scope (weekly or one ET day) as FamilyTabs
+ * props. The builder (lib/sports/nfl/top-boards.mjs) is the ONE ranking owner; this only re-shapes its rows, in its own
+ * order, with its exact numbers, so the hub and the week page print what the artifact (and the social feed reading it)
+ * holds and what each game page prints. A family that is not publication-qualified carries its readiness line and no
+ * rows. Only the five board families appear (passing touchdowns / first scorer have no board).
+ * @param {{ boards: Array<any> }} scope   topBoards.weekly or a topBoards.daily[] entry
+ */
+const VIEW_KEY_OF = Object.freeze(Object.fromEntries(Object.entries(MARKET_KEY).map(([k, v]) => [v, k])));
+export function topBoardTabs(scope) {
+  const lists = {}; const asOf = {}; const src = {}; const withheld = {};
+  for (const b of scope?.boards ?? []) {
+    const k = VIEW_KEY_OF[b.family];
+    if (!k) continue;
+    if (b.state !== "PUBLISHED") { const d = b.readiness?.detail ?? "this statistic has not cleared its publication standard";
+      withheld[k] = `${d.charAt(0).toUpperCase()}${d.slice(1)}.`; lists[k] = []; continue; }
+    if (b.source !== "OFFICIAL_PLAYER_BOARD") throw new Error(`topBoardTabs: ${b.id} is not from the official player board (${b.source})`);
+    lists[k] = (b.rows ?? []).map((r) => ({
+      rank: r.rank,
+      player: { playerId: r.playerId, name: r.name, position: null, team: r.team, opponent: r.opponent, providerEventId: r.providerEventId, matchup: null, kickoffUtc: r.kickoffUtc, availabilityLabel: null },
+      entry: { value: r.value, p10: r.p10 ?? null, p90: r.p90 ?? null, mean: null, marketKey: b.family, market: r.market ? sanitizeOffer(r.market) : null },
+    }));
+    src[k] = [k === "anytimeTd" ? "opportunityTd" : "playerBoard"];
+  }
+  const t = familyTabs(lists, { sourcesByFamily: src, withheldByFamily: withheld, asOfByFamily: asOf });
+  const keys = new Set(Object.keys(lists));
+  return { ...t, families: t.families.filter((f) => keys.has(f.key)) };
 }
