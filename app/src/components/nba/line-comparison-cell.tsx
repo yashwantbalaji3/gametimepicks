@@ -5,13 +5,19 @@
  * switch allows public lines AND the comparison is valid (line-comparison.mjs). Every other case is the projection alone,
  * neutral — a colour is never derived from the projection by itself. <LineComparisonLegend> must sit beside any coloured
  * cell (founder rule: green / red / neutral explained, and not a probability, pick or value).
+ *
+ * DEFAULT PRIVATE (2026-10-29): this cell knows no family, so it cannot apply the per-family direction gate
+ * (lib/odds/display-authorization.mjs publicDirectionGate). Now that the site surface is authorized, its default display is
+ * PRIVATE rather than NBA_LINE_DISPLAY: a caller must pass `display` explicitly AND gate the family itself. Public pages
+ * use the shared section (components/odds/prop-line-comparison.tsx), which applies the gate.
  */
 import React from "react";
 import { COMPARISON_LEGEND, comparisonTone, TONE_TOKEN, UNAVAILABLE_REASON } from "@/lib/sports/nba/line-comparison.mjs";
-import { NBA_LINE_DISPLAY } from "@/lib/sports/nba/line-board.mjs";
 import { signedDifference } from "@/lib/odds/prop-line-view.mjs";
 
 type Comparison = { direction: string; median?: number | null; line?: number; difference?: number; differenceExact?: number; book?: string; capturedAt?: string; reason?: string };
+
+const PRIVATE_DISPLAY = Object.freeze({ public: false });
 
 const one = (v: number | null | undefined) => (typeof v === "number" && Number.isFinite(v) ? v.toFixed(1) : "—");
 const et = (iso?: string) => {
@@ -19,7 +25,7 @@ const et = (iso?: string) => {
   return Number.isFinite(t) ? new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" }).format(new Date(t)) + " ET" : "—";
 };
 
-export function LineComparisonCell({ median, comparison, display = NBA_LINE_DISPLAY }: { median: number | null | undefined; comparison?: Comparison | null; display?: { public: boolean } }) {
+export function LineComparisonCell({ median, comparison, display = PRIVATE_DISPLAY }: { median: number | null | undefined; comparison?: Comparison | null; display?: { public: boolean } }) {
   const shown = display.public && comparison && comparison.direction !== "UNAVAILABLE";
   if (!shown) {
     const why = display.public && comparison?.reason ? UNAVAILABLE_REASON[comparison.reason as keyof typeof UNAVAILABLE_REASON] : null;
@@ -40,7 +46,7 @@ export function LineComparisonCell({ median, comparison, display = NBA_LINE_DISP
   );
 }
 
-export function LineComparisonLegend({ display = NBA_LINE_DISPLAY }: { display?: { public: boolean } }) {
+export function LineComparisonLegend({ display = PRIVATE_DISPLAY }: { display?: { public: boolean } }) {
   if (!display.public) return null;
   return (
     <ul data-line-cmp-legend="" className="m-0 pl-5 text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>

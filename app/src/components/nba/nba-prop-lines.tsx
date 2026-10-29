@@ -2,19 +2,24 @@
  * NBA player props: the official projection beside a verified sportsbook line (founder P0 2026-10-29) — the NBA wiring
  * of the sport-agnostic section (components/odds/prop-line-comparison.tsx, lib/odds/prop-line-view.mjs). SERVER only.
  *
- * GATE: NBA_LINE_DISPLAY.public (lib/sports/nba/line-board.mjs). While it is false — Production today — this component
- * returns null BEFORE reading anything, so /nba/projections, its dated pages and the game pages render exactly as they
- * did without it: no heading, no legend, no line, price or book (prop-line-switch-off.test.mjs).
+ * GATE: NBA_LINE_DISPLAY.public (lib/sports/nba/line-board.mjs; "site" authorized by the founder 2026-10-29). While it is
+ * false this component returns null BEFORE reading anything, so /nba/projections, its dated pages and the game pages
+ * render exactly as they did without it: no heading, no legend, no line, price or book (prop-line-switch-off.test.mjs).
  *
  * SOURCE: the published comparison artifact (`gtp.nba.line-comparisons@1`), read at build time by nbaPublicLineRecords
  * (lib/sports/nba/public-line-records.mjs) — a build input OUTSIDE app/public (data/odds-display/nba/lines/<date>.json or
  * GTP_NBA_LINES_DIR), rendered into this HTML and never served as a file. The reader returns null unless the display
- * authorization record (lib/odds/display-authorization.mjs) authorizes the "site" surface AND an artifact exists for the
- * lane's date; then the section says "Sportsbook lines: Unavailable" rather than inventing a line. A caller (a test) may
- * still hand `priceRecords` in directly; omitted or null means "read the published artifact".
+ * authorization record (lib/odds/display-authorization.mjs) authorizes the "site" surface, the display key is present
+ * AND an artifact (encrypted under that key) exists for the lane's date.
+ * NO ARTIFACT → NOTHING: with the switch on but no readable artifact (no key — every CI build —, another key, or a
+ * historical date that never had one) this component returns null, so the page is byte-identical to the switch-off
+ * render (prop-line-surfaces-switch-off.test.mjs). The "Sportsbook lines: Unavailable" state is kept for an artifact that
+ * EXISTS but has no usable line for these projections. A caller (a test) may still hand `priceRecords` in directly;
+ * omitted or null means "read the published artifact".
  *
  * DIRECTION: OVER / UNDER / NEUTRAL only for a family the display authorization record direction-qualifies
- * (publicDirectionGate("nba")); every other comparable row is "Comparison not shown". All families unqualified today.
+ * (publicDirectionGate("nba")); every other comparable row is "Comparison not shown". Qualified (founder 2026-10-29):
+ * pts, reb, ast, pra, ptsReb, ptsAst; threePm is not.
  */
 import React from "react";
 import PropLineComparison, { PropLineSummary, type PropLineViewModel } from "@/components/odds/prop-line-comparison";
@@ -58,12 +63,13 @@ export default function NbaPropLines({ lane, eventId = null, priceRecords = null
   const at = asOf || new Date().toISOString();
   if (!snap || (eventId != null && !snap.games.some((g) => String(g.providerEventId) === String(eventId)))) return null;
   const published = priceRecords ?? (snap.date ? nbaPublicLineRecords(snap.date) : null);
-  // No published source → view null: the section says the lines are unavailable (provider / source state), never a row.
-  const { inputs, withoutLine, projections } = published ? nbaPropLineInputs({ lane: snap, priceRecords: published, asOf: at, eventId }) : { inputs: [], withoutLine: 0, projections: 0 };
-  const view = published ? (buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER, { projections, directions }) as PropLineViewModel) : null;
+  // No published source (no artifact for this date, no key, another key) → NOTHING: byte-identical to the switch-off page.
+  if (!published) return null;
+  const { inputs, withoutLine, projections } = nbaPropLineInputs({ lane: snap, priceRecords: published, asOf: at, eventId });
+  const view = buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER, { projections, directions }) as PropLineViewModel;
   // Lines read from the published artifact carry the authorization's attribution (optional) and the book-availability note.
-  const attribution = priceRecords == null && published ? displayAuthorization("nba", "site").attribution : null;
-  const notes = priceRecords == null && published ? [...(attribution ? [attribution] : []), BOOK_AVAILABILITY_NOTE] : undefined;
+  const attribution = priceRecords == null ? displayAuthorization("nba", "site").attribution : null;
+  const notes = priceRecords == null ? [...(attribution ? [attribution] : []), BOOK_AVAILABILITY_NOTE] : undefined;
   return <PropLineComparison view={view} display={display} id={id} withoutLine={withoutLine} notes={notes} heading="Model vs. sportsbook line · NBA player props" />;
 }
 

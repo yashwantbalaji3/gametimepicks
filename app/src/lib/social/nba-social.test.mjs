@@ -7,6 +7,8 @@ import path from "node:path";
 
 import { buildNbaSocialDay, nbaSocialSlateState, nbaSocialToday, NBA_SOCIAL_SCHEMA, NBA_SOCIAL_SLATE_STATES, NBA_SOCIAL_TODAY_STATUSES, PLAYER_FAMILIES } from "./nba-social.mjs";
 import { eloWinProbabilityOf } from "../sports/nba/elo-win-probability.mjs";
+import { NBA_LINE_DISPLAY } from "../sports/nba/line-board.mjs";
+import { NOT_AUTHORIZED_REASON, displayAuthorization } from "../odds/display-authorization.mjs";
 
 const DIR = path.join(process.cwd(), "public/data/nba/experimental-public");
 const lane = JSON.parse(fs.readFileSync(path.join(DIR, "2026-10-27.json"), "utf8"));
@@ -103,12 +105,15 @@ test("today: the build's ET date and the /nba hub's own state, mapped one-to-one
   assert.deepEqual([...NBA_SOCIAL_TODAY_STATUSES], ["PUBLISHED", "NOT_YET_PUBLISHED", "NO_GAMES", "DISABLED"]);
 });
 
-test("line comparisons: PRIVATE by default — the feed carries no line, price, book or difference", () => {
+test("line comparisons: the committed record authorizes the SITE only (2026-10-29) — the social feed stays PRIVATE and carries no line, price, book or difference", () => {
+  assert.deepEqual([NBA_LINE_DISPLAY.public, NBA_LINE_DISPLAY.social, NBA_LINE_DISPLAY.socialPrices], [true, false, false], "site on, social off");
+  assert.equal(displayAuthorization("nba", "social").ok, false);
   const d = buildNbaSocialDay({ lane, buildEtDate: "2026-10-27" });
   assert.equal(d.lineComparisons.displayPermission, "PRIVATE");
   const lc = d.events[0].players[0].lineComparison;
   assert.deepEqual(Object.keys(lc).sort(), PLAYER_FAMILIES.map((f) => f.key).sort());
-  for (const v of Object.values(lc)) assert.deepEqual([v.status, v.displayPermission], ["NOT_AUTHORIZED", "PRIVATE"]);
+  for (const v of Object.values(lc)) assert.deepEqual([v.status, v.displayPermission, v.reason], ["NOT_AUTHORIZED", "PRIVATE", NOT_AUTHORIZED_REASON.nba]);
+  assert.match(NOT_AUTHORIZED_REASON.nba, /website only; the social feed and social graphics are not authorized/);
   assert.doesNotMatch(JSON.stringify(d), /"overPrice"|"underPrice"|"difference"|"book":/, "nothing priced leaks while private");
   assert.match(d.events[0].snapshotId, /^[0-9a-f]{16}@/);
 });

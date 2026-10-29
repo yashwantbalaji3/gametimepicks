@@ -65,7 +65,8 @@ test("denominator is published player × family rows with a median; every predic
   assert.equal(sum, o.predictions);
   for (const p of Object.values(o.withheld)) assert.equal(p.of, 27);
   assert.equal(o.compatibleCaptured.count, 5);
-  assert.equal(o.displayEligible.count, 0, "display is not authorized by the committed record");
+  assert.equal(o.displayEligible.count, 1, "the committed record authorizes site display (2026-10-29): every compared prediction is eligible");
+  assert.equal(buildNbaLineCoverage({ lane: LANE, captures: captures(), asOf: AS_OF, authorization: { nba: { ...AUTHORIZED.nba, siteDisplay: false } } }).overall.displayEligible.count, 0, "site display off → none eligible");
   assert.equal(r.withheldDetail["MISSING_QUOTE:GAME_NOT_CAPTURED"], 6);
   assert.equal(r.withheldDetail["STALE_OR_AFTER_TIP:CAPTURED_AFTER_TIP"], 1);
   assert.equal(r.withheldDetail["STALE_OR_AFTER_TIP:STALE"], 1);

@@ -1,6 +1,6 @@
 /**
  * NFL line publication (gtp.nfl.prop-lines@1): the exporter's rules, its refusals, the encrypted round trip into the
- * build-time reader, and the CLI's committed-state refusal. SYNTHETIC ONLY: the fake 2099 fixture game
+ * build-time reader, and the CLI's refusal without the display key (the committed record authorizes the site, 2026-10-29). SYNTHETIC ONLY: the fake 2099 fixture game
  * (__fixtures__/nfl-prop-line-synthetic.mjs), a fixture receipt, an injected authorization record and a throwaway key
  * generated here; every file goes to a temp dir — never app/public, never data/odds-display.
  * Run: npx tsx --test src/lib/sports/nfl/line-publication.test.mjs
@@ -16,6 +16,7 @@ import { buildNflLinePublication, nflReceiptAllowsDisplay } from "./line-publica
 import { nflPublicLineRecords, nflLinesAad, validateNflLineArtifact, NFL_LINES_SCHEMA } from "./public-line-records.mjs";
 import { NFL_PROP_LINE_ADAPTER, nflPropLineInputs } from "./prop-line-adapter.mjs";
 import { buildPropLineViews } from "../../odds/prop-line-view.mjs";
+import { publicDirectionGate } from "../../odds/display-authorization.mjs";
 import { encryptDisplayArtifact, ODDS_DISPLAY_KEY_ENV } from "../../odds/display-crypto.mjs";
 import { FX_BOARD, FX_OFFERS, FX_AS_OF, FX_EVENT, FX_KICKOFF } from "./__fixtures__/nfl-prop-line-synthetic.mjs";
 
@@ -36,12 +37,14 @@ const PRE = FX_OFFERS.filter((o) => Date.parse(o.capturedAt) < Date.parse(FX_KIC
 const BOARD = { board: FX_BOARD, path: `app/public/data/nfl/player-board/${FX_EVENT}.json`, sha256: "a".repeat(64) };
 const pub = (o = {}) => buildNflLinePublication({ boards: [BOARD], captureFiles: [{ name: "S1/capture-1.json", sha256: "b".repeat(64), offers: PRE }], asOf: FX_AS_OF, receiptText: RECEIPT, receiptRel: "docs/receipts/FIXTURE.md", authorization: AUTH, ...o });
 
-test("refuses while NFL site display is not authorized (the committed record) — before anything else", () => {
-  for (const authorization of [undefined, { nfl: { ...AUTH.nfl, siteDisplay: false } }, { nfl: { ...AUTH.nfl, approvedAt: null } }, { nba: AUTH.nfl }]) {
-    const r = buildNflLinePublication({ boards: [BOARD], captureFiles: [], asOf: FX_AS_OF, receiptText: RECEIPT, receiptRel: "x", ...(authorization ? { authorization } : {}) });
+test("refuses while NFL site display is not authorized (switch off, a partial record, an NBA-only record) — before anything else; the committed record passes", () => {
+  for (const authorization of [{ nfl: { ...AUTH.nfl, siteDisplay: false } }, { nfl: { ...AUTH.nfl, approvedAt: null } }, { nba: AUTH.nfl }]) {
+    const r = buildNflLinePublication({ boards: [BOARD], captureFiles: [], asOf: FX_AS_OF, receiptText: RECEIPT, receiptRel: "x", authorization });
     assert.deepEqual([r.ok, r.code], [false, 2]);
     assert.match(r.reasons.join("; "), /display authorization/);
   }
+  const committed = pub({ authorization: undefined });
+  assert.equal(committed.ok, true, (committed.reasons ?? []).join("; "));
 });
 
 test("happy path: one chosen offer per (player, market) the page would compare or show as Yes; everything else only counted", () => {
@@ -106,28 +109,30 @@ test("nothing survives (stale only / ineligible only / no board) → refuses, no
   assert.equal(pub({ asOf: "not a time" }).code, 2);
 });
 
-test("encrypted round trip: exporter text → .json.enc → build-time reader → page view (directions withheld by the committed gate)", () => {
+test("encrypted round trip: exporter text → .json.enc → build-time reader (committed record) → page view (NFL directions withheld by the committed gate)", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-nfl-pub-"));
   const key = crypto.randomBytes(32);
   const { text } = pub().artifacts[0];
   fs.writeFileSync(path.join(dir, `${FX_EVENT}.json.enc`), encryptDisplayArtifact(text, key, nflLinesAad(FX_EVENT)));
   const env = { GTP_NFL_LINES_DIR: dir, [ODDS_DISPLAY_KEY_ENV]: key.toString("hex") };
-  assert.equal(nflPublicLineRecords(FX_EVENT, { env }), null, "committed record: off → null, nothing read");
-  const rows = nflPublicLineRecords(FX_EVENT, { env, authorization: AUTH });
-  assert.equal(rows.length, 5);
+  assert.equal(nflPublicLineRecords(FX_EVENT, { env, authorization: { nfl: { ...AUTH.nfl, siteDisplay: false } } }), null, "site off → null, nothing read");
+  assert.equal(nflPublicLineRecords(FX_EVENT, { env: { GTP_NFL_LINES_DIR: dir } }), null, "committed record, no key → null");
+  const rows = nflPublicLineRecords(FX_EVENT, { env });
+  assert.equal(rows.length, 5, "committed record (site authorized 2026-10-29) + key → rows");
   const built = nflPropLineInputs({ board: FX_BOARD, offers: rows, asOf: FX_AS_OF, families: ["receptions", "reception_yds", "anytime_td"] });
-  const view = buildPropLineViews(built.inputs, NFL_PROP_LINE_ADAPTER, { projections: built.projections });
+  const view = buildPropLineViews(built.inputs, NFL_PROP_LINE_ADAPTER, { projections: built.projections, directions: publicDirectionGate("nfl") });
   assert.deepEqual([view.counts.compared, view.counts.directionWithheld, view.counts.yesNo], [0, 3, 2]);
   fs.rmSync(dir, { recursive: true, force: true });
 });
 
 const CLI = path.join(process.cwd(), "scripts/nfl/publish-nfl-line-board.mjs");
-test("CLI: refuses (exit 2) with the committed record — writes nothing, prints nothing on stdout", () => {
+test("CLI: with the committed record (site authorized) but no display key, refuses (exit 2) — writes nothing, prints nothing on stdout", () => {
   const priv = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-nfl-publish-cli-"));
   const out = path.join(priv, "lines");
-  const r = spawnSync("npx", ["tsx", CLI, "--as-of", FX_AS_OF, "--receipt", "docs/receipts/FIXTURE.md", "--private-dir", priv, "--out", out], { cwd: process.cwd(), encoding: "utf8", env: { ...process.env, [ODDS_DISPLAY_KEY_ENV]: crypto.randomBytes(32).toString("hex") } });
+  const r = spawnSync("npx", ["tsx", CLI, "--as-of", FX_AS_OF, "--receipt", "docs/receipts/FIXTURE.md", "--private-dir", priv, "--out", out], { cwd: process.cwd(), encoding: "utf8", env: { ...process.env, [ODDS_DISPLAY_KEY_ENV]: "" } });
   assert.equal(r.status, 2, r.stderr);
-  assert.match(r.stderr, /REFUSED: NFL lines are not authorized for site display — nothing is written/);
+  assert.doesNotMatch(r.stderr, /not authorized for site display/, "the committed record authorizes the site surface");
+  assert.match(r.stderr, /REFUSED: GTP_ODDS_DISPLAY_KEY is not set/);
   assert.equal(r.stdout.trim(), "");
   assert.ok(!fs.existsSync(out));
   fs.rmSync(priv, { recursive: true, force: true });

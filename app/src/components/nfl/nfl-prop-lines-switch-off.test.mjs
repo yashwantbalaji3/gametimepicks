@@ -1,13 +1,14 @@
 /**
- * NFL model-vs-line display, SWITCH OFF (the committed state; founder P0 2026-10-29):
- *   1. NFL_LINE_DISPLAY.public is false and NflPropLines renders "" and reads nothing (the board loader is never called,
- *      the build-time reader is never reached) — so the NFL game page is byte-identical with or without the section;
- *   2. the page hook withNflPropLines returns the page's own node UNCHANGED while off (no extra slot: an always-present
- *      null element would shift React useId values of later siblings — measured: the sampled-games tab ids moved R3c→R3d),
- *      and the real NFL game page renders with no line / price / OVER / UNDER markup. (Evidence 2026-10-29: all 14 week-8
- *      game pages + 4 archived ones rendered byte-identical to the base commit.);
- *   3. switched on (test-only), the section lists PUBLISHED families only — never passing / rushing yards — and anytime
- *      touchdown only as a yes/no price row;
+ * NFL model-vs-line display, SWITCH OFF and NO ARTIFACT (founder P0 2026-10-29; site display authorized 2026-10-29):
+ *   1. committed state: NFL_LINE_DISPLAY.public is true (site), social false. With the switch off NflPropLines renders ""
+ *      and reads nothing (the board loader is never called, the build-time reader is never reached);
+ *   2. the page hook withNflPropLines returns the page's own node UNCHANGED while off AND while on without a readable
+ *      artifact (no key — every CI build —, another key, no file for the game): no extra slot — an always-present null
+ *      element would shift React useId values of later siblings (measured: the sampled-games tab ids moved R3c→R3d) — so
+ *      the real NFL game page renders byte-identically to the switch-off render, with no line / price / OVER / UNDER
+ *      markup. (Evidence 2026-10-29: all 14 week-8 game pages + 4 archived ones rendered byte-identical to the base commit.);
+ *   3. switched on with offers, the section lists PUBLISHED families only — never passing / rushing yards — and anytime
+ *      touchdown only as a yes/no price row (the encrypted-artifact path: components/odds/prop-line-authorized-render.test.mjs);
  *   4. no NFL line module is reachable from a client bundle root.
  * Run: npx tsx --test src/components/nfl/nfl-prop-lines-switch-off.test.mjs
  */
@@ -28,22 +29,26 @@ const SRC = path.join(APP, "src");
 const { default: NflPropLines, publishedNflFamilies, withNflPropLines } = await import("./nfl-prop-lines.tsx");
 const r = (props) => renderToStaticMarkup(React.createElement(NflPropLines, props)).replace(/<!-- -->/g, "");
 
-test("the NFL switch is off in this commit", () => {
-  assert.deepEqual([NFL_LINE_DISPLAY.public, NFL_LINE_DISPLAY.social, NFL_LINE_DISPLAY.socialPrices], [false, false, false]);
+test("committed state: the NFL site switch is on, social off (founder 2026-10-29)", () => {
+  assert.deepEqual([NFL_LINE_DISPLAY.public, NFL_LINE_DISPLAY.social, NFL_LINE_DISPLAY.socialPrices], [true, false, false]);
 });
+const OFF = { public: false };
 
 test("off: renders nothing and reads nothing, with or without offers", () => {
   let called = 0;
   const lazy = () => { called++; return FX_BOARD; };
-  assert.equal(r({ board: lazy, offers: FX_OFFERS, asOf: FX_AS_OF }), "");
-  assert.equal(r({ board: lazy }), "");
-  assert.equal(called, 0, "the default display (the derived switch) is off: the board is never loaded");
+  assert.equal(r({ board: lazy, offers: FX_OFFERS, asOf: FX_AS_OF, display: OFF }), "");
+  assert.equal(r({ board: lazy, display: OFF }), "");
+  assert.equal(called, 0, "switch off: the board is never loaded");
+  // committed switch (on), no readable artifact (no key) → nothing either
+  assert.equal(r({ board: lazy, asOf: FX_AS_OF }), "");
+  assert.equal(called, 1);
   const src = fs.readFileSync(path.join(SRC, "components/nfl/nfl-prop-lines.tsx"), "utf8");
   assert.match(src, /\}\) \{\n  if \(!display\.public\) return null;\n  const b =/, "the gate is the first statement");
   assert.ok(src.indexOf("if (!display.public) return null;") < src.indexOf("nflPublicLineRecords(b.providerEventId)") && src.includes("nflPublicLineRecords(b.providerEventId)"));
 });
 
-test("on (test only): PUBLISHED families only; anytime TD is a yes/no row; passing / rushing yards never listed", () => {
+test("on with offers: PUBLISHED families only; anytime TD is a yes/no row; passing / rushing yards never listed", () => {
   assert.deepEqual(publishedNflFamilies(FX_BOARD), ["receptions", "reception_yds", "anytime_td"]);
   // with the committed direction gate (no NFL family qualified): model and line, "Comparison not shown", no direction
   const pub = r({ board: FX_BOARD, offers: FX_OFFERS, asOf: FX_AS_OF, display: { public: true } });
@@ -59,21 +64,24 @@ test("on (test only): PUBLISHED families only; anytime TD is a yes/no row; passi
   assert.match(on, /data-prop-line-yes=""><span>Yes <\/span>\+150</);
   assert.equal((on.match(/data-prop-line-side="OVER"/g) ?? []).length, 1);
   assert.match(on, /yes\/no market: the sportsbook&#x27;s Yes price is shown for reference/);
-  // on without a source (the reader is null while the record is off) → "Unavailable", never a row
-  const none = r({ board: FX_BOARD, asOf: FX_AS_OF, display: { public: true } });
-  assert.match(none, /Sportsbook lines: Unavailable/);
+  // on without an artifact (the reader is null: no key) → NOTHING, never an "Unavailable" block
+  assert.equal(r({ board: FX_BOARD, asOf: FX_AS_OF, display: { public: true } }), "");
+  // an artifact that exists but holds no usable line for this game → the no-lines state, never a row
+  const none = r({ board: FX_BOARD, offers: [], asOf: FX_AS_OF, display: { public: true } });
+  assert.match(none, /data-prop-line-section-state="NO_LINES"/);
   assert.doesNotMatch(none, /role="row"/);
 });
 
-test("the NFL game page: the hook returns the slot unchanged while off, and the rendered page carries no line markup", async () => {
+test("the NFL game page: the hook returns the slot unchanged while off or without an artifact, and the rendered page carries no line markup", async () => {
   const page = fs.readFileSync(path.join(SRC, "app/nfl/game/[eventId]/page.tsx"), "utf8");
   assert.match(page, /\{withNflPropLines\(view\?\.simulation \? \(\n        <section id="players"/, "wired once, around the players slot");
   assert.match(page, /\) : null, playerBoard\)\}/);
   assert.doesNotMatch(page, /<NflPropLines/, "never an always-present element on the page");
   const node = React.createElement("section", { id: "players" });
-  assert.equal(withNflPropLines(node, FX_BOARD), node, "off: the very same node, so the element tree is unchanged");
+  assert.equal(withNflPropLines(node, FX_BOARD, OFF), node, "off: the very same node, so the element tree is unchanged");
+  assert.equal(withNflPropLines(null, FX_BOARD, OFF), null);
+  assert.equal(withNflPropLines(node, FX_BOARD), node, "committed switch, no artifact (no key): the very same node");
   assert.equal(withNflPropLines(null, FX_BOARD), null);
-  assert.notEqual(withNflPropLines(node, FX_BOARD, { public: true }), node);
   const { default: Page } = await import("../../app/nfl/game/[eventId]/page.tsx");
   const forecasts = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/forecasts/latest.json"), "utf8")).forecasts ?? [];
   const ev = forecasts.map((f) => f.providerEventId).find((id) => fs.existsSync(path.join(APP, "public/data/nfl/player-board", `${id}.json`)));
@@ -82,9 +90,9 @@ test("the NFL game page: the hook returns the slot unchanged while off, and the 
   assert.ok(html.length > 20_000, "the page rendered");
   assert.doesNotMatch(html, /data-prop-line|nfl-prop-lines|sportsbook line|Not an over\/under market|Official projection not published/);
   const board = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/player-board", `${ev}.json`), "utf8"));
-  assert.equal(renderToStaticMarkup(React.createElement(NflPropLines, { board })), "", "the wired call, as the page makes it, renders zero bytes");
-  // and switched on, the same board DOES produce the section (non-vacuous)
-  assert.match(renderToStaticMarkup(React.createElement(NflPropLines, { board, display: { public: true } })), /data-prop-lines="none"|Sportsbook lines: Unavailable/);
+  assert.equal(renderToStaticMarkup(React.createElement(NflPropLines, { board })), "", "the wired call, as the page makes it (no artifact), renders zero bytes");
+  // with offers, the same board DOES produce the section (non-vacuous: the missing artifact, not the board, hides it)
+  assert.match(renderToStaticMarkup(React.createElement(NflPropLines, { board, offers: [] })), /data-prop-lines="nfl"/);
 });
 
 // ── client bundle graph (the NBA walker's rule, for the NFL modules) ─────────────────────────────────────────────────

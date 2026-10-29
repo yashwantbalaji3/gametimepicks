@@ -7,8 +7,9 @@
  * nothing and the map is `undefined`, so the listing components get no prop and their markup is byte-identical
  * (prop-line-surfaces-switch-off.test.mjs). With the switch on, a game shows its OVER / UNDER / NEUTRAL counts and
  * "N of M projections have a qualified sportsbook line" only when at least one of its lines is compared — and a line is
- * "compared" publicly only for a direction-qualified family (publicDirectionGate("nba"); none today), so with the
- * committed record a summary never appears even when the switch is on.
+ * "compared" publicly only for a direction-qualified family (publicDirectionGate("nba"): pts, reb, ast, pra, ptsReb,
+ * ptsAst since 2026-10-29). With no readable artifact for the date (no key, another key, a historical date) nothing is
+ * shown and the map is `undefined`, exactly as with the switch off.
  *
  * Kept apart from nba-prop-lines.tsx so a listing page's own imports name only this summary module.
  */

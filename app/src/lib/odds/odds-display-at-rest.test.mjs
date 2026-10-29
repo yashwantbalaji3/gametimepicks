@@ -6,8 +6,9 @@
  *      a temp file, a stray .json fails CI;
  *   2. every `.json.enc` there is a well-formed `gtp.odds-display.enc@1` envelope whose authenticated identity matches its
  *      own path (<sport>/lines/<key>), carrying no plaintext field;
- *   3. while a sport's "site" surface is not authorized, its lines directory is empty (NBA has its own copy of this guard:
- *      line-publication-guard.test.mjs);
+ *   3. a sport's lines directory is empty while its "site" surface is not authorized; once authorized (NBA and NFL since
+ *      2026-10-29) every file there must be a valid envelope named `<event id>.json.enc` and bound to that path (NBA has
+ *      its own copy of this guard: line-publication-guard.test.mjs);
  *   4. both exporters write only through encryptDisplayArtifact, to `<key>.json.enc`, with the key from the environment.
  * The exported-site check (no decrypted artifact or price in the static export) is the post-build guard
  * odds-display-export.test.mjs.
@@ -42,8 +43,19 @@ test("every stored artifact is a well-formed encrypted envelope bound to its own
   }
 });
 
-test("no NFL line artifact is stored while NFL site display is not authorized", { skip: displayAuthorization("nfl", "site").ok && "authorized: see the validation test" }, () => {
-  assert.deepEqual(filesIn(path.join(REPO, NFL_LINES_REPO_DIR)), [], `${NFL_LINES_REPO_DIR}/ must be empty until the display authorization record authorizes nfl "site"`);
+test("NFL lines folder: empty while NFL site display is not authorized; once authorized, every stored file is a valid envelope for its own game", () => {
+  const dir = path.join(REPO, NFL_LINES_REPO_DIR);
+  if (!displayAuthorization("nfl", "site").ok) {
+    assert.deepEqual(filesIn(dir), [], `${NFL_LINES_REPO_DIR}/ must be empty until the display authorization record authorizes nfl "site"`);
+    return;
+  }
+  for (const f of filesIn(dir)) {
+    assert.match(f, /^\d{6,12}\.json\.enc$/, `${f}: only <event id>${ODDS_DISPLAY_ENC_EXT} files, flat`);
+    const e = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+    assert.deepEqual(Object.keys(e), ["format", "alg", "kid", "aad", "iv", "tag", "ct"], f);
+    assert.deepEqual([e.format, e.alg, e.aad], [ODDS_DISPLAY_ENC_FORMAT, "AES-256-GCM", nflLinesAad(path.basename(f, ODDS_DISPLAY_ENC_EXT))], `${f}: envelope bound to its game`);
+    assert.match(e.kid, /^[0-9a-f]{16}$/, f);
+  }
 });
 
 test("when NFL is authorized and the key is present, every stored NFL artifact decrypts and validates", { skip: !(displayAuthorization("nfl", "site").ok && readDisplayKey().ok) && "not authorized, or no key in this environment" }, () => {

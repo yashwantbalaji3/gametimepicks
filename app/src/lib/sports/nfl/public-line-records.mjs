@@ -3,7 +3,7 @@
  * lib/sports/nba/public-line-records.mjs).
  *
  * Returns null — and reads NOTHING — unless the "site" surface is authorized for "nfl" in the display authorization
- * record (lib/odds/display-authorization.mjs; all OFF in this commit) AND the display key GTP_ODDS_DISPLAY_KEY is in
+ * record (lib/odds/display-authorization.mjs; site authorized 2026-10-29) AND the display key GTP_ODDS_DISPLAY_KEY is in
  * the environment. With both, it reads and decrypts `<eventId>.json.enc` (AES-256-GCM, lib/odds/display-crypto.mjs —
  * plaintext is never committed; written by scripts/nfl/publish-nfl-line-board.mjs) holding `gtp.nfl.prop-lines@1`:
  * { schema, sport: "nfl", eventId, kickoffUtc?, rows: [offer rows as prop-line-adapter.mjs nflOffersFromCapture emits
@@ -11,7 +11,7 @@
  *   GTP_NFL_LINES_DIR   when set: an absolute, private build-time directory (never inside app/public or out/);
  *   otherwise           <repo>/data/odds-display/nfl/lines/ — a build input OUTSIDE app/public, so the static export never
  *                       serves it as a downloadable file (provider terms: display yes, redistribution no).
- * A missing file, or one encrypted under another key → null (the section says "Sportsbook lines: Unavailable"). A
+ * A missing file, or one encrypted under another key → null (the section renders nothing: the page is byte-identical to switch-off). A
  * tampered file THROWS. A PRESENT file that fails validation (wrong
  * schema or event, an ineligible book, an unknown market, a row for another event) THROWS — a release error, never a
  * silently dropped row.

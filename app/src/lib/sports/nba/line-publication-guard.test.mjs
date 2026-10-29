@@ -2,7 +2,8 @@
  * NBA line publication GUARDS (source level, no build): prices may not be committed before the founder's display decision,
  * and never as a file the static export would serve (provider terms: display yes, redistribution as downloadable files no).
  *   1. while the "site" surface is not authorized, NO file exists under <repo>/data/odds-display/nba/lines/ — CI fails if
- *      someone commits prices before rights are confirmed;
+ *      someone commits prices before rights are confirmed; once authorized (2026-10-29) every file there must be a valid
+ *      envelope named `<YYYY-MM-DD>.json.enc` and bound to that date;
  *   2. no file ever exists under app/public/data/nba/lines/ (authorized or not);
  *   3. when authorized and the display key is present, every committed (encrypted) artifact decrypts and validates
  *      against its committed lane (the reader would throw); plaintext is never stored (odds-display-at-rest.test.mjs);
@@ -17,7 +18,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { displayAuthorization } from "../../odds/display-authorization.mjs";
 import { NBA_LINES_REPO_DIR, validateNbaLinePublication } from "./line-publication.mjs";
-import { decryptDisplayArtifact, ODDS_DISPLAY_ENC_EXT, readDisplayKey } from "../../odds/display-crypto.mjs";
+import { decryptDisplayArtifact, ODDS_DISPLAY_ENC_EXT, ODDS_DISPLAY_ENC_FORMAT, readDisplayKey } from "../../odds/display-crypto.mjs";
 import { nbaLinesAad } from "./public-line-records.mjs";
 
 const APP = process.cwd();
@@ -25,8 +26,18 @@ const REPO = path.resolve(APP, "..");
 const LINES = path.join(REPO, NBA_LINES_REPO_DIR);
 const filesIn = (d) => (fs.existsSync(d) ? fs.readdirSync(d, { recursive: true }).filter((f) => fs.statSync(path.join(d, f)).isFile()) : []);
 
-test("no NBA line artifact is committed while site display is not authorized", { skip: displayAuthorization("nba", "site").ok && "authorized: see the validation test" }, () => {
-  assert.deepEqual(filesIn(LINES), [], `${NBA_LINES_REPO_DIR}/ must be empty until the display authorization record authorizes the site surface`);
+test("NBA lines folder: empty while site display is not authorized; once authorized, every committed file is a valid envelope for its own date", () => {
+  if (!displayAuthorization("nba", "site").ok) {
+    assert.deepEqual(filesIn(LINES), [], `${NBA_LINES_REPO_DIR}/ must be empty until the display authorization record authorizes the site surface`);
+    return;
+  }
+  for (const f of filesIn(LINES).map(String)) {
+    assert.match(f, /^\d{4}-\d{2}-\d{2}\.json\.enc$/, `${f}: only <date>${ODDS_DISPLAY_ENC_EXT} files, flat`);
+    const e = JSON.parse(fs.readFileSync(path.join(LINES, f), "utf8"));
+    assert.deepEqual(Object.keys(e), ["format", "alg", "kid", "aad", "iv", "tag", "ct"], f);
+    assert.deepEqual([e.format, e.alg, e.aad], [ODDS_DISPLAY_ENC_FORMAT, "AES-256-GCM", nbaLinesAad(path.basename(f, ODDS_DISPLAY_ENC_EXT))], `${f}: envelope bound to its date`);
+    assert.match(e.kid, /^[0-9a-f]{16}$/, f);
+  }
 });
 
 test("no NBA line file is ever placed under app/public (the export would serve it as a downloadable file)", () => {

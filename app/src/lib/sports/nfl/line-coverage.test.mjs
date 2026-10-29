@@ -31,12 +31,16 @@ test("true denominators per market; withheld families counted, never compared; a
   assert.equal(g.markets.player_reception_yds.perBook.bovada.eligible, false);
 });
 
-test("credits from the captures and the ledger; display-eligible 0 while unauthorized; remediation per gap", () => {
+test("credits from the captures and the ledger; display-eligible follows the site switch (committed: on, 2026-10-29); remediation per gap", () => {
   assert.deepEqual([r.totals.creditsThisWeek, r.totals.creditsCumulativeLedger, r.perGame[0].credits], [8, 999, 5]);
-  assert.equal(r.totals.displayEligible, 0);
-  assert.equal(r.displayAuthorized, false);
-  assert.ok(r.perGame[0].markets.player_receptions.remediation.some((x) => /Display authorization for NFL is off/.test(x)));
+  assert.equal(r.displayAuthorized, true, "the committed record authorizes NFL site display");
+  assert.equal(r.totals.displayEligible, 3, "over/under comparisons only — never anytime TD");
+  assert.ok(!r.perGame[0].markets.player_receptions.remediation.some((x) => /Display authorization for NFL is off/.test(x)));
   const auth = { nfl: { siteDisplay: true, socialDisplay: false, providerTermsRef: "x.md", attribution: null, approvedBy: "f", approvedAt: "2099-01-01", socialFeedPrices: false, socialFeedPricesConfirmationRef: null } };
+  const off = buildNflLineCoverage({ boards: [FX_BOARD], captures: [{ file: "s/capture-1.json", doc }], ledger, asOf: FX_AS_OF, authorization: { nfl: { ...auth.nfl, siteDisplay: false } } });
+  assert.equal(off.totals.displayEligible, 0);
+  assert.equal(off.displayAuthorized, false);
+  assert.ok(off.perGame[0].markets.player_receptions.remediation.some((x) => /Display authorization for NFL is off/.test(x)));
   const on = buildNflLineCoverage({ boards: [FX_BOARD], captures: [{ file: "s/capture-1.json", doc }], ledger, asOf: FX_AS_OF, authorization: auth });
   assert.equal(on.totals.displayEligible, 3, "over/under comparisons only — never anytime TD");
 });

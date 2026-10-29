@@ -124,26 +124,28 @@ test("capture rows flatten field by field (the capture's own joined ids; book ke
 
 const FULL = { siteDisplay: true, socialDisplay: true, providerTermsRef: "docs/legal/FIXTURE_TERMS.md", attribution: null, approvedBy: "fixture-founder", approvedAt: "2099-01-01", socialFeedPrices: false, socialFeedPricesConfirmationRef: null };
 
-test("NFL display authorization: all OFF in this commit, same fields as NBA; NFL_LINE_DISPLAY is derived from the record", () => {
+test("NFL display authorization: site ON, social OFF (founder 2026-10-29), same fields as NBA; NFL_LINE_DISPLAY is derived from the record", () => {
   assert.deepEqual(Object.keys(DISPLAY_AUTHORIZATION.nfl).sort(), Object.keys(DISPLAY_AUTHORIZATION.nba).sort());
   const { directionQualified, ...switches } = DISPLAY_AUTHORIZATION.nfl;
-  assert.ok(Object.values(switches).every((v) => v === false || v === null));
+  assert.deepEqual(switches, { siteDisplay: true, socialDisplay: false, providerTermsRef: "docs/odds/ODDS_API_DISPLAY_TERMS_2026-10-29.md", attribution: null, approvedBy: "founder", approvedAt: "2026-10-29", socialFeedPrices: false, socialFeedPricesConfirmationRef: null });
   assert.ok(Object.values(directionQualified).every((q) => q.qualified === false), "no NFL family is direction-qualified");
-  assert.deepEqual({ ...NFL_LINE_DISPLAY }, { public: false, social: false, socialPrices: false, reason: NOT_AUTHORIZED_REASON.nfl });
+  assert.deepEqual({ ...NFL_LINE_DISPLAY }, { public: true, social: false, socialPrices: false, reason: NOT_AUTHORIZED_REASON.nfl });
   assert.deepEqual({ ...nflLineDisplayFrom({ nfl: FULL }) }, { public: true, social: true, socialPrices: false, reason: null });
   assert.equal(nflLineDisplayFrom({ nba: FULL }).public, false, "an NBA approval never carries over to NFL");
   const src = fs.readFileSync(new URL("./line-display.mjs", import.meta.url), "utf8");
   assert.doesNotMatch(src, /public:\s*(true|false)|social:\s*(true|false)/, "no literal switch");
 });
 
-test("build-time reader: null while unauthorized (reads nothing); authorized → validated rows from a private dir; invalid → throws", () => {
+test("build-time reader: null while unauthorized (reads nothing) or without the key; authorized (committed record) → validated rows from a private dir; invalid → throws", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "nfl-lines-"));
   const key = crypto.randomBytes(32); // throwaway test key, generated here, never written
   const env = { GTP_NFL_LINES_DIR: dir, [ODDS_DISPLAY_KEY_ENV]: key.toString("hex") };
   const seal = (a) => fs.writeFileSync(path.join(dir, `${FX_EVENT}.json.enc`), encryptDisplayArtifact(JSON.stringify(a), key, nflLinesAad(FX_EVENT)));
   const good = { schema: NFL_LINES_SCHEMA, sport: "nfl", eventId: FX_EVENT, rows: FX_OFFERS.filter((o) => o.canonicalEventId === `nfl-${FX_EVENT}` && o.book !== "bovada") };
   seal(good);
-  assert.equal(nflPublicLineRecords(FX_EVENT, { env }), null, "committed record: off");
+  assert.equal(nflPublicLineRecords(FX_EVENT, { env, authorization: { nfl: { ...FULL, siteDisplay: false } } }), null, "site off");
+  assert.equal(nflPublicLineRecords(FX_EVENT, { env }).length, good.rows.length, "committed record: site authorized (2026-10-29)");
+  assert.equal(nflPublicLineRecords(FX_EVENT, { env: { GTP_NFL_LINES_DIR: dir } }), null, "committed record, no key → null");
   assert.equal(nflPublicLineRecords(FX_EVENT, { env: { GTP_NFL_LINES_DIR: dir }, authorization: { nfl: FULL } }), null, "no key → null");
   assert.equal(nflPublicLineRecords(FX_EVENT, { env: { ...env, [ODDS_DISPLAY_KEY_ENV]: crypto.randomBytes(32).toString("hex") }, authorization: { nfl: FULL } }), null, "another key → null");
   fs.writeFileSync(path.join(dir, `${FX_EVENT}.json`), JSON.stringify(good));

@@ -170,8 +170,8 @@ export default function NbaResultsPage() {
           ONLY from recorded pre-tip snapshots (the published gtp.nba.line-comparisons@1 artifact for each past slate,
           frozen at tip — never a line captured after the start, never recomputed from today's lines) and rendered with the
           shared section (components/odds/prop-line-comparison.tsx) behind the same gate (NBA_LINE_DISPLAY.public via
-          lib/odds/display-authorization.mjs). No pre-tip snapshot has been recorded and display is not authorized, so
-          nothing renders here yet; adding an element now would change this page's output while the switch is off. */}
+          lib/odds/display-authorization.mjs). Site display is authorized (founder 2026-10-29) but no pre-tip snapshot
+          has been recorded, so nothing renders here yet; adding an element now would change this page's output. */}
 
       <NbaArchiveNotice />
 

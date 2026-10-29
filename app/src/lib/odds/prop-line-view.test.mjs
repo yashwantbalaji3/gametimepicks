@@ -196,10 +196,12 @@ test("quote time: Eastern Time, '—' for an unreadable instant", () => {
 /* ── direction gate (founder 2026-10-29): a captured line does not make a direction publishable ─────────────────────── */
 const SITE_ON = { siteDisplay: true, socialDisplay: false, providerTermsRef: "docs/legal/FIXTURE_TERMS.md", attribution: null, approvedBy: "fixture-founder", approvedAt: "2099-01-01", socialFeedPrices: false, socialFeedPricesConfirmationRef: null };
 const qualifiedFamily = (family) => ({ [family]: { qualified: true, evidence: "fixture evidence", approvedBy: "fixture-founder", approvedAt: "2099-01-02" } });
+// Every committed NBA family, each explicitly unqualified (a fixture: the committed record qualifies six of them since 2026-10-29).
+const ALL_UNQUALIFIED = Object.fromEntries(Object.keys(DISPLAY_AUTHORIZATION.nba.directionQualified).map((f) => [f, { qualified: false, evidence: "fixture: not qualified", approvedBy: null, approvedAt: null }]));
 
-test("fail closed: with no gate, the committed gate, or a site-authorized record whose family is unqualified, NO direction is shown", () => {
-  const unqualified = { nba: { ...SITE_ON, directionQualified: DISPLAY_AUTHORIZATION.nba.directionQualified } };
-  for (const [why, opts] of [["no gate", {}], ["withheld gate", { directions: DIRECTIONS_WITHHELD }], ["committed record", { directions: publicDirectionGate("nba") }], ["site authorized, family unqualified", { directions: publicDirectionGate("nba", "site", unqualified) }], ["site authorized, no qualification block", { directions: publicDirectionGate("nba", "site", { nba: SITE_ON }) }]]) {
+test("fail closed: with no gate, the committed social gate, or a site-authorized record whose family is unqualified, NO direction is shown", () => {
+  const unqualified = { nba: { ...SITE_ON, directionQualified: ALL_UNQUALIFIED } };
+  for (const [why, opts] of [["no gate", {}], ["withheld gate", { directions: DIRECTIONS_WITHHELD }], ["committed record, social surface", { directions: publicDirectionGate("nba", "social") }], ["site authorized, family unqualified", { directions: publicDirectionGate("nba", "site", unqualified) }], ["site authorized, no qualification block", { directions: publicDirectionGate("nba", "site", { nba: SITE_ON }) }]]) {
     for (const k of ["over", "under", "neutral", "tinyOver", "tinyUnder"]) {
       const r = buildPropLineView(S[k], NBA_PROP_LINE_ADAPTER, opts);
       assert.equal(r.state, PROP_LINE_STATE.DIRECTION_WITHHELD, `${why}: ${k}`);
@@ -214,7 +216,7 @@ test("fail closed: with no gate, the committed gate, or a site-authorized record
 });
 
 test("a QUALIFIED family on an authorized site shows its direction; other families stay withheld; non-comparable states are unchanged", () => {
-  const rec = { nba: { ...SITE_ON, directionQualified: { ...DISPLAY_AUTHORIZATION.nba.directionQualified, ...qualifiedFamily("pts") } } };
+  const rec = { nba: { ...SITE_ON, directionQualified: { ...ALL_UNQUALIFIED, ...qualifiedFamily("pts") } } };
   const gate = publicDirectionGate("nba", "site", rec);
   const over = buildPropLineView(S.over, NBA_PROP_LINE_ADAPTER, { directions: gate });
   assert.deepEqual([over.market.key, over.state, over.side, over.difference.text], ["pts", "COMPARED", "OVER", "+6.5"]);
@@ -224,6 +226,13 @@ test("a QUALIFIED family on an authorized site shows its direction; other famili
   // site OFF: qualification alone never shows a direction
   const off = publicDirectionGate("nba", "site", { nba: { ...rec.nba, siteDisplay: false } });
   assert.equal(buildPropLineView(S.over, NBA_PROP_LINE_ADAPTER, { directions: off }).state, "DIRECTION_WITHHELD");
+  // the committed site gate (founder 2026-10-29): pts / reb / ast qualified → their sides show; threePm stays withheld
+  const committed = publicDirectionGate("nba");
+  for (const [k, family, side] of [["over", "pts", "OVER"], ["under", "reb", "UNDER"], ["neutral", "ast", "NEUTRAL"]]) {
+    const r = buildPropLineView(S[k], NBA_PROP_LINE_ADAPTER, { directions: committed });
+    assert.deepEqual([r.market.key, r.state, r.side], [family, "COMPARED", side], k);
+  }
+  assert.equal(committed.shows("threePm"), false);
 });
 
 test("withheld rows count toward line coverage, never toward sides; the view records its direction scope", () => {

@@ -8,7 +8,7 @@
  *   GTP_NBA_LINES_DIR      when set: an absolute, private build-time directory (never inside out/ or app/public/);
  *   otherwise              <repo>/data/odds-display/nba/lines/ — a build input OUTSIDE app/public, so the static export
  *                          never serves it as a downloadable file (provider terms: display yes, redistribution no).
- * A missing file, or one encrypted under a different key → null (pages then say "Sportsbook lines: Unavailable"). A
+ * A missing file, or one encrypted under a different key → null (the section then renders nothing: the page is byte-identical to switch-off). A
  * tampered file (authentication fails under the right key) THROWS. A PRESENT file that fails validation (wrong
  * schema, the lane changed since publication, an ineligible book, a stale row…) THROWS: that is a release error, and the
  * guard test (nba-line-publication-guard.test.mjs) catches it in CI before any build.

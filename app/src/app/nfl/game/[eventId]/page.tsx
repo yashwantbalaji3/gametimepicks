@@ -573,9 +573,9 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
         </>
       ) : null}
       {/* Model vs. sportsbook line (founder P0 2026-10-29) — PUBLISHED families only, behind NFL_LINE_DISPLAY (derived from
-          the display authorization record). withNflPropLines returns this slot's node UNCHANGED while the switch is off — no
-          extra element, not even a null slot, so React's useId tree and the page bytes are identical — and appends the
-          section after the player projections when it is on. */}
+          the display authorization record). withNflPropLines returns this slot's node UNCHANGED while the switch is off or
+          no readable artifact exists for this game — no extra element, not even a null slot, so React's useId tree and the
+          page bytes are identical — and appends the section after the player projections otherwise. */}
       {withNflPropLines(view?.simulation ? (
         <section id="players" className="nf-section" aria-labelledby="nf-players-h">
           {/* Alias anchor: /live and saved links point at #player-board (the pre-2026-10-08 section id), which must keep

@@ -19,6 +19,7 @@ import { encryptDisplayArtifact, ODDS_DISPLAY_KEY_ENV, DisplayArtifactTamperedEr
 import { nbaPropLineInputs, NBA_PROP_LINE_ADAPTER } from "./prop-line-adapter.mjs";
 import { buildPropLineViews } from "../../odds/prop-line-view.mjs";
 import { buildNbaSocialDay } from "../../social/nba-social.mjs";
+import { publicDirectionGate } from "../../odds/display-authorization.mjs";
 
 const AUTH = { nba: { siteDisplay: true, socialDisplay: true, providerTermsRef: "docs/legal/FIXTURE_TERMS.md", attribution: null, approvedBy: "fixture-founder", approvedAt: "2099-01-01", socialFeedPrices: false, socialFeedPricesConfirmationRef: null } };
 const OFF = { nba: { ...AUTH.nba, siteDisplay: false, socialDisplay: false } };
@@ -49,14 +50,17 @@ const RECORDS = [
 ];
 const pub = (o = {}) => buildNbaLinePublication({ lane: LANE, laneSha256: LANE_SHA, priceRecords: RECORDS, asOf: FIXTURE_AS_OF, receiptText: RECEIPT, receiptRel: "docs/receipts/FIXTURE.md", authorization: AUTH, ...o });
 
-test("refuses while display is not authorized (the committed record) — before reading anything else", () => {
-  for (const authorization of [undefined, OFF, { nba: { ...AUTH.nba, approvedBy: null } }]) {
-    const r = buildNbaLinePublication({ lane: LANE, laneSha256: LANE_SHA, priceRecords: RECORDS, asOf: FIXTURE_AS_OF, receiptText: RECEIPT, receiptRel: "x", ...(authorization ? { authorization } : {}) });
+test("refuses while display is not authorized (switch off or a partial record) — before reading anything else; the committed record (site on, 2026-10-29) passes the display check", () => {
+  for (const authorization of [OFF, { nba: { ...AUTH.nba, approvedBy: null } }]) {
+    const r = buildNbaLinePublication({ lane: LANE, laneSha256: LANE_SHA, priceRecords: RECORDS, asOf: FIXTURE_AS_OF, receiptText: RECEIPT, receiptRel: "x", authorization });
     assert.equal(r.ok, false);
     assert.equal(r.code, 2);
     assert.match(r.reasons.join("; "), /display authorization/);
     assert.equal(r.text, undefined, "nothing to write");
   }
+  const committed = buildNbaLinePublication({ lane: LANE, laneSha256: LANE_SHA, priceRecords: RECORDS, asOf: FIXTURE_AS_OF, receiptText: RECEIPT, receiptRel: "x" });
+  assert.equal(committed.ok, true, (committed.reasons ?? []).join("; "));
+  assert.match(committed.text, /"providerTermsRef": "docs\/odds\/ODDS_API_DISPLAY_TERMS_2026-10-29\.md",\n  "attribution": null,\n  "approvedBy": "founder",\n  "approvedAt": "2026-10-29"/, "the artifact carries the committed provenance");
 });
 
 test("happy path: COMPARED rows only, projection verbatim, two-sided prices or explicit unavailable; the rest are counts", () => {
@@ -155,7 +159,8 @@ const NOENV = { [ODDS_DISPLAY_KEY_ENV]: KEY.toString("hex") }; // the key, and n
 
 test("reader: null when unauthorized EVEN IF a file exists; null when no file; records when authorized", () => {
   const t = tempApp();
-  assert.equal(nbaPublicLineRecords("2099-01-15", { appRoot: t.app, env: NOENV }), null, "committed record: off");
+  assert.equal(nbaPublicLineRecords("2099-01-15", { appRoot: t.app, env: NOENV }).length, 3, "committed record: site authorized (2026-10-29)");
+  assert.equal(nbaPublicLineRecords("2099-01-15", { appRoot: t.app, env: {} }), null, "committed record but no key → null");
   assert.equal(nbaPublicLineRecords("2099-01-15", { appRoot: t.app, env: {}, authorization: AUTH }), null, "authorized but no key → null");
   assert.equal(nbaPublicLineRecords("2099-01-15", { appRoot: t.app, env: { [ODDS_DISPLAY_KEY_ENV]: "not-hex" }, authorization: AUTH }), null, "malformed key → null");
   assert.equal(nbaPublicLineRecords("2099-01-15", { appRoot: t.app, env: { [ODDS_DISPLAY_KEY_ENV]: crypto.randomBytes(32).toString("hex") }, authorization: AUTH }), null, "another key → null");
@@ -170,8 +175,10 @@ test("reader: null when unauthorized EVEN IF a file exists; null when no file; r
   const view = buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER, { directions: { scope: "public", shows: () => true } }); // as if every family were qualified
   assert.deepEqual(view.rows.map((r) => r.side), ["OVER", "UNDER", "NEUTRAL"]);
   assert.deepEqual(view.counts, { compared: 3, stale: 0, afterCutoff: 0, mismatch: 0, unavailable: 0, unsupported: 0, suspended: 0, notPublished: 0, yesNo: 0, directionWithheld: 0 });
-  // the page's default gate (committed record: nothing qualified) withholds every direction from the same records
+  // the view's default gate (no gate passed: fail closed) withholds every direction from the same records
   assert.deepEqual(buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER).rows.map((r) => [r.state, r.side]), [["DIRECTION_WITHHELD", null], ["DIRECTION_WITHHELD", null], ["DIRECTION_WITHHELD", null]]);
+  // the page's gate (committed record: pts / reb / ast qualified 2026-10-29) shows the same sides
+  assert.deepEqual(buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER, { directions: publicDirectionGate("nba") }).rows.map((r) => r.side), ["OVER", "UNDER", "NEUTRAL"]);
   // a tampered ciphertext under the right key throws (a release error), and a plaintext file is never read
   const enc = path.join(t.lines, "2099-01-15.json.enc");
   const env = JSON.parse(fs.readFileSync(enc, "utf8"));
@@ -212,6 +219,7 @@ test("reader directory: default is <repo>/data/odds-display/nba/lines; GTP_NBA_L
 test("social: the SAME artifact feeds lineComparison; side/difference/line/capturedAt only — prices and book need socialPrices", () => {
   const t = tempApp();
   assert.equal(nbaSocialLineBoard("2099-01-15", { appRoot: t.app, env: NOENV, authorization: { nba: { ...AUTH.nba, socialDisplay: false } } }), null, "social is its own surface");
+  assert.equal(nbaSocialLineBoard("2099-01-15", { appRoot: t.app, env: NOENV }), null, "the committed record (site only, 2026-10-29): the feed never reads the artifact");
   const board = nbaSocialLineBoard("2099-01-15", { appRoot: t.app, env: NOENV, authorization: AUTH });
   assert.equal(board.rows.length, 3);
   // A test gate that qualifies every family; the committed (default) gate withholds every direction — asserted below.

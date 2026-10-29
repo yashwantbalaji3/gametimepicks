@@ -8,8 +8,8 @@
  * family: the most recent pre-tip capture across eligible books (chooseOffer), never an average. Coverage is counted so a
  * page or a graphic can say how many players actually have a line instead of implying every player does.
  *
- * DISPLAY: whether any of this may be shown publicly or exported is NOT decided here — see NBA_LINE_DISPLAY. Until the
- * founder confirms provider terms, the board is computed privately and every public surface shows the projection only.
+ * DISPLAY: whether any of this may be shown publicly or exported is NOT decided here — see NBA_LINE_DISPLAY (site display
+ * authorized by the founder 2026-10-29 after the provider-terms review; the social surface is not).
  */
 import { compareToLine, chooseOffer, DIRECTION, MARKET_KEYS, LINE_COMPARISON_RULE } from "./line-comparison.mjs";
 import { displayAuthorization, NOT_AUTHORIZED_REASON } from "../../odds/display-authorization.mjs";
@@ -30,7 +30,7 @@ export function nbaLineDisplayFrom(record) {
 }
 
 /**
- * THE DISPLAY SWITCH (founder decision D3 / NBA odds rights). Every surface and export reads it. Default: private.
+ * THE DISPLAY SWITCH (founder decision D3 / NBA odds rights). Every surface and export reads it. Committed (2026-10-29): site on, social off.
  * `public`  lines, prices, books and differences on site pages;  `social`  side, difference, line and capture time in the
  * social-data feed and graphics;  `socialPrices`  prices and book names in that feed as well.
  * DERIVED — never edited here: it is the committed display authorization record (lib/odds/display-authorization.mjs)

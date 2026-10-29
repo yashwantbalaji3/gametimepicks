@@ -1,5 +1,5 @@
-/* The NBA line publisher CLI refuses by default (display not authorized), writes nothing, and holds no network call or
-   credential. CI is Node 20: spawned through npx tsx (local Node 22 hides .ts imports). */
+/* The NBA line publisher CLI: with the committed record (site authorized 2026-10-29) it still refuses without the display
+   key and writes nothing; it holds no network call or credential. CI is Node 20: spawned through npx tsx (local Node 22 hides .ts imports). */
 import test from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
@@ -11,12 +11,13 @@ const APP = process.cwd();
 const CLI = path.join(APP, "scripts/nba/publish-nba-line-board.mjs");
 const LINES = path.join(APP, "..", "data/odds-display/nba/lines");
 
-test("refuses (exit 2) while the committed display authorization is off — and writes nothing anywhere", () => {
+test("committed record (site authorized) but no display key: refuses (exit 2) — and writes nothing anywhere", () => {
   const priv = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-publish-cli-"));
   const before = fs.existsSync(LINES) ? fs.readdirSync(LINES) : null;
-  const r = spawnSync("npx", ["tsx", CLI, "--date", "2099-01-15", "--as-of", "2099-01-15T22:30:00Z", "--receipt", "docs/receipts/ODDS_AUTHORIZATION_NBA_POINTS_PILOT_2026-10-21.md", "--private-dir", priv, "--out", path.join(priv, "lines")], { cwd: APP, encoding: "utf8", env: { ...process.env, GTP_PRIVATE_DATA_DIR: "" } });
+  const r = spawnSync("npx", ["tsx", CLI, "--date", "2099-01-15", "--as-of", "2099-01-15T22:30:00Z", "--receipt", "docs/receipts/ODDS_AUTHORIZATION_NBA_POINTS_PILOT_2026-10-21.md", "--private-dir", priv, "--out", path.join(priv, "lines")], { cwd: APP, encoding: "utf8", env: { ...process.env, GTP_PRIVATE_DATA_DIR: "", GTP_ODDS_DISPLAY_KEY: "" } });
   assert.equal(r.status, 2, r.stderr);
-  assert.match(r.stderr, /REFUSED: NBA lines are not authorized for site display — nothing is written/);
+  assert.doesNotMatch(r.stderr, /not authorized for site display/, "the committed record authorizes the site surface");
+  assert.match(r.stderr, /REFUSED: GTP_ODDS_DISPLAY_KEY is not set — the artifact is committed only encrypted; nothing is written/);
   assert.equal(r.stdout.trim(), "");
   assert.ok(!fs.existsSync(path.join(priv, "lines")), "the --out directory was never created");
   assert.deepEqual(fs.existsSync(LINES) ? fs.readdirSync(LINES) : null, before, "nothing written to the committed default");
