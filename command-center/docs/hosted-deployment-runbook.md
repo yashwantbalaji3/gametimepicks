@@ -171,3 +171,34 @@ Between steps 2 and 3, *neither* side sends. A due post can be missed for that w
   - DNS record (from Vercel's domain config, rank 1): **CNAME `team.gametimepicks` → `0cc985e6e1730dd3.vercel-dns-016.com`**.
   - Vercel auto-assigned `gtp-team.vercel.app`; remove it in Settings → Domains (the app's passkeys and origin checks are bound to the team domain only).
 
+
+## 11. Migration verified, and the path to cloud operation (2026-10-29)
+
+**Migrated:** 2,131 entries, 99 claims and 308 graphics (founder's run: verify OK, 0 conflicts). The same data in a local copy of the hosted code shows:
+- 785 posts: 12 published, 79 drafted, 694 superseded;
+- 12 X receipts (Oct 28 NBA game posts, with their X links and the approved caption A/B); design `gtp-social@2.3.2` approved;
+- mode live, cap $5, spent $0.54; 12 jobs published;
+- live sender **the Mac console**.
+
+**Checked signed in, at 1440, 390 and 430 px:**
+- all 92 Queue graphics served (PNG, at least 154 KB); no sideways scroll; no page errors;
+- a phone approval takes exactly one Face ID and sends nothing;
+- the hosted cron with its secret reports `due: 0` (the inactive host leaves the schedule alone);
+- media without a session returns 401.
+
+**Fixed after the check:**
+- 3 engineering screenshots were not copied; the next `sync-ledger --to-hosted --apply` copies them;
+- the Queue now keeps a day section open after an approval;
+- `cc-worker.yml` had a placeholder Claude Code version, now pinned to 2.1.300. It rides the next deploy.
+
+**Until the cutover, the Mac is the only builder and sender. The hosted side is a signed-in mirror:**
+- Mac → hosted: `sync-ledger --to-hosted --apply` after a queue build or approvals on the Mac, so the phone shows them.
+- An approval made on the phone reaches the Mac publisher only after `sync-ledger --to-local --apply`. Approve on one side per day, then sync.
+- Duplicate sends are impossible either way: send claims are per game, and they travel with every sync.
+
+**Cutover to cloud (each step needs the founder):**
+1. **X app:** add the callback `https://team.gametimepicks.yashwantbalaji.com/oauth/x/callback` (keep the local one). Set `GTP_CC_X_CLIENT_ID` (Vercel + GitHub variable) and `GTP_CC_X_HANDLE` (GitHub variable). Then **Connect X account** on the hosted site (Face ID). This doesn't post.
+2. **Actions dry runs:** one `cc-worker.yml` queue build and one `cc-publisher.yml` dry run (B3), with the publisher still unset on Vercel.
+3. **Daily generation:** today a founder command builds the day's queue. A daily cron trigger for the queue build is not implemented yet.
+4. **Cutover:** run a final `--to-hosted` sync, hand off on the Mac (exact words + macOS dialog), and sync again. Set `GH_PUBLISHER_WORKFLOW=cc-publisher.yml` on Vercel (one deploy). Watch the next post go out once.
+5. **Rollback:** §6.
