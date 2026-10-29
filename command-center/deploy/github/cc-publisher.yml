@@ -72,6 +72,7 @@ jobs:
       - name: Publish what is due
         env:
           DATABASE_URL: ${{ secrets.CC_PUBLISHER_DATABASE_URL }}
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.CC_BLOB_READ_WRITE_TOKEN }} # private media store (images by reference)
           GTP_CC_SECRET_KEY: ${{ secrets.GTP_CC_SECRET_KEY }}
           GTP_CC_X_CLIENT_ID: ${{ vars.GTP_CC_X_CLIENT_ID }}
           GTP_CC_X_HANDLE: ${{ vars.GTP_CC_X_HANDLE }}

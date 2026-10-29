@@ -104,6 +104,7 @@ jobs:
         env:
           JOB_ID: ${{ inputs.job_id }}
           DATABASE_URL: ${{ secrets.CC_WORKER_DATABASE_URL }}
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.CC_BLOB_READ_WRITE_TOKEN }} # private media store (images by reference)
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           GTP_CC_PUBLIC_ROOT: ${{ github.workspace }}/.public
           GTP_CC_OUT_DIR: ${{ runner.temp }}/gtp-cc

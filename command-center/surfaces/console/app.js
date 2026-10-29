@@ -465,12 +465,23 @@
         <button class="btn small" data-pub="live-test" data-post="${id}" data-title="${esc(pkg.title)}" ${pub.x?.connected ? "" : "disabled title=\"Connect X first\""}>Live test post…</button>
       </div></div>`;
   }
+  const HOST_NAME = { local: "the Mac console", hosted: "the hosted Command Center" };
+  /** Which host may send live; the active one can hand it over (cutover / rollback, docs/hosted-deployment-runbook.md). */
+  function hostLine(h) {
+    if (!h) return "";
+    const other = h.self === "local" ? "hosted" : "local";
+    if (h.active !== h.self) return `<div class="blocked"><b>Live sender: ${esc(HOST_NAME[h.active])}.</b> This is ${esc(HOST_NAME[h.self])}: it sends nothing live and leaves the schedule alone (review, approve and edit still work here).</div>`;
+    return `<details><summary><b>Live sender: this is it</b> (${esc(HOST_NAME[h.self])}, hand-off #${num(h.generation)})</summary>
+      <div class="muted">Only one place sends to X. Handing over stops live sending here at once; the other side starts only after the ledger sync carries the hand-off (runbook). Do this only as part of an approved cutover.</div>
+      <button class="btn small" data-pub="publisher-host" data-to="${esc(other)}">Hand live sending to ${esc(HOST_NAME[other])}…</button></details>`;
+  }
   function publishingBar(pub) {
     if (!pub) return "";
     const x = pub.x ?? {};
     return `<div class="pubbar ${pub.paused ? "blocked" : "receipt"}">
-      <div><b>X publishing:</b> ${pub.mode === "live" ? `LIVE (scheduled), cap $${esc(pub.capUsd)}/month, $${esc(pub.spentThisMonthUsd)} spent` : pub.capUsd > 0 ? `Scheduled: DRY RUN · live TEST posts allowed, cap $${esc(pub.capUsd)}/month, $${esc(pub.spentThisMonthUsd)} spent` : "DRY RUN — nothing is sent to X"} · ${pub.paused ? "<b>PAUSED</b>" : "running"} · scheduler ${pub.lastTick ? `ticked ${esc(time(pub.lastTick))}` : `every ${esc(pub.schedulerIntervalSec ?? 30)} s`}</div>
+      <div><b>X publishing${pub.publisherHost && pub.publisherHost.active !== pub.publisherHost.self ? ` (sent by ${esc(HOST_NAME[pub.publisherHost.active])}, not here)` : ""}:</b> ${pub.mode === "live" ? `LIVE (scheduled), cap $${esc(pub.capUsd)}/month, $${esc(pub.spentThisMonthUsd)} spent` : pub.capUsd > 0 ? `Scheduled: DRY RUN · live TEST posts allowed, cap $${esc(pub.capUsd)}/month, $${esc(pub.spentThisMonthUsd)} spent` : "DRY RUN — nothing is sent to X"} · ${pub.paused ? "<b>PAUSED</b>" : "running"} · scheduler ${pub.lastTick ? `ticked ${esc(time(pub.lastTick))}` : `every ${esc(pub.schedulerIntervalSec ?? 30)} s`}</div>
       <div>X account: ${x.connected ? `connected (${esc((x.scopes ?? []).join(", "))}) · token refreshes ${x.refreshable ? "automatically" : "— reconnect needed"}` : x.clientConfigured ? "not connected" : "app Client ID not set (see docs/x-publisher-setup.md)"} · callback <code>${esc(x.redirectUri ?? "")}</code></div>
+      ${hostLine(pub.publisherHost)}
       ${x.connected && !(x.scopes ?? []).includes("media.write") ? `<div class="blocked"><b>X did not grant media.write.</b> Images can't be uploaded, so no game post can go out live. Disconnect X, check the app has Read and write permissions in the X Developer Console, then Connect again and allow every permission.</div>` : ""}
       <div class="row actions">
         <button class="btn small ${pub.publishingPaused ? "primary" : ""}" data-pub="${pub.publishingPaused ? "resume" : "pause"}">${pub.publishingPaused ? "Resume publishing" : "Pause publishing"}</button>
@@ -941,6 +952,12 @@
         if (url.trim()) body.url = url.trim(); else body.notPosted = true;
       }
       if (a === "policy-dry") { body.action = "policy"; body.mode = "dry-run"; }
+      if (a === "publisher-host") {
+        const words = `I hand live X publishing to the ${t.dataset.to} publisher`;
+        const typed = prompt(`This stops live sending here immediately. To hand over, type exactly:\n\n${words}`);
+        if (typed === null) return;
+        Object.assign(body, { to: t.dataset.to, confirmation: typed });
+      }
       if (a === "policy-test") {
         const cap = prompt("Monthly spend cap in US dollars for live TEST posts (1–25). Scheduled publishing stays a dry run:");
         if (!cap) return;

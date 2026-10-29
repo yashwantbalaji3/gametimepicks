@@ -163,3 +163,19 @@ test("backup file: AES-256-GCM sealed, tamper-evident, media hashes and counts c
   bad.media["media/a.png"].base64 = png("swapped").toString("base64");
   assert.deepEqual(check(bad).badMedia, ["media/a.png"]);
 });
+
+test("deploy preflight: never prints a value; refuses the owner role, model keys and a publishing staging", async () => {
+  const { checkEnv } = await import("../deploy/preflight.mjs");
+  const secret = "s3cret-value-that-must-not-print";
+  const env = {
+    DATABASE_URL: `postgres://gtp_cc_owner:${secret}@ep-x.neon.tech/db?sslmode=require`, GTP_CC_ORIGIN: "https://team.gametimepicks.yashwantbalaji.com",
+    GTP_CC_RP_ID: "team.gametimepicks.yashwantbalaji.com", GH_DISPATCH_TOKEN: `github_pat_${secret}`, GH_OPS_OWNER: "o", GH_OPS_REPO: "gtp-ops",
+    CRON_SECRET: secret.repeat(2), OPENAI_API_KEY: secret, GH_PUBLISHER_WORKFLOW: "cc-publisher.yml",
+  };
+  const rows = checkEnv("vercel", env, { staging: true });
+  assert.ok(!JSON.stringify(rows).includes(secret), "no value is ever echoed");
+  const fail = rows.filter((r) => r.level === "FAIL").map((r) => r.name).sort();
+  assert.deepEqual(fail, ["BLOB_STORE_ID", "DATABASE_URL", "GH_PUBLISHER_WORKFLOW", "OPENAI_API_KEY"]);
+  const ok = checkEnv("vercel", { ...env, DATABASE_URL: env.DATABASE_URL.replace("gtp_cc_owner", "gtp_cc_app"), OPENAI_API_KEY: "", GH_PUBLISHER_WORKFLOW: "", BLOB_STORE_ID: "store_1" }, { staging: true });
+  assert.deepEqual(ok.filter((r) => r.level === "FAIL"), []);
+});
