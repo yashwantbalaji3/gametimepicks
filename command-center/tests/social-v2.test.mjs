@@ -140,7 +140,7 @@ test("terms: social wording is a presentation map; Top 5 rushing/passing are hel
   const td = topBoard({ src: s, date: "2026-10-25", family: "anytime_td" });
   assert.equal(td.rows[0].name, "Jahmyr Gibbs");
   assert.equal(td.rows[0].valueDisplay, "84.3%");
-  assert.match(visibleText(socialHtml(td)), /Top 5 TD Predictions/);
+  assert.match(visibleText(socialHtml(td)), /Top 5 Anytime TD Predictions/);
   const rec = topBoard({ src: s, date: "2026-10-25", family: "player_reception_yds" });
   assert.match(visibleText(socialHtml(rec)), /Top 5 Projections[\s\S]*PROJECTED YDS/);
 });
