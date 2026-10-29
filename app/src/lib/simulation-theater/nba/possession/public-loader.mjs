@@ -34,7 +34,42 @@ const COLORS = "app/src/lib/simulation-theater/nba/nba-team-colors.json";
 const fail = (eventId, code, reason) => ({ eventId: String(eventId), ok: false, error: { code, reason }, payload: null, palettes: null });
 const readColors = (repoRoot) => { try { return JSON.parse(fs.readFileSync(path.join(repoRoot, COLORS), "utf8")); } catch { return null; } };
 
-export function loadPublicPossessionTheater(repoRoot, eventId, { date = publicTheaterSlate(), read = null } = {}) {
+/**
+ * ONE OFFICIAL SNAPSHOT (NBA engine audit 2026-10-29). Every other public NBA surface (hub, projections, settled page,
+ * social feed, Level A) reads the committed lane file; this page prints the panel embedded in the possession artifact.
+ * Before the page may print that panel as the Official Forecast it must be the SAME snapshot the lane published: the
+ * artifact's v0.1 freeze receipt equals the lane game's receipt payloadSha256, the lane's favoured team is the panel's
+ * side, and the panel's players and medians are the lane's (the lane rounds to one decimal). The lane is a public build
+ * input (app/public/data/nba/experimental-public/), not a receipt file. Any disagreement refuses the page (LANE_MISMATCH),
+ * so the route falls back to the settled page or the 404, never to a second official number.
+ */
+export const LANE_REL = (date) => `app/public/data/nba/experimental-public/${date}.json`;
+export const readLaneDay = (repoRoot, date) => {
+  try { return JSON.parse(fs.readFileSync(path.join(repoRoot, LANE_REL(date)), "utf8")); } catch { return null; }
+};
+const round1 = (x) => Math.round(Number(x) * 10) / 10;
+export function laneAgreementProblem(game, panel, lane) {
+  const id = String(game?.providerEventId);
+  const lg = (lane?.games ?? []).find((g) => String(g.providerEventId) === id);
+  if (!lg) return "the committed lane does not publish this game";
+  const freeze = game?.inputs?.officialFreeze?.payloadSha256 ?? null;
+  if (!freeze || lg.receipt?.payloadSha256 !== freeze) return `receipt ${String(freeze).slice(0, 12)} ≠ lane receipt ${String(lg.receipt?.payloadSha256).slice(0, 12)}`;
+  const favTeam = panel.favouredSide === "HOME" ? lg.home?.abbr : panel.favouredSide === "AWAY" ? lg.away?.abbr : null;
+  if ((lg.elo?.favoured ?? null) !== (favTeam ?? null)) return `lane favours ${lg.elo?.favoured ?? "none"}, panel ${panel.favouredSide ?? "none"}`;
+  const laneRows = new Map(["home", "away"].flatMap((s) => (lg.players?.[s] ?? []).map((p) => [String(p.providerAthleteId), { s, p }])));
+  const rows = panel.players ?? [];
+  if (rows.length !== laneRows.size) return `panel lists ${rows.length} players, lane ${laneRows.size}`;
+  for (const r of rows) {
+    const l = laneRows.get(String(r.playerId));
+    if (!l || l.s !== r.team) return `player ${r.playerId} is not on the lane's ${r.team} side`;
+    for (const [f, v] of Object.entries(r.medians ?? {})) {
+      if (Math.abs(round1(v) - Number(l.p.medians?.[f])) > 0.051) return `player ${r.playerId} ${f}: panel ${v} vs lane ${l.p.medians?.[f]}`;
+    }
+  }
+  return null;
+}
+
+export function loadPublicPossessionTheater(repoRoot, eventId, { date = publicTheaterSlate(), read = null, lane = undefined } = {}) {
   const id = String(eventId);
   const r = read ?? readPossessionArtifact(repoRoot, date);
   const v = validatedGame(r, id);
@@ -50,6 +85,10 @@ export function loadPublicPossessionTheater(repoRoot, eventId, { date = publicTh
   // and the side the PAGE will print (the embedded panel) must be the side the default run was selected for
   const side = sideConstraintProblem(game, panel.favouredSide);
   if (side) return fail(id, "SIDE_CONSTRAINT", side);
+  // the panel must be the snapshot the lane published (one official forecast on every surface)
+  const laneDoc = lane === undefined ? readLaneDay(repoRoot, r.doc?.date ?? date) : lane;
+  const mismatch = laneAgreementProblem(game, panel, laneDoc);
+  if (mismatch) return fail(id, "LANE_MISMATCH", mismatch);
   const colors = readColors(repoRoot);
   return {
     eventId: id, ok: true, error: null,
