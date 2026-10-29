@@ -111,3 +111,6 @@ export function buildNbaLineBoard({ lane, priceRecords = [], asOf }) {
     rows,
   };
 }
+
+/** Re-exported for the NBA hub summaries: the hub page and its direct imports stay free of market-vocabulary paths (public-route-inventory). */
+export { publicDirectionGate } from "../../odds/display-authorization.mjs";
