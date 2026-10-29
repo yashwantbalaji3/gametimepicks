@@ -31,7 +31,7 @@ import { FORBIDDEN_TERMS } from "../../app/scripts/build-mlb-social-content.mjs"
 import { retiredPhraseIn } from "../recap/public-registry.mjs";
 import { etDisplay } from "../recap/fact-bundle-nfl.mjs";
 
-export const POST_KINDS = Object.freeze(["nfl-recap", "results-recap", "pregame-forecast", "explainer", "engagement", "x-reply"]);
+export const POST_KINDS = Object.freeze(["nfl-recap", "results-recap", "pregame-forecast", "explainer", "engagement", "x-reply", "top5-daily", "top5-weekly"]);
 export const POST_STATUS = Object.freeze({ READY: "READY", VERIFY: "NEEDS_VERIFICATION", BLOCKED: "BLOCKED" });
 /** Lifecycle of a post after its package is proposed. */
 export const LIFECYCLE = Object.freeze(["drafted", "approved", "scheduled", "published", "rejected", "revise", "deferred", "superseded"]);
@@ -82,6 +82,8 @@ export function publishBundleOf(pkg, caption) {
     ...(pkg.mediaSet ? { mediaSetSha256: sha256(pkg.mediaSet.map((m) => m.sha256).join("|")) } : {}),
     // V2.3 game post: the event, the forecast version (freeze + receipt hash) and the requested publishing time are bound
     ...(pkg.kind === "nba-game" ? { eventId: pkg.eventId, forecastVersion: pkg.forecastVersion ?? null, requestedPublishAt: pkg.suggestedPublishAt ?? null, featuredKey: pkg.featuredKey ?? null } : {}),
+    // Top 5: the stable package identity, exactly what appears (content key), the first start and the requested time
+    ...(pkg.kind === "top5-daily" || pkg.kind === "top5-weekly" ? { packageId: pkg.postId, contentKey: pkg.contentKey ?? null, firstStartUtc: pkg.firstStartUtc ?? null, requestedPublishAt: pkg.suggestedPublishAt ?? null } : {}),
     claimsDigest: digestOf(pkg.claims),
     // The verified VERSION (file, hash, numbers) — never the check's timestamp, which changes on every build.
     verificationDigest: pkg.verification ? digestOf({ version: pkg.verification.version ? { path: pkg.verification.version.path, sha256: pkg.verification.version.sha256, numbers: pkg.verification.version.numbers } : null, kickoffUtc: pkg.verification.kickoffUtc ?? null }) : null,

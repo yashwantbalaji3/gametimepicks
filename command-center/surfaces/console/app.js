@@ -445,7 +445,7 @@
     }
     return `<div class="blocked">${esc(LIFE_LABEL[p.lifecycle])}${p.resolution?.note ? ` · “${esc(p.resolution.note)}”` : ""}</div>`;
   }
-  const PUB_SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board"]);
+  const PUB_SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board", "top5-daily", "top5-weekly"]);
   /**
    * Display only: an attempt with no recorded outcome during its first 2 minutes is a send in progress ("Sending…");
    * after that it is "Outcome unknown — reconcile". The gate treats both as unknown (never retried) either way.
@@ -665,7 +665,7 @@
     return named ? `${named} · ${long}` : long;
   };
   const startOfPkg = (k) => k.tipUtc ?? k.startUtc ?? k.verification?.kickoffUtc ?? k.kickoffUtc ?? k.firstKickoffUtc ?? null;
-  const KIND_LABEL = { "nba-game": "Game post", "nba-final": "Final scores", "results-recap": "Results recap", "nfl-recap": "Forecast vs final", "pregame-forecast": "Pregame forecast", "td-top3": "Top 3 TD", "top5-board": "Top 5 board", engagement: "Engagement", explainer: "Explainer", "x-reply": "Reply", "nba-results": "Prediction vs final" };
+  const KIND_LABEL = { "nba-game": "Game post", "nba-final": "Final scores", "results-recap": "Results recap", "nfl-recap": "Forecast vs final", "pregame-forecast": "Pregame forecast", "td-top3": "Top 3 TD", "top5-board": "Top 5 board", "top5-weekly": "Weekly Top 5 (whole week)", "top5-daily": "Daily Top 5 (slate)", engagement: "Engagement", explainer: "Explainer", "x-reply": "Reply", "nba-results": "Prediction vs final" };
   const SPORTS = ["NBA", "NFL", "MLB", "UFC", "EPL"];
   const sportChip = (sp) => `<span class="sport sport-${esc(String(sp ?? "").toLowerCase())}">${esc(sp ?? "—")}</span>`;
   const jobsOf = (s, p) => (s.publishing?.jobs ?? []).filter((j) => j.decisionId === p.decisionId);
@@ -789,7 +789,7 @@
     const sports = SPORTS.filter((sp) => c.posts.some((p) => p.package.sport === sp));
     let lastDay = null;
     return `${pageHead("Review & approvals", `${num(c.by.needs.length)} need your decision · ${num(c.by.approved.length + c.by.scheduled.length)} approved · ${num(c.receipts.length)} sent`)}
-      ${dz && !dz.approved ? `<div class="notice warn">Graphic design <b>${esc(dz.template)}</b> is not approved yet: its posts can't be approved until it is. <button class="btn small" data-design="1">Approve this design version</button></div>` : ""}
+      ${(dz?.templates ?? (dz ? [dz] : [])).filter((t) => !t.approved && (t.template === dz.template || c.posts.some((p) => p.package.template === t.template))).map((t) => `<div class="notice warn">Graphic design <b>${esc(t.template)}</b>${t.label ? ` (${esc(t.label)})` : ""} is not approved yet: its posts can't be approved until it is. <button class="btn small" data-design="1" data-design-template="${esc(t.template)}">Approve this design version</button></div>`).join("")}
       <div class="filters" role="toolbar" aria-label="Filter posts">
         <div class="seg">${REVIEW_FILTERS.map(([k, label]) => `<button type="button" class="segbtn" data-filter-status="${k}" aria-pressed="${status === k}">${esc(label)}${k !== "all" ? ` <span class="n">${num((c.by[k] ?? []).length)}</span>` : ""}</button>`).join("")}</div>
         <div class="seg">${["all", ...sports].map((sp) => `<button type="button" class="segbtn" data-filter-sport="${sp}" aria-pressed="${ui.filter.sport === sp}">${sp === "all" ? "All sports" : esc(sp)}</button>`).join("")}</div>
@@ -1329,7 +1329,8 @@
       return;
     }
     if (t.dataset.design) {
-      const dz = ui.state.design;
+      const all = ui.state.design?.templates ?? [ui.state.design];
+      const dz = all.find((x) => x.template === t.dataset.designTemplate) ?? ui.state.design;
       if (!confirm(`Approve the graphic design ${dz.template} (${dz.assetManifest})? This approves the visual design only — no post.`)) return;
       const r = await post("/api/design", { template: dz.template, assetManifest: dz.assetManifest });
       if (!r.ok && !r.duplicate) alert(`${r.code}: ${r.detail ?? ""}`);

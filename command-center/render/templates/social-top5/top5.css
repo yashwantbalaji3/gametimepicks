@@ -1,0 +1,69 @@
+/* gtp-social-top5@1.0 — Top 5 boards. Variant "board": one market per 1080×1350 image (an X multi-image post);
+   variant "combined": up to three markets on one 1080×1350 image. GameTimePicks tokens; team identity is the
+   abbreviation on its verified colour (no league or club logo, no photo). In the board variant the market title and
+   ranks 1–3 sit in the vertical middle band, the part an X multi-image grid tile shows before a tap. */
+:root {
+  --bg: #050706; --ink: #F7F7F2; --mute: #B9BDB4; --faint: #8A9189;
+  --neon: #39FF88; --neon-soft: #7DFFB2; --neon-deep: #12B865;
+  --display: "GTP Condensed", sans-serif; --body: "GTP Body", sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1080px; height: 1350px; overflow: hidden; background: var(--bg); color: var(--ink); font-family: var(--body); }
+body { position: relative; }
+.bg { position: absolute; inset: 0; overflow: hidden; }
+.glow { position: absolute; border-radius: 50%; filter: blur(30px); }
+.glow.g1 { left: 50%; top: -440px; width: 1300px; height: 860px; transform: translateX(-50%); background: radial-gradient(closest-side, rgba(57,255,136,.30), rgba(18,184,101,.10) 55%, transparent); }
+.glow.g2 { right: -380px; bottom: -420px; width: 960px; height: 900px; background: radial-gradient(closest-side, rgba(57,255,136,.10), transparent); }
+.stripes { position: absolute; inset: 0; background: repeating-linear-gradient(115deg, rgba(255,255,255,.018) 0 2px, transparent 2px 22px); }
+.grain { position: absolute; inset: 0; opacity: .14; mix-blend-mode: overlay; }
+.vig { position: absolute; inset: 0; background: radial-gradient(130% 90% at 50% 30%, transparent 50%, rgba(0,0,0,.72) 100%); }
+.edge { position: absolute; left: 0; right: 0; top: 0; height: 6px; background: linear-gradient(90deg, transparent, var(--neon) 20%, var(--neon) 80%, transparent); box-shadow: 0 0 24px rgba(57,255,136,.7); }
+
+.content { position: absolute; inset: 48px 56px 40px; display: flex; flex-direction: column; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 20px; height: 88px; }
+.logo { height: 84px; width: auto; filter: drop-shadow(0 0 16px rgba(57,255,136,.45)); }
+.topr { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.chip { font: 700 28px/1 var(--display); letter-spacing: 4px; text-transform: uppercase; padding: 13px 24px 10px; border-radius: 999px; white-space: nowrap; overflow: hidden; max-width: 560px;
+  background: rgba(0,0,0,.55); border: 2px solid rgba(57,255,136,.55); box-shadow: inset 0 0 22px rgba(57,255,136,.22); }
+.pager { font: 800 28px/1 var(--display); letter-spacing: 2px; color: var(--neon); white-space: nowrap; }
+
+/* ── board variant ─────────────────────────────────────────────────────── */
+.v-board .kicker { margin-top: 236px; font: 800 34px/1 var(--display); letter-spacing: 7px; text-transform: uppercase; color: var(--neon); white-space: nowrap; overflow: hidden; }
+.v-board .title { margin-top: 12px; font: 900 104px/0.92 var(--display); text-transform: uppercase; letter-spacing: -1px; white-space: nowrap; overflow: hidden; text-shadow: 0 8px 40px rgba(0,0,0,.6); }
+.v-board .method { margin-top: 10px; font: 600 28px/1.15 var(--body); color: var(--mute); white-space: nowrap; overflow: hidden; }
+.v-board .rows { margin-top: 22px; display: flex; flex-direction: column; gap: 10px; }
+.v-board .row { height: 106px; display: grid; grid-template-columns: 92px minmax(0, 1fr) 236px; align-items: center; gap: 18px; padding: 0 26px 0 18px; border-radius: 22px; position: relative; overflow: hidden;
+  background: linear-gradient(90deg, rgba(14,24,18,.94), rgba(6,10,8,.92)); border: 2px solid rgba(255,255,255,.09); }
+.v-board .row::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 8px; background: var(--c); }
+.v-board .row.r1 { border-color: rgba(57,255,136,.55); box-shadow: 0 0 34px rgba(57,255,136,.18); }
+.v-board .rk { font: 900 76px/1 var(--display); color: var(--neon); text-align: center; text-shadow: 0 0 22px rgba(57,255,136,.45); }
+.v-board .who { min-width: 0; }
+.v-board .pname { display: block; font: 800 54px/1.02 var(--display); white-space: nowrap; overflow: hidden; }
+.v-board .meta { margin-top: 8px; display: flex; align-items: center; gap: 12px; font: 600 26px/1 var(--body); color: var(--mute); white-space: nowrap; overflow: hidden; }
+.v-board .val { text-align: right; }
+.v-board .val b { display: block; font: 900 74px/0.95 var(--display); color: var(--ink); white-space: nowrap; overflow: hidden; }
+.v-board .row.r1 .val b { color: var(--neon); }
+.v-board .val span { display: block; margin-top: 4px; font: 700 22px/1 var(--display); letter-spacing: 3px; color: var(--faint); }
+.tag { display: inline-block; font: 800 24px/1 var(--display); letter-spacing: 2px; padding: 6px 10px 4px; border-radius: 6px; background: var(--c); color: var(--cink); box-shadow: 0 0 0 2px var(--edge) inset; }
+
+/* ── combined variant ──────────────────────────────────────────────────── */
+.v-combined .head { margin-top: 18px; display: flex; align-items: baseline; justify-content: space-between; gap: 18px; }
+.v-combined .title { font: 900 72px/0.95 var(--display); text-transform: uppercase; white-space: nowrap; overflow: hidden; }
+.v-combined .panels { margin-top: 14px; display: flex; flex-direction: column; gap: 14px; }
+.v-combined .panel { border-radius: 20px; padding: 12px 22px 12px; background: linear-gradient(180deg, rgba(10,18,14,.92), rgba(4,8,6,.94)); border: 2px solid rgba(255,255,255,.10); }
+.v-combined .ph { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; margin-bottom: 6px; }
+.v-combined .ph h2 { font: 900 38px/1 var(--display); text-transform: uppercase; color: var(--neon); white-space: nowrap; overflow: hidden; }
+.v-combined .ph span { font: 600 22px/1 var(--body); color: var(--mute); white-space: nowrap; overflow: hidden; }
+.v-combined .row { height: 50px; display: grid; grid-template-columns: 40px minmax(0, 1fr) 74px 150px; align-items: center; gap: 12px; border-top: 1px solid rgba(255,255,255,.07); }
+.v-combined .row:first-of-type { border-top: 0; }
+.v-combined .rk { font: 900 34px/1 var(--display); color: var(--neon); text-align: center; }
+.v-combined .pname { display: block; font: 700 34px/1 var(--display); white-space: nowrap; overflow: hidden; }
+.v-combined .tag { font-size: 22px; padding: 5px 8px 3px; text-align: center; }
+.v-combined .val { text-align: right; font: 900 38px/1 var(--display); white-space: nowrap; overflow: hidden; }
+.v-combined .val small { font: 700 20px/1 var(--display); letter-spacing: 2px; color: var(--faint); margin-left: 6px; }
+
+/* ── footer: one identity line, one disclosure ─────────────────────────── */
+.foot { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.social { display: flex; align-items: center; gap: 12px; font: 800 30px/1 var(--display); letter-spacing: 1px; }
+.social .xmark { width: 28px; height: 28px; color: var(--ink); }
+.disclosure { font: 600 22px/1.2 var(--body); color: var(--faint); white-space: nowrap; overflow: hidden; max-width: 100%; }

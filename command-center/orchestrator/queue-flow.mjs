@@ -34,6 +34,28 @@ import { renderSocial, SOCIAL_TEMPLATE, ASSET_MANIFEST } from "../render/social-
 import {
   baseIdOf, nflPregamePackage, nflTouchdownsPackage, nflTop5Package, nflPostgamePackage, nbaPregamePackage, nbaPlayersPackage, nbaFinalPackage, nbaGamePackage,
 } from "../contracts/social-packages.mjs";
+import { isTop5 } from "../contracts/top5-packages.mjs";
+import { buildTop5, recheckTop5 } from "./top5-flow.mjs";
+import { validateCaption } from "../recap/caption-validator.mjs";
+import { TOP5_TEMPLATE, TOP5_ASSET_MANIFEST } from "../render/social-top5.mjs";
+
+/**
+ * Per-template design approvals (founder 2026-10-29). Each graphic template is approved on its own: an approval binds
+ * one template + one asset-manifest version (ledger kind "design-approval", claim design|<template>|<manifest> — the
+ * same record and claim as before, so every existing gtp-social@2.3.x approval keeps working exactly). A package is
+ * approvable only if ITS OWN template + manifest is approved. Only the current version of each template can be approved.
+ */
+export const DESIGNS = Object.freeze([
+  { template: SOCIAL_TEMPLATE, assetManifest: ASSET_MANIFEST, label: "Social graphics (game posts, recaps)" },
+  { template: TOP5_TEMPLATE, assetManifest: TOP5_ASSET_MANIFEST, label: "Top 5 boards (daily and weekly)" },
+]);
+/** Top 5 captions pass both checkers: the queue's (checkCaption) and the recap validator (recap/caption-validator.mjs). */
+const top5Check = (text, pkg) => {
+  const a = checkCaption(text, pkg);
+  const b = validateCaption(text, { claims: pkg.claims, publicLabel: pkg.label });
+  const problems = [...a.problems, ...b.problems.filter((x) => !a.problems.some((y) => y.code === x.code && y.detail === x.detail) && !(x.code === REASON.UNTRACEABLE_NUMBER && a.problems.some((y) => y.code === x.code)))];
+  return { ok: problems.length === 0, problems };
+};
 
 const SPORT_NAME = { NFL: "NFL", NBA: "NBA", MLB: "MLB", UFC: "UFC", EPL: "Premier League" };
 const addDay = (ymd, n) => new Date(Date.parse(`${ymd}T12:00:00Z`) + n * 86400_000).toISOString().slice(0, 10);
@@ -48,7 +70,7 @@ export const MAX_CAPTION_EDITS = 10;
  * here from the package and the text, never taken from the request, so approving E1 binds exactly that text.
  */
 export function editedOption(pkg, edit) {
-  const problems = [...checkCaption(edit.text, pkg).problems];
+  const problems = [...(isTop5(pkg) ? top5Check(edit.text, pkg) : checkCaption(edit.text, pkg)).problems];
   if (pkg.sport === "NBA" && /%/.test(edit.text)) problems.push({ code: "NO_PERCENT_IN_NBA_CAPTION", detail: "NBA captions don't state the estimate as a percentage" });
   if (pkg.kind === "nfl-recap") {
     if (!/\b(forecast|prediction|predicted|projection|projected)/i.test(edit.text)) problems.push({ code: REASON.MISSING_FORECAST_WORD, detail: 'must call the number a prediction / projection (or "forecast")' });
@@ -252,6 +274,12 @@ export function createQueueFlow(ctx) {
     }
 
     if (v2) await standingV2({ date, src, now, dataCommit, labelOf, maxDataAgeMin, lookback, catchupSports, packages, skips, factsFor });
+    // Top 5 (founder 2026-10-29): one consolidated post per sport per daily slate, one NFL post per week — official boards only
+    if (v2) {
+      const top5 = await buildTop5({ src, date, now, env, priors: postRecords().map((r) => r.request.package).filter(isTop5), render: ctx.render !== false, mediaDir: mediaDir(), labelOf });
+      for (const p of top5.packages) packages.push({ ...p, captions: p.captions.map((c) => ({ ...c, check: top5Check(c.text, p) })) });
+      skips.push(...top5.skips);
+    }
 
     const sealed = [];
     const seen = new Set();
@@ -267,7 +295,7 @@ export function createQueueFlow(ctx) {
         // same content does not invalidate (the approval re-checks the data anyway); a changed caption or graphic does.
         const was = prior.request.options?.find((o) => o.captionId === prior.decision.captionId)?.publishBundle;
         const now2 = s.captions.find((c) => c.id === prior.decision.captionId)?.publishBundle;
-        const contentOf = (b) => b && JSON.stringify([b.captionSha256, b.mediaSha256 ?? null, b.template ?? null, b.assetManifest ?? null, ...(b.mediaSetSha256 ? [b.mediaSetSha256] : [])]);
+        const contentOf = (b) => b && JSON.stringify([b.captionSha256, b.mediaSha256 ?? null, b.template ?? null, b.assetManifest ?? null, ...(b.mediaSetSha256 ? [b.mediaSetSha256] : []), ...(b.contentKey ? [b.contentKey] : [])]);
         const changed = prior.decision.verdict === "approve" && !prior.receipt && Boolean(was) && contentOf(was) !== contentOf(now2);
         if (!changed) { skips.push({ slotId: s.slotId, sport: s.sport, format: s.kind, opportunity: s.title, status: s.status, reason: `already decided: ${prior.decision.verdict} in ${prior.request.decisionId}${prior.receipt ? `, published ${prior.receipt.canonicalUrl}` : ""}` }); continue; }
         store.append("post-status", "integrity-reviewer", { decisionId: prior.request.decisionId, postId: prior.request.postId, status: "invalidated", reason: "the graphic, caption or evidence changed since approval; the new version needs its own approval", replacedBy: s.postId, recordedAt: now });
@@ -336,7 +364,9 @@ export function createQueueFlow(ctx) {
         }
         let pkg = nflTop5Package({ date, m, extra: { ...extra, label: nflLabel } });
         if (m.firstKickoffUtc && Date.parse(now) >= Date.parse(m.firstKickoffUtc)) pkg = { ...pkg, status: POST_STATUS.BLOCKED, reasons: [`the slate's first kickoff (${m.firstKickoffUtc}) has passed: a pregame board is stale`] };
-        packages.push(await withGraphic(pkg, m));
+        // founder 2026-10-29: one consolidated Top 5 post, not one post per prop — NFL's is the weekly post. The per-day,
+        // per-family board stays in the queue record but is never proposed, approved or scheduled on its own.
+        packages.push({ ...pkg, replacedBy: "top5-weekly" });
       });
     }
     // NFL: Prediction vs. Final for yesterday's games (and the calendar's catch-up window, lower priority)
@@ -421,6 +451,7 @@ export function createQueueFlow(ctx) {
       const m = topBoard({ src, date: pkg.date, family: pkg.family });
       return m.ok && m.evidence[0]?.sha256 === pkg.boardSha256 ? { status: m.status, reasons: [] } : { status: POST_STATUS.BLOCKED, reasons: [m.ok ? "the frozen board file changed" : m.reason] };
     }
+    if (isTop5(pkg)) return recheckTop5(pkg, { src, now, env });
     if (pkg.kind === "nba-game") {
       // both graphics' sources, the featured players and the start time, all as they were at approval
       if (!Number.isFinite(Date.parse(pkg.tipUtc)) || Date.parse(now) >= Date.parse(pkg.tipUtc)) return { status: POST_STATUS.BLOCKED, reasons: ["tip-off has passed"] };
@@ -459,15 +490,17 @@ export function createQueueFlow(ctx) {
     return h.entries().filter((e) => e.kind === "design-approval" && e.data.template === template && e.data.assetManifest === assetManifest).at(-1)?.data ?? null;
   }
   function approveDesign({ template, assetManifest }, actor) {
-    if (template !== SOCIAL_TEMPLATE || assetManifest !== ASSET_MANIFEST) return { ok: false, code: "UNKNOWN_DESIGN", detail: `the current design is ${SOCIAL_TEMPLATE} + ${ASSET_MANIFEST}` };
+    if (!DESIGNS.some((d) => d.template === template && d.assetManifest === assetManifest)) return { ok: false, code: "UNKNOWN_DESIGN", detail: `the current designs are ${DESIGNS.map((d) => `${d.template} + ${d.assetManifest}`).join(", ")}` };
     const claim = store.claim(`design|${template}|${assetManifest}`, { by: actor.id ?? "founder" });
     if (!claim.won) return { ok: true, duplicate: true };
     store.append("design-approval", "founder", { template, assetManifest, approvedBy: actor.id ?? "founder", approvedAt: clock(), authentication: actor.authentication ?? "loopback-console (demo-grade)", scope: "visual design only — every post still needs its own publishing approval" });
     return { ok: true, next: "Design approved for this template and asset-manifest version. No post is approved by this; each still needs its own decision." };
   }
+  /** The social template's status (the original fields, unchanged) + every current template's own status. */
   function design() {
     const a = designApproval(SOCIAL_TEMPLATE, ASSET_MANIFEST);
-    return { template: SOCIAL_TEMPLATE, assetManifest: ASSET_MANIFEST, approved: Boolean(a), approvedAt: a?.approvedAt ?? null };
+    const templates = DESIGNS.map((d) => { const x = designApproval(d.template, d.assetManifest); return { ...d, approved: Boolean(x), approvedAt: x?.approvedAt ?? null }; });
+    return { template: SOCIAL_TEMPLATE, assetManifest: ASSET_MANIFEST, approved: Boolean(a), approvedAt: a?.approvedAt ?? null, templates };
   }
 
   /** After kickoff, every published pregame post is checked against the forecast of record, once per data commit. */
@@ -506,7 +539,7 @@ export function createQueueFlow(ctx) {
       if (p.media) store.append("deliverable", "creative-renderer", { commandId: run.commandId, kind: "post-graphic", postId: p.postId, file: p.media.file, sha256: p.media.sha256, width: p.media.width, height: p.media.height, template: p.media.template, altText: p.media.altText });
     }
     const decidedNow = new Set(postRecords().filter((r) => r.decision && !["revise", "defer"].includes(r.decision.verdict) && !r.invalidated).map((r) => baseIdOf(r.request.postId)));
-    const requests = q.packages.filter((p) => p.status !== POST_STATUS.BLOCKED && !p.componentOf && !decidedNow.has(baseIdOf(p.postId))).sort((a, b) => (a.priority ?? 2) - (b.priority ?? 2)).map((p) => {
+    const requests = q.packages.filter((p) => p.status !== POST_STATUS.BLOCKED && !p.componentOf && !p.replacedBy && !decidedNow.has(baseIdOf(p.postId))).sort((a, b) => (a.priority ?? 2) - (b.priority ?? 2)).map((p) => {
       const decisionId = shortId("post", { commandId: run.commandId, postId: p.postId });
       const d = {
         decisionId, commandId: run.commandId, kind: "post", subjectType: "post-package", postId: p.postId, date: q.date,
@@ -560,6 +593,7 @@ export function createQueueFlow(ctx) {
       if (!option.check?.ok) return { ok: false, code: "CAPTION_CHECK_FAILED", detail: option.check?.problems?.map((p) => `${p.code} ${p.detail}`).join("; ") };
       // Design approval is its own state: a V2.1 graphic can't be approved for publishing before its design version is.
       if (pkg.template && !designApproval(pkg.template, pkg.assetManifest)) return { ok: false, code: "DESIGN_NOT_APPROVED", detail: `approve the ${pkg.template} design (${pkg.assetManifest}) first — design approval and publishing approval are separate` };
+      if (pkg.replacedBy) return { ok: false, code: "REPLACED_BY_CONSOLIDATED_POST", detail: `this board is part of the ${pkg.replacedBy} post: approve that one` };
       if (pkg.componentOf || ((pkg.kind === "nba-pregame" || pkg.kind === "nba-players") && postRecords().some((r) => r.request.package?.kind === "nba-game" && r.request.package.eventId === pkg.eventId))) {
         return { ok: false, code: "SUPERSEDED_BY_GAME_POST", detail: "this graphic is part of the game post (both graphics in one post): approve the game post instead" };
       }
@@ -598,7 +632,7 @@ export function createQueueFlow(ctx) {
       approvedBy: actor.id ?? "founder", approvedAt: clock(), authentication: actor.authentication ?? "loopback-console (demo-grade)",
     });
     const next = {
-      approve: ["nba-game", "pregame-forecast", "td-top3", "top5-board"].includes(pkg.kind)
+      approve: ["nba-game", "pregame-forecast", "td-top3", "top5-board", "top5-daily", "top5-weekly"].includes(pkg.kind)
         ? "Approved, not published: nothing was sent to X. Send it through the X publisher (Live test post, or Schedule for its slot) once live publishing is authorized; every send re-checks it first."
         : "Approved: this one post may go out. Post it yourself on X, then record the link here (Record X link). Nothing was published by the Command Center.",
       reject: "Rejected. It won't be proposed again.",

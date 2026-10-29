@@ -28,7 +28,7 @@ import path from "node:path";
 import { digestOf, shortId } from "../lib/util.mjs";
 import { publishBundleOf, parseXPostUrl } from "../contracts/post-queue.mjs";
 import { baseIdOf } from "../contracts/social-packages.mjs";
-import { createXPublisher, XPublishError } from "../publishers/x-api.mjs";
+import { createXPublisher, XPublishError, MAX_IMAGES } from "../publishers/x-api.mjs";
 import { checkFounder, SCHEDULER_ACTOR, DAILY_QUEUE_COMMAND } from "./policy.mjs";
 
 export const MAX_SPEND_CAP_USD = 25;
@@ -40,7 +40,9 @@ export const liveAuthorizationText = (capUsd) => `I authorize live X publishing 
 /** Live TEST posts only (founder-triggered, one at a time): scheduled publishing stays in dry run. */
 export const liveTestAuthorizationText = (capUsd) => `I authorize live X test posts up to $${capUsd} per month`;
 // NBA Predicted Winner and stat lines go out together as the game post (V2.3), never on their own
-const SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board"]);
+// Top 5 (founder 2026-10-29): one consolidated post per sport per daily slate, one per NFL week. Their once-only send
+// claim keys on the post's base identity (top5-week|NFL|2026-W08), so no version of a week can go out twice.
+const SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board", "top5-daily", "top5-weekly"]);
 /** The X scopes a send needs: posting, and media.write whenever the post carries images. */
 export const requiredScopes = (mediaCount) => ["tweet.write", ...(mediaCount ? ["media.write"] : [])];
 const startOf = (pkg) => pkg.tipUtc ?? pkg.kickoffUtc ?? pkg.verification?.kickoffUtc ?? pkg.firstKickoffUtc ?? null;
@@ -240,6 +242,7 @@ export function createPublishFlow(ctx) {
     if (nowDigest !== rec.resolution.approvedExactDigest) return refuse("FINGERPRINT_CHANGED", "the caption, images or evidence differ from what was approved", "critical");
     const media = mediaOf(pkg);
     if (pkg.kind === "nba-game" && media.length !== 2) return refuse("MEDIA_MISSING", "an NBA game post carries exactly two graphics");
+    if ((pkg.kind === "top5-daily" || pkg.kind === "top5-weekly") && (media.length < 1 || media.length > MAX_IMAGES || media.length !== (pkg.groups?.length ?? -1))) return refuse("MEDIA_MISSING", `a Top 5 post carries one image per board group (1–${MAX_IMAGES}); this one has ${media.length}`);
     for (const m of media) {
       const file = path.join(ctx.mediaDir, path.basename(m.file));
       if (!fs.existsSync(file)) return refuse("MEDIA_MISSING", m.file, "critical");
