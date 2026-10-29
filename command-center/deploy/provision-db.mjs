@@ -6,6 +6,7 @@
  *   node command-center/deploy/provision-db.mjs                 everything (GitHub secrets + Vercel DATABASE_URL)
  *   node command-center/deploy/provision-db.mjs --github-only   worker / reader / publisher → GitHub Actions secrets
  *   node command-center/deploy/provision-db.mjs --vercel-only   app → Vercel (Production) DATABASE_URL
+ *   --vercel-project <name>   the Command Center's Vercel project (default gtp-team; never gtp-ops, the operator console)
  *   node command-center/deploy/provision-db.mjs --check         schema + policies only (no passwords change, nothing sent)
  *
  * 1. Reads the Neon OWNER string at a hidden prompt (deploy/owner-url.mjs).
@@ -28,9 +29,10 @@ import { fileURLToPath } from "node:url";
 import { neon } from "../ledger/pg-adapters.mjs";
 import { migrate } from "../ledger/sql-store.mjs";
 import { ownerUrl } from "./owner-url.mjs";
+import { OPERATOR_CONSOLE_PROJECT } from "./preflight.mjs";
 
 export const GH_REPO = "yashwantbalaji3/gtp-ops";
-export const VERCEL_PROJECT = "gtp-ops";
+export const VERCEL_PROJECT_DEFAULT = "gtp-team";
 export const VERCEL_CLI = "vercel@64.1.0";
 /** role → where its connection string goes */
 export const DESTINATIONS = {
@@ -141,23 +143,23 @@ export function roleUrl(owner, role, password) {
 const newPassword = () => crypto.randomBytes(32).toString("base64url");
 const vercel = (args, input) => spawnSync("npx", ["-y", VERCEL_CLI, ...args], { input, encoding: "utf8", stdio: [input === undefined ? "ignore" : "pipe", "pipe", "pipe"] });
 
-function destinationsReachable(targets) {
+function destinationsReachable(targets, project) {
   const problems = [];
   if (targets.includes("github")) {
     const r = spawnSync("gh", ["secret", "list", "--repo", GH_REPO], { encoding: "utf8" });
     if (r.status !== 0) problems.push(`GitHub: can't reach ${GH_REPO} secrets with gh (run: gh auth status)`);
   }
   if (targets.includes("vercel")) {
-    const r = vercel(["project", "inspect", VERCEL_PROJECT]);
-    if (r.status !== 0) problems.push(`Vercel: can't read project ${VERCEL_PROJECT} (run: npx ${VERCEL_CLI} login)`);
+    if (project === OPERATOR_CONSOLE_PROJECT) problems.push(`Vercel: ${project} is the protected operator console, not the Command Center's project`);
+    else if (vercel(["project", "inspect", project]).status !== 0) problems.push(`Vercel: can't read project ${project} (run: npx ${VERCEL_CLI} login)`);
   }
   return problems;
 }
 
 /** Sends one value to its destination over stdin. Returns true/false, never the value. */
-function deliver(dest, value) {
+function deliver(dest, value, project) {
   if (dest.to === "github") return spawnSync("gh", ["secret", "set", dest.name, "--repo", GH_REPO], { input: value, encoding: "utf8" }).status === 0;
-  return vercel(["env", "add", dest.name, "production", "--project", VERCEL_PROJECT, "--sensitive", "--force", "--yes"], value).status === 0;
+  return vercel(["env", "add", dest.name, "production", "--project", project, "--sensitive", "--force", "--yes"], value).status === 0;
 }
 
 async function main() {
@@ -165,12 +167,14 @@ async function main() {
   const check = flag("--check");
   const targets = flag("--github-only") ? ["github"] : flag("--vercel-only") ? ["vercel"] : ["github", "vercel"];
   const issue = check ? [] : ROLES.filter((r) => targets.includes(DESTINATIONS[r].to));
+  const i = process.argv.indexOf("--vercel-project");
+  const project = i > 0 ? process.argv[i + 1] : VERCEL_PROJECT_DEFAULT;
   const log = (s = "") => console.log(s);
   const table = (rows) => rows.forEach((r) => log(`  ${r.level.padEnd(4)}  ${r.name.padEnd(34)} ${r.why}`));
 
   const owner = await ownerUrl();
   if (!check) {
-    const problems = destinationsReachable(targets);
+    const problems = destinationsReachable(targets, project);
     if (problems.length) { problems.forEach((p) => console.error(p)); console.error("Nothing was changed."); process.exit(1); }
   }
   const db = await neon(owner);
@@ -214,9 +218,9 @@ async function main() {
     let sent = 0;
     for (const role of issue) {
       const dest = DESTINATIONS[role];
-      const ok = deliver(dest, urls[role]);
+      const ok = deliver(dest, urls[role], project);
       sent += ok ? 1 : 0;
-      log(`  ${ok ? "PASS" : "FAIL"}  ${dest.to === "github" ? `GitHub ${GH_REPO}` : `Vercel ${VERCEL_PROJECT} (Production)`}  ${dest.name}`);
+      log(`  ${ok ? "PASS" : "FAIL"}  ${dest.to === "github" ? `GitHub ${GH_REPO}` : `Vercel ${project} (Production)`}  ${dest.name}`);
     }
     if (sent !== issue.length) throw new Error("some deliveries failed: re-run this command for that destination (it issues fresh passwords)");
     log("\nDone. No value was printed and the owner string was not stored.");
