@@ -21,7 +21,7 @@
 | # | Resource | Who | Cost |
 |---|---|---|---|
 | 1 | Sign in to the Vercel CLI: `npx vercel@latest login` (or a scoped token) | you | — |
-| 2 | Private GitHub repo `gtp-ops` (copy of `command-center/` + `deploy/vercel` + the two workflows; `deploy/ops-repo.gitignore`) | you approve, I prepare | $0 (2,000 Actions min/month free) |
+| 2 | Private GitHub repo `gtp-ops`: you create it **empty**; the contents are assembled locally by `deploy/assemble-ops-repo.mjs` (§9) and pushed only when you say go | you create, I prepare | $0 (2,000 Actions min/month free) |
 | 3 | Neon project (Free) → `node command-center/deploy/migrate.mjs --roles` with `DATABASE_URL_OWNER` | you create; the command prints 4 role URLs once | $0 (0.5 GB) |
 | 4 | Vercel project `gtp-team` on your existing Pro team, root = the ops repo | you | $0 extra on Pro |
 | 5 | Vercel Blob store, **access: Private**, connected to `gtp-team` only | you | about $0.05/month (see §6) |
@@ -136,3 +136,23 @@ Between steps 2 and 3, *neither* side sends. A due post can be missed for that w
 | Media retention | `node command-center/deploy/media-retention.mjs [--keep-days 14] [--apply]` |
 | Backup / verify | `node command-center/deploy/backup.mjs --out ~/GTP-backups` · `--verify <file>` |
 | Local hosted staging | `node command-center/hosted/dev-server.mjs` → http://localhost:4191 (Touch ID passkeys work on localhost) |
+| Assemble the ops repo (local only) | `node command-center/deploy/assemble-ops-repo.mjs --out ~/Downloads/gtp-ops` |
+
+## 9. The ops repo (`gtp-ops`)
+
+`deploy/assemble-ops-repo.mjs` builds it as a **new local git repo with one commit and no remote**; it never overwrites a folder.
+- **Contents:**
+  - `command-center/` exactly as committed (tracked files only: no `out/`, `node_modules` or `.env`);
+  - `api/index.mjs` and `vercel.json` at the root;
+  - the two workflows in `.github/workflows/`, every action pinned to a commit SHA;
+  - `public-snapshot/app/`: the six public-site files the web function loads (team-colour code and data, the caption word list, the logo), taken from the public `main`, never from a branch. Vercel's build copies them to `app/`. On Actions, `app/` is the live read-only sparse checkout instead.
+  - `SOURCE.json`: both source commits and the sha256 of every snapshot file.
+- **Refused:** anything that looks like a credential (GitHub/Vercel/model tokens, a Postgres URL with a password, private keys) and any build output. The finding names the file, never the value.
+- **Checked by `tests/ops-repo.test.mjs`:**
+  - pinned actions;
+  - the sparse checkouts cover every public path the code reads;
+  - after the same build command Vercel runs, the real `api/index.mjs` loads in a folder with no public repo beside it, and answers: logo 200, unauthenticated state 401, cron without its secret 404;
+  - the function bundle glob covers every runtime directory.
+- **Updating later:** assemble into a new folder, compare it with the ops repo, and copy the changes over as a normal commit. Never force-push.
+- **Push (only after you create the empty private repo and say go):** `git -C ~/Downloads/gtp-ops remote add origin https://github.com/<owner>/gtp-ops.git`, then `git -C ~/Downloads/gtp-ops push -u origin main`.
+

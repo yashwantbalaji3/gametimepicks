@@ -5,7 +5,7 @@
 # due within 10 minutes; the job waits for each exact due time) and by a founder's "Dry run now" / "Live test". No Claude Code and no model run here; only main's code.
 # One run at a time (concurrency), so two runs can never race the same post — and the once-only ledger claims would
 # refuse the second anyway.
-# Pin every action to a full commit SHA before enabling.
+# Every action is pinned to a full commit SHA (tests/ops-repo.test.mjs checks it).
 name: cc-publisher
 run-name: publisher ${{ inputs.job_id }}
 
@@ -36,12 +36,12 @@ jobs:
           JOB_ID: ${{ inputs.job_id }}
         run: '[[ "$JOB_ID" =~ ^job-[0-9a-f]{12}$ ]] || { echo "malformed tag"; exit 1; }'
 
-      - uses: actions/checkout@v4   # pin SHA
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
 
       - name: Read-only sparse checkout of the public repo (the published predictions the gate re-checks)
-        uses: actions/checkout@v4   # pin SHA
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           repository: yashwantbalaji3/gametimepicks
           path: .public
@@ -49,17 +49,25 @@ jobs:
           fetch-depth: 1
           sparse-checkout: |
             app/package.json
+            app/public/brand
             app/scripts/build-mlb-social-content.mjs
             app/src/lib
+            app/public/data/nfl
             app/public/data/nba/experimental-public
             app/public/data/nba/results
-            app/public/data/nfl
+            app/public/data/nba/schedule
+            app/public/data/nba/top-boards
+            app/public/data/mlb/predictions
+            app/public/data/mlb/statsapi-schedule
+            app/public/data/soccer/epl/forecasts
+            app/public/data/soccer/epl/results
+            app/public/data/ufc/schedule
             app/public/data/results/top-boards
-            data/internal/forecast-ledger/v1/nfl.jsonl
+            data/internal/forecast-ledger/v1
             data/internal/nfl/forecast-receipts
           sparse-checkout-cone-mode: false
 
-      - uses: actions/setup-node@v4   # pin SHA
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: 22
 

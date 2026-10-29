@@ -135,7 +135,7 @@ Nothing secret is in the repository, the ledger or logs.
 - [x] Once-only publishing; never after start; fresh-data re-check; dry run by default.
 - [x] Secrets never in the repository, the ledger, logs or the browser (tested for tokens in state and at rest).
 - [ ] **B1 media storage (before hosting):** retention for rendered graphics, or object storage, so Neon's 0.5 GB isn't exhausted (about 40 MB/day today).
-- [ ] B2: hosted queue builds need the NBA/NFL public data paths in the worker's sparse checkout (`cc-worker.yml` lists only the H0 NFL paths).
+- [x] B2: both workflows' sparse checkouts cover every public path the code reads (2026-10-29; `tests/ops-repo.test.mjs`).
 - [ ] B3: run `cc-publisher.yml` once as a dry run on real Actions + Neon (pins, sparse paths, `git fetch` in a sparse checkout).
 - [ ] B4: real X consent and one live test post (your credits + approval).
 - [ ] B5: confirm the media-upload price on your X usage page after the first post, and adjust `PRICE_USD` if it differs.

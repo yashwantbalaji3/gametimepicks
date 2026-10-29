@@ -1,14 +1,14 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "buildCommand": "",
+  "buildCommand": "rm -rf app public && mkdir public && cp -R public-snapshot/app app",
   "installCommand": "npm ci --prefix command-center --omit=dev",
   "outputDirectory": "public",
   "functions": {
     "api/index.mjs": {
       "memory": 512,
       "maxDuration": 60,
-      "includeFiles": "command-center/{auth,contracts,hosted,jobs,ledger,lib,orchestrator,providers,publishers,recap,render,roles,engineering,surfaces/console}/**"
+      "includeFiles": "{command-center/{auth,contracts,hosted,jobs,ledger,lib,orchestrator,providers,publishers,recap,render,roles,engineering,editorial,surfaces/console}/**,app/**}"
     }
   },
   "rewrites": [

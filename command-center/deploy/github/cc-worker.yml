@@ -66,13 +66,13 @@ jobs:
             if [ -n "${!v:-}" ]; then echo "$v is set; refusing"; exit 1; fi
           done
 
-      - uses: actions/checkout@v4   # pin SHA at CP-H2
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           fetch-depth: 0
           persist-credentials: false
 
       - name: Read-only sparse checkout of the public repo (data the recap and tests read)
-        uses: actions/checkout@v4   # pin SHA at CP-H2
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           repository: yashwantbalaji3/gametimepicks
           path: .public
@@ -81,12 +81,23 @@ jobs:
             app/package.json
             app/public/brand
             app/scripts/build-mlb-social-content.mjs
-            app/src/lib/simulation-theater
-            data/internal/forecast-ledger/v1/nfl.jsonl
+            app/src/lib
+            app/public/data/nfl
+            app/public/data/nba/experimental-public
+            app/public/data/nba/results
+            app/public/data/nba/schedule
+            app/public/data/nba/top-boards
+            app/public/data/mlb/predictions
+            app/public/data/mlb/statsapi-schedule
+            app/public/data/soccer/epl/forecasts
+            app/public/data/soccer/epl/results
+            app/public/data/ufc/schedule
+            app/public/data/results/top-boards
+            data/internal/forecast-ledger/v1
             data/internal/nfl/forecast-receipts
           sparse-checkout-cone-mode: false
 
-      - uses: actions/setup-node@v4   # pin SHA at CP-H2
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: 22
 
@@ -115,7 +126,7 @@ jobs:
 
       - name: Hand the kept branch to the push job
         if: steps.worker.outputs.kept_branch != ''
-        uses: actions/upload-artifact@v4   # pin SHA at CP-H2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: kept-${{ inputs.job_id }}
           path: ${{ runner.temp }}/kept.bundle
@@ -129,15 +140,15 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4   # pin SHA at CP-H2
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           fetch-depth: 0
           persist-credentials: false   # the write token is used only by the final push command
-      - uses: actions/download-artifact@v4   # pin SHA at CP-H2
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: kept-${{ inputs.job_id }}
           path: ${{ runner.temp }}
-      - uses: actions/setup-node@v4   # pin SHA at CP-H2
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: 22
       - name: Check the bundle against the founder's G3 keep in the ledger
