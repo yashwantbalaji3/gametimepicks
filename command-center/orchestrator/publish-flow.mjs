@@ -307,6 +307,9 @@ export function createPublishFlow(ctx) {
   /** Scheduler tick: every scheduled job that is due, oldest first. One tick at a time per process. */
   async function runDue() {
     if (running) return { ok: true, skipped: "a tick is already running" };
+    // the inactive host leaves the schedule alone: no run, no result, no alert — its copies of the jobs stay "scheduled"
+    // so the active host (or this one, after a hand-off) runs each exactly once
+    if (activeHost() !== thisHost) return { ok: true, ran: [], skipped: `the ${activeHost()} publisher runs the schedule` };
     running = true;
     const out = [];
     try {
@@ -356,7 +359,7 @@ export function createPublishFlow(ctx) {
     return { ok: true, queued: true, job };
   }
   /** Jobs due within the next `withinMs` (the hosted cron dispatches the publisher job when this is non-empty). */
-  const dueSoon = (withinMs = 10 * 60_000) => jobs().filter((j) => j.status === "scheduled" && Date.parse(j.dueAt) <= Date.parse(clock()) + withinMs);
+  const dueSoon = (withinMs = 10 * 60_000) => (activeHost() !== thisHost ? [] : jobs()).filter((j) => j.status === "scheduled" && Date.parse(j.dueAt) <= Date.parse(clock()) + withinMs);
 
   /**
    * After an UNKNOWN outcome: the founder records the X link they found (or "not posted"), or asks the API to look

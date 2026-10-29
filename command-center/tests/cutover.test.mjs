@@ -46,7 +46,7 @@ async function connect(oauth, binding) {
 
 test("cutover: one live publisher at a time, claims travel with the ledger, no post is sent twice, rollback works", { skip: hasSlate ? false : "slate commit missing", timeout: 600_000 }, async () => {
   const dir = tempDir("gtp-cc-cutover-");
-  const t = "2026-10-28T16:30:00.000Z";
+  let t = "2026-10-28T16:30:00.000Z";
   const clock = () => t;
   const x = fakeX();
   const src = gitDataSource(REPO_ROOT, SLATE);
@@ -99,6 +99,18 @@ test("cutover: one live publisher at a time, claims travel with the ledger, no p
   // a host can never take publishing (nor hand to itself): only the active one hands it away
   assert.equal((await hosted((o) => o.publishing.setPublisherHost({ to: "hosted", confirmation: handOffText("hosted") }, FOUNDER))).code, "INVALID_REQUEST");
   assert.equal(x.posts(), 1, "nothing sent by the inactive host");
+  // the inactive host leaves the copied schedule alone: nothing dispatched, nothing run, nothing recorded
+  const sched = local.publishing.schedule({ decisionId: B.decisionId, at: "2026-10-28T16:40:00.000Z" }, FOUNDER);
+  assert.ok(sched.ok, JSON.stringify(sched));
+  await sync("to-hosted");
+  const later = "2026-10-28T16:45:00.000Z";
+  t = later;
+  assert.deepEqual(await hosted(async (o) => o.publishing.dueSoon()), [], "the hosted cron would not dispatch");
+  const tick = await hosted((o) => o.publishing.runDue());
+  assert.deepEqual(tick.ran, []);
+  assert.equal((await hosted((o) => o.publishing.jobs())).find((j) => j.jobId === sched.job.jobId).status, "scheduled", "still scheduled, untouched");
+  assert.ok(local.publishing.cancel({ jobId: sched.job.jobId }, FOUNDER).ok);
+  t = "2026-10-28T16:30:00.000Z";
 
   // ── cutover: the Mac hands off (exact words, founder only), then stops sending at once ───────────────────────────
   assert.equal(local.publishing.setPublisherHost({ to: "hosted", confirmation: "yes" }, FOUNDER).code, "AUTHORIZATION_TEXT");
