@@ -191,7 +191,8 @@ export function mlbHub(nowIso: string): SportHubModel {
     rows,
     present: ["games", "products", "simulations", "picks", "results"],
     ...(rows.length === 0 && official ? official.empty : seasonCopy ? {
-      emptyCounts: "No games left this season",
+      // the hub contract: an empty period still prints its zero counts (sport-hub/contract.test.mjs); the reason says why
+      emptyCounts: "0 scheduled · 0 with a report · 0 with a supported read",
       emptyReason: seasonCopy.short,
       emptyLink: { href: "/results/mlb/", label: "See the full MLB record" },
     } : {

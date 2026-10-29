@@ -87,7 +87,11 @@ test("RX3 representative pages: sport-aware content, coverage copy, nothing unsu
   const eplTeam = partition("teams", "EPL")[0];
   const epl = htmlOf(`teams/epl/${eplTeam.slug}`);
   assert.doesNotMatch(mainText(epl), /\bRecord\b|\bW–L\b|Points scored|Goals for/);
-  assert.match(mainText(epl), /Final team results are not yet available/);
+  // REPOINTED (Batch 1 #8, 2026-10-29): this pinned "Final team results are not yet available" — true until EPL team pages
+  // read the graded record. The coverage sentence must still say what is missing (earlier seasons) and where the
+  // current-season results come from; no Record/W–L/Goals-for claim is added (above).
+  assert.match(mainText(epl), /Not yet available: Final results for earlier seasons/);
+  assert.match(mainText(epl), /Current-season results are the official full-time scores of every graded Premier League match/);
   assert.doesNotMatch(epl, /gtp-follow-toggle/, "Follow is not extended to EPL");
   // NFL player: current-season coverage stated from the player's own rows; windows with n.
   // REPOINTED (independent audit 2026-10-28 F08): this pinned "2026 logs are not available yet" on a page that shows six
