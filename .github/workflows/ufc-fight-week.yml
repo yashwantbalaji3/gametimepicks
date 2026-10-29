@@ -198,6 +198,16 @@ jobs:
           npx tsx scripts/ufc/capture-ufc-model-vs-market.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --write || \
             echo "::warning::UFC model-vs-market snapshot refused this run"
 
+      # ALL THREE HEADS, FROZEN BEFORE THE CARD. The snapshot above keeps the winner only, and only for
+      # priced bouts, so method and round (Cage Chaos) had no pre-fight receipt. This copies every head
+      # of every read bout, priced or not, into an immutable internal file. No odds, no public output.
+      - name: Freeze the pre-fight method and round heads
+        working-directory: app
+        run: |
+          set -uo pipefail
+          npx tsx scripts/ufc/capture-ufc-prefight-heads.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --write || \
+            echo "::warning::UFC prefight heads freeze refused this run"
+
       # The product-state contract for this lane. Built LAST so it summarises what this run produced,
       # and it checks the two things that silently broke the lane before: whether the published
       # ladder belongs to the card on the page, and whether the settler can grade this sport at all.
@@ -254,6 +264,7 @@ jobs:
                   app/public/data/parlays/risk-ladder-ufc app/public/data/admin/ufc-lane.json \
                   app/public/data/ufc/fight-model-evaluation.json data/internal/research/ufc/model-card-fight-v1.json \
                   data/internal/research/ufc/model-vs-market \
+                  data/internal/research/ufc/prefight-heads \
                   data/internal/research/ufc/population \
                   data/internal/research/ufc/lineage \
                   data/internal/research/odds/ufc/authorization-ledger.json \
