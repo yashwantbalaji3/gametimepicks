@@ -74,7 +74,9 @@ export function freezeDay(day, boards, frozenAt, prices = propPrices) {
         ...(slot.market ? { market: slot.market } : { pricingState: slot.pricingState ?? null }),
         projection: metric === "probability"
           ? { probability: m.probability }
-          : { median: Math.round(m.median), p10: m.p10 != null ? Math.round(m.p10) : null, p90: m.p90 != null ? Math.round(m.p90) : null },
+          /* Founder 2026-10-29: future records keep the exact canonical value (graded as-is); rounding is presentation-only.
+             Days already frozen keep their recorded (rounded) values — this file is write-once and never rewritten. */
+          : { median: m.median, p10: m.p10 ?? null, p90: m.p90 ?? null },
         boardGeneratedAt: b.generatedAt ?? null,
       };
     });

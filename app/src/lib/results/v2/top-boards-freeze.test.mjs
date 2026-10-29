@@ -97,3 +97,10 @@ test("the weekly boards rank with the SAME shared rule (no second copy of the so
   const fz = fs.readFileSync(SCRIPT, "utf8");
   assert.match(fz, /flag: "wx"/, "the write itself refuses to overwrite");
 });
+
+test("🔴 founder 2026-10-29: a new freeze keeps the exact canonical median and range (rounding is presentation-only)", () => {
+  const b = [board("1", "2031-10-02T17:00Z", [player("a", { player_rush_yds: { median: 48.6, p10: 12.3, p90: 97.4, mean: 52 } })])];
+  const out = freezeDay("2031-10-02", b, "2031-10-02T12:00:00Z", noPrices);
+  const row = out.boards.find((x) => x.propFamily === "player_rush_yds").rows[0];
+  assert.deepEqual(row.projection, { median: 48.6, p10: 12.3, p90: 97.4 });
+});
