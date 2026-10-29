@@ -2,59 +2,64 @@
 
 **Status:** contract and validator implemented and tested (`recap/odds-comparison.mjs`, `tests/odds-comparison.test.mjs`).
 - Social odds graphics are **gated off** (`SOCIAL_ODDS_ENABLED = false`).
-- No social graphic uses a line today.
+- Social display of sportsbook prices is **not cleared** (decision D3 is open).
+- Today every feed row is `NOT_AUTHORIZED`, so no social graphic shows a line.
+- Aligned with the GameTimePicks launch-readiness session on 2026-10-29.
 
-**Principle:** the website owns odds. The Command Center **consumes** the website's records and results verbatim. It never fetches prices, never chooses a book, and never computes a lean, an edge or an EV.
+**Principle:** the website owns odds and the comparison. The Command Center reads the website's **public social feed** verbatim. It never fetches prices, picks a book, compares, or re-runs any evaluator. Raw prices stay private under the 10-22 storage rule: the repo is public.
 
-## Sources of truth (public repo, `main`)
+## Source: `/data/social/nba/v1/<date>.json` (contract `gtp-social-nba@1`)
 
-| Concern | Owner module | What the Command Center uses |
-|---|---|---|
-| Forecast identity and version | `lib/consistency/official-snapshot.mjs` (e.g. `nbaOfficialSnapshot`) | The same snapshot id the website evaluates against |
-| Player, team and event ids | Price record: `eventId` (ESPN event id, joined by both teams + start), `providerAthleteId` (ESPN athlete id via roster + reviewed aliases; a name is never the identity) | Copied; a mismatch refuses |
-| Market definitions | Family keys of the official snapshot (`pts`, `reb`, `ast`, `threePm`, NFL families …) | Copied; never renamed |
-| Line and prices | Price record (`gtp.nba.prop-price@1`, provider `the-odds-api`): `line`, `book`, `bookTitle`, `overAmerican`, `underAmerican`, `capturedAt` (the provider's own update time), `fetchedAt` | Copied verbatim |
-| Which book is shown | `sports/odds/prop-display-selection.mjs`: reference book DraftKings, fallback FanDuel, the chosen book named on screen | The record the website selected |
-| Which books may be named | `sports/odds/eligible-operators.mjs` allowlist (offshore books refused, fail-closed), plus "Sportsbook availability varies by state." beside any book name | The allowlist plus the same sentence |
-| Freshness and availability | `sports/odds/availability.mjs`: `SOURCE_ERROR` / `QUARANTINED` / `STALE` / `CAPTURED` / `AUTHORIZATION_REQUIRED` / `DRY_RUN_READY` / `DISCOVERABLE_ZERO_QUOTA` | Only `CAPTURED` allows a comparison |
-| Over/Under calculation | `lib/consistency/market-evaluator.mjs` `evaluateMarket` (`gtp.consistency.market-evaluator@1`): the lean is decided by price (EV ≥ minEv and edge ≥ minEdge); "a projection below the line is never, by itself, an UNDER" | `lean`, `withheldReasons` and `eligibility.qualified`, verbatim |
+**Per player and family, `lineComparison.status` is one of:**
+- `NOT_AUTHORIZED`
+- `UNAVAILABLE`, with a reason: `STALE`, `CAPTURED_AFTER_TIP`, `NO_LINE`, `UNMATCHED`, `MARKET_MISMATCH`, `WRONG_DAY`, `INVALID_LINE` or `NO_PROJECTION`
+- `COMPARED`, carrying:
+  - `line`, `overPrice`, `underPrice` (missing means "price unavailable", never 0);
+  - `book`, `marketKey`, `capturedAt`;
+  - `difference` (model − line, signed);
+  - `direction` (`ABOVE` / `BELOW` / `EQUAL`);
+  - `side` (`OVER` / `UNDER` / `NEUTRAL`);
+  - `freshness`.
 
-## What a social comparison shows (only when every check passes)
+**Top-level `lineComparisons`:** legend, graphicRule, `displayPermission`.
 
-- Player and team, the market, the **official projection**.
-- The **sportsbook line**, the book's name, and the Over and Under prices.
-- The lean: **OVER = green, UNDER = red, NONE = neutral**, taken from the evaluator's `lean`.
-- **Model − line** as a separate signed number (e.g. +6.5). This is presentation only: not an edge, not an EV.
-- Quote time and age, and "Sportsbook availability varies by state."
+**Quote validity is decided by the website:** a line counts only if it was captured before tip and is at most 6 h old (`LINE_MAX_AGE_HOURS`).
 
-## When it falls back to projection-only (and holds any line-dependent graphic)
+**Coming in the website's pending release** (additive, not yet on Production):
+- `isLatest`;
+- `slateState` (`UPCOMING` / `IN_PROGRESS` / `SETTLED`);
+- `today {etDate, status: PUBLISHED | NOT_YET_PUBLISHED | NO_GAMES | DISABLED}` in `latest.json` and `index.json`.
 
-Any one of these triggers the fallback:
+Reference: `COMMAND_CENTER_NBA_CONTRACT.md` in the founder's launch-program folder.
+
+## The display standard (founder, 2026-10-29: same rule on site and social)
+
+- **Colour = the row's `side`:**
+  - projection **above** the one verified line → **OVER (green)**;
+  - **below** → **UNDER (red)**;
+  - equal → **NEUTRAL** (subdued).
+- **Model − line** is shown signed, for example +6.5.
+- **It is a model direction, not a pick and not an expected-value claim.** Graphics say so in their record and caption context.
+- Shown together: player and team, market, official projection, line, book, Over and Under prices where available, side, difference, and quote time and freshness. Beside the book name: "Sportsbook availability varies by state."
+
+## Falls back to projection-only, and holds any line-dependent graphic, when
+
+Any one of these applies:
 - the gate is off;
-- no verified price;
-- an unknown evaluator version;
-- availability is not `CAPTURED` (for example `STALE`);
-- the book is not eligible;
-- the evaluation doesn't match the record (line or capture time);
-- the event has started;
-- the evaluation is not qualified (blocking reasons such as stale, one-sided or after-lock prices; or qualification reasons such as family not published, participation not cleared, private snapshot, sport not product-eligible, below the lean threshold).
+- the feed contract is unknown;
+- social display is not permitted;
+- the row is not `COMPARED`;
+- a field is missing;
+- the book is not on the website's eligible-operator allowlist;
+- the event has started.
 
-**Never:** a made-up line, an interpolated price, a "best odds" blend, or a colour taken from projection vs line.
-
-## Facts on `main` today (2026-10-29)
-
-- **NBA player-prop prices:** adapter and contract tests only. No paid Odds API credits are approved for NBA props, so there are no prices.
-- **NBA families are not qualified:** they are `PRIVATE_SHADOW`, so the evaluator returns `FAMILY_NOT_PUBLISHED` and `qualified: false` for every NBA price. NBA comparisons are therefore impossible today, by design.
-- **NFL:** the website's prop display selection and capture exist. Whether a social board may name a book is also a display-rights question (see below).
-
-## One decision for the founder
-
-You described the side as "projection 36.0 vs line 29.5 → OVER (green), +6.5". The website's evaluator decides the side from **price**, not from projection vs line. Under the one-official-forecast rule, the Command Center shows the website's lean, with **model − line** as its own number. If you want projection-above-line itself coloured, that is a change to the shared evaluator (the website), not to social graphics alone.
+**Never:** a made-up line, a price of 0, an interpolated or "best" price, or a recomputed difference.
 
 ## Gates before `SOCIAL_ODDS_ENABLED` can be turned on
 
-1. A verified feed for the sport, with availability `CAPTURED` inside its freshness bound.
-2. Display rights for showing sportsbook names and prices in social posts (provider terms and the operator policy).
-3. An API budget the founder has approved (no auto-recharge).
-4. A design approval for the comparison graphic (a new template version).
-5. An end-to-end test on real captured records reproducing the website's numbers byte for byte.
+1. **D3:** display rights for sportsbook names and prices in social posts.
+2. **Feed rows `COMPARED`** for the sport: a verified, fresh feed with an approved API budget, and no auto-recharge.
+3. **Founder design approval** of the comparison graphic (a new template version).
+4. **An end-to-end test** on a real feed file, with numbers matching the website byte for byte.
+
+NFL follows the same contract once the website publishes an equivalent feed. Until then NFL social posts stay projection-only.
