@@ -32,7 +32,8 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 globalThis.React = React;
-const { OfficialProjectionPanel } = await import("./nba/possession/possession-parts.tsx");
+const { OfficialProjectionPanel, PossessionBoxScore } = await import("./nba/possession/possession-parts.tsx");
+const { BOX_COLUMNS, boxRows, fmtMinutes } = await import("../../lib/simulation-theater/nba/possession/box.mjs");
 const { OfficialComparison, OfficialForecastCard } = await import("./RepresentativeParts.tsx");
 const { drawFromStoredRun, readPossessionArtifact, storedRunProblems, rostersOfGame } = await import("../../lib/simulation-theater/nba/possession/stored-run.mjs");
 const { loadPublicPossessionTheater, readLaneDay } = await import("../../lib/simulation-theater/nba/possession/public-loader.mjs");
@@ -94,6 +95,44 @@ test("NBA invariants, every stored run: Σ player PTS = team PTS = Σ periods = 
       assert.notEqual(r.final[0], r.final[1], "an NBA final is never tied");
       const winner = r.final[0] > r.final[1] ? "HOME" : "AWAY";
       if (r.kind === "upset") assert.notEqual(winner, g.official.winnerSide);
+      runs += 1;
+    }
+  }
+  assert.equal(runs, 15);
+});
+
+test("NBA displayed box score, every stored run: every column the Theater prints (MIN, PTS, REB, AST, …) sums over players to the printed team line; REB = OREB + DREB; team rebounds are separate", () => {
+  const COUNT = BOX_COLUMNS.map(([k]) => k).filter((k) => k !== "min");
+  assert.ok(COUNT.includes("reb") && COUNT.includes("ast"), "rebounds and assists are displayed");
+  let runs = 0;
+  for (const id of NBA_IDS) {
+    const g = gameOf(id);
+    const rosters = rostersOfGame(g);
+    const names = new Map(["home", "away"].flatMap((s) => g.rosters[s].map((p) => [String(p.providerAthleteId), p.displayName ?? p.name ?? null])));
+    for (const r of g.runs) {
+      const { box } = drawFromStoredRun(r, rosters);
+      const rows = boxRows(box, rosters, names);
+      const teams = { home: { abbr: "H", name: "Home" }, away: { abbr: "A", name: "Away" } };
+      const h = html(React.createElement(PossessionBoxScore, { rows, teams, final: true, idBase: "t" }));
+      for (const side of ["home", "away"]) {
+        const t = rows.totals[side];
+        for (const k of COUNT) assert.equal(rows[side].reduce((a, p) => a + p[k], 0), t[k], `${id} run ${r.runIndex} ${side}: Σ player ${k} = team ${k}`);
+        assert.equal(t.reb, t.oreb + t.dreb, `${id} run ${r.runIndex} ${side}: REB = OREB + DREB`);
+        assert.ok(Number.isInteger(t.teamRebounds) && t.teamRebounds >= 0, "team rebounds are their own number, not in any player line");
+        assert.equal(t.pts, r.final[side === "home" ? 0 : 1], `${id} run ${r.runIndex} ${side}: team PTS = final`);
+        // the printed table: each player's cells, and the footer = the column sums
+        const tbl = h.slice(h.indexOf(`data-nbp-box-team="${side}"`));
+        const foot = tbl.slice(tbl.indexOf("<tfoot>"), tbl.indexOf("</tfoot>"));
+        const footCells = [...foot.matchAll(/<td>([^<]*)<\/td>/g)].map((m) => m[1]).slice(1);
+        assert.deepEqual(footCells, BOX_COLUMNS.map(([k]) => (k === "min" ? String(Math.round(t.ds / 600)) : String(t[k]))), `${id} run ${r.runIndex} ${side}: printed team line`);
+        for (const p of rows[side]) {
+          const m = tbl.match(new RegExp(`<tr data-nbp-player="${p.providerAthleteId}">([\\s\\S]*?)</tr>`));
+          assert.ok(m, `${id}: row ${p.providerAthleteId}`);
+          const cells = [...m[1].matchAll(/<td[^>]*>([^<]*)<\/td>/g)].map((x) => x[1]).slice(1);
+          const want = p.ds === 0 ? ["did not play in this run"] : BOX_COLUMNS.map(([k]) => (k === "min" ? fmtMinutes(p.ds) : String(p[k])));
+          assert.deepEqual(cells, want, `${id} run ${r.runIndex} ${p.providerAthleteId}: printed cells`);
+        }
+      }
       runs += 1;
     }
   }
