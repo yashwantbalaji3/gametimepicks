@@ -4,7 +4,7 @@
  "dataClass": "PRIVATE_RESEARCH",
  "public": false,
  "competition": "epl",
- "generatedAt": "2026-10-30T00:48:06Z",
+ "generatedAt": "2026-10-30T21:44:40Z",
  "lookaheadHours": 96,
  "matchModel": {
   "modelId": "epl-model-v2-elo-poisson",
@@ -13,10 +13,10 @@
   "forwardState": "ACCUMULATING",
   "controlModelId": "epl-model-v1-split-poisson"
  },
- "oddsCapturedAt": "2026-10-25T15:40:37Z",
+ "oddsCapturedAt": "2026-10-30T21:44:23Z",
  "fixturesConsidered": 10,
  "counts": {
-  "READY_EXCEPT_ODDS": 10
+  "CURRENT_PRE_EVENT": 10
  },
  "gradedRecord": {
   "modelId": "epl-model-v2-elo-poisson",
@@ -41,11 +41,11 @@
    "slug": "chelsea-v-manchester-united-2026-10-31",
    "kickoffUtc": "2026-10-31T12:30:00Z",
    "matchweek": 9,
-   "state": "READY_EXCEPT_ODDS",
+   "state": "CURRENT_PRE_EVENT",
    "rule": null,
-   "reason": "odds snapshot stale/post-start or carries no three-way rows for this fixture — no market comparison exists yet",
-   "model": null,
-   "modelOnly": {
+   "reason": null,
+   "model": {
+    "state": "PREDICTED",
     "modelId": "epl-model-v2-elo-poisson",
     "probs": {
      "home": 0.380347,
@@ -152,56 +152,6 @@
      "yes": 0.566581,
      "no": 0.433419
     },
-    "topScorelines": [
-     {
-      "score": "1-1",
-      "p": 0.119353
-     },
-     {
-      "score": "1-0",
-      "p": 0.086348
-     },
-     {
-      "score": "0-1",
-      "p": 0.084497
-     },
-     {
-      "score": "2-1",
-      "p": 0.084293
-     },
-     {
-      "score": "1-2",
-      "p": 0.082487
-     },
-     {
-      "score": "0-0",
-      "p": 0.061131
-     },
-     {
-      "score": "2-0",
-      "p": 0.060983
-     },
-     {
-      "score": "0-2",
-      "p": 0.058397
-     },
-     {
-      "score": "2-2",
-      "p": 0.058256
-     },
-     {
-      "score": "3-1",
-      "p": 0.039688
-     }
-    ],
-    "lambdas": {
-     "home": 1.4125,
-     "away": 1.3822
-    },
-    "coldStart": {
-     "home": false,
-     "away": false
-    },
     "cleanSheet": {
      "home": 0.251018,
      "away": 0.243532
@@ -300,9 +250,59 @@
       }
      ]
     },
+    "topScorelines": [
+     {
+      "score": "1-1",
+      "p": 0.119353
+     },
+     {
+      "score": "1-0",
+      "p": 0.086348
+     },
+     {
+      "score": "0-1",
+      "p": 0.084497
+     },
+     {
+      "score": "2-1",
+      "p": 0.084293
+     },
+     {
+      "score": "1-2",
+      "p": 0.082487
+     },
+     {
+      "score": "0-0",
+      "p": 0.061131
+     },
+     {
+      "score": "2-0",
+      "p": 0.060983
+     },
+     {
+      "score": "0-2",
+      "p": 0.058397
+     },
+     {
+      "score": "2-2",
+      "p": 0.058256
+     },
+     {
+      "score": "3-1",
+      "p": 0.039688
+     }
+    ],
     "topScorelinesMass": 0.735434,
-    "note": "model-only pre-odds snapshot — no market comparison exists; refreshed until kickoff; never part of the paired model-vs-market evaluation"
+    "lambdas": {
+     "home": 1.4125,
+     "away": 1.3822
+    },
+    "coldStart": {
+     "home": false,
+     "away": false
+    }
    },
+   "modelOnly": null,
    "control": {
     "modelId": "epl-model-v1-split-poisson",
     "probs": {
@@ -381,7 +381,24 @@
      ]
     }
    },
-   "market": null,
+   "market": {
+    "books": 1,
+    "impliedSum": 1.05664,
+    "noVig": [
+     {
+      "name": "Chelsea",
+      "prob": 0.48474
+     },
+     {
+      "name": "Manchester United",
+      "prob": 0.262888
+     },
+     {
+      "name": "Draw",
+      "prob": 0.252372
+     }
+    ]
+   },
    "publicActivation": "OFF"
   },
   {
@@ -393,11 +410,11 @@
    "slug": "manchester-city-v-brighton-and-hove-albion-2026-10-31",
    "kickoffUtc": "2026-10-31T15:00:00Z",
    "matchweek": 9,
-   "state": "READY_EXCEPT_ODDS",
+   "state": "CURRENT_PRE_EVENT",
    "rule": null,
-   "reason": "odds snapshot stale/post-start or carries no three-way rows for this fixture — no market comparison exists yet",
-   "model": null,
-   "modelOnly": {
+   "reason": null,
+   "model": {
+    "state": "PREDICTED",
     "modelId": "epl-model-v2-elo-poisson",
     "probs": {
      "home": 0.628076,
@@ -504,56 +521,6 @@
      "yes": 0.492162,
      "no": 0.507838
     },
-    "topScorelines": [
-     {
-      "score": "1-0",
-      "p": 0.118566
-     },
-     {
-      "score": "2-0",
-      "p": 0.114982
-     },
-     {
-      "score": "1-1",
-      "p": 0.101398
-     },
-     {
-      "score": "2-1",
-      "p": 0.098333
-     },
-     {
-      "score": "3-0",
-      "p": 0.074337
-     },
-     {
-      "score": "3-1",
-      "p": 0.063573
-     },
-     {
-      "score": "0-0",
-      "p": 0.061131
-     },
-     {
-      "score": "0-1",
-      "p": 0.05228
-     },
-     {
-      "score": "1-2",
-      "p": 0.043358
-     },
-     {
-      "score": "2-2",
-      "p": 0.042047
-     }
-    ],
-    "lambdas": {
-     "home": 1.9395,
-     "away": 0.8552
-    },
-    "coldStart": {
-     "home": false,
-     "away": false
-    },
     "cleanSheet": {
      "home": 0.425197,
      "away": 0.143772
@@ -652,9 +619,59 @@
       }
      ]
     },
+    "topScorelines": [
+     {
+      "score": "1-0",
+      "p": 0.118566
+     },
+     {
+      "score": "2-0",
+      "p": 0.114982
+     },
+     {
+      "score": "1-1",
+      "p": 0.101398
+     },
+     {
+      "score": "2-1",
+      "p": 0.098333
+     },
+     {
+      "score": "3-0",
+      "p": 0.074337
+     },
+     {
+      "score": "3-1",
+      "p": 0.063573
+     },
+     {
+      "score": "0-0",
+      "p": 0.061131
+     },
+     {
+      "score": "0-1",
+      "p": 0.05228
+     },
+     {
+      "score": "1-2",
+      "p": 0.043358
+     },
+     {
+      "score": "2-2",
+      "p": 0.042047
+     }
+    ],
     "topScorelinesMass": 0.770005,
-    "note": "model-only pre-odds snapshot — no market comparison exists; refreshed until kickoff; never part of the paired model-vs-market evaluation"
+    "lambdas": {
+     "home": 1.9395,
+     "away": 0.8552
+    },
+    "coldStart": {
+     "home": false,
+     "away": false
+    }
    },
+   "modelOnly": null,
    "control": {
     "modelId": "epl-model-v1-split-poisson",
     "probs": {
@@ -733,7 +750,24 @@
      ]
     }
    },
-   "market": null,
+   "market": {
+    "books": 1,
+    "impliedSum": 1.04845,
+    "noVig": [
+     {
+      "name": "Brighton and Hove Albion",
+      "prob": 0.221811
+     },
+     {
+      "name": "Manchester City",
+      "prob": 0.556377
+     },
+     {
+      "name": "Draw",
+      "prob": 0.221811
+     }
+    ]
+   },
    "publicActivation": "OFF"
   },
   {
@@ -745,11 +779,11 @@
    "slug": "bournemouth-v-leeds-united-2026-10-31",
    "kickoffUtc": "2026-10-31T15:00:00Z",
    "matchweek": 9,
-   "state": "READY_EXCEPT_ODDS",
+   "state": "CURRENT_PRE_EVENT",
    "rule": null,
-   "reason": "odds snapshot stale/post-start or carries no three-way rows for this fixture — no market comparison exists yet",
-   "model": null,
-   "modelOnly": {
+   "reason": null,
+   "model": {
+    "state": "PREDICTED",
     "modelId": "epl-model-v2-elo-poisson",
     "probs": {
      "home": 0.519627,
@@ -856,56 +890,6 @@
      "yes": 0.542405,
      "no": 0.457595
     },
-    "topScorelines": [
-     {
-      "score": "1-1",
-      "p": 0.113424
-     },
-     {
-      "score": "1-0",
-      "p": 0.104483
-     },
-     {
-      "score": "2-1",
-      "p": 0.09693
-     },
-     {
-      "score": "2-0",
-      "p": 0.08929
-     },
-     {
-      "score": "0-1",
-      "p": 0.066362
-     },
-     {
-      "score": "1-2",
-      "p": 0.061565
-     },
-     {
-      "score": "0-0",
-      "p": 0.061131
-     },
-     {
-      "score": "3-1",
-      "p": 0.055223
-     },
-     {
-      "score": "2-2",
-      "p": 0.052612
-     },
-     {
-      "score": "3-0",
-      "p": 0.05087
-     }
-    ],
-    "lambdas": {
-     "home": 1.7092,
-     "away": 1.0856
-    },
-    "coldStart": {
-     "home": false,
-     "away": false
-    },
     "cleanSheet": {
      "home": 0.33771,
      "away": 0.181016
@@ -1004,9 +988,59 @@
       }
      ]
     },
+    "topScorelines": [
+     {
+      "score": "1-1",
+      "p": 0.113424
+     },
+     {
+      "score": "1-0",
+      "p": 0.104483
+     },
+     {
+      "score": "2-1",
+      "p": 0.09693
+     },
+     {
+      "score": "2-0",
+      "p": 0.08929
+     },
+     {
+      "score": "0-1",
+      "p": 0.066362
+     },
+     {
+      "score": "1-2",
+      "p": 0.061565
+     },
+     {
+      "score": "0-0",
+      "p": 0.061131
+     },
+     {
+      "score": "3-1",
+      "p": 0.055223
+     },
+     {
+      "score": "2-2",
+      "p": 0.052612
+     },
+     {
+      "score": "3-0",
+      "p": 0.05087
+     }
+    ],
     "topScorelinesMass": 0.751891,
-    "note": "model-only pre-odds snapshot — no market comparison exists; refreshed until kickoff; never part of the paired model-vs-market evaluation"
+    "lambdas": {
+     "home": 1.7092,
+     "away": 1.0856
+    },
+    "coldStart": {
+     "home": false,
+     "away": false
+    }
    },
+   "modelOnly": null,
    "control": {
     "modelId": "epl-model-v1-split-poisson",
     "probs": {
@@ -1085,7 +1119,24 @@
      ]
     }
    },
-   "market": null,
+   "market": {
+    "books": 1,
+    "impliedSum": 1.05516,
+    "noVig": [
+     {
+      "name": "Bournemouth",
+      "prob": 0.451297
+     },
+     {
+      "name": "Leeds United",
+      "prob": 0.270778
+     },
+     {
+      "name": "Draw",
+      "prob": 0.277925
+     }
+    ]
+   },
    "publicActivation": "OFF"
   },
   {
@@ -1097,11 +1148,11 @@
    "slug": "coventry-city-v-sunderland-2026-10-31",
    "kickoffUtc": "2026-10-31T15:00:00Z",
    "matchweek": 9,
-   "state": "READY_EXCEPT_ODDS",
+   "state": "CURRENT_PRE_EVENT",
    "rule": null,
-   "reason": "odds snapshot stale/post-start or carries no three-way rows for this fixture — no market comparison exists yet",
-   "model": null,
-   "modelOnly": {
+   "reason": null,
+   "model": {
+    "state": "PREDICTED",
     "modelId": "epl-model-v2-elo-poisson",
     "probs": {
      "home": 0.350235,
@@ -1208,56 +1259,6 @@
      "yes": 0.565979,
      "no": 0.434021
     },
-    "topScorelines": [
-     {
-      "score": "1-1",
-      "p": 0.119204
-     },
-     {
-      "score": "0-1",
-      "p": 0.088577
-     },
-     {
-      "score": "1-2",
-      "p": 0.086362
-     },
-     {
-      "score": "1-0",
-      "p": 0.082268
-     },
-     {
-      "score": "2-1",
-      "p": 0.08021
-     },
-     {
-      "score": "0-2",
-      "p": 0.064173
-     },
-     {
-      "score": "0-0",
-      "p": 0.061131
-     },
-     {
-      "score": "2-2",
-      "p": 0.058111
-     },
-     {
-      "score": "2-0",
-      "p": 0.055356
-     },
-     {
-      "score": "1-3",
-      "p": 0.041712
-     }
-    ],
-    "lambdas": {
-     "home": 1.3458,
-     "away": 1.449
-    },
-    "coldStart": {
-     "home": false,
-     "away": false
-    },
     "cleanSheet": {
      "home": 0.23481,
      "away": 0.260342
@@ -1356,9 +1357,59 @@
       }
      ]
     },
+    "topScorelines": [
+     {
+      "score": "1-1",
+      "p": 0.119204
+     },
+     {
+      "score": "0-1",
+      "p": 0.088577
+     },
+     {
+      "score": "1-2",
+      "p": 0.086362
+     },
+     {
+      "score": "1-0",
+      "p": 0.082268
+     },
+     {
+      "score": "2-1",
+      "p": 0.08021
+     },
+     {
+      "score": "0-2",
+      "p": 0.064173
+     },
+     {
+      "score": "0-0",
+      "p": 0.061131
+     },
+     {
+      "score": "2-2",
+      "p": 0.058111
+     },
+     {
+      "score": "2-0",
+      "p": 0.055356
+     },
+     {
+      "score": "1-3",
+      "p": 0.041712
+     }
+    ],
     "topScorelinesMass": 0.737105,
-    "note": "model-only pre-odds snapshot — no market comparison exists; refreshed until kickoff; never part of the paired model-vs-market evaluation"
+    "lambdas": {
+     "home": 1.3458,
+     "away": 1.449
+    },
+    "coldStart": {
+     "home": false,
+     "away": false
+    }
    },
+   "modelOnly": null,
    "control": {
     "modelId": "epl-model-v1-split-poisson",
     "probs": {
@@ -1437,7 +1488,24 @@
      ]
     }
    },
-   "market": null,
+   "market": {
+    "books": 1,
+    "impliedSum": 1.04662,
+    "noVig": [
+     {
+      "name": "Coventry City",
+      "prob": 0.308212
+     },
+     {
+      "name": "Sunderland",
+      "prob": 0.406577
+     },
+     {
+      "name": "Draw",
+      "prob": 0.285211
+     }
+    ]
+   },
    "publicActivation": "OFF"
   },
   {
@@ -1449,11 +1517,11 @@
    "slug": "hull-city-v-ipswich-town-2026-10-31",
    "kickoffUtc": "2026-10-31T15:00:00Z",
    "matchweek": 9,
-   "state": "READY_EXCEPT_ODDS",
+   "state": "CURRENT_PRE_EVENT",
    "rule": null,
-   "reason": "odds snapshot stale/post-start or carries no three-way rows for this fixture — no market comparison exists yet",
-   "model": null,
-   "modelOnly": {
+   "reason": null,
+   "model": {
+    "state": "PREDICTED",
     "modelId": "epl-model-v2-elo-poisson",
     "probs": {
      "home": 0.496573,
@@ -1560,56 +1628,6 @@
      "yes": 0.549391,
      "no": 0.450609
     },
-    "topScorelines": [
-     {
-      "score": "1-1",
-      "p": 0.115127
-     },
-     {
-      "score": "1-0",
-      "p": 0.101521
-     },
-     {
-      "score": "2-1",
-      "p": 0.095597
-     },
-     {
-      "score": "2-0",
-      "p": 0.084299
-     },
-     {
-      "score": "0-1",
-      "p": 0.069324
-     },
-     {
-      "score": "1-2",
-      "p": 0.065279
-     },
-     {
-      "score": "0-0",
-      "p": 0.061131
-     },
-     {
-      "score": "2-2",
-      "p": 0.054204
-     },
-     {
-      "score": "3-1",
-      "p": 0.05292
-     },
-     {
-      "score": "3-0",
-      "p": 0.046665
-     }
-    ],
-    "lambdas": {
-     "home": 1.6607,
-     "away": 1.134
-    },
-    "coldStart": {
-     "home": false,
-     "away": false
-    },
     "cleanSheet": {
      "home": 0.321736,
      "away": 0.190004
@@ -1708,9 +1726,59 @@
       }
      ]
     },
+    "topScorelines": [
+     {
+      "score": "1-1",
+      "p": 0.115127
+     },
+     {
+      "score": "1-0",
+      "p": 0.101521
+     },
+     {
+      "score": "2-1",
+      "p": 0.095597
+     },
+     {
+      "score": "2-0",
+      "p": 0.084299
+     },
+     {
+      "score": "0-1",
+      "p": 0.069324
+     },
+     {
+      "score": "1-2",
+      "p": 0.065279
+     },
+     {
+      "score": "0-0",
+      "p": 0.061131
+     },
+     {
+      "score": "2-2",
+      "p": 0.054204
+     },
+     {
+      "score": "3-1",
+      "p": 0.05292
+     },
+     {
+      "score": "3-0",
+      "p": 0.046665
+     }
+    ],
     "topScorelinesMass": 0.746067,
-    "note": "model-only pre-odds snapshot — no market comparison exists; refreshed until kickoff; never part of the paired model-vs-market evaluation"
+    "lambdas": {
+     "home": 1.6607,
+     "away": 1.134
+    },
+    "coldStart": {
+     "home": false,
+     "away": false
+    }
    },
+   "modelOnly": null,
    "control": {
     "modelId": "epl-model-v1-split-poisson",
     "probs": {
@@ -1789,7 +1857,24 @@
      ]
     }
    },
-   "market": null,
+   "market": {
+    "books": 1,
+    "impliedSum": 1.054673,
+    "noVig": [
+     {
+      "name": "Hull City",
+      "prob": 0.364677
+     },
+     {
+      "name": "Ipswich Town",
+      "prob": 0.356452
+     },
+     {
+      "name": "Draw",
+      "prob": 0.278871
+     }
+    ]
+   },
    "publicActivation": "OFF"
   },
   {
@@ -1801,11 +1886,11 @@
    "slug": "brentford-v-nottingham-forest-2026-10-31",
    "kickoffUtc": "2026-10-31T15:00:00Z",
    "matchweek": 9,
-   "state": "READY_EXCEPT_ODDS",
+   "state": "CURRENT_PRE_EVENT",
    "rule": null,
-   "reason": "odds snapshot stale/post-start or carries no three-way rows for this fixture — no market comparison exists yet",
-   "model": null,
-   "modelOnly": {
+   "reason": null,
+   "model": {
+    "state": "PREDICTED",
     "modelId": "epl-model-v2-elo-poisson",
     "probs": {
      "home": 0.521723,
@@ -1912,56 +1997,6 @@
      "yes": 0.54171,
      "no": 0.45829
     },
-    "topScorelines": [
-     {
-      "score": "1-1",
-      "p": 0.113255
-     },
-     {
-      "score": "1-0",
-      "p": 0.104753
-     },
-     {
-      "score": "2-1",
-      "p": 0.097035
-     },
-     {
-      "score": "2-0",
-      "p": 0.089751
-     },
-     {
-      "score": "0-1",
-      "p": 0.066093
-     },
-     {
-      "score": "1-2",
-      "p": 0.061224
-     },
-     {
-      "score": "0-0",
-      "p": 0.061131
-     },
-     {
-      "score": "3-1",
-      "p": 0.055426
-     },
-     {
-      "score": "2-2",
-      "p": 0.052455
-     },
-     {
-      "score": "3-0",
-      "p": 0.051265
-     }
-    ],
-    "lambdas": {
-     "home": 1.7136,
-     "away": 1.0812
-    },
-    "coldStart": {
-     "home": false,
-     "away": false
-    },
     "cleanSheet": {
      "home": 0.3392,
      "away": 0.180221
@@ -2060,9 +2095,59 @@
       }
      ]
     },
+    "topScorelines": [
+     {
+      "score": "1-1",
+      "p": 0.113255
+     },
+     {
+      "score": "1-0",
+      "p": 0.104753
+     },
+     {
+      "score": "2-1",
+      "p": 0.097035
+     },
+     {
+      "score": "2-0",
+      "p": 0.089751
+     },
+     {
+      "score": "0-1",
+      "p": 0.066093
+     },
+     {
+      "score": "1-2",
+      "p": 0.061224
+     },
+     {
+      "score": "0-0",
+      "p": 0.061131
+     },
+     {
+      "score": "3-1",
+      "p": 0.055426
+     },
+     {
+      "score": "2-2",
+      "p": 0.052455
+     },
+     {
+      "score": "3-0",
+      "p": 0.051265
+     }
+    ],
     "topScorelinesMass": 0.752386,
-    "note": "model-only pre-odds snapshot — no market comparison exists; refreshed until kickoff; never part of the paired model-vs-market evaluation"
+    "lambdas": {
+     "home": 1.7136,
+     "away": 1.0812
+    },
+    "coldStart": {
+     "home": false,
+     "away": false
+    }
    },
+   "modelOnly": null,
    "control": {
     "modelId": "epl-model-v1-split-poisson",
     "probs": {
@@ -2141,7 +2226,24 @@
      ]
     }
    },
-   "market": null,
+   "market": {
+    "books": 1,
+    "impliedSum": 1.04793,
+    "noVig": [
+     {
+      "name": "Brentford",
+      "prob": 0.465494
+     },
+     {
+      "name": "Nottingham Forest",
+      "prob": 0.276598
+     },
+     {
+      "name": "Draw",
+      "prob": 0.257909
+     }
+    ]
+   },
    "publicActivation": "OFF"
   },
   {
@@ -2153,11 +2255,11 @@
    "slug": "tottenham-hotspur-v-crystal-palace-2026-10-31",
    "kickoffUtc": "2026-10-31T17:30:00Z",
    "matchweek": 9,
-   "state": "READY_EXCEPT_ODDS",
+   "state": "CURRENT_PRE_EVENT",
    "rule": null,
-   "reason": "odds snapshot stale/post-start or carries no three-way rows for this fixture — no market comparison exists yet",
-   "model": null,
-   "modelOnly": {
+   "reason": null,
+   "model": {
+    "state": "PREDICTED",
     "modelId": "epl-model-v2-elo-poisson",
     "probs": {
      "home": 0.39551,
@@ -2264,56 +2366,6 @@
      "yes": 0.566062,
      "no": 0.433938
     },
-    "topScorelines": [
-     {
-      "score": "1-1",
-      "p": 0.119225
-     },
-     {
-      "score": "1-0",
-      "p": 0.088371
-     },
-     {
-      "score": "2-1",
-      "p": 0.086175
-     },
-     {
-      "score": "0-1",
-      "p": 0.082474
-     },
-     {
-      "score": "1-2",
-      "p": 0.080425
-     },
-     {
-      "score": "2-0",
-      "p": 0.063874
-     },
-     {
-      "score": "0-0",
-      "p": 0.061131
-     },
-     {
-      "score": "2-2",
-      "p": 0.058131
-     },
-     {
-      "score": "0-2",
-      "p": 0.055635
-     },
-     {
-      "score": "3-1",
-      "p": 0.041525
-     }
-    ],
-    "lambdas": {
-     "home": 1.4456,
-     "away": 1.3491
-    },
-    "coldStart": {
-     "home": false,
-     "away": false
-    },
     "cleanSheet": {
      "home": 0.259463,
      "away": 0.235606
@@ -2412,9 +2464,59 @@
       }
      ]
     },
+    "topScorelines": [
+     {
+      "score": "1-1",
+      "p": 0.119225
+     },
+     {
+      "score": "1-0",
+      "p": 0.088371
+     },
+     {
+      "score": "2-1",
+      "p": 0.086175
+     },
+     {
+      "score": "0-1",
+      "p": 0.082474
+     },
+     {
+      "score": "1-2",
+      "p": 0.080425
+     },
+     {
+      "score": "2-0",
+      "p": 0.063874
+     },
+     {
+      "score": "0-0",
+      "p": 0.061131
+     },
+     {
+      "score": "2-2",
+      "p": 0.058131
+     },
+     {
+      "score": "0-2",
+      "p": 0.055635
+     },
+     {
+      "score": "3-1",
+      "p": 0.041525
+     }
+    ],
     "topScorelinesMass": 0.736966,
-    "note": "model-only pre-odds snapshot — no market comparison exists; refreshed until kickoff; never part of the paired model-vs-market evaluation"
+    "lambdas": {
+     "home": 1.4456,
+     "away": 1.3491
+    },
+    "coldStart": {
+     "home": false,
+     "away": false
+    }
    },
+   "modelOnly": null,
    "control": {
     "modelId": "epl-model-v1-split-poisson",
     "probs": {
@@ -2493,7 +2595,24 @@
      ]
     }
    },
-   "market": null,
+   "market": {
+    "books": 1,
+    "impliedSum": 1.049256,
+    "noVig": [
+     {
+      "name": "Crystal Palace",
+      "prob": 0.179822
+     },
+     {
+      "name": "Tottenham Hotspur",
+      "prob": 0.600073
+     },
+     {
+      "name": "Draw",
+      "prob": 0.220105
+     }
+    ]
+   },
    "publicActivation": "OFF"
   },
   {
@@ -2505,11 +2624,11 @@
    "slug": "aston-villa-v-fulham-2026-10-31",
    "kickoffUtc": "2026-10-31T20:00:00Z",
    "matchweek": 9,
-   "state": "READY_EXCEPT_ODDS",
+   "state": "CURRENT_PRE_EVENT",
    "rule": null,
-   "reason": "odds snapshot stale/post-start or carries no three-way rows for this fixture — no market comparison exists yet",
-   "model": null,
-   "modelOnly": {
+   "reason": null,
+   "model": {
+    "state": "PREDICTED",
     "modelId": "epl-model-v2-elo-poisson",
     "probs": {
      "home": 0.526539,
@@ -2616,56 +2735,6 @@
      "yes": 0.540073,
      "no": 0.459927
     },
-    "topScorelines": [
-     {
-      "score": "1-1",
-      "p": 0.112857
-     },
-     {
-      "score": "1-0",
-      "p": 0.105371
-     },
-     {
-      "score": "2-1",
-      "p": 0.097266
-     },
-     {
-      "score": "2-0",
-      "p": 0.090814
-     },
-     {
-      "score": "0-1",
-      "p": 0.065474
-     },
-     {
-      "score": "0-0",
-      "p": 0.061131
-     },
-     {
-      "score": "1-2",
-      "p": 0.060437
-     },
-     {
-      "score": "3-1",
-      "p": 0.055885
-     },
-     {
-      "score": "3-0",
-      "p": 0.052179
-     },
-     {
-      "score": "2-2",
-      "p": 0.052088
-     }
-    ],
-    "lambdas": {
-     "home": 1.7237,
-     "away": 1.071
-    },
-    "coldStart": {
-     "home": false,
-     "away": false
-    },
     "cleanSheet": {
      "home": 0.342652,
      "away": 0.178406
@@ -2764,9 +2833,59 @@
       }
      ]
     },
+    "topScorelines": [
+     {
+      "score": "1-1",
+      "p": 0.112857
+     },
+     {
+      "score": "1-0",
+      "p": 0.105371
+     },
+     {
+      "score": "2-1",
+      "p": 0.097266
+     },
+     {
+      "score": "2-0",
+      "p": 0.090814
+     },
+     {
+      "score": "0-1",
+      "p": 0.065474
+     },
+     {
+      "score": "0-0",
+      "p": 0.061131
+     },
+     {
+      "score": "1-2",
+      "p": 0.060437
+     },
+     {
+      "score": "3-1",
+      "p": 0.055885
+     },
+     {
+      "score": "3-0",
+      "p": 0.052179
+     },
+     {
+      "score": "2-2",
+      "p": 0.052088
+     }
+    ],
     "topScorelinesMass": 0.753502,
-    "note": "model-only pre-odds snapshot — no market comparison exists; refreshed until kickoff; never part of the paired model-vs-market evaluation"
+    "lambdas": {
+     "home": 1.7237,
+     "away": 1.071
+    },
+    "coldStart": {
+     "home": false,
+     "away": false
+    }
    },
+   "modelOnly": null,
    "control": {
     "modelId": "epl-model-v1-split-poisson",
     "probs": {
@@ -2845,7 +2964,24 @@
      ]
     }
    },
-   "market": null,
+   "market": {
+    "books": 1,
+    "impliedSum": 1.05175,
+    "noVig": [
+     {
+      "name": "Aston Villa",
+      "prob": 0.475398
+     },
+     {
+      "name": "Fulham",
+      "prob": 0.26411
+     },
+     {
+      "name": "Draw",
+      "prob": 0.260492
+     }
+    ]
+   },
    "publicActivation": "OFF"
   },
   {
@@ -2857,11 +2993,11 @@
    "slug": "liverpool-v-arsenal-2026-11-01",
    "kickoffUtc": "2026-11-01T16:30:00Z",
    "matchweek": 9,
-   "state": "READY_EXCEPT_ODDS",
+   "state": "CURRENT_PRE_EVENT",
    "rule": null,
-   "reason": "odds snapshot stale/post-start or carries no three-way rows for this fixture — no market comparison exists yet",
-   "model": null,
-   "modelOnly": {
+   "reason": null,
+   "model": {
+    "state": "PREDICTED",
     "modelId": "epl-model-v2-elo-poisson",
     "probs": {
      "home": 0.331035,
@@ -2968,56 +3104,6 @@
      "yes": 0.564403,
      "no": 0.435597
     },
-    "topScorelines": [
-     {
-      "score": "1-1",
-      "p": 0.118815
-     },
-     {
-      "score": "0-1",
-      "p": 0.091232
-     },
-     {
-      "score": "1-2",
-      "p": 0.088659
-     },
-     {
-      "score": "1-0",
-      "p": 0.079613
-     },
-     {
-      "score": "2-1",
-      "p": 0.077369
-     },
-     {
-      "score": "0-2",
-      "p": 0.068077
-     },
-     {
-      "score": "0-0",
-      "p": 0.061131
-     },
-     {
-      "score": "2-2",
-      "p": 0.057732
-     },
-     {
-      "score": "2-0",
-      "p": 0.051842
-     },
-     {
-      "score": "1-3",
-      "p": 0.044105
-     }
-    ],
-    "lambdas": {
-     "home": 1.3023,
-     "away": 1.4924
-    },
-    "coldStart": {
-     "home": false,
-     "away": false
-    },
     "cleanSheet": {
      "home": 0.224833,
      "away": 0.271895
@@ -3116,9 +3202,59 @@
       }
      ]
     },
+    "topScorelines": [
+     {
+      "score": "1-1",
+      "p": 0.118815
+     },
+     {
+      "score": "0-1",
+      "p": 0.091232
+     },
+     {
+      "score": "1-2",
+      "p": 0.088659
+     },
+     {
+      "score": "1-0",
+      "p": 0.079613
+     },
+     {
+      "score": "2-1",
+      "p": 0.077369
+     },
+     {
+      "score": "0-2",
+      "p": 0.068077
+     },
+     {
+      "score": "0-0",
+      "p": 0.061131
+     },
+     {
+      "score": "2-2",
+      "p": 0.057732
+     },
+     {
+      "score": "2-0",
+      "p": 0.051842
+     },
+     {
+      "score": "1-3",
+      "p": 0.044105
+     }
+    ],
     "topScorelinesMass": 0.738575,
-    "note": "model-only pre-odds snapshot — no market comparison exists; refreshed until kickoff; never part of the paired model-vs-market evaluation"
+    "lambdas": {
+     "home": 1.3023,
+     "away": 1.4924
+    },
+    "coldStart": {
+     "home": false,
+     "away": false
+    }
    },
+   "modelOnly": null,
    "control": {
     "modelId": "epl-model-v1-split-poisson",
     "probs": {
@@ -3197,7 +3333,24 @@
      ]
     }
    },
-   "market": null,
+   "market": {
+    "books": 1,
+    "impliedSum": 1.051349,
+    "noVig": [
+     {
+      "name": "Arsenal",
+      "prob": 0.396316
+     },
+     {
+      "name": "Liverpool",
+      "prob": 0.327986
+     },
+     {
+      "name": "Draw",
+      "prob": 0.275698
+     }
+    ]
+   },
    "publicActivation": "OFF"
   },
   {
@@ -3209,11 +3362,11 @@
    "slug": "newcastle-united-v-everton-2026-11-02",
    "kickoffUtc": "2026-11-02T20:00:00Z",
    "matchweek": 9,
-   "state": "READY_EXCEPT_ODDS",
+   "state": "CURRENT_PRE_EVENT",
    "rule": null,
-   "reason": "odds snapshot stale/post-start or carries no three-way rows for this fixture — no market comparison exists yet",
-   "model": null,
-   "modelOnly": {
+   "reason": null,
+   "model": {
+    "state": "PREDICTED",
     "modelId": "epl-model-v2-elo-poisson",
     "probs": {
      "home": 0.460441,
@@ -3320,56 +3473,6 @@
      "yes": 0.55795,
      "no": 0.44205
     },
-    "topScorelines": [
-     {
-      "score": "1-1",
-      "p": 0.117225
-     },
-     {
-      "score": "1-0",
-      "p": 0.096865
-     },
-     {
-      "score": "2-1",
-      "p": 0.092874
-     },
-     {
-      "score": "2-0",
-      "p": 0.076743
-     },
-     {
-      "score": "0-1",
-      "p": 0.07398
-     },
-     {
-      "score": "1-2",
-      "p": 0.070932
-     },
-     {
-      "score": "0-0",
-      "p": 0.061131
-     },
-     {
-      "score": "2-2",
-      "p": 0.056198
-     },
-     {
-      "score": "3-1",
-      "p": 0.049055
-     },
-     {
-      "score": "0-2",
-      "p": 0.044765
-     }
-    ],
-    "lambdas": {
-     "home": 1.5845,
-     "away": 1.2102
-    },
-    "coldStart": {
-     "home": false,
-     "away": false
-    },
     "cleanSheet": {
      "home": 0.29814,
      "away": 0.205041
@@ -3468,9 +3571,59 @@
       }
      ]
     },
+    "topScorelines": [
+     {
+      "score": "1-1",
+      "p": 0.117225
+     },
+     {
+      "score": "1-0",
+      "p": 0.096865
+     },
+     {
+      "score": "2-1",
+      "p": 0.092874
+     },
+     {
+      "score": "2-0",
+      "p": 0.076743
+     },
+     {
+      "score": "0-1",
+      "p": 0.07398
+     },
+     {
+      "score": "1-2",
+      "p": 0.070932
+     },
+     {
+      "score": "0-0",
+      "p": 0.061131
+     },
+     {
+      "score": "2-2",
+      "p": 0.056198
+     },
+     {
+      "score": "3-1",
+      "p": 0.049055
+     },
+     {
+      "score": "0-2",
+      "p": 0.044765
+     }
+    ],
     "topScorelinesMass": 0.739769,
-    "note": "model-only pre-odds snapshot — no market comparison exists; refreshed until kickoff; never part of the paired model-vs-market evaluation"
+    "lambdas": {
+     "home": 1.5845,
+     "away": 1.2102
+    },
+    "coldStart": {
+     "home": false,
+     "away": false
+    }
    },
+   "modelOnly": null,
    "control": {
     "modelId": "epl-model-v1-split-poisson",
     "probs": {
@@ -3549,7 +3702,24 @@
      ]
     }
    },
-   "market": null,
+   "market": {
+    "books": 1,
+    "impliedSum": 1.051543,
+    "noVig": [
+     {
+      "name": "Everton",
+      "prob": 0.322367
+     },
+     {
+      "name": "Newcastle United",
+      "prob": 0.413471
+     },
+     {
+      "name": "Draw",
+      "prob": 0.264162
+     }
+    ]
+   },
    "publicActivation": "OFF"
   }
  ],
