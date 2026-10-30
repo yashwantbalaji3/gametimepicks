@@ -51,7 +51,8 @@ export function prepareClean(slug, entry, { packages = path.join(DEFAULT_PRIVATE
   return bad.length ? { refused: bad } : { cards, pkg };
 }
 
-export async function writeClean({ cards, pkg }, dir, approval) {
+/** Screenshots the banner-free pages into dir/images. Returns the scale-1 image list. */
+export async function renderCleanImages(cards, dir) {
   fs.mkdirSync(path.join(dir, "images"), { recursive: true });
   const { chromium } = await import("playwright");
   const browser = await chromium.launch();
@@ -66,6 +67,11 @@ export async function writeClean({ cards, pkg }, dir, approval) {
       images.push({ path: f, width: SIZE.width, height: SIZE.height, scale: 1, sha256: sha(fs.readFileSync(f)) });
     }
   } finally { await browser.close(); }
+  return images;
+}
+
+export async function writeClean({ cards, pkg }, dir, approval) {
+  const images = await renderCleanImages(cards, dir);
   const out = { ...pkg, clean: true, images, reviewedImages: pkg.images, sourceContentSha256: pkg.contentSha256, dataChanged: false, approval };
   fs.writeFileSync(path.join(dir, "package.json"), `${JSON.stringify(out, null, 2)}\n`);
   return out;
