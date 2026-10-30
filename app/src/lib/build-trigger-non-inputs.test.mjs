@@ -12,6 +12,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { isTransientSource } from "./ci/source-tree.mjs";
 import { spawnSync, execFileSync } from "node:child_process";
 
 const APP = process.cwd();
@@ -25,7 +26,7 @@ const toRe = (g) => new RegExp("^" + g.replace(/[.+^${}()|[\]\\]/g, "\\$&").repl
 const RES = GLOBS.map(toRe);
 const excluded = (repoRel) => RES.some((re) => re.test(repoRel));
 
-const walk = (d) => fs.readdirSync(d, { recursive: true }).map((f) => path.join(d, f)).filter((f) => fs.statSync(f).isFile());
+const walk = (d) => fs.readdirSync(d, { recursive: true }).map((f) => path.join(d, f)).filter((f) => !isTransientSource(f) && fs.statSync(f).isFile());
 
 function buildClosure() {
   const steps = JSON.parse(fs.readFileSync(path.join(APP, "package.json"), "utf8")).scripts.build.match(/scripts\/[\w./-]+\.(?:mjs|js|ts)/g) ?? [];

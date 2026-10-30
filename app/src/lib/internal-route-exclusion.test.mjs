@@ -7,6 +7,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { isTransientSource } from "./ci/source-tree.mjs";
 
 const APP = process.cwd(); // app/
 const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
@@ -110,7 +111,7 @@ test("every NON_BUILD_INPUT prefix is real in source and absent from the built e
  * through static and dynamic imports ("@/…" and relative). lib/launch is not internal by folder — /bank-builder
  * imports its runbook registry — so a folder allowlist would be wrong in both directions.
  */
-const SRC_FILES = fs.readdirSync(path.join(APP, "src"), { recursive: true }).filter((f) => /\.(m?[jt]sx?)$/.test(f)).map((f) => `src/${f.split(path.sep).join("/")}`);
+const SRC_FILES = fs.readdirSync(path.join(APP, "src"), { recursive: true }).filter((f) => /\.(m?[jt]sx?)$/.test(f) && !isTransientSource(f)).map((f) => `src/${f.split(path.sep).join("/")}`);
 const SRC_SET = new Set(SRC_FILES);
 const stripComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/.*$/gm, "$1");
 function resolveImport(from, spec) {
