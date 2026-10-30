@@ -339,6 +339,15 @@ export function verifyAgainstSources({ doc, lane, artifact }) {
     if (r.market.overPrice.state === "SHOWN" && americanPrice(a.overPrice).text !== r.market.overPrice.text) v.push(`${id}: over price`);
     if (r.market.underPrice.state === "SHOWN" && americanPrice(a.underPrice).text !== r.market.underPrice.text) v.push(`${id}: under price`);
   }
+  // model-only medians (printed grey on the box-score cards): lane value, qualified family, game not started
+  for (const r of doc.modelOnly ?? []) {
+    const { eventId, playerId, market: family, tipUtc } = r.identity;
+    const lm = laneMedian(lane, eventId, playerId, family);
+    if (lm !== r.model.value || fmt1(lm) !== r.model.display) v.push(`${r.rowId}: lane value ${lm} ≠ model-only ${r.model.value}`);
+    if (!directionAuthorization("nba", family, "site").ok) v.push(`${r.rowId}: unqualified family ${family}`);
+    if (!(instantMs(tipUtc) > asOf)) v.push(`${r.rowId}: game started`);
+    if (doc.rows.some((x) => x.rowId === r.rowId)) v.push(`${r.rowId}: both compared and model-only`);
+  }
   return v;
 }
 
