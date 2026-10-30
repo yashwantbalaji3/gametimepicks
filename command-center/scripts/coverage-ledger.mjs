@@ -30,7 +30,7 @@ const of = (type, eventId) => posts.filter((p) => p.package.imported.contentType
 const brief = (ps) => ps.map((p) => ({ id: p.package.imported.dedupeId, images: p.package.mediaSet.length, design: p.package.template, state: p.lifecycle, status: p.package.status, clean: p.package.imported.socialAuthorized === true, marketData: p.package.imported.containsMarketData === true, blockers: (p.package.blockers ?? []).map((b) => b.code), checked: p.package.imported.verification?.passed === true }));
 
 const games = (lane.games ?? []).map((g) => ({
-  eventId: String(g.providerEventId), away: g.away?.abbr ?? g.away, home: g.home?.abbr ?? g.home, tipUtc: g.tipUtc, forecast: g.elo?.state ?? null, players: (g.players ?? []).length,
+  eventId: String(g.providerEventId), away: g.away?.abbr ?? g.away, home: g.home?.abbr ?? g.home, tipUtc: g.tipUtc, forecast: g.elo?.state ?? null, players: Array.isArray(g.players) ? g.players.length : Object.values(g.players ?? {}).flat().length,
   winner: brief(of("NBA_GAME_WINNER", g.providerEventId)), stats: brief(of("NBA_PLAYER_STATS", g.providerEventId)), lines: brief(of("NBA_BOXSCORE", g.providerEventId)),
 }));
 const slate = { tonight: brief(of("NBA_TONIGHT")), top5: brief(of("NBA_DAILY_TOP5")), recap: brief(posts.filter((p) => p.package.imported.contentType === "RESULTS_RECAP")) };
