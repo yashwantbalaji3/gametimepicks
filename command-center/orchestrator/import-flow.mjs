@@ -145,9 +145,12 @@ export function createImportFlow(ctx) {
     // same content, but a blocker has been lifted since (an authorization, not a date): propose it again as it now stands
     const nowCodes = new Set(blockersOf({ ...p, sport: p.commandCenter.sport ?? SPORTS[p.sport] }, { now: clock() }).map((b) => b.code));
     const lifted = same?.lifecycle === "drafted" ? (same.package.blockers ?? []).map((b) => b.code).filter((c) => ![BLOCK.EXPIRED, BLOCK.OVERLAP].includes(c) && !nowCodes.has(c)) : [];
-    if (same && !lifted.length) return { ...id, outcome: "duplicate", code: "SAME_CONTENT", detail: "already imported", decisionId: same.decisionId };
+    // a clean export has the same content as its review copy, on a new image: that is the one thing not a duplicate
+    const cleanArrived = p.approval?.socialAuthorized === true && same && isReviewCopy(same.package);
+    if (same && !lifted.length && !cleanArrived) return { ...id, outcome: "duplicate", code: "SAME_CONTENT", detail: "already imported", decisionId: same.decisionId };
     // the one thing that may follow an approval: the clean export of an approved review copy (it needs its own approval)
     const cleanOf = p.approval?.socialAuthorized === true ? mine.find((x) => x.lifecycle === "approved" && !x.receipt && isReviewCopy(x.package)) : null;
+    const revision = [...lifted, ...(cleanArrived ? ["clean"] : [])];
     const held = mine.find((x) => x !== cleanOf && (x.receipt || ["approved", "scheduled", "published", "rejected"].includes(x.lifecycle)));
     if (held) return { ...id, outcome: "held", code: "EXISTING_POST_KEPT", detail: `a newer version exists, but ${held.decisionId} is ${held.lifecycle}: it is not replaced`, decisionId: held.decisionId };
     let pkg;
@@ -159,10 +162,12 @@ export function createImportFlow(ctx) {
     } else if (over.noted.length) {
       pkg = { ...pkg, reasons: [...pkg.reasons, `An undecided Command Center draft covers the same content: ${over.noted.map((x) => x.package.title).join("; ")}.`] };
     }
-    const claim = store.claim(`import|${p.dedupeId}|${p.contentSha256}${lifted.length ? `|${lifted.join("+")}` : ""}`, { runId });
+    const claim = store.claim(`import|${p.dedupeId}|${p.contentSha256}${revision.length ? `|${revision.join("+")}` : ""}`, { runId });
     if (!claim.won) return { ...id, outcome: "duplicate", code: "ALREADY_CLAIMED", detail: `claimed by ${claim.record.value.runId}` };
     if (cleanOf) store.append("post-status", "launch-readiness-import", { decisionId: cleanOf.decisionId, postId: cleanOf.postId, status: "invalidated", reason: "the clean export arrived: approve that version", replacedBy: pkg.postId, recordedAt: clock() });
-    const decisionId = propose(pkg, runId, lifted);
+    // the check the founder asked for: does this clean image carry exactly the content that was approved?
+    if (cleanOf) pkg = { ...pkg, imported: { ...pkg.imported, cleanOf: { decisionId: cleanOf.decisionId, captionId: cleanOf.resolution?.captionId ?? null, sameContent: cleanOf.package.contentKey === pkg.contentKey } }, reasons: [...pkg.reasons, cleanOf.package.contentKey === pkg.contentKey ? "Clean export of the review copy you approved: same content." : "This clean export differs from the review copy you approved: the data changed, check it."] };
+    const decisionId = propose(pkg, runId, revision);
     return { ...id, outcome: mine.length ? "new-version" : "imported", decisionId, postId, status: pkg.status, blockers: pkg.blockers.map((b) => b.code), images: pkg.mediaSet.length, hiRes: pkg.hiRes.length, captionsOk: pkg.captions.filter((c) => c.check.ok).length };
   }
 

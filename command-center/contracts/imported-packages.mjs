@@ -37,6 +37,7 @@ export const IMPORT_TYPES = Object.freeze({
   NFL_GAME_WINNER: { kind: "lr-nfl-game-winner", label: "NFL game winner", tier: 4, supported: true },
   NBA_PLAYER_STATS: { kind: "lr-nba-players", label: "NBA projected stat lines", tier: 5, supported: true },
   NFL_GAME_PLAYERS: { kind: "lr-nfl-game-players", label: "NFL game player graphic", tier: 5, supported: true },
+  NFL_PLAYER_STATS: { kind: "lr-nfl-game-players", label: "NFL projected stat lines", tier: 5, supported: true },
   NBA_BOXSCORE: { kind: "lr-nba-boxscore", label: "NBA player-prop box score (real lines)", tier: 5, supported: false },
   NBA_LIVE_UPDATE: { kind: "lr-live-update", label: "Live result update", tier: 6, supported: false },
   NFL_LIVE_UPDATE: { kind: "lr-live-update", label: "Live result update", tier: 6, supported: false },
@@ -166,6 +167,11 @@ export const pinnedRef = (ref) => !/(^|\/)(frozen-)?latest\.json$/.test(ref);
 export const repoRef = (ref) => /^(app|data)\//.test(String(ref));
 const normTime = (t) => { const x = Date.parse(t ?? ""); return Number.isFinite(x) ? x : null; };
 
+/** A game as packages carry it, in either generation of the content block; what's absent stays absent and fails the check. */
+const gameOf = (g, pkg) => ({
+  eventId: g.eventId, matchup: g.matchup ?? (g.away && g.home ? `${g.away} @ ${g.home}` : pkg.title.split(":")[0]),
+  side: g.side ?? g.winner ?? null, awayP: g.awayP ?? g.awayEstimate ?? null, kickoffUtc: g.kickoffUtc ?? g.tipUtc ?? (pkg.eventId ? pkg.tipUtc : null),
+});
 function nbaGameReasons(g, lane) {
   const row = (lane?.games ?? []).find((x) => String(x.providerEventId) === String(g.eventId));
   if (!row) return [`${g.matchup}: no longer in the published lane`];
@@ -176,7 +182,8 @@ function nbaGameReasons(g, lane) {
   if (normTime(row.tipUtc) !== normTime(g.kickoffUtc)) out.push(`${g.matchup}: tip-off moved to ${row.tipUtc}`);
   return out;
 }
-function nflGameReasons(g, forecasts) {
+function nflGameReasons(raw, forecasts) {
+  const g = { ...raw, winner: raw.side };
   const row = (forecasts?.forecasts ?? []).find((x) => String(x.providerEventId) === String(g.eventId));
   if (!row) return [`${g.matchup}: no longer in the published forecasts`];
   const out = [];
@@ -189,7 +196,7 @@ function nflGameReasons(g, forecasts) {
 export function officialReasons(pkg, src) {
   const c = pkg.imported?.content;
   if (!c) return [];
-  const games = c.game ? [c.game] : c.games ?? [];
+  const games = (c.game ? [c.game] : c.games ?? []).map((g) => gameOf(g, pkg));
   if (!games.length || pkg.kind === "lr-results-recap") return [];
   const json = (p) => { const raw = src.read(p); return raw == null ? null : JSON.parse(raw); };
   if (pkg.sport === "NBA") {

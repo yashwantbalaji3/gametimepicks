@@ -298,6 +298,45 @@ test("a package flagged for anomaly review is blocked and can't be approved", as
   assert.equal((await approve(H, x)).code, "NOT_READY");
 });
 
+test("the pre-send check reads the redesigned content shape, and a game with no side fails closed", async () => {
+  const H = harness();
+  write(H.root, "t", { ...CLEAN, contentType: "NBA_TONIGHT", variant: null, content: { games: [{ eventId: "401", away: "CHA", home: "WSH", tipUtc: "2026-10-30T23:00Z", winner: "CHA", awayEstimate: 0.73, homeEstimate: 0.27 }] }, commandCenter: { postId: "2026-10-30:NBA:nba_tonight", title: "NBA tonight", sport: "NBA", firstStartUtc: TIP, suggestedPublishAt: "2026-10-30T21:00:00Z", eventId: null, dataCommit: null, claims: [], captions: [{ id: "A", tone: "x", text: "NBA tonight. Not betting advice." }], evidence: [], hasMiss: false } });
+  write(H.root, "w", { ...CLEAN, content: { game: { eventId: "401", winner: "CHA", awayEstimate: 0.73, homeEstimate: 0.27, moneyline: "NOT_CAPTURED" } } });
+  write(H.root, "bad", { ...CLEAN, variant: "402", content: { game: { eventId: "401", awayEstimate: 0.73 } }, commandCenter: { postId: "2026-10-30:NBA:nba_game_winner:402", title: "x: y", sport: "NBA", firstStartUtc: TIP, eventId: "401", dataCommit: null, claims: [], captions: [{ id: "A", tone: "x", text: "CHA @ WSH. Not betting advice." }], evidence: [], hasMiss: false } });
+  H.o.importPackages({}, FOUNDER);
+  const posts = H.o.state().posts;
+  for (const kind of ["lr-nba-tonight", "lr-nba-game-winner"]) {
+    const p = posts.find((x) => x.package.kind === kind && x.postId !== "2026-10-30:NBA:nba_game_winner:402");
+    design(H, p);
+    const a = await H.o.decide({ decisionId: p.decisionId, verdict: "approve", captionId: p.options.find((o) => o.check.ok).captionId, digest: p.options.find((o) => o.check.ok).digest }, FOUNDER);
+    assert.equal(a.ok, true, `${kind}: ${a.detail}`);
+  }
+  const bad = posts.find((x) => x.postId === "2026-10-30:NBA:nba_game_winner:402");
+  const r = await H.o.decide({ decisionId: bad.decisionId, verdict: "approve", captionId: "A", digest: bad.options[0].digest }, FOUNDER);
+  assert.equal(r.code, "VERIFICATION_CHANGED", "no side on record: never approved");
+});
+
+test("a clean export with the SAME content id arrives as the final image for approval, one record, and repeats are no-ops", async () => {
+  const H = harness();
+  const p = write(H.root, "a");
+  H.o.importPackages({}, FOUNDER);
+  const x = post(H);
+  design(H, x);
+  await approve(H, x);
+  const clean = write(H.root, "a", CLEAN);
+  clean.contentSha256 = p.contentSha256;
+  fs.writeFileSync(path.join(H.root, "packages", "a.json"), JSON.stringify(clean));
+  assert.deepEqual(H.o.importPackages({}, FOUNDER).counts, { "new-version": 1 });
+  assert.deepEqual(H.o.importPackages({}, FOUNDER).counts, { duplicate: 1 });
+  const all = H.o.state().posts;
+  const cur = all.find((q) => q.lifecycle === "drafted");
+  assert.deepEqual([all.length, all.find((q) => q.decisionId === x.decisionId).lifecycle, cur.package.imported.socialAuthorized], [2, "invalidated", true]);
+  assert.deepEqual([cur.package.imported.cleanOf.sameContent, cur.package.imported.cleanOf.captionId], [true, "B"]);
+  assert.equal(H.o.publishing.schedule({ decisionId: cur.decisionId, at: "2026-10-30T21:30:00.000Z" }, FOUNDER).code, "NOT_APPROVED", "the clean image needs its own approval");
+  assert.equal((await approve(H, cur)).ok, true);
+  assert.equal(H.o.publishing.schedule({ decisionId: cur.decisionId, at: "2026-10-30T21:30:00.000Z" }, FOUNDER).ok, true);
+});
+
 test("restart: imported posts, media and approvals survive a new process on the same ledger", async () => {
   const dir = tempDir("gtp-cc-import-");
   const A = harness({ dir });

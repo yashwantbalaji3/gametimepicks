@@ -884,7 +884,7 @@
     const st = postStatus(s, p);
     const imgs = imagesOf(pkg);
     const open = ui.expanded === p.decisionId;
-    const chosen = p.resolution?.captionId ?? ui.choice[p.decisionId] ?? p.options.find((o) => o.check?.ok)?.captionId;
+    const chosen = p.resolution?.captionId ?? ui.choice[p.decisionId] ?? p.package.imported?.cleanOf?.captionId ?? p.options.find((o) => o.check?.ok)?.captionId;
     const cap = p.options.find((o) => o.captionId === chosen)?.text ?? p.options[0]?.text ?? "";
     const start = startOfPkg(pkg);
     const postAt = jobsOf(s, p).find((j) => j.status === "scheduled")?.dueAt ?? pkg.suggestedPublishAt;
@@ -1406,7 +1406,7 @@
     }
     if (t.dataset.postApprove) {
       const p = ui.state.posts.find((x) => x.decisionId === t.dataset.postApprove);
-      const captionId = ui.choice[p.decisionId] ?? p.options.find((o) => o.check?.ok)?.captionId;
+      const captionId = ui.choice[p.decisionId] ?? p.package.imported?.cleanOf?.captionId ?? p.options.find((o) => o.check?.ok)?.captionId;
       const opt = p.options.find((o) => o.captionId === captionId);
       if (!opt) return alert("Choose a caption that passes its check.");
       t.disabled = true;
