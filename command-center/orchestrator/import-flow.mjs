@@ -23,6 +23,7 @@ import {
   checkImportedCaption, overlapsOf, showsLines, pinnedRef, repoRef, officialReasons, isImported, isReviewCopy,
 } from "../contracts/imported-packages.mjs";
 import { gitDataSource } from "../recap/multisport-facts.mjs";
+import { revisionRequests } from "../contracts/revision-requests.mjs";
 
 export const DEFAULT_IMPORT_ROOT = path.join(os.homedir(), "gtp-private/graphics");
 const SPORTS = Object.freeze({ nba: "NBA", nfl: "NFL" });
@@ -147,10 +148,13 @@ export function createImportFlow(ctx) {
     const lifted = same?.lifecycle === "drafted" ? (same.package.blockers ?? []).map((b) => b.code).filter((c) => ![BLOCK.EXPIRED, BLOCK.OVERLAP].includes(c) && !nowCodes.has(c)) : [];
     // a clean export has the same content as its review copy, on a new image: that is the one thing not a duplicate
     const cleanArrived = p.approval?.socialAuthorized === true && same && isReviewCopy(same.package);
-    if (same && !lifted.length && !cleanArrived) return { ...id, outcome: "duplicate", code: "SAME_CONTENT", detail: "already imported", decisionId: same.decisionId };
+    // so is a revision: a re-render with the same data keeps its content hash and changes its images
+    const publishImages = (p.images ?? []).filter((i) => (i.scale ?? 1) === 1).map((i) => i.sha256).join("|");
+    const reRendered = Boolean(same) && publishImages !== (same.package.mediaSet ?? []).map((m) => m.sha256).join("|");
+    if (same && !lifted.length && !cleanArrived && !reRendered) return { ...id, outcome: "duplicate", code: "SAME_CONTENT", detail: "already imported", decisionId: same.decisionId };
     // the one thing that may follow an approval: the clean export of an approved review copy (it needs its own approval)
     const cleanOf = p.approval?.socialAuthorized === true ? mine.find((x) => x.lifecycle === "approved" && !x.receipt && isReviewCopy(x.package)) : null;
-    const revision = [...lifted, ...(cleanArrived ? ["clean"] : [])];
+    const revision = [...lifted, ...(cleanArrived ? ["clean"] : []), ...(reRendered ? [sha256(publishImages).slice(0, 12)] : [])];
     const held = mine.find((x) => x !== cleanOf && (x.receipt || ["approved", "scheduled", "published", "rejected"].includes(x.lifecycle)));
     if (held) return { ...id, outcome: "held", code: "EXISTING_POST_KEPT", detail: `a newer version exists, but ${held.decisionId} is ${held.lifecycle}: it is not replaced`, decisionId: held.decisionId };
     let pkg;
@@ -189,6 +193,7 @@ export function createImportFlow(ctx) {
     const images = results.reduce((n, r) => n + (r.images ?? 0), 0);
     // a run that changed nothing is not an event
     if (Object.keys(counts).some((k) => k !== "duplicate")) store.append("import-run", actor?.id ?? "founder", { runId, root: dir, at: clock(), by: actor?.id ?? "founder", counts, images, results });
+    try { writeRevisions(); } catch { /* derived file: the import stands */ }
     return { ok: true, runId, counts, images, results };
   }
 
@@ -236,6 +241,20 @@ export function createImportFlow(ctx) {
     fs.renameSync(`${file}.tmp`, file);
   }
 
+  /** For Launch Readiness: the founder's revision requests. Derived from the ledger, rewritten whole. */
+  function revisionStatus() {
+    try { return JSON.parse(fs.readFileSync(path.join(rootOf(), "approvals", "revision-status.json"), "utf8")); } catch { return {}; }
+  }
+  function writeRevisions() {
+    const root = rootOf();
+    if (!fs.existsSync(root)) return;
+    const dir = path.join(root, "approvals");
+    fs.mkdirSync(dir, { recursive: true });
+    const file = path.join(dir, "revision-requests.json");
+    fs.writeFileSync(`${file}.tmp`, `${JSON.stringify({ schema: "gtp-cc-revision-requests@1", requests: revisionRequests(ctx.posts(), revisionStatus()) }, null, 2)}\n`);
+    fs.renameSync(`${file}.tmp`, file);
+  }
+
   const lastRun = () => store.list().filter((e) => e.kind === "import-run").at(-1)?.data ?? null;
-  return { importPackages, recheck, lastRun, writeApprovals };
+  return { importPackages, recheck, lastRun, writeApprovals, writeRevisions, revisionStatus };
 }

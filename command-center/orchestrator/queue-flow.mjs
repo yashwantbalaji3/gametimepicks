@@ -649,6 +649,7 @@ export function createQueueFlow(ctx) {
       approvedBy: actor.id ?? "founder", approvedAt: clock(), authentication: actor.authentication ?? "loopback-console (demo-grade)",
     });
     if (isImported(pkg) && verdict === "approve") { try { imports.writeApprovals(); } catch { /* derived file: the decision stands */ } }
+    if (isImported(pkg) && verdict === "revise") { try { imports.writeRevisions(); } catch { /* derived file: the decision stands */ } }
     const next = {
       approve: ["nba-game", "pregame-forecast", "td-top3", "top5-board", "top5-daily", "top5-weekly"].includes(pkg.kind)
         ? "Approved, not published: nothing was sent to X. Send it through the X publisher (Live test post, or Schedule for its slot) once live publishing is authorized; every send re-checks it first."
@@ -761,5 +762,5 @@ export function createQueueFlow(ctx) {
     });
   }
 
-  return { build, consolidate, decidePost, editCaption, recordPost, posts, approvedCalendar, publishBundleOf, approveDesign, design, recheck, designApproval, inventory: () => queueInventory(posts()), importPackages: imports.importPackages, lastImport: imports.lastRun };
+  return { build, consolidate, decidePost, editCaption, recordPost, posts, approvedCalendar, publishBundleOf, approveDesign, design, recheck, designApproval, inventory: () => queueInventory(posts()), importPackages: imports.importPackages, lastImport: imports.lastRun, revisionStatus: imports.revisionStatus };
 }

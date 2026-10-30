@@ -413,6 +413,39 @@
     return `<button class="btn small primary" data-pub="schedule" data-post="${id}" ${at ? `data-at="${esc(at)}"` : "disabled"}>${at ? `Schedule for ${esc(label)}` : "No suggested time"}</button>
       <input class="sched" type="datetime-local" aria-label="Pick another time" data-draft="pubat:${id}" value="${draftVal(`pubat:${p.decisionId}`)}"><button class="btn small" data-pub="schedule" data-post="${id}" data-at-from="pubat:${id}">Schedule at this time</button>`;
   }
+  // ── founder revisions: the existing Revise decision, with structure in its note (contracts/revision-requests.mjs) ──
+  const versionsOf = (s, p) => (s.posts ?? []).filter((q) => q.package?.imported?.dedupeId === p.package.imported?.dedupeId);
+  const latestVersion = (s, p) => versionsOf(s, p).at(-1);
+  function revParse(note) {
+    const m = String(note ?? "").match(/^\[revision scope=(\S+) type=(\S+) image=(\S+)\]\s*([\s\S]*)$/);
+    return m ? { scope: m[1], type: m[2], image: m[3], text: m[4] } : { scope: "image", type: "visual", image: "all", text: String(note ?? "") };
+  }
+  const REV_TYPES = [["visual", "Visual: layout, type, colors, logo"], ["caption", "Caption wording"], ["line", "Sportsbook line presentation"], ["data", "Data: a number looks wrong"]];
+  function revisionForm(p) {
+    const id = esc(p.decisionId), n = imagesOf(p.package).length;
+    const pick = (k, d) => ui.drafts[`${k}:${p.decisionId}`] ?? d;
+    return `<div class="section">Request changes</div>
+      <div class="field"><label for="rev-${id}">What should change? Plain English is fine.</label><textarea id="rev-${id}" rows="4" maxlength="900" data-draft="revt:${id}">${draftVal(`revt:${p.decisionId}`)}</textarea></div>
+      <div class="row actions">
+        <select aria-label="Applies to" data-draft="revs:${id}"><option value="image" ${pick("revs", "image") === "image" ? "selected" : ""}>This graphic only</option><option value="template" ${pick("revs", "image") === "template" ? "selected" : ""}>The shared template</option></select>
+        <select aria-label="Kind of change" data-draft="revk:${id}">${REV_TYPES.map(([k, l]) => `<option value="${k}" ${pick("revk", "visual") === k ? "selected" : ""}>${esc(l)}</option>`).join("")}</select>
+        ${n > 1 ? `<select aria-label="Which image" data-draft="revi:${id}"><option value="all">All ${num(n)} images</option>${imagesOf(p.package).map((_, i) => `<option value="${i + 1}" ${String(pick("revi", "all")) === String(i + 1) ? "selected" : ""}>Image ${i + 1}</option>`).join("")}</select>` : ""}
+        <button class="btn" data-rev-submit="${id}">Send revision request</button>
+      </div>`;
+  }
+  /** Feedback history and, once a revised draft has arrived, the old and new images side by side. */
+  function revisionPanel(s, p) {
+    if (!p.package.imported) return "";
+    const all = versionsOf(s, p);
+    const asks = all.filter((q) => q.resolution?.verdict === "revise");
+    if (!asks.length) return "";
+    const latest = all.at(-1);
+    const state = (q) => (q !== latest ? "Completed" : s.revisionStatus?.[p.package.imported.dedupeId]?.status === "IN_PROGRESS" ? "In progress at Launch Readiness" : "Pending: waiting for Launch Readiness");
+    const before = asks.at(-1).package, after = p.package;
+    const compare = latest !== asks.at(-1) && p === latest ? `<div class="section">Before and after</div><div class="gallery" data-gallery="cmp-${esc(p.decisionId)}">
+      ${[[before, "Before"], [after, "After"]].flatMap(([k, l]) => imagesOf(k).map((m, i) => `<figure><img src="/media/${encodeURIComponent(m.file)}" alt="${esc(l)}" data-zoom data-index="${i}" loading="lazy"><figcaption>${esc(l)}${imagesOf(k).length > 1 ? ` · image ${i + 1}` : ""}</figcaption></figure>`)).join("")}</div>` : "";
+    return `<div class="section">Your revision requests</div><ul class="rows">${asks.map((q) => { const n = revParse(q.resolution.note); return `<li><span class="grow"><b>${esc(state(q))}</b> · ${esc(n.scope === "template" ? "shared template" : "this graphic")}, ${esc(n.type)}${n.image !== "all" ? `, image ${esc(n.image)}` : ""}<br>${esc(n.text)}</span><span class="t">${esc(time(q.resolution.approvedAt))}</span></li>`; }).join("")}</ul>${compare}`;
+  }
   const TRULY_UNSUPPORTED = new Set(["lr-live-update", "lr-unsupported"]);
   /**
    * The reasons that hold a post TODAY. Blockers are stored when a package is imported, so this reads the code, not the
@@ -442,6 +475,7 @@
     if (!m) return "";
     const v = m.verification ?? {}, f = m.freshness ?? {}, plan = (s.contentPlan?.items ?? []).find((i) => i.decisionId === p.decisionId);
     const start = startOfPkg(pkg);
+    const blockers = currentBlockers(s, p);
     const rows = [
       ["Sport / event", `${esc(pkg.sport)} · ${esc(pkg.title.split(":")[0])}`],
       ...(pkg.eventId ? [["Game ID", `<code>${esc(pkg.eventId)}</code>`]] : []),
@@ -464,7 +498,6 @@
       ["Destination", TRULY_UNSUPPORTED.has(pkg.kind) ? "None: not publishable" : "X, through the publisher"],
       ["Design", `${esc(pkg.template ?? "—")} · ${p.designApproved ? "approved" : "waiting for your approval"}`],
     ];
-    const blockers = currentBlockers(s, p);
     return `${blockers.map((b) => `<div class="blocked"><b>${esc(b.title)}</b> · ${esc(b.detail)}${(b.items ?? []).length ? `<ul class="warns">${b.items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>` : ""}</div>`).join("")}
       ${TRULY_UNSUPPORTED.has(pkg.kind) ? `<div class="notice warn">This content type isn't supported by the publisher yet: view only.</div>` : ""}
       <div class="kv">${rows.map(([k, x]) => `<span>${esc(k)}</span><span>${x}</span>`).join("")}</div>`;
@@ -483,10 +516,11 @@
         <div class="row actions">
           <button class="btn ${ready ? "primary" : ""}" data-post-approve="${id}" ${ready ? "" : "disabled"}>${ready ? "Approve this caption" : why}</button>
           <button class="btn" data-post-verdict="reject" data-post="${id}">Reject</button>
-          <button class="btn" data-post-verdict="revise" data-post="${id}">Revise</button>
+          ${pkg.imported ? "" : `<button class="btn" data-post-verdict="revise" data-post="${id}">Revise</button>`}
           <button class="btn" data-post-verdict="defer" data-post="${id}">Defer</button>
-        </div>`;
+        </div>${pkg.imported ? revisionForm(p) : ""}`;
     }
+    if (p.lifecycle === "revise" && pkg.imported) return `<div class="muted">Sent back for revision. The revised draft will appear here as a new version of this post, with your feedback kept.</div>`;
     if (p.lifecycle === "approved" || p.lifecycle === "scheduled") {
       return `${publishControls(p)}<div class="receipt">Approved caption ${esc(p.resolution.captionId)} at ${esc(time(p.resolution.approvedAt))}${p.resolution.sourcesConfirmed ? " · you confirmed the cited posts" : ""} · digest ${esc(p.resolution.approvedExactDigest.slice(0, 12))}…<br>${PUB_SCHEDULABLE.has(pkg.kind) ? "Approved, not published. Send it with the X publisher above (Live test post or Schedule); a manual post is recorded below." : `Post it yourself on X${pkg.media ? " with the graphic" : ""}, then record the link.`}${p.schedule ? `<br>Scheduled by you for ${esc(new Date(p.schedule.scheduledFor).toLocaleString())}` : ""}</div>
         ${pkg.media ? `<a class="btn small" href="/media/${encodeURIComponent(pkg.media.file)}" download>Download graphic</a>` : ""}
@@ -752,6 +786,8 @@
     if (start && Date.parse(start) <= Date.now() && PUB_SCHEDULABLE.has(p.package.kind)) return { key: "expired", label: "Expired · started", cls: "dim" };
     if (job?.status === "scheduled") return { key: "scheduled", label: `Scheduled ${etTime(job.dueAt)}`, cls: "info" };
     if (p.lifecycle === "approved" || p.lifecycle === "scheduled") return { key: "approved", label: job?.status === "dry_run" ? "Approved · dry run OK" : "Approved", cls: "info" };
+    if (p.lifecycle === "revise" && p.package.imported) return { key: "revision", label: s.revisionStatus?.[p.package.imported.dedupeId]?.status === "IN_PROGRESS" ? "Revision in progress" : "Revision requested", cls: "info" };
+    if (p.lifecycle === "drafted" && p.package.imported && p.package.status !== "BLOCKED" && versionsOf(s, p).some((q) => q.resolution?.verdict === "revise")) return { key: "needs", label: "Revised draft ready", cls: "warn" };
     if (p.lifecycle === "drafted" && p.package.imported && p.package.status === "BLOCKED") { const b = currentBlockers(s, p); return { key: "blocked", label: b.length ? `Blocked · ${b.map((x) => x.title.toLowerCase()).join(" + ")}` : "Blocked", cls: "bad" }; }
     if (p.lifecycle === "drafted") return { key: "needs", label: p.package.status === "NEEDS_VERIFICATION" ? "Needs decision · verify" : p.package.status === "BLOCKED" ? "Blocked" : "Needs decision", cls: p.package.status === "BLOCKED" ? "bad" : "warn" };
     return { key: "other", label: LIFE_LABEL[p.lifecycle] ?? p.lifecycle, cls: "dim" };
@@ -760,8 +796,9 @@
 
   function counts(s) {
     // a review copy replaced by its clean export is the same content record: only the current version is listed
-    const posts = (s.posts ?? []).filter((p) => p.lifecycle !== "superseded" && !(p.lifecycle === "invalidated" && p.package.imported));
-    const by = { needs: [], blocked: [], approved: [], scheduled: [], sent: [], expired: [], problem: [], other: [] };
+    // so is a version sent back for revision, once its revised draft has arrived
+    const posts = (s.posts ?? []).filter((p) => p.lifecycle !== "superseded" && !(p.lifecycle === "invalidated" && p.package.imported) && !(p.lifecycle === "revise" && p.package.imported && latestVersion(s, p) !== p));
+    const by = { needs: [], revision: [], blocked: [], approved: [], scheduled: [], sent: [], expired: [], problem: [], other: [] };
     for (const p of posts) by[postStatus(s, p).key].push(p);
     const today = etDay(new Date());
     const month = today.slice(0, 7);
@@ -835,7 +872,7 @@
   }
 
   // ── Review & approvals: compact cards, one expanded at a time, prev/next, full-screen gallery ──
-  const REVIEW_FILTERS = [["needs", "Needs decision"], ["blocked", "Blocked"], ["approved", "Approved"], ["scheduled", "Scheduled"], ["sent", "Sent"], ["expired", "Expired"], ["problem", "Problems"], ["all", "All"]];
+  const REVIEW_FILTERS = [["needs", "Needs decision"], ["blocked", "Blocked"], ["revision", "Revisions"], ["approved", "Approved"], ["scheduled", "Scheduled"], ["sent", "Sent"], ["expired", "Expired"], ["problem", "Problems"], ["all", "All"]];
   const isMarket = (p) => p.package.imported?.rights === "QUOTE_ON_SOCIAL" || p.package.privateReview === true;
   const IMPORT_GROUPS = [
     ["all", "Everything", () => true],
@@ -939,6 +976,7 @@
       ${pkg.xSources?.length ? `<div class="section">Open these first</div><div class="links">${pkg.xSources.map((u) => xLink(u)).join(" ")}</div>` : ""}
       <div class="section">Caption${p.options.length > 1 ? "s — choose one" : ""}</div>
       ${postCaptions(p)}
+      ${revisionPanel(s, p)}
       <div class="ractions">${postActions(p)}</div>
       <details class="more"><summary>Details, evidence and provenance${(pkg.reasons ?? []).length ? ` · ${num(pkg.reasons.length)} note(s)` : ""}</summary>
         ${(pkg.reasons ?? []).length ? `<ul class="warns">${pkg.reasons.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>` : ""}
@@ -1329,7 +1367,7 @@
   document.addEventListener("click", (e) => { if (e.target.closest("[data-close-sheet]")) $("more-sheet").hidden = true; });
 
   document.addEventListener("click", async (e) => {
-    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-new-codes],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-post-record],[data-design],[data-pub],[data-caption-open],[data-caption-save],[data-caption-cancel],[data-expand],[data-step],[data-collapse],[data-filter-status],[data-filter-sport],[data-filter-group],[data-import-run],[data-plan-approve],[data-open-post],[data-command],[data-more],[data-cal-shift],[data-cal-today],[data-cal-mode],[data-pub-tab],[data-queue-prep],[data-gal],.sheet-backdrop,.lightbox");
+    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-new-codes],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-rev-submit],[data-post-record],[data-design],[data-pub],[data-caption-open],[data-caption-save],[data-caption-cancel],[data-expand],[data-step],[data-collapse],[data-filter-status],[data-filter-sport],[data-filter-group],[data-import-run],[data-plan-approve],[data-open-post],[data-command],[data-more],[data-cal-shift],[data-cal-today],[data-cal-mode],[data-pub-tab],[data-queue-prep],[data-gal],.sheet-backdrop,.lightbox");
     if (!t) return;
     if (await navAction(t, e)) return;
     if (t.dataset.captionOpen) {
@@ -1461,6 +1499,16 @@
       if (!confirm(`Approve the graphic design ${dz.template} (${dz.assetManifest})? This approves the visual design only — no post.`)) return;
       const r = await post("/api/design", { template: dz.template, assetManifest: dz.assetManifest });
       if (!r.ok && !r.duplicate) alert(`${r.code}: ${r.detail ?? ""}`);
+      return;
+    }
+    if (t.dataset.revSubmit) {
+      const id = t.dataset.revSubmit;
+      const text = String(ui.drafts[`revt:${id}`] ?? "").trim();
+      if (!text) return alert("Say what should change first.");
+      const note = `[revision scope=${ui.drafts[`revs:${id}`] ?? "image"} type=${ui.drafts[`revk:${id}`] ?? "visual"} image=${ui.drafts[`revi:${id}`] ?? "all"}] ${text}`;
+      const r = await post("/api/decide", { decisionId: id, verdict: "revise", note });
+      if (!r.ok && !r.duplicate) return alert(`${r.code}: ${r.detail ?? ""}`);
+      delete ui.drafts[`revt:${id}`];
       return;
     }
     if (t.dataset.postVerdict) {

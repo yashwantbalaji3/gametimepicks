@@ -714,6 +714,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
       inventory: team.inventory(),
       contentPlan: contentPlan(),
       lastImport: team.lastImport(),
+      revisionStatus: team.revisionStatus(),
       engineering: {
         billing: flow.billing(),
         lastPreflight: lastPreflight ? { ...lastPreflight.data, at: lastPreflight.at } : null,

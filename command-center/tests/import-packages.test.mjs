@@ -13,6 +13,7 @@ import { sha256 } from "../lib/util.mjs";
 import { mediaKeysOf } from "../ledger/ledger-sync.mjs";
 import { IMPORT_DESIGNS, IMPORT_SENDABLE, IMPORT_TYPES, BLOCK, importTemplateOf, checkImportedCaption } from "../contracts/imported-packages.mjs";
 import { proposePlan, MAX_PER_SLATE, MIN_GAP_MS } from "../contracts/content-plan.mjs";
+import { revisionNote, parseRevisionNote, revisionRequests } from "../contracts/revision-requests.mjs";
 import { FOUNDER, tempDir } from "./helpers.mjs";
 
 const NOW = "2026-10-30T17:00:00.000Z";
@@ -335,6 +336,41 @@ test("a clean export with the SAME content id arrives as the final image for app
   assert.equal(H.o.publishing.schedule({ decisionId: cur.decisionId, at: "2026-10-30T21:30:00.000Z" }, FOUNDER).code, "NOT_APPROVED", "the clean image needs its own approval");
   assert.equal((await approve(H, cur)).ok, true);
   assert.equal(H.o.publishing.schedule({ decisionId: cur.decisionId, at: "2026-10-30T21:30:00.000Z" }, FOUNDER).ok, true);
+});
+
+test("revision loop: a request is kept with the post, reaches Launch Readiness, and a re-render with the same content returns as the revised draft of the same slot", async () => {
+  const H = harness();
+  const p = write(H.root, "a");
+  H.o.importPackages({}, FOUNDER);
+  const x = post(H);
+  const note = revisionNote({ scope: "template", type: "visual", image: "all", text: "Bigger logo, tighter spacing" });
+  assert.equal((await H.o.decide({ decisionId: x.decisionId, verdict: "revise", note }, FOUNDER)).ok, true);
+  assert.deepEqual(parseRevisionNote(note), { scope: "template", type: "visual", image: "all", text: "Bigger logo, tighter spacing" });
+  assert.equal(H.o.state().posts[0].lifecycle, "revise");
+  assert.equal(H.o.publishing.jobs().length, 0);
+  let file = JSON.parse(fs.readFileSync(path.join(H.root, "approvals/revision-requests.json"), "utf8"));
+  const r = file.requests[0];
+  assert.deepEqual([r.dedupeId, r.eventId, r.scope, r.type, r.request, r.status], [p.dedupeId, "401", "template", "visual", "Bigger logo, tighter spacing", "PENDING"]);
+  assert.match(r.handling, /No model build, no paid capture/);
+  assert.equal(r.version.images[0], p.images[0].sha256);
+  assert.equal(r.forecast.snapshotRefs.length, 1);
+  assert.equal(fs.existsSync(path.join(H.root, "approvals/approved-for-clean-export.json")), false, "a revision requests no clean export");
+  // a visual re-render: same content hash, new image
+  const again = write(H.root, "a");
+  again.contentSha256 = p.contentSha256;
+  fs.writeFileSync(path.join(H.root, "packages", "a.json"), JSON.stringify(again));
+  assert.deepEqual(H.o.importPackages({}, FOUNDER).counts, { "new-version": 1 });
+  assert.deepEqual(H.o.importPackages({}, FOUNDER).counts, { duplicate: 1 });
+  const all = H.o.state().posts;
+  assert.deepEqual(all.map((q) => q.lifecycle), ["revise", "drafted"], "one slot, feedback kept");
+  file = JSON.parse(fs.readFileSync(path.join(H.root, "approvals/revision-requests.json"), "utf8"));
+  assert.deepEqual([file.requests[0].status, file.requests[0].revisedIn], ["COMPLETED", all[1].decisionId]);
+  assert.equal(revisionRequests(all).length, 1);
+  // a second round on the revised draft
+  await H.o.decide({ decisionId: all[1].decisionId, verdict: "revise", note: "Plain note" }, FOUNDER);
+  assert.deepEqual(revisionRequests(H.o.state().posts).map((q) => [q.status, q.scope]), [["COMPLETED", "template"], ["PENDING", "image"]]);
+  assert.equal(H.o.publishing.jobs().length, 0);
+  assert.equal(H.xcalls.length, 0);
 });
 
 test("restart: imported posts, media and approvals survive a new process on the same ledger", async () => {
