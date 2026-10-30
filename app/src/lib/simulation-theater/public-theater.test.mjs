@@ -82,9 +82,9 @@ test("persistent labels and methodology: exact strings, rendered outside the isl
   }
   const src = read(SECTION);
   // labels, note and table are siblings of <TheaterSection>, never children of it (the island replaces its children)
-  const labelsAt = src.indexOf("<Labels />"), methodAt = src.indexOf("<Methodology />"), sectionAt = src.indexOf("<TheaterSection load={load} />");
+  const labelsAt = src.indexOf("<Labels />"), methodAt = src.indexOf("<Methodology />"), sectionAt = src.indexOf("<TheaterSection load={load}");
   assert.ok(labelsAt > 0 && methodAt > labelsAt && sectionAt > methodAt);
-  assert.match(src, /<TheaterSection load=\{load\} \/>\s*<DriveTable /, "the drive table follows the section, server-rendered");
+  assert.match(src, /<TheaterSection load=\{load\}(?: runBoxes=\{runBoxes\})? \/>\s*<DriveTable /, "the drive table follows the section, server-rendered");
   assert.match(src, /aria-label=\{`Simulation replay disclosure: \$\{PUBLIC_THEATER_LABEL_LINE\}`\}/);
 });
 

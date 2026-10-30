@@ -41,7 +41,7 @@ export const COMPARISON_TITLE = "Official Forecast vs this simulated scenario";
 export const CENTRAL_ROLE_TAG = "Central scenario (hypothetical)";
 /** NBA players: the official per-player expectation is the receipt's mean CONDITIONAL on playing (minutes > 0). */
 export const NBA_PLAYER_EXPECTATION_NOTE = "Small figures are the official average per game played (the forecast's mean over the simulated games in which the player played, with how often he played). A DNP in this run is one whole-number outcome of that same forecast.";
-export const NFL_PLAYERS_NOT_MODELED_NOTE = "Player expectations are not compared: this engine records drives, not players.";
+export const NFL_PLAYERS_NOT_MODELED_NOTE = "Player lines of a simulated scenario are not compared with official player expectations: the comparison above covers team numbers only.";
 
 export const ROLE = Object.freeze({ OFFICIAL: "OFFICIAL_REPRESENTATIVE", SUPPORTING_RUN: "SUPPORTING_RUN", WHAT_IF: "WHAT_IF" });
 

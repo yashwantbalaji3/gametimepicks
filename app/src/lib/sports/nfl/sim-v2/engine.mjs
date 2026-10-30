@@ -172,8 +172,23 @@ export const N_PERIODS = 5; // Q1–Q4 + OT
  *   out.period[side] Float64Array(N_PERIODS)
  *   out.players[side] Float64Array((n+1)·N_PSTAT) or null
  * `events` (optional array) receives the coherent event path for representative / debug runs.
+ * `plays` (optional array) receives one record per scrimmage play and per kick/try (PLAY LOG below). Recording consumes
+ * no randomness and changes no accumulator, so a run with and without the log is the same run
+ * (lib/simulation-theater/nfl-run-box-score.test.mjs checks it on week 8). The Theater's player box score (lib/simulation-theater/nfl-run-box-score.mjs)
+ * is folded from this log.
+ *
+ * PLAY LOG (`nfl-play-log@1`), plain objects, side 0 = home, 1 = away, slot = index into players[side].slots (slot n =
+ * OTHER):  { d: drive index (= events index), o: offense side, k: kind, ... }
+ *   PASS      p passer slot · t target slot (for a TD catch: the TD receiver, whose target it is) · c 1 complete / 0
+ *             · i 1 intercepted · td 1 · y yards (gross; a completion's share of the drive's yards, 0 when incomplete)
+ *   SACK      y −sack yards (team-level: no passer is drawn on a sack)
+ *   SCRAMBLE  r rusher slot (the QB1 rule's scrambler) · y yards
+ *   RUSH      r carrier slot · td 1 · f 1 fumble lost (the giveaway play of a TURNOVER / OPP_TD drive) · y yards
+ *   KNEEL     n kneel-downs (counted as plays, never as carries)
+ *   TRY       two 1 two-point try / 0 kick · m 1 made  (o = the scoring side, also for a defensive TD's kick)
+ *   FG        m 1 made
  */
-export function simulateGame({ compiled, tables, players = null, rng, postseason = false, out, events = null }) {
+export function simulateGame({ compiled, tables, players = null, rng, postseason = false, out, events = null, plays = null }) {
   const T = [out.team[0], out.team[1]];
   const P = [out.period[0], out.period[1]];
   const PL = players ? [out.players[0], out.players[1]] : null;
@@ -205,8 +220,12 @@ export function simulateGame({ compiled, tables, players = null, rng, postseason
   let otClock = 0;
   const otPossessed = [false, false];
   let guard = 0;
+  let driveNo = -1;
+  const log = plays; // per-play log (null = off); recording consumes no randomness
+  const gainPlay = log ? new Array(64) : null;
 
   while (guard++ < 60) {
+    driveNo += 1;
     const def = 1 - pos;
     const diff = score[pos] - score[def];
     let halfSec;
@@ -260,6 +279,7 @@ export function simulateGame({ compiled, tables, players = null, rng, postseason
       T[pos][TEAM_STAT.kneels] += k;
       T[pos][TEAM_STAT.plays] += k;
       nPlays = k;
+      if (log) log.push({ d: driveNo, o: pos, k: "KNEEL", n: k });
     } else {
       for (let i = 0; i < nPlays; i++) {
         const last = i === nPlays - 1;
@@ -277,6 +297,7 @@ export function simulateGame({ compiled, tables, players = null, rng, postseason
             const sy = Math.max(0, Math.round(playMix.sackYards + (rng() - 0.5) * 6));
             T[pos][TEAM_STAT.sackYds] += sy;
             sackYds += sy;
+            if (log) log.push({ d: driveNo, o: pos, k: "SACK", y: -sy });
             continue;
           }
           if (u < playMix.sackPerDropback + playMix.scramblePerDropback) {
@@ -284,7 +305,9 @@ export function simulateGame({ compiled, tables, players = null, rng, postseason
             T[pos][TEAM_STAT.rushAtt] += 1;
             const slot = pl ? pl.scrambler : -1;
             if (PL) PL[pos][(slot) * N_PSTAT + PSTAT.rushAtt] += 1;
-            gains[nGain] = 1 + gammaDraw(rng, 1.4, 5 / 1.4); gainSlot[nGain] = slot; gainKind[nGain] = 2; nGain++;
+            gains[nGain] = 1 + gammaDraw(rng, 1.4, 5 / 1.4); gainSlot[nGain] = slot; gainKind[nGain] = 2;
+            if (log) { const rec = { d: driveNo, o: pos, k: "SCRAMBLE", r: slot, y: 0 }; log.push(rec); gainPlay[nGain] = rec; }
+            nGain++;
             continue;
           }
           // A pass attempt.
@@ -295,11 +318,15 @@ export function simulateGame({ compiled, tables, players = null, rng, postseason
           if (last && (res === R.TURNOVER || res === R.OPP_TD) && toIsInt) {
             T[pos][TEAM_STAT.int] += 1;
             if (PL) PL[pos][passer * N_PSTAT + PSTAT.int] += 1;
+            if (log) log.push({ d: driveNo, o: pos, k: "PASS", p: passer, t: target, c: 0, i: 1, td: 0, y: 0 });
             continue;
           }
           const catchP = pl ? pl.catchRate[target] : playMix.completionRate;
           const complete = (last && res === R.TD) || rng() < catchP;
-          if (!complete) continue;
+          if (!complete) {
+            if (log) log.push({ d: driveNo, o: pos, k: "PASS", p: passer, t: target, c: 0, i: 0, td: 0, y: 0 });
+            continue;
+          }
           let receiver = target;
           if (last && res === R.TD && pl) {
             // The TD receiver is drawn from the receiving-TD weights; the scoring catch is THAT player's target.
@@ -321,6 +348,7 @@ export function simulateGame({ compiled, tables, players = null, rng, postseason
           }
           gainKind[nGain] = 1;
           gainPasser[nGain] = passer;
+          if (log) { const rec = { d: driveNo, o: pos, k: "PASS", p: passer, t: receiver, c: 1, i: 0, td: last && res === R.TD ? 1 : 0, y: 0 }; log.push(rec); gainPlay[nGain] = rec; }
           lastGain = nGain;
           nGain++;
         } else {
@@ -338,6 +366,11 @@ export function simulateGame({ compiled, tables, players = null, rng, postseason
             if (!firstTd) firstTd = { side: pos, slot: pl ? carrier : -1, type: "RUSH" };
           }
           if (last && (res === R.TURNOVER || res === R.OPP_TD) && !toIsInt) T[pos][TEAM_STAT.fumLost] += 1;
+          if (log) {
+            const rec = { d: driveNo, o: pos, k: "RUSH", r: carrier, td: last && res === R.TD ? 1 : 0, f: last && (res === R.TURNOVER || res === R.OPP_TD) && !toIsInt ? 1 : 0, y: 0 };
+            log.push(rec);
+            gainPlay[nGain] = rec;
+          }
           lastGain = nGain;
           nGain++;
         }
@@ -365,6 +398,7 @@ export function simulateGame({ compiled, tables, players = null, rng, postseason
       }
       for (let i = 0; i < nGain; i++) {
         const y = ints[i];
+        if (log) gainPlay[i].y = y;
         if (gainKind[i] === 1) {
           T[pos][TEAM_STAT.passYds] += y;
           if (PL) { PL[pos][gainSlot[i] * N_PSTAT + PSTAT.recYds] += y; PL[pos][gainPasser[i] * N_PSTAT + PSTAT.passYds] += y; }
@@ -386,21 +420,28 @@ export function simulateGame({ compiled, tables, players = null, rng, postseason
       const goForTwo = cs === 2 && (newDiff === -2 || newDiff === -5 || newDiff === -10 || newDiff === 1) ? rng() < 0.85 : rng() < conversions.twoPointAttemptRate;
       if (goForTwo) {
         T[pos][TEAM_STAT.twoAtt] += 1;
-        if (rng() < conversions.twoPointSuccess) { T[pos][TEAM_STAT.twoMade] += 1; addPoints(pos, 2, clockEnd, period); }
+        const made = rng() < conversions.twoPointSuccess;
+        if (made) { T[pos][TEAM_STAT.twoMade] += 1; addPoints(pos, 2, clockEnd, period); }
+        if (log) log.push({ d: driveNo, o: pos, k: "TRY", two: 1, m: made ? 1 : 0 });
       } else {
         T[pos][TEAM_STAT.xpAtt] += 1;
-        if (rng() < conversions.xpMake) { T[pos][TEAM_STAT.xpMade] += 1; addPoints(pos, 1, clockEnd, period); }
+        const made = rng() < conversions.xpMake;
+        if (made) { T[pos][TEAM_STAT.xpMade] += 1; addPoints(pos, 1, clockEnd, period); }
+        if (log) log.push({ d: driveNo, o: pos, k: "TRY", two: 0, m: made ? 1 : 0 });
       }
       nextY = kickoffY();
     } else if (res === R.FG || res === R.FG_MISS) {
       T[pos][TEAM_STAT.fgAtt] += 1;
+      if (log) log.push({ d: driveNo, o: pos, k: "FG", m: res === R.FG ? 1 : 0 });
       if (res === R.FG) { T[pos][TEAM_STAT.fgMade] += 1; addPoints(pos, 3, clockEnd, period); nextY = kickoffY(); }
       else nextY = Math.min(99, Math.max(1, 100 - endY + sampleHist(compiled.start.FG_MISS, rng)));
     } else if (res === R.OPP_TD) {
       T[def][TEAM_STAT.defTd] += 1;
       addPoints(def, 6, clockEnd, period);
       T[def][TEAM_STAT.xpAtt] += 1;
-      if (rng() < conversions.xpMake) { T[def][TEAM_STAT.xpMade] += 1; addPoints(def, 1, clockEnd, period); }
+      const made = rng() < conversions.xpMake;
+      if (made) { T[def][TEAM_STAT.xpMade] += 1; addPoints(def, 1, clockEnd, period); }
+      if (log) log.push({ d: driveNo, o: def, k: "TRY", two: 0, m: made ? 1 : 0 });
       nextPos = pos; // the scoring defense kicks off to the same offense
       nextY = kickoffY();
     } else if (res === R.SAFETY) {

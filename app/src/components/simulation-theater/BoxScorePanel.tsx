@@ -17,8 +17,9 @@ import type { CSSProperties } from "react";
 import BottomSheet from "./BottomSheet";
 import type { Palette, Side } from "./FieldScene";
 import type { TheaterManifest, TheaterSample } from "./types";
-import { BoxHeader, Composition, PeriodTable, PlayerSections, Provenance, TeamCategoryTable, Watermark, boxTitleFor } from "./BoxScoreTable";
-import type { BoxScore } from "./BoxScoreTable";
+import { BoxHeader, Composition, PeriodTable, PlayerSections, Provenance, TeamCategoryTable, Watermark, boxTitleFor, runBoxFor } from "./BoxScoreTable";
+import type { BoxScore, RunBoxes } from "./BoxScoreTable";
+import RunPlayerBox from "./RunPlayerBox";
 import { Unavailable } from "./parts";
 import { safeNflBoxScore } from "@/lib/simulation-theater/box-score.mjs";
 import { NFL_PLAYERS_NOT_MODELED_NOTE, runRole } from "@/lib/simulation-theater/representative-labels.mjs";
@@ -27,7 +28,8 @@ import { useRovingTabs } from "@/components/a11y/use-roving-tabs";
 
 const SIDES: readonly Side[] = ["away", "home"];
 
-function BoxScoreBody({ box, palette, manifest, hypothetical }: { box: BoxScore; palette: Palette; manifest: TheaterManifest; hypothetical: boolean }) {
+function BoxScoreBody({ box, palette, manifest, hypothetical, runBoxes }: { box: BoxScore; palette: Palette; manifest: TheaterManifest; hypothetical: boolean; runBoxes: RunBoxes | null | undefined }) {
+  const players = runBoxes === undefined ? null : runBoxFor(runBoxes, box.header.runIndex);
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const [side, setSide] = useState<Side>("away");
   const tabs = useRovingTabs<Side>({ keys: SIDES, active: side, onChange: setSide, idBase: `${uid}-bx` });
@@ -57,7 +59,7 @@ function BoxScoreBody({ box, palette, manifest, hypothetical }: { box: BoxScore;
       <div className="stbx-panel" {...tabs.panelProps(side)}>
         <TeamCategoryTable box={box} side={side} idBase={uid} />
       </div>
-      <PlayerSections box={box} />
+      {players ? <RunPlayerBox box={players.box} refusal={players.refusal} runIndex={box.header.runIndex} /> : <PlayerSections box={box} />}
       <p className="stbx-note">{NFL_PLAYERS_NOT_MODELED_NOTE}</p>
       <Composition box={box} />
       <Provenance box={box} />
@@ -65,8 +67,10 @@ function BoxScoreBody({ box, palette, manifest, hypothetical }: { box: BoxScore;
   );
 }
 
-export default function BoxScoreDialog({ open, onClose, manifest, sample, palette }: {
+export default function BoxScoreDialog({ open, onClose, manifest, sample, palette, runBoxes }: {
   open: boolean; onClose: () => void; manifest: TheaterManifest; sample: TheaterSample; palette: Palette;
+  /** the verified player boxes (unpacked run-box-pack@1); undefined on a page that does not derive them */
+  runBoxes?: RunBoxes | null;
 }) {
   const res = useMemo(() => (open ? safeNflBoxScore(sample, manifest) : null), [open, sample, manifest]);
   // a what-if run's box score is titled and watermarked HYPOTHETICAL, never "projected"
@@ -74,7 +78,7 @@ export default function BoxScoreDialog({ open, onClose, manifest, sample, palett
   return (
     <BottomSheet open={open} title={`${boxTitleFor(hypothetical)} · run #${sample.runIndex.toLocaleString("en-US")}`} onClose={onClose} variant="modal">
       {res && res.ok && res.box ? (
-        <BoxScoreBody box={res.box as BoxScore} palette={palette} manifest={manifest} hypothetical={hypothetical} />
+        <BoxScoreBody box={res.box as BoxScore} palette={palette} manifest={manifest} hypothetical={hypothetical} runBoxes={runBoxes} />
       ) : (
         <div data-stbx-dialog="" data-stbx-state="unavailable" data-stbx-error={res?.error?.code ?? "BOX_SCORE_ERROR"}>
           <Unavailable title="Box score unavailable" reason={`No box score is shown rather than a partial or guessed one: ${res?.error?.reason ?? "not computed"}`} />
