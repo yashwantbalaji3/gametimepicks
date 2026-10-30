@@ -5,7 +5,7 @@
  *  SD2  every static URL is a source page that is not pruned, not a family template, not a redirect stub, not noindex
  *  SD3  <lastmod> only on durable pages, always a YYYY-MM-DD event date — never build time
  *  SD4  the families the sitemap must carry are present: settled MLB + archived NFL game pages, /results/nba
- *  SD5  /nba/simulation (internal, pruned while gated, noindex when on) is never listed
+ *  SD5  /nba/simulation (internal, pruned while gated, noindex when on) and /nba/lines (noindex) are never listed
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -83,6 +83,8 @@ test("SD4 settled MLB and archived NFL game pages and /results/nba are listed", 
   assert.equal(new Set(paths).size, paths.length, "no URL is listed twice");
 });
 
-test("SD5 /nba/simulation pages are never listed", () => {
+test("SD5 /nba/simulation and /nba/lines pages are never listed", () => {
   assert.ok(!paths.some((p) => p.startsWith("/nba/simulation")), "the Theater family is internal and noindex");
+  // the per-game line tables (page weight 2026-10-30): noindex, superseded every slate, generated only on a key build
+  assert.ok(!paths.some((p) => p.startsWith("/nba/lines")), "the lines family is noindex and not durable");
 });

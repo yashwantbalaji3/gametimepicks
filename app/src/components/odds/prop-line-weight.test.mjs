@@ -6,11 +6,13 @@
  * Rendered for the COMMITTED 2026-10-29 lane with a SYNTHETIC price record for EVERY lane player × EVERY family (the worst
  * case: more rows than any real artifact). Synthetic only: a fake book ("fixturebook"), one fake price (−111 both sides)
  * and lines placed half a point off each median — no real price is in the repo (the repo is public).
- *   1. a game page's section (NbaPropLines, the per-player table) stays within PER_ROW_MAX bytes of HTML per row and
+ *   1. the per-player table (NbaPropLines — the /nba/lines/<id>/ page) stays within PER_ROW_MAX bytes of HTML per row and
  *      SECTION_FIXED + rows × PER_ROW_MAX in total;
  *   2. the slate section on /nba/projections (NbaSlatePropLines, through the real view) has NO per-player row — one
  *      compact summary per game — and stays within SLATE_SECTION_MAX bytes;
- *   3. its summaries link each game's full table by the hub's rule (Theater page → settled page → no link).
+ *   3. its summaries link each game's /nba/lines/<id>/ page (page weight 2026-10-30) only when that page is generated;
+ *   4. a game page's section for a game WITH a lines page is the compact summary — no per-player row, bounded bytes — and
+ *      for a game without one, the full table exactly as before.
  * Run: npx tsx --test src/components/odds/prop-line-weight.test.mjs
  */
 import test from "node:test";
@@ -39,6 +41,7 @@ const MARKUP_MAX = 340; // per row, tags and attributes only (content-independen
 const ROW_MAX = 520; // any single row (long names, missing-price dashes)
 const SECTION_FIXED = 16_000; // heading, coverage line, CSS (once), header row, state notes, legend, notes
 const SLATE_SECTION_MAX = 6_000; // the whole /nba/projections section for a 3-game slate
+const COMPACT_SECTION_MAX = 4_000; // a game page's section when the game has a /nba/lines/<id>/ page (summary + legend)
 
 const ON = { public: true };
 const firstTip = Math.min(...LANE.games.map((g) => Date.parse(g.tipUtc)));
@@ -105,21 +108,39 @@ test("/nba/projections slate section: one compact summary per game, NO per-playe
   assert.ok(bytes(section) <= SLATE_SECTION_MAX, `slate section ${bytes(section)} B > ${SLATE_SECTION_MAX}`);
 });
 
-test("slate summaries link the game's full table by the hub's rule: Theater page, else settled page, else nothing", () => {
+test("slate summaries link each game's /nba/lines/<id>/ page only when the route generates it, else nothing", () => {
   const [a, b, c] = LANE.games.map((g) => String(g.providerEventId));
-  const links = { current: [a], pages: [a, b] };
-  assert.equal(nbaPropLinesHref(a, links.current, links.pages), `/nba/simulation/${a}/#nba-game-prop-lines`);
-  assert.equal(nbaPropLinesHref(b, links.current, links.pages), `/nba/simulation/${b}/#nba-settled-prop-lines`);
-  assert.equal(nbaPropLinesHref(c, links.current, links.pages), null);
-  assert.equal(nbaPropLinesHref(a, [], []), null, "flag-OFF build: no page, no link");
-  const page = renderToStaticMarkup(React.createElement(View, { lane: LANE, role: "past", date: DATE, dated: true, asOf: AS_OF, priceRecords: RECORDS, lineDisplay: ON, gameLinks: links }));
+  const lines = [a, b];
+  assert.equal(nbaPropLinesHref(a, lines), `/nba/lines/${a}/`);
+  assert.equal(nbaPropLinesHref(b, new Set(lines)), `/nba/lines/${b}/`);
+  assert.equal(nbaPropLinesHref(c, lines), null, "no generated lines page → no link");
+  assert.equal(nbaPropLinesHref(a, []), null, "keyless build: no lines page, no link");
+  const page = renderToStaticMarkup(React.createElement(View, { lane: LANE, role: "past", date: DATE, dated: true, asOf: AS_OF, priceRecords: RECORDS, lineDisplay: ON, gameLinks: { lines } }));
   const section = page.slice(page.indexOf('<section id="nba-prop-lines"'));
-  assert.match(section, new RegExp(`href="/nba/simulation/${a}/?#nba-game-prop-lines"`));
-  assert.match(section, new RegExp(`href="/nba/simulation/${b}/?#nba-settled-prop-lines"`));
-  assert.doesNotMatch(section, new RegExp(`/nba/simulation/${c}`));
+  assert.match(section, new RegExp(`href="/nba/lines/${a}/?"`));
+  assert.match(section, new RegExp(`href="/nba/lines/${b}/?"`));
+  assert.doesNotMatch(section, new RegExp(`/nba/lines/${c}`));
+  assert.doesNotMatch(section, /#nba-(game|settled)-prop-lines/, "never a game page anchor");
   // the slate section, rendered on its own, is the same component the view mounts
-  const alone = renderToStaticMarkup(React.createElement(NbaSlatePropLines, { lane: LANE, asOf: AS_OF, priceRecords: RECORDS, display: ON, hrefOf: (id) => nbaPropLinesHref(id, links.current, links.pages) }));
+  const alone = renderToStaticMarkup(React.createElement(NbaSlatePropLines, { lane: LANE, asOf: AS_OF, priceRecords: RECORDS, display: ON, hrefOf: (id) => nbaPropLinesHref(id, lines) }));
   assert.ok(section.startsWith(alone), "the view mounts NbaSlatePropLines as is");
+});
+
+test("game page section with a lines page: NO per-player row, a fixed size whatever the row count", () => {
+  const sizes = [];
+  for (const g of LANE.games) {
+    const id = String(g.providerEventId);
+    const full = renderToStaticMarkup(React.createElement(NbaPropLines, { lane: LANE, eventId: id, asOf: AS_OF, priceRecords: RECORDS, display: ON, id: "nba-game-prop-lines" }));
+    const html = renderToStaticMarkup(React.createElement(NbaPropLines, { lane: LANE, eventId: id, asOf: AS_OF, priceRecords: RECORDS, display: ON, id: "nba-game-prop-lines", linesPage: (x) => `/nba/lines/${x}/` }));
+    assert.doesNotMatch(html, /role="row"|role="table"|data-prop-line="|<style/, `${id}: no per-player row, no table CSS`);
+    assert.match(html, new RegExp(`href="/nba/lines/${id}/?"`));
+    assert.equal(html.match(/data-prop-line-coverage=""[^>]*>([\s\S]*?)<\/p>/)[1], full.match(/data-prop-line-coverage=""[^>]*>([\s\S]*?)<\/p>/)[1], "the same coverage line as the full table");
+    sizes.push(`${id}: ${bytes(html)} B compact vs ${bytes(full)} B with ${rowsOf(full).length} rows`);
+    assert.ok(bytes(html) <= COMPACT_SECTION_MAX, `${id}: compact section ${bytes(html)} B > ${COMPACT_SECTION_MAX}`);
+    // no lines page for this game (the resolver says none): the full table stays — no record is hidden
+    assert.equal(renderToStaticMarkup(React.createElement(NbaPropLines, { lane: LANE, eventId: id, asOf: AS_OF, priceRecords: RECORDS, display: ON, id: "nba-game-prop-lines", linesPage: () => null })), full);
+  }
+  console.log(sizes.join("\n"));
 });
 
 test("switch off / no artifact: the slate section renders nothing (the page is byte-identical: prop-line-switch-off.test.mjs)", () => {

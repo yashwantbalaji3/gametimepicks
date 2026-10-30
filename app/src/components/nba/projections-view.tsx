@@ -201,8 +201,8 @@ function TodaySlate({ today }: { today: BoardToday }) {
   );
 }
 
-type GameLinks = { current: readonly string[]; pages: readonly string[] };
-const NO_GAME_LINKS: GameLinks = { current: [], pages: [] };
+type GameLinks = { current?: readonly string[]; pages?: readonly string[]; lines: readonly string[] };
+const NO_GAME_LINKS: GameLinks = { lines: [] };
 
 export default function NbaProjectionsView({ lane, role = "current", date = null, games = [], dates = [], dated = false, today = null, actuals = null, eloCtx = ELO_OFF, asOf = "", lineDisplay = NBA_LINE_DISPLAY, priceRecords = null, gameLinks = NO_GAME_LINKS }: {
   lane: Snapshot | null;
@@ -227,8 +227,8 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
   asOf?: string;
   lineDisplay?: { public: boolean };
   priceRecords?: unknown[] | null;
-  /** The game pages the per-game line summaries may link (the page computes them as the /nba hub does): today's Game
-      Simulation ids (GTP_NBA_THEATER_PUBLIC) and every exported game page id. Default: none → no link. */
+  /** The per-game line summaries' link ids (components/nba/prop-line-game-links.ts): `lines` = the games whose
+      /nba/lines/<id>/ page is generated (nbaLinesPageIds). Default: none → no link. */
   gameLinks?: GameLinks;
 }) {
   const live = lane && lane.games.length > 0 ? lane : null;
@@ -291,7 +291,7 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
           </p>
           <ProjectionBoard board={packBoard(rows, post ? post.rows : null, post ? awaiting : null, noProjectionRows(live, post), post?.corrected ?? null)} stats={stats} groups={groups} matchups={matchups} teams={teams} games={nav} defaultGroup={post ? "core" : undefined} />
           {/* Page weight (2026-10-29): one summary per game here; the per-player line rows live on each game page. */}
-          <NbaSlatePropLines lane={live} asOf={asOf} display={lineDisplay} priceRecords={priceRecords} hrefOf={(id) => nbaPropLinesHref(id, gameLinks.current, gameLinks.pages)} />
+          <NbaSlatePropLines lane={live} asOf={asOf} display={lineDisplay} priceRecords={priceRecords} hrefOf={(id) => nbaPropLinesHref(id, gameLinks.lines)} />
           {/* Model ids, receipts, engine notes and the withheld list: one tap away, each model id once. Overnight W7
               2026-10-28: the site's one shape for it — MoreDisclosure, "Technical details". */}
           <MoreDisclosure title="Technical details" summary={`Freeze times, receipts and method · ${live.games.length} game${live.games.length === 1 ? "" : "s"}`}>

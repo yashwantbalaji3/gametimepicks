@@ -30,18 +30,23 @@ export function nbaGamePageHrefIfExported(id, exported) {
 }
 
 /**
- * Where a game's FULL model-vs-sportsbook-line table lives (the /nba hub's rule, reused by /nba/projections' per-game
- * summaries): its Game Simulation page's Official Forecast panel when that page is built (`theaterIds`, the route's own
- * ids — empty in a flag-OFF build), else its settled game page when exported, else null (no link: never a dead one).
- * @param {string|number} id
- * @param {readonly string[]|ReadonlySet<string>|null|undefined} theaterIds
- * @param {ReadonlySet<string>|readonly string[]|null|undefined} exported  nbaExportedGamePageIds
+ * The per-game "model vs sportsbook line" page (page weight 2026-10-30): /nba/lines/<eventId>/ holds a game's FULL
+ * model-vs-line table — the game page, /nba/projections, the /nba hub and /today show a compact summary linking here.
+ * The route (app/nba/lines/[eventId]/page.tsx) is generated ONLY for the games nbaLinesPageIds lists (an authorized,
+ * decryptable artifact with at least one compared line), so a link is drawn only for an id in that list.
  */
-export function nbaPropLinesHref(id, theaterIds, exported) {
+export const nbaLinesPageHref = (id) => `/nba/lines/${id}/`;
+
+/**
+ * Where a game's FULL model-vs-sportsbook-line table lives: its /nba/lines/<id>/ page when that page is generated
+ * (`linesIds` — nbaLinesPageIds, the route's own generateStaticParams source; empty in a build without a readable
+ * artifact), else null (no link: never a dead one).
+ * @param {string|number} id
+ * @param {readonly string[]|ReadonlySet<string>|null|undefined} linesIds
+ */
+export function nbaPropLinesHref(id, linesIds) {
   const key = String(id ?? "");
-  if (!key) return null;
-  const live = theaterIds ? (theaterIds instanceof Set ? theaterIds.has(key) : [...theaterIds].map(String).includes(key)) : false;
-  if (live) return `${nbaGamePageHref(key)}#nba-game-prop-lines`;
-  const settled = nbaGamePageHrefIfExported(key, exported);
-  return settled ? `${settled}#nba-settled-prop-lines` : null;
+  if (!key || !linesIds) return null;
+  const has = linesIds instanceof Set ? linesIds.has(key) : [...linesIds].map(String).includes(key);
+  return has ? nbaLinesPageHref(key) : null;
 }

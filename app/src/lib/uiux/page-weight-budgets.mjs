@@ -100,10 +100,23 @@ export const FAMILY_BUDGET_KB = Object.freeze({
      63-66KB escaped + the ~74KB site shell (measured page − that same estimate on the old build) = 171-176KB. Emitted
      only by a flag-ON build (FLAG_GATED_FAMILIES). Replace with the measured emission + headroom; shrink-only. */
   "nba/simulation": 250,
+  /* /nba/lines/<eventId>/ (page weight 2026-10-30): one game's FULL model-vs-sportsbook-line table, moved off the game
+     page (a key build measured /nba/simulation/<id>/ at 328–363 KiB with the table vs the 250 family ceiling). Generated
+     only on a build with a readable line artifact (FLAG_GATED_FAMILIES: absent from every keyless CI build). NOT YET
+     MEASURED — sized by rule from the Production-parity key build of ccd7e61538 (2026-10-29) game pages:
+       per row  1.14 KiB = ~0.41 KiB row HTML (prop-line-weight.test.mjs PER_ROW_MAX 430 B) + ~0.75 KiB of the same row
+                escaped in the RSC flight — the slope between the 67-row and 97-row pages (336,280 → 371,354 B);
+       fixed    ~33 KiB section (heading, coverage, CSS once, header row, legend, notes; HTML + flight) = the fit's
+                0-row intercept 252 KiB − the 219 KiB Production game page without the section;
+       shell    ~71 KiB (the smallest exported pages, e.g. /games/ 73,054 B) + ~2 KiB back-link and title.
+     ≈ 106 KiB + 1.14 KiB × rows: the heaviest real game (97 rows) ≈ 217 KiB; the worst-case fixture game (every lane
+     player × every family, 154 rows) ≈ 282 KiB. Ceiling 300 holds 170 rows. Replace with the measured emission +
+     headroom on the first key build; shrink-only. */
+  "nba/lines": 300,
 });
 
 /**
  * Families a DEFAULT build does not emit: scripts/prune-internal-routes.mjs deletes the directory unless the route's
- * public gate is on. Absent → nothing to measure (skipped); present → the ceiling above applies to every page.
+ * public gate is on (nba/lines: unless the build can read a line artifact — a display key). Absent → nothing to measure (skipped); present → the ceiling above applies to every page.
  */
-export const FLAG_GATED_FAMILIES = Object.freeze(["nba/simulation"]);
+export const FLAG_GATED_FAMILIES = Object.freeze(["nba/simulation", "nba/lines"]);

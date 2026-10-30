@@ -79,16 +79,23 @@ test("NbaPropLines off: renders nothing and never calls the lane resolver; on wi
 
 test("every wired surface passes through the gate: projections (+ dated), the game page's Official Forecast panel and the settled game page", () => {
   const read = (rel) => fs.readFileSync(path.join(SRC, rel), "utf8");
-  // projections (+ dated): the slate section — the same gate and source, a per-game summary linking each game page
-  assert.match(read("components/nba/projections-view.tsx"), /<NbaSlatePropLines lane=\{live\} asOf=\{asOf\} display=\{lineDisplay\} priceRecords=\{priceRecords\} hrefOf=\{\(id\) => nbaPropLinesHref\(id, gameLinks\.current, gameLinks\.pages\)\} \/>/);
+  // projections (+ dated): the slate section — the same gate and source, a per-game summary linking each game's lines page
+  assert.match(read("components/nba/projections-view.tsx"), /<NbaSlatePropLines lane=\{live\} asOf=\{asOf\} display=\{lineDisplay\} priceRecords=\{priceRecords\} hrefOf=\{\(id\) => nbaPropLinesHref\(id, gameLinks\.lines\)\} \/>/);
   assert.doesNotMatch(read("components/nba/projections-view.tsx"), /<NbaPropLines\b/, "never the whole slate's per-player table");
   for (const p of ["app/nba/projections/page.tsx", "app/nba/projections/[date]/page.tsx"]) {
     assert.match(read(p), /asOf=\{now\.toISOString\(\)\} gameLinks=\{await nbaLineSummaryGameLinks\(currentEtDate\(now\)\)\}/, p);
   }
   // the link ids: the hub's inline-literal Theater gate (dynamic loader import inside it) + the exported game pages
-  assert.match(read("components/nba/prop-line-game-links.ts"), /if \(process\.env\.GTP_NBA_THEATER_PUBLIC === "1"\) \{\s*const \{ publicPossessionEvents \} = await import\("@\/lib\/simulation-theater\/nba\/possession\/public-loader\.mjs"\);\s*theaterIds = publicTheaterRouteIds\(\(\) => publicPossessionEvents\(REPO_ROOT\)\);\s*\}\s*return \{ current: theaterIds, pages: nbaExportedGamePageIds\(today, theaterIds\) \};/);
-  assert.match(read("components/nba/official-predictions.tsx"), /\{official \? <NbaPropLines eventId=\{official\.eventId\} id="nba-game-prop-lines" \/> : null\}/);
-  assert.match(read("components/nba/settled-simulation.tsx"), /<NbaPropLines lane=\{\{ date: view\.date, games: \[g\] \}\} eventId=\{view\.id\} id="nba-settled-prop-lines" \/>/);
+  assert.match(read("components/nba/prop-line-game-links.ts"), /if \(process\.env\.GTP_NBA_THEATER_PUBLIC === "1"\) \{\s*const \{ publicPossessionEvents \} = await import\("@\/lib\/simulation-theater\/nba\/possession\/public-loader\.mjs"\);\s*theaterIds = publicTheaterRouteIds\(\(\) => publicPossessionEvents\(REPO_ROOT\)\);\s*\}\s*return \{ current: theaterIds, pages: nbaExportedGamePageIds\(today, theaterIds\), lines: nbaLinesPageIds\(\) \};/);
+  // game pages (page weight 2026-10-30): the compact summary linking /nba/lines/<id>/ (the full table lives there)
+  assert.match(read("components/nba/official-predictions.tsx"), /\{official \? <NbaPropLines eventId=\{official\.eventId\} id="nba-game-prop-lines" linesPage \/> : null\}/);
+  assert.match(read("components/nba/settled-simulation.tsx"), /<NbaPropLines lane=\{\{ date: view\.date, games: \[g\] \}\} eventId=\{view\.id\} id="nba-settled-prop-lines" linesPage \/>/);
+  // the lines page: the same component, gate and source, the full table (no linesPage), generated from nbaLinesPageIds
+  const linesRoute = read("app/nba/lines/[eventId]/page.tsx");
+  assert.match(linesRoute, /<NbaPropLines lane=\{lane\} eventId=\{params\.eventId\} asOf=\{now\.toISOString\(\)\} id="nba-game-prop-lines" \/>/);
+  assert.match(linesRoute, /const ids = nbaLinesPageIds\(\);\n  return ids\.length \? ids\.map\(\(eventId\) => \(\{ eventId \}\)\) : \[\{ eventId: NBA_LINES_PLACEHOLDER \}\];/);
+  assert.match(linesRoute, /export const dynamicParams = false;/);
+  assert.match(read("components/nba/nba-prop-lines.tsx"), /\} = \{\}\): string\[\] \{\n  if \(!display\.public\) return \[\];/, "lines ids: the gate is the first statement");
   assert.doesNotMatch(read("app/nba/simulation/[eventId]/page.tsx"), /NbaPropLines|prop-line/, "the Theater route's static imports stay the gate only (public-theater-route.test.mjs)");
   assert.match(read("components/nba/nba-prop-lines.tsx"), /if \(!display\.public\) return null;\n  const src =/, "the gate is the first statement — nothing is read before it");
   assert.match(read("components/nba/nba-prop-lines.tsx"), /export function NbaSlatePropLines\([\s\S]*?\}\) \{\n  if \(!display\.public\) return null;\n  const snap =/, "slate section: the gate is the first statement");
