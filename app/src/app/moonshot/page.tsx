@@ -28,6 +28,9 @@ import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
 import EligibleUniverse from "@/components/products/eligible-universe";
 import MoreDisclosure from "@/components/ui/more-disclosure";
 import LevelASuggestions, { type LevelAModel } from "@/components/products/level-a-suggestions";
+import DailyCandidatePanel, { type DailyCandidateModel } from "@/components/products/daily-candidate-panel";
+import { dailyCandidateForPage } from "@/lib/products/daily-candidates/load.mjs";
+import { dailyCandidateSectionEnabled } from "@/lib/products/daily-candidates/policy.mjs";
 import { levelAPageModel, levelAEnabled, levelASportsShown } from "@/lib/products/level-a/model.mjs";
 import { loadProductAvailability } from "@/lib/products/availability";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
@@ -284,6 +287,8 @@ export default function MoonshotPage() {
           reasons; names the market-priced caveat). Same component as /bank-builder, same owner. */}
       <EligibleUniverse availability={loadProductAvailability()} compact scope="Moonshot" levelASports={levelAModel ? levelASportsShown(levelAModel, "moonshot") : null} />
       {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="moonshot" /> : null}
+      {/* P0-E: today's priced NBA/NFL candidate or the exact reasons there is none (own section; history below is untouched). */}
+      {dailyCandidateSectionEnabled() ? <DailyCandidatePanel model={dailyCandidateForPage("moonshot") as unknown as DailyCandidateModel} /> : null}
 
       {/*
         TODAY'S CARD — the PUBLISHED lanes themselves (P243 · A-2).
