@@ -374,7 +374,7 @@
   }
   function postCaptions(p) {
     const decided = p.resolution;
-    const chosen = ui.choice[p.decisionId] ?? decided?.captionId ?? p.options.find((o) => o.check?.ok)?.captionId;
+    const chosen = ui.choice[p.decisionId] ?? decided?.captionId ?? (p.options.filter((o) => o.source === "caption-edit" && o.check?.ok).at(-1) ?? p.options.find((o) => o.check?.ok))?.captionId;
     return p.options.map((o) => {
       captionTextMap.set(`${p.decisionId}:${o.captionId}`, o.text);
       const n = xLen(o.text);
@@ -1008,7 +1008,7 @@
     const st = postStatus(s, p);
     const imgs = imagesOf(pkg);
     const open = ui.expanded === p.decisionId;
-    const chosen = p.resolution?.captionId ?? ui.choice[p.decisionId] ?? p.package.imported?.cleanOf?.captionId ?? p.options.find((o) => o.check?.ok)?.captionId;
+    const chosen = p.resolution?.captionId ?? ui.choice[p.decisionId] ?? p.package.imported?.cleanOf?.captionId ?? (p.options.filter((o) => o.source === "caption-edit" && o.check?.ok).at(-1) ?? p.options.find((o) => o.check?.ok))?.captionId;
     const cap = p.options.find((o) => o.captionId === chosen)?.text ?? p.options[0]?.text ?? "";
     const start = startOfPkg(pkg);
     const postAt = jobsOf(s, p).find((j) => j.status === "scheduled")?.dueAt ?? pkg.suggestedPublishAt;
@@ -1034,7 +1034,7 @@
     const check = (p.checks ?? []).filter((c) => c.phase === "pre-publish").at(-1);
     return `<div class="rbody">
       ${imgs.length ? `<div class="gallery" data-gallery="${esc(p.decisionId)}">${imgs.map((m, i) => `<figure><img src="/media/${encodeURIComponent(m.file)}" alt="${esc(m.altText ?? "")}" data-zoom data-index="${i}" loading="lazy"><figcaption>${imgs.length > 1 ? `${i + 1} of ${imgs.length}${pkg.kind === "nba-game" ? ` · ${i === 0 ? "Predicted winner" : "Projected stat lines"}` : ""}` : "Graphic"} · <a href="/media/${encodeURIComponent(m.file)}" download>Download</a></figcaption></figure>`).join("")}</div>` : `<div class="muted">Text post — no graphic.</div>`}
-      ${pkg.imported ? xPreview(p, p.options.find((o) => o.captionId === (p.resolution?.captionId ?? ui.choice[p.decisionId] ?? pkg.imported?.cleanOf?.captionId ?? p.options.find((x) => x.check?.ok)?.captionId))?.text ?? p.options[0]?.text ?? "") : ""}
+      ${pkg.imported ? xPreview(p, p.options.find((o) => o.captionId === (p.resolution?.captionId ?? ui.choice[p.decisionId] ?? pkg.imported?.cleanOf?.captionId ?? (p.options.filter((x) => x.source === "caption-edit" && x.check?.ok).at(-1) ?? p.options.find((x) => x.check?.ok))?.captionId))?.text ?? p.options[0]?.text ?? "") : ""}
       ${importPanel(s, p)}
       ${pkg.featured?.length ? `<div class="muted">Featured in the caption: ${pkg.featured.map((f) => `<b>${esc(f.name ?? "none")}</b> (${esc(f.team)})`).join(" · ")} — a caption highlight, not a ranking.</div>` : ""}
       ${pkg.xSources?.length ? `<div class="section">Open these first</div><div class="links">${pkg.xSources.map((u) => xLink(u)).join(" ")}</div>` : ""}
@@ -1539,7 +1539,7 @@
     }
     if (t.dataset.postApprove) {
       const p = ui.state.posts.find((x) => x.decisionId === t.dataset.postApprove);
-      const captionId = ui.choice[p.decisionId] ?? p.package.imported?.cleanOf?.captionId ?? p.options.find((o) => o.check?.ok)?.captionId;
+      const captionId = ui.choice[p.decisionId] ?? p.package.imported?.cleanOf?.captionId ?? (p.options.filter((o) => o.source === "caption-edit" && o.check?.ok).at(-1) ?? p.options.find((o) => o.check?.ok))?.captionId;
       const opt = p.options.find((o) => o.captionId === captionId);
       if (!opt) return alert("Choose a caption that passes its check.");
       t.disabled = true;
