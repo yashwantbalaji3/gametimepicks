@@ -8,7 +8,7 @@ import { americanText } from "./nba-moneyline.mjs";
 
 export const REVIEW_DIV = /<div class="draft">[^<]*<\/div>/;
 const CLEAN_DESIGN_VERSIONS = ["2"];
-const NEEDS_ANOMALY_CHECK = /(_PLAYER_STATS|_BOXSCORE|_TOP5|_GAME_POST)$/;
+const NEEDS_ANOMALY_CHECK = /^NBA_.*(_PLAYER_STATS|_BOXSCORE|_TOP5|_GAME_POST)$/; // NBA only: the check exists for the v0.1 minutes defect; the ledger behind it is NBA
 
 /** The two package shapes allowed to carry a sportsbook price. */
 export function isMoneylinePackage(pkg) {
