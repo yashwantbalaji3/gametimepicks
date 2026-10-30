@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-30T00:38:27Z",
- "sourceGeneratedAt": "2026-10-30T00:38:27Z",
- "forecastInputHash": "69cbced7840e3de9",
+ "generatedAt": "2026-10-30T15:53:08Z",
+ "sourceGeneratedAt": "2026-10-30T15:53:08Z",
+ "forecastInputHash": "5fac6436ac6d6a80",
  "providerEventId": "401873031",
  "matchup": "TEN @ CIN",
  "kickoffUtc": "2026-11-01T18:00Z",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-30T00:38:27Z",
-  "roleEvidenceAt": "2026-10-30T00:38:27Z",
+  "injuriesCapturedAt": "2026-10-30T15:53:08Z",
+  "roleEvidenceAt": "2026-10-30T15:53:08Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -120,7 +120,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 59,
+  "absent": 56,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -259,8 +259,8 @@
   },
   "CIN": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -354,17 +354,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4368003",
-     "name": "Andrei Iosivas",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
      "playerId": "nfl-athlete-4429299",
      "name": "Tahj Brooks",
      "state": "PROJECTED",
@@ -376,6 +365,12 @@
     {
      "playerId": "nfl-athlete-4427834",
      "name": "Erick All Jr.",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-4368003",
+     "name": "Andrei Iosivas",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
     },
@@ -466,10 +461,10 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.8489,
-    "originalSum": 0.8489,
-    "residualOther": 0.1511,
-    "joined": 6,
+    "sum": 0.7779,
+    "originalSum": 0.7779,
+    "residualOther": 0.2221,
+    "joined": 5,
     "missed": 0,
     "state": "CONSERVED"
    },
@@ -804,36 +799,6 @@
     },
     "anytime_td": {
      "probability": 0.1492,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4368003",
-   "name": "Andrei Iosivas",
-   "team": "CIN",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 12.938,
-     "p10": 0,
-     "p25": 0,
-     "median": 6.67,
-     "p75": 20.25,
-     "p90": 36.54,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 1.6454,
-     "p10": 0,
-     "p25": 1,
-     "median": 1,
-     "p75": 2,
-     "p90": 4,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1361,
      "pricingState": "NOT_PROBED"
     }
    }
