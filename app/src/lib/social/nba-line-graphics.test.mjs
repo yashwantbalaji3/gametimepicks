@@ -388,7 +388,8 @@ test("box-score cells: exact number, colour class = direction, the shown side's 
       for (const w of ["median", "lane", "snapshot", "receipt"]) assert.doesNotMatch(text, new RegExp(`\\b${w}\\b`, "i"));
       for (const l of LEGEND) assert.ok(html.includes(`<div class="${l.cls}"><i>${l.glyph}</i><span>${l.text}</span></div>`), l.text);
       assert.deepEqual(LEGEND.map((l) => [l.glyph, l.text]), [["▲", "Projection above line"], ["▼", "Projection below line"], ["●", "No qualified comparison"]]);
-      assert.ok(text.includes("Model projections vs sportsbook lines quoted Oct 29, 4:30 PM ET. Lines from licensed US sportsbooks."));
+      assert.ok(text.includes("Model projections. Not betting advice. Not affiliated with the NBA or its teams."));
+      assert.ok(!text.includes("quoted") && !text.includes("Lines from licensed"));
       for (const s of ["Not betting advice.", FOOTER.responsible, "Not affiliated with the NBA or its teams.", TEST_WATERMARK, REVIEW_BANNER]) assert.ok(text.includes(s), s);
       assert.match(html, /data-template="gtp-nba-boxscore@1"/);
       assert.doesNotMatch(html.replace(/http:\/\/www\.w3\.org\/2000\/svg/g, ""), /https?:\/\//, "nothing is fetched");
@@ -414,7 +415,7 @@ test("box-score card refuses: wrong number, wrong colour, price under the wrong 
   fails(editCell(overCell, (s) => s.replace('<span class="px">+999</span>', '<span class="px">−999</span>')), /price/);
   fails(editCell(underCell, (s) => s.replace('<span class="px">−999</span>', "")), /price/);
   fails(editCell(overCell, (s) => s.replace('<span class="gl">▲</span>', "")), /arrow/);
-  fails(html.replace("Lines from licensed US sportsbooks.", "Lines from DraftKings."), /book name|footer missing/);
+  fails(html.replace("Not affiliated with the NBA or its teams.", "Lines from DraftKings."), /book name|footer missing/);
   fails(html.replace("Projections vs sportsbook lines", "Official medians vs sportsbook lines"), /internal term/);
   fails(html.replace('<section class="lines"', '<div class="c-diff">−1.4</div><section class="lines"'), /difference column/);
   fails(html.replace('<span>No qualified comparison</span>', "<span></span>"), /legend missing/);

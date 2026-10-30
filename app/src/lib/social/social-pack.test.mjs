@@ -9,9 +9,9 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { ccCaptionProblems, editorialPlan, CC_KIND, buildNbaRecap, buildNflRecap, buildSocialPackage, recapFinalsProblems, recommendedPostTime, socialPackageViolations, CONTENT_TYPE, denominatorText } from "./social-package.mjs";
+import { xWeighted, CC_KIND_MAP, ccCaptionProblems, editorialPlan, CC_KIND, buildNbaRecap, buildNflRecap, buildSocialPackage, recapFinalsProblems, recommendedPostTime, socialPackageViolations, CONTENT_TYPE, denominatorText } from "./social-package.mjs";
 import { formatValue } from "../sports/nfl/forecast-view.mjs";
-import { prepareNbaRecap, prepareNbaTop5, prepareNflRecap, prepareNflTop5, prepareNflWinners, winnerRow, writePackages, prepareNbaTonight, prepareNflGameWinners, lineBlock, TONIGHT_ROWS } from "../../../scripts/social/render-social-pack.mjs";
+import { prepareNbaRecap, prepareNbaTop5, prepareNflRecap, prepareNflTop5, prepareNflWinners, winnerRow, writePackages, prepareNbaTonight, prepareNflGameWinners, lineBlock, TONIGHT_ROWS, boxscorePosts, prepareNbaBoxscore } from "../../../scripts/social/render-social-pack.mjs";
 import { meterProblems, meterHtml, packCaptionViolations, verifyPackCard } from "../../../scripts/social/social-pack-cards.mjs";
 
 const AS_OF = "2026-10-30T16:40:00Z";
@@ -213,15 +213,37 @@ test("editorial plan: recap first, spaced boards, never ordered by probability, 
   assert.equal(plan.at(-1).recommendation, "HOLD_FOR_FOUNDER_CHOICE");
 });
 
+test("box score: one package per game, key required, quote time in metadata", () => {
+  assert.equal(prepareNbaBoxscore({ date: "2026-10-30", asOf: AS_OF, env: {} }).refused[0].reason, "NO_DISPLAY_KEY");
+  const row = (e) => ({ rowId: `r${e}`, identity: { eventId: e, tipUtc: "2026-10-30T23:00Z" }, model: { display: "20.1" }, market: { quotedAt: { iso: "2026-10-30T18:00:00Z", et: "Oct 30, 2:00 PM ET" } } });
+  const prepared = { doc: { socialAuthorized: false, asOf: AS_OF, rows: [row("1"), row("2")] }, cards: [{ eventId: "1", rowIds: ["r1"] }, { eventId: "2", rowIds: ["r2"] }], captions: { games: { 1: { matchup: "A @ B", cards: [{ caption: "c" }] }, 2: { matchup: "C @ D", cards: [{ caption: "d" }] } } } };
+  const posts = boxscorePosts(prepared, { date: "2026-10-30", asOf: AS_OF, laneRef: { ref: "x", sha256: "a".repeat(64) } });
+  assert.deepEqual(posts.map((p) => [p.contentType, p.variant, p.content.quotedAt, p.content.socialAuthorized]), [["NBA_BOXSCORE", "1", "Oct 30, 2:00 PM ET", false], ["NBA_BOXSCORE", "2", "Oct 30, 2:00 PM ET", false]]);
+  assert.throws(() => boxscorePosts({ ...prepared, doc: { ...prepared.doc, socialAuthorized: true } }, {}));
+});
+test("kind map covers every content type; X weighting counts emoji double", () => {
+  assert.deepEqual(CC_KIND_MAP.map((x) => x.contentType).sort(), Object.values(CONTENT_TYPE).sort());
+  assert.ok(CC_KIND_MAP.every((x) => x.kind || x.gap));
+  assert.equal(xWeighted("a😀"), 3);
+});
+test("every real package option fits 280 and the doubled Estimate is gone", () => {
+  const { posts } = prepareNbaTonight({ date: "2026-10-29", asOf: "2026-10-29T20:00:00Z" });
+  assert.ok(!/Estimate: /.test(posts[0].cards[0].html));
+});
+
 /* ─────────── contract ─────────── */
 
-const minimal = () => ({ eligibilityClass: "OFFICIAL", disclosures: ["Not betting advice."], ccCaption: "x", title: "t", firstStartUtc: "2026-10-30T23:00:00Z", sport: "nba", date: "2026-10-29", contentType: CONTENT_TYPE.RESULTS_RECAP, snapshotRefs: [{ ref: "a", sha256: "b".repeat(64) }], images: [{ path: "p", scale: 1, sha256: "c".repeat(64) }], caption: "x", verification: { passed: true, checks: [], cellsVerified: 1 }, window: { opensAt: "2026-10-30T10:00:00Z", closesAt: "2026-10-30T23:00:00Z" }, recommended: { recommendedAt: "2026-10-30T21:00:00Z" }, freshness: { asOf: AS_OF }, content: {} });
+const minimal = () => ({ eligibilityClass: "OFFICIAL", disclosures: ["Not betting advice."], ccCaption: "x", title: "t", firstStartUtc: "2026-10-30T23:00:00Z", sport: "nba", date: "2026-10-29", contentType: CONTENT_TYPE.RESULTS_RECAP, snapshotRefs: [{ ref: "a", sha256: "b".repeat(64) }], images: [{ path: "p", width: 1080, scale: 1, sha256: "c".repeat(64) }], caption: "x", verification: { passed: true, checks: [], cellsVerified: 1 }, window: { opensAt: "2026-10-30T10:00:00Z", closesAt: "2026-10-30T23:00:00Z" }, recommended: { recommendedAt: "2026-10-30T21:00:00Z" }, freshness: { asOf: AS_OF }, content: {} });
 test("package contract: approval is fixed, dedupe is stable across content changes, bad packages refuse", () => {
   const a = buildSocialPackage(minimal());
   const b = buildSocialPackage({ ...minimal(), caption: "y" });
   assert.equal(a.approval.status, "FOUNDER_REVIEW_REQUIRED");
   assert.equal(a.dedupeId, b.dedupeId);
   assert.notEqual(a.contentSha256, b.contentSha256);
+  assert.equal(a.commandCenter.captions.length, 2);
+  assert.notEqual(a.contentSha256, buildSocialPackage({ ...minimal(), images: [{ path: "p", width: 1080, scale: 1, sha256: "d".repeat(64) }] }).contentSha256);
+  assert.throws(() => buildSocialPackage({ ...minimal(), images: [{ path: "p", sha256: "c".repeat(64) }] }));
+  assert.throws(() => buildSocialPackage({ ...minimal(), ccCaption: "x".repeat(281) }));
   assert.throws(() => buildSocialPackage({ ...minimal(), caption: "a – b" }));
   assert.throws(() => buildSocialPackage({ ...minimal(), verification: { passed: false } }));
   assert.throws(() => buildSocialPackage({ ...minimal(), recommended: { recommendedAt: "2026-10-31T21:00:00Z" } }));

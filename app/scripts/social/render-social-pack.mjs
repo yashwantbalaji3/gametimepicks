@@ -29,9 +29,11 @@ import { gateLaneTopBoards, laneDisplay, laneProvenance } from "../../src/lib/sp
 import { eloWinProbabilityOf, ELO_WIN_PROBABILITY_LABEL } from "../../src/lib/sports/nba/elo-win-probability.mjs";
 import { loadCurrentNbaResults } from "../../src/lib/sports/nba/current-results.mjs";
 import {
-  CONTENT_TYPE, ELIGIBILITY, editorialPlan, buildNbaRecap, buildNflRecap, buildSocialPackage, dedupeSlug, denominatorText, etDate, etLabel, instant, recapFinalsProblems, recommendedPostTime, toIso,
+  CC_KIND_MAP, CONTENT_TYPE, ELIGIBILITY, editorialPlan, buildNbaRecap, buildNflRecap, buildSocialPackage, dedupeSlug, denominatorText, etDate, etLabel, instant, recapFinalsProblems, recommendedPostTime, toIso,
 } from "../../src/lib/social/social-package.mjs";
 import { quoteRangeText } from "./nba-line-cards.mjs";
+import { BOX_FOOTER } from "./nba-boxscore-cards.mjs";
+import { layoutErrors as boxLayoutErrors, prepareNbaLineGraphics } from "./render-nba-line-graphics.mjs";
 import { FOOT, ROWS_PER_CARD, SIZE, cell, legalLine, packCaptionViolations, pageHtml, verifyPackCard, meterHtml } from "./social-pack-cards.mjs";
 
 const sha = (b) => crypto.createHash("sha256").update(b).digest("hex");
@@ -142,7 +144,7 @@ export function prepareNbaTonight({ date, asOf, laneOverride = null }) {
   const started = games.filter((g) => !(instant(g.kickoffUtc) > Date.parse(asOf)));
   if (started.length) return { posts: [], refused: [{ contentType: CONTENT_TYPE.NBA_TONIGHT, date, reason: "GAME_STARTED", games: started.map((g) => g.matchup) }] };
   const first = instant(games[0].kickoffUtc);
-  const foot = [`Estimate: ${ELO_WIN_PROBABILITY_LABEL} from the team rating, frozen before tip-off.`, `${FOOT.projections} ${FOOT.noLines}`, legalLine];
+  const foot = [`${ELO_WIN_PROBABILITY_LABEL} from the team rating, frozen before tip-off.`, `${FOOT.projections} ${FOOT.noLines}`, legalLine];
   const base = (o) => ({ sport: "nba", date, snapshotRefs: laneOverride ? [{ ref: rel, sha256: sha(JSON.stringify(lane)) }] : [ref(rel)], eligibilityClass: ELIGIBILITY.ESTIMATE, disclosures: [ELO_WIN_PROBABILITY_LABEL, ...DISCLOSE], freshness: { asOf, sourceGeneratedAt: lane.generatedAt, ageHours: ageHours(asOf, lane.generatedAt), expiresAt: toIso(first), rule: "valid until tip-off" }, ...o });
   const slides = pagesOf(games, TONIGHT_ROWS).map((chunk, i, all) => {
     const cells = {};
@@ -308,7 +310,7 @@ export function prepareNbaTop5({ date, asOf, lineDoc = null }) {
     const shownLines = rows.filter((r) => r.line).map((r) => lineRows.get(String(r.key)));
     for (const r of rows) if (r.line && lineRows.get(String(r.key)).model?.display !== undefined && Number(lineRows.get(String(r.key)).model.value) !== Number((Math.round(r.value * 10) / 10).toFixed(1))) throw new Error(`${r.name}: line export median differs from the board`);
     const first = Math.min(...rows.map((r) => instant(r.kickoffUtc)));
-    const cards = finishCards([top5Card({ name: `nba-${date}-top5-${k}`, title: `TOP 5 ${b.label.toUpperCase()}`, sub: `NBA · ${longDay(first)} · Highest projected median`, rows, foot: [b.methodText.replace(/ \(the middle.*?\)/, ""), shownLines.length ? `${FOOT.projections} Lines from licensed US sportsbooks, quoted ${quoteRangeText(shownLines)}. Color shows where the projection sits against the line.` : `${FOOT.projections} ${FOOT.noLines}`, legalLine] })]);
+    const cards = finishCards([top5Card({ name: `nba-${date}-top5-${k}`, title: `TOP 5 ${b.label.toUpperCase()}`, sub: `NBA · ${longDay(first)} · Highest projected median`, rows, foot: [b.methodText.replace(/ \(the middle.*?\)/, ""), ...(shownLines.length ? [BOX_FOOTER.disclaimer, FOOT.responsible] : [`${FOOT.projections} ${FOOT.noLines}`, legalLine])] })]);
     const caption = checkCaption(`GameTime Picks NBA top 5 projected ${b.label.toLowerCase()} for ${longDay(first)}: ${rows.map((r) => `${r.rank}. ${r.name} ${r.text}`).join(", ")}. ${FOOT.projections} ${legalLine}`);
     return {
       sport: "nba", date, contentType: CONTENT_TYPE.NBA_DAILY_TOP5, variant: k, cards, caption, snapshotRefs: [ref(rel)], eligibilityClass: ELIGIBILITY.OFFICIAL, disclosures: DISCLOSE, title: `NBA top 5 ${b.label.toLowerCase()} ${date}`, firstStartUtc: toIso(first),
@@ -316,10 +318,37 @@ export function prepareNbaTop5({ date, asOf, lineDoc = null }) {
       checks: ["gateLaneTopBoards PUBLISHED (provenance + cross-page)", "card cells == validated text"],
       window: { opensAt: asOf, closesAt: toIso(first) }, recommended: recommendedPostTime({ games: rows, afterEtDate: dayBefore(date), asOf }), recommendedNote: "the two hours before tip-off have passed",
       freshness: { asOf, sourceGeneratedAt: lane.generatedAt, ageHours: ageHours(asOf, lane.generatedAt), expiresAt: toIso(first), rule: "valid until first tip-off" },
-      content: { board: k, source: b.source, linesShown: shownLines.length, rows: rows.map(({ key: _k, meta: _m, ...r }) => r), excludedForInjury: gate.doc.excluded.length },
+      content: { board: k, source: b.source, linesShown: shownLines.length, quotedAt: shownLines.length ? quoteRangeText(shownLines) : null, rows: rows.map(({ key: _k, meta: _m, ...r }) => r), excludedForInjury: gate.doc.excluded.length },
     };
   });
   return { posts, refused: [] };
+}
+
+/** One package per game from the box-score set, already validated by prepareNbaLineGraphics. */
+export function boxscorePosts({ doc, cards, captions }, { date, asOf, laneRef }) {
+  if (doc.socialAuthorized !== false) throw new Error("box-score packages are founder review only");
+  const games = Object.entries(captions.games).map(([eventId, g]) => {
+    const rows = doc.rows.filter((r) => String(r.identity.eventId) === eventId);
+    const tip = rows[0].identity.tipUtc;
+    const t = instant(tip);
+    const own = cards.filter((c) => c.eventId === eventId).map((c) => ({ ...c, cells: Object.fromEntries(c.rowIds.map((id) => [id, doc.rows.find((r) => r.rowId === id)?.model.display ?? ""])) }));
+    return {
+      sport: "nba", date, contentType: CONTENT_TYPE.NBA_BOXSCORE, variant: eventId, eventId, firstStartUtc: toIso(t), title: `${g.matchup}: projected box score`, cards: own, caption: g.cards[0].caption,
+      ccCaption: `${g.matchup} projected stat lines. Model projections. Not betting advice.`, ccCaptionB: `${g.matchup} stat line projections. Not betting advice.`, snapshotRefs: [laneRef], eligibilityClass: ELIGIBILITY.OFFICIAL, disclosures: [BOX_FOOTER.disclaimer, FOOT.responsible],
+      checks: ["prepareNbaLineGraphics: export contract, card == export rows, captions"], window: { opensAt: asOf, closesAt: toIso(t) }, recommended: recommendedPostTime({ games: [{ kickoffUtc: tip }], afterEtDate: dayBefore(date), asOf }), recommendedNote: "the two hours before tip-off have passed",
+      freshness: { asOf, sourceGeneratedAt: doc.asOf, ageHours: ageHours(asOf, doc.asOf), expiresAt: toIso(t), rule: "valid until tip-off" },
+      content: { matchup: g.matchup, quotedAt: quoteRangeText(rows), comparedRows: rows.length, testData: doc.artifact?.testData === true, socialAuthorized: false },
+    };
+  });
+  return games;
+}
+
+/** Runs only with the display key in env; reuses the line renderer's own validation. */
+export function prepareNbaBoxscore({ date, asOf, env = process.env }) {
+  assertAsOf(asOf);
+  if (!env.GTP_ODDS_DISPLAY_KEY) return { posts: [], refused: [{ contentType: CONTENT_TYPE.NBA_BOXSCORE, reason: "NO_DISPLAY_KEY" }] };
+  const prepared = prepareNbaLineGraphics({ date, asOf, purpose: PURPOSE_ARG["founder-review"], env, template: "boxscore" });
+  return { posts: boxscorePosts(prepared, { date, asOf, laneRef: ref(`data/nba/experimental-public/${date}.json`) }), refused: [] };
 }
 
 /* ───────────────────────────── recaps ───────────────────────────── */
@@ -427,7 +456,7 @@ export async function writePackages(posts, { outRoot, scales = [1, 2], png = tru
   const written = new Map();
   const put = async (browser) => {
     if (browser) {
-      const e = await layoutErrors(browser, cards);
+      const e = [...await layoutErrors(browser, cards.filter((c) => !c.size)), ...await boxLayoutErrors(browser, cards.filter((c) => c.size))];
       if (e.length) throw new Error(`layout check failed:\n  - ${e.join("\n  - ")}`);
     }
     for (const scale of browser ? scales : []) {
@@ -437,6 +466,7 @@ export async function writePackages(posts, { outRoot, scales = [1, 2], png = tru
       for (const c of cards) {
         fs.mkdirSync(c.dir, { recursive: true });
         await page.setContent(c.html, { waitUntil: "load" });
+        await page.evaluate(() => document.fonts.ready);
         const file = path.join(c.dir, `${c.name}${scale === 1 ? "" : `@${scale}x`}.png`);
         await page.screenshot({ path: file, clip: { x: 0, y: 0, width: SIZE.width, height: SIZE.height } });
         written.set(c.name, [...(written.get(c.name) ?? []), { path: file, width: SIZE.width, height: SIZE.height, scale, sha256: sha(fs.readFileSync(file)) }]);
@@ -488,6 +518,7 @@ async function main(args) {
   if (args["nba-date"]) {
     const date = args["nba-date"];
     attempt("nba-tonight", () => prepareNbaTonight({ date, asOf }));
+    attempt("nba-boxscore", () => prepareNbaBoxscore({ date, asOf }));
     attempt("nba-top5", () => {
       let lineDoc = null;
       if (process.env.GTP_ODDS_DISPLAY_KEY) lineDoc = loadNbaLineGraphicsExport({ date, asOf, purpose: PURPOSE_ARG["founder-review"] }).doc;
@@ -500,7 +531,7 @@ async function main(args) {
   const done = await writePackages(posts, { outRoot, scales, png: !args["no-png"] });
   fs.mkdirSync(path.join(outRoot, "reports"), { recursive: true });
   const report = path.join(outRoot, "reports", `run-${asOf.replace(/[:]/g, "")}.json`);
-  fs.writeFileSync(report, `${JSON.stringify({ asOf, packages: done.map((d) => d.pkg.dedupeId), refused }, null, 2)}\n`);
+  fs.writeFileSync(report, `${JSON.stringify({ asOf, packages: done.map((d) => d.pkg.dedupeId), refused, kindMap: CC_KIND_MAP }, null, 2)}\n`);
   const groups = new Map();
   for (const { pkg: k } of done) groups.set(k.sport, [...(groups.get(k.sport) ?? []), { sport: k.sport, date: k.date, contentType: k.contentType, variant: k.variant, firstStartUtc: k.commandCenter.firstStartUtc }]);
   for (const [sport, list] of groups) fs.writeFileSync(path.join(outRoot, "reports", `editorial-${sport}-${asOf.replace(/[:]/g, "")}.json`), `${JSON.stringify(editorialPlan(list), null, 2)}\n`);

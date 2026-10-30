@@ -133,7 +133,7 @@ async function withBrowser(fn) {
   const browser = await chromium.launch();
   try { return await fn(browser); } finally { await browser.close(); }
 }
-async function layoutErrors(browser, cards) {
+export async function layoutErrors(browser, cards) {
   const ctx = await browser.newContext({ deviceScaleFactor: 1 });
   const page = await ctx.newPage();
   const errs = [];

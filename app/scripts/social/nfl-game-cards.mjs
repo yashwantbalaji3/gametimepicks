@@ -40,7 +40,7 @@ export const REVIEW_BANNER = "FOUNDER REVIEW ONLY · NOT AUTHORIZED FOR SOCIAL P
 export const FOOTER = Object.freeze({
   metric: "Yards and receptions: the official player board's median. Anytime TD: the chance to score at least one rushing or receiving touchdown if he plays.",
   missing: `${MISSING} means no official number for that player and statistic.`,
-  noLines: "Model projections only: no sportsbook lines or prices are shown.",
+  disclaimer: "Model projections. Not betting advice. Not affiliated with the NFL or its teams.",
   advice: "Not betting advice.",
   responsible: "21+ where required; the legal age varies by state. Gambling problem? Call 1-800-GAMBLER.",
 });
@@ -242,7 +242,7 @@ ${page.teams.map((t) => teamPanel(doc, t, byId, record, page.page)).join("\n")}
 <p class="q">${esc(FOOTER.metric)}</p>
 ${estNote ? `<p class="est">${esc(estNote)}</p>` : ""}
 ${anyMissing ? `<p class="miss">${esc(FOOTER.missing)}</p>` : ""}
-<p>${asOfText ? `Official player board as of ${esc(asOfText)}. ` : ""}${esc(FOOTER.noLines)} ${esc(FOOTER.advice)} ${esc(FOOTER.responsible)}</p>
+<p>${asOfText ? `Official player board as of ${esc(asOfText)}. ` : ""}${esc(FOOTER.disclaimer)} ${esc(FOOTER.responsible)}</p>
 </footer>`;
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><title>NFL ${esc(doc.game.matchup)} player projections ${page.page} of ${page.pages}</title><style>${CSS}</style></head>
@@ -275,7 +275,7 @@ export function verifyCardHtml(html, doc, page, record = DISPLAY_AUTHORIZATION) 
   }
   if (!marketSlotsOpen(doc, record) && /class="mk"|style="color:/.test(html.replace(/<style>[\s\S]*?<\/style>/, ""))) v.push("a sportsbook slot or colour is on the card while not authorized");
   const text = visibleText(html);
-  for (const s of [FOOTER.metric, FOOTER.noLines, FOOTER.advice, FOOTER.responsible]) if (!text.includes(s)) v.push(`footer missing: ${s}`);
+  for (const s of [FOOTER.metric, FOOTER.disclaimer, FOOTER.responsible]) if (!text.includes(s)) v.push(`footer missing: ${s}`);
   if (got.some((id) => cellText(byId.get(id) ?? { model: {} }) === MISSING) && !text.includes(FOOTER.missing)) v.push("missing-number footnote absent");
   const estRows = want.map((id) => byId.get(id)).filter((r) => r && isLabelledEstimate(r));
   if (estRows.length) {

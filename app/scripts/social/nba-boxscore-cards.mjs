@@ -17,8 +17,8 @@
  * NOT ON THE IMAGE (founder): the difference column, book names (the provider's terms do not require attribution:
  * docs/odds/ODDS_API_DISPLAY_TERMS_2026-10-29.md, so no book is named anywhere on the card), internal model terms
  * (median, lane, snapshot, receipt). ON THE IMAGE: the logo, the matchup and tip time, the colour legend (top right), the
- * quote time, "Lines from licensed US sportsbooks.", Not betting advice, the responsible-gambling line (FOOTER.responsible)
- * and the non-affiliation line.
+ * disclaimer (BOX_FOOTER.disclaimer) and the responsible-gambling line (FOOTER.responsible). The quote time travels in the
+ * package metadata, not on the image (coordinator 2026-10-30).
  *
  * BRAND: the approved logo, the Command Center stage (team-colour halves, seam, beams, grain) and its bundled OFL fonts
  * (scripts/social/fonts, inlined; nothing is fetched), team colours from the verified NBA colour data
@@ -54,8 +54,7 @@ export const LEGEND = Object.freeze([
   Object.freeze({ cls: "none", glyph: "●", text: "No qualified comparison" }),
 ]);
 export const BOX_FOOTER = Object.freeze({
-  lines: "Lines from licensed US sportsbooks.",
-  affiliation: "Not affiliated with the NBA or its teams.",
+  disclaimer: "Model projections. Not betting advice. Not affiliated with the NBA or its teams.",
 });
 export const SOCIAL_HANDLE = "@GameTimePicksHQ";
 export const ABSENT_TEXT = "–";
@@ -64,7 +63,6 @@ export const JARGON = Object.freeze(["median", "medians", "lane", "snapshot", "r
 /** Every sportsbook label the reference order knows: none may appear on the image. */
 export const BOOK_LABELS = Object.freeze(REFERENCE_BOOK_ORDER.map((k) => NBA_PROP_LINE_ADAPTER.bookLabel(k)));
 
-export const quoteLine = (rows) => `Model projections vs sportsbook lines quoted ${quoteRangeText(rows)}.`;
 
 const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
@@ -294,8 +292,8 @@ ${panel(homeT, page.homePlayers, o, doc, eventId)}
 </section>
 <footer class="foot">
 <div class="social">${X_MARK}<span>${esc(SOCIAL_HANDLE)}</span></div>
-<p class="q">${esc(quoteLine(compared))} ${esc(BOX_FOOTER.lines)}</p>
-<p>${esc(FOOTER.advice)} ${esc(FOOTER.responsible)} ${esc(BOX_FOOTER.affiliation)}</p>
+<p class="q">${esc(BOX_FOOTER.disclaimer)}</p>
+<p>${esc(FOOTER.responsible)}</p>
 </footer>
 </main>
 ${FIT_SCRIPT}
@@ -344,7 +342,7 @@ export function verifyBoxScoreCardHtml(html, doc, page, o = {}) {
   }
   const text = boxVisibleText(html);
   for (const l of LEGEND) if (!html.includes(`<div class="${l.cls}"><i>${esc(l.glyph)}</i><span>${esc(l.text)}</span></div>`)) v.push(`legend missing: ${l.text}`);
-  for (const s of [quoteLine(pageComparedRows(page)), BOX_FOOTER.lines, FOOTER.advice, FOOTER.responsible, BOX_FOOTER.affiliation]) if (!text.includes(s)) v.push(`footer missing: ${s}`);
+  for (const s of [BOX_FOOTER.disclaimer, FOOTER.responsible]) if (!text.includes(s)) v.push(`footer missing: ${s}`);
   for (const b of BOOK_LABELS) if (text.toLowerCase().includes(b.toLowerCase())) v.push(`book name on the card: ${b}`);
   for (const r of pageComparedRows(page)) if (r.market.book?.label && text.includes(r.market.book.label)) v.push(`book name on the card: ${r.market.book.label}`);
   for (const w of JARGON) if (wordIn(text, w)) v.push(`internal term on the card: ${w}`);

@@ -27,6 +27,7 @@ export const CONTENT_TYPE = Object.freeze({
   NBA_GAME_WINNER: "NBA_GAME_WINNER",
   NFL_WEEKLY_TOP5: "NFL_WEEKLY_TOP5",
   NBA_DAILY_TOP5: "NBA_DAILY_TOP5",
+  NBA_BOXSCORE: "NBA_BOXSCORE",
   RESULTS_RECAP: "RESULTS_RECAP",
 });
 export const ELIGIBILITY = Object.freeze({ OFFICIAL: "OFFICIAL", ESTIMATE: "ESTIMATE" });
@@ -35,12 +36,20 @@ export const ELIGIBILITY = Object.freeze({ OFFICIAL: "OFFICIAL", ESTIMATE: "ESTI
  * has no kind for this post yet. The `commandCenter` block reuses that module's package field names; nothing ingests it.
  */
 export const CC_KIND = Object.freeze({
-  NFL_SUNDAY_WINNERS: null, NFL_MNF_WINNER: "pregame-forecast", NFL_GAME_WINNER: "pregame-forecast", NBA_TONIGHT: null, NBA_GAME_WINNER: null,
+  NFL_SUNDAY_WINNERS: null, NFL_MNF_WINNER: "pregame-forecast", NFL_GAME_WINNER: "pregame-forecast", NBA_TONIGHT: null, NBA_GAME_WINNER: null, NBA_BOXSCORE: null,
   NFL_WEEKLY_TOP5: "top5-weekly", NBA_DAILY_TOP5: "top5-daily", RESULTS_RECAP: "results-recap",
 });
+/** One row per content type: the queue kind, and what the Command Center lacks when there is none. */
+export const CC_KIND_MAP = Object.freeze(Object.entries(CC_KIND).map(([contentType, kind]) => Object.freeze({
+  contentType, kind,
+  gap: kind ? null : /BOXSCORE|GAME_WINNER/.test(contentType) ? "no kind; nearest is nba-game, which needs a pre + players pair and is not in POST_KINDS" : "no slate-level winner kind",
+})));
 export const CC_ACCOUNT = "@GameTimePicksHQ";
 export const CC_MAX_CAPTION = 280;
 const CC_FORBIDDEN = ["edge", "value", "lock", "pick", "best bet", "beat the market", "market mistake", "profitable", "guaranteed", "odds", "bet", "bets", "betting", "parlay", "sure thing", "can't lose", "picks", "free money"];
+const X_SINGLE = [[0, 4351], [8192, 8205], [8208, 8223], [8242, 8247]];
+/** X-weighted length: characters outside X's single-weight ranges (emoji, CJK) count 2. */
+export const xWeighted = (text) => [...String(text)].reduce((n, c) => n + (X_SINGLE.some(([a, b]) => c.codePointAt(0) >= a && c.codePointAt(0) <= b) ? 1 : 2), 0);
 const ccNumbers = (s) => String(s ?? "").replace(/\b(49ers|76ers)\b/gi, "").match(/\d+(?:\.\d+)?/g) ?? [];
 /** The Command Center's caption rules, mirrored here (its module is not on this branch). Returns problems. */
 export function ccCaptionProblems(text, claims, { hasMiss = false } = {}) {
@@ -50,7 +59,7 @@ export function ccCaptionProblems(text, claims, { hasMiss = false } = {}) {
   const plain = String(text).replace(/\bnot betting advice\b/gi, "");
   for (const t of CC_FORBIDDEN) if (new RegExp(`\\b${t}\\b`, "i").test(plain)) p.push(`forbidden term ${t}`);
   if (/https?:\/\/|www\./i.test(text)) p.push("link in caption");
-  if ([...String(text)].length > CC_MAX_CAPTION) p.push("over 280 characters");
+  if (xWeighted(text) > CC_MAX_CAPTION) p.push("over 280 X-weighted characters");
   if (hasMiss && /\b(forecast|prediction|predicted)/i.test(text) && !/\bmiss(ed)?\b/i.test(text)) p.push("a miss is not stated");
   return p;
 }
@@ -208,7 +217,7 @@ export const dedupeSlug = ({ sport, date, contentType, variant = null }) => [spo
  * @param {{ sport: string, date: string, contentType: string, variant?: string|null, snapshotRefs: Array<{ref:string, sha256:string}>, images: Array<{path:string, width:number, height:number, scale:number, sha256:string}>, caption: string, verification: {passed:boolean, checks:string[], cellsVerified:number}, window: {opensAt:string, closesAt:string}, recommended: {recommendedAt:string}|null, recommendedNote?: string|null, freshness: object, content: object }} o
  */
 export function buildSocialPackage(o) {
-  const { sport, date, contentType, variant = null, snapshotRefs, images, caption, verification, window, recommended, recommendedNote = null, freshness, content, eligibilityClass, disclosures, ccCaption, extraClaims = [], cells = [], title, firstStartUtc, eventId = null, hasMiss = false, dataCommit = null, priority = null } = o;
+  const { sport, date, contentType, variant = null, snapshotRefs, images, caption, verification, window, recommended, recommendedNote = null, freshness, content, eligibilityClass, disclosures, ccCaption, ccCaptionB = null, extraClaims = [], cells = [], title, firstStartUtc, eventId = null, hasMiss = false, dataCommit = null, priority = null } = o;
   const evidenceRef = snapshotRefs[0];
   const claims = [...extraClaims, ...cells.map(([key, display]) => ({ key, display, evidenceRef: evidenceRef.ref }))];
   const firstSet = images.filter((i) => i.scale === 1);
@@ -231,9 +240,9 @@ export function buildSocialPackage(o) {
       ingestable: CC_KIND[contentType] != null, postId: `${date}:${sport.toUpperCase()}:${contentType.toLowerCase()}${variant ? `:${variant}` : ""}`, kind: CC_KIND[contentType], format: contentKind, title, sport: sport.toUpperCase(), date,
       status: "READY", reasons: [], priority, eventId, firstStartUtc, suggestedPublishAt: recommended?.recommendedAt ?? null, dataCommit, contentKey: snapshotId,
       claims, media: mediaSet[0] ? { ...mediaSet[0], mime: "image/png", kind: "graphic" } : null, mediaSet,
-      captions: [{ id: "A", tone: "factual", source: "template", text: ccCaption }], evidence: snapshotRefs.map((r) => ({ label: r.ref, ref: `sha256 ${r.sha256.slice(0, 12)}` })), hasMiss,
+      captions: [{ id: "A", tone: "factual", source: "template", text: ccCaption }, { id: "B", tone: "short", source: "template", text: ccCaptionB ?? `${ccCaption.split(/(?<=[.:])\s/)[0].replace(/:$/, ".")} Not betting advice.` }], evidence: snapshotRefs.map((r) => ({ label: r.ref, ref: `sha256 ${r.sha256.slice(0, 12)}` })), hasMiss,
     },
-    contentSha256: sha(JSON.stringify({ snapshotRefs, caption, content })),
+    contentSha256: sha(JSON.stringify({ snapshotRefs, caption, content, media: images.map((i) => i.sha256) })),
     approval: { status: APPROVAL_STATUS, socialAuthorized: false },
     freshness, content,
   };
@@ -250,7 +259,7 @@ export function socialPackageViolations(p) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(p?.date ?? ""))) v.push(`date ${p?.date}`);
   if (!Object.values(CONTENT_TYPE).includes(p?.contentType)) v.push(`contentType ${p?.contentType}`);
   if (!p?.snapshotRefs?.length || p.snapshotRefs.some((r) => !r.ref || !/^[0-9a-f]{64}$/.test(String(r.sha256)))) v.push("snapshotRefs need a ref and a sha256");
-  if (!p?.images?.length || p.images.some((i) => !i.path || !/^[0-9a-f]{64}$/.test(String(i.sha256)))) v.push("images need a path and a sha256");
+  if (!p?.images?.length || p.images.some((i) => !i.path || !/^[0-9a-f]{64}$/.test(String(i.sha256)) || !Number.isInteger(i.width) || !Number.isInteger(i.scale))) v.push("images need a path, sha256, width and scale");
   if (!p?.caption || /[—–]/.test(p.caption)) v.push("caption missing or carries an em or en dash");
   if (p?.verification?.passed !== true) v.push("verification did not pass");
   if (!(instant(p?.window?.opensAt) < instant(p?.window?.closesAt))) v.push("window must open before it closes");
@@ -260,7 +269,7 @@ export function socialPackageViolations(p) {
   if (!p?.disclosures?.length) v.push("disclosures are required");
   if (!p?.idempotencyKey || !/^[0-9a-f]{64}$/.test(String(p?.mediaSha256)) || p?.expiresAt !== p?.window?.closesAt) v.push("idempotencyKey, mediaSha256 and expiresAt are required");
   const cc = p?.commandCenter;
-  if (cc) for (const x of ccCaptionProblems(cc.captions?.[0]?.text, cc.claims ?? [], { hasMiss: cc.hasMiss })) v.push(`Command Center caption: ${x}`);
+  for (const c of cc?.captions ?? []) for (const x of ccCaptionProblems(c.text, cc.claims ?? [], { hasMiss: cc.hasMiss })) v.push(`Command Center caption ${c.id}: ${x}`);
   if (!p?.dedupeId || !p?.freshness?.asOf) v.push("dedupeId and freshness are required");
   return v;
 }
