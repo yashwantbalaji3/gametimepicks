@@ -11,7 +11,7 @@ import path from "node:path";
 
 import { xWeighted, CC_KIND_MAP, ccCaptionProblems, editorialPlan, CC_KIND, buildNbaRecap, buildNflRecap, buildSocialPackage, recapFinalsProblems, recommendedPostTime, socialPackageViolations, CONTENT_TYPE, denominatorText } from "./social-package.mjs";
 import { formatValue } from "../sports/nfl/forecast-view.mjs";
-import { prepareNbaRecap, prepareNbaTop5, prepareNflRecap, prepareNflTop5, prepareNflWinners, winnerRow, writePackages, prepareNbaTonight, prepareNflGameWinners, lineBlock, TONIGHT_ROWS, boxscorePosts, prepareNbaBoxscore, prepareGameDay } from "../../../scripts/social/render-social-pack.mjs";
+import { prepareNbaRecap, prepareNbaTop5, prepareNflRecap, prepareNflTop5, prepareNflWinners, winnerRow, writePackages, prepareNbaTonight, prepareNflGameWinners, prepareNflPlayerStats, lineBlock, TONIGHT_ROWS, boxscorePosts, prepareNbaBoxscore, prepareGameDay } from "../../../scripts/social/render-social-pack.mjs";
 import { verifyGameDayCard, meterColours, teamOf } from "../../../scripts/social/game-day-cards.mjs";
 import { meterProblems, meterHtml, packCaptionViolations, verifyPackCard } from "../../../scripts/social/social-pack-cards.mjs";
 
@@ -120,10 +120,9 @@ test("NFL winners: 12 Sunday games + Monday, values equal the committed forecast
   const [sun, mon] = posts;
   assert.equal(sun.content.games.length, 12);
   assert.equal(mon.content.games.length, 1);
-  assert.match(sun.cards[0].html, /NFL SUNDAY WINNER PREDICTIONS/);
-  assert.match(sun.cards[0].html, /WEEK 8/);
-  assert.match(sun.cards[0].html, /GAME TIME PICKS/);
-  assert.match(sun.cards[0].html, /Model projections, not picks/);
+  assert.match(sun.cards[0].html, /NFL Sunday/);
+  assert.match(sun.cards[0].html, /Week 8/);
+  assert.match(sun.cards[0].html, /Model projections · Not betting advice/);
   const forecasts = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nfl/forecasts/latest.json"), "utf8")).forecasts;
   for (const g of sun.content.games) {
     const f = forecasts.find((x) => String(x.providerEventId) === g.eventId);
@@ -188,7 +187,22 @@ test("meter proportion is enforced; a stretched meter fails", () => {
 test("NFL per-game cards: thirteen games, official label", () => {
   const { posts } = prepareNflGameWinners({ week: 8, asOf: AS_OF });
   assert.equal(posts.length, 13);
-  for (const p of posts) assert.deepEqual(verifyPackCard(p.cards[0].html, p.cards[0].cells), []);
+  for (const p of posts) assert.deepEqual(verifyGameDayCard(p.cards[0]), []);
+});
+test("NFL design 2: every package, labelled estimates, roundup of all Sunday games, per-game player cards", () => {
+  const winners = prepareNflWinners({ week: 8, asOf: AS_OF }).posts;
+  assert.equal(Object.keys(winners[0].cards[0].cells).filter((k) => k.endsWith(".w")).length, winners[0].content.games.length);
+  const top = prepareNflTop5({ week: 8, asOf: AS_OF }).posts;
+  const { posts: players } = prepareNflPlayerStats({ week: 8, asOf: AS_OF });
+  assert.equal(players.length, 13);
+  const all = [...winners, ...top, ...players, ...prepareNflGameWinners({ week: 8, asOf: AS_OF }).posts, ...prepareNflRecap({ week: 7, asOf: AS_OF }).posts];
+  for (const p of all) { assert.equal(p.designVersion, "2"); for (const c of p.cards) assert.deepEqual(verifyGameDayCard(c), []); }
+  for (const p of players) {
+    const text = p.cards.map((c) => c.html).join("");
+    if (/ est\./.test(text)) { assert.equal(p.eligibilityClass, "ESTIMATE"); assert.match(text, /Estimate · calibration standard not yet met/); }
+    for (const c of p.cards) for (const [k, v] of Object.entries(c.cells)) if (/player_(pass|rush)_yds$/.test(k)) assert.match(v, / est\.$/);
+  }
+  assert.ok(!/most confident/i.test(JSON.stringify(all.map((p) => p.title))));
 });
 test("Top 5 line block: exact export strings, colour by side, none without a shown line", () => {
   const row = (side, glyph) => ({ market: { line: { state: "SHOWN", text: "30.5" }, direction: { state: "SHOWN", side, glyph }, overPrice: { state: "SHOWN", text: "+110" }, underPrice: { state: "SHOWN", text: "−130" } } });

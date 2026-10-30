@@ -29,6 +29,7 @@ export const CONTENT_TYPE = Object.freeze({
   NBA_DAILY_TOP5: "NBA_DAILY_TOP5",
   NBA_BOXSCORE: "NBA_BOXSCORE",
   NBA_PLAYER_STATS: "NBA_PLAYER_STATS",
+  NFL_PLAYER_STATS: "NFL_PLAYER_STATS",
   RESULTS_RECAP: "RESULTS_RECAP",
 });
 export const ELIGIBILITY = Object.freeze({ OFFICIAL: "OFFICIAL", ESTIMATE: "ESTIMATE" });
@@ -37,7 +38,7 @@ export const ELIGIBILITY = Object.freeze({ OFFICIAL: "OFFICIAL", ESTIMATE: "ESTI
  * has no kind for this post yet. The `commandCenter` block reuses that module's package field names; nothing ingests it.
  */
 export const CC_KIND = Object.freeze({
-  NFL_SUNDAY_WINNERS: null, NFL_MNF_WINNER: "pregame-forecast", NFL_GAME_WINNER: "pregame-forecast", NBA_TONIGHT: null, NBA_GAME_WINNER: null, NBA_BOXSCORE: null, NBA_PLAYER_STATS: null,
+  NFL_SUNDAY_WINNERS: null, NFL_MNF_WINNER: "pregame-forecast", NFL_GAME_WINNER: "pregame-forecast", NBA_TONIGHT: null, NBA_GAME_WINNER: null, NBA_BOXSCORE: null, NBA_PLAYER_STATS: null, NFL_PLAYER_STATS: null,
   NFL_WEEKLY_TOP5: "top5-weekly", NBA_DAILY_TOP5: "top5-daily", RESULTS_RECAP: "results-recap",
 });
 /** One row per content type: the queue kind, and what the Command Center lacks when there is none. */
@@ -218,7 +219,7 @@ export const dedupeSlug = ({ sport, date, contentType, variant = null }) => [spo
  * @param {{ sport: string, date: string, contentType: string, variant?: string|null, snapshotRefs: Array<{ref:string, sha256:string}>, images: Array<{path:string, width:number, height:number, scale:number, sha256:string}>, caption: string, verification: {passed:boolean, checks:string[], cellsVerified:number}, window: {opensAt:string, closesAt:string}, recommended: {recommendedAt:string}|null, recommendedNote?: string|null, freshness: object, content: object }} o
  */
 export function buildSocialPackage(o) {
-  const { designVersion = null, containsMarketData = false, sport, date, contentType, variant = null, snapshotRefs, images, caption, verification, window, recommended, recommendedNote = null, freshness, content, eligibilityClass, disclosures, ccCaption, ccCaptionB = null, extraClaims = [], cells = [], title, firstStartUtc, eventId = null, hasMiss = false, dataCommit = null, priority = null } = o;
+  const { anomalies = null, anomalyCheck = null, designVersion = null, containsMarketData = false, sport, date, contentType, variant = null, snapshotRefs, images, caption, verification, window, recommended, recommendedNote = null, freshness, content, eligibilityClass, disclosures, ccCaption, ccCaptionB = null, extraClaims = [], cells = [], title, firstStartUtc, eventId = null, hasMiss = false, dataCommit = null, priority = null } = o;
   const evidenceRef = snapshotRefs[0];
   const claims = [...extraClaims, ...cells.map(([key, display]) => ({ key, display, evidenceRef: evidenceRef.ref }))];
   const firstSet = images.filter((i) => i.scale === 1);
@@ -227,7 +228,7 @@ export function buildSocialPackage(o) {
   const snapshotId = sha(snapshotRefs.map((r) => r.sha256).join("|"));
   const dedupe = `gtp-social:${sport}:${date}:${contentType}${variant ? `:${variant}` : ""}`;
   const pkg = {
-    schema: SOCIAL_PACKAGE_SCHEMA, designVersion, containsMarketData, sport, date, contentType, variant,
+    schema: SOCIAL_PACKAGE_SCHEMA, designVersion, containsMarketData, ...(anomalyCheck ? { anomalyCheck, anomalies } : {}), sport, date, contentType, variant,
     snapshotRefs, images, caption, verification, window,
     recommendedAt: recommended?.recommendedAt ?? null,
     recommendedAtEt: recommended?.recommendedAtEt ?? null,
@@ -243,7 +244,7 @@ export function buildSocialPackage(o) {
       claims, media: mediaSet[0] ? { ...mediaSet[0], mime: "image/png", kind: "graphic" } : null, mediaSet,
       captions: [{ id: "A", tone: "factual", source: "template", text: ccCaption }, { id: "B", tone: "short", source: "template", text: ccCaptionB ?? `${ccCaption.split(/(?<=[.:])\s/)[0].replace(/:$/, ".")} Not betting advice.` }], evidence: snapshotRefs.map((r) => ({ label: r.ref, ref: `sha256 ${r.sha256.slice(0, 12)}` })), hasMiss,
     },
-    contentSha256: sha(JSON.stringify({ snapshotRefs, caption, content, media: images.map((i) => i.sha256) })),
+    contentSha256: sha(JSON.stringify({ snapshotRefs, caption, content, media: images.map((i) => i.sha256), ...(anomalyCheck ? { anomalyCheck, anomalies } : {}) })),
     approval: { status: APPROVAL_STATUS, socialAuthorized: false },
     freshness, content,
   };
@@ -271,6 +272,10 @@ export function socialPackageViolations(p) {
   if (!p?.idempotencyKey || !/^[0-9a-f]{64}$/.test(String(p?.mediaSha256)) || p?.expiresAt !== p?.window?.closesAt) v.push("idempotencyKey, mediaSha256 and expiresAt are required");
   const cc = p?.commandCenter;
   for (const c of cc?.captions ?? []) for (const x of ccCaptionProblems(c.text, cc.claims ?? [], { hasMiss: cc.hasMiss })) v.push(`Command Center caption ${c.id}: ${x}`);
+  if (p?.anomalyCheck !== undefined) {
+    if (!["PASS", "REVIEW"].includes(p.anomalyCheck) || !Array.isArray(p.anomalies)) v.push("anomalyCheck must be PASS or REVIEW with an anomalies list");
+    for (const a of p.anomalies ?? []) if (!a.playerId || !a.market || !a.verdict || /[+\u2212-]\d{3}\b|\bline (of )?\d|\$\d/i.test(String(a.detail))) v.push(`anomaly ${a.playerId}:${a.market} needs fields and may not print a line or a price`);
+  }
   if (!p?.dedupeId || !p?.freshness?.asOf) v.push("dedupeId and freshness are required");
   return v;
 }
