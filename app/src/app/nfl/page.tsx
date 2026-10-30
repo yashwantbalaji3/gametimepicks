@@ -61,7 +61,7 @@ import LiveNow from "@/components/live/live-now";
 import FamilyTabs from "@/components/nfl/forecast/family-tabs";
 import EtTime from "@/components/ui/et-time";
 import { topBoardTabs } from "@/lib/sports/nfl/forecast-view.mjs";
-import { dailyFor, etDateOfKickoff } from "@/lib/sports/nfl/top-boards.mjs";
+import { TOP_BOARD_METHOD, dailyFor, etDateOfKickoff, pregameScope } from "@/lib/sports/nfl/top-boards.mjs";
 import { formatUpdatedEt } from "@/lib/format";
 import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 import { sanitizeVaultArtifact } from "@/lib/sports/odds/public-offer-sanitizer.mjs";
@@ -384,11 +384,14 @@ export default function NflHubPage() {
   /* Shown only while one of the board's games is still to kick off at this build: after the week's last kickoff there is
      nothing left to rank and the section (and its link) is omitted, as before (2026-10-20). */
   const kickoffOf = new Map<string, string>((forecastArtifact?.forecasts ?? []).map((x: { providerEventId?: string; kickoffUtc?: string }) => [String(x.providerEventId), String(x.kickoffUtc ?? "")] as [string, string]));
-  const boardsLive = (sc: TopBoardsScope | null | undefined) => !!sc && (sc.scope.events ?? []).some((id) => Date.parse(kickoffOf.get(id) ?? "") > Date.parse(nowIso));
-  const topBoardsBlock = weeklyBoards?.topBoards && boardsLive(weeklyBoards.topBoards.weekly) ? weeklyBoards.topBoards : null;
+  /* PREGAME ONLY (Track D, 2026-10-29): top-boards.mjs pregameScope drops every game that has kicked off by this build and
+     withholds a board that ranked a player from one (it is not re-ranked here), so Thursday night's game never sits in
+     the pregame ranking of the remaining games. Null when nothing is left to kick off. */
+  const kickoffAt = (id: string) => kickoffOf.get(id) || null;
+  const weeklyPregame = weeklyBoards?.topBoards ? (pregameScope(weeklyBoards.topBoards.weekly, nowIso, kickoffAt) as TopBoardsScope | null) : null;
+  const topBoardsBlock: TopBoardsBlock | null = weeklyBoards?.topBoards && weeklyPregame ? { ...weeklyBoards.topBoards, weekly: weeklyPregame } : null;
   const todayEt = etDateOfKickoff(nowIso);
-  const todayBoards = topBoardsBlock ? (dailyFor(topBoardsBlock, todayEt) as (TopBoardsScope & { etDate: string }) | null) : null;
-  const todayLive = boardsLive(todayBoards) ? todayBoards : null;
+  const todayLive = topBoardsBlock ? (pregameScope(dailyFor(topBoardsBlock, todayEt), nowIso, kickoffAt) as (TopBoardsScope & { etDate: string }) | null) : null;
   // per-event calibration sentence, keyed the same way the index keys events
 
 
@@ -740,6 +743,13 @@ export default function NflHubPage() {
               />
             </div>
           ) : null}
+          {/* Track D (2026-10-29): each board's ranking method, stated — medians are never relabelled as a chance to go over a line. */}
+          <ul data-ranking-methods style={{ margin: "10px 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720 }}>
+            {topBoardsBlock.weekly.boards.filter((b) => b.state === "PUBLISHED").map((b) => {
+              const fam = String(b.family) as keyof typeof TOP_BOARD_METHOD;
+              return TOP_BOARD_METHOD[fam] ? <li key={fam} data-ranking-method={fam}>{String(b.label ?? fam)}: {TOP_BOARD_METHOD[fam].text}</li> : null;
+            })}
+          </ul>
           {weeklyBoards?.generatedAt ? (
             <p className="font-mono" style={{ margin: "10px 0 0", fontSize: 10.5, color: "var(--vault-text-faint)" }}>
               Board stamp <EtTime iso={weeklyBoards.generatedAt} />

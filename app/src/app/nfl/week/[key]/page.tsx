@@ -19,7 +19,7 @@ import { weekGames } from "@/lib/sports/nfl/week-games";
 import PredictionBoard from "@/components/prediction/prediction-board";
 import { presentWeeklyBoard, presentTopBoard, type TopBoard } from "@/lib/prediction-presentation/nfl";
 import EtTime from "@/components/ui/et-time";
-import { dailyFor, etDateOfKickoff } from "@/lib/sports/nfl/top-boards.mjs";
+import { dailyFor, etDateOfKickoff, pregameScope, rankingMethodText } from "@/lib/sports/nfl/top-boards.mjs";
 import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 
 const read = (rel: string) => {
@@ -50,6 +50,7 @@ function TopBoardsList({ artifact, scope }: { artifact: WeeklyBoards; scope: Top
         return rows.length ? (
           <div key={b.id} data-top-board={b.family}>
             <h3 style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color: "var(--vault-text)" }}>{b.title}</h3>
+            <p data-ranking-method={b.family} style={{ margin: "0 0 4px", fontSize: 11, color: "var(--vault-text-faint)" }}>{rankingMethodText(b)}</p>
             <PredictionBoard predictions={rows} gameHref={(p) => `/nfl/game/${p.game.providerEventId}/`} />
           </div>
         ) : (
@@ -94,8 +95,14 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
      (lib/sports/nfl/week-games.ts). Listing the union alone left /nfl/week/2-07/ with one game after rollover. */
   const { games: forecasts, unavailable } = weekGames(path.join(process.cwd(), "public", "data"), params.key);
 
+  /* PREGAME ONLY (Track D, 2026-10-29): both scopes are re-checked against the build instant (top-boards.mjs pregameScope) —
+     a game that has kicked off since the artifact was generated (Thursday night's) leaves the scope, and a board that
+     ranked one of its players is withheld until it is rebuilt, never shown with a started game in a pregame ranking. */
+  const nowIso = new Date().toISOString();
+  const kickoffOf = (id: string) => forecasts.find((f) => String(f.providerEventId) === id)?.kickoffUtc ?? null;
+  const weeklyPregame = wb?.topBoards ? pregameScope(wb.topBoards.weekly, nowIso, kickoffOf) as TopScope | null : null;
   /* Today's ET date at build time: a daily board shows only when this week still has a game today. */
-  const todayBoards = wb?.topBoards ? dailyFor(wb.topBoards, etDateOfKickoff(new Date().toISOString())) as (TopScope & { etDate: string }) | null : null;
+  const todayBoards = wb?.topBoards ? pregameScope(dailyFor(wb.topBoards, etDateOfKickoff(nowIso)), nowIso, kickoffOf) as (TopScope & { etDate: string }) | null : null;
 
   const td = (extra: Record<string, string | number> = {}) => ({ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, ...extra });
 
@@ -170,16 +177,20 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
         </p>
       )}
 
-      {wb?.topBoards?.weekly ? (
+      {wb?.topBoards?.weekly && !weeklyPregame ? (
+        <section aria-labelledby="week-boards" data-top-boards-closed>
+          <SectionHeader eyebrow="Pregame boards closed" title="Top boards" sub="Every game this week has kicked off. The Top boards rank only games still to come, so there is no pregame ranking to show; each game page keeps its frozen pre-kickoff forecast." />
+        </section>
+      ) : wb?.topBoards?.weekly && weeklyPregame ? (
         /* Founder Top boards (2026-10-29): five Top-5 boards from the artifact's `topBoards`, the same rows and numbers as
            the hub and each game page. A family that is not publication-qualified shows its readiness, never a ranking. */
         <section aria-labelledby="week-boards">
           <SectionHeader
-            eyebrow={wb.topBoards.weekly.scope.kind === "REMAINING_EVENTS" ? `${wb.topBoards.weekly.scope.eventsIncluded} games left` : "Full week"}
+            eyebrow={weeklyPregame.scope.kind === "REMAINING_EVENTS" ? `${weeklyPregame.scope.eventsIncluded} games left` : "Full week"}
             title="Top boards"
-            sub="The official player board's top five per statistic; a list is a maximum, not a quota; a statistic that has not cleared its publication standard says so instead of ranking."
+            sub="The official player board's top five per statistic, over games still to kick off only; a list is a maximum, not a quota; a statistic that has not cleared its publication standard says so instead of ranking."
           />
-          <TopBoardsList artifact={wb} scope={wb.topBoards.weekly} />
+          <TopBoardsList artifact={wb} scope={weeklyPregame} />
           {todayBoards ? (
             <div style={{ marginTop: 18 }} data-top-boards-day={todayBoards.etDate}>
               <h2 style={{ margin: "0 0 2px", fontSize: 14, fontWeight: 700, color: "var(--vault-text)" }}>
@@ -189,7 +200,7 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
             </div>
           ) : null}
           <p className="font-mono" style={{ margin: "10px 0 0", fontSize: 10.5, color: "var(--vault-text-faint)" }}>
-            Board stamp <EtTime iso={wb.generatedAt} /> · {wb.topBoards.weekly.scope.kind === "FULL_WEEK" ? "full-week edition" : `${wb.topBoards.weekly.scope.eventsDroppedAfterKickoff} games dropped after kickoff`}
+            Board stamp <EtTime iso={wb.generatedAt} /> · {weeklyPregame.scope.kind === "FULL_WEEK" ? "full-week edition" : `${weeklyPregame.scope.eventsDroppedAfterKickoff} games dropped after kickoff`}
           </p>
         </section>
       ) : wb?.boards?.length ? (

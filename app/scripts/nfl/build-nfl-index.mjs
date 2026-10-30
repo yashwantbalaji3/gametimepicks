@@ -23,6 +23,7 @@ import { fileURLToPath } from "node:url";
 
 import { classifyTeamOutput } from "../../src/lib/sports/nfl/output-state.mjs";
 import { unionFrozenForecasts } from "../../src/lib/sports/nfl/public-forecast-union.mjs";
+import { nflPublicRecordResolver } from "../../src/lib/sports/nfl/public-record.mjs";
 import { nflSettlementSelection } from "../../src/lib/results/nfl-settlement-of-record.mjs";
 
 
@@ -36,9 +37,14 @@ const read = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } cat
 const schedule = read(path.join(APP, "public/data/nfl/schedule/latest.json"));
 /* P295: this week's started games publish in frozen-latest.json, rebuilt from their pre-kickoff receipts
    by the same run. Reading latest.json alone told /nfl that twelve covered games were "missed coverage". */
+/* Track B (2026-10-29, one canonical number): the index feeds the /nfl hub read, the homepage / Today featured cards,
+   top reads, product-day and the game page's save card. It resolves an EXCLUDED public copy (record-exclusions.mjs) to
+   its record exactly as the game page, week page and event read model do — without the resolver those surfaces showed
+   the excluded revision's numbers beside a game page showing the record's. */
 const forecastsArtifact = unionFrozenForecasts(
   read(path.join(APP, "public/data/nfl/forecasts/latest.json")),
   read(path.join(APP, "public/data/nfl/forecasts/frozen-latest.json")),
+  { resolve: nflPublicRecordResolver(ROOT) },
 );
 const markets = read(path.join(APP, "public/data/nfl/markets/latest.json"));
 const results = read(path.join(APP, "public/data/nfl/results/latest.json"));

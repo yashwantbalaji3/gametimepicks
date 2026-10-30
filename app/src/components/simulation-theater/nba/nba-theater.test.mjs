@@ -447,7 +447,7 @@ test("box score dialog: role=dialog, aria-modal, labelled and described; Close b
   const r = pbox(load.manifest, s, false);
   const open = html(React.createElement(NbaBoxScoreDialog, { open: true, onClose: () => {}, result: r, palette: load.palettes.team, compact: false, runKey: "k" }));
   assert.match(open, /role="dialog" aria-modal="true" aria-labelledby="[^"]+-title" aria-describedby="[^"]+-wm" data-nba-boxscore=""/);
-  assert.match(open, /<h2 id="[^"]+-title" class="nba-bx-title">Projected box score · official representative simulation<\/h2>/);
+  assert.match(open, /<h2 id="[^"]+-title" class="nba-bx-title">Box score · Simulated scenario \(hypothetical\) · central run<\/h2>/);
   // a what-if run's dialog is never "projected": hypothetical title, banner and watermark (consistency 2026-10-20)
   const wi = html(React.createElement(NbaBoxScoreDialog, { open: true, onClose: () => {}, result: pbox(load.manifest, s, true), palette: load.palettes.team, compact: false, runKey: "k", manifest: load.manifest }));
   assert.match(wi, /<h2 id="[^"]+-title" class="nba-bx-title">What-if box score · hypothetical<\/h2>/);
@@ -480,7 +480,7 @@ test("box score entry points: a 'Box score' control in the theater at any time, 
   const load = LOADS[1];
   const s = load.manifest.samples[0];
   const fin = html(React.createElement(BreakCard, { kind: "FINAL", manifest: load.manifest, sample: s, palette: load.palettes.team, onDismiss: () => {}, variant: "sheet", idBase: "x", onOpenBoxScore: () => {} }));
-  assert.match(fin, /<button type="button" class="st-btn nba-card-boxbtn" aria-haspopup="dialog">Projected box score<\/button>/);
+  assert.match(fin, /<button type="button" class="st-btn nba-card-boxbtn" aria-haspopup="dialog">Box score \(simulated scenario\)<\/button>/);
   const half = html(React.createElement(BreakCard, { kind: "HALFTIME", manifest: load.manifest, sample: s, palette: load.palettes.team, onDismiss: () => {}, variant: "overlay", idBase: "x", onOpenBoxScore: () => {} }));
   assert.doesNotMatch(half, /nba-card-boxbtn/, "the halftime card offers no final box score");
 });

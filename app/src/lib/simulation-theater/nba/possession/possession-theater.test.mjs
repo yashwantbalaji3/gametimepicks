@@ -317,12 +317,14 @@ test("payload: the client gets no private path / hash / supporting-engine id; th
     assert.equal(t.ok, true, JSON.stringify(t.error));
     const json = JSON.stringify(t.payload);
     for (const m of [...ALWAYS, "PRIVATE_RESEARCH", "data/internal", "gitBlobCommit", "payloadSha256", "experimental-v1", DOC.engine.fitReport.sha256]) assert.ok(!json.includes(m), `${id} payload carries ${m}`);
-    const def = t.payload.runs.filter((r) => !r.hypothetical);
-    assert.equal(def.length, 1);
-    assert.equal(def[0].kind, "default");
-    assert.equal(def[0].role, "SUPPORTING_RUN");
-    for (const r of t.payload.runs.filter((x) => x.kind !== "default")) { assert.equal(r.hypothetical, true); assert.equal(r.role, "WHAT_IF"); }
-    assert.equal(t.payload.selection.defaultKind, "default");
+    // Track C 2026-10-29: every run is a hypothetical simulated scenario; exactly one is the CENTRAL scenario (chosen
+    // from the engine's own pool, without the official side) and the page opens on it
+    assert.ok(t.payload.runs.every((r) => r.hypothetical === true), `${id}: every run is hypothetical`);
+    const central = t.payload.runs.filter((r) => r.role === "CENTRAL_SCENARIO");
+    assert.equal(central.length, 1);
+    for (const r of t.payload.runs.filter((x) => x !== central[0])) assert.equal(r.role, "WHAT_IF");
+    assert.equal(t.payload.selection.defaultKind, central[0].kind);
+    assert.equal(t.payload.selection.central.runIndex, central[0].runIndex);
     assert.equal(t.payload.official.favouredSide, snapshotOf(id).game.winner.side);
     assert.ok(Object.keys(t.payload.official.withheld).includes("winProbability"));
   }
@@ -359,12 +361,18 @@ test("loader refusals: no artifact, game absent, wrong schema, official forecast
 });
 
 test("public loader: same payload as the full loader (byte-identical), reading only the possession artifact; embedded panel drift is refused", async () => {
-  const { loadPublicPossessionTheater, publicPossessionEvents } = await import("./public-loader.mjs");
+  const { loadPublicPossessionTheater, publicPossessionEvents, readLaneDay } = await import("./public-loader.mjs");
+  const { officialPanelFromLane } = await import("./payload.mjs");
+  const { eloWinProbabilityOf, eloWinProbabilityText } = await import("../../../sports/nba/elo-win-probability.mjs");
   for (const id of IDS) {
     const full = loadNbaPossessionTheater(REPO, id);
     const pub = loadPublicPossessionTheater(REPO, id, { date: DATE });
     assert.equal(pub.ok, true, JSON.stringify(pub.error));
-    assert.equal(JSON.stringify(pub.payload), JSON.stringify(full.payload), `${id}: public payload ≠ full payload`);
+    // Track C: the public page prints the LANE's numbers (the canonical accessor); everything else is the full loader's
+    const laneGame = readLaneDay(REPO, DATE).games.find((g) => String(g.providerEventId) === id);
+    const elo = eloWinProbabilityOf(laneGame);
+    const expected = { ...full.payload, official: officialPanelFromLane(full.payload.official, laneGame, elo, elo ? eloWinProbabilityText(elo) : null) };
+    assert.equal(JSON.stringify(pub.payload), JSON.stringify(expected), `${id}: public payload ≠ full payload with the lane's printed numbers`);
     assert.equal(JSON.stringify(pub.palettes), JSON.stringify(full.palettes));
   }
   assert.deepEqual(publicPossessionEvents(REPO, { date: DATE, now: `${DATE}T15:00:00Z` }), IDS, "the slate's own day publishes every game");
@@ -377,6 +385,39 @@ test("public loader: same payload as the full loader (byte-identical), reading o
   // the public loader names no receipt file (those change every forecast window and are not build inputs)
   const src = fs.readFileSync(path.join(APP, "src/lib/simulation-theater/nba/possession/public-loader.mjs"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
   assert.doesNotMatch(src, /experimental-v|\.\.\/loader\.mjs|official-representative|official-snapshot/);
+});
+
+test("one official snapshot (engine audit 2026-10-29): the public loader refuses a panel that is not the lane's published snapshot", async () => {
+  const { loadPublicPossessionTheater, readLaneDay } = await import("./public-loader.mjs");
+  const lane = readLaneDay(REPO, DATE);
+  assert.ok(lane, "the 10-20 lane is committed");
+  const id = IDS[0];
+  assert.equal(loadPublicPossessionTheater(REPO, id, { date: DATE, lane }).ok, true, "the committed lane agrees");
+  const lg = (l) => l.games.find((g) => String(g.providerEventId) === id);
+  const probe = (mut) => { const l = clone(lane); mut(l); return loadPublicPossessionTheater(REPO, id, { date: DATE, lane: l }).error?.code; };
+  assert.equal(probe((l) => { lg(l).receipt.payloadSha256 = "0".repeat(64); }), "LANE_MISMATCH", "a different receipt");
+  assert.equal(probe((l) => { lg(l).elo.favoured = lg(l).elo.favoured === lg(l).home.abbr ? lg(l).away.abbr : lg(l).home.abbr; }), "LANE_MISMATCH", "the other side");
+  assert.equal(probe((l) => { lg(l).players.home[0].medians.pts += 0.2; }), "LANE_MISMATCH", "a different median");
+  assert.equal(probe((l) => { lg(l).players.home.pop(); }), "LANE_MISMATCH", "a different player set");
+  assert.equal(probe((l) => { l.games = l.games.filter((g) => String(g.providerEventId) !== id); }), "LANE_MISMATCH", "a game the lane does not publish");
+  assert.equal(loadPublicPossessionTheater(REPO, id, { date: DATE, lane: null }).error?.code, "LANE_MISMATCH", "no lane file");
+  // the probes were in memory: the committed lane still agrees
+  assert.equal(loadPublicPossessionTheater(REPO, id, { date: DATE }).ok, true);
+});
+
+test("one official snapshot (data): every committed possession artifact's official panel is its lane's published snapshot", async () => {
+  const { laneAgreementProblem, readLaneDay } = await import("./public-loader.mjs");
+  const dir = path.join(REPO, "data/internal/research/nba/theater-possession");
+  let n = 0;
+  for (const d of fs.readdirSync(dir).filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x)).sort()) {
+    const lane = readLaneDay(REPO, d);
+    for (const f of fs.readdirSync(path.join(dir, d)).filter((x) => x.endsWith(".json"))) {
+      const g = JSON.parse(fs.readFileSync(path.join(dir, d, f), "utf8")).game;
+      assert.equal(laneAgreementProblem(g, g.official.panel, lane), null, `${d}/${f}`);
+      n += 1;
+    }
+  }
+  assert.ok(n >= 3, `checked ${n} artifacts`);
 });
 
 test("G2 (founder decision 2026-10-21): every game the public route would publish has the consistency gate OPEN for the possession replay engine", async () => {

@@ -17,7 +17,7 @@ import type { TheaterManifest, TheaterSample } from "./types";
 import {
   BOX_SCORE_TITLE, BOX_SCORE_WATERMARK, CATEGORY_GROUPS, NOT_MODELED_TEXT, STATUS_HELP, STATUS_LABEL, safeNflBoxScore,
 } from "@/lib/simulation-theater/box-score.mjs";
-import { WHAT_IF_BOX_TITLE, WHAT_IF_BOX_WATERMARK, WHAT_IF_TAG, NFL_PLAYERS_NOT_MODELED_NOTE, runRole } from "@/lib/simulation-theater/representative-labels.mjs";
+import { OFFICIAL_RUN_TITLE, WHAT_IF_BOX_TITLE, WHAT_IF_BOX_WATERMARK, WHAT_IF_TAG, NFL_PLAYERS_NOT_MODELED_NOTE, runRole } from "@/lib/simulation-theater/representative-labels.mjs";
 import { OfficialComparison } from "./RepresentativeParts";
 
 export type BoxStatus = "MODELED" | "DERIVED" | "NOT_MODELED";
@@ -66,7 +66,7 @@ export function BoxHeader({ box, hypothetical = false }: { box: BoxScore; hypoth
         <b>{h.label}</b>
         <span className="stbx-score" data-stbx-final="">{h.scoreLine}</span>
       </p>
-      <p className="stbx-sub">Run #{h.runIndex.toLocaleString("en-US")} · {hypothetical ? `${WHAT_IF_TAG} · ${h.kindLabel} run` : `Official representative simulation · ${h.kindLabel} run`} · totals for the whole simulated game</p>
+      <p className="stbx-sub">Run #{h.runIndex.toLocaleString("en-US")} · {hypothetical ? `${WHAT_IF_TAG} · ${h.kindLabel} run` : `${OFFICIAL_RUN_TITLE} · ${h.kindLabel} run`} · totals for the whole simulated game</p>
     </div>
   );
 }

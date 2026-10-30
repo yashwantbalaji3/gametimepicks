@@ -31,7 +31,8 @@ import { PERIOD_SHORT, fmtDuration, fmtSigned } from "./format.mjs";
 
 export const BOX_SCORE_VERSION = "nfl-box-score@1";
 export const BOX_SCORE_WATERMARK = "SIMULATED · PROJECTED · NOT ACTUAL GAME STATISTICS";
-export const BOX_SCORE_TITLE = "Projected box score";
+// Track C 2026-10-29: a stored run's box score is one simulated scenario, never a "projection"
+export const BOX_SCORE_TITLE = "Box score · Simulated scenario (hypothetical)";
 export const NOT_MODELED_TEXT = "Not modeled by this engine";
 export const PLAYER_NOT_MODELED_REASON = "this engine records drives, not plays or players";
 export const STATUS = Object.freeze({ MODELED: "MODELED", DERIVED: "DERIVED", NOT_MODELED: "NOT_MODELED" });

@@ -97,7 +97,8 @@ test("labels: the official line names the rule and distance; EVERY what-if text 
   const off = runRole(m, 12, "Low-scoring");
   assert.equal(off.hypothetical, false);
   assert.equal(off.tag, OFFICIAL_RUN_TITLE);
-  assert.match(off.line, /^Official representative simulation · closest stored run to the official forecast · distance \d+\.\d{2}$/);
+  assert.match(off.line, /^Simulated scenario \(hypothetical\) · central run · the stored run closest to the Official Forecast, chosen by rule; one simulated game, not the forecast · distance \d+\.\d{2}$/);
+  assert.doesNotMatch(off.line, /official representative/i, "a run is never titled official");
   assert.equal(officialRunLine(m.representative), off.line);
   for (const [idx, kind] of [[40, "Median-like"], [7, "High-scoring"], [3, "Upset · also the first overtime run"]]) {
     const r = runRole(m, idx, kind);
@@ -108,23 +109,26 @@ test("labels: the official line names the rule and distance; EVERY what-if text 
   }
   assert.match(whatIfLine(null), /hypothetical/i);
   assert.equal(WHAT_IF_BANNER, "Hypothetical scenario — not the forecast");
-  assert.equal(RECONCILIATION_NOTE, "Official expectations are averages and can be fractional; a simulated game produces whole numbers.");
+  assert.match(RECONCILIATION_NOTE, /repeats the numbers the game page publishes/);
   assert.equal(NO_OFFICIAL_NBA, "No official forecast receipt for this game yet");
   assert.match(NO_OFFICIAL_NFL, /^No official forecast/);
 });
 
-test("reconciliation: fractional official expectations beside whole-number results, never rounded into each other", () => {
+test("reconciliation (Track C): the Official Forecast column prints the PUBLISHED numbers (projected score, median margin/total) — never a second, unrounded mean for the same quantity", () => {
   const m = withNflRepresentative({ chips: chips() }, simReceipt, official);
   const rows = teamComparison(m, { home: 24, away: 20 }, teams);
   assert.deepEqual(rows.map((r) => r.term), ["away", "home", "margin", "total"]);
+  const o = m.representative.official;
   const home = rows.find((r) => r.term === "home");
-  assert.equal(home.official, (44.2 + 3.4) / 2);
+  assert.equal(home.official, o.projectedScore.home, "home points = the published projected score");
+  assert.equal(rows.find((r) => r.term === "away").official, o.projectedScore.away);
+  assert.equal(rows.find((r) => r.term === "margin").official, o.team.margin.median);
+  assert.equal(rows.find((r) => r.term === "total").official, o.team.total.median, "total = the published median (44), not the mean");
   assert.equal(home.run, 24);
-  assert.equal(home.diff, 24 - (44.2 + 3.4) / 2);
-  assert.ok(!Number.isInteger(home.official));
-  assert.equal(rows.find((r) => r.term === "total").median, 44, "the official median is shown beside the mean where stored");
+  assert.equal(home.diff, 24 - o.projectedScore.home);
+  for (const r of rows) assert.equal(r.median, null, "no second number beside the official one");
+  // the selector's own reconciliation (consistency/representative.mjs) still measures against the mean, internally
   const rec = m.representative.reconciliation.find((r) => r.term === "home");
-  assert.equal(rec.officialExpectation, home.official);
   assert.equal(rec.simulatedGame, 24);
 });
 

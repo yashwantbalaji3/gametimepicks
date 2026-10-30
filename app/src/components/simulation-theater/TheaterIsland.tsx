@@ -1179,7 +1179,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
                     <span className="st-ptime"><span className="st-ptime-l">Playback</span> <span ref={(el) => { els.current.ptime = el; }} /></span>
                   </div>
                   {/* the whole run's projected box score, any time (no need to watch to the end) */}
-                  <button type="button" className="st-btn stbx-open" aria-haspopup="dialog" data-stbx-open="transport" onClick={() => openSheet("box")}>{hypothetical ? "What-if box score (hypothetical)" : "Projected box score"}</button>
+                  <button type="button" className="st-btn stbx-open" aria-haspopup="dialog" data-stbx-open="transport" onClick={() => openSheet("box")}>{hypothetical ? "What-if box score (hypothetical)" : "Box score (simulated scenario)"}</button>
                 </div>
                 <DriveTimeline sample={sample} compiled={compiled} palette={palette} teams={teams} current={f?.driveIdx ?? 0} onSeekDrive={seekDrive} cursorRef={setCursorEl} />
                 <details className="st-keys">

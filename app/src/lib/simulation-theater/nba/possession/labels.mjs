@@ -65,13 +65,20 @@ export const WITHHELD = "Withheld";
 // founder directive 2026-10-22 22:55 ET: the engine identity is stated in full twice (banner + engine panel); headings
 // and captions carry short labels.
 export const OUTCOME_PANEL_TITLE = "Simulation outcome · this run";
-// Gate V2 labels describe v1 runs; this engine is NOT v1, so its default run says which engine it is.
-// rendered as "Simulated game · run N" (founder directive 2026-10-22 22:55 ET: short caption; the engine is named in the panel)
-export const DEFAULT_RUN_TITLE = "Simulated game";
-// Founder condition 2026-10-21 (scenario transparency): the default run is SELECTED from the runs the Elo favourite won,
-// so it must never read as an unbiased random draw or as independent confirmation of the official forecast.
-export const DEFAULT_RUN_SUBTITLE = "a selected illustrative run: the stored run closest to the Official Forecast among the runs the Elo favourite won, so it is not a random draw and not an independent confirmation of the Official Forecast; the Official Forecast beside it never changes";
-export const DEFAULT_RUN_TAG = "Default run";
+// Track C (2026-10-29): every stored run is a SIMULATED SCENARIO (hypothetical). The run the page opens on is the
+// CENTRAL scenario (payload.mjs centralScenario): chosen from the engine's own pool WITHOUT the official side, so it is
+// never forced to agree with the Official Forecast. (The former "default run" was picked among runs the Elo favourite
+// won; it is still stored, titled "Favoured side wins", beside its "Upset" counterpart.)
+export const SCENARIO_LABEL = "Simulated scenario (hypothetical)";
+export const DEFAULT_RUN_TITLE = `${SCENARIO_LABEL} · central`;
+export const DEFAULT_RUN_SUBTITLE = "the stored run nearest the middle of this engine's own simulated games. It is chosen without looking at the Official Forecast, so either side may win it; it is one simulated game, not the Official Forecast, and changes none of its numbers";
+export const DEFAULT_RUN_TAG = "Central scenario";
+/** "In this engine's 1,000 simulated games, ATL won 44.1% and CLE 55.9% (the engine's own share, not the Official Forecast)." */
+export const poolShareLine = (teams, central) => {
+  if (!central || !(central.poolSize > 0) || typeof central.poolHomeWinShare !== "number") return null;
+  const h = central.poolHomeWinShare * 100;
+  return `In this engine's ${central.poolSize.toLocaleString("en-US")} simulated games, ${teams.home.abbr} won ${h.toFixed(1)}% and ${teams.away.abbr} ${(100 - h).toFixed(1)}% (the engine's own share, not the ${PUBLIC_TERMS.OFFICIAL_FORECAST}).`;
+};
 /** founder directive 2026-10-23: a what-if run is a What-if Scenario (the shared representative labels stay as they are for the non-public Theaters). */
 export const WHAT_IF_TAG = PUBLIC_TERMS.WHAT_IF;
 export const WHAT_IF_BANNER = `${PUBLIC_TERMS.WHAT_IF} — not the ${PUBLIC_TERMS.OFFICIAL_FORECAST}, not a real result`;

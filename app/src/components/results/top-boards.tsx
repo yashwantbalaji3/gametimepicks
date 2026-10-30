@@ -10,6 +10,7 @@
  *   with the evidence and when it was recorded, and keeps the settlement owner's word unchanged beside it.
  */
 import type { BoardRowView, DayBoards, SportWithoutBoard } from "@/lib/results/v2/top-boards";
+import { formatValue } from "@/lib/sports/nfl/forecast-view.mjs";
 
 const RESULT_WORD: Record<BoardRowView["result"]["state"], string> = {
   PENDING: "Not final yet", NOT_GRADED: "Not in the graded record", VOID: "Void · did not play",
@@ -24,7 +25,10 @@ const etTime = (iso: string) => {
 function projectionText(r: BoardRowView, family: string) {
   if ("probability" in r.projection) return `${Math.round(r.projection.probability * 1000) / 10}% to score`;
   const p = r.projection;
-  return `${p.median} ${UNIT[family] ?? ""}${p.p10 != null && p.p90 != null ? ` (${p.p10}–${p.p90})` : ""}`;
+  // Presentation-only rounding, the game page's own rule. Older frozen days stored whole numbers and print unchanged.
+  const kind = family === "player_receptions" ? "count" : "yards";
+  const show = (v: number) => (Number.isInteger(v) ? String(v) : formatValue(kind, v));
+  return `${show(p.median)} ${UNIT[family] ?? ""}${p.p10 != null && p.p90 != null ? ` (${show(p.p10)}–${show(p.p90)})` : ""}`;
 }
 
 const REASON_WORD: Record<string, string> = { QUESTIONABLE: "listed Questionable", DOUBTFUL: "listed Doubtful", INACTIVE: "ruled out", PRACTICE_SQUAD: "on the practice squad" };
