@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-30T19:37:53Z",
- "sourceGeneratedAt": "2026-10-30T19:37:53Z",
+ "generatedAt": "2026-10-30T19:54:22Z",
+ "sourceGeneratedAt": "2026-10-30T19:54:22Z",
  "forecastInputHash": "5fac6436ac6d6a80",
  "providerEventId": "401873031",
  "matchup": "TEN @ CIN",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-30T19:37:53Z",
-  "roleEvidenceAt": "2026-10-30T19:37:53Z",
+  "injuriesCapturedAt": "2026-10-30T19:54:22Z",
+  "roleEvidenceAt": "2026-10-30T19:54:22Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -120,14 +120,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 56,
+  "absent": 53,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "TEN": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -156,17 +156,6 @@
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4871023",
-     "name": "Carnell Tate",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4569587",
@@ -254,6 +243,12 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4871023",
+     "name": "Carnell Tate",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     }
    ]
   },
@@ -670,36 +665,6 @@
     },
     "anytime_td": {
      "probability": 0.2295,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4871023",
-   "name": "Carnell Tate",
-   "team": "TEN",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 60.061,
-     "p10": 16.36,
-     "p25": 31.72,
-     "median": 53.82,
-     "p75": 81.07,
-     "p90": 111.92,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 5.5378,
-     "p10": 2,
-     "p25": 3,
-     "median": 5,
-     "p75": 8,
-     "p90": 10,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.216,
      "pricingState": "NOT_PROBED"
     }
    }
