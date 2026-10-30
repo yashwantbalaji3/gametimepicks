@@ -284,7 +284,13 @@ test("determinism: same inputs give byte-identical export and card HTML", () => 
   assert.equal(a.cards.length, review.doc.events.filter((e) => e.rows > 0).length * 2 + 2);
 });
 
-test("end to end: validated files and PNGs at 1600×900 / 1080×1350 (@1x) outside the repo", async () => {
+/* The PNG step needs a Playwright browser binary. CI's unit phase installs none (browsers are installed only for the
+   e2e/a11y phases), so this one raster test is skipped there with the reason printed; every exact-value, gating and
+   refusal test above runs without a browser. Locally (or anywhere chromium is installed) it always runs. */
+const { chromium } = await import("playwright");
+const NO_BROWSER = (() => { try { return fs.existsSync(chromium.executablePath()) ? false : "playwright chromium is not installed in this environment"; } catch (e) { return `playwright chromium unavailable: ${e.message}`; } })();
+
+test("end to end: validated files and PNGs at 1600×900 / 1080×1350 (@1x) outside the repo", { skip: NO_BROWSER }, async () => {
   const out = path.join(tmp, "render");
   const { pngs, manifest } = await renderNbaLineGraphics({ date: DATE, "as-of": AS_OF, purpose: "founder-review", out, scales: "1" }, syn.env);
   assert.equal(pngs.length, manifest.cards.length);
