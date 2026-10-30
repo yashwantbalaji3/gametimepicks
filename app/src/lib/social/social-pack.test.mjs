@@ -275,8 +275,33 @@ test("game day real lines: market flag set, colours, compact price", () => {
   assert.equal(box[0].containsMarketData, true);
   assert.match(box[0].cards[0].html, /U 30\.5 · -110/);
   assert.match(box[0].cards[0].html, /1-800-GAMBLER/);
+  assert.ok(["PASS", "REVIEW"].includes(box[0].anomalyCheck) && Array.isArray(box[0].anomalies));
+  const realTop5 = posts.filter((x) => x.contentType === "NBA_DAILY_TOP5" && x.containsMarketData);
+  assert.equal(realTop5.length, 3);
+  for (const t of realTop5) assert.ok(["PASS", "REVIEW"].includes(t.anomalyCheck) && Array.isArray(t.anomalies));
   assert.equal(posts.find((x) => x.contentType === "NBA_PLAYER_STATS").containsMarketData, undefined);
   assert.ok(!/30\.5/.test(posts.find((x) => x.contentType === "NBA_PLAYER_STATS").cards[0].html.replace(/<style>[\s\S]*?<\/style>/, "")));
+});
+test("game day moneyline: priced copies beside unchanged model posts, one image, missing quote refused", () => {
+  const asOf = "2026-10-30T20:00:00Z";
+  const lane = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nba/experimental-public/2026-10-30.json"), "utf8"));
+  const ev = (g) => ({ id: `e${g.providerEventId}`, commence_time: new Date(Date.parse(g.tipUtc.replace(/Z$/, ":00Z")) + 600000).toISOString(), away_team: g.away.name, home_team: g.home.name, bookmakers: [{ key: "fanduel", markets: [{ key: "h2h", last_update: "2026-10-30T19:42:56Z", outcomes: [{ name: g.away.name, price: 120 }, { name: g.home.name, price: -140 }] }] }] });
+  const events = lane.games.map(ev);
+  const moneyline = { doc: { fetchedAt: "2026-10-30T19:44:11Z", events }, ref: { ref: "gtp-private/odds/x.json", sha256: "a".repeat(64) } };
+  const base = prepareGameDay({ date: "2026-10-30", asOf });
+  const r = prepareGameDay({ date: "2026-10-30", asOf, moneyline });
+  const ml = r.posts.filter((p) => /(^|-)ml$/.test(String(p.variant)));
+  assert.equal(ml.length, lane.games.length + 1);
+  assert.deepEqual(r.posts.filter((p) => !ml.includes(p)).map((p) => [p.variant, p.caption, p.cards[0].cells]), base.posts.map((p) => [p.variant, p.caption, p.cards[0].cells]));
+  for (const p of ml) { assert.equal(p.containsMarketData, true); assert.equal(p.cards.length, 1); assert.equal(p.content.sourceSha256, "a".repeat(64)); assert.equal(p.content.socialAuthorized, false); assert.deepEqual(verifyGameDayCard(p.cards[0]), []); assert.match(p.cards[0].html, /FanDuel/); assert.match(p.cards[0].html, /1-800-GAMBLER/); }
+  const one = ml.find((p) => p.contentType === "NBA_GAME_WINNER");
+  assert.equal(one.content.price, one.content.side === lane.games.find((g) => String(g.providerEventId) === one.eventId).home.abbr ? -140 : 120);
+  assert.equal(one.content.quotedAt, "2026-10-30T19:42:56Z");
+  assert.ok(!/-140|\+120/.test(one.caption));
+  const gap = prepareGameDay({ date: "2026-10-30", asOf, moneyline: { ...moneyline, doc: { ...moneyline.doc, events: events.slice(1) } } });
+  assert.ok(gap.refused.some((x) => x.variant === `${lane.games[0].providerEventId}-ml` && x.reason === "NO_PROVIDER_EVENT"));
+  assert.ok(gap.refused.some((x) => x.variant === "ml" && x.reason === "NOT_EVERY_GAME_PRICED"));
+  assert.ok(!gap.posts.some((p) => p.variant === "ml"));
 });
 test("meter colours stay distinct on a clash", () => {
   const [a, b] = meterColours(teamOf("LAC", "LA Clippers"), teamOf("PHI", "Philadelphia 76ers"));

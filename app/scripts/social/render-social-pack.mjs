@@ -6,6 +6,7 @@
  *
  *   cd app && npx tsx scripts/social/render-social-pack.mjs --as-of <ISO instant> --nfl-week 8 --nfl-recap-week 7 \
  *       --nba-date 2026-10-30 --nba-recap-date 2026-10-29 [--out <dir>] [--scales 1,2] [--no-png]
+ *       [--moneyline <saved capture under ~/gtp-private>] [--moneyline-only]
  *
  * Reads committed public data through the site's accessors only; no key, no network, no clock. Every printed cell is
  * validated before anything is written. A post that cannot be made honestly is REFUSED and listed in the run report;
@@ -33,7 +34,10 @@ import { loadCurrentNbaResults } from "../../src/lib/sports/nba/current-results.
 import {
   xWeighted, CC_KIND_MAP, CONTENT_TYPE, ELIGIBILITY, editorialPlan, buildNbaRecap, buildNflRecap, buildSocialPackage, dedupeSlug, denominatorText, etDate, etLabel, instant, recapFinalsProblems, recommendedPostTime, toIso,
 } from "../../src/lib/social/social-package.mjs";
-import { anomaliesFor, laneHistory, laneRows, reviewThresholds, runAnomalyCheck } from "../../src/lib/social/nba-anomaly-check.mjs";
+import { BOOK_RULE, MONEYLINE_MARKET, americanText, matchMoneylineEvents, observedPrice } from "../../src/lib/social/nba-moneyline.mjs";
+import { LINE_MAX_AGE_HOURS, REFERENCE_BOOK_ORDER } from "../../src/lib/sports/nba/line-comparison.mjs";
+import { NBA_PROP_LINE_ADAPTER } from "../../src/lib/sports/nba/prop-line-adapter.mjs";
+import { anomaliesFor, anomalyPackageList, laneHistory, laneRows, reviewThresholds, runAnomalyCheck } from "../../src/lib/social/nba-anomaly-check.mjs";
 import { quoteRangeText } from "./nba-line-cards.mjs";
 import { DESIGN_VERSION, DISCLOSURE, NFL_DISCLOSURE, RESPONSIBLE, nflPlayerPages, nflTeamOf, recapCard, statPages, teamOf, tonightCard, top5Card as v2Top5Card, verifyGameDayCard, winnerCard } from "./game-day-cards.mjs";
 import { BOX_FOOTER } from "./nba-boxscore-cards.mjs";
@@ -429,7 +433,7 @@ const canonicalSlate = (date) => [...new Map(fs.readdirSync(path.join(PUBLIC(), 
  * The whole NBA game-day library for one date. `lineDoc` (validated gtp-graphics-export@2) adds the real-line versions.
  * Returns posts, refused and the per-event coverage.
  */
-export function prepareGameDay({ date, asOf, lineDoc = null, laneOverride = null, anomalyInputs = null }) {
+export function prepareGameDay({ date, asOf, lineDoc = null, laneOverride = null, anomalyInputs = null, moneyline = null }) {
   assertAsOf(asOf);
   const rel = `data/nba/experimental-public/${date}.json`;
   const lane = laneOverride ?? readPublic(rel);
@@ -513,8 +517,67 @@ export function prepareGameDay({ date, asOf, lineDoc = null, laneOverride = null
     posts.push(base({ ...anomaliesFor(modelCheck, ids, [k]), variant: `${k}-model`, cards: v2Cards([v2Top5Card({ title: b.label, chip, rows })], `nba-${date}-top5-${k}-model`), disclosures: [DISCLOSURE], content: { board: k, rows: content, ranking: "projection only" } }));
     if (lineDoc) posts.push(base({ ...anomaliesFor(realCheck, ids, [k]), variant: k, containsMarketData: true, cards: v2Cards([v2Top5Card({ title: b.label, chip, rows, real: true })], `nba-${date}-top5-${k}`), disclosures: [DISCLOSURE, RESPONSIBLE], content: { board: k, rows: content, ranking: "projection only", quotedAt: quoteRangeText(rows.map((r) => lineFor.get(`${r.key}:${k}`)).filter(Boolean)) } }));
   }
+  let moneylineMatch = null;
+  if (moneyline) { moneylineMatch = moneylinePosts({ games, schedule, moneyline, date, asOf, META, refs }); posts.push(...moneylineMatch.posts); refused.push(...moneylineMatch.refused); moneylineMatch = moneylineMatch.match; }
   for (const g of games) if (g.cov.validation === "PASSED") g.cov.render = "PENDING";
-  return { posts, refused, coverage: [...coverage.values()] };
+  return { posts, refused, coverage: [...coverage.values()], moneylineMatch };
+}
+
+const quoteClock = (iso) => `${timeOnly(Date.parse(iso))} ET`;
+const BOOK_LABEL = (k) => NBA_PROP_LINE_ADAPTER.bookLabel(k);
+const ML_CAPTION = (t) => `${t} The sportsbook price on the image is an observed quote, not a model number. Not betting advice.`;
+
+/**
+ * Priced versions of the winner cards from one saved capture. `moneyline`: { doc, ref }. Every game needs a schedule row, one
+ * provider event and a clean quote for the predicted team, or it gets no price and is listed as refused.
+ */
+export function moneylinePosts({ games, schedule, moneyline, date, asOf, META, refs }) {
+  const { doc, ref: source } = moneyline;
+  const row = new Map(schedule.map((r) => [String(r.providerEventId), r]));
+  const known = games.filter((g) => row.has(g.eventId) && row.get(g.eventId).away?.abbr === g.away.abbr && row.get(g.eventId).home?.abbr === g.home.abbr);
+  const match = matchMoneylineEvents({ games: known.map((g) => ({ eventId: g.eventId, awayName: g.raw.away.name, homeName: g.raw.home.name, tipUtc: g.raw.tipUtc })), events: doc.events, date });
+  const refused = [...games.filter((g) => !known.includes(g)).map((g) => ({ eventId: g.eventId, reason: "NOT_ON_CANONICAL_SCHEDULE" })), ...match.unmatched].map((x) => ({ contentType: CONTENT_TYPE.NBA_GAME_WINNER, variant: `${x.eventId}-ml`, reason: x.reason }));
+  const posts = []; const priced = []; const fails = new Set(refused.map((r) => r.variant.replace(/-ml$/, "")));
+  const mlRefs = [...refs, source];
+  const closes = (tipMs, quotedAt) => Math.min(tipMs, Date.parse(quotedAt) + LINE_MAX_AGE_HOURS * 3600000);
+  const fresh = (closeMs, quotedAt) => ({ asOf, sourceGeneratedAt: doc.fetchedAt, ageHours: ageHours(asOf, quotedAt), expiresAt: toIso(closeMs), rule: `valid until tip-off, at most ${LINE_MAX_AGE_HOURS} hours after the quote` });
+  for (const g of games) {
+    const hit = match.matched.get(g.eventId);
+    if (!hit) continue;
+    const m = `${g.away.abbr} @ ${g.home.abbr}`;
+    const variant = `${g.eventId}-ml`;
+    const q = g.winner && observedPrice(hit.event, { awayName: g.raw.away.name, homeName: g.raw.home.name, sideName: g.winner.name, fetchedAt: doc.fetchedAt, tipUtc: g.raw.tipUtc, asOf });
+    if (!q) { refused.push({ contentType: CONTENT_TYPE.NBA_GAME_WINNER, variant, reason: g.winner ? "NO_CLEAN_QUOTE" : "NO_PREDICTED_TEAM" }); fails.add(g.eventId); continue; }
+    const market = { sideAbbr: g.winner.abbr, priceText: americanText(q.price), bookLabel: BOOK_LABEL(q.book), quotedText: quoteClock(q.quotedAt) };
+    priced.push({ ...g, market, q, startDeltaMinutes: hit.startDeltaMinutes });
+    const close = closes(g.t, q.quotedAt);
+    const cap = ML_CAPTION(`${m}: the model's predicted winner is the ${g.winner.nickname}, an estimate.`);
+    posts.push({
+      ...META, snapshotRefs: mlRefs, containsMarketData: true, contentType: CONTENT_TYPE.NBA_GAME_WINNER, variant, eventId: g.eventId, firstStartUtc: toIso(g.t), title: `${m}: game winner prediction with observed price`,
+      cards: v2Cards([winnerCard({ ...g, market }, { responsible: true })], `nba-${date}-winner-${variant}`), caption: pregameCaption(cap), ccCaption: cap, ccCaptionB: `${m}: predicted winner estimate and an observed quote on the image. Not betting advice.`, disclosures: ["Estimate from the team rating, not a validated probability", "Sportsbook price is an observed quote, separate from the model estimate", DISCLOSURE, RESPONSIBLE],
+      checks: [...META.checks, "matched by team names to the canonical schedule, start confirmed", "price read from one book, never inferred", "no gap between price and estimate computed"],
+      window: { opensAt: asOf, closesAt: toIso(close) }, recommended: recommendedPostTime({ games: [{ kickoffUtc: g.raw.tipUtc }], afterEtDate: dayBefore(date), asOf }), recommendedNote: "the two hours before tip-off have passed", freshness: fresh(close, q.quotedAt),
+      content: { eventId: g.eventId, winner: g.winner.abbr, awayEstimate: g.awayP, homeEstimate: g.homeP, marketKey: MONEYLINE_MARKET, book: q.book, bookLabel: market.bookLabel, bookRule: BOOK_RULE, bookOrder: REFERENCE_BOOK_ORDER, side: g.winner.abbr, price: q.price, quotedAt: q.quotedAt, fetchedAt: doc.fetchedAt, sourceFile: source.ref, sourceSha256: source.sha256, providerEventId: hit.event.id, startDeltaMinutes: hit.startDeltaMinutes, socialAuthorized: false },
+    });
+  }
+  if (fails.size) refused.push({ contentType: CONTENT_TYPE.NBA_TONIGHT, variant: "ml", reason: "NOT_EVERY_GAME_PRICED", games: [...fails] });
+  else if (priced.length) {
+    const firstQuote = priced.map((g) => g.q.quotedAt).sort()[0];
+    const close = Math.min(...priced.map((g) => closes(g.t, g.q.quotedAt)), games[0].t);
+    const labels = [...new Set(priced.map((g) => g.market.bookLabel))];
+    const times = [...new Set(priced.map((g) => g.q.quotedAt))].sort();
+    const when = times.length === 1 ? quoteClock(times[0]) : `${quoteClock(times[0])} to ${quoteClock(times.at(-1))}`;
+    const note = `Price for the predicted team, observed, not a model number. ${labels.join(", ")}, quoted ${when}`;
+    const cap = ML_CAPTION(`NBA tonight: ${games.length} games and the model's predicted winner in each, as estimates.`);
+    posts.push({
+      ...META, snapshotRefs: mlRefs, containsMarketData: true, contentType: CONTENT_TYPE.NBA_TONIGHT, variant: "ml", title: `NBA tonight ${date} with observed prices`, firstStartUtc: toIso(games[0].t),
+      cards: v2Cards([tonightCard({ games: priced, chip: `NBA · ${chipDay(games[0].t)}`, marketNote: note, responsible: true })], `nba-${date}-tonight-ml`), caption: pregameCaption(cap), ccCaption: cap, ccCaptionB: `NBA tonight: ${games.length} games, estimates and observed quotes on the image. Not betting advice.`, extraClaims: [{ key: "games", display: String(games.length), evidenceRef: refs[0].ref }],
+      disclosures: ["Estimate from the team rating, not a validated probability", "Sportsbook prices are observed quotes, separate from the model estimates", DISCLOSURE, RESPONSIBLE], checks: [...META.checks, "matched by team names to the canonical schedule, start confirmed", "prices read from one book per game, never inferred"],
+      window: { opensAt: asOf, closesAt: toIso(close) }, recommended: recommendedPostTime({ games: games.map((g) => ({ kickoffUtc: g.raw.tipUtc })), afterEtDate: dayBefore(date), asOf }), recommendedNote: "the two hours before tip-off have passed", freshness: fresh(close, firstQuote),
+      content: { quotedAt: firstQuote, fetchedAt: doc.fetchedAt, bookRule: BOOK_RULE, bookOrder: REFERENCE_BOOK_ORDER, sourceFile: source.ref, sourceSha256: source.sha256, socialAuthorized: false, games: priced.map((g) => ({ eventId: g.eventId, winner: g.winner.abbr, awayEstimate: g.awayP, homeEstimate: g.homeP, book: g.q.book, side: g.winner.abbr, price: g.q.price, quotedAt: g.q.quotedAt, startDeltaMinutes: g.startDeltaMinutes })) },
+    });
+  }
+  return { posts, refused, match: { matched: match.matched.size, unmatched: match.unmatched, ignored: match.ignored, unused: match.unused } };
 }
 
 /* ───────────────────────────── recaps ───────────────────────────── */
@@ -684,10 +747,21 @@ export function parseArgs(argv) {
   const out = {};
   for (let i = 0; i < argv.length; i += 1) {
     if (!argv[i].startsWith("--")) throw new Error(`unexpected argument ${argv[i]}`);
-    if (argv[i] === "--no-png") { out["no-png"] = true; continue; }
+    if (argv[i] === "--no-png" || argv[i] === "--moneyline-only") { out[argv[i].slice(2)] = true; continue; }
     out[argv[i].slice(2)] = argv[(i += 1)];
   }
   return out;
+}
+
+/** One saved capture, private, identified by its bytes. */
+function loadMoneyline(file) {
+  const abs = path.resolve(file);
+  const root = path.join(os.homedir(), "gtp-private") + path.sep;
+  if (!abs.startsWith(root)) throw new Error("--moneyline must name a capture under ~/gtp-private");
+  const bytes = fs.readFileSync(abs);
+  const doc = JSON.parse(bytes.toString("utf8"));
+  if (!Array.isArray(doc.events) || !Number.isFinite(Date.parse(doc.fetchedAt))) throw new Error(`${file}: not a moneyline capture`);
+  return { doc, ref: { ref: `gtp-private/${path.relative(root, abs)}`, sha256: sha(bytes) } };
 }
 
 async function main(args) {
@@ -712,15 +786,20 @@ async function main(args) {
     let lineDoc = null;
     if (process.env.GTP_ODDS_DISPLAY_KEY) { try { lineDoc = loadNbaLineGraphicsExport({ date, asOf, purpose: PURPOSE_ARG["founder-review"] }).doc; } catch (e) { refused.push({ job: "nba-lines", reason: e.message }); } }
     else refused.push({ contentType: CONTENT_TYPE.NBA_BOXSCORE, reason: "NO_DISPLAY_KEY: real-line versions not rendered" });
-    const r = prepareGameDay({ date, asOf, lineDoc });
-    posts.push(...r.posts); refused.push(...r.refused); coverages.push({ date, rows: r.coverage, lines: Boolean(lineDoc) });
+    const moneyline = args.moneyline ? loadMoneyline(args.moneyline) : null;
+    const r = prepareGameDay({ date, asOf, lineDoc, moneyline });
+    if (r.moneylineMatch) console.log(`MONEYLINE ${JSON.stringify(r.moneylineMatch)}`);
+    posts.push(...(args["moneyline-only"] ? r.posts.filter((p) => /(^|-)ml$/.test(String(p.variant))) : r.posts)); refused.push(...r.refused);
+    if (!args["moneyline-only"]) coverages.push({ date, rows: r.coverage, lines: Boolean(lineDoc), moneyline: moneyline?.ref.ref ?? "NONE" });
   }
-  const recapDate = args["nba-recap-date"] ?? (args["nba-date"] ? dayBefore(args["nba-date"]) : null);
+  const recapDate = args["moneyline-only"] ? null : args["nba-recap-date"] ?? (args["nba-date"] ? dayBefore(args["nba-date"]) : null);
   if (recapDate) attempt("nba-recap", () => prepareNbaRecap({ date: recapDate, asOf }));
   const done = await writePackages(posts, { outRoot, scales, png: !args["no-png"] });
   fs.mkdirSync(path.join(outRoot, "reports"), { recursive: true });
   const report = path.join(outRoot, "reports", `run-${asOf.replace(/[:]/g, "")}.json`);
   fs.writeFileSync(report, `${JSON.stringify({ asOf, packages: done.map((d) => d.pkg.dedupeId), refused, kindMap: CC_KIND_MAP }, null, 2)}\n`);
+  const anomalyList = anomalyPackageList(done.map((d) => d.pkg));
+  if (anomalyList.length) fs.writeFileSync(path.join(outRoot, "reports", `anomalies-${asOf.replace(/[:]/g, "")}.json`), `${JSON.stringify(anomalyList, null, 2)}\n`);
   const groups = new Map();
   for (const cov of coverages) {
     for (const c of cov.rows) {
@@ -729,11 +808,12 @@ async function main(args) {
     }
     const dir = path.join(os.homedir(), "gtp-private", "graphics", "reports");
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, `coverage-${cov.date}.json`), `${JSON.stringify({ date: cov.date, asOf, linesLoaded: cov.lines, moneylineCapture: "NONE", events: cov.rows }, null, 2)}\n`);
+    fs.writeFileSync(path.join(dir, `coverage-${cov.date}.json`), `${JSON.stringify({ date: cov.date, asOf, linesLoaded: cov.lines, moneylineCapture: cov.moneyline, events: cov.rows }, null, 2)}\n`);
   }
   for (const { pkg: k } of done) groups.set(k.sport, [...(groups.get(k.sport) ?? []), { sport: k.sport, date: k.date, contentType: k.contentType, variant: k.variant, firstStartUtc: k.commandCenter.firstStartUtc }]);
   for (const [sport, list] of groups) fs.writeFileSync(path.join(outRoot, "reports", `editorial-${sport}-${asOf.replace(/[:]/g, "")}.json`), `${JSON.stringify(editorialPlan(list), null, 2)}\n`);
   for (const { pkg } of done) console.log(`${pkg.dedupeId}${pkg.anomalyCheck ? ` · ${pkg.anomalyCheck} ${pkg.anomalies.length}` : ""} · ${pkg.images.length} images · ${pkg.verification.cellsVerified} cells · rec ${pkg.recommendedAtEt ?? "none"}${pkg.content.scoreSideConflicts?.length ? ` · score/side conflicts: ${pkg.content.scoreSideConflicts.join(", ")}` : ""}`);
+  for (const a of anomalyList) if (a.playerMarketsFlagged) console.log(`ANOMALY ${a.dedupeId} · ${a.anomalyCheck} · ${a.playersAffected} players · ${a.playerMarketsFlagged} player-markets · ${a.flagged.map((f) => `${f.player} ${f.market} ${f.verdict}`).join("; ")}`);
   for (const r of refused) console.log(`REFUSED ${JSON.stringify(r)}`);
   console.log(report);
 }

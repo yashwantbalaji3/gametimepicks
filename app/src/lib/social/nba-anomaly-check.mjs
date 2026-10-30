@@ -141,3 +141,13 @@ export function anomaliesFor(check, playerIds, markets) {
   const anomalies = check.anomalies.filter((a) => ids.has(a.playerId) && markets.includes(a.market));
   return { anomalies, anomalyCheck: anomalyStatus(anomalies) };
 }
+
+const nameIn = (a) => { const i = String(a.detail).indexOf(` ${a.market}:`); return i > 0 ? a.detail.slice(0, i) : a.playerId; };
+/** Per-package review list for the founder. Drops `detail`, so it cannot carry anything but ids, names, markets and verdicts. */
+export function anomalyPackageList(packages) {
+  return packages.filter((p) => p.anomalyCheck).map((p) => ({
+    dedupeId: p.dedupeId, contentType: p.contentType, variant: p.variant, containsMarketData: p.containsMarketData === true, anomalyCheck: p.anomalyCheck,
+    playersAffected: new Set(p.anomalies.map((a) => a.playerId)).size, playerMarketsFlagged: p.anomalies.length, marketsAffected: [...new Set(p.anomalies.map((a) => a.market))].sort(),
+    flagged: p.anomalies.map((a) => ({ playerId: a.playerId, player: nameIn(a), market: a.market, verdict: a.verdict })),
+  }));
+}

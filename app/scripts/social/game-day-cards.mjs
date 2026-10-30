@@ -53,6 +53,10 @@ const EXTRA = `
 .tn.dense .tnr,.tn.dense .tnh{grid-template-columns:128px 66px 76px 1fr 76px 66px 88px}
 .rc.dense{margin-top:12px;gap:4px;justify-content:flex-start}.rc.dense .rcr{padding:0 16px;flex:1;min-height:0}.rc.dense .rcr .s{font-size:30px}.rc.dense .rcr .w{font-size:21px}.rc.dense .rcr .o{font-size:24px}
 .rc.dense + *{margin-top:0}.pl.nfl .ns b{font-size:32px}.pl.nfl .ns em{font-size:17px;color:rgba(247,247,242,.72)}
+.mkp + .strip{flex:none;margin-top:10px}.winner2.mkw{flex:none;margin-top:6px}.winner2.mkw .k{font-size:26px}.winner2.mkw .slab{margin-top:8px;padding:8px 44px 6px}.winner2.mkw .slab .nick{font-size:84px}
+.mkp{flex:none;margin:10px auto 0;width:100%;padding:12px 18px 10px;border-radius:14px;background:rgba(5,8,6,.74);border:1px solid rgba(242,193,78,.55);text-align:center}.mkp .mk{font:700 20px/1 var(--display);letter-spacing:2px;color:#F2C14E;text-transform:uppercase}.mkp .mv{display:block;margin-top:6px;font:900 46px/1 var(--headline);white-space:nowrap}.mkp .mq{display:block;margin-top:5px;font:700 21px/1 var(--display);color:rgba(247,247,242,.75);white-space:nowrap}
+.tn.ml .tnr,.tn.ml .tnh{grid-template-columns:124px 66px 56px 1fr 56px 66px 100px 92px}.tn.ml .tnh{letter-spacing:1px}.tn.ml .tnr .t{font-size:23px;letter-spacing:0}.tn.ml .tnr .pr{font:900 28px/1 var(--headline);text-align:center;color:#F2C14E;white-space:nowrap}
+.mkn{margin-top:8px;text-align:center;font:700 21px/1.15 var(--display);color:#F2C14E}
 .rcr .s{font:900 50px/1 var(--headline);white-space:nowrap}.rcr .w{font:700 24px/1.1 var(--display);text-align:center}.rcr .o{font:900 32px/1 var(--headline);text-align:right}
 `;
 
@@ -109,19 +113,19 @@ export function winnerCard(g, { kicker = "GameTimePicks Prediction", meterLabel 
   const body = `<div class="kicker">${esc(kicker)}</div><div class="matchup">${mbox(g.away)}<div class="vs2">@</div>${mbox(g.home)}</div>
 <div class="meter" data-meter="elo"><div class="meter-k">${esc(meterLabel)}</div><div class="meter-labels"><div class="ml l">${bcell(cells, "away.pct", `${g.awayPct}%`)}<span data-fit>${esc(g.away.name)}</span></div><div class="ml r">${bcell(cells, "home.pct", `${g.homePct}%`)}<span data-fit>${esc(g.home.name)}</span></div></div>
 <div class="meter-bar"><i class="seg away" data-share="${g.awayP}" style="width:${((100 * g.awayP) / total).toFixed(3)}%;--c:${ca}"></i><i class="seg home" data-share="${g.homeP}" style="width:${((100 * g.homeP) / total).toFixed(3)}%;--c:${cb}"></i></div></div>
-<div class="winner2"><div class="k">${g.winner ? "Predicted Winner" : "Too close to call"}</div>${g.winner ? slab(g.winner) : ""}</div>
-<div class="strip"><div>${bcell(cells, "day", g.tipDay, "data-fit")}<span>${g.startWord ?? "Tip-off"}</span></div><div>${bcell(cells, "time", g.tipTime, "data-fit")}<span>Eastern time</span></div></div>`;
+<div class="winner2${g.market ? " mkw" : ""}"><div class="k">${g.winner ? "Predicted Winner" : "Too close to call"}</div>${g.winner ? slab(g.winner) : ""}</div>
+${g.market ? `<div class="mkp"><div class="mk">Observed sportsbook price · not a model number</div>${cell(cells, "market.price", `${g.market.sideAbbr} ${g.market.priceText}`, "mv")}${cell(cells, "market.quote", `${g.market.bookLabel} · quoted ${g.market.quotedText}`, "mq")}</div>` : ""}<div class="strip"><div>${bcell(cells, "day", g.tipDay, "data-fit")}<span>${g.startWord ?? "Tip-off"}</span></div><div>${bcell(cells, "time", g.tipTime, "data-fit")}<span>Eastern time</span></div></div>`;
   return { html: shell({ away: g.away, home: g.home, chip: g.chip, body, disclosure, responsible }), cells, v2: true, disclosure };
 }
 
 /** A: one card, every game of the slate. */
-export function tonightCard({ games, chip, kicker = "NBA Tonight", sub = "Game winner estimates", timeHead = "TIP ET", disclosure = DISCLOSURE, responsible = false }) {
+export function tonightCard({ games, chip, kicker = "NBA Tonight", sub = "Game winner estimates", timeHead = "TIP ET", disclosure = DISCLOSURE, responsible = false, marketNote = null }) {
   const cells = {};
   const rows = games.map((g) => {
     const [ca, cb] = meterColours(g.away, g.home);
-    return `<div class="tnr">${cell(cells, `${g.eventId}.tip`, g.tipTime, "t")}${cell(cells, `${g.eventId}.away`, g.away.abbr, "tm")}${cell(cells, `${g.eventId}.ap`, `${g.awayPct}%`, "p")}<div class="bar" data-bar="${g.eventId}"><i style="width:${(g.awayP * 100).toFixed(2)}%;background:${ca}"></i><i style="width:${(g.homeP * 100).toFixed(2)}%;background:${cb}"></i></div>${cell(cells, `${g.eventId}.hp`, `${g.homePct}%`, "p")}${cell(cells, `${g.eventId}.home`, g.home.abbr, "tm")}${cell(cells, `${g.eventId}.w`, g.winner?.abbr ?? "EVEN", "wn")}</div>`;
+    return `<div class="tnr">${cell(cells, `${g.eventId}.tip`, g.tipTime, "t")}${cell(cells, `${g.eventId}.away`, g.away.abbr, "tm")}${cell(cells, `${g.eventId}.ap`, `${g.awayPct}%`, "p")}<div class="bar" data-bar="${g.eventId}"><i style="width:${(g.awayP * 100).toFixed(2)}%;background:${ca}"></i><i style="width:${(g.homeP * 100).toFixed(2)}%;background:${cb}"></i></div>${cell(cells, `${g.eventId}.hp`, `${g.homePct}%`, "p")}${cell(cells, `${g.eventId}.home`, g.home.abbr, "tm")}${cell(cells, `${g.eventId}.w`, g.winner?.abbr ?? "EVEN", "wn")}${marketNote ? cell(cells, `${g.eventId}.price`, g.market.priceText, "pr") : ""}</div>`;
   }).join("");
-  const body = `<div class="kicker">${esc(kicker)}</div><div class="sub" data-fit>${esc(sub)}</div><div class="tn ${games.length > 10 ? "dense" : ""}"><div class="tnh"><span>${esc(timeHead)}</span><span>AWAY</span><span></span><span></span><span></span><span>HOME</span><span>WINNER</span></div>${rows}</div>`;
+  const body = `<div class="kicker">${esc(kicker)}</div><div class="sub" data-fit>${esc(sub)}</div><div class="tn ${games.length > 10 ? "dense" : ""} ${marketNote ? "ml" : ""}"><div class="tnh"><span>${esc(timeHead)}</span><span>AWAY</span><span></span><span></span><span></span><span>HOME</span><span>WINNER</span>${marketNote ? "<span>PRICE</span>" : ""}</div>${rows}</div>${marketNote ? cell(cells, "market.note", marketNote, "mkn") : ""}`;
   return { html: shell({ chip, body, disclosure, responsible }), cells, v2: true, disclosure };
 }
 
