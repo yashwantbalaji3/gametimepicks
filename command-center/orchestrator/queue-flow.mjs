@@ -491,11 +491,23 @@ export function createQueueFlow(ctx) {
   }
 
   // ── design approval: separate from evidence readiness and from publishing approval ────────────────────────
+  /** The standing designs, plus any newer design version an imported package arrived with. */
+  function allDesigns() {
+    const seen = new Set(DESIGNS.map((d) => d.template));
+    const extra = [];
+    for (const { request } of postRecords()) {
+      const p = request.package;
+      if (!isImported(p) || !p.template || seen.has(p.template)) continue;
+      seen.add(p.template);
+      extra.push({ template: p.template, assetManifest: p.assetManifest, label: `${p.format} (design ${p.imported?.designVersion ?? "?"})` });
+    }
+    return [...DESIGNS, ...extra];
+  }
   function designApproval(template, assetManifest) {
     return h.entries().filter((e) => e.kind === "design-approval" && e.data.template === template && e.data.assetManifest === assetManifest).at(-1)?.data ?? null;
   }
   function approveDesign({ template, assetManifest }, actor) {
-    if (!DESIGNS.some((d) => d.template === template && d.assetManifest === assetManifest)) return { ok: false, code: "UNKNOWN_DESIGN", detail: `the current designs are ${DESIGNS.map((d) => `${d.template} + ${d.assetManifest}`).join(", ")}` };
+    if (!allDesigns().some((d) => d.template === template && d.assetManifest === assetManifest)) return { ok: false, code: "UNKNOWN_DESIGN", detail: `the current designs are ${allDesigns().map((d) => `${d.template} + ${d.assetManifest}`).join(", ")}` };
     const claim = store.claim(`design|${template}|${assetManifest}`, { by: actor.id ?? "founder" });
     if (!claim.won) return { ok: true, duplicate: true };
     store.append("design-approval", "founder", { template, assetManifest, approvedBy: actor.id ?? "founder", approvedAt: clock(), authentication: actor.authentication ?? "loopback-console (demo-grade)", scope: "visual design only — every post still needs its own publishing approval" });
@@ -504,7 +516,7 @@ export function createQueueFlow(ctx) {
   /** The social template's status (the original fields, unchanged) + every current template's own status. */
   function design() {
     const a = designApproval(SOCIAL_TEMPLATE, ASSET_MANIFEST);
-    const templates = DESIGNS.map((d) => { const x = designApproval(d.template, d.assetManifest); return { ...d, approved: Boolean(x), approvedAt: x?.approvedAt ?? null }; });
+    const templates = allDesigns().map((d) => { const x = designApproval(d.template, d.assetManifest); return { ...d, approved: Boolean(x), approvedAt: x?.approvedAt ?? null }; });
     return { template: SOCIAL_TEMPLATE, assetManifest: ASSET_MANIFEST, approved: Boolean(a), approvedAt: a?.approvedAt ?? null, templates };
   }
 

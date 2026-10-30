@@ -421,6 +421,9 @@
     const start = startOfPkg(pkg);
     const rows = [
       ["Sport / event", `${esc(pkg.sport)} · ${esc(pkg.title.split(":")[0])}`],
+      ...(pkg.eventId ? [["Game ID", `<code>${esc(pkg.eventId)}</code>`]] : []),
+      ["Category", `${esc(pkg.format ?? pkg.kind)}${m.variant && !pkg.eventId ? ` · ${esc(m.variant)}` : ""}`],
+      ["Package", `<code>${esc(m.dedupeId)}</code>`],
       ["Event date", start ? `${esc(dayLabel(etDay(new Date(start))))} · ${esc(etTime(start))}` : esc(pkg.date)],
       ["Forecast snapshot", (m.snapshotRefs ?? []).length ? `${num(m.snapshotRefs.length)} file(s) · data commit <code>${esc(String(pkg.dataCommit ?? "—").slice(0, 10))}</code> · ${m.provenance?.verified ? "matches its commit" : esc(m.provenance?.detail ?? "not checked")}` : "—"],
       ["Data verification", `${v.passed ? "Passed" : "Not passed"}${v.cellsVerified != null ? ` · ${num(v.cellsVerified)} cells checked` : ""}`],
@@ -429,6 +432,8 @@
       ["Status", `${esc(m.eligibilityClass ?? "—")} · ${p.resolution?.verdict === "approve" ? "approved" : "founder review"}`],
       ["Publishing window", m.window?.closesAt ? `until ${esc(dayLabel(etDay(new Date(m.window.closesAt))).split(" · ")[0])} ${esc(etTime(m.window.closesAt))}${plan ? ` · calendar slot ${esc(etTime(plan.at))}` : ""}` : "—"],
       ["Image", m.socialAuthorized === true ? "Clean export" : "Review copy with banner: approve it to request the clean export"],
+      ["Eligibility", (pkg.blockers ?? []).length ? "Not publishable until the blockers clear" : m.socialAuthorized === true ? "Publishable after your approval" : "After the clean export and your approval"],
+      ["Recommended time", pkg.suggestedPublishAt ? esc(`${dayLabel(etDay(new Date(pkg.suggestedPublishAt))).split(" · ")[0]} ${etTime(pkg.suggestedPublishAt)}`) : "—"],
       ["Destination", pkg.supported ? "X, through the publisher" : "None: not publishable"],
       ["Design", `${esc(pkg.template ?? "—")} · ${p.designApproved ? "approved" : "waiting for your approval"}`],
     ];
@@ -443,7 +448,7 @@
     if (p.lifecycle === "drafted") {
       const designOk = p.designApproved !== false;
       const ready = !ui.editing[p.decisionId] && designOk && (pkg.status === "READY" || pkg.kind === "x-reply" || pkg.kind === "td-top3" || (pkg.kind === "nba-game" && pkg.status === "NEEDS_VERIFICATION" && pkg.availabilityCheck?.length));
-      const why = ui.editing[p.decisionId] ? "Save or cancel the edit first" : !designOk ? "Approve the design first" : `Not approvable: ${esc(STATUS_LABEL[pkg.status] ?? pkg.status)}`;
+      const why = pkg.imported && pkg.status === "BLOCKED" ? "Blocked: see the reason above" : ui.editing[p.decisionId] ? "Save or cancel the edit first" : !designOk ? "Approve the design first" : `Not approvable: ${esc(STATUS_LABEL[pkg.status] ?? pkg.status)}`;
       return `${pkg.kind === "x-reply" ? `<label class="confirm"><input type="checkbox" data-confirm="${id}" ${ui.drafts[`confirm:${p.decisionId}`] ? "checked" : ""}> I opened the cited posts and they say what the finding claims</label>` : ""}
         ${pkg.kind === "td-top3" ? `<label class="confirm"><input type="checkbox" data-avail="${id}" ${ui.drafts[`avail:${p.decisionId}`] ? "checked" : ""}> I confirmed all three players are active and in their expected roles</label>` : ""}
         ${pkg.kind === "nba-game" && pkg.availabilityCheck?.length ? `<label class="confirm"><input type="checkbox" data-avail="${id}" ${ui.drafts[`avail:${p.decisionId}`] ? "checked" : ""}> I confirmed the featured players are playing (${esc(pkg.availabilityCheck.join("; "))})</label>` : ""}
@@ -476,7 +481,7 @@
     }
     return `<div class="blocked">${esc(LIFE_LABEL[p.lifecycle])}${p.resolution?.note ? ` · “${esc(p.resolution.note)}”` : ""}</div>`;
   }
-  const PUB_SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board", "top5-daily", "top5-weekly", "lr-results-recap", "lr-nba-tonight", "lr-nfl-roundup", "lr-nfl-mnf", "lr-nba-top5", "lr-nfl-top5", "lr-nba-game-winner", "lr-nfl-game-winner"]);
+  const PUB_SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board", "top5-daily", "top5-weekly", "lr-results-recap", "lr-nba-tonight", "lr-nfl-roundup", "lr-nfl-mnf", "lr-nba-top5", "lr-nfl-top5", "lr-nba-game-winner", "lr-nfl-game-winner", "lr-nba-players", "lr-nfl-game-players"]);
   /**
    * Display only: an attempt with no recorded outcome during its first 2 minutes is a send in progress ("Sending…");
    * after that it is "Outcome unknown — reconcile". The gate treats both as unknown (never retried) either way.
@@ -697,7 +702,7 @@
     return named ? `${named} · ${long}` : long;
   };
   const startOfPkg = (k) => k.tipUtc ?? k.startUtc ?? k.verification?.kickoffUtc ?? k.kickoffUtc ?? k.firstKickoffUtc ?? null;
-  const KIND_LABEL = { "nba-game": "Game post", "nba-final": "Final scores", "results-recap": "Results recap", "nfl-recap": "Forecast vs final", "pregame-forecast": "Pregame forecast", "td-top3": "Top 3 TD", "top5-board": "Top 5 board", "top5-weekly": "Weekly Top 5 (whole week)", "top5-daily": "Daily Top 5 (slate)", engagement: "Engagement", explainer: "Explainer", "x-reply": "Reply", "nba-results": "Prediction vs final", "lr-results-recap": "Results recap", "lr-nba-tonight": "NBA tonight", "lr-nfl-roundup": "NFL winners roundup", "lr-nfl-mnf": "Monday Night preview", "lr-nba-top5": "NBA daily Top 5", "lr-nfl-top5": "NFL weekly Top 5", "lr-nba-game-winner": "Game winner", "lr-nfl-game-winner": "Game winner", "lr-nba-boxscore": "Player box score (real lines)", "lr-unsupported": "Unsupported" };
+  const KIND_LABEL = { "nba-game": "Game post", "nba-final": "Final scores", "results-recap": "Results recap", "nfl-recap": "Forecast vs final", "pregame-forecast": "Pregame forecast", "td-top3": "Top 3 TD", "top5-board": "Top 5 board", "top5-weekly": "Weekly Top 5 (whole week)", "top5-daily": "Daily Top 5 (slate)", engagement: "Engagement", explainer: "Explainer", "x-reply": "Reply", "nba-results": "Prediction vs final", "lr-results-recap": "Results recap", "lr-nba-tonight": "NBA tonight", "lr-nfl-roundup": "NFL winners roundup", "lr-nfl-mnf": "Monday Night preview", "lr-nba-top5": "NBA daily Top 5", "lr-nfl-top5": "NFL weekly Top 5", "lr-nba-game-winner": "Game winner", "lr-nfl-game-winner": "Game winner", "lr-nba-players": "Projected stat lines", "lr-nfl-game-players": "Player graphic", "lr-nba-boxscore": "Player box score (real lines)", "lr-unsupported": "Unsupported" };
   const SPORTS = ["NBA", "NFL", "MLB", "UFC", "EPL"];
   const sportChip = (sp) => `<span class="sport sport-${esc(String(sp ?? "").toLowerCase())}">${esc(sp ?? "—")}</span>`;
   const jobsOf = (s, p) => (s.publishing?.jobs ?? []).filter((j) => j.decisionId === p.decisionId);

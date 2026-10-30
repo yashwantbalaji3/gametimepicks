@@ -43,8 +43,10 @@ export function proposePlan(posts, now, { jobs = [] } = {}) {
   const free = (t) => !taken.some((x) => Math.abs(x - t) < MIN_GAP_MS);
   const items = [], unslotted = [];
   const tierOf = (p) => Object.values(IMPORT_TYPES).find((t) => t.kind === p.package.kind)?.tier ?? 9;
+  // the founder's order within Top 5: points, rebounds, assists
+  const boardRank = (p) => { const i = ["pts", "reb", "ast"].indexOf(String(p.package.imported?.variant ?? "").replace(/-model$/, "")); return i < 0 ? 9 : i; };
   for (const g of [...groups.values()].sort((a, b) => ms(a.firstStartUtc) - ms(b.firstStartUtc))) {
-    const ordered = [...g.posts].sort((a, b) => tierOf(a) - tierOf(b) || ms(a.package.tipUtc) - ms(b.package.tipUtc) || a.postId.localeCompare(b.postId));
+    const ordered = [...g.posts].sort((a, b) => tierOf(a) - tierOf(b) || boardRank(a) - boardRank(b) || ms(a.package.tipUtc) - ms(b.package.tipUtc) || a.postId.localeCompare(b.postId));
     let t = Math.max(ms(g.firstStartUtc) - RECAP_LEAD_MS, ms(now) + SOON_MS);
     let n = 0;
     for (const p of ordered) {

@@ -87,7 +87,7 @@ export function createImportFlow(ctx) {
     const cc = p.commandCenter;
     const type = IMPORT_TYPES[p.contentType] ?? null;
     const sport = cc.sport ?? SPORTS[p.sport] ?? String(p.sport).toUpperCase();
-    const lines = showsLines(p.contentType, p.content);
+    const lines = showsLines(p.contentType, p.content, p.containsMarketData);
     const publishing = p.images.filter((i) => (i.scale ?? 1) === 1).slice(0, 4);
     const hiRes = p.images.filter((i) => (i.scale ?? 1) !== 1);
     const read = (i) => ({ i, bytes: readImage(root, i) });
@@ -107,14 +107,14 @@ export function createImportFlow(ctx) {
       title: cc.title, status: blockers.length ? POST_STATUS.BLOCKED : POST_STATUS.READY, reasons, claims: lines ? safeClaims(cc.claims) : cc.claims ?? [],
       media: mediaSet[0], mediaSet, hiRes: hiResFiles, captions: [], label: null, dataCommit: cc.dataCommit ?? null, hasMiss: Boolean(cc.hasMiss), noForecastClaims: false,
       eventId: cc.eventId ?? null, tipUtc: cc.firstStartUtc ?? null, firstStartUtc: cc.firstStartUtc ?? null, suggestedPublishAt: cc.suggestedPublishAt ?? null,
-      contentKey: p.contentSha256, template: importTemplateOf(p.contentType, sport), assetManifest: IMPORT_ASSET_MANIFEST,
+      contentKey: p.contentSha256, template: importTemplateOf(p.contentType, sport, p.designVersion ?? "1"), assetManifest: IMPORT_ASSET_MANIFEST,
       evidence: cc.evidence ?? [], blockers, supported: Boolean(type?.supported), privateReview: lines || undefined,
       ...(p.contentType === "RESULTS_RECAP" ? { resultsDate: p.date } : {}), ...(p.content?.week != null ? { week: p.content.week } : {}),
       imported: {
         schema: p.schema, dedupeId: p.dedupeId, contentType: p.contentType, variant: p.variant ?? null, sourceFile, contentSha256: p.contentSha256,
         idempotencyKey: p.idempotencyKey ?? null, eligibilityClass: p.eligibilityClass ?? null, snapshotRefs: p.snapshotRefs ?? [], verification: p.verification ?? null,
         provenance: prov, freshness: p.freshness ?? null, window: p.window ?? null, recommendation, disclosures: p.disclosures ?? [], socialAuthorized: p.approval?.socialAuthorized === true,
-        quote: p.content?.quotedAt ?? null, content: lines ? null : p.content ?? null, importedAt: clock(),
+        designVersion: p.designVersion ?? "1", containsMarketData: lines, snapshotId: p.snapshotId ?? p.content?.game?.snapshotId ?? null, quote: p.content?.quotedAt ?? null, content: lines ? null : p.content ?? null, importedAt: clock(),
       },
     };
     const options = [...(cc.captions ?? [])];
@@ -178,7 +178,8 @@ export function createImportFlow(ctx) {
     const counts = {};
     for (const r of results) counts[r.outcome] = (counts[r.outcome] ?? 0) + 1;
     const images = results.reduce((n, r) => n + (r.images ?? 0), 0);
-    store.append("import-run", actor?.id ?? "founder", { runId, root: dir, at: clock(), by: actor?.id ?? "founder", counts, images, results });
+    // a run that changed nothing is not an event
+    if (Object.keys(counts).some((k) => k !== "duplicate")) store.append("import-run", actor?.id ?? "founder", { runId, root: dir, at: clock(), by: actor?.id ?? "founder", counts, images, results });
     return { ok: true, runId, counts, images, results };
   }
 

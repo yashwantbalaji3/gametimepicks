@@ -43,11 +43,22 @@ Run it from Review → **Import packages**, or `POST /api/import/packages` on th
 | `NFL_WEEKLY_TOP5` | `lr-nfl-top5` | yes | review; pass and rush yards blocked |
 | `NBA_DAILY_TOP5` | `lr-nba-top5` | yes | blocked: not authorized for social, and it shows real lines |
 | `NBA_BOXSCORE` | `lr-nba-boxscore` | no | private review only |
-| `NFL_GAME_PLAYERS` | `lr-nfl-game-players` | no | unsupported until a sample package exists |
+| `NBA_PLAYER_STATS` | `lr-nba-players` | yes | review (model-only stat lines) |
+| `NFL_GAME_PLAYERS` | `lr-nfl-game-players` | yes | review; no sample package yet |
 | `NBA_LIVE_UPDATE`, `NFL_LIVE_UPDATE` | `lr-live-update` | no | unsupported until a sample package exists |
 | anything else | `lr-unsupported` | no | view only |
 
-Each kind has its own design version (`gtp-lr-…@1`). Nothing can be approved until the founder approves that design.
+Each kind has its own design version: `gtp-lr-<kind>@<designVersion>`, default 1. A package's `designVersion` makes the new look a new design, and nothing can be approved until the founder approves that design.
+
+**Versions of one slot:**
+- `NBA_BOXSCORE` is the real-line version of a game; `NBA_PLAYER_STATS` is its model-only version.
+- `NBA_DAILY_TOP5` variants `pts`, `reb`, `ast` show lines; `pts-model`, `reb-model`, `ast-model` don't.
+- `NBA_GAME_WINNER` variant `<eventId>` is model-only; `<eventId>-ml` carries a moneyline.
+- Any package showing a real line, price or moneyline sets `containsMarketData: true`.
+
+**Automatic import:** the console imports by itself once the packages folder has been quiet for a minute. It only proposes posts. `GTP_CC_AUTO_IMPORT=off` turns it off.
+
+**Coverage:** `node command-center/scripts/coverage-ledger.mjs <date>` lists every game on the published lane against what is in the queue, so an image count can't stand in for a full slate.
 
 ## Blockers (can't be approved around)
 

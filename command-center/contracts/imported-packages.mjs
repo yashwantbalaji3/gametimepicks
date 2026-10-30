@@ -35,8 +35,9 @@ export const IMPORT_TYPES = Object.freeze({
   NFL_WEEKLY_TOP5: { kind: "lr-nfl-top5", label: "NFL weekly Top 5", tier: 3, supported: true },
   NBA_GAME_WINNER: { kind: "lr-nba-game-winner", label: "NBA game winner", tier: 4, supported: true },
   NFL_GAME_WINNER: { kind: "lr-nfl-game-winner", label: "NFL game winner", tier: 4, supported: true },
+  NBA_PLAYER_STATS: { kind: "lr-nba-players", label: "NBA projected stat lines", tier: 5, supported: true },
+  NFL_GAME_PLAYERS: { kind: "lr-nfl-game-players", label: "NFL game player graphic", tier: 5, supported: true },
   NBA_BOXSCORE: { kind: "lr-nba-boxscore", label: "NBA player-prop box score (real lines)", tier: 5, supported: false },
-  NFL_GAME_PLAYERS: { kind: "lr-nfl-game-players", label: "NFL game player graphic", tier: 5, supported: false },
   NBA_LIVE_UPDATE: { kind: "lr-live-update", label: "Live result update", tier: 6, supported: false },
   NFL_LIVE_UPDATE: { kind: "lr-live-update", label: "Live result update", tier: 6, supported: false },
 });
@@ -46,16 +47,16 @@ export const IMPORT_SENDABLE = Object.freeze(Object.values(IMPORT_TYPES).filter(
 
 const slug = (s) => String(s).toLowerCase().replace(/^lr-/, "");
 /** One design version per kind (recaps per sport). */
-export function importTemplateOf(contentType, sport) {
+export function importTemplateOf(contentType, sport, designVersion = "1") {
   const t = IMPORT_TYPES[contentType];
   if (!t) return null;
-  return `gtp-lr-${t.design === "recap" ? `${String(sport).toLowerCase()}-recap` : slug(t.kind)}@1`;
+  return `gtp-lr-${t.design === "recap" ? `${String(sport).toLowerCase()}-recap` : slug(t.kind)}@${designVersion}`;
 }
 const designRow = (template, label) => ({ template, assetManifest: IMPORT_ASSET_MANIFEST, label });
 export const IMPORT_DESIGNS = Object.freeze([
   designRow(importTemplateOf("RESULTS_RECAP", "NBA"), "NBA results recap"),
   designRow(importTemplateOf("RESULTS_RECAP", "NFL"), "NFL results recap"),
-  ...["NBA_TONIGHT", "NFL_SUNDAY_WINNERS", "NFL_MNF_WINNER", "NBA_DAILY_TOP5", "NFL_WEEKLY_TOP5", "NBA_GAME_WINNER", "NFL_GAME_WINNER", "NBA_BOXSCORE"].map((c) => designRow(importTemplateOf(c, null), IMPORT_TYPES[c].label)),
+  ...["NBA_TONIGHT", "NFL_SUNDAY_WINNERS", "NFL_MNF_WINNER", "NBA_DAILY_TOP5", "NFL_WEEKLY_TOP5", "NBA_GAME_WINNER", "NFL_GAME_WINNER", "NBA_PLAYER_STATS", "NFL_GAME_PLAYERS", "NBA_BOXSCORE"].map((c) => designRow(importTemplateOf(c, null), IMPORT_TYPES[c].label)),
 ]);
 
 // ── what can't go out, whatever anyone clicks ──────────────────────────────────────────────────────────────────
@@ -70,8 +71,8 @@ export const BLOCK = Object.freeze({
   OVERLAP: "OVERLAPS_EXISTING_POST",
 });
 /** True when the content shows real sportsbook lines (the row-level `line`, or a count of lines shown). */
-export function showsLines(contentType, content) {
-  if (contentType === "NBA_BOXSCORE") return true;
+export function showsLines(contentType, content, flagged = false) {
+  if (flagged === true || contentType === "NBA_BOXSCORE") return true;
   if ((content?.linesShown ?? 0) > 0) return true;
   return (content?.rows ?? []).some((r) => r?.line);
 }
@@ -83,8 +84,8 @@ export function blockersOf(p, { now }) {
   const add = (code, detail) => out.push({ code, detail });
   const t = IMPORT_TYPES[p.contentType];
   if (!t) add(BLOCK.UNSUPPORTED, `${p.contentType} is not a type the Command Center knows: it can be viewed, not approved`);
-  else if (!t.supported && !showsLines(p.contentType, p.content)) add(BLOCK.UNSUPPORTED, `${t.label}: the publisher does not support this type yet`);
-  if (showsLines(p.contentType, p.content)) add(BLOCK.LINE_RIGHTS, "Shows real sportsbook lines: social use needs written provider confirmation of redistribution rights. Private review only.");
+  else if (!t.supported && !showsLines(p.contentType, p.content, p.containsMarketData)) add(BLOCK.UNSUPPORTED, `${t.label}: the publisher does not support this type yet`);
+  if (showsLines(p.contentType, p.content, p.containsMarketData)) add(BLOCK.LINE_RIGHTS, "Shows real sportsbook lines: social use needs written provider confirmation of redistribution rights. Private review only.");
   if (p.contentType === "NBA_DAILY_TOP5") add(BLOCK.NBA_BOARDS, "NBA player Top 5 boards are authorized for the site, not for social, until the founder clears them.");
   if (p.sport === "NFL" && (UNCLEARED_NFL.test(String(p.variant ?? "")) || (p.contentType === "NFL_WEEKLY_TOP5" && p.eligibilityClass === "ESTIMATE"))) add(BLOCK.BELOW_BAR, "An uncleared estimate (below the publication bar): it stays off social until independently cleared.");
   if (p.verification?.passed !== true) add(BLOCK.VERIFICATION, "Launch Readiness verification did not pass.");
@@ -104,6 +105,7 @@ export function validatePackage(p) {
   if (!/^gtp-social:[a-z]+:\d{4}-\d{2}-\d{2}:[A-Z0-9_]+(:[A-Za-z0-9_-]+)?$/.test(String(p.dedupeId ?? ""))) bad.push(`dedupeId malformed: ${p.dedupeId}`);
   if (p.dedupeId && p.sport && p.date && !String(p.dedupeId).startsWith(`gtp-social:${p.sport}:${p.date}:${p.contentType}`)) bad.push("dedupeId does not match sport, date and contentType");
   if (!SHA.test(String(p.contentSha256 ?? ""))) bad.push("contentSha256 missing");
+  if (p.designVersion != null && !/^\d+(\.\d+)?$/.test(String(p.designVersion))) bad.push(`designVersion malformed: ${p.designVersion}`);
   if (!Array.isArray(p.images) || !p.images.length) bad.push("no images");
   for (const i of p.images ?? []) {
     if (!i?.path || !SHA.test(String(i.sha256 ?? ""))) bad.push(`image without path or sha256: ${i?.path ?? "?"}`);
@@ -127,8 +129,12 @@ export function checkImportedCaption(text, pkg) {
 // ── overlap with what the Command Center already has ───────────────────────────────────────────────────────────
 const LIVE_STATES = new Set(["approved", "scheduled", "published"]);
 const EVENT_KINDS = new Set(["nba-game", "nba-pregame", "pregame-forecast", "lr-nba-game-winner", "lr-nfl-game-winner", "lr-nfl-mnf"]);
+const PLAYER_KINDS = new Set(["nba-game", "nba-players", "lr-nba-players"]);
+const boardOf = (p) => String(p.imported?.variant ?? "").replace(/-model$/, "");
 function sameContent(mine, theirs) {
   const a = mine, b = theirs.package ?? {};
+  if (mine.kind === "lr-nba-players") return PLAYER_KINDS.has(b.kind) && String(b.eventId ?? "") === String(a.eventId);
+  if (mine.kind === "lr-nba-top5" && b.kind === "lr-nba-top5") return b.date === a.date && boardOf(b) === boardOf(a);
   if (mine.kind === "lr-results-recap") return b.sport === a.sport && ["results-recap", "nba-results", "lr-results-recap"].includes(b.kind) && (b.resultsDate ?? b.date) === (a.resultsDate ?? a.date);
   if (mine.kind === "lr-nfl-top5") return b.sport === "NFL" && ["top5-weekly"].includes(b.kind) && Number(b.week ?? -1) === Number(a.week);
   if (mine.kind === "lr-nba-top5") return b.sport === "NBA" && b.kind === "top5-daily" && b.date === a.date;

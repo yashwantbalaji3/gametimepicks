@@ -220,6 +220,40 @@ test("a review copy can be approved but never scheduled or sent; its clean expor
   assert.equal(H.xcalls.length, 0);
 });
 
+test("model-only and real-line versions: market data is blocked by its flag, a new design version needs its own approval, and the same slot never shows twice", async () => {
+  const H = harness();
+  write(H.root, "stats", { contentType: "NBA_PLAYER_STATS", designVersion: "2", content: { matchup: "CHA @ WSH" } });
+  write(H.root, "ml", { variant: "401-ml", containsMarketData: true, ...CLEAN });
+  write(H.root, "old");
+  H.o.importPackages({}, FOUNDER);
+  write(H.root, "old", { designVersion: "2", contentVersion: 2 });
+  assert.deepEqual(H.o.importPackages({}, FOUNDER).counts, { duplicate: 2, "new-version": 1 });
+  const posts = H.o.state().posts;
+  const stats = posts.find((p) => p.package.kind === "lr-nba-players");
+  assert.deepEqual([stats.package.status, stats.package.template, stats.package.supported], ["READY", "gtp-lr-nba-players@2", true]);
+  const ml = posts.find((p) => p.package.imported.variant === "401-ml");
+  assert.ok(ml.package.blockers.some((b) => b.code === BLOCK.LINE_RIGHTS), "a flagged moneyline is blocked even when marked clean");
+  assert.equal(ml.package.privateReview, true);
+  assert.equal(H.o.publishing.schedule({ decisionId: ml.decisionId, at: "2026-10-30T21:00:00.000Z" }, FOUNDER).code, "IMPORT_BLOCKED");
+  const winners = posts.filter((p) => p.package.kind === "lr-nba-game-winner" && p.package.imported.variant === "401");
+  assert.deepEqual(winners.map((p) => p.lifecycle).sort(), ["drafted", "superseded"], "old and new are one slot");
+  const cur = winners.find((p) => p.lifecycle === "drafted");
+  assert.equal(cur.package.template, "gtp-lr-nba-game-winner@2");
+  assert.equal((await approve(H, cur)).code, "DESIGN_NOT_APPROVED");
+  assert.equal(design(H, cur).ok, true, "a design version that arrived in a package can be approved");
+  assert.equal((await approve(H, cur)).ok, true);
+});
+
+test("an import that changes nothing records no run; a bad designVersion is refused", () => {
+  const H = harness();
+  write(H.root, "a");
+  H.o.importPackages({}, FOUNDER);
+  H.o.importPackages({}, FOUNDER);
+  assert.equal(H.store.list().filter((e) => e.kind === "import-run").length, 1);
+  write(H.root, "b", { designVersion: "x" });
+  assert.equal(H.o.importPackages({}, FOUNDER).counts.refused, 1);
+});
+
 test("restart: imported posts, media and approvals survive a new process on the same ledger", async () => {
   const dir = tempDir("gtp-cc-import-");
   const A = harness({ dir });
@@ -265,6 +299,8 @@ test("content plan: recap two hours before the first game, in the founder's orde
   assert.equal(plan.items.length, MAX_PER_SLATE);
   assert.ok(plan.unslotted.length >= 1);
   for (let i = 1; i < plan.items.length; i++) assert.ok(Date.parse(plan.items[i].at) - Date.parse(plan.items[i - 1].at) >= MIN_GAP_MS);
+  const board = (id, v) => ({ ...mk(id, "lr-nfl-top5"), package: { ...mk(id, "lr-nfl-top5").package, imported: { variant: v, recommendation: { firstGameUtc: TIP } } } });
+  assert.deepEqual(proposePlan([board("a", "ast-model"), board("p", "pts-model"), board("r", "reb-model")], NOW).items.map((i) => i.decisionId), ["p", "r", "a"]);
   assert.deepEqual(proposePlan([{ ...posts[0], package: { ...posts[0].package, status: "BLOCKED" } }], NOW).items, []);
 });
 

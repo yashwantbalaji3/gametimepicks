@@ -21,6 +21,7 @@
  */
 import http from "node:http";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { CC_ROOT, REPO_ROOT, wallClock } from "../../lib/util.mjs";
 import { createFileStore } from "../../ledger/store.mjs";
@@ -30,6 +31,7 @@ import { createKeychainVault, createMemoryVault } from "../../publishers/token-v
 import { createXOAuth, createMemoryStateStore, CALLBACK_PATH } from "../../publishers/x-oauth.mjs";
 
 const HOST = "127.0.0.1";
+const DEFAULT_IMPORT_ROOT = path.join(os.homedir(), "gtp-private/graphics");
 const PORT = Number(process.env.GTP_CC_PORT ?? 4190);
 const OUT = path.resolve(process.env.GTP_CC_OUT_DIR ?? path.join(CC_ROOT, "out/console"));
 const STATIC = path.dirname(new URL(import.meta.url).pathname);
@@ -222,6 +224,21 @@ const server = http.createServer(async (req, res) => {
 });
 
 if (process.env.GTP_CC_SCHEDULER !== "off") {
+  // New Launch Readiness packages come into founder review by themselves, once the folder has been quiet for a minute.
+  // This only proposes posts: nothing is approved or scheduled. GTP_CC_AUTO_IMPORT=off turns it off.
+  let importSeen = 0;
+  setInterval(() => {
+    if (process.env.GTP_CC_AUTO_IMPORT === "off") return;
+    try {
+      const dir = path.join(path.resolve(process.env.GTP_CC_IMPORT_ROOT ?? DEFAULT_IMPORT_ROOT), "packages");
+      if (!fs.existsSync(dir)) return;
+      const newest = Math.max(0, ...fs.readdirSync(dir).filter((f) => f.endsWith(".json")).map((f) => fs.statSync(path.join(dir, f)).mtimeMs));
+      if (newest <= importSeen || Date.now() - newest < 60_000) return;
+      importSeen = newest;
+      const r = orchestrator.importPackages({}, { ...FOUNDER, id: "import-watcher", authentication: "automatic: proposes posts only" });
+      if (r.ok && Object.keys(r.counts).some((k) => k !== "duplicate")) console.log("packages imported:", JSON.stringify(r.counts));
+    } catch (e) { console.error("package import failed:", e.message); }
+  }, 60_000);
   setInterval(() => {
     orchestrator.publishing.runDue().catch((e) => console.error("publishing tick failed:", e.message));
     // daily queue preparation: a no-op unless the founder turned it on and this Mac is the active publisher host
