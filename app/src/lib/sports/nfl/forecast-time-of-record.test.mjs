@@ -48,7 +48,11 @@ test("archive path, committed data: no settled NFL game page presents a forecast
   assert.ok(ids.length >= 100, `only ${ids.length} archived games`);
   let stories = 0;
   for (const id of ids) {
-    const { f, story } = pageModel(id);
+    const { f, archived, story } = pageModel(id);
+    /* The claim is the ARCHIVE path. An id with a dated archive copy whose game is still in the live union (week 8
+       Sunday games after the 2026-10-30 00:38Z event window) renders the LIVE story, which by design carries the
+       "Game index refreshed" row (presentation/nfl.ts) — that path is not this test's subject. */
+    if (!archived) continue;
     assert.ok(f.generatedAt && atOrBefore(f.generatedAt, f.kickoffUtc), `${id}: forecast generatedAt ${f.generatedAt} after kickoff ${f.kickoffUtc}`);
     if (!isPresentable(story)) continue;
     stories += 1;
