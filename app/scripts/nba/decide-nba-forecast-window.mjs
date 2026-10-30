@@ -12,6 +12,12 @@
  *   node scripts/nba/decide-nba-forecast-window.mjs --now <ISO> [--horizon-hours 8]   (overnight tips: 18 h)
  *
  * Writes `decision=BUILD|HOLD` and `dates=<space-separated ET dates>` to $GITHUB_OUTPUT when set.
+ *
+ * NEXT-SLATE PUBLICATION (founder 2026-10-30, lib/sports/nba/next-slate-publication.mjs): it also decides whether the
+ * NEXT ET slate may be frozen whole now — once every game of the previous ET date is final / postponed / suspended, or
+ * at 06:00 America/New_York on the slate date, whichever comes first. Then it writes `nextday=<date>` (the build step
+ * freezes v0 + v0.1 (+ v0.3 aligned) for that whole date, no horizon) and `slate=<date>` (the lane publish step tries
+ * that date as well as today ET). `decision` is BUILD when either the window or the next slate owes a forecast.
  * Exit 0 always on a decision (HOLD is a result); 1 on bad usage.
  */
 import fs from "node:fs";
@@ -20,6 +26,8 @@ import { fileURLToPath } from "node:url";
 
 import { etDateOf, FAMILIES } from "../../src/lib/sports/nba/experimental-forecast.mjs";
 import { owedForecastDates, isOvernightTip, OVERNIGHT_FROM, OVERNIGHT_TO, OVERNIGHT_HORIZON_HOURS } from "../../src/lib/sports/nba/forecast-receipt.mjs";
+import { decideNextSlate, inputReadiness, NEXT_SLATE } from "../../src/lib/sports/nba/next-slate-publication.mjs";
+import { ROSTER_MAX_AGE_HOURS } from "../../src/lib/sports/nba/roster-gated-pool.mjs";
 
 export const WINDOW_HORIZON_HOURS = 8;
 /*
@@ -59,6 +67,11 @@ export function frozenByEveryFamily(idSets) {
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const NBA = path.resolve(APP, "..", "data", "internal", "research", "nba");
 const SCHEDULE = path.join(APP, "public", "data", "nba", "schedule", "latest.json");
+const RESULTS = path.join(APP, "public", "data", "nba", "results");
+const readJsonOr = (abs, fallback = null) => { try { return JSON.parse(fs.readFileSync(abs, "utf8")); } catch { return fallback; } };
+/** Every finals row of every season record (finals-<season>.json `finals`). Missing record = no finals known. */
+const readFinals = () => (fs.existsSync(RESULTS) ? fs.readdirSync(RESULTS).filter((f) => /^finals-.*\.json$/.test(f)).sort() : [])
+  .flatMap((f) => readJsonOr(path.join(RESULTS, f), {})?.finals ?? []);
 
 function main() {
   const arg = (n) => { const i = process.argv.indexOf(n); return i === -1 ? null : process.argv[i + 1] ?? null; };
@@ -72,7 +85,7 @@ function main() {
   let schedule;
   try { schedule = JSON.parse(fs.readFileSync(SCHEDULE, "utf8")); } catch (e) {
     console.log(`decision=HOLD · no readable NBA schedule capture (${e.message}) — nothing to forecast from`);
-    emit("decision", "HOLD"); emit("dates", ""); process.exit(0);
+    emit("decision", "HOLD"); emit("dates", ""); emit("nextday", ""); emit("slate", ""); process.exit(0);
   }
 
   /* Owed = ANY family has not forecast it (Stage 12-S1b). v0 is the preregistered record, v0.1 the champion (N1)
@@ -89,14 +102,36 @@ function main() {
   }));
 
   const owed = owedWithOvernight({ rows: schedule.rows ?? [], storedIdsByDate, now: NOW, horizonHours: HORIZON });
-  if (!owed.length) {
-    console.log(`decision=HOLD · ${NOW}: no NBA game tips within ${HORIZON} h without a forecast`);
+
+  // NEXT SLATE: frozen whole once the previous ET slate is final, or at the 06:00 ET fallback. "Frozen" here means
+  // the two families the build step freezes for the whole slate: v0 (preregistered record) and v0.1 (official players).
+  const idsOf = (fam, date) => {
+    try { return new Set((JSON.parse(fs.readFileSync(path.join(NBA, FAMILIES[fam].dir, "forecasts", `${date}.json`), "utf8")).games ?? []).map((g) => String(g.providerEventId))); }
+    catch { return new Set(); }
+  };
+  const next = decideNextSlate({ scheduleRows: schedule.rows ?? [], finals: readFinals(), etDateOf, now: NOW, frozenIds: (date) => frozenByEveryFamily([idsOf("v0", date), idsOf("v0.1", date)]) });
+  console.log(`next-slate=${next.action} · ${next.reason}${next.trigger ? ` · trigger ${next.trigger}` : ""}`);
+  if (next.action === NEXT_SLATE.BUILD || next.action === NEXT_SLATE.FROZEN) {
+    const rosters = readJsonOr(path.join(NBA, "rosters", "latest.json"));
+    const injuries = readJsonOr(path.resolve(NBA, "..", "injuries", "nba", "latest.json"));
+    const r = inputReadiness({ now: NOW, rosterAsOf: rosters?.asOf ?? rosters?.capturedAt ?? null, injuriesGeneratedAt: injuries?.generatedAt ?? null, scheduleGeneratedAt: schedule.generatedAt ?? null, rosterMaxAgeHours: ROSTER_MAX_AGE_HOURS });
+    console.log(`  inputs · roster ${r.roster} · injuries ${r.injuries} · schedule capture ${r.schedule}`);
+  }
+  const nextday = next.action === NEXT_SLATE.BUILD ? next.slate : "";
+  const slate = next.action === NEXT_SLATE.BUILD || next.action === NEXT_SLATE.FROZEN ? next.slate : "";
+  // The next slate also rides the window loop (its v0.2 / v1 stay on the 8 h horizon; its Top Boards freeze there).
+  const dates = [...new Set([...owed.map((o) => o.date), ...(nextday ? [nextday] : [])])].sort();
+  if (!dates.length) {
+    console.log(`decision=HOLD · ${NOW}: no NBA game tips within ${HORIZON} h without a forecast; next slate not owed`);
     emit("decision", "HOLD"); emit("dates", "");
   } else {
     for (const o of owed) console.log(`owed ${o.date}: ${o.eventIds.join(", ")}`);
-    console.log(`decision=BUILD · ${owed.map((o) => o.date).join(" ")}`);
-    emit("decision", "BUILD"); emit("dates", owed.map((o) => o.date).join(" "));
+    if (nextday) console.log(`owed next slate ${nextday} (whole slate, v0 + v0.1): ${next.owed.join(", ")}`);
+    console.log(`decision=BUILD · ${dates.join(" ")}`);
+    emit("decision", "BUILD"); emit("dates", dates.join(" "));
   }
+  emit("nextday", nextday);
+  emit("slate", slate);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();
