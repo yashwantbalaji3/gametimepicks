@@ -413,6 +413,29 @@
     return `<button class="btn small primary" data-pub="schedule" data-post="${id}" ${at ? `data-at="${esc(at)}"` : "disabled"}>${at ? `Schedule for ${esc(label)}` : "No suggested time"}</button>
       <input class="sched" type="datetime-local" aria-label="Pick another time" data-draft="pubat:${id}" value="${draftVal(`pubat:${p.decisionId}`)}"><button class="btn small" data-pub="schedule" data-post="${id}" data-at-from="pubat:${id}">Schedule at this time</button>`;
   }
+  const TRULY_UNSUPPORTED = new Set(["lr-live-update", "lr-unsupported"]);
+  /**
+   * The reasons that hold a post TODAY. Blockers are stored when a package is imported, so this reads the code, not the
+   * stored wording: an authorization given since then doesn't keep showing. A real-line version uses the same projections
+   * as its model-only version, so that version's data hold applies to it too.
+   */
+  function currentBlockers(s, p) {
+    const pkg = p.package, m = pkg.imported ?? {};
+    const listOf = (a) => (a ?? []).map((x) => x.detail ?? `${x.playerId} ${x.market}: ${x.verdict}`);
+    const out = [];
+    for (const b of pkg.blockers ?? []) {
+      if (b.code === "NBA_BOARDS_NOT_AUTHORIZED_FOR_SOCIAL") continue; // founder 2026-10-30: the category is authorized
+      if (b.code === "LINE_RIGHTS_NOT_VERIFIED") out.push({ title: "Provider rights", detail: "Shows real sportsbook data. The provider's terms allow websites and apps and don't address social media, so this needs their written answer. Private review only." });
+      else if (b.code === "PROJECTION_ANOMALY_REVIEW") out.push({ title: "Data quality", detail: "Launch Readiness flagged these projections:", items: listOf(m.anomalies) });
+      else out.push({ title: b.code.replace(/_/g, " ").toLowerCase().replace(/^./, (c) => c.toUpperCase()), detail: b.detail });
+    }
+    if (isMarket(p) && !out.some((b) => b.title === "Data quality")) {
+      const board = String(m.variant ?? "");
+      const twin = (s.posts ?? []).find((q) => q.package?.imported && q.lifecycle !== "superseded" && q.package.imported.anomalyCheck === "REVIEW" && (pkg.kind === "lr-nba-boxscore" ? q.package.kind === "lr-nba-players" && String(q.package.eventId) === String(pkg.eventId) : q.package.kind === pkg.kind && q.package.imported.variant === `${board}-model`));
+      if (twin) out.push({ title: "Data quality", detail: "Uses the same projections as the model-only version, which is held:", items: listOf(twin.package.imported.anomalies) });
+    }
+    return out;
+  }
   /** What an imported post needs the founder to see before deciding. */
   function importPanel(s, p) {
     const pkg = p.package, m = pkg.imported;
@@ -436,13 +459,14 @@
       ["Publishing window", m.window?.closesAt ? `until ${esc(dayLabel(etDay(new Date(m.window.closesAt))).split(" · ")[0])} ${esc(etTime(m.window.closesAt))}${plan ? ` · calendar slot ${esc(etTime(plan.at))}` : ""}` : "—"],
       ["Clean export", m.socialAuthorized === true ? "Clean image" : p.resolution?.verdict === "approve" ? "Requested: waiting for Launch Readiness" : "Not requested: this is the review copy; approving it requests the clean export"],
       ["Internal review", "Open"],
-      ["Public publishing", (pkg.blockers ?? []).length ? "Blocked" : m.socialAuthorized === true ? "Publishable after your approval" : "After the clean export and your approval of it"],
+      ["Public publishing", blockers.length ? `Blocked: ${esc(blockers.map((b) => b.title.toLowerCase()).join(" and "))}` : m.socialAuthorized === true ? "Publishable after your approval" : "After the clean export and your approval of it"],
       ["Recommended time", pkg.suggestedPublishAt ? esc(`${dayLabel(etDay(new Date(pkg.suggestedPublishAt))).split(" · ")[0]} ${etTime(pkg.suggestedPublishAt)}`) : "—"],
-      ["Destination", pkg.supported ? "X, through the publisher" : "None: not publishable"],
+      ["Destination", TRULY_UNSUPPORTED.has(pkg.kind) ? "None: not publishable" : "X, through the publisher"],
       ["Design", `${esc(pkg.template ?? "—")} · ${p.designApproved ? "approved" : "waiting for your approval"}`],
     ];
-    return `${(pkg.blockers ?? []).map((b) => `<div class="blocked"><b>${esc(b.code.replace(/_/g, " ").toLowerCase())}</b> · ${esc(b.detail)}</div>`).join("")}
-      ${pkg.supported ? "" : `<div class="notice warn">Not supported by the publisher: view only.</div>`}
+    const blockers = currentBlockers(s, p);
+    return `${blockers.map((b) => `<div class="blocked"><b>${esc(b.title)}</b> · ${esc(b.detail)}${(b.items ?? []).length ? `<ul class="warns">${b.items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>` : ""}</div>`).join("")}
+      ${TRULY_UNSUPPORTED.has(pkg.kind) ? `<div class="notice warn">This content type isn't supported by the publisher yet: view only.</div>` : ""}
       <div class="kv">${rows.map(([k, x]) => `<span>${esc(k)}</span><span>${x}</span>`).join("")}</div>`;
   }
   function postActions(p) {
@@ -485,7 +509,7 @@
     }
     return `<div class="blocked">${esc(LIFE_LABEL[p.lifecycle])}${p.resolution?.note ? ` · “${esc(p.resolution.note)}”` : ""}</div>`;
   }
-  const PUB_SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board", "top5-daily", "top5-weekly", "lr-results-recap", "lr-nba-tonight", "lr-nfl-roundup", "lr-nfl-mnf", "lr-nba-top5", "lr-nfl-top5", "lr-nba-game-winner", "lr-nfl-game-winner", "lr-nba-players", "lr-nfl-game-players"]);
+  const PUB_SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board", "top5-daily", "top5-weekly", "lr-results-recap", "lr-nba-tonight", "lr-nfl-roundup", "lr-nfl-mnf", "lr-nba-top5", "lr-nfl-top5", "lr-nba-game-winner", "lr-nfl-game-winner", "lr-nba-players", "lr-nfl-game-players", "lr-nba-boxscore"]);
   /**
    * Display only: an attempt with no recorded outcome during its first 2 minutes is a send in progress ("Sending…");
    * after that it is "Outcome unknown — reconcile". The gate treats both as unknown (never retried) either way.
@@ -728,7 +752,7 @@
     if (start && Date.parse(start) <= Date.now() && PUB_SCHEDULABLE.has(p.package.kind)) return { key: "expired", label: "Expired · started", cls: "dim" };
     if (job?.status === "scheduled") return { key: "scheduled", label: `Scheduled ${etTime(job.dueAt)}`, cls: "info" };
     if (p.lifecycle === "approved" || p.lifecycle === "scheduled") return { key: "approved", label: job?.status === "dry_run" ? "Approved · dry run OK" : "Approved", cls: "info" };
-    if (p.lifecycle === "drafted" && p.package.imported && p.package.status === "BLOCKED") return { key: "blocked", label: "Blocked", cls: "bad" };
+    if (p.lifecycle === "drafted" && p.package.imported && p.package.status === "BLOCKED") { const b = currentBlockers(s, p); return { key: "blocked", label: b.length ? `Blocked · ${b.map((x) => x.title.toLowerCase()).join(" + ")}` : "Blocked", cls: "bad" }; }
     if (p.lifecycle === "drafted") return { key: "needs", label: p.package.status === "NEEDS_VERIFICATION" ? "Needs decision · verify" : p.package.status === "BLOCKED" ? "Blocked" : "Needs decision", cls: p.package.status === "BLOCKED" ? "bad" : "warn" };
     return { key: "other", label: LIFE_LABEL[p.lifecycle] ?? p.lifecycle, cls: "dim" };
   }

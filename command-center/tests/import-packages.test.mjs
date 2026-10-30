@@ -158,7 +158,7 @@ test("blocked: real lines, NBA boards and uncleared NFL estimates can't be appro
   const posts = H.o.state().posts;
   const codes = (k) => posts.find((p) => p.package.kind === k).package.blockers.map((b) => b.code);
   assert.ok(codes("lr-nba-boxscore").includes(BLOCK.LINE_RIGHTS));
-  assert.ok(codes("lr-nba-top5").includes(BLOCK.LINE_RIGHTS) && codes("lr-nba-top5").includes(BLOCK.NBA_BOARDS));
+  assert.deepEqual(codes("lr-nba-top5"), [BLOCK.LINE_RIGHTS], "rights are the only blocker: the category itself is authorized");
   assert.ok(codes("lr-nfl-top5").includes(BLOCK.BELOW_BAR));
   assert.equal(JSON.stringify(posts).includes("34.5"), false, "no line or price enters the ledger");
   for (const p of posts) {
@@ -170,7 +170,7 @@ test("blocked: real lines, NBA boards and uncleared NFL estimates can't be appro
   }
   const box = posts.find((p) => p.package.kind === "lr-nba-boxscore");
   assert.equal(box.package.privateReview, true);
-  assert.equal(box.package.supported, false);
+  assert.equal(box.package.supported, true, "the type is sendable; its block is rights");
   assert.equal(mediaKeysOf([{ data: { package: box.package } }]).length, 0, "private cards never go to the hosted store");
   assert.equal(H.xcalls.length, 0);
 });
@@ -281,7 +281,7 @@ test("model-only NBA Top 5 is approvable; the real-line variant isn't; a board i
   const was = write(J.root, "m", model);
   J.o.importPackages({}, FOUNDER);
   const first = post(J);
-  J.store.append("decision-request", "launch-readiness-import", { decisionId: "post-stale", commandId: "c", kind: "post", subjectType: "post-package", postId: was.commandCenter.postId, date: was.date, package: { ...first.package, status: "BLOCKED", blockers: [{ code: BLOCK.NBA_BOARDS, detail: "old" }] }, options: first.options });
+  J.store.append("decision-request", "launch-readiness-import", { decisionId: "post-stale", commandId: "c", kind: "post", subjectType: "post-package", postId: was.commandCenter.postId, date: was.date, package: { ...first.package, status: "BLOCKED", blockers: [{ code: "NBA_BOARDS_NOT_AUTHORIZED_FOR_SOCIAL", detail: "old" }] }, options: first.options });
   assert.deepEqual(J.o.importPackages({}, FOUNDER).counts, { "new-version": 1 });
   assert.deepEqual(J.o.importPackages({}, FOUNDER).counts, { duplicate: 1 });
   const cur = J.o.state().posts.filter((p) => p.lifecycle === "drafted");
@@ -368,7 +368,7 @@ test("overlap: a Command Center post already approved or published for the event
 });
 
 test("every sendable type has a design version and only founder review; the publisher set is explicit", () => {
-  assert.equal(IMPORT_SENDABLE.includes("lr-nba-boxscore"), false);
+  assert.equal(IMPORT_SENDABLE.includes("lr-nba-boxscore"), true, "held by rights, not by type");
   assert.equal(IMPORT_SENDABLE.includes("lr-live-update"), false);
   for (const [c, t] of Object.entries(IMPORT_TYPES)) if (t.supported) assert.ok(IMPORT_DESIGNS.some((d) => d.template === importTemplateOf(c, "NBA")), c);
 });

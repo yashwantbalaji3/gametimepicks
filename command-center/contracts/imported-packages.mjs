@@ -38,7 +38,8 @@ export const IMPORT_TYPES = Object.freeze({
   NBA_PLAYER_STATS: { kind: "lr-nba-players", label: "NBA projected stat lines", tier: 5, supported: true },
   NFL_GAME_PLAYERS: { kind: "lr-nfl-game-players", label: "NFL game player graphic", tier: 5, supported: true },
   NFL_PLAYER_STATS: { kind: "lr-nfl-game-players", label: "NFL projected stat lines", tier: 5, supported: true },
-  NBA_BOXSCORE: { kind: "lr-nba-boxscore", label: "NBA player-prop box score (real lines)", tier: 5, supported: false },
+  // sendable like any stat graphic; what holds it today is rights (LINE_RIGHTS), never the type
+  NBA_BOXSCORE: { kind: "lr-nba-boxscore", label: "NBA player-prop box score (real lines)", tier: 5, supported: true },
   NBA_LIVE_UPDATE: { kind: "lr-live-update", label: "Live result update", tier: 6, supported: false },
   NFL_LIVE_UPDATE: { kind: "lr-live-update", label: "Live result update", tier: 6, supported: false },
 });
@@ -63,7 +64,6 @@ export const IMPORT_DESIGNS = Object.freeze([
 // ── what can't go out, whatever anyone clicks ──────────────────────────────────────────────────────────────────
 export const BLOCK = Object.freeze({
   LINE_RIGHTS: "LINE_RIGHTS_NOT_VERIFIED",
-  NBA_BOARDS: "NBA_BOARDS_NOT_AUTHORIZED_FOR_SOCIAL",
   BELOW_BAR: "BELOW_PUBLICATION_BAR",
   ANOMALY: "PROJECTION_ANOMALY_REVIEW",
   UNSUPPORTED: "UNSUPPORTED_TYPE",
@@ -97,8 +97,6 @@ export function blockersOf(p, { now }) {
   if (!t) add(BLOCK.UNSUPPORTED, `${p.contentType} is not a type the Command Center knows: it can be viewed, not approved`);
   else if (!t.supported && !showsLines(p.contentType, p.content, p.containsMarketData)) add(BLOCK.UNSUPPORTED, `${t.label}: the publisher does not support this type yet`);
   if (showsLines(p.contentType, p.content, p.containsMarketData)) add(BLOCK.LINE_RIGHTS, `Shows real sportsbook data. ${MARKET_RIGHTS.QUOTE_ON_SOCIAL.why} Private review only.`);
-  // founder 2026-10-30: model-only NBA Top 5 may go on social, subject to the usual approvals; variants with lines may not
-  if (p.contentType === "NBA_DAILY_TOP5" && !/-model$/.test(String(p.variant ?? ""))) add(BLOCK.NBA_BOARDS, "This Top 5 variant isn't the model-only version cleared for social.");
   if (p.anomalyCheck === "REVIEW") add(BLOCK.ANOMALY, `Launch Readiness flagged player projections for review (${(p.anomalies ?? []).length}): not publication-ready until resolved.`);
   if (p.sport === "NFL" && (UNCLEARED_NFL.test(String(p.variant ?? "")) || (p.contentType === "NFL_WEEKLY_TOP5" && p.eligibilityClass === "ESTIMATE"))) add(BLOCK.BELOW_BAR, "An uncleared estimate (below the publication bar): it stays off social until independently cleared.");
   if (p.verification?.passed !== true) add(BLOCK.VERIFICATION, "Launch Readiness verification did not pass.");
