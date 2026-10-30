@@ -55,7 +55,8 @@ const REPO = path.resolve(APP, "..");
 const readJson = (rel) => JSON.parse(fs.readFileSync(path.join(REPO, rel), "utf8"));
 const html = (el) => renderToStaticMarkup(el);
 const unescape = (s) => s.replace(/&#x27;/g, "'").replace(/&amp;/g, "&").replace(/&quot;/g, "\"");
-const fmt1 = (v) => (typeof v === "number" && Number.isFinite(v) ? v.toFixed(1) : "—");
+/* the lane's digits (lane-top-boards.mjs laneDisplay — the one NBA formatter since P0-A 2026-10-30) */
+const laneText = (v) => (typeof v === "number" && Number.isFinite(v) ? String(Math.round(v * 10) / 10) : "—");
 
 // ── NBA 2026-10-29 ──────────────────────────────────────────────────────────────────────────────────────────────────
 const NBA_DATE = "2026-10-29";
@@ -213,7 +214,7 @@ test("NBA one official forecast: every number the in-Theater Official Forecast p
       const tbl = h.slice(h.indexOf(`data-nbp-official-players="${side}"`));
       const body = tbl.slice(tbl.indexOf("<tbody>"), tbl.indexOf("</tbody>"));
       const printed = [...body.matchAll(/<tr><td>[^<]*<\/td><td>([^<]*)<\/td><td>([^<]*)<\/td><td>([^<]*)<\/td><td>([^<]*)<\/td><td>([^<]*)<\/td><\/tr>/g)].map((m) => m.slice(1));
-      const want = o.players.filter((p) => p.team === side).map((p) => { const l = rows.get(p.playerId); return [fmt1(l.expectedMinutes), fmt1(l.medians.pts), fmt1(l.medians.reb), fmt1(l.medians.ast), fmt1(l.medians.threePm)]; });
+      const want = o.players.filter((p) => p.team === side).map((p) => { const l = rows.get(p.playerId); return [laneText(l.expectedMinutes), laneText(l.medians.pts), laneText(l.medians.reb), laneText(l.medians.ast), laneText(l.medians.threePm)]; });
       assert.deepEqual(printed, want, `${id} ${side}: printed official cells`);
     }
   }

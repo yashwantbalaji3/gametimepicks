@@ -40,6 +40,9 @@ for (const [w, h] of [[768, 1024], [390, 844]] as const) {
       await page.waitForURL(/\/nba\/simulation\/[^/]+\/$/);
       await page.waitForSelector("[data-nbp-theater][data-nbp-ready]");
       await expect(page.locator("#official-predictions h2")).toHaveText("GameTimePicks Official Forecast");
+      // P0-A (founder 2026-10-30): the Theater opens on the Default view — the official projected game precedes the scenarios
+      const firstDefault = await page.evaluate(() => { const d = document.getElementById("official-predictions"), s = document.getElementById("simulated-scenarios"); return !!d && !!s && (d.compareDocumentPosition(s) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0; });
+      expect(firstDefault, "the Default view precedes the simulated scenarios").toBe(true);
       await page.locator('nav[aria-label="This game"] a', { hasText: "NBA hub" }).click();
       await page.waitForURL(/\/nba\/$/);
       await page.waitForLoadState("networkidle");

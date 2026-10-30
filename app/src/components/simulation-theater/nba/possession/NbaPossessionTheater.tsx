@@ -55,8 +55,11 @@ function useMedia(query: string) {
 
 const fmtPlay = (ms: number) => { const s = Math.floor(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
 
-export default function NbaPossessionTheater({ wire, palette, devHooks = false, initialKind = null, switchHref = null, switchLabel = null, unavailable = null }: {
+export default function NbaPossessionTheater({ wire, palette, devHooks = false, initialKind = null, switchHref = null, switchLabel = null, unavailable = null, defaultHref = null }: {
   wire: PbWire; palette: NbaPalette; devHooks?: boolean; initialKind?: string | null; switchHref?: string | null; switchLabel?: string | null; unavailable?: PbUnavailable;
+  /** the game page's Default view (P0-A 2026-10-30): the page then carries the h1 and the official player table, so the
+      title is not a heading and the in-Theater panel links to that table instead of repeating it */
+  defaultHref?: string | null;
 }) {
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const payload = useMemo(() => unpackPlaybackPayload(wire) as PbPayload, [wire]);
@@ -190,7 +193,7 @@ export default function NbaPossessionTheater({ wire, palette, devHooks = false, 
   const rootStyle = NBA_THEATER_VARS as CSSProperties;
   const head = (
     <header className="nbp-head">
-      <h1 className="nbp-title">{teams.away.name} at {teams.home.name}</h1>
+      {defaultHref ? <p className="nbp-title">{teams.away.name} at {teams.home.name} · simulated</p> : <h1 className="nbp-title">{teams.away.name} at {teams.home.name}</h1>}
       {/* founder directive 2026-10-22 22:55 ET: the engine is named in full in the banner above and in the engine panel —
           the header points there instead of repeating it */}
       <p className="nbp-sub">{payload.venue ? `${payload.venue} · ` : ""}Simulated game · inputs frozen before tip · <a className="nbp-switch" href={`#${uid}-about`}>About this simulation</a>{switchHref ? " · " : ""}{switchHref ? <a className="nbp-switch" href={switchHref}>{switchLabel ?? "Other mode"}</a> : null}</p>
@@ -201,7 +204,7 @@ export default function NbaPossessionTheater({ wire, palette, devHooks = false, 
       <div className="st-root nba-root nbp-root" style={rootStyle} data-nbp-theater="">
         <PossessionBanner />
         {head}
-        <OfficialProjectionPanel official={payload.official} teams={teams} unavailable={unavailable} />
+        <OfficialProjectionPanel official={payload.official} teams={teams} unavailable={unavailable} defaultHref={defaultHref} />
         <PossessionUnavailable title="Playback unavailable" reason="No stored run of this game passed its checks." />
       </div>
     );
@@ -213,7 +216,7 @@ export default function NbaPossessionTheater({ wire, palette, devHooks = false, 
       {head}
 
       <div className="nbp-panels">
-        <OfficialProjectionPanel official={payload.official} teams={teams} />
+        <OfficialProjectionPanel official={payload.official} teams={teams} defaultHref={defaultHref} />
         <section className="nbp-panel is-outcome" aria-label={OUTCOME_PANEL_TITLE} data-nbp-outcome={run.kind}>
           <h2>{OUTCOME_PANEL_TITLE}</h2>
           <RunSelector runs={payload.runs} selected={runIdx} onSelect={selectRun} idBase={uid} />

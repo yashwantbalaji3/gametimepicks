@@ -45,7 +45,10 @@ export function PossessionUnavailable({ title, reason }: { title: string; reason
 }
 
 /** THE OFFICIAL PROJECTION PANEL — the canonical forecast only (never computed from a run). */
-export function OfficialProjectionPanel({ official, teams, unavailable = null }: { official: PbOfficial | null; teams: Teams; unavailable?: PbUnavailable }) {
+/* the lane's digits (lane-top-boards.mjs laneDisplay over the lane's 1-dp rounding) — inline: this is a client module */
+const laneText = (v: number | null | undefined) => (typeof v === "number" && Number.isFinite(v) ? String(Math.round(v * 10) / 10) : "—");
+
+export function OfficialProjectionPanel({ official, teams, unavailable = null, defaultHref = null }: { official: PbOfficial | null; teams: Teams; unavailable?: PbUnavailable; defaultHref?: string | null }) {
   if (!official) {
     return (
       <section className="nbp-panel is-official" aria-label={OFFICIAL_PANEL_TITLE} data-nbp-official="none">
@@ -78,7 +81,8 @@ export function OfficialProjectionPanel({ official, teams, unavailable = null }:
         <dt>Frozen</dt><dd>{fmtEt(official.frozenAt)}</dd>
         <dt>Locks at tip</dt><dd>{fmtEt(official.lockAt)}</dd>
       </dl>
-      <details className="nbp-details">
+      {/* P0-A (2026-10-30): on the game page the official player table is the Default view above — linked, not repeated */}
+      {defaultHref ? <p className="nbp-note" data-nbp-official-players-link=""><a href={defaultHref}>{PREDICTED_STATS_TITLE}: the Official projected game (Default view) →</a></p> : <details className="nbp-details">
         <summary>{PREDICTED_STATS_TITLE} · {official.players.length} players{noneCount ? ` · ${noneCount} without a projection` : ""}</summary>
         {SIDES.map((side) => (
           <div key={side} className="nbp-scroll" role="region" aria-label={`${teams[side].abbr} ${PREDICTED_STATS_TITLE}`} tabIndex={0}>
@@ -87,7 +91,7 @@ export function OfficialProjectionPanel({ official, teams, unavailable = null }:
               <thead><tr><th scope="col">Player</th><th scope="col">Exp. MIN</th><th scope="col">PTS</th><th scope="col">REB</th><th scope="col">AST</th><th scope="col">3PM</th></tr></thead>
               <tbody>
                 {players(side).map((p) => (
-                  <tr key={p.playerId}><td>{p.displayName ?? p.playerId}</td><td>{fmt1(p.expectedMinutes)}</td><td>{fmt1(p.medians.pts)}</td><td>{fmt1(p.medians.reb)}</td><td>{fmt1(p.medians.ast)}</td><td>{fmt1(p.medians.threePm)}</td></tr>
+                  <tr key={p.playerId}><td>{p.displayName ?? p.playerId}</td><td>{laneText(p.expectedMinutes)}</td><td>{laneText(p.medians.pts)}</td><td>{laneText(p.medians.reb)}</td><td>{laneText(p.medians.ast)}</td><td>{laneText(p.medians.threePm)}</td></tr>
                 ))}
                 {none(side).map((u) => (
                   <tr key={`u-${u.providerAthleteId}`} data-nbp-projection-unavailable={u.providerAthleteId}><td>{u.name ?? u.providerAthleteId}</td><td colSpan={5}>Projection unavailable — {unavailableReasonText(u.reason, u.status)}</td></tr>
@@ -96,7 +100,7 @@ export function OfficialProjectionPanel({ official, teams, unavailable = null }:
             </table>
           </div>
         ))}
-      </details>
+      </details>}
       <details className="nbp-details" data-nbp-model-details="">
         <summary>{MODEL_DETAILS_TITLE}</summary>
         <dl className="nbp-kv">

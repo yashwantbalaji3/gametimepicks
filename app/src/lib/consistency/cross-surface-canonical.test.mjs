@@ -20,6 +20,9 @@
  *                · Level A game-winner display · /nba hub + homepage Command Center favoured side (nbaTodaySlate)
  *                · homepage latest lane (latest.json byte-equal to the date file)
  *
+ * The Simulation Theater's DEFAULT VIEW (P0-A 2026-10-30: the official projected game, rendered) is held to the same
+ * canonical values, string and number, in theater-default-canonical.test.mjs.
+ *
  * Read-only over committed files. Run (from app/): npx tsx --test src/lib/consistency/cross-surface-canonical.test.mjs
  */
 import test from "node:test";

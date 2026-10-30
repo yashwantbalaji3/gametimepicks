@@ -126,11 +126,16 @@
 .nbp-about-card.is-verified h3 span{color:var(--vault-success)}
 .nbp-about-card.is-open{border-left:3px solid var(--vault-warn)}
 .nbp-panel h2[tabindex]:focus-visible{outline:2px solid var(--vault-crown);outline-offset:2px}
-/* Founder mandate 2026-10-24 — the skip to the Official Forecast is the page's first, most visible control. */
-.nbp-skip-cta{display:flex;flex-direction:column;gap:2px;margin:0 0 10px;padding:12px 16px;min-height:56px;border-radius:14px;border:2px solid var(--vault-crown);background:color-mix(in srgb,var(--vault-crown) 14%,transparent);color:var(--vault-text);text-decoration:none}
-.nbp-skip-cta:hover{background:color-mix(in srgb,var(--vault-crown) 22%,transparent)}
-.nbp-skip-cta:focus-visible{outline:2px solid var(--vault-crown);outline-offset:3px}
-.nbp-skip-main{font:700 16px/1.25 var(--font-display)}
-.nbp-skip-sub{font:400 12.5px/1.4 var(--font-mono);color:var(--vault-text-mute)}
-@media (min-width:768px){.nbp-skip-cta{display:inline-flex;max-width:640px}}
+/* P0-A (founder 2026-10-30) — the Theater opens on the Default view (the official projected game); the view nav is the
+   page's first control, and the simulated scenarios follow, dashed and labelled hypothetical. */
+.nbp-page-title{margin:0 0 10px;font:800 26px/1.2 var(--font-display);color:var(--vault-text)}
+.nbp-views{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 4px}
+.nbp-views a{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:8px 14px;border-radius:12px;border:1px solid var(--vault-border);color:var(--vault-text);text-decoration:none;font:700 14px/1.2 var(--font-display)}
+.nbp-views a[aria-current]{border:2px solid var(--vault-crown);background:color-mix(in srgb,var(--vault-crown) 14%,transparent)}
+.nbp-views a span{font:400 11px/1 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--vault-text-mute)}
+.nbp-views a:focus-visible,.nbp-scenarios:focus-visible{outline:2px solid var(--vault-crown);outline-offset:3px}
+.nbp-scenarios{margin-top:1.5rem;padding-top:1rem;border-top:2px dashed var(--vault-border);scroll-margin-top:5rem;min-width:0}
+.nbp-scenarios>h2{margin:2px 0 4px;font:800 20px/1.25 var(--font-display);color:var(--vault-text)}
+.nbp-scenarios>p{margin:0 0 10px}
+.nbp-scenarios>.nbx-kind{color:var(--vault-text-mute)}
 .nbp-h2-sub{font-weight:500;color:var(--st-mute)}

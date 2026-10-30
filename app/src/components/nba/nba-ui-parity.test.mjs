@@ -7,7 +7,8 @@
  *   honest states  PUBLISHED / PENDING / NO_GAMES / DISABLED; "Schedule only — no public forecast" only when disabled
  *   official       side, models, freeze and the player table from the official panel; combos only from the same game's
  *                  frozen lane rows that reconcile; missing prints "—", never 0; no withheld figure
- *   page order     skip link → Theater → official predictions, the section outside the client island
+ *   page order     view nav → Default (official predictions) → simulated scenarios (the Theater), the official section
+ *                  outside the client island
  *
  * Run (from app/): npx tsx --test src/components/nba/nba-ui-parity.test.mjs
  */
@@ -169,7 +170,7 @@ test("official predictions: side, models, freeze, the full player table; combos 
   assert.equal((h.match(/<tbody>[\s\S]*?<\/tbody>/g) ?? []).join("").match(/<tr>/g).length, official.players.length);
   // a combo is the lane's own number, not a sum of the medians beside it
   const p = lane.players.home[0];
-  assert.ok(h.includes(`<td>${p.comboMedians.pra.toFixed(1)}</td>`));
+  assert.ok(h.includes(`<td>${String(p.comboMedians.pra)}</td>`), "the lane's own digits (laneDisplay), as Top Boards print them");
   assert.doesNotMatch(text(h), /\d\s?%/, "no win chance");
   assert.match(text(h), /Official Forecast .* Game Simulation .* Real Result/); // founder directive 2026-10-23 public readiness: registry terms
   // no lane (or a lane for another game / model) → combos missing, never 0
@@ -183,11 +184,11 @@ test("official predictions: side, models, freeze, the full player table; combos 
   assert.doesNotMatch(none, /<table/);
 });
 
-test("Theater page: skip link → Theater → server-rendered official predictions, all behind the route's flag branch", () => {
+test("Theater page (P0-A 2026-10-30): view nav → Default official projected game → simulated scenarios, behind the route's flag branch", () => {
   const body = read("src/components/simulation-theater/nba/possession/NbaPossessionGamePage.tsx");
-  const iSkip = body.indexOf("Skip to the Official Forecast"), iTheater = body.indexOf("<NbaPossessionSection"), iOfficial = body.indexOf("<NbaOfficialPredictions");
-  assert.ok(iSkip > 0 && iSkip < iTheater && iTheater < iOfficial, "skip link at the top, the section directly below the Theater");
-  assert.match(body, /href=\{`#\$\{OFFICIAL_PREDICTIONS_ID\}`\}/);
+  const iNav = body.indexOf('data-nba-theater-views=""'), iOfficial = body.indexOf("<NbaOfficialPredictions"), iScen = body.indexOf("<section id={SIMULATED_SCENARIOS_ID}"), iTheater = body.indexOf("<NbaPossessionSection");
+  assert.ok(iNav > 0 && iNav < iOfficial && iOfficial < iScen && iScen < iTheater, "the Default view first, the Theater inside the simulated-scenarios section after it");
+  assert.match(body, /href=\{`#\$\{OFFICIAL_PREDICTIONS_ID\}`\} aria-current="true"/);
   const src = read("src/app/nba/simulation/[eventId]/page.tsx");
   const branch = src.slice(src.indexOf('if (process.env.GTP_NBA_THEATER_PUBLIC === "1" && nbaPublicTheaterOn()'));
   assert.ok(branch.indexOf('await import("@/components/simulation-theater/nba/possession/NbaPossessionGamePage")') > 0, "mounted inside the flag branch (a flag-OFF build never bundles it)");

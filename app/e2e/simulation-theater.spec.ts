@@ -910,6 +910,9 @@ test.describe("integrated public route", () => {
         await expect(page.getByRole("note", { name: "How this replay is made" })).toContainText("has not been shown to be more accurate than the baseline");
         await expect(page.locator(".st-badge")).toHaveText(DISCLOSURE);
       };
+      // P0-A (founder 2026-10-30): the Theater opens on the Default view — the official projected game — before the replay
+      const firstDefault = await page.evaluate(() => { const d = document.getElementById("official-projected-game"), s = document.querySelector("[data-stp-scenarios]"); return !!d && !!s && (d.compareDocumentPosition(s) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0; });
+      expect(firstDefault, "the Default view precedes the simulated scenarios").toBe(true);
       await check("idle");
       await page.getByRole("button", { name: "Play", exact: true }).click();
       await page.waitForTimeout(1200);

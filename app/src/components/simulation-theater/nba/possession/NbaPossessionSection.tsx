@@ -15,7 +15,7 @@ import { PossessionBanner, PossessionUnavailable } from "./possession-parts";
 import type { PbLoad, PbUnavailable, PbWire } from "./possession-types";
 import { packPlaybackPayload } from "@/lib/simulation-theater/nba/possession/wire.mjs";
 
-export default function NbaPossessionSection({ load, devHooks = false, switchHref = null, switchLabel = null, unavailable = null }: { load: PbLoad; devHooks?: boolean; switchHref?: string | null; switchLabel?: string | null; unavailable?: PbUnavailable }) {
+export default function NbaPossessionSection({ load, devHooks = false, switchHref = null, switchLabel = null, unavailable = null, defaultHref = null }: { load: PbLoad; devHooks?: boolean; switchHref?: string | null; switchLabel?: string | null; unavailable?: PbUnavailable; defaultHref?: string | null }) {
   if (!load.ok || !load.payload || !load.palettes) {
     return (
       <div className="st-root nba-root nbp-root" style={NBA_THEATER_VARS as CSSProperties} data-nbp-theater="" data-nbp-refused={load.error?.code ?? "UNAVAILABLE"}>
@@ -24,5 +24,5 @@ export default function NbaPossessionSection({ load, devHooks = false, switchHre
       </div>
     );
   }
-  return <NbaPossessionTheater wire={packPlaybackPayload(load.payload) as PbWire} palette={load.palettes.team} devHooks={devHooks} switchHref={switchHref} switchLabel={switchLabel} unavailable={unavailable} />;
+  return <NbaPossessionTheater wire={packPlaybackPayload(load.payload) as PbWire} palette={load.palettes.team} devHooks={devHooks} switchHref={switchHref} switchLabel={switchLabel} unavailable={unavailable} defaultHref={defaultHref} />;
 }
