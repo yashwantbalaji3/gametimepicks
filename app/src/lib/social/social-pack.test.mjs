@@ -11,7 +11,8 @@ import path from "node:path";
 
 import { xWeighted, CC_KIND_MAP, ccCaptionProblems, editorialPlan, CC_KIND, buildNbaRecap, buildNflRecap, buildSocialPackage, recapFinalsProblems, recommendedPostTime, socialPackageViolations, CONTENT_TYPE, denominatorText } from "./social-package.mjs";
 import { formatValue } from "../sports/nfl/forecast-view.mjs";
-import { prepareNbaRecap, prepareNbaTop5, prepareNflRecap, prepareNflTop5, prepareNflWinners, winnerRow, writePackages, prepareNbaTonight, prepareNflGameWinners, lineBlock, TONIGHT_ROWS, boxscorePosts, prepareNbaBoxscore } from "../../../scripts/social/render-social-pack.mjs";
+import { prepareNbaRecap, prepareNbaTop5, prepareNflRecap, prepareNflTop5, prepareNflWinners, winnerRow, writePackages, prepareNbaTonight, prepareNflGameWinners, lineBlock, TONIGHT_ROWS, boxscorePosts, prepareNbaBoxscore, prepareGameDay } from "../../../scripts/social/render-social-pack.mjs";
+import { verifyGameDayCard, meterColours, teamOf } from "../../../scripts/social/game-day-cards.mjs";
 import { meterProblems, meterHtml, packCaptionViolations, verifyPackCard } from "../../../scripts/social/social-pack-cards.mjs";
 
 const AS_OF = "2026-10-30T16:40:00Z";
@@ -155,7 +156,7 @@ test("every real card and caption passes; a tampered cell or dashed caption fail
   const posts = [...prepareNflWinners({ week: 8, asOf: AS_OF }).posts, ...prepareNflTop5({ week: 8, asOf: AS_OF }).posts, ...prepareNflRecap({ week: 7, asOf: AS_OF }).posts, ...prepareNbaRecap({ date: "2026-10-29", asOf: AS_OF }).posts];
   for (const p of posts) {
     assert.deepEqual(packCaptionViolations(p.caption), []);
-    for (const c of p.cards) assert.deepEqual(verifyPackCard(c.html, c.cells), []);
+    for (const c of p.cards) assert.deepEqual(c.v2 ? verifyGameDayCard(c) : verifyPackCard(c.html, c.cells), []);
   }
   const c = posts[0].cards[0];
   const k = Object.keys(c.cells)[0];
@@ -229,6 +230,43 @@ test("kind map covers every content type; X weighting counts emoji double", () =
 test("every real package option fits 280 and the doubled Estimate is gone", () => {
   const { posts } = prepareNbaTonight({ date: "2026-10-29", asOf: "2026-10-29T20:00:00Z" });
   assert.ok(!/Estimate: /.test(posts[0].cards[0].html));
+});
+
+test("game day 10-30: one tonight card, ten games, two versions only with lines, no percent in captions", () => {
+  const asOf = "2026-10-30T19:00:00Z";
+  const { posts, coverage } = prepareGameDay({ date: "2026-10-30", asOf });
+  const n = (t) => posts.filter((p) => p.contentType === t);
+  assert.equal(n("NBA_TONIGHT").length, 1);
+  assert.equal(n("NBA_TONIGHT")[0].cards.length, 1);
+  assert.equal(n("NBA_GAME_WINNER").length, 10);
+  assert.equal(n("NBA_PLAYER_STATS").length, 10);
+  assert.equal(n("NBA_BOXSCORE").length, 0);
+  assert.deepEqual(n("NBA_DAILY_TOP5").map((p) => p.variant), ["pts-model", "reb-model", "ast-model"]);
+  assert.equal(coverage.length, 10);
+  for (const p of posts) {
+    assert.ok(!/%/.test(p.caption), p.caption);
+    assert.equal(p.designVersion, "2");
+    for (const c of p.cards) assert.deepEqual(verifyGameDayCard(c), []);
+  }
+  for (const p of n("NBA_PLAYER_STATS")) assert.ok(p.content.players <= p.cards.length * 12);
+});
+test("game day real lines: market flag set, colours, compact price", () => {
+  const asOf = "2026-10-30T19:00:00Z";
+  const lane = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nba/experimental-public/2026-10-30.json"), "utf8"));
+  const g = lane.games[0]; const p = g.players.away[0];
+  const row = { rowId: "r", identity: { eventId: String(g.providerEventId), playerId: String(p.providerAthleteId), market: "pts" }, model: { display: String(p.medians.pts) }, market: { line: { state: "SHOWN", text: "30.5" }, direction: { state: "SHOWN", side: "UNDER", glyph: "▼" }, overPrice: { state: "SHOWN", text: "+110" }, underPrice: { state: "SHOWN", text: "−110" }, quotedAt: { iso: "2026-10-30T18:00:00Z", et: "Oct 30, 2:00 PM ET" } } };
+  const { posts } = prepareGameDay({ date: "2026-10-30", asOf, lineDoc: { rows: [row] } });
+  const box = posts.filter((x) => x.contentType === "NBA_BOXSCORE");
+  assert.equal(box.length, 1);
+  assert.equal(box[0].containsMarketData, true);
+  assert.match(box[0].cards[0].html, /U 30\.5 · -110/);
+  assert.match(box[0].cards[0].html, /1-800-GAMBLER/);
+  assert.equal(posts.find((x) => x.contentType === "NBA_PLAYER_STATS").containsMarketData, undefined);
+  assert.ok(!/30\.5/.test(posts.find((x) => x.contentType === "NBA_PLAYER_STATS").cards[0].html.replace(/<style>[\s\S]*?<\/style>/, "")));
+});
+test("meter colours stay distinct on a clash", () => {
+  const [a, b] = meterColours(teamOf("LAC", "LA Clippers"), teamOf("PHI", "Philadelphia 76ers"));
+  assert.notEqual(a, b);
 });
 
 /* ─────────── contract ─────────── */

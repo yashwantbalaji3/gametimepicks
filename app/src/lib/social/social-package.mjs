@@ -28,6 +28,7 @@ export const CONTENT_TYPE = Object.freeze({
   NFL_WEEKLY_TOP5: "NFL_WEEKLY_TOP5",
   NBA_DAILY_TOP5: "NBA_DAILY_TOP5",
   NBA_BOXSCORE: "NBA_BOXSCORE",
+  NBA_PLAYER_STATS: "NBA_PLAYER_STATS",
   RESULTS_RECAP: "RESULTS_RECAP",
 });
 export const ELIGIBILITY = Object.freeze({ OFFICIAL: "OFFICIAL", ESTIMATE: "ESTIMATE" });
@@ -36,13 +37,13 @@ export const ELIGIBILITY = Object.freeze({ OFFICIAL: "OFFICIAL", ESTIMATE: "ESTI
  * has no kind for this post yet. The `commandCenter` block reuses that module's package field names; nothing ingests it.
  */
 export const CC_KIND = Object.freeze({
-  NFL_SUNDAY_WINNERS: null, NFL_MNF_WINNER: "pregame-forecast", NFL_GAME_WINNER: "pregame-forecast", NBA_TONIGHT: null, NBA_GAME_WINNER: null, NBA_BOXSCORE: null,
+  NFL_SUNDAY_WINNERS: null, NFL_MNF_WINNER: "pregame-forecast", NFL_GAME_WINNER: "pregame-forecast", NBA_TONIGHT: null, NBA_GAME_WINNER: null, NBA_BOXSCORE: null, NBA_PLAYER_STATS: null,
   NFL_WEEKLY_TOP5: "top5-weekly", NBA_DAILY_TOP5: "top5-daily", RESULTS_RECAP: "results-recap",
 });
 /** One row per content type: the queue kind, and what the Command Center lacks when there is none. */
 export const CC_KIND_MAP = Object.freeze(Object.entries(CC_KIND).map(([contentType, kind]) => Object.freeze({
   contentType, kind,
-  gap: kind ? null : /BOXSCORE|GAME_WINNER/.test(contentType) ? "no kind; nearest is nba-game, which needs a pre + players pair and is not in POST_KINDS" : "no slate-level winner kind",
+  gap: kind ? null : /BOXSCORE|PLAYER_STATS|GAME_WINNER/.test(contentType) ? "no kind; nearest is nba-game, which needs a pre + players pair and is not in POST_KINDS" : "no slate-level winner kind",
 })));
 export const CC_ACCOUNT = "@GameTimePicksHQ";
 export const CC_MAX_CAPTION = 280;
@@ -217,7 +218,7 @@ export const dedupeSlug = ({ sport, date, contentType, variant = null }) => [spo
  * @param {{ sport: string, date: string, contentType: string, variant?: string|null, snapshotRefs: Array<{ref:string, sha256:string}>, images: Array<{path:string, width:number, height:number, scale:number, sha256:string}>, caption: string, verification: {passed:boolean, checks:string[], cellsVerified:number}, window: {opensAt:string, closesAt:string}, recommended: {recommendedAt:string}|null, recommendedNote?: string|null, freshness: object, content: object }} o
  */
 export function buildSocialPackage(o) {
-  const { sport, date, contentType, variant = null, snapshotRefs, images, caption, verification, window, recommended, recommendedNote = null, freshness, content, eligibilityClass, disclosures, ccCaption, ccCaptionB = null, extraClaims = [], cells = [], title, firstStartUtc, eventId = null, hasMiss = false, dataCommit = null, priority = null } = o;
+  const { designVersion = null, containsMarketData = false, sport, date, contentType, variant = null, snapshotRefs, images, caption, verification, window, recommended, recommendedNote = null, freshness, content, eligibilityClass, disclosures, ccCaption, ccCaptionB = null, extraClaims = [], cells = [], title, firstStartUtc, eventId = null, hasMiss = false, dataCommit = null, priority = null } = o;
   const evidenceRef = snapshotRefs[0];
   const claims = [...extraClaims, ...cells.map(([key, display]) => ({ key, display, evidenceRef: evidenceRef.ref }))];
   const firstSet = images.filter((i) => i.scale === 1);
@@ -226,7 +227,7 @@ export function buildSocialPackage(o) {
   const snapshotId = sha(snapshotRefs.map((r) => r.sha256).join("|"));
   const dedupe = `gtp-social:${sport}:${date}:${contentType}${variant ? `:${variant}` : ""}`;
   const pkg = {
-    schema: SOCIAL_PACKAGE_SCHEMA, sport, date, contentType, variant,
+    schema: SOCIAL_PACKAGE_SCHEMA, designVersion, containsMarketData, sport, date, contentType, variant,
     snapshotRefs, images, caption, verification, window,
     recommendedAt: recommended?.recommendedAt ?? null,
     recommendedAtEt: recommended?.recommendedAtEt ?? null,

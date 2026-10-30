@@ -1,0 +1,173 @@
+/**
+ * NBA GAME-DAY CARDS on the established social design: stage, shell, CSS and fit pass copied unchanged from gtp-social@2.3.3
+ * (command-center/render, templates/social-v2 here). Bodies follow its nba-pregame / nba-players / top5 formats. Team marks
+ * are monograms in team colours. Script-only. Every number sits in a data-cell element, proven by verifyGameDayCard.
+ * No Elo text, hash or code reaches an image. The word "estimate" stays; nothing calls the number a validated probability.
+ */
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { contrastRatio, relLuminance } from "../../src/lib/simulation-theater/nfl-team-colors.mjs";
+import { clashes } from "../../src/lib/simulation-theater/nba/nba-team-colors.mjs";
+import { nbaTeamColor } from "../../src/lib/simulation-theater/nba/nba-team-colors.mjs";
+import { logoDataUri, REVIEW_BANNER, BANNED_WORDS, visibleText } from "./nba-line-cards.mjs";
+import { esc, cell } from "./social-pack-cards.mjs";
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const APP = path.resolve(HERE, "..", "..");
+const T = path.join(HERE, "templates", "social-v2");
+export const DESIGN_VERSION = "2";
+export const SOCIAL_HANDLE = "@GameTimePicksHQ";
+export const DISCLOSURE = "Model projections · Not betting advice · Not affiliated with the NBA or its teams";
+export const RESPONSIBLE = "21+ where required; the legal age varies by state. Gambling problem? Call 1-800-GAMBLER.";
+export const PER_TEAM = 6;
+const X = `<svg class="xmark" viewBox="0 0 1200 1227" aria-hidden="true"><path fill="currentColor" d="M714.163 519.284 1160.89 0h-105.86L667.137 450.887 357.328 0H0l468.492 681.821L0 1226.37h105.866l409.625-476.152 327.181 476.152H1200L714.137 519.284h.026ZM569.165 687.828l-47.468-67.894-377.686-540.24h162.604l304.79 435.991 47.468 67.894 396.2 566.721H892.476L569.165 687.854v-.026Z"/></svg>`;
+const FACES = [["GTP Condensed", "BarlowCondensed-SemiBold.ttf", 600], ["GTP Condensed", "BarlowCondensed-Bold.ttf", 700], ["GTP Condensed", "BarlowCondensed-ExtraBold.ttf", 800], ["GTP Condensed", "BarlowCondensed-Black.ttf", 900], ["GTP Body", "Barlow-Medium.ttf", 500], ["GTP Body", "Barlow-SemiBold.ttf", 600], ["GTP Body", "Barlow-Bold.ttf", 700]];
+let CSS = null;
+const css = () => (CSS ??= `${FACES.map(([f, file, w]) => `@font-face{font-family:"${f}";font-weight:${w};src:url(data:font/ttf;base64,${fs.readFileSync(path.join(HERE, "fonts", file)).toString("base64")}) format("truetype");}`).join("\n")}\n${fs.readFileSync(path.join(T, "social-v2.css"), "utf8")}${EXTRA}`);
+const EXTRA = `
+.draft{position:absolute;top:0;left:0;right:0;z-index:9;background:#F2C14E;color:#1B1405;text-align:center;font:800 24px/34px "GTP Condensed";letter-spacing:.06em}
+.rg{margin-top:4px;text-align:center;font:600 17px/1.2 "GTP Body";color:rgba(247,247,242,.72)}
+.tn{margin-top:14px;flex:1;display:flex;flex-direction:column;gap:7px;min-height:0}
+.tnr{flex:1;min-height:0;display:grid;grid-template-columns:118px 74px 56px 1fr 56px 74px 96px;align-items:center;gap:8px;padding:0 14px;border-radius:14px;background:rgba(5,8,6,.74);border:1px solid rgba(255,255,255,.16)}
+.tnh{flex:none;display:grid;grid-template-columns:118px 74px 56px 1fr 56px 74px 96px;gap:8px;padding:0 14px;font:700 19px/1 var(--display);letter-spacing:3px;color:rgba(247,247,242,.75)}
+.tnr .t{font:700 25px/1 var(--display);white-space:nowrap}.tnr .tm{font:900 32px/1 var(--headline);text-align:center;white-space:nowrap}.tnr .p{font:800 27px/1 var(--display);text-align:center}
+.tnr .bar{display:flex;height:24px;border-radius:12px;overflow:hidden;gap:3px;background:#050706}.tnr .bar i{display:block;height:100%}
+.tnr .wn{font:900 28px/1 var(--headline);text-align:center;color:#050706;background:#39FF88;border-radius:8px;padding:7px 2px 5px}
+.pl{padding:7px 4px 6px;border-top:1px solid rgba(255,255,255,.12)}.pl .pn2{display:block;font:800 29px/1.05 var(--headline);text-transform:uppercase;white-space:nowrap;overflow:hidden;min-width:0}
+.pl .ns{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;margin-top:3px}.pl .ns b{display:block;font:900 33px/1 var(--display);white-space:nowrap}.pl .ns em{display:block;font:700 18px/1.2 var(--display);font-style:normal;white-space:nowrap;letter-spacing:.3px}
+.st-hd{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;font:700 19px/1 var(--display);letter-spacing:3px;color:rgba(247,247,242,.72);padding:0 4px 6px}
+.pl{padding:13px 4px 12px}.pl .pn2{font-size:32px}.pl .ns{margin-top:6px}.pl .ns b{font-size:37px}.lines.sl.real .pl{padding:6px 4px 5px}.lines.sl.real .pl .pn2{font-size:27px}.lines.sl.real .pl .ns{margin-top:2px}.lines.sl.real .pl .ns b{font-size:29px}
+.lines.sl{margin-top:12px;align-content:start}.lines.sl .lcol{padding:14px 12px 8px}.lines.sl .lhead h3{font-size:42px;margin-bottom:0}
+.over{color:#4ADE80}.under{color:#F87171}.none{color:#AEB8B1}
+.lgd{display:flex;justify-content:center;gap:22px;margin-top:8px;font:700 19px/1 var(--display);letter-spacing:1px}
+.t5 .ln{display:block;font:700 22px/1.2 var(--display);letter-spacing:.5px;white-space:nowrap;margin-top:4px}
+.rc{margin-top:22px;flex:1;display:flex;flex-direction:column;gap:14px;justify-content:center}
+.rcs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}.rcs div{background:rgba(5,8,6,.74);border-radius:14px;padding:14px 0 10px;text-align:center}.rcs b{display:block;font:900 66px/1 var(--display)}.rcs i{font:700 21px/1 var(--display);font-style:normal;letter-spacing:3px;color:rgba(247,247,242,.72)}
+.rcr{display:grid;grid-template-columns:1fr 200px 140px;align-items:center;gap:12px;padding:46px 20px;border-radius:14px;background:rgba(5,8,6,.74);border-left:7px solid #4ADE80}.rcr.miss{border-left-color:#F87171}
+.rcr .s{font:900 50px/1 var(--headline);white-space:nowrap}.rcr .w{font:700 24px/1.1 var(--display);text-align:center}.rcr .o{font:900 32px/1 var(--headline);text-align:right}
+`;
+
+const data = () => JSON.parse(fs.readFileSync(path.join(APP, "src/lib/simulation-theater/nba/nba-team-colors.json"), "utf8"));
+const lift = (hex) => { let c = hex; for (let i = 0; i < 9 && relLuminance(c) < 0.05; i += 1) { const n = parseInt(c.slice(1), 16); const up = (v) => Math.min(255, Math.round(v + (255 - v) * 0.14)); c = `#${[(n >> 16) & 255, (n >> 8) & 255, n & 255].map(up).map((v) => v.toString(16).padStart(2, "0")).join("")}`; } return c; };
+const inkOn = (bg) => (contrastRatio(bg, "#F7F7F2") >= contrastRatio(bg, "#050706") ? "#F7F7F2" : "#050706");
+const NICK = Object.freeze({ "Portland Trail Blazers": ["Portland", "Trail Blazers"] });
+/** Team identity for a card: real colours; a near-black primary is lifted only enough to read on the dark stage. */
+export function teamOf(abbr, fullName) {
+  const c = nbaTeamColor(data(), abbr);
+  if (!c) throw new Error(`no verified colour for ${abbr}`);
+  const words = String(fullName).split(" ");
+  const [city, nickname] = NICK[fullName] ?? [words.slice(0, -1).join(" "), words.at(-1)];
+  const color = lift(c.primary);
+  return { abbr, name: fullName, city, nickname, color, secondary: lift(c.secondary), ink: inkOn(color) };
+}
+/** The two meter colours: real team colours; on a clash the home side takes its secondary. */
+export function meterColours(away, home) {
+  if (!clashes(away.color, home.color)) return [away.color, home.color];
+  if (!clashes(away.color, home.secondary)) return [away.color, home.secondary];
+  if (!clashes(away.secondary, home.color)) return [away.secondary, home.color];
+  return [away.color, "#F7F7F2"];
+}
+
+export function shell({ away, home, chip, body, responsible = false, review = true }) {
+  const slots = { rawCss: css(), rawVars: `--ca:${away?.color ?? "#123A28"};--cb:${home?.color ?? "#123A28"}`, ghostA: away?.abbr ?? "", ghostB: home?.abbr ?? "", logoDataUri: logoDataUri(), chip, rawBody: body, rawBodyClass: "fmt-nba-pregame", disclosure: DISCLOSURE, rawSocial: `<div class="social" data-handle="${SOCIAL_HANDLE}">${X}<span>${SOCIAL_HANDLE}</span></div>` };
+  const html = fs.readFileSync(path.join(T, "shell.html"), "utf8").replace(/\{\{(\w+)\}\}/g, (_, k) => {
+    if (!(k in slots)) throw new Error(`slot ${k}`);
+    return k.startsWith("raw") || k === "logoDataUri" ? slots[k] : esc(slots[k]);
+  });
+  return html
+    .replace('<div class="frame"></div>', `${review ? `<div class="draft">${esc(REVIEW_BANNER)}</div>` : ""}<div class="frame"></div>`)
+    .replace(/(<div class="disclosure">[^<]*<\/div>)/, `$1${responsible ? `<div class="rg">${esc(RESPONSIBLE)}</div>` : ""}`);
+}
+
+const bcell = (cells, key, text, attrs = "") => { cells[key] = String(text); return `<b ${attrs} data-cell="${esc(key)}">${esc(text)}</b>`; };
+const mark = (t) => `<div class="mark mono" data-mark="monogram" style="--c:${t.color};--a:${t.secondary};--cink:${t.ink}"><span data-fit>${esc(t.abbr)}</span></div>`;
+const mbox = (t) => `<div class="mbox ${t.nickname.length > 11 ? "long" : ""}" style="--c:${t.color};--a:${t.secondary};--cink:${t.ink}">${mark(t)}<div class="mtext"><div class="city" data-fit>${esc(t.city)}</div><div class="nick" data-fit>${esc(t.nickname)}</div></div></div>`;
+const slab = (t) => `<div class="slab" style="--c:${t.color};--a:${t.secondary};--cink:${t.ink}"><div class="city" data-fit>${esc(t.city)}</div><div class="nick" data-fit>${esc(t.nickname)}</div></div>`;
+
+/** Reference 1. `g`: { eventId, away, home, awayP, homeP, awayPct, homePct, winner (team|null), tipDay, tipTime, chip }. */
+export function winnerCard(g) {
+  const cells = {};
+  const [ca, cb] = meterColours(g.away, g.home);
+  const total = g.awayP + g.homeP;
+  const body = `<div class="kicker">GameTimePicks Prediction</div><div class="matchup">${mbox(g.away)}<div class="vs2">@</div>${mbox(g.home)}</div>
+<div class="meter" data-meter="elo"><div class="meter-k">Game winner estimate</div><div class="meter-labels"><div class="ml l">${bcell(cells, "away.pct", `${g.awayPct}%`)}<span data-fit>${esc(g.away.name)}</span></div><div class="ml r">${bcell(cells, "home.pct", `${g.homePct}%`)}<span data-fit>${esc(g.home.name)}</span></div></div>
+<div class="meter-bar"><i class="seg away" data-share="${g.awayP}" style="width:${((100 * g.awayP) / total).toFixed(3)}%;--c:${ca}"></i><i class="seg home" data-share="${g.homeP}" style="width:${((100 * g.homeP) / total).toFixed(3)}%;--c:${cb}"></i></div></div>
+<div class="winner2"><div class="k">${g.winner ? "Predicted Winner" : "Too close to call"}</div>${g.winner ? slab(g.winner) : ""}</div>
+<div class="strip"><div>${bcell(cells, "day", g.tipDay, "data-fit")}<span>Tip-off</span></div><div>${bcell(cells, "time", g.tipTime, "data-fit")}<span>Eastern time</span></div></div>`;
+  return { html: shell({ away: g.away, home: g.home, chip: g.chip, body }), cells, v2: true };
+}
+
+/** A: one card, every game of the slate. */
+export function tonightCard({ games, chip }) {
+  const cells = {};
+  const rows = games.map((g) => {
+    const [ca, cb] = meterColours(g.away, g.home);
+    return `<div class="tnr">${cell(cells, `${g.eventId}.tip`, g.tipTime, "t")}${cell(cells, `${g.eventId}.away`, g.away.abbr, "tm")}${cell(cells, `${g.eventId}.ap`, `${g.awayPct}%`, "p")}<div class="bar" data-bar="${g.eventId}"><i style="width:${(g.awayP * 100).toFixed(2)}%;background:${ca}"></i><i style="width:${(g.homeP * 100).toFixed(2)}%;background:${cb}"></i></div>${cell(cells, `${g.eventId}.hp`, `${g.homePct}%`, "p")}${cell(cells, `${g.eventId}.home`, g.home.abbr, "tm")}${cell(cells, `${g.eventId}.w`, g.winner?.abbr ?? "EVEN", "wn")}</div>`;
+  }).join("");
+  const body = `<div class="kicker">NBA Tonight</div><div class="sub" data-fit>Game winner estimates</div><div class="tn"><div class="tnh"><span>TIP ET</span><span>AWAY</span><span></span><span></span><span></span><span>HOME</span><span>WINNER</span></div>${rows}</div>`;
+  return { html: shell({ chip, body }), cells, v2: true };
+}
+
+const CLS = Object.freeze({ over: "over", under: "under", neutral: "none", none: "none" });
+const mono = (s) => String(s).replace(/−/g, "-");
+/** A number and, on a real-line card, its comparison. `line` from lineBlock; `real` false = reference 2 (plain white). */
+function statCell(cells, key, text, line, real) {
+  if (!real) return `<div>${`<b>${cell(cells, key, text)}</b>`}</div>`;
+  const cls = line ? CLS[line.cls] : "none";
+  const g = line ? (line.glyph || "●") : "●";
+  return `<div><b class="${cls}">${cell(cells, key, `${g} ${text}`)}</b>${line ? `<em class="${cls}">${cell(cells, `${key}.line`, mono(line.text.replace(/^([OU] \S+) /, "$1 · ")))}</em>` : "<em>&nbsp;</em>"}</div>`;
+}
+
+/** Reference 2, all players over Part 1/2. `players`: { id, name, pts, reb, ast, lines? } per side. */
+export function statPages({ away, home, chip, awayPlayers, homePlayers, real = false }) {
+  const pages = Math.max(1, Math.ceil(Math.max(awayPlayers.length, homePlayers.length) / PER_TEAM));
+  return Array.from({ length: pages }, (_, i) => {
+    const cells = {};
+    const col = (t, ps) => `<div class="lcol" style="--c:${t.color}"><div class="lhead">${mark(t)}<h3 data-fit>${esc(t.nickname)}</h3></div><div class="st-hd"><span>PTS</span><span>REB</span><span>AST</span></div>${ps.slice(i * PER_TEAM, (i + 1) * PER_TEAM).map((p) => `<div class="pl"><span class="pn2" data-fit>${cell(cells, `${p.id}.name`, p.name)}</span><div class="ns">${["pts", "reb", "ast"].map((k) => statCell(cells, `${p.id}.${k}`, p[k], p.lines?.[k] ?? null, real)).join("")}</div></div>`).join("")}</div>`;
+    const part = pages > 1 ? ` · Part ${i + 1} of ${pages}` : "";
+    const body = `<div class="kicker">Projected stat lines</div><div class="sub" data-fit>${esc(away.abbr)} @ ${esc(home.abbr)}${part}</div>${real ? `<div class="lgd"><span class="over">▲ Above line</span><span class="under">▼ Below line</span><span class="none">● No comparison</span></div>` : ""}<div class="lines sl ${real ? "real" : ""}">${col(away, awayPlayers)}${col(home, homePlayers)}</div>`;
+    return { html: shell({ away, home, chip, body, responsible: real }), cells, v2: true, part: i + 1, parts: pages };
+  });
+}
+
+/** B. `rows`: { key, rank, name, team (obj), opponent, tip, text, line? }. */
+export function top5Card({ title, chip, rows, real = false }) {
+  const cells = {};
+  const body = `<div class="kicker">Top 5 Projections</div><div class="title" style="font-size:84px;margin-top:14px">${esc(title)}</div><div class="sub" data-fit>Projected median for the game</div><div class="t5">${rows.map((r) => {
+    const cls = real ? (r.line ? CLS[r.line.cls] : "none") : "";
+    const num = real ? `${r.line?.glyph || "●"} ${r.text}` : r.text;
+    return `<div class="t5row r${r.rank}" style="--c:${r.team.color}"><div class="n">${r.rank}</div><div style="min-width:0"><span class="pname board nm" data-fit style="display:block">${cell(cells, `${r.key}.name`, r.name)}</span><div class="sb"><span class="tag" style="--c:${r.team.color};--cink:${r.team.ink}">${esc(r.team.abbr)}</span><span>vs ${esc(r.opponent)} · ${esc(r.tip)}</span></div></div><div class="v">${bcell(cells, `${r.key}.num`, num, cls ? `class="${cls}" style="color:currentColor;font-size:64px"` : "")}${real && r.line ? cell(cells, `${r.key}.line`, mono(r.line.text.replace(/^([OU] \S+) /, "$1 · ")), `ln ${cls}`) : ""}</div></div>`;
+  }).join("")}</div>`;
+  return { html: shell({ chip, body, responsible: real }), cells, v2: true };
+}
+
+/** E. `recap` from buildNbaRecap. */
+export function recapCard({ recap, chip, teams }) {
+  const cells = {};
+  const body = `<div class="kicker">NBA Results</div><div class="sub" data-fit>${esc(`${recap.graded} of ${recap.gamesScheduled} games graded`)}</div><div class="rcs">${[["GRADED", recap.graded], ["CORRECT", recap.correct], ["MISSED", recap.missed], ["ACCURACY", recap.accuracy]].map(([l, v]) => `<div><b>${cell(cells, `stat.${l}`, v ?? "n/a")}</b><i>${l}</i></div>`).join("")}</div><div class="rc">${recap.games.map((g) => {
+    const s = g.final ? `${g.away} ${g.final.away} @ ${g.home} ${g.final.home}` : g.matchup;
+    const o = g.outcome === "CORRECT" ? "Correct" : g.outcome === "MISSED" ? "Missed" : "Not graded";
+    return `<div class="rcr ${g.outcome === "MISSED" ? "miss" : ""}" ${teams ? "" : ""}>${cell(cells, `${g.eventId}.final`, s, "s")}${cell(cells, `${g.eventId}.side`, g.frozenSide ? `Predicted ${g.frozenSide}` : "No side", "w")}${cell(cells, `${g.eventId}.o`, o, "o")}</div>`;
+  }).join("")}</div>`;
+  return { html: shell({ chip, body }), cells, v2: true };
+}
+
+const cellsIn = (html) => Object.fromEntries([...html.matchAll(/data-cell="([^"]+)">([^<]*)</g)].map((m) => [m[1], m[2].replace(/&amp;/g, "&").replace(/&#39;/g, "'").replace(/&quot;/g, '"')]));
+const OK_PHRASES = [/predicted winner/gi, /game winner estimates?/gi, /winner/g, /WINNER/g];
+/** [] when a v2 card prints exactly `cells`, carries banner and footer, and no internal text. */
+export function verifyGameDayCard(card) {
+  const e = [];
+  const got = cellsIn(card.html);
+  for (const [k, v] of Object.entries(card.cells)) if (got[k] !== String(v)) e.push(`${k}: card ${got[k]} expected ${v}`);
+  for (const k of Object.keys(got)) if (!(k in card.cells)) e.push(`${k}: not validated`);
+  const text = visibleText(card.html.replace(/<script>[\s\S]*?<\/script>/g, " "));
+  if (!text.includes(REVIEW_BANNER)) e.push("banner missing");
+  if (!text.includes(DISCLOSURE)) e.push("footer missing");
+  if (/\bElo\b|[0-9a-f]{16,}|moneyline/i.test(text)) e.push("internal text on image");
+  if (/[—–]/.test(text)) e.push("dash on image");
+  let t = text; for (const p of OK_PHRASES) t = t.replace(p, " ");
+  for (const w of BANNED_WORDS) if (new RegExp(`(^|[^a-z])${w}([^a-z]|$)`, "i").test(t)) e.push(`banned ${w}`);
+  return e;
+}

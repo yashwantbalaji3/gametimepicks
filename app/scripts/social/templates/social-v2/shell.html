@@ -1,0 +1,70 @@
+<!doctype html>
+<!-- nfl-social@2 shell — 1080×1350. Stage (team-colour light, beams, field, grain) + one format body. Every visible fact
+     is filled from a verified view-model (recap/social-v2.mjs), HTML-escaped; no remote request is ever made. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>{{rawCss}}</style>
+</head>
+<body class="{{rawBodyClass}}" style="{{rawVars}}">
+  <div class="frame"></div>
+  <div class="stage">
+    <div class="half l"></div><div class="half r"></div>
+    <div class="ghost l">{{ghostA}}</div><div class="ghost r">{{ghostB}}</div>
+    <div class="crowd"></div>
+    <div class="lights"></div>
+    <div class="beams">
+      <div class="beam" style="left:60px;transform:rotate(-24deg)"></div>
+      <div class="beam" style="left:170px;transform:rotate(-15deg);opacity:.7"></div>
+      <div class="beam" style="right:60px;transform:rotate(24deg)"></div>
+      <div class="beam" style="right:170px;transform:rotate(15deg);opacity:.7"></div>
+    </div>
+    <div class="flare" style="left:-120px;top:-150px"></div><div class="flare" style="right:-120px;top:-150px"></div>
+    <div class="field"></div>
+    <div class="seam"></div>
+    <div class="vignette"></div>
+    <svg class="grain" width="1080" height="1350" xmlns="http://www.w3.org/2000/svg"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#g)"/></svg>
+  </div>
+  <div class="content">
+    <div class="top"><img class="logo" src="{{logoDataUri}}" alt=""><div class="chip" data-fit>{{chip}}</div></div>
+    {{rawBody}}
+    {{rawSocial}}
+    <div class="disclosure">{{disclosure}}</div>
+  </div>
+  <script>
+    // Deterministic fit: shrink any [data-fit] element 2 px at a time until it fits its box (min 40% of its size);
+    // the renderer then reads window.__fit to fail the render if anything still overflows.
+    (function () {
+      var out = [];
+      document.querySelectorAll("[data-fit]").forEach(function (el) {
+        var size = parseFloat(getComputedStyle(el).fontSize), min = size * 0.4;
+        while ((el.scrollWidth > el.clientWidth + 1) && size > min) { size -= 2; el.style.fontSize = size + "px"; }
+        out.push({ text: el.textContent.trim().slice(0, 60), fits: el.scrollWidth <= el.clientWidth + 1, size: size });
+      });
+      // Player names (V2.2): a group shares ONE size. Each name takes the first of its display forms that fits; only if a
+      // name still doesn't fit does the whole group step down together (never below 80%; 65% for the narrow Top 3 feature columns); if even that fails, the
+      // render is refused — a name is never clipped or set smaller than its neighbours.
+      // a name fits when it doesn't overflow its column; a wrapping (feature) name may also take at most two lines
+      var fits = function (el) {
+        if (el.scrollWidth > el.clientWidth + 1) return false;
+        if (!el.classList.contains("feature")) return true;
+        var cs = getComputedStyle(el), lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize);
+        return el.getBoundingClientRect().height <= lh * 2 + 2;
+      };
+      var groups = {};
+      document.querySelectorAll("[data-name-group]").forEach(function (el) { (groups[el.dataset.nameGroup] = groups[el.dataset.nameGroup] || []).push(el); });
+      Object.keys(groups).forEach(function (g) {
+        var els = groups[g];
+        var pick = function () { els.forEach(function (el) { var forms = JSON.parse(el.dataset.forms); for (var i = 0; i < forms.length; i++) { el.textContent = forms[i]; if (fits(el)) break; } }); };
+        pick();
+        // Top 3 feature columns are narrow and centred, so a long compound surname ("Westbrook-Ikhine") may take the group to 65%
+        var size = parseFloat(getComputedStyle(els[0]).fontSize), min = size * (els[0].classList.contains("feature") ? 0.65 : 0.8);
+        while (els.some(function (e) { return !fits(e); }) && size > min) { size -= 1; els.forEach(function (e) { e.style.fontSize = size + "px"; }); pick(); }
+        els.forEach(function (el) { var r = el.getBoundingClientRect(), row = el.parentElement.getBoundingClientRect(); out.push({ text: el.textContent.trim().slice(0, 60), fits: fits(el), size: parseFloat(getComputedStyle(el).fontSize), weight: getComputedStyle(el).fontWeight, family: getComputedStyle(el).fontFamily, group: g, left: Math.round(r.left), right: Math.round(r.right), rowRight: Math.round(row.right), sw: el.scrollWidth, cw: el.clientWidth, h: Math.round(r.height), lh: getComputedStyle(el).lineHeight }); });
+      });
+      var page = document.documentElement;
+      window.__fit = { items: out, pageOverflow: page.scrollWidth > 1080 || page.scrollHeight > 1350 };
+    })();
+  </script>
+</body>
+</html>
