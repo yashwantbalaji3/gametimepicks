@@ -64,11 +64,21 @@ export const BLOCK = Object.freeze({
   LINE_RIGHTS: "LINE_RIGHTS_NOT_VERIFIED",
   NBA_BOARDS: "NBA_BOARDS_NOT_AUTHORIZED_FOR_SOCIAL",
   BELOW_BAR: "BELOW_PUBLICATION_BAR",
+  ANOMALY: "PROJECTION_ANOMALY_REVIEW",
   UNSUPPORTED: "UNSUPPORTED_TYPE",
   VERIFICATION: "VERIFICATION_NOT_PASSED",
   EXPIRED: "WINDOW_CLOSED",
   TEST_DATA: "TEST_DATA",
   OVERLAP: "OVERLAPS_EXISTING_POST",
+});
+/**
+ * What the governing terms say about each use of market data (docs/provider-rights-classification.md, The Odds API terms
+ * read 2026-10-30). Reusable for NBA and NFL: a package's class decides its social eligibility, nothing else does.
+ */
+export const MARKET_RIGHTS = Object.freeze({
+  MODEL_ONLY: { social: "ALLOWED", why: "Our own forecasts carry no provider data." },
+  QUOTE_ON_SOCIAL: { social: "UNRESOLVED", why: "The terms allow display in websites, apps and dashboards and don't address social media. Needs the provider's written answer." },
+  RAW_FEED: { social: "PROHIBITED", why: "Redistributing the data as an API, feed or downloadable files is prohibited." },
 });
 /** True when the content shows real sportsbook lines (the row-level `line`, or a count of lines shown). */
 export function showsLines(contentType, content, flagged = false) {
@@ -85,8 +95,10 @@ export function blockersOf(p, { now }) {
   const t = IMPORT_TYPES[p.contentType];
   if (!t) add(BLOCK.UNSUPPORTED, `${p.contentType} is not a type the Command Center knows: it can be viewed, not approved`);
   else if (!t.supported && !showsLines(p.contentType, p.content, p.containsMarketData)) add(BLOCK.UNSUPPORTED, `${t.label}: the publisher does not support this type yet`);
-  if (showsLines(p.contentType, p.content, p.containsMarketData)) add(BLOCK.LINE_RIGHTS, "Shows real sportsbook lines: social use needs written provider confirmation of redistribution rights. Private review only.");
-  if (p.contentType === "NBA_DAILY_TOP5") add(BLOCK.NBA_BOARDS, "NBA player Top 5 boards are authorized for the site, not for social, until the founder clears them.");
+  if (showsLines(p.contentType, p.content, p.containsMarketData)) add(BLOCK.LINE_RIGHTS, `Shows real sportsbook data. ${MARKET_RIGHTS.QUOTE_ON_SOCIAL.why} Private review only.`);
+  // founder 2026-10-30: model-only NBA Top 5 may go on social, subject to the usual approvals; variants with lines may not
+  if (p.contentType === "NBA_DAILY_TOP5" && !/-model$/.test(String(p.variant ?? ""))) add(BLOCK.NBA_BOARDS, "This Top 5 variant isn't the model-only version cleared for social.");
+  if (p.anomalyCheck === "REVIEW") add(BLOCK.ANOMALY, `Launch Readiness flagged player projections for review (${(p.anomalies ?? []).length}): not publication-ready until resolved.`);
   if (p.sport === "NFL" && (UNCLEARED_NFL.test(String(p.variant ?? "")) || (p.contentType === "NFL_WEEKLY_TOP5" && p.eligibilityClass === "ESTIMATE"))) add(BLOCK.BELOW_BAR, "An uncleared estimate (below the publication bar): it stays off social until independently cleared.");
   if (p.verification?.passed !== true) add(BLOCK.VERIFICATION, "Launch Readiness verification did not pass.");
   if (p.testData === true) add(BLOCK.TEST_DATA, "Test data: never publishable.");

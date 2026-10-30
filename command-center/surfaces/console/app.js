@@ -35,7 +35,7 @@
   const viewId = (v) => (VIEWS.some((x) => x.id === v) ? v : VIEW_ALIAS[v] ?? "overview");
   const savedView = (() => { try { return localStorage.getItem("gtp-cc-view"); } catch { return null; } })();
   const ui = { last: "", choice: {}, drafts: {}, editing: {}, pendingRender: false, state: null, view: viewId(savedView),
-    filter: { status: "auto", sport: "all", source: "all" }, expanded: null, calMode: "week", calDay: null, pubTab: "all" };
+    filter: { status: "auto", sport: "all", source: "all", group: "all" }, expanded: null, calMode: "week", calDay: null, pubTab: "all" };
   const captionTextMap = new Map();
   const $ = (id) => document.getElementById(id);
   /** Ledger numbers are rendered through Number(): a non-number can never become markup. */
@@ -425,14 +425,18 @@
       ["Category", `${esc(pkg.format ?? pkg.kind)}${m.variant && !pkg.eventId ? ` · ${esc(m.variant)}` : ""}`],
       ["Package", `<code>${esc(m.dedupeId)}</code>`],
       ["Event date", start ? `${esc(dayLabel(etDay(new Date(start))))} · ${esc(etTime(start))}` : esc(pkg.date)],
+      ["Forecast version", `${esc(m.modelVersion ?? "official forecast")}${m.snapshotId ? ` · <code>${esc(String(m.snapshotId).slice(0, 12))}</code>` : ""}`],
       ["Forecast snapshot", (m.snapshotRefs ?? []).length ? `${num(m.snapshotRefs.length)} file(s) · data commit <code>${esc(String(pkg.dataCommit ?? "—").slice(0, 10))}</code> · ${m.provenance?.verified ? "matches its commit" : esc(m.provenance?.detail ?? "not checked")}` : "—"],
       ["Data verification", `${v.passed ? "Passed" : "Not passed"}${v.cellsVerified != null ? ` · ${num(v.cellsVerified)} cells checked` : ""}`],
+      ...(["lr-nba-players", "lr-nba-top5", "lr-nfl-game-players", "lr-nfl-top5"].includes(pkg.kind) ? [["Anomaly check", { PASS: "Passed", REVIEW: "Needs review" }[m.anomalyCheck] ?? "Not run yet: check the projections yourself"]] : []),
+      ["Availability", (m.caveats ?? []).length ? esc(m.caveats.join("; ")) : "No caveat in the package: re-checked before any send"],
       ["Freshness", `${f.ageHours != null ? `${esc(f.ageHours)} h old · ` : ""}${esc(f.rule ?? "")}`],
       ...(m.quote ? [["Lines quoted", esc(m.quote)]] : []),
       ["Status", `${esc(m.eligibilityClass ?? "—")} · ${p.resolution?.verdict === "approve" ? "approved" : "founder review"}`],
       ["Publishing window", m.window?.closesAt ? `until ${esc(dayLabel(etDay(new Date(m.window.closesAt))).split(" · ")[0])} ${esc(etTime(m.window.closesAt))}${plan ? ` · calendar slot ${esc(etTime(plan.at))}` : ""}` : "—"],
-      ["Image", m.socialAuthorized === true ? "Clean export" : "Review copy with banner: approve it to request the clean export"],
-      ["Eligibility", (pkg.blockers ?? []).length ? "Not publishable until the blockers clear" : m.socialAuthorized === true ? "Publishable after your approval" : "After the clean export and your approval"],
+      ["Clean export", m.socialAuthorized === true ? "Clean image" : p.resolution?.verdict === "approve" ? "Requested: waiting for Launch Readiness" : "Not requested: this is the review copy; approving it requests the clean export"],
+      ["Internal review", "Open"],
+      ["Public publishing", (pkg.blockers ?? []).length ? "Blocked" : m.socialAuthorized === true ? "Publishable after your approval" : "After the clean export and your approval of it"],
       ["Recommended time", pkg.suggestedPublishAt ? esc(`${dayLabel(etDay(new Date(pkg.suggestedPublishAt))).split(" · ")[0]} ${etTime(pkg.suggestedPublishAt)}`) : "—"],
       ["Destination", pkg.supported ? "X, through the publisher" : "None: not publishable"],
       ["Design", `${esc(pkg.template ?? "—")} · ${p.designApproved ? "approved" : "waiting for your approval"}`],
@@ -731,7 +735,8 @@
   const pill = (st) => `<span class="pill pill-${st.cls}">${esc(st.label)}</span>`;
 
   function counts(s) {
-    const posts = (s.posts ?? []).filter((p) => p.lifecycle !== "superseded");
+    // a review copy replaced by its clean export is the same content record: only the current version is listed
+    const posts = (s.posts ?? []).filter((p) => p.lifecycle !== "superseded" && !(p.lifecycle === "invalidated" && p.package.imported));
     const by = { needs: [], blocked: [], approved: [], scheduled: [], sent: [], expired: [], problem: [], other: [] };
     for (const p of posts) by[postStatus(s, p).key].push(p);
     const today = etDay(new Date());
@@ -807,10 +812,27 @@
 
   // ── Review & approvals: compact cards, one expanded at a time, prev/next, full-screen gallery ──
   const REVIEW_FILTERS = [["needs", "Needs decision"], ["blocked", "Blocked"], ["approved", "Approved"], ["scheduled", "Scheduled"], ["sent", "Sent"], ["expired", "Expired"], ["problem", "Problems"], ["all", "All"]];
+  const isMarket = (p) => p.package.imported?.rights === "QUOTE_ON_SOCIAL" || p.package.privateReview === true;
+  const IMPORT_GROUPS = [
+    ["all", "Everything", () => true],
+    ["key", "Tonight's key posts", (p) => !isMarket(p) && p.package.sport === "NBA" && ["lr-results-recap", "lr-nba-tonight", "lr-nba-top5"].includes(p.package.kind)],
+    ["winners", "NBA winners", (p) => p.package.kind === "lr-nba-game-winner"],
+    ["stats", "NBA stat lines", (p) => p.package.kind === "lr-nba-players"],
+    ["private", "Real lines (private)", (p) => isMarket(p)],
+    ["nfl", "NFL", (p) => p.package.sport === "NFL"],
+  ];
+  const importRank = (p) => { const v = String(p.package.imported?.variant ?? "").replace(/-model$/, ""); return ({ "lr-results-recap": 0, "lr-nba-tonight": 1, "lr-nba-top5": 2 + Math.max(0, ["pts", "reb", "ast"].indexOf(v)) })[p.package.kind] ?? 9; };
   function reviewList(s) {
     const c = counts(s);
     const f = ui.filter;
     const status = f.status === "auto" ? (c.by.needs.length ? "needs" : "all") : f.status;
+    const group = IMPORT_GROUPS.find(([k]) => k === f.group);
+    // a content group shows everything in it, whatever its status, so blocked items are never hidden from view
+    if (group && f.group !== "all") {
+      const inGroup = c.posts.filter((p) => p.package.imported && group[2](p));
+      inGroup.sort((a, b) => importRank(a) - importRank(b) || String(startOfPkg(a.package)).localeCompare(String(startOfPkg(b.package))));
+      return { c, status, list: inGroup };
+    }
     const list = (status === "all" ? c.posts : [...(c.by[status] ?? []), ...c.posts.filter((p) => p.decisionId === ui.expanded && postStatus(s, p).key !== status)])
       .filter((p) => f.sport === "all" || p.package.sport === f.sport || p.decisionId === ui.expanded)
       .filter((p) => f.source !== "imported" || p.package.imported || p.decisionId === ui.expanded);
@@ -831,8 +853,8 @@
     const waiting = (s.design?.templates ?? []).filter((t) => !t.approved && t.template.startsWith("gtp-lr-") && imp.some((p) => p.package.template === t.template && p.package.status !== "BLOCKED"));
     return `<section class="card"><h3>Launch Readiness packages</h3>
       <div class="muted">${num(imp.length)} imported · ${num(blocked)} blocked · importing approves and schedules nothing${last ? ` · last run ${esc(time(last.at))}: ${Object.entries(last.counts ?? {}).map(([k, n]) => `${num(n)} ${esc(k)}`).join(", ")}` : ""}</div>
-      <div class="row actions"><button class="btn small primary" data-import-run>Import packages</button>
-        ${imp.length ? `<button class="btn small" data-filter-source="${ui.filter.source === "imported" ? "all" : "imported"}" aria-pressed="${ui.filter.source === "imported"}">${ui.filter.source === "imported" ? "Show everything" : "Show only imported"}</button>` : ""}</div>
+      <div class="seg" role="toolbar" aria-label="Show content">${IMPORT_GROUPS.map(([k, label, test]) => `<button type="button" class="segbtn" data-filter-group="${k}" aria-pressed="${(ui.filter.group ?? "all") === k}">${esc(label)}${k !== "all" ? ` <span class="n">${num(imp.filter(test).length)}</span>` : ""}</button>`).join("")}</div>
+      <div class="row actions"><button class="btn small" data-import-run>Import packages</button></div>
       ${waiting.length ? `<details><summary>${num(waiting.length)} design version(s) waiting for your approval</summary>
         <div class="muted">Design approval covers the look only. Each post still needs its own approval.</div>
         <ul class="rows">${waiting.map((t) => `<li><span class="grow">${esc(t.label ?? t.template)} <span class="muted">${esc(t.template)}</span></span><button class="btn small" data-design="1" data-design-template="${esc(t.template)}">Approve design</button></li>`).join("")}</ul></details>` : ""}
@@ -872,7 +894,7 @@
       <button type="button" class="rhead" data-expand="${esc(p.decisionId)}" aria-expanded="${open}">
         ${imgs.length ? `<img class="thumb" src="/media/${encodeURIComponent(imgs[0].file)}" alt="" loading="lazy">` : `<span class="thumb thumb-text" aria-hidden="true">Aa</span>`}
         <span class="rmain">
-          <span class="rtop">${sportChip(pkg.sport)}<span class="kind">${esc(KIND_LABEL[pkg.kind] ?? pkg.format ?? pkg.kind)}</span>${when ? `<span class="when">${esc(when)}</span>` : ""}</span>
+          <span class="rtop">${sportChip(pkg.sport)}<span class="kind">${esc(KIND_LABEL[pkg.kind] ?? pkg.format ?? pkg.kind)}</span>${pkg.imported ? `<span class="kind">${isMarket(p) ? "Real lines · private" : "Model-only"}</span>` : ""}${when ? `<span class="when">${esc(when)}</span>` : ""}</span>
           <span class="rtitle">${esc(pkg.title.split(": ").length > 1 && pkg.kind === "nba-game" ? pkg.title.split(":")[0] : pkg.title)}</span>
           ${winner ? `<span class="rwin">Predicted winner: <b>${esc(winner)}</b></span>` : ""}
           <span class="rcap">${esc(cap)}</span>
@@ -1258,7 +1280,7 @@
     if (d.openPost) { openPost(d.openPost); return true; }
     if (d.filterStatus) { ui.filter.status = d.filterStatus; ui.expanded = null; render(ui.state, true); return true; }
     if (d.filterSport) { ui.filter.sport = d.filterSport; render(ui.state, true); return true; }
-    if (d.filterSource) { ui.filter.source = d.filterSource; render(ui.state, true); return true; }
+    if (d.filterGroup) { ui.filter.group = d.filterGroup; ui.expanded = null; render(ui.state, true); return true; }
     if (d.calShift) { ui.calDay = etDay(new Date(Date.parse(`${ui.calDay ?? etDay(new Date())}T12:00:00Z`) + Number(d.calShift) * 864e5)); render(ui.state, true); return true; }
     if (d.calToday !== undefined) { ui.calDay = null; render(ui.state, true); return true; }
     if (d.calMode) { ui.calMode = d.calMode; render(ui.state, true); return true; }
@@ -1283,7 +1305,7 @@
   document.addEventListener("click", (e) => { if (e.target.closest("[data-close-sheet]")) $("more-sheet").hidden = true; });
 
   document.addEventListener("click", async (e) => {
-    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-new-codes],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-post-record],[data-design],[data-pub],[data-caption-open],[data-caption-save],[data-caption-cancel],[data-expand],[data-step],[data-collapse],[data-filter-status],[data-filter-sport],[data-filter-source],[data-import-run],[data-plan-approve],[data-open-post],[data-command],[data-more],[data-cal-shift],[data-cal-today],[data-cal-mode],[data-pub-tab],[data-queue-prep],[data-gal],.sheet-backdrop,.lightbox");
+    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-new-codes],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-post-record],[data-design],[data-pub],[data-caption-open],[data-caption-save],[data-caption-cancel],[data-expand],[data-step],[data-collapse],[data-filter-status],[data-filter-sport],[data-filter-group],[data-import-run],[data-plan-approve],[data-open-post],[data-command],[data-more],[data-cal-shift],[data-cal-today],[data-cal-mode],[data-pub-tab],[data-queue-prep],[data-gal],.sheet-backdrop,.lightbox");
     if (!t) return;
     if (await navAction(t, e)) return;
     if (t.dataset.captionOpen) {

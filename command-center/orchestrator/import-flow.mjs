@@ -114,7 +114,7 @@ export function createImportFlow(ctx) {
         schema: p.schema, dedupeId: p.dedupeId, contentType: p.contentType, variant: p.variant ?? null, sourceFile, contentSha256: p.contentSha256,
         idempotencyKey: p.idempotencyKey ?? null, eligibilityClass: p.eligibilityClass ?? null, snapshotRefs: p.snapshotRefs ?? [], verification: p.verification ?? null,
         provenance: prov, freshness: p.freshness ?? null, window: p.window ?? null, recommendation, disclosures: p.disclosures ?? [], socialAuthorized: p.approval?.socialAuthorized === true,
-        designVersion: p.designVersion ?? "1", containsMarketData: lines, snapshotId: p.snapshotId ?? p.content?.game?.snapshotId ?? null, quote: p.content?.quotedAt ?? null, content: lines ? null : p.content ?? null, importedAt: clock(),
+        designVersion: p.designVersion ?? "1", rights: lines ? "QUOTE_ON_SOCIAL" : "MODEL_ONLY", anomalyCheck: p.anomalyCheck ?? "NOT_RUN", anomalies: lines ? [] : p.anomalies ?? [], caveats: p.availabilityCaveats ?? [], modelVersion: p.modelVersion ?? null, containsMarketData: lines, snapshotId: p.snapshotId ?? p.content?.game?.snapshotId ?? null, quote: p.content?.quotedAt ?? null, content: lines ? null : p.content ?? null, importedAt: clock(),
       },
     };
     const options = [...(cc.captions ?? [])];
@@ -123,8 +123,8 @@ export function createImportFlow(ctx) {
     return sealPackage(pkg, { check: checkImportedCaption });
   }
 
-  function propose(pkg, runId) {
-    const decisionId = shortId("post", { dedupeId: pkg.imported.dedupeId, contentSha256: pkg.contentKey });
+  function propose(pkg, runId, lifted = []) {
+    const decisionId = shortId("post", { dedupeId: pkg.imported.dedupeId, contentSha256: pkg.contentKey, ...(lifted.length ? { lifted } : {}) });
     store.append("decision-request", "launch-readiness-import", {
       decisionId, commandId: `import:${runId}`, kind: "post", subjectType: "post-package", postId: pkg.postId, date: pkg.date, package: pkg, calendar: null, requestedBy: "launch-readiness-import",
       question: `${pkg.sport} · ${pkg.title}: approve one caption, reject, ask for a revision, or defer? Approving authorizes this one post; nothing was scheduled by the import.`,
@@ -141,7 +141,11 @@ export function createImportFlow(ctx) {
     const postId = p.commandCenter.postId;
     const all = ctx.posts();
     const mine = all.filter((x) => x.package?.imported?.dedupeId === p.dedupeId || baseIdOf(x.package?.postId ?? "") === baseIdOf(postId));
-    if (mine.some((x) => x.package?.contentKey === p.contentSha256)) return { ...id, outcome: "duplicate", code: "SAME_CONTENT", detail: "already imported", decisionId: mine.find((x) => x.package?.contentKey === p.contentSha256).decisionId };
+    const same = mine.filter((x) => x.package?.contentKey === p.contentSha256 && x.lifecycle !== "superseded").at(-1) ?? mine.find((x) => x.package?.contentKey === p.contentSha256);
+    // same content, but a blocker has been lifted since (an authorization, not a date): propose it again as it now stands
+    const nowCodes = new Set(blockersOf({ ...p, sport: p.commandCenter.sport ?? SPORTS[p.sport] }, { now: clock() }).map((b) => b.code));
+    const lifted = same?.lifecycle === "drafted" ? (same.package.blockers ?? []).map((b) => b.code).filter((c) => ![BLOCK.EXPIRED, BLOCK.OVERLAP].includes(c) && !nowCodes.has(c)) : [];
+    if (same && !lifted.length) return { ...id, outcome: "duplicate", code: "SAME_CONTENT", detail: "already imported", decisionId: same.decisionId };
     // the one thing that may follow an approval: the clean export of an approved review copy (it needs its own approval)
     const cleanOf = p.approval?.socialAuthorized === true ? mine.find((x) => x.lifecycle === "approved" && !x.receipt && isReviewCopy(x.package)) : null;
     const held = mine.find((x) => x !== cleanOf && (x.receipt || ["approved", "scheduled", "published", "rejected"].includes(x.lifecycle)));
@@ -155,10 +159,10 @@ export function createImportFlow(ctx) {
     } else if (over.noted.length) {
       pkg = { ...pkg, reasons: [...pkg.reasons, `An undecided Command Center draft covers the same content: ${over.noted.map((x) => x.package.title).join("; ")}.`] };
     }
-    const claim = store.claim(`import|${p.dedupeId}|${p.contentSha256}`, { runId });
+    const claim = store.claim(`import|${p.dedupeId}|${p.contentSha256}${lifted.length ? `|${lifted.join("+")}` : ""}`, { runId });
     if (!claim.won) return { ...id, outcome: "duplicate", code: "ALREADY_CLAIMED", detail: `claimed by ${claim.record.value.runId}` };
     if (cleanOf) store.append("post-status", "launch-readiness-import", { decisionId: cleanOf.decisionId, postId: cleanOf.postId, status: "invalidated", reason: "the clean export arrived: approve that version", replacedBy: pkg.postId, recordedAt: clock() });
-    const decisionId = propose(pkg, runId);
+    const decisionId = propose(pkg, runId, lifted);
     return { ...id, outcome: mine.length ? "new-version" : "imported", decisionId, postId, status: pkg.status, blockers: pkg.blockers.map((b) => b.code), images: pkg.mediaSet.length, hiRes: pkg.hiRes.length, captionsOk: pkg.captions.filter((c) => c.check.ok).length };
   }
 

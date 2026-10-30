@@ -263,6 +263,41 @@ test("an import that changes nothing records no run; a bad designVersion is refu
   assert.equal(H.o.importPackages({}, FOUNDER).counts.refused, 1);
 });
 
+test("model-only NBA Top 5 is approvable; the real-line variant isn't; a board imported while blocked is re-proposed once the blocker lifts", async () => {
+  const H = harness();
+  const model = { contentType: "NBA_DAILY_TOP5", variant: "pts-model", content: { board: "pts", linesShown: 0, rows: [{ rank: 1, name: "A", value: 25 }] } };
+  write(H.root, "m", model);
+  write(H.root, "l", { contentType: "NBA_DAILY_TOP5", variant: "pts", content: { board: "pts", linesShown: 5, rows: [{ line: { text: "U 34.5" } }] } });
+  H.o.importPackages({}, FOUNDER);
+  const posts = H.o.state().posts;
+  const m = posts.find((p) => p.package.imported.variant === "pts-model");
+  assert.deepEqual([m.package.status, m.package.blockers, m.package.imported.rights], ["READY", [], "MODEL_ONLY"]);
+  const l = posts.find((p) => p.package.imported.variant === "pts");
+  assert.equal(l.package.imported.rights, "QUOTE_ON_SOCIAL");
+  design(H, m);
+  assert.equal((await approve(H, m)).ok, true);
+  // a stale blocked record, as the live ledger holds from before the authorization
+  const J = harness();
+  const was = write(J.root, "m", model);
+  J.o.importPackages({}, FOUNDER);
+  const first = post(J);
+  J.store.append("decision-request", "launch-readiness-import", { decisionId: "post-stale", commandId: "c", kind: "post", subjectType: "post-package", postId: was.commandCenter.postId, date: was.date, package: { ...first.package, status: "BLOCKED", blockers: [{ code: BLOCK.NBA_BOARDS, detail: "old" }] }, options: first.options });
+  assert.deepEqual(J.o.importPackages({}, FOUNDER).counts, { "new-version": 1 });
+  assert.deepEqual(J.o.importPackages({}, FOUNDER).counts, { duplicate: 1 });
+  const cur = J.o.state().posts.filter((p) => p.lifecycle === "drafted");
+  assert.deepEqual([cur.length, cur[0].package.status], [1, "READY"]);
+});
+
+test("a package flagged for anomaly review is blocked and can't be approved", async () => {
+  const H = harness();
+  write(H.root, "s", { contentType: "NBA_PLAYER_STATS", anomalyCheck: "REVIEW", anomalies: [{ playerId: "1", market: "pts", verdict: "INCORRECT_MINUTES" }], content: { matchup: "CHA @ WSH" } });
+  H.o.importPackages({}, FOUNDER);
+  const x = post(H);
+  assert.ok(x.package.blockers.some((b) => b.code === BLOCK.ANOMALY));
+  design(H, x);
+  assert.equal((await approve(H, x)).code, "NOT_READY");
+});
+
 test("restart: imported posts, media and approvals survive a new process on the same ledger", async () => {
   const dir = tempDir("gtp-cc-import-");
   const A = harness({ dir });
