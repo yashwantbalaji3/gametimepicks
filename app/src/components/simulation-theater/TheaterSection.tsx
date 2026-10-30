@@ -23,6 +23,8 @@ import { fieldMap, overlayFrame } from "@/lib/simulation-theater/field-geometry.
 import { packTheater } from "@/lib/simulation-theater/theater-pack.mjs";
 import { officialRunIndex } from "@/lib/simulation-theater/representative-labels.mjs";
 import { OfficialForecastCard, RoleTag, RunRoleNotice } from "./RepresentativeParts";
+import type { RunBoxes } from "./BoxScoreTable";
+import { packRunBoxes } from "@/lib/simulation-theater/nfl-run-box-score.mjs";
 
 const SSR_W = 1200;
 const SSR_H = 561;
@@ -51,7 +53,8 @@ function FinalFrame({ manifest, sample }: { manifest: TheaterManifest; sample: T
   );
 }
 
-export default function TheaterSection({ load, devHooks = false }: { load: TheaterLoad; devHooks?: boolean }) {
+/** `runBoxes`: the verified player boxes of the stored runs (stored in the receipt: lib/simulation-theater/nfl-stored-run-box.mjs); shipped to the island packed (run-box-pack@1). */
+export default function TheaterSection({ load, devHooks = false, runBoxes }: { load: TheaterLoad; devHooks?: boolean; runBoxes?: RunBoxes | null }) {
   if (!load.ok || !load.manifest) {
     return (
       <div className="st-root" style={THEATER_VARS as CSSProperties}>
@@ -99,5 +102,6 @@ export default function TheaterSection({ load, devHooks = false }: { load: Theat
       )}
     </div>
   );
-  return <TheaterLoader pack={packTheater(manifest)} devHooks={devHooks}>{shell}</TheaterLoader>;
+  const runBoxPack = runBoxes === undefined ? undefined : runBoxes ? { p: packRunBoxes(runBoxes.boxes), x: runBoxes.refusals, e: runBoxes.error } : null;
+  return <TheaterLoader pack={packTheater(manifest)} devHooks={devHooks} runBoxPack={runBoxPack}>{shell}</TheaterLoader>;
 }

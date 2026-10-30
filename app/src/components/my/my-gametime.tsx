@@ -287,7 +287,7 @@ function PlayersModule({ followed }: { followed: FollowRef[] }) {
                         <dl style={{ margin: 0 }}>
                           {p.markets.map((m) => (
                             <div key={m.key} style={{ display: "flex", justifyContent: "space-between", gap: 8, fontSize: 12 }}>
-                              <dt style={{ color: "var(--vault-text-mute)" }}>{m.label}</dt>
+                              <dt style={{ color: "var(--vault-text-mute)" }}>{m.label}{m.estimate ? <span data-estimate={m.key} style={{ display: "block", fontSize: 10, color: "var(--vault-text-faint)" }}>{m.estimate}</span> : null}</dt>
                               <dd style={{ margin: 0, fontFamily: MONO, color: "var(--vault-text)" }}>{m.display?.value ?? m.median} <span style={{ color: "var(--vault-text-faint)" }}>({m.display?.range ?? `${m.p10}–${m.p90}`})</span></dd>
                             </div>
                           ))}

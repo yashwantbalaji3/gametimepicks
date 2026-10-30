@@ -29,6 +29,7 @@ import { projectMlbForecast } from "@/lib/live/forecast-join.mjs";
 import { loadCurrentNflResults } from "@/lib/sports/nfl/current-results.mjs";
 import { archivedEventIds } from "@/lib/sports/nfl/archived-forecast";
 import { MARKET_KEY, PLAYER_FAMILIES, formatValue } from "@/lib/sports/nfl/forecast-view.mjs";
+import { estimateLabel } from "@/lib/sports/nfl/family-publication.mjs";
 import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
 import { nflPublicRecordResolver } from "@/lib/sports/nfl/public-record.mjs";
 import { LEDGER_URLS, parseLedger } from "@/lib/saved/results.mjs";
@@ -75,8 +76,9 @@ export interface MyPlayerRow {
   href: string | null;
   /** v1.3: this athlete's Player Research page, when the exact id has one (never by name). */
   researchHref: string | null;
-  /** PUBLISHED families only, each as its frozen p10–median–p90 (numbers kept at 1 dp for Ask / My GameTime). */
-  markets: Array<{ key: string; label: string; median: number; p10: number; p90: number; display: NflMarketDisplay }>;
+  /** PUBLISHED families (plus, when asked for, ESTIMATE families with their one `estimate` label — founder P0 2026-10-30),
+   *  each as its frozen p10–median–p90 (numbers kept at 1 dp for Ask / My GameTime). */
+  markets: Array<{ key: string; label: string; median: number; p10: number; p90: number; display: NflMarketDisplay; estimate?: string | null }>;
   /** Session 4: the PUBLISHED anytime-TD probability (conditioned on playing), exactly as the game page shows it; null when absent. */
   anytimeTd?: number | null;
 }
@@ -283,25 +285,40 @@ export function buildMyReadModel({ nowIso }: { nowIso?: string } = {}): MyReadMo
  * Measured: inline, these were 108 KB of a 142 KB page payload, sent to every reader although only a
  * reader who follows an NFL player can use a single row. The client fetches the file only in that case.
  */
-export function buildMyPlayerRows(): MyPlayerRow[] {
+/** The families of one board a player row lists (PUBLISHED; ESTIMATE too when asked, with its one label). Pure. */
+export function nflRowFamilies(board: any, { includeEstimates = false }: { includeEstimates?: boolean } = {}): Array<{ key: string; label: string; estimate: string | null }> {
+  return Object.entries(board?.families ?? {})
+    .filter(([key, fam]: [string, any]) => fam?.state === "PUBLISHED" || (includeEstimates && fam?.state === "ESTIMATE" && key !== "anytime_td"))
+    .map(([key, fam]: [string, any]) => ({ key, label: String(fam.label ?? key), estimate: fam?.state === "ESTIMATE" ? estimateLabel(fam.reason) : null }));
+}
+
+/** One player's range markets on one board, exactly as the player page and My GameTime print them. Pure. */
+export function nflPlayerMarkets(board: any, player: any, opts: { includeEstimates?: boolean } = {}): MyPlayerRow["markets"] {
+  return nflRowFamilies(board, opts)
+    .map(({ key, label, estimate }) => {
+      const m = player?.markets?.[key];
+      // A range family only: probability families (anytime TD) are not rendered as a range here.
+      if (!m || typeof m.median !== "number" || typeof m.p10 !== "number" || typeof m.p90 !== "number") return null;
+      return { key, label, median: round1(m.median), p10: round1(m.p10), p90: round1(m.p90), display: nflMarketDisplay(key, m), ...(estimate ? { estimate } : {}) };
+    })
+    .filter((m): m is NonNullable<typeof m> => m !== null);
+}
+
+/**
+ * `includeEstimates` (founder P0 2026-10-30): the player page and My GameTime show a family the board marks ESTIMATE
+ * exactly as the game page does — the same digits (nflMarketDisplay → formatValue) and the one label (estimateLabel).
+ * Ask and Compare keep the default (PUBLISHED only) — their answers are not labelled per family.
+ */
+export function buildMyPlayerRows({ includeEstimates = false }: { includeEstimates?: boolean } = {}): MyPlayerRow[] {
   const pageIds = nflPageIds();
   const players: MyPlayerRow[] = [];
   for (const b of readJson("nfl/player-board/latest.json")?.boards ?? []) {
     const board = readJson(`nfl/player-board/${b.providerEventId}.json`);
     if (!board) continue;
-    const published = Object.entries(board.families ?? {})
-      .filter(([, fam]: [string, any]) => fam?.state === "PUBLISHED")
-      .map(([key, fam]: [string, any]) => ({ key, label: String(fam.label ?? key) }));
+    const published = nflRowFamilies(board, { includeEstimates });
     for (const p of board.players ?? []) {
       if (typeof p?.playerId !== "string" || !/^nfl-athlete-\d+$/.test(p.playerId)) continue;
-      const markets = published
-        .map(({ key, label }) => {
-          const m = p.markets?.[key];
-          // A range family only: probability families (anytime TD) are not rendered as a range here.
-          if (!m || typeof m.median !== "number" || typeof m.p10 !== "number" || typeof m.p90 !== "number") return null;
-          return { key, label, median: round1(m.median), p10: round1(m.p10), p90: round1(m.p90), display: nflMarketDisplay(key, m) };
-        })
-        .filter((m): m is NonNullable<typeof m> => m !== null);
+      const markets = nflPlayerMarkets(board, p, { includeEstimates });
       /* Session 4 (Ask parity): the game page's "Likely TD scorers" read this same board field. Ask had no
          touchdown number at all and told a reader GameTimePicks "does not hold touchdown scorer data". */
       const td = published.some(({ key }) => key === "anytime_td") ? p.markets?.anytime_td?.probability : null;

@@ -61,7 +61,7 @@ import LiveNow from "@/components/live/live-now";
 import FamilyTabs from "@/components/nfl/forecast/family-tabs";
 import EtTime from "@/components/ui/et-time";
 import { topBoardTabs } from "@/lib/sports/nfl/forecast-view.mjs";
-import { TOP_BOARD_METHOD, dailyFor, etDateOfKickoff, pregameScope } from "@/lib/sports/nfl/top-boards.mjs";
+import { TOP_BOARD_METHOD, boardRanks, dailyFor, etDateOfKickoff, pregameScope } from "@/lib/sports/nfl/top-boards.mjs";
 import { formatUpdatedEt } from "@/lib/format";
 import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 import { sanitizeVaultArtifact } from "@/lib/sports/odds/public-offer-sanitizer.mjs";
@@ -380,7 +380,7 @@ export default function NflHubPage() {
      weekly-boards artifact's `topBoards` (lib/sports/nfl/top-boards.mjs — the one ranking owner, official player board
      only). The hub never ranks. A family that is not publication-qualified shows its readiness line, never a list. */
   type TopBoardsScope = { scope: { kind: string; eventsIncluded: number; eventsDroppedAfterKickoff: number; events?: string[] }; boards: Array<Record<string, unknown>> };
-  type TopBoardsBlock = { weekly: TopBoardsScope; daily: Array<TopBoardsScope & { etDate: string }> };
+  type TopBoardsBlock = { weekly: TopBoardsScope; daily: Array<TopBoardsScope & { etDate: string }>; fullWeek?: TopBoardsScope & { scope: { eventsCompleted?: number; completedEvents?: string[] } } };
   /* Shown only while one of the board's games is still to kick off at this build: after the week's last kickoff there is
      nothing left to rank and the section (and its link) is omitted, as before (2026-10-20). */
   const kickoffOf = new Map<string, string>((forecastArtifact?.forecasts ?? []).map((x: { providerEventId?: string; kickoffUtc?: string }) => [String(x.providerEventId), String(x.kickoffUtc ?? "")] as [string, string]));
@@ -392,6 +392,8 @@ export default function NflHubPage() {
   const topBoardsBlock: TopBoardsBlock | null = weeklyBoards?.topBoards && weeklyPregame ? { ...weeklyBoards.topBoards, weekly: weeklyPregame } : null;
   const todayEt = etDateOfKickoff(nowIso);
   const todayLive = topBoardsBlock ? (pregameScope(dailyFor(topBoardsBlock, todayEt), nowIso, kickoffAt) as (TopBoardsScope & { etDate: string }) | null) : null;
+  /* Full week (founder P0 2026-10-30): every game incl. those already kicked off, from their frozen pre-kickoff boards. */
+  const fullWeekBoards = topBoardsBlock?.fullWeek && (topBoardsBlock.fullWeek.scope.eventsCompleted ?? 0) > 0 ? topBoardsBlock.fullWeek : null;
   // per-event calibration sentence, keyed the same way the index keys events
 
 
@@ -727,7 +729,7 @@ export default function NflHubPage() {
           <SectionHeader
             eyebrow={`This week · ${topBoardsBlock.weekly.scope.eventsIncluded} ${topBoardsBlock.weekly.scope.eventsIncluded === 1 ? "game" : "games"}${topBoardsBlock.weekly.scope.kind === "REMAINING_EVENTS" ? " still to kick off" : ""}`}
             title="Top boards"
-            sub="The official player board's top five in passing yards, rushing yards, receiving yards, receptions and anytime touchdown — the same numbers as each game page. Players listed as Questionable, Doubtful or Out are left out; a statistic that has not cleared its publication standard says so instead of ranking."
+            sub="The official player board's top five in passing yards, rushing yards, receiving yards, receptions and anytime touchdown — the same numbers as each game page. Players listed as Questionable, Doubtful or Out are left out; a statistic marked Estimate has not yet met its calibration standard and is labelled so."
           />
           <FamilyTabs
             {...topBoardTabs(topBoardsBlock.weekly)} linkToGame label="hub-boards" listLabel="Weekly leaders by statistic" staticPanels="active" emptyText="No player is cleared for this list in the games still to kick off."
@@ -743,9 +745,19 @@ export default function NflHubPage() {
               />
             </div>
           ) : null}
+          {fullWeekBoards ? (
+            <details style={{ marginTop: 18 }} data-top-boards-full-week>
+              <summary className="font-mono" style={{ cursor: "pointer", fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--vault-text-mute)", minHeight: 44 }}>
+                Full week · all {fullWeekBoards.scope.eventsIncluded} games ({fullWeekBoards.scope.eventsCompleted} completed, shown with their pre-kickoff projections)
+              </summary>
+              <FamilyTabs
+                {...topBoardTabs(fullWeekBoards)} linkToGame label="hub-boards-full-week" listLabel="Full-week leaders by statistic" staticPanels="active" emptyText="No player is cleared for this list this week."
+              />
+            </details>
+          ) : null}
           {/* Track D (2026-10-29): each board's ranking method, stated — medians are never relabelled as a chance to go over a line. */}
           <ul data-ranking-methods style={{ margin: "10px 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720 }}>
-            {topBoardsBlock.weekly.boards.filter((b) => b.state === "PUBLISHED").map((b) => {
+            {topBoardsBlock.weekly.boards.filter((b) => boardRanks(b)).map((b) => {
               const fam = String(b.family) as keyof typeof TOP_BOARD_METHOD;
               return TOP_BOARD_METHOD[fam] ? <li key={fam} data-ranking-method={fam}>{String(b.label ?? fam)}: {TOP_BOARD_METHOD[fam].text}</li> : null;
             })}

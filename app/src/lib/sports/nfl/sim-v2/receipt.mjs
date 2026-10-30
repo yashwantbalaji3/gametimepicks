@@ -10,6 +10,8 @@
  */
 import { NFL_SIM_V2_ENGINE, NFL_SIM_V2_VERSION, N_PERIODS, N_PSTAT, N_TSTAT, PSTAT, TEAM_STAT, runRng, simulateGame, tiltedTable } from "./engine.mjs";
 import { fnv1a64 } from "../../../forecast-ledger/identity.mjs";
+import { safeNflRunBoxScore } from "../../../simulation-theater/nfl-run-box-score.mjs";
+import { RUN_BOX_RECORD_FIELD, buildRunBoxRecord } from "../../../simulation-theater/nfl-stored-run-box.mjs";
 
 export const SIMULATION_RECEIPT_SCHEMA = "simulation-receipt@2";
 export const RUN_SCHEMA_VERSION = "nfl-drive-run@1";
@@ -222,9 +224,29 @@ export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors,
     period: [new Float64Array(N_PERIODS), new Float64Array(N_PERIODS)],
     players: prep ? [new Float64Array((prep[0].n + 1) * N_PSTAT), new Float64Array((prep[1].n + 1) * N_PSTAT)] : null,
   };
+  // With players, each representative run's play log (nfl-play-log@1) is folded into its player box HERE, with the
+  // exact inputs the run was simulated with, cross-checked against the engine's accumulators, and stored in the
+  // receipt (representativeRunBoxes, nfl-stored-run-box.mjs) — readers never re-derive it from moving input files.
+  const named = (arr, names) => Object.fromEntries(Object.entries(names).map(([k, i]) => [k, arr[i]]));
+  const runBoxes = {};
   const representativeRuns = representativeIndices(batch, hw >= aw).map(([kind, idx]) => {
     const events = [];
-    const run = simulateGame({ compiled, tables, players: prep, rng: runRng(baseSeed, idx), postseason, out: scratch, events });
+    const plays = prep ? [] : null;
+    const run = simulateGame({ compiled, tables, players: prep, rng: runRng(baseSeed, idx), postseason, out: scratch, events, plays });
+    if (prep && !runBoxes[idx]) {
+      runBoxes[idx] = safeNflRunBoxScore({
+        runIndex: idx,
+        teams: { home: { abbr: event.home.abbr }, away: { abbr: event.away.abbr } },
+        slots: [prep[0].slots, prep[1].slots],
+        drives: events,
+        plays,
+        final: { home: run.score[0], away: run.score[1], overtime: run.ot },
+        engine: {
+          team: [named(scratch.team[0], TEAM_STAT), named(scratch.team[1], TEAM_STAT)],
+          players: [0, 1].map((s) => Array.from({ length: prep[s].n + 1 }, (_, slot) => named(scratch.players[s].subarray(slot * N_PSTAT, (slot + 1) * N_PSTAT), PSTAT))),
+        },
+      });
+    }
     return {
       label: REPRESENTATIVE_LABEL,
       kind,
@@ -279,6 +301,7 @@ export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors,
       teamTdCount: { home: teamTd(0), away: teamTd(1) },
     },
     representativeRuns,
+    ...(prep ? { [RUN_BOX_RECORD_FIELD]: buildRunBoxRecord(runBoxes) } : {}),
     validation: { coherenceChecks: COHERENCE_CHECKS, sampleCount: n, failedRuns: batch.failedRuns, failureCodes: batch.failureCodes },
   };
   return { ...body, generatedAt, artifactHash: fnv1a64(JSON.stringify(body)) };

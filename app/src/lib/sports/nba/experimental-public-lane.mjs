@@ -53,6 +53,37 @@ export const AMENDMENT_A = Object.freeze({
   doc: "docs/V18_NBA_REGULAR_SEASON_PREREGISTRATION.md §13 amendment A",
   surface: "/nba/projections",
 });
+/**
+ * §13 AMENDMENT B — DAILY TOP BOARDS (founder decisions 2026-10-29 and 2026-10-30). The committed lane files say "No
+ * sportsbook prices, lines, edges, picks or rankings" (`withheld.markets`); those files are frozen and are never
+ * rewritten, so the publication decision is recorded HERE, in code, beside amendment A. It amends only the "no rankings"
+ * clause, and only for the surface and the shape below: every other withheld item (prices, lines, edges, picks, ranges,
+ * team scores, probabilities) stays withheld, and amendment A's reader's sort is unchanged.
+ *
+ * Shape: one board per statistic (points, rebounds, assists, threes made, PRA, P+R, P+A), ranked by the lane's own
+ * projected MEDIAN, titled by that metric, over the pregame games of the CURRENT slate only, and rendered only when the
+ * provenance gate passes (lane-top-boards.mjs `gateLaneTopBoards`: receipt structure + cross-page equality at build;
+ * receipt-hash re-derivation against the official v0.1 forecast at publish and in lane-top-boards.test.mjs) — otherwise an
+ * explicit unavailable state, never a partial board.
+ */
+export const AMENDMENT_B = Object.freeze({
+  id: "nba-experimental-public@1/amendment-B",
+  /** Amendment B's rollback switch: false removes the Top Boards section from /nba/projections (the board itself is untouched). */
+  enabled: true,
+  recorded: "2026-10-30",
+  surface: "/nba/projections",
+  amends: "withheld.markets — the \"rankings\" clause only",
+  decisions: Object.freeze([
+    Object.freeze({
+      date: "2026-10-29",
+      text: "I approve preparing NBA daily Top Boards from official canonical forecasts, provided the rankings are explicitly labeled by their actual metric (projected points, rebounds, assists, etc.) and are not misrepresented as sportsbook OVER probabilities. Before enabling their public publication, verify snapshot provenance and cross-page consistency.",
+    }),
+    Object.freeze({
+      date: "2026-10-30",
+      text: "deliver daily Top Boards for projected points, rebounds, assists (extend to threes and other markets), validate identities, snapshot versions and equality with game pages, and publish valid boards through the standard gated release process.",
+    }),
+  ]),
+});
 export const LANE = Object.freeze({
   id: "nba-experimental-public@1",
   /** The rollback switch: false removes every lane surface from the next build (one-line revert). */

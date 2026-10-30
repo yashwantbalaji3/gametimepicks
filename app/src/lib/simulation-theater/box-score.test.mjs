@@ -150,7 +150,7 @@ test("NOT_MODELED is never a number: player sections and unsupported team catego
   for (const p of box.players) {
     assert.equal(p.status, STATUS.NOT_MODELED);
     assert.equal(p.reason, PLAYER_NOT_MODELED_REASON);
-    assert.equal(p.reason, "this engine records drives, not plays or players");
+    assert.equal(p.reason, "the stored run record carries drives, not plays or players");
     assert.ok(!("value" in p) && !("rows" in p), "no player numbers at all");
   }
   const nm = box.categories.filter((c) => c.status === STATUS.NOT_MODELED);

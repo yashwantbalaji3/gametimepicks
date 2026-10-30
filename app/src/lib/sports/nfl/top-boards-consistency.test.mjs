@@ -74,7 +74,8 @@ function mismatches(artifact) {
   for (const [where, scope] of scopes) {
     const tabs = topBoardTabs(scope);
     for (const b of scope.boards) {
-      if (b.state !== "PUBLISHED") continue;
+      /* founder P0 2026-10-30: a labelled ESTIMATE board ranks rows again — they must hold the same one value everywhere */
+      if (b.state !== "PUBLISHED" && b.state !== "ESTIMATE") continue;
       const list = tabs.lists[VIEW_KEY[b.family]] ?? [];
       b.rows.forEach((r, i) => checkRow(where, b.family, b.method, r, list[i]?.player.playerId === r.playerId && list[i]?.rank === r.rank ? list[i].entry : null));
     }
@@ -144,7 +145,7 @@ test("ENGINE GUARD · a World Model V2 number in an official Top-board slot is c
 test("SOURCE · the hub and the week page render the artifact's topBoards through topBoardTabs, and rank nothing themselves", () => {
   const hub = fs.readFileSync(path.join(APP, "src/app/nfl/page.tsx"), "utf8");
   const week = fs.readFileSync(path.join(APP, "src/app/nfl/week/[key]/page.tsx"), "utf8");
-  assert.deepEqual([...hub.matchAll(/topBoardTabs\(([^)]*)\)/g)].map((m) => m[1]).sort(), ["todayLive", "topBoardsBlock.weekly"]);
+  assert.deepEqual([...hub.matchAll(/topBoardTabs\(([^)]*)\)/g)].map((m) => m[1]).sort(), ["fullWeekBoards", "todayLive", "topBoardsBlock.weekly"]);
   /* The week page renders the same rows in the V3 PredictionBoard layout (presentTopBoard); see the digits test below. */
   assert.deepEqual([...week.matchAll(/<TopBoardsList artifact=\{wb\} scope=\{([^}]*)\} \/>/g)].map((m) => m[1]).sort(), ["todayBoards", "weeklyPregame"]);
   assert.match(week, /const rows = presentTopBoard\(artifact, b\);/);
@@ -153,19 +154,31 @@ test("SOURCE · the hub and the week page render the artifact's topBoards throug
     assert.doesNotMatch(src, /\btopBoards\(\s*(loadForecastViews|views)/, `${name}: no second ranking from the forecast view`);
     assert.doesNotMatch(src, /rows\.sort\(/, `${name}: never re-ranks rows`);
   }
-  /* The week page no longer prints an ESTIMATE family's rows as a ranking (founder 2026-10-29). */
-  assert.match(week, /b\.state === "PUBLISHED" && b\.rows\?\.length \?/);
-  assert.doesNotMatch(week, /b\.state === "PUBLISHED" \|\| b\.state === "ESTIMATE"/);
+  /* founder P0 2026-10-30: an ESTIMATE family's rows render again, under the one estimate label (never unlabelled). */
+  assert.match(week, /\(b\.state === "PUBLISHED" \|\| b\.state === "ESTIMATE"\) && b\.rows\?\.length \?/);
+  assert.match(week, /<strong>\{estimateLabel\(b\.reason\)\}<\/strong>/);
+  assert.match(week, /<strong>\{b\.estimate\.label\}<\/strong>/);
 });
 
 test("week page (V3 PredictionBoard): every presented Top-board row prints the game page's digits", async () => {
   if (!wb?.topBoards) return;
   const { presentTopBoard } = await import("../../prediction-presentation/nfl.ts");
-  let n = 0;
+  let n = 0; let nEst = 0;
   for (const scope of [wb.topBoards.weekly, ...wb.topBoards.daily]) for (const b of scope.boards) {
     const pres = presentTopBoard(wb, b);
-    if (b.state !== "PUBLISHED") { assert.equal(pres.length, 0, `${b.id}: a not-qualified family presents no row`); continue; }
+    if (b.state !== "PUBLISHED" && b.state !== "ESTIMATE") { assert.equal(pres.length, 0, `${b.id}: a not-qualified family presents no row`); continue; }
     assert.equal(pres.length, b.rows.length);
+    if (b.state === "ESTIMATE") {
+      /* founder P0 2026-10-30: shown as a labelled estimate — the failed bar and caveat ride on every row; never a price */
+      assert.equal(b.estimate.label, "Estimate · calibration standard not yet met", b.id);
+      for (const p of pres) {
+        assert.equal(p.model.status, "ESTIMATE", `${b.id} ${p.player.name}: presented as an estimate`);
+        assert.equal(p.model.reason, b.estimate.reason, `${b.id} ${p.player.name}: the failed bar`);
+        assert.equal(p.model.caveat, b.estimate.caveat, `${b.id} ${p.player.name}: the caveat`);
+        assert.notEqual(p.market.state, "FROZEN_CAPTURE", `${b.id} ${p.player.name}: an estimate carries no price`);
+      }
+      nEst += pres.length;
+    } else for (const p of pres) assert.equal(p.model.status, "PUBLISHED", `${b.id} ${p.player.name}`);
     const vk = VIEW_KEY[b.family];
     pres.forEach((p, i) => {
       const r = b.rows[i];
@@ -179,6 +192,7 @@ test("week page (V3 PredictionBoard): every presented Top-board row prints the g
     });
   }
   assert.ok(n >= 15, `checked ${n} presented rows`);
+  if ([wb.topBoards.weekly, ...wb.topBoards.daily].some((s) => s.boards.some((b) => b.state === "ESTIMATE"))) assert.ok(nEst >= 1, "the committed week's estimate rows were presented and checked");
 });
 
 /* ── Track D (2026-10-29): the PLAYER PAGE and the snapshot's identity, for every Top-board row of the committed week ── */

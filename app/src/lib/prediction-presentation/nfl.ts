@@ -192,13 +192,20 @@ export function presentWeeklyBoard(artifact: WeeklyBoardsArtifact, board: Weekly
  * from the official player board) presents nothing; the page shows its readiness line instead.
  */
 export interface TopBoardRow extends Omit<WeeklyBoardRow, "p10" | "p90"> { rank: number; p10?: number | null; p90?: number | null }
-export interface TopBoard { id: string; family: string; method: string; title: string; label?: string; source: string; state: string; rows?: TopBoardRow[]; readiness?: { text?: string | null; detail?: string | null } }
+export interface TopBoard { id: string; family: string; method: string; title: string; label?: string; source: string; state: string; rows?: TopBoardRow[]; readiness?: { text?: string | null; detail?: string | null }; estimate?: { label: string; reason?: string | null; caveat?: string | null } }
+/* An ESTIMATE board (founder P0 2026-10-30) presents with status ESTIMATE, its reason and caveat, and no price. */
 export function presentTopBoard(artifact: WeeklyBoardsArtifact, board: TopBoard): PredictionPresentation[] {
-  if (board.state !== "PUBLISHED" || board.source !== "OFFICIAL_PLAYER_BOARD") return [];
+  if ((board.state !== "PUBLISHED" && board.state !== "ESTIMATE") || board.source !== "OFFICIAL_PLAYER_BOARD") return [];
+  if (board.state === "ESTIMATE" && !board.estimate?.label) return [];
+  const est = board.state === "ESTIMATE";
   const kind = board.method === "probability" ? "probability" : board.family === "player_receptions" ? "count" : "yards";
   const whole = (v: number | undefined | null) => (v == null || !Number.isFinite(v) ? undefined : Math.round(v));
   return (board.rows ?? []).flatMap((r) => {
-    const p = presentWeeklyBoardRow(artifact, { id: board.id, family: board.family, title: board.title, state: "PUBLISHED" }, { ...r, median: undefined, p10: whole(r.p10), p90: whole(r.p90) });
+    const p = presentWeeklyBoardRow(
+      artifact,
+      { id: board.id, family: board.family, title: board.title, state: est ? "ESTIMATE" : "PUBLISHED", ...(est && board.estimate?.reason ? { reason: board.estimate.reason } : {}), ...(est && board.estimate?.caveat ? { caveat: board.estimate.caveat } : {}) },
+      { ...r, median: undefined, p10: whole(r.p10), p90: whole(r.p90), ...(est ? { market: undefined } : {}) },
+    );
     if (!p) return [];
     if (p.model.kind === "NUMERIC") {
       const shown = formatValue(kind, r.value);

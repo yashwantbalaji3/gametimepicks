@@ -11,10 +11,10 @@
 import { useEffect, useRef, useState } from "react";
 import type { ComponentType, ReactNode } from "react";
 
-type IslandProps = { pack: unknown; devHooks?: boolean };
+type IslandProps = { pack: unknown; devHooks?: boolean; runBoxPack?: unknown };
 type IslandType = ComponentType<IslandProps>;
 
-export default function TheaterLoader({ pack, devHooks = false, children }: { pack: unknown; devHooks?: boolean; children: ReactNode }) {
+export default function TheaterLoader({ pack, devHooks = false, runBoxPack, children }: { pack: unknown; devHooks?: boolean; runBoxPack?: unknown; children: ReactNode }) {
   const [active, setActive] = useState(false);
   const [Island, setIsland] = useState<IslandType | null>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -35,7 +35,7 @@ export default function TheaterLoader({ pack, devHooks = false, children }: { pa
     return () => { alive = false; };
   }, [active, Island]);
 
-  if (Island) return <Island pack={pack} devHooks={devHooks} />;
+  if (Island) return <Island pack={pack} devHooks={devHooks} runBoxPack={runBoxPack} />;
   return (
     <div ref={ref} onPointerDown={() => setActive(true)} onFocusCapture={() => setActive(true)}>
       {children}

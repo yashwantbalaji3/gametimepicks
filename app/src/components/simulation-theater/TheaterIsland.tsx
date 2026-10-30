@@ -43,6 +43,8 @@ import { createAnnouncer, flush, offer, SEEK_SETTLE_MS } from "@/lib/simulation-
 import { TEAM_COLORS_VALIDATED, theaterPalette } from "@/lib/simulation-theater/nfl-team-colors.mjs";
 import { fieldMap, overlayFrame } from "@/lib/simulation-theater/field-geometry.mjs";
 import { unpackTheater } from "@/lib/simulation-theater/theater-pack.mjs";
+import { unpackRunBoxes } from "@/lib/simulation-theater/nfl-run-box-score.mjs";
+import type { RunBoxes } from "./BoxScoreTable";
 import { timelineLayout } from "@/lib/simulation-theater/timeline-layout.mjs";
 import { CAMERA_POLICY, cameraAt, cameraScreenX, cameraTransform, zoomCapFor } from "@/lib/simulation-theater/camera.mjs";
 import { breakCard, driveEndLowerThird, driveSituation, periodCard, progressYardsText, rolloverCard } from "@/lib/simulation-theater/broadcast.mjs";
@@ -503,8 +505,15 @@ function LowerThird({ f, ev, teams, sample, scoring, palette }: { f: SceneState;
 // ── the island ─────────────────────────────────────────────────────────────────────────────────────────────────
 type Pack = Parameters<typeof unpackTheater>[0];
 
-export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; devHooks?: boolean }) {
+type RunBoxPack = { p: Parameters<typeof unpackRunBoxes>[0]; x: RunBoxes["refusals"]; e: RunBoxes["error"] } | null | undefined;
+
+export default function TheaterIsland({ pack, devHooks = false, runBoxPack }: { pack: Pack; devHooks?: boolean; runBoxPack?: RunBoxPack }) {
   const manifest = useMemo(() => unpackTheater(pack) as TheaterManifest, [pack]);
+  // the verified player boxes of the stored runs (undefined: this page does not derive them; null: none verified)
+  const runBoxes = useMemo<RunBoxes | null | undefined>(
+    () => (runBoxPack === undefined ? undefined : runBoxPack ? { boxes: unpackRunBoxes(runBoxPack.p) as RunBoxes["boxes"], refusals: runBoxPack.x, error: runBoxPack.e } : null),
+    [runBoxPack],
+  );
   const teams = manifest.teams;
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const hook = useMemo(() => readDevHook(devHooks), [devHooks]);
@@ -1232,7 +1241,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
         {ruleLine}
       </BottomSheet>
       {sample && sample.validation.ok ? (
-        <BoxScoreDialog open={sheet === "box"} onClose={() => setSheet(null)} manifest={manifest} sample={sample} palette={palette} />
+        <BoxScoreDialog open={sheet === "box"} onClose={() => setSheet(null)} manifest={manifest} sample={sample} palette={palette} runBoxes={runBoxes} />
       ) : null}
       {sample && ev ? (
         <>

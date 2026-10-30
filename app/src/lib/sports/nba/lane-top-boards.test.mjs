@@ -1,8 +1,10 @@
 /**
  * NBA DAILY TOP BOARDS (lane-top-boards.mjs) on the COMMITTED lane files (every date, incl. 2026-10-29; 10-30 when it is
  * committed): every ranked row's value == the lane median == the /nba/projections row == the official snapshot median
- * (1 dp, same receipt payload hash); order is the stated method; pregame only; a missing median is never a zero; the
- * board is gated off public routes until the founder decides.
+ * (1 dp, same receipt payload hash); order is the stated method; pregame only; a missing median is never a zero.
+ * PUBLICATION (§13 amendment B, founder 2026-10-29/30): public on /nba/projections ONLY through gateLaneTopBoards — the
+ * provenance gate (receipt structure, latest == dated file; here also the receipt-hash RE-DERIVATION against the official
+ * v0.1 forecast for every committed date) and the cross-page gate; a failure is one explicit unavailable state.
  *
  * Run (from app/): npx tsx --test src/lib/sports/nba/lane-top-boards.test.mjs
  */
@@ -11,8 +13,10 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { buildLaneTopBoards, laneValue, NBA_LANE_TOP_BOARDS_PUBLICATION, NBA_LANE_BOARD_METHOD, NBA_LANE_TOP_BOARD_SIZE } from "./lane-top-boards.mjs";
-import { PROJECTION_BOARD_STATS } from "./experimental-public-lane.mjs";
+import { buildLaneTopBoards, laneValue, laneDisplay, laneProvenance, crossPageProblems, gateLaneTopBoards, NBA_LANE_TOP_BOARDS_PUBLICATION, NBA_LANE_BOARD_METHOD, NBA_LANE_TOP_BOARD_SIZE, NBA_TOP_BOARDS_UNAVAILABLE_TEXT } from "./lane-top-boards.mjs";
+import { PROJECTION_BOARD_STATS, AMENDMENT_B, snapshotMatchesSource } from "./experimental-public-lane.mjs";
+import { receiptIntegrity } from "./forecast-receipt.mjs";
+import { loadRosterIndex } from "./roster-index.mjs";
 import { boardRows } from "./projection-board-ops.mjs";
 import { nbaOfficialSnapshot, SnapshotRefusal } from "../../consistency/official-snapshot.mjs";
 
@@ -144,23 +148,139 @@ test("MISMATCH FAILS · a doctored board value is caught against the lane and /n
   assert.notEqual(r.value, proj.v[0]);
 });
 
-test("GATE · prepared, not public: no 'chance to beat the line', every title names its metric", () => {
-  assert.equal(NBA_LANE_TOP_BOARDS_PUBLICATION.public, false);
-  assert.equal(NBA_LANE_TOP_BOARDS_PUBLICATION.state, "APPROVED_FOR_PREPARATION");
+test("PUBLICATION · amendment B records the founder decisions; public only through the gate; titles name the metric; no line/odds/probability field", () => {
+  assert.equal(NBA_LANE_TOP_BOARDS_PUBLICATION.public, true);
+  assert.equal(NBA_LANE_TOP_BOARDS_PUBLICATION.state, "PUBLIC_GATED");
+  assert.equal(NBA_LANE_TOP_BOARDS_PUBLICATION.amendment, AMENDMENT_B.id);
+  assert.equal(AMENDMENT_B.surface, "/nba/projections");
+  assert.deepEqual(AMENDMENT_B.decisions.map((d) => d.date), ["2026-10-29", "2026-10-30"]);
+  assert.match(AMENDMENT_B.decisions[0].text, /^I approve preparing NBA daily Top Boards from official canonical forecasts, provided the rankings are explicitly labeled by their actual metric .* not misrepresented as sportsbook OVER probabilities\. Before enabling their public publication, verify snapshot provenance and cross-page consistency\.$/);
+  assert.match(AMENDMENT_B.decisions[1].text, /publish valid boards through the standard gated release process/);
+  // The committed lane files are untouched: they still carry their own "no rankings" text; the amendment is code-side.
+  assert.match(laneOf("2026-10-29").withheld.markets, /rankings/);
   const lane = laneOf("2026-10-29");
   const doc = buildLaneTopBoards(lane, { nowIso: preTip(lane) });
   for (const b of doc.boards) {
-    assert.equal(b.publication, "APPROVED_FOR_PREPARATION");
+    assert.equal(b.publication, "PUBLIC_GATED");
     assert.match(b.title, new RegExp(`^Highest projected ${b.label.toLowerCase().replace(/[+]/g, "\\+")} \\(model median\\)$`));
+    assert.match(b.methodText, new RegExp(`^Ranked by projected median ${b.label.toLowerCase().replace(/[+]/g, "\\+")} `), `${b.key}: the method names its metric`);
     assert.doesNotMatch(b.title + b.methodText, /chance to (go )?over(?! any line)|probability|odds/i);
     for (const r of b.rows) for (const k of Object.keys(r)) assert.doesNotMatch(k, /prob|over|under|edge|\bev\b|side|lean|direction|line|odds|price/i, `${b.key} row key ${k}`);
   }
+  for (const k of Object.keys(doc)) assert.doesNotMatch(k, /prob|edge|line|odds|price/i, `doc key ${k}`);
   for (const [k, m] of Object.entries(NBA_LANE_BOARD_METHOD)) assert.equal(m.metric, "median", k);
-  const src = fs.readFileSync(path.join(APP, "src/lib/sports/nba/lane-top-boards.mjs"), "utf8").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
-  assert.doesNotMatch(src, /compareToLine|line-comparison|evaluateMarket|odds|forecast-receipt|experimental-v0\.1|game-sim/);
-  /* No page or component imports it while the gate is closed. */
+  const strip = (f) => fs.readFileSync(path.join(APP, f), "utf8").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+  const src = strip("src/lib/sports/nba/lane-top-boards.mjs");
+  assert.doesNotMatch(src, /compareToLine|line-comparison|evaluateMarket|odds|forecast-receipt\.mjs|experimental-v0\.1|game-sim/);
+  /* No odds / line / market module anywhere in the import graph of the module or its component. */
+  const graph = (start) => {
+    const seen = new Set(), todo = [start];
+    while (todo.length) {
+      const f = todo.pop();
+      if (seen.has(f)) continue;
+      seen.add(f);
+      const text = fs.readFileSync(f, "utf8").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+      for (const [, spec] of text.matchAll(/(?:from|import)\s*\(?\s*"([^"]+)"/g)) {
+        const abs = spec.startsWith("@/") ? path.join(APP, "src", spec.slice(2)) : spec.startsWith(".") ? path.resolve(path.dirname(f), spec) : null;
+        if (!abs) continue;
+        const hit = [abs, `${abs}.tsx`, `${abs}.ts`].find((x) => fs.existsSync(x) && fs.statSync(x).isFile());
+        if (hit) todo.push(hit);
+      }
+    }
+    return [...seen].map((f) => path.relative(APP, f));
+  };
+  for (const f of [...graph(path.join(APP, "src/lib/sports/nba/lane-top-boards.mjs")), ...graph(path.join(APP, "src/components/nba/lane-top-boards.tsx"))]) {
+    assert.doesNotMatch(f, /odds|line-|prop-|market|price|parlay/, `the Top Boards import graph reaches ${f}`);
+  }
+  /* Exactly the approved importers: the current /nba/projections page and the section component (and the view that
+     renders it, by type and component only). The dated page never builds a board. */
   const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]));
   const importers = [...walk(path.join(APP, "src/app")), ...walk(path.join(APP, "src/components"))]
-    .filter((f) => /\.(tsx?|mjs)$/.test(f) && !/\.test\./.test(f) && /lane-top-boards/.test(fs.readFileSync(f, "utf8")));
-  assert.deepEqual(importers, [], "a public route imports the gated NBA Top boards");
+    .filter((f) => /\.(tsx?|mjs)$/.test(f) && !/\.test\./.test(f) && /lane-top-boards/.test(strip(path.relative(APP, f))))
+    .map((f) => path.relative(APP, f)).sort();
+  assert.deepEqual(importers, ["src/app/nba/projections/page.tsx", "src/components/nba/lane-top-boards.tsx", "src/components/nba/projections-view.tsx"]);
+  assert.match(strip("src/components/nba/projections-view.tsx"), /import NbaLaneTopBoards, \{ type LaneTopBoardsGate \} from "@\/components\/nba\/lane-top-boards";/);
+  assert.doesNotMatch(strip("src/app/nba/projections/[date]/page.tsx"), /topBoards|lane-top-boards/);
+  assert.match(strip("src/app/nba/projections/page.tsx"), /ctx\.lane && ctx\.role === "current"\s*\? \(gateLaneTopBoards\(ctx\.lane, \{ dated: loadLaneForDate\(ctx\.lane\.date \?\? ""\), nowIso: now\.toISOString\(\), startedIds: ctx\.games\.filter\(\(g\) => g\.status !== "upcoming"\)\.map\(\(g\) => g\.id\) \}\)/);
+});
+
+test("PROVENANCE · every committed date: each lane game's receipt re-derives from the official v0.1 forecast (the publisher's check) and the gate publishes", () => {
+  const rosters = loadRosterIndex(REPO);
+  let games = 0;
+  for (const date of dates) {
+    const lane = laneOf(date);
+    if (!lane.games?.length) continue;
+    const off = JSON.parse(fs.readFileSync(path.join(REPO, "data/internal/research", lane.source.file), "utf8"));
+    const byId = new Map(off.games.map((g) => [String(g.providerEventId), g]));
+    for (const g of lane.games) {
+      const src = byId.get(String(g.providerEventId));
+      assert.ok(src, `${date} ${g.providerEventId}: in the official forecast`);
+      assert.equal(receiptIntegrity(src).state, "OK", `${date} ${g.providerEventId}: receipt integrity`);
+      assert.ok(snapshotMatchesSource(g, src, { rosters }), `${date} ${g.providerEventId}: lane game re-derives from its receipt`);
+      games += 1;
+    }
+    assert.deepEqual(laneProvenance(lane, laneOf(date)), [], `${date}: provenance`);
+    const gate = gateLaneTopBoards(lane, { dated: laneOf(date), nowIso: preTip(lane) });
+    assert.equal(gate.state, "PUBLISHED", `${date}: ${JSON.stringify(gate.problems)}`);
+  }
+  assert.ok(games >= 60, `re-derived ${games} games`);
+  // latest.json is the newest dated file, byte for byte
+  const latest = JSON.parse(fs.readFileSync(path.join(LANE_DIR, "latest.json"), "utf8"));
+  assert.deepEqual(laneProvenance(latest, laneOf(latest.date)), []);
+});
+
+test("PROVENANCE FAILS → one explicit unavailable state, never a partial or fabricated board", () => {
+  const lane = laneOf("2026-10-29");
+  const at = preTip(lane);
+  const cases = {
+    "no dated file": [lane, null],
+    "latest drifted from the dated file": [lane, (() => { const d = structuredClone(lane); d.games[0].players.home[0].medians.pts += 1; return d; })()],
+    "broken payload hash": (() => { const l = structuredClone(lane); l.games[1].receipt.payloadSha256 = "not-a-hash"; return [l, l]; })(),
+    "frozen after tip-off": (() => { const l = structuredClone(lane); l.games[0].frozenAt = "2026-10-30T00:01:00Z"; return [l, l]; })(),
+    "wrong receipt family": (() => { const l = structuredClone(lane); l.games[2].receipt.family = "v1"; return [l, l]; })(),
+    "wrong source file": (() => { const l = structuredClone(lane); l.source.file = "nba/elsewhere/2026-10-29.json"; return [l, l]; })(),
+    "no source commit": (() => { const l = structuredClone(lane); l.source.commit = null; return [l, l]; })(),
+    "not the lane schema": (() => { const l = structuredClone(lane); l.lane = "other@1"; return [l, l]; })(),
+  };
+  for (const [name, [l, dated]] of Object.entries(cases)) {
+    const g = gateLaneTopBoards(l, { dated, nowIso: at });
+    assert.equal(g.state, "UNAVAILABLE", name);
+    assert.equal(g.reason, "PROVENANCE", name);
+    assert.equal(g.text, NBA_TOP_BOARDS_UNAVAILABLE_TEXT.PROVENANCE, name);
+    assert.ok(g.problems.length >= 1, name);
+    assert.equal("doc" in g, false, `${name}: no board travels with a failed gate`);
+  }
+});
+
+test("CROSS-PAGE FAILS: a doctored value, name, team or receipt is caught against the lane and /nba/projections", () => {
+  const lane = laneOf("2026-10-29");
+  const doc = buildLaneTopBoards(lane, { nowIso: preTip(lane) });
+  assert.deepEqual(crossPageProblems(doc, lane), []);
+  const tamper = (fn) => { const d = structuredClone(doc); fn(d.boards[3].rows[0]); return crossPageProblems(d, lane); };
+  assert.ok(tamper((r) => { r.value += 0.1; }).some((p) => /≠ lane/.test(p)));
+  assert.ok(tamper((r) => { r.value += 0.1; }).some((p) => /≠ \/nba\/projections/.test(p)));
+  assert.ok(tamper((r) => { r.team = "XXX"; }).some((p) => /team/.test(p)));
+  assert.ok(tamper((r) => { r.name = "Someone Else"; }).some((p) => /name/.test(p)));
+  assert.ok(tamper((r) => { r.receiptPayloadSha256 = "0".repeat(64); }).some((p) => /receipt/.test(p)));
+  assert.ok(tamper((r) => { r.providerAthleteId = "999999999"; }).some((p) => /not on the lane/.test(p)));
+  // display digits are the lane's own (String), never re-rounded or padded
+  for (const b of doc.boards) for (const r of b.rows) assert.equal(laneDisplay(r.value), String(r.value));
+  assert.equal(laneDisplay(null), "—");
+});
+
+test("GATE scope: switch off or no lane → no section; started / postponed games (schedule) leave the pregame scope; all tipped → unavailable", () => {
+  const lane = laneOf("2026-10-29");
+  const at = preTip(lane);
+  assert.equal(gateLaneTopBoards(lane, { dated: lane, nowIso: at, enabled: false }), null, "switch off");
+  assert.equal(gateLaneTopBoards(null, { dated: null, nowIso: at }), null, "no current lane");
+  assert.equal(gateLaneTopBoards({ ...lane, games: [] }, { dated: null, nowIso: at }), null, "an empty slate");
+  const first = String(lane.games[0].providerEventId);
+  const g = gateLaneTopBoards(lane, { dated: lane, nowIso: at, startedIds: [first] });
+  assert.equal(g.state, "PUBLISHED");
+  assert.deepEqual(g.doc.scope.eventsStarted, [first]);
+  for (const b of g.doc.boards) for (const r of b.rows) assert.notEqual(r.providerEventId, first, `${b.key}: ${r.name} is from a started game`);
+  const late = gateLaneTopBoards(lane, { dated: lane, nowIso: "2026-10-30T00:05:00Z" });
+  for (const b of late.doc.boards) for (const r of b.rows) assert.equal(lane.games.find((x) => String(x.providerEventId) === r.providerEventId).tipUtc, "2026-10-30T02:00Z");
+  const done = gateLaneTopBoards(lane, { dated: lane, nowIso: "2026-10-30T06:00:00Z" });
+  assert.deepEqual([done.state, done.reason, done.text], ["UNAVAILABLE", "NO_PREGAME_GAMES", NBA_TOP_BOARDS_UNAVAILABLE_TEXT.NO_PREGAME_GAMES]);
 });
