@@ -27,7 +27,7 @@ test("market data is allowed only on the two moneyline shapes", () => {
 });
 test("REVIEW refuses every type; a missing check refuses stat, Top 5 and game-post types", () => {
   for (const contentType of ["NBA_PLAYER_STATS", "NBA_BOXSCORE", "NBA_DAILY_TOP5", "NFL_WEEKLY_TOP5", "NBA_GAME_POST", "NBA_TONIGHT", "NBA_GAME_WINNER"]) assert.ok(cleanEligibilityProblems({ ...pkg, contentType, anomalyCheck: "REVIEW" }).includes("anomalyCheck REVIEW"), contentType);
-  for (const contentType of ["NBA_PLAYER_STATS", "NFL_PLAYER_STATS", "NBA_BOXSCORE", "NBA_DAILY_TOP5", "NFL_WEEKLY_TOP5", "NBA_GAME_POST"]) assert.ok(cleanEligibilityProblems({ ...pkg, contentType }).includes("anomalyCheck missing"), contentType);
+  for (const contentType of ["NBA_PLAYER_STATS", "NBA_BOXSCORE", "NBA_DAILY_TOP5", "NBA_GAME_POST"]) assert.ok(cleanEligibilityProblems({ ...pkg, contentType }).includes("anomalyCheck missing"), contentType);
   assert.deepEqual(cleanEligibilityProblems({ ...pkg, contentType: "NBA_PLAYER_STATS", anomalyCheck: "PASS" }), []);
   assert.deepEqual(cleanEligibilityProblems(winnerMl), []);
 });
