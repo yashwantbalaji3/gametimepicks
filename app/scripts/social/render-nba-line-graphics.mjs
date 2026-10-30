@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global document, window -- the page.evaluate callback below runs in the Playwright browser page, not in node */
 /**
  * NBA OVER/UNDER COMPARISON GRAPHICS — renderer CLI (Friday 2026-10-30 content day).
  *
