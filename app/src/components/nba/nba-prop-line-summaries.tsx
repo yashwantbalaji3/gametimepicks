@@ -5,8 +5,8 @@
  * Same gate, same published source and same comparison as the full section (nba-prop-lines.tsx): while
  * NBA_LINE_DISPLAY.public is false (Production) both exports return before reading anything — the summary renders
  * nothing and the map is `undefined`, so the listing components get no prop and their markup is byte-identical
- * (prop-line-surfaces-switch-off.test.mjs). With the switch on, a game shows its OVER / UNDER / NEUTRAL counts and
- * "N of M projections have a qualified sportsbook line" only when at least one of its lines is compared — and a line is
+ * (prop-line-surfaces-switch-off.test.mjs). With the switch on, a game shows one compact line (compared lines, ▲ ▼ = counts,
+ * a link to the full table) only when at least one of its lines is compared — and a line is
  * "compared" publicly only for a direction-qualified family (publicDirectionGate("nba"): pts, reb, ast, pra, ptsReb,
  * ptsAst since 2026-10-29). With no readable artifact for the date (no key, another key, a historical date) nothing is
  * shown and the map is `undefined`, exactly as with the switch off.
