@@ -57,6 +57,8 @@ jobs:
       github.event.workflow_run.head_branch == github.event.repository.default_branch
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      finals_committed: ${{ steps.capture.outputs.finals_committed }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -66,6 +68,7 @@ jobs:
           node-version: "20"
 
       - name: Capture NBA results, fold finals, commit if content changed
+        id: capture
         env:
           DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
         run: |
@@ -86,7 +89,9 @@ jobs:
             # Idempotent and append-only; re-run from fresh main on every attempt below. Mixed cards stay with
             # nightly-settle. Non-fatal: a grader problem never holds back the finals. Runs only when this capture
             # changed a finals file (most refreshes do not), so a quiet run costs nothing extra.
+            FINALS_CHANGED=0
             if [ -n "$(git status --porcelain -- "$RESULTS"/finals-*.json)" ]; then
+              FINALS_CHANGED=1
               (cd app && npx --yes tsx scripts/products/grade-level-a-suggestions.mjs --now "$NOW" --only-sport nba --write) \
                 || echo "::warning::Level A NBA grading did not complete (exit $?) — nightly-settle grades these cards"
             fi
@@ -108,7 +113,7 @@ jobs:
             git diff --cached --stat
             if [ "$DRY_RUN" = "true" ]; then echo "dry run — not committing"; exit 0; fi
             git commit -q -m "auto: nba results capture $NOW [skip ci]"
-            if git push -q origin HEAD:main; then echo "committed on attempt $ATTEMPT"; exit 0; fi
+            if git push -q origin HEAD:main; then echo "committed on attempt $ATTEMPT"; echo "finals_committed=$FINALS_CHANGED" >> "$GITHUB_OUTPUT"; exit 0; fi
             # Lost a race with another writer: re-capture on the new main (the finals record is write-once).
             echo "::warning::push lost a race (attempt $ATTEMPT) — re-capturing on the new main"
             sleep $((ATTEMPT * 15))
@@ -116,3 +121,25 @@ jobs:
           done
           echo "::error::could not push after 3 attempts"
           exit 1
+
+  # NEXT-SLATE CLOCK (founder 2026-10-30). A new final is exactly the moment nba-forecast-window may freeze and publish
+  # the next ET slate (lib/sports/nba/next-slate-publication.mjs), and it lands overnight, where no dependable clock
+  # ticks the window. So a run that COMMITTED a new final dispatches the window — a GITHUB_TOKEN workflow_dispatch
+  # starts a fresh chain (a workflow_run source here would put nba-finals-waiter past GitHub's 4-workflow limit; see
+  # workflow-trigger-depth.test.mjs). The window is a free decider: it HOLDs unless the slate's last final is in.
+  # No checkout, no secret beyond the token, `actions: write` only; a failed dispatch only warns.
+  tick-window:
+    needs: refresh
+    if: needs.refresh.outputs.finals_committed == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      actions: write
+    steps:
+      - name: Tick nba-forecast-window (next-slate publication)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh workflow run nba-forecast-window.yml --ref main \
+            || echo "::warning::could not tick nba-forecast-window — its crons and publication-watchdog still do"
