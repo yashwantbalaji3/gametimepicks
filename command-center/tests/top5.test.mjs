@@ -277,11 +277,11 @@ test("queue: one weekly NFL package (no per-prop posts), stable id across rebuil
   let dz = A.o.state().design;
   assert.equal(dz.template, SOCIAL_TEMPLATE);
   assert.equal(dz.approved, true, "the original fields, unchanged");
-  assert.deepEqual(dz.templates.map((x) => [x.template, x.approved]), [[SOCIAL_TEMPLATE, true], [TOP5_TEMPLATE, false]]);
+  assert.deepEqual(dz.templates.filter((x) => !x.template.startsWith("gtp-lr-")).map((x) => [x.template, x.approved]), [[SOCIAL_TEMPLATE, true], [TOP5_TEMPLATE, false]]);
   assert.ok(A.o.approveDesign({ template: TOP5_TEMPLATE, assetManifest: TOP5_ASSET_MANIFEST }, FOUNDER).ok);
   assert.equal(A.o.approveDesign({ template: TOP5_TEMPLATE, assetManifest: TOP5_ASSET_MANIFEST }, FOUNDER).duplicate, true);
   dz = A.o.state().design;
-  assert.ok(dz.templates.every((x) => x.approved));
+  assert.ok(dz.templates.filter((x) => !x.template.startsWith("gtp-lr-")).every((x) => x.approved));
   assert.equal(A.store.list().filter((e) => e.kind === "design-approval" && e.data.template === "gtp-social@2.3").length, 1, "history untouched");
   const p1 = current(A.o);
   assert.ok((await approveA(A.o, p1)).ok);

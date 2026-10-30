@@ -199,6 +199,9 @@ const server = http.createServer(async (req, res) => {
       return send(res, 200, { ok: r.ok, code: r.code ?? null, detail: r.detail ?? null, evidence: r.evidence });
     }
     if (url.pathname === "/api/post") return send(res, 200, orchestrator.recordPost(body, FOUNDER));
+    // Launch Readiness packages into founder review (nothing is approved or scheduled); the proposed content calendar
+    if (url.pathname === "/api/import/packages") return send(res, 200, orchestrator.importPackages({ root: body.root }, FOUNDER));
+    if (url.pathname === "/api/content-plan") return send(res, 200, orchestrator.approveContentPlan({ digest: body.digest }, FOUNDER));
     if (url.pathname === "/api/publishing") return send(res, 200, await publishingAction(body));
     if (url.pathname === "/api/design") return send(res, 200, orchestrator.approveDesign(body, FOUNDER));
     if (url.pathname === "/api/seat") return send(res, 200, orchestrator.setSeat(body.role, body.seat, FOUNDER));

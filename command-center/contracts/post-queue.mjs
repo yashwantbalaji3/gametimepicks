@@ -83,6 +83,8 @@ export function publishBundleOf(pkg, caption) {
     // V2.3 game post: the event, the forecast version (freeze + receipt hash) and the requested publishing time are bound
     ...(pkg.kind === "nba-game" ? { eventId: pkg.eventId, forecastVersion: pkg.forecastVersion ?? null, requestedPublishAt: pkg.suggestedPublishAt ?? null, featuredKey: pkg.featuredKey ?? null } : {}),
     // Top 5: the stable package identity, exactly what appears (content key), the first start and the requested time
+    // Imported (Launch Readiness): the package's identity and exactly what it shows; the publishing time is the founder's
+    ...(String(pkg.kind).startsWith("lr-") ? { packageId: pkg.postId, dedupeId: pkg.imported?.dedupeId ?? null, contentKey: pkg.contentKey ?? null, firstStartUtc: pkg.firstStartUtc ?? null } : {}),
     ...(pkg.kind === "top5-daily" || pkg.kind === "top5-weekly" ? { packageId: pkg.postId, contentKey: pkg.contentKey ?? null, firstStartUtc: pkg.firstStartUtc ?? null, requestedPublishAt: pkg.suggestedPublishAt ?? null } : {}),
     claimsDigest: digestOf(pkg.claims),
     // The verified VERSION (file, hash, numbers) — never the check's timestamp, which changes on every build.

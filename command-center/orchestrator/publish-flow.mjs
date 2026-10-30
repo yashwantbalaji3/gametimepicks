@@ -28,6 +28,7 @@ import path from "node:path";
 import { digestOf, shortId } from "../lib/util.mjs";
 import { publishBundleOf, parseXPostUrl } from "../contracts/post-queue.mjs";
 import { baseIdOf } from "../contracts/social-packages.mjs";
+import { IMPORT_SENDABLE, isImported, isReviewCopy } from "../contracts/imported-packages.mjs";
 import { createXPublisher, XPublishError, MAX_IMAGES } from "../publishers/x-api.mjs";
 import { checkFounder, SCHEDULER_ACTOR, DAILY_QUEUE_COMMAND } from "./policy.mjs";
 
@@ -42,7 +43,7 @@ export const liveTestAuthorizationText = (capUsd) => `I authorize live X test po
 // NBA Predicted Winner and stat lines go out together as the game post (V2.3), never on their own
 // Top 5 (founder 2026-10-29): one consolidated post per sport per daily slate, one per NFL week. Their once-only send
 // claim keys on the post's base identity (top5-week|NFL|2026-W08), so no version of a week can go out twice.
-const SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board", "top5-daily", "top5-weekly"]);
+const SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board", "top5-daily", "top5-weekly", ...IMPORT_SENDABLE]);
 /** The X scopes a send needs: posting, and media.write whenever the post carries images. */
 export const requiredScopes = (mediaCount) => ["tweet.write", ...(mediaCount ? ["media.write"] : [])];
 const startOf = (pkg) => pkg.tipUtc ?? pkg.kickoffUtc ?? pkg.verification?.kickoffUtc ?? pkg.firstKickoffUtc ?? null;
@@ -181,6 +182,8 @@ export function createPublishFlow(ctx) {
     if (!rec) return { ok: false, code: "UNKNOWN_POST", detail: decisionId };
     const pkg = rec.package;
     if (!SCHEDULABLE.has(pkg.kind)) return { ok: false, code: "NOT_SCHEDULABLE", detail: pkg.kind === "nba-pregame" || pkg.kind === "nba-players" ? "NBA graphics go out together as the game post: schedule the game post" : `${pkg.kind} posts are published by hand` };
+    if (isImported(pkg) && pkg.status !== "READY") return { ok: false, code: "IMPORT_BLOCKED", detail: pkg.reasons.join("; ") };
+    if (isReviewCopy(pkg)) return { ok: false, code: "REVIEW_COPY", detail: "this image carries the review banner: Launch Readiness must deliver the clean export first" };
     if (rec.resolution?.verdict !== "approve" || rec.invalidated) return { ok: false, code: "NOT_APPROVED", detail: "only an approved, current post can be scheduled" };
     if (rec.receipt) return { ok: false, code: "ALREADY_PUBLISHED", detail: rec.receipt.canonicalUrl };
     const start = startOf(pkg);
@@ -232,6 +235,8 @@ export function createPublishFlow(ctx) {
     // 2. approval, design
     if (rec.resolution?.verdict !== "approve") return refuse("NOT_APPROVED", "the post is not approved");
     if (rec.invalidated) return refuse("APPROVAL_INVALIDATED", rec.invalidated.reason);
+    if (isImported(pkg) && (pkg.status !== "READY" || !SCHEDULABLE.has(pkg.kind))) return refuse("IMPORT_BLOCKED", pkg.reasons.join("; ") || pkg.kind, "critical");
+    if (isReviewCopy(pkg)) return refuse("REVIEW_COPY", "this image carries the review banner: it can never be sent", "critical");
     if (pkg.template && !ctx.designApproved(pkg.template, pkg.assetManifest)) return refuse("DESIGN_NOT_APPROVED", `${pkg.template} is not approved`);
     const published = ctx.posts().find((p) => baseIdOf(p.package?.postId ?? "") === base && p.receipt);
     if (published) return refuse("ALREADY_PUBLISHED", published.receipt.canonicalUrl, "info");
@@ -242,6 +247,7 @@ export function createPublishFlow(ctx) {
     if (nowDigest !== rec.resolution.approvedExactDigest) return refuse("FINGERPRINT_CHANGED", "the caption, images or evidence differ from what was approved", "critical");
     const media = mediaOf(pkg);
     if (pkg.kind === "nba-game" && media.length !== 2) return refuse("MEDIA_MISSING", "an NBA game post carries exactly two graphics");
+    if (isImported(pkg) && (media.length < 1 || media.length > MAX_IMAGES)) return refuse("MEDIA_MISSING", `an imported post carries 1–${MAX_IMAGES} images; this one has ${media.length}`);
     if ((pkg.kind === "top5-daily" || pkg.kind === "top5-weekly") && (media.length < 1 || media.length > MAX_IMAGES || media.length !== (pkg.groups?.length ?? -1))) return refuse("MEDIA_MISSING", `a Top 5 post carries one image per board group (1–${MAX_IMAGES}); this one has ${media.length}`);
     for (const m of media) {
       const file = path.join(ctx.mediaDir, path.basename(m.file));

@@ -35,6 +35,8 @@ import {
   baseIdOf, nflPregamePackage, nflTouchdownsPackage, nflTop5Package, nflPostgamePackage, nbaPregamePackage, nbaPlayersPackage, nbaFinalPackage, nbaGamePackage,
 } from "../contracts/social-packages.mjs";
 import { isTop5 } from "../contracts/top5-packages.mjs";
+import { IMPORT_DESIGNS, isImported, checkImportedCaption } from "../contracts/imported-packages.mjs";
+import { createImportFlow } from "./import-flow.mjs";
 import { buildTop5, recheckTop5 } from "./top5-flow.mjs";
 import { validateCaption } from "../recap/caption-validator.mjs";
 import { TOP5_TEMPLATE, TOP5_ASSET_MANIFEST } from "../render/social-top5.mjs";
@@ -46,6 +48,7 @@ import { TOP5_TEMPLATE, TOP5_ASSET_MANIFEST } from "../render/social-top5.mjs";
  * approvable only if ITS OWN template + manifest is approved. Only the current version of each template can be approved.
  */
 export const DESIGNS = Object.freeze([
+  ...IMPORT_DESIGNS,
   { template: SOCIAL_TEMPLATE, assetManifest: ASSET_MANIFEST, label: "Social graphics (game posts, recaps)" },
   { template: TOP5_TEMPLATE, assetManifest: TOP5_ASSET_MANIFEST, label: "Top 5 boards (daily and weekly)" },
 ]);
@@ -70,8 +73,8 @@ export const MAX_CAPTION_EDITS = 10;
  * here from the package and the text, never taken from the request, so approving E1 binds exactly that text.
  */
 export function editedOption(pkg, edit) {
-  const problems = [...(isTop5(pkg) ? top5Check(edit.text, pkg) : checkCaption(edit.text, pkg)).problems];
-  if (pkg.sport === "NBA" && /%/.test(edit.text)) problems.push({ code: "NO_PERCENT_IN_NBA_CAPTION", detail: "NBA captions don't state the estimate as a percentage" });
+  const problems = [...(isTop5(pkg) ? top5Check(edit.text, pkg) : isImported(pkg) ? checkImportedCaption(edit.text, pkg) : checkCaption(edit.text, pkg)).problems];
+  if (pkg.sport === "NBA" && !isImported(pkg) && /%/.test(edit.text)) problems.push({ code: "NO_PERCENT_IN_NBA_CAPTION", detail: "NBA captions don't state the estimate as a percentage" });
   if (pkg.kind === "nfl-recap") {
     if (!/\b(forecast|prediction|predicted|projection|projected)/i.test(edit.text)) problems.push({ code: REASON.MISSING_FORECAST_WORD, detail: 'must call the number a prediction / projection (or "forecast")' });
     if (pkg.hasMiss && !/\bmiss(ed)?\b|\bwrong\b/i.test(edit.text) && !problems.some((x) => x.code === REASON.MISS_NOT_DISCLOSED)) problems.push({ code: REASON.MISS_NOT_DISCLOSED, detail: "the forecast missed the winner; the caption must say so" });
@@ -102,6 +105,7 @@ export function queueDateOf(text, now) {
 export function createQueueFlow(ctx) {
   const { store, clock, env, helpers: h } = ctx;
   const mediaDir = () => path.join(ctx.outDir, "media");
+  const imports = createImportFlow({ store, clock, mediaDir, posts: () => posts(), dataSource: () => ctx.dataSource(), repoRoot: ctx.repoRoot, env });
 
   /** The latest approved calendar, with its approval digest re-computed from the stored request. */
   function approvedCalendar() {
@@ -451,6 +455,7 @@ export function createQueueFlow(ctx) {
       const m = topBoard({ src, date: pkg.date, family: pkg.family });
       return m.ok && m.evidence[0]?.sha256 === pkg.boardSha256 ? { status: m.status, reasons: [] } : { status: POST_STATUS.BLOCKED, reasons: [m.ok ? "the frozen board file changed" : m.reason] };
     }
+    if (isImported(pkg)) return imports.recheck(pkg);
     if (isTop5(pkg)) return recheckTop5(pkg, { src, now, env });
     if (pkg.kind === "nba-game") {
       // both graphics' sources, the featured players and the start time, all as they were at approval
@@ -631,6 +636,7 @@ export function createQueueFlow(ctx) {
       note: note ? String(note).slice(0, 1000) : null, ...(approval ?? { approvedExactDigest: null }),
       approvedBy: actor.id ?? "founder", approvedAt: clock(), authentication: actor.authentication ?? "loopback-console (demo-grade)",
     });
+    if (isImported(pkg) && verdict === "approve") { try { imports.writeApprovals(); } catch { /* derived file: the decision stands */ } }
     const next = {
       approve: ["nba-game", "pregame-forecast", "td-top3", "top5-board", "top5-daily", "top5-weekly"].includes(pkg.kind)
         ? "Approved, not published: nothing was sent to X. Send it through the X publisher (Live test post, or Schedule for its slot) once live publishing is authorized; every send re-checks it first."
@@ -743,5 +749,5 @@ export function createQueueFlow(ctx) {
     });
   }
 
-  return { build, consolidate, decidePost, editCaption, recordPost, posts, approvedCalendar, publishBundleOf, approveDesign, design, recheck, designApproval, inventory: () => queueInventory(posts()) };
+  return { build, consolidate, decidePost, editCaption, recordPost, posts, approvedCalendar, publishBundleOf, approveDesign, design, recheck, designApproval, inventory: () => queueInventory(posts()), importPackages: imports.importPackages, lastImport: imports.lastRun };
 }

@@ -97,6 +97,8 @@ export function mediaKeysOf(entries) {
   const walk = (v) => {
     if (Array.isArray(v)) return v.forEach(walk);
     if (!v || typeof v !== "object") return;
+    // real-line cards are private: their images stay on this Mac
+    if (v.privateReview === true) return;
     if (typeof v.file === "string" && /\.(png|jpe?g|webp|gif)$/i.test(v.file)) keys.add(`media/${path.basename(v.file)}`);
     for (const x of Object.values(v)) if (x && typeof x === "object") walk(x);
   };

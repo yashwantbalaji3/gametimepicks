@@ -35,7 +35,7 @@
   const viewId = (v) => (VIEWS.some((x) => x.id === v) ? v : VIEW_ALIAS[v] ?? "overview");
   const savedView = (() => { try { return localStorage.getItem("gtp-cc-view"); } catch { return null; } })();
   const ui = { last: "", choice: {}, drafts: {}, editing: {}, pendingRender: false, state: null, view: viewId(savedView),
-    filter: { status: "auto", sport: "all" }, expanded: null, calMode: "week", calDay: null, pubTab: "all" };
+    filter: { status: "auto", sport: "all", source: "all" }, expanded: null, calMode: "week", calDay: null, pubTab: "all" };
   const captionTextMap = new Map();
   const $ = (id) => document.getElementById(id);
   /** Ledger numbers are rendered through Number(): a non-number can never become markup. */
@@ -405,6 +405,37 @@
         <button type="button" class="btn" data-caption-cancel="${esc(p.decisionId)}">Cancel</button></div>
     </div>`;
   }
+  /** Imported: the approved calendar's time, else the proposed one, else the package's recommendation; the founder can type any time. */
+  function importSchedule(s, p, id) {
+    const plan = s.contentPlan ?? {};
+    const at = (plan.approved?.items ?? []).find((i) => i.decisionId === p.decisionId && Date.parse(i.at) > Date.now())?.at ?? (plan.items ?? []).find((i) => i.decisionId === p.decisionId)?.at ?? p.package.suggestedPublishAt;
+    const label = at ? `${dayLabel(etDay(new Date(at))).split(" · ")[0]} ${etTime(at)}` : "";
+    return `<button class="btn small primary" data-pub="schedule" data-post="${id}" ${at ? `data-at="${esc(at)}"` : "disabled"}>${at ? `Schedule for ${esc(label)}` : "No suggested time"}</button>
+      <input class="sched" type="datetime-local" aria-label="Pick another time" data-draft="pubat:${id}" value="${draftVal(`pubat:${p.decisionId}`)}"><button class="btn small" data-pub="schedule" data-post="${id}" data-at-from="pubat:${id}">Schedule at this time</button>`;
+  }
+  /** What an imported post needs the founder to see before deciding. */
+  function importPanel(s, p) {
+    const pkg = p.package, m = pkg.imported;
+    if (!m) return "";
+    const v = m.verification ?? {}, f = m.freshness ?? {}, plan = (s.contentPlan?.items ?? []).find((i) => i.decisionId === p.decisionId);
+    const start = startOfPkg(pkg);
+    const rows = [
+      ["Sport / event", `${esc(pkg.sport)} · ${esc(pkg.title.split(":")[0])}`],
+      ["Event date", start ? `${esc(dayLabel(etDay(new Date(start))))} · ${esc(etTime(start))}` : esc(pkg.date)],
+      ["Forecast snapshot", (m.snapshotRefs ?? []).length ? `${num(m.snapshotRefs.length)} file(s) · data commit <code>${esc(String(pkg.dataCommit ?? "—").slice(0, 10))}</code> · ${m.provenance?.verified ? "matches its commit" : esc(m.provenance?.detail ?? "not checked")}` : "—"],
+      ["Data verification", `${v.passed ? "Passed" : "Not passed"}${v.cellsVerified != null ? ` · ${num(v.cellsVerified)} cells checked` : ""}`],
+      ["Freshness", `${f.ageHours != null ? `${esc(f.ageHours)} h old · ` : ""}${esc(f.rule ?? "")}`],
+      ...(m.quote ? [["Lines quoted", esc(m.quote)]] : []),
+      ["Status", `${esc(m.eligibilityClass ?? "—")} · ${p.resolution?.verdict === "approve" ? "approved" : "founder review"}`],
+      ["Publishing window", m.window?.closesAt ? `until ${esc(dayLabel(etDay(new Date(m.window.closesAt))).split(" · ")[0])} ${esc(etTime(m.window.closesAt))}${plan ? ` · calendar slot ${esc(etTime(plan.at))}` : ""}` : "—"],
+      ["Image", m.socialAuthorized === true ? "Clean export" : "Review copy with banner: approve it to request the clean export"],
+      ["Destination", pkg.supported ? "X, through the publisher" : "None: not publishable"],
+      ["Design", `${esc(pkg.template ?? "—")} · ${p.designApproved ? "approved" : "waiting for your approval"}`],
+    ];
+    return `${(pkg.blockers ?? []).map((b) => `<div class="blocked"><b>${esc(b.code.replace(/_/g, " ").toLowerCase())}</b> · ${esc(b.detail)}</div>`).join("")}
+      ${pkg.supported ? "" : `<div class="notice warn">Not supported by the publisher: view only.</div>`}
+      <div class="kv">${rows.map(([k, x]) => `<span>${esc(k)}</span><span>${x}</span>`).join("")}</div>`;
+  }
   function postActions(p) {
     const pkg = p.package;
     const id = esc(p.decisionId);
@@ -445,7 +476,7 @@
     }
     return `<div class="blocked">${esc(LIFE_LABEL[p.lifecycle])}${p.resolution?.note ? ` · “${esc(p.resolution.note)}”` : ""}</div>`;
   }
-  const PUB_SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board", "top5-daily", "top5-weekly"]);
+  const PUB_SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board", "top5-daily", "top5-weekly", "lr-results-recap", "lr-nba-tonight", "lr-nfl-roundup", "lr-nfl-mnf", "lr-nba-top5", "lr-nfl-top5", "lr-nba-game-winner", "lr-nfl-game-winner"]);
   /**
    * Display only: an attempt with no recorded outcome during its first 2 minutes is a send in progress ("Sending…");
    * after that it is "Outcome unknown — reconcile". The gate treats both as unknown (never retried) either way.
@@ -457,6 +488,7 @@
   function publishControls(p) {
     const pkg = p.package;
     if (!PUB_SCHEDULABLE.has(pkg.kind)) return "";
+    if (pkg.imported && pkg.imported.socialAuthorized !== true) return `<div class="notice warn">Approved for a clean export. This image carries the review banner, so it can't be scheduled. Launch Readiness delivers the clean version as a new post for your approval.</div>`;
     const pub = ui.state.publishing ?? {};
     const mine = (pub.jobs ?? []).filter((j) => j.decisionId === p.decisionId);
     const open = mine.find((j) => j.status === "scheduled");
@@ -465,7 +497,7 @@
     return `<div class="pubbox"><div class="section">Publish to X ${pub.mode === "live" ? `<span class="tag life-published">LIVE · cap $${esc(pub.capUsd)}/month</span>` : `<span class="tag">DRY RUN</span>`}</div>
       ${mine.slice(0, 4).map((j) => sending(j) ? `<div class="receipt">Sending… — started ${esc(time(j.results.at(-1).attemptedAt))}; the X link appears here when X answers</div>` : `<div class="${["published", "dry_run", "scheduled"].includes(j.status) ? "receipt" : "blocked"}">${esc(JOB_LABEL[j.status] ?? j.status)}${j.status === "scheduled" ? ` for ${esc(new Date(j.dueAt).toLocaleString())}` : ""}${j.results.at(-1)?.detail ? ` — ${esc(j.results.at(-1).detail)}` : ""}${j.results.at(-1)?.canonicalUrl ? ` · ${xLink(j.results.at(-1).canonicalUrl)}` : ""}${j.status === "unknown" ? ` <button class="btn small" data-pub="reconcile" data-job="${esc(j.jobId)}">Reconcile…</button>` : ""}</div>`).join("")}
       <div class="row actions">
-        ${open ? `<button class="btn small" data-pub="cancel" data-job="${esc(open.jobId)}">Cancel schedule</button>` : `<button class="btn small primary" data-pub="schedule" data-post="${id}" ${pkg.suggestedPublishAt ? "" : "disabled"}>${when ? `Schedule for ${esc(when)} (45 min before tip)` : "No suggested time"}</button>`}
+        ${open ? `<button class="btn small" data-pub="cancel" data-job="${esc(open.jobId)}">Cancel schedule</button>` : pkg.imported ? importSchedule(ui.state, p, id) : `<button class="btn small primary" data-pub="schedule" data-post="${id}" ${pkg.suggestedPublishAt ? "" : "disabled"}>${when ? `Schedule for ${esc(when)} (45 min before tip)` : "No suggested time"}</button>`}
         <button class="btn small" data-pub="dry-run-now" data-post="${id}">Dry run now</button>
         <button class="btn small" data-pub="live-test" data-post="${id}" data-title="${esc(pkg.title)}" ${pub.x?.connected ? "" : "disabled title=\"Connect X first\""}>Live test post…</button>
       </div></div>`;
@@ -665,7 +697,7 @@
     return named ? `${named} · ${long}` : long;
   };
   const startOfPkg = (k) => k.tipUtc ?? k.startUtc ?? k.verification?.kickoffUtc ?? k.kickoffUtc ?? k.firstKickoffUtc ?? null;
-  const KIND_LABEL = { "nba-game": "Game post", "nba-final": "Final scores", "results-recap": "Results recap", "nfl-recap": "Forecast vs final", "pregame-forecast": "Pregame forecast", "td-top3": "Top 3 TD", "top5-board": "Top 5 board", "top5-weekly": "Weekly Top 5 (whole week)", "top5-daily": "Daily Top 5 (slate)", engagement: "Engagement", explainer: "Explainer", "x-reply": "Reply", "nba-results": "Prediction vs final" };
+  const KIND_LABEL = { "nba-game": "Game post", "nba-final": "Final scores", "results-recap": "Results recap", "nfl-recap": "Forecast vs final", "pregame-forecast": "Pregame forecast", "td-top3": "Top 3 TD", "top5-board": "Top 5 board", "top5-weekly": "Weekly Top 5 (whole week)", "top5-daily": "Daily Top 5 (slate)", engagement: "Engagement", explainer: "Explainer", "x-reply": "Reply", "nba-results": "Prediction vs final", "lr-results-recap": "Results recap", "lr-nba-tonight": "NBA tonight", "lr-nfl-roundup": "NFL winners roundup", "lr-nfl-mnf": "Monday Night preview", "lr-nba-top5": "NBA daily Top 5", "lr-nfl-top5": "NFL weekly Top 5", "lr-nba-game-winner": "Game winner", "lr-nfl-game-winner": "Game winner", "lr-nba-boxscore": "Player box score (real lines)", "lr-unsupported": "Unsupported" };
   const SPORTS = ["NBA", "NFL", "MLB", "UFC", "EPL"];
   const sportChip = (sp) => `<span class="sport sport-${esc(String(sp ?? "").toLowerCase())}">${esc(sp ?? "—")}</span>`;
   const jobsOf = (s, p) => (s.publishing?.jobs ?? []).filter((j) => j.decisionId === p.decisionId);
@@ -687,6 +719,7 @@
     if (start && Date.parse(start) <= Date.now() && PUB_SCHEDULABLE.has(p.package.kind)) return { key: "expired", label: "Expired · started", cls: "dim" };
     if (job?.status === "scheduled") return { key: "scheduled", label: `Scheduled ${etTime(job.dueAt)}`, cls: "info" };
     if (p.lifecycle === "approved" || p.lifecycle === "scheduled") return { key: "approved", label: job?.status === "dry_run" ? "Approved · dry run OK" : "Approved", cls: "info" };
+    if (p.lifecycle === "drafted" && p.package.imported && p.package.status === "BLOCKED") return { key: "blocked", label: "Blocked", cls: "bad" };
     if (p.lifecycle === "drafted") return { key: "needs", label: p.package.status === "NEEDS_VERIFICATION" ? "Needs decision · verify" : p.package.status === "BLOCKED" ? "Blocked" : "Needs decision", cls: p.package.status === "BLOCKED" ? "bad" : "warn" };
     return { key: "other", label: LIFE_LABEL[p.lifecycle] ?? p.lifecycle, cls: "dim" };
   }
@@ -694,7 +727,7 @@
 
   function counts(s) {
     const posts = (s.posts ?? []).filter((p) => p.lifecycle !== "superseded");
-    const by = { needs: [], approved: [], scheduled: [], sent: [], expired: [], problem: [], other: [] };
+    const by = { needs: [], blocked: [], approved: [], scheduled: [], sent: [], expired: [], problem: [], other: [] };
     for (const p of posts) by[postStatus(s, p).key].push(p);
     const today = etDay(new Date());
     const month = today.slice(0, 7);
@@ -768,13 +801,14 @@
   }
 
   // ── Review & approvals: compact cards, one expanded at a time, prev/next, full-screen gallery ──
-  const REVIEW_FILTERS = [["needs", "Needs decision"], ["approved", "Approved"], ["scheduled", "Scheduled"], ["sent", "Sent"], ["expired", "Expired"], ["problem", "Problems"], ["all", "All"]];
+  const REVIEW_FILTERS = [["needs", "Needs decision"], ["blocked", "Blocked"], ["approved", "Approved"], ["scheduled", "Scheduled"], ["sent", "Sent"], ["expired", "Expired"], ["problem", "Problems"], ["all", "All"]];
   function reviewList(s) {
     const c = counts(s);
     const f = ui.filter;
     const status = f.status === "auto" ? (c.by.needs.length ? "needs" : "all") : f.status;
     const list = (status === "all" ? c.posts : [...(c.by[status] ?? []), ...c.posts.filter((p) => p.decisionId === ui.expanded && postStatus(s, p).key !== status)])
-      .filter((p) => f.sport === "all" || p.package.sport === f.sport || p.decisionId === ui.expanded);
+      .filter((p) => f.sport === "all" || p.package.sport === f.sport || p.decisionId === ui.expanded)
+      .filter((p) => f.source !== "imported" || p.package.imported || p.decisionId === ui.expanded);
     const order = (p) => String(jobsOf(s, p).find((j) => j.status === "scheduled")?.dueAt ?? p.package.suggestedPublishAt ?? startOfPkg(p.package) ?? "9");
     const today = c.today;
     // upcoming days first (soonest first), then earlier days (most recent first)
@@ -783,13 +817,34 @@
       : (a.package.priority ?? 2) - (b.package.priority ?? 2) || order(a).localeCompare(order(b)));
     return { c, status, list };
   }
+  function importBar(s, c) {
+    const imp = c.posts.filter((p) => p.package.imported);
+    const last = s.lastImport;
+    const plan = s.contentPlan ?? { items: [] };
+    const blocked = imp.filter((p) => p.package.status === "BLOCKED").length;
+    // only designs of posts that could go out: a blocked type's design has nothing to unlock
+    const waiting = (s.design?.templates ?? []).filter((t) => !t.approved && t.template.startsWith("gtp-lr-") && imp.some((p) => p.package.template === t.template && p.package.status !== "BLOCKED"));
+    return `<section class="card"><h3>Launch Readiness packages</h3>
+      <div class="muted">${num(imp.length)} imported · ${num(blocked)} blocked · importing approves and schedules nothing${last ? ` · last run ${esc(time(last.at))}: ${Object.entries(last.counts ?? {}).map(([k, n]) => `${num(n)} ${esc(k)}`).join(", ")}` : ""}</div>
+      <div class="row actions"><button class="btn small primary" data-import-run>Import packages</button>
+        ${imp.length ? `<button class="btn small" data-filter-source="${ui.filter.source === "imported" ? "all" : "imported"}" aria-pressed="${ui.filter.source === "imported"}">${ui.filter.source === "imported" ? "Show everything" : "Show only imported"}</button>` : ""}</div>
+      ${waiting.length ? `<details><summary>${num(waiting.length)} design version(s) waiting for your approval</summary>
+        <div class="muted">Design approval covers the look only. Each post still needs its own approval.</div>
+        <ul class="rows">${waiting.map((t) => `<li><span class="grow">${esc(t.label ?? t.template)} <span class="muted">${esc(t.template)}</span></span><button class="btn small" data-design="1" data-design-template="${esc(t.template)}">Approve design</button></li>`).join("")}</ul></details>` : ""}
+      ${plan.items.length ? `<details><summary>Proposed content calendar · ${num(plan.items.length)} slot(s)${plan.approved?.current ? " · approved" : ""}</summary>
+        <ul class="rows">${plan.items.map((i) => `<li><span class="t">${esc(dayLabel(etDay(new Date(i.at))).split(" · ")[0])} ${esc(etTime(i.at))}</span>${sportChip(i.sport)}<span class="grow">${esc(i.title)}</span></li>`).join("")}</ul>
+        ${plan.unslotted.length ? `<div class="muted">${num(plan.unslotted.length)} not slotted, so the account isn't flooded: ${esc(plan.unslotted.slice(0, 4).map((u) => u.title.split(":")[0]).join(", "))}${plan.unslotted.length > 4 ? "…" : ""}</div>` : ""}
+        <div class="row actions"><button class="btn small" data-plan-approve="${esc(plan.digest)}" ${plan.approved?.current ? "disabled" : ""}>Approve this calendar (schedules nothing)</button></div></details>` : ""}
+    </section>`;
+  }
   function renderReview(s) {
     const { c, status, list } = reviewList(s);
     const dz = s.design;
     const sports = SPORTS.filter((sp) => c.posts.some((p) => p.package.sport === sp));
     let lastDay = null;
     return `${pageHead("Review & approvals", `${num(c.by.needs.length)} need your decision · ${num(c.by.approved.length + c.by.scheduled.length)} approved · ${num(c.receipts.length)} sent`)}
-      ${(dz?.templates ?? (dz ? [dz] : [])).filter((t) => !t.approved && (t.template === dz.template || c.posts.some((p) => p.package.template === t.template))).map((t) => `<div class="notice warn">Graphic design <b>${esc(t.template)}</b>${t.label ? ` (${esc(t.label)})` : ""} is not approved yet: its posts can't be approved until it is. <button class="btn small" data-design="1" data-design-template="${esc(t.template)}">Approve this design version</button></div>`).join("")}
+      ${importBar(s, c)}
+      ${(dz?.templates ?? (dz ? [dz] : [])).filter((t) => !t.approved && !t.template.startsWith("gtp-lr-") && (t.template === dz.template || c.posts.some((p) => p.package.template === t.template))).map((t) => `<div class="notice warn">Graphic design <b>${esc(t.template)}</b>${t.label ? ` (${esc(t.label)})` : ""} is not approved yet: its posts can't be approved until it is. <button class="btn small" data-design="1" data-design-template="${esc(t.template)}">Approve this design version</button></div>`).join("")}
       <div class="filters" role="toolbar" aria-label="Filter posts">
         <div class="seg">${REVIEW_FILTERS.map(([k, label]) => `<button type="button" class="segbtn" data-filter-status="${k}" aria-pressed="${status === k}">${esc(label)}${k !== "all" ? ` <span class="n">${num((c.by[k] ?? []).length)}</span>` : ""}</button>`).join("")}</div>
         <div class="seg">${["all", ...sports].map((sp) => `<button type="button" class="segbtn" data-filter-sport="${sp}" aria-pressed="${ui.filter.sport === sp}">${sp === "all" ? "All sports" : esc(sp)}</button>`).join("")}</div>
@@ -828,6 +883,7 @@
     const check = (p.checks ?? []).filter((c) => c.phase === "pre-publish").at(-1);
     return `<div class="rbody">
       ${imgs.length ? `<div class="gallery" data-gallery="${esc(p.decisionId)}">${imgs.map((m, i) => `<figure><img src="/media/${encodeURIComponent(m.file)}" alt="${esc(m.altText ?? "")}" data-zoom data-index="${i}" loading="lazy"><figcaption>${imgs.length > 1 ? `${i + 1} of ${imgs.length}${pkg.kind === "nba-game" ? ` · ${i === 0 ? "Predicted winner" : "Projected stat lines"}` : ""}` : "Graphic"} · <a href="/media/${encodeURIComponent(m.file)}" download>Download</a></figcaption></figure>`).join("")}</div>` : `<div class="muted">Text post — no graphic.</div>`}
+      ${importPanel(s, p)}
       ${pkg.featured?.length ? `<div class="muted">Featured in the caption: ${pkg.featured.map((f) => `<b>${esc(f.name ?? "none")}</b> (${esc(f.team)})`).join(" · ")} — a caption highlight, not a ranking.</div>` : ""}
       ${pkg.xSources?.length ? `<div class="section">Open these first</div><div class="links">${pkg.xSources.map((u) => xLink(u)).join(" ")}</div>` : ""}
       <div class="section">Caption${p.options.length > 1 ? "s — choose one" : ""}</div>
@@ -1197,6 +1253,7 @@
     if (d.openPost) { openPost(d.openPost); return true; }
     if (d.filterStatus) { ui.filter.status = d.filterStatus; ui.expanded = null; render(ui.state, true); return true; }
     if (d.filterSport) { ui.filter.sport = d.filterSport; render(ui.state, true); return true; }
+    if (d.filterSource) { ui.filter.source = d.filterSource; render(ui.state, true); return true; }
     if (d.calShift) { ui.calDay = etDay(new Date(Date.parse(`${ui.calDay ?? etDay(new Date())}T12:00:00Z`) + Number(d.calShift) * 864e5)); render(ui.state, true); return true; }
     if (d.calToday !== undefined) { ui.calDay = null; render(ui.state, true); return true; }
     if (d.calMode) { ui.calMode = d.calMode; render(ui.state, true); return true; }
@@ -1221,7 +1278,7 @@
   document.addEventListener("click", (e) => { if (e.target.closest("[data-close-sheet]")) $("more-sheet").hidden = true; });
 
   document.addEventListener("click", async (e) => {
-    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-new-codes],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-post-record],[data-design],[data-pub],[data-caption-open],[data-caption-save],[data-caption-cancel],[data-expand],[data-step],[data-collapse],[data-filter-status],[data-filter-sport],[data-open-post],[data-command],[data-more],[data-cal-shift],[data-cal-today],[data-cal-mode],[data-pub-tab],[data-queue-prep],[data-gal],.sheet-backdrop,.lightbox");
+    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-new-codes],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-post-record],[data-design],[data-pub],[data-caption-open],[data-caption-save],[data-caption-cancel],[data-expand],[data-step],[data-collapse],[data-filter-status],[data-filter-sport],[data-filter-source],[data-import-run],[data-plan-approve],[data-open-post],[data-command],[data-more],[data-cal-shift],[data-cal-today],[data-cal-mode],[data-pub-tab],[data-queue-prep],[data-gal],.sheet-backdrop,.lightbox");
     if (!t) return;
     if (await navAction(t, e)) return;
     if (t.dataset.captionOpen) {
@@ -1259,6 +1316,12 @@
       const a = t.dataset.pub;
       const body = { action: a };
       if (["schedule", "dry-run-now", "live-test"].includes(a)) body.decisionId = t.dataset.post;
+      if (a === "schedule" && t.dataset.at) body.at = t.dataset.at;
+      if (a === "schedule" && t.dataset.atFrom) {
+        const v = ui.drafts[t.dataset.atFrom];
+        if (!v) return alert("Pick a time first.");
+        body.at = new Date(v).toISOString();
+      }
       if (["cancel", "reconcile"].includes(a)) body.jobId = t.dataset.job;
       if (a === "ack") body.alertId = t.dataset.alert;
       if (a === "live-test") {
@@ -1326,6 +1389,19 @@
       const viaX = PUB_SCHEDULABLE.has(p.package.kind);
       if (r.ok && r.next) alert(viaX ? "Approved, not published. Nothing has been sent to X.\n\nNext: send it through the X publisher on this card — Live test post… (needs \"Authorize live test posts…\" first) or Schedule for its 45-minute slot (needs \"Authorize scheduled live publishing…\"). Every send re-checks the approval, both images, fresh data and tip-off first." : r.next);
       if (!r.ok && !r.duplicate) { t.disabled = false; alert(`${r.code}: ${r.detail ?? ""}`); }
+      return;
+    }
+    if (t.dataset.importRun !== undefined) {
+      const r = await post("/api/import/packages", {});
+      if (!r.ok) return alert(`${r.code}: ${r.detail ?? ""}`);
+      const bad = (r.results ?? []).filter((x) => x.outcome === "refused" || x.outcome === "held");
+      alert(`${Object.entries(r.counts).map(([k, n]) => `${n} ${k}`).join(", ")}. ${r.images} image(s). Nothing was approved or scheduled.${bad.length ? `\n\n${bad.slice(0, 6).map((x) => `${x.dedupeId}: ${x.detail}`).join("\n")}` : ""}`);
+      return;
+    }
+    if (t.dataset.planApprove) {
+      if (!confirm("Approve these proposed times? Nothing is scheduled: each post still needs its own approval and Schedule click.")) return;
+      const r = await post("/api/content-plan", { digest: t.dataset.planApprove });
+      if (!r.ok) alert(`${r.code}: ${r.detail ?? ""}`);
       return;
     }
     if (t.dataset.design) {

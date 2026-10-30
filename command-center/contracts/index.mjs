@@ -82,6 +82,8 @@ export const LEDGER_KINDS = Object.freeze([
   "caption-edit",      // a caption edited on the Queue: a new option (E1, E2, …) checked like the rest; approves nothing
   "post-verification", // D1: a published pregame post re-checked against the forecast of record after kickoff
   "design-approval",   // V2.1: the founder approved a graphic template + asset-manifest version (never a post)
+  "import-run",        // Launch Readiness packages read into founder review: what came in, what was refused
+  "content-plan-approval", // the founder approved proposed publishing times (schedules nothing)
   // X Publisher V1 (orchestrator/publish-flow.mjs) — tokens and secrets are never recorded
   "publish-policy",    // dry-run / live mode and the founder's monthly spend cap (with the exact authorization words)
   "publish-pause",     // the Pause Publishing switch

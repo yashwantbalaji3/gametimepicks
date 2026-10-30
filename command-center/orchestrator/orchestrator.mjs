@@ -27,6 +27,7 @@ import { digestOf, shortId, REPO_ROOT, CC_ROOT } from "../lib/util.mjs";
 import { REASON, validateContribution, validateTaskEnvelope } from "../contracts/index.mjs";
 import { ROLES, roleTitle } from "../roles/roles.mjs";
 import { parseIntent, planFor } from "./intents.mjs";
+import { proposePlan } from "../contracts/content-plan.mjs";
 import { budgetUsd, checkDelegation, checkFounder, isSystemActor, DAILY_QUEUE_COMMAND, MAX_TASKS_PER_COMMAND } from "./policy.mjs";
 import { resolveSeat } from "../providers/registry.mjs";
 import { parseManualAnswer } from "../providers/manual.mjs";
@@ -596,6 +597,29 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     return { ok: true, contractValid: parsed.contractValid };
   }
 
+  /** Founder: bring Launch Readiness packages into review. Nothing is approved, scheduled or sent. */
+  function importPackages(body, actor) {
+    const f = checkFounder("draft", actor);
+    if (!f.ok) return { ok: false, ...f };
+    return team.importPackages({ root: body?.root }, actor);
+  }
+  /** The proposed content calendar, and the plan the founder last approved (times only). */
+  function contentPlan() {
+    const plan = proposePlan(team.posts(), clock(), { jobs: publishing.jobs() });
+    const last = store.list().filter((e) => e.kind === "content-plan-approval").at(-1) ?? null;
+    return { ...plan, approved: last ? { digest: last.data.digest, at: last.at, items: last.data.items, current: last.data.digest === plan.digest } : null };
+  }
+  /** Founder: approve the proposed times. This schedules nothing: each post still needs its approval and its Schedule click. */
+  function approveContentPlan({ digest }, actor) {
+    const f = checkFounder("approve", actor);
+    if (!f.ok) return { ok: false, ...f };
+    const plan = contentPlan();
+    if (digest !== plan.digest) return { ok: false, code: "PLAN_CHANGED", detail: "the proposed calendar changed: review it again" };
+    if (!plan.items.length) return { ok: false, code: "EMPTY_PLAN", detail: "nothing to approve" };
+    store.append("content-plan-approval", actor.id ?? "founder", { digest, items: plan.items, unslotted: plan.unslotted, approvedBy: actor.id ?? "founder", authentication: actor.authentication ?? "loopback-console (demo-grade)", scope: "proposed times only: no post is approved or scheduled by this" });
+    return { ok: true, items: plan.items.length, next: "Calendar approved. Nothing was scheduled: approve each post, then Schedule it at its calendar time." };
+  }
+
   /** Founder: after posting an approved post by hand — schedule it, record its X link (the receipt), or its engagement. */
   function recordPost(body, actor) {
     const f = checkFounder("publish", actor);
@@ -688,6 +712,8 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
       posts: team.posts(),
       design: team.design(),
       inventory: team.inventory(),
+      contentPlan: contentPlan(),
+      lastImport: team.lastImport(),
       engineering: {
         billing: flow.billing(),
         lastPreflight: lastPreflight ? { ...lastPreflight.data, at: lastPreflight.at } : null,
@@ -788,7 +814,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   }
 
   return {
-    handleCommand, decide, editCaption, recordPost, approveDesign, submitManual, setSeat, testProviderConnection, setPaused, emergencyStop, state, publishing, runJob, activeJobs, jobDispatched, jobCancelled,
+    handleCommand, decide, editCaption, recordPost, approveDesign, importPackages, approveContentPlan, submitManual, setSeat, testProviderConnection, setPaused, emergencyStop, state, publishing, runJob, activeJobs, jobDispatched, jobCancelled,
     /** Jobs recorded by this session; the host dispatches them after its ledger flush commits. */
     takeOutbox: () => outbox.splice(0),
     execution,
