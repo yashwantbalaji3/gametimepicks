@@ -29,6 +29,7 @@
 import { BOARD_METRIC, PUBLIC_BOARD_CLEARED } from "./board-ranking.mjs";
 import { isWithheldOffer, sanitizeOffer } from "../odds/public-offer-sanitizer.mjs";
 import { plainCodes } from "../../uiux/plain-codes.mjs";
+import { estimateLabel } from "./family-publication.mjs";
 
 export const NFL_FORECAST_VIEW_VERSION = 2;
 
@@ -46,19 +47,28 @@ export const SUPPORTING_LABEL = "Supporting simulation (not the official project
 export const NO_OFFICIAL_PROJECTION = "No official projection";
 
 /**
- * NOT CLEARED IS NOT OFFICIAL (P0 · 2026-10-28). The official player projections — the game page's "Every number here
- * is the official player board's projection" section, its all-players table and the hub's Top boards — carry only the
- * families the board PUBLISHED. A family the board marks ESTIMATE (it did not clear its evaluation bar) used to render
- * under that heading with an "Estimate · not cleared" note beneath it: two contradictory claims about one number. It
- * now carries no row there; the game page says "Not published yet" with this sentence and the board's own reason, and
- * a Top board says how many of its games it could not rank. The board artifact, the official snapshot, the prop ledger
- * and Results are untouched — this is what the official surfaces SELECT, not what was forecast or graded.
+ * ESTIMATES ARE SHOWN AS ESTIMATES (founder P0 2026-10-30, restoring the P250-GD2 display pathway). From 2026-10-28 to
+ * 2026-10-30 a family the board marks ESTIMATE (passing and rushing yards: each failed a calibration bar) carried no row
+ * on the game page, the hub or the Top boards ("Not published yet"), although the boards, the official snapshot and the
+ * weekly boards of weeks 1–7 all carried and displayed its numbers. The written policy (family-publication.mjs, ESTIMATE
+ * DISPLAY POLICY) is display WITH the failed bar and caveat, never as a pick — so an ESTIMATE family's rows render again,
+ * every one marked `familyState: "ESTIMATE"` with the ONE label (`estimateLabel`, e.g. "Estimate · calibration standard
+ * not yet met") said once per list, no captured price beside it (never a side) and no live comparison. Nothing is
+ * promoted: PUBLISHED stays PUBLISHED, ESTIMATE stays ESTIMATE, in every artifact and ledger.
+ *
+ * `NOT_CLEARED_GAME` / `notClearedBoardNote` remain for a family a board does not carry at all in some games.
  */
 export const NOT_CLEARED_GAME = "The official player board has not cleared this statistic for publication in this game, so no number for it is shown among the official projections.";
+/** The failed bar and caveat under an estimate label, in reader words (policy: "with the failed bar(s) and a
+ *  plain-English caveat"). The record keeps its codes; plain-codes.mjs translates them. */
+export const estimateDetail = (x) => {
+  if (!x) return null;
+  const c = x.caveat ? `${String(x.caveat).charAt(0).toUpperCase()}${String(x.caveat).slice(1)}` : "";
+  const r = x.reason ? `Evaluation: ${plainCodes(x.reason)}.` : "";
+  return [c, r].filter(Boolean).join(" ") || null;
+};
 export const notClearedBoardNote = (n, total) =>
   `In ${n} of ${total} game${total === 1 ? "" : "s"} still to kick off the official player board has not cleared this statistic for publication, so no player from ${n === 1 ? "that game" : "those games"} is ranked here.`;
-/** The board's reason, in reader words (plain-codes.mjs — the record keeps its codes), after the shared sentence. */
-const notClearedText = (x) => `${NOT_CLEARED_GAME}${x?.reason ? ` Evaluation: ${plainCodes(x.reason)}.` : ""}`;
 
 /** Player families, in display order. `source: null` = not published, with the reason shown instead of a number. */
 export const PLAYER_FAMILIES = Object.freeze([
@@ -150,7 +160,7 @@ export function gameView({ forecast: f, world = null, board = null, official = n
   const usableWorld = world && world.identity?.providerEventId === f.providerEventId ? world : null;
   const usableOfficial = official && String(official.eventId) === String(f.providerEventId) ? official : null;
   const players = playerRows({ forecast: f, official: usableOfficial, board });
-  const notCleared = notClearedFamilies(board);
+  const estimates = estimateFamilies(board);
   return {
     version: NFL_FORECAST_VIEW_VERSION,
     providerEventId: f.providerEventId, matchup: f.matchup, kickoffUtc: f.kickoffUtc, venue: f.venue ?? null,
@@ -167,9 +177,11 @@ export function gameView({ forecast: f, world = null, board = null, official = n
     /* World Model V2 — SUPPORTING SIMULATION only (labelled; never a player row, a board or a headline). */
     simulation: usableWorld ? supportingSimulation(f, usableWorld) : null,
     players,
-    /* families the board did not clear (ESTIMATE): no official row, "Not published yet" with the board's reason */
-    notCleared,
-    unprojected: unprojectedByFamily(usableWorld, players, notCleared),
+    /* families the board marks ESTIMATE: their rows render, labelled once per list with `label` (estimateLabel) */
+    estimates,
+    /* kept for readers of the view: no family is "not cleared" while its board carries an estimate (2026-10-30) */
+    notCleared: {},
+    unprojected: unprojectedByFamily(usableWorld, players),
   };
 }
 
@@ -195,13 +207,13 @@ export function simulatedShareNote(sim, record, { away, home }) {
   return `This share (${away} ${pct(sim.away)} · ${home} ${pct(sim.home)}) is counted from the simulated games, which draw the score from the forecast's margin and total${tie ? " and play overtime, so most games level after regulation are given to a side" : ""}. The headline win chance (${away} ${pct(record.away)} · ${home} ${pct(record.home)}) comes from a separate team rating${tie ? ` and leaves the ${pct(tie)} chance of a tie after regulation unallocated` : ""}, so the two differ by ${gaps}.`;
 }
 
-/** View family → { state, reason } for every board family marked ESTIMATE (not cleared for publication). */
-export function notClearedFamilies(board) {
+/** View family → { state, reason, caveat, label } for every board family marked ESTIMATE (shown, labelled, never a pick). */
+export function estimateFamilies(board) {
   const out = {};
   for (const fam of PLAYER_FAMILIES) {
     if (fam.source !== "playerBoard") continue;
     const b = board?.families?.[MARKET_KEY[fam.key]];
-    if (b?.state === "ESTIMATE") out[fam.key] = { state: b.state, reason: b.reason ?? null };
+    if (b?.state === "ESTIMATE") out[fam.key] = { state: b.state, reason: b.reason ?? null, caveat: b.caveat ?? null, label: estimateLabel(b.reason) };
   }
   return out;
 }
@@ -211,13 +223,14 @@ export function notClearedFamilies(board) {
  * another source inside a row. Players are keyed by owner id (`nfl-athlete-<espnId>`); the board row supplies only
  * presentation (position) and the captured market, joined by that same id — never by name. A family the board marks
  * WITHHELD (or does not carry) is absent: the surface says "No official projection" instead. A family it marks ESTIMATE
- * is absent too (not cleared ≠ official): the surface says "Not published yet" with the board's reason.
+ * (on the board AND in the snapshot) carries its row with `familyState: "ESTIMATE"`, its label, and no captured price.
  */
 export function playerRows({ forecast: f, official, board }) {
   const opp = (team) => (team === f.home.abbr ? f.away.abbr : f.home.abbr);
   const boardRow = new Map((board?.players ?? []).filter((p) => p?.playerId).map((p) => [String(p.playerId), p]));
   const asOf = official?.sources?.find((x) => x.role === "OFFICIAL" && /player-board/.test(x.modelVersion ?? ""))?.generatedAt ?? board?.generatedAt ?? null;
   const atdPublished = board?.families?.anytime_td?.state === "PUBLISHED";
+  const boardState = (mk) => board?.families?.[mk]?.state ?? null;
   const rows = [];
   for (const p of official?.players ?? []) {
     const b = boardRow.get(p.playerId) ?? null;
@@ -230,17 +243,18 @@ export function playerRows({ forecast: f, official, board }) {
         families.anytimeTd = { source: "opportunityTd", value: o.expected, familyState: o.state, modelVersion: o.modelVersion ?? null, snapshotId: official.snapshotId, asOf };
         continue;
       }
-      /* Official rows are PUBLISHED families only. An ESTIMATE family did not clear its bar: it is not shown under an
-         official heading (NOT_CLEARED_GAME above), and the page says so instead. */
-      if (o.state !== "PUBLISHED") continue;
+      /* PUBLISHED, or ESTIMATE where the board itself says ESTIMATE (shown labelled; see the header). Anything else: absent. */
+      const estimate = o.state === "ESTIMATE" && boardState(mk) === "ESTIMATE";
+      if (o.state !== "PUBLISHED" && !estimate) continue;
       /* headline: the official median for yards AND receptions (founder requirement 2026-10-29: one canonical value
          everywhere — the weekly and daily Top boards rank receptions by the same median; ties break on the mean). */
       const value = BOARD_METRIC[MARKET_KEY[fam]] === "median" ? o.median : o.expected;
       if (!isNum(value)) continue;
-      families[fam] = { source: "playerBoard", value, mean: o.expected ?? null, median: o.median ?? null, p10: quantile(o, 0.1), p90: quantile(o, 0.9), familyState: o.state, modelVersion: o.modelVersion ?? null, snapshotId: official.snapshotId, asOf };
+      families[fam] = { source: "playerBoard", value, mean: o.expected ?? null, median: o.median ?? null, p10: quantile(o, 0.1), p90: quantile(o, 0.9), familyState: o.state, modelVersion: o.modelVersion ?? null, snapshotId: official.snapshotId, asOf, ...(estimate ? { estimateLabel: estimateLabel(board.families[mk].reason) } : {}) };
     }
     if (!Object.keys(families).length) continue;
-    for (const [fam, e] of Object.entries(families)) { e.marketKey = MARKET_KEY[fam]; e.market = capturedMarket(board, p.playerId, fam); }
+    /* an estimate never carries a captured price beside it: no line to read a side against */
+    for (const [fam, e] of Object.entries(families)) { e.marketKey = MARKET_KEY[fam]; e.market = e.familyState === "ESTIMATE" ? null : capturedMarket(board, p.playerId, fam); }
     const team = p.team ?? b?.team ?? null;
     const availability = [{ source: "playerBoard", state: p.participation ?? b?.participation ?? null }];
     rows.push({
@@ -265,12 +279,11 @@ function availabilityLabel(list) {
  * listed as "No official projection" — their simulated number is never shown in the official list.
  */
 const RULED_OUT = new Set(["OUT", "INACTIVE"]);
-function unprojectedByFamily(world, rows, notCleared = {}) {
+function unprojectedByFamily(world, rows) {
   const out = {};
   if (!world) return out;
   const has = new Map(rows.map((r) => [r.playerId, r.families]));
   for (const [fam, wk] of Object.entries(WM_FAMILY)) {
-    if (notCleared[fam]) continue; // the whole family is "Not published yet"; naming players under it would contradict that
     const list = (world.players ?? [])
       .filter((p) => p?.playerId && p.families?.[wk] && !has.get(p.playerId)?.[fam] && !RULED_OUT.has(p.availability))
       .map((p) => ({ playerId: p.playerId, name: p.name, team: p.team }))
@@ -313,29 +326,35 @@ export const FAMILY_METRIC = Object.freeze({
   anytimeTd: "Chance to score at least one rushing or receiving touchdown if he plays — from the published touchdown model on the official player board",
 });
 
-/** The family-level estimate statement (the board's ESTIMATE state, said once per list rather than on every row). */
+/** The family-level estimate statement (the board's ESTIMATE state, said once per list rather than on every row). `all`
+ *  is used only when no row names its own label; a list whose rows are all estimates prints their `estimateLabel`. */
 export const ESTIMATE_NOTE = Object.freeze({
   all: "Estimate · the official player board has not cleared this statistic for publication, so these numbers are its estimates.",
   some: "Includes estimates · in some games the official player board has not cleared this statistic for publication.",
 });
 
+/** The one estimate line for a list: the rows' shared label when every row is an estimate, ESTIMATE_NOTE.some when mixed. */
 const estimateOf = (entries) => {
-  const est = entries.filter((e) => e?.familyState === "ESTIMATE").length;
-  return !est ? null : est === entries.length ? "all" : "some";
+  const est = entries.filter((e) => e?.familyState === "ESTIMATE");
+  if (!est.length) return null;
+  if (est.length < entries.length) return ESTIMATE_NOTE.some;
+  const labels = [...new Set(est.map((e) => e.estimateLabel).filter(Boolean))];
+  return labels.length === 1 ? labels[0] : ESTIMATE_NOTE.all;
 };
 
 /**
  * Tab descriptors + rows for the shared FamilyTabs component. `lists` maps family → rows already ordered; the client
  * renders them verbatim. Game page: every player with the family (availability flagged). Boards: `topBoards` rows.
  */
-export function familyTabs(rowsByFamily, { asOfByFamily = {}, sourcesByFamily = {}, estimateByFamily = {}, unprojected = {}, withheldByFamily = {}, notClearedByFamily = {} } = {}) {
+export function familyTabs(rowsByFamily, { asOfByFamily = {}, sourcesByFamily = {}, estimateByFamily = {}, estimateDetailByFamily = {}, unprojected = {}, withheldByFamily = {}, notClearedByFamily = {} } = {}) {
   const families = PLAYER_FAMILIES.map((f) => ({
     key: f.key, title: f.title, kind: f.kind, unit: f.unit, withheld: f.source ? (withheldByFamily[f.key] ?? null) : f.withheld,
     notCleared: notClearedByFamily[f.key] ?? null,
     metric: FAMILY_METRIC[f.key] ?? "",
     sourceLabel: f.source ? (sourcesByFamily[f.key]?.length ? sourcesByFamily[f.key] : [f.source]).map((k) => SOURCES[k].label).join(" + ") : null,
     asOf: asOfByFamily[f.key] ?? null,
-    estimate: estimateByFamily[f.key] ? ESTIMATE_NOTE[estimateByFamily[f.key]] : null,
+    estimate: estimateByFamily[f.key] ?? null,
+    estimateDetail: estimateByFamily[f.key] ? (estimateDetailByFamily[f.key] ?? null) : null,
   }));
   return { families, lists: rowsByFamily, unprojected };
 }
@@ -344,17 +363,17 @@ const slim = (p) => ({ playerId: p.playerId, name: p.name, position: p.position,
 const slimEntry = (e) => ({ value: e.value, p10: e.p10 ?? null, p90: e.p90 ?? null, mean: e.mean ?? null, marketKey: e.marketKey ?? null, market: e.market ?? null });
 
 export function gameTabs(view) {
-  const lists = {}; const asOf = {}; const src = {}; const est = {}; const withheld = {};
+  const lists = {}; const asOf = {}; const src = {}; const est = {}; const withheld = {}; const estDetail = {};
   for (const f of PLAYER_FAMILIES) {
     if (!f.source) continue;
-    if (view.notCleared?.[f.key]) withheld[f.key] = notClearedText(view.notCleared[f.key]);
+    if (view.estimates?.[f.key]) estDetail[f.key] = estimateDetail(view.estimates[f.key]);
     const rows = view.players.filter((p) => p.families[f.key]).sort((a, b) => b.families[f.key].value - a.families[f.key].value || a.name.localeCompare(b.name));
     lists[f.key] = rows.map((p) => ({ player: slim(p), entry: slimEntry(p.families[f.key]) }));
     asOf[f.key] = rows[0]?.families[f.key].asOf ?? null;
     src[f.key] = [...new Set(rows.map((p) => p.families[f.key].source))].sort();
     est[f.key] = estimateOf(rows.map((p) => p.families[f.key]));
   }
-  return familyTabs(lists, { asOfByFamily: asOf, sourcesByFamily: src, estimateByFamily: est, unprojected: view.unprojected ?? {}, withheldByFamily: withheld });
+  return familyTabs(lists, { asOfByFamily: asOf, sourcesByFamily: src, estimateByFamily: est, estimateDetailByFamily: estDetail, unprojected: view.unprojected ?? {}, withheldByFamily: withheld });
 }
 
 export function boardTabs(boards) {
@@ -377,23 +396,30 @@ export function boardTabs(boards) {
  * rows. Only the five board families appear (passing touchdowns / first scorer have no board).
  * @param {{ boards: Array<any> }} scope   topBoards.weekly or a topBoards.daily[] entry
  */
+/** A full-week row from a game that has kicked off: its frozen pre-kickoff projection, named as such. */
+export const COMPLETED_ROW_LABEL = "Completed · pre-kickoff projection";
 const VIEW_KEY_OF = Object.freeze(Object.fromEntries(Object.entries(MARKET_KEY).map(([k, v]) => [v, k])));
 export function topBoardTabs(scope) {
-  const lists = {}; const asOf = {}; const src = {}; const withheld = {};
+  const lists = {}; const asOf = {}; const src = {}; const withheld = {}; const est = {}; const estDetail = {};
   for (const b of scope?.boards ?? []) {
     const k = VIEW_KEY_OF[b.family];
     if (!k) continue;
-    if (b.state !== "PUBLISHED") { const d = b.readiness?.detail ?? "this statistic has not cleared its publication standard";
+    if (b.state !== "PUBLISHED" && b.state !== "ESTIMATE") { const d = b.readiness?.detail ?? "this statistic has not cleared its publication standard";
       withheld[k] = `${d.charAt(0).toUpperCase()}${d.slice(1)}.`; lists[k] = []; continue; }
+    if (b.state === "ESTIMATE") {
+      if (!b.estimate?.label) throw new Error(`topBoardTabs: ${b.id} ranks an estimate without its label`);
+      est[k] = b.estimate.label;
+      estDetail[k] = estimateDetail(b.estimate);
+    }
     if (b.source !== "OFFICIAL_PLAYER_BOARD") throw new Error(`topBoardTabs: ${b.id} is not from the official player board (${b.source})`);
     lists[k] = (b.rows ?? []).map((r) => ({
       rank: r.rank,
-      player: { playerId: r.playerId, name: r.name, position: null, team: r.team, opponent: r.opponent, providerEventId: r.providerEventId, matchup: null, kickoffUtc: r.kickoffUtc, availabilityLabel: null },
-      entry: { value: r.value, p10: r.p10 ?? null, p90: r.p90 ?? null, mean: null, marketKey: b.family, market: r.market ? sanitizeOffer(r.market) : null },
+      player: { playerId: r.playerId, name: r.name, position: null, team: r.team, opponent: r.opponent, providerEventId: r.providerEventId, matchup: null, kickoffUtc: r.kickoffUtc, availabilityLabel: r.completed ? COMPLETED_ROW_LABEL : null },
+      entry: { value: r.value, p10: r.p10 ?? null, p90: r.p90 ?? null, mean: null, marketKey: b.family, market: b.state !== "ESTIMATE" && r.market ? sanitizeOffer(r.market) : null },
     }));
     src[k] = [k === "anytimeTd" ? "opportunityTd" : "playerBoard"];
   }
-  const t = familyTabs(lists, { sourcesByFamily: src, withheldByFamily: withheld, asOfByFamily: asOf });
+  const t = familyTabs(lists, { sourcesByFamily: src, withheldByFamily: withheld, asOfByFamily: asOf, estimateByFamily: est, estimateDetailByFamily: estDetail });
   const keys = new Set(Object.keys(lists));
   return { ...t, families: t.families.filter((f) => keys.has(f.key)) };
 }

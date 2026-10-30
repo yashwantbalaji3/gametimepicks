@@ -28,7 +28,7 @@ import { BOOK_AVAILABILITY_NOTE, isEligibleProvider } from "@/lib/sports/odds/el
 
 import PlayerRow, { type RowEntry, type RowFamily, type RowPlayer } from "./player-row";
 
-export interface TabFamily extends RowFamily { withheld: string | null; metric: string; sourceLabel: string | null; asOf: string | null; estimate?: string | null; notCleared?: string | null }
+export interface TabFamily extends RowFamily { withheld: string | null; metric: string; sourceLabel: string | null; asOf: string | null; estimate?: string | null; estimateDetail?: string | null; notCleared?: string | null }
 export interface UnprojectedPlayer { playerId: string; name: string; team: string }
 export interface TabRow { player: RowPlayer; entry: RowEntry; rank?: number }
 
@@ -103,7 +103,8 @@ export default function FamilyTabs({ families, lists, unprojected = {}, linkToGa
         const none = unprojected[f.key] ?? [];
         return (
           <div key={f.key} role="tabpanel" id={`panel-${label}-${f.key}`} aria-labelledby={`tab-${label}-${f.key}`} hidden={f.key !== fam.key}>
-            {f.estimate && rows.length ? <p className="nf-faint" data-estimate={f.key} style={{ margin: "8px 0 0" }}><strong style={{ color: "var(--vault-text)" }}>{f.estimate}</strong></p> : null}
+            {/* An estimate family (founder P0 2026-10-30): its ONE label, then the failed bar and caveat — never a pick. */}
+            {f.estimate && rows.length ? <p className="nf-faint" data-estimate={f.key} style={{ margin: "8px 0 0" }}><strong style={{ color: "var(--vault-text)" }}>{f.estimate}</strong>{f.estimateDetail ? <> · {f.estimateDetail}</> : null}</p> : null}
             {/* Top boards: games whose board did not clear this family are not ranked, and the list says how many. */}
             {f.notCleared ? <p className="nf-faint" data-not-cleared={f.key} style={{ margin: "8px 0 0" }}>{f.notCleared}</p> : null}
             {f.withheld ? (
@@ -112,7 +113,8 @@ export default function FamilyTabs({ families, lists, unprojected = {}, linkToGa
               <>
                 <ol className="nf-rows">
                   {rows.map((r) => {
-                    const lr = live ? liveIndex.get(`${r.player.playerId}|${LIVE_MARKET[f.key]}`)?.live : null;
+                    /* no live stat beside an estimate: comparing an actual to a forecast that did not clear is the comparison its label withholds */
+                    const lr = live && !f.estimate ? liveIndex.get(`${r.player.playerId}|${LIVE_MARKET[f.key]}`)?.live : null;
                     const factual = lr && lr.phase !== "PRE" && lr.statValue != null ? { phase: lr.phase, value: lr.statValue } : null;
                     return <PlayerRow key={`${r.player.playerId}-${f.key}`} player={r.player} entry={r.entry} family={f} rank={r.rank} linkToGame={linkToGame} live={factual} />;
                   })}

@@ -237,29 +237,36 @@ test("SUPPORTING · World Model V2 is labelled, versioned, hashed, and says when
 });
 
 /*
- * P0 2026-10-28 — this test used to assert the defect: an ESTIMATE family rendered its numbers under "Every number here is
- * the official player board's projection" with an "Estimate · not cleared" note (ESTIMATE_NOTE) beneath them, on the game
- * page and the Top boards. Not cleared is not official: the family now carries no official row; the game page says "Not
- * published yet" with the board's reason, and a Top board says how many games it could not rank.
+ * Founder P0 2026-10-30 — restore the established ESTIMATE pathway. From 2026-10-28 an ESTIMATE family carried no row
+ * ("Not published yet"); the written policy (family-publication.mjs ESTIMATE DISPLAY POLICY) is display WITH the failed bar
+ * and caveat, never as a pick. The family's rows render again, each `familyState: "ESTIMATE"`, under the ONE label, with
+ * no captured price beside them; PUBLISHED families are untouched.
  */
-test("ESTIMATE · a family the board did not clear carries no number under the official projections — game page and boards say why", () => {
-  const v = view({ board: board({ families: { player_pass_yds: { state: "ESTIMATE", reason: "SECOND_LOOK_REJECTED — failed bar: threshold calibration" }, player_rush_yds: { state: "PUBLISHED" } }, players: [bp(1, "A", { player_pass_yds: { mean: 230, median: 228, p10: 150, p90: 300 }, player_rush_yds: { mean: 20, median: 18 } })] }) });
-  assert.equal(v.players[0].families.passingYards, undefined, "no official row for a family that was not cleared");
+test("ESTIMATE · a family the board marks ESTIMATE renders its rows under the one label, no price, never promoted", () => {
+  const reason = "SECOND_LOOK_REJECTED — failed bar: threshold calibration";
+  const v = view({ board: board({ families: { player_pass_yds: { state: "ESTIMATE", reason, caveat: "read the range, not a precise over/under chance." }, player_rush_yds: { state: "PUBLISHED" } }, players: [bp(1, "A", { player_pass_yds: { mean: 230, median: 228, p10: 150, p90: 300, market: { sportsbook: "draftkings", line: 224.5, overOdds: -110, underOdds: -110, capturedAt: "2026-10-01T00:00:00Z" } }, player_rush_yds: { mean: 20, median: 18 } })] }) });
+  const e = v.players[0].families.passingYards;
+  assert.equal(e.value, 228, "the board's median, exact");
+  assert.equal(e.familyState, "ESTIMATE", "never relabelled PUBLISHED");
+  assert.equal(e.estimateLabel, "Estimate · calibration standard not yet met");
+  assert.equal(e.market, null, "no sportsbook line beside an estimate (no side can be read)");
   assert.equal(v.players[0].families.rushingYards.value, 18, "a published family is untouched");
-  assert.deepEqual(v.notCleared, { passingYards: { state: "ESTIMATE", reason: "SECOND_LOOK_REJECTED — failed bar: threshold calibration" } });
+  assert.equal(v.players[0].families.rushingYards.estimateLabel, undefined);
+  assert.deepEqual(v.estimates.passingYards.label, "Estimate · calibration standard not yet met");
+  assert.deepEqual(v.notCleared, {});
   const tabs = gameTabs(v);
   const pass = tabs.families.find((x) => x.key === "passingYards");
-  assert.deepEqual(tabs.lists.passingYards, []);
-  assert.equal(pass.withheld, `${NOT_CLEARED_GAME} Evaluation: not cleared on a second review — failed bar: threshold calibration.`, "Not published, with the board's reason in reader words");
-  assert.equal(pass.estimate, null);
-  assert.equal(tabs.families.find((x) => x.key === "rushingYards").withheld, null);
+  assert.equal(tabs.lists.passingYards.length, 1);
+  assert.equal(pass.withheld, null);
+  assert.equal(pass.estimate, "Estimate · calibration standard not yet met");
+  assert.match(pass.estimateDetail, /^Read the range, not a precise over\/under chance\. Evaluation: /);
+  assert.equal(tabs.families.find((x) => x.key === "rushingYards").estimate, null);
   const bt = boardTabs(topBoards([v], { now: "2098-01-01T00:00Z" }).boards);
-  assert.deepEqual(bt.lists.passingYards, [], "a Top board never ranks a family that was not cleared");
-  assert.equal(bt.families.find((x) => x.key === "passingYards").notCleared, notClearedBoardNote(1, 1));
-  assert.equal(bt.families.find((x) => x.key === "passingYards").estimate, null);
-  assert.equal(bt.families.find((x) => x.key === "rushingYards").notCleared, null);
-  // ESTIMATE_NOTE stays defined for any row that ever carries an ESTIMATE state; none reaches an official list now
-  assert.ok(ESTIMATE_NOTE.all.length > 20);
+  assert.equal(bt.lists.passingYards.length, 1, "the view's Top board ranks the same estimate row");
+  assert.equal(bt.families.find((x) => x.key === "passingYards").estimate, "Estimate · calibration standard not yet met");
+  assert.equal(bt.families.find((x) => x.key === "passingYards").notCleared, null);
+  assert.ok(ESTIMATE_NOTE.some.length > 20);
+  assert.ok(NOT_CLEARED_GAME && notClearedBoardNote(1, 2));
 });
 
 test("ESTIMATE · the supporting simulation's players are not listed under a family that is not published", () => {
@@ -270,13 +277,22 @@ test("ESTIMATE · the supporting simulation's players are not listed under a fam
   assert.deepEqual(v.unprojected.receivingYards.map((x) => x.playerId), ["nfl-athlete-2"], "a published family still names who it does not project");
 });
 
-test("committed data · no official row carries an uncleared family, and CHI @ SEA's passing and rushing read Not published", () => {
+test("committed data · every official row is PUBLISHED or a board ESTIMATE carrying the one label; CHI @ SEA shows its passing and rushing estimates", () => {
   for (const v of views) {
-    for (const p of v.players) for (const [k, e] of Object.entries(p.families)) assert.equal(e.familyState, "PUBLISHED", `${v.matchup} ${p.name} ${k}: ${e.familyState} under the official heading`);
+    const board = JSON.parse(fs.readFileSync(path.join(APP, `public/data/nfl/player-board/${v.providerEventId}.json`), "utf8"));
+    for (const p of v.players) for (const [k, e] of Object.entries(p.families)) {
+      assert.ok(e.familyState === "PUBLISHED" || e.familyState === "ESTIMATE", `${v.matchup} ${p.name} ${k}: ${e.familyState}`);
+      if (e.familyState === "ESTIMATE") {
+        assert.equal(board.families[MARKET_KEY[k]].state, "ESTIMATE", `${v.matchup} ${k}: the board itself says ESTIMATE`);
+        assert.match(e.estimateLabel, /^Estimate · (calibration|publication) standard not yet met$/);
+        assert.equal(e.market, null);
+      }
+    }
     const tabs = gameTabs(v);
-    for (const k of Object.keys(v.notCleared)) {
-      assert.deepEqual(tabs.lists[k], [], `${v.matchup} ${k}: no row`);
-      assert.ok(tabs.families.find((x) => x.key === k).withheld.startsWith(NOT_CLEARED_GAME), `${v.matchup} ${k}: says Not published, with the reason`);
+    for (const k of Object.keys(v.estimates)) {
+      const f = tabs.families.find((x) => x.key === k);
+      assert.equal(f.withheld, null, `${v.matchup} ${k}: not "Not published yet"`);
+      if (tabs.lists[k].length) assert.equal(f.estimate, v.estimates[k].label, `${v.matchup} ${k}: one label`);
     }
   }
   const chiSea = views.find((v) => v.providerEventId === "401873036");
@@ -284,8 +300,8 @@ test("committed data · no official row carries an uncleared family, and CHI @ S
   const states = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/player-board/401873036.json"), "utf8")).families;
   for (const [k, mk] of [["passingYards", "player_pass_yds"], ["rushingYards", "player_rush_yds"]]) {
     if (states[mk]?.state !== "ESTIMATE") continue;
-    assert.ok(chiSea.notCleared[k], `CHI @ SEA ${k} is not cleared`);
-    assert.ok(!chiSea.players.some((p) => p.families[k]), `CHI @ SEA ${k}: no number in the all-players table or the tabs`);
+    assert.ok(chiSea.estimates[k], `CHI @ SEA ${k} is an estimate`);
+    assert.ok(chiSea.players.some((p) => p.families[k]?.familyState === "ESTIMATE"), `CHI @ SEA ${k}: its estimates are on the page`);
   }
 });
 

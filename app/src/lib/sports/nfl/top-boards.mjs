@@ -9,15 +9,23 @@
  *     (board-ranking.mjs `rankFamily`) on the family's official headline (`BOARD_METRIC`: the median for yards and
  *     receptions, the probability for anytime TD). Never a sportsbook price, a simulation or a fallback: a captured
  *     price may ride BESIDE a row (the typed slot the weekly boards already carry); it never orders or fills one.
- *   - A FAMILY THAT IS NOT PUBLICATION-QUALIFIED NEVER RANKS. ESTIMATE, WITHHELD or ABSENT on any board in scope → no
- *     rows, and a readiness entry that states the actual state ("Passing yards: not yet published — the model has not
- *     met its calibration standard (forward test 188/300)").
+ *   - AN ESTIMATE FAMILY RANKS AS AN ESTIMATE (founder P0 2026-10-30, restoring the P250-GD2 pathway the weekly boards
+ *     used for weeks 1–7). When EVERY board in scope marks the family ESTIMATE (passing and rushing yards today), it ranks
+ *     by the same rule on the same median, with state "ESTIMATE" and the ONE qualification label
+ *     (family-publication.mjs `estimateLabel`: "Estimate · calibration standard not yet met") plus the board's reason and
+ *     caveat. It is never promoted: the state stays ESTIMATE, no line, side or direction ever rides on it.
+ *   - A FAMILY THAT IS NEITHER (WITHHELD, ABSENT, or mixed across the scope) NEVER RANKS: no rows, and a readiness entry
+ *     that states the actual state.
  *   - EXACT NUMBERS. `value`, `p10`, `p90` are the board's stored numbers, unrounded; surfaces round at render only
  *     (forecast-view.mjs `formatValue`), so a board row and the game page print the same digits.
  *   - TOP-N IS A MAXIMUM. Fewer cleared players publish fewer rows.
  *   - SCOPES. `weekly` = the period's events still to kick off (all of them pregame); `daily` = the same events grouped
- *     by the ET date of kickoff, one entry per date that still has a game to come.
+ *     by the ET date of kickoff, one entry per date that still has a game to come; `fullWeek` = EVERY event of the period,
+ *     a started game read from its frozen pre-kickoff board exactly as committed (P320: a board is never rebuilt after its
+ *     kickoff) and each of its rows marked `completed: true`. `fullWeek` is a record of the week's pre-kickoff projections,
+ *     never a pregame ranking: surfaces label it so and keep `weekly` as the pregame view.
  */
+import { estimateLabel, estimateStandard } from "./family-publication.mjs";
 
 import { BOARD_METRIC, familyStateAcross, poolWithheldTeams, rankFamily } from "./board-ranking.mjs";
 import { opponentIn } from "./matchup.mjs";
@@ -65,7 +73,7 @@ export function readinessFor({ label, state, reason = null, forward = null, pool
   if (!state) {
     return { state: "NOT_PUBLISHED", boardState: "ABSENT", code: "NO_OFFICIAL_PROJECTION", standard: null, forwardTest, ...say(label, "not yet published", "there is no official projection for this statistic on these games' player boards") };
   }
-  const standard = /calibrat|calOk|\bECE\b/i.test(String(reason ?? "")) ? "calibration" : "publication";
+  const standard = estimateStandard(reason);
   let fwd = "";
   if (forwardTest?.state === "ACCUMULATING" && forwardTest.n != null && forwardTest.needed != null) fwd = ` (forward test ${forwardTest.n}/${forwardTest.needed})`;
   else if (forwardTest?.state === "FORWARD_BREACHED" && forwardTest.n != null) fwd = ` (forward test below its bars after ${forwardTest.n} graded player-games)`;
@@ -79,16 +87,18 @@ export function readinessFor({ label, state, reason = null, forward = null, pool
  * @param {{ now: string, slotFor: Function, forwardFor: Function }} ctx
  */
 function scopeBoards(boards, { now, slotFor, forwardFor }) {
+  const t = Date.parse(now);
   return TOP_BOARD_SPECS.map((spec) => {
     const base = { id: spec.id, family: spec.family, method: spec.method, title: spec.title, label: spec.label, source: TOP_BOARD_SOURCE, topN: TOP_BOARD_SIZE };
     const st = familyStateAcross(boards, spec.family);
-    const withheld = st?.state === "PUBLISHED" ? poolWithheldTeams(boards, spec.family) : [];
+    const ranks = st?.state === "PUBLISHED" || st?.state === "ESTIMATE";
+    const withheld = ranks ? poolWithheldTeams(boards, spec.family) : [];
     const readiness = readinessFor({
-      label: spec.label, state: st?.state ?? null, reason: st?.reason ?? null,
+      label: spec.label, state: st?.state === "ESTIMATE" ? "PUBLISHED" : st?.state ?? null, reason: st?.reason ?? null,
       forward: forwardFor(spec.family, st?.model ?? null),
       poolWithheld: withheld.length ? { teams: withheld.length, of: boards.length * 2 } : null,
     });
-    if (readiness.state !== "PUBLISHED") return { ...base, state: "NOT_PUBLISHED", readiness };
+    if (readiness.state !== "PUBLISHED") return { ...base, state: "NOT_PUBLISHED", readiness: st?.state === "ESTIMATE" ? { ...readiness, boardState: "ESTIMATE" } : readiness };
     const blocked = [];
     const rows = rankFamily(boards, spec.family, spec.method, { asOf: now, blocked }).slice(0, TOP_BOARD_SIZE).map(({ board: b, player: p, market: m }, i) => ({
       rank: i + 1,
@@ -102,11 +112,19 @@ function scopeBoards(boards, { now, slotFor, forwardFor }) {
       participation: p.participation,
       value: m[spec.method],
       ...(spec.method === "probability" ? {} : { p10: isNum(m.p10) ? m.p10 : null, p90: isNum(m.p90) ? m.p90 : null }),
-      ...slotFor(b.providerEventId, p.playerId, spec.family, p.name),
+      /* A captured price may ride beside an official row; an ESTIMATE row carries none (never a pick: no line, no side). */
+      ...(st.state === "ESTIMATE" ? {} : slotFor(b.providerEventId, p.playerId, spec.family, p.name)),
+      ...(kickMs(b.kickoffUtc) > t ? {} : { completed: true }),
     }));
+    if (st.state === "ESTIMATE") {
+      return { ...base, state: "ESTIMATE", estimate: { label: estimateLabel(st.reason), reason: st.reason ?? null, caveat: st.caveat ?? null }, rows, availabilityExcluded: blocked.length };
+    }
     return { ...base, state: "PUBLISHED", basis: st.basis ?? null, rows, availabilityExcluded: blocked.length };
   });
 }
+
+/** A board that ranks (official or estimate). Every surface asks this, never `state === "PUBLISHED"` alone. */
+export const boardRanks = (b) => b?.state === "PUBLISHED" || b?.state === "ESTIMATE";
 
 /**
  * The `topBoards` block of the weekly-boards artifact.
@@ -150,13 +168,22 @@ export function buildTopBoards({ weekBoards, now, slotFor, forwardFor = () => nu
     });
   }
 
+  /* FULL WEEK (founder P0 2026-10-30): every game of the period, started ones from their frozen pre-kickoff boards (as
+     read — nothing is regenerated after a kickoff), each started row marked completed. Not a pregame ranking. */
+  const startedIds = ordered.filter((b) => !(kickMs(b.kickoffUtc) > t)).map((b) => String(b.providerEventId));
+  const fullWeek = {
+    scope: { kind: "FULL_WEEK_WITH_COMPLETED", eventsIncluded: ordered.length, eventsCompleted: startedIds.length, events: ids(ordered), completedEvents: startedIds },
+    boards: scopeBoards(ordered, ctx),
+  };
+
   return {
     contract: TOP_BOARDS_CONTRACT,
     source: TOP_BOARD_SOURCE,
     size: TOP_BOARD_SIZE,
-    ranking: "Official player board only, ranked by the official median (yards, receptions) or the official probability (anytime touchdown); cleared players only; a maximum, never a quota. Sportsbook prices, simulations and fallbacks never rank.",
+    ranking: "Official player board only, ranked by the official median (yards, receptions) or the official probability (anytime touchdown); cleared players only; a maximum, never a quota. A family the board marks ESTIMATE ranks on the same median under the label \"Estimate · … standard not yet met\" and carries no price. Sportsbook prices, simulations and fallbacks never rank.",
     weekly,
     daily,
+    fullWeek,
   };
 }
 
@@ -170,15 +197,15 @@ export function dailyFor(topBoards, etDate) {
  * beside the board. A yardage or receptions board is ordered by the model's PROJECTED MEDIAN — the middle of its range —
  * and is never relabelled as a chance to go over a line: no line enters any Top board, and no probability is derived by
  * comparing a projection (or one simulated outcome) to a line. Only the anytime-touchdown board orders by a probability,
- * and that probability is the official opportunity-TD model's own output. A family that is not official prints its
- * readiness line instead of a method (it is not ranked).
+ * and that probability is the official opportunity-TD model's own output. An ESTIMATE board states the same method and
+ * its estimate label; a family that does not rank prints its readiness line instead of a method.
  */
 export const TOP_BOARD_METHOD = Object.freeze({
   anytime_td: Object.freeze({ metric: "probability", text: "Ranked by the official touchdown model's chance that the player scores at least one touchdown." }),
   player_receptions: Object.freeze({ metric: "median", text: "Ranked by projected median receptions (the middle of the model's range). Not a chance to go over any line." }),
   player_reception_yds: Object.freeze({ metric: "median", text: "Ranked by projected median receiving yards (the middle of the model's range). Not a chance to go over any line." }),
-  player_rush_yds: Object.freeze({ metric: "median", text: "Ranked by projected median rushing yards, only once the family is official. Not a chance to go over any line." }),
-  player_pass_yds: Object.freeze({ metric: "median", text: "Ranked by projected median passing yards, only once the family is official. Not a chance to go over any line." }),
+  player_rush_yds: Object.freeze({ metric: "median", text: "Ranked by projected median rushing yards (the middle of the model's range). Not a chance to go over any line." }),
+  player_pass_yds: Object.freeze({ metric: "median", text: "Ranked by projected median passing yards (the middle of the model's range). Not a chance to go over any line." }),
 });
 
 /** The method sentence a surface prints for a board (null for an unknown family — such a board never renders). */
@@ -197,9 +224,9 @@ export function rankingMethodText(board) {
  * Rule, applied by every surface that renders `topBoards` (week page, hub):
  *   - an event whose kickoff is at or before `nowIso` (or whose kickoff is unknown — fail closed) has STARTED;
  *   - the scope keeps only the remaining events; with none left the scope is null (no pregame board to show);
- *   - a PUBLISHED board with NO row from a started event stays as ranked: its Top-N, all from remaining games, is exactly
+ *   - a ranking board (PUBLISHED or ESTIMATE) with NO row from a started event stays as ranked: its Top-N, all from remaining games, is exactly
  *     the Top-N over the remaining games (every dropped candidate ranked below them);
- *   - a PUBLISHED board WITH a row from a started event is NOT re-ranked here (the next-best players from the remaining
+ *   - a ranking board WITH a row from a started event is NOT re-ranked here (the next-best players from the remaining
  *     games are not in the artifact): it becomes NOT_PUBLISHED with code PREGAME_SCOPE_STALE and a plain readiness line
  *     until the artifact is regenerated for the remaining games.
  * Pure; never changes a value or an order.
@@ -230,13 +257,13 @@ export function pregameScope(scope, nowIso, kickoffOf = () => null) {
   const started = events.filter((id) => startedSet.has(id));
   if (!startedSet.size) return scope;
   const boards = (scope.boards ?? []).map((b) => {
-    if (b.state !== "PUBLISHED" || !(b.rows ?? []).some((r) => startedSet.has(String(r.providerEventId)))) return b;
+    if (!boardRanks(b) || !(b.rows ?? []).some((r) => startedSet.has(String(r.providerEventId)))) return b;
     const label = b.label ?? b.title;
     const n = started.length;
     return {
       ...b, state: "NOT_PUBLISHED", rows: [],
       readiness: {
-        state: "NOT_PUBLISHED", boardState: "PUBLISHED", code: "PREGAME_SCOPE_STALE",
+        state: "NOT_PUBLISHED", boardState: b.state, code: "PREGAME_SCOPE_STALE",
         ...say(label, "not ranked right now", `this list was ranked before ${n} ${n === 1 ? "game" : "games"} in it kicked off, and a pregame list never includes a game that has started; it returns when the board is rebuilt for the ${remaining.length} ${remaining.length === 1 ? "game" : "games"} still to come`),
       },
     };

@@ -63,14 +63,23 @@ test("five boards, in the founder's order, each declaring family + method + the 
   }
 });
 
-test("only PUBLISHED families rank; ESTIMATE families carry a readiness line and no rows", () => {
+test("ESTIMATE families rank as estimates (founder P0 2026-10-30): same rule, the one label, no price; WITHHELD/mixed never rank", () => {
   const tb = buildTopBoards({ weekBoards: FIXTURE, now: NOW, slotFor, forwardFor: (fam, model) => (fam === "player_pass_yds" && /share-level/.test(model ?? "") ? { state: "ACCUMULATING", n: 188, needed: 300 } : null) });
   const by = Object.fromEntries(tb.weekly.boards.map((b) => [b.family, b]));
-  assert.equal(by.player_pass_yds.state, "NOT_PUBLISHED");
-  assert.equal(by.player_pass_yds.rows, undefined, "no ranking for a withheld family");
-  assert.equal(by.player_pass_yds.readiness.text, "Passing yards: not yet published — the model has not met its calibration standard (forward test 188/300)");
-  assert.equal(by.player_rush_yds.readiness.text, "Rushing yards: not yet published — the model has not met its calibration standard");
+  for (const f of ["player_pass_yds", "player_rush_yds"]) {
+    assert.equal(by[f].state, "ESTIMATE", `${f}: ranks, as an estimate — never promoted to PUBLISHED`);
+    assert.equal(by[f].estimate.label, "Estimate · calibration standard not yet met");
+    assert.equal(by[f].readiness, undefined);
+    assert.ok(by[f].rows.length > 0 && by[f].rows.length <= TOP_BOARD_SIZE);
+    for (const r of by[f].rows) assert.ok(!("market" in r) && !("pricingState" in r), `${f} ${r.playerId}: an estimate carries no price slot`);
+  }
+  assert.equal(by.player_pass_yds.estimate.reason, FAMS().player_pass_yds.reason);
   for (const f of ["player_reception_yds", "player_receptions", "anytime_td"]) assert.equal(by[f].state, "PUBLISHED");
+  // a family WITHHELD on one board (or mixed ESTIMATE/PUBLISHED) never ranks
+  const mixed = [...FIXTURE.slice(0, 2), board("3", "2026-11-03T01:15Z", [player(9, "AAA", 100)], FAMS({ player_pass_yds: { label: "Passing yards", state: "WITHHELD", reason: "x" } }))];
+  const m = buildTopBoards({ weekBoards: mixed, now: NOW, slotFor }).weekly.boards.find((b) => b.family === "player_pass_yds");
+  assert.equal(m.state, "NOT_PUBLISHED");
+  assert.equal(m.rows, undefined);
 });
 
 test("Top 5 is a maximum; blocked players never rank; order is the official value; exact numbers", () => {
@@ -138,7 +147,7 @@ test("COMMITTED · the current week's artifact carries the five boards, additive
   assert.deepEqual(wb.topBoards.weekly.boards.map((b) => b.family), TOP_BOARD_SPECS.map((s) => s.family));
   const elig = read("public/data/nfl/family-eligibility.json");
   for (const b of [wb.topBoards.weekly, ...wb.topBoards.daily].flatMap((s) => s.boards)) {
-    if (b.state === "PUBLISHED") { assert.ok(b.rows.length <= 5); continue; }
+    if (b.state === "PUBLISHED" || b.state === "ESTIMATE") { assert.ok(b.rows.length <= 5); continue; }
     assert.ok(!("rows" in b), `${b.id}: a not-qualified family never carries rows`);
     assert.match(b.readiness.text, /^[A-Z][a-z ]+: not (yet published|ranked) — /);
     /* The forward clause quotes the same evidence the public eligibility artifact does. */
@@ -155,7 +164,7 @@ test("COMMITTED · the current week's artifact carries the five boards, additive
 test("SOURCE · the builder emits topBoards from the official boards only (no odds, simulations or fallbacks rank)", () => {
   const src = fs.readFileSync(path.join(APP, "src/lib/sports/nfl/top-boards.mjs"), "utf8");
   const imports = [...src.matchAll(/^import .* from "(.+)";$/gm)].map((m) => m[1]).sort();
-  assert.deepEqual(imports, ["./board-ranking.mjs", "./matchup.mjs"], "nothing but the shared ranking rule and the matchup parser");
+  assert.deepEqual(imports, ["./board-ranking.mjs", "./family-publication.mjs", "./matchup.mjs"], "nothing but the shared ranking rule, the publication policy's label and the matchup parser");
   const builder = fs.readFileSync(path.join(APP, "scripts/nfl/build-nfl-weekly-boards.mjs"), "utf8");
   assert.doesNotMatch(builder, /world-model|game-simulations|simulation/i, "the weekly builder reads no simulation");
   assert.match(builder, /topBoards: buildTopBoards\(\{\s*weekBoards: boards, now: NOW,/);
