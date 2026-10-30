@@ -2,6 +2,8 @@
  * NFL per-game player projection graphics (`gtp-graphics-export@1` NFL_GAME_PLAYERS + scripts/social renderer), on the
  * COMMITTED Week 8 boards, forecasts and roster capture:
  *   exact values (every printed cell = the official snapshot rebuilt here independently of the view, at formatValue),
+ *   passing/rushing yards as LABELLED ESTIMATES (founder P0 2026-10-30: the game page's value + "est." marker + the
+ *   policy label in the footnote; never direction-qualified, never a price),
  *   position-aware columns, ruled-out players excluded and questionable flagged, no sportsbook slot while unauthorized
  *   (and the slot opens only on an authorized + qualified SHOWN line), determinism, refusals (started game, social mode,
  *   output inside a repo, tampered values), no em dash in captions or exports, and no public route reaching any of it.
@@ -17,13 +19,14 @@ import { buildNflGameGraphicsExport, serializeNflGameGraphicsExport, GROUPS, EST
 import { graphicsExportViolations, MODEL_STATUS } from "./graphics-export.mjs";
 import { DISPLAY_AUTHORIZATION } from "../odds/display-authorization.mjs";
 import { formatValue, MARKET_KEY, PLAYER_FAMILIES } from "../sports/nfl/forecast-view.mjs";
+import { estimateLabel } from "../sports/nfl/family-publication.mjs";
 import { officialSnapshotFor } from "../sports/nfl/forecast-view-load.mjs";
 import { unionFrozenForecasts } from "../sports/nfl/public-forecast-union.mjs";
 import { nflPublicRecordResolver } from "../sports/nfl/public-record.mjs";
 import { readWorldModelArtifacts } from "../sports/nfl/world-model-v2/read.mjs";
 import { loadCanonical, prepareNflGameGraphics, renderNflGameGraphics } from "../../../scripts/social/render-nfl-game-graphics.mjs";
 import {
-  paginate, renderGameCardHtml, verifyCardHtml, verifyAgainstSources, gameCaption, captionViolations, marketSlot, cellMarkup, SLOTS, MISSING, REVIEW_BANNER, ROWS_PER_TEAM_PAGE,
+  paginate, renderGameCardHtml, verifyCardHtml, verifyAgainstSources, gameCaption, captionViolations, marketSlot, cellMarkup, estimateFootnote, SLOTS, MISSING, REVIEW_BANNER, ROWS_PER_TEAM_PAGE, FOOTER,
 } from "../../../scripts/social/nfl-game-cards.mjs";
 
 const APP = process.cwd();
@@ -48,7 +51,8 @@ const snapshotOf = (id) => {
   return { snapshot: officialSnapshotFor(f, board, worlds.get(id) ?? null).snapshot, board };
 };
 const KIND = Object.fromEntries(PLAYER_FAMILIES.filter((f) => MARKET_KEY[f.key]).map((f) => [MARKET_KEY[f.key], f.kind]));
-const cellsOf = (html) => [...html.matchAll(/<div class="v( na)?" data-row-id="([^"]+)" data-status="([A-Z_]+)">([^<]*)<\/div>/g)].map((m) => ({ rowId: m[2], status: m[3], text: m[4] }));
+const cellsOf = (html) => [...html.matchAll(/<div class="v( na| est)?" data-row-id="([^"]+)" data-status="([A-Z_]+)">([^<]*)(<span class="em">([^<]*)<\/span>)?<\/div>/g)].map((m) => ({ rowId: m[2], status: m[3], text: m[4], cls: m[1]?.trim() ?? "", marker: m[6] ?? null }));
+const EST_LABEL = "Estimate · calibration standard not yet met";
 
 /* ───────────────────────────── scope ───────────────────────────── */
 
@@ -72,7 +76,7 @@ test("every printed cell equals the official snapshot (rebuilt independently) at
     assert.equal(snapshot.snapshotId, g.doc.publication.snapshotId);
     const sp = new Map(snapshot.players.map((p) => [p.playerId, p]));
     const byId = new Map(g.doc.rows.map((r) => [r.rowId, r]));
-    let printed = 0; let official = 0;
+    let printed = 0; let official = 0; let estimates = 0;
     for (const c of g.cards) {
       for (const cell of cellsOf(c.html)) {
         printed += 1;
@@ -80,38 +84,85 @@ test("every printed cell equals the official snapshot (rebuilt independently) at
         const mk = r.identity.market;
         const o = sp.get(r.identity.playerId)?.families?.[mk];
         const published = o?.state === "PUBLISHED" && board.families[mk].state === "PUBLISHED";
+        const estimate = mk !== "anytime_td" && o?.state === "ESTIMATE" && board.families[mk].state === "ESTIMATE";
         if (cell.status === MODEL_STATUS.OFFICIAL) {
           official += 1;
           const stored = mk === "anytime_td" ? o.expected : o.median;
           assert.ok(published, `${cell.rowId}: printed but not published`);
           assert.equal(cell.text, formatValue(KIND[mk], stored), cell.rowId);
           assert.equal(r.model.value, stored, cell.rowId);
+          assert.equal(cell.marker, null, `${cell.rowId}: an official cell carries no estimate marker`);
           if (mk === "anytime_td") assert.match(cell.text, /^\d+\.\d%$/);
+        } else if (cell.status === MODEL_STATUS.OFFICIAL_ESTIMATE) {
+          estimates += 1;
+          assert.ok(estimate, `${cell.rowId}: printed as an estimate but not ESTIMATE in the snapshot and on the board`);
+          assert.equal(cell.text, formatValue(KIND[mk], o.median), cell.rowId);
+          assert.equal(r.model.value, o.median, cell.rowId);
+          assert.equal(r.model.value, board.players.find((p) => p.playerId === r.identity.playerId).markets[mk].median, `${cell.rowId}: raw board`);
+          assert.equal([cell.cls, cell.marker].join("|"), "est|est.", `${cell.rowId}: printed with the estimate marker`);
+          assert.equal(r.model.label, estimateLabel(board.families[mk].reason), cell.rowId);
+          assert.equal(r.model.label, EST_LABEL, cell.rowId);
         } else {
           assert.equal(cell.text, MISSING, cell.rowId);
           assert.ok(!(published && Number.isFinite(mk === "anytime_td" ? o.expected : o.median)), `${cell.rowId}: the snapshot publishes it but the card withholds it`);
+          assert.ok(!(estimate && Number.isFinite(o.median)), `${cell.rowId}: the snapshot carries a labelled estimate but the card withholds it`);
         }
       }
     }
     assert.equal(printed, g.doc.rows.length, `${id}: every export cell is printed exactly once`);
     assert.ok(official > 20, `${id}: ${official} official cells`);
+    assert.ok(estimates >= 2, `${id}: ${estimates} labelled estimate cells (both QBs' passing yards at least)`);
     assert.deepEqual(verifyAgainstSources({ doc: g.doc, snapshot, board }), []);
   }
 });
 
-test("passing and rushing yards (ESTIMATE on every week-8 board) print the missing mark with the footnote, never a number", () => {
-  assert.equal(ESTIMATE_DISPLAY.allowed, false);
+test("passing and rushing yards (ESTIMATE on every week-8 board) print the game page's digits with the est. marker and the label footnote, never as a pick", () => {
+  /* founder P0 2026-10-30: the written policy (family-publication.mjs ESTIMATE DISPLAY POLICY) allows public display
+     WITH the one label, never as a pick — the game page shows them so, and the cards follow the game page */
+  assert.equal(ESTIMATE_DISPLAY.allowed, true);
+  assert.equal(ESTIMATE_DISPLAY.marker, "est.");
+  let shown = 0;
   for (const g of prepared.games) {
     assert.equal(g.doc.families.player_pass_yds, "ESTIMATE");
     assert.equal(g.doc.families.player_rush_yds, "ESTIMATE");
+    assert.deepEqual(g.doc.estimateDisplay.labels, { player_pass_yds: EST_LABEL, player_rush_yds: EST_LABEL });
+    const view = canon.games.find((x) => String(x.view.providerEventId) === g.eventId).view;
     for (const r of g.doc.rows.filter((x) => ["player_pass_yds", "player_rush_yds"].includes(x.identity.market))) {
-      assert.equal(r.model.status, MODEL_STATUS.OFFICIAL_ESTIMATE);
-      assert.equal(r.model.value, null);
-      assert.equal(r.model.display, null);
-      assert.equal(r.graphicEligibility.eligible, false);
+      const vf = view.players.find((p) => p.playerId === r.identity.playerId)?.families?.[r.identity.market === "player_pass_yds" ? "passingYards" : "rushingYards"] ?? null;
+      if (!vf) {
+        /* the game page has no estimate for this player: the card prints the missing mark, never another source */
+        assert.equal(r.model.status, MODEL_STATUS.UNAVAILABLE, r.rowId);
+        assert.equal(r.model.reason, "NO_ESTIMATE_FOR_PLAYER", r.rowId);
+        assert.equal(r.model.value, null);
+        assert.equal(r.graphicEligibility.eligible, false);
+        continue;
+      }
+      shown += 1;
+      assert.equal(vf.familyState, "ESTIMATE", r.rowId);
+      assert.equal(r.model.status, MODEL_STATUS.OFFICIAL_ESTIMATE, r.rowId);
+      assert.equal(r.model.value, vf.value, `${r.rowId}: the game page's value`);
+      assert.equal(r.model.display, formatValue("yards", vf.value), `${r.rowId}: the game page's digits`);
+      assert.equal(r.model.label, vf.estimateLabel, `${r.rowId}: the game page's label`);
+      assert.equal(r.model.label, EST_LABEL);
+      assert.deepEqual(r.graphicEligibility, { eligible: true, reasons: [] }, r.rowId);
+      assert.equal(r.marketEligibility.directionQualified, false, `${r.rowId}: an estimate is never direction-qualified`);
+      for (const k of ["line", "price", "direction"]) assert.ok(["WITHHELD", "NOT_APPLICABLE"].includes(r.market[k].state));
+      assert.equal(marketSlot(r), null);
     }
-    for (const c of g.cards) assert.ok(c.html.includes(ESTIMATE_DISPLAY.footnote));
+    for (const c of g.cards) {
+      const ids = new Set(c.rowIds);
+      const rows = g.doc.rows.filter((r) => ids.has(r.rowId));
+      const note = estimateFootnote(rows);
+      if (rows.some((r) => r.model.status === MODEL_STATUS.OFFICIAL_ESTIMATE)) {
+        assert.ok(note.startsWith(`est. ${EST_LABEL}. `), note);
+        assert.ok(c.html.includes(`<p class="est">${note}</p>`), `${c.name}: the estimate footnote with the label text`);
+      } else assert.ok(!c.html.includes(`<p class="est">`), `${c.name}: no estimate footnote without an estimate`);
+      assert.doesNotMatch(c.html.replace(/<style>[\s\S]*?<\/style>/, ""), /\b(OVER|UNDER|lean|pick of)\b/);
+    }
+    assert.match(g.caption, /Passing yards and rushing yards are shown as estimates \(Estimate · calibration standard not yet met\), never as a pick\./);
   }
+  assert.ok(shown >= 26, `${shown} labelled estimate cells (every starting QB's passing yards at least)`);
+  assert.equal(estimateFootnote([]), "");
 });
 
 /* ───────────────────────────── position-aware columns ───────────────────────────── */
@@ -264,6 +315,25 @@ test("refusals: started games, social purpose, output inside the repo, tampered 
   const badHtml = html.replace(`data-row-id="${firstOfficial.rowId}" data-status="OFFICIAL">${firstOfficial.text}<`, `data-row-id="${firstOfficial.rowId}" data-status="OFFICIAL">999<`);
   assert.ok(verifyCardHtml(badHtml, g.doc, page).length > 0);
   assert.ok(verifyCardHtml(html.replace(`<div class="review">`, `<div class="x">`), g.doc, page).some((x) => /banner/.test(x)));
+  // estimates: a tampered value, a lost label, a lost marker or footnote, and a state disagreement are all caught
+  const e0 = g.doc.rows.find((r) => r.model.status === "OFFICIAL_ESTIMATE" && page.teams.some((t) => t.players.some((p) => p.rowIds.includes(r.rowId))));
+  assert.ok(e0, "image 1 carries an estimate cell");
+  const bump = { ...g.doc, rows: g.doc.rows.map((r) => (r === e0 ? { ...r, model: { ...r.model, value: r.model.value + 3, display: formatValue("yards", r.model.value + 3) } } : r)) };
+  assert.ok(verifyAgainstSources({ doc: bump, snapshot, board }).some((x) => x.includes(e0.rowId) && /snapshot estimate/.test(x)));
+  const unlabelled = { ...g.doc, rows: g.doc.rows.map((r) => (r === e0 ? { ...r, model: { ...r.model, label: "Projection" } } : r)) };
+  assert.ok(verifyAgainstSources({ doc: unlabelled, snapshot, board }).some((x) => x.includes(e0.rowId) && /policy label/.test(x)));
+  const hidden = { ...g.doc, rows: g.doc.rows.map((r) => (r === e0 ? { ...r, model: { ...r.model, status: "UNAVAILABLE", value: null, display: null, label: undefined }, graphicEligibility: { eligible: false, reasons: ["MODEL_STATUS_UNAVAILABLE", "NO_VALUE"] } } : r)) };
+  assert.ok(verifyAgainstSources({ doc: hidden, snapshot, board }).some((x) => x.includes(e0.rowId) && /withholds/.test(x)));
+  assert.ok(verifyCardHtml(html.replace(`>${e0.model.display}<span class="em">est.</span>`, `>${e0.model.display}`), g.doc, page).some((x) => x.includes(e0.rowId)));
+  assert.ok(verifyCardHtml(html.replace(/<p class="est">[^<]*<\/p>/, ""), g.doc, page).some((x) => /estimate footnote absent/.test(x)));
+  assert.ok(html.includes(FOOTER.missing) || !cellsOf(html).some((c) => c.text === MISSING));
+  const qb = src.view.players.find((p) => p.families.passingYards);
+  const promoted = { ...src.board, families: { ...src.board.families, player_pass_yds: { ...src.board.families.player_pass_yds, state: "PUBLISHED" } } };
+  assert.throws(() => buildNflGameGraphicsExport({ view: src.view, board: promoted, positions: canon.positions, asOf: AS_OF }), /view row is ESTIMATE but the board family is PUBLISHED/);
+  const relabelled = { ...src.view, players: src.view.players.map((p) => (p === qb ? { ...p, families: { ...p.families, passingYards: { ...p.families.passingYards, estimateLabel: "Projection" } } } : p)) };
+  assert.throws(() => buildNflGameGraphicsExport({ view: relabelled, board: src.board, positions: canon.positions, asOf: AS_OF }), /game page label/);
+  const qbBent = { ...src.view, players: src.view.players.map((p) => (p === qb ? { ...p, families: { ...p.families, passingYards: { ...p.families.passingYards, value: p.families.passingYards.value + 1 } } } : p)) };
+  assert.throws(() => buildNflGameGraphicsExport({ view: qbBent, board: src.board, positions: canon.positions, asOf: AS_OF }), /≠ player board/);
 });
 
 /* The PNG step needs a Playwright browser binary. CI's unit phase installs none (browsers are installed only for the

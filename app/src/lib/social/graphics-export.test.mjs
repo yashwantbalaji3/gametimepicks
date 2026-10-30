@@ -96,13 +96,20 @@ test("NFL: at the artifact's own instant the export IS the website's Top 5 (same
   const site = Object.fromEntries(WEEK_ARTIFACT.topBoards.weekly.boards.map((b) => [b.id, b]));
   for (const b of nflAtArtifact.boards) {
     const s = site[b.id];
-    if (s.state === "NOT_PUBLISHED" && s.readiness?.boardState === "ESTIMATE") {
-      /* the committed artifact predates estimate ranking (2026-10-30); the export ranks the boards' ESTIMATE family */
+    if (s.state === "ESTIMATE") {
+      /* founder P0 2026-10-30: the site ranks a labelled ESTIMATE family exactly as the export does — same players,
+         ranks, values and ranges, carrying the site's one estimate label; never direction-qualified */
       assert.equal(b.modelStatus, MODEL_STATUS.OFFICIAL_ESTIMATE, b.id);
+      assert.equal(b.label, s.estimate.label, b.id);
+      assert.equal(b.label, "Estimate · calibration standard not yet met", b.id);
       assert.ok(b.rowIds.length >= 1, b.id);
-      continue;
-    }
-    if (s.state !== "PUBLISHED") {
+      for (const id of b.rowIds) {
+        const r = nflAtArtifact.rows.find((x) => x.rowId === id);
+        assert.equal(r.model.status, MODEL_STATUS.OFFICIAL_ESTIMATE, id);
+        assert.equal(r.model.label, s.estimate.label, id);
+        assert.equal(r.marketEligibility.directionQualified, false, `${id}: an estimate is never direction-qualified`);
+      }
+    } else if (s.state !== "PUBLISHED") {
       assert.deepEqual(b.rowIds, []);
       assert.equal(b.readiness.text, s.readiness.text);
       continue;

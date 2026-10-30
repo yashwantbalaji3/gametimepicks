@@ -9,7 +9,9 @@
  *
  * Layout: 1080×1350 portrait, box-score style: away team panel above home team panel, each in position groups (QB, RB,
  * WR/TE) with position-aware columns. A team with more than ROWS_PER_TEAM_PAGE players continues on a second image.
- * A cell with no official number prints "—" (class "na"), explained in the footer.
+ * A cell with no official number prints "—" (class "na"), explained in the footer. A labelled ESTIMATE cell (passing and
+ * rushing yards today; founder P0 2026-10-30) prints the game page's digits with a small "est." marker (class "est"),
+ * and the footer carries the estimate's one label text (family-publication.mjs estimateLabel) — never as a pick.
  *
  * SPORTSBOOK SLOT: marketSlot() is the only path a line, price or OVER/UNDER colour can take onto a card, and it opens
  * only when the NFL social surface is authorized AND the family is direction-qualified AND the row carries a SHOWN line
@@ -24,6 +26,7 @@ import { fileURLToPath } from "node:url";
 import { PALETTE, SIDE_COLOR, BANNED_WORDS, EM_DASH, EN_DASH, tipEt, visibleText } from "./nba-line-cards.mjs";
 import { displayAuthorization, directionAuthorization, DISPLAY_AUTHORIZATION } from "../../src/lib/odds/display-authorization.mjs";
 import { formatValue, MARKET_KEY } from "../../src/lib/sports/nfl/forecast-view.mjs";
+import { estimateLabel } from "../../src/lib/sports/nfl/family-publication.mjs";
 import { BOARD_METRIC } from "../../src/lib/sports/nfl/board-ranking.mjs";
 import { graphicsExportViolations, MODEL_STATUS, instantMs } from "../../src/lib/social/graphics-export.mjs";
 import { ESTIMATE_DISPLAY, FAMILY, GROUPS, PURPOSE, EXCLUDED_AVAILABILITY } from "../../src/lib/social/nfl-game-graphics-export.mjs";
@@ -36,7 +39,7 @@ export const MISSING = EM_DASH;
 export const REVIEW_BANNER = "FOUNDER REVIEW ONLY · NOT AUTHORIZED FOR SOCIAL POSTING";
 export const FOOTER = Object.freeze({
   metric: "Yards and receptions: the official player board's median. Anytime TD: the chance to score at least one rushing or receiving touchdown if he plays.",
-  missing: `${MISSING} means no official number. ${ESTIMATE_DISPLAY.footnote}`,
+  missing: `${MISSING} means no official number for that player and statistic.`,
   noLines: "Model projections only: no sportsbook lines or prices are shown.",
   advice: "Not betting advice.",
   responsible: "21+ where required; the legal age varies by state. Gambling problem? Call 1-800-GAMBLER.",
@@ -62,8 +65,31 @@ export function logoDataUri() {
 
 const rowById = (doc) => new Map(doc.rows.map((r) => [r.rowId, r]));
 
-/** The exact text a cell prints: the export's display for an OFFICIAL row, else the missing mark. */
-export const cellText = (r) => (r.model.status === MODEL_STATUS.OFFICIAL && r.model.display != null ? r.model.display : MISSING);
+/** A row printed as a labelled estimate: OFFICIAL_ESTIMATE with its label and a value (never an unlabelled one). */
+export const isLabelledEstimate = (r) => r.model.status === MODEL_STATUS.OFFICIAL_ESTIMATE && typeof r.model.label === "string" && r.model.label.length > 0 && r.model.display != null;
+/** The exact text a cell prints: the export's display for an OFFICIAL or labelled-estimate row, else the missing mark. */
+export const cellText = (r) => ((r.model.status === MODEL_STATUS.OFFICIAL || isLabelledEstimate(r)) && r.model.display != null ? r.model.display : MISSING);
+
+/**
+ * The estimate footnote for a set of rows: one sentence per distinct label, naming its statistics, with the marker.
+ * The label text is the row's own model.label (the policy's estimateLabel), never retyped. "" when no estimate prints.
+ */
+function estimateGroups(rows) {
+  const byLabel = new Map();
+  for (const r of rows) if (r && isLabelledEstimate(r)) {
+    const names = byLabel.get(r.model.label) ?? new Set();
+    names.add(r.identity.marketLabel.toLowerCase());
+    byLabel.set(r.model.label, names);
+  }
+  return [...byLabel].map(([label, names]) => {
+    const list = [...names].sort();
+    const said = list.length === 1 ? list[0] : `${list.slice(0, -1).join(", ")} and ${list[list.length - 1]}`;
+    return { label, said: `${said.charAt(0).toUpperCase()}${said.slice(1)}`, shown: list.length === 1 ? "is shown as an estimate" : "are shown as estimates" };
+  });
+}
+export function estimateFootnote(rows) {
+  return estimateGroups(rows).map(({ label, said, shown }) => `${ESTIMATE_DISPLAY.marker} ${label}. ${said} ${shown}, never as a pick.`).join(" ");
+}
 
 /**
  * The gated sportsbook slot of one row: null unless NFL social display is authorized, the family is direction-qualified
@@ -82,10 +108,12 @@ export function marketSlot(r, record = DISPLAY_AUTHORIZATION) {
 /** Exact markup of one value cell (the validator and the tests find it verbatim). */
 export function cellMarkup(r, record = DISPLAY_AUTHORIZATION) {
   const text = cellText(r);
-  const m = marketSlot(r, record);
-  const cls = text === MISSING ? "v na" : "v";
+  const est = text !== MISSING && isLabelledEstimate(r);
+  /* an estimate never takes the sportsbook slot (it is never direction-qualified); checked here as well */
+  const m = est ? null : marketSlot(r, record);
+  const cls = text === MISSING ? "v na" : est ? "v est" : "v";
   const style = m ? ` style="color:${m.color}"` : "";
-  return `<div class="${cls}" data-row-id="${esc(r.rowId)}" data-status="${esc(r.model.status)}"${style}>${esc(text)}${m ? `<span class="mk">${esc(m.line)}</span>` : ""}</div>`;
+  return `<div class="${cls}" data-row-id="${esc(r.rowId)}" data-status="${esc(r.model.status)}"${style}>${esc(text)}${est ? `<span class="em">${esc(ESTIMATE_DISPLAY.marker)}</span>` : ""}${m ? `<span class="mk">${esc(m.line)}</span>` : ""}</div>`;
 }
 
 /** Lead image slots per position group (QB starter, two backs, four receivers); leftover slots go to the next players. */
@@ -175,6 +203,8 @@ html,body{width:${SIZE.width}px;height:${SIZE.height}px;background:${PALETTE.bg}
 .flag{font:700 12px/1 "JetBrains Mono",Menlo,monospace;letter-spacing:1px;color:${PALETTE.gold};border:1px solid ${PALETTE.gold};border-radius:999px;padding:3px 7px;text-transform:uppercase;white-space:nowrap}
 .v{font:700 25px/1 "JetBrains Mono",Menlo,monospace;text-align:right;font-variant-numeric:tabular-nums;color:${PALETTE.text}}
 .v.na{color:${PALETTE.faint};font-weight:500}
+.v.est{color:${PALETTE.muted}}
+.v .em{display:block;font:600 12px/1 "JetBrains Mono",Menlo,monospace;color:${PALETTE.gold};letter-spacing:1px;margin-top:3px}
 .v .mk{display:block;font:600 13px/1 "JetBrains Mono",Menlo,monospace;color:${PALETTE.muted};margin-top:3px}
 .empty{font:500 20px/1.4 "Geist","Helvetica Neue",Arial,sans-serif;color:${PALETTE.faint};padding:18px 0}
 .foot{margin-top:14px;border-top:1px solid ${PALETTE.border};padding-top:10px;display:flex;flex-direction:column;gap:4px}
@@ -197,7 +227,9 @@ export function renderGameCardHtml({ doc, page, record = DISPLAY_AUTHORIZATION }
   const byId = rowById(doc);
   const review = doc.purpose === PURPOSE.FOUNDER_REVIEW;
   const asOfText = boardAsOfEt(doc.rows[0]?.snapshot?.boardGeneratedAt);
-  const anyMissing = page.teams.some((t) => t.players.some((p) => p.rowIds.some((id) => cellText(byId.get(id)) === MISSING)));
+  const pageRows = page.teams.flatMap((t) => t.players.flatMap((p) => p.rowIds.map((id) => byId.get(id))));
+  const anyMissing = pageRows.some((r) => cellText(r) === MISSING);
+  const estNote = estimateFootnote(pageRows);
   const body = `<header class="head"><img class="logo" alt="GameTime Picks" src="${logoDataUri()}"><div class="htext">
 <div class="eyebrow">NFL · Week ${esc(doc.edition.week)} · Official player projections${page.page > 1 ? " · more players" : ""}</div>
 <div class="title">${esc(doc.game.matchup)}</div>
@@ -208,6 +240,7 @@ ${page.teams.map((t) => teamPanel(doc, t, byId, record, page.page)).join("\n")}
 </div>
 <footer class="foot">
 <p class="q">${esc(FOOTER.metric)}</p>
+${estNote ? `<p class="est">${esc(estNote)}</p>` : ""}
 ${anyMissing ? `<p class="miss">${esc(FOOTER.missing)}</p>` : ""}
 <p>${asOfText ? `Official player board as of ${esc(asOfText)}. ` : ""}${esc(FOOTER.noLines)} ${esc(FOOTER.advice)} ${esc(FOOTER.responsible)}</p>
 </footer>`;
@@ -236,13 +269,20 @@ export function verifyCardHtml(html, doc, page, record = DISPLAY_AUTHORIZATION) 
     const r = byId.get(id);
     if (!r) { v.push(`${id}: not in the export`); continue; }
     if (!html.includes(cellMarkup(r, record))) v.push(`${id}: card is missing ${cellMarkup(r, record)}`);
-    if (r.model.status !== MODEL_STATUS.OFFICIAL && cellText(r) !== MISSING) v.push(`${id}: a ${r.model.status} cell prints a number`);
-    if (r.model.status === MODEL_STATUS.OFFICIAL && r.model.display !== formatValue(r.model.kind, r.model.value)) v.push(`${id}: display is not formatValue of the value`);
+    if (r.model.status !== MODEL_STATUS.OFFICIAL && !isLabelledEstimate(r) && cellText(r) !== MISSING) v.push(`${id}: a ${r.model.status} cell prints a number`);
+    if ((r.model.status === MODEL_STATUS.OFFICIAL || isLabelledEstimate(r)) && r.model.display !== formatValue(r.model.kind, r.model.value)) v.push(`${id}: display is not formatValue of the value`);
+    if (isLabelledEstimate(r) && !html.includes(`>${esc(r.model.display)}<span class="em">${esc(ESTIMATE_DISPLAY.marker)}</span>`)) v.push(`${id}: an estimate prints without its marker`);
   }
   if (!marketSlotsOpen(doc, record) && /class="mk"|style="color:/.test(html.replace(/<style>[\s\S]*?<\/style>/, ""))) v.push("a sportsbook slot or colour is on the card while not authorized");
   const text = visibleText(html);
   for (const s of [FOOTER.metric, FOOTER.noLines, FOOTER.advice, FOOTER.responsible]) if (!text.includes(s)) v.push(`footer missing: ${s}`);
-  if (got.some((id) => cellText(byId.get(id) ?? { model: {} }) === MISSING) && !text.includes(ESTIMATE_DISPLAY.footnote)) v.push("missing-number footnote absent");
+  if (got.some((id) => cellText(byId.get(id) ?? { model: {} }) === MISSING) && !text.includes(FOOTER.missing)) v.push("missing-number footnote absent");
+  const estRows = want.map((id) => byId.get(id)).filter((r) => r && isLabelledEstimate(r));
+  if (estRows.length) {
+    const note = estimateFootnote(estRows);
+    if (!text.includes(note)) v.push("estimate footnote absent");
+    for (const label of new Set(estRows.map((r) => r.model.label))) if (!text.includes(label)) v.push(`estimate label absent: ${label}`);
+  } else if (html.includes(`<p class="est">`)) v.push("estimate footnote on a card with no estimate");
   if ((doc.purpose === PURPOSE.FOUNDER_REVIEW) !== html.includes(`<div class="review">${esc(REVIEW_BANNER)}</div>`)) v.push("review banner state");
   const outIds = new Set(doc.excluded.filter((x) => x.reason.startsWith("AVAILABILITY_")).map((x) => x.playerId));
   for (const m of html.matchAll(/data-player-id="([^"]+)"/g)) if (outIds.has(m[1])) v.push(`${m[1]}: ruled-out player on the card`);
@@ -277,15 +317,28 @@ export function verifyAgainstSources({ doc, snapshot, board }) {
     if (r.snapshot.id !== snapshot.snapshotId) v.push(`${id}: snapshot id`);
     const o = sp.get(r.identity.playerId)?.families?.[mk] ?? null;
     const atd = mk === "anytime_td";
-    const official = o && o.state === "PUBLISHED" && board?.families?.[mk]?.state === "PUBLISHED" ? (atd || BOARD_METRIC[mk] !== "median" ? o.expected : o.median) : null;
+    const headline = o ? (atd || BOARD_METRIC[mk] !== "median" ? o.expected : o.median) : null;
+    const official = o && o.state === "PUBLISHED" && board?.families?.[mk]?.state === "PUBLISHED" ? headline : null;
+    /* a labelled estimate: ESTIMATE in the snapshot AND on the board (the game page's own rule), never anytime TD */
+    const estimate = !atd && o && o.state === "ESTIMATE" && board?.families?.[mk]?.state === "ESTIMATE" ? headline : null;
     const kind = atd ? "probability" : mk === "player_receptions" ? "count" : "yards";
-    if (r.model.status === MODEL_STATUS.OFFICIAL) {
+    if (r.model.status === MODEL_STATUS.OFFICIAL_ESTIMATE) {
+      if (!isLabelledEstimate(r)) v.push(`${id}: an estimate cell without its label or value`);
+      if (estimate == null || estimate !== r.model.value) v.push(`${id}: snapshot estimate ${estimate} ≠ export ${r.model.value}`);
+      if (formatValue(kind, estimate) !== r.model.display) v.push(`${id}: snapshot display ${formatValue(kind, estimate)} ≠ export ${r.model.display}`);
+      const raw = bp.get(r.identity.playerId)?.markets?.[mk]?.median;
+      if (raw !== r.model.value) v.push(`${id}: player board ${raw} ≠ export ${r.model.value}`);
+      const label = estimateLabel(board?.families?.[mk]?.reason);
+      if (r.model.label !== label) v.push(`${id}: label ${JSON.stringify(r.model.label)} ≠ policy label ${JSON.stringify(label)}`);
+      if (r.marketEligibility?.directionQualified !== false) v.push(`${id}: an estimate is direction-qualified`);
+    } else if (r.model.status === MODEL_STATUS.OFFICIAL) {
       if (official !== r.model.value) v.push(`${id}: snapshot ${official} ≠ export ${r.model.value}`);
       if (formatValue(kind, official) !== r.model.display) v.push(`${id}: snapshot display ${formatValue(kind, official)} ≠ export ${r.model.display}`);
       const raw = atd ? bp.get(r.identity.playerId)?.markets?.anytime_td?.probability : bp.get(r.identity.playerId)?.markets?.[mk]?.median;
       if (raw !== r.model.value) v.push(`${id}: player board ${raw} ≠ export ${r.model.value}`);
     } else {
       if (official != null && Number.isFinite(official)) v.push(`${id}: the snapshot publishes ${official} but the card withholds it`);
+      if (estimate != null && Number.isFinite(estimate)) v.push(`${id}: the snapshot carries the labelled estimate ${estimate} but the card withholds it`);
       if (r.model.value != null || r.model.display != null) v.push(`${id}: a ${r.model.status} cell carries a number`);
     }
     const part = bp.get(r.identity.playerId)?.participation;
@@ -311,13 +364,14 @@ export function gameCaption(doc, { featuredPerTeam = 2 } = {}) {
     const ps = t.players.map((p) => ({ p, rs: p.rowIds.map((id) => byId.get(id)).filter((r) => r.model.status === MODEL_STATUS.OFFICIAL) })).filter((x) => x.rs.length >= 2).slice(0, featuredPerTeam);
     return ps.map(({ p, rs }) => `${p.name} (${t.team}) ${rs.map(say).join(", ")}`).join("; ");
   }).filter(Boolean);
-  const withheld = Object.entries(doc.families).filter(([k, s]) => s === "ESTIMATE" && ["player_pass_yds", "player_rush_yds"].includes(k)).length;
+  /* estimates never feature as a player's numbers in the caption; the caption says once that they are estimates */
+  const estNote = estimateGroups(doc.rows).map(({ label, said, shown }) => `${said} ${shown} (${label}), never as a pick.`).join(" ");
   return [
     `${doc.game.awayName ?? doc.game.away} at ${doc.game.homeName ?? doc.game.home}, ${when}.`,
     `GameTime Picks official player projections for ${doc.teams.map((t) => `${t.players.length} ${t.team}`).join(" and ")} players.`,
     featured.length ? `${featured.join(". ")}.` : "",
     "Yards and receptions are medians; the anytime TD figure is the chance to score if he plays.",
-    withheld ? "Passing and rushing yards are not published yet this week." : "",
+    estNote,
     `${FOOTER.advice} ${FOOTER.responsible}`,
   ].filter(Boolean).join(" ");
 }

@@ -154,10 +154,22 @@ test("COMMITTED · the current week's artifact carries the five boards, additive
     const ft = elig.families.find((f) => f.family === b.family)?.evidence?.forwardTest;
     if (b.readiness.forwardTest?.state === "ACCUMULATING") assert.deepEqual([b.readiness.forwardTest.n, b.readiness.forwardTest.needed], [ft.n, ft.needed]);
   }
-  /* The week's per-game boards publish pass/rush only as ESTIMATE: they must not rank in topBoards. */
+  /* The week's per-game boards publish pass/rush only as ESTIMATE: founder P0 2026-10-30, they rank again as labelled
+     ESTIMATE boards (never promoted to PUBLISHED), carrying the board's failed bar and caveat and no price. Anything that
+     is neither PUBLISHED nor ESTIMATE still does not rank. */
   for (const fam of ["player_pass_yds", "player_rush_yds"]) {
-    const st = wb.boards.find((b) => b.family === fam)?.state;
-    if (st !== "PUBLISHED") assert.equal(wb.topBoards.weekly.boards.find((b) => b.family === fam).state, "NOT_PUBLISHED");
+    const legacy = wb.boards.find((b) => b.family === fam);
+    for (const scope of [wb.topBoards.weekly, ...wb.topBoards.daily, ...(wb.topBoards.fullWeek ? [wb.topBoards.fullWeek] : [])]) {
+      const top = scope.boards.find((b) => b.family === fam);
+      if (legacy?.state === "PUBLISHED") { assert.equal(top.state, "PUBLISHED", fam); continue; }
+      if (legacy?.state !== "ESTIMATE") { assert.equal(top.state, "NOT_PUBLISHED", fam); continue; }
+      assert.equal(top.state, "ESTIMATE", `${fam}: an estimate family ranks as an estimate, never promoted`);
+      assert.equal(top.estimate.label, "Estimate · calibration standard not yet met", fam);
+      assert.equal(top.estimate.reason, legacy.reason, `${fam}: the failed bar is the board's own`);
+      assert.equal(top.estimate.caveat, legacy.caveat, `${fam}: the caveat is the board's own`);
+      assert.ok(top.rows.length >= 1 && top.rows.length <= 5, fam);
+      for (const r of top.rows) assert.ok(!("market" in r) && !("pricingState" in r), `${fam} ${r.name}: an estimate row carries no price`);
+    }
   }
 });
 

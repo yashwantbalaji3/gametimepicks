@@ -21,10 +21,12 @@
  *
  * STATUS PER CELL:
  *   OFFICIAL           the family is PUBLISHED on this game's board and the view carries the player → value + display.
- *   OFFICIAL_ESTIMATE  the board marks the family ESTIMATE (not cleared). ESTIMATE_DISPLAY below decides: today NOT shown
- *                      (no value, the card prints "—" with a footnote), matching the game page ("Not published yet",
- *                      forecast-view.mjs NOT_CLEARED_GAME) and @1 (OFFICIAL_ESTIMATE is never graphic-eligible).
- *   UNAVAILABLE        no official number for that player and statistic → "—".
+ *   OFFICIAL_ESTIMATE  the board marks the family ESTIMATE (it failed a bar) and the game page carries the player's row
+ *                      labelled (forecast-view.mjs playerRows, familyState "ESTIMATE" + estimateLabel). Founder P0
+ *                      2026-10-30: shown exactly as the game page shows it — the same value and digits, the ONE label
+ *                      (family-publication.mjs estimateLabel) on the row, never direction-qualified, never a price; the
+ *                      card prints it with a small "est." marker and a footnote carrying the same label text.
+ *   UNAVAILABLE        no official number (and no labelled estimate) for that player and statistic → "—".
  *
  * SPORTSBOOK: the row's market block is graphics-export.mjs marketFields (surface "social"): every NFL family is
  * direction-unqualified and NFL social display is not authorized, so line / price / direction are WITHHELD and the card's
@@ -35,21 +37,22 @@
 import { MODEL_STATUS, marketFields, instantMs, ExportRefusal, socialAuthorization, GRAPHICS_EXPORT_SCHEMA } from "./graphics-export.mjs";
 import { PLAYER_FAMILIES, MARKET_KEY, formatValue, NO_OFFICIAL_PROJECTION } from "../sports/nfl/forecast-view.mjs";
 import { DISPLAY_AUTHORIZATION } from "../odds/display-authorization.mjs";
+import { estimateLabel } from "../sports/nfl/family-publication.mjs";
 
 export const EDITION_KIND = "NFL_GAME_PLAYERS";
 export const PURPOSE = Object.freeze({ FOUNDER_REVIEW: "FOUNDER_REVIEW_ONLY", SOCIAL: "SOCIAL" });
 
 /**
- * ESTIMATE families on the cards. family-publication.mjs describes an ESTIMATE family as "displayed as an unvalidated
- * estimate" (a status-page headline), but the decision that governs what an official surface may print is the P0 of
- * 2026-10-28 in forecast-view.mjs: an ESTIMATE family carries NO number among the official projections ("Not published
- * yet"). The game page prints none, so the card prints none: "—" with the footnote below.
+ * ESTIMATE families on the cards (founder P0 2026-10-30, restoring the written policy). family-publication.mjs ESTIMATE
+ * DISPLAY POLICY: an ESTIMATE family's numbers may be shown publicly ONLY with the one qualification label
+ * (`estimateLabel`), never as a pick (no direction, no line, no card leg). The game page shows them so (forecast-view.mjs
+ * playerRows), and graphics-export@1 makes an OFFICIAL_ESTIMATE row graphic-eligible only carrying `model.label`. So the
+ * card prints the game page's value with `marker` beside it and a footnote with the label text (nfl-game-cards.mjs).
  */
 export const ESTIMATE_DISPLAY = Object.freeze({
-  allowed: false,
-  label: "Not published yet",
-  footnote: "Passing and rushing yards are not published yet: the official player board has not cleared them for publication this week, so no number is shown.",
-  basis: "forecast-view.mjs NOT_CLEARED_GAME (P0 2026-10-28): an ESTIMATE family has no row among the official projections; graphics-export@1: OFFICIAL_ESTIMATE is never graphic-eligible",
+  allowed: true,
+  marker: "est.",
+  basis: "family-publication.mjs ESTIMATE DISPLAY POLICY (founder P0 2026-10-30): an ESTIMATE value is shown only with its one label (estimateLabel), never as a pick; forecast-view.mjs playerRows carries it labelled on the game page; graphics-export@1: OFFICIAL_ESTIMATE is graphic-eligible only with model.label",
 });
 
 /** Position groups and their columns (view family keys), in card order. Anytime TD is always the last column. */
@@ -140,23 +143,31 @@ export function buildNflGameGraphicsExport({ view, board, positions, asOf, purpo
         const mk = MARKET_KEY[fam];
         const entry = p.families[fam] ?? null;
         const fs = familyState(fam);
-        let status; let value = null; let reason = null;
+        let status; let value = null; let reason = null; let label = null;
         if (entry) {
-          if (fs !== "PUBLISHED") throw new ExportRefusal(`${eventId} ${p.playerId} ${fam}: view row present but the board family is ${fs}`);
+          /* the game page's row and the board must agree on the family's state: PUBLISHED ↔ PUBLISHED, ESTIMATE ↔ ESTIMATE */
+          const est = entry.familyState === "ESTIMATE";
+          if (fs !== (est ? "ESTIMATE" : "PUBLISHED")) throw new ExportRefusal(`${eventId} ${p.playerId} ${fam}: view row is ${entry.familyState ?? "PUBLISHED"} but the board family is ${fs}`);
           if (entry.snapshotId !== snapshotId) throw new ExportRefusal(`${eventId} ${p.playerId} ${fam}: row from snapshot ${entry.snapshotId}, not ${snapshotId}`);
           const raw = boardNumber(bp, fam);
           if (raw !== entry.value) throw new ExportRefusal(`${eventId} ${p.playerId} ${fam}: view value ${entry.value} ≠ player board ${raw}`);
-          status = MODEL_STATUS.OFFICIAL; value = entry.value;
-        } else if (fs === "ESTIMATE") {
-          status = MODEL_STATUS.OFFICIAL_ESTIMATE; reason = "NOT_CLEARED_FOR_PUBLICATION";
-          if (ESTIMATE_DISPLAY.allowed) throw new ExportRefusal("ESTIMATE_DISPLAY.allowed is true but no estimate value path is implemented (the view carries none)");
+          if (est) {
+            if (!ESTIMATE_DISPLAY.allowed) throw new ExportRefusal(`${eventId} ${p.playerId} ${fam}: estimate display is off`);
+            label = estimateLabel(board.families[mk].reason);
+            if (entry.estimateLabel !== label) throw new ExportRefusal(`${eventId} ${p.playerId} ${fam}: game page label ${JSON.stringify(entry.estimateLabel)} ≠ policy label ${JSON.stringify(label)}`);
+            status = MODEL_STATUS.OFFICIAL_ESTIMATE; value = entry.value; reason = "ESTIMATE_FAMILY";
+          } else {
+            status = MODEL_STATUS.OFFICIAL; value = entry.value;
+          }
         } else {
-          status = MODEL_STATUS.UNAVAILABLE; reason = fs === "PUBLISHED" ? "NO_OFFICIAL_PROJECTION_FOR_PLAYER" : `FAMILY_${fs}`;
+          status = MODEL_STATUS.UNAVAILABLE;
+          reason = fs === "PUBLISHED" ? "NO_OFFICIAL_PROJECTION_FOR_PLAYER" : fs === "ESTIMATE" ? "NO_ESTIMATE_FOR_PLAYER" : `FAMILY_${fs}`;
         }
         const rowId = `nfl:${editionKey}:${eventId}:${p.playerId}:${mk}`;
         const extra = [];
         if (!(instantMs(view.kickoffUtc) > t)) extra.push("GAME_STARTED");
-        const reasons = [...(status === MODEL_STATUS.OFFICIAL ? [] : [`MODEL_STATUS_${status}`]), ...(value == null ? ["NO_VALUE"] : []), ...extra];
+        const labelledEstimate = status === MODEL_STATUS.OFFICIAL_ESTIMATE && Boolean(label);
+        const reasons = [...(status === MODEL_STATUS.OFFICIAL || labelledEstimate ? [] : [`MODEL_STATUS_${status}`]), ...(value == null ? ["NO_VALUE"] : []), ...extra];
         rows.push({
           rowId,
           kind: "PLAYER_PROP",
@@ -167,9 +178,10 @@ export function buildNflGameGraphicsExport({ view, board, positions, asOf, purpo
           },
           officialForecast: { id: "nfl-official-player-board", modelVersion: entry?.modelVersion ?? view.official.modelVersions?.[mk] ?? null, gameRecordModel: view.record?.modelId ?? null },
           snapshot: { id: snapshotId, boardGeneratedAt: view.official.boardGeneratedAt ?? board.generatedAt ?? null, recordGeneratedAt: view.record?.generatedAt ?? null, lockAt: view.kickoffUtc },
-          model: { status, value, kind: f.kind, display: value == null ? null : formatValue(f.kind, value), reason, familyState: fs, availability: p.availabilityLabel ?? null },
+          model: { status, value, kind: f.kind, display: value == null ? null : formatValue(f.kind, value), ...(label ? { label } : {}), reason, familyState: fs, availability: p.availabilityLabel ?? null },
           checks: { gamePageValue: entry ? "EQUAL" : "NOT_FOUND", playerBoardValue: entry ? "EQUAL" : "NOT_APPLICABLE", officialSnapshot: "GAME_PAGE_READS_SNAPSHOT" },
-          ...marketFields({ sport: "nfl", directionKey: DIRECTION_KEY[mk] ?? null, marketType: MARKET_TYPE[mk], record: authorizationRecord }),
+          /* an estimate is never direction-qualified, whatever the authorization record says (as in graphics-export.mjs) */
+          ...marketFields({ sport: "nfl", directionKey: status === MODEL_STATUS.OFFICIAL_ESTIMATE ? null : DIRECTION_KEY[mk] ?? null, marketType: MARKET_TYPE[mk], record: authorizationRecord }),
           graphicEligibility: { eligible: reasons.length === 0, reasons },
           provenance: { playerBoard: `app/public/data/nfl/player-board/${eventId}.json`, playerBoardSha256: boardSha256, gamePage: `/nfl/game/${eventId}/ (forecast-view-load.mjs loadForecastViews)`, position: "app/public/data/nfl/rosters/latest.json" },
         });
@@ -198,14 +210,17 @@ export function buildNflGameGraphicsExport({ view, board, positions, asOf, purpo
       belowTarget: Object.entries(counts).filter(([, n]) => n < TARGET_PER_TEAM).map(([k]) => k),
     },
     families: Object.fromEntries(Object.keys(FAMILY).map((fam) => [MARKET_KEY[fam], familyState(fam)])),
-    estimateDisplay: { allowed: ESTIMATE_DISPLAY.allowed, basis: ESTIMATE_DISPLAY.basis },
+    estimateDisplay: {
+      allowed: ESTIMATE_DISPLAY.allowed, marker: ESTIMATE_DISPLAY.marker, basis: ESTIMATE_DISPLAY.basis,
+      labels: Object.fromEntries(Object.keys(FAMILY).map((fam) => MARKET_KEY[fam]).filter((mk) => board.families?.[mk]?.state === "ESTIMATE").map((mk) => [mk, estimateLabel(board.families[mk].reason)])),
+    },
     authorization: socialAuthorization("nfl", authorizationRecord),
     teams: teamsOut,
     excluded,
     rows,
     inputs: [...inputs].map((i) => ({ ref: String(i.ref), sha256: i.sha256 ?? null })).sort((a, b) => a.ref.localeCompare(b.ref)),
     usageRules: [
-      "Print model.display exactly; a cell whose status is not OFFICIAL prints the missing-number mark and is never filled from another source.",
+      "Print model.display exactly. An OFFICIAL_ESTIMATE cell prints it with the estimate marker and its model.label in the footnote, never as a pick; any other non-OFFICIAL cell prints the missing-number mark and is never filled from another source.",
       "No sportsbook line, price, side or colour: NFL families are not direction-qualified and NFL social display is not authorized.",
       `A game that has kicked off is never posted as a pregame forecast. ${NO_OFFICIAL_PROJECTION} is never replaced by a simulation number.`,
     ],

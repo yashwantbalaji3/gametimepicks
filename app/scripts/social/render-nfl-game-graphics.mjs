@@ -215,7 +215,7 @@ export async function renderNflGameGraphics(args, { publicDir, authorizationReco
     const mine = pngs.filter((f) => path.dirname(f) === dir);
     const manifest = {
       schema: "gtp-nfl-game-graphics-manifest@1",
-      export: { schemaVersion: g.doc.schemaVersion, edition: g.doc.edition, asOf: g.doc.asOf, purpose: g.doc.purpose, socialAuthorized: false, snapshotId: g.snapshotId, families: g.doc.families, playersPerTeam: g.doc.scope.playersPerTeam, belowTarget: g.doc.scope.belowTarget, excluded: g.doc.excluded, rows: g.doc.rows.length, officialCells: g.doc.rows.filter((r) => r.model.status === "OFFICIAL").length },
+      export: { schemaVersion: g.doc.schemaVersion, edition: g.doc.edition, asOf: g.doc.asOf, purpose: g.doc.purpose, socialAuthorized: false, snapshotId: g.snapshotId, families: g.doc.families, playersPerTeam: g.doc.scope.playersPerTeam, belowTarget: g.doc.scope.belowTarget, excluded: g.doc.excluded, rows: g.doc.rows.length, officialCells: g.doc.rows.filter((r) => r.model.status === "OFFICIAL").length, estimateCells: g.doc.rows.filter((r) => r.model.status === "OFFICIAL_ESTIMATE" && r.model.label).length, estimateLabels: g.doc.estimateDisplay.labels },
       cards: g.cards.map((c) => ({ name: c.name, page: c.page, pages: c.pages, size: SIZE.key, rowIds: c.rowIds, htmlSha256: sha(c.html) })),
       files: [...written, ...mine].map((f) => ({ file: path.relative(dir, f), sha256: sha(fs.readFileSync(f)) })),
     };
