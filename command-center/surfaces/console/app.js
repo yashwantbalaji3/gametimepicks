@@ -1199,7 +1199,7 @@
   }
 
   function render(s, force = false) {
-    if (!ui.landed) {
+    if (!ui.landed && (s.posts ?? []).length) {
       ui.landed = true;
       let seen = false;
       try { seen = sessionStorage.getItem("gtp-cc-landed") === "1"; sessionStorage.setItem("gtp-cc-landed", "1"); } catch { /* private mode */ }
