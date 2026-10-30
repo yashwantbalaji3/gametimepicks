@@ -13,7 +13,7 @@ import Link from "next/link";
 
 import MoreDisclosure from "@/components/ui/more-disclosure";
 import { EloAccuracyDisclosure, EloWinProbability } from "@/components/nba/elo-win-probability";
-import { OFFICIAL_MODEL_PLAIN, OFFICIAL_PREDICTIONS_TITLE, unavailableReasonText } from "@/components/nba/official-predictions";
+import { OFFICIAL_MODEL_PLAIN, OFFICIAL_PREDICTIONS_TITLE, officialStatText, unavailableReasonText } from "@/components/nba/official-predictions";
 import { NBA_RESULTS_LINK, SIMULATION_ARCHIVED_NOTE, settledVerdictText } from "@/components/nba/expired-simulation.mjs";
 import type { SettledView } from "@/components/nba/settled-simulation-data";
 import { COMBO_STATS, STATS } from "@/lib/sports/nba/experimental-public-lane.mjs";
@@ -31,7 +31,8 @@ const et = (iso: string | null | undefined) => {
   const t = Date.parse(String(iso ?? ""));
   return Number.isFinite(t) ? new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(t)) + " ET" : "—";
 };
-const fmt = (v: number | null | undefined) => (typeof v === "number" && Number.isFinite(v) ? v.toFixed(1) : "—");
+/* the game page's one NBA formatter (official-predictions officialStatText = lane-top-boards laneDisplay; P0-A 2026-10-30) */
+const fmt = officialStatText;
 
 type Row = SettledView["game"]["players"]["away"][number];
 

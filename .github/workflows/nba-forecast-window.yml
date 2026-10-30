@@ -22,12 +22,23 @@
 # It writes only data/internal/research/nba/** and injuries/nba/latest.json; a push race with another writer
 # is handled by re-planning on the new main (the write-once builder makes that correct), up to 3 times.
 #
+# NEXT-SLATE PUBLICATION (founder 2026-10-30; lib/sports/nba/next-slate-publication.mjs). The decider also freezes the
+# NEXT ET slate whole — v0 + v0.1 (+ v0.3 aligned) with no horizon, exactly what sport-schedules' daily build does for
+# today, only earlier — once every game of the previous ET date is final / postponed / suspended, or at 06:00
+# America/New_York on the slate date, whichever comes first. The lane publish (unchanged rules: once per slate, never
+# rewritten) then tries that slate as well as today ET, so the official lane lands overnight / early morning instead
+# of after the 14–17Z daily run. Overnight clocks: nba-results-refresh DISPATCHES this workflow after it commits a new
+# final (a fresh chain — a workflow_run source would push nba-finals-waiter past the 4-workflow limit), plus the
+# extra crons below around the fallback (10Z EDT / 11Z EST), plus publication-watchdog from 12Z.
+#
 # FREE: no secrets, no paid provider, no npm install (the scripts are dependency-free .mjs).
 name: nba-forecast-window
 
 on:
   schedule:
     - cron: "17 * * * *"
+    # Best-effort extras across the 06:00 ET fallback (10:00Z under EDT, 11:00Z under EST).
+    - cron: "4,34 10,11 * * *"
   workflow_run:
     workflows: ["publication-watchdog"]
     types: [completed]
@@ -75,6 +86,7 @@ jobs:
         working-directory: app
         env:
           DATES: ${{ steps.decide.outputs.dates }}
+          NEXTDAY: ${{ steps.decide.outputs.nextday }}
         run: |
           set -uo pipefail
           git config user.name "github-actions[bot]"
@@ -101,6 +113,16 @@ jobs:
             node scripts/sports/capture-injuries.mjs --now "$NOW" \
               || echo "::warning::injuries capture refused — receipts record the committed snapshot and its age"
             V0_FAILED=0
+            # NEXT SLATE, WHOLE (no horizon): the previous ET slate is final, or the 06:00 ET fallback passed. Same
+            # families, same order, same instant and same write-once / pre-tip rules as sport-schedules' daily build of
+            # today; v0.2 / v1 stay on the 8 h window below (NEXTDAY is also in DATES, which freezes its Top Boards).
+            if [ -n "$NEXTDAY" ]; then
+              node scripts/nba/build-nba-experimental-forecasts.mjs --date "$NEXTDAY" --now "$NOW" --write --family v0 || V0_FAILED=1
+              node scripts/nba/build-nba-experimental-forecasts.mjs --date "$NEXTDAY" --now "$NOW" --write --family v0.1 \
+                || echo "::warning::v0.1 refused for next slate $NEXTDAY (roster gate) — the lane holds until it freezes"
+              node scripts/nba/build-nba-experimental-forecasts.mjs --date "$NEXTDAY" --now "$NOW" --write --family v0.3 \
+                || echo "::warning::v0.3 refused for next slate $NEXTDAY — v0 and v0.1 unaffected"
+            fi
             for D in $DATES; do
               # v0 is the preregistered record: its refusal fails the run. v0.1 is research: its roster gate
               # refusing is the gate working, so it warns and never costs v0 the game.
@@ -159,34 +181,45 @@ jobs:
       # refused still publishes once that game tips. decidePublish HOLDs until every game of the ET slate is frozen or has
       # tipped, NOOPs on an identical committed day file, and REFUSEs (exit 1) rather than rewrite a published slate.
       # Commits only the day file + latest.json: one Production build per slate (the /nba page is a static export).
+      # Tries today ET AND the decider's next slate (founder 2026-10-30): when the previous slate went final before
+      # midnight ET, the next slate is tomorrow ET and would otherwise wait for midnight. Oldest first, so latest.json
+      # (which only moves forward) ends on the newest slate.
       - name: Publish the NBA experimental lane (once per slate)
         if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' && steps.build.outcome != 'failure' }}
         working-directory: app
+        env:
+          SLATE: ${{ steps.decide.outputs.slate }}
         run: |
           set -uo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          D="$(TZ=America/New_York date +%Y-%m-%d)"
           # Theater (#1167, founder 2026-10-21): --deepen lets the generator re-read the roster/injury blobs the official
           # receipts hashed. --theater builds the slate's possession runs into data/internal/research/nba/
           # theater-possession/$D/ on PUBLISH only (no-rewrite); it prints theater=OK|FAILED|SKIPPED and the exit code
           # reflects ONLY the lane, so a Theater failure never blocks the lane. The artifact rides THIS once-per-slate
           # commit (a BUILD_INPUT that is never committed per freeze, so it costs no extra Production build).
-          for ATTEMPT in 1 2 3; do
-            git fetch -q origin main && git reset -q --hard origin/main
-            git fetch -q --deepen=400 origin main || echo "::warning::deepen failed; the Theater may refuse, the lane is unaffected"
-            OUT="$(node scripts/nba/publish-nba-experimental-lane.mjs --date "$D" --write --theater)"; RC=$?
-            echo "$OUT"
-            if [ "$RC" != "0" ]; then echo "::error::lane publish refused for $D"; exit 1; fi
-            case "$OUT" in *"action=PUBLISH"*) ;; *) exit 0 ;; esac
-            git add "public/data/nba/experimental-public/$D.json" public/data/nba/experimental-public/latest.json 2>/dev/null || git add public/data/nba/experimental-public/latest.json
-            if [ -d "../data/internal/research/nba/theater-possession/$D" ]; then git add "../data/internal/research/nba/theater-possession/$D/"; fi
-            if git diff --cached --quiet; then echo "nothing staged"; exit 0; fi
-            git commit -q -m "auto: nba experimental lane $D (once per slate; Theater runs if built) [skip ci]"
-            if git push -q origin HEAD:main; then exit 0; fi
-            echo "::warning::push lost a race (attempt $ATTEMPT)"; sleep $((ATTEMPT * 15))
-          done
-          echo "::error::could not push the lane after 3 attempts"; exit 1
+          publish_one() {
+            D="$1"
+            for ATTEMPT in 1 2 3; do
+              git fetch -q origin main && git reset -q --hard origin/main
+              git fetch -q --deepen=400 origin main || echo "::warning::deepen failed; the Theater may refuse, the lane is unaffected"
+              OUT="$(node scripts/nba/publish-nba-experimental-lane.mjs --date "$D" --write --theater)"; RC=$?
+              echo "$OUT"
+              if [ "$RC" != "0" ]; then echo "::error::lane publish refused for $D"; return 1; fi
+              case "$OUT" in *"action=PUBLISH"*) ;; *) return 0 ;; esac
+              git add "public/data/nba/experimental-public/$D.json" public/data/nba/experimental-public/latest.json 2>/dev/null || git add public/data/nba/experimental-public/latest.json
+              if [ -d "../data/internal/research/nba/theater-possession/$D" ]; then git add "../data/internal/research/nba/theater-possession/$D/"; fi
+              if git diff --cached --quiet; then echo "nothing staged"; return 0; fi
+              git commit -q -m "auto: nba experimental lane $D (once per slate; Theater runs if built) [skip ci]"
+              if git push -q origin HEAD:main; then return 0; fi
+              echo "::warning::push lost a race (attempt $ATTEMPT)"; sleep $((ATTEMPT * 15))
+            done
+            echo "::error::could not push the lane for $D after 3 attempts"; return 1
+          }
+          TODAY="$(TZ=America/New_York date +%Y-%m-%d)"
+          FAILED=0
+          for D in $(printf '%s\n' "$TODAY" ${SLATE:-} | sort -u); do publish_one "$D" || FAILED=1; done
+          exit "$FAILED"
 
       - name: Report a hold
         if: steps.decide.outputs.decision != 'BUILD'

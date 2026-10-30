@@ -79,7 +79,7 @@ test("every committed lane date: official snapshot == lane == /nba/projections =
           const cells = [...tr[1].matchAll(/<td>([^<]*)<\/td>/g)].map((c) => c[1]);
           for (const [k] of STATS) {
             const v = row.medians?.[k];
-            assert.ok(cells.includes(v == null ? "—" : v.toFixed(1)), `${date} ${row.name} ${k}: rendered ${v} on the game page`);
+            assert.ok(cells.includes(v == null ? "—" : String(v)), `${date} ${row.name} ${k}: rendered ${v} on the game page (the lane's digits)`);
           }
         }
       }

@@ -93,8 +93,10 @@ export default function NflSimulationV2Page({ params }: { params: { eventId: str
       <p className="font-mono" style={{ fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-mute)", margin: "6px 0 0" }}>
         {PUBLIC_TERMS.GAME_SIMULATION} · Simulation V2 · {r.runCount.toLocaleString("en-US")} coherent game paths
       </p>
-      <SimulationV2Report r={r} file={rec.file} canonical={canonicalFor(params.eventId)} gameHref={gameHref} />
+      {/* P0-A (founder 2026-10-30): with the Theater flag ON the page opens on the Theater's Default view (the official
+          projected game), above the simulation report; flag OFF this renders nothing and the page is unchanged */}
       <SimulationReplay rec={rec} />
+      <SimulationV2Report r={r} file={rec.file} canonical={canonicalFor(params.eventId)} gameHref={gameHref} />
     </div>
   );
 }

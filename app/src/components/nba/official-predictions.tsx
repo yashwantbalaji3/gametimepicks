@@ -1,7 +1,9 @@
 /**
- * /nba/simulation/<id> — "GameTimePicks Official Predictions", rendered on the SERVER directly below the Theater
- * (NBA UI parity, founder directive 2026-10-22). It takes no run and no playback state, so it is in the HTML before
- * any script runs and nothing the reader does in the Theater can change it.
+ * /nba/simulation/<id> — "GameTimePicks Official Predictions", rendered on the SERVER (NBA UI parity, founder directive
+ * 2026-10-22). It takes no run and no playback state, so it is in the HTML before any script runs and nothing the reader
+ * does in the Theater can change it. P0-A (founder 2026-10-30): it is the Theater's DEFAULT VIEW — the official projected
+ * game, first on the page, above the simulated scenarios (playback and What-if), with the same digits every other
+ * official surface prints (officialStatText; cross-surface-canonical.test.mjs pins it).
  *
  * Sources, never computed here:
  *   official  the payload's official panel (payload.mjs officialPanel — the canonical official snapshot, embedded by the
@@ -64,10 +66,22 @@ export const unavailableReasonText = (reason: string | null | undefined, status?
 };
 // founder directive 2026-10-23 public readiness: the registry term ("Official Forecast")
 export const OFFICIAL_PREDICTIONS_TITLE = `GameTimePicks ${PUBLIC_TERMS.OFFICIAL_FORECAST}`;
+/* P0-A (founder 2026-10-30): Simulation Theater opens on THIS section — the Default view, the official projected game. */
+export const OFFICIAL_DEFAULT_KIND = `Default view · Official projected game · ${PUBLIC_TERMS.OFFICIAL_FORECAST} · frozen before tip-off · the same on every page`;
+/** NBA team scores are WITHHELD by the official composition: the Default view says so instead of printing a score. */
+export const OFFICIAL_SCORE_WITHHELD = "Not published. The Official Forecast does not include NBA team scores, so no projected score is shown.";
+/** Official player medians are each player's own median: they are not adjusted to add up to a team total. */
+export const OFFICIAL_MEDIANS_NOT_SUMMED = "Each figure is that player's own median, published as is. Player medians are not adjusted to add up to a team score.";
 
 /* The lane's own 1-dp rounding (experimental-public-lane.mjs r1), so this table prints exactly what Top Boards prints. */
 const r1 = (v: number | null | undefined) => (typeof v === "number" && Number.isFinite(v) ? Math.round(v * 10) / 10 : null);
-const fmt = (v: number | null | undefined) => { const x = r1(v); return x == null ? "—" : x.toFixed(1); };
+/* P0-A (founder 2026-10-30: "the same values"): the ONE NBA display formatter — lane-top-boards.mjs laneDisplay, which
+   /nba/projections, the Top Boards, the /nba lane cards and the graphics export print (the lane's 1-dp number as
+   written, e.g. "5" and "29.1"; "—" when not published), inlined because that module is the Top Boards' alone
+   (lane-top-boards.test import pin). This table used toFixed(1) ("5.0"), the one surface that did. */
+const fmt = (v: number | null | undefined) => { const x = r1(v); return x == null ? "—" : String(x); }; // == laneDisplay(r1(v)), pinned in theater-default-canonical.test
+/** The Default view's one cell formatter (lane 1-dp rounding, printed as the lane prints it, "—" when not published). */
+export const officialStatText = fmt;
 const et = (iso: string | null) =>
   iso ? new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(iso)) + " ET" : "—";
 const same = (official: number | null | undefined, lane: number | null | undefined) => { const a = r1(official); return a != null && typeof lane === "number" && Math.abs(a - lane) < 1e-9; };
@@ -90,8 +104,8 @@ export default function NbaOfficialPredictions({ official, teams, lane, finalNot
 }) {
   const elo = eloCtx ?? loadEloWinProbabilityContext();
   return (
-    <section id={OFFICIAL_PREDICTIONS_ID} tabIndex={-1} className="nbx-official" aria-labelledby={`${OFFICIAL_PREDICTIONS_ID}-h`} data-nba-official-predictions={official?.snapshotId ?? "none"}>
-      <p className="nbx-kind">{PUBLIC_TERMS.OFFICIAL_FORECAST} · frozen before tip-off · the same on every page</p>
+    <section id={OFFICIAL_PREDICTIONS_ID} tabIndex={-1} className="nbx-official" aria-labelledby={`${OFFICIAL_PREDICTIONS_ID}-h`} data-nba-official-predictions={official?.snapshotId ?? "none"} data-theater-default="">
+      <p className="nbx-kind">{OFFICIAL_DEFAULT_KIND}</p>
       <h2 id={`${OFFICIAL_PREDICTIONS_ID}-h`}>{OFFICIAL_PREDICTIONS_TITLE}</h2>
       {official ? <Official official={official} teams={teams} lane={lane} elo={elo} /> : (
         <p>{PUBLIC_TERMS.UNAVAILABLE}: no Official Forecast receipt for this game. Nothing on this page is an Official Forecast.</p>
@@ -101,7 +115,7 @@ export default function NbaOfficialPredictions({ official, teams, lane, finalNot
       <h3>What each part of this page is</h3>
       <ul className="nbx-legend">
         <li><b>{PUBLIC_TERMS.OFFICIAL_FORECAST}</b> — this section: frozen before tip-off. It is what GameTimePicks forecasts.</li>
-        <li><b>{PUBLIC_TERMS.GAME_SIMULATION}</b> — the replay above: one possible game from the NBA possession engine. Its score and box score are not a forecast and never change this section.</li>
+        <li><b>{PUBLIC_TERMS.GAME_SIMULATION}</b> — the simulated scenarios below (playback and What-if): one possible game from the NBA possession engine, hypothetical. Its score and box score are not a forecast and never change this section.</li>
         <li><b>Real Result</b> — {finalNote ? <>official final: <strong>{finalNote}</strong>.</> : "the official final, recorded after the game."} <Link href={resultsHref}>NBA {PUBLIC_TERMS.HISTORICAL_RESULTS} →</Link></li>
       </ul>
     </section>
@@ -125,6 +139,7 @@ function Official({ official, teams, lane, elo }: { official: PbOfficial; teams:
         <dt>Player statistics</dt><dd>{OFFICIAL_MODEL_PLAIN.players} · medians</dd>
         <dt>Frozen</dt><dd>{et(official.frozenAt)}{official.lockAt ? ` · locked at tip-off, ${et(official.lockAt)}` : ""}</dd>
         {eloShown ? <><dt>{ELO_WIN_PROBABILITY_LABEL}</dt><dd><EloWinProbability game={eloGame} ctx={elo} /> <span className="nbx-fine" data-nba-elo-wp-disclosure="">{elo.disclosure}</span></dd></> : null}
+        <dt>Projected score</dt><dd data-nba-official-score="withheld">{OFFICIAL_SCORE_WITHHELD}</dd>
         <dt>Withheld</dt><dd>{eloShown ? "Team scores" : "Win chance, team scores"}, margin and total, player ranges, prices{w.teamScores ? <span className="sr-only"> · {w.teamScores}</span> : null}</dd>
       </dl>
       <details className="nbx-model-details" data-nba-model-details="">
@@ -169,7 +184,7 @@ function Official({ official, teams, lane, elo }: { official: PbOfficial; teams:
       })}
       <p className="nbx-fine">
         Medians from the frozen player simulation; MIN is expected minutes. PRA, P+R and P+A are medians of the per-draw sums over the same
-        simulated draws, so they are not the sum of the medians beside them. &ldquo;—&rdquo; means the figure was not published for that player.
+        simulated draws, so they are not the sum of the medians beside them. {OFFICIAL_MEDIANS_NOT_SUMMED} &ldquo;—&rdquo; means the figure was not published for that player.
         Not betting recommendations.
       </p>
     </>

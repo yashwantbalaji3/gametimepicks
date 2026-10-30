@@ -56,7 +56,7 @@ test("switch off: /nba/projections HTML is identical with or without price recor
   const at = onText.indexOf('<section id="nba-prop-lines"');
   assert.ok(at > 0);
   const section = onText.slice(at, onText.indexOf("</section>", at));
-  assert.match(section, /<p data-prop-line-summary="nba"[^>]*><span[^>]*>[A-Z]+ @ [A-Z]+:<\/span>/, "one summary, named by its game");
+  assert.match(section, /<p data-prop-line-summary="nba"[^>]*>(<span[^>]*>)?[A-Z]+ @ [A-Z]+: \d+ lines? · /, "one summary, named by its game");
   assert.match(section, /1 of \d+ projections has a qualified sportsbook line\./, "true-denominator slate coverage");
   assert.doesNotMatch(section, /role="row"|data-prop-line="/, "no per-player row on the slate page");
 });

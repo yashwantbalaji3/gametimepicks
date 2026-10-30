@@ -69,7 +69,7 @@ test("REAL DATA · a settled URL for a committed past date: WSH @ CHA, 2026-10-2
     assert.ok(t.includes(p.name), p.name);
     const at = html.indexOf(p.name.replace(/'/g, "&#x27;"));
     const row = html.slice(at, html.indexOf("</tr>", at));
-    assert.ok(row.includes(`>${p.medians.pts.toFixed(1)}<`), `${p.name} PTS ${p.medians.pts}`);
+    assert.ok(row.includes(`>${String(p.medians.pts)}<`), `${p.name} PTS ${p.medians.pts}`); // laneDisplay digits (P0-A)
   }
   for (const p of [...laneGame.players.away, ...laneGame.players.home].filter((x) => x.injuryStatus)) assert.ok(t.includes(`${p.name} · ${p.injuryStatus}`), `${p.name}'s pre-tip status is shown`);
   // not a simulation: no Theater, no engine, no team score; disclosures kept

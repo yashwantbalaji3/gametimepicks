@@ -16,6 +16,7 @@
  * PR; the public route will never pass `devHooks`.
  */
 import type { Metadata } from "next";
+import fs from "node:fs";
 import path from "node:path";
 import { notFound } from "next/navigation";
 
@@ -29,8 +30,13 @@ import { FIXTURE_EVENT_IDS, loadTheater, usableFixtures } from "@/lib/simulation
 import { storedRunBoxes } from "@/lib/simulation-theater/nfl-stored-run-box.mjs";
 import { readShadowReceipts, simulationOfRecord } from "@/lib/sports/nfl/sim-v2/public-receipt.mjs";
 import type { RunBoxes } from "@/components/simulation-theater/BoxScoreTable";
+import NflOfficialDefault from "@/components/simulation-theater/NflOfficialDefault";
+import { nflOfficialDefault, positionsFromRoster } from "@/lib/simulation-theater/official-default.mjs";
+import { loadForecastView } from "@/lib/sports/nfl/forecast-view-load.mjs";
 
 const REPO_ROOT = path.resolve(process.cwd(), "..");
+/* roster positions for the Default view's row order and position tags (presentation only; positionsFromRoster) */
+const readRosterPositions = () => { try { return positionsFromRoster(JSON.parse(fs.readFileSync(path.join(REPO_ROOT, "app/public/data/nfl/rosters/latest.json"), "utf8"))); } catch { return null; } };
 
 export function generateStaticParams() {
   return devStaticParams(() => usableFixtures(REPO_ROOT));
@@ -55,6 +61,10 @@ export default function SimulationTheaterDevPage({ params }: { params: { eventId
   const runBoxes = (rec ? storedRunBoxes(rec.receipt) : null) as RunBoxes | null;
   return (
     <div className="vault-page-shell" style={{ padding: "16px 16px 48px" }}>
+      {/* P0-A (founder 2026-10-30): the Default view — the official projected game — first, as on the public section */}
+      <div style={{ maxWidth: 1200, margin: "0 auto 18px" }}>
+        <NflOfficialDefault model={nflOfficialDefault(loadForecastView(path.join(REPO_ROOT, "app", "public"), params.eventId), { positions: readRosterPositions() })} gameHref={`/nfl/game/${params.eventId}/`} />
+      </div>
       {/* devHooks: the `?run=&t=` seek hook for reproducible screenshots (TheaterIsland). Dev route only. */}
       <TheaterSection load={load} devHooks runBoxes={runBoxes} />
       {/* the default run's projected box score, server-rendered (no-JavaScript fallback; the island has the dialog) */}

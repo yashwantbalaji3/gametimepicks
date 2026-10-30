@@ -20,6 +20,9 @@
  *                · Level A game-winner display · /nba hub + homepage Command Center favoured side (nbaTodaySlate)
  *                · homepage latest lane (latest.json byte-equal to the date file)
  *
+ * The Simulation Theater's DEFAULT VIEW (P0-A 2026-10-30: the official projected game, rendered) is held to the same
+ * canonical values, string and number, in theater-default-canonical.test.mjs.
+ *
  * Read-only over committed files. Run (from app/): npx tsx --test src/lib/consistency/cross-surface-canonical.test.mjs
  */
 import test from "node:test";
@@ -114,9 +117,13 @@ for (const ev of NFL_EVENTS) {
     // 5. /nfl hub read (nflHub) — the split bar's numbers
     const hub = nflHub(ev.nowIso);
     const row = (hub.rows ?? []).find((r) => r.id === `nfl:${ev.id}`);
-    assert.ok(row?.read, "the /nfl hub row carries the official read");
-    const split = Object.fromEntries(row.read.split.map((x) => [x.label, x.p]));
-    assert.deepEqual([split[record.away.abbr], split[record.home.abbr]], [want.away, want.home], "hub read == canonical");
+    /* The hub carries a read only while the game is pregame in the committed index; a played game leaves it. */
+    const indexAt = readJson(path.join(DATA, "nfl/index.json")).generatedAt;
+    if (Date.parse(idx.kickoffUtc) > Date.parse(indexAt)) {
+      assert.ok(row?.read, "the /nfl hub row carries the official read");
+      const split = Object.fromEntries(row.read.split.map((x) => [x.label, x.p]));
+      assert.deepEqual([split[record.away.abbr], split[record.home.abbr]], [want.away, want.home], "hub read == canonical");
+    }
     assert.ok(sameInstant(hub.freshness, readJson(path.join(DATA, "nfl/index.json")).generatedAt), "hub stamp is the index it read");
 
     // 6. homepage / Today featured NFL card (index-sourced; only the next pregame game is featured)

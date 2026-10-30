@@ -35,6 +35,9 @@ import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipp
 import BankBuilderProposalCard from "@/components/bank-builder/bank-builder-proposal-card";
 import EligibleUniverse from "@/components/products/eligible-universe";
 import LevelASuggestions, { type LevelAModel } from "@/components/products/level-a-suggestions";
+import DailyCandidatePanel, { type DailyCandidateModel } from "@/components/products/daily-candidate-panel";
+import { dailyCandidateForPage } from "@/lib/products/daily-candidates/load.mjs";
+import { dailyCandidateSectionEnabled } from "@/lib/products/daily-candidates/policy.mjs";
 import { levelAPageModel, levelAEnabled, levelASportsShown } from "@/lib/products/level-a/model.mjs";
 import { loadProductAvailability } from "@/lib/products/availability";
 import { strongestSlatePicks } from "@/lib/world-cup/structured-moonshot";
@@ -520,6 +523,8 @@ export default function BankBuilderPage() {
           reasons only; it names the market-priced caveat the product carries. Reads no internal artifact. */}
       <EligibleUniverse availability={loadProductAvailability()} compact scope="Bank Builder" levelASports={levelAModel ? levelASportsShown(levelAModel, "bank-builder") : null} />
       {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="bank-builder" /> : null}
+      {/* P0-E: today's priced NBA/NFL candidate or the exact reasons there is none (own section; history below is untouched). */}
+      {dailyCandidateSectionEnabled() ? <DailyCandidatePanel model={dailyCandidateForPage("bank-builder") as unknown as DailyCandidateModel} /> : null}
 
       {/* FLAGSHIP — the "live climb" hero: a plain-English, mobile-first front door to the ladder. It is
           purely presentational (every figure is read verbatim from the data loaded above) and sits ABOVE

@@ -160,11 +160,13 @@ test("switch on, no verified line source (provider unavailable): one plain sente
   assert.match(none, /data-prop-line-section-state="NO_LINES"[^>]*>0 of 12 projections have a qualified sportsbook line\./);
 });
 
-test("compact summary: counts per direction (word + shape + colour) + coverage + link; nothing without a compared row", () => {
+test("compact summary: one line: compared lines + counts (shape, words for a screen reader) + link; nothing without a compared row", () => {
   const h = r(React.createElement(PropLineSummary, { view: view(["over", "under", "tinyOver", "stale"], { projections: 20 }), display: ON, href: "/nba/projections/#nba-prop-lines" }));
-  assert.equal(visible(h), "Model vs. sportsbook line: ▲ 2 OVER ▼ 1 UNDER 3 of 20 projections have a qualified sportsbook line See the lines →");
-  assert.match(h, /href="\/nba\/projections\/?#nba-prop-lines"/, "next/link drops the slash outside the trailingSlash build");
-  assert.doesNotMatch(h, /NEUTRAL/, "a zero count is not printed");
+  assert.equal(visible(h), "Model vs. line: 3 lines · ▲ 2 ▼ 1 · View lines →");
+  assert.match(h, /aria-label="View 3 lines: 2 over, 1 under"/, "direction words, not shape and colour alone");
+  assert.doesNotMatch(h, /style=|legend|<!-- -->/, "no per-card inline style or legend: the look is shared CSS");
+  assert.match(h, /href="\/nba\/projections\/#nba-prop-lines"/);
+  assert.doesNotMatch(h, /neutral|= \d/, "a zero count is not printed");
   assert.equal(r(React.createElement(PropLineSummary, { view: view(["stale", "noLine"], { projections: 20 }), display: ON })), "", "no compared line → nothing");
   assert.equal(r(React.createElement(PropLineSummary, { view: null, display: ON })), "");
 });
