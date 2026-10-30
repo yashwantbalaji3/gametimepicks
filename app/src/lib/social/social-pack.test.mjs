@@ -9,10 +9,10 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { buildNbaRecap, buildNflRecap, buildSocialPackage, recapFinalsProblems, recommendedPostTime, socialPackageViolations, CONTENT_TYPE, denominatorText } from "./social-package.mjs";
+import { ccCaptionProblems, editorialPlan, CC_KIND, buildNbaRecap, buildNflRecap, buildSocialPackage, recapFinalsProblems, recommendedPostTime, socialPackageViolations, CONTENT_TYPE, denominatorText } from "./social-package.mjs";
 import { formatValue } from "../sports/nfl/forecast-view.mjs";
-import { prepareNbaRecap, prepareNbaTop5, prepareNflRecap, prepareNflTop5, prepareNflWinners, winnerRow, writePackages } from "../../../scripts/social/render-social-pack.mjs";
-import { packCaptionViolations, verifyPackCard } from "../../../scripts/social/social-pack-cards.mjs";
+import { prepareNbaRecap, prepareNbaTop5, prepareNflRecap, prepareNflTop5, prepareNflWinners, winnerRow, writePackages, prepareNbaTonight, prepareNflGameWinners, lineBlock, TONIGHT_ROWS } from "../../../scripts/social/render-social-pack.mjs";
+import { meterProblems, meterHtml, packCaptionViolations, verifyPackCard } from "../../../scripts/social/social-pack-cards.mjs";
 
 const AS_OF = "2026-10-30T16:40:00Z";
 const week = (k) => JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nfl/reconciliation", `${k}.json`), "utf8"));
@@ -164,9 +164,58 @@ test("every real card and caption passes; a tampered cell or dashed caption fail
   assert.ok(packCaptionViolations("the winner").length);
 });
 
+test("NBA tonight: full slate, meters, per-game cards labelled, never moneyline", () => {
+  const { posts } = prepareNbaTonight({ date: "2026-10-29", asOf: "2026-10-29T20:00:00Z" });
+  assert.equal(posts.length, 4);
+  assert.match(posts[0].cards[0].html, /NBA TONIGHT/);
+  assert.match(posts[0].cards[0].html, /GAME TIME PICKS WINNER PREDICTIONS/);
+  assert.match(posts[1].cards[0].html, /GAME WINNER PREDICTIONS/);
+  for (const p of posts) { assert.equal(p.eligibilityClass, "ESTIMATE"); for (const c of p.cards) { assert.deepEqual(verifyPackCard(c.html, c.cells), []); assert.match(c.html, /data-meter/); assert.match(c.html, /Estimate/); } }
+  assert.equal(prepareNbaTonight({ date: "2026-10-29", asOf: "2026-10-30T12:00:00Z" }).refused[0].reason, "GAME_STARTED");
+  assert.throws(() => prepareNbaTonight({ date: "2026-10-31", asOf: AS_OF }), /no NBA lane/);
+});
+test("NBA tonight: ten games make two slides", () => {
+  const lane = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nba/experimental-public/2026-10-29.json"), "utf8"));
+  const games = Array.from({ length: 10 }, (_, i) => ({ ...lane.games[0], providerEventId: String(i) }));
+  const { posts } = prepareNbaTonight({ date: "2026-10-29", asOf: "2026-10-29T20:00:00Z", laneOverride: { ...lane, games } });
+  assert.equal(posts[0].cards.length, Math.ceil(10 / TONIGHT_ROWS));
+});
+test("meter proportion is enforced; a stretched meter fails", () => {
+  assert.deepEqual(meterProblems(meterHtml("1", 0.4474, 0.5526)), []);
+  assert.ok(meterProblems(meterHtml("1", 0.4474, 0.5526).replace("44.74", "60.00")).length);
+});
+test("NFL per-game cards: thirteen games, official label", () => {
+  const { posts } = prepareNflGameWinners({ week: 8, asOf: AS_OF });
+  assert.equal(posts.length, 13);
+  for (const p of posts) assert.deepEqual(verifyPackCard(p.cards[0].html, p.cards[0].cells), []);
+});
+test("Top 5 line block: exact export strings, colour by side, none without a shown line", () => {
+  const row = (side, glyph) => ({ market: { line: { state: "SHOWN", text: "30.5" }, direction: { state: "SHOWN", side, glyph }, overPrice: { state: "SHOWN", text: "+110" }, underPrice: { state: "SHOWN", text: "−130" } } });
+  assert.deepEqual(lineBlock(row("OVER", "▲")), { cls: "over", glyph: "▲", text: "O 30.5 +110" });
+  assert.deepEqual(lineBlock(row("UNDER", "▼")), { cls: "under", glyph: "▼", text: "U 30.5 −130" });
+  assert.equal(lineBlock(row("NEUTRAL", null)).cls, "neutral");
+  assert.equal(lineBlock({ market: { line: { state: "WITHHELD" } } }), null);
+  assert.equal(lineBlock(undefined), null);
+});
+test("Command Center caption rules and kind map", () => {
+  assert.ok(ccCaptionProblems("GameTime Picks 5", []).some((x) => /picks/.test(x)));
+  assert.deepEqual(ccCaptionProblems("NFL Week 8. Not betting advice.", [{ display: "8" }]), []);
+  assert.ok(ccCaptionProblems("Our prediction", [], { hasMiss: true }).length);
+  assert.equal(CC_KIND.NBA_TONIGHT, null);
+  assert.equal(CC_KIND.NFL_WEEKLY_TOP5, "top5-weekly");
+});
+test("editorial plan: recap first, spaced boards, never ordered by probability, extra game cards held", () => {
+  const P = (contentType, firstStartUtc, variant = null) => ({ sport: "nba", date: "d", contentType, variant, firstStartUtc });
+  const plan = editorialPlan([P("NBA_GAME_WINNER", "2026-10-30T23:00:00Z", "a"), P("NBA_GAME_WINNER", "2026-10-30T23:00:00Z", "b"), P("NBA_GAME_WINNER", "2026-10-30T23:00:00Z", "c"), P("NBA_DAILY_TOP5", "2026-10-30T23:00:00Z", "pts"), P("NBA_DAILY_TOP5", "2026-10-30T23:00:00Z", "reb"), P("NBA_TONIGHT", "2026-10-30T23:00:00Z"), P("RESULTS_RECAP", "2026-10-30T23:00:00Z")]);
+  assert.deepEqual(plan.slice(0, 2).map((x) => x.contentType), ["RESULTS_RECAP", "NBA_TONIGHT"]);
+  assert.equal(plan[2].proposedAt, "2026-10-30T21:45:00Z");
+  assert.equal(plan[3].proposedAt, "2026-10-30T22:00:00Z");
+  assert.equal(plan.at(-1).recommendation, "HOLD_FOR_FOUNDER_CHOICE");
+});
+
 /* ─────────── contract ─────────── */
 
-const minimal = () => ({ sport: "nba", date: "2026-10-29", contentType: CONTENT_TYPE.RESULTS_RECAP, snapshotRefs: [{ ref: "a", sha256: "b".repeat(64) }], images: [{ path: "p", sha256: "c".repeat(64) }], caption: "x", verification: { passed: true, checks: [], cellsVerified: 1 }, window: { opensAt: "2026-10-30T10:00:00Z", closesAt: "2026-10-30T23:00:00Z" }, recommended: { recommendedAt: "2026-10-30T21:00:00Z" }, freshness: { asOf: AS_OF }, content: {} });
+const minimal = () => ({ eligibilityClass: "OFFICIAL", disclosures: ["Not betting advice."], ccCaption: "x", title: "t", firstStartUtc: "2026-10-30T23:00:00Z", sport: "nba", date: "2026-10-29", contentType: CONTENT_TYPE.RESULTS_RECAP, snapshotRefs: [{ ref: "a", sha256: "b".repeat(64) }], images: [{ path: "p", scale: 1, sha256: "c".repeat(64) }], caption: "x", verification: { passed: true, checks: [], cellsVerified: 1 }, window: { opensAt: "2026-10-30T10:00:00Z", closesAt: "2026-10-30T23:00:00Z" }, recommended: { recommendedAt: "2026-10-30T21:00:00Z" }, freshness: { asOf: AS_OF }, content: {} });
 test("package contract: approval is fixed, dedupe is stable across content changes, bad packages refuse", () => {
   const a = buildSocialPackage(minimal());
   const b = buildSocialPackage({ ...minimal(), caption: "y" });

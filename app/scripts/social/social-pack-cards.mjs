@@ -21,6 +21,17 @@ export const FOOT = Object.freeze({
 /** The founder titles and the Elo label carry a word the banned list otherwise refuses; only these exact phrases pass. */
 export const APPROVED_PHRASES = Object.freeze(["WINNER PREDICTIONS", "WINNER PREDICTION", "game-winner estimate"]);
 
+/** A proportional meter: widths are the exact probabilities; the remainder (NFL tie share) stays grey. */
+export const meterHtml = (id, away, home) => `<div class="meter" data-meter="${esc(id)}" data-away="${away}" data-home="${home}"><i style="width:${(away * 100).toFixed(2)}%"></i><u style="width:${(home * 100).toFixed(2)}%"></u></div>`;
+export function meterProblems(html) {
+  const e = [];
+  for (const m of html.matchAll(/data-meter="([^"]+)" data-away="([^"]+)" data-home="([^"]+)"><i style="width:([\d.]+)%"><\/i><u style="width:([\d.]+)%"/g)) {
+    if ((Number(m[2]) * 100).toFixed(2) !== m[4] || (Number(m[3]) * 100).toFixed(2) !== m[5]) e.push(`meter ${m[1]} is not proportional`);
+    if (Number(m[4]) + Number(m[5]) > 100.02) e.push(`meter ${m[1]} exceeds 100%`);
+  }
+  return e;
+}
+
 export const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 export const cell = (cells, key, text, cls = "") => { cells[key] = String(text); return `<span class="${cls}" data-cell="${esc(key)}">${esc(text)}</span>`; };
 
@@ -52,16 +63,20 @@ html,body{width:1080px;height:1350px;background:#07110C}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 48px 12px}
 .st{background:rgba(255,255,255,.07);border-radius:12px;padding:8px 0;text-align:center}
 .st b{display:block;font:900 58px/1.05 "GTP Condensed"}.st i{font:700 24px "GTP Condensed";font-style:normal;color:#B9C7BE;letter-spacing:.06em}
+.meter{display:flex;justify-content:space-between;height:16px;border-radius:8px;background:#3A4640;overflow:hidden;margin-top:6px}
+.meter i{display:block;background:#4ADE80}.meter u{display:block;background:#60A5FA}
+.feat .meter{width:100%;height:36px;border-radius:18px}
+.lnw{text-align:right}.ln{display:block;font:800 25px "GTP Condensed";white-space:nowrap}.ln.over,.w.over{color:#4ADE80}.ln.under,.w.under{color:#F87171}.ln.neutral,.w.neutral{color:#8E9A92}
 .foot{padding:12px 48px 22px;font:600 21px/1.28 "GTP Body";color:#AEBBB2}
 .foot .est{color:#F2C14E;font-weight:700}`;
 
 /**
  * @param {{ review?: boolean, title: string, sub: string, body: string, foot: string[], est?: string|null, stats?: string, htmlTitle: string, maxRow?: number }} o
  */
-export function pageHtml({ review = true, title, sub, body, foot, est = null, stats = "", htmlTitle, maxRow = 150 }) {
+export function pageHtml({ review = true, brand = "GAME TIME PICKS", title, sub, body, foot, est = null, stats = "", htmlTitle, maxRow = 150 }) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${esc(htmlTitle)}</title><style>${CSS()}</style></head><body>
 <main class="card" style="--max:${maxRow}px">${review ? `<div class="review">${esc(REVIEW_BANNER)}</div>` : ""}
-<header class="head"><img class="logo" alt="GameTime Picks" src="${logoDataUri()}"><div><div class="brand">GAME TIME PICKS</div><div class="title">${esc(title)}</div><div class="sub">${esc(sub)}</div></div></header>
+<header class="head"><img class="logo" alt="GameTime Picks" src="${logoDataUri()}"><div><div class="brand">${esc(brand)}</div><div class="title">${esc(title)}</div><div class="sub">${esc(sub)}</div></div></header>
 ${stats}${body}
 <footer class="foot">${est ? `<p class="est">${esc(est)}</p>` : ""}${foot.map((f) => `<p>${esc(f)}</p>`).join("")}</footer>
 </main></body></html>`;
@@ -76,6 +91,8 @@ export function verifyPackCard(html, cells) {
   const got = cellsIn(html);
   for (const [k, v] of Object.entries(cells)) if (got[k] !== v) e.push(`${k}: card prints ${got[k]}, expected ${v}`);
   for (const k of Object.keys(got)) if (!(k in cells)) e.push(`${k}: on the card but not validated`);
+  e.push(...meterProblems(html));
+  if (/moneyline/i.test(html)) e.push("moneyline wording");
   if (!html.includes(REVIEW_BANNER)) e.push("review banner missing");
   const text = visibleText(html);
   const b = bannedIn(text);

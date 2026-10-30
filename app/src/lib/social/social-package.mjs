@@ -22,10 +22,67 @@ export const RECOMMEND_LEAD_MS = 2 * 60 * 60 * 1000;
 export const CONTENT_TYPE = Object.freeze({
   NFL_SUNDAY_WINNERS: "NFL_SUNDAY_WINNERS",
   NFL_MNF_WINNER: "NFL_MNF_WINNER",
+  NFL_GAME_WINNER: "NFL_GAME_WINNER",
+  NBA_TONIGHT: "NBA_TONIGHT",
+  NBA_GAME_WINNER: "NBA_GAME_WINNER",
   NFL_WEEKLY_TOP5: "NFL_WEEKLY_TOP5",
   NBA_DAILY_TOP5: "NBA_DAILY_TOP5",
   RESULTS_RECAP: "RESULTS_RECAP",
 });
+export const ELIGIBILITY = Object.freeze({ OFFICIAL: "OFFICIAL", ESTIMATE: "ESTIMATE" });
+/**
+ * Command Center mapping (read from command-center/contracts/post-queue.mjs at 7c3457d7d3, read-only). null = the queue
+ * has no kind for this post yet. The `commandCenter` block reuses that module's package field names; nothing ingests it.
+ */
+export const CC_KIND = Object.freeze({
+  NFL_SUNDAY_WINNERS: null, NFL_MNF_WINNER: "pregame-forecast", NFL_GAME_WINNER: "pregame-forecast", NBA_TONIGHT: null, NBA_GAME_WINNER: null,
+  NFL_WEEKLY_TOP5: "top5-weekly", NBA_DAILY_TOP5: "top5-daily", RESULTS_RECAP: "results-recap",
+});
+export const CC_ACCOUNT = "@GameTimePicksHQ";
+export const CC_MAX_CAPTION = 280;
+const CC_FORBIDDEN = ["edge", "value", "lock", "pick", "best bet", "beat the market", "market mistake", "profitable", "guaranteed", "odds", "bet", "bets", "betting", "parlay", "sure thing", "can't lose", "picks", "free money"];
+const ccNumbers = (s) => String(s ?? "").replace(/\b(49ers|76ers)\b/gi, "").match(/\d+(?:\.\d+)?/g) ?? [];
+/** The Command Center's caption rules, mirrored here (its module is not on this branch). Returns problems. */
+export function ccCaptionProblems(text, claims, { hasMiss = false } = {}) {
+  const p = [];
+  const allowed = new Set(claims.flatMap((c) => ccNumbers(c.display)));
+  for (const n of ccNumbers(text)) if (!allowed.has(n)) p.push(`number ${n} is not in the claims`);
+  const plain = String(text).replace(/\bnot betting advice\b/gi, "");
+  for (const t of CC_FORBIDDEN) if (new RegExp(`\\b${t}\\b`, "i").test(plain)) p.push(`forbidden term ${t}`);
+  if (/https?:\/\/|www\./i.test(text)) p.push("link in caption");
+  if ([...String(text)].length > CC_MAX_CAPTION) p.push("over 280 characters");
+  if (hasMiss && /\b(forecast|prediction|predicted)/i.test(text) && !/\bmiss(ed)?\b/i.test(text)) p.push("a miss is not stated");
+  return p;
+}
+
+/** Editorial spacing for one slate, minutes before first game. Proposal only: it changes no recommendedAt. */
+export const EDITORIAL = Object.freeze({ recapLeadMin: 120, slateLeadMin: 90, boardLeadMin: 75, boardGapMin: 15, gameLeadMin: 45, gameCardsPerTipMax: 2 });
+/**
+ * Priority and spacing. Order is by type then start time, NEVER by win probability: a confidence ranking is withheld.
+ * @param {Array<{ sport:string, date:string, contentType:string, variant?:string|null, firstStartUtc:string }>} posts
+ */
+export function editorialPlan(posts) {
+  const type = (c) => (c === CONTENT_TYPE.RESULTS_RECAP ? 0 : /TONIGHT|SUNDAY|MNF/.test(c) ? 1 : /TOP5/.test(c) ? 2 : 3);
+  const sorted = [...posts].sort((a, b) => type(a.contentType) - type(b.contentType) || instant(a.firstStartUtc) - instant(b.firstStartUtc) || String(a.variant).localeCompare(String(b.variant)));
+  const first = Math.min(...posts.filter((p) => type(p.contentType) < 3 && p.contentType !== CONTENT_TYPE.RESULTS_RECAP).map((p) => instant(p.firstStartUtc)));
+  const perTip = new Map();
+  let board = 0;
+  return sorted.map((p, i) => {
+    const t = type(p.contentType);
+    const start = instant(p.firstStartUtc);
+    const base = Number.isFinite(first) ? first : start;
+    let at = base; let hold = false;
+    if (t === 0) at = start - EDITORIAL.recapLeadMin * 60000;
+    else if (t === 1) at = start - EDITORIAL.slateLeadMin * 60000;
+    else if (t === 2) { at = base - (EDITORIAL.boardLeadMin - EDITORIAL.boardGapMin * board) * 60000; board += 1; } else {
+      const n = (perTip.get(start) ?? 0) + 1; perTip.set(start, n);
+      at = start - EDITORIAL.gameLeadMin * 60000;
+      hold = n > EDITORIAL.gameCardsPerTipMax;
+    }
+    return { rank: i + 1, sport: p.sport, date: p.date, contentType: p.contentType, variant: p.variant ?? null, proposedAt: toIso(at), proposedAtEt: etLabel(at), recommendation: hold ? "HOLD_FOR_FOUNDER_CHOICE" : "POST" };
+  });
+}
+
 const SPORTS = new Set(["nfl", "nba"]);
 const ET = "America/New_York";
 const OFF_STATUS = /POSTPONED|CANCELED|CANCELLED/;
@@ -151,14 +208,31 @@ export const dedupeSlug = ({ sport, date, contentType, variant = null }) => [spo
  * @param {{ sport: string, date: string, contentType: string, variant?: string|null, snapshotRefs: Array<{ref:string, sha256:string}>, images: Array<{path:string, width:number, height:number, scale:number, sha256:string}>, caption: string, verification: {passed:boolean, checks:string[], cellsVerified:number}, window: {opensAt:string, closesAt:string}, recommended: {recommendedAt:string}|null, recommendedNote?: string|null, freshness: object, content: object }} o
  */
 export function buildSocialPackage(o) {
-  const { sport, date, contentType, variant = null, snapshotRefs, images, caption, verification, window, recommended, recommendedNote = null, freshness, content } = o;
+  const { sport, date, contentType, variant = null, snapshotRefs, images, caption, verification, window, recommended, recommendedNote = null, freshness, content, eligibilityClass, disclosures, ccCaption, extraClaims = [], cells = [], title, firstStartUtc, eventId = null, hasMiss = false, dataCommit = null, priority = null } = o;
+  const evidenceRef = snapshotRefs[0];
+  const claims = [...extraClaims, ...cells.map(([key, display]) => ({ key, display, evidenceRef: evidenceRef.ref }))];
+  const firstSet = images.filter((i) => i.scale === 1);
+  const mediaSet = firstSet.map((i) => ({ file: i.path, sha256: i.sha256, width: i.width, height: i.height, format: contentType, altText: title }));
+  const contentKind = CC_KIND[contentType] ?? contentType.toLowerCase();
+  const snapshotId = sha(snapshotRefs.map((r) => r.sha256).join("|"));
+  const dedupe = `gtp-social:${sport}:${date}:${contentType}${variant ? `:${variant}` : ""}`;
   const pkg = {
     schema: SOCIAL_PACKAGE_SCHEMA, sport, date, contentType, variant,
     snapshotRefs, images, caption, verification, window,
     recommendedAt: recommended?.recommendedAt ?? null,
     recommendedAtEt: recommended?.recommendedAtEt ?? null,
     recommendation: recommended ?? { none: recommendedNote },
-    dedupeId: `gtp-social:${sport}:${date}:${contentType}${variant ? `:${variant}` : ""}`,
+    dedupeId: dedupe,
+    idempotencyKey: ["publish", "x", CC_ACCOUNT, dedupe, contentKind, snapshotId].join("|"),
+    mediaSha256: firstSet[0]?.sha256 ?? null,
+    mediaSetSha256: sha(firstSet.map((m) => m.sha256).join("|")),
+    disclosures, expiresAt: window.closesAt, eligibilityClass,
+    commandCenter: {
+      ingestable: CC_KIND[contentType] != null, postId: `${date}:${sport.toUpperCase()}:${contentType.toLowerCase()}${variant ? `:${variant}` : ""}`, kind: CC_KIND[contentType], format: contentKind, title, sport: sport.toUpperCase(), date,
+      status: "READY", reasons: [], priority, eventId, firstStartUtc, suggestedPublishAt: recommended?.recommendedAt ?? null, dataCommit, contentKey: snapshotId,
+      claims, media: mediaSet[0] ? { ...mediaSet[0], mime: "image/png", kind: "graphic" } : null, mediaSet,
+      captions: [{ id: "A", tone: "factual", source: "template", text: ccCaption }], evidence: snapshotRefs.map((r) => ({ label: r.ref, ref: `sha256 ${r.sha256.slice(0, 12)}` })), hasMiss,
+    },
     contentSha256: sha(JSON.stringify({ snapshotRefs, caption, content })),
     approval: { status: APPROVAL_STATUS, socialAuthorized: false },
     freshness, content,
@@ -182,6 +256,11 @@ export function socialPackageViolations(p) {
   if (!(instant(p?.window?.opensAt) < instant(p?.window?.closesAt))) v.push("window must open before it closes");
   if (p?.recommendedAt != null && !(instant(p.recommendedAt) >= instant(p.window?.opensAt) && instant(p.recommendedAt) < instant(p.window?.closesAt))) v.push("recommendedAt lies outside the window");
   if (p?.approval?.status !== APPROVAL_STATUS || p?.approval?.socialAuthorized !== false) v.push("approval must stay FOUNDER_REVIEW_REQUIRED");
+  if (!Object.values(ELIGIBILITY).includes(p?.eligibilityClass)) v.push(`eligibilityClass ${p?.eligibilityClass}`);
+  if (!p?.disclosures?.length) v.push("disclosures are required");
+  if (!p?.idempotencyKey || !/^[0-9a-f]{64}$/.test(String(p?.mediaSha256)) || p?.expiresAt !== p?.window?.closesAt) v.push("idempotencyKey, mediaSha256 and expiresAt are required");
+  const cc = p?.commandCenter;
+  if (cc) for (const x of ccCaptionProblems(cc.captions?.[0]?.text, cc.claims ?? [], { hasMiss: cc.hasMiss })) v.push(`Command Center caption: ${x}`);
   if (!p?.dedupeId || !p?.freshness?.asOf) v.push("dedupeId and freshness are required");
   return v;
 }
