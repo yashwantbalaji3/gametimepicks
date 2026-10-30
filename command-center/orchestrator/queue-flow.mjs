@@ -105,7 +105,9 @@ export function queueDateOf(text, now) {
 export function createQueueFlow(ctx) {
   const { store, clock, env, helpers: h } = ctx;
   const mediaDir = () => path.join(ctx.outDir, "media");
-  const imports = createImportFlow({ store, clock, mediaDir, posts: () => posts(), dataSource: () => ctx.dataSource(), repoRoot: ctx.repoRoot, env });
+  /** The founder's latest statement on sportsbook data on social; null when none stands. */
+  const marketRights = () => { const r = h.entries().filter((e) => e.kind === "market-data-authorization").at(-1)?.data ?? null; return r?.active === true ? r : null; };
+  const imports = createImportFlow({ store, clock, mediaDir, posts: () => posts(), dataSource: () => ctx.dataSource(), repoRoot: ctx.repoRoot, env, marketRights });
 
   /** The latest approved calendar, with its approval digest re-computed from the stored request. */
   function approvedCalendar() {
@@ -762,5 +764,5 @@ export function createQueueFlow(ctx) {
     });
   }
 
-  return { build, consolidate, decidePost, editCaption, recordPost, posts, approvedCalendar, publishBundleOf, approveDesign, design, recheck, designApproval, inventory: () => queueInventory(posts()), importPackages: imports.importPackages, lastImport: imports.lastRun, revisionStatus: imports.revisionStatus };
+  return { build, consolidate, decidePost, editCaption, recordPost, posts, approvedCalendar, publishBundleOf, approveDesign, design, recheck, designApproval, inventory: () => queueInventory(posts()), importPackages: imports.importPackages, lastImport: imports.lastRun, revisionStatus: imports.revisionStatus, marketRights };
 }

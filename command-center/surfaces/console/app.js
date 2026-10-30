@@ -35,7 +35,7 @@
   const viewId = (v) => (VIEWS.some((x) => x.id === v) ? v : VIEW_ALIAS[v] ?? "overview");
   const savedView = (() => { try { return localStorage.getItem("gtp-cc-view"); } catch { return null; } })();
   const ui = { last: "", choice: {}, drafts: {}, editing: {}, pendingRender: false, state: null, view: viewId(savedView),
-    filter: { status: "auto", sport: "all", source: "all", group: "all" }, expanded: null, calMode: "week", calDay: null, pubTab: "all" };
+    filter: { status: "auto", sport: "all", source: "all", group: "tonight" }, expanded: null, calMode: "week", calDay: null, pubTab: "all" };
   const captionTextMap = new Map();
   const $ = (id) => document.getElementById(id);
   /** Ledger numbers are rendered through Number(): a non-number can never become markup. */
@@ -458,14 +458,15 @@
     const out = [];
     for (const b of pkg.blockers ?? []) {
       if (b.code === "NBA_BOARDS_NOT_AUTHORIZED_FOR_SOCIAL") continue; // founder 2026-10-30: the category is authorized
+      if (b.code === "LINE_RIGHTS_NOT_VERIFIED" && s.marketRights?.active) continue; // cleared by the founder's recorded authorization
       if (b.code === "LINE_RIGHTS_NOT_VERIFIED") out.push({ title: "Provider rights", detail: "Shows real sportsbook data. The provider's terms allow websites and apps and don't address social media, so this needs their written answer. Private review only." });
-      else if (b.code === "PROJECTION_ANOMALY_REVIEW") out.push({ title: "Data quality", detail: "Launch Readiness flagged these projections:", items: listOf(m.anomalies) });
+      else if (b.code === "PROJECTION_ANOMALY_REVIEW") out.push({ title: "Data correction required", detail: "Launch Readiness flagged these projections. You can still review and revise the design:", items: listOf(m.anomalies) });
       else out.push({ title: b.code.replace(/_/g, " ").toLowerCase().replace(/^./, (c) => c.toUpperCase()), detail: b.detail });
     }
-    if (isMarket(p) && !out.some((b) => b.title === "Data quality")) {
+    if (isMarket(p) && !out.some((b) => b.title === "Data correction required")) {
       const board = String(m.variant ?? "");
       const twin = (s.posts ?? []).find((q) => q.package?.imported && q.lifecycle !== "superseded" && q.package.imported.anomalyCheck === "REVIEW" && (pkg.kind === "lr-nba-boxscore" ? q.package.kind === "lr-nba-players" && String(q.package.eventId) === String(pkg.eventId) : q.package.kind === pkg.kind && q.package.imported.variant === `${board}-model`));
-      if (twin) out.push({ title: "Data quality", detail: "Uses the same projections as the model-only version, which is held:", items: listOf(twin.package.imported.anomalies) });
+      if (twin) out.push({ title: "Data correction required", detail: "Uses the same projections as the model-only version, which is held. You can still review and revise the design:", items: listOf(twin.package.imported.anomalies) });
     }
     return out;
   }
@@ -508,8 +509,9 @@
     if (p.lifecycle === "superseded") return `<div class="muted">A newer queue proposed this post again; decide there.</div>`;
     if (p.lifecycle === "drafted") {
       const designOk = p.designApproved !== false;
-      const ready = !ui.editing[p.decisionId] && designOk && (pkg.status === "READY" || pkg.kind === "x-reply" || pkg.kind === "td-top3" || (pkg.kind === "nba-game" && pkg.status === "NEEDS_VERIFICATION" && pkg.availabilityCheck?.length));
-      const why = pkg.imported && pkg.status === "BLOCKED" ? "Blocked: see the reason above" : ui.editing[p.decisionId] ? "Save or cancel the edit first" : !designOk ? "Approve the design first" : `Not approvable: ${esc(STATUS_LABEL[pkg.status] ?? pkg.status)}`;
+      const held = pkg.imported && currentBlockers(ui.state, p).length > 0;
+      const ready = !held && !ui.editing[p.decisionId] && designOk && (pkg.status === "READY" || pkg.kind === "x-reply" || pkg.kind === "td-top3" || (pkg.kind === "nba-game" && pkg.status === "NEEDS_VERIFICATION" && pkg.availabilityCheck?.length));
+      const why = held || (pkg.imported && pkg.status === "BLOCKED") ? "Blocked: see the reason above" : ui.editing[p.decisionId] ? "Save or cancel the edit first" : !designOk ? "Approve the design first" : `Not approvable: ${esc(STATUS_LABEL[pkg.status] ?? pkg.status)}`;
       return `${pkg.kind === "x-reply" ? `<label class="confirm"><input type="checkbox" data-confirm="${id}" ${ui.drafts[`confirm:${p.decisionId}`] ? "checked" : ""}> I opened the cited posts and they say what the finding claims</label>` : ""}
         ${pkg.kind === "td-top3" ? `<label class="confirm"><input type="checkbox" data-avail="${id}" ${ui.drafts[`avail:${p.decisionId}`] ? "checked" : ""}> I confirmed all three players are active and in their expected roles</label>` : ""}
         ${pkg.kind === "nba-game" && pkg.availabilityCheck?.length ? `<label class="confirm"><input type="checkbox" data-avail="${id}" ${ui.drafts[`avail:${p.decisionId}`] ? "checked" : ""}> I confirmed the featured players are playing (${esc(pkg.availabilityCheck.join("; "))})</label>` : ""}
@@ -543,7 +545,7 @@
     }
     return `<div class="blocked">${esc(LIFE_LABEL[p.lifecycle])}${p.resolution?.note ? ` · “${esc(p.resolution.note)}”` : ""}</div>`;
   }
-  const PUB_SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board", "top5-daily", "top5-weekly", "lr-results-recap", "lr-nba-tonight", "lr-nfl-roundup", "lr-nfl-mnf", "lr-nba-top5", "lr-nfl-top5", "lr-nba-game-winner", "lr-nfl-game-winner", "lr-nba-players", "lr-nfl-game-players", "lr-nba-boxscore"]);
+  const PUB_SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board", "top5-daily", "top5-weekly", "lr-results-recap", "lr-nba-tonight", "lr-nfl-roundup", "lr-nfl-mnf", "lr-nba-top5", "lr-nfl-top5", "lr-nba-game-winner", "lr-nfl-game-winner", "lr-nba-players", "lr-nfl-game-players", "lr-nba-boxscore", "lr-nba-game"]);
   /**
    * Display only: an attempt with no recorded outcome during its first 2 minutes is a send in progress ("Sending…");
    * after that it is "Outcome unknown — reconcile". The gate treats both as unknown (never retried) either way.
@@ -764,7 +766,7 @@
     return named ? `${named} · ${long}` : long;
   };
   const startOfPkg = (k) => k.tipUtc ?? k.startUtc ?? k.verification?.kickoffUtc ?? k.kickoffUtc ?? k.firstKickoffUtc ?? null;
-  const KIND_LABEL = { "nba-game": "Game post", "nba-final": "Final scores", "results-recap": "Results recap", "nfl-recap": "Forecast vs final", "pregame-forecast": "Pregame forecast", "td-top3": "Top 3 TD", "top5-board": "Top 5 board", "top5-weekly": "Weekly Top 5 (whole week)", "top5-daily": "Daily Top 5 (slate)", engagement: "Engagement", explainer: "Explainer", "x-reply": "Reply", "nba-results": "Prediction vs final", "lr-results-recap": "Results recap", "lr-nba-tonight": "NBA tonight", "lr-nfl-roundup": "NFL winners roundup", "lr-nfl-mnf": "Monday Night preview", "lr-nba-top5": "NBA daily Top 5", "lr-nfl-top5": "NFL weekly Top 5", "lr-nba-game-winner": "Game winner", "lr-nfl-game-winner": "Game winner", "lr-nba-players": "Projected stat lines", "lr-nfl-game-players": "Player graphic", "lr-nba-boxscore": "Player box score (real lines)", "lr-unsupported": "Unsupported" };
+  const KIND_LABEL = { "nba-game": "Game post", "nba-final": "Final scores", "results-recap": "Results recap", "nfl-recap": "Forecast vs final", "pregame-forecast": "Pregame forecast", "td-top3": "Top 3 TD", "top5-board": "Top 5 board", "top5-weekly": "Weekly Top 5 (whole week)", "top5-daily": "Daily Top 5 (slate)", engagement: "Engagement", explainer: "Explainer", "x-reply": "Reply", "nba-results": "Prediction vs final", "lr-results-recap": "Results recap", "lr-nba-tonight": "NBA tonight", "lr-nfl-roundup": "NFL winners roundup", "lr-nfl-mnf": "Monday Night preview", "lr-nba-top5": "NBA daily Top 5", "lr-nfl-top5": "NFL weekly Top 5", "lr-nba-game-winner": "Game winner", "lr-nfl-game-winner": "Game winner", "lr-nba-game": "Game post", "lr-nba-players": "Projected stat lines", "lr-nfl-game-players": "Player graphic", "lr-nba-boxscore": "Player box score (real lines)", "lr-unsupported": "Unsupported" };
   const SPORTS = ["NBA", "NFL", "MLB", "UFC", "EPL"];
   const sportChip = (sp) => `<span class="sport sport-${esc(String(sp ?? "").toLowerCase())}">${esc(sp ?? "—")}</span>`;
   const jobsOf = (s, p) => (s.publishing?.jobs ?? []).filter((j) => j.decisionId === p.decisionId);
@@ -788,7 +790,7 @@
     if (p.lifecycle === "approved" || p.lifecycle === "scheduled") return { key: "approved", label: job?.status === "dry_run" ? "Approved · dry run OK" : "Approved", cls: "info" };
     if (p.lifecycle === "revise" && p.package.imported) return { key: "revision", label: s.revisionStatus?.[p.package.imported.dedupeId]?.status === "IN_PROGRESS" ? "Revision in progress" : "Revision requested", cls: "info" };
     if (p.lifecycle === "drafted" && p.package.imported && p.package.status !== "BLOCKED" && versionsOf(s, p).some((q) => q.resolution?.verdict === "revise")) return { key: "needs", label: "Revised draft ready", cls: "warn" };
-    if (p.lifecycle === "drafted" && p.package.imported && p.package.status === "BLOCKED") { const b = currentBlockers(s, p); return { key: "blocked", label: b.length ? `Blocked · ${b.map((x) => x.title.toLowerCase()).join(" + ")}` : "Blocked", cls: "bad" }; }
+    if (p.lifecycle === "drafted" && p.package.imported && (p.package.status === "BLOCKED" || currentBlockers(s, p).length)) { const b = currentBlockers(s, p); return { key: "blocked", label: b.length ? `Blocked · ${b.map((x) => x.title.toLowerCase()).join(" + ")}` : "Blocked", cls: "bad" }; }
     if (p.lifecycle === "drafted") return { key: "needs", label: p.package.status === "NEEDS_VERIFICATION" ? "Needs decision · verify" : p.package.status === "BLOCKED" ? "Blocked" : "Needs decision", cls: p.package.status === "BLOCKED" ? "bad" : "warn" };
     return { key: "other", label: LIFE_LABEL[p.lifecycle] ?? p.lifecycle, cls: "dim" };
   }
@@ -874,7 +876,10 @@
   // ── Review & approvals: compact cards, one expanded at a time, prev/next, full-screen gallery ──
   const REVIEW_FILTERS = [["needs", "Needs decision"], ["blocked", "Blocked"], ["revision", "Revisions"], ["approved", "Approved"], ["scheduled", "Scheduled"], ["sent", "Sent"], ["expired", "Expired"], ["problem", "Problems"], ["all", "All"]];
   const isMarket = (p) => p.package.imported?.rights === "QUOTE_ON_SOCIAL" || p.package.privateReview === true;
+  /** The slate a post belongs to: a recap is reviewed on the day of the slate it leads into. */
+  const slateOf = (p) => p.package.imported?.recommendation?.slateEtDate ?? p.package.date;
   const IMPORT_GROUPS = [
+    ["tonight", "NBA Tonight", (p) => p.package.sport === "NBA" && slateOf(p) === etDay(new Date()) && isPrimary(p)],
     ["all", "Everything", () => true],
     ["key", "Tonight's key posts", (p) => !isMarket(p) && p.package.sport === "NBA" && ["lr-results-recap", "lr-nba-tonight", "lr-nba-top5"].includes(p.package.kind)],
     ["winners", "NBA winners", (p) => p.package.kind === "lr-nba-game-winner"],
@@ -882,7 +887,48 @@
     ["private", "Real lines (private)", (p) => isMarket(p)],
     ["nfl", "NFL", (p) => p.package.sport === "NFL"],
   ];
-  const importRank = (p) => { const v = String(p.package.imported?.variant ?? "").replace(/-model$/, ""); return ({ "lr-results-recap": 0, "lr-nba-tonight": 1, "lr-nba-top5": 2 + Math.max(0, ["pts", "reb", "ast"].indexOf(v)) })[p.package.kind] ?? 9; };
+  const importRank = (p) => { const v = String(p.package.imported?.variant ?? "").replace(/-model$/, ""); return ({ "lr-results-recap": 0, "lr-nba-tonight": 1, "lr-nba-top5": 2 + Math.max(0, ["pts", "reb", "ast"].indexOf(v)), "lr-nba-game": 6 })[p.package.kind] ?? 9; };
+  /** The one version shown in the workspace per slot; the others stay available as alternates. */
+  function isPrimary(p) {
+    const m = p.package.imported ?? {}, posts = ui.state?.posts ?? [];
+    const has = (type, test) => posts.some((q) => q.package?.imported?.contentType === type && q.package.date === p.package.date && q.lifecycle !== "superseded" && test(q));
+    if (m.contentType === "NBA_TONIGHT") return m.variant === "ml" || !has("NBA_TONIGHT", (q) => q.package.imported.variant === "ml");
+    if (m.contentType === "NBA_DAILY_TOP5") return !/-model$/.test(String(m.variant));
+    const gamePost = has("NBA_GAME_POST", (q) => String(q.package.eventId) === String(p.package.eventId));
+    if (m.contentType === "NBA_GAME_WINNER") return !gamePost && (/-ml$/.test(String(m.variant)) || !has("NBA_GAME_WINNER", (q) => q.package.imported.variant === `${p.package.eventId}-ml`));
+    if (m.contentType === "NBA_BOXSCORE") return !gamePost;
+    if (m.contentType === "NBA_PLAYER_STATS") return false;
+    return true;
+  }
+  /** Where a post sits in the workspace, in the founder's words. */
+  function wsSection(s, p) {
+    const st = postStatus(s, p), m = p.package.imported;
+    if (st.key === "sent") return "published";
+    if (st.key === "scheduled") return "scheduled";
+    if (st.key === "revision") return "revision";
+    if (st.key === "expired") return "expired";
+    if (p.lifecycle === "approved") return "clean";
+    if (st.label === "Revised draft ready") return "revised";
+    if (p.lifecycle === "drafted" && m?.socialAuthorized === true) return "final";
+    if (currentBlockers(s, p).some((b) => b.title === "Data correction required")) return "data";
+    return p.lifecycle === "drafted" && !currentBlockers(s, p).length ? "ready" : "other";
+  }
+  const WS_SECTIONS = [["final", "Final clean image awaiting approval"], ["revised", "Revised draft available"], ["ready", "Ready for founder review and approval"], ["clean", "Approved: waiting for the clean export"], ["revision", "Revision requested"], ["data", "Data correction required (design review still open)"], ["scheduled", "Scheduled"], ["published", "Published"], ["expired", "Expired for pregame publication"], ["other", "Held"]];
+  function renderWorkspace(s, c, list) {
+    const alternates = c.posts.filter((p) => p.package.imported && p.package.sport === "NBA" && slateOf(p) === c.today && !isPrimary(p) && !["superseded"].includes(p.lifecycle));
+    const groups = WS_SECTIONS.map(([k, label]) => [label, list.filter((p) => wsSection(s, p) === k)]).filter(([, a]) => a.length);
+    return `<div class="workspace"><h2 class="ws-title">NBA Tonight · ${esc(dayLabel(c.today))}</h2>
+      <div class="muted">${num(list.length)} post(s) for this slate · ${groups.map(([l, a]) => `${num(a.length)} ${esc(l.split(" (")[0].toLowerCase())}`).join(" · ")}</div>
+      ${groups.map(([l, a]) => `<div class="section">${esc(l)} · ${num(a.length)}</div><div class="rlist">${a.map((p) => reviewCard(s, p)).join("")}</div>`).join("")}
+      ${alternates.length ? `<details class="more"><summary>${num(alternates.length)} alternate version(s): model-only and winner-only fallbacks</summary><div class="rlist">${alternates.map((p) => reviewCard(s, p)).join("")}</div></details>` : ""}
+    </div>`;
+  }
+  /** How the post will look on X: the caption, then its images in order. */
+  function xPreview(p, cap) {
+    const imgs = imagesOf(p.package);
+    return `<div class="section">X post preview</div><div class="xprev"><div class="xprev-h"><b>GameTime Picks</b> <span class="muted">@GameTimePicksHQ</span></div><div class="xprev-t">${esc(cap)}</div>
+      <div class="xprev-g n${Math.min(imgs.length, 4)}">${imgs.slice(0, 4).map((m, i) => `<img src="/media/${encodeURIComponent(m.file)}" alt="Image ${i + 1}" loading="lazy">`).join("")}</div><div class="muted">${num(imgs.length)} image(s) in one post</div></div>`;
+  }
   function reviewList(s) {
     const c = counts(s);
     const f = ui.filter;
@@ -892,7 +938,8 @@
     if (group && f.group !== "all") {
       const inGroup = c.posts.filter((p) => p.package.imported && group[2](p));
       inGroup.sort((a, b) => importRank(a) - importRank(b) || String(startOfPkg(a.package)).localeCompare(String(startOfPkg(b.package))));
-      return { c, status, list: inGroup };
+      // the slate workspace is the default only on a day that has one
+      if (inGroup.length || f.group !== "tonight") return { c, status, list: inGroup, workspace: f.group === "tonight" };
     }
     const list = (status === "all" ? c.posts : [...(c.by[status] ?? []), ...c.posts.filter((p) => p.decisionId === ui.expanded && postStatus(s, p).key !== status)])
       .filter((p) => f.sport === "all" || p.package.sport === f.sport || p.decisionId === ui.expanded)
@@ -910,8 +957,8 @@
     const last = s.lastImport;
     const plan = s.contentPlan ?? { items: [] };
     const blocked = imp.filter((p) => p.package.status === "BLOCKED").length;
-    // only designs of posts that could go out: a blocked type's design has nothing to unlock
-    const waiting = (s.design?.templates ?? []).filter((t) => !t.approved && t.template.startsWith("gtp-lr-") && imp.some((p) => p.package.template === t.template && p.package.status !== "BLOCKED"));
+    // a design can be approved on its looks even while a post using it is held for data
+    const waiting = (s.design?.templates ?? []).filter((t) => !t.approved && t.template.startsWith("gtp-lr-") && imp.some((p) => p.package.template === t.template));
     return `<section class="card"><h3>Launch Readiness packages</h3>
       <div class="muted">${num(imp.length)} imported · ${num(blocked)} blocked · importing approves and schedules nothing${last ? ` · last run ${esc(time(last.at))}: ${Object.entries(last.counts ?? {}).map(([k, n]) => `${num(n)} ${esc(k)}`).join(", ")}` : ""}</div>
       <div class="seg" role="toolbar" aria-label="Show content">${IMPORT_GROUPS.map(([k, label, test]) => `<button type="button" class="segbtn" data-filter-group="${k}" aria-pressed="${(ui.filter.group ?? "all") === k}">${esc(label)}${k !== "all" ? ` <span class="n">${num(imp.filter(test).length)}</span>` : ""}</button>`).join("")}</div>
@@ -926,7 +973,7 @@
     </section>`;
   }
   function renderReview(s) {
-    const { c, status, list } = reviewList(s);
+    const { c, status, list, workspace } = reviewList(s);
     const dz = s.design;
     const sports = SPORTS.filter((sp) => c.posts.some((p) => p.package.sport === sp));
     let lastDay = null;
@@ -937,7 +984,7 @@
         <div class="seg">${REVIEW_FILTERS.map(([k, label]) => `<button type="button" class="segbtn" data-filter-status="${k}" aria-pressed="${status === k}">${esc(label)}${k !== "all" ? ` <span class="n">${num((c.by[k] ?? []).length)}</span>` : ""}</button>`).join("")}</div>
         <div class="seg">${["all", ...sports].map((sp) => `<button type="button" class="segbtn" data-filter-sport="${sp}" aria-pressed="${ui.filter.sport === sp}">${sp === "all" ? "All sports" : esc(sp)}</button>`).join("")}</div>
       </div>
-      ${list.length ? `<div class="rlist">${list.map((p) => { const head = p.date !== lastDay ? `<div class="rday">${esc(dayLabel(p.date))}</div>` : ""; lastDay = p.date; return head + reviewCard(s, p); }).join("")}</div>`
+      ${workspace ? renderWorkspace(s, c, list) : list.length ? `<div class="rlist">${list.map((p) => { const head = p.date !== lastDay ? `<div class="rday">${esc(dayLabel(p.date))}</div>` : ""; lastDay = p.date; return head + reviewCard(s, p); }).join("")}</div>`
         : `<div class="empty-s">${status === "needs" ? "Nothing needs your decision right now." : "No posts match this filter."}</div>`}`;
   }
   function reviewCard(s, p) {
@@ -971,6 +1018,7 @@
     const check = (p.checks ?? []).filter((c) => c.phase === "pre-publish").at(-1);
     return `<div class="rbody">
       ${imgs.length ? `<div class="gallery" data-gallery="${esc(p.decisionId)}">${imgs.map((m, i) => `<figure><img src="/media/${encodeURIComponent(m.file)}" alt="${esc(m.altText ?? "")}" data-zoom data-index="${i}" loading="lazy"><figcaption>${imgs.length > 1 ? `${i + 1} of ${imgs.length}${pkg.kind === "nba-game" ? ` · ${i === 0 ? "Predicted winner" : "Projected stat lines"}` : ""}` : "Graphic"} · <a href="/media/${encodeURIComponent(m.file)}" download>Download</a></figcaption></figure>`).join("")}</div>` : `<div class="muted">Text post — no graphic.</div>`}
+      ${pkg.imported ? xPreview(p, p.options.find((o) => o.captionId === (p.resolution?.captionId ?? ui.choice[p.decisionId] ?? pkg.imported?.cleanOf?.captionId ?? p.options.find((x) => x.check?.ok)?.captionId))?.text ?? p.options[0]?.text ?? "") : ""}
       ${importPanel(s, p)}
       ${pkg.featured?.length ? `<div class="muted">Featured in the caption: ${pkg.featured.map((f) => `<b>${esc(f.name ?? "none")}</b> (${esc(f.team)})`).join(" · ")} — a caption highlight, not a ranking.</div>` : ""}
       ${pkg.xSources?.length ? `<div class="section">Open these first</div><div class="links">${pkg.xSources.map((u) => xLink(u)).join(" ")}</div>` : ""}

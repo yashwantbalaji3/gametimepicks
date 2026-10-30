@@ -603,6 +603,17 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     if (!f.ok) return { ok: false, ...f };
     return team.importPackages({ root: body?.root }, actor);
   }
+  /**
+   * Founder: record a statement about sportsbook data on social, exactly as given. It says who confirmed what, and whether
+   * a document exists; it never claims more. Packages it unblocks are proposed again as they stand.
+   */
+  function recordMarketAuthorization(body, actor) {
+    const f = checkFounder("publishing-policy", actor);
+    if (!f.ok) return { ok: false, ...f };
+    if (typeof body?.statement !== "string" || !body.statement.trim()) return { ok: false, code: "INVALID_REQUEST", detail: "statement: the founder's words" };
+    store.append("market-data-authorization", actor.id ?? "founder", { active: body.active !== false, provider: body.provider ?? null, statement: body.statement.slice(0, 2000), scope: body.scope ?? [], writtenConfirmation: body.writtenConfirmation === true, documentRef: body.documentRef ?? null, conditions: body.conditions ?? [], by: actor.id ?? "founder", authentication: actor.authentication ?? null });
+    return { ok: true, imported: team.importPackages({}, actor).counts ?? null };
+  }
   /** The proposed content calendar, and the plan the founder last approved (times only). */
   function contentPlan() {
     const plan = proposePlan(team.posts(), clock(), { jobs: publishing.jobs() });
@@ -715,6 +726,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
       contentPlan: contentPlan(),
       lastImport: team.lastImport(),
       revisionStatus: team.revisionStatus(),
+      marketRights: team.marketRights(),
       engineering: {
         billing: flow.billing(),
         lastPreflight: lastPreflight ? { ...lastPreflight.data, at: lastPreflight.at } : null,
@@ -815,7 +827,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   }
 
   return {
-    handleCommand, decide, editCaption, recordPost, approveDesign, importPackages, approveContentPlan, submitManual, setSeat, testProviderConnection, setPaused, emergencyStop, state, publishing, runJob, activeJobs, jobDispatched, jobCancelled,
+    handleCommand, decide, editCaption, recordPost, approveDesign, importPackages, approveContentPlan, recordMarketAuthorization, submitManual, setSeat, testProviderConnection, setPaused, emergencyStop, state, publishing, runJob, activeJobs, jobDispatched, jobCancelled,
     /** Jobs recorded by this session; the host dispatches them after its ledger flush commits. */
     takeOutbox: () => outbox.splice(0),
     execution,

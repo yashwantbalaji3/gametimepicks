@@ -39,6 +39,7 @@ const safeClaims = (claims) => (claims ?? []).filter((c) => !/line|price|odds/i.
 export function createImportFlow(ctx) {
   const { store, clock } = ctx;
   const env = ctx.env ?? {};
+  const rights = () => ctx.marketRights?.() ?? null;
   const rootOf = (root) => path.resolve(root ?? env.GTP_CC_IMPORT_ROOT ?? DEFAULT_IMPORT_ROOT);
 
   /** One image: inside the import root, a PNG of the promised size, with the promised hash. */
@@ -89,6 +90,7 @@ export function createImportFlow(ctx) {
     const type = IMPORT_TYPES[p.contentType] ?? null;
     const sport = cc.sport ?? SPORTS[p.sport] ?? String(p.sport).toUpperCase();
     const lines = showsLines(p.contentType, p.content, p.containsMarketData);
+    const held = lines && !rights();
     const publishing = p.images.filter((i) => (i.scale ?? 1) === 1).slice(0, 4);
     const hiRes = p.images.filter((i) => (i.scale ?? 1) !== 1);
     const read = (i) => ({ i, bytes: readImage(root, i) });
@@ -101,25 +103,25 @@ export function createImportFlow(ctx) {
     const mediaSet = pub.map(({ i, bytes }, n) => ({ file: store1(bytes, postId, i.sha256), sha256: i.sha256, width: i.width, height: i.height, kind: "graphic", altText: pub.length > 1 ? `${cc.title} (${n + 1} of ${pub.length})` : cc.title }));
     const hiResFiles = hi.map(({ i, bytes }) => ({ file: store1(bytes, postId, i.sha256), sha256: i.sha256, width: i.width * i.scale, height: i.height * i.scale }));
     const recommendation = p.recommendation ?? null;
-    const blockers = blockersOf({ ...p, sport }, { now: clock() });
+    const blockers = blockersOf({ ...p, sport }, { now: clock(), rights: rights() });
     const reasons = [...blockers.map((b) => b.detail), ...(p.eligibilityClass === "ESTIMATE" ? ["Estimate: quote it only as an estimate, never as a validated probability."] : [])];
     const pkg = {
       postId, slotId: `import:${p.contentType}`, date: p.date, sport, kind: type?.kind ?? UNSUPPORTED_KIND, format: type?.label ?? p.contentType,
-      title: cc.title, status: blockers.length ? POST_STATUS.BLOCKED : POST_STATUS.READY, reasons, claims: lines ? safeClaims(cc.claims) : cc.claims ?? [],
+      title: cc.title, status: blockers.length ? POST_STATUS.BLOCKED : POST_STATUS.READY, reasons, claims: held ? safeClaims(cc.claims) : cc.claims ?? [],
       media: mediaSet[0], mediaSet, hiRes: hiResFiles, captions: [], label: null, dataCommit: cc.dataCommit ?? null, hasMiss: Boolean(cc.hasMiss), noForecastClaims: false,
       eventId: cc.eventId ?? null, tipUtc: cc.firstStartUtc ?? null, firstStartUtc: cc.firstStartUtc ?? null, suggestedPublishAt: cc.suggestedPublishAt ?? null,
       contentKey: p.contentSha256, template: importTemplateOf(p.contentType, sport, p.designVersion ?? "1"), assetManifest: IMPORT_ASSET_MANIFEST,
-      evidence: cc.evidence ?? [], blockers, supported: Boolean(type?.supported), privateReview: lines || undefined,
+      evidence: cc.evidence ?? [], blockers, supported: Boolean(type?.supported), privateReview: held || undefined,
       ...(p.contentType === "RESULTS_RECAP" ? { resultsDate: p.date } : {}), ...(p.content?.week != null ? { week: p.content.week } : {}),
       imported: {
         schema: p.schema, dedupeId: p.dedupeId, contentType: p.contentType, variant: p.variant ?? null, sourceFile, contentSha256: p.contentSha256,
         idempotencyKey: p.idempotencyKey ?? null, eligibilityClass: p.eligibilityClass ?? null, snapshotRefs: p.snapshotRefs ?? [], verification: p.verification ?? null,
         provenance: prov, freshness: p.freshness ?? null, window: p.window ?? null, recommendation, disclosures: p.disclosures ?? [], socialAuthorized: p.approval?.socialAuthorized === true,
-        designVersion: p.designVersion ?? "1", rights: lines ? "QUOTE_ON_SOCIAL" : "MODEL_ONLY", anomalyCheck: p.anomalyCheck ?? "NOT_RUN", anomalies: lines ? [] : p.anomalies ?? [], caveats: p.availabilityCaveats ?? [], modelVersion: p.modelVersion ?? null, containsMarketData: lines, snapshotId: p.snapshotId ?? p.content?.game?.snapshotId ?? null, quote: p.content?.quotedAt ?? null, content: lines ? null : p.content ?? null, importedAt: clock(),
+        designVersion: p.designVersion ?? "1", rights: lines ? "QUOTE_ON_SOCIAL" : "MODEL_ONLY", anomalyCheck: p.anomalyCheck ?? "NOT_RUN", anomalies: p.anomalies ?? [], caveats: p.availabilityCaveats ?? [], modelVersion: p.modelVersion ?? null, containsMarketData: lines, snapshotId: p.snapshotId ?? p.content?.game?.snapshotId ?? null, quote: p.content?.quotedAt ?? null, content: held ? null : p.content ?? null, importedAt: clock(),
       },
     };
     const options = [...(cc.captions ?? [])];
-    if (p.caption && !lines && !options.some((c) => c.text === p.caption)) options.push({ id: "L", tone: "long, with disclosures", source: "template", text: p.caption });
+    if (p.caption && !held && !options.some((c) => c.text === p.caption)) options.push({ id: "L", tone: "long, with disclosures", source: "template", text: p.caption });
     pkg.captions = options.map((c) => ({ ...c, source: c.source ?? "template" }));
     return sealPackage(pkg, { check: checkImportedCaption });
   }
@@ -144,7 +146,7 @@ export function createImportFlow(ctx) {
     const mine = all.filter((x) => x.package?.imported?.dedupeId === p.dedupeId || baseIdOf(x.package?.postId ?? "") === baseIdOf(postId));
     const same = mine.filter((x) => x.package?.contentKey === p.contentSha256 && x.lifecycle !== "superseded").at(-1) ?? mine.find((x) => x.package?.contentKey === p.contentSha256);
     // same content, but a blocker has been lifted since (an authorization, not a date): propose it again as it now stands
-    const nowCodes = new Set(blockersOf({ ...p, sport: p.commandCenter.sport ?? SPORTS[p.sport] }, { now: clock() }).map((b) => b.code));
+    const nowCodes = new Set(blockersOf({ ...p, sport: p.commandCenter.sport ?? SPORTS[p.sport] }, { now: clock(), rights: rights() }).map((b) => b.code));
     const lifted = same?.lifecycle === "drafted" ? (same.package.blockers ?? []).map((b) => b.code).filter((c) => ![BLOCK.EXPIRED, BLOCK.OVERLAP].includes(c) && !nowCodes.has(c)) : [];
     // a clean export has the same content as its review copy, on a new image: that is the one thing not a duplicate
     const cleanArrived = p.approval?.socialAuthorized === true && same && isReviewCopy(same.package);
@@ -202,7 +204,7 @@ export function createImportFlow(ctx) {
     const reasons = [];
     const now = clock();
     if (pkg.status !== POST_STATUS.READY) reasons.push(...(pkg.blockers ?? []).map((b) => b.detail));
-    if (showsLines(pkg.imported?.contentType, pkg.imported?.content) || pkg.privateReview) reasons.push("shows real sportsbook lines");
+    if (!rights() && (showsLines(pkg.imported?.contentType, pkg.imported?.content, pkg.imported?.containsMarketData) || pkg.privateReview)) reasons.push("shows real sportsbook data and no founder authorization is on record");
     const closes = pkg.imported?.window?.closesAt;
     if (Number.isFinite(Date.parse(closes ?? "")) && Date.parse(now) >= Date.parse(closes)) reasons.push(`the publishing window closed at ${closes}`);
     if (!Number.isFinite(Date.parse(pkg.tipUtc ?? "")) || Date.parse(now) >= Date.parse(pkg.tipUtc)) reasons.push("the start has passed (or is unknown)");
@@ -221,6 +223,11 @@ export function createImportFlow(ctx) {
         if (raw == null || sha256(raw) !== r.sha256) reasons.push(`${r.ref} changed since this package was made: Launch Readiness must regenerate it`);
       }
       try { reasons.push(...officialReasons(pkg, src)); } catch (err) { reasons.push(`could not re-check the official data: ${String(err.message ?? err).slice(0, 120)}`); }
+    }
+    // a sportsbook Top 5 shows the same projections as its model-only twin: the twin's data hold is its hold too
+    if (pkg.kind === "lr-nba-top5" && !/-model$/.test(String(pkg.imported?.variant ?? ""))) {
+      const twin = ctx.posts().filter((p) => p.package?.imported?.dedupeId === `${pkg.imported.dedupeId}-model`).at(-1);
+      if (twin?.package.imported.anomalyCheck === "REVIEW") reasons.push("the model-only version of this board is held for data correction");
     }
     const over = overlapsOf(pkg, ctx.posts().filter((p) => p.package?.postId !== pkg.postId));
     if (over.blocking.length) reasons.push(`overlaps ${over.blocking.map((x) => x.package.title).join("; ")}`);

@@ -31,7 +31,7 @@ const brief = (ps) => ps.map((p) => ({ id: p.package.imported.dedupeId, images: 
 
 const games = (lane.games ?? []).map((g) => ({
   eventId: String(g.providerEventId), away: g.away?.abbr ?? g.away, home: g.home?.abbr ?? g.home, tipUtc: g.tipUtc, forecast: g.elo?.state ?? null, players: Array.isArray(g.players) ? g.players.length : Object.values(g.players ?? {}).flat().length,
-  winner: brief(of("NBA_GAME_WINNER", g.providerEventId)), stats: brief(of("NBA_PLAYER_STATS", g.providerEventId)), lines: brief(of("NBA_BOXSCORE", g.providerEventId)),
+  gamePost: brief(of("NBA_GAME_POST", g.providerEventId)), winner: brief(of("NBA_GAME_WINNER", g.providerEventId)), stats: brief(of("NBA_PLAYER_STATS", g.providerEventId)), lines: brief(of("NBA_BOXSCORE", g.providerEventId)),
 }));
 const slate = { tonight: brief(of("NBA_TONIGHT")), top5: brief(of("NBA_DAILY_TOP5")), recap: brief(posts.filter((p) => p.package.imported.contentType === "RESULTS_RECAP")) };
 const allDate = s.posts.filter((p) => p.package?.imported && p.package.imported.contentType === "RESULTS_RECAP" && p.lifecycle !== "superseded" && p.package.sport === "NBA");

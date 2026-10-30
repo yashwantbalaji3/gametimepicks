@@ -33,6 +33,8 @@ export const IMPORT_TYPES = Object.freeze({
   NFL_MNF_WINNER: { kind: "lr-nfl-mnf", label: "Monday Night Football preview", tier: 2, supported: true },
   NBA_DAILY_TOP5: { kind: "lr-nba-top5", label: "NBA daily Top 5", tier: 3, supported: true },
   NFL_WEEKLY_TOP5: { kind: "lr-nfl-top5", label: "NFL weekly Top 5", tier: 3, supported: true },
+  // one game, one X post: winner graphic + player stat graphic(s), one caption (the Oct 29 format)
+  NBA_GAME_POST: { kind: "lr-nba-game", label: "Game post: winner + stat lines", tier: 4, supported: true },
   NBA_GAME_WINNER: { kind: "lr-nba-game-winner", label: "NBA game winner", tier: 4, supported: true },
   NFL_GAME_WINNER: { kind: "lr-nfl-game-winner", label: "NFL game winner", tier: 4, supported: true },
   NBA_PLAYER_STATS: { kind: "lr-nba-players", label: "NBA projected stat lines", tier: 5, supported: true },
@@ -58,7 +60,7 @@ const designRow = (template, label) => ({ template, assetManifest: IMPORT_ASSET_
 export const IMPORT_DESIGNS = Object.freeze([
   designRow(importTemplateOf("RESULTS_RECAP", "NBA"), "NBA results recap"),
   designRow(importTemplateOf("RESULTS_RECAP", "NFL"), "NFL results recap"),
-  ...["NBA_TONIGHT", "NFL_SUNDAY_WINNERS", "NFL_MNF_WINNER", "NBA_DAILY_TOP5", "NFL_WEEKLY_TOP5", "NBA_GAME_WINNER", "NFL_GAME_WINNER", "NBA_PLAYER_STATS", "NFL_GAME_PLAYERS", "NBA_BOXSCORE"].map((c) => designRow(importTemplateOf(c, null), IMPORT_TYPES[c].label)),
+  ...["NBA_TONIGHT", "NFL_SUNDAY_WINNERS", "NFL_MNF_WINNER", "NBA_DAILY_TOP5", "NFL_WEEKLY_TOP5", "NBA_GAME_POST", "NBA_GAME_WINNER", "NFL_GAME_WINNER", "NBA_PLAYER_STATS", "NFL_GAME_PLAYERS", "NBA_BOXSCORE"].map((c) => designRow(importTemplateOf(c, null), IMPORT_TYPES[c].label)),
 ]);
 
 // ── what can't go out, whatever anyone clicks ──────────────────────────────────────────────────────────────────
@@ -78,7 +80,8 @@ export const BLOCK = Object.freeze({
  */
 export const MARKET_RIGHTS = Object.freeze({
   MODEL_ONLY: { social: "ALLOWED", why: "Our own forecasts carry no provider data." },
-  QUOTE_ON_SOCIAL: { social: "UNRESOLVED", why: "The terms allow display in websites, apps and dashboards and don't address social media. Needs the provider's written answer." },
+  // the founder's recorded authorization (ledger: market-data-authorization) decides this class; without one it stays blocked
+  QUOTE_ON_SOCIAL: { social: "NEEDS_FOUNDER_AUTHORIZATION", why: "The published terms allow display in websites, apps and dashboards and don't address social media." },
   RAW_FEED: { social: "PROHIBITED", why: "Redistributing the data as an API, feed or downloadable files is prohibited." },
 });
 /** True when the content shows real sportsbook lines (the row-level `line`, or a count of lines shown). */
@@ -90,13 +93,13 @@ export function showsLines(contentType, content, flagged = false) {
 const UNCLEARED_NFL = /^top5_(pass|rush)_yds$/;
 
 /** The standing blockers of one package (overlap is added by the caller, which knows the ledger). */
-export function blockersOf(p, { now }) {
+export function blockersOf(p, { now, rights = null }) {
   const out = [];
   const add = (code, detail) => out.push({ code, detail });
   const t = IMPORT_TYPES[p.contentType];
   if (!t) add(BLOCK.UNSUPPORTED, `${p.contentType} is not a type the Command Center knows: it can be viewed, not approved`);
   else if (!t.supported && !showsLines(p.contentType, p.content, p.containsMarketData)) add(BLOCK.UNSUPPORTED, `${t.label}: the publisher does not support this type yet`);
-  if (showsLines(p.contentType, p.content, p.containsMarketData)) add(BLOCK.LINE_RIGHTS, `Shows real sportsbook data. ${MARKET_RIGHTS.QUOTE_ON_SOCIAL.why} Private review only.`);
+  if (showsLines(p.contentType, p.content, p.containsMarketData) && !rights) add(BLOCK.LINE_RIGHTS, `Shows real sportsbook data. ${MARKET_RIGHTS.QUOTE_ON_SOCIAL.why} Private review only.`);
   if (p.anomalyCheck === "REVIEW") add(BLOCK.ANOMALY, `Launch Readiness flagged player projections for review (${(p.anomalies ?? []).length}): not publication-ready until resolved.`);
   if (p.sport === "NFL" && (UNCLEARED_NFL.test(String(p.variant ?? "")) || (p.contentType === "NFL_WEEKLY_TOP5" && p.eligibilityClass === "ESTIMATE"))) add(BLOCK.BELOW_BAR, "An uncleared estimate (below the publication bar): it stays off social until independently cleared.");
   if (p.verification?.passed !== true) add(BLOCK.VERIFICATION, "Launch Readiness verification did not pass.");
@@ -139,8 +142,8 @@ export function checkImportedCaption(text, pkg) {
 
 // ── overlap with what the Command Center already has ───────────────────────────────────────────────────────────
 const LIVE_STATES = new Set(["approved", "scheduled", "published"]);
-const EVENT_KINDS = new Set(["nba-game", "nba-pregame", "pregame-forecast", "lr-nba-game-winner", "lr-nfl-game-winner", "lr-nfl-mnf"]);
-const PLAYER_KINDS = new Set(["nba-game", "nba-players", "lr-nba-players"]);
+const EVENT_KINDS = new Set(["nba-game", "nba-pregame", "pregame-forecast", "lr-nba-game", "lr-nba-game-winner", "lr-nfl-game-winner", "lr-nfl-mnf"]);
+const PLAYER_KINDS = new Set(["nba-game", "nba-players", "lr-nba-game", "lr-nba-players"]);
 const boardOf = (p) => String(p.imported?.variant ?? "").replace(/-model$/, "");
 function sameContent(mine, theirs) {
   const a = mine, b = theirs.package ?? {};

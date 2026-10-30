@@ -373,6 +373,44 @@ test("revision loop: a request is kept with the post, reaches Launch Readiness, 
   assert.equal(H.xcalls.length, 0);
 });
 
+test("rights: the founder's recorded statement clears the provider block, keeps data holds, says no document exists, and one game post carries all its images", async () => {
+  const H = harness();
+  write(H.root, "game", { ...CLEAN, contentType: "NBA_GAME_POST", containsMarketData: true, content: { game: { eventId: "401", winner: "CHA", awayEstimate: 0.73, homeEstimate: 0.27 } } });
+  write(H.root, "box", { contentType: "NBA_BOXSCORE", anomalyCheck: "REVIEW", anomalies: [{ playerId: "1", market: "pts", verdict: "INCORRECT_MINUTES" }], content: { matchup: "CHA @ WSH" } });
+  H.o.importPackages({}, FOUNDER);
+  assert.ok(H.o.state().posts.every((p) => p.package.blockers.some((b) => b.code === BLOCK.LINE_RIGHTS)));
+  assert.equal(H.o.recordMarketAuthorization({ statement: "" }, FOUNDER).code, "INVALID_REQUEST");
+  const r = H.o.recordMarketAuthorization({ statement: "Founder personally confirmed with the provider.", provider: "The Odds API", scope: ["NBA moneylines"], writtenConfirmation: false }, FOUNDER);
+  assert.deepEqual(r.imported, { "new-version": 2 });
+  assert.equal(H.o.state().marketRights.writtenConfirmation, false);
+  const cur = H.o.state().posts.filter((p) => p.lifecycle === "drafted");
+  const game = cur.find((p) => p.package.kind === "lr-nba-game");
+  assert.deepEqual([game.package.status, game.package.blockers, game.package.privateReview], ["READY", [], undefined]);
+  const box = cur.find((p) => p.package.kind === "lr-nba-boxscore");
+  assert.deepEqual(box.package.blockers.map((b) => b.code), [BLOCK.ANOMALY], "a data hold is not a rights question");
+  design(H, game);
+  assert.equal((await approve(H, game)).ok, true);
+  assert.equal(H.o.publishing.schedule({ decisionId: game.decisionId, at: "2026-10-30T21:30:00.000Z" }, FOUNDER).ok, true, "one job for one post");
+  assert.equal(H.o.publishing.jobs().length, 1);
+  H.o.publishing.cancel({ jobId: H.o.publishing.jobs()[0].jobId }, FOUNDER);
+  // withdrawn: the check fails closed
+  H.o.recordMarketAuthorization({ statement: "Withdrawn.", active: false }, FOUNDER);
+  assert.equal(H.o.state().marketRights, null);
+  H.setNow("2026-10-30T21:30:01.000Z");
+  assert.equal((await H.o.publishing.publishNow({ decisionId: game.decisionId, live: false }, FOUNDER)).code, "VERIFICATION_CHANGED");
+});
+
+test("a sportsbook Top 5 can't pass while its model-only twin is held, whatever its own check says", async () => {
+  const H = harness();
+  const board = (v, o) => ({ ...CLEAN, contentType: "NBA_DAILY_TOP5", variant: v, content: { board: "ast", rows: [] }, ...o });
+  write(H.root, "a", board("ast", { anomalyCheck: "PASS" }));
+  write(H.root, "b", board("ast-model", { anomalyCheck: "REVIEW", anomalies: [{ playerId: "1", market: "ast", verdict: "MODEL_DEFECT" }] }));
+  H.o.importPackages({}, FOUNDER);
+  const real = H.o.state().posts.find((p) => p.package.imported.variant === "ast");
+  design(H, real);
+  assert.equal((await approve(H, real)).code, "VERIFICATION_CHANGED");
+});
+
 test("restart: imported posts, media and approvals survive a new process on the same ledger", async () => {
   const dir = tempDir("gtp-cc-import-");
   const A = harness({ dir });

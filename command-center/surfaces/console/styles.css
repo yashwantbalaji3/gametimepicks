@@ -440,3 +440,13 @@ body.signed-out .layout, body.signed-out .tabbar, body.signed-out .topbar, body.
 .gamekv { grid-template-columns: max-content 1fr; font-size: 13px; margin: 6px 0; }
 .gamekv code { font-size: 12px; }
 .tag.life-superseded { opacity: .6; }
+
+/* Oct 30 workspace and X preview */
+.workspace .thumb { width: 96px; height: 120px; object-fit: cover; }
+.ws-title { margin: 12px 0 4px; font-size: 22px; }
+.xprev { border: 1px solid var(--border-strong); border-radius: 12px; padding: 12px; max-width: 520px; }
+.xprev-h { margin-bottom: 6px; }
+.xprev-t { white-space: pre-wrap; margin-bottom: 8px; }
+.xprev-g { display: grid; gap: 2px; border-radius: 12px; overflow: hidden; grid-template-columns: 1fr 1fr; }
+.xprev-g.n1 { grid-template-columns: 1fr; }
+.xprev-g img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; display: block; }
