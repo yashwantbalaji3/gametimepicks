@@ -1556,10 +1556,9 @@
     "weekly": {
       "scope": {
         "kind": "FULL_WEEK",
-        "eventsIncluded": 14,
+        "eventsIncluded": 13,
         "eventsDroppedAfterKickoff": 0,
         "events": [
-          "401873023",
           "401873024",
           "401873025",
           "401873026",
@@ -1641,28 +1640,13 @@
               "kickoffUtc": "2026-11-03T01:15Z",
               "etDate": "2026-11-02",
               "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 86.52,
-              "p10": 32.01,
-              "p90": 164.44,
+              "value": 86.45,
+              "p10": 32.79,
+              "p90": 163.43,
               "pricingState": "NOT_PROBED"
             },
             {
               "rank": 2,
-              "playerId": "nfl-athlete-4426502",
-              "name": "Drake London",
-              "team": "ATL",
-              "opponent": "TB",
-              "providerEventId": "401873025",
-              "kickoffUtc": "2026-11-01T18:00Z",
-              "etDate": "2026-11-01",
-              "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 73.82,
-              "p10": 24.32,
-              "p90": 142.37,
-              "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 3,
               "playerId": "nfl-athlete-4429615",
               "name": "Zay Flowers",
               "team": "BAL",
@@ -1671,9 +1655,24 @@
               "kickoffUtc": "2026-11-01T18:00Z",
               "etDate": "2026-11-01",
               "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 73.14,
-              "p10": 25.22,
-              "p90": 144.32,
+              "value": 74.31,
+              "p10": 25.43,
+              "p90": 147.48,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 3,
+              "playerId": "nfl-athlete-4426502",
+              "name": "Drake London",
+              "team": "ATL",
+              "opponent": "TB",
+              "providerEventId": "401873025",
+              "kickoffUtc": "2026-11-01T18:00Z",
+              "etDate": "2026-11-01",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 72.19,
+              "p10": 25.02,
+              "p90": 142.51,
               "pricingState": "NOT_PROBED"
             },
             {
@@ -1686,9 +1685,9 @@
               "kickoffUtc": "2026-11-01T18:00Z",
               "etDate": "2026-11-01",
               "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 68.99,
-              "p10": 23.44,
-              "p90": 133.41,
+              "value": 68.16,
+              "p10": 23.38,
+              "p90": 129.82,
               "pricingState": "NOT_PROBED"
             },
             {
@@ -1701,9 +1700,9 @@
               "kickoffUtc": "2026-11-01T18:00Z",
               "etDate": "2026-11-01",
               "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 64.6,
-              "p10": 22.24,
-              "p90": 129.1,
+              "value": 65.31,
+              "p10": 20.35,
+              "p90": 128.55,
               "pricingState": "NOT_PROBED"
             }
           ],
@@ -1881,320 +1880,6 @@
     },
     "daily": [
       {
-        "etDate": "2026-10-29",
-        "scope": {
-          "kind": "FULL_DAY",
-          "eventsIncluded": 1,
-          "eventsDroppedAfterKickoff": 0,
-          "events": [
-            "401873023"
-          ]
-        },
-        "boards": [
-          {
-            "id": "top5_pass_yds",
-            "family": "player_pass_yds",
-            "method": "median",
-            "title": "Top 5 · Passing yards",
-            "label": "Passing yards",
-            "source": "OFFICIAL_PLAYER_BOARD",
-            "topN": 5,
-            "state": "NOT_PUBLISHED",
-            "readiness": {
-              "state": "NOT_PUBLISHED",
-              "boardState": "ESTIMATE",
-              "code": "BELOW_PUBLICATION_BAR",
-              "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
-              "standard": "calibration",
-              "forwardTest": {
-                "state": "ACCUMULATING",
-                "n": 188,
-                "needed": 300
-              },
-              "text": "Passing yards: not yet published — the model has not met its calibration standard (forward test 188/300)",
-              "detail": "the model has not met its calibration standard (forward test 188/300)"
-            }
-          },
-          {
-            "id": "top5_rush_yds",
-            "family": "player_rush_yds",
-            "method": "median",
-            "title": "Top 5 · Rushing yards",
-            "label": "Rushing yards",
-            "source": "OFFICIAL_PLAYER_BOARD",
-            "topN": 5,
-            "state": "NOT_PUBLISHED",
-            "readiness": {
-              "state": "NOT_PUBLISHED",
-              "boardState": "ESTIMATE",
-              "code": "BELOW_PUBLICATION_BAR",
-              "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
-              "standard": "calibration",
-              "forwardTest": null,
-              "text": "Rushing yards: not yet published — the model has not met its calibration standard",
-              "detail": "the model has not met its calibration standard"
-            }
-          },
-          {
-            "id": "top5_reception_yds",
-            "family": "player_reception_yds",
-            "method": "median",
-            "title": "Top 5 · Receiving yards",
-            "label": "Receiving yards",
-            "source": "OFFICIAL_PLAYER_BOARD",
-            "topN": 5,
-            "state": "PUBLISHED",
-            "basis": "props-v1 evaluation: n=3575, all promotion bars pass",
-            "rows": [
-              {
-                "rank": 1,
-                "playerId": "nfl-athlete-4685472",
-                "name": "Tetairoa McMillan",
-                "team": "CAR",
-                "opponent": "GB",
-                "providerEventId": "401873023",
-                "kickoffUtc": "2026-10-30T00:15Z",
-                "etDate": "2026-10-29",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 51.49,
-                "p10": 12.74,
-                "p90": 112.17,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 2,
-                "playerId": "nfl-athlete-4695883",
-                "name": "Jalen Coker",
-                "team": "CAR",
-                "opponent": "GB",
-                "providerEventId": "401873023",
-                "kickoffUtc": "2026-10-30T00:15Z",
-                "etDate": "2026-10-29",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 41.2,
-                "p10": 8.43,
-                "p90": 94.32,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 3,
-                "playerId": "nfl-athlete-4701936",
-                "name": "Matthew Golden",
-                "team": "GB",
-                "opponent": "CAR",
-                "providerEventId": "401873023",
-                "kickoffUtc": "2026-10-30T00:15Z",
-                "etDate": "2026-10-29",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 33.35,
-                "p10": 3.16,
-                "p90": 83.94,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 4,
-                "playerId": "nfl-athlete-4248528",
-                "name": "Christian Watson",
-                "team": "GB",
-                "opponent": "CAR",
-                "providerEventId": "401873023",
-                "kickoffUtc": "2026-10-30T00:15Z",
-                "etDate": "2026-10-29",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 32.4,
-                "p10": 0.93,
-                "p90": 86.21,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 5,
-                "playerId": "nfl-athlete-4572680",
-                "name": "Tucker Kraft",
-                "team": "GB",
-                "opponent": "CAR",
-                "providerEventId": "401873023",
-                "kickoffUtc": "2026-10-30T00:15Z",
-                "etDate": "2026-10-29",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 20.83,
-                "p10": 0,
-                "p90": 59.63,
-                "pricingState": "NOT_PROBED"
-              }
-            ],
-            "availabilityExcluded": 0
-          },
-          {
-            "id": "top5_receptions",
-            "family": "player_receptions",
-            "method": "median",
-            "title": "Top 5 · Receptions",
-            "label": "Receptions",
-            "source": "OFFICIAL_PLAYER_BOARD",
-            "topN": 5,
-            "state": "PUBLISHED",
-            "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1129 graded player-games).",
-            "rows": [
-              {
-                "rank": 1,
-                "playerId": "nfl-athlete-4685472",
-                "name": "Tetairoa McMillan",
-                "team": "CAR",
-                "opponent": "GB",
-                "providerEventId": "401873023",
-                "kickoffUtc": "2026-10-30T00:15Z",
-                "etDate": "2026-10-29",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 5,
-                "p10": 2,
-                "p90": 10,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 2,
-                "playerId": "nfl-athlete-4701936",
-                "name": "Matthew Golden",
-                "team": "GB",
-                "opponent": "CAR",
-                "providerEventId": "401873023",
-                "kickoffUtc": "2026-10-30T00:15Z",
-                "etDate": "2026-10-29",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 4.3902,
-                "p10": 0.878,
-                "p90": 7.9024,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 3,
-                "playerId": "nfl-athlete-4695883",
-                "name": "Jalen Coker",
-                "team": "CAR",
-                "opponent": "GB",
-                "providerEventId": "401873023",
-                "kickoffUtc": "2026-10-30T00:15Z",
-                "etDate": "2026-10-29",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 4,
-                "p10": 1,
-                "p90": 9,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 4,
-                "playerId": "nfl-athlete-4248528",
-                "name": "Christian Watson",
-                "team": "GB",
-                "opponent": "CAR",
-                "providerEventId": "401873023",
-                "kickoffUtc": "2026-10-30T00:15Z",
-                "etDate": "2026-10-29",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 3.5122,
-                "p10": 0.878,
-                "p90": 7.0243,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 5,
-                "playerId": "nfl-athlete-4572680",
-                "name": "Tucker Kraft",
-                "team": "GB",
-                "opponent": "CAR",
-                "providerEventId": "401873023",
-                "kickoffUtc": "2026-10-30T00:15Z",
-                "etDate": "2026-10-29",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 3.5122,
-                "p10": 0.878,
-                "p90": 7.0243,
-                "pricingState": "NOT_PROBED"
-              }
-            ],
-            "availabilityExcluded": 0
-          },
-          {
-            "id": "top5_anytime_td",
-            "family": "anytime_td",
-            "method": "probability",
-            "title": "Top 5 · Anytime touchdown",
-            "label": "Anytime touchdown",
-            "source": "OFFICIAL_PLAYER_BOARD",
-            "topN": 5,
-            "state": "PUBLISHED",
-            "basis": "Opportunity touchdown model: cleared every bar on a blind test of 2014–2021 (35,128 player-games never used to build it). Probabilities condition on playing — a player who does not play settles void. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1480 graded player-games).",
-            "rows": [
-              {
-                "rank": 1,
-                "playerId": "nfl-athlete-4241416",
-                "name": "Chuba Hubbard",
-                "team": "CAR",
-                "opponent": "GB",
-                "providerEventId": "401873023",
-                "kickoffUtc": "2026-10-30T00:15Z",
-                "etDate": "2026-10-29",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 0.5486,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 2,
-                "playerId": "nfl-athlete-4047365",
-                "name": "Josh Jacobs",
-                "team": "GB",
-                "opponent": "CAR",
-                "providerEventId": "401873023",
-                "kickoffUtc": "2026-10-30T00:15Z",
-                "etDate": "2026-10-29",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 0.4639,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 3,
-                "playerId": "nfl-athlete-4248528",
-                "name": "Christian Watson",
-                "team": "GB",
-                "opponent": "CAR",
-                "providerEventId": "401873023",
-                "kickoffUtc": "2026-10-30T00:15Z",
-                "etDate": "2026-10-29",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 0.3952,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 4,
-                "playerId": "nfl-athlete-4701936",
-                "name": "Matthew Golden",
-                "team": "GB",
-                "opponent": "CAR",
-                "providerEventId": "401873023",
-                "kickoffUtc": "2026-10-30T00:15Z",
-                "etDate": "2026-10-29",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 0.3495,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 5,
-                "playerId": "nfl-athlete-4685472",
-                "name": "Tetairoa McMillan",
-                "team": "CAR",
-                "opponent": "GB",
-                "providerEventId": "401873023",
-                "kickoffUtc": "2026-10-30T00:15Z",
-                "etDate": "2026-10-29",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 0.3419,
-                "pricingState": "NOT_PROBED"
-              }
-            ],
-            "availabilityExcluded": 0
-          }
-        ]
-      },
-      {
         "etDate": "2026-11-01",
         "scope": {
           "kind": "FULL_DAY",
@@ -2273,21 +1958,6 @@
             "rows": [
               {
                 "rank": 1,
-                "playerId": "nfl-athlete-4426502",
-                "name": "Drake London",
-                "team": "ATL",
-                "opponent": "TB",
-                "providerEventId": "401873025",
-                "kickoffUtc": "2026-11-01T18:00Z",
-                "etDate": "2026-11-01",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 73.82,
-                "p10": 24.32,
-                "p90": 142.37,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 2,
                 "playerId": "nfl-athlete-4429615",
                 "name": "Zay Flowers",
                 "team": "BAL",
@@ -2296,9 +1966,24 @@
                 "kickoffUtc": "2026-11-01T18:00Z",
                 "etDate": "2026-11-01",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 73.14,
-                "p10": 25.22,
-                "p90": 144.32,
+                "value": 74.31,
+                "p10": 25.43,
+                "p90": 147.48,
+                "pricingState": "NOT_PROBED"
+              },
+              {
+                "rank": 2,
+                "playerId": "nfl-athlete-4426502",
+                "name": "Drake London",
+                "team": "ATL",
+                "opponent": "TB",
+                "providerEventId": "401873025",
+                "kickoffUtc": "2026-11-01T18:00Z",
+                "etDate": "2026-11-01",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 72.19,
+                "p10": 25.02,
+                "p90": 142.51,
                 "pricingState": "NOT_PROBED"
               },
               {
@@ -2311,9 +1996,9 @@
                 "kickoffUtc": "2026-11-01T18:00Z",
                 "etDate": "2026-11-01",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 68.99,
-                "p10": 23.44,
-                "p90": 133.41,
+                "value": 68.16,
+                "p10": 23.38,
+                "p90": 129.82,
                 "pricingState": "NOT_PROBED"
               },
               {
@@ -2326,9 +2011,9 @@
                 "kickoffUtc": "2026-11-01T18:00Z",
                 "etDate": "2026-11-01",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 64.6,
-                "p10": 22.24,
-                "p90": 129.1,
+                "value": 65.31,
+                "p10": 20.35,
+                "p90": 128.55,
                 "pricingState": "NOT_PROBED"
               },
               {
@@ -2341,9 +2026,9 @@
                 "kickoffUtc": "2026-11-01T21:05Z",
                 "etDate": "2026-11-01",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 60.21,
-                "p10": 18.89,
-                "p90": 119.78,
+                "value": 59.27,
+                "p10": 18.62,
+                "p90": 116.95,
                 "pricingState": "NOT_PROBED"
               }
             ],
@@ -2595,9 +2280,9 @@
                 "kickoffUtc": "2026-11-03T01:15Z",
                 "etDate": "2026-11-02",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 86.52,
-                "p10": 32.01,
-                "p90": 164.44,
+                "value": 86.45,
+                "p10": 32.79,
+                "p90": 163.43,
                 "pricingState": "NOT_PROBED"
               },
               {
@@ -2610,9 +2295,9 @@
                 "kickoffUtc": "2026-11-03T01:15Z",
                 "etDate": "2026-11-02",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 49.55,
-                "p10": 11.68,
-                "p90": 109.61,
+                "value": 50.03,
+                "p10": 12.29,
+                "p90": 110.97,
                 "pricingState": "NOT_PROBED"
               },
               {
@@ -2625,9 +2310,9 @@
                 "kickoffUtc": "2026-11-03T01:15Z",
                 "etDate": "2026-11-02",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 41.1,
-                "p10": 10.98,
-                "p90": 87.77,
+                "value": 40.95,
+                "p10": 9.99,
+                "p90": 90.62,
                 "pricingState": "NOT_PROBED"
               },
               {
@@ -2640,24 +2325,24 @@
                 "kickoffUtc": "2026-11-03T01:15Z",
                 "etDate": "2026-11-02",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 36.87,
-                "p10": 4.81,
-                "p90": 92.53,
+                "value": 37.84,
+                "p10": 5.86,
+                "p90": 90.33,
                 "pricingState": "NOT_PROBED"
               },
               {
                 "rank": 5,
-                "playerId": "nfl-athlete-2973405",
-                "name": "Kalif Raymond",
-                "team": "CHI",
-                "opponent": "SEA",
+                "playerId": "nfl-athlete-4576297",
+                "name": "AJ Barner",
+                "team": "SEA",
+                "opponent": "CHI",
                 "providerEventId": "401873036",
                 "kickoffUtc": "2026-11-03T01:15Z",
                 "etDate": "2026-11-02",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 21.57,
+                "value": 20.95,
                 "p10": 0,
-                "p90": 60.56,
+                "p90": 57.48,
                 "pricingState": "NOT_PROBED"
               }
             ],
