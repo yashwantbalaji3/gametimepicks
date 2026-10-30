@@ -274,7 +274,8 @@ test("game day real lines: market flag set, colours, compact price", () => {
   assert.equal(box.length, 1);
   assert.equal(box[0].containsMarketData, true);
   assert.match(box[0].cards[0].html, /U 30\.5 · -110/);
-  assert.match(box[0].cards[0].html, /1-800-GAMBLER/);
+  assert.ok(!/1-800-GAMBLER|Not affiliated/.test(box[0].cards[0].html));
+  assert.ok(posts.every((x) => !/\bedge\b/i.test(x.ccCaption)));
   assert.ok(["PASS", "REVIEW"].includes(box[0].anomalyCheck) && Array.isArray(box[0].anomalies));
   const realTop5 = posts.filter((x) => x.contentType === "NBA_DAILY_TOP5" && x.containsMarketData);
   assert.equal(realTop5.length, 3);
@@ -293,7 +294,7 @@ test("game day moneyline: priced copies beside unchanged model posts, one image,
   const ml = r.posts.filter((p) => /(^|-)ml$/.test(String(p.variant)));
   assert.equal(ml.length, lane.games.length + 1);
   assert.deepEqual(r.posts.filter((p) => !ml.includes(p)).map((p) => [p.variant, p.caption, p.cards[0].cells]), base.posts.map((p) => [p.variant, p.caption, p.cards[0].cells]));
-  for (const p of ml) { assert.equal(p.containsMarketData, true); assert.equal(p.cards.length, 1); assert.equal(p.content.sourceSha256, "a".repeat(64)); assert.equal(p.content.socialAuthorized, false); assert.deepEqual(verifyGameDayCard(p.cards[0]), []); assert.match(p.cards[0].html, /FanDuel/); assert.match(p.cards[0].html, /1-800-GAMBLER/); }
+  for (const p of ml) { assert.equal(p.containsMarketData, true); assert.equal(p.cards.length, 1); assert.equal(p.content.sourceSha256, "a".repeat(64)); assert.equal(p.content.socialAuthorized, false); assert.deepEqual(verifyGameDayCard(p.cards[0]), []); assert.ok(!/FanDuel|1-800-GAMBLER|Observed sportsbook/i.test(p.cards[0].html.replace(/<style>[\s\S]*?<\/style>/, ""))); assert.match(JSON.stringify(p.content), /fanduel/); }
   const one = ml.find((p) => p.contentType === "NBA_GAME_WINNER");
   assert.equal(one.content.price, one.content.side === lane.games.find((g) => String(g.providerEventId) === one.eventId).home.abbr ? -140 : 120);
   assert.equal(one.content.quotedAt, "2026-10-30T19:42:56Z");
@@ -339,5 +340,32 @@ test("PNG output at 1080 x 1350 and @2x, package written", async (t) => {
   for (const i of pkg.images) {
     const b = fs.readFileSync(i.path);
     assert.deepEqual([b.readUInt32BE(16), b.readUInt32BE(20)], [1080 * i.scale, 1350 * i.scale]);
+  }
+});
+test("game post: priced winner then real-line stat cards, keyed path, caption rule recorded, one package per game", () => {
+  const asOf = "2026-10-30T20:00:00Z";
+  const lane = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nba/experimental-public/2026-10-30.json"), "utf8"));
+  const ev = (g) => ({ id: `e${g.providerEventId}`, commence_time: new Date(Date.parse(g.tipUtc.replace(/Z$/, ":00Z")) + 600000).toISOString(), away_team: g.away.name, home_team: g.home.name, bookmakers: [{ key: "fanduel", markets: [{ key: "h2h", last_update: "2026-10-30T19:42:56Z", outcomes: [{ name: g.away.name, price: 120 }, { name: g.home.name, price: -140 }] }] }] });
+  const moneyline = { doc: { fetchedAt: "2026-10-30T19:44:11Z", events: lane.games.map(ev) }, ref: { ref: "gtp-private/odds/x.json", sha256: "a".repeat(64) } };
+  const none = prepareGameDay({ date: "2026-10-30", asOf, moneyline });
+  assert.ok(none.refused.some((r) => r.contentType === "NBA_GAME_POST" && r.reason === "NO_DISPLAY_KEY"));
+  assert.equal(none.posts.filter((p) => p.contentType === "NBA_GAME_POST").length, 0);
+  const rows = lane.games.map((g) => { const p = g.players.away[0]; return { rowId: `r${g.providerEventId}`, identity: { eventId: String(g.providerEventId), playerId: String(p.providerAthleteId), market: "pts" }, model: { display: String(p.medians.pts) }, market: { line: { state: "SHOWN", text: "30.5", value: 30.5 }, direction: { state: "SHOWN", side: "UNDER", glyph: "▼" }, overPrice: { state: "SHOWN", text: "+110" }, underPrice: { state: "SHOWN", text: "−110" }, quotedAt: { iso: "2026-10-30T18:00:00Z", et: "Oct 30, 2:00 PM ET" } } }; });
+  const r = prepareGameDay({ date: "2026-10-30", asOf, moneyline, lineDoc: { rows } });
+  const gp = r.posts.filter((p) => p.contentType === "NBA_GAME_POST");
+  assert.equal(gp.length, lane.games.length);
+  for (const p of gp) {
+    const box = r.posts.find((x) => x.contentType === "NBA_BOXSCORE" && x.variant === p.variant);
+    assert.equal(p.designVersion, "3");
+    assert.equal(p.containsMarketData, true);
+    assert.equal(p.eventId, p.variant);
+    assert.ok(p.cards.length >= 2 && p.cards.length <= 4);
+    assert.ok("market.price" in p.cards[0].cells);
+    assert.deepEqual(p.cards.slice(1).map((c) => c.cells), box.cards.map((c) => c.cells));
+    assert.equal(new Set(p.cards.map((c) => c.name)).size, p.cards.length);
+    assert.deepEqual([p.anomalyCheck, p.anomalies], [box.anomalyCheck, box.anomalies]);
+    assert.equal(p.ccCaption, p.caption);
+    assert.match(p.content.captionPlayers.rule, /highest official projected points/);
+    for (const c of p.cards) { assert.deepEqual(verifyGameDayCard(c), []); assert.match(c.html, /class="draft"/); }
   }
 });

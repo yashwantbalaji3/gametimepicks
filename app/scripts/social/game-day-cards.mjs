@@ -19,9 +19,11 @@ const APP = path.resolve(HERE, "..", "..");
 const T = path.join(HERE, "templates", "social-v2");
 export const DESIGN_VERSION = "2";
 export const SOCIAL_HANDLE = "@GameTimePicksHQ";
-export const DISCLOSURE = "Model projections · Not betting advice · Not affiliated with the NBA or its teams";
-export const NFL_DISCLOSURE = "Model projections · Not betting advice · Not affiliated with the NFL or its teams";
-export const RESPONSIBLE = "21+ where required; the legal age varies by state. Gambling problem? Call 1-800-GAMBLER.";
+export const GAME_POST_DESIGN_VERSION = "3";
+/** Every card's footer: the handle line, then `lines` in order. Restoring a line is one more string here. */
+export const CARD_FOOTER = Object.freeze({ handle: SOCIAL_HANDLE, lines: Object.freeze(["Model projections · Not betting advice"]) });
+export const DISCLOSURE = CARD_FOOTER.lines[0];
+export const NFL_DISCLOSURE = DISCLOSURE;
 export const PER_TEAM = 6;
 const X = `<svg class="xmark" viewBox="0 0 1200 1227" aria-hidden="true"><path fill="currentColor" d="M714.163 519.284 1160.89 0h-105.86L667.137 450.887 357.328 0H0l468.492 681.821L0 1226.37h105.866l409.625-476.152 327.181 476.152H1200L714.137 519.284h.026ZM569.165 687.828l-47.468-67.894-377.686-540.24h162.604l304.79 435.991 47.468 67.894 396.2 566.721H892.476L569.165 687.854v-.026Z"/></svg>`;
 const FACES = [["GTP Condensed", "BarlowCondensed-SemiBold.ttf", 600], ["GTP Condensed", "BarlowCondensed-Bold.ttf", 700], ["GTP Condensed", "BarlowCondensed-ExtraBold.ttf", 800], ["GTP Condensed", "BarlowCondensed-Black.ttf", 900], ["GTP Body", "Barlow-Medium.ttf", 500], ["GTP Body", "Barlow-SemiBold.ttf", 600], ["GTP Body", "Barlow-Bold.ttf", 700]];
@@ -89,15 +91,15 @@ export function meterColours(away, home) {
   return [away.color, "#F7F7F2"];
 }
 
-export function shell({ away, home, chip, body, responsible = false, review = true, disclosure = DISCLOSURE }) {
-  const slots = { rawCss: css(), rawVars: `--ca:${away?.color ?? "#123A28"};--cb:${home?.color ?? "#123A28"}`, ghostA: away?.abbr ?? "", ghostB: home?.abbr ?? "", logoDataUri: logoDataUri(), chip, rawBody: body, rawBodyClass: "fmt-nba-pregame", disclosure, rawSocial: `<div class="social" data-handle="${SOCIAL_HANDLE}">${X}<span>${SOCIAL_HANDLE}</span></div>` };
+export function shell({ away, home, chip, body, review = true, disclosure = DISCLOSURE }) {
+  const slots = { rawCss: css(), rawVars: `--ca:${away?.color ?? "#123A28"};--cb:${home?.color ?? "#123A28"}`, ghostA: away?.abbr ?? "", ghostB: home?.abbr ?? "", logoDataUri: logoDataUri(), chip, rawBody: body, rawBodyClass: "fmt-nba-pregame", disclosure, rawSocial: `<div class="social" data-handle="${CARD_FOOTER.handle}">${X}<span>${CARD_FOOTER.handle}</span></div>` };
   const html = fs.readFileSync(path.join(T, "shell.html"), "utf8").replace(/\{\{(\w+)\}\}/g, (_, k) => {
     if (!(k in slots)) throw new Error(`slot ${k}`);
     return k.startsWith("raw") || k === "logoDataUri" ? slots[k] : esc(slots[k]);
   });
   return html
     .replace('<div class="frame"></div>', `${review ? `<div class="draft">${esc(REVIEW_BANNER)}</div>` : ""}<div class="frame"></div>`)
-    .replace(/(<div class="disclosure">[^<]*<\/div>)/, `$1${responsible ? `<div class="rg">${esc(RESPONSIBLE)}</div>` : ""}`);
+    .replace(/(<div class="disclosure">[^<]*<\/div>)/, `$1${CARD_FOOTER.lines.filter((l) => l !== disclosure).map((l) => `<div class="rg">${esc(l)}</div>`).join("")}`);
 }
 
 const bcell = (cells, key, text, attrs = "") => { cells[key] = String(text); return `<b ${attrs} data-cell="${esc(key)}">${esc(text)}</b>`; };
@@ -106,7 +108,7 @@ const mbox = (t) => `<div class="mbox ${t.nickname.length > 11 ? "long" : ""}" s
 const slab = (t) => `<div class="slab" style="--c:${t.color};--a:${t.secondary};--cink:${t.ink}"><div class="city" data-fit>${esc(t.city)}</div><div class="nick" data-fit>${esc(t.nickname)}</div></div>`;
 
 /** Reference 1. `g`: { eventId, away, home, awayP, homeP, awayPct, homePct, winner (team|null), tipDay, tipTime, chip }. */
-export function winnerCard(g, { kicker = "GameTimePicks Prediction", meterLabel = "Game winner estimate", disclosure = DISCLOSURE, responsible = false } = {}) {
+export function winnerCard(g, { kicker = "GameTimePicks Prediction", meterLabel = "Game winner estimate", disclosure = DISCLOSURE } = {}) {
   const cells = {};
   const [ca, cb] = meterColours(g.away, g.home);
   const total = g.awayP + g.homeP;
@@ -114,19 +116,19 @@ export function winnerCard(g, { kicker = "GameTimePicks Prediction", meterLabel 
 <div class="meter" data-meter="elo"><div class="meter-k">${esc(meterLabel)}</div><div class="meter-labels"><div class="ml l">${bcell(cells, "away.pct", `${g.awayPct}%`)}<span data-fit>${esc(g.away.name)}</span></div><div class="ml r">${bcell(cells, "home.pct", `${g.homePct}%`)}<span data-fit>${esc(g.home.name)}</span></div></div>
 <div class="meter-bar"><i class="seg away" data-share="${g.awayP}" style="width:${((100 * g.awayP) / total).toFixed(3)}%;--c:${ca}"></i><i class="seg home" data-share="${g.homeP}" style="width:${((100 * g.homeP) / total).toFixed(3)}%;--c:${cb}"></i></div></div>
 <div class="winner2${g.market ? " mkw" : ""}"><div class="k">${g.winner ? "Predicted Winner" : "Too close to call"}</div>${g.winner ? slab(g.winner) : ""}</div>
-${g.market ? `<div class="mkp"><div class="mk">Observed sportsbook price · not a model number</div>${cell(cells, "market.price", `${g.market.sideAbbr} ${g.market.priceText}`, "mv")}${cell(cells, "market.quote", `${g.market.bookLabel} · quoted ${g.market.quotedText}`, "mq")}</div>` : ""}<div class="strip"><div>${bcell(cells, "day", g.tipDay, "data-fit")}<span>${g.startWord ?? "Tip-off"}</span></div><div>${bcell(cells, "time", g.tipTime, "data-fit")}<span>Eastern time</span></div></div>`;
-  return { html: shell({ away: g.away, home: g.home, chip: g.chip, body, disclosure, responsible }), cells, v2: true, disclosure };
+${g.market ? `<div class="mkp"><div class="mk">Price</div>${cell(cells, "market.price", `${g.market.sideAbbr} ${g.market.priceText}`, "mv")}</div>` : ""}<div class="strip"><div>${bcell(cells, "day", g.tipDay, "data-fit")}<span>${g.startWord ?? "Tip-off"}</span></div><div>${bcell(cells, "time", g.tipTime, "data-fit")}<span>Eastern time</span></div></div>`;
+  return { html: shell({ away: g.away, home: g.home, chip: g.chip, body, disclosure }), cells, v2: true, disclosure };
 }
 
 /** A: one card, every game of the slate. */
-export function tonightCard({ games, chip, kicker = "NBA Tonight", sub = "Game winner estimates", timeHead = "TIP ET", disclosure = DISCLOSURE, responsible = false, marketNote = null }) {
+export function tonightCard({ games, chip, kicker = "NBA Tonight", sub = "Game winner estimates", timeHead = "TIP ET", disclosure = DISCLOSURE, priced = false }) {
   const cells = {};
   const rows = games.map((g) => {
     const [ca, cb] = meterColours(g.away, g.home);
-    return `<div class="tnr">${cell(cells, `${g.eventId}.tip`, g.tipTime, "t")}${cell(cells, `${g.eventId}.away`, g.away.abbr, "tm")}${cell(cells, `${g.eventId}.ap`, `${g.awayPct}%`, "p")}<div class="bar" data-bar="${g.eventId}"><i style="width:${(g.awayP * 100).toFixed(2)}%;background:${ca}"></i><i style="width:${(g.homeP * 100).toFixed(2)}%;background:${cb}"></i></div>${cell(cells, `${g.eventId}.hp`, `${g.homePct}%`, "p")}${cell(cells, `${g.eventId}.home`, g.home.abbr, "tm")}${cell(cells, `${g.eventId}.w`, g.winner?.abbr ?? "EVEN", "wn")}${marketNote ? cell(cells, `${g.eventId}.price`, g.market.priceText, "pr") : ""}</div>`;
+    return `<div class="tnr">${cell(cells, `${g.eventId}.tip`, g.tipTime, "t")}${cell(cells, `${g.eventId}.away`, g.away.abbr, "tm")}${cell(cells, `${g.eventId}.ap`, `${g.awayPct}%`, "p")}<div class="bar" data-bar="${g.eventId}"><i style="width:${(g.awayP * 100).toFixed(2)}%;background:${ca}"></i><i style="width:${(g.homeP * 100).toFixed(2)}%;background:${cb}"></i></div>${cell(cells, `${g.eventId}.hp`, `${g.homePct}%`, "p")}${cell(cells, `${g.eventId}.home`, g.home.abbr, "tm")}${cell(cells, `${g.eventId}.w`, g.winner?.abbr ?? "EVEN", "wn")}${priced ? cell(cells, `${g.eventId}.price`, g.market.priceText, "pr") : ""}</div>`;
   }).join("");
-  const body = `<div class="kicker">${esc(kicker)}</div><div class="sub" data-fit>${esc(sub)}</div><div class="tn ${games.length > 10 ? "dense" : ""} ${marketNote ? "ml" : ""}"><div class="tnh"><span>${esc(timeHead)}</span><span>AWAY</span><span></span><span></span><span></span><span>HOME</span><span>WINNER</span>${marketNote ? "<span>PRICE</span>" : ""}</div>${rows}</div>${marketNote ? cell(cells, "market.note", marketNote, "mkn") : ""}`;
-  return { html: shell({ chip, body, disclosure, responsible }), cells, v2: true, disclosure };
+  const body = `<div class="kicker">${esc(kicker)}</div><div class="sub" data-fit>${esc(sub)}</div><div class="tn ${games.length > 10 ? "dense" : ""} ${priced ? "ml" : ""}"><div class="tnh"><span>${esc(timeHead)}</span><span>AWAY</span><span></span><span></span><span></span><span>HOME</span><span>WINNER</span>${priced ? "<span>PRICE</span>" : ""}</div>${rows}</div>`;
+  return { html: shell({ chip, body, disclosure }), cells, v2: true, disclosure };
 }
 
 const CLS = Object.freeze({ over: "over", under: "under", neutral: "none", none: "none" });
@@ -147,25 +149,25 @@ export function statPages({ away, home, chip, awayPlayers, homePlayers, real = f
     const col = (t, ps) => `<div class="lcol" style="--c:${t.color}"><div class="lhead">${mark(t)}<h3 data-fit>${esc(t.nickname)}</h3></div><div class="st-hd"><span>PTS</span><span>REB</span><span>AST</span></div>${ps.slice(i * PER_TEAM, (i + 1) * PER_TEAM).map((p) => `<div class="pl"><span class="pn2" data-fit>${cell(cells, `${p.id}.name`, p.name)}</span><div class="ns">${["pts", "reb", "ast"].map((k) => statCell(cells, `${p.id}.${k}`, p[k], p.lines?.[k] ?? null, real)).join("")}</div></div>`).join("")}</div>`;
     const part = pages > 1 ? ` · Part ${i + 1} of ${pages}` : "";
     const body = `<div class="kicker">Projected stat lines</div><div class="sub" data-fit>${esc(away.abbr)} @ ${esc(home.abbr)}${part}</div>${real ? `<div class="lgd"><span class="over">▲ Above line</span><span class="under">▼ Below line</span><span class="none">● No comparison</span></div>` : ""}<div class="lines sl ${real ? "real" : ""}">${col(away, awayPlayers)}${col(home, homePlayers)}</div>`;
-    return { html: shell({ away, home, chip, body, responsible: real }), cells, v2: true, part: i + 1, parts: pages };
+    return { html: shell({ away, home, chip, body }), cells, v2: true, part: i + 1, parts: pages };
   });
 }
 
 /** B. `rows`: { key, rank, name, team (obj), opponent, tip, text, line? }. */
-export function top5Card({ title, chip, rows, real = false, kicker = "Top 5 Projections", sub = "Projected median for the game", estimate = null, disclosure = DISCLOSURE, responsible = null }) {
+export function top5Card({ title, chip, rows, real = false, kicker = "Top 5 Projections", sub = "Projected median for the game", estimate = null, disclosure = DISCLOSURE }) {
   const cells = {};
   const body = `<div class="kicker">${esc(kicker)}</div><div class="title" style="font-size:84px;margin-top:14px">${esc(title)}</div><div class="sub" data-fit>${esc(sub)}</div>${estimate ? `<div class="estl">${cell(cells, "estimate", estimate)}</div>` : ""}<div class="t5">${rows.map((r) => {
     const cls = real ? (r.line ? CLS[r.line.cls] : "none") : "";
     const num = real ? `${r.line?.glyph || "●"} ${r.text}` : r.text;
     return `<div class="t5row r${r.rank}" style="--c:${r.team.color}"><div class="n">${r.rank}</div><div style="min-width:0"><span class="pname board nm" data-fit style="display:block">${cell(cells, `${r.key}.name`, r.name)}</span><div class="sb"><span class="tag" style="--c:${r.team.color};--cink:${r.team.ink}">${esc(r.team.abbr)}</span><span>vs ${esc(r.opponent)} · ${esc(r.tip)}</span></div></div><div class="v">${bcell(cells, `${r.key}.num`, num, cls ? `class="${cls}" style="color:currentColor;font-size:64px"` : "")}${real && r.line ? cell(cells, `${r.key}.line`, mono(r.line.text.replace(/^([OU] \S+) /, "$1 · ")), `ln ${cls}`) : ""}</div></div>`;
   }).join("")}</div>`;
-  return { html: shell({ chip, body, responsible: responsible ?? real, disclosure }), cells, v2: true, disclosure };
+  return { html: shell({ chip, body, disclosure }), cells, v2: true, disclosure };
 }
 
 const NFL_SLOT = Object.freeze([["player_pass_yds", "PASS YDS"], ["player_rush_yds", "RUSH YDS"], ["player_reception_yds", "REC YDS"], ["anytime_td", "TD CHANCE"], ["player_receptions", "REC"]]);
 export const NFL_SLOTS_PER_PLAYER = 3;
 /** Per-game NFL player card. `players`: { id, name, stats: { family: text } }; each player shows his first three families in NFL_SLOT order. */
-export function nflPlayerPages({ away, home, chip, awayPlayers, homePlayers, estimate = null, responsible = true }) {
+export function nflPlayerPages({ away, home, chip, awayPlayers, homePlayers, estimate = null }) {
   const pages = Math.max(1, Math.ceil(Math.max(awayPlayers.length, homePlayers.length) / PER_TEAM));
   return Array.from({ length: pages }, (_, i) => {
     const cells = {};
@@ -173,19 +175,19 @@ export function nflPlayerPages({ away, home, chip, awayPlayers, homePlayers, est
     const col = (t, ps) => `<div class="lcol" style="--c:${t.color}"><div class="lhead">${mark(t)}<h3 data-fit>${esc(t.nickname)}</h3></div>${ps.slice(i * PER_TEAM, (i + 1) * PER_TEAM).map((p) => `<div class="pl nfl"><span class="pn2" data-fit>${cell(cells, `${p.id}.name`, p.name)}</span><div class="ns">${slots(p).map(([f, label]) => `<div><b>${cell(cells, `${p.id}.${f}`, p.stats[f])}</b><em>${esc(label)}</em></div>`).join("")}</div></div>`).join("")}</div>`;
     const part = pages > 1 ? ` · Part ${i + 1} of ${pages}` : "";
     const body = `<div class="kicker">Projected player stats</div><div class="sub" data-fit>${esc(away.abbr)} @ ${esc(home.abbr)}${part}</div>${estimate ? `<div class="estl">${cell(cells, "estimate", estimate)}</div>` : ""}<div class="lines sl">${col(away, awayPlayers)}${col(home, homePlayers)}</div>`;
-    return { html: shell({ away, home, chip, body, responsible, disclosure: NFL_DISCLOSURE }), cells, v2: true, disclosure: NFL_DISCLOSURE, part: i + 1, parts: pages };
+    return { html: shell({ away, home, chip, body, disclosure: NFL_DISCLOSURE }), cells, v2: true, disclosure: NFL_DISCLOSURE, part: i + 1, parts: pages };
   });
 }
 
 /** E. `recap` from buildNbaRecap. */
-export function recapCard({ recap, chip, teams, kicker = "NBA Results", disclosure = DISCLOSURE, responsible = false }) {
+export function recapCard({ recap, chip, teams, kicker = "NBA Results", disclosure = DISCLOSURE }) {
   const cells = {};
   const body = `<div class="kicker">${esc(kicker)}</div><div class="sub" data-fit>${esc(`${recap.graded} of ${recap.gamesScheduled} games graded`)}</div><div class="rcs">${[["GRADED", recap.graded], ["CORRECT", recap.correct], ["MISSED", recap.missed], ["ACCURACY", recap.accuracy]].map(([l, v]) => `<div><b>${cell(cells, `stat.${l}`, v ?? "n/a")}</b><i>${l}</i></div>`).join("")}</div><div class="rc ${recap.games.length > 6 ? "dense" : ""}">${recap.games.map((g) => {
     const s = g.final ? `${g.away} ${g.final.away} @ ${g.home} ${g.final.home}` : g.matchup;
     const o = g.outcome === "CORRECT" ? "Correct" : g.outcome === "MISSED" ? "Missed" : "Not graded";
     return `<div class="rcr ${g.outcome === "MISSED" ? "miss" : ""}" ${teams ? "" : ""}>${cell(cells, `${g.eventId}.final`, s, "s")}${cell(cells, `${g.eventId}.side`, g.frozenSide ? `Predicted ${g.frozenSide}` : "No side", "w")}${cell(cells, `${g.eventId}.o`, o, "o")}</div>`;
   }).join("")}</div>`;
-  return { html: shell({ chip, body, disclosure, responsible }), cells, v2: true, disclosure };
+  return { html: shell({ chip, body, disclosure }), cells, v2: true, disclosure };
 }
 
 const cellsIn = (html) => Object.fromEntries([...html.matchAll(/data-cell="([^"]+)">([^<]*)</g)].map((m) => [m[1], m[2].replace(/&amp;/g, "&").replace(/&#39;/g, "'").replace(/&quot;/g, '"')]));

@@ -25,6 +25,7 @@ export const CONTENT_TYPE = Object.freeze({
   NFL_GAME_WINNER: "NFL_GAME_WINNER",
   NBA_TONIGHT: "NBA_TONIGHT",
   NBA_GAME_WINNER: "NBA_GAME_WINNER",
+  NBA_GAME_POST: "NBA_GAME_POST",
   NFL_WEEKLY_TOP5: "NFL_WEEKLY_TOP5",
   NBA_DAILY_TOP5: "NBA_DAILY_TOP5",
   NBA_BOXSCORE: "NBA_BOXSCORE",
@@ -38,13 +39,13 @@ export const ELIGIBILITY = Object.freeze({ OFFICIAL: "OFFICIAL", ESTIMATE: "ESTI
  * has no kind for this post yet. The `commandCenter` block reuses that module's package field names; nothing ingests it.
  */
 export const CC_KIND = Object.freeze({
-  NFL_SUNDAY_WINNERS: null, NFL_MNF_WINNER: "pregame-forecast", NFL_GAME_WINNER: "pregame-forecast", NBA_TONIGHT: null, NBA_GAME_WINNER: null, NBA_BOXSCORE: null, NBA_PLAYER_STATS: null, NFL_PLAYER_STATS: null,
+  NFL_SUNDAY_WINNERS: null, NFL_MNF_WINNER: "pregame-forecast", NFL_GAME_WINNER: "pregame-forecast", NBA_TONIGHT: null, NBA_GAME_WINNER: null, NBA_GAME_POST: null, NBA_BOXSCORE: null, NBA_PLAYER_STATS: null, NFL_PLAYER_STATS: null,
   NFL_WEEKLY_TOP5: "top5-weekly", NBA_DAILY_TOP5: "top5-daily", RESULTS_RECAP: "results-recap",
 });
 /** One row per content type: the queue kind, and what the Command Center lacks when there is none. */
 export const CC_KIND_MAP = Object.freeze(Object.entries(CC_KIND).map(([contentType, kind]) => Object.freeze({
   contentType, kind,
-  gap: kind ? null : /BOXSCORE|PLAYER_STATS|GAME_WINNER/.test(contentType) ? "no kind; nearest is nba-game, which needs a pre + players pair and is not in POST_KINDS" : "no slate-level winner kind",
+  gap: kind ? null : /BOXSCORE|PLAYER_STATS|GAME_WINNER|GAME_POST/.test(contentType) ? "no kind; nearest is nba-game, which needs a pre + players pair and is not in POST_KINDS" : "no slate-level winner kind",
 })));
 export const CC_ACCOUNT = "@GameTimePicksHQ";
 export const CC_MAX_CAPTION = 280;
@@ -211,6 +212,17 @@ export function recapFinalsProblems(recap, resultRows) {
 /** Plain-language denominator: "3 of 3 games final and graded". */
 export const denominatorText = (recap) => `${recap.graded} of ${recap.gamesScheduled} games graded`;
 
+/**
+ * The revision of a package about to replace `prior` (null = first). A new image or caption moves it on, so an approval
+ * against the old contentSha256 can never match; an identical re-render keeps it. Revision 1 stays out of contentSha256.
+ */
+export function nextRevision(prior, { images, caption, ccCaption }) {
+  if (!prior) return 1;
+  const shas = (l) => JSON.stringify(l.map((i) => i.sha256));
+  const same = shas(prior.images ?? []) === shas(images) && prior.caption === caption && prior.commandCenter?.captions?.[0]?.text === ccCaption;
+  return (prior.revision ?? 1) + (same ? 0 : 1);
+}
+
 const sha = (s) => crypto.createHash("sha256").update(s).digest("hex");
 export const dedupeSlug = ({ sport, date, contentType, variant = null }) => [sport, date, contentType.toLowerCase().replace(/_/g, "-"), variant].filter(Boolean).join("-");
 
@@ -219,7 +231,7 @@ export const dedupeSlug = ({ sport, date, contentType, variant = null }) => [spo
  * @param {{ sport: string, date: string, contentType: string, variant?: string|null, snapshotRefs: Array<{ref:string, sha256:string}>, images: Array<{path:string, width:number, height:number, scale:number, sha256:string}>, caption: string, verification: {passed:boolean, checks:string[], cellsVerified:number}, window: {opensAt:string, closesAt:string}, recommended: {recommendedAt:string}|null, recommendedNote?: string|null, freshness: object, content: object }} o
  */
 export function buildSocialPackage(o) {
-  const { anomalies = null, anomalyCheck = null, designVersion = null, containsMarketData = false, sport, date, contentType, variant = null, snapshotRefs, images, caption, verification, window, recommended, recommendedNote = null, freshness, content, eligibilityClass, disclosures, ccCaption, ccCaptionB = null, extraClaims = [], cells = [], title, firstStartUtc, eventId = null, hasMiss = false, dataCommit = null, priority = null } = o;
+  const { revision = 1, anomalies = null, anomalyCheck = null, designVersion = null, containsMarketData = false, sport, date, contentType, variant = null, snapshotRefs, images, caption, verification, window, recommended, recommendedNote = null, freshness, content, eligibilityClass, disclosures, ccCaption, ccCaptionB = null, extraClaims = [], cells = [], title, firstStartUtc, eventId = null, hasMiss = false, dataCommit = null, priority = null } = o;
   const evidenceRef = snapshotRefs[0];
   const claims = [...extraClaims, ...cells.map(([key, display]) => ({ key, display, evidenceRef: evidenceRef.ref }))];
   const firstSet = images.filter((i) => i.scale === 1);
@@ -228,7 +240,7 @@ export function buildSocialPackage(o) {
   const snapshotId = sha(snapshotRefs.map((r) => r.sha256).join("|"));
   const dedupe = `gtp-social:${sport}:${date}:${contentType}${variant ? `:${variant}` : ""}`;
   const pkg = {
-    schema: SOCIAL_PACKAGE_SCHEMA, designVersion, containsMarketData, ...(anomalyCheck ? { anomalyCheck, anomalies } : {}), sport, date, contentType, variant,
+    schema: SOCIAL_PACKAGE_SCHEMA, revision, designVersion, containsMarketData, ...(anomalyCheck ? { anomalyCheck, anomalies } : {}), sport, date, contentType, variant,
     snapshotRefs, images, caption, verification, window,
     recommendedAt: recommended?.recommendedAt ?? null,
     recommendedAtEt: recommended?.recommendedAtEt ?? null,
@@ -244,7 +256,7 @@ export function buildSocialPackage(o) {
       claims, media: mediaSet[0] ? { ...mediaSet[0], mime: "image/png", kind: "graphic" } : null, mediaSet,
       captions: [{ id: "A", tone: "factual", source: "template", text: ccCaption }, { id: "B", tone: "short", source: "template", text: ccCaptionB ?? `${ccCaption.split(/(?<=[.:])\s/)[0].replace(/:$/, ".")} Not betting advice.` }], evidence: snapshotRefs.map((r) => ({ label: r.ref, ref: `sha256 ${r.sha256.slice(0, 12)}` })), hasMiss,
     },
-    contentSha256: sha(JSON.stringify({ snapshotRefs, caption, content, media: images.map((i) => i.sha256), ...(anomalyCheck ? { anomalyCheck, anomalies } : {}) })),
+    contentSha256: sha(JSON.stringify({ ...(revision > 1 ? { revision } : {}), snapshotRefs, caption, content, media: images.map((i) => i.sha256), ...(anomalyCheck ? { anomalyCheck, anomalies } : {}) })),
     approval: { status: APPROVAL_STATUS, socialAuthorized: false },
     freshness, content,
   };
