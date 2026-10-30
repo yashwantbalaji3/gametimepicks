@@ -152,7 +152,11 @@ for (const ev of NFL_EVENTS) {
 
     // 2. Player pages + Ask player rows (buildMyPlayerRows → nflPlayerForecasts / build-ask-projections)
     const mine = buildMyPlayerRows().filter((r) => board.players.some((p) => p.playerId === r.playerId) && r.matchup === board.matchup);
-    assert.ok(mine.length > 0, "player pages carry this game's players");
+    /* Player pages list upcoming games only: once the committed forecasts were regenerated after kickoff (TNF CAR @ GB
+       after 2026-10-30 00:15Z) the game leaves them. Coverage is required while it is pregame in the committed data. */
+    const liveAt = readJson(path.join(DATA, "nfl/forecasts/latest.json")).generatedAt;
+    if (Date.parse(board.kickoffUtc) > Date.parse(liveAt)) assert.ok(mine.length > 0, "player pages carry this game's players");
+    else assert.equal(mine.length, 0, "a game that has kicked off is no longer on the player pages");
     for (const r of mine) {
       for (const m of r.markets) {
         const c = canon(r.playerId, m.key);

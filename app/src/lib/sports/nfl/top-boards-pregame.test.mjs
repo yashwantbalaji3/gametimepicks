@@ -22,16 +22,19 @@ import { buildTopBoards, pregameScope, rankingMethodText, TOP_BOARD_METHOD, TOP_
 import { rankFamily } from "./board-ranking.mjs";
 
 const APP = process.cwd();
-const DATA = path.join(APP, "public/data");
-const readJson = (rel) => JSON.parse(fs.readFileSync(path.join(DATA, rel), "utf8"));
 
-const WEEK8 = readJson("nfl/weekly-boards/2-08.json");
+/* A pinned pre-kickoff snapshot (__fixtures__/week8-pre-tnf, copied from commit e82fa5a61b): the week-8 weekly
+   artifact and its 14 per-game boards, all generated 2026-10-29T19:47:39Z, before TNF CAR @ GB kicked off. The live
+   files are regenerated after every event window and no longer hold that pre-kickoff state. */
+const PIN = path.join(APP, "src/lib/sports/nfl/__fixtures__/week8-pre-tnf");
+const readPin = (rel) => JSON.parse(fs.readFileSync(path.join(PIN, rel), "utf8"));
+const WEEK8 = readPin("weekly-boards-2-08.json");
 const TNF = "401873023"; // CAR @ GB, Thu Oct 29 8:15 PM ET
 const TNF_KICK = "2026-10-30T00:15Z";
 const BEFORE_TNF = "2026-10-29T23:00:00Z";
 const AFTER_TNF = "2026-10-30T00:20:00Z";
 const AFTER_MNF = "2026-11-03T04:30:00Z";
-const boardOf = (id) => readJson(`nfl/player-board/${id}.json`);
+const boardOf = (id) => readPin(`player-board/${id}.json`);
 const weekBoards = WEEK8.topBoards.weekly.scope.events.map(boardOf);
 const kickoffOf = (id) => weekBoards.find((b) => String(b.providerEventId) === id)?.kickoffUtc ?? null;
 
