@@ -1,0 +1,163 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "laliga",
+ "season": "2026-27",
+ "date": "2026-10-30",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-10-30T16:16:00.000Z",
+ "runs": [
+  {
+   "at": "2026-10-30T16:16:00.000Z",
+   "added": 2
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Elche|Valencia",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882823",
+   "providerEventId": "401882823",
+   "kickoffUtc": "2026-11-01T17:30:00.000Z",
+   "matchup": "Elche v Valencia",
+   "homeClub": "Elche",
+   "awayClub": "Valencia",
+   "historyNames": {
+    "home": "Elche",
+    "away": "Valencia"
+   },
+   "espnTeamIds": {
+    "home": "3751",
+    "away": "94"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-30T16:16:00.000Z",
+   "probs": {
+    "home": 0.470729,
+    "draw": 0.248974,
+    "away": 0.280297
+   },
+   "over25": 0.520075,
+   "under25": 0.479925,
+   "expectedGoals": {
+    "home": 1.5882,
+    "away": 1.1682
+   },
+   "lambdas": {
+    "home": 1.5882,
+    "away": 1.1682
+   },
+   "rho": -0.001099,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 83,
+    "away": 158
+   },
+   "fit": {
+    "cutoffIso": "2026-10-30T16:16:00.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 21
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.408985,
+     "draw": 0.265558,
+     "away": 0.325457
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Ath Bilbao|Sociedad",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882826",
+   "providerEventId": "401882826",
+   "kickoffUtc": "2026-11-01T20:00:00.000Z",
+   "matchup": "Athletic Club v Real Sociedad",
+   "homeClub": "Athletic Club",
+   "awayClub": "Real Sociedad",
+   "historyNames": {
+    "home": "Ath Bilbao",
+    "away": "Sociedad"
+   },
+   "espnTeamIds": {
+    "home": "93",
+    "away": "89"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-30T16:16:00.000Z",
+   "probs": {
+    "home": 0.49526,
+    "draw": 0.254607,
+    "away": 0.250133
+   },
+   "over25": 0.475925,
+   "under25": 0.524075,
+   "expectedGoals": {
+    "home": 1.5525,
+    "away": 1.0251
+   },
+   "lambdas": {
+    "home": 1.5525,
+    "away": 1.0251
+   },
+   "rho": -0.001099,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 157,
+    "away": 158
+   },
+   "fit": {
+    "cutoffIso": "2026-10-30T16:16:00.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 21
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.464598,
+     "draw": 0.280675,
+     "away": 0.254726
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 2
+ }
+}
