@@ -460,13 +460,13 @@
       if (b.code === "NBA_BOARDS_NOT_AUTHORIZED_FOR_SOCIAL") continue; // founder 2026-10-30: the category is authorized
       if (b.code === "LINE_RIGHTS_NOT_VERIFIED" && s.marketRights?.active) continue; // cleared by the founder's recorded authorization
       if (b.code === "LINE_RIGHTS_NOT_VERIFIED") out.push({ title: "Provider rights", detail: "Shows real sportsbook data. The provider's terms allow websites and apps and don't address social media, so this needs their written answer. Private review only." });
-      else if (b.code === "PROJECTION_ANOMALY_REVIEW") out.push({ title: "Data correction required", detail: "Launch Readiness flagged these projections. You can still review and revise the design:", items: listOf(m.anomalies) });
+      else if (b.code === "PROJECTION_ANOMALY_REVIEW") out.push({ title: "Data correction required", detail: `${pkg.sport === "NBA" ? "Held for the NBA v0.1 minutes defect" : "Held by Launch Readiness's projection check"}. Publishing stays held, but you can review, caption and revise the design. Flagged here:`, items: listOf(m.anomalies) });
       else out.push({ title: b.code.replace(/_/g, " ").toLowerCase().replace(/^./, (c) => c.toUpperCase()), detail: b.detail });
     }
     if (isMarket(p) && !out.some((b) => b.title === "Data correction required")) {
       const board = String(m.variant ?? "");
       const twin = (s.posts ?? []).find((q) => q.package?.imported && q.lifecycle !== "superseded" && q.package.imported.anomalyCheck === "REVIEW" && (pkg.kind === "lr-nba-boxscore" ? q.package.kind === "lr-nba-players" && String(q.package.eventId) === String(pkg.eventId) : q.package.kind === pkg.kind && q.package.imported.variant === `${board}-model`));
-      if (twin) out.push({ title: "Data correction required", detail: "Uses the same projections as the model-only version, which is held. You can still review and revise the design:", items: listOf(twin.package.imported.anomalies) });
+      if (twin) out.push({ title: "Data correction required", detail: "Held for the NBA v0.1 minutes defect: it uses the same projections as the model-only version. Publishing stays held, but you can review, caption and revise the design. Flagged here:", items: listOf(twin.package.imported.anomalies) });
     }
     return out;
   }
