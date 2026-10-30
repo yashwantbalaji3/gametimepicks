@@ -10,6 +10,12 @@
  * → byte-identical output. Default --out: app/.graphics-export/<sport>-<key>.json (git-ignored; never under public/ or
  * out/, so it is never served under /data). Run with `npx tsx` (the snapshot module imports TypeScript).
  *
+ * NBA OVER/UNDER line-comparison edition (`gtp-graphics-export@2`, lib/social/nba-line-graphics-export.mjs):
+ *   cd app && npx tsx scripts/social/export-graphics.mjs --sport nba --edition lines --date 2026-10-30 --as-of <ISO> [--purpose social|founder-review] [--out <file>]
+ * Default purpose social: medians only, every line/price/direction WITHHELD (social not authorized 2026-10-29).
+ * --purpose founder-review: values included (needs GTP_ODDS_DISPLAY_KEY in the environment), document marked
+ * FOUNDER_REVIEW_ONLY / socialAuthorized:false, written only OUTSIDE every git repository (default ~/gtp-private/graphics/<date>/).
+ *
  * Exit codes: 0 written (publication.status PUBLISHED); 3 written but nothing publishable (NOT_PUBLISHED / NO_GAMES /
  * NO_UPCOMING_GAMES); 1 refused (bad arguments, a contract violation, or a canonical-value mismatch — nothing written).
  */
@@ -125,14 +131,25 @@ export function runExport(args) {
   return { out, doc };
 }
 
+async function main() {
+  const args = parseArgs(process.argv.slice(2));
+  if (args.edition === "lines") {
+    // gtp-graphics-export@2, NBA line-comparison edition (scripts/social/nba-line-graphics-io.mjs).
+    if (args.sport !== "nba") throw new Error("--edition lines is NBA only (--sport nba)");
+    const { runLineExport } = await import("./nba-line-graphics-io.mjs");
+    const { out, doc } = runLineExport(args);
+    console.log(`${doc.schemaVersion} ${doc.edition.kind} ${doc.edition.key} as of ${doc.asOf} purpose ${doc.purpose} (socialAuthorized ${doc.socialAuthorized}): ${doc.publication.status} · ${doc.rows.length} rows · excluded ${JSON.stringify(doc.scope.excludedByReason)} → ${out}`);
+    return doc.publication.status === "PUBLISHED" || doc.publication.status === "LINES_WITHHELD" ? 0 : 3;
+  }
+  const { out, doc } = runExport(args);
+  const eligible = doc.rows.filter((r) => r.graphicEligibility.eligible).length;
+  console.log(`${doc.schemaVersion} ${doc.sport} ${doc.edition.key} as of ${doc.asOf}: ${doc.publication.status} · ${doc.scope.eventsIncluded.length} games · ${doc.rows.length} rows (${eligible} graphic-eligible) · ${doc.scope.eventsExcludedStarted.length} started games excluded → ${out}`);
+  return doc.publication.status === "PUBLISHED" ? 0 : 3;
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  try {
-    const { out, doc } = runExport(parseArgs(process.argv.slice(2)));
-    const eligible = doc.rows.filter((r) => r.graphicEligibility.eligible).length;
-    console.log(`${doc.schemaVersion} ${doc.sport} ${doc.edition.key} as of ${doc.asOf}: ${doc.publication.status} · ${doc.scope.eventsIncluded.length} games · ${doc.rows.length} rows (${eligible} graphic-eligible) · ${doc.scope.eventsExcludedStarted.length} started games excluded → ${out}`);
-    process.exit(doc.publication.status === "PUBLISHED" ? 0 : 3);
-  } catch (e) {
+  main().then((code) => process.exit(code), (e) => {
     console.error(`REFUSED: ${e.message}`);
     process.exit(1);
-  }
+  });
 }
