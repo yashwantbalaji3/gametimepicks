@@ -583,7 +583,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           <span id="player-board" aria-hidden="true" style={{ display: "block", position: "relative", top: -72 }} />
           <p className="nf-eyebrow">Player projections · expected statistical summaries · not one simulated game</p>
           <h2 id="nf-players-h" className="nf-h2">What each player is projected to do</h2>
-          <p className="nf-sub">Every number here is the official player board&apos;s projection, the one Results grade. Players listed as Questionable or Doubtful are marked; players ruled out are not projected.</p>
+          <p className="nf-sub">Every number here is the official player board&apos;s projection, the one Results grade. A statistic marked Estimate has not yet met its calibration standard: its numbers are shown as an estimate, never as a pick. Players listed as Questionable or Doubtful are marked; players ruled out are not projected.</p>
           {/* Gap 4 (2026-10-23): every official-board player in one table first — position, headline and 80% range — from
               the same view the stat tabs below rank. */}
           <NflAllPlayersTable players={view.players ?? []} away={f.away.abbr} home={f.home.abbr} />

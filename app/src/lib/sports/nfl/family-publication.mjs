@@ -10,6 +10,22 @@
  */
 export const FAMILY_KEYS = ["player_pass_yds", "player_rush_yds", "player_reception_yds", "player_receptions"];
 
+/*
+ * ESTIMATE DISPLAY POLICY (P250-GD2, owner display decision; restated 2026-10-30, founder P0 "restore passing and rushing
+ * yards through the existing pathway"). The written policy, verbatim from its two owners:
+ *   - scripts/nfl/build-nfl-player-board.mjs: "families the engine COMPUTES but whose models failed a promotion bar publish
+ *     as state "ESTIMATE" — the numbers display with the failed bar(s) and a plain-English caveat carried ON the family,
+ *     never as bare picks. … an ESTIMATE can never become a card leg";
+ *   - this file (familyPublication): an all-ESTIMATE family is "displayed as an unvalidated estimate".
+ * So an ESTIMATE value MAY be shown publicly, and only with ONE qualification label (`estimateLabel` below, the same words
+ * on every surface), its caveat available, never as a pick (no OVER/UNDER direction, no live comparison, no card leg).
+ * Nothing here promotes a family: the state stays ESTIMATE in every artifact and every ledger.
+ */
+/** Which standard an ESTIMATE family has not met, read from the board's own reason (never hand-typed). */
+export const estimateStandard = (reason) => (/calibrat|calOk|\bECE\b/i.test(String(reason ?? "")) ? "calibration" : "publication");
+/** The one qualification label every surface prints beside an ESTIMATE family's numbers. */
+export const estimateLabel = (reason) => `Estimate · ${estimateStandard(reason)} standard not yet met`;
+
 const uniq = (xs) => [...new Set(xs)];
 
 /** The boards that constitute the period, or [] when the period is unknown. */

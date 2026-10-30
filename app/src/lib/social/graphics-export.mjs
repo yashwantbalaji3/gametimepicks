@@ -19,12 +19,15 @@
  * MODEL STATUS (per row):
  *   OFFICIAL           an official forecast value the website publishes as such.
  *   OFFICIAL_ESTIMATE  shown on the website, labelled an estimate (NFL ESTIMATE families; the NBA Elo-derived game-winner
- *                      estimate, accuracy not established). NEVER graphic-eligible.
+ *                      estimate, accuracy not established). NFL: graphic-eligible ONLY with its `model.label` (founder P0
+ *                      2026-10-30; the written NFL policy — family-publication.mjs ESTIMATE DISPLAY POLICY — permits public
+ *                      display "with the failed bar(s) and a plain-English caveat … never as bare picks"), and never with a
+ *                      line, price or direction. NBA Elo estimate: never graphic-eligible (no label is issued for it).
  *   EXPERIMENTAL       an experimental / supporting / simulated number. Never carries a value here, never graphic-eligible.
  *   UNAVAILABLE        no official value (withheld, absent, refused). Never carries a value, never graphic-eligible.
  *
- * GRAPHIC ELIGIBILITY: eligible ⇔ status OFFICIAL ∧ a value ∧ an official snapshot id ∧ the canonical checks passed ∧
- * the game has not started at --as-of. Anything else lists its reasons.
+ * GRAPHIC ELIGIBILITY: eligible ⇔ (status OFFICIAL, or OFFICIAL_ESTIMATE carrying its label) ∧ a value ∧ an official
+ * snapshot id ∧ the canonical checks passed ∧ the game has not started at --as-of. Anything else lists its reasons.
  *
  * SPORTSBOOK FIELDS (line, price, direction) exist in the schema and are gated by lib/odds/display-authorization.mjs
  * (surface "social"). Committed state 2026-10-29: social NOT authorized for NBA or NFL → every row carries them WITHHELD
@@ -38,6 +41,7 @@
  */
 import { buildTopBoards, TOP_BOARDS_CONTRACT, TOP_BOARD_SOURCE } from "../sports/nfl/top-boards.mjs";
 import { PLAYER_FAMILIES as NFL_VIEW_FAMILIES, MARKET_KEY as NFL_MARKET_KEY, formatValue as nflFormatValue } from "../sports/nfl/forecast-view.mjs";
+import { estimateLabel as nflEstimateLabel } from "../sports/nfl/family-publication.mjs";
 import { DISPLAY_AUTHORIZATION, DISPLAY_AUTHORIZATION_RULE, displayAuthorization, directionAuthorization } from "../odds/display-authorization.mjs";
 import { NBA_LINE_DISPLAY } from "../sports/nba/line-board.mjs";
 import { buildNbaSocialDay, PLAYER_FAMILIES as NBA_FAMILIES } from "./nba-social.mjs";
@@ -70,7 +74,8 @@ const NFL_DIRECTION_KEY = Object.freeze({ player_receptions: "receptions", playe
 export const USAGE_RULES = Object.freeze([
   "Publish only rows whose graphicEligibility.eligible is true; print model.display exactly (the website's digits).",
   "Never compute, round differently, combine or compare values; never mix rows from different exports (check snapshot.id and edition).",
-  "OFFICIAL_ESTIMATE, EXPERIMENTAL and UNAVAILABLE rows are context for operators only and are never graphics.",
+  "An eligible OFFICIAL_ESTIMATE row must be printed with its model.label beside the value (e.g. \"Estimate · calibration standard not yet met\"), never as a pick, a lean, an over/under or a comparison to any line.",
+  "EXPERIMENTAL and UNAVAILABLE rows (and any OFFICIAL_ESTIMATE row without a label) are context for operators only and are never graphics.",
   "line, price and direction are WITHHELD: do not state, estimate or source any sportsbook line, price, side or edge.",
   "A row whose game has started at the time of posting must not be posted as a pregame forecast; re-export with a later --as-of.",
   "Values are model projections (medians / probabilities), not picks, locks or bets; no accuracy claims.",
@@ -124,9 +129,10 @@ export function marketFields({ sport, directionKey, marketType, record = DISPLAY
   };
 }
 
-function eligibility({ status, value, snapshotId, extra = [] }) {
+function eligibility({ status, value, snapshotId, extra = [], label = null }) {
   const reasons = [];
-  if (status !== MODEL_STATUS.OFFICIAL) reasons.push(`MODEL_STATUS_${status}`);
+  const labelledEstimate = status === MODEL_STATUS.OFFICIAL_ESTIMATE && typeof label === "string" && label.length > 0;
+  if (status !== MODEL_STATUS.OFFICIAL && !labelledEstimate) reasons.push(`MODEL_STATUS_${status}`);
   if (value == null) reasons.push("NO_VALUE");
   if (!snapshotId) reasons.push("NO_OFFICIAL_SNAPSHOT");
   reasons.push(...extra);
@@ -186,8 +192,11 @@ export function buildNflGraphicsExport({ seasonType, week, asOf, boards, views, 
 
   const rows = [];
   const boardsOut = (top?.weekly.boards ?? []).map((b) => {
-    const boardState = b.state === "PUBLISHED" ? "PUBLISHED" : b.readiness?.boardState ?? null;
-    const status = b.state === "PUBLISHED" ? MODEL_STATUS.OFFICIAL : nflModelStatus(boardState === "PUBLISHED" ? null : boardState);
+    const boardState = b.state === "PUBLISHED" || b.state === "ESTIMATE" ? b.state : b.readiness?.boardState ?? null;
+    const status = b.state === "PUBLISHED" ? MODEL_STATUS.OFFICIAL : b.state === "ESTIMATE" ? MODEL_STATUS.OFFICIAL_ESTIMATE : nflModelStatus(boardState === "PUBLISHED" || boardState === "ESTIMATE" ? null : boardState);
+    /* The ONE estimate label (family-publication.mjs estimateLabel) — the ranking owner's, re-derived to prove they agree. */
+    const label = b.state === "ESTIMATE" ? (b.estimate?.label ?? null) : null;
+    if (b.state === "ESTIMATE" && label !== nflEstimateLabel(b.estimate?.reason)) throw new ExportRefusal(`${b.id}: estimate label ${JSON.stringify(label)} is not the policy label`);
     const kind = nflKind(b.family);
     const rowIds = [];
     for (const r of b.rows ?? []) {
@@ -204,14 +213,17 @@ export function buildNflGraphicsExport({ seasonType, week, asOf, boards, views, 
       else if (!vf) extra.push("NOT_ON_GAME_PAGE");
       else {
         if (vf.value !== r.value) throw new ExportRefusal(`${b.id} ${r.playerId}: top-board value ${r.value} ≠ game page value ${vf.value}`);
+        if ((vf.familyState === "ESTIMATE") !== (b.state === "ESTIMATE")) throw new ExportRefusal(`${b.id} ${r.playerId}: the game page shows ${vf.familyState}, the top board ${b.state}`);
+        if (label && vf.estimateLabel !== label) throw new ExportRefusal(`${b.id} ${r.playerId}: game page label ${JSON.stringify(vf.estimateLabel)} ≠ top board label ${JSON.stringify(label)}`);
         if (vf.snapshotId !== snapshotId) throw new ExportRefusal(`${b.id} ${r.playerId}: game page row is from snapshot ${vf.snapshotId}, not ${snapshotId}`);
         if (NFL_KIND[NFL_VIEW_KEY[b.family]] !== kind) throw new ExportRefusal(`${b.family}: display kind differs between the game page and the top board`);
       }
       if (!(instantMs(r.kickoffUtc) > t)) extra.push("GAME_STARTED");
       const rowId = `nfl:${editionKey}:${eventId}:${r.playerId}:${b.family}`;
       rowIds.push(rowId);
-      const value = status === MODEL_STATUS.OFFICIAL ? r.value : null;
-      const directionKey = NFL_DIRECTION_KEY[b.family] ?? null;
+      const value = status === MODEL_STATUS.OFFICIAL || (status === MODEL_STATUS.OFFICIAL_ESTIMATE && label) ? r.value : null;
+      /* an estimate is never direction-qualified, whatever the authorization record says */
+      const directionKey = status === MODEL_STATUS.OFFICIAL_ESTIMATE ? null : NFL_DIRECTION_KEY[b.family] ?? null;
       rows.push({
         rowId,
         kind: "PLAYER_PROP",
@@ -237,12 +249,13 @@ export function buildNflGraphicsExport({ seasonType, week, asOf, boards, views, 
           value,
           kind,
           display: value == null ? null : nflFormatValue(kind, value),
+          ...(label ? { label, caveat: b.estimate?.caveat ?? null } : {}),
           ...(b.method === "probability" ? {} : { p10: value == null ? null : r.p10, p90: value == null ? null : r.p90, rangeDisplay: value == null || !isNum(r.p10) || !isNum(r.p90) ? null : `${whole(r.p10)}–${whole(r.p90)}` }),
           participation: r.participation,
         },
         checks: { gamePageValue: vf ? "EQUAL" : "NOT_FOUND", playerBoardValue: "EQUAL", officialSnapshot: snapshotId ? "GAME_PAGE_READS_SNAPSHOT" : "NO_SNAPSHOT" },
         ...marketFields({ sport: "nfl", directionKey, marketType: NFL_MARKET_TYPE[b.family], record: authorizationRecord }),
-        graphicEligibility: eligibility({ status, value, snapshotId, extra }),
+        graphicEligibility: eligibility({ status, value, snapshotId, extra, label }),
         provenance: {
           playerBoard: `app/public/data/nfl/player-board/${eventId}.json`,
           playerBoardSha256: boardSha256[eventId] ?? null,
@@ -254,8 +267,9 @@ export function buildNflGraphicsExport({ seasonType, week, asOf, boards, views, 
     return {
       id: b.id, title: b.title, market: b.family, label: b.label, metric: b.method,
       modelStatus: status,
-      graphicEligible: status === MODEL_STATUS.OFFICIAL && rowIds.length > 0,
-      readiness: b.state === "PUBLISHED" ? null : { code: b.readiness?.code ?? null, text: b.readiness?.text ?? null },
+      ...(label ? { label } : {}),
+      graphicEligible: (status === MODEL_STATUS.OFFICIAL || (status === MODEL_STATUS.OFFICIAL_ESTIMATE && Boolean(label))) && rowIds.length > 0,
+      readiness: b.state === "PUBLISHED" || b.state === "ESTIMATE" ? null : { code: b.readiness?.code ?? null, text: b.readiness?.text ?? null },
       availabilityExcluded: b.availabilityExcluded ?? 0,
       rowIds,
     };
@@ -420,7 +434,7 @@ export function buildNbaGraphicsExport({ date, asOf, lane, snapshots = new Map()
 function contractBlock() {
   return {
     statuses: MODEL_STATUSES,
-    graphicRule: "eligible only when model.status is OFFICIAL, a value exists, the official snapshot id is present, the canonical checks passed and the game has not started at asOf",
+    graphicRule: "eligible only when model.status is OFFICIAL (or OFFICIAL_ESTIMATE carrying model.label, printed with it), a value exists, the official snapshot id is present, the canonical checks passed and the game has not started at asOf",
     sportsbookFields: "line, price and direction are WITHHELD in contract @1 (no numbers); reason NOT_AUTHORIZED_FOR_SOCIAL while the social surface is not authorized",
     determinism: "no wall-clock field; identical inputs and asOf give identical bytes",
   };
@@ -459,8 +473,10 @@ export function graphicsExportViolations(doc) {
     if (!MODEL_STATUSES.includes(st)) v.push(`${id}: unknown model status ${st}`);
     if ((st === MODEL_STATUS.EXPERIMENTAL || st === MODEL_STATUS.UNAVAILABLE) && r.model.value != null) v.push(`${id}: ${st} row carries a value`);
     const ge = r?.graphicEligibility;
+    if (st === MODEL_STATUS.OFFICIAL_ESTIMATE && r?.marketEligibility?.directionQualified === true) v.push(`${id}: an estimate is direction-qualified`);
     if (ge?.eligible === true) {
-      if (st !== MODEL_STATUS.OFFICIAL) v.push(`${id}: graphic-eligible with status ${st}`);
+      const labelledEstimate = st === MODEL_STATUS.OFFICIAL_ESTIMATE && typeof r.model.label === "string" && r.model.label.length > 0;
+      if (st !== MODEL_STATUS.OFFICIAL && !labelledEstimate) v.push(`${id}: graphic-eligible with status ${st}${st === MODEL_STATUS.OFFICIAL_ESTIMATE ? " and no label" : ""}`);
       if (r.model.value == null) v.push(`${id}: graphic-eligible without a value`);
       if (!r.snapshot?.id) v.push(`${id}: graphic-eligible without an official snapshot id`);
     }

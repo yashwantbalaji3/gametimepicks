@@ -117,12 +117,12 @@ export default function PlayerResearchPage({ params }: { params: { sport: string
           {forecasts.map((f) => (
             <div key={`${f.playerId}-${f.matchup}`} style={{ marginTop: 8 }}>
               <p style={{ margin: 0, fontSize: 13, color: "var(--vault-text-mute)" }}>
-                {f.matchup} · {formatKickoff(f.kickoffUtc)} · Model status: published families only
+                {f.matchup} · {formatKickoff(f.kickoffUtc)} · Model status: published families{f.markets.some((m) => m.estimate) ? ", and estimates labelled as such" : " only"}
               </p>
               <dl style={{ margin: "6px 0 0", display: "grid", gap: 4 }}>
                 {f.markets.map((m) => (
                   <div key={m.key} style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 13.5 }}>
-                    <dt style={{ color: "var(--vault-text-mute)" }}>{m.label}</dt>
+                    <dt style={{ color: "var(--vault-text-mute)" }}>{m.label}{m.estimate ? <span data-estimate={m.key} style={{ display: "block", fontSize: 11, color: "var(--vault-text-faint)" }}>{m.estimate}</span> : null}</dt>
                     {/* Track B: the game page's own strings (read-model nflMarketDisplay → forecast-view formatValue). */}
                     <dd style={{ margin: 0, fontFamily: MONO }}>{m.display.value} <span style={{ color: "var(--vault-text-faint)" }}>(range {m.display.range})</span></dd>
                   </div>

@@ -21,6 +21,7 @@ import { presentWeeklyBoard, presentTopBoard, type TopBoard } from "@/lib/predic
 import EtTime from "@/components/ui/et-time";
 import { dailyFor, etDateOfKickoff, pregameScope, rankingMethodText } from "@/lib/sports/nfl/top-boards.mjs";
 import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
+import { estimateLabel } from "@/lib/sports/nfl/family-publication.mjs";
 
 const read = (rel: string) => {
   try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data", rel), "utf8")); } catch { return null; }
@@ -33,25 +34,38 @@ type WeeklyBoards = {
   model?: { id?: string; version?: number | string; launchState?: string } | null;
   boards: Array<{ id: string; family: string; title: string; state: string; reason?: string; caveat?: string; topN: number; rows?: BoardRow[] }>;
   /* Founder Top boards (2026-10-29, lib/sports/nfl/top-boards.mjs). Absent on weeks built before it. */
-  topBoards?: { weekly: TopScope; daily: Array<TopScope & { etDate: string }> };
+  topBoards?: { weekly: TopScope; daily: Array<TopScope & { etDate: string }>; fullWeek?: FullWeekScope };
 };
 type TopScope = { scope: { kind: string; eventsIncluded: number; eventsDroppedAfterKickoff: number }; boards: TopBoard[] };
+/* founder P0 2026-10-30: every game of the week, started ones from their frozen pre-kickoff boards (rows `completed`) */
+type FullWeekScope = { scope: { kind: string; eventsIncluded: number; eventsCompleted: number; completedEvents: string[] }; boards: TopBoard[] };
 
 /**
  * The five Top boards of one scope (weekly or today), in the V3 PredictionBoard layout (header row, identity line with
  * its Matchup/Start keys). Rows and order are the artifact's; digits come from the one formatter (presentTopBoard), so
  * they match the hub and every game page. A not-qualified family prints its readiness line, never a ranking.
  */
-function TopBoardsList({ artifact, scope }: { artifact: WeeklyBoards; scope: TopScope }) {
+function TopBoardsList({ artifact, scope, completed }: { artifact: WeeklyBoards; scope: { boards: TopBoard[] }; completed?: Set<string> }) {
   return (
     <div className="flex flex-col gap-5">
       {scope.boards.map((b) => {
         const rows = presentTopBoard(artifact, b);
         return rows.length ? (
-          <div key={b.id} data-top-board={b.family}>
+          <div key={b.id} data-top-board={b.family} data-board-state={b.state}>
             <h3 style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color: "var(--vault-text)" }}>{b.title}</h3>
+            {/* An estimate board says so once, with its failed bar's caveat (the one label every surface prints). */}
+            {b.state === "ESTIMATE" && b.estimate ? (
+              <p data-estimate={b.family} style={{ margin: "0 0 2px", fontSize: 11, color: "var(--vault-text-mute)" }}>
+                <strong>{b.estimate.label}</strong>{b.estimate.caveat ? ` · ${b.estimate.caveat.charAt(0).toUpperCase()}${b.estimate.caveat.slice(1)}` : ""}
+              </p>
+            ) : null}
             <p data-ranking-method={b.family} style={{ margin: "0 0 4px", fontSize: 11, color: "var(--vault-text-faint)" }}>{rankingMethodText(b)}</p>
             <PredictionBoard predictions={rows} gameHref={(p) => `/nfl/game/${p.game.providerEventId}/`} />
+            {completed?.size && (b.rows ?? []).some((r) => completed.has(String(r.providerEventId))) ? (
+              <p data-completed-rows={b.family} style={{ margin: "4px 0 0", fontSize: 11, color: "var(--vault-text-faint)" }}>
+                Completed: {(b.rows ?? []).filter((r) => completed.has(String(r.providerEventId))).map((r) => `${r.name} (${r.team})`).join(", ")} — pre-kickoff projection, frozen at kickoff.
+              </p>
+            ) : null}
           </div>
         ) : (
           <p key={b.id} data-readiness={b.family} style={{ margin: 0, fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720, border: "1px dashed var(--vault-rule)", borderRadius: 10, padding: "8px 12px" }}>
@@ -60,6 +74,23 @@ function TopBoardsList({ artifact, scope }: { artifact: WeeklyBoards; scope: Top
         );
       })}
     </div>
+  );
+}
+
+/**
+ * FULL WEEK (founder P0 2026-10-30): the artifact's `fullWeek` scope — every game of the week ranked together, a game
+ * that has kicked off read from its frozen pre-kickoff board and its rows named as completed. A record of the week's
+ * pre-kickoff projections, never a pregame ranking; shown beside (never instead of) the pregame boards.
+ */
+function FullWeekBoards({ artifact, full }: { artifact: WeeklyBoards; full: FullWeekScope }) {
+  const completed = new Set((full.scope.completedEvents ?? []).map(String));
+  return (
+    <details style={{ marginTop: 18 }} data-top-boards-full-week>
+      <summary className="font-mono" style={{ cursor: "pointer", fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--vault-text-mute)", minHeight: 44 }}>
+        Full week · all {full.scope.eventsIncluded} games{full.scope.eventsCompleted ? ` (${full.scope.eventsCompleted} completed, shown with their pre-kickoff projections)` : ""}
+      </summary>
+      <TopBoardsList artifact={artifact} scope={full} completed={completed} />
+    </details>
   );
 }
 
@@ -103,6 +134,8 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
   const weeklyPregame = wb?.topBoards ? pregameScope(wb.topBoards.weekly, nowIso, kickoffOf) as TopScope | null : null;
   /* Today's ET date at build time: a daily board shows only when this week still has a game today. */
   const todayBoards = wb?.topBoards ? pregameScope(dailyFor(wb.topBoards, etDateOfKickoff(nowIso)), nowIso, kickoffOf) as (TopScope & { etDate: string }) | null : null;
+  /* Full week only when at least one game has kicked off (otherwise it equals the pregame weekly boards). */
+  const fullWeek = wb?.topBoards?.fullWeek && wb.topBoards.fullWeek.scope.eventsCompleted > 0 ? wb.topBoards.fullWeek : null;
 
   const td = (extra: Record<string, string | number> = {}) => ({ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, ...extra });
 
@@ -180,6 +213,7 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
       {wb?.topBoards?.weekly && !weeklyPregame ? (
         <section aria-labelledby="week-boards" data-top-boards-closed>
           <SectionHeader eyebrow="Pregame boards closed" title="Top boards" sub="Every game this week has kicked off. The Top boards rank only games still to come, so there is no pregame ranking to show; each game page keeps its frozen pre-kickoff forecast." />
+          {fullWeek ? <FullWeekBoards artifact={wb!} full={fullWeek} /> : null}
         </section>
       ) : wb?.topBoards?.weekly && weeklyPregame ? (
         /* Founder Top boards (2026-10-29): five Top-5 boards from the artifact's `topBoards`, the same rows and numbers as
@@ -188,7 +222,7 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
           <SectionHeader
             eyebrow={weeklyPregame.scope.kind === "REMAINING_EVENTS" ? `${weeklyPregame.scope.eventsIncluded} games left` : "Full week"}
             title="Top boards"
-            sub="The official player board's top five per statistic, over games still to kick off only; a list is a maximum, not a quota; a statistic that has not cleared its publication standard says so instead of ranking."
+            sub="The official player board's top five per statistic, over games still to kick off only; a list is a maximum, not a quota; a statistic marked Estimate has not yet met its calibration standard and is labelled so; a statistic that has neither says so instead of ranking."
           />
           <TopBoardsList artifact={wb} scope={weeklyPregame} />
           {todayBoards ? (
@@ -202,6 +236,7 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
           <p className="font-mono" style={{ margin: "10px 0 0", fontSize: 10.5, color: "var(--vault-text-faint)" }}>
             Board stamp <EtTime iso={wb.generatedAt} /> · {weeklyPregame.scope.kind === "FULL_WEEK" ? "full-week edition" : `${weeklyPregame.scope.eventsDroppedAfterKickoff} games dropped after kickoff`}
           </p>
+          {fullWeek ? <FullWeekBoards artifact={wb} full={fullWeek} /> : null}
         </section>
       ) : wb?.boards?.length ? (
         <section aria-labelledby="week-boards">
@@ -212,13 +247,18 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
           />
           <div className="flex flex-col gap-5">
             {wb.boards.map((b) =>
-              /* Only a PUBLISHED family ranks. An ESTIMATE family (it did not clear its bar) is not shown as a ranking —
-                 the game page and the hub do not show it either (founder 2026-10-29: one canonical answer everywhere). */
-              b.state === "PUBLISHED" && b.rows?.length ? (
-                <div key={b.id}>
+              /* A PUBLISHED family ranks; an ESTIMATE family ranks under its one label (founder P0 2026-10-30 — weeks 1–7
+                 showed these rows; the game page, the hub and the Top boards show them the same way). */
+              (b.state === "PUBLISHED" || b.state === "ESTIMATE") && b.rows?.length ? (
+                <div key={b.id} data-board-state={b.state}>
                   <h2 style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color: "var(--vault-text)" }}>
                     {b.title}
                   </h2>
+                  {b.state === "ESTIMATE" ? (
+                    <p data-estimate={b.family} style={{ margin: "0 0 4px", fontSize: 11, color: "var(--vault-text-mute)" }}>
+                      <strong>{estimateLabel(b.reason)}</strong>{b.caveat ? ` · ${b.caveat.charAt(0).toUpperCase()}${b.caveat.slice(1)}` : ""}
+                    </p>
+                  ) : null}
                   <PredictionBoard
                     predictions={presentWeeklyBoard(wb, b)}
                     gameHref={(p) => `/nfl/game/${p.game.providerEventId}/`}

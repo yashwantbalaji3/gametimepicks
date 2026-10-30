@@ -144,7 +144,7 @@ test("ENGINE GUARD · a World Model V2 number in an official Top-board slot is c
 test("SOURCE · the hub and the week page render the artifact's topBoards through topBoardTabs, and rank nothing themselves", () => {
   const hub = fs.readFileSync(path.join(APP, "src/app/nfl/page.tsx"), "utf8");
   const week = fs.readFileSync(path.join(APP, "src/app/nfl/week/[key]/page.tsx"), "utf8");
-  assert.deepEqual([...hub.matchAll(/topBoardTabs\(([^)]*)\)/g)].map((m) => m[1]).sort(), ["todayLive", "topBoardsBlock.weekly"]);
+  assert.deepEqual([...hub.matchAll(/topBoardTabs\(([^)]*)\)/g)].map((m) => m[1]).sort(), ["fullWeekBoards", "todayLive", "topBoardsBlock.weekly"]);
   /* The week page renders the same rows in the V3 PredictionBoard layout (presentTopBoard); see the digits test below. */
   assert.deepEqual([...week.matchAll(/<TopBoardsList artifact=\{wb\} scope=\{([^}]*)\} \/>/g)].map((m) => m[1]).sort(), ["todayBoards", "weeklyPregame"]);
   assert.match(week, /const rows = presentTopBoard\(artifact, b\);/);
@@ -153,9 +153,10 @@ test("SOURCE · the hub and the week page render the artifact's topBoards throug
     assert.doesNotMatch(src, /\btopBoards\(\s*(loadForecastViews|views)/, `${name}: no second ranking from the forecast view`);
     assert.doesNotMatch(src, /rows\.sort\(/, `${name}: never re-ranks rows`);
   }
-  /* The week page no longer prints an ESTIMATE family's rows as a ranking (founder 2026-10-29). */
-  assert.match(week, /b\.state === "PUBLISHED" && b\.rows\?\.length \?/);
-  assert.doesNotMatch(week, /b\.state === "PUBLISHED" \|\| b\.state === "ESTIMATE"/);
+  /* founder P0 2026-10-30: an ESTIMATE family's rows render again, under the one estimate label (never unlabelled). */
+  assert.match(week, /\(b\.state === "PUBLISHED" \|\| b\.state === "ESTIMATE"\) && b\.rows\?\.length \?/);
+  assert.match(week, /<strong>\{estimateLabel\(b\.reason\)\}<\/strong>/);
+  assert.match(week, /<strong>\{b\.estimate\.label\}<\/strong>/);
 });
 
 test("week page (V3 PredictionBoard): every presented Top-board row prints the game page's digits", async () => {

@@ -12,7 +12,7 @@ import path from "node:path";
 
 import { PLAYER_FAMILIES, formatValue } from "@/lib/sports/nfl/forecast-view.mjs";
 
-type Entry = { value: number; p10?: number | null; p90?: number | null };
+type Entry = { value: number; p10?: number | null; p90?: number | null; familyState?: string; estimateLabel?: string };
 type ViewPlayer = { playerId: string; name: string; team: string; availabilityLabel?: string | null; families: Record<string, Entry | undefined> };
 
 const COLUMNS = PLAYER_FAMILIES.filter((f) => f.source);
@@ -33,6 +33,9 @@ export default function NflAllPlayersTable({ players, away, home }: { players: V
   if (!players.length) return null;
   const pos = positions();
   const cols = COLUMNS.filter((c) => players.some((p) => p.families[c.key]));
+  /* Estimate columns (founder P0 2026-10-30): marked in the header and named once under the table with their one label. */
+  const estLabel = (key: string) => players.map((p) => p.families[key]).find((e) => e?.familyState === "ESTIMATE")?.estimateLabel ?? null;
+  const estCols = cols.filter((c) => estLabel(c.key));
   const order = (t: string) => (t === away ? 0 : t === home ? 1 : 2);
   const weight = (p: ViewPlayer) => Math.max(...cols.filter((c) => c.kind === "yards").map((c) => p.families[c.key]?.value ?? 0), 0);
   const rows = [...players].sort((a, b) => order(a.team) - order(b.team) || weight(b) - weight(a) || a.name.localeCompare(b.name));
@@ -48,7 +51,7 @@ export default function NflAllPlayersTable({ players, away, home }: { players: V
               <th scope="col">Player</th>
               <th scope="col">Team</th>
               <th scope="col">Pos</th>
-              {cols.map((c) => <th key={c.key} scope="col" title={c.title}>{c.short}</th>)}
+              {cols.map((c) => <th key={c.key} scope="col" title={estLabel(c.key) ? `${c.title} · ${estLabel(c.key)}` : c.title} data-estimate={estLabel(c.key) ? c.key : undefined}>{c.short}{estLabel(c.key) ? " (est.)" : ""}</th>)}
             </tr>
           </thead>
           <tbody>
@@ -71,6 +74,11 @@ export default function NflAllPlayersTable({ players, away, home }: { players: V
           </tbody>
         </table>
       </div>
+      {estCols.length ? (
+        <p className="ap-sub" data-estimate-columns>
+          {[...new Set(estCols.map((c) => estLabel(c.key)))].map((l) => `${estCols.filter((c) => estLabel(c.key) === l).map((c) => c.title).join(" and ")}: ${l}.`).join(" ")}
+        </p>
+      ) : null}
     </div>
   );
 }

@@ -5,8 +5,9 @@
  * forecast owner's existing public artifact, by EXACT canonical id — never by name, never regenerated, never
  * reinterpreted. When no exact join exists the page shows no forecast section at all (no empty shell).
  *
- *   NFL player   the PUBLISHED-families player rows My GameTime already reads (buildMyPlayerRows: families with
- *                state PUBLISHED only — ESTIMATE / WITHHELD / research families never reach this function)
+ *   NFL player   the player rows My GameTime already reads (buildMyPlayerRows with includeEstimates: PUBLISHED
+ *                families, plus ESTIMATE families carrying their one label — founder P0 2026-10-30, the game page's
+ *                own digits; WITHHELD / research families never reach this function)
  *   UFC fighter  the current card's bout, only when the card's winner head verdict is PASS and the bout carries a
  *                winner read; athlete ids compared as `ufc-athlete-<ESPN id>`
  *   MLB / EPL    no per-player published forecast owner exists → none
@@ -18,7 +19,7 @@ let nflRows: MyPlayerRow[] | null = null;
 
 /** Published NFL player ranges for one canonical athlete id. Markets with no published range are dropped. */
 export function nflPlayerForecasts(playerId: string): MyPlayerRow[] {
-  nflRows ??= buildMyPlayerRows();
+  nflRows ??= buildMyPlayerRows({ includeEstimates: true });
   return nflRows.filter((r) => r.playerId === playerId && r.markets.length > 0);
 }
 

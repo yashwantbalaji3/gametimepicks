@@ -17,6 +17,7 @@ import path from "node:path";
 
 import { nflPlayerForecasts, ufcFighterForecast } from "./forecast-join.ts";
 import { gameHref } from "./game-links.ts";
+import { estimateLabel } from "../sports/nfl/family-publication.mjs";
 import { researchIndex } from "./projection-store.ts";
 import * as sitemapModule from "../../app/sitemap.ts";
 
@@ -27,7 +28,7 @@ const APP = process.cwd().endsWith("app") ? process.cwd() : path.join(process.cw
 const DATA = path.join(APP, "public/data");
 const readJson = (rel) => JSON.parse(fs.readFileSync(path.join(DATA, rel), "utf8"));
 
-test("FJ1 NFL player forecasts carry PUBLISHED families only, joined by exact athlete id", () => {
+test("FJ1 NFL player forecasts carry PUBLISHED families, plus ESTIMATE families under their one label (founder P0 2026-10-30), joined by exact athlete id", () => {
   const latest = readJson("nfl/player-board/latest.json");
   let checked = 0;
   let emptyChecked = 0;
@@ -36,15 +37,20 @@ test("FJ1 NFL player forecasts carry PUBLISHED families only, joined by exact at
     if (!fs.existsSync(file)) continue;
     const board = JSON.parse(fs.readFileSync(file, "utf8"));
     const published = new Set(Object.entries(board.families ?? {}).filter(([, f]) => f?.state === "PUBLISHED").map(([k]) => k));
+    const estimates = new Map(Object.entries(board.families ?? {}).filter(([k, f]) => f?.state === "ESTIMATE" && k !== "anytime_td").map(([k, f]) => [k, estimateLabel(f.reason)]));
     for (const p of (board.players ?? []).slice(0, 40)) {
       const rows = nflPlayerForecasts(p.playerId).filter((r) => r.matchup === (board.matchup ?? b.matchup));
       for (const r of rows) {
         assert.equal(r.playerId, p.playerId);
-        for (const m of r.markets) assert.ok(published.has(m.key), `${p.playerId}: ${m.key} is not PUBLISHED on ${b.providerEventId}`);
+        for (const m of r.markets) {
+          if (estimates.has(m.key)) { assert.equal(m.estimate, estimates.get(m.key), `${p.playerId}: ${m.key} estimate shown without its label`); continue; }
+          assert.ok(published.has(m.key), `${p.playerId}: ${m.key} is neither PUBLISHED nor a labelled ESTIMATE on ${b.providerEventId}`);
+          assert.equal(m.estimate, undefined, `${p.playerId}: ${m.key} PUBLISHED but labelled an estimate`);
+        }
         checked += r.markets.length;
       }
-      const publishedRanges = [...published].filter((k) => typeof p.markets?.[k]?.median === "number");
-      if (!publishedRanges.length) { assert.equal(rows.length, 0, `${p.playerId} has no published range → no forecast section`); emptyChecked += 1; }
+      const publishedRanges = [...published, ...estimates.keys()].filter((k) => typeof p.markets?.[k]?.median === "number");
+      if (!publishedRanges.length) { assert.equal(rows.length, 0, `${p.playerId} has no published or labelled-estimate range → no forecast section`); emptyChecked += 1; }
     }
   }
   assert.ok(checked > 0, "non-vacuous: some published ranges were checked");

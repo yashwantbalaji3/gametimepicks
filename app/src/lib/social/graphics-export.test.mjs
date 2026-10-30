@@ -65,26 +65,43 @@ test("NFL: Friday export excludes Thursday night and every started game; only Su
   assert.ok(graphicsExportViolations(forced).some((v) => /game started at asOf/.test(v)));
 });
 
-test("NFL: receiving yards, receptions, anytime TD are OFFICIAL Top 5s; passing and rushing yards held (no rows, not eligible)", { skip: !WEEK8_LIVE && "week 8 rolled over" }, () => {
+test("NFL: receiving yards, receptions, anytime TD are OFFICIAL Top 5s; passing and rushing yards are labelled OFFICIAL_ESTIMATE Top 5s (founder P0 2026-10-30)", { skip: !WEEK8_LIVE && "week 8 rolled over" }, () => {
   const by = Object.fromEntries(nflFriday.boards.map((b) => [b.id, b]));
   for (const id of ["top5_reception_yds", "top5_receptions", "top5_anytime_td"]) {
     assert.equal(by[id].modelStatus, MODEL_STATUS.OFFICIAL);
     assert.equal(by[id].rowIds.length, 5);
     assert.equal(by[id].graphicEligible, true);
   }
+  /* The written policy permits public display of an ESTIMATE with its label (family-publication.mjs ESTIMATE DISPLAY
+     POLICY), so these rows are graphic-eligible ONLY carrying that label — never promoted, never a direction. */
   for (const id of ["top5_pass_yds", "top5_rush_yds"]) {
-    assert.notEqual(by[id].modelStatus, MODEL_STATUS.OFFICIAL);
-    assert.deepEqual(by[id].rowIds, []);
-    assert.equal(by[id].graphicEligible, false);
-    assert.match(by[id].readiness.text, /not yet published/);
+    assert.equal(by[id].modelStatus, MODEL_STATUS.OFFICIAL_ESTIMATE);
+    assert.equal(by[id].label, "Estimate · calibration standard not yet met");
+    assert.ok(by[id].rowIds.length >= 1 && by[id].rowIds.length <= 5);
+    assert.equal(by[id].graphicEligible, true);
+    assert.equal(by[id].readiness, null);
+    for (const rid of by[id].rowIds) {
+      const r = nflFriday.rows.find((x) => x.rowId === rid);
+      assert.equal(r.model.status, MODEL_STATUS.OFFICIAL_ESTIMATE);
+      assert.equal(r.model.label, by[id].label, `${rid}: the one label rides on the row`);
+      assert.equal(r.graphicEligibility.eligible, true, `${rid}: ${r.graphicEligibility.reasons}`);
+      assert.equal(r.marketEligibility.directionQualified, false, `${rid}: an estimate is never direction-qualified`);
+      assert.ok(["WITHHELD", "NOT_APPLICABLE"].includes(r.market.direction.state));
+      assert.notEqual(r.market.direction.reason, WITHHELD_REASON.NOT_CARRIED_IN_CONTRACT_V1);
+    }
   }
-  assert.ok(nflFriday.rows.every((r) => !["player_pass_yds", "player_rush_yds"].includes(r.identity.market)));
 });
 
 test("NFL: at the artifact's own instant the export IS the website's Top 5 (same players, ranks, values, ranges, readiness)", () => {
   const site = Object.fromEntries(WEEK_ARTIFACT.topBoards.weekly.boards.map((b) => [b.id, b]));
   for (const b of nflAtArtifact.boards) {
     const s = site[b.id];
+    if (s.state === "NOT_PUBLISHED" && s.readiness?.boardState === "ESTIMATE") {
+      /* the committed artifact predates estimate ranking (2026-10-30); the export ranks the boards' ESTIMATE family */
+      assert.equal(b.modelStatus, MODEL_STATUS.OFFICIAL_ESTIMATE, b.id);
+      assert.ok(b.rowIds.length >= 1, b.id);
+      continue;
+    }
     if (s.state !== "PUBLISHED") {
       assert.deepEqual(b.rowIds, []);
       assert.equal(b.readiness.text, s.readiness.text);
@@ -200,10 +217,23 @@ test("even with the social surface authorized, contract @1 carries no number and
   for (const f of [td, rec_, tpm, pts]) for (const k of ["line", "price", "direction"]) assert.equal(isNumDeep(f.market[k]), false);
 });
 
-test("experimental / estimate / unavailable values are never graphic-eligible (validator refuses a forced one)", () => {
+test("experimental / unavailable values and unlabelled estimates are never graphic-eligible (validator refuses a forced one)", () => {
   const nba = run({ sport: "nba", date: NBA_DATE, "as-of": NBA_BEFORE_TIPS }, "nba-e.json").doc;
   for (const doc of [nflFriday, nba]) {
-    for (const r of doc.rows) if (r.model.status !== MODEL_STATUS.OFFICIAL) assert.equal(r.graphicEligibility.eligible, false, r.rowId);
+    for (const r of doc.rows) {
+      if (r.model.status === MODEL_STATUS.OFFICIAL) continue;
+      if (r.model.status === MODEL_STATUS.OFFICIAL_ESTIMATE && doc.sport === "nfl") { assert.ok(r.model.label, `${r.rowId}: an NFL estimate always carries its label`); continue; }
+      assert.equal(r.graphicEligibility.eligible, false, r.rowId);
+    }
+  }
+  /* the NBA Elo estimate is issued no label: never a graphic */
+  assert.ok(nba.rows.filter((r) => r.model.status === MODEL_STATUS.OFFICIAL_ESTIMATE).every((r) => !r.model.label && r.graphicEligibility.eligible === false));
+  /* an NFL estimate stripped of its label is refused */
+  const est = nflFriday.rows.find((r) => r.model.status === MODEL_STATUS.OFFICIAL_ESTIMATE && r.graphicEligibility.eligible);
+  if (est) {
+    const forcedEst = structuredClone(nflFriday);
+    delete forcedEst.rows.find((r) => r.rowId === est.rowId).model.label;
+    assert.ok(graphicsExportViolations(forcedEst).some((x) => /graphic-eligible with status OFFICIAL_ESTIMATE and no label/.test(x)));
   }
   const forced = structuredClone(nba);
   const r = forced.rows.find((x) => x.kind === "PLAYER_PROP");

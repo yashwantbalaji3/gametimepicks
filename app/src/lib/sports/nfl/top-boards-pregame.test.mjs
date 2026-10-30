@@ -9,7 +9,8 @@
  *   2. The builder itself (buildTopBoards) excludes a started game from the weekly and daily scopes.
  *   3. Each board states its ranking method; medians are never relabelled as a chance to go over a line, and no Top-board
  *      row carries any over/under, line, side, edge or probability-versus-line field.
- *   4. Passing / rushing yards (not official) never rank: an explicit readiness line, no rows.
+ *   4. Passing / rushing yards: the pinned artifact (generated before 2026-10-30) holds them as readiness lines; the
+ *      current builder ranks them from the same per-game boards as ESTIMATE boards (founder P0 2026-10-30).
  *
  * Run (from app/): npx tsx --test src/lib/sports/nfl/top-boards-pregame.test.mjs
  */
@@ -68,7 +69,7 @@ for (const [label, scope] of [["committed 14-game weekly board", WEEK8.topBoards
       for (const r of b.rows ?? []) assert.notEqual(r.providerEventId, TNF, `${b.id}: ${r.name} is from a started game`);
       const orig = scope.boards.find((x) => x.id === b.id);
       const hadTnf = (orig.rows ?? []).some((r) => r.providerEventId === TNF);
-      if (orig.state === "PUBLISHED" && hadTnf) {
+      if ((orig.state === "PUBLISHED" || orig.state === "ESTIMATE") && hadTnf) {
         withheld += 1;
         assert.equal(b.state, "NOT_PUBLISHED");
         assert.equal(b.readiness.code, "PREGAME_SCOPE_STALE");
@@ -130,6 +131,13 @@ test("builder: a game that has kicked off is excluded from the weekly and daily 
   const same = buildTopBoards({ weekBoards, now: WEEK8.generatedAt, slotFor: () => ({}) });
   for (const b of same.weekly.boards) {
     const orig = WEEK8.topBoards.weekly.boards.find((x) => x.id === b.id);
+    if (orig.state === "NOT_PUBLISHED" && orig.readiness?.boardState === "ESTIMATE") {
+      /* restored 2026-10-30: the pinned artifact predates estimate ranking; the rows are the shared rule's over the same boards */
+      assert.equal(b.state, "ESTIMATE", b.id);
+      const want = rankFamily(weekBoards, b.family, b.method, { asOf: WEEK8.generatedAt }).slice(0, TOP_BOARD_SIZE).map((x) => [x.player.playerId, x.market[b.method]]);
+      assert.deepEqual(b.rows.map((r) => [r.playerId, r.value]), want, b.id);
+      continue;
+    }
     assert.deepEqual((b.rows ?? []).map((r) => [r.playerId, r.value]), (orig.rows ?? []).map((r) => [r.playerId, r.value]), b.id);
   }
 });
@@ -156,9 +164,10 @@ test("ranking method: stated per board; TD by probability, yards/receptions by p
 
 test("no Top-board row carries a line-comparison probability, side, edge or over/under field", () => {
   const BANNED = /prob|over|under|edge|\bev\b|side|lean|direction|line|beat/i;
-  const ALLOWED = new Set(["rank", "playerId", "name", "team", "opponent", "providerEventId", "kickoffUtc", "etDate", "participation", "value", "p10", "p90", "pricingState", "market"]);
+  const ALLOWED = new Set(["rank", "playerId", "name", "team", "opponent", "providerEventId", "kickoffUtc", "etDate", "participation", "value", "p10", "p90", "pricingState", "market", "completed"]);
   let n = 0;
-  for (const sc of [WEEK8.topBoards.weekly, ...WEEK8.topBoards.daily]) for (const b of sc.boards) for (const r of b.rows ?? []) {
+  const current = buildTopBoards({ weekBoards, now: AFTER_TNF, slotFor: () => ({ pricingState: "NOT_PROBED" }) });
+  for (const sc of [WEEK8.topBoards.weekly, ...WEEK8.topBoards.daily, current.weekly, ...current.daily, current.fullWeek]) for (const b of sc.boards) for (const r of b.rows ?? []) {
     for (const k of Object.keys(r)) {
       assert.ok(ALLOWED.has(k), `${b.id} row key ${k} is not a Top-board field`);
       assert.doesNotMatch(k, BANNED, `${b.id} row key ${k}`);
@@ -174,12 +183,19 @@ test("no Top-board row carries a line-comparison probability, side, edge or over
   }
 });
 
-test("passing and rushing yards (not official) never rank: an explicit readiness line, no rows, on every scope", () => {
+test("passing and rushing yards: the pinned (pre-2026-10-30) artifact held them; the current builder ranks them as ESTIMATE, labelled, priceless, on every scope", () => {
   for (const sc of [WEEK8.topBoards.weekly, ...WEEK8.topBoards.daily]) for (const fam of ["player_pass_yds", "player_rush_yds"]) {
     const b = sc.boards.find((x) => x.family === fam);
     assert.equal(b.state, "NOT_PUBLISHED");
-    assert.equal(b.rows, undefined);
-    assert.match(b.readiness.text, /^(Passing|Rushing) yards: not yet published — /);
+    assert.equal(b.readiness.boardState, "ESTIMATE", "the boards themselves carried ESTIMATE");
+  }
+  const doc = buildTopBoards({ weekBoards, now: BEFORE_TNF, slotFor: () => ({ pricingState: "NOT_PROBED" }) });
+  for (const sc of [doc.weekly, ...doc.daily, doc.fullWeek]) for (const fam of ["player_pass_yds", "player_rush_yds"]) {
+    const b = sc.boards.find((x) => x.family === fam);
+    assert.equal(b.state, "ESTIMATE", `${fam}: never promoted`);
+    assert.equal(b.estimate.label, "Estimate · calibration standard not yet met");
+    assert.ok(b.rows.length >= 1);
+    for (const r of b.rows) assert.ok(!("market" in r) && !("pricingState" in r), `${fam} ${r.name}: no price beside an estimate`);
   }
 });
 

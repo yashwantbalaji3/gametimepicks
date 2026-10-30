@@ -6,7 +6,7 @@
  * literal path only in that case — the same delivery pattern as data/build/explorer-slate.json, and
  * the literal path is what keeps the post-build /data sweep from pruning it.
  *
- * PUBLIC product data only: PUBLISHED families, read from each board in hand. No reader's preference
+ * PUBLIC product data only: PUBLISHED families and labelled ESTIMATE families (as the game page shows them), read from each board in hand. No reader's preference
  * is in it or can be.
  */
 import { buildMyPlayerRows } from "@/lib/my/read-model";
@@ -14,5 +14,5 @@ import { buildMyPlayerRows } from "@/lib/my/read-model";
 export const dynamic = "force-static";
 
 export function GET() {
-  return Response.json({ schemaVersion: 1, artifact: "my-nfl-players", rows: buildMyPlayerRows() });
+  return Response.json({ schemaVersion: 1, artifact: "my-nfl-players", rows: buildMyPlayerRows({ includeEstimates: true }) });
 }
