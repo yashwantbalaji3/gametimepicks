@@ -13,6 +13,14 @@
 import { DAILY_CANDIDATE_SWITCH } from "@/lib/products/daily-candidates/policy.mjs";
 import { REASON_COPY } from "@/lib/products/daily-candidates/engine.mjs";
 
+/** Reader words for the internal states a source note may name (public copy never prints raw codes or retired phrases). */
+const READER_WORDS: ReadonlyArray<[RegExp, string]> = [
+  [/\bPUBLIC_EXPERIMENTAL\b/g, "public but not validated"],
+  [/\bVALIDATED_PICK\b/g, "a validated pick"],
+  [/experimental projections/g, "projections"],
+];
+const readerDetail = (t: string) => READER_WORDS.reduce((acc, [re, w]) => acc.replace(re, w), t);
+
 type Requirement = { key: string; text: string; pass: boolean; detail: string | null };
 type LegTypeRow = { label: string; considered: number; eligible: number; failureCounts: Record<string, number>; requirements: Requirement[] };
 type CardLeg = { legId: string; selection: string | null; eventLabel: string | null; american: number; bookmaker: string; capturedAt: string; line: number | null; side: string; probability: number | null };
@@ -91,7 +99,7 @@ export default function DailyCandidatePanel({ model, publicCards = DAILY_CANDIDA
                 <ul className="m-0 mt-1 flex flex-col gap-0.5 pl-4">
                   {t.requirements.filter((r) => !r.pass).map((r) => (
                     <li key={r.key} data-failed-requirement={r.key} style={{ color: "var(--vault-text-mute)" }}>
-                      Not met: {r.text}.{r.detail ? ` ${r.detail}` : ""}
+                      Not met: {r.text}.{r.detail ? ` ${readerDetail(r.detail)}` : ""}
                     </li>
                   ))}
                 </ul>

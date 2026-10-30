@@ -24,7 +24,7 @@ import { constrainCard, correlationBetween } from "../correlation.mjs";
 import { PROBABILITY_BASIS } from "../recommendation-receipt.mjs";
 import { americanToDecimal, decimalToAmerican } from "../../odds-math.ts";
 import { payoutFromDecimal } from "../../parlay-payout.ts";
-import { canEnterPredictionProducts, capabilityOf } from "../../sport-capability-registry.ts";
+import { canEnterPredictionProducts } from "../../sport-capability-registry.ts";
 import {
   CALIBRATION_STATUS, DAILY_CANDIDATE_SCHEMA, EXAMPLE_STAKE, LEG_TYPE_LABEL, NFL_ESTIMATE_FAMILIES, POLICY, REQUIRED_LEG_TYPES,
 } from "./policy.mjs";
@@ -208,7 +208,7 @@ export function legTypeBreakdown(evals, sourceNotes = {}) {
       eligible: rows.filter((e) => e.eligible).length,
       failureCounts,
       requirements: [
-        { key: "sport_gate", text: "Sport cleared to enter priced products", pass: canEnterPredictionProducts(sport), detail: capabilityOf(sport).reason },
+        { key: "sport_gate", text: "Sport cleared to enter priced products", pass: canEnterPredictionProducts(sport), detail: canEnterPredictionProducts(sport) ? null : `${String(sport).toUpperCase()} forecasts have not yet passed the validation bars that priced products require.` },
         { key: "calibrated_probability", text: "Calibrated outcome probability from the official forecast", pass: cal ? cal.calibrated : rows.some((e) => !e.failures.includes(DAILY_REASON.PROBABILITY_NOT_CALIBRATED)), detail: cal?.detail ?? null },
         { key: "verified_price", text: "Verified sportsbook price for the exact side (odds, line, quote time)", pass: rows.length ? rows.some((e) => !e.failures.includes(REASON.PRICE_UNAVAILABLE)) : sourceNotes[t]?.pricesReadable === true, detail: sourceNotes[t]?.price ?? null },
         { key: "forecast_published", text: "Today's official forecast published before the start", pass: rows.length > 0 || sourceNotes[t]?.forecastPublished === true, detail: sourceNotes[t]?.forecast ?? null },
