@@ -43,6 +43,7 @@ import { EloAccuracyDisclosure, EloWinProbability, type EloCtx } from "@/compone
 import { NbaSlatePropLines } from "@/components/nba/nba-prop-lines";
 import { nbaPropLinesHref } from "@/components/nba/game-page-link.mjs";
 import { NBA_LINE_DISPLAY } from "@/lib/sports/nba/line-board.mjs";
+import NbaLaneTopBoards, { type LaneTopBoardsGate } from "@/components/nba/lane-top-boards";
 
 const ELO_OFF: EloCtx = { enabled: false, disclosure: "" };
 import { boardOptions, boardRows, packBoard, statGroups, GAME_STATUS_LABEL, slateHref, slateNav } from "@/lib/sports/nba/projection-board-ops.mjs";
@@ -204,7 +205,7 @@ function TodaySlate({ today }: { today: BoardToday }) {
 type GameLinks = { current?: readonly string[]; pages?: readonly string[]; lines: readonly string[] };
 const NO_GAME_LINKS: GameLinks = { lines: [] };
 
-export default function NbaProjectionsView({ lane, role = "current", date = null, games = [], dates = [], dated = false, today = null, actuals = null, eloCtx = ELO_OFF, asOf = "", lineDisplay = NBA_LINE_DISPLAY, priceRecords = null, gameLinks = NO_GAME_LINKS }: {
+export default function NbaProjectionsView({ lane, role = "current", date = null, games = [], dates = [], dated = false, today = null, actuals = null, eloCtx = ELO_OFF, asOf = "", lineDisplay = NBA_LINE_DISPLAY, priceRecords = null, gameLinks = NO_GAME_LINKS, topBoards = null }: {
   lane: Snapshot | null;
   /** "past" = a slate before the build's ET date: labelled as a past frozen slate, never as current. */
   role?: SlateRole;
@@ -230,6 +231,9 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
   /** The per-game line summaries' link ids (components/nba/prop-line-game-links.ts): `lines` = the games whose
       /nba/lines/<id>/ page is generated (nbaLinesPageIds). Default: none → no link. */
   gameLinks?: GameLinks;
+  /** §13 amendment B (founder 2026-10-29/30): the gated daily Top Boards (lane-top-boards.mjs gateLaneTopBoards), passed by
+      the CURRENT view only. null (the default, every dated page) → no section, and this view's markup is unchanged. */
+  topBoards?: LaneTopBoardsGate | null;
 }) {
   const live = lane && lane.games.length > 0 ? lane : null;
   const past = role === "past";
@@ -290,6 +294,7 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
               : `Coverage list not recorded for this slate.${post ? " Players who played without a projection are listed from the final box score." : ""}`}
           </p>
           <ProjectionBoard board={packBoard(rows, post ? post.rows : null, post ? awaiting : null, noProjectionRows(live, post), post?.corrected ?? null)} stats={stats} groups={groups} matchups={matchups} teams={teams} games={nav} defaultGroup={post ? "core" : undefined} />
+          {topBoards ? <NbaLaneTopBoards gate={topBoards} /> : null}
           {/* Page weight (2026-10-29): one summary per game here; the per-player line rows live on each game page. */}
           <NbaSlatePropLines lane={live} asOf={asOf} display={lineDisplay} priceRecords={priceRecords} hrefOf={(id) => nbaPropLinesHref(id, gameLinks.lines)} />
           {/* Model ids, receipts, engine notes and the withheld list: one tap away, each model id once. Overnight W7
