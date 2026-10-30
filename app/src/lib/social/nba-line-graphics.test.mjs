@@ -5,6 +5,8 @@
  *   contract gating (withheld by default; founder review only outside every repo, refuses cleanly without a key),
  *   exact-value equality (lane = export = card HTML = artifact), unqualified / started / stale exclusion, no em dash and
  *   no promotional words in captions, determinism, refusal on any mismatch, and that no public route can reach any of it.
+ * Box-score template (founder design 2026-10-30, the default): model-only medians, exact cell strings, colour class =
+ * direction, the shown side's price beneath its number, no difference column / book names / jargon, legend, refusals.
  * Run: cd app && npx tsx --test src/lib/social/nba-line-graphics.test.mjs
  */
 import { test } from "node:test";
@@ -22,11 +24,14 @@ import { fmt1, lineText, signedDifference } from "../odds/prop-line-view.mjs";
 import { nbaExportArgs } from "../../../scripts/social/export-graphics.mjs";
 import { loadNbaLineGraphicsExport, assertPrivateOutDir, runLineExport, REPO } from "../../../scripts/social/nba-line-graphics-io.mjs";
 import {
-  SIZES, renderGameCardHtml, renderSummaryCardHtml, selectCardRows, verifyCardHtml, verifyAgainstSources, gameCaption, summaryCaption, captionViolations, rowCells, EM_DASH, TEST_WATERMARK, REVIEW_BANNER,
+  SIZES, renderGameCardHtml, renderSummaryCardHtml, selectCardRows, verifyCardHtml, verifyAgainstSources, gameCaption, summaryCaption, captionViolations, rowCells, EM_DASH, TEST_WATERMARK, REVIEW_BANNER, FOOTER,
 } from "../../../scripts/social/nba-line-cards.mjs";
 import { prepareNbaLineGraphics, renderNbaLineGraphics } from "../../../scripts/social/render-nba-line-graphics.mjs";
 import { syntheticSetup } from "../../../scripts/social/preview-nba-line-graphics.mjs";
 import { FAKE_OVER } from "../../../scripts/social/synthetic-line-artifact.mjs";
+import {
+  BOX_TEMPLATE, BOX_FAMILIES, PER_TEAM, LEGEND, boxScorePlayers, boxScorePages, renderBoxScoreCardHtml, verifyBoxScoreCardHtml, boxVisibleText, boxScoreCaption, boxCell, boxTeam,
+} from "../../../scripts/social/nba-boxscore-cards.mjs";
 
 const APP = process.cwd();
 const DATE = "2026-10-29";
@@ -277,11 +282,162 @@ test("captions: natural sentences, no em dash, no promotional or promissory word
 test("determinism: same inputs give byte-identical export and card HTML", () => {
   const again = loadNbaLineGraphicsExport({ date: DATE, asOf: AS_OF, purpose: PURPOSE.FOUNDER_REVIEW, env: syn.env });
   assert.equal(serializeLineGraphicsExport(again.doc), serializeLineGraphicsExport(review.doc));
-  const a = prepareNbaLineGraphics({ date: DATE, asOf: AS_OF, purpose: PURPOSE.FOUNDER_REVIEW, env: syn.env });
-  const b = prepareNbaLineGraphics({ date: DATE, asOf: AS_OF, purpose: PURPOSE.FOUNDER_REVIEW, env: syn.env });
+  const a = prepareNbaLineGraphics({ date: DATE, asOf: AS_OF, purpose: PURPOSE.FOUNDER_REVIEW, env: syn.env, template: "table" });
+  const b = prepareNbaLineGraphics({ date: DATE, asOf: AS_OF, purpose: PURPOSE.FOUNDER_REVIEW, env: syn.env, template: "table" });
   assert.deepEqual(a.cards.map((c) => c.html), b.cards.map((c) => c.html));
   assert.deepEqual(a.captions, b.captions);
   assert.equal(a.cards.length, review.doc.events.filter((e) => e.rows > 0).length * 2 + 2);
+  // the box-score template (default) is deterministic too
+  const x = prepareNbaLineGraphics({ date: DATE, asOf: AS_OF, purpose: PURPOSE.FOUNDER_REVIEW, env: syn.env });
+  const y = prepareNbaLineGraphics({ date: DATE, asOf: AS_OF, purpose: PURPOSE.FOUNDER_REVIEW, env: syn.env });
+  assert.ok(x.cards.length > 0 && x.cards.every((c) => c.template === BOX_TEMPLATE && c.size.key === "1080x1350"));
+  assert.deepEqual(x.cards.map((c) => c.html), y.cards.map((c) => c.html));
+  assert.deepEqual(x.captions, y.captions);
+  assert.throws(() => prepareNbaLineGraphics({ date: DATE, asOf: AS_OF, purpose: PURPOSE.FOUNDER_REVIEW, env: syn.env, template: "spreadsheet" }), /--template/);
+});
+
+/* ───────────────────────────── box-score template (founder design 2026-10-30) ───────────────────────────── */
+
+const syn8 = syntheticSetup({ date: DATE, asOf: AS_OF, dir: path.join(tmp, "lines8"), perTeam: 8 });
+const review8 = loadNbaLineGraphicsExport({ date: DATE, asOf: AS_OF, purpose: PURPOSE.FOUNDER_REVIEW, env: syn8.env });
+const art8 = (eventId, playerId, family) => syn8.artifact.events.flatMap((e) => e.rows).find((a) => a.eventId === eventId && a.athleteId === playerId && a.family === family);
+/** class + cell id of every cell on a card, in print order. */
+const cellsOf = (html) => [...html.matchAll(/<div class="cell (\w+)" data-cell="([^"]+)" data-state="(\w+)">([\s\S]*?)<\/div><\/div>(?=<div class="cell|<\/div><\/div>)/g)].map((m) => ({ cls: m[1], id: m[2], state: m[3], inner: m[4] }));
+
+test("model-only medians: every qualified median without a compared row, lane-equal, no market block; contract enforces it", () => {
+  const d = review8.doc;
+  assert.ok(d.modelOnly.length > 0, "stale and unquoted players produce model-only entries");
+  const compared = new Set(d.rows.map((r) => r.rowId));
+  for (const m of d.modelOnly) {
+    assert.ok(!compared.has(m.rowId));
+    assert.equal(m.kind, "PLAYER_PROP_MODEL_ONLY");
+    assert.equal(m.comparison.state, "NOT_COMPARED");
+    assert.ok(!("market" in m));
+    assert.equal(m.model.value, laneMedian(m.identity.eventId, m.identity.playerId, m.identity.market));
+    assert.notEqual(m.identity.market, "threePm");
+  }
+  assert.deepEqual(lineGraphicsExportViolations(d), []);
+  assert.deepEqual(verifyAgainstSources(review8), []);
+  // the withheld social export carries no model-only block (its rows already hold every median)
+  assert.ok(!("modelOnly" in loadNbaLineGraphicsExport({ date: DATE, asOf: AS_OF, purpose: PURPOSE.SOCIAL, env: syn8.env }).doc));
+  const bad = structuredClone(d);
+  bad.modelOnly[0].market = { line: { state: "SHOWN", value: 1 } };
+  assert.ok(lineGraphicsExportViolations(bad).some((x) => /carries a market block/.test(x)));
+  const dup = structuredClone(d);
+  dup.modelOnly.push({ ...dup.modelOnly[0], rowId: d.rows[0].rowId });
+  assert.ok(lineGraphicsExportViolations(dup).some((x) => /duplicates a row/.test(x)));
+  const lane2 = structuredClone(LANE);
+  const m0 = d.modelOnly.find((m) => !["pra", "ptsReb", "ptsAst"].includes(m.identity.market));
+  [...lane2.games.find((g) => String(g.providerEventId) === m0.identity.eventId).players.away, ...lane2.games.find((g) => String(g.providerEventId) === m0.identity.eventId).players.home].find((x) => String(x.providerAthleteId) === m0.identity.playerId).medians[m0.identity.market] += 0.1;
+  assert.ok(verifyAgainstSources({ ...review8, lane: lane2 }).some((x) => x.includes(m0.rowId)));
+});
+
+test("box score: players with a compared PTS/REB/AST line, ordered by projected points, at most PER_TEAM a side, split evenly", () => {
+  for (const ev of review8.doc.events) {
+    const g = boxScorePlayers(review8.doc, ev.eventId);
+    const pages = boxScorePages(review8.doc, ev.eventId);
+    for (const side of ["awayPlayers", "homePlayers"]) {
+      const ps = g[side];
+      assert.ok(ps.length > 0);
+      for (const p of ps) assert.ok(BOX_FAMILIES.some((f) => p.cells[f]?.kind === "PLAYER_PROP_LINE"), `${p.name} has a compared cell`);
+      for (let i = 1; i < ps.length; i += 1) assert.ok((ps[i - 1].cells.pts?.model.value ?? -1) >= (ps[i].cells.pts?.model.value ?? -1), "points desc");
+      assert.deepEqual(pages.flatMap((pg) => pg[side]).map((p) => p.playerId), ps.map((p) => p.playerId), "every player exactly once, in order");
+      for (const pg of pages) assert.ok(pg[side].length <= PER_TEAM);
+      assert.equal(pages[0][side].length, Math.ceil(ps.length / pages.length), "split evenly across the cards");
+    }
+    assert.ok(pages.length >= 2, "eight quoted players a side need a second card");
+  }
+});
+
+test("box-score cells: exact number, colour class = direction, the shown side's price beneath, computed from the lane and the artifact", () => {
+  let over = 0, under = 0, grey = 0;
+  for (const ev of review8.doc.events) {
+    for (const page of boxScorePages(review8.doc, ev.eventId)) {
+      const html = renderBoxScoreCardHtml({ doc: review8.doc, page });
+      assert.deepEqual(verifyBoxScoreCardHtml(html, review8.doc, page), []);
+      const cells = cellsOf(html);
+      const players = [...page.awayPlayers, ...page.homePlayers];
+      assert.equal(cells.length, players.length * 3);
+      cells.forEach((c, i) => {
+        const p = players[Math.floor(i / 3)], family = BOX_FAMILIES[i % 3];
+        assert.equal(c.id, `nba:${DATE}:${ev.eventId}:${p.playerId}:${family}`);
+        assert.equal(c.cls, c.state);
+        const lm = laneMedian(ev.eventId, p.playerId, family);
+        const row = review8.doc.rows.find((r) => r.rowId === c.id);
+        assert.ok(c.inner.includes(`<span class="v">${fmt1(lm)}</span>`), `${c.id} number`);
+        if (!row) { // no qualified comparison: grey, no arrow, nothing beneath
+          assert.equal(c.cls, "none"); grey += 1;
+          assert.doesNotMatch(c.inner, /class="(gl|sl|px|sub)"/);
+          return;
+        }
+        const a = art8(ev.eventId, p.playerId, family);
+        const side = lm > a.line ? "OVER" : lm < a.line ? "UNDER" : "NEUTRAL";
+        assert.equal(row.market.direction.side, side);
+        if (side === "NEUTRAL") { assert.equal(c.cls, "neutral"); assert.doesNotMatch(c.inner, /class="(gl|px|sl)"/); grey += 1; return; }
+        assert.equal(c.cls, side === "OVER" ? "over" : "under");
+        assert.ok(c.inner.includes(`<span class="gl">${side === "OVER" ? "▲" : "▼"}</span>`), "arrow shape, not colour alone");
+        assert.ok(c.inner.includes(`<span class="sl">${side === "OVER" ? "O" : "U"} ${lineText(a.line)}</span>`));
+        // synthetic prices: OVER +999, UNDER −999, so the side under each number is unambiguous
+        assert.deepEqual([...c.inner.matchAll(/<span class="px">([^<]*)<\/span>/g)].map((m) => m[1]), [side === "OVER" ? "+999" : "−999"]);
+        if (side === "OVER") over += 1; else under += 1;
+      });
+      // no difference column, no book names, no internal jargon; legend + footer present
+      const text = boxVisibleText(html);
+      assert.doesNotMatch(html, /c-diff|Diff</);
+      for (const b of ["DraftKings", "FanDuel", "BetMGM", "Caesars"]) assert.ok(!text.includes(b), b);
+      for (const w of ["median", "lane", "snapshot", "receipt"]) assert.doesNotMatch(text, new RegExp(`\\b${w}\\b`, "i"));
+      for (const l of LEGEND) assert.ok(html.includes(`<div class="${l.cls}"><i>${l.glyph}</i><span>${l.text}</span></div>`), l.text);
+      assert.deepEqual(LEGEND.map((l) => [l.glyph, l.text]), [["▲", "Projection above line"], ["▼", "Projection below line"], ["●", "No qualified comparison"]]);
+      assert.ok(text.includes("Model projections vs sportsbook lines quoted Oct 29, 4:30 PM ET. Lines from licensed US sportsbooks."));
+      for (const s of ["Not betting advice.", FOOTER.responsible, "Not affiliated with the NBA or its teams.", TEST_WATERMARK, REVIEW_BANNER]) assert.ok(text.includes(s), s);
+      assert.match(html, /data-template="gtp-nba-boxscore@1"/);
+      assert.doesNotMatch(html.replace(/http:\/\/www\.w3\.org\/2000\/svg/g, ""), /https?:\/\//, "nothing is fetched");
+      const cap = boxScoreCaption(review8.doc, page);
+      assert.deepEqual(captionViolations(cap), [], cap);
+    }
+  }
+  assert.ok(over > 0 && under > 0 && grey > 0, `all three states exercised (${over}/${under}/${grey})`);
+});
+
+test("box-score card refuses: wrong number, wrong colour, price under the wrong number, missing price, book name, jargon, difference", () => {
+  const ev = review8.doc.events[0];
+  const page = boxScorePages(review8.doc, ev.eventId)[0];
+  const html = renderBoxScoreCardHtml({ doc: review8.doc, page });
+  assert.deepEqual(verifyBoxScoreCardHtml(html, review8.doc, page), []);
+  const overCell = cellsOf(html).find((c) => c.cls === "over");
+  const underCell = cellsOf(html).find((c) => c.cls === "under");
+  const at = (h, c) => h.indexOf(`data-cell="${c.id}"`);
+  const editCell = (c, fn) => { const s = at(html, c) - `<div class="cell ${c.cls}" `.length; const e = s + `<div class="cell ${c.cls}" data-cell="${c.id}" data-state="${c.state}">${c.inner}`.length; return html.slice(0, s) + fn(html.slice(s, e)) + html.slice(e); };
+  const fails = (h, re) => assert.ok(verifyBoxScoreCardHtml(h, review8.doc, page).some((x) => re.test(x)), `expected ${re}`);
+  fails(editCell(overCell, (s) => s.replace(/<span class="v">([^<]*)<\/span>/, (_, v) => `<span class="v">${fmt1(Number(v) + 0.1)}</span>`)), /number is not/);
+  fails(editCell(overCell, (s) => s.replace('class="cell over"', 'class="cell under"').replace('data-state="over"', 'data-state="under"')), /colour class/);
+  fails(editCell(overCell, (s) => s.replace('<span class="px">+999</span>', '<span class="px">−999</span>')), /price/);
+  fails(editCell(underCell, (s) => s.replace('<span class="px">−999</span>', "")), /price/);
+  fails(editCell(overCell, (s) => s.replace('<span class="gl">▲</span>', "")), /arrow/);
+  fails(html.replace("Lines from licensed US sportsbooks.", "Lines from DraftKings."), /book name|footer missing/);
+  fails(html.replace("Projections vs sportsbook lines", "Official medians vs sportsbook lines"), /internal term/);
+  fails(html.replace('<section class="lines"', '<div class="c-diff">−1.4</div><section class="lines"'), /difference column/);
+  fails(html.replace('<span>No qualified comparison</span>', "<span></span>"), /legend missing/);
+  fails(html.replace(FOOTER.responsible, ""), /footer missing/);
+  fails(html.replace(/<div class="cell [^"]+" data-cell="[^"]+"/, (m) => m.replace(/data-cell="[^"]+"/, 'data-cell="nba:x"')), /cells on the card|missing/);
+  // a cell with no export entry at all prints a grey en dash; a non-row / non-model-only entry is refused
+  assert.deepEqual(boxCell(null), { state: "absent", number: "–", glyph: null, sideLetter: null, line: null, price: null });
+  assert.throws(() => boxCell({ rowId: "x", kind: "PLAYER_PROP" }), /neither a compared row nor a model-only entry/);
+  assert.throws(() => boxTeam("XYZ"), /no verified NBA colour record/);
+});
+
+test("box score with prices withheld (social lines authorized, prices not): colours and lines only, never a price", () => {
+  const rec = { ...DISPLAY_AUTHORIZATION, nba: { ...DISPLAY_AUTHORIZATION.nba, socialDisplay: true } };
+  const d = buildNbaLineGraphicsExport({ ...nbaExportArgs({ date: DATE, asOf: AS_OF }), artifact: review8.artifact, purpose: PURPOSE.SOCIAL, authorizationRecord: rec });
+  const ev = d.events.find((e) => e.rows > 0);
+  for (const page of boxScorePages(d, ev.eventId)) {
+    const html = renderBoxScoreCardHtml({ doc: d, page });
+    assert.deepEqual(verifyBoxScoreCardHtml(html, d, page), []);
+    assert.doesNotMatch(html, /class="px"/);
+    assert.ok(!html.includes("+999") && !html.includes("−999"));
+    assert.ok(cellsOf(html).some((c) => c.cls === "over") && cellsOf(html).some((c) => c.cls === "under"));
+    assert.ok(!html.includes(REVIEW_BANNER));
+  }
 });
 
 /* The PNG step needs a Playwright browser binary. CI's unit phase installs none (browsers are installed only for the
@@ -290,14 +446,19 @@ test("determinism: same inputs give byte-identical export and card HTML", () => 
 const { chromium } = await import("playwright");
 const NO_BROWSER = (() => { try { return fs.existsSync(chromium.executablePath()) ? false : "playwright chromium is not installed in this environment"; } catch (e) { return `playwright chromium unavailable: ${e.message}`; } })();
 
-test("end to end: validated files and PNGs at 1600×900 / 1080×1350 (@1x) outside the repo", { skip: NO_BROWSER }, async () => {
-  const out = path.join(tmp, "render");
-  const { pngs, manifest } = await renderNbaLineGraphics({ date: DATE, "as-of": AS_OF, purpose: "founder-review", out, scales: "1" }, syn.env);
-  assert.equal(pngs.length, manifest.cards.length);
+test("end to end: validated files and PNGs (table 1600×900 + 1080×1350, box score 1080×1350; layout pass incl. min sizes) outside the repo", { skip: NO_BROWSER }, async () => {
   const dims = (f) => { const b = fs.readFileSync(f); return [b.readUInt32BE(16), b.readUInt32BE(20)]; };
-  for (const f of pngs) assert.deepEqual(dims(f), f.includes("1600x900") ? [1600, 900] : [1080, 1350], f);
-  assert.equal(manifest.export.purpose, "FOUNDER_REVIEW_ONLY");
-  assert.equal(manifest.export.testData, true);
+  for (const template of ["table", "boxscore"]) {
+    const out = path.join(tmp, `render-${template}`);
+    // box score: eight quoted players a side, so the layout pass sees full six-row panels and a second card
+    const { pngs, manifest } = await renderNbaLineGraphics({ date: DATE, "as-of": AS_OF, purpose: "founder-review", out, scales: "1", template }, template === "table" ? syn.env : syn8.env);
+    assert.equal(pngs.length, manifest.cards.length);
+    for (const f of pngs) assert.deepEqual(dims(f), f.includes("1600x900") ? [1600, 900] : [1080, 1350], f);
+    assert.equal(manifest.template, template);
+    assert.equal(manifest.export.purpose, "FOUNDER_REVIEW_ONLY");
+    assert.equal(manifest.export.testData, true);
+    if (template === "boxscore") assert.ok(manifest.cards.every((c) => c.size === "1080x1350") && manifest.cards.some((c) => c.pages > 1));
+  }
   await assert.rejects(renderNbaLineGraphics({ date: DATE, "as-of": AS_OF, purpose: "founder-review", out: path.join(APP, ".graphics-export", "r"), scales: "1" }, syn.env), /inside the repository/);
 });
 

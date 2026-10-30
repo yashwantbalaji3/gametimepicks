@@ -27,6 +27,9 @@
  *                             purpose "FOUNDER_REVIEW_ONLY", and the CLIs refuse to write it anywhere inside a git
  *                             repository (prices never enter the repo). Directions use the SITE direction gate (the
  *                             surface the founder authorized), so an unqualified family is still excluded.
+ * MODEL-ONLY (values mode only, `modelOnly`): the canonical medians of qualified families that have NO compared row (no
+ * line, stale, suspended...), medians only, no market block, comparison NOT_COMPARED. The box-score card prints them grey
+ * with no line or price; they never count as a comparison (events[].rows/over/under/neutral count `rows` only).
  * EXCLUSIONS (counted by reason, never emitted): started games (tip at or before asOf), unqualified families, no line,
  * stale lines (> LINE_MAX_AGE_HOURS before asOf), lines captured after tip, unmatched / suspended lines.
  *
@@ -205,10 +208,35 @@ export function buildNbaLineGraphicsExport({ date, asOf, lane, laneSha256 = null
     };
   }
 
-  rows.sort((x, y) => {
+  // MODEL-ONLY medians (values mode only): every canonical, graphic-eligible median of a qualified family in a game that
+  // has not tipped that has NO compared row (no line, stale line, suspended, ...). A box-score card prints these grey with
+  // no line or price; they carry no market field at all, so they can never be read as a comparison.
+  const modelOnly = [];
+  if (valuesAllowed) {
+    const compared = new Set(rows.map((r) => r.rowId));
+    const included = new Set(base.scope.eventsIncluded.map((e) => e.eventId));
+    for (const b of base.rows) {
+      if (b.kind !== "PLAYER_PROP" || compared.has(b.rowId)) continue;
+      const f = b.identity.market;
+      if (!fam.qualifiedFamilies.includes(f) || !b.graphicEligibility.eligible || !included.has(b.identity.eventId)) continue;
+      if (!(instantMs(b.identity.tipUtc ?? tipOf.get(b.identity.eventId)) > t)) continue;
+      modelOnly.push({
+        rowId: b.rowId, kind: "PLAYER_PROP_MODEL_ONLY",
+        identity: { ...b.identity, marketLabel: NBA_MARKET_LABEL[f] },
+        officialForecast: b.officialForecast, snapshot: b.snapshot,
+        model: modelBlock(b, b.identity.eventId, b.identity.playerId, f),
+        comparison: { state: "NOT_COMPARED", reason: "NO_QUALIFIED_LINE" },
+        checks: { laneValue: "EQUAL", officialSnapshot: b.checks.officialSnapshot },
+        provenance: b.provenance,
+      });
+    }
+  }
+  const order = (x, y) => {
     const ex = base.scope.eventsIncluded.findIndex((e) => e.eventId === x.identity.eventId), ey = base.scope.eventsIncluded.findIndex((e) => e.eventId === y.identity.eventId);
     return ex - ey || familyOrder(x.identity.market) - familyOrder(y.identity.market) || (y.model.expectedMinutes ?? 0) - (x.model.expectedMinutes ?? 0) || String(x.identity.playerId).localeCompare(String(y.identity.playerId));
-  });
+  };
+  rows.sort(order);
+  modelOnly.sort(order);
   const events = base.scope.eventsIncluded.map((e) => {
     const ids = rows.filter((r) => r.identity.eventId === e.eventId).map((r) => r.rowId);
     const side = (s) => rows.filter((r) => r.identity.eventId === e.eventId && r.market.direction.side === s).length;
@@ -252,6 +280,7 @@ export function buildNbaLineGraphicsExport({ date, asOf, lane, laneSha256 = null
     },
     events,
     rows,
+    ...(valuesAllowed ? { modelOnly } : {}),
     inputs: base.inputs,
     usageRules: LINE_USAGE_RULES,
   };
@@ -313,6 +342,19 @@ export function lineGraphicsExportViolations(doc, { authorizationRecord = DISPLA
       if (m.overPrice?.state === "SHOWN" && m.overPrice.text !== americanPrice(m.overPrice.value).text) v.push(`${id}: over price text`);
       if (m.underPrice?.state === "SHOWN" && m.underPrice.text !== americanPrice(m.underPrice.value).text) v.push(`${id}: under price text`);
     }
+  }
+  for (const r of doc?.modelOnly ?? []) {
+    const id = r?.rowId ?? "?";
+    if (seen.has(id)) v.push(`${id}: model-only entry duplicates a row`);
+    seen.add(id);
+    if (!valuesOk) v.push(`${id}: model-only block present without authorization`);
+    if (r?.kind !== "PLAYER_PROP_MODEL_ONLY" || r?.comparison?.state !== "NOT_COMPARED") v.push(`${id}: model-only entry is not marked NOT_COMPARED`);
+    if ("market" in (r ?? {})) v.push(`${id}: model-only entry carries a market block`);
+    if (r?.model?.status !== MODEL_STATUS.OFFICIAL || !isNum(r?.model?.value)) v.push(`${id}: not an official median`);
+    if (r?.model?.display !== fmt1(r?.model?.value)) v.push(`${id}: model display is not the 1 dp of the value`);
+    if (!qualified.has(r?.identity?.market)) v.push(`${id}: family ${r?.identity?.market} is not direction-qualified`);
+    if (!r?.snapshot?.id) v.push(`${id}: no official snapshot id`);
+    if (!(instantMs(r?.identity?.tipUtc) > asOf)) v.push(`${id}: game started at asOf`);
   }
   const raw = JSON.stringify(doc ?? null);
   for (const b of ["data/internal", "PRIVATE_RESEARCH", "apiKey", "api_key", "GTP_ODDS_DISPLAY_KEY="]) if (raw.includes(b)) v.push(`banned string ${JSON.stringify(b)} in the export`);
