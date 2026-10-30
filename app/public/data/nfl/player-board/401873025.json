@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-30T15:53:08Z",
- "sourceGeneratedAt": "2026-10-30T15:53:08Z",
+ "generatedAt": "2026-10-30T18:21:49Z",
+ "sourceGeneratedAt": "2026-10-30T18:21:49Z",
  "forecastInputHash": "09c979ec866fcedf",
  "providerEventId": "401873025",
  "matchup": "ATL @ TB",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-30T15:53:08Z",
-  "roleEvidenceAt": "2026-10-30T15:53:08Z",
+  "injuriesCapturedAt": "2026-10-30T18:21:49Z",
+  "roleEvidenceAt": "2026-10-30T18:21:49Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -87,14 +87,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 58,
+  "absent": 53,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "ATL": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -134,16 +134,6 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4241474",
-     "name": "Brian Robinson Jr.",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4360248",
@@ -224,6 +214,12 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-4241474",
+     "name": "Brian Robinson Jr.",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-2972515",
      "name": "Cooper Rush",
      "state": "EXCLUDED_NO_CURRENT_ROLE",
@@ -233,8 +229,8 @@
   },
   "TB": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -280,17 +276,6 @@
        "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
-    },
-    {
-     "playerId": "nfl-athlete-4567750",
-     "name": "Emeka Egbuka",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-3116165",
@@ -366,6 +351,12 @@
       "player_reception_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4567750",
+     "name": "Emeka Egbuka",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     }
    ]
   }
@@ -565,27 +556,6 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4241474",
-   "name": "Brian Robinson Jr.",
-   "team": "ATL",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 25.564,
-     "p10": 3.33,
-     "p25": 9.59,
-     "median": 20.65,
-     "p75": 36.33,
-     "p90": 54.41,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.354,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4426502",
    "name": "Drake London",
    "team": "ATL",
@@ -641,36 +611,6 @@
     },
     "anytime_td": {
      "probability": 0.2967,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4567750",
-   "name": "Emeka Egbuka",
-   "team": "TB",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 44.999,
-     "p10": 10.06,
-     "p25": 21.94,
-     "median": 40.06,
-     "p75": 62.23,
-     "p90": 86.48,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 4.8057,
-     "p10": 1,
-     "p25": 2,
-     "median": 4,
-     "p75": 7,
-     "p90": 9,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.2843,
      "pricingState": "NOT_PROBED"
     }
    }
