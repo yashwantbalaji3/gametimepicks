@@ -227,6 +227,8 @@ const server = http.createServer(async (req, res) => {
 if (process.env.GTP_CC_SCHEDULER !== "off") {
   // New Launch Readiness packages come into founder review by themselves, once the folder has been quiet for a minute.
   // This only proposes posts: nothing is approved or scheduled. GTP_CC_AUTO_IMPORT=off turns it off.
+  // settle published posts as official finals land; this records outcomes and sends nothing
+  setInterval(() => { orchestrator.resultsAutomation.tick().catch((e) => console.error("results tick failed:", e.message)); }, 300_000);
   let importSeen = 0;
   setInterval(() => {
     if (process.env.GTP_CC_AUTO_IMPORT === "off") return;

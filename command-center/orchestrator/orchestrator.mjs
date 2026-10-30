@@ -27,6 +27,7 @@ import { digestOf, shortId, REPO_ROOT, CC_ROOT } from "../lib/util.mjs";
 import { REASON, validateContribution, validateTaskEnvelope } from "../contracts/index.mjs";
 import { ROLES, roleTitle } from "../roles/roles.mjs";
 import { parseIntent, planFor } from "./intents.mjs";
+import { createResultsAutomation } from "./results-automation.mjs";
 import { proposePlan } from "../contracts/content-plan.mjs";
 import { budgetUsd, checkDelegation, checkFounder, isSystemActor, DAILY_QUEUE_COMMAND, MAX_TASKS_PER_COMMAND } from "./policy.mjs";
 import { resolveSeat } from "../providers/registry.mjs";
@@ -597,6 +598,8 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     return { ok: true, contractValid: parsed.contractValid };
   }
 
+  const resultsAutomation = createResultsAutomation({ store, clock, posts: () => team.posts(), dataSource: () => team.dataSource() });
+
   /** Founder: bring Launch Readiness packages into review. Nothing is approved, scheduled or sent. */
   function importPackages(body, actor) {
     const f = checkFounder("draft", actor);
@@ -724,6 +727,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
       design: team.design(),
       inventory: team.inventory(),
       contentPlan: contentPlan(),
+      resultsAutomation: resultsAutomation.state(),
       lastImport: team.lastImport(),
       revisionStatus: team.revisionStatus(),
       marketRights: team.marketRights(),
@@ -827,7 +831,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   }
 
   return {
-    handleCommand, decide, editCaption, recordPost, approveDesign, importPackages, approveContentPlan, recordMarketAuthorization, submitManual, setSeat, testProviderConnection, setPaused, emergencyStop, state, publishing, runJob, activeJobs, jobDispatched, jobCancelled,
+    handleCommand, decide, editCaption, recordPost, approveDesign, importPackages, approveContentPlan, resultsAutomation, recordMarketAuthorization, submitManual, setSeat, testProviderConnection, setPaused, emergencyStop, state, publishing, runJob, activeJobs, jobDispatched, jobCancelled,
     /** Jobs recorded by this session; the host dispatches them after its ledger flush commits. */
     takeOutbox: () => outbox.splice(0),
     execution,

@@ -83,6 +83,8 @@ export const LEDGER_KINDS = Object.freeze([
   "post-verification", // D1: a published pregame post re-checked against the forecast of record after kickoff
   "design-approval",   // V2.1: the founder approved a graphic template + asset-manifest version (never a post)
   "market-data-authorization", // the founder's statement that sportsbook data may be used on social, with its scope and evidence
+  "result-outcome",    // a published post settled against the official finals; a reply prepared, not sent
+  "result-exception",  // a result that could not be settled safely
   "import-run",        // Launch Readiness packages read into founder review: what came in, what was refused
   "content-plan-approval", // the founder approved proposed publishing times (schedules nothing)
   // X Publisher V1 (orchestrator/publish-flow.mjs) — tokens and secrets are never recorded
