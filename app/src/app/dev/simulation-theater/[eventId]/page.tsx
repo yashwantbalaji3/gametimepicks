@@ -26,6 +26,9 @@ import type { TheaterLoad, TheaterSample } from "@/components/simulation-theater
 import { defaultSample } from "@/lib/simulation-theater/public-theater.mjs";
 import { DISABLED_PLACEHOLDER, devRoutesEnabled, devStaticParams } from "@/lib/simulation-theater/dev-routes.mjs";
 import { FIXTURE_EVENT_IDS, loadTheater, usableFixtures } from "@/lib/simulation-theater/loader.mjs";
+import { nflRepresentativeRunBoxes, verifiedRunBoxes } from "@/lib/sports/nfl/sim-v2/player-run.mjs";
+import { readShadowReceipts, simulationOfRecord } from "@/lib/sports/nfl/sim-v2/public-receipt.mjs";
+import type { RunBoxes } from "@/components/simulation-theater/BoxScoreTable";
 
 const REPO_ROOT = path.resolve(process.cwd(), "..");
 
@@ -48,14 +51,16 @@ export function generateMetadata({ params }: { params: { eventId: string } }): M
 export default function SimulationTheaterDevPage({ params }: { params: { eventId: string } }) {
   if (!devRoutesEnabled() || params.eventId === DISABLED_PLACEHOLDER || !FIXTURE_EVENT_IDS.includes(params.eventId)) notFound();
   const load = loadTheater(REPO_ROOT, params.eventId) as TheaterLoad;
+  const rec = load.ok ? simulationOfRecord(readShadowReceipts(REPO_ROOT), params.eventId) : null;
+  const runBoxes = (rec ? verifiedRunBoxes(nflRepresentativeRunBoxes(REPO_ROOT, rec.receipt)) : null) as RunBoxes | null;
   return (
     <div className="vault-page-shell" style={{ padding: "16px 16px 48px" }}>
       {/* devHooks: the `?run=&t=` seek hook for reproducible screenshots (TheaterIsland). Dev route only. */}
-      <TheaterSection load={load} devHooks />
+      <TheaterSection load={load} devHooks runBoxes={runBoxes} />
       {/* the default run's projected box score, server-rendered (no-JavaScript fallback; the island has the dialog) */}
       {load.ok && load.manifest ? (
         <div style={{ maxWidth: 1200, margin: "18px auto 0" }}>
-          <BoxScoreForRun manifest={load.manifest} sample={defaultSample(load.manifest) as TheaterSample | null} />
+          <BoxScoreForRun manifest={load.manifest} sample={defaultSample(load.manifest) as TheaterSample | null} runBoxes={runBoxes} />
         </div>
       ) : null}
     </div>

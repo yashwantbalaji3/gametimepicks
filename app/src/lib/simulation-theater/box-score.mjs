@@ -12,8 +12,10 @@
  *   DERIVED      exactly computable from the recorded drives: counts and sums of drive facts (drives, plays, net yards,
  *                clock, results), and the try points read from each touchdown drive's score change.
  *   NOT_MODELED  everything else. Rendered as the words "Not modeled by this engine", NEVER as 0. Every player section
- *                (passing, rushing, receiving, kicking, defense) is NOT_MODELED: this engine records drives, not plays
- *                or players. Nothing from World Model V2 (allocV1 player allocations) or from the receipt's batch-level
+ *                (passing, rushing, receiving, kicking, defense) is NOT_MODELED here: the stored run record carries
+ *                drives, not plays or players. (The run's player box score is a separate object, re-derived from the
+ *                deterministic engine only when its inputs and drive fingerprint verify: sim-v2/player-run.mjs +
+ *                nfl-run-box-score.mjs; the page shows it in place of these rows.) Nothing from World Model V2 (allocV1 player allocations) or from the receipt's batch-level
  *                distributions is read here: those describe other runs or another engine, not this run.
  *
  * FAIL CLOSED. Every reconciliation below must hold or `nflBoxScore` throws a BoxScoreInvariantError; the UI then
@@ -34,7 +36,9 @@ export const BOX_SCORE_WATERMARK = "SIMULATED · PROJECTED · NOT ACTUAL GAME ST
 // Track C 2026-10-29: a stored run's box score is one simulated scenario, never a "projection"
 export const BOX_SCORE_TITLE = "Box score · Simulated scenario (hypothetical)";
 export const NOT_MODELED_TEXT = "Not modeled by this engine";
-export const PLAYER_NOT_MODELED_REASON = "this engine records drives, not plays or players";
+/* The STORED run record carries drives only. The player box score of a run is a separate, re-derived object
+   (nfl-run-box-score.mjs via sim-v2/player-run.mjs), shown in place of these rows when it verifies. */
+export const PLAYER_NOT_MODELED_REASON = "the stored run record carries drives, not plays or players";
 export const STATUS = Object.freeze({ MODELED: "MODELED", DERIVED: "DERIVED", NOT_MODELED: "NOT_MODELED" });
 export const STATUS_LABEL = Object.freeze({ MODELED: "Modeled", DERIVED: "Derived", NOT_MODELED: "Not modeled" });
 export const STATUS_HELP = Object.freeze({

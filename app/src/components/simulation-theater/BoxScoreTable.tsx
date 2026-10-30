@@ -19,6 +19,17 @@ import {
 } from "@/lib/simulation-theater/box-score.mjs";
 import { OFFICIAL_RUN_TITLE, WHAT_IF_BOX_TITLE, WHAT_IF_BOX_WATERMARK, WHAT_IF_TAG, NFL_PLAYERS_NOT_MODELED_NOTE, runRole } from "@/lib/simulation-theater/representative-labels.mjs";
 import { OfficialComparison } from "./RepresentativeParts";
+import RunPlayerBox from "./RunPlayerBox";
+import type { RunBoxRefusal, RunPlayerBoxData } from "./RunPlayerBox";
+
+/** The verified player boxes of a receipt's stored runs (lib/sports/nfl/sim-v2/player-run.mjs verifiedRunBoxes), keyed by run index. */
+export type RunBoxes = { boxes: Record<string, RunPlayerBoxData>; refusals: Record<string, RunBoxRefusal>; error: RunBoxRefusal };
+/** The player box (or its refusal) of one run; null box ⇒ "Player box score unavailable for this run". */
+export function runBoxFor(runBoxes: RunBoxes | null | undefined, runIndex: number): { box: RunPlayerBoxData | null; refusal: RunBoxRefusal } {
+  if (!runBoxes) return { box: null, refusal: { code: "NOT_DERIVED", reason: "player lines were not derived for this page" } };
+  const box = runBoxes.boxes[String(runIndex)] ?? null;
+  return { box, refusal: box ? null : runBoxes.refusals[String(runIndex)] ?? runBoxes.error ?? { code: "NOT_DERIVED", reason: "no verified player lines for this run" } };
+}
 
 export type BoxStatus = "MODELED" | "DERIVED" | "NOT_MODELED";
 export type BoxCell = { value: number | null; display: string };
@@ -197,7 +208,10 @@ export function Provenance({ box }: { box: BoxScore }) {
 /**
  * The server-rendered box score (no JavaScript needed). `box` null ⇒ a truthful unavailable line with the reason.
  */
-export function BoxScoreStatic({ box, error, manifest = null }: { box: BoxScore | null; error?: { code: string; reason: string } | null; manifest?: TheaterManifest | null }) {
+export function BoxScoreStatic({ box, error, manifest = null, players = null }: {
+  box: BoxScore | null; error?: { code: string; reason: string } | null; manifest?: TheaterManifest | null;
+  players?: { box: RunPlayerBoxData | null; refusal: RunBoxRefusal } | null;
+}) {
   if (!box) {
     return (
       <section className="stbx stbx-static" data-stbx-static="" data-stbx-state="unavailable" data-stbx-error={error?.code ?? "UNAVAILABLE"} aria-label={`${BOX_SCORE_TITLE} unavailable`}>
@@ -215,7 +229,9 @@ export function BoxScoreStatic({ box, error, manifest = null }: { box: BoxScore 
       <PeriodTable box={box} />
       {manifest ? <OfficialComparison manifest={manifest} final={box.header.final} teams={box.header.teams} hypothetical={hypothetical} /> : null}
       <CompareCategoryTable box={box} />
-      <PlayerSections box={box} />
+      {players
+        ? <RunPlayerBox box={players.box} refusal={players.refusal} runIndex={box.header.runIndex} />
+        : <PlayerSections box={box} />}
       <p className="stbx-note">{NFL_PLAYERS_NOT_MODELED_NOTE}</p>
       <Composition box={box} />
       <Provenance box={box} />
@@ -224,8 +240,8 @@ export function BoxScoreStatic({ box, error, manifest = null }: { box: BoxScore 
 }
 
 /** One run's server-rendered box score: computed here (server side), fail closed to the unavailable line. */
-export function BoxScoreForRun({ manifest, sample }: { manifest: TheaterManifest; sample: TheaterSample | null }) {
+export function BoxScoreForRun({ manifest, sample, runBoxes }: { manifest: TheaterManifest; sample: TheaterSample | null; runBoxes?: RunBoxes | null }) {
   if (!sample) return <BoxScoreStatic box={null} error={{ code: "NO_VALID_RUN", reason: "no representative run of this receipt passed validation" }} />;
   const r = safeNflBoxScore(sample, manifest);
-  return <BoxScoreStatic box={r.ok ? (r.box as BoxScore) : null} error={r.error} manifest={manifest} />;
+  return <BoxScoreStatic box={r.ok ? (r.box as BoxScore) : null} error={r.error} manifest={manifest} players={runBoxes === undefined ? null : runBoxFor(runBoxes, sample.runIndex)} />;
 }
