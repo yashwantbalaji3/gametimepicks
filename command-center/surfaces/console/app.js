@@ -878,8 +878,15 @@
   const isMarket = (p) => p.package.imported?.rights === "QUOTE_ON_SOCIAL" || p.package.privateReview === true;
   /** The slate a post belongs to: a recap is reviewed on the day of the slate it leads into. */
   const slateOf = (p) => p.package.imported?.recommendation?.slateEtDate ?? p.package.date;
+  /** Today's workspace: this slate, plus the recap of the slate before it, whatever window that recap now carries. */
+  function onTonight(p) {
+    const today = etDay(new Date());
+    if (p.package.sport !== "NBA") return false;
+    if (p.package.kind === "lr-results-recap") return p.package.date === etDay(new Date(Date.parse(`${today}T12:00:00Z`) - 864e5));
+    return slateOf(p) === today;
+  }
   const IMPORT_GROUPS = [
-    ["tonight", "NBA Tonight", (p) => p.package.sport === "NBA" && slateOf(p) === etDay(new Date()) && isPrimary(p)],
+    ["tonight", "NBA Tonight", (p) => onTonight(p) && isPrimary(p)],
     ["all", "Everything", () => true],
     ["key", "Tonight's key posts", (p) => !isMarket(p) && p.package.sport === "NBA" && ["lr-results-recap", "lr-nba-tonight", "lr-nba-top5"].includes(p.package.kind)],
     ["winners", "NBA winners", (p) => p.package.kind === "lr-nba-game-winner"],
@@ -895,7 +902,9 @@
     if (m.contentType === "NBA_TONIGHT") return m.variant === "ml" || !has("NBA_TONIGHT", (q) => q.package.imported.variant === "ml");
     if (m.contentType === "NBA_DAILY_TOP5") return !/-model$/.test(String(m.variant));
     const gamePost = has("NBA_GAME_POST", (q) => String(q.package.eventId) === String(p.package.eventId));
-    if (m.contentType === "NBA_GAME_WINNER") return !gamePost && (/-ml$/.test(String(m.variant)) || !has("NBA_GAME_WINNER", (q) => q.package.imported.variant === `${p.package.eventId}-ml`));
+    // the winner-only post stays in front while its game post can't go out: it is the publishable version of that game
+    const gameHeld = gamePost && has("NBA_GAME_POST", (q) => String(q.package.eventId) === String(p.package.eventId) && q.package.status !== "READY");
+    if (m.contentType === "NBA_GAME_WINNER") return (!gamePost || gameHeld) && (/-ml$/.test(String(m.variant)) || !has("NBA_GAME_WINNER", (q) => q.package.imported.variant === `${p.package.eventId}-ml`));
     if (m.contentType === "NBA_BOXSCORE") return !gamePost;
     if (m.contentType === "NBA_PLAYER_STATS") return false;
     return true;
@@ -915,7 +924,7 @@
   }
   const WS_SECTIONS = [["final", "Final clean image awaiting approval"], ["revised", "Revised draft available"], ["ready", "Ready for founder review and approval"], ["clean", "Approved: waiting for the clean export"], ["revision", "Revision requested"], ["data", "Data correction required (design review still open)"], ["scheduled", "Scheduled"], ["published", "Published"], ["expired", "Expired for pregame publication"], ["other", "Held"]];
   function renderWorkspace(s, c, list) {
-    const alternates = c.posts.filter((p) => p.package.imported && p.package.sport === "NBA" && slateOf(p) === c.today && !isPrimary(p) && !["superseded"].includes(p.lifecycle));
+    const alternates = c.posts.filter((p) => p.package.imported && onTonight(p) && !isPrimary(p) && !["superseded"].includes(p.lifecycle));
     const groups = WS_SECTIONS.map(([k, label]) => [label, list.filter((p) => wsSection(s, p) === k)]).filter(([, a]) => a.length);
     return `<div class="workspace"><h2 class="ws-title">NBA Tonight · ${esc(dayLabel(c.today))}</h2>
       <div class="muted">${num(list.length)} post(s) for this slate · ${groups.map(([l, a]) => `${num(a.length)} ${esc(l.split(" (")[0].toLowerCase())}`).join(" · ")}</div>
