@@ -53,7 +53,7 @@ function FinalFrame({ manifest, sample }: { manifest: TheaterManifest; sample: T
   );
 }
 
-/** `runBoxes`: the verified player boxes of the stored runs (lib/sports/nfl/sim-v2/player-run.mjs); shipped to the island packed (run-box-pack@1). */
+/** `runBoxes`: the verified player boxes of the stored runs (stored in the receipt: lib/simulation-theater/nfl-stored-run-box.mjs); shipped to the island packed (run-box-pack@1). */
 export default function TheaterSection({ load, devHooks = false, runBoxes }: { load: TheaterLoad; devHooks?: boolean; runBoxes?: RunBoxes | null }) {
   if (!load.ok || !load.manifest) {
     return (

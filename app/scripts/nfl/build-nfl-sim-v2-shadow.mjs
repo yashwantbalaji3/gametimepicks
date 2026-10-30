@@ -17,6 +17,12 @@
  *   availability  injuries capture (isBlockingStatus) + active roster (activeRosterIndex) — blocked players get no opportunity
  * The sportsbook is never read.
  *
+ * Each receipt also carries `representativeRunBoxes` (nfl-representative-run-boxes@1, sim-v2/receipt.mjs +
+ * lib/simulation-theater/nfl-stored-run-box.mjs): every representative run's player box, folded from its play log
+ * HERE with the inputs above and sha256-sealed, so the Theater page reads player lines from the receipt alone and never
+ * re-derives them from role shares / injuries (which move after each receipt and are not build inputs). Receipts
+ * written before the field existed are left as they are; their runs show "Player box score unavailable for this run".
+ *
  * SHADOW: nothing public reads these receipts. The page label "EXPECTED STATISTICAL SUMMARIES · NOT ONE SIMULATED GAME"
  * stays until V2 passes its validation contract and the founder/model gate (docs/SIMULATION_ENGINE_V2.md).
  */
@@ -142,7 +148,7 @@ function main() {
     });
     const outRel = `${OUT_DIR}/${now.slice(0, 10)}/${eventId}-${inputHash}.json`;
     const a = receipt.aggregate;
-    console.log(`${eventId} ${r.matchup}: P(home) ${a.winProbability.home} · OT ${a.overtimeProbability} · total p50 ${a.total.p50} · margin p50 ${a.margin.p50} · failed runs ${receipt.validation.failedRuns}/${runs} → ${outRel}`);
+    console.log(`${eventId} ${r.matchup}: P(home) ${a.winProbability.home} · OT ${a.overtimeProbability} · total p50 ${a.total.p50} · margin p50 ${a.margin.p50} · failed runs ${receipt.validation.failedRuns}/${runs} · player boxes stored ${receipt.representativeRunBoxes?.pack?.r?.length ?? 0}, refused ${Object.keys(receipt.representativeRunBoxes?.refusals ?? {}).length} → ${outRel}`);
     if (dryRun) continue;
     const abs = path.join(ROOT, outRel);
     fs.mkdirSync(path.dirname(abs), { recursive: true });

@@ -22,7 +22,7 @@ import { OfficialComparison } from "./RepresentativeParts";
 import RunPlayerBox from "./RunPlayerBox";
 import type { RunBoxRefusal, RunPlayerBoxData } from "./RunPlayerBox";
 
-/** The verified player boxes of a receipt's stored runs (lib/sports/nfl/sim-v2/player-run.mjs verifiedRunBoxes), keyed by run index. */
+/** The verified player boxes of a receipt's stored runs (lib/simulation-theater/nfl-stored-run-box.mjs storedRunBoxes), keyed by run index. */
 export type RunBoxes = { boxes: Record<string, RunPlayerBoxData>; refusals: Record<string, RunBoxRefusal>; error: RunBoxRefusal };
 /** The player box (or its refusal) of one run; null box ⇒ "Player box score unavailable for this run". */
 export function runBoxFor(runBoxes: RunBoxes | null | undefined, runIndex: number): { box: RunPlayerBoxData | null; refusal: RunBoxRefusal } {

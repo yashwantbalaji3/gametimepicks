@@ -1,5 +1,12 @@
 /**
- * NFL SIM V2 · PLAYER LINES FOR A RECEIPT'S STORED RUNS (for the Simulation Theater) — build time, server only.
+ * NFL SIM V2 · RE-DERIVING PLAYER LINES FOR A RECEIPT'S STORED RUNS — SCRIPTS AND TESTS ONLY, never a public route.
+ *
+ * The Theater page reads the player boxes STORED in the receipt at production time (representativeRunBoxes,
+ * lib/simulation-theater/nfl-stored-run-box.mjs). This module re-runs the engine from the moving data/internal input
+ * files (role shares, injury captures), which are not BUILD_INPUTS and change after every receipt; importing it from a
+ * page would make the page read them (build-input-coverage.test.mjs) and degrade runs to INPUTS_CHANGED. It stays as an
+ * audit / test tool: re-deriving a run while its inputs are still current must reproduce the stored box byte for byte.
+ *
  * It lives beside the engine, not in lib/simulation-theater/, because it re-runs the engine (the Theater library itself
  * never imports the engine or its RNG: timeline-state.test.mjs purity guard).
  *

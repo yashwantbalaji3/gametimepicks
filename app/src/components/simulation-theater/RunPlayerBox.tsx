@@ -2,8 +2,8 @@
  * Simulation Theater · NFL player box score of ONE simulated run (server-safe: no hooks; also used in the island dialog).
  *
  * Every number is lib/simulation-theater/nfl-run-box-score.mjs `nflRunBoxScore(run)` for the run on screen, folded from
- * that run's own play log and reconciled exactly to its team totals and final score at build time
- * (lib/sports/nfl/sim-v2/player-run.mjs). Titled "Box score · Simulated scenario (hypothetical)": these are one
+ * that run's own play log and reconciled exactly to its team totals and final score when the receipt was produced; the page reads it from
+ * the receipt and re-checks its sha and reconciliation (lib/simulation-theater/nfl-stored-run-box.mjs). Titled "Box score · Simulated scenario (hypothetical)": these are one
  * simulated game's lines, never official numbers and never a forecast. Without a verified box the section says
  * "Player box score unavailable for this run" with the reason, and prints no player numbers.
  *

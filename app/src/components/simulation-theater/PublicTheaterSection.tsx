@@ -27,7 +27,7 @@ import {
   PUBLIC_THEATER_LABELS, PUBLIC_THEATER_LABEL_LINE, PUBLIC_THEATER_METHODOLOGY, UNAVAILABLE_TITLE, defaultSample, driveTableRows, publicTheaterLoad,
 } from "@/lib/simulation-theater/public-theater.mjs";
 import { nflTheaterOfficial } from "@/lib/simulation-theater/loader.mjs";
-import { nflRepresentativeRunBoxes, verifiedRunBoxes } from "@/lib/sports/nfl/sim-v2/player-run.mjs";
+import { storedRunBoxes } from "@/lib/simulation-theater/nfl-stored-run-box.mjs";
 import type { RunBoxes } from "./BoxScoreTable";
 
 const REPO_ROOT = path.resolve(process.cwd(), "..");
@@ -86,8 +86,8 @@ export default function PublicTheaterSection({ rec }: { rec: Rec }) {
   const eventId = rid != null ? String(rid) : null;
   const load = publicTheaterLoad(rec, eventId ? nflTheaterOfficial(REPO_ROOT, eventId) : null) as TheaterLoad;
   const sample = load.ok && load.manifest ? (defaultSample(load.manifest) as TheaterSample | null) : null;
-  // the stored runs' player lines, re-derived at build time only when inputs and drive fingerprint verify (fail closed)
-  const runBoxes = (load.ok && rec?.receipt ? verifiedRunBoxes(nflRepresentativeRunBoxes(REPO_ROOT, rec.receipt)) : null) as RunBoxes | null;
+  // the stored runs' player lines, read from the receipt itself (sha + reconciliation to the stored drives; fail closed)
+  const runBoxes = (load.ok && rec?.receipt ? storedRunBoxes(rec.receipt) : null) as RunBoxes | null;
   return (
     <section className="stp" aria-labelledby="stp-h" data-stp-section="" data-stp-state={load.ok && sample ? "ready" : "unavailable"}>
       <div className="stp-head">

@@ -225,7 +225,7 @@ export function nflRunBoxScore(run) {
       team: { ...T },
     };
   };
-  return {
+  const box = {
     version: RUN_BOX_VERSION,
     title: RUN_BOX_TITLE,
     runIndex: isInt(run.runIndex) ? run.runIndex : null,
@@ -233,7 +233,70 @@ export function nflRunBoxScore(run) {
     away: sideBox(SIDE_INDEX.away),
     home: sideBox(SIDE_INDEX.home),
   };
+  reconcileRunBox(box, run); // the same checks a reader applies to a STORED box (nfl-stored-run-box.mjs)
+  return box;
 }
+
+/**
+ * The reconciliations that hold on a finished box alone, against the run's drive path and final score: what a reader
+ * re-checks on a box stored in a receipt (no play log at read time). nflRunBoxScore runs this on every box it returns,
+ * so a stored box passes it iff the producer's box did. Throws RunBoxScoreError; returns the box.
+ *   chain     drive scores never decrease; the last drive's score = the final = the box's final
+ *   per side  defTd = the other side's OPP_TD drives; safeties = the other side's SAFETY drives; pass+rush TDs = TD
+ *             drives; FG attempts / makes = FG + FG_MISS / FG drives; tries (XP + 2-pt attempts) = TDs + defensive TDs;
+ *             turnovers = INT + fumbles lost = TURNOVER + OPP_TD drives; net passing = gross − sack yards;
+ *             points = 6·TD + XP + 2·(2-pt) + 3·FG + 2·safety = the final score
+ *   Σ players passing / receiving / rushing / turnover rows sum exactly to the team line; TD scorers = rushing and
+ *             receiving TDs (+ one Defense / special teams row carrying defTd when the defense scored)
+ */
+export function reconcileRunBox(box, run) {
+  need(box && box.version === RUN_BOX_VERSION, "BOX_VERSION", `box version ${box?.version}`);
+  need(Array.isArray(run?.drives) && run.drives.length > 0, "DRIVES", "the run's drive path is required");
+  const fin = run.final;
+  need(fin && isInt(fin.home) && isInt(fin.away), "FINAL", "final score required");
+  need(box.final?.home === fin.home && box.final?.away === fin.away && box.final?.overtime === Boolean(fin.overtime), "BOX_FINAL", "the box's final is not the run's final");
+  let prev = [0, 0];
+  for (const [i, d] of run.drives.entries()) {
+    need(d && (d.offense === 0 || d.offense === 1), "DRIVE_SIDE", `drive ${i}`);
+    need(Array.isArray(d.score) && isInt(d.score[0]) && isInt(d.score[1]) && d.score[0] >= prev[0] && d.score[1] >= prev[1], "SCORE_CHAIN", `drive ${i}`);
+    prev = d.score;
+  }
+  need(prev[0] === fin.home && prev[1] === fin.away, "FINAL_CHAIN", `last drive ${prev[1]}–${prev[0]} ≠ final ${fin.away}–${fin.home}`);
+  const count = (result, offense) => run.drives.filter((d) => d.result === result && d.offense === offense).length;
+  for (const s of [0, 1]) {
+    const side = s === 0 ? "home" : "away";
+    const b = box[side];
+    need(b && b.team && Object.values(SECTIONS_OF).every((k) => Array.isArray(b[k])), "BOX_SHAPE", `${side}: sections missing`);
+    const T = b.team;
+    need(TEAM_FIELDS.every((f) => isInt(T[f])), "TEAM_FIELDS", `${side}: team line not integral`);
+    const o = 1 - s;
+    const tds = T.passTd + T.rushTd;
+    need(T.defTd === count("OPP_TD", o), "DEF_TD", `${side}: defTd ${T.defTd} ≠ opponent OPP_TD drives`);
+    need(T.safeties === count("SAFETY", o), "SAFETY", `${side}: safeties ≠ opponent SAFETY drives`);
+    need(tds === count("TD", s), "TD_DRIVES", `${side}: ${tds} TDs ≠ TD drives`);
+    need(T.fgAtt === count("FG", s) + count("FG_MISS", s) && T.fgMade === count("FG", s), "FG_DRIVES", side);
+    need(T.xpAtt + T.twoAtt === tds + T.defTd && T.xpMade <= T.xpAtt && T.twoMade <= T.twoAtt, "TRIES", `${side}: tries ≠ TDs ${tds + T.defTd}`);
+    need(T.turnovers === T.int + T.fumLost && T.turnovers === count("TURNOVER", s) + count("OPP_TD", s), "TURNOVERS", `${side}: ${T.turnovers} ≠ giveaway drives`);
+    need(T.netPassYds === T.passYds - T.sackYds, "NET_PASS", side);
+    const pts = 6 * (tds + T.defTd) + T.xpMade + 2 * T.twoMade + 3 * T.fgMade + 2 * T.safeties;
+    need(pts === T.points && T.points === fin[side], "POINTS", `${side}: composition ${pts} / line ${T.points} ≠ final ${fin[side]}`);
+    const sum = (rows, f) => rows.reduce((a, r) => { need(isInt(r[f]), "ROW_FIELD", `${side}: ${r.id} ${f}`); return a + r[f]; }, 0);
+    need(sum(b.passing, "cmp") === T.cmp && sum(b.receiving, "rec") === T.cmp, "CMP", `${side}: Σ completions / receptions ≠ team ${T.cmp}`);
+    need(sum(b.passing, "passYds") === T.passYds && sum(b.receiving, "recYds") === T.passYds, "PASS_YDS", `${side}: Σ passer / receiving yards ≠ gross ${T.passYds}`);
+    need(sum(b.passing, "passTd") === T.passTd && sum(b.receiving, "recTd") === T.passTd, "PASS_TD", side);
+    need(sum(b.passing, "passAtt") === T.passAtt && sum(b.receiving, "targets") === T.passAtt, "ATT", `${side}: Σ attempts / targets ≠ ${T.passAtt}`);
+    need(sum(b.rushing, "rushAtt") === T.rushAtt && sum(b.rushing, "rushYds") === T.rushYds && sum(b.rushing, "rushTd") === T.rushTd, "RUSH", side);
+    need(sum(b.passing, "int") === T.int && sum(b.rushing, "fumLost") === T.fumLost, "TO", side);
+    need(sum(b.turnovers, "int") === T.int && sum(b.turnovers, "fumLost") === T.fumLost, "TO_ROWS", side);
+    const players = b.tdScorers.filter((r) => r.id !== "DEF_ST");
+    const def = b.tdScorers.filter((r) => r.id === "DEF_ST");
+    need(players.every((r) => r.tds === r.rushTd + r.recTd && r.tds > 0), "TD_SCORERS", side);
+    need(sum(players, "rushTd") === T.rushTd && sum(players, "recTd") === T.passTd, "TD_SCORERS", `${side}: Σ scorer TDs ≠ team`);
+    need(T.defTd > 0 ? def.length === 1 && def[0].tds === T.defTd : def.length === 0, "TD_SCORERS", `${side}: defense / special teams row ≠ defTd`);
+  }
+  return box;
+}
+const SECTIONS_OF = Object.freeze(["passing", "rushing", "receiving", "tdScorers", "turnovers"]);
 
 /** Never throws: { ok, box, error }. */
 export function safeNflRunBoxScore(run) {

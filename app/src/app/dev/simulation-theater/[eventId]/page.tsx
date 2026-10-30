@@ -26,7 +26,7 @@ import type { TheaterLoad, TheaterSample } from "@/components/simulation-theater
 import { defaultSample } from "@/lib/simulation-theater/public-theater.mjs";
 import { DISABLED_PLACEHOLDER, devRoutesEnabled, devStaticParams } from "@/lib/simulation-theater/dev-routes.mjs";
 import { FIXTURE_EVENT_IDS, loadTheater, usableFixtures } from "@/lib/simulation-theater/loader.mjs";
-import { nflRepresentativeRunBoxes, verifiedRunBoxes } from "@/lib/sports/nfl/sim-v2/player-run.mjs";
+import { storedRunBoxes } from "@/lib/simulation-theater/nfl-stored-run-box.mjs";
 import { readShadowReceipts, simulationOfRecord } from "@/lib/sports/nfl/sim-v2/public-receipt.mjs";
 import type { RunBoxes } from "@/components/simulation-theater/BoxScoreTable";
 
@@ -52,7 +52,7 @@ export default function SimulationTheaterDevPage({ params }: { params: { eventId
   if (!devRoutesEnabled() || params.eventId === DISABLED_PLACEHOLDER || !FIXTURE_EVENT_IDS.includes(params.eventId)) notFound();
   const load = loadTheater(REPO_ROOT, params.eventId) as TheaterLoad;
   const rec = load.ok ? simulationOfRecord(readShadowReceipts(REPO_ROOT), params.eventId) : null;
-  const runBoxes = (rec ? verifiedRunBoxes(nflRepresentativeRunBoxes(REPO_ROOT, rec.receipt)) : null) as RunBoxes | null;
+  const runBoxes = (rec ? storedRunBoxes(rec.receipt) : null) as RunBoxes | null;
   return (
     <div className="vault-page-shell" style={{ padding: "16px 16px 48px" }}>
       {/* devHooks: the `?run=&t=` seek hook for reproducible screenshots (TheaterIsland). Dev route only. */}

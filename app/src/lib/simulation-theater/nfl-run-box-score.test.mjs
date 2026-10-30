@@ -8,8 +8,10 @@
  *   NO EMPTY LINES  every player with a line had a play in this run (a backup QB appears only with a snap).
  *   PLAY LOG    recording the play log changes nothing: same drives, score and accumulators with and without it.
  *   DETERMINISM same seed ⇒ identical box.
- *   STORED RUNS the representative runs get player lines only when the receipt's input hash and the drive fingerprint
- *               both verify; tampering with either refuses (typed), never a guessed number.
+ *   RE-DERIVE   (sim-v2/player-run.mjs, an audit / test tool — no public route uses it) the representative runs get
+ *               player lines only when the receipt's input hash and the drive fingerprint both verify; tampering with
+ *               either refuses (typed), never a guessed number. The PAGE reads the boxes stored in the receipt
+ *               (nfl-stored-run-box.mjs; nfl-stored-run-box.test.mjs).
  *   LABELS      the rendered box is titled "Box score · Simulated scenario (hypothetical)", never says official, prints
  *               exactly the module's numbers, and uses table semantics; the unavailable state prints no player numbers.
  *
@@ -30,6 +32,7 @@ const P = await import("../sports/nfl/sim-v2/player-run.mjs");
 const { default: RunPlayerBox } = await import("../../components/simulation-theater/RunPlayerBox.tsx");
 const { BoxScoreForRun } = await import("../../components/simulation-theater/BoxScoreTable.tsx");
 const { loadTheater } = await import("./loader.mjs");
+const { storedRunBoxes } = await import("./nfl-stored-run-box.mjs");
 
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
@@ -224,14 +227,14 @@ test("render: titled as a simulated scenario, never official; every printed cell
   assert.ok(!/<table|data-strb-player/.test(none), "the unavailable state prints no player numbers");
 });
 
-test("the Theater's server box score shows the verified player box for the shown run, or the unavailable state; the Official Forecast card is untouched", () => {
+test("the Theater's server box score shows the STORED player box for the shown run, or the unavailable state; the Official Forecast card is untouched", () => {
   let shown = 0;
   for (const id of NFL_WEEK8) {
     const th = loadTheater(REPO, id, SHADOW);
     if (!th.ok) continue;
     const m = th.manifest;
     const sample = m.samples[0];
-    const runBoxes = P.verifiedRunBoxes(P.nflRepresentativeRunBoxes(REPO, recOf(id)));
+    const runBoxes = storedRunBoxes(recOf(id)); // what the page reads (committed week-8 receipts predate the field)
     const h = renderToStaticMarkup(React.createElement(BoxScoreForRun, { manifest: m, sample, runBoxes }));
     const box = runBoxes.boxes[String(sample.runIndex)];
     if (box) {
@@ -241,6 +244,7 @@ test("the Theater's server box score shows the verified player box for the shown
       shown += 1;
     } else {
       assert.match(h, /data-strb-state="unavailable"/, `${id}: explicit unavailable state`);
+      if (!("representativeRunBoxes" in recOf(id))) assert.match(h, /data-strb-error="NOT_RECORDED"/, `${id}: a receipt without stored boxes says so`);
       assert.ok(!/data-strb-player/.test(h));
     }
     const without = renderToStaticMarkup(React.createElement(BoxScoreForRun, { manifest: m, sample }));
