@@ -1,7 +1,9 @@
 /**
- * NBA model-vs-line display, SWITCH OFF (Production state; founder P0 2026-10-29):
- *   1. NBA_LINE_DISPLAY.public is false, and with it off /nba/projections renders byte-identically whether or not price
- *      records are handed in — no line, price, book or OVER/UNDER text, no legend, no section;
+ * NBA model-vs-line display — SWITCH OFF and NO ARTIFACT (founder P0 2026-10-29; site display authorized 2026-10-29):
+ *   1. committed state: NBA_LINE_DISPLAY.public is true (site), social false. With the switch off /nba/projections renders
+ *      byte-identically whether or not price records are handed in — no line, price, book or OVER/UNDER text, no legend,
+ *      no section — and with the switch ON but no readable artifact (no key, as in every CI build; another key; a
+ *      historical date) it renders byte-identically to that switch-off page;
  *   2. NbaPropLines reads nothing while off (the lane resolver is never called);
  *   3. no line / price / prop-view module and no synthetic fixture is reachable from any client bundle root
  *      ("use client" modules + the site-wide layout) — a client-reachable constant once leaked a private id in a
@@ -32,59 +34,111 @@ const g0 = lane.games[0], p0 = g0.players.home[0];
 const LANE_RECORDS = [{ schema: "gtp.nba.prop-price@1", eventId: String(g0.providerEventId), providerAthleteId: String(p0.providerAthleteId), family: "pts", providerMarketKey: "player_points", line: 3.5, book: "fixturebook", overAmerican: -137, underAmerican: 117, capturedAt: new Date(Date.parse(g0.tipUtc) - 3600_000).toISOString() }];
 const AS_OF = new Date(Date.parse(g0.tipUtc) - 1800_000).toISOString();
 
-test("the switch is off in this commit (Production state)", () => {
-  assert.deepEqual([NBA_LINE_DISPLAY.public, NBA_LINE_DISPLAY.social], [false, false]);
+test("committed state: the site surface is on, the social surface is off (founder 2026-10-29)", () => {
+  assert.deepEqual([NBA_LINE_DISPLAY.public, NBA_LINE_DISPLAY.social, NBA_LINE_DISPLAY.socialPrices], [true, false, false]);
 });
 
-test("switch off: /nba/projections HTML is identical with or without price records, and carries no line/price/book/OVER/UNDER", () => {
-  const base = render({});
+test("switch off: /nba/projections HTML is identical with or without price records, and carries no line/price/book/OVER/UNDER; switch on with no artifact: the same bytes", () => {
+  const base = render({ lineDisplay: { public: false } });
   assert.ok(base.length > 10_000 && /<tbody/.test(base), "the board rendered");
-  const withRecords = render({ asOf: AS_OF, priceRecords: LANE_RECORDS });
   const explicitOff = render({ asOf: AS_OF, priceRecords: LANE_RECORDS, lineDisplay: { public: false } });
-  assert.equal(withRecords, base);
   assert.equal(explicitOff, base);
+  // authorized (the committed switch), no artifact for this date / no key → byte-identical to the switch-off page
+  assert.equal(render({}), base, "committed switch, no artifact");
+  assert.equal(render({ asOf: AS_OF, lineDisplay: { public: true } }), base, "switch forced on, no artifact");
   assert.doesNotMatch(base, /fixturebook|Fixturebook|sportsbook line|data-prop-line|\bOVER\b|\bUNDER\b|NEUTRAL|−137|\+117|Quoted/);
   // and the authorized render DOES differ, so the comparison above is not vacuous
   const on = render({ asOf: AS_OF, priceRecords: LANE_RECORDS, lineDisplay: { public: true } });
   assert.notEqual(on, base);
   assert.match(on, /Model vs\. sportsbook line/);
-  assert.match(on.replace(/<!-- -->/g, ""), /Fixturebook<\/span> · Over \u2212137 · Under \+117/);
+  const onText = on.replace(/<!-- -->/g, "");
+  // the slate page shows the compact per-game summary (page weight 2026-10-29); the per-player rows live on game pages
+  const at = onText.indexOf('<section id="nba-prop-lines"');
+  assert.ok(at > 0);
+  const section = onText.slice(at, onText.indexOf("</section>", at));
+  assert.match(section, /<p data-prop-line-summary="nba"[^>]*><span[^>]*>[A-Z]+ @ [A-Z]+:<\/span>/, "one summary, named by its game");
+  assert.match(section, /1 of \d+ projections has a qualified sportsbook line\./, "true-denominator slate coverage");
+  assert.doesNotMatch(section, /role="row"|data-prop-line="/, "no per-player row on the slate page");
 });
 
-test("NbaPropLines off: renders nothing and never calls the lane resolver; on without a source: 'Unavailable', never a line", () => {
+test("NbaPropLines off: renders nothing and never calls the lane resolver; on without an artifact: nothing; on with an artifact holding no line: a no-lines state, never a line", () => {
   let called = 0;
   const lazy = () => { called++; return FIXTURE_LANE; };
-  assert.equal(renderToStaticMarkup(React.createElement(NbaPropLines, { lane: lazy, asOf: FIXTURE_AS_OF, priceRecords: FIXTURE_PRICE_RECORDS })), "");
-  assert.equal(called, 0, "default display (the switch) is off: nothing is read");
+  assert.equal(renderToStaticMarkup(React.createElement(NbaPropLines, { lane: lazy, asOf: FIXTURE_AS_OF, priceRecords: FIXTURE_PRICE_RECORDS, display: { public: false } })), "");
+  assert.equal(called, 0, "switch off: nothing is read");
   const on = renderToStaticMarkup(React.createElement(NbaPropLines, { lane: lazy, asOf: FIXTURE_AS_OF, display: { public: true } }));
   assert.equal(called, 1);
-  assert.match(on, /Sportsbook lines: Unavailable/);
-  assert.doesNotMatch(on, /<li/);
+  assert.equal(on, "", "no published artifact for the date → no section at all (not an 'Unavailable' block)");
+  const empty = renderToStaticMarkup(React.createElement(NbaPropLines, { lane: FIXTURE_LANE, asOf: FIXTURE_AS_OF, priceRecords: [], display: { public: true } }));
+  assert.match(empty, /data-prop-line-section-state="NO_LINES"[^>]*>0 of 28 projections have a qualified sportsbook line\./, "an artifact with no usable line for these projections says so");
+  assert.doesNotMatch(empty, /role="row"|<li/);
   const one = renderToStaticMarkup(React.createElement(NbaPropLines, { lane: FIXTURE_LANE, eventId: "FIXTURE-EVT-1", asOf: FIXTURE_AS_OF, priceRecords: FIXTURE_PRICE_RECORDS, display: { public: true } }));
-  assert.match(one, /3 compared · 1 stale · 0 unavailable · 1 unsupported · 23 projections have no captured line/);
+  assert.match(one.replace(/<!-- -->/g, ""), /3 of 28 projections have a qualified sportsbook line\.<\/span> Not compared: 1 line stale · 1 market not supported\./, "true denominator: every projection on the game");
   assert.equal(renderToStaticMarkup(React.createElement(NbaPropLines, { lane: FIXTURE_LANE, eventId: "NOT-ON-THIS-LANE", asOf: FIXTURE_AS_OF, priceRecords: FIXTURE_PRICE_RECORDS, display: { public: true } })), "", "a game page whose game is not on the lane shows no section");
 });
 
 test("every wired surface passes through the gate: projections (+ dated), the game page's Official Forecast panel and the settled game page", () => {
   const read = (rel) => fs.readFileSync(path.join(SRC, rel), "utf8");
-  assert.match(read("components/nba/projections-view.tsx"), /<NbaPropLines lane=\{live\} asOf=\{asOf\} display=\{lineDisplay\} priceRecords=\{priceRecords\} \/>/);
-  for (const p of ["app/nba/projections/page.tsx", "app/nba/projections/[date]/page.tsx"]) assert.match(read(p), /asOf=\{now\.toISOString\(\)\}/, p);
-  assert.match(read("components/nba/official-predictions.tsx"), /\{official \? <NbaPropLines eventId=\{official\.eventId\} id="nba-game-prop-lines" \/> : null\}/);
-  assert.match(read("components/nba/settled-simulation.tsx"), /<NbaPropLines lane=\{\{ date: view\.date, games: \[g\] \}\} eventId=\{view\.id\} id="nba-settled-prop-lines" \/>/);
+  // projections (+ dated): the slate section — the same gate and source, a per-game summary linking each game's lines page
+  assert.match(read("components/nba/projections-view.tsx"), /<NbaSlatePropLines lane=\{live\} asOf=\{asOf\} display=\{lineDisplay\} priceRecords=\{priceRecords\} hrefOf=\{\(id\) => nbaPropLinesHref\(id, gameLinks\.lines\)\} \/>/);
+  assert.doesNotMatch(read("components/nba/projections-view.tsx"), /<NbaPropLines\b/, "never the whole slate's per-player table");
+  for (const p of ["app/nba/projections/page.tsx", "app/nba/projections/[date]/page.tsx"]) {
+    assert.match(read(p), /asOf=\{now\.toISOString\(\)\} gameLinks=\{await nbaLineSummaryGameLinks\(currentEtDate\(now\)\)\}/, p);
+  }
+  // the link ids: the hub's inline-literal Theater gate (dynamic loader import inside it) + the exported game pages
+  assert.match(read("components/nba/prop-line-game-links.ts"), /if \(process\.env\.GTP_NBA_THEATER_PUBLIC === "1"\) \{\s*const \{ publicPossessionEvents \} = await import\("@\/lib\/simulation-theater\/nba\/possession\/public-loader\.mjs"\);\s*theaterIds = publicTheaterRouteIds\(\(\) => publicPossessionEvents\(REPO_ROOT\)\);\s*\}\s*return \{ current: theaterIds, pages: nbaExportedGamePageIds\(today, theaterIds\), lines: nbaLinesPageIds\(\) \};/);
+  // game pages (page weight 2026-10-30): the compact summary linking /nba/lines/<id>/ (the full table lives there)
+  assert.match(read("components/nba/official-predictions.tsx"), /\{official \? <NbaPropLines eventId=\{official\.eventId\} id="nba-game-prop-lines" linesPage \/> : null\}/);
+  assert.match(read("components/nba/settled-simulation.tsx"), /<NbaPropLines lane=\{\{ date: view\.date, games: \[g\] \}\} eventId=\{view\.id\} id="nba-settled-prop-lines" linesPage \/>/);
+  // the lines page: the same component, gate and source, the full table (no linesPage), generated from nbaLinesPageIds
+  const linesRoute = read("app/nba/lines/[eventId]/page.tsx");
+  assert.match(linesRoute, /<NbaPropLines lane=\{lane\} eventId=\{params\.eventId\} asOf=\{now\.toISOString\(\)\} id="nba-game-prop-lines" \/>/);
+  assert.match(linesRoute, /const ids = nbaLinesPageIds\(\);\n  return ids\.length \? ids\.map\(\(eventId\) => \(\{ eventId \}\)\) : \[\{ eventId: NBA_LINES_PLACEHOLDER \}\];/);
+  assert.match(linesRoute, /export const dynamicParams = false;/);
+  assert.match(read("components/nba/nba-prop-lines.tsx"), /\} = \{\}\): string\[\] \{\n  if \(!display\.public\) return \[\];/, "lines ids: the gate is the first statement");
   assert.doesNotMatch(read("app/nba/simulation/[eventId]/page.tsx"), /NbaPropLines|prop-line/, "the Theater route's static imports stay the gate only (public-theater-route.test.mjs)");
   assert.match(read("components/nba/nba-prop-lines.tsx"), /if \(!display\.public\) return null;\n  const src =/, "the gate is the first statement — nothing is read before it");
+  assert.match(read("components/nba/nba-prop-lines.tsx"), /export function NbaSlatePropLines\([\s\S]*?\}\) \{\n  if \(!display\.public\) return null;\n  const snap =/, "slate section: the gate is the first statement");
 });
 
-test("switch off: the settled game page and the Official Forecast panel render exactly as without the section", async () => {
+test("every committed lane: the authorized (committed) switch with no artifact renders /nba/projections byte-identically to the switch-off render", async () => {
+  const { committedLaneDates, loadLaneForDate } = await import("./experimental-lane.tsx");
+  const dates = committedLaneDates();
+  assert.ok(dates.length > 0);
+  for (const d of dates) {
+    const l = loadLaneForDate(d);
+    if (!l) continue;
+    const props = { lane: l, role: "past", date: d, dated: true };
+    const off = renderToStaticMarkup(React.createElement(View, { ...props, lineDisplay: { public: false } }));
+    assert.equal(renderToStaticMarkup(React.createElement(View, props)), off, d);
+  }
+});
+
+test("published-artifact source: the section reads nbaPublicLineRecords (the gated build-time reader), which is null for every committed lane without the display key", async () => {
+  const src = fs.readFileSync(path.join(SRC, "components/nba/nba-prop-lines.tsx"), "utf8");
+  assert.match(src, /const published = priceRecords \?\? \(snap\.date \? nbaPublicLineRecords\(snap\.date\) : null\);/, "omitted/null priceRecords → the published artifact");
+  assert.ok(src.indexOf("if (!display.public) return null;") < src.indexOf("nbaPublicLineRecords(snap.date)"), "nothing is read before the gate");
+  const { nbaPublicLineRecords } = await import("../../lib/sports/nba/public-line-records.mjs");
+  const { committedLaneDates } = await import("./experimental-lane.tsx");
+  const NO_KEY = { ...process.env, GTP_ODDS_DISPLAY_KEY: "" };
+  for (const d of committedLaneDates()) assert.equal(nbaPublicLineRecords(d, { env: NO_KEY }), null, `${d}: no display key → no records, whatever exists on disk`);
+  for (const d of committedLaneDates()) assert.equal(nbaPublicLineRecords(d), null, `${d}: this environment has no readable artifact`);
+  // the section with the switch on and no artifact renders nothing — never "Unavailable", never a line
+  const on = renderToStaticMarkup(React.createElement(NbaPropLines, { lane: JSON.parse(LANE_TEXT), asOf: AS_OF, display: { public: true } }));
+  assert.equal(on, "");
+});
+
+test("committed switch, no artifact: the settled game page and the Official Forecast panel render exactly as without the section", async () => {
   const { default: Settled } = await import("./settled-simulation.tsx");
   const { loadSettledSimulation } = await import("./settled-simulation-data.ts");
   const view = loadSettledSimulation("401909868", "2026-10-28");
   assert.ok(view, "a committed settled game");
   const html = renderToStaticMarkup(React.createElement(Settled, { view }));
   assert.doesNotMatch(html, /prop-lines|sportsbook line|\bOVER\b|\bUNDER\b|NEUTRAL|Quoted/);
-  // the same game WITH the switch on reaches the section (so the check above is not vacuous)
-  const on = renderToStaticMarkup(React.createElement(NbaPropLines, { lane: { date: view.date, games: [view.game] }, eventId: view.id, display: { public: true } }));
-  assert.match(on, /Sportsbook lines: Unavailable/);
+  // the same game WITH records reaches the section (so the check above is not vacuous: the gate, not a missing game, hides it)
+  const on = renderToStaticMarkup(React.createElement(NbaPropLines, { lane: { date: view.date, games: [view.game] }, eventId: view.id, priceRecords: [], display: { public: true } }));
+  assert.match(on, /data-prop-line-section-state="NO_LINES"/);
+  assert.equal(renderToStaticMarkup(React.createElement(NbaPropLines, { lane: { date: view.date, games: [view.game] }, eventId: view.id, display: { public: true } })), "", "no artifact → nothing");
 });
 
 // ── client bundle graph ─────────────────────────────────────────────────────────────────────────────────────────────
@@ -122,7 +176,7 @@ function graph(root) {
 /** Line, price and prop-view modules plus the synthetic fixtures: server-only, never in a browser bundle. */
 const FORBIDDEN = [
   /^src\/lib\/odds\//, /^src\/components\/odds\//, /__fixtures__\/prop-line-synthetic/,
-  /^src\/lib\/sports\/nba\/(line-comparison|line-board|prop-line-adapter)\.mjs$/, /^src\/components\/nba\/(nba-prop-lines|line-comparison-cell)\.tsx$/,
+  /^src\/lib\/sports\/nba\/(line-comparison|line-board|prop-line-adapter|line-publication|line-publication-build|public-line-records)\.mjs$/, /^src\/components\/nba\/(nba-prop-lines|nba-prop-line-summaries|line-comparison-cell)\.tsx$/, /^src\/components\/nba\/prop-line-game-links\.ts$/,
   // the NBA price capture / parse / identity modules (contract.mjs is the shared market-key list the slip already uses)
   /^src\/lib\/sports\/odds\/nba-props\/(?!contract\.mjs$)/,
 ];

@@ -61,4 +61,10 @@ export const FIXTURE_STATE_INPUTS = Object.freeze({
   unsupported: input("unsupported", "FX-1", "Fixture Player One", "AWY", "stl", 1.2, offer("FX-1", "player_steals", 0.5, -110, -110, hBefore(3))),
   mismatch: input("mismatch", "FX-1", "Fixture Player One", "AWY", "reb", 4.1, offer("FX-1", "player_points", 4.5, -110, -110, hBefore(3))),
   zeroPrice: input("zeroPrice", "FX-3", "Fixture Player Three", "HME", "pts", 15.0, offer("FX-3", "player_points", 16.5, 0, null, hBefore(3))),
+  // Rounding-policy edges: full-precision differences of +0.04 / −0.04 print "+0.0" / "−0.0" and keep OVER / UNDER.
+  tinyOver: input("tinyOver", "FX-2", "Fixture Player Two", "AWY", "pts", 12.54, offer("FX-2", "player_points", 12.5, -110, -110, hBefore(3))),
+  tinyUnder: input("tinyUnder", "FX-4", "Fixture Player Four", "HME", "ast", 1.46, offer("FX-4", "player_assists", 1.5, 105, -125, hBefore(3))),
+  suspended: input("suspended", "FX-3", "Fixture Player Three", "HME", "reb", 3.3, offer("FX-3", "player_rebounds", 3.5, -110, -110, hBefore(3), { suspended: true })),
+  wrongDay: input("wrongDay", "FX-1", "Fixture Player One", "AWY", "ast", 3.0, offer("FX-1", "player_assists", 2.5, -110, -110, hBefore(3), { slateDate: "2099-01-14" })),
+  longName: input("longName", "FX-9", "Fixturename Extraordinarily-Longhyphenated Player-Surname The Third", "AWY", "pra", 43.1, offer("FX-9", "player_points_rebounds_assists", 40.5, -112, -108, hBefore(2.5))),
 });

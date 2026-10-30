@@ -7,6 +7,8 @@ import path from "node:path";
 
 import { buildNbaSocialDay, nbaSocialSlateState, nbaSocialToday, NBA_SOCIAL_SCHEMA, NBA_SOCIAL_SLATE_STATES, NBA_SOCIAL_TODAY_STATUSES, PLAYER_FAMILIES } from "./nba-social.mjs";
 import { eloWinProbabilityOf } from "../sports/nba/elo-win-probability.mjs";
+import { NBA_LINE_DISPLAY } from "../sports/nba/line-board.mjs";
+import { NOT_AUTHORIZED_REASON, displayAuthorization } from "../odds/display-authorization.mjs";
 
 const DIR = path.join(process.cwd(), "public/data/nba/experimental-public");
 const lane = JSON.parse(fs.readFileSync(path.join(DIR, "2026-10-27.json"), "utf8"));
@@ -103,22 +105,32 @@ test("today: the build's ET date and the /nba hub's own state, mapped one-to-one
   assert.deepEqual([...NBA_SOCIAL_TODAY_STATUSES], ["PUBLISHED", "NOT_YET_PUBLISHED", "NO_GAMES", "DISABLED"]);
 });
 
-test("line comparisons: PRIVATE by default — the feed carries no line, price, book or difference", () => {
+test("line comparisons: the committed record authorizes the SITE only (2026-10-29) — the social feed stays PRIVATE and carries no line, price, book or difference", () => {
+  assert.deepEqual([NBA_LINE_DISPLAY.public, NBA_LINE_DISPLAY.social, NBA_LINE_DISPLAY.socialPrices], [true, false, false], "site on, social off");
+  assert.equal(displayAuthorization("nba", "social").ok, false);
   const d = buildNbaSocialDay({ lane, buildEtDate: "2026-10-27" });
   assert.equal(d.lineComparisons.displayPermission, "PRIVATE");
   const lc = d.events[0].players[0].lineComparison;
   assert.deepEqual(Object.keys(lc).sort(), PLAYER_FAMILIES.map((f) => f.key).sort());
-  for (const v of Object.values(lc)) assert.deepEqual([v.status, v.displayPermission], ["NOT_AUTHORIZED", "PRIVATE"]);
+  for (const v of Object.values(lc)) assert.deepEqual([v.status, v.displayPermission, v.reason], ["NOT_AUTHORIZED", "PRIVATE", NOT_AUTHORIZED_REASON.nba]);
+  assert.match(NOT_AUTHORIZED_REASON.nba, /website only; the social feed and social graphics are not authorized/);
   assert.doesNotMatch(JSON.stringify(d), /"overPrice"|"underPrice"|"difference"|"book":/, "nothing priced leaks while private");
   assert.match(d.events[0].snapshotId, /^[0-9a-f]{16}@/);
 });
 
+// A test gate that qualifies every family (the committed gate qualifies none: nba-social-side.test.mjs, line-publication.test.mjs).
+const QUALIFIED = { scope: "public", shows: () => true };
 test("line comparisons when authorized: COMPARED rows carry line, prices, book, capture, difference, direction; others say why", () => {
   const g = lane.games[0], p = g.players.away[0];
   const board = { rows: [{ eventId: String(g.providerEventId), athleteId: String(p.providerAthleteId), family: "pts", direction: "ABOVE", line: 10.5, overPrice: -110, underPrice: -110, book: "draftkings", marketKey: "player_points", capturedAt: "2026-10-27T20:00:00Z", difference: 0.9 }], coverage: { compared: 1 } };
-  const d = buildNbaSocialDay({ lane, buildEtDate: "2026-10-27", lineBoard: board, lineDisplay: { public: true, social: true } });
+  // Prices and book in the public feed need the SEPARATE socialPrices permission (provider written confirmation).
+  const d = buildNbaSocialDay({ lane, buildEtDate: "2026-10-27", lineBoard: board, lineDisplay: { public: true, social: true, socialPrices: true }, lineDirections: QUALIFIED });
   const lc = d.events[0].players.find((x) => x.id === String(p.providerAthleteId)).lineComparison;
   assert.deepEqual([lc.pts.status, lc.pts.direction, lc.pts.difference, lc.pts.book, lc.pts.overPrice], ["COMPARED", "ABOVE", 0.9, "draftkings", -110]);
+  const noPrices = buildNbaSocialDay({ lane, buildEtDate: "2026-10-27", lineBoard: board, lineDisplay: { public: true, social: true }, lineDirections: QUALIFIED });
+  const np = noPrices.events[0].players.find((x) => x.id === String(p.providerAthleteId)).lineComparison.pts;
+  assert.deepEqual([np.status, np.direction, np.difference, np.line, "book" in np, "overPrice" in np, "underPrice" in np], ["COMPARED", "ABOVE", 0.9, 10.5, false, false, false]);
+  assert.doesNotMatch(JSON.stringify(noPrices), /draftkings|"overPrice"|"underPrice"/);
   assert.deepEqual([lc.reb.status, lc.reb.reason], ["UNAVAILABLE", "NO_LINE"]);
   assert.equal(d.lineComparisons.displayPermission, "PUBLIC");
 });

@@ -17,8 +17,10 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { availableWeekKeys } from "@/lib/sports/nfl/week-keys";
 import { weekGames } from "@/lib/sports/nfl/week-games";
 import PredictionBoard from "@/components/prediction/prediction-board";
-import { presentWeeklyBoard } from "@/lib/prediction-presentation/nfl";
+import { presentWeeklyBoard, presentTopBoard, type TopBoard } from "@/lib/prediction-presentation/nfl";
 import EtTime from "@/components/ui/et-time";
+import { dailyFor, etDateOfKickoff } from "@/lib/sports/nfl/top-boards.mjs";
+import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 
 const read = (rel: string) => {
   try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data", rel), "utf8")); } catch { return null; }
@@ -30,7 +32,35 @@ type WeeklyBoards = {
   scope: { kind: string; eventsIncluded: number; eventsDroppedAfterKickoff: number };
   model?: { id?: string; version?: number | string; launchState?: string } | null;
   boards: Array<{ id: string; family: string; title: string; state: string; reason?: string; caveat?: string; topN: number; rows?: BoardRow[] }>;
+  /* Founder Top boards (2026-10-29, lib/sports/nfl/top-boards.mjs). Absent on weeks built before it. */
+  topBoards?: { weekly: TopScope; daily: Array<TopScope & { etDate: string }> };
 };
+type TopScope = { scope: { kind: string; eventsIncluded: number; eventsDroppedAfterKickoff: number }; boards: TopBoard[] };
+
+/**
+ * The five Top boards of one scope (weekly or today), in the V3 PredictionBoard layout (header row, identity line with
+ * its Matchup/Start keys). Rows and order are the artifact's; digits come from the one formatter (presentTopBoard), so
+ * they match the hub and every game page. A not-qualified family prints its readiness line, never a ranking.
+ */
+function TopBoardsList({ artifact, scope }: { artifact: WeeklyBoards; scope: TopScope }) {
+  return (
+    <div className="flex flex-col gap-5">
+      {scope.boards.map((b) => {
+        const rows = presentTopBoard(artifact, b);
+        return rows.length ? (
+          <div key={b.id} data-top-board={b.family}>
+            <h3 style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color: "var(--vault-text)" }}>{b.title}</h3>
+            <PredictionBoard predictions={rows} gameHref={(p) => `/nfl/game/${p.game.providerEventId}/`} />
+          </div>
+        ) : (
+          <p key={b.id} data-readiness={b.family} style={{ margin: 0, fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720, border: "1px dashed var(--vault-rule)", borderRadius: 10, padding: "8px 12px" }}>
+            {b.readiness?.text ?? `${b.label ?? b.title}: not yet published`}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
 
 export function generateStaticParams() {
   return availableWeekKeys().map((key) => ({ key }));
@@ -63,6 +93,9 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
      names for this week, read from its frozen pre-kickoff revision — so a week that has rolled over keeps every game
      (lib/sports/nfl/week-games.ts). Listing the union alone left /nfl/week/2-07/ with one game after rollover. */
   const { games: forecasts, unavailable } = weekGames(path.join(process.cwd(), "public", "data"), params.key);
+
+  /* Today's ET date at build time: a daily board shows only when this week still has a game today. */
+  const todayBoards = wb?.topBoards ? dailyFor(wb.topBoards, etDateOfKickoff(new Date().toISOString())) as (TopScope & { etDate: string }) | null : null;
 
   const td = (extra: Record<string, string | number> = {}) => ({ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, ...extra });
 
@@ -137,35 +170,52 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
         </p>
       )}
 
-      {wb?.boards?.length ? (
+      {wb?.topBoards?.weekly ? (
+        /* Founder Top boards (2026-10-29): five Top-5 boards from the artifact's `topBoards`, the same rows and numbers as
+           the hub and each game page. A family that is not publication-qualified shows its readiness, never a ranking. */
+        <section aria-labelledby="week-boards">
+          <SectionHeader
+            eyebrow={wb.topBoards.weekly.scope.kind === "REMAINING_EVENTS" ? `${wb.topBoards.weekly.scope.eventsIncluded} games left` : "Full week"}
+            title="Top boards"
+            sub="The official player board's top five per statistic; a list is a maximum, not a quota; a statistic that has not cleared its publication standard says so instead of ranking."
+          />
+          <TopBoardsList artifact={wb} scope={wb.topBoards.weekly} />
+          {todayBoards ? (
+            <div style={{ marginTop: 18 }} data-top-boards-day={todayBoards.etDate}>
+              <h2 style={{ margin: "0 0 2px", fontSize: 14, fontWeight: 700, color: "var(--vault-text)" }}>
+                Today · {todayBoards.scope.eventsIncluded} {todayBoards.scope.eventsIncluded === 1 ? "game" : "games"}
+              </h2>
+              <TopBoardsList artifact={wb} scope={todayBoards} />
+            </div>
+          ) : null}
+          <p className="font-mono" style={{ margin: "10px 0 0", fontSize: 10.5, color: "var(--vault-text-faint)" }}>
+            Board stamp <EtTime iso={wb.generatedAt} /> · {wb.topBoards.weekly.scope.kind === "FULL_WEEK" ? "full-week edition" : `${wb.topBoards.weekly.scope.eventsDroppedAfterKickoff} games dropped after kickoff`}
+          </p>
+        </section>
+      ) : wb?.boards?.length ? (
         <section aria-labelledby="week-boards">
           <SectionHeader
             eyebrow={wb.scope.kind === "REMAINING_EVENTS" ? `${wb.scope.eventsIncluded} games left` : "Full week"}
             title="Weekly top boards"
-            sub="One ranking owner; a top-N table is a maximum, not a quota; a family that failed its bar says so."
+            sub="One ranking owner; a top-N table is a maximum, not a quota; a statistic that has not cleared its publication standard says so instead of ranking."
           />
           <div className="flex flex-col gap-5">
             {wb.boards.map((b) =>
-              (b.state === "PUBLISHED" || b.state === "ESTIMATE") && b.rows?.length ? (
+              /* Only a PUBLISHED family ranks. An ESTIMATE family (it did not clear its bar) is not shown as a ranking —
+                 the game page and the hub do not show it either (founder 2026-10-29: one canonical answer everywhere). */
+              b.state === "PUBLISHED" && b.rows?.length ? (
                 <div key={b.id}>
                   <h2 style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color: "var(--vault-text)" }}>
                     {b.title}
                   </h2>
-                  {/* An ESTIMATE family carries real numbers WITH the bar it failed. The caveat rides
-                      with the board, once, rather than being repeated on every row. */}
-                  {b.state === "ESTIMATE" && b.caveat ? (
-                    <p style={{ margin: "0 0 6px", fontSize: 11, lineHeight: 1.5, color: "var(--vault-text-mute)", maxWidth: 720 }}>
-                      Estimate — {b.caveat}
-                    </p>
-                  ) : null}
                   <PredictionBoard
                     predictions={presentWeeklyBoard(wb, b)}
                     gameHref={(p) => `/nfl/game/${p.game.providerEventId}/`}
                   />
                 </div>
               ) : (
-                <p key={b.id} style={{ margin: 0, fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720, border: "1px dashed var(--vault-rule)", borderRadius: 10, padding: "8px 12px" }}>
-                  <strong style={{ color: "var(--vault-text-mute)" }}>{b.title}:</strong> not published — {b.reason}
+                <p key={b.id} data-readiness={b.family} style={{ margin: 0, fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720, border: "1px dashed var(--vault-rule)", borderRadius: 10, padding: "8px 12px" }}>
+                  <strong style={{ color: "var(--vault-text-mute)" }}>{b.title.replace(/^Top \d+ · /, "")}:</strong> not yet published{b.reason ? ` — ${plainCodes(b.reason)}` : ""}
                 </p>
               ),
             )}

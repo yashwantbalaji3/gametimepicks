@@ -97,7 +97,7 @@ export default function NbaOfficialPredictions({ official, teams, lane, finalNot
         <p>{PUBLIC_TERMS.UNAVAILABLE}: no Official Forecast receipt for this game. Nothing on this page is an Official Forecast.</p>
       )}
       {/* Model vs. sportsbook line for this game (founder P0 2026-10-29): renders nothing while NBA_LINE_DISPLAY.public is false. */}
-      {official ? <NbaPropLines eventId={official.eventId} id="nba-game-prop-lines" /> : null}
+      {official ? <NbaPropLines eventId={official.eventId} id="nba-game-prop-lines" linesPage /> : null}
       <h3>What each part of this page is</h3>
       <ul className="nbx-legend">
         <li><b>{PUBLIC_TERMS.OFFICIAL_FORECAST}</b> — this section: frozen before tip-off. It is what GameTimePicks forecasts.</li>

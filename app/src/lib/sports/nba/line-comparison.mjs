@@ -73,10 +73,15 @@ export function compareToLine(projection, line, ctx) {
   // The comparison instant is never after tip: a started game keeps the pregame comparison as of tip.
   const at = Number.isFinite(asOf) ? Math.min(asOf, tip) : tip;
   if (at - cap > LINE_MAX_AGE_HOURS * 3600_000 || cap > at) return out(DIRECTION.UNAVAILABLE, { reason: "STALE", median: projection.median });
-  const difference = r1(projection.median - line.line);
-  const direction = difference > 0 ? DIRECTION.ABOVE : difference < 0 ? DIRECTION.BELOW : DIRECTION.EQUAL;
+  // PRECISION (founder display-rounding policy 2026-10-29, lib/odds/prop-line-view.mjs DISPLAY_ROUNDING_POLICY): the
+  // direction comes from the FULL-precision difference, never from a rounded one — a median 0.04 above the line is OVER,
+  // not NEUTRAL. `differenceExact` carries that full-precision value; `difference` is the one-decimal figure the published
+  // artifact and the social feed already carry (unchanged for every one-decimal median against a half-point line).
+  const differenceExact = projection.median - line.line;
+  const difference = r1(differenceExact);
+  const direction = differenceExact > 0 ? DIRECTION.ABOVE : differenceExact < 0 ? DIRECTION.BELOW : DIRECTION.EQUAL;
   return out(direction, {
-    side: USER_SIDE[direction], median: projection.median, line: line.line, difference,
+    side: USER_SIDE[direction], median: projection.median, line: line.line, difference, differenceExact,
     overPrice: isNum(line.overPrice) ? line.overPrice : null, underPrice: isNum(line.underPrice) ? line.underPrice : null,
     book: line.book, marketKey: line.marketKey, capturedAt: line.capturedAt,
   });
@@ -99,13 +104,21 @@ export const COMPARISON_LEGEND = Object.freeze({
 
 /**
  * One line per (event, athlete, market) from several books: the deterministic choice is the MOST RECENT capture before
- * tip, ties broken by book name — never an average of books (an average line is not a line anyone offered).
+ * tip, grouped by our capture request (fetchedAt); within one request the fixed REFERENCE_BOOK_ORDER decides (founder 2026-10-29: prefer
+ * DraftKings, then FanDuel), then by book key — never by which line suits the model, and never an average of books
+ * (an average line is not a line anyone offered).
  * @param {Array<{ book: string, capturedAt: string, line: number }>} offers
  * @param {string} tipUtc
  */
+/** Tie-break order for books captured at the same instant (founder preference 2026-10-29), shared by every sport. */
+export const REFERENCE_BOOK_ORDER = Object.freeze(["draftkings", "fanduel", "betmgm", "williamhill_us", "caesars", "fanatics", "espnbet", "betrivers", "betparx"]);
+const bookRank = (b) => { const i = REFERENCE_BOOK_ORDER.indexOf(String(b)); return i === -1 ? REFERENCE_BOOK_ORDER.length : i; };
 export function chooseOffer(offers, tipUtc) {
   const tip = Date.parse(tipUtc);
   const ok = (offers ?? []).filter((o) => isNum(o?.line) && Number.isFinite(Date.parse(o.capturedAt)) && Date.parse(o.capturedAt) < tip);
-  ok.sort((a, b) => Date.parse(b.capturedAt) - Date.parse(a.capturedAt) || String(a.book).localeCompare(String(b.book)));
+  // Group by OUR capture request (fetchedAt — shared by every book in one response); a book's own capturedAt is its
+  // provider last_update, which differs by seconds inside one request and must not decide between books of the same capture.
+  const run = (o) => { const f = Date.parse(o.fetchedAt ?? ""); return Number.isFinite(f) ? f : Date.parse(o.capturedAt); };
+  ok.sort((a, b) => run(b) - run(a) || bookRank(a.book) - bookRank(b.book) || Date.parse(b.capturedAt) - Date.parse(a.capturedAt) || String(a.book).localeCompare(String(b.book)));
   return ok[0] ?? null;
 }

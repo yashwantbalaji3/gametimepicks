@@ -28,3 +28,25 @@ export function nbaGamePageHrefIfExported(id, exported) {
   const has = exported instanceof Set ? exported.has(key) : exported.includes(key);
   return has ? nbaGamePageHref(key) : null;
 }
+
+/**
+ * The per-game "model vs sportsbook line" page (page weight 2026-10-30): /nba/lines/<eventId>/ holds a game's FULL
+ * model-vs-line table — the game page, /nba/projections, the /nba hub and /today show a compact summary linking here.
+ * The route (app/nba/lines/[eventId]/page.tsx) is generated ONLY for the games nbaLinesPageIds lists (an authorized,
+ * decryptable artifact with at least one compared line), so a link is drawn only for an id in that list.
+ */
+export const nbaLinesPageHref = (id) => `/nba/lines/${id}/`;
+
+/**
+ * Where a game's FULL model-vs-sportsbook-line table lives: its /nba/lines/<id>/ page when that page is generated
+ * (`linesIds` — nbaLinesPageIds, the route's own generateStaticParams source; empty in a build without a readable
+ * artifact), else null (no link: never a dead one).
+ * @param {string|number} id
+ * @param {readonly string[]|ReadonlySet<string>|null|undefined} linesIds
+ */
+export function nbaPropLinesHref(id, linesIds) {
+  const key = String(id ?? "");
+  if (!key || !linesIds) return null;
+  const has = linesIds instanceof Set ? linesIds.has(key) : [...linesIds].map(String).includes(key);
+  return has ? nbaLinesPageHref(key) : null;
+}

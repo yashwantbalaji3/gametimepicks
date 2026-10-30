@@ -81,6 +81,7 @@ import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 import NflPostgameBoxScore from "@/components/game/nfl-postgame-box-score";
 import NflAllPlayersTable from "@/components/game/nfl-all-players-table";
 import { loadNflPostgame } from "@/lib/sports/nfl/postgame-box-score";
+import { withNflPropLines } from "@/components/nfl/nfl-prop-lines";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
@@ -571,7 +572,11 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
       })()}
         </>
       ) : null}
-      {view?.simulation ? (
+      {/* Model vs. sportsbook line (founder P0 2026-10-29) — PUBLISHED families only, behind NFL_LINE_DISPLAY (derived from
+          the display authorization record). withNflPropLines returns this slot's node UNCHANGED while the switch is off or
+          no readable artifact exists for this game — no extra element, not even a null slot, so React's useId tree and the
+          page bytes are identical — and appends the section after the player projections otherwise. */}
+      {withNflPropLines(view?.simulation ? (
         <section id="players" className="nf-section" aria-labelledby="nf-players-h">
           {/* Alias anchor: /live and saved links point at #player-board (the pre-2026-10-08 section id), which must keep
               landing on the player projections for a simulated game too. */}
@@ -588,7 +593,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           {/* Who is NOT in these numbers — the board's coverage receipt, one component for every surface. */}
           <NotInTheseNumbers coverage={playerBoard?.coverage} arrivals={playerBoard?.newArrivals} teams={[f.away.abbr, f.home.abbr]} style={{ marginTop: 14 }} />
         </section>
-      ) : null}
+      ) : null, playerBoard)}
       {/* Founder decision 2026-10-20: World Model V2 is a SUPPORTING simulation — its counted outcomes and sampled games
           render below the official numbers, in their own labelled block (forecast-view.mjs SUPPORTING_LABEL), never as a
           player row, a ranked board or a headline. */}

@@ -98,7 +98,7 @@ export default function SettledSimulation({ view }: { view: SettledView }) {
       </section>
 
       {/* Model vs. sportsbook line, frozen as of tip (founder P0 2026-10-29): nothing while NBA_LINE_DISPLAY.public is false. */}
-      <NbaPropLines lane={{ date: view.date, games: [g] }} eventId={view.id} id="nba-settled-prop-lines" />
+      <NbaPropLines lane={{ date: view.date, games: [g] }} eventId={view.id} id="nba-settled-prop-lines" linesPage />
 
       <MoreDisclosure title="Technical details" summary="Model versions, the frozen receipt and the rule behind the favoured side">
         <dl className="nbx-kv">

@@ -59,8 +59,9 @@ import ForecastStyles from "@/components/nfl/forecast/styles";
 import ModelStatus from "@/components/nfl/forecast/model-status";
 import LiveNow from "@/components/live/live-now";
 import FamilyTabs from "@/components/nfl/forecast/family-tabs";
-import { boardTabs, topBoards } from "@/lib/sports/nfl/forecast-view.mjs";
-import { loadForecastViews } from "@/lib/sports/nfl/forecast-view-load.mjs";
+import EtTime from "@/components/ui/et-time";
+import { topBoardTabs } from "@/lib/sports/nfl/forecast-view.mjs";
+import { dailyFor, etDateOfKickoff } from "@/lib/sports/nfl/top-boards.mjs";
 import { formatUpdatedEt } from "@/lib/format";
 import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 import { sanitizeVaultArtifact } from "@/lib/sports/odds/public-offer-sanitizer.mjs";
@@ -369,13 +370,25 @@ export default function NflHubPage() {
   /* P246 §5: the weekly top boards render VERBATIM from the one canonical ranking owner
      (scripts/nfl/build-nfl-weekly-boards.mjs). The hub never ranks players itself. */
   type WeeklyBoardRow = { playerId: string; name: string; team: string; opponent: string; providerEventId: string; kickoffUtc: string; participation: string; value: number; p10?: number; median?: number; p90?: number; probability?: number; pricingState?: string };
-  /* Founder directive 2026-10-08: the hub's Top boards, from the shared forecast view. */
-  const unifiedBoards = topBoards(loadForecastViews(path.join(process.cwd(), "public")), { now: new Date().toISOString() });
   const weeklyBoards = read("nfl/weekly-boards/latest.json") as
     | { generatedAt?: string; model?: { id?: string; version?: number | string } | null;
         period: { seasonType: number; week: number }; scope: { kind: string; eventsIncluded: number; eventsDroppedAfterKickoff: number };
-        boards: Array<{ id: string; family: string; title: string; state: string; basis?: string; reason?: string; caveat?: string; rows?: WeeklyBoardRow[] }> }
+        boards: Array<{ id: string; family: string; title: string; state: string; basis?: string; reason?: string; caveat?: string; rows?: WeeklyBoardRow[] }>;
+        topBoards?: TopBoardsBlock }
     | null;
+  /* Founder Top boards (2026-10-29): the five Top-5 boards, weekly and for today's ET date, rendered VERBATIM from the
+     weekly-boards artifact's `topBoards` (lib/sports/nfl/top-boards.mjs — the one ranking owner, official player board
+     only). The hub never ranks. A family that is not publication-qualified shows its readiness line, never a list. */
+  type TopBoardsScope = { scope: { kind: string; eventsIncluded: number; eventsDroppedAfterKickoff: number; events?: string[] }; boards: Array<Record<string, unknown>> };
+  type TopBoardsBlock = { weekly: TopBoardsScope; daily: Array<TopBoardsScope & { etDate: string }> };
+  /* Shown only while one of the board's games is still to kick off at this build: after the week's last kickoff there is
+     nothing left to rank and the section (and its link) is omitted, as before (2026-10-20). */
+  const kickoffOf = new Map<string, string>((forecastArtifact?.forecasts ?? []).map((x: { providerEventId?: string; kickoffUtc?: string }) => [String(x.providerEventId), String(x.kickoffUtc ?? "")] as [string, string]));
+  const boardsLive = (sc: TopBoardsScope | null | undefined) => !!sc && (sc.scope.events ?? []).some((id) => Date.parse(kickoffOf.get(id) ?? "") > Date.parse(nowIso));
+  const topBoardsBlock = weeklyBoards?.topBoards && boardsLive(weeklyBoards.topBoards.weekly) ? weeklyBoards.topBoards : null;
+  const todayEt = etDateOfKickoff(nowIso);
+  const todayBoards = topBoardsBlock ? (dailyFor(topBoardsBlock, todayEt) as (TopBoardsScope & { etDate: string }) | null) : null;
+  const todayLive = boardsLive(todayBoards) ? todayBoards : null;
   // per-event calibration sentence, keyed the same way the index keys events
 
 
@@ -464,7 +477,7 @@ export default function NflHubPage() {
         anchors={[
           "nfl-games",
           "nfl-slate",
-          ...(unifiedBoards.games ? ["nfl-boards"] : []),
+          ...(topBoardsBlock?.weekly ? ["nfl-boards"] : []),
           ...(vault && (vault.watchlist?.length || vault.selections?.length) ? ["nfl-vault"] : []),
           ...(slateMarketRows.length ? ["nfl-markets"] : []),
           /* Session 5 · B8: "Simulations" renders whenever forecasts are published — its strip item must too. */
@@ -701,23 +714,37 @@ export default function NflHubPage() {
       </section>
       </MoreDisclosure>
 
-      {/* ── WEEKLY LEADERS · founder directive 2026-10-08 (one NFL forecast experience) ──────────────
-          ONE set of Top boards, ranked by lib/sports/nfl/forecast-view.mjs topBoards from the SAME official player-board rows
-          each game page renders — a player's number here is his number there (founder decision 2026-10-20: no World Model
-          V2 number ranks; it is a supporting simulation on the game page only). Top-N is a maximum, never a quota; Questionable,
-          Doubtful and Out never rank; a family with no published model says so instead of showing a number. The
-          weekly-boards artifact is still produced and settled; it is no longer a second public board on this page. */}
-      {unifiedBoards.games ? (
+      {/* ── TOP BOARDS · founder requirement 2026-10-29 (five Top-5 boards, weekly + today) ─────────────────────
+          Rendered from the weekly-boards artifact's `topBoards` (lib/sports/nfl/top-boards.mjs), which ranks ONLY the
+          official player board — the same numbers each game page prints (founder decision 2026-10-20: no World Model V2
+          number ranks). Top-5 is a maximum, never a quota; Questionable, Doubtful and Out never rank; a family that is not
+          publication-qualified shows its readiness ("not yet published — …"), never a ranking. */}
+      {topBoardsBlock?.weekly ? (
         <section aria-labelledby="nfl-boards" id="nfl-boards" className="scroll-mt-24 nf">
           <SectionHeader
-            eyebrow={`This week · ${unifiedBoards.games} ${unifiedBoards.games === 1 ? "game" : "games"} to come`}
-            title="Weekly leaders"
-            sub="The official player board's top projections across every game still to kick off — the same numbers as each game page. Players listed as Questionable, Doubtful or Out are left out, and a list shows fewer than ten rather than fill."
+            eyebrow={`This week · ${topBoardsBlock.weekly.scope.eventsIncluded} ${topBoardsBlock.weekly.scope.eventsIncluded === 1 ? "game" : "games"}${topBoardsBlock.weekly.scope.kind === "REMAINING_EVENTS" ? " still to kick off" : ""}`}
+            title="Top boards"
+            sub="The official player board's top five in passing yards, rushing yards, receiving yards, receptions and anytime touchdown — the same numbers as each game page. Players listed as Questionable, Doubtful or Out are left out; a statistic that has not cleared its publication standard says so instead of ranking."
           />
           <FamilyTabs
-            {...boardTabs(unifiedBoards.boards)} linkToGame label="hub-boards" listLabel="Weekly leaders by statistic" staticPanels="active" emptyText="No player is cleared for this list in the games still to kick off."
+            {...topBoardTabs(topBoardsBlock.weekly)} linkToGame label="hub-boards" listLabel="Weekly leaders by statistic" staticPanels="active" emptyText="No player is cleared for this list in the games still to kick off."
             filters={{ teamRefs: nflTeamRefsByAbbr((forecastArtifact?.forecasts ?? []).flatMap((x: { home?: { abbr?: string }; away?: { abbr?: string } }) => [x.home?.abbr, x.away?.abbr])) }}
           />
+          {todayLive ? (
+            <div style={{ marginTop: 18 }} data-top-boards-day={todayLive.etDate}>
+              <h3 style={{ margin: "0 0 2px", fontSize: 14, fontWeight: 700, color: "var(--vault-text)" }}>
+                Today · {todayLive.scope.eventsIncluded} {todayLive.scope.eventsIncluded === 1 ? "game" : "games"}
+              </h3>
+              <FamilyTabs
+                {...topBoardTabs(todayLive)} linkToGame label="hub-boards-today" listLabel="Today's leaders by statistic" staticPanels="active" emptyText="No player is cleared for this list in today's games still to kick off."
+              />
+            </div>
+          ) : null}
+          {weeklyBoards?.generatedAt ? (
+            <p className="font-mono" style={{ margin: "10px 0 0", fontSize: 10.5, color: "var(--vault-text-faint)" }}>
+              Board stamp <EtTime iso={weeklyBoards.generatedAt} />
+            </p>
+          ) : null}
           {/* P251 follows were created on the previous board, so this is where they migrate forward. */}
           <FollowLegacyMigration legacyMap={legacyNameMap()} />
         </section>

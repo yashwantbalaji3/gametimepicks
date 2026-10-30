@@ -176,6 +176,12 @@ export interface ModelForecast {
   probability?: number;
   /** NUMERIC only: the published central value, already at the owner's display precision. */
   predictedValue?: number;
+  /**
+   * NUMERIC only, optional: the central value exactly as the owner's ONE formatter prints it (NFL Top boards:
+   * forecast-view.mjs `formatValue`, so a receptions median reads "8.0" here and on the game page alike). A renderer
+   * prints it verbatim when present; it never differs from `predictedValue` except in its digits.
+   */
+  displayValue?: string;
   /** "yds", "rec" — the unit the value is in. Absent for a probability. */
   unit?: string;
   /** The 10th/90th percentile band, where the family publishes one. Both or neither. */

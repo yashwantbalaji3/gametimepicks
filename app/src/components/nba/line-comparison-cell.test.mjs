@@ -8,11 +8,13 @@ const { LineComparisonCell, LineComparisonLegend } = await import("./line-compar
 const r = (el) => renderToStaticMarkup(el);
 const VALID = { direction: "ABOVE", median: 24.8, line: 22.5, difference: 2.3, book: "draftkings", capturedAt: "2026-10-28T20:00:00Z" };
 
-test("private (default): projection only, no line, no colour, no legend", () => {
-  const html = r(React.createElement(LineComparisonCell, { median: 24.8, comparison: VALID }));
-  assert.match(html, /data-line-cmp="projection-only"/);
-  assert.doesNotMatch(html, /22\.5|draftkings|vault-success/);
-  assert.equal(r(React.createElement(LineComparisonLegend, {})), "");
+test("private (default — the cell cannot apply the per-family direction gate, so it never follows the site switch) and switch off: projection only, no line, no colour, no legend", () => {
+  for (const extra of [{}, { display: { public: false } }]) {
+    const html = r(React.createElement(LineComparisonCell, { median: 24.8, comparison: VALID, ...extra }));
+    assert.match(html, /data-line-cmp="projection-only"/);
+    assert.doesNotMatch(html, /22\.5|draftkings|vault-success/);
+    assert.equal(r(React.createElement(LineComparisonLegend, extra)), "");
+  }
 });
 
 test("authorized + valid: +2.3 vs 22.5 in green with book and ET capture time; legend explains colours", () => {

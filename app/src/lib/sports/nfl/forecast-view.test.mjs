@@ -157,7 +157,7 @@ test("OFFICIAL · every committed row equals the official snapshot's stored head
     assert.equal(v.official.snapshotId, snapshot.snapshotId);
     for (const p of v.players) for (const [k, e] of Object.entries(p.families)) {
       const o = snapshot.players.find((x) => x.playerId === p.playerId).families[MARKET_KEY[k]];
-      const want = k === "anytimeTd" || k === "receptions" ? o.expected : o.median;
+      const want = k === "anytimeTd" ? o.expected : o.median; // receptions headline the median since 2026-10-29 (one definition everywhere)
       assert.equal(e.value, want, `${p.name} ${k}: the view carries the snapshot's stored number exactly`);
       checked += 1;
     }

@@ -30,6 +30,8 @@ import path from "node:path";
 
 import { buildPropPriceIndex } from "../../src/lib/sports/nfl/prop-price-lookup.mjs";
 import { rankFamily, familyStateAcross, poolWithheldTeams } from "../../src/lib/sports/nfl/board-ranking.mjs";
+import { buildTopBoards } from "../../src/lib/sports/nfl/top-boards.mjs";
+import { forwardEvidenceFor } from "../../src/lib/products/engine-v2/family-gate.mjs";
 
 const APP = process.cwd();
 const BOARD_DIR = path.join(APP, "public/data/nfl/player-board");
@@ -61,6 +63,13 @@ const read = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
 const propPrices = (() => {
   try { return buildPropPriceIndex(read(path.join(APP, "public/data/nfl/markets/latest.json"))); }
   catch { return buildPropPriceIndex(null); } // no capture yet — every row keeps its typed absence
+})();
+
+/* The share-level forward receipt — the same evidence family-eligibility.json quotes (family-gate.mjs
+   forwardEvidenceFor). Only its state / n / needed reach the public artifact. Absent ⇒ no forward clause. */
+const forwardReceipt = (() => {
+  try { return read(path.join(APP, "..", "data/internal/research/nfl/replay/player-props-share-level-forward/receipt.json")); }
+  catch { return null; }
 })();
 
 const forecasts = read(path.join(APP, "public/data/nfl/forecasts/latest.json"));
@@ -196,6 +205,16 @@ const out = {
     return { ...spec, state: "PUBLISHED", basis: fam.basis, ...(conservation ? { conservation } : {}), rows: rankRows(spec.family, spec.metric, spec.topN) };
   }).map((b) => (b.rows ? { ...b, excludedForAvailability: excludedByBoard[b.family] ?? [] } : b)),
   disclaimer: boards[0]?.disclaimer ?? null,
+  /*
+   * FOUNDER TOP BOARDS (2026-10-29) — ADDITIVE. Five Top-5 boards (passing, rushing, receiving yards, receptions,
+   * anytime TD) over the week and per ET day, from the official per-game boards only (lib/sports/nfl/top-boards.mjs).
+   * A family that is not publication-qualified carries a readiness entry, never rows. `boards` above is unchanged
+   * for its existing readers.
+   */
+  topBoards: buildTopBoards({
+    weekBoards: boards, now: NOW, slotFor: (...a) => propPrices.slotFor(...a),
+    forwardFor: (family, modelVersion) => forwardEvidenceFor({ family, modelVersion, forwardReceipt }),
+  }),
 };
 
 fs.mkdirSync(OUT_DIR, { recursive: true });

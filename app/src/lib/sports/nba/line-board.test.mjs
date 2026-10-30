@@ -33,7 +33,7 @@ test("records for another slate's event never reach a comparison; the newest pre
   assert.deepEqual([row.book, row.line, row.booksOffering], ["fanduel", 21.5, 1]);
 });
 
-test("display defaults to private until the founder confirms provider terms", () => {
-  assert.deepEqual([NBA_LINE_DISPLAY.public, NBA_LINE_DISPLAY.social], [false, false]);
+test("display: site authorized by the founder 2026-10-29 (provider terms recorded); the social surface stays private", () => {
+  assert.deepEqual([NBA_LINE_DISPLAY.public, NBA_LINE_DISPLAY.social, NBA_LINE_DISPLAY.socialPrices], [true, false, false]);
   assert.equal(buildNbaLineBoard({ lane, priceRecords: [], asOf }).display, NBA_LINE_DISPLAY);
 });

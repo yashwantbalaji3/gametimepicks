@@ -58,7 +58,12 @@ if (DEV_ROUTES.length === 0) console.log("[prune-internal-routes] GTP_DEV_ROUTES
 // (A literal, not an import: this build step may not read the possession library; a test pins it to the route constant.)
 const NBA_THEATER_ROUTES = nbaTheaterPublicEnabled() ? ["nba/simulation/nba-theater-disabled"] : ["nba/simulation"];
 if (NBA_THEATER_ROUTES.length === 0) console.log("[prune-internal-routes] NBA Theater public gate ON (constant + GTP_NBA_THEATER_PUBLIC=1) → keeping out/nba/simulation/");
-const INTERNAL_ROUTES = ["ops", "preview", "launch", ...DEV_ROUTES, ...NBA_THEATER_ROUTES, ...GATED_LEGAL_ROUTES];
+/* /nba/lines/<eventId>/ (per-game model-vs-sportsbook-line tables, page weight 2026-10-30) is generated only for games with
+   an authorized, decryptable line artifact; with none (no display key — every CI build) the route emits one inert 404
+   placeholder, removed here, and then the empty out/nba/lines/ with its chunks (below), so such a build ships no lines
+   route. (A literal: a test pins it to NBA_LINES_PLACEHOLDER in components/nba/nba-prop-lines.tsx.) */
+const NBA_LINES_PLACEHOLDER_ROUTE = "nba/lines/nba-lines-none";
+const INTERNAL_ROUTES = ["ops", "preview", "launch", ...DEV_ROUTES, ...NBA_THEATER_ROUTES, NBA_LINES_PLACEHOLDER_ROUTE, ...GATED_LEGAL_ROUTES];
 
 /**
  * Data files the public site serves even though no page links them. Kept deliberately, not by accident.
@@ -162,6 +167,11 @@ for (const route of INTERNAL_ROUTES) {
 // A gate-ON build between slates leaves out/nba/simulation/ with no game page once the placeholder is gone: drop it.
 { const sim = path.join(outDir, "nba", "simulation");
   if (fs.existsSync(sim) && fs.readdirSync(sim).length === 0) { fs.rmSync(sim, { recursive: true, force: true }); removed.push("nba/simulation (empty)"); } }
+// No lines page generated (only the placeholder, now gone): drop out/nba/lines/ and the route's compiled chunks.
+{ const lines = path.join(outDir, "nba", "lines");
+  if (!fs.existsSync(lines) || fs.readdirSync(lines).length === 0) {
+    for (const t of [lines, path.join(chunkRoot, "nba", "lines")]) if (fs.existsSync(t)) { fs.rmSync(t, { recursive: true, force: true }); removed.push(`${path.relative(outDir, t)} (no lines page)`); }
+  } }
 console.log(`[prune-internal-routes] pruned from out/: ${removed.length ? removed.join(", ") : "(none present)"}`);
 
 // ── 3. data: keep only what the shipped output references ───────────────────────────────────────

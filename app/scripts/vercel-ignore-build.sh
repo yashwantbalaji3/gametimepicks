@@ -260,6 +260,10 @@ BUILD_INPUTS=(
     # in the same automation window as the lane publish; v0.3-candidate directories are never read.
     ':(top)data/internal/research/nba/boxscores/'
     ':(top)data/internal/research/nba/experimental/boxscores/'
+    # NBA model-versus-line comparisons, 2026-10-29: the published gtp.nba.line-comparisons@1 artifact, a build input
+    # OUTSIDE app/public so the export never serves prices as a downloadable file. Read at build time by
+    # src/lib/sports/nba/public-line-records.mjs, only when the display authorization record allows it. Empty today.
+    ':(top)data/odds-display/'
 )
 # GTP-BUILD-INPUTS-END
 for _nbi in "${NON_BUILD_INPUTS[@]}"; do

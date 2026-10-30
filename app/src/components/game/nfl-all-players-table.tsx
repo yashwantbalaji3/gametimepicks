@@ -3,7 +3,7 @@
  *
  * Server component. Reads the SAME forecast view the stat tabs below read (lib/sports/nfl/forecast-view.mjs: the
  * official player board through the official forecast snapshot), so every number here is the number the tabs show,
- * rounded by the view's own formatValue: the headline (median for yards, expected count for receptions, chance for a
+ * rounded by the view's own formatValue: the headline (median for yards and receptions, chance for a
  * touchdown) and its 80% range. Position is the roster capture's, joined by the exact ESPN athlete id; none ⇒ "—".
  * Who the forecast leaves out, and why, stays in NotInTheseNumbers directly below this section's tabs.
  */
@@ -40,7 +40,7 @@ export default function NflAllPlayersTable({ players, away, home }: { players: V
     <div className="ap">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <h3 className="ap-h3">All {rows.length} players on the official board</h3>
-      <p className="ap-sub">The headline number is the median for yards, the expected count for receptions and the chance for a touchdown; the range under it is the 80% range. &ldquo;—&rdquo; means no official projection for that statistic.</p>
+      <p className="ap-sub">The headline number is the median for yards and receptions and the chance for a touchdown; the range under it is the 80% range. &ldquo;—&rdquo; means no official projection for that statistic.</p>
       <div className="ap-scroll" role="region" aria-label="All players on the official board" tabIndex={0}>
         <table className="ap-table">
           <thead>

@@ -4,8 +4,8 @@
  "dataClass": "PRIVATE_AUDIT",
  "generatedAt": "2026-10-08T21:59:42Z",
  "totals": {
-  "routes": 103,
-  "public": 72,
+  "routes": 104,
+  "public": 73,
   "internal": 10,
   "redirects": 18,
   "archive": 1,
@@ -405,6 +405,16 @@
    "purpose": "retired NBA hub",
    "redirectTo": "/results/nba",
    "built": true
+  },
+  {
+   "route": "/nba/lines/[eventId]",
+   "classification": "public",
+   "owner": "product",
+   "family": true,
+   "purpose": "one NBA game's full model-vs-sportsbook-line table (page weight 2026-10-30: moved off the game page): every player-prop projection beside its verified line, direction and difference where the direction gate allows; a comparison, not a recommendation; noindex; generated only for games whose newest committed lane has an authorized, decryptable line artifact with at least one compared line (no key → only an inert placeholder, pruned)",
+   "dataOwner": "public/data/nba/experimental-public/<date>.json + the encrypted line artifact data/odds-display/nba/lines/<date>.json.enc (lib/sports/nba/public-line-records.mjs; display authorization lib/odds/display-authorization.mjs)",
+   "freshness": "each line's quote time (ET) on the page; comparisons frozen at tip-off",
+   "built": "FAMILY (3 generated page(s))"
   },
   {
    "route": "/nba/parlays",

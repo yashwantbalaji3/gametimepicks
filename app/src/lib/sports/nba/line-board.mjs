@@ -8,20 +8,35 @@
  * family: the most recent pre-tip capture across eligible books (chooseOffer), never an average. Coverage is counted so a
  * page or a graphic can say how many players actually have a line instead of implying every player does.
  *
- * DISPLAY: whether any of this may be shown publicly or exported is NOT decided here — see NBA_LINE_DISPLAY. Until the
- * founder confirms provider terms, the board is computed privately and every public surface shows the projection only.
+ * DISPLAY: whether any of this may be shown publicly or exported is NOT decided here — see NBA_LINE_DISPLAY (site display
+ * authorized by the founder 2026-10-29 after the provider-terms review; the social surface is not).
  */
 import { compareToLine, chooseOffer, DIRECTION, MARKET_KEYS, LINE_COMPARISON_RULE } from "./line-comparison.mjs";
+import { displayAuthorization, NOT_AUTHORIZED_REASON } from "../../odds/display-authorization.mjs";
 
 /**
- * THE DISPLAY SWITCH (founder decision D3 / NBA odds rights). Every surface and export reads it. Default: private.
- * `public`  lines, prices, books and differences on site pages;  `social`  the same in the social-data feed and graphics.
+ * Derive the display switch from an authorization record (exported so tests can prove the derivation on any record).
+ * `public` is the "site" surface, `social` the "social" surface; each is true only when the record authorizes it.
  */
-export const NBA_LINE_DISPLAY = Object.freeze({
-  public: false,
-  social: false,
-  reason: "Provider display terms for NBA lines are not confirmed for this site (founder decision pending).",
-});
+export function nbaLineDisplayFrom(record) {
+  const site = displayAuthorization("nba", "site", record), social = displayAuthorization("nba", "social", record);
+  return Object.freeze({
+    public: site.ok,
+    social: social.ok,
+    // prices and book names in the public social JSON feed: a separate switch (provider written confirmation)
+    socialPrices: displayAuthorization("nba", "socialPrices", record).ok,
+    reason: site.ok && social.ok ? null : NOT_AUTHORIZED_REASON.nba,
+  });
+}
+
+/**
+ * THE DISPLAY SWITCH (founder decision D3 / NBA odds rights). Every surface and export reads it. Committed (2026-10-29): site on, social off.
+ * `public`  lines, prices, books and differences on site pages;  `social`  side, difference, line and capture time in the
+ * social-data feed and graphics;  `socialPrices`  prices and book names in that feed as well.
+ * DERIVED — never edited here: it is the committed display authorization record (lib/odds/display-authorization.mjs)
+ * read through displayAuthorization, so there is one switch, not two.
+ */
+export const NBA_LINE_DISPLAY = nbaLineDisplayFrom(undefined);
 
 const COMBO = new Set(["pra", "ptsReb", "ptsAst"]);
 const medianOf = (p, family) => (COMBO.has(family) ? p.comboMedians?.[family] : p.medians?.[family]);
@@ -96,3 +111,6 @@ export function buildNbaLineBoard({ lane, priceRecords = [], asOf }) {
     rows,
   };
 }
+
+/** Re-exported for the NBA hub summaries: the hub page and its direct imports stay free of market-vocabulary paths (public-route-inventory). */
+export { publicDirectionGate } from "../../odds/display-authorization.mjs";
