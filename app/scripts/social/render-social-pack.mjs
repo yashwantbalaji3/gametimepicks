@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* global document -- the page.evaluate callback runs in the Playwright browser page */
+/* global document, window -- the page.evaluate callback runs in the Playwright browser page */
 /**
  * SOCIAL PACK RENDERER: NFL winner roundup + Monday card, NFL weekly Top 5s, NBA daily Top 5s, results recaps, each as a
  * `gtp-social-package@1` JSON with its images under ~/gtp-private/graphics/packages/.

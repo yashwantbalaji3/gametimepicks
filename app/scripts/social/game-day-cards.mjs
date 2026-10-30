@@ -42,7 +42,8 @@ const EXTRA = `
 .lines.sl{margin-top:12px;align-content:start}.lines.sl .lcol{padding:14px 12px 8px}.lines.sl .lhead h3{font-size:42px;margin-bottom:0}
 .over{color:#4ADE80}.under{color:#F87171}.none{color:#AEB8B1}
 .lgd{display:flex;justify-content:center;gap:22px;margin-top:8px;font:700 19px/1 var(--display);letter-spacing:1px}
-.t5 .ln{display:block;font:700 22px/1.2 var(--display);letter-spacing:.5px;white-space:nowrap;margin-top:4px}
+.t5row .v b.over{color:#4ADE80;text-shadow:none}.t5row .v b.under{color:#F87171;text-shadow:none}.t5row .v b.none{color:#AEB8B1;text-shadow:none}
+.t5 .ln{display:block;font:700 26px/1.2 var(--display);letter-spacing:.5px;white-space:nowrap;margin-top:4px}
 .rc{margin-top:22px;flex:1;display:flex;flex-direction:column;gap:14px;justify-content:center}
 .rcs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}.rcs div{background:rgba(5,8,6,.74);border-radius:14px;padding:14px 0 10px;text-align:center}.rcs b{display:block;font:900 66px/1 var(--display)}.rcs i{font:700 21px/1 var(--display);font-style:normal;letter-spacing:3px;color:rgba(247,247,242,.72)}
 .rcr{display:grid;grid-template-columns:1fr 200px 140px;align-items:center;gap:12px;padding:46px 20px;border-radius:14px;background:rgba(5,8,6,.74);border-left:7px solid #4ADE80}.rcr.miss{border-left-color:#F87171}
