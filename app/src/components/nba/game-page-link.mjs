@@ -28,3 +28,20 @@ export function nbaGamePageHrefIfExported(id, exported) {
   const has = exported instanceof Set ? exported.has(key) : exported.includes(key);
   return has ? nbaGamePageHref(key) : null;
 }
+
+/**
+ * Where a game's FULL model-vs-sportsbook-line table lives (the /nba hub's rule, reused by /nba/projections' per-game
+ * summaries): its Game Simulation page's Official Forecast panel when that page is built (`theaterIds`, the route's own
+ * ids — empty in a flag-OFF build), else its settled game page when exported, else null (no link: never a dead one).
+ * @param {string|number} id
+ * @param {readonly string[]|ReadonlySet<string>|null|undefined} theaterIds
+ * @param {ReadonlySet<string>|readonly string[]|null|undefined} exported  nbaExportedGamePageIds
+ */
+export function nbaPropLinesHref(id, theaterIds, exported) {
+  const key = String(id ?? "");
+  if (!key) return null;
+  const live = theaterIds ? (theaterIds instanceof Set ? theaterIds.has(key) : [...theaterIds].map(String).includes(key)) : false;
+  if (live) return `${nbaGamePageHref(key)}#nba-game-prop-lines`;
+  const settled = nbaGamePageHrefIfExported(key, exported);
+  return settled ? `${settled}#nba-settled-prop-lines` : null;
+}

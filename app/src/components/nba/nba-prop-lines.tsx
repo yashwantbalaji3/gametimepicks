@@ -73,6 +73,48 @@ export default function NbaPropLines({ lane, eventId = null, priceRecords = null
   return <PropLineComparison view={view} display={display} id={id} withoutLine={withoutLine} notes={notes} heading="Model vs. sportsbook line · NBA player props" />;
 }
 
+/**
+ * The SLATE section (/nba/projections and its dated pages; page weight 2026-10-29): the same gate, source, coverage line
+ * (true denominator: every projection on the slate), legend and notes as the full section — but in place of the
+ * per-player table, ONE compact summary per game (nbaGameLineSummaryView → PropLineSummary) linking to that game's full
+ * table on its game page. A whole-slate table was ~4 KB per row with the RSC payload (977 KB at 236 rows); the per-player
+ * rows live on the game pages only. The section keeps the id "nba-prop-lines" (the hub and /today link it as a fallback).
+ * `hrefOf(eventId)`: the game page link (the hub's rule — Game Simulation page `#nba-game-prop-lines`, else the settled
+ * game page `#nba-settled-prop-lines`, else null: no link, never a dead one).
+ */
+export function NbaSlatePropLines({ lane, priceRecords = null, asOf, display = NBA_LINE_DISPLAY, directions = publicDirectionGate("nba"), hrefOf = () => null, id = "nba-prop-lines" }: {
+  lane: LaneLike | (() => LaneLike);
+  priceRecords?: unknown[] | null;
+  asOf?: string;
+  display?: { public: boolean };
+  directions?: { scope?: string; shows: (family: string) => boolean };
+  hrefOf?: (eventId: string) => string | null;
+  id?: string;
+}) {
+  if (!display.public) return null;
+  const snap = typeof lane === "function" ? lane() : lane;
+  if (!snap) return null;
+  const published = priceRecords ?? (snap.date ? nbaPublicLineRecords(snap.date) : null);
+  // No published source (no artifact for this date, no key, another key) → NOTHING: byte-identical to the switch-off page.
+  if (!published) return null;
+  const at = asOf || new Date().toISOString();
+  const { inputs, withoutLine, projections } = nbaPropLineInputs({ lane: snap, priceRecords: published, asOf: at });
+  const view = buildPropLineViews(inputs, NBA_PROP_LINE_ADAPTER, { projections, directions }) as PropLineViewModel;
+  const attribution = priceRecords == null ? displayAuthorization("nba", "site").attribution : null;
+  const notes = priceRecords == null ? [...(attribution ? [attribution] : []), BOOK_AVAILABILITY_NOTE] : undefined;
+  const games = (snap.games as Array<{ providerEventId: string; away?: { abbr?: string | null; name?: string | null }; home?: { abbr?: string | null; name?: string | null } }>).map((g) => {
+    const eventId = String(g.providerEventId);
+    const v = nbaGameLineSummaryView(snap, eventId, published, at, directions);
+    const label = `${g.away?.abbr ?? g.away?.name ?? "Away"} @ ${g.home?.abbr ?? g.home?.name ?? "Home"}`;
+    return v ? <li key={eventId} data-prop-line-game={eventId}><PropLineSummary view={v} display={display} href={hrefOf(eventId)} label={label} /></li> : null;
+  }).filter(Boolean);
+  return (
+    <PropLineComparison view={view} display={display} id={id} withoutLine={withoutLine} notes={notes} heading="Model vs. sportsbook line · NBA player props">
+      {games.length ? <ul data-prop-line-games="" className="m-0 flex flex-col gap-1" style={{ listStyle: "none", paddingLeft: 0 }}>{games}</ul> : null}
+    </PropLineComparison>
+  );
+}
+
 /** The one game's view for the compact summary, or null when there is no published source or no COMPARED row (the
     summary then shows nothing). Used by nba-prop-line-summaries.tsx; call only behind the display gate. */
 export function nbaGameLineSummaryView(snap: LaneLike, eventId: string, priceRecords: unknown[] | null, asOf?: string, directions: { scope?: string; shows: (family: string) => boolean } = publicDirectionGate("nba")): PropLineViewModel | null {
