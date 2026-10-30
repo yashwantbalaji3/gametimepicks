@@ -786,7 +786,7 @@ export function parseArgs(argv) {
 }
 
 /** One saved capture, private, identified by its bytes. */
-function loadMoneyline(file) {
+export function loadMoneyline(file) {
   const abs = path.resolve(file);
   const root = path.join(os.homedir(), "gtp-private") + path.sep;
   if (!abs.startsWith(root)) throw new Error("--moneyline must name a capture under ~/gtp-private");
