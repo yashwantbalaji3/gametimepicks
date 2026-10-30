@@ -77,7 +77,8 @@ import { buildGamesTableRows, gamesTableDates } from "@/components/games-experie
 import { packGamesTable } from "@/components/games-experience-table-wire";
 import { publicSport } from "@/lib/public-registry";
 import { loadCurrentLane } from "@/components/nba/experimental-lane";
-import { nbaPropLineSummaries } from "@/components/nba/nba-prop-line-summaries";
+import { nbaLinesPageIds, nbaPropLineSummaries } from "@/components/nba/nba-prop-line-summaries";
+import { nbaPropLinesHref } from "@/components/nba/game-page-link.mjs";
 
 export const metadata = withRouteMetadata("/today/", {
   title: "Today · GameTime Picks",
@@ -268,11 +269,11 @@ export default function TodayPage() {
   const todayRows = gamesRows.filter((r) => r.date === serverToday);
   /* Founder P0 2026-10-29: today's NBA rows carry a compact model-vs-sportsbook-line summary — only when the NBA line
      display is authorized and the game has a compared line (undefined while the switch is off: the rows are unchanged).
-     Each links to the slate's full table on /nba/projections. */
+     Each links to the game's full table on its /nba/lines/<id>/ page when that page is generated, else no link. */
   const nbaLineSummaries = nbaToday?.date === serverToday ? nbaPropLineSummaries({
     lane: nbaToday,
     asOf: new Date(nowMs).toISOString(),
-    games: todayRows.filter((r) => r.sport === "nba").map((r) => [/(\d+)$/.exec(r.id)?.[1] ?? "", r.eventHref, "/nba/projections/#nba-prop-lines"] as const),
+    games: ((lines) => todayRows.filter((r) => r.sport === "nba").map((r) => [/(\d+)$/.exec(r.id)?.[1] ?? "", r.eventHref, nbaPropLinesHref(/(\d+)$/.exec(r.id)?.[1] ?? "", lines)] as const))(nbaLinesPageIds({ asOf: new Date(nowMs).toISOString() })),
   }) : undefined;
   const nextDate = todayRows.length ? null : gamesRows.map((r) => r.date).filter((d) => d > serverToday).sort()[0] ?? null;
   const dayName = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" });

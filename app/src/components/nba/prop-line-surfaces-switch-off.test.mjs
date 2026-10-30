@@ -35,7 +35,7 @@ const AS_OF = new Date(tipMs - 1800_000).toISOString();
 // SYNTHETIC records (fake book, fake prices) shaped for this committed lane, so a leak would print something real-looking.
 const rec = (p, family, marketKey, line, over, under) => ({ schema: "gtp.nba.prop-price@1", eventId: String(g0.providerEventId), providerAthleteId: String(p.providerAthleteId), family, providerMarketKey: marketKey, line, book: "fixturebook", overAmerican: over, underAmerican: under, capturedAt: new Date(tipMs - 3600_000).toISOString() });
 const RECORDS = [rec(p0, "pts", "player_points", 3.5, -137, 117), rec(p1, "reb", "player_rebounds", 40.5, -110, -110)];
-const GAMES = (slate) => slate.games.map((g) => [g.id, g.id, `/nba/simulation/${g.id}/#nba-game-prop-lines`]);
+const GAMES = (slate) => slate.games.map((g) => [g.id, g.id, `/nba/lines/${g.id}/`]);
 const LEAK = /fixturebook|Fixturebook|sportsbook line|data-prop-line|\bOVER\b|\bUNDER\b|NEUTRAL|−137|\+117|qualified sportsbook/;
 
 test("committed state: the site switch is on (founder 2026-10-29)", () => assert.equal(NBA_LINE_DISPLAY.public, true));
@@ -65,7 +65,7 @@ test("/nba hub cards, switch off or no artifact: no summary map, cards byte-iden
   assert.notEqual(withSummary, base);
   assert.match(withSummary, /data-nba-line-summary=""><p data-prop-line-summary="nba"/);
   assert.match(withSummary, /of \d+ projections have a qualified sportsbook line/);
-  assert.match(withSummary, new RegExp(`href="/nba/simulation/${g0.providerEventId}/?#nba-game-prop-lines"`));
+  assert.match(withSummary, new RegExp(`href="/nba/lines/${g0.providerEventId}/?"`));
   // every OTHER card is unchanged: removing the one summary block gives back the base markup
   assert.equal(withSummary.replace(/<div class="nbx-read" data-nba-line-summary="">[\s\S]*?<\/p><\/div>/, ""), base);
 });
@@ -101,6 +101,10 @@ test("NbaPropLineSummary: off → nothing; on without a published source, a comp
 test("source pins: the pages hand the summaries through the gate; the gate is the first statement; no new surface on Results or the Theater route", () => {
   const hub = read("app/nba/page.tsx"), today = read("app/today/page.tsx"), gate = read("components/nba/nba-prop-line-summaries.tsx");
   assert.match(hub, /const lineSummaries = lane \? nbaPropLineSummaries\(\{/);
+  // every summary links the game's /nba/lines/<id>/ page, only when the route generates it (nbaLinesPageIds), else nothing
+  assert.match(hub, /games: \(\(lines\) => slate\.games\.map\(\(g\) => \[g\.id, g\.id, nbaPropLinesHref\(g\.id, lines\)\] as const\)\)\(nbaLinesPageIds\(\{ asOf: nowIso \}\)\),/);
+  assert.match(today, /nbaPropLinesHref\(\/\(\\d\+\)\$\/\.exec\(r\.id\)\?\.\[1\] \?\? "", lines\)\] as const\)\)\(nbaLinesPageIds\(\{ asOf: new Date\(nowMs\)\.toISOString\(\) \}\)\)/);
+  for (const [name, src] of [["hub", hub], ["today", today]]) assert.doesNotMatch(src, /#nba-(game|settled)-prop-lines|\/nba\/projections\/#nba-prop-lines/, `${name}: no link to a game page anchor or the slate section`);
   assert.match(hub, /<NbaTodayGames slate=\{slate\} slip=\{slip\} gamePages=\{gamePages\} lineSummaries=\{lineSummaries\} \/>/);
   assert.match(today, /const nbaLineSummaries = nbaToday\?\.date === serverToday \? nbaPropLineSummaries\(\{/);
   assert.match(today, /lineSummaries=\{nbaLineSummaries\}/);

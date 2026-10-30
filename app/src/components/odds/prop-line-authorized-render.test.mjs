@@ -120,10 +120,12 @@ test("(b) NBA, authorized + encrypted artifact + test key: OVER / UNDER for qual
     // the withheld row is the threePm row: no side, no difference
     const rows = html.split(/(?=<div role="row")/).filter((r) => /data-prop-line="/.test(r));
     const withheld = rows.find((r) => /data-prop-line="DIRECTION_WITHHELD"/.test(r)).split("<ul")[0];
-    assert.match(withheld, /plc-market">3-pointers made</);
-    assert.match(withheld, /data-prop-line-side="DIRECTION_WITHHELD">Comparison not shown</);
-    assert.doesNotMatch(withheld, /data-prop-line-side="(OVER|UNDER|NEUTRAL)"|plc-diff/, "no side, no difference");
-    for (const r of rows.filter((x) => /data-prop-line="COMPARED"/.test(x))) assert.match(r, /plc-market">(Points|Rebounds)</, "only qualified families are compared");
+    const cellsOf = (r) => [...r.matchAll(/<div role="cell">([\s\S]*?)<\/div>/g)].map((m) => m[1]);
+    assert.equal(cellsOf(withheld)[1], "3-pointers made");
+    assert.equal(cellsOf(withheld)[4], "<b>Comparison not shown</b>");
+    assert.doesNotMatch(withheld, /data-prop-line-side=/, "no side");
+    assert.equal(cellsOf(withheld).length, 9, "no difference cell");
+    for (const r of rows.filter((x) => /data-prop-line="COMPARED"/.test(x))) assert.match(cellsOf(r)[1], /^(Points|Rebounds)$/, "only qualified families are compared");
     assert.doesNotMatch(html, /Sportsbook lines: Unavailable/);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
@@ -178,7 +180,7 @@ test("(b) NFL, authorized + encrypted artifact + test key: every over/under fami
       assert.match(html, /<section id="nfl-prop-lines"[^>]*data-prop-lines="nfl"/);
       assert.match(html, /3 of 6 projections have a qualified sportsbook line\./);
       assert.equal((html.match(/data-prop-line="DIRECTION_WITHHELD"/g) ?? []).length, 3, "receptions + receiving yards: withheld");
-      assert.doesNotMatch(html, /data-prop-line-side="(OVER|UNDER|NEUTRAL)"|data-prop-line-diff/, "no NFL family is direction-qualified");
+      assert.doesNotMatch(html.replace(/<style>[\s\S]*?<\/style>/, ""), /data-prop-line-side=|data-prop-line="COMPARED"/, "no NFL family is direction-qualified");
       assert.match(html, /Comparison not shown/);
       assert.equal((html.match(/data-prop-line="YES_NO"/g) ?? []).length, 2, "anytime TD: yes/no rows");
       assert.match(html, /Not an over\/under market/);

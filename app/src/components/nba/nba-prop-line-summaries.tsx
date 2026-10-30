@@ -16,6 +16,8 @@
 import React from "react";
 import { NBA_LINE_DISPLAY } from "@/lib/sports/nba/line-board.mjs";
 import { nbaGameLineSummaryView, PropLineSummary, type LaneLike } from "@/components/nba/nba-prop-lines";
+/** The games whose /nba/lines/<id>/ page is generated — the summaries' link targets (re-exported for the listing pages). */
+export { nbaLinesPageIds } from "@/components/nba/nba-prop-lines";
 import { publicDirectionGate } from "@/lib/sports/nba/line-board.mjs";
 
 type Directions = { scope?: string; shows: (family: string) => boolean };

@@ -15,6 +15,8 @@
  *     reachable from their hubs; a settled page is the durable one.
  *   - /nba/simulation/<id>: an internal family, pruned from the export while the Theater gate is off, and `noindex`
  *     even when on (candidate pages are kept out of search until the release owner publishes them).
+ *   - /nba/lines/<id>: a game's model-vs-sportsbook-line table — `noindex`, superseded every slate, and generated only on
+ *     a build that can read a line artifact.
  *
  * Adding a family (e.g. UFC settled bouts): append one source to DURABLE_PAGE_SOURCES that reads the same ids as that
  * route's generateStaticParams, and extend the export-membership test with that route's params.

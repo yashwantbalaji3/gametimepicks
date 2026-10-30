@@ -2,18 +2,39 @@
  "schemaVersion": 1,
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
- "date": "2026-10-29",
- "generatedAt": "2026-10-29T19:47:39Z",
+ "date": "2026-10-30",
+ "generatedAt": "2026-10-30T00:38:27Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "180 model candidates · no current comparable touchdown price is available",
+ "reason": "167 model candidates · no current comparable touchdown price is available",
  "isCard": false,
  "selections": [],
  "watchlist": [
+  {
+   "playerId": "nfl-athlete-4429795",
+   "name": "Jahmyr Gibbs",
+   "position": "RB",
+   "team": "DET",
+   "opponent": "MIN",
+   "event": "MIN @ DET",
+   "providerEventId": "401873030",
+   "kickoffUtc": "2026-11-01T18:00Z",
+   "tdProbability": 0.7891,
+   "probabilitySource": "the game's player board — the published anytime-touchdown family",
+   "probabilityRange": {
+    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ACTIVE_EXPECTED",
+   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+   "marketPrice": null,
+   "pricingState": "NOT_PROBED",
+   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
+   "modelVersion": "nfl-anytime-td-opportunity-v1"
+  },
   {
    "playerId": "nfl-athlete-4379399",
    "name": "James Cook III",
@@ -225,27 +246,6 @@
    "modelVersion": "nfl-anytime-td-opportunity-v1"
   },
   {
-   "playerId": "nfl-athlete-4241416",
-   "name": "Chuba Hubbard",
-   "position": "RB",
-   "team": "CAR",
-   "opponent": "GB",
-   "event": "CAR @ GB",
-   "providerEventId": "401873023",
-   "kickoffUtc": "2026-10-30T00:15Z",
-   "tdProbability": 0.5486,
-   "probabilitySource": "the game's player board — the published anytime-touchdown family",
-   "probabilityRange": {
-    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ACTIVE_EXPECTED",
-   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
-   "marketPrice": null,
-   "pricingState": "NOT_PROBED",
-   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
-   "modelVersion": "nfl-anytime-td-opportunity-v1"
-  },
-  {
    "playerId": "nfl-athlete-3916148",
    "name": "Tony Pollard",
    "position": "RB",
@@ -267,14 +267,8 @@
    "modelVersion": "nfl-anytime-td-opportunity-v1"
   }
  ],
- "candidateCount": 180,
+ "candidateCount": 167,
  "withheld": [
-  {
-   "event": "CAR @ GB",
-   "team": "GB",
-   "player": "Matthew Golden",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
   {
    "event": "BAL @ BUF",
    "team": "BUF",
@@ -291,12 +285,6 @@
    "event": "BAL @ BUF",
    "team": "BAL",
    "player": "Lamar Jackson",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "TEN @ CIN",
-   "team": "CIN",
-   "player": "Ja'Marr Chase",
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
@@ -337,18 +325,6 @@
   },
   {
    "event": "MIN @ DET",
-   "team": "DET",
-   "player": "Jahmyr Gibbs",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "MIN @ DET",
-   "team": "DET",
-   "player": "Amon-Ra St. Brown",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "MIN @ DET",
    "team": "MIN",
    "player": "Aaron Jones Sr.",
    "reason": "designated Questionable — only players with no designation are listed"
@@ -356,25 +332,7 @@
   {
    "event": "LV @ NYJ",
    "team": "NYJ",
-   "player": "Braelon Allen",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "LV @ NYJ",
-   "team": "NYJ",
    "player": "Breece Hall",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "LV @ NYJ",
-   "team": "LV",
-   "player": "Brock Bowers",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "CLE @ PIT",
-   "team": "CLE",
-   "player": "Dylan Sampson",
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
@@ -428,13 +386,19 @@
   {
    "event": "KC @ DEN",
    "team": "DEN",
-   "player": "Jaylen Waddle",
+   "player": "RJ Harvey",
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
    "event": "KC @ DEN",
    "team": "DEN",
-   "player": "Marvin Mims Jr.",
+   "player": "Jaylen Waddle",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
+   "event": "KC @ DEN",
+   "team": "KC",
+   "player": "Travis Kelce",
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
@@ -465,12 +429,6 @@
    "event": "NE @ MIA",
    "team": "NE",
    "player": "TreVeyon Henderson",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "PHI @ WSH",
-   "team": "WSH",
-   "player": "Stefon Diggs",
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
@@ -526,7 +484,7 @@
   ],
   "tdMarketOffered": true,
   "pricedCandidates": 0,
-  "roleReadyCandidates": 180,
+  "roleReadyCandidates": 167,
   "cardActivation": "FOUNDER_DECISION_PENDING"
  },
  "disclaimer": "Model touchdown probabilities. Educational."

@@ -3,25 +3,33 @@
  * no "use client"; nothing here may reach a client bundle: prop-line-switch-off.test.mjs). It prints a view built by
  * lib/odds/prop-line-view.mjs from a sport adapter; it computes nothing itself (the rounding policy lives there).
  *
- * Every row, scannable left to right:
+ * Every row, scannable left to right (ten cells, always in this order — the header row names them ONCE):
  *   PRIMARY    PLAYER | MARKET | MODEL | BOOK LINE | DIRECTION | DIFFERENCE
  *   SECONDARY  SPORTSBOOK | OVER PRICE | UNDER PRICE | QUOTED AT (ET)        (smaller, muted)
+ * A row that is not COMPARED has one STATUS cell in place of DIRECTION + DIFFERENCE (nine cells).
  * Direction is a word + a shape + a colour token (▲ OVER green, ▼ UNDER red, = NEUTRAL grey) — colour is never the only
  * signal. A row in a STATE (stale, captured after cutoff, not matched, unavailable, unsupported, suspended) shows a dashed
- * grey chip with the state's label and one plain sentence — never a direction, never a difference, never a zero. The
- * engineering reason code is a data attribute only (data-prop-line-reason).
+ * grey chip with the state's label — never a direction, never a difference, never a zero; the state's one plain sentence
+ * is printed ONCE per section under the table (data-prop-line-states), not once per row. The engineering reason code is
+ * a data attribute only (data-prop-line-reason).
  * DIRECTION_WITHHELD ("Comparison not shown" — the family's forecast is not direction-qualified, lib/odds/prop-line-view.mjs
  * direction gate): the model and the line print as normal text with the book, prices and quote time, beside the grey chip
- * and the founder's sentence — no badge, no colour, no difference.
+ * — no badge, no colour, no difference; the founder's sentence is in the section's state list.
+ *
+ * PAGE WEIGHT (2026-10-29: a 97-row game panel was ~1.3 KB of HTML per row, then duplicated in the RSC payload): a row is
+ * bare role="row" / role="cell" divs — no per-row class, inline style, label or sentence. Styling hangs off the row's
+ * data attributes (data-prop-line = state, data-prop-line-side = OVER / UNDER / NEUTRAL) and the cell's position; the
+ * card labels ("Model", "Line", …) and the direction shape are CSS generated content, written once in the stylesheet
+ * below (with empty alt text, so a screen reader hears the column header, not the label twice). Budget pinned by
+ * prop-line-weight.test.mjs.
  *
  * Layout (one markup, CSS container queries on the section's own width, so a narrow panel gets cards too):
- *   < 560 px   stacked compact cards: name / market, then a Model · Line · Direction · Difference row, then the
- *              sportsbook / prices / time line;
+ *   < 560 px   stacked compact cards: name, market, then a Model · Line · Direction · Difference row, then the
+ *              sportsbook / prices and the time; the header row is visually hidden (still announced);
  *   560–879    a two-line table row (primary columns; secondary under the market .. difference columns);
  *   ≥ 880      one aligned table row with all ten columns.
  * Numeric columns are tabular and right-aligned; long names wrap inside their cell; text ≥ 12 px; no horizontal page
- * overflow at 390 / 430 / 768 / 1440 (evidence: gtp-evidence/odds-ui/v2). Tooltips (title) only explain a column — they
- * never repeat a number.
+ * overflow at 390 / 430 / 768 / 1440. Tooltips (title) only explain a column — they never repeat a number.
  *
  * Gate: `display.public` (the sport's switch, e.g. NBA_LINE_DISPLAY). False → every export here renders NOTHING (null),
  * so a page that includes it is byte-identical to the page without it (display not authorized = projection-only).
@@ -63,108 +71,105 @@ const HELP = {
   quoted: "When the line was captured, in Eastern Time.",
 } as const;
 
+/* Cell positions → grid areas. Every row: 1 player · 2 market · 3 model · 4 line · 5 direction (COMPARED) or status
+   (spanning direction + difference). COMPARED rows (and the header): 6 difference · 7 book · 8 over · 9 under · 10 quoted.
+   Other rows: 6 book · 7 over · 8 under · 9 quoted. */
+const R = ".plc-t>[role=row]"; // every row, the header included (grid areas)
+const D = ".plc-t>[data-prop-line]"; // data rows
+const C = ".plc-t>[data-prop-line=COMPARED]";
+const S = ".plc-t>[data-prop-line]:not([data-prop-line=COMPARED])";
+const P = `${S}:not([data-prop-line=YES_NO])`; // a state row whose price cells are Over / Under (a yes/no row prints "Yes")
+const H = ".plc-t>.plc-h";
+const k = (sel: string, n: number) => `${sel}>:nth-child(${n})`;
+const AREAS: Array<[string, string]> = [
+  [k(R, 1), "p"], [k(R, 2), "m"], [k(R, 3), "mo"], [k(R, 4), "li"],
+  [`${k(H, 5)},${k(C, 5)}`, "di"], [`${k(H, 6)},${k(C, 6)}`, "df"], [`${k(H, 7)},${k(C, 7)}`, "bk"], [`${k(H, 8)},${k(C, 8)}`, "ov"], [`${k(H, 9)},${k(C, 9)}`, "un"], [`${k(H, 10)},${k(C, 10)}`, "q"],
+  [k(S, 5), "di/di/di/df"], [k(S, 6), "bk"], [k(S, 7), "ov"], [k(S, 8), "un"], [k(S, 9), "q"],
+];
+/** Generated content with empty alternative text (the second declaration wins where supported; the first is the fallback). */
+const gen = (t: string) => `content:"${t}";content:"${t}"/""`;
+const NUM = [k(D, 3), k(D, 4), k(C, 6), k(C, 8), k(C, 9), k(S, 7), k(S, 8)].join(",");
+const SECONDARY = [k(C, 7), k(C, 8), k(C, 9), k(C, 10), k(S, 6), k(S, 7), k(S, 8), k(S, 9)].join(",");
+/** Card / two-line labels, written once here instead of once per row. */
+const LABELS: Array<[string, string]> = [[k(D, 3), "Model"], [k(D, 4), "Line"], [k(C, 5), "Direction"], [k(C, 6), "Difference"], [k(S, 5), "Status"]];
+const INLINE: Array<[string, string]> = [[`${k(C, 8)},${k(P, 7)}`, "Over "], [`${k(C, 9)},${k(P, 8)}`, "Under "], [`${k(C, 10)},${k(S, 9)}`, "Quoted "]];
+const before = (sel: string) => sel.split(",").map((x) => `${x}::before`).join(",");
+const SIDES: Array<[string, string, string]> = [["OVER", "var(--vault-success)", "▲ "], ["UNDER", "var(--vault-danger)", "▼ "], ["NEUTRAL", "var(--vault-text-mute)", "= "]];
+
 /* Container-query layout. Tokens only (no literal colour, no fallback inside var()); every font ≥ 12 px. */
 const CSS = `
 .plc{container-type:inline-size;min-width:0}
 .plc-t{display:flex;flex-direction:column;min-width:0}
-.plc-r{display:grid;column-gap:12px;row-gap:4px;padding:10px 0;border-top:1px solid var(--vault-border);align-items:baseline;min-width:0;font-size:13px;color:var(--vault-text);
+${R}{display:grid;column-gap:12px;row-gap:4px;padding:10px 0;align-items:baseline;min-width:0;font-size:13px;color:var(--vault-text);
 grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(92px,1.3fr) minmax(0,1fr);
-grid-template-areas:"player player player player" "market market market market" "model line dir diff" "sec sec sec sec" "why why why why"}
-.plc-h{display:none}
-.plc-c{min-width:0}
-.plc-player{grid-area:player;font-size:14px;font-weight:600;overflow-wrap:anywhere}
-.plc-team{color:var(--vault-text-mute);font-weight:400}
-.plc-market{grid-area:market;font-size:12px;color:var(--vault-text-mute);overflow-wrap:anywhere}
-.plc-model{grid-area:model}.plc-line{grid-area:line}.plc-dir{grid-area:dir}.plc-diff{grid-area:diff}
-.plc-n{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
-.plc-r .plc-n{text-align:left}
-.plc-v{font-weight:700}
-.plc-st{grid-column:dir-start/diff-end}
-.plc-sec{grid-area:sec;display:flex;flex-wrap:wrap;gap:2px 12px;font-size:12px;color:var(--vault-text-mute)}
-.plc-book{color:var(--vault-text)}
-.plc-why{grid-area:why;font-size:12px;color:var(--vault-text-mute)}
-.plc-l{display:block;font-size:12px;font-weight:400;color:var(--vault-text-mute)}
-.plc-li{color:var(--vault-text-mute)}
-.plc-b{display:inline-block;border-radius:4px;padding:0 6px;font-weight:700;font-size:12px;letter-spacing:0.04em;white-space:nowrap;line-height:1.6}
-.plc-chip{display:inline-block;border:1px dashed var(--vault-text-mute);color:var(--vault-text-mute);border-radius:4px;padding:0 6px;font-size:12px;font-weight:600;line-height:1.6}
+grid-template-areas:"p p p p" "m m m m" "mo li di df" "bk ov un un" "q q q q"}
+${D}{border-top:1px solid var(--vault-border)}
+${R}>*{min-width:0}
+${AREAS.map(([sel, a]) => `${sel}{grid-area:${a}}`).join("\n")}
+${H}{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+${k(D, 1)}{font-size:14px;font-weight:600;overflow-wrap:anywhere}
+${k(D, 1)} span{color:var(--vault-text-mute);font-weight:400}
+${k(D, 2)}{font-size:12px;color:var(--vault-text-mute);overflow-wrap:anywhere}
+${NUM}{font-variant-numeric:tabular-nums;white-space:nowrap}
+${k(D, 3)},${k(D, 4)},${k(C, 6)}{font-weight:700}
+${k(`${S}:not([data-prop-line=DIRECTION_WITHHELD])`, 4)}{font-weight:400;color:var(--vault-text-mute)}
+${SECONDARY}{font-size:12px;color:var(--vault-text-mute)}
+${k(C, 7)},${k(S, 6)}{color:var(--vault-text);overflow-wrap:anywhere}
+${before(LABELS.map(([s]) => s).join(","))}{display:block;font-size:12px;font-weight:400;color:var(--vault-text-mute)}
+${[...LABELS, ...INLINE].map(([s, t]) => `${before(s)}{${gen(t)}}`).join("\n")}
+${D} b{display:inline-block;border-radius:4px;padding:0 6px;font-weight:700;font-size:12px;letter-spacing:0.04em;white-space:nowrap;line-height:1.6;border:1px solid}
+${S} b{border:1px dashed var(--vault-text-mute);color:var(--vault-text-mute);font-weight:600;letter-spacing:0}
+${SIDES.map(([s, c, g]) => `${D}[data-prop-line-side=${s}] b,${D}[data-prop-line-side=${s}]>:nth-child(6){color:${c}}\n${D}[data-prop-line-side=${s}] b::before{${gen(g)}}`).join("\n")}
+.plc-states{list-style:none;padding-left:0;font-size:12px;line-height:1.6;color:var(--vault-text-mute)}
+.plc-states b{display:inline-block;border:1px dashed var(--vault-text-mute);border-radius:4px;padding:0 6px;font-size:12px;font-weight:600;line-height:1.6;margin-right:6px}
 @container (min-width:560px){
-.plc-r,.plc-h{grid-template-columns:minmax(0,1.5fr) minmax(0,1.2fr) 76px 76px 112px 84px;
-grid-template-areas:"player market model line dir diff" "player book over under quoted quoted" "player why why why why why"}
-.plc-h{display:grid;column-gap:12px;padding:6px 0;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--vault-text-mute);align-items:end}
-.plc-h .plc-hs{display:none}
-.plc-r .plc-n{text-align:right}
-.plc-dir,.plc-h .plc-dir{text-align:left}
-.plc-l{display:none}
-.plc-sec{display:contents}
-.plc-book{grid-area:book;overflow-wrap:anywhere}.plc-over{grid-area:over}.plc-under{grid-area:under}.plc-quoted{grid-area:quoted}
-.plc-sec .plc-c{font-size:12px;color:var(--vault-text-mute)}
-.plc-sec .plc-book{color:var(--vault-text)}
+${R}{grid-template-columns:minmax(0,1.5fr) minmax(0,1.2fr) 76px 76px 112px 84px;
+grid-template-areas:"p m mo li di df" "p bk ov un q q"}
+${H}{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;white-space:normal;padding:6px 0;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--vault-text-mute);align-items:end}
+${H}>:nth-child(n+7){position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+${NUM},${[3, 4, 6, 8, 9].map((n) => k(H, n)).join(",")}{text-align:right}
+${before(LABELS.map(([s]) => s).join(","))}{content:none}
 }
 @container (min-width:880px){
-.plc-r,.plc-h{grid-template-columns:minmax(0,1.5fr) minmax(0,1.2fr) 64px 84px 112px 92px minmax(0,1fr) 96px 104px minmax(0,1.2fr);
-grid-template-areas:"player market model line dir diff book over under quoted" "player why why why why why why why why why"}
-.plc-h .plc-hs{display:block}
-.plc-li{display:none}
+${R}{grid-template-columns:minmax(0,1.5fr) minmax(0,1.2fr) 64px 84px 112px 92px minmax(0,1fr) 96px 104px minmax(0,1.2fr);
+grid-template-areas:"p m mo li di df bk ov un q"}
+${H}>:nth-child(n+7){position:static;width:auto;height:auto;overflow:visible;clip:auto;white-space:normal}
+${before(INLINE.map(([s]) => s).join(","))}{content:none}
 }
 `;
 
 const dash = (spoken: string) => <><span aria-hidden="true">—</span><span className="sr-only">{spoken}</span></>;
+const price = (p: Price | null | undefined, spoken: string) => (p?.value != null ? p.text : dash(spoken));
 
-function Direction({ row }: { row: PropLineViewRow }) {
-  if (row.state !== "COMPARED" || !row.side) {
-    return <span className="plc-chip" data-prop-line-side={row.state}>{row.statusText}</span>;
-  }
-  const c = SIDE_COLOR[row.side];
-  return (
-    <span className="plc-b" data-prop-line-side={row.side} style={{ color: c, border: `1px solid ${c}` }}>
-      <span aria-hidden="true">{GLYPH[row.side]}</span> {row.side}
-    </span>
-  );
-}
-
-/** One row (a card below 560 px, a table row above). */
+/** One row (a card below 560 px, a table row above): bare cells; see the position map above. */
 export function PropLineRow({ row }: { row: PropLineViewRow }) {
-  const compared = row.state === "COMPARED";
-  const withheld = row.state === "DIRECTION_WITHHELD";
-  const lineMuted = !compared && !withheld && row.line;
+  const compared = row.state === "COMPARED" && !!row.side;
+  // data-prop-line-side only on a compared row; the reason code only where the state does not already imply it.
   return (
-    <div role="row" className="plc-r" data-prop-line={row.state} data-prop-line-reason={row.reason ?? undefined}>
-      <div role="cell" className="plc-c plc-player">{row.player.name}{row.player.team ? <span className="plc-team"> · {row.player.team}</span> : null}</div>
-      <div role="cell" className="plc-c plc-market">{row.market.label}</div>
-      <div role="cell" className="plc-c plc-model plc-n"><span className="plc-l">Model</span><span className="plc-v">{row.projection.text}</span></div>
-      <div role="cell" className="plc-c plc-line plc-n">
-        <span className="plc-l">Line</span>
-        {row.line ? <span className={lineMuted ? undefined : "plc-v"} style={lineMuted ? MUTE : undefined}>{row.line.text}</span> : dash("no line")}
-      </div>
-      {compared ? (
-        <>
-          <div role="cell" className="plc-c plc-dir"><span className="plc-l">Direction</span><Direction row={row} /></div>
-          <div role="cell" className="plc-c plc-diff plc-n">
-            <span className="plc-l">Difference</span>
-            <span className="plc-v" style={{ color: row.color }} data-prop-line-diff="">{row.difference?.text ?? "—"}</span>
-          </div>
-        </>
-      ) : (
-        <div role="cell" className="plc-c plc-dir plc-st"><span className="plc-l">Status</span><Direction row={row} /></div>
-      )}
+    <div role="row" data-prop-line={row.state} data-prop-line-side={compared ? row.side! : undefined} data-prop-line-reason={row.reason && row.state !== "DIRECTION_WITHHELD" ? row.reason : undefined}>
+      <div role="cell">{row.player.name}{row.player.team ? <span>{` · ${row.player.team}`}</span> : null}</div>
+      <div role="cell">{row.market.label}</div>
+      <div role="cell">{row.projection.text}</div>
+      <div role="cell">{row.line ? row.line.text : dash("no line")}</div>
+      <div role="cell"><b>{compared ? row.side : row.statusText}</b></div>
+      {compared ? <div role="cell">{row.difference?.text ?? "—"}</div> : null}
       {row.book ? (
-        <div role="none" className="plc-sec">
-          <div role="cell" className="plc-c plc-book">{row.book.label}</div>
+        <>
+          <div role="cell">{row.book.label}</div>
           {row.yesPrice ? (
             <>
-              <div role="cell" className="plc-c plc-over plc-n" data-prop-line-yes=""><span>Yes </span>{row.yesPrice.value != null ? row.yesPrice.text : dash("Yes price not posted")}</div>
-              <div role="cell" className="plc-c plc-under plc-n">{dash("no Under side: a yes/no market")}</div>
+              <div role="cell" data-prop-line-yes="">{`Yes ${row.yesPrice.value != null ? row.yesPrice.text : ""}`}{row.yesPrice.value != null ? null : dash("Yes price not posted")}</div>
+              <div role="cell">{dash("no Under side: a yes/no market")}</div>
             </>
           ) : (
             <>
-              <div role="cell" className="plc-c plc-over plc-n"><span className="plc-li">Over </span>{row.overPrice?.value != null ? row.overPrice.text : dash("Over price not posted")}</div>
-              <div role="cell" className="plc-c plc-under plc-n"><span className="plc-li">Under </span>{row.underPrice?.value != null ? row.underPrice.text : dash("Under price not posted")}</div>
+              <div role="cell">{price(row.overPrice, "Over price not posted")}</div>
+              <div role="cell">{price(row.underPrice, "Under price not posted")}</div>
             </>
           )}
-          <div role="cell" className="plc-c plc-quoted"><span className="plc-li">Quoted </span>{row.quotedAt?.text ?? "—"}{compared || withheld ? null : " · not compared"}</div>
-        </div>
+          <div role="cell">{row.quotedAt?.text ?? "—"}</div>
+        </>
       ) : null}
-      {!compared && row.reasonText ? <div role="cell" className="plc-c plc-why">{row.reasonText}</div> : null}
     </div>
   );
 }
@@ -172,16 +177,16 @@ export function PropLineRow({ row }: { row: PropLineViewRow }) {
 function HeaderRow() {
   return (
     <div role="row" className="plc-h">
-      <div role="columnheader" style={{ gridArea: "player" }}>Player</div>
-      <div role="columnheader" style={{ gridArea: "market" }}>Market</div>
-      <div role="columnheader" className="plc-n" style={{ gridArea: "model", textAlign: "right" }} title={HELP.model}>Model</div>
-      <div role="columnheader" className="plc-n" style={{ gridArea: "line", textAlign: "right" }} title={HELP.line}>Book line</div>
-      <div role="columnheader" className="plc-dir" style={{ gridArea: "dir" }} title={HELP.direction}>Direction</div>
-      <div role="columnheader" className="plc-n" style={{ gridArea: "diff", textAlign: "right" }} title={HELP.difference}>Difference</div>
-      <div role="columnheader" className="plc-hs" style={{ gridArea: "book" }}>Sportsbook</div>
-      <div role="columnheader" className="plc-hs plc-n" style={{ gridArea: "over", textAlign: "right" }}>Over price</div>
-      <div role="columnheader" className="plc-hs plc-n" style={{ gridArea: "under", textAlign: "right" }}>Under price</div>
-      <div role="columnheader" className="plc-hs" style={{ gridArea: "quoted" }} title={HELP.quoted}>Quoted at (ET)</div>
+      <div role="columnheader">Player</div>
+      <div role="columnheader">Market</div>
+      <div role="columnheader" title={HELP.model}>Model</div>
+      <div role="columnheader" title={HELP.line}>Book line</div>
+      <div role="columnheader" title={HELP.direction}>Direction</div>
+      <div role="columnheader" title={HELP.difference}>Difference</div>
+      <div role="columnheader">Sportsbook</div>
+      <div role="columnheader">Over price</div>
+      <div role="columnheader">Under price</div>
+      <div role="columnheader" title={HELP.quoted}>Quoted at (ET)</div>
     </div>
   );
 }
@@ -212,6 +217,18 @@ export function PropLineLegend({ legend, display, show = { sides: true, withheld
   );
 }
 
+/** Each non-compared state present in the rows, once: its chip label and its one plain sentence (in first-seen order). */
+export function PropLineStateNotes({ rows }: { rows: PropLineViewRow[] }) {
+  const seen = new Map<string, PropLineViewRow>();
+  for (const r of rows) if (r.state !== "COMPARED" && r.reasonText && !seen.has(r.state)) seen.set(r.state, r);
+  if (!seen.size) return null;
+  return (
+    <ul data-prop-line-states="" className="plc-states m-0">
+      {[...seen.values()].map((r) => <li key={r.state} data-prop-line-state={r.state}><b>{r.statusText}</b>{r.reasonText}</li>)}
+    </ul>
+  );
+}
+
 const STATE_COUNT_WORDS: Array<[keyof PropLineViewModel["counts"], string]> = [
   ["stale", "line stale"], ["afterCutoff", "captured after cutoff"], ["mismatch", "line not matched"],
   ["unavailable", "line unavailable"], ["unsupported", "market not supported"], ["suspended", "market suspended"],
@@ -222,23 +239,29 @@ const notCompared = (c: PropLineViewModel["counts"]) => STATE_COUNT_WORDS.filter
 
 /**
  * The whole section: heading, coverage line ("N of M projections have a qualified sportsbook line"), the table / cards,
- * the legend. `view` null (or no rows and no coverage) while the switch is on = the provider / source is unavailable.
+ * the state notes, the legend. `view` null (or no rows and no coverage) while the switch is on = the provider / source
+ * is unavailable.
+ * `children` (a slate page): printed IN PLACE OF the per-player table — e.g. one compact summary per game linking to that
+ * game's full table — with the same coverage line above it; the legend's direction lines then follow the slate's counts.
  */
-export default function PropLineComparison({ view, display, heading = "Model vs. sportsbook line", id = "prop-lines", withoutLine = 0, notes }: {
+export default function PropLineComparison({ view, display, heading = "Model vs. sportsbook line", id = "prop-lines", withoutLine = 0, notes, children }: {
   view: PropLineViewModel | null; display: Display; heading?: string; id?: string;
   /** Legacy count of projections without a line, used only when the view carries no coverage denominator. */
   withoutLine?: number;
   /** Source notes printed under the legend when rows are shown (provider attribution, book availability). Omitted → nothing. */
   notes?: string[];
+  /** Replaces the per-player table (slate pages: per-game summaries). */
+  children?: React.ReactNode;
 }) {
   if (!display.public) return null;
   const rows = view?.rows ?? [];
   const c = view?.counts;
   const cov = view?.coverage?.text ?? null;
   const skipped = c ? notCompared(c) : [];
+  const table = children === undefined;
   return (
     <section id={id} aria-labelledby={`${id}-h`} data-prop-lines={view?.sport ?? "none"} className="plc flex flex-col gap-2" style={{ minWidth: 0 }}>
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      {table && rows.length ? <style dangerouslySetInnerHTML={{ __html: CSS }} /> : null}
       <h2 id={`${id}-h`} className="m-0 font-display" style={{ ...TEXT, fontSize: 17, fontWeight: 700 }}>{heading}</h2>
       {rows.length ? (
         <p className="m-0" data-prop-line-coverage="" style={{ ...MUTE, fontSize: 12 }}>
@@ -251,12 +274,14 @@ export default function PropLineComparison({ view, display, heading = "Model vs.
           {cov ? `${cov}.` : "Sportsbook lines: Unavailable. No verified sportsbook line is published for these projections right now."}
         </p>
       )}
-      {rows.length ? (
+      {rows.length && table ? (
         <div role="table" aria-label={heading} className="plc-t">
           <HeaderRow />
           {rows.map((r, i) => <PropLineRow key={r.key ?? i} row={r} />)}
         </div>
       ) : null}
+      {rows.length && !table ? children : null}
+      {rows.length && table ? <PropLineStateNotes rows={rows} /> : null}
       {rows.length && view ? <PropLineLegend legend={view.legend} display={display} show={{ sides: (c?.compared ?? 0) > 0, withheld: (c?.directionWithheld ?? 0) > 0 }} /> : null}
       {rows.length && notes?.length ? <p data-prop-line-notes="" className="m-0" style={{ ...MUTE, fontSize: 12 }}>{notes.join(" ")}</p> : null}
     </section>

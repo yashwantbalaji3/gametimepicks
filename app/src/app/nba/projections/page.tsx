@@ -17,6 +17,7 @@ import { boardContext } from "@/components/nba/projection-board-context";
 import NbaProjectionsView from "@/components/nba/projections-view";
 import { AMENDMENT_A } from "@/lib/sports/nba/experimental-public-lane.mjs";
 import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
+import { nbaLineSummaryGameLinks } from "@/components/nba/prop-line-game-links";
 
 export const metadata = withRouteMetadata("/nba/projections/", {
   title: "NBA Predicted Player Statistics · GameTime Picks",
@@ -24,9 +25,9 @@ export const metadata = withRouteMetadata("/nba/projections/", {
     "Official Forecast NBA player medians (PTS, REB, AST, 3PM, PRA, P+R, P+A), frozen before tip-off, with matchup, team, player and stat filters; between slates, today's schedule and the latest frozen board. Not betting recommendations.",
 });
 
-export default function NbaProjectionsPage() {
+export default async function NbaProjectionsPage() {
   // Amendment A's rollback switch, then the lane's own switch and slate-date gate (inside loadCurrentLane).
   const now = new Date();
   const ctx = boardContext({ date: null, nowIso: now.toISOString(), buildEtDate: currentEtDate(now), enabled: AMENDMENT_A.enabled });
-  return <NbaProjectionsView lane={ctx.lane} role={ctx.role} date={ctx.date} games={ctx.games} dates={ctx.dates} today={ctx.today} actuals={ctx.actuals} eloCtx={loadEloWinProbabilityContext()} asOf={now.toISOString()} />;
+  return <NbaProjectionsView lane={ctx.lane} role={ctx.role} date={ctx.date} games={ctx.games} dates={ctx.dates} today={ctx.today} actuals={ctx.actuals} eloCtx={loadEloWinProbabilityContext()} asOf={now.toISOString()} gameLinks={await nbaLineSummaryGameLinks(currentEtDate(now))} />;
 }

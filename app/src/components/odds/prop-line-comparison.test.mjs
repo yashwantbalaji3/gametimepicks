@@ -22,8 +22,23 @@ const row = (k) => r(React.createElement(PropLineRow, { row: view([k]).rows[0] }
 const dec = (s) => s.replace(/&#x27;/g, "'").replace(/&amp;/g, "&");
 /** What a sighted reader sees (sr-only text and the <style> block removed). */
 const visible = (html) => dec(html.replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<span class="sr-only">[\s\S]*?<\/span>/g, " ").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
-/** Cell text by class (first match). */
-const cell = (html, cls) => { const m = html.match(new RegExp(`class="plc-c [^"]*\\b${cls}\\b[^"]*"[^>]*>([\\s\\S]*?)</div>`)); return m ? visible(m[1]) : null; };
+/** Visible text of every cell of a row, in order. */
+const cells = (html) => [...html.matchAll(/<div role="cell"[^>]*>([\s\S]*?)<\/div>/g)].map((m) => visible(m[1]));
+/* Cell positions (the header names them once): a COMPARED row has ten cells; any other row has one status cell in place
+   of direction + difference (nine, or five without a sportsbook quote). */
+const COL = { player: 0, market: 1, model: 2, line: 3, dir: 4, diff: 5, book: 6, over: 7, under: 8, quoted: 9 };
+/** Cell text by column name. */
+const cell = (html, col) => {
+  const c = cells(html), compared = /data-prop-line="COMPARED"/.test(html);
+  if (!compared && col === "diff") return null;
+  return c[!compared && COL[col] > 5 ? COL[col] - 1 : COL[col]] ?? null;
+};
+/** The section's one stylesheet (labels, shapes and colours live here, once — not in each row). */
+const CSS = r(React.createElement(PropLineComparison, { view: view(Object.keys(S), { projections: 40 }), display: ON })).match(/<style>([\s\S]*?)<\/style>/)[1];
+const sideCss = (side, token, glyph) => {
+  assert.match(CSS, new RegExp(`\\[data-prop-line-side=${side}\\] b,[^{]*\\[data-prop-line-side=${side}\\]>:nth-child\\(6\\)\\{color:var\\(--${token}\\)\\}`), `${side}: badge + difference colour`);
+  assert.ok(CSS.includes(`[data-prop-line-side=${side}] b::before{content:"${glyph} ";content:"${glyph} "/""}`), `${side}: the shape ${glyph} beside the word (decorative: empty alt text)`);
+};
 const ALL = Object.keys(S);
 
 test("switch off: the section, the legend and the summary render nothing at all", () => {
@@ -35,36 +50,42 @@ test("switch off: the section, the legend and the summary render nothing at all"
 test("OVER row: PLAYER | MARKET | MODEL | BOOK LINE | DIRECTION | DIFFERENCE, then SPORTSBOOK | OVER | UNDER | QUOTED (ET)", () => {
   const h = row("over");
   assert.deepEqual(
-    ["plc-player", "plc-market", "plc-model", "plc-line", "plc-dir", "plc-diff", "plc-book", "plc-over", "plc-under", "plc-quoted"].map((c) => cell(h, c)),
-    ["Fixture Player One · AWY", "Points", "Model 36.0", "Line 29.5", "Direction ▲ OVER", "Difference +6.5", "Fixturebook", "Over −115", "Under −105", "Quoted Jan 15, 4:30 PM ET"],
+    Object.keys(COL).map((c) => cell(h, c)),
+    ["Fixture Player One · AWY", "Points", "36.0", "29.5", "OVER", "+6.5", "Fixturebook", "−115", "−105", "Jan 15, 4:30 PM ET"],
   );
-  assert.match(h, /data-prop-line-side="OVER" style="color:var\(--vault-success\);border:1px solid var\(--vault-success\)"/);
-  assert.match(h, /<span aria-hidden="true">▲<\/span> OVER/, "word + shape + colour; the shape is decorative to a screen reader");
-  assert.match(h, /role="row" class="plc-r" data-prop-line="COMPARED"/);
+  assert.match(h, /^<div role="row" data-prop-line="COMPARED" data-prop-line-side="OVER">/);
+  assert.match(h, /<div role="cell"><b>OVER<\/b><\/div>/, "the word; the shape and colour come from the section's stylesheet");
+  sideCss("OVER", "vault-success", "▲");
+  // the card labels are written once, in the stylesheet — never once per row
+  for (const l of ["Model", "Line", "Direction", "Difference", "Status", "Over ", "Under ", "Quoted "]) assert.ok(CSS.includes(`content:"${l}";content:"${l}"/""`), l);
+  assert.doesNotMatch(h, /style=|class=|Model|Line|Direction|Difference|Quoted/, "a row carries data only: no inline style, class, label or prose");
 });
 
 test("UNDER red ▼ with a missing Under price as '—' (never 0); NEUTRAL grey = with an unsigned 0.0", () => {
   const u = row("under");
-  assert.deepEqual([cell(u, "plc-dir"), cell(u, "plc-diff"), cell(u, "plc-under")], ["Direction ▼ UNDER", "Difference −2.3", "Under —"]);
-  assert.match(u, /var\(--vault-danger\)/);
+  assert.deepEqual([cell(u, "dir"), cell(u, "diff"), cell(u, "under")], ["UNDER", "−2.3", "—"]);
+  assert.match(u, /data-prop-line-side="UNDER"/);
+  sideCss("UNDER", "vault-danger", "▼");
   assert.match(u, /<span class="sr-only">Under price not posted<\/span>/);
   const n = row("neutral");
-  assert.deepEqual([cell(n, "plc-dir"), cell(n, "plc-diff")], ["Direction = NEUTRAL", "Difference 0.0"]);
-  assert.match(n, /data-prop-line-side="NEUTRAL" style="color:var\(--vault-text-mute\)/);
+  assert.deepEqual([cell(n, "dir"), cell(n, "diff")], ["NEUTRAL", "0.0"]);
+  assert.match(n, /data-prop-line-side="NEUTRAL"/);
+  sideCss("NEUTRAL", "vault-text-mute", "=");
   assert.doesNotMatch(n, /vault-(success|danger)/);
   const z = row("zeroPrice");
-  assert.deepEqual([cell(z, "plc-over"), cell(z, "plc-under")], ["Over —", "Under —"]);
+  assert.deepEqual([cell(z, "over"), cell(z, "under")], ["—", "—"]);
 });
 
 test("rounding edge: +0.0 stays OVER (green ▲) and −0.0 stays UNDER (red ▼) — never NEUTRAL", () => {
   const o = row("tinyOver"), u = row("tinyUnder");
-  assert.deepEqual([cell(o, "plc-dir"), cell(o, "plc-diff")], ["Direction ▲ OVER", "Difference +0.0"]);
-  assert.deepEqual([cell(u, "plc-dir"), cell(u, "plc-diff")], ["Direction ▼ UNDER", "Difference −0.0"]);
-  assert.match(o, /data-prop-line-diff="">\+0\.0/);
+  assert.deepEqual([cell(o, "dir"), cell(o, "diff")], ["OVER", "+0.0"]);
+  assert.deepEqual([cell(u, "dir"), cell(u, "diff")], ["UNDER", "−0.0"]);
+  assert.match(o, /data-prop-line-side="OVER"/);
+  assert.match(u, /data-prop-line-side="UNDER"/);
   assert.doesNotMatch(o + u, /NEUTRAL/);
 });
 
-test("states: plain label + one sentence, NO direction badge, no difference, no colour; reason code only as a data attribute", () => {
+test("states: plain label (row) + one sentence (once per section), NO direction badge, no difference, no colour; reason code only as a data attribute", () => {
   const cases = {
     stale: ["Line stale", "STALE", /This sportsbook line is more than 6 hours old, so it is not compared\./],
     afterTip: ["Captured after cutoff", "CAPTURED_AFTER_TIP", /captured after the game started, so it is not compared\./],
@@ -77,20 +98,30 @@ test("states: plain label + one sentence, NO direction badge, no difference, no 
   };
   for (const [k, [label, code, why]] of Object.entries(cases)) {
     const h = row(k);
-    assert.equal(cell(h, "plc-dir"), `Status ${label}`, k);
-    assert.match(cell(h, "plc-why"), why, k);
+    assert.equal(cell(h, "dir"), label, k);
+    assert.match(h, new RegExp(`<div role="cell"><b>${label}</b></div>`), `${k}: the chip`);
+    // the state's sentence: once in the section's state notes, never in the row
+    const sec = r(React.createElement(PropLineComparison, { view: view([k], { projections: 5 }), display: ON }));
+    const note = sec.match(/<li data-prop-line-state="[A-Z_]+"><b>([^<]*)<\/b>([^<]*)<\/li>/);
+    assert.ok(note, `${k}: a state note`);
+    assert.equal(dec(note[1]), label, k);
+    assert.match(dec(note[2]), why, k);
+    assert.doesNotMatch(dec(visible(h)), why, `${k}: no sentence in the row`);
     assert.match(h, new RegExp(`data-prop-line-reason="${code}"`), k);
     assert.doesNotMatch(visible(h), new RegExp(code.replace("_", "[ _]")), `${k}: the code is not reader copy`);
     assert.doesNotMatch(visible(h), /\bOVER\b|\bUNDER\b|NEUTRAL|[▲▼]/, k);
-    assert.doesNotMatch(h, /data-prop-line-diff|plc-b"|vault-(success|danger)/, k);
-    assert.doesNotMatch(cell(h, "plc-model"), /^Model 0\.0$/, `${k}: never a false zero`);
+    assert.doesNotMatch(h, /data-prop-line-side=|vault-(success|danger)/, `${k}: no side, no colour`);
+    assert.ok(cells(h).length <= 9, `${k}: no difference cell`);
+    assert.doesNotMatch(cell(h, "model"), /^0\.0$/, `${k}: never a false zero`);
   }
-  // a stale / after-cutoff quote is still printed, muted, marked "not compared"; a mismatched line is never attributed
-  assert.equal(cell(row("stale"), "plc-quoted"), "Quoted Jan 15, 10:30 AM ET · not compared");
-  assert.equal(cell(row("stale"), "plc-line"), "Line 1.5");
+  // a stale / after-cutoff quote is still printed (muted by the stylesheet: the status chip says it is not compared); a
+  // mismatched line is never attributed
+  assert.equal(cell(row("stale"), "quoted"), "Jan 15, 10:30 AM ET");
+  assert.equal(cell(row("stale"), "line"), "1.5");
+  assert.ok(CSS.includes(":not([data-prop-line=COMPARED]):not([data-prop-line=DIRECTION_WITHHELD])>:nth-child(4){font-weight:400;color:var(--vault-text-mute)}"), "a non-compared line prints muted");
   for (const k of ["unmatched", "wrongDay", "suspended", "unsupported", "noLine"]) {
     assert.doesNotMatch(row(k), /Fixturebook/, `${k}: no book attributed`);
-    assert.equal(cell(row(k), "plc-line"), "Line —", `${k}: the line cell is a dash, never 0`);
+    assert.equal(cell(row(k), "line"), "—", `${k}: the line cell is a dash, never 0`);
     assert.match(row(k), /<span aria-hidden="true">—<\/span><span class="sr-only">no line<\/span>/);
   }
 });
@@ -101,7 +132,12 @@ test("section: heading, 'N of M projections have a qualified sportsbook line' (t
   assert.match(visible(h), /7 of 40 projections have a qualified sportsbook line\. Not compared: 1 line stale · 1 captured after cutoff · 2 line not matched · 1 line unavailable · 2 market not supported · 1 market suspended\./);
   assert.match(h, /role="table" aria-label="Model vs. sportsbook line"/);
   assert.match(visible(h), /Player Market Model Book line Direction Difference Sportsbook Over price Under price Quoted at \(ET\)/);
-  assert.equal((h.match(/role="row" class="plc-r"/g) ?? []).length, ALL.length, "rows in input order, one each");
+  assert.equal((h.match(/role="row" data-prop-line="/g) ?? []).length, ALL.length, "rows in input order, one each");
+  assert.equal((h.match(/role="columnheader"/g) ?? []).length, 10, "the column labels once, in the header row");
+  // each non-compared state's sentence once, under the table
+  const states = new Set(view(ALL).rows.filter((x) => x.state !== "COMPARED").map((x) => x.state));
+  assert.equal((h.match(/data-prop-line-state="/g) ?? []).length, states.size);
+  assert.equal((h.match(/more than 6 hours old/g) ?? []).length, 1, "the stale sentence once");
   assert.match(h, /data-prop-line-legend/);
   assert.match(visible(h), /It is a comparison, not a bet recommendation or a probability/);
   assert.doesNotMatch(h.replace(/data-[a-z-]+="[^"]*"/g, ""), /ABOVE|BELOW|\bEQUAL\b/);
@@ -135,10 +171,10 @@ test("compact summary: counts per direction (word + shape + colour) + coverage +
 
 test("long player names wrap inside their cell (overflow-wrap) — layout never breaks", () => {
   const h = row("longName");
-  assert.match(h, /class="plc-c plc-player">Fixturename Extraordinarily-Longhyphenated Player-Surname The Third/);
-  const src = fs.readFileSync(path.join(process.cwd(), "src/components/odds/prop-line-comparison.tsx"), "utf8");
-  assert.match(src, /\.plc-player\{grid-area:player;[^}]*overflow-wrap:anywhere/);
-  assert.match(src, /\.plc-n\{font-variant-numeric:tabular-nums;text-align:right/, "numeric columns tabular + right-aligned");
+  assert.match(h, /^<div role="row" data-prop-line="COMPARED"[^>]*><div role="cell">Fixturename Extraordinarily-Longhyphenated Player-Surname The Third/);
+  assert.ok(CSS.includes(".plc-t>[data-prop-line]>:nth-child(1){font-size:14px;font-weight:600;overflow-wrap:anywhere}"), "the player cell wraps");
+  assert.match(CSS, /\.plc-t>\[data-prop-line\]>:nth-child\(3\),[^{]*\{font-variant-numeric:tabular-nums;white-space:nowrap\}/, "numeric columns tabular");
+  assert.match(CSS, /@container \(min-width:560px\)\{[\s\S]*\.plc-t>\[data-prop-line\]>:nth-child\(3\),[^{]*\{text-align:right\}/, "… and right-aligned in the table layouts");
 });
 
 test("design: tokens only (no literal colour, no fallback inside var()), text ≥ 12 px, cards below 560 px via container queries, server component", () => {
@@ -156,21 +192,22 @@ test("direction withheld (family not qualified — the default): 'Comparison not
   for (const k of ["over", "under", "neutral", "tinyOver"]) {
     const h = r(React.createElement(PropLineRow, { row: withheldView([k]).rows[0] }));
     const compared = row(k);
-    assert.equal(cell(h, "plc-model"), cell(compared, "plc-model"), `${k}: projection shown`);
-    assert.equal(cell(h, "plc-line"), cell(compared, "plc-line"), `${k}: line shown`);
-    assert.equal(cell(h, "plc-dir"), "Status Comparison not shown", k);
-    assert.equal(cell(h, "plc-why"), DIRECTION_WITHHELD_TEXT, k);
-    assert.equal(cell(h, "plc-book"), "Fixturebook");
-    assert.doesNotMatch(cell(h, "plc-quoted"), /not compared/);
+    assert.equal(cell(h, "model"), cell(compared, "model"), `${k}: projection shown`);
+    assert.equal(cell(h, "line"), cell(compared, "line"), `${k}: line shown`);
+    assert.equal(cell(h, "dir"), "Comparison not shown", k);
+    assert.equal(cells(h).length, 9, `${k}: no difference cell`);
+    assert.equal(cell(h, "book"), "Fixturebook");
+    assert.equal(cell(h, "quoted"), cell(compared, "quoted"));
     assert.match(h, /data-prop-line="DIRECTION_WITHHELD"/);
     assert.doesNotMatch(visible(h), /\bOVER\b|\bUNDER\b|NEUTRAL|[▲▼=]|Difference/, `${k}: no direction word, shape or difference`);
-    assert.doesNotMatch(h, /data-prop-line-diff|plc-b"|vault-(success|danger)|data-prop-line-side="(OVER|UNDER|NEUTRAL)"/, `${k}: no badge, no colour, no side attribute`);
+    assert.doesNotMatch(h, /data-prop-line-side=|vault-(success|danger)|data-prop-line="COMPARED"/, `${k}: no badge, no colour, no side attribute`);
   }
   const sec = r(React.createElement(PropLineComparison, { view: withheldView(["over", "under", "stale"], { projections: 10 }), display: ON }));
+  assert.equal(sec.split(DIRECTION_WITHHELD_TEXT).length - 1, 1, "the founder's sentence once per section (state notes), not once per row");
   assert.match(visible(sec), /2 of 10 projections have a qualified sportsbook line\. Not compared: 1 line stale\. Direction not shown: 2\./);
   assert.match(visible(sec), /Comparison not shown means the model and the sportsbook line are both shown without a direction/);
   assert.doesNotMatch(visible(sec), /OVER means|UNDER means|NEUTRAL means/, "no direction legend when no direction is shown");
-  assert.doesNotMatch(sec, /vault-(success|danger)/);
+  assert.doesNotMatch(sec.replace(/<style>[\s\S]*?<\/style>/, ""), /vault-(success|danger)|data-prop-line-side=/, "no row or legend line carries a side colour (the stylesheet defines them, nothing uses them)");
   assert.equal(r(React.createElement(PropLineSummary, { view: withheldView(["over", "under"], { projections: 10 }), display: ON, href: "/x/" })), "", "the compact summary counts directions: nothing to show");
   assert.equal(r(React.createElement(PropLineComparison, { view: withheldView(["over"], { projections: 10 }), display: OFF })), "", "switch off: still nothing");
 });

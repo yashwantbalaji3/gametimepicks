@@ -40,7 +40,8 @@ import ProjectionBoard, { type BoardGameNav } from "@/components/nba/projection-
 import GameStatusOnClock from "@/components/nba/projection-game-status";
 import { COMBO_STATS, PROJECTION_BOARD_STATS, COMBO_LABEL } from "@/lib/sports/nba/experimental-public-lane.mjs";
 import { EloAccuracyDisclosure, EloWinProbability, type EloCtx } from "@/components/nba/elo-win-probability";
-import NbaPropLines from "@/components/nba/nba-prop-lines";
+import { NbaSlatePropLines } from "@/components/nba/nba-prop-lines";
+import { nbaPropLinesHref } from "@/components/nba/game-page-link.mjs";
 import { NBA_LINE_DISPLAY } from "@/lib/sports/nba/line-board.mjs";
 
 const ELO_OFF: EloCtx = { enabled: false, disclosure: "" };
@@ -200,7 +201,10 @@ function TodaySlate({ today }: { today: BoardToday }) {
   );
 }
 
-export default function NbaProjectionsView({ lane, role = "current", date = null, games = [], dates = [], dated = false, today = null, actuals = null, eloCtx = ELO_OFF, asOf = "", lineDisplay = NBA_LINE_DISPLAY, priceRecords = null }: {
+type GameLinks = { current?: readonly string[]; pages?: readonly string[]; lines: readonly string[] };
+const NO_GAME_LINKS: GameLinks = { lines: [] };
+
+export default function NbaProjectionsView({ lane, role = "current", date = null, games = [], dates = [], dated = false, today = null, actuals = null, eloCtx = ELO_OFF, asOf = "", lineDisplay = NBA_LINE_DISPLAY, priceRecords = null, gameLinks = NO_GAME_LINKS }: {
   lane: Snapshot | null;
   /** "past" = a slate before the build's ET date: labelled as a past frozen slate, never as current. */
   role?: SlateRole;
@@ -223,6 +227,9 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
   asOf?: string;
   lineDisplay?: { public: boolean };
   priceRecords?: unknown[] | null;
+  /** The per-game line summaries' link ids (components/nba/prop-line-game-links.ts): `lines` = the games whose
+      /nba/lines/<id>/ page is generated (nbaLinesPageIds). Default: none → no link. */
+  gameLinks?: GameLinks;
 }) {
   const live = lane && lane.games.length > 0 ? lane : null;
   const past = role === "past";
@@ -283,7 +290,8 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
               : `Coverage list not recorded for this slate.${post ? " Players who played without a projection are listed from the final box score." : ""}`}
           </p>
           <ProjectionBoard board={packBoard(rows, post ? post.rows : null, post ? awaiting : null, noProjectionRows(live, post), post?.corrected ?? null)} stats={stats} groups={groups} matchups={matchups} teams={teams} games={nav} defaultGroup={post ? "core" : undefined} />
-          <NbaPropLines lane={live} asOf={asOf} display={lineDisplay} priceRecords={priceRecords} />
+          {/* Page weight (2026-10-29): one summary per game here; the per-player line rows live on each game page. */}
+          <NbaSlatePropLines lane={live} asOf={asOf} display={lineDisplay} priceRecords={priceRecords} hrefOf={(id) => nbaPropLinesHref(id, gameLinks.lines)} />
           {/* Model ids, receipts, engine notes and the withheld list: one tap away, each model id once. Overnight W7
               2026-10-28: the site's one shape for it — MoreDisclosure, "Technical details". */}
           <MoreDisclosure title="Technical details" summary={`Freeze times, receipts and method · ${live.games.length} game${live.games.length === 1 ? "" : "s"}`}>
