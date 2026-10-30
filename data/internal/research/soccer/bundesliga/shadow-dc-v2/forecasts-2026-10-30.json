@@ -1,0 +1,94 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "bundesliga",
+ "season": "2026-27",
+ "date": "2026-10-30",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-10-30T16:16:00.000Z",
+ "runs": [
+  {
+   "at": "2026-10-30T16:16:00.000Z",
+   "added": 1
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Ein Frankfurt|Hamburg",
+   "league": "bundesliga",
+   "season": "2026-27",
+   "eventId": "soccer:bundesliga:401884752",
+   "providerEventId": "401884752",
+   "kickoffUtc": "2026-11-01T16:30:00.000Z",
+   "matchup": "Eintracht Frankfurt v Hamburg SV",
+   "homeClub": "Eintracht Frankfurt",
+   "awayClub": "Hamburg SV",
+   "historyNames": {
+    "home": "Ein Frankfurt",
+    "away": "Hamburg"
+   },
+   "espnTeamIds": {
+    "home": "125",
+    "away": "127"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-30T16:16:00.000Z",
+   "probs": {
+    "home": 0.618664,
+    "draw": 0.209658,
+    "away": 0.171678
+   },
+   "over25": 0.649736,
+   "under25": 0.350264,
+   "expectedGoals": {
+    "home": 2.2311,
+    "away": 1.1147
+   },
+   "lambdas": {
+    "home": 2.2313,
+    "away": 1.1147
+   },
+   "rho": -0.083858,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 140,
+    "away": 38
+   },
+   "fit": {
+    "cutoffIso": "2026-10-30T16:16:00.000Z",
+    "matchesFitted": 1260,
+    "lastFoldedUtc": "2026-09-20T17:30:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 18
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.715265,
+     "draw": 0.1764,
+     "away": 0.108335
+    },
+    "empirical": {
+     "home": 0.436263,
+     "draw": 0.250198,
+     "away": 0.313539
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 1
+ }
+}
