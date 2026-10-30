@@ -1,0 +1,703 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-week-reconciliation",
+ "dataClass": "PUBLIC_DERIVED",
+ "period": {
+  "key": "2-08",
+  "seasonType": 2,
+  "week": 8,
+  "label": "Week 8"
+ },
+ "source": "Official final box scores (ESPN). Predictions exactly as published before each kickoff.",
+ "howGraded": {
+  "source": "Every prediction is graded exactly as it was published before its kickoff, against the official final box score.",
+  "winner": "A hit when the team we gave the higher win chance won. A tie is void.",
+  "ranges": "Every total, margin and player number we publish comes with a range that 8 in 10 of our simulations landed inside. A hit is a final number inside that range, as it was shown on the page. About 8 in 10 should land inside: far more means our ranges were too wide, far fewer means too narrow.",
+  "likeliestScorer": "In each game, the player we gave the best chance to score a touchdown. A hit if the official record credits him with a rushing, receiving or return touchdown — throwing one does not count.",
+  "voids": "A player with no line at all in the official box score did not play, so his predictions are void, not misses. A game that is not final yet is pending.",
+  "estimates": "Rushing and passing yards were shown as unvalidated estimates. They are graded the same way and labelled.",
+  "sportsbook": "For context only, not part of any success rate: whether our projected total or the sportsbooks' total was closer to the final.",
+  "sharpness": "A range can always be made to land 8 in 10 times by making it wider. So beside each success rate we show the typical miss (how far the middle of our range was from the final number) and the average width of the range. Getting better means both shrink while about 8 in 10 still land inside."
+ },
+ "summary": {
+  "gamesFinal": 0,
+  "gamesPending": 14,
+  "overall": {
+   "checks": 0,
+   "hits": 0,
+   "rate": null
+  },
+  "props": [
+   {
+    "id": "winner",
+    "label": "Model-favored team won",
+    "group": "team",
+    "checks": 0,
+    "hits": 0,
+    "voids": 0,
+    "rate": null,
+    "expectedHits": 0
+   },
+   {
+    "id": "total_range",
+    "label": "Total points landed in our range",
+    "group": "team",
+    "target": 0.8,
+    "checks": 0,
+    "hits": 0,
+    "voids": 0,
+    "rate": null
+   },
+   {
+    "id": "margin_range",
+    "label": "Winning margin landed in our range",
+    "group": "team",
+    "target": 0.8,
+    "checks": 0,
+    "hits": 0,
+    "voids": 0,
+    "rate": null
+   },
+   {
+    "id": "player_receptions",
+    "label": "Receptions landed in our range",
+    "group": "player",
+    "target": 0.8,
+    "checks": 0,
+    "hits": 0,
+    "voids": 0,
+    "rate": null
+   },
+   {
+    "id": "player_reception_yds",
+    "label": "Receiving yards landed in our range",
+    "group": "player",
+    "target": 0.8,
+    "checks": 0,
+    "hits": 0,
+    "voids": 0,
+    "rate": null
+   },
+   {
+    "id": "player_rush_yds",
+    "label": "Rushing yards landed in our range",
+    "group": "player",
+    "target": 0.8,
+    "checks": 0,
+    "hits": 0,
+    "voids": 0,
+    "rate": null
+   },
+   {
+    "id": "player_pass_yds",
+    "label": "Passing yards landed in our range",
+    "group": "player",
+    "target": 0.8,
+    "checks": 0,
+    "hits": 0,
+    "voids": 0,
+    "rate": null
+   },
+   {
+    "id": "likeliest_scorer",
+    "label": "Our likeliest touchdown scorer scored",
+    "group": "player",
+    "checks": 0,
+    "hits": 0,
+    "voids": 0,
+    "rate": null
+   }
+  ],
+  "context": {
+   "closerThanSportsbook": {
+    "oursCloser": 0,
+    "booksCloser": 0,
+    "even": 0,
+    "noLine": 0
+   },
+   "touchdowns": {
+    "playersGraded": 0,
+    "expectedScorers": 0,
+    "actualScorers": 0
+   }
+  }
+ },
+ "games": [
+  {
+   "providerEventId": "401873023",
+   "matchup": "CAR @ GB",
+   "kickoffUtc": "2026-10-30T00:15Z",
+   "away": {
+    "abbr": "CAR",
+    "name": "Carolina Panthers"
+   },
+   "home": {
+    "abbr": "GB",
+    "name": "Green Bay Packers"
+   },
+   "published": {
+    "generatedAt": "2026-10-29T16:04:09Z",
+    "projectedScore": {
+     "away": 20,
+     "home": 26
+    },
+    "pick": {
+     "abbr": "GB",
+     "probability": 0.6377
+    },
+    "total": {
+     "median": 46,
+     "low": 29,
+     "high": 63
+    },
+    "margin": {
+     "median": 6,
+     "low": -11,
+     "high": 22
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873024",
+   "matchup": "ARI @ DAL",
+   "kickoffUtc": "2026-11-01T18:00Z",
+   "away": {
+    "abbr": "ARI",
+    "name": "Arizona Cardinals"
+   },
+   "home": {
+    "abbr": "DAL",
+    "name": "Dallas Cowboys"
+   },
+   "published": {
+    "generatedAt": "2026-10-30T00:38:27Z",
+    "projectedScore": {
+     "away": 24,
+     "home": 31
+    },
+    "pick": {
+     "abbr": "DAL",
+     "probability": 0.6553
+    },
+    "total": {
+     "median": 55,
+     "low": 38,
+     "high": 72
+    },
+    "margin": {
+     "median": 6,
+     "low": -10,
+     "high": 23
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873025",
+   "matchup": "ATL @ TB",
+   "kickoffUtc": "2026-11-01T18:00Z",
+   "away": {
+    "abbr": "ATL",
+    "name": "Atlanta Falcons"
+   },
+   "home": {
+    "abbr": "TB",
+    "name": "Tampa Bay Buccaneers"
+   },
+   "published": {
+    "generatedAt": "2026-10-30T00:38:27Z",
+    "projectedScore": {
+     "away": 22,
+     "home": 24
+    },
+    "pick": {
+     "abbr": "TB",
+     "probability": 0.513
+    },
+    "total": {
+     "median": 46,
+     "low": 29,
+     "high": 63
+    },
+    "margin": {
+     "median": 1,
+     "low": -15,
+     "high": 18
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873026",
+   "matchup": "BAL @ BUF",
+   "kickoffUtc": "2026-11-01T18:00Z",
+   "away": {
+    "abbr": "BAL",
+    "name": "Baltimore Ravens"
+   },
+   "home": {
+    "abbr": "BUF",
+    "name": "Buffalo Bills"
+   },
+   "published": {
+    "generatedAt": "2026-10-30T00:38:27Z",
+    "projectedScore": {
+     "away": 22,
+     "home": 30
+    },
+    "pick": {
+     "abbr": "BUF",
+     "probability": 0.7083
+    },
+    "total": {
+     "median": 52,
+     "low": 35,
+     "high": 69
+    },
+    "margin": {
+     "median": 7,
+     "low": -9,
+     "high": 23
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873027",
+   "matchup": "CLE @ PIT",
+   "kickoffUtc": "2026-11-01T18:00Z",
+   "away": {
+    "abbr": "CLE",
+    "name": "Cleveland Browns"
+   },
+   "home": {
+    "abbr": "PIT",
+    "name": "Pittsburgh Steelers"
+   },
+   "published": {
+    "generatedAt": "2026-10-30T00:38:27Z",
+    "projectedScore": {
+     "away": 17,
+     "home": 23
+    },
+    "pick": {
+     "abbr": "PIT",
+     "probability": 0.6554
+    },
+    "total": {
+     "median": 40,
+     "low": 24,
+     "high": 57
+    },
+    "margin": {
+     "median": 6,
+     "low": -11,
+     "high": 22
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873028",
+   "matchup": "IND @ JAX",
+   "kickoffUtc": "2026-11-01T18:00Z",
+   "away": {
+    "abbr": "IND",
+    "name": "Indianapolis Colts"
+   },
+   "home": {
+    "abbr": "JAX",
+    "name": "Jacksonville Jaguars"
+   },
+   "published": {
+    "generatedAt": "2026-10-30T00:38:27Z",
+    "projectedScore": {
+     "away": 20,
+     "home": 27
+    },
+    "pick": {
+     "abbr": "JAX",
+     "probability": 0.7646
+    },
+    "total": {
+     "median": 47,
+     "low": 30,
+     "high": 64
+    },
+    "margin": {
+     "median": 7,
+     "low": -10,
+     "high": 24
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873029",
+   "matchup": "LV @ NYJ",
+   "kickoffUtc": "2026-11-01T18:00Z",
+   "away": {
+    "abbr": "LV",
+    "name": "Las Vegas Raiders"
+   },
+   "home": {
+    "abbr": "NYJ",
+    "name": "New York Jets"
+   },
+   "published": {
+    "generatedAt": "2026-10-30T00:38:27Z",
+    "projectedScore": {
+     "away": 20,
+     "home": 24
+    },
+    "pick": {
+     "abbr": "NYJ",
+     "probability": 0.5572
+    },
+    "total": {
+     "median": 44,
+     "low": 27,
+     "high": 61
+    },
+    "margin": {
+     "median": 4,
+     "low": -14,
+     "high": 21
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873030",
+   "matchup": "MIN @ DET",
+   "kickoffUtc": "2026-11-01T18:00Z",
+   "away": {
+    "abbr": "MIN",
+    "name": "Minnesota Vikings"
+   },
+   "home": {
+    "abbr": "DET",
+    "name": "Detroit Lions"
+   },
+   "published": {
+    "generatedAt": "2026-10-30T00:38:27Z",
+    "projectedScore": {
+     "away": 20,
+     "home": 24
+    },
+    "pick": {
+     "abbr": "DET",
+     "probability": 0.5685
+    },
+    "total": {
+     "median": 44,
+     "low": 27,
+     "high": 62
+    },
+    "margin": {
+     "median": 4,
+     "low": -13,
+     "high": 21
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873031",
+   "matchup": "TEN @ CIN",
+   "kickoffUtc": "2026-11-01T18:00Z",
+   "away": {
+    "abbr": "TEN",
+    "name": "Tennessee Titans"
+   },
+   "home": {
+    "abbr": "CIN",
+    "name": "Cincinnati Bengals"
+   },
+   "published": {
+    "generatedAt": "2026-10-30T00:38:27Z",
+    "projectedScore": {
+     "away": 18,
+     "home": 28
+    },
+    "pick": {
+     "abbr": "CIN",
+     "probability": 0.8181
+    },
+    "total": {
+     "median": 46,
+     "low": 29,
+     "high": 63
+    },
+    "margin": {
+     "median": 10,
+     "low": -6,
+     "high": 26
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873032",
+   "matchup": "LAC @ LAR",
+   "kickoffUtc": "2026-11-01T21:05Z",
+   "away": {
+    "abbr": "LAC",
+    "name": "Los Angeles Chargers"
+   },
+   "home": {
+    "abbr": "LAR",
+    "name": "Los Angeles Rams"
+   },
+   "published": {
+    "generatedAt": "2026-10-30T00:38:27Z",
+    "projectedScore": {
+     "away": 19,
+     "home": 26
+    },
+    "pick": {
+     "abbr": "LAR",
+     "probability": 0.7427
+    },
+    "total": {
+     "median": 45,
+     "low": 28,
+     "high": 62
+    },
+    "margin": {
+     "median": 6,
+     "low": -10,
+     "high": 23
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873033",
+   "matchup": "KC @ DEN",
+   "kickoffUtc": "2026-11-01T21:25Z",
+   "away": {
+    "abbr": "KC",
+    "name": "Kansas City Chiefs"
+   },
+   "home": {
+    "abbr": "DEN",
+    "name": "Denver Broncos"
+   },
+   "published": {
+    "generatedAt": "2026-10-30T00:38:27Z",
+    "projectedScore": {
+     "away": 18,
+     "home": 22
+    },
+    "pick": {
+     "abbr": "DEN",
+     "probability": 0.619
+    },
+    "total": {
+     "median": 40,
+     "low": 23,
+     "high": 57
+    },
+    "margin": {
+     "median": 4,
+     "low": -12,
+     "high": 21
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873034",
+   "matchup": "NE @ MIA",
+   "kickoffUtc": "2026-11-01T21:25Z",
+   "away": {
+    "abbr": "NE",
+    "name": "New England Patriots"
+   },
+   "home": {
+    "abbr": "MIA",
+    "name": "Miami Dolphins"
+   },
+   "published": {
+    "generatedAt": "2026-10-30T00:38:27Z",
+    "projectedScore": {
+     "away": 24,
+     "home": 20
+    },
+    "pick": {
+     "abbr": "NE",
+     "probability": 0.7094
+    },
+    "total": {
+     "median": 44,
+     "low": 27,
+     "high": 61
+    },
+    "margin": {
+     "median": -4,
+     "low": -20,
+     "high": 13
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873035",
+   "matchup": "PHI @ WSH",
+   "kickoffUtc": "2026-11-02T01:20Z",
+   "away": {
+    "abbr": "PHI",
+    "name": "Philadelphia Eagles"
+   },
+   "home": {
+    "abbr": "WSH",
+    "name": "Washington Commanders"
+   },
+   "published": {
+    "generatedAt": "2026-10-30T00:38:27Z",
+    "projectedScore": {
+     "away": 24,
+     "home": 23
+    },
+    "pick": {
+     "abbr": "PHI",
+     "probability": 0.5172
+    },
+    "total": {
+     "median": 47,
+     "low": 30,
+     "high": 64
+    },
+    "margin": {
+     "median": -2,
+     "low": -19,
+     "high": 16
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873036",
+   "matchup": "CHI @ SEA",
+   "kickoffUtc": "2026-11-03T01:15Z",
+   "away": {
+    "abbr": "CHI",
+    "name": "Chicago Bears"
+   },
+   "home": {
+    "abbr": "SEA",
+    "name": "Seattle Seahawks"
+   },
+   "published": {
+    "generatedAt": "2026-10-30T00:38:27Z",
+    "projectedScore": {
+     "away": 20,
+     "home": 26
+    },
+    "pick": {
+     "abbr": "SEA",
+     "probability": 0.6555
+    },
+    "total": {
+     "median": 46,
+     "low": 29,
+     "high": 63
+    },
+    "margin": {
+     "median": 5,
+     "low": -12,
+     "high": 22
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  }
+ ],
+ "disclaimer": "Educational and paper-only — not betting advice. A range is not a bet: these are checks of how often what we published matched what happened.",
+ "generatedAt": "2026-10-30T00:38:27Z"
+}
