@@ -104,6 +104,13 @@ test("NBA 10-29 recap: the committed finals and frozen sides, 2 of 3", () => {
   assert.equal(p.recommended.recommendedAt, "2026-10-30T21:00:00Z");
   const mem = p.content.games.find((g) => g.matchup === "MEM @ POR");
   assert.deepEqual([mem.final.away, mem.final.home, mem.frozenSide, mem.outcome], [124, 103, "POR", "MISSED"]);
+  assert.equal(p.cards.length, 1);
+  assert.equal(p.cards[0].cells["stat.RECORD"], "2-1");
+  assert.equal(p.cards[0].cells["stat.ACCURACY"], "66.7%");
+  assert.equal(p.cards[0].cells[`${mem.eventId}.side`], "POR");
+  assert.equal(p.cards[0].cells[`${mem.eventId}.final`], "MEM 124 @ POR 103");
+  assert.equal((p.cards[0].html.match(/class="rxr miss"/g) ?? []).length, 1);
+  assert.equal((p.cards[0].html.match(/class="rxr hit"/g) ?? []).length, 2);
 });
 test("NBA Top 5: refuses without a lane; on a lane matches it, pregame", () => {
   assert.throws(() => prepareNbaTop5({ date: "2026-10-31", asOf: AS_OF }), /no NBA lane/);
@@ -294,7 +301,8 @@ test("game day moneyline: priced copies beside unchanged model posts, one image,
   const ml = r.posts.filter((p) => /(^|-)ml$/.test(String(p.variant)));
   assert.equal(ml.length, lane.games.length + 1);
   assert.deepEqual(r.posts.filter((p) => !ml.includes(p)).map((p) => [p.variant, p.caption, p.cards[0].cells]), base.posts.map((p) => [p.variant, p.caption, p.cards[0].cells]));
-  for (const p of ml) { assert.equal(p.containsMarketData, true); assert.equal(p.cards.length, 1); assert.equal(p.content.sourceSha256, "a".repeat(64)); assert.equal(p.content.socialAuthorized, false); assert.deepEqual(verifyGameDayCard(p.cards[0]), []); assert.ok(!/FanDuel|1-800-GAMBLER|Observed sportsbook/i.test(p.cards[0].html.replace(/<style>[\s\S]*?<\/style>/, ""))); assert.match(JSON.stringify(p.content), /fanduel/); }
+  for (const p of ml) { assert.equal(p.containsMarketData, true); assert.equal(p.cards.length, 1); assert.equal(p.content.sourceSha256, "a".repeat(64)); assert.equal(p.content.socialAuthorized, false); assert.deepEqual(verifyGameDayCard(p.cards[0]), []); assert.ok(!(p.contentType === "NBA_TONIGHT" ? /1-800-GAMBLER|Observed sportsbook/i : /FanDuel|1-800-GAMBLER|Observed sportsbook/i).test(p.cards[0].html.replace(/<style>[\s\S]*?<\/style>/, ""))); assert.match(JSON.stringify(p.content), /fanduel/); }
+  assert.match(ml.find((p) => p.contentType === "NBA_TONIGHT").cards[0].html, /class="ph">FANDUEL</);
   const one = ml.find((p) => p.contentType === "NBA_GAME_WINNER");
   assert.equal(one.content.price, one.content.side === lane.games.find((g) => String(g.providerEventId) === one.eventId).home.abbr ? -140 : 120);
   assert.equal(one.content.quotedAt, "2026-10-30T19:42:56Z");

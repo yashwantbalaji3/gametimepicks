@@ -50,6 +50,9 @@ const EXTRA = `
 .rc{margin-top:22px;flex:1;display:flex;flex-direction:column;gap:14px;justify-content:center}
 .rcs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}.rcs div{background:rgba(5,8,6,.74);border-radius:14px;padding:14px 0 10px;text-align:center}.rcs b{display:block;font:900 66px/1 var(--display)}.rcs i{font:700 21px/1 var(--display);font-style:normal;letter-spacing:3px;color:rgba(247,247,242,.72)}
 .rcr{display:grid;grid-template-columns:1fr 200px 140px;align-items:center;gap:12px;padding:46px 20px;border-radius:14px;background:rgba(5,8,6,.74);border-left:7px solid #4ADE80}.rcr.miss{border-left-color:#F87171}
+.rxh{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;align-items:end;gap:16px}.rxh>div{text-align:center}.rxh b{display:block;white-space:nowrap}.rxh .rec{font:900 250px/.86 var(--display);color:#39FF88;text-shadow:0 0 34px rgba(57,255,136,.5)}.rxh .acc{font:900 142px/.9 var(--display);color:#F7F7F2}.rxh i{display:block;margin-top:8px;font:700 28px/1 var(--display);font-style:normal;letter-spacing:4px;color:rgba(247,247,242,.78)}
+.rc.rx{margin-top:18px;gap:12px;justify-content:stretch}.rxr{flex:1;min-height:0;display:grid;grid-template-columns:112px 1fr 214px;align-items:center;gap:16px;padding:0 20px 0 14px;border-radius:14px;border:2px solid var(--o);border-left-width:14px;background:linear-gradient(90deg,var(--ot),rgba(5,8,6,.82) 62%)}.rxr.hit{--o:#39FF88;--ot:rgba(57,255,136,.24)}.rxr.miss{--o:#FF4D4D;--ot:rgba(255,77,77,.3)}.rxr.void{--o:#AEB8B1;--ot:rgba(174,184,177,.16)}
+.rxr .ic{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--o)}.rxr .ic svg{width:88px;height:88px}.rxr .ic span{font:800 21px/1 var(--display);letter-spacing:1px;text-transform:uppercase}.rxr .s{font:900 66px/1 var(--headline);white-space:nowrap;min-width:0}.rxr .pd{text-align:right}.rxr .pd i{display:block;font:700 22px/1 var(--display);font-style:normal;letter-spacing:2px;color:rgba(247,247,242,.76)}.rxr .pd span{display:block;margin-top:6px;font:900 58px/1 var(--headline);white-space:nowrap}
 .estl{margin-top:8px;text-align:center;font:800 24px/1.1 var(--display);letter-spacing:1px;color:#F2C14E}
 .tn.dense{gap:4px;margin-top:8px}.tn.dense .tnr .tm{font-size:28px}.tn.dense .tnr .p{font-size:24px}.tn.dense .tnr .wn{font-size:24px;padding:4px 2px 2px}.tn.dense .tnr .bar{height:18px}
 .tn.dense .tnr,.tn.dense .tnh{grid-template-columns:128px 66px 76px 1fr 76px 66px 88px}
@@ -57,7 +60,8 @@ const EXTRA = `
 .rc.dense + *{margin-top:0}.pl.nfl .ns b{font-size:32px}.pl.nfl .ns em{font-size:17px;color:rgba(247,247,242,.72)}
 .mkp + .strip{flex:none;margin-top:10px}.winner2.mkw{flex:none;margin-top:6px}.winner2.mkw .k{font-size:26px}.winner2.mkw .slab{margin-top:8px;padding:8px 44px 6px}.winner2.mkw .slab .nick{font-size:84px}
 .mkp{flex:none;margin:10px auto 0;width:100%;padding:12px 18px 10px;border-radius:14px;background:rgba(5,8,6,.74);border:1px solid rgba(242,193,78,.55);text-align:center}.mkp .mk{font:700 20px/1 var(--display);letter-spacing:2px;color:#F2C14E;text-transform:uppercase}.mkp .mv{display:block;margin-top:6px;font:900 46px/1 var(--headline);white-space:nowrap}.mkp .mq{display:block;margin-top:5px;font:700 21px/1 var(--display);color:rgba(247,247,242,.75);white-space:nowrap}
-.tn.ml .tnr,.tn.ml .tnh{grid-template-columns:124px 66px 56px 1fr 56px 66px 100px 92px}.tn.ml .tnh{letter-spacing:1px}.tn.ml .tnr .t{font-size:23px;letter-spacing:0}.tn.ml .tnr .pr{font:900 28px/1 var(--headline);text-align:center;color:#F2C14E;white-space:nowrap}
+.tn.ml .tnr,.tn.ml .tnh{grid-template-columns:104px 62px 54px 1fr 54px 62px 92px 132px;gap:7px}.tn.ml .tnr{padding:0 8px 0 12px}.tn.ml .tnh{padding:0 8px 0 12px;align-items:center;letter-spacing:0;font-size:20px;white-space:nowrap}.tn.ml .tnh>span:nth-child(7){text-align:center}.tn.ml .tnh .wh{text-align:center;color:#F7F7F2}.tn.ml .tnh .ph{text-align:center;color:#F2C14E;font-size:22px}.tn.ml .tnr .t{font-size:22px;letter-spacing:0}.tn.ml .tnr .p{font-size:24px}
+.tn.ml .tnr .pr{font:900 42px/1 var(--headline);font-variant-numeric:tabular-nums;text-align:right;color:#F2C14E;white-space:nowrap;background:rgba(242,193,78,.13);border:1px solid rgba(242,193,78,.55);border-radius:8px;padding:9px 12px 6px}
 .mkn{margin-top:8px;text-align:center;font:700 21px/1.15 var(--display);color:#F2C14E}
 .rcr .s{font:900 50px/1 var(--headline);white-space:nowrap}.rcr .w{font:700 24px/1.1 var(--display);text-align:center}.rcr .o{font:900 32px/1 var(--headline);text-align:right}
 `;
@@ -127,7 +131,9 @@ export function tonightCard({ games, chip, kicker = "NBA Tonight", sub = "Game w
     const [ca, cb] = meterColours(g.away, g.home);
     return `<div class="tnr">${cell(cells, `${g.eventId}.tip`, g.tipTime, "t")}${cell(cells, `${g.eventId}.away`, g.away.abbr, "tm")}${cell(cells, `${g.eventId}.ap`, `${g.awayPct}%`, "p")}<div class="bar" data-bar="${g.eventId}"><i style="width:${(g.awayP * 100).toFixed(2)}%;background:${ca}"></i><i style="width:${(g.homeP * 100).toFixed(2)}%;background:${cb}"></i></div>${cell(cells, `${g.eventId}.hp`, `${g.homePct}%`, "p")}${cell(cells, `${g.eventId}.home`, g.home.abbr, "tm")}${cell(cells, `${g.eventId}.w`, g.winner?.abbr ?? "EVEN", "wn")}${priced ? cell(cells, `${g.eventId}.price`, g.market.priceText, "pr") : ""}</div>`;
   }).join("");
-  const body = `<div class="kicker">${esc(kicker)}</div><div class="sub" data-fit>${esc(sub)}</div><div class="tn ${games.length > 10 ? "dense" : ""} ${priced ? "ml" : ""}"><div class="tnh"><span>${esc(timeHead)}</span><span>AWAY</span><span></span><span></span><span></span><span>HOME</span><span>WINNER</span>${priced ? "<span>PRICE</span>" : ""}</div>${rows}</div>`;
+  const books = [...new Set(games.map((g) => g.market?.bookLabel).filter(Boolean))];
+  const priceHead = books.length === 1 ? books[0].toUpperCase() : "PRICE";
+  const body = `<div class="kicker">${esc(kicker)}</div><div class="sub" data-fit>${esc(sub)}</div><div class="tn ${games.length > 10 ? "dense" : ""} ${priced ? "ml" : ""}"><div class="tnh"><span>${esc(timeHead)}</span><span>AWAY</span><span></span>${priced ? '<span class="wh">MODEL WIN %</span>' : "<span></span>"}<span></span><span>HOME</span><span>WINNER</span>${priced ? `<span class="ph">${esc(priceHead)}</span>` : ""}</div>${rows}</div>`;
   return { html: shell({ chip, body, disclosure }), cells, v2: true, disclosure };
 }
 
@@ -187,6 +193,24 @@ export function recapCard({ recap, chip, teams, kicker = "NBA Results", disclosu
     const o = g.outcome === "CORRECT" ? "Correct" : g.outcome === "MISSED" ? "Missed" : "Not graded";
     return `<div class="rcr ${g.outcome === "MISSED" ? "miss" : ""}" ${teams ? "" : ""}>${cell(cells, `${g.eventId}.final`, s, "s")}${cell(cells, `${g.eventId}.side`, g.frozenSide ? `Predicted ${g.frozenSide}` : "No side", "w")}${cell(cells, `${g.eventId}.o`, o, "o")}</div>`;
   }).join("")}</div>`;
+  return { html: shell({ chip, body, disclosure }), cells, v2: true, disclosure };
+}
+
+const ICON = Object.freeze({
+  CORRECT: '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M14 54 40 80 88 22" fill="none" stroke="currentColor" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  MISSED: '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M20 20 80 80M80 20 20 80" fill="none" stroke="currentColor" stroke-width="17" stroke-linecap="round"/></svg>',
+});
+const OUTCOME = Object.freeze({ CORRECT: ["hit", "Correct"], MISSED: ["miss", "Missed"] });
+/** A short slate on the game-day stage: the record, the accuracy, one row per game. Longer slates keep recapCard. */
+export function resultsHeroCard({ recap, chip, kicker = "NBA Results", disclosure = DISCLOSURE }) {
+  if (recap.games.length > 6) return recapCard({ recap, chip, kicker, disclosure });
+  const cells = {};
+  const rows = recap.games.map((g) => {
+    const [cls, word] = OUTCOME[g.outcome] ?? ["void", "Not graded"];
+    const score = g.final ? `${g.away} ${g.final.away} @ ${g.home} ${g.final.home}` : g.matchup;
+    return `<div class="rxr ${cls}"><div class="ic">${ICON[g.outcome] ?? ""}${cell(cells, `${g.eventId}.o`, word)}</div>${cell(cells, `${g.eventId}.final`, score, "s")}<div class="pd"><i>PREDICTED</i>${cell(cells, `${g.eventId}.side`, g.frozenSide ?? "No side")}</div></div>`;
+  }).join("");
+  const body = `<div class="kicker">${esc(kicker)}</div><div class="sub" data-fit>${esc(`${recap.graded} of ${recap.gamesScheduled} games graded`)}</div><div class="rxh"><div>${bcell(cells, "stat.RECORD", `${recap.correct}-${recap.missed}`, 'class="rec"')}<i>RECORD</i></div><div>${bcell(cells, "stat.ACCURACY", recap.accuracy ?? "n/a", 'class="acc"')}<i>ACCURACY</i></div></div><div class="rc rx">${rows}</div>`;
   return { html: shell({ chip, body, disclosure }), cells, v2: true, disclosure };
 }
 

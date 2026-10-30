@@ -23,7 +23,7 @@ test("players: highest points without a verdict; a fallback is recorded", () => 
 test("caption: the founder's form, claims cover every number, rules enforced", () => {
   const players = PL.slice(0, 2);
   const text = gamePostCaption({ awayName: "Charlotte Hornets", homeName: "Washington Wizards", winnerNickname: "Hornets", players });
-  assert.equal(text, "🏀 Charlotte Hornets at Washington Wizards tonight!\nOur model projects the Hornets to win.\nTwo players to watch:\n🔥 Brandon Miller: 19.4 PTS | 4.0 REB | 2.9 AST\n🔥 Anthony Davis: 15.4 PTS | 8.5 REB | 2.1 AST\nFull predictions below 👇");
+  assert.equal(text, "🏀 Charlotte Hornets vs Washington Wizards tonight!\n\nOur model projects the Hornets to win.\n\nTwo players to watch:\n🔥 Brandon Miller: 19.4 PTS | 4.0 REB | 2.9 AST\n🔥 Anthony Davis: 15.4 PTS | 8.5 REB | 2.1 AST\n\nFull predictions below 👇");
   assert.ok(xWeighted(text) <= 280);
   const claims = gamePostClaims(players, "x");
   assert.deepEqual(gamePostCaptionProblems(text, claims), []);

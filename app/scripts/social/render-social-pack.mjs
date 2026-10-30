@@ -40,7 +40,7 @@ import { NBA_PROP_LINE_ADAPTER } from "../../src/lib/sports/nba/prop-line-adapte
 import { anomaliesFor, anomalyPackageList, laneHistory, laneRows, reviewThresholds, runAnomalyCheck } from "../../src/lib/social/nba-anomaly-check.mjs";
 import { GAME_POST_MAX_IMAGES, gamePostCaption, gamePostCaptionProblems, gamePostClaims, selectCaptionPlayers } from "../../src/lib/social/nba-game-post.mjs";
 import { quoteRangeText } from "./nba-line-cards.mjs";
-import { DESIGN_VERSION, DISCLOSURE, GAME_POST_DESIGN_VERSION, NFL_DISCLOSURE, nflPlayerPages, nflTeamOf, recapCard, statPages, teamOf, tonightCard, top5Card as v2Top5Card, verifyGameDayCard, winnerCard } from "./game-day-cards.mjs";
+import { DESIGN_VERSION, DISCLOSURE, GAME_POST_DESIGN_VERSION, NFL_DISCLOSURE, nflPlayerPages, nflTeamOf, recapCard, resultsHeroCard, statPages, teamOf, tonightCard, top5Card as v2Top5Card, verifyGameDayCard, winnerCard } from "./game-day-cards.mjs";
 import { BOX_FOOTER } from "./nba-boxscore-cards.mjs";
 import { layoutErrors as boxLayoutErrors, prepareNbaLineGraphics } from "./render-nba-line-graphics.mjs";
 import { FOOT, ROWS_PER_CARD, SIZE, cell, legalLine, packCaptionViolations, pageHtml, verifyPackCard, meterHtml } from "./social-pack-cards.mjs";
@@ -602,7 +602,7 @@ export function gamePostsFrom({ games, posts, date, evidenceRef, hasLines, hasMo
     if (bad.length) { no(`CAPTION: ${bad.join("; ")}`); continue; }
     out.push({
       ...ml, designVersion: GAME_POST_DESIGN_VERSION, contentType: type, variant: g.eventId, eligibilityClass: ELIGIBILITY.ESTIMATE, title: `${g.away.abbr} @ ${g.home.abbr}: game post`, cards, caption, ccCaption: caption,
-      ccCaptionB: `🏀 ${g.away.nickname} at ${g.home.nickname} tonight! Our model projects the ${g.winner.nickname} to win. Full predictions below 👇`, extraClaims, containsMarketData: true,
+      ccCaptionB: `🏀 ${g.away.nickname} vs ${g.home.nickname} tonight! Our model projects the ${g.winner.nickname} to win. Full predictions below 👇`, extraClaims, containsMarketData: true,
       anomalyCheck: box.anomalyCheck, anomalies: box.anomalies, snapshotRefs: [...new Map([...ml.snapshotRefs, ...box.snapshotRefs].map((r) => [r.ref, r])).values()],
       checks: [...new Set([...ml.checks, ...box.checks, "images in order: priced winner card, real-line stat card(s)", "caption numbers are claims"])],
       content: { eventId: g.eventId, imageOrder: [ml.variant, box.variant], captionPlayers: { rule: pick.rule, fallback: pick.fallback, fallbackPlayers: pick.fallbackPlayers, players: pick.players.map((p) => ({ playerId: String(p.providerAthleteId), name: p.name, pts: p.medians.pts, reb: p.medians.reb, ast: p.medians.ast })) }, winner: ml.content, lines: box.content, socialAuthorized: false },
@@ -660,7 +660,7 @@ export function prepareNbaRecap({ date, asOf }) {
   if (p.length) throw new Error(`NBA recap finals: ${p.join("; ")}`);
   for (const g of recap.games) if (g.outcome !== "EXCLUDED" && eloWinProbabilityOf(lane.games.find((x) => String(x.providerEventId) === g.eventId)) == null) throw new Error(`${g.eventId}: Elo accessor refused`);
   const schedule = readPublic("data/nba/schedule/latest.json");
-  const v2 = { designVersion: DESIGN_VERSION, cards: v2Cards([recapCard({ recap, chip: `NBA · ${chipDay(instant(recap.games[0].kickoffUtc))} · Final` })], `nba-${date}-recap`) };
+  const v2 = { designVersion: DESIGN_VERSION, cards: v2Cards([resultsHeroCard({ recap, chip: `NBA · ${chipDay(instant(recap.games[0].kickoffUtc))} · Final` })], `nba-${date}-recap`) };
   return { posts: [{ ...recapPost({
     recap, name: `nba-${date}-recap`, title: "NBA RESULTS", sub: `${longDay(instant(recap.games[0].kickoffUtc)).toUpperCase()} · ${denominatorText(recap)}`,
     foot: [`Pre-game side and chance: the frozen ${ELO_WIN_PROBABILITY_LABEL}, set before tip-off. Finals from the official scoreboard capture.`, "One slate is a small sample.", `Game sides only, player numbers are not in this record. ${legalLine}`],

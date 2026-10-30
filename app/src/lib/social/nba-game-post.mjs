@@ -23,10 +23,13 @@ export function selectCaptionPlayers(players, anomalies) {
 }
 
 export const gamePostCaption = ({ awayName, homeName, winnerNickname, players }) => [
-  `🏀 ${awayName} at ${homeName} tonight!`,
+  `🏀 ${awayName} vs ${homeName} tonight!`,
+  "",
   `Our model projects the ${winnerNickname} to win.`,
+  "",
   "Two players to watch:",
   ...players.map((p) => `🔥 ${p.name}: ${stat(p.medians.pts)} PTS | ${stat(p.medians.reb)} REB | ${stat(p.medians.ast)} AST`),
+  "",
   "Full predictions below 👇",
 ].join("\n");
 
