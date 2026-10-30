@@ -35,7 +35,6 @@
  * so a page that includes it is byte-identical to the page without it (display not authorized = projection-only).
  */
 import React from "react";
-import Link from "next/link";
 
 type Price = { value: number | null; text: string; spoken: string };
 export type PropLineState = "COMPARED" | "STALE" | "AFTER_CUTOFF" | "MISMATCH" | "UNAVAILABLE" | "UNSUPPORTED" | "SUSPENDED" | "NOT_PUBLISHED" | "YES_NO" | "DIRECTION_WITHHELD";
@@ -289,21 +288,24 @@ export default function PropLineComparison({ view, display, heading = "Model vs.
 }
 
 /**
- * Compact "model vs line" summary for a game card or a slate row: the OVER / UNDER / NEUTRAL counts and the coverage
- * sentence, linking to the full table. Renders NOTHING unless the switch is on AND at least one row is compared — a game
- * without a qualified line shows nothing (never "0 OVER").
+ * One compact line for a game card or a slate row: "Model vs. line: 72 lines · ▲ 21 ▼ 50 = 1 · View lines →", where N is
+ * the compared lines (the three counts add up to it). Renders NOTHING unless the switch is on AND at least one row is
+ * compared — a game without a qualified line shows nothing (never "▲ 0").
+ *
+ * PAGE WEIGHT (2026-10-30: 10 games put /nba 12 KiB over budget, ~2.6 KB per game across HTML + RSC): no inline style, no
+ * coverage sentence and no legend per card. The look lives ONCE in globals.css (.plc-s), the line is one string (no
+ * per-side element, so no per-side colour here: the full table carries it) and the link is a plain anchor. The legend and coverage sit on the section and on /nba/lines/<id>/. The counts' role="img" label gives
+ * the direction WORDS to a screen reader, so a shape is never the only signal.
  */
-export function PropLineSummary({ view, display, href, label = "Model vs. sportsbook line" }: { view: PropLineViewModel | null; display: Display; href?: string | null; label?: string }) {
+export function PropLineSummary({ view, display, href, label = "Model vs. line" }: { view: PropLineViewModel | null; display: Display; href?: string | null; label?: string }) {
   if (!display.public || !view || view.counts.compared === 0) return null;
   const sides = (["OVER", "UNDER", "NEUTRAL"] as const).map((s) => [s, view.rows.filter((r) => r.state === "COMPARED" && r.side === s).length] as const).filter(([, n]) => n > 0);
+  const n = sides.reduce((sum, [, c]) => sum + c, 0);
+  const text = `${label}: ${n} ${n === 1 ? "line" : "lines"} · ${sides.map(([s, c]) => `${GLYPH[s]} ${c}`).join(" ")}`;
+  const spoken = `${n} ${n === 1 ? "line" : "lines"}: ${sides.map(([s, c]) => `${c} ${s.toLowerCase()}`).join(", ")}`;
   return (
-    <p data-prop-line-summary={view.sport} className="m-0" style={{ ...MUTE, fontSize: 12, lineHeight: 1.6, display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: "2px 8px", minWidth: 0 }}>
-      <span style={{ ...TEXT, fontWeight: 600 }}>{label}:</span>
-      {sides.map(([s, n]) => (
-        <span key={s} data-prop-line-side={s} style={{ color: SIDE_COLOR[s], fontWeight: 700, whiteSpace: "nowrap" }}><span aria-hidden="true">{GLYPH[s]}</span> {n} {s}</span>
-      ))}
-      {view.coverage?.text ? <span>{view.coverage.text}</span> : null}
-      {href ? <Link href={href} prefetch={false} className="underline" style={TEXT}>See the lines →</Link> : null}
+    <p data-prop-line-summary={view.sport} className="plc-s">
+      {href ? <>{`${text} · `}<a href={href} aria-label={`View ${spoken}`}>View lines →</a></> : <span role="img" aria-label={spoken}>{text}</span>}
     </p>
   );
 }

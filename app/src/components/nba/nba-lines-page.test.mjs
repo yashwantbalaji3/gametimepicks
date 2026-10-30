@@ -157,7 +157,7 @@ test("(b) the game page section: a compact summary linking the lines page, NO pe
     const html = strip(renderToStaticMarkup(React.createElement(NbaPropLines, { eventId: ID0, id: "nba-game-prop-lines", linesPage: true })));
     assert.match(html, /<section id="nba-game-prop-lines"[^>]*data-prop-lines="nba"/);
     assert.match(html, /of \d+ projections have a qualified sportsbook line/, "the coverage line stays");
-    assert.match(html, new RegExp(`<p data-prop-line-summary="nba"[\\s\\S]*href="/nba/lines/${ID0}/?"[^>]*>See the lines →</a>`));
+    assert.match(html, new RegExp(`<p data-prop-line-summary="nba"[\\s\\S]*href="/nba/lines/${ID0}/?"[^>]*>View lines →</a>`));
     assert.doesNotMatch(html, /role="row"|role="table"|data-prop-line="|<style|DraftKings/, "no per-player row, table CSS, book or price on the game page");
     assert.match(html, /data-prop-line-legend/, "the legend stays");
     // the settled page passes its own one-game lane: the same compact section

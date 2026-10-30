@@ -29,7 +29,8 @@ const run = (args, name) => runExport({ ...args, out: path.join(tmp, name) });
 
 const WEEK_ARTIFACT = read("data/nfl/weekly-boards/2-08.json");
 const TNF = "401873023"; // CAR @ GB, 2026-10-30T00:15Z — Thursday night of week 8
-const FRIDAY = "2026-10-30T13:00:00Z";
+/* One minute after the committed boards: the live files regenerate, and a fixed instant goes stale against them. */
+const FRIDAY = new Date(Date.parse(JSON.parse(fs.readFileSync("public/data/nfl/weekly-boards/latest.json", "utf8")).generatedAt) + 60_000).toISOString().replace(/\.\d{3}Z$/, "Z");
 const NBA_DATE = "2026-10-29";
 const NBA_BEFORE_TIPS = "2026-10-29T20:00:00Z";
 const NBA_LANE = read(`data/nba/experimental-public/${NBA_DATE}.json`);

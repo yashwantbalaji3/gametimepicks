@@ -64,7 +64,7 @@ test("/nba hub cards, switch off or no artifact: no summary map, cards byte-iden
   const withSummary = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate, lineSummaries: on }));
   assert.notEqual(withSummary, base);
   assert.match(withSummary, /data-nba-line-summary=""><p data-prop-line-summary="nba"/);
-  assert.match(withSummary, /of \d+ projections have a qualified sportsbook line/);
+  assert.match(withSummary, /\d+ lines? · [▲▼=] \d+/);
   assert.match(withSummary, new RegExp(`href="/nba/lines/${g0.providerEventId}/?"`));
   // every OTHER card is unchanged: removing the one summary block gives back the base markup
   assert.equal(withSummary.replace(/<div class="nbx-read" data-nba-line-summary="">[\s\S]*?<\/p><\/div>/, ""), base);
@@ -95,7 +95,8 @@ test("NbaPropLineSummary: off → nothing; on without a published source, a comp
   assert.equal(renderToStaticMarkup(React.createElement(NbaPropLineSummary, { lane: LANE, eventId: String(LANE.games[1]?.providerEventId ?? "x"), asOf: AS_OF, priceRecords: RECORDS })), "", "a game without a compared line");
   assert.equal(renderToStaticMarkup(React.createElement(NbaPropLineSummary, { lane: LANE, eventId: String(g0.providerEventId), asOf: AS_OF, priceRecords: THREES })), "", "threePm unqualified → nothing");
   const h = renderToStaticMarkup(React.createElement(NbaPropLineSummary, { lane: LANE, eventId: String(g0.providerEventId), asOf: AS_OF, priceRecords: RECORDS }));
-  assert.match(h, /▲<\/span> 1 OVER/);
+  assert.match(h, /2 lines · ▲ 1 ▼ 1/);
+  assert.match(h, /aria-label="2 lines: 1 over, 1 under"|aria-label="View 2 lines: 1 over, 1 under"/);
 });
 
 test("source pins: the pages hand the summaries through the gate; the gate is the first statement; no new surface on Results or the Theater route", () => {
