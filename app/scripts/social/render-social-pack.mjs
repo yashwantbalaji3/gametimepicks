@@ -553,7 +553,7 @@ export function moneylinePosts({ games, schedule, moneyline, date, asOf, META, r
     const market = { sideAbbr: g.winner.abbr, priceText: americanText(q.price), bookLabel: BOOK_LABEL(q.book) };
     priced.push({ ...g, market, q, startDeltaMinutes: hit.startDeltaMinutes });
     const close = closes(g.t, q.quotedAt);
-    const cap = ML_CAPTION(`${m}: the model's predicted winner is the ${g.winner.nickname}, an estimate.`);
+    const cap = ML_CAPTION(`🏀 ${g.raw.away.name} at ${g.raw.home.name} tonight! Our model projects the ${g.winner.nickname} to win. Full prediction below 👇`);
     posts.push({
       ...META, snapshotRefs: mlRefs, containsMarketData: true, contentType: CONTENT_TYPE.NBA_GAME_WINNER, variant, eventId: g.eventId, firstStartUtc: toIso(g.t), title: `${m}: game winner prediction with observed price`,
       cards: v2Cards([winnerCard({ ...g, market })], `nba-${date}-winner-${variant}`), caption: pregameCaption(cap), ccCaption: cap, ccCaptionB: `${m}: predicted winner estimate on the image. Not betting advice.`, disclosures: ["Estimate from the team rating, not a validated probability", "Sportsbook price is an observed quote, separate from the model estimate", DISCLOSURE],
