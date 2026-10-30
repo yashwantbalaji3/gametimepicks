@@ -66,7 +66,7 @@ export const EXAMPLE_STAKE = 10;
 export const CALIBRATION_STATUS = Object.freeze({
   nba_player_prop: Object.freeze({
     calibrated: false,
-    detail: "The official NBA v0.1 forecast publishes player medians, not over or under probabilities. The approved direction rule checks where the median sits (above-median share 0.45 to 0.55, at least 300 graded rows); it is not a calibration of the chance a player goes over a line.",
+    detail: "The official NBA forecast publishes player medians, not over or under probabilities. The approved direction rule checks where the median sits (above-median share 0.45 to 0.55, at least 300 graded rows); it is not a calibration of the chance a player goes over a line.",
   }),
   nba_game_winner: Object.freeze({
     calibrated: false,
