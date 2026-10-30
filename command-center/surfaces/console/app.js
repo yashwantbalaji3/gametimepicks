@@ -968,6 +968,16 @@
       : (a.package.priority ?? 2) - (b.package.priority ?? 2) || order(a).localeCompare(order(b)));
     return { c, status, list };
   }
+  function liveResults(s) {
+    const r = s.resultsAutomation; if (!r?.config) return "";
+    const c = r.config, tog = (label, patch, on) => `<button class="btn small ${on ? "primary" : ""}" data-ra='${esc(JSON.stringify(patch))}'>${esc(label)}: ${on ? "on" : "off"}</button>`;
+    const link = (u, l) => (u ? xLink(u, l) : "");
+    return `<details><summary>Live Results Automation · ${c.enabled && !c.paused ? "on" : "off"} · ${esc(Object.entries(r.totals).map(([k, n]) => `${n} ${k}`).join(", ") || "no results yet")}</summary>
+      <div class="muted">Mode: ${c.mode === "reply" ? "reply to our post" : "standalone post"} · ${r.authorized ? "authorized" : "not authorized"} · ${num(r.sentToday)} of ${num(c.dailyCap)} sent today · about $${r.costPerPostUsd} per post</div>
+      <div class="row actions">${tog("Automation", { enabled: !c.enabled }, c.enabled)}${tog("Emergency pause", { paused: !c.paused }, c.paused)}${tog("NBA", { sports: { NBA: !c.sports.NBA } }, c.sports.NBA)}${tog("NFL", { sports: { NFL: !c.sports.NFL } }, c.sports.NFL)}${tog("Winners", { markets: { winner: !c.markets.winner } }, c.markets.winner)}${tog("Anytime TD", { markets: { anytime_td: !c.markets.anytime_td } }, c.markets.anytime_td)}${tog("Miss posts", { autoMisses: !c.autoMisses }, c.autoMisses)}${tog("Reply mode", { mode: c.mode === "reply" ? "standalone" : "reply" }, c.mode === "reply")}${r.authorized ? "" : `<button class="btn small" data-ra-auth="${esc(r.authorizationText)}">Authorize once…</button>`}</div>
+      ${r.monitored.length ? `<div class="section">Monitoring · ${num(r.monitored.length)}</div><ul class="rows">${r.monitored.slice(0, 15).map((m) => `<li><span class="grow">${esc(m.title)} · ${esc(m.market)} · ${esc(m.selection ?? "")}</span></li>`).join("")}</ul>` : ""}
+      <div class="section">Outcomes</div><ul class="rows">${r.outcomes.map((o) => `<li><span class="t">${esc(o.status)}</span><span class="grow"><b>${esc(o.title ?? o.key)}</b> · ${esc(o.selection ?? "")} · ${esc(o.eligibility)} ${link(o.parentUrl, "Original")} ${link(o.replyUrl, "Result post")}<br>${esc(o.text ?? "")}</span></li>`).join("")}${r.exceptions.map((x) => `<li><span class="t">Exception</span><span class="grow">${esc(x.detail)}</span></li>`).join("")}</ul></details>`;
+  }
   function importBar(s, c) {
     const imp = c.posts.filter((p) => p.package.imported);
     const last = s.lastImport;
@@ -978,7 +988,7 @@
     return `<section class="card"><h3>Launch Readiness packages</h3>
       <div class="muted">${num(imp.length)} imported · ${num(blocked)} blocked · importing approves and schedules nothing${last ? ` · last run ${esc(time(last.at))}: ${Object.entries(last.counts ?? {}).map(([k, n]) => `${num(n)} ${esc(k)}`).join(", ")}` : ""}</div>
       <div class="seg" role="toolbar" aria-label="Show content">${IMPORT_GROUPS.map(([k, label, test]) => `<button type="button" class="segbtn" data-filter-group="${k}" aria-pressed="${(ui.filter.group ?? "all") === k}">${esc(label)}${k !== "all" ? ` <span class="n">${num(imp.filter(test).length)}</span>` : ""}</button>`).join("")}</div>
-      ${s.resultsAutomation ? `<details><summary>Live Results Automation · ${num(s.resultsAutomation.outcomes.length)} settled · sending off</summary><div class="muted">${esc(s.resultsAutomation.reason)}</div><ul class="rows">${s.resultsAutomation.outcomes.map((o) => `<li><span class="t">${esc(o.outcome)}</span><span class="grow">${esc(o.final)} · predicted ${esc(o.predicted)}<br>${esc(o.reply)}</span></li>`).join("")}${s.resultsAutomation.exceptions.map((x) => `<li><span class="t">Exception</span><span class="grow">${esc(x.detail)}</span></li>`).join("")}</ul></details>` : ""}
+      ${liveResults(s)}
       <div class="row actions"><button class="btn small" data-import-run>Import packages</button></div>
       ${waiting.length ? `<details><summary>${num(waiting.length)} design version(s) waiting for your approval</summary>
         <div class="muted">Design approval covers the look only. Each post still needs its own approval.</div>
@@ -1439,7 +1449,7 @@
   document.addEventListener("click", (e) => { if (e.target.closest("[data-close-sheet]")) $("more-sheet").hidden = true; });
 
   document.addEventListener("click", async (e) => {
-    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-new-codes],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-rev-submit],[data-post-record],[data-design],[data-pub],[data-caption-open],[data-caption-save],[data-caption-cancel],[data-expand],[data-step],[data-collapse],[data-filter-status],[data-filter-sport],[data-filter-group],[data-import-run],[data-plan-approve],[data-open-post],[data-command],[data-more],[data-cal-shift],[data-cal-today],[data-cal-mode],[data-pub-tab],[data-queue-prep],[data-gal],.sheet-backdrop,.lightbox");
+    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-new-codes],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-rev-submit],[data-post-record],[data-design],[data-pub],[data-caption-open],[data-caption-save],[data-caption-cancel],[data-expand],[data-step],[data-collapse],[data-filter-status],[data-filter-sport],[data-filter-group],[data-ra],[data-ra-auth],[data-import-run],[data-plan-approve],[data-open-post],[data-command],[data-more],[data-cal-shift],[data-cal-today],[data-cal-mode],[data-pub-tab],[data-queue-prep],[data-gal],.sheet-backdrop,.lightbox");
     if (!t) return;
     if (await navAction(t, e)) return;
     if (t.dataset.captionOpen) {
@@ -1557,6 +1567,14 @@
       if (!r.ok) return alert(`${r.code}: ${r.detail ?? ""}`);
       const bad = (r.results ?? []).filter((x) => x.outcome === "refused" || x.outcome === "held");
       alert(`${Object.entries(r.counts).map(([k, n]) => `${n} ${k}`).join(", ")}. ${r.images} image(s). Nothing was approved or scheduled.${bad.length ? `\n\n${bad.slice(0, 6).map((x) => `${x.dedupeId}: ${x.detail}`).join("\n")}` : ""}`);
+      return;
+    }
+    if (t.dataset.ra) { const r = await post("/api/results-automation", { config: JSON.parse(t.dataset.ra) }); if (!r.ok) alert(`${r.code}: ${r.detail ?? ""}`); return; }
+    if (t.dataset.raAuth) {
+      const typed = prompt(`One-time authorization. Verified results will post without per-result approval. Type exactly:\n${t.dataset.raAuth}`);
+      if (typed == null) return;
+      const r = await post("/api/results-automation", { authorization: typed });
+      if (!r.ok) alert(`${r.code}: ${r.detail ?? ""}`);
       return;
     }
     if (t.dataset.planApprove) {

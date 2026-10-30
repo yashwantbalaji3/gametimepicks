@@ -598,7 +598,9 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     return { ok: true, contractValid: parsed.contractValid };
   }
 
-  const resultsAutomation = createResultsAutomation({ store, clock, posts: () => team.posts(), dataSource: () => team.dataSource() });
+  const resultsAutomation = createResultsAutomation({ store, clock, posts: () => team.posts(), dataSource: () => team.dataSource(), oauth: publishingOpts.oauth ?? null, fetch: publishingOpts.fetch ?? providerFetch,
+    capUsd: () => publishing.policy().capUsd ?? 0, mode: () => publishing.policy().mode, isPaused: () => isPaused(),
+    spentThisMonth: () => { const m = clock().slice(0, 7); return store.list().filter((e) => e.at.slice(0, 7) === m && (e.kind === "publish-spend" || (e.kind === "publish-result" && e.data.live))).reduce((n, e) => n + (e.data.costUsd ?? 0), 0); } });
 
   /** Founder: bring Launch Readiness packages into review. Nothing is approved, scheduled or sent. */
   function importPackages(body, actor) {

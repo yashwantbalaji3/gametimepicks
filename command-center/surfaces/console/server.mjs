@@ -203,6 +203,7 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname === "/api/post") return send(res, 200, orchestrator.recordPost(body, FOUNDER));
     // Launch Readiness packages into founder review (nothing is approved or scheduled); the proposed content calendar
     if (url.pathname === "/api/import/packages") return send(res, 200, orchestrator.importPackages({ root: body.root }, FOUNDER));
+    if (url.pathname === "/api/results-automation") return send(res, 200, body.authorization !== undefined ? orchestrator.resultsAutomation.authorize(body.authorization, FOUNDER) : orchestrator.resultsAutomation.setConfig(body.config ?? {}));
     if (url.pathname === "/api/market-rights") return send(res, 200, orchestrator.recordMarketAuthorization(body, FOUNDER));
     if (url.pathname === "/api/content-plan") return send(res, 200, orchestrator.approveContentPlan({ digest: body.digest }, FOUNDER));
     if (url.pathname === "/api/publishing") return send(res, 200, await publishingAction(body));
@@ -228,7 +229,7 @@ if (process.env.GTP_CC_SCHEDULER !== "off") {
   // New Launch Readiness packages come into founder review by themselves, once the folder has been quiet for a minute.
   // This only proposes posts: nothing is approved or scheduled. GTP_CC_AUTO_IMPORT=off turns it off.
   // settle published posts as official finals land; this records outcomes and sends nothing
-  setInterval(() => { orchestrator.resultsAutomation.tick().catch((e) => console.error("results tick failed:", e.message)); }, 300_000);
+  setInterval(() => { orchestrator.resultsAutomation.tick().then(() => orchestrator.resultsAutomation.sendDue()).catch((e) => console.error("results tick failed:", e.message)); }, 300_000);
   let importSeen = 0;
   setInterval(() => {
     if (process.env.GTP_CC_AUTO_IMPORT === "off") return;

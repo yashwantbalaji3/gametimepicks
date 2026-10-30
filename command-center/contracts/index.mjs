@@ -84,6 +84,9 @@ export const LEDGER_KINDS = Object.freeze([
   "design-approval",   // V2.1: the founder approved a graphic template + asset-manifest version (never a post)
   "market-data-authorization", // the founder's statement that sportsbook data may be used on social, with its scope and evidence
   "result-outcome",    // a published post settled against the official finals; a reply prepared, not sent
+  "result-send",       // one automatic send attempt and its result
+  "results-automation-config", // the founder's switches
+  "results-automation-authorization", // the one-time production authorization
   "result-exception",  // a result that could not be settled safely
   "import-run",        // Launch Readiness packages read into founder review: what came in, what was refused
   "content-plan-approval", // the founder approved proposed publishing times (schedules nothing)

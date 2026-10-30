@@ -111,7 +111,7 @@ export function createXPublisher({ mode = "dry-run", oauth = null, fetch = globa
       inWindow("create post", mediaIds);
       let res;
       try {
-        res = await timed(X_CREATE_POST_URL, { method: "POST", headers: { ...auth, "Content-Type": "application/json" }, body: JSON.stringify({ text: bundle.text, media: { media_ids: mediaIds } }) });
+        res = await timed(X_CREATE_POST_URL, { method: "POST", headers: { ...auth, "Content-Type": "application/json" }, body: JSON.stringify({ text: bundle.text, ...(mediaIds.length ? { media: { media_ids: mediaIds } } : {}), ...(bundle.replyTo ? { reply: { in_reply_to_tweet_id: String(bundle.replyTo) } } : {}) }) });
       } catch (err) {
         // the request may have reached X before the connection failed
         throw new XPublishError("UNKNOWN", "CREATE_POST_NO_ANSWER", String(err.message ?? err).slice(0, 160), { mediaIds });
