@@ -1,0 +1,163 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "serie-a",
+ "season": "2026-27",
+ "date": "2026-10-30",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-10-30T16:16:00.000Z",
+ "runs": [
+  {
+   "at": "2026-10-30T16:16:00.000Z",
+   "added": 2
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Lecce|Genoa",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401874968",
+   "providerEventId": "401874968",
+   "kickoffUtc": "2026-11-01T17:00:00.000Z",
+   "matchup": "Lecce v Genoa",
+   "homeClub": "Lecce",
+   "awayClub": "Genoa",
+   "historyNames": {
+    "home": "Lecce",
+    "away": "Genoa"
+   },
+   "espnTeamIds": {
+    "home": "113",
+    "away": "3263"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-30T16:16:00.000Z",
+   "probs": {
+    "home": 0.293426,
+    "draw": 0.312136,
+    "away": 0.394438
+   },
+   "over25": 0.317711,
+   "under25": 0.682289,
+   "expectedGoals": {
+    "home": 0.8934,
+    "away": 1.0858
+   },
+   "lambdas": {
+    "home": 0.8934,
+    "away": 1.0858
+   },
+   "rho": -0.013759,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 156,
+    "away": 118
+   },
+   "fit": {
+    "cutoffIso": "2026-10-30T16:16:00.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 30
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.257129,
+     "draw": 0.31933,
+     "away": 0.423541
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Juventus|Napoli",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401874949",
+   "providerEventId": "401874949",
+   "kickoffUtc": "2026-11-01T19:45:00.000Z",
+   "matchup": "Juventus v Napoli",
+   "homeClub": "Juventus",
+   "awayClub": "Napoli",
+   "historyNames": {
+    "home": "Juventus",
+    "away": "Napoli"
+   },
+   "espnTeamIds": {
+    "home": "111",
+    "away": "114"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-30T16:16:00.000Z",
+   "probs": {
+    "home": 0.399791,
+    "draw": 0.291614,
+    "away": 0.308595
+   },
+   "over25": 0.383364,
+   "under25": 0.616636,
+   "expectedGoals": {
+    "home": 1.2025,
+    "away": 1.0202
+   },
+   "lambdas": {
+    "home": 1.2025,
+    "away": 1.0202
+   },
+   "rho": -0.013759,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 156,
+    "away": 156
+   },
+   "fit": {
+    "cutoffIso": "2026-10-30T16:16:00.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 30
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.380603,
+     "draw": 0.299594,
+     "away": 0.319803
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 2
+ }
+}
