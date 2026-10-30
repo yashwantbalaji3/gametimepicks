@@ -20,7 +20,7 @@ import { POST_STATUS, sealPackage } from "../contracts/post-queue.mjs";
 import { baseIdOf } from "../contracts/social-packages.mjs";
 import {
   IMPORT_ASSET_MANIFEST, IMPORT_TYPES, UNSUPPORTED_KIND, BLOCK, importTemplateOf, validatePackage, blockersOf,
-  checkImportedCaption, overlapsOf, showsLines, pinnedRef, officialReasons, isImported, isReviewCopy,
+  checkImportedCaption, overlapsOf, showsLines, pinnedRef, repoRef, officialReasons, isImported, isReviewCopy,
 } from "../contracts/imported-packages.mjs";
 import { gitDataSource } from "../recap/multisport-facts.mjs";
 
@@ -67,7 +67,7 @@ export function createImportFlow(ctx) {
 
   /** Each referenced file, at the commit the package names, must be the file it hashed. */
   function provenance(p, srcAt) {
-    const refs = p.snapshotRefs ?? [];
+    const refs = (p.snapshotRefs ?? []).filter((r) => repoRef(r.ref));
     if (!srcAt) return { verified: false, detail: "the data commit is not in this checkout", refs: refs.length };
     const bad = [];
     for (const r of refs) {
@@ -202,7 +202,7 @@ export function createImportFlow(ctx) {
     if (!src) reasons.push("no data source to re-check against");
     else {
       for (const r of pkg.imported?.snapshotRefs ?? []) {
-        if (!pinnedRef(r.ref)) continue;
+        if (!repoRef(r.ref) || !pinnedRef(r.ref)) continue;
         const raw = src.read(r.ref);
         if (raw == null || sha256(raw) !== r.sha256) reasons.push(`${r.ref} changed since this package was made: Launch Readiness must regenerate it`);
       }

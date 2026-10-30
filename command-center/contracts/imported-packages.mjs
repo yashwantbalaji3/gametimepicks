@@ -150,6 +150,8 @@ export function overlapsOf(pkg, posts) {
 // ── pre-send re-check: nothing is recomputed, the published files are compared ─────────────────────────────────
 /** A ref named for a date or week; `latest` files move all day and are checked at import against the data commit. */
 export const pinnedRef = (ref) => !/(^|\/)(frozen-)?latest\.json$/.test(ref);
+/** A file in the public repo. Other references (private receipts, export ids) can't be checked here and are kept as provenance. */
+export const repoRef = (ref) => /^(app|data)\//.test(String(ref));
 const normTime = (t) => { const x = Date.parse(t ?? ""); return Number.isFinite(x) ? x : null; };
 
 function nbaGameReasons(g, lane) {

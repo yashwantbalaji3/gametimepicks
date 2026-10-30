@@ -244,6 +244,15 @@ test("model-only and real-line versions: market data is blocked by its flag, a n
   assert.equal((await approve(H, cur)).ok, true);
 });
 
+test("a reference that isn't a repo file is kept as provenance, not refused; a repo file that doesn't match still is", () => {
+  const H = harness();
+  const refs = [{ ref: LANE_REF, sha256: sha256(LANE_RAW) }, { ref: "gtp-graphics-export@2", sha256: "a".repeat(64) }, { ref: "nba-official-receipts:v0.1/2026-10-30", sha256: "b".repeat(64) }];
+  write(H.root, "a", { snapshotRefs: refs });
+  H.o.importPackages({}, FOUNDER);
+  assert.equal(post(H).package.imported.snapshotRefs.length, 3);
+  assert.equal(post(H).package.status, "READY");
+});
+
 test("an import that changes nothing records no run; a bad designVersion is refused", () => {
   const H = harness();
   write(H.root, "a");
