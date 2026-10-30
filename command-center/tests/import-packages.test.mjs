@@ -411,6 +411,19 @@ test("a sportsbook Top 5 can't pass while its model-only twin is held, whatever 
   assert.equal((await approve(H, real)).code, "VERIFICATION_CHANGED");
 });
 
+test("one game, one post: approving the unified post or the winner-only post holds the other, whichever came first", async () => {
+  const H = harness();
+  const game = { ...CLEAN, contentType: "NBA_GAME_POST", content: { game: { eventId: "401", winner: "CHA", awayEstimate: 0.73, homeEstimate: 0.27 } } };
+  write(H.root, "g", game);
+  write(H.root, "w", { ...CLEAN, variant: "401-ml" });
+  H.o.importPackages({}, FOUNDER);
+  const posts = H.o.state().posts;
+  const g = posts.find((p) => p.package.kind === "lr-nba-game"), w = posts.find((p) => p.package.kind === "lr-nba-game-winner");
+  design(H, g); design(H, w);
+  assert.equal((await approve(H, w)).ok, true);
+  assert.equal((await approve(H, g)).code, "VERIFICATION_CHANGED", "the winner-only post is approved: the unified one can't be too");
+});
+
 test("restart: imported posts, media and approvals survive a new process on the same ledger", async () => {
   const dir = tempDir("gtp-cc-import-");
   const A = harness({ dir });

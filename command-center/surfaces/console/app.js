@@ -790,7 +790,9 @@
     if (p.lifecycle === "approved" || p.lifecycle === "scheduled") return { key: "approved", label: job?.status === "dry_run" ? "Approved · dry run OK" : "Approved", cls: "info" };
     if (p.lifecycle === "revise" && p.package.imported) return { key: "revision", label: s.revisionStatus?.[p.package.imported.dedupeId]?.status === "IN_PROGRESS" ? "Revision in progress" : "Revision requested", cls: "info" };
     if (p.lifecycle === "drafted" && p.package.imported && p.package.status !== "BLOCKED" && versionsOf(s, p).some((q) => q.resolution?.verdict === "revise")) return { key: "needs", label: "Revised draft ready", cls: "warn" };
-    if (p.lifecycle === "drafted" && p.package.imported && (p.package.status === "BLOCKED" || currentBlockers(s, p).length)) { const b = currentBlockers(s, p); return { key: "blocked", label: b.length ? `Blocked · ${b.map((x) => x.title.toLowerCase()).join(" + ")}` : "Blocked", cls: "bad" }; }
+    if (p.lifecycle === "drafted" && p.package.imported && (p.package.status === "BLOCKED" || currentBlockers(s, p).length)) { const b = currentBlockers(s, p); return { key: "blocked", label: b.some((x) => x.title === "Data correction required") ? "Data correction required before publishing" : b.length ? `Held · ${b.map((x) => x.title.toLowerCase()).join(" + ")}` : "Held", cls: "warn" }; }
+    if (p.lifecycle === "drafted" && p.package.imported) return { key: "needs", label: p.package.imported.socialAuthorized === true ? "Final approval required" : "Ready for founder review", cls: "warn" };
+    if (p.lifecycle === "approved" && p.package.imported && p.package.imported.socialAuthorized !== true) return { key: "approved", label: "Clean export requested", cls: "info" };
     if (p.lifecycle === "drafted") return { key: "needs", label: p.package.status === "NEEDS_VERIFICATION" ? "Needs decision · verify" : p.package.status === "BLOCKED" ? "Blocked" : "Needs decision", cls: p.package.status === "BLOCKED" ? "bad" : "warn" };
     return { key: "other", label: LIFE_LABEL[p.lifecycle] ?? p.lifecycle, cls: "dim" };
   }
@@ -902,9 +904,7 @@
     if (m.contentType === "NBA_TONIGHT") return m.variant === "ml" || !has("NBA_TONIGHT", (q) => q.package.imported.variant === "ml");
     if (m.contentType === "NBA_DAILY_TOP5") return !/-model$/.test(String(m.variant));
     const gamePost = has("NBA_GAME_POST", (q) => String(q.package.eventId) === String(p.package.eventId));
-    // the winner-only post stays in front while its game post can't go out: it is the publishable version of that game
-    const gameHeld = gamePost && has("NBA_GAME_POST", (q) => String(q.package.eventId) === String(p.package.eventId) && q.package.status !== "READY");
-    if (m.contentType === "NBA_GAME_WINNER") return (!gamePost || gameHeld) && (/-ml$/.test(String(m.variant)) || !has("NBA_GAME_WINNER", (q) => q.package.imported.variant === `${p.package.eventId}-ml`));
+    if (m.contentType === "NBA_GAME_WINNER") return !gamePost && (/-ml$/.test(String(m.variant)) || !has("NBA_GAME_WINNER", (q) => q.package.imported.variant === `${p.package.eventId}-ml`));
     if (m.contentType === "NBA_BOXSCORE") return !gamePost;
     if (m.contentType === "NBA_PLAYER_STATS") return false;
     return true;
@@ -918,18 +918,25 @@
     if (st.key === "expired") return "expired";
     if (p.lifecycle === "approved") return "clean";
     if (st.label === "Revised draft ready") return "revised";
-    if (p.lifecycle === "drafted" && m?.socialAuthorized === true) return "final";
+    if (st.label === "Final approval required") return "final";
     if (currentBlockers(s, p).some((b) => b.title === "Data correction required")) return "data";
     return p.lifecycle === "drafted" && !currentBlockers(s, p).length ? "ready" : "other";
   }
-  const WS_SECTIONS = [["final", "Final clean image awaiting approval"], ["revised", "Revised draft available"], ["ready", "Ready for founder review and approval"], ["clean", "Approved: waiting for the clean export"], ["revision", "Revision requested"], ["data", "Data correction required (design review still open)"], ["scheduled", "Scheduled"], ["published", "Published"], ["expired", "Expired for pregame publication"], ["other", "Held"]];
+  const WS_SECTIONS = [["final", "Final approval required"], ["revised", "Revised draft ready"], ["ready", "Ready for founder review"], ["clean", "Clean export requested"], ["revision", "Revision requested"], ["data", "Data correction required before publishing"], ["scheduled", "Scheduled"], ["published", "Published"], ["expired", "Expired"], ["other", "Held"]];
   function renderWorkspace(s, c, list) {
-    const alternates = c.posts.filter((p) => p.package.imported && onTonight(p) && !isPrimary(p) && !["superseded"].includes(p.lifecycle));
-    const groups = WS_SECTIONS.map(([k, label]) => [label, list.filter((p) => wsSection(s, p) === k)]).filter(([, a]) => a.length);
-    return `<div class="workspace"><h2 class="ws-title">NBA Tonight · ${esc(dayLabel(c.today))}</h2>
-      <div class="muted">${num(list.length)} post(s) for this slate · ${groups.map(([l, a]) => `${num(a.length)} ${esc(l.split(" (")[0].toLowerCase())}`).join(" · ")}</div>
-      ${groups.map(([l, a]) => `<div class="section">${esc(l)} · ${num(a.length)}</div><div class="rlist">${a.map((p) => reviewCard(s, p)).join("")}</div>`).join("")}
-      ${alternates.length ? `<details class="more"><summary>${num(alternates.length)} alternate version(s): model-only and winner-only fallbacks</summary><div class="rlist">${alternates.map((p) => reviewCard(s, p)).join("")}</div></details>` : ""}
+    const others = c.posts.filter((p) => p.package.imported && onTonight(p) && !isPrimary(p));
+    const byTip = (a, b) => String(startOfPkg(a.package)).localeCompare(String(startOfPkg(b.package)));
+    const fallbacks = others.filter((p) => /-ml$/.test(String(p.package.imported.variant)) && p.package.imported.contentType === "NBA_GAME_WINNER").sort(byTip);
+    const rest = others.filter((p) => !fallbacks.includes(p));
+    const counts = WS_SECTIONS.map(([k, label]) => [label, list.filter((p) => wsSection(s, p) === k).length]).filter(([, n]) => n);
+    const title = new Date(`${c.today}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" });
+    return `<div class="workspace"><h2 class="ws-title">NBA Tonight · ${esc(title)}</h2>
+      <div class="muted">${num(list.length)} post(s), ${num(list.reduce((n, p) => n + imagesOf(p.package).length, 0))} graphics · ${counts.map(([l, n]) => `${num(n)} ${esc(l.toLowerCase())}`).join(" · ")}. Everything here can be opened, captioned and revised, whether or not it can be published yet.</div>
+      <div class="rlist">${list.map((p) => reviewCard(s, p)).join("")}</div>
+      ${fallbacks.length ? `<div class="section">Winner-only alternatives · ${num(fallbacks.length)}</div>
+        <div class="muted">One post per game: a winner-only post or its unified post, never both. Approving one holds the other.</div>
+        <div class="rlist">${fallbacks.map((p) => reviewCard(s, p)).join("")}</div>` : ""}
+      ${rest.length ? `<details class="more"><summary>${num(rest.length)} other version(s): model-only and separate stat graphics</summary><div class="rlist">${rest.map((p) => reviewCard(s, p)).join("")}</div></details>` : ""}
     </div>`;
   }
   /** How the post will look on X: the caption, then its images in order. */
@@ -1192,8 +1199,15 @@
   }
 
   function render(s, force = false) {
+    if (!ui.landed) {
+      ui.landed = true;
+      let seen = false;
+      try { seen = sessionStorage.getItem("gtp-cc-landed") === "1"; sessionStorage.setItem("gtp-cc-landed", "1"); } catch { /* private mode */ }
+      ui.state = ui.state ?? s;
+      if (!seen && (s.posts ?? []).some((p) => p.package?.imported && onTonight(p))) { ui.view = "queue"; document.body.dataset.view = "queue"; $("page-title").textContent = VIEWS.find((v) => v.id === "queue").label; }
+    }
     // never rebuild the page under someone typing a caption (on a phone that drops the keyboard): catch up on blur
-    if (document.activeElement?.dataset?.captionEdit) { ui.pendingRender = true; return; }
+    if (document.activeElement?.dataset?.captionEdit || String(document.activeElement?.dataset?.draft ?? "").startsWith("revt:")) { ui.pendingRender = true; return; }
     ui.pendingRender = false;
     const thread = $("thread");
     const pauseTop = $("pause-top");
