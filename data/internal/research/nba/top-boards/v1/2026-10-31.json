@@ -6077,6 +6077,5864 @@
      "emptyReason": "R+A is not modelled: no forecast family simulates reb + ast jointly, and adding marginal projections is not its distribution — it is never computed"
     }
    }
+  },
+  {
+   "edition": 2,
+   "frozenAt": "2026-10-31T14:48:24Z",
+   "source": {
+    "path": "data/internal/research/nba/experimental-v1/forecasts/2026-10-31.json",
+    "sha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+    "artifactGeneratedAt": "2026-10-31T11:13:08Z",
+    "artifactInputAsOf": "2026-10-31T11:13:08Z",
+    "runs": 2,
+    "modelVersion": "nba-sim-v1-coherent"
+   },
+   "gamesOnBoard": 1,
+   "games": [
+    {
+     "eventId": "401909896",
+     "tipoffUtc": "2026-10-31T19:00Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "Utah Jazz",
+      "abbr": "UTA",
+      "espnAbbr": "UTAH",
+      "providerTeamId": "26"
+     },
+     "away": {
+      "name": "Portland Trail Blazers",
+      "abbr": "POR",
+      "espnAbbr": "POR",
+      "providerTeamId": "22"
+     },
+     "forecastGeneratedAt": "2026-10-31T11:13:08Z",
+     "forecastInputAsOf": "2026-10-31T11:13:08Z",
+     "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43",
+     "state": "ON_EARLIER_EDITION",
+     "flags": []
+    },
+    {
+     "eventId": "401909897",
+     "tipoffUtc": "2026-10-31T22:00Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "Charlotte Hornets",
+      "abbr": "CHA",
+      "espnAbbr": "CHA",
+      "providerTeamId": "30"
+     },
+     "away": {
+      "name": "Philadelphia 76ers",
+      "abbr": "PHI",
+      "espnAbbr": "PHI",
+      "providerTeamId": "20"
+     },
+     "forecastGeneratedAt": "2026-10-31T14:48:24Z",
+     "forecastInputAsOf": "2026-10-31T14:48:24Z",
+     "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7",
+     "state": "ON_BOARD",
+     "flags": []
+    }
+   ],
+   "boards": {
+    "points": {
+     "category": "points",
+     "label": "Points",
+     "stat": "pts",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-31|v1|e2|points|401909897|4433287",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Brandon Miller",
+        "providerAthleteId": "4433287"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 24,
+        "mean": 24.13
+       },
+       "range": {
+        "p10": 14,
+        "p25": 18,
+        "p75": 30,
+        "p90": 35
+       },
+       "playRate": 0.9752,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 34.33,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 24.13,
+        "expectedMinutes": 34.33,
+        "p90": 35
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-31|v1|e2|points|401909897|4431678",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyrese Maxey",
+        "providerAthleteId": "4431678"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "homeAway": "away",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.05
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 24,
+        "p90": 29
+       },
+       "playRate": 0.9743,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.45,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.05,
+        "expectedMinutes": 31.45,
+        "p90": 29
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-31|v1|e2|points|401909897|3135045",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Grayson Allen",
+        "providerAthleteId": "3135045"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.93
+       },
+       "range": {
+        "p10": 8,
+        "p25": 11,
+        "p75": 22,
+        "p90": 27
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.42,
+       "minutesSd": 7.95,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.93,
+        "expectedMinutes": 28.42,
+        "p90": 27
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-31|v1|e2|points|401909897|4396971",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Naz Reid",
+        "providerAthleteId": "4396971"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 15,
+        "mean": 15.27
+       },
+       "range": {
+        "p10": 7,
+        "p25": 10,
+        "p75": 20,
+        "p90": 25
+       },
+       "playRate": 0.977,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.36,
+       "minutesSd": 7.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 15.27,
+        "expectedMinutes": 27.36,
+        "p90": 25
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-31|v1|e2|points|401909897|5124612",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "VJ Edgecombe",
+        "providerAthleteId": "5124612"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "homeAway": "away",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 11,
+        "mean": 11.41
+       },
+       "range": {
+        "p10": 5,
+        "p25": 7,
+        "p75": 15,
+        "p90": 19
+       },
+       "playRate": 0.9742,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.79,
+       "minutesSd": 6.52,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 11.41,
+        "expectedMinutes": 28.79,
+        "p90": 19
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-31|v1|e2|points|401909897|4433249",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Moussa Diabate",
+        "providerAthleteId": "4433249"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 10,
+        "mean": 10.23
+       },
+       "range": {
+        "p10": 4,
+        "p25": 6,
+        "p75": 13,
+        "p90": 17
+       },
+       "playRate": 0.9766,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.74,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 10.23,
+        "expectedMinutes": 29.74,
+        "p90": 17
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-31|v1|e2|points|401909897|4602025",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Sion James",
+        "providerAthleteId": "4602025"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 5,
+        "mean": 5.84
+       },
+       "range": {
+        "p10": 1,
+        "p25": 3,
+        "p75": 8,
+        "p90": 11
+       },
+       "playRate": 0.9771,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.61,
+       "minutesSd": 6.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.84,
+        "expectedMinutes": 21.61,
+        "p90": 11
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "MINUTES_TOO_UNCERTAIN": 2,
+       "LOW_EXPECTED_MINUTES": 2,
+       "LOW_PLAY_RATE": 10,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 3
+      },
+      "byReason": {
+       "MINUTES_TOO_UNCERTAIN": 11,
+       "LOW_EXPECTED_MINUTES": 13,
+       "LOW_PLAY_RATE": 12,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 11,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8
+      },
+      "players": [
+       {
+        "providerAthleteId": "1966",
+        "name": "LeBron James",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "2581018",
+        "name": "Kentavious Caldwell-Pope",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "2583632",
+        "name": "Royce O'Neale",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "3032979",
+        "name": "Dennis Schroder",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "3059318",
+        "name": "Joel Embiid",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3904625",
+        "name": "Tacko Fall",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3912848",
+        "name": "Dean Wade",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3917376",
+        "name": "Jaylen Brown",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066218",
+        "name": "Grant Williams",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4351851",
+        "name": "Anfernee Simons",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4395651",
+        "name": "Coby White",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4432446",
+        "name": "Jabari Walker",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433144",
+        "name": "Caleb Love",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4576060",
+        "name": "Ryan Kalkbrenner",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4684269",
+        "name": "Kylan Boswell",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4701225",
+        "name": "PJ Hall",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4711297",
+        "name": "Justin Edwards",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870562",
+        "name": "Dominick Barlow",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4871141",
+        "name": "Ariel Hukporti",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4873090",
+        "name": "Labaron Philon Jr.",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5060701",
+        "name": "Christian Anderson",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5061575",
+        "name": "Kon Knueppel",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5099752",
+        "name": "Rayan Rupert",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105637",
+        "name": "Adem Bona",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5211176",
+        "name": "Tidjane Salaun",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5239590",
+        "name": "Liam McNeeley",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5281370",
+        "name": "Hannes Steinbach",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebounds": {
+     "category": "rebounds",
+     "label": "Rebounds",
+     "stat": "reb",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-31|v1|e2|rebounds|401909897|4433249",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Moussa Diabate",
+        "providerAthleteId": "4433249"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 9,
+        "mean": 9.01
+       },
+       "range": {
+        "p10": 4,
+        "p25": 6,
+        "p75": 11,
+        "p90": 14
+       },
+       "playRate": 0.9766,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.74,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 9.01,
+        "expectedMinutes": 29.74,
+        "p90": 14
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-31|v1|e2|rebounds|401909897|4396971",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Naz Reid",
+        "providerAthleteId": "4396971"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 6,
+        "mean": 6.34
+       },
+       "range": {
+        "p10": 3,
+        "p25": 4,
+        "p75": 8,
+        "p90": 11
+       },
+       "playRate": 0.977,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.36,
+       "minutesSd": 7.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6.34,
+        "expectedMinutes": 27.36,
+        "p90": 11
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-31|v1|e2|rebounds|401909897|4433287",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Brandon Miller",
+        "providerAthleteId": "4433287"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 5,
+        "mean": 5.48
+       },
+       "range": {
+        "p10": 2,
+        "p25": 4,
+        "p75": 7,
+        "p90": 9
+       },
+       "playRate": 0.9752,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 34.33,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.48,
+        "expectedMinutes": 34.33,
+        "p90": 9
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-31|v1|e2|rebounds|401909897|5124612",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "VJ Edgecombe",
+        "providerAthleteId": "5124612"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "homeAway": "away",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.74
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9742,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.79,
+       "minutesSd": 6.52,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.74,
+        "expectedMinutes": 28.79,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-31|v1|e2|rebounds|401909897|4431678",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyrese Maxey",
+        "providerAthleteId": "4431678"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "homeAway": "away",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.42
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.9743,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.45,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.42,
+        "expectedMinutes": 31.45,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-31|v1|e2|rebounds|401909897|4602025",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Sion James",
+        "providerAthleteId": "4602025"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.34
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.9771,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.61,
+       "minutesSd": 6.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.34,
+        "expectedMinutes": 21.61,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-31|v1|e2|rebounds|401909897|3135045",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Grayson Allen",
+        "providerAthleteId": "3135045"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.14
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 6
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.42,
+       "minutesSd": 7.95,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.14,
+        "expectedMinutes": 28.42,
+        "p90": 6
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "MINUTES_TOO_UNCERTAIN": 2,
+       "LOW_EXPECTED_MINUTES": 2,
+       "LOW_PLAY_RATE": 10,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 3
+      },
+      "byReason": {
+       "MINUTES_TOO_UNCERTAIN": 11,
+       "LOW_EXPECTED_MINUTES": 13,
+       "LOW_PLAY_RATE": 12,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 11,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8
+      },
+      "players": [
+       {
+        "providerAthleteId": "1966",
+        "name": "LeBron James",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "2581018",
+        "name": "Kentavious Caldwell-Pope",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "2583632",
+        "name": "Royce O'Neale",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "3032979",
+        "name": "Dennis Schroder",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "3059318",
+        "name": "Joel Embiid",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3904625",
+        "name": "Tacko Fall",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3912848",
+        "name": "Dean Wade",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3917376",
+        "name": "Jaylen Brown",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066218",
+        "name": "Grant Williams",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4351851",
+        "name": "Anfernee Simons",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4395651",
+        "name": "Coby White",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4432446",
+        "name": "Jabari Walker",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433144",
+        "name": "Caleb Love",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4576060",
+        "name": "Ryan Kalkbrenner",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4684269",
+        "name": "Kylan Boswell",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4701225",
+        "name": "PJ Hall",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4711297",
+        "name": "Justin Edwards",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870562",
+        "name": "Dominick Barlow",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4871141",
+        "name": "Ariel Hukporti",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4873090",
+        "name": "Labaron Philon Jr.",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5060701",
+        "name": "Christian Anderson",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5061575",
+        "name": "Kon Knueppel",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5099752",
+        "name": "Rayan Rupert",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105637",
+        "name": "Adem Bona",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5211176",
+        "name": "Tidjane Salaun",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5239590",
+        "name": "Liam McNeeley",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5281370",
+        "name": "Hannes Steinbach",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "assists": {
+     "category": "assists",
+     "label": "Assists",
+     "stat": "ast",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-31|v1|e2|assists|401909897|4431678",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyrese Maxey",
+        "providerAthleteId": "4431678"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "homeAway": "away",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.25
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 7
+       },
+       "playRate": 0.9743,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.45,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.25,
+        "expectedMinutes": 31.45,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-31|v1|e2|assists|401909897|3135045",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Grayson Allen",
+        "providerAthleteId": "3135045"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 3.93
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 7
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.42,
+       "minutesSd": 7.95,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.93,
+        "expectedMinutes": 28.42,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-31|v1|e2|assists|401909897|4433287",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Brandon Miller",
+        "providerAthleteId": "4433287"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 3.8
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 7
+       },
+       "playRate": 0.9752,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 34.33,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.8,
+        "expectedMinutes": 34.33,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-31|v1|e2|assists|401909897|5124612",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "VJ Edgecombe",
+        "providerAthleteId": "5124612"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "homeAway": "away",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 2.89
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9742,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.79,
+       "minutesSd": 6.52,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.89,
+        "expectedMinutes": 28.79,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-31|v1|e2|assists|401909897|4433249",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Moussa Diabate",
+        "providerAthleteId": "4433249"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.65
+       },
+       "range": {
+        "p10": 1,
+        "p25": 1,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9766,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.74,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.65,
+        "expectedMinutes": 29.74,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-31|v1|e2|assists|401909897|4396971",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Naz Reid",
+        "providerAthleteId": "4396971"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.44
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 5
+       },
+       "playRate": 0.977,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.36,
+       "minutesSd": 7.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.44,
+        "expectedMinutes": 27.36,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-31|v1|e2|assists|401909897|4602025",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Sion James",
+        "providerAthleteId": "4602025"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.37
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 5
+       },
+       "playRate": 0.9771,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.61,
+       "minutesSd": 6.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.37,
+        "expectedMinutes": 21.61,
+        "p90": 5
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "MINUTES_TOO_UNCERTAIN": 2,
+       "LOW_EXPECTED_MINUTES": 2,
+       "LOW_PLAY_RATE": 10,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 3
+      },
+      "byReason": {
+       "MINUTES_TOO_UNCERTAIN": 11,
+       "LOW_EXPECTED_MINUTES": 13,
+       "LOW_PLAY_RATE": 12,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 11,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8
+      },
+      "players": [
+       {
+        "providerAthleteId": "1966",
+        "name": "LeBron James",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "2581018",
+        "name": "Kentavious Caldwell-Pope",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "2583632",
+        "name": "Royce O'Neale",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "3032979",
+        "name": "Dennis Schroder",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "3059318",
+        "name": "Joel Embiid",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3904625",
+        "name": "Tacko Fall",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3912848",
+        "name": "Dean Wade",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3917376",
+        "name": "Jaylen Brown",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066218",
+        "name": "Grant Williams",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4351851",
+        "name": "Anfernee Simons",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4395651",
+        "name": "Coby White",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4432446",
+        "name": "Jabari Walker",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433144",
+        "name": "Caleb Love",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4576060",
+        "name": "Ryan Kalkbrenner",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4684269",
+        "name": "Kylan Boswell",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4701225",
+        "name": "PJ Hall",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4711297",
+        "name": "Justin Edwards",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870562",
+        "name": "Dominick Barlow",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4871141",
+        "name": "Ariel Hukporti",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4873090",
+        "name": "Labaron Philon Jr.",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5060701",
+        "name": "Christian Anderson",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5061575",
+        "name": "Kon Knueppel",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5099752",
+        "name": "Rayan Rupert",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105637",
+        "name": "Adem Bona",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5211176",
+        "name": "Tidjane Salaun",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5239590",
+        "name": "Liam McNeeley",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5281370",
+        "name": "Hannes Steinbach",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "threes": {
+     "category": "threes",
+     "label": "3PM",
+     "stat": "threePm",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-31|v1|e2|threes|401909897|4433287",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Brandon Miller",
+        "providerAthleteId": "4433287"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.39
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.9752,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 34.33,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.39,
+        "expectedMinutes": 34.33,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-31|v1|e2|threes|401909897|3135045",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Grayson Allen",
+        "providerAthleteId": "3135045"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 2.94
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.42,
+       "minutesSd": 7.95,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.94,
+        "expectedMinutes": 28.42,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-31|v1|e2|threes|401909897|4431678",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyrese Maxey",
+        "providerAthleteId": "4431678"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "homeAway": "away",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.4
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 5
+       },
+       "playRate": 0.9743,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.45,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.4,
+        "expectedMinutes": 31.45,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-31|v1|e2|threes|401909897|4396971",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Naz Reid",
+        "providerAthleteId": "4396971"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.11
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.977,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.36,
+       "minutesSd": 7.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.11,
+        "expectedMinutes": 27.36,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-31|v1|e2|threes|401909897|5124612",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "VJ Edgecombe",
+        "providerAthleteId": "5124612"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "homeAway": "away",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.63
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9742,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.79,
+       "minutesSd": 6.52,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.63,
+        "expectedMinutes": 28.79,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-31|v1|e2|threes|401909897|4602025",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Sion James",
+        "providerAthleteId": "4602025"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.04
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 2
+       },
+       "playRate": 0.9771,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.61,
+       "minutesSd": 6.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.04,
+        "expectedMinutes": 21.61,
+        "p90": 2
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-31|v1|e2|threes|401909897|4433249",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Moussa Diabate",
+        "providerAthleteId": "4433249"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 0,
+        "mean": 0.13
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 0,
+        "p90": 1
+       },
+       "playRate": 0.9766,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.74,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 0.13,
+        "expectedMinutes": 29.74,
+        "p90": 1
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "MINUTES_TOO_UNCERTAIN": 2,
+       "LOW_EXPECTED_MINUTES": 2,
+       "LOW_PLAY_RATE": 10,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 3
+      },
+      "byReason": {
+       "MINUTES_TOO_UNCERTAIN": 11,
+       "LOW_EXPECTED_MINUTES": 13,
+       "LOW_PLAY_RATE": 12,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 11,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8
+      },
+      "players": [
+       {
+        "providerAthleteId": "1966",
+        "name": "LeBron James",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "2581018",
+        "name": "Kentavious Caldwell-Pope",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "2583632",
+        "name": "Royce O'Neale",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "3032979",
+        "name": "Dennis Schroder",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "3059318",
+        "name": "Joel Embiid",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3904625",
+        "name": "Tacko Fall",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3912848",
+        "name": "Dean Wade",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3917376",
+        "name": "Jaylen Brown",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066218",
+        "name": "Grant Williams",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4351851",
+        "name": "Anfernee Simons",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4395651",
+        "name": "Coby White",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4432446",
+        "name": "Jabari Walker",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433144",
+        "name": "Caleb Love",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4576060",
+        "name": "Ryan Kalkbrenner",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4684269",
+        "name": "Kylan Boswell",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4701225",
+        "name": "PJ Hall",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4711297",
+        "name": "Justin Edwards",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870562",
+        "name": "Dominick Barlow",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4871141",
+        "name": "Ariel Hukporti",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4873090",
+        "name": "Labaron Philon Jr.",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5060701",
+        "name": "Christian Anderson",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5061575",
+        "name": "Kon Knueppel",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5099752",
+        "name": "Rayan Rupert",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105637",
+        "name": "Adem Bona",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5211176",
+        "name": "Tidjane Salaun",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5239590",
+        "name": "Liam McNeeley",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5281370",
+        "name": "Hannes Steinbach",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "pra": {
+     "category": "pra",
+     "label": "PRA",
+     "stat": "pra",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-31|v1|e2|pra|401909897|4433287",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Brandon Miller",
+        "providerAthleteId": "4433287"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 33,
+        "mean": 33.42
+       },
+       "range": {
+        "p10": 21,
+        "p25": 26,
+        "p75": 40,
+        "p90": 47
+       },
+       "playRate": 0.9752,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 34.33,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 33.42,
+        "expectedMinutes": 34.33,
+        "p90": 47
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-31|v1|e2|pra|401909897|4431678",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyrese Maxey",
+        "providerAthleteId": "4431678"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "homeAway": "away",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 26,
+        "mean": 26.72
+       },
+       "range": {
+        "p10": 16,
+        "p25": 20,
+        "p75": 33,
+        "p90": 38
+       },
+       "playRate": 0.9743,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.45,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 26.72,
+        "expectedMinutes": 31.45,
+        "p90": 38
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-31|v1|e2|pra|401909897|4396971",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Naz Reid",
+        "providerAthleteId": "4396971"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 23,
+        "mean": 24.04
+       },
+       "range": {
+        "p10": 13,
+        "p25": 17,
+        "p75": 30,
+        "p90": 37
+       },
+       "playRate": 0.977,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.36,
+       "minutesSd": 7.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 24.04,
+        "expectedMinutes": 27.36,
+        "p90": 37
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-31|v1|e2|pra|401909897|3135045",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Grayson Allen",
+        "providerAthleteId": "3135045"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 23,
+        "mean": 23.99
+       },
+       "range": {
+        "p10": 12,
+        "p25": 17,
+        "p75": 30,
+        "p90": 36
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.42,
+       "minutesSd": 7.95,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 23.99,
+        "expectedMinutes": 28.42,
+        "p90": 36
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-31|v1|e2|pra|401909897|4433249",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Moussa Diabate",
+        "providerAthleteId": "4433249"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 21,
+        "mean": 21.89
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 27,
+        "p90": 33
+       },
+       "playRate": 0.9766,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.74,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.89,
+        "expectedMinutes": 29.74,
+        "p90": 33
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-31|v1|e2|pra|401909897|5124612",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "VJ Edgecombe",
+        "providerAthleteId": "5124612"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "homeAway": "away",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 19.03
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 24,
+        "p90": 28
+       },
+       "playRate": 0.9742,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.79,
+       "minutesSd": 6.52,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.03,
+        "expectedMinutes": 28.79,
+        "p90": 28
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-31|v1|e2|pra|401909897|4602025",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Sion James",
+        "providerAthleteId": "4602025"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 11,
+        "mean": 11.54
+       },
+       "range": {
+        "p10": 5,
+        "p25": 7,
+        "p75": 15,
+        "p90": 19
+       },
+       "playRate": 0.9771,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.61,
+       "minutesSd": 6.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 11.54,
+        "expectedMinutes": 21.61,
+        "p90": 19
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "MINUTES_TOO_UNCERTAIN": 2,
+       "LOW_EXPECTED_MINUTES": 2,
+       "LOW_PLAY_RATE": 10,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 3
+      },
+      "byReason": {
+       "MINUTES_TOO_UNCERTAIN": 11,
+       "LOW_EXPECTED_MINUTES": 13,
+       "LOW_PLAY_RATE": 12,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 11,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8
+      },
+      "players": [
+       {
+        "providerAthleteId": "1966",
+        "name": "LeBron James",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "2581018",
+        "name": "Kentavious Caldwell-Pope",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "2583632",
+        "name": "Royce O'Neale",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "3032979",
+        "name": "Dennis Schroder",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "3059318",
+        "name": "Joel Embiid",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3904625",
+        "name": "Tacko Fall",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3912848",
+        "name": "Dean Wade",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3917376",
+        "name": "Jaylen Brown",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066218",
+        "name": "Grant Williams",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4351851",
+        "name": "Anfernee Simons",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4395651",
+        "name": "Coby White",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4432446",
+        "name": "Jabari Walker",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433144",
+        "name": "Caleb Love",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4576060",
+        "name": "Ryan Kalkbrenner",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4684269",
+        "name": "Kylan Boswell",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4701225",
+        "name": "PJ Hall",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4711297",
+        "name": "Justin Edwards",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870562",
+        "name": "Dominick Barlow",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4871141",
+        "name": "Ariel Hukporti",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4873090",
+        "name": "Labaron Philon Jr.",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5060701",
+        "name": "Christian Anderson",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5061575",
+        "name": "Kon Knueppel",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5099752",
+        "name": "Rayan Rupert",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105637",
+        "name": "Adem Bona",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5211176",
+        "name": "Tidjane Salaun",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5239590",
+        "name": "Liam McNeeley",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5281370",
+        "name": "Hannes Steinbach",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsReb": {
+     "category": "ptsReb",
+     "label": "P+R",
+     "stat": "ptsReb",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-31|v1|e2|ptsReb|401909897|4433287",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Brandon Miller",
+        "providerAthleteId": "4433287"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 29,
+        "mean": 29.61
+       },
+       "range": {
+        "p10": 18,
+        "p25": 23,
+        "p75": 36,
+        "p90": 42
+       },
+       "playRate": 0.9752,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 34.33,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 29.61,
+        "expectedMinutes": 34.33,
+        "p90": 42
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-31|v1|e2|ptsReb|401909897|4431678",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyrese Maxey",
+        "providerAthleteId": "4431678"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "homeAway": "away",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 22,
+        "mean": 22.47
+       },
+       "range": {
+        "p10": 12,
+        "p25": 17,
+        "p75": 28,
+        "p90": 33
+       },
+       "playRate": 0.9743,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.45,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 22.47,
+        "expectedMinutes": 31.45,
+        "p90": 33
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-31|v1|e2|ptsReb|401909897|4396971",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Naz Reid",
+        "providerAthleteId": "4396971"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 21,
+        "mean": 21.61
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 27,
+        "p90": 33
+       },
+       "playRate": 0.977,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.36,
+       "minutesSd": 7.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.61,
+        "expectedMinutes": 27.36,
+        "p90": 33
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-31|v1|e2|ptsReb|401909897|3135045",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Grayson Allen",
+        "providerAthleteId": "3135045"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 19,
+        "mean": 20.07
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 25,
+        "p90": 31
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.42,
+       "minutesSd": 7.95,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.07,
+        "expectedMinutes": 28.42,
+        "p90": 31
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-31|v1|e2|ptsReb|401909897|4433249",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Moussa Diabate",
+        "providerAthleteId": "4433249"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 19.24
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 24,
+        "p90": 29
+       },
+       "playRate": 0.9766,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.74,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.24,
+        "expectedMinutes": 29.74,
+        "p90": 29
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-31|v1|e2|ptsReb|401909897|5124612",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "VJ Edgecombe",
+        "providerAthleteId": "5124612"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "homeAway": "away",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.14
+       },
+       "range": {
+        "p10": 8,
+        "p25": 11,
+        "p75": 20,
+        "p90": 25
+       },
+       "playRate": 0.9742,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.79,
+       "minutesSd": 6.52,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.14,
+        "expectedMinutes": 28.79,
+        "p90": 25
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-31|v1|e2|ptsReb|401909897|4602025",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Sion James",
+        "providerAthleteId": "4602025"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 9,
+        "mean": 9.17
+       },
+       "range": {
+        "p10": 3,
+        "p25": 6,
+        "p75": 12,
+        "p90": 16
+       },
+       "playRate": 0.9771,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.61,
+       "minutesSd": 6.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 9.17,
+        "expectedMinutes": 21.61,
+        "p90": 16
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "MINUTES_TOO_UNCERTAIN": 2,
+       "LOW_EXPECTED_MINUTES": 2,
+       "LOW_PLAY_RATE": 10,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 3
+      },
+      "byReason": {
+       "MINUTES_TOO_UNCERTAIN": 11,
+       "LOW_EXPECTED_MINUTES": 13,
+       "LOW_PLAY_RATE": 12,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 11,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8
+      },
+      "players": [
+       {
+        "providerAthleteId": "1966",
+        "name": "LeBron James",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "2581018",
+        "name": "Kentavious Caldwell-Pope",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "2583632",
+        "name": "Royce O'Neale",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "3032979",
+        "name": "Dennis Schroder",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "3059318",
+        "name": "Joel Embiid",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3904625",
+        "name": "Tacko Fall",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3912848",
+        "name": "Dean Wade",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3917376",
+        "name": "Jaylen Brown",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066218",
+        "name": "Grant Williams",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4351851",
+        "name": "Anfernee Simons",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4395651",
+        "name": "Coby White",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4432446",
+        "name": "Jabari Walker",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433144",
+        "name": "Caleb Love",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4576060",
+        "name": "Ryan Kalkbrenner",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4684269",
+        "name": "Kylan Boswell",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4701225",
+        "name": "PJ Hall",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4711297",
+        "name": "Justin Edwards",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870562",
+        "name": "Dominick Barlow",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4871141",
+        "name": "Ariel Hukporti",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4873090",
+        "name": "Labaron Philon Jr.",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5060701",
+        "name": "Christian Anderson",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5061575",
+        "name": "Kon Knueppel",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5099752",
+        "name": "Rayan Rupert",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105637",
+        "name": "Adem Bona",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5211176",
+        "name": "Tidjane Salaun",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5239590",
+        "name": "Liam McNeeley",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5281370",
+        "name": "Hannes Steinbach",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsAst": {
+     "category": "ptsAst",
+     "label": "P+A",
+     "stat": "ptsAst",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-31|v1|e2|ptsAst|401909897|4433287",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Brandon Miller",
+        "providerAthleteId": "4433287"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 27,
+        "mean": 27.94
+       },
+       "range": {
+        "p10": 16,
+        "p25": 21,
+        "p75": 34,
+        "p90": 40
+       },
+       "playRate": 0.9752,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 34.33,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 27.94,
+        "expectedMinutes": 34.33,
+        "p90": 40
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-31|v1|e2|ptsAst|401909897|4431678",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyrese Maxey",
+        "providerAthleteId": "4431678"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "homeAway": "away",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 23,
+        "mean": 23.3
+       },
+       "range": {
+        "p10": 13,
+        "p25": 18,
+        "p75": 29,
+        "p90": 34
+       },
+       "playRate": 0.9743,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.45,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 23.3,
+        "expectedMinutes": 31.45,
+        "p90": 34
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-31|v1|e2|ptsAst|401909897|3135045",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Grayson Allen",
+        "providerAthleteId": "3135045"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 20,
+        "mean": 20.85
+       },
+       "range": {
+        "p10": 10,
+        "p25": 15,
+        "p75": 26,
+        "p90": 32
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.42,
+       "minutesSd": 7.95,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.85,
+        "expectedMinutes": 28.42,
+        "p90": 32
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-31|v1|e2|ptsAst|401909897|4396971",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Naz Reid",
+        "providerAthleteId": "4396971"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 17,
+        "mean": 17.71
+       },
+       "range": {
+        "p10": 8,
+        "p25": 12,
+        "p75": 23,
+        "p90": 28
+       },
+       "playRate": 0.977,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.36,
+       "minutesSd": 7.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 17.71,
+        "expectedMinutes": 27.36,
+        "p90": 28
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-31|v1|e2|ptsAst|401909897|5124612",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "VJ Edgecombe",
+        "providerAthleteId": "5124612"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "homeAway": "away",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 14,
+        "mean": 14.3
+       },
+       "range": {
+        "p10": 7,
+        "p25": 10,
+        "p75": 18,
+        "p90": 23
+       },
+       "playRate": 0.9742,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.79,
+       "minutesSd": 6.52,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.3,
+        "expectedMinutes": 28.79,
+        "p90": 23
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-31|v1|e2|ptsAst|401909897|4433249",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Moussa Diabate",
+        "providerAthleteId": "4433249"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 12,
+        "mean": 12.88
+       },
+       "range": {
+        "p10": 6,
+        "p25": 8,
+        "p75": 17,
+        "p90": 21
+       },
+       "playRate": 0.9766,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.74,
+       "minutesSd": 7.42,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 12.88,
+        "expectedMinutes": 29.74,
+        "p90": 21
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-31|v1|e2|ptsAst|401909897|4602025",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Sion James",
+        "providerAthleteId": "4602025"
+       },
+       "team": {
+        "name": "Charlotte Hornets",
+        "abbr": "CHA",
+        "espnAbbr": "CHA",
+        "providerTeamId": "30"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909897",
+       "tipoffUtc": "2026-10-31T22:00Z",
+       "projection": {
+        "p50": 8,
+        "mean": 8.2
+       },
+       "range": {
+        "p10": 3,
+        "p25": 5,
+        "p75": 11,
+        "p90": 15
+       },
+       "playRate": 0.9771,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.61,
+       "minutesSd": 6.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T14:48:24Z",
+        "generatedAt": "2026-10-31T14:48:24Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f05c7d5e16cd1c9ac82f6e0cff40b8cc2842fc730079deaae1e1bc5e72113800",
+        "gamePayloadSha256": "49555fd35cfd0495d7e8ecaca3bf2d210916e3d2fd4c2a5d6728a81b18571ec7"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 8.2,
+        "expectedMinutes": 21.61,
+        "p90": 15
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "MINUTES_TOO_UNCERTAIN": 2,
+       "LOW_EXPECTED_MINUTES": 2,
+       "LOW_PLAY_RATE": 10,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 3
+      },
+      "byReason": {
+       "MINUTES_TOO_UNCERTAIN": 11,
+       "LOW_EXPECTED_MINUTES": 13,
+       "LOW_PLAY_RATE": 12,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 11,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8
+      },
+      "players": [
+       {
+        "providerAthleteId": "1966",
+        "name": "LeBron James",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "2581018",
+        "name": "Kentavious Caldwell-Pope",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "2583632",
+        "name": "Royce O'Neale",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "3032979",
+        "name": "Dennis Schroder",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "3059318",
+        "name": "Joel Embiid",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3904625",
+        "name": "Tacko Fall",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3912848",
+        "name": "Dean Wade",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3917376",
+        "name": "Jaylen Brown",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066218",
+        "name": "Grant Williams",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4351851",
+        "name": "Anfernee Simons",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4395651",
+        "name": "Coby White",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4432446",
+        "name": "Jabari Walker",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433144",
+        "name": "Caleb Love",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4576060",
+        "name": "Ryan Kalkbrenner",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4684269",
+        "name": "Kylan Boswell",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4701225",
+        "name": "PJ Hall",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4711297",
+        "name": "Justin Edwards",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870562",
+        "name": "Dominick Barlow",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4871141",
+        "name": "Ariel Hukporti",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4873090",
+        "name": "Labaron Philon Jr.",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5060701",
+        "name": "Christian Anderson",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5061575",
+        "name": "Kon Knueppel",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5099752",
+        "name": "Rayan Rupert",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105637",
+        "name": "Adem Bona",
+        "team": "PHI",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5211176",
+        "name": "Tidjane Salaun",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5239590",
+        "name": "Liam McNeeley",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5281370",
+        "name": "Hannes Steinbach",
+        "team": "CHA",
+        "eventId": "401909897",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebAst": {
+     "category": "rebAst",
+     "label": "R+A",
+     "stat": null,
+     "marketBasis": "NOT_MODELLED",
+     "basisText": "not modelled — no family simulates it jointly, and adding marginal projections is not its distribution",
+     "components": [
+      "reb",
+      "ast"
+     ],
+     "state": "NOT_MODELLED",
+     "rankingMetric": null,
+     "rows": [],
+     "eligibleCount": 0,
+     "shownCount": 0,
+     "withheld": {
+      "count": 0,
+      "byPrimaryReason": {},
+      "byReason": {},
+      "players": []
+     },
+     "emptyReason": "R+A is not modelled: no forecast family simulates reb + ast jointly, and adding marginal projections is not its distribution — it is never computed"
+    }
+   }
   }
  ]
 }
