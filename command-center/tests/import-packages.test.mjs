@@ -491,3 +491,13 @@ test("clock change: 1:00 PM ET on Nov 1 is 18:00 UTC, 4:00 PM ET on Oct 31 is 20
   assert.equal(etInstant("2026-11-01", "13:00"), "2026-11-01T18:00:00.000Z");
   assert.equal(etInstant("2026-10-31", "16:00"), "2026-10-31T20:00:00.000Z");
 });
+
+test("the Top 5 carousel and the separate boards are one slot: approving either holds the other", async () => {
+  const { overlapsOf, IMPORT_TYPES } = await import("../contracts/imported-packages.mjs");
+  assert.equal(IMPORT_TYPES.NBA_TOP5_CAROUSEL.supported, true);
+  const carousel = { postId: "c", kind: "lr-nba-top5-carousel", date: "2026-10-31" };
+  const board = { postId: "b", kind: "lr-nba-top5", date: "2026-10-31", imported: { variant: "pts" } };
+  assert.equal(overlapsOf(carousel, [{ lifecycle: "approved", package: board }]).blocking.length, 1);
+  assert.equal(overlapsOf(board, [{ lifecycle: "scheduled", package: carousel }]).blocking.length, 1);
+  assert.equal(overlapsOf(carousel, [{ lifecycle: "drafted", package: board }]).blocking.length, 0);
+});

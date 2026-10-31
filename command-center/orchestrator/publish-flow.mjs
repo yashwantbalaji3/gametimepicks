@@ -191,6 +191,8 @@ export function createPublishFlow(ctx) {
     if (!Number.isFinite(due)) return { ok: false, code: "BAD_TIME", detail: "give a publish time" };
     if (!start || due >= Date.parse(start)) return { ok: false, code: "AFTER_START", detail: `must be before the start (${start ?? "unknown"})` };
     if (due < Date.parse(clock()) - 60_000) return { ok: false, code: "IN_THE_PAST", detail: new Date(due).toISOString() };
+    const closes = Date.parse(pkg.imported?.window?.closesAt ?? "");
+    if (Number.isFinite(closes) && due >= closes) return { ok: false, code: "AFTER_WINDOW", detail: `must be before the publishing window closes (${pkg.imported.window.closesAt})` };
     const base = baseIdOf(pkg.postId);
     const open = jobs().find((j) => j.baseId === base && ["scheduled", "running"].includes(j.status));
     if (open) return { ok: false, code: "ALREADY_SCHEDULED", detail: `${open.jobId} at ${open.dueAt}` };

@@ -32,6 +32,8 @@ export const IMPORT_TYPES = Object.freeze({
   NFL_SUNDAY_WINNERS: { kind: "lr-nfl-roundup", label: "NFL predicted-winner roundup", tier: 2, supported: true },
   NFL_MNF_WINNER: { kind: "lr-nfl-mnf", label: "Monday Night Football preview", tier: 2, supported: true },
   NBA_DAILY_TOP5: { kind: "lr-nba-top5", label: "NBA daily Top 5", tier: 3, supported: true },
+  // one X post, three boards in order: points, rebounds, assists. The separate boards stay as the alternate.
+  NBA_TOP5_CAROUSEL: { kind: "lr-nba-top5-carousel", label: "NBA Top 5 carousel", tier: 3, supported: true },
   NFL_WEEKLY_TOP5: { kind: "lr-nfl-top5", label: "NFL weekly Top 5", tier: 3, supported: true },
   // one game, one X post: winner graphic + player stat graphic(s), one caption (the Oct 29 format)
   NBA_GAME_POST: { kind: "lr-nba-game", label: "Game post: winner + stat lines", tier: 4, supported: true },
@@ -61,7 +63,7 @@ const designRow = (template, label) => ({ template, assetManifest: IMPORT_ASSET_
 export const IMPORT_DESIGNS = Object.freeze([
   designRow(importTemplateOf("RESULTS_RECAP", "NBA"), "NBA results recap"),
   designRow(importTemplateOf("RESULTS_RECAP", "NFL"), "NFL results recap"),
-  ...["NBA_TONIGHT", "NFL_SUNDAY_WINNERS", "NFL_MNF_WINNER", "NBA_DAILY_TOP5", "NFL_WEEKLY_TOP5", "NBA_GAME_POST", "NFL_GAME_POST", "NBA_GAME_WINNER", "NFL_GAME_WINNER", "NBA_PLAYER_STATS", "NFL_GAME_PLAYERS", "NBA_BOXSCORE"].map((c) => designRow(importTemplateOf(c, null), IMPORT_TYPES[c].label)),
+  ...["NBA_TONIGHT", "NFL_SUNDAY_WINNERS", "NFL_MNF_WINNER", "NBA_DAILY_TOP5", "NBA_TOP5_CAROUSEL", "NFL_WEEKLY_TOP5", "NBA_GAME_POST", "NFL_GAME_POST", "NBA_GAME_WINNER", "NFL_GAME_WINNER", "NBA_PLAYER_STATS", "NFL_GAME_PLAYERS", "NBA_BOXSCORE"].map((c) => designRow(importTemplateOf(c, null), IMPORT_TYPES[c].label)),
 ]);
 
 // ── what can't go out, whatever anyone clicks ──────────────────────────────────────────────────────────────────
@@ -122,6 +124,7 @@ export function validatePackage(p) {
   if (!SHA.test(String(p.contentSha256 ?? ""))) bad.push("contentSha256 missing");
   if (p.designVersion != null && !/^\d+(\.\d+)?$/.test(String(p.designVersion))) bad.push(`designVersion malformed: ${p.designVersion}`);
   if (!Array.isArray(p.images) || !p.images.length) bad.push("no images");
+  else if (p.images.length > 4) bad.push("more than four images: X allows four in a post");
   for (const i of p.images ?? []) {
     if (!i?.path || !SHA.test(String(i.sha256 ?? ""))) bad.push(`image without path or sha256: ${i?.path ?? "?"}`);
     if (!(i?.width > 0) || !(i?.height > 0) || !(i?.scale > 0)) bad.push(`image without size: ${i?.path ?? "?"}`);
@@ -149,6 +152,7 @@ const boardOf = (p) => String(p.imported?.variant ?? "").replace(/-model$/, "");
 function sameContent(mine, theirs) {
   const a = mine, b = theirs.package ?? {};
   if (mine.kind === "lr-nba-players") return PLAYER_KINDS.has(b.kind) && String(b.eventId ?? "") === String(a.eventId);
+  if ((mine.kind === "lr-nba-top5-carousel" && b.kind === "lr-nba-top5") || (mine.kind === "lr-nba-top5" && b.kind === "lr-nba-top5-carousel") || (mine.kind === "lr-nba-top5-carousel" && b.kind === "lr-nba-top5-carousel")) return b.date === a.date;
   if (mine.kind === "lr-nba-top5" && b.kind === "lr-nba-top5") return b.date === a.date && boardOf(b) === boardOf(a);
   if (mine.kind === "lr-results-recap") return b.sport === a.sport && ["results-recap", "nba-results", "lr-results-recap"].includes(b.kind) && (b.resultsDate ?? b.date) === (a.resultsDate ?? a.date);
   if (mine.kind === "lr-nfl-top5") return b.sport === "NFL" && ["top5-weekly"].includes(b.kind) && Number(b.week ?? -1) === Number(a.week);
