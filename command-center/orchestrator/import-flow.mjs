@@ -229,7 +229,7 @@ export function createImportFlow(ctx) {
       const twin = ctx.posts().filter((p) => p.package?.imported?.dedupeId === `${pkg.imported.dedupeId}-model`).at(-1);
       if (twin?.package.imported.anomalyCheck === "REVIEW") reasons.push("the model-only version of this board is held for data correction");
     }
-    if (pkg.kind === "lr-nba-top5-carousel" && ctx.posts().some((p) => p.lifecycle !== "superseded" && p.package?.kind === "lr-nba-top5" && p.package.date === pkg.date && /-model$/.test(String(p.package.imported?.variant ?? "")) && p.package.imported.anomalyCheck === "REVIEW")) reasons.push("a model-only board in this carousel is held for data correction");
+    if (pkg.kind === "lr-nba-top5-carousel" && pkg.imported?.anomalyCheck !== "EXCEPTION" && ctx.posts().some((p) => p.lifecycle !== "superseded" && p.package?.kind === "lr-nba-top5" && p.package.date === pkg.date && /-model$/.test(String(p.package.imported?.variant ?? "")) && p.package.imported.anomalyCheck === "REVIEW")) reasons.push("a model-only board in this carousel is held for data correction");
     const over = overlapsOf(pkg, ctx.posts().filter((p) => p.package?.postId !== pkg.postId));
     if (over.blocking.length) reasons.push(`overlaps ${over.blocking.map((x) => x.package.title).join("; ")}`);
     return reasons.length ? { status: POST_STATUS.BLOCKED, reasons } : { status: POST_STATUS.READY, reasons: [] };

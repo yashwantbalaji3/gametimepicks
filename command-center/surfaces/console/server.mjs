@@ -207,6 +207,7 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname === "/api/market-rights") return send(res, 200, orchestrator.recordMarketAuthorization(body, FOUNDER));
     if (url.pathname === "/api/content-plan") return send(res, 200, orchestrator.approveContentPlan({ digest: body.digest }, FOUNDER));
     if (url.pathname === "/api/publishing") return send(res, 200, await publishingAction(body));
+    if (url.pathname === "/api/preflight") return send(res, 200, orchestrator.preflight(body.date));
     if (url.pathname === "/api/design") return send(res, 200, orchestrator.approveDesign(body, FOUNDER));
     if (url.pathname === "/api/seat") return send(res, 200, orchestrator.setSeat(body.role, body.seat, FOUNDER));
     if (url.pathname === "/api/provider-test") return send(res, 200, await orchestrator.testProviderConnection(String(body.integration ?? ""), FOUNDER));
