@@ -411,7 +411,7 @@ test("NFL lines: h2h and props come from the private capture rows, never inferre
   assert.equal(nflPropOffer([offer, { ...offer, line: 5.5 }], q), null, "alternate lines are ambiguous");
 });
 
-test("NFL rows: top 3 TD skip nobody fit-filtered upstream; props carry both prices and an estimate mark, no side", () => {
+test("NFL rows: top 3 TD skip nobody fit-filtered upstream; props carry both prices, an estimate mark and the comparison", () => {
   const players = ["a", "b", "c", "d"].map((id, i) => ({ playerId: id, name: id, team: "X", markets: { anytime_td: { probability: 0.4 - i / 100 }, player_pass_yds: { median: 200 - i } } }));
   const board = { families: { anytime_td: { state: "PUBLISHED" }, player_pass_yds: { state: "ESTIMATE" } } };
   const offers = [{ canonicalEventId: "nfl-1", playerId: "a", market: "player_pass_yds", book: "draftkings", line: 210.5, overPrice: -112, underPrice: -108, capturedAt: "2026-10-29T19:00:00Z" }];
@@ -423,6 +423,17 @@ test("NFL rows: top 3 TD skip nobody fit-filtered upstream; props carry both pri
   assert.equal(r.projection.endsWith(" est."), true);
   assert.deepEqual([r.line, r.over, r.under], ["210.5", americanText(-112), americanText(-108)]);
   assert.equal(nflPropRows({ ...io, board: { families: { ...board.families, player_pass_yds: { state: "ESTIMATE", withheldTeams: [{ team: "X" }] } } } }).length, 0);
+});
+
+test("NFL weekly Top 5: pass and rush render as labelled estimates; validation is separate from display", () => {
+  const { posts } = prepareNflTop5({ week: 8, asOf: "2026-10-31T07:30:00Z" });
+  for (const id of ["top5_pass_yds", "top5_rush_yds"]) {
+    const p = posts.find((x) => x.variant === id);
+    assert.ok(p, id);
+    assert.deepEqual([p.validationStatus.state, p.validationStatus.blocksDisplay, p.displayStatus], ["ESTIMATE", false, "SHOW_WITH_ESTIMATE_LABEL"]);
+    assert.equal(p.validationStatus.label, p.content.estimateLabel);
+    assert.ok(p.cards[0].html.includes(p.content.estimateLabel));
+  }
 });
 
 test("NFL_GAME_POST: 11-01 posts keep dedupe by event; no capture means no price and a reported gap", () => {

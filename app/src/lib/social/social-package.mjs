@@ -244,6 +244,7 @@ export function buildSocialPackage(o) {
   const pkg = {
     schema: SOCIAL_PACKAGE_SCHEMA, revision, designVersion, containsMarketData, ...(anomalyCheck ? { anomalyCheck, anomalies } : {}), sport, date, contentType, variant,
     snapshotRefs, images, caption, verification, window,
+    ...(o.validationStatus ? { validationStatus: o.validationStatus, displayStatus: o.displayStatus } : {}),
     recommendedAt: recommended?.recommendedAt ?? null,
     recommendedAtEt: recommended?.recommendedAtEt ?? null,
     recommendation: recommended ?? { none: recommendedNote },
@@ -266,6 +267,14 @@ export function buildSocialPackage(o) {
   if (v.length) throw new Error(`package ${pkg.dedupeId} refused:\n  - ${v.join("\n  - ")}`);
   return pkg;
 }
+
+/**
+ * VALIDATION IS NOT DISPLAY. `validationStatus.state` says how far the numbers are validated (an ESTIMATE has not met its
+ * calibration standard); `displayStatus` says whether the post may show them. An estimate shows, with its label.
+ */
+export const validationOf = (estimateLabelText) => (estimateLabelText
+  ? { validationStatus: { state: ELIGIBILITY.ESTIMATE, label: estimateLabelText, blocksDisplay: false }, displayStatus: "SHOW_WITH_ESTIMATE_LABEL" }
+  : { validationStatus: { state: ELIGIBILITY.OFFICIAL, label: null, blocksDisplay: false }, displayStatus: "SHOW" });
 
 /** [] when a package meets the contract. */
 export function socialPackageViolations(p) {
@@ -290,6 +299,8 @@ export function socialPackageViolations(p) {
     if (!["PASS", "REVIEW"].includes(p.anomalyCheck) || !Array.isArray(p.anomalies)) v.push("anomalyCheck must be PASS or REVIEW with an anomalies list");
     for (const a of p.anomalies ?? []) if (!a.playerId || !a.market || !a.verdict || /[+\u2212-]\d{3}\b|\bline (of )?\d|\$\d/i.test(String(a.detail))) v.push(`anomaly ${a.playerId}:${a.market} needs fields and may not print a line or a price`);
   }
+  if ((p?.validationStatus == null) !== (p?.displayStatus == null)) v.push("validationStatus and displayStatus travel together");
+  if (p?.validationStatus?.state === ELIGIBILITY.ESTIMATE && !p.validationStatus.label) v.push("an estimate needs its label");
   if (!p?.dedupeId || !p?.freshness?.asOf) v.push("dedupeId and freshness are required");
   return v;
 }

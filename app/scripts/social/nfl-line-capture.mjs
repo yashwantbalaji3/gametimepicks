@@ -54,10 +54,16 @@ export function nflMoneylineQuote(rows, { eventId, awayName, homeName, sideName,
   return r ? { book: r.bookmaker, price: r.outcomes.find((x) => x.name === sideName).price, quotedAt: r.capturedAt } : null;
 }
 
-/** The one shared offer rule for a player and market. Null for an ineligible, ambiguous or post-kickoff quote. */
-export function nflPropOffer(offers, { eventId, playerId, market, kickoffUtc, asOf }) {
+/** The one shared offer rule for a player and market, with the reason when no usable quote exists. */
+export function nflPropOfferStatus(offers, { eventId, playerId, market, kickoffUtc, asOf }) {
   const mine = offers.filter((o) => o.canonicalEventId === `nfl-${eventId}` && o.playerId === playerId && o.market === (market === "anytime_td" ? "player_anytime_td" : market) && Date.parse(o.capturedAt) <= Date.parse(asOf));
   const q = nflChooseOffer(mine, kickoffUtc);
-  if (!q || q.eligible === false || q.ambiguous || !(Date.parse(q.capturedAt) < Date.parse(kickoffUtc))) return null;
-  return { ...q, quotedAt: q.capturedAt };
+  if (!q) return { quote: null, reason: "NO_LINE" };
+  if (q.eligible === false) return { quote: null, reason: "INELIGIBLE_BOOK" };
+  if (q.ambiguous) return { quote: null, reason: "AMBIGUOUS_LINE" };
+  if (!(Date.parse(q.capturedAt) < Date.parse(kickoffUtc))) return { quote: null, reason: "CAPTURED_AFTER_KICKOFF" };
+  return { quote: { ...q, quotedAt: q.capturedAt }, reason: null };
 }
+
+/** The quote alone. Null for an ineligible, ambiguous or post-kickoff quote. */
+export const nflPropOffer = (offers, o) => nflPropOfferStatus(offers, o).quote;

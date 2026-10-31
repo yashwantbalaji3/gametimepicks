@@ -66,7 +66,7 @@ const EXTRA = `
 .tn.ml .tnr .pr{font:900 42px/1 var(--headline);font-variant-numeric:tabular-nums;text-align:right;color:#F2C14E;white-space:nowrap;background:rgba(242,193,78,.13);border:1px solid rgba(242,193,78,.55);border-radius:8px;padding:9px 12px 6px}
 .mkn{margin-top:8px;text-align:center;font:700 21px/1.15 var(--display);color:#F2C14E}
 .tn.ml.dec .tnr,.tn.ml.dec .tnh{grid-template-columns:104px 62px 76px 1fr 76px 62px 92px 132px}
-.tn.pp{margin-top:8px;gap:6px}.tn.pp .tnr,.tn.pp .tnh{grid-template-columns:1fr 128px 112px 118px 118px;gap:8px}.tn.pp .tnr .nm{min-width:0}.tn.pp .tnr .nm .pn2{display:block;font:800 31px/1.05 var(--headline);text-transform:uppercase;white-space:nowrap;overflow:hidden}.tn.pp .tnr .nm i{display:block;margin-top:3px;font:700 19px/1 var(--display);font-style:normal;letter-spacing:1px;color:rgba(247,247,242,.72)}.tn.pp .tnr .c{font:800 30px/1 var(--display);text-align:center;white-space:nowrap}.tn.pp .tnh span:not(:first-child){text-align:center}
+.tn.pp{margin-top:8px;gap:6px}.tn.pp .tnr,.tn.pp .tnh{grid-template-columns:1fr 128px 104px 250px;gap:8px}.tn.pp .tnr .vs{font:900 30px/1 var(--headline);text-align:right;white-space:nowrap}.tn.pp .tnh span:last-child{text-align:right}.tn.pp .tnr .nm{min-width:0}.tn.pp .tnr .nm .pn2{display:block;font:800 31px/1.05 var(--headline);text-transform:uppercase;white-space:nowrap;overflow:hidden}.tn.pp .tnr .nm i{display:block;margin-top:3px;font:700 19px/1 var(--display);font-style:normal;letter-spacing:1px;color:rgba(247,247,242,.72)}.tn.pp .tnr .c{font:800 30px/1 var(--display);text-align:center;white-space:nowrap}.tn.pp .tnh span:not(:first-child){text-align:center}
 .rcr .s{font:900 50px/1 var(--headline);white-space:nowrap}.rcr .w{font:700 24px/1.1 var(--display);text-align:center}.rcr .o{font:900 32px/1 var(--headline);text-align:right}
 `;
 
@@ -190,14 +190,14 @@ export function nflPlayerPages({ away, home, chip, awayPlayers, homePlayers, est
 }
 
 export const NFL_PROP_ROWS_PER_IMAGE = 8;
-/** Combined props, neutral on purpose: no colour, glyph or chosen side, both prices. `rows`: { key, name, team, family, projection, line, over, under }. */
-export function nflPropsPages({ away, home, chip, rows, estimate = null, note = null }) {
+/** Combined props with the social line comparison. `rows`: { key, name, team, family, projection, line, vs: { text, cls } }. Colour is arithmetic only (nfl-line-comparison.mjs). */
+export function nflPropsPages({ away, home, chip, rows, estimate = null, note = null, legend = null }) {
   const pages = Math.max(1, Math.ceil(rows.length / NFL_PROP_ROWS_PER_IMAGE));
   return Array.from({ length: pages }, (_, i) => {
     const cells = {};
-    const list = rows.slice(i * NFL_PROP_ROWS_PER_IMAGE, (i + 1) * NFL_PROP_ROWS_PER_IMAGE).map((r) => `<div class="tnr"><div class="nm"><span class="pn2" data-fit>${cell(cells, `${r.key}.name`, r.name)}</span><i>${esc(r.team)} · ${esc(r.family)}</i></div>${cell(cells, `${r.key}.proj`, r.projection, "c")}${cell(cells, `${r.key}.line`, r.line, "c")}${cell(cells, `${r.key}.over`, r.over, "c")}${cell(cells, `${r.key}.under`, r.under, "c")}</div>`).join("");
+    const list = rows.slice(i * NFL_PROP_ROWS_PER_IMAGE, (i + 1) * NFL_PROP_ROWS_PER_IMAGE).map((r) => `<div class="tnr"><div class="nm"><span class="pn2" data-fit>${cell(cells, `${r.key}.name`, r.name)}</span><i>${esc(r.team)} · ${esc(r.family)}</i></div>${cell(cells, `${r.key}.proj`, r.projection, "c")}${cell(cells, `${r.key}.line`, r.line, "c")}${cell(cells, `${r.key}.vs`, r.vs.text, r.vs.cls)}</div>`).join("");
     const part = pages > 1 ? ` · Part ${i + 1} of ${pages}` : "";
-    const body = `<div class="kicker">Player projections</div><div class="sub" data-fit>${esc(away.abbr)} @ ${esc(home.abbr)}${part}</div>${estimate ? `<div class="estl">${cell(cells, "estimate", estimate)}</div>` : ""}<div class="tn pp"><div class="tnh"><span>PLAYER</span><span>MODEL</span><span>LINE</span><span>OVER</span><span>UNDER</span></div>${list}</div>${note ? `<div class="mkn">${cell(cells, "market.quoted", note)}</div>` : ""}`;
+    const body = `<div class="kicker">Player projections</div><div class="sub" data-fit>${esc(away.abbr)} @ ${esc(home.abbr)}${part}</div>${estimate ? `<div class="estl">${cell(cells, "estimate", estimate)}</div>` : ""}<div class="tn pp"><div class="tnh"><span>PLAYER</span><span>MODEL</span><span>LINE</span><span>VS LINE</span></div>${list}</div>${legend ? `<div class="mkn">${cell(cells, "legend", legend)}</div>` : ""}${note ? `<div class="mkn">${cell(cells, "market.quoted", note)}</div>` : ""}`;
     return { html: shell({ away, home, chip, body, disclosure: NFL_DISCLOSURE }), cells, v2: true, disclosure: NFL_DISCLOSURE, part: i + 1, parts: pages };
   });
 }
