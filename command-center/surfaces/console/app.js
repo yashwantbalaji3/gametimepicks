@@ -545,7 +545,7 @@
     }
     return `<div class="blocked">${esc(LIFE_LABEL[p.lifecycle])}${p.resolution?.note ? ` · “${esc(p.resolution.note)}”` : ""}</div>`;
   }
-  const PUB_SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board", "top5-daily", "top5-weekly", "lr-results-recap", "lr-nba-tonight", "lr-nfl-roundup", "lr-nfl-mnf", "lr-nba-top5", "lr-nfl-top5", "lr-nba-game-winner", "lr-nfl-game-winner", "lr-nba-players", "lr-nfl-game-players", "lr-nba-boxscore", "lr-nba-game", "lr-nfl-game", "lr-nba-top5-carousel"]);
+  const PUB_SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board", "top5-daily", "top5-weekly", "lr-results-recap", "lr-nba-tonight", "lr-nfl-roundup", "lr-nfl-mnf", "lr-nba-top5", "lr-nfl-top5", "lr-nba-game-winner", "lr-nfl-game-winner", "lr-nba-players", "lr-nfl-game-players", "lr-nba-boxscore", "lr-nba-game", "lr-nfl-game", "lr-nba-top5-carousel", "lr-ufc-prelims", "lr-ufc-main"]);
   /**
    * Display only: an attempt with no recorded outcome during its first 2 minutes is a send in progress ("Sending…");
    * after that it is "Outcome unknown — reconcile". The gate treats both as unknown (never retried) either way.
@@ -766,7 +766,7 @@
     return named ? `${named} · ${long}` : long;
   };
   const startOfPkg = (k) => k.tipUtc ?? k.startUtc ?? k.verification?.kickoffUtc ?? k.kickoffUtc ?? k.firstKickoffUtc ?? null;
-  const KIND_LABEL = { "nba-game": "Game post", "nba-final": "Final scores", "results-recap": "Results recap", "nfl-recap": "Forecast vs final", "pregame-forecast": "Pregame forecast", "td-top3": "Top 3 TD", "top5-board": "Top 5 board", "top5-weekly": "Weekly Top 5 (whole week)", "top5-daily": "Daily Top 5 (slate)", engagement: "Engagement", explainer: "Explainer", "x-reply": "Reply", "nba-results": "Prediction vs final", "lr-results-recap": "Results recap", "lr-nba-tonight": "NBA tonight", "lr-nfl-roundup": "NFL winners roundup", "lr-nfl-mnf": "Monday Night preview", "lr-nba-top5": "NBA daily Top 5", "lr-nba-top5-carousel": "NBA Top 5 carousel", "lr-nfl-top5": "NFL weekly Top 5", "lr-nba-game-winner": "Game winner", "lr-nfl-game-winner": "Game winner", "lr-nba-game": "Game post", "lr-nfl-game": "Game post", "lr-nba-players": "Projected stat lines", "lr-nfl-game-players": "Player graphic", "lr-nba-boxscore": "Player box score (real lines)", "lr-unsupported": "Unsupported" };
+  const KIND_LABEL = { "nba-game": "Game post", "nba-final": "Final scores", "results-recap": "Results recap", "nfl-recap": "Forecast vs final", "pregame-forecast": "Pregame forecast", "td-top3": "Top 3 TD", "top5-board": "Top 5 board", "top5-weekly": "Weekly Top 5 (whole week)", "top5-daily": "Daily Top 5 (slate)", engagement: "Engagement", explainer: "Explainer", "x-reply": "Reply", "nba-results": "Prediction vs final", "lr-results-recap": "Results recap", "lr-nba-tonight": "NBA tonight", "lr-nfl-roundup": "NFL winners roundup", "lr-nfl-mnf": "Monday Night preview", "lr-nba-top5": "NBA daily Top 5", "lr-nba-top5-carousel": "NBA Top 5 carousel", "lr-ufc-prelims": "UFC prelims", "lr-ufc-main": "UFC main card", "lr-nfl-top5": "NFL weekly Top 5", "lr-nba-game-winner": "Game winner", "lr-nfl-game-winner": "Game winner", "lr-nba-game": "Game post", "lr-nfl-game": "Game post", "lr-nba-players": "Projected stat lines", "lr-nfl-game-players": "Player graphic", "lr-nba-boxscore": "Player box score (real lines)", "lr-unsupported": "Unsupported" };
   const SPORTS = ["NBA", "NFL", "MLB", "UFC", "EPL"];
   const sportChip = (sp) => `<span class="sport sport-${esc(String(sp ?? "").toLowerCase())}">${esc(sp ?? "—")}</span>`;
   const jobsOf = (s, p) => (s.publishing?.jobs ?? []).filter((j) => j.decisionId === p.decisionId);
@@ -889,6 +889,7 @@
   }
   function onTonight(p) {
     const today = etDay(new Date());
+    if (p.package.sport === "UFC") return slateOf(p) === today;
     if (p.package.sport !== "NBA") return false;
     if (p.package.kind === "lr-results-recap") return p.package.date === etDay(new Date(Date.parse(`${today}T12:00:00Z`) - 864e5));
     return slateOf(p) === today;
@@ -903,7 +904,7 @@
     ["private", "Real lines (private)", (p) => isMarket(p)],
     ["nfl", "NFL", (p) => p.package.sport === "NFL"],
   ];
-  const importRank = (p) => { const v = String(p.package.imported?.variant ?? "").replace(/-model$/, ""); return ({ "lr-results-recap": 0, "lr-nba-tonight": 1, "lr-nba-top5-carousel": 2, "lr-nba-top5": 2 + Math.max(0, ["pts", "reb", "ast"].indexOf(v)), "lr-nba-game": 6 })[p.package.kind] ?? 9; };
+  const importRank = (p) => { const v = String(p.package.imported?.variant ?? "").replace(/-model$/, ""); return ({ "lr-results-recap": 0, "lr-nba-tonight": 1, "lr-nba-top5-carousel": 2, "lr-nba-top5": 2 + Math.max(0, ["pts", "reb", "ast"].indexOf(v)), "lr-nba-game": 6, "lr-ufc-prelims": 7, "lr-ufc-main": 8 })[p.package.kind] ?? 9; };
   /** The one version shown in the workspace per slot; the others stay available as alternates. */
   function isPrimary(p) {
     const m = p.package.imported ?? {}, posts = ui.state?.posts ?? [];

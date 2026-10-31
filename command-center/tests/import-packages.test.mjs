@@ -501,3 +501,8 @@ test("the Top 5 carousel and the separate boards are one slot: approving either 
   assert.equal(overlapsOf(board, [{ lifecycle: "scheduled", package: carousel }]).blocking.length, 1);
   assert.equal(overlapsOf(carousel, [{ lifecycle: "drafted", package: board }]).blocking.length, 0);
 });
+
+test("UFC sections are known, sendable types with a schedule start", async () => {
+  const { IMPORT_TYPES, IMPORT_SENDABLE } = await import("../contracts/imported-packages.mjs");
+  for (const t of ["UFC_PRELIMS", "UFC_MAIN_CARD"]) assert.ok(IMPORT_SENDABLE.includes(IMPORT_TYPES[t].kind));
+});

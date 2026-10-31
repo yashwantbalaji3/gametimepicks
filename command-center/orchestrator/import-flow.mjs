@@ -26,7 +26,7 @@ import { gitDataSource } from "../recap/multisport-facts.mjs";
 import { revisionRequests } from "../contracts/revision-requests.mjs";
 
 export const DEFAULT_IMPORT_ROOT = path.join(os.homedir(), "gtp-private/graphics");
-const SPORTS = Object.freeze({ nba: "NBA", nfl: "NFL" });
+const SPORTS = Object.freeze({ nba: "NBA", nfl: "NFL", ufc: "UFC" });
 const fileSafe = (id) => String(id).replace(/[^A-Za-z0-9._-]+/g, "-");
 const isPng = (b) => b.length > 24 && b.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
 /** No line or price text in a record the ledger keeps. */

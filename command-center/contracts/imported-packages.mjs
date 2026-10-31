@@ -45,6 +45,9 @@ export const IMPORT_TYPES = Object.freeze({
   NFL_PLAYER_STATS: { kind: "lr-nfl-game-players", label: "NFL projected stat lines", tier: 5, supported: true },
   // sendable like any stat graphic; what holds it today is rights (LINE_RIGHTS), never the type
   NBA_BOXSCORE: { kind: "lr-nba-boxscore", label: "NBA player-prop box score (real lines)", tier: 5, supported: true },
+  // one X post per section of a card, every bout in that section
+  UFC_PRELIMS: { kind: "lr-ufc-prelims", label: "UFC preliminary card", tier: 2, supported: true },
+  UFC_MAIN_CARD: { kind: "lr-ufc-main", label: "UFC main card", tier: 2, supported: true },
   NBA_LIVE_UPDATE: { kind: "lr-live-update", label: "Live result update", tier: 6, supported: false },
   NFL_LIVE_UPDATE: { kind: "lr-live-update", label: "Live result update", tier: 6, supported: false },
 });
@@ -63,7 +66,7 @@ const designRow = (template, label) => ({ template, assetManifest: IMPORT_ASSET_
 export const IMPORT_DESIGNS = Object.freeze([
   designRow(importTemplateOf("RESULTS_RECAP", "NBA"), "NBA results recap"),
   designRow(importTemplateOf("RESULTS_RECAP", "NFL"), "NFL results recap"),
-  ...["NBA_TONIGHT", "NFL_SUNDAY_WINNERS", "NFL_MNF_WINNER", "NBA_DAILY_TOP5", "NBA_TOP5_CAROUSEL", "NFL_WEEKLY_TOP5", "NBA_GAME_POST", "NFL_GAME_POST", "NBA_GAME_WINNER", "NFL_GAME_WINNER", "NBA_PLAYER_STATS", "NFL_GAME_PLAYERS", "NBA_BOXSCORE"].map((c) => designRow(importTemplateOf(c, null), IMPORT_TYPES[c].label)),
+  ...["NBA_TONIGHT", "NFL_SUNDAY_WINNERS", "NFL_MNF_WINNER", "NBA_DAILY_TOP5", "NBA_TOP5_CAROUSEL", "UFC_PRELIMS", "UFC_MAIN_CARD", "NFL_WEEKLY_TOP5", "NBA_GAME_POST", "NFL_GAME_POST", "NBA_GAME_WINNER", "NFL_GAME_WINNER", "NBA_PLAYER_STATS", "NFL_GAME_PLAYERS", "NBA_BOXSCORE"].map((c) => designRow(importTemplateOf(c, null), IMPORT_TYPES[c].label)),
 ]);
 
 // ── what can't go out, whatever anyone clicks ──────────────────────────────────────────────────────────────────
@@ -129,6 +132,12 @@ export function validatePackage(p) {
   for (const i of p.images ?? []) {
     if (!i?.path || !SHA.test(String(i.sha256 ?? ""))) bad.push(`image without path or sha256: ${i?.path ?? "?"}`);
     if (!(i?.width > 0) || !(i?.height > 0) || !(i?.scale > 0)) bad.push(`image without size: ${i?.path ?? "?"}`);
+  }
+  if (/^UFC_/.test(String(p.contentType))) {
+    const bouts = p.content?.bouts;
+    if (!Array.isArray(bouts) || !bouts.length) bad.push("no bouts");
+    else for (const b of bouts) if (!b?.boutId || !b.eventId || !b.fighterA || !b.fighterB || ![b.fighterA, b.fighterB].includes(b.pick)) bad.push(`bout incomplete or pick is not on the card: ${b?.boutId ?? "?"}`);
+    if (!Number.isFinite(Date.parse(p.commandCenter?.firstStartUtc ?? ""))) bad.push("no firstStartUtc");
   }
   if (!p.commandCenter?.postId || !p.commandCenter?.title) bad.push("commandCenter block missing postId or title");
   if (!Array.isArray(p.commandCenter?.captions) || !p.commandCenter.captions.length) bad.push("no caption options");
