@@ -2,11 +2,11 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-31T09:43:04Z",
+ "generatedAt": "2026-10-31T16:10:17Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
-  "PUBLISHED": 3,
-  "NO_PLAY": 1,
+  "PUBLISHED": 1,
+  "NO_PLAY": 3,
   "LANE_CLOSED": 16,
   "MISSING": 0
  },
@@ -43,19 +43,19 @@
    "tiers": {
     "low": {
      "state": "NO_PLAY",
-     "reason": "no combination of today's prices lands in this band — 2 legs → +150 (medium) … +413 (high)"
+     "reason": "no combination of today's prices lands in this band — 2 legs → +200 (medium) … +354 (high)"
     },
     "medium": {
      "state": "PUBLISHED",
      "slipId": "epl-medium-2026-10-31"
     },
     "high": {
-     "state": "PUBLISHED",
-     "slipId": "epl-high-2026-10-31"
+     "state": "NO_PLAY",
+     "reason": "not enough eligible priced fixtures to build a card"
     },
     "longshot": {
-     "state": "PUBLISHED",
-     "slipId": "epl-longshot-2026-10-31"
+     "state": "NO_PLAY",
+     "reason": "not enough eligible priced fixtures to build a card"
     }
    }
   },
@@ -109,7 +109,7 @@
   },
   {
    "lane": "multi",
-   "date": "2026-10-30",
+   "date": "2026-10-31",
    "laneState": "CLOSED",
    "laneReason": "a cross-sport card needs two sports with an open suggested-card lane; only Premier League's lane is open (Bank Builder and Moonshot use a separate, stricter gate)",
    "tiers": {
