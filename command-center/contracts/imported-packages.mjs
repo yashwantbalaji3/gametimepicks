@@ -104,7 +104,8 @@ export function blockersOf(p, { now, rights = null }) {
   else if (!t.supported && !showsLines(p.contentType, p.content, p.containsMarketData)) add(BLOCK.UNSUPPORTED, `${t.label}: the publisher does not support this type yet`);
   if (showsLines(p.contentType, p.content, p.containsMarketData) && !rights) add(BLOCK.LINE_RIGHTS, `Shows real sportsbook data. ${MARKET_RIGHTS.QUOTE_ON_SOCIAL.why} Private review only.`);
   if (p.anomalyCheck === "REVIEW") add(BLOCK.ANOMALY, `Launch Readiness flagged player projections for review (${(p.anomalies ?? []).length}): not publication-ready until resolved.`);
-  if (p.sport === "NFL" && (UNCLEARED_NFL.test(String(p.variant ?? "")) || (p.contentType === "NFL_WEEKLY_TOP5" && p.eligibilityClass === "ESTIMATE"))) add(BLOCK.BELOW_BAR, "An uncleared estimate (below the publication bar): it stays off social until independently cleared.");
+  // founder 10-31: a displayed official projection is not a betting edge. Display follows displayStatus; without it, the old hold stands.
+  if (p.sport === "NFL" && !["SHOW", "SHOW_WITH_ESTIMATE_LABEL"].includes(p.displayStatus) && (UNCLEARED_NFL.test(String(p.variant ?? "")) || (p.contentType === "NFL_WEEKLY_TOP5" && p.eligibilityClass === "ESTIMATE"))) add(BLOCK.BELOW_BAR, "An uncleared estimate (below the publication bar): it stays off social until independently cleared.");
   if (p.verification?.passed !== true) add(BLOCK.VERIFICATION, "Launch Readiness verification did not pass.");
   if (p.testData === true) add(BLOCK.TEST_DATA, "Test data: never publishable.");
   const closes = p.window?.closesAt ?? p.expiresAt;
