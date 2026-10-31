@@ -104,7 +104,8 @@ export function createResultsAutomation({ store, clock, posts, dataSource, oauth
       if (!store.claim(`outcome|${t.key}`, { at: clock() }).won) continue;
       const tpl = TEMPLATES[t.adapter.market]?.[r.status];
       const text = tpl ? pick(tpl, t.key)(r.vars) : null;
-      store.append("result-outcome", "results-automation", { key: t.key, sport: t.adapter.sport, market: t.adapter.market, eventId: t.eventId, selection: t.selection, postId: t.postId, title: t.title, parentPostId: t.parentPostId, parentUrl: t.parentUrl, status: r.status, text, evidence: r.evidence ?? { detail: r.detail }, sendState: text ? "PREPARED" : "RECORDED_ONLY", attempts: 0 });
+      store.append("result-outcome", "results-automation", { key: t.key, sport: t.adapter.sport, market: t.adapter.market, eventId: t.eventId, selection: t.selection, postId: t.postId, title: t.title, parentPostId: t.parentPostId, parentUrl: t.parentUrl, status: r.status, text, evidence: r.evidence ?? { detail: r.detail }, // a result that settled before the one-time authorization is history: recorded, never announced
+        sendState: text && authorized() ? "PREPARED" : "RECORDED_ONLY", attempts: 0 });
       res.recorded += 1;
     }
     return res;

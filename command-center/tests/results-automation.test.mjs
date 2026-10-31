@@ -29,38 +29,38 @@ test("records wins and misses once; a post and its alternate count once; a misma
   assert.equal((await R.a.tick()).recorded, 0);
   assert.deepEqual(await R.a.sendDue(), []);
   assert.equal(R.x.length, 0);
-  assert.ok(R.a.state().outcomes.every((o) => o.eligibility === "automation is off"));
+  assert.ok(R.a.state().outcomes.every((o) => o.sendState === "RECORDED_ONLY"));
 });
 
 test("sends standalone once, keeps misses off unless enabled, honours caps, and reply mode needs its own confirmation", async () => {
   const R = rig({ posts: [post(win.eventId, win.predictedWinner), post(miss.eventId, miss.predictedWinner)] });
-  await R.a.tick();
   on(R.a);
+  await R.a.tick();
   assert.equal((await R.a.sendDue()).length, 1, "the win only");
   assert.equal(R.x[0].reply, undefined);
   assert.equal(R.x[0].media, undefined);
   assert.equal((await R.a.sendDue()).length, 0, "once only");
   const S = rig({ posts: [post(win.eventId, win.predictedWinner)] });
-  await S.a.tick();
   on(S.a, { mode: "reply" });
+  await S.a.tick();
   assert.equal((await S.a.sendDue()).length, 0, "reply not confirmed");
   S.a.setConfig({ replyCompliant: true });
   await S.a.sendDue();
   assert.equal(S.x[0].reply.in_reply_to_tweet_id, "99");
   const C = rig({ posts: [post(win.eventId, win.predictedWinner)], cap: 0.01 });
-  await C.a.tick(); on(C.a);
+  on(C.a); await C.a.tick();
   assert.equal((await C.a.sendDue()).length, 0);
   assert.equal(C.a.state().outcomes[0].eligibility, "spend cap reached");
 });
 
 test("failures: a refused send retries then stops; an unclear one is never retried", async () => {
   const R = rig({ posts: [post(win.eventId, win.predictedWinner)], fail: () => new Response("{}", { status: 429 }) });
-  await R.a.tick(); on(R.a, { maxAttempts: 2 });
+  on(R.a, { maxAttempts: 2 }); await R.a.tick();
   assert.equal((await R.a.sendDue())[0].state, "RETRY");
   assert.equal((await R.a.sendDue())[0].state, "FAILED");
   assert.equal((await R.a.sendDue()).length, 0);
   const U = rig({ posts: [post(win.eventId, win.predictedWinner)], fail: () => new Response("{}", { status: 500 }) });
-  await U.a.tick(); on(U.a);
+  on(U.a); await U.a.tick();
   assert.equal((await U.a.sendDue())[0].state, "UNKNOWN");
   assert.equal((await U.a.sendDue()).length, 0);
 });
@@ -75,9 +75,10 @@ test("anytime TD: provisional waits, canonical settles, no measurement voids, a 
   const R = rig({ posts: [tdPost], src });
   assert.deepEqual([(await R.a.tick()).unresolved, R.a.state().totals.VOID], [1, 1]);
   rows = [row("a", {}), rows[1]];
+  on(R.a);
   await R.a.tick();
   assert.match(R.a.state().outcomes[0].text, /A/);
-  on(R.a); await R.a.sendDue();
+  await R.a.sendDue();
   assert.equal(R.x.length, 1);
   rows = [row("a", { lineResult: "NO" }), rows[1]];
   assert.equal((await R.a.tick()).overturned, 1);
@@ -85,4 +86,12 @@ test("anytime TD: provisional waits, canonical settles, no measurement voids, a 
   const U = rig({ posts: [tdPost], src: tdSrc([row("a", {})]) });
   await U.a.tick();
   U.a; const flip = rig({ posts: [tdPost], src: tdSrc([]) }); assert.equal((await flip.a.tick()).unresolved, 2);
+});
+
+test("a result settled before the authorization is history: recorded, never announced", async () => {
+  const R = rig({ posts: [post(win.eventId, win.predictedWinner)] });
+  await R.a.tick();
+  on(R.a);
+  assert.deepEqual(await R.a.sendDue(), []);
+  assert.equal(R.x.length, 0);
 });

@@ -485,3 +485,9 @@ test("approving the calendar records times and schedules nothing", async () => {
   assert.equal(H.o.state().contentPlan.approved.current, true);
   assert.equal(H.o.publishing.jobs().length, 0);
 });
+
+test("clock change: 1:00 PM ET on Nov 1 is 18:00 UTC, 4:00 PM ET on Oct 31 is 20:00 UTC", async () => {
+  const { etInstant } = await import("../orchestrator/publish-flow.mjs");
+  assert.equal(etInstant("2026-11-01", "13:00"), "2026-11-01T18:00:00.000Z");
+  assert.equal(etInstant("2026-10-31", "16:00"), "2026-10-31T20:00:00.000Z");
+});

@@ -35,6 +35,7 @@ export const IMPORT_TYPES = Object.freeze({
   NFL_WEEKLY_TOP5: { kind: "lr-nfl-top5", label: "NFL weekly Top 5", tier: 3, supported: true },
   // one game, one X post: winner graphic + player stat graphic(s), one caption (the Oct 29 format)
   NBA_GAME_POST: { kind: "lr-nba-game", label: "Game post: winner + stat lines", tier: 4, supported: true },
+  NFL_GAME_POST: { kind: "lr-nfl-game", label: "NFL game post: winner + stat lines", tier: 4, supported: true },
   NBA_GAME_WINNER: { kind: "lr-nba-game-winner", label: "NBA game winner", tier: 4, supported: true },
   NFL_GAME_WINNER: { kind: "lr-nfl-game-winner", label: "NFL game winner", tier: 4, supported: true },
   NBA_PLAYER_STATS: { kind: "lr-nba-players", label: "NBA projected stat lines", tier: 5, supported: true },
@@ -60,7 +61,7 @@ const designRow = (template, label) => ({ template, assetManifest: IMPORT_ASSET_
 export const IMPORT_DESIGNS = Object.freeze([
   designRow(importTemplateOf("RESULTS_RECAP", "NBA"), "NBA results recap"),
   designRow(importTemplateOf("RESULTS_RECAP", "NFL"), "NFL results recap"),
-  ...["NBA_TONIGHT", "NFL_SUNDAY_WINNERS", "NFL_MNF_WINNER", "NBA_DAILY_TOP5", "NFL_WEEKLY_TOP5", "NBA_GAME_POST", "NBA_GAME_WINNER", "NFL_GAME_WINNER", "NBA_PLAYER_STATS", "NFL_GAME_PLAYERS", "NBA_BOXSCORE"].map((c) => designRow(importTemplateOf(c, null), IMPORT_TYPES[c].label)),
+  ...["NBA_TONIGHT", "NFL_SUNDAY_WINNERS", "NFL_MNF_WINNER", "NBA_DAILY_TOP5", "NFL_WEEKLY_TOP5", "NBA_GAME_POST", "NFL_GAME_POST", "NBA_GAME_WINNER", "NFL_GAME_WINNER", "NBA_PLAYER_STATS", "NFL_GAME_PLAYERS", "NBA_BOXSCORE"].map((c) => designRow(importTemplateOf(c, null), IMPORT_TYPES[c].label)),
 ]);
 
 // ── what can't go out, whatever anyone clicks ──────────────────────────────────────────────────────────────────
@@ -142,7 +143,7 @@ export function checkImportedCaption(text, pkg) {
 
 // ── overlap with what the Command Center already has ───────────────────────────────────────────────────────────
 const LIVE_STATES = new Set(["approved", "scheduled", "published"]);
-const EVENT_KINDS = new Set(["nba-game", "nba-pregame", "pregame-forecast", "lr-nba-game", "lr-nba-game-winner", "lr-nfl-game-winner", "lr-nfl-mnf"]);
+const EVENT_KINDS = new Set(["nba-game", "nba-pregame", "pregame-forecast", "lr-nba-game", "lr-nba-game-winner", "lr-nfl-game", "lr-nfl-game-winner", "lr-nfl-mnf"]);
 const PLAYER_KINDS = new Set(["nba-game", "nba-players", "lr-nba-game", "lr-nba-players"]);
 const boardOf = (p) => String(p.imported?.variant ?? "").replace(/-model$/, "");
 function sameContent(mine, theirs) {
@@ -197,7 +198,7 @@ function nflGameReasons(raw, forecasts) {
 export function officialReasons(pkg, src) {
   const c = pkg.imported?.content;
   if (!c) return [];
-  const games = (c.game ? [c.game] : c.games ?? []).map((g) => gameOf(g, pkg));
+  const games = (c.game ? [c.game] : c.games ?? (c.winner?.eventId ? [c.winner] : [])).map((g) => gameOf(g, pkg));
   if (!games.length || pkg.kind === "lr-results-recap") return [];
   const json = (p) => { const raw = src.read(p); return raw == null ? null : JSON.parse(raw); };
   if (pkg.sport === "NBA") {

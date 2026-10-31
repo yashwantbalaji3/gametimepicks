@@ -545,7 +545,7 @@
     }
     return `<div class="blocked">${esc(LIFE_LABEL[p.lifecycle])}${p.resolution?.note ? ` · “${esc(p.resolution.note)}”` : ""}</div>`;
   }
-  const PUB_SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board", "top5-daily", "top5-weekly", "lr-results-recap", "lr-nba-tonight", "lr-nfl-roundup", "lr-nfl-mnf", "lr-nba-top5", "lr-nfl-top5", "lr-nba-game-winner", "lr-nfl-game-winner", "lr-nba-players", "lr-nfl-game-players", "lr-nba-boxscore", "lr-nba-game"]);
+  const PUB_SCHEDULABLE = new Set(["nba-game", "pregame-forecast", "td-top3", "top5-board", "top5-daily", "top5-weekly", "lr-results-recap", "lr-nba-tonight", "lr-nfl-roundup", "lr-nfl-mnf", "lr-nba-top5", "lr-nfl-top5", "lr-nba-game-winner", "lr-nfl-game-winner", "lr-nba-players", "lr-nfl-game-players", "lr-nba-boxscore", "lr-nba-game", "lr-nfl-game"]);
   /**
    * Display only: an attempt with no recorded outcome during its first 2 minutes is a send in progress ("Sending…");
    * after that it is "Outcome unknown — reconcile". The gate treats both as unknown (never retried) either way.
@@ -766,7 +766,7 @@
     return named ? `${named} · ${long}` : long;
   };
   const startOfPkg = (k) => k.tipUtc ?? k.startUtc ?? k.verification?.kickoffUtc ?? k.kickoffUtc ?? k.firstKickoffUtc ?? null;
-  const KIND_LABEL = { "nba-game": "Game post", "nba-final": "Final scores", "results-recap": "Results recap", "nfl-recap": "Forecast vs final", "pregame-forecast": "Pregame forecast", "td-top3": "Top 3 TD", "top5-board": "Top 5 board", "top5-weekly": "Weekly Top 5 (whole week)", "top5-daily": "Daily Top 5 (slate)", engagement: "Engagement", explainer: "Explainer", "x-reply": "Reply", "nba-results": "Prediction vs final", "lr-results-recap": "Results recap", "lr-nba-tonight": "NBA tonight", "lr-nfl-roundup": "NFL winners roundup", "lr-nfl-mnf": "Monday Night preview", "lr-nba-top5": "NBA daily Top 5", "lr-nfl-top5": "NFL weekly Top 5", "lr-nba-game-winner": "Game winner", "lr-nfl-game-winner": "Game winner", "lr-nba-game": "Game post", "lr-nba-players": "Projected stat lines", "lr-nfl-game-players": "Player graphic", "lr-nba-boxscore": "Player box score (real lines)", "lr-unsupported": "Unsupported" };
+  const KIND_LABEL = { "nba-game": "Game post", "nba-final": "Final scores", "results-recap": "Results recap", "nfl-recap": "Forecast vs final", "pregame-forecast": "Pregame forecast", "td-top3": "Top 3 TD", "top5-board": "Top 5 board", "top5-weekly": "Weekly Top 5 (whole week)", "top5-daily": "Daily Top 5 (slate)", engagement: "Engagement", explainer: "Explainer", "x-reply": "Reply", "nba-results": "Prediction vs final", "lr-results-recap": "Results recap", "lr-nba-tonight": "NBA tonight", "lr-nfl-roundup": "NFL winners roundup", "lr-nfl-mnf": "Monday Night preview", "lr-nba-top5": "NBA daily Top 5", "lr-nfl-top5": "NFL weekly Top 5", "lr-nba-game-winner": "Game winner", "lr-nfl-game-winner": "Game winner", "lr-nba-game": "Game post", "lr-nfl-game": "Game post", "lr-nba-players": "Projected stat lines", "lr-nfl-game-players": "Player graphic", "lr-nba-boxscore": "Player box score (real lines)", "lr-unsupported": "Unsupported" };
   const SPORTS = ["NBA", "NFL", "MLB", "UFC", "EPL"];
   const sportChip = (sp) => `<span class="sport sport-${esc(String(sp ?? "").toLowerCase())}">${esc(sp ?? "—")}</span>`;
   const jobsOf = (s, p) => (s.publishing?.jobs ?? []).filter((j) => j.decisionId === p.decisionId);
@@ -881,6 +881,12 @@
   /** The slate a post belongs to: a recap is reviewed on the day of the slate it leads into. */
   const slateOf = (p) => p.package.imported?.recommendation?.slateEtDate ?? p.package.date;
   /** Today's workspace: this slate, plus the recap of the slate before it, whatever window that recap now carries. */
+  /** The coming Sunday's NFL posts. Eastern dates, so the clock change never moves a game to another day. */
+  function isNflSunday(p) {
+    if (p.package.sport !== "NFL" || !p.package.imported || !["NFL_GAME_POST", "NFL_SUNDAY_WINNERS", "NFL_WEEKLY_TOP5"].includes(p.package.imported.contentType)) return false;
+    const t = Date.parse(p.package.tipUtc ?? ""), d = new Date(t);
+    return Number.isFinite(t) && t > Date.now() - 864e5 && d.toLocaleDateString("en-US", { weekday: "long", timeZone: "America/New_York" }) === "Sunday";
+  }
   function onTonight(p) {
     const today = etDay(new Date());
     if (p.package.sport !== "NBA") return false;
@@ -888,7 +894,8 @@
     return slateOf(p) === today;
   }
   const IMPORT_GROUPS = [
-    ["tonight", "NBA Tonight", (p) => onTonight(p) && isPrimary(p)],
+    ["tonight", "NBA Today", (p) => onTonight(p) && isPrimary(p)],
+    ["nflsun", "NFL Sunday", (p) => isNflSunday(p)],
     ["all", "Everything", () => true],
     ["key", "Tonight's key posts", (p) => !isMarket(p) && p.package.sport === "NBA" && ["lr-results-recap", "lr-nba-tonight", "lr-nba-top5"].includes(p.package.kind)],
     ["winners", "NBA winners", (p) => p.package.kind === "lr-nba-game-winner"],
@@ -923,6 +930,21 @@
     return p.lifecycle === "drafted" && !currentBlockers(s, p).length ? "ready" : "other";
   }
   const WS_SECTIONS = [["final", "Final approval required"], ["revised", "Revised draft ready"], ["ready", "Ready for founder review"], ["clean", "Clean export requested"], ["revision", "Revision requested"], ["data", "Data correction required before publishing"], ["scheduled", "Scheduled"], ["published", "Published"], ["expired", "Expired"], ["other", "Held"]];
+  /** Every scheduled post with its exact Eastern and UTC time and its images. */
+  function timeline(s) {
+    const jobs = (s.publishing?.jobs ?? []).filter((j) => j.status === "scheduled").sort((a, b) => a.dueAt.localeCompare(b.dueAt));
+    if (!jobs.length) return "";
+    return `<div class="section">Publishing timeline · ${num(jobs.length)}</div><ul class="rows">${jobs.map((j) => { const p = (s.posts ?? []).find((q) => q.decisionId === j.decisionId); return `<li><span class="t">${esc(new Date(j.dueAt).toLocaleString("en-US", { timeZone: "America/New_York", weekday: "short", hour: "numeric", minute: "2-digit" }))} ET</span><span class="grow">${esc(j.title)} · ${num(p ? imagesOf(p.package).length : 0)} image(s) · ${esc(j.dueAt.slice(11, 16))} UTC</span></li>`; }).join("")}</ul>`;
+  }
+  function renderNflSunday(s, list) {
+    const when = (p) => etTime(p.package.tipUtc);
+    const slate = list.filter((p) => p.package.kind !== "lr-nfl-game");
+    const games = list.filter((p) => p.package.kind === "lr-nfl-game").sort((a, b) => a.package.tipUtc.localeCompare(b.package.tipUtc));
+    const times = [...new Set(games.map(when))];
+    return `<div class="workspace"><h2 class="ws-title">NFL Sunday · November 1</h2><div class="muted">${num(games.length)} game post(s), ${num(slate.length)} slate post(s). Saturday quotes are not Sunday prices: check each post's quote time.</div>${timeline(s)}
+      ${slate.length ? `<div class="section">Full slate and Top 5</div><div class="rlist">${slate.map((p) => reviewCard(s, p)).join("")}</div>` : ""}
+      ${times.map((w) => { const a = games.filter((p) => when(p) === w); return `<div class="section">${esc(w)} · ${num(a.length)}</div><div class="rlist">${a.map((p) => reviewCard(s, p)).join("")}</div>`; }).join("")}</div>`;
+  }
   function renderWorkspace(s, c, list) {
     const others = c.posts.filter((p) => p.package.imported && onTonight(p) && !isPrimary(p));
     const byTip = (a, b) => String(startOfPkg(a.package)).localeCompare(String(startOfPkg(b.package)));
@@ -930,7 +952,8 @@
     const rest = others.filter((p) => !fallbacks.includes(p));
     const counts = WS_SECTIONS.map(([k, label]) => [label, list.filter((p) => wsSection(s, p) === k).length]).filter(([, n]) => n);
     const title = new Date(`${c.today}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" });
-    return `<div class="workspace"><h2 class="ws-title">NBA Tonight · ${esc(title)}</h2>
+    return `<div class="workspace"><h2 class="ws-title">NBA Today · ${esc(title)}</h2>
+      ${timeline(s)}
       <div class="muted">${num(list.length)} post(s), ${num(list.reduce((n, p) => n + imagesOf(p.package).length, 0))} graphics · ${counts.map(([l, n]) => `${num(n)} ${esc(l.toLowerCase())}`).join(" · ")}. Everything here can be opened, captioned and revised, whether or not it can be published yet.</div>
       <div class="rlist">${list.map((p) => reviewCard(s, p)).join("")}</div>
       ${fallbacks.length ? `<div class="section">Winner-only alternatives · ${num(fallbacks.length)}</div>
@@ -955,7 +978,7 @@
       const inGroup = c.posts.filter((p) => p.package.imported && group[2](p));
       inGroup.sort((a, b) => importRank(a) - importRank(b) || String(startOfPkg(a.package)).localeCompare(String(startOfPkg(b.package))));
       // the slate workspace is the default only on a day that has one
-      if (inGroup.length || f.group !== "tonight") return { c, status, list: inGroup, workspace: f.group === "tonight" };
+      if (inGroup.length || f.group !== "tonight") return { c, status, list: inGroup, workspace: f.group === "tonight", nfl: f.group === "nflsun" };
     }
     const list = (status === "all" ? c.posts : [...(c.by[status] ?? []), ...c.posts.filter((p) => p.decisionId === ui.expanded && postStatus(s, p).key !== status)])
       .filter((p) => f.sport === "all" || p.package.sport === f.sport || p.decisionId === ui.expanded)
@@ -1000,7 +1023,7 @@
     </section>`;
   }
   function renderReview(s) {
-    const { c, status, list, workspace } = reviewList(s);
+    const { c, status, list, workspace, nfl } = reviewList(s);
     const dz = s.design;
     const sports = SPORTS.filter((sp) => c.posts.some((p) => p.package.sport === sp));
     let lastDay = null;
@@ -1011,7 +1034,7 @@
         <div class="seg">${REVIEW_FILTERS.map(([k, label]) => `<button type="button" class="segbtn" data-filter-status="${k}" aria-pressed="${status === k}">${esc(label)}${k !== "all" ? ` <span class="n">${num((c.by[k] ?? []).length)}</span>` : ""}</button>`).join("")}</div>
         <div class="seg">${["all", ...sports].map((sp) => `<button type="button" class="segbtn" data-filter-sport="${sp}" aria-pressed="${ui.filter.sport === sp}">${sp === "all" ? "All sports" : esc(sp)}</button>`).join("")}</div>
       </div>
-      ${workspace ? renderWorkspace(s, c, list) : list.length ? `<div class="rlist">${list.map((p) => { const head = p.date !== lastDay ? `<div class="rday">${esc(dayLabel(p.date))}</div>` : ""; lastDay = p.date; return head + reviewCard(s, p); }).join("")}</div>`
+      ${workspace ? renderWorkspace(s, c, list) : nfl ? renderNflSunday(s, list) : list.length ? `<div class="rlist">${list.map((p) => { const head = p.date !== lastDay ? `<div class="rday">${esc(dayLabel(p.date))}</div>` : ""; lastDay = p.date; return head + reviewCard(s, p); }).join("")}</div>`
         : `<div class="empty-s">${status === "needs" ? "Nothing needs your decision right now." : "No posts match this filter."}</div>`}`;
   }
   function reviewCard(s, p) {
