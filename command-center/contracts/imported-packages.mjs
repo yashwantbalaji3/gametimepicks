@@ -128,7 +128,7 @@ export function validatePackage(p) {
   if (!SHA.test(String(p.contentSha256 ?? ""))) bad.push("contentSha256 missing");
   if (p.designVersion != null && !/^\d+(\.\d+)?$/.test(String(p.designVersion))) bad.push(`designVersion malformed: ${p.designVersion}`);
   if (!Array.isArray(p.images) || !p.images.length) bad.push("no images");
-  else if (p.images.length > 4) bad.push("more than four images: X allows four in a post");
+  else if (p.images.filter((i) => (i?.scale ?? 1) === 1).length > 4) bad.push("more than four images: X allows four in a post");
   for (const i of p.images ?? []) {
     if (!i?.path || !SHA.test(String(i.sha256 ?? ""))) bad.push(`image without path or sha256: ${i?.path ?? "?"}`);
     if (!(i?.width > 0) || !(i?.height > 0) || !(i?.scale > 0)) bad.push(`image without size: ${i?.path ?? "?"}`);
@@ -136,7 +136,7 @@ export function validatePackage(p) {
   if (/^UFC_/.test(String(p.contentType))) {
     const bouts = p.content?.bouts;
     if (!Array.isArray(bouts) || !bouts.length) bad.push("no bouts");
-    else for (const b of bouts) if (!b?.boutId || !b.eventId || !b.fighterA || !b.fighterB || ![b.fighterA, b.fighterB].includes(b.pick)) bad.push(`bout incomplete or pick is not on the card: ${b?.boutId ?? "?"}`);
+    else for (const b of bouts) if (!b?.boutId || !b.eventId || !b.fighterA || !b.fighterB || (b.pick == null ? !b.noForecastReason : ![b.fighterA, b.fighterB].includes(b.pick))) bad.push(`bout incomplete or pick is not on the card: ${b?.boutId ?? "?"}`);
     if (!Number.isFinite(Date.parse(p.commandCenter?.firstStartUtc ?? ""))) bad.push("no firstStartUtc");
   }
   if (!p.commandCenter?.postId || !p.commandCenter?.title) bad.push("commandCenter block missing postId or title");
