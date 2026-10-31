@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-31T19:12:09Z",
- "sourceGeneratedAt": "2026-10-31T19:12:09Z",
+ "generatedAt": "2026-10-31T23:57:49Z",
+ "sourceGeneratedAt": "2026-10-31T23:57:49Z",
  "forecastInputHash": "319a691b988f1f47",
  "providerEventId": "401873036",
  "matchup": "CHI @ SEA",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-31T19:12:09Z",
-  "roleEvidenceAt": "2026-10-31T19:12:09Z",
+  "injuriesCapturedAt": "2026-10-31T23:57:49Z",
+  "roleEvidenceAt": "2026-10-31T23:57:49Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -93,7 +93,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 52,
+  "absent": 47,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -238,8 +238,8 @@
   },
   "SEA": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 8,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 1,
@@ -277,7 +277,7 @@
       "player_receptions",
       "player_rush_yds"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4576297",
@@ -289,17 +289,6 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4032473",
-     "name": "Rashid Shaheed",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-2977187",
@@ -323,16 +312,6 @@
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4035693",
-     "name": "Velus Jones Jr.",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4597703",
@@ -360,6 +339,18 @@
      "name": "Jadarian Price",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-4032473",
+     "name": "Rashid Shaheed",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-4035693",
+     "name": "Velus Jones Jr.",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-3924327",
@@ -468,6 +459,19 @@
     "state": "CONSERVED"
    },
    {
+    "team": "SEA",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.8623,
+    "originalSum": 0.8623,
+    "residualOther": 0.1377,
+    "joined": 7,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
     "team": "CHI",
     "pool": "targets",
     "markets": [
@@ -477,19 +481,6 @@
     "originalSum": 0.8201,
     "residualOther": 0.1799,
     "joined": 5,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "SEA",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.8005,
-    "originalSum": 0.8005,
-    "residualOther": 0.1995,
-    "joined": 6,
     "missed": 0,
     "state": "CONSERVED"
    }
@@ -600,7 +591,7 @@
    "playerId": "nfl-athlete-4426385",
    "name": "Zach Charbonnet",
    "team": "SEA",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
      "mean": 22.109,
@@ -807,36 +798,6 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4032473",
-   "name": "Rashid Shaheed",
-   "team": "SEA",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 24.413,
-     "p10": 0,
-     "p25": 6.12,
-     "median": 18.6,
-     "p75": 36.2,
-     "p90": 56.73,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 2.6612,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 4,
-     "p90": 5,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1755,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-2977187",
    "name": "Cooper Kupp",
    "team": "SEA",
@@ -976,27 +937,6 @@
    "markets": {
     "anytime_td": {
      "probability": 0.0814,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4035693",
-   "name": "Velus Jones Jr.",
-   "team": "SEA",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 7.204,
-     "p10": 0,
-     "p25": 0,
-     "median": 1.95,
-     "p75": 9.94,
-     "p90": 21.77,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.0753,
      "pricingState": "NOT_PROBED"
     }
    }
