@@ -1578,6 +1578,11 @@
       const opt = p.options.find((o) => o.captionId === captionId);
       if (!opt) return alert("Choose a caption that passes its check.");
       t.disabled = true;
+      // founder 10-31: one Approve covers an imported post's design, images and caption
+      if (p.package.imported && p.package.template && !p.designApproved) {
+        const d = await post("/api/design", { template: p.package.template, assetManifest: p.package.assetManifest });
+        if (!d.ok && !d.duplicate) { t.disabled = false; return alert(`${d.code}: ${d.detail ?? ""}`); }
+      }
       const r = await post("/api/decide", { decisionId: p.decisionId, verdict: "approve", captionId, digest: opt.digest,
         ...(p.package.kind === "x-reply" ? { sourcesConfirmed: Boolean(ui.drafts[`confirm:${p.decisionId}`]) } : {}),
         ...(p.package.kind === "td-top3" || (p.package.kind === "nba-game" && p.package.availabilityCheck?.length) ? { availabilityConfirmed: Boolean(ui.drafts[`avail:${p.decisionId}`]) } : {}) });
