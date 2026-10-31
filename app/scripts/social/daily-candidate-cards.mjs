@@ -96,7 +96,7 @@ export function renderCandidateCardHtml(receipt) {
   if (bad.length) throw new Error(`receipt refused:\n  - ${bad.join("\n  - ")}`);
   const r = receipt.result;
   const c = r.card;
-  const legs = c.legs.map((l) => `<div class="leg" data-leg-id="${esc(l.legId)}"><div class="sel">${esc(l.selection ?? `${l.side}${l.line != null ? ` ${l.line}` : ""}`)}</div><div class="odds">${esc(am(l.american))}</div><div class="meta">${esc(l.eventLabel ?? "")} · ${esc(etOf(l.eventStartUtc))}</div><div class="book">${esc(l.bookmaker)} · quoted ${esc(etOf(l.capturedAt))}</div></div>`).join("\n");
+  const legs = c.legs.map((l) => `<div class="leg" data-leg-id="${esc(l.legId)}"><div class="sel">${esc(l.selection ?? `${l.side}${l.line != null ? ` ${l.line}` : ""}`)}</div><div class="odds">${esc(am(l.american))}</div><div class="meta">${esc(l.eventLabel ?? "")} · ${esc(etOf(l.eventStartUtc))}</div></div>`).join("\n");
   const joint = c.jointProbability ? `<p class="note">Model chance all legs land: ${(c.jointProbability.value * 100).toFixed(1)}% (product of validated leg probabilities; legs are from different games).</p>` : "";
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><title>${esc(`${r.productLabel} candidate ${r.productDay}`)}</title><style>${CSS}</style></head>

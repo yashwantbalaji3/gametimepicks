@@ -11,6 +11,8 @@ import { fileURLToPath } from "node:url";
 import { contrastRatio, nflTeamColor, relLuminance } from "../../src/lib/simulation-theater/nfl-team-colors.mjs";
 import { clashes } from "../../src/lib/simulation-theater/nba/nba-team-colors.mjs";
 import { nbaTeamColor } from "../../src/lib/simulation-theater/nba/nba-team-colors.mjs";
+import { NBA_PROP_LINE_ADAPTER } from "../../src/lib/sports/nba/prop-line-adapter.mjs";
+import { REFERENCE_BOOK_ORDER } from "../../src/lib/sports/nba/line-comparison.mjs";
 import { logoDataUri, REVIEW_BANNER, BANNED_WORDS, visibleText } from "./nba-line-cards.mjs";
 import { esc, cell } from "./social-pack-cards.mjs";
 
@@ -125,7 +127,7 @@ export function winnerCard(g, { kicker = "GameTimePicks Prediction", meterLabel 
 <div class="meter" data-meter="elo"><div class="meter-k">${esc(meterLabel)}</div><div class="meter-labels"><div class="ml l">${bcell(cells, "away.pct", `${g.awayPct}%`)}<span data-fit>${esc(g.away.name)}</span></div><div class="ml r">${bcell(cells, "home.pct", `${g.homePct}%`)}<span data-fit>${esc(g.home.name)}</span></div></div>
 <div class="meter-bar"><i class="seg away" data-share="${g.awayP}" style="width:${((100 * g.awayP) / total).toFixed(3)}%;--c:${ca}"></i><i class="seg home" data-share="${g.homeP}" style="width:${((100 * g.homeP) / total).toFixed(3)}%;--c:${cb}"></i></div></div>
 <div class="winner2${g.market ? " mkw" : ""}"><div class="k">${g.winner ? "Predicted Winner" : "Too close to call"}</div>${g.winner ? slab(g.winner) : ""}</div>
-${g.market ? `<div class="mkp"><div class="mk">Price</div>${cell(cells, "market.price", `${g.market.sideAbbr} ${g.market.priceText}`, "mv")}${g.market.quotedText ? cell(cells, "market.quoted", g.market.quotedText, "mq") : ""}</div>` : ""}<div class="strip"><div>${bcell(cells, "day", g.tipDay, "data-fit")}<span>${g.startWord ?? "Tip-off"}</span></div><div>${bcell(cells, "time", g.tipTime, "data-fit")}<span>Eastern time</span></div></div>`;
+${g.market ? `<div class="mkp"><div class="mk">Price</div>${cell(cells, "market.price", `${g.market.sideAbbr} ${g.market.priceText}`, "mv")}</div>` : ""}<div class="strip"><div>${bcell(cells, "day", g.tipDay, "data-fit")}<span>${g.startWord ?? "Tip-off"}</span></div><div>${bcell(cells, "time", g.tipTime, "data-fit")}<span>Eastern time</span></div></div>`;
   return { html: shell({ away: g.away, home: g.home, chip: g.chip, body, disclosure }), cells, v2: true, disclosure };
 }
 
@@ -136,8 +138,7 @@ export function tonightCard({ games, chip, kicker = "NBA Tonight", sub = "Game w
     const [ca, cb] = meterColours(g.away, g.home);
     return `<div class="tnr">${cell(cells, `${g.eventId}.tip`, g.tipTime, "t")}${cell(cells, `${g.eventId}.away`, g.away.abbr, "tm")}${cell(cells, `${g.eventId}.ap`, `${g.awayPct}%`, "p")}<div class="bar" data-bar="${g.eventId}"><i style="width:${(g.awayP * 100).toFixed(2)}%;background:${ca}"></i><i style="width:${(g.homeP * 100).toFixed(2)}%;background:${cb}"></i></div>${cell(cells, `${g.eventId}.hp`, `${g.homePct}%`, "p")}${cell(cells, `${g.eventId}.home`, g.home.abbr, "tm")}${cell(cells, `${g.eventId}.w`, g.winner?.abbr ?? "EVEN", "wn")}${priced ? cell(cells, `${g.eventId}.price`, g.market.priceText, "pr") : ""}</div>`;
   }).join("");
-  const books = [...new Set(games.map((g) => g.market?.bookLabel).filter(Boolean))];
-  const priceHead = books.length === 1 ? books[0].toUpperCase() : "PRICE";
+  const priceHead = "PRICE";
   const body = `<div class="kicker">${esc(kicker)}</div><div class="sub" data-fit>${esc(sub)}</div><div class="tn ${games.length > 10 ? "dense" : ""} ${priced ? "ml" : ""} ${priced && games.some((g) => String(g.awayPct).includes(".")) ? "dec" : ""}"><div class="tnh"><span>${esc(timeHead)}</span><span>AWAY</span><span></span>${priced ? '<span class="wh">MODEL WIN %</span>' : "<span></span>"}<span></span><span>HOME</span><span>WINNER</span>${priced ? `<span class="ph">${esc(priceHead)}</span>` : ""}</div>${rows}</div>${note ? `<div class="mkn">${cell(cells, "market.quoted", note)}</div>` : ""}`;
   return { html: shell({ chip, body, disclosure }), cells, v2: true, disclosure };
 }
@@ -236,6 +237,12 @@ export function resultsHeroCard({ recap, chip, kicker = "NBA Results", disclosur
 
 const cellsIn = (html) => Object.fromEntries([...html.matchAll(/data-cell="([^"]+)">([^<]*)</g)].map((m) => [m[1], m[2].replace(/&amp;/g, "&").replace(/&#39;/g, "'").replace(/&quot;/g, '"')]));
 const OK_PHRASES = [/predicted winner/gi, /game winner estimates?/gi, /winner/g, /WINNER/g];
+const BOOK_NAMES = REFERENCE_BOOK_ORDER.map((k) => NBA_PROP_LINE_ADAPTER.bookLabel(k));
+/** Source-neutral display: no book name and no quote line on any image; book, time and market ids stay in the package metadata. */
+export function sourceTextProblems(text) {
+  const t = String(text).toLowerCase();
+  return [...BOOK_NAMES.filter((b) => t.includes(b.toLowerCase())).map((b) => `book name on image: ${b}`), ...(/\b(prices? )?(observed|quoted)\b/.test(t) ? ["quote line on image"] : [])];
+}
 /** [] when a v2 card prints exactly `cells`, carries banner and footer, and no internal text. */
 export function verifyGameDayCard(card) {
   const e = [];
@@ -247,6 +254,7 @@ export function verifyGameDayCard(card) {
   if (!text.includes(card.disclosure ?? DISCLOSURE)) e.push("footer missing");
   if (/\bElo\b|[0-9a-f]{16,}|moneyline/i.test(text)) e.push("internal text on image");
   if (/[—–]/.test(text)) e.push("dash on image");
+  e.push(...sourceTextProblems(text));
   let t = text; for (const p of OK_PHRASES) t = t.replace(p, " ");
   for (const w of BANNED_WORDS) if (new RegExp(`(^|[^a-z])${w}([^a-z]|$)`, "i").test(t)) e.push(`banned ${w}`);
   return e;

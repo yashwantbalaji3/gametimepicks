@@ -108,8 +108,8 @@ export function packCaptionViolations(text) {
   if (text.includes(EM_DASH) || text.includes(EN_DASH)) v.push("caption contains an em or en dash");
   const b = bannedIn(text);
   if (b.length) v.push(`caption contains banned words: ${b.join(", ")}`);
-  if (!text.includes(FOOT.advice)) v.push("caption lacks Not betting advice");
+  if (text.includes(FOOT.advice)) v.push("caption carries Not betting advice");
   if (!text.includes("1-800-GAMBLER")) v.push("caption lacks the responsible-gambling line");
   return v;
 }
-export const legalLine = `${FOOT.advice} ${FOOT.responsible}`;
+export const legalLine = `\n\n${FOOT.responsible}`;

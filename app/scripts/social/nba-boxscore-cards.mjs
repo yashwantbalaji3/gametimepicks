@@ -33,7 +33,7 @@ import { relLuminance, contrastRatio } from "../../src/lib/simulation-theater/nf
 import { REFERENCE_BOOK_ORDER } from "../../src/lib/sports/nba/line-comparison.mjs";
 import { NBA_PROP_LINE_ADAPTER } from "../../src/lib/sports/nba/prop-line-adapter.mjs";
 import { PURPOSE } from "../../src/lib/social/nba-line-graphics-export.mjs";
-import { FOOTER, TEST_WATERMARK, REVIEW_BANNER, BANNED_WORDS, EM_DASH, EN_DASH, logoDataUri, tipEt, quoteRangeText, visibleText } from "./nba-line-cards.mjs";
+import { FOOTER, TEST_WATERMARK, REVIEW_BANNER, BANNED_WORDS, EM_DASH, EN_DASH, logoDataUri, tipEt, visibleText } from "./nba-line-cards.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const APP = path.resolve(HERE, "..", "..");
@@ -362,10 +362,10 @@ export function boxScoreCaption(doc, page) {
   const n = page.awayPlayers.length + page.homePlayers.length;
   const text = [
     `${a.name} at ${h.name}, tip ${tipEt(page.event.tipUtc)}${page.pages > 1 ? ` (card ${page.page} of ${page.pages})` : ""}.`,
-    `Our model's projected points, rebounds and assists for ${n} player${n === 1 ? "" : "s"}, set against sportsbook lines quoted ${quoteRangeText(pageComparedRows(page))}.`,
+    `Our model's projected points, rebounds and assists for ${n} player${n === 1 ? "" : "s"}, set against sportsbook lines.`,
     "Green means the projection is above the line, red means below it, grey means no qualified comparison; the odds shown are for that side of the line.",
-    `${FOOTER.advice} ${FOOTER.responsible}`,
-  ].join(" ");
+    FOOTER.responsible,
+  ].join("\n\n");
   if (text.includes(EM_DASH) || text.includes(EN_DASH)) throw new Error(`caption contains a dash: ${text}`);
   return text;
 }

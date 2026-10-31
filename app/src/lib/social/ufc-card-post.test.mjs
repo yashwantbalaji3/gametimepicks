@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { socialPackageViolations } from "./social-package.mjs";
-import { foldName, matchBout, pickQuote, ufcBouts, ufcCaption, ufcClose, ufcPages } from "./ufc-card-post.mjs";
+import { foldName, matchBout, pickQuote, sectionFlags, ufcBouts, ufcCaption, ufcClose, ufcPages, verifyBoutPrice } from "./ufc-card-post.mjs";
 
 const q = (k, a, b, x, y) => ({ key: k, markets: [{ key: "h2h", last_update: "2026-10-31T15:15:47Z", outcomes: [{ name: a, price: x }, { name: b, price: y }] }] });
 const ev = (id, home, away, t, books) => ({ id, home_team: home, away_team: away, commence_time: t, bookmakers: books });
@@ -37,12 +37,26 @@ test("the window closes at the earliest of start, provider start of a priced bou
   assert.equal(new Date(ufcClose([{ ...b, providerCommenceUtc: "2026-11-01T00:15:00Z" }])).toISOString(), "2026-10-31T21:15:47.000Z");
 });
 
-test("pages stay within four images; the main event stands alone; UFC is a valid sport", () => {
-  const b = (n) => Array.from({ length: n }, (_, i) => i);
-  assert.deepEqual(ufcPages(b(5), "UFC_MAIN_CARD").map((p) => p.length), [1, 4]);
-  assert.deepEqual(ufcPages(b(7), "UFC_PRELIMS").map((p) => p.length), [4, 3]);
-  assert.throws(() => ufcPages(b(17), "UFC_PRELIMS"));
+test("one image per section: forecast bouts only, each once; caption ends on the hashtag with real blank lines", () => {
+  const b = [{ boutId: "1", pick: "A" }, { boutId: "2", pick: null }, { boutId: "3", pick: "B" }];
+  assert.deepEqual(ufcPages(b).map((p) => p.map((x) => x.boutId)), [["1", "3"]]);
+  assert.throws(() => ufcPages([b[0], b[0]]));
   assert.ok(!socialPackageViolations({ sport: "ufc", contentType: "UFC_PRELIMS" }).some((v) => /^(sport|contentType)/.test(v)));
-  const c = ufcCaption({ type: "UFC_MAIN_CARD", headline: "Moicano vs Nolan", bouts: 5, modelled: 4, startText: "8 PM ET" });
-  assert.match(c, /#UFC/); assert.match(c, /4 of 5/); assert.doesNotMatch(c, /%/);
+  const c = ufcCaption({ type: "UFC_MAIN_CARD", headline: "Moicano vs Nolan", modelled: 4, startText: "8 PM ET" });
+  assert.match(c, /\n\n#UFC$/); assert.doesNotMatch(c, /%|Not betting advice/);
+});
+
+test("a price is verified against the raw event: the winner's own sign, never the opponent's, never a shared surname", () => {
+  const raw = [ev("s", "Luana Santos", "Yana Santos", "2026-11-01T00:45:00Z", [q("draftkings", "Luana Santos", "Yana Santos", -340, 270)])];
+  const b = { providerEventId: "s", fighterA: "Yana Santos", fighterB: "Luana Santos", pick: "Luana Santos", book: "draftkings", price: -340 };
+  assert.equal(verifyBoutPrice(b, raw).opponentPrice, 270);
+  assert.equal(verifyBoutPrice({ ...b, price: 270 }, raw).reason, "PRICE_DIFFERS");
+  assert.equal(verifyBoutPrice({ ...b, fighterB: "L Santos", pick: "L Santos" }, raw).reason, "FIGHTER_IDENTITY");
+  assert.equal(verifyBoutPrice({ ...b, providerEventId: "x" }, raw).reason, "EVENT_NOT_UNIQUE");
+  assert.equal(pickQuote(raw[0], "L Santos", { fetchedAt: "2026-10-31T15:16:05Z", startMs: Date.parse("2026-11-01T00:00:00Z"), asOf: "2026-10-31T15:20:00Z" }), null);
+});
+
+test("a bout the provider times before its repo section is flagged, not moved", () => {
+  const f = sectionFlags([{ boutId: "1", fighterA: "a", fighterB: "b", startUtc: "2026-11-01T00:00Z", providerCommenceUtc: "2026-10-31T21:00:00Z" }], "Main card");
+  assert.deepEqual([f.length, f[0].repoSegment], [1, "Main card"]);
 });

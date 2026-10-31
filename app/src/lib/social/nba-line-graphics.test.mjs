@@ -226,16 +226,15 @@ test("card HTML carries the exact strings of every row, computed independently f
           `<div class="c-num c-line">${lineText(a.line)}</div>`,
           `<span class="glyph">${{ OVER: "▲", UNDER: "▼", NEUTRAL: "=" }[side]}</span><span class="word">${side}</span>`,
           `<div class="c-num c-diff">${signedDifference(lm - a.line).text}</div>`,
-          `<span class="bname">DraftKings</span>`,
           `<span class="odds">O +999 · U −999</span>`,
         ]) assert.ok(seg.includes(s), `${r.rowId} ${size.key}: ${s}`);
         assert.equal(rowCells(r).word, side);
       }
       assert.ok(html.includes(TEST_WATERMARK), "synthetic data is watermarked");
       assert.ok(html.includes(REVIEW_BANNER), "founder-review cards carry the banner");
+      assert.ok(!/DraftKings|Lines quoted/.test(html));
       assert.match(html, /Not betting advice\./);
       assert.match(html, /1-800-GAMBLER/);
-      assert.match(html, /Lines quoted Oct 29, 4:30 PM ET/);
       assert.doesNotMatch(html, /https?:\/\//, "nothing is fetched");
     }
   }
@@ -267,14 +266,15 @@ test("captions: natural sentences, no em dash, no promotional or promissory word
     assert.ok(!c.includes("–"), c);
     assert.deepEqual(captionViolations(c), [], c);
     assert.doesNotMatch(c, /\b(edge|lock|value|guarantee|best bet|profit)\b/i);
-    assert.match(c, /Not betting advice\./);
+    assert.doesNotMatch(c, /Not betting advice|DraftKings/);
+    assert.match(c, /\n\n/);
   }
   const g = gameCaption(review.doc, review.doc.events[0].eventId);
   const r = selectCardRows(review.doc, review.doc.events[0].eventId, SIZES.landscape.maxRows).rows[0];
   assert.ok(g.includes(`model ${r.model.display}, line ${r.market.line.text} (${r.market.direction.word}, ${r.market.difference.text})`));
   assert.ok(captionViolations(`A ${EM_DASH} B. Not betting advice. 1-800-GAMBLER`).some((x) => /em dash/.test(x)));
   assert.ok(captionViolations("Our lock of the night. Not betting advice. 1-800-GAMBLER").some((x) => /banned/.test(x)));
-  assert.ok(captionViolations("Plain text.").some((x) => /Not betting advice/.test(x)));
+  assert.ok(captionViolations("Plain. Not betting advice. 1-800-GAMBLER").some((x) => /Not betting advice/.test(x)));
 });
 
 /* ───────────────────────────── determinism ───────────────────────────── */

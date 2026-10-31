@@ -8,7 +8,7 @@ import { buildPredictionBoard } from "../sports/ufc/prediction-board.mjs";
 import { REFERENCE_BOOK_ORDER } from "../sports/nba/line-comparison.mjs";
 import { etDate, instant } from "./social-package.mjs";
 
-export const UFC_MAX_IMAGES = 4;
+export const UFC_MAX_IMAGES = 1;
 export const UFC_MARKET = "h2h";
 export const UFC_LINE_MAX_AGE_HOURS = 6;
 export const SEGMENT_TYPE = Object.freeze({ "Prelims": "UFC_PRELIMS", "Main card": "UFC_MAIN_CARD" });
@@ -35,7 +35,8 @@ export function pickQuote(event, pickName, { fetchedAt, startMs, asOf }) {
   const side = pick === home ? event.home_team : pick === away ? event.away_team : null;
   // A recorded alias spells the pick differently: the pick is then found by surname inside this already-matched event.
   const last = pick.split(" ").at(-1);
-  const pickSide = side ?? [event.home_team, event.away_team].find((n) => foldName(n).split(" ").at(-1) === last);
+  const bySurname = [event.home_team, event.away_team].filter((n) => foldName(n).split(" ").at(-1) === last);
+  const pickSide = side ?? (bySurname.length === 1 ? bySurname[0] : null);
   if (!pickSide) return null;
   for (const key of REFERENCE_BOOK_ORDER) {
     const m = event.bookmakers?.find((b) => b.key === key)?.markets?.find((x) => x.key === UFC_MARKET);
@@ -47,6 +48,27 @@ export function pickQuote(event, pickName, { fetchedAt, startMs, asOf }) {
   return null;
 }
 
+const surname = (n) => foldName(n).split(" ").at(-1);
+/**
+ * Second reading of a price against the raw capture, independent of the quote pick: the same event, both fighters by surname,
+ * the forecast winner's own outcome in that book, the same signed number. Returns what was read, or the reason it was refused.
+ */
+export function verifyBoutPrice(bout, rawEvents) {
+  const hits = rawEvents.filter((e) => e.id === bout.providerEventId);
+  if (hits.length !== 1) return { ok: false, reason: "EVENT_NOT_UNIQUE" };
+  const [e] = hits;
+  const opponent = bout.pick === bout.fighterA ? bout.fighterB : bout.fighterA;
+  const sides = [e.home_team, e.away_team];
+  const find = (name) => { const exact = sides.filter((n) => foldName(n) === foldName(name)); return exact.length === 1 ? exact : sides.filter((n) => surname(n) === surname(name)); };
+  const [win, opp] = [find(bout.pick), find(opponent)];
+  if (win.length !== 1 || opp.length !== 1 || win[0] === opp[0]) return { ok: false, reason: "FIGHTER_IDENTITY" };
+  const m = e.bookmakers?.filter((b) => b.key === bout.book).flatMap((b) => b.markets ?? []).filter((x) => x.key === UFC_MARKET) ?? [];
+  const of = (n) => m[0]?.outcomes?.filter((o) => o.name === n) ?? [];
+  if (m.length !== 1 || of(win[0]).length !== 1 || of(opp[0]).length !== 1) return { ok: false, reason: "OUTCOME_NOT_UNIQUE" };
+  if (of(win[0])[0].price !== bout.price) return { ok: false, reason: "PRICE_DIFFERS" };
+  return { ok: true, reason: null, providerFighter: win[0], providerOpponent: opp[0], opponentPrice: of(opp[0])[0].price };
+}
+
 const NO_PRICE = { price: null, book: null, quotedAt: null };
 /** Every bout of the card, in card order, with its forecast and price. */
 export function ufcBouts({ card, odds, asOf, aliasJoins = [] }) {
@@ -54,14 +76,16 @@ export function ufcBouts({ card, odds, asOf, aliasJoins = [] }) {
   return buildPredictionBoard(card).rows.map((r) => {
     const hit = matchBout(r, odds.events, { date, aliasJoins });
     const startMs = instant(r.startUtc);
-    const q = hit.event && r.pick ? pickQuote(hit.event, r.pick.name, { fetchedAt: odds.fetchedAt, startMs, asOf }) : null;
+    const quote = hit.event && r.pick ? pickQuote(hit.event, r.pick.name, { fetchedAt: odds.fetchedAt, startMs, asOf }) : null;
     const source = card.bouts[r.index];
+    const priceCheck = quote ? verifyBoutPrice({ providerEventId: hit.event.id, fighterA: r.red.name, fighterB: r.blue.name, pick: r.pick.name, book: quote.book, price: quote.price }, odds.events) : null;
+    const q = priceCheck?.ok ? quote : null;
     return {
       boutId: r.boutId, eventId: String(card.event.providerEventId), fighterA: r.red.name, fighterB: r.blue.name, pick: r.pick?.name ?? null, probability: r.pick?.probability ?? null, ...(q ?? NO_PRICE),
       weightClass: r.weightClass, scheduledRounds: r.scheduledRounds, segment: r.segment, startUtc: r.startUtc, position: r.position, basis: source.prediction?.basis ?? null,
       providerEventId: hit.event?.id ?? null, providerCommenceUtc: hit.event?.commence_time ?? null, matchMethod: hit.method,
       unmatchedReason: hit.reason, noForecastReason: r.pick ? null : r.unmodelledReason,
-      noPriceReason: q ? null : !r.pick ? "NO_FORECAST" : hit.reason ?? "NO_CLEAN_QUOTE",
+      priceCheck, noPriceReason: q ? null : !r.pick ? "NO_FORECAST" : quote ? priceCheck.reason : hit.reason ?? "NO_CLEAN_QUOTE",
     };
   });
 }
@@ -73,19 +97,22 @@ export function ufcClose(bouts) {
   return Math.min(...starts, ...quotes);
 }
 
-export const pctText = (p) => `${(p * 100).toFixed(1)}%`;
-export const priceText = (p) => (p > 0 ? `+${p}` : String(p));
-/** Pages of the card, at most UFC_MAX_IMAGES. The main card gives the main event its own image. */
-export function ufcPages(bouts, type) {
-  const rest = type === "UFC_MAIN_CARD" ? bouts.slice(1) : bouts;
-  const pages = type === "UFC_MAIN_CARD" ? [bouts.slice(0, 1)] : [];
-  for (let i = 0; i < rest.length; i += 4) pages.push(rest.slice(i, i + 4));
-  if (pages.length > UFC_MAX_IMAGES) throw new Error(`${type}: ${pages.length} images`);
-  return pages;
+/** Bouts the provider times before the repo's section start: the repo section stands, the difference is flagged for review. */
+export function sectionFlags(bouts, segment) {
+  return bouts.filter((b) => b.providerCommenceUtc && instant(b.providerCommenceUtc) < instant(b.startUtc)).map((b) => ({ boutId: b.boutId, fighterA: b.fighterA, fighterB: b.fighterB, repoSegment: segment, repoStartUtc: b.startUtc, providerCommenceUtc: b.providerCommenceUtc }));
 }
-/** Digits only from the claims it is passed; "#UFC" and no percentages, as every pregame caption. */
-export function ufcCaption({ type, headline, bouts, modelled, startText }) {
+export const pctText = (p) => `${Math.round(p * 100)}%`;
+export const priceText = (p) => (p > 0 ? `+${p}` : String(p));
+/** One image per section: every bout with a forecast, once. A bout with no forecast is not shown. */
+export function ufcPages(bouts) {
+  const shown = bouts.filter((b) => b.pick);
+  if (new Set(shown.map((b) => b.boutId)).size !== shown.length) throw new Error("a bout appears twice");
+  return shown.length ? [shown] : [];
+}
+const blocks = (...b) => b.join("\n\n");
+/** Digits only from the claims it is passed; no percentages, as every pregame caption. Ends on the hashtag. */
+export function ufcCaption({ type, headline, modelled, startText }) {
   return type === "UFC_MAIN_CARD"
-    ? `🥊 UFC FIGHT NIGHT! ${headline} headlines ${bouts} bouts on the main card at ${startText}. Our model's forecast on ${modelled} of ${bouts} below 👇 #UFC Not betting advice.`
-    : `🥊 Fight night starts early! ${bouts} UFC prelims from ${startText} before ${headline}. Our model's forecast on ${modelled} of ${bouts} below 👇 #UFC Not betting advice.`;
+    ? blocks("🥊 UFC FIGHT NIGHT!", `${headline} headlines the main card at ${startText}.`, `Our model's forecast on ${modelled} main card bouts below 👇`, "#UFC")
+    : blocks("🥊 Fight night starts early!", `UFC prelims from ${startText} before ${headline}.`, `Our model's forecast on ${modelled} bouts below 👇`, "#UFC");
 }

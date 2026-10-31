@@ -41,7 +41,7 @@ export const SIZES = Object.freeze({
 });
 
 export const FOOTER = Object.freeze({
-  method: "Model projection vs observed sportsbook line. OVER, UNDER and NEUTRAL show where the model's median sits against that one line. They are not a probability or a pick.",
+  method: "Model projection vs sportsbook line. OVER, UNDER and NEUTRAL show where the model's median sits against that one line. They are not a probability or a pick.",
   advice: "Not betting advice.",
   responsible: "21+ where required; the legal age varies by state. Gambling problem? Call 1-800-GAMBLER.",
 });
@@ -104,7 +104,7 @@ export function rowCellMarkup(r) {
     `<div class="c-num c-line">${esc(c.line)}</div>`,
     `<span class="glyph">${esc(c.glyph)}</span><span class="word">${esc(c.word)}</span>`,
     `<div class="c-num c-diff">${esc(c.difference)}</div>`,
-    ...(c.book ? [`<span class="bname">${esc(c.book)}</span>`, `<span class="odds">${esc(c.odds)}</span>`] : []),
+    ...(c.book ? [`<span class="odds">${esc(c.odds)}</span>`] : []),
   ];
 }
 
@@ -119,7 +119,7 @@ ${m[3]}
 ${m[4]}
 <div class="c-dir" style="color:${SIDE_COLOR[side]};border-color:${SIDE_COLOR[side]}">${m[5]}</div>
 ${m[6]}
-<div class="c-book">${c.book ? `${m[7]}${m[8]}` : ""}</div>
+<div class="c-book">${c.book ? m[7] : ""}</div>
 </div>`;
 }
 
@@ -204,7 +204,7 @@ ${body}
 
 function footer(rows) {
   return `<footer class="foot">
-<p class="q">Lines quoted ${esc(quoteRangeText(rows))}. Model projections are official medians frozen before tip.</p>
+<p class="q">Model projections are official medians frozen before tip.</p>
 <p>${esc(FOOTER.method)}</p>
 <p>${esc(FOOTER.advice)} ${esc(FOOTER.responsible)}</p>
 </footer>`;
@@ -291,7 +291,7 @@ export function verifyCardHtml(html, rows, { kind = "game" } = {}) {
     }
   }
   const text = visibleText(html);
-  for (const s of [FOOTER.method, FOOTER.advice, FOOTER.responsible, "Lines quoted"]) if (!text.includes(s)) v.push(`footer missing: ${s}`);
+  for (const s of [FOOTER.method, FOOTER.advice, FOOTER.responsible]) if (!text.includes(s)) v.push(`footer missing: ${s}`);
   const b = bannedIn(text);
   if (b.length) v.push(`banned words on the card: ${b.join(", ")}`);
   return v;
@@ -360,15 +360,14 @@ export function gameCaption(doc, eventId, size = SIZES.landscape) {
   const ev = doc.events.find((e) => e.eventId === eventId);
   const { rows } = selectCardRows(doc, eventId, size.maxRows);
   const [away, home] = ev.matchup.split(" @ ");
-  const books = [...new Set(rows.filter(pricesShown).map((r) => r.market.book.label))];
   const parts = rows.map((r) => `${r.identity.playerName} ${lower(r.identity.marketLabel)}: model ${r.model.display}, line ${r.market.line.text} (${r.market.direction.word}, ${r.market.difference.text})`);
   return [
     `${away} at ${home}, tip ${tipEt(ev.tipUtc)}.`,
-    `Our model's projections next to ${books.length ? `${books.join(" and ")} lines` : "sportsbook lines"} quoted ${quoteRangeText(rows)}.`,
+    `Our model's projections next to sportsbook lines.`,
     `${parts.join("; ")}.`,
     "OVER and UNDER only say where the model's median sits against that line.",
-    `${FOOTER.advice} ${FOOTER.responsible}`,
-  ].join(" ");
+    FOOTER.responsible,
+  ].join("\n\n");
 }
 
 /** The slate caption (counts from the export's events block). */
@@ -381,8 +380,8 @@ export function summaryCaption(doc) {
     `Across ${total} comparison${total === 1 ? "" : "s"}, the model sits above the line ${sum("over")} times, below it ${sum("under")} times and level with it ${sum("neutral")} times.`,
     "Points, rebounds, assists and their combinations only.",
     "OVER and UNDER describe the model against one line, not a probability or a pick.",
-    `${FOOTER.advice} ${FOOTER.responsible}`,
-  ].join(" ");
+    FOOTER.responsible,
+  ].join("\n\n");
 }
 
 /** [] when a caption is clean: no em or en dash, no banned or promissory words. */
@@ -392,7 +391,7 @@ export function captionViolations(text) {
   if (text.includes(EN_DASH)) v.push("caption contains an en dash");
   const b = bannedIn(text);
   if (b.length) v.push(`caption contains banned words: ${b.join(", ")}`);
-  if (!text.includes(FOOTER.advice)) v.push("caption lacks Not betting advice");
+  if (text.includes(FOOTER.advice)) v.push("caption carries Not betting advice");
   if (!text.includes("1-800-GAMBLER")) v.push("caption lacks the responsible-gambling line");
   return v;
 }

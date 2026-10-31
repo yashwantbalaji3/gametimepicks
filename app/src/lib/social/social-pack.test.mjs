@@ -16,7 +16,8 @@ import { nbaTop5Carousel, nflTdRows, nflPropRows, prepareNflGamePosts } from "..
 import { nflMoneylineQuote, nflPropOffer } from "../../../scripts/social/nfl-line-capture.mjs";
 import { approvedCaption } from "./approved-captions.mjs";
 import { americanText } from "./nba-moneyline.mjs";
-import { verifyGameDayCard, meterColours, teamOf } from "../../../scripts/social/game-day-cards.mjs";
+import { visibleText } from "../../../scripts/social/nba-line-cards.mjs";
+import { sourceTextProblems, verifyGameDayCard, meterColours, teamOf } from "../../../scripts/social/game-day-cards.mjs";
 import { meterProblems, meterHtml, packCaptionViolations, verifyPackCard } from "../../../scripts/social/social-pack-cards.mjs";
 
 const AS_OF = "2026-10-30T16:40:00Z";
@@ -306,7 +307,9 @@ test("game day moneyline: priced copies beside unchanged model posts, one image,
   assert.equal(ml.length, lane.games.length + 1);
   assert.deepEqual(r.posts.filter((p) => !ml.includes(p)).map((p) => [p.variant, p.caption, p.cards[0].cells]), base.posts.map((p) => [p.variant, p.caption, p.cards[0].cells]));
   for (const p of ml) { assert.equal(p.containsMarketData, true); assert.equal(p.cards.length, 1); assert.equal(p.content.sourceSha256, "a".repeat(64)); assert.equal(p.content.socialAuthorized, false); assert.deepEqual(verifyGameDayCard(p.cards[0]), []); assert.ok(!(p.contentType === "NBA_TONIGHT" ? /1-800-GAMBLER|Observed sportsbook/i : /FanDuel|1-800-GAMBLER|Observed sportsbook/i).test(p.cards[0].html.replace(/<style>[\s\S]*?<\/style>/, ""))); assert.match(JSON.stringify(p.content), /fanduel/); }
-  assert.match(ml.find((p) => p.contentType === "NBA_TONIGHT").cards[0].html, /class="ph">FANDUEL</);
+  assert.match(ml.find((p) => p.contentType === "NBA_TONIGHT").cards[0].html, /class="ph">PRICE</);
+  assert.ok(ml.every((p) => !/fanduel|observed/i.test(visibleText(p.cards[0].html))));
+  assert.deepEqual(sourceTextProblems("FanDuel prices observed 3 PM").length, 2);
   const one = ml.find((p) => p.contentType === "NBA_GAME_WINNER");
   assert.equal(one.content.price, one.content.side === lane.games.find((g) => String(g.providerEventId) === one.eventId).home.abbr ? -140 : 120);
   assert.equal(one.content.quotedAt, "2026-10-30T19:42:56Z");
@@ -336,7 +339,7 @@ test("package contract: approval is fixed, dedupe is stable across content chang
   assert.throws(() => buildSocialPackage({ ...minimal(), ccCaption: "x".repeat(281) }));
   assert.throws(() => buildSocialPackage({ ...minimal(), caption: "a – b" }));
   assert.throws(() => buildSocialPackage({ ...minimal(), verification: { passed: false } }));
-  assert.throws(() => buildSocialPackage({ ...minimal(), recommended: { recommendedAt: "2026-10-31T21:00:00Z" } }));
+  assert.equal(buildSocialPackage({ ...minimal(), recommended: { recommendedAt: "2026-10-31T21:00:00Z" } }).recommendedAt, null);
   assert.ok(socialPackageViolations({ ...a, approval: { status: "APPROVED", socialAuthorized: true } }).length);
 });
 

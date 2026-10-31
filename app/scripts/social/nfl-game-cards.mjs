@@ -372,8 +372,8 @@ export function gameCaption(doc, { featuredPerTeam = 2 } = {}) {
     featured.length ? `${featured.join(". ")}.` : "",
     "Yards and receptions are medians; the anytime TD figure is the chance to score if he plays.",
     estNote,
-    `${FOOTER.advice} ${FOOTER.responsible}`,
-  ].filter(Boolean).join(" ");
+    FOOTER.responsible,
+  ].filter(Boolean).join("\n\n");
 }
 
 /** [] when a caption is clean: no em or en dash, no banned or promissory words, the advice and helpline present. */
@@ -383,7 +383,7 @@ export function captionViolations(text) {
   if (text.includes(EN_DASH)) v.push("caption contains an en dash");
   const b = bannedIn(text);
   if (b.length) v.push(`caption contains banned words: ${b.join(", ")}`);
-  if (!text.includes(FOOTER.advice)) v.push("caption lacks Not betting advice");
+  if (text.includes(FOOTER.advice)) v.push("caption carries Not betting advice");
   if (!text.includes("1-800-GAMBLER")) v.push("caption lacks the responsible-gambling line");
   return v;
 }
