@@ -34,6 +34,8 @@ export const CONTENT_TYPE = Object.freeze({
   NBA_PLAYER_STATS: "NBA_PLAYER_STATS",
   NFL_PLAYER_STATS: "NFL_PLAYER_STATS",
   RESULTS_RECAP: "RESULTS_RECAP",
+  UFC_PRELIMS: "UFC_PRELIMS",
+  UFC_MAIN_CARD: "UFC_MAIN_CARD",
 });
 export const ELIGIBILITY = Object.freeze({ OFFICIAL: "OFFICIAL", ESTIMATE: "ESTIMATE" });
 /**
@@ -42,7 +44,7 @@ export const ELIGIBILITY = Object.freeze({ OFFICIAL: "OFFICIAL", ESTIMATE: "ESTI
  */
 export const CC_KIND = Object.freeze({
   NFL_SUNDAY_WINNERS: null, NFL_MNF_WINNER: "pregame-forecast", NFL_GAME_WINNER: "pregame-forecast", NBA_TONIGHT: null, NBA_GAME_WINNER: null, NBA_GAME_POST: null, NFL_GAME_POST: null, NBA_BOXSCORE: null, NBA_PLAYER_STATS: null, NFL_PLAYER_STATS: null,
-  NFL_WEEKLY_TOP5: "top5-weekly", NBA_DAILY_TOP5: "top5-daily", NBA_TOP5_CAROUSEL: null, RESULTS_RECAP: "results-recap",
+  NFL_WEEKLY_TOP5: "top5-weekly", NBA_DAILY_TOP5: "top5-daily", NBA_TOP5_CAROUSEL: null, RESULTS_RECAP: "results-recap", UFC_PRELIMS: null, UFC_MAIN_CARD: null,
 });
 /** One row per content type: the queue kind, and what the Command Center lacks when there is none. */
 export const CC_KIND_MAP = Object.freeze(Object.entries(CC_KIND).map(([contentType, kind]) => Object.freeze({
@@ -97,7 +99,7 @@ export function editorialPlan(posts) {
   });
 }
 
-const SPORTS = new Set(["nfl", "nba"]);
+const SPORTS = new Set(["nfl", "nba", "ufc"]);
 const ET = "America/New_York";
 const OFF_STATUS = /POSTPONED|CANCELED|CANCELLED/;
 
@@ -232,7 +234,10 @@ export const dedupeSlug = ({ sport, date, contentType, variant = null }) => [spo
  * One package.
  * @param {{ sport: string, date: string, contentType: string, variant?: string|null, snapshotRefs: Array<{ref:string, sha256:string}>, images: Array<{path:string, width:number, height:number, scale:number, sha256:string}>, caption: string, verification: {passed:boolean, checks:string[], cellsVerified:number}, window: {opensAt:string, closesAt:string}, recommended: {recommendedAt:string}|null, recommendedNote?: string|null, freshness: object, content: object }} o
  */
-export function buildSocialPackage(o) {
+export function buildSocialPackage(o0) {
+  /* A recommended time past the window (a quote expiring before the slot) becomes no recommendation, with the reason. */
+  const rec0 = o0.recommended?.recommendedAt, inWin = rec0 == null || (Date.parse(rec0) >= Date.parse(o0.window?.opensAt) && Date.parse(rec0) < Date.parse(o0.window?.closesAt));
+  const o = inWin ? o0 : { ...o0, recommended: null, recommendedNote: "the recommended slot falls outside this package's quote window; refresh quotes or post earlier" };
   const { revision = 1, anomalies = null, anomalyCheck = null, designVersion = null, containsMarketData = false, sport, date, contentType, variant = null, snapshotRefs, images, caption, verification, window, recommended, recommendedNote = null, freshness, content, eligibilityClass, disclosures, ccCaption, ccCaptionB = null, extraClaims = [], cells = [], title, firstStartUtc, eventId = null, hasMiss = false, dataCommit = null, priority = null } = o;
   const evidenceRef = snapshotRefs[0];
   const claims = [...extraClaims, ...cells.map(([key, display]) => ({ key, display, evidenceRef: evidenceRef.ref }))];
