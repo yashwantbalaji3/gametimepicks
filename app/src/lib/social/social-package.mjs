@@ -237,7 +237,7 @@ export const dedupeSlug = ({ sport, date, contentType, variant = null }) => [spo
 export function buildSocialPackage(o0) {
   /* A recommended time past the window (a quote expiring before the slot) becomes no recommendation, with the reason. */
   const rec0 = o0.recommended?.recommendedAt, inWin = rec0 == null || (Date.parse(rec0) >= Date.parse(o0.window?.opensAt) && Date.parse(rec0) < Date.parse(o0.window?.closesAt));
-  const o = inWin ? o0 : { ...o0, recommended: null, recommendedNote: "the recommended slot falls outside this package's quote window; refresh quotes or post earlier" };
+  const o = inWin || !o0.containsMarketData ? o0 : { ...o0, recommended: null, recommendedNote: "the recommended slot falls outside this package's quote window; refresh quotes or post earlier" };
   const { revision = 1, anomalies = null, anomalyCheck = null, designVersion = null, containsMarketData = false, sport, date, contentType, variant = null, snapshotRefs, images, caption, verification, window, recommended, recommendedNote = null, freshness, content, eligibilityClass, disclosures, ccCaption, ccCaptionB = null, extraClaims = [], cells = [], title, firstStartUtc, eventId = null, hasMiss = false, dataCommit = null, priority = null } = o;
   const evidenceRef = snapshotRefs[0];
   const claims = [...extraClaims, ...cells.map(([key, display]) => ({ key, display, evidenceRef: evidenceRef.ref }))];

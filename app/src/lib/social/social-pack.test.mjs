@@ -339,7 +339,7 @@ test("package contract: approval is fixed, dedupe is stable across content chang
   assert.throws(() => buildSocialPackage({ ...minimal(), ccCaption: "x".repeat(281) }));
   assert.throws(() => buildSocialPackage({ ...minimal(), caption: "a – b" }));
   assert.throws(() => buildSocialPackage({ ...minimal(), verification: { passed: false } }));
-  assert.equal(buildSocialPackage({ ...minimal(), recommended: { recommendedAt: "2026-10-31T21:00:00Z" } }).recommendedAt, null);
+  assert.throws(() => buildSocialPackage({ ...minimal(), recommended: { recommendedAt: "2026-10-31T21:00:00Z" } }));
   assert.ok(socialPackageViolations({ ...a, approval: { status: "APPROVED", socialAuthorized: true } }).length);
 });
 
