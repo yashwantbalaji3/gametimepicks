@@ -1,0 +1,6082 @@
+{
+ "schemaVersion": 2,
+ "artifact": "nba-top-boards",
+ "schema": "nba-top-board@2",
+ "dataClass": "PRIVATE_RESEARCH",
+ "productEligible": false,
+ "publicState": "PRIVATE",
+ "neverReadBy": "public routes under app/src/app/** — private artifact; sport-capability-registry keeps NBA HISTORICAL_ONLY",
+ "date": "2026-10-31",
+ "family": "v1",
+ "modelVersion": "nba-sim-v1-coherent",
+ "categories": [
+  {
+   "key": "points",
+   "stat": "pts",
+   "label": "Points",
+   "basis": "MARGINAL",
+   "modelled": true
+  },
+  {
+   "key": "rebounds",
+   "stat": "reb",
+   "label": "Rebounds",
+   "basis": "MARGINAL",
+   "modelled": true
+  },
+  {
+   "key": "assists",
+   "stat": "ast",
+   "label": "Assists",
+   "basis": "MARGINAL",
+   "modelled": true
+  },
+  {
+   "key": "threes",
+   "stat": "threePm",
+   "label": "3PM",
+   "basis": "MARGINAL",
+   "modelled": true
+  },
+  {
+   "key": "pra",
+   "stat": "pra",
+   "label": "PRA",
+   "basis": "JOINT_SIMULATED_SUM",
+   "components": [
+    "pts",
+    "reb",
+    "ast"
+   ],
+   "modelled": true
+  },
+  {
+   "key": "ptsReb",
+   "stat": "ptsReb",
+   "label": "P+R",
+   "basis": "JOINT_SIMULATED_SUM",
+   "components": [
+    "pts",
+    "reb"
+   ],
+   "modelled": true
+  },
+  {
+   "key": "ptsAst",
+   "stat": "ptsAst",
+   "label": "P+A",
+   "basis": "JOINT_SIMULATED_SUM",
+   "components": [
+    "pts",
+    "ast"
+   ],
+   "modelled": true
+  },
+  {
+   "key": "rebAst",
+   "stat": null,
+   "label": "R+A",
+   "basis": "NOT_MODELLED",
+   "components": [
+    "reb",
+    "ast"
+   ],
+   "modelled": false
+  }
+ ],
+ "maxRows": 10,
+ "eligibility": {
+  "version": "nba-top-board-eligibility@1",
+  "minExpectedMinutes": 20,
+  "maxMinutesCv": 0.35,
+  "minPlayRate": 0.95,
+  "minGamesUsed": 3,
+  "playerRateBases": [
+   "player-window",
+   "v1-shrunk-to-league"
+  ],
+  "tradedHistoryPolicy": "INCLUDE_WITH_FLAG",
+  "rules": [
+   {
+    "id": "MISSING_ATHLETE_ID",
+    "scope": "player",
+    "description": "no providerAthleteId — the row could never be joined to a box score"
+   },
+   {
+    "id": "AVAILABILITY_OUT",
+    "scope": "player",
+    "description": "ruled Out by the injury feed at the forecast instant"
+   },
+   {
+    "id": "INJURY_DESIGNATION",
+    "scope": "player",
+    "description": "ANY injury designation, including Day-To-Day — an unresolved status is withheld (founder rule)"
+   },
+   {
+    "id": "INSUFFICIENT_HISTORY",
+    "scope": "player",
+    "description": "minutes basis \"insufficient\", or fewer than 3 appearances used (the minutes model's MIN_GAMES_FOR_RATES)"
+   },
+   {
+    "id": "NULL_MINUTES",
+    "scope": "player",
+    "description": "expected minutes absent (never read as zero)"
+   },
+   {
+    "id": "AVAILABILITY_UNVERIFIED",
+    "scope": "player",
+    "description": "availability not read from an injury feed (\"unknown\" or absent) — unknown is not active"
+   },
+   {
+    "id": "LOW_PLAY_RATE",
+    "scope": "player",
+    "description": "conditional-on-playing quantiles with playRate below 0.95 (or no playRate recorded)"
+   },
+   {
+    "id": "TEAM_POOL_FALLBACK_RATES",
+    "scope": "player",
+    "description": "per-minute rates not from the player's own history (team-pool fallback, or an unknown basis)"
+   },
+   {
+    "id": "LOW_EXPECTED_MINUTES",
+    "scope": "player",
+    "description": "expected minutes below 20 (the preregistered graded population)"
+   },
+   {
+    "id": "MINUTES_TOO_UNCERTAIN",
+    "scope": "player",
+    "description": "minutesSd / expectedMinutes above 0.35, or no measured minutes spread"
+   },
+   {
+    "id": "MISSING_DISTRIBUTION",
+    "scope": "category",
+    "description": "the category's frozen distribution (mean, p10, p50, p90) is incomplete"
+   }
+  ],
+  "flags": [
+   "TRADED_HISTORY_OTHER_TEAM",
+   "LEGACY_NO_RECEIPT"
+  ]
+ },
+ "ranking": {
+  "id": "nba-top-board-ranking@2",
+  "metric": "MODEL_MEDIAN_P50_OR_MEAN_WHEN_DISCRETE",
+  "metrics": {
+   "CONTINUOUS": "MODEL_MEDIAN_P50",
+   "DISCRETE": "MODEL_MEAN"
+  },
+  "rule": "per board: continuous quantile summaries → frozen p50 desc, then mean desc, then providerAthleteId asc; whole-number (discrete) summaries on every candidate → frozen mean desc, then providerAthleteId asc (deterministic, no clock)"
+ },
+ "market": {
+  "state": "NO_AUTHORIZED_PRICE",
+  "note": "no NBA odds authorization exists; no line, odds, edge or over/under probability is ever recorded"
+ },
+ "confidence": {
+  "value": null,
+  "reason": "no calibrated confidence until the preregistered bars are met"
+ },
+ "writeOnce": {
+  "rule": "an edition, once written, is never rewritten; a later freeze only adds a new edition for games on no earlier edition that have not tipped"
+ },
+ "editions": [
+  {
+   "edition": 1,
+   "frozenAt": "2026-10-31T11:13:08Z",
+   "source": {
+    "path": "data/internal/research/nba/experimental-v1/forecasts/2026-10-31.json",
+    "sha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+    "artifactGeneratedAt": "2026-10-31T11:13:08Z",
+    "artifactInputAsOf": "2026-10-31T11:13:08Z",
+    "runs": 1,
+    "modelVersion": "nba-sim-v1-coherent"
+   },
+   "gamesOnBoard": 1,
+   "games": [
+    {
+     "eventId": "401909896",
+     "tipoffUtc": "2026-10-31T19:00Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "Utah Jazz",
+      "abbr": "UTA",
+      "espnAbbr": "UTAH",
+      "providerTeamId": "26"
+     },
+     "away": {
+      "name": "Portland Trail Blazers",
+      "abbr": "POR",
+      "espnAbbr": "POR",
+      "providerTeamId": "22"
+     },
+     "forecastGeneratedAt": "2026-10-31T11:13:08Z",
+     "forecastInputAsOf": "2026-10-31T11:13:08Z",
+     "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43",
+     "state": "ON_BOARD",
+     "flags": []
+    }
+   ],
+   "boards": {
+    "points": {
+     "category": "points",
+     "label": "Points",
+     "stat": "pts",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-31|v1|e1|points|401909896|4683021",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Deni Avdija",
+        "providerAthleteId": "4683021"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 24,
+        "mean": 24.81
+       },
+       "range": {
+        "p10": 14,
+        "p25": 18,
+        "p75": 31,
+        "p90": 37
+       },
+       "playRate": 0.9621,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.67,
+       "minutesSd": 8.24,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 24.81,
+        "expectedMinutes": 32.67,
+        "p90": 37
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-31|v1|e1|points|401909896|4433627",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keyonte George",
+        "providerAthleteId": "4433627"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.51
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 25,
+        "p90": 30
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.61,
+       "minutesSd": 7.92,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.51,
+        "expectedMinutes": 29.61,
+        "p90": 30
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-31|v1|e1|points|401909896|3995",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.59
+       },
+       "range": {
+        "p10": 8,
+        "p25": 11,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.9721,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.18,
+       "minutesSd": 7.23,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.59,
+        "expectedMinutes": 29.18,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-31|v1|e1|points|401909896|4873138",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ace Bailey",
+        "providerAthleteId": "4873138"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 13,
+        "mean": 14.12
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 18,
+        "p90": 23
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.83,
+       "minutesSd": 7.83,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.12,
+        "expectedMinutes": 28.83,
+        "p90": 23
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-31|v1|e1|points|401909896|4431736",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 13,
+        "mean": 13.85
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 18,
+        "p90": 23
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.31,
+       "minutesSd": 7.49,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.85,
+        "expectedMinutes": 31.31,
+        "p90": 23
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-31|v1|e1|points|401909896|4683678",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 13,
+        "mean": 13.26
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 17,
+        "p90": 22
+       },
+       "playRate": 0.9727,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.12,
+       "minutesSd": 6.97,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.26,
+        "expectedMinutes": 23.12,
+        "p90": 22
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-31|v1|e1|points|401909896|5105565",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 12,
+        "mean": 12.31
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 16,
+        "p90": 20
+       },
+       "playRate": 0.9771,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.47,
+       "minutesSd": 6.37,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 12.31,
+        "expectedMinutes": 25.47,
+        "p90": 20
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 2,
+       "LOW_PLAY_RATE": 17,
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 2,
+       "AVAILABILITY_OUT": 6
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_PLAY_RATE": 17,
+       "MINUTES_TOO_UNCERTAIN": 17,
+       "LOW_EXPECTED_MINUTES": 17,
+       "AVAILABILITY_OUT": 6,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6
+      },
+      "players": [
+       {
+        "providerAthleteId": "3102530",
+        "name": "Jusuf Nurkic",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133602",
+        "name": "Svi Mykhailiuk",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065663",
+        "name": "Josh Okogie",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065673",
+        "name": "Tony Bradley",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066336",
+        "name": "Lauri Markkanen",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277919",
+        "name": "Mo Bamba",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277961",
+        "name": "Jaren Jackson Jr.",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4279888",
+        "name": "Ja Morant",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4396963",
+        "name": "Blake Hinson",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397077",
+        "name": "Jaxson Hayes",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432811",
+        "name": "Josh Green",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433268",
+        "name": "Trey Alexander",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433618",
+        "name": "Harrison Ingram",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683766",
+        "name": "Isaiah Collier",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684793",
+        "name": "Kyle Filipowski",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5041955",
+        "name": "Darryn Peterson",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105839",
+        "name": "Brice Sensabaugh",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "6606",
+        "name": "Damian Lillard",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebounds": {
+     "category": "rebounds",
+     "label": "Rebounds",
+     "stat": "reb",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-31|v1|e1|rebounds|401909896|5105565",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 10,
+        "mean": 10.25
+       },
+       "range": {
+        "p10": 5,
+        "p25": 7,
+        "p75": 13,
+        "p90": 16
+       },
+       "playRate": 0.9771,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.47,
+       "minutesSd": 6.37,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 10.25,
+        "expectedMinutes": 25.47,
+        "p90": 16
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-31|v1|e1|rebounds|401909896|4683021",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Deni Avdija",
+        "providerAthleteId": "4683021"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 6,
+        "mean": 6.68
+       },
+       "range": {
+        "p10": 3,
+        "p25": 4,
+        "p75": 9,
+        "p90": 11
+       },
+       "playRate": 0.9621,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.67,
+       "minutesSd": 8.24,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6.68,
+        "expectedMinutes": 32.67,
+        "p90": 11
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-31|v1|e1|rebounds|401909896|4873138",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ace Bailey",
+        "providerAthleteId": "4873138"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 5,
+        "mean": 4.83
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.83,
+       "minutesSd": 7.83,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.83,
+        "expectedMinutes": 28.83,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-31|v1|e1|rebounds|401909896|4431736",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.65
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.31,
+       "minutesSd": 7.49,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.65,
+        "expectedMinutes": 31.31,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-31|v1|e1|rebounds|401909896|3995",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.61
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9721,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.18,
+       "minutesSd": 7.23,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.61,
+        "expectedMinutes": 29.18,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-31|v1|e1|rebounds|401909896|4433627",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keyonte George",
+        "providerAthleteId": "4433627"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.42
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.61,
+       "minutesSd": 7.92,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.42,
+        "expectedMinutes": 29.61,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-31|v1|e1|rebounds|401909896|4683678",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.65
+       },
+       "range": {
+        "p10": 1,
+        "p25": 1,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9727,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.12,
+       "minutesSd": 6.97,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.65,
+        "expectedMinutes": 23.12,
+        "p90": 5
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 2,
+       "LOW_PLAY_RATE": 17,
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 2,
+       "AVAILABILITY_OUT": 6
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_PLAY_RATE": 17,
+       "MINUTES_TOO_UNCERTAIN": 17,
+       "LOW_EXPECTED_MINUTES": 17,
+       "AVAILABILITY_OUT": 6,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6
+      },
+      "players": [
+       {
+        "providerAthleteId": "3102530",
+        "name": "Jusuf Nurkic",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133602",
+        "name": "Svi Mykhailiuk",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065663",
+        "name": "Josh Okogie",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065673",
+        "name": "Tony Bradley",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066336",
+        "name": "Lauri Markkanen",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277919",
+        "name": "Mo Bamba",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277961",
+        "name": "Jaren Jackson Jr.",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4279888",
+        "name": "Ja Morant",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4396963",
+        "name": "Blake Hinson",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397077",
+        "name": "Jaxson Hayes",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432811",
+        "name": "Josh Green",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433268",
+        "name": "Trey Alexander",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433618",
+        "name": "Harrison Ingram",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683766",
+        "name": "Isaiah Collier",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684793",
+        "name": "Kyle Filipowski",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5041955",
+        "name": "Darryn Peterson",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105839",
+        "name": "Brice Sensabaugh",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "6606",
+        "name": "Damian Lillard",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "assists": {
+     "category": "assists",
+     "label": "Assists",
+     "stat": "ast",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-31|v1|e1|assists|401909896|4683021",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Deni Avdija",
+        "providerAthleteId": "4683021"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 7,
+        "mean": 6.82
+       },
+       "range": {
+        "p10": 3,
+        "p25": 5,
+        "p75": 9,
+        "p90": 11
+       },
+       "playRate": 0.9621,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.67,
+       "minutesSd": 8.24,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6.82,
+        "expectedMinutes": 32.67,
+        "p90": 11
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-31|v1|e1|assists|401909896|3995",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 6,
+        "mean": 5.86
+       },
+       "range": {
+        "p10": 2,
+        "p25": 4,
+        "p75": 8,
+        "p90": 10
+       },
+       "playRate": 0.9721,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.18,
+       "minutesSd": 7.23,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.86,
+        "expectedMinutes": 29.18,
+        "p90": 10
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-31|v1|e1|assists|401909896|4433627",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keyonte George",
+        "providerAthleteId": "4433627"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 5,
+        "mean": 4.88
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.61,
+       "minutesSd": 7.92,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.88,
+        "expectedMinutes": 29.61,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-31|v1|e1|assists|401909896|4683678",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.24
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 6
+       },
+       "playRate": 0.9727,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.12,
+       "minutesSd": 6.97,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.24,
+        "expectedMinutes": 23.12,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-31|v1|e1|assists|401909896|4431736",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.43
+       },
+       "range": {
+        "p10": 1,
+        "p25": 1,
+        "p75": 3,
+        "p90": 5
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.31,
+       "minutesSd": 7.49,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.43,
+        "expectedMinutes": 31.31,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-31|v1|e1|assists|401909896|5105565",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.22
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9771,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.47,
+       "minutesSd": 6.37,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.22,
+        "expectedMinutes": 25.47,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-31|v1|e1|assists|401909896|4873138",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ace Bailey",
+        "providerAthleteId": "4873138"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.91
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.83,
+       "minutesSd": 7.83,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.91,
+        "expectedMinutes": 28.83,
+        "p90": 4
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 2,
+       "LOW_PLAY_RATE": 17,
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 2,
+       "AVAILABILITY_OUT": 6
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_PLAY_RATE": 17,
+       "MINUTES_TOO_UNCERTAIN": 17,
+       "LOW_EXPECTED_MINUTES": 17,
+       "AVAILABILITY_OUT": 6,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6
+      },
+      "players": [
+       {
+        "providerAthleteId": "3102530",
+        "name": "Jusuf Nurkic",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133602",
+        "name": "Svi Mykhailiuk",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065663",
+        "name": "Josh Okogie",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065673",
+        "name": "Tony Bradley",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066336",
+        "name": "Lauri Markkanen",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277919",
+        "name": "Mo Bamba",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277961",
+        "name": "Jaren Jackson Jr.",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4279888",
+        "name": "Ja Morant",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4396963",
+        "name": "Blake Hinson",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397077",
+        "name": "Jaxson Hayes",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432811",
+        "name": "Josh Green",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433268",
+        "name": "Trey Alexander",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433618",
+        "name": "Harrison Ingram",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683766",
+        "name": "Isaiah Collier",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684793",
+        "name": "Kyle Filipowski",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5041955",
+        "name": "Darryn Peterson",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105839",
+        "name": "Brice Sensabaugh",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "6606",
+        "name": "Damian Lillard",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "threes": {
+     "category": "threes",
+     "label": "3PM",
+     "stat": "threePm",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-31|v1|e1|threes|401909896|4431736",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.67
+       },
+       "range": {
+        "p10": 1,
+        "p25": 1,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.31,
+       "minutesSd": 7.49,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.67,
+        "expectedMinutes": 31.31,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-31|v1|e1|threes|401909896|3995",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.47
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 5
+       },
+       "playRate": 0.9721,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.18,
+       "minutesSd": 7.23,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.47,
+        "expectedMinutes": 29.18,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-31|v1|e1|threes|401909896|4433627",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keyonte George",
+        "providerAthleteId": "4433627"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.21
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.61,
+       "minutesSd": 7.92,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.21,
+        "expectedMinutes": 29.61,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-31|v1|e1|threes|401909896|4873138",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ace Bailey",
+        "providerAthleteId": "4873138"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.03
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.83,
+       "minutesSd": 7.83,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.03,
+        "expectedMinutes": 28.83,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-31|v1|e1|threes|401909896|4683021",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Deni Avdija",
+        "providerAthleteId": "4683021"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.83
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9621,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.67,
+       "minutesSd": 8.24,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.83,
+        "expectedMinutes": 32.67,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-31|v1|e1|threes|401909896|4683678",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.63
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9727,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.12,
+       "minutesSd": 6.97,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.63,
+        "expectedMinutes": 23.12,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-31|v1|e1|threes|401909896|5105565",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.12
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9771,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.47,
+       "minutesSd": 6.37,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.12,
+        "expectedMinutes": 25.47,
+        "p90": 3
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 2,
+       "LOW_PLAY_RATE": 17,
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 2,
+       "AVAILABILITY_OUT": 6
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_PLAY_RATE": 17,
+       "MINUTES_TOO_UNCERTAIN": 17,
+       "LOW_EXPECTED_MINUTES": 17,
+       "AVAILABILITY_OUT": 6,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6
+      },
+      "players": [
+       {
+        "providerAthleteId": "3102530",
+        "name": "Jusuf Nurkic",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133602",
+        "name": "Svi Mykhailiuk",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065663",
+        "name": "Josh Okogie",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065673",
+        "name": "Tony Bradley",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066336",
+        "name": "Lauri Markkanen",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277919",
+        "name": "Mo Bamba",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277961",
+        "name": "Jaren Jackson Jr.",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4279888",
+        "name": "Ja Morant",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4396963",
+        "name": "Blake Hinson",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397077",
+        "name": "Jaxson Hayes",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432811",
+        "name": "Josh Green",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433268",
+        "name": "Trey Alexander",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433618",
+        "name": "Harrison Ingram",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683766",
+        "name": "Isaiah Collier",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684793",
+        "name": "Kyle Filipowski",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5041955",
+        "name": "Darryn Peterson",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105839",
+        "name": "Brice Sensabaugh",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "6606",
+        "name": "Damian Lillard",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "pra": {
+     "category": "pra",
+     "label": "PRA",
+     "stat": "pra",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-31|v1|e1|pra|401909896|4683021",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Deni Avdija",
+        "providerAthleteId": "4683021"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 38,
+        "mean": 38.31
+       },
+       "range": {
+        "p10": 23,
+        "p25": 30,
+        "p75": 46,
+        "p90": 54
+       },
+       "playRate": 0.9621,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.67,
+       "minutesSd": 8.24,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 38.31,
+        "expectedMinutes": 32.67,
+        "p90": 54
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-31|v1|e1|pra|401909896|4433627",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keyonte George",
+        "providerAthleteId": "4433627"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 27,
+        "mean": 27.81
+       },
+       "range": {
+        "p10": 16,
+        "p25": 21,
+        "p75": 34,
+        "p90": 41
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.61,
+       "minutesSd": 7.92,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 27.81,
+        "expectedMinutes": 29.61,
+        "p90": 41
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-31|v1|e1|pra|401909896|3995",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 26,
+        "mean": 27.06
+       },
+       "range": {
+        "p10": 15,
+        "p25": 20,
+        "p75": 33,
+        "p90": 40
+       },
+       "playRate": 0.9721,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.18,
+       "minutesSd": 7.23,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 27.06,
+        "expectedMinutes": 29.18,
+        "p90": 40
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-31|v1|e1|pra|401909896|5105565",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 24,
+        "mean": 24.79
+       },
+       "range": {
+        "p10": 14,
+        "p25": 18,
+        "p75": 30,
+        "p90": 37
+       },
+       "playRate": 0.9771,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.47,
+       "minutesSd": 6.37,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 24.79,
+        "expectedMinutes": 25.47,
+        "p90": 37
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-31|v1|e1|pra|401909896|4431736",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 20,
+        "mean": 20.93
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 26,
+        "p90": 32
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.31,
+       "minutesSd": 7.49,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.93,
+        "expectedMinutes": 31.31,
+        "p90": 32
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-31|v1|e1|pra|401909896|4873138",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ace Bailey",
+        "providerAthleteId": "4873138"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 20,
+        "mean": 20.86
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 26,
+        "p90": 32
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.83,
+       "minutesSd": 7.83,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.86,
+        "expectedMinutes": 28.83,
+        "p90": 32
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-31|v1|e1|pra|401909896|4683678",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 19.15
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 24,
+        "p90": 30
+       },
+       "playRate": 0.9727,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.12,
+       "minutesSd": 6.97,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.15,
+        "expectedMinutes": 23.12,
+        "p90": 30
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 2,
+       "LOW_PLAY_RATE": 17,
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 2,
+       "AVAILABILITY_OUT": 6
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_PLAY_RATE": 17,
+       "MINUTES_TOO_UNCERTAIN": 17,
+       "LOW_EXPECTED_MINUTES": 17,
+       "AVAILABILITY_OUT": 6,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6
+      },
+      "players": [
+       {
+        "providerAthleteId": "3102530",
+        "name": "Jusuf Nurkic",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133602",
+        "name": "Svi Mykhailiuk",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065663",
+        "name": "Josh Okogie",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065673",
+        "name": "Tony Bradley",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066336",
+        "name": "Lauri Markkanen",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277919",
+        "name": "Mo Bamba",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277961",
+        "name": "Jaren Jackson Jr.",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4279888",
+        "name": "Ja Morant",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4396963",
+        "name": "Blake Hinson",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397077",
+        "name": "Jaxson Hayes",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432811",
+        "name": "Josh Green",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433268",
+        "name": "Trey Alexander",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433618",
+        "name": "Harrison Ingram",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683766",
+        "name": "Isaiah Collier",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684793",
+        "name": "Kyle Filipowski",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5041955",
+        "name": "Darryn Peterson",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105839",
+        "name": "Brice Sensabaugh",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "6606",
+        "name": "Damian Lillard",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsReb": {
+     "category": "ptsReb",
+     "label": "P+R",
+     "stat": "ptsReb",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-31|v1|e1|ptsReb|401909896|4683021",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Deni Avdija",
+        "providerAthleteId": "4683021"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 31,
+        "mean": 31.49
+       },
+       "range": {
+        "p10": 18,
+        "p25": 24,
+        "p75": 38,
+        "p90": 45
+       },
+       "playRate": 0.9621,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.67,
+       "minutesSd": 8.24,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 31.49,
+        "expectedMinutes": 32.67,
+        "p90": 45
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-31|v1|e1|ptsReb|401909896|4433627",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keyonte George",
+        "providerAthleteId": "4433627"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 22,
+        "mean": 22.94
+       },
+       "range": {
+        "p10": 12,
+        "p25": 17,
+        "p75": 28,
+        "p90": 35
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.61,
+       "minutesSd": 7.92,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 22.94,
+        "expectedMinutes": 29.61,
+        "p90": 35
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-31|v1|e1|ptsReb|401909896|5105565",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 22,
+        "mean": 22.56
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 28,
+        "p90": 34
+       },
+       "playRate": 0.9771,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.47,
+       "minutesSd": 6.37,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 22.56,
+        "expectedMinutes": 25.47,
+        "p90": 34
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-31|v1|e1|ptsReb|401909896|3995",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 20,
+        "mean": 21.2
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 27,
+        "p90": 32
+       },
+       "playRate": 0.9721,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.18,
+       "minutesSd": 7.23,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.2,
+        "expectedMinutes": 29.18,
+        "p90": 32
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-31|v1|e1|ptsReb|401909896|4873138",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ace Bailey",
+        "providerAthleteId": "4873138"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.95
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 24,
+        "p90": 29
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.83,
+       "minutesSd": 7.83,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.95,
+        "expectedMinutes": 28.83,
+        "p90": 29
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-31|v1|e1|ptsReb|401909896|4431736",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.5
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 23,
+        "p90": 29
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.31,
+       "minutesSd": 7.49,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.5,
+        "expectedMinutes": 31.31,
+        "p90": 29
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-31|v1|e1|ptsReb|401909896|4683678",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 15,
+        "mean": 15.91
+       },
+       "range": {
+        "p10": 7,
+        "p25": 11,
+        "p75": 20,
+        "p90": 26
+       },
+       "playRate": 0.9727,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.12,
+       "minutesSd": 6.97,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 15.91,
+        "expectedMinutes": 23.12,
+        "p90": 26
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 2,
+       "LOW_PLAY_RATE": 17,
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 2,
+       "AVAILABILITY_OUT": 6
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_PLAY_RATE": 17,
+       "MINUTES_TOO_UNCERTAIN": 17,
+       "LOW_EXPECTED_MINUTES": 17,
+       "AVAILABILITY_OUT": 6,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6
+      },
+      "players": [
+       {
+        "providerAthleteId": "3102530",
+        "name": "Jusuf Nurkic",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133602",
+        "name": "Svi Mykhailiuk",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065663",
+        "name": "Josh Okogie",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065673",
+        "name": "Tony Bradley",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066336",
+        "name": "Lauri Markkanen",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277919",
+        "name": "Mo Bamba",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277961",
+        "name": "Jaren Jackson Jr.",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4279888",
+        "name": "Ja Morant",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4396963",
+        "name": "Blake Hinson",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397077",
+        "name": "Jaxson Hayes",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432811",
+        "name": "Josh Green",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433268",
+        "name": "Trey Alexander",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433618",
+        "name": "Harrison Ingram",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683766",
+        "name": "Isaiah Collier",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684793",
+        "name": "Kyle Filipowski",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5041955",
+        "name": "Darryn Peterson",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105839",
+        "name": "Brice Sensabaugh",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "6606",
+        "name": "Damian Lillard",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsAst": {
+     "category": "ptsAst",
+     "label": "P+A",
+     "stat": "ptsAst",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-31|v1|e1|ptsAst|401909896|4683021",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Deni Avdija",
+        "providerAthleteId": "4683021"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 31,
+        "mean": 31.62
+       },
+       "range": {
+        "p10": 18,
+        "p25": 24,
+        "p75": 38,
+        "p90": 45
+       },
+       "playRate": 0.9621,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.67,
+       "minutesSd": 8.24,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 31.62,
+        "expectedMinutes": 32.67,
+        "p90": 45
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-31|v1|e1|ptsAst|401909896|4433627",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keyonte George",
+        "providerAthleteId": "4433627"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 24,
+        "mean": 24.39
+       },
+       "range": {
+        "p10": 13,
+        "p25": 18,
+        "p75": 30,
+        "p90": 36
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.61,
+       "minutesSd": 7.92,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 24.39,
+        "expectedMinutes": 29.61,
+        "p90": 36
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-31|v1|e1|ptsAst|401909896|3995",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 22,
+        "mean": 22.45
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 28,
+        "p90": 34
+       },
+       "playRate": 0.9721,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.18,
+       "minutesSd": 7.23,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 22.45,
+        "expectedMinutes": 29.18,
+        "p90": 34
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-31|v1|e1|ptsAst|401909896|4683678",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.5
+       },
+       "range": {
+        "p10": 8,
+        "p25": 11,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.9727,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.12,
+       "minutesSd": 6.97,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.5,
+        "expectedMinutes": 23.12,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-31|v1|e1|ptsAst|401909896|4431736",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.28
+       },
+       "range": {
+        "p10": 8,
+        "p25": 11,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.31,
+       "minutesSd": 7.49,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.28,
+        "expectedMinutes": 31.31,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-31|v1|e1|ptsAst|401909896|4873138",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ace Bailey",
+        "providerAthleteId": "4873138"
+       },
+       "team": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 15,
+        "mean": 16.03
+       },
+       "range": {
+        "p10": 7,
+        "p25": 11,
+        "p75": 20,
+        "p90": 26
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.83,
+       "minutesSd": 7.83,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.03,
+        "expectedMinutes": 28.83,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-31|v1|e1|ptsAst|401909896|5105565",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "Utah Jazz",
+        "abbr": "UTA",
+        "espnAbbr": "UTAH",
+        "providerTeamId": "26"
+       },
+       "homeAway": "away",
+       "eventId": "401909896",
+       "tipoffUtc": "2026-10-31T19:00Z",
+       "projection": {
+        "p50": 14,
+        "mean": 14.53
+       },
+       "range": {
+        "p10": 7,
+        "p25": 10,
+        "p75": 19,
+        "p90": 23
+       },
+       "playRate": 0.9771,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.47,
+       "minutesSd": 6.37,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-31T11:13:08Z",
+        "generatedAt": "2026-10-31T11:13:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e10b71b5602d3531e34013a42902f5821cfbb06b563268718fff8cd631c75b3",
+        "gamePayloadSha256": "042b37b79f5ebe07b1ef5868a32a4d5fbfc0e967a18b4ed5cc952f83ed6e1a43"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.53,
+        "expectedMinutes": 25.47,
+        "p90": 23
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 2,
+       "LOW_PLAY_RATE": 17,
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 2,
+       "AVAILABILITY_OUT": 6
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_PLAY_RATE": 17,
+       "MINUTES_TOO_UNCERTAIN": 17,
+       "LOW_EXPECTED_MINUTES": 17,
+       "AVAILABILITY_OUT": 6,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6
+      },
+      "players": [
+       {
+        "providerAthleteId": "3102530",
+        "name": "Jusuf Nurkic",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133602",
+        "name": "Svi Mykhailiuk",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065663",
+        "name": "Josh Okogie",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065673",
+        "name": "Tony Bradley",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066336",
+        "name": "Lauri Markkanen",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277919",
+        "name": "Mo Bamba",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277961",
+        "name": "Jaren Jackson Jr.",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4279888",
+        "name": "Ja Morant",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4396963",
+        "name": "Blake Hinson",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397077",
+        "name": "Jaxson Hayes",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432811",
+        "name": "Josh Green",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433268",
+        "name": "Trey Alexander",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433618",
+        "name": "Harrison Ingram",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683766",
+        "name": "Isaiah Collier",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4684793",
+        "name": "Kyle Filipowski",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5041955",
+        "name": "Darryn Peterson",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105839",
+        "name": "Brice Sensabaugh",
+        "team": "UTA",
+        "eventId": "401909896",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "6606",
+        "name": "Damian Lillard",
+        "team": "POR",
+        "eventId": "401909896",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebAst": {
+     "category": "rebAst",
+     "label": "R+A",
+     "stat": null,
+     "marketBasis": "NOT_MODELLED",
+     "basisText": "not modelled — no family simulates it jointly, and adding marginal projections is not its distribution",
+     "components": [
+      "reb",
+      "ast"
+     ],
+     "state": "NOT_MODELLED",
+     "rankingMetric": null,
+     "rows": [],
+     "eligibleCount": 0,
+     "shownCount": 0,
+     "withheld": {
+      "count": 0,
+      "byPrimaryReason": {},
+      "byReason": {},
+      "players": []
+     },
+     "emptyReason": "R+A is not modelled: no forecast family simulates reb + ast jointly, and adding marginal projections is not its distribution — it is never computed"
+    }
+   }
+  }
+ ]
+}
