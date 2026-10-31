@@ -14,7 +14,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { gameInputsFromBoard } from "../src/lib/mlb/full-game/board-adapter.ts";
+import { gameInputsFromBoard, resolveRuleset } from "../src/lib/mlb/full-game/board-adapter.ts";
+import { DEFAULT_ENGINE_PARAMS, OFFICIAL_RULES_2026 } from "../src/lib/mlb/full-game/engine.ts";
 import { selectConfirmedLineup } from "../src/lib/mlb/full-game/confirmed-lineup.ts";
 import { simulateFullGame } from "../src/lib/mlb/full-game/simulate.ts";
 import { stableHash } from "../src/lib/game-simulations/rng.ts";
@@ -24,14 +25,31 @@ import { carryFrozenPregame } from "../src/lib/mlb/full-game/frozen-carry.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = path.join(APP, "public", "data");
-const MODEL_VERSION = "mlb-fullgame-2026.08-pa-v2";
-const SIMULATION_VERSION = 1;
-const RUN_COUNT = 10000;
-
 const arg = (flag) => {
   const i = process.argv.indexOf(flag);
   return i >= 0 ? process.argv[i + 1] : null;
 };
+/*
+ * RULE SET (MLB-001, founder decision 6 2026-10-09). The default is the PUBLISHED engine, pa-v2, byte for byte.
+ * `--rules official-2026` (or MLB_FULLGAME_RULES=official-2026) plays the official rules as pa-v3: no automatic
+ * runner in the postseason, walk-offs end on the winning run, and a game unresolved at the inning cap is discarded
+ * and re-drawn (counted) rather than handed to the home team. Adopting pa-v3 for published forecasts is a separate
+ * founder decision: it is a change to this default, never a side effect of merging the engine.
+ */
+const RULE_SETS = {
+  "legacy-v2": { modelVersion: "mlb-fullgame-2026.08-pa-v2", engine: undefined },
+  "official-2026": { modelVersion: "mlb-fullgame-2026.10-pa-v3", engine: { ...DEFAULT_ENGINE_PARAMS, rules: OFFICIAL_RULES_2026 } },
+};
+const RULES = arg("--rules") ?? process.env.MLB_FULLGAME_RULES ?? "legacy-v2";
+if (!RULE_SETS[RULES]) {
+  console.error(`[full-game-sim] unknown rule set "${RULES}" (expected ${Object.keys(RULE_SETS).join(" | ")})`);
+  process.exit(1);
+}
+const MODEL_VERSION = RULE_SETS[RULES].modelVersion;
+const ENGINE = RULE_SETS[RULES].engine;
+const SIMULATION_VERSION = 1;
+const RUN_COUNT = 10000;
+
 const date = arg("--date") ?? new Date().toISOString().slice(0, 10);
 const write = process.argv.includes("--write");
 const nowIso = arg("--now") ?? new Date().toISOString();
@@ -130,11 +148,16 @@ if (teamMarkets && teamMarkets.games && typeof teamMarkets.games === "object") {
   }
 }
 
-const opts = { runCount: RUN_COUNT, modelVersion: MODEL_VERSION, simulationVersion: SIMULATION_VERSION, generatedAt: nowIso };
+const opts = { runCount: RUN_COUNT, modelVersion: MODEL_VERSION, simulationVersion: SIMULATION_VERSION, generatedAt: nowIso, ...(ENGINE ? { engine: ENGINE } : {}) };
+/* StatsAPI's own season calendar — the fallback when a board predates the captured gameType. */
+const seasonCalendar = readJson("mlb/season-state.json")?.calendar ?? null;
+const boardGameByPk = new Map((board.games ?? []).map((g) => [g.gamePk, g]));
 
 let lastInputs = [];
 function build(generatedAt) {
-  const inputs = gameInputsFromBoard(boundedBoard, marketByGamePk, confirmedByGamePk);
+  // The season phase is attached only when the rule set reads it, so legacy inputs (and the input snapshot) are unchanged.
+  const inputs = gameInputsFromBoard(boundedBoard, marketByGamePk, confirmedByGamePk)
+    .map((input) => (ENGINE ? { ...input, ...resolveRuleset(boardGameByPk.get(input.gamePk) ?? { date: input.date }, seasonCalendar) } : input));
   lastInputs = inputs;
   const games = inputs.map((input) => simulateFullGame(input, { ...opts, generatedAt }));
   return {
