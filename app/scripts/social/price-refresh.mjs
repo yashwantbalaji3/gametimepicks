@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * PRICE-ONLY REFRESH of one approved NFL game post. BUILT, NOT ACTIVATED: no schedule or daily command calls it.
+ * PRICE-ONLY REFRESH of one approved NFL game post, NBA game post, NBA Tonight ml or NBA Top 5 carousel. BUILT, NOT ACTIVATED: no schedule or daily command calls it.
  *   cd app && npx tsx scripts/social/price-refresh.mjs --package <pkg.json> --capture <capture.json> --as-of <ISO> [--out <dir>] [--no-png]
  * Reads one package, its approval and a newer saved capture; no key, no network. The post is rebuilt from the same
  * sources, and refused (src/lib/social/price-refresh.mjs) unless only quote fields moved. A refresh goes to its own
@@ -13,16 +13,21 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { assertPrivateOutDir, DEFAULT_PRIVATE_ROOT } from "./nba-line-graphics-io.mjs";
+import { assertPrivateOutDir, DEFAULT_PRIVATE_ROOT, loadNbaLineGraphicsExport, PURPOSE_ARG } from "./nba-line-graphics-io.mjs";
 import { loadNflCaptures } from "./nfl-line-capture.mjs";
-import { parseArgs, prepareNflGamePosts, withApprovedCaption, writePackages } from "./render-social-pack.mjs";
+import { parseArgs, prepareGameDay, prepareNflGamePosts, withApprovedCaption, writePackages } from "./render-social-pack.mjs";
 import { captureProblems, isApproved, priceRefreshProblems, quoteChanges } from "../../src/lib/social/price-refresh.mjs";
 
 export const AUDIT_LOG = () => path.join(DEFAULT_PRIVATE_ROOT, "reports", "price-refresh-audit.jsonl");
 const APPROVALS = () => path.join(DEFAULT_PRIVATE_ROOT, "approvals", "approved-for-clean-export.json");
 const sha = (b) => crypto.createHash("sha256").update(b).digest("hex");
 
-function defaultRebuild(pkg, { asOf }) {
+function defaultRebuild(pkg, { asOf, capture }) {
+  if (pkg.sport === "nba") {
+    const lineDoc = process.env.GTP_ODDS_DISPLAY_KEY ? loadNbaLineGraphicsExport({ date: pkg.date, asOf, purpose: PURPOSE_ARG["founder-review"] }).doc : null;
+    const { posts } = prepareGameDay({ date: pkg.date, asOf, lineDoc, moneyline: { doc: capture.doc, ref: { ref: capture.ref, sha256: capture.sha256 } } });
+    return posts.find((p) => p.contentType === pkg.contentType && (p.variant ?? null) === (pkg.variant ?? null)) ?? null;
+  }
   const { posts } = prepareNflGamePosts({ week: pkg.content.week, asOf, captures: loadNflCaptures() });
   const post = posts.find((p) => p.variant === pkg.variant);
   if (!post) return null;
@@ -41,7 +46,7 @@ export async function refreshPrice({ pkg, ledger, capture, asOf, rebuild = defau
   if (!isApproved(pkg, ledger)) return finish("REFUSED", { problems: ["NOT_APPROVED"] });
   const late = captureProblems(pkg, { capturedAt: capture.capturedAt, asOf });
   if (late.length) return finish("REFUSED", { problems: late });
-  const post = rebuild(pkg, { asOf });
+  const post = rebuild(pkg, { asOf, capture });
   if (!post) return finish("REFUSED", { problems: ["POST_NOT_REBUILT"] });
   const problems = priceRefreshProblems(pkg, post);
   if (problems.length) return finish("REFUSED", { problems });
@@ -58,13 +63,14 @@ async function main(argv) {
   const root = `${path.join(os.homedir(), "gtp-private")}${path.sep}`;
   if (!path.resolve(a.capture).startsWith(root)) throw new Error("--capture must name a capture under ~/gtp-private");
   const doc = JSON.parse(bytes.toString("utf8"));
-  if (doc.artifact !== "nfl-odds-capture") throw new Error("--capture is not an NFL capture");
   const pkg = JSON.parse(fs.readFileSync(path.resolve(a.package), "utf8"));
+  if (pkg.sport === "nfl" && doc.artifact !== "nfl-odds-capture") throw new Error("--capture is not an NFL capture");
+  if (pkg.sport === "nba" && !Array.isArray(doc.events)) throw new Error("--capture is not an NBA moneyline capture");
   const stamp = a["as-of"].replace(/[:]/g, "");
   const outRoot = assertPrivateOutDir(a.out ?? path.join(DEFAULT_PRIVATE_ROOT, "price-refresh", stamp));
   if (path.resolve(outRoot) === path.join(DEFAULT_PRIVATE_ROOT, "packages")) throw new Error("a refresh never writes over the packages folder");
   const ledger = fs.existsSync(APPROVALS()) ? JSON.parse(fs.readFileSync(APPROVALS(), "utf8")) : null;
-  const row = await refreshPrice({ pkg, ledger, capture: { ref: `gtp-private/${path.relative(root, path.resolve(a.capture))}`, sha256: sha(bytes), capturedAt: doc.capturedAt }, asOf: a["as-of"], outRoot, png: !a["no-png"] });
+  const row = await refreshPrice({ pkg, ledger, capture: { ref: `gtp-private/${path.relative(root, path.resolve(a.capture))}`, sha256: sha(bytes), capturedAt: doc.capturedAt ?? doc.fetchedAt, doc }, asOf: a["as-of"], outRoot, png: !a["no-png"] });
   console.log(JSON.stringify(row));
   return row.status === "REFUSED" ? 1 : 0;
 }
