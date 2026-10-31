@@ -5,17 +5,17 @@
  "moneyClass": "NON_MONEY",
  "sport": "epl",
  "date": "2026-10-31",
- "generatedAt": "2026-10-31T00:24:46Z",
+ "generatedAt": "2026-10-31T15:53:32Z",
  "state": "PUBLISHED",
- "pricedFixtures": 8,
- "eligibleLegs": 8,
+ "pricedFixtures": 2,
+ "eligibleLegs": 2,
  "rejectedLegs": [],
  "cards": [
   {
    "tier": "medium",
    "slipId": "epl-medium-2026-10-31",
-   "combinedAmerican": 150,
-   "combinedDecimal": 2.496,
+   "combinedAmerican": 200,
+   "combinedDecimal": 3,
    "legs": [
     {
      "sport": "epl",
@@ -23,124 +23,29 @@
      "player": null,
      "matchup": "Tottenham Hotspur v Crystal Palace",
      "kickoffUtc": "2026-10-31T17:30:00Z",
-     "team": null,
-     "market": "total_goals",
-     "marketLabel": "Total goals 2.5",
-     "side": "over",
-     "line": 2.5,
-     "odds": -175,
-     "decimal": 1.5714285714285714,
-     "books": 3
+     "team": "Tottenham Hotspur",
+     "market": "match_result",
+     "marketLabel": "Match result",
+     "side": "home",
+     "line": null,
+     "odds": -150,
+     "decimal": 1.6666666666666665,
+     "books": 11
     },
-    {
-     "sport": "epl",
-     "eventId": "soccer:epl:chelsea-v-manchester-united:20261031t1230",
-     "player": null,
-     "matchup": "Chelsea v Manchester United",
-     "kickoffUtc": "2026-10-31T12:30:00Z",
-     "team": null,
-     "market": "total_goals",
-     "marketLabel": "Total goals 2.5",
-     "side": "over",
-     "line": 2.5,
-     "odds": -170,
-     "decimal": 1.5882352941176472,
-     "books": 3
-    }
-   ],
-   "status": "pending",
-   "tierRecord": null
-  },
-  {
-   "tier": "high",
-   "slipId": "epl-high-2026-10-31",
-   "combinedAmerican": 308,
-   "combinedDecimal": 4.08,
-   "legs": [
     {
      "sport": "epl",
      "eventId": "soccer:epl:aston-villa-v-fulham:20261031t2000",
      "player": null,
      "matchup": "Aston Villa v Fulham",
      "kickoffUtc": "2026-10-31T20:00:00Z",
-     "team": "Aston Villa",
-     "market": "match_result",
-     "marketLabel": "Match result",
-     "side": "home",
-     "line": null,
-     "odds": 100,
-     "decimal": 2,
-     "books": 11
-    },
-    {
-     "sport": "epl",
-     "eventId": "soccer:epl:brighton-hove-albion-v-manchester-city:20261031t1500",
-     "player": null,
-     "matchup": "Manchester City v Brighton and Hove Albion",
-     "kickoffUtc": "2026-10-31T15:00:00Z",
-     "team": null,
-     "market": "total_goals",
-     "marketLabel": "Total goals 3.5",
-     "side": "over",
-     "line": 3.5,
-     "odds": 104,
-     "decimal": 2.04,
-     "books": 6
-    }
-   ],
-   "status": "pending",
-   "tierRecord": null
-  },
-  {
-   "tier": "longshot",
-   "slipId": "epl-longshot-2026-10-31",
-   "combinedAmerican": 614,
-   "combinedDecimal": 7.138,
-   "legs": [
-    {
-     "sport": "epl",
-     "eventId": "soccer:epl:brentford-v-nottingham-forest:20261031t1500",
-     "player": null,
-     "matchup": "Brentford v Nottingham Forest",
-     "kickoffUtc": "2026-10-31T15:00:00Z",
      "team": null,
      "market": "total_goals",
      "marketLabel": "Total goals 2.5",
      "side": "over",
      "line": 2.5,
-     "odds": -138,
-     "decimal": 1.7246376811594204,
+     "odds": -125,
+     "decimal": 1.8,
      "books": 7
-    },
-    {
-     "sport": "epl",
-     "eventId": "soccer:epl:hull-city-v-ipswich-town:20261031t1500",
-     "player": null,
-     "matchup": "Hull City v Ipswich Town",
-     "kickoffUtc": "2026-10-31T15:00:00Z",
-     "team": null,
-     "market": "total_goals",
-     "marketLabel": "Total goals 2.5",
-     "side": "under",
-     "line": 2.5,
-     "odds": -103,
-     "decimal": 1.970873786407767,
-     "books": 7
-    },
-    {
-     "sport": "epl",
-     "eventId": "soccer:epl:bournemouth-v-leeds-united:20261031t1500",
-     "player": null,
-     "matchup": "Bournemouth v Leeds United",
-     "kickoffUtc": "2026-10-31T15:00:00Z",
-     "team": "Bournemouth",
-     "market": "match_result",
-     "marketLabel": "Match result",
-     "side": "home",
-     "line": null,
-     "odds": 110,
-     "decimal": 2.1,
-     "books": 11
     }
    ],
    "status": "pending",
@@ -150,7 +55,15 @@
  "skipped": [
   {
    "tier": "low",
-   "reason": "no combination of today's prices lands in this band — 2 legs → +150 (medium) … +413 (high)"
+   "reason": "no combination of today's prices lands in this band — 2 legs → +200 (medium) … +354 (high)"
+  },
+  {
+   "tier": "high",
+   "reason": "not enough eligible priced fixtures to build a card"
+  },
+  {
+   "tier": "longshot",
+   "reason": "not enough eligible priced fixtures to build a card"
   }
  ],
  "selection": "a market price on a settleable market — the three-way favourite, or an over/under at the book's own line. Never this model's read: the EPL model has cleared no bar and has never been scored against a no-vig line",
