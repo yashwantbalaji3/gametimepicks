@@ -885,7 +885,7 @@ export async function writePackages(posts, { outRoot, scales = [1, 2], png = tru
       await page.setViewportSize({ width: SIZE.width, height: SIZE.height });
       for (const c of cards) {
         fs.mkdirSync(c.dir, { recursive: true });
-        await page.setContent(c.html, { waitUntil: "load" });
+        await page.setContent(process.env.GTP_CLEAN_EXPORT === "1" ? c.html.replace(/<div class="draft">[^<]*<\/div>/, "") : c.html, { waitUntil: "load" });
         await page.evaluate(() => document.fonts.ready);
         const file = path.join(c.dir, `${c.name}${scale === 1 ? "" : `@${scale}x`}.png`);
         await page.screenshot({ path: file, clip: { x: 0, y: 0, width: SIZE.width, height: SIZE.height } });
