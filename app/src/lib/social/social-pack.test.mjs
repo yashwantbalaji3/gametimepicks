@@ -113,7 +113,7 @@ test("NBA 10-29 recap: the committed finals and frozen sides, 2 of 3", () => {
   assert.equal((p.cards[0].html.match(/class="rxr hit"/g) ?? []).length, 2);
 });
 test("NBA Top 5: refuses without a lane; on a lane matches it, pregame", () => {
-  assert.throws(() => prepareNbaTop5({ date: "2026-10-31", asOf: AS_OF }), /no NBA lane/);
+  assert.throws(() => prepareNbaTop5({ date: "2031-10-31", asOf: AS_OF }), /no NBA lane/);
   const { posts } = prepareNbaTop5({ date: "2026-10-29", asOf: "2026-10-29T20:00:00Z" });
   assert.deepEqual(posts.map((p) => p.variant), ["pts", "reb", "ast"]);
   const lane = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nba/experimental-public/2026-10-29.json"), "utf8"));
@@ -179,7 +179,7 @@ test("NBA tonight: full slate, meters, per-game cards labelled, never moneyline"
   assert.match(posts[1].cards[0].html, /GAME WINNER PREDICTIONS/);
   for (const p of posts) { assert.equal(p.eligibilityClass, "ESTIMATE"); for (const c of p.cards) { assert.deepEqual(verifyPackCard(c.html, c.cells), []); assert.match(c.html, /data-meter/); assert.match(c.html, /Estimate/); } }
   assert.equal(prepareNbaTonight({ date: "2026-10-29", asOf: "2026-10-30T12:00:00Z" }).refused[0].reason, "GAME_STARTED");
-  assert.throws(() => prepareNbaTonight({ date: "2026-10-31", asOf: AS_OF }), /no NBA lane/);
+  assert.throws(() => prepareNbaTonight({ date: "2031-10-31", asOf: AS_OF }), /no NBA lane/);
 });
 test("NBA tonight: ten games make two slides", () => {
   const lane = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nba/experimental-public/2026-10-29.json"), "utf8"));

@@ -26,6 +26,7 @@ export const CONTENT_TYPE = Object.freeze({
   NBA_TONIGHT: "NBA_TONIGHT",
   NBA_GAME_WINNER: "NBA_GAME_WINNER",
   NBA_GAME_POST: "NBA_GAME_POST",
+  NFL_GAME_POST: "NFL_GAME_POST",
   NFL_WEEKLY_TOP5: "NFL_WEEKLY_TOP5",
   NBA_DAILY_TOP5: "NBA_DAILY_TOP5",
   NBA_BOXSCORE: "NBA_BOXSCORE",
@@ -39,7 +40,7 @@ export const ELIGIBILITY = Object.freeze({ OFFICIAL: "OFFICIAL", ESTIMATE: "ESTI
  * has no kind for this post yet. The `commandCenter` block reuses that module's package field names; nothing ingests it.
  */
 export const CC_KIND = Object.freeze({
-  NFL_SUNDAY_WINNERS: null, NFL_MNF_WINNER: "pregame-forecast", NFL_GAME_WINNER: "pregame-forecast", NBA_TONIGHT: null, NBA_GAME_WINNER: null, NBA_GAME_POST: null, NBA_BOXSCORE: null, NBA_PLAYER_STATS: null, NFL_PLAYER_STATS: null,
+  NFL_SUNDAY_WINNERS: null, NFL_MNF_WINNER: "pregame-forecast", NFL_GAME_WINNER: "pregame-forecast", NBA_TONIGHT: null, NBA_GAME_WINNER: null, NBA_GAME_POST: null, NFL_GAME_POST: null, NBA_BOXSCORE: null, NBA_PLAYER_STATS: null, NFL_PLAYER_STATS: null,
   NFL_WEEKLY_TOP5: "top5-weekly", NBA_DAILY_TOP5: "top5-daily", RESULTS_RECAP: "results-recap",
 });
 /** One row per content type: the queue kind, and what the Command Center lacks when there is none. */

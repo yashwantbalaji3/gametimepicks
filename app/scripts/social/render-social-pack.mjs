@@ -6,7 +6,8 @@
  *
  *   cd app && npx tsx scripts/social/render-social-pack.mjs --as-of <ISO instant> --nfl-week 8 --nfl-recap-week 7 \
  *       --nba-date 2026-10-30 --nba-recap-date 2026-10-29 [--out <dir>] [--scales 1,2] [--no-png]
- *       [--moneyline <saved capture under ~/gtp-private>] [--moneyline-only]
+ *       [--moneyline <saved capture under ~/gtp-private>] [--moneyline-only] [--approved-captions]
+ *   NFL Sunday: --nfl-sunday-pack --nfl-week 8 --nfl-recap-week 7 --approved-captions
  *
  * Reads committed public data through the site's accessors only; no key, no network, no clock. Every printed cell is
  * validated before anything is written. A post that cannot be made honestly is REFUSED and listed in the run report;
@@ -39,6 +40,7 @@ import { LINE_MAX_AGE_HOURS, REFERENCE_BOOK_ORDER } from "../../src/lib/sports/n
 import { NBA_PROP_LINE_ADAPTER } from "../../src/lib/sports/nba/prop-line-adapter.mjs";
 import { anomaliesFor, anomalyPackageList, laneHistory, laneRows, reviewThresholds, runAnomalyCheck } from "../../src/lib/social/nba-anomaly-check.mjs";
 import { GAME_POST_MAX_IMAGES, gamePostCaption, gamePostCaptionProblems, gamePostClaims, selectCaptionPlayers } from "../../src/lib/social/nba-game-post.mjs";
+import { approvedCaption, nflWindow, quoteAgeFlags, slateWord } from "../../src/lib/social/approved-captions.mjs";
 import { quoteRangeText } from "./nba-line-cards.mjs";
 import { DESIGN_VERSION, DISCLOSURE, GAME_POST_DESIGN_VERSION, NFL_DISCLOSURE, nflPlayerPages, nflTeamOf, recapCard, resultsHeroCard, statPages, teamOf, tonightCard, top5Card as v2Top5Card, verifyGameDayCard, winnerCard } from "./game-day-cards.mjs";
 import { BOX_FOOTER } from "./nba-boxscore-cards.mjs";
@@ -299,7 +301,7 @@ export function prepareNflTop5({ seasonType = 2, week, asOf }) {
       checks: ["pregameScope applied at asOf", "every row == per-game official board at the family metric", "estimate label on card when state is ESTIMATE", "card cells == validated text"],
       window: { opensAt: asOf, closesAt: toIso(first) }, recommended: recommendedPostTime({ games: rows, afterEtDate: dayBefore(etDate(first)), asOf }), recommendedNote: "the two hours before kickoff have passed",
       freshness: { asOf, sourceGeneratedAt: gen, ageHours: ageHours(asOf, gen), expiresAt: toIso(first), rule: "valid until first kickoff of the listed games" },
-      content: { week, board: b.id, state: b.state, estimateLabel: est, rows: rows.map(({ key: _k, meta: _m, ...r }) => r) },
+      content: { week, board: b.id, label: spec.label, state: b.state, estimateLabel: est, rows: rows.map(({ key: _k, meta: _m, ...r }) => r) },
     });
   }
   return { posts, refused };
@@ -335,6 +337,30 @@ export function prepareNflPlayerStats({ seasonType = 2, week, asOf }) {
       title: `${m}: projected player stats`, firstStartUtc: toIso(t), caption: checkCaption(`GameTime Picks NFL Week ${week}: ${m} projected player stats. ${FOOT.projections} ${legalLine}`), ccCaption: `${m} projected player stats. Model projections. Not betting advice.`, ccCaptionB: `${m} player projections. Not betting advice.`, extraClaims: ccWeek(week),
       checks: ["every number from the official player board", "estimate label on card when an ESTIMATE family shows", "card cells == validated text", "fit pass"], window: { opensAt: asOf, closesAt: toIso(t) }, recommended: recommendedPostTime({ games: [{ kickoffUtc: v.kickoffUtc }], afterEtDate: dayBefore(etDate(t)), asOf }), recommendedNote: "the two hours before kickoff have passed",
       freshness: { asOf, sourceGeneratedAt: board.generatedAt, ageHours: ageHours(asOf, board.generatedAt), expiresAt: toIso(t), rule: "valid until kickoff" }, content: { week, players: awayPlayers.length + homePlayers.length, parts: cards.length, estimate: showsEstimate },
+    });
+  }
+  return { posts, refused };
+}
+
+/** The Sunday slate as one post per game: winner card, then player card(s), one caption, tagged by kickoff window. */
+export function prepareNflGamePosts({ seasonType = 2, week, asOf }) {
+  const winners = prepareNflGameWinners({ seasonType, week, asOf });
+  const stats = prepareNflPlayerStats({ seasonType, week, asOf });
+  const type = CONTENT_TYPE.NFL_GAME_POST;
+  const views = new Map(loadForecastViews(PUBLIC()).map((v) => [String(v.providerEventId), v]));
+  const posts = []; const refused = [...winners.refused, ...stats.refused].map((r) => ({ ...r, contentType: type }));
+  for (const w of winners.posts) {
+    if (etWeekday(w.firstStartUtc) !== "Sun") continue;
+    const s = stats.posts.find((p) => p.variant === w.variant);
+    if (!s) { refused.push({ contentType: type, variant: w.variant, reason: "NO_PLAYER_CARD" }); continue; }
+    const cards = [...w.cards, ...s.cards].map((c, i) => ({ ...c, name: `nfl-w${String(week).padStart(2, "0")}-game-post-${w.variant}-${i + 1}` }));
+    if (cards.length > GAME_POST_MAX_IMAGES) { refused.push({ contentType: type, variant: w.variant, reason: `TOO_MANY_IMAGES_${cards.length}` }); continue; }
+    const v = views.get(w.variant); const g = w.content.game;
+    const winnerTeam = g.winner === v.home.abbr ? v.home : v.away;
+    posts.push({
+      ...w, contentType: type, designVersion: GAME_POST_DESIGN_VERSION, title: `${g.matchup}: game post`, cards, eligibilityClass: s.eligibilityClass, disclosures: [...new Set([...s.disclosures, ...w.disclosures])], snapshotRefs: [...new Map([...w.snapshotRefs, ...s.snapshotRefs].map((r) => [r.ref, r])).values()],
+      captionGame: { awayName: v.away.name, homeName: v.home.name, winnerNickname: nflTeamOf(winnerTeam.abbr, winnerTeam.name).nickname }, extraClaims: ccWeek(week), checks: [...new Set([...w.checks, ...s.checks, "images in order: winner card, player card(s)"])],
+      content: { week, window: nflWindow(instant(g.kickoffUtc)), winner: { eventId: g.eventId, winner: g.winner }, availabilityCaveats: [], game: g, players: s.content.players, playerParts: s.content.parts, estimate: s.content.estimate },
     });
   }
   return { posts, refused };
@@ -473,10 +499,12 @@ export function prepareGameDay({ date, asOf, lineDoc = null, laneOverride = null
   const pkgDisc = ["Estimate from the team rating, not a validated probability", DISCLOSURE];
   const claimGames = [{ key: "games", display: String(games.length), evidenceRef: rel }];
   const tonightCap = pregameCaption(`NBA tonight: ${games.length} games and the model's predicted winner in each, as estimates. Not betting advice.`);
-  posts.push({ ...META, contentType: CONTENT_TYPE.NBA_TONIGHT, variant: null, cards: v2Cards([tonightCard({ games, chip })], `nba-${date}-tonight`), caption: tonightCap, ccCaption: tonightCap, ccCaptionB: `NBA tonight: ${games.length} games, model estimates. Not betting advice.`, extraClaims: claimGames, disclosures: pkgDisc, title: `NBA tonight ${date}`, firstStartUtc: toIso(first), window: { opensAt: asOf, closesAt: toIso(first) }, recommended: recommendedPostTime({ games: games.map((g) => ({ kickoffUtc: g.raw.tipUtc })), afterEtDate: dayBefore(date), asOf }), recommendedNote: "the two hours before tip-off have passed", freshness: fresh(first), content: { games: games.map((g) => ({ eventId: g.eventId, away: g.away.abbr, home: g.home.abbr, tipUtc: g.raw.tipUtc, winner: g.winner?.abbr ?? null, awayEstimate: g.awayP, homeEstimate: g.homeP })) } });
+  posts.push({ ...META, contentType: CONTENT_TYPE.NBA_TONIGHT, variant: null, cards: v2Cards([tonightCard({ games, chip, kicker: `NBA ${slateWord(first) === "today" ? "Today" : "Tonight"}` })], `nba-${date}-tonight`), caption: tonightCap, ccCaption: tonightCap, ccCaptionB: `NBA tonight: ${games.length} games, model estimates. Not betting advice.`, extraClaims: claimGames, disclosures: pkgDisc, title: `NBA tonight ${date}`, firstStartUtc: toIso(first), window: { opensAt: asOf, closesAt: toIso(first) }, recommended: recommendedPostTime({ games: games.map((g) => ({ kickoffUtc: g.raw.tipUtc })), afterEtDate: dayBefore(date), asOf }), recommendedNote: "the two hours before tip-off have passed", freshness: fresh(first), content: { games: games.map((g) => ({ eventId: g.eventId, away: g.away.abbr, home: g.home.abbr, tipUtc: g.raw.tipUtc, winner: g.winner?.abbr ?? null, awayEstimate: g.awayP, homeEstimate: g.homeP })) } });
   for (const g of games) {
     const m = `${g.away.abbr} @ ${g.home.abbr}`;
-    const win = (cards, o) => ({ ...META, firstStartUtc: toIso(g.t), eventId: g.eventId, window: { opensAt: asOf, closesAt: toIso(g.t) }, recommended: recommendedPostTime({ games: [{ kickoffUtc: g.raw.tipUtc }], afterEtDate: dayBefore(date), asOf }), recommendedNote: "the two hours before tip-off have passed", freshness: fresh(g.t), cards, ...o });
+    const captionGame = { awayName: g.away.name, homeName: g.home.name, winnerNickname: g.winner?.nickname ?? null };
+    g.captionGame = captionGame;
+    const win = (cards, o) => ({ ...META, captionGame, firstStartUtc: toIso(g.t), eventId: g.eventId, window: { opensAt: asOf, closesAt: toIso(g.t) }, recommended: recommendedPostTime({ games: [{ kickoffUtc: g.raw.tipUtc }], afterEtDate: dayBefore(date), asOf }), recommendedNote: "the two hours before tip-off have passed", freshness: fresh(g.t), cards, ...o });
     const wc = `${m}: the model's predicted winner is the ${g.winner?.nickname ?? "neither side"}, an estimate. No moneyline comparison. Not betting advice.`.replace(" No moneyline comparison.", "");
     try {
       posts.push(win(v2Cards([winnerCard(g)], `nba-${date}-winner-${g.eventId}`), { contentType: CONTENT_TYPE.NBA_GAME_WINNER, variant: g.eventId, title: `${m}: game winner prediction`, caption: pregameCaption(wc), ccCaption: wc, ccCaptionB: `${m}: predicted winner estimate on the image. Not betting advice.`, disclosures: pkgDisc, content: { game: { eventId: g.eventId, winner: g.winner?.abbr ?? null, awayEstimate: g.awayP, homeEstimate: g.homeP, moneyline: "NOT_CAPTURED" } } }));
@@ -512,7 +540,7 @@ export function prepareGameDay({ date, asOf, lineDoc = null, laneOverride = null
     const rows = b.rows.map((r) => ({ key: r.providerAthleteId, rank: r.rank, name: r.name, team: byAbbr.get(r.team), opponent: r.opponent, tip: tipClock(instant(r.tipUtc)), text: Number(r.value).toFixed(1), value: r.value, line: lineBlock(lineFor.get(`${r.providerAthleteId}:${k}`)), kickoffUtc: r.tipUtc }));
     const f = Math.min(...rows.map((r) => instant(r.kickoffUtc)));
     const cap = `Top 5 projected ${b.label.toLowerCase()} in the NBA tonight, from our model. Not betting advice.`;
-    const base = (o) => ({ ...META, contentType: CONTENT_TYPE.NBA_DAILY_TOP5, eligibilityClass: ELIGIBILITY.OFFICIAL, title: `NBA top 5 ${b.label.toLowerCase()} ${date}`, firstStartUtc: toIso(f), caption: pregameCaption(cap), ccCaption: cap, ccCaptionB: `NBA top 5 ${b.label.toLowerCase()} tonight. Not betting advice.`, extraClaims: [{ key: "topN", display: "5", evidenceRef: rel }], window: { opensAt: asOf, closesAt: toIso(f) }, recommended: recommendedPostTime({ games: rows, afterEtDate: dayBefore(date), asOf }), recommendedNote: "the two hours before tip-off have passed", freshness: fresh(f), ...o });
+    const base = (o) => ({ ...META, slateGames: games.length, contentType: CONTENT_TYPE.NBA_DAILY_TOP5, eligibilityClass: ELIGIBILITY.OFFICIAL, title: `NBA top 5 ${b.label.toLowerCase()} ${date}`, firstStartUtc: toIso(f), caption: pregameCaption(cap), ccCaption: cap, ccCaptionB: `NBA top 5 ${b.label.toLowerCase()} tonight. Not betting advice.`, extraClaims: [{ key: "topN", display: "5", evidenceRef: rel }], window: { opensAt: asOf, closesAt: toIso(f) }, recommended: recommendedPostTime({ games: rows, afterEtDate: dayBefore(date), asOf }), recommendedNote: "the two hours before tip-off have passed", freshness: fresh(f), ...o });
     const content = rows.map(({ team, line: _l, ...r }) => ({ ...r, team: team.abbr }));
     const ids = rows.map((r) => r.key);
     posts.push(base({ ...anomaliesFor(modelCheck, ids, [k]), variant: `${k}-model`, cards: v2Cards([v2Top5Card({ title: b.label, chip, rows })], `nba-${date}-top5-${k}-model`), disclosures: [DISCLOSURE], content: { board: k, rows: content, ranking: "projection only" } }));
@@ -523,6 +551,9 @@ export function prepareGameDay({ date, asOf, lineDoc = null, laneOverride = null
   const gamePosts = gamePostsFrom({ games, posts, date, evidenceRef: rel, hasLines: Boolean(lineDoc), hasMoneyline: Boolean(moneyline) });
   posts.push(...gamePosts.posts); refused.push(...gamePosts.refused);
   for (const g of games) if (g.cov.validation === "PASSED") g.cov.render = "PENDING";
+  const quotes = [...(lineDoc?.rows ?? []).filter((r) => r.market?.line?.state === "SHOWN").map((r) => ({ eventId: String(r.identity.eventId), quotedAt: r.market?.quotedAt?.iso ?? null })), ...posts.filter((p) => p.contentType === CONTENT_TYPE.NBA_GAME_WINNER && p.content.quotedAt).map((p) => ({ eventId: p.eventId, quotedAt: p.content.quotedAt }))];
+  for (const q of quoteAgeFlags(quotes, Date.parse(asOf), LINE_MAX_AGE_HOURS)) { const c = coverage.get(q.eventId); if (c) c.quoteAge = q; }
+  for (const c of coverage.values()) c.quoteAge ??= { quotes: 0, stale: false, note: "no line or price on this event's cards" };
   return { posts, refused, coverage: [...coverage.values()], moneylineMatch };
 }
 
@@ -555,7 +586,7 @@ export function moneylinePosts({ games, schedule, moneyline, date, asOf, META, r
     const close = closes(g.t, q.quotedAt);
     const cap = ML_CAPTION(`🏀 ${g.raw.away.name} at ${g.raw.home.name} tonight! Our model projects the ${g.winner.nickname} to win. Full prediction below 👇`);
     posts.push({
-      ...META, snapshotRefs: mlRefs, containsMarketData: true, contentType: CONTENT_TYPE.NBA_GAME_WINNER, variant, eventId: g.eventId, firstStartUtc: toIso(g.t), title: `${m}: game winner prediction with observed price`,
+      ...META, captionGame: g.captionGame, snapshotRefs: mlRefs, containsMarketData: true, contentType: CONTENT_TYPE.NBA_GAME_WINNER, variant, eventId: g.eventId, firstStartUtc: toIso(g.t), title: `${m}: game winner prediction with observed price`,
       cards: v2Cards([winnerCard({ ...g, market })], `nba-${date}-winner-${variant}`), caption: pregameCaption(cap), ccCaption: cap, ccCaptionB: `${m}: predicted winner estimate on the image. Not betting advice.`, disclosures: ["Estimate from the team rating, not a validated probability", "Sportsbook price is an observed quote, separate from the model estimate", DISCLOSURE],
       checks: [...META.checks, "matched by team names to the canonical schedule, start confirmed", "price read from one book, never inferred", "no gap between price and estimate computed"],
       window: { opensAt: asOf, closesAt: toIso(close) }, recommended: recommendedPostTime({ games: [{ kickoffUtc: g.raw.tipUtc }], afterEtDate: dayBefore(date), asOf }), recommendedNote: "the two hours before tip-off have passed", freshness: fresh(close, q.quotedAt),
@@ -582,6 +613,7 @@ export function moneylinePosts({ games, schedule, moneyline, date, asOf, META, r
  * One NBA_GAME_POST per game: the priced winner card, then the real-line stat card(s). Needs the display key and a saved
  * moneyline capture. Cards keep their validated cells; only the file names change, so no two packages share an image.
  */
+const availabilityCaveats = (players) => players.filter((p) => p.injuryStatus).map((p) => ({ playerId: String(p.providerAthleteId), name: p.name, status: p.injuryStatus }));
 export function gamePostsFrom({ games, posts, date, evidenceRef, hasLines, hasMoneyline }) {
   const type = CONTENT_TYPE.NBA_GAME_POST;
   if (!hasLines || !hasMoneyline) return { posts: [], refused: [{ contentType: type, reason: hasLines ? "NO_MONEYLINE_CAPTURE" : "NO_DISPLAY_KEY" }] };
@@ -601,11 +633,11 @@ export function gamePostsFrom({ games, posts, date, evidenceRef, hasLines, hasMo
     const bad = gamePostCaptionProblems(caption, extraClaims);
     if (bad.length) { no(`CAPTION: ${bad.join("; ")}`); continue; }
     out.push({
-      ...ml, designVersion: GAME_POST_DESIGN_VERSION, contentType: type, variant: g.eventId, eligibilityClass: ELIGIBILITY.ESTIMATE, title: `${g.away.abbr} @ ${g.home.abbr}: game post`, cards, caption, ccCaption: caption,
+      ...ml, captionPlayers: pick.players, designVersion: GAME_POST_DESIGN_VERSION, contentType: type, variant: g.eventId, eligibilityClass: ELIGIBILITY.ESTIMATE, title: `${g.away.abbr} @ ${g.home.abbr}: game post`, cards, caption, ccCaption: caption,
       ccCaptionB: `🏀 ${g.away.nickname} vs ${g.home.nickname} tonight! Our model projects the ${g.winner.nickname} to win. Full predictions below 👇`, extraClaims, containsMarketData: true,
       anomalyCheck: box.anomalyCheck, anomalies: box.anomalies, snapshotRefs: [...new Map([...ml.snapshotRefs, ...box.snapshotRefs].map((r) => [r.ref, r])).values()],
       checks: [...new Set([...ml.checks, ...box.checks, "images in order: priced winner card, real-line stat card(s)", "caption numbers are claims"])],
-      content: { eventId: g.eventId, imageOrder: [ml.variant, box.variant], captionPlayers: { rule: pick.rule, fallback: pick.fallback, fallbackPlayers: pick.fallbackPlayers, players: pick.players.map((p) => ({ playerId: String(p.providerAthleteId), name: p.name, pts: p.medians.pts, reb: p.medians.reb, ast: p.medians.ast })) }, winner: ml.content, lines: box.content, socialAuthorized: false },
+      content: { eventId: g.eventId, availabilityCaveats: availabilityCaveats([...g.raw.players.away, ...g.raw.players.home]), imageOrder: [ml.variant, box.variant], captionPlayers: { rule: pick.rule, fallback: pick.fallback, fallbackPlayers: pick.fallbackPlayers, players: pick.players.map((p) => ({ playerId: String(p.providerAthleteId), name: p.name, pts: p.medians.pts, reb: p.medians.reb, ast: p.medians.ast })) }, winner: ml.content, lines: box.content, socialAuthorized: false },
     });
   }
   return { posts: out, refused };
@@ -779,7 +811,7 @@ export function parseArgs(argv) {
   const out = {};
   for (let i = 0; i < argv.length; i += 1) {
     if (!argv[i].startsWith("--")) throw new Error(`unexpected argument ${argv[i]}`);
-    if (argv[i] === "--no-png" || argv[i] === "--moneyline-only") { out[argv[i].slice(2)] = true; continue; }
+    if (argv[i] === "--no-png" || argv[i] === "--moneyline-only" || argv[i] === "--approved-captions" || argv[i] === "--nfl-sunday-pack") { out[argv[i].slice(2)] = true; continue; }
     out[argv[i].slice(2)] = argv[(i += 1)];
   }
   return out;
@@ -796,14 +828,25 @@ export function loadMoneyline(file) {
   return { doc, ref: { ref: `gtp-private/${path.relative(root, abs)}`, sha256: sha(bytes) } };
 }
 
-async function main(args) {
+/** Founder format on a prepared post: the same text on the package and in the Command Center block. */
+export function withApprovedCaption(p) {
+  const { caption, claims } = approvedCaption(p);
+  return { ...p, caption, ccCaption: caption, ccCaptionB: caption, extraClaims: [...(p.extraClaims ?? []), ...claims] };
+}
+
+export async function runPack(args) {
   const asOf = args["as-of"];
   assertAsOf(asOf);
   const outRoot = assertPrivateOutDir(args.out ?? path.join(DEFAULT_PRIVATE_ROOT, "packages"));
   const scales = String(args.scales ?? "1,2").split(",").map(Number);
   const posts = []; const refused = [];
   const attempt = (label, fn) => { try { const r = fn(); posts.push(...r.posts); refused.push(...r.refused); } catch (e) { refused.push({ job: label, reason: e.message }); } };
-  if (args["nfl-week"]) {
+  if (args["nfl-sunday-pack"]) {
+    const week = Number(args["nfl-week"]);
+    attempt("nfl-winners", () => prepareNflWinners({ week, asOf }));
+    attempt("nfl-top5", () => prepareNflTop5({ week, asOf }));
+    attempt("nfl-game-posts", () => prepareNflGamePosts({ week, asOf }));
+  } else if (args["nfl-week"]) {
     const week = Number(args["nfl-week"]);
     attempt("nfl-winners", () => prepareNflWinners({ week, asOf }));
     attempt("nfl-game-winners", () => prepareNflGameWinners({ week, asOf }));
@@ -826,10 +869,11 @@ async function main(args) {
   }
   const recapDate = args["moneyline-only"] ? null : args["nba-recap-date"] ?? (args["nba-date"] ? dayBefore(args["nba-date"]) : null);
   if (recapDate) attempt("nba-recap", () => prepareNbaRecap({ date: recapDate, asOf }));
-  const done = await writePackages(posts, { outRoot, scales, png: !args["no-png"] });
+  const recaps = posts.filter((p) => p.contentType === CONTENT_TYPE.RESULTS_RECAP).map((p) => ({ sport: p.sport, date: p.date, correct: p.content.correct, missed: p.content.missed, graded: p.content.graded, scheduled: p.content.gamesScheduled, accuracy: p.content.accuracy, provisional: p.content.excluded.map((g) => ({ eventId: g.eventId, matchup: g.matchup, reason: g.reason })) }));
+  const done = await writePackages(args["approved-captions"] ? posts.map(withApprovedCaption) : posts, { outRoot, scales, png: !args["no-png"] });
   fs.mkdirSync(path.join(outRoot, "reports"), { recursive: true });
   const report = path.join(outRoot, "reports", `run-${asOf.replace(/[:]/g, "")}.json`);
-  fs.writeFileSync(report, `${JSON.stringify({ asOf, packages: done.map((d) => d.pkg.dedupeId), refused, kindMap: CC_KIND_MAP }, null, 2)}\n`);
+  fs.writeFileSync(report, `${JSON.stringify({ asOf, packages: done.map((d) => d.pkg.dedupeId), recaps, refused, kindMap: CC_KIND_MAP }, null, 2)}\n`);
   const anomalyList = anomalyPackageList(done.map((d) => d.pkg));
   if (anomalyList.length) fs.writeFileSync(path.join(outRoot, "reports", `anomalies-${asOf.replace(/[:]/g, "")}.json`), `${JSON.stringify(anomalyList, null, 2)}\n`);
   const groups = new Map();
@@ -840,16 +884,18 @@ async function main(args) {
     }
     const dir = path.join(os.homedir(), "gtp-private", "graphics", "reports");
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, `coverage-${cov.date}.json`), `${JSON.stringify({ date: cov.date, asOf, linesLoaded: cov.lines, moneylineCapture: cov.moneyline, events: cov.rows }, null, 2)}\n`);
+    fs.writeFileSync(path.join(dir, `coverage-${cov.date}.json`), `${JSON.stringify({ date: cov.date, asOf, linesLoaded: cov.lines, moneylineCapture: cov.moneyline, quoteMaxAgeHours: LINE_MAX_AGE_HOURS, staleQuoteEvents: cov.rows.filter((c) => c.quoteAge?.stale).map((c) => c.eventId), events: cov.rows }, null, 2)}\n`);
   }
   for (const { pkg: k } of done) groups.set(k.sport, [...(groups.get(k.sport) ?? []), { sport: k.sport, date: k.date, contentType: k.contentType, variant: k.variant, firstStartUtc: k.commandCenter.firstStartUtc }]);
   for (const [sport, list] of groups) fs.writeFileSync(path.join(outRoot, "reports", `editorial-${sport}-${asOf.replace(/[:]/g, "")}.json`), `${JSON.stringify(editorialPlan(list), null, 2)}\n`);
   for (const { pkg } of done) console.log(`${pkg.dedupeId}${pkg.anomalyCheck ? ` · ${pkg.anomalyCheck} ${pkg.anomalies.length}` : ""} · ${pkg.images.length} images · ${pkg.verification.cellsVerified} cells · rec ${pkg.recommendedAtEt ?? "none"}${pkg.content.scoreSideConflicts?.length ? ` · score/side conflicts: ${pkg.content.scoreSideConflicts.join(", ")}` : ""}`);
   for (const a of anomalyList) if (a.playerMarketsFlagged) console.log(`ANOMALY ${a.dedupeId} · ${a.anomalyCheck} · ${a.playersAffected} players · ${a.playerMarketsFlagged} player-markets · ${a.flagged.map((f) => `${f.player} ${f.market} ${f.verdict}`).join("; ")}`);
   for (const r of refused) console.log(`REFUSED ${JSON.stringify(r)}`);
+  for (const r of recaps) console.log(`RECAP ${JSON.stringify(r)}`);
   console.log(report);
+  return { report, packages: done.length, refused, recaps };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  main(parseArgs(process.argv.slice(2))).then(() => process.exit(0), (e) => { console.error(`REFUSED: ${e.message}`); process.exit(1); });
+  runPack(parseArgs(process.argv.slice(2))).then(() => process.exit(0), (e) => { console.error(`REFUSED: ${e.message}`); process.exit(1); });
 }

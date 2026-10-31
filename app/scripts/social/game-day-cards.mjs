@@ -53,6 +53,8 @@ const EXTRA = `
 .rxh{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;align-items:end;gap:16px}.rxh>div{text-align:center}.rxh b{display:block;white-space:nowrap}.rxh .rec{font:900 250px/.86 var(--display);color:#39FF88;text-shadow:0 0 34px rgba(57,255,136,.5)}.rxh .acc{font:900 142px/.9 var(--display);color:#F7F7F2}.rxh i{display:block;margin-top:8px;font:700 28px/1 var(--display);font-style:normal;letter-spacing:4px;color:rgba(247,247,242,.78)}
 .rc.rx{margin-top:18px;gap:12px;justify-content:stretch}.rxr{flex:1;min-height:0;display:grid;grid-template-columns:112px 1fr 214px;align-items:center;gap:16px;padding:0 20px 0 14px;border-radius:14px;border:2px solid var(--o);border-left-width:14px;background:linear-gradient(90deg,var(--ot),rgba(5,8,6,.82) 62%)}.rxr.hit{--o:#39FF88;--ot:rgba(57,255,136,.24)}.rxr.miss{--o:#FF4D4D;--ot:rgba(255,77,77,.3)}.rxr.void{--o:#AEB8B1;--ot:rgba(174,184,177,.16)}
 .rxr .ic{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--o)}.rxr .ic svg{width:88px;height:88px}.rxr .ic span{font:800 21px/1 var(--display);letter-spacing:1px;text-transform:uppercase}.rxr .s{font:900 66px/1 var(--headline);white-space:nowrap;min-width:0}.rxr .pd{text-align:right}.rxr .pd i{display:block;font:700 22px/1 var(--display);font-style:normal;letter-spacing:2px;color:rgba(247,247,242,.76)}.rxr .pd span{display:block;margin-top:6px;font:900 58px/1 var(--headline);white-space:nowrap}
+.rxh.d{margin-top:6px}.rxh.d .rec{font-size:128px}.rxh.d .acc{font-size:100px}.rxh.d i{margin-top:4px;font-size:21px}
+.rc.rx.d{margin-top:10px;gap:6px}.rc.rx.d .rxr{grid-template-columns:186px 1fr 170px;gap:10px;padding:0 16px 0 10px;border-left-width:10px}.rc.rx.d .ic{flex-direction:row;gap:8px;justify-content:flex-start}.rc.rx.d .ic svg{width:34px;height:34px}.rc.rx.d .ic span{font-size:25px}.rc.rx.d .s{font-size:43px}.rc.rx.d .pd{display:flex;align-items:baseline;justify-content:flex-end;gap:8px}.rc.rx.d .pd i{font-size:16px;letter-spacing:1px}.rc.rx.d .pd span{margin-top:0;font-size:38px}
 .estl{margin-top:8px;text-align:center;font:800 24px/1.1 var(--display);letter-spacing:1px;color:#F2C14E}
 .tn.dense{gap:4px;margin-top:8px}.tn.dense .tnr .tm{font-size:28px}.tn.dense .tnr .p{font-size:24px}.tn.dense .tnr .wn{font-size:24px;padding:4px 2px 2px}.tn.dense .tnr .bar{height:18px}
 .tn.dense .tnr,.tn.dense .tnh{grid-template-columns:128px 66px 76px 1fr 76px 66px 88px}
@@ -201,16 +203,18 @@ const ICON = Object.freeze({
   MISSED: '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M20 20 80 80M80 20 20 80" fill="none" stroke="currentColor" stroke-width="17" stroke-linecap="round"/></svg>',
 });
 const OUTCOME = Object.freeze({ CORRECT: ["hit", "Correct"], MISSED: ["miss", "Missed"] });
-/** A short slate on the game-day stage: the record, the accuracy, one row per game. Longer slates keep recapCard. */
+export const RESULTS_HERO_MAX_ROWS = 12;
+/** The slate on the game-day stage: the record, the accuracy, one row per game; compact rows past six games. Beyond 12, recapCard. */
 export function resultsHeroCard({ recap, chip, kicker = "NBA Results", disclosure = DISCLOSURE }) {
-  if (recap.games.length > 6) return recapCard({ recap, chip, kicker, disclosure });
+  if (recap.games.length > RESULTS_HERO_MAX_ROWS) return recapCard({ recap, chip, kicker, disclosure });
+  const dense = recap.games.length > 6;
   const cells = {};
   const rows = recap.games.map((g) => {
     const [cls, word] = OUTCOME[g.outcome] ?? ["void", "Not graded"];
     const score = g.final ? `${g.away} ${g.final.away} @ ${g.home} ${g.final.home}` : g.matchup;
     return `<div class="rxr ${cls}"><div class="ic">${ICON[g.outcome] ?? ""}${cell(cells, `${g.eventId}.o`, word)}</div>${cell(cells, `${g.eventId}.final`, score, "s")}<div class="pd"><i>PREDICTED</i>${cell(cells, `${g.eventId}.side`, g.frozenSide ?? "No side")}</div></div>`;
   }).join("");
-  const body = `<div class="kicker">${esc(kicker)}</div><div class="sub" data-fit>${esc(`${recap.graded} of ${recap.gamesScheduled} games graded`)}</div><div class="rxh"><div>${bcell(cells, "stat.RECORD", `${recap.correct}-${recap.missed}`, 'class="rec"')}<i>RECORD</i></div><div>${bcell(cells, "stat.ACCURACY", recap.accuracy ?? "n/a", 'class="acc"')}<i>ACCURACY</i></div></div><div class="rc rx">${rows}</div>`;
+  const body = `<div class="kicker">${esc(kicker)}</div><div class="sub" data-fit>${esc(`${recap.graded} of ${recap.gamesScheduled} games graded`)}</div><div class="rxh${dense ? " d" : ""}"><div>${bcell(cells, "stat.RECORD", `${recap.correct}-${recap.missed}`, 'class="rec"')}<i>RECORD</i></div><div>${bcell(cells, "stat.ACCURACY", recap.accuracy ?? "n/a", 'class="acc"')}<i>ACCURACY</i></div></div><div class="rc rx${dense ? " d" : ""}">${rows}</div>`;
   return { html: shell({ chip, body, disclosure }), cells, v2: true, disclosure };
 }
 
