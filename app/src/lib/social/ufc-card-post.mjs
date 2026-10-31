@@ -71,7 +71,11 @@ export function verifyBoutPrice(bout, rawEvents) {
 
 const NO_PRICE = { price: null, book: null, quotedAt: null };
 /** Every bout of the card, in card order, with its forecast and price. */
-export function ufcBouts({ card, odds, asOf, aliasJoins = [] }) {
+/** Documented spelling aliases: same opponent, same event date, only provider event naming that opponent (2026-10-31). */
+export const UFC_DOCUMENTED_ALIASES = Object.freeze([{ boutId: "401928109", providerKey: pairKey("Jeongyoung Lee", "Julian Erosa") }]);
+
+export function ufcBouts({ card, odds, asOf, aliasJoins: joins0 = [] }) {
+  const aliasJoins = [...joins0, ...UFC_DOCUMENTED_ALIASES];
   const date = card.event.slateDate;
   return buildPredictionBoard(card).rows.map((r) => {
     const hit = matchBout(r, odds.events, { date, aliasJoins });
