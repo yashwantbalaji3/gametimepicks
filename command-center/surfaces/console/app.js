@@ -952,15 +952,16 @@
     const fallbacks = others.filter((p) => /-ml$/.test(String(p.package.imported.variant)) && p.package.imported.contentType === "NBA_GAME_WINNER").sort(byTip);
     const rest = others.filter((p) => !fallbacks.includes(p));
     const counts = WS_SECTIONS.map(([k, label]) => [label, list.filter((p) => wsSection(s, p) === k).length]).filter(([, n]) => n);
+    const clean = (p) => p.package.imported?.socialAuthorized === true && p.package.status === "READY" && !p.receipt;
+    const ready = [...list, ...others].filter(clean).sort((a, b) => importRank(a) - importRank(b) || byTip(a, b));
+    const held = [...list, ...others].filter((p) => !clean(p));
     const title = new Date(`${c.today}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" });
     return `<div class="workspace"><h2 class="ws-title">NBA Today · ${esc(title)}</h2>
       ${timeline(s)}
       <div class="muted">${num(list.length)} post(s), ${num(list.reduce((n, p) => n + imagesOf(p.package).length, 0))} graphics · ${counts.map(([l, n]) => `${num(n)} ${esc(l.toLowerCase())}`).join(" · ")}. Everything here can be opened, captioned and revised, whether or not it can be published yet.</div>
-      <div class="rlist">${list.map((p) => reviewCard(s, p)).join("")}</div>
-      ${fallbacks.length ? `<div class="section">Winner-only alternatives · ${num(fallbacks.length)}</div>
-        <div class="muted">One post per game: a winner-only post or its unified post, never both. Approving one holds the other.</div>
-        <div class="rlist">${fallbacks.map((p) => reviewCard(s, p)).join("")}</div>` : ""}
-      ${rest.length ? `<details class="more"><summary>${num(rest.length)} other version(s): model-only and separate stat graphics</summary><div class="rlist">${rest.map((p) => reviewCard(s, p)).join("")}</div></details>` : ""}
+      ${ready.length ? `<div class="section">Clean and ready: approve, then schedule · ${num(ready.length)}</div><div class="rlist">${ready.map((p) => reviewCard(s, p)).join("")}</div>` : ""}
+      <details class="more"><summary>${num(held.length)} held or review-copy post(s), banners stay on these</summary><div class="rlist">${held.map((p) => reviewCard(s, p)).join("")}</div></details>
+      ${""}
     </div>`;
   }
   /** How the post will look on X: the caption, then its images in order. */

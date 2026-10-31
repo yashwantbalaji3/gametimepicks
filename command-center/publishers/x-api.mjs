@@ -64,9 +64,9 @@ export function createXPublisher({ mode = "dry-run", oauth = null, fetch = globa
   const inWindow = (what, mediaIds = []) => {
     if (sendBefore && Date.parse(clock()) >= Date.parse(sendBefore)) throw new XPublishError("NOT_SENT", "AFTER_START", `${what}: the start time (${sendBefore}) has passed`, { mediaIds });
   };
-  const timed = async (url, init) => {
+  const timed = async (url, init, ms = timeoutMs) => {
     const ac = new AbortController();
-    const t = setTimeout(() => ac.abort(), timeoutMs);
+    const t = setTimeout(() => ac.abort(), ms);
     try { return await fetch(url, { ...init, signal: ac.signal }); } finally { clearTimeout(t); }
   };
 
@@ -99,10 +99,15 @@ export function createXPublisher({ mode = "dry-run", oauth = null, fetch = globa
         form.append("media", new Blob([i.data], { type: "image/png" }), i.file);
         form.append("media_category", "tweet_image");
         let res;
-        try {
-          res = await timed(X_MEDIA_UPLOAD_URL, { method: "POST", headers: auth, body: form });
-        } catch (err) {
-          throw new XPublishError("NOT_SENT", "MEDIA_UPLOAD_FAILED", `${i.file}: ${String(err.message ?? err).slice(0, 120)}`, { mediaIds });
+        // an upload creates no post, so a transport failure is safe to retry; the create call below never is
+        for (let attempt = 1; ; attempt++) {
+          try {
+            res = await timed(X_MEDIA_UPLOAD_URL, { method: "POST", headers: auth, body: form }, Math.max(timeoutMs, 90_000));
+            break;
+          } catch (err) {
+            if (attempt < 3) { inWindow(`upload ${i.file}`, mediaIds); continue; }
+            throw new XPublishError("NOT_SENT", "MEDIA_UPLOAD_FAILED", `${i.file}: ${attempt} attempts: ${String(err.message ?? err).slice(0, 80)} ${String(err.cause?.code ?? err.cause?.message ?? "").slice(0, 60)}`, { mediaIds });
+          }
         }
         const j = await res.json().catch(() => ({}));
         if (!res.ok || !j?.data?.id) throw new XPublishError("NOT_SENT", res.status === 402 ? "X_CREDITS_REQUIRED" : "MEDIA_UPLOAD_FAILED", `${i.file}: HTTP ${res.status} ${xError(j)}`, { httpStatus: res.status, mediaIds });
