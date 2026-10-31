@@ -1,7 +1,7 @@
 {
   "kind": "publication-slo",
   "date": "2026-10-31",
-  "platformState": "INCIDENT",
+  "platformState": "MISSED_COVERAGE",
   "sports": {
     "mlb": {
       "state": "NO_EVENT",
@@ -27,16 +27,22 @@
       "missed": []
     },
     "ufc": {
-      "state": "INCIDENT",
-      "reason": "1 event(s) have no forecast and the earliest one's deadline (2026-10-31T19:30:00.000Z, 90 min before its start) has passed",
-      "deadlineUtc": "2026-10-31T19:30:00.000Z",
+      "state": "MISSED_COVERAGE",
+      "reason": "1 of 12 event(s) started with no pre-event forecast; nothing is still pending",
+      "deadlineUtc": null,
       "counts": {
         "scheduled": 12,
         "published": 11,
-        "missedCoverage": 0,
-        "awaiting": 1
+        "missedCoverage": 1,
+        "awaiting": 0
       },
-      "missed": []
+      "missed": [
+        {
+          "id": "401928109",
+          "label": "Julian Erosa vs JeongYeong Lee",
+          "startUtc": "2026-10-31T21:00Z"
+        }
+      ]
     },
     "epl": {
       "state": "PUBLISHING",
@@ -51,7 +57,7 @@
       "missed": []
     }
   },
-  "checkedAt": "2026-10-31T20:34:00.085Z",
+  "checkedAt": "2026-10-31T21:16:17.667Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "NO_EVENT",
