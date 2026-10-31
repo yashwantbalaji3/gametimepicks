@@ -65,6 +65,8 @@ const EXTRA = `
 .tn.ml .tnr,.tn.ml .tnh{grid-template-columns:104px 62px 54px 1fr 54px 62px 92px 132px;gap:7px}.tn.ml .tnr{padding:0 8px 0 12px}.tn.ml .tnh{padding:0 8px 0 12px;align-items:center;letter-spacing:0;font-size:20px;white-space:nowrap}.tn.ml .tnh>span:nth-child(7){text-align:center}.tn.ml .tnh .wh{text-align:center;color:#F7F7F2}.tn.ml .tnh .ph{text-align:center;color:#F2C14E;font-size:22px}.tn.ml .tnr .t{font-size:22px;letter-spacing:0}.tn.ml .tnr .p{font-size:24px}
 .tn.ml .tnr .pr{font:900 42px/1 var(--headline);font-variant-numeric:tabular-nums;text-align:right;color:#F2C14E;white-space:nowrap;background:rgba(242,193,78,.13);border:1px solid rgba(242,193,78,.55);border-radius:8px;padding:9px 12px 6px}
 .mkn{margin-top:8px;text-align:center;font:700 21px/1.15 var(--display);color:#F2C14E}
+.tn.ml.dec .tnr,.tn.ml.dec .tnh{grid-template-columns:104px 62px 76px 1fr 76px 62px 92px 132px}
+.tn.pp{margin-top:8px;gap:6px}.tn.pp .tnr,.tn.pp .tnh{grid-template-columns:1fr 128px 112px 118px 118px;gap:8px}.tn.pp .tnr .nm{min-width:0}.tn.pp .tnr .nm .pn2{display:block;font:800 31px/1.05 var(--headline);text-transform:uppercase;white-space:nowrap;overflow:hidden}.tn.pp .tnr .nm i{display:block;margin-top:3px;font:700 19px/1 var(--display);font-style:normal;letter-spacing:1px;color:rgba(247,247,242,.72)}.tn.pp .tnr .c{font:800 30px/1 var(--display);text-align:center;white-space:nowrap}.tn.pp .tnh span:not(:first-child){text-align:center}
 .rcr .s{font:900 50px/1 var(--headline);white-space:nowrap}.rcr .w{font:700 24px/1.1 var(--display);text-align:center}.rcr .o{font:900 32px/1 var(--headline);text-align:right}
 `;
 
@@ -122,12 +124,12 @@ export function winnerCard(g, { kicker = "GameTimePicks Prediction", meterLabel 
 <div class="meter" data-meter="elo"><div class="meter-k">${esc(meterLabel)}</div><div class="meter-labels"><div class="ml l">${bcell(cells, "away.pct", `${g.awayPct}%`)}<span data-fit>${esc(g.away.name)}</span></div><div class="ml r">${bcell(cells, "home.pct", `${g.homePct}%`)}<span data-fit>${esc(g.home.name)}</span></div></div>
 <div class="meter-bar"><i class="seg away" data-share="${g.awayP}" style="width:${((100 * g.awayP) / total).toFixed(3)}%;--c:${ca}"></i><i class="seg home" data-share="${g.homeP}" style="width:${((100 * g.homeP) / total).toFixed(3)}%;--c:${cb}"></i></div></div>
 <div class="winner2${g.market ? " mkw" : ""}"><div class="k">${g.winner ? "Predicted Winner" : "Too close to call"}</div>${g.winner ? slab(g.winner) : ""}</div>
-${g.market ? `<div class="mkp"><div class="mk">Price</div>${cell(cells, "market.price", `${g.market.sideAbbr} ${g.market.priceText}`, "mv")}</div>` : ""}<div class="strip"><div>${bcell(cells, "day", g.tipDay, "data-fit")}<span>${g.startWord ?? "Tip-off"}</span></div><div>${bcell(cells, "time", g.tipTime, "data-fit")}<span>Eastern time</span></div></div>`;
+${g.market ? `<div class="mkp"><div class="mk">Price</div>${cell(cells, "market.price", `${g.market.sideAbbr} ${g.market.priceText}`, "mv")}${g.market.quotedText ? cell(cells, "market.quoted", g.market.quotedText, "mq") : ""}</div>` : ""}<div class="strip"><div>${bcell(cells, "day", g.tipDay, "data-fit")}<span>${g.startWord ?? "Tip-off"}</span></div><div>${bcell(cells, "time", g.tipTime, "data-fit")}<span>Eastern time</span></div></div>`;
   return { html: shell({ away: g.away, home: g.home, chip: g.chip, body, disclosure }), cells, v2: true, disclosure };
 }
 
 /** A: one card, every game of the slate. */
-export function tonightCard({ games, chip, kicker = "NBA Tonight", sub = "Game winner estimates", timeHead = "TIP ET", disclosure = DISCLOSURE, priced = false }) {
+export function tonightCard({ games, chip, kicker = "NBA Tonight", sub = "Game winner estimates", timeHead = "TIP ET", disclosure = DISCLOSURE, priced = false, note = null }) {
   const cells = {};
   const rows = games.map((g) => {
     const [ca, cb] = meterColours(g.away, g.home);
@@ -135,7 +137,7 @@ export function tonightCard({ games, chip, kicker = "NBA Tonight", sub = "Game w
   }).join("");
   const books = [...new Set(games.map((g) => g.market?.bookLabel).filter(Boolean))];
   const priceHead = books.length === 1 ? books[0].toUpperCase() : "PRICE";
-  const body = `<div class="kicker">${esc(kicker)}</div><div class="sub" data-fit>${esc(sub)}</div><div class="tn ${games.length > 10 ? "dense" : ""} ${priced ? "ml" : ""}"><div class="tnh"><span>${esc(timeHead)}</span><span>AWAY</span><span></span>${priced ? '<span class="wh">MODEL WIN %</span>' : "<span></span>"}<span></span><span>HOME</span><span>WINNER</span>${priced ? `<span class="ph">${esc(priceHead)}</span>` : ""}</div>${rows}</div>`;
+  const body = `<div class="kicker">${esc(kicker)}</div><div class="sub" data-fit>${esc(sub)}</div><div class="tn ${games.length > 10 ? "dense" : ""} ${priced ? "ml" : ""} ${priced && games.some((g) => String(g.awayPct).includes(".")) ? "dec" : ""}"><div class="tnh"><span>${esc(timeHead)}</span><span>AWAY</span><span></span>${priced ? '<span class="wh">MODEL WIN %</span>' : "<span></span>"}<span></span><span>HOME</span><span>WINNER</span>${priced ? `<span class="ph">${esc(priceHead)}</span>` : ""}</div>${rows}</div>${note ? `<div class="mkn">${cell(cells, "market.quoted", note)}</div>` : ""}`;
   return { html: shell({ chip, body, disclosure }), cells, v2: true, disclosure };
 }
 
@@ -162,14 +164,14 @@ export function statPages({ away, home, chip, awayPlayers, homePlayers, real = f
 }
 
 /** B. `rows`: { key, rank, name, team (obj), opponent, tip, text, line? }. */
-export function top5Card({ title, chip, rows, real = false, kicker = "Top 5 Projections", sub = "Projected median for the game", estimate = null, disclosure = DISCLOSURE }) {
+export function top5Card({ title, chip, rows, real = false, kicker = "Top 5 Projections", sub = "Projected median for the game", estimate = null, disclosure = DISCLOSURE, note = null, away = null, home = null }) {
   const cells = {};
   const body = `<div class="kicker">${esc(kicker)}</div><div class="title" style="font-size:84px;margin-top:14px">${esc(title)}</div><div class="sub" data-fit>${esc(sub)}</div>${estimate ? `<div class="estl">${cell(cells, "estimate", estimate)}</div>` : ""}<div class="t5">${rows.map((r) => {
     const cls = real ? (r.line ? CLS[r.line.cls] : "none") : "";
     const num = real ? `${r.line?.glyph || "●"} ${r.text}` : r.text;
-    return `<div class="t5row r${r.rank}" style="--c:${r.team.color}"><div class="n">${r.rank}</div><div style="min-width:0"><span class="pname board nm" data-fit style="display:block">${cell(cells, `${r.key}.name`, r.name)}</span><div class="sb"><span class="tag" style="--c:${r.team.color};--cink:${r.team.ink}">${esc(r.team.abbr)}</span><span>vs ${esc(r.opponent)} · ${esc(r.tip)}</span></div></div><div class="v">${bcell(cells, `${r.key}.num`, num, cls ? `class="${cls}" style="color:currentColor;font-size:64px"` : "")}${real && r.line ? cell(cells, `${r.key}.line`, mono(r.line.text.replace(/^([OU] \S+) /, "$1 · ")), `ln ${cls}`) : ""}</div></div>`;
-  }).join("")}</div>`;
-  return { html: shell({ chip, body, disclosure }), cells, v2: true, disclosure };
+    return `<div class="t5row r${r.rank}" style="--c:${r.team.color}"><div class="n">${r.rank}</div><div style="min-width:0"><span class="pname board nm" data-fit style="display:block">${cell(cells, `${r.key}.name`, r.name)}</span><div class="sb"><span class="tag" style="--c:${r.team.color};--cink:${r.team.ink}">${esc(r.team.abbr)}</span><span>vs ${esc(r.opponent)} · ${esc(r.tip)}</span></div></div><div class="v">${bcell(cells, `${r.key}.num`, num, cls ? `class="${cls}" style="color:currentColor;font-size:64px"` : "")}${real && r.line ? cell(cells, `${r.key}.line`, mono(r.line.text.replace(/^([OU] \S+) /, "$1 · ")), `ln ${cls}`) : ""}${r.note ? cell(cells, `${r.key}.note`, r.note, "ln none") : ""}</div></div>`;
+  }).join("")}</div>${note ? `<div class="mkn">${cell(cells, "market.quoted", note)}</div>` : ""}`;
+  return { html: shell({ away, home, chip, body, disclosure }), cells, v2: true, disclosure };
 }
 
 const NFL_SLOT = Object.freeze([["player_pass_yds", "PASS YDS"], ["player_rush_yds", "RUSH YDS"], ["player_reception_yds", "REC YDS"], ["anytime_td", "TD CHANCE"], ["player_receptions", "REC"]]);
@@ -183,6 +185,19 @@ export function nflPlayerPages({ away, home, chip, awayPlayers, homePlayers, est
     const col = (t, ps) => `<div class="lcol" style="--c:${t.color}"><div class="lhead">${mark(t)}<h3 data-fit>${esc(t.nickname)}</h3></div>${ps.slice(i * PER_TEAM, (i + 1) * PER_TEAM).map((p) => `<div class="pl nfl"><span class="pn2" data-fit>${cell(cells, `${p.id}.name`, p.name)}</span><div class="ns">${slots(p).map(([f, label]) => `<div><b>${cell(cells, `${p.id}.${f}`, p.stats[f])}</b><em>${esc(label)}</em></div>`).join("")}</div></div>`).join("")}</div>`;
     const part = pages > 1 ? ` · Part ${i + 1} of ${pages}` : "";
     const body = `<div class="kicker">Projected player stats</div><div class="sub" data-fit>${esc(away.abbr)} @ ${esc(home.abbr)}${part}</div>${estimate ? `<div class="estl">${cell(cells, "estimate", estimate)}</div>` : ""}<div class="lines sl">${col(away, awayPlayers)}${col(home, homePlayers)}</div>`;
+    return { html: shell({ away, home, chip, body, disclosure: NFL_DISCLOSURE }), cells, v2: true, disclosure: NFL_DISCLOSURE, part: i + 1, parts: pages };
+  });
+}
+
+export const NFL_PROP_ROWS_PER_IMAGE = 8;
+/** Combined props, neutral on purpose: no colour, glyph or chosen side, both prices. `rows`: { key, name, team, family, projection, line, over, under }. */
+export function nflPropsPages({ away, home, chip, rows, estimate = null, note = null }) {
+  const pages = Math.max(1, Math.ceil(rows.length / NFL_PROP_ROWS_PER_IMAGE));
+  return Array.from({ length: pages }, (_, i) => {
+    const cells = {};
+    const list = rows.slice(i * NFL_PROP_ROWS_PER_IMAGE, (i + 1) * NFL_PROP_ROWS_PER_IMAGE).map((r) => `<div class="tnr"><div class="nm"><span class="pn2" data-fit>${cell(cells, `${r.key}.name`, r.name)}</span><i>${esc(r.team)} · ${esc(r.family)}</i></div>${cell(cells, `${r.key}.proj`, r.projection, "c")}${cell(cells, `${r.key}.line`, r.line, "c")}${cell(cells, `${r.key}.over`, r.over, "c")}${cell(cells, `${r.key}.under`, r.under, "c")}</div>`).join("");
+    const part = pages > 1 ? ` · Part ${i + 1} of ${pages}` : "";
+    const body = `<div class="kicker">Player projections</div><div class="sub" data-fit>${esc(away.abbr)} @ ${esc(home.abbr)}${part}</div>${estimate ? `<div class="estl">${cell(cells, "estimate", estimate)}</div>` : ""}<div class="tn pp"><div class="tnh"><span>PLAYER</span><span>MODEL</span><span>LINE</span><span>OVER</span><span>UNDER</span></div>${list}</div>${note ? `<div class="mkn">${cell(cells, "market.quoted", note)}</div>` : ""}`;
     return { html: shell({ away, home, chip, body, disclosure: NFL_DISCLOSURE }), cells, v2: true, disclosure: NFL_DISCLOSURE, part: i + 1, parts: pages };
   });
 }

@@ -12,6 +12,10 @@ import path from "node:path";
 import { xWeighted, CC_KIND_MAP, ccCaptionProblems, editorialPlan, CC_KIND, buildNbaRecap, buildNflRecap, buildSocialPackage, recapFinalsProblems, recommendedPostTime, socialPackageViolations, CONTENT_TYPE, denominatorText } from "./social-package.mjs";
 import { formatValue } from "../sports/nfl/forecast-view.mjs";
 import { prepareNbaRecap, prepareNbaTop5, prepareNflRecap, prepareNflTop5, prepareNflWinners, winnerRow, writePackages, prepareNbaTonight, prepareNflGameWinners, prepareNflPlayerStats, lineBlock, TONIGHT_ROWS, boxscorePosts, prepareNbaBoxscore, prepareGameDay } from "../../../scripts/social/render-social-pack.mjs";
+import { nbaTop5Carousel, nflTdRows, nflPropRows, prepareNflGamePosts } from "../../../scripts/social/render-social-pack.mjs";
+import { nflMoneylineQuote, nflPropOffer } from "../../../scripts/social/nfl-line-capture.mjs";
+import { approvedCaption } from "./approved-captions.mjs";
+import { americanText } from "./nba-moneyline.mjs";
 import { verifyGameDayCard, meterColours, teamOf } from "../../../scripts/social/game-day-cards.mjs";
 import { meterProblems, meterHtml, packCaptionViolations, verifyPackCard } from "../../../scripts/social/social-pack-cards.mjs";
 
@@ -375,5 +379,64 @@ test("game post: priced winner then real-line stat cards, keyed path, caption ru
     assert.equal(p.ccCaption, p.caption);
     assert.match(p.content.captionPlayers.rule, /highest official projected points/);
     for (const c of p.cards) { assert.deepEqual(verifyGameDayCard(c), []); assert.match(c.html, /class="draft"/); }
+  }
+});
+
+
+/* ───────────── NFL game post + NBA carousel (founder pack 11-01) ───────────── */
+test("NBA_TOP5_CAROUSEL: PTS, REB, AST in one package, worst anomaly check, separates kept", () => {
+  const card = (k) => ({ name: k, html: "", cells: { [`${k}.num`]: "1" } });
+  const part = (k, check) => ({ contentType: "NBA_DAILY_TOP5", variant: k, cards: [card(k)], firstStartUtc: "2026-11-01T22:00:00Z", window: {}, recommended: null, freshness: {}, anomalyCheck: check, anomalies: check === "REVIEW" ? [{ playerId: "1", market: k, verdict: "x", detail: "y" }] : [], disclosures: ["d"], snapshotRefs: [{ ref: "r", sha256: "s" }], checks: ["c"], content: {} });
+  const posts = [part("pts", "PASS"), part("reb", "REVIEW"), part("ast", "PASS")];
+  const { posts: [c], refused } = nbaTop5Carousel({ posts, date: "2026-11-01" });
+  assert.deepEqual(refused, []);
+  assert.equal(c.contentType, "NBA_TOP5_CAROUSEL");
+  assert.equal(c.variant, null);
+  assert.equal(c.cards.length, 3);
+  assert.equal(c.anomalyCheck, "REVIEW");
+  assert.equal(c.anomalies.length, 1);
+  assert.equal(nbaTop5Carousel({ posts: posts.slice(0, 2), date: "2026-11-01" }).refused[0].reason, "MISSING_BOARD");
+});
+
+test("NFL lines: h2h and props come from the private capture rows, never inferred, never post-kickoff", () => {
+  const row = { canonicalEventId: "nfl-1", capturedAt: "2026-10-29T19:00:00Z", bookmaker: "draftkings", outcomes: [{ name: "A", price: 150 }, { name: "H", price: -180 }] };
+  const o = { eventId: "1", awayName: "A", homeName: "H", sideName: "H", kickoffUtc: "2026-11-01T18:00Z", asOf: "2026-10-31T00:00:00Z" };
+  assert.equal(nflMoneylineQuote([row], o).price, -180);
+  assert.equal(nflMoneylineQuote([{ ...row, bookmaker: "bovada" }], o), null);
+  assert.equal(nflMoneylineQuote([{ ...row, outcomes: row.outcomes.slice(1) }], o), null);
+  assert.equal(nflMoneylineQuote([{ ...row, capturedAt: "2026-11-01T18:00:00Z" }], { ...o, asOf: "2026-11-02T00:00:00Z" }), null);
+  const offer = { canonicalEventId: "nfl-1", playerId: "p", market: "player_receptions", book: "draftkings", line: 4.5, overPrice: -110, underPrice: -110, capturedAt: "2026-10-29T19:00:00Z" };
+  const q = { eventId: "1", playerId: "p", market: "player_receptions", kickoffUtc: o.kickoffUtc, asOf: o.asOf };
+  assert.equal(nflPropOffer([offer], q).line, 4.5);
+  assert.equal(nflPropOffer([offer, { ...offer, line: 5.5 }], q), null, "alternate lines are ambiguous");
+});
+
+test("NFL rows: top 3 TD skip nobody fit-filtered upstream; props carry both prices and an estimate mark, no side", () => {
+  const players = ["a", "b", "c", "d"].map((id, i) => ({ playerId: id, name: id, team: "X", markets: { anytime_td: { probability: 0.4 - i / 100 }, player_pass_yds: { median: 200 - i } } }));
+  const board = { families: { anytime_td: { state: "PUBLISHED" }, player_pass_yds: { state: "ESTIMATE" } } };
+  const offers = [{ canonicalEventId: "nfl-1", playerId: "a", market: "player_pass_yds", book: "draftkings", line: 210.5, overPrice: -112, underPrice: -108, capturedAt: "2026-10-29T19:00:00Z" }];
+  const io = { players, board, eventId: "1", kickoffUtc: "2026-11-01T18:00Z", offers, asOf: "2026-10-31T00:00:00Z" };
+  const td = nflTdRows(io);
+  assert.deepEqual(td.map((r) => r.name), ["a", "b", "c"]);
+  assert.equal(td[0].note, "No quote");
+  const [r] = nflPropRows(io);
+  assert.equal(r.projection.endsWith(" est."), true);
+  assert.deepEqual([r.line, r.over, r.under], ["210.5", americanText(-112), americanText(-108)]);
+  assert.equal(nflPropRows({ ...io, board: { families: { ...board.families, player_pass_yds: { state: "ESTIMATE", withheldTeams: [{ team: "X" }] } } } }).length, 0);
+});
+
+test("NFL_GAME_POST: 11-01 posts keep dedupe by event; no capture means no price and a reported gap", () => {
+  const { posts } = prepareNflGamePosts({ week: 8, asOf: "2026-10-31T07:30:00Z" });
+  assert.ok(posts.length);
+  for (const p of posts) {
+    assert.equal(p.variant, p.eventId);
+    assert.equal(p.content.imageTypes[0], "WINNER_NO_PRICE");
+    assert.ok(p.content.gaps.includes("NO_WINNER_PRICE"));
+    assert.equal(p.content.tdCandidates.length, 3);
+    assert.ok(!/class="[^"]*\b(over|under)\b/.test(p.cards.slice(2).map((c) => c.html.replace(/<style>[\s\S]*?<\/style>/g, "")).join("")), "no direction colour");
+    const { caption, claims } = approvedCaption(p);
+    assert.match(caption, /#NFL$/);
+    assert.ok(!/not betting advice/i.test(caption));
+    assert.equal(claims.length, 3);
   }
 });

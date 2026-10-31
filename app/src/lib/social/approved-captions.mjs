@@ -53,6 +53,7 @@ export function approvedCaption(p) {
       return { claims: [], caption: blocks(`🏀 ${n} NBA games on ${word}'s slate!`, "Who's taking the W? 👀", "Our model has a predicted winner for every matchup, with the full slate and win probabilities below.", `Who are you backing ${word}? 👇`, "#NBA") };
     }
     case "NBA_DAILY_TOP5": return { claims: [], caption: nbaTop5(String(p.variant).replace(/-model$/, ""), word, p.slateGames, String(p.variant).endsWith("-model")) };
+    case "NBA_TOP5_CAROUSEL": return { claims: [], caption: blocks(`🏀 ${cap(word)}'s Top 5 NBA projections! 🔥`, "Points, rebounds and assists across the slate.", "Swipe through all three boards 👇", "#NBA") };
     case "NBA_GAME_WINNER": return { claims: [], caption: blocks(`🏀 ${g.awayName} vs ${g.homeName} ${word}!`, verdict(g), "Full prediction below 👇", "#NBA") };
     case "NBA_PLAYER_STATS": case "NBA_BOXSCORE": return { claims: [], caption: blocks(`🏀 ${g.awayName} vs ${g.homeName} ${word}!`, "📊 Projected stat lines for both teams.", "Full predictions below 👇", "#NBA") };
     case "NBA_GAME_POST": return { claims: [], caption: blocks(`🏀 ${g.awayName} vs ${g.homeName} ${word}!`, verdict(g), ["Two players to watch:", ...p.captionPlayers.map((x) => `🔥 ${x.name}: ${stat1(x.medians.pts)} PTS | ${stat1(x.medians.reb)} REB | ${stat1(x.medians.ast)} AST`)].join("\n"), "Full predictions below 👇", "#NBA") };
@@ -65,7 +66,13 @@ export function approvedCaption(p) {
       return { claims: [], caption: blocks(`🏈 Monday Night Football: ${r.matchup}!`, `🎯 Our model projects ${r.winner} to win.`, "Full prediction below 👇", "#NFL") };
     }
     case "NFL_WEEKLY_TOP5": return { claims: [], caption: blocks(`🏈 NFL Week ${p.content.week} Top 5: ${p.content.label.toLowerCase()}!`, p.content.estimateLabel ? "Our model's projections, shown as estimates." : "Our model's projections for the week.", "Who tops the list? 👇", "#NFL") };
-    case "NFL_GAME_POST": return { claims: [], caption: blocks(`🏈 ${g.awayName} vs ${g.homeName} this ${etLabel(first).slice(0, 3) === "Sun" ? "Sunday" : "week"}!`, verdict(g), "Winner prediction and player projections below 👇", "#NFL") };
+    case "NFL_GAME_POST": {
+      const td = p.content.tdCandidates ?? [];
+      return {
+        claims: td.map((x) => claim(`td.${x.playerId}`, x.pct)),
+        caption: blocks(`🏈 ${g.awayName} vs ${g.homeName} this ${etLabel(first).slice(0, 3) === "Sun" ? "Sunday" : "week"}!`, verdict(g), ...(td.length ? [["TD candidates:", ...td.map((x) => `🔥 ${x.name}: ${x.pct}`)].join("\n")] : []), "Full projections below 👇", "#NFL"),
+      };
+    }
     default: throw new Error(`no approved caption for ${p.contentType}`);
   }
 }
