@@ -1,13 +1,13 @@
 /**
  * FOUNDER DISPLAY EXCEPTION FOR AN NBA SLATE. PURE. A package under anomaly REVIEW may be shown with its flags on the record:
  * anomalyCheck EXCEPTION, the review result kept, and the affected player-markets listed. It changes no number. An identity
- * error (a wrong join or a player on the wrong roster) is never excepted. Approval stays with the founder, post by post.
+ * error (a line joined to the wrong player) is never excepted; STALE_PLAYER_ROSTER is a starter-role shift, so it may show. Approval stays with the founder, post by post.
  */
 import crypto from "node:crypto";
 
 import { VERDICT } from "./nba-anomaly-check.mjs";
 
-export const IDENTITY_VERDICTS = Object.freeze([VERDICT.BAD_JOIN, VERDICT.STALE_PLAYER_ROSTER]);
+export const IDENTITY_VERDICTS = Object.freeze([VERDICT.BAD_JOIN]);
 export const DISPLAY_EXCEPTION_STATEMENT = "unvalidated v0.1, known minutes and role limitations; not corrected, calibrated or validated";
 
 export const identityErrors = (anomalies) => (anomalies ?? []).filter((a) => IDENTITY_VERDICTS.includes(a.verdict));

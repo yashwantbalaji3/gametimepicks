@@ -426,7 +426,7 @@ test("NFL rows: top 3 TD skip nobody fit-filtered upstream; props carry both pri
   assert.equal(td[0].note, "No quote");
   const [r] = nflPropRows(io);
   assert.equal(r.projection.endsWith(" est."), true);
-  assert.deepEqual([r.line, r.over, r.under], ["210.5", americanText(-112), americanText(-108)]);
+  assert.deepEqual([r.line, r.over, r.under], ["No line", americanText(-112), americanText(-108)], "this quote is past 12 hours: its line is never printed");
   assert.equal(nflPropRows({ ...io, board: { families: { ...board.families, player_pass_yds: { state: "ESTIMATE", withheldTeams: [{ team: "X" }] } } } }).length, 0);
 });
 
