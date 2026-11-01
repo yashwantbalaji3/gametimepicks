@@ -82,7 +82,7 @@ const pagesOf = (items, n = ROWS_PER_CARD) => { const out = []; for (let i = 0; 
 
 const chipDay = (ms) => new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", month: "short", day: "numeric" }).format(new Date(ms));
 const weekdayLong = (ms) => new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "long" }).format(new Date(ms));
-const tipClock = (ms) => `${timeOnly(ms)} ET`;
+const tipClock = (ms) => `${timeOnly(ms)} ${new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", timeZoneName: "short" }).formatToParts(ms).find((p) => p.type === "timeZoneName").value}`;
 const v2Cards = (cards, base) => cards.map((c, i) => {
   const e = verifyGameDayCard(c);
   if (e.length) throw new Error(`${base} failed validation:\n  - ${e.join("\n  - ")}`);
