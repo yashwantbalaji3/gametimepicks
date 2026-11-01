@@ -390,7 +390,7 @@ export function prepareNflTop5({ seasonType = 2, week, asOf, sundayOnly = false,
     const isProb = spec.method === "probability";
     const quoteTimes = rows.map((r) => r.quotedAt).filter(Boolean);
     const missing = rows.filter((r) => !r.quotedAt).map((r) => ({ playerId: r.key, name: r.name, reason: r.comparison.reason }));
-    const cards = v2Cards([v2Top5Card({ title: spec.label, chip: `NFL · Week ${week}${sundayOnly ? " · Sunday" : ""}`, rows: rows.map((r) => ({ ...r, team: teams.get(r.team), tip: tipClock(instant(r.kickoffUtc)) })), sub: isProb ? "Chance to score a touchdown if he plays" : undefined, section: isProb ? null : MODEL_SECTION, real: !isProb, note: !isProb && quoteTimes.length ? COMPARISON_LEGEND : null, ...NFL_V2 })], `nfl-w${String(week).padStart(2, "0")}-${b.id}`);
+    const cards = v2Cards([v2Top5Card({ title: spec.label, chip: `NFL · Week ${week}${sundayOnly ? " · Sunday" : ""}`, rows: rows.map((r) => ({ ...r, team: teams.get(r.team), tip: tipClock(instant(r.kickoffUtc)) })), sub: isProb ? "Chance to score a touchdown" : undefined, section: isProb ? null : MODEL_SECTION, real: !isProb, note: !isProb && quoteTimes.length ? COMPARISON_LEGEND : null, ...NFL_V2 })], `nfl-w${String(week).padStart(2, "0")}-${b.id}`);
     const caption = checkCaption(`GameTime Picks NFL Week ${week} top 5 ${spec.label.toLowerCase()}${est ? ` (${est.replace(/·/g, "-")})` : ""}: ${rows.map((r) => `${r.rank}. ${r.name} ${r.text}`).join(", ")}. ${FOOT.projections} ${legalLine}`);
     const gen = wb.generatedAt;
     posts.push(withSendWindow({
@@ -497,7 +497,9 @@ export function prepareNflGamePosts({ seasonType = 2, week, asOf, captures = nul
     const rawMarket = nflMarket(v, g, captures, asOf);
     const staleMarket = Boolean(rawMarket) && ageHours(asOf, rawMarket.quotedAt) > NFL_LINE_MAX_AGE_HOURS;
     const market = staleMarket ? null : rawMarket;
-    const fit = fitPlayers(v, board);
+    // Confirmed inactive per the injury source when the roster feed lags (operator list, recorded in the run command).
+    const inactive = new Set((process.env.GTP_SOCIAL_INACTIVE_IDS ?? "").split(",").filter(Boolean));
+    const fit = fitPlayers(v, board).filter((p) => !inactive.has(p.playerId));
     const io = { players: fit, board, eventId: id, kickoffUtc: v.kickoffUtc, offers, asOf };
     const td = nflTdRows(io);
     if (!td.length) { refused.push({ contentType: type, variant: id, reason: "NO_TD_ROWS" }); continue; }

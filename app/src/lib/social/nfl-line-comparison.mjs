@@ -4,7 +4,7 @@
  * about edge, and it is separate from publicDirectionGate, which keeps governing the website and is not read here.
  */
 export const COMPARISON_NOTE = Object.freeze({ comparisonIsNotEdge: true, surface: "SOCIAL_ONLY", rule: "official projection minus line: above = green OVER with the over price, below = red UNDER with the under price, equal or invalid = neutral", websiteGate: "publicDirectionGate, unchanged and not consulted" });
-export const COMPARISON_LEGEND = "▲ model above line · ▼ model below line · math comparison, not a recommendation";
+export const COMPARISON_LEGEND = "▲ Model above line · ▼ Model below line";
 export const NEUTRAL_REASON = Object.freeze({
   NO_PROJECTION: "NO_PROJECTION", NO_LINE: "NO_LINE", UNMATCHED: "UNMATCHED", INELIGIBLE_BOOK: "INELIGIBLE_BOOK", AMBIGUOUS_LINE: "AMBIGUOUS_LINE",
   CAPTURED_AFTER_KICKOFF: "CAPTURED_AFTER_KICKOFF", STALE_LINE: "STALE_LINE", INVALID_LINE: "INVALID_LINE", INVALID_ODDS: "INVALID_ODDS", ONE_SIDED_MARKET: "ONE_SIDED_MARKET",
