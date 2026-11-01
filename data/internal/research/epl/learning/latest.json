@@ -3,7 +3,7 @@
  "artifact": "epl-learning-report",
  "dataClass": "INTERNAL_RESEARCH",
  "public": false,
- "generatedAt": "2026-11-01T18:06:23Z",
+ "generatedAt": "2026-11-01T19:04:31Z",
  "corpus": {
   "historical": 1520,
   "currentSeason": 88,
@@ -11,29 +11,29 @@
   "season": "2026-27"
  },
  "sample": {
-  "graded": 84,
-  "pairedWithMarket": 73,
+  "graded": 85,
+  "pairedWithMarket": 74,
   "minSampleForComparison": 30,
   "scope": "ALL_MODELS"
  },
  "liveModel": {
   "modelId": "epl-model-v2-elo-poisson",
-  "n": 48,
-  "logLoss": 1.023692,
-  "brier": 0.611762,
-  "pairedWithMarket": 43,
+  "n": 49,
+  "logLoss": 1.020642,
+  "brier": 0.60974,
+  "pairedWithMarket": 44,
   "comparison": {
    "state": "MODEL_BEHIND",
    "onPairedMatches": {
     "model": {
-     "logLoss": 1.02085,
-     "brier": 0.610636
+     "logLoss": 1.017518,
+     "brier": 0.608409
     },
     "market": {
-     "logLoss": 0.982003,
-     "brier": 0.583671
+     "logLoss": 0.980869,
+     "brier": 0.582963
     },
-    "logLossDelta": 0.038847
+    "logLossDelta": 0.036649
    }
   }
  },
@@ -61,28 +61,28 @@
   },
   "epl-model-v2-elo-poisson": {
    "modelId": "epl-model-v2-elo-poisson",
-   "n": 48,
-   "logLoss": 1.023692,
-   "brier": 0.611762,
-   "pairedWithMarket": 43,
+   "n": 49,
+   "logLoss": 1.020642,
+   "brier": 0.60974,
+   "pairedWithMarket": 44,
    "comparison": {
     "state": "MODEL_BEHIND",
     "onPairedMatches": {
      "model": {
-      "logLoss": 1.02085,
-      "brier": 0.610636
+      "logLoss": 1.017518,
+      "brier": 0.608409
      },
      "market": {
-      "logLoss": 0.982003,
-      "brier": 0.583671
+      "logLoss": 0.980869,
+      "brier": 0.582963
      },
-     "logLossDelta": 0.038847
+     "logLossDelta": 0.036649
     }
    }
   }
  },
  "coverage": {
-  "paired": 73,
+  "paired": 74,
   "unpaired": {
    "total": 11,
    "byCause": {
@@ -95,24 +95,24 @@
   ]
  },
  "model": {
-  "n": 84,
-  "logLoss": 1.038632,
-  "brier": 0.630126
+  "n": 85,
+  "logLoss": 1.036698,
+  "brier": 0.628744
  },
  "comparison": {
   "state": "MODEL_BEHIND",
-  "detail": "the model's mean log loss is 0.019842 HIGHER than the market's over 73 matches — it is losing to the price it stood next to.",
+  "detail": "the model's mean log loss is 0.018793 HIGHER than the market's over 74 matches — it is losing to the price it stood next to.",
   "onPairedMatches": {
    "model": {
-    "logLoss": 1.041758,
-    "brier": 0.634373
+    "logLoss": 1.039495,
+    "brier": 0.632728
    },
    "market": {
-    "logLoss": 1.021916,
-    "brier": 0.614014
+    "logLoss": 1.020702,
+    "brier": 0.613183
    },
-   "logLossDelta": 0.019842,
-   "brierDelta": 0.020359
+   "logLossDelta": 0.018793,
+   "brierDelta": 0.019545
   }
  },
  "stoppingRule": {
