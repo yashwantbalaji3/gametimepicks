@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-01T16:42:47Z",
- "sourceGeneratedAt": "2026-11-01T16:42:47Z",
+ "generatedAt": "2026-11-01T17:11:06Z",
+ "sourceGeneratedAt": "2026-11-01T17:11:06Z",
  "forecastInputHash": "b9fa164ddcceec8f",
  "providerEventId": "401873026",
  "matchup": "BAL @ BUF",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-01T16:42:47Z",
-  "roleEvidenceAt": "2026-11-01T16:42:47Z",
+  "injuriesCapturedAt": "2026-11-01T17:11:06Z",
+  "roleEvidenceAt": "2026-11-01T17:11:06Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -49,7 +49,25 @@
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": []
+    "pools": [
+     {
+      "team": "BUF",
+      "pool": "targets",
+      "originalSum": 1.0523,
+      "normalizedSum": 1,
+      "factor": 0.9503,
+      "playerIds": [
+       "nfl-athlete-4373678",
+       "nfl-athlete-3915416",
+       "nfl-athlete-4385690",
+       "nfl-athlete-4635008",
+       "nfl-athlete-3915411",
+       "nfl-athlete-4379399",
+       "nfl-athlete-4242433",
+       "nfl-athlete-3930086"
+      ]
+     }
+    ]
    }
   },
   "player_pass_int": {
@@ -289,7 +307,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-3915416",
@@ -300,7 +318,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4635008",
@@ -413,6 +431,19 @@
   "pools": [
    {
     "team": "BUF",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 1,
+    "originalSum": 1.0523,
+    "residualOther": 0,
+    "joined": 8,
+    "missed": 0,
+    "state": "NORMALIZED"
+   },
+   {
+    "team": "BUF",
     "pool": "passAttempts",
     "markets": [
      "player_pass_yds"
@@ -449,19 +480,6 @@
     "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
-   },
-   {
-    "team": "BUF",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.7035,
-    "originalSum": 0.7035,
-    "residualOther": 0.2965,
-    "joined": 6,
-    "missed": 0,
-    "state": "UNDER_ALLOCATED"
    }
   ],
   "violations": 0
@@ -492,12 +510,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.7204,
+     "mean": 1.6349,
      "p10": 0,
-     "p25": 1,
-     "median": 1,
-     "p75": 3,
-     "p90": 4,
+     "p25": 0.9503,
+     "median": 0.9503,
+     "p75": 2.8509,
+     "p90": 3.8012,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.9503
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -600,7 +622,7 @@
    "playerId": "nfl-athlete-3915416",
    "name": "DJ Moore",
    "team": "BUF",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 35.081,
@@ -612,12 +634,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.4252,
-     "p10": 1,
-     "p25": 2,
-     "median": 3,
-     "p75": 5,
-     "p90": 7,
+     "mean": 3.255,
+     "p10": 0.9503,
+     "p25": 1.9006,
+     "median": 2.8509,
+     "p75": 4.7515,
+     "p90": 6.6521,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.9503
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -642,12 +668,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.1696,
-     "p10": 1,
-     "p25": 1,
-     "median": 3,
-     "p75": 4,
-     "p90": 6,
+     "mean": 3.0121,
+     "p10": 0.9503,
+     "p25": 0.9503,
+     "median": 2.8509,
+     "p75": 3.8012,
+     "p90": 5.7018,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.9503
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -672,12 +702,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 4.2608,
-     "p10": 1,
-     "p25": 2,
-     "median": 4,
-     "p75": 6,
-     "p90": 8,
+     "mean": 4.049,
+     "p10": 0.9503,
+     "p25": 1.9006,
+     "median": 3.8012,
+     "p75": 5.7018,
+     "p90": 7.6024,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.9503
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -690,7 +724,7 @@
    "playerId": "nfl-athlete-4385690",
    "name": "Dalton Kincaid",
    "team": "BUF",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 38.341,
@@ -702,12 +736,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.7867,
-     "p10": 1,
-     "p25": 2,
-     "median": 3,
-     "p75": 5,
-     "p90": 7,
+     "mean": 3.5985,
+     "p10": 0.9503,
+     "p25": 1.9006,
+     "median": 2.8509,
+     "p75": 4.7515,
+     "p90": 6.6521,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.9503
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -762,12 +800,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.7165,
+     "mean": 2.5815,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 4,
-     "p90": 6,
+     "p25": 0.9503,
+     "median": 1.9006,
+     "p75": 3.8012,
+     "p90": 5.7018,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.9503
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -942,12 +984,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.3984,
+     "mean": 1.3289,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
+     "median": 0.9503,
+     "p75": 1.9006,
+     "p90": 2.8509,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.9503
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -972,12 +1018,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.6631,
+     "mean": 1.5804,
      "p10": 0,
-     "p25": 1,
-     "median": 1,
-     "p75": 2,
-     "p90": 4,
+     "p25": 0.9503,
+     "median": 0.9503,
+     "p75": 1.9006,
+     "p90": 3.8012,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.9503
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {

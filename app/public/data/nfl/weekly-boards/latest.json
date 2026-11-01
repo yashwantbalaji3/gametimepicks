@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "nfl-weekly-boards",
   "dataClass": "PUBLIC",
-  "generatedAt": "2026-11-01T16:42:47Z",
+  "generatedAt": "2026-11-01T17:11:06Z",
   "period": {
     "seasonType": 2,
     "week": 8
@@ -91,34 +91,6 @@
       ],
       "excludedForAvailability": [
         {
-          "playerId": "nfl-athlete-4426354",
-          "name": "George Pickens",
-          "team": "DAL",
-          "providerEventId": "401873024",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4371733",
-          "name": "Kenny Gainwell",
-          "team": "TB",
-          "providerEventId": "401873025",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-3915416",
-          "name": "DJ Moore",
-          "team": "BUF",
-          "providerEventId": "401873026",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4385690",
-          "name": "Dalton Kincaid",
-          "team": "BUF",
-          "providerEventId": "401873026",
-          "reason": "QUESTIONABLE"
-        },
-        {
           "playerId": "nfl-athlete-4242557",
           "name": "Colby Parkinson",
           "team": "LAR",
@@ -154,6 +126,11 @@
         "teamsReconciled": 7,
         "teams": [
           {
+            "team": "BUF",
+            "factor": 0.9503,
+            "originalSum": 1.0523
+          },
+          {
             "team": "PIT",
             "factor": 0.8872,
             "originalSum": 1.1272
@@ -167,11 +144,6 @@
             "team": "NYJ",
             "factor": 0.9385,
             "originalSum": 1.0655
-          },
-          {
-            "team": "LV",
-            "factor": 0.9498,
-            "originalSum": 1.0529
           },
           {
             "team": "LAC",
@@ -290,6 +262,20 @@
           "pricingState": "NOT_PROBED"
         },
         {
+          "playerId": "nfl-athlete-4432665",
+          "name": "Brock Bowers",
+          "team": "LV",
+          "opponent": "NYJ",
+          "providerEventId": "401873029",
+          "kickoffUtc": "2026-11-01T18:00Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 5,
+          "p10": 2,
+          "median": 5,
+          "p90": 11,
+          "pricingState": "NOT_PROBED"
+        },
+        {
           "playerId": "nfl-athlete-4362628",
           "name": "Ja'Marr Chase",
           "team": "CIN",
@@ -316,51 +302,9 @@
           "median": 5,
           "p90": 10,
           "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4239993",
-          "name": "Tee Higgins",
-          "team": "CIN",
-          "opponent": "TEN",
-          "providerEventId": "401873031",
-          "kickoffUtc": "2026-11-01T18:00Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 5,
-          "p10": 2,
-          "median": 5,
-          "p90": 9,
-          "pricingState": "NOT_PROBED"
         }
       ],
       "excludedForAvailability": [
-        {
-          "playerId": "nfl-athlete-4426354",
-          "name": "George Pickens",
-          "team": "DAL",
-          "providerEventId": "401873024",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4371733",
-          "name": "Kenny Gainwell",
-          "team": "TB",
-          "providerEventId": "401873025",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-3915416",
-          "name": "DJ Moore",
-          "team": "BUF",
-          "providerEventId": "401873026",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4385690",
-          "name": "Dalton Kincaid",
-          "team": "BUF",
-          "providerEventId": "401873026",
-          "reason": "QUESTIONABLE"
-        },
         {
           "playerId": "nfl-athlete-4242557",
           "name": "Colby Parkinson",
@@ -535,15 +479,7 @@
           "pricingState": "NOT_PROBED"
         }
       ],
-      "excludedForAvailability": [
-        {
-          "playerId": "nfl-athlete-4371733",
-          "name": "Kenny Gainwell",
-          "team": "TB",
-          "providerEventId": "401873025",
-          "reason": "QUESTIONABLE"
-        }
-      ]
+      "excludedForAvailability": []
     },
     {
       "id": "top_reception_yds",
@@ -696,34 +632,6 @@
         }
       ],
       "excludedForAvailability": [
-        {
-          "playerId": "nfl-athlete-4426354",
-          "name": "George Pickens",
-          "team": "DAL",
-          "providerEventId": "401873024",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4371733",
-          "name": "Kenny Gainwell",
-          "team": "TB",
-          "providerEventId": "401873025",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-3915416",
-          "name": "DJ Moore",
-          "team": "BUF",
-          "providerEventId": "401873026",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4385690",
-          "name": "Dalton Kincaid",
-          "team": "BUF",
-          "providerEventId": "401873026",
-          "reason": "QUESTIONABLE"
-        },
         {
           "playerId": "nfl-athlete-4242557",
           "name": "Colby Parkinson",
@@ -1103,7 +1011,7 @@
               "p90": 130.22
             }
           ],
-          "availabilityExcluded": 1
+          "availabilityExcluded": 0
         },
         {
           "id": "top5_reception_yds",
@@ -1192,7 +1100,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 7
+          "availabilityExcluded": 3
         },
         {
           "id": "top5_receptions",
@@ -1281,7 +1189,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 7
+          "availabilityExcluded": 3
         },
         {
           "id": "top5_anytime_td",
@@ -1360,7 +1268,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 7
+          "availabilityExcluded": 3
         }
       ]
     },
@@ -1561,7 +1469,7 @@
                 "p90": 130.22
               }
             ],
-            "availabilityExcluded": 1
+            "availabilityExcluded": 0
           },
           {
             "id": "top5_reception_yds",
@@ -1650,7 +1558,7 @@
                 "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 7
+            "availabilityExcluded": 3
           },
           {
             "id": "top5_receptions",
@@ -1739,7 +1647,7 @@
                 "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 7
+            "availabilityExcluded": 3
           },
           {
             "id": "top5_anytime_td",
@@ -1818,7 +1726,7 @@
                 "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 7
+            "availabilityExcluded": 3
           }
         ]
       },
@@ -2424,7 +2332,7 @@
               "p90": 130.22
             }
           ],
-          "availabilityExcluded": 1
+          "availabilityExcluded": 0
         },
         {
           "id": "top5_reception_yds",
@@ -2513,7 +2421,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 7
+          "availabilityExcluded": 3
         },
         {
           "id": "top5_receptions",
@@ -2602,7 +2510,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 7
+          "availabilityExcluded": 3
         },
         {
           "id": "top5_anytime_td",
@@ -2681,7 +2589,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 7
+          "availabilityExcluded": 3
         }
       ]
     }

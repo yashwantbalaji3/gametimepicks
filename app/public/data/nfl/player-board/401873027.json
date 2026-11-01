@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-01T16:42:47Z",
- "sourceGeneratedAt": "2026-11-01T16:42:47Z",
+ "generatedAt": "2026-11-01T17:11:06Z",
+ "sourceGeneratedAt": "2026-11-01T17:11:06Z",
  "forecastInputHash": "6bbc2086bd125137",
  "providerEventId": "401873027",
  "matchup": "CLE @ PIT",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-01T16:42:47Z",
-  "roleEvidenceAt": "2026-11-01T16:42:47Z",
+  "injuriesCapturedAt": "2026-11-01T17:11:06Z",
+  "roleEvidenceAt": "2026-11-01T17:11:06Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -127,17 +127,17 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 63,
+  "absent": 61,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "CLE": {
    "counts": {
-    "PROJECTED": 12,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
-    "NOT_MODELED_BY_FAMILY": 1,
+    "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
@@ -194,16 +194,6 @@
       "anytime_td",
       "player_reception_yds",
       "player_receptions"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4569682",
-     "name": "Audric Estime",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
@@ -278,17 +268,16 @@
      ]
     },
     {
+     "playerId": "nfl-athlete-4569682",
+     "name": "Audric Estime",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-4427238",
      "name": "Dillon Gabriel",
-     "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     }
    ]
   },
@@ -435,10 +424,6 @@
      {
       "playerId": "nfl-athlete-4432762",
       "name": "Shedeur Sanders"
-     },
-     {
-      "playerId": "nfl-athlete-4427238",
-      "name": "Dillon Gabriel"
      }
     ],
     "passers": [
@@ -609,27 +594,6 @@
     },
     "anytime_td": {
      "probability": 0.37,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4569682",
-   "name": "Audric Estime",
-   "team": "CLE",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 13.657,
-     "p10": 0,
-     "p25": 2.59,
-     "median": 9.26,
-     "p75": 19.85,
-     "p90": 32.83,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.2739,
      "pricingState": "NOT_PROBED"
     }
    }
