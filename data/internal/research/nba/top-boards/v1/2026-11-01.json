@@ -7215,6 +7215,5976 @@
      "emptyReason": "R+A is not modelled: no forecast family simulates reb + ast jointly, and adding marginal projections is not its distribution — it is never computed"
     }
    }
+  },
+  {
+   "edition": 2,
+   "frozenAt": "2026-11-01T14:06:49Z",
+   "source": {
+    "path": "data/internal/research/nba/experimental-v1/forecasts/2026-11-01.json",
+    "sha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+    "artifactGeneratedAt": "2026-11-01T13:23:08Z",
+    "artifactInputAsOf": "2026-11-01T13:23:08Z",
+    "runs": 2,
+    "modelVersion": "nba-sim-v1-coherent"
+   },
+   "gamesOnBoard": 1,
+   "games": [
+    {
+     "eventId": "401909903",
+     "tipoffUtc": "2026-11-01T20:30Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "Orlando Magic",
+      "abbr": "ORL",
+      "espnAbbr": "ORL",
+      "providerTeamId": "19"
+     },
+     "away": {
+      "name": "Boston Celtics",
+      "abbr": "BOS",
+      "espnAbbr": "BOS",
+      "providerTeamId": "2"
+     },
+     "forecastGeneratedAt": "2026-11-01T13:23:08Z",
+     "forecastInputAsOf": "2026-11-01T13:23:08Z",
+     "gamePayloadSha256": "d6db30d9e49397d1e822a7f5434dd770ef40fe3b4accf5114db5052f08c3ca42",
+     "state": "ON_EARLIER_EDITION",
+     "flags": []
+    },
+    {
+     "eventId": "401909904",
+     "tipoffUtc": "2026-11-01T22:00Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "Indiana Pacers",
+      "abbr": "IND",
+      "espnAbbr": "IND",
+      "providerTeamId": "11"
+     },
+     "away": {
+      "name": "Brooklyn Nets",
+      "abbr": "BKN",
+      "espnAbbr": "BKN",
+      "providerTeamId": "17"
+     },
+     "forecastGeneratedAt": "2026-11-01T14:06:49Z",
+     "forecastInputAsOf": "2026-11-01T14:06:49Z",
+     "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd",
+     "state": "ON_BOARD",
+     "flags": []
+    }
+   ],
+   "boards": {
+    "points": {
+     "category": "points",
+     "label": "Points",
+     "stat": "pts",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-01|v1|e2|points|401909904|3149673",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Pascal Siakam",
+        "providerAthleteId": "3149673"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 22,
+        "mean": 22.95
+       },
+       "range": {
+        "p10": 13,
+        "p25": 17,
+        "p75": 28,
+        "p90": 34
+       },
+       "playRate": 0.977,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.57,
+       "minutesSd": 7.04,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 22.95,
+        "expectedMinutes": 32.57,
+        "p90": 34
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-01|v1|e2|points|401909904|4278104",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Michael Porter Jr.",
+        "providerAthleteId": "4278104"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 21,
+        "mean": 21.19
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 26,
+        "p90": 32
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.92,
+       "minutesSd": 7.7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.19,
+        "expectedMinutes": 29.92,
+        "p90": 32
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-01|v1|e2|points|401909904|3064514",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Julius Randle",
+        "providerAthleteId": "3064514"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.38
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 24,
+        "p90": 30
+       },
+       "playRate": 0.9744,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.24,
+       "minutesSd": 7.79,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.38,
+        "expectedMinutes": 31.24,
+        "p90": 30
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-01|v1|e2|points|401909904|4395712",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Andrew Nembhard",
+        "providerAthleteId": "4395712"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.95
+       },
+       "range": {
+        "p10": 9,
+        "p25": 12,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.9758,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.97,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.95,
+        "expectedMinutes": 31.97,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-01|v1|e2|points|401909904|3133603",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Kelly Oubre Jr.",
+        "providerAthleteId": "3133603"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 12,
+        "mean": 12.42
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 16,
+        "p90": 21
+       },
+       "playRate": 0.9756,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.56,
+       "minutesSd": 7.88,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 12.42,
+        "expectedMinutes": 27.56,
+        "p90": 21
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-01|v1|e2|points|401909904|4712896",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Noah Clowney",
+        "providerAthleteId": "4712896"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 9,
+        "mean": 9.21
+       },
+       "range": {
+        "p10": 3,
+        "p25": 5,
+        "p75": 12,
+        "p90": 16
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 20.84,
+       "minutesSd": 6.69,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 9.21,
+        "expectedMinutes": 20.84,
+        "p90": 16
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-01|v1|e2|points|401909904|4702177",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keon Ellis",
+        "providerAthleteId": "4702177"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 7,
+        "mean": 7.31
+       },
+       "range": {
+        "p10": 2,
+        "p25": 4,
+        "p75": 10,
+        "p90": 14
+       },
+       "playRate": 0.9583,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.87,
+       "minutesSd": 6.72,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 7.31,
+        "expectedMinutes": 21.87,
+        "p90": 14
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 2,
+       "LOW_PLAY_RATE": 14,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "LOW_EXPECTED_MINUTES": 2
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 10,
+       "LOW_PLAY_RATE": 16,
+       "LOW_EXPECTED_MINUTES": 16,
+       "MINUTES_TOO_UNCERTAIN": 13,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8
+      },
+      "players": [
+       {
+        "providerAthleteId": "2530530",
+        "name": "T.J. McConnell",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "2580365",
+        "name": "Larry Nance Jr.",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3150844",
+        "name": "Moritz Wagner",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907823",
+        "name": "Terance Mann",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4017837",
+        "name": "Ivica Zubac",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4065731",
+        "name": "Jay Huff",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278355",
+        "name": "Obi Toppin",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4396909",
+        "name": "Aaron Nesmith",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4396993",
+        "name": "Tyrese Haliburton",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4398207",
+        "name": "Jalen Slawson",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431752",
+        "name": "Kobe Brown",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432194",
+        "name": "Day'Ron Sharpe",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433076",
+        "name": "Ben Sheppard",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4592829",
+        "name": "Quenton Jackson",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4687718",
+        "name": "Josh Minott",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702670",
+        "name": "Grant Nelson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870564",
+        "name": "Joshua Jefferson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5037873",
+        "name": "Drake Powell",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5101761",
+        "name": "Mikel Brown Jr.",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105626",
+        "name": "Tyler Bilodeau",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105854",
+        "name": "Braden Smith",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106060",
+        "name": "Jarace Walker",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5107173",
+        "name": "Danny Wolf",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5157066",
+        "name": "Johnny Furphy",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5174655",
+        "name": "Chaney Johnson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5175643",
+        "name": "Egor Demin",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5242502",
+        "name": "Ben Saraf",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5279130",
+        "name": "Nolan Traore",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebounds": {
+     "category": "rebounds",
+     "label": "Rebounds",
+     "stat": "reb",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-01|v1|e2|rebounds|401909904|3149673",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Pascal Siakam",
+        "providerAthleteId": "3149673"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 6,
+        "mean": 6.58
+       },
+       "range": {
+        "p10": 3,
+        "p25": 4,
+        "p75": 8,
+        "p90": 11
+       },
+       "playRate": 0.977,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.57,
+       "minutesSd": 7.04,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6.58,
+        "expectedMinutes": 32.57,
+        "p90": 11
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-01|v1|e2|rebounds|401909904|4278104",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Michael Porter Jr.",
+        "providerAthleteId": "4278104"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 6,
+        "mean": 6.36
+       },
+       "range": {
+        "p10": 3,
+        "p25": 4,
+        "p75": 8,
+        "p90": 11
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.92,
+       "minutesSd": 7.7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6.36,
+        "expectedMinutes": 29.92,
+        "p90": 11
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-01|v1|e2|rebounds|401909904|3064514",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Julius Randle",
+        "providerAthleteId": "3064514"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 6,
+        "mean": 6.3
+       },
+       "range": {
+        "p10": 3,
+        "p25": 4,
+        "p75": 8,
+        "p90": 10
+       },
+       "playRate": 0.9744,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.24,
+       "minutesSd": 7.79,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6.3,
+        "expectedMinutes": 31.24,
+        "p90": 10
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-01|v1|e2|rebounds|401909904|3133603",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Kelly Oubre Jr.",
+        "providerAthleteId": "3133603"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.39
+       },
+       "range": {
+        "p10": 1,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9756,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.56,
+       "minutesSd": 7.88,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.39,
+        "expectedMinutes": 27.56,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-01|v1|e2|rebounds|401909904|4712896",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Noah Clowney",
+        "providerAthleteId": "4712896"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.45
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 20.84,
+       "minutesSd": 6.69,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.45,
+        "expectedMinutes": 20.84,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-01|v1|e2|rebounds|401909904|4395712",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Andrew Nembhard",
+        "providerAthleteId": "4395712"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.02
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 6
+       },
+       "playRate": 0.9758,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.97,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.02,
+        "expectedMinutes": 31.97,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-01|v1|e2|rebounds|401909904|4702177",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keon Ellis",
+        "providerAthleteId": "4702177"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.2
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9583,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.87,
+       "minutesSd": 6.72,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.2,
+        "expectedMinutes": 21.87,
+        "p90": 4
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 2,
+       "LOW_PLAY_RATE": 14,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "LOW_EXPECTED_MINUTES": 2
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 10,
+       "LOW_PLAY_RATE": 16,
+       "LOW_EXPECTED_MINUTES": 16,
+       "MINUTES_TOO_UNCERTAIN": 13,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8
+      },
+      "players": [
+       {
+        "providerAthleteId": "2530530",
+        "name": "T.J. McConnell",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "2580365",
+        "name": "Larry Nance Jr.",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3150844",
+        "name": "Moritz Wagner",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907823",
+        "name": "Terance Mann",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4017837",
+        "name": "Ivica Zubac",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4065731",
+        "name": "Jay Huff",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278355",
+        "name": "Obi Toppin",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4396909",
+        "name": "Aaron Nesmith",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4396993",
+        "name": "Tyrese Haliburton",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4398207",
+        "name": "Jalen Slawson",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431752",
+        "name": "Kobe Brown",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432194",
+        "name": "Day'Ron Sharpe",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433076",
+        "name": "Ben Sheppard",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4592829",
+        "name": "Quenton Jackson",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4687718",
+        "name": "Josh Minott",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702670",
+        "name": "Grant Nelson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870564",
+        "name": "Joshua Jefferson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5037873",
+        "name": "Drake Powell",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5101761",
+        "name": "Mikel Brown Jr.",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105626",
+        "name": "Tyler Bilodeau",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105854",
+        "name": "Braden Smith",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106060",
+        "name": "Jarace Walker",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5107173",
+        "name": "Danny Wolf",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5157066",
+        "name": "Johnny Furphy",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5174655",
+        "name": "Chaney Johnson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5175643",
+        "name": "Egor Demin",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5242502",
+        "name": "Ben Saraf",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5279130",
+        "name": "Nolan Traore",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "assists": {
+     "category": "assists",
+     "label": "Assists",
+     "stat": "ast",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-01|v1|e2|assists|401909904|4395712",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Andrew Nembhard",
+        "providerAthleteId": "4395712"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 7,
+        "mean": 7.69
+       },
+       "range": {
+        "p10": 4,
+        "p25": 5,
+        "p75": 10,
+        "p90": 12
+       },
+       "playRate": 0.9758,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.97,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 7.69,
+        "expectedMinutes": 31.97,
+        "p90": 12
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-01|v1|e2|assists|401909904|3064514",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Julius Randle",
+        "providerAthleteId": "3064514"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.57
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9744,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.24,
+       "minutesSd": 7.79,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.57,
+        "expectedMinutes": 31.24,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-01|v1|e2|assists|401909904|3149673",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Pascal Siakam",
+        "providerAthleteId": "3149673"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 3.72
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.977,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.57,
+       "minutesSd": 7.04,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.72,
+        "expectedMinutes": 32.57,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-01|v1|e2|assists|401909904|4278104",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Michael Porter Jr.",
+        "providerAthleteId": "4278104"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.57
+       },
+       "range": {
+        "p10": 1,
+        "p25": 1,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.92,
+       "minutesSd": 7.7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.57,
+        "expectedMinutes": 29.92,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-01|v1|e2|assists|401909904|3133603",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Kelly Oubre Jr.",
+        "providerAthleteId": "3133603"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.62
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9756,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.56,
+       "minutesSd": 7.88,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.62,
+        "expectedMinutes": 27.56,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-01|v1|e2|assists|401909904|4702177",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keon Ellis",
+        "providerAthleteId": "4702177"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.44
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9583,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.87,
+       "minutesSd": 6.72,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.44,
+        "expectedMinutes": 21.87,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-01|v1|e2|assists|401909904|4712896",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Noah Clowney",
+        "providerAthleteId": "4712896"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.29
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 20.84,
+       "minutesSd": 6.69,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.29,
+        "expectedMinutes": 20.84,
+        "p90": 3
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 2,
+       "LOW_PLAY_RATE": 14,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "LOW_EXPECTED_MINUTES": 2
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 10,
+       "LOW_PLAY_RATE": 16,
+       "LOW_EXPECTED_MINUTES": 16,
+       "MINUTES_TOO_UNCERTAIN": 13,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8
+      },
+      "players": [
+       {
+        "providerAthleteId": "2530530",
+        "name": "T.J. McConnell",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "2580365",
+        "name": "Larry Nance Jr.",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3150844",
+        "name": "Moritz Wagner",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907823",
+        "name": "Terance Mann",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4017837",
+        "name": "Ivica Zubac",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4065731",
+        "name": "Jay Huff",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278355",
+        "name": "Obi Toppin",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4396909",
+        "name": "Aaron Nesmith",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4396993",
+        "name": "Tyrese Haliburton",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4398207",
+        "name": "Jalen Slawson",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431752",
+        "name": "Kobe Brown",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432194",
+        "name": "Day'Ron Sharpe",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433076",
+        "name": "Ben Sheppard",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4592829",
+        "name": "Quenton Jackson",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4687718",
+        "name": "Josh Minott",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702670",
+        "name": "Grant Nelson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870564",
+        "name": "Joshua Jefferson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5037873",
+        "name": "Drake Powell",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5101761",
+        "name": "Mikel Brown Jr.",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105626",
+        "name": "Tyler Bilodeau",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105854",
+        "name": "Braden Smith",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106060",
+        "name": "Jarace Walker",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5107173",
+        "name": "Danny Wolf",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5157066",
+        "name": "Johnny Furphy",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5174655",
+        "name": "Chaney Johnson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5175643",
+        "name": "Egor Demin",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5242502",
+        "name": "Ben Saraf",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5279130",
+        "name": "Nolan Traore",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "threes": {
+     "category": "threes",
+     "label": "3PM",
+     "stat": "threePm",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-01|v1|e2|threes|401909904|4278104",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Michael Porter Jr.",
+        "providerAthleteId": "4278104"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 2.98
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.92,
+       "minutesSd": 7.7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.98,
+        "expectedMinutes": 29.92,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-01|v1|e2|threes|401909904|4395712",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Andrew Nembhard",
+        "providerAthleteId": "4395712"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.93
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9758,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.97,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.93,
+        "expectedMinutes": 31.97,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-01|v1|e2|threes|401909904|3149673",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Pascal Siakam",
+        "providerAthleteId": "3149673"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.62
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.977,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.57,
+       "minutesSd": 7.04,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.62,
+        "expectedMinutes": 32.57,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-01|v1|e2|threes|401909904|3133603",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Kelly Oubre Jr.",
+        "providerAthleteId": "3133603"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.46
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9756,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.56,
+       "minutesSd": 7.88,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.46,
+        "expectedMinutes": 27.56,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-01|v1|e2|threes|401909904|4712896",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Noah Clowney",
+        "providerAthleteId": "4712896"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.42
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 20.84,
+       "minutesSd": 6.69,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.42,
+        "expectedMinutes": 20.84,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-01|v1|e2|threes|401909904|3064514",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Julius Randle",
+        "providerAthleteId": "3064514"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.36
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9744,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.24,
+       "minutesSd": 7.79,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.36,
+        "expectedMinutes": 31.24,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-01|v1|e2|threes|401909904|4702177",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keon Ellis",
+        "providerAthleteId": "4702177"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.26
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9583,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.87,
+       "minutesSd": 6.72,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.26,
+        "expectedMinutes": 21.87,
+        "p90": 3
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 2,
+       "LOW_PLAY_RATE": 14,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "LOW_EXPECTED_MINUTES": 2
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 10,
+       "LOW_PLAY_RATE": 16,
+       "LOW_EXPECTED_MINUTES": 16,
+       "MINUTES_TOO_UNCERTAIN": 13,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8
+      },
+      "players": [
+       {
+        "providerAthleteId": "2530530",
+        "name": "T.J. McConnell",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "2580365",
+        "name": "Larry Nance Jr.",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3150844",
+        "name": "Moritz Wagner",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907823",
+        "name": "Terance Mann",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4017837",
+        "name": "Ivica Zubac",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4065731",
+        "name": "Jay Huff",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278355",
+        "name": "Obi Toppin",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4396909",
+        "name": "Aaron Nesmith",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4396993",
+        "name": "Tyrese Haliburton",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4398207",
+        "name": "Jalen Slawson",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431752",
+        "name": "Kobe Brown",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432194",
+        "name": "Day'Ron Sharpe",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433076",
+        "name": "Ben Sheppard",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4592829",
+        "name": "Quenton Jackson",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4687718",
+        "name": "Josh Minott",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702670",
+        "name": "Grant Nelson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870564",
+        "name": "Joshua Jefferson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5037873",
+        "name": "Drake Powell",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5101761",
+        "name": "Mikel Brown Jr.",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105626",
+        "name": "Tyler Bilodeau",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105854",
+        "name": "Braden Smith",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106060",
+        "name": "Jarace Walker",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5107173",
+        "name": "Danny Wolf",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5157066",
+        "name": "Johnny Furphy",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5174655",
+        "name": "Chaney Johnson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5175643",
+        "name": "Egor Demin",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5242502",
+        "name": "Ben Saraf",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5279130",
+        "name": "Nolan Traore",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "pra": {
+     "category": "pra",
+     "label": "PRA",
+     "stat": "pra",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-01|v1|e2|pra|401909904|3149673",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Pascal Siakam",
+        "providerAthleteId": "3149673"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 33,
+        "mean": 33.25
+       },
+       "range": {
+        "p10": 21,
+        "p25": 26,
+        "p75": 40,
+        "p90": 47
+       },
+       "playRate": 0.977,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.57,
+       "minutesSd": 7.04,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 33.25,
+        "expectedMinutes": 32.57,
+        "p90": 47
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-01|v1|e2|pra|401909904|3064514",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Julius Randle",
+        "providerAthleteId": "3064514"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 30,
+        "mean": 30.26
+       },
+       "range": {
+        "p10": 17,
+        "p25": 23,
+        "p75": 37,
+        "p90": 44
+       },
+       "playRate": 0.9744,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.24,
+       "minutesSd": 7.79,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 30.26,
+        "expectedMinutes": 31.24,
+        "p90": 44
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-01|v1|e2|pra|401909904|4278104",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Michael Porter Jr.",
+        "providerAthleteId": "4278104"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 29,
+        "mean": 30.12
+       },
+       "range": {
+        "p10": 17,
+        "p25": 23,
+        "p75": 37,
+        "p90": 44
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.92,
+       "minutesSd": 7.7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 30.12,
+        "expectedMinutes": 29.92,
+        "p90": 44
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-01|v1|e2|pra|401909904|4395712",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Andrew Nembhard",
+        "providerAthleteId": "4395712"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 27,
+        "mean": 27.67
+       },
+       "range": {
+        "p10": 16,
+        "p25": 21,
+        "p75": 34,
+        "p90": 40
+       },
+       "playRate": 0.9758,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.97,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 27.67,
+        "expectedMinutes": 31.97,
+        "p90": 40
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-01|v1|e2|pra|401909904|3133603",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Kelly Oubre Jr.",
+        "providerAthleteId": "3133603"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.44
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 23,
+        "p90": 29
+       },
+       "playRate": 0.9756,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.56,
+       "minutesSd": 7.88,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.44,
+        "expectedMinutes": 27.56,
+        "p90": 29
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-01|v1|e2|pra|401909904|4712896",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Noah Clowney",
+        "providerAthleteId": "4712896"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 13,
+        "mean": 13.95
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 18,
+        "p90": 23
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 20.84,
+       "minutesSd": 6.69,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.95,
+        "expectedMinutes": 20.84,
+        "p90": 23
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-01|v1|e2|pra|401909904|4702177",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keon Ellis",
+        "providerAthleteId": "4702177"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 10,
+        "mean": 10.95
+       },
+       "range": {
+        "p10": 4,
+        "p25": 7,
+        "p75": 14,
+        "p90": 19
+       },
+       "playRate": 0.9583,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.87,
+       "minutesSd": 6.72,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 10.95,
+        "expectedMinutes": 21.87,
+        "p90": 19
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 2,
+       "LOW_PLAY_RATE": 14,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "LOW_EXPECTED_MINUTES": 2
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 10,
+       "LOW_PLAY_RATE": 16,
+       "LOW_EXPECTED_MINUTES": 16,
+       "MINUTES_TOO_UNCERTAIN": 13,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8
+      },
+      "players": [
+       {
+        "providerAthleteId": "2530530",
+        "name": "T.J. McConnell",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "2580365",
+        "name": "Larry Nance Jr.",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3150844",
+        "name": "Moritz Wagner",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907823",
+        "name": "Terance Mann",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4017837",
+        "name": "Ivica Zubac",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4065731",
+        "name": "Jay Huff",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278355",
+        "name": "Obi Toppin",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4396909",
+        "name": "Aaron Nesmith",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4396993",
+        "name": "Tyrese Haliburton",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4398207",
+        "name": "Jalen Slawson",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431752",
+        "name": "Kobe Brown",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432194",
+        "name": "Day'Ron Sharpe",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433076",
+        "name": "Ben Sheppard",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4592829",
+        "name": "Quenton Jackson",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4687718",
+        "name": "Josh Minott",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702670",
+        "name": "Grant Nelson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870564",
+        "name": "Joshua Jefferson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5037873",
+        "name": "Drake Powell",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5101761",
+        "name": "Mikel Brown Jr.",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105626",
+        "name": "Tyler Bilodeau",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105854",
+        "name": "Braden Smith",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106060",
+        "name": "Jarace Walker",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5107173",
+        "name": "Danny Wolf",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5157066",
+        "name": "Johnny Furphy",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5174655",
+        "name": "Chaney Johnson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5175643",
+        "name": "Egor Demin",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5242502",
+        "name": "Ben Saraf",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5279130",
+        "name": "Nolan Traore",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsReb": {
+     "category": "ptsReb",
+     "label": "P+R",
+     "stat": "ptsReb",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-01|v1|e2|ptsReb|401909904|3149673",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Pascal Siakam",
+        "providerAthleteId": "3149673"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 29,
+        "mean": 29.53
+       },
+       "range": {
+        "p10": 18,
+        "p25": 23,
+        "p75": 36,
+        "p90": 42
+       },
+       "playRate": 0.977,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.57,
+       "minutesSd": 7.04,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 29.53,
+        "expectedMinutes": 32.57,
+        "p90": 42
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-01|v1|e2|ptsReb|401909904|4278104",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Michael Porter Jr.",
+        "providerAthleteId": "4278104"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 27,
+        "mean": 27.55
+       },
+       "range": {
+        "p10": 16,
+        "p25": 21,
+        "p75": 34,
+        "p90": 40
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.92,
+       "minutesSd": 7.7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 27.55,
+        "expectedMinutes": 29.92,
+        "p90": 40
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-01|v1|e2|ptsReb|401909904|3064514",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Julius Randle",
+        "providerAthleteId": "3064514"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 25,
+        "mean": 25.69
+       },
+       "range": {
+        "p10": 14,
+        "p25": 19,
+        "p75": 32,
+        "p90": 38
+       },
+       "playRate": 0.9744,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.24,
+       "minutesSd": 7.79,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 25.69,
+        "expectedMinutes": 31.24,
+        "p90": 38
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-01|v1|e2|ptsReb|401909904|4395712",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Andrew Nembhard",
+        "providerAthleteId": "4395712"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.97
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 25,
+        "p90": 30
+       },
+       "playRate": 0.9758,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.97,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.97,
+        "expectedMinutes": 31.97,
+        "p90": 30
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-01|v1|e2|ptsReb|401909904|3133603",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Kelly Oubre Jr.",
+        "providerAthleteId": "3133603"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.82
+       },
+       "range": {
+        "p10": 8,
+        "p25": 12,
+        "p75": 21,
+        "p90": 27
+       },
+       "playRate": 0.9756,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.56,
+       "minutesSd": 7.88,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.82,
+        "expectedMinutes": 27.56,
+        "p90": 27
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-01|v1|e2|ptsReb|401909904|4712896",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Noah Clowney",
+        "providerAthleteId": "4712896"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 12,
+        "mean": 12.66
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 17,
+        "p90": 21
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 20.84,
+       "minutesSd": 6.69,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 12.66,
+        "expectedMinutes": 20.84,
+        "p90": 21
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-01|v1|e2|ptsReb|401909904|4702177",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keon Ellis",
+        "providerAthleteId": "4702177"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 9,
+        "mean": 9.51
+       },
+       "range": {
+        "p10": 3,
+        "p25": 6,
+        "p75": 13,
+        "p90": 17
+       },
+       "playRate": 0.9583,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.87,
+       "minutesSd": 6.72,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 9.51,
+        "expectedMinutes": 21.87,
+        "p90": 17
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 2,
+       "LOW_PLAY_RATE": 14,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "LOW_EXPECTED_MINUTES": 2
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 10,
+       "LOW_PLAY_RATE": 16,
+       "LOW_EXPECTED_MINUTES": 16,
+       "MINUTES_TOO_UNCERTAIN": 13,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8
+      },
+      "players": [
+       {
+        "providerAthleteId": "2530530",
+        "name": "T.J. McConnell",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "2580365",
+        "name": "Larry Nance Jr.",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3150844",
+        "name": "Moritz Wagner",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907823",
+        "name": "Terance Mann",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4017837",
+        "name": "Ivica Zubac",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4065731",
+        "name": "Jay Huff",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278355",
+        "name": "Obi Toppin",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4396909",
+        "name": "Aaron Nesmith",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4396993",
+        "name": "Tyrese Haliburton",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4398207",
+        "name": "Jalen Slawson",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431752",
+        "name": "Kobe Brown",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432194",
+        "name": "Day'Ron Sharpe",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433076",
+        "name": "Ben Sheppard",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4592829",
+        "name": "Quenton Jackson",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4687718",
+        "name": "Josh Minott",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702670",
+        "name": "Grant Nelson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870564",
+        "name": "Joshua Jefferson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5037873",
+        "name": "Drake Powell",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5101761",
+        "name": "Mikel Brown Jr.",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105626",
+        "name": "Tyler Bilodeau",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105854",
+        "name": "Braden Smith",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106060",
+        "name": "Jarace Walker",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5107173",
+        "name": "Danny Wolf",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5157066",
+        "name": "Johnny Furphy",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5174655",
+        "name": "Chaney Johnson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5175643",
+        "name": "Egor Demin",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5242502",
+        "name": "Ben Saraf",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5279130",
+        "name": "Nolan Traore",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsAst": {
+     "category": "ptsAst",
+     "label": "P+A",
+     "stat": "ptsAst",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-01|v1|e2|ptsAst|401909904|3149673",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Pascal Siakam",
+        "providerAthleteId": "3149673"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 26,
+        "mean": 26.67
+       },
+       "range": {
+        "p10": 16,
+        "p25": 20,
+        "p75": 32,
+        "p90": 38
+       },
+       "playRate": 0.977,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.57,
+       "minutesSd": 7.04,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 26.67,
+        "expectedMinutes": 32.57,
+        "p90": 38
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-01|v1|e2|ptsAst|401909904|4395712",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Andrew Nembhard",
+        "providerAthleteId": "4395712"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 24,
+        "mean": 24.65
+       },
+       "range": {
+        "p10": 14,
+        "p25": 19,
+        "p75": 30,
+        "p90": 36
+       },
+       "playRate": 0.9758,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.97,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 24.65,
+        "expectedMinutes": 31.97,
+        "p90": 36
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-01|v1|e2|ptsAst|401909904|3064514",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Julius Randle",
+        "providerAthleteId": "3064514"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 23,
+        "mean": 23.96
+       },
+       "range": {
+        "p10": 13,
+        "p25": 18,
+        "p75": 30,
+        "p90": 36
+       },
+       "playRate": 0.9744,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.24,
+       "minutesSd": 7.79,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 23.96,
+        "expectedMinutes": 31.24,
+        "p90": 36
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-01|v1|e2|ptsAst|401909904|4278104",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Michael Porter Jr.",
+        "providerAthleteId": "4278104"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 23,
+        "mean": 23.76
+       },
+       "range": {
+        "p10": 13,
+        "p25": 17,
+        "p75": 29,
+        "p90": 35
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.92,
+       "minutesSd": 7.7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 23.76,
+        "expectedMinutes": 29.92,
+        "p90": 35
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-01|v1|e2|ptsAst|401909904|3133603",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Kelly Oubre Jr.",
+        "providerAthleteId": "3133603"
+       },
+       "team": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 13,
+        "mean": 14.05
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 18,
+        "p90": 23
+       },
+       "playRate": 0.9756,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.56,
+       "minutesSd": 7.88,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.05,
+        "expectedMinutes": 27.56,
+        "p90": 23
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-01|v1|e2|ptsAst|401909904|4712896",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Noah Clowney",
+        "providerAthleteId": "4712896"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 10,
+        "mean": 10.49
+       },
+       "range": {
+        "p10": 4,
+        "p25": 6,
+        "p75": 14,
+        "p90": 18
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 20.84,
+       "minutesSd": 6.69,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 10.49,
+        "expectedMinutes": 20.84,
+        "p90": 18
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-01|v1|e2|ptsAst|401909904|4702177",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Keon Ellis",
+        "providerAthleteId": "4702177"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Indiana Pacers",
+        "abbr": "IND",
+        "espnAbbr": "IND",
+        "providerTeamId": "11"
+       },
+       "homeAway": "away",
+       "eventId": "401909904",
+       "tipoffUtc": "2026-11-01T22:00Z",
+       "projection": {
+        "p50": 8,
+        "mean": 8.75
+       },
+       "range": {
+        "p10": 3,
+        "p25": 5,
+        "p75": 12,
+        "p90": 16
+       },
+       "playRate": 0.9583,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 21.87,
+       "minutesSd": 6.72,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-01T14:06:49Z",
+        "generatedAt": "2026-11-01T14:06:49Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "2e2c19ef1d86922e7d23a586680ff5b8ecfe506f86f7fb63441c9f4494d78199",
+        "gamePayloadSha256": "7bd3f807578d0c7905f63e59a5ca44dc2b174f06cd10ca622774166c72b8c1fd"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 8.75,
+        "expectedMinutes": 21.87,
+        "p90": 16
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 28,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 2,
+       "LOW_PLAY_RATE": 14,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "LOW_EXPECTED_MINUTES": 2
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 10,
+       "LOW_PLAY_RATE": 16,
+       "LOW_EXPECTED_MINUTES": 16,
+       "MINUTES_TOO_UNCERTAIN": 13,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 8,
+       "NULL_MINUTES": 8,
+       "TEAM_POOL_FALLBACK_RATES": 8,
+       "MISSING_DISTRIBUTION": 8
+      },
+      "players": [
+       {
+        "providerAthleteId": "2530530",
+        "name": "T.J. McConnell",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "2580365",
+        "name": "Larry Nance Jr.",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3150844",
+        "name": "Moritz Wagner",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907823",
+        "name": "Terance Mann",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4017837",
+        "name": "Ivica Zubac",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4065731",
+        "name": "Jay Huff",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278355",
+        "name": "Obi Toppin",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4396909",
+        "name": "Aaron Nesmith",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4396993",
+        "name": "Tyrese Haliburton",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4398207",
+        "name": "Jalen Slawson",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431752",
+        "name": "Kobe Brown",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432194",
+        "name": "Day'Ron Sharpe",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4433076",
+        "name": "Ben Sheppard",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4592829",
+        "name": "Quenton Jackson",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4687718",
+        "name": "Josh Minott",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702670",
+        "name": "Grant Nelson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870564",
+        "name": "Joshua Jefferson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5037873",
+        "name": "Drake Powell",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5101761",
+        "name": "Mikel Brown Jr.",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105626",
+        "name": "Tyler Bilodeau",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105854",
+        "name": "Braden Smith",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106060",
+        "name": "Jarace Walker",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5107173",
+        "name": "Danny Wolf",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5157066",
+        "name": "Johnny Furphy",
+        "team": "IND",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5174655",
+        "name": "Chaney Johnson",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5175643",
+        "name": "Egor Demin",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5242502",
+        "name": "Ben Saraf",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5279130",
+        "name": "Nolan Traore",
+        "team": "BKN",
+        "eventId": "401909904",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebAst": {
+     "category": "rebAst",
+     "label": "R+A",
+     "stat": null,
+     "marketBasis": "NOT_MODELLED",
+     "basisText": "not modelled — no family simulates it jointly, and adding marginal projections is not its distribution",
+     "components": [
+      "reb",
+      "ast"
+     ],
+     "state": "NOT_MODELLED",
+     "rankingMetric": null,
+     "rows": [],
+     "eligibleCount": 0,
+     "shownCount": 0,
+     "withheld": {
+      "count": 0,
+      "byPrimaryReason": {},
+      "byReason": {},
+      "players": []
+     },
+     "emptyReason": "R+A is not modelled: no forecast family simulates reb + ast jointly, and adding marginal projections is not its distribution — it is never computed"
+    }
+   }
   }
  ]
 }
