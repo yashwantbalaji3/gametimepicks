@@ -884,6 +884,7 @@
   /** The coming Sunday's NFL posts. Eastern dates, so the clock change never moves a game to another day. */
   function isNflSunday(p) {
     if (p.package.sport !== "NFL" || !p.package.imported || !["NFL_GAME_POST", "NFL_SUNDAY_WINNERS", "NFL_WEEKLY_TOP5"].includes(p.package.imported.contentType)) return false;
+    if (["top5_receptions", "top5_reception_yds"].includes(p.package.imported.variant) && (ui.state?.posts ?? []).some((q) => q.package?.imported?.variant === "top5_rec_pair" && q.package.date === p.package.date)) return false;
     const t = Date.parse(p.package.tipUtc ?? ""), d = new Date(t);
     return Number.isFinite(t) && t > Date.now() - 864e5 && d.toLocaleDateString("en-US", { weekday: "long", timeZone: "America/New_York" }) === "Sunday";
   }
