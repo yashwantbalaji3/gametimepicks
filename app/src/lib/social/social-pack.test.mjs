@@ -468,7 +468,7 @@ test("NFL_GAME_POST: winner card then Top 3 TD card, no props graphic; no captur
 });
 
 test("NFL Sunday Top 5: four posts, receiving pair has two images, no MNF or TNF row", () => {
-  const { posts } = prepareNflSundayTop5({ week: 8, asOf: "2026-11-01T14:30:00Z" });
+  const { posts } = prepareNflSundayTop5({ week: 8, asOf: "2026-11-01T17:00:00Z" });
   assert.deepEqual(posts.map((p) => p.variant), ["top5_anytime_td", "top5_rec_pair", "top5_rush_yds", "top5_pass_yds"]);
   assert.equal(posts[1].cards.length, 2);
   for (const r of posts.flatMap((p) => p.content.rows ?? p.content.parts.flatMap((x) => x.rows))) assert.equal(new Date(r.kickoffUtc.replace(/Z$/, ":00Z")).toLocaleDateString("en-US", { timeZone: "America/New_York", weekday: "short" }), "Sun");
@@ -545,7 +545,7 @@ function week8Captures(asOf) {
   return { offers, moneylines: [], refs: [{ ref: "gtp-private/odds/nfl/x/capture-1.json", sha256: "0".repeat(64) }] };
 }
 test("NFL Sunday Top 5 with synthetic captures: explicit side, MODEL PROJECTION replaces est., Yes on TD, gaps in metadata", () => {
-  const asOf = "2026-11-01T14:30:00Z";
+  const asOf = "2026-11-01T17:00:00Z";
   const { posts } = prepareNflSundayTop5({ week: 8, asOf, captures: week8Captures(asOf) });
   const vis = (h) => visibleText(h.replace(/<(style|script)>[\s\S]*?<\/\1>/g, " "));
   const pass = posts.find((p) => p.variant === "top5_pass_yds");
@@ -570,7 +570,7 @@ test("NFL Sunday Top 5 with synthetic captures: explicit side, MODEL PROJECTION 
   assert.deepEqual(pair.cards.flatMap((c) => statLabelProblems(visibleText(c.html))), []);
 });
 test("NFL Sunday Top 5 with no capture: projection only, every row flagged, no window change", () => {
-  const { posts } = prepareNflSundayTop5({ week: 8, asOf: "2026-11-01T14:30:00Z" });
+  const { posts } = prepareNflSundayTop5({ week: 8, asOf: "2026-11-01T17:00:00Z" });
   const p = posts.find((x) => x.variant === "top5_rush_yds");
   assert.equal(p.containsMarketData, false);
   assert.deepEqual(p.content.gaps, ["NO_COMPARISON_ROWS_5"]);
