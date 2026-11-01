@@ -441,21 +441,25 @@ test("NFL weekly Top 5: pass and rush render as labelled estimates; validation i
   }
 });
 
-test("NFL_GAME_POST: exactly 2 images, TD only on the first; no capture means no price and a reported gap", () => {
+test("NFL_GAME_POST: winner card then Top 3 TD card, no props graphic; no capture means no price and a reported gap", () => {
   const { posts } = prepareNflGamePosts({ week: 8, asOf: "2026-10-31T07:30:00Z" });
   assert.ok(posts.length);
+  const visible = (h) => h.replace(/<(style|script)>[\s\S]*?<\/\1>/g, "");
   for (const p of posts) {
     assert.equal(p.variant, p.eventId);
     assert.equal(p.cards.length, 2);
-    assert.equal(p.content.imageTypes[0], "WINNER_TD_NO_PRICE");
+    assert.deepEqual(p.content.imageTypes, ["WINNER_NO_PRICE", "TOP_TD"]);
     assert.ok(p.content.gaps.includes("NO_WINNER_PRICE"));
-    assert.ok(p.content.tdCandidates.length <= 3);
-    assert.ok(/TOP \d ANYTIME TD PROBABILITIES/.test(p.cards[0].html));
-    assert.ok(!/anytime|TD CHANCE/i.test(p.cards[1].html.replace(/<style>[\s\S]*?<\/style>/g, "")));
-    assert.ok(!/class="[^"]*\b(over|under)\b/.test(p.cards[1].html.replace(/<style>[\s\S]*?<\/style>/g, "")), "no direction colour");
+    const td = p.content.tdCandidates;
+    assert.ok(td.length >= 1 && td.length <= 3);
+    assert.deepEqual(td.map((r) => r.value), td.map((r) => r.value).sort((a, b) => b - a));
+    assert.ok(!/anytime|class="tdr"/i.test(visible(p.cards[0].html)));
+    assert.ok(visible(p.cards[1].html).includes(`Top ${td.length} Anytime TD Candidates`));
+    for (const r of td) { assert.ok(p.cards[1].html.includes(r.name)); assert.ok(p.cards[1].html.includes(r.pct)); assert.ok(p.cards[1].html.includes(`>${r.teamAbbr}<`)); }
+    assert.ok(!/\b(over|under|pass yds|rush yds|rec yds)\b/i.test(visible(p.cards[1].html)));
     const { caption, claims } = approvedCaption(p);
-    assert.match(caption, /Full predictions below 👇\n\n#NFL$/);
-    assert.ok(!/not betting advice/i.test(caption));
+    const g = p.captionGame;
+    assert.equal(caption, `🏈 ${g.awayName} vs ${g.homeName}!\n\n🎯 Our model predicts ${g.winnerName} to win (${g.winnerPct}).\n\n🔥 Top ${td.length} Anytime TD candidates:\n${td.map((x, i) => `${i + 1}. ${x.name}: ${x.pct}`).join("\n")}\n\nEarly pregame snapshot\n\nFull predictions below 👇\n\n#NFL`);
     assert.deepEqual(ccCaptionProblems(caption, [...claims, ...p.extraClaims]), []);
   }
 });

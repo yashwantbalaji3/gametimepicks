@@ -22,6 +22,7 @@ const T = path.join(HERE, "templates", "social-v2");
 export const DESIGN_VERSION = "2";
 export const SOCIAL_HANDLE = "@GameTimePicksHQ";
 export const GAME_POST_DESIGN_VERSION = "3";
+export const NFL_GAME_POST_DESIGN_VERSION = "4";
 /** Every card's footer: the handle line, then `lines` in order. Restoring a line is one more string here. */
 export const CARD_FOOTER = Object.freeze({ handle: SOCIAL_HANDLE, lines: Object.freeze(["Model projections · Not betting advice"]) });
 export const DISCLOSURE = CARD_FOOTER.lines[0];
@@ -59,6 +60,8 @@ const EXTRA = `
 .rc.rx.d{margin-top:10px;gap:6px}.rc.rx.d .rxr{grid-template-columns:186px 1fr 170px;gap:10px;padding:0 16px 0 10px;border-left-width:10px}.rc.rx.d .ic{flex-direction:row;gap:8px;justify-content:flex-start}.rc.rx.d .ic svg{width:34px;height:34px}.rc.rx.d .ic span{font-size:25px}.rc.rx.d .s{font-size:43px}.rc.rx.d .pd{display:flex;align-items:baseline;justify-content:flex-end;gap:8px}.rc.rx.d .pd i{font-size:16px;letter-spacing:1px}.rc.rx.d .pd span{margin-top:0;font-size:38px}
 .gph{flex:1;min-height:0;display:flex;flex-direction:column}.gph .winner2{margin:6px 0 0;flex:none}.gph .winner2 .k{font-size:26px}.gph .winner2 .slab{margin-top:8px;padding:8px 44px 6px}.gph .winner2 .slab .nick{font-size:80px}.gph .meter{margin-top:10px;padding:12px 22px 14px}.gph .meter-k{font-size:22px}.gph .meter-labels{margin-top:6px}.gph .ml b{font-size:66px}.gph .ml span{font-size:23px}.gph .meter-bar{margin-top:8px;height:26px}.gph .strip{flex:none;margin-top:10px}.gph .strip div{padding:11px 8px 8px}.gph .strip b{font-size:32px}.gph .strip .pv{color:#F2C14E}
 .tdb{flex:1;min-height:0;margin-top:10px;display:flex;flex-direction:column;gap:6px}.tdh{flex:none;text-align:center;font:800 27px/1 var(--display);letter-spacing:3px;color:#39FF88}.tdr{flex:1;min-height:0;max-height:132px;display:grid;grid-template-columns:44px 1fr 92px 120px;align-items:center;gap:10px;padding:0 18px;border-radius:12px;background:rgba(5,8,6,.78);border:1px solid rgba(255,255,255,.16);border-left:8px solid var(--c)}.tdr .n{font:900 32px/1 var(--headline);color:rgba(247,247,242,.72)}.tdr .pn2{display:block;font:800 36px/1.05 var(--headline);text-transform:uppercase;white-space:nowrap;overflow:hidden;min-width:0}.tdr .tag{position:static;align-self:center;justify-self:center;margin:0;font:900 26px/1 var(--headline);padding:6px 8px 4px;border-radius:7px;background:var(--c);color:var(--cink)}.tdr .pc{font:900 46px/1 var(--headline);text-align:right;color:#39FF88}
+.gph.solo{justify-content:center;gap:34px}.gph.solo .winner2 .slab .nick{font-size:104px}.gph.solo .meter{margin-top:0}
+.tdb.solo{margin-top:34px;gap:20px;justify-content:center}.tdb.solo .tdh{margin-bottom:8px}.tdb.solo .tdr{flex:none;height:190px;max-height:none;grid-template-columns:56px 1fr 112px 170px;gap:14px;padding:0 24px}.tdb.solo .tdr .n{font-size:50px}.tdb.solo .tdr .pn2{font-size:50px}.tdb.solo .tdr .tag{font-size:34px}.tdb.solo .tdr .pc{font-size:66px}
 .estl{margin-top:8px;text-align:center;font:800 24px/1.1 var(--display);letter-spacing:1px;color:#F2C14E}
 .tn.dense{gap:4px;margin-top:8px}.tn.dense .tnr .tm{font-size:28px}.tn.dense .tnr .p{font-size:24px}.tn.dense .tnr .wn{font-size:24px;padding:4px 2px 2px}.tn.dense .tnr .bar{height:18px}
 .tn.dense .tnr,.tn.dense .tnh{grid-template-columns:128px 66px 76px 1fr 76px 66px 88px}
@@ -134,16 +137,22 @@ ${g.market ? `<div class="mkp"><div class="mk">Price</div>${cell(cells, "market.
 }
 
 /** Image 1 of an NFL game post: predicted side, official chances, kickoff, the side's price, then the top anytime TD chances. */
-export function nflHeroCard(g, { td = [], disclosure = NFL_DISCLOSURE } = {}) {
+export function nflHeroCard(g, { disclosure = NFL_DISCLOSURE } = {}) {
   const cells = {};
   const [ca, cb] = meterColours(g.away, g.home);
   const total = g.awayP + g.homeP;
-  const tdHtml = td.length ? `<div class="tdb"><div class="tdh">TOP ${td.length} ANYTIME TD PROBABILITIES</div>${td.map((r) => `<div class="tdr" style="--c:${r.team.color};--cink:${r.team.ink}"><span class="n">${r.rank}</span><span class="pn2" data-fit>${cell(cells, `td.${r.key}.name`, r.name)}</span><span class="tag">${esc(r.team.abbr)}</span>${cell(cells, `td.${r.key}.pct`, r.pct, "pc")}</div>`).join("")}</div>` : "";
-  const body = `<div class="kicker">GameTimePicks Prediction</div><div class="gph"><div class="winner2"><div class="k">Predicted Winner</div>${slab(g.winner)}</div>
+  const body = `<div class="kicker">GameTimePicks Prediction</div><div class="gph solo"><div class="winner2"><div class="k">Predicted Winner</div>${slab(g.winner)}</div>
 <div class="meter" data-meter="official"><div class="meter-k">Official win chance</div><div class="meter-labels"><div class="ml l">${bcell(cells, "away.pct", `${g.awayPct}%`)}<span data-fit>${esc(g.away.name)}</span></div><div class="ml r">${bcell(cells, "home.pct", `${g.homePct}%`)}<span data-fit>${esc(g.home.name)}</span></div></div>
 <div class="meter-bar"><i class="seg away" data-share="${g.awayP}" style="width:${((100 * g.awayP) / total).toFixed(3)}%;--c:${ca}"></i><i class="seg home" data-share="${g.homeP}" style="width:${((100 * g.homeP) / total).toFixed(3)}%;--c:${cb}"></i></div></div>
-<div class="strip"><div>${bcell(cells, "day", g.tipDay, "data-fit")}<span>Kickoff</span></div><div>${bcell(cells, "time", g.kickoffText, "data-fit")}<span>Eastern</span></div>${g.market ? `<div>${bcell(cells, "market.price", `${g.market.sideAbbr} ${g.market.priceText}`, 'class="pv" data-fit')}<span>Price</span></div>` : ""}</div>${tdHtml}</div>`;
+<div class="strip"><div>${bcell(cells, "day", g.tipDay, "data-fit")}<span>Kickoff</span></div><div>${bcell(cells, "time", g.kickoffText, "data-fit")}<span>Eastern</span></div>${g.market ? `<div>${bcell(cells, "market.price", `${g.market.sideAbbr} ${g.market.priceText}`, 'class="pv" data-fit')}<span>Price</span></div>` : ""}</div></div>`;
   return { html: shell({ away: g.away, home: g.home, chip: g.chip, body, disclosure }), cells, v2: true, disclosure };
+}
+
+/** Ranked anytime TD card: rank, name, team, probability. `rows` is one to three players already cleared for availability. */
+export function nflTdCard({ away, home, chip, rows, disclosure = NFL_DISCLOSURE }) {
+  const cells = {};
+  const body = `<div class="kicker">Top ${rows.length} Anytime TD Candidates</div><div class="tdb solo"><div class="tdh">MODEL TOUCHDOWN PROBABILITY</div>${rows.map((r) => `<div class="tdr" style="--c:${r.team.color};--cink:${r.team.ink}"><span class="n">${r.rank}</span><span class="pn2" data-fit>${cell(cells, `td.${r.key}.name`, r.name)}</span><span class="tag">${esc(r.team.abbr)}</span>${cell(cells, `td.${r.key}.pct`, r.pct, "pc")}</div>`).join("")}</div>`;
+  return { html: shell({ away, home, chip, body, disclosure }), cells, v2: true, disclosure };
 }
 
 /** A: one card, every game of the slate. */

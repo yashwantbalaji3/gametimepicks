@@ -40,20 +40,13 @@ const recap = (p) => {
   return { claims, caption: blocks(`${nfl ? "🏈 NFL" : "🏀 NBA"} Results, ${when} 📊`, `✅ ${plural(c.correct, "predicted winner")} correct\n❌ ${plural(c.missed, "prediction")} missed`, "We track every prediction, every win and every miss.", "On to the next slate! 🔥", nfl ? "#NFL" : "#NBA") };
 };
 
-const NOTE_UNIT = Object.freeze({ player_pass_yds: "pass yds", player_rush_yds: "rush yds", player_reception_yds: "rec yds", player_receptions: "rec" });
-/** Founder order: matchup, winner, TD top 3, notable projections, then the close. Notables drop from the end to fit the caption limit. */
-function nflGamePostCaption(p, word, claim) {
-  const g = p.captionGame; const c = p.content;
-  const td = c.tdCandidates ?? [];
-  const seen = new Set();
-  const notable = (c.propRows ?? []).filter((r) => r.market !== "player_receptions" && !seen.has(r.market) && seen.add(r.market));
-  const claims = (rows) => [...td.map((x) => claim(`td.${x.playerId}`, x.pct)), ...(td.length ? [claim("tdTop", td.length)] : []), ...rows.map((r) => claim(`note.${r.playerId}.${r.market}`, r.projection))];
-  const text = (rows) => blocks(`🏈 ${g.awayName} vs ${g.homeName} ${word}!`, verdict(g), ...(td.length ? [[`Top ${td.length} TD probabilities:`, ...td.map((x) => `🔥 ${x.name}: ${x.pct}`)].join("\n")] : []), ...(rows.length ? [rows.map((r) => `📊 ${r.name}: ${r.projection} ${NOTE_UNIT[r.market]}`).join("\n")] : []), "Full predictions below 👇", "#NFL");
-  for (let n = notable.length; n >= 0; n -= 1) {
-    const rows = notable.slice(0, n);
-    if (xWeighted(text(rows)) <= CC_MAX_CAPTION) return { caption: text(rows), claims: claims(rows) };
-  }
-  throw new Error(`${p.title}: caption over the limit`);
+/** Founder template, 2026-11-01: matchup, winner with chance, ranked TD list, snapshot line, close. */
+function nflGamePostCaption(p, claim) {
+  const g = p.captionGame; const td = p.content.tdCandidates;
+  return {
+    caption: blocks(`🏈 ${g.awayName} vs ${g.homeName}!`, `🎯 Our model predicts ${g.winnerName} to win (${g.winnerPct}).`, [`🔥 Top ${td.length} Anytime TD candidates:`, ...td.map((x, i) => `${i + 1}. ${x.name}: ${x.pct}`)].join("\n"), "Early pregame snapshot", "Full predictions below 👇", "#NFL"),
+    claims: [claim("winnerPct", g.winnerPct), claim("tdTop", td.map((_, i) => i + 1).join(" ")), ...td.map((x) => claim(`td.${x.playerId}`, x.pct))],
+  };
 }
 
 /** Caption and the claims it adds, for one prepared post. Throws on a type with no template, so nothing ships unworded. */
@@ -82,7 +75,7 @@ export function approvedCaption(p) {
       return { claims: [], caption: blocks(`🏈 Monday Night Football: ${r.matchup}!`, `🎯 Our model projects ${r.winner} to win.`, "Full prediction below 👇", "#NFL") };
     }
     case "NFL_WEEKLY_TOP5": return { claims: [], caption: blocks(`🏈 NFL Week ${p.content.week} Sunday Top 5: ${p.content.label.toLowerCase()}!`, p.content.estimateLabel ? "Our model's projections, shown as estimates." : "Our model's projections for Sunday.", "Who tops the list? 👇", "#NFL") };
-    case "NFL_GAME_POST": return nflGamePostCaption(p, word, claim);
+    case "NFL_GAME_POST": return nflGamePostCaption(p, claim);
     default: throw new Error(`no approved caption for ${p.contentType}`);
   }
 }
