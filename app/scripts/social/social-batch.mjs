@@ -69,7 +69,7 @@ async function main(argv) {
   }
   const wanted = r.refused.filter((x) => !["NFL_SUNDAY_WINNERS", "NFL_MNF_WINNER", "NFL_GAME_WINNER"].includes(x.contentType) && x.job !== "nba-recap");
   const file = path.join(out, `send-manifest-${batch}.json`);
-  fs.writeFileSync(file, `${JSON.stringify({ batch, asOf, date, packages: rows, blocked, refused: wanted }, null, 2)}\n`);
+  fs.writeFileSync(file, `${JSON.stringify({ batch, asOf, date, dataCommit: process.env.GTP_DATA_COMMIT ?? null, packages: rows, blocked, refused: wanted }, null, 2)}\n`);
   for (const x of rows) console.log(`SEND ${x.dedupeId} · quote ${x.quoteTimeUtc ?? "none"} · latest ${x.latestValidSendEt} (${x.governedBy})${x.gaps.length ? ` · gaps ${x.gaps.join(",")}` : ""}`);
   console.log(file);
   return rows.length && !blocked.length ? 0 : 1;

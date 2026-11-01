@@ -428,7 +428,7 @@ export function nflPropRows({ players, board, eventId, kickoffUtc, offers, asOf 
     for (const { p, q, why } of (priced.length ? priced : all).sort((a, b) => b.p.markets[s.family].median - a.p.markets[s.family].median || a.p.playerId.localeCompare(b.p.playerId)).slice(0, s.rows)) {
       const stale = Boolean(q) && ageHours(asOf, q.capturedAt) > NFL_LINE_MAX_AGE_HOURS;
       const comparison = nflPropComparison({ projection: p.markets[s.family].median, quote: q, reason: why, stale, expected: { eventId, playerId: p.playerId, market: s.family } });
-      rows.push({ comparison, vs: comparisonCell(comparison, americanText), key: `${p.playerId}.${s.family}`, playerId: p.playerId, market: s.family, name: p.name, team: p.team, family: s.label, projection: `${formatValue(FAMILY_KIND[s.family], p.markets[s.family].median)}${est ? " est." : ""}`, line: q ? String(q.line) : "No line", over: q?.overPrice != null ? americanText(q.overPrice) : "No price", under: q?.underPrice != null ? americanText(q.underPrice) : "No price", estimate: est, quote: q });
+      rows.push({ comparison, vs: comparisonCell(comparison, americanText), key: `${p.playerId}.${s.family}`, playerId: p.playerId, market: s.family, name: p.name, team: p.team, family: s.label, projection: `${formatValue(FAMILY_KIND[s.family], p.markets[s.family].median)}${est ? " est." : ""}`, line: q && !stale ? String(q.line) : "No line", over: q?.overPrice != null ? americanText(q.overPrice) : "No price", under: q?.underPrice != null ? americanText(q.underPrice) : "No price", estimate: est, quote: q });
     }
   }
   return rows;
@@ -954,7 +954,7 @@ export async function writePackages(posts, { outRoot, scales = [1, 2], png = tru
     try { await put(browser); } finally { await browser.close(); }
   }
   fs.mkdirSync(outRoot, { recursive: true });
-  const dataCommit = execSync("git rev-parse HEAD", { cwd: APP, encoding: "utf8" }).trim();
+  const dataCommit = process.env.GTP_DATA_COMMIT ?? execSync("git rev-parse HEAD", { cwd: APP, encoding: "utf8" }).trim();
   return posts.map((p) => {
     const images = p.cards.flatMap((c) => written.get(c.name) ?? []);
     const file = path.join(outRoot, `${dedupeSlug(p)}.json`);
