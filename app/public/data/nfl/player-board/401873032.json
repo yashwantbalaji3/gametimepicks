@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-01T19:27:49Z",
- "sourceGeneratedAt": "2026-11-01T19:27:49Z",
+ "generatedAt": "2026-11-01T19:55:38Z",
+ "sourceGeneratedAt": "2026-11-01T19:55:38Z",
  "forecastInputHash": "35c6d50acb334d3e",
  "providerEventId": "401873032",
  "matchup": "LAC @ LAR",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-01T19:27:49Z",
-  "roleEvidenceAt": "2026-11-01T19:27:49Z",
+  "injuriesCapturedAt": "2026-11-01T19:55:38Z",
+  "roleEvidenceAt": "2026-11-01T19:55:38Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -53,9 +53,9 @@
      {
       "team": "LAC",
       "pool": "targets",
-      "originalSum": 1.2786,
+      "originalSum": 1.2116,
       "normalizedSum": 1,
-      "factor": 0.7821,
+      "factor": 0.8254,
       "playerIds": [
        "nfl-athlete-4686612",
        "nfl-athlete-3123076",
@@ -66,7 +66,6 @@
        "nfl-athlete-4612826",
        "nfl-athlete-4596334",
        "nfl-athlete-4430968",
-       "nfl-athlete-4426535",
        "nfl-athlete-4685382"
       ]
      }
@@ -136,14 +135,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 65,
+  "absent": 60,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "LAC": {
    "counts": {
-    "PROJECTED": 13,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 12,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -291,18 +290,14 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4426535",
-     "name": "Theo Wease Jr.",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_receptions"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
      "playerId": "nfl-athlete-4685553",
      "name": "Brenen Thompson",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-4426535",
+     "name": "Theo Wease Jr.",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Out"
     },
@@ -322,8 +317,8 @@
   },
   "LAR": {
    "counts": {
-    "PROJECTED": 9,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 8,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -386,17 +381,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4242557",
-     "name": "Colby Parkinson",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
-    },
-    {
      "playerId": "nfl-athlete-4243003",
      "name": "Ronnie Rivers",
      "state": "PROJECTED",
@@ -433,6 +417,12 @@
      "name": "Davante Adams",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-4242557",
+     "name": "Colby Parkinson",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4570037",
@@ -500,9 +490,9 @@
      "player_receptions"
     ],
     "sum": 1,
-    "originalSum": 1.2786,
+    "originalSum": 1.2116,
     "residualOther": 0,
-    "joined": 11,
+    "joined": 10,
     "missed": 0,
     "state": "NORMALIZED"
    },
@@ -655,50 +645,20 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.2328,
+     "mean": 1.3009,
      "p10": 0,
      "p25": 0,
-     "median": 0.7821,
-     "p75": 1.5642,
-     "p90": 3.1284,
+     "median": 0.8254,
+     "p75": 1.6507,
+     "p90": 3.3014,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.7821
+      "factor": 0.8254
      },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
      "probability": 0.3382,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4242557",
-   "name": "Colby Parkinson",
-   "team": "LAR",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 20.94,
-     "p10": 0,
-     "p25": 4.52,
-     "median": 15.74,
-     "p75": 31.8,
-     "p90": 50.04,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 2.9768,
-     "p10": 1,
-     "p25": 1,
-     "median": 3,
-     "p75": 4,
-     "p90": 6,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.2245,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -728,15 +688,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.2069,
+     "mean": 1.2737,
      "p10": 0,
      "p25": 0,
-     "median": 0.7821,
-     "p75": 1.5642,
-     "p90": 2.3463,
+     "median": 0.8254,
+     "p75": 1.6507,
+     "p90": 2.4761,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.7821
+      "factor": 0.8254
      },
      "pricingState": "NOT_PROBED"
     },
@@ -771,15 +731,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.7159,
+     "mean": 1.8108,
      "p10": 0,
-     "p25": 0.7821,
-     "median": 1.5642,
-     "p75": 2.3463,
-     "p90": 3.9105,
+     "p25": 0.8254,
+     "median": 1.6507,
+     "p75": 2.4761,
+     "p90": 4.1268,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.7821
+      "factor": 0.8254
      },
      "pricingState": "NOT_PROBED"
     },
@@ -835,15 +795,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.4985,
-     "p10": 0.7821,
-     "p25": 0.7821,
-     "median": 2.3463,
-     "p75": 3.1284,
-     "p90": 4.6926,
+     "mean": 2.6367,
+     "p10": 0.8254,
+     "p25": 0.8254,
+     "median": 2.4761,
+     "p75": 3.3014,
+     "p90": 4.9521,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.7821
+      "factor": 0.8254
      },
      "pricingState": "NOT_PROBED"
     },
@@ -869,15 +829,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.6832,
-     "p10": 0.7821,
-     "p25": 1.5642,
-     "median": 2.3463,
-     "p75": 3.9105,
-     "p90": 5.4747,
+     "mean": 2.8316,
+     "p10": 0.8254,
+     "p25": 1.6507,
+     "median": 2.4761,
+     "p75": 4.1268,
+     "p90": 5.7775,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.7821
+      "factor": 0.8254
      },
      "pricingState": "NOT_PROBED"
     },
@@ -903,15 +863,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.2497,
+     "mean": 2.3741,
      "p10": 0,
-     "p25": 0.7821,
-     "median": 1.5642,
-     "p75": 3.1284,
-     "p90": 4.6926,
+     "p25": 0.8254,
+     "median": 1.6507,
+     "p75": 3.3014,
+     "p90": 4.9521,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.7821
+      "factor": 0.8254
      },
      "pricingState": "NOT_PROBED"
     },
@@ -937,15 +897,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.9452,
+     "mean": 2.0527,
      "p10": 0,
-     "p25": 0.7821,
-     "median": 1.5642,
-     "p75": 3.1284,
-     "p90": 3.9105,
+     "p25": 0.8254,
+     "median": 1.6507,
+     "p75": 3.3014,
+     "p90": 4.1268,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.7821
+      "factor": 0.8254
      },
      "pricingState": "NOT_PROBED"
     },
@@ -1001,15 +961,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.9521,
+     "mean": 2.06,
      "p10": 0,
-     "p25": 0.7821,
-     "median": 1.5642,
-     "p75": 3.1284,
-     "p90": 3.9105,
+     "p25": 0.8254,
+     "median": 1.6507,
+     "p75": 3.3014,
+     "p90": 4.1268,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.7821
+      "factor": 0.8254
      },
      "pricingState": "NOT_PROBED"
     },
@@ -1035,15 +995,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.8865,
+     "mean": 1.9908,
      "p10": 0,
-     "p25": 0.7821,
-     "median": 1.5642,
-     "p75": 2.3463,
-     "p90": 3.9105,
+     "p25": 0.8254,
+     "median": 1.6507,
+     "p75": 2.4761,
+     "p90": 4.1268,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.7821
+      "factor": 0.8254
      },
      "pricingState": "NOT_PROBED"
     },
@@ -1090,15 +1050,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.1588,
+     "mean": 2.2781,
      "p10": 0,
-     "p25": 0.7821,
-     "median": 1.5642,
-     "p75": 3.1284,
-     "p90": 4.6926,
+     "p25": 0.8254,
+     "median": 1.6507,
+     "p75": 3.3014,
+     "p90": 4.9521,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.7821
+      "factor": 0.8254
      },
      "pricingState": "NOT_PROBED"
     },
@@ -1185,31 +1145,6 @@
     },
     "anytime_td": {
      "probability": 0.1112,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4426535",
-   "name": "Theo Wease Jr.",
-   "team": "LAC",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_receptions": {
-     "mean": 1.1206,
-     "p10": 0,
-     "p25": 0,
-     "median": 0.7821,
-     "p75": 1.5642,
-     "p90": 2.3463,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.7821
-     },
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.0796,
      "pricingState": "NOT_PROBED"
     }
    }
