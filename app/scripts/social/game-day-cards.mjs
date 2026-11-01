@@ -50,6 +50,7 @@ const EXTRA = `
 .lgd{display:flex;justify-content:center;gap:22px;margin-top:8px;font:700 19px/1 var(--display);letter-spacing:1px}
 .t5row .v b.over{color:#4ADE80;text-shadow:none}.t5row .v b.under{color:#F87171;text-shadow:none}.t5row .v b.none{color:#AEB8B1;text-shadow:none}
 .t5 .ln{display:block;font:700 26px/1.2 var(--display);letter-spacing:.5px;white-space:nowrap;margin-top:4px}
+.t5row .v .ln.over{color:#4ADE80}.t5row .v .ln.under{color:#F87171}.t5row .v .ln.none{color:#AEB8B1}
 .rc{margin-top:22px;flex:1;display:flex;flex-direction:column;gap:14px;justify-content:center}
 .rcs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}.rcs div{background:rgba(5,8,6,.74);border-radius:14px;padding:14px 0 10px;text-align:center}.rcs b{display:block;font:900 66px/1 var(--display)}.rcs i{font:700 21px/1 var(--display);font-style:normal;letter-spacing:3px;color:rgba(247,247,242,.72)}
 .rcr{display:grid;grid-template-columns:1fr 200px 140px;align-items:center;gap:12px;padding:46px 20px;border-radius:14px;background:rgba(5,8,6,.74);border-left:7px solid #4ADE80}.rcr.miss{border-left-color:#F87171}
@@ -62,6 +63,8 @@ const EXTRA = `
 .tdb{flex:1;min-height:0;margin-top:10px;display:flex;flex-direction:column;gap:6px}.tdh{flex:none;text-align:center;font:800 27px/1 var(--display);letter-spacing:3px;color:#39FF88}.tdr{flex:1;min-height:0;max-height:132px;display:grid;grid-template-columns:44px 1fr 92px 120px;align-items:center;gap:10px;padding:0 18px;border-radius:12px;background:rgba(5,8,6,.78);border:1px solid rgba(255,255,255,.16);border-left:8px solid var(--c)}.tdr .n{font:900 32px/1 var(--headline);color:rgba(247,247,242,.72)}.tdr .pn2{display:block;font:800 36px/1.05 var(--headline);text-transform:uppercase;white-space:nowrap;overflow:hidden;min-width:0}.tdr .tag{position:static;align-self:center;justify-self:center;margin:0;font:900 26px/1 var(--headline);padding:6px 8px 4px;border-radius:7px;background:var(--c);color:var(--cink)}.tdr .pc{font:900 46px/1 var(--headline);text-align:right;color:#39FF88}
 .gph.solo{justify-content:center;gap:34px}.gph.solo .winner2 .slab .nick{font-size:104px}.gph.solo .meter{margin-top:0}
 .tdb.solo{margin-top:34px;gap:20px;justify-content:center}.tdb.solo .tdh{margin-bottom:8px}.tdb.solo .tdr{flex:none;height:190px;max-height:none;grid-template-columns:56px 1fr 112px 170px;gap:14px;padding:0 24px}.tdb.solo .tdr .n{font-size:50px}.tdb.solo .tdr .pn2{font-size:50px}.tdb.solo .tdr .tag{font-size:34px}.tdb.solo .tdr .pc{font-size:66px}
+.secl{margin-top:8px;text-align:center;font:800 28px/1.1 var(--display);letter-spacing:3px;color:#39FF88}
+.tdv{text-align:right}.tdv .pc{display:block}.tdv .yes{display:block;margin-top:4px;font:700 28px/1.1 var(--display);white-space:nowrap;color:#AEB8B1}
 .estl{margin-top:8px;text-align:center;font:800 24px/1.1 var(--display);letter-spacing:1px;color:#F2C14E}
 .tn.dense{gap:4px;margin-top:8px}.tn.dense .tnr .tm{font-size:28px}.tn.dense .tnr .p{font-size:24px}.tn.dense .tnr .wn{font-size:24px;padding:4px 2px 2px}.tn.dense .tnr .bar{height:18px}
 .tn.dense .tnr,.tn.dense .tnh{grid-template-columns:128px 66px 76px 1fr 76px 66px 88px}
@@ -148,10 +151,10 @@ export function nflHeroCard(g, { disclosure = NFL_DISCLOSURE } = {}) {
   return { html: shell({ away: g.away, home: g.home, chip: g.chip, body, disclosure }), cells, v2: true, disclosure };
 }
 
-/** Ranked anytime TD card: rank, name, team, probability. `rows` is one to three players already cleared for availability. */
+/** Ranked anytime TD card: rank, name, team, probability, and the verified Yes price when one exists. `rows` is one to three players already cleared for availability. */
 export function nflTdCard({ away, home, chip, rows, disclosure = NFL_DISCLOSURE }) {
   const cells = {};
-  const body = `<div class="kicker">Top ${rows.length} Anytime TD Candidates</div><div class="tdb solo"><div class="tdh">MODEL TOUCHDOWN PROBABILITY</div>${rows.map((r) => `<div class="tdr" style="--c:${r.team.color};--cink:${r.team.ink}"><span class="n">${r.rank}</span><span class="pn2" data-fit>${cell(cells, `td.${r.key}.name`, r.name)}</span><span class="tag">${esc(r.team.abbr)}</span>${cell(cells, `td.${r.key}.pct`, r.pct, "pc")}</div>`).join("")}</div>`;
+  const body = `<div class="kicker">Top ${rows.length} Anytime TD Candidates</div><div class="tdb solo"><div class="tdh">MODEL TOUCHDOWN PROBABILITY</div>${rows.map((r) => `<div class="tdr" style="--c:${r.team.color};--cink:${r.team.ink}"><span class="n">${r.rank}</span><span class="pn2" data-fit>${cell(cells, `td.${r.key}.name`, r.name)}</span><span class="tag">${esc(r.team.abbr)}</span><div class="tdv">${cell(cells, `td.${r.key}.pct`, r.pct, "pc")}${r.quote ? cell(cells, `td.${r.key}.yes`, mono(r.note), "yes") : ""}</div></div>`).join("")}</div>`;
   return { html: shell({ away, home, chip, body, disclosure }), cells, v2: true, disclosure };
 }
 
@@ -190,12 +193,12 @@ export function statPages({ away, home, chip, awayPlayers, homePlayers, real = f
 }
 
 /** B. `rows`: { key, rank, name, team (obj), opponent, tip, text, line? }. */
-export function top5Card({ title, chip, rows, real = false, kicker = "Top 5 Projections", sub = "Projected median for the game", estimate = null, disclosure = DISCLOSURE, note = null, away = null, home = null }) {
+export function top5Card({ title, chip, rows, real = false, kicker = "Top 5 Projections", sub = "Projected for the game", estimate = null, section = null, disclosure = DISCLOSURE, note = null, away = null, home = null }) {
   const cells = {};
-  const body = `<div class="kicker">${esc(kicker)}</div><div class="title" style="font-size:84px;margin-top:14px">${esc(title)}</div><div class="sub" data-fit>${esc(sub)}</div>${estimate ? `<div class="estl">${cell(cells, "estimate", estimate)}</div>` : ""}<div class="t5">${rows.map((r) => {
+  const body = `<div class="kicker">${esc(kicker)}</div><div class="title" style="font-size:84px;margin-top:14px">${esc(title)}</div><div class="sub" data-fit>${esc(sub)}</div>${section ? `<div class="secl">${cell(cells, "section", section)}</div>` : ""}${estimate ? `<div class="estl">${cell(cells, "estimate", estimate)}</div>` : ""}<div class="t5">${rows.map((r) => {
     const cls = real ? (r.line ? CLS[r.line.cls] : "none") : "";
-    const num = real ? `${r.line?.glyph || "●"} ${r.text}` : r.text;
-    return `<div class="t5row r${r.rank}" style="--c:${r.team.color}"><div class="n">${r.rank}</div><div style="min-width:0"><span class="pname board nm" data-fit style="display:block">${cell(cells, `${r.key}.name`, r.name)}</span><div class="sb"><span class="tag" style="--c:${r.team.color};--cink:${r.team.ink}">${esc(r.team.abbr)}</span><span>vs ${esc(r.opponent)} · ${esc(r.tip)}</span></div></div><div class="v">${bcell(cells, `${r.key}.num`, num, cls ? `class="${cls}" style="color:currentColor;font-size:64px"` : "")}${real && r.line ? cell(cells, `${r.key}.line`, mono(r.line.text.replace(/^([OU] \S+) /, "$1 · ")), `ln ${cls}`) : ""}${r.note ? cell(cells, `${r.key}.note`, r.note, "ln none") : ""}</div></div>`;
+    const num = r.line?.glyph ? `${r.line.glyph} ${r.text}` : r.text;
+    return `<div class="t5row r${r.rank}" style="--c:${r.team.color}"><div class="n">${r.rank}</div><div style="min-width:0"><span class="pname board nm" data-fit style="display:block">${cell(cells, `${r.key}.name`, r.name)}</span><div class="sb"><span class="tag" style="--c:${r.team.color};--cink:${r.team.ink}">${esc(r.team.abbr)}</span><span>vs ${esc(r.opponent)} · ${esc(r.tip)}</span></div></div><div class="v">${bcell(cells, `${r.key}.num`, num, cls ? `class="${cls}" style="font-size:64px"` : "")}${real && r.line ? cell(cells, `${r.key}.line`, mono(r.line.sideText ?? r.line.text), `ln ${cls}`) : ""}${r.note ? cell(cells, `${r.key}.note`, mono(r.note), "ln none") : ""}</div></div>`;
   }).join("")}</div>${note ? `<div class="mkn">${cell(cells, "market.quoted", note)}</div>` : ""}`;
   return { html: shell({ away, home, chip, body, disclosure }), cells, v2: true, disclosure };
 }
@@ -268,6 +271,11 @@ export function sourceTextProblems(text) {
   return [...BOOK_NAMES.filter((b) => t.includes(b.toLowerCase())).map((b) => `book name on image: ${b}`), ...(/\b(prices? )?(observed|quoted)\b/.test(t) ? ["quote line on image"] : [])];
 }
 /** [] when a v2 card prints exactly `cells`, carries banner and footer, and no internal text. */
+/** Stat labels say MODEL PROJECTION: no "est.", Estimate or projected median as visible text. EST kickoffs and the win-chance label are not stat labels. */
+export function statLabelProblems(text) {
+  const t = String(text).replace(/game winner estimates?/gi, " ");
+  return [...(/(^|[^a-z])est\./.test(t) ? ["est. on image"] : []), ...(/\bestimates?\b/i.test(t) ? ["Estimate on image"] : []), ...(/projected median/i.test(t) ? ["projected median on image"] : [])];
+}
 export function verifyGameDayCard(card) {
   const e = [];
   const got = cellsIn(card.html);
@@ -278,7 +286,7 @@ export function verifyGameDayCard(card) {
   if (!text.includes(card.disclosure ?? DISCLOSURE)) e.push("footer missing");
   if (/\bElo\b|[0-9a-f]{16,}|moneyline/i.test(text)) e.push("internal text on image");
   if (/[—–]/.test(text)) e.push("dash on image");
-  e.push(...sourceTextProblems(text));
+  e.push(...sourceTextProblems(text), ...statLabelProblems(text));
   let t = text; for (const p of OK_PHRASES) t = t.replace(p, " ");
   for (const w of BANNED_WORDS) if (new RegExp(`(^|[^a-z])${w}([^a-z]|$)`, "i").test(t)) e.push(`banned ${w}`);
   return e;

@@ -12,14 +12,14 @@ import path from "node:path";
 import { xWeighted, CC_KIND_MAP, ccCaptionProblems, editorialPlan, CC_KIND, buildNbaRecap, buildNflRecap, buildSocialPackage, recapFinalsProblems, recommendedPostTime, socialPackageViolations, CONTENT_TYPE, denominatorText } from "./social-package.mjs";
 import { formatValue } from "../sports/nfl/forecast-view.mjs";
 import { prepareNbaRecap, prepareNbaTop5, prepareNflRecap, prepareNflTop5, prepareNflWinners, winnerRow, writePackages, prepareNbaTonight, prepareNflGameWinners, prepareNflPlayerStats, lineBlock, TONIGHT_ROWS, boxscorePosts, prepareNbaBoxscore, prepareGameDay } from "../../../scripts/social/render-social-pack.mjs";
-import { nbaTop5Carousel, nflTdRows, nflPropRows, prepareNflGamePosts, prepareNflSundayTop5 } from "../../../scripts/social/render-social-pack.mjs";
+import { nflTdYes, nflTop5Line, top5LineOf, nbaTop5Carousel, nflTdRows, nflPropRows, prepareNflGamePosts, prepareNflSundayTop5 } from "../../../scripts/social/render-social-pack.mjs";
 import { nflMoneylineQuote, nflPropOffer } from "../../../scripts/social/nfl-line-capture.mjs";
 import { approvedCaption } from "./approved-captions.mjs";
 import { applyDisplayException } from "./display-exception.mjs";
 import { sendWindow } from "./send-window.mjs";
 import { americanText } from "./nba-moneyline.mjs";
 import { visibleText } from "../../../scripts/social/nba-line-cards.mjs";
-import { sourceTextProblems, verifyGameDayCard, meterColours, teamOf } from "../../../scripts/social/game-day-cards.mjs";
+import { statLabelProblems, sourceTextProblems, verifyGameDayCard, meterColours, teamOf } from "../../../scripts/social/game-day-cards.mjs";
 import { meterProblems, meterHtml, packCaptionViolations, verifyPackCard } from "../../../scripts/social/social-pack-cards.mjs";
 
 const AS_OF = "2026-10-30T16:40:00Z";
@@ -155,13 +155,15 @@ test("winnerRow refuses a view that differs from the record", () => {
   assert.throws(() => winnerRow(view, rec(0.61)), /differs/);
   assert.throws(() => winnerRow(view, null), /no independent/);
 });
-test("NFL Top 5: five boards, pass and rush labelled as estimates", () => {
+test("NFL Top 5: five boards, pass and rush say MODEL PROJECTION on the image, ESTIMATE in metadata", () => {
   const { posts } = prepareNflTop5({ week: 8, asOf: AS_OF });
   assert.equal(posts.length, 5);
   const by = Object.fromEntries(posts.map((p) => [p.variant, p]));
   for (const k of ["top5_pass_yds", "top5_rush_yds"]) {
-    assert.match(by[k].cards[0].html, /Estimate · calibration standard not yet met/);
-    assert.match(by[k].cards[0].html, / est\./);
+    assert.deepEqual(statLabelProblems(visibleText(by[k].cards[0].html)), []);
+    assert.match(by[k].cards[0].html, /MODEL PROJECTION/);
+    assert.equal(by[k].validationStatus.state, "ESTIMATE");
+    assert.equal(by[k].content.estimateLabel, "Estimate · calibration standard not yet met");
   }
   assert.ok(!/ est\./.test(by.top5_receptions.cards[0].html));
 });
@@ -213,15 +215,14 @@ test("NFL design 2: every package, labelled estimates, roundup of all Sunday gam
   for (const p of all) { assert.equal(p.designVersion, "2"); for (const c of p.cards) assert.deepEqual(verifyGameDayCard(c), []); }
   for (const p of players) {
     const text = p.cards.map((c) => c.html).join("");
-    if (/ est\./.test(text)) { assert.equal(p.eligibilityClass, "ESTIMATE"); assert.match(text, /Estimate · calibration standard not yet met/); }
-    for (const c of p.cards) for (const [k, v] of Object.entries(c.cells)) if (/player_(pass|rush)_yds$/.test(k)) assert.match(v, / est\.$/);
+    assert.ok(!/ est\./.test(text));
   }
   assert.ok(!/most confident/i.test(JSON.stringify(all.map((p) => p.title))));
 });
 test("Top 5 line block: exact export strings, colour by side, none without a shown line", () => {
   const row = (side, glyph) => ({ market: { line: { state: "SHOWN", text: "30.5" }, direction: { state: "SHOWN", side, glyph }, overPrice: { state: "SHOWN", text: "+110" }, underPrice: { state: "SHOWN", text: "−130" } } });
-  assert.deepEqual(lineBlock(row("OVER", "▲")), { cls: "over", glyph: "▲", text: "O 30.5 +110" });
-  assert.deepEqual(lineBlock(row("UNDER", "▼")), { cls: "under", glyph: "▼", text: "U 30.5 −130" });
+  assert.deepEqual(lineBlock(row("OVER", "▲")), { cls: "over", glyph: "▲", text: "O 30.5 +110", side: "OVER", sideText: "OVER 30.5 · +110" });
+  assert.deepEqual(lineBlock(row("UNDER", "▼")), { cls: "under", glyph: "▼", text: "U 30.5 −130", side: "UNDER", sideText: "UNDER 30.5 · −130" });
   assert.equal(lineBlock(row("NEUTRAL", null)).cls, "neutral");
   assert.equal(lineBlock({ market: { line: { state: "WITHHELD" } } }), null);
   assert.equal(lineBlock(undefined), null);
@@ -425,7 +426,7 @@ test("NFL rows: top 3 TD skip nobody fit-filtered upstream; props carry both pri
   assert.deepEqual(td.map((r) => r.name), ["a", "b", "c"]);
   assert.equal(td[0].note, "No quote");
   const [r] = nflPropRows(io);
-  assert.equal(r.projection.endsWith(" est."), true);
+  assert.ok(!r.projection.includes("est") && r.estimate === true);
   assert.deepEqual([r.line, r.over, r.under], ["No line", americanText(-112), americanText(-108)], "this quote is past 12 hours: its line is never printed");
   assert.equal(nflPropRows({ ...io, board: { families: { ...board.families, player_pass_yds: { state: "ESTIMATE", withheldTeams: [{ team: "X" }] } } } }).length, 0);
 });
@@ -437,7 +438,7 @@ test("NFL weekly Top 5: pass and rush render as labelled estimates; validation i
     assert.ok(p, id);
     assert.deepEqual([p.validationStatus.state, p.validationStatus.blocksDisplay, p.displayStatus], ["ESTIMATE", false, "SHOW_WITH_ESTIMATE_LABEL"]);
     assert.equal(p.validationStatus.label, p.content.estimateLabel);
-    assert.ok(p.cards[0].html.includes(p.content.estimateLabel));
+    assert.ok(!visibleText(p.cards[0].html).includes(p.content.estimateLabel));
   }
 });
 
@@ -457,6 +458,8 @@ test("NFL_GAME_POST: winner card then Top 3 TD card, no props graphic; no captur
     assert.ok(visible(p.cards[1].html).includes(`Top ${td.length} Anytime TD Candidates`));
     for (const r of td) { assert.ok(p.cards[1].html.includes(r.name)); assert.ok(p.cards[1].html.includes(r.pct)); assert.ok(p.cards[1].html.includes(`>${r.teamAbbr}<`)); }
     assert.ok(!/\b(over|under|pass yds|rush yds|rec yds)\b/i.test(visible(p.cards[1].html)));
+    assert.ok(p.content.gaps.includes(`NO_TD_PRICE_${td.length}`));
+    assert.ok(!/\bYes\b/.test(visible(p.cards[1].html)));
     const { caption, claims } = approvedCaption(p);
     const g = p.captionGame;
     assert.equal(caption, `🏈 ${g.awayName} vs ${g.homeName}!\n\n🎯 Our model predicts ${g.winnerName} to win (${g.winnerPct}).\n\n🔥 Top ${td.length} Anytime TD candidates:\n${td.map((x, i) => `${i + 1}. ${x.name}: ${x.pct}`).join("\n")}\n\nEarly pregame snapshot\n\nFull predictions below 👇\n\n#NFL`);
@@ -490,4 +493,93 @@ test("display exception: REVIEW is shown with its list, identity errors block, P
   assert.equal(applyDisplayException({ ...base, anomalies: [{ playerId: "1", market: "pts", verdict: "BAD_JOIN" }] }, { id: "x" }).blocked.length, 1);
   const pass = { anomalyCheck: "PASS", anomalies: [] };
   assert.equal(applyDisplayException(pass, { id: "x" }).pkg, pass);
+});
+
+const CK = "2026-11-01T17:00:00Z"; const OFFER_AT = "2026-11-01T14:00:00Z"; const NOW = "2026-11-01T15:00:00Z";
+const ln = (over) => ({ canonicalEventId: "nfl-1", playerId: "a", market: "player_pass_yds", book: "draftkings", line: 249.5, overPrice: over, underPrice: -105, capturedAt: OFFER_AT });
+const io5 = (o) => ({ value: 260, text: "260", family: "player_pass_yds", eventId: "1", playerId: "a", kickoffUtc: CK, offers: [ln(-115)], asOf: NOW, ...o });
+test("NFL Top 5 line: green over, red under, each side's own price, arithmetic only", () => {
+  const up = nflTop5Line(io5({}));
+  assert.deepEqual([up.line.cls, up.line.glyph, up.line.sideText], ["over", "▲", `OVER 249.5 · ${americanText(-115)}`]);
+  const dn = nflTop5Line(io5({ value: 240, text: "240" }));
+  assert.deepEqual([dn.line.cls, dn.line.glyph, dn.line.sideText], ["under", "▼", `UNDER 249.5 · ${americanText(-105)}`]);
+  assert.equal(up.comparison.quotedAt, OFFER_AT);
+  assert.equal(up.comparison.comparisonIsNotEdge, true);
+});
+test("NFL Top 5 line: equal neutral, rounding never contradicts the printed digits, unavailable is projection only", () => {
+  const eq = nflTop5Line(io5({ value: 249.5, text: "250" }));
+  assert.deepEqual([eq.line.cls, eq.line.text, eq.comparison.state], ["neutral", "Line 249.5", "EQUAL"]);
+  const across = nflTop5Line(io5({ value: 249.4, text: "249" }));
+  assert.equal(across.line.cls, "under");
+  const crossing = nflTop5Line(io5({ offers: [{ ...ln(-115), line: 249.5 }], value: 249.45, text: "250" }));
+  assert.deepEqual([crossing.line.cls, crossing.comparison.reason, crossing.comparison.price], ["neutral", "ROUNDED_AT_OR_ACROSS_LINE", null]);
+  for (const [o, reason] of [[{ offers: [] }, "NO_LINE"], [{ asOf: "2026-11-02T03:00:00Z", kickoffUtc: "2026-11-02T18:00:00Z" }, "STALE_LINE"], [{ offers: [ln(null)] }, "INVALID_ODDS"], [{ offers: [{ ...ln(-115), playerId: "b" }] }, "NO_LINE"], [{ offers: [{ ...ln(-115), book: "bovada" }] }, "INELIGIBLE_BOOK"], [{ offers: [ln(-115), { ...ln(-115), line: 255.5 }] }, "AMBIGUOUS_LINE"]]) {
+    const r = nflTop5Line(io5(o));
+    assert.equal(r.line, null, reason);
+    assert.equal(r.comparison.reason, reason);
+    assert.equal(r.quotedAt, null);
+  }
+});
+test("TD Yes price: verified only, reasons for the rest", () => {
+  const td = { canonicalEventId: "nfl-1", playerId: "a", market: "player_anytime_td", book: "draftkings", price: 150, capturedAt: OFFER_AT };
+  const o = { eventId: "1", playerId: "a", kickoffUtc: CK, offers: [td], asOf: NOW };
+  assert.equal(nflTdYes(o).quote.price, 150);
+  assert.equal(nflTdYes({ ...o, offers: [{ ...td, price: 50 }] }).reason, "INVALID_ODDS");
+  assert.equal(nflTdYes({ ...o, offers: [{ ...td, price: null }] }).quote, null);
+  assert.equal(nflTdYes({ ...o, asOf: "2026-11-02T03:00:00Z", kickoffUtc: "2026-11-02T18:00:00Z" }).reason, "STALE_LINE");
+  assert.equal(nflTdYes({ ...o, offers: [{ ...td, capturedAt: "2026-11-01T17:30:00Z" }], asOf: "2026-11-01T18:00:00Z" }).reason, "CAPTURED_AFTER_KICKOFF");
+});
+test("NBA Top 5 line: a side without its price is projection only; neutral keeps the line", () => {
+  const row = (side, price) => ({ market: { line: { state: "SHOWN", text: "30.5" }, direction: { state: "SHOWN", side, glyph: "▲" }, overPrice: price, underPrice: price } });
+  assert.equal(top5LineOf(row("OVER", { state: "WITHHELD" })), null);
+  assert.equal(top5LineOf(row("OVER", { state: "SHOWN", text: "+110" })).sideText, "OVER 30.5 · +110");
+  assert.equal(top5LineOf(row("NEUTRAL", null)).text, "Line 30.5");
+});
+function week8Captures(asOf) {
+  const ids = prepareNflSundayTop5({ week: 8, asOf }).posts;
+  const offers = [];
+  for (const p of ids) for (const part of p.content.parts ?? [p.content]) {
+    const market = { top5_anytime_td: "player_anytime_td" }[part.board] ?? { top5_pass_yds: "player_pass_yds", top5_rush_yds: "player_rush_yds", top5_reception_yds: "player_reception_yds", top5_receptions: "player_receptions" }[part.board];
+    for (const r of part.rows.slice(1)) offers.push({ canonicalEventId: `nfl-${r.providerEventId}`, playerId: r.playerId, market, book: "draftkings", capturedAt: "2026-11-01T14:00:00Z", ...(market === "player_anytime_td" ? { price: 170 } : { line: Math.max(0.5, Math.floor(r.value) - 0.5 - 3), overPrice: -112, underPrice: -108 }) });
+  }
+  return { offers, moneylines: [], refs: [{ ref: "gtp-private/odds/nfl/x/capture-1.json", sha256: "0".repeat(64) }] };
+}
+test("NFL Sunday Top 5 with synthetic captures: explicit side, MODEL PROJECTION replaces est., Yes on TD, gaps in metadata", () => {
+  const asOf = "2026-11-01T14:30:00Z";
+  const { posts } = prepareNflSundayTop5({ week: 8, asOf, captures: week8Captures(asOf) });
+  const vis = (h) => visibleText(h.replace(/<(style|script)>[\s\S]*?<\/\1>/g, " "));
+  const pass = posts.find((p) => p.variant === "top5_pass_yds");
+  const t = vis(pass.cards[0].html);
+  assert.match(t, /MODEL PROJECTION/);
+  assert.deepEqual(statLabelProblems(t), []);
+  assert.ok(!/ est\./.test(t));
+  assert.ok(!/ est\./.test(pass.caption));
+  assert.match(t, /OVER \S+ · -112/);
+  assert.equal(pass.containsMarketData, true);
+  assert.equal(pass.sendWindow.quoteTimeUtc, "2026-11-01T14:00:00Z");
+  assert.deepEqual(pass.content.gaps, ["NO_COMPARISON_ROWS_1"]);
+  assert.equal(pass.content.lines.missing[0].reason, "NO_LINE");
+  const td = posts.find((p) => p.variant === "top5_anytime_td");
+  const tt = vis(td.cards[0].html);
+  assert.match(tt, /Yes \+170/);
+  assert.ok(!/\b(over|under)\b/i.test(tt));
+  const pair = posts.find((p) => p.variant === "top5_rec_pair");
+  assert.equal(pair.content.lines.shown, 8);
+  assert.equal(pair.sendWindow.quoteTimeUtc, "2026-11-01T14:00:00Z");
+  for (const p of posts.filter((x) => x.variant !== "top5_rec_pair")) for (const c of p.cards) assert.deepEqual(verifyGameDayCard(c), []);
+  assert.deepEqual(pair.cards.flatMap((c) => statLabelProblems(visibleText(c.html))), []);
+});
+test("NFL Sunday Top 5 with no capture: projection only, every row flagged, no window change", () => {
+  const { posts } = prepareNflSundayTop5({ week: 8, asOf: "2026-11-01T14:30:00Z" });
+  const p = posts.find((x) => x.variant === "top5_rush_yds");
+  assert.equal(p.containsMarketData, false);
+  assert.deepEqual(p.content.gaps, ["NO_COMPARISON_ROWS_5"]);
+  assert.ok(!/class="ln/.test(p.cards[0].html));
+  assert.ok(!/[▲▼●]/.test(p.cards[0].html.replace(/<style>[\s\S]*?<\/style>/, "")));
+});
+test("stat label check: refuses est., Estimate, projected median; EST kickoffs and the win label pass", () => {
+  assert.equal(statLabelProblems("Passing yards 264 est.").length, 1);
+  assert.equal(statLabelProblems("MODEL PROJECTION · ESTIMATE").length, 1);
+  assert.equal(statLabelProblems("Projected median for the game").length, 1);
+  assert.deepEqual(statLabelProblems("Kickoff 1:00 PM EST · Game winner estimate · MODEL PROJECTION"), []);
 });

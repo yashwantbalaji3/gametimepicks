@@ -63,7 +63,7 @@ test("an ESTIMATE family is compared and keeps its label; rows carry the note an
   const board = { families: { player_pass_yds: { state: "ESTIMATE" } } };
   const [r] = nflPropRows({ players, board, eventId: "1", kickoffUtc: "2026-11-01T18:00Z", offers: [quote], asOf: "2026-11-01T15:00:00Z" });
   assert.equal(r.comparison.state, "OVER");
-  assert.ok(r.projection.endsWith(" est."));
+  assert.ok(!r.projection.includes("est") && r.estimate === true);
   assert.equal(r.vs.text, `▲ OVER ${americanText(-112)}`);
   const [none] = nflPropRows({ players, board, eventId: "1", kickoffUtc: "2026-11-01T18:00Z", offers: [], asOf: "2026-11-01T15:00:00Z" });
   assert.deepEqual([none.comparison.reason, none.vs.text], ["NO_LINE", "No line"]);

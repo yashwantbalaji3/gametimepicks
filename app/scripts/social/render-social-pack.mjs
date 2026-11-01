@@ -46,8 +46,8 @@ import { anomaliesFor, anomalyPackageList, laneHistory, laneRows, reviewThreshol
 import { GAME_POST_MAX_IMAGES, gamePostCaption, gamePostCaptionProblems, gamePostClaims, selectCaptionPlayers } from "../../src/lib/social/nba-game-post.mjs";
 import { approvedCaption, nflWindow, quoteAgeFlags, slateWord } from "../../src/lib/social/approved-captions.mjs";
 import { quoteRangeText } from "./nba-line-cards.mjs";
-import { loadNflCaptures, nflMoneylineQuote, nflPropOffer, nflPropOfferStatus, NFL_PROP_SLOTS } from "./nfl-line-capture.mjs";
-import { comparisonCell, nflPropComparison } from "../../src/lib/social/nfl-line-comparison.mjs";
+import { loadNflCaptures, nflMoneylineQuote, nflPropOfferStatus, NFL_PROP_SLOTS } from "./nfl-line-capture.mjs";
+import { COMPARISON_LEGEND, COMPARISON_NOTE, comparisonCell, nflPropComparison } from "../../src/lib/social/nfl-line-comparison.mjs";
 import { DESIGN_VERSION, DISCLOSURE, GAME_POST_DESIGN_VERSION, NFL_DISCLOSURE, NFL_GAME_POST_DESIGN_VERSION, nflHeroCard, nflPlayerPages, nflTdCard, nflTeamOf, recapCard, resultsHeroCard, statPages, teamOf, tonightCard, top5Card as v2Top5Card, verifyGameDayCard, winnerCard } from "./game-day-cards.mjs";
 import { BOX_FOOTER } from "./nba-boxscore-cards.mjs";
 import { layoutErrors as boxLayoutErrors, prepareNbaLineGraphics } from "./render-nba-line-graphics.mjs";
@@ -277,9 +277,41 @@ export function lineBlock(row) {
   const side = m.direction.side;
   if (side === "NEUTRAL") return { cls: "neutral", glyph: "", text: `Line ${m.line.text}` };
   const price = (side === "OVER" ? m.overPrice : m.underPrice);
-  return { cls: side.toLowerCase(), glyph: m.direction.glyph, text: `${side === "OVER" ? "O" : "U"} ${m.line.text}${price?.state === "SHOWN" ? ` ${price.text}` : ""}` };
+  return { cls: side.toLowerCase(), glyph: m.direction.glyph, text: `${side === "OVER" ? "O" : "U"} ${m.line.text}${price?.state === "SHOWN" ? ` ${price.text}` : ""}`, side, sideText: price?.state === "SHOWN" ? `${side} ${m.line.text} · ${price.text}` : null };
+}
+/** A Top 5 row needs the side's own price: a side with no price is projection only. Neutral (equal) keeps its line. */
+export const top5LineOf = (row) => { const l = lineBlock(row); return l && (l.cls === "neutral" || l.sideText) ? l : null; };
+const top5Reason = (r) => (!r ? "NO_LINE" : r.market?.line?.state !== "SHOWN" ? `LINE_${r.market?.line?.state ?? "MISSING"}` : r.market?.direction?.state !== "SHOWN" ? `DIRECTION_${r.market?.direction?.state ?? "MISSING"}` : "NO_SIDE_PRICE");
+
+/**
+ * One NFL Top 5 row against its one verified quote: the arithmetic of nflPropComparison, nothing else. A printed number
+ * rounds (yards are whole), so when the printed number sits on or across the line from the exact projection the row is
+ * neutral: the card never shows a side its own digits contradict.
+ */
+export function nflTop5Line({ value, text, family, eventId, playerId, kickoffUtc, offers, asOf }) {
+  const { quote, reason } = nflPropOfferStatus(offers, { eventId, playerId, market: family, kickoffUtc, asOf });
+  const stale = Boolean(quote) && ageHours(asOf, quote.capturedAt) > NFL_LINE_MAX_AGE_HOURS;
+  const c = nflPropComparison({ projection: value, quote, reason, stale, expected: { eventId, playerId, market: family } });
+  const meta = (o) => ({ state: o.state, reason: o.reason, side: o.side, line: o.line ?? null, price: o.price, difference: o.difference ?? null, book: quote?.book ?? null, quotedAt: quote?.capturedAt ?? null, comparisonIsNotEdge: true });
+  const printed = Number(String(text).replace(/,/g, ""));
+  const lineText = String(c.line);
+  if (c.state === "EQUAL") return { line: { cls: "neutral", glyph: "", text: `Line ${lineText}` }, comparison: meta(c), quotedAt: quote.capturedAt };
+  if (c.state !== "OVER" && c.state !== "UNDER") return { line: null, comparison: meta(c), quotedAt: null };
+  if (!((printed - c.line) * c.difference > 0)) return { line: { cls: "neutral", glyph: "", text: `Line ${lineText}` }, comparison: meta({ ...c, state: "NEUTRAL", side: null, price: null, reason: "ROUNDED_AT_OR_ACROSS_LINE" }), quotedAt: quote.capturedAt };
+  return { line: { cls: c.state.toLowerCase(), glyph: c.glyph, text: `${c.state} ${lineText} ${americanText(c.price)}`, side: c.state, sideText: `${c.state} ${lineText} · ${americanText(c.price)}` }, comparison: meta(c), quotedAt: quote.capturedAt };
 }
 
+/** The verified anytime TD Yes price: eligible, unambiguous, pre-kickoff, fresh, a real American price. Never over/under. */
+export function nflTdYes({ eventId, playerId, kickoffUtc, offers, asOf }) {
+  const { quote, reason } = nflPropOfferStatus(offers, { eventId, playerId, market: "anytime_td", kickoffUtc, asOf });
+  if (!quote) return { quote: null, reason };
+  if (!Number.isInteger(quote.price) || Math.abs(quote.price) < 100) return { quote: null, reason: "INVALID_ODDS" };
+  if (ageHours(asOf, quote.capturedAt) > NFL_LINE_MAX_AGE_HOURS) return { quote: null, reason: "STALE_LINE" };
+  return { quote, reason: null };
+}
+
+const MODEL_SECTION = "MODEL PROJECTION";
+const QUOTE_DISCLOSURE = "Sportsbook prices are observed quotes, separate from the model estimates";
 function top5Card({ name, title, sub, rows, est, foot }) {
   const cells = {};
   const num = (r) => (r.line ? `<div class="lnw">${cell(cells, `${r.key}.num`, `${r.line.glyph ? `${r.line.glyph} ` : ""}${r.text}`, `w ${r.line.cls}`)}${cell(cells, `${r.key}.line`, r.line.text, `ln ${r.line.cls}`)}</div>` : cell(cells, `${r.key}.num`, r.text, "w"));
@@ -308,12 +340,14 @@ export function recPairPost(yds, rec) {
   const rename = (p, k) => p.cards.map((c) => ({ ...c, name: `${c.name}-${k}`, cells: Object.fromEntries(Object.entries(c.cells).map(([x, v]) => [`${k}.${x}`, v])) }));
   const first = instant(yds.firstStartUtc) <= instant(rec.firstStartUtc) ? yds : rec;
   const label = "Receiving yards + receptions";
-  return { ...first, variant: NFL_REC_PAIR, title: `NFL Week ${yds.content.week} top 5 ${label.toLowerCase()}`, cards: [...rename(yds, "yds"), ...rename(rec, "rec")], snapshotRefs: [...new Map([...yds.snapshotRefs, ...rec.snapshotRefs].map((r) => [r.ref, r])).values()], content: { week: yds.content.week, board: NFL_REC_PAIR, label, estimateLabel: yds.content.estimateLabel ?? rec.content.estimateLabel, parts: [yds.content, rec.content], imageOrder: [yds.variant, rec.variant] }, checks: [...new Set([...yds.checks, "images in order: receiving yards, receptions"])] };
+  const quoteTimes = [...yds.quoteTimes, ...rec.quoteTimes];
+  const lines = { shown: yds.content.lines.shown + rec.content.lines.shown, missing: [...yds.content.lines.missing, ...rec.content.lines.missing] };
+  return { ...withSendWindow(first, quoteTimes), quoteTimes, containsMarketData: quoteTimes.length > 0, disclosures: [...new Set([...yds.disclosures, ...rec.disclosures])], variant: NFL_REC_PAIR, title: `NFL Week ${yds.content.week} top 5 ${label.toLowerCase()}`, cards: [...rename(yds, "yds"), ...rename(rec, "rec")], snapshotRefs: [...new Map([...yds.snapshotRefs, ...rec.snapshotRefs].map((r) => [r.ref, r])).values()], content: { week: yds.content.week, board: NFL_REC_PAIR, label, estimateLabel: yds.content.estimateLabel ?? rec.content.estimateLabel, lines, gaps: [...new Set([...yds.content.gaps, ...rec.content.gaps])], parts: [yds.content, rec.content], imageOrder: [yds.variant, rec.variant] }, checks: [...new Set([...yds.checks, "images in order: receiving yards, receptions"])] };
 }
 
 /** The Sunday Top 5 set: anytime TD, the receiving pair, rushing, passing. Exactly four posts, or the gaps are listed. */
-export function prepareNflSundayTop5({ seasonType = 2, week, asOf }) {
-  const r = prepareNflTop5({ seasonType, week, asOf, sundayOnly: true });
+export function prepareNflSundayTop5({ seasonType = 2, week, asOf, captures = null }) {
+  const r = prepareNflTop5({ seasonType, week, asOf, sundayOnly: true, captures });
   const by = (id) => r.posts.find((p) => p.variant === id);
   const yds = by("top5_reception_yds"); const rec = by("top5_receptions");
   const pair = yds && rec ? [recPairPost(yds, rec)] : [];
@@ -322,8 +356,9 @@ export function prepareNflSundayTop5({ seasonType = 2, week, asOf }) {
 }
 
 /** The five weekly boards. Each row is compared with the per-game official board it came from. */
-export function prepareNflTop5({ seasonType = 2, week, asOf, sundayOnly = false }) {
+export function prepareNflTop5({ seasonType = 2, week, asOf, sundayOnly = false, captures = null }) {
   assertAsOf(asOf);
+  const offers = captures?.offers ?? [];
   const file = `data/nfl/weekly-boards/${seasonType}-${String(week).padStart(2, "0")}.json`;
   const wb = readPublic(file);
   if (!wb?.topBoards?.weekly) throw new Error(`no topBoards in ${file}`);
@@ -343,29 +378,36 @@ export function prepareNflTop5({ seasonType = 2, week, asOf, sundayOnly = false 
       const m = board?.players?.find((p) => p.playerId === r.playerId)?.markets?.[spec.family];
       if (m?.[spec.method] !== r.value) throw new Error(`${b.id} ${r.name}: board ${m?.[spec.method]} vs top board ${r.value}`);
       if (!refs.some((x) => x.ref.endsWith(rel))) refs.push(ref(rel));
-      const text = `${formatValue(FAMILY_KIND[spec.family], r.value)}${spec.method === "probability" ? "" : b.state === "ESTIMATE" ? " est." : ""}`;
-      return { key: r.playerId, rank: r.rank, name: r.name, team: r.team, opponent: r.opponent, kickoffUtc: r.kickoffUtc, value: r.value, text, meta: `${r.team} vs ${r.opponent} · ${etLabel(instant(r.kickoffUtc)).replace(/ E[SD]T$/, " ET")}` };
+      const text = formatValue(FAMILY_KIND[spec.family], r.value);
+      const quoteArgs = { eventId: String(r.providerEventId), playerId: r.playerId, kickoffUtc: r.kickoffUtc, offers, asOf };
+      let market;
+      if (spec.method === "probability") { const y = nflTdYes(quoteArgs); market = { line: null, note: y.quote ? `Yes ${americanText(y.quote.price)}` : null, quotedAt: y.quote?.capturedAt ?? null, comparison: y.quote ? { state: "YES_PRICE", reason: null, price: y.quote.price, book: y.quote.book, quotedAt: y.quote.capturedAt } : { state: "NEUTRAL", reason: y.reason, price: null } }; }
+      else market = { note: null, ...nflTop5Line({ ...quoteArgs, value: r.value, text, family: spec.family }) };
+      return { ...market, key: r.playerId, playerId: r.playerId, rank: r.rank, name: r.name, team: r.team, opponent: r.opponent, kickoffUtc: r.kickoffUtc, providerEventId: String(r.providerEventId), value: r.value, text, meta: `${r.team} vs ${r.opponent} · ${etLabel(instant(r.kickoffUtc)).replace(/ E[SD]T$/, " ET")}` };
     });
     const first = Math.min(...rows.map((r) => instant(r.kickoffUtc)));
     const est = b.state === "ESTIMATE" ? b.estimate.label : null;
-    const cards = v2Cards([v2Top5Card({ title: spec.label, chip: `NFL · Week ${week}${sundayOnly ? " · Sunday" : ""}`, rows: rows.map((r) => ({ ...r, team: teams.get(r.team), tip: tipClock(instant(r.kickoffUtc)) })), sub: spec.method === "probability" ? "Chance to score a touchdown if he plays" : "Projected median for the game", estimate: est, ...NFL_V2 })], `nfl-w${String(week).padStart(2, "0")}-${b.id}`);
+    const isProb = spec.method === "probability";
+    const quoteTimes = rows.map((r) => r.quotedAt).filter(Boolean);
+    const missing = rows.filter((r) => !r.quotedAt).map((r) => ({ playerId: r.key, name: r.name, reason: r.comparison.reason }));
+    const cards = v2Cards([v2Top5Card({ title: spec.label, chip: `NFL · Week ${week}${sundayOnly ? " · Sunday" : ""}`, rows: rows.map((r) => ({ ...r, team: teams.get(r.team), tip: tipClock(instant(r.kickoffUtc)) })), sub: isProb ? "Chance to score a touchdown if he plays" : undefined, section: isProb ? null : MODEL_SECTION, real: !isProb, note: !isProb && quoteTimes.length ? COMPARISON_LEGEND : null, ...NFL_V2 })], `nfl-w${String(week).padStart(2, "0")}-${b.id}`);
     const caption = checkCaption(`GameTime Picks NFL Week ${week} top 5 ${spec.label.toLowerCase()}${est ? ` (${est.replace(/·/g, "-")})` : ""}: ${rows.map((r) => `${r.rank}. ${r.name} ${r.text}`).join(", ")}. ${FOOT.projections} ${legalLine}`);
     const gen = wb.generatedAt;
-    posts.push({
-      designVersion: DESIGN_VERSION, sport: "nfl", date: etDate(first), contentType: CONTENT_TYPE.NFL_WEEKLY_TOP5, variant: b.id, cards, caption, snapshotRefs: refs, eligibilityClass: est ? ELIGIBILITY.ESTIMATE : ELIGIBILITY.OFFICIAL, disclosures: est ? [est, ...DISCLOSE] : DISCLOSE, title: `NFL Week ${week} top 5 ${spec.label.toLowerCase()}`, firstStartUtc: toIso(first),
+    posts.push(withSendWindow({
+      designVersion: DESIGN_VERSION, sport: "nfl", date: etDate(first), contentType: CONTENT_TYPE.NFL_WEEKLY_TOP5, variant: b.id, cards, caption, quoteTimes, containsMarketData: quoteTimes.length > 0, snapshotRefs: quoteTimes.length ? [...refs, ...captures.refs] : refs, eligibilityClass: est ? ELIGIBILITY.ESTIMATE : ELIGIBILITY.OFFICIAL, disclosures: [...(est ? [est] : []), ...(quoteTimes.length ? [QUOTE_DISCLOSURE] : []), ...DISCLOSE], title: `NFL Week ${week} top 5 ${spec.label.toLowerCase()}`, firstStartUtc: toIso(first),
       ccCaption: `NFL Week ${week} top 5 ${spec.label.toLowerCase()}${est ? " (estimate)" : ""}. Model projections.`, extraClaims: [...ccWeek(week), { key: "topN", display: "5", evidenceRef: file }],
-      checks: ["pregameScope applied at asOf", "every row == per-game official board at the family metric", "estimate label on card when state is ESTIMATE", "card cells == validated text"],
+      checks: ["pregameScope applied at asOf", "every row == per-game official board at the family metric", "estimate label kept in metadata; the card says MODEL PROJECTION", "card cells == validated text"],
       window: { opensAt: asOf, closesAt: toIso(first) }, recommended: recommendedPostTime({ games: rows, afterEtDate: dayBefore(etDate(first)), asOf }), recommendedNote: "the two hours before kickoff have passed",
       freshness: { asOf, sourceGeneratedAt: gen, ageHours: ageHours(asOf, gen), expiresAt: toIso(first), rule: "valid until first kickoff of the listed games" },
-      ...validationOf(est), content: { week, board: b.id, label: spec.label, state: b.state, estimateLabel: est, rows: rows.map(({ key: _k, meta: _m, ...r }) => r) },
-    });
+      ...validationOf(est), content: { week, board: b.id, label: spec.label, state: b.state, estimateLabel: est, lines: { shown: quoteTimes.length, missing, note: COMPARISON_NOTE }, gaps: missing.length ? [`NO_COMPARISON_ROWS_${missing.length}`] : [], rows: rows.map(({ key: _k, meta: _m, line: _l, note: _n, ...r }) => r) },
+    }, quoteTimes));
   }
   return { posts, refused };
 }
 
 const NFL_STAT_FAMILIES = Object.freeze(["player_pass_yds", "player_rush_yds", "player_reception_yds", "anytime_td", "player_receptions"]);
 export const NFL_MAX_PLAYERS_PER_TEAM = 12;
-/** Per-game player cards from the official board. An ESTIMATE family keeps its label and " est." on every number. */
+/** Per-game player cards from the official board. An ESTIMATE family stays ESTIMATE in metadata; the card prints the number alone. */
 export function prepareNflPlayerStats({ seasonType = 2, week, asOf }) {
   assertAsOf(asOf);
   const posts = []; const refused = [];
@@ -381,13 +423,13 @@ export function prepareNflPlayerStats({ seasonType = 2, week, asOf }) {
       const state = board.families?.[f]?.state;
       if (!m || !["PUBLISHED", "ESTIMATE"].includes(state)) return null;
       const value = f === "anytime_td" ? m.probability : m.median;
-      return value == null ? null : `${formatValue(FAMILY_KIND[f], value)}${state === "ESTIMATE" ? " est." : ""}`;
+      return value == null ? null : formatValue(FAMILY_KIND[f], value);
     };
     const team = (abbr) => board.players.filter((p) => p.team === abbr).map((p) => ({ id: p.playerId, name: p.name, weight: Math.max(...NFL_STAT_FAMILIES.filter((f) => f !== "anytime_td" && f !== "player_receptions").map((f) => p.markets?.[f]?.median ?? 0)), stats: Object.fromEntries(NFL_STAT_FAMILIES.map((f) => [f, stat(f, p.markets?.[f])])) })).filter((p) => Object.values(p.stats).some(Boolean)).sort((a, b) => b.weight - a.weight || a.id.localeCompare(b.id)).slice(0, NFL_MAX_PLAYERS_PER_TEAM);
     const m = `${v.away.abbr} @ ${v.home.abbr}`;
     const awayPlayers = team(v.away.abbr); const homePlayers = team(v.home.abbr);
-    const showsEstimate = [...awayPlayers, ...homePlayers].some((p) => Object.values(p.stats).some((x) => x?.endsWith(" est.")));
-    const cards = v2Cards(nflPlayerPages({ away: nflTeamOf(v.away.abbr, v.away.name), home: nflTeamOf(v.home.abbr, v.home.name), chip: `NFL · ${chipDay(t)} · ${tipClock(t)}`, awayPlayers, homePlayers, estimate: showsEstimate ? estimate : null }), `nfl-w${String(week).padStart(2, "0")}-players-${id}`);
+    const showsEstimate = [...awayPlayers, ...homePlayers].some((p) => Object.entries(p.stats).some(([f, x]) => x != null && board.families?.[f]?.state === "ESTIMATE"));
+    const cards = v2Cards(nflPlayerPages({ away: nflTeamOf(v.away.abbr, v.away.name), home: nflTeamOf(v.home.abbr, v.home.name), chip: `NFL · ${chipDay(t)} · ${tipClock(t)}`, awayPlayers, homePlayers }), `nfl-w${String(week).padStart(2, "0")}-players-${id}`);
     posts.push({
       designVersion: DESIGN_VERSION, sport: "nfl", date: etDate(t), contentType: CONTENT_TYPE.NFL_PLAYER_STATS, variant: id, eventId: id, cards, snapshotRefs: [ref(rel)], eligibilityClass: showsEstimate ? ELIGIBILITY.ESTIMATE : ELIGIBILITY.OFFICIAL, disclosures: showsEstimate ? [estimate, ...DISCLOSE] : DISCLOSE,
       title: `${m}: projected player stats`, firstStartUtc: toIso(t), caption: checkCaption(`GameTime Picks NFL Week ${week}: ${m} projected player stats. ${FOOT.projections} ${legalLine}`), ccCaption: `${m} projected player stats. Model projections.`, ccCaptionB: `${m} player projections.`, extraClaims: ccWeek(week),
@@ -410,8 +452,8 @@ const fitPlayers = (v, board) => {
 export function nflTdRows({ players, board, eventId, kickoffUtc, offers, asOf }) {
   if (board.families?.anytime_td?.state !== "PUBLISHED") return [];
   return players.filter((p) => Number.isFinite(p.markets?.anytime_td?.probability)).sort((a, b) => b.markets.anytime_td.probability - a.markets.anytime_td.probability || a.playerId.localeCompare(b.playerId)).slice(0, NFL_TD_CANDIDATES).map((p, i) => {
-    const q = nflPropOffer(offers, { eventId, playerId: p.playerId, market: "player_anytime_td", kickoffUtc, asOf });
-    return { key: p.playerId, playerId: p.playerId, rank: i + 1, name: p.name, teamAbbr: p.team, pct: formatValue("probability", p.markets.anytime_td.probability), value: p.markets.anytime_td.probability, note: q ? `Yes ${americanText(q.price)}` : "No quote", quote: q };
+    const { quote: q, reason } = nflTdYes({ eventId, playerId: p.playerId, kickoffUtc, offers, asOf });
+    return { reason, key: p.playerId, playerId: p.playerId, rank: i + 1, name: p.name, teamAbbr: p.team, pct: formatValue("probability", p.markets.anytime_td.probability), value: p.markets.anytime_td.probability, note: q ? `Yes ${americanText(q.price)}` : "No quote", quote: q };
   });
 }
 
@@ -428,7 +470,7 @@ export function nflPropRows({ players, board, eventId, kickoffUtc, offers, asOf 
     for (const { p, q, why } of (priced.length ? priced : all).sort((a, b) => b.p.markets[s.family].median - a.p.markets[s.family].median || a.p.playerId.localeCompare(b.p.playerId)).slice(0, s.rows)) {
       const stale = Boolean(q) && ageHours(asOf, q.capturedAt) > NFL_LINE_MAX_AGE_HOURS;
       const comparison = nflPropComparison({ projection: p.markets[s.family].median, quote: q, reason: why, stale, expected: { eventId, playerId: p.playerId, market: s.family } });
-      rows.push({ comparison, vs: comparisonCell(comparison, americanText), key: `${p.playerId}.${s.family}`, playerId: p.playerId, market: s.family, name: p.name, team: p.team, family: s.label, projection: `${formatValue(FAMILY_KIND[s.family], p.markets[s.family].median)}${est ? " est." : ""}`, line: q && !stale ? String(q.line) : "No line", over: q?.overPrice != null ? americanText(q.overPrice) : "No price", under: q?.underPrice != null ? americanText(q.underPrice) : "No price", estimate: est, quote: q });
+      rows.push({ comparison, vs: comparisonCell(comparison, americanText), key: `${p.playerId}.${s.family}`, playerId: p.playerId, market: s.family, name: p.name, team: p.team, family: s.label, projection: `${formatValue(FAMILY_KIND[s.family], p.markets[s.family].median)}`, line: q && !stale ? String(q.line) : "No line", over: q?.overPrice != null ? americanText(q.overPrice) : "No price", under: q?.underPrice != null ? americanText(q.underPrice) : "No price", estimate: est, quote: q });
     }
   }
   return rows;
@@ -459,7 +501,8 @@ export function prepareNflGamePosts({ seasonType = 2, week, asOf, captures = nul
     const io = { players: fit, board, eventId: id, kickoffUtc: v.kickoffUtc, offers, asOf };
     const td = nflTdRows(io);
     if (!td.length) { refused.push({ contentType: type, variant: id, reason: "NO_TD_ROWS" }); continue; }
-    const shown = market ? [market] : [];
+    const shown = [...(market ? [market] : []), ...td.filter((r) => r.quote).map((r) => ({ quotedAt: r.quote.capturedAt }))];
+    const tdMissing = td.filter((r) => !r.quote);
     const age = quoteAgeOf(shown, asOf);
     const byTeam = new Map([[away.abbr, away], [home.abbr, home]]);
     const game = { ...nflCardGame(v, g), market, kickoffText: kickoffEst(t) };
@@ -469,14 +512,14 @@ export function prepareNflGamePosts({ seasonType = 2, week, asOf, captures = nul
       ...v2Cards([nflTdCard({ away, home, chip, rows: td.map((r) => ({ ...r, team: byTeam.get(r.teamAbbr) })) })], "t"),
     ].map((c, i) => ({ ...c, name: `nfl-w${wk}-game-post-${id}-${i + 1}` }));
     const winnerTeam = g.winner === v.home.abbr ? v.home : v.away;
-    const gaps = [...(market ? [] : [staleMarket ? "STALE_WINNER_PRICE" : "NO_WINNER_PRICE"]), ...(td.length < NFL_TD_CANDIDATES ? [`TD_ROWS_${td.length}`] : []), ...(age.stale ? [`STALE_QUOTES_${age.oldestAgeHours}H`] : [])];
+    const gaps = [...(market ? [] : [staleMarket ? "STALE_WINNER_PRICE" : "NO_WINNER_PRICE"]), ...(td.length < NFL_TD_CANDIDATES ? [`TD_ROWS_${td.length}`] : []), ...(tdMissing.length ? [`NO_TD_PRICE_${tdMissing.length}`] : []), ...(age.stale ? [`STALE_QUOTES_${age.oldestAgeHours}H`] : [])];
     posts.push(withSendWindow({
       ...w, contentType: type, designVersion: NFL_GAME_POST_DESIGN_VERSION, title: `${g.matchup}: game post`, cards, containsMarketData: age.quotes > 0,
-      disclosures: [...new Set([...(age.quotes ? ["Sportsbook prices are observed quotes, separate from the model estimates"] : []), ...w.disclosures])],
+      disclosures: [...new Set([...(age.quotes ? [QUOTE_DISCLOSURE] : []), ...w.disclosures])],
       snapshotRefs: [...new Map([...w.snapshotRefs, ref(rel), ...(age.quotes ? captures.refs : [])].map((r) => [r.ref, r])).values()],
       captionGame: { awayName: v.away.name, homeName: v.home.name, winnerName: winnerTeam.name, winnerPct: `${g.winner === v.home.abbr ? game.homePct : game.awayPct}%` }, extraClaims: ccWeek(week),
-      checks: [...new Set([...w.checks, "exactly 2 images: priced winner card, separate Top 3 anytime TD card", "no TD on the winner card", "no props graphic", "no OUT, injured or questionable player named", "no implied chance computed", "prices read from one book, never inferred"])],
-      ...validationOf(null), content: { week, window: nflWindow(t), winner: { eventId: g.eventId, winner: g.winner }, availabilityCaveats: board.players.filter((p) => !fit.includes(p)).map((p) => ({ playerId: p.playerId, name: p.name, status: p.participation })), game: g, imageTypes: [market ? "WINNER_PRICED" : "WINNER_NO_PRICE", "TOP_TD"], tdCandidates: td.map((r) => ({ playerId: r.playerId, name: r.name, teamAbbr: r.teamAbbr, pct: r.pct, value: r.value })), impliedProbability: "NOT_SHOWN", market: market ? { side: market.sideAbbr, book: market.book, price: market.price, quotedAt: market.quotedAt } : null, quoteAge: age, gaps, estimate: false, socialAuthorized: false },
+      checks: [...new Set([...w.checks, "exactly 2 images: priced winner card, separate Top 3 anytime TD card", "TD card prints the verified Yes price only, never over/under", "no TD on the winner card", "no props graphic", "no OUT, injured or questionable player named", "no implied chance computed", "prices read from one book, never inferred"])],
+      ...validationOf(null), content: { week, window: nflWindow(t), winner: { eventId: g.eventId, winner: g.winner }, availabilityCaveats: board.players.filter((p) => !fit.includes(p)).map((p) => ({ playerId: p.playerId, name: p.name, status: p.participation })), game: g, imageTypes: [market ? "WINNER_PRICED" : "WINNER_NO_PRICE", "TOP_TD"], tdCandidates: td.map((r) => ({ playerId: r.playerId, name: r.name, teamAbbr: r.teamAbbr, pct: r.pct, value: r.value, yesPrice: r.quote?.price ?? null, book: r.quote?.book ?? null, quotedAt: r.quote?.capturedAt ?? null, missingReason: r.reason })), impliedProbability: "NOT_SHOWN", market: market ? { side: market.sideAbbr, book: market.book, price: market.price, quotedAt: market.quotedAt } : null, quoteAge: age, gaps, estimate: false, socialAuthorized: false },
     }, shown.map((q) => q.quotedAt)));
   }
   return { posts, refused };
@@ -498,11 +541,11 @@ export function prepareNbaTop5({ date, asOf, lineDoc = null }) {
     const b = gate.doc.boards.find((x) => x.key === k);
     if (b.state !== "RANKED") throw new Error(`NBA ${date} ${k}: ${b.reason}`);
     const lineRows = new Map((lineDoc?.rows ?? []).filter((x) => x.identity.market === k).map((x) => [String(x.identity.playerId), x]));
-    const rows = b.rows.map((r) => ({ line: lineBlock(lineRows.get(String(r.providerAthleteId))), key: r.providerAthleteId, rank: r.rank, name: r.name, team: r.team, opponent: r.opponent, kickoffUtc: r.tipUtc, value: r.value, text: laneDisplay(r.value), meta: `${r.matchup} · ${timeOnly(instant(r.tipUtc))} ET` }));
+    const rows = b.rows.map((r) => ({ line: top5LineOf(lineRows.get(String(r.providerAthleteId))), key: r.providerAthleteId, rank: r.rank, name: r.name, team: r.team, opponent: r.opponent, kickoffUtc: r.tipUtc, value: r.value, text: laneDisplay(r.value), meta: `${r.matchup} · ${timeOnly(instant(r.tipUtc))} ET` }));
     const shownLines = rows.filter((r) => r.line).map((r) => lineRows.get(String(r.key)));
     for (const r of rows) if (r.line && lineRows.get(String(r.key)).model?.display !== undefined && Number(lineRows.get(String(r.key)).model.value) !== Number((Math.round(r.value * 10) / 10).toFixed(1))) throw new Error(`${r.name}: line export median differs from the board`);
     const first = Math.min(...rows.map((r) => instant(r.kickoffUtc)));
-    const cards = finishCards([top5Card({ name: `nba-${date}-top5-${k}`, title: `TOP 5 ${b.label.toUpperCase()}`, sub: `NBA · ${longDay(first)} · Highest projected median`, rows, foot: [b.methodText.replace(/ \(the middle.*?\)/, ""), ...(shownLines.length ? [BOX_FOOTER.disclaimer, FOOT.responsible] : [`${FOOT.projections} ${FOOT.noLines}`, legalLine])] })]);
+    const cards = finishCards([top5Card({ name: `nba-${date}-top5-${k}`, title: `TOP 5 ${b.label.toUpperCase()}`, sub: `NBA · ${longDay(first)} · Highest model projection`, rows, foot: [b.methodText.replace(/ \(the middle.*?\)/, ""), ...(shownLines.length ? [BOX_FOOTER.disclaimer, FOOT.responsible] : [`${FOOT.projections} ${FOOT.noLines}`, legalLine])] })]);
     const caption = checkCaption(`GameTime Picks NBA top 5 projected ${b.label.toLowerCase()} for ${longDay(first)}: ${rows.map((r) => `${r.rank}. ${r.name} ${r.text}`).join(", ")}. ${FOOT.projections} ${legalLine}`);
     return {
       sport: "nba", date, contentType: CONTENT_TYPE.NBA_DAILY_TOP5, variant: k, cards, caption, snapshotRefs: [ref(rel)], eligibilityClass: ELIGIBILITY.OFFICIAL, disclosures: DISCLOSE, title: `NBA top 5 ${b.label.toLowerCase()} ${date}`, firstStartUtc: toIso(first),
@@ -674,14 +717,14 @@ export function prepareGameDay({ date, asOf, lineDoc = null, laneOverride = null
     const b = gate.doc.boards.find((x) => x.key === k);
     if (b.state !== "RANKED") { refused.push({ job: `nba-top5-${k}`, reason: b.reason }); continue; }
     const byAbbr = new Map(games.flatMap((g) => [[g.away.abbr, g.away], [g.home.abbr, g.home]]));
-    const rows = b.rows.map((r) => ({ key: r.providerAthleteId, rank: r.rank, name: r.name, team: byAbbr.get(r.team), opponent: r.opponent, tip: tipClock(instant(r.tipUtc)), text: Number(r.value).toFixed(1), value: r.value, line: lineBlock(lineFor.get(`${r.providerAthleteId}:${k}`)), kickoffUtc: r.tipUtc }));
+    const rows = b.rows.map((r) => ({ key: r.providerAthleteId, rank: r.rank, name: r.name, team: byAbbr.get(r.team), opponent: r.opponent, tip: tipClock(instant(r.tipUtc)), text: Number(r.value).toFixed(1), value: r.value, line: top5LineOf(lineFor.get(`${r.providerAthleteId}:${k}`)), kickoffUtc: r.tipUtc }));
     const f = Math.min(...rows.map((r) => instant(r.kickoffUtc)));
     const cap = `Top 5 projected ${b.label.toLowerCase()} in the NBA tonight, from our model.`;
     const base = (o) => ({ ...META, slateGames: games.length, contentType: CONTENT_TYPE.NBA_DAILY_TOP5, eligibilityClass: ELIGIBILITY.OFFICIAL, title: `NBA top 5 ${b.label.toLowerCase()} ${date}`, firstStartUtc: toIso(f), caption: pregameCaption(cap), ccCaption: cap, ccCaptionB: `NBA top 5 ${b.label.toLowerCase()} tonight.`, extraClaims: [{ key: "topN", display: "5", evidenceRef: rel }], window: { opensAt: asOf, closesAt: toIso(f) }, recommended: recommendedPostTime({ games: rows, afterEtDate: dayBefore(date), asOf }), recommendedNote: "the two hours before tip-off have passed", freshness: fresh(f), ...o });
     const content = rows.map(({ team, line: _l, ...r }) => ({ ...r, team: team.abbr }));
     const ids = rows.map((r) => r.key);
     posts.push(base({ ...anomaliesFor(modelCheck, ids, [k]), variant: `${k}-model`, cards: v2Cards([v2Top5Card({ title: b.label, chip, rows })], `nba-${date}-top5-${k}-model`), disclosures: [DISCLOSURE], content: { board: k, rows: content, ranking: "projection only" } }));
-    if (lineDoc) posts.push(base({ ...anomaliesFor(realCheck, ids, [k]), variant: k, containsMarketData: true, cards: v2Cards([v2Top5Card({ title: b.label, chip, rows, real: true })], `nba-${date}-top5-${k}`), disclosures: [DISCLOSURE], content: { board: k, rows: content, ranking: "projection only", quotedAt: quoteRangeText(rows.map((r) => lineFor.get(`${r.key}:${k}`)).filter(Boolean)) } }));
+    if (lineDoc) posts.push(base({ ...anomaliesFor(realCheck, ids, [k]), variant: k, containsMarketData: true, cards: v2Cards([v2Top5Card({ title: b.label, chip, rows, real: true, section: MODEL_SECTION, note: rows.some((r) => r.line) ? COMPARISON_LEGEND : null })], `nba-${date}-top5-${k}`), disclosures: [DISCLOSURE], content: { board: k, rows: content, ranking: "projection only", lines: { shown: rows.filter((r) => r.line).length, missing: rows.filter((r) => !r.line).map((r) => ({ playerId: r.key, name: r.name, reason: top5Reason(lineFor.get(`${r.key}:${k}`)) })) }, quotedAt: quoteRangeText(rows.map((r) => lineFor.get(`${r.key}:${k}`)).filter(Boolean)) } }));
   }
   if (lineDoc) { const c = nbaTop5Carousel({ posts, date }); posts.push(...c.posts); refused.push(...c.refused); }
   let moneylineMatch = null;
@@ -993,7 +1036,7 @@ export async function runPack(args) {
     const week = Number(args["nfl-week"]);
     const captures = loadNflCaptures();
     attempt("nfl-winners", () => prepareNflWinners({ week, asOf, captures }));
-    attempt("nfl-top5", () => prepareNflSundayTop5({ week, asOf }));
+    attempt("nfl-top5", () => prepareNflSundayTop5({ week, asOf, captures }));
     attempt("nfl-game-posts", () => prepareNflGamePosts({ week, asOf, captures }));
   } else if (args["nfl-week"]) {
     const week = Number(args["nfl-week"]);
