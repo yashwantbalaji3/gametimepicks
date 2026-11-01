@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-31T00:25:07Z",
- "sourceGeneratedAt": "2026-10-31T00:25:07Z",
+ "generatedAt": "2026-10-31T23:57:49Z",
+ "sourceGeneratedAt": "2026-10-31T23:57:49Z",
  "forecastInputHash": "792ce99e5d7895cc",
  "providerEventId": "401873029",
  "matchup": "LV @ NYJ",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-31T00:25:07Z",
-  "roleEvidenceAt": "2026-10-31T00:25:07Z",
+  "injuriesCapturedAt": "2026-10-31T23:57:49Z",
+  "roleEvidenceAt": "2026-10-31T23:57:49Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -65,6 +65,23 @@
        "nfl-athlete-4685247",
        "nfl-athlete-4569371",
        "nfl-athlete-3134353"
+      ]
+     },
+     {
+      "team": "LV",
+      "pool": "targets",
+      "originalSum": 1.0529,
+      "normalizedSum": 1,
+      "factor": 0.9498,
+      "playerIds": [
+       "nfl-athlete-4432665",
+       "nfl-athlete-4428718",
+       "nfl-athlete-4890973",
+       "nfl-athlete-4429086",
+       "nfl-athlete-4382466",
+       "nfl-athlete-4241983",
+       "nfl-athlete-4603186",
+       "nfl-athlete-4432775"
       ]
      }
     ]
@@ -127,14 +144,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 63,
+  "absent": 66,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "LV": {
    "counts": {
-    "PROJECTED": 12,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 13,
+    "EXCLUDED_UNAVAILABLE": 0,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -219,6 +236,17 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-4603186",
+     "name": "Jack Bech",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
      "playerId": "nfl-athlete-4241983",
      "name": "Cody White",
      "state": "PROJECTED",
@@ -273,12 +301,6 @@
       "anytime_td"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4603186",
-     "name": "Jack Bech",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Injured Reserve"
     }
    ]
   },
@@ -431,7 +453,7 @@
      "playerId": "nfl-athlete-14880",
      "name": "Kirk Cousins"
     },
-    "snapshotAt": "2026-10-28T13:58:02Z",
+    "snapshotAt": "2026-10-31T13:34:51Z",
     "removed": [
      {
       "playerId": "nfl-athlete-4260394",
@@ -486,6 +508,19 @@
     "state": "NORMALIZED"
    },
    {
+    "team": "LV",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 1,
+    "originalSum": 1.0529,
+    "residualOther": 0,
+    "joined": 8,
+    "missed": 0,
+    "state": "NORMALIZED"
+   },
+   {
     "team": "NYJ",
     "pool": "passAttempts",
     "markets": [
@@ -495,19 +530,6 @@
     "originalSum": 1,
     "residualOther": 0,
     "joined": 1,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "LV",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.9835,
-    "originalSum": 0.9835,
-    "residualOther": 0.0165,
-    "joined": 7,
     "missed": 0,
     "state": "CONSERVED"
    },
@@ -553,12 +575,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 4.3284,
-     "p10": 1,
-     "p25": 2,
-     "median": 4,
-     "p75": 6,
-     "p90": 8,
+     "mean": 4.1109,
+     "p10": 0.9498,
+     "p25": 1.8995,
+     "median": 3.799,
+     "p75": 5.6985,
+     "p90": 7.5981,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.9498
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -583,12 +609,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 5.9216,
-     "p10": 2,
-     "p25": 3,
-     "median": 5,
-     "p75": 8,
-     "p90": 11,
+     "mean": 5.6241,
+     "p10": 1.8995,
+     "p25": 2.8493,
+     "median": 4.7488,
+     "p75": 7.5981,
+     "p90": 10.4473,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.9498
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -695,12 +725,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 4.1533,
-     "p10": 1,
-     "p25": 2,
-     "median": 4,
-     "p75": 6,
-     "p90": 8,
+     "mean": 3.9446,
+     "p10": 0.9498,
+     "p25": 1.8995,
+     "median": 3.799,
+     "p75": 5.6985,
+     "p90": 7.5981,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.9498
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -861,12 +895,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.6031,
-     "p10": 1,
-     "p25": 2,
-     "median": 3,
-     "p75": 5,
-     "p90": 7,
+     "mean": 3.4221,
+     "p10": 0.9498,
+     "p25": 1.8995,
+     "median": 2.8493,
+     "p75": 4.7488,
+     "p90": 6.6483,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.9498
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -946,12 +984,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.5005,
+     "mean": 1.4251,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
+     "median": 0.9498,
+     "p75": 1.8995,
+     "p90": 2.8493,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.9498
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -976,16 +1018,54 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.8525,
+     "mean": 1.7594,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 4,
+     "p25": 0.9498,
+     "median": 1.8995,
+     "p75": 2.8493,
+     "p90": 3.799,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.9498
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
      "probability": 0.1455,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4603186",
+   "name": "Jack Bech",
+   "team": "LV",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 18.525,
+     "p10": 0,
+     "p25": 1.03,
+     "median": 12.33,
+     "p75": 28.05,
+     "p90": 46.67,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 1.5985,
+     "p10": 0,
+     "p25": 0.9498,
+     "median": 0.9498,
+     "p75": 1.8995,
+     "p90": 3.799,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.9498
+     },
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.1303,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -1064,12 +1144,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.3386,
+     "mean": 1.2713,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
+     "median": 0.9498,
+     "p75": 1.8995,
+     "p90": 2.8493,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.9498
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {

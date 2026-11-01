@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-31T00:25:07Z",
- "sourceGeneratedAt": "2026-10-31T00:25:07Z",
+ "generatedAt": "2026-10-31T23:57:49Z",
+ "sourceGeneratedAt": "2026-10-31T23:57:49Z",
  "forecastInputHash": "100db6628db2b95c",
  "providerEventId": "401873034",
  "matchup": "NE @ MIA",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-31T00:25:07Z",
-  "roleEvidenceAt": "2026-10-31T00:25:07Z",
+  "injuriesCapturedAt": "2026-10-31T23:57:49Z",
+  "roleEvidenceAt": "2026-10-31T23:57:49Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -120,21 +120,21 @@
    "player_receptions"
   ],
   "rows": 64,
-  "rosterDropped": 43,
+  "rosterDropped": 42,
   "withoutEspnId": 0
  },
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 61,
+  "absent": 58,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "NE": {
    "counts": {
-    "PROJECTED": 12,
-    "EXCLUDED_UNAVAILABLE": 1,
-    "EXCLUDED_NO_CURRENT_ROLE": 1,
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 3,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
@@ -164,16 +164,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4432710",
-     "name": "TreVeyon Henderson",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE"
-    },
-    {
      "playerId": "nfl-athlete-4431431",
      "name": "Corey Kiner",
      "state": "PROJECTED",
@@ -182,17 +172,6 @@
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4047646",
-     "name": "A.J. Brown",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-2991662",
@@ -269,16 +248,32 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-4698253",
+     "name": "Lan Larison",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4432710",
+     "name": "TreVeyon Henderson",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-4047646",
+     "name": "A.J. Brown",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-4361432",
      "name": "Romeo Doubs",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
-    },
-    {
-     "playerId": "nfl-athlete-4698253",
-     "name": "Lan Larison",
-     "state": "EXCLUDED_NO_CURRENT_ROLE",
-     "reason": "not on NE's current roster"
     }
    ]
   },
@@ -503,10 +498,10 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.826,
-    "originalSum": 0.826,
-    "residualOther": 0.174,
-    "joined": 7,
+    "sum": 0.8905,
+    "originalSum": 0.8905,
+    "residualOther": 0.1095,
+    "joined": 8,
     "missed": 0,
     "state": "CONSERVED"
    }
@@ -598,21 +593,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 36.571,
-     "p10": 8.94,
-     "p25": 18.13,
-     "median": 32.12,
-     "p75": 50.38,
-     "p90": 70.71,
+     "mean": 36.502,
+     "p10": 9.06,
+     "p25": 18.22,
+     "median": 32.27,
+     "p75": 50.9,
+     "p90": 68.77,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 23.337,
+     "mean": 22.1,
      "p10": 0,
-     "p25": 5.2,
-     "median": 17.65,
-     "p75": 34.72,
-     "p90": 54.67,
+     "p25": 4,
+     "median": 16.02,
+     "p75": 32.66,
+     "p90": 53.5,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -631,48 +626,18 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4047646",
-   "name": "A.J. Brown",
-   "team": "NE",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 34.541,
-     "p10": 3.22,
-     "p25": 13.12,
-     "median": 28.33,
-     "p75": 49.44,
-     "p90": 72.45,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 4.1741,
-     "p10": 1,
-     "p25": 2,
-     "median": 4,
-     "p75": 6,
-     "p90": 8,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.3004,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4427095",
    "name": "DeMario Douglas",
    "team": "NE",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 31.532,
-     "p10": 0.59,
-     "p25": 9.98,
-     "median": 25.15,
-     "p75": 45.23,
-     "p90": 70.24,
+     "mean": 30.586,
+     "p10": 0,
+     "p25": 10.18,
+     "median": 24.71,
+     "p75": 44.87,
+     "p90": 66.51,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -697,12 +662,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 35.746,
-     "p10": 3.46,
-     "p25": 13.69,
-     "median": 30.06,
-     "p75": 51.46,
-     "p90": 74.61,
+     "mean": 34.155,
+     "p10": 1.98,
+     "p25": 12.19,
+     "median": 27.88,
+     "p75": 49.72,
+     "p90": 73.99,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -746,27 +711,6 @@
     },
     "anytime_td": {
      "probability": 0.2599,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4432710",
-   "name": "TreVeyon Henderson",
-   "team": "NE",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 27.929,
-     "p10": 4.32,
-     "p25": 11.26,
-     "median": 23.2,
-     "p75": 39.92,
-     "p90": 57.92,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.2427,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -846,12 +790,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 37.108,
-     "p10": 3.03,
-     "p25": 12.87,
-     "median": 30.4,
-     "p75": 53.36,
-     "p90": 80.53,
+     "mean": 35.885,
+     "p10": 2.7,
+     "p25": 13.01,
+     "median": 29.53,
+     "p75": 51.89,
+     "p90": 76.78,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -876,12 +820,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 20.944,
+     "mean": 20.169,
      "p10": 0,
-     "p25": 1.96,
-     "median": 14.84,
-     "p75": 31.9,
-     "p90": 50.84,
+     "p25": 1.43,
+     "median": 13.38,
+     "p75": 30.76,
+     "p90": 50.25,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -906,12 +850,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 23.787,
-     "p10": 1.15,
-     "p25": 6.94,
+     "mean": 23.702,
+     "p10": 0.96,
+     "p25": 6.42,
      "median": 17.76,
-     "p75": 34.46,
-     "p90": 53.81,
+     "p75": 34.76,
+     "p90": 54.02,
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
@@ -1059,12 +1003,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 14.676,
+     "mean": 13.685,
      "p10": 0,
      "p25": 0,
-     "median": 7.81,
-     "p75": 22.66,
-     "p90": 40.46,
+     "median": 7.18,
+     "p75": 20.83,
+     "p90": 38.56,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -1089,16 +1033,37 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 20.426,
-     "p10": 0.73,
-     "p25": 5.65,
-     "median": 15.08,
-     "p75": 30.11,
-     "p90": 46.34,
+     "mean": 20.989,
+     "p10": 0.79,
+     "p25": 5.91,
+     "median": 16.08,
+     "p75": 30.73,
+     "p90": 48.59,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
      "probability": 0.129,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4698253",
+   "name": "Lan Larison",
+   "team": "NE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 1.4161,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.1095,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -1165,12 +1130,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 12.55,
+     "mean": 12.468,
      "p10": 0,
      "p25": 0,
-     "median": 6.16,
-     "p75": 19.6,
-     "p90": 34.89,
+     "median": 6.56,
+     "p75": 19.61,
+     "p90": 33.89,
      "pricingState": "NOT_PROBED"
     }
    }
