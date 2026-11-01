@@ -127,7 +127,7 @@ const mbox = (t) => `<div class="mbox ${t.nickname.length > 11 ? "long" : ""}" s
 const slab = (t) => `<div class="slab" style="--c:${t.color};--a:${t.secondary};--cink:${t.ink}"><div class="city" data-fit>${esc(t.city)}</div><div class="nick" data-fit>${esc(t.nickname)}</div></div>`;
 
 /** Reference 1. `g`: { eventId, away, home, awayP, homeP, awayPct, homePct, winner (team|null), tipDay, tipTime, chip }. */
-export function winnerCard(g, { kicker = "GameTimePicks Prediction", meterLabel = "Game winner estimate", disclosure = DISCLOSURE } = {}) {
+export function winnerCard(g, { kicker = "GameTimePicks Prediction", meterLabel = "Official win chance", disclosure = DISCLOSURE } = {}) {
   const cells = {};
   const [ca, cb] = meterColours(g.away, g.home);
   const total = g.awayP + g.homeP;
@@ -159,7 +159,7 @@ export function nflTdCard({ away, home, chip, rows, disclosure = NFL_DISCLOSURE 
 }
 
 /** A: one card, every game of the slate. */
-export function tonightCard({ games, chip, kicker = "NBA Tonight", sub = "Game winner estimates", timeHead = "TIP ET", disclosure = DISCLOSURE, priced = false, note = null }) {
+export function tonightCard({ games, chip, kicker = "NBA Tonight", sub = "Official win chances", timeHead = "TIP ET", disclosure = DISCLOSURE, priced = false, note = null }) {
   const cells = {};
   const rows = games.map((g) => {
     const [ca, cb] = meterColours(g.away, g.home);
