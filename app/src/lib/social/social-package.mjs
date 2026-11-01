@@ -301,7 +301,7 @@ export function socialPackageViolations(p) {
   const cc = p?.commandCenter;
   for (const c of cc?.captions ?? []) for (const x of ccCaptionProblems(c.text, cc.claims ?? [], { hasMiss: cc.hasMiss })) v.push(`Command Center caption ${c.id}: ${x}`);
   if (p?.anomalyCheck !== undefined) {
-    if (!["PASS", "REVIEW"].includes(p.anomalyCheck) || !Array.isArray(p.anomalies)) v.push("anomalyCheck must be PASS or REVIEW with an anomalies list");
+    if (!["PASS", "REVIEW", ...(p.publicationException?.affected && p.reviewAnomalyCheck === "REVIEW" ? ["EXCEPTION"] : [])].includes(p.anomalyCheck) || !Array.isArray(p.anomalies)) v.push("anomalyCheck must be PASS or REVIEW with an anomalies list");
     for (const a of p.anomalies ?? []) if (!a.playerId || !a.market || !a.verdict || /[+\u2212-]\d{3}\b|\bline (of )?\d|\$\d/i.test(String(a.detail))) v.push(`anomaly ${a.playerId}:${a.market} needs fields and may not print a line or a price`);
   }
   if ((p?.validationStatus == null) !== (p?.displayStatus == null)) v.push("validationStatus and displayStatus travel together");

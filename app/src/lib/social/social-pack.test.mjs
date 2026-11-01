@@ -12,9 +12,11 @@ import path from "node:path";
 import { xWeighted, CC_KIND_MAP, ccCaptionProblems, editorialPlan, CC_KIND, buildNbaRecap, buildNflRecap, buildSocialPackage, recapFinalsProblems, recommendedPostTime, socialPackageViolations, CONTENT_TYPE, denominatorText } from "./social-package.mjs";
 import { formatValue } from "../sports/nfl/forecast-view.mjs";
 import { prepareNbaRecap, prepareNbaTop5, prepareNflRecap, prepareNflTop5, prepareNflWinners, winnerRow, writePackages, prepareNbaTonight, prepareNflGameWinners, prepareNflPlayerStats, lineBlock, TONIGHT_ROWS, boxscorePosts, prepareNbaBoxscore, prepareGameDay } from "../../../scripts/social/render-social-pack.mjs";
-import { nbaTop5Carousel, nflTdRows, nflPropRows, prepareNflGamePosts } from "../../../scripts/social/render-social-pack.mjs";
+import { nbaTop5Carousel, nflTdRows, nflPropRows, prepareNflGamePosts, prepareNflSundayTop5 } from "../../../scripts/social/render-social-pack.mjs";
 import { nflMoneylineQuote, nflPropOffer } from "../../../scripts/social/nfl-line-capture.mjs";
 import { approvedCaption } from "./approved-captions.mjs";
+import { applyDisplayException } from "./display-exception.mjs";
+import { sendWindow } from "./send-window.mjs";
 import { americanText } from "./nba-moneyline.mjs";
 import { visibleText } from "../../../scripts/social/nba-line-cards.mjs";
 import { sourceTextProblems, verifyGameDayCard, meterColours, teamOf } from "../../../scripts/social/game-day-cards.mjs";
@@ -439,18 +441,49 @@ test("NFL weekly Top 5: pass and rush render as labelled estimates; validation i
   }
 });
 
-test("NFL_GAME_POST: 11-01 posts keep dedupe by event; no capture means no price and a reported gap", () => {
+test("NFL_GAME_POST: exactly 2 images, TD only on the first; no capture means no price and a reported gap", () => {
   const { posts } = prepareNflGamePosts({ week: 8, asOf: "2026-10-31T07:30:00Z" });
   assert.ok(posts.length);
   for (const p of posts) {
     assert.equal(p.variant, p.eventId);
-    assert.equal(p.content.imageTypes[0], "WINNER_NO_PRICE");
+    assert.equal(p.cards.length, 2);
+    assert.equal(p.content.imageTypes[0], "WINNER_TD_NO_PRICE");
     assert.ok(p.content.gaps.includes("NO_WINNER_PRICE"));
-    assert.equal(p.content.tdCandidates.length, 3);
-    assert.ok(!/class="[^"]*\b(over|under)\b/.test(p.cards.slice(2).map((c) => c.html.replace(/<style>[\s\S]*?<\/style>/g, "")).join("")), "no direction colour");
+    assert.ok(p.content.tdCandidates.length <= 3);
+    assert.ok(/TOP \d ANYTIME TD PROBABILITIES/.test(p.cards[0].html));
+    assert.ok(!/anytime|TD CHANCE/i.test(p.cards[1].html.replace(/<style>[\s\S]*?<\/style>/g, "")));
+    assert.ok(!/class="[^"]*\b(over|under)\b/.test(p.cards[1].html.replace(/<style>[\s\S]*?<\/style>/g, "")), "no direction colour");
     const { caption, claims } = approvedCaption(p);
-    assert.match(caption, /#NFL$/);
+    assert.match(caption, /Full predictions below 👇\n\n#NFL$/);
     assert.ok(!/not betting advice/i.test(caption));
-    assert.equal(claims.length, 3);
+    assert.deepEqual(ccCaptionProblems(caption, [...claims, ...p.extraClaims]), []);
   }
+});
+
+test("NFL Sunday Top 5: four posts, receiving pair has two images, no MNF or TNF row", () => {
+  const { posts } = prepareNflSundayTop5({ week: 8, asOf: "2026-11-01T14:30:00Z" });
+  assert.deepEqual(posts.map((p) => p.variant), ["top5_anytime_td", "top5_rec_pair", "top5_rush_yds", "top5_pass_yds"]);
+  assert.equal(posts[1].cards.length, 2);
+  for (const r of posts.flatMap((p) => p.content.rows ?? p.content.parts.flatMap((x) => x.rows))) assert.equal(new Date(r.kickoffUtc.replace(/Z$/, ":00Z")).toLocaleDateString("en-US", { timeZone: "America/New_York", weekday: "short" }), "Sun");
+  assert.ok(approvedCaption(posts[1]).caption.includes("receiving yards + receptions"));
+});
+
+test("send window: min of first start and oldest quote plus the sport's age", () => {
+  const nfl = sendWindow({ sport: "nfl", firstStartUtc: "2026-11-01T18:00Z", quoteTimes: ["2026-11-01T14:36:03Z"] });
+  assert.equal(nfl.latestValidSendUtc, "2026-11-01T18:00:00Z");
+  const nba = sendWindow({ sport: "nba", firstStartUtc: "2026-11-02T02:00Z", quoteTimes: ["2026-11-01T15:00:00Z", "2026-11-01T14:00:00Z"] });
+  assert.equal(nba.latestValidSendUtc, "2026-11-01T20:00:00Z");
+  assert.equal(nba.governedBy, "QUOTE_AGE");
+  assert.equal(nba.quoteTimeUtc, "2026-11-01T14:00:00Z");
+});
+
+test("display exception: REVIEW is shown with its list, identity errors block, PASS is untouched", () => {
+  const base = { contentSha256: "s", anomalyCheck: "REVIEW", anomalies: [{ playerId: "1", market: "pts", verdict: "MODEL_DEFECT" }] };
+  const { pkg } = applyDisplayException(base, { id: "x", nameOf: () => "A" });
+  assert.equal(pkg.anomalyCheck, "EXCEPTION");
+  assert.equal(pkg.reviewAnomalyCheck, "REVIEW");
+  assert.deepEqual(pkg.publicationException.affected, [{ playerId: "1", name: "A", market: "pts", verdict: "MODEL_DEFECT" }]);
+  assert.equal(applyDisplayException({ ...base, anomalies: [{ playerId: "1", market: "pts", verdict: "BAD_JOIN" }] }, { id: "x" }).blocked.length, 1);
+  const pass = { anomalyCheck: "PASS", anomalies: [] };
+  assert.equal(applyDisplayException(pass, { id: "x" }).pkg, pass);
 });
