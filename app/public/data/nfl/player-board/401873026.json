@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-01T16:00:18Z",
- "sourceGeneratedAt": "2026-11-01T16:00:18Z",
+ "generatedAt": "2026-11-01T16:42:47Z",
+ "sourceGeneratedAt": "2026-11-01T16:42:47Z",
  "forecastInputHash": "b9fa164ddcceec8f",
  "providerEventId": "401873026",
  "matchup": "BAL @ BUF",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-01T16:00:18Z",
-  "roleEvidenceAt": "2026-11-01T16:00:18Z",
+  "injuriesCapturedAt": "2026-11-01T16:42:47Z",
+  "roleEvidenceAt": "2026-11-01T16:42:47Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -49,25 +49,7 @@
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "BAL",
-      "pool": "targets",
-      "originalSum": 1.0387,
-      "normalizedSum": 1,
-      "factor": 0.9627,
-      "playerIds": [
-       "nfl-athlete-4429615",
-       "nfl-athlete-3116365",
-       "nfl-athlete-4870847",
-       "nfl-athlete-4360939",
-       "nfl-athlete-4038441",
-       "nfl-athlete-5088338",
-       "nfl-athlete-4876132",
-       "nfl-athlete-3043078"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_pass_int": {
@@ -111,14 +93,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 60,
+  "absent": 56,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "BAL": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -243,12 +225,8 @@
     {
      "playerId": "nfl-athlete-5088338",
      "name": "Elijah Sarratt",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_receptions"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-2576581",
@@ -260,8 +238,8 @@
   },
   "BUF": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -369,18 +347,14 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4683153",
-     "name": "Skyler Bell",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_receptions"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
      "playerId": "nfl-athlete-4241476",
      "name": "Tyrell Shavers",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-4683153",
+     "name": "Skyler Bell",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Out"
     }
@@ -438,19 +412,6 @@
   ],
   "pools": [
    {
-    "team": "BAL",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 1,
-    "originalSum": 1.0387,
-    "residualOther": 0,
-    "joined": 8,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
-   {
     "team": "BUF",
     "pool": "passAttempts",
     "markets": [
@@ -460,6 +421,19 @@
     "originalSum": 0.9858,
     "residualOther": 0.0142,
     "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "BAL",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.9697,
+    "originalSum": 0.9697,
+    "residualOther": 0.0303,
+    "joined": 7,
     "missed": 0,
     "state": "CONSERVED"
    },
@@ -482,12 +456,12 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.7724,
-    "originalSum": 0.7724,
-    "residualOther": 0.2276,
-    "joined": 7,
+    "sum": 0.7035,
+    "originalSum": 0.7035,
+    "residualOther": 0.2965,
+    "joined": 6,
     "missed": 0,
-    "state": "CONSERVED"
+    "state": "UNDER_ALLOCATED"
    }
   ],
   "violations": 0
@@ -548,16 +522,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.163,
+     "mean": 1.208,
      "p10": 0,
      "p25": 0,
-     "median": 0.9627,
-     "p75": 1.9255,
-     "p90": 2.8882,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9627
-     },
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -612,16 +582,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 6.6018,
-     "p10": 1.9255,
-     "p25": 3.851,
-     "median": 5.7765,
-     "p75": 8.6647,
-     "p90": 12.5156,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9627
-     },
+     "mean": 6.8573,
+     "p10": 2,
+     "p25": 4,
+     "median": 6,
+     "p75": 9,
+     "p90": 13,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -766,16 +732,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.4957,
-     "p10": 0.9627,
-     "p25": 1.9255,
-     "median": 2.8882,
-     "p75": 4.8137,
-     "p90": 6.7392,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9627
-     },
+     "mean": 3.631,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -830,16 +792,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.7867,
+     "mean": 2.8945,
      "p10": 0,
-     "p25": 0.9627,
-     "median": 1.9255,
-     "p75": 3.851,
-     "p90": 5.7765,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9627
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 6,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -873,16 +831,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.8412,
+     "mean": 1.9125,
      "p10": 0,
-     "p25": 0.9627,
-     "median": 1.9255,
-     "p75": 2.8882,
-     "p90": 3.851,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9627
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -907,16 +861,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.342,
+     "mean": 2.4326,
      "p10": 0,
-     "p25": 0.9627,
-     "median": 1.9255,
-     "p75": 2.8882,
-     "p90": 4.8137,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9627
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1052,32 +1002,7 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.3839,
-     "p10": 0,
-     "p25": 0,
-     "median": 0.9627,
-     "p75": 1.9255,
-     "p90": 2.8882,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9627
-     },
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1047,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4683153",
-   "name": "Skyler Bell",
-   "team": "BUF",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_receptions": {
-     "mean": 1.2634,
+     "mean": 1.4375,
      "p10": 0,
      "p25": 0,
      "median": 1,
@@ -1086,32 +1011,7 @@
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
-     "probability": 0.1015,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-5088338",
-   "name": "Elijah Sarratt",
-   "team": "BAL",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_receptions": {
-     "mean": 1.332,
-     "p10": 0,
-     "p25": 0,
-     "median": 0.9627,
-     "p75": 1.9255,
-     "p90": 2.8882,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9627
-     },
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.0976,
+     "probability": 0.1047,
      "pricingState": "NOT_PROBED"
     }
    }
