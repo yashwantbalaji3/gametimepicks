@@ -506,3 +506,13 @@ test("UFC sections are known, sendable types with a schedule start", async () =>
   const { IMPORT_TYPES, IMPORT_SENDABLE } = await import("../contracts/imported-packages.mjs");
   for (const t of ["UFC_PRELIMS", "UFC_MAIN_CARD"]) assert.ok(IMPORT_SENDABLE.includes(IMPORT_TYPES[t].kind));
 });
+
+test("sameClaims ignores build metadata and key order, and catches every claim", async () => {
+  const { sameClaims } = await import("../contracts/imported-packages.mjs");
+  const a = JSON.stringify({ generatedAt: "1", rows: [{ id: 1, tdP: 0.5, status: "ACTIVE", line: 6.5, price: -110, kickoffUtc: "x" }], hash: "a" });
+  assert.equal(sameClaims(a, JSON.stringify({ hash: "b", rows: [{ price: -110, line: 6.5, status: "ACTIVE", tdP: 0.5, id: 1, kickoffUtc: "x" }], generatedAt: "2" })), true);
+  for (const change of [{ tdP: 0.6 }, { status: "OUT" }, { line: 7.5 }, { price: -120 }, { kickoffUtc: "y" }]) {
+    assert.equal(sameClaims(a, JSON.stringify({ generatedAt: "1", rows: [{ id: 1, tdP: 0.5, status: "ACTIVE", line: 6.5, price: -110, kickoffUtc: "x", ...change }], hash: "a" })), false);
+  }
+  assert.equal(sameClaims(a, "not json"), false);
+});

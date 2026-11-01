@@ -178,6 +178,13 @@ export function overlapsOf(pkg, posts) {
 
 // ── pre-send re-check: nothing is recomputed, the published files are compared ─────────────────────────────────
 /** A ref named for a date or week; `latest` files move all day and are checked at import against the data commit. */
+/** Fields that say when or how a file was built, never what it claims. */
+const VOLATILE_KEY = /^(generatedAt|builtAt|updatedAt|refreshedAt|fetchedAt|checkedAt|asOf|asOfUtc|contentHash|hash|sha256|sourceSha256|dataCommit|commit|runId)$/;
+const canon = (v) => Array.isArray(v) ? v.map(canon) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).filter((k) => !VOLATILE_KEY.test(k)).sort().map((k) => [k, canon(v[k])])) : v;
+/** The same claims apart from build metadata and key order. Anything unreadable counts as changed. */
+export function sameClaims(a, b) {
+  try { return JSON.stringify(canon(JSON.parse(a))) === JSON.stringify(canon(JSON.parse(b))); } catch { return false; }
+}
 export const pinnedRef = (ref) => !/(^|\/)(frozen-)?latest\.json$/.test(ref);
 /** A file in the public repo. Other references (private receipts, export ids) can't be checked here and are kept as provenance. */
 export const repoRef = (ref) => /^(app|data)\//.test(String(ref));

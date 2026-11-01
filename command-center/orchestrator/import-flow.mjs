@@ -1,3 +1,4 @@
+import { REPO_ROOT } from "../lib/util.mjs";
 /**
  * THE IMPORTER — reads Launch Readiness' packages and proposes each one for founder review. It never approves, never
  * schedules, never sends and never recomputes a number.
@@ -20,7 +21,7 @@ import { POST_STATUS, sealPackage } from "../contracts/post-queue.mjs";
 import { baseIdOf } from "../contracts/social-packages.mjs";
 import {
   IMPORT_ASSET_MANIFEST, IMPORT_TYPES, UNSUPPORTED_KIND, BLOCK, importTemplateOf, validatePackage, blockersOf,
-  checkImportedCaption, overlapsOf, showsLines, pinnedRef, repoRef, officialReasons, isImported, isReviewCopy,
+  sameClaims, checkImportedCaption, overlapsOf, showsLines, pinnedRef, repoRef, officialReasons, isImported, isReviewCopy,
 } from "../contracts/imported-packages.mjs";
 import { gitDataSource } from "../recap/multisport-facts.mjs";
 import { revisionRequests } from "../contracts/revision-requests.mjs";
@@ -220,7 +221,11 @@ export function createImportFlow(ctx) {
       for (const r of pkg.imported?.snapshotRefs ?? []) {
         if (!repoRef(r.ref) || !pinnedRef(r.ref)) continue;
         const raw = src.read(r.ref);
-        if (raw == null || sha256(raw) !== r.sha256) reasons.push(`${r.ref} changed since this package was made: Launch Readiness must regenerate it`);
+        if (raw != null && sha256(raw) === r.sha256) continue;
+        // a differing file holds a post back only if its claims moved: compare with the pinned bytes at the package's data commit
+        let pinned = null;
+        try { pinned = pkg.dataCommit ? gitDataSource(REPO_ROOT, pkg.dataCommit).read(r.ref) : null; } catch { pinned = null; }
+        if (raw == null || pinned == null || sha256(pinned) !== r.sha256 || !sameClaims(pinned, raw)) reasons.push(`${r.ref} changed since this package was made: Launch Readiness must regenerate it`);
       }
       try { reasons.push(...officialReasons(pkg, src)); } catch (err) { reasons.push(`could not re-check the official data: ${String(err.message ?? err).slice(0, 120)}`); }
     }
