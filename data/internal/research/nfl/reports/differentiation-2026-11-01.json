@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "artifact": "nfl-model-differentiation",
   "dataClass": "PRIVATE_RESEARCH",
-  "generatedAt": "2026-11-01T20:57:21Z",
+  "generatedAt": "2026-11-01T21:21:31Z",
   "slateDate": "2026-11-01",
-  "eventCount": 5,
+  "eventCount": 4,
   "engineVersion": "nfl-regular-season-public-v1@v2",
   "config": {
     "lambda": 0.25,
@@ -22,11 +22,11 @@
       "observedVariationIsNoise": false,
       "teamSignalState": "APPLIED",
       "tStatistic": -0.5746,
-      "distinctValues": 5,
-      "spread": 0.481529,
+      "distinctValues": 4,
+      "spread": 0.39361,
       "classification": "EVENT_SPECIFIC",
       "declaredSharedPrior": false,
-      "reading": "win probability spans 26.27%-74.42% across 5 events, so the engine is consuming team-specific evidence"
+      "reading": "win probability spans 26.27%-65.63% across 4 events, so the engine is consuming team-specific evidence"
     },
     {
       "head": "total",
@@ -40,37 +40,10 @@
       "spread": 7,
       "classification": "EVENT_SPECIFIC",
       "declaredSharedPrior": false,
-      "reading": "published totals span 40-47 across 5 events from each matchup's own ratings — a per-game scoring read, evaluated before it was allowed to move a number."
+      "reading": "published totals span 40-47 across 4 events from each matchup's own ratings — a per-game scoring read, evaluated before it was allowed to move a number."
     }
   ],
   "events": [
-    {
-      "canonicalEventId": "nfl-401873032",
-      "matchup": "LAC @ LAR",
-      "kickoffUtc": "2026-11-01T21:05Z",
-      "inputHash": "35c6d50acb334d3e",
-      "engineVersion": "nfl-regular-season-public-v1@v2",
-      "expected": {
-        "marginMean": 6,
-        "marginMedian": 6,
-        "totalMedian": 45,
-        "totalHead": "matchup-totals-v3-play-efficiency",
-        "winProbHome": 0.7442002563376947,
-        "winProbIsRounded": false,
-        "projected": {
-          "home": 26,
-          "away": 19,
-          "convention": "scores-derived-from-total-and-margin-v1"
-        }
-      },
-      "intervals": {
-        "marginP10": -10,
-        "marginP90": 23,
-        "totalP10": 28,
-        "totalP90": 62
-      },
-      "receiptGeneratedAt": "2026-11-01T16:00:18Z"
-    },
     {
       "canonicalEventId": "nfl-401873033",
       "matchup": "KC @ DEN",
