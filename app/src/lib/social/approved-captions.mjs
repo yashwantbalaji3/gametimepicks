@@ -74,7 +74,7 @@ export function approvedCaption(p) {
       const r = p.content.games[0];
       return { claims: [], caption: blocks(`🏈 Monday Night Football: ${r.matchup}!`, `🎯 Our model projects ${r.winner} to win.`, "Full prediction below 👇", "#NFL") };
     }
-    case "NFL_WEEKLY_TOP5": return { claims: [], caption: blocks(`🏈 NFL Week ${p.content.week} Sunday Top 5: ${p.content.label.toLowerCase()}!`, p.content.estimateLabel ? "Our model's projections, shown as estimates." : "Our model's projections for Sunday.", "Who tops the list? 👇", "#NFL") };
+    case "NFL_WEEKLY_TOP5": return { claims: [], caption: blocks(`🏈 NFL Week ${p.content.week} Sunday Top 5: ${p.content.label.toLowerCase()}!`, p.content.estimateLabel ? "Our model's projections, model projections." : "Our model's projections for Sunday.", "Who tops the list? 👇", "#NFL") };
     case "NFL_GAME_POST": return nflGamePostCaption(p, claim);
     default: throw new Error(`no approved caption for ${p.contentType}`);
   }
