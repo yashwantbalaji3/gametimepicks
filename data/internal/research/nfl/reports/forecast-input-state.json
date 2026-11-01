@@ -2,117 +2,17 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-11-01T21:21:31Z",
+  "generatedAt": "2026-11-01T23:36:21Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
-    "upcomingEvents": 4,
-    "eventsWhereTeamForecastIsBlindToAnExclusion": 4,
+    "upcomingEvents": 2,
+    "eventsWhereTeamForecastIsBlindToAnExclusion": 2,
     "eventsWithAMaterialExclusion": 1,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
-    {
-      "sport": "nfl",
-      "eventId": "401873033",
-      "matchup": "KC @ DEN",
-      "kickoffUtc": "2026-11-01T21:25Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "eaeee31fe0ce7819",
-        "simulations": 10000,
-        "generatedAt": "2026-11-01T21:21:31Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-01T21:21:31Z",
-        "participationInputHash": "a89ee1b7523e2153",
-        "excludedCount": 3,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "RJ Harvey",
-            "team": "DEN",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Tyler Badie",
-            "team": "DEN",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Brashard Smith",
-            "team": "KC",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401873034",
-      "matchup": "NE @ MIA",
-      "kickoffUtc": "2026-11-01T21:25Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "100db6628db2b95c",
-        "simulations": 10000,
-        "generatedAt": "2026-11-01T21:21:31Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-01T21:21:31Z",
-        "participationInputHash": "c58dc0a2c59a6415",
-        "excludedCount": 3,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "TreVeyon Henderson",
-            "team": "NE",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "A.J. Brown",
-            "team": "NE",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Romeo Doubs",
-            "team": "NE",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
     {
       "sport": "nfl",
       "eventId": "401873035",
@@ -123,13 +23,13 @@
         "version": 2,
         "inputHash": "46f7d13b4c3904f9",
         "simulations": 10000,
-        "generatedAt": "2026-11-01T21:21:31Z"
+        "generatedAt": "2026-11-01T23:36:21Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-01T21:21:31Z",
-        "participationInputHash": "1d5c91b5aaf13228",
+        "snapshotAsOf": "2026-11-01T23:36:21Z",
+        "participationInputHash": "5739dace7ad35eb6",
         "excludedCount": 7,
         "materialExclusions": [
           {
@@ -217,13 +117,13 @@
         "version": 2,
         "inputHash": "319a691b988f1f47",
         "simulations": 10000,
-        "generatedAt": "2026-11-01T21:21:31Z"
+        "generatedAt": "2026-11-01T23:36:21Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-01T21:21:31Z",
-        "participationInputHash": "b427a5e00f9f6dd2",
+        "snapshotAsOf": "2026-11-01T23:36:21Z",
+        "participationInputHash": "3f3b62310a96d03c",
         "excludedCount": 6,
         "materialExclusions": [],
         "excluded": [

@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-01T21:21:31Z",
+ "generatedAt": "2026-11-01T23:36:21Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -17,33 +17,33 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 19,
+  "scheduledUpcoming": 17,
   "forecastsTotal": 14,
-  "forecastsUpcoming": 4,
-  "forecastsStarted": 10,
+  "forecastsUpcoming": 2,
+  "forecastsStarted": 12,
   "marketEvents": 14,
-  "settled": 1
+  "settled": 2
  },
- "nextKickoffUtc": "2026-11-01T21:25Z",
- "nextMatchup": "KC @ DEN",
- "nextForecastUtc": "2026-11-01T21:25Z",
- "nextForecastMatchup": "KC @ DEN",
+ "nextKickoffUtc": "2026-11-02T01:20Z",
+ "nextMatchup": "PHI @ WSH",
+ "nextForecastUtc": "2026-11-02T01:20Z",
+ "nextForecastMatchup": "PHI @ WSH",
  "marketCapturedAt": "2026-10-11T11:41:55Z",
  "experimentalRecord": {
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-11-01T20:57:21Z",
+  "generatedAt": "2026-11-01T21:21:31Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
-  "settledForecasts": 108,
-  "decisive": 107,
-  "winnerAccuracy": 0.5981,
-  "marginMAE": 9.7222,
-  "totalMAE": 10.9259,
-  "marginInterval80Coverage": 0.8148,
-  "totalInterval80Coverage": 0.8333,
+  "settledForecasts": 109,
+  "decisive": 108,
+  "winnerAccuracy": 0.6019,
+  "marginMAE": 9.7706,
+  "totalMAE": 11.1009,
+  "marginInterval80Coverage": 0.8165,
+  "totalInterval80Coverage": 0.8257,
   "cohorts": {
    "preseason": {
     "label": "preseason",
@@ -57,101 +57,19 @@
    },
    "regular-season": {
     "label": "regular-season",
-    "settledForecasts": 108,
-    "decisive": 107,
-    "winnerAccuracy": 0.5981,
-    "marginMAE": 9.7222,
-    "totalMAE": 10.9259,
-    "marginInterval80Coverage": 0.8148,
-    "totalInterval80Coverage": 0.8333
+    "settledForecasts": 109,
+    "decisive": 108,
+    "winnerAccuracy": 0.6019,
+    "marginMAE": 9.7706,
+    "totalMAE": 11.1009,
+    "marginInterval80Coverage": 0.8165,
+    "totalInterval80Coverage": 0.8257
    }
   },
   "unknownSeasonTypeRows": 0,
   "note": "Experimental forecast accuracy only — not a betting record, and separate from every product ledger. Scope: regular-season cohort; season types never share an aggregate."
  },
  "events": [
-  {
-   "providerEventId": "401873033",
-   "canonicalEventId": "nfl-401873033",
-   "matchup": "KC @ DEN",
-   "home": {
-    "abbr": "DEN",
-    "name": "Denver Broncos"
-   },
-   "away": {
-    "abbr": "KC",
-    "name": "Kansas City Chiefs"
-   },
-   "kickoffUtc": "2026-11-01T21:25Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 22,
-    "away": 18,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.6178,
-    "away": 0.352
-   },
-   "total": {
-    "median": 40,
-    "p10": 23,
-    "p90": 57,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": false,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "eaeee31fe0ce7819",
-    "generatedAt": "2026-11-01T21:21:31Z"
-   }
-  },
-  {
-   "providerEventId": "401873034",
-   "canonicalEventId": "nfl-401873034",
-   "matchup": "NE @ MIA",
-   "home": {
-    "abbr": "MIA",
-    "name": "Miami Dolphins"
-   },
-   "away": {
-    "abbr": "NE",
-    "name": "New England Patriots"
-   },
-   "kickoffUtc": "2026-11-01T21:25Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 20,
-    "away": 24,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.2627,
-    "away": 0.7113
-   },
-   "total": {
-    "median": 44,
-    "p10": 27,
-    "p90": 61,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": false,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "100db6628db2b95c",
-    "generatedAt": "2026-11-01T21:21:31Z"
-   }
-  },
   {
    "providerEventId": "401873035",
    "canonicalEventId": "nfl-401873035",
@@ -190,7 +108,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "46f7d13b4c3904f9",
-    "generatedAt": "2026-11-01T21:21:31Z"
+    "generatedAt": "2026-11-01T23:36:21Z"
    }
   },
   {
@@ -231,7 +149,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "319a691b988f1f47",
-    "generatedAt": "2026-11-01T21:21:31Z"
+    "generatedAt": "2026-11-01T23:36:21Z"
    }
   },
   {
@@ -329,10 +247,10 @@
     "name": "Atlanta Falcons"
    },
    "kickoffUtc": "2026-11-01T18:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 24,
@@ -641,6 +559,88 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "35c6d50acb334d3e",
+    "generatedAt": "2026-11-01T16:00:18Z"
+   }
+  },
+  {
+   "providerEventId": "401873033",
+   "canonicalEventId": "nfl-401873033",
+   "matchup": "KC @ DEN",
+   "home": {
+    "abbr": "DEN",
+    "name": "Denver Broncos"
+   },
+   "away": {
+    "abbr": "KC",
+    "name": "Kansas City Chiefs"
+   },
+   "kickoffUtc": "2026-11-01T21:25Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 22,
+    "away": 18,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.6178,
+    "away": 0.352
+   },
+   "total": {
+    "median": 40,
+    "p10": 23,
+    "p90": 57,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "eaeee31fe0ce7819",
+    "generatedAt": "2026-11-01T16:00:18Z"
+   }
+  },
+  {
+   "providerEventId": "401873034",
+   "canonicalEventId": "nfl-401873034",
+   "matchup": "NE @ MIA",
+   "home": {
+    "abbr": "MIA",
+    "name": "Miami Dolphins"
+   },
+   "away": {
+    "abbr": "NE",
+    "name": "New England Patriots"
+   },
+   "kickoffUtc": "2026-11-01T21:25Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 20,
+    "away": 24,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.2627,
+    "away": 0.7113
+   },
+   "total": {
+    "median": 44,
+    "p10": 27,
+    "p90": 61,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "100db6628db2b95c",
     "generatedAt": "2026-11-01T16:00:18Z"
    }
   }
