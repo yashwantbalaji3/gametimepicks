@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "artifact": "nfl-model-differentiation",
   "dataClass": "PRIVATE_RESEARCH",
-  "generatedAt": "2026-11-02T00:17:24Z",
+  "generatedAt": "2026-11-02T01:21:00Z",
   "slateDate": "2026-11-02",
-  "eventCount": 2,
+  "eventCount": 1,
   "engineVersion": "nfl-regular-season-public-v1@v2",
   "config": {
     "lambda": 0.25,
@@ -22,11 +22,11 @@
       "observedVariationIsNoise": false,
       "teamSignalState": "APPLIED",
       "tStatistic": -0.5746,
-      "distinctValues": 2,
-      "spread": 0.192182,
+      "distinctValues": 1,
+      "spread": 0,
       "classification": "EVENT_SPECIFIC",
       "declaredSharedPrior": false,
-      "reading": "win probability spans 46.44%-65.66% across 2 events, so the engine is consuming team-specific evidence"
+      "reading": "win probability spans 65.66%-65.66% across 1 events, so the engine is consuming team-specific evidence"
     },
     {
       "head": "total",
@@ -40,37 +40,10 @@
       "spread": 0,
       "classification": "EVENT_SPECIFIC",
       "declaredSharedPrior": false,
-      "reading": "published totals span 46-46 across 2 events from each matchup's own ratings — a per-game scoring read, evaluated before it was allowed to move a number."
+      "reading": "published totals span 46-46 across 1 events from each matchup's own ratings — a per-game scoring read, evaluated before it was allowed to move a number."
     }
   ],
   "events": [
-    {
-      "canonicalEventId": "nfl-401873035",
-      "matchup": "PHI @ WSH",
-      "kickoffUtc": "2026-11-02T01:20Z",
-      "inputHash": "46f7d13b4c3904f9",
-      "engineVersion": "nfl-regular-season-public-v1@v2",
-      "expected": {
-        "marginMean": -1,
-        "marginMedian": -1,
-        "totalMedian": 46,
-        "totalHead": "matchup-totals-v3-play-efficiency",
-        "winProbHome": 0.4644368636697323,
-        "winProbIsRounded": false,
-        "projected": {
-          "home": 22,
-          "away": 24,
-          "convention": "scores-derived-from-total-and-margin-v1"
-        }
-      },
-      "intervals": {
-        "marginP10": -19,
-        "marginP90": 16,
-        "totalP10": 30,
-        "totalP90": 64
-      },
-      "receiptGeneratedAt": "2026-11-02T00:05:54Z"
-    },
     {
       "canonicalEventId": "nfl-401873036",
       "matchup": "CHI @ SEA",

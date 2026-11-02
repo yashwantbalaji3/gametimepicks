@@ -2,130 +2,17 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-11-02T00:17:24Z",
+  "generatedAt": "2026-11-02T01:21:00Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
-    "upcomingEvents": 2,
-    "eventsWhereTeamForecastIsBlindToAnExclusion": 2,
-    "eventsWithAMaterialExclusion": 1,
+    "upcomingEvents": 1,
+    "eventsWhereTeamForecastIsBlindToAnExclusion": 1,
+    "eventsWithAMaterialExclusion": 0,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
-    {
-      "sport": "nfl",
-      "eventId": "401873035",
-      "matchup": "PHI @ WSH",
-      "kickoffUtc": "2026-11-02T01:20Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "46f7d13b4c3904f9",
-        "simulations": 10000,
-        "generatedAt": "2026-11-02T00:05:54Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-02T00:17:24Z",
-        "participationInputHash": "423f20a213a94ac0",
-        "excludedCount": 8,
-        "materialExclusions": [
-          {
-            "name": "Athan Kaliakmanis",
-            "team": "WSH",
-            "state": "Out",
-            "statedAt": "2026-11-02T00:08Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Jalen Hurts",
-            "team": "PHI",
-            "state": "Injured Reserve",
-            "statedAt": "2026-10-19T14:18Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          }
-        ],
-        "excluded": [
-          {
-            "name": "Athan Kaliakmanis",
-            "team": "WSH",
-            "state": "Out",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Jacory Croskey-Merritt",
-            "team": "WSH",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Terry McLaurin",
-            "team": "WSH",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Jaylin Lane",
-            "team": "WSH",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Jalen Hurts",
-            "team": "PHI",
-            "state": "Injured Reserve",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Dameon Pierce",
-            "team": "PHI",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "DeVonta Smith",
-            "team": "PHI",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Dontayvion Wicks",
-            "team": "PHI",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
     {
       "sport": "nfl",
       "eventId": "401873036",
@@ -136,13 +23,13 @@
         "version": 2,
         "inputHash": "319a691b988f1f47",
         "simulations": 10000,
-        "generatedAt": "2026-11-02T00:05:54Z"
+        "generatedAt": "2026-11-02T01:21:00Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-02T00:17:24Z",
-        "participationInputHash": "3ee6cbcf5baf5e9c",
+        "snapshotAsOf": "2026-11-02T01:21:00Z",
+        "participationInputHash": "a25b18c28c010708",
         "excludedCount": 6,
         "materialExclusions": [],
         "excluded": [

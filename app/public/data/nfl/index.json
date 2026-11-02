@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-02T00:17:24Z",
+ "generatedAt": "2026-11-02T01:21:00Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -17,33 +17,33 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 17,
+  "scheduledUpcoming": 16,
   "forecastsTotal": 14,
-  "forecastsUpcoming": 2,
-  "forecastsStarted": 12,
+  "forecastsUpcoming": 1,
+  "forecastsStarted": 13,
   "marketEvents": 14,
-  "settled": 9
+  "settled": 10
  },
- "nextKickoffUtc": "2026-11-02T01:20Z",
- "nextMatchup": "PHI @ WSH",
- "nextForecastUtc": "2026-11-02T01:20Z",
- "nextForecastMatchup": "PHI @ WSH",
+ "nextKickoffUtc": "2026-11-03T01:15Z",
+ "nextMatchup": "CHI @ SEA",
+ "nextForecastUtc": "2026-11-03T01:15Z",
+ "nextForecastMatchup": "CHI @ SEA",
  "marketCapturedAt": "2026-10-11T11:41:55Z",
  "experimentalRecord": {
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-11-02T00:05:54Z",
+  "generatedAt": "2026-11-02T00:17:24Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
-  "settledForecasts": 116,
-  "decisive": 115,
-  "winnerAccuracy": 0.6087,
-  "marginMAE": 9.8966,
-  "totalMAE": 11.2414,
-  "marginInterval80Coverage": 0.8103,
-  "totalInterval80Coverage": 0.819,
+  "settledForecasts": 117,
+  "decisive": 116,
+  "winnerAccuracy": 0.6121,
+  "marginMAE": 9.8889,
+  "totalMAE": 11.2479,
+  "marginInterval80Coverage": 0.812,
+  "totalInterval80Coverage": 0.8205,
   "cohorts": {
    "preseason": {
     "label": "preseason",
@@ -57,60 +57,19 @@
    },
    "regular-season": {
     "label": "regular-season",
-    "settledForecasts": 116,
-    "decisive": 115,
-    "winnerAccuracy": 0.6087,
-    "marginMAE": 9.8966,
-    "totalMAE": 11.2414,
-    "marginInterval80Coverage": 0.8103,
-    "totalInterval80Coverage": 0.819
+    "settledForecasts": 117,
+    "decisive": 116,
+    "winnerAccuracy": 0.6121,
+    "marginMAE": 9.8889,
+    "totalMAE": 11.2479,
+    "marginInterval80Coverage": 0.812,
+    "totalInterval80Coverage": 0.8205
    }
   },
   "unknownSeasonTypeRows": 0,
   "note": "Experimental forecast accuracy only — not a betting record, and separate from every product ledger. Scope: regular-season cohort; season types never share an aggregate."
  },
  "events": [
-  {
-   "providerEventId": "401873035",
-   "canonicalEventId": "nfl-401873035",
-   "matchup": "PHI @ WSH",
-   "home": {
-    "abbr": "WSH",
-    "name": "Washington Commanders"
-   },
-   "away": {
-    "abbr": "PHI",
-    "name": "Philadelphia Eagles"
-   },
-   "kickoffUtc": "2026-11-02T01:20Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 22,
-    "away": 24,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.4644,
-    "away": 0.5089
-   },
-   "total": {
-    "median": 46,
-    "p10": 30,
-    "p90": 64,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": false,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "46f7d13b4c3904f9",
-    "generatedAt": "2026-11-02T00:05:54Z"
-   }
-  },
   {
    "providerEventId": "401873036",
    "canonicalEventId": "nfl-401873036",
@@ -149,7 +108,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "319a691b988f1f47",
-    "generatedAt": "2026-11-02T00:05:54Z"
+    "generatedAt": "2026-11-02T01:21:00Z"
    }
   },
   {
@@ -534,10 +493,10 @@
     "name": "Los Angeles Chargers"
    },
    "kickoffUtc": "2026-11-01T21:05Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 26,
@@ -642,6 +601,47 @@
     "version": 2,
     "inputHash": "100db6628db2b95c",
     "generatedAt": "2026-11-01T16:00:18Z"
+   }
+  },
+  {
+   "providerEventId": "401873035",
+   "canonicalEventId": "nfl-401873035",
+   "matchup": "PHI @ WSH",
+   "home": {
+    "abbr": "WSH",
+    "name": "Washington Commanders"
+   },
+   "away": {
+    "abbr": "PHI",
+    "name": "Philadelphia Eagles"
+   },
+   "kickoffUtc": "2026-11-02T01:20Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 22,
+    "away": 24,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.4644,
+    "away": 0.5089
+   },
+   "total": {
+    "median": 46,
+    "p10": 30,
+    "p90": 64,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "46f7d13b4c3904f9",
+    "generatedAt": "2026-11-02T00:05:54Z"
    }
   }
  ],
