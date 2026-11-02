@@ -516,3 +516,34 @@ test("sameClaims ignores build metadata and key order, and catches every claim",
   }
   assert.equal(sameClaims(a, "not json"), false);
 });
+
+test("reproduction: a newer version never replaces an approved post, and the post is left blocked", async () => {
+  const H = harness();
+  write(H.root, "a", CLEAN);
+  H.o.importPackages({}, FOUNDER);
+  const p = post(H);
+  design(H, p);
+  assert.equal((await approve(H, p)).ok, true);
+  write(H.root, "a", { ...CLEAN, contentVersion: 2 });
+  const r = H.o.importPackages({}, FOUNDER);
+  assert.equal(r.results.find((x) => x.outcome === "held").code, "EXISTING_POST_KEPT");
+  const now = H.o.state().posts.filter((q) => q.package.imported && q.lifecycle !== "superseded");
+  assert.equal(now.length, 1, "the newer version is not in the queue");
+  assert.equal(now[0].lifecycle, "approved");
+  assert.ok(H.o.preflight().find((x) => x.title === now[0].package.title).reasons.some((t) => /newer version/.test(t)));
+  assert.equal(H.xcalls.length, 0);
+});
+
+test("approved but stale is shown as needing a founder decision", { todo: "proposal: state carries approvedStale and the held version" }, async () => {
+  const H = harness();
+  write(H.root, "a", CLEAN);
+  H.o.importPackages({}, FOUNDER);
+  const p = post(H);
+  design(H, p);
+  await approve(H, p);
+  write(H.root, "a", { ...CLEAN, contentVersion: 2 });
+  H.o.importPackages({}, FOUNDER);
+  const q = H.o.state().posts.find((x) => x.decisionId === p.decisionId);
+  assert.equal(q.lifecycle, "approved");
+  assert.ok(q.approvedStale?.heldContentSha);
+});
