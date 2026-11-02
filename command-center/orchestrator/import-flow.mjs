@@ -21,7 +21,7 @@ import { POST_STATUS, sealPackage } from "../contracts/post-queue.mjs";
 import { baseIdOf } from "../contracts/social-packages.mjs";
 import {
   IMPORT_ASSET_MANIFEST, IMPORT_TYPES, UNSUPPORTED_KIND, BLOCK, importTemplateOf, validatePackage, blockersOf,
-  sameClaims, checkImportedCaption, overlapsOf, showsLines, pinnedRef, repoRef, officialReasons, isImported, isReviewCopy,
+  sameClaims, needsForecastCells, cellMismatch, checkImportedCaption, overlapsOf, showsLines, pinnedRef, repoRef, officialReasons, isImported, isReviewCopy,
 } from "../contracts/imported-packages.mjs";
 import { gitDataSource } from "../recap/multisport-facts.mjs";
 import { revisionRequests } from "../contracts/revision-requests.mjs";
@@ -87,6 +87,14 @@ export function createImportFlow(ctx) {
 
   /** Package JSON → the post package the queue understands. */
   function toPost(p, { root, sourceFile }) {
+    if (needsForecastCells(p)) {
+      const real = fs.realpathSync(p.renderSource.path);
+      if (!real.startsWith(`${fs.realpathSync(root)}${path.sep}`)) throw new Error(`render source outside the import folder: ${p.renderSource.path}`);
+      const raw = fs.readFileSync(real);
+      if (sha256(raw) !== p.renderSource.sha256) throw new Error("the render source does not match its checksum");
+      const bad = cellMismatch(JSON.parse(raw.toString("utf8")).displayedCells, p.forecastCells);
+      if (bad.length) throw new Error(`forecast cells don't match the render: ${bad.join("; ").slice(0, 240)}`);
+    }
     const cc = p.commandCenter;
     const type = IMPORT_TYPES[p.contentType] ?? null;
     const sport = cc.sport ?? SPORTS[p.sport] ?? String(p.sport).toUpperCase();

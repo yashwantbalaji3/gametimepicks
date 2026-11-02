@@ -145,6 +145,7 @@ export function validatePackage(p) {
   if (needsForecastCells(p)) {
     if (!Array.isArray(p.forecastCells) || !p.forecastCells.length) bad.push("no per-cell forecast states");
     else for (const x of p.forecastCells) if (!x?.cellId || !CELL_STATES.has(x.state)) bad.push(`forecast cell without a valid state: ${x?.cellId ?? "?"}`);
+    if (!p.renderSource?.path || !SHA.test(String(p.renderSource?.sha256 ?? ""))) bad.push("no render source for the displayed cells");
   }
   if (!p.commandCenter?.postId || !p.commandCenter?.title) bad.push("commandCenter block missing postId or title");
   if (!Array.isArray(p.commandCenter?.captions) || !p.commandCenter.captions.length) bad.push("no caption options");
@@ -202,6 +203,13 @@ export const FORECAST_CELLS_FROM = "2026-11-03";
 const CELL_TYPES = new Set(["NBA_GAME_POST", "NBA_TOP5_CAROUSEL", "NBA_DAILY_TOP5", "NBA_BOXSCORE", "NBA_PLAYER_STATS"]);
 const CELL_STATES = new Set(["PASS", "REVIEW", "BLOCKED"]);
 export const needsForecastCells = (p) => CELL_TYPES.has(p.contentType) && String(p.date ?? "") >= FORECAST_CELLS_FROM;
+/** Cells the renderer drew against cells with a state: both ways, exactly. An empty result means they agree. */
+export function cellMismatch(rendered, cells) {
+  if (!Array.isArray(rendered) || !rendered.length) return ["the render source lists no displayed cells"];
+  const shown = new Set(rendered), stated = new Set((cells ?? []).map((x) => x.cellId));
+  if (shown.size !== rendered.length || stated.size !== (cells ?? []).length) return ["a cell is listed twice"];
+  return [...[...shown].filter((c) => !stated.has(c)).map((c) => `displayed with no state: ${c}`), ...[...stated].filter((c) => !shown.has(c)).map((c) => `state for a cell not displayed: ${c}`)];
+}
 export const cellsIn = (cells, state) => (Array.isArray(cells) ? cells.filter((x) => x?.state === state) : []);
 export const pinnedRef = (ref) => !/(^|\/)(frozen-)?latest\.json$/.test(ref);
 /** A file in the public repo. Other references (private receipts, export ids) can't be checked here and are kept as provenance. */

@@ -824,9 +824,10 @@ test("a started event can never become publishable: approve, schedule, hold rele
   assert.equal(H.creates() + D.creates() + A.H.creates() + L.creates(), 0);
 });
 
+const source = (H, displayedCells, name = "render.json") => { const f = path.join(H.root, "packages", name), raw = JSON.stringify({ displayedCells }); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f.replace(/\.json$/, ".src"), raw); return { path: f.replace(/\.json$/, ".src"), sha256: sha256(raw) }; };
 const CELLS = { date: "2026-11-03", contentType: "NBA_GAME_POST", content: {}, window: { opensAt: NOW, closesAt: TIP } };
 test("forecast cells: missing states are refused, BLOCKED can't publish, REVIEW needs the founder, the gate never touches values", async () => {
-  const pkg = (H, cells) => { const p = write(H.root, "a", { ...CLEAN, ...CELLS, ...(cells ? { forecastCells: cells } : {}) }); return p; };
+  const pkg = (H, cells) => write(H.root, "a", { ...CLEAN, ...CELLS, ...(cells ? { forecastCells: cells, renderSource: source(H, cells.map((x) => x.cellId)) } : {}) });
   const M = liveRig();
   pkg(M, null);
   assert.equal(M.o.importPackages({}, FOUNDER).counts.refused, 1);
@@ -856,4 +857,20 @@ test("forecast cells are not required before the cutover date", () => {
   const H = liveRig();
   write(H.root, "a", { ...CLEAN, contentType: "NBA_GAME_POST" });
   assert.equal(H.o.importPackages({}, FOUNDER).counts.refused ?? 0, 0);
+});
+
+test("displayed cells must match stated cells exactly, against a checksummed render source", () => {
+  const cells = [{ cellId: "a", state: "PASS" }, { cellId: "b", state: "PASS" }];
+  const go = (shown, tamper) => {
+    const H = liveRig();
+    const renderSource = source(H, shown);
+    if (tamper) fs.writeFileSync(renderSource.path, "{}");
+    write(H.root, "a", { ...CLEAN, ...CELLS, forecastCells: cells, renderSource });
+    return H.o.importPackages({}, FOUNDER).counts;
+  };
+  assert.equal(go(["a", "b"]).imported, 1);
+  assert.equal(go(["a", "b", "c"]).refused, 1, "displayed with no state");
+  assert.equal(go(["a"]).refused, 1, "state with no display");
+  assert.equal(go(["a", "b"], true).refused, 1, "checksum");
+  assert.equal(go([]).refused, 1, "empty");
 });
