@@ -949,6 +949,22 @@
       ${slate.length ? `<div class="section">Full slate and Top 5</div><div class="rlist">${slate.map((p) => reviewCard(s, p)).join("")}</div>` : ""}
       ${times.map((w) => { const a = games.filter((p) => when(p) === w); return `<div class="section">${esc(w)} · ${num(a.length)}</div><div class="rlist">${a.map((p) => reviewCard(s, p)).join("")}</div>`; }).join("")}</div>`;
   }
+  /** One queue, deadline first: read from the real gate on request, so opening it never loads the console. */
+  function queueRows(s) {
+    const posts = s.posts ?? [], rank = (r) => (r.priced ? 0 : r.type === "NBA_TONIGHT" ? 1 : r.type === "NBA_TOP5_CAROUSEL" || r.type === "NBA_DAILY_TOP5" ? 3 : r.sport === "NFL" ? 5 : 2);
+    return (ui.queue ?? []).filter((g) => g.status === "READY" || !["drafted"].includes(g.lifecycle)).map((g) => {
+      const p = posts.find((q) => q.package?.title === g.title && q.lifecycle === g.lifecycle), m = p?.package?.imported ?? {};
+      const job = (s.publishing?.jobs ?? []).filter((j) => j.decisionId === p?.decisionId).at(-1);
+      const state = p?.receipt ? "SENT" : job?.status === "scheduled" ? "SCHEDULED" : g.lifecycle === "approved" ? "APPROVED" : g.status !== "READY" ? "BLOCKED" : m.anomalyCheck === "EXCEPTION" || m.contentType?.endsWith("GAME_POST") ? "NEEDS REVIEW" : "READY";
+      const priced = m.contentType === "NBA_GAME_POST";
+      return { ...g, p, job, state, priced, type: m.contentType, sport: p?.package?.sport, start: startOfPkg(p?.package ?? {}), issue: g.status !== "READY" ? (g.reasons?.[0] ?? "") : m.anomalyCheck === "EXCEPTION" ? "Flagged stats withheld; exception not validated" : "" };
+    }).filter((r) => r.p).sort((a, b) => rank(a) - rank(b) || String(a.closesAt ?? a.start).localeCompare(String(b.closesAt ?? b.start)));
+  }
+  function queuePanel(s) {
+    const rows = queueRows(s);
+    return `<div class="section">Tonight's queue</div><div class="muted"><button class="btn small" data-queue-refresh="1">${ui.queue ? "Recheck the gate" : "Load the queue"}</button> Open a post to see its images, approve and schedule.</div>
+      ${rows.length ? `<ul class="rows">${rows.map((r) => `<li><button type="button" class="rowlink" data-open-post="${esc(r.p.decisionId)}"><b>${esc(r.state)}</b> ${esc(r.title)} · ${num(r.images)} image(s) · v${esc(r.p.package.contentKey.slice(0, 8))} · latest ${esc(etTime(r.closesAt ?? r.start))}${r.job?.status === "scheduled" ? ` · scheduled ${esc(etTime(r.job.dueAt))}` : ""}${r.p.receipt ? ` · ${esc(r.p.receipt.canonicalUrl)}` : ""}${r.issue ? ` · ${esc(r.issue)}` : ""}</button></li>`).join("")}</ul>` : ""}`;
+  }
   function renderWorkspace(s, c, list) {
     const others = c.posts.filter((p) => p.package.imported && onTonight(p) && !isPrimary(p));
     const byTip = (a, b) => String(startOfPkg(a.package)).localeCompare(String(startOfPkg(b.package)));
@@ -960,6 +976,7 @@
     const held = [...list, ...others].filter((p) => !clean(p));
     const title = new Date(`${c.today}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" });
     return `<div class="workspace"><h2 class="ws-title">NBA Today · ${esc(title)}</h2>
+      ${queuePanel(s)}
       ${timeline(s)}
       <div class="muted">${num(list.length)} post(s), ${num(list.reduce((n, p) => n + imagesOf(p.package).length, 0))} graphics · ${counts.map(([l, n]) => `${num(n)} ${esc(l.toLowerCase())}`).join(" · ")}. Everything here can be opened, captioned and revised, whether or not it can be published yet.</div>
       ${ready.length ? `<div class="section">Clean and ready: approve, then schedule · ${num(ready.length)}</div><div class="rlist">${ready.map((p) => reviewCard(s, p)).join("")}</div>` : ""}
@@ -1480,7 +1497,7 @@
   document.addEventListener("click", (e) => { if (e.target.closest("[data-close-sheet]")) $("more-sheet").hidden = true; });
 
   document.addEventListener("click", async (e) => {
-    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-new-codes],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-rev-submit],[data-post-record],[data-design],[data-pub],[data-caption-open],[data-caption-save],[data-caption-cancel],[data-expand],[data-step],[data-collapse],[data-filter-status],[data-filter-sport],[data-filter-group],[data-ra],[data-ra-auth],[data-import-run],[data-held-action],[data-plan-approve],[data-open-post],[data-command],[data-more],[data-cal-shift],[data-cal-today],[data-cal-mode],[data-pub-tab],[data-queue-prep],[data-gal],.sheet-backdrop,.lightbox");
+    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-new-codes],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-rev-submit],[data-post-record],[data-design],[data-pub],[data-caption-open],[data-caption-save],[data-caption-cancel],[data-expand],[data-step],[data-collapse],[data-filter-status],[data-filter-sport],[data-filter-group],[data-ra],[data-ra-auth],[data-import-run],[data-queue-refresh],[data-held-action],[data-plan-approve],[data-open-post],[data-command],[data-more],[data-cal-shift],[data-cal-today],[data-cal-mode],[data-pub-tab],[data-queue-prep],[data-gal],.sheet-backdrop,.lightbox");
     if (!t) return;
     if (await navAction(t, e)) return;
     if (t.dataset.captionOpen) {
@@ -1605,6 +1622,13 @@
       const r = await post("/api/publishing", { action: t.dataset.heldAction, decisionId: t.dataset.heldId, held: t.dataset.heldOn === "1", contentSha: ui.state.posts.find((x) => x.decisionId === t.dataset.heldId)?.package?.contentKey });
       if (!r.ok) alert(`${r.code}: ${r.detail ?? ""}`);
       else if (r.warning) alert(r.warning);
+      return;
+    }
+    if (t.dataset.queueRefresh) {
+      t.disabled = true;
+      const g = await post("/api/gate-check", { date: etDay(new Date()) });
+      ui.queue = Array.isArray(g) ? g : null;
+      render(ui.state);
       return;
     }
     if (t.dataset.importRun !== undefined) {
