@@ -1597,9 +1597,11 @@
       return;
     }
     if (t.dataset.heldAction) {
-      if (t.dataset.heldAction === "replace-held" && !confirm("Void this approval and bring in the newer version as a draft?")) return;
+      if (t.dataset.heldAction === "replace-held" && !confirm("Void this approval and bring in the newer version as a draft? If the newer version is refused, your approval stays.")) return;
+      if (t.dataset.heldAction === "hold" && t.dataset.heldOn !== "1" && !confirm("Release the hold? This post can then be scheduled and sent.")) return;
       const r = await post("/api/publishing", { action: t.dataset.heldAction, decisionId: t.dataset.heldId, held: t.dataset.heldOn === "1" });
       if (!r.ok) alert(`${r.code}: ${r.detail ?? ""}`);
+      else if (r.warning) alert(r.warning);
       return;
     }
     if (t.dataset.importRun !== undefined) {

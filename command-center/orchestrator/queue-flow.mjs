@@ -679,6 +679,7 @@ export function createQueueFlow(ctx) {
     if (rec.decision?.verdict !== "approve") return { ok: false, code: REASON.APPROVAL_MISSING, detail: "only an approved post can be scheduled, published or measured" };
     if (rec.invalidated && action !== "engagement") return { ok: false, code: "APPROVAL_INVALIDATED", detail: `${rec.invalidated.reason} — approve the new version (${rec.invalidated.replacedBy})` };
     const pkg = rec.request.package;
+    if (["schedule", "publish"].includes(action) && holdOf(rec.request, h.entries())) return { ok: false, code: "FOUNDER_HOLD", detail: "held by the founder" };
     const kickoff = pkg.verification?.kickoffUtc ?? pkg.kickoffUtc ?? pkg.tipUtc ?? pkg.firstKickoffUtc ?? null;
     const by = { recordedBy: actor.id ?? "founder", recordedAt: clock(), authentication: actor.authentication ?? "loopback-console (demo-grade)" };
 
@@ -737,8 +738,17 @@ export function createQueueFlow(ctx) {
     return { ok: false, code: "UNKNOWN_ACTION", detail: String(action) };
   }
 
-  /** What Launch Readiness's file holds now: restoring the approved version clears the stale notice. */
-  const sourceSha = (file) => { try { return JSON.parse(fs.readFileSync(file, "utf8")).contentSha256; } catch { return null; } };
+  /**
+   * What Launch Readiness's file holds now, so approvedStale depends on that file as well as the ledger: restoring the
+   * approved version clears the notice. Where the file can't be read (a host without it, or it was removed) the notice
+   * stays, and Replace refuses, because the newer version can't be shown to exist.
+   */
+  const sourceState = (file) => { try { const p = JSON.parse(fs.readFileSync(file, "utf8")); return `${p.contentSha256}|${(p.images ?? []).filter((i) => (i.scale ?? 1) === 1).map((i) => i.sha256).join("|")}`; } catch { return null; } };
+  const holdOf = (request, all) => {
+    const d = request.package?.imported?.dedupeId, b = baseIdOf(request.postId);
+    const h = all.filter((e) => e.kind === "founder-hold" && (e.data.baseId === b || (d && e.data.dedupeId === d))).at(-1)?.data;
+    return h?.held ? h : null;
+  };
   /** Read model: every proposed post with its lifecycle status. */
   function posts() {
     const all = h.entries();
@@ -763,9 +773,10 @@ export function createQueueFlow(ctx) {
       const { order, ...req } = request;
       const designApproved = req.package?.template ? approvedDesigns.has(`${req.package.template}|${req.package.assetManifest}`) : null;
       const heldVersion = all.filter((e) => e.kind === "post-held-version" && e.data.decisionId === request.decisionId).at(-1)?.data ?? null;
-      const approvedStale = heldVersion && lifecycle === "approved" && heldVersion.heldContentSha !== req.package?.contentKey && sourceSha(heldVersion.heldFile) !== req.package?.contentKey ? heldVersion : null;
-      const founderHold = all.filter((e) => e.kind === "founder-hold" && e.data.baseId === baseIdOf(request.postId)).at(-1)?.data ?? null;
-      return { ...req, resolution: decision, receipt, schedule, engagement, checks, lifecycle, invalidated, designApproved, approvedStale, founderHold: founderHold?.held ? founderHold : null, supersededBy: newer && !decision ? newer.request.decisionId : null };
+      const approvedKey = `${req.package?.contentKey}|${(req.package?.mediaSet ?? []).map((m) => m.sha256).join("|")}`;
+      const approvedStale = heldVersion && lifecycle === "approved" && `${heldVersion.heldContentSha}|${heldVersion.heldImages ?? ""}` !== approvedKey && sourceState(heldVersion.heldFile) !== approvedKey ? heldVersion : null;
+      const founderHold = holdOf(request, all);
+      return { ...req, resolution: decision, receipt, schedule, engagement, checks, lifecycle, invalidated, designApproved, approvedStale, founderHold, supersededBy: newer && !decision ? newer.request.decisionId : null };
     });
   }
 

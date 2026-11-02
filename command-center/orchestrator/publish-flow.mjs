@@ -175,26 +175,38 @@ export function createPublishFlow(ctx) {
   const recordOf = (decisionId) => ctx.posts().find((p) => p.decisionId === decisionId) ?? null;
 
   /** Founder: schedule an approved post. Default time: the package's suggested time (NBA game: 45 min before tip). */
+  /** One editorial slot: every post sharing the base id or the imported dedupeId. Holds, once-only and open jobs all key on this. */
+  const familyOf = (pkg) => {
+    const fam = new Set([baseIdOf(pkg.postId)]), d = pkg.imported?.dedupeId;
+    if (d) for (const p of ctx.posts()) if (p.package?.imported?.dedupeId === d) fam.add(baseIdOf(p.package.postId));
+    return fam;
+  };
   /** Founder intent, separate from the gate: a held post gets no job and no send, even when every check passes. */
-  const heldBy = (postId) => { const h = of("founder-hold").filter((e) => e.data.baseId === baseIdOf(postId)).at(-1)?.data; return h?.held ? h : null; };
+  const heldFor = (pkg) => {
+    const fam = familyOf(pkg), d = pkg.imported?.dedupeId;
+    const h = of("founder-hold").filter((e) => fam.has(e.data.baseId) || (d && e.data.dedupeId === d)).at(-1)?.data;
+    return h?.held ? h : null;
+  };
   function setHold({ decisionId, held, reason = "" }, actor) {
-    const f = checkFounder("publish", actor);
-    if (!f.ok) return f;
+    if (actor?.role !== "founder") return { ok: false, code: "NOT_FOUNDER", detail: "only the founder can do this" };
     const rec = recordOf(decisionId);
     if (!rec) return { ok: false, code: "UNKNOWN_POST", detail: decisionId };
-    store.append("founder-hold", actor.id ?? "founder", { decisionId, postId: rec.postId, baseId: baseIdOf(rec.postId), held: held === true, reason: String(reason).slice(0, 300), recordedAt: clock() });
-    return { ok: true, held: held === true };
+    store.append("founder-hold", actor.id ?? "founder", { decisionId, postId: rec.postId, baseId: baseIdOf(rec.postId), dedupeId: rec.package.imported?.dedupeId ?? null, held: held === true, reason: String(reason).slice(0, 300), recordedAt: clock() });
+    const fam = familyOf(rec.package);
+    const inFlight = jobs().filter((j) => fam.has(j.baseId) && j.status === "unknown").map((j) => j.jobId);
+    return { ok: true, held: held === true, inFlight, ...(held === true && inFlight.length ? { warning: `a send may already be on the wire (${inFlight.join(", ")}): a hold cannot recall it, check X` } : {}) };
   }
-  /** Founder only: void an approval so the held newer version can come in as a draft. Never called by the importer or the scheduler. */
-  function replaceApproved({ decisionId }, actor) {
-    const f = checkFounder("publish", actor);
-    if (!f.ok) return f;
+  /** Founder only: void an approval so the held newer version can come in as a draft. Never called by the importer or the scheduler. `check` writes nothing. */
+  function replaceApproved({ decisionId, check = false }, actor) {
+    if (actor?.role !== "founder") return { ok: false, code: "NOT_FOUNDER", detail: "only the founder can do this" };
     const rec = recordOf(decisionId);
     if (!rec) return { ok: false, code: "UNKNOWN_POST", detail: decisionId };
     if (rec.receipt || rec.lifecycle !== "approved") return { ok: false, code: "NOT_REPLACEABLE", detail: rec.lifecycle };
     if (!rec.approvedStale) return { ok: false, code: "NOTHING_HELD", detail: "no newer version is held for this post" };
-    const open = jobs().find((j) => j.decisionId === decisionId && ["scheduled", "running"].includes(j.status));
-    if (open) return { ok: false, code: "OPEN_JOB", detail: `cancel ${open.jobId} first` };
+    const fam = familyOf(rec.package);
+    const open = jobs().find((j) => fam.has(j.baseId) && ["scheduled", "running", "unknown"].includes(j.status));
+    if (open) return { ok: false, code: "OPEN_JOB", detail: open.status === "unknown" ? `${open.jobId} may have posted: reconcile it first` : `cancel ${open.jobId} first` };
+    if (check) return { ok: true };
     store.append("post-status", actor.id ?? "founder", { decisionId, postId: rec.postId, status: "invalidated", reason: "the founder replaced it with the newer held version: approve that one", replacedBy: rec.approvedStale.heldContentSha, recordedAt: clock() });
     return { ok: true };
   }
@@ -204,7 +216,7 @@ export function createPublishFlow(ctx) {
     if (!f.ok) return f;
     const rec = recordOf(decisionId);
     if (!rec) return { ok: false, code: "UNKNOWN_POST", detail: decisionId };
-    if (heldBy(rec.postId)) return { ok: false, code: "FOUNDER_HOLD", detail: heldBy(rec.postId).reason || "held by the founder" };
+    if (heldFor(rec.package)) return { ok: false, code: "FOUNDER_HOLD", detail: heldFor(rec.package).reason || "held by the founder" };
     const pkg = rec.package;
     if (!SCHEDULABLE.has(pkg.kind)) return { ok: false, code: "NOT_SCHEDULABLE", detail: pkg.kind === "nba-pregame" || pkg.kind === "nba-players" ? "NBA graphics go out together as the game post: schedule the game post" : `${pkg.kind} posts are published by hand` };
     if (isImported(pkg) && pkg.status !== "READY") return { ok: false, code: "IMPORT_BLOCKED", detail: pkg.reasons.join("; ") };
@@ -219,7 +231,8 @@ export function createPublishFlow(ctx) {
     const closes = Date.parse(pkg.imported?.window?.closesAt ?? "");
     if (Number.isFinite(closes) && due >= closes) return { ok: false, code: "AFTER_WINDOW", detail: `must be before the publishing window closes (${pkg.imported.window.closesAt})` };
     const base = baseIdOf(pkg.postId);
-    const open = jobs().find((j) => j.baseId === base && ["scheduled", "running"].includes(j.status));
+    const fam = familyOf(pkg);
+    const open = jobs().find((j) => fam.has(j.baseId) && ["scheduled", "running"].includes(j.status));
     if (open) return { ok: false, code: "ALREADY_SCHEDULED", detail: `${open.jobId} at ${open.dueAt}` };
     const jobId = shortId("pubjob", { decisionId, due, n: of("publish-job").length });
     const job = { jobId, decisionId, postId: pkg.postId, baseId: base, title: pkg.title, sport: pkg.sport, dueAt: new Date(due).toISOString(), startUtc: start, by: actor.id ?? "founder" };
@@ -260,13 +273,14 @@ export function createPublishFlow(ctx) {
     }
     if (paused()) return { ok: false, state: "HELD", code: "PAUSED", detail: "publishing is paused" };
     // 2. approval, design
-    if (heldBy(pkg.postId)) return refuse("FOUNDER_HOLD", heldBy(pkg.postId).reason || "held by the founder");
+    const fam = familyOf(pkg);
+    if (heldFor(pkg)) return refuse("FOUNDER_HOLD", heldFor(pkg).reason || "held by the founder");
     if (rec.resolution?.verdict !== "approve") return refuse("NOT_APPROVED", "the post is not approved");
     if (rec.invalidated) return refuse("APPROVAL_INVALIDATED", rec.invalidated.reason);
     if (isImported(pkg) && (pkg.status !== "READY" || !SCHEDULABLE.has(pkg.kind))) return refuse("IMPORT_BLOCKED", pkg.reasons.join("; ") || pkg.kind, "critical");
     if (isReviewCopy(pkg)) return refuse("REVIEW_COPY", "this image carries the review banner: it can never be sent", "critical");
     if (pkg.template && !ctx.designApproved(pkg.template, pkg.assetManifest)) return refuse("DESIGN_NOT_APPROVED", `${pkg.template} is not approved`);
-    const published = ctx.posts().find((p) => baseIdOf(p.package?.postId ?? "") === base && p.receipt);
+    const published = ctx.posts().find((p) => fam.has(baseIdOf(p.package?.postId ?? "")) && p.receipt);
     if (published) return refuse("ALREADY_PUBLISHED", published.receipt.canonicalUrl, "info");
     // 3. fingerprint + images
     const option = rec.options.find((o) => o.captionId === rec.resolution.captionId);
@@ -313,11 +327,15 @@ export function createPublishFlow(ctx) {
     if (live && spentThisMonth() + quote.maxUsd > pol.capUsd) return refuse("SPEND_CAP_REACHED", `$${spentThisMonth().toFixed(3)} spent + $${quote.maxUsd} > $${pol.capUsd} cap`, "critical");
     // 7. once-only
     // judged on each earlier job's LATEST state: a reconciled "not posted" lifts the block, an unrecorded attempt doesn't
-    const earlier = jobs().filter((j) => j.baseId === base && j.jobId !== job.jobId);
+    const earlier = jobs().filter((j) => fam.has(j.baseId) && j.jobId !== job.jobId);
     const done = earlier.find((j) => j.status === "published") ?? earlier.find((j) => j.status === "unknown");
     if (live && done) return refuse(done.status === "published" ? "ALREADY_PUBLISHED" : "OUTCOME_UNKNOWN", done.status === "published" ? done.results.at(-1)?.canonicalUrl ?? done.jobId : "an earlier attempt's outcome is unknown: reconcile it first", done.status === "published" ? "info" : "critical");
-    const attempt = of("publish-attempt").filter((e) => e.data.live && baseIdOf(e.data.postId) === base).length;
-    const claimKey = live ? `xlive|${base}|${attempt}` : `xdry|${job.jobId}`;
+    // the gate awaited the network: a hold, a cancel or a void made meanwhile wins, right up to the claim
+    if (heldFor(pkg)) return refuse("FOUNDER_HOLD", heldFor(pkg).reason || "held by the founder");
+    if (recordOf(job.decisionId)?.invalidated) return refuse("APPROVAL_INVALIDATED", "the approval was voided while checking");
+    if (of("publish-job-cancel").some((e) => e.data.jobId === job.jobId)) return refuse("CANCELLED", "cancelled while checking");
+    const attempt = of("publish-attempt").filter((e) => e.data.live && fam.has(baseIdOf(e.data.postId))).length;
+    const claimKey = live ? `xlive|${pkg.imported?.dedupeId ?? base}|${attempt}` : `xdry|${job.jobId}`;
     const claim = store.claim(claimKey, { jobId: job.jobId, at: clock() });
     if (!claim.won) return refuse("IN_FLIGHT", `attempt ${attempt} of ${base} was already started by ${claim.record.value.jobId}`, "critical");
     store.append("publish-attempt", "publisher", { jobId: job.jobId, postId: pkg.postId, live, trigger, attempt, claimKey, digest: nowDigest, dataFetched: fresh.detail ?? null, text: live ? option.text : null });

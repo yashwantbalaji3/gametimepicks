@@ -596,7 +596,7 @@ test("founder hold: READY at the gate still cannot get a job, and a job made bef
   write(K.root, "a", { ...CLEAN, contentVersion: 2 });
   K.o.importPackages({}, FOUNDER);
   const c = K.o.replaceHeldVersion({ decisionId: k.decisionId }, FOUNDER);
-  assert.ok(["OPEN_JOB", "NOT_REPLACEABLE"].includes(c.code), c.code);
+  assert.equal(c.code, "OPEN_JOB");
 });
 
 const staleRig = async () => {
@@ -642,8 +642,9 @@ test("a newer version that would not import leaves the approval unchanged and sh
   const { H, p } = await staleRig();
   const f = path.join(H.root, "packages", "a.json");
   const d = JSON.parse(fs.readFileSync(f, "utf8"));
-  fs.writeFileSync("/tmp/gtp-outside.png", "x");
-  d.images[0].path = "/tmp/gtp-outside.png";
+  const outside = path.join(tempDir("gtp-cc-outside-"), "x.png");
+  fs.writeFileSync(outside, "x");
+  d.images[0].path = outside;
   fs.writeFileSync(f, JSON.stringify(d));
   const r = H.o.replaceHeldVersion({ decisionId: p.decisionId }, FOUNDER);
   assert.equal(r.code, "NEWER_VERSION_REFUSED");
@@ -651,4 +652,146 @@ test("a newer version that would not import leaves the approval unchanged and sh
   assert.equal(q.lifecycle, "approved");
   assert.ok(q.approvedStale.replaceRefused);
   assert.equal(H.xcalls.length, 0);
+});
+
+import { X_CREATE_POST_URL } from "../publishers/x-api.mjs";
+import { liveAuthorizationText } from "../orchestrator/publish-flow.mjs";
+function liveRig() {
+  const dir = tempDir("gtp-cc-import-"), root = tempDir("gtp-cc-import-src-");
+  let t = NOW; const clock = () => t;
+  const store = createFileStore({ dir: path.join(dir, "ledger"), clock });
+  const ctl = { x: [], gateX: null, gateFresh: null, xFail: false };
+  let id = 0;
+  const fetch = async (u) => {
+    u = String(u);
+    if (ctl.gateX) await ctl.gateX;
+    ctl.x.push(u);
+    if (u === X_CREATE_POST_URL) { if (ctl.xFail) throw new Error("socket hang up"); return new Response(JSON.stringify({ data: { id: `211539999999999${90 + (++id)}` } }), { status: 201 }); }
+    return new Response(JSON.stringify({ data: { id: `M${++id}` } }), { status: 200 });
+  };
+  const oauth = { accessToken: async () => ({ ok: true, token: "AT" }), status: async () => ({ connected: true, scopes: ["tweet.write", "media.write"] }) };
+  const refreshData = async () => { if (ctl.gateFresh) await ctl.gateFresh(); return { ok: true, detail: "t" }; };
+  const o = createOrchestrator({ store, clock, outDir: dir, calendarDataSource: { ...src({ [LANE_REF]: LANE_RAW }) }, env: { GTP_CC_X_HANDLE: "GameTimePicksHQ", GTP_CC_IMPORT_ROOT: root }, publishing: { oauth, fetch, refreshData } });
+  return { o, dir, root, store, ctl, setNow: (v) => { t = v; }, creates: () => ctl.x.filter((x) => x === X_CREATE_POST_URL).length };
+}
+const liveStale = async () => {
+  const H = liveRig();
+  write(H.root, "a", CLEAN);
+  H.o.importPackages({}, FOUNDER);
+  const p = post(H);
+  design(H, p);
+  assert.equal((await approve(H, p)).ok, true);
+  await H.o.publishing.setPolicy({ mode: "live", capUsd: 5, authorization: liveAuthorizationText(5) }, FOUNDER);
+  return { H, p };
+};
+const life = (H, p) => H.o.state().posts.find((x) => x.decisionId === p.decisionId).lifecycle;
+const tick = () => new Promise((r) => setTimeout(r, 30));
+
+test("a blocked newer version never voids a clean approval", async () => {
+  for (const over of [{ verification: { passed: false, checks: [], cellsVerified: 0 } }, { testData: true }, { window: { opensAt: NOW, closesAt: "2026-10-30T16:00:00.000Z" } }, { anomalyCheck: "REVIEW", anomalies: [{}] }]) {
+    const { H, p } = await liveStale();
+    write(H.root, "a", { ...CLEAN, contentVersion: 2, ...over });
+    H.o.importPackages({}, FOUNDER);
+    assert.equal(H.o.replaceHeldVersion({ decisionId: p.decisionId }, FOUNDER).code, "NEWER_VERSION_REFUSED", JSON.stringify(over));
+    assert.equal(life(H, p), "approved");
+  }
+});
+test("an unknown outcome blocks replacement, on the same post id and on a changed one", async () => {
+  for (const changed of [false, true]) {
+    const { H, p } = await liveStale();
+    H.ctl.xFail = true;
+    await H.o.publishing.publishNow({ decisionId: p.decisionId, live: true }, FOUNDER);
+    H.ctl.xFail = false;
+    const cc = changed ? { commandCenter: { ...JSON.parse(fs.readFileSync(path.join(H.root, "packages/a.json"))).commandCenter, postId: "2026-10-30:NBA:nba_game_winner:401-b" } } : {};
+    write(H.root, "a", { ...CLEAN, contentVersion: 2, ...cc });
+    H.o.importPackages({}, FOUNDER);
+    assert.equal(H.o.replaceHeldVersion({ decisionId: p.decisionId }, FOUNDER).code, "OPEN_JOB");
+    assert.equal(life(H, p), "approved");
+    assert.equal(H.creates(), 1, "no second create-post");
+  }
+});
+test("replace refuses mid-send; a hold says it cannot recall the send", async () => {
+  const { H, p } = await liveStale();
+  let open; H.ctl.gateX = new Promise((r) => { open = r; });
+  const sending = H.o.publishing.publishNow({ decisionId: p.decisionId, live: true }, FOUNDER);
+  await tick();
+  write(H.root, "a", { ...CLEAN, contentVersion: 2 });
+  H.o.importPackages({}, FOUNDER);
+  const h = H.o.publishing.setHold({ decisionId: p.decisionId, held: true }, FOUNDER);
+  assert.match(h.warning, /cannot recall/);
+  assert.equal(H.o.replaceHeldVersion({ decisionId: p.decisionId }, FOUNDER).code, "OPEN_JOB");
+  open(); await sending;
+  assert.equal(H.creates(), 1);
+});
+test("a hold, or a cancel and replace, during the data refresh stops the send before the claim", async () => {
+  {
+    const { H, p } = await liveStale();
+    let open; H.ctl.gateFresh = () => new Promise((r) => { open = r; });
+    H.o.publishing.schedule({ decisionId: p.decisionId, at: "2026-10-30T21:30:00.000Z" }, FOUNDER);
+    H.setNow("2026-10-30T21:31:00.000Z");
+    const run = H.o.publishing.runDue();
+    await tick();
+    H.o.publishing.setHold({ decisionId: p.decisionId, held: true }, FOUNDER);
+    open(); await run;
+    assert.equal(H.creates(), 0);
+  }
+  {
+    const { H, p } = await liveStale();
+    let open; H.ctl.gateFresh = () => new Promise((r) => { open = r; });
+    const s = H.o.publishing.schedule({ decisionId: p.decisionId, at: "2026-10-30T21:30:00.000Z" }, FOUNDER);
+    H.setNow("2026-10-30T21:31:00.000Z");
+    const run = H.o.publishing.runDue();
+    await tick();
+    write(H.root, "a", { ...CLEAN, contentVersion: 2 });
+    H.o.importPackages({}, FOUNDER);
+    H.o.publishing.cancel({ jobId: s.job.jobId }, FOUNDER);
+    open(); await run;
+    assert.equal(H.creates(), 0);
+  }
+});
+test("v2, v3, back to v2: the newest import is the one held, and replace works", async () => {
+  const { H, p } = await liveStale();
+  const v2 = write(H.root, "a", { ...CLEAN, contentVersion: 2 });
+  H.o.importPackages({}, FOUNDER);
+  write(H.root, "a", { ...CLEAN, contentVersion: 3 });
+  H.o.importPackages({}, FOUNDER);
+  const again = write(H.root, "a", { ...CLEAN, contentVersion: 2 });
+  assert.equal(again.contentSha256, v2.contentSha256);
+  H.o.importPackages({}, FOUNDER);
+  const r = H.o.replaceHeldVersion({ decisionId: p.decisionId }, FOUNDER);
+  assert.equal(r.ok, true, JSON.stringify(r));
+});
+test("a same-content re-render behind an approval is surfaced", async () => {
+  const { H, p } = await liveStale();
+  const old = JSON.parse(fs.readFileSync(path.join(H.root, "packages/a.json")));
+  write(H.root, "a", { ...CLEAN, contentSha256: old.contentSha256 });
+  H.o.importPackages({}, FOUNDER);
+  assert.ok(H.o.state().posts.find((x) => x.decisionId === p.decisionId).approvedStale);
+});
+test("the founder check comes before any write", async () => {
+  const { H, p } = await liveStale();
+  write(H.root, "a", { ...CLEAN, contentVersion: 2 });
+  H.o.importPackages({}, FOUNDER);
+  fs.writeFileSync(path.join(H.root, "packages/a.json"), "{bad");
+  const held = () => H.store.list().filter((e) => e.kind === "post-held-version").length, before = held();
+  const r = H.o.replaceHeldVersion({ decisionId: p.decisionId }, { role: "publisher", id: "pat" });
+  assert.equal(r.ok, false, JSON.stringify(r));
+  assert.notEqual(r.code, "NEWER_VERSION_REFUSED");
+  assert.equal(held(), before);
+  assert.equal(life(H, p), "approved");
+});
+test("approvedStale follows the source file; without the file it stays and replace refuses", async () => {
+  const { H, p } = await liveStale();
+  write(H.root, "a", { ...CLEAN, contentVersion: 2 });
+  H.o.importPackages({}, FOUNDER);
+  fs.rmSync(path.join(H.root, "packages/a.json"));
+  assert.ok(H.o.state().posts.find((x) => x.decisionId === p.decisionId).approvedStale);
+  assert.equal(H.o.replaceHeldVersion({ decisionId: p.decisionId }, FOUNDER).code, "NEWER_VERSION_REFUSED");
+  assert.equal(life(H, p), "approved");
+});
+test("a held post can't be recorded as scheduled or published by hand", async () => {
+  const { H, p } = await liveStale();
+  H.o.publishing.setHold({ decisionId: p.decisionId, held: true }, FOUNDER);
+  const r = H.o.recordPost({ decisionId: p.decisionId, action: "schedule", scheduledFor: "2026-10-30T21:30:00.000Z" }, FOUNDER);
+  assert.equal(r.code, "FOUNDER_HOLD");
 });

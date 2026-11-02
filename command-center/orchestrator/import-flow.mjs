@@ -145,7 +145,11 @@ export function createImportFlow(ctx) {
       if (p.contentSha256 !== sha) return { ok: false, detail: "the held file has changed: import again first" };
       const bad = validatePackage(p);
       if (bad.length) return { ok: false, detail: bad.join("; ").slice(0, 300) };
-      toPost(p, { root: rootOf(), sourceFile: file });
+      const pkg = toPost(p, { root: rootOf(), sourceFile: file });
+      if (pkg.status !== POST_STATUS.READY) return { ok: false, detail: `the newer version is ${pkg.status}: ${(pkg.reasons ?? []).join("; ").slice(0, 260)}` };
+      const others = ctx.posts().filter((x) => x.package?.imported?.dedupeId !== p.dedupeId && baseIdOf(x.package?.postId ?? "") !== baseIdOf(pkg.postId));
+      const over = overlapsOf(pkg, others);
+      if (over.blocking.length) return { ok: false, detail: `the newer version overlaps ${over.blocking.map((x) => x.package.title).join("; ")}` };
       return { ok: true };
     } catch (err) { return { ok: false, detail: String(err.message ?? err).slice(0, 300) }; }
   }
@@ -171,7 +175,11 @@ export function createImportFlow(ctx) {
     const cleanOf = p.approval?.socialAuthorized === true ? mine.find((x) => x.lifecycle === "approved" && !x.receipt && isReviewCopy(x.package)) : null;
     const revision = [...lifted, ...(cleanArrived ? ["clean"] : []), ...(reRendered ? [sha256(publishImages).slice(0, 12)] : [])];
     const held = mine.find((x) => x !== cleanOf && (x.receipt || ["approved", "scheduled", "published", "rejected"].includes(x.lifecycle)));
-    if (held?.lifecycle === "approved" && !held.receipt && store.claim(`held-version|${held.decisionId}|${p.contentSha256}`, { runId }).won) store.append("post-held-version", "launch-readiness-import", { decisionId: held.decisionId, postId: held.postId, heldContentSha: p.contentSha256, heldFile: sourceFile, recordedAt: clock() });
+    if (held?.lifecycle === "approved" && !held.receipt) {
+      // the newest held version wins: going back to an earlier one records it again; a re-render counts as a version
+      const last = store.list().filter((e) => e.kind === "post-held-version" && e.data.decisionId === held.decisionId).at(-1)?.data;
+      if (last?.heldContentSha !== p.contentSha256 || last?.heldImages !== publishImages) store.append("post-held-version", "launch-readiness-import", { decisionId: held.decisionId, postId: held.postId, heldContentSha: p.contentSha256, heldImages: publishImages, heldFile: sourceFile, recordedAt: clock() });
+    }
     if (held) return { ...id, outcome: "held", code: "EXISTING_POST_KEPT", detail: `a newer version exists, but ${held.decisionId} is ${held.lifecycle}: it is not replaced`, decisionId: held.decisionId };
     let pkg;
     try { pkg = toPost(p, { root, sourceFile }); } catch (err) { return { ...id, outcome: "refused", code: "VERIFICATION_FAILED", detail: String(err.message ?? err).slice(0, 300) }; }

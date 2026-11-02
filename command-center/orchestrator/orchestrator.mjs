@@ -684,17 +684,21 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
 
   // ── read model ──────────────────────────────────────────────────────────────────────────────────────────────
   /** The gate's own re-check for every open imported post: records nothing, sends nothing. */
+  /** Founder and job checks first, then the newer version must pass; only then is the approval voided. */
   function replaceHeldVersion(body, actor) {
-    const held = team.posts().find((p) => p.decisionId === body.decisionId)?.approvedStale;
-    if (held) {
-      const check = team.checkImportable(held.heldFile, held.heldContentSha);
-      if (!check.ok) {
-        store.append("post-held-version", actor.id ?? "founder", { ...held, replaceRefused: check.detail, recordedAt: clock() });
-        return { ok: false, code: "NEWER_VERSION_REFUSED", detail: check.detail };
-      }
+    const can = publishing.replaceApproved({ ...body, check: true }, actor);
+    if (!can.ok) return can;
+    const held = team.posts().find((p) => p.decisionId === body.decisionId).approvedStale;
+    const check = team.checkImportable(held.heldFile, held.heldContentSha);
+    if (!check.ok) {
+      store.append("post-held-version", actor.id ?? "founder", { ...held, replaceRefused: check.detail, recordedAt: clock() });
+      return { ok: false, code: "NEWER_VERSION_REFUSED", detail: check.detail };
     }
     const r = publishing.replaceApproved(body, actor);
-    return r.ok ? { ...r, imported: team.importPackages({}, actor).counts ?? null } : r;
+    if (!r.ok) return r;
+    const imported = team.importPackages({}, actor).counts ?? null;
+    const draft = team.posts().find((p) => p.lifecycle === "drafted" && p.package?.contentKey === held.heldContentSha);
+    return draft ? { ...r, imported, decisionId: draft.decisionId } : { ok: false, code: "NEWER_VERSION_NOT_IMPORTED", detail: "the approval was voided but no draft of the newer version appeared: import again", imported };
   }
   function preflight(date) {
     return team.posts().filter((p) => p.package?.imported && p.package.imported.socialAuthorized === true && !p.receipt && p.lifecycle !== "superseded" && (!date || p.package.date === date || p.package.imported.recommendation?.slateEtDate === date))
