@@ -72,3 +72,13 @@ test("/today top picks by category: prop-engine picks carry no full-game simulat
   assert.match(src, /simulationCount=\{null\}/);
   assert.doesNotMatch(src, /simulationCount=\{pick\.simulationCount\}/);
 });
+
+test("the Bank Builder no-games state names MLB: its pool is MLB, and other sports may be playing (2026-11-02)", async () => {
+  const { productStateLabel, productStateExplanation, PRODUCT_STATES } = await import("./product-state.mjs");
+  assert.match(productStateLabel(PRODUCT_STATES.NO_EVENTS), /MLB/);
+  assert.match(productStateExplanation(PRODUCT_STATES.NO_EVENTS), /MLB/);
+  assert.doesNotMatch(productStateExplanation(PRODUCT_STATES.NO_EVENTS), /No games are scheduled today/);
+  const page = src("src/app/bank-builder/page.tsx");
+  assert.match(page, /No MLB slate today/);
+  assert.doesNotMatch(page, /No games on today&rsquo;s slate/);
+});

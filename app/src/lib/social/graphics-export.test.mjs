@@ -40,6 +40,8 @@ const nflAtArtifact = run({ sport: "nfl", week: "8", "as-of": WEEK_ARTIFACT.gene
 // After the week rolls over, week 8 leaves the forecast union and its game pages read the archive: then these
 // committed-week assertions no longer describe a live page and are skipped (never weakened).
 const WEEK8_LIVE = nflFriday.rows.length > 0 && nflFriday.rows.every((r) => r.checks.gamePageValue === "EQUAL");
+// FRIDAY follows the committed boards, so it is only a Friday until the first Sunday kickoff of week 8.
+const WEEK8_PRE_SUNDAY = Date.parse(FRIDAY) < Date.parse("2026-11-01T18:00:00Z");
 
 const isNumDeep = (v) => (typeof v === "number" ? true : v && typeof v === "object" ? Object.values(v).some(isNumDeep) : false);
 
@@ -51,7 +53,7 @@ test("NFL: the contract holds on the committed week 8 export (validator clean, s
   }
 });
 
-test("NFL: Friday export excludes Thursday night and every started game; only Sunday/Monday games", { skip: !WEEK8_LIVE && "week 8 is no longer in the live forecast union" }, () => {
+test("NFL: Friday export excludes Thursday night and every started game; only Sunday/Monday games", { skip: !(WEEK8_LIVE && WEEK8_PRE_SUNDAY) && "week 8's Friday is over: the committed boards have moved past it" }, () => {
   assert.deepEqual(nflFriday.scope.eventsExcludedStarted.map((e) => e.eventId), [TNF]);
   assert.equal(nflFriday.scope.eventsIncluded.length, 13);
   const asOf = Date.parse(FRIDAY);
@@ -60,7 +62,9 @@ test("NFL: Friday export excludes Thursday night and every started game; only Su
     assert.ok(Date.parse(r.identity.kickoffUtc.replace(/Z$/, ":00Z")) > asOf, `${r.rowId} kicked off before asOf`);
     assert.ok(["Sun", "Mon"].includes(new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short" }).format(new Date(Date.parse(r.identity.kickoffUtc.replace(/Z$/, ":00Z"))))));
   }
-  // and a started game is refused by the validator if anyone forces it in
+});
+
+test("NFL: a started game is refused by the validator if anyone forces it in", { skip: !WEEK8_LIVE && "week 8 is no longer in the live forecast union" }, () => {
   const forced = structuredClone(nflFriday);
   forced.rows[0].identity.kickoffUtc = "2026-10-30T00:15Z";
   assert.ok(graphicsExportViolations(forced).some((v) => /game started at asOf/.test(v)));
