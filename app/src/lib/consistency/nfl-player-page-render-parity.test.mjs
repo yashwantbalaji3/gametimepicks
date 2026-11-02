@@ -25,7 +25,10 @@ globalThis.React = React;
 const { default: PlayerRow } = await import("../../components/nfl/forecast/player-row.tsx");
 
 const APP = process.cwd();
-const EVENTS = ["401873023", "401873026"]; // CAR @ GB (Thu), BAL @ BUF (Sun), week 8
+/* The player page reads the boards on nfl/player-board/latest.json, so a started game leaves it: take the two
+   newest games still there rather than fixed ids, which go empty as the week plays out. */
+const LATEST = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/player-board/latest.json"), "utf8"));
+const EVENTS = (LATEST.boards ?? []).map((b) => String(b.providerEventId)).slice(0, 2);
 const VIEW_KEY = Object.fromEntries(Object.entries(MARKET_KEY).map(([v, m]) => [m, v]));
 const unescape = (s) => s.replace(/&#x27;/g, "'").replace(/&amp;/g, "&");
 
@@ -38,7 +41,7 @@ function gamePageStrings(p, viewKey) {
   return { value, range: range && unescape(range) };
 }
 
-test("week 8: every player-page market string equals the game page's rendered PlayerRow digits", () => {
+test("every player-page market string equals the game page's rendered PlayerRow digits", { skip: EVENTS.length === 0 && "no NFL game on the latest player boards" }, () => {
   const rows = buildMyPlayerRows();
   let checked = 0; let td = 0;
   for (const id of EVENTS) {
@@ -62,8 +65,8 @@ test("week 8: every player-page market string equals the game page's rendered Pl
       }
     }
   }
-  assert.ok(checked >= 20, `checked ${checked} markets`);
-  assert.ok(td >= 20, `checked ${td} anytime-TD chances`);
+  assert.ok(checked >= 10 * EVENTS.length, `checked ${checked} markets`);
+  assert.ok(td >= 10 * EVENTS.length, `checked ${td} anytime-TD chances`);
 });
 
 test("the player page renders the display strings and the anytime-TD chance, never the 1-dp numbers", () => {
