@@ -4,7 +4,7 @@
  * (lib/simulation-theater/official-default.mjs nflOfficialDefault — no simulation input), so no playback or scenario
  * choice can change it. Compact on purpose (page weight): one summary list and two small tables.
  */
-import "./public-theater.css";
+import "./official-default.css";
 import { DEFAULT_VIEW_KIND, DEFAULT_VIEW_TITLE, NFL_DEFAULT_COLUMNS, NFL_DEFAULT_NOTE, nflOfficialDefault } from "@/lib/simulation-theater/official-default.mjs";
 
 export const NFL_DEFAULT_ID = "official-projected-game";

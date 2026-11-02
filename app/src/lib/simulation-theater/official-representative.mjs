@@ -24,9 +24,10 @@
 import { REPRESENTATIVE_RULE, RECONCILIATION_RULE, RUN_ROLE, officialTargets, runDistance, runsFromNbaSamples, runsFromNflSimReceipt, selectOfficialRepresentative } from "../consistency/representative.mjs";
 import { SnapshotRefusal, nbaOfficialSnapshot, nflOfficialSnapshot } from "../consistency/official-snapshot.mjs";
 import { NBA_THEATER_GATE_POLICY_IN_FORCE } from "../consistency/theater-gate-policy.mjs";
+import { SIM_INPUT_REFUSAL, simInputProvenance } from "./sim-input-provenance.mjs";
 
 export const THEATER_REPRESENTATIVE_VERSION = "theater-representative@1";
-export const REP_STATE = Object.freeze({ SELECTED: "SELECTED", NO_OFFICIAL: "NO_OFFICIAL", NO_ELIGIBLE_RUN: "NO_ELIGIBLE_RUN" });
+export const REP_STATE = Object.freeze({ SELECTED: "SELECTED", NO_OFFICIAL: "NO_OFFICIAL", NO_ELIGIBLE_RUN: "NO_ELIGIBLE_RUN", INPUT_NOT_CURRENT: "INPUT_NOT_CURRENT" });
 
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
 const num = (v) => (isNum(v) ? v : null);
@@ -104,11 +105,12 @@ function playerExpectations(snapshot) {
 }
 
 /**
- * @param {{ sport: "NFL"|"NBA", snapshot: object|null, refusal: object|null, runs: object[], eligible: Iterable<number> }} o
+ * @param {{ sport: "NFL"|"NBA", snapshot: object|null, refusal: object|null, runs: object[], eligible: Iterable<number>, inputNotCurrent?: {code:string,message:string}|null }} o
  *   runs      normalised runs (runsFromNflSimReceipt / runsFromNbaSamples), all of them
  *   eligible  runIndexes the Theater validated (only these may be selected)
+ *   inputNotCurrent  the batch was not built on the current official revision: no run may be central, every run is a what-if
  */
-export function representativeBlock({ sport, snapshot, refusal = null, runs, eligible }) {
+export function representativeBlock({ sport, snapshot, refusal = null, runs, eligible, inputNotCurrent = null }) {
   const all = dedupeRuns(runs);
   const ok = new Set(eligible ?? []);
   const base = {
@@ -129,6 +131,9 @@ export function representativeBlock({ sport, snapshot, refusal = null, runs, eli
   const sel = selectOfficialRepresentative(all.filter((r) => ok.has(r.runIndex)), targets);
   const official = officialSummary(snapshot);
   const players = playerExpectations(snapshot);
+  if (inputNotCurrent) {
+    return { ...base, state: REP_STATE.INPUT_NOT_CURRENT, refusal: inputNotCurrent, snapshotId: snapshot.snapshotId, official, officialRunIndex: null, distance: null, withinTolerance: false, runs: whatIfAll(dist), reconciliation: [], players };
+  }
   if (!sel.official) {
     return { ...base, state: REP_STATE.NO_ELIGIBLE_RUN, refusal: { code: "NO_ELIGIBLE_RUN", message: "no validated stored run could be measured against the official forecast" }, snapshotId: snapshot.snapshotId, official, officialRunIndex: null, distance: null, withinTolerance: false, runs: whatIfAll(dist), reconciliation: [], players };
   }
@@ -150,12 +155,18 @@ export function representativeBlock({ sport, snapshot, refusal = null, runs, eli
   };
 }
 
-/** NFL: attach the block to an adapted sim-v2 manifest. `official` = nflOfficial(...) output. */
+/**
+ * NFL: attach the block to an adapted sim-v2 manifest. `official` = nflOfficial(...) output. When it says which revision
+ * is official (`revision`, loader.mjs nflTheaterOfficial; null when that cannot be established), the batch's input is
+ * checked against it (sim-input-provenance.mjs) and the provenance travels in the manifest.
+ */
 export function withNflRepresentative(manifest, receipt, official) {
   if (!manifest) return manifest;
   const eligible = (manifest.chips ?? []).filter((c) => c.available).map((c) => c.runIndex);
-  const representative = representativeBlock({ sport: "NFL", snapshot: official?.snapshot ?? null, refusal: official?.refusal ?? null, runs: runsFromNflSimReceipt(receipt), eligible });
-  return { ...manifest, representative };
+  const simProvenance = official?.revision !== undefined ? simInputProvenance({ receipt, official: official.revision, revisions: official.revisions }) : null;
+  const inputNotCurrent = simProvenance && !simProvenance.current ? { code: SIM_INPUT_REFUSAL, message: `${simProvenance.label}: ${simProvenance.input.forecastRevision ?? "no named input"}, official ${simProvenance.official?.forecastRevision ?? "unknown"}` } : null;
+  const representative = representativeBlock({ sport: "NFL", snapshot: official?.snapshot ?? null, refusal: official?.refusal ?? null, runs: runsFromNflSimReceipt(receipt), eligible, inputNotCurrent });
+  return { ...manifest, representative, ...(simProvenance ? { simProvenance } : {}) };
 }
 
 /** NBA: attach the block to an adapted v1 manifest. `official` = nbaOfficial(...) output; `game` the artifact's game. */

@@ -54,17 +54,26 @@ test("next.config.mjs defines the flag into the bundle as \"1\" or \"0\", defaul
 
 test("the page imports the section only inside the compile-time flag branch; no static theater import", () => {
   const src = read(PAGE);
-  // no static import of any theater module (a static import would put the island and its CSS in every build)
+  // no static import of a theater module (a static import would put the island and its CSS in every build). The official
+  // panel and three server-only library modules are the exceptions (founder rule 2026-11-02: the panel prints flag ON or
+  // OFF); none of them reaches the island or the Theater stylesheet, which the post-build scan also checks in out/.
+  const OFFICIAL_ONLY = ["@/components/simulation-theater/NflOfficialDefault", "@/lib/simulation-theater/loader.mjs", "@/lib/simulation-theater/official-default.mjs", "@/lib/simulation-theater/sim-input-provenance.mjs"];
   for (const m of src.matchAll(/^import[^;]*from\s+["']([^"']+)["']/gm)) {
-    assert.ok(!/simulation-theater/.test(m[1]), `static import of ${m[1]}`);
+    assert.ok(!/simulation-theater/.test(m[1]) || OFFICIAL_ONLY.includes(m[1]), `static import of ${m[1]}`);
   }
+  const panel = read("src/components/simulation-theater/NflOfficialDefault.tsx");
+  assert.doesNotMatch(panel, /public-theater\.css|TheaterIsland|TheaterSection/, "the panel carries no Theater stylesheet or island");
+  const panelCss = read("src/components/simulation-theater/official-default.css");
+  assert.ok(!panelCss.includes(".st-root{") && !panelCss.includes(".stp-labels{"), "the panel's stylesheet holds no Theater marker");
+  assert.doesNotMatch(read("src/lib/simulation-theater/loader.mjs"), /from\s+["'][^"']*(components\/|\.css|TheaterIsland)/, "the loader imports no component or stylesheet");
   // exactly one dynamic import of the section, and it sits inside the `=== "1"` branch
   const dyn = [...src.matchAll(/import\(\s*["']([^"']+)["']\s*\)/g)].map((m) => m[1]);
   assert.deepEqual(dyn, ["@/components/simulation-theater/PublicTheaterSection"]);
   const branch = src.match(/if \(process\.env\.GTP_NFL_THEATER_PUBLIC === "1"\) \{([\s\S]*?)\n  \}/);
   assert.ok(branch, "the flag branch is a literal `process.env.GTP_NFL_THEATER_PUBLIC === \"1\"` test (DefinePlugin-constant)");
   assert.match(branch[1], /await import\("@\/components\/simulation-theater\/PublicTheaterSection"\)/);
-  assert.match(src, /<SimulationReplay rec=\{rec\} \/>/, "the replay renders the page's own receipt of record");
+  assert.match(branch[1], /<PublicTheaterSection rec=\{rec\} \/>/, "the replay renders the page's own receipt of record");
+  assert.match(src, /await officialAndReplay\(rec, params\.eventId, gameHref\)/);
   // the public route never enables the dev hooks
   assert.doesNotMatch(read(SECTION), /<TheaterSection[^>]*devHooks/);
   assert.doesNotMatch(src, /devHooks/);

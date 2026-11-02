@@ -14,7 +14,7 @@
  */
 import type { TheaterRepresentative } from "./types";
 import {
-  COMPARISON_TITLE, NO_OFFICIAL_NBA, NO_OFFICIAL_NFL, NO_OFFICIAL_RUNS_NOTE, OFFICIAL_FORECAST_TITLE, OFFICIAL_RUN_SUBTITLE, OFFICIAL_RUN_TITLE,
+  COMPARISON_TITLE, INPUT_NOT_CURRENT_NOTE, NO_OFFICIAL_NBA, NO_OFFICIAL_NFL, NO_OFFICIAL_RUNS_NOTE, OFFICIAL_FORECAST_TITLE, OFFICIAL_RUN_SUBTITLE, OFFICIAL_RUN_TITLE,
   CENTRAL_ROLE_TAG, RECONCILIATION_NOTE, officialDisplay, WHAT_IF_BANNER, WHAT_IF_TAG, fmtDistance, fmtExpectation, fmtPct, fmtSignedDiff, runRole, teamComparison, ROLE, SUPPORTING_RUN_TITLE, SUPPORTING_RUN_SUBTITLE } from "@/lib/simulation-theater/representative-labels.mjs";
 
 type Team = { abbr: string; name?: string | null };
@@ -47,7 +47,7 @@ export function OfficialForecastCard({ manifest, teams }: { manifest: WithRep; t
         {d.margin != null ? <div><dt>Margin ({teams.home.abbr} − {teams.away.abbr}) · median</dt><dd data-st-official-margin="">{fmtExpectation(d.margin)}</dd></div> : null}
         {d.total != null ? <div><dt>Total points · median</dt><dd data-st-official-total="">{fmtExpectation(d.total)}</dd></div> : null}
       </dl>
-      <p className="st-official-note">These are the Official Forecast&apos;s published numbers, as on the game page. Each run below is one simulated scenario (hypothetical); the Theater opens on the stored run closest to them.</p>
+      <p className="st-official-note">These are the Official Forecast&apos;s published numbers, as on the game page. Each run below is one simulated scenario (hypothetical){rep.state === "INPUT_NOT_CURRENT" ? `. ${INPUT_NOT_CURRENT_NOTE}` : "; the Theater opens on the stored run closest to them."}</p>
     </section>
   );
 }

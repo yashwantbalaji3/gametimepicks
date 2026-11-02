@@ -19,7 +19,6 @@
  *     is serialized then).
  */
 import "./public-theater.css";
-import fs from "node:fs";
 import path from "node:path";
 import type { CSSProperties } from "react";
 
@@ -31,16 +30,14 @@ import type { TheaterLoad, TheaterManifest, TheaterSample } from "./types";
 import {
   PUBLIC_THEATER_LABELS, PUBLIC_THEATER_LABEL_LINE, PUBLIC_THEATER_METHODOLOGY, UNAVAILABLE_TITLE, defaultSample, driveTableRows, publicTheaterLoad,
 } from "@/lib/simulation-theater/public-theater.mjs";
-import { nflTheaterOfficial } from "@/lib/simulation-theater/loader.mjs";
-import { SCENARIOS_KIND, nflOfficialDefault, positionsFromRoster } from "@/lib/simulation-theater/official-default.mjs";
-import { loadForecastView } from "@/lib/sports/nfl/forecast-view-load.mjs";
+import { nflOfficialView, nflTheaterOfficial, readNflRosterPositions } from "@/lib/simulation-theater/loader.mjs";
+import { SCENARIOS_KIND, nflOfficialDefault } from "@/lib/simulation-theater/official-default.mjs";
+import SimulationProvenance from "@/components/nfl/simulation-provenance";
 import NflOfficialDefault from "./NflOfficialDefault";
 import { storedRunBoxes } from "@/lib/simulation-theater/nfl-stored-run-box.mjs";
 import type { RunBoxes } from "./BoxScoreTable";
 
 const REPO_ROOT = path.resolve(process.cwd(), "..");
-/* roster positions for the Default view's row order and position tags (presentation only; positionsFromRoster) */
-const readRosterPositions = () => { try { return positionsFromRoster(JSON.parse(fs.readFileSync(path.join(REPO_ROOT, "app/public/data/nfl/rosters/latest.json"), "utf8"))); } catch { return null; } };
 
 type Rec = Parameters<typeof publicTheaterLoad>[0];
 type DriveRow = { n: number; start: string; offense: string; from: string; plays: string; yards: string; time: string; result: string; score: string };
@@ -100,12 +97,14 @@ export default function PublicTheaterSection({ rec }: { rec: Rec }) {
   const runBoxes = (load.ok && rec?.receipt ? storedRunBoxes(rec.receipt) : null) as RunBoxes | null;
   // P0-A (founder 2026-10-30): the Theater opens on the DEFAULT VIEW — the official projected game, from the game page's
   // own forecast view (no simulation input) — and the replay follows as a labelled simulated scenario
-  const official = eventId ? nflOfficialDefault(loadForecastView(path.join(REPO_ROOT, "app", "public"), eventId), { positions: readRosterPositions() }) : null;
+  const official = eventId ? nflOfficialDefault(nflOfficialView(REPO_ROOT, eventId), { positions: readNflRosterPositions(REPO_ROOT) }) : null;
+  const provenance = load.manifest?.simProvenance ?? null;
   return (
     <section className="stp" aria-labelledby="stp-h" data-stp-section="" data-stp-state={load.ok && sample ? "ready" : "unavailable"}>
       <NflOfficialDefault model={official} gameHref={eventId ? `/nfl/game/${eventId}/` : "/nfl/"} />
       <div className="stp-scenarios" data-stp-scenarios="">
       <p className="stp-scenario-kind">{SCENARIOS_KIND}</p>
+      {provenance ? <SimulationProvenance p={provenance} compact /> : null}
       <div className="stp-head">
         <h2 id="stp-h">Simulation replay</h2>
         <span className="stp-beta">Public beta</span>

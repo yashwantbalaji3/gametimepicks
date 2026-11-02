@@ -7,40 +7,32 @@
  *
  * SEPARATE FROM THE CANONICAL FORECAST. /nfl/game/[eventId] and its Projected Scorecard stay the Game Time Forecast and
  * keep their "expected statistical summaries · not one simulated game" label. This page is a different engine (SHADOW,
- * not promoted, not shown to be more accurate) and says so; the canonical numbers appear only in their own labelled card.
+ * not promoted, not shown to be more accurate) and says so.
+ *
+ * ONE OFFICIAL FORECAST (founder rule, 2026-11-02). The page opens on the official panel (NflOfficialDefault), fed only by
+ * the game page's accessor: winner, win chance, projected score and every official player projection, never a simulated
+ * number. Everything after it is hypothetical and labelled so, and the receipt's input revision, assumptions and
+ * timestamps are printed and carried in the page's JSON (sim-input-provenance.mjs). A batch built on an earlier revision
+ * says so; it is never shown as current, and its historical receipt stays on disk untouched.
  * Statically generated from committed files at build time; nothing here is computed in the browser.
  */
 import type { Metadata } from "next";
-import fs from "node:fs";
 import path from "node:path";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import SimulationV2Report, { type CanonicalForecast } from "@/components/nfl/simulation-v2-report";
+import SimulationV2Report from "@/components/nfl/simulation-v2-report";
+import NflOfficialDefault from "@/components/simulation-theater/NflOfficialDefault";
+import type { SimProvenance } from "@/components/nfl/simulation-provenance";
 import { readShadowReceipts, showableSimulationEvents, simulationOfRecord } from "@/lib/sports/nfl/sim-v2/public-receipt.mjs";
-import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
-import { nflPublicRecordResolver } from "@/lib/sports/nfl/public-record.mjs";
+import { nflOfficialView, nflTheaterOfficial, readNflRosterPositions } from "@/lib/simulation-theater/loader.mjs";
+import { nflOfficialDefault } from "@/lib/simulation-theater/official-default.mjs";
+import { simInputProvenance } from "@/lib/simulation-theater/sim-input-provenance.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { PUBLIC_TERMS } from "@/lib/public-registry";
 
 const REPO_ROOT = path.resolve(process.cwd(), "..");
 const entries = () => readShadowReceipts(REPO_ROOT);
-
-const readPublic = (rel: string) => {
-  try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data", rel), "utf8")); } catch { return null; }
-};
-
-function canonicalFor(eventId: string): CanonicalForecast | null {
-  const art = unionFrozenForecasts(readPublic("nfl/forecasts/latest.json"), readPublic("nfl/forecasts/frozen-latest.json"), { resolve: nflPublicRecordResolver() });
-  const f = (art?.forecasts ?? []).find((x: any) => String(x.providerEventId) === eventId);
-  const s = f?.forecastSummary;
-  if (!s?.winProbability || !s?.projectedScore) return null;
-  return {
-    awayWin: s.winProbability.away, homeWin: s.winProbability.home,
-    projectedAway: s.projectedScore.away, projectedHome: s.projectedScore.home,
-    totalMedian: s.total?.median, modelId: f.model?.id ?? null, generatedAt: f.generatedAt ?? null,
-  };
-}
 
 /**
  * SIMULATION REPLAY (Simulation Theater V2), PUBLIC BETA BEHIND A BUILD FLAG (P242 narrow exception, founder 2026-10-19;
@@ -50,13 +42,14 @@ function canonicalFor(eventId: string): CanonicalForecast | null {
  * so this `if` is a compile-time constant and, OFF, the import below is never part of the build (no theater pack, CSS
  * or island chunk in the page; public-theater-export.test.mjs checks out/). Rollback = build with the flag unset.
  * This is NOT the retired presentation-player ceremony (P242), which stays unmounted.
+ * Flag ON the section opens on the official panel itself; flag OFF the page prints the same panel on its own.
  */
-async function SimulationReplay({ rec }: { rec: NonNullable<ReturnType<typeof simulationOfRecord>> }) {
+async function officialAndReplay(rec: NonNullable<ReturnType<typeof simulationOfRecord>>, eventId: string, gameHref: string) {
   if (process.env.GTP_NFL_THEATER_PUBLIC === "1") {
     const { default: PublicTheaterSection } = await import("@/components/simulation-theater/PublicTheaterSection");
     return <PublicTheaterSection rec={rec} />;
   }
-  return null;
+  return <div style={{ marginTop: 20 }}><NflOfficialDefault model={nflOfficialDefault(nflOfficialView(REPO_ROOT, eventId), { positions: readNflRosterPositions(REPO_ROOT) })} gameHref={gameHref} /></div>;
 }
 
 export function generateStaticParams() {
@@ -75,11 +68,14 @@ export function generateMetadata({ params }: { params: { eventId: string } }): M
   });
 }
 
-export default function NflSimulationV2Page({ params }: { params: { eventId: string } }) {
+export default async function NflSimulationV2Page({ params }: { params: { eventId: string } }) {
   const rec = simulationOfRecord(entries(), params.eventId);
   if (!rec?.showable) notFound();
   const r = rec.receipt;
   const gameHref = `/nfl/game/${params.eventId}/`;
+  const official = nflTheaterOfficial(REPO_ROOT, params.eventId);
+  const provenance = simInputProvenance({ receipt: r, official: official.revision, revisions: official.revisions }) as SimProvenance;
+  const opening = await officialAndReplay(rec, params.eventId, gameHref);
   return (
     // overflow-x: clip (not hidden) where supported: hidden makes this shell a scroll container, which pins the
     // replay's sticky score bug to the shell instead of the viewport on phones; clip trims the same overflow without that.
@@ -91,12 +87,12 @@ export default function NflSimulationV2Page({ params }: { params: { eventId: str
         {r.away.name} at {r.home.name}
       </h1>
       <p className="font-mono" style={{ fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-mute)", margin: "6px 0 0" }}>
-        {PUBLIC_TERMS.GAME_SIMULATION} · Simulation V2 · {r.runCount.toLocaleString("en-US")} coherent game paths
+        {PUBLIC_TERMS.GAME_SIMULATION} · Hypothetical · Simulation V2 · {r.runCount.toLocaleString("en-US")} coherent game paths
       </p>
-      {/* P0-A (founder 2026-10-30): with the Theater flag ON the page opens on the Theater's Default view (the official
-          projected game), above the simulation report; flag OFF this renders nothing and the page is unchanged */}
-      <SimulationReplay rec={rec} />
-      <SimulationV2Report r={r} file={rec.file} canonical={canonicalFor(params.eventId)} gameHref={gameHref} />
+      {/* the simulation's inputs, assumptions and timestamps, machine-readable (sim-input-provenance.mjs) */}
+      <script type="application/json" data-sim-provenance-json="" dangerouslySetInnerHTML={{ __html: JSON.stringify(provenance).replace(/</g, "\\u003c") }} />
+      {opening}
+      <SimulationV2Report r={r} provenance={provenance} gameHref={gameHref} />
     </div>
   );
 }
