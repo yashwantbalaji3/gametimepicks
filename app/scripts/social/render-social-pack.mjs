@@ -59,7 +59,14 @@ const ref = (rel) => {
   const f = path.join(PUBLIC(), rel);
   return { ref: `app/public/${rel}`, sha256: sha(fs.readFileSync(f)) };
 };
-const readPublic = (rel) => { try { return JSON.parse(fs.readFileSync(path.join(PUBLIC(), rel), "utf8")); } catch { return null; } };
+const nbaExcluded = () => new Set((process.env.GTP_NBA_EXCLUDE_IDS ?? "").split(",").filter(Boolean));
+/** Operator exclusion: removes audited player rows from social cards only. The file, its snapshot ref and every other number stay as committed. */
+const withoutExcludedPlayers = (doc) => {
+  const out = nbaExcluded();
+  if (!out.size || !doc?.games) return doc;
+  return { ...doc, games: doc.games.map((g) => (g.players ? { ...g, players: { away: g.players.away.filter((p) => !out.has(String(p.providerAthleteId))), home: g.players.home.filter((p) => !out.has(String(p.providerAthleteId))) } } : g)) };
+};
+const readPublic = (rel) => { try { const doc = JSON.parse(fs.readFileSync(path.join(PUBLIC(), rel), "utf8")); return rel.startsWith("data/nba/experimental-public/") ? withoutExcludedPlayers(doc) : doc; } catch { return null; } };
 const NO_CLOCK = "--as-of <ISO instant with zone> is required (no clock is read)";
 const assertAsOf = (asOf) => { if (!/T.*(Z|[+-]\d\d:\d\d)$/.test(String(asOf)) || !Number.isFinite(Date.parse(asOf))) throw new Error(NO_CLOCK); };
 const timeOnly = (ms) => new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" }).format(new Date(ms));
@@ -702,7 +709,7 @@ export function prepareGameDay({ date, asOf, lineDoc = null, laneOverride = null
       posts.push(win(cardsM, { ...anomaliesFor(modelCheck, gameIds, STAT_MARKETS), contentType: CONTENT_TYPE.NBA_PLAYER_STATS, variant: g.eventId, eligibilityClass: ELIGIBILITY.OFFICIAL, title: `${m}: projected stat lines`, caption: pregameCaption(sc), ccCaption: sc, ccCaptionB: `${m} stat line projections.`, disclosures: [DISCLOSURE], content: { players: g.cov.playerCount, parts: cardsM.length, containsLines: false } }));
       g.cov.statGraphic = "PREPARED";
       if (lineDoc) {
-        const rows = lineDoc.rows.filter((r) => String(r.identity.eventId) === g.eventId);
+        const rows = lineDoc.rows.filter((r) => String(r.identity.eventId) === g.eventId && !nbaExcluded().has(String(r.identity.playerId)));
         g.cov.comparisonCount = rows.length;
         for (const r of rows) { const lr = [...g.raw.players.away, ...g.raw.players.home].find((p) => String(p.providerAthleteId) === String(r.identity.playerId)); if (lr && ["pts", "reb", "ast"].includes(r.identity.market) && Number(r.model.display) !== Number(lr.medians[r.identity.market]?.toFixed?.(1) ?? lr.medians[r.identity.market])) throw new Error(`${r.rowId}: export median differs from the lane`); }
         if (rows.length) {
