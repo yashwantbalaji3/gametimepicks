@@ -26,13 +26,13 @@ const RESULTS_PATH = () => path.join(process.cwd(), "public", "data", "nfl", "re
 const SCHEDULE_DIR = () => path.join(process.cwd(), "public", "data", "nfl", "schedule");
 
 /** Union of every committed schedule capture (snapshots + latest), keyed by providerEventId. */
-function scheduleIndexFromDisk() {
+export function scheduleIndexFromDisk(dir = SCHEDULE_DIR()) {
   const byId = new Map();
   try {
-    const files = fs.readdirSync(SCHEDULE_DIR()).filter((f) => f.endsWith(".json")).sort();
+    const files = fs.readdirSync(dir).filter((f) => f.endsWith(".json")).sort();
     for (const f of files) {
       try {
-        const cap = JSON.parse(fs.readFileSync(path.join(SCHEDULE_DIR(), f), "utf8"));
+        const cap = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
         for (const r of cap.rows ?? []) if (r?.providerEventId) byId.set(r.providerEventId, r);
       } catch { /* one unreadable snapshot must not hide the others */ }
     }

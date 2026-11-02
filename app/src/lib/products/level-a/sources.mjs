@@ -21,13 +21,19 @@
  *            same rows /epl publishes): the most likely of home / draw / away and its probability; the full 1X2
  *            split is the uncertainty shown beside it. The lane owns that artifact; nothing here names its path.
  *   Ligue 1  app/public/data/soccer/ligue-1/forecasts/latest.json (model-only rows, each with forecastAt): the same.
+ *   NFL      through the game page's own loader (sports/nfl/forecast-view-load.mjs loadOfficialGames): the frozen side
+ *            of the official snapshot and the win chance the page publishes for it, exact. Never World Model V2, the
+ *            what-if Theater or a market field. Written and tested while the registry axis is CLOSED: a closed axis
+ *            never calls it. See nflSelections.
  */
 import fs from "node:fs";
 import path from "node:path";
-import { canEnterModelSuggestions } from "../../sport-capability-registry.ts";
+import { modelSuggestionOf } from "../../sport-capability-registry.ts";
 import { loadEplForecasts, forecastRows as eplForecastRows } from "../../sports/epl/forecast-view.ts";
 import { eloWinProbabilityOf, eloWinProbabilityText } from "../../sports/nba/elo-win-probability.mjs";
 import { loadEloWinProbabilityContext } from "../../sports/nba/elo-win-probability-context.mjs";
+import { loadOfficialGames } from "../../sports/nfl/forecast-view-load.mjs";
+import { productDayOf } from "./suggestions.mjs";
 
 const readJson = (f) => { try { return JSON.parse(fs.readFileSync(f, "utf8")); } catch { return null; } };
 const OUTCOME_LABEL = { home: "home win", draw: "draw", away: "away win" };
@@ -121,12 +127,52 @@ function soccerSelections({ source, league, owner }) {
   });
 }
 
-/** Every OPEN sport's official selections for `date` (plus NBA player projections). */
-export function levelASources({ repoRoot, date }) {
+/**
+ * The owner's readiness for Level A. The forecast of record publishes no status word, so this reads the facts it does
+ * publish, failing closed. Anything but "ready" is refused by the leg contract and counted:
+ *   "degraded"  the forecast says it is blind to a starting quarterback's absence (team-input-coherence.mjs)
+ *   other       no official snapshot; team inputs unknown; or team strength did not enter this forecast
+ */
+function nflSourceStatus({ forecast, snapshot }) {
+  if (!snapshot) return "official-snapshot-refused";
+  const inputs = forecast.teamInputs?.state ?? null;
+  if (inputs === "BLIND_TO_STARTING_QB_ABSENCE") return "degraded";
+  if (inputs !== "NO_STARTING_QB_ABSENCE") return "team-inputs-unknown";
+  return forecast.teamSignal?.state === "APPLIED" ? "ready" : "team-signal-not-applied";
+}
+
+/**
+ * The NFL game-winner selections of product day `date`. The side is the official snapshot's frozen side (TOO_CLOSE or
+ * no frozen side: no selection, never worked out here). The probability is that side's win chance as the game page
+ * holds it (view.record.winProbability, the four-decimal published value, not the snapshot's unrounded pHome), so a
+ * leg and the page cannot differ. A game's tie share goes to neither side; a tie final voids the leg (level-a/grade.mjs).
+ * The stamp is the snapshot's frozenAt: a later event window on the same inputs moves `generatedAt` and nothing else.
+ */
+export function nflSelections({ repoRoot, date }) {
+  return loadOfficialGames(path.join(repoRoot, "app", "public")).filter(({ view }) => productDayOf(view.kickoffUtc) === date).map(({ forecast, snapshot, view }) => {
+    const side = { HOME: "home", AWAY: "away" }[snapshot?.game?.winner?.side] ?? null;
+    const wp = view.record.winProbability;
+    return {
+      sport: "nfl", eventId: String(view.providerEventId), eventLabel: view.matchup, startUtc: view.kickoffUtc, market: "winner",
+      sourceStatus: nflSourceStatus({ forecast, snapshot }),
+      selection: side ? { code: side, label: `${view[side].name} to win` } : null,
+      probability: side && typeof wp[side] === "number" ? wp[side] : null,
+      forecast: { owner: "nfl-regular-season-public official forecast", modelId: snapshot?.modelVersions?.game ?? view.record.modelId, stampedAt: snapshot?.frozenAt ?? null, ref: snapshot ? `nfl-official-snapshot:${snapshot.snapshotId}` : null },
+      uncertainty: { kind: "win-probability", home: wp.home, away: wp.away, tieAfterRegulation: wp.tieAfterRegulation, note: "Win chance from the official NFL game forecast, frozen before kickoff. The share for a tie goes to neither team; a game that finishes tied voids this leg." },
+      participantStatuses: (forecast.teamInputs?.absences ?? []).map((a) => a.status),
+      settlement: { grader: "nfl-settlement-contract", market: "moneyline", side },
+    };
+  });
+}
+
+/** Every OPEN sport's official selections for `date` (plus NBA player projections). `suggestionCapabilityOf`: see levelALeg. */
+export function levelASources({ repoRoot, date, suggestionCapabilityOf = modelSuggestionOf }) {
+  const open = (sport) => suggestionCapabilityOf(sport).state === "OPEN";
   const out = { selections: [], nbaProjections: [] };
-  if (canEnterModelSuggestions("mlb")) out.selections.push(...mlbSelections({ repoRoot, date }));
-  if (canEnterModelSuggestions("nba")) { const n = nbaSelections({ repoRoot, date }); out.selections.push(...n.selections); out.nbaProjections = n.projections; }
-  if (canEnterModelSuggestions("epl")) out.selections.push(...soccerSelections({ source: eplRows(), league: "epl", owner: "epl-model-v2-elo-poisson public forecast" }));
-  if (canEnterModelSuggestions("ligue-1")) out.selections.push(...soccerSelections({ source: ligue1Rows({ repoRoot }), league: "ligue-1", owner: "soccer-league-forecasts (Ligue 1, model-only)" }));
+  if (open("mlb")) out.selections.push(...mlbSelections({ repoRoot, date }));
+  if (open("nba")) { const n = nbaSelections({ repoRoot, date }); out.selections.push(...n.selections); out.nbaProjections = n.projections; }
+  if (open("epl")) out.selections.push(...soccerSelections({ source: eplRows(), league: "epl", owner: "epl-model-v2-elo-poisson public forecast" }));
+  if (open("ligue-1")) out.selections.push(...soccerSelections({ source: ligue1Rows({ repoRoot }), league: "ligue-1", owner: "soccer-league-forecasts (Ligue 1, model-only)" }));
+  if (open("nfl")) out.selections.push(...nflSelections({ repoRoot, date }));
   return out;
 }

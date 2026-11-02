@@ -42,8 +42,12 @@ export function officialSnapshotFor(forecast, board, world = null) {
   }
 }
 
-/** @param {string} publicDir the app's public/ directory */
-export function loadForecastViews(publicDir) {
+/**
+ * Every game as the game page holds it: the view, the forecast of record it was built from and that game's official
+ * snapshot (or the snapshot's refusal). The one path to these numbers; Level A reads this (products/level-a/sources.mjs).
+ * @param {string} publicDir the app's public/ directory
+ */
+export function loadOfficialGames(publicDir) {
   const data = path.join(publicDir, "data/nfl");
   const repoRoot = path.resolve(publicDir, "..", "..");
   // an excluded public copy stands for its record (public-record.mjs); if that cannot be read, the copy is kept for the
@@ -57,9 +61,14 @@ export function loadForecastViews(publicDir) {
       // The official snapshot reads the model's own board (projections are not prices); the page is handed the
       // eligible-operators@1 sanitised board, so no book outside the allowlist reaches a reader (PR 1130).
       const { snapshot, refusal } = officialSnapshotFor(f, rawBoard, world);
-      return gameView({ forecast: f, world, board: sanitizePlayerBoard(rawBoard), official: snapshot, officialRefusal: refusal });
+      return { forecast: f, snapshot, refusal, view: gameView({ forecast: f, world, board: sanitizePlayerBoard(rawBoard), official: snapshot, officialRefusal: refusal }) };
     })
-    .sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc) || a.providerEventId.localeCompare(b.providerEventId));
+    .sort((a, b) => a.view.kickoffUtc.localeCompare(b.view.kickoffUtc) || a.view.providerEventId.localeCompare(b.view.providerEventId));
+}
+
+/** @param {string} publicDir the app's public/ directory */
+export function loadForecastViews(publicDir) {
+  return loadOfficialGames(publicDir).map((g) => g.view);
 }
 
 export function loadForecastView(publicDir, eventId) {

@@ -6,6 +6,9 @@
  *   EPL      the EPL lane's official finals (sports/epl/official-finals.mjs)
  *   Ligue 1  app/public/data/soccer/ligue-1/results/graded.json (eventId → full-time score)
  *   NBA      the committed NBA finals record (sports/nba/prop-settlement-source.mjs)
+ *   NFL      app/public/data/nfl/results/latest.json through the results adapter (sports/nfl/current-results.mjs: finals
+ *            with schedule lineage and integer scores only). That capture is a rolling window, so a leg it has dropped
+ *            stays pending, never a loss.
  * It reads the record and never writes it. Pending entries wait; conflicts with grades already written are reported
  * and change nothing. See src/lib/products/level-a/grade.mjs for the rules.
  *
@@ -26,6 +29,7 @@ import { fileURLToPath } from "node:url";
 import { gradeRecord, gradeViolations } from "../../src/lib/products/level-a/grade.mjs";
 import { eplOfficialFinals } from "../../src/lib/sports/epl/official-finals.mjs";
 import { committedNbaPropResults } from "../../src/lib/sports/nba/prop-settlement-source.mjs";
+import { loadCurrentNflResults, scheduleIndexFromDisk } from "../../src/lib/sports/nfl/current-results.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -47,7 +51,7 @@ export function committedFinals({ repoRoot = REPO, nowIso }) {
     }
     return lines.get(day);
   };
-  let epl = null, ligue = null, nba = null;
+  let epl = null, ligue = null, nba = null, nfl = null;
   return {
     /* An MLB game's linescore lives under its own date; Level A's product day is the ET date of first pitch. */
     mlb: (leg) => mlbDay(leg.productDay ?? String(leg.startUtc ?? "").slice(0, 10)).get(String(leg.eventId)) ?? null,
@@ -62,6 +66,11 @@ export function committedFinals({ repoRoot = REPO, nowIso }) {
       return null;
     },
     nba: (eventId) => (nba ??= committedNbaPropResults({ repoRoot }))({ eventId }),
+    nfl: (eventId) => (nfl ??= new Map(loadCurrentNflResults({
+      nowIso,
+      artifact: readJson(path.join(repoRoot, "app", "public", "data", "nfl", "results", "latest.json")),
+      scheduleIndex: scheduleIndexFromDisk(path.join(repoRoot, "app", "public", "data", "nfl", "schedule")),
+    }).results.map((r) => [r.providerEventId, r.settlementResult]))).get(String(eventId)) ?? null,
   };
 }
 

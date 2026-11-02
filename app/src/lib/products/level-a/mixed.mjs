@@ -32,7 +32,7 @@ export const levelAMixedEnabled = (env = { [LEVEL_A_MIXED_FLAG]: process.env.NEX
 
 export const MIXED_DEPENDENCY = "Assumes the games are independent: every leg is a different game, so no two legs share an outcome. Across sports the games are unrelated; within one sport on the same night results can still be related (travel, schedule, league-wide scoring), and that is not modelled.";
 
-const SPORT_NAME = { mlb: "MLB", nba: "NBA", epl: "Premier League", "ligue-1": "Ligue 1" };
+const SPORT_NAME = { mlb: "MLB", nba: "NBA", nfl: "NFL", epl: "Premier League", "ligue-1": "Ligue 1" };
 const sportsOf = (legs) => [...new Set(legs.map((l) => l.sport))].sort();
 const twoSports = (c) => new Set(c.map((l) => l.sport)).size >= 2;
 

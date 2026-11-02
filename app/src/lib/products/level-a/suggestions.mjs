@@ -8,7 +8,7 @@
  *
  * LEG (one per event: the official forecast's own selection, never ours)
  *   gates (each refusal is a code + sentence):
- *     SPORT_CLOSED        registry canEnterModelSuggestions(sport) is false
+ *     SPORT_CLOSED        the registry's Level A axis (modelSuggestionOf) does not say OPEN for this sport
  *     START_UNKNOWN / EVENT_STARTED / INSIDE_CUTOFF   start known and > now + 30 min (LEG_BOUNDS.activationCutoffMs)
  *     FORECAST_NOT_FROZEN the forecast's stamp is missing or not strictly before the event start
  *     NO_SELECTION        the forecast names no selection for the market
@@ -37,7 +37,7 @@
 import { LEG_BOUNDS } from "../eligible-leg/contract.mjs";
 import { PUBLIC_RISK_TIERS, PUBLIC_RISK_LABELS, getRiskBucketForCombinedOdds } from "../../parlays/risk-odds-bands.mjs";
 import { BAND_MAX_LEGS } from "../../parlays/multi-sport.mjs";
-import { canEnterModelSuggestions, modelSuggestionOf } from "../../sport-capability-registry.ts";
+import { modelSuggestionOf } from "../../sport-capability-registry.ts";
 
 export const LEVEL_A_VERSION = "level-a-suggestions@1";
 export const LEVEL_A_LEG_SCHEMA = "gtp.level-a.leg@1";
@@ -101,12 +101,16 @@ export function jointShownFor(joint, tier) {
  * @property {{ grader: string, market: string, side: string }} settlement
  */
 
-/** One leg, or a refusal. */
-export function levelALeg(sel, { now, productDay = null }) {
+/**
+ * One leg, or a refusal. `suggestionCapabilityOf` is the registry's own lookup. Only a test passes another one (to exercise a
+ * sport whose axis is CLOSED); no production caller does, and nfl-level-a.test.mjs fails if one starts to.
+ */
+export function levelALeg(sel, { now, productDay = null, suggestionCapabilityOf = modelSuggestionOf }) {
   const nowMs = ms(now);
   const reasons = [];
   if (productDay && productDayOf(sel?.startUtc) !== productDay) reasons.push("OTHER_PRODUCT_DAY");
-  if (!canEnterModelSuggestions(sel?.sport)) reasons.push("SPORT_CLOSED");
+  const capability = suggestionCapabilityOf(sel?.sport);
+  if (capability.state !== "OPEN") reasons.push("SPORT_CLOSED");
   const start = ms(sel?.startUtc);
   if (start == null) reasons.push("START_UNKNOWN");
   else if (nowMs != null && start <= nowMs) reasons.push("EVENT_STARTED");
@@ -114,7 +118,7 @@ export function levelALeg(sel, { now, productDay = null }) {
   const stamped = ms(sel?.forecast?.stampedAt);
   if (stamped == null || start == null || stamped >= start) reasons.push("FORECAST_NOT_FROZEN");
   if (!sel?.selection?.code) reasons.push("NO_SELECTION");
-  const published = modelSuggestionOf(sel?.sport).probabilityPublished;
+  const published = capability.probabilityPublished;
   if (published && !(typeof sel?.probability === "number" && sel.probability > 0 && sel.probability < 1)) reasons.push("BAD_PROBABILITY");
   if ((sel?.participantStatuses ?? []).some((s) => typeof s === "string" && UNAVAILABLE_RE.test(s.trim()))) reasons.push("UNAVAILABLE");
   if (sel?.sourceStatus != null && sel.sourceStatus !== "ready") reasons.push(sel.sourceStatus === "degraded" ? "SOURCE_NOT_READY" : "SOURCE_UNAVAILABLE");
@@ -186,12 +190,12 @@ export const POLICIES = Object.freeze({
 
 /**
  * The whole Level A answer for a slate.
- * @param {{ selections: ForecastSelection[], now: string, productDay?: string|null }} input   productDay defaults to now's ET date
+ * @param {{ selections: ForecastSelection[], now: string, productDay?: string|null, suggestionCapabilityOf?: typeof modelSuggestionOf }} input   productDay defaults to now's ET date; suggestionCapabilityOf: see levelALeg
  */
-export function levelASuggestions({ selections = [], now, productDay = null }) {
+export function levelASuggestions({ selections = [], now, productDay = null, suggestionCapabilityOf = modelSuggestionOf }) {
   if (ms(now) == null) throw new TypeError("levelASuggestions: `now` must be an ISO instant");
   const day = productDay ?? productDayOf(now);
-  const results = selections.map((s) => levelALeg(s, { now, productDay: day }));
+  const results = selections.map((s) => levelALeg(s, { now, productDay: day, suggestionCapabilityOf }));
   const legs = results.filter((r) => r.ok).map((r) => r.leg);
   const refused = results.filter((r) => !r.ok).map((r) => r.refusal);
   // One leg per event already (one selection per event per market); keep the first per event for safety.

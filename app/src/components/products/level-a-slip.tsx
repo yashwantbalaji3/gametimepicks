@@ -19,7 +19,7 @@ type Combined = { available: true; joint: number; tier: string | null; tierLabel
 type SlipView = { rows: SlipRow[]; combined: Combined; label: string };
 
 const BTN: React.CSSProperties = { minHeight: 44, minWidth: 44, whiteSpace: "nowrap", border: "1px solid var(--vault-border-strong)", color: "var(--vault-text)", fontSize: 12.5, fontWeight: 600, background: "transparent", borderRadius: 9999, padding: "0 14px" };
-const SPORT: Record<string, string> = { mlb: "MLB", nba: "NBA", epl: "Premier League", "ligue-1": "Ligue 1" };
+const SPORT: Record<string, string> = { mlb: "MLB", nba: "NBA", nfl: "NFL", epl: "Premier League", "ligue-1": "Ligue 1" };
 
 /** "Add to slip" for one leg, or "Add card to slip" for a card's legs (by key: the bar carries the page's legs once).
  *  Once every leg is in: "In slip · remove" for a leg, "Remove card (n legs)" for a card (slipButtonText). */

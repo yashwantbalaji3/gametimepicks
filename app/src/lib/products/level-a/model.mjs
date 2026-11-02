@@ -6,6 +6,7 @@
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { buildAsOfIso } from "../../build-asof.ts";
+import { modelSuggestionOf } from "../../sport-capability-registry.ts";
 import { levelASources } from "./sources.mjs";
 import { levelASuggestions, productDayOf } from "./suggestions.mjs";
 import { nbaGameWinnerTiers, nbaGameWinnerTiersEnabled } from "./nba-game-winner-tiers.mjs";
@@ -37,11 +38,11 @@ export function nbaGameWinnersBlock({ answer, repoRoot, day, enabled = nbaGameWi
   return nbaGameWinnerTiers({ legs: (answer.untiered ?? []).filter((l) => l.sport === "nba"), accessor: d.accessor, receiptOf: d.receiptOf, disclosure: d.disclosure, enabled: true });
 }
 
-/** `sources` replaces the files read for the day (levelASources) — tests pin a past build's committed inputs with it. */
-export function buildLevelAModel({ repoRoot = path.resolve(process.cwd(), ".."), now = new Date().toISOString(), productDay = null, sources = null, nbaGameWinners: gw = {}, mixed: mx = {} } = {}) {
+/** `sources` replaces the files read for the day (levelASources) — tests pin a past build's committed inputs with it. `suggestionCapabilityOf`: see levelALeg (tests only). */
+export function buildLevelAModel({ repoRoot = path.resolve(process.cwd(), ".."), now = new Date().toISOString(), productDay = null, sources = null, nbaGameWinners: gw = {}, mixed: mx = {}, suggestionCapabilityOf = modelSuggestionOf } = {}) {
   const day = productDay ?? productDayOf(now);
-  const src = sources ?? levelASources({ repoRoot, date: day });
-  const answer = levelASuggestions({ selections: src.selections, now, productDay: day });
+  const src = sources ?? levelASources({ repoRoot, date: day, suggestionCapabilityOf });
+  const answer = levelASuggestions({ selections: src.selections, now, productDay: day, suggestionCapabilityOf });
   /** @type {Record<string, number>} */
   const refusedByReason = {};
   for (const r of answer.refused) for (const c of r.reasons) if (c !== "OTHER_PRODUCT_DAY") refusedByReason[c] = (refusedByReason[c] ?? 0) + 1;

@@ -5,6 +5,8 @@
  *   EPL      gradeSoccerLeg match_result (sports/soccer/settlement-contract.mjs) on the EPL lane's official finals
  *   Ligue 1  gradeSoccerLeg match_result on the league's committed finals
  *   NBA      gradeNbaLabLeg moneyline (parlays/nba-lab-grading.mjs → the NBA settlement contract)
+ *   NFL      gradeNflLeg moneyline (sports/nfl/settlement-contract.mjs): a tie final is PUSH, a void leg here; a result
+ *            the contract will not grade (VOID_PENDING_REVIEW: not final, no integer score) is pending, never a void
  *
  * THREE RULES (release owner 2026-10-23):
  *   PENDING IS NEVER A LOSS. No final, an unjoined result, a quarantined score, an unknown market: pending, and the
@@ -22,6 +24,7 @@ import { createHash } from "node:crypto";
 import { settleMlbMoneyline } from "../../mlb/product-settlement/mlb-markets.ts";
 import { gradeSoccerLeg } from "../../sports/soccer/settlement-contract.mjs";
 import { gradeNbaLabLeg } from "../../parlays/nba-lab-grading.mjs";
+import { gradeNflLeg } from "../../sports/nfl/settlement-contract.mjs";
 
 export const LEVEL_A_GRADE_SCHEMA = "gtp.level-a.grade@1";
 export const LEVEL_A_GRADER_VERSION = "level-a-forward-grader@1";
@@ -32,6 +35,7 @@ const FINAL = new Set(["win", "loss", "void"]);
  *   finals.mlb(leg) → { homeRuns, awayRuns, isFinal } | null
  *   finals.soccer(sport, eventId) → { status, homeGoalsFT, awayGoalsFT } | null
  *   finals.nba(eventId) → the NBA settlement contract's result shape | null
+ *   finals.nfl(eventId) → { status, homePointsFT, awayPointsFT } | null
  */
 export function gradeLevelALeg(leg, finals) {
   const side = leg?.selection?.code ?? null;
@@ -52,6 +56,12 @@ export function gradeLevelALeg(leg, finals) {
   if (leg.sport === "nba") {
     const g = gradeNbaLabLeg({ sport: "nba", eventId: leg.eventId, market: "moneyline", side }, (eventId) => finals?.nba?.(eventId) ?? null);
     return out(FINAL.has(g.result) ? g.result : "pending", g.reason, g.grader);
+  }
+  if (leg.sport === "nfl") {
+    let r = null;
+    try { r = finals?.nfl?.(leg.eventId) ?? null; } catch { r = null; }
+    const g = gradeNflLeg({ market: leg.market === "winner" ? "moneyline" : leg.market, side }, r);
+    return out({ WIN: "win", LOSS: "loss", PUSH: "void" }[g.outcome] ?? "pending", g.reason, "nfl-moneyline");
   }
   return out("pending", `no Level A grader for ${leg.sport} — held, never a loss`, null);
 }
