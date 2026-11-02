@@ -17,6 +17,13 @@
  *   NO RECENT GAMES EITHER             → season over or not started        (pass, legitimately)
  *   SPORT NOT IN MATCHUP_SPORTS        → unsupported                       (skipped, not asserted)
  *
+ * WHY REMOVED GAMES DO NOT COUNT (2026-11-02). MLB's schedule carries if-necessary games: Games 6 and 7
+ * of the 2026 World Series were never played (Milwaukee won in five on 10-29), and the registry marks
+ * them `scheduleState: "REMOVED_FROM_SCHEDULE"`. Counted as "recent" they read as a live season with no
+ * future, and this guard held back `daily-products` for every sport from 11-01 09:37Z. Only that
+ * explicit marker excludes a game. Never exclude on a missing `final`: a frozen pipeline has no finals
+ * either, and that is the incident above.
+ *
  * ⚠ A SIBLING TRAP, PROVEN THE SAME DAY. Each producer in the chain ships a `--check` that rebuilds
  * in memory and exits 1 when the committed output differs. Run against the frozen 2026-09-17 tree,
  * `data-platform --check` correctly exited 1 — but research, compare and lab all exited **0**,
@@ -36,6 +43,30 @@ import { MATCHUP_SPORTS } from "./contract.mjs";
 const RECENT_DAYS = 4;
 const DAY_MS = 86_400_000;
 
+/** The registry's forward-coverage counts at `now`. A game taken off the schedule is neither recent nor future. */
+function windowCounts(entries, now) {
+  const starts = entries
+    .filter((e) => e.scheduleState !== "REMOVED_FROM_SCHEDULE")
+    .map((e) => Date.parse(e.startUtc));
+  return {
+    future: starts.filter((t) => t > now).length,
+    recent: starts.filter((t) => t <= now && t > now - RECENT_DAYS * DAY_MS).length,
+  };
+}
+
+test("window counts: only the explicit schedule marker excludes a game, never a missing final", () => {
+  const now = Date.parse("2026-11-02T12:00:00Z");
+  const removed = { startUtc: "2026-11-01T00:00:00Z", scheduleState: "REMOVED_FROM_SCHEDULE", final: null };
+  const played = { startUtc: "2026-11-01T00:00:00Z", final: { away: 4, home: 1 } };
+  const unsettled = { startUtc: "2026-11-01T00:00:00Z", final: null };
+  const removedAhead = { startUtc: "2026-11-05T00:00:00Z", scheduleState: "REMOVED_FROM_SCHEDULE", final: null };
+
+  assert.deepEqual(windowCounts([removed], now), { future: 0, recent: 0 }, "an unplayed if-necessary game is not a live season");
+  assert.deepEqual(windowCounts([played], now), { future: 0, recent: 1 }, "a played game with nothing ahead must still expire");
+  assert.deepEqual(windowCounts([unsettled], now), { future: 0, recent: 1 }, "a frozen pipeline has no finals: it must still expire");
+  assert.deepEqual(windowCounts([played, removedAhead], now), { future: 0, recent: 1 }, "a removed game cannot satisfy forward coverage");
+});
+
 test("a matchup registry with recent games must also carry future ones — the window cannot expire under a live season", () => {
   assert.ok(MATCHUP_SPORTS.length > 0, "no matchup sports declared — this guard would assert nothing");
 
@@ -44,16 +75,13 @@ test("a matchup registry with recent games must also carry future ones — the w
 
   for (const sport of MATCHUP_SPORTS) {
     const entries = matchupEntries(sport);
-    const starts = entries
-      .map((e) => Date.parse(e.startUtc))
-      .filter((t) => Number.isFinite(t));
+    const unreadable = entries.filter((e) => !Number.isFinite(Date.parse(e.startUtc))).length;
 
     // A registry that cannot be read at all is a different failure, and a loud one.
-    assert.ok(starts.length === entries.length,
-      `${sport}: ${entries.length - starts.length} registry entries have no parseable startUtc`);
+    assert.ok(unreadable === 0,
+      `${sport}: ${unreadable} registry entries have no parseable startUtc`);
 
-    const future = starts.filter((t) => t > now).length;
-    const recent = starts.filter((t) => t <= now && t > now - RECENT_DAYS * DAY_MS).length;
+    const { future, recent } = windowCounts(entries, now);
 
     if (recent === 0) {
       // Season over, not yet started, or a genuine off-window. Nothing to claim.

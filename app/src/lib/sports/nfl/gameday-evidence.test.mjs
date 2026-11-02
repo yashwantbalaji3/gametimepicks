@@ -145,9 +145,10 @@ test("new arrivals: a notable mover is published as prior-club FACT, never as a 
     .map((y) => { try { return read(`data/internal/research/nfl/player-events-v1/${y}.json`); } catch { return null; } })
     .filter(Boolean);
   if (!seasons.length) return;
+  const roleEvidence = read("data/internal/nfl/role-evidence/latest.json");
   const arrivals = deriveNewArrivals({
     corpusSeasons: seasons,
-    roleEvidence: read("data/internal/nfl/role-evidence/latest.json"),
+    roleEvidence,
     shares: read("data/internal/research/nfl/role-shares-v1/current.json"),
     /* Session 4: the producer passes the weekly forecast's current-season usage; so does this test. */
     currentUsage: (() => {
@@ -174,7 +175,15 @@ test("new arrivals: a notable mover is published as prior-club FACT, never as a 
       }
     }
   }
-  assert.ok(total > 0, "the current week has movers — an empty derivation would mean the join broke");
+  /*
+   * An empty result is a true answer on a short slate: on 2026-11-02 only CHI @ SEA remained, and its one
+   * mover was already in Seattle's share pool. The join is what must not break, so it is proven without
+   * the pool, which leaves the corpus-to-roster match as the only thing that can produce a row.
+   */
+  const joined = [...deriveNewArrivals({ corpusSeasons: seasons, roleEvidence, shares: { teams: {} } }).values()]
+    .flatMap((teams) => Object.values(teams).flat());
+  assert.ok(joined.length >= total, "removing the pool can only add movers");
+  assert.ok(joined.length > 0, "no roster player joined a prior club in the corpus — the join broke");
 });
 
 test("both UIs show who is NOT in the numbers from the coverage receipt — never a prior club's line as current", () => {
