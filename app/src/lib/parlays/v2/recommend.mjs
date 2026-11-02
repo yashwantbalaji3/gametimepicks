@@ -14,7 +14,7 @@
  *             game not started, start known, and more than 30 minutes away (started-guard + LEG_BOUNDS cutoff)
  *             market family not demoted to market context (card-leg-eligibility; no coverage document ⇒ refused)
  *             participant status not injured / inactive / DNP / scratched, when the data carries a status
- *             price from a VERIFIED operator (./operators.mjs seam — fails closed until PR #1130)
+ *             price from a VERIFIED operator (./operators.mjs seam — fails closed until connected)
  *             price present, inside LEG_BOUNDS (−650…+400), captured before start and ≤ 12 h before `now`
  *   per card  at least two legs
  *             every leg from a distinct event (D5 · card-events legsFromDistinctEvents)
@@ -279,7 +279,7 @@ const reasonEntry = (code, count, detail = null) => ({ code, text: REASONS[code]
  * @param {ReadonlyArray<object>} input.candidates        normalised candidate cards (./candidates.mjs)
  * @param {string} input.now                              ISO instant
  * @param {object|null} input.coverage                    the committed coverage projection (null ⇒ fail closed)
- * @param {(label: unknown) => boolean} [input.isVerifiedOperator]  defaults to the seam (closed until #1130)
+ * @param {(label: unknown) => boolean} [input.isVerifiedOperator]  defaults to the seam (closed until connected)
  * @param {ReadonlyArray<{tier: string, sport: string, text: string}>} [input.engineNotes]  ladder skip reasons
  * @param {ReadonlyArray<{code: string, detail?: string}>} [input.poolNotes]  slate-wide notes applied to every tier
  * @param {number} [input.maxCardsPerTier]
