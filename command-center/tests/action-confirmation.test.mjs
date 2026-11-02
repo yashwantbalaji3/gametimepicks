@@ -4,6 +4,7 @@ import fs from "node:fs";
 import { createActionConfirmer, confirmationRequest } from "../auth/action-confirmation.mjs";
 import { jobEvents, sleepGap, overdue } from "../scripts/publish-monitor.mjs";
 import { reconcile } from "../scripts/reconcile-receipts.mjs";
+import { coverage } from "../scripts/package-coverage.mjs";
 
 const post = { decisionId: "d1", package: { contentKey: "abcdef0123456789", title: "T" } };
 
@@ -39,6 +40,12 @@ test("monitor: sleep gaps and overdue jobs alert", () => {
   assert.equal(sleepGap(0, 3_600_000, 60_000), 60);
   assert.equal(overdue([{ jobId: "a", status: "scheduled", dueAt: "2026-01-01T00:00:00Z" }], Date.parse("2026-01-01T00:10:00Z")).length, 1);
   assert.equal(overdue([{ jobId: "a", status: "scheduled", dueAt: "2026-01-01T00:00:00Z" }], Date.parse("2026-01-01T00:01:00Z")).length, 0);
+});
+test("coverage: alerts only inside the lead time, and old or review-copy packages don't count", () => {
+  const nowMs = Date.parse("2026-11-02T12:00:00Z");
+  const ev = (eventId, h) => ({ eventId, startUtc: new Date(nowMs + h * 3_600_000).toISOString() });
+  const r = coverage([ev("a", 2), ev("b", 3), ev("c", 20), ev("d", -1), ev("e", 100), ev("f", 4)], [{ eventId: "a", generatedMs: nowMs, clean: true }, { eventId: "f", generatedMs: nowMs - 4 * 864e5, clean: true }, { eventId: "b", generatedMs: nowMs, clean: false }], { nowMs, leadHours: 6 });
+  assert.deepEqual(r.map((x) => [x.eventId, x.state]), [["a", "READY"], ["b", "ALERT_NO_PACKAGE"], ["f", "ALERT_NO_PACKAGE"], ["c", "PENDING"]]);
 });
 test("reconcile: finds gaps and repeated slots", () => {
   const e = (kind, id, post, extra = {}) => ({ kind, at: "2026-11-01T00:00:00Z", data: { providerPostId: id, postId: post, canonicalUrl: `u/${id}`, state: "PUBLISHED", ...extra } });
