@@ -20,114 +20,114 @@
   "sharpness": "A range can always be made to land 8 in 10 times by making it wider. So beside each success rate we show the typical miss (how far the middle of our range was from the final number) and the average width of the range. Getting better means both shrink while about 8 in 10 still land inside."
  },
  "summary": {
-  "gamesFinal": 9,
-  "gamesPending": 5,
+  "gamesFinal": 10,
+  "gamesPending": 4,
   "overall": {
-   "checks": 316,
-   "hits": 248,
-   "rate": 0.7848101265822784
+   "checks": 356,
+   "hits": 285,
+   "rate": 0.800561797752809
   },
   "props": [
    {
     "id": "winner",
     "label": "Model-favored team won",
     "group": "team",
-    "checks": 9,
-    "hits": 7,
+    "checks": 10,
+    "hits": 8,
     "voids": 0,
-    "rate": 0.7777777777777778,
-    "expectedHits": 5.9
+    "rate": 0.8,
+    "expectedHits": 6.6
    },
    {
     "id": "total_range",
     "label": "Total points landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 9,
-    "hits": 6,
+    "checks": 10,
+    "hits": 7,
     "voids": 0,
-    "rate": 0.6666666666666666,
-    "typicalMiss": 13.8,
+    "rate": 0.7,
+    "typicalMiss": 13.6,
     "rangeWidth": 33.7,
-    "lean": -2
+    "lean": -0.6
    },
    {
     "id": "margin_range",
     "label": "Winning margin landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 9,
-    "hits": 7,
+    "checks": 10,
+    "hits": 8,
     "voids": 0,
-    "rate": 0.7777777777777778,
-    "typicalMiss": 11.1,
-    "rangeWidth": 33.7,
-    "lean": -6.4
+    "rate": 0.8,
+    "typicalMiss": 10.9,
+    "rangeWidth": 33.6,
+    "lean": -6.7
    },
    {
     "id": "player_receptions",
     "label": "Receptions landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 106,
-    "hits": 89,
-    "voids": 17,
-    "rate": 0.839622641509434,
+    "checks": 120,
+    "hits": 102,
+    "voids": 18,
+    "rate": 0.85,
     "status": "PUBLISHED",
     "typicalMiss": 1.7,
-    "rangeWidth": 5.5,
-    "lean": -0.3
+    "rangeWidth": 5.4,
+    "lean": -0.4
    },
    {
     "id": "player_reception_yds",
     "label": "Receiving yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 100,
-    "hits": 79,
-    "voids": 17,
-    "rate": 0.79,
+    "checks": 113,
+    "hits": 90,
+    "voids": 18,
+    "rate": 0.7964601769911505,
     "status": "PUBLISHED",
-    "typicalMiss": 25.3,
-    "rangeWidth": 62.7,
-    "lean": -11.3
+    "typicalMiss": 24.3,
+    "rangeWidth": 61.5,
+    "lean": -11.2
    },
    {
     "id": "player_rush_yds",
     "label": "Rushing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 56,
-    "hits": 43,
-    "voids": 11,
-    "rate": 0.7678571428571429,
+    "checks": 63,
+    "hits": 50,
+    "voids": 13,
+    "rate": 0.7936507936507936,
     "status": "ESTIMATE",
-    "typicalMiss": 23.7,
-    "rangeWidth": 49.2,
-    "lean": -16.2
+    "typicalMiss": 22.2,
+    "rangeWidth": 49.5,
+    "lean": -14.8
    },
    {
     "id": "player_pass_yds",
     "label": "Passing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 18,
-    "hits": 13,
+    "checks": 20,
+    "hits": 15,
     "voids": 0,
-    "rate": 0.7222222222222222,
+    "rate": 0.75,
     "status": "ESTIMATE",
-    "typicalMiss": 86.9,
-    "rangeWidth": 239.8,
-    "lean": 10.6
+    "typicalMiss": 86.1,
+    "rangeWidth": 239.4,
+    "lean": 11.2
    },
    {
     "id": "likeliest_scorer",
     "label": "Our likeliest touchdown scorer scored",
     "group": "player",
-    "checks": 9,
-    "hits": 4,
+    "checks": 10,
+    "hits": 5,
     "voids": 0,
-    "rate": 0.4444444444444444
+    "rate": 0.5
    }
   ],
   "context": {
@@ -135,12 +135,12 @@
     "oursCloser": 0,
     "booksCloser": 0,
     "even": 0,
-    "noLine": 9
+    "noLine": 10
    },
    "touchdowns": {
-    "playersGraded": 142,
-    "expectedScorers": 34.3,
-    "actualScorers": 39
+    "playersGraded": 159,
+    "expectedScorers": 38,
+    "actualScorers": 42
    }
   }
  },
@@ -5422,11 +5422,600 @@
     },
     "sportsbookTotal": null
    },
-   "state": "PENDING",
-   "final": null,
-   "team": [],
-   "players": [],
-   "touchdowns": [],
+   "state": "FINAL",
+   "final": {
+    "away": 9,
+    "home": 24,
+    "total": 33,
+    "margin": 15
+   },
+   "team": [
+    {
+     "prop": "winner",
+     "outcome": "HIT"
+    },
+    {
+     "prop": "total_range",
+     "outcome": "HIT",
+     "actual": 33
+    },
+    {
+     "prop": "margin_range",
+     "outcome": "HIT",
+     "actual": 15
+    },
+    {
+     "prop": "closer_than_sportsbook",
+     "outcome": "NO_LINE",
+     "oursOff": 12,
+     "booksOff": null
+    }
+   ],
+   "players": [
+    {
+     "name": "Kyren Williams",
+     "team": "LAR",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 1,
+     "high": 7,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kyren Williams",
+     "team": "LAR",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 18,
+     "low": 0,
+     "high": 52,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kyren Williams",
+     "team": "LAR",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 63,
+     "low": 25,
+     "high": 117,
+     "actual": 56,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Puka Nacua",
+     "team": "LAR",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 8,
+     "low": 3,
+     "high": 14,
+     "actual": 11,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Puka Nacua",
+     "team": "LAR",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 59,
+     "low": 19,
+     "high": 118,
+     "actual": 80,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Blake Corum",
+     "team": "LAR",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 37,
+     "low": 10,
+     "high": 80,
+     "actual": 73,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Omarion Hampton",
+     "team": "LAC",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 0.8,
+     "low": 0,
+     "high": 3.3,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Omarion Hampton",
+     "team": "LAC",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 30,
+     "low": 9,
+     "high": 64,
+     "actual": 20,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kimani Vidal",
+     "team": "LAC",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 0.8,
+     "low": 0,
+     "high": 2.5,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kimani Vidal",
+     "team": "LAC",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 6,
+     "low": 0,
+     "high": 33,
+     "actual": 7,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kimani Vidal",
+     "team": "LAC",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 13,
+     "low": 0,
+     "high": 44,
+     "actual": 23,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Keaton Mitchell",
+     "team": "LAC",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1.7,
+     "low": 0,
+     "high": 4.1,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Keaton Mitchell",
+     "team": "LAC",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 9,
+     "low": 0,
+     "high": 36,
+     "actual": 17,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Keaton Mitchell",
+     "team": "LAC",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 12,
+     "low": 0,
+     "high": 38,
+     "actual": 6,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tyler Higbee",
+     "team": "LAR",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 1,
+     "high": 6,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tyler Higbee",
+     "team": "LAR",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 19,
+     "low": 0,
+     "high": 57,
+     "actual": 14,
+     "outcome": "HIT"
+    },
+    {
+     "name": "David Njoku",
+     "team": "LAC",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2.5,
+     "low": 0.8,
+     "high": 5,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "David Njoku",
+     "team": "LAC",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 17,
+     "low": 0,
+     "high": 52,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Tre' Harris",
+     "team": "LAC",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2.5,
+     "low": 0.8,
+     "high": 5.8,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tre' Harris",
+     "team": "LAC",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 24,
+     "low": 0,
+     "high": 68,
+     "actual": 31,
+     "outcome": "HIT"
+    },
+    {
+     "name": "KeAndre Lambert-Smith",
+     "team": "LAC",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1.7,
+     "low": 0,
+     "high": 5,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "KeAndre Lambert-Smith",
+     "team": "LAC",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 14,
+     "low": 0,
+     "high": 46,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Quentin Johnston",
+     "team": "LAC",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1.7,
+     "low": 0,
+     "high": 4.1,
+     "actual": 4,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Quentin Johnston",
+     "team": "LAC",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 18,
+     "low": 0,
+     "high": 61,
+     "actual": 37,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Davis Allen",
+     "team": "LAR",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Davis Allen",
+     "team": "LAR",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 5,
+     "low": 0,
+     "high": 34,
+     "actual": 8,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Ladd McConkey",
+     "team": "LAC",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1.7,
+     "low": 0,
+     "high": 4.1,
+     "actual": 4,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Ladd McConkey",
+     "team": "LAC",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 16,
+     "low": 0,
+     "high": 56,
+     "actual": 86,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Oronde Gadsden",
+     "team": "LAC",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1.7,
+     "low": 0,
+     "high": 4.1,
+     "actual": 5,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Oronde Gadsden",
+     "team": "LAC",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 12,
+     "low": 0,
+     "high": 45,
+     "actual": 52,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Trey Lance",
+     "team": "LAC",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 7,
+     "low": 0,
+     "high": 34,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Charlie Kolar",
+     "team": "LAC",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1.7,
+     "low": 0,
+     "high": 5,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Charlie Kolar",
+     "team": "LAC",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 18,
+     "low": 0,
+     "high": 56,
+     "actual": 20,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Konata Mumpfield",
+     "team": "LAR",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Konata Mumpfield",
+     "team": "LAR",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 8,
+     "low": 0,
+     "high": 39,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Ronnie Rivers",
+     "team": "LAR",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 5,
+     "low": 0,
+     "high": 27,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Justin Herbert",
+     "team": "LAC",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 14,
+     "low": 0,
+     "high": 48,
+     "actual": 15,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Justin Herbert",
+     "team": "LAC",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 195,
+     "low": 105,
+     "high": 326,
+     "actual": 257,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Matthew Stafford",
+     "team": "LAR",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 1,
+     "low": 0,
+     "high": 16,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Matthew Stafford",
+     "team": "LAR",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 251,
+     "low": 146,
+     "high": 397,
+     "actual": 157,
+     "outcome": "HIT"
+    }
+   ],
+   "touchdowns": [
+    {
+     "name": "Kyren Williams",
+     "team": "LAR",
+     "probability": 0.6153,
+     "outcome": "SCORED",
+     "likeliest": true
+    },
+    {
+     "name": "Puka Nacua",
+     "team": "LAR",
+     "probability": 0.474,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Blake Corum",
+     "team": "LAR",
+     "probability": 0.3786,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Omarion Hampton",
+     "team": "LAC",
+     "probability": 0.3382,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Kimani Vidal",
+     "team": "LAC",
+     "probability": 0.2099,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Keaton Mitchell",
+     "team": "LAC",
+     "probability": 0.2066,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Tyler Higbee",
+     "team": "LAR",
+     "probability": 0.183,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "David Njoku",
+     "team": "LAC",
+     "probability": 0.1666,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Tre' Harris",
+     "team": "LAC",
+     "probability": 0.1561,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "KeAndre Lambert-Smith",
+     "team": "LAC",
+     "probability": 0.154,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Quentin Johnston",
+     "team": "LAC",
+     "probability": 0.1536,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Davis Allen",
+     "team": "LAR",
+     "probability": 0.1487,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Ladd McConkey",
+     "team": "LAC",
+     "probability": 0.1395,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Oronde Gadsden",
+     "team": "LAC",
+     "probability": 0.1391,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Trey Lance",
+     "team": "LAC",
+     "probability": 0.1366,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Charlie Kolar",
+     "team": "LAC",
+     "probability": 0.1362,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Konata Mumpfield",
+     "team": "LAR",
+     "probability": 0.1241,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Ronnie Rivers",
+     "team": "LAR",
+     "probability": 0.1229,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Justin Herbert",
+     "team": "LAC",
+     "probability": 0.1112,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Matthew Stafford",
+     "team": "LAR",
+     "probability": 0.0569,
+     "outcome": "DID_NOT_SCORE"
+    }
+   ],
    "boardNote": null
   },
   {
@@ -5524,19 +6113,19 @@
     "name": "Washington Commanders"
    },
    "published": {
-    "generatedAt": "2026-11-01T16:00:18Z",
+    "generatedAt": "2026-11-02T00:05:54Z",
     "projectedScore": {
      "away": 24,
-     "home": 23
+     "home": 22
     },
     "pick": {
      "abbr": "PHI",
-     "probability": 0.509
+     "probability": 0.5089
     },
     "total": {
-     "median": 47,
+     "median": 46,
      "low": 30,
-     "high": 63
+     "high": 64
     },
     "margin": {
      "median": -1,
@@ -5565,24 +6154,24 @@
     "name": "Seattle Seahawks"
    },
    "published": {
-    "generatedAt": "2026-11-01T16:00:18Z",
+    "generatedAt": "2026-11-02T00:05:54Z",
     "projectedScore": {
      "away": 20,
-     "home": 25
+     "home": 26
     },
     "pick": {
      "abbr": "SEA",
-     "probability": 0.6563
+     "probability": 0.6566
     },
     "total": {
-     "median": 45,
+     "median": 46,
      "low": 28,
      "high": 63
     },
     "margin": {
      "median": 5,
      "low": -12,
-     "high": 21
+     "high": 22
     },
     "sportsbookTotal": null
    },
@@ -5595,5 +6184,5 @@
   }
  ],
  "disclaimer": "Educational and paper-only — not betting advice. A range is not a bet: these are checks of how often what we published matched what happened.",
- "generatedAt": "2026-11-01T23:36:21Z"
+ "generatedAt": "2026-11-02T00:05:54Z"
 }
