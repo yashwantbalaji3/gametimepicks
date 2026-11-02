@@ -128,7 +128,7 @@ test("v1.7 F3 · an OFF-DAY (slate present, no games) is NO_EVENTS — current, 
   assert.equal(s, PRODUCT_STATES.NO_EVENTS, "an off-day outranks a sibling board that is naturally absent");
   assert.equal(isCurrent(s), true, "it IS today's answer");
   assert.equal(isLive(s), false);
-  assert.match(productStateLabel(s), /No games on today's slate/);
+  assert.match(productStateLabel(s), /No MLB slate today/);
   assert.doesNotMatch(productStateLabel(s), /waiting|not updated|failed|live/i);
   assert.doesNotMatch(productStateExplanation(s), /model|policy|outage|operational/i, "neither a model decision nor an operational gap");
   assert.match(productStateExplanation(s), /calendar/);

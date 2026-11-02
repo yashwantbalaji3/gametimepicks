@@ -125,3 +125,10 @@ test("/today NBA rows: a past game opens its exported game page; today's games k
     if (prev === undefined) delete process.env.GTP_NBA_THEATER_PUBLIC; else process.env.GTP_NBA_THEATER_PUBLIC = prev;
   }
 });
+
+test("the hub caps recent games and says so, and the full record stays one link away (2026-11-02)", () => {
+  const src = fs.readFileSync(path.join(process.cwd(), "src/app/nba/page.tsx"), "utf8");
+  assert.match(src, /const played = allPlayed\.slice\(0, NBA_HUB_RECENT_LISTED\);/);
+  assert.match(src, /The newest \{played\.length\} of \{allPlayed\.length\} recent games are listed here/);
+  assert.match(src, /href="\/results\/nba\/"/);
+});

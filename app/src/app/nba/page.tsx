@@ -15,7 +15,7 @@ import SportHubNav from "@/components/sports/sport-hub-nav";
 import Link from "next/link";
 import { HubTitle } from "@/components/sport-hub/hub-header";
 import SportSwitcher from "@/components/sports/sport-switcher";
-import { NBA_HUB_BEHIND_DAYS, nbaHub } from "@/lib/sport-hub/nba-hub";
+import { NBA_HUB_BEHIND_DAYS, NBA_HUB_RECENT_LISTED, nbaHub } from "@/lib/sport-hub/nba-hub";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import NbaExperimentalLane, { committedLaneDates, loadCurrentLane, loadLaneForDate } from "@/components/nba/experimental-lane";
 import { currentEtDate } from "@/lib/freshness";
@@ -82,7 +82,10 @@ export default async function NbaHubPage() {
   const carded = new Set(slate.games.map((g) => g.id));
   const rest = model.rows.filter((r) => !carded.has(String(r.id)));
   const upcoming = rest.filter((r) => !r.started);
-  const played = rest.filter((r) => r.started).reverse();
+  /* The hub previews the newest games and /results/nba/ holds them all. Three days of a full slate put /nba over its
+     weight budget on the 15-game night of 2026-11-02, and this list is what scales with the calendar. */
+  const allPlayed = rest.filter((r) => r.started).reverse();
+  const played = allPlayed.slice(0, NBA_HUB_RECENT_LISTED);
   /* FORECAST VS. ACTUAL: a past game shows a side ONLY from its own date's committed snapshot — receipt-verified and frozen
      before tip-off by construction (scripts/nba/build-nba-experimental-public.mjs). No snapshot, no side. */
   const pastSide = new Map<string, string>();
@@ -157,6 +160,11 @@ export default async function NbaHubPage() {
           <strong style={{ color: "var(--vault-text)" }}>{PUBLIC_TERMS.MODEL_PERFORMANCE}:</strong> {NBA_MODEL_PERFORMANCE_NOTE}
         </p>
         <NbaGameList rows={played} heading="Forecast vs. Actual · recent games" forecasts={pastSide} gamePages={gamePages} />
+        {allPlayed.length > played.length ? (
+          <p className={MUTE} style={{ color: "var(--vault-text-mute)" }}>
+            The newest {played.length} of {allPlayed.length} recent games are listed here; every game is in NBA results below.
+          </p>
+        ) : null}
         <p className={MUTE} style={{ color: "var(--vault-text-mute)" }}>
           {finals > 0
             ? `${finals} official final${finals === 1 ? "" : "s"} in the last ${NBA_HUB_BEHIND_DAYS} days, from the official finals record.`

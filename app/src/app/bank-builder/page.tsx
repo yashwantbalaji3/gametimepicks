@@ -565,9 +565,9 @@ export default function BankBuilderPage() {
             /* Session 7: a no-games day is the calendar, not a slate that "offered no combination" — the panel
                says the same thing as the state header above it. */
             <div className="rounded-[12px] px-4 py-4" style={{ background: "var(--vault-wash-faint)", border: "1px dashed var(--vault-border)" }}>
-              <p className="m-0 font-semibold" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>No games on today&rsquo;s slate</p>
+              <p className="m-0 font-semibold" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>No MLB slate today</p>
               <p className="m-0 mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6 }}>
-                Nothing was assessed today, so this is not a no-play call. The ladder resumes on the next slate.
+                The ladder is built from MLB team markets, so it assessed nothing today. This is not a no-play call. The ladder resumes on the next MLB slate.
               </p>
             </div>
           ) : bbProductState === "INPUTS_STALE" || bbProductState === "INPUTS_MISSING" ? (

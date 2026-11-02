@@ -72,8 +72,8 @@ export const SPORT_LEG_RULES: Readonly<Record<LegSportKey, SportLegRule>> = Obje
     sport: "NBA",
     label: "NBA",
     eligible: false,
-    reason: "the NBA adapter is historical-only; no current NBA model output is published",
-    whatWouldQualify: ["a current NBA board with published model output", "a validated NBA model version"],
+    reason: "NBA forecasts are published, but no authorized NBA price or settlement contract market feeds this pool, and the registry keeps NBA out of prediction products",
+    whatWouldQualify: ["the registry opening NBA to prediction products", "an authorized NBA price", "an NBA settlement contract market"],
     // Typed for products/nba/nba-team-leg.mjs: NBA waits on the registry, an authorized NBA price and the settlement
     // contract. `eligible` stays a hand-set false — opening it is the activation PR's last step, never a side effect.
     code: "NBA_GATED",

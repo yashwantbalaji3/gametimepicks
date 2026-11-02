@@ -294,17 +294,23 @@ test("NFL week 8 PINNED (BAL @ BUF, CHI @ SEA, CAR @ GB): Default == snapshot ==
   assert.ok(total >= 60 && topChecked >= 5 && exportChecked >= 5, `checked ${total} cells, ${topChecked} Top Board rows, ${exportChecked} export rows`);
 });
 
-const AS_OF = "2026-10-30T08:30:00Z"; // before every Sunday/Monday kickoff of week 8
-const CURRENT = ["401873026", "401873027"]; // BAL @ BUF and a second Sunday game, from the CURRENT committed boards
+/* The CURRENT boards drop a game once it starts, so "current" is read from them at their own generated instant: up
+   to two games still to kick off. Week 8 is pinned above; this case follows the committed week. */
+const LATEST_BOARDS = readJson(path.join(DATA, "nfl/weekly-boards/latest.json"));
+const AS_OF = LATEST_BOARDS.generatedAt;
+const CANON_NOW = loadCanonical({ seasonType: LATEST_BOARDS.period.seasonType, week: LATEST_BOARDS.period.week });
+const CURRENT = CANON_NOW.games
+  .filter((g) => Date.parse(g.view.kickoffUtc) > Date.parse(AS_OF))
+  .map((g) => String(g.view.providerEventId))
+  .slice(0, 2);
 
-test("NFL week 8 CURRENT committed boards (two Sunday games): Default == snapshot == game page == player page == Top Board == graphics export", () => {
-  const canon = loadCanonical({ seasonType: 2, week: 8 });
-  const weekly = readJson(path.join(DATA, "nfl/weekly-boards/2-08.json")).topBoards;
+test("NFL CURRENT committed boards (games still to kick off): Default == snapshot == game page == player page == Top Board == graphics export", { skip: CURRENT.length === 0 && "no game left to kick off on the committed boards" }, () => {
+  const canon = CANON_NOW;
+  const weekly = LATEST_BOARDS.topBoards;
   let total = 0; let topChecked = 0; let exportChecked = 0;
   for (const id of CURRENT) {
     const g = canon.games.find((x) => String(x.view.providerEventId) === id);
     assert.ok(g?.snapshot, `${id}: current committed forecast + board + snapshot (${g?.snapshotRefusal})`);
-    assert.ok(Date.parse(g.view.kickoffUtc) > Date.parse(AS_OF), `${id}: a Sunday game still to kick off`);
     const { cells, n } = checkGame(g.view, g.snapshot, g.board, { label: `${g.view.matchup} current` });
     total += n;
     // Top Board: the committed weekly artifact's full-week boards (the hub / week page / social feed read it)
@@ -323,7 +329,7 @@ test("NFL week 8 CURRENT committed boards (two Sunday games): Default == snapsho
       exportChecked += 1;
     }
   }
-  assert.ok(total >= 40 && topChecked >= 1 && exportChecked >= 20, `checked ${total} cells, ${topChecked} Top Board rows, ${exportChecked} export rows`);
+  assert.ok(total >= 20 * CURRENT.length && topChecked >= 1 && exportChecked >= 10 * CURRENT.length, `checked ${total} cells, ${topChecked} Top Board rows, ${exportChecked} export rows`);
 });
 
 test("NFL: the Default view inside the public Theater section comes first and is byte-identical to the Default from the view alone (no run input)", async () => {
