@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-11-02T09:26:29.271Z",
+  "generatedAt": "2026-11-02T09:39:00.892Z",
   "canonical": {
     "record": "47-52",
     "bankroll": 14065.4,
@@ -16,13 +16,13 @@
     "pass": true
   },
   "slate": {
-    "date": "2026-11-01",
+    "date": "2026-11-02",
     "dailyPortfolioDate": "2026-11-02",
     "activeBankroll": 14065.4,
     "openExposure": 0,
     "worldCupGames": 0,
     "mlbGames": 0,
-    "mlbSlate": "2026-11-01"
+    "mlbSlate": "2026-11-02"
   },
   "sportsbook": {
     "note": "Artifact-level freshness only — the market feed carries no row-level timestamps, so no per-market recency can be claimed.",
@@ -104,21 +104,21 @@
     },
     "forwardCoverage": {
       "present": false,
-      "date": "2026-11-01"
+      "date": "2026-11-02"
     },
     "dailyLifecycle": {
-      "receiptDate": "2026-11-01",
+      "receiptDate": "2026-11-02",
       "present": false,
       "watchdog": [
         {
           "product": "bank-builder",
           "kind": "MISSING_DAILY_EVALUATION",
-          "detail": "no daily receipt exists for 2026-11-01"
+          "detail": "no daily receipt exists for 2026-11-02"
         },
         {
           "product": "moonshot",
           "kind": "MISSING_DAILY_EVALUATION",
-          "detail": "no daily receipt exists for 2026-11-01"
+          "detail": "no daily receipt exists for 2026-11-02"
         }
       ],
       "states": null
@@ -129,28 +129,28 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-11-02T09:26:28.670Z",
+    "lastRunAt": "2026-11-02T09:39:00.093Z",
     "ageHours": 0,
-    "ok": true,
-    "status": "pass",
-    "phase": "nightly-settle"
+    "ok": false,
+    "status": "partial",
+    "phase": "mlb-daily-production"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-11-02",
-    "etTime": "04:26",
+    "etTime": "04:39",
     "stages": [
       {
         "stage": "schedule",
-        "present": false,
-        "state": "pending",
+        "present": true,
+        "state": "ready",
         "dueEt": "06:47",
         "producedBy": "morning-projections"
       },
       {
         "stage": "board",
-        "present": false,
-        "state": "pending",
+        "present": true,
+        "state": "ready",
         "dueEt": "06:47",
         "producedBy": "morning-projections"
       },
@@ -170,24 +170,24 @@
       },
       {
         "stage": "simulations",
-        "present": false,
-        "state": "pending",
+        "present": true,
+        "state": "ready",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "predictions",
-        "present": false,
-        "state": "pending",
+        "present": true,
+        "state": "ready",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       }
     ],
-    "readyCount": 0,
+    "readyCount": 4,
     "totalStages": 6,
     "lateCount": 0,
     "signal": "YELLOW",
-    "summary": "0/6 produced; the rest are not due yet"
+    "summary": "4/6 produced; the rest are not due yet"
   },
   "learningLoop": {
     "signal": "GREEN",
@@ -220,8 +220,7 @@
     "World Cup board is empty (dormant or needs a refresh).",
     "Sportsbook source mlb/team-markets is STALE (5d old).",
     "Sportsbook source mlb/player-props is STALE (5d old).",
-    "MLB board is empty (dormant or needs a refresh).",
-    "Slate (2026-11-01) is behind today (2026-11-02) — refresh/roll forward."
+    "MLB board is empty (dormant or needs a refresh)."
   ],
   "dailyChecklist": [
     {
@@ -230,7 +229,7 @@
     },
     {
       "step": "Slate is current",
-      "done": false
+      "done": true
     },
     {
       "step": "Products generated (WC or MLB)",
