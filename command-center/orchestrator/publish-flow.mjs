@@ -335,6 +335,7 @@ export function createPublishFlow(ctx) {
     if (live && done) return refuse(done.status === "published" ? "ALREADY_PUBLISHED" : "OUTCOME_UNKNOWN", done.status === "published" ? done.results.at(-1)?.canonicalUrl ?? done.jobId : "an earlier attempt's outcome is unknown: reconcile it first", done.status === "published" ? "info" : "critical");
     // the gate awaited the network: a hold, a cancel or a void made meanwhile wins, right up to the claim
     if (heldFor(pkg)) return refuse("FOUNDER_HOLD", heldFor(pkg).reason || "held by the founder");
+    if (live && activeHost() !== thisHost) return refuse("OTHER_PUBLISHER_HOST", `live sending moved to the ${activeHost()} publisher while checking`, "critical");
     if (recordOf(job.decisionId)?.invalidated) return refuse("APPROVAL_INVALIDATED", "the approval was voided while checking");
     if (of("publish-job-cancel").some((e) => e.data.jobId === job.jobId)) return refuse("CANCELLED", "cancelled while checking");
     const attempt = of("publish-attempt").filter((e) => e.data.live && fam.has(baseIdOf(e.data.postId))).length;

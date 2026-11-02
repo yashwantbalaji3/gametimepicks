@@ -702,7 +702,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   }
   function preflight(date) {
     return team.posts().filter((p) => p.package?.imported && p.package.imported.socialAuthorized === true && !p.receipt && p.lifecycle !== "superseded" && (!date || p.package.date === date || p.package.imported.recommendation?.slateEtDate === date))
-      .map((p) => { const r = team.recheck(p.package); return { title: p.package.title, lifecycle: p.lifecycle, status: r?.status ?? null, reasons: r?.reasons ?? [], images: p.package.mediaSet?.length ?? 0, closesAt: p.package.imported.window?.closesAt ?? null }; });
+      .map((p) => { const r = team.recheck(p.package); const i = p.package.imported; return { title: p.package.title, lifecycle: p.lifecycle, founderHold: Boolean(p.founderHold), exception: i.anomalyCheck === "EXCEPTION", status: p.founderHold ? "HELD" : r?.status === "READY" && (i.anomalyCheck === "EXCEPTION" || (i.forecastCells ?? []).some((x) => x.state === "REVIEW")) ? "REQUIRES_FOUNDER_REVIEW" : r?.status ?? null, reasons: r?.reasons ?? [], images: p.package.mediaSet?.length ?? 0, closesAt: p.package.imported.window?.closesAt ?? null }; });
   }
   function state() {
     const all = entries();

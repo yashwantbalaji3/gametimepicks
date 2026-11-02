@@ -50,7 +50,7 @@
     if (url === "/api/post") return body.action === "publish" ? "attest" : null;
     if (url === "/api/design") return "approve";
     if (url === "/api/publishing") {
-      if (body.action === "live-test") return "publish-live";
+      if (["live-test", "schedule", "reconcile"].includes(body.action)) return "publish-live";
       if (body.action === "policy") return body.mode === "dry-run" ? null : "publishing-policy";
       if (body.action === "x-connect") return "connect-x";
       if (body.action === "publisher-host") return "publishing-policy";

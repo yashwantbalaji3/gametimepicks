@@ -1285,7 +1285,7 @@
    */
   const poller = { timer: null, quietSince: Date.now(), running: false };
   function nextDelay() {
-    if (!Auth.hosted) return 700;
+    // a state read rebuilds tens of MB: polling faster than it can finish pins the console
     return Date.now() - poller.quietSince > 60_000 ? 15_000 : 3000;
   }
   async function poll() {

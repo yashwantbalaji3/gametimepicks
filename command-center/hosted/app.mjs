@@ -94,7 +94,7 @@ export function stepUpActionFor(pathname, body) {
   if (pathname === "/api/design") return "approve";
   if (pathname === "/api/seat") return "seat";
   if (pathname === "/api/publishing") {
-    if (body.action === "live-test") return "publish-live";
+    if (["live-test", "schedule", "reconcile"].includes(body.action)) return "publish-live";
     if (body.action === "policy") return body.mode === "dry-run" ? null : "publishing-policy";
     if (body.action === "x-connect") return "connect-x";
     if (body.action === "publisher-host") return "publishing-policy";
@@ -286,7 +286,7 @@ export function createHostedApp({ db, clock, origin, rpID, setupTokenSha256, dis
         if (parseIntent(text) === "resume") return { ok: false, code: "USE_RESUME_CONTROL", detail: "Resume with the Resume button (it asks for Face ID)." };
         return turn((o) => o.handleCommand(text, actor));
       }
-      case "/api/decide": return turn((o) => o.decide({ decisionId: body.decisionId, verdict: body.verdict, captionId: body.captionId, digest: body.digest, note: body.note, sourcesConfirmed: body.sourcesConfirmed === true, availabilityConfirmed: body.availabilityConfirmed === true }, actor));
+      case "/api/decide": return turn((o) => o.decide({ decisionId: body.decisionId, verdict: body.verdict, captionId: body.captionId, digest: body.digest, note: body.note, sourcesConfirmed: body.sourcesConfirmed === true, forecastReviewConfirmed: body.forecastReviewConfirmed === true, availabilityConfirmed: body.availabilityConfirmed === true }, actor));
       case "/api/caption": return turn((o) => o.editCaption({ decisionId: body.decisionId, basedOn: body.basedOn, text: body.text }, actor));
       case "/api/design": return turn((o) => o.approveDesign({ template: body.template, assetManifest: body.assetManifest }, actor));
       case "/api/post": return turn((o) => o.recordPost({ decisionId: body.decisionId, action: body.action, url: body.url, publishedAt: body.publishedAt, scheduledFor: body.scheduledFor, metrics: body.metrics }, actor));

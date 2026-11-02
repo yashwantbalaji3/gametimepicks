@@ -576,7 +576,7 @@ test("founder hold: READY at the gate still cannot get a job, and a job made bef
   design(H, p);
   await approve(H, p);
   assert.equal(H.o.publishing.setHold({ decisionId: p.decisionId, held: true, reason: "QB unresolved" }, FOUNDER).ok, true);
-  assert.equal(H.o.preflight().find((x) => x.title === p.package.title).status, "READY");
+  assert.equal(H.o.preflight().find((x) => x.title === p.package.title).status, "HELD");
   assert.equal(H.o.publishing.schedule({ decisionId: p.decisionId, at: "2026-10-30T21:30:00.000Z" }, FOUNDER).code, "FOUNDER_HOLD");
   assert.ok(H.o.state().posts.find((q) => q.decisionId === p.decisionId).founderHold);
   H.o.publishing.setHold({ decisionId: p.decisionId, held: false }, FOUNDER);
@@ -873,4 +873,15 @@ test("displayed cells must match stated cells exactly, against a checksummed ren
   assert.equal(go(["a"]).refused, 1, "state with no display");
   assert.equal(go(["a", "b"], true).refused, 1, "checksum");
   assert.equal(go([]).refused, 1, "empty");
+});
+
+test("the gate check reports holds and exceptions instead of READY", async () => {
+  const { H, p } = await liveStale();
+  assert.equal(H.o.preflight().find((x) => x.title === p.package.title).status, "READY");
+  H.o.publishing.setHold({ decisionId: p.decisionId, held: true }, FOUNDER);
+  assert.equal(H.o.preflight().find((x) => x.title === p.package.title).status, "HELD");
+  const E = liveRig();
+  write(E.root, "e", { ...CLEAN, anomalyCheck: "EXCEPTION" });
+  E.o.importPackages({}, FOUNDER);
+  assert.equal(E.o.preflight()[0].status, "REQUIRES_FOUNDER_REVIEW");
 });
