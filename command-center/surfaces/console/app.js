@@ -513,6 +513,7 @@
       const ready = !held && !ui.editing[p.decisionId] && designOk && (pkg.status === "READY" || pkg.kind === "x-reply" || pkg.kind === "td-top3" || (pkg.kind === "nba-game" && pkg.status === "NEEDS_VERIFICATION" && pkg.availabilityCheck?.length));
       const why = held || (pkg.imported && pkg.status === "BLOCKED") ? "Blocked: see the reason above" : ui.editing[p.decisionId] ? "Save or cancel the edit first" : !designOk ? "Approve the design first" : `Not approvable: ${esc(STATUS_LABEL[pkg.status] ?? pkg.status)}`;
       return `${pkg.kind === "x-reply" ? `<label class="confirm"><input type="checkbox" data-confirm="${id}" ${ui.drafts[`confirm:${p.decisionId}`] ? "checked" : ""}> I opened the cited posts and they say what the finding claims</label>` : ""}
+        ${(pkg.imported?.forecastCells ?? []).some((x) => x.state === "REVIEW") ? `<div class="notice warn">Forecast cells under review: ${esc(pkg.imported.forecastCells.filter((x) => x.state === "REVIEW").map((x) => x.cellId + (x.reason ? ` (${x.reason})` : "")).join(", "))}</div><label class="confirm"><input type="checkbox" data-avail="${id}" ${ui.drafts[`avail:${p.decisionId}`] ? "checked" : ""}> I reviewed these cells and accept them for this post</label>` : ""}
         ${pkg.kind === "td-top3" ? `<label class="confirm"><input type="checkbox" data-avail="${id}" ${ui.drafts[`avail:${p.decisionId}`] ? "checked" : ""}> I confirmed all three players are active and in their expected roles</label>` : ""}
         ${pkg.kind === "nba-game" && pkg.availabilityCheck?.length ? `<label class="confirm"><input type="checkbox" data-avail="${id}" ${ui.drafts[`avail:${p.decisionId}`] ? "checked" : ""}> I confirmed the featured players are playing (${esc(pkg.availabilityCheck.join("; "))})</label>` : ""}
         <div class="row actions">
@@ -1591,6 +1592,7 @@
       }
       const r = await post("/api/decide", { decisionId: p.decisionId, verdict: "approve", captionId, digest: opt.digest,
         ...(p.package.kind === "x-reply" ? { sourcesConfirmed: Boolean(ui.drafts[`confirm:${p.decisionId}`]) } : {}),
+        ...((p.package.imported?.forecastCells ?? []).some((x) => x.state === "REVIEW") ? { forecastReviewConfirmed: Boolean(ui.drafts[`avail:${p.decisionId}`]) } : {}),
         ...(p.package.kind === "td-top3" || (p.package.kind === "nba-game" && p.package.availabilityCheck?.length) ? { availabilityConfirmed: Boolean(ui.drafts[`avail:${p.decisionId}`]) } : {}) });
       const viaX = PUB_SCHEDULABLE.has(p.package.kind);
       if (r.ok && r.next) alert(viaX ? "Approved, not published. Nothing has been sent to X.\n\nNext: send it through the X publisher on this card — Live test post… (needs \"Authorize live test posts…\" first) or Schedule for its 45-minute slot (needs \"Authorize scheduled live publishing…\"). Every send re-checks the approval, both images, fresh data and tip-off first." : r.next);

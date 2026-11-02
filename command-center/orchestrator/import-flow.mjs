@@ -115,6 +115,7 @@ export function createImportFlow(ctx) {
       evidence: cc.evidence ?? [], blockers, supported: Boolean(type?.supported), privateReview: held || undefined,
       ...(p.contentType === "RESULTS_RECAP" ? { resultsDate: p.date } : {}), ...(p.content?.week != null ? { week: p.content.week } : {}),
       imported: {
+        forecastCells: p.forecastCells ?? null,
         schema: p.schema, dedupeId: p.dedupeId, contentType: p.contentType, variant: p.variant ?? null, sourceFile, contentSha256: p.contentSha256,
         idempotencyKey: p.idempotencyKey ?? null, eligibilityClass: p.eligibilityClass ?? null, snapshotRefs: p.snapshotRefs ?? [], verification: p.verification ?? null,
         provenance: prov, freshness: p.freshness ?? null, window: p.window ?? null, recommendation, disclosures: p.disclosures ?? [], socialAuthorized: p.approval?.socialAuthorized === true,

@@ -35,7 +35,7 @@ import {
   baseIdOf, nflPregamePackage, nflTouchdownsPackage, nflTop5Package, nflPostgamePackage, nbaPregamePackage, nbaPlayersPackage, nbaFinalPackage, nbaGamePackage,
 } from "../contracts/social-packages.mjs";
 import { isTop5 } from "../contracts/top5-packages.mjs";
-import { IMPORT_DESIGNS, isImported, checkImportedCaption, eventStarted } from "../contracts/imported-packages.mjs";
+import { IMPORT_DESIGNS, isImported, checkImportedCaption, eventStarted, cellsIn } from "../contracts/imported-packages.mjs";
 import { createImportFlow } from "./import-flow.mjs";
 import { buildTop5, recheckTop5 } from "./top5-flow.mjs";
 import { validateCaption } from "../recap/caption-validator.mjs";
@@ -597,7 +597,7 @@ export function createQueueFlow(ctx) {
     return records.filter((p) => baseIdOf(p.request.postId) === baseIdOf(request.postId) && p.request.order > mine.request.order).at(-1)?.request.decisionId ?? null;
   }
 
-  function decidePost(rawRequest, { verdict, captionId, digest, note, sourcesConfirmed, availabilityConfirmed }, actor) {
+  function decidePost(rawRequest, { verdict, captionId, digest, note, sourcesConfirmed, availabilityConfirmed, forecastReviewConfirmed }, actor) {
     if (!POST_VERDICTS.includes(verdict)) return { ok: false, code: "UNKNOWN_OPTION", detail: verdict };
     const request = withEdits(rawRequest);
     const newer = supersededBy(request);
@@ -612,6 +612,8 @@ export function createQueueFlow(ctx) {
       if (!option.check?.ok) return { ok: false, code: "CAPTION_CHECK_FAILED", detail: option.check?.problems?.map((p) => `${p.code} ${p.detail}`).join("; ") };
       // Design approval is its own state: a V2.1 graphic can't be approved for publishing before its design version is.
       if (pkg.template && !designApproval(pkg.template, pkg.assetManifest)) return { ok: false, code: "DESIGN_NOT_APPROVED", detail: `approve the ${pkg.template} design (${pkg.assetManifest}) first — design approval and publishing approval are separate` };
+      const reviewCells = cellsIn(pkg.imported?.forecastCells, "REVIEW");
+      if (reviewCells.length && forecastReviewConfirmed !== true) return { ok: false, code: "FORECAST_REVIEW_NOT_CONFIRMED", detail: `${reviewCells.length} forecast cell(s) need your explicit decision: ${reviewCells.map((x) => x.cellId).join(", ").slice(0, 200)}` };
       if (pkg.replacedBy) return { ok: false, code: "REPLACED_BY_CONSOLIDATED_POST", detail: `this board is part of the ${pkg.replacedBy} post: approve that one` };
       if (pkg.componentOf || ((pkg.kind === "nba-pregame" || pkg.kind === "nba-players") && postRecords().some((r) => r.request.package?.kind === "nba-game" && r.request.package.eventId === pkg.eventId))) {
         return { ok: false, code: "SUPERSEDED_BY_GAME_POST", detail: "this graphic is part of the game post (both graphics in one post): approve the game post instead" };
@@ -633,6 +635,7 @@ export function createQueueFlow(ctx) {
         captionId, approvedExactDigest: option.digest, captionSha256: option.publishBundle.captionSha256,
         ...(pkg.template ? { template: pkg.template, assetManifest: pkg.assetManifest } : {}),
         ...(pkg.kind === "x-reply" ? { sourcesConfirmed: true, sourcesConfirmedUrls: pkg.xSources } : {}),
+        ...(reviewCells.length ? { forecastReviewConfirmed: reviewCells.map((x) => x.cellId) } : {}),
         ...(pkg.kind === "td-top3" ? { availabilityConfirmed: true, availabilityConfirmedFor: pkg.candidatesKey } : {}),
         ...(pkg.kind === "nba-game" && pkg.availabilityCheck?.length ? { availabilityConfirmed: true, availabilityConfirmedFor: pkg.featuredKey } : {}),
       };

@@ -532,14 +532,14 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
     return team.editCaption(request, { basedOn, text }, actor);
   }
 
-  async function decide({ decisionId, verdict, captionId, digest, note, sourcesConfirmed, availabilityConfirmed }, actor) {
+  async function decide({ decisionId, verdict, captionId, digest, note, sourcesConfirmed, availabilityConfirmed, forecastReviewConfirmed }, actor) {
     const f = checkFounder(verdict === "approve" ? "approve" : "reject", actor);
     if (!f.ok) return { ok: false, ...f };
     const request = entries().find((e) => e.kind === "decision-request" && e.data.decisionId === decisionId)?.data;
     if (!request) return { ok: false, code: "UNKNOWN_DECISION", detail: decisionId };
     if (request.kind === "gate") return flow.decideGate(request, { verdict, digest }, actor, getRun(request.commandId));
     if (request.kind === "proposal") return team.decideProposal(request, { verdict, digest, note }, actor);
-    if (request.kind === "post") return team.decidePost(request, { verdict, captionId, digest, note, sourcesConfirmed, availabilityConfirmed }, actor);
+    if (request.kind === "post") return team.decidePost(request, { verdict, captionId, digest, note, sourcesConfirmed, forecastReviewConfirmed, availabilityConfirmed }, actor);
 
     if (verdict !== "approve") {
       const claim = store.claim(`decision|${decisionId}`, { verdict, note: note ?? null });

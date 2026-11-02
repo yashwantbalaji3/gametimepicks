@@ -77,6 +77,7 @@ export const BLOCK = Object.freeze({
   UNSUPPORTED: "UNSUPPORTED_TYPE",
   VERIFICATION: "VERIFICATION_NOT_PASSED",
   EXPIRED: "WINDOW_CLOSED",
+  CELL_BLOCKED: "FORECAST_CELL_BLOCKED",
   TEST_DATA: "TEST_DATA",
   OVERLAP: "OVERLAPS_EXISTING_POST",
 });
@@ -110,6 +111,7 @@ export function blockersOf(p, { now, rights = null }) {
   // founder 10-31: a displayed official projection is not a betting edge. Display follows displayStatus; without it, the old hold stands.
   if (p.sport === "NFL" && !["SHOW", "SHOW_WITH_ESTIMATE_LABEL"].includes(p.displayStatus) && (UNCLEARED_NFL.test(String(p.variant ?? "")) || (p.contentType === "NFL_WEEKLY_TOP5" && p.eligibilityClass === "ESTIMATE"))) add(BLOCK.BELOW_BAR, "An uncleared estimate (below the publication bar): it stays off social until independently cleared.");
   if (p.verification?.passed !== true) add(BLOCK.VERIFICATION, "Launch Readiness verification did not pass.");
+  if (cellsIn(p.forecastCells, "BLOCKED").length) add(BLOCK.CELL_BLOCKED, `Forecast cells are blocked: ${cellsIn(p.forecastCells, "BLOCKED").map((x) => x.cellId).join(", ").slice(0, 200)}`);
   if (p.testData === true) add(BLOCK.TEST_DATA, "Test data: never publishable.");
   if (p.contentType !== "RESULTS_RECAP" && eventStarted({ firstStartUtc: p.commandCenter?.firstStartUtc }, now)) add(BLOCK.EXPIRED, "The event has started.");
   const closes = p.window?.closesAt ?? p.expiresAt;
@@ -139,6 +141,10 @@ export function validatePackage(p) {
     if (!Array.isArray(bouts) || !bouts.length) bad.push("no bouts");
     else for (const b of bouts) if (!b?.boutId || !b.eventId || !b.fighterA || !b.fighterB || (b.pick == null ? !b.noForecastReason : ![b.fighterA, b.fighterB].includes(b.pick))) bad.push(`bout incomplete or pick is not on the card: ${b?.boutId ?? "?"}`);
     if (!Number.isFinite(Date.parse(p.commandCenter?.firstStartUtc ?? ""))) bad.push("no firstStartUtc");
+  }
+  if (needsForecastCells(p)) {
+    if (!Array.isArray(p.forecastCells) || !p.forecastCells.length) bad.push("no per-cell forecast states");
+    else for (const x of p.forecastCells) if (!x?.cellId || !CELL_STATES.has(x.state)) bad.push(`forecast cell without a valid state: ${x?.cellId ?? "?"}`);
   }
   if (!p.commandCenter?.postId || !p.commandCenter?.title) bad.push("commandCenter block missing postId or title");
   if (!Array.isArray(p.commandCenter?.captions) || !p.commandCenter.captions.length) bad.push("no caption options");
@@ -188,6 +194,15 @@ export function sameClaims(a, b) {
 }
 /** The event this post previews has begun: from here it can never become publishable, on any path. */
 export const eventStarted = (pkg, now) => { const t = Date.parse(pkg?.tipUtc ?? pkg?.kickoffUtc ?? pkg?.verification?.kickoffUtc ?? pkg?.firstKickoffUtc ?? pkg?.firstStartUtc ?? ""); return Number.isFinite(t) && Date.parse(now) >= t; };
+/**
+ * Per-cell forecast state, supplied by Launch Readiness: forecastCells [{ cellId, playerId, market, state, reason? }].
+ * The gate reads states only: it never recomputes or substitutes a forecast. Required on NBA player posts from this date.
+ */
+export const FORECAST_CELLS_FROM = "2026-11-03";
+const CELL_TYPES = new Set(["NBA_GAME_POST", "NBA_TOP5_CAROUSEL", "NBA_DAILY_TOP5", "NBA_BOXSCORE", "NBA_PLAYER_STATS"]);
+const CELL_STATES = new Set(["PASS", "REVIEW", "BLOCKED"]);
+export const needsForecastCells = (p) => CELL_TYPES.has(p.contentType) && String(p.date ?? "") >= FORECAST_CELLS_FROM;
+export const cellsIn = (cells, state) => (Array.isArray(cells) ? cells.filter((x) => x?.state === state) : []);
 export const pinnedRef = (ref) => !/(^|\/)(frozen-)?latest\.json$/.test(ref);
 /** A file in the public repo. Other references (private receipts, export ids) can't be checked here and are kept as provenance. */
 export const repoRef = (ref) => /^(app|data)\//.test(String(ref));

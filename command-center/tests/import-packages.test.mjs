@@ -823,3 +823,37 @@ test("a started event can never become publishable: approve, schedule, hold rele
   assert.equal(pk.dedupeId.length > 0, true);
   assert.equal(H.creates() + D.creates() + A.H.creates() + L.creates(), 0);
 });
+
+const CELLS = { date: "2026-11-03", contentType: "NBA_GAME_POST", content: {}, window: { opensAt: NOW, closesAt: TIP } };
+test("forecast cells: missing states are refused, BLOCKED can't publish, REVIEW needs the founder, the gate never touches values", async () => {
+  const pkg = (H, cells) => { const p = write(H.root, "a", { ...CLEAN, ...CELLS, ...(cells ? { forecastCells: cells } : {}) }); return p; };
+  const M = liveRig();
+  pkg(M, null);
+  assert.equal(M.o.importPackages({}, FOUNDER).counts.refused, 1);
+  const Bad = liveRig();
+  pkg(Bad, [{ cellId: "x:pts", state: "MAYBE" }]);
+  assert.equal(Bad.o.importPackages({}, FOUNDER).counts.refused, 1);
+  const B = liveRig();
+  pkg(B, [{ cellId: "x:pts", state: "BLOCKED" }]);
+  B.o.importPackages({}, FOUNDER);
+  const bp = post(B);
+  assert.ok(bp.package.blockers.some((b) => b.code === BLOCK.CELL_BLOCKED));
+  design(B, bp);
+  assert.equal((await approve(B, bp)).ok, false);
+  const R = liveRig();
+  pkg(R, [{ cellId: "x:pts", state: "REVIEW", reason: "minutes" }, { cellId: "x:reb", state: "PASS" }]);
+  R.o.importPackages({}, FOUNDER);
+  const rp = post(R);
+  design(R, rp);
+  assert.equal((await approve(R, rp)).code, "FORECAST_REVIEW_NOT_CONFIRMED");
+  const o = rp.options.find((c) => c.captionId === "B");
+  const yes = await R.o.decide({ decisionId: rp.decisionId, verdict: "approve", captionId: "B", digest: o.digest, forecastReviewConfirmed: true }, FOUNDER);
+  assert.equal(yes.ok, true, JSON.stringify(yes));
+  assert.deepEqual(post(R).resolution.forecastReviewConfirmed, ["x:pts"]);
+  assert.equal(M.creates() + B.creates() + R.creates(), 0);
+});
+test("forecast cells are not required before the cutover date", () => {
+  const H = liveRig();
+  write(H.root, "a", { ...CLEAN, contentType: "NBA_GAME_POST" });
+  assert.equal(H.o.importPackages({}, FOUNDER).counts.refused ?? 0, 0);
+});
