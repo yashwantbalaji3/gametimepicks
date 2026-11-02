@@ -297,7 +297,8 @@ test("every game was frozen before its cutoff and carries traceable provenance l
       assert.ok(Date.parse(g.snapshot.generatedAt) < Date.parse(g.cutoff), g.eventId);
       assert.deepEqual([g.snapshot.evidence, g.snapshot.validationStatus], ["BACKFILL_GITHUB", "SURVEY_MEASURED"]);
       assert.ok(fs.existsSync(path.join(REPO, g.snapshot.servedFrom)), g.snapshot.servedFrom);
-      assert.ok(fs.existsSync(path.join(REPO, g.snapshot.settledFrom)), g.snapshot.settledFrom);
+      assert.match(g.snapshot.settledFrom, /record/, "a named source, because the sealed file is served and the site never prints an internal path");
+      assert.doesNotMatch(JSON.stringify(g.snapshot), /data\/internal/);
       assert.ok(g.snapshot.sourceVersion, g.eventId);
     }
   }

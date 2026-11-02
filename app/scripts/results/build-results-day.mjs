@@ -58,6 +58,11 @@ function assertFrozenBeforeCutoff(eventId, generatedAt, cutoff) {
   if (!(Date.parse(generatedAt) < Date.parse(cutoff))) throw new Error(`${eventId}: frozen ${generatedAt} is not before cutoff ${cutoff}`);
 }
 
+/* Sealed days are served byte for byte, and the site never prints an internal path. Their real paths: NFL_RESULT_SOURCE
+   is data/internal/nfl/prop-settlement/<date>.json, NBA_RESULT_SOURCE is NBA_GRADE_SOURCE. */
+const NFL_RESULT_SOURCE = "NFL prop settlement record (internal)";
+const NBA_RESULT_SOURCE = "NBA prop grade ledger (private research record)";
+
 function dayOf({ sport, date, dataClass, surveyCommit, sourceFiles, games, extra = {} }) {
   const rows = games.flatMap((g) => g.rows);
   return {
@@ -107,7 +112,7 @@ export function buildNfl(date, surveyed) {
       eventId, start: first.kickoffUtc, cutoff: first.kickoffUtc, matchup: first.matchup,
       final: { state: "FINAL", score: final.score },
       snapshot: {
-        servedFrom: `app/public/data/nfl/player-board/${eventId}.json`, settledFrom, generatedAt,
+        servedFrom: `app/public/data/nfl/player-board/${eventId}.json`, settledFrom: NFL_RESULT_SOURCE, generatedAt,
         sourceVersion: `nfl-player-board@${commit}`, validationStatus: VALIDATION.SURVEY_MEASURED, evidence: EVIDENCE.BACKFILL_GITHUB,
       },
       rows: rows.map((r) => {
@@ -124,7 +129,7 @@ export function buildNfl(date, surveyed) {
       }).sort(byRow),
     };
   });
-  return dayOf({ sport: "nfl", date, dataClass: "PUBLIC_DERIVED", surveyCommit: surveyed.surveyCommit, sourceFiles: { forecast: "app/public/data/nfl/player-board/", settlement: settledFrom, finals: [...finalFiles].sort() }, games });
+  return dayOf({ sport: "nfl", date, dataClass: "PUBLIC_DERIVED", surveyCommit: surveyed.surveyCommit, sourceFiles: { forecast: "app/public/data/nfl/player-board/", settlement: NFL_RESULT_SOURCE, finals: [...finalFiles].sort() }, games });
 }
 
 export function buildNba(date, surveyed) {
@@ -169,7 +174,7 @@ export function buildNba(date, surveyed) {
         winner: final.ftHome > final.ftAway ? g.home.abbr : g.away.abbr,
       },
       snapshot: {
-        servedFrom: laneFile, settledFrom: ledgerFile, generatedAt: g.frozenAt,
+        servedFrom: laneFile, settledFrom: NBA_RESULT_SOURCE, generatedAt: g.frozenAt,
         sourceVersion: `${g.receipt.modelVersion}@sha256:${g.receipt.payloadSha256}`,
         validationStatus: VALIDATION.SURVEY_MEASURED, evidence: EVIDENCE.BACKFILL_GITHUB,
       },
@@ -180,7 +185,7 @@ export function buildNba(date, surveyed) {
   const count = (c) => sideResults.filter((x) => x === c).length;
   return dayOf({
     sport: "nba", date, dataClass: lane.dataClass, surveyCommit: surveyed.surveyCommit,
-    sourceFiles: { forecast: laneFile, forecastCommit: surveyed.laneCommit, settlement: ledgerFile, finals: [finalsFile] }, games,
+    sourceFiles: { forecast: laneFile, forecastCommit: surveyed.laneCommit, settlement: NBA_RESULT_SOURCE, finals: [finalsFile] }, games,
     extra: { label: lane.label, validation: lane.validation, officialSide: { correct: count("CORRECT"), incorrect: count("INCORRECT"), push: count("PUSH"), noSide: count("NO_SIDE"), compared: count("CORRECT") + count("INCORRECT") } },
   });
 }

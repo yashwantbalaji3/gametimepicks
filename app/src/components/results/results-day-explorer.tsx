@@ -278,7 +278,7 @@ export default function ResultsDayExplorer() {
   }, [day, market, needle]);
 
   return (
-    <main className="rd mx-auto max-w-5xl px-4 py-6">
+    <div className="rd mx-auto max-w-5xl px-4 py-6">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <p className="m-0 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
         <Link href="/results/" className="l">Results</Link>
@@ -354,6 +354,6 @@ export default function ResultsDayExplorer() {
           </section>
         </>
       ) : null}
-    </main>
+    </div>
   );
 }
