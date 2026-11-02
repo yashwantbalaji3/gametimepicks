@@ -6,19 +6,21 @@
  * Game view and player view are two client filters over the same rows. Counts come from the day file's `families`,
  * printed per market and never added up: the only pooled figure this page could print is one the contract forbids.
  *
- * Words are the reader's: the row's reason comes from REASON_WORDS, and a W/L is shown without the frozen reference it was
- * graded against, because no price or market figure is in the file.
+ * Three things stay apart on screen: the model's side against the captured reference (never called a result of a bet),
+ * forecast accuracy, and missing measurements. Nothing on a pilot day is an official betting result, so no such word is
+ * printed. The side is shown without the reference, because no price or market figure is in the file.
  */
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { CLAIM, MARKET_LABELS, MEASUREMENT, REASON, REASON_WORDS } from "@/lib/results/v2/contract.mjs";
+import { MARKET_LABELS, MEASUREMENT, REASON, REASON_WORDS, SIDE_RESULT } from "@/lib/results/v2/contract.mjs";
 
 const BASE = "/data/results/v2";
 const SPORTS = [{ id: "nfl", label: "NFL" }, { id: "nba", label: "NBA" }] as const;
 const PLAYER_PAGE = 40;
-/* Every NBA row carries this reason, and the banner already says it: repeating it on 1,659 rows says nothing. */
-const QUIET = new Set<string>([REASON.GRADED, REASON.EXPERIMENTAL_LANE]);
+const SIDE_LABEL = "Model side vs captured line (not a betting result)";
+/* Every NBA row carries one of these, and every compared NFL row the other, and the page already says both. */
+const QUIET = new Set<string>([REASON.SIDE_COMPARED, REASON.EXPERIMENTAL_LANE]);
 
 const CSS = `
 .rd h1{font-size:26px;margin:0;color:var(--vault-text)}
@@ -35,8 +37,10 @@ const CSS = `
 .rd .fams{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
 .rd .fam{border:1px solid var(--vault-border-strong);border-radius:10px;padding:10px 12px;background:var(--gtp-card)}
 .rd .fam b{display:block;font-size:13.5px;color:var(--vault-text)}
-.rd .fam .rec{font-size:20px;font-weight:600;color:var(--vault-text);margin-top:2px}
+.rd .fam .rec{font-size:16px;font-weight:600;color:var(--vault-text);margin-top:2px}
 .rd .fam span{display:block;font-size:11.5px;line-height:1.5;color:var(--vault-text-mute)}
+.rd .fam span.sec{margin-top:8px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--vault-text-faint)}
+.rd .fam strong{color:var(--vault-text)}
 .rd details{border:1px solid var(--vault-border);border-radius:10px;margin-top:8px;background:var(--gtp-card)}
 .rd summary{min-height:44px;padding:10px 12px;cursor:pointer;font-size:13.5px;color:var(--vault-text);display:flex;flex-wrap:wrap;gap:2px 10px;align-items:center}
 .rd summary .sub{font-size:12px;color:var(--vault-text-mute)}
@@ -47,9 +51,11 @@ const CSS = `
 .rd td{padding:7px 8px;border-top:1px solid var(--vault-border);font-size:12.5px;vertical-align:top;color:var(--vault-text)}
 .rd td small{display:block;font-size:11px;line-height:1.45;color:var(--vault-text-mute)}
 .rd .num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.rd th.num{white-space:normal}
 .rd .tag{display:inline-block;padding:1px 6px;border-radius:5px;font-size:11px;font-weight:600;border:1px solid var(--vault-border-strong);color:var(--vault-text-mute)}
-.rd .tag.win{color:var(--vault-gold-bright);border-color:var(--vault-gold-bright)}
-.rd .tag.loss{color:var(--vault-text)}
+.rd .tag.hit{color:var(--vault-gold-bright);border-color:var(--vault-gold-bright)}
+.rd .tag.miss{color:var(--vault-text)}
+.rd .tag.gap{border-style:dashed;color:var(--vault-text)}
 .rd .warn{border:1px solid var(--vault-border-strong);border-radius:10px;padding:10px 12px;margin-top:12px;font-size:12.5px;line-height:1.55;color:var(--vault-text-mute)}
 .rd .warn b{color:var(--vault-text)}
 @media(max-width:480px){.rd th,.rd td{padding-left:4px;padding-right:4px}.rd td small{font-size:10.5px}}
@@ -58,21 +64,23 @@ const CSS = `
 
 type Row = {
   subject: string; playerId: string; team: string; market: string; predictionKind: "MEDIAN" | "PROBABILITY";
-  prediction: number; actual: number | string | null; absoluteError: number | null; measurement: string; claim: string; reason: string;
+  prediction: number; actual: number | string | null; absoluteError: number | null; measurement: string;
+  modelSide: "OVER" | "UNDER" | null; sideResult: string | null; claim: string; reason: string;
 };
 type Game = {
   eventId: string; start: string; cutoff: string; matchup: string;
-  final: { state: string; score: { away: number; home: number }; officialSide?: string; winner?: string; claim?: string };
+  final: { state: string; score: { away: number; home: number }; officialSide?: string; winner?: string; sideResult?: string | null };
   snapshot: { servedFrom: string; settledFrom: string; generatedAt: string; sourceVersion: string; validationStatus: string; evidence: string };
   rows: Row[];
 };
 type Family = {
-  market: string; rows: number; measured: number; noMeasurement: number; pending: number; void: number;
-  win: number; loss: number; push: number; noPick: number; noClaim: number; decided: number; winRate: number | null;
+  market: string; rows: number; measured: number; noMeasurement: number; pending: number; void: number; withModelSide: number;
+  sideCorrect: number; sideIncorrect: number; sidePush: number; noSide: number; sideCompared: number; sideCorrectRate: number | null;
+  errorRows: number; meanAbsoluteError: number | null;
 };
 type Day = {
   sport: string; date: string; label?: string; validation?: string; counts: { games: number; players: number; rows: number };
-  officialSide?: { win: number; loss: number; push: number; noPick: number; decided: number };
+  officialSide?: { correct: number; incorrect: number; push: number; noSide: number; compared: number };
   families: Family[]; games: Game[];
   provenance: { evidence: string; validationStatus: string; surveyCommit: string; note: string; sourceFiles: { forecast: string; settlement: string; finals: string[] } };
 };
@@ -84,7 +92,7 @@ const DAY = new Intl.DateTimeFormat("en-US", { timeZone: "UTC", weekday: "short"
 const dayLabel = (ymd: string) => DAY.format(new Date(`${ymd}T12:00:00Z`));
 const marketLabel = (m: string) => (MARKET_LABELS as Record<string, string>)[m] ?? m;
 const prediction = (r: Row) => (r.predictionKind === "PROBABILITY" ? `${(r.prediction * 100).toFixed(1)}%` : String(r.prediction));
-const CLAIM_WORD: Record<string, string> = { WIN: "Win", LOSS: "Loss", PUSH: "Push", NO_PICK: "No pick", NO_CLAIM: "No claim" };
+const SIDE_WORD: Record<string, string> = { CORRECT: "Side correct", INCORRECT: "Side incorrect", PUSH: "Landed on it", NO_SIDE: "No side" };
 
 function Toggle({ label, value, options, onChange }: { label: string; value: string; options: readonly { id: string; label: string }[]; onChange: (id: string) => void }) {
   return (
@@ -98,10 +106,10 @@ function Toggle({ label, value, options, onChange }: { label: string; value: str
 }
 
 function Result({ row }: { row: Row }) {
-  const open = row.measurement !== MEASUREMENT.MEASURED;
+  const missing = row.measurement !== MEASUREMENT.MEASURED;
   const word = row.measurement === MEASUREMENT.PENDING ? "Pending" : row.measurement === MEASUREMENT.VOID ? "Void"
-    : row.measurement === MEASUREMENT.NO_MEASUREMENT ? "No measurement" : CLAIM_WORD[row.claim];
-  const kind = open ? "" : row.claim === CLAIM.WIN ? " win" : row.claim === CLAIM.LOSS ? " loss" : "";
+    : row.measurement === MEASUREMENT.NO_MEASUREMENT ? "No measurement" : row.sideResult ? SIDE_WORD[row.sideResult] : "Not compared";
+  const kind = missing ? " gap" : row.sideResult === SIDE_RESULT.CORRECT ? " hit" : row.sideResult === SIDE_RESULT.INCORRECT ? " miss" : "";
   return (
     <>
       <span className={`tag${kind}`}>{word}</span>
@@ -120,7 +128,7 @@ function Rows({ rows, first }: { rows: Row[]; first: "player" | "market" }) {
             <th scope="col" className="num">Model projection</th>
             <th scope="col" className="num">Actual</th>
             <th scope="col" className="num">Miss</th>
-            <th scope="col">Result</th>
+            <th scope="col">Side check</th>
           </tr>
         </thead>
         <tbody>
@@ -129,7 +137,7 @@ function Rows({ rows, first }: { rows: Row[]; first: "player" | "market" }) {
               <td>
                 {first === "player" ? <>{r.subject}<small>{r.team} · {marketLabel(r.market)}</small></> : marketLabel(r.market)}
               </td>
-              <td className="num">{prediction(r)}</td>
+              <td className="num">{prediction(r)}{r.modelSide ? <small>{r.modelSide}</small> : null}</td>
               <td className="num">{r.actual ?? "—"}</td>
               <td className="num">{r.absoluteError ?? "—"}</td>
               <td><Result row={r} /></td>
@@ -150,7 +158,7 @@ function GameCard({ game, market }: { game: Game; market: string }) {
       <summary>
         <strong>{game.matchup}</strong>
         <span className="sub">Final {away}–{home}</span>
-        {game.final.officialSide ? <span className="sub">Official side {game.final.officialSide}: {CLAIM_WORD[game.final.claim ?? ""]}</span> : null}
+        {game.final.officialSide ? <span className="sub">Official side {game.final.officialSide}: {SIDE_WORD[game.final.sideResult ?? ""] ?? "not compared"}</span> : null}
         <span className="sub">{ET_TIME.format(new Date(game.start))} ET · {rows.length} {rows.length === 1 ? "row" : "rows"}</span>
       </summary>
       {/* Rows mount on open: a full NBA slate would otherwise put 1,659 table rows in the DOM of a phone. */}
@@ -186,11 +194,19 @@ function Families({ day }: { day: Day }) {
       {day.families.map((f) => (
         <div className="fam" key={f.market} data-family={f.market}>
           <b>{marketLabel(f.market)}</b>
-          {/* 0–0–0 would read as a record: a market with no graded claim says so instead. */}
-          <div className="rec">{f.decided + f.push ? `${f.win}–${f.loss}–${f.push}` : "No claim"}</div>
-          <span>{f.decided ? `${(f.winRate! * 100).toFixed(1)}% wins of ${f.decided} decided (win + loss)` : "No win or loss graded"}</span>
-          <span>{f.rows} rows · {f.measured} measured · {f.noMeasurement} no measurement</span>
-          <span>{f.pending} pending · {f.void} void · {f.noPick} no pick · {f.noClaim} no claim</span>
+          {/* Each block answers one question, and none of them is a betting result. */}
+          <span className="sec">{SIDE_LABEL}</span>
+          {f.sideCompared ? (
+            <>
+              <div className="rec">{f.sideCorrect} correct · {f.sideIncorrect} incorrect</div>
+              <span>{(f.sideCorrectRate! * 100).toFixed(1)}% correct of {f.sideCompared} compared · {f.sidePush} landed on it · {f.noSide} no side</span>
+            </>
+          ) : <span>Not compared{f.withModelSide ? ` (${f.withModelSide} rows show a model side)` : ""}</span>}
+          <span className="sec">Forecast accuracy</span>
+          <span>{f.meanAbsoluteError == null ? "No numeric miss: a yes or no market" : `Average miss ${f.meanAbsoluteError} over ${f.errorRows} measured rows`}</span>
+          <span className="sec">Measurement</span>
+          <span>{f.rows} rows · {f.measured} measured · <strong>{f.noMeasurement} no measurement</strong></span>
+          <span>{f.pending} pending · {f.void} void</span>
         </div>
       ))}
     </div>
@@ -269,8 +285,9 @@ export default function ResultsDayExplorer() {
       </p>
       <h1>Results by day</h1>
       <p className="lede">
-        Each official prediction beside what happened, one sport and one date at a time. A win or loss exists only where a
-        directional claim was graded, and every rate prints its own count per market. A missing stat is no measurement, never a zero.
+        Each official prediction beside what happened, one sport and one date at a time. Nothing here is an official betting
+        result: these pilot days are a backfill, so the model&rsquo;s side is only compared with the captured pregame line, and that line
+        is never shown. A missing stat is no measurement, never a zero.
       </p>
 
       <Toggle label="Sport" value={sport} options={SPORTS} onChange={(id) => write({ sport: id, date: null, market: null, q: null })} />
@@ -289,7 +306,7 @@ export default function ResultsDayExplorer() {
         <>
           {day.label ? (
             <div className="warn" data-experimental>
-              <b>{day.label}.</b> {day.validation}. Medians only. Team scores withheld. No player row here is a win or loss.
+              <b>{day.label}.</b> {day.validation}. Medians only. Team scores withheld. No player row has a side.
             </div>
           ) : null}
 
@@ -297,8 +314,7 @@ export default function ResultsDayExplorer() {
             <h2 id="rd-summary">{dayLabel(day.date)} by market</h2>
             <p className="note">
               {day.counts.games} games · {day.counts.players} players · {day.counts.rows} rows.
-              {day.officialSide ? ` Official side ${day.officialSide.win}–${day.officialSide.loss} over ${day.officialSide.decided} decided games.` : ""}
-              {day.families.some((f) => f.decided + f.push) ? " Cards read win–loss–push." : ""}
+              {day.officialSide ? ` Official side correct in ${day.officialSide.correct} of ${day.officialSide.compared} games, against the final. Not a betting result.` : ""}
             </p>
             <div style={{ marginTop: 10 }}><Families day={day} /></div>
           </section>
@@ -334,7 +350,7 @@ export default function ResultsDayExplorer() {
             <p className="note">
               Forecast source: {day.provenance.sourceFiles.forecast} · Result source: {day.provenance.sourceFiles.settlement} · Finals: {day.provenance.sourceFiles.finals.join(", ")} · Surveyed at commit {day.provenance.surveyCommit.slice(0, 10)}.
             </p>
-            <p className="note">Wins and losses are graded against the frozen pregame market reference, which this page and these files do not publish.</p>
+            <p className="note">{SIDE_LABEL}: the side comes from the frozen projection and the captured pregame line. The line, its price and its book are not on this page or in these files.</p>
           </section>
         </>
       ) : null}

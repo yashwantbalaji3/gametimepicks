@@ -11,7 +11,9 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const metadata = withRouteMetadata("/results/day/", {
   title: "Results by Day — Official Prediction vs Actual · GameTime Picks",
-  description: "Pick a sport and a date to compare each official prediction with what happened, game by game and player by player, with win, loss, push, pending and void counted per market and a CSV of every row.",
+  description: "Pick a sport and a date to compare each official prediction with what happened, game by game and player by player, with accuracy, pending and void counted per market and a CSV of every row.",
+  /* Pilot: non-indexable until release review, and `indexable: false` in the route table keeps it out of the sitemap. */
+  robots: { index: false, follow: false },
 });
 
 export default function ResultsDayPage() {

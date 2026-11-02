@@ -4,18 +4,25 @@
  * Pure: no fs, no clock, no network, and nothing here reads a source. The builder (scripts/results/build-results-day.mjs)
  * feeds it rows, the emit step and the /results/day shell consume what it returns.
  *
- * TWO AXES PER ROW, NEVER ONE WORD:
+ * THREE SEPARATE QUESTIONS PER ROW, NEVER ONE WORD (founder rulings, 2026-11-02):
  *
- *   measurement   MEASURED · NO_MEASUREMENT · PENDING · VOID     did an official figure exist?
- *   claim         WIN · LOSS · PUSH · NO_PICK · NO_CLAIM         was a directional claim made, and how did it land?
+ *   measurement   MEASURED · NO_MEASUREMENT · PENDING · VOID      did an official figure exist?
+ *   sideResult    CORRECT · INCORRECT · PUSH · NO_SIDE · null     did the model's side beat the captured market reference?
+ *   claim         WIN · LOSS · PUSH · NO_PICK · NO_CLAIM          is this an official betting result?
  *
- * Only WIN and LOSS enter a rate. `decided` is printed per family and is never pooled across families or sports. A
- * missing stat is NO_MEASUREMENT with actual null: it is not a zero, and it is not a loss. The mappers RE-GRADE NOTHING:
- * an NFL WIN or LOSS is the settlement owner's `forecastResult`, read as it stands.
+ * `claim` is the strict one. It leaves NO_CLAIM only through `officialClaim`, which needs a verified qualifying reference,
+ * a verified snapshot AND a verified settlement rule. Every pilot day is SURVEY_MEASURED, so every pilot row and game is
+ * NO_CLAIM. A forecast median alone is never an official result. `sideResult` is a comparison and is labelled as one.
  *
- * ⚠ NO PRICE REACHES THIS CONTRACT'S OUTPUT. The frozen market is read to decide whether a claim exists and is then
- * dropped; `publicSafetyViolations` refuses a file that carries one (provider terms forbid downloadable price files).
- * NBA props are NO_CLAIM on every row: the shadow ledger's W/L is graded against the median itself, which is not a claim.
+ * Forecast accuracy is a third thing again: `absoluteError` per row and `meanAbsoluteError` per market. A missing stat is
+ * NO_MEASUREMENT with actual null: it is not a zero, and it is never counted against the model. Counts stay per family and
+ * are never pooled across families or sports. The mappers RE-GRADE NOTHING: an NFL CORRECT or INCORRECT is the settlement
+ * owner's `forecastResult`, read as it stands.
+ *
+ * ⚠ NO PRICE REACHES THIS CONTRACT'S OUTPUT. The frozen market is read to find the side and is then dropped: the side
+ * ships, and the figure behind it does not. `publicSafetyViolations` refuses a file that carries one (provider terms forbid
+ * downloadable price files). NBA has no captured reference here, so it has no side: the shadow ledger's W/L is graded
+ * against the median itself, which says nothing.
  */
 
 export const RESULTS_DAY_SCHEMA = "gtp.results-day@1";
@@ -23,6 +30,8 @@ export const RESULTS_DAY_INDEX_SCHEMA = "gtp.results-day-index@1";
 
 export const MEASUREMENT = Object.freeze({ MEASURED: "MEASURED", NO_MEASUREMENT: "NO_MEASUREMENT", PENDING: "PENDING", VOID: "VOID" });
 export const CLAIM = Object.freeze({ WIN: "WIN", LOSS: "LOSS", PUSH: "PUSH", NO_PICK: "NO_PICK", NO_CLAIM: "NO_CLAIM" });
+export const MODEL_SIDE = Object.freeze({ OVER: "OVER", UNDER: "UNDER" });
+export const SIDE_RESULT = Object.freeze({ CORRECT: "CORRECT", INCORRECT: "INCORRECT", PUSH: "PUSH", NO_SIDE: "NO_SIDE" });
 
 /** How a row's frozen prediction reached the day file. A pilot day is a backfill, kept apart from any future live capture. */
 export const EVIDENCE = Object.freeze({ BACKFILL_GITHUB: "BACKFILL_GITHUB" });
@@ -30,14 +39,14 @@ export const EVIDENCE = Object.freeze({ BACKFILL_GITHUB: "BACKFILL_GITHUB" });
 export const VALIDATION = Object.freeze({ SURVEY_MEASURED: "SURVEY_MEASURED" });
 
 export const REASON = Object.freeze({
-  GRADED: "GRADED",
+  SIDE_COMPARED: "SIDE_COMPARED",
   NO_STAT_ROW: "NO_STAT_ROW",
   NOT_FINAL: "NOT_FINAL",
   VOIDED: "VOIDED",
   PROJECTION_ONLY: "PROJECTION_ONLY",
   YES_NO_MARKET: "YES_NO_MARKET",
   NO_FROZEN_REFERENCE: "NO_FROZEN_REFERENCE",
-  ON_THE_REFERENCE: "ON_THE_REFERENCE",
+  NO_MODEL_SIDE: "NO_MODEL_SIDE",
   NOT_GRADED: "NOT_GRADED",
   EXPERIMENTAL_LANE: "EXPERIMENTAL_LANE",
   DID_NOT_PLAY: "DID_NOT_PLAY",
@@ -46,18 +55,18 @@ export const REASON = Object.freeze({
 
 /** Every reason, in words a reader can use. These strings ship in the CSV, so `publicSafetyViolations` scans them too. */
 export const REASON_WORDS = Object.freeze({
-  [REASON.GRADED]: "Graded against the frozen pregame market reference, which is not published here.",
-  [REASON.NO_STAT_ROW]: "No official stat row for this player in this market at final. Not a loss.",
+  [REASON.SIDE_COMPARED]: "Model side compared with the captured pregame market reference. Not a betting result.",
+  [REASON.NO_STAT_ROW]: "No official stat row for this player in this market at final. Not counted against the model.",
   [REASON.NOT_FINAL]: "Not final yet. Not counted.",
   [REASON.VOIDED]: "Voided. Not counted.",
-  [REASON.PROJECTION_ONLY]: "Model projection only: this market has not cleared its publication bar, so no claim is graded.",
-  [REASON.YES_NO_MARKET]: "Yes or no market: the forecast is a probability, so no win or loss is graded.",
-  [REASON.NO_FROZEN_REFERENCE]: "No pregame market reference was frozen for this player, so no claim is graded.",
-  [REASON.ON_THE_REFERENCE]: "The model projection sat exactly on the frozen reference, so it took no side.",
-  [REASON.NOT_GRADED]: "The settlement record holds no grade for this row.",
-  [REASON.EXPERIMENTAL_LANE]: "Experimental lane: medians only, and no claim is graded.",
-  [REASON.DID_NOT_PLAY]: "Did not play. Not a loss.",
-  [REASON.NOT_IN_BOX_SCORE]: "Not listed in the final box score. Not a loss.",
+  [REASON.PROJECTION_ONLY]: "Model projection only: this market has not cleared its publication bar, so its side is not compared.",
+  [REASON.YES_NO_MARKET]: "Yes or no market: the forecast is a probability, so it has no side to compare.",
+  [REASON.NO_FROZEN_REFERENCE]: "No pregame market reference was captured for this player, so there is no side.",
+  [REASON.NO_MODEL_SIDE]: "The model took no side here.",
+  [REASON.NOT_GRADED]: "The settlement record holds no comparison for this row.",
+  [REASON.EXPERIMENTAL_LANE]: "Experimental lane: medians only, with no side and no betting result.",
+  [REASON.DID_NOT_PLAY]: "Did not play. Not counted against the model.",
+  [REASON.NOT_IN_BOX_SCORE]: "Not listed in the final box score. Not counted against the model.",
 });
 
 /** Market keys in display order, per sport. A family outside this table is refused, never silently dropped. */
@@ -83,7 +92,8 @@ export const marketRank = (m) => {
 };
 
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
-const axes = (measurement, claim, reason) => ({ measurement, claim, reason });
+/* `claim` is not an argument: nothing reaches it except `officialClaim`. */
+const axes = (measurement, sideResult, reason, modelSide = null) => ({ measurement, modelSide, sideResult, claim: CLAIM.NO_CLAIM, reason });
 
 /** |prediction − actual| to two places, or null when either side is not a number (a yes/no row, a missing stat). */
 export function absoluteError(prediction, actual) {
@@ -92,37 +102,62 @@ export function absoluteError(prediction, actual) {
 }
 
 /**
- * One row of nfl-prop-settlement. Order matters: no measurement first (a row with nothing to measure is never a claim),
- * then the families that make no directional claim, then the frozen reference, and only then the owner's grade.
+ * The model's side against a frozen numeric reference, or null when there is none. A median ON the reference has no side.
+ * The side may ship; the reference may not.
+ */
+export function modelSideOf(median, reference) {
+  if (!isNum(median) || !isNum(reference) || median === reference) return null;
+  return median > reference ? MODEL_SIDE.OVER : MODEL_SIDE.UNDER;
+}
+
+const OFFICIAL_CLAIM = Object.freeze({
+  [SIDE_RESULT.CORRECT]: CLAIM.WIN, [SIDE_RESULT.INCORRECT]: CLAIM.LOSS, [SIDE_RESULT.PUSH]: CLAIM.PUSH, [SIDE_RESULT.NO_SIDE]: CLAIM.NO_PICK,
+});
+
+/**
+ * The only way a row leaves NO_CLAIM: all three verified, each by its own evidence. A side result alone is not enough, and
+ * neither is two of the three. SURVEY_MEASURED verifies none of them, so no pilot day passes anything here.
+ */
+export function officialClaim(sideResult, { qualifyingReference = false, snapshot = false, settlementRule = false } = {}) {
+  if (qualifyingReference !== true || snapshot !== true || settlementRule !== true) return CLAIM.NO_CLAIM;
+  return OFFICIAL_CLAIM[sideResult] ?? CLAIM.NO_CLAIM;
+}
+
+/**
+ * One row of nfl-prop-settlement. Order matters: no measurement first (a row with nothing to measure compares nothing),
+ * then the families with no comparison, then the frozen reference, and only then the owner's grade. The side itself is
+ * shown wherever it can be determined, measured or not: it was fixed before kickoff.
  *
  * ⚠ A forecastResult of PUSH HAS TWO MEANINGS (live-prop-state.mjs `settle`). The median sitting ON the reference means
- * there was never a side (NO_PICK, 10-04 has one real row: 37.5 on 37.5, final 13). A side that landed exactly on the
+ * there was never a side (NO_SIDE, 10-04 has one real row: 37.5 on 37.5, final 13). A side that landed exactly on the
  * reference is a real PUSH. Anything else is a defect, and the builder stops rather than guessing.
  */
 export function axesForNflRow(row) {
   const state = row?.measurementState;
-  if (state === "PENDING") return axes(MEASUREMENT.PENDING, CLAIM.NO_CLAIM, REASON.NOT_FINAL);
-  if (state === "VOID") return axes(MEASUREMENT.VOID, CLAIM.NO_CLAIM, REASON.VOIDED);
+  const reference = row?.frozen?.market?.line;
+  const median = row?.frozen?.projection?.median;
+  const side = modelSideOf(median, reference);
+  if (state === "PENDING") return axes(MEASUREMENT.PENDING, null, REASON.NOT_FINAL, side);
+  if (state === "VOID") return axes(MEASUREMENT.VOID, null, REASON.VOIDED, side);
   if (state !== "OBSERVED" && state !== "NO_MEASUREMENT") throw new Error(`${row?.settlementId}: unknown measurementState ${state}`);
-  if (row.finality !== "CANONICAL") return axes(MEASUREMENT.PENDING, CLAIM.NO_CLAIM, REASON.NOT_FINAL);
-  if (state === "NO_MEASUREMENT" || row.finalStat == null) return axes(MEASUREMENT.NO_MEASUREMENT, CLAIM.NO_CLAIM, REASON.NO_STAT_ROW);
+  if (row.finality !== "CANONICAL") return axes(MEASUREMENT.PENDING, null, REASON.NOT_FINAL, side);
+  if (state === "NO_MEASUREMENT" || row.finalStat == null) return axes(MEASUREMENT.NO_MEASUREMENT, null, REASON.NO_STAT_ROW, side);
 
-  const measured = (claim, reason) => axes(MEASUREMENT.MEASURED, claim, reason);
-  if (row.family === "anytime_td") return measured(CLAIM.NO_CLAIM, REASON.YES_NO_MARKET);
-  if (row.familyState !== "PUBLISHED") return measured(CLAIM.NO_CLAIM, REASON.PROJECTION_ONLY);
-  const reference = row.frozen?.market?.line;
-  if (!isNum(reference)) return measured(CLAIM.NO_CLAIM, REASON.NO_FROZEN_REFERENCE);
+  const measured = (sideResult, reason) => axes(MEASUREMENT.MEASURED, sideResult, reason, side);
+  if (row.family === "anytime_td") return measured(null, REASON.YES_NO_MARKET);
+  if (row.familyState !== "PUBLISHED") return measured(null, REASON.PROJECTION_ONLY);
+  if (!isNum(reference)) return measured(null, REASON.NO_FROZEN_REFERENCE);
 
   switch (row.forecastResult) {
-    case "WIN": return measured(CLAIM.WIN, REASON.GRADED);
-    case "LOSS": return measured(CLAIM.LOSS, REASON.GRADED);
+    case "WIN": return measured(SIDE_RESULT.CORRECT, REASON.SIDE_COMPARED);
+    case "LOSS": return measured(SIDE_RESULT.INCORRECT, REASON.SIDE_COMPARED);
     case "PUSH":
-      if (row.frozen?.projection?.median === reference) return measured(CLAIM.NO_PICK, REASON.ON_THE_REFERENCE);
-      if (row.lineResult === "PUSH") return measured(CLAIM.PUSH, REASON.GRADED);
+      if (median === reference) return measured(SIDE_RESULT.NO_SIDE, REASON.NO_MODEL_SIDE);
+      if (row.lineResult === "PUSH") return measured(SIDE_RESULT.PUSH, REASON.SIDE_COMPARED);
       throw new Error(`${row.settlementId}: forecastResult PUSH with a side and no push on the reference`);
     case null:
     case undefined:
-      return measured(CLAIM.NO_CLAIM, REASON.NOT_GRADED);
+      return measured(null, REASON.NOT_GRADED);
     default:
       throw new Error(`${row.settlementId}: unknown forecastResult ${row.forecastResult}`);
   }
@@ -137,46 +172,62 @@ export function nflActual(row, { measurement }) {
 
 const NBA_PENDING = new Set(["PENDING_FINAL", "PENDING_BOXSCORE"]);
 
-/** One current entry of the NBA prop-grade ledger. `claim` is NO_CLAIM on every row, whatever the entry says. */
+/** One current entry of the NBA prop-grade ledger. No side and no claim on any row, whatever the entry says. */
 export function axesForNbaRow(entry) {
-  const noClaim = (measurement, reason) => axes(measurement, CLAIM.NO_CLAIM, reason);
+  const row = (measurement, reason) => axes(measurement, null, reason);
   const state = entry?.state;
-  if (state === "GRADED") return noClaim(MEASUREMENT.MEASURED, REASON.EXPERIMENTAL_LANE);
-  if (NBA_PENDING.has(state)) return noClaim(MEASUREMENT.PENDING, REASON.NOT_FINAL);
-  if (state === "VOID_PENDING_REVIEW") return noClaim(MEASUREMENT.VOID, REASON.VOIDED);
+  if (state === "GRADED") return row(MEASUREMENT.MEASURED, REASON.EXPERIMENTAL_LANE);
+  if (NBA_PENDING.has(state)) return row(MEASUREMENT.PENDING, REASON.NOT_FINAL);
+  if (state === "VOID_PENDING_REVIEW") return row(MEASUREMENT.VOID, REASON.VOIDED);
   if (state === "NO_MEASUREMENT") {
-    if (entry.code === "DNP") return noClaim(MEASUREMENT.NO_MEASUREMENT, REASON.DID_NOT_PLAY);
-    if (entry.code === "NOT_IN_BOXSCORE") return noClaim(MEASUREMENT.NO_MEASUREMENT, REASON.NOT_IN_BOX_SCORE);
+    if (entry.code === "DNP") return row(MEASUREMENT.NO_MEASUREMENT, REASON.DID_NOT_PLAY);
+    if (entry.code === "NOT_IN_BOXSCORE") return row(MEASUREMENT.NO_MEASUREMENT, REASON.NOT_IN_BOX_SCORE);
     throw new Error(`${entry.key}: unknown NO_MEASUREMENT code ${entry.code}`);
   }
   throw new Error(`${entry?.key}: unknown ledger state ${state}`);
 }
 
 /**
- * The NBA game-level record: the frozen Elo side against the final. Sides are compared as home/away because the lane's
- * abbreviations and the finals record's tricodes differ (NY vs NYK, SA vs SAS). No score forecast exists to grade.
+ * The NBA game-level comparison: the frozen Elo side against the final. Sides are compared as home/away because the lane's
+ * abbreviations and the finals record's tricodes differ (NY vs NYK, SA vs SAS). No score forecast exists to compare, and
+ * on a SURVEY_MEASURED day this is a `sideResult` like any other, not an official claim.
  */
 export function axesForNbaSide(game, final) {
-  if (!final) return axes(MEASUREMENT.PENDING, CLAIM.NO_CLAIM, REASON.NOT_FINAL);
+  if (!final) return axes(MEASUREMENT.PENDING, null, REASON.NOT_FINAL);
   const favoured = game?.elo?.favoured ?? null;
   const side = favoured === game.home.abbr ? "home" : favoured === game.away.abbr ? "away" : null;
-  if (game?.elo?.state !== "FAVOURED" || side === null) return axes(MEASUREMENT.MEASURED, CLAIM.NO_PICK, REASON.ON_THE_REFERENCE);
-  if (final.ftHome === final.ftAway) return axes(MEASUREMENT.MEASURED, CLAIM.PUSH, REASON.GRADED);
-  const won = (final.ftHome > final.ftAway) === (side === "home");
-  return axes(MEASUREMENT.MEASURED, won ? CLAIM.WIN : CLAIM.LOSS, REASON.GRADED);
+  if (game?.elo?.state !== "FAVOURED" || side === null) return axes(MEASUREMENT.MEASURED, SIDE_RESULT.NO_SIDE, REASON.NO_MODEL_SIDE);
+  if (final.ftHome === final.ftAway) return axes(MEASUREMENT.MEASURED, SIDE_RESULT.PUSH, REASON.SIDE_COMPARED);
+  const correct = (final.ftHome > final.ftAway) === (side === "home");
+  return axes(MEASUREMENT.MEASURED, correct ? SIDE_RESULT.CORRECT : SIDE_RESULT.INCORRECT, REASON.SIDE_COMPARED);
 }
 
-/** Per-market counts in display order. One row per family and no total: pooling is what this contract exists to prevent. */
+/**
+ * Per-market counts in display order: measurement, side comparison, accuracy and official claim, each on its own fields.
+ * One entry per family and no total, because pooling is what this contract exists to prevent. Only CORRECT and INCORRECT
+ * enter `sideCorrectRate`, and only WIN and LOSS enter `winRate`.
+ */
 export function familySummary(rows) {
   const by = new Map();
   for (const r of rows) {
-    const c = by.get(r.market) ?? { market: r.market, rows: 0, measured: 0, noMeasurement: 0, pending: 0, void: 0, win: 0, loss: 0, push: 0, noPick: 0, noClaim: 0 };
+    const c = by.get(r.market) ?? {
+      market: r.market, rows: 0, measured: 0, noMeasurement: 0, pending: 0, void: 0, withModelSide: 0,
+      sideCorrect: 0, sideIncorrect: 0, sidePush: 0, noSide: 0, errorRows: 0, errorSum: 0,
+      win: 0, loss: 0, push: 0, noPick: 0, noClaim: 0,
+    };
     c.rows += 1;
     if (r.measurement === MEASUREMENT.MEASURED) c.measured += 1;
     else if (r.measurement === MEASUREMENT.NO_MEASUREMENT) c.noMeasurement += 1;
     else if (r.measurement === MEASUREMENT.PENDING) c.pending += 1;
     else if (r.measurement === MEASUREMENT.VOID) c.void += 1;
     else throw new Error(`unknown measurement ${r.measurement}`);
+    if (r.modelSide) c.withModelSide += 1;
+    if (r.sideResult === SIDE_RESULT.CORRECT) c.sideCorrect += 1;
+    else if (r.sideResult === SIDE_RESULT.INCORRECT) c.sideIncorrect += 1;
+    else if (r.sideResult === SIDE_RESULT.PUSH) c.sidePush += 1;
+    else if (r.sideResult === SIDE_RESULT.NO_SIDE) c.noSide += 1;
+    else if (r.sideResult != null) throw new Error(`unknown sideResult ${r.sideResult}`);
+    if (isNum(r.absoluteError)) { c.errorRows += 1; c.errorSum += r.absoluteError; }
     if (r.claim === CLAIM.WIN) c.win += 1;
     else if (r.claim === CLAIM.LOSS) c.loss += 1;
     else if (r.claim === CLAIM.PUSH) c.push += 1;
@@ -187,9 +238,14 @@ export function familySummary(rows) {
   }
   return [...by.values()]
     .sort((a, b) => marketRank(a.market) - marketRank(b.market))
-    .map((c) => {
+    .map(({ errorSum, ...c }) => {
+      const sideCompared = c.sideCorrect + c.sideIncorrect;
       const decided = c.win + c.loss;
-      return { ...c, decided, winRate: decided ? Number((c.win / decided).toFixed(4)) : null };
+      return {
+        ...c, sideCompared, sideCorrectRate: sideCompared ? Number((c.sideCorrect / sideCompared).toFixed(4)) : null,
+        meanAbsoluteError: c.errorRows ? Number((errorSum / c.errorRows).toFixed(2)) : null,
+        decided, winRate: decided ? Number((c.win / decided).toFixed(4)) : null,
+      };
     });
 }
 
@@ -205,7 +261,7 @@ export function canonicalDayJson(doc) {
 
 export const CSV_COLUMNS = Object.freeze([
   "sport", "date", "eventId", "matchup", "start", "cutoff", "subject", "playerId", "team", "market", "marketLabel",
-  "predictionKind", "prediction", "actual", "absoluteError", "measurement", "claim", "reason", "reasonWords",
+  "predictionKind", "prediction", "actual", "absoluteError", "measurement", "modelSide", "sideResult", "claim", "reason", "reasonWords",
   "evidence", "validationStatus", "servedFrom", "settledFrom", "generatedAt", "sourceVersion",
 ]);
 const csvCell = (v) => {

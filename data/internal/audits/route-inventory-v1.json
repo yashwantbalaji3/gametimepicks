@@ -705,8 +705,9 @@
   {
    "route": "/results/day",
    "classification": "public",
+   "indexable": false,
    "owner": "settlement",
-   "purpose": "Results Day (Results V2 pilot): a static shell where a reader picks a sport and a date and compares official prediction vs actual game by game or player by player, with win / loss / push / pending / void counted per market and a CSV of every row. Sport, date and filters are URL query state; no page per day",
+   "purpose": "Results Day (Results V2 pilot, noindex until release review): a static shell where a reader picks a sport and a date and compares official prediction vs actual game by game or player by player, with model side, accuracy, pending and void shown apart per market and a CSV of every row. No row is an official betting result. Sport, date and filters are URL query state; no page per day",
    "dataOwner": "public/data/results/v2/<sport>/<date>.{json,csv} + index.json (emit-results-v2-assets) from the sealed data/results-projection/v1 files",
    "freshness": "each game's frozen time, evidence and validation status printed on the page",
    "built": "UNVERIFIED (no export provided)"

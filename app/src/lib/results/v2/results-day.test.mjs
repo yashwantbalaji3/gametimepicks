@@ -13,7 +13,8 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
-import { CLAIM, MEASUREMENT, axesForNbaRow, axesForNbaSide, axesForNflRow, absoluteError, canonicalDayJson, familySummary, nflActual, publicSafetyViolations, toDayCsv } from "./contract.mjs";
+import { CLAIM, MEASUREMENT, SIDE_RESULT, axesForNbaRow, axesForNbaSide, axesForNflRow, absoluteError, canonicalDayJson, familySummary, modelSideOf, nflActual, officialClaim, publicSafetyViolations, toDayCsv } from "./contract.mjs";
+import { ROUTE_TABLE } from "../../audits/route-inventory.mjs";
 import { emitResultsV2 } from "../../../../scripts/results/emit-results-v2-assets.mjs";
 
 const APP = process.cwd();
@@ -41,21 +42,75 @@ function tmpDir(t) {
 
 /* ── the exact counts ─────────────────────────────────────────────────────────────────────── */
 
-test("NFL 2026-10-11: 13 games, 246 players, 695 rows; 581 measured, 114 none; 145 W, 111 L, 0 push, per family", () => {
+test("NFL 2026-10-11: 13 games, 246 players, 695 rows; 581 measured, 114 none; 145 CORRECT, 111 INCORRECT, 0 push as side results, per family", () => {
   assert.deepEqual(nfl.counts, { games: 13, players: 246, rows: 695 });
   assert.equal(count(nflRows, (r) => r.measurement === MEASUREMENT.MEASURED), 581);
   assert.equal(count(nflRows, (r) => r.measurement === MEASUREMENT.NO_MEASUREMENT), 114);
-  assert.equal(count(nflRows, (r) => r.claim === CLAIM.WIN), 145);
-  assert.equal(count(nflRows, (r) => r.claim === CLAIM.LOSS), 111);
-  assert.equal(count(nflRows, (r) => r.claim === CLAIM.PUSH), 0);
+  assert.equal(count(nflRows, (r) => r.sideResult === SIDE_RESULT.CORRECT), 145);
+  assert.equal(count(nflRows, (r) => r.sideResult === SIDE_RESULT.INCORRECT), 111);
+  assert.equal(count(nflRows, (r) => r.sideResult === SIDE_RESULT.PUSH), 0);
   assert.deepEqual(nfl.families.map((f) => [f.market, f.rows]), [["player_receptions", 177], ["player_reception_yds", 157], ["player_rush_yds", 96], ["player_pass_yds", 24], ["anytime_td", 241]]);
-  assert.deepEqual([family(nfl, "player_receptions").win, family(nfl, "player_receptions").loss, family(nfl, "player_receptions").decided], [74, 56, 130]);
-  assert.deepEqual([family(nfl, "player_reception_yds").win, family(nfl, "player_reception_yds").loss, family(nfl, "player_reception_yds").decided], [71, 55, 126]);
+  assert.deepEqual([family(nfl, "player_receptions").sideCorrect, family(nfl, "player_receptions").sideIncorrect, family(nfl, "player_receptions").sideCompared], [74, 56, 130]);
+  assert.deepEqual([family(nfl, "player_reception_yds").sideCorrect, family(nfl, "player_reception_yds").sideIncorrect, family(nfl, "player_reception_yds").sideCompared], [71, 55, 126]);
   for (const m of ["player_rush_yds", "player_pass_yds", "anytime_td"]) {
     const f = family(nfl, m);
-    assert.deepEqual([f.win, f.loss, f.push, f.decided, f.winRate], [0, 0, 0, 0, null], `${m} makes no directional claim`);
-    assert.equal(f.noClaim, f.rows);
+    assert.deepEqual([f.sideCorrect, f.sideIncorrect, f.sidePush, f.sideCompared, f.sideCorrectRate], [0, 0, 0, 0, null], `${m} has no side comparison`);
   }
+});
+
+test("🔴 no pilot row or game is an official betting result: every claim is NO_CLAIM, and no official count exists", () => {
+  for (const d of [nfl, nba]) {
+    assert.equal(d.provenance.validationStatus, "SURVEY_MEASURED");
+    assert.equal(count(rowsOf(d), (r) => r.claim !== CLAIM.NO_CLAIM), 0);
+    assert.equal(count(d.games, (g) => (g.final.claim ?? CLAIM.NO_CLAIM) !== CLAIM.NO_CLAIM), 0);
+    for (const f of d.families) {
+      assert.deepEqual([f.win, f.loss, f.push, f.noPick, f.decided, f.winRate], [0, 0, 0, 0, 0, null], f.market);
+      assert.equal(f.noClaim, f.rows, f.market);
+    }
+  }
+});
+
+test("officialClaim needs a verified reference, snapshot and settlement rule, all three; a side result alone is never enough", () => {
+  const all = { qualifyingReference: true, snapshot: true, settlementRule: true };
+  assert.deepEqual(["CORRECT", "INCORRECT", "PUSH", "NO_SIDE", null].map((s) => officialClaim(s, all)), ["WIN", "LOSS", "PUSH", "NO_PICK", "NO_CLAIM"]);
+  assert.equal(officialClaim("CORRECT"), "NO_CLAIM");
+  for (const missing of Object.keys(all)) assert.equal(officialClaim("CORRECT", { ...all, [missing]: false }), "NO_CLAIM", missing);
+  assert.equal(officialClaim("CORRECT", { ...all, snapshot: "SURVEY_MEASURED" }), "NO_CLAIM", "only a verified true passes");
+});
+
+test("modelSide recomputes from the frozen median and reference on every row: all 355 show one, and 145 + 111 stay the side-result counts", () => {
+  let sided = 0;
+  for (const r of nflRows) {
+    const s = nflById.get(nflKey(r.eventId, r.playerId, r.market));
+    const reference = s.frozen.market?.line;
+    const expected = typeof reference !== "number" || s.frozen.projection.median === reference ? null : s.frozen.projection.median > reference ? "OVER" : "UNDER";
+    assert.equal(r.modelSide, expected, s.settlementId);
+    if (expected) sided += 1;
+    if (r.sideResult === "CORRECT" || r.sideResult === "INCORRECT") {
+      assert.equal(r.sideResult === "CORRECT", expected === s.lineResult, `${s.settlementId}: the side and the owner's grade must agree`);
+      assert.equal(s.forecastResult, r.sideResult === "CORRECT" ? "WIN" : "LOSS");
+      assert.equal(s.familyState, "PUBLISHED");
+    }
+  }
+  assert.equal(sided, 355);
+  assert.equal(count(nflRows, (r) => r.modelSide && r.sideResult == null), 99, "89 below the publication bar + 10 with no measurement");
+  assert.equal(count(nflRows, (r) => !r.modelSide && r.sideResult), 0, "no comparison without a side");
+  assert.equal(count(nbaRows, (r) => r.modelSide != null || r.sideResult != null), 0, "NBA has no captured reference, so no player row has a side");
+  assert.equal(modelSideOf(37.5, 37.5), null, "a median on the reference has no side");
+  assert.equal(modelSideOf(6, null), null);
+});
+
+test("accuracy stays apart: meanAbsoluteError per market recomputes from row errors, and yes or no markets have none", () => {
+  for (const d of [nfl, nba]) {
+    for (const f of d.families) {
+      const errs = rowsOf(d).filter((r) => r.market === f.market && r.absoluteError != null).map((r) => r.absoluteError);
+      assert.equal(f.errorRows, errs.length, f.market);
+      assert.equal(f.meanAbsoluteError, errs.length ? Number((errs.reduce((a, b) => a + b, 0) / errs.length).toFixed(2)) : null, f.market);
+    }
+  }
+  assert.equal(family(nfl, "anytime_td").meanAbsoluteError, null);
+  assert.deepEqual(nfl.families.map((f) => f.errorRows), [149, 136, 76, 24, 0]);
+  assert.deepEqual(nba.families.map((f) => f.errorRows), Array(7).fill(197));
 });
 
 test("NFL source: the survey's 561 is rows with a frozen market object; 355 of them hold a numeric reference, and all 256 decided rows do", () => {
@@ -76,27 +131,26 @@ test("NBA 2026-10-28: 12 games, 237 players, 1,659 rows in 7 families; 1,379 mea
   assert.equal(count(nbaRows, (r) => r.reason === "NOT_IN_BOX_SCORE"), 98);
 });
 
-test("NBA: the official side is 8–4 from the finals record, and every prop row is NO_CLAIM (the ledger's W/L is a median, not a claim)", () => {
-  assert.deepEqual(nba.officialSide, { win: 8, loss: 4, push: 0, noPick: 0, decided: 12 });
-  assert.equal(count(nbaRows, (r) => r.claim !== CLAIM.NO_CLAIM), 0);
-  assert.ok(nba.families.every((f) => f.decided === 0 && f.winRate === null));
+test("NBA: the official side is correct in 8 of 12 against the finals record, as a side result and not a claim", () => {
+  assert.deepEqual(nba.officialSide, { correct: 8, incorrect: 4, push: 0, noSide: 0, compared: 12 });
   const finals = new Map(json("app/public/data/nba/results/finals-2026-27.json").finals.map((f) => [f.providerEventId, f]));
   for (const g of nba.games) {
     const f = finals.get(g.eventId);
     assert.deepEqual(g.final.score, { away: f.ftAway, home: f.ftHome });
     const winnerSide = f.ftHome > f.ftAway ? "home" : "away";
     const [awayAbbr, homeAbbr] = g.matchup.split(" @ ");
-    assert.equal(g.final.claim === CLAIM.WIN, g.final.officialSide === (winnerSide === "home" ? homeAbbr : awayAbbr), g.eventId);
+    assert.equal(g.final.sideResult === SIDE_RESULT.CORRECT, g.final.officialSide === (winnerSide === "home" ? homeAbbr : awayAbbr), g.eventId);
   }
 });
 
 /* ── the mappers ──────────────────────────────────────────────────────────────────────────── */
 
-test("a real forecast PUSH with the median on the reference has no side: NO_PICK (10-04: 37.5 on 37.5, final 13)", () => {
+test("a real forecast PUSH with the median on the reference has no side: NO_SIDE, and no claim (10-04: 37.5 on 37.5, final 13)", () => {
   const rows = json("data/internal/nfl/prop-settlement/2026-10-04.json").rows.filter((r) => r.forecastResult === "PUSH");
   assert.equal(rows.length, 1);
   assert.equal(rows[0].settlementId, "401872968:nfl-athlete-4567750:player_reception_yds");
-  assert.deepEqual(axesForNflRow(rows[0]), { measurement: "MEASURED", claim: "NO_PICK", reason: "ON_THE_REFERENCE" });
+  assert.deepEqual(axesForNflRow(rows[0]), { measurement: "MEASURED", modelSide: null, sideResult: "NO_SIDE", claim: "NO_CLAIM", reason: "NO_MODEL_SIDE" });
+  assert.equal(officialClaim("NO_SIDE", { qualifyingReference: true, snapshot: true, settlementRule: true }), "NO_PICK");
 });
 
 const base = {
@@ -104,17 +158,19 @@ const base = {
   finalStat: 5, lineResult: "OVER", forecastResult: "WIN", frozen: { projection: { median: 6, probability: null }, market: { line: 4.5 } },
 };
 
-test("NFL mapper: each branch, in order", () => {
-  const claim = (x) => axesForNflRow({ ...base, ...x }).claim;
-  assert.equal(claim({}), "WIN");
-  assert.equal(claim({ forecastResult: "LOSS" }), "LOSS");
-  assert.equal(claim({ forecastResult: "PUSH", lineResult: "PUSH", finalStat: 4.5 }), "PUSH", "a side that landed on the reference is a real push");
-  assert.equal(claim({ forecastResult: "NOT_PUBLISHED", familyState: "NOT_THE_PUBLISHED_STATE" }), "NO_CLAIM");
-  assert.equal(claim({ family: "anytime_td", forecastResult: "NOT_APPLICABLE" }), "NO_CLAIM");
-  assert.equal(claim({ forecastResult: null, frozen: { projection: { median: 6 }, market: null } }), "NO_CLAIM");
-  assert.deepEqual(axesForNflRow({ ...base, measurementState: "NO_MEASUREMENT", finalStat: null, forecastResult: null }), { measurement: "NO_MEASUREMENT", claim: "NO_CLAIM", reason: "NO_STAT_ROW" });
+test("NFL mapper: each branch, in order, and none of them reaches an official claim", () => {
+  const side = (x) => axesForNflRow({ ...base, ...x }).sideResult;
+  assert.equal(side({}), "CORRECT");
+  assert.equal(side({ forecastResult: "LOSS" }), "INCORRECT");
+  assert.equal(side({ forecastResult: "PUSH", lineResult: "PUSH", finalStat: 4.5 }), "PUSH", "a side that landed on the reference is a real push");
+  assert.equal(side({ forecastResult: "NOT_PUBLISHED", familyState: "NOT_THE_PUBLISHED_STATE" }), null);
+  assert.equal(axesForNflRow({ ...base, forecastResult: "NOT_PUBLISHED", familyState: "NOT_THE_PUBLISHED_STATE" }).modelSide, "OVER", "the side still shows, uncompared");
+  assert.equal(side({ family: "anytime_td", forecastResult: "NOT_APPLICABLE" }), null);
+  assert.equal(side({ forecastResult: null, frozen: { projection: { median: 6 }, market: null } }), null);
+  assert.deepEqual(axesForNflRow({ ...base, measurementState: "NO_MEASUREMENT", finalStat: null, forecastResult: null }), { measurement: "NO_MEASUREMENT", modelSide: "OVER", sideResult: null, claim: "NO_CLAIM", reason: "NO_STAT_ROW" });
   assert.equal(axesForNflRow({ ...base, finality: "PROVISIONAL" }).measurement, "PENDING", "not final is pending, never a result");
   assert.equal(axesForNflRow({ ...base, measurementState: "VOID" }).measurement, "VOID");
+  assert.equal(axesForNflRow({ ...base }).claim, "NO_CLAIM");
   assert.throws(() => axesForNflRow({ ...base, measurementState: "SOMETHING_NEW" }), /unknown measurementState/);
   assert.throws(() => axesForNflRow({ ...base, forecastResult: "SOMETHING_NEW" }), /unknown forecastResult/);
   assert.throws(() => axesForNflRow({ ...base, forecastResult: "PUSH", lineResult: "OVER" }), /with a side/);
@@ -130,44 +186,43 @@ test("NFL actual: anytime TD is YES or NO, and an unmeasured row has no actual a
 
 test("NBA mappers: every ledger state maps, an unknown one stops the build, and a W/L in the entry changes nothing", () => {
   const graded = { key: "k", state: "GRADED", measurement: { actual: 13, syntheticMedianLine: { outcome: "WIN" } } };
-  assert.deepEqual(axesForNbaRow(graded), { measurement: "MEASURED", claim: "NO_CLAIM", reason: "EXPERIMENTAL_LANE" });
+  assert.deepEqual(axesForNbaRow(graded), { measurement: "MEASURED", modelSide: null, sideResult: null, claim: "NO_CLAIM", reason: "EXPERIMENTAL_LANE" });
   assert.equal(axesForNbaRow({ state: "PENDING_FINAL" }).measurement, "PENDING");
   assert.equal(axesForNbaRow({ state: "PENDING_BOXSCORE" }).measurement, "PENDING");
   assert.equal(axesForNbaRow({ state: "VOID_PENDING_REVIEW" }).measurement, "VOID");
   assert.throws(() => axesForNbaRow({ state: "NEW" }), /unknown ledger state/);
   assert.throws(() => axesForNbaRow({ state: "NO_MEASUREMENT", code: "NEW" }), /unknown NO_MEASUREMENT/);
   const game = { elo: { favoured: "NY", state: "FAVOURED" }, home: { abbr: "CHI" }, away: { abbr: "NY" } };
-  assert.equal(axesForNbaSide(game, { ftHome: 127, ftAway: 133 }).claim, "WIN");
-  assert.equal(axesForNbaSide(game, { ftHome: 133, ftAway: 127 }).claim, "LOSS");
+  assert.equal(axesForNbaSide(game, { ftHome: 127, ftAway: 133 }).sideResult, "CORRECT");
+  assert.equal(axesForNbaSide(game, { ftHome: 133, ftAway: 127 }).sideResult, "INCORRECT");
+  assert.equal(axesForNbaSide(game, { ftHome: 127, ftAway: 133 }).claim, "NO_CLAIM");
   assert.equal(axesForNbaSide(game, null).measurement, "PENDING");
-  assert.equal(axesForNbaSide({ ...game, elo: { favoured: null, state: "NO_SIDE" } }, { ftHome: 1, ftAway: 2 }).claim, "NO_PICK");
+  assert.equal(axesForNbaSide({ ...game, elo: { favoured: null, state: "NO_SIDE" } }, { ftHome: 1, ftAway: 2 }).sideResult, "NO_SIDE");
 });
 
-test("familySummary: only WIN and LOSS enter the rate, each market alone, and there is no total to pool", () => {
-  const r = (market, measurement, claim) => ({ market, measurement, claim });
+test("familySummary: CORRECT and INCORRECT alone enter the side rate, WIN and LOSS alone the official rate, each market alone, with no total", () => {
+  const r = (market, measurement, sideResult, claim = "NO_CLAIM", absoluteError = null) => ({ market, measurement, sideResult, claim, absoluteError });
   const out = familySummary([
-    r("pts", "MEASURED", "WIN"), r("pts", "MEASURED", "LOSS"), r("pts", "MEASURED", "LOSS"), r("pts", "MEASURED", "PUSH"), r("pts", "MEASURED", "NO_PICK"),
-    r("pts", "PENDING", "NO_CLAIM"), r("pts", "VOID", "NO_CLAIM"), r("pts", "NO_MEASUREMENT", "NO_CLAIM"), r("anytime_td", "MEASURED", "NO_CLAIM"),
+    r("pts", "MEASURED", "CORRECT", "NO_CLAIM", 1), r("pts", "MEASURED", "INCORRECT", "NO_CLAIM", 2), r("pts", "MEASURED", "INCORRECT", "NO_CLAIM", 4), r("pts", "MEASURED", "PUSH"), r("pts", "MEASURED", "NO_SIDE"),
+    r("pts", "PENDING", null), r("pts", "VOID", null), r("pts", "NO_MEASUREMENT", null), r("anytime_td", "MEASURED", null), r("reb", "MEASURED", "CORRECT", "WIN"), r("reb", "MEASURED", "INCORRECT", "LOSS"),
   ]);
-  assert.deepEqual(out.map((f) => f.market), ["anytime_td", "pts"], "display order, one entry per market");
-  assert.deepEqual([out[1].win, out[1].loss, out[1].push, out[1].noPick, out[1].pending, out[1].void, out[1].noMeasurement, out[1].decided, out[1].winRate], [1, 2, 1, 1, 1, 1, 1, 3, 0.3333]);
-  assert.equal(out[0].winRate, null);
-  assert.equal(nfl.total ?? nfl.overall ?? nfl.winRate ?? null, null, "no day-level rate");
+  assert.deepEqual(out.map((f) => f.market), ["anytime_td", "pts", "reb"], "display order, one entry per market");
+  const p = out[1];
+  assert.deepEqual([p.sideCorrect, p.sideIncorrect, p.sidePush, p.noSide, p.pending, p.void, p.noMeasurement, p.sideCompared, p.sideCorrectRate], [1, 2, 1, 1, 1, 1, 1, 3, 0.3333]);
+  assert.deepEqual([p.errorRows, p.meanAbsoluteError, p.decided, p.winRate], [3, 2.33, 0, null], "a side result never becomes an official count");
+  assert.deepEqual([out[2].win, out[2].loss, out[2].decided, out[2].winRate], [1, 1, 2, 0.5]);
+  assert.equal(out[0].sideCorrectRate, null);
+  assert.equal(nfl.total ?? nfl.overall ?? nfl.winRate ?? nfl.sideCorrectRate ?? null, null, "no day-level rate");
 });
 
 /* ── frozen predictions and actuals against independent sources ───────────────────────────── */
 
-test("NFL: every prediction, claim and missing stat is the settlement row's own, unchanged", () => {
+test("NFL: every prediction and missing stat is the settlement row's own, unchanged", () => {
   assert.equal(nflRows.length, nflSource.length);
   for (const r of nflRows) {
     const s = nflById.get(nflKey(r.eventId, r.playerId, r.market));
     assert.ok(s, r.playerId);
     assert.equal(r.prediction, r.market === "anytime_td" ? s.frozen.projection.probability : s.frozen.projection.median);
-    if (r.claim === CLAIM.WIN || r.claim === CLAIM.LOSS) {
-      assert.equal(typeof s.frozen.market?.line, "number", `${s.settlementId}: a WIN or LOSS needs a frozen reference`);
-      assert.equal(s.forecastResult, r.claim);
-      assert.equal(s.familyState, "PUBLISHED");
-    }
   }
 });
 
@@ -358,9 +413,34 @@ test("the shell: 44px targets, aria-pressed toggles, a CSV link, the lane's expe
   assert.match(src, /aria-pressed=\{o\.id === value\}/);
   assert.match(src, /entry\.csv/);
   assert.match(src, /Model projection/);
+  assert.match(src, /Model side vs captured line \(not a betting result\)/);
+  assert.match(src, /No measurement/);
+  assert.match(src, /Forecast accuracy/);
   assert.equal(nba.label, "UNVALIDATED EXPERIMENTAL SIMULATION");
   assert.match(src, /day\.label/);
   for (const text of [src, appFile("src/lib/results/v2/contract.mjs"), read(NFL_FILE), read(NBA_FILE)]) {
     assert.doesNotMatch(text, /\bESTIMATED?\b|PROJECTED MEDIAN|\best\.(?=\s|$)/i);
   }
+});
+
+test("no W/L wording anywhere a reader sees, in the shell, the reason words or the public files", () => {
+  const banned = /\bwins?\b|\bloss(es)?\b|\bW\/L\b|"(WIN|LOSS)"/i;
+  const shown = appFile(SHELL).replace(/^\/\*\*[\s\S]*?\*\//m, "").replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.doesNotMatch(shown, banned, "the shell prints no win or loss");
+  assert.doesNotMatch(appFile(PAGE).replace(/\/\*[\s\S]*?\*\//g, ""), banned);
+  const words = fs.readFileSync(path.join(APP, "src/lib/results/v2/contract.mjs"), "utf8");
+  const block = /export const REASON_WORDS[\s\S]*?\}\);/.exec(words)[0];
+  assert.doesNotMatch(block, banned);
+  for (const text of [toDayCsv(nfl), toDayCsv(nba)]) assert.doesNotMatch(text, /,(WIN|LOSS|PUSH|NO_PICK),/);
+  for (const text of [read(NFL_FILE), read(NBA_FILE)]) assert.doesNotMatch(text, /"claim":"(WIN|LOSS|PUSH|NO_PICK)"/);
+});
+
+test("the pilot is non-indexable until release review: robots noindex on the route, indexable false in the table, so no sitemap entry", () => {
+  assert.match(appFile(PAGE), /robots: \{ index: false, follow: false \}/);
+  assert.equal(ROUTE_TABLE["/results/day"].indexable, false);
+  assert.match(appFile("src/app/sitemap.ts"), /v\.classification === "public" && v\.indexable !== false/, "the sitemap still honours the flag");
+  const listed = Object.entries(ROUTE_TABLE).filter(([, v]) => v.classification === "public" && v.indexable !== false).map(([route]) => route);
+  assert.ok(!listed.includes("/results/day"));
+  assert.doesNotMatch(appFile("src/app/sitemap.ts"), /results\/day/);
+  assert.doesNotMatch(appFile("src/lib/seo/sitemap-durable-pages.ts"), /results\/day/);
 });

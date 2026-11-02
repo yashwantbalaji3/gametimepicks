@@ -49,7 +49,7 @@ const SURVEYED_DAYS = Object.freeze({
   "nba/2026-10-28": { surveyCommit: "f0ca00de2bcb491b7077de72bc57f3e5218cab55", laneCommit: "47107e9d9d" },
 });
 
-const PROVENANCE_NOTE = "Frozen predictions are copied exactly from the sources named on each game. Pilot days are a backfill from the public GitHub history, labelled BACKFILL_GITHUB and kept apart from any future live capture. A commit is not proof a page was served: validationStatus SURVEY_MEASURED means the served check was not reproduced by this build.";
+const PROVENANCE_NOTE = "Frozen predictions are copied exactly from the sources named on each game. Pilot days are a backfill from the public GitHub history, labelled BACKFILL_GITHUB and kept apart from any future live capture. A commit is not proof a page was served: validationStatus SURVEY_MEASURED means the served check was not reproduced by this build, so no row here is an official betting result.";
 
 const byRow = (a, b) => a.subject.localeCompare(b.subject, "en") || (a.playerId < b.playerId ? -1 : a.playerId > b.playerId ? 1 : 0) || marketRank(a.market) - marketRank(b.market);
 const byGame = (a, b) => (a.start < b.start ? -1 : a.start > b.start ? 1 : a.eventId < b.eventId ? -1 : 1);
@@ -165,7 +165,7 @@ export function buildNba(date, surveyed) {
     return {
       eventId, start: g.tipUtc, cutoff: g.tipUtc, matchup: `${g.away.abbr} @ ${g.home.abbr}`,
       final: {
-        state: "FINAL", score: { away: final.ftAway, home: final.ftHome }, officialSide: g.elo.favoured, ...side,
+        state: "FINAL", score: { away: final.ftAway, home: final.ftHome }, officialSide: g.elo.favoured, sideResult: side.sideResult, claim: side.claim,
         winner: final.ftHome > final.ftAway ? g.home.abbr : g.away.abbr,
       },
       snapshot: {
@@ -176,12 +176,12 @@ export function buildNba(date, surveyed) {
       rows: rows.sort(byRow),
     };
   });
-  const sideClaims = games.map((g) => g.final.claim);
-  const count = (c) => sideClaims.filter((x) => x === c).length;
+  const sideResults = games.map((g) => g.final.sideResult);
+  const count = (c) => sideResults.filter((x) => x === c).length;
   return dayOf({
     sport: "nba", date, dataClass: lane.dataClass, surveyCommit: surveyed.surveyCommit,
     sourceFiles: { forecast: laneFile, forecastCommit: surveyed.laneCommit, settlement: ledgerFile, finals: [finalsFile] }, games,
-    extra: { label: lane.label, validation: lane.validation, officialSide: { win: count("WIN"), loss: count("LOSS"), push: count("PUSH"), noPick: count("NO_PICK"), decided: count("WIN") + count("LOSS") } },
+    extra: { label: lane.label, validation: lane.validation, officialSide: { correct: count("CORRECT"), incorrect: count("INCORRECT"), push: count("PUSH"), noSide: count("NO_SIDE"), compared: count("CORRECT") + count("INCORRECT") } },
   });
 }
 
