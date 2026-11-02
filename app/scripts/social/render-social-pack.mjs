@@ -494,7 +494,7 @@ export function prepareNflGamePosts({ seasonType = 2, week, asOf, captures = nul
   const posts = []; const refused = winners.refused.map((r) => ({ ...r, contentType: type }));
   const wk = String(week).padStart(2, "0");
   for (const w of winners.posts) {
-    if (etWeekday(w.firstStartUtc) !== "Sun") continue;
+    if (etWeekday(w.firstStartUtc) !== (process.env.GTP_NFL_POST_DAY ?? "Sun")) continue;
     const id = w.variant; const v = views.get(id); const g = w.content.game;
     const rel = `data/nfl/player-board/${id}.json`;
     const board = readPublic(rel);
