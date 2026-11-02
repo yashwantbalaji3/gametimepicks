@@ -7,7 +7,7 @@
  *   NFL   data/internal/nfl/prop-settlement/<date>.json        frozen forecast + official measurement
  *         app/public/data/nfl/reconciliation/<week>.json       final score
  *   NBA   app/public/data/nba/experimental-public/<date>.json  the official prediction (the public lane)
- *         data/internal/research/nba/prop-grades/v0.1/ledger.jsonl  the actual, latest entry per key
+ *         the NBA grade ledger (read-nba-grades.mjs)           the actual, latest entry per key
  *         app/public/data/nba/results/finals-<season>.json     official side result
  *
  *   →  data/results-projection/v1/<sport>/<etDate>.json
@@ -24,7 +24,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { currentPropEntries, parsePropLedger } from "../../src/lib/sports/nba/prop-shadow-grading.mjs";
+import { NBA_GRADE_SOURCE, readNbaGrades } from "./read-nba-grades.mjs";
 import {
   EVIDENCE, MEASUREMENT, RESULTS_DAY_SCHEMA, VALIDATION, absoluteError, axesForNbaRow, axesForNbaSide, axesForNflRow,
   canonicalDayJson, familySummary, marketRank, nflActual, publicSafetyViolations,
@@ -129,11 +129,9 @@ export function buildNfl(date, surveyed) {
 
 export function buildNba(date, surveyed) {
   const laneFile = `app/public/data/nba/experimental-public/${date}.json`;
-  const ledgerFile = "data/internal/research/nba/prop-grades/v0.1/ledger.jsonl";
+  const ledgerFile = NBA_GRADE_SOURCE;
   const lane = readJson(laneFile);
-  const parsed = parsePropLedger(fs.readFileSync(path.join(REPO, ledgerFile), "utf8"));
-  if (parsed.errors.length) throw new Error(`ledger: ${parsed.errors[0]}`);
-  const current = currentPropEntries(parsed.entries);
+  const current = readNbaGrades(REPO);
   const season = Number(date.slice(5, 7)) >= 8 ? `${date.slice(0, 4)}-${String(Number(date.slice(2, 4)) + 1)}` : `${Number(date.slice(0, 4)) - 1}-${date.slice(2, 4)}`;
   const finalsFile = `app/public/data/nba/results/finals-${season}.json`;
   const finalsDoc = readJson(finalsFile);
