@@ -3,18 +3,18 @@
  "artifact": "graded-picks",
  "dataClass": "PUBLIC_DERIVED",
  "moneyClass": "NON_MONEY",
- "generatedAt": "2026-11-02T18:20:21Z",
+ "generatedAt": "2026-11-02T19:52:20Z",
  "sport": "nfl",
  "label": "NFL",
  "what": "Game forecasts: the model-favored team (the higher frozen win probability), graded against the official final. This is historical model-favored winner accuracy, not a record of published picks.",
  "caveat": "EXPERIMENTAL. The NFL team model has not cleared a preregistered bar and is not promoted into any paper product. A tie is recorded as void, not a miss.",
  "counts": {
-  "counted": 157,
-  "hits": 93,
-  "misses": 64,
+  "counted": 160,
+  "hits": 95,
+  "misses": 65,
   "voided": 3,
   "shown": 60,
-  "total": 160
+  "total": 163
  },
  "hitRate": null,
  "recordBasis": "MIXED",
@@ -28,15 +28,30 @@
   },
   {
    "basis": "PUBLISHED",
-   "counted": 52,
-   "hits": 32,
-   "misses": 20,
-   "hitRate": 0.6154
+   "counted": 55,
+   "hits": 34,
+   "misses": 21,
+   "hitRate": 0.6182
   }
  ],
  "sampleState": "EMERGING",
- "sampleNote": "157 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
+ "sampleNote": "160 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
  "picks": [
+  {
+   "eventId": "nfl-401873035",
+   "when": "2026-11-01",
+   "eventName": null,
+   "subject": "PHI @ WSH",
+   "market": "Winner",
+   "basis": "PUBLISHED",
+   "noPick": false,
+   "predicted": "AWAY",
+   "actual": "HOME",
+   "modelProbability": null,
+   "probabilityOfActual": 0.4644,
+   "marketProbabilityOfActual": null,
+   "hit": false
+  },
   {
    "eventId": "nfl-401873025",
    "when": "2026-11-01",
@@ -169,6 +184,36 @@
    "actual": "HOME",
    "modelProbability": null,
    "probabilityOfActual": 0.7442,
+   "marketProbabilityOfActual": null,
+   "hit": true
+  },
+  {
+   "eventId": "nfl-401873033",
+   "when": "2026-11-01",
+   "eventName": null,
+   "subject": "KC @ DEN",
+   "market": "Winner",
+   "basis": "PUBLISHED",
+   "noPick": false,
+   "predicted": "HOME",
+   "actual": "HOME",
+   "modelProbability": null,
+   "probabilityOfActual": 0.6178,
+   "marketProbabilityOfActual": null,
+   "hit": true
+  },
+  {
+   "eventId": "nfl-401873034",
+   "when": "2026-11-01",
+   "eventName": null,
+   "subject": "NE @ MIA",
+   "market": "Winner",
+   "basis": "PUBLISHED",
+   "noPick": false,
+   "predicted": "AWAY",
+   "actual": "AWAY",
+   "modelProbability": null,
+   "probabilityOfActual": 0.7373,
    "marketProbabilityOfActual": null,
    "hit": true
   },
@@ -891,51 +936,6 @@
    "probabilityOfActual": 0.5226,
    "marketProbabilityOfActual": null,
    "hit": true
-  },
-  {
-   "eventId": "nfl-401872969",
-   "when": "2026-10-04",
-   "eventName": null,
-   "subject": "JAX @ CIN",
-   "market": "Winner",
-   "basis": "HISTORICAL_MODEL_FAVORED",
-   "noPick": false,
-   "predicted": "AWAY",
-   "actual": "AWAY",
-   "modelProbability": null,
-   "probabilityOfActual": 0.5339,
-   "marketProbabilityOfActual": null,
-   "hit": true
-  },
-  {
-   "eventId": "nfl-401872970",
-   "when": "2026-10-04",
-   "eventName": null,
-   "subject": "LAR @ PHI",
-   "market": "Winner",
-   "basis": "HISTORICAL_MODEL_FAVORED",
-   "noPick": false,
-   "predicted": "HOME",
-   "actual": "AWAY",
-   "modelProbability": null,
-   "probabilityOfActual": 0.5113,
-   "marketProbabilityOfActual": null,
-   "hit": false
-  },
-  {
-   "eventId": "nfl-401872971",
-   "when": "2026-10-04",
-   "eventName": null,
-   "subject": "NE @ BUF",
-   "market": "Winner",
-   "basis": "HISTORICAL_MODEL_FAVORED",
-   "noPick": false,
-   "predicted": "HOME",
-   "actual": "AWAY",
-   "modelProbability": null,
-   "probabilityOfActual": 0.3661,
-   "marketProbabilityOfActual": null,
-   "hit": false
   }
  ]
 }
