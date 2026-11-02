@@ -69,7 +69,8 @@ export const isLive = (state) => LIVE.has(state);
  * @param {string?} [o.inputsDate]       the date of the inputs used
  * @param {boolean} [o.settled]          the published card has been graded
  * @param {boolean} [o.eventsStarted]    the card's events have begun
- * @param {boolean} [o.noEvents]         the day's input slate is PRESENT and holds no games (an off-day)
+ * @param {boolean} [o.noEvents]         the day's MLB input slate is PRESENT and holds no games. Other sports may be playing:
+ *                                        on 2026-11-02 "No games are scheduled today" ran beside a 15-game NBA night
  */
 export function deriveProductState({
   productDate,
@@ -117,7 +118,7 @@ export function productStateLabel(state, { artifactDate = null, productDate = nu
     case PRODUCT_STATES.AWAITING_SETTLEMENT: return "Awaiting settlement";
     case PRODUCT_STATES.SETTLED: return "Settled";
     case PRODUCT_STATES.COMPLETED_NO_QUALIFIED_CARD: return "No qualified card today";
-    case PRODUCT_STATES.NO_EVENTS: return "No games on today's slate";
+    case PRODUCT_STATES.NO_EVENTS: return "No MLB slate today";
     case PRODUCT_STATES.GENERATION_FAILED: return "Update failed — being investigated";
     case PRODUCT_STATES.INPUTS_MISSING: return "Waiting on today's data";
     case PRODUCT_STATES.INPUTS_STALE: return "Waiting on today's data";
@@ -152,7 +153,7 @@ export function productStateExplanation(state) {
     case PRODUCT_STATES.COMPLETED_NO_QUALIFIED_CARD:
       return "Today's slate was checked in full and nothing met the card's qualification policy. No card is published rather than forcing one.";
     case PRODUCT_STATES.NO_EVENTS:
-      return "No games are scheduled today, so there was nothing to assess. This is the calendar, not a pass — the ladder resumes on the next slate.";
+      return "This ladder is built from MLB team markets and MLB has no games today, so there was nothing to assess. This is the calendar, not a pass — the ladder resumes on the next MLB slate. Other sports may still be playing.";
     case PRODUCT_STATES.GENERATION_FAILED: return "Today's update did not complete. The last published card is shown below.";
     case PRODUCT_STATES.INPUTS_MISSING:
     case PRODUCT_STATES.INPUTS_STALE: return "Today's source data has not arrived yet, so no card has been assessed.";
