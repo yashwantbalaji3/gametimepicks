@@ -115,7 +115,11 @@ test("colour map: 32 teams keyed nfl:<ABBR>, matching the receipts; ON in the de
     }
   };
   walk(path.join(APP, "src"));
-  assert.deepEqual(importers.filter((f) => !f.startsWith("src/components/simulation-theater/") && !f.startsWith("src/lib/simulation-theater/")).sort(),
+  // the public simulation page imports the official panel statically (founder rule 2026-11-02), and nothing else from the
+  // Theater's components: it mounts no theater unless its flag branch does (public-theater.test.mjs)
+  const PUBLIC_PAGE = "src/app/nfl/simulation/[eventId]/page.tsx";
+  assert.deepEqual([...read(PUBLIC_PAGE).matchAll(/from\s+["'](@\/components\/simulation-theater\/[^"']+)["']/g)].map((m) => m[1]), ["@/components/simulation-theater/NflOfficialDefault"]);
+  assert.deepEqual(importers.filter((f) => !f.startsWith("src/components/simulation-theater/") && !f.startsWith("src/lib/simulation-theater/") && f !== PUBLIC_PAGE).sort(),
     ["src/app/dev/simulation-theater/[eventId]/page.tsx", "src/app/dev/simulation-theater/nba/[eventId]/page.tsx", "src/app/dev/simulation-theater/nba/[eventId]/possession/page.tsx"], "only the dev routes (NFL, the NBA prototype and its possession playback) mount a theater");
 });
 

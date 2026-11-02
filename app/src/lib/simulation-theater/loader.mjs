@@ -11,7 +11,12 @@ import path from "node:path";
 import { readShadowReceipts, simulationOfRecord } from "../sports/nfl/sim-v2/public-receipt.mjs";
 import { adaptReceipt } from "./adapter-nfl-sim-v2.mjs";
 import { nflOfficial, withNflRepresentative } from "./official-representative.mjs";
-import { officialSnapshotFor } from "../sports/nfl/forecast-view-load.mjs";
+import { loadForecastView, officialSnapshotFor } from "../sports/nfl/forecast-view-load.mjs";
+import { gameView } from "../sports/nfl/forecast-view.mjs";
+import { archivedForecastFor } from "../sports/nfl/archived-forecast.ts";
+import { sanitizePlayerBoard } from "../sports/odds/public-offer-sanitizer.mjs";
+import { positionsFromRoster } from "./official-default.mjs";
+import { forecastRevisions, nflOfficialRevision } from "./sim-input-provenance.mjs";
 import { unionFrozenForecasts } from "../sports/nfl/public-forecast-union.mjs";
 import { nflPublicRecordResolver } from "../sports/nfl/public-record.mjs";
 import { readWorldModelArtifacts } from "../sports/nfl/world-model-v2/read.mjs";
@@ -73,7 +78,33 @@ export function nflGamePageOfficial(repoRoot, eventId) {
 
 /** The official snapshot (or its typed refusal) for one event: the game page's accessor first (see above). */
 export function nflTheaterOfficial(repoRoot, eventId) {
-  return nflGamePageOfficial(repoRoot, eventId) ?? { ...nflOfficial(String(eventId), readNflOfficialInputs(repoRoot, eventId)), source: "FORECAST_RECEIPTS" };
+  const inputs = readNflOfficialInputs(repoRoot, eventId);
+  const o = nflGamePageOfficial(repoRoot, eventId) ?? { ...nflOfficial(String(eventId), inputs), source: "FORECAST_RECEIPTS" };
+  // which revision is official, for the simulation freshness rule (sim-input-provenance.mjs); null = cannot be established
+  return { ...o, revision: nflOfficialRevision(inputs.receipts, eventId, o.snapshot), revisions: forecastRevisions(inputs.receipts) };
+}
+
+/**
+ * The view the Theater's official panel prints: the game page's own, for a game in the public union, else the frozen
+ * revision a settled game's page reads (archived-forecast.ts). No simulation input on either path. null = none committed.
+ */
+export function nflOfficialView(repoRoot, eventId) {
+  const id = String(eventId);
+  const publicDir = path.join(repoRoot, "app", "public");
+  const live = loadForecastView(publicDir, id);
+  if (live) return live;
+  const data = path.join(publicDir, "data");
+  const a = archivedForecastFor(data, id, { receiptsRoot: path.join(repoRoot, NFL_FORECAST_RECEIPTS_DIR) });
+  if (!a) return null;
+  let board = null;
+  try { board = JSON.parse(fs.readFileSync(path.join(data, "nfl", "player-board", `${id}.json`), "utf8")); } catch { board = null; }
+  const { snapshot, refusal } = officialSnapshotFor(a.forecast, board);
+  return gameView({ forecast: a.forecast, board: sanitizePlayerBoard(board), official: snapshot, officialRefusal: refusal });
+}
+
+/** Roster positions for the official panel's row order and position tags (presentation only; positionsFromRoster). */
+export function readNflRosterPositions(repoRoot) {
+  try { return positionsFromRoster(JSON.parse(fs.readFileSync(path.join(repoRoot, "app/public/data/nfl/rosters/latest.json"), "utf8"))); } catch { return null; }
 }
 
 /**

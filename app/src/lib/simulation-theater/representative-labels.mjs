@@ -32,6 +32,7 @@ export const OFFICIAL_FORECAST_TITLE = "Official Forecast";
 export const RECONCILIATION_NOTE = "The Official Forecast column repeats the numbers the game page publishes (its score for each team, median margin and median total). A simulated scenario is one game; neither is adjusted toward the other.";
 export const NO_OFFICIAL_NBA = "No official forecast receipt for this game yet";
 export const NO_OFFICIAL_NFL = "No official forecast of record for this game yet";
+export const INPUT_NOT_CURRENT_NOTE = "This simulation was built on an earlier forecast, so no stored run is the central run: every run below is a hypothetical what-if, not the forecast.";
 export const NO_OFFICIAL_RUNS_NOTE = "No stored run can be the official representative, so every run below is a hypothetical what-if, not the forecast.";
 export const OFFICIAL_BOX_TITLE = `Box score · ${SCENARIO_LABEL} · central run`;
 export const SUPPORTING_BOX_TITLE = "Projected box score · official projection beside one simulated run";

@@ -76,7 +76,9 @@ test("separate from the canonical forecast: its own labelled card, the scorecard
      and "not our main forecast" became the public vocabulary (lib/public-registry.ts PUBLIC_TERMS). The intent is
      unchanged and still asserted: the simulation names itself a Game Simulation, says it is NOT the Official Forecast,
      the forecast sits in its own labelled card, and the not-more-accurate finding stays. */
-  assert.match(report, /\{PUBLIC_TERMS\.OFFICIAL_FORECAST\} · Game Time Forecast · separate from this simulation/);
+  /* founder rule 2026-11-02: the forecast's own labelled card is now the official panel on the page, from the game page's
+     accessor (nfl-theater-consistency.test.mjs renders it); the report prints no official number. */
+  assert.match(page, /<NflOfficialDefault model=\{nflOfficialDefault\(nflOfficialView\(/);
   assert.match(report, /\{PUBLIC_TERMS\.GAME_SIMULATION\} · Simulation V2/);
   assert.match(report, /not the \{PUBLIC_TERMS\.OFFICIAL_FORECAST\}/);
   assert.match(report, /has not been shown to be more accurate/);

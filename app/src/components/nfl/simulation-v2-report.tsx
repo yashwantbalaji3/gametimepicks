@@ -7,13 +7,16 @@
  * individual defensive stats are not in the receipt, so they are absent here rather than filled in.
  *
  * Kept SEPARATE from the canonical Game Time Forecast and its Projected Scorecard (which stay "expected statistical
- * summaries · not one simulated game"). The canonical forecast, when shown, sits in its own labelled card.
+ * summaries · not one simulated game"). The page prints the Official Forecast in its own panel, above this report, from
+ * the game page's accessor; this component prints no official number. Every section here is labelled hypothetical, and
+ * SimulationProvenance says what the batch was built on and whether that is still the current Official Forecast.
  * No sportsbook number is read or shown: the engine takes none as an input.
  */
 import Link from "next/link";
 import { formatUpdatedEt } from "@/lib/format";
 import { PUBLIC_TERMS } from "@/lib/public-registry";
 import MoreDisclosure from "@/components/ui/more-disclosure";
+import SimulationProvenance, { type SimProvenance } from "@/components/nfl/simulation-provenance";
 
 const CSS = `
 .s2 table{width:100%;border-collapse:collapse}
@@ -36,7 +39,6 @@ const CSS = `
 .s2 .bar.mid{opacity:1}
 .s2 .card{border:1px solid var(--vault-border-strong);border-radius:12px;padding:12px 14px;margin-top:12px}
 .s2 .exp{border-top:2px solid var(--vault-warn)}
-.s2 .canon{border-top:2px solid var(--vault-gold)}
 .s2 .tag{font-family:var(--font-mono,ui-monospace,monospace);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--vault-text-faint)}
 .s2 summary{cursor:pointer;font-size:13px;color:var(--vault-text);min-height:32px;padding:6px 0}
 .s2 summary:focus-visible{outline:2px solid var(--vault-accent);outline-offset:2px}
@@ -69,9 +71,7 @@ function Bars({ hist, width, median, label }: { hist: any[]; width: number; medi
 
 const TEAM_STATS: Array<[string, string]> = [["drives", "Drives"], ["plays", "Plays"], ["passAtt", "Pass attempts"], ["cmp", "Completions"], ["passYds", "Passing yards"], ["passTd", "Passing TDs"], ["int", "Interceptions"], ["sacks", "Sacks taken"], ["rushAtt", "Rush attempts"], ["rushYds", "Rushing yards"], ["rushTd", "Rushing TDs"], ["fgMade", "Field goals made"]];
 
-export interface CanonicalForecast { awayWin: number; homeWin: number; projectedAway: number; projectedHome: number; totalMedian: number; modelId: string | null; generatedAt: string | null }
-
-export default function SimulationV2Report({ r, canonical, gameHref }: { r: any; file: string; canonical: CanonicalForecast | null; gameHref: string }) {
+export default function SimulationV2Report({ r, provenance, gameHref }: { r: any; provenance: SimProvenance; gameHref: string }) {
   const a = r.aggregate;
   const H = r.home.abbr;
   const A = r.away.abbr;
@@ -106,24 +106,17 @@ export default function SimulationV2Report({ r, canonical, gameHref }: { r: any;
         </p>
         <p className="m" style={{ margin: "6px 0 0", fontSize: 12.5 }}>
           This is a {PUBLIC_TERMS.GAME_SIMULATION} from a separate engine, not the {PUBLIC_TERMS.OFFICIAL_FORECAST}. It is not independent of it: each team&apos;s scoring level is
-          set so the simulated average total and margin match the Game Time Forecast&apos;s expected total and margin. It has not been shown to be more accurate than the Game Time
+          set from the total and margin of {provenance.current ? "the current Game Time Forecast" : "the forecast it was built on, named below"}. It has not been shown to be more accurate than the Game Time
           Forecast: on held-out past games its win chances scored slightly worse. It is shown for exploration, takes no betting-market
           input, and feeds no pick or product. It was frozen before kickoff and is never re-run with live information.
+          {" "}<Link href={gameHref}>Open the Game Time Forecast</Link>.
         </p>
       </div>
 
-      {canonical ? (
-        <div className="card canon">
-          <p className="tag" style={{ margin: 0 }}>{PUBLIC_TERMS.OFFICIAL_FORECAST} · Game Time Forecast · separate from this simulation</p>
-          <p style={{ margin: "6px 0 0", fontSize: 13, fontFamily: "var(--font-mono,ui-monospace,monospace)", overflowWrap: "anywhere" }}>
-            {A} {canonical.projectedAway} — {canonical.projectedHome} {H} · win chance {A} {pct(canonical.awayWin)} · {H} {pct(canonical.homeWin)} · total {canonical.totalMedian}
-          </p>
-          <p className="f" style={{ margin: "4px 0 0" }}>A different engine, anchored to the Game Time Forecast&apos;s expected total and margin. <Link href={gameHref}>Open the Game Time Forecast</Link>.</p>
-        </div>
-      ) : null}
+      <SimulationProvenance p={provenance} />
 
       <section aria-labelledby="s2-outcome">
-        <h2 id="s2-outcome">Game outcome · Simulation V2</h2>
+        <h2 id="s2-outcome">Simulated game outcome (hypothetical)</h2>
         <div className="grid">
           <div className="tile"><b>{pct(a.winProbability.away)}</b><span>{A} win in the simulated games</span></div>
           <div className="tile"><b>{pct(a.winProbability.home)}</b><span>{H} win in the simulated games</span></div>
@@ -138,7 +131,7 @@ export default function SimulationV2Report({ r, canonical, gameHref }: { r: any;
       </section>
 
       <section aria-labelledby="s2-dist">
-        <h2 id="s2-dist">Score distribution</h2>
+        <h2 id="s2-dist">Simulated score distribution (hypothetical)</h2>
         <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))" }}>
           <Bars hist={a.marginHistogram} width={3} median={a.margin.p50} label={`Final margin: ${H} points minus ${A} points (below 0 means ${A} won)`} />
           <Bars hist={a.totalHistogram} width={4} median={a.total.p50} label="Final total points" />
@@ -155,7 +148,7 @@ export default function SimulationV2Report({ r, canonical, gameHref }: { r: any;
       </section>
 
       <section aria-labelledby="s2-periods">
-        <h2 id="s2-periods">Quarters and halves</h2>
+        <h2 id="s2-periods">Simulated quarters and halves (hypothetical)</h2>
         <p className="f" style={{ margin: "4px 0 0" }}>From the same simulated games, so the quarters add up to each game&apos;s final. Overtime is shown above.</p>
         <Region label="Scoring by quarter and half">
           <table>
@@ -168,7 +161,7 @@ export default function SimulationV2Report({ r, canonical, gameHref }: { r: any;
       </section>
 
       <section aria-labelledby="s2-team">
-        <h2 id="s2-team">Team box · median (80% range)</h2>
+        <h2 id="s2-team">Simulated team box (hypothetical) · median (80% range)</h2>
         <Region label="Simulated team statistics">
           <table>
             <thead><tr><th scope="col">Stat</th><th scope="col">{A}</th><th scope="col">{H}</th></tr></thead>
@@ -190,8 +183,9 @@ export default function SimulationV2Report({ r, canonical, gameHref }: { r: any;
       </section>
 
       <section aria-labelledby="s2-players">
-        <h2 id="s2-players">Players · median (80% range)</h2>
+        <h2 id="s2-players">Simulated players (hypothetical) · median (80% range)</h2>
         <p className="f" style={{ margin: "4px 0 0" }}>
+          These are not the official player projections, which are in the {PUBLIC_TERMS.OFFICIAL_FORECAST} panel and come from a different model.
           Player lines are slices of the same simulated games: in every run, receivers&apos; catches and yards add up to their passer&apos;s, and carries add up to the team&apos;s.
           Volume a named player does not get goes to &quot;Other&quot;, so nothing is forced onto a starter. Players ruled out before the simulation get no snaps.
         </p>
@@ -228,8 +222,8 @@ export default function SimulationV2Report({ r, canonical, gameHref }: { r: any;
       </section>
 
       <section aria-labelledby="s2-td">
-        <h2 id="s2-td">Touchdown scorers</h2>
-        <p className="f" style={{ margin: "4px 0 0" }}>Share of simulated games in which the player scored; the first-TD scorer is the first touchdown of that same game.</p>
+        <h2 id="s2-td">Simulated touchdown scorers (hypothetical)</h2>
+        <p className="f" style={{ margin: "4px 0 0" }}>Not the official touchdown chances, which are in the {PUBLIC_TERMS.OFFICIAL_FORECAST} panel. Share of simulated games in which the player scored; the first-TD scorer is the first touchdown of that same game.</p>
         <Region label="Simulated touchdown scorers">
           <table>
             <thead><tr><th scope="col">Player</th><th scope="col">Team</th><th scope="col">Anytime TD</th><th scope="col">2+ TDs</th><th scope="col">First TD of the game</th></tr></thead>
@@ -278,6 +272,9 @@ export default function SimulationV2Report({ r, canonical, gameHref }: { r: any;
               <tr><th scope="row">Runs</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.runCount.toLocaleString("en-US")} · incoherent runs {r.validation.failedRuns} of {r.validation.sampleCount.toLocaleString("en-US")}</td></tr>
               <tr><th scope="row">Generated</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{stamp(r.generatedAt)} · before kickoff {stamp(kickoff.toISOString())}</td></tr>
               <tr><th scope="row">Seed</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.baseSeed} · {r.seedStrategy}</td></tr>
+              <tr><th scope="row">Input forecast</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{provenance.input.forecastModel} · revision {provenance.input.forecastRevision} · input {provenance.input.forecastInputHash ?? "not recorded"}</td></tr>
+              <tr><th scope="row">Current official</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{provenance.official ? `${provenance.official.modelVersion} · revision ${provenance.official.forecastRevision} · input ${provenance.official.inputHash}` : "not established"}</td></tr>
+              <tr><th scope="row">Parameters</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{provenance.input.paramsSha256}</td></tr>
               <tr><th scope="row">Team strength</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.calibration?.anchors?.source} · calibrated means {H} {r.calibration?.calibratedMean?.[0]} / {A} {r.calibration?.calibratedMean?.[1]}</td></tr>
               <tr><th scope="row">Availability</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }} title={r.availabilitySnapshotId}>{readableSnapshotId(r.availabilitySnapshotId)}</td></tr>
               <tr><th scope="row">Market</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{String(r.marketUse ?? "").startsWith("NOT_AN_INPUT") ? "Not used as an input" : r.marketUse}</td></tr>

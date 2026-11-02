@@ -130,6 +130,8 @@ test("research boundary: no product, board, snapshot, producer or workflow reads
         || rel.startsWith("scripts/nba/research/")
         // the consistency GATE reads the stored replay runs (founder decision 2026-10-21, role C) — read-only, pinned below
         || rel === "src/lib/consistency/audit.mjs"
+        // the across-surfaces audit: a report-only script that compares the Theater's stored panel with the official value
+        || rel === "scripts/consistency/audit-official-across-surfaces.mjs"
         // Theater entry points (release owner 2026-10-21): the /nba hub and its lane cards link to built Theater pages
         || rel === "src/app/nba/page.tsx" || rel === "src/components/nba/experimental-lane.tsx"
         // the same entry-point rule for /nba/projections' line summaries: which built game pages exist, to link them (2026-10-30)

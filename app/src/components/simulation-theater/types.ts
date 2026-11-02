@@ -88,6 +88,8 @@ export type TheaterManifest = {
   unavailableFields: { field: string; reason: string }[];
   /** Official representative vs hypothetical what-ifs (lib/simulation-theater/official-representative.mjs). */
   representative?: TheaterRepresentative;
+  /** gtp.simulation-input-provenance@1: what the batch was built on (lib/simulation-theater/sim-input-provenance.mjs) */
+  simProvenance?: import("@/components/nfl/simulation-provenance").SimProvenance;
 };
 /** theater-representative@1 (both sports). Plain JSON; the islands read it through representative-labels.mjs. */
 export type OfficialTerm = { expected: number | null; median: number | null; p10: number | null; p90: number | null; published: number | null } | null;
@@ -97,7 +99,7 @@ export type TheaterRepresentative = {
   rule: string;
   tolerance: number;
   reconciliationRule: string;
-  state: "SELECTED" | "NO_OFFICIAL" | "NO_ELIGIBLE_RUN";
+  state: "SELECTED" | "NO_OFFICIAL" | "NO_ELIGIBLE_RUN" | "INPUT_NOT_CURRENT";
   refusal: { code: string; message: string } | null;
   snapshotId: string | null;
   official: {
