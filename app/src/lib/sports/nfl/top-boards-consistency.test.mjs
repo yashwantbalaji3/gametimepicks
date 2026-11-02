@@ -98,9 +98,10 @@ test("every Top-board row: artifact == player board == official snapshot == game
 test("every published player × family in the committed week: player board == official snapshot == game page", () => {
   if (!wb) return;
   const { seasonType, week } = wb.period;
-  let checked = 0;
+  let checked = 0; let games = 0;
   for (const [id, f] of forecasts) {
     if (f.seasonType !== seasonType || f.week !== week) continue;
+    games += 1;
     const pb = playerBoard(id); const snap = snapshotFor(id); const view = views.get(id);
     if (!pb || !snap || !view) continue;
     for (const p of pb.players ?? []) for (const [fam, m] of Object.entries(p.markets ?? {})) {
@@ -114,7 +115,8 @@ test("every published player × family in the committed week: player board == of
       checked += 1;
     }
   }
-  assert.ok(checked > 200, `checked ${checked} published player × family values`);
+  // Scaled to the games left in latest.json (the union shrinks as the week starts); a game that vanished still counts.
+  assert.ok(checked >= 15 * games, `checked ${checked} published player × family values across ${games} games`);
 });
 
 test("ENGINE GUARD · a World Model V2 number in an official Top-board slot is caught; a non-official source is refused", () => {
