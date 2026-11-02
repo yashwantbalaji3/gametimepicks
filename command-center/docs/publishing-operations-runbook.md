@@ -32,6 +32,17 @@ stop when the Mac sleeps, so a silent monitor is not good news. A sleep gap is o
 
 Jobs, approvals, receipts and spend live in the ledger and survive. A restart loads the code then checked out.
 
+## Manual fallback (founder only)
+
+Use only when the console can't send and the post's window is still open.
+
+1. Approve the exact version in Review. Do not schedule it. Cancel any open job for it first.
+2. Check the job list: no `scheduled` or `unknown` job for that post. Unknown means reconcile first.
+3. Download the images from the card, in order, and copy the caption from the card.
+4. Post on X by hand, once.
+5. On the same card, record the X link. That writes a receipt, and the once-only check then refuses any later send.
+6. Confirm the card reads Posted manually. Never post a second time to fix a failed record; check X and record the link.
+
 ## Preflight without the live console
 
 Run a throwaway console from the branch on another port, with `GTP_CC_OUT_DIR` on a ledger copy, `GTP_CC_IMPORT_ROOT` on
