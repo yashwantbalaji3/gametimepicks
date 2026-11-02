@@ -62,7 +62,7 @@ async function main(argv) {
   const rows = []; const blocked = [];
   const names = nba ? new Map(JSON.parse(fs.readFileSync(path.join(APP, "public", `data/nba/experimental-public/${date}.json`), "utf8")).games.flatMap((g) => [...g.players.away, ...g.players.home].map((p) => [String(p.providerAthleteId), p.name]))) : new Map();
   for (const d of r.done) {
-    const e = nba ? applyDisplayException(d.pkg, { id: `${date}-founder-display`, nameOf: (id) => names.get(String(id)) ?? null }) : { pkg: d.pkg };
+    const e = nba ? applyDisplayException(d.pkg, { id: process.env.GTP_NBA_UNIFIED_ROSTER ? `${date}-flagged-cells-withheld` : `${date}-founder-display`, statement: process.env.GTP_NBA_UNIFIED_ROSTER ? "flagged player-markets are withheld from the image; flags kept on record" : undefined, nameOf: (id) => names.get(String(id)) ?? null }) : { pkg: d.pkg };
     if (e.blocked) { blocked.push({ dedupeId: d.pkg.dedupeId, identityErrors: e.blocked }); fs.rmSync(d.file, { force: true }); continue; }
     fs.writeFileSync(d.file, `${JSON.stringify(e.pkg, null, 2)}\n`);
     rows.push(manifestRow(e.pkg));

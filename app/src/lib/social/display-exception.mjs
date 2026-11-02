@@ -13,12 +13,12 @@ export const DISPLAY_EXCEPTION_STATEMENT = "unvalidated v0.1, known minutes and 
 export const identityErrors = (anomalies) => (anomalies ?? []).filter((a) => IDENTITY_VERDICTS.includes(a.verdict));
 
 /** @returns {{ pkg:any } | { blocked:Array<any> }} a PASS package comes back unchanged */
-export function applyDisplayException(pkg, { id, nameOf = () => null }) {
+export function applyDisplayException(pkg, { id, nameOf = () => null, statement = DISPLAY_EXCEPTION_STATEMENT }) {
   const blocked = identityErrors(pkg.anomalies);
   if (blocked.length) return { blocked };
   if (pkg.anomalyCheck !== "REVIEW") return { pkg };
   const affected = pkg.anomalies.map((a) => ({ playerId: a.playerId, name: nameOf(a.playerId), market: a.market, verdict: a.verdict }));
-  const out = { ...pkg, anomalyCheck: "EXCEPTION", reviewAnomalyCheck: "REVIEW", publicationException: { id, statement: DISPLAY_EXCEPTION_STATEMENT, affected } };
+  const out = { ...pkg, anomalyCheck: "EXCEPTION", reviewAnomalyCheck: "REVIEW", publicationException: { id, statement, affected } };
   out.contentSha256 = crypto.createHash("sha256").update(JSON.stringify({ exception: id, source: pkg.contentSha256, affected })).digest("hex");
   return { pkg: out };
 }
