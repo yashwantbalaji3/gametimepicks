@@ -598,3 +598,42 @@ test("founder hold: READY at the gate still cannot get a job, and a job made bef
   const c = K.o.replaceHeldVersion({ decisionId: k.decisionId }, FOUNDER);
   assert.ok(["OPEN_JOB", "NOT_REPLACEABLE"].includes(c.code), c.code);
 });
+
+const staleRig = async () => {
+  const H = harness();
+  const first = write(H.root, "a", CLEAN);
+  const firstRaw = fs.readFileSync(path.join(H.root, "packages", "a.json"), "utf8");
+  H.o.importPackages({}, FOUNDER);
+  const p = post(H);
+  design(H, p);
+  await approve(H, p);
+  write(H.root, "a", { ...CLEAN, contentVersion: 2 });
+  H.o.importPackages({}, FOUNDER);
+  return { H, p, first, firstRaw };
+};
+test("approvedStale is the same after reloading the ledger from disk", async () => {
+  const { H, p } = await staleRig();
+  const before = H.o.state().posts.find((q) => q.decisionId === p.decisionId).approvedStale;
+  assert.ok(before);
+  const store = createFileStore({ dir: path.join(H.dir, "ledger"), clock: () => NOW });
+  const o = createOrchestrator({ store, clock: () => NOW, outDir: H.dir, calendarDataSource: { ...src(H.files) }, env: { GTP_CC_X_HANDLE: "GameTimePicksHQ", GTP_CC_IMPORT_ROOT: H.root }, publishing: {} });
+  assert.deepEqual(o.state().posts.find((q) => q.decisionId === p.decisionId).approvedStale, before);
+});
+test("published and rejected posts refuse replacement", async () => {
+  const { H, p } = await staleRig();
+  H.store.append("publish-receipt", "test", { decisionId: p.decisionId, postId: p.postId, canonicalUrl: "u", providerPostId: "1" });
+  assert.equal(H.o.replaceHeldVersion({ decisionId: p.decisionId }, FOUNDER).code, "NOT_REPLACEABLE");
+  const R = harness();
+  write(R.root, "a", CLEAN);
+  R.o.importPackages({}, FOUNDER);
+  const r = post(R);
+  const v = await R.o.decide({ decisionId: r.decisionId, verdict: "reject", digest: r.subjectDigest, note: "no" }, FOUNDER);
+  assert.equal(v.ok, true, JSON.stringify(v));
+  assert.equal(R.o.replaceHeldVersion({ decisionId: r.decisionId }, FOUNDER).code, "NOT_REPLACEABLE");
+});
+test("restoring the approved file clears the stale notice", async () => {
+  const { H, p, firstRaw } = await staleRig();
+  fs.writeFileSync(path.join(H.root, "packages", "a.json"), firstRaw);
+  assert.equal(H.o.state().posts.find((q) => q.decisionId === p.decisionId).approvedStale, null);
+  assert.equal(H.o.replaceHeldVersion({ decisionId: p.decisionId }, FOUNDER).code, "NOTHING_HELD");
+});

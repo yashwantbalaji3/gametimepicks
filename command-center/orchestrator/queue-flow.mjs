@@ -737,6 +737,8 @@ export function createQueueFlow(ctx) {
     return { ok: false, code: "UNKNOWN_ACTION", detail: String(action) };
   }
 
+  /** What Launch Readiness's file holds now: restoring the approved version clears the stale notice. */
+  const sourceSha = (file) => { try { return JSON.parse(fs.readFileSync(file, "utf8")).contentSha256; } catch { return null; } };
   /** Read model: every proposed post with its lifecycle status. */
   function posts() {
     const all = h.entries();
@@ -761,7 +763,7 @@ export function createQueueFlow(ctx) {
       const { order, ...req } = request;
       const designApproved = req.package?.template ? approvedDesigns.has(`${req.package.template}|${req.package.assetManifest}`) : null;
       const heldVersion = all.filter((e) => e.kind === "post-held-version" && e.data.decisionId === request.decisionId).at(-1)?.data ?? null;
-      const approvedStale = heldVersion && lifecycle === "approved" && heldVersion.heldContentSha !== req.package?.contentKey ? heldVersion : null;
+      const approvedStale = heldVersion && lifecycle === "approved" && heldVersion.heldContentSha !== req.package?.contentKey && sourceSha(heldVersion.heldFile) !== req.package?.contentKey ? heldVersion : null;
       const founderHold = all.filter((e) => e.kind === "founder-hold" && e.data.baseId === baseIdOf(request.postId)).at(-1)?.data ?? null;
       return { ...req, resolution: decision, receipt, schedule, engagement, checks, lifecycle, invalidated, designApproved, approvedStale, founderHold: founderHold?.held ? founderHold : null, supersededBy: newer && !decision ? newer.request.decisionId : null };
     });
