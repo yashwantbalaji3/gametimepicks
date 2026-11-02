@@ -4,8 +4,8 @@
  "dataClass": "PRIVATE_AUDIT",
  "generatedAt": "2026-10-08T21:59:42Z",
  "totals": {
-  "routes": 104,
-  "public": 73,
+  "routes": 105,
+  "public": 74,
   "internal": 10,
   "redirects": 18,
   "archive": 1,
@@ -701,6 +701,15 @@
    "dataOwner": "results accounting artifacts",
    "freshness": "settled-through date",
    "built": true
+  },
+  {
+   "route": "/results/day",
+   "classification": "public",
+   "owner": "settlement",
+   "purpose": "Results Day (Results V2 pilot): a static shell where a reader picks a sport and a date and compares official prediction vs actual game by game or player by player, with win / loss / push / pending / void counted per market and a CSV of every row. Sport, date and filters are URL query state; no page per day",
+   "dataOwner": "public/data/results/v2/<sport>/<date>.{json,csv} + index.json (emit-results-v2-assets) from the sealed data/results-projection/v1 files",
+   "freshness": "each game's frozen time, evidence and validation status printed on the page",
+   "built": "UNVERIFIED (no export provided)"
   },
   {
    "route": "/results/date/[date]",

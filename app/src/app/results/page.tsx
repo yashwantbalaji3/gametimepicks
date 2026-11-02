@@ -411,6 +411,9 @@ export default function ResultsPage() {
         <div className="font-mono uppercase tracking-[0.14em]" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>
           Six separate records · never blended
         </div>
+        <p className="mt-2 mb-0" style={{ fontSize: 12.5 }}>
+          <Link href="/results/day/" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600 }}>Results by day</Link>
+        </p>
         <ul className="mt-2 flex flex-col gap-1.5" style={{ fontSize: 12.5, lineHeight: 1.55, listStyle: "none", padding: 0 }}>
           <li>
             <Link href="/results/forecasts/" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600 }}>Forecast record</Link>
