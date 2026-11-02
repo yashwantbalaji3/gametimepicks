@@ -1073,6 +1073,8 @@
       ${imgs.length ? `<div class="gallery" data-gallery="${esc(p.decisionId)}">${imgs.map((m, i) => `<figure><img src="/media/${encodeURIComponent(m.file)}" alt="${esc(m.altText ?? "")}" data-zoom data-index="${i}" loading="lazy"><figcaption>${imgs.length > 1 ? `${i + 1} of ${imgs.length}${pkg.kind === "nba-game" ? ` · ${i === 0 ? "Predicted winner" : "Projected stat lines"}` : ""}` : "Graphic"} · <a href="/media/${encodeURIComponent(m.file)}" download>Download</a></figcaption></figure>`).join("")}</div>` : `<div class="muted">Text post — no graphic.</div>`}
       ${pkg.imported ? xPreview(p, p.options.find((o) => o.captionId === (p.resolution?.captionId ?? ui.choice[p.decisionId] ?? pkg.imported?.cleanOf?.captionId ?? (p.options.filter((x) => x.source === "caption-edit" && x.check?.ok).at(-1) ?? p.options.find((x) => x.check?.ok))?.captionId))?.text ?? p.options[0]?.text ?? "") : ""}
       ${importPanel(s, p)}
+      ${p.approvedStale ? `<div class="notice warn">Approved version is stale: a newer package is held and has not replaced it. <button class="btn small" data-held-action="replace-held" data-held-id="${esc(p.decisionId)}">Replace with newer version</button> Your approval is voided and the new version needs a fresh one.</div>` : ""}
+      ${pkg.imported && !p.receipt ? `<div class="muted">${p.founderHold ? `On founder hold${p.founderHold.reason ? `: ${esc(p.founderHold.reason)}` : ""}. It can't be scheduled or sent. ` : ""}<button class="btn small" data-held-action="hold" data-held-id="${esc(p.decisionId)}" data-held-on="${p.founderHold ? "" : "1"}">${p.founderHold ? "Release hold" : "Hold this post"}</button></div>` : ""}
       ${pkg.featured?.length ? `<div class="muted">Featured in the caption: ${pkg.featured.map((f) => `<b>${esc(f.name ?? "none")}</b> (${esc(f.team)})`).join(" · ")} — a caption highlight, not a ranking.</div>` : ""}
       ${pkg.xSources?.length ? `<div class="section">Open these first</div><div class="links">${pkg.xSources.map((u) => xLink(u)).join(" ")}</div>` : ""}
       <div class="section">Caption${p.options.length > 1 ? "s — choose one" : ""}</div>
@@ -1475,7 +1477,7 @@
   document.addEventListener("click", (e) => { if (e.target.closest("[data-close-sheet]")) $("more-sheet").hidden = true; });
 
   document.addEventListener("click", async (e) => {
-    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-new-codes],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-rev-submit],[data-post-record],[data-design],[data-pub],[data-caption-open],[data-caption-save],[data-caption-cancel],[data-expand],[data-step],[data-collapse],[data-filter-status],[data-filter-sport],[data-filter-group],[data-ra],[data-ra-auth],[data-import-run],[data-plan-approve],[data-open-post],[data-command],[data-more],[data-cal-shift],[data-cal-today],[data-cal-mode],[data-pub-tab],[data-queue-prep],[data-gal],.sheet-backdrop,.lightbox");
+    const t = e.target.closest("[data-chip],[data-approve],[data-reject],[data-pause],[data-reset],[data-logout],[data-logout-all],[data-add-passkey],[data-new-codes],[data-copy],[data-copy-caption],[data-submit],[data-zoom],[data-tab],[data-goto],[data-gate],[data-attest],[data-preflight],[data-stop],[data-provider-test],[data-post-approve],[data-post-verdict],[data-rev-submit],[data-post-record],[data-design],[data-pub],[data-caption-open],[data-caption-save],[data-caption-cancel],[data-expand],[data-step],[data-collapse],[data-filter-status],[data-filter-sport],[data-filter-group],[data-ra],[data-ra-auth],[data-import-run],[data-held-action],[data-plan-approve],[data-open-post],[data-command],[data-more],[data-cal-shift],[data-cal-today],[data-cal-mode],[data-pub-tab],[data-queue-prep],[data-gal],.sheet-backdrop,.lightbox");
     if (!t) return;
     if (await navAction(t, e)) return;
     if (t.dataset.captionOpen) {
@@ -1591,6 +1593,12 @@
       const viaX = PUB_SCHEDULABLE.has(p.package.kind);
       if (r.ok && r.next) alert(viaX ? "Approved, not published. Nothing has been sent to X.\n\nNext: send it through the X publisher on this card — Live test post… (needs \"Authorize live test posts…\" first) or Schedule for its 45-minute slot (needs \"Authorize scheduled live publishing…\"). Every send re-checks the approval, both images, fresh data and tip-off first." : r.next);
       if (!r.ok && !r.duplicate) { t.disabled = false; alert(`${r.code}: ${r.detail ?? ""}`); }
+      return;
+    }
+    if (t.dataset.heldAction) {
+      if (t.dataset.heldAction === "replace-held" && !confirm("Void this approval and bring in the newer version as a draft?")) return;
+      const r = await post("/api/publishing", { action: t.dataset.heldAction, decisionId: t.dataset.heldId, held: t.dataset.heldOn === "1" });
+      if (!r.ok) alert(`${r.code}: ${r.detail ?? ""}`);
       return;
     }
     if (t.dataset.importRun !== undefined) {

@@ -684,6 +684,10 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
 
   // ── read model ──────────────────────────────────────────────────────────────────────────────────────────────
   /** The gate's own re-check for every open imported post: records nothing, sends nothing. */
+  function replaceHeldVersion(body, actor) {
+    const r = publishing.replaceApproved(body, actor);
+    return r.ok ? { ...r, imported: team.importPackages({}, actor).counts ?? null } : r;
+  }
   function preflight(date) {
     return team.posts().filter((p) => p.package?.imported && p.package.imported.socialAuthorized === true && !p.receipt && p.lifecycle !== "superseded" && (!date || p.package.date === date || p.package.imported.recommendation?.slateEtDate === date))
       .map((p) => { const r = team.recheck(p.package); return { title: p.package.title, lifecycle: p.lifecycle, status: r?.status ?? null, reasons: r?.reasons ?? [], images: p.package.mediaSet?.length ?? 0, closesAt: p.package.imported.window?.closesAt ?? null }; });
@@ -838,6 +842,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   }
 
   return {
+    replaceHeldVersion,
     preflight,
     handleCommand, decide, editCaption, recordPost, approveDesign, importPackages, approveContentPlan, resultsAutomation, recordMarketAuthorization, submitManual, setSeat, testProviderConnection, setPaused, emergencyStop, state, publishing, runJob, activeJobs, jobDispatched, jobCancelled,
     /** Jobs recorded by this session; the host dispatches them after its ledger flush commits. */

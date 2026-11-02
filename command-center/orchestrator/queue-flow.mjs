@@ -760,7 +760,10 @@ export function createQueueFlow(ctx) {
         : newer ? "superseded" : "drafted";
       const { order, ...req } = request;
       const designApproved = req.package?.template ? approvedDesigns.has(`${req.package.template}|${req.package.assetManifest}`) : null;
-      return { ...req, resolution: decision, receipt, schedule, engagement, checks, lifecycle, invalidated, designApproved, supersededBy: newer && !decision ? newer.request.decisionId : null };
+      const heldVersion = all.filter((e) => e.kind === "post-held-version" && e.data.decisionId === request.decisionId).at(-1)?.data ?? null;
+      const approvedStale = heldVersion && lifecycle === "approved" && heldVersion.heldContentSha !== req.package?.contentKey ? heldVersion : null;
+      const founderHold = all.filter((e) => e.kind === "founder-hold" && e.data.baseId === baseIdOf(request.postId)).at(-1)?.data ?? null;
+      return { ...req, resolution: decision, receipt, schedule, engagement, checks, lifecycle, invalidated, designApproved, approvedStale, founderHold: founderHold?.held ? founderHold : null, supersededBy: newer && !decision ? newer.request.decisionId : null };
     });
   }
 

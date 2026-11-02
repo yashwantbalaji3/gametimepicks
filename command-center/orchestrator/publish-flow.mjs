@@ -175,11 +175,36 @@ export function createPublishFlow(ctx) {
   const recordOf = (decisionId) => ctx.posts().find((p) => p.decisionId === decisionId) ?? null;
 
   /** Founder: schedule an approved post. Default time: the package's suggested time (NBA game: 45 min before tip). */
+  /** Founder intent, separate from the gate: a held post gets no job and no send, even when every check passes. */
+  const heldBy = (postId) => { const h = of("founder-hold").filter((e) => e.data.baseId === baseIdOf(postId)).at(-1)?.data; return h?.held ? h : null; };
+  function setHold({ decisionId, held, reason = "" }, actor) {
+    const f = checkFounder("publish", actor);
+    if (!f.ok) return f;
+    const rec = recordOf(decisionId);
+    if (!rec) return { ok: false, code: "UNKNOWN_POST", detail: decisionId };
+    store.append("founder-hold", actor.id ?? "founder", { decisionId, postId: rec.postId, baseId: baseIdOf(rec.postId), held: held === true, reason: String(reason).slice(0, 300), recordedAt: clock() });
+    return { ok: true, held: held === true };
+  }
+  /** Founder only: void an approval so the held newer version can come in as a draft. Never called by the importer or the scheduler. */
+  function replaceApproved({ decisionId }, actor) {
+    const f = checkFounder("publish", actor);
+    if (!f.ok) return f;
+    const rec = recordOf(decisionId);
+    if (!rec) return { ok: false, code: "UNKNOWN_POST", detail: decisionId };
+    if (rec.receipt || rec.lifecycle !== "approved") return { ok: false, code: "NOT_REPLACEABLE", detail: rec.lifecycle };
+    if (!rec.approvedStale) return { ok: false, code: "NOTHING_HELD", detail: "no newer version is held for this post" };
+    const open = jobs().find((j) => j.decisionId === decisionId && ["scheduled", "running"].includes(j.status));
+    if (open) return { ok: false, code: "OPEN_JOB", detail: `cancel ${open.jobId} first` };
+    store.append("post-status", actor.id ?? "founder", { decisionId, postId: rec.postId, status: "invalidated", reason: "the founder replaced it with the newer held version: approve that one", replacedBy: rec.approvedStale.heldContentSha, recordedAt: clock() });
+    return { ok: true };
+  }
+
   function schedule({ decisionId, at = null }, actor) {
     const f = checkFounder("publish", actor);
     if (!f.ok) return f;
     const rec = recordOf(decisionId);
     if (!rec) return { ok: false, code: "UNKNOWN_POST", detail: decisionId };
+    if (heldBy(rec.postId)) return { ok: false, code: "FOUNDER_HOLD", detail: heldBy(rec.postId).reason || "held by the founder" };
     const pkg = rec.package;
     if (!SCHEDULABLE.has(pkg.kind)) return { ok: false, code: "NOT_SCHEDULABLE", detail: pkg.kind === "nba-pregame" || pkg.kind === "nba-players" ? "NBA graphics go out together as the game post: schedule the game post" : `${pkg.kind} posts are published by hand` };
     if (isImported(pkg) && pkg.status !== "READY") return { ok: false, code: "IMPORT_BLOCKED", detail: pkg.reasons.join("; ") };
@@ -235,6 +260,7 @@ export function createPublishFlow(ctx) {
     }
     if (paused()) return { ok: false, state: "HELD", code: "PAUSED", detail: "publishing is paused" };
     // 2. approval, design
+    if (heldBy(pkg.postId)) return refuse("FOUNDER_HOLD", heldBy(pkg.postId).reason || "held by the founder");
     if (rec.resolution?.verdict !== "approve") return refuse("NOT_APPROVED", "the post is not approved");
     if (rec.invalidated) return refuse("APPROVAL_INVALIDATED", rec.invalidated.reason);
     if (isImported(pkg) && (pkg.status !== "READY" || !SCHEDULABLE.has(pkg.kind))) return refuse("IMPORT_BLOCKED", pkg.reasons.join("; ") || pkg.kind, "critical");
@@ -551,7 +577,7 @@ export function createPublishFlow(ctx) {
     };
   }
 
-  return { setPaused, setPolicy, setPublisherHost, setQueuePrep, prepDue, schedule, cancel, cancelQueuedBy, runDue, publishNow, queueNow, dueSoon, reconcile, acknowledge, jobs, policy, state, execute };
+  return { setHold, replaceApproved, setPaused, setPolicy, setPublisherHost, setQueuePrep, prepDue, schedule, cancel, cancelQueuedBy, runDue, publishNow, queueNow, dueSoon, reconcile, acknowledge, jobs, policy, state, execute };
 }
 
 /** A NOT_SENT failure after some images uploaded still spent those uploads. */

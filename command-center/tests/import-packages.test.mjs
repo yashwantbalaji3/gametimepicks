@@ -534,7 +534,7 @@ test("reproduction: a newer version never replaces an approved post, and the pos
   assert.equal(H.xcalls.length, 0);
 });
 
-test("approved but stale is shown as needing a founder decision", { todo: "proposal: state carries approvedStale and the held version" }, async () => {
+test("approved but stale is shown as needing a founder decision", async () => {
   const H = harness();
   write(H.root, "a", CLEAN);
   H.o.importPackages({}, FOUNDER);
@@ -546,4 +546,55 @@ test("approved but stale is shown as needing a founder decision", { todo: "propo
   const q = H.o.state().posts.find((x) => x.decisionId === p.decisionId);
   assert.equal(q.lifecycle, "approved");
   assert.ok(q.approvedStale?.heldContentSha);
+});
+
+test("replace is founder-only in effect: import never replaces, an open job blocks, the replacement is a draft", async () => {
+  const H = harness();
+  write(H.root, "a", CLEAN);
+  H.o.importPackages({}, FOUNDER);
+  const p = post(H);
+  design(H, p);
+  await approve(H, p);
+  assert.equal(H.o.replaceHeldVersion({ decisionId: p.decisionId }, FOUNDER).code, "NOTHING_HELD");
+  write(H.root, "a", { ...CLEAN, contentVersion: 2 });
+  H.o.importPackages({}, FOUNDER);
+  H.o.importPackages({}, FOUNDER);
+  assert.equal(H.store.list().filter((e) => e.kind === "post-held-version").length, 1, "append once");
+  const r = H.o.replaceHeldVersion({ decisionId: p.decisionId }, FOUNDER);
+  assert.equal(r.ok, true, JSON.stringify(r));
+  const posts = H.o.state().posts.filter((q) => q.package.imported);
+  assert.equal(posts.find((q) => q.decisionId === p.decisionId).lifecycle, "invalidated");
+  assert.equal(posts.filter((q) => q.lifecycle === "drafted").length, 1);
+  assert.equal(H.xcalls.length, 0);
+});
+
+test("founder hold: READY at the gate still cannot get a job, and a job made before the hold cannot send; an open job blocks replacement", async () => {
+  const H = harness();
+  write(H.root, "a", CLEAN);
+  H.o.importPackages({}, FOUNDER);
+  const p = post(H);
+  design(H, p);
+  await approve(H, p);
+  assert.equal(H.o.publishing.setHold({ decisionId: p.decisionId, held: true, reason: "QB unresolved" }, FOUNDER).ok, true);
+  assert.equal(H.o.preflight().find((x) => x.title === p.package.title).status, "READY");
+  assert.equal(H.o.publishing.schedule({ decisionId: p.decisionId, at: "2026-10-30T21:30:00.000Z" }, FOUNDER).code, "FOUNDER_HOLD");
+  assert.ok(H.o.state().posts.find((q) => q.decisionId === p.decisionId).founderHold);
+  H.o.publishing.setHold({ decisionId: p.decisionId, held: false }, FOUNDER);
+  assert.equal(H.o.publishing.schedule({ decisionId: p.decisionId, at: "2026-10-30T21:30:00.000Z" }, FOUNDER).ok, true);
+  H.o.publishing.setHold({ decisionId: p.decisionId, held: true }, FOUNDER);
+  H.setNow("2026-10-30T21:31:00.000Z");
+  const r = await H.o.publishing.runDue();
+  assert.equal(JSON.stringify(r).includes("FOUNDER_HOLD"), true, JSON.stringify(r).slice(0, 300));
+  assert.equal(H.xcalls.length, 0);
+  const K = harness();
+  write(K.root, "a", CLEAN);
+  K.o.importPackages({}, FOUNDER);
+  const k = post(K);
+  design(K, k);
+  await approve(K, k);
+  K.o.publishing.schedule({ decisionId: k.decisionId, at: "2026-10-30T21:30:00.000Z" }, FOUNDER);
+  write(K.root, "a", { ...CLEAN, contentVersion: 2 });
+  K.o.importPackages({}, FOUNDER);
+  const c = K.o.replaceHeldVersion({ decisionId: k.decisionId }, FOUNDER);
+  assert.ok(["OPEN_JOB", "NOT_REPLACEABLE"].includes(c.code), c.code);
 });

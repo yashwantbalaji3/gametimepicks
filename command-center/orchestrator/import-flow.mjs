@@ -159,6 +159,7 @@ export function createImportFlow(ctx) {
     const cleanOf = p.approval?.socialAuthorized === true ? mine.find((x) => x.lifecycle === "approved" && !x.receipt && isReviewCopy(x.package)) : null;
     const revision = [...lifted, ...(cleanArrived ? ["clean"] : []), ...(reRendered ? [sha256(publishImages).slice(0, 12)] : [])];
     const held = mine.find((x) => x !== cleanOf && (x.receipt || ["approved", "scheduled", "published", "rejected"].includes(x.lifecycle)));
+    if (held?.lifecycle === "approved" && !held.receipt && store.claim(`held-version|${held.decisionId}|${p.contentSha256}`, { runId }).won) store.append("post-held-version", "launch-readiness-import", { decisionId: held.decisionId, postId: held.postId, heldContentSha: p.contentSha256, heldFile: sourceFile, recordedAt: clock() });
     if (held) return { ...id, outcome: "held", code: "EXISTING_POST_KEPT", detail: `a newer version exists, but ${held.decisionId} is ${held.lifecycle}: it is not replaced`, decisionId: held.decisionId };
     let pkg;
     try { pkg = toPost(p, { root, sourceFile }); } catch (err) { return { ...id, outcome: "refused", code: "VERIFICATION_FAILED", detail: String(err.message ?? err).slice(0, 300) }; }

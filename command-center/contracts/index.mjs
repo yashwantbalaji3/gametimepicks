@@ -77,6 +77,8 @@ export const LEDGER_KINDS = Object.freeze([
   "job",          // H0: a unit of work handed to a worker (requested → started → finished/failed)
   "auth",         // H0: login, step-up and session events (audit only; secrets never recorded)
   "provider-test", // provider onboarding: a connection test and its result (no credentials recorded)
+  "post-held-version", // a newer package held behind an approved post
+  "founder-hold",      // founder intent: no job and no send while held
   "post-status",       // D1: the founder scheduled an approved post in X (manual)
   "engagement",        // D1: numbers the founder copied from X analytics for a published post (not verified)
   "caption-edit",      // a caption edited on the Queue: a new option (E1, E2, …) checked like the rest; approves nothing

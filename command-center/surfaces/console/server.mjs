@@ -84,6 +84,8 @@ async function publishingAction(body) {
     case "resume": return p.setPaused(false, FOUNDER);
     case "schedule": return p.schedule({ decisionId: body.decisionId, at: body.at ?? null }, FOUNDER);
     case "cancel": return p.cancel({ jobId: body.jobId }, FOUNDER);
+    case "hold": return p.setHold({ decisionId: body.decisionId, held: body.held === true, reason: body.reason }, FOUNDER);
+    case "replace-held": return orchestrator.replaceHeldVersion({ decisionId: body.decisionId }, FOUNDER);
     case "dry-run-now": return p.publishNow({ decisionId: body.decisionId, live: false }, FOUNDER);
     case "live-test": {
       // the dialog describes the post from the ledger, never from the request
