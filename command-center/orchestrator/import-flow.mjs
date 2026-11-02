@@ -243,7 +243,12 @@ export function createImportFlow(ctx) {
     try {
       const cur = JSON.parse(fs.readFileSync(pkg.imported.sourceFile, "utf8"));
       if (cur.contentSha256 !== pkg.contentKey) reasons.push("Launch Readiness has a newer version of this package: re-import and approve that one");
-    } catch { reasons.push("the source package can't be read: it can't be shown to be current"); }
+    } catch {
+      // hosted has no Launch Readiness folder: the ledger is the source, and a held newer version still stops the send
+      const held = env.GTP_CC_HOSTED === "1" ? store.list().filter((e) => e.kind === "post-held-version" && e.data.postId === pkg.postId).at(-1)?.data : null;
+      if (env.GTP_CC_HOSTED !== "1") reasons.push("the source package can't be read: it can't be shown to be current");
+      else if (held && held.heldContentSha !== pkg.contentKey) reasons.push("a newer version of this package is held: it can't be shown to be current");
+    }
     let src;
     try { src = ctx.dataSource(); } catch { src = null; }
     if (!src) reasons.push("no data source to re-check against");

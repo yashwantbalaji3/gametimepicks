@@ -34,6 +34,8 @@ import { canonicalJson, sha256 } from "../lib/util.mjs";
 export const SESSION_IDLE_MS = 12 * 3600_000;
 export const SESSION_ABSOLUTE_MS = 7 * 24 * 3600_000;
 export const CHALLENGE_TTL_MS = 5 * 60_000;
+/** High-risk founder actions: bound to the post and its content, single use, two minutes. */
+export const HIGH_RISK_STEP_UP = Object.freeze({ actions: ["hold-release", "replace-held"], ttlMs: 2 * 60_000 });
 export const RECOVERY_CODE_COUNT = 10;
 /** Outstanding challenges kept per purpose; beyond this the oldest are evicted (never a lockout). */
 export const MAX_OPEN_CHALLENGES = 200;
@@ -44,7 +46,7 @@ export const MAX_OPEN_CHALLENGES = 200;
 export const MAX_RECOVERY_FAILURES_PER_CLIENT_HOUR = 10;
 export const RECOVERY_SESSION_MS = 15 * 60_000;
 /** Actions that need a fresh passkey assertion bound to their exact payload. Pause and Stop deliberately don't. */
-export const STEP_UP_ACTIONS = Object.freeze(["approve", "keep", "resume", "attest", "seat", "register-passkey", "publish-live", "publishing-policy", "manage-users", "connect-x", "recovery-codes"]);
+export const STEP_UP_ACTIONS = Object.freeze(["hold-release", "replace-held", "approve", "keep", "resume", "attest", "seat", "register-passkey", "publish-live", "publishing-policy", "manage-users", "connect-x", "recovery-codes"]);
 export const ROLES = Object.freeze(["viewer", "drafter", "approver", "publisher", "admin"]);
 export const INVITE_TTL_MS = 72 * 3600_000;
 
@@ -100,7 +102,7 @@ export function createAuth({ db, clock, rpID, rpName = "GameTimePicks CEO Comman
     return i;
   }
 
-  async function newChallenge(purpose, challenge, binding = null) {
+  async function newChallenge(purpose, challenge, binding = null, ttlMs = CHALLENGE_TTL_MS) {
     // The login options endpoint is reachable before sign-in. Expired challenges are deleted, and past the cap the
     // oldest are evicted — so spam can't fill the database, and can't lock the founder out either.
     const hourAgo = new Date(Date.parse(clock()) - 3600_000).toISOString();
@@ -110,7 +112,7 @@ export function createAuth({ db, clock, rpID, rpName = "GameTimePicks CEO Comman
       [purpose, MAX_OPEN_CHALLENGES - 1],
     );
     const id = randomToken();
-    await db.query("INSERT INTO auth_challenges (id, purpose, challenge, binding, expires_at) VALUES ($1, $2, $3, $4, $5)", [id, purpose, challenge, binding, later(clock(), CHALLENGE_TTL_MS)]);
+    await db.query("INSERT INTO auth_challenges (id, purpose, challenge, binding, expires_at) VALUES ($1, $2, $3, $4, $5)", [id, purpose, challenge, binding, later(clock(), ttlMs)]);
     return id;
   }
 
@@ -252,11 +254,11 @@ export function createAuth({ db, clock, rpID, rpName = "GameTimePicks CEO Comman
   }
 
   // ── login ──────────────────────────────────────────────────────────────────────────────────────────────────
-  async function assertionOptions(purpose, binding = null, userId = null) {
+  async function assertionOptions(purpose, binding = null, userId = null, ttlMs = CHALLENGE_TTL_MS) {
     const keys = await passkeys(userId);
     if (!keys.length) return { ok: false, code: "NO_PASSKEY" };
     const options = await webauthn.generateAuthenticationOptions({ rpID, allowCredentials: keys.map((p) => ({ id: p.id, transports: p.transports })), userVerification: "required" });
-    const challengeId = await newChallenge(purpose, options.challenge, binding);
+    const challengeId = await newChallenge(purpose, options.challenge, binding, ttlMs);
     return { ok: true, options, challengeId };
   }
 
@@ -298,7 +300,8 @@ export function createAuth({ db, clock, rpID, rpName = "GameTimePicks CEO Comman
     if (!STEP_UP_ACTIONS.includes(action)) return { ok: false, code: "NO_STEP_UP_FOR_ACTION" };
     const s = await session(sessionToken);
     if (!s || s.scope !== "full") return { ok: false, code: "NOT_AUTHENTICATED" };
-    return assertionOptions("stepup", stepUpBinding(s.hash, action, payload), s.user.id);
+    if (HIGH_RISK_STEP_UP.actions.includes(action) && (s.user.id !== "founder" || !payload?.decisionId || !payload?.contentSha)) return { ok: false, code: "NOT_FOUNDER_OR_UNBOUND" };
+    return assertionOptions("stepup", stepUpBinding(s.hash, action, payload), s.user.id, HIGH_RISK_STEP_UP.actions.includes(action) ? HIGH_RISK_STEP_UP.ttlMs : CHALLENGE_TTL_MS);
   }
 
   /** The assertion must answer a challenge issued for THIS session, THIS action and THIS exact payload. */

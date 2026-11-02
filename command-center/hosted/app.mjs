@@ -70,7 +70,7 @@ export function clientKeyOf(request) {
 /** Publishing controls → the permission each needs. Pausing is open to approvers (stopping is always safe). */
 const PUBLISHING_PERMISSION = Object.freeze({
   pause: "approve", ack: "approve",
-  resume: "publish", schedule: "publish", cancel: "publish", "dry-run-now": "publish", "live-test": "publish", reconcile: "publish",
+  resume: "publish", schedule: "publish", cancel: "publish", "dry-run-now": "publish", "live-test": "publish", reconcile: "publish", hold: "publish", "replace-held": "publish",
   policy: "administer", "x-connect": "administer", "x-disconnect": "administer", "publisher-host": "administer", "queue-prep": "administer",
 });
 /** The permission a request needs. Unknown paths and actions need "administer" (fail closed). */
@@ -94,6 +94,8 @@ export function stepUpActionFor(pathname, body) {
   if (pathname === "/api/design") return "approve";
   if (pathname === "/api/seat") return "seat";
   if (pathname === "/api/publishing") {
+    if (body.action === "hold") return body.held === true ? null : "hold-release";
+    if (body.action === "replace-held") return "replace-held";
     if (["live-test", "schedule", "reconcile"].includes(body.action)) return "publish-live";
     if (body.action === "policy") return body.mode === "dry-run" ? null : "publishing-policy";
     if (body.action === "x-connect") return "connect-x";
@@ -310,6 +312,13 @@ export function createHostedApp({ db, clock, origin, rpID, setupTokenSha256, dis
       case "resume": return turn((o) => o.publishing.setPaused(false, actor));
       case "schedule": return turn((o) => o.publishing.schedule({ decisionId: body.decisionId, at: body.at ?? null }, actor));
       case "cancel": return turn((o) => o.publishing.cancel({ jobId: body.jobId }, actor));
+      case "hold":
+      case "replace-held": return turn((o) => {
+        if (body.action === "hold" && body.held === true) return o.publishing.setHold({ decisionId: body.decisionId, held: true, reason: body.reason }, actor);
+        // the step-up was for this exact version: anything else is a different decision
+        if (o.publishing.postOf(body.decisionId)?.package?.contentKey !== body.contentSha) return { ok: false, code: "CONTENT_CHANGED", detail: "this post changed: confirm again" };
+        return body.action === "hold" ? o.publishing.setHold({ decisionId: body.decisionId, held: false }, actor) : o.replaceHeldVersion({ decisionId: body.decisionId }, actor);
+      });
       case "ack": return turn((o) => o.publishing.acknowledge({ alertId: body.alertId }, actor));
       case "policy": return turn((o) => o.publishing.setPolicy({ mode: body.mode, capUsd: body.capUsd, authorization: body.authorization }, actor));
       case "publisher-host": return turn((o) => o.publishing.setPublisherHost({ to: body.to, confirmation: body.confirmation }, actor));

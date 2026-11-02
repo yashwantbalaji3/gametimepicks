@@ -11,12 +11,12 @@ or thrown error is a refusal.
 
 ## Local (built)
 
-A native macOS dialog through `confirmOnMac`. Anything but the action button is a no, including the 12-second timeout.
+A native macOS dialog through `confirmOnMac`. Anything but the action button is a no, including the 120-second timeout.
 The dialog names the post and the version.
 
-## Hosted (contract only, not built)
+## Hosted (built on the branch, not deployed)
 
-Hosted has no hold or replace-held action today. When added, it must meet all of these:
+Hosted hold and replace-held are in `hosted/app.mjs`. Hosted replace refuses when the Launch Readiness file is absent. They meet these:
 
 1. A passkey (WebAuthn) step-up for this one action, with user verification required.
 2. The server issues the challenge. It binds `action`, `decisionId`, `contentSha`, the signed-in founder and the session.

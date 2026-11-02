@@ -24,7 +24,15 @@ test("the console has no opt-out and asks before both actions", () => {
   assert.ok(s.indexOf('confirmAction("replace-held"') < s.indexOf("orchestrator.replaceHeldVersion("));
 });
 
-for (const name of ["hosted step-up needs a verified passkey assertion", "hosted challenge is bound to action, decision, content and founder", "hosted challenge is single use", "hosted challenge expires within 2 minutes", "hosted refuses when the content changed", "hosted records every attempt"]) test.todo(name);
+test("hosted: release and replace need a step-up; plain hold doesn't; the high-risk window is 2 minutes", async () => {
+  const { stepUpActionFor } = await import("../hosted/app.mjs");
+  const { HIGH_RISK_STEP_UP } = await import("../auth/auth-service.mjs");
+  assert.equal(stepUpActionFor("/api/publishing", { action: "hold", held: false }), "hold-release");
+  assert.equal(stepUpActionFor("/api/publishing", { action: "hold", held: true }), null);
+  assert.equal(stepUpActionFor("/api/publishing", { action: "replace-held" }), "replace-held");
+  assert.equal(HIGH_RISK_STEP_UP.ttlMs, 120_000);
+});
+for (const name of ["hosted challenge end to end against a real passkey", "hosted refuses when the content changed, through the HTTP route"]) test.todo(name);
 
 test("monitor: in-flight is no outcome, the real outcome reports once", () => {
   const seen = new Map();

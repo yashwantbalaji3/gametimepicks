@@ -59,7 +59,7 @@ const nflAnytimeTd = {
 };
 export const ADAPTERS = Object.freeze([nbaWinner, nflAnytimeTd]);
 
-export function createResultsAutomation({ store, clock, posts, dataSource, oauth = null, fetch: fetchFn, spentThisMonth = () => 0, capUsd = () => 0, isPaused = () => false, mode = () => "dry-run" }) {
+export function createResultsAutomation({ store, clock, posts, dataSource, oauth = null, fetch: fetchFn, spentThisMonth = () => 0, capUsd = () => 0, isPaused = () => false, mode = () => "dry-run", activeHere = () => true }) {
   const of = (k) => store.list().filter((e) => e.kind === k).map((e) => ({ ...e.data, at: e.at }));
   const config = () => { const c = of("results-automation-config").at(-1)?.config; return { ...DEFAULT_CONFIG, ...c, sports: { ...DEFAULT_CONFIG.sports, ...c?.sports }, markets: { ...DEFAULT_CONFIG.markets, ...c?.markets } }; };
   const authorized = () => of("results-automation-authorization").at(-1) ?? null;
@@ -127,6 +127,7 @@ export function createResultsAutomation({ store, clock, posts, dataSource, oauth
     return null;
   }
   async function sendDue() {
+    if (!activeHere()) return [];
     const c = config();
     const queue = [...latest().values()].filter((o) => o.sendState === "PREPARED" || o.sendState === "RETRY");
     const sends = of("result-send").filter((s) => s.state === "SENT");

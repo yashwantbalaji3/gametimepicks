@@ -200,5 +200,5 @@ Between steps 2 and 3, *neither* side sends. A due post can be missed for that w
 1. **X app:** add the callback `https://team.gametimepicks.yashwantbalaji.com/oauth/x/callback` (keep the local one). Set `GTP_CC_X_CLIENT_ID` (Vercel + GitHub variable) and `GTP_CC_X_HANDLE` (GitHub variable). Then **Connect X account** on the hosted site (Face ID). This doesn't post.
 2. **Actions dry runs:** one `cc-worker.yml` queue build and one `cc-publisher.yml` dry run (B3), with the publisher still unset on Vercel.
 3. **Daily generation:** today a founder command builds the day's queue. A daily cron trigger for the queue build is not implemented yet.
-4. **Cutover:** run a final `--to-hosted` sync, hand off on the Mac (exact words + macOS dialog), and sync again. Set `GH_PUBLISHER_WORKFLOW=cc-publisher.yml` on Vercel (one deploy). Watch the next post go out once.
+4. **Cutover:** follow §5 exactly; it is the one authority for the order. `GH_PUBLISHER_WORKFLOW=cc-publisher.yml` is set in §5 step 1, before the hand-off, and the hosted publisher stays inert until it holds the hand-off.
 5. **Rollback:** §6.

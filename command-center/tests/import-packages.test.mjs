@@ -885,3 +885,16 @@ test("the gate check reports holds and exceptions instead of READY", async () =>
   E.o.importPackages({}, FOUNDER);
   assert.equal(E.o.preflight()[0].status, "REQUIRES_FOUNDER_REVIEW");
 });
+
+test("hosted: a missing source file is not a block, but a held newer version is; results send only from the active host", async () => {
+  const { H, p } = await liveStale();
+  const { store, dir, root } = H;
+  const C = createOrchestrator({ store, clock: () => NOW, outDir: dir, hosted: true, calendarDataSource: { ...src({ [LANE_REF]: LANE_RAW }) }, env: { GTP_CC_IMPORT_ROOT: root }, publishing: {} });
+  const row = () => C.preflight().find((x) => x.title === p.package.title);
+  fs.rmSync(path.join(root, "packages/a.json"));
+  assert.equal(H.o.preflight().find((x) => x.title === p.package.title).status, "BLOCKED", "local needs the file");
+  assert.ok(!row().reasons.some((r) => /source package/.test(r)), JSON.stringify(row()));
+  store.append("post-held-version", "t", { decisionId: p.decisionId, postId: p.package.postId, heldContentSha: "new", heldFile: "x" });
+  assert.ok(row().reasons.some((r) => /newer version/.test(r)));
+  assert.deepEqual(await C.resultsAutomation.sendDue(), []);
+});

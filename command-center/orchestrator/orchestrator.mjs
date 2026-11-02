@@ -55,6 +55,7 @@ const etDay = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New
  *   engineering-flow.mjs; tests point it at a throwaway repo and a fake `claude`.
  */
 export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROOT, outDir, stepDelayMs = 0, publisher, slateDate, engineering = {}, execution = "inline", runnerId = "local", providerFetch = globalThis.fetch, providerSleep, hosted = false, calendarDataSource = null, queueRender = true, queueTemplate = "v2.1", publishing: publishingOpts = {} }) {
+  if (hosted) env = { ...env, GTP_CC_HOSTED: "1" };
   if (!["inline", "jobs"].includes(execution)) throw new Error(`unknown execution mode ${execution}`);
   const pub = publisher ?? createMockPublisher({ clock });
   const mediaDir = path.join(outDir, "media");
@@ -599,7 +600,7 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   }
 
   const resultsAutomation = createResultsAutomation({ store, clock, posts: () => team.posts(), dataSource: () => team.dataSource(), oauth: publishingOpts.oauth ?? null, fetch: publishingOpts.fetch ?? providerFetch,
-    capUsd: () => publishing.policy().capUsd ?? 0, mode: () => publishing.policy().mode, isPaused: () => isPaused(),
+    activeHere: () => publishing.isActiveHost(), capUsd: () => publishing.policy().capUsd ?? 0, mode: () => publishing.policy().mode, isPaused: () => isPaused(),
     spentThisMonth: () => { const m = clock().slice(0, 7); return store.list().filter((e) => e.at.slice(0, 7) === m && (e.kind === "publish-spend" || (e.kind === "publish-result" && e.data.live))).reduce((n, e) => n + (e.data.costUsd ?? 0), 0); } });
 
   /** Founder: bring Launch Readiness packages into review. Nothing is approved, scheduled or sent. */
