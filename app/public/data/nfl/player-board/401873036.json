@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-02T19:29:37Z",
- "sourceGeneratedAt": "2026-11-02T19:29:37Z",
+ "generatedAt": "2026-11-02T22:52:27Z",
+ "sourceGeneratedAt": "2026-11-02T22:52:27Z",
  "forecastInputHash": "9431c644102c9bd0",
  "providerEventId": "401873036",
  "matchup": "CHI @ SEA",
@@ -12,8 +12,8 @@
  "week": 8,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-02T19:29:37Z",
-  "roleEvidenceAt": "2026-11-02T19:29:37Z",
+  "injuriesCapturedAt": "2026-11-02T22:52:27Z",
+  "roleEvidenceAt": "2026-11-02T22:52:27Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -93,7 +93,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 47,
+  "absent": 51,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -238,8 +238,8 @@
   },
   "SEA": {
    "counts": {
-    "PROJECTED": 8,
-    "EXCLUDED_UNAVAILABLE": 3,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 1,
@@ -265,6 +265,18 @@
       "anytime_td",
       "player_reception_yds",
       "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4685512",
+     "name": "Jadarian Price",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
@@ -333,12 +345,6 @@
       "player_pass_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4685512",
-     "name": "Jadarian Price",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Injured Reserve"
     },
     {
      "playerId": "nfl-athlete-4032473",
@@ -447,6 +453,19 @@
    },
    {
     "team": "SEA",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.937,
+    "originalSum": 0.937,
+    "residualOther": 0.063,
+    "joined": 8,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "SEA",
     "pool": "passAttempts",
     "markets": [
      "player_pass_yds"
@@ -455,19 +474,6 @@
     "originalSum": 0.9137,
     "residualOther": 0.0863,
     "joined": 1,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "SEA",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.8623,
-    "originalSum": 0.8623,
-    "residualOther": 0.1377,
-    "joined": 7,
     "missed": 0,
     "state": "CONSERVED"
    },
@@ -613,6 +619,45 @@
     },
     "anytime_td": {
      "probability": 0.3835,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4685512",
+   "name": "Jadarian Price",
+   "team": "SEA",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 23.982,
+     "p10": 1.94,
+     "p25": 7.86,
+     "median": 18.88,
+     "p75": 34.33,
+     "p90": 52.27,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_reception_yds": {
+     "mean": 12.374,
+     "p10": 0,
+     "p25": 0,
+     "median": 6.38,
+     "p75": 18.92,
+     "p90": 35.03,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 1.5432,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.2996,
      "pricingState": "NOT_PROBED"
     }
    }
