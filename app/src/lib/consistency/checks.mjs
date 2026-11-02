@@ -71,13 +71,16 @@ export function projectionMismatches({ snapshot, surface, sources = [], pairs, s
   for (const items of groups.values()) {
     items.sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff) || String(a.subjectId).localeCompare(String(b.subjectId)));
     const top = items[0];
-    out.push(discrepancy({
+    const record = discrepancy({
       code: CODES.PROJECTION_MISMATCH, severity, snapshot, surface, sources,
       identity: { subjectId: top.groupSubject ?? (items.length === 1 ? top.subjectId : "*"), family: top.family ?? null, field: top.field ?? null },
       expected: top.expected, actual: top.actual, count: items.length,
       examples: items.slice(0, 3).map((i) => ({ subjectId: i.subjectId, label: i.label ?? null, expected: i.expected, actual: i.actual, diff: i.diff })),
       correction, owner, detail,
-    }));
+    });
+    // Every item, for the row-by-row report (audit-official-across-surfaces.mjs). Non-enumerable: not in JSON or the baseline.
+    Object.defineProperty(record, "allItems", { value: items.map((i) => ({ subjectId: i.subjectId, label: i.label ?? null, family: i.family ?? null, field: i.field ?? null, expected: i.expected, actual: i.actual, diff: i.diff })) });
+    out.push(record);
   }
   return out;
 }
