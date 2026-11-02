@@ -24,7 +24,7 @@ export const SOCIAL_HANDLE = "@GameTimePicksHQ";
 export const GAME_POST_DESIGN_VERSION = "3";
 export const NFL_GAME_POST_DESIGN_VERSION = "4";
 /** Every card's footer: the handle line, then `lines` in order. Restoring a line is one more string here. */
-export const CARD_FOOTER = Object.freeze({ handle: SOCIAL_HANDLE, lines: Object.freeze(["Model projections · Not betting advice"]) });
+export const CARD_FOOTER = Object.freeze({ handle: SOCIAL_HANDLE, lines: Object.freeze([process.env.GTP_NBA_UNIFIED_ROSTER ? "Model projections" : "Model projections · Not betting advice"]) });
 export const DISCLOSURE = CARD_FOOTER.lines[0];
 export const NFL_DISCLOSURE = DISCLOSURE;
 export const PER_TEAM = 6;
@@ -181,7 +181,11 @@ function statCell(cells, key, text, line, real) {
 }
 
 /** Reference 2, all players over Part 1/2. `players`: { id, name, pts, reb, ast, lines? } per side. */
-export function statPages({ away, home, chip, awayPlayers, homePlayers, real = false }) {
+export function statPages({ away, home, chip, awayPlayers: allAway, homePlayers: allHome, real = false }) {
+  // Unified one-image layout: verified starters plus a sixth man per team, order from the roster file.
+  const unified = process.env.GTP_NBA_UNIFIED_ROSTER ? JSON.parse(fs.readFileSync(process.env.GTP_NBA_UNIFIED_ROSTER, "utf8")) : null;
+  const pick = (t, ps) => (unified ? (unified[t.abbr] ?? []).map((id) => ps.find((p) => String(p.id) === String(id))).filter(Boolean) : ps);
+  const awayPlayers = pick(away, allAway); const homePlayers = pick(home, allHome);
   const pages = Math.max(1, Math.ceil(Math.max(awayPlayers.length, homePlayers.length) / PER_TEAM));
   return Array.from({ length: pages }, (_, i) => {
     const cells = {};
