@@ -4,19 +4,81 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-11-02",
- "generatedAt": "2026-11-02T01:21:00Z",
+ "generatedAt": "2026-11-02T19:29:37Z",
  "modelVersion": "nfl-regular-season-public-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
- "events": [],
- "pending": [
+ "events": [
   {
    "canonicalEventId": "nfl-401873035",
+   "providerEventId": "401873035",
    "matchup": "PHI @ WSH",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-11-02T01:20Z",
-   "observed": "no result row"
-  },
+   "seasonType": 2,
+   "week": 8,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-11-02/401873035.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "46f7d13b4c3904f9",
+    "forecastGeneratedAt": "2026-11-02T00:05:54Z",
+    "revisionChain": [
+     {
+      "file": "401873035.json",
+      "generatedAt": "2026-11-02T00:05:54Z",
+      "inputHash": "46f7d13b4c3904f9"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_scoreboard",
+    "resultObservedAt": "2026-11-02T19:26:18Z",
+    "settledAt": "2026-11-02T19:29:37Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 27,
+     "away": 10,
+     "margin": 17,
+     "total": 37,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "HOME",
+     "modelFavoured": "AWAY",
+     "correct": false,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": -1,
+     "actual": 17,
+     "absError": 18,
+     "insideInterval80": false
+    },
+    "total": {
+     "projected": 46,
+     "actual": 37,
+     "absError": 9,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 22,
+      "away": 24,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 19
+    },
+    "probabilistic": {
+     "brier": 0.286867,
+     "logLoss": 0.767009
+    }
+   },
+   "marketBenchmark": null
+  }
+ ],
+ "pending": [
   {
    "canonicalEventId": "nfl-401873036",
    "matchup": "CHI @ SEA",
@@ -28,24 +90,24 @@
  "recordElsewhere": [],
  "accounting": {
   "receipts": 2,
-  "settled": 0,
-  "pending": 2,
+  "settled": 1,
+  "pending": 1,
   "quarantined": 0,
   "recordElsewhere": 0,
   "reconciles": true
  },
  "metrics": {
-  "settledForecasts": 0,
-  "decisive": 0,
+  "settledForecasts": 1,
+  "decisive": 1,
   "ties": 0,
   "winnerCorrect": 0,
-  "winnerAccuracy": null,
-  "marginMAE": null,
-  "totalMAE": null,
-  "marginInterval80Coverage": null,
-  "totalInterval80Coverage": null,
-  "brier": null,
-  "logLoss": null
+  "winnerAccuracy": 0,
+  "marginMAE": 18,
+  "totalMAE": 9,
+  "marginInterval80Coverage": 0,
+  "totalInterval80Coverage": 1,
+  "brier": 0.2869,
+  "logLoss": 0.767
  },
  "marketBenchmark": null,
  "comparison": null
