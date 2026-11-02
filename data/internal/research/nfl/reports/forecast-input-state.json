@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-11-01T23:46:11Z",
+  "generatedAt": "2026-11-02T00:05:54Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
@@ -23,15 +23,25 @@
         "version": 2,
         "inputHash": "46f7d13b4c3904f9",
         "simulations": 10000,
-        "generatedAt": "2026-11-01T23:36:21Z"
+        "generatedAt": "2026-11-02T00:05:54Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-01T23:46:11Z",
-        "participationInputHash": "2b7726f287eb37b7",
-        "excludedCount": 7,
+        "snapshotAsOf": "2026-11-02T00:05:54Z",
+        "participationInputHash": "0576c4a2a7ab7057",
+        "excludedCount": 8,
         "materialExclusions": [
+          {
+            "name": "Athan Kaliakmanis",
+            "team": "WSH",
+            "state": "Out",
+            "statedAt": "2026-11-01T23:53Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
           {
             "name": "Jalen Hurts",
             "team": "PHI",
@@ -44,6 +54,15 @@
           }
         ],
         "excluded": [
+          {
+            "name": "Athan Kaliakmanis",
+            "team": "WSH",
+            "state": "Out",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
           {
             "name": "Jacory Croskey-Merritt",
             "team": "WSH",
@@ -117,13 +136,13 @@
         "version": 2,
         "inputHash": "319a691b988f1f47",
         "simulations": 10000,
-        "generatedAt": "2026-11-01T23:36:21Z"
+        "generatedAt": "2026-11-02T00:05:54Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-01T23:46:11Z",
-        "participationInputHash": "3e223702d5e60416",
+        "snapshotAsOf": "2026-11-02T00:05:54Z",
+        "participationInputHash": "ea7381425532dfc6",
         "excludedCount": 6,
         "materialExclusions": [],
         "excluded": [
