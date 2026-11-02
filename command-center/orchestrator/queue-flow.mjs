@@ -769,5 +769,5 @@ export function createQueueFlow(ctx) {
     });
   }
 
-  return { build, consolidate, decidePost, editCaption, recordPost, posts, approvedCalendar, publishBundleOf, approveDesign, design, recheck, designApproval, inventory: () => queueInventory(posts()), importPackages: imports.importPackages, lastImport: imports.lastRun, revisionStatus: imports.revisionStatus, marketRights };
+  return { build, consolidate, decidePost, editCaption, recordPost, posts, approvedCalendar, publishBundleOf, approveDesign, design, recheck, designApproval, inventory: () => queueInventory(posts()), importPackages: imports.importPackages, checkImportable: imports.checkImportable, lastImport: imports.lastRun, revisionStatus: imports.revisionStatus, marketRights };
 }

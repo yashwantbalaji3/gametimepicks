@@ -472,7 +472,7 @@ export function createTeamFlow(ctx) {
   };
   return {
     advance, onPasted, decideProposal, steps: (intent) => TEAM_WORKFLOWS[intent],
-    importPackages: queue.importPackages, lastImport: queue.lastImport, revisionStatus: queue.revisionStatus, marketRights: queue.marketRights, decidePost: queue.decidePost, editCaption: queue.editCaption, recordPost: queue.recordPost, posts: queue.posts, dataSource: () => dataSource(),
+    importPackages: queue.importPackages, checkImportable: queue.checkImportable, lastImport: queue.lastImport, revisionStatus: queue.revisionStatus, marketRights: queue.marketRights, decidePost: queue.decidePost, editCaption: queue.editCaption, recordPost: queue.recordPost, posts: queue.posts, dataSource: () => dataSource(),
     approveDesign: queue.approveDesign, design: queue.design, inventory: queue.inventory,
     recheck: queue.recheck, designApproval: queue.designApproval,
   };

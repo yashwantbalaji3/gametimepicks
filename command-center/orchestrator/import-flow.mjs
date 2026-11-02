@@ -138,6 +138,18 @@ export function createImportFlow(ctx) {
   }
 
   /** One package. @returns a report row; a refusal has touched nothing. */
+  /** Would this held file import? Reads and validates; records no post. */
+  function checkImportable(file, sha) {
+    try {
+      const p = JSON.parse(fs.readFileSync(file, "utf8"));
+      if (p.contentSha256 !== sha) return { ok: false, detail: "the held file has changed: import again first" };
+      const bad = validatePackage(p);
+      if (bad.length) return { ok: false, detail: bad.join("; ").slice(0, 300) };
+      toPost(p, { root: rootOf(), sourceFile: file });
+      return { ok: true };
+    } catch (err) { return { ok: false, detail: String(err.message ?? err).slice(0, 300) }; }
+  }
+
   function importOne(p, { root, sourceFile, runId }) {
     const id = { dedupeId: p?.dedupeId ?? path.basename(sourceFile), contentType: p?.contentType ?? null };
     const bad = validatePackage(p);
@@ -270,5 +282,5 @@ export function createImportFlow(ctx) {
   }
 
   const lastRun = () => store.list().filter((e) => e.kind === "import-run").at(-1)?.data ?? null;
-  return { importPackages, recheck, lastRun, writeApprovals, writeRevisions, revisionStatus };
+  return { checkImportable, importPackages, recheck, lastRun, writeApprovals, writeRevisions, revisionStatus };
 }

@@ -637,3 +637,18 @@ test("restoring the approved file clears the stale notice", async () => {
   assert.equal(H.o.state().posts.find((q) => q.decisionId === p.decisionId).approvedStale, null);
   assert.equal(H.o.replaceHeldVersion({ decisionId: p.decisionId }, FOUNDER).code, "NOTHING_HELD");
 });
+
+test("a newer version that would not import leaves the approval unchanged and shows why", async () => {
+  const { H, p } = await staleRig();
+  const f = path.join(H.root, "packages", "a.json");
+  const d = JSON.parse(fs.readFileSync(f, "utf8"));
+  fs.writeFileSync("/tmp/gtp-outside.png", "x");
+  d.images[0].path = "/tmp/gtp-outside.png";
+  fs.writeFileSync(f, JSON.stringify(d));
+  const r = H.o.replaceHeldVersion({ decisionId: p.decisionId }, FOUNDER);
+  assert.equal(r.code, "NEWER_VERSION_REFUSED");
+  const q = H.o.state().posts.find((x) => x.decisionId === p.decisionId);
+  assert.equal(q.lifecycle, "approved");
+  assert.ok(q.approvedStale.replaceRefused);
+  assert.equal(H.xcalls.length, 0);
+});

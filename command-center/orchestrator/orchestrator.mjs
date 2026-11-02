@@ -685,6 +685,14 @@ export function createOrchestrator({ store, clock, env = {}, repoRoot = REPO_ROO
   // ── read model ──────────────────────────────────────────────────────────────────────────────────────────────
   /** The gate's own re-check for every open imported post: records nothing, sends nothing. */
   function replaceHeldVersion(body, actor) {
+    const held = team.posts().find((p) => p.decisionId === body.decisionId)?.approvedStale;
+    if (held) {
+      const check = team.checkImportable(held.heldFile, held.heldContentSha);
+      if (!check.ok) {
+        store.append("post-held-version", actor.id ?? "founder", { ...held, replaceRefused: check.detail, recordedAt: clock() });
+        return { ok: false, code: "NEWER_VERSION_REFUSED", detail: check.detail };
+      }
+    }
     const r = publishing.replaceApproved(body, actor);
     return r.ok ? { ...r, imported: team.importPackages({}, actor).counts ?? null } : r;
   }
