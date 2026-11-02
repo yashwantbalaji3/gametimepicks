@@ -258,7 +258,7 @@ export function labEligibility(root, date, now) {
      */
     if (!prices.at) {
       reasons.push(prices.everCaptured
-        ? `no price capture for ${date} yet — the sport's own generation runs later in the day (newest capture ${prices.newestDate ?? "unknown"})`
+        ? `no price capture for ${date} (newest capture ${prices.newestDate ?? "unknown"})`
         : "no odds capture is ingested for this sport");
     }
     /*
