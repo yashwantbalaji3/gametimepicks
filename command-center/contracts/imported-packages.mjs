@@ -111,6 +111,7 @@ export function blockersOf(p, { now, rights = null }) {
   if (p.sport === "NFL" && !["SHOW", "SHOW_WITH_ESTIMATE_LABEL"].includes(p.displayStatus) && (UNCLEARED_NFL.test(String(p.variant ?? "")) || (p.contentType === "NFL_WEEKLY_TOP5" && p.eligibilityClass === "ESTIMATE"))) add(BLOCK.BELOW_BAR, "An uncleared estimate (below the publication bar): it stays off social until independently cleared.");
   if (p.verification?.passed !== true) add(BLOCK.VERIFICATION, "Launch Readiness verification did not pass.");
   if (p.testData === true) add(BLOCK.TEST_DATA, "Test data: never publishable.");
+  if (p.contentType !== "RESULTS_RECAP" && eventStarted({ firstStartUtc: p.commandCenter?.firstStartUtc }, now)) add(BLOCK.EXPIRED, "The event has started.");
   const closes = p.window?.closesAt ?? p.expiresAt;
   if (Number.isFinite(Date.parse(closes ?? "")) && Date.parse(now) >= Date.parse(closes)) add(BLOCK.EXPIRED, `The publishing window closed at ${closes}.`);
   return out;
@@ -185,6 +186,8 @@ const canon = (v) => Array.isArray(v) ? v.map(canon) : v && typeof v === "object
 export function sameClaims(a, b) {
   try { return JSON.stringify(canon(JSON.parse(a))) === JSON.stringify(canon(JSON.parse(b))); } catch { return false; }
 }
+/** The event this post previews has begun: from here it can never become publishable, on any path. */
+export const eventStarted = (pkg, now) => { const t = Date.parse(pkg?.tipUtc ?? pkg?.kickoffUtc ?? pkg?.verification?.kickoffUtc ?? pkg?.firstKickoffUtc ?? pkg?.firstStartUtc ?? ""); return Number.isFinite(t) && Date.parse(now) >= t; };
 export const pinnedRef = (ref) => !/(^|\/)(frozen-)?latest\.json$/.test(ref);
 /** A file in the public repo. Other references (private receipts, export ids) can't be checked here and are kept as provenance. */
 export const repoRef = (ref) => /^(app|data)\//.test(String(ref));

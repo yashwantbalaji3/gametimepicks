@@ -35,7 +35,7 @@ import {
   baseIdOf, nflPregamePackage, nflTouchdownsPackage, nflTop5Package, nflPostgamePackage, nbaPregamePackage, nbaPlayersPackage, nbaFinalPackage, nbaGamePackage,
 } from "../contracts/social-packages.mjs";
 import { isTop5 } from "../contracts/top5-packages.mjs";
-import { IMPORT_DESIGNS, isImported, checkImportedCaption } from "../contracts/imported-packages.mjs";
+import { IMPORT_DESIGNS, isImported, checkImportedCaption, eventStarted } from "../contracts/imported-packages.mjs";
 import { createImportFlow } from "./import-flow.mjs";
 import { buildTop5, recheckTop5 } from "./top5-flow.mjs";
 import { validateCaption } from "../recap/caption-validator.mjs";
@@ -628,6 +628,7 @@ export function createQueueFlow(ctx) {
       }
       const again = recheck(pkg);
       if (again && again.status !== POST_STATUS.READY) return { ok: false, code: "VERIFICATION_CHANGED", detail: `re-checked just now: ${again.status} — ${again.reasons.join("; ")}. Rebuild the queue.` };
+      if (isImported(pkg) && pkg.kind !== "lr-results-recap" && eventStarted(pkg, clock())) return { ok: false, code: "EVENT_STARTED", detail: "the event has started: this post can't be approved" };
       approval = {
         captionId, approvedExactDigest: option.digest, captionSha256: option.publishBundle.captionSha256,
         ...(pkg.template ? { template: pkg.template, assetManifest: pkg.assetManifest } : {}),

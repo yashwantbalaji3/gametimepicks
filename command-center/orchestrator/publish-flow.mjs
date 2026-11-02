@@ -28,7 +28,7 @@ import path from "node:path";
 import { digestOf, shortId } from "../lib/util.mjs";
 import { publishBundleOf, parseXPostUrl } from "../contracts/post-queue.mjs";
 import { baseIdOf } from "../contracts/social-packages.mjs";
-import { IMPORT_SENDABLE, isImported, isReviewCopy } from "../contracts/imported-packages.mjs";
+import { IMPORT_SENDABLE, isImported, isReviewCopy, eventStarted } from "../contracts/imported-packages.mjs";
 import { createXPublisher, XPublishError, MAX_IMAGES } from "../publishers/x-api.mjs";
 import { checkFounder, SCHEDULER_ACTOR, DAILY_QUEUE_COMMAND } from "./policy.mjs";
 
@@ -191,6 +191,7 @@ export function createPublishFlow(ctx) {
     if (actor?.role !== "founder") return { ok: false, code: "NOT_FOUNDER", detail: "only the founder can do this" };
     const rec = recordOf(decisionId);
     if (!rec) return { ok: false, code: "UNKNOWN_POST", detail: decisionId };
+    if (held !== true && eventStarted(rec.package, clock())) return { ok: false, code: "EVENT_STARTED", detail: "the event has started: there is nothing to release" };
     store.append("founder-hold", actor.id ?? "founder", { decisionId, postId: rec.postId, baseId: baseIdOf(rec.postId), dedupeId: rec.package.imported?.dedupeId ?? null, held: held === true, reason: String(reason).slice(0, 300), recordedAt: clock() });
     const fam = familyOf(rec.package);
     const inFlight = jobs().filter((j) => fam.has(j.baseId) && j.status === "unknown").map((j) => j.jobId);
@@ -202,6 +203,7 @@ export function createPublishFlow(ctx) {
     const rec = recordOf(decisionId);
     if (!rec) return { ok: false, code: "UNKNOWN_POST", detail: decisionId };
     if (rec.receipt || rec.lifecycle !== "approved") return { ok: false, code: "NOT_REPLACEABLE", detail: rec.lifecycle };
+    if (eventStarted(rec.package, clock())) return { ok: false, code: "EVENT_STARTED", detail: "the event has started: this post can't be replaced" };
     if (!rec.approvedStale) return { ok: false, code: "NOTHING_HELD", detail: "no newer version is held for this post" };
     const fam = familyOf(rec.package);
     const open = jobs().find((j) => fam.has(j.baseId) && ["scheduled", "running", "unknown"].includes(j.status));
@@ -223,6 +225,7 @@ export function createPublishFlow(ctx) {
     if (isReviewCopy(pkg)) return { ok: false, code: "REVIEW_COPY", detail: "this image carries the review banner: Launch Readiness must deliver the clean export first" };
     if (rec.resolution?.verdict !== "approve" || rec.invalidated) return { ok: false, code: "NOT_APPROVED", detail: "only an approved, current post can be scheduled" };
     if (rec.receipt) return { ok: false, code: "ALREADY_PUBLISHED", detail: rec.receipt.canonicalUrl };
+    if (eventStarted(pkg, clock())) return { ok: false, code: "EVENT_STARTED", detail: "the event has started: this post can't be scheduled" };
     const start = startOf(pkg);
     const due = at ? Date.parse(at) : Date.parse(pkg.suggestedPublishAt ?? "");
     if (!Number.isFinite(due)) return { ok: false, code: "BAD_TIME", detail: "give a publish time" };

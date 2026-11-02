@@ -795,3 +795,31 @@ test("a held post can't be recorded as scheduled or published by hand", async ()
   const r = H.o.recordPost({ decisionId: p.decisionId, action: "schedule", scheduledFor: "2026-10-30T21:30:00.000Z" }, FOUNDER);
   assert.equal(r.code, "FOUNDER_HOLD");
 });
+
+test("a started event can never become publishable: approve, schedule, hold release, replace or import", async () => {
+  const { H, p } = await liveStale();
+  write(H.root, "a", { ...CLEAN, contentVersion: 2 });
+  H.o.importPackages({}, FOUNDER);
+  H.o.publishing.setHold({ decisionId: p.decisionId, held: true }, FOUNDER);
+  H.setNow("2026-10-30T23:00:00.000Z");
+  assert.equal(H.o.publishing.setHold({ decisionId: p.decisionId, held: false }, FOUNDER).code, "EVENT_STARTED");
+  assert.equal(H.o.replaceHeldVersion({ decisionId: p.decisionId }, FOUNDER).code, "EVENT_STARTED");
+  assert.equal(H.o.publishing.schedule({ decisionId: p.decisionId, at: "2026-10-31T00:00:00.000Z" }, FOUNDER).code, "FOUNDER_HOLD");
+  const D = liveRig();
+  const pk = write(D.root, "b", CLEAN);
+  D.o.importPackages({}, FOUNDER);
+  const d = post(D);
+  design(D, d);
+  D.setNow("2026-10-30T23:00:00.000Z");
+  assert.equal((await approve(D, d)).ok, false);
+  const A = await liveStale();
+  A.H.setNow("2026-10-30T23:00:00.000Z");
+  assert.equal(A.H.o.publishing.schedule({ decisionId: A.p.decisionId, at: "2026-10-31T00:00:00.000Z" }, FOUNDER).code, "EVENT_STARTED");
+  const L = liveRig();
+  L.setNow("2026-10-30T23:00:00.000Z");
+  write(L.root, "c", { ...CLEAN, window: undefined });
+  L.o.importPackages({}, FOUNDER);
+  assert.equal(post(L).package.status, "BLOCKED");
+  assert.equal(pk.dedupeId.length > 0, true);
+  assert.equal(H.creates() + D.creates() + A.H.creates() + L.creates(), 0);
+});

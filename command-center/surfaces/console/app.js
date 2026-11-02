@@ -782,10 +782,10 @@
     const start = startOfPkg(p.package);
     if (p.receipt) return p.receipt.provider === "x-api" ? { key: "sent", label: "Sent", cls: "ok" } : { key: "sent", label: "Posted manually", cls: "ok" };
     if (sending(job)) return { key: "scheduled", label: "Sending…", cls: "info" };
+    if (start && Date.parse(start) <= Date.now() && p.package.imported && job?.status !== "unknown" && p.lifecycle !== "superseded" && !["rejected", "revise", "deferred", "invalidated"].includes(p.lifecycle)) return { key: "expired", label: "Expired · not sent", cls: "dim" };
     if (job && ["unknown", "refused", "failed_not_sent", "missed"].includes(job.status)) return { key: "problem", label: JOB_LABEL[job.status], cls: "bad" };
     if (p.lifecycle === "superseded") return { key: "other", label: "Superseded", cls: "dim" };
     if (["rejected", "revise", "deferred", "invalidated"].includes(p.lifecycle)) return { key: "other", label: LIFE_LABEL[p.lifecycle], cls: "dim" };
-    if (p.lifecycle === "approved" && start && Date.parse(start) <= Date.now()) return { key: "approved", label: "Approved · expired, not sent", cls: "warn" };
     if (start && Date.parse(start) <= Date.now() && PUB_SCHEDULABLE.has(p.package.kind)) return { key: "expired", label: "Expired · started", cls: "dim" };
     if (job?.status === "scheduled") return { key: "scheduled", label: `Scheduled ${etTime(job.dueAt)}`, cls: "info" };
     if (p.lifecycle === "approved" || p.lifecycle === "scheduled") return { key: "approved", label: job?.status === "dry_run" ? "Approved · dry run OK" : "Approved", cls: "info" };
@@ -972,6 +972,7 @@
     return `<div class="section">X post preview</div><div class="xprev"><div class="xprev-h"><b>GameTime Picks</b> <span class="muted">@GameTimePicksHQ</span></div><div class="xprev-t">${esc(cap)}</div>
       <div class="xprev-g n${Math.min(imgs.length, 4)}">${imgs.slice(0, 4).map((m, i) => `<img src="/media/${encodeURIComponent(m.file)}" alt="Image ${i + 1}" loading="lazy">`).join("")}</div><div class="muted">${num(imgs.length)} image(s) in one post</div></div>`;
   }
+  const eventHasStarted = (p) => { const t = Date.parse(startOfPkg(p.package) ?? ""); return Number.isFinite(t) && t <= Date.now(); };
   function reviewList(s) {
     const c = counts(s);
     const f = ui.filter;
@@ -1074,8 +1075,8 @@
       ${imgs.length ? `<div class="gallery" data-gallery="${esc(p.decisionId)}">${imgs.map((m, i) => `<figure><img src="/media/${encodeURIComponent(m.file)}" alt="${esc(m.altText ?? "")}" data-zoom data-index="${i}" loading="lazy"><figcaption>${imgs.length > 1 ? `${i + 1} of ${imgs.length}${pkg.kind === "nba-game" ? ` · ${i === 0 ? "Predicted winner" : "Projected stat lines"}` : ""}` : "Graphic"} · <a href="/media/${encodeURIComponent(m.file)}" download>Download</a></figcaption></figure>`).join("")}</div>` : `<div class="muted">Text post — no graphic.</div>`}
       ${pkg.imported ? xPreview(p, p.options.find((o) => o.captionId === (p.resolution?.captionId ?? ui.choice[p.decisionId] ?? pkg.imported?.cleanOf?.captionId ?? (p.options.filter((x) => x.source === "caption-edit" && x.check?.ok).at(-1) ?? p.options.find((x) => x.check?.ok))?.captionId))?.text ?? p.options[0]?.text ?? "") : ""}
       ${importPanel(s, p)}
-      ${p.approvedStale ? `<div class="notice warn">Approved version is stale: a newer package is held and has not replaced it. <button class="btn small" data-held-action="replace-held" data-held-id="${esc(p.decisionId)}">Replace with newer version</button> Your approval is voided and the new version needs a fresh one.${p.approvedStale.replaceRefused ? ` <b>Replace refused, approval unchanged: ${esc(p.approvedStale.replaceRefused)}</b>` : ""}</div>` : ""}
-      ${pkg.imported && !p.receipt ? `<div class="muted">${p.founderHold ? `On founder hold${p.founderHold.reason ? `: ${esc(p.founderHold.reason)}` : ""}. It can't be scheduled or sent. ` : ""}<button class="btn small" data-held-action="hold" data-held-id="${esc(p.decisionId)}" data-held-on="${p.founderHold ? "" : "1"}">${p.founderHold ? "Release hold" : "Hold this post"}</button></div>` : ""}
+      ${p.approvedStale && !eventHasStarted(p) ? `<div class="notice warn">Approved version is stale: a newer package is held and has not replaced it. <button class="btn small" data-held-action="replace-held" data-held-id="${esc(p.decisionId)}">Replace with newer version</button> Your approval is voided and the new version needs a fresh one.${p.approvedStale.replaceRefused ? ` <b>Replace refused, approval unchanged: ${esc(p.approvedStale.replaceRefused)}</b>` : ""}</div>` : ""}
+      ${pkg.imported && !p.receipt && !eventHasStarted(p) ? `<div class="muted">${p.founderHold ? `On founder hold${p.founderHold.reason ? `: ${esc(p.founderHold.reason)}` : ""}. It can't be scheduled or sent. ` : ""}<button class="btn small" data-held-action="hold" data-held-id="${esc(p.decisionId)}" data-held-on="${p.founderHold ? "" : "1"}">${p.founderHold ? "Release hold" : "Hold this post"}</button></div>` : ""}
       ${pkg.featured?.length ? `<div class="muted">Featured in the caption: ${pkg.featured.map((f) => `<b>${esc(f.name ?? "none")}</b> (${esc(f.team)})`).join(" · ")} — a caption highlight, not a ranking.</div>` : ""}
       ${pkg.xSources?.length ? `<div class="section">Open these first</div><div class="links">${pkg.xSources.map((u) => xLink(u)).join(" ")}</div>` : ""}
       <div class="section">Caption${p.options.length > 1 ? "s — choose one" : ""}</div>

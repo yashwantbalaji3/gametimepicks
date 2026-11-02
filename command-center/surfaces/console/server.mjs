@@ -27,6 +27,7 @@ import { CC_ROOT, REPO_ROOT, wallClock } from "../../lib/util.mjs";
 import { createFileStore } from "../../ledger/store.mjs";
 import { createOrchestrator } from "../../orchestrator/orchestrator.mjs";
 import { spawnSync, execFile } from "node:child_process";
+import { eventStarted } from "../../contracts/imported-packages.mjs";
 import { createActionConfirmer } from "../../auth/action-confirmation.mjs";
 import { createKeychainVault, createMemoryVault } from "../../publishers/token-vault.mjs";
 import { createXOAuth, createMemoryStateStore, CALLBACK_PATH } from "../../publishers/x-oauth.mjs";
@@ -89,12 +90,14 @@ async function publishingAction(body) {
     case "cancel": return p.cancel({ jobId: body.jobId }, FOUNDER);
     case "hold": {
       if (body.held !== true) {
+        if (eventStarted(p.postOf(body.decisionId)?.package, wallClock())) return { ok: false, code: "EVENT_STARTED", detail: "the event has started: there is nothing to release" };
         const c = await confirmAction("hold-release", p.postOf(body.decisionId));
         if (!c.ok) return c;
       }
       return p.setHold({ decisionId: body.decisionId, held: body.held === true, reason: body.reason }, FOUNDER);
     }
     case "replace-held": {
+      if (eventStarted(p.postOf(body.decisionId)?.package, wallClock())) return { ok: false, code: "EVENT_STARTED", detail: "the event has started: this post can't be replaced" };
       const c = await confirmAction("replace-held", p.postOf(body.decisionId));
       if (!c.ok) return c;
       return orchestrator.replaceHeldVersion({ decisionId: body.decisionId }, FOUNDER);
