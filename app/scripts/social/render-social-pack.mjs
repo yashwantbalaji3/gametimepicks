@@ -825,7 +825,8 @@ export function gamePostsFrom({ games, posts, date, evidenceRef, hasLines, hasMo
     if (!box) { no("NO_REAL_LINE_STAT_CARD"); continue; }
     const cards = [...ml.cards, ...box.cards].map((c, i) => ({ ...c, name: `nba-${date}-game-post-${g.eventId}-${i + 1}` }));
     if (cards.length > GAME_POST_MAX_IMAGES) { no(`TOO_MANY_IMAGES_${cards.length}`); continue; }
-    const pick = selectCaptionPlayers([...g.raw.players.away, ...g.raw.players.home], box.anomalies);
+    const shownIds = process.env.GTP_NBA_UNIFIED_ROSTER ? new Set(Object.values(JSON.parse(fs.readFileSync(process.env.GTP_NBA_UNIFIED_ROSTER, "utf8"))).flat().map(String)) : null;
+    const pick = selectCaptionPlayers([...g.raw.players.away, ...g.raw.players.home].filter((p) => !shownIds || shownIds.has(String(p.providerAthleteId))), box.anomalies);
     if (pick.players.length < 2) { no("FEWER_THAN_TWO_PLAYERS"); continue; }
     const caption = gamePostCaption({ awayName: g.away.name, homeName: g.home.name, winnerNickname: g.winner.nickname, players: pick.players });
     const extraClaims = gamePostClaims(pick.players, evidenceRef);

@@ -191,7 +191,7 @@ export function statPages({ away, home, chip, awayPlayers: allAway, homePlayers:
     const cells = {};
     const col = (t, ps) => `<div class="lcol" style="--c:${t.color}"><div class="lhead">${mark(t)}<h3 data-fit>${esc(t.nickname)}</h3></div><div class="st-hd"><span>PTS</span><span>REB</span><span>AST</span></div>${ps.slice(i * PER_TEAM).length ? "" : `<div class="pl"><span class="pn2">All rows on Part 1</span></div>`}${ps.slice(i * PER_TEAM, (i + 1) * PER_TEAM).map((p) => `<div class="pl"><span class="pn2" data-fit>${cell(cells, `${p.id}.name`, p.name)}</span><div class="ns">${["pts", "reb", "ast"].map((k) => statCell(cells, `${p.id}.${k}`, p[k], p.lines?.[k] ?? null, real)).join("")}</div></div>`).join("")}</div>`;
     const part = pages > 1 ? ` · Part ${i + 1} of ${pages}` : "";
-    const body = `<div class="kicker">Projected stat lines</div><div class="sub" data-fit>${esc(away.abbr)} @ ${esc(home.abbr)}${part}</div>${real ? `<div class="lgd"><span class="over">▲ Above line</span><span class="under">▼ Below line</span><span class="none">● No comparison</span></div>` : ""}<div class="lines sl ${real ? "real" : ""}">${col(away, awayPlayers)}${col(home, homePlayers)}</div>`;
+    const body = `<div class="kicker">${unified ? "Model projection" : "Projected stat lines"}</div><div class="sub" data-fit>${esc(away.abbr)} @ ${esc(home.abbr)}${part}</div>${real ? `<div class="lgd"><span class="over">▲ Above line</span><span class="under">▼ Below line</span><span class="none">● No comparison</span></div>` : ""}<div class="lines sl ${real ? "real" : ""}">${col(away, awayPlayers)}${col(home, homePlayers)}</div>`;
     return { html: shell({ away, home, chip, body }), cells, v2: true, part: i + 1, parts: pages };
   });
 }
