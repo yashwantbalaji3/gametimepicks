@@ -595,7 +595,7 @@ export function createPublishFlow(ctx) {
     };
   }
 
-  return { setHold, replaceApproved, setPaused, setPolicy, setPublisherHost, setQueuePrep, prepDue, schedule, cancel, cancelQueuedBy, runDue, publishNow, queueNow, dueSoon, reconcile, acknowledge, jobs, policy, state, execute };
+  return { postOf: recordOf, setHold, replaceApproved, setPaused, setPolicy, setPublisherHost, setQueuePrep, prepDue, schedule, cancel, cancelQueuedBy, runDue, publishNow, queueNow, dueSoon, reconcile, acknowledge, jobs, policy, state, execute };
 }
 
 /** A NOT_SENT failure after some images uploaded still spent those uploads. */

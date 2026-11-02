@@ -27,6 +27,7 @@ import { CC_ROOT, REPO_ROOT, wallClock } from "../../lib/util.mjs";
 import { createFileStore } from "../../ledger/store.mjs";
 import { createOrchestrator } from "../../orchestrator/orchestrator.mjs";
 import { spawnSync, execFile } from "node:child_process";
+import { createActionConfirmer } from "../../auth/action-confirmation.mjs";
 import { createKeychainVault, createMemoryVault } from "../../publishers/token-vault.mjs";
 import { createXOAuth, createMemoryStateStore, CALLBACK_PATH } from "../../publishers/x-oauth.mjs";
 
@@ -68,6 +69,8 @@ function confirmOnMac(message, button = "Publish live") {
   });
 }
 
+const confirmAction = createActionConfirmer({ ask: (request) => confirmOnMac(request.message, request.button) });
+
 function boot() {
   fs.mkdirSync(OUT, { recursive: true });
   const store = createFileStore({ dir: path.join(OUT, "ledger"), clock: wallClock });
@@ -85,12 +88,17 @@ async function publishingAction(body) {
     case "schedule": return p.schedule({ decisionId: body.decisionId, at: body.at ?? null }, FOUNDER);
     case "cancel": return p.cancel({ jobId: body.jobId }, FOUNDER);
     case "hold": {
-      if (process.env.GTP_CC_CONFIRM_HOLD === "on" && body.held !== true && !(await confirmOnMac("Release the founder hold on this post?", "Release hold"))) return { ok: false, code: "NOT_CONFIRMED_ON_MAC", detail: "the macOS confirmation was not given" };
+      if (body.held !== true) {
+        const c = await confirmAction("hold-release", p.postOf(body.decisionId));
+        if (!c.ok) return c;
+      }
       return p.setHold({ decisionId: body.decisionId, held: body.held === true, reason: body.reason }, FOUNDER);
     }
-    case "replace-held":
-      if (process.env.GTP_CC_CONFIRM_HOLD === "on" && !(await confirmOnMac("Void this approval and replace it with the newer version?", "Replace"))) return { ok: false, code: "NOT_CONFIRMED_ON_MAC", detail: "the macOS confirmation was not given" };
+    case "replace-held": {
+      const c = await confirmAction("replace-held", p.postOf(body.decisionId));
+      if (!c.ok) return c;
       return orchestrator.replaceHeldVersion({ decisionId: body.decisionId }, FOUNDER);
+    }
     case "dry-run-now": return p.publishNow({ decisionId: body.decisionId, live: false }, FOUNDER);
     case "live-test": {
       // the dialog describes the post from the ledger, never from the request
