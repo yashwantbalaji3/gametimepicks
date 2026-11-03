@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-11-02T23:47:03Z",
+  "generatedAt": "2026-11-03T00:00:42Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
     "upcomingEvents": 1,
     "eventsWhereTeamForecastIsBlindToAnExclusion": 1,
-    "eventsWithAMaterialExclusion": 0,
+    "eventsWithAMaterialExclusion": 1,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
@@ -23,16 +23,46 @@
         "version": 2,
         "inputHash": "9431c644102c9bd0",
         "simulations": 10000,
-        "generatedAt": "2026-11-02T19:29:37Z"
+        "generatedAt": "2026-11-03T00:00:42Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-02T23:47:03Z",
-        "participationInputHash": "6caa1f5c046e66ef",
-        "excludedCount": 5,
-        "materialExclusions": [],
+        "snapshotAsOf": "2026-11-03T00:00:42Z",
+        "participationInputHash": "ecdd85d297063ba5",
+        "excludedCount": 7,
+        "materialExclusions": [
+          {
+            "name": "Drew Lock",
+            "team": "SEA",
+            "state": "Out",
+            "statedAt": "2026-11-02T23:51Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Case Keenum",
+            "team": "CHI",
+            "state": "Out",
+            "statedAt": "2026-11-02T23:47Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          }
+        ],
         "excluded": [
+          {
+            "name": "Drew Lock",
+            "team": "SEA",
+            "state": "Out",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
           {
             "name": "Velus Jones Jr.",
             "team": "SEA",
@@ -57,6 +87,15 @@
             "state": "Injured Reserve",
             "families": [
               "targets"
+            ]
+          },
+          {
+            "name": "Case Keenum",
+            "team": "CHI",
+            "state": "Out",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
             ]
           },
           {
