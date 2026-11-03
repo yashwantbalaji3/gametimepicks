@@ -266,3 +266,148 @@ test("V3 statuses are derived for every ledger state; views stay small; facts ar
 test("nothing in this file reached the network", () => {
   assert.deepEqual(NETWORK_ATTEMPTS, []);
 });
+
+// ───────────────────────────── regressions from the independent review ─────────────────────────────
+
+const epochOf = (t) => t.history.filter((h) => h.state === "IN_PROGRESS").at(-1).seq;
+
+test("review #1: after a lease expires another worker really takes the task over — twice", async () => {
+  let t0 = Date.parse(ORIGIN);
+  const clock = () => new Date((t0 += 1000)).toISOString();
+  const t = setup({ clock, loop: { leaseMs: 60_000 } });
+  t.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "r1" });
+  await t.loop.runUntilIdle();
+  const job = t.loop.claimNext(t.worker);
+  t0 += 120_000; t.loop.sweep();
+  const w2 = t.loop.registerWorker({ id: "w2" });
+  assert.equal(t.loop.claimNext(w2).taskId, job.taskId);
+  assert.equal(t.ledger.task(job.taskId).state, "IN_PROGRESS");
+  t0 += 120_000; t.loop.sweep();
+  assert.equal(t.ledger.task(job.taskId).state, "PLANNED", "a second expiry requeues too");
+  const w3 = t.loop.registerWorker({ id: "w3" });
+  assert.equal(t.loop.claimNext(w3).taskId, job.taskId);
+  t.loop.submit(w3, job.taskId, demoReport(t.ledger.task(job.taskId)));
+  assert.equal(t.ledger.task(job.taskId).state, "NEEDS_REVIEW");
+});
+
+test("review #2: an accept over contradicted claims or unmet requirements is refused even with FOLLOW_UP", async () => {
+  const acceptAnyway = () => ({ verdict: "accept", decision: "FOLLOW_UP", requirementCoverage: [{ requirement: "x", met: "no", evidence: "" }], missing: [], findings: [], qaRequired: false, rationale: "", ceoSummary: "",
+    followUps: [{ ...demoBrief(), assignee: "grok-research", tests: [], objective: "Research three dashboards' freshness wording with links to inform our label copy" }] });
+  const t = setup({ commits: [], script: { evaluate: acceptAnyway } });
+  t.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "r2" });
+  await drive(t, (task) => demoReport(task, { tests: [{ command: "npm test", passed: 1, failed: 3 }] }));
+  assert.notEqual(tasksBy(t.ledger, "claude-engineering")[0].state, "DONE");
+  assert.equal(tasksBy(t.ledger, "decision")[0].meta.escalation.code, "INVALID_EVALUATION");
+});
+
+test("review #3: a crash between recording a report and acting on it is resumed; re-submitting writes nothing twice", async () => {
+  const t = setup();
+  t.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "r3" });
+  await t.loop.runUntilIdle();
+  const job = t.loop.claimNext(t.worker);
+  const task = t.ledger.task(job.taskId);
+  const report = demoReport(task);
+  // the crash: the output is recorded exactly as submit() records it, and nothing after it runs
+  t.ledger.recordOutput(job.taskId, { role: "agent", id: "w1", surface: "worker" }, { adapter: { provider: "anthropic", model: "mock-claude-code-worker" }, isLive: false, result: { artifact: report, usage: { usd: 0, estimated: true } } }, { idempotencyKey: `v3:${job.taskId}:output:${epochOf(task)}` });
+  assert.throws(() => t.loop.submit(t.worker, job.taskId, { ...report, summary: "a different report" }), /IDEMPOTENCY_MISMATCH/);
+  t.loop.submit(t.worker, job.taskId, report); // the worker retries with the same report
+  await t.loop.runUntilIdle();
+  const after = t.ledger.task(job.taskId);
+  assert.equal(after.outputs.length, 1);
+  assert.equal(after.attempts, 1);
+  assert.notEqual(after.state, "IN_PROGRESS");
+});
+
+test("review #4: rejecting a request cancels everything under it; no worker or model runs for it again", async () => {
+  const t = setup({ loop: { maxTasksPerRequest: 3 } });
+  t.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "r4" });
+  await t.loop.runUntilIdle();
+  const queued = tasksBy(t.ledger, "claude-engineering")[0];
+  const d = t.loop.founderDecision; // escalation needs a decision: open one by redirect-free path — use the planner's LOOP_TASKS
+  const decision = tasksBy(t.ledger, "decision")[0] ?? null;
+  assert.equal(queued.state, "PLANNED");
+  // force a decision: drive one report so the evaluation escalates at the task bound
+  await drive(t);
+  const dec = tasksBy(t.ledger, "decision").find((x) => x.state === "READY_FOR_APPROVAL");
+  assert.ok(dec, "an escalation is waiting");
+  d(FOUNDER, dec.taskId, { action: "reject" });
+  const s = t.ledger.state();
+  assert.ok(Object.values(s.tasks).every((x) => ["DONE", "CANCELLED", "SUPERSEDED", "FAILED"].includes(x.state)), "nothing left open");
+  assert.equal(t.loop.claimNext(t.worker), null);
+  assert.equal(await t.loop.step(), null);
+  assert.equal(decision, null);
+});
+
+test("review #5: a live worker's claim is checked against the caps and the request ceiling; an overrun escalates", async () => {
+  const plan = { verdict: "not-applicable", decision: "FOLLOW_UP", requirementCoverage: [], missing: [], findings: [], qaRequired: false, rationale: "", ceoSummary: "", followUps: [demoBrief()] };
+  const fetch = async () => ({ ok: true, status: 200, text: async () => JSON.stringify({ model: "test-model", output_text: JSON.stringify(plan), usage: { input_tokens: 10, output_tokens: 10 } }) });
+  const env = { OPENAI_API_KEY: "dummy", OPENAI_MODEL: "test-model", OPENAI_PRICE_IN_PER_M: "1", OPENAI_PRICE_OUT_PER_M: "1" };
+  const { adapters } = createLiveAdapters({ env, fetch, sleep: async () => {} });
+  const caps = { GTP_CC_OPENAI_DAILY_CAP_USD: "1", GTP_CC_OPENAI_MONTHLY_CAP_USD: "1", GTP_CC_ANTHROPIC_DAILY_CAP_USD: "100", GTP_CC_ANTHROPIC_MONTHLY_CAP_USD: "100", GTP_CC_AGENT_DAILY_CAP_USD: "100", GTP_CC_AGENT_MONTHLY_CAP_USD: "100" };
+  const run = async (config) => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-cc-v3-r5-"));
+    const clock = stepClock(ORIGIN);
+    const ledger = createTaskLedger({ store: createFileStore({ dir, clock }), clock, ledgerId: "r5" });
+    const loop = createHandoffLoop({ ledger, adapters, config, now: clock, checkers: { commitExists: () => true } });
+    const w = loop.registerWorker({ id: "live-w", model: "claude-code", env: { ANTHROPIC_API_KEY: "dummy" }, maxBudgetUsd: 2 });
+    loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "r5" });
+    await loop.runUntilIdle();
+    return { ledger, loop, w };
+  };
+  const zero = await run(budgetConfig({ env: { GTP_CC_OPENAI_DAILY_CAP_USD: "1", GTP_CC_OPENAI_MONTHLY_CAP_USD: "1", GTP_CC_AGENT_DAILY_CAP_USD: "1", GTP_CC_AGENT_MONTHLY_CAP_USD: "1" } }));
+  assert.equal(zero.loop.claimNext(zero.w), null, "$0 Claude cap: the claim is refused");
+  assert.equal(tasksBy(zero.ledger, "claude-engineering")[0].blocker.code, "BUDGET_HARD_STOP");
+  const open = await run(budgetConfig({ env: caps }));
+  const job = open.loop.claimNext(open.w);
+  assert.ok(job, "caps open: claimed");
+  open.loop.submit(open.w, job.taskId, demoReport(open.ledger.task(job.taskId)), { usd: 40, estimated: false });
+  assert.equal(open.ledger.task(job.taskId).blocker.code, "BUDGET_OVERRUN");
+  assert.equal(tasksBy(open.ledger, "decision")[0].meta.escalation.code, "BUDGET_OVERRUN");
+});
+
+test("review #5b: a live worker is never handed a task built on MOCK output", async () => {
+  const t = setup();
+  const live = t.loop.registerWorker({ id: "live-w", model: "claude-code", env: { ANTHROPIC_API_KEY: "dummy" } });
+  t.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "r5b" });
+  await t.loop.runUntilIdle();
+  assert.equal(t.loop.claimNext(live), null);
+  assert.equal(tasksBy(t.ledger, "claude-engineering")[0].blocker.code, "MOCK_LINEAGE");
+});
+
+test("review #6 and #8: a redirect after a full round is planned and routed (not LOOP_DEPTH); approve names the MOCK task", async () => {
+  const r = await runDemo({ origin: ORIGIN });
+  const d = r.loop.views.home()[0].decision;
+  assert.throws(() => r.loop.founderDecision(FOUNDER, d.taskId, { action: "approve", artifactDigest: d.digest }), /in this request produced MOCK output/);
+  const red = r.loop.founderDecision(FOUNDER, d.taskId, { action: "redirect", objective: "Also show the label on the mobile approvals screen at 390 px" });
+  await r.loop.runUntilIdle();
+  const s = r.ledger.state();
+  const plan = Object.values(s.tasks).find((x) => x.subjectTaskId === red.redirectTaskId && x.stepKey === "plan");
+  assert.ok(Object.values(s.tasks).some((x) => x.parentTaskId === plan.taskId && x.stepKey === "claude-engineering"), "the redirect's assignment was routed");
+  assert.ok(!Object.values(s.tasks).some((x) => x.meta?.escalation?.code === "LOOP_DEPTH"));
+});
+
+test("review #7: a fix brief that restates its subject is routed, and the subject is superseded", async () => {
+  const restate = (req, subject) => subject.brief.fixesSubject
+    ? { verdict: "accept", decision: "CLOSE", requirementCoverage: [{ requirement: "x", met: "yes", evidence: "ok" }], missing: [], findings: [], qaRequired: false, followUps: [], rationale: "", ceoSummary: "fixed" }
+    : { verdict: "changes", decision: "FOLLOW_UP", requirementCoverage: [], missing: [], qaRequired: false, rationale: "", ceoSummary: "", findings: [{ id: "F1", severity: "major", text: "label wrong" }], followUps: [demoBrief({ fixesSubject: true })] };
+  const t = setup({ script: { evaluate: restate } });
+  t.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "r7" });
+  await drive(t);
+  const [orig, fix] = tasksBy(t.ledger, "claude-engineering");
+  assert.equal(orig.state, "SUPERSEDED");
+  assert.equal(fix.state, "DONE");
+  assert.equal(tasksBy(t.ledger, "decision")[0].meta?.escalation ?? null, null, "closed normally, not escalated");
+});
+
+test("review #9: two timeouts under one parent each reach the founder", async () => {
+  let t0 = Date.parse(ORIGIN);
+  const clock = () => new Date((t0 += 1000)).toISOString();
+  const two = { plan: () => ({ verdict: "not-applicable", decision: "FOLLOW_UP", requirementCoverage: [], missing: [], findings: [], qaRequired: false, rationale: "", ceoSummary: "", followUps: [demoBrief(), demoBrief({ assignee: "claude-qa", objective: "Check the queue header label at 390, 430, 768 and 1440 px in a real browser" })] }) };
+  const t = setup({ clock, worker: false, script: two, loop: { taskTimeoutMs: 3600_000 } });
+  t.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "r9" });
+  await t.loop.runUntilIdle();
+  t0 += 2 * 3600_000;
+  t.loop.sweep();
+  const decisions = tasksBy(t.ledger, "decision").filter((d) => d.meta?.escalation?.code === "TIMEOUT");
+  assert.equal(decisions.length, 2);
+});

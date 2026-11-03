@@ -8,7 +8,7 @@ node command-center/orchestration/demo.mjs                                  # pi
 node command-center/orchestration/demo.mjs --pipeline research-verify-visual  # pipeline (b), MOCK
 node command-center/orchestration/demo.mjs --rounds 1                       # review loop limit 1 → ESCALATED
 node command-center/orchestration/demo.mjs --live --objective "…"           # refuses unless all 3 providers + caps
-node --test command-center/orchestration/tests/*.test.mjs                   # 43 tests, network blocked
+node --test command-center/orchestration/tests/*.test.mjs                   # 52 tests, network blocked
 ```
 
 | File | What it is |

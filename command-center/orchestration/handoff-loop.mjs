@@ -226,6 +226,7 @@ export const LOOP_DEFAULTS = Object.freeze({
   maxFindingRepeats: 2, // the same finding in this many evaluations → escalate instead of another fix
   maxEvaluationAttempts: 2, // an evaluation with an invalid decision or brief is retried once, then escalated
   costCeilingUsd: 5, // per CEO request, on top of the provider and agent caps
+  assignmentBudgetUsd: 2, // one assignment's own hard stop; a queue worker's --max-budget-usd must fit inside it
   leaseMs: 30 * 60_000,
   taskTimeoutMs: 6 * 3600_000,
 });
@@ -242,14 +243,30 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
   const actor = ORCHESTRATOR;
   const ev = (type, body, key) => ledger.append(type, actor, body, { idempotencyKey: `v3:${key}` }).event;
   const transition = (taskId, to, extra = {}, tag = to) => {
-    if (ledger.task(taskId).state === to) return;
-    ev("task.transition", { taskId, to, ...extra }, `${taskId}:${tag}`);
+    const t = ledger.task(taskId);
+    if (t.state === to) return;
+    // The history position makes the key unique per move, so a task can enter a state again (requeue after a lease).
+    ev("task.transition", { taskId, to, ...extra }, `${taskId}:${tag}:${t.history.length}`);
   };
   const block = (taskId, code, detail, cls = classifyBlocker(code)) => transition(taskId, "BLOCKED", { blocker: { class: cls, code, detail: String(detail).slice(0, 400) } }, `blocked:${code}`);
   const st = () => ledger.state();
   const later = (ms) => new Date(Date.parse(now()) + ms).toISOString();
   const treeOf = (s, rootId) => s.taskOrder.map((id) => s.tasks[id]).filter((t) => t.rootTaskId === rootId || t.taskId === rootId);
   const open = (t) => !TERMINAL.includes(t.state);
+  /** The seq of the task's latest move to IN_PROGRESS: one run. Keys built from it make a resumed run write nothing twice. */
+  const epochOf = (t) => t.history.filter((h) => h.state === "IN_PROGRESS").at(-1)?.seq ?? 0;
+  /** An output recorded in the current run that nothing has acted on yet (a crash between recording and acting). */
+  const pendingOutput = (t) => t.state === "IN_PROGRESS" && (t.outputs.at(-1)?.seq ?? 0) > epochOf(t);
+  const rootClosed = (s, t) => { const r = s.tasks[t.rootTaskId]; return Boolean(r && TERMINAL.includes(r.state)); };
+  const requestSpend = (s, rootId) => treeOf(s, rootId).reduce((n, x) => n + x.costUsd, 0);
+  /** attempt + cost for the run, derived from the recorded output so a replay writes identical events. */
+  function bookkeeping(taskId) {
+    const t = ledger.task(taskId);
+    const o = t.outputs.at(-1);
+    const e = epochOf(t);
+    ev("task.attempt", { taskId, provider: t.assignedAgent.provider, ok: true, code: null, retryable: false }, `${taskId}:attempt:${e}`);
+    ev("task.cost", { taskId, provider: t.assignedAgent.provider, agent: agentKey(t.assignedAgent), usd: o.cost.usd, estimated: o.cost.estimated, mode: o.mode }, `${taskId}:cost:${e}`);
+  }
 
   function spec({ taskId, rootId, objective, agent, stepKey, approvalLevel, depth, costUsd = 1, brief = null, route: r = null, extra = {} }) {
     return {
@@ -291,9 +308,10 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
    * Register a worker process that claims queued tasks. A worker's submissions are LIVE only when it was built with
    * the hosted Claude credentials present (liveAvailable checks the names only); otherwise they are MOCK.
    */
-  function registerWorker({ id, seat = "queue:claude-code", serves = ["claude-engineering", "claude-qa"], model = "mock-claude-code-worker", env = {} }) {
+  function registerWorker({ id, seat = "queue:claude-code", serves = ["claude-engineering", "claude-qa"], model = "mock-claude-code-worker", env = {}, maxBudgetUsd = 2 }) {
     const live = liveAvailable("anthropic", env).via === "api" && !/^mock/i.test(model);
-    const w = Object.freeze({ id, seat, serves: Object.freeze([...serves]), model, live, kind: seat.split(":")[1] });
+    // maxBudgetUsd is what the worker passes to `claude -p --max-budget-usd`: the worst case of one claimed task.
+    const w = Object.freeze({ id, seat, serves: Object.freeze([...serves]), model, live, kind: seat.split(":")[1], maxBudgetUsd: live ? Number(maxBudgetUsd) : 0 });
     workers.push(w);
     return w;
   }
@@ -302,10 +320,37 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
 
   /** The next queued task this worker may take, claimed and RUNNING, with the exact assignment text. */
   function claimNext(worker) {
-    const s = st();
-    const t = s.taskOrder.map((id) => s.tasks[id]).find((x) => x.state === "PLANNED" && x.route?.mode === "queue" && x.route.seat === worker.seat
-      && worker.serves.includes(x.brief?.assignee) && depsDone(s, x) && !(x.claim && x.claim.leaseUntil > now() && x.claim.worker.id !== worker.id));
-    if (!t) return null;
+    for (;;) {
+      const s = st();
+      const t = s.taskOrder.map((id) => s.tasks[id]).find((x) => x.state === "PLANNED" && x.route?.mode === "queue" && x.route.seat === worker.seat && !rootClosed(s, x)
+        && worker.serves.includes(x.brief?.assignee) && depsDone(s, x) && !(x.claim && x.claim.leaseUntil > now() && x.claim.worker.id !== worker.id));
+      if (!t) return null;
+      // A live worker spends real money; MOCK inputs would make its output (and its cost record) MOCK. Refuse that.
+      if (worker.live && t.inputs.some((d) => s.outputsByDigest[d]?.mode !== "LIVE")) { block(t.taskId, "MOCK_LINEAGE", "a live worker is never given MOCK inputs"); continue; }
+      if (!spendAllowed(s, t, worker.maxBudgetUsd)) continue; // blocked for the founder; look for the next one
+      return claim(t, worker);
+    }
+  }
+
+  /** Request ceiling + provider/agent caps for `worst`; on refusal the task is BLOCKED (FOUNDER) and false returned. */
+  function spendAllowed(s, t, worst) {
+    const spent = requestSpend(s, t.rootTaskId);
+    const tag = t.history.length;
+    if (worst > 0 && spent + worst > L.costCeilingUsd) {
+      ev("budget.refused", { taskId: t.taskId, code: "BUDGET_HARD_STOP", scope: `request:${t.rootTaskId}`, detail: `request ceiling $${L.costCeilingUsd}` }, `${t.taskId}:refused:ceiling:${tag}`);
+      block(t.taskId, "BUDGET_HARD_STOP", `request ceiling $${L.costCeilingUsd}: spent $${spent.toFixed(4)} + worst case $${worst.toFixed(4)}`, "FOUNDER");
+      return false;
+    }
+    const chk = checkSpend(s, { task: t, worstCaseUsd: worst, now: now(), config });
+    if (!chk.ok) {
+      ev("budget.refused", { taskId: t.taskId, code: chk.code, scope: chk.scope, detail: chk.detail }, `${t.taskId}:refused:${tag}`);
+      block(t.taskId, chk.code, chk.detail, chk.blockerClass);
+      return false;
+    }
+    return true;
+  }
+
+  function claim(t, worker) {
     ev("task.claimed", { taskId: t.taskId, worker: { id: worker.id, kind: worker.kind }, leaseUntil: later(L.leaseMs) }, `${t.taskId}:claim:${worker.id}:${t.history.length}`);
     transition(t.taskId, "IN_PROGRESS");
     const s2 = st();
@@ -317,14 +362,24 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
     const t = ledger.task(taskId);
     if (t?.claim?.worker.id !== worker.id || t.state !== "IN_PROGRESS") throw new OrchestrationError("NOT_YOUR_TASK", `${taskId} is not running under ${worker.id}`);
     const adapter = { provider: t.assignedAgent.provider, model: worker.model };
-    ev("task.attempt", { taskId, provider: adapter.provider, ok: true, code: null, retryable: false }, `${taskId}:attempt:${t.attempts + 1}`);
-    ev("task.cost", { taskId, provider: adapter.provider, agent: agentKey(t.assignedAgent), usd: worker.live ? usd : 0, estimated, mode: worker.live ? "LIVE" : "MOCK" }, `${taskId}:cost:${t.attempts + 1}`);
-    ledger.recordOutput(taskId, { role: "agent", id: worker.id, surface: "worker" }, { adapter, isLive: worker.live, result: { artifact: report } }, { idempotencyKey: `v3:${taskId}:output:${t.attempts + 1}` });
+    // Keyed by the run: re-submitting the same report after a crash replays; a different one is refused.
+    ledger.recordOutput(taskId, { role: "agent", id: worker.id, surface: "worker" }, { adapter, isLive: worker.live, result: { artifact: report, usage: { usd, estimated } } }, { idempotencyKey: `v3:${taskId}:output:${epochOf(t)}` });
     afterReport(taskId);
   }
 
   function afterReport(taskId) {
+    bookkeeping(taskId);
     const t = ledger.task(taskId);
+    const o = t.outputs.at(-1);
+    if (o.mode === "LIVE" && t.claim) {
+      const w = workers.find((x) => x.id === t.claim.worker.id);
+      const spent = requestSpend(st(), t.rootTaskId);
+      if (w && (o.cost.usd > w.maxBudgetUsd || spent > L.costCeilingUsd)) {
+        const reason = `${w.id} reported $${o.cost.usd} for ${taskId} (task budget $${w.maxBudgetUsd}; request total $${spent.toFixed(4)} of $${L.costCeilingUsd})`;
+        block(taskId, "BUDGET_OVERRUN", reason, "FOUNDER");
+        return escalate(t.rootTaskId, taskId, "BUDGET_OVERRUN", reason);
+      }
+    }
     const problems = validateReport(ROLES[t.brief?.assignee]?.kind ?? "work", t.outputs.at(-1).artifact);
     if (problems.length) return block(taskId, "INVALID_REPORT", `completion report incomplete: ${problems.slice(0, 5).join("; ")}`, "AGENT");
     transition(taskId, "NEEDS_REVIEW", {}, `submitted:${t.outputs.length}`);
@@ -336,36 +391,23 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
     const adapter = adapters[t.assignedAgent.provider];
     if (!adapter) { block(taskId, "NO_ADAPTER", `no adapter for ${t.assignedAgent.provider}`); return null; }
     if (t.state === "PLANNED") transition(taskId, "IN_PROGRESS");
+    const cur = ledger.task(taskId);
+    if (pendingOutput(cur)) return cur.outputs.at(-1); // resumed after a crash: never call the model twice for one run
     const s = st();
     const inputs = t.inputs.map((d) => ({ digest: d, artifact: s.outputsByDigest[d].artifact, provider: s.outputsByDigest[d].provider, mode: s.outputsByDigest[d].mode }));
     if (isLiveAdapter(adapter) && inputs.some((i) => i.mode !== "LIVE")) { block(taskId, "MOCK_LINEAGE", "a live agent is never called on MOCK inputs"); return null; }
     const req = { task: t, step: { kind, key: t.stepKey, schema }, objective: t.objective, inputs, instructions, context: contextPack(s, t), state: s };
-    const worst = adapter.worstCase(req);
-    const rootSpend = treeOf(s, t.rootTaskId).reduce((n, x) => n + x.costUsd, 0);
-    if (worst > 0 && rootSpend + worst > L.costCeilingUsd) {
-      ev("budget.refused", { taskId, code: "BUDGET_HARD_STOP", scope: `request:${t.rootTaskId}`, detail: `request ceiling $${L.costCeilingUsd}` }, `${taskId}:refused:ceiling:${t.attempts}`);
-      block(taskId, "BUDGET_HARD_STOP", `request ceiling $${L.costCeilingUsd}: spent $${rootSpend.toFixed(4)} + worst case $${worst.toFixed(4)}`, "FOUNDER");
-      return null;
-    }
-    const chk = checkSpend(s, { task: t, worstCaseUsd: worst, now: now(), config });
-    if (!chk.ok) {
-      ev("budget.refused", { taskId, code: chk.code, scope: chk.scope, detail: chk.detail }, `${taskId}:refused:${t.attempts}`);
-      block(taskId, chk.code, chk.detail, chk.blockerClass);
-      return null;
-    }
+    if (!spendAllowed(s, s.tasks[taskId], adapter.worstCase(req))) return null;
     let result;
     try {
       result = await adapter.run(req);
     } catch (err) {
       const code = err.code ?? "PROVIDER_ERROR";
-      ev("task.attempt", { taskId, provider: t.assignedAgent.provider, ok: false, code, retryable: Boolean(err.retryable) }, `${taskId}:attempt:${t.attempts + 1}`);
+      ev("task.attempt", { taskId, provider: t.assignedAgent.provider, ok: false, code, retryable: Boolean(err.retryable) }, `${taskId}:attempt-failed:${epochOf(ledger.task(taskId))}`);
       block(taskId, code, String(err.detail ?? err.message));
       return null;
     }
-    const live = isLiveAdapter(adapter);
-    ev("task.attempt", { taskId, provider: t.assignedAgent.provider, ok: true, code: null, retryable: false }, `${taskId}:attempt:${t.attempts + 1}`);
-    ev("task.cost", { taskId, provider: t.assignedAgent.provider, agent: agentKey(t.assignedAgent), usd: live ? Number(result.usage?.usd ?? 0) : 0, estimated: Boolean(result.usage?.estimated), mode: live ? "LIVE" : "MOCK" }, `${taskId}:cost:${t.attempts + 1}`);
-    ledger.recordOutput(taskId, actor, { adapter, isLive: live, result }, { idempotencyKey: `v3:${taskId}:output:${t.attempts + 1}` });
+    ledger.recordOutput(taskId, actor, { adapter, isLive: isLiveAdapter(adapter), result }, { idempotencyKey: `v3:${taskId}:output:${epochOf(ledger.task(taskId))}` });
     return ledger.task(taskId).outputs.at(-1);
   }
 
@@ -459,7 +501,8 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
 
   /** The founder decision for a request: CLOSE's final summary, or an escalation. Level C. */
   function openDecision(rootId, fromTaskId, { escalation = null } = {}) {
-    const id = childId(fromTaskId, escalation ? `escalate:${escalation.code}` : "decision");
+    if (TERMINAL.includes(ledger.task(rootId)?.state)) return null; // the founder already closed this request
+    const id = childId(fromTaskId, escalation ? `escalate:${escalation.code}:${digestOf(escalation.reason ?? "").slice(0, 8)}` : "decision");
     if (ledger.task(id)) return id;
     const from = ledger.task(fromTaskId);
     const agent = { provider: "founder", seat: "founder", role: "ceo" };
@@ -474,6 +517,7 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
 
   /** Apply an evaluation: judge the subject, then route follow-ups, close, or escalate. */
   function applyEvaluation(evalId) {
+    bookkeeping(evalId);
     const s = st();
     const e = s.tasks[evalId];
     const subj = s.tasks[e.subjectTaskId];
@@ -486,8 +530,8 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
     const briefs = (out.followUps ?? []).map((b) => ({ b, check: checkBrief(b) }));
     if (out.decision === "CLOSE" && (out.followUps ?? []).length) problems.push("CLOSE with follow-ups");
     if (out.decision === "FOLLOW_UP" && !briefs.length) problems.push("FOLLOW_UP without a brief");
-    if (out.decision === "CLOSE" && verification?.contradicted) problems.push("CLOSE over contradicted claims");
-    if (out.decision === "CLOSE" && (out.requirementCoverage ?? []).some((r) => r.met !== "yes")) problems.push("CLOSE with unmet requirements");
+    if ((out.decision === "CLOSE" || out.verdict === "accept") && verification?.contradicted) problems.push(`${out.decision === "CLOSE" ? "CLOSE" : "accept"} over contradicted claims`);
+    if ((out.decision === "CLOSE" || out.verdict === "accept") && (out.requirementCoverage ?? []).some((r) => r.met !== "yes")) problems.push(`${out.decision === "CLOSE" ? "CLOSE" : "accept"} with unmet requirements`);
     if (!planning && out.verdict === "changes" && !briefs.some(({ b }) => b.fixesSubject)) problems.push("changes without a fix brief");
     for (const { b, check } of briefs) if (!check.ok) problems.push(`brief "${String(b.objective).slice(0, 50)}": ${check.problems.join("; ")}`);
     if (problems.length) {
@@ -523,14 +567,20 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
     const created = [];
     const skipped = [];
     const seen = new Set(tree.filter((t) => t.fingerprint && !["CANCELLED", "SUPERSEDED", "FAILED"].includes(t.state)).map((t) => t.fingerprint));
+    // A fix may restate the assignment it replaces; only the subject itself is exempt from the duplicate check.
+    const seenForFix = new Set([...seen].filter((fp) => planning || fp !== subj.fingerprint));
+    // Bounds count from the latest request in the tree, so a founder redirect starts a fresh budget of tasks.
+    const segmentStart = tree.filter((t) => t.stepKey === "request").map((t) => t.createdAt).sort().at(-1);
+    const segment = tree.filter((t) => t.createdAt >= segmentStart);
     let escalation = null;
     if (repeated.length) escalation = { code: "REPEATED_FINDING", reason: `the same finding came back ${L.maxFindingRepeats} times: ${repeated.map((f) => f.text).join("; ").slice(0, 200)}` };
     for (const { b } of escalation ? [] : briefs) {
       const fp = briefFingerprint(b);
-      if (seen.has(fp)) { skipped.push({ fingerprint: fp, reason: "duplicate brief" }); continue; }
+      if ((b.fixesSubject ? seenForFix : seen).has(fp)) { skipped.push({ fingerprint: fp, reason: "duplicate brief" }); continue; }
       seen.add(fp);
+      seenForFix.add(fp);
       if (e.depth + 1 > L.maxDepth) { escalation = { code: "LOOP_DEPTH", reason: `follow-ups would exceed depth ${L.maxDepth}` }; break; }
-      if (tree.length + created.length >= L.maxTasksPerRequest) { escalation = { code: "LOOP_TASKS", reason: `request reached ${L.maxTasksPerRequest} tasks` }; break; }
+      if (segment.length + created.length >= L.maxTasksPerRequest) { escalation = { code: "LOOP_TASKS", reason: `request reached ${L.maxTasksPerRequest} tasks` }; break; }
       created.push(createAssignment(rootId, evalId, b, fp));
     }
     for (const x of skipped) ev("notify", { to: "orchestrator", taskId: evalId, reason: `skipped ${x.reason} ${x.fingerprint}` }, `skip:${evalId}:${x.fingerprint}`);
@@ -558,7 +608,7 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
     const e = ledger.task(evalId);
     const rootObjective = ledger.task(rootId).objective;
     ev("handoff", { handoffId: `ho-${id}`, fromTaskId: evalId, artifactDigest: latestDigest(e), context: e.inputs.filter((d) => st().outputsByDigest[d]?.provider !== "founder").slice(0, 3), instructions: renderBrief(b, { taskId: id, rootObjective }),
-      child: spec({ taskId: id, rootId, objective: b.objective, agent, stepKey: b.assignee, approvalLevel: "B", depth: e.depth + 1, costUsd: 1, brief: b, route: { mode: r.mode, seat: r.seat },
+      child: spec({ taskId: id, rootId, objective: b.objective, agent, stepKey: b.assignee, approvalLevel: "B", depth: e.depth + 1, costUsd: L.assignmentBudgetUsd, brief: b, route: { mode: r.mode, seat: r.seat },
         extra: { acceptanceCriteria: b.acceptanceCriteria, priority: b.priority, fingerprint: fp, expectedOutputs: b.deliverables, permissions: b.permissions } }) }, `handoff:${id}`);
     ev("notify", { to: r.mode === "queue" ? r.seat : agentKey(agent), taskId: id, reason: "assignment" }, `notify:${id}`);
     if (r.mode === "manual" || r.mode === "none") block(id, "NO_WORKER", r.limitation, "TOOL");
@@ -575,15 +625,17 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
     const s = st();
     let n = 0;
     for (const t of s.taskOrder.map((id) => s.tasks[id])) {
-      if (t.state === "IN_PROGRESS" && t.claim && t.claim.leaseUntil <= now() && !t.outputs.length) {
-        block(t.taskId, "LEASE_EXPIRED", `${t.claim.worker.id} did not report before ${t.claim.leaseUntil}`, "TOOL");
-        transition(t.taskId, "PLANNED", {}, `requeue:${t.claim.leaseUntil}`);
-        n++;
-      } else if (open(t) && t.deadline && t.deadline <= now() && !["READY_FOR_APPROVAL", "NEEDS_REVIEW", "APPROVED"].includes(t.state) && !["request", "decision"].includes(t.stepKey)) {
+      if (rootClosed(s, t)) continue;
+      // A passed deadline wins over a lease: the task fails and the founder decides, instead of being requeued forever.
+      if (open(t) && t.deadline && t.deadline <= now() && !["READY_FOR_APPROVAL", "NEEDS_REVIEW", "APPROVED"].includes(t.state) && !["request", "decision"].includes(t.stepKey)) {
         if (t.state !== "BLOCKED") block(t.taskId, "TIMEOUT", `passed its deadline ${t.deadline}`, "TOOL");
         transition(t.taskId, "FAILED", { outcome: { result: "FAILED", code: "TIMEOUT", deadline: t.deadline } });
         const from = s.tasks[t.parentTaskId]?.outputs.length ? t.parentTaskId : t.rootTaskId;
         escalate(t.rootTaskId, from, "TIMEOUT", `${t.taskId} passed its deadline ${t.deadline}`);
+        n++;
+      } else if (t.state === "IN_PROGRESS" && t.claim && t.claim.leaseUntil <= now() && !pendingOutput(t)) {
+        block(t.taskId, "LEASE_EXPIRED", `${t.claim.worker.id} did not report before ${t.claim.leaseUntil}`, "TOOL");
+        transition(t.taskId, "PLANNED", {}, `requeue:${t.claim.leaseUntil}`);
         n++;
       }
     }
@@ -595,19 +647,26 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
     if (sweep()) return "sweep";
     const s = st();
     for (const t of s.taskOrder.map((id) => s.tasks[id])) {
+      if (rootClosed(s, t)) continue; // the founder closed this request: nothing under it runs again
+      // A recorded output nothing has acted on yet (a crash between recording and acting) → act on it now.
+      if (pendingOutput(t) && !["request", "verify", "decision"].includes(t.stepKey)) {
+        if (["plan", "evaluate"].includes(t.stepKey)) applyEvaluation(t.taskId);
+        else if (t.brief) afterReport(t.taskId);
+        return `resume ${t.taskId}`;
+      }
       // A request with its brief recorded and no plan yet → plan it.
       if (t.stepKey === "request" && t.state === "IN_PROGRESS" && t.outputs.length && !s.taskOrder.some((id) => s.tasks[id].subjectTaskId === t.taskId)) {
         startEvaluation(t.taskId, null, true);
         return `plan ${t.taskId}`;
       }
-      // Planner / evaluator ready to run.
-      if (["plan", "evaluate"].includes(t.stepKey) && t.state === "PLANNED") {
+      // Planner / evaluator ready to run (or resumed mid-call).
+      if (["plan", "evaluate"].includes(t.stepKey) && (t.state === "PLANNED" || (t.state === "IN_PROGRESS" && !t.outputs.length))) {
         const out = await callModel(t.taskId, "evaluate", s.handoffs.find((h) => h.toTaskId === t.taskId).instructions, EVALUATION_SCHEMA);
         if (out) applyEvaluation(t.taskId);
         return `${t.stepKey} ${t.taskId}`;
       }
       // API-routed assignment ready to run.
-      if (t.route?.mode === "api" && t.state === "PLANNED" && depsDone(s, t)) {
+      if (t.route?.mode === "api" && (t.state === "PLANNED" || (t.state === "IN_PROGRESS" && !t.outputs.length)) && depsDone(s, t)) {
         const kind = ROLES[t.brief.assignee].kind;
         const out = await callModel(t.taskId, kind === "research" ? "research" : "work", s.handoffs.find((h) => h.toTaskId === t.taskId).instructions, kind === "research" ? RESEARCH_REPORT_SCHEMA : COMPLETION_REPORT_SCHEMA);
         if (out) afterReport(t.taskId);
@@ -641,13 +700,18 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
     if (t?.stepKey !== "decision" || t.state !== "READY_FOR_APPROVAL") throw new OrchestrationError("NOT_AWAITING_DECISION", `${taskId} is not awaiting a founder decision`);
     const rootId = t.rootTaskId;
     if (action === "approve") {
+      // The ledger checks the decision's own lineage; a request can hold MOCK work on another branch, so check all of it.
+      const mock = treeOf(st(), rootId).find((x) => x.outputs.some((o) => o.mode === "MOCK"));
+      if (mock) throw new OrchestrationError("MOCK_NOT_APPROVABLE", `${mock.taskId} in this request produced MOCK output; MOCK work is never approved`);
       ledger.append("approval.granted", founder, { taskId, artifactDigest }, { idempotencyKey: `v3:founder:approve:${taskId}` });
       ledger.append("task.transition", founder, { taskId, to: "DONE", outcome: { result: "DONE", approvedBy: founder.id, note } }, { idempotencyKey: `v3:founder:done:${taskId}` });
+      closeTree(founder, rootId, taskId, "APPROVED_CLOSED");
       ledger.append("task.transition", founder, { taskId: rootId, to: "DONE", outcome: { result: "DONE", closedBy: taskId } }, { idempotencyKey: `v3:founder:root-done:${rootId}` });
       return { closed: true };
     }
     if (action === "reject") {
       ledger.append("task.transition", founder, { taskId, to: "CANCELLED", outcome: { result: "REJECTED", by: founder.id, note } }, { idempotencyKey: `v3:founder:reject:${taskId}` });
+      closeTree(founder, rootId, taskId, "REJECTED");
       ledger.append("task.transition", founder, { taskId: rootId, to: "CANCELLED", outcome: { result: "REJECTED", closedBy: taskId, note } }, { idempotencyKey: `v3:founder:root-cancel:${rootId}` });
       return { closed: true };
     }
@@ -655,7 +719,8 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
       if (String(objective ?? "").trim().length < 10) throw new OrchestrationError("INVALID_REQUEST", "a redirect says what to do instead");
       const id = childId(taskId, `redirect:${digestOf(objective).slice(0, 8)}`);
       const agent = { provider: "founder", seat: "founder", role: "ceo" };
-      ledger.append("task.created", founder, { task: { ...spec({ taskId: id, rootId, objective, agent, stepKey: "request", approvalLevel: "A", depth: t.depth + 1, costUsd: 0 }), parentTaskId: taskId } }, { idempotencyKey: `v3:founder:redirect:${id}` });
+      // depth 0: a redirect is a fresh request inside the same tree (same ceiling, fresh depth and task bounds)
+      ledger.append("task.created", founder, { task: { ...spec({ taskId: id, rootId, objective, agent, stepKey: "request", approvalLevel: "A", depth: 0, costUsd: 0 }), parentTaskId: taskId } }, { idempotencyKey: `v3:founder:redirect:${id}` });
       ledger.append("task.transition", founder, { taskId: id, to: "IN_PROGRESS" }, { idempotencyKey: `v3:founder:redirect-run:${id}` });
       const fa = adapters.founder ?? { provider: "founder", model: null };
       ledger.recordOutput(id, founder, { adapter: fa, isLive: isLiveAdapter(fa), result: { artifact: { brief: objective, redirectOf: taskId, note } } }, { idempotencyKey: `v3:${id}:brief` });
@@ -663,6 +728,13 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
       return { closed: false, redirectTaskId: id };
     }
     throw new OrchestrationError("INVALID_ACTION", "approve | reject | redirect");
+  }
+
+  /** Cancel every open task under a request the founder closed, so no worker or model runs for it again. */
+  function closeTree(founder, rootId, decisionId, why) {
+    for (const t of treeOf(st(), rootId).filter((x) => open(x) && x.taskId !== rootId)) {
+      ledger.append("task.transition", founder, { taskId: t.taskId, to: "CANCELLED", outcome: { result: "CANCELLED", reason: why, by: decisionId } }, { idempotencyKey: `v3:founder:close:${decisionId}:${t.taskId}` });
+    }
   }
 
   // ── views (small, for the mobile console) ──
