@@ -10,7 +10,7 @@
   "project": "https://github.com/nflverse/nflverse-data",
   "upstream": "snap counts are sourced by nflverse from Pro-Football-Reference"
  },
- "capturedAt": "2026-10-27T16:47:06Z",
+ "capturedAt": "2026-11-03T18:33:39Z",
  "script": "app/scripts/nfl/capture-nfl-snap-counts.mjs",
  "consumers": "research only — no model, board, promotion or public page reads these files",
  "seasons": {
@@ -65,14 +65,14 @@
   "2026": {
    "file": "snap-counts-2026.json",
    "published": true,
-   "rowCount": 9981,
-   "offenseRows": 3936,
-   "teamGames": 214,
+   "rowCount": 11292,
+   "offenseRows": 4453,
+   "teamGames": 242,
    "weekRange": [
     1,
-    7
+    8
    ],
-   "contentSha256": "062643975f63b057aeeeac64293427da09f062ffbb7c8401797538af2bfa40a5"
+   "contentSha256": "484444c8f04d411eb2c65628edaf6f8e55dd5ebf970b4a9b3206e03c64b07b7c"
   }
  },
  "tablesOnDisk": [
@@ -84,10 +84,10 @@
  ],
  "bridge": {
   "file": "id-bridge-v1.json",
-  "pfrIdsInTables": 3805,
-  "inPlayersFile": 3791,
-  "withGsisId": 3791,
-  "withEspnId": 3782,
+  "pfrIdsInTables": 3812,
+  "inPlayersFile": 3798,
+  "withGsisId": 3798,
+  "withEspnId": 3789,
   "espnCollisions": 0
  },
  "joinAudit": {
@@ -438,22 +438,22 @@
    "season": 2026,
    "method": "id join pfr_player_id → nflverse players.csv (pfr_id → espn_id); names are audited, never used to join",
    "forward": {
-    "offenseRows": 3936,
-    "withEspnId": 3918,
-    "rate": 0.9954,
-    "skillOffenseRows": 2601,
-    "skillWithEspnId": 2594,
+    "offenseRows": 4453,
+    "withEspnId": 4432,
+    "rate": 0.9953,
+    "skillOffenseRows": 2942,
+    "skillWithEspnId": 2934,
     "skillRate": 0.9973,
     "rowsWithoutPfrId": 0
    },
    "reverse": {
-    "playerGames": 2097,
-    "matched": 2090,
+    "playerGames": 2358,
+    "matched": 2351,
     "unbridged": 7,
     "ambiguous": 0,
     "noSnapRow": 0,
-    "teamAgree": 2090,
-    "nameAgree": 2069,
+    "teamAgree": 2351,
+    "nameAgree": 2325,
     "examplesUnmatched": [
      {
       "playerId": "nfl-athlete-4241983",
@@ -548,9 +548,9 @@
       "nflverse": "Kenneth Gainwell"
      }
     ],
-    "rate": 0.9967,
+    "rate": 0.997,
     "teamAgreeRate": 1,
-    "nameAgreeRate": 0.99
+    "nameAgreeRate": 0.9889
    }
   }
  }
