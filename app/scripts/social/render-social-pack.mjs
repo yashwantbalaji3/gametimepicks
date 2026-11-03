@@ -42,7 +42,7 @@ import { BOOK_RULE, MONEYLINE_MARKET, americanText, matchMoneylineEvents, observ
 import { NFL_LINE_MAX_AGE_HOURS } from "../../src/lib/sports/nfl/prop-line-adapter.mjs";
 import { LINE_MAX_AGE_HOURS, REFERENCE_BOOK_ORDER } from "../../src/lib/sports/nba/line-comparison.mjs";
 import { NBA_PROP_LINE_ADAPTER } from "../../src/lib/sports/nba/prop-line-adapter.mjs";
-import { flaggedCellsShown } from "../../src/lib/social/display-exception.mjs";
+import { flaggedCellsShown, withheldKeys } from "../../src/lib/social/display-exception.mjs";
 import { anomaliesFor, anomalyPackageList, laneHistory, laneRows, reviewThresholds, runAnomalyCheck } from "../../src/lib/social/nba-anomaly-check.mjs";
 import { GAME_POST_MAX_IMAGES, gamePostCaption, gamePostCaptionProblems, gamePostClaims, selectCaptionPlayers } from "../../src/lib/social/nba-game-post.mjs";
 import { approvedCaption, nflWindow, quoteAgeFlags, slateWord } from "../../src/lib/social/approved-captions.mjs";
@@ -572,7 +572,9 @@ export function prepareNbaTop5({ date, asOf, lineDoc = null }) {
 /** PTS, REB and AST real-line boards as one swipeable package. The three separate packages stay. */
 export function nbaTop5Carousel({ posts, date }) {
   const type = CONTENT_TYPE.NBA_TOP5_CAROUSEL;
-  const parts = NBA_TOP5.map((k) => posts.find((p) => p.contentType === CONTENT_TYPE.NBA_DAILY_TOP5 && p.variant === k));
+  // Without verified lines only the projection boards exist (`pts-model`); the carousel takes those (rehearsal 2026-11-03).
+  const board = (k) => posts.find((p) => p.contentType === CONTENT_TYPE.NBA_DAILY_TOP5 && p.variant === k);
+  const parts = NBA_TOP5.map((k) => board(k) ?? board(`${k}-model`));
   const missing = NBA_TOP5.filter((_, i) => !parts[i]);
   if (missing.length) return { posts: [], refused: [{ contentType: type, reason: "MISSING_BOARD", boards: missing }] };
   const [p0] = parts;
@@ -699,8 +701,10 @@ export function prepareGameDay({ date, asOf, lineDoc = null, laneOverride = null
     try {
       posts.push(win(v2Cards([winnerCard(g)], `nba-${date}-winner-${g.eventId}`), { contentType: CONTENT_TYPE.NBA_GAME_WINNER, variant: g.eventId, title: `${m}: game winner prediction`, caption: pregameCaption(wc), ccCaption: wc, ccCaptionB: `${m}: predicted winner estimate on the image.`, disclosures: pkgDisc, content: { game: { eventId: g.eventId, winner: g.winner?.abbr ?? null, awayEstimate: g.awayP, homeEstimate: g.homeP, moneyline: "NOT_CAPTURED" } } }));
       g.cov.winnerGraphic = "PREPARED";
+      // A flagged player-market renders as "-", never a number (rehearsal 2026-11-03 found 2 AST cells printed).
+      const withheld = withheldKeys(modelCheck.anomalies);
       const players = (side, withLines) => (g.raw.players?.[side] ?? []).slice().sort((a, b) => (b.medians?.pts ?? -1) - (a.medians?.pts ?? -1) || String(a.providerAthleteId).localeCompare(String(b.providerAthleteId))).map((r) => ({
-        id: String(r.providerAthleteId), name: `${r.name}${injuryTag(r.injuryStatus)}`, pts: statOf(r, "pts"), reb: statOf(r, "reb"), ast: statOf(r, "ast"),
+        id: String(r.providerAthleteId), name: `${r.name}${injuryTag(r.injuryStatus)}`, ...Object.fromEntries(["pts", "reb", "ast"].map((k) => [k, withheld.has(`${r.providerAthleteId}.${k}`) ? "-" : statOf(r, k)])),
         lines: withLines ? Object.fromEntries(["pts", "reb", "ast"].map((k) => [k, lineBlock(lineFor.get(`${r.providerAthleteId}:${k}`))])) : null,
       }));
       const spec = { away: g.away, home: g.home, chip: g.chip };

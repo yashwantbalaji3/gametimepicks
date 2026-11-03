@@ -28,6 +28,8 @@ export function applyDisplayException(pkg, { id, nameOf = () => null, statement 
  * a number in its cell makes the "flagged cells withheld" statement false (BOS@HOU, 2026-11-02: Derrick White AST shown).
  * `cells`: [key, text] pairs; stat cells are keyed `${playerId}.${market}`.
  */
+export const withheldKeys = (anomalies) => new Set((anomalies ?? []).filter((a) => a.verdict !== VERDICT.GENUINE_EXPECTATION).map((a) => `${a.playerId}.${a.market}`));
+
 export function flaggedCellsShown(anomalies, cells) {
   const text = new Map(cells);
   return (anomalies ?? []).filter((a) => a.verdict !== VERDICT.GENUINE_EXPECTATION && /\d/.test(String(text.get(`${a.playerId}.${a.market}`) ?? "")));

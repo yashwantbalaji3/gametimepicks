@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { flaggedCellsShown } from "./display-exception.mjs";
+import { flaggedCellsShown, withheldKeys } from "./display-exception.mjs";
 
 const flag = (playerId, market, verdict = "MODEL_DEFECT") => ({ playerId, market, verdict });
 
@@ -13,4 +13,10 @@ test("a flagged cell printed as a number is reported", () => {
 test("Review text, an absent cell and a genuine expectation pass", () => {
   const anomalies = [flag("1", "pts"), flag("2", "reb"), flag("3", "ast", "GENUINE_EXPECTATION")];
   assert.deepEqual(flaggedCellsShown(anomalies, [["1.pts", "Review"], ["3.ast", "● 1.7"]]), []);
+});
+
+test("withheldKeys lists every flagged player-market except a genuine expectation", () => {
+  const keys = withheldKeys([flag("1", "pts"), flag("2", "ast", "STALE_PLAYER_ROSTER"), flag("3", "reb", "GENUINE_EXPECTATION")]);
+  assert.deepEqual([...keys].sort(), ["1.pts", "2.ast"]);
+  assert.equal(withheldKeys(null).size, 0);
 });
