@@ -558,9 +558,8 @@ test("HQ: MOCK stand-ins name the founder's own request, not the scripted demo",
 
 // ── founder acceptance test 2026-11-03 (req-91d1f106b158): the HQ must execute what was asked, not just close tasks ──
 
-// The founder's request as described in their report (named agents and subject); the exact wording replaces this
-// constant when available. What matters is preserved: four named workstreams and a Simulation Theater subject.
-const UAT_REQUEST = "Improve Simulation Theater. Use ChatGPT planning to break the work down, Claude engineering to build the change, Grok competitor research on how rival sports sites present game simulations, and a ChatGPT independent engineering review of Claude's work.";
+// The founder's exact acceptance-test instruction (req-91d1f106b158, given verbatim 2026-11-03).
+const UAT_REQUEST = "Review the GameTimePicks NBA Simulation Theater mobile experience and identify three meaningful UI/UX improvements.\nHave ChatGPT plan the work, Claude handle the engineering assignment, and Grok research relevant competitor features.\nAfter Claude reports completion, have ChatGPT independently review the results, generate any necessary follow-up assignments, and route them automatically to the appropriate agent.\nShow me the complete task history, agent handoffs, verification results, and final founder decision in CEO Home.\nThis is a MOCK workflow test. Do not modify the real website or make paid API calls.";
 
 test("UAT: the agents a request names are read deterministically, clause by clause", () => {
   assert.deepEqual(requiredWorkstreams(UAT_REQUEST), ["chatgpt-review", "claude-engineering", "grok-research"]);
@@ -589,7 +588,7 @@ test("UAT: the founder's request runs every named workstream, criteria first, la
   assert.match(grok[0].objective, /Simulation Theater/, "Grok researched the requested subject");
   assert.doesNotMatch(JSON.stringify(grok[0].outputs), /Updated N min ago|example\.invalid|https:\/\//, "no unrelated finding and no invented source");
   assert.doesNotMatch(h.loop.views.home().find((r) => r.taskId === id).summary, /verified;|\bdone:/, "a MOCK summary never claims verification");
-  assert.match(grok[0].outputs[0].artifact.summary, /^\[MOCK\] no research was run for: Improve Simulation Theater/, "the stand-in says it did nothing");
+  assert.match(grok[0].outputs[0].artifact.summary, /^\[MOCK\] no research was run for: Review the GameTimePicks NBA Simulation Theater/, "the stand-in says it did nothing");
   const review = tasksBy(h.ledger, "evaluate").filter((t) => s.tasks[t.subjectTaskId].stepKey === "claude-engineering");
   assert.ok(review.length && review.every((t) => t.assignedAgent.provider === "openai"), "ChatGPT independently reviewed Claude's work");
   // the verifier never counts stand-in output as evidence
