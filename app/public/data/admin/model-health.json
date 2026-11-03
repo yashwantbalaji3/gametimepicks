@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-11-02T19:53:24Z",
+ "generatedAt": "2026-11-03T09:26:37Z",
  "worst": "BREACHED",
  "counts": {
   "INSUFFICIENT_SAMPLE": 5,
@@ -233,28 +233,28 @@
    "label": "EPL match result (home/draw/away)",
    "baseline": "even odds (log loss 1.0986)",
    "state": "HOLDING",
-   "n": 85,
+   "n": 86,
    "judgement": {
     "state": "HOLDING",
-    "n": 85,
+    "n": 86,
     "needed": 60,
-    "meanDiff": -0.0619,
-    "lo95": -0.1559,
-    "hi95": 0.0344
+    "meanDiff": -0.0596,
+    "lo95": -0.1572,
+    "hi95": 0.0372
    },
    "context": {
-    "modelLogLoss": 1.0367,
+    "modelLogLoss": 1.039,
     "market": {
      "model": {
-      "logLoss": 1.039495,
-      "brier": 0.632728
+      "logLoss": 1.042072,
+      "brier": 0.634633
      },
      "market": {
-      "logLoss": 1.020702,
-      "brier": 0.613183
+      "logLoss": 1.02244,
+      "brier": 0.614489
      },
-     "logLossDelta": 0.018793,
-     "brierDelta": 0.019545
+     "logLossDelta": 0.019632,
+     "brierDelta": 0.020144
     },
     "marketComparisonState": "MODEL_BEHIND",
     "stoppingRule": "NO_MEASURABLE_ADVANTAGE"
@@ -664,16 +664,16 @@
    "label": "EPL blind forward test · match model vs the one it replaced",
    "baseline": "the previous model (epl-model-v1-split-poisson), paired per match",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 49,
+   "n": 50,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "watch": false,
     "needed": 60,
-    "meanDiff": -0.1685,
+    "meanDiff": -0.1764,
     "lo95": null,
     "hi95": null,
-    "modelLogLoss": 1.0206,
-    "controlLogLoss": 1.1892,
+    "modelLogLoss": 1.0249,
+    "controlLogLoss": 1.2013,
     "modelId": "epl-model-v2-elo-poisson"
    },
    "context": null,
@@ -690,11 +690,11 @@
    "label": "EPL totals SHADOW (research, not public) · club-specific total vs live P304",
    "baseline": "live P304 constant total, paired per match",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 49,
+   "n": 50,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "needed": 60,
-    "meanDiff": -0.0045,
+    "meanDiff": -0.0051,
     "lo95": null,
     "hi95": null,
     "failedBars": null,
