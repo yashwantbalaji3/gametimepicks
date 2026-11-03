@@ -8,7 +8,7 @@ node command-center/orchestration/demo.mjs                                  # pi
 node command-center/orchestration/demo.mjs --pipeline research-verify-visual  # pipeline (b), MOCK
 node command-center/orchestration/demo.mjs --rounds 1                       # review loop limit 1 → ESCALATED
 node command-center/orchestration/demo.mjs --live --objective "…"           # refuses unless all 3 providers + caps
-node --test command-center/orchestration/tests/*.test.mjs                   # 30 tests, network blocked
+node --test command-center/orchestration/tests/*.test.mjs                   # 43 tests, network blocked
 ```
 
 | File | What it is |
@@ -19,6 +19,9 @@ node --test command-center/orchestration/tests/*.test.mjs                   # 30
 | `adapters.mjs` | `liveAvailable()` (checks variable names only), MOCK adapters, live adapters that reuse `providers/openai-api.mjs`, `providers/xai-api.mjs`, `providers/anthropic-api.mjs` (hosted Claude) and `providers/claude-code-cli.mjs` (local Claude only) |
 | `views.mjs` | Text views: task tree, handoffs, attributed outputs, audit. Every output line is tagged `[MOCK]`/`[LIVE]` from the ledger |
 | `demo.mjs` | The CLI |
+| `handoff-loop.mjs` | Command Center V3: completion reports, claim verification, the evaluator/planner, brief checks, routing (API / queue / manual), loop bounds, V3 statuses, founder decisions, small views |
+| `project-facts.mjs` | The standing GameTimePicks rules a brief carries (tag-selected, ≤ 4 KB) |
+| `handoff-demo.mjs` | MOCK acceptance run of the 12-step handoff, with scripted stand-in agents |
 
 ## Design
 
@@ -138,3 +141,33 @@ Where to set them:
    the two systems run side by side.
 6. **Hosted console**: build the approver actor `{ role: "founder", id, surface: "console", authenticated: true }`
    only from a verified passkey session (step-up), then call `approve(ledger, taskId, actor, { artifactDigest })`.
+
+## Command Center V3 — the handoff loop
+
+`node command-center/orchestration/handoff-demo.mjs` runs the whole loop in MOCK:
+
+1. The founder's request is planned by ChatGPT.
+2. Claude, as a queue worker, claims the assignment and submits a completion report.
+3. Our claim verifier checks the commits, tests, stage and sources.
+4. ChatGPT evaluates the report, finds a defect, and writes a fix brief for Claude and a research brief for Grok.
+5. Both are routed and run.
+6. Both are verified and accepted.
+7. A founder decision waits in CEO Home.
+
+- **A report is a claim.** A task is COMPLETED only after verification and an accept from a different provider. A fix SUPERSEDES the original.
+- **Briefs are checked before routing** (`checkBrief`). Generic, incomplete or test-less engineering briefs are refused. One retry is allowed, then the request escalates.
+- **Bounds that escalate rather than loop:**
+  - the same finding repeated (`maxFindingRepeats` 2);
+  - tree depth (4);
+  - tasks per request (16);
+  - a cost ceiling per request ($5) on top of the provider and agent caps;
+  - task deadlines (6 h);
+  - worker leases (30 min, then requeued).
+  Duplicate briefs are skipped and recorded.
+- **Workers:**
+  - `api` runs here through the adapters: structured output only, no repository writes.
+  - `queue` is claimed by a worker process through `claimNext` and `submit`.
+  - `manual` covers seats with no supported interface. An interactive Claude Desktop / Code session (the Program Director) can't be posted into by a server, so it is BLOCKED `NO_WORKER` with that limitation named.
+- **The hosted engineering worker** is headless Claude Code (`claude -p`, or the Agent SDK) on the GitHub Actions runner. It uses `ANTHROPIC_API_KEY`, `--permission-mode dontAsk`, an exact `--allowedTools` list and `--max-budget-usd`. It claims queued tasks and submits reports. The subscription token is for the founder's own use, not this service.
+- **V3 statuses** are derived from the ledger by `v3Status` and never stored: QUEUED, ASSIGNED, RUNNING, SUBMITTED, VERIFYING, COMPLETED, BLOCKED, FAILED, NEEDS_FOUNDER_APPROVAL, CANCELLED, SUPERSEDED.
+- **Founder decisions:** approve (Level C, exact digest; refused on any MOCK lineage), reject (closes the request), or redirect (new instructions, planned again).

@@ -142,8 +142,9 @@ const RESEARCH_SCHEMA = {
   type: "object", additionalProperties: false, required: ["summary", "findings"],
   properties: { summary: { type: "string" }, findings: { type: "array", items: { type: "object", required: ["claim", "url"], properties: { claim: { type: "string" }, url: { type: "string" } } } } },
 };
-const schemaFor = (step) => (step.kind === "review" ? REVIEW_SCHEMA : step.kind === "research" ? RESEARCH_SCHEMA : WORK_SCHEMA);
-const promptOf = (req) => canonicalJson({ objective: req.objective, step: req.step.key, instructions: req.instructions, inputs: req.inputs.map((i) => ({ digest: i.digest, provider: i.provider, artifact: i.artifact })) });
+/** A step may carry its own output schema (the handoff loop's completion reports and evaluations do). */
+const schemaFor = (step) => step.schema ?? (step.kind === "review" ? REVIEW_SCHEMA : step.kind === "research" ? RESEARCH_SCHEMA : WORK_SCHEMA);
+const promptOf = (req) => canonicalJson({ objective: req.objective, step: req.step.key, instructions: req.instructions, inputs: req.inputs.map((i) => ({ digest: i.digest, provider: i.provider, artifact: i.artifact })), ...(req.context ? { context: req.context } : {}) });
 
 /**
  * Live adapters for every provider whose variables are present. Constructing one reads the credential VALUE only to

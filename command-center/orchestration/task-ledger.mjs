@@ -22,22 +22,23 @@ import { canonicalJson, digestOf } from "../lib/util.mjs";
 import { LEDGER_KINDS } from "../contracts/index.mjs";
 
 export const STATES = Object.freeze([
-  "PLANNED", "IN_PROGRESS", "NEEDS_REVIEW", "BLOCKED", "READY_FOR_APPROVAL", "APPROVED", "DONE", "FAILED", "CANCELLED",
+  "PLANNED", "IN_PROGRESS", "NEEDS_REVIEW", "BLOCKED", "READY_FOR_APPROVAL", "APPROVED", "DONE", "FAILED", "CANCELLED", "SUPERSEDED",
 ]);
-export const TERMINAL = Object.freeze(["DONE", "FAILED", "CANCELLED"]);
+/** SUPERSEDED: replaced by a newer task (a fix, or a duplicate's original); `outcome.supersededBy` names it. */
+export const TERMINAL = Object.freeze(["DONE", "FAILED", "CANCELLED", "SUPERSEDED"]);
 
 /**
  * Allowed `task.transition` moves. APPROVED is deliberately absent as a target: a task reaches APPROVED only through
  * an `approval.granted` event, which carries the approval-level checks below.
  */
 export const TRANSITIONS = Object.freeze({
-  PLANNED: ["IN_PROGRESS", "BLOCKED", "CANCELLED"],
+  PLANNED: ["IN_PROGRESS", "BLOCKED", "CANCELLED", "SUPERSEDED"],
   IN_PROGRESS: ["NEEDS_REVIEW", "READY_FOR_APPROVAL", "BLOCKED", "DONE", "FAILED", "CANCELLED"],
-  NEEDS_REVIEW: ["IN_PROGRESS", "READY_FOR_APPROVAL", "BLOCKED", "FAILED", "CANCELLED"],
-  BLOCKED: ["PLANNED", "IN_PROGRESS", "NEEDS_REVIEW", "FAILED", "CANCELLED"],
-  READY_FOR_APPROVAL: ["IN_PROGRESS", "BLOCKED", "CANCELLED"],
+  NEEDS_REVIEW: ["IN_PROGRESS", "READY_FOR_APPROVAL", "BLOCKED", "FAILED", "CANCELLED", "SUPERSEDED"],
+  BLOCKED: ["PLANNED", "IN_PROGRESS", "NEEDS_REVIEW", "FAILED", "CANCELLED", "SUPERSEDED"],
+  READY_FOR_APPROVAL: ["IN_PROGRESS", "BLOCKED", "CANCELLED", "SUPERSEDED"],
   APPROVED: ["DONE", "CANCELLED"],
-  DONE: [], FAILED: [], CANCELLED: [],
+  DONE: [], FAILED: [], CANCELLED: [], SUPERSEDED: [],
 });
 
 /**
@@ -60,6 +61,7 @@ export const AUTOMATIC_ROLES = Object.freeze(["orchestrator", "agent", "system",
 export const EVENT_TYPES = Object.freeze([
   "task.created", "task.transition", "task.output", "task.evidence", "task.cost", "task.attempt",
   "handoff", "notify", "review.verdict", "review.escalated", "approval.granted", "budget.refused", "run.status",
+  "task.claimed",
 ]);
 
 const HEX64 = /^[0-9a-f]{64}$/;
@@ -118,6 +120,18 @@ function newTask(spec, ev) {
     costBudget: { usd: Number(spec.costBudget.usd), hardStop: spec.costBudget.hardStop },
     approvalLevel: spec.approvalLevel,
     approvalRequirement: spec.approvalRequirement,
+    // V3 handoff fields (optional; the pipeline runner leaves them empty).
+    priority: spec.priority ?? null,
+    dependencies: spec.dependencies ?? [],
+    acceptanceCriteria: spec.acceptanceCriteria ?? [],
+    brief: spec.brief ?? null,
+    fingerprint: spec.fingerprint ?? null,
+    depth: spec.depth ?? 0,
+    rootTaskId: spec.rootTaskId ?? null,
+    route: spec.route ?? null,
+    subjectTaskId: spec.subjectTaskId ?? null,
+    meta: spec.meta ?? null,
+    claim: null,
     state: "PLANNED",
     inputs: spec.inputs ?? [],
     outputs: [],
@@ -196,7 +210,8 @@ export function applyEvent(s, ev) {
       } else if (t.state === "BLOCKED") {
         t.blocker = null;
       }
-      if (["DONE", "FAILED", "CANCELLED"].includes(to)) t.outcome = b.outcome ?? { result: to };
+      if (to === "SUPERSEDED" && !s.tasks[b.outcome?.supersededBy]) fail("INVALID_SUPERSEDE", "SUPERSEDED names the task that replaces it (outcome.supersededBy)");
+      if (TERMINAL.includes(to)) t.outcome = b.outcome ?? { result: to };
       setState(t, to, ev);
       break;
     }
@@ -265,6 +280,16 @@ export function applyEvent(s, ev) {
     case "budget.refused": {
       task(b.taskId);
       s.refusals.push({ seq: ev.seq, at: ev.at, taskId: b.taskId, code: b.code, scope: b.scope, detail: b.detail });
+      break;
+    }
+    case "task.claimed": {
+      // A queue worker takes a PLANNED task. A live lease blocks every other worker; an expired one can be taken over.
+      const t = task(b.taskId);
+      if (t.state !== "PLANNED") fail("NOT_CLAIMABLE", `${t.taskId} is ${t.state}`);
+      if (!b.worker?.id || !b.leaseUntil) fail("INVALID_CLAIM", "a claim names worker.id and leaseUntil");
+      if (t.claim && t.claim.leaseUntil > ev.at && t.claim.worker.id !== b.worker.id) fail("ALREADY_CLAIMED", `${t.taskId} is leased to ${t.claim.worker.id} until ${t.claim.leaseUntil}`);
+      t.claim = { worker: { id: b.worker.id, kind: b.worker.kind ?? null }, leaseUntil: b.leaseUntil, at: ev.at };
+      t.updatedAt = ev.at;
       break;
     }
     case "run.status": {
