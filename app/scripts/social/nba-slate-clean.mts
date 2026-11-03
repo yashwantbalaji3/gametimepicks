@@ -23,6 +23,7 @@ if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? "") || !root) { console.error("usage: --
 // GTP_CLEAN_NOW (tests only, refused for the live import folder): the clock the expiry check uses.
 const live = path.resolve(root) === path.join(os.homedir(), "gtp-private", "graphics");
 if (process.env.GTP_CLEAN_NOW && live) { console.error("GTP_CLEAN_NOW is refused for the live import folder"); process.exit(2); }
+if (process.env.GTP_CLEAN_CRASH_AFTER && live) { console.error("GTP_CLEAN_CRASH_AFTER is refused for the live import folder"); process.exit(2); }
 const nowMs = process.env.GTP_CLEAN_NOW ? Date.parse(process.env.GTP_CLEAN_NOW) : Date.now();
 const pk = path.join(root, "packages"), approvalsFile = path.join(root, "approvals", "approved-for-clean-export.json");
 const logFile = path.join(root, "approvals", "clean-export-log.jsonl");
@@ -35,9 +36,15 @@ const entries: any[] = Array.isArray(doc) ? doc : doc.approved ?? doc.entries ??
 // This slate's review packages, by dedupeId (the runner's variants: <id>-winner|props|projonly|winneronly, slate-today, slate-top5).
 const SUFFIX = /^(?:(\d+)-(winner|props|projonly|winneronly)|slate-(today|top5))$/;
 const mine = new Map<string, { file: string; pkg: any }>();
-for (const f of fs.readdirSync(pk).filter((x) => x.endsWith(".json") && x.startsWith(`nba-${date}-`) && !x.includes("-clean-"))) {
-  const pkg = JSON.parse(fs.readFileSync(path.join(pk, f), "utf8"));
-  if (pkg.sport === "nba" && pkg.date === date && SUFFIX.test(String(pkg.variant)) && pkg.approval?.socialAuthorized !== true) mine.set(pkg.dedupeId, { file: path.join(pk, f), pkg });
+// The review JSON is in packages/ until its clean copy is staged; after that it is in packages-review-archive/<date>/ (a pass
+// that died between the archive and the clean rename finds it there and finishes). packages/ wins when both hold one.
+const archive = path.join(root, "packages-review-archive", date);
+for (const dir of [archive, pk]) {
+  if (!fs.existsSync(dir)) continue;
+  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith(".json") && x.startsWith(`nba-${date}-`) && !x.includes("-clean-"))) {
+    const pkg = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+    if (pkg.sport === "nba" && pkg.date === date && SUFFIX.test(String(pkg.variant)) && pkg.approval?.socialAuthorized !== true) mine.set(pkg.dedupeId, { file: path.join(dir, f), pkg });
+  }
 }
 const todo = entries.filter((e) => mine.has(e.dedupeId));
 if (!todo.length) { console.log(`no approved ${date} slate packages; nothing to do`); process.exit(0); }
@@ -50,13 +57,15 @@ const { renderCleanImages } = await import("./clean-export.mjs");
 const de: any = await import("../../src/lib/social/display-exception.mjs");
 const rebuilt = new Map<string, any>(); // asOf -> prepareGameDay result
 let failed = false;
-// Once its clean JSON is in place, the review copy's JSON leaves packages/ (renamed into packages-review-archive/<date>/), so
-// Command Center never re-imports the banner version as a re-render of the approved post. Only after a CLEAN, only that
-// dedupeId; its image folder stays (the console's ledger points at it). With the review JSON gone the entry is simply not
-// listed again, and its status row stays CLEAN.
-const archive = path.join(root, "packages-review-archive", date);
+// Delivery order, so a Command Center import tick never sees the review copy after the clean one: (1) stage the clean copy
+// (its image folder, and its JSON under a name the importer ignores), (2) rename the review JSON into
+// packages-review-archive/<date>/, (3) rename the staged JSON to <slug>-clean-<sha8>.json. Between 2 and 3 a tick sees neither,
+// which is harmless. A pass that died at any point resumes from the staged copy, or re-renders from the archived review JSON.
+// Only after a successful render, only that dedupeId; the review image folder stays (the console's ledger points at it).
+// GTP_CLEAN_CRASH_AFTER=stage|archive (tests only, refused for the live folder) exits at that point to prove the resume.
+const crashAt = (step: string) => { if (process.env.GTP_CLEAN_CRASH_AFTER === step) { console.error(`TEST CRASH after ${step}`); process.exit(9); } };
 function archiveReview(file: string, dedupeId: string, sk: string) {
-  if (!fs.existsSync(file)) return;
+  if (path.dirname(file) !== pk || !fs.existsSync(file)) return;
   if (JSON.parse(fs.readFileSync(file, "utf8")).dedupeId !== dedupeId) throw new Error(`archive: ${file} is not ${dedupeId}`);
   fs.mkdirSync(archive, { recursive: true });
   const to = path.join(archive, path.basename(file));
@@ -71,11 +80,19 @@ const status: Record<string, any> = Object.fromEntries((fs.existsSync(statusFile
 
 for (const e of todo) {
   const { file, pkg } = mine.get(e.dedupeId)!;
-  const slug = path.basename(file, ".json");
+  const slug = path.basename(file, ".json").replace(/\.json$/, "");
   const outName = `${slug}-clean-${String(pkg.contentSha256).slice(0, 8)}`;
   const sk = `${e.dedupeId}|${pkg.contentSha256}`;
-  // Clean already on disk (a pass that died before archiving the review copy): finish the archive step only.
-  if (fs.existsSync(path.join(pk, `${outName}.json`))) { status[sk] = { ...status[sk], dedupeId: e.dedupeId, contentSha256: pkg.contentSha256, state: "CLEAN", package: `${outName}.json` }; archiveReview(file, e.dedupeId, sk); continue; }
+  const finalJson = path.join(pk, `${outName}.json`), staged = path.join(pk, `.${outName}.json.staged`), finalDir = path.join(pk, outName);
+  const markClean = () => { status[sk] = { ...status[sk], dedupeId: e.dedupeId, contentSha256: pkg.contentSha256, state: "CLEAN", package: `${outName}.json`, at: status[sk]?.state === "CLEAN" ? status[sk].at : new Date().toISOString() }; };
+  // (2) then (3): archive the review JSON, then publish the staged clean JSON.
+  const finish = (cleanSha: string) => {
+    archiveReview(file, e.dedupeId, sk); crashAt("archive");
+    fs.renameSync(staged, finalJson);
+    log({ dedupeId: e.dedupeId, outcome: "CLEAN", package: `${outName}.json`, reviewedSha256: pkg.images[0].sha256, cleanSha256: cleanSha });
+    markClean();
+  };
+  if (fs.existsSync(finalJson)) { archiveReview(file, e.dedupeId, sk); markClean(); continue; } // done (an older pass may have left the review JSON)
   if (status[sk]?.state === "FAILED") continue;
   // A refusal is logged once per (package content, approval, reasons): the backstop runs every minute.
   const refuse = (why: string[]) => {
@@ -102,6 +119,14 @@ for (const e of todo) {
     if ((pkg.anomalies ?? []).some((a: any) => a.verdict === "BAD_JOIN")) problems.push("BAD_JOIN is never excepted");
   }
   if (problems.length) { refuse(problems); continue; }
+  if (fs.existsSync(staged)) {
+    try {
+      const st = JSON.parse(fs.readFileSync(staged, "utf8"));
+      const ok = st.sourceContentSha256 === pkg.contentSha256 && st.dedupeId === e.dedupeId && st.approval?.captionId === e.captionId && st.approval?.approvedAt === e.approvedAt && st.images.every((i: any) => fs.existsSync(i.path) && sha(fs.readFileSync(i.path)) === i.sha256);
+      if (ok) { finish(st.images[0].sha256); continue; }
+      fs.rmSync(staged, { force: true }); // stale (another approval or a broken image): render again below
+    } catch (err: any) { fs.rmSync(staged, { force: true }); }
+  }
   const asOf = pkg.freshness.asOf;
   if (!rebuilt.has(asOf)) rebuilt.set(asOf, m.prepareGameDay({ date, asOf }));
   const r = rebuilt.get(asOf);
@@ -129,7 +154,6 @@ for (const e of todo) {
     fs.rmSync(path.join(tmp, "check"), { recursive: true, force: true });
     const name = path.basename(pkg.images[0].path, ".png");
     const [img] = await renderCleanImages([{ name, html: clean }], tmp);
-    const finalDir = path.join(pk, outName);
     const finalImg = path.join(finalDir, "images", `${name}.png`);
     const image = { ...img, path: finalImg };
     const media = { file: finalImg, sha256: img.sha256 };
@@ -140,14 +164,14 @@ for (const e of todo) {
       commandCenter: { ...pkg.commandCenter, media: { ...pkg.commandCenter.media, ...media }, mediaSet: [{ ...pkg.commandCenter.mediaSet[0], ...media }] },
     };
     if (JSON.stringify(out).includes(tmp)) throw new Error("temp path left in the package");
-    fs.rmSync(finalDir, { recursive: true, force: true }); // left by an attempt that died before its JSON: never imported
+    // (1) stage: the image folder (a folder, never read as a package) and the JSON under a name the importer ignores.
+    fs.rmSync(finalDir, { recursive: true, force: true });
     fs.renameSync(tmp, finalDir);
-    const jt = path.join(pk, `.${outName}.json.${process.pid}`);
+    const jt = `${staged}.${process.pid}`;
     fs.writeFileSync(jt, `${JSON.stringify(out, null, 2)}\n`);
-    fs.renameSync(jt, path.join(pk, `${outName}.json`));
-    log({ dedupeId: e.dedupeId, outcome: "CLEAN", package: `${outName}.json`, reviewedSha256: pkg.images[0].sha256, cleanSha256: img.sha256 });
-    status[sk] = { ...status[sk], dedupeId: e.dedupeId, contentSha256: pkg.contentSha256, state: "CLEAN", package: `${outName}.json`, at: new Date().toISOString() };
-    archiveReview(file, e.dedupeId, sk);
+    fs.renameSync(jt, staged);
+    crashAt("stage");
+    finish(img.sha256);
   } catch (err: any) {
     fs.rmSync(tmp, { recursive: true, force: true });
     const attempts = (status[sk]?.attempts ?? 0) + 1;
