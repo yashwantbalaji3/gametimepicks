@@ -974,30 +974,52 @@ async function v2LayoutErrors(browser, cards) {
 }
 
 /** Validates layout for every post, then writes images and packages. */
-export async function writePackages(posts, { outRoot, scales = [1], png = true }) {
+/** Fonts are part of every render's input; a font change invalidates the render cache. */
+const FONTS_KEY = (() => { let k = null; return () => (k ??= sha(fs.readdirSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "fonts")).sort().map((f) => sha(fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "fonts", f)))).join(""))); })();
+
+/**
+ * `renderCache` (or GTP_RENDER_CACHE): a folder of PNGs keyed by the hash of what the browser renders (html, scale, size,
+ * fonts). A card whose key is cached is copied, not re-rendered; layout checks run only on cards that render. `stats` counts both.
+ */
+export async function writePackages(posts, { outRoot, scales = [1], png = true, renderCache = process.env.GTP_RENDER_CACHE ?? null, stats = {} }) {
+  const htmlOf = (c) => (process.env.GTP_CLEAN_EXPORT === "1" ? c.html.replace(/<div class="draft">[^<]*<\/div>/, "") : c.html);
   const cards = posts.flatMap((p) => p.cards.map((c) => ({ ...c, dir: path.join(outRoot, dedupeSlug(p), "images") })));
+  const keyOf = (c, scale) => sha(JSON.stringify({ html: htmlOf(c), scale, size: SIZE, fonts: FONTS_KEY() }));
+  const cached = (c, scale) => (renderCache ? path.join(renderCache, `${keyOf(c, scale)}.png`) : null);
   const written = new Map();
+  const record = (c, scale, file) => written.set(c.name, [...(written.get(c.name) ?? []), { path: file, width: SIZE.width, height: SIZE.height, scale, sha256: sha(fs.readFileSync(file)) }]);
+  const fileOf = (c, scale) => path.join(c.dir, `${c.name}${scale === 1 ? "" : `@${scale}x`}.png`);
+  stats.rendered = 0; stats.skipped = 0;
+  const todo = [];
+  for (const scale of png ? scales : []) for (const c of cards) {
+    const hit = cached(c, scale);
+    if (hit && fs.existsSync(hit)) { fs.mkdirSync(c.dir, { recursive: true }); fs.copyFileSync(hit, fileOf(c, scale)); record(c, scale, fileOf(c, scale)); stats.skipped += 1; }
+    else todo.push({ c, scale });
+  }
   const put = async (browser) => {
-    if (browser) {
-      const e = [...await layoutErrors(browser, cards.filter((c) => !c.size && !c.v2)), ...await v2LayoutErrors(browser, cards.filter((c) => c.v2)), ...await boxLayoutErrors(browser, cards.filter((c) => c.size))];
-      if (e.length) throw new Error(`layout check failed:\n  - ${e.join("\n  - ")}`);
-    }
-    for (const scale of browser ? scales : []) {
+    const fresh = [...new Set(todo.map((t) => t.c))];
+    const e = [...await layoutErrors(browser, fresh.filter((c) => !c.size && !c.v2)), ...await v2LayoutErrors(browser, fresh.filter((c) => c.v2)), ...await boxLayoutErrors(browser, fresh.filter((c) => c.size))];
+    if (e.length) throw new Error(`layout check failed:\n  - ${e.join("\n  - ")}`);
+    for (const scale of scales) {
+      const mine = todo.filter((t) => t.scale === scale).map((t) => t.c);
+      if (!mine.length) continue;
       const ctx = await browser.newContext({ deviceScaleFactor: scale });
       const page = await ctx.newPage();
       await page.setViewportSize({ width: SIZE.width, height: SIZE.height });
-      for (const c of cards) {
+      for (const c of mine) {
         fs.mkdirSync(c.dir, { recursive: true });
-        await page.setContent(process.env.GTP_CLEAN_EXPORT === "1" ? c.html.replace(/<div class="draft">[^<]*<\/div>/, "") : c.html, { waitUntil: "load" });
+        await page.setContent(htmlOf(c), { waitUntil: "load" });
         await page.evaluate(() => document.fonts.ready);
-        const file = path.join(c.dir, `${c.name}${scale === 1 ? "" : `@${scale}x`}.png`);
+        const file = fileOf(c, scale);
         await page.screenshot({ path: file, clip: { x: 0, y: 0, width: SIZE.width, height: SIZE.height } });
-        written.set(c.name, [...(written.get(c.name) ?? []), { path: file, width: SIZE.width, height: SIZE.height, scale, sha256: sha(fs.readFileSync(file)) }]);
+        record(c, scale, file); stats.rendered += 1;
+        const to = cached(c, scale);
+        if (to) { fs.mkdirSync(renderCache, { recursive: true }); const tmp = `${to}.${process.pid}.tmp`; fs.copyFileSync(file, tmp); fs.renameSync(tmp, to); }
       }
       await ctx.close();
     }
   };
-  if (png) {
+  if (png && todo.length) {
     const { chromium } = await import("playwright");
     const browser = await chromium.launch();
     try { await put(browser); } finally { await browser.close(); }
