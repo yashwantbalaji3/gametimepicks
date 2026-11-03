@@ -42,6 +42,7 @@ import { BOOK_RULE, MONEYLINE_MARKET, americanText, matchMoneylineEvents, observ
 import { NFL_LINE_MAX_AGE_HOURS } from "../../src/lib/sports/nfl/prop-line-adapter.mjs";
 import { LINE_MAX_AGE_HOURS, REFERENCE_BOOK_ORDER } from "../../src/lib/sports/nba/line-comparison.mjs";
 import { NBA_PROP_LINE_ADAPTER } from "../../src/lib/sports/nba/prop-line-adapter.mjs";
+import { flaggedCellsShown } from "../../src/lib/social/display-exception.mjs";
 import { anomaliesFor, anomalyPackageList, laneHistory, laneRows, reviewThresholds, runAnomalyCheck } from "../../src/lib/social/nba-anomaly-check.mjs";
 import { GAME_POST_MAX_IMAGES, gamePostCaption, gamePostCaptionProblems, gamePostClaims, selectCaptionPlayers } from "../../src/lib/social/nba-game-post.mjs";
 import { approvedCaption, nflWindow, quoteAgeFlags, slateWord } from "../../src/lib/social/approved-captions.mjs";
@@ -154,12 +155,12 @@ export function prepareNflGameWinners({ seasonType = 2, week, asOf }) {
   for (const v of views) {
     if (!(instant(v.kickoffUtc) > Date.parse(asOf))) { refused.push({ contentType: CONTENT_TYPE.NFL_GAME_WINNER, variant: String(v.providerEventId), reason: "GAME_STARTED" }); continue; }
     const r = winnerRow(v, records.get(String(v.providerEventId)));
-    const cards = v2Cards([winnerCard(nflCardGame(v, r), { meterLabel: "Official win chance", ...NFL_V2 })], `nfl-w${String(week).padStart(2, "0")}-winner-${r.eventId}`);
-    const caption = checkCaption(`GameTime Picks NFL Week ${week}: ${r.matchup}, ${r.winner} ${r.winPct} official win chance. ${FOOT.projections} ${legalLine}`);
+    const cards = v2Cards([winnerCard(nflCardGame(v, r), { meterLabel: "Model win probability", ...NFL_V2 })], `nfl-w${String(week).padStart(2, "0")}-winner-${r.eventId}`);
+    const caption = checkCaption(`GameTime Picks NFL Week ${week}: ${r.matchup}, ${r.winner} ${r.winPct} model win probability. ${FOOT.projections} ${legalLine}`);
     const t = instant(r.kickoffUtc);
     posts.push({
       designVersion: DESIGN_VERSION, sport: "nfl", date: etDate(t), contentType: CONTENT_TYPE.NFL_GAME_WINNER, variant: r.eventId, cards, caption, snapshotRefs: refs, eligibilityClass: ELIGIBILITY.OFFICIAL, disclosures: DISCLOSE,
-      title: `${r.matchup}: game winner prediction`, eventId: r.eventId, firstStartUtc: toIso(t), ccCaption: `${r.matchup}: ${r.winner} ${r.winPct} official win chance, model projection.`,
+      title: `${r.matchup}: game winner prediction`, eventId: r.eventId, firstStartUtc: toIso(t), ccCaption: `${r.matchup}: ${r.winner} ${r.winPct} model win probability, model projection.`,
       checks: ["view == independently rebuilt record", "meter proportional to exact chances", "card cells == validated text"],
       window: { opensAt: asOf, closesAt: toIso(t) }, recommended: recommendedPostTime({ games: [r], afterEtDate: dayBefore(etDate(t)), asOf }), recommendedNote: "the two hours before kickoff have passed",
       freshness: { asOf, sourceGeneratedAt: v.record.generatedAt, ageHours: ageHours(asOf, v.record.generatedAt), expiresAt: toIso(t), rule: "valid until kickoff" },
@@ -213,7 +214,7 @@ export function prepareNbaTonight({ date, asOf, laneOverride = null }) {
   return { posts, refused: [] };
 }
 
-const WINNER_FOOT = ["Win chance is the official forecast's. Projected score is the published model score, rounded to a whole point.", `${FOOT.projections} ${FOOT.noLines}`, legalLine];
+const WINNER_FOOT = ["Model win probability, from the official forecast. Projected score is the published model score, rounded to a whole point.", `${FOOT.projections} ${FOOT.noLines}`, legalLine];
 
 const quoteAgeOf = (quotes, asOf) => {
   const times = quotes.map((q) => q.quotedAt).sort();
@@ -231,11 +232,11 @@ const NFL_BOOK_LABEL = (k) => NBA_PROP_LINE_ADAPTER.bookLabel(k);
 
 function roundupCards(rows, week, viewOf, markets = null) {
   const games = rows.map((r) => ({ ...nflCardGame(viewOf(r), r), tipTime: tipClock(instant(r.kickoffUtc)), market: markets?.get(r.eventId) }));
-  return v2Cards([tonightCard({ games, chip: `NFL · Week ${week} · ${chipDay(instant(rows[0].kickoffUtc))}`, kicker: "NFL Sunday", sub: `Week ${week} winner predictions, official win chance`, timeHead: "KICK ET", priced: Boolean(markets), ...NFL_V2 })], `nfl-w${String(week).padStart(2, "0")}-sunday`);
+  return v2Cards([tonightCard({ games, chip: `NFL · Week ${week} · ${chipDay(instant(rows[0].kickoffUtc))}`, kicker: "NFL Sunday", sub: `Week ${week} winner predictions, model win probability`, timeHead: "KICK ET", priced: Boolean(markets), ...NFL_V2 })], `nfl-w${String(week).padStart(2, "0")}-sunday`);
 }
 
 function mnfCards(rows, week, viewOf) {
-  return v2Cards(rows.map((r) => winnerCard(nflCardGame(viewOf(r), r), { kicker: "Monday Night Football", meterLabel: "Official win chance", ...NFL_V2 })), `nfl-w${String(week).padStart(2, "0")}-mnf`);
+  return v2Cards(rows.map((r) => winnerCard(nflCardGame(viewOf(r), r), { kicker: "Monday Night Football", meterLabel: "Model win probability", ...NFL_V2 })), `nfl-w${String(week).padStart(2, "0")}-mnf`);
 }
 
 /** Sunday + Monday posts. A slate with a started game is refused whole: "every Sunday game" must stay true. */
@@ -261,10 +262,10 @@ export function prepareNflWinners({ seasonType = 2, week, asOf, captures = null 
     const first = instant(rows[0].kickoffUtc);
     const date = etDate(first);
     const lines = rows.map((g) => `${g.winner} ${g.winPct} (${g.matchup})`);
-    const caption = checkCaption(`GameTime Picks NFL Week ${week} ${day === "Sun" ? "Sunday" : "Monday Night Football"} model projections, not picks: ${lines.join("; ")}. Official win chance from the published forecast. ${legalLine}`);
+    const caption = checkCaption(`GameTime Picks NFL Week ${week} ${day === "Sun" ? "Sunday" : "Monday Night Football"} model projections, not picks: ${lines.join("; ")}. Model win probability from the published forecast. ${legalLine}`);
     posts.push({
       designVersion: DESIGN_VERSION, sport: "nfl", date, contentType, variant: null, cards, caption, snapshotRefs: allPriced ? [...refs, ...captures.refs] : refs, eligibilityClass: ELIGIBILITY.OFFICIAL, disclosures: allPriced ? ["Sportsbook prices are observed quotes, separate from the model estimates", ...DISCLOSE] : DISCLOSE, containsMarketData: allPriced, title: `NFL Week ${week} ${day === "Sun" ? "Sunday" : "Monday"} winner predictions`, firstStartUtc: toIso(first),
-      eventId: rows.length === 1 ? rows[0].eventId : null, ccCaption: `NFL Week ${week} ${day === "Sun" ? "Sunday" : "Monday night"}: model projections for ${rows.length} ${rows.length === 1 ? "game" : "games"}, official win chance on the image.`, extraClaims: [...ccWeek(week), { key: "games", display: String(rows.length), evidenceRef: "forecast" }],
+      eventId: rows.length === 1 ? rows[0].eventId : null, ccCaption: `NFL Week ${week} ${day === "Sun" ? "Sunday" : "Monday night"}: model projections for ${rows.length} ${rows.length === 1 ? "game" : "games"}, model win probability on the image.`, extraClaims: [...ccWeek(week), { key: "games", display: String(rows.length), evidenceRef: "forecast" }],
       checks: ["view win chance == independently rebuilt record", "view projected score == record", "favourite recomputed from win chance", "card cells == validated text"],
       window: { opensAt: asOf, closesAt: toIso(first) },
       recommended: recommendedPostTime({ games: rows, afterEtDate: dayBefore(date), asOf }), recommendedNote: "the two hours before kickoff have passed",
@@ -969,7 +970,7 @@ async function v2LayoutErrors(browser, cards) {
 }
 
 /** Validates layout for every post, then writes images and packages. */
-export async function writePackages(posts, { outRoot, scales = [1, 2], png = true }) {
+export async function writePackages(posts, { outRoot, scales = [1], png = true }) {
   const cards = posts.flatMap((p) => p.cards.map((c) => ({ ...c, dir: path.join(outRoot, dedupeSlug(p), "images") })));
   const written = new Map();
   const put = async (browser) => {
@@ -999,6 +1000,16 @@ export async function writePackages(posts, { outRoot, scales = [1, 2], png = tru
   }
   fs.mkdirSync(outRoot, { recursive: true });
   const dataCommit = process.env.GTP_DATA_COMMIT ?? execSync("git rev-parse HEAD", { cwd: APP, encoding: "utf8" }).trim();
+  // The console proves provenance by reading each public snapshot at dataCommit; a worktree commit without the file failed import (2026-11-02).
+  for (const r of new Map(posts.flatMap((p) => p.snapshotRefs ?? []).filter((r) => r.ref.startsWith("app/public/")).map((r) => [`${r.ref}:${r.sha256}`, r])).values()) {
+    let bytes = null;
+    try { bytes = execSync(`git show ${dataCommit}:${r.ref}`, { cwd: path.join(APP, ".."), maxBuffer: 1 << 28 }); } catch { bytes = null; }
+    if (!bytes || sha(bytes) !== r.sha256) throw new Error(`dataCommit ${dataCommit.slice(0, 10)} does not hold ${r.ref} with sha ${r.sha256.slice(0, 10)}; set GTP_DATA_COMMIT to a commit that does`);
+  }
+  for (const p of posts) {
+    const shown = flaggedCellsShown(p.anomalies, p.cards.flatMap((c) => Object.entries(c.cells)));
+    if (shown.length) throw new Error(`${p.contentType} ${p.variant}: flagged cells printed as numbers: ${shown.map((a) => `${a.playerId}.${a.market}`).join(", ")}`);
+  }
   return posts.map((p) => {
     const images = p.cards.flatMap((c) => written.get(c.name) ?? []);
     const file = path.join(outRoot, `${dedupeSlug(p)}.json`);

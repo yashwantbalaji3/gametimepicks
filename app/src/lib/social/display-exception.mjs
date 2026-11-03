@@ -22,3 +22,13 @@ export function applyDisplayException(pkg, { id, nameOf = () => null, statement 
   out.contentSha256 = crypto.createHash("sha256").update(JSON.stringify({ exception: id, source: pkg.contentSha256, affected })).digest("hex");
   return { pkg: out };
 }
+
+/**
+ * Flagged player-markets still printed as numbers. A flag other than GENUINE_EXPECTATION must render as Review or not at all;
+ * a number in its cell makes the "flagged cells withheld" statement false (BOS@HOU, 2026-11-02: Derrick White AST shown).
+ * `cells`: [key, text] pairs; stat cells are keyed `${playerId}.${market}`.
+ */
+export function flaggedCellsShown(anomalies, cells) {
+  const text = new Map(cells);
+  return (anomalies ?? []).filter((a) => a.verdict !== VERDICT.GENUINE_EXPECTATION && /\d/.test(String(text.get(`${a.playerId}.${a.market}`) ?? "")));
+}

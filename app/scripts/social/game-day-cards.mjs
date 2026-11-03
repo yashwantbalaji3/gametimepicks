@@ -127,7 +127,7 @@ const mbox = (t) => `<div class="mbox ${t.nickname.length > 11 ? "long" : ""}" s
 const slab = (t) => `<div class="slab" style="--c:${t.color};--a:${t.secondary};--cink:${t.ink}"><div class="city" data-fit>${esc(t.city)}</div><div class="nick" data-fit>${esc(t.nickname)}</div></div>`;
 
 /** Reference 1. `g`: { eventId, away, home, awayP, homeP, awayPct, homePct, winner (team|null), tipDay, tipTime, chip }. */
-export function winnerCard(g, { kicker = "GameTimePicks Prediction", meterLabel = "Official win chance", disclosure = DISCLOSURE } = {}) {
+export function winnerCard(g, { kicker = "GameTimePicks Prediction", meterLabel = "Model win probability", disclosure = DISCLOSURE } = {}) {
   const cells = {};
   const [ca, cb] = meterColours(g.away, g.home);
   const total = g.awayP + g.homeP;
@@ -145,7 +145,7 @@ export function nflHeroCard(g, { disclosure = NFL_DISCLOSURE } = {}) {
   const [ca, cb] = meterColours(g.away, g.home);
   const total = g.awayP + g.homeP;
   const body = `<div class="kicker">GameTimePicks Prediction</div><div class="gph solo"><div class="winner2"><div class="k">Predicted Winner</div>${slab(g.winner)}</div>
-<div class="meter" data-meter="official"><div class="meter-k">Official win chance</div><div class="meter-labels"><div class="ml l">${bcell(cells, "away.pct", `${g.awayPct}%`)}<span data-fit>${esc(g.away.name)}</span></div><div class="ml r">${bcell(cells, "home.pct", `${g.homePct}%`)}<span data-fit>${esc(g.home.name)}</span></div></div>
+<div class="meter" data-meter="official"><div class="meter-k">Model win probability</div><div class="meter-labels"><div class="ml l">${bcell(cells, "away.pct", `${g.awayPct}%`)}<span data-fit>${esc(g.away.name)}</span></div><div class="ml r">${bcell(cells, "home.pct", `${g.homePct}%`)}<span data-fit>${esc(g.home.name)}</span></div></div>
 <div class="meter-bar"><i class="seg away" data-share="${g.awayP}" style="width:${((100 * g.awayP) / total).toFixed(3)}%;--c:${ca}"></i><i class="seg home" data-share="${g.homeP}" style="width:${((100 * g.homeP) / total).toFixed(3)}%;--c:${cb}"></i></div></div>
 <div class="strip"><div>${bcell(cells, "day", g.tipDay, "data-fit")}<span>Kickoff</span></div><div>${bcell(cells, "time", g.kickoffText, "data-fit")}<span>Eastern</span></div>${g.market ? `<div>${bcell(cells, "market.price", `${g.market.sideAbbr} ${g.market.priceText}`, 'class="pv" data-fit')}<span>Price</span></div>` : ""}</div></div>`;
   return { html: shell({ away: g.away, home: g.home, chip: g.chip, body, disclosure }), cells, v2: true, disclosure };
@@ -159,7 +159,7 @@ export function nflTdCard({ away, home, chip, rows, disclosure = NFL_DISCLOSURE 
 }
 
 /** A: one card, every game of the slate. */
-export function tonightCard({ games, chip, kicker = "NBA Tonight", sub = "Official win chances", timeHead = "TIP ET", disclosure = DISCLOSURE, priced = false, note = null }) {
+export function tonightCard({ games, chip, kicker = "NBA Tonight", sub = "Model win probability", timeHead = "TIP ET", disclosure = DISCLOSURE, priced = false, note = null }) {
   const cells = {};
   const rows = games.map((g) => {
     const [ca, cb] = meterColours(g.away, g.home);
