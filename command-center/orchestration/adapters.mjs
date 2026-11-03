@@ -1,5 +1,6 @@
 /**
- * ADAPTERS — one interface over Claude (Claude Code CLI on the founder's subscription), ChatGPT (OpenAI Responses
+ * ADAPTERS — one interface over Claude (Anthropic Messages API for hosted runs; the Claude Code CLI on the founder's
+ * subscription only for local runs), ChatGPT (OpenAI Responses
  * API) and Grok (xAI Responses API with the x_search tool), plus the two non-model participants (the CEO's brief and
  * our own deterministic checks).
  *
@@ -12,27 +13,34 @@
  *
  * liveAvailable(provider, env) looks only at whether the configured variable NAMES are present in the environment
  * (`name in env`); it never reads a value. The live OpenAI / xAI adapters reuse providers/openai-api.mjs and
- * providers/xai-api.mjs unchanged; the live Claude adapter reuses providers/claude-code-cli.mjs (read-only tools).
+ * providers/xai-api.mjs unchanged. The live Claude adapter uses providers/anthropic-api.mjs when ANTHROPIC_API_KEY is
+ * present (the hosted worker path); otherwise it falls back to providers/claude-code-cli.mjs (read-only tools) on a
+ * machine with CLAUDE_CODE_OAUTH_TOKEN. A subscription token is never treated as an API credential.
  */
 import { canonicalJson, digestOf, REPO_ROOT } from "../lib/util.mjs";
 import { createOpenAIAdapter, openaiConfig } from "../providers/openai-api.mjs";
 import { createXaiAdapter, xaiConfig } from "../providers/xai-api.mjs";
+import { createAnthropicAdapter, anthropicConfig } from "../providers/anthropic-api.mjs";
 import { startClaudeRun } from "../providers/claude-code-cli.mjs";
 import { resolveClaudeBin, childEnv } from "../providers/claude-preflight.mjs";
 
 /** Variable NAMES each provider needs for a live run. Values are never read by liveAvailable(). */
 export const LIVE_ENV = Object.freeze({
-  anthropic: Object.freeze(["CLAUDE_CODE_OAUTH_TOKEN"]),
+  anthropic: Object.freeze(["ANTHROPIC_API_KEY"]),
   openai: Object.freeze(["OPENAI_API_KEY", "OPENAI_MODEL", "OPENAI_PRICE_IN_PER_M", "OPENAI_PRICE_OUT_PER_M"]),
   xai: Object.freeze(["XAI_API_KEY"]),
 });
+/** A second way to satisfy a provider: Claude on the founder's subscription, local machine only. */
+export const LIVE_ENV_LOCAL = Object.freeze({ anthropic: Object.freeze(["CLAUDE_CODE_OAUTH_TOKEN"]) });
 
 /** @returns {{ provider: string, mode: "LIVE"|"MOCK", missing: string[] }} */
 export function liveAvailable(provider, env = process.env) {
   const names = LIVE_ENV[provider];
   if (!names) return { provider, mode: "MOCK", missing: [`no live adapter for ${provider}`] };
   const missing = names.filter((n) => !(n in env));
-  return { provider, mode: missing.length ? "MOCK" : "LIVE", missing };
+  const local = LIVE_ENV_LOCAL[provider];
+  if (missing.length && local && local.every((n) => n in env)) return { provider, mode: "LIVE", missing: [], via: "local-cli" };
+  return { provider, mode: missing.length ? "MOCK" : "LIVE", missing, ...(missing.length ? {} : { via: "api" }) };
 }
 
 const LIVE = new WeakSet();
@@ -178,8 +186,20 @@ export function createLiveAdapters({ env = process.env, fetch: f = globalThis.fe
   } else missing.xai = xa.missing;
 
   const an = liveAvailable("anthropic", env);
-  const bin = an.mode === "LIVE" ? resolveClaudeBin(env) : null;
-  if (an.mode === "LIVE" && bin) {
+  const bin = an.via === "local-cli" ? resolveClaudeBin(env) : null;
+  if (an.via === "api") {
+    const cfg = anthropicConfig(env);
+    if (!cfg.price) missing.anthropic = [`no price known for ${cfg.model} (set GTP_CC_ANTHROPIC_PRICE_IN_PER_M / _OUT_PER_M)`];
+    else {
+      const api = createAnthropicAdapter({ apiKey: env.ANTHROPIC_API_KEY, model: cfg.model, price: cfg.price, effort: cfg.effort, fetch: f });
+      const maxOutputTokens = 16000;
+      adapters.anthropic = brand({
+        provider: "anthropic", model: cfg.model, kind: "live",
+        worstCase: (req) => api.worstCase({ instructions: req.instructions, input: promptOf(req), maxOutputTokens }),
+        run: async (req) => api.generate({ instructions: req.instructions, input: promptOf(req), schema: schemaFor(req.step), maxOutputTokens }),
+      });
+    }
+  } else if (an.via === "local-cli" && bin) {
     adapters.anthropic = brand({
       provider: "anthropic", model: env.GTP_CC_CLAUDE_MODEL || "claude-code (subscription default)", kind: "live",
       // total_cost_usd from Claude Code is an API-equivalent ESTIMATE; on the subscription it is not a charge.
@@ -201,7 +221,7 @@ export function createLiveAdapters({ env = process.env, fetch: f = globalThis.fe
         return { artifact: r.structured, usage: { usd: r.estUsageUsd ?? claudeMaxBudgetUsd, estimated: true, tokensIn: r.usage?.inputTokens ?? null, tokensOut: r.usage?.outputTokens ?? null } };
       },
     });
-  } else missing.anthropic = an.mode === "LIVE" ? ["the claude executable was not found on PATH (or GTP_CC_CLAUDE_BIN)"] : an.missing;
+  } else if (!missing.anthropic) missing.anthropic = an.mode === "LIVE" ? ["the claude executable was not found on PATH (or GTP_CC_CLAUDE_BIN)"] : an.missing;
 
   // The CEO's brief is the objective exactly as the caller typed it: real input, no model, no cost.
   adapters.founder = brand({

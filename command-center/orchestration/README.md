@@ -8,7 +8,7 @@ node command-center/orchestration/demo.mjs                                  # pi
 node command-center/orchestration/demo.mjs --pipeline research-verify-visual  # pipeline (b), MOCK
 node command-center/orchestration/demo.mjs --rounds 1                       # review loop limit 1 → ESCALATED
 node command-center/orchestration/demo.mjs --live --objective "…"           # refuses unless all 3 providers + caps
-node --test command-center/orchestration/tests/*.test.mjs                   # 21 tests, network blocked
+node --test command-center/orchestration/tests/*.test.mjs                   # 30 tests, network blocked
 ```
 
 | File | What it is |
@@ -16,7 +16,7 @@ node --test command-center/orchestration/tests/*.test.mjs                   # 21
 | `task-ledger.mjs` | Task events on the existing LedgerStore; states, validated transitions, replay, optimistic concurrency, idempotency, approval levels A/B/C |
 | `pipelines.mjs` | Pipelines as data (a) and (b), `withOrder`, the runner (handoffs, notify, bounded review loop, escalation, blocker classes), `approve()` |
 | `budgets.mjs` | Per-provider and per-agent daily/monthly caps, task hard stop, retry budget, circuit breaker. Every cap defaults to $0 |
-| `adapters.mjs` | `liveAvailable()` (checks variable names only), MOCK adapters, live adapters that reuse `providers/openai-api.mjs`, `providers/xai-api.mjs` and `providers/claude-code-cli.mjs` |
+| `adapters.mjs` | `liveAvailable()` (checks variable names only), MOCK adapters, live adapters that reuse `providers/openai-api.mjs`, `providers/xai-api.mjs`, `providers/anthropic-api.mjs` (hosted Claude) and `providers/claude-code-cli.mjs` (local Claude only) |
 | `views.mjs` | Text views: task tree, handoffs, attributed outputs, audit. Every output line is tagged `[MOCK]`/`[LIVE]` from the ledger |
 | `demo.mjs` | The CLI |
 
@@ -92,7 +92,8 @@ names. The cap values are read as numbers because they aren't secrets.
 
 | Provider | Credentials and config (names) | Caps (USD, must be > 0) |
 |---|---|---|
-| Claude (subscription via Claude Code) | `CLAUDE_CODE_OAUTH_TOKEN` (from `claude setup-token`), `claude` on PATH or `GTP_CC_CLAUDE_BIN`, optional `GTP_CC_CLAUDE_MODEL` | `GTP_CC_ANTHROPIC_DAILY_CAP_USD`, `GTP_CC_ANTHROPIC_MONTHLY_CAP_USD` (checked against Claude Code's API-equivalent *estimate*; nothing is billed on the subscription) |
+| Claude, hosted (Anthropic Messages API) | `ANTHROPIC_API_KEY` (a Console API key with prepaid credits, not a Claude subscription), optional `GTP_CC_ANTHROPIC_MODEL` (default `claude-opus-5-5`, $4 / $20 per M), `GTP_CC_ANTHROPIC_EFFORT` (default `high`), `GTP_CC_ANTHROPIC_PRICE_IN_PER_M` / `_OUT_PER_M` for a model without a known price | `GTP_CC_ANTHROPIC_DAILY_CAP_USD`, `GTP_CC_ANTHROPIC_MONTHLY_CAP_USD`. Requests opt into `fallbacks: "default"`, so the worst case is priced at the $5 / $25 fallback ceiling |
+| Claude, local only (subscription via Claude Code) | used only when `ANTHROPIC_API_KEY` is absent: `CLAUDE_CODE_OAUTH_TOKEN` (from `claude setup-token`), `claude` on PATH or `GTP_CC_CLAUDE_BIN`, optional `GTP_CC_CLAUDE_MODEL` | same caps, checked against Claude Code's API-equivalent *estimate*. Not usable Mac-off, and never treated as an API credential |
 | OpenAI (Responses API) | `OPENAI_API_KEY`, `OPENAI_MODEL`, `OPENAI_PRICE_IN_PER_M`, `OPENAI_PRICE_OUT_PER_M` | `GTP_CC_OPENAI_DAILY_CAP_USD`, `GTP_CC_OPENAI_MONTHLY_CAP_USD` (the monthly name is the existing Providers-panel cap) |
 | xAI (Responses API + `x_search`) | `XAI_API_KEY`, optional `XAI_MODEL` (default grok-4.3, with known prices) | `GTP_CC_XAI_DAILY_CAP_USD`, `GTP_CC_XAI_MONTHLY_CAP_USD` (existing monthly name) |
 | Every agent | — | `GTP_CC_AGENT_DAILY_CAP_USD`, `GTP_CC_AGENT_MONTHLY_CAP_USD` |
