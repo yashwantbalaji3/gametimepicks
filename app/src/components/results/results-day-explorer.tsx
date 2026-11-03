@@ -1,26 +1,28 @@
 "use client";
 /**
- * RESULTS DAY EXPLORER (Results V2 pilot) — the /results/day shell.
+ * RESULTS DAY EXPLORER (Results V2 pilot): the /results/day shell.
  *
- * Fetches `index.json` on mount and one day file when a reader selects it, so the page itself carries no results data.
- * Game view and player view are two client filters over the same rows. Counts come from the day file's `families`,
- * printed per market and never added up: the only pooled figure this page could print is one the contract forbids.
+ * Fetches `index.json` on mount, a small day summary when a reader selects a date, and one game's rows only when that game
+ * (or a player in it) is opened, so a phone never downloads a whole slate. Counts come from the summary's `families`,
+ * printed per market and never added up.
  *
- * Three things stay apart on screen: the model's side against the captured reference (never called a result of a bet),
- * forecast accuracy, and missing measurements. Nothing on a pilot day is an official betting result, so no such word is
- * printed. The side is shown without the reference, because no price or market figure is in the file.
+ * Three things stay apart on screen: the model's side against the captured reference (day totals per market only, never
+ * per row, with counts and a 95% Wilson interval and never a bare rate), forecast accuracy, and missing measurements.
+ * Nothing on a pilot day is an official betting result. Only days whose evidence the emit step publishes are listed; a
+ * backfill never is, so the index may be empty and the page then says so.
  */
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 
-import { MARKET_LABELS, MEASUREMENT, REASON, REASON_WORDS, SIDE_RESULT } from "@/lib/results/v2/contract.mjs";
+import { MARKET_LABELS, MEASUREMENT, REASON, REASON_WORDS } from "@/lib/results/v2/contract.mjs";
 
 const BASE = "/data/results/v2";
 const SPORTS = [{ id: "nfl", label: "NFL" }, { id: "nba", label: "NBA" }] as const;
 const PLAYER_PAGE = 40;
-const SIDE_LABEL = "Model side vs captured line (not a betting result)";
-/* Every NBA row carries one of these, and every compared NFL row the other, and the page already says both. */
-const QUIET = new Set<string>([REASON.SIDE_COMPARED, REASON.EXPERIMENTAL_LANE]);
+const SIDE_LABEL = "Model side vs captured line, day totals only (not a betting result)";
+/* Every NBA row carries one of these, and every side-counted NFL row the other, and the page already says both. */
+const QUIET = new Set<string>([REASON.SIDE_AGGREGATE_ONLY, REASON.EXPERIMENTAL_LANE]);
+const NONE = "n/a";
 
 const CSS = `
 .rd h1{font-size:26px;margin:0;color:var(--vault-text)}
@@ -53,8 +55,6 @@ const CSS = `
 .rd .num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .rd th.num{white-space:normal}
 .rd .tag{display:inline-block;padding:1px 6px;border-radius:5px;font-size:11px;font-weight:600;border:1px solid var(--vault-border-strong);color:var(--vault-text-mute)}
-.rd .tag.hit{color:var(--vault-gold-bright);border-color:var(--vault-gold-bright)}
-.rd .tag.miss{color:var(--vault-text)}
 .rd .tag.gap{border-style:dashed;color:var(--vault-text)}
 .rd .warn{border:1px solid var(--vault-border-strong);border-radius:10px;padding:10px 12px;margin-top:12px;font-size:12.5px;line-height:1.55;color:var(--vault-text-mute)}
 .rd .warn b{color:var(--vault-text)}
@@ -64,25 +64,25 @@ const CSS = `
 
 type Row = {
   subject: string; playerId: string; team: string; market: string; predictionKind: "MEDIAN" | "PROBABILITY";
-  prediction: number; actual: number | string | null; absoluteError: number | null; measurement: string;
-  modelSide: "OVER" | "UNDER" | null; sideResult: string | null; claim: string; reason: string;
+  prediction: number; actual: number | string | null; absoluteError: number | null; measurement: string; claim: string; reason: string;
 };
+type Interval = { lower: number; upper: number };
+type Side = null | { suppressed: true; minimumCompared: number } | { compared: number; correct: number; incorrect: number; wilson95: Interval; indistinguishableFromHalf: boolean };
+type DirPlayer = { playerId: string; subject: string; team: string };
 type Game = {
-  eventId: string; start: string; cutoff: string; matchup: string;
+  eventId: string; start: string; cutoff: string; matchup: string; rowCount: number; rowsFile: string; players: DirPlayer[];
   final: { state: string; score: { away: number; home: number }; officialSide?: string; winner?: string; sideResult?: string | null };
-  snapshot: { servedFrom: string; settledFrom: string; generatedAt: string; sourceVersion: string; validationStatus: string; evidence: string };
-  rows: Row[];
+  snapshot: { generatedAt: string; sourceVersion: string; validationStatus: string; evidence: string };
 };
 type Family = {
-  market: string; rows: number; measured: number; noMeasurement: number; pending: number; void: number; withModelSide: number;
-  sideCorrect: number; sideIncorrect: number; sidePush: number; noSide: number; sideCompared: number; sideCorrectRate: number | null;
+  market: string; rows: number; measured: number; noMeasurement: number; pending: number; void: number; side: Side;
   errorRows: number; meanAbsoluteError: number | null;
 };
 type Day = {
   sport: string; date: string; label?: string; validation?: string; counts: { games: number; players: number; rows: number };
-  officialSide?: { correct: number; incorrect: number; push: number; noSide: number; compared: number };
+  officialSide?: Side;
   families: Family[]; games: Game[];
-  provenance: { evidence: string; validationStatus: string; surveyCommit: string; note: string; sourceFiles: { forecast: string; settlement: string; finals: string[] } };
+  provenance: { evidence: string; validationStatus: string; surveyCommit: string; note: string };
 };
 type IndexDay = { sport: string; date: string; games: number; players: number; rows: number; json: string; csv: string };
 
@@ -92,7 +92,20 @@ const DAY = new Intl.DateTimeFormat("en-US", { timeZone: "UTC", weekday: "short"
 const dayLabel = (ymd: string) => DAY.format(new Date(`${ymd}T12:00:00Z`));
 const marketLabel = (m: string) => (MARKET_LABELS as Record<string, string>)[m] ?? m;
 const prediction = (r: Row) => (r.predictionKind === "PROBABILITY" ? `${(r.prediction * 100).toFixed(1)}%` : String(r.prediction));
-const SIDE_WORD: Record<string, string> = { CORRECT: "Side correct", INCORRECT: "Side incorrect", PUSH: "Landed on it", NO_SIDE: "No side" };
+const pct = (x: number) => `${(x * 100).toFixed(0)}%`;
+const GAME_SIDE_WORD: Record<string, string> = { CORRECT: "picked the winner", INCORRECT: "did not pick the winner", PUSH: "tie", NO_SIDE: "no pick" };
+
+/** Counts, the 95% Wilson interval, and the 50% caveat. Never a bare percentage. */
+function SideCounts({ side, unit }: { side: Side; unit: string }) {
+  if (!side) return <span>Not compared</span>;
+  if ("suppressed" in side) return <span>Fewer than {side.minimumCompared} {unit} compared, or one outcome is zero: no count is shown</span>;
+  return (
+    <span>
+      {side.correct} correct, {side.incorrect} incorrect, of {side.compared} {unit}. 95% interval {pct(side.wilson95.lower)} to {pct(side.wilson95.upper)}
+      {side.indistinguishableFromHalf ? ": cannot be told apart from 50%." : "."}
+    </span>
+  );
+}
 
 function Toggle({ label, value, options, onChange }: { label: string; value: string; options: readonly { id: string; label: string }[]; onChange: (id: string) => void }) {
   return (
@@ -105,14 +118,12 @@ function Toggle({ label, value, options, onChange }: { label: string; value: str
   );
 }
 
-function Result({ row }: { row: Row }) {
-  const missing = row.measurement !== MEASUREMENT.MEASURED;
+function Status({ row }: { row: Row }) {
   const word = row.measurement === MEASUREMENT.PENDING ? "Pending" : row.measurement === MEASUREMENT.VOID ? "Void"
-    : row.measurement === MEASUREMENT.NO_MEASUREMENT ? "No measurement" : row.sideResult ? SIDE_WORD[row.sideResult] : "Not compared";
-  const kind = missing ? " gap" : row.sideResult === SIDE_RESULT.CORRECT ? " hit" : row.sideResult === SIDE_RESULT.INCORRECT ? " miss" : "";
+    : row.measurement === MEASUREMENT.NO_MEASUREMENT ? "No measurement" : "Measured";
   return (
     <>
-      <span className={`tag${kind}`}>{word}</span>
+      <span className={`tag${row.measurement === MEASUREMENT.MEASURED ? "" : " gap"}`}>{word}</span>
       {QUIET.has(row.reason) ? null : <small>{(REASON_WORDS as Record<string, string>)[row.reason]}</small>}
     </>
   );
@@ -128,7 +139,7 @@ function Rows({ rows, first }: { rows: Row[]; first: "player" | "market" }) {
             <th scope="col" className="num">Model projection</th>
             <th scope="col" className="num">Actual</th>
             <th scope="col" className="num">Miss</th>
-            <th scope="col">Side check</th>
+            <th scope="col">Measurement</th>
           </tr>
         </thead>
         <tbody>
@@ -137,10 +148,10 @@ function Rows({ rows, first }: { rows: Row[]; first: "player" | "market" }) {
               <td>
                 {first === "player" ? <>{r.subject}<small>{r.team} · {marketLabel(r.market)}</small></> : marketLabel(r.market)}
               </td>
-              <td className="num">{prediction(r)}{r.modelSide ? <small>{r.modelSide}</small> : null}</td>
-              <td className="num">{r.actual ?? "—"}</td>
-              <td className="num">{r.absoluteError ?? "—"}</td>
-              <td><Result row={r} /></td>
+              <td className="num">{prediction(r)}</td>
+              <td className="num">{r.actual ?? NONE}</td>
+              <td className="num">{r.absoluteError ?? NONE}</td>
+              <td><Status row={r} /></td>
             </tr>
           ))}
         </tbody>
@@ -149,25 +160,44 @@ function Rows({ rows, first }: { rows: Row[]; first: "player" | "market" }) {
   );
 }
 
+/** One game's rows, fetched when first needed. Each request clears its own failure, so one bad fetch blanks nothing else. */
+function useGameRows(file: string | null) {
+  const [state, setState] = useState<{ file: string | null; rows: Row[] | null; failed: boolean }>({ file: null, rows: null, failed: false });
+  useEffect(() => {
+    if (!file) return;
+    let live = true;
+    setState({ file, rows: null, failed: false });
+    fetch(file).then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((j) => { if (live) setState({ file, rows: j.rows, failed: false }); })
+      .catch(() => { if (live) setState({ file, rows: null, failed: true }); });
+    return () => { live = false; };
+  }, [file]);
+  return state.file === file ? state : { file, rows: null, failed: false };
+}
+
+function Loaded({ state, children }: { state: { rows: Row[] | null; failed: boolean }; children: (rows: Row[]) => ReactNode }) {
+  if (state.failed) return <p className="warn" role="alert">These rows could not be loaded. Nothing is shown rather than a partial record.</p>;
+  if (!state.rows) return <p className="note" role="status">Loading...</p>;
+  return <>{children(state.rows)}</>;
+}
+
 function GameCard({ game, market }: { game: Game; market: string }) {
   const [open, setOpen] = useState(false);
-  const rows = market === "all" ? game.rows : game.rows.filter((r) => r.market === market);
+  const state = useGameRows(open ? game.rowsFile : null);
   const { away, home } = game.final.score;
   return (
     <details onToggle={(e) => setOpen(e.currentTarget.open)}>
       <summary>
         <strong>{game.matchup}</strong>
-        <span className="sub">Final {away}–{home}</span>
-        {game.final.officialSide ? <span className="sub">Official side {game.final.officialSide}: {SIDE_WORD[game.final.sideResult ?? ""] ?? "not compared"}</span> : null}
-        <span className="sub">{ET_TIME.format(new Date(game.start))} ET · {rows.length} {rows.length === 1 ? "row" : "rows"}</span>
+        <span className="sub">Final {away}-{home}</span>
+        {game.final.officialSide ? <span className="sub">Model pick {game.final.officialSide}: {GAME_SIDE_WORD[game.final.sideResult ?? ""] ?? "not compared"}</span> : null}
+        <span className="sub">{ET_TIME.format(new Date(game.start))} ET · {game.rowCount} {game.rowCount === 1 ? "row" : "rows"}</span>
       </summary>
-      {/* Rows mount on open: a full NBA slate would otherwise put 1,659 table rows in the DOM of a phone. */}
       {open ? (
         <>
-          <Rows rows={rows} first="player" />
+          <Loaded state={state}>{(rows) => <Rows rows={market === "all" ? rows : rows.filter((r) => r.market === market)} first="player" />}</Loaded>
           <p className="prov">
-            Frozen {ET_INSTANT.format(new Date(game.snapshot.generatedAt))} ET, before the {ET_INSTANT.format(new Date(game.cutoff))} ET start · {game.snapshot.evidence} · {game.snapshot.validationStatus}<br />
-            Prediction: {game.snapshot.servedFrom}<br />Result: {game.snapshot.settledFrom}<br />Version: {game.snapshot.sourceVersion}
+            Frozen {ET_INSTANT.format(new Date(game.snapshot.generatedAt))} ET, before the {ET_INSTANT.format(new Date(game.cutoff))} ET start · Version: {game.snapshot.sourceVersion}
           </p>
         </>
       ) : null}
@@ -175,15 +205,20 @@ function GameCard({ game, market }: { game: Game; market: string }) {
   );
 }
 
-function PlayerCard({ name, team, playerId, rows }: { name: string; team: string; playerId: string; rows: (Row & { matchup: string })[] }) {
+function PlayerCard({ player, game, market }: { player: DirPlayer; game: Game; market: string }) {
   const [open, setOpen] = useState(false);
+  const state = useGameRows(open ? game.rowsFile : null);
   return (
-    <details onToggle={(e) => setOpen(e.currentTarget.open)} data-player={playerId}>
+    <details onToggle={(e) => setOpen(e.currentTarget.open)} data-player={player.playerId}>
       <summary>
-        <strong>{name}</strong>
-        <span className="sub">{team} · {rows[0].matchup} · {rows.length} {rows.length === 1 ? "row" : "rows"}</span>
+        <strong>{player.subject}</strong>
+        <span className="sub">{player.team} · {game.matchup}</span>
       </summary>
-      {open ? <Rows rows={rows} first="market" /> : null}
+      {open ? (
+        <Loaded state={state}>
+          {(rows) => <Rows rows={rows.filter((r) => r.playerId === player.playerId && (market === "all" || r.market === market))} first="market" />}
+        </Loaded>
+      ) : null}
     </details>
   );
 }
@@ -194,14 +229,8 @@ function Families({ day }: { day: Day }) {
       {day.families.map((f) => (
         <div className="fam" key={f.market} data-family={f.market}>
           <b>{marketLabel(f.market)}</b>
-          {/* Each block answers one question, and none of them is a betting result. */}
           <span className="sec">{SIDE_LABEL}</span>
-          {f.sideCompared ? (
-            <>
-              <div className="rec">{f.sideCorrect} correct · {f.sideIncorrect} incorrect</div>
-              <span>{(f.sideCorrectRate! * 100).toFixed(1)}% correct of {f.sideCompared} compared · {f.sidePush} landed on it · {f.noSide} no side</span>
-            </>
-          ) : <span>Not compared{f.withModelSide ? ` (${f.withModelSide} rows show a model side)` : ""}</span>}
+          <SideCounts side={f.side} unit="rows" />
           <span className="sec">Forecast accuracy</span>
           <span>{f.meanAbsoluteError == null ? "No numeric miss: a yes or no market" : `Average miss ${f.meanAbsoluteError} over ${f.errorRows} measured rows`}</span>
           <span className="sec">Measurement</span>
@@ -216,8 +245,8 @@ function Families({ day }: { day: Day }) {
 export default function ResultsDayExplorer() {
   const [search, setSearch] = useState<string | null>(null);
   const [index, setIndex] = useState<IndexDay[] | null>(null);
-  const [failed, setFailed] = useState(false);
-  const [day, setDay] = useState<Day | null>(null);
+  const [indexFailed, setIndexFailed] = useState(false);
+  const [day, setDay] = useState<{ json: string; doc: Day | null; failed: boolean } | null>(null);
   const [limit, setLimit] = useState(PLAYER_PAGE);
 
   useEffect(() => {
@@ -230,7 +259,7 @@ export default function ResultsDayExplorer() {
     let live = true;
     fetch(`${BASE}/index.json`).then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((j) => { if (live) setIndex(j.days); })
-      .catch(() => { if (live) setFailed(true); });
+      .catch(() => { if (live) setIndexFailed(true); });
     return () => { live = false; };
   }, []);
 
@@ -248,34 +277,30 @@ export default function ResultsDayExplorer() {
   const view = q.get("view") === "player" ? "player" : "game";
   const dates = useMemo(() => (index ?? []).filter((d) => d.sport === sport), [index, sport]);
   const entry = dates.find((d) => d.date === q.get("date")) ?? dates[0] ?? null;
-  const market = day?.families.some((f) => f.market === q.get("market")) ? q.get("market")! : "all";
+  const json = entry?.json ?? null;
+
+  /* The failure belongs to one request: a new sport or date starts clean, so one failed fetch never blanks the rest. */
+  useEffect(() => {
+    if (!json) return;
+    let live = true;
+    setDay({ json, doc: null, failed: false });
+    fetch(json).then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((j) => { if (live) setDay({ json, doc: j, failed: false }); })
+      .catch(() => { if (live) setDay({ json, doc: null, failed: true }); });
+    return () => { live = false; };
+  }, [json]);
+
+  const current = day && day.json === json ? day : null;
+  const doc = current?.doc ?? null;
+  const market = doc?.families.some((f) => f.market === q.get("market")) ? q.get("market")! : "all";
   const needle = (q.get("q") ?? "").trim().toLowerCase();
 
-  useEffect(() => {
-    if (!entry) { setDay(null); return; }
-    let live = true;
-    setDay(null);
-    fetch(entry.json).then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((j) => { if (live) setDay(j); })
-      .catch(() => { if (live) setFailed(true); });
-    return () => { live = false; };
-  }, [entry]);
-
   const players = useMemo(() => {
-    if (!day) return [];
-    const by = new Map<string, { name: string; team: string; playerId: string; rows: (Row & { matchup: string })[] }>();
-    for (const g of day.games) {
-      for (const r of g.rows) {
-        if (market !== "all" && r.market !== market) continue;
-        if (needle && !r.subject.toLowerCase().includes(needle)) continue;
-        const k = `${g.eventId}|${r.playerId}`;
-        const p = by.get(k) ?? { name: r.subject, team: r.team, playerId: r.playerId, rows: [] };
-        p.rows.push({ ...r, matchup: g.matchup });
-        by.set(k, p);
-      }
-    }
-    return [...by.values()].sort((a, b) => a.name.localeCompare(b.name, "en"));
-  }, [day, market, needle]);
+    if (!doc) return [];
+    const out: { player: DirPlayer; game: Game }[] = [];
+    for (const g of doc.games) for (const p of g.players) if (!needle || p.subject.toLowerCase().includes(needle)) out.push({ player: p, game: g });
+    return out.sort((a, b) => a.player.subject.localeCompare(b.player.subject, "en"));
+  }, [doc, needle]);
 
   return (
     <div className="rd mx-auto max-w-5xl px-4 py-6">
@@ -285,38 +310,50 @@ export default function ResultsDayExplorer() {
       </p>
       <h1>Results by day</h1>
       <p className="lede">
-        Each official prediction beside what happened, one sport and one date at a time. Nothing here is an official betting
-        result: these pilot days are a backfill, so the model&rsquo;s side is only compared with the captured pregame line, and that line
-        is never shown. A missing stat is no measurement, never a zero.
+        Each official prediction beside what happened, one sport and one date at a time. A day appears here only once its
+        predictions are verified as served before the start. Nothing here is an official betting result, and a missing stat is
+        no measurement, never a zero.
       </p>
 
-      <Toggle label="Sport" value={sport} options={SPORTS} onChange={(id) => write({ sport: id, date: null, market: null, q: null })} />
-      <div className="ctl">
-        <label className="lbl" htmlFor="rd-date">Date (ET)</label>
-        <select id="rd-date" value={entry?.date ?? ""} disabled={!dates.length} onChange={(e) => write({ date: e.target.value, market: null, q: null })}>
-          {dates.map((d) => <option key={d.date} value={d.date}>{dayLabel(d.date)}</option>)}
-        </select>
-      </div>
+      {indexFailed ? <p className="warn" role="alert">The list of days could not be loaded. Nothing is shown rather than a partial record.</p> : null}
+      {!indexFailed && !index ? <p className="note" role="status">Loading...</p> : null}
+      {index && index.length === 0 ? (
+        <p className="warn" role="status" data-empty>
+          <b>No day is published yet.</b> Earlier days were rebuilt from the public history after the fact, which does not show
+          they were served before the start, so they are kept private.
+        </p>
+      ) : null}
 
-      {failed ? <p className="warn" role="alert">This day could not be loaded. Nothing is shown rather than a partial record.</p> : null}
-      {!failed && (!index || (entry && !day)) ? <p className="note" role="status">Loading…</p> : null}
-      {!failed && index && !entry ? <p className="note">No day is published for this sport yet.</p> : null}
-
-      {day && entry ? (
+      {index && index.length ? (
         <>
-          {day.label ? (
+          <Toggle label="Sport" value={sport} options={SPORTS} onChange={(id) => write({ sport: id, date: null, market: null, q: null })} />
+          <div className="ctl">
+            <label className="lbl" htmlFor="rd-date">Date (ET)</label>
+            <select id="rd-date" value={entry?.date ?? ""} disabled={!dates.length} onChange={(e) => write({ date: e.target.value, market: null, q: null })}>
+              {dates.map((d) => <option key={d.date} value={d.date}>{dayLabel(d.date)}</option>)}
+            </select>
+          </div>
+          {!entry ? <p className="note">No day is published for this sport yet.</p> : null}
+          {current?.failed ? <p className="warn" role="alert">This day could not be loaded. Nothing is shown rather than a partial record.</p> : null}
+          {entry && !current?.failed && !doc ? <p className="note" role="status">Loading...</p> : null}
+        </>
+      ) : null}
+
+      {doc && entry ? (
+        <>
+          {doc.label ? (
             <div className="warn" data-experimental>
-              <b>{day.label}.</b> {day.validation}. Medians only. Team scores withheld. No player row has a side.
+              <b>{doc.label}.</b> {(doc.validation ?? "").replace(/\s*\u2014\s*/g, ": ")}. Medians only. Team scores withheld. No player row has a side.
             </div>
           ) : null}
 
           <section aria-labelledby="rd-summary">
-            <h2 id="rd-summary">{dayLabel(day.date)} by market</h2>
-            <p className="note">
-              {day.counts.games} games · {day.counts.players} players · {day.counts.rows} rows.
-              {day.officialSide ? ` Official side correct in ${day.officialSide.correct} of ${day.officialSide.compared} games, against the final. Not a betting result.` : ""}
-            </p>
-            <div style={{ marginTop: 10 }}><Families day={day} /></div>
+            <h2 id="rd-summary">{dayLabel(doc.date)} by market</h2>
+            <p className="note">{doc.counts.games} games · {doc.counts.players} players · {doc.counts.rows} rows.</p>
+            {doc.officialSide !== undefined ? (
+              <p className="note">Model pick vs the final, per game (not a betting result): <SideCounts side={doc.officialSide} unit="games" /></p>
+            ) : null}
+            <div style={{ marginTop: 10 }}><Families day={doc} /></div>
           </section>
 
           <section aria-labelledby="rd-compare">
@@ -324,11 +361,11 @@ export default function ResultsDayExplorer() {
             <Toggle label="View" value={view} options={[{ id: "game", label: "By game" }, { id: "player", label: "By player" }]} onChange={(id) => write({ view: id })} />
             <Toggle
               label="Market" value={market}
-              options={[{ id: "all", label: "All" }, ...day.families.map((f) => ({ id: f.market, label: marketLabel(f.market) }))]}
+              options={[{ id: "all", label: "All" }, ...doc.families.map((f) => ({ id: f.market, label: marketLabel(f.market) }))]}
               onChange={(id) => write({ market: id === "all" ? null : id })}
             />
             {view === "game" ? (
-              <div style={{ marginTop: 10 }}>{day.games.map((g) => <GameCard key={g.eventId} game={g} market={market} />)}</div>
+              <div style={{ marginTop: 10 }}>{doc.games.map((g) => <GameCard key={g.eventId} game={g} market={market} />)}</div>
             ) : (
               <div style={{ marginTop: 10 }}>
                 <div className="ctl">
@@ -336,7 +373,7 @@ export default function ResultsDayExplorer() {
                   <input id="rd-q" type="search" value={q.get("q") ?? ""} onChange={(e) => write({ q: e.target.value || null })} />
                 </div>
                 <p className="note" role="status">{players.length} players</p>
-                {players.slice(0, limit).map((p) => <PlayerCard key={`${p.rows[0].matchup}|${p.playerId}`} {...p} />)}
+                {players.slice(0, limit).map((p) => <PlayerCard key={`${p.game.eventId}|${p.player.playerId}`} player={p.player} game={p.game} market={market} />)}
                 {players.length > limit ? <div className="ctl"><button type="button" className="btn" onClick={() => setLimit((n) => n + PLAYER_PAGE)}>Show more players</button></div> : null}
               </div>
             )}
@@ -345,12 +382,9 @@ export default function ResultsDayExplorer() {
           <section aria-labelledby="rd-records">
             <h2 id="rd-records">Records and provenance</h2>
             <p className="m-0"><a className="l" href={entry.csv} download>Download this day as CSV</a></p>
-            <p className="m-0"><a className="l" href={entry.json} download>Download this day as JSON</a></p>
-            <p className="note">{day.provenance.note}</p>
-            <p className="note">
-              Forecast source: {day.provenance.sourceFiles.forecast} · Result source: {day.provenance.sourceFiles.settlement} · Finals: {day.provenance.sourceFiles.finals.join(", ")} · Surveyed at commit {day.provenance.surveyCommit.slice(0, 10)}.
-            </p>
-            <p className="note">{SIDE_LABEL}: the side comes from the frozen projection and the captured pregame line. The line, its price and its book are not on this page or in these files.</p>
+            <p className="note">{doc.provenance.note}</p>
+            <p className="note">Each game names the frozen forecast version it was compared on and when it was frozen. Surveyed at commit {doc.provenance.surveyCommit.slice(0, 10)}.</p>
+            <p className="note">{SIDE_LABEL}: the line, its price and its book are not on this page or in these files, and no row carries a side.</p>
           </section>
         </>
       ) : null}

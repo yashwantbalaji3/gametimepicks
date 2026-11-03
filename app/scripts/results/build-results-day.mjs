@@ -27,7 +27,7 @@ import path from "node:path";
 import { NBA_GRADE_SOURCE, readNbaGrades } from "./read-nba-grades.mjs";
 import {
   EVIDENCE, MEASUREMENT, RESULTS_DAY_SCHEMA, VALIDATION, absoluteError, axesForNbaRow, axesForNbaSide, axesForNflRow,
-  canonicalDayJson, familySummary, marketRank, nflActual, publicSafetyViolations,
+  canonicalDayJson, familySummary, marketRank, nflActual, publicRow, publicSafetyViolations, sideAggregate,
 } from "../../src/lib/results/v2/contract.mjs";
 
 const APP = process.cwd();
@@ -49,7 +49,7 @@ const SURVEYED_DAYS = Object.freeze({
   "nba/2026-10-28": { surveyCommit: "f0ca00de2bcb491b7077de72bc57f3e5218cab55", laneCommit: "47107e9d9d" },
 });
 
-const PROVENANCE_NOTE = "Frozen predictions are copied exactly from the sources named on each game. Pilot days are a backfill from the public GitHub history, labelled BACKFILL_GITHUB and kept apart from any future live capture. A commit is not proof a page was served: validationStatus SURVEY_MEASURED means the served check was not reproduced by this build, so no row here is an official betting result.";
+const PROVENANCE_NOTE = "Frozen predictions are copied exactly from the sources named on each game. Pilot days are a backfill from the public GitHub history, labelled BACKFILL_GITHUB and kept apart from any future live capture. A commit is not proof a page was served: validationStatus SURVEY_MEASURED means the served check was not reproduced by this build, so no row here is an official betting result. Side comparisons appear only as per-market day totals, never per row.";
 
 const byRow = (a, b) => a.subject.localeCompare(b.subject, "en") || (a.playerId < b.playerId ? -1 : a.playerId > b.playerId ? 1 : 0) || marketRank(a.market) - marketRank(b.market);
 const byGame = (a, b) => (a.start < b.start ? -1 : a.start > b.start ? 1 : a.eventId < b.eventId ? -1 : 1);
@@ -63,6 +63,8 @@ function assertFrozenBeforeCutoff(eventId, generatedAt, cutoff) {
 const NFL_RESULT_SOURCE = "NFL prop settlement record (internal)";
 const NBA_RESULT_SOURCE = "NBA prop grade ledger (private research record)";
 
+/* Families are counted from the mapper's full rows; each row is then sealed through `publicRow`, which drops the per-row
+   side and side result (founder ruling 2026-11-03: no record from which a restricted line can be reconstructed). */
 function dayOf({ sport, date, dataClass, surveyCommit, sourceFiles, games, extra = {} }) {
   const rows = games.flatMap((g) => g.rows);
   return {
@@ -70,8 +72,15 @@ function dayOf({ sport, date, dataClass, surveyCommit, sourceFiles, games, extra
     counts: { games: games.length, players: new Set(rows.map((r) => r.playerId)).size, rows: rows.length },
     families: familySummary(rows),
     provenance: { evidence: EVIDENCE.BACKFILL_GITHUB, validationStatus: VALIDATION.SURVEY_MEASURED, surveyCommit, sourceFiles, rowKey: "date|eventId|playerId|market", note: PROVENANCE_NOTE },
-    games: games.sort(byGame),
+    games: games.sort(byGame).map((g) => ({ ...g, rows: g.rows.map(publicRow) })),
   };
+}
+
+/** The ET date's season, e.g. 2026-10-28 → 2026-27 and 2099-11-01 → 2099-00. Seasons start in August. */
+export function nbaSeasonOf(date) {
+  const year = Number(date.slice(0, 4));
+  const start = Number(date.slice(5, 7)) >= 8 ? year : year - 1;
+  return `${start}-${String((start + 1) % 100).padStart(2, "0")}`;
 }
 
 /** The final score per event, from whichever week reconciliation holds the game. */
@@ -137,7 +146,7 @@ export function buildNba(date, surveyed) {
   const ledgerFile = NBA_GRADE_SOURCE;
   const lane = readJson(laneFile);
   const current = readNbaGrades(REPO);
-  const season = Number(date.slice(5, 7)) >= 8 ? `${date.slice(0, 4)}-${String(Number(date.slice(2, 4)) + 1)}` : `${Number(date.slice(0, 4)) - 1}-${date.slice(2, 4)}`;
+  const season = nbaSeasonOf(date);
   const finalsFile = `app/public/data/nba/results/finals-${season}.json`;
   const finalsDoc = readJson(finalsFile);
   const finals = new Map(finalsDoc.finals.map((f) => [f.providerEventId, f]));
@@ -186,7 +195,7 @@ export function buildNba(date, surveyed) {
   return dayOf({
     sport: "nba", date, dataClass: lane.dataClass, surveyCommit: surveyed.surveyCommit,
     sourceFiles: { forecast: laneFile, forecastCommit: surveyed.laneCommit, settlement: NBA_RESULT_SOURCE, finals: [finalsFile] }, games,
-    extra: { label: lane.label, validation: lane.validation, officialSide: { correct: count("CORRECT"), incorrect: count("INCORRECT"), push: count("PUSH"), noSide: count("NO_SIDE"), compared: count("CORRECT") + count("INCORRECT") } },
+    extra: { label: lane.label, validation: lane.validation, officialSide: { ...sideAggregate(count("CORRECT"), count("INCORRECT")), push: count("PUSH"), noSide: count("NO_SIDE") } },
   });
 }
 

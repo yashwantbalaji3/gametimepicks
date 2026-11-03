@@ -19,6 +19,12 @@
  * are never pooled across families or sports. The mappers RE-GRADE NOTHING: an NFL CORRECT or INCORRECT is the settlement
  * owner's `forecastResult`, read as it stands.
  *
+ * ⚠ NO ROW FROM WHICH A RESTRICTED LINE CAN BE RECONSTRUCTED (founder ruling, 2026-11-03). A row carrying the frozen
+ * prediction, the actual AND a side or side result against a hidden reference brackets that reference. The mappers still
+ * return `modelSide` and `sideResult` so the builder can count them, but `publicRow` drops both before a row is sealed,
+ * and `publicSafetyViolations` refuses any row that carries either. Side comparisons ship only as per-family day totals
+ * (`sideAggregate`), suppressed below SIDE_MIN_COMPARED compared rows or when one outcome is zero.
+ *
  * ⚠ NO PRICE REACHES THIS CONTRACT'S OUTPUT. The frozen market is read to find the side and is then dropped: the side
  * ships, and the figure behind it does not. `publicSafetyViolations` refuses a file that carries one (provider terms forbid
  * downloadable price files). NBA has no captured reference here, so it has no side: the shadow ledger's W/L is graded
@@ -35,6 +41,11 @@ export const SIDE_RESULT = Object.freeze({ CORRECT: "CORRECT", INCORRECT: "INCOR
 
 /** How a row's frozen prediction reached the day file. A pilot day is a backfill, kept apart from any future live capture. */
 export const EVIDENCE = Object.freeze({ BACKFILL_GITHUB: "BACKFILL_GITHUB" });
+/**
+ * Evidence a day must carry before the emit step publishes it (founder ruling, 2026-11-03). Empty today: a backfill is
+ * not proof a forecast was served live, so BACKFILL_GITHUB days stay private and the public index may be empty.
+ */
+export const PUBLIC_EVIDENCE = Object.freeze([]);
 /** The served check is not reproduced by the builder: the day was measured by a survey, cited in the doc note. */
 export const VALIDATION = Object.freeze({ SURVEY_MEASURED: "SURVEY_MEASURED" });
 
@@ -51,6 +62,7 @@ export const REASON = Object.freeze({
   EXPERIMENTAL_LANE: "EXPERIMENTAL_LANE",
   DID_NOT_PLAY: "DID_NOT_PLAY",
   NOT_IN_BOX_SCORE: "NOT_IN_BOX_SCORE",
+  SIDE_AGGREGATE_ONLY: "SIDE_AGGREGATE_ONLY",
 });
 
 /** Every reason, in words a reader can use. These strings ship in the CSV, so `publicSafetyViolations` scans them too. */
@@ -67,6 +79,7 @@ export const REASON_WORDS = Object.freeze({
   [REASON.EXPERIMENTAL_LANE]: "Experimental lane: medians only, with no side and no betting result.",
   [REASON.DID_NOT_PLAY]: "Did not play. Not counted against the model.",
   [REASON.NOT_IN_BOX_SCORE]: "Not listed in the final box score. Not counted against the model.",
+  [REASON.SIDE_AGGREGATE_ONLY]: "Side comparisons for this market are published only as day totals per market, never per row. Not a betting result.",
 });
 
 /** Market keys in display order, per sport. A family outside this table is refused, never silently dropped. */
@@ -202,17 +215,62 @@ export function axesForNbaSide(game, final) {
   return axes(MEASUREMENT.MEASURED, correct ? SIDE_RESULT.CORRECT : SIDE_RESULT.INCORRECT, REASON.SIDE_COMPARED);
 }
 
+/** Two-sided 95% Wilson score interval for k of n, to four places, or null when n is 0. */
+export function wilson95(k, n) {
+  if (!Number.isInteger(k) || !Number.isInteger(n) || n <= 0 || k < 0 || k > n) return null;
+  const z = 1.959963984540054;
+  const p = k / n;
+  const z2 = z * z;
+  const denom = 1 + z2 / n;
+  const centre = (p + z2 / (2 * n)) / denom;
+  const half = (z * Math.sqrt((p * (1 - p)) / n + z2 / (4 * n * n))) / denom;
+  return { lower: Number(Math.max(0, centre - half).toFixed(4)), upper: Number(Math.min(1, centre + half).toFixed(4)) };
+}
+
+/** A cell with fewer compared rows than this prints no side counts at all. */
+export const SIDE_MIN_COMPARED = 10;
+
+/**
+ * A side comparison as it may be published: counts plus a 95% Wilson interval, never a bare rate. Null when nothing was
+ * compared. Suppressed below SIDE_MIN_COMPARED, and also when either outcome is zero, because an all-INCORRECT cell would
+ * place every compared row's hidden reference between its prediction and its actual.
+ */
+export function sideAggregate(correct, incorrect) {
+  const compared = correct + incorrect;
+  if (!compared) return null;
+  if (compared < SIDE_MIN_COMPARED || correct === 0 || incorrect === 0) return { suppressed: true, minimumCompared: SIDE_MIN_COMPARED };
+  const interval = wilson95(correct, compared);
+  return { compared, correct, incorrect, wilson95: interval, indistinguishableFromHalf: interval.lower <= 0.5 && interval.upper >= 0.5 };
+}
+
+/** Row keys that would pair a per-row side with a provider reference. Never in a sealed or public row. */
+const ROW_SIDE_KEY = /^(modelSide|sideResult|side|pick|lean|overUnder|direction|lineSide|referenceSide|vsReference)$/i;
+/** Row reasons that name a per-row side comparison. A sealed row says SIDE_AGGREGATE_ONLY instead. */
+const ROW_SIDE_REASON = new Set([REASON.SIDE_COMPARED, REASON.NO_MODEL_SIDE]);
+
+/**
+ * The row as it may be sealed: the mapper's `modelSide` and `sideResult` are dropped, and a reason that would say which
+ * rows were compared (or sat on the reference) becomes SIDE_AGGREGATE_ONLY.
+ */
+export function publicRow(row) {
+  const out = {};
+  for (const [k, v] of Object.entries(row)) if (!ROW_SIDE_KEY.test(k)) out[k] = v;
+  if (ROW_SIDE_REASON.has(out.reason)) out.reason = REASON.SIDE_AGGREGATE_ONLY;
+  return out;
+}
+
 /**
  * Per-market counts in display order: measurement, side comparison, accuracy and official claim, each on its own fields.
  * One entry per family and no total, because pooling is what this contract exists to prevent. Only CORRECT and INCORRECT
- * enter `sideCorrectRate`, and only WIN and LOSS enter `winRate`.
+ * enter `side` (sideAggregate: counts and a Wilson interval, never a bare rate). PUSH and NO_SIDE are not published even
+ * as counts: a push count says some row's reference equals its actual. No rate field exists.
  */
 export function familySummary(rows) {
   const by = new Map();
   for (const r of rows) {
     const c = by.get(r.market) ?? {
-      market: r.market, rows: 0, measured: 0, noMeasurement: 0, pending: 0, void: 0, withModelSide: 0,
-      sideCorrect: 0, sideIncorrect: 0, sidePush: 0, noSide: 0, errorRows: 0, errorSum: 0,
+      market: r.market, rows: 0, measured: 0, noMeasurement: 0, pending: 0, void: 0,
+      sideCorrect: 0, sideIncorrect: 0, errorRows: 0, errorSum: 0,
       win: 0, loss: 0, push: 0, noPick: 0, noClaim: 0,
     };
     c.rows += 1;
@@ -221,12 +279,9 @@ export function familySummary(rows) {
     else if (r.measurement === MEASUREMENT.PENDING) c.pending += 1;
     else if (r.measurement === MEASUREMENT.VOID) c.void += 1;
     else throw new Error(`unknown measurement ${r.measurement}`);
-    if (r.modelSide) c.withModelSide += 1;
     if (r.sideResult === SIDE_RESULT.CORRECT) c.sideCorrect += 1;
     else if (r.sideResult === SIDE_RESULT.INCORRECT) c.sideIncorrect += 1;
-    else if (r.sideResult === SIDE_RESULT.PUSH) c.sidePush += 1;
-    else if (r.sideResult === SIDE_RESULT.NO_SIDE) c.noSide += 1;
-    else if (r.sideResult != null) throw new Error(`unknown sideResult ${r.sideResult}`);
+    else if (r.sideResult != null && r.sideResult !== SIDE_RESULT.PUSH && r.sideResult !== SIDE_RESULT.NO_SIDE) throw new Error(`unknown sideResult ${r.sideResult}`);
     if (isNum(r.absoluteError)) { c.errorRows += 1; c.errorSum += r.absoluteError; }
     if (r.claim === CLAIM.WIN) c.win += 1;
     else if (r.claim === CLAIM.LOSS) c.loss += 1;
@@ -238,15 +293,10 @@ export function familySummary(rows) {
   }
   return [...by.values()]
     .sort((a, b) => marketRank(a.market) - marketRank(b.market))
-    .map(({ errorSum, ...c }) => {
-      const sideCompared = c.sideCorrect + c.sideIncorrect;
-      const decided = c.win + c.loss;
-      return {
-        ...c, sideCompared, sideCorrectRate: sideCompared ? Number((c.sideCorrect / sideCompared).toFixed(4)) : null,
-        meanAbsoluteError: c.errorRows ? Number((errorSum / c.errorRows).toFixed(2)) : null,
-        decided, winRate: decided ? Number((c.win / decided).toFixed(4)) : null,
-      };
-    });
+    .map(({ errorSum, sideCorrect, sideIncorrect, ...c }) => ({
+      ...c, side: sideAggregate(sideCorrect, sideIncorrect), decided: c.win + c.loss,
+      meanAbsoluteError: c.errorRows ? Number((errorSum / c.errorRows).toFixed(2)) : null,
+    }));
 }
 
 /** Stable JSON: keys sorted at every depth, one trailing newline, no clock. Same inputs, same bytes. */
@@ -261,7 +311,7 @@ export function canonicalDayJson(doc) {
 
 export const CSV_COLUMNS = Object.freeze([
   "sport", "date", "eventId", "matchup", "start", "cutoff", "subject", "playerId", "team", "market", "marketLabel",
-  "predictionKind", "prediction", "actual", "absoluteError", "measurement", "modelSide", "sideResult", "claim", "reason", "reasonWords",
+  "predictionKind", "prediction", "actual", "absoluteError", "measurement", "claim", "reason", "reasonWords",
   "evidence", "validationStatus", "servedFrom", "settledFrom", "generatedAt", "sourceVersion",
 ]);
 const csvCell = (v) => {
@@ -290,21 +340,36 @@ const FORBIDDEN_KEY = /^(line|lines|lineResult|odds|overOdds|underOdds|yesOdds|n
 /** Words and book names that may never appear in a public day file's text, CSV included. */
 const FORBIDDEN_TEXT = /\blines?\b|\bodds\b|sportsbook|draftkings|fan\s?duel|betmgm|caesars|betrivers|pinnacle|bovada|bet365|espn\s?bet|pointsbet|fanatics|[+-]\d{3}\b/i;
 
+/** Text that only a per-row side would put in a file. A game's NBA `sideResult` (model pick vs the final) is allowed. */
+const ROW_SIDE_TEXT = /"modelSide"|"(OVER|UNDER)"|"(SIDE_COMPARED|NO_MODEL_SIDE|sideResult)"[^{}]*"subject"|"subject"[^{}]*"(SIDE_COMPARED|NO_MODEL_SIDE|sideResult)"/;
+
 /** Every reason a day file (object) or its serialised text may not be published. Empty means safe. */
 export function publicSafetyViolations(content) {
   const out = [];
-  const visit = (v, at) => {
+  const visit = (v, at, isRow = false) => {
     if (Array.isArray(v)) v.forEach((x, i) => visit(x, `${at}[${i}]`));
     else if (v && typeof v === "object") {
+      if (isRow) {
+        for (const k of Object.keys(v)) if (ROW_SIDE_KEY.test(k)) out.push(`${at}.${k}: per-row side vs a provider reference`);
+        if (ROW_SIDE_REASON.has(v.reason)) out.push(`${at}.reason: ${v.reason} names a per-row side comparison`);
+      }
       for (const [k, x] of Object.entries(v)) {
         if (FORBIDDEN_KEY.test(k)) out.push(`${at}.${k}: forbidden key`);
-        visit(x, `${at}.${k}`);
+        if (k === "rows" && Array.isArray(x)) x.forEach((r, i) => visit(r, `${at}.rows[${i}]`, true));
+        else visit(x, `${at}.${k}`);
       }
     }
   };
   if (typeof content === "string") {
     const hit = FORBIDDEN_TEXT.exec(content);
     if (hit) out.push(`text: "${hit[0]}" near offset ${hit.index}`);
+    const side = ROW_SIDE_TEXT.exec(content);
+    if (side) out.push(`text: per-row side "${side[0]}" near offset ${side.index}`);
+    const header = content.trimStart().startsWith("{") ? "" : content.split("\n", 1)[0];
+    if (/(^|,)(modelSide|sideResult)(,|$)/.test(header)) out.push("csv: a per-row side column");
+    for (const [i, r] of (content.trimStart().startsWith("{") ? [] : content.split("\n").slice(1).entries())) {
+      if (/(^|,)(OVER|UNDER)(,|$)/.test(r)) { out.push(`csv line ${i + 2}: a per-row OVER or UNDER`); break; }
+    }
     return out;
   }
   visit(content, "$");

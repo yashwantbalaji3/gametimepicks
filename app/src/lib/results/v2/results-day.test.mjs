@@ -13,9 +13,10 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
-import { CLAIM, MEASUREMENT, SIDE_RESULT, axesForNbaRow, axesForNbaSide, axesForNflRow, absoluteError, canonicalDayJson, familySummary, modelSideOf, nflActual, officialClaim, publicSafetyViolations, toDayCsv } from "./contract.mjs";
+import { CLAIM, MEASUREMENT, PUBLIC_EVIDENCE, SIDE_RESULT, axesForNbaRow, axesForNbaSide, axesForNflRow, absoluteError, canonicalDayJson, familySummary, modelSideOf, nflActual, officialClaim, publicRow, publicSafetyViolations, sideAggregate, toDayCsv, wilson95 } from "./contract.mjs";
 import { ROUTE_TABLE } from "../../audits/route-inventory.mjs";
 import { emitResultsV2 } from "../../../../scripts/results/emit-results-v2-assets.mjs";
+import { nbaSeasonOf } from "../../../../scripts/results/build-results-day.mjs";
 
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
@@ -33,6 +34,8 @@ const family = (d, m) => d.families.find((f) => f.market === m);
 const nflSource = json("data/internal/nfl/prop-settlement/2026-10-11.json").rows;
 const nflKey = (eventId, playerId, market) => `${eventId}:${playerId}:${market}`;
 const nflById = new Map(nflSource.map((r) => [r.settlementId, r]));
+/* Sealed rows carry no side. The mapper's side, recomputed from the source, is what the family totals count. */
+const nflAxes = nflRows.map((r) => ({ ...r, ...axesForNflRow(nflById.get(nflKey(r.eventId, r.playerId, r.market))) }));
 
 function tmpDir(t) {
   const d = fs.mkdtempSync(path.join(os.tmpdir(), "results-day-"));
@@ -46,16 +49,13 @@ test("NFL 2026-10-11: 13 games, 246 players, 695 rows; 581 measured, 114 none; 1
   assert.deepEqual(nfl.counts, { games: 13, players: 246, rows: 695 });
   assert.equal(count(nflRows, (r) => r.measurement === MEASUREMENT.MEASURED), 581);
   assert.equal(count(nflRows, (r) => r.measurement === MEASUREMENT.NO_MEASUREMENT), 114);
-  assert.equal(count(nflRows, (r) => r.sideResult === SIDE_RESULT.CORRECT), 145);
-  assert.equal(count(nflRows, (r) => r.sideResult === SIDE_RESULT.INCORRECT), 111);
-  assert.equal(count(nflRows, (r) => r.sideResult === SIDE_RESULT.PUSH), 0);
+  assert.equal(count(nflAxes, (r) => r.sideResult === SIDE_RESULT.CORRECT), 145);
+  assert.equal(count(nflAxes, (r) => r.sideResult === SIDE_RESULT.INCORRECT), 111);
+  assert.equal(count(nflAxes, (r) => r.sideResult === SIDE_RESULT.PUSH), 0);
   assert.deepEqual(nfl.families.map((f) => [f.market, f.rows]), [["player_receptions", 177], ["player_reception_yds", 157], ["player_rush_yds", 96], ["player_pass_yds", 24], ["anytime_td", 241]]);
-  assert.deepEqual([family(nfl, "player_receptions").sideCorrect, family(nfl, "player_receptions").sideIncorrect, family(nfl, "player_receptions").sideCompared], [74, 56, 130]);
-  assert.deepEqual([family(nfl, "player_reception_yds").sideCorrect, family(nfl, "player_reception_yds").sideIncorrect, family(nfl, "player_reception_yds").sideCompared], [71, 55, 126]);
-  for (const m of ["player_rush_yds", "player_pass_yds", "anytime_td"]) {
-    const f = family(nfl, m);
-    assert.deepEqual([f.sideCorrect, f.sideIncorrect, f.sidePush, f.sideCompared, f.sideCorrectRate], [0, 0, 0, 0, null], `${m} has no side comparison`);
-  }
+  assert.deepEqual(family(nfl, "player_receptions").side, { compared: 130, correct: 74, incorrect: 56, wilson95: wilson95(74, 130), indistinguishableFromHalf: true });
+  assert.deepEqual(family(nfl, "player_reception_yds").side, { compared: 126, correct: 71, incorrect: 55, wilson95: wilson95(71, 126), indistinguishableFromHalf: true });
+  for (const m of ["player_rush_yds", "player_pass_yds", "anytime_td"]) assert.equal(family(nfl, m).side, null, `${m} has no side comparison`);
 });
 
 test("🔴 no pilot row or game is an official betting result: every claim is NO_CLAIM, and no official count exists", () => {
@@ -64,7 +64,8 @@ test("🔴 no pilot row or game is an official betting result: every claim is NO
     assert.equal(count(rowsOf(d), (r) => r.claim !== CLAIM.NO_CLAIM), 0);
     assert.equal(count(d.games, (g) => (g.final.claim ?? CLAIM.NO_CLAIM) !== CLAIM.NO_CLAIM), 0);
     for (const f of d.families) {
-      assert.deepEqual([f.win, f.loss, f.push, f.noPick, f.decided, f.winRate], [0, 0, 0, 0, 0, null], f.market);
+      assert.deepEqual([f.win, f.loss, f.push, f.noPick, f.decided], [0, 0, 0, 0, 0], f.market);
+      assert.ok(!("winRate" in f) && !("sideCorrectRate" in f), `${f.market}: no bare rate field`);
       assert.equal(f.noClaim, f.rows, f.market);
     }
   }
@@ -78,26 +79,44 @@ test("officialClaim needs a verified reference, snapshot and settlement rule, al
   assert.equal(officialClaim("CORRECT", { ...all, snapshot: "SURVEY_MEASURED" }), "NO_CLAIM", "only a verified true passes");
 });
 
-test("modelSide recomputes from the frozen median and reference on every row: all 355 show one, and 145 + 111 stay the side-result counts", () => {
+test("🔴 no sealed row carries a side: modelSide and sideResult exist only in the mapper, and 355 rows had one before sealing", () => {
+  for (const r of [...nflRows, ...nbaRows]) {
+    assert.ok(!("modelSide" in r) && !("sideResult" in r), `${r.subject} ${r.market}`);
+    assert.ok(!["SIDE_COMPARED", "NO_MODEL_SIDE"].includes(r.reason), `${r.subject}: a reason that names a per-row comparison`);
+  }
   let sided = 0;
-  for (const r of nflRows) {
+  for (const r of nflAxes) {
     const s = nflById.get(nflKey(r.eventId, r.playerId, r.market));
     const reference = s.frozen.market?.line;
     const expected = typeof reference !== "number" || s.frozen.projection.median === reference ? null : s.frozen.projection.median > reference ? "OVER" : "UNDER";
     assert.equal(r.modelSide, expected, s.settlementId);
     if (expected) sided += 1;
-    if (r.sideResult === "CORRECT" || r.sideResult === "INCORRECT") {
-      assert.equal(r.sideResult === "CORRECT", expected === s.lineResult, `${s.settlementId}: the side and the owner's grade must agree`);
-      assert.equal(s.forecastResult, r.sideResult === "CORRECT" ? "WIN" : "LOSS");
-      assert.equal(s.familyState, "PUBLISHED");
-    }
+    if (r.sideResult === "CORRECT" || r.sideResult === "INCORRECT") assert.equal(r.sideResult === "CORRECT", expected === s.lineResult, s.settlementId);
   }
-  assert.equal(sided, 355);
-  assert.equal(count(nflRows, (r) => r.modelSide && r.sideResult == null), 99, "89 below the publication bar + 10 with no measurement");
-  assert.equal(count(nflRows, (r) => !r.modelSide && r.sideResult), 0, "no comparison without a side");
-  assert.equal(count(nbaRows, (r) => r.modelSide != null || r.sideResult != null), 0, "NBA has no captured reference, so no player row has a side");
+  assert.equal(sided, 355, "the 355 rows that would have bracketed their line");
+  assert.equal(count(nflRows, (r) => r.reason === "SIDE_AGGREGATE_ONLY"), 256);
   assert.equal(modelSideOf(37.5, 37.5), null, "a median on the reference has no side");
-  assert.equal(modelSideOf(6, null), null);
+  assert.deepEqual(publicRow({ subject: "x", modelSide: "OVER", sideResult: "CORRECT", reason: "SIDE_COMPARED" }), { subject: "x", reason: "SIDE_AGGREGATE_ONLY" });
+});
+
+test("side aggregates: counts plus a 95% Wilson interval, never a rate; suppressed below 10 compared or when an outcome is zero", () => {
+  assert.deepEqual(wilson95(74, 130), { lower: 0.4833, upper: 0.6512 });
+  assert.deepEqual(wilson95(8, 12), { lower: 0.3906, upper: 0.8619 });
+  assert.equal(wilson95(0, 0), null);
+  assert.equal(sideAggregate(0, 0), null);
+  assert.deepEqual(sideAggregate(6, 3), { suppressed: true, minimumCompared: 10 });
+  assert.deepEqual(sideAggregate(0, 40), { suppressed: true, minimumCompared: 10 }, "all incorrect would bracket every compared row");
+  assert.deepEqual(sideAggregate(40, 0), { suppressed: true, minimumCompared: 10 });
+  assert.equal(sideAggregate(90, 10).indistinguishableFromHalf, false);
+  assert.equal(sideAggregate(6, 5).indistinguishableFromHalf, true);
+});
+
+test("NBA season string is right across a century and a calendar year", () => {
+  assert.equal(nbaSeasonOf("2026-10-28"), "2026-27");
+  assert.equal(nbaSeasonOf("2027-03-01"), "2026-27");
+  assert.equal(nbaSeasonOf("2099-11-01"), "2099-00");
+  assert.equal(nbaSeasonOf("2100-02-01"), "2099-00");
+  assert.equal(nbaSeasonOf("2009-12-01"), "2009-10");
 });
 
 test("accuracy stays apart: meanAbsoluteError per market recomputes from row errors, and yes or no markets have none", () => {
@@ -131,8 +150,8 @@ test("NBA 2026-10-28: 12 games, 237 players, 1,659 rows in 7 families; 1,379 mea
   assert.equal(count(nbaRows, (r) => r.reason === "NOT_IN_BOX_SCORE"), 98);
 });
 
-test("NBA: the official side is correct in 8 of 12 against the finals record, as a side result and not a claim", () => {
-  assert.deepEqual(nba.officialSide, { correct: 8, incorrect: 4, push: 0, noSide: 0, compared: 12 });
+test("NBA: the official side vs the final is 8 of 12 with a Wilson interval that includes 50%, per game, and not a claim", () => {
+  assert.deepEqual(nba.officialSide, { correct: 8, incorrect: 4, push: 0, noSide: 0, compared: 12, wilson95: { lower: 0.3906, upper: 0.8619 }, indistinguishableFromHalf: true });
   const finals = new Map(json("app/public/data/nba/results/finals-2026-27.json").finals.map((f) => [f.providerEventId, f]));
   for (const g of nba.games) {
     const f = finals.get(g.eventId);
@@ -150,6 +169,7 @@ test("a real forecast PUSH with the median on the reference has no side: NO_SIDE
   assert.equal(rows.length, 1);
   assert.equal(rows[0].settlementId, "401872968:nfl-athlete-4567750:player_reception_yds");
   assert.deepEqual(axesForNflRow(rows[0]), { measurement: "MEASURED", modelSide: null, sideResult: "NO_SIDE", claim: "NO_CLAIM", reason: "NO_MODEL_SIDE" });
+  assert.equal(publicRow(axesForNflRow(rows[0])).reason, "SIDE_AGGREGATE_ONLY", "a median on the line is never named per row: it would print the line");
   assert.equal(officialClaim("NO_SIDE", { qualifyingReference: true, snapshot: true, settlementRule: true }), "NO_PICK");
 });
 
@@ -200,18 +220,20 @@ test("NBA mappers: every ledger state maps, an unknown one stops the build, and 
   assert.equal(axesForNbaSide({ ...game, elo: { favoured: null, state: "NO_SIDE" } }, { ftHome: 1, ftAway: 2 }).sideResult, "NO_SIDE");
 });
 
-test("familySummary: CORRECT and INCORRECT alone enter the side rate, WIN and LOSS alone the official rate, each market alone, with no total", () => {
+test("familySummary: CORRECT and INCORRECT alone enter the side aggregate, push and no-side are never published, each market alone, no total", () => {
   const r = (market, measurement, sideResult, claim = "NO_CLAIM", absoluteError = null) => ({ market, measurement, sideResult, claim, absoluteError });
+  const many = (n, side) => Array.from({ length: n }, () => r("reb", "MEASURED", side));
   const out = familySummary([
     r("pts", "MEASURED", "CORRECT", "NO_CLAIM", 1), r("pts", "MEASURED", "INCORRECT", "NO_CLAIM", 2), r("pts", "MEASURED", "INCORRECT", "NO_CLAIM", 4), r("pts", "MEASURED", "PUSH"), r("pts", "MEASURED", "NO_SIDE"),
-    r("pts", "PENDING", null), r("pts", "VOID", null), r("pts", "NO_MEASUREMENT", null), r("anytime_td", "MEASURED", null), r("reb", "MEASURED", "CORRECT", "WIN"), r("reb", "MEASURED", "INCORRECT", "LOSS"),
+    r("pts", "PENDING", null), r("pts", "VOID", null), r("pts", "NO_MEASUREMENT", null), r("anytime_td", "MEASURED", null), ...many(7, "CORRECT"), ...many(5, "INCORRECT"),
   ]);
   assert.deepEqual(out.map((f) => f.market), ["anytime_td", "pts", "reb"], "display order, one entry per market");
   const p = out[1];
-  assert.deepEqual([p.sideCorrect, p.sideIncorrect, p.sidePush, p.noSide, p.pending, p.void, p.noMeasurement, p.sideCompared, p.sideCorrectRate], [1, 2, 1, 1, 1, 1, 1, 3, 0.3333]);
-  assert.deepEqual([p.errorRows, p.meanAbsoluteError, p.decided, p.winRate], [3, 2.33, 0, null], "a side result never becomes an official count");
-  assert.deepEqual([out[2].win, out[2].loss, out[2].decided, out[2].winRate], [1, 1, 2, 0.5]);
-  assert.equal(out[0].sideCorrectRate, null);
+  assert.deepEqual([p.pending, p.void, p.noMeasurement, p.side], [1, 1, 1, { suppressed: true, minimumCompared: 10 }]);
+  assert.deepEqual([p.errorRows, p.meanAbsoluteError, p.decided], [3, 2.33, 0], "a side result never becomes an official count");
+  assert.ok(!("sidePush" in p) && !("noSide" in p) && !("sideCorrectRate" in p) && !("winRate" in p));
+  assert.deepEqual(out[2].side, { compared: 12, correct: 7, incorrect: 5, wilson95: wilson95(7, 12), indistinguishableFromHalf: true });
+  assert.equal(out[0].side, null);
   assert.equal(nfl.total ?? nfl.overall ?? nfl.winRate ?? nfl.sideCorrectRate ?? null, null, "no day-level rate");
 });
 
@@ -310,19 +332,36 @@ test("every game was frozen before its cutoff and carries traceable provenance l
 const FIELD_BAN = /"(line|odds|sportsbook|book|bookmaker|overOdds|underOdds|yesOdds|overPrice|underPrice|price|p10|p90|band80|low|high|range|frozen|teamScores|projectedScore|syntheticMedianLine)"\s*:/i;
 const TEXT_BAN = /\bline\b|\bodds\b|sportsbook|draftkings|fanduel|betmgm|betrivers|caesars|synthetic|[+-]\d{3}\b/i;
 
-test("the public JSON and CSV carry no price, no book, no reference, no NBA range and no team-score forecast", (t) => {
+test("🔴 BACKFILL_GITHUB days stay private: the real emit writes an empty index and no day file", (t) => {
+  assert.deepEqual(PUBLIC_EVIDENCE, [], "no evidence class is public yet");
   const dir = tmpDir(t);
   const out = emitResultsV2({ outDir: dir });
-  assert.deepEqual(out.files, ["index.json", "nba/2026-10-28.csv", "nba/2026-10-28.json", "nfl/2026-10-11.csv", "nfl/2026-10-11.json"]);
+  assert.deepEqual(out, { days: 0, withheld: 2, files: ["index.json"] });
+  assert.deepEqual(fs.readdirSync(dir), ["index.json"]);
+  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(dir, "index.json"), "utf8")), { days: [], schema: "gtp.results-day-index@1" });
+  const missing = emitResultsV2({ sealedDir: path.join(dir, "nope"), outDir: path.join(dir, "empty") });
+  assert.deepEqual(missing, { days: 0, withheld: 0, files: ["index.json"] }, "an empty index is valid, not a refusal");
+});
+
+test("file shapes (evidence allowed only in this test): a small summary, one file per game, a CSV; no price, no book, no side", (t) => {
+  const dir = tmpDir(t);
+  const out = emitResultsV2({ outDir: dir, publicEvidence: ["BACKFILL_GITHUB"] });
+  assert.equal(out.days, 2);
+  assert.equal(out.files.length, 1 + 2 + 2 + nfl.games.length + nba.games.length);
   for (const f of out.files) {
     const text = fs.readFileSync(path.join(dir, f), "utf8");
     assert.doesNotMatch(text, FIELD_BAN, f);
     assert.doesNotMatch(text, TEXT_BAN, f);
+    assert.doesNotMatch(text, /modelSide|\bOVER\b|\bUNDER\b/, f);
     assert.deepEqual(publicSafetyViolations(text), [], f);
   }
-  /* The sealed file is the public file, byte for byte: the guard above covers both. */
-  assert.equal(fs.readFileSync(path.join(dir, "nfl/2026-10-11.json"), "utf8"), read(NFL_FILE));
-  assert.equal(fs.readFileSync(path.join(dir, "nba/2026-10-28.json"), "utf8"), read(NBA_FILE));
+  const summary = fs.readFileSync(path.join(dir, "nba/2026-10-28.json"), "utf8");
+  assert.ok(summary.length < 40_000, `the NBA summary a phone loads first is ${summary.length} bytes`);
+  const s = JSON.parse(summary);
+  assert.equal(s.games.every((g) => !("rows" in g) && g.rowsFile.startsWith("/data/results/v2/nba/2026-10-28/")), true);
+  assert.equal(s.games.reduce((a, g) => a + g.rowCount, 0), 1659);
+  const g0 = JSON.parse(fs.readFileSync(path.join(dir, `nba/2026-10-28/${nba.games[0].eventId}.json`), "utf8"));
+  assert.deepEqual(g0.rows, nba.games[0].rows, "per-game rows are the sealed rows");
   assert.equal(fs.readFileSync(path.join(dir, "nfl/2026-10-11.csv"), "utf8").trimEnd().split("\n").length, 696);
   assert.equal(fs.readFileSync(path.join(dir, "nba/2026-10-28.csv"), "utf8").trimEnd().split("\n").length, 1660);
   assert.deepEqual(JSON.parse(fs.readFileSync(path.join(dir, "index.json"), "utf8")).days.map((d) => [d.sport, d.date, d.rows]), [["nba", "2026-10-28", 1659], ["nfl", "2026-10-11", 695]]);
@@ -333,10 +372,24 @@ test("the safety check catches a planted price, book or range, by key and by tex
     assert.notDeepEqual(publicSafetyViolations({ ...nfl, ...planted }), [], JSON.stringify(planted));
   }
   assert.deepEqual(publicSafetyViolations(nfl), []);
+  assert.deepEqual(publicSafetyViolations(nba), [], "a game's model pick vs the final is allowed");
+  const row0 = nfl.games[0].rows[0];
+  for (const plant of [{ modelSide: "OVER" }, { sideResult: "CORRECT" }, { side: "UNDER" }, { reason: "SIDE_COMPARED" }, { reason: "NO_MODEL_SIDE" }]) {
+    const doc = { ...nfl, games: [{ ...nfl.games[0], rows: [{ ...row0, ...plant }] }] };
+    assert.notDeepEqual(publicSafetyViolations(doc), [], `object: ${JSON.stringify(plant)}`);
+    assert.notDeepEqual(publicSafetyViolations(canonicalDayJson(doc)), [], `text: ${JSON.stringify(plant)}`);
+  }
+  assert.notDeepEqual(publicSafetyViolations("sport,modelSide\nnfl,\n"), [], "a CSV side column");
+  assert.notDeepEqual(publicSafetyViolations("sport,x\nnfl,UNDER\n"), [], "a CSV OVER or UNDER cell");
+  const sealedSide = tmpDir(t);
+  fs.mkdirSync(path.join(sealedSide, "nfl"));
+  fs.writeFileSync(path.join(sealedSide, "nfl", "2026-10-11.json"), canonicalDayJson({ ...nfl, games: [{ ...nfl.games[0], rows: [{ ...row0, modelSide: "OVER", sideResult: "CORRECT" }] }] }));
+  assert.throws(() => emitResultsV2({ sealedDir: sealedSide, outDir: path.join(sealedSide, "o") }), /per-row side/, "refused even though the day would be withheld");
   const sealed = tmpDir(t);
   fs.mkdirSync(path.join(sealed, "nfl"));
   fs.writeFileSync(path.join(sealed, "nfl", "2026-10-11.json"), canonicalDayJson({ ...nfl, games: [{ ...nfl.games[0], rows: [{ ...nfl.games[0].rows[0], line: 5.5 }] }] }));
   assert.throws(() => emitResultsV2({ sealedDir: sealed, outDir: path.join(sealed, "o") }), /forbidden key/);
+  for (const f of [NFL_FILE, NBA_FILE]) assert.doesNotMatch(read(f), /modelSide|"(OVER|UNDER)"|"SIDE_COMPARED","subject"/, `${f}: committed to a public repo`);
 });
 
 test("delete → regenerate → identical bytes, spawned the way CI runs it, and two emits match", (t) => {
@@ -351,8 +404,8 @@ test("delete → regenerate → identical bytes, spawned the way CI runs it, and
   const refused = spawnSync("npx", ["tsx", builder, "--sport", "nfl", "--date", "2026-10-18", "--out-root", dir], { cwd: APP, encoding: "utf8" });
   assert.equal(refused.status, 2, "a day with no surveyed evidence is refused, never softened");
   assert.equal(fs.existsSync(path.join(dir, "nfl", "2026-10-18.json")), false);
-  const a = emitResultsV2({ outDir: path.join(dir, "a") });
-  const b = emitResultsV2({ outDir: path.join(dir, "b") });
+  const a = emitResultsV2({ outDir: path.join(dir, "a"), publicEvidence: ["BACKFILL_GITHUB"] });
+  const b = emitResultsV2({ outDir: path.join(dir, "b"), publicEvidence: ["BACKFILL_GITHUB"] });
   assert.deepEqual(a, b);
   for (const f of a.files) assert.equal(sha(fs.readFileSync(path.join(dir, "a", f))), sha(fs.readFileSync(path.join(dir, "b", f))), f);
   assert.equal(toDayCsv(nfl), fs.readFileSync(path.join(dir, "a", "nfl/2026-10-11.csv"), "utf8"));
@@ -399,7 +452,7 @@ test("wiring: emitted before next build, kept by the prune, gitignored, a build 
   assert.match(appFile("scripts/vercel-ignore-build.sh"), /':\(top\)data\/results-projection\/'/);
   assert.match(appFile("scripts/prune-internal-routes.mjs"), /"results\/v2\/"\]/);
   assert.match(read(".gitignore"), /^app\/public\/data\/results\/v2\/$/m);
-  assert.equal((appFile("src/app/results/page.tsx").match(/\/results\/day\//g) ?? []).length, 1, "/results adds one link and nothing else");
+  assert.equal((appFile("src/app/results/page.tsx").match(/results\/day/g) ?? []).length, 0, "/results does not link to /results/day while no day is published");
   assert.doesNotMatch(appFile("src/app/layout.tsx"), /results-day|results\/day/);
   assert.doesNotMatch(appFile("src/app/not-found.tsx"), /results-day|results\/day/);
   assert.doesNotMatch(appFile(PAGE), /fs\.|readFile|fetch\(/, "the page holds no data");
@@ -414,14 +467,36 @@ test("the shell: 44px targets, aria-pressed toggles, a CSV link, the lane's expe
   assert.match(src, /aria-pressed=\{o\.id === value\}/);
   assert.match(src, /entry\.csv/);
   assert.match(src, /Model projection/);
-  assert.match(src, /Model side vs captured line \(not a betting result\)/);
+  assert.match(src, /Model side vs captured line, day totals only \(not a betting result\)/);
   assert.match(src, /No measurement/);
   assert.match(src, /Forecast accuracy/);
   assert.equal(nba.label, "UNVALIDATED EXPERIMENTAL SIMULATION");
-  assert.match(src, /day\.label/);
+  assert.match(src, /doc\.label/);
   for (const text of [src, appFile("src/lib/results/v2/contract.mjs"), read(NFL_FILE), read(NBA_FILE)]) {
     assert.doesNotMatch(text, /\bESTIMATED?\b|PROJECTED MEDIAN|\best\.(?=\s|$)/i);
   }
+});
+
+test("no betting-record styling: no gold HIT tag, no bare percentage rate, and the Wilson interval with the 50% caveat", () => {
+  const src = appFile(SHELL);
+  assert.doesNotMatch(src, /\.hit\b|gold|tag\$\{kind\}|sideCorrectRate|winRate/);
+  assert.doesNotMatch(src, /\.rows\b.*modelSide|r\.sideResult|row\.sideResult/, "no per-row side in the shell");
+  assert.match(src, /95% interval/);
+  assert.match(src, /cannot be told apart from 50%/);
+  assert.doesNotMatch(src.replace(/\/\*[\s\S]*?\*\//g, ""), /\u2014/, "no em dash in user-facing copy");
+  assert.doesNotMatch(appFile(PAGE), /\u2014/);
+});
+
+test("the shell: each fetch owns its failure (one bad fetch never blanks later days), an honest empty state, no internal path", () => {
+  const src = appFile(SHELL);
+  assert.doesNotMatch(src, /setFailed\(true\)/, "no shared sticky failure flag");
+  assert.match(src, /setDay\(\{ json, doc: null, failed: false \}\)/, "a new day request starts clean");
+  assert.match(src, /setState\(\{ file, rows: null, failed: false \}\)/, "a new game request starts clean");
+  assert.match(src, /data-empty/);
+  assert.match(src, /kept private/);
+  assert.doesNotMatch(src, /sourceFiles|servedFrom|settledFrom/, "the provenance block prints no repo path");
+  assert.doesNotMatch(src, /served live|were served before the start\. They/);
+  assert.match(src, /rowsFile/, "rows load per game, on open");
 });
 
 test("no W/L wording anywhere a reader sees, in the shell, the reason words or the public files", () => {
