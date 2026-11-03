@@ -54,8 +54,23 @@ export function createScriptedMocks(script = {}) {
   const calls = [];
   const subjectOf = (req) => req.state.tasks[req.task.subjectTaskId];
   const evalCount = {};
+  // The request in the founder's own words. The scripted texts below describe DEMO_REQUEST; for any other request the
+  // stand-ins name the request instead, so a MOCK screen never shows work that has nothing to do with what was asked.
+  const askedOf = (req) => req.state.tasks[req.task.rootTaskId ?? req.task.taskId]?.objective ?? "";
+  const isDemo = (req) => askedOf(req) === DEMO_REQUEST.objective;
+  const short = (t) => (t.length > 90 ? `${t.slice(0, 87)}...` : t);
   const defaults = {
-    plan: () => evaluation({ verdict: "not-applicable", decision: "FOLLOW_UP", rationale: "[MOCK] one engineering change covers the request", followUps: [demoBrief()], ceoSummary: "[MOCK] planned: one Claude engineering task" }),
+    plan: (req) => {
+      if (isDemo(req)) return evaluation({ verdict: "not-applicable", decision: "FOLLOW_UP", rationale: "[MOCK] one engineering change covers the request", followUps: [demoBrief()], ceoSummary: "[MOCK] planned: one Claude engineering task" });
+      const root = req.state.tasks[req.task.rootTaskId];
+      const criteria = root?.acceptanceCriteria?.length ? root.acceptanceCriteria : [`[MOCK] ${short(askedOf(req))} is done and shown on the page`, "[MOCK] a test fails without the change"];
+      const brief = demoBrief({
+        objective: askedOf(req), whyItMatters: "[MOCK] the founder asked for it from CEO Chat.", currentState: "[MOCK] not inspected: a stand-in planner reads no code.",
+        requirements: [`[MOCK] ${short(askedOf(req))}`], codeLocations: [], acceptanceCriteria: criteria,
+        constraints: ["Stage explicit paths; no push"], priorResults: "None — first assignment for this request.",
+      });
+      return evaluation({ verdict: "not-applicable", decision: "FOLLOW_UP", rationale: "[MOCK] one engineering change covers the request", followUps: [brief], ceoSummary: "[MOCK] planned: one Claude engineering task" });
+    },
     evaluate: (req, subject) => {
       const a = subject.brief?.assignee;
       const n = (evalCount[a] = (evalCount[a] ?? 0) + 1);
@@ -64,7 +79,7 @@ export function createScriptedMocks(script = {}) {
           verdict: "changes", decision: "FOLLOW_UP",
           requirementCoverage: [{ requirement: "UTC label", met: "partial", evidence: "[MOCK] report says label renders local time on Safari" }],
           findings: [{ id: "F1", severity: "major", text: "The label falls back to local time when generatedAt is missing" }],
-          followUps: [
+          followUps: isDemo(req) ? [
             demoBrief({ fixesSubject: true, priority: "P1", objective: "Make the queue header label use generatedAt in UTC even when the browser locale differs, and hide it when generatedAt is missing", priorResults: "First implementation rendered local time when generatedAt was absent (finding F1).", acceptanceCriteria: ["Label hidden when generatedAt is missing", "Label is UTC for a non-UTC browser locale in the test"] }),
             {
               ...demoBrief(), assignee: "grok-research", priority: "P3", tests: [],
@@ -76,18 +91,30 @@ export function createScriptedMocks(script = {}) {
               constraints: ["Public sources only", "Never post on X"], deliverables: ["A research report"], permissions: ["read-public-web", "never-post"],
               reportingFormat: "Research report JSON: findings with claim and url.",
             },
+          ] : [
+            demoBrief({ fixesSubject: true, priority: "P1", objective: `Fix finding F1 in the first change for: ${short(askedOf(req))}`, currentState: "[MOCK] the first change is committed; finding F1 is open.", requirements: ["Resolve finding F1", "Keep the request's acceptance criteria met"], codeLocations: [], priorResults: "[MOCK] first change committed; the review found F1.", acceptanceCriteria: ["Finding F1 no longer reproduces", "A test fails without the fix"] }),
+            {
+              ...demoBrief(), assignee: "grok-research", priority: "P3", tests: [], codeLocations: [],
+              objective: `Find how three comparable products handle this, with source links: ${short(askedOf(req))}`,
+              whyItMatters: "An outside comparison tells us whether the change matches what users already know.",
+              currentState: "[MOCK] no external comparison exists for this request.",
+              requirements: ["Three products, each with a source URL", "Quote what each product does"],
+              acceptanceCriteria: ["Three findings, each with an https source URL", "Each finding quotes the product"],
+              constraints: ["Public sources only", "Never post on X"], deliverables: ["A research report"], permissions: ["read-public-web", "never-post"],
+              reportingFormat: "Research report JSON: findings with claim and url.",
+            },
           ],
           rationale: "[MOCK] verified defect F1; outside comparison is cheap and useful", ceoSummary: "[MOCK] first change needs a fix; research requested",
         });
       }
       return evaluation({
-        requirementCoverage: [{ requirement: a === "grok-research" ? "three sourced findings" : "UTC label", met: "yes", evidence: "[MOCK] report and claim verification" }],
+        requirementCoverage: [{ requirement: a === "grok-research" ? "three sourced findings" : isDemo(req) ? "UTC label" : short(askedOf(req)), met: "yes", evidence: "[MOCK] report and claim verification" }],
         rationale: `[MOCK] ${a} round ${n} meets its criteria`,
-        ceoSummary: a === "grok-research" ? "[MOCK] research delivered with sources" : "[MOCK] queue header shows 'Updated HH:MM UTC'; fix verified; ready to close",
+        ceoSummary: a === "grok-research" ? "[MOCK] research delivered with sources" : isDemo(req) ? "[MOCK] queue header shows 'Updated HH:MM UTC'; fix verified; ready to close" : `[MOCK] done: ${short(askedOf(req))}; fix verified; ready to close`,
       });
     },
-    research: () => ({
-      summary: "[MOCK] three products show freshness as relative time with an absolute tooltip",
+    research: (req) => ({
+      summary: isDemo(req) ? "[MOCK] three products show freshness as relative time with an absolute tooltip" : `[MOCK] three comparable products, for: ${short(askedOf(req))}`,
       findings: [1, 2, 3].map((i) => ({ claim: `[MOCK] product ${i} shows 'Updated N min ago'`, url: `https://example.invalid/mock-${i}` })),
       limitations: ["[MOCK] no real search was run"], suggestedNextSteps: [{ title: "Consider a relative-time tooltip", rationale: "[MOCK] common pattern", suggestedAssignee: "chatgpt-product" }],
     }),
@@ -105,17 +132,22 @@ export function createScriptedMocks(script = {}) {
   return { adapters: { openai: mk("openai"), anthropic: mk("anthropic"), xai: mk("xai") }, calls };
 }
 
+const DEMO_REQUEST_BRIEF_OBJECTIVE = demoBrief().objective;
+
 /** What the stand-in Claude Code worker reports. */
 export function demoReport(task, over = {}) {
   const fix = task.brief?.fixesSubject;
+  const demo = task.brief.objective === DEMO_REQUEST_BRIEF_OBJECTIVE || /queue header label/.test(task.brief.objective);
   return {
     originalTask: task.taskId, intendedOutcome: task.brief.acceptanceCriteria.join("; "),
-    summary: fix ? "[MOCK] label now hidden without generatedAt and always UTC" : "[MOCK] added the Updated label to the queue header",
+    summary: demo
+      ? (fix ? "[MOCK] label now hidden without generatedAt and always UTC" : "[MOCK] added the Updated label to the queue header")
+      : `[MOCK] ${fix ? "fixed" : "completed"}: ${task.brief.objective}`,
     changes: ["[MOCK] no file was changed"], files: ["(mock)"],
-    git: { branch: "mock/queue-updated-label", commits: [fix ? KNOWN_COMMITS[1] : KNOWN_COMMITS[0]], prs: [] },
+    git: { branch: demo ? "mock/queue-updated-label" : "mock/hq-request", commits: [fix ? KNOWN_COMMITS[1] : KNOWN_COMMITS[0]], prs: [] },
     tests: [{ command: "node --test command-center/tests/*.test.mjs", passed: 12, failed: 0 }],
     evidence: [{ kind: "note", ref: "[MOCK] no screenshot" }], limitations: ["[MOCK] stand-in worker"], risks: [],
-    suggestedNextSteps: fix ? [] : [{ title: "Check the label at 390 px", rationale: "[MOCK] mobile header is narrow", suggestedAssignee: "claude-qa" }],
+    suggestedNextSteps: fix ? [] : [{ title: demo ? "Check the label at 390 px" : "Check the change at 390 px", rationale: "[MOCK] the founder works from a phone", suggestedAssignee: "claude-qa" }],
     stage: "COMMITTED", ...over,
   };
 }

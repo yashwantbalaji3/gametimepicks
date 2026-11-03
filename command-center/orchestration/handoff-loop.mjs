@@ -230,6 +230,9 @@ export function v3Status(state, t) {
 
 // ───────────────────────────────────────────── the loop ─────────────────────────────────────────────
 
+/** What the organisation asks for. The ids are ledger values; routing a category to a first assignee is the caller's. */
+export const TASK_CATEGORIES = Object.freeze(["engineering", "product-ux", "forecasts", "theater", "results", "betting", "live", "research", "social", "ops"]);
+
 export const LOOP_DEFAULTS = Object.freeze({
   maxDepth: 4, // planner = 1, its assignments = 2, …
   maxTasksPerRequest: 16,
@@ -306,12 +309,18 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
   }
 
   // ── intake ──
-  function intake(founder, { objective, acceptanceCriteria = [], priority = "P1", requestKey, brief = null }) {
+  /**
+   * A CEO request. `category` (one of TASK_CATEGORIES) is stored on the request task. With a `requestKey`, calling
+   * intake again for the same objective returns the same request and writes nothing (a retried chat send, a reload).
+   */
+  function intake(founder, { objective, acceptanceCriteria = [], priority = "P1", requestKey, brief = null, category = null }) {
     if (founder?.role !== "founder" || founder.authenticated !== true) throw new OrchestrationError("FOUNDER_ONLY", "a CEO request comes from the authenticated founder");
     if (String(objective ?? "").trim().length < 10) throw new OrchestrationError("INVALID_REQUEST", "say what you want done");
+    if (category != null && !TASK_CATEGORIES.includes(category)) throw new OrchestrationError("INVALID_CATEGORY", `category is one of ${TASK_CATEGORIES.join(", ")}`);
     const taskId = `req-${digestOf({ objective, requestKey: requestKey ?? now() }).slice(0, 12)}`;
+    if (requestKey != null && ledger.task(taskId)) return taskId;
     const agent = { provider: "founder", seat: "founder", role: "ceo" };
-    ev("task.created", { task: { ...spec({ taskId, rootId: taskId, objective, agent, stepKey: "request", approvalLevel: "A", depth: 0, costUsd: L.costCeilingUsd }), acceptanceCriteria, priority, rootTaskId: taskId } }, `create:${taskId}`);
+    ev("task.created", { task: { ...spec({ taskId, rootId: taskId, objective, agent, stepKey: "request", approvalLevel: "A", depth: 0, costUsd: L.costCeilingUsd }), acceptanceCriteria, priority, rootTaskId: taskId, category } }, `create:${taskId}`);
     transition(taskId, "IN_PROGRESS");
     // The founder's words are real input, not a model's: LIVE in every mode (no model, no cost).
     ledger.recordOutput(taskId, { ...founder }, { adapter: FOUNDER_INPUT, isLive: true, result: { artifact: { brief: objective, acceptanceCriteria, priority, surface: founder.surface ?? null } } }, { idempotencyKey: `v3:${taskId}:brief` });
@@ -808,7 +817,7 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
         const lastEval = tree.filter((t) => ["evaluate", "plan"].includes(t.stepKey) && t.state === "DONE").at(-1);
         const mock = tree.some((t) => t.outputs.some((o) => o.mode === "MOCK"));
         return {
-          taskId: r.taskId, objective: r.objective, status: v3Status(s, r), mode: mock ? "MOCK" : "LIVE",
+          taskId: r.taskId, objective: r.objective, category: r.category ?? null, status: v3Status(s, r), mode: mock ? "MOCK" : "LIVE",
           open: tree.filter((t) => open(t) && t.taskId !== r.taskId).length, tasks: tree.length,
           costUsd: Number(tree.reduce((n, t) => n + t.costUsd, 0).toFixed(6)),
           decision: decision ? { taskId: decision.taskId, digest: decision.inputs[0], escalation: decision.meta?.escalation ?? null } : null,
@@ -853,6 +862,15 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
       }
       const closedWithoutModel = Object.values(s.tasks).filter((t) => t.outcome?.deterministic).length;
       return { paidEnabled, providers, bySteps: Object.values(bySteps), closedWithoutModel, refusals: s.refusals.length };
+    },
+    /** Who is working right now: each running queue task with its worker and lease ("Claude is working"). */
+    working() {
+      const s = st();
+      const n = now();
+      return s.taskOrder.map((id) => s.tasks[id]).filter((t) => t.state === "IN_PROGRESS" && t.claim).map((t) => ({
+        taskId: t.taskId, rootTaskId: t.rootTaskId, step: t.stepKey, agent: agentKey(t.assignedAgent), assignee: t.brief?.assignee ?? null,
+        worker: t.claim.worker, leaseUntil: t.claim.leaseUntil, leaseExpired: t.claim.leaseUntil <= n,
+      }));
     },
     activity(provider) {
       const s = st();

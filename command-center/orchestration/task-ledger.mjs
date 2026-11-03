@@ -131,6 +131,7 @@ function newTask(spec, ev) {
     route: spec.route ?? null,
     subjectTaskId: spec.subjectTaskId ?? null,
     meta: spec.meta ?? null,
+    category: spec.category ?? null,
     claim: null,
     state: "PLANNED",
     inputs: spec.inputs ?? [],

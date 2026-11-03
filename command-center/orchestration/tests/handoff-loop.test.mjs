@@ -492,3 +492,54 @@ test("cost: the spend view reports caps, 80% alerts and usage by step", async ()
   assert.ok(sp.bySteps.some((b) => b.step === "evaluate" && b.mode === "MOCK" && b.calls >= 3 && b.usd === 0));
   assert.equal(sp.providers.openai.alert, false);
 });
+
+// ── for the hosted HQ (Command Center asks, 2026-11-03) ──
+
+test("HQ: a request's category is a ledger field; an unknown category is refused", () => {
+  const h = setup();
+  const id = h.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "cat-1", category: "results" });
+  assert.equal(h.ledger.task(id).category, "results");
+  assert.equal(replay(h.ledger.events()).tasks[id].category, "results");
+  assert.equal(h.loop.views.home()[0].category, "results");
+  assert.equal(codeOf(() => h.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "cat-2", category: "astrology" })), "INVALID_CATEGORY");
+  assert.equal(h.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "cat-3" }) !== id, true, "category stays optional");
+});
+
+test("HQ: intake again with the same requestKey returns the same request and writes nothing", () => {
+  const h = setup();
+  const a = h.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "chat-42", category: "engineering" });
+  const n = h.ledger.events().length;
+  h.clock(); h.clock(); // time moves on between the two sends (the deadline would differ)
+  const b = h.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "chat-42", category: "engineering" });
+  assert.equal(b, a);
+  assert.equal(h.ledger.events().length, n);
+  assert.notEqual(h.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "chat-43" }), a, "a new key is a new request");
+});
+
+test("HQ: views.working shows which worker holds which task until it reports", async () => {
+  const h = setup();
+  h.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "w-1" });
+  await h.loop.runUntilIdle();
+  assert.deepEqual(h.loop.views.working(), []);
+  const job = h.loop.claimNext(h.worker);
+  const w = h.loop.views.working();
+  assert.equal(w.length, 1);
+  assert.equal(w[0].taskId, job.taskId);
+  assert.equal(w[0].worker.id, "w1");
+  assert.equal(w[0].assignee, "claude-engineering");
+  assert.equal(w[0].leaseExpired, false);
+  h.loop.submit(h.worker, job.taskId, demoReport(h.ledger.task(job.taskId)));
+  assert.deepEqual(h.loop.views.working(), []);
+});
+
+test("HQ: MOCK stand-ins name the founder's own request, not the scripted demo", async () => {
+  const h = setup();
+  const objective = "Add a last-updated UTC label to the Results V2 page header";
+  const id = h.loop.intake(FOUNDER, { objective, acceptanceCriteria: ["The header shows the label"], requestKey: "echo-1" });
+  await drive(h);
+  const home = h.loop.views.home().find((r) => r.taskId === id);
+  assert.match(home.summary, /^\[MOCK\] done: Add a last-updated UTC label to the Results V2 page header/);
+  const texts = JSON.stringify(h.ledger.events().map((e) => e.body));
+  assert.doesNotMatch(texts, /queue header/i, "nothing from the scripted demo leaks into another request");
+  assert.equal(home.mode, "MOCK");
+});
