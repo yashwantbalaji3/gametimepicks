@@ -1,6 +1,7 @@
 #!/bin/bash
 # Install / uninstall the user LaunchAgent for one NBA slate. No sudo.
-#   install-nba-slate.sh install DATE TOOL_COMMIT [--first-utc HH] [--last-utc HH] [--import-root DIR] [--top5-min-rows N]
+#   install-nba-slate.sh install DATE TOOL_COMMIT [--first-utc HH] [--last-utc HH] [--import-root DIR] [--top5-min-rows N] [--once-in MIN]
+# --once-in MIN: a single trigger MIN minutes from now (launchd test), instead of the hourly schedule.
 #   install-nba-slate.sh uninstall DATE
 # Hours are UTC on DATE (default 07 to 15); they are written as local hours for launchd.
 # GTP_PLIST_ONLY=FILE writes and lints the plist to FILE and stops (no copy, no launchctl).
@@ -14,10 +15,10 @@ if [ "$ACT" = uninstall ]; then
   rm -f "$PL"; echo "removed $LABEL"; exit 0
 fi
 TOOL="${3:?tool commit}"; shift 3
-FIRST=07; LAST=15; ROOT="$HOME/gtp-private/graphics"; MIN=5
+FIRST=07; LAST=15; ROOT="$HOME/gtp-private/graphics"; MIN=5; ONCE=""
 while [ $# -gt 0 ]; do case "$1" in
   --first-utc) FIRST="$2"; shift 2;; --last-utc) LAST="$2"; shift 2;;
-  --import-root) ROOT="$2"; shift 2;; --top5-min-rows) MIN="$2"; shift 2;;
+  --import-root) ROOT="$2"; shift 2;; --top5-min-rows) MIN="$2"; shift 2;; --once-in) ONCE="$2"; shift 2;;
   *) echo "unknown $1" >&2; exit 2;; esac; done
 HOURS=""
 for h in $(seq "$((10#$FIRST))" "$((10#$LAST))"); do
@@ -25,6 +26,10 @@ for h in $(seq "$((10#$FIRST))" "$((10#$LAST))"); do
   read -r MO DA HO <<< "$L"
   HOURS="$HOURS<dict><key>Month</key><integer>$((10#$MO))</integer><key>Day</key><integer>$((10#$DA))</integer><key>Hour</key><integer>$((10#$HO))</integer><key>Minute</key><integer>0</integer></dict>"
 done
+if [ -n "$ONCE" ]; then
+  read -r MO DA HO MI <<< "$(date -v+"${ONCE}"M "+%m %d %H %M")"
+  HOURS="<dict><key>Month</key><integer>$((10#$MO))</integer><key>Day</key><integer>$((10#$DA))</integer><key>Hour</key><integer>$((10#$HO))</integer><key>Minute</key><integer>$((10#$MI))</integer></dict>"
+fi
 [ -n "${GTP_PLIST_ONLY:-}" ] && PL="$GTP_PLIST_ONLY"
 [ -z "${GTP_PLIST_ONLY:-}" ] && mkdir -p "$HOME/gtp-runner/nba-slate/bin" "$HOME/gtp-evidence/nba-slate-$DATE" "$HOME/Library/LaunchAgents"
 [ -z "${GTP_PLIST_ONLY:-}" ] && cp "$HERE/../nba-slate-runner.sh" "$HOME/gtp-runner/nba-slate/bin/nba-slate-runner.sh"
