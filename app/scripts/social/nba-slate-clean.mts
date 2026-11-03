@@ -50,6 +50,20 @@ const { renderCleanImages } = await import("./clean-export.mjs");
 const de: any = await import("../../src/lib/social/display-exception.mjs");
 const rebuilt = new Map<string, any>(); // asOf -> prepareGameDay result
 let failed = false;
+// Once its clean JSON is in place, the review copy's JSON leaves packages/ (renamed into packages-review-archive/<date>/), so
+// Command Center never re-imports the banner version as a re-render of the approved post. Only after a CLEAN, only that
+// dedupeId; its image folder stays (the console's ledger points at it). With the review JSON gone the entry is simply not
+// listed again, and its status row stays CLEAN.
+const archive = path.join(root, "packages-review-archive", date);
+function archiveReview(file: string, dedupeId: string, sk: string) {
+  if (!fs.existsSync(file)) return;
+  if (JSON.parse(fs.readFileSync(file, "utf8")).dedupeId !== dedupeId) throw new Error(`archive: ${file} is not ${dedupeId}`);
+  fs.mkdirSync(archive, { recursive: true });
+  const to = path.join(archive, path.basename(file));
+  fs.renameSync(file, fs.existsSync(to) ? `${to}.${Date.now()}` : to);
+  status[sk] = { ...status[sk], reviewArchived: path.join(path.basename(path.dirname(archive)), date, path.basename(file)) };
+  log({ dedupeId, outcome: "REVIEW_ARCHIVED", from: path.basename(file), to: archive });
+}
 // Founder-visible status per (dedupeId, contentSha256): CLEAN, REFUSED, RETRYING or FAILED (3 render/write failures, no more tries).
 const MAX_ATTEMPTS = 3;
 const statusFile = path.join(root, "approvals", `clean-export-status-${date}.json`);
@@ -60,7 +74,8 @@ for (const e of todo) {
   const slug = path.basename(file, ".json");
   const outName = `${slug}-clean-${String(pkg.contentSha256).slice(0, 8)}`;
   const sk = `${e.dedupeId}|${pkg.contentSha256}`;
-  if (fs.existsSync(path.join(pk, `${outName}.json`))) { status[sk] = { ...status[sk], dedupeId: e.dedupeId, contentSha256: pkg.contentSha256, state: "CLEAN", package: `${outName}.json` }; continue; }
+  // Clean already on disk (a pass that died before archiving the review copy): finish the archive step only.
+  if (fs.existsSync(path.join(pk, `${outName}.json`))) { status[sk] = { ...status[sk], dedupeId: e.dedupeId, contentSha256: pkg.contentSha256, state: "CLEAN", package: `${outName}.json` }; archiveReview(file, e.dedupeId, sk); continue; }
   if (status[sk]?.state === "FAILED") continue;
   // A refusal is logged once per (package content, approval, reasons): the backstop runs every minute.
   const refuse = (why: string[]) => {
@@ -132,6 +147,7 @@ for (const e of todo) {
     fs.renameSync(jt, path.join(pk, `${outName}.json`));
     log({ dedupeId: e.dedupeId, outcome: "CLEAN", package: `${outName}.json`, reviewedSha256: pkg.images[0].sha256, cleanSha256: img.sha256 });
     status[sk] = { ...status[sk], dedupeId: e.dedupeId, contentSha256: pkg.contentSha256, state: "CLEAN", package: `${outName}.json`, at: new Date().toISOString() };
+    archiveReview(file, e.dedupeId, sk);
   } catch (err: any) {
     fs.rmSync(tmp, { recursive: true, force: true });
     const attempts = (status[sk]?.attempts ?? 0) + 1;
