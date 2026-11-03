@@ -47,6 +47,7 @@ const m: any = await import("./render-social-pack.mjs");
 const ce: any = await import("../../src/lib/social/clean-export.mjs");
 const { DISCLOSURE } = await import("./game-day-cards.mjs");
 const { renderCleanImages } = await import("./clean-export.mjs");
+const de: any = await import("../../src/lib/social/display-exception.mjs");
 const rebuilt = new Map<string, any>(); // asOf -> prepareGameDay result
 let failed = false;
 // Founder-visible status per (dedupeId, contentSha256): CLEAN, REFUSED, RETRYING or FAILED (3 render/write failures, no more tries).
@@ -77,6 +78,14 @@ for (const e of todo) {
   if (!(nowMs < closes)) problems.push(`expired: window closed ${Number.isFinite(closes) ? new Date(closes).toISOString() : "(no expiry recorded)"}`);
   const changed = pkg.snapshotRefs.filter((r: any) => { const f = path.resolve(process.cwd(), "..", r.ref); return !fs.existsSync(f) || sha(fs.readFileSync(f)) !== r.sha256; }).map((r: any) => r.ref);
   if (changed.length) problems.push(`data changed since the package: ${changed.join(", ")}`);
+  // A founder publication exception must still be on file, unchanged, and the card must withhold every flagged cell.
+  if (pkg.anomalyCheck === "EXCEPTION") {
+    const pe = pkg.publicationException ?? {};
+    const f = path.join(root, "approvals", String(pe.founderFile ?? ""));
+    if (pkg.reviewAnomalyCheck !== "REVIEW" || !/^publication-exception-\d{4}-\d{2}-\d{2}\.json$/.test(String(pe.founderFile)) || pe.founderFile !== `publication-exception-${date}.json`) problems.push("EXCEPTION without this slate's founder exception file");
+    else if (!fs.existsSync(f) || sha(fs.readFileSync(f)) !== pe.founderFileSha256) problems.push(`founder exception file missing or changed: ${pe.founderFile}`);
+    if ((pkg.anomalies ?? []).some((a: any) => a.verdict === "BAD_JOIN")) problems.push("BAD_JOIN is never excepted");
+  }
   if (problems.length) { refuse(problems); continue; }
   const asOf = pkg.freshness.asOf;
   if (!rebuilt.has(asOf)) rebuilt.set(asOf, m.prepareGameDay({ date, asOf }));
@@ -87,6 +96,11 @@ for (const e of todo) {
     : m.nbaTop5Carousel({ posts: r.posts.filter((p: any) => p.contentType === "NBA_DAILY_TOP5"), date, minRows: pkg.content?.minRows ?? 5 }).posts[0];
   if (!base || base.cards.length !== 1) { refuse([`the ${gv ?? sv} card could not be rebuilt`]); continue; }
   const reviewed = base.cards[0].html;
+  if (pkg.anomalyCheck === "EXCEPTION") {
+    const cells = Object.entries(base.cards[0].cells ?? {}).map(([k, v]: any) => [k.replace(/^(pts|reb|ast)\.(\d+)\.num$/, "$2.$1"), v]);
+    const shown = de.flaggedCellsShown(pkg.anomalies, cells);
+    if (shown.length) { refuse([`flagged cells printed as numbers: ${shown.map((a: any) => `${a.playerId}.${a.market}`).join(", ")}`]); continue; }
+  }
   let clean: string;
   try { clean = ce.withoutBanner(reviewed); } catch (err: any) { refuse([err.message]); continue; }
   const bad = ce.sameDisplayProblems(reviewed, clean, DISCLOSURE);

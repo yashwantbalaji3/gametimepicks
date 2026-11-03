@@ -90,6 +90,34 @@ const ds = await renderEach(slate);
 ds.forEach((x: any, i: number) => check(x.pkg, slate[i], path.basename(x.file, ".json")));
 done.push(...ds);
 result.slate = { today: ds[0].pkg.contentSha256, top5: ds[1]?.pkg.contentSha256 ?? null, top5Boards: car.posts[0]?.content.boards ?? [], top5Skipped: car.refused };
+// Founder publication exception for this slate, GATED on <import-root>/approvals/publication-exception-<date>.json (written by the
+// founder's console, never by this runner). Without the file nothing changes: stat cards under anomaly REVIEW stay REVIEW and
+// clean export refuses them. With it, each REVIEW stat package becomes EXCEPTION (flags kept on record) only when no flagged cell
+// prints a number; a BAD_JOIN (line joined to the wrong player) is never excepted.
+const exFile = path.join(importRoot, "approvals", `publication-exception-${date}.json`);
+result.exception = null;
+if (fs.existsSync(exFile)) {
+  const raw = fs.readFileSync(exFile);
+  let ex: any = null; try { ex = JSON.parse(String(raw)); } catch { /* refused below */ }
+  if (!ex || ex.schema !== "gtp-cc-publication-exception@1" || ex.date !== date || typeof ex.statement !== "string" || !ex.statement.trim() || ex.finalApprovalRequiredPerPost !== true)
+    refuse("EXCEPTION_FILE_INVALID", { file: exFile, need: "schema gtp-cc-publication-exception@1, date, statement, finalApprovalRequiredPerPost true" });
+  const de: any = await import(A + "src/lib/social/display-exception.mjs");
+  const id = `${date}-flagged-cells-withheld`;
+  const names = new Map(lane.games.flatMap((g: any) => [...g.players.away, ...g.players.home].map((p: any) => [String(p.providerAthleteId), p.name])));
+  result.exception = { file: exFile, sha256: sha(raw), id, excepted: [] as string[], notExcepted: [] as any[] };
+  for (const x of done.filter((x: any) => x.pkg.contentType === "NBA_PLAYER_STATS" && x.pkg.anomalyCheck === "REVIEW")) {
+    const post = r.posts.find((p: any) => p.contentType === "NBA_PLAYER_STATS" && String(x.pkg.variant).startsWith(`${p.variant}-`));
+    const cells = (post?.cards ?? []).flatMap((c: any) => Object.entries(c.cells ?? {})).map(([k, v]: any) => [k.replace(/^(pts|reb|ast)\.(\d+)\.num$/, "$2.$1"), v]);
+    const shown = de.flaggedCellsShown(x.pkg.anomalies, cells);
+    if (!post || shown.length) { qa.push([x.pkg.variant, "FLAGGED_CELL_SHOWN", shown.map((a: any) => `${a.playerId}.${a.market}`)]); continue; }
+    const e = de.applyDisplayException(x.pkg, { id, nameOf: (pid: string) => names.get(String(pid)) ?? null, statement: "flagged player-markets are withheld from the image; flags kept on record" });
+    if (e.blocked) { result.exception.notExcepted.push({ variant: x.pkg.variant, reason: "BAD_JOIN", cells: e.blocked.map((a: any) => `${a.playerId}.${a.market}`) }); continue; } // stays REVIEW
+    e.pkg.publicationException = { ...e.pkg.publicationException, founderStatement: ex.statement, founderFile: path.basename(exFile), founderFileSha256: sha(raw) };
+    x.pkg = e.pkg; fs.writeFileSync(x.file, `${JSON.stringify(e.pkg, null, 2)}\n`);
+    result.exception.excepted.push(e.pkg.variant);
+  }
+  for (const g of result.games) for (const v of ["props", "projonly"]) { const x = done.find((d: any) => d.pkg.variant === `${g.id}-${v}`); if (x) g.digests[v] = x.pkg.contentSha256; }
+}
 result.render = st; result.qa = qa;
 if (qa.length) refuse("QA", qa);
 
@@ -123,6 +151,7 @@ result.outcome = "DELIVERED"; result.packages = slugs.length; result.images = do
 writeResult();
 const md = [`# NBA slate ${date} delivered ${new Date().toISOString()}`, "", `dataCommit ${result.dataCommit} · asOf ${asOf} · ${result.packages} packages · ${result.images} images · rendered ${st.rendered}, cached ${st.skipped}`, `Top 5 carousel boards: ${result.slate.top5Boards.join(", ") || "none"}${car.refused.length ? ` (skipped under ${minRows} rows: ${car.refused[0].boards.join(", ")})` : ""}`, "", "| Game | Tip (UTC) | Winner | Props | Projection-only | Winner-only | Cells omitted |", "|---|---|---|---|---|---|---|",
   ...result.games.map((g: any) => `| ${g.game} | ${g.tipUtc} | ${g.digests.winner.slice(0, 12)} | ${g.digests.props.slice(0, 12)} | ${g.digests.projonly.slice(0, 12)} | ${g.digests.winneronly.slice(0, 12)} | ${g.cellsOmitted} |`),
+  "", result.exception ? `Founder publication exception ${result.exception.id} (${path.basename(result.exception.file)} sha ${result.exception.sha256.slice(0, 12)}): ${result.exception.excepted.length} stat packages EXCEPTION, flagged cells withheld${result.exception.notExcepted.length ? `; left REVIEW: ${result.exception.notExcepted.map((x: any) => `${x.variant} ${x.reason}`).join(", ")}` : ""}` : "No publication exception file: stat packages under anomaly REVIEW stay REVIEW (clean export refuses them).",
   "", `NBA Today ${result.slate.today.slice(0, 12)} · Top 5 ${result.slate.top5?.slice(0, 12) ?? "not made"}`, ""].join("\n");
 fs.writeFileSync(path.join(stage, "report.md"), md);
 console.log(md);
