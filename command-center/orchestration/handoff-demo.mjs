@@ -126,7 +126,7 @@ export function createScriptedMocks(script = {}) {
       return evaluation({
         requirementCoverage: [{ requirement: a === "grok-research" ? "three sourced findings" : isDemo(req) ? "UTC label" : short(askedOf(req)), met: "yes", evidence: "[MOCK] report and claim verification" }],
         rationale: `[MOCK] ${a} round ${n} meets its criteria`,
-        ceoSummary: a === "grok-research" ? "[MOCK] research stand-in finished: no research was run, no sources" : isDemo(req) ? "[MOCK] queue header shows 'Updated HH:MM UTC'; fix verified; ready to close" : `[MOCK] done: ${short(askedOf(req))}; fix verified; ready to close`,
+        ceoSummary: a === "grok-research" ? "[MOCK] research stand-in finished: no research was run, no sources" : isDemo(req) ? "[MOCK] queue header shows 'Updated HH:MM UTC'; fix verified; ready to close" : `[MOCK] stand-ins simulated: ${short(askedOf(req))}. Nothing was built, tested or verified`,
       });
     },
     research: (req) => ({

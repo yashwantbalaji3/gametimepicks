@@ -550,7 +550,7 @@ test("HQ: MOCK stand-ins name the founder's own request, not the scripted demo",
   const id = h.loop.intake(FOUNDER, { objective, acceptanceCriteria: ["The header shows the label"], requestKey: "echo-1" });
   await drive(h);
   const home = h.loop.views.home().find((r) => r.taskId === id);
-  assert.match(home.summary, /^\[MOCK\] done: Add a last-updated UTC label to the Results V2 page header/);
+  assert.match(home.summary, /^\[MOCK\] stand-ins simulated: Add a last-updated UTC label to the Results V2 page header\. Nothing was built, tested or verified$/);
   const texts = JSON.stringify(h.ledger.events().map((e) => e.body));
   assert.doesNotMatch(texts, /queue header/i, "nothing from the scripted demo leaks into another request");
   assert.equal(home.mode, "MOCK");
@@ -588,6 +588,7 @@ test("UAT: the founder's request runs every named workstream, criteria first, la
   assert.equal(grok.length, 1);
   assert.match(grok[0].objective, /Simulation Theater/, "Grok researched the requested subject");
   assert.doesNotMatch(JSON.stringify(grok[0].outputs), /Updated N min ago|example\.invalid|https:\/\//, "no unrelated finding and no invented source");
+  assert.doesNotMatch(h.loop.views.home().find((r) => r.taskId === id).summary, /verified;|\bdone:/, "a MOCK summary never claims verification");
   assert.match(grok[0].outputs[0].artifact.summary, /^\[MOCK\] no research was run for: Improve Simulation Theater/, "the stand-in says it did nothing");
   const review = tasksBy(h.ledger, "evaluate").filter((t) => s.tasks[t.subjectTaskId].stepKey === "claude-engineering");
   assert.ok(review.length && review.every((t) => t.assignedAgent.provider === "openai"), "ChatGPT independently reviewed Claude's work");
