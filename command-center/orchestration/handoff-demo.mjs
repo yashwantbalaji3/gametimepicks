@@ -130,7 +130,8 @@ export function createScriptedMocks(script = {}) {
       });
     },
     research: (req) => ({
-      summary: isDemo(req) ? "[MOCK] three products show freshness as relative time with an absolute tooltip" : `[MOCK] three comparable products, for: ${short(askedOf(req))}`,
+      // A stand-in reports that it did nothing; it never describes products or findings it did not look at.
+      summary: `[MOCK] no research was run for: ${short(askedOf(req))}`,
       // A stand-in never invents a source: each finding says so, and its url is mock:no-source (never an https link).
       findings: [1, 2, 3].map((i) => ({ claim: `[MOCK] placeholder finding ${i}: no research was run for "${short(askedOf(req))}"`, url: "mock:no-source" })),
       limitations: ["[MOCK] no real search was run; these findings are placeholders, not facts"], suggestedNextSteps: [],

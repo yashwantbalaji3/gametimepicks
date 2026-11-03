@@ -588,6 +588,7 @@ test("UAT: the founder's request runs every named workstream, criteria first, la
   assert.equal(grok.length, 1);
   assert.match(grok[0].objective, /Simulation Theater/, "Grok researched the requested subject");
   assert.doesNotMatch(JSON.stringify(grok[0].outputs), /Updated N min ago|example\.invalid|https:\/\//, "no unrelated finding and no invented source");
+  assert.match(grok[0].outputs[0].artifact.summary, /^\[MOCK\] no research was run for: Improve Simulation Theater/, "the stand-in says it did nothing");
   const review = tasksBy(h.ledger, "evaluate").filter((t) => s.tasks[t.subjectTaskId].stepKey === "claude-engineering");
   assert.ok(review.length && review.every((t) => t.assignedAgent.provider === "openai"), "ChatGPT independently reviewed Claude's work");
   // the verifier never counts stand-in output as evidence
