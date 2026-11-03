@@ -44,6 +44,34 @@ export function demoBrief(over = {}) {
   };
 }
 
+/** Stand-in briefs per workstream, for any request: what a planner would hand each named agent. */
+const STANDIN_BRIEF = Object.freeze({
+  "claude-engineering": (asked, criteria) => demoBrief({
+    objective: asked, whyItMatters: "[MOCK] the founder asked for it from CEO Chat.", currentState: "[MOCK] not inspected: a stand-in planner reads no code.",
+    requirements: [`[MOCK] ${asked.slice(0, 120)}`], codeLocations: [], acceptanceCriteria: criteria,
+    constraints: ["Stage explicit paths; no push"], priorResults: "None — first assignment for this request.",
+  }),
+  "claude-qa": (asked) => demoBrief({
+    assignee: "claude-qa", objective: `Check the result of: ${asked.slice(0, 160)}`, whyItMatters: "[MOCK] the founder asked for QA.", currentState: "[MOCK] not inspected.",
+    requirements: ["Run the request's checks and report what was verified"], codeLocations: [], acceptanceCriteria: ["A QA report lists each check and its result"],
+    constraints: ["Read only"], deliverables: ["A QA report"], permissions: ["repo.read"], priorResults: "None — first assignment for this request.",
+  }),
+  "grok-research": (asked) => ({
+    ...demoBrief(), assignee: "grok-research", priority: "P2", tests: [], codeLocations: [],
+    objective: `Research for the CEO request, with sources: ${asked.slice(0, 160)}`,
+    whyItMatters: "[MOCK] the founder asked for outside research on this subject.", currentState: "[MOCK] no research exists for this request.",
+    requirements: ["Findings on the requested subject only", "Each finding with an https source URL"],
+    acceptanceCriteria: ["At least three findings on the requested subject, each with a real https source"],
+    constraints: ["Public sources only", "Never post on X"], deliverables: ["A research report"], permissions: ["read-public-web", "never-post"],
+    reportingFormat: "Research report JSON: findings with claim and url.", priorResults: "None — first assignment for this request.",
+  }),
+  "chatgpt-product": (asked) => demoBrief({
+    assignee: "chatgpt-product", objective: `Product review for: ${asked.slice(0, 160)}`, whyItMatters: "[MOCK] the founder asked for a product view.", currentState: "[MOCK] not inspected.",
+    requirements: ["Assess the request from the user's side"], codeLocations: [], tests: [], acceptanceCriteria: ["A product review with concrete recommendations"],
+    constraints: ["No code changes"], deliverables: ["A product review"], permissions: [], priorResults: "None — first assignment for this request.",
+  }),
+});
+
 const evaluation = (o) => ({ verdict: "accept", decision: "CLOSE", requirementCoverage: [], missing: [], findings: [], qaRequired: false, followUps: [], rationale: "", ceoSummary: "", ...o });
 
 /**
@@ -64,12 +92,10 @@ export function createScriptedMocks(script = {}) {
       if (isDemo(req)) return evaluation({ verdict: "not-applicable", decision: "FOLLOW_UP", rationale: "[MOCK] one engineering change covers the request", followUps: [demoBrief()], ceoSummary: "[MOCK] planned: one Claude engineering task" });
       const root = req.state.tasks[req.task.rootTaskId];
       const criteria = root?.acceptanceCriteria?.length ? root.acceptanceCriteria : [`[MOCK] ${short(askedOf(req))} is done and shown on the page`, "[MOCK] a test fails without the change"];
-      const brief = demoBrief({
-        objective: askedOf(req), whyItMatters: "[MOCK] the founder asked for it from CEO Chat.", currentState: "[MOCK] not inspected: a stand-in planner reads no code.",
-        requirements: [`[MOCK] ${short(askedOf(req))}`], codeLocations: [], acceptanceCriteria: criteria,
-        constraints: ["Stage explicit paths; no push"], priorResults: "None — first assignment for this request.",
-      });
-      return evaluation({ verdict: "not-applicable", decision: "FOLLOW_UP", rationale: "[MOCK] one engineering change covers the request", followUps: [brief], ceoSummary: "[MOCK] planned: one Claude engineering task" });
+      // One brief per workstream the founder named (Claude engineering when none is named), each with its own assignee.
+      const named = (root?.meta?.requiredWorkstreams ?? []).filter((w) => STANDIN_BRIEF[w]);
+      const briefs = (named.length ? named : ["claude-engineering"]).map((w) => STANDIN_BRIEF[w](askedOf(req), criteria));
+      return evaluation({ verdict: "not-applicable", decision: "FOLLOW_UP", rationale: `[MOCK] one assignment per workstream: ${briefs.map((b) => b.assignee).join(", ")}`, followUps: briefs, ceoSummary: `[MOCK] planned: ${briefs.map((b) => b.assignee).join(" + ")}` });
     },
     evaluate: (req, subject) => {
       const a = subject.brief?.assignee;
@@ -93,30 +119,21 @@ export function createScriptedMocks(script = {}) {
             },
           ] : [
             demoBrief({ fixesSubject: true, priority: "P1", objective: `Fix finding F1 in the first change for: ${short(askedOf(req))}`, currentState: "[MOCK] the first change is committed; finding F1 is open.", requirements: ["Resolve finding F1", "Keep the request's acceptance criteria met"], codeLocations: [], priorResults: "[MOCK] first change committed; the review found F1.", acceptanceCriteria: ["Finding F1 no longer reproduces", "A test fails without the fix"] }),
-            {
-              ...demoBrief(), assignee: "grok-research", priority: "P3", tests: [], codeLocations: [],
-              objective: `Find how three comparable products handle this, with source links: ${short(askedOf(req))}`,
-              whyItMatters: "An outside comparison tells us whether the change matches what users already know.",
-              currentState: "[MOCK] no external comparison exists for this request.",
-              requirements: ["Three products, each with a source URL", "Quote what each product does"],
-              acceptanceCriteria: ["Three findings, each with an https source URL", "Each finding quotes the product"],
-              constraints: ["Public sources only", "Never post on X"], deliverables: ["A research report"], permissions: ["read-public-web", "never-post"],
-              reportingFormat: "Research report JSON: findings with claim and url.",
-            },
           ],
-          rationale: "[MOCK] verified defect F1; outside comparison is cheap and useful", ceoSummary: "[MOCK] first change needs a fix; research requested",
+          rationale: isDemo(req) ? "[MOCK] verified defect F1; outside comparison is cheap and useful" : "[MOCK] review found F1; a fix is routed to Claude", ceoSummary: isDemo(req) ? "[MOCK] first change needs a fix; research requested" : "[MOCK] first change needs a fix",
         });
       }
       return evaluation({
         requirementCoverage: [{ requirement: a === "grok-research" ? "three sourced findings" : isDemo(req) ? "UTC label" : short(askedOf(req)), met: "yes", evidence: "[MOCK] report and claim verification" }],
         rationale: `[MOCK] ${a} round ${n} meets its criteria`,
-        ceoSummary: a === "grok-research" ? "[MOCK] research delivered with sources" : isDemo(req) ? "[MOCK] queue header shows 'Updated HH:MM UTC'; fix verified; ready to close" : `[MOCK] done: ${short(askedOf(req))}; fix verified; ready to close`,
+        ceoSummary: a === "grok-research" ? "[MOCK] research stand-in finished: no research was run, no sources" : isDemo(req) ? "[MOCK] queue header shows 'Updated HH:MM UTC'; fix verified; ready to close" : `[MOCK] done: ${short(askedOf(req))}; fix verified; ready to close`,
       });
     },
     research: (req) => ({
       summary: isDemo(req) ? "[MOCK] three products show freshness as relative time with an absolute tooltip" : `[MOCK] three comparable products, for: ${short(askedOf(req))}`,
-      findings: [1, 2, 3].map((i) => ({ claim: `[MOCK] product ${i} shows 'Updated N min ago'`, url: `https://example.invalid/mock-${i}` })),
-      limitations: ["[MOCK] no real search was run"], suggestedNextSteps: [{ title: "Consider a relative-time tooltip", rationale: "[MOCK] common pattern", suggestedAssignee: "chatgpt-product" }],
+      // A stand-in never invents a source: each finding says so, and its url is mock:no-source (never an https link).
+      findings: [1, 2, 3].map((i) => ({ claim: `[MOCK] placeholder finding ${i}: no research was run for "${short(askedOf(req))}"`, url: "mock:no-source" })),
+      limitations: ["[MOCK] no real search was run; these findings are placeholders, not facts"], suggestedNextSteps: [],
     }),
   };
   const s = { ...defaults, ...script };

@@ -230,6 +230,56 @@ export function v3Status(state, t) {
 
 // ───────────────────────────────────────────── the loop ─────────────────────────────────────────────
 
+/**
+ * Workstreams the founder can require by naming an agent. "chatgpt-review" is ChatGPT's independent evaluation of
+ * Claude's engineering report (the loop's own evaluate step); the others are assignments.
+ */
+export const WORKSTREAMS = Object.freeze({
+  "claude-engineering": { label: "Claude engineering", criterion: "Claude engineering completes an assignment for this request with committed work and test results" },
+  "claude-qa": { label: "Claude QA", criterion: "Claude QA checks the result and reports what was verified" },
+  "grok-research": { label: "Grok research", criterion: "Grok research returns findings on the requested subject, each with a real https source" },
+  "chatgpt-product": { label: "ChatGPT product review", criterion: "ChatGPT delivers the requested product or UX review" },
+  "chatgpt-review": { label: "ChatGPT independent review", criterion: "ChatGPT independently reviews Claude's engineering report and accepts it" },
+});
+const ASSIGNED_WORKSTREAMS = ["claude-engineering", "claude-qa", "grok-research", "chatgpt-product"];
+
+/** A source a reader could open: https, with a public host — never a placeholder, documentation or local name. */
+export function isRealSource(url) {
+  let u;
+  try { u = new URL(String(url)); } catch { return false; }
+  if (u.protocol !== "https:") return false;
+  const h = u.hostname.toLowerCase();
+  return h.includes(".") && !/(^|\.)(example\.(com|org|net)|localhost)$/.test(h) && !/\.(invalid|test|example|localhost|local|internal)$/.test(h);
+}
+
+/**
+ * The workstreams a CEO request names explicitly ("Claude engineering", "Grok competitor research", "ChatGPT review").
+ * Read clause by clause, so "ChatGPT planning, Claude engineering, Grok research" yields each agent with its own verb.
+ * Deterministic: no model decides what the founder asked for.
+ */
+export function requiredWorkstreams(text) {
+  const out = new Set();
+  let addressed = "";
+  for (const raw of String(text ?? "").toLowerCase().split(/[.;:\n]|,|\band\b|\bthen\b/)) {
+    // "ChatGPT, audit the UX": a clause that is only an agent's name addresses the clause after it.
+    if (/^\s*(hey\s+)?(chatgpt|gpt|openai|claude|grok)\s*$/.test(raw)) { addressed = raw.trim().replace(/^hey\s+/, ""); continue; }
+    const c = addressed ? `${addressed} ${raw}` : raw;
+    addressed = "";
+    const has = (re) => re.test(c);
+    if (has(/\bclaude\b/)) {
+      if (has(/\b(qa|test(s|ing)?|verify|verification|check)\b/) && !has(/\b(engineer\w*|implement\w*|build\w*|code|coding|develop\w*|fix\w*)\b/)) out.add("claude-qa");
+      else out.add("claude-engineering");
+    }
+    if (has(/\bgrok\b/)) out.add("grok-research");
+    if (has(/\b(chatgpt|gpt|openai)\b/)) {
+      if (has(/\b(review\w*|evaluat\w*|audit\w*|assess\w*)\b/)) out.add(has(/\b(product|ux|design|copy)\b/) && !has(/\bengineer\w*\b/) ? "chatgpt-product" : "chatgpt-review");
+      else if (has(/\b(product|ux|design|copy)\b/)) out.add("chatgpt-product");
+      // ChatGPT planning is the loop's own plan step: always present, never a separate workstream.
+    }
+  }
+  return [...out].sort();
+}
+
 /** What the organisation asks for. The ids are ledger values; routing a category to a first assignee is the caller's. */
 export const TASK_CATEGORIES = Object.freeze(["engineering", "product-ux", "forecasts", "theater", "results", "betting", "live", "research", "social", "ops"]);
 
@@ -277,6 +327,12 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
   /** Tasks in priority order (P0 first), then creation order. */
   const ordered = (s) => s.taskOrder.map((id) => s.tasks[id]).sort((a, b) => (PRI[a.priority] ?? 9) - (PRI[b.priority] ?? 9) || s.taskOrder.indexOf(a.taskId) - s.taskOrder.indexOf(b.taskId));
   const requestSpend = (s, rootId) => treeOf(s, rootId).reduce((n, x) => n + x.costUsd, 0);
+  const requiredOf = (root) => root?.meta?.requiredWorkstreams ?? [];
+  /** How the agents' work under a request ran: MOCK, LIVE or MIXED (founder input and our own checks don't count). */
+  const executionOf = (s, rootId) => {
+    const modes = new Set(treeOf(s, rootId).flatMap((t) => (["founder", "deterministic"].includes(t.assignedAgent.provider) ? [] : t.outputs.map((o) => o.mode))));
+    return modes.size === 0 ? null : modes.size > 1 ? "MIXED" : [...modes][0];
+  };
   /** attempt + cost for the run, derived from the recorded output so a replay writes identical events. */
   function bookkeeping(taskId) {
     const t = ledger.task(taskId);
@@ -313,14 +369,21 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
    * A CEO request. `category` (one of TASK_CATEGORIES) is stored on the request task. With a `requestKey`, calling
    * intake again for the same objective returns the same request and writes nothing (a retried chat send, a reload).
    */
-  function intake(founder, { objective, acceptanceCriteria = [], priority = "P1", requestKey, brief = null, category = null }) {
+  function intake(founder, { objective, acceptanceCriteria = [], priority = "P1", requestKey, brief = null, category = null, workstreams = [] }) {
     if (founder?.role !== "founder" || founder.authenticated !== true) throw new OrchestrationError("FOUNDER_ONLY", "a CEO request comes from the authenticated founder");
     if (String(objective ?? "").trim().length < 10) throw new OrchestrationError("INVALID_REQUEST", "say what you want done");
     if (category != null && !TASK_CATEGORIES.includes(category)) throw new OrchestrationError("INVALID_CATEGORY", `category is one of ${TASK_CATEGORIES.join(", ")}`);
+    const unknown = workstreams.filter((w) => !WORKSTREAMS[w]);
+    if (unknown.length) throw new OrchestrationError("INVALID_WORKSTREAM", `unknown workstream(s) ${unknown.join(", ")}`);
     const taskId = `req-${digestOf({ objective, requestKey: requestKey ?? now() }).slice(0, 12)}`;
     if (requestKey != null && ledger.task(taskId)) return taskId;
+    // The workstreams the founder named are binding: the plan must cover each one and the request can't close without them.
+    const required = [...new Set([...workstreams, ...requiredWorkstreams(objective)])].sort();
+    // Testable acceptance criteria exist before any agent runs: the founder's own, else one per required workstream.
+    const criteriaSource = acceptanceCriteria.length ? "founder" : "generated";
+    const criteria = acceptanceCriteria.length ? acceptanceCriteria : [...required.map((w) => WORKSTREAMS[w].criterion), `The result delivers what was asked: ${String(objective).slice(0, 160)}`];
     const agent = { provider: "founder", seat: "founder", role: "ceo" };
-    ev("task.created", { task: { ...spec({ taskId, rootId: taskId, objective, agent, stepKey: "request", approvalLevel: "A", depth: 0, costUsd: L.costCeilingUsd }), acceptanceCriteria, priority, rootTaskId: taskId, category } }, `create:${taskId}`);
+    ev("task.created", { task: { ...spec({ taskId, rootId: taskId, objective, agent, stepKey: "request", approvalLevel: "A", depth: 0, costUsd: L.costCeilingUsd }), acceptanceCriteria: criteria, priority, rootTaskId: taskId, category, meta: { requiredWorkstreams: required, criteriaSource } } }, `create:${taskId}`);
     transition(taskId, "IN_PROGRESS");
     // The founder's words are real input, not a model's: LIVE in every mode (no model, no cost).
     ledger.recordOutput(taskId, { ...founder }, { adapter: FOUNDER_INPUT, isLive: true, result: { artifact: { brief: objective, acceptanceCriteria, priority, surface: founder.surface ?? null } } }, { idempotencyKey: `v3:${taskId}:brief` });
@@ -454,11 +517,17 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
   }
 
   // ── claim verification (our code, not a model) ──
-  function verifyClaims(report, kind) {
+  function verifyClaims(report, kind, mode = "LIVE") {
     const claims = [];
     const add = (claim, status, detail) => claims.push({ claim, status, detail });
+    const mock = mode !== "LIVE";
     if (kind === "research") {
-      for (const f of report.findings ?? []) add(`finding: ${String(f.claim).slice(0, 80)}`, /^https:\/\//.test(f.url) && (checkers.urlLooksSourced?.(f.url) ?? true) ? "SOURCED" : "UNSOURCED", f.url);
+      if (!(report.findings ?? []).length) add("findings", "MISSING", "the research report has no findings");
+      for (const f of report.findings ?? []) {
+        // A stand-in may say plainly that it has no source (mock:…); a stand-in that names a source is checked like a real one.
+        if (mock && /^mock:/.test(String(f.url))) { add(`finding: ${String(f.claim).slice(0, 80)}`, "MOCK", "stand-in output: no research was run, no source"); continue; }
+        add(`finding: ${String(f.claim).slice(0, 80)}`, isRealSource(f.url) && (checkers.urlLooksSourced?.(f.url) ?? true) ? "SOURCED" : "UNSOURCED", f.url);
+      }
     } else {
       for (const c of report.git?.commits ?? []) {
         const known = checkers.commitExists ? checkers.commitExists(c) : null;
@@ -470,8 +539,14 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
       if (needsCommit && !(report.git?.commits ?? []).length) add(`stage ${report.stage}`, "CONTRADICTED", "a stage past LOCAL names its commits");
       if (STAGES.indexOf(report.stage) >= STAGES.indexOf("DEPLOYED")) add(`stage ${report.stage}`, "UNCHECKED", "deployment and production are verified by the release gate, not by this check");
     }
-    const contradicted = claims.filter((c) => ["CONTRADICTED", "UNSOURCED"].includes(c.status));
-    return { claims, contradicted: contradicted.length, summary: contradicted.length ? `${contradicted.length} claim(s) contradicted` : "no claim contradicted" };
+    if (mock) {
+      // Every check still runs (a stand-in that invents a commit or a source is caught), but nothing a stand-in
+      // reports counts as evidence: what would have passed is labelled MOCK.
+      for (const c of claims) if (["VERIFIED", "SOURCED", "REPORTED", "UNCHECKED"].includes(c.status)) { c.status = "MOCK"; c.detail = `stand-in output, not evidence (${c.detail})`; }
+    }
+    const contradicted = claims.filter((c) => ["CONTRADICTED", "UNSOURCED"].includes(c.status) || (c.status === "MISSING" && c.claim === "findings"));
+    const summary = contradicted.length ? `${contradicted.length} claim(s) contradicted` : mock ? `MOCK output: none of its ${claims.length} claim(s) is evidence` : "no claim contradicted";
+    return { claims, contradicted: contradicted.length, mock, summary };
   }
 
   function runVerifier(subjectId) {
@@ -484,7 +559,7 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
     if (ledger.task(id).state === "DONE") return id;
     transition(id, "IN_PROGRESS");
     const det = adapters.deterministic;
-    const artifact = { subjectTaskId: subjectId, ...verifyClaims(subj.outputs.at(-1).artifact, ROLES[subj.brief?.assignee]?.kind ?? "work") };
+    const artifact = { subjectTaskId: subjectId, ...verifyClaims(subj.outputs.at(-1).artifact, ROLES[subj.brief?.assignee]?.kind ?? "work", subj.outputs.at(-1).mode) };
     if (!ledger.task(id).outputs.length) ledger.recordOutput(id, actor, { adapter: VERIFIER, isLive: Boolean(det && isLiveAdapter(det)), result: { artifact } }, { idempotencyKey: `v3:${id}:output` });
     ev("task.evidence", { taskId: id, name: "claim-verification.json", sha256: latestDigest(ledger.task(id)), kind: "verification" }, `${id}:evidence`);
     transition(id, "DONE", { outcome: { result: "DONE", contradicted: artifact.contradicted } });
@@ -501,6 +576,7 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
       `CEO request: ${planning ? subject.objective : root.objective}`,
       planning && subject.taskId !== root.taskId ? `(This redirects the earlier request: ${root.objective})` : null,
       `Request acceptance criteria:\n${(root.acceptanceCriteria ?? []).map((c) => `- ${c}`).join("\n") || "- (none given)"}`,
+      planning && requiredOf(root).length ? `Required workstreams (named by the founder; binding): ${requiredOf(root).map((w) => `${w} (${WORKSTREAMS[w].label})`).join(", ")}. Return one brief for each assignment workstream (${requiredOf(root).filter((w) => ASSIGNED_WORKSTREAMS.includes(w)).join(", ") || "none"}), with that exact assignee. A plan that omits one is refused.` : null,
       planning ? null : `Assignment being judged:\n${subject.brief ? renderBrief(subject.brief, { taskId: subject.taskId }) : subject.objective}`,
       planning ? null : `Claim verification: ${verification.summary}\n${verification.claims.map((c) => `- ${c.claim}: ${c.status} (${c.detail})`).join("\n")}`,
       "Rules:",
@@ -548,9 +624,14 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
     if (ledger.task(id)) return id;
     const from = ledger.task(fromTaskId);
     const agent = { provider: "founder", seat: "founder", role: "ceo" };
+    const s = st();
+    const execution = executionOf(s, rootId);
+    const workstreams = workstreamStatus(s, rootId);
+    // A MOCK run says so in the decision itself: nothing a stand-in reported was done.
+    const mockNote = execution && execution !== "LIVE" ? ` ${execution} EXECUTION: stand-in agents produced this; no real code, test or research exists.` : "";
     ev("handoff", { handoffId: `ho-${id}`, fromTaskId, artifactDigest: latestDigest(from),
-      instructions: escalation ? `Escalated (${escalation.code}): ${escalation.reason}. Approve, reject or redirect.` : "The agents propose closing this request. Approve, reject or redirect.",
-      child: spec({ taskId: id, rootId, objective: escalation ? `Founder decision — escalated: ${escalation.code}` : "Founder decision — close the request", agent, stepKey: "decision", approvalLevel: "C", depth: from.depth + 1, costUsd: 0, extra: { meta: { escalation } } }) }, `handoff:${id}`);
+      instructions: (escalation ? `Escalated (${escalation.code}): ${escalation.reason}. Approve, reject or redirect.` : "The agents propose closing this request. Approve, reject or redirect.") + mockNote,
+      child: spec({ taskId: id, rootId, objective: (escalation ? `Founder decision — escalated: ${escalation.code}` : "Founder decision — close the request") + (mockNote ? ` (${execution} EXECUTION)` : ""), agent, stepKey: "decision", approvalLevel: "C", depth: from.depth + 1, costUsd: 0, extra: { meta: { escalation, execution, workstreams: workstreams.map(({ id: w, status }) => ({ id: w, status })) } } }) }, `handoff:${id}`);
     transition(id, "IN_PROGRESS");
     transition(id, "READY_FOR_APPROVAL");
     ev("notify", { to: "founder", taskId: id, reason: escalation ? "escalated" : "close-proposed" }, `notify:${id}`);
@@ -575,6 +656,11 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
     if ((out.decision === "CLOSE" || out.verdict === "accept") && verification?.contradicted) problems.push(`${out.decision === "CLOSE" ? "CLOSE" : "accept"} over contradicted claims`);
     if ((out.decision === "CLOSE" || out.verdict === "accept") && (out.requirementCoverage ?? []).some((r) => r.met !== "yes")) problems.push(`${out.decision === "CLOSE" ? "CLOSE" : "accept"} with unmet requirements`);
     if (!planning && out.verdict === "changes" && !briefs.some(({ b }) => b.fixesSubject)) problems.push("changes without a fix brief");
+    // The founder's named workstreams bind the first plan: each assignment workstream needs its own brief.
+    if (planning && subj.taskId === rootId) {
+      const omitted = requiredOf(subj).filter((w) => ASSIGNED_WORKSTREAMS.includes(w) && !briefs.some(({ b }) => b.assignee === w));
+      if (omitted.length) problems.push(`plan omits required workstream(s): ${omitted.join(", ")}`);
+    }
     for (const { b, check } of briefs) if (!check.ok) problems.push(`brief "${String(b.objective).slice(0, 50)}": ${check.problems.join("; ")}`);
     if (problems.length) {
       const tries = treeOf(s, rootId).filter((t) => t.subjectTaskId === subj.taskId && t.stepKey === e.stepKey && t.outputs.length).length;
@@ -589,7 +675,7 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
         return;
       }
       transition(evalId, "DONE", { outcome: { result: "DONE", refused: problems } });
-      escalate(rootId, evalId, "INVALID_EVALUATION", problems.join(" | "));
+      escalate(rootId, evalId, problems.some((p) => p.startsWith("plan omits")) ? "INCOMPLETE_PLAN" : "INVALID_EVALUATION", problems.join(" | "));
       return;
     }
 
@@ -680,8 +766,32 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
   }
 
   function maybeClose(rootId, fromTaskId) {
-    const live = treeOf(st(), rootId).filter((t) => open(t) && !["request", "decision"].includes(t.stepKey));
-    if (!live.length) openDecision(rootId, fromTaskId);
+    const s = st();
+    const live = treeOf(s, rootId).filter((t) => open(t) && !["request", "decision"].includes(t.stepKey));
+    if (live.length) return;
+    // A request is never proposed as complete while a workstream the founder named has no accepted result.
+    const missing = workstreamStatus(s, rootId).filter((w) => w.status !== "DONE");
+    if (missing.length) { escalate(rootId, fromTaskId, "INCOMPLETE_WORKSTREAMS", `no accepted result for: ${missing.map((w) => w.label).join(", ")}`); return; }
+    openDecision(rootId, fromTaskId);
+  }
+
+  /**
+   * Each required workstream of a request: DONE when an accepted task delivers it, OPEN while one is underway, MISSING
+   * when none exists. chatgpt-review is DONE when an OpenAI evaluator accepted a Claude engineering report.
+   */
+  function workstreamStatus(s, rootId) {
+    const tree = treeOf(s, rootId);
+    return requiredOf(s.tasks[rootId]).map((w) => {
+      let tasks;
+      if (w === "chatgpt-review") {
+        tasks = tree.filter((t) => t.stepKey === "evaluate" && t.assignedAgent.provider === "openai" && s.tasks[t.subjectTaskId]?.stepKey === "claude-engineering");
+        const accepted = tasks.some((t) => t.state === "DONE" && !t.outcome?.refused && t.outputs.at(-1)?.artifact?.verdict === "accept");
+        return { id: w, label: WORKSTREAMS[w].label, status: accepted ? "DONE" : tasks.some(open) ? "OPEN" : "MISSING", taskIds: tasks.map((t) => t.taskId) };
+      }
+      tasks = tree.filter((t) => t.stepKey === w);
+      const done = tasks.some((t) => t.state === "DONE");
+      return { id: w, label: WORKSTREAMS[w].label, status: done ? "DONE" : tasks.some(open) ? "OPEN" : "MISSING", taskIds: tasks.map((t) => t.taskId) };
+    });
   }
 
   // ── timeouts and leases ──
@@ -818,6 +928,9 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
         const mock = tree.some((t) => t.outputs.some((o) => o.mode === "MOCK"));
         return {
           taskId: r.taskId, objective: r.objective, category: r.category ?? null, status: v3Status(s, r), mode: mock ? "MOCK" : "LIVE",
+          // The founder's request is real; how the agents ran it is separate: label both, never one for the other.
+          request: "REAL REQUEST", execution: executionOf(s, r.taskId), acceptanceCriteria: r.acceptanceCriteria, criteriaSource: r.meta?.criteriaSource ?? null,
+          workstreams: workstreamStatus(s, r.taskId),
           open: tree.filter((t) => open(t) && t.taskId !== r.taskId).length, tasks: tree.length,
           costUsd: Number(tree.reduce((n, t) => n + t.costUsd, 0).toFixed(6)),
           decision: decision ? { taskId: decision.taskId, digest: decision.inputs[0], escalation: decision.meta?.escalation ?? null } : null,
@@ -828,7 +941,8 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
     },
     tree(rootId) {
       const s = st();
-      return treeOf(s, rootId).map((t) => ({ taskId: t.taskId, parent: t.parentTaskId, step: t.stepKey, agent: agentKey(t.assignedAgent), status: v3Status(s, t), mode: t.outputs.at(-1)?.mode ?? null, depth: t.depth, route: t.route?.mode ?? null }));
+      // The founder's own request and decision are FOUNDER, never LIVE: LIVE/MOCK describe how an agent ran.
+      return treeOf(s, rootId).map((t) => ({ taskId: t.taskId, parent: t.parentTaskId, step: t.stepKey, agent: agentKey(t.assignedAgent), status: v3Status(s, t), mode: t.assignedAgent.provider === "founder" ? "FOUNDER" : (t.outputs.at(-1)?.mode ?? null), depth: t.depth, route: t.route?.mode ?? null }));
     },
     detail(taskId) {
       const s = st();

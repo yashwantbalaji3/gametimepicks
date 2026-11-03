@@ -14,7 +14,7 @@ import { stepClock, canonicalJson } from "../../lib/util.mjs";
 import { createTaskLedger, replay } from "../task-ledger.mjs";
 import { budgetConfig } from "../budgets.mjs";
 import { createLiveAdapters } from "../adapters.mjs";
-import { createHandoffLoop, checkBrief, renderBrief, briefFingerprint, v3Status, V3_STATUSES, route } from "../handoff-loop.mjs";
+import { createHandoffLoop, checkBrief, renderBrief, briefFingerprint, v3Status, V3_STATUSES, route, requiredWorkstreams, isRealSource } from "../handoff-loop.mjs";
 import { selectFacts } from "../project-facts.mjs";
 import { runDemo, createScriptedMocks, demoBrief, demoReport, DEMO_REQUEST, FOUNDER, KNOWN_COMMITS } from "../handoff-demo.mjs";
 
@@ -61,7 +61,10 @@ test("acceptance (MOCK): request → Claude → ChatGPT review → Claude fix + 
   assert.equal(firstWork.outputs[0].mode, "MOCK");
   // 5. the claim verifier and then ChatGPT evaluated it, automatically
   const verify1 = s.tasks[s.taskOrder.find((id) => s.tasks[id].stepKey === "verify" && s.tasks[id].parentTaskId === firstWork.taskId)];
-  assert.equal(verify1.outputs[0].artifact.claims.find((c) => c.claim.startsWith("commit")).status, "VERIFIED");
+  // The check ran (the commit exists), but a stand-in's report is never evidence: MOCK, not VERIFIED.
+  const commitClaim = verify1.outputs[0].artifact.claims.find((c) => c.claim.startsWith("commit"));
+  assert.equal(commitClaim.status, "MOCK");
+  assert.match(commitClaim.detail, /not evidence \(found in the repository\)/);
   const eval1 = s.tasks[s.taskOrder.find((id) => s.tasks[id].stepKey === "evaluate" && s.tasks[id].subjectTaskId === firstWork.taskId)];
   assert.equal(eval1.assignedAgent.provider, "openai");
   assert.deepEqual(s.verdicts.find((v) => v.reviewTaskId === eval1.taskId).verdict, "changes");
@@ -77,11 +80,11 @@ test("acceptance (MOCK): request → Claude → ChatGPT review → Claude fix + 
   // 7. the worker received exactly that text through the queue, with the earlier report in its context
   assert.equal(fix.claim.worker.id, "mock-claude-code-worker-1");
   assert.ok(fix.inputs.includes(firstWork.outputs[0].artifactDigest), "the fix task's inputs carry Claude's first report");
-  // 8. Grok contributed an independent research step through the API route, with sources
+  // 8. Grok contributed an independent research step through the API route; a stand-in never invents a source
   const grok = tasksBy(ledger, "grok-research")[0];
   assert.equal(grok.route.mode, "api");
   assert.equal(grok.state, "DONE");
-  assert.ok(grok.outputs[0].artifact.findings.every((f) => f.url.startsWith("https://")));
+  assert.ok(grok.outputs[0].artifact.findings.every((f) => f.url === "mock:no-source" && /^\[MOCK\]/.test(f.claim)));
   // 9. outputs moved only through the ledger: every non-root task was created by a handoff from a recorded artifact
   for (const t of Object.values(s.tasks).filter((t) => t.taskId !== rootId)) {
     const h = s.handoffs.find((x) => x.toTaskId === t.taskId);
@@ -421,7 +424,9 @@ test("review #9: two timeouts under one parent each reach the founder", async ()
 // ───────────────────────────── cost-first routing (founder 2026-11-03) ─────────────────────────────
 
 test("cost: a low-risk report our checks fully verify closes with no model call; a direct brief skips the planner", async () => {
-  const t = setup();
+  // A real worker (the founder's own subscription, $0): only real output can be verified, so only it closes on our checks.
+  const t = setup({ worker: false });
+  t.worker = t.loop.registerWorker({ id: "w-live", model: "claude-code", credential: "subscription", env: { CLAUDE_CODE_OAUTH_TOKEN: "set" } });
   t.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "low", brief: demoBrief({ risk: "low" }) });
   await drive(t);
   const s = t.ledger.state();
@@ -433,6 +438,13 @@ test("cost: a low-risk report our checks fully verify closes with no model call;
   assert.ok(tasksBy(t.ledger, "decision")[0], "the founder still decides on closing the request");
   assert.equal(t.loop.views.spend().closedWithoutModel, 1);
   assert.equal(s.verdicts.length, 0);
+
+  // The same low-risk report from a MOCK worker is not evidence: it goes to an evaluator instead of closing on our checks.
+  const m = setup();
+  m.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "low-mock", brief: demoBrief({ risk: "low" }) });
+  await drive(m);
+  assert.notEqual(tasksBy(m.ledger, "claude-engineering")[0].outcome?.deterministic, true, "MOCK output never closes without review");
+  assert.ok(tasksBy(m.ledger, "evaluate").length >= 1);
 });
 
 test("cost: low risk that our checks can't fully verify falls back to a light-tier evaluator; high risk gets the strong tier", async () => {
@@ -542,4 +554,107 @@ test("HQ: MOCK stand-ins name the founder's own request, not the scripted demo",
   const texts = JSON.stringify(h.ledger.events().map((e) => e.body));
   assert.doesNotMatch(texts, /queue header/i, "nothing from the scripted demo leaks into another request");
   assert.equal(home.mode, "MOCK");
+});
+
+// ── founder acceptance test 2026-11-03 (req-91d1f106b158): the HQ must execute what was asked, not just close tasks ──
+
+// The founder's request as described in their report (named agents and subject); the exact wording replaces this
+// constant when available. What matters is preserved: four named workstreams and a Simulation Theater subject.
+const UAT_REQUEST = "Improve Simulation Theater. Use ChatGPT planning to break the work down, Claude engineering to build the change, Grok competitor research on how rival sports sites present game simulations, and a ChatGPT independent engineering review of Claude's work.";
+
+test("UAT: the agents a request names are read deterministically, clause by clause", () => {
+  assert.deepEqual(requiredWorkstreams(UAT_REQUEST), ["chatgpt-review", "claude-engineering", "grok-research"]);
+  assert.deepEqual(requiredWorkstreams("Have Claude test the betslip and Grok look at competitors"), ["claude-qa", "grok-research"]);
+  assert.deepEqual(requiredWorkstreams("ChatGPT, audit the onboarding UX"), ["chatgpt-product"]);
+  assert.deepEqual(requiredWorkstreams("Fix the results page header"), [], "no agent named: nothing is forced");
+  assert.equal(isRealSource("https://www.espn.com/nba/game"), true);
+  for (const u of ["https://example.invalid/mock-1", "https://example.com/x", "http://espn.com", "mock:no-source", "https://localhost/x", "https://site.test/a", ""]) assert.equal(isRealSource(u), false, u);
+});
+
+test("UAT: the founder's request runs every named workstream, criteria first, labelled REAL REQUEST / MOCK EXECUTION", async () => {
+  const h = setup();
+  const id = h.loop.intake(FOUNDER, { objective: UAT_REQUEST, requestKey: "uat-91d1", category: "theater" });
+  const root = h.ledger.task(id);
+  // testable acceptance criteria exist before any agent runs
+  assert.equal(root.meta.criteriaSource, "generated");
+  assert.equal(root.acceptanceCriteria.length, 4);
+  assert.ok(root.acceptanceCriteria.some((c) => /Claude engineering/.test(c)) && root.acceptanceCriteria.some((c) => /real https source/.test(c)));
+  await drive(h);
+  const s = h.ledger.state();
+  // every named workstream ran, with its own agent
+  const eng = tasksBy(h.ledger, "claude-engineering");
+  assert.ok(eng.length >= 1 && eng.every((t) => t.assignedAgent.provider === "anthropic"), "Claude engineering ran");
+  const grok = tasksBy(h.ledger, "grok-research");
+  assert.equal(grok.length, 1);
+  assert.match(grok[0].objective, /Simulation Theater/, "Grok researched the requested subject");
+  assert.doesNotMatch(JSON.stringify(grok[0].outputs), /Updated N min ago|example\.invalid|https:\/\//, "no unrelated finding and no invented source");
+  const review = tasksBy(h.ledger, "evaluate").filter((t) => s.tasks[t.subjectTaskId].stepKey === "claude-engineering");
+  assert.ok(review.length && review.every((t) => t.assignedAgent.provider === "openai"), "ChatGPT independently reviewed Claude's work");
+  // the verifier never counts stand-in output as evidence
+  for (const v of tasksBy(h.ledger, "verify")) assert.ok(v.outputs[0].artifact.claims.every((c) => c.status === "MOCK"), "every claim in MOCK output is labelled MOCK");
+  // labels: real request, MOCK execution, and every workstream accounted for
+  const home = h.loop.views.home().find((r) => r.taskId === id);
+  assert.deepEqual([home.request, home.execution], ["REAL REQUEST", "MOCK"]);
+  assert.deepEqual(home.workstreams.map((w) => [w.id, w.status]), [["chatgpt-review", "DONE"], ["claude-engineering", "DONE"], ["grok-research", "DONE"]]);
+  assert.equal(h.loop.views.tree(id)[0].mode, "FOUNDER", "the request node is never shown as LIVE");
+  const decision = tasksBy(h.ledger, "decision")[0];
+  assert.match(decision.objective, /\(MOCK EXECUTION\)$/);
+  assert.equal(decision.meta.execution, "MOCK");
+  assert.match(s.handoffs.find((x) => x.toTaskId === decision.taskId).instructions, /no real code, test or research exists/);
+  // and MOCK work still can't be approved
+  assert.equal(codeOf(() => h.loop.founderDecision(FOUNDER, decision.taskId, { action: "approve", artifactDigest: decision.inputs[0] })), "MOCK_NOT_APPROVABLE");
+});
+
+test("UAT: a plan that drops a named workstream is refused, retried once, then escalated (never executed)", async () => {
+  const onlyGrok = (req) => ({ verdict: "not-applicable", decision: "FOLLOW_UP", requirementCoverage: [], missing: [], findings: [], qaRequired: false, rationale: "[MOCK] research only", ceoSummary: "[MOCK] research only",
+    followUps: [{ ...demoBrief(), assignee: "grok-research", tests: [], codeLocations: [], objective: `Research: ${req.state.tasks[req.task.rootTaskId].objective.slice(0, 80)}`, deliverables: ["A research report"], permissions: ["read-public-web"] }] });
+  const h = setup({ script: { plan: onlyGrok } });
+  const id = h.loop.intake(FOUNDER, { objective: UAT_REQUEST, requestKey: "uat-incomplete" });
+  await drive(h);
+  const plans = tasksBy(h.ledger, "plan");
+  assert.equal(plans.length, 2, "one retry");
+  assert.ok(plans.every((p) => p.outcome.refused?.some((x) => /plan omits required workstream\(s\): claude-engineering/.test(x))));
+  assert.equal(tasksBy(h.ledger, "grok-research").length, 0, "nothing from a refused plan runs");
+  const d = tasksBy(h.ledger, "decision");
+  assert.equal(d.length, 1);
+  assert.equal(d[0].meta.escalation.code, "INCOMPLETE_PLAN");
+  assert.equal(h.loop.views.home().find((r) => r.taskId === id).workstreams.find((w) => w.id === "claude-engineering").status, "MISSING");
+});
+
+test("UAT: a request never reaches a close proposal while a named workstream has no accepted result", async () => {
+  // Founder names only ChatGPT review; a planner that routes research alone passes the plan check (review is not an
+  // assignment), but nothing ChatGPT accepted from Claude exists at the end: escalated, not proposed for closing.
+  const researchOnly = (req) => ({ verdict: "not-applicable", decision: "FOLLOW_UP", requirementCoverage: [], missing: [], findings: [], qaRequired: false, rationale: "[MOCK]", ceoSummary: "[MOCK]",
+    followUps: [{ ...demoBrief(), assignee: "grok-research", tests: [], codeLocations: [], objective: "Research how rival sports sites present game simulations, with sources", deliverables: ["A research report"], permissions: ["read-public-web"] }] });
+  const h = setup({ script: { plan: researchOnly } });
+  h.loop.intake(FOUNDER, { objective: "Get a ChatGPT independent engineering review of the Simulation Theater changes", requestKey: "uat-missing" });
+  await drive(h);
+  const d = tasksBy(h.ledger, "decision");
+  assert.equal(d.length, 1);
+  assert.equal(d[0].meta.escalation?.code, "INCOMPLETE_WORKSTREAMS");
+  assert.match(d[0].meta.escalation.reason, /ChatGPT independent review/);
+});
+
+test("UAT: a stand-in that names a placeholder source is caught as UNSOURCED; nothing closes over it", async () => {
+  const fabricated = (req) => ({ summary: "[MOCK]", findings: [{ claim: "Rival X shows live sims", url: "https://example.invalid/rival-x" }], limitations: [], suggestedNextSteps: [] });
+  const h = setup({ script: { research: fabricated } });
+  h.loop.intake(FOUNDER, { objective: "Grok competitor research on Simulation Theater features", requestKey: "uat-fab" });
+  await drive(h);
+  const v = tasksBy(h.ledger, "verify").find((t) => h.ledger.state().tasks[t.parentTaskId].stepKey === "grok-research");
+  assert.equal(v.outputs[0].artifact.claims[0].status, "UNSOURCED");
+  assert.ok(v.outputs[0].artifact.contradicted >= 1);
+  const d = tasksBy(h.ledger, "decision");
+  assert.ok(d.length && d.every((x) => x.meta.escalation), "only escalations reach the founder, never a close proposal");
+});
+
+test("UAT: retried runs and a resent request write nothing twice", async () => {
+  const h = setup();
+  const a = h.loop.intake(FOUNDER, { objective: UAT_REQUEST, requestKey: "uat-retry" });
+  await drive(h);
+  const n = h.ledger.events().length;
+  await h.loop.runUntilIdle(); // a second function invocation (cron + page) over a settled request
+  await h.loop.runUntilIdle();
+  assert.equal(h.loop.intake(FOUNDER, { objective: UAT_REQUEST, requestKey: "uat-retry" }), a);
+  assert.equal(h.ledger.events().length, n);
+  assert.equal(tasksBy(h.ledger, "decision").length, 1);
 });
