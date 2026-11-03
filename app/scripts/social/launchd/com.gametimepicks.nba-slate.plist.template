@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  User LaunchAgent for one unattended NBA slate (scripts/social/nba-slate-runner.sh). No sudo, no paid call.
+  Fill __HOME__, __DATE__, __MONTH__, __DAY__, __TOOL_COMMIT__ and the hours (launchd uses LOCAL time: 07:00Z to 15:00Z
+  on 2026-11-04 is 02:00 to 10:00 EST). The runner stops after a delivery (DELIVERED marker + bootout) and makes no
+  attempt after GTP_NOT_AFTER. A Mac asleep at the hour runs the missed attempt once on wake.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.gametimepicks.nba-slate-__DATE__</string>
+  <key>ProgramArguments</key>
+  <array><string>/bin/bash</string><string>__HOME__/gtp-runner/nba-slate/bin/nba-slate-runner.sh</string><string>run</string></array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>GTP_SLATE_DATE</key><string>__DATE__</string>
+    <key>GTP_TOOL_COMMIT</key><string>__TOOL_COMMIT__</string>
+    <key>GTP_IMPORT_ROOT</key><string>__IMPORT_ROOT__</string>
+    <key>GTP_NOT_AFTER</key><string>__NOT_AFTER__</string>
+    <key>GTP_TOP5_MIN_ROWS</key><string>__MIN_ROWS__</string>
+    <key>GTP_LAUNCHD_LABEL</key><string>com.gametimepicks.nba-slate-__DATE__</string>
+  </dict>
+  <key>StartCalendarInterval</key>
+  <array>__HOURS__</array>
+  <key>StandardOutPath</key><string>__HOME__/gtp-evidence/nba-slate-__DATE__/launchd.out.log</string>
+  <key>StandardErrorPath</key><string>__HOME__/gtp-evidence/nba-slate-__DATE__/launchd.err.log</string>
+</dict>
+</plist>

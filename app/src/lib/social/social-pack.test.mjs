@@ -404,6 +404,20 @@ test("NBA_TOP5_CAROUSEL: PTS, REB, AST in one package, worst anomaly check, sepa
   assert.equal(nbaTop5Carousel({ posts: posts.slice(0, 2), date: "2026-11-01" }).refused[0].reason, "MISSING_BOARD");
 });
 
+test("NBA_TOP5_CAROUSEL minRows: a thin board is left out and named; no board left refuses", () => {
+  const card = (k, n) => ({ name: k, html: "", cells: Object.fromEntries(Array.from({ length: n }, (_, i) => [`${i + 1}.num`, "1"])) });
+  const part = (k, n) => ({ contentType: "NBA_DAILY_TOP5", variant: `${k}-model`, cards: [card(k, n)], firstStartUtc: "2026-11-01T22:00:00Z", window: {}, recommended: null, freshness: {}, anomalyCheck: "PASS", anomalies: [], disclosures: ["d"], snapshotRefs: [], checks: [], content: {} });
+  const posts = [part("pts", 5), part("reb", 2), part("ast", 2)];
+  const { posts: [c], refused } = nbaTop5Carousel({ posts, date: "2026-11-01", minRows: 5 });
+  assert.deepEqual(refused, [{ contentType: "NBA_TOP5_CAROUSEL", reason: "THIN_BOARD_SKIPPED", boards: ["reb", "ast"], minRows: 5 }]);
+  assert.deepEqual(c.content.boards, ["pts"]);
+  assert.equal(c.cards.length, 1);
+  assert.ok(Object.keys(c.cards[0].cells).every((k) => k.endsWith(".pts")));
+  assert.equal(c.ccCaption, "NBA top 5 projected points tonight.");
+  assert.equal(nbaTop5Carousel({ posts, date: "2026-11-01" }).posts[0].cards.length, 3);
+  assert.equal(nbaTop5Carousel({ posts, date: "2026-11-01", minRows: 6 }).posts.length, 0);
+});
+
 test("NFL lines: h2h and props come from the private capture rows, never inferred, never post-kickoff", () => {
   const row = { canonicalEventId: "nfl-1", capturedAt: "2026-10-29T19:00:00Z", bookmaker: "draftkings", outcomes: [{ name: "A", price: 150 }, { name: "H", price: -180 }] };
   const o = { eventId: "1", awayName: "A", homeName: "H", sideName: "H", kickoffUtc: "2026-11-01T18:00Z", asOf: "2026-10-31T00:00:00Z" };

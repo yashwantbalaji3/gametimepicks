@@ -570,26 +570,40 @@ export function prepareNbaTop5({ date, asOf, lineDoc = null }) {
 }
 
 /** PTS, REB and AST real-line boards as one swipeable package. The three separate packages stay. */
-export function nbaTop5Carousel({ posts, date }) {
+/** Rows a Top 5 board still shows after flagged projections are left off. */
+export const top5ShownRows = (p) => Object.keys(p.cards[0].cells ?? {}).filter((k) => /^\d+\.num$/.test(k)).length;
+
+/**
+ * `minRows`: a board showing fewer rows is left out of the carousel (default 0 keeps all; the Nov 4 runner skips boards under 5
+ * until the founder rules on thin boards). A carousel with no board left is refused.
+ */
+export function nbaTop5Carousel({ posts, date, minRows = 0 }) {
   const type = CONTENT_TYPE.NBA_TOP5_CAROUSEL;
   // Without verified lines only the projection boards exist (`pts-model`); the carousel takes those (rehearsal 2026-11-03).
   const board = (k) => posts.find((p) => p.contentType === CONTENT_TYPE.NBA_DAILY_TOP5 && p.variant === k);
-  const parts = NBA_TOP5.map((k) => board(k) ?? board(`${k}-model`));
-  const missing = NBA_TOP5.filter((_, i) => !parts[i]);
+  const all = NBA_TOP5.map((k) => board(k) ?? board(`${k}-model`));
+  const missing = NBA_TOP5.filter((_, i) => !all[i]);
   if (missing.length) return { posts: [], refused: [{ contentType: type, reason: "MISSING_BOARD", boards: missing }] };
+  const keys = NBA_TOP5.filter((_, i) => top5ShownRows(all[i]) >= minRows);
+  const thin = NBA_TOP5.filter((k) => !keys.includes(k));
+  const parts = keys.map((k) => all[NBA_TOP5.indexOf(k)]);
+  const skipped = thin.length ? [{ contentType: type, reason: "THIN_BOARD_SKIPPED", boards: thin, minRows }] : [];
+  if (!parts.length) return { posts: [], refused: skipped };
   const [p0] = parts;
   const firstMs = Math.min(...parts.map((p) => instant(p.firstStartUtc)));
   const firstUtc = toIso(firstMs);
   const opener = parts.find((p) => p.firstStartUtc === firstUtc);
   const check = parts.some((p) => p.anomalyCheck === "REVIEW") ? "REVIEW" : "PASS";
   const anomalies = [...new Map(parts.flatMap((p) => p.anomalies ?? []).map((a) => [`${a.playerId}:${a.market}`, a])).values()];
-  const cc = "NBA top 5 projected points, rebounds and assists tonight.";
+  const NAMES = { pts: "points", reb: "rebounds", ast: "assists" };
+  const listed = keys.map((k) => NAMES[k]);
+  const cc = `NBA top 5 projected ${listed.length > 1 ? `${listed.slice(0, -1).join(", ")} and ${listed.at(-1)}` : listed[0]} tonight.`;
   return { posts: [{
     ...p0, contentType: type, variant: null, title: `NBA top 5 carousel ${date}`, firstStartUtc: firstUtc, window: opener.window, recommended: opener.recommended, freshness: opener.freshness,
-    cards: parts.map((p, i) => ({ ...p.cards[0], name: `nba-${date}-top5-carousel-${NBA_TOP5[i]}`, cells: Object.fromEntries(Object.entries(p.cards[0].cells).map(([k, x]) => [/^\d+\.num$/.test(k) ? `${k.slice(0, -4)}.${NBA_TOP5[i]}` : `${NBA_TOP5[i]}.${k}`, x])) })), caption: pregameCaption(cc), ccCaption: cc, ccCaptionB: cc,
-    anomalyCheck: check, anomalies, disclosures: [...new Set(parts.flatMap((p) => p.disclosures))], snapshotRefs: [...new Map(parts.flatMap((p) => p.snapshotRefs).map((r) => [r.ref, r])).values()], checks: [...new Set([...parts.flatMap((p) => p.checks), "images in order: PTS, REB, AST", "anomalyCheck is the worst of the three"])],
-    content: { boards: NBA_TOP5, parts: parts.map((p) => p.content), anomalyChecks: Object.fromEntries(parts.map((p, i) => [NBA_TOP5[i], p.anomalyCheck ?? null])), socialAuthorized: false },
-  }], refused: [] };
+    cards: parts.map((p, i) => ({ ...p.cards[0], name: `nba-${date}-top5-carousel-${keys[i]}`, cells: Object.fromEntries(Object.entries(p.cards[0].cells).map(([k, x]) => [/^\d+\.num$/.test(k) ? `${k.slice(0, -4)}.${keys[i]}` : `${keys[i]}.${k}`, x])) })), caption: pregameCaption(cc), ccCaption: cc, ccCaptionB: cc,
+    anomalyCheck: check, anomalies, disclosures: [...new Set(parts.flatMap((p) => p.disclosures))], snapshotRefs: [...new Map(parts.flatMap((p) => p.snapshotRefs).map((r) => [r.ref, r])).values()], checks: [...new Set([...parts.flatMap((p) => p.checks), `images in order: ${keys.map((k) => k.toUpperCase()).join(", ")}`, "anomalyCheck is the worst of the boards shown"])],
+    content: { boards: keys, skippedThin: thin, parts: parts.map((p) => p.content), anomalyChecks: Object.fromEntries(parts.map((p, i) => [keys[i], p.anomalyCheck ?? null])), socialAuthorized: false },
+  }], refused: skipped };
 }
 
 /** One package per game from the box-score set, already validated by prepareNbaLineGraphics. */
