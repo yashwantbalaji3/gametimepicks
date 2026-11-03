@@ -586,7 +586,7 @@ export function nbaTop5Carousel({ posts, date }) {
   const cc = "NBA top 5 projected points, rebounds and assists tonight.";
   return { posts: [{
     ...p0, contentType: type, variant: null, title: `NBA top 5 carousel ${date}`, firstStartUtc: firstUtc, window: opener.window, recommended: opener.recommended, freshness: opener.freshness,
-    cards: parts.map((p, i) => ({ ...p.cards[0], name: `nba-${date}-top5-carousel-${NBA_TOP5[i]}`, cells: Object.fromEntries(Object.entries(p.cards[0].cells).map(([k, x]) => [`${NBA_TOP5[i]}.${k}`, x])) })), caption: pregameCaption(cc), ccCaption: cc, ccCaptionB: cc,
+    cards: parts.map((p, i) => ({ ...p.cards[0], name: `nba-${date}-top5-carousel-${NBA_TOP5[i]}`, cells: Object.fromEntries(Object.entries(p.cards[0].cells).map(([k, x]) => [/^\d+\.num$/.test(k) ? `${k.slice(0, -4)}.${NBA_TOP5[i]}` : `${NBA_TOP5[i]}.${k}`, x])) })), caption: pregameCaption(cc), ccCaption: cc, ccCaptionB: cc,
     anomalyCheck: check, anomalies, disclosures: [...new Set(parts.flatMap((p) => p.disclosures))], snapshotRefs: [...new Map(parts.flatMap((p) => p.snapshotRefs).map((r) => [r.ref, r])).values()], checks: [...new Set([...parts.flatMap((p) => p.checks), "images in order: PTS, REB, AST", "anomalyCheck is the worst of the three"])],
     content: { boards: NBA_TOP5, parts: parts.map((p) => p.content), anomalyChecks: Object.fromEntries(parts.map((p, i) => [NBA_TOP5[i], p.anomalyCheck ?? null])), socialAuthorized: false },
   }], refused: [] };
@@ -737,7 +737,11 @@ export function prepareGameDay({ date, asOf, lineDoc = null, laneOverride = null
     const base = (o) => ({ ...META, slateGames: games.length, contentType: CONTENT_TYPE.NBA_DAILY_TOP5, eligibilityClass: ELIGIBILITY.OFFICIAL, title: `NBA top 5 ${b.label.toLowerCase()} ${date}`, firstStartUtc: toIso(f), caption: pregameCaption(cap), ccCaption: cap, ccCaptionB: `NBA top 5 ${b.label.toLowerCase()} tonight.`, extraClaims: [{ key: "topN", display: "5", evidenceRef: rel }], window: { opensAt: asOf, closesAt: toIso(f) }, recommended: recommendedPostTime({ games: rows, afterEtDate: dayBefore(date), asOf }), recommendedNote: "the two hours before tip-off have passed", freshness: fresh(f), ...o });
     const content = rows.map(({ team, line: _l, ...r }) => ({ ...r, team: team.abbr }));
     const ids = rows.map((r) => r.key);
-    posts.push(base({ ...anomaliesFor(modelCheck, ids, [k]), variant: `${k}-model`, cards: v2Cards([v2Top5Card({ title: b.label, chip, rows })], `nba-${date}-top5-${k}-model`), disclosures: [DISCLOSURE], content: { board: k, rows: content, ranking: "projection only" } }));
+    // A flagged projection is left off, never printed; the board keeps the site's ranks and says so (2026-11-02 founder-cleared carousel; rehearsal 2026-11-03 found 7 printed).
+    const withheld = withheldKeys(modelCheck.anomalies);
+    const shownRows = rows.filter((r) => !withheld.has(`${r.key}.${k}`));
+    const held = shownRows.length < rows.length ? { kicker: "Model Projection", sub: "Some projections are held for review." } : { kicker: "Model Projection" };
+    posts.push(base({ ...anomaliesFor(modelCheck, ids, [k]), variant: `${k}-model`, cards: v2Cards([v2Top5Card({ title: b.label, chip, rows: shownRows, ...held })], `nba-${date}-top5-${k}-model`), disclosures: [DISCLOSURE], content: { board: k, rows: content, ranking: "projection only" } }));
     if (lineDoc) posts.push(base({ ...anomaliesFor(realCheck, ids, [k]), variant: k, containsMarketData: true, cards: v2Cards([v2Top5Card({ title: b.label, chip, rows, real: true, section: MODEL_SECTION, note: rows.some((r) => r.line) ? COMPARISON_LEGEND : null })], `nba-${date}-top5-${k}`), disclosures: [DISCLOSURE], content: { board: k, rows: content, ranking: "projection only", lines: { shown: rows.filter((r) => r.line).length, missing: rows.filter((r) => !r.line).map((r) => ({ playerId: r.key, name: r.name, reason: top5Reason(lineFor.get(`${r.key}:${k}`)) })) }, quotedAt: quoteRangeText(rows.map((r) => lineFor.get(`${r.key}:${k}`)).filter(Boolean)) } }));
   }
   if (lineDoc) { const c = nbaTop5Carousel({ posts, date }); posts.push(...c.posts); refused.push(...c.refused); }
@@ -1033,7 +1037,8 @@ export async function writePackages(posts, { outRoot, scales = [1], png = true, 
     if (!bytes || sha(bytes) !== r.sha256) throw new Error(`dataCommit ${dataCommit.slice(0, 10)} does not hold ${r.ref} with sha ${r.sha256.slice(0, 10)}; set GTP_DATA_COMMIT to a commit that does`);
   }
   for (const p of posts) {
-    const shown = flaggedCellsShown(p.anomalies, p.cards.flatMap((c) => Object.entries(c.cells)));
+    const board = p.contentType === CONTENT_TYPE.NBA_DAILY_TOP5 ? String(p.variant).replace(/-model$/, "") : null;
+    const shown = flaggedCellsShown(p.anomalies, p.cards.flatMap((c) => Object.entries(c.cells)).map(([k, v]) => [k.replace(/^(pts|reb|ast)\.(\d+)\.num$/, "$2.$1").replace(/^(\d+)\.num$/, board ? `$1.${board}` : "$&"), v]));
     if (shown.length) throw new Error(`${p.contentType} ${p.variant}: flagged cells printed as numbers: ${shown.map((a) => `${a.playerId}.${a.market}`).join(", ")}`);
     const left = process.env.GTP_ALLOW_SHORT_PRICED_WINDOW === "1" ? null : shortPricedWindow(p, p.window?.opensAt);
     if (left !== null) throw new Error(`${p.contentType} ${p.variant}: priced quote leaves ${left}h before it expires; refresh the quote within authorization or build winner-only`);
