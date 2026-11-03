@@ -24,3 +24,16 @@ export function withSendWindow(post, quoteTimes) {
   const closesAt = sw.latestValidSendUtc;
   return { ...post, sendWindow: sw, window: { ...post.window, closesAt }, freshness: { ...post.freshness, expiresAt: closesAt, rule: `valid until first start, at most ${sw.maxAgeHours} hours after the oldest printed quote` } };
 }
+
+/** Hours a priced package needs left before its quote expires: the approval window planned for every package (PD, 2026-11-03). */
+export const PRICED_MIN_HOURS_LEFT = 3;
+
+/**
+ * A priced package rebuilt from an old quote keeps the old deadline (11-02: every re-export still expired 23:25-23:29Z).
+ * Returns the hours left when they are fewer than the minimum, else null; the caller refreshes the quote or ships winner-only.
+ */
+export function shortPricedWindow({ containsMarketData, window }, asOf, minHours = PRICED_MIN_HOURS_LEFT) {
+  if (!containsMarketData || !window?.closesAt) return null;
+  const left = (Date.parse(window.closesAt) - Date.parse(asOf)) / 3600000;
+  return left < minHours ? Math.round(left * 10) / 10 : null;
+}

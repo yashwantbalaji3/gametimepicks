@@ -30,7 +30,7 @@ import { formatValue } from "../../src/lib/sports/nfl/forecast-view.mjs";
 import { pregameScope, boardRanks, TOP_BOARD_SPECS } from "../../src/lib/sports/nfl/top-boards.mjs";
 import { familyStateAcross, poolWithheldTeams, rankFamily } from "../../src/lib/sports/nfl/board-ranking.mjs";
 import { opponentIn } from "../../src/lib/sports/nfl/matchup.mjs";
-import { withSendWindow } from "../../src/lib/social/send-window.mjs";
+import { shortPricedWindow, withSendWindow } from "../../src/lib/social/send-window.mjs";
 import { estimateLabel } from "../../src/lib/sports/nfl/family-publication.mjs";
 import { gateLaneTopBoards, laneDisplay, laneProvenance } from "../../src/lib/sports/nba/lane-top-boards.mjs";
 import { eloWinProbabilityOf, ELO_WIN_PROBABILITY_LABEL } from "../../src/lib/sports/nba/elo-win-probability.mjs";
@@ -1009,6 +1009,8 @@ export async function writePackages(posts, { outRoot, scales = [1], png = true }
   for (const p of posts) {
     const shown = flaggedCellsShown(p.anomalies, p.cards.flatMap((c) => Object.entries(c.cells)));
     if (shown.length) throw new Error(`${p.contentType} ${p.variant}: flagged cells printed as numbers: ${shown.map((a) => `${a.playerId}.${a.market}`).join(", ")}`);
+    const left = process.env.GTP_ALLOW_SHORT_PRICED_WINDOW === "1" ? null : shortPricedWindow(p, p.window?.opensAt);
+    if (left !== null) throw new Error(`${p.contentType} ${p.variant}: priced quote leaves ${left}h before it expires; refresh the quote within authorization or build winner-only`);
   }
   return posts.map((p) => {
     const images = p.cards.flatMap((c) => written.get(c.name) ?? []);
