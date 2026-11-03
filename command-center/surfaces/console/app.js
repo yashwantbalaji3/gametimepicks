@@ -952,18 +952,29 @@
   /** One queue, deadline first: read from the real gate on request, so opening it never loads the console. */
   function queueRows(s) {
     const posts = s.posts ?? [], rank = (r) => (r.priced ? 0 : r.type === "NBA_TONIGHT" ? 1 : r.type === "NBA_TOP5_CAROUSEL" || r.type === "NBA_DAILY_TOP5" ? 3 : r.sport === "NFL" ? 5 : 2);
-    return (ui.queue ?? []).filter((g) => g.status === "READY" || !["drafted"].includes(g.lifecycle)).map((g) => {
+    const open = (t) => !t || Date.parse(t) > Date.now();
+    return (ui.queue ?? []).filter((g) => (g.status === "READY" || g.lifecycle !== "drafted") && open(g.closesAt)).map((g) => {
       const p = posts.find((q) => q.package?.title === g.title && q.lifecycle === g.lifecycle), m = p?.package?.imported ?? {};
       const job = (s.publishing?.jobs ?? []).filter((j) => j.decisionId === p?.decisionId).at(-1);
       const state = p?.receipt ? "SENT" : job?.status === "scheduled" ? "SCHEDULED" : g.lifecycle === "approved" ? "APPROVED" : g.status !== "READY" ? "BLOCKED" : m.anomalyCheck === "EXCEPTION" || m.contentType?.endsWith("GAME_POST") ? "NEEDS REVIEW" : "READY";
       const priced = m.contentType === "NBA_GAME_POST";
       return { ...g, p, job, state, priced, type: m.contentType, sport: p?.package?.sport, start: startOfPkg(p?.package ?? {}), issue: g.status !== "READY" ? (g.reasons?.[0] ?? "") : m.anomalyCheck === "EXCEPTION" ? "Flagged stats withheld; exception not validated" : "" };
-    }).filter((r) => r.p).sort((a, b) => rank(a) - rank(b) || String(a.closesAt ?? a.start).localeCompare(String(b.closesAt ?? b.start)));
+    }).filter((r) => r.p && open(r.start)).sort((a, b) => rank(a) - rank(b) || String(a.closesAt ?? a.start).localeCompare(String(b.closesAt ?? b.start)));
+  }
+  async function loadQueue() {
+    if (ui.queueBusy) return;
+    ui.queueBusy = true;
+    const g = await post("/api/gate-check", { date: etDay(new Date()) }).catch(() => null);
+    ui.queueBusy = false; ui.queueAt = Date.now();
+    if (Array.isArray(g)) { ui.queue = g; render(ui.state); }
   }
   function queuePanel(s) {
+    if (Date.now() - (ui.queueAt ?? 0) > 90_000) setTimeout(loadQueue, 0);
     const rows = queueRows(s);
-    return `<div class="section">Tonight's queue</div><div class="muted"><button class="btn small" data-queue-refresh="1">${ui.queue ? "Recheck the gate" : "Load the queue"}</button> Open a post to see its images, approve and schedule.</div>
-      ${rows.length ? `<ul class="rows">${rows.map((r) => `<li><button type="button" class="rowlink" data-open-post="${esc(r.p.decisionId)}"><b>${esc(r.state)}</b> ${esc(r.title)} · ${num(r.images)} image(s) · v${esc(r.p.package.contentKey.slice(0, 8))} · latest ${esc(etTime(r.closesAt ?? r.start))}${r.job?.status === "scheduled" ? ` · scheduled ${esc(etTime(r.job.dueAt))}` : ""}${r.p.receipt ? ` · ${esc(r.p.receipt.canonicalUrl)}` : ""}${r.issue ? ` · ${esc(r.issue)}` : ""}</button></li>`).join("")}</ul>` : ""}`;
+    const sent = (s.posts ?? []).filter((p) => p.receipt && p.package?.imported && p.package.date === etDay(new Date()));
+    return `<div class="section">Tonight's queue</div><div class="muted"><button class="btn small" data-queue-refresh="1">${ui.queue ? "Recheck the gate" : "Load the queue"}</button> Only posts you can still act on are listed. Open one to see its images, approve and schedule.</div>
+      ${rows.length ? `<ul class="rows">${rows.map((r) => `<li><button type="button" class="rowlink" data-open-post="${esc(r.p.decisionId)}"><b>${esc(r.state)}</b> ${esc(r.title)} · ${num(r.images)} image(s) · v${esc(r.p.package.contentKey.slice(0, 8))} · latest ${esc(etTime(r.closesAt ?? r.start))}${r.job?.status === "scheduled" ? ` · scheduled ${esc(etTime(r.job.dueAt))}` : ""}${r.p.receipt ? ` · ${esc(r.p.receipt.canonicalUrl)}` : ""}${r.issue ? ` · ${esc(r.issue)}` : ""}</button></li>`).join("")}</ul>` : ""}
+      ${sent.length ? `<div class="section">Sent tonight · ${num(sent.length)}</div><ul class="rows">${sent.map((p) => `<li><b>SENT</b>&nbsp;${esc(p.package.title)} · ${esc(p.receipt.canonicalUrl)}</li>`).join("")}</ul>` : ""}`;
   }
   function renderWorkspace(s, c, list) {
     const others = c.posts.filter((p) => p.package.imported && onTonight(p) && !isPrimary(p));
