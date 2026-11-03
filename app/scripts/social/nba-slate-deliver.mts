@@ -50,6 +50,10 @@ if (car.refused.some((x: any) => x.reason !== "THIN_BOARD_SKIPPED")) refuse("TOP
 
 const V = (p: any, v: string) => ({ ...p, variant: `${p.variant ?? "slate"}-${v}` });
 const roster = JSON.parse(fs.readFileSync(process.env.GTP_NBA_UNIFIED_ROSTER!, "utf8"));
+// Availability & plausibility guard (nba-unified-roster.mjs, rules R1-R3): rows it put under review, with the rule, for the report.
+const laneName = new Map(lane.games.flatMap((g: any) => [...g.players.away, ...g.players.home].map((p: any) => [String(p.providerAthleteId), p.name])));
+const onCard = new Set(Object.entries(roster).filter(([k]) => !k.startsWith("__")).flatMap(([, v]: any) => v).map((e: any) => String(e.id ?? e)));
+result.guard = Object.entries(roster.__guard ?? {}).map(([id, rules]) => ({ id, name: laneName.get(id) ?? id, rules, onCard: onCard.has(id) }));
 const sha = (b: any) => crypto.createHash("sha256").update(b).digest("hex");
 const qa: any[] = [];
 function check(pkg: any, post: any, slug: string) {
@@ -152,6 +156,7 @@ writeResult();
 const md = [`# NBA slate ${date} delivered ${new Date().toISOString()}`, "", `dataCommit ${result.dataCommit} · asOf ${asOf} · ${result.packages} packages · ${result.images} images · rendered ${st.rendered}, cached ${st.skipped}`, `Top 5 carousel boards: ${result.slate.top5Boards.join(", ") || "none"}${car.refused.length ? ` (skipped under ${minRows} rows: ${car.refused[0].boards.join(", ")})` : ""}`, "", "| Game | Tip (UTC) | Winner | Props | Projection-only | Winner-only | Cells omitted |", "|---|---|---|---|---|---|---|",
   ...result.games.map((g: any) => `| ${g.game} | ${g.tipUtc} | ${g.digests.winner.slice(0, 12)} | ${g.digests.props.slice(0, 12)} | ${g.digests.projonly.slice(0, 12)} | ${g.digests.winneronly.slice(0, 12)} | ${g.cellsOmitted} |`),
   "", result.exception ? `Founder publication exception ${result.exception.id} (${path.basename(result.exception.file)} sha ${result.exception.sha256.slice(0, 12)}): ${result.exception.excepted.length} stat packages EXCEPTION, flagged cells withheld${result.exception.notExcepted.length ? `; left REVIEW: ${result.exception.notExcepted.map((x: any) => `${x.variant} ${x.reason}`).join(", ")}` : ""}` : "No publication exception file: stat packages under anomaly REVIEW stay REVIEW (clean export refuses them).",
+  "", `Availability guard (R1 Out/Day-To-Day, R2 under 3 games, R3 implausible minutes): ${result.guard.length} players under review, ${result.guard.filter((g: any) => g.onCard).length} of them in card rows${result.guard.filter((g: any) => g.onCard).length ? ` (${result.guard.filter((g: any) => g.onCard).map((g: any) => `${g.name} ${g.rules.join("+")}`).join(", ")})` : ""}`,
   "", `NBA Today ${result.slate.today.slice(0, 12)} · Top 5 ${result.slate.top5?.slice(0, 12) ?? "not made"}`, ""].join("\n");
 fs.writeFileSync(path.join(stage, "report.md"), md);
 console.log(md);

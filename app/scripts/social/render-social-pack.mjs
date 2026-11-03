@@ -850,7 +850,7 @@ export function gamePostsFrom({ games, posts, date, evidenceRef, hasLines, hasMo
     if (cards.length > GAME_POST_MAX_IMAGES) { no(`TOO_MANY_IMAGES_${cards.length}`); continue; }
     const unifiedDoc = process.env.GTP_NBA_UNIFIED_ROSTER ? JSON.parse(fs.readFileSync(process.env.GTP_NBA_UNIFIED_ROSTER, "utf8")) : null;
     const heldIds = new Set(Object.keys(unifiedDoc?.__cells ?? {}));
-    const shownIds = unifiedDoc ? new Set(Object.entries(unifiedDoc).filter(([k]) => k !== "__cells").flatMap(([, v]) => v).map((e) => String(e.id ?? e)).filter((id) => !heldIds.has(id))) : null;
+    const shownIds = unifiedDoc ? new Set(Object.entries(unifiedDoc).filter(([k]) => !k.startsWith("__")).flatMap(([, v]) => v).map((e) => String(e.id ?? e)).filter((id) => !heldIds.has(id))) : null;
     const pick = selectCaptionPlayers([...g.raw.players.away, ...g.raw.players.home].filter((p) => !shownIds || shownIds.has(String(p.providerAthleteId))), box.anomalies);
     if (pick.players.length < 2) { no("FEWER_THAN_TWO_PLAYERS"); continue; }
     const caption = gamePostCaption({ awayName: g.away.name, homeName: g.home.name, winnerNickname: g.winner.nickname, players: pick.players });

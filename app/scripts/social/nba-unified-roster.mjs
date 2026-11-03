@@ -71,7 +71,7 @@ export async function readinessInputs({ lane, lines = new Map() }) {
     for (const [i, p] of Object.entries(P)) {
       const ev = logs.get(i) ?? []; const ms = ev.map(([, st]) => Number(st.MIN ?? 0)); const n = ms.length; const es = new Set(ev.map(([e]) => e));
       const avg = (K) => (n ? ev.reduce((x, [, st]) => x + Number(st[K] ?? 0), 0) / n : null);
-      t.players[i] = { name: p.name, mu: p.expectedMinutes, n, cur: n ? ms.reduce((a, b) => a + b, 0) / n : null, teamGames: order.length, missedLast: order.length > 0 && !es.has(order[0]), missedTwo: order.length >= 2 && !es.has(order[0]) && !es.has(order[1]), injured: Boolean(p.injuryStatus || inj[i]), medians: { pts: p.medians.pts, reb: p.medians.reb, ast: p.medians.ast }, recent: { pts: avg("PTS"), reb: avg("REB"), ast: avg("AST") }, lines: Object.fromEntries(["pts", "reb", "ast"].map((k) => [k, lines.get(`${i}:${k}`) ?? null])) };
+      t.players[i] = { name: p.name, mu: p.expectedMinutes, n, cur: n ? ms.reduce((a, b) => a + b, 0) / n : null, minLo: n ? Math.min(...ms) : null, minHi: n ? Math.max(...ms) : null, injStatus: inj[i] ?? p.injuryStatus ?? null, teamGames: order.length, missedLast: order.length > 0 && !es.has(order[0]), missedTwo: order.length >= 2 && !es.has(order[0]) && !es.has(order[1]), injured: Boolean(p.injuryStatus || inj[i]), medians: { pts: p.medians.pts, reb: p.medians.reb, ast: p.medians.ast }, recent: { pts: avg("PTS"), reb: avg("REB"), ast: avg("AST") }, lines: Object.fromEntries(["pts", "reb", "ast"].map((k) => [k, lines.get(`${i}:${k}`) ?? null])) };
     }
     t.injAll = Object.fromEntries(Object.keys(t.names).filter((i) => i in inj).map((i) => [i, inj[i]]));
     out[ab] = t;
@@ -79,16 +79,32 @@ export async function readinessInputs({ lane, lines = new Map() }) {
   return out;
 }
 
+// AVAILABILITY & PLAUSIBILITY GUARD (PD for the founder, 2026-11-04; rules R1-R3 from the NBA engine evaluation's Nov 2
+// back-test). Hides rows only; never changes a number. Every hidden row records the rule that hid it.
+export const GUARD = Object.freeze({ minGames: 3, hardMinutes: 42, band: 4 });
+const GUARD_STATUS = /^(out|day|doubtful|inactive|suspen|injured reserve)/i;
+/** Pure. Guard rules that hide this player (empty = shown). `status` is the build-time ESPN injury status. */
+export function guardReasons(r, status) {
+  const G = GUARD; const out = [];
+  if (status && GUARD_STATUS.test(status)) out.push("R1");
+  if (!(r.n >= G.minGames)) out.push("R2");
+  if (r.mu > G.hardMinutes || (r.minLo != null && r.mu < r.minLo - G.band) || (r.minHi != null && r.mu > r.minHi + G.band)) out.push("R3");
+  return out;
+}
+
 /** Pure: inputs → roster file and readiness table. */
 export function unifiedRoster(I) {
-  const roster = { __cells: {} }, table = {};
+  const roster = { __cells: {}, __guard: {} }, table = {};
   for (const [ab, t] of Object.entries(I)) {
     const A = {};
     for (const [i, r] of Object.entries(t.players)) {
       const a = assessPlayer(r);
       if ((t.covShare ?? 0) >= TEAM_COVERAGE_REVIEW && !a.reasons.some((x) => x[0] === "B")) { a.reasons.push("R_TEAM_COVERAGE"); a.state = "REVIEW"; for (const c of Object.values(a.cells)) if (c.state === "PASS") c.state = "REVIEW"; }
       A[i] = { ...a, name: r.name, mu: r.mu, n: r.n, cur: r.cur && Number(r.cur.toFixed(1)) };
-      if (a.reasons.some((x) => HIDE_ROW.has(x))) A[i].hideAll = true;
+      const status = r.injStatus ?? t.injAll?.[i] ?? null;
+      const g = guardReasons(r, status);
+      if (g.length) { A[i].guard = g; roster.__guard[i] = g; }
+      if (g.length || a.reasons.some((x) => HIDE_ROW.has(x))) A[i].hideAll = true;
       else { const h = ["pts", "reb", "ast"].filter((m) => a.cells[m].reasons.length); if (h.length) A[i].hideCells = h; }
     }
     const isOut = (i) => OUT.has(t.injAll[i]);
@@ -103,7 +119,7 @@ export function unifiedRoster(I) {
     if (six) row.push(six);
     roster[ab] = row;
     for (const i of Object.keys(A)) if (A[i].hideCells) roster.__cells[i] = A[i].hideCells;
-    table[ab] = { sum: t.sum, n: t.n, cov: t.covShare, rows: row.map((e) => { const i = String(e.id ?? e); const a = A[i]; return { id: i, name: e.name ?? a.name, state: a ? a.state : "NO_PROJECTION", reasons: a?.reasons, hide: a?.hideAll ? "ALL" : a?.hideCells, mu: a?.mu, cur: a?.cur, n: a?.n }; }) };
+    table[ab] = { sum: t.sum, n: t.n, cov: t.covShare, rows: row.map((e) => { const i = String(e.id ?? e); const a = A[i]; return { id: i, name: e.name ?? a.name, state: a ? a.state : "NO_PROJECTION", reasons: a?.reasons, guard: a?.guard, hide: a?.hideAll ? "ALL" : a?.hideCells, mu: a?.mu, cur: a?.cur, n: a?.n }; }) };
   }
   return { roster, table };
 }

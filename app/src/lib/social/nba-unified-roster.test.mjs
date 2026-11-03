@@ -20,3 +20,19 @@ test("low team coverage puts every unblocked player under review", () => {
   assert.equal(table.AAA.rows[0].state, "REVIEW");
   assert.ok(table.AAA.rows[0].reasons.includes("R_TEAM_COVERAGE"));
 });
+
+test("availability guard R1-R3: Out or Day-To-Day, under 3 games, minutes beyond 42 or the own range +-4 hide the row", () => {
+  const I = { AAA: { covShare: 0, sum: 0, n: 0, starters: ["1", "2", "3", "4", "5", "6"], bench: ["7"], names: {}, injAll: { 1: "Day-To-Day" }, players: {
+    1: p("Dtd"), 2: p("Thin", { n: 2 }), 3: p("Monk", { mu: 22.1, cur: 14.8, minLo: 8, minHi: 14 }), 4: p("Ok", { minLo: 25, minHi: 35 }),
+    5: p("AD", { mu: 24.8, minLo: 31, minHi: 36 }), 6: p("Big", { mu: 42.5, cur: 38, minLo: 36, minHi: 44 }), 7: p("Bench", { mu: 20, cur: 20, minLo: 15, minHi: 25 }),
+  } } };
+  const { roster, table } = unifiedRoster(I);
+  assert.deepEqual(roster.__guard, { 1: ["R1"], 2: ["R2"], 3: ["R3"], 5: ["R3"], 6: ["R3"] });
+  assert.deepEqual(roster.AAA.map((e) => (typeof e === "object" ? `${e.id}R` : e)), ["1R", "2R", "3R", "4", "5R", "6R", "7"]);
+  assert.deepEqual(table.AAA.rows[0].guard, ["R1"]);
+});
+
+test("guard never changes a number: medians and expected minutes are not in the roster file", () => {
+  const { roster } = unifiedRoster({ AAA: { covShare: 0, sum: 0, n: 0, starters: ["1"], bench: [], names: {}, injAll: {}, players: { 1: p("One", { mu: 45, cur: 30 }) } } });
+  assert.ok(!/15|45/.test(JSON.stringify(roster.AAA)));
+});
