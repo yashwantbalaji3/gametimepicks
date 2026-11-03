@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-03T02:47:03Z",
- "sourceGeneratedAt": "2026-11-03T02:47:03Z",
- "forecastInputHash": "65d40f41e5c20131",
+ "generatedAt": "2026-11-03T17:08:50Z",
+ "sourceGeneratedAt": "2026-11-03T17:08:50Z",
+ "forecastInputHash": "2569774fdde9a46b",
  "providerEventId": "401873041",
  "matchup": "DEN @ CAR",
  "kickoffUtc": "2026-11-08T18:00Z",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-03T02:47:03Z",
-  "roleEvidenceAt": "2026-11-03T02:47:03Z",
+  "injuriesCapturedAt": "2026-11-03T17:08:50Z",
+  "roleEvidenceAt": "2026-11-03T17:08:50Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -65,7 +65,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 40,
+  "absent": 44,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -179,8 +179,8 @@
   },
   "CAR": {
    "counts": {
-    "PROJECTED": 9,
-    "EXCLUDED_UNAVAILABLE": 4,
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -231,6 +231,15 @@
      "participation": "ACTIVE_PROJECTED"
     },
     {
+     "playerId": "nfl-athlete-4239934",
+     "name": "AJ Dillon",
+     "state": "PROJECTED",
+     "families": [
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
      "playerId": "nfl-athlete-4685350",
      "name": "Trevor Etienne",
      "state": "PROJECTED",
@@ -273,6 +282,17 @@
      "participation": "ACTIVE_PROJECTED"
     },
     {
+     "playerId": "nfl-athlete-4431588",
+     "name": "Ja'Tavion Sanders",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "ACTIVE_PROJECTED"
+    },
+    {
      "playerId": "nfl-athlete-4709392",
      "name": "Anthony Tyus III",
      "state": "PROJECTED",
@@ -288,22 +308,10 @@
      "reason": "designation: Injured Reserve"
     },
     {
-     "playerId": "nfl-athlete-4239934",
-     "name": "AJ Dillon",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
-    },
-    {
      "playerId": "nfl-athlete-4430034",
      "name": "Xavier Legette",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
-    },
-    {
-     "playerId": "nfl-athlete-4431588",
-     "name": "Ja'Tavion Sanders",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
     }
    ]
   }
@@ -564,6 +572,37 @@
    }
   },
   {
+   "playerId": "nfl-athlete-4431588",
+   "name": "Ja'Tavion Sanders",
+   "team": "CAR",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 15.26,
+     "p10": 0,
+     "p25": 0,
+     "median": 9.25,
+     "p75": 23.62,
+     "p90": 40.21,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 1.475,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.143954,
+     "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
    "playerId": "nfl-athlete-4241985",
    "name": "J.K. Dobbins",
    "team": "DEN",
@@ -637,6 +676,23 @@
      "median": 10.24,
      "p75": 22.43,
      "p90": 37.29,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4239934",
+   "name": "AJ Dillon",
+   "team": "CAR",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 12.437,
+     "p10": 0,
+     "p25": 1.89,
+     "median": 8.24,
+     "p75": 18.11,
+     "p90": 31.4,
      "pricingState": "NOT_PROBED"
     }
    }

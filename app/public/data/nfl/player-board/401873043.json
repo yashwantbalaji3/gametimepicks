@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-03T02:47:03Z",
- "sourceGeneratedAt": "2026-11-03T02:47:03Z",
- "forecastInputHash": "df71a357e4a368c1",
+ "generatedAt": "2026-11-03T17:08:50Z",
+ "sourceGeneratedAt": "2026-11-03T17:08:50Z",
+ "forecastInputHash": "1e205fd87cd268c6",
  "providerEventId": "401873043",
  "matchup": "LAR @ WSH",
  "kickoffUtc": "2026-11-08T18:00Z",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-03T02:47:03Z",
-  "roleEvidenceAt": "2026-11-03T02:47:03Z",
+  "injuriesCapturedAt": "2026-11-03T17:08:50Z",
+  "roleEvidenceAt": "2026-11-03T17:08:50Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -87,14 +87,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 39,
+  "absent": 43,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "LAR": {
    "counts": {
-    "PROJECTED": 9,
-    "EXCLUDED_UNAVAILABLE": 3,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -142,6 +142,17 @@
       "player_receptions"
      ],
      "participation": "ACTIVE_PROJECTED"
+    },
+    {
+     "playerId": "nfl-athlete-4242557",
+     "name": "Colby Parkinson",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-2573401",
@@ -201,12 +212,6 @@
      "reason": "designation: Injured Reserve"
     },
     {
-     "playerId": "nfl-athlete-4242557",
-     "name": "Colby Parkinson",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
-    },
-    {
      "playerId": "nfl-athlete-4570037",
      "name": "Terrance Ferguson",
      "state": "EXCLUDED_UNAVAILABLE",
@@ -239,16 +244,10 @@
      "name": "Athan Kaliakmanis",
      "state": "PROJECTED",
      "families": [
+      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4575131",
@@ -364,21 +363,14 @@
    },
    {
     "team": "WSH",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-4426348",
-     "name": "Jayden Daniels"
-    },
-    "snapshotAt": "2026-10-31T13:34:51Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4432722",
-      "name": "Athan Kaliakmanis"
-     }
-    ],
+    "state": "UNRESOLVED",
+    "reason": "depth chart STALE",
     "passers": [
-     "nfl-athlete-4426348"
-    ]
+     "nfl-athlete-4426348",
+     "nfl-athlete-4432722"
+    ],
+    "removed": [],
+    "snapshotAt": "2026-10-31T13:34:51Z"
    }
   ],
   "passerShareFloor": [
@@ -397,11 +389,13 @@
     "team": "WSH",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4426348"
+     "nfl-athlete-4426348",
+     "nfl-athlete-4432722"
     ],
     "withheld": [],
     "unjoined": [
-     "nfl-athlete-4426348"
+     "nfl-athlete-4426348",
+     "nfl-athlete-4432722"
     ]
    }
   ],
@@ -498,6 +492,37 @@
     "anytime_td": {
      "probability": 0.35108,
      "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4242557",
+   "name": "Colby Parkinson",
+   "team": "LAR",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 20.616,
+     "p10": 0,
+     "p25": 4.26,
+     "median": 15.19,
+     "p75": 30.79,
+     "p90": 48.72,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 2.054,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.237669,
+     "participation": "QUESTIONABLE",
      "pricingState": "NOT_PROBED"
     }
    }
@@ -716,6 +741,15 @@
    "team": "WSH",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_pass_yds": {
+     "mean": 66.084,
+     "p10": 0,
+     "p25": 8.81,
+     "median": 44.86,
+     "p75": 103.14,
+     "p90": 166.11,
+     "pricingState": "NOT_PROBED"
+    },
     "player_rush_yds": {
      "mean": 7.509,
      "p10": 0,

@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-03T02:47:03Z",
- "sourceGeneratedAt": "2026-11-03T02:47:03Z",
- "forecastInputHash": "0288edb422922a43",
+ "generatedAt": "2026-11-03T17:08:50Z",
+ "sourceGeneratedAt": "2026-11-03T17:08:50Z",
+ "forecastInputHash": "59b75ae34e5c6343",
  "providerEventId": "401873051",
  "matchup": "BUF @ MIN",
  "kickoffUtc": "2026-11-10T01:15Z",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-03T02:47:03Z",
-  "roleEvidenceAt": "2026-11-03T02:47:03Z",
+  "injuriesCapturedAt": "2026-11-03T17:08:50Z",
+  "roleEvidenceAt": "2026-11-03T17:08:50Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -65,14 +65,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 53,
+  "absent": 56,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "BUF": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 0,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -190,8 +190,12 @@
     {
      "playerId": "nfl-athlete-4241476",
      "name": "Tyrell Shavers",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     }
    ]
   },
@@ -220,16 +224,10 @@
      "name": "Carson Wentz",
      "state": "PROJECTED",
      "families": [
+      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-3042519",
@@ -332,21 +330,14 @@
    },
    {
     "team": "MIN",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-3917315",
-     "name": "Kyler Murray"
-    },
-    "snapshotAt": "2026-10-31T13:34:51Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-2573079",
-      "name": "Carson Wentz"
-     }
-    ],
+    "state": "UNRESOLVED",
+    "reason": "depth chart STALE",
     "passers": [
-     "nfl-athlete-3917315"
-    ]
+     "nfl-athlete-3917315",
+     "nfl-athlete-2573079"
+    ],
+    "removed": [],
+    "snapshotAt": "2026-10-31T13:34:51Z"
    }
   ],
   "passerShareFloor": [
@@ -365,11 +356,13 @@
     "team": "MIN",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3917315"
+     "nfl-athlete-3917315",
+     "nfl-athlete-2573079"
     ],
     "withheld": [],
     "unjoined": [
-     "nfl-athlete-3917315"
+     "nfl-athlete-3917315",
+     "nfl-athlete-2573079"
     ]
    }
   ],
@@ -852,6 +845,15 @@
    "team": "MIN",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_pass_yds": {
+     "mean": 94.093,
+     "p10": 1.33,
+     "p25": 26.66,
+     "median": 75.33,
+     "p75": 145.82,
+     "p90": 209.18,
+     "pricingState": "NOT_PROBED"
+    },
     "player_rush_yds": {
      "mean": 7.904,
      "p10": 0,
@@ -954,6 +956,32 @@
      "median": 2,
      "p75": 3,
      "p90": 5,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4241476",
+   "name": "Tyrell Shavers",
+   "team": "BUF",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 13.997,
+     "p10": 0,
+     "p25": 0,
+     "median": 6.94,
+     "p75": 21.66,
+     "p90": 38.98,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 1.213,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
      "pricingState": "NOT_PROBED"
     }
    }
