@@ -1,7 +1,7 @@
 #!/bin/bash
 # UNATTENDED CLEAN EXPORT of founder-approved NBA slate packages (launchd-safe; no AI, no paid call, no sudo, posts nothing).
 #
-#   nba-clean-runner.sh run       one pass (launchd: WatchPaths on the approvals file + a 120 s StartInterval backstop)
+#   nba-clean-runner.sh run       one pass (launchd: WatchPaths on the approvals file + a 60 s StartInterval backstop)
 #
 # Env: GTP_TOOL_COMMIT (pinned claude/p2-social-pack commit), GTP_IMPORT_ROOT (default ~/gtp-private/graphics),
 # GTP_RUNNER_HOME (default ~/gtp-runner/nba-slate; its repo/ clone must be set up by nba-slate-runner.sh setup),

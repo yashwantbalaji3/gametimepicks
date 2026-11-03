@@ -61,7 +61,7 @@ for (const e of todo) {
   const sk = `${e.dedupeId}|${pkg.contentSha256}`;
   if (fs.existsSync(path.join(pk, `${outName}.json`))) { status[sk] = { ...status[sk], dedupeId: e.dedupeId, contentSha256: pkg.contentSha256, state: "CLEAN", package: `${outName}.json` }; continue; }
   if (status[sk]?.state === "FAILED") continue;
-  // A refusal is logged once per (package content, approval, reasons): the backstop runs every 2 min.
+  // A refusal is logged once per (package content, approval, reasons): the backstop runs every minute.
   const refuse = (why: string[]) => {
     status[sk] = { ...status[sk], dedupeId: e.dedupeId, contentSha256: pkg.contentSha256, state: "REFUSED", why, at: new Date().toISOString() };
     const key = sha(JSON.stringify([pkg.contentSha256, e.captionId, e.approvedAt, why])).slice(0, 16);
@@ -117,7 +117,7 @@ for (const e of todo) {
     fs.writeFileSync(jt, `${JSON.stringify(out, null, 2)}\n`);
     fs.renameSync(jt, path.join(pk, `${outName}.json`));
     log({ dedupeId: e.dedupeId, outcome: "CLEAN", package: `${outName}.json`, reviewedSha256: pkg.images[0].sha256, cleanSha256: img.sha256 });
-    status[sk] = { ...status[sk], state: "CLEAN", package: `${outName}.json`, at: new Date().toISOString() };
+    status[sk] = { ...status[sk], dedupeId: e.dedupeId, contentSha256: pkg.contentSha256, state: "CLEAN", package: `${outName}.json`, at: new Date().toISOString() };
   } catch (err: any) {
     fs.rmSync(tmp, { recursive: true, force: true });
     const attempts = (status[sk]?.attempts ?? 0) + 1;

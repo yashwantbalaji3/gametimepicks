@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
   User LaunchAgent: clean export of founder-approved NBA slate packages (scripts/social/nba-clean-runner.sh). No sudo, no paid
-  call, posts nothing. Runs when Command Center rewrites the approvals file (WatchPaths) and every 120 s as a backstop; a pass
+  call, posts nothing. Runs when Command Center rewrites the approvals file (WatchPaths) and every 60 s as a backstop (so a missed watch event still delivers inside 2 min); a pass
   with an unchanged approvals file exits at once. Install with install-nba-clean.sh, which fills the __...__ fields.
 -->
 <plist version="1.0">
@@ -18,7 +18,7 @@
   </dict>
   <key>WatchPaths</key>
   <array><string>__IMPORT_ROOT__/approvals/approved-for-clean-export.json</string></array>
-  <key>StartInterval</key><integer>120</integer>
+  <key>StartInterval</key><integer>60</integer>
   <key>StandardOutPath</key><string>__EVIDENCE_ROOT__/nba-clean/launchd.out.log</string>
   <key>StandardErrorPath</key><string>__EVIDENCE_ROOT__/nba-clean/launchd.err.log</string>
 </dict>
