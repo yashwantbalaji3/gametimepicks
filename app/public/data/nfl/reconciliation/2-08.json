@@ -20,62 +20,62 @@
   "sharpness": "A range can always be made to land 8 in 10 times by making it wider. So beside each success rate we show the typical miss (how far the middle of our range was from the final number) and the average width of the range. Getting better means both shrink while about 8 in 10 still land inside."
  },
  "summary": {
-  "gamesFinal": 13,
-  "gamesPending": 1,
+  "gamesFinal": 14,
+  "gamesPending": 0,
   "overall": {
-   "checks": 464,
-   "hits": 379,
-   "rate": 0.8168103448275862
+   "checks": 499,
+   "hits": 412,
+   "rate": 0.8256513026052105
   },
   "props": [
    {
     "id": "winner",
     "label": "Model-favored team won",
     "group": "team",
-    "checks": 13,
+    "checks": 14,
     "hits": 10,
     "voids": 0,
-    "rate": 0.7692307692307693,
-    "expectedHits": 8.5
+    "rate": 0.7142857142857143,
+    "expectedHits": 9.1
    },
    {
     "id": "total_range",
     "label": "Total points landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 13,
-    "hits": 10,
+    "checks": 14,
+    "hits": 11,
     "voids": 0,
-    "rate": 0.7692307692307693,
-    "typicalMiss": 12.2,
-    "rangeWidth": 33.8,
-    "lean": -0.6
+    "rate": 0.7857142857142857,
+    "typicalMiss": 11.7,
+    "rangeWidth": 33.7,
+    "lean": -1
    },
    {
     "id": "margin_range",
     "label": "Winning margin landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 13,
+    "checks": 14,
     "hits": 10,
     "voids": 0,
-    "rate": 0.7692307692307693,
-    "typicalMiss": 9.8,
+    "rate": 0.7142857142857143,
+    "typicalMiss": 10.7,
     "rangeWidth": 33.6,
-    "lean": -6.5
+    "lean": -4.4
    },
    {
     "id": "player_receptions",
     "label": "Receptions landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 161,
-    "hits": 140,
-    "voids": 24,
-    "rate": 0.8695652173913043,
+    "checks": 173,
+    "hits": 152,
+    "voids": 25,
+    "rate": 0.8786127167630058,
     "status": "PUBLISHED",
     "typicalMiss": 1.6,
-    "rangeWidth": 5.2,
+    "rangeWidth": 5.3,
     "lean": -0.4
    },
    {
@@ -83,51 +83,51 @@
     "label": "Receiving yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 145,
-    "hits": 119,
+    "checks": 156,
+    "hits": 130,
     "voids": 25,
-    "rate": 0.8206896551724138,
+    "rate": 0.8333333333333334,
     "status": "PUBLISHED",
-    "typicalMiss": 22.2,
-    "rangeWidth": 60.4,
-    "lean": -10.9
+    "typicalMiss": 21.7,
+    "rangeWidth": 60.8,
+    "lean": -10.8
    },
    {
     "id": "player_rush_yds",
     "label": "Rushing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 80,
-    "hits": 63,
-    "voids": 17,
-    "rate": 0.7875,
+    "checks": 86,
+    "hits": 69,
+    "voids": 18,
+    "rate": 0.8023255813953488,
     "status": "ESTIMATE",
-    "typicalMiss": 21.5,
-    "rangeWidth": 49.6,
-    "lean": -13.6
+    "typicalMiss": 20.8,
+    "rangeWidth": 49,
+    "lean": -13.3
    },
    {
     "id": "player_pass_yds",
     "label": "Passing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 26,
-    "hits": 21,
+    "checks": 28,
+    "hits": 23,
     "voids": 0,
-    "rate": 0.8076923076923077,
+    "rate": 0.8214285714285714,
     "status": "ESTIMATE",
-    "typicalMiss": 76.8,
-    "rangeWidth": 236.6,
-    "lean": 1.4
+    "typicalMiss": 72.4,
+    "rangeWidth": 237,
+    "lean": 1.5
    },
    {
     "id": "likeliest_scorer",
     "label": "Our likeliest touchdown scorer scored",
     "group": "player",
-    "checks": 13,
-    "hits": 6,
+    "checks": 14,
+    "hits": 7,
     "voids": 0,
-    "rate": 0.46153846153846156
+    "rate": 0.5
    }
   ],
   "context": {
@@ -135,12 +135,12 @@
     "oursCloser": 0,
     "booksCloser": 0,
     "even": 0,
-    "noLine": 13
+    "noLine": 14
    },
    "touchdowns": {
-    "playersGraded": 209,
-    "expectedScorers": 48.7,
-    "actualScorers": 55
+    "playersGraded": 224,
+    "expectedScorers": 52.6,
+    "actualScorers": 59
    }
   }
  },
@@ -7865,14 +7865,514 @@
     },
     "sportsbookTotal": null
    },
-   "state": "PENDING",
-   "final": null,
-   "team": [],
-   "players": [],
-   "touchdowns": [],
+   "state": "FINAL",
+   "final": {
+    "away": 34,
+    "home": 17,
+    "total": 51,
+    "margin": -17
+   },
+   "team": [
+    {
+     "prop": "winner",
+     "outcome": "MISS"
+    },
+    {
+     "prop": "total_range",
+     "outcome": "HIT",
+     "actual": 51
+    },
+    {
+     "prop": "margin_range",
+     "outcome": "MISS",
+     "actual": -17
+    },
+    {
+     "prop": "closer_than_sportsbook",
+     "outcome": "NO_LINE",
+     "oursOff": 6,
+     "booksOff": null
+    }
+   ],
+   "players": [
+    {
+     "name": "D'Andre Swift",
+     "team": "CHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 6,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "D'Andre Swift",
+     "team": "CHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 20,
+     "low": 0,
+     "high": 54,
+     "actual": 10,
+     "outcome": "HIT"
+    },
+    {
+     "name": "D'Andre Swift",
+     "team": "CHI",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 33,
+     "low": 10,
+     "high": 71,
+     "actual": 69,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jaxon Smith-Njigba",
+     "team": "SEA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 8,
+     "low": 3,
+     "high": 15,
+     "actual": 6,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jaxon Smith-Njigba",
+     "team": "SEA",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 87,
+     "low": 33,
+     "high": 163,
+     "actual": 118,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Emanuel Wilson",
+     "team": "SEA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Emanuel Wilson",
+     "team": "SEA",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 32,
+     "low": 9,
+     "high": 69,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Zach Charbonnet",
+     "team": "SEA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Zach Charbonnet",
+     "team": "SEA",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 17,
+     "low": 2,
+     "high": 50,
+     "actual": 23,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jadarian Price",
+     "team": "SEA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jadarian Price",
+     "team": "SEA",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 6,
+     "low": 0,
+     "high": 33,
+     "actual": 8,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jadarian Price",
+     "team": "SEA",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 19,
+     "low": 2,
+     "high": 51,
+     "actual": 29,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Colston Loveland",
+     "team": "CHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 4,
+     "low": 1,
+     "high": 9,
+     "actual": 7,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Colston Loveland",
+     "team": "CHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 43,
+     "low": 11,
+     "high": 92,
+     "actual": 65,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Luther Burden III",
+     "team": "CHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 4,
+     "low": 1,
+     "high": 9,
+     "actual": 7,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Luther Burden III",
+     "team": "CHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 51,
+     "low": 13,
+     "high": 112,
+     "actual": 56,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Caleb Williams",
+     "team": "CHI",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 7,
+     "low": 0,
+     "high": 35,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Caleb Williams",
+     "team": "CHI",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 235,
+     "low": 131,
+     "high": 383,
+     "actual": 247,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Roschon Johnson",
+     "team": "CHI",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 5,
+     "low": 0,
+     "high": 27,
+     "actual": 17,
+     "outcome": "HIT"
+    },
+    {
+     "name": "George Holani",
+     "team": "SEA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "George Holani",
+     "team": "SEA",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 6,
+     "low": 0,
+     "high": 33,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "George Holani",
+     "team": "SEA",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 6,
+     "low": 0,
+     "high": 27,
+     "actual": 9,
+     "outcome": "HIT"
+    },
+    {
+     "name": "AJ Barner",
+     "team": "SEA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 0,
+     "high": 6,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "AJ Barner",
+     "team": "SEA",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 20,
+     "low": 0,
+     "high": 56,
+     "actual": 23,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Cooper Kupp",
+     "team": "SEA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Cooper Kupp",
+     "team": "SEA",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 19,
+     "low": 0,
+     "high": 59,
+     "actual": 7,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Rome Odunze",
+     "team": "CHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 1,
+     "high": 7,
+     "actual": 4,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Rome Odunze",
+     "team": "CHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 38,
+     "low": 5,
+     "high": 92,
+     "actual": 87,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kalif Raymond",
+     "team": "CHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 0,
+     "high": 6,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kalif Raymond",
+     "team": "CHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 21,
+     "low": 0,
+     "high": 60,
+     "actual": 14,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tory Horton",
+     "team": "SEA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tory Horton",
+     "team": "SEA",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 6,
+     "low": 0,
+     "high": 37,
+     "actual": 26,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Sam Darnold",
+     "team": "SEA",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 205,
+     "low": 110,
+     "high": 344,
+     "actual": 188,
+     "outcome": "HIT"
+    }
+   ],
+   "touchdowns": [
+    {
+     "name": "D'Andre Swift",
+     "team": "CHI",
+     "probability": 0.6687,
+     "outcome": "SCORED",
+     "likeliest": true
+    },
+    {
+     "name": "Jaxon Smith-Njigba",
+     "team": "SEA",
+     "probability": 0.5595,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Emanuel Wilson",
+     "team": "SEA",
+     "probability": 0.4396,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Zach Charbonnet",
+     "team": "SEA",
+     "probability": 0.3835,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Jadarian Price",
+     "team": "SEA",
+     "probability": 0.2996,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Colston Loveland",
+     "team": "CHI",
+     "probability": 0.2695,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Luther Burden III",
+     "team": "CHI",
+     "probability": 0.2684,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Caleb Williams",
+     "team": "CHI",
+     "probability": 0.2356,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Roschon Johnson",
+     "team": "CHI",
+     "probability": 0.2212,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "George Holani",
+     "team": "SEA",
+     "probability": 0.2168,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "AJ Barner",
+     "team": "SEA",
+     "probability": 0.1886,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Cooper Kupp",
+     "team": "SEA",
+     "probability": 0.1725,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Rome Odunze",
+     "team": "CHI",
+     "probability": 0.1654,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Kalif Raymond",
+     "team": "CHI",
+     "probability": 0.1487,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Brittain Brown",
+     "team": "CHI",
+     "probability": 0.1021,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Tory Horton",
+     "team": "SEA",
+     "probability": 0.0956,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Tyson Bagent",
+     "team": "CHI",
+     "probability": 0.0814,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Sam Darnold",
+     "team": "SEA",
+     "probability": 0.0482,
+     "outcome": "DID_NOT_SCORE"
+    }
+   ],
    "boardNote": null
   }
  ],
  "disclaimer": "Educational and paper-only — not betting advice. A range is not a bet: these are checks of how often what we published matched what happened.",
- "generatedAt": "2026-11-03T00:00:42Z"
+ "generatedAt": "2026-11-03T17:08:50Z"
 }
