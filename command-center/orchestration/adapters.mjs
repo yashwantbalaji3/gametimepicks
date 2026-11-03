@@ -142,6 +142,25 @@ const RESEARCH_SCHEMA = {
   type: "object", additionalProperties: false, required: ["summary", "findings"],
   properties: { summary: { type: "string" }, findings: { type: "array", items: { type: "object", required: ["claim", "url"], properties: { claim: { type: "string" }, url: { type: "string" } } } } },
 };
+/**
+ * Model tiers. A request names a tier (light | standard | strong); each provider maps it to a model from its own
+ * environment, falling back to the standard model when a tier isn't configured. No model id or price is hardcoded
+ * here: the founder sets them from the provider's current pricing page. Output tokens are capped per tier.
+ */
+export const TIERS = Object.freeze(["light", "standard", "strong"]);
+export const TIER_MAX_OUTPUT = Object.freeze({ light: 2000, standard: 4000, strong: 8000 });
+const tierOf = (req) => (TIERS.includes(req.tier) ? req.tier : "standard");
+const outTokens = (req) => Math.min(Number(req.maxOutputTokens) || Infinity, TIER_MAX_OUTPUT[tierOf(req)]);
+/** { model, price } for a tier from `<prefix>MODEL_<TIER>` and `<prefix>PRICE_IN/OUT_PER_M_<TIER>`, or null. */
+function tierEnv(env, modelVar, inVar, outVar, tier) {
+  if (tier === "standard") return null;
+  const T = tier.toUpperCase();
+  const model = env[`${modelVar}_${T}`];
+  const i = Number(env[`${inVar}_${T}`]);
+  const o = Number(env[`${outVar}_${T}`]);
+  return model && i > 0 && o > 0 ? { model, price: { inPerM: i, outPerM: o } } : null;
+}
+
 /** A step may carry its own output schema (the handoff loop's completion reports and evaluations do). */
 const schemaFor = (step) => step.schema ?? (step.kind === "review" ? REVIEW_SCHEMA : step.kind === "research" ? RESEARCH_SCHEMA : WORK_SCHEMA);
 const promptOf = (req) => canonicalJson({ objective: req.objective, step: req.step.key, instructions: req.instructions, inputs: req.inputs.map((i) => ({ digest: i.digest, provider: i.provider, artifact: i.artifact })), ...(req.context ? { context: req.context } : {}) });
@@ -161,12 +180,16 @@ export function createLiveAdapters({ env = process.env, fetch: f = globalThis.fe
     const cfg = openaiConfig(env);
     if (!cfg.price || !cfg.model) missing.openai = ["OPENAI_MODEL / OPENAI_PRICE_* are present but not usable numbers"];
     else {
-      const api = createOpenAIAdapter({ apiKey: env.OPENAI_API_KEY, model: cfg.model, price: cfg.price, fetch: f, sleep });
-      const maxOutputTokens = 4000;
+      const apis = {};
+      const apiFor = (req) => {
+        const t = tierOf(req);
+        const c = tierEnv(env, "OPENAI_MODEL", "OPENAI_PRICE_IN_PER_M", "OPENAI_PRICE_OUT_PER_M", t) ?? cfg;
+        return (apis[t] ??= createOpenAIAdapter({ apiKey: env.OPENAI_API_KEY, model: c.model, price: c.price, fetch: f, sleep }));
+      };
       adapters.openai = brand({
         provider: "openai", model: cfg.model, kind: "live",
-        worstCase: (req) => api.worstCase({ instructions: req.instructions, input: promptOf(req), maxOutputTokens }),
-        run: async (req) => api.generate({ instructions: req.instructions, input: promptOf(req), schema: schemaFor(req.step), schemaName: req.step.kind, maxOutputTokens }),
+        worstCase: (req) => apiFor(req).worstCase({ instructions: req.instructions, input: promptOf(req), maxOutputTokens: outTokens(req) }),
+        run: async (req) => apiFor(req).generate({ instructions: req.instructions, input: promptOf(req), schema: schemaFor(req.step), schemaName: req.step.kind, maxOutputTokens: outTokens(req) }),
       });
     }
   } else missing.openai = oa.missing;
@@ -177,11 +200,10 @@ export function createLiveAdapters({ env = process.env, fetch: f = globalThis.fe
     if (!cfg.price) missing.xai = [`no price known for ${cfg.model}`];
     else {
       const api = createXaiAdapter({ apiKey: env.XAI_API_KEY, model: cfg.model, price: cfg.price, fetch: f, sleep });
-      const maxOutputTokens = 4000;
       adapters.xai = brand({
         provider: "xai", model: cfg.model, kind: "live",
-        worstCase: (req) => api.worstCase({ instructions: req.instructions, input: promptOf(req), maxOutputTokens }),
-        run: async (req) => api.research({ instructions: req.instructions, input: promptOf(req), maxOutputTokens }),
+        worstCase: (req) => api.worstCase({ instructions: req.instructions, input: promptOf(req), maxOutputTokens: outTokens(req) }),
+        run: async (req) => api.research({ instructions: req.instructions, input: promptOf(req), maxOutputTokens: outTokens(req) }),
       });
     }
   } else missing.xai = xa.missing;
@@ -192,12 +214,16 @@ export function createLiveAdapters({ env = process.env, fetch: f = globalThis.fe
     const cfg = anthropicConfig(env);
     if (!cfg.price) missing.anthropic = [`no price known for ${cfg.model} (set GTP_CC_ANTHROPIC_PRICE_IN_PER_M / _OUT_PER_M)`];
     else {
-      const api = createAnthropicAdapter({ apiKey: env.ANTHROPIC_API_KEY, model: cfg.model, price: cfg.price, effort: cfg.effort, fetch: f });
-      const maxOutputTokens = 16000;
+      const apis = {};
+      const apiFor = (req) => {
+        const t = tierOf(req);
+        const c = tierEnv(env, "GTP_CC_ANTHROPIC_MODEL", "GTP_CC_ANTHROPIC_PRICE_IN_PER_M", "GTP_CC_ANTHROPIC_PRICE_OUT_PER_M", t) ?? cfg;
+        return (apis[t] ??= createAnthropicAdapter({ apiKey: env.ANTHROPIC_API_KEY, model: c.model, price: c.price, effort: cfg.effort, fetch: f }));
+      };
       adapters.anthropic = brand({
         provider: "anthropic", model: cfg.model, kind: "live",
-        worstCase: (req) => api.worstCase({ instructions: req.instructions, input: promptOf(req), maxOutputTokens }),
-        run: async (req) => api.generate({ instructions: req.instructions, input: promptOf(req), schema: schemaFor(req.step), maxOutputTokens }),
+        worstCase: (req) => apiFor(req).worstCase({ instructions: req.instructions, input: promptOf(req), maxOutputTokens: outTokens(req) }),
+        run: async (req) => apiFor(req).generate({ instructions: req.instructions, input: promptOf(req), schema: schemaFor(req.step), maxOutputTokens: outTokens(req) }),
       });
     }
   } else if (an.via === "local-cli" && bin) {

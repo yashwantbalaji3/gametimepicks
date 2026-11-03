@@ -27,7 +27,7 @@ export const KNOWN_COMMITS = Object.freeze(["11111111111111111111111111111111111
 /** A complete, executable brief (the shape the evaluator must produce). */
 export function demoBrief(over = {}) {
   return {
-    assignee: "claude-engineering", priority: "P2", fixesSubject: false,
+    assignee: "claude-engineering", priority: "P2", risk: "medium", fixesSubject: false,
     objective: "Add an 'Updated HH:MM UTC' label to the Command Center queue header, fed by the server's last refresh time",
     whyItMatters: "On Nov 2 the founder could not tell whether the queue was current; stale screens led to missed approval windows.",
     currentState: "The queue header shows the title only; /api/state carries generatedAt but nothing renders it.",

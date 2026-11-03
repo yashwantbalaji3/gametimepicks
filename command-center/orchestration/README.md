@@ -8,7 +8,7 @@ node command-center/orchestration/demo.mjs                                  # pi
 node command-center/orchestration/demo.mjs --pipeline research-verify-visual  # pipeline (b), MOCK
 node command-center/orchestration/demo.mjs --rounds 1                       # review loop limit 1 → ESCALATED
 node command-center/orchestration/demo.mjs --live --objective "…"           # refuses unless all 3 providers + caps
-node --test command-center/orchestration/tests/*.test.mjs                   # 52 tests, network blocked
+node --test command-center/orchestration/tests/*.test.mjs                   # 57 tests, network blocked
 ```
 
 | File | What it is |
@@ -171,3 +171,18 @@ Where to set them:
 - **The hosted engineering worker** is headless Claude Code (`claude -p`, or the Agent SDK) on the GitHub Actions runner. It uses `ANTHROPIC_API_KEY`, `--permission-mode dontAsk`, an exact `--allowedTools` list and `--max-budget-usd`. It claims queued tasks and submits reports. The subscription token is for the founder's own use, not this service.
 - **V3 statuses** are derived from the ledger by `v3Status` and never stored: QUEUED, ASSIGNED, RUNNING, SUBMITTED, VERIFYING, COMPLETED, BLOCKED, FAILED, NEEDS_FOUNDER_APPROVAL, CANCELLED, SUPERSEDED.
 - **Founder decisions:** approve (Level C, exact digest; refused on any MOCK lineage), reject (closes the request), or redirect (new instructions, planned again).
+
+## Cost first (founder 2026-11-03: $0 incremental by default)
+
+- **Paid execution is off.** `createHandoffLoop({ paidEnabled })` defaults to false. A live API adapter, or an API-key worker, is BLOCKED `PAID_DISABLED` (FOUNDER) before any cap check. Every cap still defaults to $0.
+- **The minimum sufficient set of agents.** Every brief carries `risk`:
+  - `low`: Level A. When our checks fully verify the report, it closes with **no model call**: every commit found in the repository, tests listed with no failures, stage ≥ COMMITTED, nothing contradicted (research: every finding sourced). Otherwise it goes to a light-tier evaluator.
+  - `medium`: a light-tier independent evaluation.
+  - `high`: a strong-tier independent evaluation. Release gates still apply.
+- **Direct briefs.** `intake({ …, brief })` routes a well-specified request straight to its worker, with no planner call.
+- **Model tiers are configuration, not code.** `light | standard | strong` map to `OPENAI_MODEL_<TIER>` / `OPENAI_PRICE_IN|OUT_PER_M_<TIER>` and `GTP_CC_ANTHROPIC_MODEL_<TIER>` / `…PRICE…_<TIER>`. An unset tier falls back to the standard model. Output caps: 2,000 / 4,000 / 8,000 tokens.
+- **Compact context.** An input artifact over 6,000 characters goes to a model as digest + summary. Context packs carry ≤ 4 KB of project facts and ≤ 6 ancestor summaries.
+- **Workers.**
+  - `credential: "api"` (ANTHROPIC_API_KEY): metered; needs `paidEnabled`.
+  - `credential: "subscription"` (CLAUDE_CODE_OAUTH_TOKEN from `claude setup-token`): LIVE at $0 incremental. The Claude Code docs allow it for "CI pipelines, scripts" under ordinary individual use, but not for routing other users' requests. It applies only to the founder's own automation, and the founder decides on it.
+- **`views.spend()`** shows provider day/month spend against caps (alert at 80%), calls, tokens and USD by step, how many tasks closed without a model, and refusals.

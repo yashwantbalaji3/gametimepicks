@@ -23,6 +23,13 @@
  *   • Spend: every model call passes budgets.checkSpend first (every cap defaults to $0).
  *   • A founder decision on anything built from MOCK output can't be approved (task-ledger enforces it).
  *
+ * Cost first (founder 2026-11-03: incremental spend $0 by default)
+ *   • Paid calls are OFF unless the loop is created with paidEnabled: true (on top of the $0 caps).
+ *   • Low-risk work that our own checks fully verify closes WITHOUT a model call (deterministic close).
+ *   • A brief can be routed directly (intake with a brief) — no planner call for a well-specified request.
+ *   • Evaluators run on the light tier; only high-risk work gets the strong tier. Each tier has an output-token cap.
+ *   • Large input artifacts are passed by digest and summary, not copied whole.
+ *
  * Workers
  *   api    the call runs here through an adapter (adapters.mjs): Claude via the Anthropic API, ChatGPT via OpenAI,
  *          Grok via xAI. Structured output only — an API worker cannot change the repository.
@@ -71,7 +78,7 @@ export const RESEARCH_REPORT_SCHEMA = obj(["summary", "findings", "limitations",
 });
 
 const BRIEF_SCHEMA = obj(
-  ["assignee", "objective", "whyItMatters", "currentState", "requirements", "codeLocations", "priorResults", "acceptanceCriteria", "tests", "constraints", "deliverables", "reportingFormat", "dependencies", "permissions", "priority", "fixesSubject"],
+  ["assignee", "objective", "whyItMatters", "currentState", "requirements", "codeLocations", "priorResults", "acceptanceCriteria", "tests", "constraints", "deliverables", "reportingFormat", "dependencies", "permissions", "priority", "risk", "fixesSubject"],
   {
     assignee: { type: "string", enum: ASSIGNEES },
     objective: str, whyItMatters: str, currentState: str, requirements: strs,
@@ -79,6 +86,8 @@ const BRIEF_SCHEMA = obj(
     priorResults: str, acceptanceCriteria: strs, tests: strs, constraints: strs, deliverables: strs, reportingFormat: str,
     dependencies: strs, permissions: strs,
     priority: { type: "string", enum: ["P0", "P1", "P2", "P3"] },
+    // low: our checks can close it (no model call) · medium: light-tier review · high: strong-tier independent review
+    risk: { type: "string", enum: ["low", "medium", "high"] },
     fixesSubject: { type: "boolean" },
   },
 );
@@ -118,6 +127,7 @@ const ENGINEERING = new Set(["claude-engineering", "claude-qa"]);
 export function checkBrief(b) {
   const p = [];
   if (!ASSIGNEES.includes(b?.assignee)) p.push(`assignee must be one of ${ASSIGNEES.join(", ")}`);
+  if (!["low", "medium", "high"].includes(b?.risk)) p.push("risk must be low, medium or high");
   if (String(b?.objective ?? "").trim().length < 40) p.push("objective is under 40 characters");
   for (const f of ["whyItMatters", "currentState", "reportingFormat"]) if (String(b?.[f] ?? "").trim().length < 10) p.push(`${f} is empty`);
   if (!(b?.acceptanceCriteria?.length >= 1) || b.acceptanceCriteria.some((c) => String(c).trim().length < 15)) p.push("acceptanceCriteria needs at least one concrete criterion");
@@ -143,7 +153,7 @@ export function renderBrief(b, { taskId, rootObjective } = {}) {
   const list = (xs) => (xs?.length ? xs.map((x) => `- ${x}`).join("\n") : "- (none)");
   const loc = b.codeLocations?.length ? b.codeLocations.map((c) => `- ${c.path}${c.verified ? "" : " (UNVERIFIED — confirm before editing)"}`).join("\n") : "- (none given)";
   return [
-    `# Assignment ${taskId ?? ""} · ${b.assignee} · ${b.priority}`.trim(),
+    `# Assignment ${taskId ?? ""} · ${b.assignee} · ${b.priority} · risk ${b.risk}`.trim(),
     rootObjective ? `CEO request: ${rootObjective}` : null,
     `## Objective\n${b.objective}`,
     `## Why it matters\n${b.whyItMatters}`,
@@ -226,18 +236,20 @@ export const LOOP_DEFAULTS = Object.freeze({
   maxFindingRepeats: 2, // the same finding in this many evaluations → escalate instead of another fix
   maxEvaluationAttempts: 2, // an evaluation with an invalid decision or brief is retried once, then escalated
   costCeilingUsd: 5, // per CEO request, on top of the provider and agent caps
-  assignmentBudgetUsd: 2, // one assignment's own hard stop; a queue worker's --max-budget-usd must fit inside it
+  assignmentBudgetUsd: 2,
+  maxInputArtifactChars: 6000, // larger input artifacts go to a model as digest + summary only // one assignment's own hard stop; a queue worker's --max-budget-usd must fit inside it
   leaseMs: 30 * 60_000,
   taskTimeoutMs: 6 * 3600_000,
 });
 
 const VERIFIER = Object.freeze({ provider: "deterministic", model: "gtp-cc-claim-verifier@1" });
+const FOUNDER_INPUT = Object.freeze({ provider: "founder", model: null });
 
 /**
  * @param {{ ledger, adapters: Record<string, object>, config: object, loop?: object, now?: () => string,
  *   checkers?: { commitExists?: (sha) => boolean, urlLooksSourced?: (url) => boolean } }} o
  */
-export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = () => new Date().toISOString(), checkers = {} }) {
+export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = () => new Date().toISOString(), checkers = {}, paidEnabled = false }) {
   const L = { ...LOOP_DEFAULTS, ...loop };
   const workers = [];
   const actor = ORCHESTRATOR;
@@ -258,6 +270,9 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
   /** An output recorded in the current run that nothing has acted on yet (a crash between recording and acting). */
   const pendingOutput = (t) => t.state === "IN_PROGRESS" && (t.outputs.at(-1)?.seq ?? 0) > epochOf(t);
   const rootClosed = (s, t) => { const r = s.tasks[t.rootTaskId]; return Boolean(r && TERMINAL.includes(r.state)); };
+  const PRI = { P0: 0, P1: 1, P2: 2, P3: 3 };
+  /** Tasks in priority order (P0 first), then creation order. */
+  const ordered = (s) => s.taskOrder.map((id) => s.tasks[id]).sort((a, b) => (PRI[a.priority] ?? 9) - (PRI[b.priority] ?? 9) || s.taskOrder.indexOf(a.taskId) - s.taskOrder.indexOf(b.taskId));
   const requestSpend = (s, rootId) => treeOf(s, rootId).reduce((n, x) => n + x.costUsd, 0);
   /** attempt + cost for the run, derived from the recorded output so a replay writes identical events. */
   function bookkeeping(taskId) {
@@ -291,15 +306,21 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
   }
 
   // ── intake ──
-  function intake(founder, { objective, acceptanceCriteria = [], priority = "P1", requestKey }) {
+  function intake(founder, { objective, acceptanceCriteria = [], priority = "P1", requestKey, brief = null }) {
     if (founder?.role !== "founder" || founder.authenticated !== true) throw new OrchestrationError("FOUNDER_ONLY", "a CEO request comes from the authenticated founder");
     if (String(objective ?? "").trim().length < 10) throw new OrchestrationError("INVALID_REQUEST", "say what you want done");
     const taskId = `req-${digestOf({ objective, requestKey: requestKey ?? now() }).slice(0, 12)}`;
     const agent = { provider: "founder", seat: "founder", role: "ceo" };
     ev("task.created", { task: { ...spec({ taskId, rootId: taskId, objective, agent, stepKey: "request", approvalLevel: "A", depth: 0, costUsd: L.costCeilingUsd }), acceptanceCriteria, priority, rootTaskId: taskId } }, `create:${taskId}`);
     transition(taskId, "IN_PROGRESS");
-    const founderAdapter = adapters.founder ?? { provider: "founder", model: null };
-    ledger.recordOutput(taskId, { ...founder }, { adapter: founderAdapter, isLive: isLiveAdapter(founderAdapter), result: { artifact: { brief: objective, acceptanceCriteria, priority, surface: founder.surface ?? null } } }, { idempotencyKey: `v3:${taskId}:brief` });
+    // The founder's words are real input, not a model's: LIVE in every mode (no model, no cost).
+    ledger.recordOutput(taskId, { ...founder }, { adapter: FOUNDER_INPUT, isLive: true, result: { artifact: { brief: objective, acceptanceCriteria, priority, surface: founder.surface ?? null } } }, { idempotencyKey: `v3:${taskId}:brief` });
+    if (brief) {
+      // A well-specified request goes straight to its worker: no planner call.
+      const check = checkBrief(brief);
+      if (!check.ok) throw new OrchestrationError("INVALID_BRIEF", check.problems.join("; "));
+      createAssignment(taskId, taskId, brief, briefFingerprint(brief));
+    }
     return taskId;
   }
 
@@ -308,10 +329,14 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
    * Register a worker process that claims queued tasks. A worker's submissions are LIVE only when it was built with
    * the hosted Claude credentials present (liveAvailable checks the names only); otherwise they are MOCK.
    */
-  function registerWorker({ id, seat = "queue:claude-code", serves = ["claude-engineering", "claude-qa"], model = "mock-claude-code-worker", env = {}, maxBudgetUsd = 2 }) {
-    const live = liveAvailable("anthropic", env).via === "api" && !/^mock/i.test(model);
-    // maxBudgetUsd is what the worker passes to `claude -p --max-budget-usd`: the worst case of one claimed task.
-    const w = Object.freeze({ id, seat, serves: Object.freeze([...serves]), model, live, kind: seat.split(":")[1], maxBudgetUsd: live ? Number(maxBudgetUsd) : 0 });
+  function registerWorker({ id, seat = "queue:claude-code", serves = ["claude-engineering", "claude-qa"], model = "mock-claude-code-worker", env = {}, maxBudgetUsd = 2, credential = "api" }) {
+    // credential "api": ANTHROPIC_API_KEY, metered — maxBudgetUsd is its `--max-budget-usd`, the worst case per task.
+    // credential "subscription": the founder's own Claude subscription token in the founder's own CI. No incremental
+    // charge (it uses subscription limits), so its worst case is $0 — but see the README on when that is permitted.
+    const named = credential === "subscription" ? "CLAUDE_CODE_OAUTH_TOKEN" in env : liveAvailable("anthropic", env).via === "api";
+    const live = named && !/^mock/i.test(model);
+    const billing = credential === "subscription" ? "subscription" : "api";
+    const w = Object.freeze({ id, seat, serves: Object.freeze([...serves]), model, live, billing, kind: seat.split(":")[1], maxBudgetUsd: live && billing === "api" ? Number(maxBudgetUsd) : 0 });
     workers.push(w);
     return w;
   }
@@ -322,11 +347,12 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
   function claimNext(worker) {
     for (;;) {
       const s = st();
-      const t = s.taskOrder.map((id) => s.tasks[id]).find((x) => x.state === "PLANNED" && x.route?.mode === "queue" && x.route.seat === worker.seat && !rootClosed(s, x)
+      const t = ordered(s).find((x) => x.state === "PLANNED" && x.route?.mode === "queue" && x.route.seat === worker.seat && !rootClosed(s, x)
         && worker.serves.includes(x.brief?.assignee) && depsDone(s, x) && !(x.claim && x.claim.leaseUntil > now() && x.claim.worker.id !== worker.id));
       if (!t) return null;
       // A live worker spends real money; MOCK inputs would make its output (and its cost record) MOCK. Refuse that.
       if (worker.live && t.inputs.some((d) => s.outputsByDigest[d]?.mode !== "LIVE")) { block(t.taskId, "MOCK_LINEAGE", "a live worker is never given MOCK inputs"); continue; }
+      if (worker.live && worker.billing === "api" && !paidEnabled) { block(t.taskId, "PAID_DISABLED", "paid execution is off; the founder has not authorized API spending", "FOUNDER"); continue; }
       if (!spendAllowed(s, t, worker.maxBudgetUsd)) continue; // blocked for the founder; look for the next one
       return claim(t, worker);
     }
@@ -363,7 +389,8 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
     if (t?.claim?.worker.id !== worker.id || t.state !== "IN_PROGRESS") throw new OrchestrationError("NOT_YOUR_TASK", `${taskId} is not running under ${worker.id}`);
     const adapter = { provider: t.assignedAgent.provider, model: worker.model };
     // Keyed by the run: re-submitting the same report after a crash replays; a different one is refused.
-    ledger.recordOutput(taskId, { role: "agent", id: worker.id, surface: "worker" }, { adapter, isLive: worker.live, result: { artifact: report, usage: { usd, estimated } } }, { idempotencyKey: `v3:${taskId}:output:${epochOf(t)}` });
+    const charged = worker.live && worker.billing === "api" ? usd : 0;
+    ledger.recordOutput(taskId, { role: "agent", id: worker.id, surface: "worker" }, { adapter, isLive: worker.live, result: { artifact: report, usage: { usd: charged, estimated } } }, { idempotencyKey: `v3:${taskId}:output:${epochOf(t)}` });
     afterReport(taskId);
   }
 
@@ -386,7 +413,7 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
   }
 
   // ── running a model step ──
-  async function callModel(taskId, kind, instructions, schema) {
+  async function callModel(taskId, kind, instructions, schema, tier = "standard") {
     const t = ledger.task(taskId);
     const adapter = adapters[t.assignedAgent.provider];
     if (!adapter) { block(taskId, "NO_ADAPTER", `no adapter for ${t.assignedAgent.provider}`); return null; }
@@ -394,9 +421,15 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
     const cur = ledger.task(taskId);
     if (pendingOutput(cur)) return cur.outputs.at(-1); // resumed after a crash: never call the model twice for one run
     const s = st();
-    const inputs = t.inputs.map((d) => ({ digest: d, artifact: s.outputsByDigest[d].artifact, provider: s.outputsByDigest[d].provider, mode: s.outputsByDigest[d].mode }));
+    if (isLiveAdapter(adapter) && !paidEnabled) { block(taskId, "PAID_DISABLED", "paid execution is off; the founder has not authorized API spending", "FOUNDER"); return null; }
+    const inputs = t.inputs.map((d) => {
+      const o = s.outputsByDigest[d];
+      const big = JSON.stringify(o.artifact).length > L.maxInputArtifactChars;
+      // Large artifacts travel as a reference: digest + summary. The full artifact stays in the ledger.
+      return { digest: d, provider: o.provider, mode: o.mode, artifact: big ? { truncated: true, digest: d, summary: String(o.artifact.summary ?? o.artifact.ceoSummary ?? "").slice(0, 600) } : o.artifact };
+    });
     if (isLiveAdapter(adapter) && inputs.some((i) => i.mode !== "LIVE")) { block(taskId, "MOCK_LINEAGE", "a live agent is never called on MOCK inputs"); return null; }
-    const req = { task: t, step: { kind, key: t.stepKey, schema }, objective: t.objective, inputs, instructions, context: contextPack(s, t), state: s };
+    const req = { task: t, step: { kind, key: t.stepKey, schema }, tier, objective: t.objective, inputs, instructions, context: contextPack(s, t), state: s };
     if (!spendAllowed(s, s.tasks[taskId], adapter.worstCase(req))) return null;
     let result;
     try {
@@ -599,6 +632,27 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
     if (out.decision === "CLOSE") maybeClose(rootId, evalId);
   }
 
+  /**
+   * Can our own checks close this low-risk report without a model? Every commit must be VERIFIED in the repository
+   * (UNCHECKED is not enough), tests must be listed with no failures, the stage must be at least COMMITTED and no claim
+   * contradicted. Research needs at least one finding and every finding sourced. Anything less goes to an evaluator.
+   */
+  function deterministicPass(verification, report, kind) {
+    if (verification.contradicted) return false;
+    if (kind === "research") return (report.findings ?? []).length > 0 && verification.claims.every((c) => c.status === "SOURCED");
+    const commits = verification.claims.filter((c) => c.claim.startsWith("commit "));
+    return commits.length > 0 && commits.every((c) => c.status === "VERIFIED")
+      && (report.tests ?? []).length > 0 && report.tests.every((x) => x.failed === 0)
+      && STAGES.indexOf(report.stage) >= STAGES.indexOf("COMMITTED");
+  }
+
+  function deterministicClose(taskId, verifyId) {
+    const t = ledger.task(taskId);
+    ledger.append("approval.granted", actor, { taskId, artifactDigest: latestDigest(t), autoApprove: true, basis: { verifyTaskId: verifyId, rule: "low-risk deterministic close" } }, { idempotencyKey: `v3:auto-approve:${taskId}:${t.outputs.length}` });
+    transition(taskId, "DONE", { outcome: { result: "DONE", verifiedBy: verifyId, deterministic: true, modelCalls: 0 } });
+    maybeClose(t.rootTaskId, verifyId);
+  }
+
   function createAssignment(rootId, evalId, b, fp) {
     const id = childId(evalId, `assign:${fp}`);
     if (ledger.task(id)) return id;
@@ -608,7 +662,8 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
     const e = ledger.task(evalId);
     const rootObjective = ledger.task(rootId).objective;
     ev("handoff", { handoffId: `ho-${id}`, fromTaskId: evalId, artifactDigest: latestDigest(e), context: e.inputs.filter((d) => st().outputsByDigest[d]?.provider !== "founder").slice(0, 3), instructions: renderBrief(b, { taskId: id, rootObjective }),
-      child: spec({ taskId: id, rootId, objective: b.objective, agent, stepKey: b.assignee, approvalLevel: "B", depth: e.depth + 1, costUsd: L.assignmentBudgetUsd, brief: b, route: { mode: r.mode, seat: r.seat },
+      // Low risk is Level A: our own checks may close it. Medium and high need an independent accept (Level B).
+      child: spec({ taskId: id, rootId, objective: b.objective, agent, stepKey: b.assignee, approvalLevel: b.risk === "low" ? "A" : "B", depth: e.depth + 1, costUsd: L.assignmentBudgetUsd, brief: b, route: { mode: r.mode, seat: r.seat },
         extra: { acceptanceCriteria: b.acceptanceCriteria, priority: b.priority, fingerprint: fp, expectedOutputs: b.deliverables, permissions: b.permissions } }) }, `handoff:${id}`);
     ev("notify", { to: r.mode === "queue" ? r.seat : agentKey(agent), taskId: id, reason: "assignment" }, `notify:${id}`);
     if (r.mode === "manual" || r.mode === "none") block(id, "NO_WORKER", r.limitation, "TOOL");
@@ -646,7 +701,7 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
   async function step() {
     if (sweep()) return "sweep";
     const s = st();
-    for (const t of s.taskOrder.map((id) => s.tasks[id])) {
+    for (const t of ordered(s)) {
       if (rootClosed(s, t)) continue; // the founder closed this request: nothing under it runs again
       // A recorded output nothing has acted on yet (a crash between recording and acting) → act on it now.
       if (pendingOutput(t) && !["request", "verify", "decision"].includes(t.stepKey)) {
@@ -655,13 +710,15 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
         return `resume ${t.taskId}`;
       }
       // A request with its brief recorded and no plan yet → plan it.
-      if (t.stepKey === "request" && t.state === "IN_PROGRESS" && t.outputs.length && !s.taskOrder.some((id) => s.tasks[id].subjectTaskId === t.taskId)) {
+      if (t.stepKey === "request" && t.state === "IN_PROGRESS" && t.outputs.length && !s.taskOrder.some((id) => s.tasks[id].subjectTaskId === t.taskId || s.tasks[id].parentTaskId === t.taskId)) {
         startEvaluation(t.taskId, null, true);
         return `plan ${t.taskId}`;
       }
       // Planner / evaluator ready to run (or resumed mid-call).
       if (["plan", "evaluate"].includes(t.stepKey) && (t.state === "PLANNED" || (t.state === "IN_PROGRESS" && !t.outputs.length))) {
-        const out = await callModel(t.taskId, "evaluate", s.handoffs.find((h) => h.toTaskId === t.taskId).instructions, EVALUATION_SCHEMA);
+        // Planning and routine evaluation run on the light tier; only high-risk work is judged on the strong tier.
+        const tier = t.stepKey === "evaluate" && s.tasks[t.subjectTaskId]?.brief?.risk === "high" ? "strong" : "light";
+        const out = await callModel(t.taskId, "evaluate", s.handoffs.find((h) => h.toTaskId === t.taskId).instructions, EVALUATION_SCHEMA, tier);
         if (out) applyEvaluation(t.taskId);
         return `${t.stepKey} ${t.taskId}`;
       }
@@ -676,6 +733,10 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
       if (t.state === "NEEDS_REVIEW" && t.brief) {
         const verifyId = childId(t.taskId, `verify:${t.outputs.length}`);
         if (ledger.task(verifyId)?.state !== "DONE") { runVerifier(t.taskId); return `verify ${t.taskId}`; }
+        if (t.brief.risk === "low" && deterministicPass(ledger.task(verifyId).outputs.at(-1).artifact, t.outputs.at(-1).artifact, ROLES[t.brief.assignee].kind)) {
+          deterministicClose(t.taskId, verifyId);
+          return `closed ${t.taskId} without a model call`;
+        }
         if (!ledger.task(childId(t.taskId, `evaluate:${t.outputs.length}`))) { startEvaluation(t.taskId, verifyId, false); return `evaluate ${t.taskId}`; }
       }
     }
@@ -722,8 +783,7 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
       // depth 0: a redirect is a fresh request inside the same tree (same ceiling, fresh depth and task bounds)
       ledger.append("task.created", founder, { task: { ...spec({ taskId: id, rootId, objective, agent, stepKey: "request", approvalLevel: "A", depth: 0, costUsd: 0 }), parentTaskId: taskId } }, { idempotencyKey: `v3:founder:redirect:${id}` });
       ledger.append("task.transition", founder, { taskId: id, to: "IN_PROGRESS" }, { idempotencyKey: `v3:founder:redirect-run:${id}` });
-      const fa = adapters.founder ?? { provider: "founder", model: null };
-      ledger.recordOutput(id, founder, { adapter: fa, isLive: isLiveAdapter(fa), result: { artifact: { brief: objective, redirectOf: taskId, note } } }, { idempotencyKey: `v3:${id}:brief` });
+      ledger.recordOutput(id, founder, { adapter: FOUNDER_INPUT, isLive: true, result: { artifact: { brief: objective, redirectOf: taskId, note } } }, { idempotencyKey: `v3:${id}:brief` });
       ledger.append("task.transition", founder, { taskId, to: "SUPERSEDED", outcome: { result: "SUPERSEDED", supersededBy: id, by: founder.id, note } }, { idempotencyKey: `v3:founder:redirect-supersede:${taskId}` });
       return { closed: false, redirectTaskId: id };
     }
@@ -766,6 +826,33 @@ export function createHandoffLoop({ ledger, adapters, config, loop = {}, now = (
       const t = s.tasks[taskId];
       if (!t) return null;
       return { ...t, status: v3Status(s, t), assignment: s.handoffs.find((h) => h.toTaskId === taskId)?.instructions ?? null };
+    },
+    /** Spend and usage: provider day/month against caps (alert at 80%), and calls, tokens and cost by step. */
+    spend() {
+      const s = st();
+      const n = now();
+      const day = n.slice(0, 10);
+      const month = n.slice(0, 7);
+      const providers = {};
+      for (const p of ["anthropic", "openai", "xai"]) {
+        const cap = config.providers[p] ?? { dailyUsd: 0, monthlyUsd: 0 };
+        const cs = s.costs.filter((c) => c.provider === p && c.mode === "LIVE");
+        const dayUsd = cs.filter((c) => c.at.slice(0, 10) === day).reduce((x, c) => x + c.usd, 0);
+        const monthUsd = cs.filter((c) => c.at.slice(0, 7) === month).reduce((x, c) => x + c.usd, 0);
+        const pct = (v, c) => (c > 0 ? Math.round((v / c) * 100) : null);
+        providers[p] = { dayUsd: Number(dayUsd.toFixed(6)), monthUsd: Number(monthUsd.toFixed(6)), dailyCapUsd: cap.dailyUsd, monthlyCapUsd: cap.monthlyUsd, dayPct: pct(dayUsd, cap.dailyUsd), monthPct: pct(monthUsd, cap.monthlyUsd), alert: (pct(dayUsd, cap.dailyUsd) ?? 0) >= 80 || (pct(monthUsd, cap.monthlyUsd) ?? 0) >= 80 };
+      }
+      const bySteps = {};
+      for (const t of Object.values(s.tasks)) {
+        for (const o of t.outputs) {
+          if (o.provider === "founder") continue;
+          const k = `${t.stepKey}:${o.mode}`;
+          const b = (bySteps[k] ??= { step: t.stepKey, mode: o.mode, calls: 0, usd: 0, tokensIn: 0, tokensOut: 0 });
+          b.calls++; b.usd = Number((b.usd + o.cost.usd).toFixed(6)); b.tokensIn += o.cost.tokensIn ?? 0; b.tokensOut += o.cost.tokensOut ?? 0;
+        }
+      }
+      const closedWithoutModel = Object.values(s.tasks).filter((t) => t.outcome?.deterministic).length;
+      return { paidEnabled, providers, bySteps: Object.values(bySteps), closedWithoutModel, refusals: s.refusals.length };
     },
     activity(provider) {
       const s = st();

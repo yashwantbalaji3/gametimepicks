@@ -444,7 +444,7 @@ export function createTaskLedger({ store, clock, ledgerId = "default" }) {
     const mode = isLive && lineageLive ? "LIVE" : "MOCK";
     const artifact = result.artifact;
     const output = {
-      mode, label: mode, provider: adapter.provider, model: adapter.model ?? null,
+      mode, label: mode, provider: adapter.provider, model: result.model ?? adapter.model ?? null,
       seat: t.assignedAgent.seat, role: t.assignedAgent.role,
       cost: { usd: mode === "MOCK" ? 0 : round6(Number(result.usage?.usd ?? 0)), estimated: Boolean(result.usage?.estimated), tokensIn: result.usage?.tokensIn ?? null, tokensOut: result.usage?.tokensOut ?? null },
       citations: result.citations ?? [],

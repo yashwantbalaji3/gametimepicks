@@ -21,12 +21,12 @@ import { runDemo, createScriptedMocks, demoBrief, demoReport, DEMO_REQUEST, FOUN
 const ORIGIN = "2026-11-03T16:00:00.000Z";
 const codeOf = (fn) => { try { fn(); } catch (e) { return e.code; } return null; };
 
-function setup({ script, loop = {}, commits = KNOWN_COMMITS, adapters, worker = true, clock: c } = {}) {
+function setup({ script, loop = {}, commits = KNOWN_COMMITS, adapters, worker = true, clock: c, paidEnabled = false } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-cc-v3-test-"));
   const clock = c ?? stepClock(ORIGIN);
   const ledger = createTaskLedger({ store: createFileStore({ dir, clock }), clock, ledgerId: "v3" });
   const mocks = createScriptedMocks(script);
-  const l = createHandoffLoop({ ledger, adapters: adapters ?? mocks.adapters, config: budgetConfig(), loop, now: clock, checkers: { commitExists: (sha) => commits.includes(sha) } });
+  const l = createHandoffLoop({ ledger, adapters: adapters ?? mocks.adapters, config: budgetConfig(), loop, now: clock, checkers: { commitExists: (sha) => commits.includes(sha) }, paidEnabled });
   const w = worker ? l.registerWorker({ id: "w1" }) : null;
   return { ledger, loop: l, mocks, worker: w, clock };
 }
@@ -108,11 +108,13 @@ test("acceptance (MOCK): request → Claude → ChatGPT review → Claude fix + 
   const d2 = loop.views.home().find((h) => h.taskId === rootId).decision;
   loop.founderDecision(FOUNDER, d2.taskId, { action: "reject", note: "demo ends here" });
   assert.equal(ledger.task(rootId).state, "CANCELLED");
-  // 12. complete audit: replay is byte-identical, every output attributed and MOCK, $0, no network
+  // 12. complete audit: replay is byte-identical, every agent output attributed and MOCK (the founder's own words are
+  // real input, so LIVE), $0, no network
   assert.equal(canonicalJson(replay(ledger.events())), canonicalJson(ledger.state()));
   const outs = Object.values(ledger.state().tasks).flatMap((t) => t.outputs);
   assert.ok(outs.length > 10);
-  assert.ok(outs.every((o) => o.mode === "MOCK" && o.cost.usd === 0 && o.provider));
+  assert.ok(outs.filter((o) => o.provider !== "founder").every((o) => o.mode === "MOCK" && o.cost.usd === 0 && o.provider));
+  assert.ok(outs.filter((o) => o.provider === "founder").every((o) => o.mode === "LIVE" && o.cost.usd === 0 && o.model === null));
   assert.deepEqual(NETWORK_ATTEMPTS, []);
 });
 
@@ -240,7 +242,11 @@ test("budget: with the default $0 caps a live planner call is refused before any
   const fetch = async (url) => { calls.push(url); throw new Error("must not be called"); };
   const env = { OPENAI_API_KEY: "dummy", OPENAI_MODEL: "test-model", OPENAI_PRICE_IN_PER_M: "2", OPENAI_PRICE_OUT_PER_M: "10" };
   const { adapters } = createLiveAdapters({ env, fetch, sleep: async () => {} });
-  const t = setup({ adapters });
+  const off = setup({ adapters });
+  off.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "b" });
+  await off.loop.runUntilIdle();
+  assert.equal(tasksBy(off.ledger, "plan")[0].blocker.code, "PAID_DISABLED", "paid execution is off by default, before any cap check");
+  const t = setup({ adapters, paidEnabled: true });
   t.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "b" });
   await t.loop.runUntilIdle();
   const plan = tasksBy(t.ledger, "plan")[0];
@@ -348,7 +354,7 @@ test("review #5: a live worker's claim is checked against the caps and the reque
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-cc-v3-r5-"));
     const clock = stepClock(ORIGIN);
     const ledger = createTaskLedger({ store: createFileStore({ dir, clock }), clock, ledgerId: "r5" });
-    const loop = createHandoffLoop({ ledger, adapters, config, now: clock, checkers: { commitExists: () => true } });
+    const loop = createHandoffLoop({ ledger, adapters, config, now: clock, checkers: { commitExists: () => true }, paidEnabled: true });
     const w = loop.registerWorker({ id: "live-w", model: "claude-code", env: { ANTHROPIC_API_KEY: "dummy" }, maxBudgetUsd: 2 });
     loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "r5" });
     await loop.runUntilIdle();
@@ -410,4 +416,79 @@ test("review #9: two timeouts under one parent each reach the founder", async ()
   t.loop.sweep();
   const decisions = tasksBy(t.ledger, "decision").filter((d) => d.meta?.escalation?.code === "TIMEOUT");
   assert.equal(decisions.length, 2);
+});
+
+// ───────────────────────────── cost-first routing (founder 2026-11-03) ─────────────────────────────
+
+test("cost: a low-risk report our checks fully verify closes with no model call; a direct brief skips the planner", async () => {
+  const t = setup();
+  t.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "low", brief: demoBrief({ risk: "low" }) });
+  await drive(t);
+  const s = t.ledger.state();
+  assert.equal(tasksBy(t.ledger, "plan").length, 0, "no planner call");
+  assert.equal(tasksBy(t.ledger, "evaluate").length, 0, "no evaluator call");
+  assert.equal(t.mocks.calls.length, 0, "no model was called at all");
+  const work = tasksBy(t.ledger, "claude-engineering")[0];
+  assert.deepEqual([work.state, work.outcome.deterministic, work.approvalLevel], ["DONE", true, "A"]);
+  assert.ok(tasksBy(t.ledger, "decision")[0], "the founder still decides on closing the request");
+  assert.equal(t.loop.views.spend().closedWithoutModel, 1);
+  assert.equal(s.verdicts.length, 0);
+});
+
+test("cost: low risk that our checks can't fully verify falls back to a light-tier evaluator; high risk gets the strong tier", async () => {
+  const tiers = [];
+  const t = setup({ commits: [] }); // commit not found → not VERIFIED
+  const wrap = (a) => ({ ...a, run: (req) => { tiers.push([req.step.key, req.tier]); return a.run(req); } });
+  for (const k of Object.keys(t.mocks.adapters)) t.mocks.adapters[k] = wrap(t.mocks.adapters[k]);
+  t.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "fall", brief: demoBrief({ risk: "low" }) });
+  await drive(t);
+  assert.ok(tasksBy(t.ledger, "evaluate").length >= 1, "unverified low-risk work goes to an evaluator");
+  const evals = tiers.filter(([k]) => ["evaluate", "plan"].includes(k));
+  assert.ok(evals.length >= 1 && evals.every(([, tier]) => tier === "light"), "evaluators of low/medium work run on the light tier");
+  assert.ok(tiers.filter(([k]) => k === "grok-research").every(([, tier]) => tier === "standard"), "research runs on the standard tier");
+
+  const h = setup();
+  const seen = [];
+  for (const k of Object.keys(h.mocks.adapters)) { const a = h.mocks.adapters[k]; h.mocks.adapters[k] = { ...a, run: (req) => { seen.push([req.step.key, req.tier]); return a.run(req); } }; }
+  h.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "high", brief: demoBrief({ risk: "high" }) });
+  await drive(h);
+  assert.deepEqual(seen.find(([k]) => k === "evaluate"), ["evaluate", "strong"]);
+});
+
+test("cost: a brief without a risk level is refused; large input artifacts reach a model as digest + summary", async () => {
+  assert.match(checkBrief({ ...demoBrief(), risk: undefined }).problems.join(), /risk/);
+  const big = [];
+  const t = setup({ loop: { maxInputArtifactChars: 200 } });
+  const a = t.mocks.adapters.openai;
+  t.mocks.adapters.openai = { ...a, run: (req) => { big.push(...req.inputs.map((i) => i.artifact.truncated === true)); return a.run(req); } };
+  t.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "big" });
+  await drive(t);
+  assert.ok(big.includes(true), "a report larger than the limit was passed by reference");
+});
+
+test("cost: a subscription-credential worker is LIVE at $0 incremental; an API-key worker is refused while paid execution is off", async () => {
+  const sub = setup({ worker: false });
+  const w = sub.loop.registerWorker({ id: "sub-w", model: "claude-code", credential: "subscription", env: { CLAUDE_CODE_OAUTH_TOKEN: "dummy" } });
+  assert.deepEqual([w.live, w.billing, w.maxBudgetUsd], [true, "subscription", 0]);
+  sub.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "sub", brief: demoBrief({ risk: "low" }) });
+  const job = sub.loop.claimNext(w);
+  assert.ok(job, "the founder's brief is real input, so a live worker may take it");
+  sub.loop.submit(w, job.taskId, demoReport(sub.ledger.task(job.taskId)), { usd: 3.2 });
+  const out = sub.ledger.task(job.taskId).outputs[0];
+  assert.deepEqual([out.mode, out.cost.usd], ["LIVE", 0]);
+
+  const api = setup({ worker: false });
+  const wa = api.loop.registerWorker({ id: "api-w", model: "claude-code", env: { ANTHROPIC_API_KEY: "dummy" } });
+  api.loop.intake(FOUNDER, { ...DEMO_REQUEST, requestKey: "api", brief: demoBrief({ risk: "low" }) });
+  assert.equal(api.loop.claimNext(wa), null);
+  assert.equal(tasksBy(api.ledger, "claude-engineering")[0].blocker.code, "PAID_DISABLED");
+});
+
+test("cost: the spend view reports caps, 80% alerts and usage by step", async () => {
+  const r = await runDemo({ origin: ORIGIN });
+  const sp = r.loop.views.spend();
+  assert.equal(sp.paidEnabled, false);
+  assert.deepEqual(Object.keys(sp.providers).sort(), ["anthropic", "openai", "xai"]);
+  assert.ok(sp.bySteps.some((b) => b.step === "evaluate" && b.mode === "MOCK" && b.calls >= 3 && b.usd === 0));
+  assert.equal(sp.providers.openai.alert, false);
 });
