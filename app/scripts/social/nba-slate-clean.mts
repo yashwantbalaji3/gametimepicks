@@ -14,11 +14,16 @@
 // and stdout. GTP_NBA_UNIFIED_ROSTER must be set before the card modules load (the footer reads it), hence the dynamic imports.
 import crypto from "node:crypto";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 const arg = (n: string, d: string | null = null) => { const i = process.argv.indexOf(`--${n}`); return i >= 0 ? process.argv[i + 1] : d; };
 const date = arg("date")!, root = arg("import-root")!;
 if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? "") || !root) { console.error("usage: --date YYYY-MM-DD --import-root DIR"); process.exit(2); }
+// GTP_CLEAN_NOW (tests only, refused for the live import folder): the clock the expiry check uses.
+const live = path.resolve(root) === path.join(os.homedir(), "gtp-private", "graphics");
+if (process.env.GTP_CLEAN_NOW && live) { console.error("GTP_CLEAN_NOW is refused for the live import folder"); process.exit(2); }
+const nowMs = process.env.GTP_CLEAN_NOW ? Date.parse(process.env.GTP_CLEAN_NOW) : Date.now();
 const pk = path.join(root, "packages"), approvalsFile = path.join(root, "approvals", "approved-for-clean-export.json");
 const logFile = path.join(root, "approvals", "clean-export-log.jsonl");
 const sha = (b: any) => crypto.createHash("sha256").update(b).digest("hex");
@@ -44,14 +49,21 @@ const { DISCLOSURE } = await import("./game-day-cards.mjs");
 const { renderCleanImages } = await import("./clean-export.mjs");
 const rebuilt = new Map<string, any>(); // asOf -> prepareGameDay result
 let failed = false;
+// Founder-visible status per (dedupeId, contentSha256): CLEAN, REFUSED, RETRYING or FAILED (3 render/write failures, no more tries).
+const MAX_ATTEMPTS = 3;
+const statusFile = path.join(root, "approvals", `clean-export-status-${date}.json`);
+const status: Record<string, any> = Object.fromEntries((fs.existsSync(statusFile) ? JSON.parse(fs.readFileSync(statusFile, "utf8")).entries : []).map((x: any) => [`${x.dedupeId}|${x.contentSha256}`, x]));
 
 for (const e of todo) {
   const { file, pkg } = mine.get(e.dedupeId)!;
   const slug = path.basename(file, ".json");
   const outName = `${slug}-clean-${String(pkg.contentSha256).slice(0, 8)}`;
-  if (fs.existsSync(path.join(pk, `${outName}.json`))) { console.log(`already exported ${outName}`); continue; }
+  const sk = `${e.dedupeId}|${pkg.contentSha256}`;
+  if (fs.existsSync(path.join(pk, `${outName}.json`))) { status[sk] = { ...status[sk], dedupeId: e.dedupeId, contentSha256: pkg.contentSha256, state: "CLEAN", package: `${outName}.json` }; continue; }
+  if (status[sk]?.state === "FAILED") continue;
   // A refusal is logged once per (package content, approval, reasons): the backstop runs every 2 min.
   const refuse = (why: string[]) => {
+    status[sk] = { ...status[sk], dedupeId: e.dedupeId, contentSha256: pkg.contentSha256, state: "REFUSED", why, at: new Date().toISOString() };
     const key = sha(JSON.stringify([pkg.contentSha256, e.captionId, e.approvedAt, why])).slice(0, 16);
     const seen = path.join(root, "approvals", ".clean-refused", key);
     if (fs.existsSync(seen)) return;
@@ -61,6 +73,8 @@ for (const e of todo) {
   const shas = new Map(pkg.images.map((i: any) => [i.path, fs.existsSync(i.path) ? sha(fs.readFileSync(i.path)) : null]));
   const problems = [...ce.cleanEligibilityProblems(pkg), ...ce.approvalMatchProblems(e, pkg, shas)];
   if (pkg.images.length !== 1) problems.push(`expected 1 image, found ${pkg.images.length}`);
+  const closes = Math.min(...[pkg.expiresAt, pkg.window?.closesAt, pkg.commandCenter?.firstStartUtc].filter(Boolean).map((t: string) => Date.parse(t)));
+  if (!(nowMs < closes)) problems.push(`expired: window closed ${Number.isFinite(closes) ? new Date(closes).toISOString() : "(no expiry recorded)"}`);
   const changed = pkg.snapshotRefs.filter((r: any) => { const f = path.resolve(process.cwd(), "..", r.ref); return !fs.existsSync(f) || sha(fs.readFileSync(f)) !== r.sha256; }).map((r: any) => r.ref);
   if (changed.length) problems.push(`data changed since the package: ${changed.join(", ")}`);
   if (problems.length) { refuse(problems); continue; }
@@ -103,10 +117,16 @@ for (const e of todo) {
     fs.writeFileSync(jt, `${JSON.stringify(out, null, 2)}\n`);
     fs.renameSync(jt, path.join(pk, `${outName}.json`));
     log({ dedupeId: e.dedupeId, outcome: "CLEAN", package: `${outName}.json`, reviewedSha256: pkg.images[0].sha256, cleanSha256: img.sha256 });
+    status[sk] = { ...status[sk], state: "CLEAN", package: `${outName}.json`, at: new Date().toISOString() };
   } catch (err: any) {
     fs.rmSync(tmp, { recursive: true, force: true });
-    refuse([`render or write failed: ${err.message}`]);
-    failed = true;
+    const attempts = (status[sk]?.attempts ?? 0) + 1;
+    log({ dedupeId: e.dedupeId, outcome: attempts >= MAX_ATTEMPTS ? "FAILED" : "RETRY", attempts, why: [`render or write failed: ${err.message}`] });
+    status[sk] = { dedupeId: e.dedupeId, contentSha256: pkg.contentSha256, state: attempts >= MAX_ATTEMPTS ? "FAILED" : "RETRYING", attempts, why: [err.message], at: new Date().toISOString() };
+    if (attempts < MAX_ATTEMPTS) failed = true;
   }
 }
+const st = `${statusFile}.${process.pid}`;
+fs.writeFileSync(st, `${JSON.stringify({ schema: "gtp-nba-clean-export-status@1", date, updatedAt: new Date().toISOString(), entries: Object.values(status) }, null, 2)}\n`);
+fs.renameSync(st, statusFile);
 process.exit(failed ? 3 : 0);
