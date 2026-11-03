@@ -107,8 +107,10 @@ try {
     const tmpDir = path.join(pk, `.${slug}.${tag}`);
     fs.cpSync(path.join(out, slug), tmpDir, { recursive: true }); temps.push(tmpDir);
     fs.renameSync(tmpDir, path.join(pk, slug)); temps.pop(); made.push(path.join(pk, slug));
-    const pkg = JSON.parse(fs.readFileSync(x.file, "utf8"));
-    for (const i of pkg.images) { i.path = path.join(pk, path.relative(out, i.path)); if (sha(fs.readFileSync(i.path)) !== i.sha256) throw new Error(`copy mismatch ${i.path}`); }
+    // Every staged path (images, commandCenter.media, mediaSet) now points into the import folder.
+    const pkg = JSON.parse(fs.readFileSync(x.file, "utf8").split(`${out}/`).join(`${pk}/`));
+    if (JSON.stringify(pkg).includes(stage)) throw new Error(`${slug} still names the stage folder`);
+    for (const i of pkg.images) if (sha(fs.readFileSync(i.path)) !== i.sha256) throw new Error(`copy mismatch ${i.path}`);
     const tmp = path.join(pk, `.${slug}.json.${tag}`);
     fs.writeFileSync(tmp, `${JSON.stringify(pkg, null, 2)}\n`); temps.push(tmp);
   }
