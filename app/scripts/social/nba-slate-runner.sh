@@ -14,6 +14,7 @@
 # origin/main -> unified roster (free ESPN) -> build, QA and deliver (scripts/social/nba-slate-deliver.mts). Logs and
 # per-attempt folders go to ~/gtp-evidence/nba-slate-<date>/. A DELIVERED marker stops every later attempt.
 # Exit: 0 delivered or nothing to do; 3 lane not on origin/main; 4 setup or fetch failed; 5 ESPN inputs incomplete;
+# 6 lane not current (date or game set differs from ESPN's scoreboard);
 # 10/11 build refused or delivery failed (see the attempt's result.json).
 set -uo pipefail
 export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
@@ -43,12 +44,19 @@ NOT_AFTER="${GTP_NOT_AFTER:-${DATE}T15:00:00Z}"
 EV="$HOME/gtp-evidence/nba-slate-$DATE"; mkdir -p "$EV"
 LOG="$EV/runner.log"
 log() { echo "$(date -u +%FT%TZ) $*" >> "$LOG"; }
-finish() { log "EXIT $1 $2"; [ -n "${LOCKED:-}" ] && rmdir "$EV/.lock" 2>/dev/null; exit "$1"; }
+finish() { log "EXIT $1 $2"; [ -n "${LOCKED:-}" ] && { rm -f "$EV/.lock/pid"; rmdir "$EV/.lock" 2>/dev/null; }; exit "$1"; }
 
 if [ -f "$EV/DELIVERED" ]; then log "already delivered ($(head -1 "$EV/DELIVERED")); nothing to do"; exit 0; fi
 if [ "$(date -u +%s)" -gt "$(date -u -j -f %Y-%m-%dT%H:%M:%SZ "$NOT_AFTER" +%s)" ]; then log "past $NOT_AFTER; no attempt"; exit 0; fi
-if ! mkdir "$EV/.lock" 2>/dev/null; then log "another attempt holds $EV/.lock; skipping"; exit 0; fi
-LOCKED=1
+if ! mkdir "$EV/.lock" 2>/dev/null; then
+  # A killed attempt leaves the lock behind; an attempt never runs 30 min, so an older lock is reclaimed.
+  AGE=$(( $(date +%s) - $(stat -f %m "$EV/.lock" 2>/dev/null || date +%s) ))
+  if [ "$AGE" -lt 1800 ]; then log "another attempt holds $EV/.lock (${AGE}s old); skipping"; exit 0; fi
+  log "reclaiming stale $EV/.lock (${AGE}s old, holder $(cat "$EV/.lock/pid" 2>/dev/null || echo unknown))"
+  rm -f "$EV/.lock/pid"; rmdir "$EV/.lock" 2>/dev/null
+  mkdir "$EV/.lock" 2>/dev/null || { log "lost the race for $EV/.lock; skipping"; exit 0; }
+fi
+LOCKED=1; echo $$ > "$EV/.lock/pid"
 log "attempt: date $DATE tool $TOOL import-root $IMPORT_ROOT"
 
 [ -d "$R/.git" ] || finish 4 "runner not set up ($R); run: $0 setup"
@@ -57,6 +65,22 @@ MAIN=$(git -C "$R" rev-parse FETCH_HEAD)
 LANE="app/public/data/nba/experimental-public/$DATE.json"
 git -C "$R" cat-file -e "$MAIN:$LANE" 2>/dev/null || finish 3 "LANE_MISSING: $LANE not on origin/main $MAIN"
 log "lane on origin/main $MAIN"
+# Present is not current: the lane must be for this date and carry exactly the games ESPN lists for it (free scoreboard).
+git -C "$R" show "$MAIN:$LANE" > "$EV/.lane-check.json" 2>/dev/null || finish 4 "read lane failed"
+curl -sf --max-time 30 "https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${DATE//-/}" > "$EV/.espn-scoreboard.json" || finish 5 "ESPN_SCOREBOARD_UNAVAILABLE"
+node -e '
+  const fs = require("fs"); const [lf, sf, date] = process.argv.slice(1);
+  const lane = JSON.parse(fs.readFileSync(lf, "utf8")), sb = JSON.parse(fs.readFileSync(sf, "utf8"));
+  const ids = (lane.games ?? []).map((g) => String(g.providerEventId)).sort();
+  const espn = (sb.events ?? []).map((e) => String(e.id)).sort();
+  const bad = [];
+  if (lane.date !== date) bad.push(`lane.date ${lane.date}`);
+  for (const g of lane.games ?? []) if (g.etDate !== date) bad.push(`game ${g.providerEventId} etDate ${g.etDate}`);
+  if (!espn.length) bad.push("ESPN lists no games");
+  if (ids.join() !== espn.join()) bad.push(`lane ${ids.length} games [${ids}] vs ESPN ${espn.length} [${espn}]`);
+  if (bad.length) { console.error("LANE_NOT_CURRENT: " + bad.join("; ")); process.exit(1); }
+  console.log(`lane current: ${ids.length} games match ESPN for ${date}`);
+' "$EV/.lane-check.json" "$EV/.espn-scoreboard.json" "$DATE" >> "$LOG" 2>&1 || finish 6 "LANE_NOT_CURRENT (see $LOG)"
 
 git -C "$R" fetch -q --depth 1 --filter=blob:none origin "$TOOL" >> "$LOG" 2>&1 || finish 4 "fetch tool commit failed"
 git -C "$R" checkout -q -f --detach "$TOOL" >> "$LOG" 2>&1 || finish 4 "checkout tool commit failed"
@@ -83,5 +107,5 @@ RC=$?
 
 printf '%s\ndataCommit %s\ntool %s\nimport root %s\nreport %s\n' "$(date -u +%FT%TZ)" "$MAIN" "$TOOL" "$IMPORT_ROOT" "$RUN/report.md" > "$EV/DELIVERED"
 log "DELIVERED: $(node -p 'const r=require(process.argv[1]);`${r.games.length} games, ${r.packages} packages, ${r.images} images`' "$RUN/result.json"); report $RUN/report.md"
-[ -n "${GTP_LAUNCHD_LABEL:-}" ] && { log "unloading $GTP_LAUNCHD_LABEL"; rmdir "$EV/.lock"; launchctl bootout "gui/$(id -u)/$GTP_LAUNCHD_LABEL" 2>/dev/null; }
+[ -n "${GTP_LAUNCHD_LABEL:-}" ] && { log "unloading $GTP_LAUNCHD_LABEL"; rm -f "$EV/.lock/pid"; rmdir "$EV/.lock"; LOCKED=""; launchctl bootout "gui/$(id -u)/$GTP_LAUNCHD_LABEL" 2>/dev/null; }
 finish 0 "delivered"
