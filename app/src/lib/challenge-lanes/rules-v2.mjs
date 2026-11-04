@@ -165,7 +165,7 @@ export function evaluateCandidates({ legs, snapshot, position, now, calibration 
   const rows = sets.map((set) => evaluateSet(set, { snapshot, position, now, calibration, injuryOverrides, params, excludeGames, bookmakers }));
   const bucket = P("evRankBucket", params);
   const qualified = rows.filter((r) => r.qualified).sort((a, b) =>
-    Math.floor(b.evLow / bucket) - Math.floor(a.evLow / bucket) // calibrated EV (lower bound)
+    Math.floor(b.evLow / bucket + 1e-9) - Math.floor(a.evLow / bucket + 1e-9) // calibrated EV (lower bound)
     || a.legCount - b.legCount // forecast reliability: fewer modelled outcomes, no independence assumption
     || Math.abs(a.targetDeviation) - Math.abs(b.targetDeviation) // closeness to target
     || Date.parse(b.price.capturedAt) - Date.parse(a.price.capturedAt) // freshness
