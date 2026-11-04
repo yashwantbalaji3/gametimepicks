@@ -245,8 +245,9 @@ const opponentIn = (label, team) => { const m = /^(\S+) @ (\S+)$/.exec(String(la
  * validated, so every leg is MODEL_UNVALIDATED and the card never prints the joint chance.
  * @param {object} file  the suggested-cards document
  * @param {"bank-builder"|"moonshot"} product
+ * @param {{ testData?: boolean, card?: object }} [opts]  `card`: a card object taken from this same file
  */
-export function comboFromSuggestedCards(file, product, { testData = false } = {}) {
+export function comboFromSuggestedCards(file, product, { testData = false, card = null } = {}) {
   const key = product === "bank-builder" ? "bankBuilder" : product === "moonshot" ? "moonshot" : null;
   if (file?.schema !== "gtp.suggested-cards@1" || !key) throw new Error(`not a suggested-cards file for ${product}`);
   if (!suggestedCardsSealed(file)) throw new Error("the suggested-cards file is not the frozen card: contentSha256 is missing or does not match its body (founder rule B)");
@@ -255,7 +256,8 @@ export function comboFromSuggestedCards(file, product, { testData = false } = {}
   const base = { schema: SOCIAL_COMBO_SCHEMA, product, sport: "nba", slateDate: file.productDay, asOf: file.evaluatedAt, testData, policyId: section?.policy ?? null, source: lane ? { lane: { ref: lane.file, sha256: lane.sha256, commit: lane.commit ?? null } } : {} };
   const none = (code, text) => sealCombo({ ...base, state: COMBO_STATE.NONE, reasons: [{ code, text }], combination: null });
   if (!section) return none("NO_SECTION", `the file has no NBA ${product} section`);
-  const c = section.card;
+  // `card` picks another card of the same frozen file (a lane B card); the section's own card is lane A.
+  const c = card ?? section.card;
   if (!c) return none(String(section.state ?? "NO_CARD").toUpperCase(), section.reason ?? "no card");
   if (c.priced !== false || c.price != null || c.payout != null || c.status !== "MODEL_ONLY") return none("PRICED_CARD", "the card carries a price or payout; social cards print none");
   const legs = c.legs.map((l) => ({
