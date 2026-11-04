@@ -41,6 +41,9 @@ export function lanePriceDisplay(laneId, runs) {
           verification: pay.result === "VERIFIED" ? "VERIFIED" : pay.result === "PRELIMINARY" ? "PRELIMINARY" : "REFUSED",
           verificationLabel: pay.result === "PRELIMINARY" ? "PRELIMINARY — re-verified before posting" : null,
           capturedAt: price?.legs?.[0]?.fetchedAt ?? null, changedFromEarlier: pay.inputs.changedFromEarlier ?? null,
+          /* Identities, not prices: the odds snapshot and the chain events this day was computed from (parity checks). */
+          priceSnapshotSha256: pay.inputs.priceSnapshotSha256 ?? null, priceEventSha256: pay.inputs.priceEventSha256 ?? null,
+          cardEventSha256: pay.inputs.cardEventSha256 ?? null, payoutEventSha256: pay.sha256,
           book: pay.inputs.book, method: pay.inputs.method, estimate: pay.inputs.estimate === true, label: pay.inputs.label ?? null,
           legs: (price?.legs ?? []).map((l) => ({ legId: l.legId, selectionCode: l.selectionCode, oddsFormat: l.oddsFormat, price: l.price, line: l.line ?? null, fetchedAt: l.fetchedAt })),
           decimalPrice: pay.inputs.decimalPrice, pace: pay.inputs.pace, belowPace: pay.inputs.belowPace ?? null,

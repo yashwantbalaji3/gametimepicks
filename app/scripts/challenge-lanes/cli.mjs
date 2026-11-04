@@ -5,6 +5,7 @@
  *   node scripts/challenge-lanes/lanes-price.mjs     --root DIR --date D --post-at ISO --receipt docs/receipts/<file>.md [--apply] [--now ISO] [--public-out DIR]
  *                                                    --root DIR --date D --post-at ISO --snapshot FILE   (price from a private snapshot, no call)
  *                                                    --root DIR --date D --close-unpriced REASON         (close the day's unpriced cards)
+ *   any acting command also takes --lanes a,b (only those lanes; e.g. --close-unpriced REASON --lanes bb-b holds one lane)
  *   node scripts/challenge-lanes/lanes-display.mjs   --root DIR                                          (encrypted site prices; GTP_ODDS_DISPLAY_KEY)
  *   node scripts/challenge-lanes/lanes-reconcile.mjs --root DIR --date D [--finals FILE] [--public-out DIR]
  *
@@ -52,6 +53,12 @@ export async function main(command, argv = process.argv) {
   if (!ROOT) fail("--root DIR required (production: ~/gtp-private/challenge-lanes)");
   if (command !== "display" && !/^\d{4}-\d{2}-\d{2}$/.test(DATE ?? "")) fail("--date YYYY-MM-DD required");
   const root = path.resolve(ROOT);
+  /* --lanes a,b: act on these lanes only (price, close-unpriced, prepare, reconcile). It is how ONE lane is held by hand
+     (`--close-unpriced REASON --lanes bb-b`: a founder decision, or an Out ruling on a listed player). Display and the
+     public projections always cover every lane. */
+  const lanesArg = arg("--lanes");
+  const ACT = lanesArg == null ? LANE_IDS : lanesArg.split(",").map((x) => x.trim()).filter(Boolean);
+  if (!ACT.length || ACT.some((x) => !LANE_IDS.includes(x))) fail(`--lanes takes lane ids from ${LANE_IDS.join(",")}`);
   const report = { command, date: DATE, lanes: {} };
   const refusedAny = [];
 
@@ -75,7 +82,7 @@ export async function main(command, argv = process.argv) {
     const rel = path.relative(REPO, path.resolve(cardsFile));
     const selections = doc ? { "bank-builder": selectLaneCards(doc, "bank-builder"), moonshot: selectLaneCards(doc, "moonshot") } : null;
     const approvedBy = arg("--approved-by"); const restart = arg("--restart");
-    for (const laneId of LANE_IDS) {
+    for (const laneId of ACT) {
       let run = currentRun(root, laneId);
       if (!run || restart === laneId) {
         if (run && laneState(run.events).status !== STATUS.AWAITING_RESTART_APPROVAL) { report.lanes[laneId] = { action: "REFUSED", reason: "RESTART_NOT_AWAITED" }; refusedAny.push(laneId); continue; }
@@ -101,10 +108,10 @@ export async function main(command, argv = process.argv) {
     }
   } else if (command === "price") {
     const at = arg("--now") ?? new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
-    const open = Object.fromEntries(LANE_IDS.map((laneId) => { const run = currentRun(root, laneId); const s = run && laneState(run.events); return [laneId, s?.open?.date === DATE && !s.open.payoutEvent ? { run, card: s.open.cardEvent.card } : null]; }));
+    const open = Object.fromEntries(ACT.map((laneId) => { const run = currentRun(root, laneId); const s = run && laneState(run.events); return [laneId, s?.open?.date === DATE && !s.open.payoutEvent ? { run, card: s.open.cardEvent.card } : null]; }));
     const closeReason = arg("--close-unpriced");
     if (closeReason) {
-      for (const laneId of LANE_IDS) {
+      for (const laneId of ACT) {
         const run = currentRun(root, laneId);
         if (!run) { report.lanes[laneId] = { action: "SKIP", reason: "NO_RUN" }; continue; }
         const r = unpricedLane(run.events, { date: DATE, at, reason: `UNPRICED: ${closeReason}` });
@@ -142,7 +149,7 @@ export async function main(command, argv = process.argv) {
         }
         snapshot = cap.snapshot ?? null;
       }
-      for (const laneId of LANE_IDS) {
+      for (const laneId of ACT) {
         const o = open[laneId];
         if (!o) { report.lanes[laneId] = { action: "SKIP", reason: "NO_OPEN_CARD" }; continue; }
         if (!snapshot) { report.lanes[laneId] = { action: "NOT_PRICED", reason: "no snapshot this run; the card stays open" }; continue; }
@@ -176,7 +183,7 @@ export async function main(command, argv = process.argv) {
   } else if (command === "reconcile") {
     const finalsFile = arg("--finals", path.join(REPO, FINALS_RECORD));
     const finalsRecord = JSON.parse(fs.readFileSync(finalsFile, "utf8"));
-    for (const laneId of LANE_IDS) {
+    for (const laneId of ACT) {
       if (!currentRun(root, laneId)) { report.lanes[laneId] = { action: "SKIP", reason: "NO_RUN" }; continue; }
       ingest(laneId);
       const run = currentRun(root, laneId);

@@ -458,8 +458,12 @@ test("CLI replay: 11-02 cards, P1 stub, 11-03 (no slate), reconcile on the commi
   assert.deepEqual(Object.values(a.lanes).map((l) => l.action), ["CARD_FROZEN", "CARD_FROZEN", "CARD_FROZEN", "CARD_FROZEN"]);
   assert.equal(cli("price", ["--root", root, "--date", DATE, "--now", "2026-11-02T22:00:00Z"]).status, 2, "no --post-at: refused");
   assert.equal(cli("price", ["--root", root, "--date", DATE, "--post-at", "2026-11-02T23:00:00Z"]).status, 2, "no receipt: refused, nothing spent");
+  assert.equal(cli("price", ["--root", root, "--date", DATE, "--close-unpriced", "x", "--lanes", "bb-c"]).status, 2, "an unknown lane id is refused");
+  /* --lanes holds ONE lane by hand (a founder decision, or an Out ruling); the others stay open. */
+  const held = ok(cli("price", ["--root", root, "--date", DATE, "--now", "2026-11-02T21:00:00Z", "--close-unpriced", "founder hold test", "--lanes", "bb-b"]));
+  assert.deepEqual(Object.fromEntries(Object.entries(held.lanes).map(([k, l]) => [k, [l.action ?? null, l.status]])), { "bb-a": [null, "READY"], "bb-b": ["UNPRICED", "UNPRICED"], "ms-a": [null, "READY"], "ms-b": [null, "READY"] });
   const b = ok(cli("price", ["--root", root, "--date", DATE, "--now", "2026-11-02T22:00:00Z", "--close-unpriced", "replay: no price was captured on 11-02"]));
-  assert.deepEqual(Object.values(b.lanes).map((l) => l.action), ["UNPRICED", "UNPRICED", "UNPRICED", "UNPRICED"]);
+  assert.deepEqual(Object.values(b.lanes).map((l) => l.action), ["UNPRICED", "SKIP", "UNPRICED", "UNPRICED"], "the held lane is not closed twice");
   const c = ok(cli("prepare", ["--root", root, "--date", "2026-11-03", "--cards", path.join(root, "none.json"), "--now", "2026-11-03T11:00:00Z"]));
   assert.ok(Object.values(c.lanes).every((l) => l.action === "NO_ELIGIBLE_CARD"));
   const d = ok(cli("reconcile", ["--root", root, "--date", "2026-11-03", "--public-out", pub]));

@@ -258,6 +258,12 @@ test("PRELIMINARY early build: priced from an early snapshot, never staked; the 
   assert.equal(laneState(ev2).status, "IN_PLAY");
   const days = lanePriceDisplay("bb-a", [ev2]).runs[0].days;
   assert.deepEqual(days.map((d) => [d.verification, d.verificationLabel, d.capturedAt]), [["PRELIMINARY", "PRELIMINARY — re-verified before posting", "2026-11-02T05:22:01Z"], ["VERIFIED", null, "2026-11-02T22:30:05Z"]]);
+  /* Parity identities: each day names its own odds snapshot and chain events (never a price). */
+  const payouts = ev2.filter((e) => e.type === "PAYOUT_COMPUTED");
+  const prices = ev2.filter((e) => e.type === "PRICE_VERIFIED");
+  assert.deepEqual(days.map((d) => d.priceSnapshotSha256), prices.map((e) => e.price.priceSnapshotSha256));
+  assert.notEqual(days[0].priceSnapshotSha256, days[1].priceSnapshotSha256, "the early and the near-window snapshots differ");
+  assert.deepEqual(days.map((d) => [d.priceEventSha256, d.payoutEventSha256, d.cardEventSha256]), payouts.map((e) => [prices[payouts.indexOf(e)].sha256, e.sha256, ev2.find((x) => x.type === "CARD_FROZEN").sha256]));
   assert.equal(laneDisplay(laneProjection("bb-a", [ev2])).day.priceVerification, "VERIFIED");
 });
 const PRICE_TOO_EARLY_CHECK = (pre) => !(pre.payout.refusals ?? []).some((x) => x.code === "PRICE_TOO_EARLY");

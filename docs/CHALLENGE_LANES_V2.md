@@ -163,6 +163,8 @@ The prices come from the existing paid The Odds API subscription (`odds.mjs`), u
 - **Site reader and fold:** `readLanePrices({ appDir, laneId })` returns the decrypted prices, or null with no key, another key, no file, or NBA "site" display off (`lib/odds/display-authorization.mjs`). It throws on tampering. `pricedLaneDisplay(doc, prices)` (`display.mjs`) is `laneDisplay` with the withheld bankroll, distance, pace and per-day `price` filled in. It refuses prices whose `projectionSha256` is not this projection's `contentSha256`.
 - **Graphics** read the private run log (`store.mjs readRuns`) for the stake, prices, gross and profit. Prices on a social graphic also need the display record's NBA "social" surface, which is off today (`socialPricesAuthorized()`). Turning it on is a founder change to that record.
 
+Price display days (`gtp.challenge-lane.prices@1`, encrypted) also carry identities for parity checks, never prices: `priceSnapshotSha256`, `priceEventSha256`, `cardEventSha256`, `payoutEventSha256`.
+
 `price.legs[]` fields: `legId, selectionCode, provider, book, market, oddsFormat, price, outcomeName, line, providerEventId, eventId, playerId, fetchedAt, bookLastUpdate`.
 
 ## 5. Runbook (branch code; nothing is installed)
@@ -181,6 +183,7 @@ Run these from `app/`. Each CLI prints a JSON report and exits 1 if any lane was
    - With `--apply` (and `ODDS_API_KEY` and `GTP_PRIVATE_DATA_DIR` in the environment) it makes the one capture, then PRICE_VERIFIED + STAKE_SET + PAYOUT_COMPUTED for each open card. A refusal leaves the card open.
    - `--snapshot FILE` prices from an existing private snapshot, with no call.
    - `--close-unpriced "<reason>"` closes the day's still-unpriced cards as UNPRICED (HELD; no step consumed).
+   - `--lanes a,b` limits any acting command to those lanes. `--close-unpriced "<reason>" --lanes bb-b` holds one lane by hand: only on the founder's own decision, or on an Out ruling for a player listed on one of that lane's legs (report to the PD first: player, lane, status). The other lanes stay open, and a held lane is never priced or swapped later that day.
    - Then `lanes-display.mjs --root …` (with `GTP_ODDS_DISPLAY_KEY`) refreshes the encrypted site prices.
 3. Render, then the console approves and posts. The console writes POSTED into its inbox (§4).
 4. **Next morning:** `lanes-reconcile.mjs --root … --date D [--finals FILE] --public-out public/data/challenge-lanes`
