@@ -92,6 +92,8 @@ const CSS = `<style>
 .lg .fl i{flex:none;font:900 19px/1 var(--headline);font-style:normal;padding:4px 8px 2px;border-radius:6px;background:#FFD166;color:#050706;letter-spacing:1px}
 .lg .fl span{min-width:0;overflow:hidden}
 .bv-legs.d{gap:7px}.bv-legs.d .lg{padding:5px 18px;gap:3px 12px}.bv-legs.d .nm{font-size:36px}.bv-legs.d .n{font-size:38px}.bv-legs.d .pv{font-size:44px;margin-top:1px}.bv-legs.d .mt{font-size:19px;margin-top:3px}.bv-legs.d .tg{font-size:19px}.bv-legs.d .pk{font-size:14px}.bv-legs.d .pm{font-size:16px;margin-top:0}.bv-legs.d .fl{font-size:21px}
+.bv-legs.d5{gap:5px;margin-top:10px}.bv-legs.d5 .lg{padding:4px 16px;gap:2px 10px;grid-template-columns:48px 1fr 230px}.bv-legs.d5 .nm{font-size:31px}.bv-legs.d5 .n{font-size:32px}.bv-legs.d5 .pv{font-size:36px;margin-top:0}.bv-legs.d5 .pk{font-size:12px}.bv-legs.d5 .pm{display:none}.bv-legs.d5 .mt{font-size:17px;margin-top:2px;gap:8px}.bv-legs.d5 .tg,.bv-legs.d5 .od,.bv-legs.d5 .ln{font-size:16px;padding:3px 6px 2px}.bv-legs.d5 .fl{font-size:20px}.bv-legs.d5 .fl i{font-size:16px}
+.bv.n5 .bv-hero{font-size:84px}.bv.n5 .bv-sub{font-size:22px;margin-top:4px}.bv.n5 .bv-lad{margin-top:8px}.bv.n5 .bv-bank{margin-top:8px}.bv.n5 .bv-bank .v{font-size:36px}.bv.n5 .bv-bank .tr .v{font-size:40px}.bv.n5 .bv-pace{margin-top:6px;font-size:19px}.bv.n5 .bv-money{margin-top:8px}.bv.n5 .bv-money .v{font-size:36px}.bv.n5 .bv-src{margin-top:6px}
 .bv.bb .bv-legs{gap:20px}.bv.bb .lg{padding:30px 26px}.bv.bb .nm{font-size:60px}.bv.bb .pv{font-size:76px}.bv.bb .mt{margin-top:10px}
 .bv-stat{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;margin-top:18px;text-align:center}
 .bv-stat .k{font:900 50px/1.05 var(--headline);letter-spacing:3px;text-transform:uppercase;color:#F7F7F2;padding:18px 28px 14px;border-radius:18px;border:2px solid rgba(255,255,255,.2);background:rgba(5,8,6,.7)}
@@ -153,6 +155,9 @@ function legHtml(cells, l, i, outcome, price = null) {
   return `<div class="lg" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit>${cell(cells, `${k}.name`, who)}</span><div class="mt"><span class="tg">${cell(cells, `${k}.team`, t.abbr)}</span>${cell(cells, `${k}.game`, `${vs} · ${tipText(l.tipUtc)}`)}${line}${odds}${oc}</div></div><div class="pj"><span class="pk">${esc(winner ? WIN_LABEL : MODEL_LABEL)}</span>${cell(cells, `${k}.proj`, l.projectionText, "pv")}<span class="pm">${cell(cells, `${k}.market`, winner ? "to win" : l.kind === "PLAYER_PROP" ? `${l.marketLabel} chance` : l.marketLabel)}</span></div>${flag}</div>`;
 }
 
+/** Leg-area density: two legs roomy, three or four compact, five or more (Moonshot rev. 2) tighter still. */
+const legClass = (n) => (n >= 5 ? " d d5" : n > 2 ? " d" : "");
+
 function ladderHtml(cells, v) {
   const parts = [];
   v.rungs.forEach((r, i) => {
@@ -212,7 +217,7 @@ export function bbmCard(view, combo = null, { testData = false } = {}) {
     if (!combo) throw new Error(`${view.laneId}: a CARD view needs its resolved legs`);
     hero = `<div class="bv-hero">STEP <b>${cell(cells, "step", String(view.step))}</b> OF ${cell(cells, "steps", String(view.steps))}</div>`;
     sub = `${cell(cells, "legs", `${combo.legs.length} legs`)} · ${esc(MODEL_LABEL)}${ms ? ` · ${cell(cells, "risk", "Longshot")}` : ""}`;
-    middle = `<div class="bv-legs${combo.legs.length > 2 ? " d" : ""}">${combo.legs.map((l, i) => legHtml(cells, l, i, null, view.payout?.legs?.[l.legId] ?? null)).join("")}</div>`;
+    middle = `<div class="bv-legs${legClass(combo.legs.length)}">${combo.legs.map((l, i) => legHtml(cells, l, i, null, view.payout?.legs?.[l.legId] ?? null)).join("")}</div>`;
     if (view.payout) {
       // Combined price: one book's leg product, or (same game) an estimate that is never a book's offer (SPEC §7).
       const am = american(view.payout.combinedAmerican);
@@ -228,12 +233,12 @@ export function bbmCard(view, combo = null, { testData = false } = {}) {
     sub = `${esc(lane)} · RUN ${esc(String(view.runId).replace(/^run-/, ""))}`;
     const outs = Object.fromEntries((view.legResults ?? []).map((r) => [r.legId, r.outcome]));
     moneyBlock = statusMoneyHtml(cells, view);
-    middle = combo ? `<div class="bv-legs${combo.legs.length > 2 ? " d" : ""}">${combo.legs.map((l, i) => legHtml(cells, l, i, outs[l.legId] ?? "PENDING")).join("")}</div>` : `<div class="bv-stat"><div class="k">${cell(cells, "status.note", "Lane busted")}</div></div>`;
+    middle = combo ? `<div class="bv-legs${legClass(combo.legs.length)}">${combo.legs.map((l, i) => legHtml(cells, l, i, outs[l.legId] ?? "PENDING")).join("")}</div>` : `<div class="bv-stat"><div class="k">${cell(cells, "status.note", "Lane busted")}</div></div>`;
   } else if (view.view === VIEW.WON) {
     hero = `<div class="bv-hero s">${cell(cells, "status", `STEP ${view.step} OF ${view.steps} WON`)}</div>`;
     sub = cell(cells, "status.step", view.step < view.steps ? `STEP ${view.step + 1} IS NEXT` : "LADDER COMPLETE");
     const outs = Object.fromEntries((view.legResults ?? []).map((r) => [r.legId, r.outcome]));
-    middle = `<div class="bv-legs${combo.legs.length > 2 ? " d" : ""}">${combo.legs.map((l, i) => legHtml(cells, l, i, outs[l.legId] ?? "PENDING")).join("")}</div>`;
+    middle = `<div class="bv-legs${legClass(combo.legs.length)}">${combo.legs.map((l, i) => legHtml(cells, l, i, outs[l.legId] ?? "PENDING")).join("")}</div>`;
     moneyBlock = statusMoneyHtml(cells, view);
   } else if (view.view === VIEW.NO_ELIGIBLE_CARD) {
     hero = `<div class="bv-hero s">${cell(cells, "status", "NO QUALIFYING CARD TODAY")}</div>`;
@@ -246,7 +251,7 @@ export function bbmCard(view, combo = null, { testData = false } = {}) {
     sub = cell(cells, "status.step", `${view.cleared} OF ${view.steps} STEPS WON`);
     middle = `<div class="bv-stat"><div class="k">${cell(cells, "status.note", view.bankrollCents == null ? `Tracked bankroll withheld until verified prices` : `${cents(view.bankrollCents)} of ${cents(view.targetCents)}`)}</div><div class="c">${cell(cells, "status.rule", done ? "Tracked bankroll reached the goal." : "Five steps won below the goal. The founder decides what follows.")}</div></div>`;
   } else throw new Error(`${view.laneId}: no graphic for view ${view.view}`);
-  const body = `${CSS}${ms ? '<div class="bv-burst"></div>' : ""}<div class="bv ${P.cls}" style="--acc:${P.acc};--acc2:${P.acc2}">
+  const body = `${CSS}${ms ? '<div class="bv-burst"></div>' : ""}<div class="bv ${P.cls}${(combo?.legs.length ?? 0) >= 5 ? " n5" : ""}" style="--acc:${P.acc};--acc2:${P.acc2}">
 <div class="bv-top"><span class="p">${esc(P.name)}</span><span class="l">${esc(lane)}</span>${cell(cells, "badge", view.badge, `bd ${String(view.badge).split(" ")[0]}`)}</div>
 ${hero}<div class="bv-sub">${sub}</div>
 ${ladderHtml(cells, view)}${bankHtml(cells, view)}${paceHtml(cells, view)}${middle}${moneyBlock}</div>`;

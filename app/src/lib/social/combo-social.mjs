@@ -78,7 +78,7 @@ export const targetText = (t) => (t.direction === "AT_LEAST" ? `${t.value}+` : `
  * @param {object} doc     the combo document
  * @param {{ lane: object, laneSha256: string, asOf: string, roster?: object|null }} ctx
  */
-export function comboViolations(doc, { lane, laneSha256, asOf, roster = null }) {
+export function comboViolations(doc, { lane, laneSha256, asOf, roster = null, legRules = null }) {
   const v = [];
   if (doc?.schema !== SOCIAL_COMBO_SCHEMA) return [`schema ${doc?.schema}`];
   if (!COMBO_PRODUCTS.includes(doc.product)) return [`product ${doc.product}`];
@@ -92,8 +92,11 @@ export function comboViolations(doc, { lane, laneSha256, asOf, roster = null }) 
   if (doc.source?.lane?.sha256 !== laneSha256) v.push("source.lane.sha256 is not the committed lane");
   const c = doc.combination;
   const legs = c?.legs ?? [];
-  if (legs.length < policy.minLegs || legs.length > policy.maxLegs) v.push(`${legs.length} legs; ${policy.label} takes ${policy.minLegs}${policy.maxLegs > policy.minLegs ? ` to ${policy.maxLegs}` : ""}`);
-  if (c?.risk?.tier !== RISK_TIER[doc.product]) v.push(`risk tier ${c?.risk?.tier} is not ${RISK_TIER[doc.product]}`);
+  // Leg count and tier: the daily-candidates policy by default; the challenge lanes (SPEC rev. 2) pass their own rules,
+  // since there the engine selects the card and the only hard limits are its leg counts (Bank Builder at most 2).
+  const rules = legRules ?? { minLegs: policy.minLegs, maxLegs: policy.maxLegs, tier: RISK_TIER[doc.product] };
+  if (legs.length < rules.minLegs || legs.length > rules.maxLegs) v.push(`${legs.length} legs; ${policy.label} takes ${rules.minLegs}${rules.maxLegs > rules.minLegs ? ` to ${rules.maxLegs}` : ""}`);
+  if (rules.tier && c?.risk?.tier !== rules.tier) v.push(`risk tier ${c?.risk?.tier} is not ${rules.tier}`);
   if (!Object.values(PRICING_STATE).includes(c?.pricing?.state)) v.push(`pricing state ${c?.pricing?.state}`);
   if (c?.pricing && Object.keys(c.pricing).some((k) => k !== "state")) v.push("pricing carries more than its state: a social combo never holds a price");
   for (const [what, key] of [["game", (l) => l.eventId], ["team", (l) => l.team], ["player", (l) => l.player?.id]]) {

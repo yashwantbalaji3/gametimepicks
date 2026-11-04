@@ -112,7 +112,9 @@ export function prepareLane({ doc, date, slate, roster, asOf, testData = false, 
     if (error) return refuse(error);
     // CARD: every check at the render instant against the render-time roster. WON / BUSTED: the record as frozen (its own instant).
     const doc2 = comboFromSuggestedCards(s.file, view.product, { card, testData });
-    try { combo = resolveCombo(doc2, view.view === VIEW.CARD ? { lane: s.lane, laneSha256: s.laneSha256, asOf, roster } : { lane: s.lane, laneSha256: s.laneSha256, asOf: view.card.evaluatedAt, roster: null }); } catch (e) { return refuse(e.message); }
+    // SPEC rev. 2 §1: the engine selects the lane card; Bank Builder takes at most 2 legs, Moonshot at least 2 (no tier rule).
+    const legRules = { minLegs: view.product === "moonshot" ? 2 : 1, maxLegs: BBM_LANES[laneId].maxLegs ?? Infinity, tier: null };
+    try { combo = resolveCombo(doc2, view.view === VIEW.CARD ? { lane: s.lane, laneSha256: s.laneSha256, asOf, roster, legRules } : { lane: s.lane, laneSha256: s.laneSha256, asOf: view.card.evaluatedAt, roster: null, legRules }); } catch (e) { return refuse(e.message); }
     const max = BBM_LANES[laneId].maxLegs;
     if (max != null && combo.legs.length > max) return refuse(`${combo.legs.length} legs: ${laneId} takes at most ${max} (SPEC rev. 2 §1, hard)`);
     // A sample line rides only with the labelled fixture price.
