@@ -192,7 +192,7 @@ function parity(m) {
   else c.legs.forEach((l, i) => Object.assign(want, isMoneyline(l) ? { [`leg${i + 1}.team`]: m.model.legs[i].team.abbr, [`leg${i + 1}.odds`]: american(l.price), ...(m.model.legs[i].level === "A" ? { [`leg${i + 1}.proj`]: m.model.legs[i].projectionText } : { [`leg${i + 1}.evidence`]: m.model.legs[i].evidenceText }) } : { [`leg${i + 1}.name`]: l.player.name, [`leg${i + 1}.odds`]: american(l.price), [`leg${i + 1}.line`]: m.model.legs[i].lineText, [`leg${i + 1}.evidence`]: evidenceLine(l) }));
   for (const [k, v] of Object.entries(want)) if (cells[k] !== v) mis.push(`${k}: printed ${cells[k]} record ${v}`);
   if (c.classification === "LEVEL_B" && Object.keys(cells).some((k) => /\.proj$/.test(k))) mis.push("a Level B card with a probability row");
-  if ("price.verified" in cells && c.priceEventSha256 == null) mis.push("VERIFIED on an unverified price");
+  if (("price.verified" in cells) !== (CLEAN ? verifiedMarkOf(c) : c.priceEventSha256 != null)) mis.push("the verified mark does not match the record's price verification");
   return mis;
 }
 

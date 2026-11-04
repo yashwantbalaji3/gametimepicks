@@ -143,7 +143,7 @@ function cleanLeg(cells, l, i, ctx) {
   const rec = l.recordText ? `<div class="rec">${cell(cells, `${k}.record`, l.recordText)}</div>` : "";
   if (l.kind === "PROP") {
     const [dir, ...rest] = String(l.lineWords).split(" ");
-    return `<div class="leg clean prop" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit>${cell(cells, `${k}.name`, l.player.name)}</span><div class="dir"><b class="${dir.toLowerCase()}">${esc(dir)}</b> ${cell(cells, `${k}.line`, rest.join(" "))}</div><div class="mt">${cell(cells, `${k}.game`, `${l.gameLabel} | ${tipText(l.tipUtc)}`)}<span class="bar">|</span>${odds}</div>${rec}</div></div>`;
+    return `<div class="leg clean prop" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit>${cell(cells, `${k}.name`, l.player.name)}</span><div class="dir">${cell(cells, `${k}.dir`, dir, dir.toLowerCase())} ${cell(cells, `${k}.line`, rest.join(" "))}</div><div class="mt">${cell(cells, `${k}.game`, `${l.gameLabel} | ${tipText(l.tipUtc)}`)}<span class="bar">|</span>${odds}</div>${rec}</div></div>`;
   }
   return `<div class="leg clean ml" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit><span class="selt">${cell(cells, `${k}.name`, l.team.name)}</span> ML</span><div class="vs">${cell(cells, `${k}.opp`, `${l.home ? "vs" : "at"} ${l.opponent.name ?? l.opponent.abbr}`)}</div><div class="mt">${cell(cells, `${k}.game`, tipText(l.tipUtc))}<span class="bar">|</span>${odds}</div>${rec}</div></div>`;
 }
@@ -292,11 +292,13 @@ const CLEAN_CSS = `<style>
 .v5.clean .leg.clean .nm .selt{color:var(--neon);-webkit-text-stroke:1px rgba(0,0,0,.6)}
 .v5.clean .leg.clean .vs{font:800 26px/1.1 var(--display);color:#FFFFFF;text-shadow:0 1px 2px #000}
 .v5.clean .leg.clean .dir{font:900 34px/1.05 var(--headline);color:#FFFFFF;text-transform:uppercase;text-shadow:0 2px 0 #000}
-.v5.clean .leg.clean .dir b.over{color:var(--neon)}.v5.clean .leg.clean .dir b.under{color:#5FD3FF}
+.v5.clean .leg.clean .dir .over{color:var(--neon)}.v5.clean .leg.clean .dir .under{color:#5FD3FF}
 .v5.clean .leg.clean .mt{gap:12px;font:800 24px/1 var(--display);color:#FFFFFF;text-shadow:0 1px 2px #000}
 .v5.clean .leg.clean .mt .bar{color:rgba(255,255,255,.55)}
 .v5.clean .leg.clean .chip.odds{font:900 28px/1 var(--display);padding:6px 12px 4px;background:#FFFFFF;color:#050706;letter-spacing:1px}
 .v5.clean .leg.clean .rec{font:800 22px/1.15 var(--display);color:#FFE27A;text-shadow:0 1px 2px #000;white-space:nowrap}
+.v5.clean .legs5>.leg.clean:not(:only-child){padding:10px 20px 9px}.v5.clean .legs5>.leg.clean:not(:only-child) .nm{font-size:36px}.v5.clean .legs5>.leg.clean:not(:only-child) .who{gap:4px}.v5.clean .legs5>.leg.clean:not(:only-child) .vs{font-size:22px}.v5.clean .legs5>.leg.clean:not(:only-child) .mt{font-size:21px}.v5.clean .legs5>.leg.clean:not(:only-child) .chip.odds{font-size:24px;padding:4px 10px 3px}.v5.clean .legs5>.leg.clean:not(:only-child) .rec{font-size:19px}.v5.clean .legs5>.leg.clean:not(:only-child) .n{font-size:54px}
+.v5.clean:has(.leg.clean:nth-child(2)) .legs5{margin-top:22px;gap:12px}.v5.clean:has(.leg.clean:nth-child(2)) .tgt5{margin-top:14px;padding:8px 22px 6px}
 .v5.clean .legs5>.leg.clean:only-child{min-height:0;padding:22px 26px 20px}.v5.clean .legs5>.leg.clean:only-child .nm{font-size:52px}
 .v5.clean .tgt5{margin-top:20px;align-self:center;display:flex;align-items:center;gap:16px;padding:10px 24px 8px;border-radius:999px;border:2px solid var(--neon);background:rgba(0,0,0,.85);white-space:nowrap}
 .v5.clean .tgt5 span{font:800 22px/1 var(--display);letter-spacing:2px;text-transform:uppercase;color:#FFFFFF}
@@ -410,7 +412,7 @@ export function verifyBbmCardV6(card) {
   if (card.view === VIEW.NO_ELIGIBLE_CARD && Object.keys(got).some((k) => /^price\.|^money\.(payout|profit)|^leg\d|^plan\./.test(k))) e.push("a held card carries a pick or a price");
   // A hit rate is research evidence, never a probability: no "%" in any evidence cell.
   for (const [k, v] of Object.entries(got)) if (/\.(evidence|evidenceBig)$/.test(k) && /%/.test(v)) e.push(`${k}: a hit rate shown as a percentage`);
-  const priceCells = Object.entries(got).filter(([k]) => /\.(odds|line)$|^price\.|^plan\.mult$/.test(k));
+  const priceCells = Object.entries(got).filter(([k]) => /\.(odds|line|dir)$|^price\.|^plan\.mult$/.test(k));
   let shown = text; for (const [, v] of priceCells) shown = shown.split(v).join(" ");
   shown = shown.replace(/Combined odds \((leg product|estimate|book-quoted parlay)\)|Selection odds/gi, " ").replace(SAMPLE_PRICE_RIBBON, " ");
   if (PRICE_TEXT.test(shown)) e.push(`price text outside its cells: ${shown.match(PRICE_TEXT)[0]}`);
