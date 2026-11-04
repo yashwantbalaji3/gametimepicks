@@ -131,6 +131,22 @@ export function legSignals(leg, { params = null, now } = {}) {
      tonight's expected lineup (wider when relevant games are few), not the lineup-blind one. */
   const ctxl = research ? leg.lineup?.contextual ?? null : null;
   const A = { longestN: longest, windows: w.map((x) => x.text), shrunkRate: ctxl?.primary?.rate ?? leg.hitRate?.shrunk?.rate ?? null, nEffective: ctxl?.primary?.nEff ?? leg.hitRate?.shrunk?.nEffective ?? null, basis: ctxl ? "contextual (lineup-pooled)" : "lineup-blind", interval95: ctxl?.primary?.interval95 ?? leg.hitRate?.shrunk?.interval95 ?? null };
+  /* RESEARCH moneylines (founder ~20:18Z): team evidence plus market context, never a probability. Blockers: the model
+     side and the no-vig favourite disagree, or no W-L evidence. The small samples and roster turnover are disclosed. */
+  if (research && leg.family === "winner") {
+    const nv = leg.hitRate?.shrunk?.marketNoVig;
+    const A = { longestN: longest, windows: w.map((x) => x.text), shrunkRate: null, nEffective: null, basis: "moneyline research (no probability)", marketNoVig: nv ?? null };
+    if (!w.length) r.push(`A_NO_EVIDENCE ${leg.legId}: no W-L windows`);
+    if (!leg.eloSide || leg.eloSide !== leg.side) r.push(`ML_NOT_MODEL_SIDE ${leg.legId}`);
+    if (!(typeof nv === "number" && nv > 0.5)) r.push(`ML_MARKET_DISAGREES ${leg.legId}: the no-vig favourite is the opponent`);
+    if (longest < 20) f.push(`ML_SMALL_SAMPLE ${leg.legId}: W-L windows n ≤ ${longest}; no fitted shrinkage`);
+    if (leg.roster && leg.roster.stable === false) f.push(`ML_ROSTER_TURNOVER ${leg.legId}`);
+    for (const k of leg.injury?.keyPlayers ?? []) f.push(`ML_KEY_${/out/i.test(k.status) ? "OUT" : "DTD"} ${leg.legId}: ${k.name} ${k.status}`);
+    const D = { ok: leg.dataQuality?.ok ?? null, issues: leg.dataQuality?.issues ?? [] };
+    if (D.ok !== true) r.push(`D_DATA_QUALITY ${leg.legId}`);
+    if (!(Date.parse(leg.startUtc) > Date.parse(now))) r.push(`STARTED ${leg.legId}`);
+    return { signals: { A, B: { stable: null, gamesPlayed: null, minutesCv: null }, C: { status: null }, D, F: { validated: false, note: "Elo is uncalibrated; no probability" } }, reasons: r, flags: f };
+  }
   if (!w.length) r.push(`A_NO_EVIDENCE ${leg.legId}: no hit-rate windows`);
   else if (longest < P("minLongestWindowN", params)) r.push(`A_SMALL_SAMPLE ${leg.legId}: longest window n ${longest} < ${P("minLongestWindowN", params)}`);
   if (!(typeof A.shrunkRate === "number")) r.push(`A_NO_SHRUNK_RATE ${leg.legId}`);
