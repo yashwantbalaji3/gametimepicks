@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-04T17:08:16Z",
- "sourceGeneratedAt": "2026-11-04T17:08:16Z",
+ "generatedAt": "2026-11-04T20:54:00Z",
+ "sourceGeneratedAt": "2026-11-04T20:54:00Z",
  "forecastInputHash": "6306826c23143a9f",
  "providerEventId": "401873045",
  "matchup": "NYJ @ KC",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-04T17:08:16Z",
-  "roleEvidenceAt": "2026-11-04T17:08:16Z",
+  "injuriesCapturedAt": "2026-11-04T20:54:00Z",
+  "roleEvidenceAt": "2026-11-04T20:54:00Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -50,23 +50,6 @@
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
     "pools": [
-     {
-      "team": "NYJ",
-      "pool": "targets",
-      "originalSum": 1.1022,
-      "normalizedSum": 1,
-      "factor": 0.9073,
-      "playerIds": [
-       "nfl-athlete-4569618",
-       "nfl-athlete-4597500",
-       "nfl-athlete-4808766",
-       "nfl-athlete-5083315",
-       "nfl-athlete-4723820",
-       "nfl-athlete-4685247",
-       "nfl-athlete-4569371",
-       "nfl-athlete-3134353"
-      ]
-     },
      {
       "team": "KC",
       "pool": "targets",
@@ -223,7 +206,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4597500",
@@ -468,19 +451,6 @@
   ],
   "pools": [
    {
-    "team": "NYJ",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 1,
-    "originalSum": 1.1022,
-    "residualOther": 0,
-    "joined": 8,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
-   {
     "team": "KC",
     "pool": "targets",
     "markets": [
@@ -516,6 +486,19 @@
     "originalSum": 0.9977,
     "residualOther": 0.0023,
     "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "NYJ",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.8248,
+    "originalSum": 0.8248,
+    "residualOther": 0.1752,
+    "joined": 7,
     "missed": 0,
     "state": "CONSERVED"
    }
@@ -591,16 +574,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.1347,
+     "mean": 2.3529,
      "p10": 0,
-     "p25": 0.9073,
-     "median": 1.8146,
-     "p75": 2.7218,
-     "p90": 4.5364,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9073
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -652,7 +631,7 @@
    "playerId": "nfl-athlete-4569618",
    "name": "Garrett Wilson",
    "team": "NYJ",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 50.195,
@@ -664,16 +643,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 5.0723,
-     "p10": 1.8146,
-     "p25": 2.7218,
-     "median": 4.5364,
-     "p75": 7.2582,
-     "p90": 9.0728,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9073
-     },
+     "mean": 5.5907,
+     "p10": 2,
+     "p25": 3,
+     "median": 5,
+     "p75": 8,
+     "p90": 10,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -732,16 +707,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.6999,
-     "p10": 0.9073,
-     "p25": 1.8146,
-     "median": 3.6291,
-     "p75": 5.4437,
-     "p90": 7.2582,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9073
-     },
+     "mean": 4.078,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 8,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -834,16 +805,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.918,
-     "p10": 0.9073,
-     "p25": 0.9073,
-     "median": 2.7218,
-     "p75": 4.5364,
-     "p90": 5.4437,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9073
-     },
+     "mean": 3.2162,
+     "p10": 1,
+     "p25": 1,
+     "median": 3,
+     "p75": 5,
+     "p90": 6,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -902,16 +869,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.2673,
+     "mean": 2.499,
      "p10": 0,
-     "p25": 0.9073,
-     "median": 1.8146,
-     "p75": 3.6291,
-     "p90": 4.5364,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9073
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -979,16 +942,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.9867,
+     "mean": 2.1897,
      "p10": 0,
-     "p25": 0.9073,
-     "median": 1.8146,
-     "p75": 2.7218,
-     "p90": 4.5364,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9073
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1038,16 +997,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_receptions": {
-     "mean": 1.2406,
+     "mean": 1.3674,
      "p10": 0,
      "p25": 0,
-     "median": 0.9073,
-     "p75": 1.8146,
-     "p90": 2.7218,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9073
-     },
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1123,16 +1078,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.1153,
+     "mean": 1.2293,
      "p10": 0,
      "p25": 0,
-     "median": 0.9073,
-     "p75": 1.8146,
-     "p90": 2.7218,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9073
-     },
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {

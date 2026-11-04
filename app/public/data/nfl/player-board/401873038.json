@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-04T17:08:16Z",
- "sourceGeneratedAt": "2026-11-04T17:08:16Z",
+ "generatedAt": "2026-11-04T20:54:00Z",
+ "sourceGeneratedAt": "2026-11-04T20:54:00Z",
  "forecastInputHash": "03d060796095de42",
  "providerEventId": "401873038",
  "matchup": "CIN @ ATL",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-04T17:08:16Z",
-  "roleEvidenceAt": "2026-11-04T17:08:16Z",
+  "injuriesCapturedAt": "2026-11-04T20:54:00Z",
+  "roleEvidenceAt": "2026-11-04T20:54:00Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -94,8 +94,13 @@
  },
  "arrivalsShadowed": 0,
  "departedFiltered": 0,
- "practiceSquadFiltered": 1,
+ "practiceSquadFiltered": 3,
  "practiceSquadFilteredPlayers": [
+  {
+   "playerId": "nfl-athlete-4035886",
+   "name": "Khalil Herbert",
+   "team": "ATL"
+  },
   {
    "playerId": "nfl-athlete-4429012",
    "name": "Kendall Milton",
@@ -115,7 +120,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 49,
+  "absent": 47,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -247,9 +252,9 @@
   },
   "ATL": {
    "counts": {
-    "PROJECTED": 10,
+    "PROJECTED": 9,
     "EXCLUDED_UNAVAILABLE": 1,
-    "EXCLUDED_NO_CURRENT_ROLE": 1,
+    "EXCLUDED_NO_CURRENT_ROLE": 2,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
@@ -322,16 +327,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4035886",
-     "name": "Khalil Herbert",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
      "playerId": "nfl-athlete-3917914",
      "name": "Olamide Zaccheaus",
      "state": "PROJECTED",
@@ -378,6 +373,12 @@
      "name": "Cooper Rush",
      "state": "EXCLUDED_NO_CURRENT_ROLE",
      "reason": "not on ATL's current roster"
+    },
+    {
+     "playerId": "nfl-athlete-4035886",
+     "name": "Khalil Herbert",
+     "state": "EXCLUDED_NO_CURRENT_ROLE",
+     "reason": "on ATL's practice squad — no game-day elevation source"
     }
    ]
   }
@@ -835,27 +836,6 @@
     },
     "anytime_td": {
      "probability": 0.1347,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4035886",
-   "name": "Khalil Herbert",
-   "team": "ATL",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 8.929,
-     "p10": 0,
-     "p25": 0,
-     "median": 3.96,
-     "p75": 13.27,
-     "p90": 25.5,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1322,
      "pricingState": "NOT_PROBED"
     }
    }

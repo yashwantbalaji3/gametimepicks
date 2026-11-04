@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-04T17:08:16Z",
- "sourceGeneratedAt": "2026-11-04T17:08:16Z",
+ "generatedAt": "2026-11-04T20:54:00Z",
+ "sourceGeneratedAt": "2026-11-04T20:54:00Z",
  "forecastInputHash": "bc7e6caa3812a8c0",
  "providerEventId": "401873044",
  "matchup": "NYG @ PHI",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-04T17:08:16Z",
-  "roleEvidenceAt": "2026-11-04T17:08:16Z",
+  "injuriesCapturedAt": "2026-11-04T20:54:00Z",
+  "roleEvidenceAt": "2026-11-04T20:54:00Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -103,8 +103,14 @@
  },
  "arrivalsShadowed": 0,
  "departedFiltered": 0,
- "practiceSquadFiltered": 0,
- "practiceSquadFilteredPlayers": [],
+ "practiceSquadFiltered": 2,
+ "practiceSquadFilteredPlayers": [
+  {
+   "playerId": "nfl-athlete-4241555",
+   "name": "Elijah Mitchell",
+   "team": "PHI"
+  }
+ ],
  "shareLevel": {
   "markets": [
    "anytime_td",
@@ -118,7 +124,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 68,
+  "absent": 64,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -293,9 +299,9 @@
   },
   "PHI": {
    "counts": {
-    "PROJECTED": 14,
+    "PROJECTED": 13,
     "EXCLUDED_UNAVAILABLE": 1,
-    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
@@ -358,18 +364,6 @@
       "anytime_td",
       "player_reception_yds",
       "player_receptions"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4241555",
-     "name": "Elijah Mitchell",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions",
-      "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
@@ -463,6 +457,12 @@
      "name": "Dameon Pierce",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-4241555",
+     "name": "Elijah Mitchell",
+     "state": "EXCLUDED_NO_CURRENT_ROLE",
+     "reason": "on PHI's practice squad — no game-day elevation source"
     }
    ]
   }
@@ -540,19 +540,6 @@
   ],
   "pools": [
    {
-    "team": "PHI",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.9892,
-    "originalSum": 0.9892,
-    "residualOther": 0.0108,
-    "joined": 9,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
     "team": "NYG",
     "pool": "targets",
     "markets": [
@@ -575,6 +562,19 @@
     "originalSum": 0.8973,
     "residualOther": 0.1027,
     "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "PHI",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.832,
+    "originalSum": 0.832,
+    "residualOther": 0.168,
+    "joined": 8,
     "missed": 0,
     "state": "CONSERVED"
    }
@@ -737,45 +737,6 @@
     },
     "anytime_td": {
      "probability": 0.333,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4241555",
-   "name": "Elijah Mitchell",
-   "team": "PHI",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 13.528,
-     "p10": 0,
-     "p25": 1.94,
-     "median": 8.76,
-     "p75": 20.26,
-     "p90": 33.48,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_reception_yds": {
-     "mean": 15.932,
-     "p10": 0,
-     "p25": 0.88,
-     "median": 10.67,
-     "p75": 24.24,
-     "p90": 40.5,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 3.4446,
-     "p10": 1,
-     "p25": 2,
-     "median": 3,
-     "p75": 5,
-     "p90": 7,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.3299,
      "pricingState": "NOT_PROBED"
     }
    }

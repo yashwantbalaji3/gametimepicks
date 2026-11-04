@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-04T17:08:16Z",
- "sourceGeneratedAt": "2026-11-04T17:08:16Z",
- "forecastInputHash": "666cf549c0b6154a",
+ "generatedAt": "2026-11-04T20:54:00Z",
+ "sourceGeneratedAt": "2026-11-04T20:54:00Z",
+ "forecastInputHash": "23c98f0574080dfe",
  "providerEventId": "401873048",
  "matchup": "ARI @ SEA",
  "kickoffUtc": "2026-11-08T21:25Z",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-04T17:08:16Z",
-  "roleEvidenceAt": "2026-11-04T17:08:16Z",
+  "injuriesCapturedAt": "2026-11-04T20:54:00Z",
+  "roleEvidenceAt": "2026-11-04T20:54:00Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -31,6 +31,13 @@
      "name": "Gardner Minshew",
      "share": 0.5,
      "reason": "withheld for Gardner Minshew (ARI): his modelled share of ARI's pass attempts is 0.50, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+    },
+    {
+     "team": "SEA",
+     "playerId": "nfl-athlete-3924327",
+     "name": "Drew Lock",
+     "share": 0.696,
+     "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
     }
    ],
    "conservation": {
@@ -107,7 +114,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 54,
+  "absent": 52,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -246,8 +253,8 @@
   },
   "SEA": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 1,
@@ -368,23 +375,19 @@
     {
      "playerId": "nfl-athlete-3912547",
      "name": "Sam Darnold",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_pass_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-3924327",
      "name": "Drew Lock",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
+     "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+       "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
       }
      ]
     }
@@ -413,21 +416,11 @@
    },
    {
     "team": "SEA",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-3912547",
-     "name": "Sam Darnold"
-    },
-    "snapshotAt": "2026-11-04T15:20:57Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-3924327",
-      "name": "Drew Lock"
-     }
-    ],
+    "state": "SINGLE_PASSER",
     "passers": [
-     "nfl-athlete-3912547"
-    ]
+     "nfl-athlete-3924327"
+    ],
+    "removed": []
    }
   ],
   "passerShareFloor": [
@@ -452,9 +445,17 @@
     "team": "SEA",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3912547"
+     "nfl-athlete-3924327"
     ],
-    "withheld": [],
+    "withheld": [
+     {
+      "team": "SEA",
+      "playerId": "nfl-athlete-3924327",
+      "name": "Drew Lock",
+      "share": 0.696,
+      "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     }
+    ],
     "unjoined": []
    }
   ],
@@ -469,19 +470,6 @@
     "originalSum": 0.9808,
     "residualOther": 0.0192,
     "joined": 8,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "SEA",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 0.9314,
-    "originalSum": 0.9314,
-    "residualOther": 0.0686,
-    "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
    },
@@ -1017,27 +1005,6 @@
     },
     "anytime_td": {
      "probability": 0.0703,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3912547",
-   "name": "Sam Darnold",
-   "team": "SEA",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_pass_yds": {
-     "mean": 215.2958,
-     "p10": 108.2287,
-     "p25": 147.7237,
-     "median": 202.134,
-     "p75": 268.586,
-     "p90": 339.3983,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.0509,
      "pricingState": "NOT_PROBED"
     }
    }
