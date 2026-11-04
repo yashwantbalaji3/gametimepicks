@@ -1,0 +1,1833 @@
+{
+ "fixture": true,
+ "fixtureNote": "TEST-ONLY. Engine replay sample for 2026-11-02 (claude/betting-engine-1104-02e05b @ 643543dcd8). Never rendered by a real page.",
+ "schema": "gtp.suggested-cards@1",
+ "productDay": "2026-11-02",
+ "evaluatedAt": "2026-11-02T12:00:00Z",
+ "label": "Model suggestion — paper only. No sportsbook price, no payout, not a bet.",
+ "pricing": {
+  "state": "MODEL_ONLY",
+  "note": "No fresh, permitted sportsbook odds are available, so every card is a model suggestion: no price, no payout, not a bet. Settles on the official final."
+ },
+ "sports": {
+  "mlb": {
+   "state": "no-games",
+   "reason": null,
+   "events": 0,
+   "legPool": {
+    "eligible": 0,
+    "tierable": 0,
+    "review": 0,
+    "refused": 0,
+    "byReason": {}
+   }
+  },
+  "nba": {
+   "state": "active",
+   "reason": null,
+   "events": 15,
+   "legPool": {
+    "eligible": 15,
+    "tierable": 15,
+    "review": 3,
+    "refused": 0,
+    "byReason": {}
+   },
+   "playerProjections": {
+    "total": 296,
+    "pass": 173,
+    "review": 8,
+    "blocked": 115
+   }
+  },
+  "epl": {
+   "state": "no-games",
+   "reason": null,
+   "events": 0,
+   "legPool": {
+    "eligible": 0,
+    "tierable": 0,
+    "review": 0,
+    "refused": 0,
+    "byReason": {}
+   }
+  },
+  "ligue-1": {
+   "state": "no-games",
+   "reason": null,
+   "events": 0,
+   "legPool": {
+    "eligible": 0,
+    "tierable": 0,
+    "review": 0,
+    "refused": 0,
+    "byReason": {}
+   }
+  },
+  "nfl": {
+   "state": "closed",
+   "reason": "No reader for the NFL official game forecast has been reviewed for Level A yet; NFL stays out until one is.",
+   "events": 0,
+   "legPool": {
+    "eligible": 0,
+    "tierable": 0,
+    "review": 0,
+    "refused": 0,
+    "byReason": {}
+   }
+  },
+  "ufc": {
+   "state": "closed",
+   "reason": "UFC has no independent official forecast: its moneyline is a de-vigged market price with a capped nudge.",
+   "events": 0,
+   "legPool": {
+    "eligible": 0,
+    "tierable": 0,
+    "review": 0,
+    "refused": 0,
+    "byReason": {}
+   }
+  }
+ },
+ "bankBuilder": {
+  "nba": {
+   "policy": "nba-game-winner-tiers@1/bank-builder",
+   "state": "model-only",
+   "card": {
+    "id": "f3f450cb27644b2a",
+    "policy": "nba-game-winner-tiers@1/bank-builder",
+    "scope": "nba",
+    "tier": "low",
+    "tierLabel": "Low Risk",
+    "sports": [
+     "nba"
+    ],
+    "legs": [
+     {
+      "legId": "nba:401909911:winner",
+      "sport": "nba",
+      "eventId": "401909911",
+      "eventLabel": "WSH @ ORL",
+      "startUtc": "2026-11-03T00:30Z",
+      "market": "winner",
+      "selection": {
+       "code": "home",
+       "label": "ORL (official side)"
+      },
+      "status": "MODEL_ONLY",
+      "probability": 0.8522,
+      "probabilityShown": "85%",
+      "forecast": {
+       "owner": "nba-official-composition@1",
+       "modelId": "nba-preseason-experimental-v0.1",
+       "stampedAt": "2026-11-02T05:57:53Z",
+       "ref": "app/public/data/nba/experimental-public/2026-11-02.json#401909911",
+       "receiptSha256": "8bb75c9f2588230799e25982f0fa9dbbfd106751571963211f6dda43130dc5bb"
+      },
+      "guard": {
+       "state": "pass",
+       "flags": [],
+       "flagText": [],
+       "rotationFlagged": [],
+       "outAtFreeze": [
+        {
+         "playerId": "4065654",
+         "name": "Jonathan Isaac",
+         "status": "Out"
+        },
+        {
+         "playerId": "4432165",
+         "name": "Jalen Suggs",
+         "status": "Out"
+        },
+        {
+         "playerId": "4432573",
+         "name": "Paolo Banchero",
+         "status": "Out"
+        },
+        {
+         "playerId": "5107251",
+         "name": "Izaiyah Nelson",
+         "status": "Out"
+        },
+        {
+         "playerId": "5214637",
+         "name": "Noah Penda",
+         "status": "Out"
+        }
+       ]
+      },
+      "settlement": {
+       "grader": "nba-settlement-contract",
+       "market": "moneyline",
+       "side": "home"
+      }
+     },
+     {
+      "legId": "nba:401909915:winner",
+      "sport": "nba",
+      "eventId": "401909915",
+      "eventLabel": "MIL @ MIN",
+      "startUtc": "2026-11-03T01:00Z",
+      "market": "winner",
+      "selection": {
+       "code": "home",
+       "label": "MIN (official side)"
+      },
+      "status": "MODEL_ONLY",
+      "probability": 0.7782,
+      "probabilityShown": "78%",
+      "forecast": {
+       "owner": "nba-official-composition@1",
+       "modelId": "nba-preseason-experimental-v0.1",
+       "stampedAt": "2026-11-02T05:57:53Z",
+       "ref": "app/public/data/nba/experimental-public/2026-11-02.json#401909915",
+       "receiptSha256": "fcbf84a20ccb6e1c5d3a6f38306b0cd62000e4491860a20782a194dd6c13fe24"
+      },
+      "guard": {
+       "state": "pass",
+       "flags": [],
+       "flagText": [],
+       "rotationFlagged": [],
+       "outAtFreeze": [
+        {
+         "playerId": "3934673",
+         "name": "Donte DiVincenzo",
+         "status": "Out"
+        },
+        {
+         "playerId": "4594268",
+         "name": "Anthony Edwards",
+         "status": "Out"
+        }
+       ]
+      },
+      "settlement": {
+       "grader": "nba-settlement-contract",
+       "market": "moneyline",
+       "side": "home"
+      }
+     }
+    ],
+    "jointProbability": 0.6632,
+    "jointShown": "66.3%",
+    "band": {
+     "tier": "low",
+     "rule": "model joint chance 50.0% to 66.7%",
+     "method": "Joint probability = product of each leg's official forecast probability, legs from different games only (treated as independent across games). Tier = the published risk band of the model-fair price (1 ÷ joint). No sportsbook price is used."
+    },
+    "rationale": "Each leg is the official NBA side with its published Elo-derived game-winner estimate; this is the combination with the highest joint probability in the Low Risk band (2 legs).",
+    "confidence": "Model estimates are not yet validated over a large forward sample.",
+    "dependency": "Assumes the games are independent: every leg is a different NBA game, so no two legs share a team, but same-night results can still be related (travel, schedule, league-wide scoring) and that is not modelled.",
+    "disclosure": "Model Performance: the Elo rating’s game-outcome accuracy is not yet established — 107 regular-season games graded so far; the preregistration requires 300 before any accuracy claim. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation.",
+    "status": "MODEL_ONLY",
+    "priced": false,
+    "price": null,
+    "payout": null
+   },
+   "reason": null
+  },
+  "cross": {
+   "policy": "level-a-mixed@1/bank-builder",
+   "state": "insufficient",
+   "card": null,
+   "reason": "Insufficient eligible legs: a mixed card needs legs from two sports; today only NBA has a leg with a published probability."
+  }
+ },
+ "moonshot": {
+  "nba": {
+   "policy": "nba-game-winner-tiers@1/moonshot",
+   "state": "model-only",
+   "card": {
+    "id": "6d750bc2e0530bdc",
+    "policy": "nba-game-winner-tiers@1/moonshot",
+    "scope": "nba",
+    "tier": "longshot",
+    "tierLabel": "Longshot",
+    "sports": [
+     "nba"
+    ],
+    "legs": [
+     {
+      "legId": "nba:401909907:winner",
+      "sport": "nba",
+      "eventId": "401909907",
+      "eventLabel": "OKC @ CLE",
+      "startUtc": "2026-11-03T00:00Z",
+      "market": "winner",
+      "selection": {
+       "code": "away",
+       "label": "OKC (official side)"
+      },
+      "status": "MODEL_ONLY",
+      "probability": 0.5678000000000001,
+      "probabilityShown": "57%",
+      "forecast": {
+       "owner": "nba-official-composition@1",
+       "modelId": "nba-preseason-experimental-v0.1",
+       "stampedAt": "2026-11-02T05:57:53Z",
+       "ref": "app/public/data/nba/experimental-public/2026-11-02.json#401909907",
+       "receiptSha256": "3b375e054eba9ae418d32021c5e0679e1a8663182fd0ef5761b268164eeaf059"
+      },
+      "guard": {
+       "state": "pass",
+       "flags": [],
+       "flagText": [],
+       "rotationFlagged": [],
+       "outAtFreeze": [
+        {
+         "playerId": "2991350",
+         "name": "Alex Caruso",
+         "status": "Out"
+        },
+        {
+         "playerId": "4433255",
+         "name": "Chet Holmgren",
+         "status": "Out"
+        },
+        {
+         "playerId": "4593803",
+         "name": "Jalen Williams",
+         "status": "Out"
+        },
+        {
+         "playerId": "4683692",
+         "name": "Cason Wallace",
+         "status": "Out"
+        },
+        {
+         "playerId": "5061603",
+         "name": "Thomas Sorber",
+         "status": "Out"
+        },
+        {
+         "playerId": "5159925",
+         "name": "Nikola Topic",
+         "status": "Out"
+        }
+       ]
+      },
+      "settlement": {
+       "grader": "nba-settlement-contract",
+       "market": "moneyline",
+       "side": "away"
+      }
+     },
+     {
+      "legId": "nba:401909915:winner",
+      "sport": "nba",
+      "eventId": "401909915",
+      "eventLabel": "MIL @ MIN",
+      "startUtc": "2026-11-03T01:00Z",
+      "market": "winner",
+      "selection": {
+       "code": "home",
+       "label": "MIN (official side)"
+      },
+      "status": "MODEL_ONLY",
+      "probability": 0.7782,
+      "probabilityShown": "78%",
+      "forecast": {
+       "owner": "nba-official-composition@1",
+       "modelId": "nba-preseason-experimental-v0.1",
+       "stampedAt": "2026-11-02T05:57:53Z",
+       "ref": "app/public/data/nba/experimental-public/2026-11-02.json#401909915",
+       "receiptSha256": "fcbf84a20ccb6e1c5d3a6f38306b0cd62000e4491860a20782a194dd6c13fe24"
+      },
+      "guard": {
+       "state": "pass",
+       "flags": [],
+       "flagText": [],
+       "rotationFlagged": [],
+       "outAtFreeze": [
+        {
+         "playerId": "3934673",
+         "name": "Donte DiVincenzo",
+         "status": "Out"
+        },
+        {
+         "playerId": "4594268",
+         "name": "Anthony Edwards",
+         "status": "Out"
+        }
+       ]
+      },
+      "settlement": {
+       "grader": "nba-settlement-contract",
+       "market": "moneyline",
+       "side": "home"
+      }
+     },
+     {
+      "legId": "nba:401909919:winner",
+      "sport": "nba",
+      "eventId": "401909919",
+      "eventLabel": "PHX @ GS",
+      "startUtc": "2026-11-03T03:00Z",
+      "market": "winner",
+      "selection": {
+       "code": "home",
+       "label": "GS (official side)"
+      },
+      "status": "MODEL_ONLY",
+      "probability": 0.54,
+      "probabilityShown": "54%",
+      "forecast": {
+       "owner": "nba-official-composition@1",
+       "modelId": "nba-preseason-experimental-v0.1",
+       "stampedAt": "2026-11-02T05:57:53Z",
+       "ref": "app/public/data/nba/experimental-public/2026-11-02.json#401909919",
+       "receiptSha256": "28d46dc79606b2c02b0ee4a32ba60f320ce11ada8a8730ebe6390f9538bd51bb"
+      },
+      "guard": {
+       "state": "review",
+       "flags": [
+        "FAVOURED_ROTATION_R1"
+       ],
+       "flagText": [
+        "A top-five-minutes player on the favoured team was listed Day-To-Day, Questionable, Doubtful or Out at freeze; the Elo side does not account for it."
+       ],
+       "rotationFlagged": [
+        {
+         "playerId": "4997536",
+         "name": "Gui Santos",
+         "status": "Day-To-Day"
+        }
+       ],
+       "outAtFreeze": [
+        {
+         "playerId": "3102531",
+         "name": "Kristaps Porzingis",
+         "status": "Out"
+        },
+        {
+         "playerId": "3975",
+         "name": "Stephen Curry",
+         "status": "Out"
+        },
+        {
+         "playerId": "4432171",
+         "name": "Moses Moody",
+         "status": "Out"
+        },
+        {
+         "playerId": "6430",
+         "name": "Jimmy Butler III",
+         "status": "Out"
+        },
+        {
+         "playerId": "6589",
+         "name": "Draymond Green",
+         "status": "Out"
+        }
+       ]
+      },
+      "settlement": {
+       "grader": "nba-settlement-contract",
+       "market": "moneyline",
+       "side": "home"
+      }
+     },
+     {
+      "legId": "nba:401909920:winner",
+      "sport": "nba",
+      "eventId": "401909920",
+      "eventLabel": "TOR @ LAC",
+      "startUtc": "2026-11-03T03:00Z",
+      "market": "winner",
+      "selection": {
+       "code": "home",
+       "label": "LAC (official side)"
+      },
+      "status": "MODEL_ONLY",
+      "probability": 0.5979,
+      "probabilityShown": "60%",
+      "forecast": {
+       "owner": "nba-official-composition@1",
+       "modelId": "nba-preseason-experimental-v0.1",
+       "stampedAt": "2026-11-02T05:57:53Z",
+       "ref": "app/public/data/nba/experimental-public/2026-11-02.json#401909920",
+       "receiptSha256": "085fb293ecf2275e8082a1d99159ff91597f79e08f8ff9502895344fad045d48"
+      },
+      "guard": {
+       "state": "review",
+       "flags": [
+        "FAVOURED_ROTATION_R1"
+       ],
+       "flagText": [
+        "A top-five-minutes player on the favoured team was listed Day-To-Day, Questionable, Doubtful or Out at freeze; the Elo side does not account for it."
+       ],
+       "rotationFlagged": [
+        {
+         "playerId": "3936099",
+         "name": "Derrick Jones Jr.",
+         "status": "Day-To-Day"
+        }
+       ],
+       "outAtFreeze": [
+        {
+         "playerId": "3913176",
+         "name": "Brandon Ingram",
+         "status": "Out"
+        },
+        {
+         "playerId": "4065778",
+         "name": "Max Strus",
+         "status": "Out"
+        },
+        {
+         "playerId": "4396818",
+         "name": "Jordan Miller",
+         "status": "Out"
+        },
+        {
+         "playerId": "5108024",
+         "name": "Yanic Konan Niederhauser",
+         "status": "Out"
+        },
+        {
+         "playerId": "6580",
+         "name": "Bradley Beal",
+         "status": "Out"
+        }
+       ]
+      },
+      "settlement": {
+       "grader": "nba-settlement-contract",
+       "market": "moneyline",
+       "side": "home"
+      }
+     }
+    ],
+    "jointProbability": 0.1427,
+    "jointShown": "14.27%",
+    "band": {
+     "tier": "longshot",
+     "rule": "model joint chance below 14.3%",
+     "method": "Joint probability = product of each leg's official forecast probability, legs from different games only (treated as independent across games). Tier = the published risk band of the model-fair price (1 ÷ joint). No sportsbook price is used."
+    },
+    "rationale": "Each leg is the official NBA side with its published Elo-derived game-winner estimate; this is the combination with the highest joint probability in the Longshot band (4 legs).",
+    "confidence": "2 legs carry an availability flag (shown on the leg). Model estimates are not yet validated over a large forward sample.",
+    "dependency": "Assumes the games are independent: every leg is a different NBA game, so no two legs share a team, but same-night results can still be related (travel, schedule, league-wide scoring) and that is not modelled.",
+    "disclosure": "Model Performance: the Elo rating’s game-outcome accuracy is not yet established — 107 regular-season games graded so far; the preregistration requires 300 before any accuracy claim. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation.",
+    "status": "MODEL_ONLY",
+    "priced": false,
+    "price": null,
+    "payout": null
+   },
+   "reason": null
+  },
+  "cross": {
+   "policy": "level-a-mixed@1/moonshot",
+   "state": "insufficient",
+   "card": null,
+   "reason": "Insufficient eligible legs: a mixed card needs legs from two sports; today only NBA has a leg with a published probability."
+  }
+ },
+ "playerProjections": {
+  "nba": [
+   {
+    "eventId": "401909907",
+    "playerId": "4278073",
+    "name": "Shai Gilgeous-Alexander",
+    "team": "OKC",
+    "expectedMinutes": 48,
+    "medians": {
+     "pts": 31.6
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909907",
+    "playerId": "4900671",
+    "name": "Ajay Mitchell",
+    "team": "OKC",
+    "expectedMinutes": 40.9,
+    "medians": {
+     "pts": 20
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909907",
+    "playerId": "4222252",
+    "name": "Isaiah Hartenstein",
+    "team": "OKC",
+    "expectedMinutes": 33.1,
+    "medians": {
+     "pts": 11.4
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909907",
+    "playerId": "4432185",
+    "name": "Micah Peavy",
+    "team": "OKC",
+    "expectedMinutes": 33,
+    "medians": {
+     "pts": 5.5
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909907",
+    "playerId": "4683778",
+    "name": "Jared McCain",
+    "team": "OKC",
+    "expectedMinutes": 31.7,
+    "medians": {
+     "pts": 16.8
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909907",
+    "playerId": "4432823",
+    "name": "Jaylin Williams",
+    "team": "OKC",
+    "expectedMinutes": 24.4,
+    "medians": {
+     "pts": 6.8
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909907",
+    "playerId": "4684208",
+    "name": "Brooks Barnhizer",
+    "team": "OKC",
+    "expectedMinutes": 12.5,
+    "medians": {
+     "pts": 1.6
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909907",
+    "playerId": "3133626",
+    "name": "Kenrich Williams",
+    "team": "OKC",
+    "expectedMinutes": 12.4,
+    "medians": {
+     "pts": 2.8
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909907",
+    "playerId": "3992",
+    "name": "James Harden",
+    "team": "CLE",
+    "expectedMinutes": 40.9,
+    "medians": {
+     "pts": 19.2
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909907",
+    "playerId": "3908809",
+    "name": "Donovan Mitchell",
+    "team": "CLE",
+    "expectedMinutes": 40.3,
+    "medians": {
+     "pts": 30.5
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909907",
+    "playerId": "4432158",
+    "name": "Evan Mobley",
+    "team": "CLE",
+    "expectedMinutes": 40.3,
+    "medians": {
+     "pts": 17.8
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909907",
+    "playerId": "4066328",
+    "name": "Jarrett Allen",
+    "team": "CLE",
+    "expectedMinutes": 33.8,
+    "medians": {
+     "pts": 15.7
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909907",
+    "playerId": "4576087",
+    "name": "Peyton Watson",
+    "team": "CLE",
+    "expectedMinutes": 32,
+    "medians": {
+     "pts": 15
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909907",
+    "playerId": "4066757",
+    "name": "Sam Merrill",
+    "team": "CLE",
+    "expectedMinutes": 22.7,
+    "medians": {
+     "pts": 9
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909907",
+    "playerId": "4431734",
+    "name": "Tristan Enaruna",
+    "team": "CLE",
+    "expectedMinutes": 10.4,
+    "medians": {
+     "pts": 3.8
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909911",
+    "playerId": "5144126",
+    "name": "Will Riley",
+    "team": "WSH",
+    "expectedMinutes": 25.9,
+    "medians": {
+     "pts": 14.2
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909911",
+    "playerId": "6583",
+    "name": "Anthony Davis",
+    "team": "WSH",
+    "expectedMinutes": 24.8,
+    "medians": {
+     "pts": 15.3
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909911",
+    "playerId": "2581184",
+    "name": "Anthony Gill",
+    "team": "WSH",
+    "expectedMinutes": 24.6,
+    "medians": {
+     "pts": 9.4
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909911",
+    "playerId": "5174563",
+    "name": "Kyshawn George",
+    "team": "WSH",
+    "expectedMinutes": 23,
+    "medians": {
+     "pts": 11.3
+    },
+    "guard": {
+     "state": "review"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909911",
+    "playerId": "4278129",
+    "name": "Deandre Ayton",
+    "team": "WSH",
+    "expectedMinutes": 22.6,
+    "medians": {
+     "pts": 7.8
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909911",
+    "playerId": "4845374",
+    "name": "Bub Carrington",
+    "team": "WSH",
+    "expectedMinutes": 22.1,
+    "medians": {
+     "pts": 11.1
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909911",
+    "playerId": "5160992",
+    "name": "Alex Sarr",
+    "team": "WSH",
+    "expectedMinutes": 21.6,
+    "medians": {
+     "pts": 12.6
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909911",
+    "playerId": "6609",
+    "name": "Khris Middleton",
+    "team": "WSH",
+    "expectedMinutes": 19.3,
+    "medians": {
+     "pts": 8
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909911",
+    "playerId": "5238230",
+    "name": "Tre Johnson",
+    "team": "WSH",
+    "expectedMinutes": 18.6,
+    "medians": {
+     "pts": 8.1
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909911",
+    "playerId": "5104155",
+    "name": "Bilal Coulibaly",
+    "team": "WSH",
+    "expectedMinutes": 17.6,
+    "medians": {
+     "pts": 12
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909911",
+    "playerId": "4277905",
+    "name": "Trae Young",
+    "team": "WSH",
+    "expectedMinutes": 16.3,
+    "medians": {
+     "pts": 12
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909911",
+    "playerId": "4066320",
+    "name": "Desmond Bane",
+    "team": "ORL",
+    "expectedMinutes": 38.1,
+    "medians": {
+     "pts": 19.5
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909911",
+    "playerId": "4277847",
+    "name": "Wendell Carter Jr.",
+    "team": "ORL",
+    "expectedMinutes": 35.9,
+    "medians": {
+     "pts": 11
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909911",
+    "playerId": "4566434",
+    "name": "Franz Wagner",
+    "team": "ORL",
+    "expectedMinutes": 31.7,
+    "medians": {
+     "pts": 18.1
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909911",
+    "playerId": "4712849",
+    "name": "Anthony Black",
+    "team": "ORL",
+    "expectedMinutes": 29,
+    "medians": {
+     "pts": 9.7
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909911",
+    "playerId": "6478",
+    "name": "Nikola Vucevic",
+    "team": "ORL",
+    "expectedMinutes": 21.7,
+    "medians": {
+     "pts": 8
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909911",
+    "playerId": "4278572",
+    "name": "Jamal Cain",
+    "team": "ORL",
+    "expectedMinutes": 18.3,
+    "medians": {
+     "pts": 4.8
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909911",
+    "playerId": "4702382",
+    "name": "Tristan da Silva",
+    "team": "ORL",
+    "expectedMinutes": 18.1,
+    "medians": {
+     "pts": 4.7
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909911",
+    "playerId": "4348700",
+    "name": "Goga Bitadze",
+    "team": "ORL",
+    "expectedMinutes": 15.9,
+    "medians": {
+     "pts": 3.6
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909911",
+    "playerId": "5239561",
+    "name": "Jase Richardson",
+    "team": "ORL",
+    "expectedMinutes": 11.7,
+    "medians": {
+     "pts": 3.4
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "4397475",
+    "name": "AJ Green",
+    "team": "MIL",
+    "expectedMinutes": 20.2,
+    "medians": {
+     "pts": 9.5
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "4395725",
+    "name": "Tyler Herro",
+    "team": "MIL",
+    "expectedMinutes": 19.9,
+    "medians": {
+     "pts": 10.8
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "4997526",
+    "name": "Ousmane Dieng",
+    "team": "MIL",
+    "expectedMinutes": 19.6,
+    "medians": {
+     "pts": 8.3
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "4591725",
+    "name": "Ryan Rollins",
+    "team": "MIL",
+    "expectedMinutes": 19.1,
+    "medians": {
+     "pts": 12.5
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "4432848",
+    "name": "Jaime Jaquez Jr.",
+    "team": "MIL",
+    "expectedMinutes": 17.8,
+    "medians": {
+     "pts": 10.9
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "4277922",
+    "name": "Jericho Sims",
+    "team": "MIL",
+    "expectedMinutes": 17.5,
+    "medians": {
+     "pts": 5.4
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "4397114",
+    "name": "Cormac Ryan",
+    "team": "MIL",
+    "expectedMinutes": 17.4,
+    "medians": {
+     "pts": 9.3
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "4397233",
+    "name": "Pete Nance",
+    "team": "MIL",
+    "expectedMinutes": 17,
+    "medians": {
+     "pts": 4.9
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "3133628",
+    "name": "Myles Turner",
+    "team": "MIL",
+    "expectedMinutes": 14.9,
+    "medians": {
+     "pts": 7.2
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "3134907",
+    "name": "Kyle Kuzma",
+    "team": "MIL",
+    "expectedMinutes": 13.8,
+    "medians": {
+     "pts": 6.9
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "4277843",
+    "name": "Gary Trent Jr.",
+    "team": "MIL",
+    "expectedMinutes": 13.6,
+    "medians": {
+     "pts": 7.9
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "5105623",
+    "name": "Kel'el Ware",
+    "team": "MIL",
+    "expectedMinutes": 13.3,
+    "medians": {
+     "pts": 6.1
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "4697268",
+    "name": "Kam Jones",
+    "team": "MIL",
+    "expectedMinutes": 13.2,
+    "medians": {
+     "pts": 3.4
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "2991043",
+    "name": "Caris LeVert",
+    "team": "MIL",
+    "expectedMinutes": 11.4,
+    "medians": {
+     "pts": 3.8
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "5214640",
+    "name": "Kasparas Jakucionis",
+    "team": "MIL",
+    "expectedMinutes": 11.4,
+    "medians": {
+     "pts": 4.3
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "4895758",
+    "name": "Cody Williams",
+    "team": "MIN",
+    "expectedMinutes": 32.5,
+    "medians": {
+     "pts": 14.8
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "4431671",
+    "name": "Jaden McDaniels",
+    "team": "MIN",
+    "expectedMinutes": 31.1,
+    "medians": {
+     "pts": 14.8
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "3032976",
+    "name": "Rudy Gobert",
+    "team": "MIN",
+    "expectedMinutes": 28.4,
+    "medians": {
+     "pts": 6
+    },
+    "guard": {
+     "state": "review"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "4432816",
+    "name": "LaMelo Ball",
+    "team": "MIN",
+    "expectedMinutes": 28.1,
+    "medians": {
+     "pts": 21.4
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "4397002",
+    "name": "Ayo Dosunmu",
+    "team": "MIN",
+    "expectedMinutes": 27.7,
+    "medians": {
+     "pts": 14.2
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "4433247",
+    "name": "Jonathan Kuminga",
+    "team": "MIN",
+    "expectedMinutes": 23.6,
+    "medians": {
+     "pts": 12.7
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "4432847",
+    "name": "Terrence Shannon Jr.",
+    "team": "MIN",
+    "expectedMinutes": 20.9,
+    "medians": {
+     "pts": 9.6
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909915",
+    "playerId": "4592492",
+    "name": "Bones Hyland",
+    "team": "MIN",
+    "expectedMinutes": 11.7,
+    "medians": {
+     "pts": 3.2
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909919",
+    "playerId": "3136193",
+    "name": "Devin Booker",
+    "team": "PHX",
+    "expectedMinutes": 28.7,
+    "medians": {
+     "pts": 18
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909919",
+    "playerId": "3155526",
+    "name": "Dillon Brooks",
+    "team": "PHX",
+    "expectedMinutes": 25,
+    "medians": {
+     "pts": 14.9
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909919",
+    "playerId": "4437244",
+    "name": "Jalen Green",
+    "team": "PHX",
+    "expectedMinutes": 24.7,
+    "medians": {
+     "pts": 14.8
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909919",
+    "playerId": "3913174",
+    "name": "Luke Kennard",
+    "team": "PHX",
+    "expectedMinutes": 24.2,
+    "medians": {
+     "pts": 8.3
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909919",
+    "playerId": "4066383",
+    "name": "Miles Bridges",
+    "team": "PHX",
+    "expectedMinutes": 21.6,
+    "medians": {
+     "pts": 12.6
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909919",
+    "playerId": "4601023",
+    "name": "Oso Ighodaro",
+    "team": "PHX",
+    "expectedMinutes": 18.5,
+    "medians": {
+     "pts": 4.5
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909919",
+    "playerId": "4278585",
+    "name": "Collin Gillespie",
+    "team": "PHX",
+    "expectedMinutes": 18,
+    "medians": {
+     "pts": 5.2
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909919",
+    "playerId": "4592714",
+    "name": "Pat Spencer",
+    "team": "PHX",
+    "expectedMinutes": 16.8,
+    "medians": {
+     "pts": 4.5
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909919",
+    "playerId": "4278402",
+    "name": "Jordan Goodwin",
+    "team": "PHX",
+    "expectedMinutes": 15.8,
+    "medians": {
+     "pts": 7.5
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909919",
+    "playerId": "4709138",
+    "name": "Brandin Podziemski",
+    "team": "GS",
+    "expectedMinutes": 34.1,
+    "medians": {
+     "pts": 21.2
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909919",
+    "playerId": "4997536",
+    "name": "Gui Santos",
+    "team": "GS",
+    "expectedMinutes": 32,
+    "medians": {
+     "pts": 14
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909919",
+    "playerId": "4066436",
+    "name": "De'Anthony Melton",
+    "team": "GS",
+    "expectedMinutes": 26.6,
+    "medians": {
+     "pts": 9.2
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909919",
+    "playerId": "4397040",
+    "name": "Brandon Williams",
+    "team": "GS",
+    "expectedMinutes": 26.6,
+    "medians": {
+     "pts": 16.3
+    },
+    "guard": {
+     "state": "review"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909919",
+    "playerId": "3213",
+    "name": "Al Horford",
+    "team": "GS",
+    "expectedMinutes": 23.5,
+    "medians": {
+     "pts": 10.2
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909919",
+    "playerId": "3134903",
+    "name": "Gary Payton II",
+    "team": "GS",
+    "expectedMinutes": 23.3,
+    "medians": {
+     "pts": 9.6
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909919",
+    "playerId": "4433149",
+    "name": "LJ Cryer",
+    "team": "GS",
+    "expectedMinutes": 21.9,
+    "medians": {
+     "pts": 9.7
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909919",
+    "playerId": "4897449",
+    "name": "Malevy Leons",
+    "team": "GS",
+    "expectedMinutes": 19.8,
+    "medians": {
+     "pts": 5.8
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909919",
+    "playerId": "4397886",
+    "name": "Charles Bassey",
+    "team": "GS",
+    "expectedMinutes": 18.8,
+    "medians": {
+     "pts": 8.4
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909919",
+    "playerId": "4897262",
+    "name": "Will Richard",
+    "team": "GS",
+    "expectedMinutes": 13.5,
+    "medians": {
+     "pts": 0.2
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909920",
+    "playerId": "4395625",
+    "name": "RJ Barrett",
+    "team": "TOR",
+    "expectedMinutes": 34.1,
+    "medians": {
+     "pts": 21.9
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909920",
+    "playerId": "4433134",
+    "name": "Scottie Barnes",
+    "team": "TOR",
+    "expectedMinutes": 33.3,
+    "medians": {
+     "pts": 19.4
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909920",
+    "playerId": "4395724",
+    "name": "Immanuel Quickley",
+    "team": "TOR",
+    "expectedMinutes": 29.2,
+    "medians": {
+     "pts": 14.8
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909920",
+    "playerId": "4684272",
+    "name": "Ja'Kobe Walter",
+    "team": "TOR",
+    "expectedMinutes": 27.7,
+    "medians": {
+     "pts": 9.8
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909920",
+    "playerId": "4432241",
+    "name": "Jamal Shead",
+    "team": "TOR",
+    "expectedMinutes": 26.9,
+    "medians": {
+     "pts": 7.1
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909920",
+    "playerId": "4397784",
+    "name": "Malachi Smith",
+    "team": "TOR",
+    "expectedMinutes": 24.6,
+    "medians": {
+     "pts": 7.7
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909920",
+    "playerId": "5093267",
+    "name": "Collin Murray-Boyles",
+    "team": "TOR",
+    "expectedMinutes": 23,
+    "medians": {
+     "pts": 11.5
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909920",
+    "playerId": "3134908",
+    "name": "Jakob Poeltl",
+    "team": "TOR",
+    "expectedMinutes": 17.3,
+    "medians": {
+     "pts": 6.2
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909920",
+    "playerId": "4066648",
+    "name": "Rui Hachimura",
+    "team": "LAC",
+    "expectedMinutes": 45.8,
+    "medians": {
+     "pts": 20
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909920",
+    "playerId": "4396907",
+    "name": "Darius Garland",
+    "team": "LAC",
+    "expectedMinutes": 36.5,
+    "medians": {
+     "pts": 21.4
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909920",
+    "playerId": "3448",
+    "name": "Brook Lopez",
+    "team": "LAC",
+    "expectedMinutes": 33.9,
+    "medians": {
+     "pts": 14.4
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909920",
+    "playerId": "2991139",
+    "name": "Kris Dunn",
+    "team": "LAC",
+    "expectedMinutes": 30.2,
+    "medians": {
+     "pts": 5.9
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909920",
+    "playerId": "3936099",
+    "name": "Derrick Jones Jr.",
+    "team": "LAC",
+    "expectedMinutes": 28.7,
+    "medians": {
+     "pts": 8.6
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909920",
+    "playerId": "4432170",
+    "name": "Isaiah Jackson",
+    "team": "LAC",
+    "expectedMinutes": 18.6,
+    "medians": {
+     "pts": 8
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909920",
+    "playerId": "4702352",
+    "name": "Kobe Sanders",
+    "team": "LAC",
+    "expectedMinutes": 17.9,
+    "medians": {
+     "pts": 7.7
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909920",
+    "playerId": "4398390",
+    "name": "Jalen Pickett",
+    "team": "LAC",
+    "expectedMinutes": 16.5,
+    "medians": {
+     "pts": 5.5
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   }
+  ]
+ }
+}

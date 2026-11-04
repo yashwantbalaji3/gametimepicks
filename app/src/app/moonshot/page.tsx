@@ -22,7 +22,10 @@ import Link from "next/link";
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import MoonshotLaneTracker from "@/components/moonshot/moonshot-lane-tracker";
 import MoonshotLadderV2 from "@/components/moonshot/ladder-v2";
-import PicksSurfaceHeader, { type PicksSurfaceStatus } from "@/components/picks-surface-header";
+import ProductHero from "@/components/tier-board/product-hero";
+import TierBoardSection from "@/components/tier-board/tier-board-section";
+import ProductDisclosure from "@/components/tier-board/product-disclosure";
+import { loadTierBoard } from "@/lib/products/tier-board/load";
 import { presentFromArtifact } from "@/lib/signature-presentation.mjs";
 import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
 import EligibleUniverse from "@/components/products/eligible-universe";
@@ -126,7 +129,6 @@ export default function MoonshotPage() {
      ran and said why there is no card (2026-10-09: "the slate holds no games"). Today's producer output decides. */
   const todayRanWithoutCard = moonshotLanes.length === 0 && dailyPortfolio.date === today
     && dailyPortfolio.cards.some((c) => c.product === "moonshot");
-  const status = (todayRanWithoutCard ? "no_qualifying" : signature.surfaceStatus) as PicksSurfaceStatus;
   const noCardLabel = todayAcross.eventsToday === 0 ? "No games today" : "No qualifying card";
   const moonshot = deriveMoonshotState({
     /* Cards the lifecycle ledger has graded. The settler never rewrites the lane artifact — it
@@ -153,6 +155,11 @@ export default function MoonshotPage() {
      lane. The ledger now carries its graded outcome and the ladder position that followed. */
   const msLedger = loadLifecycleHistory();
 
+  /* Founder Priority 4 (2026-11-03): today's featured card — the engine's suggested-cards file for the day, else the
+     Level A model evaluated above (the same engine). */
+  const tierBoard = loadTierBoard("moonshot", { productDay: levelAModel?.productDay ?? etToday, levelAModel });
+  const tierBoardState = tierBoard?.featured?.state ?? tierBoard?.state ?? "insufficient";
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
       {/* Slate liveness (real ET clock) — no-play framing when today has no live slate; points at the next
@@ -166,21 +173,31 @@ export default function MoonshotPage() {
         archiveHref="/results"
         archiveLabel="See results & receipts"
       />
-      <PicksSurfaceHeader
-        eyebrow="Moonshot Lane"
-        title="Moonshot Lane"
-        status={status}
+      {/* FRONT DOOR (Founder Priority 4) — the product's identity, its bands and its risk, then the derived state.
+          The status is deriveMoonshotState's own sentence, never hand-typed; it replaced the shared pick-surface header. */}
+      <ProductHero
+        product="moonshot"
+        state={tierBoardState}
         statusLabel={!moonshot.running ? "Not running" : todayRanWithoutCard ? noCardLabel : signature.label}
-        /* NO counts chips. They render a settled/pending pair, and neither number can be stated as a
-           single figure here: two ledgers disagree on how many cards are settled, and the open cards
-           are not "pending" because nothing will ever grade them. The reconciliation below shows both
-           sources instead of picking one for a chip. */
-        primaryAction={{ label: "Open Bank Builder", href: "/bank-builder" }}
-        secondaryAction={{ label: "Mr. Dub", href: "/mr-dub" }}
-        /* Derived, never hand-typed — the previous note claimed daily publication for a product that
-           had published nothing in weeks. */
-        note={moonshot.publicNote}
+        statusNote={moonshot.publicNote}
       />
+
+      {/* TODAY'S CARD — the featured parlay, or one explicit state. The day's detailed checks fold beneath it. */}
+      <TierBoardSection
+        board={tierBoard}
+        productName="Moonshot"
+        checks={
+          <>
+            {/* v1.7 — which sports could contribute a leg today, from the availability owner (same as /bank-builder). */}
+            <EligibleUniverse availability={loadProductAvailability()} compact scope="Moonshot" levelASports={levelAModel ? levelASportsShown(levelAModel, "moonshot") : null} />
+            {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="moonshot" /> : null}
+            {/* P0-E: today's priced NBA/NFL candidate or the exact reasons there is none. */}
+            {dailyCandidateSectionEnabled() ? <DailyCandidatePanel model={dailyCandidateForPage("moonshot") as unknown as DailyCandidateModel} /> : null}
+          </>
+        }
+      />
+
+      <h2 id="track-record" className="tb-block-title scroll-mt-24" style={{ marginBottom: 0 }}>The ladder and track record</h2>
 
       {/* THE RECONCILIATION — the charter's P0: one place where pending count, settled count,
           exposure and card status are stated together, including where the sources disagree.
@@ -191,7 +208,7 @@ export default function MoonshotPage() {
           className="rounded-xl px-4 py-4 flex flex-col gap-3"
           style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}
         >
-          <h2 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 15 }}>Where Moonshot stands</h2>
+          <h3 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 15 }}>Where Moonshot stands</h3>
 
           <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {/* Each tile names WHICH record it reads (P250 · A01): the first pair describe TODAY's
@@ -283,13 +300,6 @@ export default function MoonshotPage() {
           : "No card is placed today. The ladder deals again tomorrow morning from wherever each lane stands."}
       </p>
 
-      {/* v1.7 — which sports could contribute a leg today, from the availability owner (counts + plain
-          reasons; names the market-priced caveat). Same component as /bank-builder, same owner. */}
-      <EligibleUniverse availability={loadProductAvailability()} compact scope="Moonshot" levelASports={levelAModel ? levelASportsShown(levelAModel, "moonshot") : null} />
-      {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="moonshot" /> : null}
-      {/* P0-E: today's priced NBA/NFL candidate or the exact reasons there is none (own section; history below is untouched). */}
-      {dailyCandidateSectionEnabled() ? <DailyCandidatePanel model={dailyCandidateForPage("moonshot") as unknown as DailyCandidateModel} /> : null}
-
       {/*
         TODAY'S CARD — the PUBLISHED lanes themselves (P243 · A-2).
         This section used to be "Today's structured Moonshot", assembled from the RETIRED World Cup
@@ -300,7 +310,7 @@ export default function MoonshotPage() {
         uses, so the two surfaces cannot disagree again.
       */}
       <section className="flex flex-col gap-3 overflow-x-hidden">
-        <h2 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 17 }}>Today&rsquo;s Moonshot · {today}</h2>
+        <h3 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 17 }}>Today&rsquo;s paper ladder cards · {today}</h3>
         {moonshotLanes.length ? (
           <>
             <ProductLanesLadder productLabel="Moonshot" product="moonshot" lanes={moonshotLanes} accent="gold" />
@@ -331,7 +341,7 @@ export default function MoonshotPage() {
 
       {/* History — the day-by-day lane tracker (stopped / restart state) below the live ladder. */}
       <div className="flex flex-col gap-3">
-        <h2 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 17 }}>History</h2>
+        <h3 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 17 }}>History</h3>
         {lane ? (
           <MoonshotLaneTracker
             lane={lane}
@@ -352,6 +362,8 @@ export default function MoonshotPage() {
           </div>
         )}
       </div>
+      {/* ONE disclosure for the page. */}
+      <ProductDisclosure productName="Moonshot" />
     </div>
   );
 }

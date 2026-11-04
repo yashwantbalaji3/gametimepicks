@@ -206,7 +206,8 @@ test("P243 A-2 · /moonshot renders the PUBLISHED lanes as today's section; empt
     "today's section renders the published lanes");
   // The empty state quotes the SAME sentence the header uses — the two surfaces cannot disagree.
   assert.match(moon, /\{moonshot\.publicNote\}/, "empty state quotes deriveMoonshotState's publicNote");
-  assert.match(moon, /note=\{moonshot\.publicNote\}/, "header note is the same derived sentence");
+  // Founder Priority 4 (2026-11-03): the header is the product hero; its status note is still the derived sentence.
+  assert.match(moon, /statusNote=\{moonshot\.publicNote\}/, "header note is the same derived sentence");
   // The retired WC-board derivation is gone from this page.
   assert.doesNotMatch(moon, /buildStructuredMoonshot|StructuredMoonshotSection/,
     "no second, WC-board-derived 'today' population on /moonshot");

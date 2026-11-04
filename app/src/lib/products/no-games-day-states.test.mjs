@@ -47,7 +47,8 @@ test("/homer-nukes: no board + a 0-game MLB board reads 'no games', not 'not pub
 test("/moonshot: today's producer output decides the badge, never the retired legacy lane", () => {
   const page = src("src/app/moonshot/page.tsx");
   assert.match(page, /const todayRanWithoutCard = moonshotLanes\.length === 0 && dailyPortfolio\.date === today/);
-  assert.match(page, /status = \(todayRanWithoutCard \? "no_qualifying" : signature\.surfaceStatus\)/);
+  // Founder Priority 4 (2026-11-03): the hero's status line reads today's producer output first, the legacy lane never.
+  assert.match(page, /statusLabel=\{!moonshot\.running \? "Not running" : todayRanWithoutCard \? noCardLabel : signature\.label\}/);
   const dp = json("mr-dub/daily-portfolio.json");
   if (dp.date === "2026-10-09") {
     assert.ok(dp.lanes.some((l) => l.product === "moonshot" && /no games/.test(l.activationEligibility?.reason ?? "")), "the lane says why");

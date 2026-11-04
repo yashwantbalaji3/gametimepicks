@@ -126,7 +126,7 @@ export default function LevelASuggestions({ model, mode }: { model: LevelAModel 
            full on /build, /bank-builder and /moonshot. The Parlay Center keeps them open (it is that page's purpose); the
            two product pages fold the same content (still server-rendered) behind one line and link to the full block. */
         <details className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
-          <summary className="cursor-pointer" style={{ minHeight: 40, color: "var(--vault-text)" }}>
+          <summary className="cursor-pointer" style={{ minHeight: 44, color: "var(--vault-text)" }}>
             Every model suggestion today{model.untiered.length ? ` · ${model.untiered.length} official side${model.untiered.length === 1 ? "" : "s"} not tiered` : ""}
           </summary>
           <div className="mt-2 flex flex-col gap-3">
@@ -163,7 +163,7 @@ export default function LevelASuggestions({ model, mode }: { model: LevelAModel 
             <Link href="/build#level-a-parlay-lab" style={{ color: "var(--vault-text-mute)", textDecoration: "underline" }}>All model suggestions on the Parlay Center →</Link>
           </p>
           <details className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
-            <summary className="cursor-pointer" style={{ minHeight: 40, color: "var(--vault-text)" }}>Why, card by card</summary>
+            <summary className="cursor-pointer" style={{ minHeight: 44, color: "var(--vault-text)" }}>Why, card by card</summary>
             <div className="mt-2 flex flex-col gap-3">{body}</div>
           </details>
         </>
@@ -187,7 +187,7 @@ function LevelAReference({ model, refused }: { model: LevelAModel; refused: Arra
       ) : null}
       {model.nbaProjections.length ? (
         <details className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
-          <summary className="cursor-pointer" style={{ minHeight: 40, color: "var(--vault-text)" }}>Predicted Player Statistics · NBA median points (no market line, so not a pick)</summary>
+          <summary className="cursor-pointer" style={{ minHeight: 44, color: "var(--vault-text)" }}>Predicted Player Statistics · NBA median points (no market line, so not a pick)</summary>
           <ul className="m-0 mt-1 grid gap-1 p-0 sm:grid-cols-2" role="list">
             {model.nbaProjections.map((p) => (
               <li key={`${p.eventLabel}:${p.name}`} className="flex flex-wrap justify-between gap-x-3">
