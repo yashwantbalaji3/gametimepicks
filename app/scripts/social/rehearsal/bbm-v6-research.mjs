@@ -55,7 +55,9 @@ function finalProblems(c) {
 
 const HELD = new Set(String(a.held ?? "").split(",").filter(Boolean));
 // A preview record the engine classifies HOLD draws as held (never as a card); a final file with a HOLD lane is refused.
-for (const [laneId, v] of Object.entries(sel.lanes ?? {})) if (v.card?.classification === "HOLD") { if (FINAL) throw new Error(`${laneId}: HOLD in a final file`); HELD.add(laneId); }
+// PD 2026-11-04: final mode draws a HOLD lane truthfully too, with the engine's own reason code in plain words.
+const HELD_CODE = {};
+for (const [laneId, v] of Object.entries(sel.lanes ?? {})) if (v.card?.classification === "HOLD") { HELD.add(laneId); HELD_CODE[laneId] = v.card.heldCode ?? String(v.card.reasons?.[0] ?? "").split(" ")[0] ?? null; }
 // --alt lane=<selection.json> (that file's lanes[lane].card) or lane=<sealed-alternates.json>#<records key> (its .record).
 const ALTS = String(a.alt ?? "").split(",").filter(Boolean).map((x) => {
   const [laneId, ref] = x.split("="); const [f, key] = ref.split("#"); const j = JSON.parse(fs.readFileSync(f, "utf8"));
@@ -76,7 +78,7 @@ for (const { laneId, name, sel: src, file: srcFile, alt } of jobs) {
   if (HELD.has(laneId) && !alt) {
     const product = L0.product;
     const rungs = RULES_V2.milestonesCents[product].map((m, i) => ({ step: i + 1, milestoneCents: m, state: i ? RUNG.UPCOMING : RUNG.ACTIVE }));
-    models.push({ laneId, name, held: true, legsRaw: [], model: { product, letter: L0.letter, laneId, date: "2026-11-04", step: 1, steps: 5, rungs, ...TERMS[product], bankrollCents: TERMS[product].baseCents, badge: BADGE.HELD, view: VIEW.NO_ELIGIBLE_CARD, template: false, legs: [], payout: null, heldSub: "No card tonight", heldReason: a["held-code"] ? heldReasonText(a["held-code"]) : "Held pending the founder's decision on tonight's research selections.", researchLine: true, reviewRibbon: REVIEW } });
+    models.push({ laneId, name, held: true, legsRaw: [], model: { product, letter: L0.letter, laneId, date: "2026-11-04", step: 1, steps: 5, rungs, ...TERMS[product], bankrollCents: TERMS[product].baseCents, badge: BADGE.HELD, view: VIEW.NO_ELIGIBLE_CARD, template: false, legs: [], payout: null, heldSub: "No card tonight", heldReason: HELD_CODE[laneId] ? heldReasonText(HELD_CODE[laneId]) : a["held-code"] ? heldReasonText(a["held-code"]) : "Held pending the founder's decision on tonight's research selections.", researchLine: true, reviewRibbon: REVIEW } });
     continue;
   }
   const lane = src.lanes[laneId]; const c = lane?.card;

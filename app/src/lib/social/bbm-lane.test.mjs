@@ -536,3 +536,8 @@ test("V6 checker: a raw engine flag code or leg id never prints", () => {
   assert.deepEqual(verifyBbmCardV6(bbmCardV6({ ...model, legs: [{ ...ml, flagText: ["Top 5 player out"] }] })), []);
   assert.match(verifyBbmCardV6(bbmCardV6({ ...model, legs: [{ ...ml, flagText: ["ML_TOP5_OUT nba:401909929:winner:home: TOP5_OUT"] }] })).join(";"), /raw engine code/);
 });
+
+test("V6 held reasons for the engine's final-file codes", () => {
+  assert.equal(heldReasonText("E_STALE_QUOTE"), "Prices could not be re-verified in time, so the lane holds tonight.");
+  assert.equal(heldReasonText("NO_CANDIDATES_FOR_LANE_TYPE"), "No candidate of this lane's type qualified tonight.");
+});
