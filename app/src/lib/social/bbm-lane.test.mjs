@@ -211,7 +211,7 @@ test("five-step ladder: engine milestones, pace and every status badge; A and B 
   assert.deepEqual(b.pace, { state: "BEHIND", shortfallCents: 5000, milestoneCents: 30000, nextMilestoneCents: 90000 });
   const bc = prepareLane({ doc: behind, date: NEXT, slate, roster: ROSTER, asOf: AS_OF });
   assert.equal(bc.refused, undefined, bc.refused);
-  assert.match(textOf(bc.card), /BEHIND PACE BY \$50 · MILESTONE \$300/);
+  assert.match(textOf(bc.card), /STEP 2 · NEXT MILESTONE \$900 · BEHIND PACE BY \$50/);
   assert.equal(laneView(projection("bb-a"), DATE).step, 1, "the other lane is untouched");
   const five = (st) => projection("ms-b", [1, 2, 3, 4, 5].flatMap((k) => [stepSettled("WIN", 2500 * k, 2500 * (k + 1), `2026-10-2${k}`, k)]).concat([status("2026-10-26", 5, st)]));
   assert.equal(laneView(five("COMPLETE"), "2026-10-26").badge, BADGE.COMPLETED);
@@ -291,7 +291,11 @@ test("priced (founder 2026-11-04): odds, book, capture time, leg-product combine
   assert.deepEqual(Object.entries(p.card.cells).filter(([k]) => k.endsWith(".odds")).map(([, v]) => v).sort(), ["-150", "-200"]);
   assert.equal(p.view.badge, BADGE.ACTIVE); assert.ok(!t.includes(SAMPLE_PRICE_RIBBON), "a real price carries no SAMPLE ribbon");
   assert.equal(p.view.payout.belowPace, pc.inputs.decimalPrice < pc.inputs.pace);
-  if (p.view.payout.belowPace) assert.match(t, /THIS CARD PRICES BELOW PACE/);
+  if (p.view.payout.belowPace) assert.match(t, /· BELOW PACE/); else assert.doesNotMatch(t, /PACE(?! WITHHELD)/);
+  assert.equal(p.card.cells["price.verified"], "VERIFIED PRICES"); assert.doesNotMatch(t, /PRELIMINARY|ON PACE/);
+  // Below pace comes only from the engine flag: the same card with the flag off prints no pace status.
+  const off = bbmCardFor({ ...p.view, payout: { ...p.view.payout, belowPace: false } }, p.combo);
+  assert.equal(off.cells.pace, "STEP 1 · NEXT MILESTONE $300");
   assert.deepEqual(verifyBbmCard(p.card), []);
   const out = fs.mkdtempSync(path.join(os.tmpdir(), "bbm-"));
   assert.deepEqual(stagingViolations(planPackages([p, prep(statusDoc("bb-b"))], DATE), out, { displayRecord: SOCIAL_ON }), [], "a verified real price may be packaged once social is authorized");

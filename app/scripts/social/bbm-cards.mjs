@@ -27,6 +27,8 @@ export const FACT_LINE = "Tracked challenge · no real wager placed";
 export const RG_LINE = "21+ · Gamble responsibly";
 /** An early price's tag (founder P0 2026-11-04): small and honest, never a banner. */
 export const PRELIMINARY_TAG = "Preliminary prices · re-verified before posting";
+/** A verified real price says so (founder 2026-11-04): the staged images read VERIFIED, never preliminary. */
+export const VERIFIED_TAG = "Verified prices";
 const FOOTER = `${FACT_LINE} · ${RG_LINE}`;
 export const MODEL_LABEL = "MODEL PROJECTION";
 export const WIN_LABEL = "MODEL WIN PROBABILITY";
@@ -114,12 +116,13 @@ const CSS = `<style>
 .bv-lad .rg .m{margin-top:3px;font:800 19px/1 var(--display);color:rgba(247,247,242,.55);white-space:nowrap}
 .bv-lad .rg.completed .m,.bv-lad .rg.active .m{color:var(--acc)}
 .bv-pace{margin-top:8px;text-align:center;font:800 22px/1 var(--display);letter-spacing:3px;text-transform:uppercase;white-space:nowrap}
-.bv-pace.ON_PACE{color:rgba(247,247,242,.85)}.bv-pace.BEHIND{color:#FFB23F}.bv-pace.WITHHELD{color:rgba(247,247,242,.7)}
+.bv-pace.NONE{color:rgba(247,247,242,.85)}.bv-pace.BEHIND,.bv-pace.BELOW_PACE{color:#FFB23F}.bv-pace.WITHHELD{color:rgba(247,247,242,.7)}
 .lg .od{font:900 21px/1 var(--display);letter-spacing:1px;padding:5px 8px 3px;border-radius:6px;background:rgba(247,247,242,.92);color:#050706}
 .bv-src{flex:none;margin-top:10px;display:flex;justify-content:center;align-items:center;gap:14px;white-space:nowrap;overflow:hidden}
 .bv-src .cp{font:900 22px/1 var(--headline);letter-spacing:2px;padding:6px 12px 4px;border-radius:8px;background:var(--acc);color:#050706;text-transform:uppercase}
 .bv-src .cp.est{background:#FFB23F}
 .bv-pre{flex:none;margin-top:6px;text-align:center;font:800 16px/1 var(--display);letter-spacing:2px;color:#FFB23F;white-space:nowrap}
+.bv-pre.ver{color:#7DFFB2}
 .bv-src .sr{font:700 16px/1 var(--display);letter-spacing:2px;color:rgba(247,247,242,.66);text-transform:uppercase}
 .lg .ln{font:900 20px/1 var(--headline);letter-spacing:1px;padding:5px 8px 3px;border-radius:6px;border:2px solid var(--acc);color:var(--acc)}
 .bv-burst{position:absolute;left:50%;top:330px;width:1400px;height:1400px;margin-left:-700px;border-radius:50%;background:repeating-conic-gradient(from 0deg,rgba(255,122,46,.10) 0 4deg,transparent 4deg 12deg);-webkit-mask:radial-gradient(circle,#000 0,#000 30%,transparent 62%);mask:radial-gradient(circle,#000 0,#000 30%,transparent 62%);pointer-events:none}
@@ -176,10 +179,13 @@ const heldNote = (reason) => (/^NO_FROZEN_CARD_FILE/.test(String(reason ?? "")) 
 function paceHtml(cells, v) {
   if (!v.pace) return "";
   if (v.pace.state === "WITHHELD") return `<div class="bv-pace WITHHELD" data-pace="WITHHELD">${cell(cells, "pace", "PACE WITHHELD UNTIL VERIFIED PRICES")}</div>`;
-  const below = v.payout?.belowPace ? " · this card prices below pace" : "";
-  // Lane-level (PD 2026-11-04): the lane's step and next milestone, never "on pace" beside a card that prices below it.
-  const text = (v.pace.state === "ON_PACE" ? `Step ${v.step} · next milestone ${cents(v.pace.nextMilestoneCents)}` : `Behind pace by ${cents(v.pace.shortfallCents)} · milestone ${cents(v.pace.milestoneCents)}`) + below;
-  return `<div class="bv-pace ${v.pace.state}" data-pace="${v.pace.state}">${cell(cells, "pace", text.toUpperCase())}</div>`;
+  // One pace status, the engine's (founder 2026-11-04): BELOW PACE when the card's price is under the required pace
+  // (PAYOUT_COMPUTED inputs.belowPace), else BEHIND PACE when the lane's bankroll trails its milestone, else none. Never
+  // "on pace".
+  const status = v.payout?.belowPace === true ? "BELOW_PACE" : v.pace.state === "BEHIND" ? "BEHIND" : "NONE";
+  const word = status === "BELOW_PACE" ? " · below pace" : status === "BEHIND" ? ` · behind pace by ${cents(v.pace.shortfallCents)}` : "";
+  const text = `Step ${v.step} · next milestone ${cents(v.pace.nextMilestoneCents)}${word}`;
+  return `<div class="bv-pace ${status}" data-pace="${status}">${cell(cells, "pace", text.toUpperCase())}</div>`;
 }
 
 const bankHtml = (cells, v) => `<div class="bv-bank"><div class="st" data-bank="start"><div class="k">Start</div>${cell(cells, "bank.start", cents(v.baseCents), "v")}</div><div class="tr" data-bank="tracked"><div class="k">Tracked bankroll · settled</div>${cell(cells, "bank.tracked", v.bankrollCents == null ? "WITHHELD" : cents(v.bankrollCents), "v")}</div><div class="gl" data-bank="goal"><div class="k">Goal · hypothetical</div>${cell(cells, "bank.goal", cents(v.targetCents), "v")}</div></div>`;
@@ -227,6 +233,7 @@ export function bbmCard(view, combo = null, { testData = false } = {}) {
       const src = books ? `Odds ${books}${view.payout.capturedAt ? ` · captured ${ET_CLOCK.format(new Date(Date.parse(view.payout.capturedAt)))} ET` : ""}` : null;
       if (combined || src) middle += `<div class="bv-src">${combined ? cell(cells, "price.combined", combined, `cp${view.payout.estimate ? " est" : ""}`) : ""}${src ? cell(cells, "price.source", src, "sr") : ""}</div>`;
       if (view.payout.preliminary) middle += `<div class="bv-pre">${cell(cells, "price.preliminary", PRELIMINARY_TAG.toUpperCase())}</div>`;
+      else if (!view.payout.fixture) middle += `<div class="bv-pre ver">${cell(cells, "price.verified", VERIFIED_TAG.toUpperCase())}</div>`;
     }
     moneyBlock = moneyHtml(cells, view);
   } else if (view.view === VIEW.BUSTED) {
@@ -300,6 +307,10 @@ export function verifyBbmCard(card) {
   if (card.view === VIEW.CARD && !card.priced && got["money.payout"] !== AWAITING) e.push(`an unpriced card must say ${AWAITING}`);
   if (card.samplePrice && !text.includes(SAMPLE_PRICE_RIBBON)) e.push("fixture price without its SAMPLE PRICE ribbon");
   if (card.preliminary !== text.includes(PRELIMINARY_TAG.toUpperCase())) e.push(card.preliminary ? "a preliminary price without its tag" : "a preliminary tag on a verified price");
+  if (/PRELIMINARY/i.test(text) && !card.preliminary) e.push("preliminary wording on a verified image");
+  const verified = card.priced && !card.preliminary && !card.samplePrice;
+  if (verified !== (got["price.verified"] === VERIFIED_TAG.toUpperCase())) e.push(verified ? "a verified price without its VERIFIED tag" : "a VERIFIED tag without a verified real price");
+  if (/\bON PACE\b/.test(text)) e.push("ON PACE wording (the engine gives only BELOW PACE or BEHIND PACE)");
   if (!card.samplePrice && text.includes(SAMPLE_PRICE_RIBBON)) e.push("SAMPLE PRICE ribbon without a fixture price");
   if (card.testData !== text.includes(TEST_RIBBON)) e.push(card.testData ? "test fixture without its TEST ribbon" : "TEST ribbon on real data");
   return e;
