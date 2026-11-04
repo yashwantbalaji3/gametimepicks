@@ -863,7 +863,9 @@ test("graphic history: an image only when the path passes IMAGE_PATH and the byt
   const h = html(React.createElement(LaneCard, { lane: v }));
   assert.ok(h.indexOf("<strong>2026-11-03") < h.indexOf("<strong>2026-11-02"));
   assert.doesNotMatch(h, /evil\.example/);
-  assert.equal((h.match(/<img /g) ?? []).length, 1);
+  /* Only the verified graphic is offered, as a link (no raw image tag: identity-assets ratchet). */
+  assert.equal((h.match(/data-lane-graphic-image=""/g) ?? []).length, 1);
+  assert.equal((h.match(/<img /g) ?? []).length, 0);
   assert.match(read("src/lib/products/challenge-lanes/lane.mjs"), /IMAGE_PATH\.test\(g\.imagePath\)/, "the site reuses the engine's image-path rule");
   assert.match(text(html(React.createElement(LaneCard, { lane: lane.laneView(FIX["ms-b"]) }))), /No graphic has been posted for this run yet\./);
 });

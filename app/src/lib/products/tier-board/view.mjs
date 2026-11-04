@@ -17,7 +17,7 @@
  * PRICING: a leg price or a combined price is rendered only when the source says pricing is authorized AND carries the
  * price. Neither source does today, so every card reads as model-only, with no odds and no payout.
  */
-import { PARLAY_ODDS_BANDS, PUBLIC_RISK_LABELS } from "../../parlays/risk-odds-bands.mjs";
+import { PARLAY_ODDS_BANDS, PUBLIC_RISK_LABELS, publicRiskLabel } from "../../parlays/risk-odds-bands.mjs";
 import { hubLaneAnchor, slateHref } from "../../sports/nba/projection-board-ops.mjs";
 
 export const TIER_BOARD_SCHEMA = "gtp.suggested-cards@1";
@@ -64,7 +64,7 @@ export const PRODUCT_IDENTITY = Object.freeze({
     risk: "Even a Low Risk card loses often: in the Low band the model gives both legs together about a coin flip or better, never a certainty.",
   },
   moonshot: {
-    product: "moonshot", name: "Moonshot", eyebrow: "High risk · 3+ legs", bands: ["high", "longshot"],
+    product: "moonshot", name: "Moonshot", eyebrow: `${publicRiskLabel("high")} · 3+ legs`, bands: ["high", "longshot"],
     promise: "Three or more legs stacked for a big swing. The model's best long-odds combination of the day.",
     risk: "Most Moonshots lose. In these bands the model gives every leg landing together a 1-in-4 chance or less.",
   },

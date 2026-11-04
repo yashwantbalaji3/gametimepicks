@@ -127,7 +127,9 @@ const FULL = { siteDisplay: true, socialDisplay: true, providerTermsRef: "docs/l
 test("NFL display authorization: site ON, social OFF (founder 2026-10-29), same fields as NBA; NFL_LINE_DISPLAY is derived from the record", () => {
   assert.deepEqual(Object.keys(DISPLAY_AUTHORIZATION.nfl).sort(), Object.keys(DISPLAY_AUTHORIZATION.nba).sort());
   const { directionQualified, ...switches } = DISPLAY_AUTHORIZATION.nfl;
-  assert.deepEqual(switches, { siteDisplay: true, socialDisplay: false, providerTermsRef: "docs/odds/ODDS_API_DISPLAY_TERMS_2026-10-29.md", attribution: null, approvedBy: "founder", approvedAt: "2026-10-29", socialFeedPrices: false, socialFeedPricesConfirmationRef: null });
+  assert.deepEqual(switches, { siteDisplay: true, socialDisplay: false, providerTermsRef: "docs/odds/ODDS_API_DISPLAY_TERMS_2026-10-29.md", attribution: null, approvedBy: "founder", approvedAt: "2026-10-29", socialFeedPrices: false, socialFeedPricesConfirmationRef: null,
+    /* Challenge-lane graphic prices (BBM V2, 2026-11-04): a separate switch, OFF for NFL. */
+    challengeGraphicsPrices: false, challengeGraphicsTermsRef: null, challengeGraphicsApprovedAt: null });
   assert.ok(Object.values(directionQualified).every((q) => q.qualified === false), "no NFL family is direction-qualified");
   assert.deepEqual({ ...NFL_LINE_DISPLAY }, { public: true, social: false, socialPrices: false, reason: NOT_AUTHORIZED_REASON.nfl });
   assert.deepEqual({ ...nflLineDisplayFrom({ nfl: FULL }) }, { public: true, social: true, socialPrices: false, reason: null });
