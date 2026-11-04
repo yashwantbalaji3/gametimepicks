@@ -243,3 +243,18 @@ test("research card record: selection label and flag codes public; evidence line
   assert.equal(priv.flagText.length, 3);
   assert.deepEqual(priv.lineup, { expectedLineup: "Star out", exact: { hits: 2, games: 2 }, uncertainTeammates: ["Wing"] });
 });
+
+test("minutes drop ≥ 20% flags and caps evidence to minutes-comparable games; lane types split moneyline and props", async () => {
+  const { assignFourLanes } = await import("./levels.mjs");
+  const R = { mode: "RESEARCH" };
+  const cap = capture([["1", "p1", "pts", 20.5, -150, 120], ["2", "p2", "pts", 20.5, -150, 120]]);
+  const kj = row({ role: { minutesAvg: 23, minutesSd: 3, gamesPlayed: 7, stable: true, note: "lane projected 15.5 min; L5 mean 24.4" }, hitRate: { windows: [{ window: "last10", hits: 9, n: 10 }, { window: "2025-26", hits: 59, n: 82 }, { window: "last20-minutes-within-4", hits: 4, n: 9 }], shrunk: { rate: 0.656, nEffective: 70 } } });
+  const r = evaluateLevelSet([legFromShortlist(kj)], ctx(cap, MS1, { params: R }));
+  assert.ok(r.flags.some((x) => x.startsWith("B_MINUTES_DROP")));
+  assert.ok(r.reasons.some((x) => /A_WEAK_EVIDENCE .*minutes-comparable rate 0\.455/.test(x)), r.reasons.join("; "));
+  const legs = [legFromShortlist(row({ eventId: "2", eventLabel: "CCC @ DDD", player: { playerId: "p2", name: "Two", team: "DDD" } }))];
+  const s = assignFourLanes({ legs, now: NOW, propCapture: cap, params: { laneTypes: { "bb-a": "moneyline", "ms-a": "moneyline", "bb-b": "props", "ms-b": "props" } } });
+  assert.deepEqual(["bb-a", "bb-b", "ms-a", "ms-b"].map((id) => s.lanes[id].status), ["HELD", "READY_FOR_APPROVAL", "HELD", "READY_FOR_APPROVAL"]);
+  assert.equal(s.lanes["bb-a"].code, "NO_CANDIDATES_FOR_LANE_TYPE");
+  assert.ok(s.lanes["bb-b"].optionsABC.A && s.lanes["bb-b"].optionsABC.B === null);
+});

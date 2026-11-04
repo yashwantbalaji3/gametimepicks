@@ -42,6 +42,10 @@ export const LEVEL_B_PARAMS = Object.freeze({
   guideWindow: Object.freeze({ value: Object.freeze([0.75, 1.30]), state: "PROPOSED", note: "RESEARCH: gross within target × [lo, hi]; inside it, evidence ranks first and target proximity later" }),
   lineupExcludeMinN: Object.freeze({ value: 20, state: "PROPOSED", note: "RESEARCH: exclude when tonight's teammate scenario has n ≥ this and its side rate is below lineupExcludeRate" }),
   lineupExcludeRate: Object.freeze({ value: 0.55, state: "PROPOSED" }),
+  /* Founder ~19:55Z: a projected-minutes drop of ≥ 20% vs L5 is a flag, and the evidence is re-weighted to minutes-comparable games. */
+  minutesDropPct: Object.freeze({ value: 0.20, state: "PROPOSED" }),
+  /* Founder ~19:55Z lane specialization (bbm-rules@2 laneType): A lanes moneylines only, B lanes player props only. */
+  laneTypes: Object.freeze({ value: null, state: "PROPOSED", note: '{ "bb-a": "moneyline", "ms-a": "moneyline", "bb-b": "props", "ms-b": "props" }' }),
   legDecimalRange: Object.freeze({ value: Object.freeze([1.25, 4.0]), state: "PROPOSED" }),
   minBooksAtLine: Object.freeze({ value: 2, state: "PROPOSED" }),
   maxQuoteAgeMs: Object.freeze({ value: 90 * 60 * 1000, state: "PROPOSED" }),
@@ -141,6 +145,21 @@ export function legSignals(leg, { params = null, now } = {}) {
       if (ro.stable !== true) soft(`B_ROLE_UNSTABLE ${leg.legId}${ro.note ? `: ${ro.note}` : ""}`);
       if (!(ro.gamesPlayed >= P("minGamesPlayed", params))) r.push(`B_FEW_GAMES ${leg.legId}: ${ro.gamesPlayed ?? 0} < ${P("minGamesPlayed", params)}`);
       if (cv == null || cv > P("maxMinutesCv", params)) soft(`B_MINUTES_VOLATILE ${leg.legId}: minutes CV ${cv == null ? "unknown" : cv.toFixed(3)}`);
+    }
+  }
+  /* Projected-minutes drop: the lane's projection for tonight vs the L5 mean (from the evaluator's role note or fields).
+     When it drops by ≥ minutesDropPct, flag it (counts twice) and cap the evidence rate at the minutes-comparable
+     window's rate (k+1)/(n+2), so a role that shrinks tonight is not ranked on history from a bigger role. */
+  if (leg.family !== "winner" && ro) {
+    const m = String(ro.note ?? "").match(/lane projected ([\d.]+) min; L5 mean ([\d.]+)/);
+    const proj = ro.laneProjected ?? (m ? Number(m[1]) : null); const l5 = ro.l5Mean ?? (m ? Number(m[2]) : null);
+    if (proj != null && l5 > 0 && proj < l5 * (1 - P("minutesDropPct", params))) {
+      const mw = w.find((x) => x.window === "last20-minutes-within-4");
+      const capped = mw && mw.n > 0 ? (mw.hits + 1) / (mw.n + 2) : null;
+      (research ? f : r).push(`B_MINUTES_DROP ${leg.legId}: projected ${proj} min vs L5 ${l5}${mw ? ` · minutes-comparable ${mw.hits}/${mw.n}` : " · no minutes-comparable window"}`);
+      if (research) f.push(`B_MINUTES_DROP_WEIGHT ${leg.legId}`);
+      if (capped != null && A.shrunkRate != null && capped < A.shrunkRate) { A.uncappedRate = A.shrunkRate; A.shrunkRate = capped; A.basis = `${A.basis}; capped to minutes-comparable games`; }
+      if (A.shrunkRate != null) { const floor = P("minShrunkRateByFamily", params)?.[leg.family] ?? P("minShrunkRate", params); if (A.shrunkRate < floor - 1e-9 && !r.some((x) => x.startsWith(`A_WEAK_EVIDENCE ${leg.legId}`))) r.push(`A_WEAK_EVIDENCE ${leg.legId}: minutes-comparable rate ${A.shrunkRate.toFixed(3)} < ${floor}`); }
     }
   }
   const C = { status: leg.injury?.status ?? null, fetchedAt: leg.injury?.fetchedAt ?? null };
@@ -308,6 +327,16 @@ const notWeaker = (x, y, bucket) => { const a = tierOf(x, bucket); const b = tie
  *   - no qualifying candidate → HELD.
  * Returns per lane: the assignment, the top 3 options under the lane's constraints, and the trade-offs.
  */
+/** Option A = best single, Option B = best 2-leg, Option C = next best overall (rules-based order), each with the joint
+    evidence lower bound (product of each leg's interval lower bound: no independence benefit is claimed) and the joint
+    market no-vig (product of the quoting book's per-leg no-vig: disclosure, not a probability claim). */
+function optionsABC(ranked, pick) {
+  const view = (c, tag) => c && { option: tag, candidateId: c.candidateId, rank: c.rank, legCount: c.legCount, grossPayoutCents: c.money.grossPayoutCents, targetDeviation: c.targetDeviation, american: c.price.american, jointEvidenceLower: c.legs.reduce((p, l) => p * (l.signals?.A?.interval95?.[0] ?? NaN), 1), jointMarketNoVig: c.legs.reduce((p, l) => { const a = l.quote?.american; const o = l.quote?.otherAmerican; if (!Number.isInteger(a) || !Number.isInteger(o)) return NaN; const x = a > 0 ? 100 / (a + 100) : -a / (-a + 100); const y = o > 0 ? 100 / (o + 100) : -o / (-o + 100); return p * (x / (x + y)); }, 1), flags: c.flags, legs: c.legs.map((l) => `${l.player?.name ?? l.team} ${l.family} ${l.side} ${l.line ?? ""}`.trim()) };
+  const A = ranked.find((c) => c.legCount === 1) ?? null; const B = ranked.find((c) => c.legCount === 2) ?? null;
+  const C = ranked.find((c) => c !== A && c !== B) ?? null;
+  return { A: view(A, "A single"), B: view(B, "B two-leg"), C: view(C, "C next"), chosen: pick?.candidateId ?? null };
+}
+
 export function assignFourLanes({ legs, now, propCapture, propCaptureSha256 = null, h2h = null, params = null, bankrolls = { "bb-a": 10000, "bb-b": 10000, "ms-a": 2500, "ms-b": 2500 }, steps = { "bb-a": 1, "bb-b": 1, "ms-a": 1, "ms-b": 1 } }) {
   const bucket = P("rateBucket", params);
   const bandParams = params?.bandPct != null ? { bandPct: params.bandPct } : null;
@@ -318,7 +347,9 @@ export function assignFourLanes({ legs, now, propCapture, propCaptureSha256 = nu
       const pos = stepPosition({ product, step: steps[laneId], bankrollCents: bankrolls[laneId], params: bandParams });
       if (!pos.ok) { out[laneId] = { laneId, status: "HELD", code: pos.refusal, options: [] }; continue; }
       const partner = laneId === b ? out[a]?.card : null;
-      const ev = evaluateLevelCandidates({ legs, position: pos, now, propCapture, propCaptureSha256, h2h, params, excludeGames: partner ? partner.legs.map((l) => l.gameId) : [] });
+      const laneType = P("laneTypes", params)?.[laneId] ?? null;
+      const laneLegs = laneType === "moneyline" ? legs.filter((l) => l.family === "winner") : laneType === "props" ? legs.filter((l) => l.family !== "winner") : legs;
+      const ev = evaluateLevelCandidates({ legs: laneLegs, position: pos, now, propCapture, propCaptureSha256, h2h, params, excludeGames: partner ? partner.legs.map((l) => l.gameId) : [] });
       const eligible = ev.ranked;
       const identical = (c) => assigned.find((x) => x.product !== product && legSetKey(x.card) === legSetKey(c));
       let pick = eligible[0] ?? null; let note = null;
@@ -332,8 +363,8 @@ export function assignFourLanes({ legs, now, propCapture, propCaptureSha256 = nu
       const options = eligible.slice(0, 3).map((c) => ({ rank: c.rank, candidateId: c.candidateId, identicalTo: identical(c)?.laneId ?? null, legs: c.legs.map((l) => ({ legId: l.legId, player: l.player?.name ?? null, team: l.team, family: l.family, side: l.side, line: l.line, eventLabel: l.eventLabel, book: l.quote?.book ?? null, american: l.quote?.american ?? null, quotedAt: l.quote?.quotedAt ?? null, fetchedAt: l.quote?.fetchedAt ?? null })), american: c.price.american, grossPayoutCents: c.money.grossPayoutCents, targetDeviation: c.targetDeviation, rankKeys: c.rankKeys }));
       const why = {}; for (const c of ev.candidates) for (const x of c.reasons) { const k = x.split(/[ :]/)[0]; why[k] = (why[k] ?? 0) + 1; }
       out[laneId] = pick
-        ? { laneId, product, status: "READY_FOR_APPROVAL", classification: LEVEL.B, card: pick, note, options, position: pos, counts: ev.counts, reasonCounts: why }
-        : { laneId, product, status: "HELD", code: "NO_QUALIFIED_CARD", options, position: pos, counts: ev.counts, reasonCounts: why };
+        ? { laneId, product, laneType, status: "READY_FOR_APPROVAL", classification: LEVEL.B, card: pick, note, options, optionsABC: optionsABC(eligible, pick), position: pos, counts: ev.counts, reasonCounts: why }
+        : { laneId, product, status: "HELD", code: laneLegs.length ? "NO_QUALIFIED_CARD" : "NO_CANDIDATES_FOR_LANE_TYPE", laneType, options, position: pos, counts: ev.counts, reasonCounts: why };
       if (pick) assigned.push({ laneId, product, card: pick });
     }
   }
