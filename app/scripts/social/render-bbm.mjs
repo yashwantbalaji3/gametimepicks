@@ -9,7 +9,8 @@
  * imports the folder and the founder approves the exact version there.
  *
  *   cd app && npx tsx scripts/social/render-bbm.mjs --date <ET date> --as-of <ISO> --suggested-cards <file> \
- *       --lanes <dir holding the public projections bb-a.json ...> --roster <unified roster.json> --out <staging root>
+ *       --lanes <dir holding the public projections bb-a.json ...> --private-root <engine run logs, read only> \
+ *       --roster <unified roster.json> --out <staging root>
  *
  * Every lane is read from the engine's public projection (gtp.challenge-lane.public@1, the file the website reads,
  * contentSha256 verified; bbm-lane.mjs), and its frozen card is joined to the founder rule B suggested-cards file it
@@ -29,6 +30,8 @@ import { parseArgs } from "./render-social-pack.mjs";
 import { laneBytes } from "./render-combo-cards.mjs";
 import { BBM_DESIGN_VERSION, FACT_LINE, bbmCard, bbmLayoutErrors, cents, verifyBbmCard } from "./bbm-cards.mjs";
 import { BBM_LANES, P1_PRICE_SOURCE_DECIDED, VIEW, laneView, pricedDay, privateBankrollCents } from "../../src/lib/social/bbm-lane.mjs";
+import { readLaneProjection } from "../../src/lib/challenge-lanes/public-reader.mjs";
+import { currentRun } from "../../src/lib/challenge-lanes/store.mjs";
 import { MARKET_SHORT, comboFromSuggestedCards, resolveCombo, suggestedCardsSealed } from "../../src/lib/social/combo-social.mjs";
 
 export const BBM_PACKAGE_SCHEMA = "gtp.bbm-package@1";
@@ -273,12 +276,15 @@ async function main(argv) {
   for (const k of ["suggested-cards", "lanes", "roster", "out"]) if (!a[k]) throw new Error(`--${k} is required`);
   const slate = slateReader(String(a["suggested-cards"]).split(",").map((f) => JSON.parse(fs.readFileSync(f, "utf8"))));
   const roster = JSON.parse(fs.readFileSync(a.roster, "utf8"));
+  // The public file through the engine's one reader; prices from the engine's private run log (read only, never written).
   const lanesRef = {}; const prepared = [];
   for (const laneId of Object.keys(BBM_LANES)) {
-    const f = path.join(a.lanes, `${laneId}.json`);
-    if (!fs.existsSync(f)) { prepared.push({ laneId, refused: `no lane projection ${laneId}.json in ${a.lanes}` }); continue; }
-    lanesRef[laneId] = f;
-    prepared.push(prepareLane({ doc: JSON.parse(fs.readFileSync(f, "utf8")), date, slate, roster, asOf }));
+    const r = readLaneProjection({ laneId, dir: a.lanes });
+    if (!r.ok) { prepared.push({ laneId, refused: `lane projection ${r.refusal} (${a.lanes}/${laneId}.json)` }); continue; }
+    const run = a["private-root"] ? currentRun(a["private-root"], laneId) : null;
+    if (a["private-root"] && !run) { prepared.push({ laneId, refused: `no private run log for ${laneId} under ${a["private-root"]}` }); continue; }
+    lanesRef[laneId] = run ? path.join(a["private-root"], laneId, run.file) : path.join(a.lanes, `${laneId}.json`);
+    prepared.push(prepareLane({ doc: r.doc, date, slate, roster, asOf, privateEvents: run?.events ?? null }));
   }
   const plans = planPackages(prepared, date);
   const { chromium } = await import("playwright");
