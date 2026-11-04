@@ -227,6 +227,7 @@ test("PRICED: odds, book and capture time per leg, the combined price (leg produ
   const plain = text(html(React.createElement(LaneCard, { lane: lane.laneView(doc) })));
   assert.doesNotMatch(plain, /SAMPLE BOOK|\+120|-150|Combined price/);
   assert.match(plain, /Potential payout · profit Awaiting verified prices/);
+  assert.doesNotMatch(plain, /21\+/, "no responsible-gambling line without prices");
   // A same-game estimate is labelled as one, never as a book's offer.
   const sg = { ...d, day: { ...d.day, price: { ...d.day.price, method: "LEG_PRODUCT_ESTIMATE", estimate: true, label: null } } };
   assert.match(text(html(React.createElement(LaneCard, { lane: lane.laneView(doc, { display: sg }) }))), /Combined price · estimate \(same-game legs, not a book.s offer\)/);
@@ -240,7 +241,7 @@ test("PRICED CONSISTENCY: the same frozen record gives the same numbers on the s
   const { selectLaneCards, laneState, runStarted } = await import("../../lib/challenge-lanes/lanes.mjs");
   const { prepareLane, priceLane } = await import("../../lib/challenge-lanes/ops.mjs");
   const { laneProjection, serializeProjection } = await import("../../lib/challenge-lanes/projection.mjs");
-  const { encryptLanePriceDisplay } = await import("../../lib/challenge-lanes/price-display.mjs");
+  const { encryptLanePriceDisplay, lanePriceDisplay } = await import("../../lib/challenge-lanes/price-display.mjs");
   const REPO = path.resolve(APP, "..");
   const nba = JSON.parse(read("public/data/nba/experimental-public/2026-11-02.json"));
   const DOC = sealSuggestedCards(dailySuggestedCards(buildLegPool({ repoRoot: REPO, date: "2026-11-02", evaluatedAt: nba.generatedAt })));
@@ -282,6 +283,16 @@ test("PRICED CONSISTENCY: the same frozen record gives the same numbers on the s
   const h = text(html(React.createElement(LaneCard, { lane: v })));
   assert.match(h, new RegExp(`Potential payout · profit \\${usd(pay.grossPayoutCents)} profit \\${usd(pay.profitCents)}`));
   assert.match(h, /-910 draftkings/);
+  assert.match(h, /21\+ · Gamble responsibly/, "the responsible-gambling line shows where prices show");
+
+  // SITE = GRAPHIC INPUTS: the graphics read prices with the engine's lanePriceDisplay over the private run log (bb-social,
+  // claude/bbm-v2-graphics bbm-lane.mjs). For the same lane event the site's numbers equal that day entry's.
+  const g = lanePriceDisplay("bb-a", [ev]).runs[0].days.find((x) => x.date === "2026-11-02" && x.result === "VERIFIED");
+  assert.equal(v.current.price.book, g.book);
+  assert.deepEqual(v.current.legs.map((l) => [l.legId, l.price.odds]), g.legs.map((l) => [l.legId, sign(l.price)]));
+  assert.ok(v.current.price.combined.endsWith(`${g.decimalPrice.toFixed(2)}×`));
+  assert.deepEqual([v.wager, v.potentialPayout, v.potentialProfit], [usd(g.stakeCents), usd(g.grossPayoutCents), usd(g.profitCents)]);
+  assert.equal(v.current.price.requiredMultiple, g.pace);
 
   // Another key, or no key: nothing priced is shown. A tampered envelope is a release error.
   for (const e of [{ GTP_ODDS_DISPLAY_KEY: crypto.randomBytes(32).toString("hex") }, {}]) {

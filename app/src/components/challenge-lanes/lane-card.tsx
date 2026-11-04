@@ -148,6 +148,9 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
         )}
         <div className="cl-money-cell"><dt>Ladder progress</dt><dd>{lane.cleared} of {lane.steps}<span className="cl-money-sub">steps cleared</span></dd></div>
       </dl>
+      {lane.current?.price ? (
+        <p className="cl-rg" data-lane-rg="">21+ · <a href="/responsible-use/">Gamble responsibly</a></p>
+      ) : null}
 
       {lane.story.length ? (
         <section className="cl-block" aria-label={`${lane.name} story`}>
