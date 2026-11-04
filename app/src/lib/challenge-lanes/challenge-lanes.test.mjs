@@ -45,7 +45,7 @@ function fixturePrice(card, { american = -110, parlay = { method: "LEG_PRODUCT" 
 const priced = (laneId, opts = {}, pOpts = {}) => {
   const ev = prepared(laneId);
   const card = laneState(ev).open.cardEvent.card;
-  const r = priceLane(ev, { date: DATE, at: fixturePrice(card, pOpts).legs[0].fetchedAt, price: fixturePrice(card, pOpts), suggestedCards: DOC, permittedProviders: [FIX], ...opts });
+  const r = priceLane(ev, { date: DATE, at: fixturePrice(card, pOpts).legs[0].fetchedAt, price: fixturePrice(card, pOpts), suggestedCards: DOC, permittedProviders: [FIX], eligibleBooks: [FIX], ...opts });
   return { events: [...ev, ...r.events], r, card };
 };
 /** A finals record in which the lane's own legs won or lost as chosen (the committed record's rows, sides flipped). */
@@ -152,11 +152,15 @@ test("payout refusals: each named, none estimated", () => {
   const cardEvent = laneState(ev).open.cardEvent;
   const card = cardEvent.card;
   const priceEv = (price) => chainEvent(ev, { type: "PRICE_VERIFIED", date: DATE, step: 1, at: AT, cardEventSha256: cardEvent.sha256, price });
-  const run = (o) => computePayout({ events: ev, cardEvent, suggestedCards: DOC, priceEvent: priceEv(fixturePrice(card)), stakeCents: 10000, bankrollCents: 10000, ladder: { targetCents: 1000000, stepsRemaining: 5 }, permittedProviders: [FIX], ...o });
+  const run = (o) => computePayout({ events: ev, cardEvent, suggestedCards: DOC, priceEvent: priceEv(fixturePrice(card)), stakeCents: 10000, bankrollCents: 10000, ladder: { targetCents: 1000000, stepsRemaining: 5 }, permittedProviders: [FIX], eligibleBooks: [FIX], ...o });
   const codes = (r) => (r.refusals ?? []).map((x) => x.code);
   assert.equal(run({}).ok, true);
   assert.deepEqual(codes(run({ priceEvent: null })), ["NO_PRICE_VERIFIED"]);
-  assert.deepEqual(codes(run({ permittedProviders: PERMITTED_PRICE_PROVIDERS })), ["PROVIDER_NOT_PERMITTED"], "P1: nothing is permitted by default");
+  assert.deepEqual(codes(run({ permittedProviders: PERMITTED_PRICE_PROVIDERS })), ["PROVIDER_NOT_PERMITTED"], "only the-odds-api is permitted");
+  assert.deepEqual([...PERMITTED_PRICE_PROVIDERS], ["the-odds-api"]);
+  assert.deepEqual(codes(run({ eligibleBooks: ["draftkings"] })), ["BOOK_NOT_ELIGIBLE"], "only eligible operators");
+  const mixed = fixturePrice(card); mixed.legs[1] = { ...mixed.legs[1], book: "OTHER-FIXTURE" };
+  assert.deepEqual(codes(run({ priceEvent: priceEv(mixed), eligibleBooks: [FIX, "OTHER-FIXTURE"] })), ["CROSS_BOOK_MIX"], "all legs from one book");
   const other = fixturePrice(card); other.legs[1] = { ...other.legs[1], legId: "nba:401909907:winner" };
   assert.ok(codes(run({ priceEvent: priceEv(other) })).includes("PRICE_LEGS_MISMATCH"));
   const flipped = fixturePrice(card); flipped.legs[0] = { ...flipped.legs[0], selectionCode: flipped.legs[0].selectionCode === "home" ? "away" : "home" };
@@ -317,7 +321,7 @@ test("Bank Builder 2-leg max is a hard refusal (selection and payout)", () => {
   const extra = { ...cardEvent.card.legs[0], legId: "nba:401909911:winner", gameId: "401909911" };
   const big = { ...cardEvent, card: { ...cardEvent.card, legs: [...cardEvent.card.legs, extra] } };
   const price = fixturePrice(big.card);
-  const r = computePayout({ events: ev, cardEvent: big, suggestedCards: DOC, priceEvent: chainEvent(ev, { type: "PRICE_VERIFIED", cardEventSha256: big.sha256, price }), stakeCents: 10000, bankrollCents: 10000, ladder: { targetCents: 1000000, stepsRemaining: 5 }, permittedProviders: [FIX] });
+  const r = computePayout({ events: ev, cardEvent: big, suggestedCards: DOC, priceEvent: chainEvent(ev, { type: "PRICE_VERIFIED", cardEventSha256: big.sha256, price }), stakeCents: 10000, bankrollCents: 10000, ladder: { targetCents: 1000000, stepsRemaining: 5 }, permittedProviders: [FIX], eligibleBooks: [FIX] });
   assert.deepEqual(r.refusals.map((x) => x.code), ["LEG_COUNT_EXCEEDED"]);
 });
 
@@ -326,7 +330,7 @@ test("prop legs are line-bound; same-game legs need the book's whole-parlay pric
   const cardEvent = laneState(ev).open.cardEvent;
   const prop = (line) => ({ ...cardEvent.card.legs[0], legId: "nba:401909908:prop:4432166:pts", market: "player-prop", prop: { playerId: "4432166", playerName: "FIXTURE PLAYER", stat: "pts", side: "over", line } });
   const card = (legs) => ({ ...cardEvent, card: { ...cardEvent.card, legs } });
-  const pay = (ce, price) => computePayout({ events: ev, cardEvent: ce, suggestedCards: DOC, priceEvent: chainEvent(ev, { type: "PRICE_VERIFIED", cardEventSha256: ce.sha256, price }), stakeCents: 2500, bankrollCents: 2500, ladder: { targetCents: 100000, stepsRemaining: 5 }, permittedProviders: [FIX] });
+  const pay = (ce, price) => computePayout({ events: ev, cardEvent: ce, suggestedCards: DOC, priceEvent: chainEvent(ev, { type: "PRICE_VERIFIED", cardEventSha256: ce.sha256, price }), stakeCents: 2500, bankrollCents: 2500, ladder: { targetCents: 100000, stepsRemaining: 5 }, permittedProviders: [FIX], eligibleBooks: [FIX] });
   const codes = (r) => (r.refusals ?? []).map((x) => x.code);
   const noLine = card([prop(null), ...cardEvent.card.legs.slice(1)]);
   assert.ok(codes(pay(noLine, fixturePrice(noLine.card))).includes("PROP_LINE_UNVERIFIED"), "no line → never priced (lane holds UNPRICED)");
@@ -337,6 +341,9 @@ test("prop legs are line-bound; same-game legs need the book's whole-parlay pric
   assert.ok(codes(pay(withLine, atLine)).includes("SAME_GAME_NEEDS_PARLAY_PRICE"), "the prop shares a game with the moneyline leg");
   const quoted = { ...atLine, parlay: { method: "BOOK_QUOTED_PARLAY", oddsFormat: "american", price: 1200, provider: FIX, fetchedAt: atLine.legs[0].fetchedAt } };
   assert.deepEqual(codes(pay(withLine, quoted)), [], "the book's whole-parlay price settles the correlation");
+  const est = computePayout({ events: ev, cardEvent: withLine, suggestedCards: DOC, priceEvent: chainEvent(ev, { type: "PRICE_VERIFIED", cardEventSha256: withLine.sha256, price: atLine }), stakeCents: 2500, bankrollCents: 2500, ladder: { targetCents: 100000, stepsRemaining: 5 }, permittedProviders: [FIX], eligibleBooks: [FIX], allowSameGameEstimate: true });
+  assert.ok(est.ok, JSON.stringify(est.refusals));
+  assert.deepEqual([est.inputs.estimate, est.inputs.method, est.inputs.label], [true, "LEG_PRODUCT_ESTIMATE", "ESTIMATE — same-game leg product, not a book's offer"]);
   assert.equal(SEL.ms.A.card.legs.every((l) => l.market === "winner"), true, "the 11-02 file has no prop leg: no probability is derived from a median");
 });
 
@@ -347,7 +354,7 @@ test("FINISHED SHORT after step 5 wins below target; A and B never move each oth
     const sel = { ...SEL.bb, A: { card: { ...SEL.bb.A.card, legs: SEL.bb.A.card.legs.map((l) => ({ ...l, legId: `${l.legId}#${k}` })) }, reason: null } };
     ev = [...ev, ...prepareLane(ev, { date: day, at: AT, selection: sel }).events];
     const card = laneState(ev).open.cardEvent.card;
-    ev = [...ev, ...priceLane(ev, { date: day, at: fixturePrice(card).legs[0].fetchedAt, price: fixturePrice(card, { american: -200 }), suggestedCards: DOC, permittedProviders: [FIX] }).events];
+    ev = [...ev, ...priceLane(ev, { date: day, at: fixturePrice(card).legs[0].fetchedAt, price: fixturePrice(card, { american: -200 }), suggestedCards: DOC, permittedProviders: [FIX], eligibleBooks: [FIX] }).events];
     ev = [...ev, ...reconcileLane(ev, { finalsRecord: finalsWith(SEL.bb.A.card, ["WIN", "WIN"]) }).events];
   }
   const s = laneState(ev);
@@ -448,7 +455,9 @@ test("CLI replay: 11-02 cards, P1 stub, 11-03 (no slate), reconcile on the commi
   assert.equal(cli("prepare", ["--root", root, "--date", DATE, "--cards", cards]).status, 1, "no run without an approval reference");
   const a = ok(cli("prepare", ["--root", root, "--date", DATE, "--cards", cards, "--approved-by", "TEST"]));
   assert.deepEqual(Object.values(a.lanes).map((l) => l.action), ["CARD_FROZEN", "CARD_FROZEN", "CARD_FROZEN", "CARD_FROZEN"]);
-  const b = ok(cli("price", ["--root", root, "--date", DATE, "--now", "2026-11-02T22:00:00Z"]));
+  assert.equal(cli("price", ["--root", root, "--date", DATE, "--now", "2026-11-02T22:00:00Z"]).status, 2, "no --post-at: refused");
+  assert.equal(cli("price", ["--root", root, "--date", DATE, "--post-at", "2026-11-02T23:00:00Z"]).status, 2, "no receipt: refused, nothing spent");
+  const b = ok(cli("price", ["--root", root, "--date", DATE, "--now", "2026-11-02T22:00:00Z", "--close-unpriced", "replay: no price was captured on 11-02"]));
   assert.deepEqual(Object.values(b.lanes).map((l) => l.action), ["UNPRICED", "UNPRICED", "UNPRICED", "UNPRICED"]);
   const c = ok(cli("prepare", ["--root", root, "--date", "2026-11-03", "--cards", path.join(root, "none.json"), "--now", "2026-11-03T11:00:00Z"]));
   assert.ok(Object.values(c.lanes).every((l) => l.action === "NO_ELIGIBLE_CARD"));
@@ -464,7 +473,10 @@ test("CLI replay: 11-02 cards, P1 stub, 11-03 (no slate), reconcile on the commi
   fs.rmSync(root, { recursive: true, force: true });
 });
 
-test("no provider is reachable: the lane code and CLIs contain no network call", () => {
-  const files = [...fs.readdirSync(path.join(APP, "src/lib/challenge-lanes")).filter((f) => !f.endsWith(".test.mjs")).map((f) => path.join(APP, "src/lib/challenge-lanes", f)), ...fs.readdirSync(path.join(APP, "scripts/challenge-lanes")).map((f) => path.join(APP, "scripts/challenge-lanes", f))];
-  for (const f of files) assert.doesNotMatch(fs.readFileSync(f, "utf8"), /\bfetch\(|node:https?|from "https?"|odds-api|the-odds-api|ODDS_API/i, f);
+test("one network path: only odds.mjs reaches the provider, through an injected fetchImpl", () => {
+  const lib = path.join(APP, "src/lib/challenge-lanes");
+  const files = [...fs.readdirSync(lib).filter((f) => !f.endsWith(".test.mjs") && f !== "odds.mjs").map((f) => path.join(lib, f)), ...fs.readdirSync(path.join(APP, "scripts/challenge-lanes")).map((f) => path.join(APP, "scripts/challenge-lanes", f))];
+  for (const f of files) assert.doesNotMatch(fs.readFileSync(f, "utf8"), /\bfetch\(|node:https?|from "https?"|api\.the-odds-api\.com/i, f);
+  const odds = fs.readFileSync(path.join(lib, "odds.mjs"), "utf8");
+  assert.doesNotMatch(odds, /(?<![A-Za-z])fetch\(|node:https?|process\.env/, "odds.mjs calls only the injected fetchImpl and reads no environment");
 });

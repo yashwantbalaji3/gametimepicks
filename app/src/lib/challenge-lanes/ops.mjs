@@ -51,13 +51,13 @@ export function prepareLane(events, { date, at, selection, file = null, docSha25
   return { events: append(events, body).slice(events.length), action: "CARD_FROZEN", reason: null };
 }
 
-export const P1_UNPRICED = "P1_PRICE_SOURCE_UNDECIDED: no price provider is permitted (founder decision P1), so no price was requested from anyone; the card is not staked and the step is unchanged.";
+export const P1_UNPRICED = "UNPRICED: no verified price was recorded for this card before it was closed, so it is not staked and the step is unchanged.";
 
 /** The price step today: every lane holding an unpriced card for `date` gets STATUS UNPRICED. No provider exists here. */
-export function unpricedLane(events, { date, at }) {
+export function unpricedLane(events, { date, at, reason = P1_UNPRICED }) {
   const s = laneState(events);
   if (s.open?.date !== date || s.open.payoutEvent) return { events: [], action: "SKIP" };
-  return { events: append(events, { type: "STATUS", status: STATUS.UNPRICED, reason: P1_UNPRICED, date, step: s.step, at, source: "lanes-price" }).slice(events.length), action: STATUS.UNPRICED };
+  return { events: append(events, { type: "STATUS", status: STATUS.UNPRICED, reason, date, step: s.step, at, source: "lanes-price" }).slice(events.length), action: STATUS.UNPRICED };
 }
 
 /**
@@ -66,14 +66,14 @@ export function unpricedLane(events, { date, at }) {
  * @param {{ date, at, price, suggestedCards, postScheduledAt?, permittedProviders?, strictPace? }} p
  *   price: { legs: [{ legId, selectionCode, provider, book, oddsFormat, price, fetchedAt }], parlay: { method, oddsFormat, price, provider?, fetchedAt? }, priceSnapshotSha256 }
  */
-export function priceLane(events, { date, at, price, suggestedCards, postScheduledAt = null, permittedProviders, strictPace }) {
+export function priceLane(events, { date, at, price, suggestedCards, postScheduledAt = null, permittedProviders, eligibleBooks, strictPace }) {
   const s = laneState(events);
   if (s.open?.date !== date || s.open.payoutEvent) return { events: [], action: "SKIP" };
   const card = s.open.cardEvent;
   let ev = append(events, { type: "PRICE_VERIFIED", date, step: s.step, at, source: "lanes-price", cardEventSha256: card.sha256, price });
   const priceEvent = ev.at(-1);
-  ev = append(ev, { type: "STAKE_SET", date, step: s.step, at, source: "lanes-price", stakeCents: s.bankrollCents, placedWager: false, basis: "all-in tracked bankroll (D1 proposed)" });
-  const r = computePayout({ events: ev, cardEvent: card, suggestedCards, priceEvent, stakeCents: s.bankrollCents, bankrollCents: s.bankrollCents, ladder: { targetCents: s.targetCents, stepsRemaining: s.steps - s.step + 1 }, postScheduledAt, permittedProviders, strictPace });
+  ev = append(ev, { type: "STAKE_SET", date, step: s.step, at, source: "lanes-price", stakeCents: s.bankrollCents, placedWager: false, basis: "all-in tracked bankroll (D1 proposed)", postScheduledAt });
+  const r = computePayout({ events: ev, cardEvent: card, suggestedCards, priceEvent, stakeCents: s.bankrollCents, bankrollCents: s.bankrollCents, ladder: { targetCents: s.targetCents, stepsRemaining: s.steps - s.step + 1 }, postScheduledAt, permittedProviders, eligibleBooks, strictPace });
   if (r.ok) {
     ev = append(ev, { type: "PAYOUT_COMPUTED", result: "VERIFIED", date, step: s.step, at, source: "lanes-price", inputs: r.inputs, grossPayoutCents: r.grossPayoutCents, profitCents: r.profitCents });
     return { events: ev.slice(events.length), action: "PAYOUT_COMPUTED", payout: r };
