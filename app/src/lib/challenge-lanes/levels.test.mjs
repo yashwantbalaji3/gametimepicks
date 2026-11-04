@@ -243,3 +243,34 @@ test("research card record: selection label and flag codes public; evidence line
   assert.equal(priv.flagText.length, 3);
   assert.deepEqual(priv.lineup, { expectedLineup: "Star out", exact: { hits: 2, games: 2 }, uncertainTeammates: ["Wing"] });
 });
+
+test("minutes drop ≥ 20% flags and caps evidence to minutes-comparable games; lane types split moneyline and props", async () => {
+  const { assignFourLanes } = await import("./levels.mjs");
+  const R = { mode: "RESEARCH" };
+  const cap = capture([["1", "p1", "pts", 20.5, -150, 120], ["2", "p2", "pts", 20.5, 100, -120]]);
+  const kj = row({ role: { minutesAvg: 23, minutesSd: 3, gamesPlayed: 7, stable: true, note: "lane projected 15.5 min; L5 mean 24.4" }, hitRate: { windows: [{ window: "last10", hits: 9, n: 10 }, { window: "2025-26", hits: 59, n: 82 }, { window: "last20-minutes-within-4", hits: 4, n: 9 }], shrunk: { rate: 0.656, nEffective: 70 } } });
+  const r = evaluateLevelSet([legFromShortlist(kj)], ctx(cap, MS1, { params: R }));
+  assert.ok(r.flags.some((x) => x.startsWith("B_MINUTES_DROP")));
+  assert.ok(r.reasons.some((x) => /A_WEAK_EVIDENCE .*minutes-comparable rate 0\.455/.test(x)), r.reasons.join("; "));
+  const legs = [legFromShortlist(row({ eventId: "2", eventLabel: "CCC @ DDD", player: { playerId: "p2", name: "Two", team: "DDD" } }))];
+  const s = assignFourLanes({ legs, now: NOW, propCapture: cap, params: { laneTypes: { "bb-a": "moneyline", "ms-a": "moneyline", "bb-b": "props", "ms-b": "props" } } });
+  assert.deepEqual(["bb-a", "bb-b", "ms-a", "ms-b"].map((id) => s.lanes[id].status), ["HELD", "READY_FOR_APPROVAL", "HELD", "READY_FOR_APPROVAL"]);
+  assert.equal(s.lanes["bb-a"].code, "NO_CANDIDATES_FOR_LANE_TYPE");
+  assert.ok(s.lanes["bb-b"].optionsABC.A && s.lanes["bb-b"].optionsABC.B === null);
+});
+
+test("lane type: refused on mismatch; carried by a v2 run into the projection and the display", async () => {
+  const { runStartedV2 } = await import("./rules-v2.mjs");
+  const { laneProjection } = await import("./projection.mjs");
+  const { laneDisplay } = await import("./display.mjs");
+  const cap = capture([["1", "p1", "pts", 20.5, 100, -120]]);
+  const r = evaluateLevelSet([legFromShortlist(row())], ctx(cap, MS1, { laneType: "NBA_MONEYLINE" }));
+  assert.ok(r.reasons.some((x) => x.startsWith("LANE_TYPE_MISMATCH")));
+  assert.ok(!evaluateLevelSet([legFromShortlist(row())], ctx(cap, MS1, { laneType: "NBA_PLAYER_PROPS" })).reasons.some((x) => x.startsWith("LANE_TYPE")));
+  const ev = [runStartedV2({ laneId: "ms-b", runId: "run-2", startedAt: "2026-11-05T12:00:00Z", approvedBy: "TEST", laneType: "NBA_PLAYER_PROPS" })];
+  const pub = laneProjection("ms-b", [ev]);
+  assert.deepEqual([pub.laneType, pub.laneTypeLabel, pub.runs[0].laneType], ["NBA_PLAYER_PROPS", "NBA PLAYER PROPS", "NBA_PLAYER_PROPS"]);
+  const d = laneDisplay(pub);
+  assert.deepEqual([d.laneType, d.laneTypeLabel, d.runs[0].laneTypeLabel], ["NBA_PLAYER_PROPS", "NBA PLAYER PROPS", "NBA PLAYER PROPS"]);
+  assert.throws(() => runStartedV2({ laneId: "ms-b", runId: "r", startedAt: "x", approvedBy: "T", laneType: "MIXED" }), /unknown laneType/);
+});

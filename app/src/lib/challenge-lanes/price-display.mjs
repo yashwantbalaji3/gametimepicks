@@ -17,7 +17,7 @@ import { encryptDisplayArtifact, decryptDisplayArtifact, readDisplayKey } from "
 import { displayAuthorization } from "../odds/display-authorization.mjs";
 import { laneState, LANES, MILESTONES } from "./lanes.mjs";
 import { laneProjection } from "./projection.mjs";
-import { privateLeg } from "./card-fields.mjs";
+import { privateLeg, COMBINED_LABEL } from "./card-fields.mjs";
 
 export const PRICE_DISPLAY_SCHEMA = "gtp.challenge-lane.prices@1";
 export const priceDisplayAad = (laneId) => `challenge-lanes/${laneId}`;
@@ -52,7 +52,7 @@ export function lanePriceDisplay(laneId, runs) {
           stepOutcome: settled?.outcome ?? null, bankrollAfterCents: settled?.bankrollAfterCents ?? null,
           /* bbm-rules@2 only (absent from v1 bytes): the step target, band, multiplier and candidate behind the card. */
           ...(() => { const c = events.find((e) => e.sha256 === pay.inputs.cardEventSha256)?.card; return c?.classification ? { evidenceClass: c.classification, legDetails: c.legs.map((l) => privateLeg(l)) } : {}; })(),
-          ...(pay.inputs.ruleVersion ? { ruleVersion: pay.inputs.ruleVersion, targetPayoutCents: pay.inputs.targetPayoutCents ?? null, targetPayoutLabel: "STEP TARGET", requiredMultiplier: pay.inputs.requiredMultiplier ?? null, band: pay.inputs.band ?? null, candidateId: pay.inputs.candidateId ?? null, combinedLabel: "calculated leg product" } : {}),
+          ...(pay.inputs.ruleVersion ? { ruleVersion: pay.inputs.ruleVersion, targetPayoutCents: pay.inputs.targetPayoutCents ?? null, targetPayoutLabel: "STEP TARGET", requiredMultiplier: pay.inputs.requiredMultiplier ?? null, band: pay.inputs.band ?? null, candidateId: pay.inputs.candidateId ?? null, combinedLabel: COMBINED_LABEL[pay.inputs.method] ?? "calculated leg product" } : {}),
         });
       }
       const won = days.filter((d) => d.stepOutcome === "WIN").length;

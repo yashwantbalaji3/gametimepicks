@@ -10,7 +10,7 @@
  */
 import { canonical, sha256, verifyChain } from "./chain.mjs";
 import { LANES, MILESTONES, laneState, inPlay, publicStatusOf } from "./lanes.mjs";
-import { publicLeg } from "./card-fields.mjs";
+import { publicLeg, LANE_TYPE_LABEL } from "./card-fields.mjs";
 /* A card@2 (classified) card never carries its book line, price or line-dependent hit rates in the public file. */
 const publicCard = (c) => (c?.classification ? { ...c, legs: c.legs.map(publicLeg), combined: undefined, money: undefined, reasons: undefined } : c);
 
@@ -49,7 +49,7 @@ function publicRun(events) {
   const s = laneState(events);
   /* bbm-rules@2 runs carry their own ladder (step targets), leg cap and rule version; a v1 run's bytes are unchanged
      (every v2-only field is undefined there, and canonical() drops undefined keys). */
-  const v2 = events[0].rulesVersion ? { ruleVersion: events[0].rulesVersion, maxLegs: events[0].maxLegs, milestonesCents: events[0].stepTargetsCents } : null;
+  const v2 = events[0].rulesVersion ? { ruleVersion: events[0].rulesVersion, maxLegs: events[0].maxLegs, milestonesCents: events[0].stepTargetsCents, laneType: events[0].laneType, laneTypeLabel: events[0].laneType ? LANE_TYPE_LABEL[events[0].laneType] : undefined } : null;
   const wins = events.filter((e) => e.type === "STEP_SETTLED" && e.outcome === "WIN").length;
   const withheldMoney = wins > 0; // a settled priced win makes the bankroll price-derived
   /* Pace vs the illustrative milestone of the steps already won (§2). Every number here comes from the bankroll, so it is
@@ -63,7 +63,7 @@ function publicRun(events) {
   const receiptsFor = (date) => events.filter((e) => ["GRAPHIC_RENDERED", "APPROVED", "POSTED"].includes(e.type) && e.date === date).map((e) => publicEvent(e, withheldMoney));
   return {
     runId: s.runId, startedAt: s.startedAt, approvedBy: s.approvedBy, headSha256: events.at(-1).sha256, eventCount: events.length,
-    ...def({ ruleVersion: v2?.ruleVersion, maxLegs: v2?.maxLegs, milestonesCents: v2?.milestonesCents, supersedes: events[0].supersedes ?? undefined }),
+    ...def({ ruleVersion: v2?.ruleVersion, maxLegs: v2?.maxLegs, milestonesCents: v2?.milestonesCents, supersedes: events[0].supersedes ?? undefined, laneType: v2?.laneType, laneTypeLabel: v2?.laneTypeLabel }),
     status: s.status, publicStatus: publicStatusOf(s), statusReason: s.statusReason, pace, step: s.step, steps: s.steps, stepText: `STEP ${Math.min(s.step, s.steps)} OF ${s.steps}`,
     inPlay: inPlay(s), stepsWon: wins,
     trackedBankrollCents: withheldMoney ? null : s.bankrollCents, trackedBankrollWithheld: withheldMoney ? "P1" : null,
@@ -90,7 +90,7 @@ export function laneProjection(laneId, runs) {
     schema: LANE_PROJECTION_SCHEMA, laneId, product: L.product, slot: L.slot, baseCents: L.baseCents, targetCents: L.targetCents, steps: L.steps, maxLegs: L.maxLegs,
     label: "Tracked challenge · no real wager placed", projectionLabel: "MODEL PROJECTION", prices: PUBLIC_PRICES,
     milestonesCents: MILESTONES[L.product], milestonesNote: "Illustrative milestones after each step; founder-adjustable.",
-    ...def({ ruleVersion: cur?.ruleVersion }),
+    ...def({ ruleVersion: cur?.ruleVersion, laneType: pub.at(-1)?.laneType, laneTypeLabel: pub.at(-1)?.laneTypeLabel }),
     current: cur && { ...def({ ruleVersion: cur.ruleVersion }), runId: cur.runId, status: cur.status, publicStatus: cur.publicStatus, pace: cur.pace, statusReason: cur.statusReason, step: cur.step, stepText: cur.stepText, inPlay: cur.inPlay, trackedBankrollCents: cur.trackedBankrollCents, trackedBankrollWithheld: cur.trackedBankrollWithheld, headSha256: cur.headSha256 },
     runs: pub,
   };
