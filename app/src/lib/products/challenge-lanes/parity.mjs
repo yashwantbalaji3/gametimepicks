@@ -6,7 +6,7 @@
  * graphic against the same record. Pure; returns rows, never prints a price.
  */
 import { decimalToAmerican } from "../../challenge-lanes/payout.mjs";
-import { isProp, hitRateText, flagWords, lineupText } from "./lane.mjs";
+import { isProp, hitRateText, flagWords, lineupText, diversityViolations } from "./lane.mjs";
 import { EVIDENCE_LABEL } from "../../challenge-lanes/card-fields.mjs";
 import { laneDisplay } from "../../challenge-lanes/display.mjs";
 
@@ -171,6 +171,9 @@ export function surfaceParity({ doc, prices = null, view = null, graphic = null,
   }
   return out;
 }
+
+/** The four-lane diversification check as parity rows (the site refuses a violating set). */
+export const diversityParity = (views) => { const v = diversityViolations(views); return [{ laneId: "all", field: "diversification", engine: [], site: v, ok: v.length === 0 }]; };
 
 /** The report for several lanes: { ok, failures, rows }. */
 export function parityReport(perLane) {
