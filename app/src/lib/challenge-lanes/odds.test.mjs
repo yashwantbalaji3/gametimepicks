@@ -223,7 +223,12 @@ test("pricedLaneDisplay: the same fold with the withheld money filled in, only f
   const off = { nba: { siteDisplay: false, socialDisplay: false, socialFeedPrices: false, providerTermsRef: "x", approvedBy: "x", approvedAt: "2026-10-29" } };
   assert.equal(readLanePrices({ laneId: "bb-a", env, dir, record: off }), null, "site display off: nothing is read");
   const { socialPricesAuthorized } = await import("./price-display.mjs");
-  assert.equal(socialPricesAuthorized().ok, false, "social graphics may not carry prices until the record's NBA social surface is on");
+  // Founder 2026-11-04: prices are authorized in challenge-lane graphics only, by their own switch; the social feed stays off.
+  assert.equal(socialPricesAuthorized().ok, true, "challenge-lane graphics carry prices under the 2026-11-04 switch");
+  assert.equal(socialPricesAuthorized(off).ok, false, "a record without the challenge-graphics switch refuses");
+  const { displayAuthorization } = await import("../odds/display-authorization.mjs");
+  assert.equal(displayAuthorization("nba", "social").ok, false, "the public social feed stays unauthorized");
+  assert.equal(displayAuthorization("nfl", "challengeGraphics").ok, false, "NFL challenge graphics are not authorized");
   fs.rmSync(dir, { recursive: true, force: true });
   assert.equal(laneDisplay(doc).day.cardEventSha256, ev0[1].sha256);
 });
