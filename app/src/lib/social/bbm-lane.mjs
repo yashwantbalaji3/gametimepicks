@@ -127,6 +127,8 @@ export function pricedDay(events, { date, doc = null }) {
     priceSnapshotSha256: pv?.price?.priceSnapshotSha256 ?? null,
     // The engine's payout event this image prints (the console records the post against it).
     payoutEventSha256: events.findLast((e) => e.type === "PAYOUT_COMPUTED" && e.date === date && e.step === card.step && e.result === day.result)?.sha256 ?? null,
+    // The price-capture event that payout was computed from (the engine's priceEventSha256; card@2 mirrors it).
+    priceEventSha256: events.findLast((e) => e.type === "PAYOUT_COMPUTED" && e.date === date && e.step === card.step && e.result === day.result)?.inputs?.priceEventSha256 ?? pv?.sha256 ?? null,
   };
 }
 

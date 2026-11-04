@@ -26,7 +26,8 @@ const roster = JSON.parse(fs.readFileSync(a.roster, "utf8"));
 const D = file.productDay;
 const slate = slateReader([file]);
 const sha = (b) => crypto.createHash("sha256").update(b).digest("hex");
-const HELD_REASON = "No two-leg card met the Moonshot qualification rules on today's slate.";
+// The engine's held wording (betting-engine, 2026-11-04): STATUS NO_ELIGIBLE_CARD, code NO_QUALIFIED_CARD, reason shown verbatim.
+const HELD_REASON = "No qualified card: no candidate passed every gate (hit-rate evidence, lineup sensitivity, or a payout outside the ±10% step band).";
 
 const prepared = [];
 for (const id of ["bb-a", "bb-b"]) {
@@ -35,7 +36,7 @@ for (const id of ["bb-a", "bb-b"]) {
 }
 for (const id of ["ms-a", "ms-b"]) {
   const first = parseEvents(fs.readFileSync(path.join(a["private-root"], id, "run-1.jsonl"), "utf8"))[0];
-  const events = append([first], { type: "STATUS", date: D, step: 1, at: `${D}T16:00:00Z`, source: "TEST", status: "NO_ELIGIBLE_CARD", reason: HELD_REASON });
+  const events = append([first], { type: "STATUS", date: D, step: 1, at: `${D}T16:00:00Z`, source: "TEST", status: "NO_ELIGIBLE_CARD", code: "NO_QUALIFIED_CARD", reason: HELD_REASON });
   prepared.push({ test: true, p: prepareLane({ doc: laneProjection(id, [events]), date: D, slate, roster, asOf: a["as-of"], testData: true, design: "v6" }) });
 }
 const refused = prepared.filter((x) => x.p.refused).map((x) => `${x.p.laneId}: ${x.p.refused}`);

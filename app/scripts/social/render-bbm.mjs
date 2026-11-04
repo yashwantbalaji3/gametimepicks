@@ -375,7 +375,8 @@ export function parityGateRow(l, { packageId, date, mediaIndex, imageSha256, cap
     step: v.step, bankrollCents: v.bankrollCents ?? null, legs,
     classification: pay ? (pay.preliminary ? "PRELIMINARY" : "VERIFIED") : v.view === VIEW.CARD ? "UNPRICED" : "NONE",
     capturedAt: pay?.capturedAt ?? null, combinedAmerican: pay ? american(pay.combinedAmerican) : null, payoutCents: pay?.grossCents ?? null, profitCents: pay?.profitCents ?? null,
-    priceEventSha256: pay?.payoutEventSha256 ?? null, sourceEventSha256: drawnEventSha(v),
+    // Engine names (bb-redesign parity gate): the price-capture event, the PAYOUT_COMPUTED event, and the drawn event as refEventSha256.
+    priceEventSha256: pay?.priceEventSha256 ?? null, payoutEventSha256: pay?.payoutEventSha256 ?? null, refEventSha256: drawnEventSha(v), sourceEventSha256: drawnEventSha(v),
   };
 }
 
