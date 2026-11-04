@@ -352,3 +352,16 @@ test("selectionIdentity: books, snapshots, lines and order don't separate one se
   const d = "2026-11-04";
   assert.equal(diversityViolations([{ laneId: "bb-a", date: d, legs: [p1, m1] }, { laneId: "ms-a", date: d, legs: [m2, { ...p2 }] }], { maxLegUse: 1 }).length, 3);
 });
+
+test("diversity@2 ruling: OVER and UNDER of one player-stat, or both teams' moneylines in one game, across lanes is refused", async () => {
+  const { diversityViolations } = await import("./card-fields.mjs");
+  const { diversityRefusal } = await import("./levels.mjs");
+  const d = "2026-11-04";
+  const over = { gameId: "1", family: "pts", player: { playerId: "p1" }, side: "over", line: 20.5 };
+  const under = { ...over, side: "under", line: 22.5 };
+  assert.match(diversityViolations([{ laneId: "bb-b", date: d, legs: [over] }, { laneId: "ms-b", date: d, legs: [under] }], { maxLegUse: 1 }).join(), /DIVERSITY_OPPOSING_SIDES/);
+  const home = { gameId: "9", family: "winner", side: "home" }; const away = { gameId: "9", family: "winner", side: "away" };
+  assert.match(diversityViolations([{ laneId: "bb-a", date: d, legs: [home] }, { laneId: "ms-a", date: d, legs: [away] }], { maxLegUse: 1 }).join(), /DIVERSITY_OPPOSING_SIDES/);
+  assert.match(diversityRefusal([{ legs: [{ legId: "x", ...over }] }], { legs: [{ legId: "y", ...under }] }, { maxLegUse: 1 }), /^DIVERSITY_OPPOSING_SIDES/);
+  assert.deepEqual(diversityViolations([{ laneId: "bb-b", date: d, legs: [over] }, { laneId: "ms-b", date: d, legs: [{ ...over, family: "reb", side: "under" }] }], { maxLegUse: 1 }), [], "another stat of the same player is a different proposition");
+});

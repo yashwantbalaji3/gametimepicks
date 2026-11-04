@@ -18,7 +18,7 @@ import { canonical, sha256 } from "./chain.mjs";
 import { priceRatio, payoutCents, decimalToAmerican } from "./payout.mjs";
 import { stepPosition, RULES_VERSION } from "./rules-v2.mjs";
 import { ELIGIBLE_OPERATOR_KEYS } from "../sports/odds/eligible-operators.mjs";
-import { EVIDENCE_LABEL, SELECTION_LABEL, publicFlags, laneTypeOf, laneTypeRefusal, evidenceLine } from "./card-fields.mjs";
+import { EVIDENCE_LABEL, SELECTION_LABEL, publicFlags, laneTypeOf, laneTypeRefusal, evidenceLine, propositionIdentity } from "./card-fields.mjs";
 export { EVIDENCE_LABEL, PRIVATE_LEG_FIELDS, publicLeg, privateLeg } from "./card-fields.mjs";
 
 export const SHORTLIST_SCHEMA = "gtp.bbm.level-b-shortlist@1";
@@ -370,6 +370,7 @@ const notWeaker = (x, y, bucket) => { const a = tierOf(x, bucket); const b = tie
     already used by two lanes → refused. Legs compare by legId, which fixes game, market, player/team and side. */
 export function diversityRefusal(assignedCards, card, { maxLegUse = 2 } = {}) {
   const key = legSetKey(card);
+  for (const l of card.legs) for (const c of assignedCards) for (const x of c.legs) if (x.gameId != null && l.gameId != null && propositionIdentity(x) === propositionIdentity(l) && (x.side ?? null) !== (l.side ?? null)) return `DIVERSITY_OPPOSING_SIDES ${propositionIdentity(l)}`;
   if (assignedCards.some((c) => legSetKey(c) === key)) return "DIVERSITY_DUPLICATE_COMBINATION";
   for (const l of card.legs) if (assignedCards.filter((c) => c.legs.some((x) => x.legId === l.legId)).length >= maxLegUse) return `DIVERSITY_LEG_LIMIT ${l.legId}: already in ${maxLegUse} lane(s)`;
   return null;

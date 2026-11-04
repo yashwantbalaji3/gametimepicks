@@ -97,7 +97,23 @@ export function selectionIdentity(leg) {
   return `${leg.sport ?? "nba"}:${leg.gameId ?? leg.eventId}:${family}:${who}:${family === "winner" ? "" : leg.side ?? ""}`.replace(/:$/, "");
 }
 
+/** The proposition a selection takes a side of (selection minus side): one game's moneyline, or one player's stat. */
+export function propositionIdentity(leg) {
+  const family = leg.family ?? ({ h2h: "winner", winner: "winner", player_points: "pts", player_rebounds: "reb", player_assists: "ast" })[leg.market] ?? leg.market;
+  return family === "winner" ? `${leg.sport ?? "nba"}:${leg.gameId ?? leg.eventId}:winner` : `${leg.sport ?? "nba"}:${leg.gameId ?? leg.eventId}:${family}:${leg.player?.playerId ?? leg.playerId}`;
+}
+const sideOf = (leg) => leg.side ?? leg.selectionCode ?? null;
+
 export function diversityViolations(cards, { maxLegUse = 2 } = {}) {
+  /* Opposing sides of one proposition across lanes (PD ruling ~21:27Z): OVER and UNDER of one player-stat, or both teams'
+     moneylines in one game, is incoherent and refused. Needs the legs (not just ids). */
+  const opposing = [];
+  const groups = new Map(); // no Object.groupBy: CI runs Node 20
+  for (const c of cards ?? []) if (c?.legs?.length) { if (!groups.has(c.date)) groups.set(c.date, []); groups.get(c.date).push(c); }
+  for (const [date, cs] of groups) {
+    const seen = new Map();
+    for (const c of cs) for (const l of c.legs) { const p = propositionIdentity(l); const s0 = seen.get(p); if (s0 && s0.side !== sideOf(l)) opposing.push(`DIVERSITY_OPPOSING_SIDES ${date}: ${p} ${s0.side} (${s0.laneId}) vs ${sideOf(l)} (${c.laneId})`); else if (!s0) seen.set(p, { side: sideOf(l), laneId: c.laneId }); }
+  }
   /* cards: [{ laneId, date, legIds }] or [{ laneId, date, legs }] (legs → selectionIdentity). */
   cards = (cards ?? []).map((c) => (c?.legs ? { ...c, legIds: c.legs.map(selectionIdentity) } : c));
   const out = [];
@@ -110,5 +126,5 @@ export function diversityViolations(cards, { maxLegUse = 2 } = {}) {
     for (const c of cs) for (const id of new Set(c.legIds)) use.set(id, [...(use.get(id) ?? []), c.laneId]);
     for (const [id, lanes] of use) if (lanes.length > maxLegUse) out.push(`DIVERSITY_LEG_LIMIT ${date}: ${id} in ${lanes.length} lanes (${lanes.join(", ")})`);
   }
-  return out;
+  return [...out, ...opposing];
 }
