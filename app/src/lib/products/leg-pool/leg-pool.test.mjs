@@ -46,28 +46,40 @@ test("box scores from the slate day or later never feed the guard (time-lock)", 
   assert.ok(g.rules.includes("R2"), "no history is a block, never a silent pass");
 });
 
-test("NBA parlay tiers and Moonshot equal the shared engine on the same legs (one computation)", () => {
-  const legs = P.nbaLegs.map((l) => l.leg);
-  const ref = nbaGameWinnerTiers({ legs, accessor: P.accessor, receiptOf: P.receiptOf, disclosure: P.display.disclosure, enabled: true });
+test("NBA cards are the shared engine on the rule-A leg sets (one computation); rule A off = the 06:01Z production cards", () => {
   const ids = (c) => c?.legs.map((l) => String(l.eventId)).sort().join("|") ?? null;
-  for (const t of ref.tiers) assert.equal(ids(D.parlays.nba.find((x) => x.tier === t.tier).card), ids(t.card), t.tier);
-  assert.equal(ids(D.moonshot.nba.card), ids(ref.moonshot.card));
+  const ref = (f) => nbaGameWinnerTiers({ legs: P.nbaLegs.filter(f).map((l) => l.leg), accessor: P.accessor, receiptOf: P.receiptOf, disclosure: P.display.disclosure, enabled: true });
+  const open = ref((l) => !l.guard.flags.includes("FAVOURED_ROTATION_OUT")), clean = ref((l) => l.guard.state === "pass");
+  for (const tier of ["low", "medium", "high", "longshot"]) assert.equal(ids(D.parlays.nba.find((x) => x.tier === tier).card), ids((tier === "low" ? clean : open).tiers.find((t) => t.tier === tier).card), tier);
+  assert.equal(ids(D.moonshot.nba.card), ids(open.moonshot.card));
+  assert.equal(ids(D.bankBuilder.nba.card), ids(clean.bankBuilder.card));
   // the 06:01Z production build recorded these for Nov 2 (data/internal/products/level-a/suggestions.jsonl)
-  assert.equal(dailySuggestedCards(P, { bankBuilderExcludesFlagged: false }).bankBuilder.nba.card.jointProbability, 0.6632, "rule A off = the production pick");
-  assert.equal(D.moonshot.nba.card.jointShown, "14.27%");
+  const off = dailySuggestedCards(P, { ruleA: false });
+  assert.equal(off.bankBuilder.nba.card.jointProbability, 0.6632);
+  assert.equal(off.moonshot.nba.card.jointShown, "14.27%");
 });
 
 test("rule A ON (founder 2026-11-03): Bank Builder never uses a flagged leg and re-picks among the others; off: as the live page", () => {
   const review = new Set(P.nbaLegs.filter((l) => l.guard.state === "review").map((l) => l.legId));
   assert.ok(review.size > 0, "Nov 2 has favourites missing season rotation players");
-  assert.equal(D.options.bankBuilderExcludesFlagged, true);
+  assert.equal(D.options.ruleA, true);
   for (const l of D.bankBuilder.nba.card.legs) assert.ok(!review.has(l.legId));
   assert.deepEqual(D.bankBuilder.nba.card.legs.map((l) => l.selection.teamAbbr).sort(), ["DEN", "NY"], "Nov 2: NY + DEN once ORL and MIN are excluded");
   const ref = nbaGameWinnerTiers({ legs: P.nbaLegs.map((l) => l.leg), accessor: P.accessor, receiptOf: P.receiptOf, enabled: true });
-  const off = dailySuggestedCards(P, { bankBuilderExcludesFlagged: false });
+  const off = dailySuggestedCards(P, { ruleA: false });
   assert.deepEqual(off.bankBuilder.nba.card.legs.map((l) => l.eventId), ref.bankBuilder.card.legs.map((l) => String(l.eventId)));
-  const flagged = [...D.parlays.nba.map((t) => t.card), D.moonshot.nba.card].filter(Boolean).flatMap((c) => c.legs).filter((l) => review.has(l.legId));
-  for (const l of flagged) assert.ok(l.guard.flags.some((f) => f === "FAVOURED_ROTATION_OUT" || f === "FAVOURED_ROTATION_R1"));
+});
+
+test("rule A on every card (PD 2026-11-03): OUT never in any card; R1 never in Bank Builder or Low; a tier is never relaxed to fill", () => {
+  const cards = { bank: D.bankBuilder.nba.card, moon: D.moonshot.nba.card, ...Object.fromEntries(D.parlays.nba.map((t) => [t.tier, t.card])) };
+  for (const [k, c] of Object.entries(cards)) {
+    if (!c) continue;
+    for (const l of c.legs) {
+      assert.ok(!l.guard.flags.includes("FAVOURED_ROTATION_OUT"), `${k}: ${l.selection.teamAbbr} is missing a rotation player`);
+      if (k === "bank" || k === "low") assert.equal(l.guard.state, "pass", `${k}: ${l.selection.teamAbbr}`);
+    }
+  }
+  for (const s of [D.bankBuilder.nba, D.moonshot.nba, ...D.parlays.nba]) if (!s.card) { assert.equal(s.state, CARD_STATE.INSUFFICIENT); assert.match(s.reason, /^Insufficient eligible legs: .*rule A\)\.$/); }
 });
 
 test("rule B ON: pages, grader and social read only a sealed file whose content digest verifies", async () => {
@@ -183,7 +195,7 @@ test("regression 2026-11-02: a favourite missing a season top-five player is fla
     assert.equal(l.guard.rotationSource, "season-box-scores");
     for (const n of missing) assert.ok(l.guard.rotationFlagged.some((r) => r.name === n && r.flag === "FAVOURED_ROTATION_OUT"), `${abbr}: ${n}`);
   }
-  const on = dailySuggestedCards(P, { bankBuilderExcludesFlagged: true });
+  const on = dailySuggestedCards(P, { ruleA: true });
   const ids = (on.bankBuilder.nba.card?.legs ?? []).map((l) => l.selection.teamAbbr);
   assert.ok(!ids.includes("ORL") && !ids.includes("MIN"), "with (a) on, Bank Builder never builds on ORL or MIN");
 });

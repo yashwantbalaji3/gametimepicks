@@ -6,8 +6,8 @@
  *   NBA-only   nba-game-winner-tiers@1 (nbaGameWinnerTiers): Bank Builder = 2 legs in Low/Medium; Moonshot = Longshot,
  *              3–5 legs; parlay tiers Low (2) / Medium (≤3) / High (≤4) / Longshot (≤5), the D2 bands of the joint.
  *   Cross      level-a-mixed@1 (levelAMixed): the same rules, legs from two or more sports.
- * The pool decides WHICH legs enter: guard `pass` and `review` legs, each review flag shown on the leg. With
- * BANK_BUILDER_EXCLUDES_FLAGGED (off; founder decision pending) Bank Builder takes `pass` legs only.
+ * The pool decides WHICH legs enter; RULE_A (below) then keeps definitely-absent favourites out of every card and
+ * unresolved ones out of Bank Builder and Low; any other flag rides the leg, shown.
  *
  * STATES. model-only (a card, no price) · insufficient (not enough eligible legs: the reason, never a forced card) ·
  * blocked (the sport's input failed freshness or is closed) · qualified (priced with fresh permitted odds — reserved,
@@ -109,58 +109,76 @@ const section = (r, policy, byKey, scope, blockedReason) => {
 };
 
 /**
- * FOUNDER RULE A (approved 2026-11-03, relayed by the Program Director): "Exclude favorites with material, unresolved
- * injury or rotation flags from recommended Bank Builder legs … Re-evaluate the eligible alternatives using the frozen
- * canonical forecast." ON: Bank Builder selects from guard-`pass` legs only (no FAVOURED_ROTATION_OUT / _R1), so the
- * engine re-picks among the remaining official sides; nothing is replaced or re-forecast. Moonshot and the parlay tiers
- * keep flagged legs with the flag shown (their treatment is a separate recommendation).
+ * FOUNDER RULE A (approved 2026-11-03): "Exclude favorites with material, unresolved injury or rotation flags from
+ * recommended Bank Builder legs. Do not simply display a warning while continuing to recommend a misleading selection.
+ * Re-evaluate the eligible alternatives using the frozen canonical forecast." Applied by the Program Director
+ * (2026-11-03) to every card, as below; the founder may overrule it:
+ *   EVERYWHERE      a flag meaning a top player is definitely absent (FAVOURED_ROTATION_OUT; NFL_QB_ABSENCE) — the stated
+ *                   chance ignores it, so it is overstated in every tier. Never in Bank Builder, Low, Medium, High,
+ *                   Longshot or Moonshot.
+ *   CONSERVATIVE    an unresolved status (FAVOURED_ROTATION_R1: Day-To-Day / Questionable / Doubtful; NFL_AVAILABILITY_
+ *                   UNKNOWN) — never in Bank Builder or Low; allowed with the flag shown in Medium, High, Longshot, Moonshot.
+ * The shared engine then re-picks among the remaining frozen official sides. Nothing is replaced, re-forecast or relaxed:
+ * a card that cannot be filled reads "Insufficient eligible legs".
+ * `ruleA: false` reproduces the live page's selection (tests only).
  */
-export const BANK_BUILDER_EXCLUDES_FLAGGED = true;
+export const RULE_A = Object.freeze({
+  excludeEverywhere: Object.freeze(["FAVOURED_ROTATION_OUT", "NFL_QB_ABSENCE"]),
+  excludeConservative: Object.freeze(["FAVOURED_ROTATION_R1", "NFL_AVAILABILITY_UNKNOWN"]),
+  conservative: Object.freeze(["bank-builder", "low"]),
+});
+export const RULE_A_ON = true;
 
 /**
  * @param {ReturnType<import("./leg-pool.mjs").buildLegPool>} pool
- * @param {{ bankBuilderExcludesFlagged?: boolean }} [options]
+ * @param {{ ruleA?: boolean }} [options]
  */
-export function dailySuggestedCards(pool, { bankBuilderExcludesFlagged = BANK_BUILDER_EXCLUDES_FLAGGED } = {}) {
+export function dailySuggestedCards(pool, { ruleA = RULE_A_ON } = {}) {
   const byKey = new Map([...pool.nbaLegs, ...pool.crossLegs].map((l) => [l.legId, l]));
-  const nbaAll = pool.nbaLegs.filter((l) => ["pass", "review"].includes(l.guard.state)).map((l) => l.leg);
-  const nbaPass = bankBuilderExcludesFlagged ? pool.nbaLegs.filter((l) => l.guard.state === "pass").map((l) => l.leg) : nbaAll;
+  const has = (l, list) => (l.guard?.flags ?? []).some((f) => list.includes(f));
+  const nbaUsable = pool.nbaLegs.filter((l) => ["pass", "review"].includes(l.guard.state));
+  const nbaOpen = (ruleA ? nbaUsable.filter((l) => !has(l, RULE_A.excludeEverywhere)) : nbaUsable).map((l) => l.leg);
+  const nbaClean = (ruleA ? nbaUsable.filter((l) => !has(l, RULE_A.excludeEverywhere) && !has(l, RULE_A.excludeConservative)) : nbaUsable).map((l) => l.leg);
   const gw = (legs) => nbaGameWinnerTiers({ legs, accessor: pool.accessor, receiptOf: pool.receiptOf, disclosure: pool.display.disclosure, enabled: true });
-  const nbaWide = gw(nbaAll);
-  const nbaSafe = gw(nbaPass);
+  const nbaWide = gw(nbaOpen);
+  const nbaSafe = gw(nbaClean);
   const cross = pool.crossLegs.map((l) => l.leg);
   const mixWide = levelAMixed({ crossSportLegs: cross, nbaLegs: nbaWide.legs, disclosure: pool.display.disclosure, enabled: true });
   const mixSafe = levelAMixed({ crossSportLegs: cross, nbaLegs: nbaSafe.legs, disclosure: pool.display.disclosure, enabled: true });
 
   const nbaState = pool.sports.nba?.state;
   const nbaBlocked = nbaState === "blocked" ? `NBA input blocked: ${pool.sports.nba.reason}` : nbaState === "no-games" ? "No NBA games with an official forecast on this date." : null;
-  const excludedFromBank = nbaAll.length - nbaPass.length;
-  const bankNba = section(nbaSafe.bankBuilder, `${NBA_GW_POLICY}/bank-builder`, byKey, "nba", nbaBlocked);
-  if (bankNba.state === CARD_STATE.INSUFFICIENT && excludedFromBank) bankNba.reason += ` ${excludedFromBank} favoured side${excludedFromBank === 1 ? " was" : "s were"} kept out of Bank Builder by an availability flag.`;
+  const excludedNote = (n, where) => (n ? ` ${n} favoured side${n === 1 ? " was" : "s were"} kept out of ${where} by an availability flag (rule A).` : "");
+  const withNote = (sec, n, where) => (sec.state === CARD_STATE.INSUFFICIENT && n ? { ...sec, reason: sec.reason + excludedNote(n, where) } : sec);
+  const outNba = nbaUsable.length - nbaOpen.length;
+  const cleanOutNba = nbaUsable.length - nbaClean.length;
 
-  const tiers = (r, policy, scope, blocked) => PUBLIC_RISK_TIERS.map((tier) => {
-    const t = r.find((x) => x.tier === tier);
-    return { tier, tierLabel: PUBLIC_RISK_LABELS[tier], threshold: TIER_THRESHOLD[tier] ?? null, ...section(t, policy, byKey, scope, blocked) };
+  /* Low reads the conservative pool; Medium / High / Longshot the open one (rule A). */
+  const tiers = (wide, safe, policy, scope, blocked, nOpen, nClean) => PUBLIC_RISK_TIERS.map((tier) => {
+    const conservative = RULE_A.conservative.includes(tier);
+    const t = (conservative ? safe : wide).find((x) => x.tier === tier);
+    return { tier, tierLabel: PUBLIC_RISK_LABELS[tier], threshold: TIER_THRESHOLD[tier] ?? null, ...withNote(section(t, policy, byKey, scope, blocked), conservative ? nClean : nOpen, `the ${PUBLIC_RISK_LABELS[tier]} card`) };
   });
 
   return {
     schema: SUGGESTED_CARDS_SCHEMA,
     productDay: pool.productDay, evaluatedAt: pool.evaluatedAt, legPool: pool.version,
-    label: LEVEL_A_LABEL, pricing: PRICING, options: { bankBuilderExcludesFlagged },
+    label: LEVEL_A_LABEL, pricing: PRICING, options: { ruleA },
+    ruleA: ruleA ? { excludeEverywhere: RULE_A.excludeEverywhere, excludeConservative: RULE_A.excludeConservative, conservative: RULE_A.conservative } : null,
     nbaLegKinds: ["game-winner"], methodologyDependencies: METHODOLOGY_DEPENDENCIES,
     inputs: pool.inputs,
     sports: pool.sports,
     bankBuilder: {
-      nba: bankNba,
+      nba: withNote(section(nbaSafe.bankBuilder, `${NBA_GW_POLICY}/bank-builder`, byKey, "nba", nbaBlocked), cleanOutNba, "Bank Builder"),
       cross: section(mixSafe.bankBuilder, `${LEVEL_A_MIXED_POLICY}/bank-builder`, byKey, "cross", null),
     },
     moonshot: {
-      nba: section(nbaWide.moonshot, `${NBA_GW_POLICY}/moonshot`, byKey, "nba", nbaBlocked),
+      nba: withNote(section(nbaWide.moonshot, `${NBA_GW_POLICY}/moonshot`, byKey, "nba", nbaBlocked), outNba, "Moonshot"),
       cross: section(mixWide.moonshot, `${LEVEL_A_MIXED_POLICY}/moonshot`, byKey, "cross", null),
     },
     parlays: {
-      nba: tiers(nbaWide.tiers, `${NBA_GW_POLICY}/parlay-lab`, "nba", nbaBlocked),
-      cross: tiers(mixWide.parlayLab, `${LEVEL_A_MIXED_POLICY}/parlay-lab`, "cross", null),
+      nba: tiers(nbaWide.tiers, nbaSafe.tiers, `${NBA_GW_POLICY}/parlay-lab`, "nba", nbaBlocked, outNba, cleanOutNba),
+      cross: tiers(mixWide.parlayLab, mixSafe.parlayLab, `${LEVEL_A_MIXED_POLICY}/parlay-lab`, "cross", null, outNba, cleanOutNba),
     },
     legs: [...pool.nbaLegs, ...pool.crossLegs].map(publicLeg),
     refused: pool.refused,

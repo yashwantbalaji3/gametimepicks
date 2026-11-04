@@ -15,9 +15,8 @@
  *   3. DUPLICATES: one leg per sport + event + market.
  *   4. AVAILABILITY (NBA game winner): the favoured team's five highest-minute players THIS SEASON (box scores, Out or
  *      not — see favouredAvailability) are checked against the frozen Out list and R1 status. A hit marks the leg
- *      `review`: kept for Moonshot and the tiers with the flag shown, and kept out of Bank Builder when
- *      BANK_BUILDER_EXCLUDES_FLAGGED is on. The Elo side itself ignores availability; the flag says so rather than
- *      changing the side.
+ *      `review`; daily-cards.mjs RULE_A decides which cards may still use it. The Elo side itself ignores availability;
+ *      the flag says so rather than changing the side.
  *   5. TIERABILITY: a leg is usable in a card only with a published probability (NBA: the Elo display accessor, with
  *      its provenance cross-check, via nba-game-winner-tiers@1).
  * PLAYER PROJECTIONS (NBA) run the R1–R3 + readiness guard (nba-guard.mjs) and are listed with their verdict. They are
