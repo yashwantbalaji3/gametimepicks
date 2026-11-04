@@ -70,6 +70,7 @@ export function moneylineEvidenceLine(leg) {
   if (!leg?.eloSide || typeof nv !== "number" || !w("last5") || !w("last10")) return null;
   const team = leg.team ?? leg.teamAbbr ?? "?";
   const venue = w(leg.side === "home" ? "home" : "away");
-  const keys = (leg.injury?.keyPlayers ?? []).map((p) => `${p.name} ${p.status}`);
-  return [`Model side ${leg.eloSide === leg.side ? team : "opponent"}`, `market favourite ${nv > 0.5 ? team : "opponent"}`, `W-L L5 ${wl(w("last5"))}`, `L10 ${wl(w("last10"))}`, ...(w("season") ? [`season ${wl(w("season"))}`] : []), ...(venue ? [`${leg.side} ${wl(venue)}`] : []), ...(keys.length ? [`key out/DTD: ${keys.join(", ")}`] : [])].join(" · ");
+  const plain = (st) => ({ OUT: "out", DAY_TO_DAY: "day-to-day", QUESTIONABLE: "questionable", DOUBTFUL: "doubtful", PROBABLE: "probable" })[String(st).toUpperCase().replace(/[- ]/g, "_")] ?? String(st).toLowerCase();
+  const keys = (leg.injury?.keyPlayers ?? []).map((p) => `${p.name} ${plain(p.status)}`);
+  return [`Model side ${leg.eloSide === leg.side ? team : "opponent"}`, `market favourite ${nv > 0.5 ? team : "opponent"}`, `W-L L5 ${wl(w("last5"))}`, `L10 ${wl(w("last10"))}`, ...(w("season") ? [`season ${wl(w("season"))}`] : []), ...(venue ? [`${leg.side} ${wl(venue)}`] : []), ...(keys.length ? [`key players: ${keys.join(", ")}`] : [])].join(" · ");
 }
