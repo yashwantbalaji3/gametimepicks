@@ -10,7 +10,7 @@
  *
  *   cd app && npx tsx scripts/social/render-bbm.mjs --date <ET date> --as-of <ISO> --suggested-cards <file> \
  *       --lanes <dir holding the public projections bb-a.json ...> --private-root <engine run logs, read only> \
- *       --roster <unified roster.json> --out <staging root>
+ *       --roster <unified roster.json> [--roster-fetched-at <ISO>] --out <staging root>
  *
  * Every lane is read from the engine's public projection (gtp.challenge-lane.public@1, the file the website reads,
  * contentSha256 verified; bbm-lane.mjs), and its frozen card is joined to the founder rule B suggested-cards file it
@@ -205,7 +205,7 @@ export function rendererCommit() {
 }
 
 /** Render and write the package folders. Returns the manifests. Throws (nothing written) on any staging violation. */
-export async function writeStaging(plans, { outRoot, browser, commit = rendererCommit(), lanesRef = {}, displayRecord = undefined }) {
+export async function writeStaging(plans, { outRoot, browser, commit = rendererCommit(), lanesRef = {}, displayRecord = undefined, rosterRef = null }) {
   const bad = stagingViolations(plans, outRoot, { displayRecord });
   if (bad.length) throw new Error(`staging refused:\n  - ${bad.join("\n  - ")}`);
   const layout = await bbmLayoutErrors(browser, plans.flatMap((p) => p.lanes.map((l) => l.card)));
@@ -230,6 +230,8 @@ export async function writeStaging(plans, { outRoot, browser, commit = rendererC
         needsFounderReview: p.needsFounderReview, rendererCommit: commit, designVersion: BBM_DESIGN_VERSION,
         sources: p.lanes.map((l) => ({ laneId: l.laneId, laneLogRef: lanesRef[l.laneId] ?? null, projectionSha256: l.projectionSha256, runId: l.view.runId, eventSha256: drawnEventSha(l.view), suggestedCardsSha256: l.view.card?.suggestedCardsSha256 ?? null })),
         laneStatus: Object.fromEntries(p.lanes.map((l) => [l.laneId, l.view.view])),
+        // The render-time availability input (PD 2026-11-04: fresh at render, never the morning build's).
+        roster: rosterRef,
         testData: false,
       };
       fs.writeFileSync(path.join(dir, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
@@ -277,7 +279,11 @@ async function main(argv) {
   if (!/T.*(Z|[+-]\d\d:\d\d)$/.test(String(asOf)) || !Number.isFinite(Date.parse(asOf))) throw new Error("--as-of <ISO instant with zone> is required (no clock is read)");
   for (const k of ["suggested-cards", "lanes", "roster", "out"]) if (!a[k]) throw new Error(`--${k} is required`);
   const slate = slateReader(String(a["suggested-cards"]).split(",").map((f) => JSON.parse(fs.readFileSync(f, "utf8"))));
-  const roster = JSON.parse(fs.readFileSync(a.roster, "utf8"));
+  const rosterBytes = fs.readFileSync(a.roster);
+  const roster = JSON.parse(rosterBytes.toString("utf8"));
+  // The roster's fetch instant comes from the runbook (the script records none); it rides in the manifest.
+  if (a["roster-fetched-at"] && !Number.isFinite(Date.parse(a["roster-fetched-at"]))) throw new Error("--roster-fetched-at must be an ISO instant");
+  const rosterRef = { ref: path.resolve(a.roster), sha256: sha(rosterBytes), fetchedAt: a["roster-fetched-at"] ?? null };
   // The public file through the engine's one reader; prices from the engine's private run log (read only, never written).
   const lanesRef = {}; const prepared = [];
   for (const laneId of Object.keys(BBM_LANES)) {
@@ -292,7 +298,7 @@ async function main(argv) {
   const { chromium } = await import("playwright");
   const browser = await chromium.launch();
   let done = [];
-  try { done = await writeStaging(plans, { outRoot: a.out, browser, lanesRef }); } finally { await browser.close(); }
+  try { done = await writeStaging(plans, { outRoot: a.out, browser, lanesRef, rosterRef }); } finally { await browser.close(); }
   const refused = prepared.filter((p) => p.refused).map((p) => ({ laneId: p.laneId, reason: p.refused }));
   const report = path.join(a.out, date, `bbm-run-${asOf.replace(/[:]/g, "")}.json`);
   fs.mkdirSync(path.dirname(report), { recursive: true });
