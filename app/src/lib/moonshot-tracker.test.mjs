@@ -19,7 +19,8 @@ test("shared ticket primitives exist under components/tickets/", () => {
 test("/moonshot route renders the dedicated daily tracker (separate lane, paper-only)", () => {
   const page = read("src/app/moonshot/page.tsx");
   assert.match(page, /MoonshotLaneTracker/, "renders the tracker");
-  assert.match(page, /PicksSurfaceHeader/, "uses the shared pick-surface header");
+  // Founder Priority 4 (2026-11-03): the shared pick-surface header was replaced by the product hero.
+  assert.match(page, /<ProductHero\s+product="moonshot"/, "uses the product hero");
   assert.match(page, /loadMoonshotLane/, "loads the moonshot lane");
   assert.match(page, /portfolio\.json|moonshot/i, "reads the moonshot record/exposure from the portfolio");
 });

@@ -184,12 +184,12 @@ export default function ClimbHero({
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <Chip label="Paper-only · educational" color="var(--vault-gold-bright)" />
         </div>
-        {/* h1: this is /bank-builder's primary page heading. It was an h2, so the page had no h1
-            and its outline started at level 2 — a screen-reader user pressing "1" found nothing.
+        {/* h2 since the founder cleanup (2026-11-04): /bank-builder's h1 is now the BBM V2 lanes header
+            ("BANK BUILDER — $100 TO $10,000"); this hero folds into the archive below it. One h1 per page.
             Level only; styling and copy are unchanged. */}
-        <h1 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(20px, 4.4vw, 30px)", fontWeight: 800, lineHeight: 1.06 }}>
+        <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(20px, 4.4vw, 30px)", fontWeight: 800, lineHeight: 1.06 }}>
           Watch the ladder climb toward $10K
-        </h1>
+        </h2>
         {/* P213 R-C2: the essay is now ONE purpose line + the Sprint-035 sample-size truth in one
             sentence; the mechanics chip-list folds into the disclosure (the header chip already
             says paper-only). The state banner and ladder below are the page. */}

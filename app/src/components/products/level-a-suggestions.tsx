@@ -20,7 +20,13 @@ type Leg = {
 };
 type Card = { policy: string; disclosure?: string | null; tier: string | null; tierLabel: string | null; legs: Leg[]; sports: string[]; jointProbability: number; method: string; dependency: string; whySelected: string; label: string };
 type Slot = { card: Card | null; reason: string | null };
-type Projection = { eventLabel: string; name: string; team: string; availability: string | null; points: { median: number | null }; frozenAt: string };
+type Projection = { eventId?: string; playerId?: string; eventLabel: string; name: string; team: string; availability: string | null; points: { median: number | null }; frozenAt: string };
+
+/** The opt-in player guard (/bank-builder and /moonshot only, PD 2026-11-04): `${eventId}:${playerId}` → the engine guard's
+ *  state. With the guard applied, a median is listed only when its state is "pass"; an unknown player is withheld (fail
+ *  closed). Every other surface passes nothing and is unchanged. */
+type PlayerGuard = Record<string, string>;
+const guardKey = (p: Projection) => `${p.eventId ?? ""}:${p.playerId ?? ""}`;
 export type LevelAModel = {
   productDay: string; label: string; method: string; legs: Leg[]; untiered: Leg[];
   refusedByReason: Record<string, number>;
@@ -97,7 +103,7 @@ export function levelAForecastSources(model: LevelAModel, mode: "parlay-lab" | "
 /**
  * @param mode  "parlay-lab" shows the four tiers; "bank-builder" / "moonshot" show that product's own Level A policy.
  */
-export default function LevelASuggestions({ model, mode }: { model: LevelAModel | null; mode: "parlay-lab" | "bank-builder" | "moonshot" }) {
+export default function LevelASuggestions({ model, mode, applyAvailabilityGuard = false, playerGuard = null }: { model: LevelAModel | null; mode: "parlay-lab" | "bank-builder" | "moonshot"; applyAvailabilityGuard?: boolean; playerGuard?: PlayerGuard | null }) {
   if (!model) return null;
   const refused = Object.entries(model.refusedByReason);
   /* Overnight 10-28 (CONSOLIDATE): on /bank-builder and /moonshot, a day with neither the product's own suggestion nor
@@ -121,17 +127,17 @@ export default function LevelASuggestions({ model, mode }: { model: LevelAModel 
           game winners block below already prints it on this page. */}
       {model.mixed?.disclosure && !(model.nbaGameWinners?.public && model.nbaGameWinners.disclosure) ? <p className="m-0 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }} data-level-a-mixed-disclosure="">{model.mixed.disclosure}</p> : null}
       <NbaGameWinners block={model.nbaGameWinners} mode={mode} />
-      {mode === "parlay-lab" ? <LevelAReference model={model} refused={refused} /> : (
+      {mode === "parlay-lab" ? <LevelAReference model={model} refused={refused} guard={applyAvailabilityGuard ? (playerGuard ?? {}) : null} /> : (
         /* Overnight 10-28 (CONSOLIDATE): the untiered sides, the NBA medians and the unavailable-leg count were copied in
            full on /build, /bank-builder and /moonshot. The Parlay Center keeps them open (it is that page's purpose); the
            two product pages fold the same content (still server-rendered) behind one line and link to the full block. */
         <details className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
-          <summary className="cursor-pointer" style={{ minHeight: 40, color: "var(--vault-text)" }}>
+          <summary className="cursor-pointer" style={{ minHeight: 44, color: "var(--vault-text)" }}>
             Every model suggestion today{model.untiered.length ? ` · ${model.untiered.length} official side${model.untiered.length === 1 ? "" : "s"} not tiered` : ""}
           </summary>
           <div className="mt-2 flex flex-col gap-3">
             <p className="m-0"><Link href="/build#level-a-parlay-lab" style={{ color: "var(--vault-text-mute)", textDecoration: "underline" }}>All four risk tiers on the Parlay Center →</Link></p>
-            <LevelAReference model={model} refused={refused} />
+            <LevelAReference model={model} refused={refused} guard={applyAvailabilityGuard ? (playerGuard ?? {}) : null} />
           </div>
         </details>
       )}
@@ -163,7 +169,7 @@ export default function LevelASuggestions({ model, mode }: { model: LevelAModel 
             <Link href="/build#level-a-parlay-lab" style={{ color: "var(--vault-text-mute)", textDecoration: "underline" }}>All model suggestions on the Parlay Center →</Link>
           </p>
           <details className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
-            <summary className="cursor-pointer" style={{ minHeight: 40, color: "var(--vault-text)" }}>Why, card by card</summary>
+            <summary className="cursor-pointer" style={{ minHeight: 44, color: "var(--vault-text)" }}>Why, card by card</summary>
             <div className="mt-2 flex flex-col gap-3">{body}</div>
           </details>
         </>
@@ -174,7 +180,9 @@ export default function LevelASuggestions({ model, mode }: { model: LevelAModel 
 }
 
 /** The untiered official sides, the NBA medians and the unavailable-leg count — open on the Parlay Center, folded elsewhere. */
-function LevelAReference({ model, refused }: { model: LevelAModel; refused: Array<[string, number]> }) {
+function LevelAReference({ model, refused, guard = null }: { model: LevelAModel; refused: Array<[string, number]>; guard?: PlayerGuard | null }) {
+  const projections = guard ? model.nbaProjections.filter((p) => guard[guardKey(p)] === "pass") : model.nbaProjections;
+  const withheld = model.nbaProjections.length - projections.length;
   return (
     <>
       {model.untiered.length ? (
@@ -185,11 +193,11 @@ function LevelAReference({ model, refused }: { model: LevelAModel; refused: Arra
           {(() => { const d = model.untiered.find((l) => l.uncertainty?.kind === "elo-win-probability" && l.uncertainty.note)?.uncertainty?.note; return d ? <p className="m-0 mt-1" style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }} data-nba-elo-wp-disclosure="">{d}</p> : null; })()}
         </div>
       ) : null}
-      {model.nbaProjections.length ? (
+      {projections.length ? (
         <details className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
-          <summary className="cursor-pointer" style={{ minHeight: 40, color: "var(--vault-text)" }}>Predicted Player Statistics · NBA median points (no market line, so not a pick)</summary>
+          <summary className="cursor-pointer" style={{ minHeight: 44, color: "var(--vault-text)" }}>Predicted Player Statistics · NBA median points (no market line, so not a pick)</summary>
           <ul className="m-0 mt-1 grid gap-1 p-0 sm:grid-cols-2" role="list">
-            {model.nbaProjections.map((p) => (
+            {projections.map((p) => (
               <li key={`${p.eventLabel}:${p.name}`} className="flex flex-wrap justify-between gap-x-3">
                 <span style={{ color: "var(--vault-text)" }}>{p.name} ({p.team})</span>
                 <span>median {one(p.points.median)} points{p.availability && p.availability !== "active" ? ` · ${p.availability}` : ""}</span>
@@ -197,6 +205,11 @@ function LevelAReference({ model, refused }: { model: LevelAModel; refused: Arra
             ))}
           </ul>
         </details>
+      ) : null}
+      {withheld ? (
+        <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-faint)" }} data-level-a-projections-withheld="">
+          {withheld} player {withheld === 1 ? "projection is" : "projections are"} not listed here until {withheld === 1 ? "it passes" : "they pass"} the player checks.
+        </p>
       ) : null}
       {refused.length ? (
         <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-faint)" }}>

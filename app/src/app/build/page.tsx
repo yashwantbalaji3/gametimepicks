@@ -15,6 +15,8 @@
  * /nba/parlays redirects and many in-page links) still lands here, on the section of that name.
  * The legacy #advanced-builder anchor renders an in-place signpost to /build/custom.
  */
+import ParlayTierBoard from "@/components/tier-board/parlay-tier-board";
+import { loadParlayTiers } from "@/lib/products/tier-board/load";
 import { legIsMarketContext, loadCommittedCoverage, marketContextFamilies } from "@/lib/parlays/card-leg-eligibility.mjs";
 import { etDayLabel } from "@/lib/et-stamp.mjs";
 import PicksExperience from "@/components/picks-experience";
@@ -143,8 +145,6 @@ export default function ParlayCenterSuggestedPage() {
           recordSince={riskLadder?.record.firstDay ?? null}
         />
 
-        {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="parlay-lab" /> : null}
-
         <EmptyTierContext emptyTiers={[...emptyTiers]} lastCards={lastTierCards} lanes={emptyTiers.length ? (loadLabRecord()?.streams ?? []).map((l) => ({ id: l.id, label: l.label, live: l.live, blocked: l.blocked })) : []} />
     </>
   );
@@ -223,6 +223,13 @@ export default function ParlayCenterSuggestedPage() {
       />
 
       <ParlayCenterTabs active="suggested" />
+
+      {/* PARLAY LAB · FOUR RISK TIERS (founder 2026-11-04: one premium UI with Bank Builder and Moonshot). The frozen
+          daily card file's tiers, or the labelled Level A fallback; every model suggestion folds beneath it. */}
+      <ParlayTierBoard
+        board={loadParlayTiers({ productDay: levelAModel?.productDay ?? currentEtDate(), levelAModel })}
+        checks={levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="parlay-lab" /> : null}
+      />
 
       {v2Model ? <TierBoard model={v2Model} /> : null}
 
