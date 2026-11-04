@@ -23,6 +23,9 @@ import { BADGE, RUNG, VIEW } from "../../src/lib/social/bbm-lane.mjs";
 
 export const BBM_DESIGN_VERSION = "bbm-v2";
 export const FACT_LINE = "Tracked challenge · no real wager placed";
+/** Terms review 2026-11-04 (docs/odds/ODDS_API_CHALLENGE_GRAPHICS_TERMS_2026-11-04.md): beside the fact line, US audience. */
+export const RG_LINE = "21+ · Gamble responsibly";
+const FOOTER = `${FACT_LINE} · ${RG_LINE}`;
 export const MODEL_LABEL = "MODEL PROJECTION";
 export const WIN_LABEL = "MODEL WIN PROBABILITY";
 export const AWAITING = "AWAITING VERIFIED PRICES";
@@ -36,7 +39,7 @@ const PRODUCT = Object.freeze({
 });
 
 const CSS = `<style>
-.content .disclosure{font:700 26px/1.2 var(--display);letter-spacing:2px;color:rgba(247,247,242,.78);text-transform:uppercase}
+.content .disclosure{font:700 22px/1.2 var(--display);letter-spacing:2px;white-space:nowrap;color:rgba(247,247,242,.78);text-transform:uppercase}
 .bv-rib{position:absolute;top:14px;left:0;right:0;z-index:9;text-align:center;font:900 26px/40px var(--headline);letter-spacing:.12em;color:#fff}
 .bv-rib.t{background:#FF3B6B}.bv-rib.p{background:#E8B100;color:#050706}
 .bv{display:flex;flex-direction:column;flex:1;min-height:0}
@@ -243,12 +246,12 @@ export function bbmCard(view, combo = null, { testData = false } = {}) {
 <div class="bv-top"><span class="p">${esc(P.name)}</span><span class="l">${esc(lane)}</span>${cell(cells, "badge", view.badge, `bd ${String(view.badge).split(" ")[0]}`)}</div>
 ${hero}<div class="bv-sub">${sub}</div>
 ${ladderHtml(cells, view)}${bankHtml(cells, view)}${paceHtml(cells, view)}${middle}${moneyBlock}</div>`;
-  let html = shell({ away: P.a, home: P.b, chip: chipText(view.date), body, review: false, disclosure: FACT_LINE }).replace(/<div class="rg">[^<]*<\/div>/g, "");
+  let html = shell({ away: P.a, home: P.b, chip: chipText(view.date), body, review: false, disclosure: FOOTER }).replace(/<div class="rg">[^<]*<\/div>/g, "");
   // One ribbon, clear of the logo: a TEST history with a sample price says both.
   const rib = [testData ? TEST_RIBBON : null, view.payout?.fixture ? SAMPLE_PRICE_RIBBON : null].filter(Boolean);
   const ribbons = rib.length ? `<div class="bv-rib ${testData ? "t" : "p"}">${esc(rib.join(" · "))}</div>` : "";
   if (ribbons) html = html.replace('<div class="frame"></div>', `${ribbons}<div class="frame"></div>`);
-  return { html, cells, laneId: view.laneId, view: view.view, badge: view.badge, testData, samplePrice: view.payout?.fixture === true, priced: view.payout != null, disclosure: FACT_LINE };
+  return { html, cells, laneId: view.laneId, view: view.view, badge: view.badge, testData, samplePrice: view.payout?.fixture === true, priced: view.payout != null, disclosure: FOOTER };
 }
 
 const cellsIn = (html) => Object.fromEntries([...html.matchAll(/data-cell="([^"]+)">([^<]*)</g)].map((m) => [m[1], m[2].replace(/&amp;/g, "&").replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">")]));
@@ -264,6 +267,7 @@ export function verifyBbmCard(card) {
   const text = visibleText(card.html.replace(/<script>[\s\S]*?<\/script>/g, " "));
   for (const r of REMOVED_TEXT) if (text.toLowerCase().includes(r.toLowerCase())) e.push(`removed text on image: ${r}`);
   if (!text.includes(FACT_LINE)) e.push("the tracked-challenge line is missing");
+  if (!text.includes(RG_LINE)) e.push("the 21+ responsible-gambling line is missing");
   if (card.view === VIEW.CARD && !text.includes(MODEL_LABEL)) e.push("MODEL PROJECTION label missing");
   if (!card.badge || got.badge !== card.badge) e.push("status badge missing");
   // Price cells (SPEC §7, socialFeedPrices ON for BBM V2): leg odds, prop lines, the combined price and the odds source.

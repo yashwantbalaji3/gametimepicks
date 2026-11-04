@@ -89,7 +89,7 @@ export function prepareLane({ doc, date, slate, roster, asOf, testData = false, 
     const pr = pricedDay(privateEvents, { date, doc });
     if (pr?.refused) return refuse(`price refused: ${pr.refused}`);
     // A real price prints only under the display record's NBA social surface; a fixture is a labelled sample either way.
-    if (pr && !pr.unpricedReason && !pr.fixture && !socialPricesOk(displayRecord)) view = { ...view, unpricedReason: "social prices are not authorized in the display record (NBA socialDisplay)" };
+    if (pr && !pr.unpricedReason && !pr.fixture && !socialPricesOk(displayRecord)) view = { ...view, unpricedReason: "challenge-graphics prices are not authorized in the display record (NBA challengeGraphicsPrices)" };
     else if (pr && !pr.unpricedReason) {
       view = { ...view, payout: pr };
       // A priced win withholds the public bankroll; the private log's own fold supplies it for the stake line.
@@ -186,7 +186,7 @@ export function stagingViolations(plans, outRoot, { displayRecord = undefined } 
   for (const p of plans) for (const l of p.lanes) {
     if (l.card.samplePrice || l.view.payout?.fixture) v.push(`${p.packageId}/${l.laneId}: a fixture price never reaches a package`);
     if (l.testData || l.card.testData) v.push(`${p.packageId}/${l.laneId}: a TEST lane history never reaches a package`);
-    if (l.view.payout && !l.view.payout.fixture && !socialPricesOk(displayRecord)) v.push(`${p.packageId}/${l.laneId}: a price may be exported only when the display record authorizes NBA social`);
+    if (l.view.payout && !l.view.payout.fixture && !socialPricesOk(displayRecord)) v.push(`${p.packageId}/${l.laneId}: a price may be exported only when the display record authorizes NBA challenge graphics`);
   }
   return v;
 }

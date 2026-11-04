@@ -85,8 +85,8 @@ export function laneView(doc, date) {
 const isFixturePrice = (provider, book) => /^FIXTURE/i.test(String(provider ?? "")) || /SAMPLE|FIXTURE|NOT REAL/i.test(String(book ?? ""));
 
 /**
- * Real prices on a social graphic need the committed display record's NBA "social" surface (odds/display-authorization.mjs,
- * founder 2026-10-29: off). Until a reviewed commit turns it on, a real price prints as AWAITING VERIFIED PRICES.
+ * Real prices on these graphics need the committed display record's NBA "challengeGraphics" surface, read through the
+ * engine's socialPricesAuthorized (founder 2026-11-04: on; the social feed stays off). Off → AWAITING VERIFIED PRICES.
  */
 export const socialPricesOk = (record) => socialPricesAuthorized(record).ok === true;
 

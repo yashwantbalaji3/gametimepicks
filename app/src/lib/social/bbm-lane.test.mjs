@@ -17,8 +17,9 @@ import { BADGE, BBM_LANES, RUNG, VIEW, laneView, pricedDay, projectionViolations
 import { append, laneState, runStarted } from "../challenge-lanes/lanes.mjs";
 import { priceLane } from "../challenge-lanes/ops.mjs";
 import { DISPLAY_AUTHORIZATION } from "../odds/display-authorization.mjs";
-/** The committed display record with NBA social turned on: what a founder-reviewed commit would make it (test only). */
-const SOCIAL_ON = { ...DISPLAY_AUTHORIZATION, nba: { ...DISPLAY_AUTHORIZATION.nba, socialDisplay: true } };
+/** The committed record (founder 2026-11-04: NBA challengeGraphicsPrices on), and the same record with that switch off. */
+const SOCIAL_ON = DISPLAY_AUTHORIZATION;
+const PRICES_OFF = { ...DISPLAY_AUTHORIZATION, nba: { ...DISPLAY_AUTHORIZATION.nba, challengeGraphicsPrices: false } };
 import { laneProjection } from "../challenge-lanes/projection.mjs";
 import { laneDisplay } from "../challenge-lanes/display.mjs";
 import { eloWinProbabilityOf } from "../sports/nba/elo-win-probability.mjs";
@@ -267,8 +268,10 @@ test("priced (founder 2026-11-04): odds, book, capture time, leg-product combine
   const real = pricedEvents("bb-a", { provider: "the-odds-api", book: "DraftKings", odds: [-150, -200] });
   assert.equal(real.action, "PAYOUT_COMPUTED");
   const doc = laneProjection("bb-a", [real.events]);
-  // The committed record still has NBA social off: a real price prints as awaiting, and cannot be packaged as priced.
-  const gated = prep(doc, { privateEvents: real.events });
+  // With the challenge-graphics switch off, a real price prints as awaiting and cannot be packaged as priced.
+  assert.equal(DISPLAY_AUTHORIZATION.nba.challengeGraphicsPrices, true, "founder 2026-11-04: on in the committed record");
+  assert.notEqual(DISPLAY_AUTHORIZATION.nba.socialDisplay, true, "the social feed stays off");
+  const gated = prep(doc, { privateEvents: real.events, displayRecord: PRICES_OFF });
   assert.equal(gated.card.cells["money.payout"], AWAITING); assert.ok(!Object.keys(gated.card.cells).some((k) => k.endsWith(".odds")));
   const p = prep(doc, { privateEvents: real.events, displayRecord: SOCIAL_ON });
   assert.equal(p.refused, undefined, p.refused);
@@ -286,7 +289,8 @@ test("priced (founder 2026-11-04): odds, book, capture time, leg-product combine
   assert.deepEqual(verifyBbmCard(p.card), []);
   const out = fs.mkdtempSync(path.join(os.tmpdir(), "bbm-"));
   assert.deepEqual(stagingViolations(planPackages([p, prep(statusDoc("bb-b"))], DATE), out, { displayRecord: SOCIAL_ON }), [], "a verified real price may be packaged once social is authorized");
-  assert.match(stagingViolations(planPackages([p, prep(statusDoc("bb-b"))], DATE), out).join(";"), /authorizes NBA social/);
+  assert.match(stagingViolations(planPackages([p, prep(statusDoc("bb-b"))], DATE), out, { displayRecord: PRICES_OFF }).join(";"), /authorizes/);
+  assert.ok(textOf(p.card).includes("21+ · Gamble responsibly"));
   // The SAMPLE provider is a fixture: ribboned, and never packaged.
   const fx = pricedEvents("bb-a");
   const s = prep(laneProjection("bb-a", [fx.events]), { privateEvents: fx.events });
