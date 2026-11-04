@@ -93,8 +93,10 @@ export function prepareCombo({ comboPath, asOf, rosterPath = null, lane: laneIn 
   if (errs.length) return refuse(`card failed validation: ${errs.join("; ")}`);
   const first = instant(combo.firstTipUtc);
   const closes = first - COMBO_FRESHNESS.cutoffMin * 60e3;
-  const at = first - COMBO_LEAD[doc.product] * 60e3;
-  const recommended = at > instant(asOf) && at < closes ? { recommendedAt: toIso(at), recommendedAtEt: etLabel(at), firstGameUtc: toIso(first), firstGameEt: etLabel(first), slateEtDate: doc.slateDate, rule: `first tip - ${COMBO_LEAD[doc.product]} min` } : null;
+  // The slot follows the slate's first tip, not the first leg's, so it stays ahead of the first game's winner post.
+  const slateFirst = Math.min(...lane.games.map((g) => instant(g.tipUtc)).filter(Number.isFinite));
+  const at = slateFirst - COMBO_LEAD[doc.product] * 60e3;
+  const recommended = at > instant(asOf) && at < closes ? { recommendedAt: toIso(at), recommendedAtEt: etLabel(at), firstGameUtc: toIso(slateFirst), firstGameEt: etLabel(slateFirst), firstLegUtc: toIso(first), slateEtDate: doc.slateDate, rule: `slate first tip - ${COMBO_LEAD[doc.product]} min` } : null;
   const caption = comboCaption(combo);
   const slug = `nba-${doc.slateDate}-${doc.product}${combo.testData ? "-test" : ""}`;
   return { posts: [{

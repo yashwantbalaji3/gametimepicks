@@ -186,6 +186,16 @@ export function comboFromDailyCandidate(result, { reasonCopy = {}, laneRef = nul
   return sealCombo({ ...base, state: COMBO_STATE.NONE, reasons: reasons.length ? reasons : [{ code: "NO_CANDIDATE", text: "no qualifying combination" }] });
 }
 
+/**
+ * FOUNDER RULE B (2026-11-03): the day file is the one frozen card for website and social. Its contentSha256 is the
+ * sha256 of JSON.stringify of the file without that field, keys in written order (leg-pool/daily-cards.mjs
+ * verifySuggestedCards, engine 38d815fa0b). JSON.parse keeps that order, so the parsed file re-hashes to the same bytes.
+ */
+export function suggestedCardsSealed(file) {
+  const { contentSha256: want, ...rest } = file ?? {};
+  return typeof want === "string" && createHash("sha256").update(JSON.stringify(rest)).digest("hex") === want;
+}
+
 /** Engine card tier → social risk tier. */
 const TIER_OF = Object.freeze({ low: "CONSERVATIVE", longshot: "LONGSHOT" });
 const opponentIn = (label, team) => { const m = /^(\S+) @ (\S+)$/.exec(String(label ?? "")); return m ? (m[1] === team ? m[2] : m[2] === team ? m[1] : null) : null; };
@@ -201,6 +211,7 @@ const opponentIn = (label, team) => { const m = /^(\S+) @ (\S+)$/.exec(String(la
 export function comboFromSuggestedCards(file, product, { testData = false } = {}) {
   const key = product === "bank-builder" ? "bankBuilder" : product === "moonshot" ? "moonshot" : null;
   if (file?.schema !== "gtp.suggested-cards@1" || !key) throw new Error(`not a suggested-cards file for ${product}`);
+  if (!suggestedCardsSealed(file)) throw new Error("the suggested-cards file is not the frozen card: contentSha256 is missing or does not match its body (founder rule B)");
   const section = file[key]?.nba ?? null;
   const lane = (file.inputs ?? []).find((i) => i.sport === "nba") ?? null;
   const base = { schema: SOCIAL_COMBO_SCHEMA, product, sport: "nba", slateDate: file.productDay, asOf: file.evaluatedAt, testData, policyId: section?.policy ?? null, source: lane ? { lane: { ref: lane.file, sha256: lane.sha256, commit: lane.commit ?? null } } : {} };

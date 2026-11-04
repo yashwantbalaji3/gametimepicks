@@ -179,7 +179,7 @@ test("package: founder review, NBA_BANK_BUILDER, slot at first tip - 90, window 
   assert.equal(pkg.variant, "test");
   assert.equal(pkg.approval.status, APPROVAL_STATUS);
   const first = Math.min(...bbLegs().map((l) => ms(l.tipUtc)));
-  assert.equal(Date.parse(pkg.recommendedAt), first - COMBO_LEAD["bank-builder"] * 60e3);
+  assert.equal(Date.parse(pkg.recommendedAt), FIRST - COMBO_LEAD["bank-builder"] * 60e3, "slot follows the slate's first tip");
   assert.equal(Date.parse(pkg.window.closesAt), first - 30 * 60e3);
   assert.equal(pkg.content.sources.combo, "gtp-evidence/test/bb.json");
   // Clean export rebuilds combos from these refs; the new design stays out of clean export until the founder approves it.
@@ -195,7 +195,9 @@ const engineLeg = ({ g, wp }, o = {}) => {
   const side = g.elo.favoured === g.home.abbr ? "home" : "away";
   return { legId: `nba:${g.providerEventId}:winner`, sport: "nba", eventId: String(g.providerEventId), eventLabel: `${g.away.abbr} @ ${g.home.abbr}`, startUtc: g.tipUtc, market: "winner", selection: { code: side, label: `${g[side].abbr} (official side)`, teamAbbr: g[side].abbr }, status: "MODEL_ONLY", probability: side === "home" ? wp.home : 1 - wp.home, probabilityShown: `${side === "home" ? wp.homePct : wp.awayPct}%`, guard: { state: "pass", flags: [], flagText: [], rotationFlagged: [], outAtFreeze: [] }, ...o };
 };
-const suggested = (legsBB, legsMS, o = {}) => ({
+/** Sealed as the engine seals it (rule B): sha256 of JSON.stringify of the rest, keys in written order. */
+const sealFile = (f) => { const { contentSha256: _c, ...rest } = f; return { ...rest, contentSha256: crypto.createHash("sha256").update(JSON.stringify(rest)).digest("hex") }; };
+const suggested = (legsBB, legsMS, o = {}) => sealFile({
   schema: "gtp.suggested-cards@1", productDay: DATE, evaluatedAt: LANE.generatedAt, pricing: { state: "MODEL_ONLY" },
   inputs: [{ sport: "nba", file: LANE_REF.ref, sha256: LANE_SHA, generatedAt: LANE.generatedAt, commit: "test" }],
   bankBuilder: { nba: { policy: "nba-game-winner-tiers@1/bank-builder", state: legsBB ? "model-only" : "insufficient", card: legsBB && { id: "bb1", tier: "low", legs: legsBB, jointProbability: 0.6, jointShown: "60.0%", status: "MODEL_ONLY", priced: false, price: null, payout: null }, reason: legsBB ? null : "Insufficient eligible legs" } },
@@ -229,7 +231,10 @@ test("suggested-cards adapter: no card, a priced card, an engine guard flag, a s
   assert.deepEqual(none.reasons, [{ code: "INSUFFICIENT", text: "No combination in the longshot band" }]);
   const two = clearFav.slice(0, 2);
   const priced = suggested(two.map((x) => engineLeg(x)), null); priced.bankBuilder.nba.card.price = 120;
-  assert.equal(comboFromSuggestedCards(priced, "bank-builder").reasons[0].code, "PRICED_CARD");
+  assert.throws(() => comboFromSuggestedCards(priced, "bank-builder"), /not the frozen card/, "an edit after sealing breaks rule B");
+  assert.equal(comboFromSuggestedCards(sealFile(priced), "bank-builder").reasons[0].code, "PRICED_CARD");
+  const { contentSha256: _drop, ...unsealed } = suggested(two.map((x) => engineLeg(x)), null);
+  assert.throws(() => comboFromSuggestedCards(unsealed, "bank-builder"), /contentSha256 is missing/);
   const flagged = comboFromSuggestedCards(suggested([engineLeg(two[0], { guard: { state: "review", flags: ["FAVOURED_ROTATION_R1"], rotationFlagged: [{ playerId: "1", name: "A Player", status: "Day-To-Day" }] } }), engineLeg(two[1])], null), "bank-builder");
   has(comboViolations(flagged, ctx()), /availability guard FAVOURED_ROTATION_R1, R1 A Player Day-To-Day/);
   has(comboViolations(comboFromSuggestedCards(suggested([engineLeg(two[0], { probabilityShown: "99%" }), engineLeg(two[1])], null), "bank-builder"), ctx()), /the engine shows 99%/);
