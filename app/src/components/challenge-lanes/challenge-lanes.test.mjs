@@ -405,6 +405,33 @@ test("display key: production and CI builds use their own environment; only loca
   assert.doesNotMatch(read("src/lib/products/challenge-lanes/load.mjs"), /console\.|writeFileSync/, "the key is never logged or written");
 });
 
+test("PUBLIC LANE FILE GUARD: every committed public lane file is price-free, canonical engine bytes, and renders with no key", async () => {
+  const { serializeProjection } = await import("../../lib/challenge-lanes/projection.mjs");
+  const dir = path.join(APP, "public", "data", "challenge-lanes");
+  const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => f.endsWith(".json")) : [];
+  // Whatever the release carries — none today, four lanes once Nov 4 is committed — and the replay fixtures as a control.
+  const docs = [...files.map((f) => [`public/${f}`, fs.readFileSync(path.join(dir, f), "utf8")]),
+    ...Object.entries(FIX).map(([id, d]) => [`fixture ${id}`, `${canonical(d)}\n`])];
+  for (const f of files) assert.match(f, /^(bb-a|bb-b|ms-a|ms-b)\.json$/, `only the four lane files live there: ${f}`);
+  const BANNED = /"(price|prices?Raw|odds|oddsFormat|oddsAmerican|decimal|decimalPrice|americanPrice|book|bookmaker|line|grossPayout(Cents)?|payout(Cents)?|profit(Cents)?|priceSnapshotSha256?)":/;
+  for (const [name, bytes] of docs) {
+    assert.doesNotMatch(bytes, BANNED, `${name}: a price, odds, book or payout field in a public file`);
+    assert.doesNotMatch(bytes, /draftkings|fanduel|betmgm|caesars|espnbet|the-odds-api/i, `${name}: a book or provider name in a public file`);
+    const doc = JSON.parse(bytes);
+    assert.equal(serializeProjection(doc), bytes, `${name}: not the engine's canonical bytes (regenerated or hand-edited?)`);
+    if (name.startsWith("public/")) {
+      const id = doc.laneId;
+      assert.deepEqual(lane.acceptLaneProjection(doc, { laneId: id }), { ok: true }, name);
+      // A build with no GTP_ODDS_DISPLAY_KEY renders the lane price-free and never crashes.
+      const v = loadChallengeLane({ appDir: APP, laneId: id, env: {} }).view;
+      assert.notEqual(v.status, "UNAVAILABLE", name);
+      assert.equal(v.potentialPayout, lane.AWAITING_PRICES, name);
+      const h = html(React.createElement(LaneCard, { lane: v }));
+      assert.doesNotMatch(h, /data-leg-odds|data-lane-priced|21\+/, `${name}: priced markup without a key`);
+    }
+  }
+});
+
 test("progression animation is CSS-only and prefers-reduced-motion turns it off", () => {
   const css = read("src/app/globals.css");
   assert.match(css, /@keyframes cl-rung-in/);
