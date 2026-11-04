@@ -26,7 +26,7 @@ const raw = fs.readFileSync(a.selection);
 const sel0 = JSON.parse(raw);
 // A sealed-records file (records["<lane>:<A|B|C>"].record): option A is the lane's card, the others render as alternates.
 const sel = sel0.records ? { now: sel0.evaluatedAt, lanes: Object.fromEntries(["bb-a", "bb-b", "ms-a", "ms-b"].filter((l) => sel0.records[`${l}:A`]).map((l) => [l, { card: sel0.records[`${l}:A`].record }])) } : sel0;
-const RECORD_ALTS = sel0.records && !FINAL ? Object.keys(sel0.records).filter((k) => !k.endsWith(":A")).map((k) => { const [laneId, opt] = k.split(":"); return { laneId, name: `${laneId}-${opt}`, sel: { lanes: { [laneId]: { card: sel0.records[k].record } } }, file: `${a.selection}#${k}` }; }) : [];
+const RECORD_ALTS = sel0.records && !FINAL ? Object.keys(sel0.records).filter((k) => !k.endsWith(":A") && sel0.records[k].record?.classification !== "HOLD").map((k) => { const [laneId, opt] = k.split(":"); return { laneId, name: `${laneId}-${opt}`, sel: { lanes: { [laneId]: { card: sel0.records[k].record } } }, file: `${a.selection}#${k}` }; }) : [];
 const TEAMS = JSON.parse(fs.readFileSync(path.resolve("src/lib/simulation-theater/nba/nba-team-colors.json"), "utf8"));
 const teamName = (abbr) => TEAMS.teams[abbr]?.name ?? TEAMS.teams[TEAMS.aliases?.[abbr]]?.name ?? abbr;
 const sha = (b) => crypto.createHash("sha256").update(b).digest("hex");
@@ -54,6 +54,8 @@ function finalProblems(c) {
 }
 
 const HELD = new Set(String(a.held ?? "").split(",").filter(Boolean));
+// A preview record the engine classifies HOLD draws as held (never as a card); a final file with a HOLD lane is refused.
+for (const [laneId, v] of Object.entries(sel.lanes ?? {})) if (v.card?.classification === "HOLD") { if (FINAL) throw new Error(`${laneId}: HOLD in a final file`); HELD.add(laneId); }
 // --alt lane=<selection.json> (that file's lanes[lane].card) or lane=<sealed-alternates.json>#<records key> (its .record).
 const ALTS = String(a.alt ?? "").split(",").filter(Boolean).map((x) => {
   const [laneId, ref] = x.split("="); const [f, key] = ref.split("#"); const j = JSON.parse(fs.readFileSync(f, "utf8"));
