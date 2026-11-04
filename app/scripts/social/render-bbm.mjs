@@ -36,6 +36,7 @@ import { readLaneProjection } from "../../src/lib/challenge-lanes/public-reader.
 import { laneDisplay } from "../../src/lib/challenge-lanes/display.mjs";
 import { teamOf } from "./game-day-cards.mjs";
 import { lanePriceDisplay } from "../../src/lib/challenge-lanes/price-display.mjs";
+import { evidenceLine } from "../../src/lib/challenge-lanes/card-fields.mjs";
 import { currentRun } from "../../src/lib/challenge-lanes/store.mjs";
 import { MARKET_SHORT, comboFromSuggestedCards, resolveCombo, suggestedCardsSealed } from "../../src/lib/social/combo-social.mjs";
 
@@ -83,8 +84,31 @@ export function engineCardFor(dayCard, file, product) {
  * `samplePayout` ({ grossCents, profitCents, fixture: true }) draws a labelled fixture price.
  */
 /** The V6 card model from the lane view and the resolved legs (no selection logic: the engine's card, its prices and its reason). */
-export function v6Model(view, combo) {
-  return { ...view, template: false, legs: combo?.legs ?? [], heldReason: view.reason ?? null, researchLine: view.view === VIEW.NO_ELIGIBLE_CARD, legResults: view.legResults ?? [] };
+export function v6Model(view, combo, { privateEvents = null, linesShown = false } = {}) {
+  const frozen = privateEvents ? (privateEvents.findLast((e) => e.type === "CARD_FROZEN" && e.date === view.date)?.card?.legs ?? []) : [];
+  const legs = (combo?.legs ?? []).map((l) => (l.kind === "PLAYER_PROP" ? propLegV6(l, frozen.find((x) => String(x.legId) === String(l.legId)), { linesShown }) : l));
+  return { ...view, template: false, legs, heldReason: view.reason ?? null, researchLine: view.view === VIEW.NO_ELIGIBLE_CARD, legResults: view.legResults ?? [] };
+}
+
+/**
+ * A prop leg for V6 from the engine's private card leg (betting-engine 2026-11-04): Level A carries the model probability,
+ * Level B the hit counts (evidenceLine). The line and the counts (counted against that line) are provider data: shown only
+ * when the display record authorizes NBA social prices; otherwise the leg draws without them. A shown line with missing
+ * L10 or L20 windows is refused.
+ */
+export function propLegV6(l, engineLeg, { linesShown }) {
+  if (!engineLeg) throw new Error(`prop ${l.legId}: not on the engine's frozen card`);
+  const level = engineLeg.classification === "LEVEL_A" ? "A" : "B";
+  const line = linesShown ? (engineLeg.line ?? l.prop?.line ?? null) : null;
+  const ev = linesShown ? evidenceLine(engineLeg) : null;
+  if (linesShown && (line == null || !ev)) throw new Error(`prop ${l.legId}: the engine's line or L10 / L20 hit counts are missing`);
+  const w10 = linesShown ? engineLeg.hitRate?.windows?.find((w) => w.window === "last10") : null;
+  return {
+    kind: "PROP", legId: l.legId, player: { name: l.player?.name ?? engineLeg.player?.name }, team: l.team, opponent: l.opponent, home: l.home, tipUtc: l.tipUtc, flagText: l.flagText,
+    level, projectionText: level === "A" ? (engineLeg.probabilityShown ?? l.projectionText) : undefined,
+    lineText: line == null ? null : `${String(engineLeg.side ?? l.prop?.side ?? "").toUpperCase()} ${line} ${MARKET_SHORT[l.market] ?? ""}`.trim(),
+    evidenceText: ev, evidenceBig: w10 ? `${w10.hits}/${w10.n}` : null,
+  };
 }
 
 export function prepareLane({ doc, date, slate, roster, asOf, testData = false, samplePayout = null, privateEvents = null, displayRecord = undefined, design = "v2" }) {
@@ -137,8 +161,7 @@ export function prepareLane({ doc, date, slate, roster, asOf, testData = false, 
   let card; let errs;
   if (design === "v6") {
     if (combo && combo.legs.length > RULES_V2.maxLegs) return refuse(`${combo.legs.length} legs: rules v2 take at most ${RULES_V2.maxLegs}`);
-    if (combo?.legs.some((l) => l.kind === "PLAYER_PROP" && !l.evidence)) return refuse("a prop leg without the engine's evidence windows and level is not drawn");
-    try { card = { ...bbmCardV6(v6Model(view, combo), { testData }), name: `${laneId}-${date}` }; } catch (e) { return refuse(e.message); }
+    try { card = { ...bbmCardV6(v6Model(view, combo, { privateEvents, linesShown: socialPricesOk(displayRecord) }), { testData }), name: `${laneId}-${date}` }; } catch (e) { return refuse(e.message); }
     errs = verifyBbmCardV6(card);
   } else {
     card = { ...(design === "v3" ? bbmCardV3 : bbmCard)(view, combo, { testData }), name: `${laneId}-${date}` };

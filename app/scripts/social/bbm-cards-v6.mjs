@@ -135,8 +135,11 @@ function legPanel(cells, l, i, ctx) {
   const flag = (l.flagText ?? []).length ? `<div class="fl" data-flag>${cell(cells, `${k}.flag`, `⚑ ${l.flagText.join(" · ")}`)}</div>` : "";
   if (l.kind === "PROP") {
     // Level A: the model's probability. Level B: research evidence (hit counts), never shown as a probability.
-    const right = l.level === "A" ? `<span class="pk">${cell(cells, `${k}.level`, PROP_LEVEL.A)}</span>${cell(cells, `${k}.proj`, l.projectionText, "pv")}` : `<span class="pk">${cell(cells, `${k}.level`, PROP_LEVEL.B)}</span>${cell(cells, `${k}.evidenceBig`, l.evidence?.l10 ?? "Research", "pv ev")}<span class="pk sm">last 10</span>`;
-    return `<div class="leg prop" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit>${cell(cells, `${k}.name`, l.player.name)}</span><div class="mt"><span class="tg">${cell(cells, `${k}.team`, t.abbr)}</span>${cell(cells, `${k}.game`, `${l.home ? "vs" : "@"} ${l.opponent.abbr} · ${tipText(l.tipUtc)}`)}</div><div class="mt">${cell(cells, `${k}.line`, l.lineText, "chip line")}${odds}${oc}</div>${l.evidence ? `<div class="evl">${cell(cells, `${k}.evidence`, `Hit ${l.evidence.l10} L10 · ${l.evidence.l20} L20`)}</div>` : ""}${flag}</div><div class="rt">${right}</div></div>`;
+    // Evidence: the engine's line ("Hit 8/10 L10 · 14/20 L20") or the template's windows; none when the line is not shown.
+    const evText = l.evidenceText ?? (l.evidence ? `Hit ${l.evidence.l10} L10 · ${l.evidence.l20} L20` : null);
+    const evBig = l.evidenceBig ?? l.evidence?.l10 ?? null;
+    const right = l.level === "A" ? `<span class="pk">${cell(cells, `${k}.level`, PROP_LEVEL.A)}</span>${cell(cells, `${k}.proj`, l.projectionText, "pv")}` : `<span class="pk">${cell(cells, `${k}.level`, PROP_LEVEL.B)}</span>${evBig ? `${cell(cells, `${k}.evidenceBig`, evBig, "pv ev")}<span class="pk sm">last 10</span>` : cell(cells, `${k}.evidenceBig`, "Hit-rate research", "pv ev sm")}`;
+    return `<div class="leg prop" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit>${cell(cells, `${k}.name`, l.player.name)}</span><div class="mt"><span class="tg">${cell(cells, `${k}.team`, t.abbr)}</span>${cell(cells, `${k}.game`, `${l.home ? "vs" : "@"} ${l.opponent.abbr} · ${tipText(l.tipUtc)}`)}</div>${l.lineText || odds || oc ? `<div class="mt">${l.lineText ? cell(cells, `${k}.line`, l.lineText, "chip line") : ""}${odds}${oc}</div>` : ""}${evText ? `<div class="evl">${cell(cells, `${k}.evidence`, evText)}</div>` : ""}${flag}</div><div class="rt">${right}</div></div>`;
   }
   return `<div class="leg" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit>${cell(cells, `${k}.name`, t.name)}</span><div class="mt"><span class="tg">${cell(cells, `${k}.team`, t.abbr)}</span>${cell(cells, `${k}.game`, `${l.home ? "vs" : "@"} ${l.opponent.abbr} · ${tipText(l.tipUtc)}`)}${odds}${oc}</div>${flag}</div><div class="rt"><span class="pk">Model win<br>probability</span>${cell(cells, `${k}.proj`, l.projectionText, "pv")}</div></div>`;
 }
@@ -192,6 +195,7 @@ const CSS = (P) => `<style>
 .leg .rt{text-align:center;padding-left:16px;border-left:2px solid rgba(255,255,255,.35);min-width:150px}
 .leg .pk{display:block;font:900 18px/1.15 var(--display);letter-spacing:1px;text-transform:uppercase;color:#FFE27A;text-shadow:0 1px 3px rgba(0,0,0,.9)}.leg .pk.sm{font-size:13px;color:rgba(255,255,255,.8)}
 .leg .pv{display:block;margin-top:4px;font:900 72px/1 var(--display);color:#FFFFFF;white-space:nowrap;text-shadow:0 3px 0 rgba(0,0,0,.6),0 0 16px rgba(255,255,255,.45)}
+.leg .pv.ev.sm{font-size:24px;white-space:normal;line-height:1.1}
 .leg .pv.dim{font-size:28px;color:rgba(247,247,242,.6)}.leg .pv.ev{font-size:46px;color:#BFE7FF}
 .leg .oc{font:900 18px/1 var(--headline);padding:5px 8px 3px;border-radius:6px;text-transform:uppercase}.leg .oc.WIN{background:var(--neon);color:#04140a}.leg .oc.LOSS{background:#FF4D5E;color:#1a0004}
 .leg.prop .who{gap:4px}.leg.prop .nm{font-size:42px}.leg.prop .chip{padding:4px 9px 3px}.leg.prop .mt{font-size:20px}

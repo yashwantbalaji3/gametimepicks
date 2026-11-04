@@ -27,7 +27,7 @@ import { laneProjection } from "../challenge-lanes/projection.mjs";
 import { laneDisplay } from "../challenge-lanes/display.mjs";
 import { eloWinProbabilityOf } from "../sports/nba/elo-win-probability.mjs";
 import { AWAITING, FACT_LINE, REMOVED_TEXT, SAMPLE_PRICE_RIBBON, TEST_RIBBON, bbmCard as bbmCardFor, verifyBbmCard } from "../../../scripts/social/bbm-cards.mjs";
-import { CAPTION_PRICE_TEXT, LIVE_PACKAGES, engineCardFor, parityRow, xWeighted, packageCaption, planPackages, prepareLane, stagingViolations, writeStaging } from "../../../scripts/social/render-bbm.mjs";
+import { CAPTION_PRICE_TEXT, LIVE_PACKAGES, engineCardFor, parityRow, propLegV6, xWeighted, packageCaption, planPackages, prepareLane, stagingViolations, writeStaging } from "../../../scripts/social/render-bbm.mjs";
 import { visibleText } from "../../../scripts/social/nba-line-cards.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -479,4 +479,19 @@ test("V6 HELD (PD 2026-11-04): the engine's reason in plain words, no picks, no 
   assert.ok(!Object.keys(c.cells).some((k) => /^price\.|^money\.(payout|profit)|^leg\d|^plan\./.test(k)));
   assert.match(verifyBbmCardV6({ ...c, cells: { ...c.cells, "price.verified": "Verified odds" }, html: c.html.replace(">Lane held<", ' data-cell="price.verified">Verified odds<') }).join(";"), /held card carries a pick or a price|VERIFIED on unpriced/);
   assert.equal(heldReasonText("NO_SLATE"), "There are no eligible games on today's slate."); assert.equal(heldReasonText(null), "No card met the qualification rules today."); assert.equal(heldReasonText("SOME_NEW_CODE"), "No card met the qualification rules today.");
+});
+
+test("V6 prop legs from the engine card: line and hit counts only when social prices are authorized; missing windows refused", () => {
+  const l = { kind: "PLAYER_PROP", legId: "p1", market: "player_rebounds", player: { name: "Karl-Anthony Towns" }, team: { abbr: "NYK", name: "New York Knicks" }, opponent: { abbr: "WAS", name: "Washington Wizards" }, home: true, tipUtc: "2026-11-05T00:00:00Z", prop: { side: "under", line: 13.5 } };
+  const eng = { legId: "p1", classification: "LEVEL_B", side: "under", line: 13.5, hitRate: { windows: [{ window: "last10", hits: 7, n: 10 }, { window: "last20", hits: 13, n: 20 }] } };
+  const on = propLegV6(l, eng, { linesShown: true });
+  assert.equal(on.evidenceText, "Hit 7/10 L10 · 13/20 L20"); assert.equal(on.evidenceBig, "7/10"); assert.match(on.lineText, /^UNDER 13\.5/); assert.equal(on.level, "B"); assert.equal(on.projectionText, undefined);
+  const off = propLegV6(l, eng, { linesShown: false });
+  assert.equal(off.lineText, null); assert.equal(off.evidenceText, null); assert.equal(off.evidenceBig, null);
+  assert.throws(() => propLegV6(l, { ...eng, hitRate: { windows: [{ window: "last10", hits: 7, n: 10 }] } }, { linesShown: true }), /hit counts are missing/);
+  assert.throws(() => propLegV6(l, undefined, { linesShown: false }), /not on the engine's frozen card/);
+  const rungs = RULES_V2.milestonesCents["bank-builder"].map((m, i) => ({ step: i + 1, milestoneCents: m, state: i ? RUNG.UPCOMING : RUNG.ACTIVE }));
+  const model = { product: "bank-builder", letter: "A", laneId: "bb-a", date: DATE, step: 1, steps: 5, rungs, baseCents: 10000, targetCents: 1000000, bankrollCents: 10000, badge: BADGE.ACTIVE, view: VIEW.CARD, payout: null, template: false };
+  for (const leg of [on, off]) { const c = bbmCardV6({ ...model, legs: [leg] }); assert.deepEqual(verifyBbmCardV6(c), []); assert.ok(!("leg1.proj" in c.cells)); }
+  assert.ok(!("leg1.line" in bbmCardV6({ ...model, legs: [off] }).cells));
 });
