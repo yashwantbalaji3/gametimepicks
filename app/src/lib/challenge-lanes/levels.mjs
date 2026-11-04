@@ -18,7 +18,7 @@ import { canonical, sha256 } from "./chain.mjs";
 import { priceRatio, payoutCents, decimalToAmerican } from "./payout.mjs";
 import { stepPosition, RULES_VERSION } from "./rules-v2.mjs";
 import { ELIGIBLE_OPERATOR_KEYS } from "../sports/odds/eligible-operators.mjs";
-import { EVIDENCE_LABEL, SELECTION_LABEL, publicFlags, laneTypeOf, laneTypeRefusal } from "./card-fields.mjs";
+import { EVIDENCE_LABEL, SELECTION_LABEL, publicFlags, laneTypeOf, laneTypeRefusal, evidenceLine } from "./card-fields.mjs";
 export { EVIDENCE_LABEL, PRIVATE_LEG_FIELDS, publicLeg, privateLeg } from "./card-fields.mjs";
 
 export const SHORTLIST_SCHEMA = "gtp.bbm.level-b-shortlist@1";
@@ -87,6 +87,7 @@ export function legFromShortlist(c) {
     projection: c.projection ? { value: c.projection.value ?? null, label: "MODEL PROJECTION", snapshotId: c.projection.snapshotId ?? null } : null,
     hitRate: c.hitRate ? { windows: (c.hitRate.windows ?? []).map((w) => ({ window: w.window, hits: w.hits, n: w.n, text: hitRateText(w) })), shrunk: c.hitRate.shrunk ?? null, lineBasis: c.hitRate.lineBasis ?? null } : null,
     role: c.role ?? null, injury: c.injury ?? null, dataQuality: c.dataQuality ?? null, lineup: c.lineup ?? null,
+    eloSide: c.eloSide ?? undefined, roster: c.roster ?? undefined,
     probability: null, uncertainty: null, ev: null,
   };
 }
@@ -313,7 +314,7 @@ export function levelCardRecord(candidate, { laneId, date }) {
     schema: "gtp.bbm.card@2", rulesVersion: RULES_VERSION, laneId, date, candidateId: candidate.candidateId,
     classification: candidate.classification, classificationLabel: LEVEL_LABEL[candidate.classification], evidenceLabel: EVIDENCE_LABEL[candidate.classification] ?? null, evClaim: false,
     selectionMode: candidate.selectionMode ?? "STRICT", selectionLabel: SELECTION_LABEL[candidate.selectionMode ?? "STRICT"] ?? null, flags: publicFlags(candidate.flags), probability: null,
-    legs: candidate.legs.map((l) => ({ legId: l.legId, sport: l.sport, gameId: l.gameId, eventLabel: l.eventLabel, startUtc: l.startUtc, player: l.player, team: l.team, market: l.market, family: l.family, projection: l.projection ?? null, line: l.line, side: l.side, book: l.quote?.book ?? null, price: l.quote?.american ?? null, quotedAt: l.quote?.quotedAt ?? null, fetchedAt: l.quote?.fetchedAt ?? null, forecastVersion: l.forecastVersion, hitRate: l.hitRate, role: l.role, injury: l.injury, flagText: (candidate.flags ?? []).filter((f) => String(f).split(" ")[1]?.replace(/:$/, "") === l.legId && !/_WEIGHT /.test(f)), lineupContext: l.lineup?.contextual ? { expectedLineup: l.lineup.contextual.expectedLineup ?? l.lineup.tonightScenario ?? null, exact: l.lineup.contextual.primary?.exact ?? null, uncertainTeammates: (l.lineup.contextual.uncertainTeammates ?? []).map((t) => t.name ?? t) } : l.lineup ? { expectedLineup: l.lineup.tonightScenario ?? null, exact: null, uncertainTeammates: [] } : null, classification: candidate.classification, evidenceClass: candidate.classification === LEVEL.HOLD ? null : candidate.classification, evidenceLabel: EVIDENCE_LABEL[candidate.classification] ?? null, probability: null, uncertainty: null, ev: null })),
+    legs: candidate.legs.map((l) => ({ legId: l.legId, sport: l.sport, gameId: l.gameId, eventLabel: l.eventLabel, startUtc: l.startUtc, player: l.player, team: l.team, market: l.market, family: l.family, eloSide: l.eloSide, evidenceLine: evidenceLine(l), projection: l.projection ?? null, line: l.line, side: l.side, book: l.quote?.book ?? null, price: l.quote?.american ?? null, quotedAt: l.quote?.quotedAt ?? null, fetchedAt: l.quote?.fetchedAt ?? null, forecastVersion: l.forecastVersion, hitRate: l.hitRate, role: l.role, injury: l.injury, flagText: (candidate.flags ?? []).filter((f) => String(f).split(" ")[1]?.replace(/:$/, "") === l.legId && !/_WEIGHT /.test(f)), lineupContext: l.lineup?.contextual ? { expectedLineup: l.lineup.contextual.expectedLineup ?? l.lineup.tonightScenario ?? null, exact: l.lineup.contextual.primary?.exact ?? null, uncertainTeammates: (l.lineup.contextual.uncertainTeammates ?? []).map((t) => t.name ?? t) } : l.lineup ? { expectedLineup: l.lineup.tonightScenario ?? null, exact: null, uncertainTeammates: [] } : null, classification: candidate.classification, evidenceClass: candidate.classification === LEVEL.HOLD ? null : candidate.classification, evidenceLabel: EVIDENCE_LABEL[candidate.classification] ?? null, probability: null, uncertainty: null, ev: null })),
     combined: candidate.price && { method: candidate.price.method, label: candidate.price.label, decimal: candidate.price.decimal, american: candidate.price.american },
     money: candidate.money, reasons: candidate.reasons,
     /* Parity gate fields (engine → site → graphic → caption → console); filled by each stage, never by the engine. */

@@ -274,3 +274,11 @@ test("lane type: refused on mismatch; carried by a v2 run into the projection an
   assert.deepEqual([d.laneType, d.laneTypeLabel, d.runs[0].laneTypeLabel], ["NBA_PLAYER_PROPS", "NBA PLAYER PROPS", "NBA PLAYER PROPS"]);
   assert.throws(() => runStartedV2({ laneId: "ms-b", runId: "r", startedAt: "x", approvedBy: "T", laneType: "MIXED" }), /unknown laneType/);
 });
+
+test("moneyline evidence line: model side vs market favourite and W-L, no probability; null without the windows", async () => {
+  const { moneylineEvidenceLine, evidenceLine } = await import("./card-fields.mjs");
+  const leg = legFromShortlist(row({ eventId: "9", family: "winner", player: null, teamAbbr: "DET", side: "home", line: null, eloSide: "home", hitRate: { windows: [{ window: "last5", hits: 4, n: 5 }, { window: "last10", hits: 6, n: 7 }, { window: "season-2026-27", hits: 6, n: 7 }, { window: "home-2026-27", hits: 2, n: 2 }], shrunk: { rate: null, marketNoVig: 0.557 } }, injury: { status: "n/a (team)", keyPlayers: [{ name: "Star", status: "OUT" }] } }));
+  assert.equal(evidenceLine(leg), "Model side DET · market favourite DET · W-L L5 4-1 · L10 6-1 · season 6-1 · home 2-0 · key out/DTD: Star OUT");
+  assert.equal(moneylineEvidenceLine({ ...leg, eloSide: undefined }), null);
+  assert.ok(!/%|0\\.557/.test(evidenceLine(leg)));
+});
