@@ -26,7 +26,7 @@ import { fmt1, lineText, signedDifference, quoteTimeEt, americanPrice, SIDE_GLYP
 import { directionAuthorization } from "../../src/lib/odds/display-authorization.mjs";
 import { LINE_MAX_AGE_HOURS } from "../../src/lib/sports/nba/line-comparison.mjs";
 import { instantMs } from "../../src/lib/social/graphics-export.mjs";
-import { PURPOSE, lineGraphicsExportViolations } from "../../src/lib/social/nba-line-graphics-export.mjs";
+import { PURPOSE, lineGraphicsExportViolations, lineJudgedAt } from "../../src/lib/social/nba-line-graphics-export.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -334,7 +334,9 @@ export function verifyAgainstSources({ doc, lane, artifact }) {
     if (signedDifference(a.projection - a.line).text !== r.market.difference.text) v.push(`${id}: difference ${r.market.difference.text} ≠ artifact ${signedDifference(a.projection - a.line).text}`);
     if (a.capturedAt !== r.market.quotedAt.iso || quoteTimeEt(a.capturedAt) !== r.market.quotedAt.et) v.push(`${id}: quote time`);
     const cap = Date.parse(a.capturedAt);
-    if (!(cap < tip) || asOf - cap > LINE_MAX_AGE_HOURS * 3600_000 || cap > asOf) v.push(`${id}: stale or post-tip line (captured ${a.capturedAt})`);
+    // Judged independently of the export's own field: the dated founder exception (≤ 9 h, Nov 4 matchup snapshots) or asOf.
+    const judged = Date.parse(lineJudgedAt(doc.purpose, doc.edition?.date, new Date(asOf).toISOString(), artifact?.asOf ?? new Date(asOf).toISOString()));
+    if (!(cap < tip) || judged - cap > LINE_MAX_AGE_HOURS * 3600_000 || cap > judged) v.push(`${id}: stale or post-tip line (captured ${a.capturedAt})`);
     if (r.market.book.state === "SHOWN" && a.book !== r.market.book.key) v.push(`${id}: book`);
     if (r.market.overPrice.state === "SHOWN" && americanPrice(a.overPrice).text !== r.market.overPrice.text) v.push(`${id}: over price`);
     if (r.market.underPrice.state === "SHOWN" && americanPrice(a.underPrice).text !== r.market.underPrice.text) v.push(`${id}: under price`);
