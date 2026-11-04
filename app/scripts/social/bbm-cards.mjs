@@ -114,7 +114,7 @@ const CSS = `<style>
 .bv-lad .rg .m{margin-top:3px;font:800 19px/1 var(--display);color:rgba(247,247,242,.55);white-space:nowrap}
 .bv-lad .rg.completed .m,.bv-lad .rg.active .m{color:var(--acc)}
 .bv-pace{margin-top:8px;text-align:center;font:800 22px/1 var(--display);letter-spacing:3px;text-transform:uppercase;white-space:nowrap}
-.bv-pace.ON_PACE{color:#7DFFB2}.bv-pace.BEHIND{color:#FFB23F}.bv-pace.WITHHELD{color:rgba(247,247,242,.7)}
+.bv-pace.ON_PACE{color:rgba(247,247,242,.85)}.bv-pace.BEHIND{color:#FFB23F}.bv-pace.WITHHELD{color:rgba(247,247,242,.7)}
 .lg .od{font:900 21px/1 var(--display);letter-spacing:1px;padding:5px 8px 3px;border-radius:6px;background:rgba(247,247,242,.92);color:#050706}
 .bv-src{flex:none;margin-top:10px;display:flex;justify-content:center;align-items:center;gap:14px;white-space:nowrap;overflow:hidden}
 .bv-src .cp{font:900 22px/1 var(--headline);letter-spacing:2px;padding:6px 12px 4px;border-radius:8px;background:var(--acc);color:#050706;text-transform:uppercase}
