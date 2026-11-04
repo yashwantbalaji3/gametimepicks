@@ -19,8 +19,9 @@ import { propAnalysisView } from "./prop-analysis.mjs";
  * The day's provisional prop analysis panel (founder P0, 2026-11-04), read by nba-engine-eval's readPropAnalysis (the
  * price-free public file + its encrypted prices, server-side, compared at the build instant) and presented without a
  * side, price or probability; null when there is no file or no prices. BUILD TIME ONLY: renders into HTML only.
+ * @param {{ appDir?: string, date?: string | null, env?: Record<string, string | undefined>, asOf?: string }} [opts]
  */
-export const loadPropAnalysis = ({ appDir = process.cwd(), date, env = process.env, asOf } = {}) =>
+export const loadPropAnalysis = ({ appDir = process.cwd(), date = null, env = process.env, asOf = undefined } = {}) =>
   /^\d{4}-\d{2}-\d{2}$/.test(String(date ?? "")) ? propAnalysisView(readPropAnalysis({ appDir, date, env, asOf })) : null;
 
 /** The NBA team colour DATA (names + listed colours), read server-side like the theater's loader; null if unreadable. */
