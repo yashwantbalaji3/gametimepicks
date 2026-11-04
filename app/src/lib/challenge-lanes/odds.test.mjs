@@ -17,6 +17,8 @@ import { parseBbmOddsReceipt, captureBbmPrices, priceForCard, planBbmCapture, sp
 import { canonical, sha256, parseEvents, verifyChain } from "./chain.mjs";
 import { lanePriceDisplay, encryptLanePriceDisplay, readLanePriceDisplay } from "./price-display.mjs";
 import { laneProjection, serializeProjection } from "./projection.mjs";
+import { laneDisplay, pricedLaneDisplay } from "./display.mjs";
+import { reconcileLane } from "./ops.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -179,4 +181,39 @@ test("CLI: lanes-price prices open cards from a private snapshot (no call), all 
   assert.ok(verifyChain(ev).ok);
   assert.deepEqual(ev.slice(-3).map((e) => e.type), ["PRICE_VERIFIED", "STAKE_SET", "PAYOUT_COMPUTED"]);
   fs.rmSync(root, { recursive: true, force: true });
+});
+
+test("pricedLaneDisplay: the same fold with the withheld money filled in, only for prices made from this projection", async () => {
+  const { snapshot } = await run();
+  const head = runStarted({ laneId: "bb-a", runId: "run-1", startedAt: DOC.evaluatedAt, approvedBy: "TEST" });
+  const ev0 = [head, ...prepareLane([head], { date: DATE, at: DOC.evaluatedAt, selection: SEL, file: "t", docSha256: DOC.contentSha256 }).events];
+  const p = priceForCard(laneState(ev0).open.cardEvent.card, snapshot);
+  const ev1 = [...ev0, ...priceLane(ev0, { date: DATE, at: snapshot.fetchedAt, price: p.price, suggestedCards: DOC, postScheduledAt: "2026-11-02T23:00:00Z" }).events];
+  const fin = JSON.parse(fs.readFileSync(path.join(REPO, "app/public/data/nba/results/finals-2026-27.json"), "utf8"));
+  const won = { ...fin, finals: fin.finals.map((r) => (card.legs.some((l) => l.gameId === r.providerEventId) ? { ...r, winnerSide: "home" } : r)), conflicts: [] };
+  const ev = [...ev1, ...reconcileLane(ev1, { finalsRecord: won }).events];
+  const doc = laneProjection("bb-a", [ev]);
+  const plain = laneDisplay(doc);
+  assert.deepEqual([plain.status, plain.trackedBankrollCents, plain.pace.state], ["WON", null, "withheld"]);
+  const prices = lanePriceDisplay("bb-a", [ev]);
+  const v = pricedLaneDisplay(doc, prices);
+  assert.deepEqual([v.priced, v.status, v.step, v.trackedBankrollCents, v.distanceToTargetCents, v.pace.state, v.pace.behindCents], [true, "WON", 2, 15538, 984462, "behind", 30000 - 15538]);
+  assert.deepEqual([v.history[0].price.grossPayoutCents, v.history[0].price.book, v.history[0].stepOutcome], [15538, "draftkings", "WIN"]);
+  assert.deepEqual(pricedLaneDisplay(doc, null), { ...plain, priced: false });
+  assert.throws(() => pricedLaneDisplay(laneProjection("bb-a", [ev1]), prices), /not made from this lane projection/, "a stale prices file is refused");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "lane-prices-"));
+  const key = Buffer.alloc(32, 9);
+  fs.writeFileSync(path.join(dir, "bb-a.json.enc"), encryptLanePriceDisplay("bb-a", [ev], key));
+  const { readLanePrices } = await import("./price-display.mjs");
+  const env = { GTP_ODDS_DISPLAY_KEY: key.toString("hex") };
+  assert.deepEqual(readLanePrices({ laneId: "bb-a", env, dir }), prices);
+  assert.equal(readLanePrices({ laneId: "bb-a", env: {}, dir }), null, "no key");
+  assert.equal(readLanePrices({ laneId: "bb-b", env, dir }), null, "no file");
+  assert.equal(readLanePrices({ laneId: "bb-a", env: { GTP_ODDS_DISPLAY_KEY: "ab".repeat(32) }, dir }), null, "another key");
+  const off = { nba: { siteDisplay: false, socialDisplay: false, socialFeedPrices: false, providerTermsRef: "x", approvedBy: "x", approvedAt: "2026-10-29" } };
+  assert.equal(readLanePrices({ laneId: "bb-a", env, dir, record: off }), null, "site display off: nothing is read");
+  const { socialPricesAuthorized } = await import("./price-display.mjs");
+  assert.equal(socialPricesAuthorized().ok, false, "social graphics may not carry prices until the record's NBA social surface is on");
+  fs.rmSync(dir, { recursive: true, force: true });
+  assert.equal(laneDisplay(doc).day.cardEventSha256, ev0[1].sha256);
 });

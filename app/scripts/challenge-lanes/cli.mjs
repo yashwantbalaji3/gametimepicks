@@ -29,6 +29,7 @@ import { encryptLanePriceDisplay, PRICE_DISPLAY_REPO_DIR } from "../../src/lib/c
 import { priceLane } from "../../src/lib/challenge-lanes/ops.mjs";
 import { resolvePrivateDataDir } from "../../src/lib/ops/private-data-dir.mjs";
 import { readDisplayKey } from "../../src/lib/odds/display-crypto.mjs";
+import { displayAuthorization } from "../../src/lib/odds/display-authorization.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -143,6 +144,8 @@ export async function main(command, argv = process.argv) {
       }
     }
   } else if (command === "display") {
+    const auth = displayAuthorization("nba", "site");
+    if (!auth.ok) fail(`NBA site display is not authorized: ${auth.reasons.join("; ")}`);
     const k = readDisplayKey();
     if (!k.ok) fail(`${k.reason} — no encrypted display artifact written`);
     const dir = path.join(REPO, PRICE_DISPLAY_REPO_DIR);
