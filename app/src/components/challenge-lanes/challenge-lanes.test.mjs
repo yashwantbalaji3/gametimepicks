@@ -757,6 +757,9 @@ test("LANE SPECIALIZATION (proposed): the lane-type badge from the engine's disp
   assert.equal(vB.current.legs.length, 2); assert.match(tB, /COMBINED ODDS \(calculated leg product\)/);
   assert.equal(lane.oddsLabel({ method: "BOOK_QUOTED_PARLAY" }, 2), "COMBINED ODDS (book-quoted parlay)");
   assert.equal(lane.flagWords({ code: "SOME_NEW_CODE" }), null, "an unknown flag code is absent, never invented text");
+  /* Every public flag code the engine can emit has plain words on the site. */
+  const { FLAG_CODES } = await import("../../lib/challenge-lanes/card-fields.mjs");
+  for (const c of FLAG_CODES) assert.ok(lane.flagWords({ code: c }), `${c} has site wording`);
   assert.equal(lane.oddsLabel({ method: "LEG_PRODUCT", combinedLabel: "calculated leg product" }, 2), "COMBINED ODDS (calculated leg product)");
   /* No type in the record → no badge (never a hard-coded guess). */
   assert.equal(lane.laneView(ms.pub, { display: ms.priced, productDay: ms.priced.day.date }).laneType, null);

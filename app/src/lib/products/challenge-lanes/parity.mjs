@@ -88,7 +88,10 @@ export function laneParity({ doc, prices, view }) {
   const hrOf = (l) => (detail.get(l.legId)?.hitRates ?? l.hitRates ?? []).map(hitRateText).filter(Boolean);
   const sProps = sp ? siteProps : [];
   rowOpt("prop lines", pLegs.length ? pLegs.map((l) => [l.legId, l.line ?? detail.get(l.legId)?.line ?? null]) : null, sProps.length ? sProps.map((l) => [l.legId, l.price?.line ?? null]) : null);
-  rowOpt("evidence lines", pLegs.some((l) => detail.get(l.legId)?.evidenceLine) ? pLegs.map((l) => [l.legId, detail.get(l.legId)?.evidenceLine ?? null]) : null, sProps.some((l) => l.price?.evidenceLine) ? sProps.map((l) => [l.legId, l.price?.evidenceLine ?? null]) : null);
+  /* Evidence lines on every priced leg (props: hit counts; moneylines: W-L records and key players), verbatim. */
+  const allP = priced ? pd.legs : [];
+  const siteAll = sp ? siteDay.legs : [];
+  rowOpt("evidence lines", allP.some((l) => detail.get(l.legId)?.evidenceLine) ? allP.map((l) => [l.legId, detail.get(l.legId)?.evidenceLine ?? null]) : null, siteAll.some((l) => l.price?.evidenceLine) ? siteAll.map((l) => [l.legId, l.price?.evidenceLine ?? null]) : null);
   rowOpt("lineup context", pLegs.some((l) => lineupText(detail.get(l.legId)?.lineup)) ? pLegs.map((l) => [l.legId, lineupText(detail.get(l.legId)?.lineup)]) : null, sProps.some((l) => l.price?.lineup) ? sProps.map((l) => [l.legId, l.price?.lineup ?? null]) : null);
   rowOpt("prop hit rates", pLegs.some((l) => hrOf(l).length) ? pLegs.map((l) => [l.legId, hrOf(l)]) : null, sProps.some((l) => l.price?.hitRates?.length) ? sProps.map((l) => [l.legId, l.price?.hitRates ?? []]) : null);
   rowP("price event sha", priced ? pd.priceEventSha256 : null, sp?.priceEventSha256);

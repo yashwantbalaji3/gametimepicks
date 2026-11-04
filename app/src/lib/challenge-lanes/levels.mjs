@@ -18,7 +18,7 @@ import { canonical, sha256 } from "./chain.mjs";
 import { priceRatio, payoutCents, decimalToAmerican } from "./payout.mjs";
 import { stepPosition, RULES_VERSION } from "./rules-v2.mjs";
 import { ELIGIBLE_OPERATOR_KEYS } from "../sports/odds/eligible-operators.mjs";
-import { EVIDENCE_LABEL, SELECTION_LABEL, publicFlags, laneTypeOf, laneTypeRefusal } from "./card-fields.mjs";
+import { EVIDENCE_LABEL, SELECTION_LABEL, publicFlags, laneTypeOf, laneTypeRefusal, evidenceLine } from "./card-fields.mjs";
 export { EVIDENCE_LABEL, PRIVATE_LEG_FIELDS, publicLeg, privateLeg } from "./card-fields.mjs";
 
 export const SHORTLIST_SCHEMA = "gtp.bbm.level-b-shortlist@1";
@@ -39,7 +39,11 @@ export const LEVEL_B_PARAMS = Object.freeze({
      uncertainty become disclosed flags; the payout target is a guide (a wide window, ranked evidence-first). */
   mode: Object.freeze({ value: "STRICT", state: "PROPOSED", note: "STRICT | RESEARCH" }),
   minShrunkRateByFamily: Object.freeze({ value: null, state: "PROPOSED", note: "e.g. { pts: 0.60, reb: 0.60, ast: 0.57 } from nba-engine-eval's walk-forward (cc465d1a57)" }),
-  guideWindow: Object.freeze({ value: Object.freeze([0.75, 1.30]), state: "PROPOSED", note: "RESEARCH: gross within target × [lo, hi]; inside it, evidence ranks first and target proximity later" }),
+  /* FOUNDER-APPROVED 2026-11-04 ~20:40Z (verbatim, relayed by the PD): "I approve the no-lower-payout-bound approach for
+     Level B research selections only… Maintain an upper payout tolerance of +20% in research mode. Continue to prioritize
+     the most defensible selection regardless of whether it is one or two legs, with a maximum of two." research-band@1:
+     no lower bound, upper target × 1.20; evidence ranks first; the actual payout and its shortfall are always disclosed. */
+  guideWindow: Object.freeze({ value: Object.freeze([0, 1.20]), state: "FOUNDER_APPROVED", version: "research-band@1", approvalRef: "founder 2026-11-04 ~20:40Z via PD (no lower payout bound; +20% upper; research mode only)", note: "RESEARCH: gross ≤ target × 1.20; no lower bound; evidence ranks first, target proximity later" }),
   lineupExcludeMinN: Object.freeze({ value: 20, state: "PROPOSED", note: "RESEARCH: exclude when tonight's teammate scenario has n ≥ this and its side rate is below lineupExcludeRate" }),
   lineupExcludeRate: Object.freeze({ value: 0.55, state: "PROPOSED" }),
   /* Founder ~19:55Z: a projected-minutes drop of ≥ 20% vs L5 is a flag, and the evidence is re-weighted to minutes-comparable games. */
@@ -87,6 +91,7 @@ export function legFromShortlist(c) {
     projection: c.projection ? { value: c.projection.value ?? null, label: "MODEL PROJECTION", snapshotId: c.projection.snapshotId ?? null } : null,
     hitRate: c.hitRate ? { windows: (c.hitRate.windows ?? []).map((w) => ({ window: w.window, hits: w.hits, n: w.n, text: hitRateText(w) })), shrunk: c.hitRate.shrunk ?? null, lineBasis: c.hitRate.lineBasis ?? null } : null,
     role: c.role ?? null, injury: c.injury ?? null, dataQuality: c.dataQuality ?? null, lineup: c.lineup ?? null,
+    eloSide: c.eloSide ?? undefined, roster: c.roster ?? undefined, flags: c.family === "winner" ? c.flags ?? undefined : undefined, context: c.context ?? undefined,
     probability: null, uncertainty: null, ev: null,
   };
 }
@@ -130,6 +135,24 @@ export function legSignals(leg, { params = null, now } = {}) {
      tonight's expected lineup (wider when relevant games are few), not the lineup-blind one. */
   const ctxl = research ? leg.lineup?.contextual ?? null : null;
   const A = { longestN: longest, windows: w.map((x) => x.text), shrunkRate: ctxl?.primary?.rate ?? leg.hitRate?.shrunk?.rate ?? null, nEffective: ctxl?.primary?.nEff ?? leg.hitRate?.shrunk?.nEffective ?? null, basis: ctxl ? "contextual (lineup-pooled)" : "lineup-blind", interval95: ctxl?.primary?.interval95 ?? leg.hitRate?.shrunk?.interval95 ?? null };
+  /* RESEARCH moneylines (founder ~20:18Z): team evidence plus market context, never a probability. Blockers: the model
+     side and the no-vig favourite disagree, or no W-L evidence. The small samples and roster turnover are disclosed. */
+  if (research && leg.family === "winner") {
+    const nv = leg.hitRate?.shrunk?.marketNoVig;
+    const sh = leg.hitRate?.shrunk;
+    const A = { longestN: longest, windows: w.map((x) => x.text), shrunkRate: typeof sh?.rate === "number" ? sh.rate : null, nEffective: sh?.nEffective ?? null, interval95: sh?.interval95 ?? null, basis: "moneyline team evidence shrunk toward the no-vig (research; not a probability)", marketNoVig: nv ?? null };
+    for (const fl of leg.flags ?? []) { const code = String(fl).split(" ")[0]; if (["TOP5_OUT", "KEY_UNCERTAIN", "BACK_TO_BACK"].includes(code)) f.push(`ML_${code} ${leg.legId}: ${fl}`); }
+    if (!w.length) r.push(`A_NO_EVIDENCE ${leg.legId}: no W-L windows`);
+    if (!leg.eloSide || leg.eloSide !== leg.side) r.push(`ML_NOT_MODEL_SIDE ${leg.legId}`);
+    if (!(typeof nv === "number" && nv > 0.5)) r.push(`ML_MARKET_DISAGREES ${leg.legId}: the no-vig favourite is the opponent`);
+    if (longest < 20) f.push(`ML_SMALL_SAMPLE ${leg.legId}: W-L windows n ≤ ${longest}${leg.hitRate?.shrunk?.rate == null ? "; no fitted shrinkage" : "; shrinkage fitted on few games, wide interval"}`);
+    if (leg.roster && leg.roster.stable === false) f.push(`ML_ROSTER_TURNOVER ${leg.legId}`);
+    for (const k of leg.injury?.keyPlayers ?? []) f.push(`ML_KEY_${/out/i.test(k.status) ? "OUT" : "DTD"} ${leg.legId}: ${k.name} ${k.status}`);
+    const D = { ok: leg.dataQuality?.ok ?? null, issues: leg.dataQuality?.issues ?? [] };
+    if (D.ok !== true) r.push(`D_DATA_QUALITY ${leg.legId}`);
+    if (!(Date.parse(leg.startUtc) > Date.parse(now))) r.push(`STARTED ${leg.legId}`);
+    return { signals: { A, B: { stable: null, gamesPlayed: null, minutesCv: null }, C: { status: null }, D, F: { validated: false, note: "Elo is uncalibrated; no probability" } }, reasons: r, flags: f };
+  }
   if (!w.length) r.push(`A_NO_EVIDENCE ${leg.legId}: no hit-rate windows`);
   else if (longest < P("minLongestWindowN", params)) r.push(`A_SMALL_SAMPLE ${leg.legId}: longest window n ${longest} < ${P("minLongestWindowN", params)}`);
   if (!(typeof A.shrunkRate === "number")) r.push(`A_NO_SHRUNK_RATE ${leg.legId}`);
@@ -313,7 +336,7 @@ export function levelCardRecord(candidate, { laneId, date }) {
     schema: "gtp.bbm.card@2", rulesVersion: RULES_VERSION, laneId, date, candidateId: candidate.candidateId,
     classification: candidate.classification, classificationLabel: LEVEL_LABEL[candidate.classification], evidenceLabel: EVIDENCE_LABEL[candidate.classification] ?? null, evClaim: false,
     selectionMode: candidate.selectionMode ?? "STRICT", selectionLabel: SELECTION_LABEL[candidate.selectionMode ?? "STRICT"] ?? null, flags: publicFlags(candidate.flags), probability: null,
-    legs: candidate.legs.map((l) => ({ legId: l.legId, sport: l.sport, gameId: l.gameId, eventLabel: l.eventLabel, startUtc: l.startUtc, player: l.player, team: l.team, market: l.market, family: l.family, projection: l.projection ?? null, line: l.line, side: l.side, book: l.quote?.book ?? null, price: l.quote?.american ?? null, quotedAt: l.quote?.quotedAt ?? null, fetchedAt: l.quote?.fetchedAt ?? null, forecastVersion: l.forecastVersion, hitRate: l.hitRate, role: l.role, injury: l.injury, flagText: (candidate.flags ?? []).filter((f) => String(f).split(" ")[1]?.replace(/:$/, "") === l.legId && !/_WEIGHT /.test(f)), lineupContext: l.lineup?.contextual ? { expectedLineup: l.lineup.contextual.expectedLineup ?? l.lineup.tonightScenario ?? null, exact: l.lineup.contextual.primary?.exact ?? null, uncertainTeammates: (l.lineup.contextual.uncertainTeammates ?? []).map((t) => t.name ?? t) } : l.lineup ? { expectedLineup: l.lineup.tonightScenario ?? null, exact: null, uncertainTeammates: [] } : null, classification: candidate.classification, evidenceClass: candidate.classification === LEVEL.HOLD ? null : candidate.classification, evidenceLabel: EVIDENCE_LABEL[candidate.classification] ?? null, probability: null, uncertainty: null, ev: null })),
+    legs: candidate.legs.map((l) => ({ legId: l.legId, sport: l.sport, gameId: l.gameId, eventLabel: l.eventLabel, startUtc: l.startUtc, player: l.player, team: l.team, market: l.market, family: l.family, eloSide: l.eloSide, evidenceLine: evidenceLine(l), projection: l.projection ?? null, line: l.line, side: l.side, book: l.quote?.book ?? null, price: l.quote?.american ?? null, quotedAt: l.quote?.quotedAt ?? null, fetchedAt: l.quote?.fetchedAt ?? null, forecastVersion: l.forecastVersion, hitRate: l.hitRate, role: l.role, injury: l.injury, flagText: (candidate.flags ?? []).filter((f) => String(f).split(" ")[1]?.replace(/:$/, "") === l.legId && !/_WEIGHT /.test(f)), lineupContext: l.lineup?.contextual ? { expectedLineup: l.lineup.contextual.expectedLineup ?? l.lineup.tonightScenario ?? null, exact: l.lineup.contextual.primary?.exact ?? null, uncertainTeammates: (l.lineup.contextual.uncertainTeammates ?? []).map((t) => t.name ?? t) } : l.lineup ? { expectedLineup: l.lineup.tonightScenario ?? null, exact: null, uncertainTeammates: [] } : null, classification: candidate.classification, evidenceClass: candidate.classification === LEVEL.HOLD ? null : candidate.classification, evidenceLabel: EVIDENCE_LABEL[candidate.classification] ?? null, probability: null, uncertainty: null, ev: null })),
     combined: candidate.price && { method: candidate.price.method, label: candidate.price.label, decimal: candidate.price.decimal, american: candidate.price.american },
     money: candidate.money, reasons: candidate.reasons,
     /* Parity gate fields (engine → site → graphic → caption → console); filled by each stage, never by the engine. */

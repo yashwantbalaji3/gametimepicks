@@ -237,3 +237,23 @@ Payout is never a key.
 - Shortlist: `gtp.bbm.level-b-shortlist@1`, from nba-engine-eval, private.
 
 **Card record (`gtp.bbm.card@2`).** It holds the classification, the legs in the founder's schema (sport, game, player or team, market, exact line, side, book, price, quote time, forecast version, hit-rate windows with n, role, injury), the combined price ("calculated leg product") and the money. The receipts start empty and pending: `approvalStatus: PENDING_FOUNDER`, `priceEventSha256`, `graphicVersion`, `siteRecordVersion`, `xReceipt`.
+
+## 8. Research-mode payout band · `research-band@1` (FOUNDER-APPROVED)
+
+The founder approved this at about 20:40Z on 2026-11-04, verbatim, as relayed by the PD:
+
+> "I approve the no-lower-payout-bound approach for Level B research selections only… Maintain an upper payout tolerance
+> of +20% in research mode. Continue to prioritize the most defensible selection regardless of whether it is one or two
+> legs, with a maximum of two."
+
+Also: "If a $25 Moonshot selection pays only $33.99, display the actual potential payout clearly alongside the $50 target and disclose that it falls 32% short."
+
+How it is implemented (`levels.mjs` `guideWindow` = [0, 1.20], state FOUNDER_APPROVED, version `research-band@1`):
+
+- **Scope:** RESEARCH mode only. STRICT keeps ±10% (`bandPct`, still PROPOSED).
+- **Lower bound:** none. A card paying well below target is allowed. Every card shows its actual payout next to the step target, and the shortfall in percent.
+- **Upper bound:** gross ≤ target × 1.20. A riskier card is never taken just because it pays more.
+- **Ranking:** evidence first, whether the card has one leg or two (at most 2). Target proximity is a late tie-break.
+- **Next step:** the settled bankroll carries forward, so the next step's required multiplier rises after a short step. It is shown on each card.
+
+This is a parameter decision only. bbm-rules@2, the run-1 withdrawal and retirement, the run-2 start, each card, and the final graphics and captions remain separate approvals.
