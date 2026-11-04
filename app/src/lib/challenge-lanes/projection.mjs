@@ -10,9 +10,9 @@
  */
 import { canonical, sha256, verifyChain } from "./chain.mjs";
 import { LANES, MILESTONES, laneState, inPlay, publicStatusOf } from "./lanes.mjs";
-import { publicLeg, LANE_TYPE_LABEL } from "./card-fields.mjs";
+import { publicLeg, LANE_TYPE_LABEL, PRIVATE_CARD_FIELDS } from "./card-fields.mjs";
 /* A card@2 (classified) card never carries its book line, price or line-dependent hit rates in the public file. */
-const publicCard = (c) => (c?.classification ? { ...c, legs: c.legs.map(publicLeg), combined: undefined, money: undefined, reasons: undefined } : c);
+const publicCard = (c) => (c?.classification ? { ...Object.fromEntries(Object.entries(c).filter(([k]) => !PRIVATE_CARD_FIELDS.includes(k))), legs: c.legs.map(publicLeg) } : c);
 
 export const LANE_PROJECTION_SCHEMA = "gtp.challenge-lane.public@1";
 export const PUBLIC_PRICES = Object.freeze({ state: "WITHHELD_P1", note: "Payouts and prices are withheld until the founder approves a price source whose terms permit display (P1)." });

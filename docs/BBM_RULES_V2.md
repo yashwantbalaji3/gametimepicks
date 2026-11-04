@@ -270,3 +270,10 @@ The founder's correction, verbatim, as relayed by the PD:
 - The band is computed per step from the step target, and the bankroll is the actual settled bankroll. Step 1: Bank Builder $180–$220, Moonshot $45–$55.
 - Out of band means refused. Inside the band, evidence ranks first and target proximity last.
 - Section 8 (`research-band@1`) is superseded. It is kept only as history.
+
+## 9. Dated founder exception · `2026-11-04-founder-odds-snapshot-override` (expires after 2026-11-04 ET)
+
+- **Receipt:** `docs/receipts/FOUNDER_ODDS_SNAPSHOT_OVERRIDE_2026-11-04.md` (commit f529fa44fa, claude/bbm-v2-authorization). The founder delivered it at about 5:05 PM ET.
+- **What it allows:** quotes captured by the approved provider at 21:05–21:06Z on 2026-11-04 (the BBM h2h snapshot 21:05:12Z and the final props capture 21:06Z) may be displayed past the 90-minute freshness gate, until 2026-11-04 23:59 ET (05:00Z on Nov 5). They are shown as a disclosed historical snapshot ("ODDS SNAPSHOT · 4:05 PM ET"), never as a live offer.
+- **Code:** `levels.mjs` `NOV4_SNAPSHOT_OVERRIDE`, passed explicitly as `freshnessOverride`; default null. Inside the capture window and before expiry, the stale-quote refusal becomes the disclosed flag `E_SNAPSHOT_OVERRIDE`.
+- **Unchanged:** provenance (book, event, market, selection, line, odds, timestamp), the STARTED refusal (nothing after its game's tip), and the injury, status and market-integrity gates. No new spend and no new display surface.
