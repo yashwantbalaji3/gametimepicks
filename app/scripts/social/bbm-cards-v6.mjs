@@ -129,7 +129,7 @@ function compartment(cells, r, steps) {
 function legPanel(cells, l, i, ctx) {
   const k = `leg${i + 1}`;
   if (l.placeholder) {
-    return `<div class="leg ph" data-slot="${l.placeholder}"><div class="n">${i + 1}</div><div class="who">${cell(cells, `${k}.name`, V6_PLACEHOLDER.leg, "nm ph")}<div class="mt">${cell(cells, `${k}.odds`, V6_PLACEHOLDER.price, "chip dim")}${l.placeholder === "optional" ? `<span class="opt">${cell(cells, `${k}.optional`, "Optional")}</span>` : ""}</div></div><div class="rt"><span class="pk">Model win<br>probability</span>${cell(cells, `${k}.proj`, "Pending", "pv dim")}</div></div>`;
+    return `<div class="leg ph" data-slot="${l.placeholder}"><div class="n">${i + 1}</div><div class="who">${cell(cells, `${k}.name`, V6_PLACEHOLDER.leg, "nm ph")}<div class="mt">${cell(cells, `${k}.odds`, V6_PLACEHOLDER.price, "chip dim")}${l.placeholder === "optional" ? `<span class="opt">${cell(cells, `${k}.optional`, "Optional")}</span>` : ""}</div></div><div class="rt"><span class="pk">Research<br>evidence</span>${cell(cells, `${k}.proj`, "Pending", "pv dim")}</div></div>`;
   }
   const t = teamOf(l.team.abbr, l.team.name);
   const odds = ctx.price && ctx.price.oddsFormat === "american" && american(ctx.price.price) ? cell(cells, `${k}.odds`, american(ctx.price.price), "chip odds") : l.oddsText ? cell(cells, `${k}.odds`, l.oddsText, "chip odds") : "";
@@ -143,7 +143,7 @@ function legPanel(cells, l, i, ctx) {
     const right = l.level === "A" ? `<span class="pk">${cell(cells, `${k}.level`, PROP_LEVEL.A)}</span>${cell(cells, `${k}.proj`, l.projectionText, "pv")}` : `<span class="pk">${cell(cells, `${k}.level`, PROP_LEVEL.B)}</span>${evBig ? `${cell(cells, `${k}.evidenceBig`, evBig, "pv ev")}<span class="pk sm">last 10</span>` : cell(cells, `${k}.evidenceBig`, "Hit-rate research", "pv ev sm")}`;
     return `<div class="leg prop" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit>${cell(cells, `${k}.name`, l.player.name)}</span><div class="mt"><span class="tg">${cell(cells, `${k}.team`, t.abbr)}</span>${cell(cells, `${k}.game`, `${l.home ? "vs" : "@"} ${l.opponent.abbr} · ${tipText(l.tipUtc)}`)}</div>${l.lineText || odds || oc ? `<div class="mt">${l.lineText ? cell(cells, `${k}.line`, l.lineText, "chip line") : ""}${odds}${oc}</div>` : ""}${evText ? `<div class="evl">${cell(cells, `${k}.evidence`, evText)}</div>` : ""}${flag}</div><div class="rt">${right}</div></div>`;
   }
-  return `<div class="leg" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit>${cell(cells, `${k}.name`, t.name)}</span><div class="mt"><span class="tg">${cell(cells, `${k}.team`, t.abbr)}</span>${cell(cells, `${k}.game`, `${l.home ? "vs" : "@"} ${l.opponent.abbr} · ${tipText(l.tipUtc)}`)}${odds}${oc}</div>${flag}</div><div class="rt"><span class="pk">Model win<br>probability</span>${cell(cells, `${k}.proj`, l.projectionText, "pv")}</div></div>`;
+  return `<div class="leg" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit>${cell(cells, `${k}.name`, t.name)}</span><div class="mt"><span class="tg">${cell(cells, `${k}.team`, t.abbr)}</span>${cell(cells, `${k}.game`, `${l.home ? "vs" : "@"} ${l.opponent.abbr} · ${tipText(l.tipUtc)}`)}${odds}${oc}</div>${l.level === "B" && l.evidenceText ? `<div class="evl">${cell(cells, `${k}.evidence`, l.evidenceText)}</div>` : ""}${flag}</div><div class="rt">${l.level === "B" ? `<span class="pk">${cell(cells, `${k}.level`, PROP_LEVEL.B)}</span>${cell(cells, `${k}.evidenceBig`, l.evidenceBig ?? "Research", l.evidenceBig ? "pv ev" : "pv ev sm")}` : `<span class="pk">Model win<br>probability</span>${cell(cells, `${k}.proj`, l.projectionText, "pv")}`}</div></div>`;
 }
 
 const CSS = (P) => `<style>
@@ -263,7 +263,11 @@ export function bbmCardV6(model, { testData = false } = {}) {
   // Founder 2026-11-04: lanes specialize (A = moneyline, B = player props, both products); a leg of the other type is refused.
   for (const l of model.legs ?? []) if (!l.placeholder && (l.kind === "PROP") !== (model.letter === "B")) throw new Error(`lane ${model.letter} is the ${LANE_TYPE[model.letter]} challenge: a ${l.kind === "PROP" ? "prop" : "moneyline"} leg is refused`);
   if (!Object.values(BADGE).includes(model.badge)) throw new Error(`status ${model.badge} is not in the public vocabulary`);
-  for (const l of model.legs ?? []) if (l.kind === "PROP" && l.level === "B" && l.projectionText) throw new Error("a Level B prop never carries a probability");
+  // Founder 2026-11-04: Level B never displays a probability (props or moneylines); only a Level A leg may.
+  for (const l of model.legs ?? []) if (l.level === "B" && l.projectionText) throw new Error(`a Level B ${l.kind === "PROP" ? "prop" : "moneyline"} leg never carries a probability`);
+  for (const l of model.legs ?? []) if (l.level === "A" && !l.placeholder && !l.projectionText) throw new Error("a Level A leg without its probability is refused");
+  const classification = model.classification ?? ((model.legs ?? []).some((l) => l.level === "B") ? "LEVEL_B" : (model.legs ?? []).some((l) => l.level === "A") ? "LEVEL_A" : null);
+  if (classification === "LEVEL_B" && (model.legs ?? []).some((l) => !l.placeholder && l.level !== "B")) throw new Error("a Level B card draws every leg as research (no probability row)");
   const cells = {};
   const tpl = model.template === true;
   const stepWord = model.view === VIEW.COMPLETE || model.view === VIEW.FINISHED_SHORT ? `${model.rungs.filter((r) => r.state === RUNG.COMPLETED).length} of ${model.steps} won` : `Step ${model.step} of ${model.steps}`;
@@ -305,7 +309,7 @@ export function bbmCardV6(model, { testData = false } = {}) {
   const ribbon = rib.length ? `<div class="rib5 ${testData && !tpl ? "t" : ""}">${esc(rib.join(" · "))}</div>` : "";
   const body = `${CSS(P)}<div class="v5 ${P.cls}">${scene(P)}${meter}<div class="rt5">${head}${mid}</div>${bottom}${ribbon}</div>`;
   const html = shell({ chip: "", body, review: false, disclosure: V6_FOOTER }).replace(/<div class="rg">[^<]*<\/div>/g, "");
-  return { html, cells, laneId: model.laneId, view: model.view, badge: model.badge, template: tpl, preliminary: model.payout?.preliminary === true, testData, samplePrice: model.payout?.fixture === true, priced: model.payout != null, disclosure: V6_FOOTER, design: BBM_V6_DESIGN_VERSION };
+  return { html, cells, classification, laneId: model.laneId, view: model.view, badge: model.badge, template: tpl, preliminary: model.payout?.preliminary === true, testData, samplePrice: model.payout?.fixture === true, priced: model.payout != null, disclosure: V6_FOOTER, design: BBM_V6_DESIGN_VERSION };
 }
 
 const cellsIn = (html) => Object.fromEntries([...html.matchAll(/data-cell="([^"]+)">([^<]*)</g)].map((m) => [m[1], m[2].replace(/&amp;/g, "&").replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">")]));
@@ -327,6 +331,7 @@ export function verifyBbmCardV6(card) {
     if (card.priced) e.push("a template carries a price");
   } else if (/template preview/i.test(text)) e.push("TEMPLATE ribbon on a real card");
   if (!card.priced && "price.verified" in got) e.push("VERIFIED on unpriced content");
+  if (card.classification === "LEVEL_B" && Object.keys(got).some((k) => /\.proj$/.test(k))) e.push("a Level B card with a probability row");
   // A held card shows no picks and no prices, and is never VERIFIED.
   if (card.view === VIEW.NO_ELIGIBLE_CARD && Object.keys(got).some((k) => /^price\.|^money\.(payout|profit)|^leg\d|^plan\./.test(k))) e.push("a held card carries a pick or a price");
   // A hit rate is research evidence, never a probability: no "%" in any evidence cell.

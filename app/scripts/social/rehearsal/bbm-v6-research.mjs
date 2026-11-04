@@ -64,10 +64,14 @@ for (const { laneId, name, sel: src, file: srcFile, alt } of jobs) {
     if (isMoneyline(l)) {
       // A moneyline leg (lane A): the team, and the model win probability the record carries; none is invented.
       const side = l.selection?.teamAbbr ?? l.team;
-      const shown = l.probabilityShown ?? (l.probability != null ? `${Math.round(l.probability * 100)}%` : null);
-      if (!shown) throw new Error(`${laneId}: moneyline ${l.legId} carries no model win probability`);
+      // Founder 2026-11-04: only a Level A leg shows a probability (the Elo winner probability is not calibrated); Level B shows the engine's evidence line.
+      const levelA = (l.classification ?? c.classification) === "LEVEL_A";
+      const shown = levelA ? (l.probabilityShown ?? (l.probability != null ? `${Math.round(l.probability * 100)}%` : null)) : null;
+      if (levelA && !shown) throw new Error(`${laneId}: Level A moneyline ${l.legId} carries no model win probability`);
+      const evText = levelA ? null : (l.evidenceLine ?? l.evidenceText ?? evidenceLine(l));
+      if (!levelA && !evText) throw new Error(`${laneId}: Level B moneyline ${l.legId} carries no evidence line`);
       const flags = [...(inj0?.lineup?.sensitive ? [`Lineup watch: ${inj0.lineup.tonightScenario}`] : []), ...(l.flagText ?? []).filter((t) => !/^[A-Z]_[A-Z_]+ /.test(t)), ...(c.flags ?? []).filter((f) => f.legId === l.legId).map((f) => FLAG_WORDS[f.code] ?? f.code.replace(/^[A-Z]_/, "").replace(/_/g, " ").toLowerCase())];
-      return { legId: l.legId, team: { abbr: side, name: l.teamName ?? side }, opponent: { abbr: side === home ? away : home }, home: side === home, tipUtc: l.startUtc, projectionText: shown, flagText: flags };
+      return { legId: l.legId, team: { abbr: side, name: l.teamName ?? side }, opponent: { abbr: side === home ? away : home }, home: side === home, tipUtc: l.startUtc, level: levelA ? "A" : "B", ...(levelA ? { projectionText: shown } : { evidenceText: evText }), flagText: flags };
     }
     const ev = evidenceLine(l);
     if (!ev) throw new Error(`${laneId}: ${l.legId} lacks L10 or L20 hit counts`);
@@ -93,7 +97,7 @@ function caption(product, pair) {
   const lanes = pair.map((m) => (m.held ? `Lane ${BBM_LANES[m.laneId].letter} · Held · Step 1 of 5` : `Lane ${BBM_LANES[m.laneId].letter} · Step 1 of 5\n${m.legsRaw.map((l) => (isMoneyline(l) ? `${l.teamName ?? l.selection?.teamAbbr ?? l.team} to win` : `${l.player.name} · ${WORD[l.market] ?? l.family}`)).join("\n")}`));
   const t = pair.every((m) => m.held)
     ? [head, ...lanes, "No card tonight; both lanes hold their place and tracked bankroll. Tracked challenge, no real wager placed. #NBA"].join("\n\n")
-    : [head, ...(pair.some((m) => m.record?.classification === "LEVEL_B") ? ["Research selection · no validated edge claim"] : []), ...lanes, `${pair.some((m) => m.legsRaw.some(isMoneyline)) ? "Model win probabilities" : "Hit-rate research"}${pair.some((m) => m.legsRaw.some(isMoneyline)) && pair.some((m) => m.legsRaw.some((l) => !isMoneyline(l))) ? " and hit-rate research" : ""} on the graphic. Tracked challenge, no real wager placed. #NBA`].join("\n\n");
+    : [head, ...(pair.some((m) => m.record?.classification === "LEVEL_B") ? ["Research selection · no validated edge claim"] : []), ...lanes, `${pair.every((m) => m.record?.classification === "LEVEL_A") ? "Model probabilities" : "Research evidence"} on the graphic. Tracked challenge, no real wager placed. #NBA`].join("\n\n");
   if (xWeighted(t) > X_LIMIT || CAPTION_PRICE_TEXT.test(t)) throw new Error(`${product}: caption fails (${xWeighted(t)} X-weighted; ${t.match(CAPTION_PRICE_TEXT)?.[0] ?? "no price text"})`);
   return t;
 }
@@ -102,9 +106,9 @@ function caption(product, pair) {
 function parity(m) {
   const c = m.record; const cells = m.card.cells; const mis = [];
   const want = { "money.wager": cents(c.money.stakeCents), "money.payout": cents(c.money.grossPayoutCents), "money.profit": cents(c.money.profitCents), "price.combined": american(c.combined.american) };
-  c.legs.forEach((l, i) => Object.assign(want, isMoneyline(l) ? { [`leg${i + 1}.team`]: m.model.legs[i].team.abbr, [`leg${i + 1}.odds`]: american(l.price), [`leg${i + 1}.proj`]: m.model.legs[i].projectionText } : { [`leg${i + 1}.name`]: l.player.name, [`leg${i + 1}.odds`]: american(l.price), [`leg${i + 1}.line`]: m.model.legs[i].lineText, [`leg${i + 1}.evidence`]: evidenceLine(l) }));
+  c.legs.forEach((l, i) => Object.assign(want, isMoneyline(l) ? { [`leg${i + 1}.team`]: m.model.legs[i].team.abbr, [`leg${i + 1}.odds`]: american(l.price), ...(m.model.legs[i].level === "A" ? { [`leg${i + 1}.proj`]: m.model.legs[i].projectionText } : { [`leg${i + 1}.evidence`]: m.model.legs[i].evidenceText }) } : { [`leg${i + 1}.name`]: l.player.name, [`leg${i + 1}.odds`]: american(l.price), [`leg${i + 1}.line`]: m.model.legs[i].lineText, [`leg${i + 1}.evidence`]: evidenceLine(l) }));
   for (const [k, v] of Object.entries(want)) if (cells[k] !== v) mis.push(`${k}: printed ${cells[k]} record ${v}`);
-  if (c.classification === "LEVEL_B" && Object.keys(cells).some((k) => /\.proj$/.test(k))) mis.push("a probability on a Level B card");
+  if (c.classification === "LEVEL_B" && Object.keys(cells).some((k) => /\.proj$/.test(k))) mis.push("a Level B card with a probability row");
   if ("price.verified" in cells && c.priceEventSha256 == null) mis.push("VERIFIED on an unverified price");
   return mis;
 }
