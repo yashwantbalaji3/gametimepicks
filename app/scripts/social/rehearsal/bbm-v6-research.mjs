@@ -31,7 +31,14 @@ const WORD = { player_points: "points", player_rebounds: "rebounds", player_assi
 const REVIEW = "Founder review · not approved · do not post";
 
 const HELD = new Set(String(a.held ?? "").split(",").filter(Boolean));
-const ALTS = String(a.alt ?? "").split(",").filter(Boolean).map((x) => { const [laneId, f] = x.split("="); return { laneId, file: f, sel: JSON.parse(fs.readFileSync(f, "utf8")) }; });
+// --alt lane=<selection.json> (that file's lanes[lane].card) or lane=<sealed-alternates.json>#<records key> (its .record).
+const ALTS = String(a.alt ?? "").split(",").filter(Boolean).map((x) => {
+  const [laneId, ref] = x.split("="); const [f, key] = ref.split("#"); const j = JSON.parse(fs.readFileSync(f, "utf8"));
+  if (key && !j.records?.[key]?.record) throw new Error(`${f}: no sealed record ${key}`);
+  return { laneId, file: ref, sel: key ? { lanes: { [laneId]: { card: j.records[key].record } } } : j };
+});
+/** The engine's Level B leg flags in plain words (the record's flags[] codes). */
+const FLAG_WORDS = { B_ROLE_UNSTABLE: "Role unstable", B_MINUTES_VOLATILE: "Minutes volatile" };
 /** The lane's minutes disclosure from the record's role note ("lane projected 15.5 min; L5 mean 24.4"). */
 const minutesNote = (role) => { const m = /lane projected ([\d.]+) min; L5 mean ([\d.]+)/.exec(role?.note ?? ""); return m ? `Projected minutes ${m[1]} vs ${m[2]} recent` : null; };
 const models = [];
@@ -55,7 +62,7 @@ for (const { laneId, name, sel: src, file: srcFile, alt } of jobs) {
     if (!ev) throw new Error(`${laneId}: ${l.legId} lacks L10 or L20 hit counts`);
     const w10 = l.hitRate.windows.find((w) => w.window === "last10");
     const inj = c.injuryStatus.find((x) => x.legId === l.legId);
-    const flags = [...(inj && inj.status !== "ACTIVE" ? [`${l.player.name} ${String(inj.status).toLowerCase()}`] : []), ...(inj?.lineup?.sensitive ? [`Lineup watch: ${inj.lineup.tonightScenario}`] : []), ...(minutesNote(l.role) ? [minutesNote(l.role)] : [])];
+    const flags = [...(inj && inj.status !== "ACTIVE" ? [`${l.player.name} ${String(inj.status).toLowerCase()}`] : []), ...(inj?.lineup?.sensitive ? [`Lineup watch: ${inj.lineup.tonightScenario}`] : []), ...(minutesNote(l.role) ? [minutesNote(l.role)] : []), ...(c.flags ?? []).filter((f) => f.legId === l.legId).map((f) => FLAG_WORDS[f.code] ?? f.code.replace(/^[A-Z]_/, "").replace(/_/g, " ").toLowerCase())];
     return { kind: "PROP", legId: l.legId, player: { name: l.player.name }, team: { abbr: l.team, name: l.team }, opponent: { abbr: l.team === home ? away : home }, home: l.team === home, tipUtc: l.startUtc, level: "B", lineText: `${l.side.toUpperCase()} ${l.line} ${SHORT[l.market] ?? ""}`.trim(), evidenceText: ev, evidenceBig: `${w10.hits}/${w10.n}`, flagText: flags };
   });
   const verified = c.priceEventSha256 != null;
