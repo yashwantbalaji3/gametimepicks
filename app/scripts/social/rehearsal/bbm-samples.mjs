@@ -103,7 +103,8 @@ try {
     const refusals = [];
     for (const it of items.filter((i) => i.p)) {
       const d = it.p.view.date;
-      const partner = it.p.laneId.startsWith("bb") ? (real[d] ?? real[D]).filter((p) => p.laneId.startsWith("bb") && p.laneId !== it.p.laneId) : [];
+      // Pair each fixture with the real other lane of its product, so a full two-image package is attempted.
+      const partner = (real[d] ?? real[D]).filter((p) => p.laneId.slice(0, 2) === it.p.laneId.slice(0, 2) && p.laneId !== it.p.laneId);
       try { await writeStaging(planPackages([it.p, ...partner], d), { outRoot: path.join(out, "staging-must-refuse"), browser }); refusals.push({ sample: it.name, refused: false }); } catch (e) { refusals.push({ sample: it.name, refused: true, reason: e.message.split("\n").slice(1).join(" ").trim() }); }
     }
     fs.rmSync(path.join(out, "staging-must-refuse"), { recursive: true, force: true });
