@@ -19,7 +19,7 @@
 import { esc, cell } from "./social-pack-cards.mjs";
 import { shell, sourceTextProblems, statLabelProblems, teamOf } from "./game-day-cards.mjs";
 import { visibleText } from "./nba-line-cards.mjs";
-import { RUNG, VIEW } from "../../src/lib/social/bbm-lane.mjs";
+import { BADGE, RUNG, VIEW } from "../../src/lib/social/bbm-lane.mjs";
 
 export const BBM_DESIGN_VERSION = "bbm-v2";
 export const FACT_LINE = "Tracked challenge · no real wager placed";
@@ -38,37 +38,37 @@ const PRODUCT = Object.freeze({
 const CSS = `<style>
 .content .disclosure{font:700 26px/1.2 var(--display);letter-spacing:2px;color:rgba(247,247,242,.78);text-transform:uppercase}
 .bv-rib{position:absolute;top:14px;left:0;right:0;z-index:9;text-align:center;font:900 26px/40px var(--headline);letter-spacing:.12em;color:#fff}
-.bv-rib.t{background:#FF3B6B}.bv-rib.p{background:#E8B100;color:#050706}.bv-rib.t+.bv-rib.p{top:54px}
+.bv-rib.t{background:#FF3B6B}.bv-rib.p{background:#E8B100;color:#050706}
 .bv{display:flex;flex-direction:column;flex:1;min-height:0}
 .bv-top{margin-top:8px;display:flex;justify-content:center;align-items:center;gap:16px;font:900 34px/1 var(--headline);letter-spacing:6px;text-transform:uppercase}
 .bv-top .p{color:var(--acc);text-shadow:0 0 22px color-mix(in srgb,var(--acc) 55%,transparent)}
 .bv-top .l{padding:7px 14px 4px;border-radius:8px;background:var(--acc);color:#050706;letter-spacing:3px}
 .bv-top .r{font:800 22px/1 var(--display);letter-spacing:3px;padding:7px 12px 4px;border-radius:999px;border:2px solid var(--acc2);color:#E4CCFF;background:rgba(5,8,6,.78)}
-.bv-hero{margin-top:6px;text-align:center;font:900 108px/.9 var(--headline);letter-spacing:-1px;text-transform:uppercase;color:#F7F7F2;white-space:nowrap;overflow:hidden;text-shadow:0 6px 30px rgba(0,0,0,.6)}
+.bv-hero{margin-top:6px;text-align:center;font:900 98px/.9 var(--headline);letter-spacing:-1px;text-transform:uppercase;color:#F7F7F2;white-space:nowrap;overflow:hidden;text-shadow:0 6px 30px rgba(0,0,0,.6)}
 .bv-hero b{color:var(--acc);font-weight:900}
 .bv.ms .bv-hero{background:linear-gradient(180deg,#FFE3B0,#FF7A2E 55%,#E0480F);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 0 26px rgba(255,122,46,.5))}
 .bv.ms .bv-hero b{color:inherit}
 .bv-hero.s{font-size:84px;padding:0 10px}.bv-hero.bust{background:none;color:#FF4D5E;filter:drop-shadow(0 0 22px rgba(255,77,94,.45));-webkit-background-clip:initial;background-clip:initial}
 .bv-sub{margin-top:6px;text-align:center;font:800 26px/1 var(--display);letter-spacing:5px;color:rgba(247,247,242,.85);text-transform:uppercase;white-space:nowrap}
-.bv-lad{margin-top:16px;display:flex;align-items:flex-start;padding:0 40px}
-.bv-lad .seg{flex:1;height:8px;margin-top:26px;border-radius:4px;background:rgba(255,255,255,.14)}
+.bv-lad{margin-top:12px;display:flex;align-items:flex-start;padding:0 40px}
+.bv-lad .seg{flex:1;height:8px;margin-top:23px;border-radius:4px;background:rgba(255,255,255,.14)}
 .bv-lad .seg.on{background:var(--acc)}
 .bv-lad .seg:first-child,.bv-lad .seg:last-child{flex:.45}
 .bv-lad .rg{flex:none;width:96px;text-align:center}
-.bv-lad .dot{margin:0 auto;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:900 30px/1 var(--headline);border:4px solid rgba(255,255,255,.28);color:rgba(247,247,242,.55);background:rgba(5,8,6,.7)}
+.bv-lad .dot{margin:0 auto;width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:900 30px/1 var(--headline);border:4px solid rgba(255,255,255,.28);color:rgba(247,247,242,.55);background:rgba(5,8,6,.7)}
 .bv-lad .rg.completed .dot{background:var(--acc);border-color:var(--acc);color:#050706}
 .bv-lad .rg.active .dot{border-color:var(--acc);color:#F7F7F2;background:color-mix(in srgb,var(--acc) 22%,rgba(5,8,6,.85));box-shadow:0 0 0 6px color-mix(in srgb,var(--acc) 30%,transparent),0 0 30px var(--acc)}
 .bv-lad .rg.failed .dot{background:#FF4D5E;border-color:#FF4D5E;color:#050706}
 .bv-lad .rg .k{margin-top:7px;font:800 17px/1 var(--display);letter-spacing:2px;color:rgba(247,247,242,.7);white-space:nowrap}
 .bv-lad .rg.active .k{color:var(--acc)}.bv-lad .rg.failed .k{color:#FF4D5E}
 .bv-lad .rg .a{margin-top:3px;font:800 19px/1 var(--display);color:var(--acc);white-space:nowrap}
-.bv-bank{margin-top:14px;display:grid;grid-template-columns:1fr 1.3fr 1fr;gap:12px}
+.bv-bank{margin-top:10px;display:grid;grid-template-columns:1fr 1.3fr 1fr;gap:12px}
 .bv-bank>div{border-radius:14px;padding:9px 10px 8px;text-align:center}
 .bv-bank .k{font:800 16px/1 var(--display);letter-spacing:2px;text-transform:uppercase;white-space:nowrap}
-.bv-bank .v{display:block;margin-top:4px;font:900 44px/1 var(--display);white-space:nowrap}
+.bv-bank .v{display:block;margin-top:3px;font:900 40px/1 var(--display);white-space:nowrap}
 .bv-bank .st{background:rgba(5,8,6,.6);border:1px solid rgba(255,255,255,.14);color:rgba(247,247,242,.72)}
 .bv-bank .tr{background:linear-gradient(180deg,color-mix(in srgb,var(--acc) 92%,#fff),var(--acc));color:#050706;box-shadow:0 0 34px color-mix(in srgb,var(--acc) 45%,transparent)}
-.bv-bank .tr .v{font-size:50px}
+.bv-bank .tr .v{font-size:46px}
 .bv-bank .gl{background:rgba(5,8,6,.55);border:3px dashed var(--acc);color:var(--acc)}
 .bv-legs{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:12px;margin-top:14px}
 .lg{position:relative;display:grid;grid-template-columns:60px 1fr 300px;align-items:center;gap:14px;padding:14px 20px;border-radius:18px;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 34%,rgba(5,8,6,.9)),rgba(5,8,6,.88) 58%);border:1px solid rgba(255,255,255,.16);border-left:10px solid var(--c)}
@@ -86,7 +86,7 @@ const CSS = `<style>
 .lg .fl{grid-column:2 / 4;display:flex;align-items:center;gap:10px;min-width:0;font:800 22px/1.1 var(--display);letter-spacing:.5px;color:#FFD166;white-space:nowrap;overflow:hidden}
 .lg .fl i{flex:none;font:900 19px/1 var(--headline);font-style:normal;padding:4px 8px 2px;border-radius:6px;background:#FFD166;color:#050706;letter-spacing:1px}
 .lg .fl span{min-width:0;overflow:hidden}
-.bv-legs.d{gap:8px}.bv-legs.d .lg{padding:7px 18px;gap:4px 12px}.bv-legs.d .nm{font-size:38px}.bv-legs.d .n{font-size:38px}.bv-legs.d .pv{font-size:44px;margin-top:1px}.bv-legs.d .mt{font-size:19px;margin-top:3px}.bv-legs.d .tg{font-size:19px}.bv-legs.d .pk{font-size:14px}.bv-legs.d .pm{font-size:16px;margin-top:0}.bv-legs.d .fl{font-size:21px}
+.bv-legs.d{gap:7px}.bv-legs.d .lg{padding:5px 18px;gap:3px 12px}.bv-legs.d .nm{font-size:36px}.bv-legs.d .n{font-size:38px}.bv-legs.d .pv{font-size:44px;margin-top:1px}.bv-legs.d .mt{font-size:19px;margin-top:3px}.bv-legs.d .tg{font-size:19px}.bv-legs.d .pk{font-size:14px}.bv-legs.d .pm{font-size:16px;margin-top:0}.bv-legs.d .fl{font-size:21px}
 .bv.bb .bv-legs{gap:20px}.bv.bb .lg{padding:30px 26px}.bv.bb .nm{font-size:60px}.bv.bb .pv{font-size:76px}.bv.bb .mt{margin-top:10px}
 .bv-stat{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;margin-top:18px;text-align:center}
 .bv-stat .k{font:900 50px/1.05 var(--headline);letter-spacing:3px;text-transform:uppercase;color:#F7F7F2;padding:18px 28px 14px;border-radius:18px;border:2px solid rgba(255,255,255,.2);background:rgba(5,8,6,.7)}
@@ -101,6 +101,14 @@ const CSS = `<style>
 .bv-money .bust{border:2px solid #FF4D5E}.bv-money .bust .k,.bv-money .bust .v{color:#FF4D5E}
 .bv-money .aw .v{font-size:31px;margin-top:9px}
 .bv-money .fx{position:absolute;bottom:9px;right:10px;font:900 14px/1 var(--headline);letter-spacing:2px;padding:3px 6px 1px;border-radius:5px;background:#E8B100;color:#050706}
+.bv-top .bd{font:900 24px/1 var(--headline);letter-spacing:3px;padding:8px 14px 5px;border-radius:999px;display:inline-flex;align-items:center;gap:8px;background:rgba(5,8,6,.82);border:2px solid currentColor}
+.bv-top .bd:before{content:"";width:12px;height:12px;border-radius:50%;background:currentColor;box-shadow:0 0 12px currentColor}
+.bd.ACTIVE{color:#39FF88}.bd.WON{color:#F2C14E}.bd.LOST{color:#FF4D5E}.bd.HELD{color:#FFB23F}.bd.COMPLETED{color:#F2C14E}.bd.FINISHED{color:#C9D1D9}
+.bv-lad .rg .m{margin-top:3px;font:800 19px/1 var(--display);color:rgba(247,247,242,.55);white-space:nowrap}
+.bv-lad .rg.completed .m,.bv-lad .rg.active .m{color:var(--acc)}
+.bv-pace{margin-top:8px;text-align:center;font:800 22px/1 var(--display);letter-spacing:3px;text-transform:uppercase;white-space:nowrap}
+.bv-pace.ON_PACE{color:#7DFFB2}.bv-pace.BEHIND{color:#FFB23F}
+.lg .ln{font:900 20px/1 var(--headline);letter-spacing:1px;padding:5px 8px 3px;border-radius:6px;border:2px solid var(--acc);color:var(--acc)}
 .bv-burst{position:absolute;left:50%;top:330px;width:1400px;height:1400px;margin-left:-700px;border-radius:50%;background:repeating-conic-gradient(from 0deg,rgba(255,122,46,.10) 0 4deg,transparent 4deg 12deg);-webkit-mask:radial-gradient(circle,#000 0,#000 30%,transparent 62%);mask:radial-gradient(circle,#000 0,#000 30%,transparent 62%);pointer-events:none}
 </style>`;
 
@@ -122,8 +130,10 @@ function legHtml(cells, l, i, outcome) {
   const who = winner ? t.name : l.player.name;
   const vs = `${l.home ? "vs" : "@"} ${l.opponent.abbr}`;
   const oc = outcome ? cell(cells, `${k}.outcome`, OUTCOME_TEXT[outcome] ?? outcome, `oc ${outcome}`) : "";
+  // A prop line prints only with a verified (or labelled sample) price: SPEC rev. 2 §1, no line is published before §7.
+  const line = !winner && l.lineText ? cell(cells, `${k}.line`, `LINE ${l.lineText}`, "ln") : "";
   const flag = (l.flagText ?? []).length ? `<div class="fl" data-flag><i>FLAG</i>${cell(cells, `${k}.flag`, l.flagText.join(" · "))}</div>` : "";
-  return `<div class="lg" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit>${cell(cells, `${k}.name`, who)}</span><div class="mt"><span class="tg">${cell(cells, `${k}.team`, t.abbr)}</span>${cell(cells, `${k}.game`, `${vs} · ${tipText(l.tipUtc)}`)}${oc}</div></div><div class="pj"><span class="pk">${esc(winner ? WIN_LABEL : MODEL_LABEL)}</span>${cell(cells, `${k}.proj`, l.projectionText, "pv")}<span class="pm">${cell(cells, `${k}.market`, winner ? "to win" : l.marketLabel)}</span></div>${flag}</div>`;
+  return `<div class="lg" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit>${cell(cells, `${k}.name`, who)}</span><div class="mt"><span class="tg">${cell(cells, `${k}.team`, t.abbr)}</span>${cell(cells, `${k}.game`, `${vs} · ${tipText(l.tipUtc)}`)}${line}${oc}</div></div><div class="pj"><span class="pk">${esc(winner ? WIN_LABEL : MODEL_LABEL)}</span>${cell(cells, `${k}.proj`, l.projectionText, "pv")}<span class="pm">${cell(cells, `${k}.market`, winner ? "to win" : l.marketLabel)}</span></div>${flag}</div>`;
 }
 
 function ladderHtml(cells, v) {
@@ -131,10 +141,17 @@ function ladderHtml(cells, v) {
   v.rungs.forEach((r, i) => {
     parts.push(`<div class="seg${i === 0 || v.rungs[i - 1].state === RUNG.COMPLETED ? " on" : ""}"></div>`);
     const mark = r.state === RUNG.COMPLETED ? "✓" : r.state === RUNG.FAILED ? "✕" : String(r.step);
-    parts.push(`<div class="rg ${r.state}" data-rung="${r.state}"><div class="dot">${esc(mark)}</div><div class="k">STEP ${r.step}</div></div>`);
+    parts.push(`<div class="rg ${r.state}" data-rung="${r.state}"><div class="dot">${esc(mark)}</div><div class="k">STEP ${r.step}</div><div class="m">${cell(cells, `ladder.m${r.step}`, cents(r.milestoneCents))}</div></div>`);
   });
   parts.push(`<div class="seg${v.view === VIEW.COMPLETE ? " on" : ""}"></div>`);
   return `<div class="bv-lad" data-ladder="${v.steps}">${parts.join("")}</div>`;
+}
+
+/** Pace against the illustrative milestone (SPEC rev. 2 §2). */
+function paceHtml(cells, v) {
+  if (!v.pace) return "";
+  const text = v.pace.state === "ON_PACE" ? `On pace · next milestone ${cents(v.pace.nextMilestoneCents)}` : `Behind pace by ${cents(v.pace.shortfallCents)} · milestone ${cents(v.pace.milestoneCents)}`;
+  return `<div class="bv-pace ${v.pace.state}" data-pace="${v.pace.state}">${cell(cells, "pace", text.toUpperCase())}</div>`;
 }
 
 const bankHtml = (cells, v) => `<div class="bv-bank"><div class="st" data-bank="start"><div class="k">Start</div>${cell(cells, "bank.start", cents(v.baseCents), "v")}</div><div class="tr" data-bank="tracked"><div class="k">Tracked bankroll · settled</div>${cell(cells, "bank.tracked", cents(v.bankrollCents), "v")}</div><div class="gl" data-bank="goal"><div class="k">Goal · hypothetical</div>${cell(cells, "bank.goal", cents(v.targetCents), "v")}</div></div>`;
@@ -143,6 +160,7 @@ const bankHtml = (cells, v) => `<div class="bv-bank"><div class="st" data-bank="
 function statusMoneyHtml(cells, v) {
   const progress = `<div><div class="k">Ladder progress</div>${cell(cells, "money.progress", `${v.cleared} OF ${v.steps}`, "v")}<div class="c">Steps cleared</div></div>`;
   if (v.view === VIEW.BUSTED) return `<div class="bv-money"><div><div class="k">Tracked bankroll</div>${cell(cells, "money.wager", cents(0), "v")}<div class="c">After the missed step</div></div><div class="bust"><div class="k">Result</div>${cell(cells, "money.result", `STEP ${v.step} MISSED`, "v")}<div class="c">Run ${esc(String(v.runId).replace(/^run-/, ""))} ends here</div></div>${progress}</div>`;
+  if (v.view === VIEW.WON) return `<div class="bv-money"><div><div class="k">Tracked bankroll</div>${cell(cells, "money.wager", cents(v.bankrollCents), "v")}<div class="c">Settled result</div></div><div><div class="k">Next card</div>${cell(cells, "money.next", v.step < v.steps ? `STEP ${v.step + 1} OF ${v.steps}` : "NONE", "v")}<div class="c">From the next slate</div></div>${progress}</div>`;
   return `<div class="bv-money"><div><div class="k">Wager</div>${cell(cells, "money.wager", "NONE", "v")}<div class="c">No card today</div></div><div><div class="k">Next card</div>${cell(cells, "money.next", `STEP ${v.step} OF ${v.steps}`, "v")}<div class="c">Same tracked bankroll</div></div>${progress}</div>`;
 }
 
@@ -162,6 +180,7 @@ function moneyHtml(cells, v) {
 export function bbmCard(view, combo = null, { testData = false } = {}) {
   const P = PRODUCT[view.product];
   if (!P) throw new Error(`no V2 design for ${view.product}`);
+  if (!Object.values(BADGE).includes(view.badge)) throw new Error(`${view.laneId}: status badge ${view.badge} is not in the public vocabulary`);
   const cells = {};
   const ms = view.product === "moonshot";
   const lane = `LANE ${view.letter}`;
@@ -169,7 +188,7 @@ export function bbmCard(view, combo = null, { testData = false } = {}) {
   if (view.view === VIEW.CARD) {
     if (!combo) throw new Error(`${view.laneId}: a CARD view needs its resolved legs`);
     hero = `<div class="bv-hero">STEP <b>${cell(cells, "step", String(view.step))}</b> OF ${cell(cells, "steps", String(view.steps))}</div>`;
-    sub = `${cell(cells, "legs", `${combo.legs.length} legs`)} · ${esc(MODEL_LABEL)}`;
+    sub = `${cell(cells, "legs", `${combo.legs.length} legs`)} · ${esc(MODEL_LABEL)}${ms ? ` · ${cell(cells, "risk", "Longshot")}` : ""}`;
     middle = `<div class="bv-legs${combo.legs.length > 2 ? " d" : ""}">${combo.legs.map((l, i) => legHtml(cells, l, i, null)).join("")}</div>`;
     moneyBlock = moneyHtml(cells, view);
   } else if (view.view === VIEW.BUSTED) {
@@ -178,24 +197,33 @@ export function bbmCard(view, combo = null, { testData = false } = {}) {
     const outs = Object.fromEntries((view.legResults ?? []).map((r) => [r.legId, r.outcome]));
     moneyBlock = statusMoneyHtml(cells, view);
     middle = combo ? `<div class="bv-legs${combo.legs.length > 2 ? " d" : ""}">${combo.legs.map((l, i) => legHtml(cells, l, i, outs[l.legId] ?? "PENDING")).join("")}</div>` : `<div class="bv-stat"><div class="k">${cell(cells, "status.note", "Lane busted")}</div></div>`;
+  } else if (view.view === VIEW.WON) {
+    hero = `<div class="bv-hero s">${cell(cells, "status", `STEP ${view.step} OF ${view.steps} WON`)}</div>`;
+    sub = cell(cells, "status.step", view.step < view.steps ? `STEP ${view.step + 1} IS NEXT` : "LADDER COMPLETE");
+    const outs = Object.fromEntries((view.legResults ?? []).map((r) => [r.legId, r.outcome]));
+    middle = `<div class="bv-legs${combo.legs.length > 2 ? " d" : ""}">${combo.legs.map((l, i) => legHtml(cells, l, i, outs[l.legId] ?? "PENDING")).join("")}</div>`;
+    moneyBlock = statusMoneyHtml(cells, view);
   } else if (view.view === VIEW.NO_ELIGIBLE_CARD) {
     hero = `<div class="bv-hero s">${cell(cells, "status", "NO QUALIFYING CARD TODAY")}</div>`;
     sub = cell(cells, "status.step", `STILL STEP ${view.step} OF ${view.steps}`);
     middle = `<div class="bv-stat"><div class="k">${cell(cells, "status.note", "No card met the rules today")}</div><div class="c">${cell(cells, "status.rule", "The lane keeps its step and its tracked bankroll.")}</div></div>`;
     moneyBlock = statusMoneyHtml(cells, view);
-  } else if (view.view === VIEW.COMPLETE) {
-    hero = `<div class="bv-hero s">${cell(cells, "status", "GOAL REACHED")}</div>`;
-    sub = cell(cells, "status.step", `${view.steps} OF ${view.steps} CLEARED`);
-    middle = `<div class="bv-stat"><div class="k">${cell(cells, "status.note", `Goal reached`)}</div></div>`;
+  } else if (view.view === VIEW.COMPLETE || view.view === VIEW.FINISHED_SHORT) {
+    const done = view.view === VIEW.COMPLETE;
+    hero = `<div class="bv-hero s">${cell(cells, "status", done ? "GOAL REACHED" : "FINISHED SHORT")}</div>`;
+    sub = cell(cells, "status.step", `${view.cleared} OF ${view.steps} STEPS WON`);
+    middle = `<div class="bv-stat"><div class="k">${cell(cells, "status.note", `${cents(view.bankrollCents)} of ${cents(view.targetCents)}`)}</div><div class="c">${cell(cells, "status.rule", done ? "Tracked bankroll reached the goal." : "Five steps won below the goal. The founder decides what follows.")}</div></div>`;
   } else throw new Error(`${view.laneId}: no graphic for view ${view.view}`);
   const body = `${CSS}${ms ? '<div class="bv-burst"></div>' : ""}<div class="bv ${P.cls}" style="--acc:${P.acc};--acc2:${P.acc2}">
-<div class="bv-top"><span class="p">${esc(P.name)}</span><span class="l">${esc(lane)}</span>${ms ? `<span class="r">${cell(cells, "risk", "Longshot · higher risk")}</span>` : ""}</div>
+<div class="bv-top"><span class="p">${esc(P.name)}</span><span class="l">${esc(lane)}</span>${cell(cells, "badge", view.badge, `bd ${String(view.badge).split(" ")[0]}`)}</div>
 ${hero}<div class="bv-sub">${sub}</div>
-${ladderHtml(cells, view)}${bankHtml(cells, view)}${middle}${moneyBlock}</div>`;
+${ladderHtml(cells, view)}${bankHtml(cells, view)}${paceHtml(cells, view)}${middle}${moneyBlock}</div>`;
   let html = shell({ away: P.a, home: P.b, chip: chipText(view.date), body, review: false, disclosure: FACT_LINE }).replace(/<div class="rg">[^<]*<\/div>/g, "");
-  const ribbons = `${testData ? `<div class="bv-rib t">${esc(TEST_RIBBON)}</div>` : ""}${view.payout?.fixture ? `<div class="bv-rib p">${esc(SAMPLE_PRICE_RIBBON)}</div>` : ""}`;
+  // One ribbon, clear of the logo: a TEST history with a sample price says both.
+  const rib = [testData ? TEST_RIBBON : null, view.payout?.fixture ? SAMPLE_PRICE_RIBBON : null].filter(Boolean);
+  const ribbons = rib.length ? `<div class="bv-rib ${testData ? "t" : "p"}">${esc(rib.join(" · "))}</div>` : "";
   if (ribbons) html = html.replace('<div class="frame"></div>', `${ribbons}<div class="frame"></div>`);
-  return { html, cells, laneId: view.laneId, view: view.view, testData, samplePrice: view.payout?.fixture === true, priced: view.payout != null, disclosure: FACT_LINE };
+  return { html, cells, laneId: view.laneId, view: view.view, badge: view.badge, testData, samplePrice: view.payout?.fixture === true, priced: view.payout != null, disclosure: FACT_LINE };
 }
 
 const cellsIn = (html) => Object.fromEntries([...html.matchAll(/data-cell="([^"]+)">([^<]*)</g)].map((m) => [m[1], m[2].replace(/&amp;/g, "&").replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">")]));
@@ -212,7 +240,10 @@ export function verifyBbmCard(card) {
   for (const r of REMOVED_TEXT) if (text.toLowerCase().includes(r.toLowerCase())) e.push(`removed text on image: ${r}`);
   if (!text.includes(FACT_LINE)) e.push("the tracked-challenge line is missing");
   if (card.view === VIEW.CARD && !text.includes(MODEL_LABEL)) e.push("MODEL PROJECTION label missing");
-  const t = text.replace(AWAITING, " ").replace(SAMPLE_PRICE_RIBBON, " ");
+  if (!card.badge || got.badge !== card.badge) e.push("status badge missing");
+  let t = text.replace(AWAITING, " ").replace(SAMPLE_PRICE_RIBBON, " ");
+  if (Object.keys(got).some((k) => /\.line$/.test(k)) && !card.priced) e.push("a prop line prints without a verified price");
+  if (card.priced) for (const [k, v] of Object.entries(got)) if (/\.line$/.test(k)) t = t.replace(v, " ");
   if (PRICE_TEXT.test(t)) e.push(`price, line or odds text on image: ${t.match(PRICE_TEXT)[0]}`);
   if (HYPE.test(t)) e.push(`hype word on image: ${t.match(HYPE)[0]}`);
   if (/\bElo\b|[0-9a-f]{16,}/i.test(text)) e.push("internal text on image");
@@ -229,7 +260,7 @@ export function verifyBbmCard(card) {
 }
 
 /** Stacked blocks, top to bottom; each must start below the one before it. */
-const STACK = ".bv-top,.bv-hero,.bv-sub,.bv-lad,.bv-bank,.lg,.bv-stat,.bv-money,.social,.disclosure";
+const STACK = ".bv-top,.bv-hero,.bv-sub,.bv-lad,.bv-bank,.bv-pace,.lg,.bv-stat,.bv-money,.social,.disclosure";
 /** Layout problems of each card in a real browser (`browser`: a Playwright browser). */
 export async function bbmLayoutErrors(browser, cards) {
   const page = await browser.newPage({ viewport: { width: 1080, height: 1350 } });

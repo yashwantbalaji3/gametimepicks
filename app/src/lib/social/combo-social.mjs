@@ -240,7 +240,7 @@ const opponentIn = (label, team) => { const m = /^(\S+) @ (\S+)$/.exec(String(la
 
 /**
  * Social combo from the tiers engine's `gtp.suggested-cards@1` day file (one source for pages, results and social; engine
- * session, 2026-11-03). NBA game-winner legs only. A section without a card becomes the refusal with its reason; a card
+ * session, 2026-11-03). NBA game winners, and player props carrying the lane's MODEL PROJECTION (SPEC rev. 2). A section without a card becomes the refusal with its reason; a card
  * that is priced or carries a price or payout is refused, since a social card prints none. Elo probabilities are not
  * validated, so every leg is MODEL_UNVALIDATED and the card never prints the joint chance.
  * @param {object} file  the suggested-cards document
@@ -260,12 +260,13 @@ export function comboFromSuggestedCards(file, product, { testData = false, card 
   const c = card ?? section.card;
   if (!c) return none(String(section.state ?? "NO_CARD").toUpperCase(), section.reason ?? "no card");
   if (c.priced !== false || c.price != null || c.payout != null || c.status !== "MODEL_ONLY") return none("PRICED_CARD", "the card carries a price or payout; social cards print none");
-  const legs = c.legs.map((l) => ({
-    legId: l.legId, eventId: String(l.eventId), tipUtc: l.startUtc, kind: l.market === "winner" ? "GAME_WINNER" : `UNSUPPORTED_${l.market}`,
-    team: l.selection?.teamAbbr ?? null, opponent: opponentIn(l.eventLabel, l.selection?.teamAbbr), player: null, market: l.market,
-    projection: l.probability, projectionShown: l.probabilityShown ?? null, target: null,
-    modelProbability: l.probability, probabilityBasis: "MODEL_UNVALIDATED",
-    availability: availabilityOf(l.guard),
-  }));
+  const legs = c.legs.map((l) => {
+    const team = l.selection?.teamAbbr ?? l.team ?? null;
+    const base = { legId: l.legId, eventId: String(l.eventId ?? l.gameId), tipUtc: l.startUtc, team, opponent: opponentIn(l.eventLabel, team), market: l.market, target: null, availability: availabilityOf(l.guard) };
+    if (l.market === "winner") return { ...base, kind: "GAME_WINNER", player: null, projection: l.probability, projectionShown: l.probabilityShown ?? null, modelProbability: l.probability, probabilityBasis: "MODEL_UNVALIDATED" };
+    // Player prop (SPEC rev. 2 §1): the canonical MODEL PROJECTION from the lane; no line is carried until a price source is approved.
+    if (l.player?.id && l.market in MARKET_SHORT) return { ...base, kind: "PLAYER_PROJECTION", player: { id: String(l.player.id), name: l.player.name }, projection: typeof l.projection === "number" ? l.projection : l.projection?.value ?? null, modelProbability: l.probability ?? null, probabilityBasis: l.probability == null ? null : "MODEL_UNVALIDATED" };
+    return { ...base, kind: `UNSUPPORTED_${l.market}`, player: null, projection: null };
+  });
   return sealCombo({ ...base, state: COMBO_STATE.CARD, reasons: [], engineCardId: c.id, combination: { legs, risk: { tier: TIER_OF[c.tier] ?? `UNKNOWN_${c.tier}`, jointModelProbability: c.jointProbability ?? null, basis: "independent" }, pricing: { state: "MODEL_ONLY" } } });
 }

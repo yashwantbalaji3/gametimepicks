@@ -14,7 +14,7 @@ import { fileURLToPath } from "node:url";
 
 import { BBM_LANES, RUNG, VIEW, laneView, projectionViolations, sealProjection } from "./bbm-lane.mjs";
 import { eloWinProbabilityOf } from "../sports/nba/elo-win-probability.mjs";
-import { AWAITING, FACT_LINE, REMOVED_TEXT, SAMPLE_PRICE_RIBBON, TEST_RIBBON, verifyBbmCard } from "../../../scripts/social/bbm-cards.mjs";
+import { AWAITING, FACT_LINE, REMOVED_TEXT, SAMPLE_PRICE_RIBBON, TEST_RIBBON, bbmCard as bbmCardFor, verifyBbmCard } from "../../../scripts/social/bbm-cards.mjs";
 import { LIVE_PACKAGES, engineCardFor, packageCaption, planPackages, prepareLane, stagingViolations, writeStaging } from "../../../scripts/social/render-bbm.mjs";
 import { visibleText } from "../../../scripts/social/nba-line-cards.mjs";
 
@@ -87,7 +87,7 @@ test("lane view: step and rungs from settled steps only; a loss busts; an unpric
   const won = projection("bb-a", [day({ card: laneCard("bank-builder"), staked: true, stepOutcome: "WIN" }), day({ date: NEXT, step: 2, status: "NO_ELIGIBLE_CARD", cardEventSha256: null })], { trackedBankrollCents: null, trackedBankrollWithheld: "P1" });
   const w = laneView(won, NEXT);
   assert.equal(w.view, null); assert.match(w.reason, /withheld \(P1\)/);
-  const lost = projection("bb-a", [day({ card: laneCard("bank-builder"), staked: true, stepOutcome: "LOSS", legResults: LEGS.map((l, i) => ({ legId: l.legId, outcome: i ? "LOSS" : "WIN" })) }), day({ date: NEXT, status: "BUSTED", reason: "LANE A — BUSTED AT STEP 1 OF 3", cardEventSha256: null })]);
+  const lost = projection("bb-a", [day({ card: laneCard("bank-builder"), staked: true, stepOutcome: "LOSS", legResults: LEGS.map((l, i) => ({ legId: l.legId, outcome: i ? "LOSS" : "WIN" })) }), day({ date: NEXT, status: "BUSTED", reason: "LANE A — BUSTED AT STEP 1 OF 5", cardEventSha256: null })]);
   const b = laneView(lost, NEXT);
   assert.equal(b.view, VIEW.BUSTED); assert.equal(b.step, 1); assert.equal(b.bankrollCents, 0); assert.equal(b.rungs[0].state, RUNG.FAILED);
 });
@@ -110,13 +110,13 @@ test("cards: the removed banners and sentences are absent; STEP, ladder, bankrol
     const t = textOf(p.card);
     for (const r of REMOVED_TEXT) assert.ok(!t.toLowerCase().includes(r.toLowerCase()), `${laneId}: ${r}`);
     for (const r of ["Model projections · Not betting advice", "MODEL-ONLY • NOT A SPORTSBOOK OFFER", "Both legs must land", "All 4 legs", "ESTIMATE", "est.", "projected median"]) assert.ok(!t.includes(r), `${laneId}: ${r}`);
-    assert.match(t, /STEP 1 OF [35]/);
+    assert.match(t, /STEP 1 OF 5/);
     for (const s of ["START", "TRACKED", "GOAL", "MODEL PROJECTION", "MODEL WIN PROBABILITY", "WAGER", "LADDER PROGRESS", FACT_LINE]) assert.ok(t.toUpperCase().includes(s.toUpperCase()), `${laneId}: ${s}`);
     assert.ok(p.card.html.includes('class="logo"'), "the real logo");
     assert.deepEqual(verifyBbmCard(p.card), []);
   }
   const s = prep(statusDoc("bb-b"));
-  assert.match(textOf(s.card), /NO QUALIFYING CARD TODAY.*STILL STEP 1 OF 3/);
+  assert.match(textOf(s.card), /NO QUALIFYING CARD TODAY.*STILL STEP 1 OF 5/);
   assert.deepEqual(verifyBbmCard(s.card), []);
   const bad = prep(projection("bb-a")).card;
   assert.match(verifyBbmCard({ ...bad, html: bad.html.replace(FACT_LINE, `${FACT_LINE} · FOUNDER REVIEW ONLY`) }).join(";"), /removed text/);
@@ -130,8 +130,9 @@ test("unpriced: every projected card prints AWAITING VERIFIED PRICES, is not sta
   assert.equal(p.card.cells["money.payout"], AWAITING);
   assert.equal(p.card.cells["money.wagerState"], "Not staked until priced");
   assert.ok(!("money.profit" in p.card.cells));
-  const [plan] = planPackages([p], DATE);
-  assert.equal(plan.packageId, `ms-a-${DATE}`); assert.equal(plan.needsFounderReview, "unpriced");
+  const [plan] = planPackages([p, prep(projection("ms-b"))], DATE);
+  assert.equal(plan.packageId, `ms-${DATE}`); assert.equal(plan.needsFounderReview, "unpriced");
+  assert.equal(p.card.badge, "HELD", "an unpriced card holds the lane (SPEC rev. 2 §4.6)");
   assert.match(verifyBbmCard({ ...p.card, priced: true }).join(";"), /verified payout is not shown/);
   const fake = { ...p.card, html: p.card.html.replace(AWAITING, "$300"), cells: { ...p.card.cells, "money.payout": "$300" } };
   assert.match(verifyBbmCard(fake).join(";"), /unpriced card must say/);
@@ -153,29 +154,95 @@ test("fixture price: drawn only with the SAMPLE PRICE ribbon, and never written 
   assert.deepEqual(fs.readdirSync(out), [], "nothing written");
   const t = prep(projection("ms-b"), { testData: true });
   assert.ok(textOf(t.card).includes(TEST_RIBBON));
-  assert.match(stagingViolations(planPackages([t], DATE), out).join(";"), /TEST lane history/);
+  assert.match(stagingViolations(planPackages([t, prep(projection("ms-a"))], DATE), out).join(";"), /TEST lane history/);
   const clean = planPackages([prep(projection("bb-a")), prep(statusDoc("bb-b"))], DATE);
   assert.deepEqual(stagingViolations(clean, out), []);
   assert.match(stagingViolations(clean, LIVE_PACKAGES).join(";"), /live packages folder/);
   fs.rmSync(out, { recursive: true, force: true });
 });
 
-test("packages: bb-<date> is bb-a then bb-b or nothing; each Moonshot lane is its own post; captions state step and status", () => {
-  const all = [prep(projection("bb-b")), prep(projection("ms-b")), prep(projection("bb-a")), prep(statusDoc("ms-a"))];
+test("packages: exactly two posts with four ordered images (bb-a, bb-b; ms-a, ms-b); joint captions state each lane's step and status", () => {
+  const all = [prep(projection("ms-b")), prep(projection("bb-b")), prep(statusDoc("ms-a")), prep(projection("bb-a"))];
   const plans = planPackages(all, DATE);
-  assert.deepEqual(plans.map((p) => [p.packageId, p.lanes.map((l) => l.laneId)]), [[`bb-${DATE}`, ["bb-a", "bb-b"]], [`ms-b-${DATE}`, ["ms-b"]], [`ms-a-${DATE}`, ["ms-a"]]]);
-  assert.equal(plans.find((p) => p.packageId === `ms-a-${DATE}`).needsFounderReview, "status-only");
-  assert.deepEqual(planPackages([prep(projection("bb-a"))], DATE), [], "no one-image Bank Builder post");
-  const cap = packageCaption("bank-builder", plans[0].lanes, DATE);
-  assert.match(cap, /Lane A · Step 1 of 3/); assert.match(cap, /Lane B · Step 1 of 3/); assert.match(cap, /no real wager placed/);
+  assert.deepEqual(plans.map((p) => [p.packageId, p.lanes.map((l) => l.laneId)]), [[`ms-${DATE}`, ["ms-a", "ms-b"]], [`bb-${DATE}`, ["bb-a", "bb-b"]]]);
+  assert.equal(plans.flatMap((p) => p.lanes).length, 4);
+  assert.ok(!plans.some((p) => /^ms-[ab]-/.test(p.packageId)), "no retired ms-a-/ms-b- packages");
+  assert.equal(plans.find((p) => p.packageId === `ms-${DATE}`).needsFounderReview, "unpriced");
+  assert.deepEqual(planPackages([prep(projection("bb-a")), prep(projection("ms-a"))], DATE), [], "no one-image post");
+  const bb = plans.find((p) => p.packageId === `bb-${DATE}`).caption;
+  assert.match(bb, /Lane A · Held \(awaiting verified prices\) · Step 1 of 5/); assert.match(bb, /Lane B · Held \(awaiting verified prices\) · Step 1 of 5/); assert.match(bb, /no real wager placed/);
+  const msCap = plans.find((p) => p.packageId === `ms-${DATE}`).caption;
+  assert.match(msCap, /Lane A · Held \(no qualifying card today\) · Still step 1 of 5/); assert.match(msCap, /Lane B · Held/);
   for (const p of plans) for (const w of [/odds/i, /parlay/i, /payout/i, /[+-]\d{3}\b/, /must land/i, /betting advice/i, /sportsbook/i]) assert.doesNotMatch(p.caption, w);
 });
 
+test("five-step ladder: milestones, pace and the status badge (ACTIVE, WON, LOST, HELD, COMPLETED, FINISHED SHORT); A and B independent", () => {
+  for (const id of Object.keys(BBM_LANES)) assert.equal(laneView(projection(id), DATE).rungs.length, 5);
+  const v = laneView(projection("bb-a"), DATE);
+  assert.deepEqual(v.rungs.map((r) => r.milestoneCents), [30000, 90000, 270000, 650000, 1000000]);
+  assert.deepEqual(laneView(projection("ms-a"), DATE).rungs.map((r) => r.milestoneCents), [7500, 18000, 36000, 65000, 100000]);
+  assert.deepEqual(v.pace, { state: "ON_PACE", shortfallCents: 0, milestoneCents: 10000, nextMilestoneCents: 30000 });
+  const card = prep(projection("bb-a")).card;
+  assert.match(textOf(card), /ON PACE · NEXT MILESTONE \$300/);
+  for (const k of [1, 2, 3, 4, 5]) assert.ok(`ladder.m${k}` in card.cells);
+  // Step 1 won to $250 (below the $300 milestone), step 2 active and staked: behind pace, ACTIVE.
+  const behind = projection("bb-b", [day({ date: "2026-10-31", stepOutcome: "WIN", staked: true, card: null }), day({ card: laneCard("bank-builder"), step: 2, status: "IN_PLAY", staked: true })], { trackedBankrollCents: 25000, trackedBankrollWithheld: null });
+  const b = laneView(behind, DATE);
+  assert.equal(b.badge, "ACTIVE"); assert.equal(b.step, 2); assert.deepEqual(b.rungs.map((r) => r.state), [RUNG.COMPLETED, RUNG.ACTIVE, RUNG.UPCOMING, RUNG.UPCOMING, RUNG.UPCOMING]);
+  assert.deepEqual(b.pace, { state: "BEHIND", shortfallCents: 5000, milestoneCents: 30000, nextMilestoneCents: 90000 });
+  assert.match(textOf(prep(behind).card), /BEHIND PACE BY \$50 · MILESTONE \$300/);
+  // The other lane is untouched by this lane's history.
+  assert.equal(laneView(projection("bb-a"), DATE).step, 1);
+  const wonDay = projection("ms-a", [day({ card: laneCard("moonshot"), staked: true, status: "IN_PLAY", stepOutcome: "WIN", legResults: LEGS.map((l) => ({ legId: l.legId, outcome: "WIN" })) })], { trackedBankrollCents: 9000, trackedBankrollWithheld: null });
+  const w = prep(wonDay);
+  assert.equal(w.view.badge, "WON"); assert.match(textOf(w.card), /STEP 1 OF 5 WON/); assert.deepEqual(verifyBbmCard(w.card), []);
+  const five = (cents, status) => projection("ms-b", [1, 2, 3, 4, 5].map((k) => day({ date: `2026-10-2${k}`, step: k, stepOutcome: "WIN", staked: true, card: null })).concat([day({ status, card: null, step: 5 })]), { trackedBankrollCents: cents, trackedBankrollWithheld: null });
+  assert.equal(laneView(five(120000, "COMPLETE"), DATE).badge, "COMPLETED");
+  const short = prep(five(80000, "FINISHED_SHORT"));
+  assert.equal(short.view.badge, "FINISHED SHORT"); assert.match(textOf(short.card), /FINISHED SHORT.*\$800 of \$1,000/);
+  assert.equal(prep(statusDoc("bb-a")).card.badge, "HELD");
+  // The engine's own milestones (after each step) and pace win over the defaults.
+  const eng = projection("bb-a", null, { pace: { onPace: false, behindByCents: 1234, milestoneCents: 10000, withheld: null } });
+  const e2 = sealProjection({ ...eng, milestonesCents: [20000, 40000, 80000, 160000, 1000000] });
+  const ev = laneView(e2, DATE);
+  assert.deepEqual(ev.rungs.map((r) => r.milestoneCents), [20000, 40000, 80000, 160000, 1000000]);
+  assert.deepEqual(ev.pace, { state: "BEHIND", shortfallCents: 1234, milestoneCents: 10000, nextMilestoneCents: 20000 });
+  assert.throws(() => bbmCardFor({ ...v, view: "CARD", badge: "PENDING" }), /public vocabulary/);
+});
+
+test("Bank Builder takes at most two legs (hard); prop legs print player, market and MODEL PROJECTION, and a line only when priced", () => {
+  const three = clear.slice(0, 3).map(engineLeg);
+  if (three.length === 3) {
+    const f3 = seal({ ...FILE, legs: three, contentSha256: undefined });
+    const c3 = { ...laneCard("bank-builder", three), suggestedCardsSha256: f3.contentSha256 };
+    const r = prepareLane({ doc: projection("bb-a", [day({ card: c3 })]), date: DATE, slate: () => ({ file: f3, lane: LANE, laneSha256: LANE_SHA }), roster: ROSTER, asOf: AS_OF });
+    assert.match(r.refused, /3 legs/);
+  }
+  // Prop legs from the lane: two cleared players in two games.
+  const seen = new Set(); const props = [];
+  for (const g of LANE.games) for (const side of ["away", "home"]) {
+    const p = [...(g.players?.[side] ?? [])].sort((x, y) => y.expectedMinutes - x.expectedMinutes)[0];
+    if (props.length < 2 && p && !p.injuryStatus && typeof p.medians?.pts === "number" && !seen.has(g.providerEventId)) { seen.add(g.providerEventId); props.push({ legId: `nba:${g.providerEventId}:pts:${p.providerAthleteId}`, eventId: String(g.providerEventId), eventLabel: `${g.away.abbr} @ ${g.home.abbr}`, startUtc: g.tipUtc, market: "pts", player: { id: String(p.providerAthleteId), name: p.name }, selection: { code: side, teamAbbr: g[side].abbr }, projection: p.medians.pts, guard: { state: "pass", flags: [], flagText: [] } }); }
+  }
+  const fp = seal({ ...FILE, legs: props, contentSha256: undefined });
+  const pc = { ...laneCard("moonshot", props), suggestedCardsSha256: fp.contentSha256, legs: props.map(({ eventId, ...l }) => ({ ...l, gameId: eventId })) };
+  const pslate = () => ({ file: fp, lane: LANE, laneSha256: LANE_SHA });
+  const p = prepareLane({ doc: projection("ms-a", [day({ card: pc })]), date: DATE, slate: pslate, roster: ROSTER, asOf: AS_OF });
+  assert.equal(p.refused, undefined, p.refused);
+  const t = textOf(p.card);
+  assert.ok(t.includes(props[0].player.name.toUpperCase()) || t.includes(props[0].player.name)); assert.match(t, /Points/); assert.match(t, new RegExp(String(props[0].projection)));
+  assert.ok(!Object.keys(p.card.cells).some((k) => k.endsWith(".line")), "no line before a verified price");
+  const priced = prepareLane({ doc: projection("ms-a", [day({ card: pc })]), date: DATE, slate: pslate, roster: ROSTER, asOf: AS_OF, samplePayout: { grossCents: 30000, profitCents: 27500, fixture: true, lines: { [props[0].legId]: "19.5+ PTS" } } });
+  assert.equal(priced.refused, undefined, priced.refused);
+  assert.equal(priced.card.cells["leg1.line"] ?? priced.card.cells["leg2.line"], "LINE 19.5+ PTS");
+  assert.match(verifyBbmCard({ ...priced.card, priced: false, samplePrice: false, html: priced.card.html.replace(SAMPLE_PRICE_RIBBON, "") }).join(";"), /line prints without a verified price/);
+});
+
 test("BUSTED: the losing card prints with its leg results and BUSTED AT STEP k OF N", () => {
-  const doc = projection("bb-a", [day({ card: laneCard("bank-builder"), staked: true, stepOutcome: "LOSS", legResults: LEGS.map((l, i) => ({ legId: l.legId, outcome: i ? "LOSS" : "WIN" })) }), day({ date: NEXT, status: "BUSTED", reason: "LANE A — BUSTED AT STEP 1 OF 3", cardEventSha256: null })]);
+  const doc = projection("bb-a", [day({ card: laneCard("bank-builder"), staked: true, stepOutcome: "LOSS", legResults: LEGS.map((l, i) => ({ legId: l.legId, outcome: i ? "LOSS" : "WIN" })) }), day({ date: NEXT, status: "BUSTED", reason: "LANE A — BUSTED AT STEP 1 OF 5", cardEventSha256: null })]);
   const p = prepareLane({ doc, date: NEXT, slate, roster: ROSTER, asOf: AS_OF });
   assert.equal(p.refused, undefined, p.refused);
   const t = textOf(p.card);
-  assert.match(t, /BUSTED AT STEP 1 OF 3/); assert.match(t, /LANDED/); assert.match(t, /MISSED/);
+  assert.match(t, /BUSTED AT STEP 1 OF 5/); assert.match(t, /LANDED/); assert.match(t, /MISSED/);
   assert.deepEqual(verifyBbmCard(p.card), []);
 });

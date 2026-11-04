@@ -82,18 +82,23 @@ export function prepareLane({ doc, date, slate, roster, asOf, testData = false, 
   if (view.view === VIEW.IN_PLAY) return refuse(`IN_PLAY: ${view.reason}; no new card (SPEC §3.2)`);
   if (samplePayout) {
     if (samplePayout.fixture !== true) return refuse("a payout is drawn only as a labelled fixture until founder decision P1");
+    if (samplePayout.lines && Object.keys(samplePayout.lines).length && samplePayout.fixture !== true) return refuse("a line prints only with a verified price");
     if (view.view !== VIEW.CARD || samplePayout.grossCents - samplePayout.profitCents !== view.bankrollCents) return refuse("the sample payout does not fit the card's tracked stake (gross - profit = stake)");
     view = { ...view, payout: samplePayout };
   }
   let combo = null;
-  if (view.card && (view.view === VIEW.CARD || view.view === VIEW.BUSTED)) {
+  if (view.card && [VIEW.CARD, VIEW.WON, VIEW.BUSTED].includes(view.view)) {
     let s;
     try { s = slate(view.card.productDay); } catch (e) { return refuse(e.message); }
     const { card, error } = engineCardFor(view.card, s.file, view.product);
     if (error) return refuse(error);
-    // CARD: every check at the render instant against the render-time roster. BUSTED: the record as frozen (its own instant).
+    // CARD: every check at the render instant against the render-time roster. WON / BUSTED: the record as frozen (its own instant).
     const doc2 = comboFromSuggestedCards(s.file, view.product, { card, testData });
     try { combo = resolveCombo(doc2, view.view === VIEW.CARD ? { lane: s.lane, laneSha256: s.laneSha256, asOf, roster } : { lane: s.lane, laneSha256: s.laneSha256, asOf: view.card.evaluatedAt, roster: null }); } catch (e) { return refuse(e.message); }
+    const max = BBM_LANES[laneId].maxLegs;
+    if (max != null && combo.legs.length > max) return refuse(`${combo.legs.length} legs: ${laneId} takes at most ${max} (SPEC rev. 2 §1, hard)`);
+    // A sample line rides only with the labelled fixture price.
+    if (samplePayout?.lines) combo = { ...combo, legs: combo.legs.map((l) => ({ ...l, lineText: samplePayout.lines[l.legId] ?? null })) };
   }
   const card = { ...bbmCard(view, combo, { testData }), name: `${laneId}-${date}` };
   const errs = verifyBbmCard(card);
@@ -117,13 +122,16 @@ export function slateReader(files) {
 
 const DAY = new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "short", day: "numeric" });
 const legLine = (l) => `${l.kind === "GAME_WINNER" ? `${l.team.name} to win` : `${l.player.name} ${l.marketLabel.toLowerCase()}`}${(l.flagText ?? []).length ? ` (${l.flagText.join("; ")})` : ""}`;
-/** One lane's caption block: the step and the lane status, legs by name, no odds language. */
+const title = (b) => b.charAt(0) + b.slice(1).toLowerCase();
+/** One lane's caption block: its step and public status stated separately, legs by name, no odds language. */
 export function laneCaption(p) {
-  const v = p.view; const head = `Lane ${v.letter}`;
-  if (v.view === VIEW.CARD) return [`${head} · Step ${v.step} of ${v.steps}`, ...p.combo.legs.map(legLine), `Tracked bankroll ${cents(v.bankrollCents)} · goal ${cents(v.targetCents)}`].join("\n");
+  const v = p.view; const head = `Lane ${v.letter} · ${title(v.badge)}`;
+  const held = v.badge === "HELD" ? (v.view === VIEW.CARD ? " (awaiting verified prices)" : " (no qualifying card today)") : "";
+  if (v.view === VIEW.CARD) return [`${head}${held} · Step ${v.step} of ${v.steps}`, ...p.combo.legs.map(legLine), `Tracked bankroll ${cents(v.bankrollCents)} · goal ${cents(v.targetCents)}`].join("\n");
+  if (v.view === VIEW.WON) return [`${head} · Step ${v.step} of ${v.steps} won`, ...p.combo.legs.map(legLine), `Tracked bankroll ${cents(v.bankrollCents)} · goal ${cents(v.targetCents)}`].join("\n");
   if (v.view === VIEW.BUSTED) return `${head} · Busted at step ${v.step} of ${v.steps}`;
-  if (v.view === VIEW.NO_ELIGIBLE_CARD) return `${head} · No qualifying card today, still step ${v.step} of ${v.steps}`;
-  return `${head} · Goal reached`;
+  if (v.view === VIEW.NO_ELIGIBLE_CARD) return `${head}${held} · Still step ${v.step} of ${v.steps}`;
+  return `${head} · ${cents(v.bankrollCents)} of ${cents(v.targetCents)}`;
 }
 export function packageCaption(product, lanes, date) {
   const title = product === "bank-builder" ? `🏦 Bank Builder · ${DAY.format(new Date(`${date}T12:00:00Z`))}` : `🚀 Moonshot · ${DAY.format(new Date(`${date}T12:00:00Z`))}`;
@@ -131,9 +139,9 @@ export function packageCaption(product, lanes, date) {
 }
 
 /**
- * Prepared lanes → package plans (no I/O). bb-a and bb-b share bb-<date>; each Moonshot lane is its own package.
- * A Moonshot lane that refused has no package; a Bank Builder package needs both lanes (the console takes exactly bb-a,
- * then bb-b), so either lane refusing leaves no bb-<date> package.
+ * Prepared lanes → package plans (no I/O). Exactly two posts a day (SPEC rev. 2 §5): bb-<date> = bb-a then bb-b,
+ * ms-<date> = ms-a then ms-b. A held or busted lane still has its truthful image; a lane that refused (no graphic at
+ * all) leaves its product with no post that day, since the console takes exactly two images per post.
  */
 export function planPackages(prepared, date) {
   const ok = prepared.filter((p) => !p.refused);
@@ -144,8 +152,7 @@ export function planPackages(prepared, date) {
     if (!groups.has(id)) groups.set(id, { packageId: id, product: L.product, lanes: [] });
     groups.get(id).lanes.push(p);
   }
-  // bb-<date> is exactly bb-a then bb-b (console contract): one lane refused means no Bank Builder post that day.
-  return [...groups.values()].filter((g) => g.product !== "bank-builder" || g.lanes.length === 2).map((g) => {
+  return [...groups.values()].filter((g) => g.lanes.length === 2).map((g) => {
     g.lanes.sort((a, b) => a.laneId.localeCompare(b.laneId));
     const cards = g.lanes.filter((p) => p.view.view === VIEW.CARD);
     const needsFounderReview = cards.some((p) => !p.view.payout) ? "unpriced" : cards.length === 0 ? "status-only" : null;
