@@ -143,9 +143,9 @@ function cleanLeg(cells, l, i, ctx) {
   const rec = l.recordText ? `<div class="rec">${cell(cells, `${k}.record`, l.recordText)}</div>` : "";
   if (l.kind === "PROP") {
     const [dir, ...rest] = String(l.lineWords).split(" ");
-    return `<div class="leg clean prop" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit>${cell(cells, `${k}.name`, l.player.name)}</span><div class="dir">${cell(cells, `${k}.dir`, dir, dir.toLowerCase())} ${cell(cells, `${k}.line`, rest.join(" "))}</div><div class="mt">${cell(cells, `${k}.game`, `${l.gameLabel} | ${tipText(l.tipUtc)}`)}<span class="bar">|</span>${odds}</div>${rec}</div></div>`;
+    return `<div class="leg clean prop" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit>${cell(cells, `${k}.name`, l.player.name)}</span><div class="dir">${cell(cells, `${k}.dir`, dir, dir.toLowerCase())} ${cell(cells, `${k}.line`, rest.join(" "))}</div><div class="mt">${cell(cells, `${k}.game`, `${l.gameLabel} | ${tipText(l.tipUtc)}`)}<span class="sep5">|</span>${odds}</div>${rec}</div></div>`;
   }
-  return `<div class="leg clean ml" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit><span class="selt">${cell(cells, `${k}.name`, l.team.name)}</span> ML</span><div class="vs">${cell(cells, `${k}.opp`, `${l.home ? "vs" : "at"} ${l.opponent.name ?? l.opponent.abbr}`)}</div><div class="mt">${cell(cells, `${k}.game`, tipText(l.tipUtc))}<span class="bar">|</span>${odds}</div>${rec}</div></div>`;
+  return `<div class="leg clean mlc" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit><span class="selt">${cell(cells, `${k}.name`, l.team.name)}</span> ML</span><div class="vs">${cell(cells, `${k}.opp`, `${l.home ? "vs" : "at"} ${l.opponent.name ?? l.opponent.abbr}`)}</div><div class="mt">${cell(cells, `${k}.game`, tipText(l.tipUtc))}<span class="sep5">|</span>${odds}</div>${rec}</div></div>`;
 }
 
 function legPanel(cells, l, i, ctx) {
@@ -294,7 +294,9 @@ const CLEAN_CSS = `<style>
 .v5.clean .leg.clean .dir{font:900 34px/1.05 var(--headline);color:#FFFFFF;text-transform:uppercase;text-shadow:0 2px 0 #000}
 .v5.clean .leg.clean .dir .over{color:var(--neon)}.v5.clean .leg.clean .dir .under{color:#5FD3FF}
 .v5.clean .leg.clean .mt{gap:12px;font:800 24px/1 var(--display);color:#FFFFFF;text-shadow:0 1px 2px #000}
-.v5.clean .leg.clean .mt .bar{color:rgba(255,255,255,.55)}
+.v5.clean .leg.clean .mt .sep5{color:rgba(255,255,255,.6);font:800 24px/1 var(--display)}
+.v5.clean .leg.clean.mlc .nm,.v5.clean .leg.clean.mlc .vs,.v5.clean .leg.clean.mlc .mt,.v5.clean .leg.clean.mlc .rec{letter-spacing:0;text-transform:none;text-align:left}.v5.clean .leg.clean.mlc .nm{text-transform:uppercase}
+.v5.clean .legs5:has(>.leg.clean:only-child){justify-content:center}
 .v5.clean .leg.clean .chip.odds{font:900 28px/1 var(--display);padding:6px 12px 4px;background:#FFFFFF;color:#050706;letter-spacing:1px}
 .v5.clean .leg.clean .rec{font:800 22px/1.15 var(--display);color:#FFE27A;text-shadow:0 1px 2px #000;white-space:nowrap}
 .v5.clean .legs5>.leg.clean:not(:only-child){padding:10px 20px 9px}.v5.clean .legs5>.leg.clean:not(:only-child) .nm{font-size:36px}.v5.clean .legs5>.leg.clean:not(:only-child) .who{gap:4px}.v5.clean .legs5>.leg.clean:not(:only-child) .vs{font-size:22px}.v5.clean .legs5>.leg.clean:not(:only-child) .mt{font-size:21px}.v5.clean .legs5>.leg.clean:not(:only-child) .chip.odds{font-size:24px;padding:4px 10px 3px}.v5.clean .legs5>.leg.clean:not(:only-child) .rec{font-size:19px}.v5.clean .legs5>.leg.clean:not(:only-child) .n{font-size:54px}
