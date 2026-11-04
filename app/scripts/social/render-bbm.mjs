@@ -31,6 +31,8 @@ import { laneBytes } from "./render-combo-cards.mjs";
 import { BBM_DESIGN_VERSION, FACT_LINE, bbmCard, bbmLayoutErrors, cents, verifyBbmCard } from "./bbm-cards.mjs";
 import { BBM_LANES, VIEW, laneView, pricedDay, privateBankrollCents, socialPricesOk } from "../../src/lib/social/bbm-lane.mjs";
 import { readLaneProjection } from "../../src/lib/challenge-lanes/public-reader.mjs";
+import { laneDisplay } from "../../src/lib/challenge-lanes/display.mjs";
+import { lanePriceDisplay } from "../../src/lib/challenge-lanes/price-display.mjs";
 import { currentRun } from "../../src/lib/challenge-lanes/store.mjs";
 import { MARKET_SHORT, comboFromSuggestedCards, resolveCombo, suggestedCardsSealed } from "../../src/lib/social/combo-social.mjs";
 
@@ -104,12 +106,13 @@ export function prepareLane({ doc, date, slate, roster, asOf, testData = false, 
     if (view.view !== VIEW.CARD || samplePayout.grossCents - samplePayout.profitCents !== view.bankrollCents) return refuse("the sample payout does not fit the card's tracked stake (gross - profit = stake)");
     view = { ...view, payout: samplePayout };
   }
-  let combo = null;
+  let combo = null; let fileLegs = null;
   if (view.card && [VIEW.CARD, VIEW.WON, VIEW.BUSTED].includes(view.view)) {
     let s;
     try { s = slate(view.card.productDay); } catch (e) { return refuse(e.message); }
     const { card, error } = engineCardFor(view.card, s.file, view.product);
     if (error) return refuse(error);
+    fileLegs = card.legs;
     // CARD: every check at the render instant against the render-time roster. WON / BUSTED: the record as frozen (its own instant).
     const doc2 = comboFromSuggestedCards(s.file, view.product, { card, testData });
     // SPEC rev. 2 §1: the engine selects the lane card; Bank Builder takes at most 2 legs, Moonshot at least 2 (no tier rule).
@@ -124,7 +127,47 @@ export function prepareLane({ doc, date, slate, roster, asOf, testData = false, 
   const card = { ...bbmCard(view, combo, { testData }), name: `${laneId}-${date}` };
   const errs = verifyBbmCard(card);
   if (errs.length) return refuse(`card failed validation: ${errs.join("; ")}`);
-  return { laneId, view, combo, card, testData, projectionSha256: doc.contentSha256 };
+  const prepared = { laneId, view, combo, card, testData, projectionSha256: doc.contentSha256, fileLegs };
+  // Founder 2026-11-04: website and X legs identical. Fail closed on any parity mismatch.
+  prepared.parity = parityRow(prepared, { doc, privateEvents });
+  if (!prepared.parity.ok) return refuse(`parity mismatch with the engine record: ${prepared.parity.mismatches.join("; ")}`);
+  return prepared;
+}
+
+const sideOf = (l) => l.selection?.teamAbbr ?? l.team?.abbr ?? (l.prop?.playerId ? `player ${l.prop.playerId}` : null) ?? (l.player?.id ? `player ${l.player.id}` : null);
+/**
+ * PARITY (founder 2026-11-04: website and X legs identical). One row per lane: what this render prints, against an
+ * independent read of the engine record the website reads (laneDisplay over the public file, lanePriceDisplay over the
+ * private log). Fields: legs (ids, games, markets, sides, shown probability, forecast snapshot and its sha), step,
+ * bankroll, target, odds snapshot sha, payout, status. The printed cells are compared too. Any difference fails closed.
+ */
+export function parityRow(p, { doc, privateEvents = null }) {
+  const v = p.view;
+  const d = laneDisplay(doc, { date: v.date });
+  const engineCard = v.view === VIEW.BUSTED ? d.history.findLast((x) => x.stepOutcome === "LOSS")?.card : v.view === VIEW.WON ? d.day?.card : d.day?.card;
+  const legsOf = (legs, from) => (legs ?? []).map((l) => (from === "engine"
+    ? { legId: String(l.legId), gameId: String(l.gameId), market: l.market, side: sideOf(l), shown: l.probabilityShown ?? null, snapshot: l.projection?.snapshotId ?? null, snapshotSha: l.projection?.contentSha256 ?? null }
+    : { legId: String(l.legId), gameId: String(l.eventId ?? l.gameId), market: l.market, side: sideOf(l), shown: l.probabilityShown ?? null, snapshot: l.forecast?.ref ?? null, snapshotSha: l.forecast?.receiptSha256 ?? null })).sort((a, b) => a.legId.localeCompare(b.legId));
+  let enginePrice = null;
+  if (privateEvents && v.view === VIEW.CARD) {
+    const day = lanePriceDisplay(doc.laneId, [privateEvents]).runs.at(-1).days.findLast((x) => x.date === v.date);
+    const pay = day && privateEvents.findLast((e) => e.type === "PAYOUT_COMPUTED" && e.date === v.date);
+    if (day && ["VERIFIED", "PRELIMINARY"].includes(day.result)) enginePrice = { oddsSnapshotSha256: pay?.inputs?.priceSnapshotSha256 ?? null, grossCents: day.grossPayoutCents, profitCents: day.profitCents, stakeCents: day.stakeCents };
+  }
+  // The real price is shown only under the display switch; an unshown price is compared as absent on both sides.
+  const shownPrice = v.payout && !v.payout.fixture ? { oddsSnapshotSha256: v.payout.priceSnapshotSha256 ?? null, grossCents: v.payout.grossCents, profitCents: v.payout.profitCents, stakeCents: v.payout.stakeCents } : null;
+  const rendered = { legs: legsOf(p.fileLegs, "file"), step: v.step, bankrollCents: v.bankrollCents ?? null, targetCents: v.targetCents, status: v.badge, price: shownPrice };
+  // A WON graphic shows the step it won (the engine's day record); every other view shows the lane's step.
+  const engine = { legs: legsOf(engineCard?.legs, "engine"), step: v.view === VIEW.WON ? d.day?.step : d.step, bankrollCents: d.trackedBankrollCents ?? (shownPrice ? shownPrice.stakeCents : null), targetCents: d.targetCents, status: d.status, price: shownPrice ? enginePrice : null };
+  const mismatches = [];
+  for (const k of Object.keys(rendered)) if (JSON.stringify(rendered[k]) !== JSON.stringify(engine[k])) mismatches.push(`${k}: printed ${JSON.stringify(rendered[k])} engine ${JSON.stringify(engine[k])}`);
+  // The image itself: each printed leg's team and number, and the printed money, against the engine's.
+  const cells = p.card.cells;
+  const printed = Object.keys(cells).filter((k) => /^leg\d+\.team$/.test(k)).map((k) => `${cells[k]} ${cells[k.replace(".team", ".proj")]}`).sort();
+  const expected = (engineCard?.legs ?? []).map((l) => `${l.selection?.teamAbbr ?? ""} ${l.probabilityShown}`).sort();
+  if (engineCard?.legs?.every((l) => l.market === "winner") && JSON.stringify(printed) !== JSON.stringify(expected)) mismatches.push(`printed legs ${printed.join(", ")} are not the engine's ${expected.join(", ")}`);
+  if (shownPrice && enginePrice) for (const [cellKey, val] of [["money.payout", enginePrice.grossCents], ["money.profit", enginePrice.profitCents], ["money.wager", enginePrice.stakeCents]]) if (cells[cellKey] !== cents(val)) mismatches.push(`printed ${cellKey} ${cells[cellKey]} is not the engine's ${cents(val)}`);
+  return { laneId: p.laneId, ok: mismatches.length === 0, rendered, engine, mismatches };
 }
 
 /** slate(date) over suggested-cards files (keyed by productDay) and the committed lanes. */
@@ -190,6 +233,7 @@ export function stagingViolations(plans, outRoot, { displayRecord = undefined } 
   const abs = path.resolve(outRoot);
   if (abs === LIVE_PACKAGES || abs.startsWith(LIVE_PACKAGES + path.sep) || LIVE_PACKAGES.startsWith(abs + path.sep)) v.push(`${abs}: V2 packages never go to the live packages folder before the cut-over is approved`);
   for (const p of plans) if (CAPTION_PRICE_TEXT.test(p.caption)) v.push(`${p.packageId}: the caption carries price language (${p.caption.match(CAPTION_PRICE_TEXT)[0]}); prices appear only on the image`);
+  for (const p of plans) for (const l of p.lanes) if (!l.parity?.ok) v.push(`${p.packageId}/${l.laneId}: parity with the engine record is ${l.parity ? `broken (${l.parity.mismatches.join("; ")})` : "missing"}`);
   for (const p of plans) for (const l of p.lanes) {
     if (l.card.samplePrice || l.view.payout?.fixture) v.push(`${p.packageId}/${l.laneId}: a fixture price never reaches a package`);
     if (l.testData || l.card.testData) v.push(`${p.packageId}/${l.laneId}: a TEST lane history never reaches a package`);
@@ -241,6 +285,8 @@ export async function writeStaging(plans, { outRoot, browser, commit = rendererC
         preliminary: p.lanes.some((l) => l.view.payout?.preliminary === true),
         // Per lane: whether the printed price is preliminary (re-verified near the window; a changed image is a new version).
         pricing: Object.fromEntries(p.lanes.map((l) => [l.laneId, l.view.payout ? { state: l.view.payout.preliminary ? "PRELIMINARY" : "VERIFIED", capturedAt: l.view.payout.capturedAt, postScheduledAt: l.view.payout.postScheduledAt ?? null } : { state: l.view.view === VIEW.CARD ? "UNPRICED" : "NONE" }])),
+        // Founder 2026-11-04: per-lane parity against the engine record (website = X); staging refuses any mismatch.
+        parity: p.lanes.map((l) => ({ laneId: l.laneId, ok: l.parity?.ok === true, mismatches: l.parity?.mismatches ?? ["no parity row"], legs: l.parity?.rendered.legs, step: l.parity?.rendered.step, bankrollCents: l.parity?.rendered.bankrollCents, targetCents: l.parity?.rendered.targetCents, status: l.parity?.rendered.status, price: l.parity?.rendered.price })),
         // The render-time availability input (PD 2026-11-04: fresh at render, never the morning build's).
         roster: rosterRef,
         testData: false,

@@ -24,7 +24,7 @@ import { laneProjection } from "../challenge-lanes/projection.mjs";
 import { laneDisplay } from "../challenge-lanes/display.mjs";
 import { eloWinProbabilityOf } from "../sports/nba/elo-win-probability.mjs";
 import { AWAITING, FACT_LINE, REMOVED_TEXT, SAMPLE_PRICE_RIBBON, TEST_RIBBON, bbmCard as bbmCardFor, verifyBbmCard } from "../../../scripts/social/bbm-cards.mjs";
-import { CAPTION_PRICE_TEXT, LIVE_PACKAGES, engineCardFor, packageCaption, planPackages, prepareLane, stagingViolations, writeStaging } from "../../../scripts/social/render-bbm.mjs";
+import { CAPTION_PRICE_TEXT, LIVE_PACKAGES, engineCardFor, parityRow, packageCaption, planPackages, prepareLane, stagingViolations, writeStaging } from "../../../scripts/social/render-bbm.mjs";
 import { visibleText } from "../../../scripts/social/nba-line-cards.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -101,6 +101,7 @@ test("lane view is laneDisplay: same step, rungs, status, bankroll and pace; lat
   const w = laneView(won, DATE);
   assert.equal(w.view, VIEW.WON); assert.equal(w.badge, BADGE.WON); assert.equal(w.bankrollCents, null); assert.equal(w.pace.state, "WITHHELD");
   const wc = prep(won);
+  assert.equal(wc.refused, undefined, wc.refused);
   assert.equal(wc.card.cells["bank.tracked"], "WITHHELD"); assert.match(textOf(wc.card), /PACE WITHHELD UNTIL VERIFIED PRICES/);
   const lost = projection("bb-a", [frozen("bb-a"), staked(), legSettled(LEGS[0].legId, "WIN"), legSettled(LEGS[1].legId, "LOSS"), stepSettled("LOSS", 10000, 0), status(NEXT, 1, "BUSTED", "LANE A — BUSTED AT STEP 1 OF 5")]);
   const b = laneView(lost, NEXT);
@@ -351,4 +352,27 @@ test("preliminary prices (founder P0 2026-11-04): tagged on the image, flagged o
   const f = prep(laneProjection("bb-a", [fin.events]), { privateEvents: fin.events, displayRecord: SOCIAL_ON });
   assert.equal(f.view.payout.preliminary, false); assert.doesNotMatch(textOf(f.card), /PRELIMINARY/);
   assert.equal(planPackages([f, prep(statusDoc("bb-b"))], DATE)[0].needsFounderReview, null);
+});
+
+test("parity (founder 2026-11-04: website = X): each lane's printed legs, step, bankroll, target, odds snapshot, payout and status match the engine record, or staging refuses", () => {
+  const real = pricedEvents("bb-a", { provider: "the-odds-api", book: "DraftKings" });
+  const doc = laneProjection("bb-a", [real.events]);
+  const p = prep(doc, { privateEvents: real.events, displayRecord: SOCIAL_ON });
+  assert.equal(p.refused, undefined, p.refused);
+  assert.equal(p.parity.ok, true, p.parity.mismatches.join("; "));
+  assert.deepEqual(p.parity.rendered, p.parity.engine);
+  assert.equal(p.parity.rendered.legs.length, 2); assert.ok(p.parity.rendered.price.oddsSnapshotSha256);
+  // The engine record read against another lane state: the row breaks and staging refuses.
+  const other = sealProjection({ ...structuredClone(doc), runs: doc.runs.map((r) => ({ ...r, trackedBankrollCents: 12345, step: 2 })) });
+  const broken = parityRow(p, { doc: other, privateEvents: real.events });
+  assert.equal(broken.ok, false); assert.match(broken.mismatches.join(";"), /step|bankroll/);
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), "bbm-"));
+  const plan = planPackages([p, prep(statusDoc("bb-b"))], DATE);
+  assert.deepEqual(stagingViolations(plan, out, { displayRecord: SOCIAL_ON }), []);
+  const noParity = plan.map((x) => ({ ...x, lanes: x.lanes.map((l) => ({ ...l, parity: undefined })) }));
+  assert.match(stagingViolations(noParity, out, { displayRecord: SOCIAL_ON }).join(";"), /parity with the engine record is missing/);
+  // A printed money cell that differs from the engine fails closed.
+  const tampered = { ...p, card: { ...p.card, cells: { ...p.card.cells, "money.payout": "$999" } } };
+  assert.match(parityRow(tampered, { doc, privateEvents: real.events }).mismatches.join(";"), /printed money.payout/);
+  fs.rmSync(out, { recursive: true, force: true });
 });

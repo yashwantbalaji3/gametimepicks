@@ -124,6 +124,7 @@ export function pricedDay(events, { date, doc = null }) {
     legs: Object.fromEntries(day.legs.map((l) => [String(l.legId), { price: l.price, oddsFormat: l.oddsFormat, line: l.line, fetchedAt: l.fetchedAt }])),
     books, capturedAt: day.capturedAt ?? fetched[0] ?? null, belowPace: day.belowPace,
     fixture: providers.some((x) => isFixturePrice(x, null)) || books.some((b) => isFixturePrice(null, b)),
+    priceSnapshotSha256: pv?.price?.priceSnapshotSha256 ?? null,
   };
 }
 
