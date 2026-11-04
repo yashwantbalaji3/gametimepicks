@@ -46,7 +46,7 @@ const playerLeg = (r: any, market: string, target: any) => ({
 });
 
 function testCombos(date: string, lane: any, laneRef: any, roster: any, rosterRef: any, asOf: string) {
-  const base = { schema: SOCIAL_COMBO_SCHEMA, sport: "nba", slateDate: date, asOf, testData: true, source: { lane: laneRef, roster: rosterRef }, state: COMBO_STATE.QUALIFIED, reasons: [] };
+  const base = { schema: SOCIAL_COMBO_SCHEMA, sport: "nba", slateDate: date, asOf, testData: true, source: { lane: laneRef, roster: rosterRef }, state: COMBO_STATE.CARD, reasons: [] };
   // Bank Builder: the biggest-minutes cleared scorer at a target a quarter under his median, plus the slate's most one-sided favourite in another game.
   const pts = clearedPlayers(lane, roster, "pts");
   const fav = lane.games.map((g: any) => ({ g, wp: eloWinProbabilityOf(g) })).filter((x: any) => x.wp && x.g.elo.state === "FAVOURED")

@@ -9,7 +9,10 @@
  *   data          schema, product policy, contentSha256 of the body, lane sha, leg count, one leg per game/team/player
  *   identity      game, tip, teams and player all from the lane; projection equals the lane value exactly
  *   availability  leg guard empty, lane injury not Out/Day-To-Day/Doubtful (R1), roster __guard (R1-R3) and __cells
- *   freshness     lane.generatedAt <= combo.asOf <= asOf < first tip minus the 30-minute cutoff; combo at most 12 h old
+ *   freshness     lane.generatedAt <= combo.asOf <= asOf < first tip minus the 30-minute cutoff. There is no age cap: the
+ *                 engine stamps a card with its lane's generatedAt so re-runs are byte-identical, and a model-only card
+ *                 holds no price to go stale. What can change after the freeze is availability, so the render-time roster
+ *                 is re-checked for every leg, winner legs included (the picked team's top-five-minutes players).
  *   honesty       a target must be the model's own (never a sportsbook line); no price is ever resolved for a card;
  *                 a joint chance is shown only when every leg's probability is MODEL_VALIDATED
  */
@@ -20,12 +23,22 @@ import { POLICY } from "../products/daily-candidates/policy.mjs";
 import { eloWinProbabilityOf } from "../sports/nba/elo-win-probability.mjs";
 
 export const SOCIAL_COMBO_SCHEMA = "gtp.products.social-combo@1";
-export const COMBO_STATE = Object.freeze({ QUALIFIED: "QUALIFIED", NONE: "NO_QUALIFYING_COMBINATION" });
+/** CARD = the engine made a card (always model-only today; nothing here calls it qualified). */
+export const COMBO_STATE = Object.freeze({ CARD: "CARD", NONE: "NO_QUALIFYING_COMBINATION" });
 export const PRICING_STATE = Object.freeze({ MODEL_ONLY: "MODEL_ONLY", VERIFIED: "VERIFIED_PRICES" });
 export const COMBO_PRODUCTS = Object.freeze(["bank-builder", "moonshot"]);
 export const RISK_TIER = Object.freeze({ "bank-builder": "CONSERVATIVE", moonshot: "LONGSHOT" });
-/** Same 30-minute cutoff and 12-hour staleness as the eligible-leg contract (eligible-leg/contract.mjs). */
-export const COMBO_FRESHNESS = Object.freeze({ cutoffMin: 30, maxAgeHours: 12 });
+/** Same 30-minute cutoff as the eligible-leg contract (eligible-leg/contract.mjs). */
+export const COMBO_FRESHNESS = Object.freeze({ cutoffMin: 30 });
+/** Policies a combo may name, per product: the daily-candidates engine and the game-winner tiers engine. */
+export const COMBO_POLICIES = Object.freeze({
+  "bank-builder": Object.freeze([POLICY["bank-builder"].id, "nba-game-winner-tiers@1/bank-builder"]),
+  moonshot: Object.freeze([POLICY.moonshot.id, "nba-game-winner-tiers@1/moonshot"]),
+});
+/** Rotation size the winner-leg availability check reads, the same top five the engine's FAVOURED_ROTATION_R1 uses. */
+export const ROTATION_TOP = 5;
+/** A float written as 1 - p (0.5678000000000001) is the lane's 0.5678; anything further is not. */
+const SAME_P = 1e-9;
 export const MARKET_LABEL = Object.freeze({
   pts: "Points", reb: "Rebounds", ast: "Assists", threePm: "3-pointers made",
   pra: "Pts + Reb + Ast", ptsReb: "Pts + Reb", ptsAst: "Pts + Ast", winner: "Game winner",
@@ -59,10 +72,10 @@ export function comboViolations(doc, { lane, laneSha256, asOf, roster = null }) 
   const v = [];
   if (doc?.schema !== SOCIAL_COMBO_SCHEMA) return [`schema ${doc?.schema}`];
   if (!COMBO_PRODUCTS.includes(doc.product)) return [`product ${doc.product}`];
-  if (doc.state !== COMBO_STATE.QUALIFIED) return [`${doc.state ?? "no state"}: ${(doc.reasons ?? []).map((r) => r.text ?? r.code).join("; ") || "no reason given"}`];
+  if (doc.state !== COMBO_STATE.CARD) return [`${doc.state ?? "no state"}: ${(doc.reasons ?? []).map((r) => r.text ?? r.code).join("; ") || "no reason given"}`];
   if (!isHex64(doc.contentSha256) || comboSha(doc) !== doc.contentSha256) v.push("contentSha256 does not match the combo body");
   const policy = POLICY[doc.product];
-  if (doc.policyId !== policy.id) v.push(`policyId ${doc.policyId} is not ${policy.id}`);
+  if (!COMBO_POLICIES[doc.product].includes(doc.policyId)) v.push(`policyId ${doc.policyId} is not a ${policy.label} policy`);
   if (doc.sport !== "nba") v.push(`sport ${doc.sport}: only NBA combos have a card`);
   if (!lane?.games?.length) return [...v, "no lane to check the legs against"];
   if (doc.slateDate !== lane.date) v.push(`slateDate ${doc.slateDate} is not the lane date ${lane.date}`);
@@ -95,8 +108,17 @@ export function comboViolations(doc, { lane, laneSha256, asOf, roster = null }) 
       const wp = eloWinProbabilityOf(g);
       if (!wp) { v.push(`${id}: the lane has no usable win probability for this game`); continue; }
       const p = l.team === g.home.abbr ? wp.home : wp.away;
-      if (l.projection !== p) v.push(`${id}: win probability ${l.projection} is not the lane's ${p}`);
+      if (!isNum(l.projection) || Math.abs(l.projection - p) > SAME_P) v.push(`${id}: win probability ${l.projection} is not the lane's ${p}`);
+      const pct = `${l.team === g.home.abbr ? wp.homePct : wp.awayPct}%`;
+      if (l.projectionShown != null && l.projectionShown !== pct) v.push(`${id}: the engine shows ${l.projectionShown}, the lane rounds to ${pct}`);
       if (l.target != null) v.push(`${id}: a winner leg takes no target`);
+      const side = l.team === g.home.abbr ? "home" : "away";
+      const rotation = [...(g.players?.[side] ?? [])].sort((a, b) => b.expectedMinutes - a.expectedMinutes).slice(0, ROTATION_TOP);
+      for (const r of rotation) {
+        const rid = String(r.providerAthleteId);
+        if (r.injuryStatus && R1_STATUS.test(r.injuryStatus)) v.push(`${id}: rotation player ${r.name} R1 ${r.injuryStatus}`);
+        else if (roster?.__guard?.[rid]?.includes("R1")) v.push(`${id}: rotation player ${r.name} R1 on the current roster`);
+      }
     } else if (l.kind === "PLAYER_PROJECTION") {
       const side = l.team === g.home.abbr ? "home" : "away";
       const p = (g.players?.[side] ?? []).find((x) => String(x.providerAthleteId) === String(l.player?.id));
@@ -120,7 +142,6 @@ export function comboViolations(doc, { lane, laneSha256, asOf, roster = null }) 
   if (!Number.isFinite(now)) v.push("asOf is required");
   if (!(made >= gen)) v.push("the combo predates the lane it reads");
   if (!(made <= now)) v.push("the combo is newer than the render instant");
-  if ((now - made) / 3.6e6 > COMBO_FRESHNESS.maxAgeHours) v.push(`the combo is more than ${COMBO_FRESHNESS.maxAgeHours} hours old`);
   const first = Math.min(...legs.map((l) => ms(l.tipUtc)));
   if (legs.length && !(now < first - COMBO_FRESHNESS.cutoffMin * 60e3)) v.push(`the first leg tips within ${COMBO_FRESHNESS.cutoffMin} minutes or has started`);
   return v;
@@ -163,4 +184,37 @@ export function comboFromDailyCandidate(result, { reasonCopy = {}, laneRef = nul
   if (result.status !== "NO_CANDIDATE") return sealCombo({ ...base, state: COMBO_STATE.NONE, reasons: [{ code: "ENGINE_SHAPE", text: "the engine returned a priced candidate, not a social-combo@1 document" }] });
   const reasons = (result.cardReasons ?? []).map((code) => ({ code, text: reasonCopy[code] ?? code }));
   return sealCombo({ ...base, state: COMBO_STATE.NONE, reasons: reasons.length ? reasons : [{ code: "NO_CANDIDATE", text: "no qualifying combination" }] });
+}
+
+/** Engine card tier → social risk tier. */
+const TIER_OF = Object.freeze({ low: "CONSERVATIVE", longshot: "LONGSHOT" });
+const opponentIn = (label, team) => { const m = /^(\S+) @ (\S+)$/.exec(String(label ?? "")); return m ? (m[1] === team ? m[2] : m[2] === team ? m[1] : null) : null; };
+
+/**
+ * Social combo from the tiers engine's `gtp.suggested-cards@1` day file (one source for pages, results and social; engine
+ * session, 2026-11-03). NBA game-winner legs only. A section without a card becomes the refusal with its reason; a card
+ * that is priced or carries a price or payout is refused, since a social card prints none. Elo probabilities are not
+ * validated, so every leg is MODEL_UNVALIDATED and the card never prints the joint chance.
+ * @param {object} file  the suggested-cards document
+ * @param {"bank-builder"|"moonshot"} product
+ */
+export function comboFromSuggestedCards(file, product, { testData = false } = {}) {
+  const key = product === "bank-builder" ? "bankBuilder" : product === "moonshot" ? "moonshot" : null;
+  if (file?.schema !== "gtp.suggested-cards@1" || !key) throw new Error(`not a suggested-cards file for ${product}`);
+  const section = file[key]?.nba ?? null;
+  const lane = (file.inputs ?? []).find((i) => i.sport === "nba") ?? null;
+  const base = { schema: SOCIAL_COMBO_SCHEMA, product, sport: "nba", slateDate: file.productDay, asOf: file.evaluatedAt, testData, policyId: section?.policy ?? null, source: lane ? { lane: { ref: lane.file, sha256: lane.sha256, commit: lane.commit ?? null } } : {} };
+  const none = (code, text) => sealCombo({ ...base, state: COMBO_STATE.NONE, reasons: [{ code, text }], combination: null });
+  if (!section) return none("NO_SECTION", `the file has no NBA ${product} section`);
+  const c = section.card;
+  if (!c) return none(String(section.state ?? "NO_CARD").toUpperCase(), section.reason ?? "no card");
+  if (c.priced !== false || c.price != null || c.payout != null || c.status !== "MODEL_ONLY") return none("PRICED_CARD", "the card carries a price or payout; social cards print none");
+  const legs = c.legs.map((l) => ({
+    legId: l.legId, eventId: String(l.eventId), tipUtc: l.startUtc, kind: l.market === "winner" ? "GAME_WINNER" : `UNSUPPORTED_${l.market}`,
+    team: l.selection?.teamAbbr ?? null, opponent: opponentIn(l.eventLabel, l.selection?.teamAbbr), player: null, market: l.market,
+    projection: l.probability, projectionShown: l.probabilityShown ?? null, target: null,
+    modelProbability: l.probability, probabilityBasis: "MODEL_UNVALIDATED",
+    availability: { status: l.guard?.state ?? null, guard: [...(l.guard?.flags ?? []), ...(l.guard?.rotationFlagged ?? []).map((r) => `R1 ${r.name} ${r.status}`)] },
+  }));
+  return sealCombo({ ...base, state: COMBO_STATE.CARD, reasons: [], engineCardId: c.id, combination: { legs, risk: { tier: TIER_OF[c.tier] ?? `UNKNOWN_${c.tier}`, jointModelProbability: c.jointProbability ?? null, basis: "independent" }, pricing: { state: "MODEL_ONLY" } } });
 }

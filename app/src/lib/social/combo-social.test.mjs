@@ -12,7 +12,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { comboFromDailyCandidate, comboSha, comboViolations, resolveCombo, sealCombo, laneValueOf, SOCIAL_COMBO_SCHEMA } from "./combo-social.mjs";
+import { comboFromDailyCandidate, comboFromSuggestedCards, comboSha, comboViolations, resolveCombo, sealCombo, laneValueOf, SOCIAL_COMBO_SCHEMA } from "./combo-social.mjs";
 import { socialPackageViolations, CONTENT_TYPE, APPROVAL_STATUS } from "./social-package.mjs";
 import { eloWinProbabilityOf } from "../sports/nba/elo-win-probability.mjs";
 import { POLICY } from "../products/daily-candidates/policy.mjs";
@@ -49,7 +49,7 @@ const winnerGame = LANE.games.find((g) => eloWinProbabilityOf(g) && g.elo.state 
 const winnerLeg = (g = winnerGame) => { const side = g.elo.favoured === g.home.abbr ? "home" : "away"; const wp = eloWinProbabilityOf(g); return { legId: `nba:${g.providerEventId}:winner:${g[side].abbr}`, eventId: String(g.providerEventId), tipUtc: g.tipUtc, kind: "GAME_WINNER", team: g[side].abbr, opponent: g[side === "home" ? "away" : "home"].abbr, player: null, market: "winner", projection: wp[side], target: null, modelProbability: null, probabilityBasis: null, availability: { status: null, guard: [] } }; };
 const combo = (product, legs, o = {}) => sealCombo({
   schema: SOCIAL_COMBO_SCHEMA, product, sport: "nba", slateDate: DATE, asOf: AS_OF, testData: true, policyId: POLICY[product].id, source: { lane: LANE_REF },
-  state: "QUALIFIED", reasons: [], combination: { legs, risk: { tier: product === "moonshot" ? "LONGSHOT" : "CONSERVATIVE", jointModelProbability: null, basis: null }, pricing: { state: "MODEL_ONLY" } }, ...o,
+  state: "CARD", reasons: [], combination: { legs, risk: { tier: product === "moonshot" ? "LONGSHOT" : "CONSERVATIVE", jointModelProbability: null, basis: null }, pricing: { state: "MODEL_ONLY" } }, ...o,
 });
 const bbLegs = () => [playerLeg(players.find((r) => r.g !== winnerGame)), winnerLeg()];
 const ctx = (o = {}) => ({ lane: LANE, laneSha256: LANE_SHA, asOf: AS_OF, roster: EMPTY_ROSTER, ...o });
@@ -124,11 +124,12 @@ test("availability: leg guard, lane R1 status, roster R1-R3 guard, hidden cell a
   has(comboViolations(doc, ctx({ lane })), /R1 Day-To-Day/);
 });
 
-test("freshness: past the cutoff, older than 12 hours, or older than the lane is refused", () => {
+test("freshness: past the cutoff, older than the lane, or newer than the render is refused; no age cap", () => {
   const doc = combo("bank-builder", bbLegs());
   const first = Math.min(...doc.combination.legs.map((l) => ms(l.tipUtc)));
   has(comboViolations(doc, ctx({ asOf: new Date(first - 20 * 60e3).toISOString() })), /within 30 minutes/);
-  has(comboViolations(edit(doc, (d) => { d.asOf = new Date(ms(AS_OF) - 13 * 3.6e6).toISOString(); }), ctx()), /(more than 12 hours old|predates the lane)/);
+  const atLane = edit(doc, (d) => { d.asOf = LANE.generatedAt; });
+  assert.deepEqual(comboViolations(atLane, ctx()), [], "a card stamped with its lane's generatedAt stays valid until the cutoff");
   has(comboViolations(edit(doc, (d) => { d.asOf = "2026-10-01T00:00:00Z"; }), ctx()), /predates the lane/);
   has(comboViolations(edit(doc, (d) => { d.asOf = new Date(ms(AS_OF) + 60e3).toISOString(); }), ctx()), /newer than the render instant/);
 });
@@ -186,4 +187,55 @@ test("package: founder review, NBA_BANK_BUILDER, slot at first tip - 90, window 
   const again = prepareCombo({ comboPath: f, asOf: AS_OF, lane: LANE, laneSha256: LANE_SHA, roster: EMPTY_ROSTER, refOf }).posts[0];
   assert.equal(again.cards[0].html, r.posts[0].cards[0].html, "a rebuild from the same snapshot is byte-identical");
   assert.ok(COMBO_LEAD.moonshot < COMBO_LEAD["bank-builder"] && COMBO_LEAD.moonshot > 60, "Moonshot after Bank Builder, before the first winner post (tip - 60)");
+});
+
+/** A gtp.suggested-cards@1 day file in the engine's shape (380a6d98dc), built from the committed lane. */
+const favoured = LANE.games.map((g) => ({ g, wp: eloWinProbabilityOf(g) })).filter((x) => x.wp && x.g.elo.state === "FAVOURED");
+const engineLeg = ({ g, wp }, o = {}) => {
+  const side = g.elo.favoured === g.home.abbr ? "home" : "away";
+  return { legId: `nba:${g.providerEventId}:winner`, sport: "nba", eventId: String(g.providerEventId), eventLabel: `${g.away.abbr} @ ${g.home.abbr}`, startUtc: g.tipUtc, market: "winner", selection: { code: side, label: `${g[side].abbr} (official side)`, teamAbbr: g[side].abbr }, status: "MODEL_ONLY", probability: side === "home" ? wp.home : 1 - wp.home, probabilityShown: `${side === "home" ? wp.homePct : wp.awayPct}%`, guard: { state: "pass", flags: [], flagText: [], rotationFlagged: [], outAtFreeze: [] }, ...o };
+};
+const suggested = (legsBB, legsMS, o = {}) => ({
+  schema: "gtp.suggested-cards@1", productDay: DATE, evaluatedAt: LANE.generatedAt, pricing: { state: "MODEL_ONLY" },
+  inputs: [{ sport: "nba", file: LANE_REF.ref, sha256: LANE_SHA, generatedAt: LANE.generatedAt, commit: "test" }],
+  bankBuilder: { nba: { policy: "nba-game-winner-tiers@1/bank-builder", state: legsBB ? "model-only" : "insufficient", card: legsBB && { id: "bb1", tier: "low", legs: legsBB, jointProbability: 0.6, jointShown: "60.0%", status: "MODEL_ONLY", priced: false, price: null, payout: null }, reason: legsBB ? null : "Insufficient eligible legs" } },
+  moonshot: { nba: { policy: "nba-game-winner-tiers@1/moonshot", state: legsMS ? "model-only" : "insufficient", card: legsMS && { id: "ms1", tier: "longshot", legs: legsMS, jointProbability: 0.14, jointShown: "14.0%", status: "MODEL_ONLY", priced: false, price: null, payout: null }, reason: legsMS ? null : "No combination in the longshot band" } },
+  ...o,
+});
+/** Favoured sides whose top-five rotation is clear at freeze, one per game. */
+const clearFav = favoured.filter(({ g }) => { const side = g.elo.favoured === g.home.abbr ? "home" : "away"; return [...g.players[side]].sort((a, b) => b.expectedMinutes - a.expectedMinutes).slice(0, 5).every((p) => !p.injuryStatus); });
+
+test("suggested-cards adapter: a model-only card maps to a CARD combo the lane accepts; joint chance withheld (Elo unvalidated)", () => {
+  assert.ok(clearFav.length >= 2, "the 11-01 lane has two favourites with a clear rotation");
+  const file = suggested(clearFav.slice(0, 2).map((x) => engineLeg(x)), clearFav.slice(0, 2).map((x) => engineLeg(x)));
+  for (const product of ["bank-builder", "moonshot"]) {
+    const doc = comboFromSuggestedCards(file, product);
+    assert.equal(doc.state, "CARD");
+    assert.deepEqual(comboViolations(doc, ctx()), []);
+    const c = resolveCombo(doc, ctx());
+    assert.equal(c.joint, null);
+    assert.equal(c.pricing, "MODEL_ONLY");
+    assert.deepEqual(verifyComboCard(comboCard(c)), []);
+  }
+  const noisy = engineLeg(clearFav[0], { probability: 1 - (1 - clearFav[0].wp.home) + 1e-16 });
+  assert.notEqual(noisy.probability, clearFav[0].wp.home);
+  assert.deepEqual(comboViolations(comboFromSuggestedCards(suggested([noisy, engineLeg(clearFav[1])], null), "bank-builder"), ctx()), [], "a 1 - p float is the lane's value");
+  has(comboViolations(comboFromSuggestedCards(suggested([engineLeg(clearFav[0], { probability: clearFav[0].wp.home + 0.001 }), engineLeg(clearFav[1])], null), "bank-builder"), ctx()), /is not the lane's/);
+});
+
+test("suggested-cards adapter: no card, a priced card, an engine guard flag, a shown-percent mismatch or a rotation R1 each refuse", () => {
+  const none = comboFromSuggestedCards(suggested(null, null), "moonshot");
+  assert.equal(none.state, "NO_QUALIFYING_COMBINATION");
+  assert.deepEqual(none.reasons, [{ code: "INSUFFICIENT", text: "No combination in the longshot band" }]);
+  const two = clearFav.slice(0, 2);
+  const priced = suggested(two.map((x) => engineLeg(x)), null); priced.bankBuilder.nba.card.price = 120;
+  assert.equal(comboFromSuggestedCards(priced, "bank-builder").reasons[0].code, "PRICED_CARD");
+  const flagged = comboFromSuggestedCards(suggested([engineLeg(two[0], { guard: { state: "review", flags: ["FAVOURED_ROTATION_R1"], rotationFlagged: [{ playerId: "1", name: "A Player", status: "Day-To-Day" }] } }), engineLeg(two[1])], null), "bank-builder");
+  has(comboViolations(flagged, ctx()), /availability guard FAVOURED_ROTATION_R1, R1 A Player Day-To-Day/);
+  has(comboViolations(comboFromSuggestedCards(suggested([engineLeg(two[0], { probabilityShown: "99%" }), engineLeg(two[1])], null), "bank-builder"), ctx()), /the engine shows 99%/);
+  const dtd = favoured.find((x) => !clearFav.includes(x));
+  has(comboViolations(comboFromSuggestedCards(suggested([engineLeg(dtd), engineLeg(two.find((x) => x.g !== dtd.g))], null), "bank-builder"), ctx()), /rotation player .* R1 Day-To-Day/);
+  const g = two[0].g; const side = g.elo.favoured === g.home.abbr ? "home" : "away";
+  const top = [...g.players[side]].sort((a, b) => b.expectedMinutes - a.expectedMinutes)[0];
+  has(comboViolations(comboFromSuggestedCards(suggested(two.map((x) => engineLeg(x)), null), "bank-builder"), ctx({ roster: { __guard: { [String(top.providerAthleteId)]: ["R1"] }, __cells: {} } })), /rotation player .* R1 on the current roster/);
 });

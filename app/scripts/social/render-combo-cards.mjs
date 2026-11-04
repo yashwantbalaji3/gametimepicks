@@ -6,6 +6,8 @@
  *
  *   cd app && npx tsx scripts/social/render-combo-cards.mjs --as-of <ISO> --combo <bank-builder.json>[,<moonshot.json>] \
  *       --roster <unified roster.json> [--out <dir outside the repo>] [--scales 1,2] [--no-png]
+ *   From the tiers engine's day file: --suggested-cards <gtp.suggested-cards@1 file> --combo-out <dir> writes its two
+ *   social combos (bank-builder.json, moonshot.json) to <dir> and renders them.
  *
  * The combo comes from the engine (gtp.products.social-combo@1). The lane is the committed public lane for the combo's
  * slate, read from this checkout or, when absent here, from GTP_DATA_COMMIT. Any failed check (data, identity,
@@ -21,7 +23,7 @@ import { fileURLToPath } from "node:url";
 import { APP, DEFAULT_PRIVATE_ROOT, assertPrivateOutDir } from "./nba-line-graphics-io.mjs";
 import { parseArgs, writePackages } from "./render-social-pack.mjs";
 import { COMBO_DESIGN_VERSION, COMBO_DISCLOSURE, PRICING_TEXT, comboCard, comboLayoutErrors, riskText, verifyComboCard } from "./combo-cards.mjs";
-import { COMBO_FRESHNESS, SOCIAL_COMBO_SCHEMA, resolveCombo } from "../../src/lib/social/combo-social.mjs";
+import { COMBO_FRESHNESS, COMBO_STATE, SOCIAL_COMBO_SCHEMA, comboFromSuggestedCards, resolveCombo } from "../../src/lib/social/combo-social.mjs";
 import { CONTENT_TYPE, ELIGIBILITY, etLabel, instant, toIso } from "../../src/lib/social/social-package.mjs";
 import { slateWord } from "../../src/lib/social/approved-captions.mjs";
 
@@ -76,14 +78,13 @@ export function prepareCombo({ comboPath, asOf, rosterPath = null, lane: laneIn 
   const contentType = TYPE[doc.product] ?? `COMBO_${doc.product}`;
   const refuse = (reason) => ({ posts: [], refused: [{ contentType, date: doc.slateDate ?? null, testData: doc.testData === true, reason }] });
   if (doc.schema !== SOCIAL_COMBO_SCHEMA) return refuse(`schema ${doc.schema}`);
-  if (doc.state !== "QUALIFIED") return refuse(`NO_QUALIFYING_COMBINATION: ${(doc.reasons ?? []).map((r) => r.text ?? r.code).join("; ") || "no reason given"}`);
+  if (doc.state !== COMBO_STATE.CARD) return refuse(`NO_QUALIFYING_COMBINATION: ${(doc.reasons ?? []).map((r) => r.text ?? r.code).join("; ") || "no reason given"}`);
   let lane = laneIn; let laneSha256 = laneShaIn; let laneRel = `app/public/data/nba/experimental-public/${doc.slateDate}.json`;
   if (!lane) { const l = laneBytes(doc.slateDate); lane = JSON.parse(l.bytes.toString("utf8")); laneSha256 = sha(l.bytes); laneRel = l.rel; }
-  const hasPlayer = (doc.combination?.legs ?? []).some((l) => l.kind === "PLAYER_PROJECTION");
   let roster = rosterIn; let rosterRef = null;
   let comboRef;
   try { comboRef = refOf(comboPath, bytes); if (!roster && rosterPath) { const rb = fs.readFileSync(rosterPath); roster = JSON.parse(rb.toString("utf8")); rosterRef = refOf(rosterPath, rb); } } catch (e) { return refuse(e.message); }
-  if (hasPlayer && !roster) return refuse("NO_ROSTER: the R1-R3 availability guard needs the slate's unified roster (--roster)");
+  if (!roster) return refuse("NO_ROSTER: the R1-R3 availability guard needs the slate's render-time unified roster (--roster)");
   if (rosterRef && doc.source?.roster?.sha256 && doc.source.roster.sha256 !== rosterRef.sha256) return refuse("the combo was checked against a different roster file");
   let combo;
   try { combo = resolveCombo(doc, { lane, laneSha256, asOf, roster }); } catch (e) { return refuse(e.message); }
@@ -104,7 +105,7 @@ export function prepareCombo({ comboPath, asOf, rosterPath = null, lane: laneIn 
     eligibilityClass: ELIGIBILITY.ESTIMATE, validationStatus: { state: ELIGIBILITY.ESTIMATE, label: "MODEL PROJECTION", blocksDisplay: false }, displayStatus: "SHOW_WITH_ESTIMATE_LABEL",
     disclosures: [COMBO_DISCLOSURE, PRICING_TEXT[combo.pricing], riskText(combo)],
     title: `NBA ${combo.label} ${doc.slateDate}${combo.testData ? " (TEST)" : ""}`, firstStartUtc: combo.firstTipUtc,
-    checks: ["social-combo@1 contentSha256", "every leg == committed lane (game, tip, team, player, projection)", "availability: leg guard, lane R1, roster __guard R1-R3, __cells, review rows", `freshness: lane <= combo <= asOf < first tip - ${COMBO_FRESHNESS.cutoffMin} min, combo <= ${COMBO_FRESHNESS.maxAgeHours} h`, "no price, line, book or payout on image", "card cells == resolved text", "fit pass"],
+    checks: ["social-combo@1 contentSha256", "every leg == committed lane (game, tip, team, player, projection)", "availability: leg guard, lane R1, roster __guard R1-R3, __cells, review rows; winner legs: top-five rotation R1", `freshness: lane <= combo <= asOf < first tip - ${COMBO_FRESHNESS.cutoffMin} min; availability from the render-time roster`, "no price, line, book or payout on image", "card cells == resolved text", "fit pass"],
     window: { opensAt: asOf, closesAt: toIso(closes) }, recommended, recommendedNote: "the combo slot before the first tip has passed",
     freshness: { asOf, sourceGeneratedAt: doc.asOf, laneGeneratedAt: lane.generatedAt, ageHours: Math.round(((instant(asOf) - instant(doc.asOf)) / 3.6e6) * 10) / 10, expiresAt: toIso(closes), rule: `valid until ${COMBO_FRESHNESS.cutoffMin} minutes before the first leg tips` },
     content: { sources: { combo: comboRef.ref, roster: rosterRef?.ref ?? null }, product: doc.product, policyId: doc.policyId, testData: combo.testData, pricing: combo.pricing, jointShown: combo.joint != null, legs: combo.legs.map((l) => ({ legId: l.legId, eventId: l.eventId, kind: l.kind, team: l.team.abbr, opponent: l.opponent.abbr, player: l.player, market: l.market, projection: l.projection, target: l.targetText })), socialAuthorized: false },
@@ -115,7 +116,13 @@ async function main(argv) {
   const a = parseArgs(argv);
   const asOf = a["as-of"];
   if (!/T.*(Z|[+-]\d\d:\d\d)$/.test(String(asOf)) || !Number.isFinite(Date.parse(asOf))) throw new Error("--as-of <ISO instant with zone> is required (no clock is read)");
-  if (!a.combo) throw new Error("--combo <file>[,<file>] is required");
+  if (a["suggested-cards"]) {
+    const file = JSON.parse(fs.readFileSync(a["suggested-cards"], "utf8"));
+    if (!a["combo-out"]) throw new Error("--combo-out <dir> is required with --suggested-cards");
+    fs.mkdirSync(a["combo-out"], { recursive: true });
+    a.combo = ["bank-builder", "moonshot"].map((product) => { const f = path.join(a["combo-out"], `${product}.json`); fs.writeFileSync(f, `${JSON.stringify(comboFromSuggestedCards(file, product), null, 2)}\n`); return f; }).join(",");
+  }
+  if (!a.combo) throw new Error("--combo <file>[,<file>] or --suggested-cards <file> is required");
   const outRoot = assertPrivateOutDir(a.out ?? path.join(DEFAULT_PRIVATE_ROOT, "packages"));
   const posts = []; const refused = [];
   for (const f of String(a.combo).split(",")) {
