@@ -32,6 +32,7 @@ import { BBM_DESIGN_VERSION, FACT_LINE, bbmCard, bbmLayoutErrors, cents, verifyB
 import { BBM_LANES, VIEW, laneView, pricedDay, privateBankrollCents, socialPricesOk } from "../../src/lib/social/bbm-lane.mjs";
 import { readLaneProjection } from "../../src/lib/challenge-lanes/public-reader.mjs";
 import { laneDisplay } from "../../src/lib/challenge-lanes/display.mjs";
+import { teamOf } from "./game-day-cards.mjs";
 import { lanePriceDisplay } from "../../src/lib/challenge-lanes/price-display.mjs";
 import { currentRun } from "../../src/lib/challenge-lanes/store.mjs";
 import { MARKET_SHORT, comboFromSuggestedCards, resolveCombo, suggestedCardsSealed } from "../../src/lib/social/combo-social.mjs";
@@ -200,9 +201,40 @@ export function laneCaption(p) {
   if (v.view === VIEW.NO_ELIGIBLE_CARD) return `${head}${held} · Still step ${v.step} of ${v.steps}`;
   return `${head} · ${cents(v.bankrollCents)} of ${cents(v.targetCents)}`;
 }
+/**
+ * X's weighted length (twitter-text v3): code points in the Latin and general-punctuation ranges weigh 1, everything
+ * else (emoji, CJK) 2. A post holds 280.
+ */
+export const X_LIMIT = 280;
+export function xWeighted(text) {
+  let n = 0;
+  for (const ch of String(text)) {
+    const c = ch.codePointAt(0);
+    n += c <= 4351 || (c >= 8192 && c <= 8205) || (c >= 8208 && c <= 8223) || (c >= 8242 && c <= 8247) ? 1 : 2;
+  }
+  return n;
+}
+const shortName = (l) => (l.kind === "GAME_WINNER" ? teamOf(l.team.abbr, l.team.name).nickname : String(l.player?.name ?? "").split(" ").at(-1));
+/** A lane in one or two short lines: its status and step, then its legs (with their model numbers when `pct`). */
+function laneShort(p, pct) {
+  const v = p.view; const L = `Lane ${v.letter}`;
+  if (v.view === VIEW.CARD || v.view === VIEW.WON) return `${L} · ${title(v.badge)} · Step ${v.step} of ${v.steps}${v.view === VIEW.WON ? " won" : ""}\n${p.combo.legs.map((l) => (pct ? `${shortName(l)} ${l.projectionText}` : shortName(l))).join(", ")}`;
+  return laneCaption(p);
+}
+/**
+ * The post's caption, within X's 280 (PD 2026-11-04): the full form when it fits, else short lanes with each leg's model
+ * win probability, else short lanes with team names only. Player status notes stay on the graphic. Never a price.
+ */
 export function packageCaption(product, lanes, date) {
-  const title = product === "bank-builder" ? `🏦 Bank Builder · ${DAY.format(new Date(`${date}T12:00:00Z`))}` : `🚀 Moonshot · ${DAY.format(new Date(`${date}T12:00:00Z`))}`;
-  return [title, ...lanes.map(laneCaption), "Tracked challenge, no real wager placed.", "#NBA"].join("\n\n");
+  const head = product === "bank-builder" ? `🏦 Bank Builder · ${DAY.format(new Date(`${date}T12:00:00Z`))}` : `🚀 Moonshot · ${DAY.format(new Date(`${date}T12:00:00Z`))}`;
+  const flags = lanes.some((p) => p.combo?.legs?.some((l) => (l.flagText ?? []).length));
+  const tail = "Tracked challenge, no real wager placed. #NBA";
+  const forms = [
+    [head, ...lanes.map(laneCaption), tail],
+    [head, ...lanes.map((p) => laneShort(p, true)), `Percentages are model win probabilities${flags ? "; player status notes on the graphic" : ""}.`, tail],
+    [head, ...lanes.map((p) => laneShort(p, false)), `Model win probabilities${flags ? " and player status" : ""} on the graphic.`, tail],
+  ].map((f) => f.join("\n\n"));
+  return forms.find((t) => xWeighted(t) <= X_LIMIT) ?? forms.at(-1);
 }
 
 /**
@@ -232,6 +264,7 @@ export function stagingViolations(plans, outRoot, { displayRecord = undefined } 
   const v = [];
   const abs = path.resolve(outRoot);
   if (abs === LIVE_PACKAGES || abs.startsWith(LIVE_PACKAGES + path.sep) || LIVE_PACKAGES.startsWith(abs + path.sep)) v.push(`${abs}: V2 packages never go to the live packages folder before the cut-over is approved`);
+  for (const p of plans) if (xWeighted(p.caption) > X_LIMIT) v.push(`${p.packageId}: the caption is ${xWeighted(p.caption)} X-weighted characters (limit ${X_LIMIT})`);
   for (const p of plans) if (CAPTION_PRICE_TEXT.test(p.caption)) v.push(`${p.packageId}: the caption carries price language (${p.caption.match(CAPTION_PRICE_TEXT)[0]}); prices appear only on the image`);
   for (const p of plans) for (const l of p.lanes) if (!l.parity?.ok) v.push(`${p.packageId}/${l.laneId}: parity with the engine record is ${l.parity ? `broken (${l.parity.mismatches.join("; ")})` : "missing"}`);
   for (const p of plans) for (const l of p.lanes) {
@@ -277,7 +310,7 @@ export async function writeStaging(plans, { outRoot, browser, commit = rendererC
       fs.writeFileSync(path.join(dir, "caption.txt"), p.caption);
       const manifest = {
         schema: BBM_PACKAGE_SCHEMA, packageId: p.packageId, kind: p.kind, date: p.date, lanes: p.lanes.map((l) => l.laneId), media,
-        caption: { text: p.caption, sha256: sha(Buffer.from(p.caption, "utf8")) },
+        caption: { text: p.caption, sha256: sha(Buffer.from(p.caption, "utf8")), xWeighted: xWeighted(p.caption) },
         needsFounderReview: p.needsFounderReview, rendererCommit: commit, designVersion: BBM_DESIGN_VERSION,
         sources: p.lanes.map((l) => ({ laneId: l.laneId, laneLogRef: lanesRef[l.laneId] ?? null, projectionSha256: l.projectionSha256, runId: l.view.runId, eventSha256: drawnEventSha(l.view), suggestedCardsSha256: l.view.card?.suggestedCardsSha256 ?? null })),
         laneStatus: Object.fromEntries(p.lanes.map((l) => [l.laneId, l.view.view])),

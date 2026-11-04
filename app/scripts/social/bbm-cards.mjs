@@ -138,7 +138,7 @@ const OUTCOME_TEXT = Object.freeze({ WIN: "LANDED", LOSS: "MISSED", VOID: "VOID"
 
 /** American odds as printed: +264, -110 (ASCII hyphen: the house rule bans typographic dashes on images). */
 export const american = (n) => (Number.isFinite(n) ? `${n > 0 ? "+" : "-"}${Math.abs(Math.round(n))}` : null);
-const ET_CLOCK = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" });
+const ET_CLOCK = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 
 function legHtml(cells, l, i, outcome, price = null) {
   const t = teamOf(l.team.abbr, l.team.name);
@@ -177,7 +177,8 @@ function paceHtml(cells, v) {
   if (!v.pace) return "";
   if (v.pace.state === "WITHHELD") return `<div class="bv-pace WITHHELD" data-pace="WITHHELD">${cell(cells, "pace", "PACE WITHHELD UNTIL VERIFIED PRICES")}</div>`;
   const below = v.payout?.belowPace ? " · this card prices below pace" : "";
-  const text = (v.pace.state === "ON_PACE" ? `On pace · next milestone ${cents(v.pace.nextMilestoneCents)}` : `Behind pace by ${cents(v.pace.shortfallCents)} · milestone ${cents(v.pace.milestoneCents)}`) + below;
+  // Lane-level (PD 2026-11-04): the lane's step and next milestone, never "on pace" beside a card that prices below it.
+  const text = (v.pace.state === "ON_PACE" ? `Step ${v.step} · next milestone ${cents(v.pace.nextMilestoneCents)}` : `Behind pace by ${cents(v.pace.shortfallCents)} · milestone ${cents(v.pace.milestoneCents)}`) + below;
   return `<div class="bv-pace ${v.pace.state}" data-pace="${v.pace.state}">${cell(cells, "pace", text.toUpperCase())}</div>`;
 }
 

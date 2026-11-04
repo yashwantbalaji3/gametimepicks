@@ -24,7 +24,7 @@ import { laneProjection } from "../challenge-lanes/projection.mjs";
 import { laneDisplay } from "../challenge-lanes/display.mjs";
 import { eloWinProbabilityOf } from "../sports/nba/elo-win-probability.mjs";
 import { AWAITING, FACT_LINE, REMOVED_TEXT, SAMPLE_PRICE_RIBBON, TEST_RIBBON, bbmCard as bbmCardFor, verifyBbmCard } from "../../../scripts/social/bbm-cards.mjs";
-import { CAPTION_PRICE_TEXT, LIVE_PACKAGES, engineCardFor, parityRow, packageCaption, planPackages, prepareLane, stagingViolations, writeStaging } from "../../../scripts/social/render-bbm.mjs";
+import { CAPTION_PRICE_TEXT, LIVE_PACKAGES, engineCardFor, parityRow, xWeighted, packageCaption, planPackages, prepareLane, stagingViolations, writeStaging } from "../../../scripts/social/render-bbm.mjs";
 import { visibleText } from "../../../scripts/social/nba-line-cards.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -127,7 +127,7 @@ test("cards: the removed banners and sentences are absent; badge, STEP, ladder, 
     const t = textOf(p.card);
     for (const r of REMOVED_TEXT) assert.ok(!t.toLowerCase().includes(r.toLowerCase()), `${laneId}: ${r}`);
     for (const r of ["Model projections · Not betting advice", "MODEL-ONLY • NOT A SPORTSBOOK OFFER", "Both legs must land", "All 4 legs", "ESTIMATE", "est.", "projected median"]) assert.ok(!t.includes(r), `${laneId}: ${r}`);
-    assert.match(t, /STEP 1 OF 5/); assert.match(t, /\bHELD\b/); assert.match(t, /ON PACE · NEXT MILESTONE/);
+    assert.match(t, /STEP 1 OF 5/); assert.match(t, /\bHELD\b/); assert.match(t, /STEP 1 · NEXT MILESTONE \$/); assert.doesNotMatch(t, /ON PACE/);
     for (const s of ["START", "TRACKED", "GOAL", "MODEL PROJECTION", "MODEL WIN PROBABILITY", "WAGER", "LADDER PROGRESS", FACT_LINE]) assert.ok(t.toUpperCase().includes(s.toUpperCase()), `${laneId}: ${s}`);
     for (const k of [1, 2, 3, 4, 5]) assert.ok(`ladder.m${k}` in p.card.cells);
     assert.ok(p.card.html.includes('class="logo"'), "the real logo");
@@ -186,7 +186,12 @@ test("packages: exactly two posts with four ordered images (bb-a, bb-b; ms-a, ms
   assert.ok(!plans.some((p) => /^ms-[ab]-/.test(p.packageId)), "no retired ms-a-/ms-b- packages");
   assert.deepEqual(planPackages([prep(projection("bb-a")), prep(projection("ms-a"))], DATE), [], "no one-image post");
   const bb = plans.find((p) => p.packageId === `bb-${DATE}`).caption;
-  assert.match(bb, /Lane A · Held \(awaiting verification\) · Step 1 of 5/); assert.match(bb, /Lane B · Held \(awaiting verification\) · Step 1 of 5/); assert.match(bb, /no real wager placed/);
+  assert.match(bb, /Lane A · (Held \(awaiting verification\)|Held) · Step 1 of 5/); assert.match(bb, /Lane B · /); assert.match(bb, /no real wager placed/);
+  for (const p of plans) assert.ok(xWeighted(p.caption) <= 280, `${p.packageId} caption ${xWeighted(p.caption)}`);
+  // An over-long caption is refused at staging.
+  const outC = fs.mkdtempSync(path.join(os.tmpdir(), "bbm-"));
+  assert.match(stagingViolations([{ ...plans[0], caption: "x".repeat(281) }], outC).join(";"), /X-weighted/);
+  fs.rmSync(outC, { recursive: true, force: true });
   const msCap = plans.find((p) => p.packageId === `ms-${DATE}`).caption;
   assert.match(msCap, /Lane A · Held \(no qualifying card today\) · Still step 1 of 5/); assert.match(msCap, /Lane B · Held/);
   for (const p of plans) for (const w of [/odds/i, /parlay/i, /payout/i, /[+-]\d{3}\b/, /must land/i, /betting advice/i, /sportsbook/i]) assert.doesNotMatch(p.caption, w);
@@ -197,7 +202,7 @@ test("five-step ladder: engine milestones, pace and every status badge; A and B 
   assert.deepEqual(v.rungs.map((r) => r.milestoneCents), [30000, 90000, 270000, 650000, 1000000]);
   assert.deepEqual(laneView(projection("ms-a"), DATE).rungs.map((r) => r.milestoneCents), [7500, 18000, 36000, 65000, 100000]);
   assert.equal(v.pace.state, "ON_PACE"); assert.equal(v.pace.nextMilestoneCents, 30000);
-  assert.match(textOf(prep(projection("bb-a")).card), /ON PACE · NEXT MILESTONE \$300/);
+  assert.match(textOf(prep(projection("bb-a")).card), /STEP 1 · NEXT MILESTONE \$300/);
   // Step 1 won to $250 (below its $300 milestone), step 2 frozen and staked: behind pace, ACTIVE (fixture: post-P1 money).
   const ev2 = [frozen("bb-b"), staked(), ...LEGS.map((l) => legSettled(l.legId, "WIN")), stepSettled("WIN", 10000, 25000), frozen("bb-b", { date: NEXT, step: 2, packageId: `bb-${NEXT}` }), staked(NEXT, 2, 25000)];
   const behind = unwithheld(projection("bb-b", ev2), 25000, { withheld: null, milestoneCents: 30000, onPace: false, behindByCents: 5000, requiredMultiplier: null });
@@ -282,7 +287,7 @@ test("priced (founder 2026-11-04): odds, book, capture time, leg-product combine
   assert.equal(p.card.cells["money.payout"], `$${(pc.grossPayoutCents / 100).toFixed(2)}`.replace(/\.00$/, ""));
   assert.equal(p.card.cells["money.profit"], `$${(pc.profitCents / 100).toFixed(2)}`.replace(/\.00$/, ""));
   assert.match(p.card.cells["price.combined"], /^Combined \+\d+ · leg product$/);
-  assert.match(p.card.cells["price.source"], /^Odds DraftKings · captured \d{1,2}:\d\d [AP]M ET$/);
+  assert.match(p.card.cells["price.source"], /^Odds DraftKings · captured [A-Z][a-z]{2} \d{1,2}, \d{1,2}:\d\d [AP]M ET$/);
   assert.deepEqual(Object.entries(p.card.cells).filter(([k]) => k.endsWith(".odds")).map(([, v]) => v).sort(), ["-150", "-200"]);
   assert.equal(p.view.badge, BADGE.ACTIVE); assert.ok(!t.includes(SAMPLE_PRICE_RIBBON), "a real price carries no SAMPLE ribbon");
   assert.equal(p.view.payout.belowPace, pc.inputs.decimalPrice < pc.inputs.pace);
@@ -342,7 +347,7 @@ test("preliminary prices (founder P0 2026-11-04): tagged on the image, flagged o
   const [plan] = planPackages([p, prep(statusDoc("bb-b"))], DATE);
   assert.equal(plan.needsFounderReview, "preliminary-prices");
   // Captions carry the model's numbers, never a price, payout, line or book (PD 2026-11-04).
-  assert.match(plan.caption, /to win · model win probability \d+%/); assert.match(plan.caption, /Tracked challenge, no real wager placed/);
+  assert.match(plan.caption, /Lane A · Active · Step 1 of 5\n\S+ \d+%, \S+ \d+%/); assert.ok(xWeighted(plan.caption) <= 280); assert.match(plan.caption, /Tracked challenge, no real wager placed/);
   assert.doesNotMatch(plan.caption, CAPTION_PRICE_TEXT);
   const out = fs.mkdtempSync(path.join(os.tmpdir(), "bbm-"));
   assert.deepEqual(stagingViolations([plan], out, { displayRecord: SOCIAL_ON }), []);
