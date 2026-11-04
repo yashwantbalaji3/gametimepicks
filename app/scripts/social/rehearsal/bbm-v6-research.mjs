@@ -11,6 +11,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
+import { execFileSync } from "node:child_process";
 
 import { parseArgs } from "../render-social-pack.mjs";
 import { X_LIMIT, CAPTION_PRICE_TEXT, rendererCommit, xWeighted } from "../render-bbm.mjs";
@@ -211,21 +212,24 @@ const { chromium } = require("playwright");
 const browser = await chromium.launch();
 const layout = await bbmV6LayoutErrors(browser, cards.map((m) => m.card));
 const full = await browser.newPage({ viewport: { width: 1080, height: 1350 } });
-const mobile = await browser.newPage({ viewport: { width: 1080, height: 1350 }, deviceScaleFactor: 400 / 1080 });
-// Phone and X-feed checks (founder 2026-11-04): 390 px wide and a 600 px timeline preview.
-const p390 = await browser.newPage({ viewport: { width: 1080, height: 1350 }, deviceScaleFactor: 390 / 1080 });
-const pX = await browser.newPage({ viewport: { width: 1080, height: 1350 }, deviceScaleFactor: 600 / 1080 });
+// Smaller copies are DERIVED from the full PNG with a fixed Lanczos resize (byte-deterministic); a fractional-DPR browser
+// render is not (PD 2026-11-04: one 400 px copy differed between two renders of identical HTML).
+const derive = (src, dst, w) => execFileSync("python3", ["-I", "-c", "import sys\nfrom PIL import Image\nim=Image.open(sys.argv[1]).convert('RGB')\nw=int(sys.argv[3])\nim.resize((w,round(im.height*w/im.width)),Image.LANCZOS).save(sys.argv[2],format='PNG',optimize=False)", src, dst, String(w)]);
 const rows = [];
 try {
   for (const d of ["full", "mobile", "captions", "check"]) fs.mkdirSync(path.join(out, d), { recursive: true });
   const shoot = async (m) => {
     const shots = {};
-    for (const [pg, d, suf] of [[full, "full", ""], [mobile, "mobile", "-400w"], [p390, "check", "-390w"], [pX, "check", "-x600w"]]) {
-      await pg.setContent(m.card.html, { waitUntil: "load" });
-      await pg.evaluate(() => document.fonts.ready); // eslint-disable-line no-undef
-      const b = await pg.screenshot({ type: "png" });
-      fs.writeFileSync(path.join(out, d, `${m.name}${suf}.png`), b);
-      shots[d] = sha(b);
+    await full.setContent(m.card.html, { waitUntil: "load" });
+    await full.evaluate(() => document.fonts.ready); // eslint-disable-line no-undef
+    const b = await full.screenshot({ type: "png" });
+    const fullPath = path.join(out, "full", `${m.name}.png`);
+    fs.writeFileSync(fullPath, b);
+    shots.full = sha(b);
+    for (const [d, suf, w] of [["mobile", "-400w", 400], ["check", "-390w", 390], ["check", "-x600w", 600]]) {
+      const f = path.join(out, d, `${m.name}${suf}.png`);
+      derive(fullPath, f, w);
+      if (d === "mobile") shots.mobile = sha(fs.readFileSync(f));
     }
     return shots;
   };
