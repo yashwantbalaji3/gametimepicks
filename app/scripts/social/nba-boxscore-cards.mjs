@@ -186,7 +186,10 @@ export function gamePostPage(doc, eventId, perTeam = GAME_POST_PER_TEAM, flagged
   const pts = (p) => (p.cells.pts ? p.cells.pts.model.value : -Infinity);
   const top = (list) => [...list].sort((a, b) => minutesOf(b) - minutesOf(a) || pts(b) - pts(a) || a.playerId.localeCompare(b.playerId)).slice(0, perTeam)
     .sort((a, b) => pts(b) - pts(a) || a.playerId.localeCompare(b.playerId));
-  return [{ ...g, page: 1, pages: 1, awayPlayers: top(g.awayPlayers), homePlayers: top(g.homePlayers), selectionRule: GAME_POST_SELECTION_RULE }];
+  const [a, h] = [top(g.awayPlayers), top(g.homePlayers)];
+  // Fewer than perTeam eligible players is stated on the image, never padded (founder spec: top 4 per team).
+  const short = [[g.away, a.length], [g.home, h.length]].filter(([, n]) => n < perTeam).map(([team, n]) => ({ team, n }));
+  return [{ ...g, page: 1, pages: 1, awayPlayers: a, homePlayers: h, selectionRule: GAME_POST_SELECTION_RULE, shortTeams: short }];
 }
 
 /** The founder's snapshot label (2026-11-04): each distinct capture time on the page, never "live". */
@@ -196,6 +199,9 @@ export function snapshotLabelText(page) {
   const times = [...new Set(pageComparedRows(page).map((r) => r.market.quotedAt.iso).sort().map(etTime))];
   return `${SNAPSHOT_LABEL} · ${times.join(" / ")} ET`;
 }
+
+/** "PHI: 3 QUALIFIED PLAYERS" for each side with fewer than the game-post count (the rule's honest shortfall). */
+export const shortTeamsText = (page) => (page.shortTeams ?? []).map(({ team, n }) => `${team}: ${n} qualified player${n === 1 ? "" : "s"}`).join(" · ");
 
 /** Every cell of a page in print order: [{ id, entry, cell }]. */
 export function pageCells(doc, page, o = {}) {
@@ -312,6 +318,7 @@ ${test ? `<div class="watermark">${esc(TEST_WATERMARK)}</div>` : ""}
 <div class="kicker">Projections vs sportsbook lines</div>
 <div class="matchup">${esc(`${page.away} @ ${page.home}${page.pages > 1 ? ` · ${page.page} of ${page.pages}` : ""}`)}</div>
 ${doc.snapshotException ? `<div class="matchup" data-snapshot="1" style="font-size:22px;letter-spacing:3px;color:#D4AF37">${esc(snapshotLabelText(page))}</div>` : ""}
+${(page.shortTeams ?? []).length ? `<div class="matchup" data-short="1" style="font-size:20px;letter-spacing:2px;color:#B4BEB8">${esc(shortTeamsText(page))}</div>` : ""}
 <section class="lines" data-event-id="${esc(eventId)}">
 ${panel(awayT, page.awayPlayers, o, doc, eventId)}
 ${panel(homeT, page.homePlayers, o, doc, eventId)}
@@ -373,6 +380,7 @@ export function verifyBoxScoreCardHtml(html, doc, page, o = {}) {
   for (const r of pageComparedRows(page)) if (r.market.book?.label && text.includes(r.market.book.label)) v.push(`book name on the card: ${r.market.book.label}`);
   const snap = doc.snapshotException ? snapshotLabelText(page) : null;
   if (snap && !text.includes(snap)) v.push(`snapshot label missing: ${snap}`);
+  if ((page.shortTeams ?? []).length && !text.includes(shortTeamsText(page))) v.push(`shortfall line missing: ${shortTeamsText(page)}`);
   const plain = snap ? text.split(snap).join(" ") : text;
   for (const w of JARGON) if (wordIn(plain, w)) v.push(`internal term on the card: ${w}`);
   if (/c-diff|class="diff|difference/i.test(html.replace(/<style>[\s\S]*?<\/style>/, ""))) v.push("a difference column is on the card");
