@@ -228,3 +228,18 @@ test("RESEARCH with a contextual block: the contextual rate is the evidence; its
   assert.equal(high.rankKeys.flagCount, 2, "HIGH counts twice");
   assert.ok(ev({ primary: { rate: 0.7 }, flagLevel: "LOW", exclude: true, excludeReason: "player himself DAY_TO_DAY" }).reasons.some((x) => x.startsWith("C_LINEUP_EXCLUDED")));
 });
+
+test("research card record: selection label and flag codes public; evidence line, flag text and lineup context private", async () => {
+  const { publicLeg, privateLeg, SELECTION_LABEL } = await import("./card-fields.mjs");
+  const cap = capture([["1", "p1", "pts", 20.5, -150, 120]]);
+  const r = evaluateLevelSet([legFromShortlist(row({ role: { minutesAvg: 30, minutesSd: 12, gamesPlayed: 8, stable: false }, hitRate: { windows: [{ window: "last10", hits: 7, n: 10 }, { window: "last20", hits: 13, n: 20 }, { window: "2025-26", hits: 45, n: 70 }], shrunk: { rate: 0.64, nEffective: 84 } }, lineup: { ...row().lineup, sensitive: true, contextual: { primary: { rate: 0.66, interval95: [0.55, 0.75], nEff: 70, exact: { hits: 2, games: 2 } }, flagLevel: "HIGH", exclude: false, expectedLineup: "Star out", uncertainTeammates: [{ name: "Wing" }] } } }))], ctx(cap, MS1, { params: { mode: "RESEARCH" } }));
+  const card = levelCardRecord(r, { laneId: "ms-a", date: "2026-11-04" });
+  assert.deepEqual([card.selectionMode, card.selectionLabel], ["RESEARCH", SELECTION_LABEL.RESEARCH]);
+  assert.deepEqual(card.flags.map((f) => [f.code, f.level]), [["B_ROLE_UNSTABLE", null], ["B_MINUTES_VOLATILE", null], ["C_LINEUP_HIGH", "HIGH"]]);
+  const pub = JSON.stringify({ ...card, legs: card.legs.map(publicLeg) });
+  assert.ok(!/flagText|lineupContext|7\/10|0\.66|20\.5/.test(pub.replace(/"money":\{[^}]*\}|"combined":\{[^}]*\}|"reasons":\[[^\]]*\]/g, "")), "public legs carry no flag text, counts, rates or line");
+  const priv = privateLeg(card.legs[0]);
+  assert.equal(priv.evidenceLine, "Hit 7/10 L10 · 13/20 L20");
+  assert.equal(priv.flagText.length, 3);
+  assert.deepEqual(priv.lineup, { expectedLineup: "Star out", exact: { hits: 2, games: 2 }, uncertainTeammates: ["Wing"] });
+});

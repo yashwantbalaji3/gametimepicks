@@ -8,7 +8,7 @@
  * (`gtp.challenge-research.prices@1`, aad `challenge-research/<product>`), bound to the public file by its sha.
  */
 import { canonical, sha256 } from "./chain.mjs";
-import { publicLeg, privateLeg, EVIDENCE_LABEL } from "./card-fields.mjs";
+import { publicLeg, privateLeg, EVIDENCE_LABEL, SELECTION_LABEL, publicFlags } from "./card-fields.mjs";
 
 export const RESEARCH_SCHEMA = "gtp.challenge-research.public@1";
 export const RESEARCH_PRICES_SCHEMA = "gtp.challenge-research.prices@1";
@@ -32,7 +32,7 @@ export function researchDocs({ product, date, evaluation, held = {}, maxCandidat
     candidates: picked.map(({ c, status }) => ({
       candidateId: c.candidateId, status, rank: c.rank ?? null, evidenceClass: c.classification === "HOLD" ? null : c.classification, evidenceLabel: EVIDENCE_LABEL[c.classification] ?? null,
       legs: c.legs.map((l) => publicLeg({ legId: l.legId, sport: l.sport, gameId: l.gameId, eventLabel: l.eventLabel, startUtc: l.startUtc, market: l.market, family: l.family, player: l.player, team: l.team, side: l.side, projection: l.projection ?? null })),
-      reasonCodes: codes(c.reasons),
+      reasonCodes: codes(c.reasons), selectionLabel: SELECTION_LABEL[c.selectionMode] ?? null, flags: publicFlags(c.flags),
     })),
   };
   const pub = { ...doc, contentSha256: sha256(canonical(doc)) };
@@ -40,7 +40,7 @@ export function researchDocs({ product, date, evaluation, held = {}, maxCandidat
     schema: RESEARCH_PRICES_SCHEMA, product, date, publicSha256: pub.contentSha256,
     candidates: picked.map(({ c }) => ({
       candidateId: c.candidateId, combined: c.price ? { label: c.price.label, decimal: c.price.decimal, american: c.price.american, book: c.price.book } : null,
-      legs: c.legs.map((l) => privateLeg({ legId: l.legId, line: l.line, side: l.side, book: l.quote?.book, price: l.quote?.american, quotedAt: l.quote?.quotedAt, fetchedAt: l.quote?.fetchedAt, hitRate: l.hitRate })),
+      legs: c.legs.map((l) => privateLeg({ legId: l.legId, line: l.line, side: l.side, book: l.quote?.book, price: l.quote?.american, quotedAt: l.quote?.quotedAt, fetchedAt: l.quote?.fetchedAt, hitRate: l.hitRate, flagText: (c.flags ?? []).filter((f) => String(f).split(" ")[1]?.replace(/:$/, "") === l.legId && !/_WEIGHT /.test(f)) })),
       reasons: c.reasons,
     })),
   };
