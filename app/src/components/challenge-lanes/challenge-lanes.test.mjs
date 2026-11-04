@@ -553,6 +553,108 @@ test("PARITY on the engine's v2 sample: 4 states (retired+active, lost) green; a
   assert.ok(failures.includes("ms-a leg cap") && failures.includes("ms-a leg count"), failures.join(", "));
 });
 
+/** The engine's v2 ms-a sample with leg 1 turned into a LEVEL B points prop (field names as proposed to betting-engine,
+    2026-11-04): player/side/projection.value public; line and k/n hit rates only in the price display. */
+async function propSample({ foldEvidence = true } = {}) {
+  const { sampleOutputs } = await import("../../../scripts/challenge-lanes/v2-sample.mjs");
+  const { pricedLaneDisplay } = await import("../../lib/challenge-lanes/display.mjs");
+  const o = structuredClone(sampleOutputs().find((x) => x.laneId === "ms-a"));
+  const B = "Historical hit-rate research (experimental)";
+  const day = o.pub.runs.at(-1).days.at(-1);
+  Object.assign(day, { evidenceClass: "LEVEL_B", evidenceLabel: B });
+  const leg = day.card.legs[0];
+  Object.assign(leg, { market: "pts", side: "Over", player: { id: "p1", name: "Test Player", team: leg.selection?.teamAbbr }, projection: { ...leg.projection, value: 27.4 }, evidenceClass: "LEVEL_B", evidenceLabel: B });
+  o.pub = reseal(o.pub);
+  o.prices.projectionSha256 = o.pub.contentSha256;
+  const pl = o.prices.runs.at(-1).days.at(-1).legs.find((l) => l.legId === leg.legId);
+  Object.assign(pl, { line: 25.5, hitRates: [{ window: "last 10", k: 7, n: 10 }, { window: "season", k: 4, n: 6 }] });
+  o.priced = pricedLaneDisplay(o.pub, o.prices);
+  /* Stand-in for the engine's fold carrying the day's class (its dayView does not yet). */
+  if (foldEvidence) Object.assign(o.priced.day, { evidenceClass: "LEVEL_B", evidenceLabel: B });
+  return { o, date: day.date, legId: leg.legId };
+}
+
+test("EVIDENCE + PROPS: the class badge and label verbatim; a prop leg shows player, side, line, market, odds and k/n hit rates — never a hit-rate percentage", async () => {
+  const { o, date } = await propSample();
+  const view = lane.laneView(o.pub, { display: o.priced, productDay: date });
+  const leg = view.current.legs[0];
+  assert.deepEqual(leg.player, { name: "Test Player", team: leg.teamAbbr, side: "Over", market: "PTS" });
+  assert.equal(leg.projectionLabel, "MODEL PROJECTION");
+  assert.equal(leg.projection, "27.4");
+  assert.deepEqual(leg.price.hitRates, ["7 of 10 (last 10)", "4 of 6 (season)"]);
+  const h = html(React.createElement(LaneCard, { lane: view }));
+  const t = text(h);
+  assert.match(h, /data-lane-evidence="LEVEL_B"/);
+  assert.match(h, /data-leg-evidence="LEVEL_B"/);
+  assert.match(t, /Historical hit-rate research \(experimental\)/);
+  assert.match(t, /Test Player Over 25\.5 PTS/);
+  assert.match(t, /Hit rate 7 of 10 \(last 10\) · 4 of 6 \(season\)/);
+  assert.doesNotMatch(t, /70(\.0)?%|66\.7%|67%/, "a hit rate is never shown as a percentage or probability");
+  assert.doesNotMatch(t, /\bpick(s)?\b/i);
+  /* Malformed hit rates are dropped, never guessed. */
+  for (const bad of [{ k: 3, n: 0 }, { k: "7", n: 10 }, null]) assert.equal(lane.hitRateText(bad), null);
+});
+
+test("PARITY for evidence + props: green with the class folded; fail-closed (NOT_ON_SITE) when the fold drops it; drifted line or hit rate fails", async () => {
+  const { laneParity, parityReport } = await import("../../lib/products/challenge-lanes/parity.mjs");
+  const { o, date, legId } = await propSample();
+  const view = lane.laneView(o.pub, { display: o.priced, productDay: date });
+  const rep = parityReport([laneParity({ doc: o.pub, prices: o.prices, view })]);
+  assert.deepEqual(rep.failures, []);
+  for (const f of ["evidence class", "leg evidence", "prop players", "prop sides", "prop projections", "prop lines", "prop hit rates"]) assert.ok(rep.rows.some((r) => r.field === f && r.ok && r.engine), f);
+  const unfolded = await propSample({ foldEvidence: false });
+  const v2 = lane.laneView(unfolded.o.pub, { display: unfolded.o.priced, productDay: date });
+  assert.ok(parityReport([laneParity({ doc: unfolded.o.pub, prices: unfolded.o.prices, view: v2 })]).failures.includes("ms-a evidence class (NOT_ON_SITE)"));
+  const drift = structuredClone(view);
+  drift.current.legs[0].price = { ...drift.current.legs[0].price, line: 26.5, hitRates: ["8 of 10 (last 10)"] };
+  const failures = parityReport([laneParity({ doc: o.pub, prices: o.prices, view: drift })]).failures;
+  assert.ok(failures.includes("ms-a prop lines") && failures.includes("ms-a prop hit rates"), failures.join(", "));
+  assert.ok(legId);
+});
+
+test("RESEARCH CANDIDATES: its own section, NOT an official selection, no stake/payout/pick wording; stale lines withheld; official blocks refused; parity", async () => {
+  const { researchView } = await import("../../lib/products/challenge-lanes/research.mjs");
+  const { researchParity, parityReport } = await import("../../lib/products/challenge-lanes/parity.mjs");
+  const { default: ResearchCandidates } = await import("./research-candidates.tsx");
+  const block = {
+    official: false, date: "2030-01-03", label: "Research candidates — not official selections", heldReason: "Lane held: no qualified card.",
+    candidates: [
+      { candidateId: "c1", status: "UNDER_REVIEW", evidenceClass: "LEVEL_B", evidenceLabel: "Historical hit-rate research (experimental)", reason: "Hit-rate support only; model value not validated.",
+        legs: [{ legId: "l1", gameId: "931", eventLabel: "KKK @ LLL", market: "reb", side: "Under", player: { id: "p2", name: "Other Player", team: "KKK" }, projection: { value: 8.25 } }] },
+      { candidateId: "c2", status: "RESEARCH", legs: [{ legId: "l2", gameId: "932", eventLabel: "MMM @ NNN", market: "ast", side: "Over", player: { id: "p3", name: "Third Player", team: "NNN" }, projection: { value: 6 } }] },
+    ],
+  };
+  const now = Date.parse("2030-01-03T20:00:00Z");
+  const prices = { candidates: [
+    { candidateId: "c1", fetchedAt: "2030-01-03T17:00:00Z", staleAfter: "2030-01-03T23:00:00Z", legs: [{ legId: "l1", line: 9.5, price: -120, oddsFormat: "american", book: "SAMPLE BOOK", hitRates: [{ window: "last 10", k: 6, n: 10 }] }] },
+    { candidateId: "c2", fetchedAt: "2030-01-03T12:00:00Z", staleAfter: "2030-01-03T15:00:00Z", legs: [{ legId: "l2", line: 5.5, price: 105, oddsFormat: "american", book: "SAMPLE BOOK", hitRates: [{ window: "last 10", k: 8, n: 10 }] }] },
+  ] };
+  const view = researchView(block, { prices, now });
+  const h = html(React.createElement(ResearchCandidates, { research: view }));
+  const t = text(h);
+  assert.match(h, /id="research-candidates"/);
+  assert.match(t, /Not an official selection/);
+  assert.match(t, /Other Player Under 9\.5 REB/);
+  assert.match(t, /-120 SAMPLE BOOK/);
+  assert.match(t, /Hit rate 6 of 10 \(last 10\)/);
+  assert.match(t, /MODEL PROJECTION 8\.3/);
+  assert.match(t, /Lane held: no qualified card\./);
+  /* c2's line went stale: no line, odds, hit rate or capture time — and it says so. */
+  assert.equal(view.candidates[1].stale, true);
+  assert.match(t, /Line stale — not shown/);
+  assert.doesNotMatch(t, /5\.5|\+105|8 of 10/);
+  assert.doesNotMatch(t, /\b(pick|picks|stake|payout|to win|lock)\b/i);
+  assert.doesNotMatch(t, /60%|80%/);
+  assert.equal(researchView({ ...block, official: true }, { prices, now }), null, "an official block is never rendered as research");
+  assert.equal(researchView(null), null);
+  assert.equal(html(React.createElement(ResearchCandidates, { research: null })), "");
+  assert.deepEqual(parityReport([researchParity({ block, view })]).failures, []);
+  const dropped = { ...view, candidates: view.candidates.slice(0, 1) };
+  assert.ok(parityReport([researchParity({ block, view: dropped })]).failures.includes("research research candidates"));
+  /* The section sits apart from the lanes: its own section element, never inside a lane card. */
+  assert.doesNotMatch(read("src/components/challenge-lanes/lane-card.tsx"), /research-candidates|ResearchCandidates/);
+});
+
 test("progression animation is CSS-only and prefers-reduced-motion turns it off", () => {
   const css = read("src/app/globals.css");
   assert.match(css, /@keyframes cl-rung-in/);

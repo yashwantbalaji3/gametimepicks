@@ -130,7 +130,15 @@ const verificationOf = (p) => (p?.verification === "PRELIMINARY" ? VERIFICATION_
 /** The engine's day price (pricedLaneDisplay `day.price`): a computed payout, PRELIMINARY or VERIFIED; never REFUSED. */
 const verified = (price) => (PRICES_ON_SITE && ["VERIFIED", "PRELIMINARY"].includes(price?.result) && price?.verification !== "REFUSED" ? price : null);
 /** A frozen leg price as the engine carries it (`price` in its `oddsFormat`): odds, line, book, capture time. */
-const legPrice = (p, book) => (p ? { odds: american(p.oddsFormat === "american" ? p.price : decimalToAmerican(p.price)), line: p.line ?? null, book: book ?? null, captured: etStamp(p.fetchedAt) } : null);
+/* Hit-rate windows (founder 2026-11-04): k of n, never a percent, never a probability. */
+export const hitRateText = (h) => (h && Number.isInteger(h.k) && Number.isInteger(h.n) && h.n > 0 ? `${h.k} of ${h.n}${h.window ? ` (${h.window})` : ""}` : null);
+const legPrice = (p, book) => (p ? {
+  odds: american(p.oddsFormat === "american" ? p.price : decimalToAmerican(p.price)), line: p.line ?? null, book: book ?? null, captured: etStamp(p.fetchedAt),
+  hitRates: (Array.isArray(p.hitRates) ? p.hitRates : []).map(hitRateText).filter(Boolean),
+} : null);
+/** The engine's evidence class for a day or a leg, printed with the engine's own label (never derived here). */
+export const evidenceOf = (x) => (x?.evidenceClass ? { class: x.evidenceClass, label: x.evidenceLabel ?? x.evidenceClass } : null);
+const PROP_MARKET = Object.freeze({ pts: "PTS", reb: "REB", ast: "AST", points: "PTS", rebounds: "REB", assists: "AST" });
 
 /** The day's priced block (combined price, stake, payout, profit, pace), formatted; null without a VERIFIED price. */
 function priceOf(day) {
@@ -160,12 +168,16 @@ function legsOf(day, projectionLabel, teams) {
     const [away, home] = String(l.eventLabel ?? "").split(" @ ");
     const opponent = l.selection?.code === "home" ? away : l.selection?.code === "away" ? home : null;
     const prop = l.market !== "winner";
+    /* A player-prop leg (pts/reb/ast): the player and side are public; the line and hit rates come only from the
+       engine's encrypted price display (a book line never sits in plain public JSON). */
+    const player = prop && l.player ? { name: l.player.name ?? null, team: l.player.team ?? null, side: l.side ?? null, market: PROP_MARKET[l.market] ?? l.market } : null;
     return {
       n: i + 1, legId: l.legId, gameId: l.gameId, game: l.eventLabel ?? l.gameId, market: l.market ?? null, prop,
-      selection: l.selection?.label ?? abbr ?? "", teamAbbr: abbr, team: teamOf(teams, abbr),
+      selection: player ? `${player.name ?? ""}` : l.selection?.label ?? abbr ?? "", teamAbbr: player ? player.team : abbr, team: teamOf(teams, player ? player.team : abbr), player,
       matchup: opponent ? `${l.selection.code === "home" ? "vs" : "@"} ${opponent}` : l.eventLabel ?? null,
       time: etTime(l.startUtc),
-      projectionLabel: prop ? projectionLabel : "MODEL WIN PROBABILITY", projection: l.probabilityShown ?? null,
+      projectionLabel: prop ? projectionLabel : "MODEL WIN PROBABILITY", projection: prop ? (typeof l.projection?.value === "number" ? l.projection.value.toFixed(1) : null) : l.probabilityShown ?? null,
+      evidence: evidenceOf(l),
       flags: l.guard?.flagText ?? [],
       outcome: o && o !== "PENDING" ? o : null,
       price: legPrice(prices.get(l.legId), vp?.book),
@@ -192,7 +204,7 @@ function dayPresent(day, projectionLabel, teams) {
     reason: reasonText(day.reason), staked: Boolean(day.staked), legs: day.card ? legsOf(day, projectionLabel, teams) : [], hasCard: Boolean(day.card),
     modelCardResult: day.modelCardResult ?? null, stepOutcome: day.stepOutcome ?? null, result,
     price: priceOf(day),
-    withdrawn: Boolean(day.withdrawn), legCount: day.legCount ?? null, maxLegs: day.maxLegs ?? null,
+    withdrawn: Boolean(day.withdrawn), legCount: day.legCount ?? null, maxLegs: day.maxLegs ?? null, evidence: evidenceOf(day),
     stepTarget: typeof day.targetPayoutCents === "number" ? { label: day.targetPayoutLabel ?? "STEP TARGET", value: money(day.targetPayoutCents) } : null,
   };
 }
@@ -275,7 +287,7 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
     rungs: d.rungs.map((r) => ({ step: r.step, state: r.state, milestone: money(r.milestoneCents) })),
     current, story, graphics,
     runs: d.runs.map((r, i) => ({ runId: r.runId, number: i + 1, started: String(r.startedAt ?? "").slice(0, 10) || null, status: r.endStatus, stepsWon: r.stepsWon ?? 0, current: i === d.runs.length - 1, ruleTag: ruleTag(r.ruleVersion) })),
-    ruleVersion: currentRule, ruleLabel: ruleLabel(currentRule),
+    ruleVersion: currentRule, ruleLabel: ruleLabel(currentRule), evidence: current?.evidence ?? null,
     stepTarget: awaiting ? null : latest?.stepTarget ?? null,
     sourceSha256: d.sourceSha256,
   };

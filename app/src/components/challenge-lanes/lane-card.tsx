@@ -9,8 +9,10 @@ export type LaneLeg = {
   n: number; legId: string; gameId: string; game: string; market: string | null; prop: boolean;
   selection: string; teamAbbr: string | null; team: { name: string | null; color: string; ink: string | null } | null;
   matchup: string | null; time: string | null; projectionLabel: string; projection: string | null; flags: string[]; outcome: string | null;
-  price: { odds: string | null; line: number | string | null; book: string | null; captured: string | null } | null;
+  price: { odds: string | null; line: number | string | null; book: string | null; captured: string | null; hitRates?: string[] } | null;
   snapshotId?: string | null;
+  player?: { name: string | null; team: string | null; side: string | null; market: string } | null;
+  evidence?: { class: string; label: string } | null;
 };
 export type LanePrice = { method: string; estimate: boolean; combinedLabel: string; combined: string; decimal?: number | null; book: string | null; stake: string | null; payout: string | null; profit: string | null; captured: string | null; requiredMultiple?: number | null; belowPace?: boolean | null; verification?: string | null; verificationNote?: string | null; snapshotSha256?: string | null; band?: string | null };
 export type LaneDay = {
@@ -30,6 +32,7 @@ export type LaneView = {
   graphics: Array<{ date: string; step: number; packageId: string | null; imageSha256: string | null; imagePath: string | null; approved: boolean; postUrl: string | null; postedAt: string | null }>;
   runs: Array<{ runId: string; number: number; started: string | null; status: string; stepsWon: number; current: boolean; ruleTag?: string | null }>;
   ruleVersion?: string | null; ruleLabel?: string | null; stepTarget?: { label: string; value: string | null } | null;
+  evidence?: { class: string; label: string } | null;
 };
 
 const RUNG_TEXT: Record<string, string> = { completed: "won", active: "current", failed: "lost", upcoming: "to come" };
@@ -41,7 +44,12 @@ function LegCard({ l }: { l: LaneLeg }) {
     <li className={`cl-leg${l.team ? " cl-leg--team" : ""}`} style={style} data-lane-leg={l.gameId} data-leg-outcome={l.outcome ?? "open"}>
       <span className="cl-leg-n" aria-hidden>{l.n}</span>
       <div className="cl-leg-main">
-        <span className="cl-leg-name">{l.team?.name ?? l.selection}</span>
+        <span className="cl-leg-name">{l.player ? l.player.name : l.team?.name ?? l.selection}</span>
+        {l.player ? (
+          <span className="cl-prop-line" data-leg-prop={l.player.market}>
+            {[l.player.side, l.price?.line != null ? String(l.price.line) : null, l.player.market].filter(Boolean).join(" ")}
+          </span>
+        ) : null}
         <span className="cl-leg-meta">
           {l.teamAbbr ? <span className="cl-team-chip">{l.teamAbbr}</span> : null}
           <span>{[l.matchup, l.time].filter(Boolean).join(" · ")}</span>
@@ -53,12 +61,18 @@ function LegCard({ l }: { l: LaneLeg }) {
             {l.price.book ? <span>{l.price.book}</span> : null}
           </span>
         ) : null}
+        {l.price?.hitRates?.length ? (
+          <span className="cl-hit-rates" data-leg-hit-rates="">
+            <span className="cl-label">Hit rate</span> {l.price.hitRates.join(" · ")}
+          </span>
+        ) : null}
+        {l.evidence ? <span className={`cl-evidence cl-evidence--${l.evidence.class.toLowerCase()}`} data-leg-evidence={l.evidence.class}>{l.evidence.label}</span> : null}
         {l.flags.length ? <span className="cl-leg-flag"><span className="cl-flag-chip">Flag</span> {l.flags.join(" ")}</span> : null}
       </div>
       <div className="cl-leg-side">
         <span className="cl-label cl-label--accent">{l.projectionLabel}</span>
         <span className="cl-leg-pct">{l.projection ?? "—"}</span>
-        <span className={`cl-outcome cl-outcome--${(l.outcome ?? "open").toLowerCase()}`}>{l.outcome ? OUTCOME_TEXT[l.outcome] ?? l.outcome : l.prop ? "" : "to win"}</span>
+        <span className={`cl-outcome cl-outcome--${(l.outcome ?? "open").toLowerCase()}`}>{l.outcome ? OUTCOME_TEXT[l.outcome] ?? l.outcome : l.prop ? "projected" : "to win"}</span>
       </div>
     </li>
   );
@@ -99,6 +113,9 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
           <span className={`cl-status cl-status--${lane.tone}`} data-lane-status-badge="">
             <span aria-hidden>{lane.statusGlyph}</span> {lane.statusLabel}
           </span>
+          {lane.evidence ? (
+            <span className={`cl-evidence cl-evidence--${lane.evidence.class.toLowerCase()}`} data-lane-evidence={lane.evidence.class}>{lane.evidence.label}</span>
+          ) : null}
           {lane.verification ? (
             <span className="cl-status cl-status--prelim" data-lane-verification={lane.verification}>
               <span aria-hidden>◷</span> {lane.verification}
