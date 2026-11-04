@@ -71,11 +71,11 @@ export const imageVerifiedIn = (appDir) => (imagePath, sha) => {
   try { return createHash("sha256").update(fs.readFileSync(path.join(appDir, "public", imagePath))).digest("hex") === sha; } catch { return false; }
 };
 
-/** { doc, view } for an accepted file, or { doc: null, view: <unavailable>, reason }. */
 /* The build's ET product day, for AWAITING QUALIFIED SELECTION. One formatter for the module (#1262). */
 const ET_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" });
 export const etProductDay = (now = Date.now()) => ET_DAY.format(now);
 
+/** { doc, view } for an accepted file, or { doc: null, view: <unavailable>, reason }. */
 export function loadChallengeLane({ appDir = process.cwd(), laneId, env = displayEnv(process.env, { appDir }), productDay = etProductDay() }) {
   if (!LANE_IDS.includes(laneId)) throw new Error(`unknown lane ${laneId}`);
   const r = readLaneProjection({ appDir, laneId });
