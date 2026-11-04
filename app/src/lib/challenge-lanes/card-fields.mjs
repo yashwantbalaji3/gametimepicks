@@ -86,7 +86,20 @@ export function moneylineEvidenceLine(leg) {
  * @param {{ laneId: string, date: string, legIds: string[] }[]} cards
  * @returns {string[]} violations, empty when compliant
  */
+/**
+ * The underlying selection of a leg, independent of book, odds, line, capture time and record id:
+ * "<sport>:<gameId>:<family>:<playerId | team>:<side>". Moneyline: family "winner", the team/side. Same team ML = same
+ * selection; the same player-stat-side at another line = the same selection.
+ */
+export function selectionIdentity(leg) {
+  const family = leg.family ?? ({ h2h: "winner", winner: "winner", player_points: "pts", player_rebounds: "reb", player_assists: "ast" })[leg.market] ?? leg.market;
+  const who = family === "winner" ? leg.side ?? leg.selectionCode : leg.player?.playerId ?? leg.playerId;
+  return `${leg.sport ?? "nba"}:${leg.gameId ?? leg.eventId}:${family}:${who}:${family === "winner" ? "" : leg.side ?? ""}`.replace(/:$/, "");
+}
+
 export function diversityViolations(cards, { maxLegUse = 2 } = {}) {
+  /* cards: [{ laneId, date, legIds }] or [{ laneId, date, legs }] (legs → selectionIdentity). */
+  cards = (cards ?? []).map((c) => (c?.legs ? { ...c, legIds: c.legs.map(selectionIdentity) } : c));
   const out = [];
   const byDate = new Map();
   for (const c of cards ?? []) { if (!c?.legIds?.length) continue; if (!byDate.has(c.date)) byDate.set(c.date, []); byDate.get(c.date).push(c); }

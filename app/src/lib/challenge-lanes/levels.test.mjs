@@ -340,3 +340,15 @@ test("diversity@2: zero repeated selections; books, snapshots, order and alterna
   assert.deepEqual(diversityViolations([{ laneId: "bb-a", date: d, legIds: ["x", "y"] }, { laneId: "ms-a", date: d, legIds: ["p", "q"] }], { maxLegUse: 1 }), []);
   assert.equal(approvalValid({ candidateId: "c", recordSha256: "new" }, { candidateId: "c", recordSha256: "old" }), false);
 });
+
+test("selectionIdentity: books, snapshots, lines and order don't separate one selection", async () => {
+  const { selectionIdentity, diversityViolations } = await import("./card-fields.mjs");
+  const p1 = { sport: "nba", gameId: "1", family: "pts", player: { playerId: "p1" }, side: "over", line: 20.5, book: "draftkings", fetchedAt: "t1" };
+  const p2 = { ...p1, line: 22.5, book: "fanduel", fetchedAt: "t2", recordId: "x" };
+  assert.equal(selectionIdentity(p1), selectionIdentity(p2));
+  const m1 = { gameId: "9", market: "h2h", side: "home", book: "draftkings" }; const m2 = { gameId: "9", family: "winner", side: "home", book: "betmgm" };
+  assert.equal(selectionIdentity(m1), selectionIdentity(m2));
+  assert.notEqual(selectionIdentity(m1), selectionIdentity({ ...m1, side: "away" }));
+  const d = "2026-11-04";
+  assert.equal(diversityViolations([{ laneId: "bb-a", date: d, legs: [p1, m1] }, { laneId: "ms-a", date: d, legs: [m2, { ...p2 }] }], { maxLegUse: 1 }).length, 3);
+});
