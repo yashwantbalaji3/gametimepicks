@@ -64,7 +64,7 @@ export const PRODUCT_IDENTITY = Object.freeze({
     risk: "Even a Low Risk card loses often: in the Low band the model gives both legs together about a coin flip or better, never a certainty.",
   },
   moonshot: {
-    product: "moonshot", name: "Moonshot", eyebrow: "High risk · 3+ legs", bands: ["high", "longshot"],
+    product: "moonshot", name: "Moonshot", eyebrow: "High Risk · 3+ legs", bands: ["high", "longshot"],
     promise: "Three or more legs stacked for a big swing. The model's best long-odds combination of the day.",
     risk: "Most Moonshots lose. In these bands the model gives every leg landing together a 1-in-4 chance or less.",
   },
