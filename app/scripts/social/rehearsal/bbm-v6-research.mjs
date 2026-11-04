@@ -119,6 +119,16 @@ for (const { laneId, name, sel: src, file: srcFile, alt } of jobs) {
     payout: { combinedLabel: c.combinedLabel ?? c.combined?.label ?? null, combinedAmerican: c.combined.american, grossCents: c.money.grossPayoutCents, profitCents: c.money.profitCents, stakeCents: c.money.stakeCents, preliminary: !verified, fixture: false, estimate: false, legs: Object.fromEntries(c.legs.map((l) => [l.legId, { price: l.price, oddsFormat: "american", line: l.line }])) },
   } });
 }
+// Founder 2026-11-04, diversity@2: no leg repeats across the day's four lanes. Identity is the underlying selection
+// (game + team for a moneyline; game + player + stat family + side for a prop), whatever the line, book or odds.
+const selectionOf = (l) => (isMoneyline(l) ? `${l.gameId}:ml:${l.selection?.teamAbbr ?? l.team}` : `${l.gameId}:${l.family ?? l.market}:${l.player?.playerId ?? l.player?.name}:${l.side}`);
+const seen = new Map(); const repeats = [];
+for (const m of models.filter((x) => !x.alt && !x.held)) for (const l of m.legsRaw) {
+  const id = selectionOf(l);
+  if (seen.has(id)) repeats.push(`${id} is on ${seen.get(id)} and ${m.laneId}`); else seen.set(id, m.laneId);
+}
+if (repeats.length && FINAL) throw new Error(`diversity@2: a leg repeats across lanes; the day's set is refused:\n  ${repeats.join("\n  ")}`);
+if (repeats.length) console.log(`DIVERSITY WARNING (a final render would refuse):\n  ${repeats.join("\n  ")}`);
 const cards = models.map((m) => ({ ...m, card: { ...bbmCardV6(m.model), name: m.name } }));
 const bad = cards.flatMap((m) => verifyBbmCardV6(m.card).map((e) => `${m.name}: ${e}`));
 
@@ -184,7 +194,7 @@ try {
   // Alternates: images only (a chosen alternate replaces its lane and the package caption is rewritten then).
   for (const m of cards.filter((x) => x.alt)) rows.push(row(m, { pkg: null, mediaIndex: null, cap: null, shots: await shoot(m) }));
 } finally { await browser.close(); }
-const manifest = { schema: FINAL ? "gtp.bbm-v6-final@1" : "gtp.bbm-v6-founder-review@1", final: FINAL, source: { file: a.selection, sha256: sha(raw), now: sel.now ?? null }, note: FINAL ? "FINAL images from run-2 PRICE_VERIFIED records with founder approval; reconciled field by field. Not yet packaged or posted." : "FOUNDER-REVIEW previews only: not approved, never packaged, never posted. Prices are quotes, not verified price events.", checker: bad, layout, parityRows: rows };
+const manifest = { schema: FINAL ? "gtp.bbm-v6-final@1" : "gtp.bbm-v6-founder-review@1", final: FINAL, diversity: { rule: "diversity@2", repeats }, source: { file: a.selection, sha256: sha(raw), now: sel.now ?? null }, note: FINAL ? "FINAL images from run-2 PRICE_VERIFIED records with founder approval; reconciled field by field. Not yet packaged or posted." : "FOUNDER-REVIEW previews only: not approved, never packaged, never posted. Prices are quotes, not verified price events.", checker: bad, layout, parityRows: rows };
 fs.writeFileSync(path.join(out, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(`checker problems: ${bad.length}${bad.length ? `\n  ${bad.join("\n  ")}` : ""}`);
 console.log(`layout problems: ${layout.length}${layout.length ? `\n  ${layout.join("\n  ")}` : ""}`);
