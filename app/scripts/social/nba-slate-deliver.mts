@@ -87,7 +87,9 @@ for (const id of laneIds) {
   done.push(...d);
   const ab = s.cards[0].html.match(/([A-Z]{2,4}) @ ([A-Z]{2,4})/)?.slice(1) ?? [];
   const omitted = ab.reduce((n: number, t: string) => n + (roster[t] ?? []).reduce((k: number, e: any) => k + (typeof e === "object" ? 3 : (roster.__cells?.[e]?.length ?? 0)), 0), 0);
-  result.games.push({ id, game: ab.join("@"), tipUtc: w.firstStartUtc, cellsOmitted: omitted, digests: Object.fromEntries(["winner", "props", "projonly", "winneronly"].map((v, i) => [v, d[i].pkg.contentSha256])) });
+  // Players printing at least one number per team; under 3 is flagged for the founder (report only, never blocks).
+  const printed = Object.fromEntries(ab.map((t: string) => [t, (roster[t] ?? []).filter((e: any) => typeof e !== "object" && (roster.__cells?.[e]?.length ?? 0) < 3).length]));
+  result.games.push({ id, game: ab.join("@"), tipUtc: w.firstStartUtc, cellsOmitted: omitted, printedPlayers: printed, thin: ab.filter((t: string) => printed[t] < 3), digests: Object.fromEntries(["winner", "props", "projonly", "winneronly"].map((v, i) => [v, d[i].pkg.contentSha256])) });
 }
 const slate = [V(ton, "today"), ...car.posts.map((p: any) => V(p, "top5"))];
 const ds = await renderEach(slate);
@@ -156,6 +158,7 @@ writeResult();
 const md = [`# NBA slate ${date} delivered ${new Date().toISOString()}`, "", `dataCommit ${result.dataCommit} · asOf ${asOf} · ${result.packages} packages · ${result.images} images · rendered ${st.rendered}, cached ${st.skipped}`, `Top 5 carousel boards: ${result.slate.top5Boards.join(", ") || "none"}${car.refused.length ? ` (skipped under ${minRows} rows: ${car.refused[0].boards.join(", ")})` : ""}`, "", "| Game | Tip (UTC) | Winner | Props | Projection-only | Winner-only | Cells omitted |", "|---|---|---|---|---|---|---|",
   ...result.games.map((g: any) => `| ${g.game} | ${g.tipUtc} | ${g.digests.winner.slice(0, 12)} | ${g.digests.props.slice(0, 12)} | ${g.digests.projonly.slice(0, 12)} | ${g.digests.winneronly.slice(0, 12)} | ${g.cellsOmitted} |`),
   "", result.exception ? `Founder publication exception ${result.exception.id} (${path.basename(result.exception.file)} sha ${result.exception.sha256.slice(0, 12)}): ${result.exception.excepted.length} stat packages EXCEPTION, flagged cells withheld${result.exception.notExcepted.length ? `; left REVIEW: ${result.exception.notExcepted.map((x: any) => `${x.variant} ${x.reason}`).join(", ")}` : ""}` : "No publication exception file: stat packages under anomaly REVIEW stay REVIEW (clean export refuses them).",
+  ...result.games.filter((g: any) => g.thin.length).map((g: any) => `- ${g.game} stat card: ${g.thin.map((t: string) => `${t} ${g.printedPlayers[t]} printed`).join(", ")} (under 3 players printed after the guard). Flag for founder: consider winner-only.`),
   "", `Availability guard (R1 Out/Day-To-Day, R2 under 3 games, R3 implausible minutes): ${result.guard.length} players under review, ${result.guard.filter((g: any) => g.onCard).length} of them in card rows${result.guard.filter((g: any) => g.onCard).length ? ` (${result.guard.filter((g: any) => g.onCard).map((g: any) => `${g.name} ${g.rules.join("+")}`).join(", ")})` : ""}`,
   "", `NBA Today ${result.slate.today.slice(0, 12)} · Top 5 ${result.slate.top5?.slice(0, 12) ?? "not made"}`, ""].join("\n");
 fs.writeFileSync(path.join(stage, "report.md"), md);

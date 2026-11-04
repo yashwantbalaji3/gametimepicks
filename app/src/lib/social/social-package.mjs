@@ -117,12 +117,12 @@ export const etLabel = (ms) => {
 export const toIso = (ms) => new Date(ms).toISOString().replace(".000Z", "Z");
 
 /**
- * The first game of the next slate after `afterEtDate`, minus two hours.
- * @param {{ games: Array<{ kickoffUtc: string, statusRaw?: string|null }>, afterEtDate: string, asOf: string }} o
+ * The first game of the next slate after `afterEtDate`, minus `leadMs` (default two hours).
+ * @param {{ games: Array<{ kickoffUtc: string, statusRaw?: string|null }>, afterEtDate: string, asOf: string, leadMs?: number }} o
  * @returns {{ recommendedAt: string, recommendedAtEt: string, firstGameUtc: string, firstGameEt: string, slateEtDate: string, games: number, skippedSlates: string[] } | null}
  *   null when the data holds no such slate: the caller reports that, it never guesses a time.
  */
-export function recommendedPostTime({ games, afterEtDate, asOf }) {
+export function recommendedPostTime({ games, afterEtDate, asOf, leadMs = RECOMMEND_LEAD_MS }) {
   const now = instant(asOf);
   if (!Number.isFinite(now)) throw new Error("recommendedPostTime: asOf (ISO) is required");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(afterEtDate ?? ""))) throw new Error("recommendedPostTime: afterEtDate (YYYY-MM-DD) is required");
@@ -138,7 +138,7 @@ export function recommendedPostTime({ games, afterEtDate, asOf }) {
   const skippedSlates = [];
   for (const d of [...slates.keys()].sort()) {
     const first = Math.min(...slates.get(d));
-    const at = first - RECOMMEND_LEAD_MS;
+    const at = first - leadMs;
     if (at <= now) { skippedSlates.push(d); continue; }
     return { recommendedAt: toIso(at), recommendedAtEt: etLabel(at), firstGameUtc: toIso(first), firstGameEt: etLabel(first), slateEtDate: d, games: slates.get(d).length, skippedSlates };
   }

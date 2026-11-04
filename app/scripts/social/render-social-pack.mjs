@@ -656,6 +656,24 @@ export function loadAnomalyInputs(date) {
 
 /* ───────────────────────────── NBA game day, established design ───────────────────────────── */
 
+// NBA game-day publish suggestions (founder, 2026-11-04): about an hour before tip so bettors have time. Winner posts at tip
+// - 60 min, stat posts at tip - 57 min (just after the winner), NBA Today at 17:00 ET on the slate date. Windows and expiry
+// are unchanged; a suggestion that is not before the first tip or already past becomes no suggestion, as before.
+export const NBA_LEAD = Object.freeze({ winnerMin: 60, statsMin: 57, todayEt: "17:00" });
+const NBA_REC_NOTE = "the hour before tip-off has passed";
+/** UTC ms of a wall-clock HH:MM in America/New_York on an ET date (DST-safe: the offset is checked, not assumed). */
+export function etClockUtc(date, hhmm) {
+  const [y, m, d] = date.split("-").map(Number); const [hh, mm] = hhmm.split(":").map(Number);
+  for (const off of [4, 5]) { const t = Date.UTC(y, m - 1, d, hh + off, mm); if (etDate(t) === date && new Intl.DateTimeFormat("en-GB", { timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(t)) === hhmm) return t; }
+  throw new Error(`etClockUtc: no ${hhmm} ET on ${date}`);
+}
+/** NBA Today: 17:00 ET on the slate date when that is before the first tip, else the winner lead; null once past. */
+export function nbaTodayRecommended({ date, firstMs, asOf }) {
+  const want = etClockUtc(date, NBA_LEAD.todayEt);
+  const at = want < firstMs ? want : firstMs - NBA_LEAD.winnerMin * 60e3;
+  return at > instant(asOf) ? { recommendedAt: toIso(at), recommendedAtEt: etLabel(at), firstGameUtc: toIso(firstMs), firstGameEt: etLabel(firstMs), slateEtDate: date, rule: `${NBA_LEAD.todayEt} ET on the slate date` } : null;
+}
+
 /** Pregame caption rules: 280 weighted, no dash, no percentage. */
 const pregameCaption = (t) => { if (/%|[—–]|\bedge\b/i.test(t) || xWeighted(t) > 280) throw new Error(`pregame caption refused: ${t}`); return t; };
 const statOf = (r, k) => (r.medians?.[k] == null ? "-" : Number(r.medians[k]).toFixed(1));
@@ -705,12 +723,12 @@ export function prepareGameDay({ date, asOf, lineDoc = null, laneOverride = null
   const pkgDisc = ["Estimate from the team rating, not a validated probability", DISCLOSURE];
   const claimGames = [{ key: "games", display: String(games.length), evidenceRef: rel }];
   const tonightCap = pregameCaption(`NBA tonight: ${games.length} games. Model projection: the predicted winner of each.`);
-  posts.push({ ...META, contentType: CONTENT_TYPE.NBA_TONIGHT, variant: null, cards: v2Cards([tonightCard({ games, chip, kicker: `NBA ${slateWord(first) === "today" ? "Today" : "Tonight"}` })], `nba-${date}-tonight`), caption: tonightCap, ccCaption: tonightCap, ccCaptionB: `NBA tonight, ${games.length} games. Model projection on the image.`, extraClaims: claimGames, disclosures: pkgDisc, title: `NBA tonight ${date}`, firstStartUtc: toIso(first), window: { opensAt: asOf, closesAt: toIso(first) }, recommended: recommendedPostTime({ games: games.map((g) => ({ kickoffUtc: g.raw.tipUtc })), afterEtDate: dayBefore(date), asOf }), recommendedNote: "the two hours before tip-off have passed", freshness: fresh(first), content: { games: games.map((g) => ({ eventId: g.eventId, away: g.away.abbr, home: g.home.abbr, tipUtc: g.raw.tipUtc, winner: g.winner?.abbr ?? null, awayEstimate: g.awayP, homeEstimate: g.homeP })) } });
+  posts.push({ ...META, contentType: CONTENT_TYPE.NBA_TONIGHT, variant: null, cards: v2Cards([tonightCard({ games, chip, kicker: `NBA ${slateWord(first) === "today" ? "Today" : "Tonight"}` })], `nba-${date}-tonight`), caption: tonightCap, ccCaption: tonightCap, ccCaptionB: `NBA tonight, ${games.length} games. Model projection on the image.`, extraClaims: claimGames, disclosures: pkgDisc, title: `NBA tonight ${date}`, firstStartUtc: toIso(first), window: { opensAt: asOf, closesAt: toIso(first) }, recommended: nbaTodayRecommended({ date, firstMs: first, asOf }), recommendedNote: NBA_REC_NOTE, freshness: fresh(first), content: { games: games.map((g) => ({ eventId: g.eventId, away: g.away.abbr, home: g.home.abbr, tipUtc: g.raw.tipUtc, winner: g.winner?.abbr ?? null, awayEstimate: g.awayP, homeEstimate: g.homeP })) } });
   for (const g of games) {
     const m = `${g.away.abbr} @ ${g.home.abbr}`;
     const captionGame = { awayName: g.away.name, homeName: g.home.name, winnerNickname: g.winner?.nickname ?? null };
     g.captionGame = captionGame;
-    const win = (cards, o) => ({ ...META, captionGame, firstStartUtc: toIso(g.t), eventId: g.eventId, window: { opensAt: asOf, closesAt: toIso(g.t) }, recommended: recommendedPostTime({ games: [{ kickoffUtc: g.raw.tipUtc }], afterEtDate: dayBefore(date), asOf }), recommendedNote: "the two hours before tip-off have passed", freshness: fresh(g.t), cards, ...o });
+    const win = (cards, o) => ({ ...META, captionGame, firstStartUtc: toIso(g.t), eventId: g.eventId, window: { opensAt: asOf, closesAt: toIso(g.t) }, recommended: recommendedPostTime({ games: [{ kickoffUtc: g.raw.tipUtc }], afterEtDate: dayBefore(date), asOf, leadMs: NBA_LEAD.winnerMin * 60e3 }), recommendedNote: NBA_REC_NOTE, freshness: fresh(g.t), cards, ...o });
     const wc = (g.winner ? `${m}. Model projection: ${g.winner.nickname} to win.` : `${m}. Model projection: no side.`);
     try {
       posts.push(win(v2Cards([winnerCard(g)], `nba-${date}-winner-${g.eventId}`), { contentType: CONTENT_TYPE.NBA_GAME_WINNER, variant: g.eventId, title: `${m}: game winner prediction`, caption: pregameCaption(wc), ccCaption: wc, ccCaptionB: `${m}: model projection on the image.`, disclosures: pkgDisc, content: { game: { eventId: g.eventId, winner: g.winner?.abbr ?? null, awayEstimate: g.awayP, homeEstimate: g.homeP, moneyline: "NOT_CAPTURED" } } }));
@@ -725,7 +743,7 @@ export function prepareGameDay({ date, asOf, lineDoc = null, laneOverride = null
       const sc = `${m} projected stat lines from the model.`;
       const gameIds = [...g.raw.players.away, ...g.raw.players.home].map((p) => p.providerAthleteId);
       const cardsM = v2Cards(statPages({ ...spec, awayPlayers: players("away", false), homePlayers: players("home", false) }), `nba-${date}-stats-${g.eventId}`);
-      posts.push(win(cardsM, { ...anomaliesFor(modelCheck, gameIds, STAT_MARKETS), contentType: CONTENT_TYPE.NBA_PLAYER_STATS, variant: g.eventId, eligibilityClass: ELIGIBILITY.OFFICIAL, title: `${m}: projected stat lines`, caption: pregameCaption(sc), ccCaption: sc, ccCaptionB: `${m} stat line projections.`, disclosures: [DISCLOSURE], content: { players: g.cov.playerCount, parts: cardsM.length, containsLines: false } }));
+      posts.push(win(cardsM, { ...anomaliesFor(modelCheck, gameIds, STAT_MARKETS), contentType: CONTENT_TYPE.NBA_PLAYER_STATS, variant: g.eventId, recommended: recommendedPostTime({ games: [{ kickoffUtc: g.raw.tipUtc }], afterEtDate: dayBefore(date), asOf, leadMs: NBA_LEAD.statsMin * 60e3 }), eligibilityClass: ELIGIBILITY.OFFICIAL, title: `${m}: projected stat lines`, caption: pregameCaption(sc), ccCaption: sc, ccCaptionB: `${m} stat line projections.`, disclosures: [DISCLOSURE], content: { players: g.cov.playerCount, parts: cardsM.length, containsLines: false } }));
       g.cov.statGraphic = "PREPARED";
       if (lineDoc) {
         const rows = lineDoc.rows.filter((r) => String(r.identity.eventId) === g.eventId && !nbaExcluded().has(String(r.identity.playerId)));
