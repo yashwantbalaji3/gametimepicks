@@ -7,7 +7,7 @@
  *
  * DETERMINISTIC. The evaluation instant is the official NBA lane's own `generatedAt` (the moment the day's forecast was
  * frozen), not the run's clock, so the file is a pure function of the committed inputs: any re-run writes the same
- * bytes, and each input is recorded with its sha256 and the git commit that last changed it. `--now` overrides the
+ * bytes, and each input is recorded with its sha256 and git blob id. `--now` overrides the
  * instant for replays and tests only. With no lane for the date the instant is the slate date at 11:00Z (07:00 ET).
  * The run clock is used ONCE, as a write gate, never as content: a file whose earliest leg starts within 30 minutes of
  * the real time is not written (it would offer legs nobody can still act on).
@@ -35,8 +35,11 @@ const OUT = path.resolve(arg("--out", PUBLIC_OUT));
 if (process.argv.includes("--replay") && OUT === PUBLIC_OUT) { console.error("REFUSED: --replay writes a past day, never into the public record; pass --out DIR"); process.exit(2); }
 
 const doc = dailySuggestedCards(buildLegPool({ repoRoot: REPO, date: DATE, evaluatedAt: NOW }));
-const commitOf = (rel) => { try { return execFileSync("git", ["log", "-1", "--format=%H", "--", rel], { cwd: REPO, encoding: "utf8" }).trim() || null; } catch { return null; } };
-for (const i of doc.inputs) i.commit = commitOf(i.file);
+/* The input's git BLOB id (content-derived), not a commit: when this file rides the lane's own commit, that commit does not
+   exist yet, and a re-run after it does must still write the same bytes. `git log --find-object=<gitBlob>` names the
+   commit that introduced the input. */
+const blobOf = (rel) => { try { return execFileSync("git", ["hash-object", "--", rel], { cwd: REPO, encoding: "utf8" }).trim() || null; } catch { return null; } };
+for (const i of doc.inputs) i.gitBlob = blobOf(i.file);
 const s = (x) => `${x.state}${x.card ? ` ${x.card.tier} ${x.card.legs.length}L ${x.card.jointShown}` : ""}`;
 console.log(`suggested cards ${DATE} @ ${NOW}`);
 for (const [k, v] of Object.entries(doc.sports)) console.log(`  ${k.padEnd(8)} ${v.state.padEnd(9)} legs ${v.legPool.eligible} (tierable ${v.legPool.tierable}, review ${v.legPool.review}) refused ${v.legPool.refused}${v.playerProjections ? ` · players pass ${v.playerProjections.pass} review ${v.playerProjections.review} blocked ${v.playerProjections.blocked}` : ""}`);
