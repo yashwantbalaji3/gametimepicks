@@ -91,6 +91,8 @@ const pagesOf = (items, n = ROWS_PER_CARD) => { const out = []; for (let i = 0; 
 const chipDay = (ms) => new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", month: "short", day: "numeric" }).format(new Date(ms));
 const weekdayLong = (ms) => new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "long" }).format(new Date(ms));
 const tipClock = (ms) => `${timeOnly(ms)} ${new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", timeZoneName: "short" }).formatToParts(ms).find((p) => p.type === "timeZoneName").value}`;
+/** NBA cards print "ET" like the line cards (founder, 2026-11-04), never EST/EDT. */
+const etClock = (ms) => `${timeOnly(ms)} ET`;
 const v2Cards = (cards, base) => cards.map((c, i) => {
   const e = verifyGameDayCard(c);
   if (e.length) throw new Error(`${base} failed validation:\n  - ${e.join("\n  - ")}`);
@@ -714,7 +716,7 @@ export function prepareGameDay({ date, asOf, lineDoc = null, laneOverride = null
     if (!wp) { cov.reasonMissing = "ESTIMATE_ACCESSOR_REFUSED"; continue; }
     const away = teamOf(g.away.abbr, g.away.name); const home = teamOf(g.home.abbr, g.home.name);
     const winner = g.elo.state === "FAVOURED" ? (g.elo.favoured === home.abbr ? home : away) : null;
-    games.push({ eventId: id, raw: g, cov, t, away, home, winner, awayP: wp.away, homeP: wp.home, awayPct: wp.awayPct, homePct: wp.homePct, tipTime: tipClock(t), tipDay: weekdayLong(t), chip: `NBA · ${chipDay(t)} · ${tipClock(t)}` });
+    games.push({ eventId: id, raw: g, cov, t, away, home, winner, awayP: wp.away, homeP: wp.home, awayPct: wp.awayPct, homePct: wp.homePct, tipTime: etClock(t), tipDay: weekdayLong(t), chip: `NBA · ${chipDay(t)} · ${etClock(t)}` });
   }
   if (!games.length) return { posts, refused: [{ job: "nba-game-day", reason: "no pregame game" }], coverage: [...coverage.values()] };
   games.sort((a, b) => a.t - b.t || a.away.abbr.localeCompare(b.away.abbr));

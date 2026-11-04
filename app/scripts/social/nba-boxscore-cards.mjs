@@ -172,6 +172,20 @@ export function boxScorePages(doc, eventId, perTeam = PER_TEAM) {
 }
 
 const cellId = (doc, eventId, playerId, family) => `nba:${doc.edition.date}:${eventId}:${playerId}:${family}`;
+/** Game-post selection (founder, 2026-11-04): one page, the top GAME_POST_PER_TEAM players per team by projected minutes. */
+export const GAME_POST_PER_TEAM = 4;
+export const GAME_POST_SELECTION_RULE = "one page; per team, the 4 players with the most projected minutes among those with a compared pts, reb or ast line; ties by projected points, then player id; printed in projected-points order";
+const minutesOf = (p) => Math.max(...Object.values(p.cells).map((c) => c.model?.expectedMinutes ?? -Infinity));
+
+export function gamePostPage(doc, eventId, perTeam = GAME_POST_PER_TEAM) {
+  const g = boxScorePlayers(doc, eventId);
+  if (!g.awayPlayers.length && !g.homePlayers.length) return [];
+  const pts = (p) => (p.cells.pts ? p.cells.pts.model.value : -Infinity);
+  const top = (list) => [...list].sort((a, b) => minutesOf(b) - minutesOf(a) || pts(b) - pts(a) || a.playerId.localeCompare(b.playerId)).slice(0, perTeam)
+    .sort((a, b) => pts(b) - pts(a) || a.playerId.localeCompare(b.playerId));
+  return [{ ...g, page: 1, pages: 1, awayPlayers: top(g.awayPlayers), homePlayers: top(g.homePlayers), selectionRule: GAME_POST_SELECTION_RULE }];
+}
+
 /** Every cell of a page in print order: [{ id, entry, cell }]. */
 export function pageCells(doc, page, o = {}) {
   return [...page.awayPlayers, ...page.homePlayers].flatMap((p) => BOX_FAMILIES.map((f) => {

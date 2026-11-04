@@ -36,7 +36,7 @@ import { fileURLToPath } from "node:url";
 import { loadNbaLineGraphicsExport, assertPrivateOutDir, defaultOutDir, PURPOSE_ARG } from "./nba-line-graphics-io.mjs";
 import { serializeLineGraphicsExport, PURPOSE } from "../../src/lib/social/nba-line-graphics-export.mjs";
 import {
-  BOX_SIZE, BOX_TEMPLATE, MIN_PX, boxScorePages, renderBoxScoreCardHtml, verifyBoxScoreCardHtml, boxScoreCaption,
+  BOX_SIZE, BOX_TEMPLATE, MIN_PX, boxScorePages, gamePostPage, renderBoxScoreCardHtml, verifyBoxScoreCardHtml, boxScoreCaption,
 } from "./nba-boxscore-cards.mjs";
 import {
   SIZES, renderGameCardHtml, renderSummaryCardHtml, selectCardRows, verifyCardHtml, verifyAgainstSources, gameCaption, summaryCaption, captionViolations,
@@ -60,7 +60,7 @@ export function parseArgs(argv) {
  * Everything up to (not including) the PNGs: validated export, card HTML, captions. Pure apart from reading inputs.
  * Throws on any refusal.
  */
-export const TEMPLATES = Object.freeze(["boxscore", "table"]);
+export const TEMPLATES = Object.freeze(["boxscore", "gamepost", "table"]);
 
 export function prepareNbaLineGraphics({ date, asOf, purpose, env = process.env, template = "boxscore" }) {
   if (!TEMPLATES.includes(template)) throw new Error(`--template ${TEMPLATES.join("|")}`);
@@ -72,6 +72,7 @@ export function prepareNbaLineGraphics({ date, asOf, purpose, env = process.env,
   const sourceErrors = verifyAgainstSources({ doc, lane, artifact });
   if (sourceErrors.length) throw new Error(`validation against the lane and the artifact failed:\n  - ${sourceErrors.slice(0, 20).join("\n  - ")}\nNothing written.`);
   if (template === "boxscore") return prepareBoxScore(doc);
+  if (template === "gamepost") return prepareBoxScore(doc, { pagesOf: gamePostPage, template: "gamepost" });
   const cards = [];
   for (const ev of doc.events.filter((e) => e.rows > 0)) {
     for (const size of Object.values(SIZES)) {
@@ -101,18 +102,18 @@ export function prepareNbaLineGraphics({ date, asOf, purpose, env = process.env,
 }
 
 /** The box-score set: every page of every game with a comparison, each verified against the export before any PNG. */
-function prepareBoxScore(doc) {
+function prepareBoxScore(doc, { pagesOf = boxScorePages, template = BOX_TEMPLATE } = {}) {
   const cards = [];
   const games = {};
   for (const ev of doc.events.filter((e) => e.rows > 0)) {
-    const pages = boxScorePages(doc, ev.eventId);
+    const pages = pagesOf(doc, ev.eventId);
     for (const page of pages) {
       const html = renderBoxScoreCardHtml({ doc, page });
       const errs = verifyBoxScoreCardHtml(html, doc, page);
       if (errs.length) throw new Error(`box-score card ${ev.eventId} ${page.page}/${page.pages} failed validation:\n  - ${errs.slice(0, 20).join("\n  - ")}\nNothing written.`);
       const name = `game-${ev.eventId}${page.page > 1 ? `-p${page.page}` : ""}-${BOX_SIZE.key}`;
       const rowIds = [...page.awayPlayers, ...page.homePlayers].flatMap((p) => Object.values(p.cells).map((c) => c.rowId));
-      cards.push({ name, kind: "game", template: BOX_TEMPLATE, eventId: ev.eventId, matchup: ev.matchup, page: page.page, pages: page.pages, size: BOX_SIZE, html, rowIds });
+      cards.push({ name, kind: "game", template, selectionRule: page.selectionRule ?? null, eventId: ev.eventId, matchup: ev.matchup, page: page.page, pages: page.pages, size: BOX_SIZE, html, rowIds });
       const caption = boxScoreCaption(doc, page);
       const cerrs = captionViolations(caption);
       if (cerrs.length) throw new Error(`caption failed validation (${cerrs.join("; ")}): ${caption}\nNothing written.`);
@@ -120,7 +121,7 @@ function prepareBoxScore(doc) {
     }
   }
   if (!cards.length) throw new Error("no game has a player with a compared points, rebounds or assists line. Nothing written.");
-  return { doc, cards, captions: { template: BOX_TEMPLATE, purpose: doc.purpose, socialAuthorized: doc.socialAuthorized, testData: doc.artifact?.testData === true, games } };
+  return { doc, cards, captions: { template, purpose: doc.purpose, socialAuthorized: doc.socialAuthorized, testData: doc.artifact?.testData === true, games } };
 }
 
 /**
@@ -161,7 +162,7 @@ export async function layoutErrors(browser, cards) {
     });
     // The footer (the last block) must end inside the frame with a 12 px margin; anything taller pushes it out.
     if (m.footBottom > m.h - 12) errs.push(`${c.name}: content overflows the ${c.size.key} frame (content ${m.scroll}px, footer bottom ${Math.round(m.footBottom)}px)`);
-    if (c.template === BOX_TEMPLATE) {
+    if (c.template === BOX_TEMPLATE || c.template === "gamepost") {
       if (m.pageOverflow) errs.push(`${c.name}: page overflows 1080×1350`);
       if (m.clipped.length) errs.push(`${c.name}: clipped text ${m.clipped.slice(0, 5).join(" | ")}`);
       if (m.fit?.names?.some((n) => !n.fits)) errs.push(`${c.name}: a player name does not fit: ${m.fit.names.filter((n) => !n.fits).map((n) => n.text).join(", ")}`);

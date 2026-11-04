@@ -8,7 +8,7 @@
 import { MODEL_GAME_POST } from "./nba-game-post-model.mjs";
 import { buildSocialPackage, ccCaptionProblems, etLabel } from "./social-package.mjs";
 
-export const PRICED_GAME_POST = Object.freeze({ maxLinePages: 2, designVersion: MODEL_GAME_POST.designVersion });
+export const PRICED_GAME_POST = Object.freeze({ maxLinePages: 1, designVersion: MODEL_GAME_POST.designVersion });
 
 export const pricedGamePostCaption = ({ awayName, homeName, winnerNickname }) => [
   `🏀 ${awayName} vs ${homeName} tonight!`, "",
