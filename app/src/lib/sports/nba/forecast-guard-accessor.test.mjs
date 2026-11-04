@@ -16,12 +16,13 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { applyForecastGuard, guardApplies, rowWithheld, cellWithheld, favouredUnderReview, FORECAST_GUARD } from "./forecast-guard-accessor.mjs";
 import { buildForecastGuard, UNDER_REVIEW_TEXT, UNDER_REVIEW_SHORT } from "./forecast-guard.mjs";
-import { guardLane } from "./forecast-guard-files.mjs";
+import { guardLane, withGuardDigest } from "./forecast-guard-files.mjs";
 import { readBoxscoreDocs } from "./forecast-guard-build.mjs";
 import { PROJECTION_BOARD_STATS } from "./experimental-public-lane.mjs";
 import { boardRows, packBoard, unpackBoard, UNDER_REVIEW_LABEL } from "./projection-board-ops.mjs";
 import { buildLaneTopBoards } from "./lane-top-boards.mjs";
 import { officialPanelFromLane } from "../../simulation-theater/nba/possession/payload.mjs";
+import { compareWithOfficial } from "../../simulation-theater/nba/possession/box.mjs";
 import { expiredSimulationMap } from "../../../components/nba/expired-simulation.mjs";
 
 globalThis.React = React;
@@ -184,12 +185,16 @@ test("Theater official card: simulated values never fill a withheld official cel
   }
   const held = out.players.find((p) => p.guard && p.guard.state !== "pass");
   assert.ok(held, "this game has a withheld row");
+  // the run-vs-official comparison: the run's own number is labelled as the run; the official side stays withheld
+  const cmp = compareWithOfficial({ home: [], away: [] }, out).find((c) => c.playerId === held.playerId);
+  assert.equal(cmp.underReview, true);
+  assert.ok(cmp.families.every((f) => f.official === null && f.diff === null));
   const html = renderToStaticMarkup(React.createElement(NbaOfficialPredictions, { official: out, teams: { home: { abbr: g.home.abbr, name: g.home.name }, away: { abbr: g.away.abbr, name: g.away.name } }, lane: g, finalNote: null, resultsHref: "/results/nba/", eloCtx: { enabled: false, disclosure: "" } }));
   assert.ok(html.includes(UNDER_REVIEW_TEXT));
 });
 
 // Level A / daily candidates read through guardLane with the real cut-over: a temp app holding a lane dated on it.
-function tempApp({ withGuard }) {
+function tempApp({ withGuard, digest = true }) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "fguard-"));
   const date = FORECAST_GUARD.cutover;
   const lane = { ...LANE, date, games: LANE.games.map((g) => ({ ...g, etDate: date })) };
@@ -199,7 +204,7 @@ function tempApp({ withGuard }) {
   if (withGuard) {
     const gd = path.join(root, "app/public/data", FORECAST_GUARD.dir);
     fs.mkdirSync(gd, { recursive: true });
-    fs.writeFileSync(path.join(gd, `${date}.json`), JSON.stringify({ ...DOC, date }));
+    fs.writeFileSync(path.join(gd, `${date}.json`), JSON.stringify(digest ? withGuardDigest({ ...DOC, date }) : { ...DOC, date }));
   }
   return { root, date, lane };
 }
@@ -211,6 +216,8 @@ test("Level A (Bank Builder / Moonshot / Parlay Lab inputs): withheld projection
   const a = nbaSelections({ repoRoot: none.root, date: none.date, eloCtx: elo });
   assert.equal(a.projections.length, 0, "fail closed: no guard file, no player projection");
   assert.ok(a.selections.every((s) => s.participantStatuses.length > 0), "and every favoured side is unchecked");
+  const unverified = tempApp({ withGuard: true, digest: false });
+  assert.equal(nbaSelections({ repoRoot: unverified.root, date: unverified.date, eloCtx: elo }).projections.length, 0, "fail closed: a guard file without a valid digest is not used");
   const ok = tempApp({ withGuard: true });
   const b = nbaSelections({ repoRoot: ok.root, date: ok.date, eloCtx: elo });
   // Level A lists the points median only: withheld rows and rows whose points cell is withheld are absent

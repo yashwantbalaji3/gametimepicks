@@ -324,7 +324,7 @@ export function ReconciliationChecks({ result }: { result: { ok: boolean; checks
   );
 }
 
-type Cmp = { playerId: string; team: string | null; name: string | null; families: { family: string; label: string; official: number | null; run: number | null; diff: number | null }[] };
+type Cmp = { playerId: string; team: string | null; name: string | null; underReview?: boolean; families: { family: string; label: string; official: number | null; run: number | null; diff: number | null }[] };
 export function OfficialComparison({ rows, teams }: { rows: Cmp[]; teams: Teams }) {
   return (
     <div className="nbp-scroll" role="region" aria-label={COMPARE_TITLE} tabIndex={0}>
@@ -335,7 +335,7 @@ export function OfficialComparison({ rows, teams }: { rows: Cmp[]; teams: Teams 
           {rows.map((r) => (
             <tr key={r.playerId}>
               <td>{r.name ?? r.playerId} <span className="nbp-feed-sim">{r.team === "home" ? teams.home.abbr : r.team === "away" ? teams.away.abbr : ""}</span></td>
-              {r.families.map((f) => <td key={f.family}>{f.run == null ? "not in run" : f.family === "minutes" ? f.run.toFixed(1) : f.run} / {fmt1(f.official)}</td>)}
+              {r.families.map((f) => <td key={f.family}>{f.run == null ? "not in run" : f.family === "minutes" ? f.run.toFixed(1) : f.run} / {r.underReview ? "under review" : fmt1(f.official)}</td>)}
             </tr>
           ))}
         </tbody>

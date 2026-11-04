@@ -6,6 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { buildForecastGuard } from "./forecast-guard.mjs";
+import { withGuardDigest } from "./forecast-guard-files.mjs";
 
 export const BOXSCORE_DIR = "data/internal/research/nba/experimental/boxscores";
 
@@ -38,5 +39,5 @@ export function inputsDigest(eventIds, shaById) {
 export function buildGuardFromRepo(repoRoot, lane) {
   const { docs, shaById } = readBoxscoreDocs(repoRoot);
   const first = buildForecastGuard({ lane, boxscores: docs });
-  return buildForecastGuard({ lane, boxscores: docs, inputs: inputsDigest(first.inputs.boxscores.events, shaById) });
+  return withGuardDigest(buildForecastGuard({ lane, boxscores: docs, inputs: inputsDigest(first.inputs.boxscores.events, shaById) }));
 }

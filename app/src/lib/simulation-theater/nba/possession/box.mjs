@@ -85,6 +85,8 @@ export function compareWithOfficial(rows, official) {
     const r = runLine.get(String(p.playerId)) ?? null;
     out.push({
       playerId: String(p.playerId), team: p.team, name: p.displayName ?? r?.name ?? null,
+      // forecast guard: an official row under model review — its official cells are null and the run never fills them
+      ...(p.guard && p.guard.state !== "pass" ? { underReview: true } : {}),
       families: COMPARE_FAMILIES.map(([fam, label, key]) => {
         const off = fam === "minutes" ? p.expectedMinutes : p.medians?.[fam];
         const run = r ? (key === "min" ? Number((r.ds / 600).toFixed(1)) : r[key]) : null;

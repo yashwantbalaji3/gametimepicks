@@ -159,3 +159,17 @@ test("pages never read box scores: the page-side guard read names no internal pa
   const code = fs.readFileSync(path.join(APP, "src/lib/sports/nba/forecast-guard-files.mjs"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
   assert.doesNotMatch(code, /data\/internal|forecast-guard-build|boxscore/i);
 });
+
+test("content digest: the builder's document verifies; any edit, a missing digest or another schema does not", async () => {
+  const { buildGuardFromRepo } = await import("./forecast-guard-build.mjs");
+  const { verifyGuardDoc } = await import("./forecast-guard-files.mjs");
+  const lane = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nba/experimental-public/2026-11-02.json"), "utf8"));
+  const doc = JSON.parse(JSON.stringify(buildGuardFromRepo(REPO, lane)));
+  assert.deepEqual(verifyGuardDoc(doc), []);
+  const g = doc.games[0]; const id = Object.keys(g.players)[0];
+  const edited = JSON.parse(JSON.stringify(doc)); edited.games[0].players[id].state = edited.games[0].players[id].state === "pass" ? "blocked" : "pass";
+  assert.deepEqual(verifyGuardDoc(edited), ["digest does not match the content"]);
+  const { digest, ...bare } = doc; void digest;
+  assert.deepEqual(verifyGuardDoc(bare), ["no digest"]);
+  assert.ok(verifyGuardDoc({ ...doc, schema: "x" }).length > 0);
+});
