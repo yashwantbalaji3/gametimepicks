@@ -5,7 +5,7 @@
 // records). Never a package: the founder approves before anything is packaged for posting.
 //
 //   npx tsx scripts/social/rehearsal/bbm-v6-research.mjs --selection <research-selection.json> --out <dir outside the repo>
-//       [--held ms-a,ms-b]                (draw those lanes HELD: founder-review recommendation, no card)
+//       [--held ms-a,ms-b] [--held-code ML_EVIDENCE_UNFITTED] (draw those lanes HELD; the engine code in plain words)
 //       [--alt bb-b=<other selection.json>] (an alternate: that file's sealed record for the lane, drawn as <lane>-alt)
 import crypto from "node:crypto";
 import fs from "node:fs";
@@ -15,7 +15,7 @@ import { createRequire } from "node:module";
 import { parseArgs } from "../render-social-pack.mjs";
 import { X_LIMIT, CAPTION_PRICE_TEXT, rendererCommit, xWeighted } from "../render-bbm.mjs";
 import { american, cents } from "../bbm-cards.mjs";
-import { RULES_V2, bbmCardV6, bbmV6LayoutErrors, verifyBbmCardV6 } from "../bbm-cards-v6.mjs";
+import { RULES_V2, bbmCardV6, bbmV6LayoutErrors, heldReasonText, verifyBbmCardV6 } from "../bbm-cards-v6.mjs";
 import { BADGE, BBM_LANES, RUNG, VIEW, socialPricesOk } from "../../../src/lib/social/bbm-lane.mjs";
 import { evidenceLine } from "../../../src/lib/challenge-lanes/card-fields.mjs";
 
@@ -49,7 +49,7 @@ for (const { laneId, name, sel: src, file: srcFile, alt } of jobs) {
   if (HELD.has(laneId) && !alt) {
     const product = L0.product;
     const rungs = RULES_V2.milestonesCents[product].map((m, i) => ({ step: i + 1, milestoneCents: m, state: i ? RUNG.UPCOMING : RUNG.ACTIVE }));
-    models.push({ laneId, name, held: true, legsRaw: [], model: { product, letter: L0.letter, laneId, date: "2026-11-04", step: 1, steps: 5, rungs, ...TERMS[product], bankrollCents: TERMS[product].baseCents, badge: BADGE.HELD, view: VIEW.NO_ELIGIBLE_CARD, template: false, legs: [], payout: null, heldSub: "No card tonight", heldReason: "Held pending the founder's decision on tonight's research selections.", researchLine: true, reviewRibbon: REVIEW } });
+    models.push({ laneId, name, held: true, legsRaw: [], model: { product, letter: L0.letter, laneId, date: "2026-11-04", step: 1, steps: 5, rungs, ...TERMS[product], bankrollCents: TERMS[product].baseCents, badge: BADGE.HELD, view: VIEW.NO_ELIGIBLE_CARD, template: false, legs: [], payout: null, heldSub: "No card tonight", heldReason: a["held-code"] ? heldReasonText(a["held-code"]) : "Held pending the founder's decision on tonight's research selections.", researchLine: true, reviewRibbon: REVIEW } });
     continue;
   }
   const lane = src.lanes[laneId]; const c = lane?.card;
@@ -85,8 +85,8 @@ for (const { laneId, name, sel: src, file: srcFile, alt } of jobs) {
   const rungs = RULES_V2.milestonesCents[product].map((m, i) => ({ step: i + 1, milestoneCents: m, state: i ? RUNG.UPCOMING : RUNG.ACTIVE }));
   models.push({ laneId, name, alt: alt === true, sourceFile: srcFile, record: c, legsRaw: c.legs, model: {
     product, letter: L.letter, laneId, date: c.date, step: 1, steps: 5, rungs, ...TERMS[product], bankrollCents: c.money.stakeCents, badge: BADGE.ACTIVE, view: VIEW.CARD, template: false,
-    legs, selectionLabel: c.selectionLabel ?? (c.classification === "LEVEL_B" ? "Research selection — no validated edge claim" : null), reviewRibbon: REVIEW, showStepTarget: true,
-    payout: { combinedAmerican: c.combined.american, grossCents: c.money.grossPayoutCents, profitCents: c.money.profitCents, stakeCents: c.money.stakeCents, preliminary: !verified, fixture: false, estimate: false, legs: Object.fromEntries(c.legs.map((l) => [l.legId, { price: l.price, oddsFormat: "american", line: l.line }])) },
+    laneType: c.laneType ?? lane.laneType ?? undefined, legs, selectionLabel: c.selectionLabel ?? (c.classification === "LEVEL_B" ? "Research selection — no validated edge claim" : null), reviewRibbon: REVIEW, showStepTarget: true,
+    payout: { combinedLabel: c.combinedLabel ?? c.combined?.label ?? null, combinedAmerican: c.combined.american, grossCents: c.money.grossPayoutCents, profitCents: c.money.profitCents, stakeCents: c.money.stakeCents, preliminary: !verified, fixture: false, estimate: false, legs: Object.fromEntries(c.legs.map((l) => [l.legId, { price: l.price, oddsFormat: "american", line: l.line }])) },
   } });
 }
 const cards = models.map((m) => ({ ...m, card: { ...bbmCardV6(m.model), name: m.name } }));

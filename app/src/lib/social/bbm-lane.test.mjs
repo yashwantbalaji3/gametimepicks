@@ -518,3 +518,13 @@ test("V6 Level B (founder 2026-11-04): no probability row on any Level B leg, pr
   // Placeholders never print a probability label.
   assert.doesNotMatch(textOf(bbmCardV6({ ...model, template: true, legs: [{ placeholder: "required" }] })), /probability/i);
 });
+
+test("V6 engine lane types: the record's laneType must match the lane letter; a book-quoted parlay is labelled as such", () => {
+  const rungs = RULES_V2.milestonesCents["bank-builder"].map((m, i) => ({ step: i + 1, milestoneCents: m, state: i ? RUNG.UPCOMING : RUNG.ACTIVE }));
+  const model = { product: "bank-builder", letter: "A", laneId: "bb-a", date: DATE, step: 1, steps: 5, rungs, baseCents: 10000, targetCents: 1000000, bankrollCents: 10000, badge: BADGE.ACTIVE, view: VIEW.CARD, payout: null, template: false };
+  const ml = (id) => ({ legId: id, team: { abbr: "DET", name: "Detroit Pistons" }, opponent: { abbr: "PHI" }, home: true, tipUtc: "2026-11-05T00:00:00Z", level: "B", evidenceText: "Model side DET · market favourite DET · W-L L5 4-1" });
+  assert.throws(() => bbmCardV6({ ...model, laneType: "NBA_PLAYER_PROPS", legs: [ml("m1")] }), /LANE_TYPE_MISMATCH/);
+  const c = bbmCardV6({ ...model, laneType: "NBA_MONEYLINE", legs: [ml("m1"), ml("m2")], payout: { combinedLabel: "book-quoted parlay", combinedAmerican: 250, grossCents: 35000, profitCents: 25000, legs: { m1: { price: 120, oddsFormat: "american" }, m2: { price: 110, oddsFormat: "american" } } } });
+  assert.deepEqual(verifyBbmCardV6(c), []); assert.match(textOf(c), /Combined odds \(book-quoted parlay\)/);
+  assert.equal(heldReasonText("ML_EVIDENCE_UNFITTED"), "The moneyline research evidence is not yet fitted, so the lane holds tonight.");
+});

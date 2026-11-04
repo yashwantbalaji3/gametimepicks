@@ -29,6 +29,8 @@ export const V6_PLACEHOLDER = Object.freeze({ leg: "Awaiting qualified selection
 /** Prop legs: Level A carries the model's probability; Level B is research evidence, never a probability. */
 /** Founder 2026-11-04: the lane-type classification printed beside the lane letter. */
 export const LANE_TYPE = Object.freeze({ A: "Moneyline", B: "Player props" });
+/** The engine's laneType (betting-engine 3009783007) for each lane letter; a record whose type disagrees is refused. */
+export const ENGINE_LANE_TYPE = Object.freeze({ A: "NBA_MONEYLINE", B: "NBA_PLAYER_PROPS" });
 export const PROP_LEVEL = Object.freeze({ A: "Model value (Level A)", B: "Research (Level B)" });
 export const V6_REMOVED = Object.freeze([/NO REAL WAGER/i, /\bCAPTURED\b/i, /NEXT MILESTONE/i, /BELOW PACE|ON PACE|BEHIND PACE/i, /FOUNDER REVIEW ONLY/i, /NOT A SPORTSBOOK OFFER/i, /must land/i, /betting advice/i, /\bACTIVE\b/]);
 const STATUS_WORD = Object.freeze({ [BADGE.WON]: "Won", [BADGE.LOST]: "Lost", [BADGE.HELD]: "Held", [BADGE.COMPLETED]: "Completed", [BADGE.FINISHED_SHORT]: "Finished short" });
@@ -245,7 +247,7 @@ const CSS = (P) => `<style>
 const TARGET_ICON = `<svg width="46" height="46" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="20" fill="#E8332A"/><circle cx="23" cy="23" r="14" fill="#FFFFFF"/><circle cx="23" cy="23" r="8" fill="#E8332A"/><path d="M23 23 L42 4 M36 4 H42 V10" stroke="#FFC400" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`;
 const PAUSE_ICON = `<svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28" fill="none" stroke="#FFC400" stroke-width="5"/><rect x="21" y="18" width="8" height="28" rx="2" fill="#FFC400"/><rect x="35" y="18" width="8" height="28" rx="2" fill="#FFC400"/></svg>`;
 /** The engine's held reason in plain words: known codes map to a sentence; prose passes through (dashes become dots); none falls back to the rule. */
-const HELD_REASON = Object.freeze({ NO_ELIGIBLE_CARD: "No card met the qualification rules today.", NO_QUALIFIED_CARD: "No card met the qualification rules today.", NO_SLATE: "There are no eligible games on today's slate.", PRICE_UNAVAILABLE: "Prices for the qualifying card could not be verified in time.", BELOW_EDGE: "No card cleared the minimum model edge today." });
+const HELD_REASON = Object.freeze({ NO_ELIGIBLE_CARD: "No card met the qualification rules today.", NO_QUALIFIED_CARD: "No card met the qualification rules today.", NO_SLATE: "There are no eligible games on today's slate.", PRICE_UNAVAILABLE: "Prices for the qualifying card could not be verified in time.", BELOW_EDGE: "No card cleared the minimum model edge today.", ML_EVIDENCE_UNFITTED: "The moneyline research evidence is not yet fitted, so the lane holds tonight." });
 export function heldReasonText(reason) {
   if (!reason) return HELD_REASON.NO_ELIGIBLE_CARD;
   const r = String(reason).trim();
@@ -261,6 +263,7 @@ export function bbmCardV6(model, { testData = false } = {}) {
   const P = PRODUCT[model.product];
   if (!P) throw new Error(`no V6 design for ${model.product}`);
   if ((model.legs ?? []).length > RULES_V2.maxLegs) throw new Error(`${model.legs.length} legs: rules v2 take at most ${RULES_V2.maxLegs}`);
+  if (model.laneType && model.laneType !== ENGINE_LANE_TYPE[model.letter]) throw new Error(`LANE_TYPE_MISMATCH: lane ${model.letter} is ${ENGINE_LANE_TYPE[model.letter]}, the record says ${model.laneType}`);
   // Founder 2026-11-04: lanes specialize (A = moneyline, B = player props, both products); a leg of the other type is refused.
   for (const l of model.legs ?? []) if (!l.placeholder && (l.kind === "PROP") !== (model.letter === "B")) throw new Error(`lane ${model.letter} is the ${LANE_TYPE[model.letter]} challenge: a ${l.kind === "PROP" ? "prop" : "moneyline"} leg is refused`);
   if (!Object.values(BADGE).includes(model.badge)) throw new Error(`status ${model.badge} is not in the public vocabulary`);
@@ -289,7 +292,7 @@ export function bbmCardV6(model, { testData = false } = {}) {
       const am = model.payout ? american(model.payout.combinedAmerican) : null;
       const verified = !tpl && model.payout && !model.payout.preliminary && !model.payout.fixture;
       const tag = verified ? `<span class="chk">${CHECK}${cell(cells, "price.verified", "Verified odds")}</span>` : model.payout?.preliminary ? `<span class="pre">${cell(cells, "price.preliminary", "Preliminary odds")}</span>` : "";
-      bottom += `<div class="comb5"><span class="k">${esc(model.payout?.estimate ? "Combined odds (estimate)" : (model.legs ?? []).filter((l) => !l.placeholder).length === 1 || (model.legs ?? []).length === 1 ? "Selection odds" : "Combined odds (leg product)")}</span>${cell(cells, "price.combined", am ?? V6_PLACEHOLDER.price, "v")}${tag}</div>`;
+      bottom += `<div class="comb5"><span class="k">${esc(model.payout?.estimate ? "Combined odds (estimate)" : model.payout?.combinedLabel === "book-quoted parlay" ? "Combined odds (book-quoted parlay)" : (model.legs ?? []).filter((l) => !l.placeholder).length === 1 || (model.legs ?? []).length === 1 ? "Selection odds" : "Combined odds (leg product)")}</span>${cell(cells, "price.combined", am ?? V6_PLACEHOLDER.price, "v")}${tag}</div>`;
       const stake = `<div><div class="k">Tracked stake</div>${cell(cells, "money.wager", model.bankrollCents == null ? "Withheld" : cents(model.bankrollCents), "v")}</div>`;
       if (tpl || !model.payout) bottom += `<div class="money5">${stake}<div class="pay"><div class="k">Potential payout</div>${cell(cells, "money.payoutPending", V6_PLACEHOLDER.payout, "v pend")}<div class="sub">${cell(cells, "money.targetNote", `Step ${model.step} target ~${cents(stepTarget)}`)}</div></div><div><div class="k">Potential profit</div>${cell(cells, "money.profitPending", V6_PLACEHOLDER.payout, "v pend")}</div></div>`;
       else bottom += `<div class="money5">${stake}<div class="pay" data-money="payout"><div class="k">Potential payout</div>${cell(cells, "money.payout", cents(model.payout.grossCents), "v")}${model.showStepTarget ? `<div class="sub">${cell(cells, "money.targetNote", `Step ${model.step} target ~${cents(stepTarget)}`)}</div>` : ""}</div><div class="pro"><div class="k">Potential profit</div>${cell(cells, "money.profit", cents(model.payout.profitCents), "v")}</div></div>`;
@@ -339,7 +342,7 @@ export function verifyBbmCardV6(card) {
   for (const [k, v] of Object.entries(got)) if (/\.(evidence|evidenceBig)$/.test(k) && /%/.test(v)) e.push(`${k}: a hit rate shown as a percentage`);
   const priceCells = Object.entries(got).filter(([k]) => /\.(odds|line)$|^price\.|^plan\.mult$/.test(k));
   let shown = text; for (const [, v] of priceCells) shown = shown.split(v).join(" ");
-  shown = shown.replace(/Combined odds \((leg product|estimate)\)|Selection odds/gi, " ").replace(SAMPLE_PRICE_RIBBON, " ");
+  shown = shown.replace(/Combined odds \((leg product|estimate|book-quoted parlay)\)|Selection odds/gi, " ").replace(SAMPLE_PRICE_RIBBON, " ");
   if (PRICE_TEXT.test(shown)) e.push(`price text outside its cells: ${shown.match(PRICE_TEXT)[0]}`);
   if (/[—–]/.test(text)) e.push("dash on image");
   e.push(...sourceTextProblems(shown), ...statLabelProblems(shown));
