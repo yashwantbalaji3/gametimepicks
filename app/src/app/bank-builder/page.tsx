@@ -61,6 +61,9 @@ import {
 import { loadStep5TargetStatus } from "@/lib/bank-builder-step5-target";
 import { RUNBOOKS } from "@/lib/launch/runbook-registry.mjs";
 import MoreDisclosure from "@/components/ui/more-disclosure";
+import LanePair from "@/components/challenge-lanes/lane-pair";
+import type { LaneView } from "@/components/challenge-lanes/lane-card";
+import { loadProductLanes } from "@/lib/products/challenge-lanes/load.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { currentProductRecord } from "@/lib/results/current-record";
 import { RECORD_SCOPE_LABEL, scopedRecordText } from "@/lib/results/current-record";
@@ -488,165 +491,173 @@ export default function BankBuilderPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
-      {/* Operating state from THIS product's own artifact (Program 140). The badge previously took
-          the MLB slate date, which the daily board keeps current, so a fifteen-day-old set of cards
-          rendered under "Live today". `deriveProductState` cannot produce a live label without a
-          card published for the current date, and it distinguishes "we ran and nothing qualified"
-          from "we never ran" — those rendered identically before. */}
-      <div className="mb-3 flex flex-col items-end gap-1">
-        {/* The freshness badge answers "is the artifact current?" and says "Live today" when it is.
-            That is true of the ARTIFACT but contradicts the product state directly beneath it when
-            today's honest answer is a no-play — two labels, one saying live, one saying no card.
-            It renders only when a card is actually running; otherwise the state label below is both
-            more precise and the only claim on screen. */}
-        {isLive(bbProductState) ? (
-          <FreshnessBadge slateDate={bbArtifact.date ?? today} serverToday={currentEtDate()} noun="card slate" />
-        ) : null}
-        <span
-          className="font-mono uppercase tracking-[0.1em]"
-          style={{ color: isLive(bbProductState) ? "var(--vault-gold-bright)" : "var(--vault-text-mute)", fontSize: 10 }}
-        >
-          {bbStateLabel}
-        </span>
-        {/* Overnight 10-28 (SIMPLIFY): ONE plain status line. The state's explanation and the next transition read as one
-            sentence; the runbook's full schedule (cron backstop in UTC, the watchdog re-run) moved to Technical details
-            at the foot of the page. P211 R-E still holds: the time is quoted from the ONE registry, never hand-kept. */}
-        <span style={{ color: "var(--vault-text-faint)", fontSize: 11, maxWidth: "52ch", textAlign: "right" }}>
-          {bbStateExplanation}{" "}
-          {isLive(bbProductState)
-            ? "It settles overnight from official box scores — the ladder advances or restarts on the graded result."
-            : NEXT_EVALUATION_ET ? `Next check ${NEXT_EVALUATION_ET}.` : null}
-        </span>
-      </div>
+      {/* BBM V2 CHALLENGE LANES (founder, 2026-11-04): today's two lanes lead the page, the same step, legs, odds,
+          payout and status as the X posts, read through the ONE loader of public/data/challenge-lanes/<laneId>.json and
+          the encrypted price display. Everything below is the earlier ladder, folded and labelled as the archive. */}
+      <LanePair product="bank-builder" lead lanes={loadProductLanes("bank-builder") as LaneView[]} />
+      <MoreDisclosure id="track-record" title="Earlier ladder (archive) — not today's challenge lanes" summary="The earlier dual ladder, today's model checks, previous hits and the graded record" className="mt-6">
+        <div className="flex flex-col gap-6">
+          {/* Operating state from THIS product's own artifact (Program 140). The badge previously took
+              the MLB slate date, which the daily board keeps current, so a fifteen-day-old set of cards
+              rendered under "Live today". `deriveProductState` cannot produce a live label without a
+              card published for the current date, and it distinguishes "we ran and nothing qualified"
+              from "we never ran" — those rendered identically before. */}
+          <div className="mb-3 flex flex-col items-end gap-1">
+            {/* The freshness badge answers "is the artifact current?" and says "Live today" when it is.
+                That is true of the ARTIFACT but contradicts the product state directly beneath it when
+                today's honest answer is a no-play — two labels, one saying live, one saying no card.
+                It renders only when a card is actually running; otherwise the state label below is both
+                more precise and the only claim on screen. */}
+            {isLive(bbProductState) ? (
+              <FreshnessBadge slateDate={bbArtifact.date ?? today} serverToday={currentEtDate()} noun="card slate" />
+            ) : null}
+            <span
+              className="font-mono uppercase tracking-[0.1em]"
+              style={{ color: isLive(bbProductState) ? "var(--vault-gold-bright)" : "var(--vault-text-mute)", fontSize: 10 }}
+            >
+              {bbStateLabel}
+            </span>
+            {/* Overnight 10-28 (SIMPLIFY): ONE plain status line. The state's explanation and the next transition read as one
+                sentence; the runbook's full schedule (cron backstop in UTC, the watchdog re-run) moved to Technical details
+                at the foot of the page. P211 R-E still holds: the time is quoted from the ONE registry, never hand-kept. */}
+            <span style={{ color: "var(--vault-text-faint)", fontSize: 11, maxWidth: "52ch", textAlign: "right" }}>
+              {bbStateExplanation}{" "}
+              {isLive(bbProductState)
+                ? "It settles overnight from official box scores — the ladder advances or restarts on the graded result."
+                : NEXT_EVALUATION_ET ? `Next check ${NEXT_EVALUATION_ET}.` : null}
+            </span>
+          </div>
 
-      {/* v1.7 — which sports could contribute a leg today, from the availability owner. Counts and plain
-          reasons only; it names the market-priced caveat the product carries. Reads no internal artifact. */}
-      <EligibleUniverse availability={loadProductAvailability()} compact scope="Bank Builder" levelASports={levelAModel ? levelASportsShown(levelAModel, "bank-builder") : null} />
-      {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="bank-builder" /> : null}
-      {/* P0-E: today's priced NBA/NFL candidate or the exact reasons there is none (own section; history below is untouched). */}
-      {dailyCandidateSectionEnabled() ? <DailyCandidatePanel model={dailyCandidateForPage("bank-builder") as unknown as DailyCandidateModel} /> : null}
+          {/* v1.7 — which sports could contribute a leg today, from the availability owner. Counts and plain
+              reasons only; it names the market-priced caveat the product carries. Reads no internal artifact. */}
+          <EligibleUniverse availability={loadProductAvailability()} compact scope="Bank Builder" levelASports={levelAModel ? levelASportsShown(levelAModel, "bank-builder") : null} />
+          {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="bank-builder" /> : null}
+          {/* P0-E: today's priced NBA/NFL candidate or the exact reasons there is none (own section; history below is untouched). */}
+          {dailyCandidateSectionEnabled() ? <DailyCandidatePanel model={dailyCandidateForPage("bank-builder") as unknown as DailyCandidateModel} /> : null}
 
-      {/* FLAGSHIP — the "live climb" hero: a plain-English, mobile-first front door to the ladder. It is
-          purely presentational (every figure is read verbatim from the data loaded above) and sits ABOVE
-          the existing dense ladder components, which remain below unchanged. */}
-      {/* P0 U2: the hero leads with the CURRENT era (record + settled P/L, through the shared reader); the
-          all-time record and the June peak sit in its History block, labelled. */}
-      <ClimbHero
-        currentBankroll={dailyPortfolio.activeBankroll}
-        peakBankroll={dailyPortfolio.peakBankroll}
-        openExposure={dailyPortfolio.exposure.core}
-        recordLabel={recordLabel}
-        currentEraText={scopedRecordText(officialRecord.currentEra)}
-        currentEraPl={loadCurrentEraMoney()?.pl ?? null}
-        allTimeText={scopedRecordText(officialRecord.allTime)}
-        lanes={climbLanes}
-        completedLadders={completedLadders}
-      />
+          {/* FLAGSHIP — the "live climb" hero: a plain-English, mobile-first front door to the ladder. It is
+              purely presentational (every figure is read verbatim from the data loaded above) and sits ABOVE
+              the existing dense ladder components, which remain below unchanged. */}
+          {/* P0 U2: the hero leads with the CURRENT era (record + settled P/L, through the shared reader); the
+              all-time record and the June peak sit in its History block, labelled. */}
+          <ClimbHero
+            currentBankroll={dailyPortfolio.activeBankroll}
+            peakBankroll={dailyPortfolio.peakBankroll}
+            openExposure={dailyPortfolio.exposure.core}
+            recordLabel={recordLabel}
+            currentEraText={scopedRecordText(officialRecord.currentEra)}
+            currentEraPl={loadCurrentEraMoney()?.pl ?? null}
+            allTimeText={scopedRecordText(officialRecord.allTime)}
+            lanes={climbLanes}
+            completedLadders={completedLadders}
+          />
 
-      {officialRecordLabel ? (
-        <RecordComposition recordLabel={officialRecordLabel} scopeLabel={officialRecord.scope ? RECORD_SCOPE_LABEL[officialRecord.scope] : RECORD_SCOPE_LABEL["all-time"]}
-          window={officialRecord.cell?.window ?? null}
-          composition={(officialRecord.cell?.composition as never) ?? null} backlog={foldBacklogView} />
-      ) : null}
+          {officialRecordLabel ? (
+            <RecordComposition recordLabel={officialRecordLabel} scopeLabel={officialRecord.scope ? RECORD_SCOPE_LABEL[officialRecord.scope] : RECORD_SCOPE_LABEL["all-time"]}
+              window={officialRecord.cell?.window ?? null}
+              composition={(officialRecord.cell?.composition as never) ?? null} backlog={foldBacklogView} />
+          ) : null}
 
-      {/* When a lane is ACTIVE, the ClimbHero above already shows its card + the expandable cleared-step
-          history — so we do NOT repeat it here (removes the duplicate "active daily Bank Builder"). Only
-          when NO lane is active AND no review card is showing do we render the fresh proposal, else the
-          premium "model skipped" no-play. (A review card in the hero would otherwise be contradicted by a
-          "model skipped" panel directly below it.) */}
-      {!dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.status === "active" && c.legs.length > 0)
-        && !climbLanes.some((l) => l.reviewMode) ? (
-        <div className="mt-5">
-          {/* ONE product state (P241 · A18): the header said "waiting on today's data" while this
-              panel said "no qualified card today" — "we never ran" and "we ran and nothing
-              qualified" are different facts, and the skipped card may only claim the second. When
-              the state machine says the inputs have not arrived, the panel says exactly that. */}
-          {bbProductState === "NO_EVENTS" ? (
-            /* Session 7: a no-games day is the calendar, not a slate that "offered no combination" — the panel
-               says the same thing as the state header above it. */
-            <div className="rounded-[12px] px-4 py-4" style={{ background: "var(--vault-wash-faint)", border: "1px dashed var(--vault-border)" }}>
-              <p className="m-0 font-semibold" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>No MLB slate today</p>
-              <p className="m-0 mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6 }}>
-                The ladder is built from MLB team markets, so it assessed nothing today. This is not a no-play call. The ladder resumes on the next MLB slate.
-              </p>
+          {/* When a lane is ACTIVE, the ClimbHero above already shows its card + the expandable cleared-step
+              history — so we do NOT repeat it here (removes the duplicate "active daily Bank Builder"). Only
+              when NO lane is active AND no review card is showing do we render the fresh proposal, else the
+              premium "model skipped" no-play. (A review card in the hero would otherwise be contradicted by a
+              "model skipped" panel directly below it.) */}
+          {!dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.status === "active" && c.legs.length > 0)
+            && !climbLanes.some((l) => l.reviewMode) ? (
+            <div className="mt-5">
+              {/* ONE product state (P241 · A18): the header said "waiting on today's data" while this
+                  panel said "no qualified card today" — "we never ran" and "we ran and nothing
+                  qualified" are different facts, and the skipped card may only claim the second. When
+                  the state machine says the inputs have not arrived, the panel says exactly that. */}
+              {bbProductState === "NO_EVENTS" ? (
+                /* Session 7: a no-games day is the calendar, not a slate that "offered no combination" — the panel
+                   says the same thing as the state header above it. */
+                <div className="rounded-[12px] px-4 py-4" style={{ background: "var(--vault-wash-faint)", border: "1px dashed var(--vault-border)" }}>
+                  <p className="m-0 font-semibold" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>No MLB slate today</p>
+                  <p className="m-0 mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6 }}>
+                    The ladder is built from MLB team markets, so it assessed nothing today. This is not a no-play call. The ladder resumes on the next MLB slate.
+                  </p>
+                </div>
+              ) : bbProductState === "INPUTS_STALE" || bbProductState === "INPUTS_MISSING" ? (
+                <div className="rounded-[12px] px-4 py-4" style={{ background: "var(--vault-wash-faint)", border: "1px dashed var(--vault-border)" }}>
+                  <p className="m-0 font-semibold" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>Waiting on today&rsquo;s data</p>
+                  <p className="m-0 mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6 }}>
+                    Today&rsquo;s source data has not arrived yet, so no card has been assessed — this is not a
+                    no-play call. The evaluation runs the moment the day&rsquo;s board posts.
+                  </p>
+                </div>
+              ) : bbProposal.available
+                ? <BankBuilderProposalCard proposal={bbProposal} />
+                : <BankBuilderSkippedCard alternatives={strongestSlatePicks(path.join(process.cwd(), "public", "data"), today, 3)} />}
             </div>
-          ) : bbProductState === "INPUTS_STALE" || bbProductState === "INPUTS_MISSING" ? (
-            <div className="rounded-[12px] px-4 py-4" style={{ background: "var(--vault-wash-faint)", border: "1px dashed var(--vault-border)" }}>
-              <p className="m-0 font-semibold" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>Waiting on today&rsquo;s data</p>
-              <p className="m-0 mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6 }}>
-                Today&rsquo;s source data has not arrived yet, so no card has been assessed — this is not a
-                no-play call. The evaluation runs the moment the day&rsquo;s board posts.
-              </p>
-            </div>
-          ) : bbProposal.available
-            ? <BankBuilderProposalCard proposal={bbProposal} />
-            : <BankBuilderSkippedCard alternatives={strongestSlatePicks(path.join(process.cwd(), "public", "data"), today, 3)} />}
+          ) : null}
+
+          {/* P250 · A01 — WHAT THE RECORD SYSTEMS SAY, from the ONE derived owner. Live paper exposure
+              (today's generated lanes) and the protected settled-money authority's exposure are
+              DIFFERENT measures of different eras; both render under their own names, and any typed
+              divergence between the generator's step and the lifecycle store's rule-derived position is
+              stated instead of silently resolved (that resolution is the founder-gated accounting). */}
+          {/* Overnight 10-28 (RELOCATE): the record-systems reconciliation and the daily schedule are audit detail — kept in
+              full, folded into this page's one Technical details disclosure. */}
+          <MoreDisclosure title="Technical details" summary="Daily schedule and how the two record systems agree" className="mt-5">
+          <p className="m-0 font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
+            Daily evaluation: {RUNBOOKS.mlb.products.when}. A watchdog re-runs a missed morning before 7:00 AM ET.
+          </p>
+          <section aria-label="Record reconciliation" className="rounded-[12px] px-4 py-3 flex flex-col gap-1.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)", border: "1px solid var(--vault-border)" }}>
+            <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>What the record systems say</span>
+            <p className="m-0 font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
+              Today&rsquo;s paper exposure (generated lanes): {bbDerived.exposure.live != null ? `$${Number(bbDerived.exposure.live).toFixed(2)}` : "—"} ·
+              settled-money record&rsquo;s open exposure: {bbDerived.exposure.settledAuthority != null ? `$${Number(bbDerived.exposure.settledAuthority).toFixed(2)}` : "—"} (protected ledger, its own era)
+            </p>
+            {bbDerived.divergences.length ? (
+              <ul className="m-0 flex flex-col gap-1 pl-4">
+                {bbDerived.divergences.map((d: { lane: string; generated: number; lifecycleStore: number; note: string; staleSince?: string | null }) => (
+                  <li key={d.lane} className="font-mono leading-relaxed" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
+                    {/* P281: said in the reader's words, not the pipeline's. The disclosure stays — a
+                        disagreement between record systems is never silently resolved here — but
+                        "the lifecycle store's rule-derived position" names a file, not a fact anyone
+                        outside this repository can act on. What a reader needs is which number the
+                        board follows and why the other one exists. */}
+                    Lane {d.lane} is on <strong style={{ color: "var(--vault-text)" }}>step {d.generated}</strong>, from the official
+                    daily receipts. A retired record (last written {d.staleSince ?? "with its last card"}) still shows
+                    step {d.lifecycleStore}; it is history and does not move this board.
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="m-0 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>The ladder step and the retired record agree today.</p>
+            )}
+          </section>
+          </MoreDisclosure>
+
+          {/* Moonshot is now its OWN product at /moonshot (mirrors Bank Builder). It is no longer surfaced
+              here — Bank Builder stays focused on the core ladder. */}
+
+
+          {/* SECTION 4 — previous hits */}
+          <PreviousHits hits={hits} />
+
+          {/* The "next run" is no longer a teaser — the Dual Bank Builder above is LIVE
+              (Run #2, Step 1). The old next-ladder teaser was removed to avoid contradicting it. */}
+
+          {/* SECTION 5 — tiny footer */}
+          <p className="mt-6 text-center text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
+            Paper-only educational tracking.{" "}
+            <Link href="/learn#bank-builder" className="underline" style={{ color: "var(--vault-text-mute)" }}>How it works →</Link>
+          </p>
+          <div className="mt-6">
+            <LifecycleRecord
+              cards={bbSettled}
+              position={receiptsDrive
+                ? receiptPositionRecord(bbPositions.A, dailyPortfolio.cards.find((c) => c.product === "bank-builder" && c.lane === "A" && c.status === "active")?.step ?? null)
+                : positionFor(bbLedger, "bank-builder-lane-A")}
+              positionLabel="Lane A"
+              emptyReason="No Bank Builder card has been graded yet. When a card's games finish, its legs and the official numbers they were graded against appear here."
+            />
+          </div>
         </div>
-      ) : null}
-
-      {/* P250 · A01 — WHAT THE RECORD SYSTEMS SAY, from the ONE derived owner. Live paper exposure
-          (today's generated lanes) and the protected settled-money authority's exposure are
-          DIFFERENT measures of different eras; both render under their own names, and any typed
-          divergence between the generator's step and the lifecycle store's rule-derived position is
-          stated instead of silently resolved (that resolution is the founder-gated accounting). */}
-      {/* Overnight 10-28 (RELOCATE): the record-systems reconciliation and the daily schedule are audit detail — kept in
-          full, folded into this page's one Technical details disclosure. */}
-      <MoreDisclosure title="Technical details" summary="Daily schedule and how the two record systems agree" className="mt-5">
-      <p className="m-0 font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
-        Daily evaluation: {RUNBOOKS.mlb.products.when}. A watchdog re-runs a missed morning before 7:00 AM ET.
-      </p>
-      <section aria-label="Record reconciliation" className="rounded-[12px] px-4 py-3 flex flex-col gap-1.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)", border: "1px solid var(--vault-border)" }}>
-        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>What the record systems say</span>
-        <p className="m-0 font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
-          Today&rsquo;s paper exposure (generated lanes): {bbDerived.exposure.live != null ? `$${Number(bbDerived.exposure.live).toFixed(2)}` : "—"} ·
-          settled-money record&rsquo;s open exposure: {bbDerived.exposure.settledAuthority != null ? `$${Number(bbDerived.exposure.settledAuthority).toFixed(2)}` : "—"} (protected ledger, its own era)
-        </p>
-        {bbDerived.divergences.length ? (
-          <ul className="m-0 flex flex-col gap-1 pl-4">
-            {bbDerived.divergences.map((d: { lane: string; generated: number; lifecycleStore: number; note: string; staleSince?: string | null }) => (
-              <li key={d.lane} className="font-mono leading-relaxed" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
-                {/* P281: said in the reader's words, not the pipeline's. The disclosure stays — a
-                    disagreement between record systems is never silently resolved here — but
-                    "the lifecycle store's rule-derived position" names a file, not a fact anyone
-                    outside this repository can act on. What a reader needs is which number the
-                    board follows and why the other one exists. */}
-                Lane {d.lane} is on <strong style={{ color: "var(--vault-text)" }}>step {d.generated}</strong>, from the official
-                daily receipts. A retired record (last written {d.staleSince ?? "with its last card"}) still shows
-                step {d.lifecycleStore}; it is history and does not move this board.
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="m-0 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>The ladder step and the retired record agree today.</p>
-        )}
-      </section>
       </MoreDisclosure>
-
-      {/* Moonshot is now its OWN product at /moonshot (mirrors Bank Builder). It is no longer surfaced
-          here — Bank Builder stays focused on the core ladder. */}
-
-
-      {/* SECTION 4 — previous hits */}
-      <PreviousHits hits={hits} />
-
-      {/* The "next run" is no longer a teaser — the Dual Bank Builder above is LIVE
-          (Run #2, Step 1). The old next-ladder teaser was removed to avoid contradicting it. */}
-
-      {/* SECTION 5 — tiny footer */}
-      <p className="mt-6 text-center text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
-        Paper-only educational tracking.{" "}
-        <Link href="/learn#bank-builder" className="underline" style={{ color: "var(--vault-text-mute)" }}>How it works →</Link>
-      </p>
-      <div className="mt-6">
-        <LifecycleRecord
-          cards={bbSettled}
-          position={receiptsDrive
-            ? receiptPositionRecord(bbPositions.A, dailyPortfolio.cards.find((c) => c.product === "bank-builder" && c.lane === "A" && c.status === "active")?.step ?? null)
-            : positionFor(bbLedger, "bank-builder-lane-A")}
-          positionLabel="Lane A"
-          emptyReason="No Bank Builder card has been graded yet. When a card's games finish, its legs and the official numbers they were graded against appear here."
-        />
-      </div>
     </div>
   );
 }

@@ -51,6 +51,9 @@ import {
   MOONSHOT_HAS_SCHEDULED_GENERATOR,
   MOONSHOT_HAS_WIRED_SETTLER,
 } from "@/lib/products/moonshot-state.mjs";
+import LanePair from "@/components/challenge-lanes/lane-pair";
+import type { LaneView } from "@/components/challenge-lanes/lane-card";
+import { loadProductLanes } from "@/lib/products/challenge-lanes/load.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const metadata = withRouteMetadata("/moonshot/", {
@@ -155,203 +158,212 @@ export default function MoonshotPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
-      {/* Slate liveness (real ET clock) — no-play framing when today has no live slate; points at the next
-          scheduled focus. The ladder lanes below remain the most-recent published cards. */}
-      <SlateLivenessBanner
-        publishDeadlineUtc={publicationDeadlineUtc()}
-        buildTimeToday={currentEtDate()}
-        latestSlate={etToday}
-        latestSlateHasGames={todayAcross.eventsToday > 0}
-        todayEvidence={todayAcross.state === "UNKNOWN" ? "unknown" : "known"}
-        archiveHref="/results"
-        archiveLabel="See results & receipts"
-      />
-      <PicksSurfaceHeader
-        eyebrow="Moonshot Lane"
-        title="Moonshot Lane"
-        status={status}
-        statusLabel={!moonshot.running ? "Not running" : todayRanWithoutCard ? noCardLabel : signature.label}
-        /* NO counts chips. They render a settled/pending pair, and neither number can be stated as a
-           single figure here: two ledgers disagree on how many cards are settled, and the open cards
-           are not "pending" because nothing will ever grade them. The reconciliation below shows both
-           sources instead of picking one for a chip. */
-        primaryAction={{ label: "Open Bank Builder", href: "/bank-builder" }}
-        secondaryAction={{ label: "Mr. Dub", href: "/mr-dub" }}
-        /* Derived, never hand-typed — the previous note claimed daily publication for a product that
-           had published nothing in weeks. */
-        note={moonshot.publicNote}
-      />
-
-      {/* THE RECONCILIATION — the charter's P0: one place where pending count, settled count,
-          exposure and card status are stated together, including where the sources disagree.
-          Hiding the disagreement behind a single chip is what produced the contradiction. */}
-      {moonshot.contradictions.length || moonshot.displayRecord ? (
-        <section
-          aria-label="Moonshot state reconciliation"
-          className="rounded-xl px-4 py-4 flex flex-col gap-3"
-          style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}
-        >
-          <h2 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 15 }}>Where Moonshot stands</h2>
-
-          <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {/* Each tile names WHICH record it reads (P250 · A01): the first pair describe TODAY's
-                publication surface; the last pair reconcile the retired legacy lane against the
-                lifecycle ledger. Unlabeled, "Open cards 0 · $0.00" sat two sections above today's
-                two published cards and $50 paper exposure — one page, two unscoped eras. */}
-            {[
-              ["Published today", String(moonshotLanes.length), moonshotLanes.length ? `$${dailyPortfolio.exposure.moonshot.toFixed(2)} paper` : "no card today"],
-              /* Founder decision 2026-09-22: the CURRENT record is the receipt/fold era (mr-dub/portfolio.json
-                 .moonshot, graded nightly from official results). The June ledger is a legacy era, shown
-                 collapsed below — never combined into this tile. */
-              /* P0 U2: labelled by scope ("Current era"), through the shared reader — it was "Settled record", the
-                 same words /results used for Bank Builder's all-time figure. */
-              [`${RECORD_SCOPE_LABEL["current-era"]} record`, msEra ? msEra.recordLabel : "—",
-                msEra ? `${recordWindowText(msEra) ?? "—"} · settled receipts` : moonshot.displayRecord ? "legacy era · no current-era record" : ""],
-              ["Legacy open cards", String(moonshot.openCardCount), moonshot.openCardCount === 0 ? "legacy lane fully graded" : moonshot.unsettleableCardCount ? "cannot be graded" : "awaiting results"],
-              ["Legacy stranded stake", `$${moonshot.openExposure.toFixed(2)}`, "legacy lane · paper"],
-            ].map(([k, v, sub]) => (
-              <div key={k} className="rounded-[10px] px-3 py-2" style={{ background: "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)" }}>
-                {/* <dt> before <dd>, and the sub-line INSIDE the <dd>: a <dl> group may hold only dt/dd (axe
-                    definition-list / dlitem). The term reads first for a screen reader as well as visually. */}
-                <dt className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{k}</dt>
-                <dd>
-                  <span className="block font-mono tabular" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>{v}</span>
-                  {sub ? <span className="block font-mono mt-0.5" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{sub}</span> : null}
-                </dd>
-              </div>
-            ))}
-          </dl>
-
-          {msEra ? (
-            <RecordComposition product="moonshot" recordLabel={msEra.recordLabel} scopeLabel={RECORD_SCOPE_LABEL["current-era"]}
-              window={{ from: msEra.from, to: msEra.to }} composition={null} backlog={moonshotBacklog} />
-          ) : null}
-
-          {/* The legacy era, as a labelled detail (founder decision 2026-09-22 · UX M-2): a different
-              population — June multi-leg cards — never combined with the current era's headline. */}
-          {moonshot.legacyRecord && msEra && msHistory.length ? (
-            <details className="rounded-[10px] px-3 py-2" style={{ background: "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)" }}>
-              <summary className="cursor-pointer font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-                {/* P0 U2: "History · June single-card lane 0–7 · Jun 23 – Jul 6, 2026" — the shared reader's name and
-                    dates, so the June figure can never be read as a rival to the current-era record above. */}
-                History · {msHistory.map((h) => scopedRecordText(h)).join(" · ")}
-              </summary>
-              <p className="mt-1.5 font-mono leading-relaxed" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
-                The June 2026 Moonshot was a different product — {moonshot.legacyRecord.settled} multi-leg card{moonshot.legacyRecord.settled === 1 ? "" : "s"} settled in the June 2026 ledger. It is kept here as history and is never added to the current record above.
-              </p>
-            </details>
-          ) : null}
-
-          {/* Overnight 10-28 (RELOCATE): how the stored records reconcile ("The old lane record … not updated in N days",
-              the two eras' counts) and the open accounting question are audit detail. Both stay public, word for word
-              (founder-token-boundary: the reason and the open question are never hidden) — folded, not removed. */}
-          {moonshot.contradictions.length || moonshot.founderDecision ? (
-            <MoreDisclosure title="Technical details" summary="How the stored Moonshot records reconcile, and what is still open">
-              {moonshot.contradictions.length ? (
-                <div className="flex flex-col gap-1.5">
-                  <p className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-                    What the stored records say, side by side
-                  </p>
-                  <ul className="flex flex-col gap-1">
-                    {moonshot.contradictions.map((c) => (
-                      <li key={c} className="font-mono leading-relaxed" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>· {c}</li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-              {moonshot.founderDecision ? (
-                <p className="font-mono leading-relaxed" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
-                  Still open: {moonshot.founderDecision}
-                </p>
-              ) : null}
-            </MoreDisclosure>
-          ) : null}
-        </section>
-      ) : null}
-
-      {/* The 3-STEP LADDER — the rule both lanes climb. Since 2026-09-10 each lane's rung comes from the
-          official receipts (products/ladder-position.mjs), and each lane's own day is on its rail in
-          today's cards below; this graphic names no single LIVE day, because two lanes can stand on
-          different ones. */}
-      <MoonshotLadderV2 currentDay={1} />
-
-      {/* The next transition, and only when one genuinely exists. This line used to assert ladder
-          progression mechanics ("a win unlocks the next day") for cards that are not ladder steps. */}
-      <p className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
-        {moonshotLanes.length
-          ? "Next transition: today's cards settle overnight from official results. Both legs win → the whole payout carries to the lane's next day; either leg loses → the lane restarts at $25."
-          : "No card is placed today. The ladder deals again tomorrow morning from wherever each lane stands."}
-      </p>
-
-      {/* v1.7 — which sports could contribute a leg today, from the availability owner (counts + plain
-          reasons; names the market-priced caveat). Same component as /bank-builder, same owner. */}
-      <EligibleUniverse availability={loadProductAvailability()} compact scope="Moonshot" levelASports={levelAModel ? levelASportsShown(levelAModel, "moonshot") : null} />
-      {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="moonshot" /> : null}
-      {/* P0-E: today's priced NBA/NFL candidate or the exact reasons there is none (own section; history below is untouched). */}
-      {dailyCandidateSectionEnabled() ? <DailyCandidatePanel model={dailyCandidateForPage("moonshot") as unknown as DailyCandidateModel} /> : null}
-
-      {/*
-        TODAY'S CARD — the PUBLISHED lanes themselves (P243 · A-2).
-        This section used to be "Today's structured Moonshot", assembled from the RETIRED World Cup
-        round-of-32 board — which on an MLB day always found no usable pair and rendered
-        "No qualified Moonshot today" on the same page whose header said today's card is published.
-        Two derivations of "today" cannot share a page: this one now renders the very cards the
-        header is talking about, and its empty state quotes the SAME derived sentence the header
-        uses, so the two surfaces cannot disagree again.
-      */}
-      <section className="flex flex-col gap-3 overflow-x-hidden">
-        <h2 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 17 }}>Today&rsquo;s Moonshot · {today}</h2>
-        {moonshotLanes.length ? (
-          <>
-            <ProductLanesLadder productLabel="Moonshot" product="moonshot" lanes={moonshotLanes} accent="gold" />
-            <p className="font-mono leading-relaxed" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>
-              Paper exposure {money(dailyPortfolio.exposure.moonshot)} placed · active bankroll {money(dailyPortfolio.activeBankroll)} · available {money(dailyPortfolio.availableBankroll)} · crown {money(dailyPortfolio.crownBankroll)} (historical, unchanged)
-            </p>
-          </>
-        ) : (
-          <div className="rounded-[12px] px-5 py-6 text-center" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)", border: "1px dashed var(--vault-rule)" }}>
-            <span aria-hidden style={{ fontSize: 22 }}>🌙</span>
-            <p className="mt-1.5" style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 600 }}>No published Moonshot card for {today}</p>
-            <p className="mt-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{moonshot.publicNote}</p>
-          </div>
-        )}
-      </section>
-
-      <LifecycleRecord
-        cards={settledCardsFor(msLedger, "moonshot")}
-        /* Where Lane A stands, from the same official receipts the generator deals from; the card on
-           the table wins for today. */
-        position={receiptPositionRecord(
-          positionFromReceipts({ receipts: readReceipts(path.join(process.cwd(), "public", "data"), today), product: "moonshot", lane: "A", ladder: MOONSHOT_LADDER as never, seed: MOONSHOT_SEED }) as never,
-          dailyPortfolio.cards.find((c) => c.product === "moonshot" && c.lane === "A" && c.status === "active")?.step ?? null,
-        )}
-        positionLabel="Moonshot Lane A"
-        emptyReason="No Moonshot card has been graded yet. When a card's games finish, its legs and the official numbers they were graded against appear here."
-      />
-
-      {/* History — the day-by-day lane tracker (stopped / restart state) below the live ladder. */}
-      <div className="flex flex-col gap-3">
-        <h2 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 17 }}>History</h2>
-        {lane ? (
-          <MoonshotLaneTracker
-            lane={lane}
-            /* H · M-2: this tracker reads the LEGACY lane store; the CURRENT record is not printed beside legacy cards
-               (it is stated once, labelled, in the tiles above). */
-            exposure={exposure}
-            running={moonshot.running}
-            /* Outcomes the lifecycle ledger graded, keyed by the lane's own card ids — without this
-               the tracker said "pending" directly above a record listing the same card as lost. */
-            settledOutcomes={new Map(settledCardsFor(msLedger, "moonshot").flatMap((c) => (c.sourceCardId && c.result ? [[c.sourceCardId, c.result] as [string, string]] : [])))}
+      {/* BBM V2 CHALLENGE LANES (founder, 2026-11-04): today's two lanes lead the page, the same step, legs, odds,
+          payout and status as the X posts, read through the ONE loader of public/data/challenge-lanes/<laneId>.json and
+          the encrypted price display. Everything below is the earlier ladder, folded and labelled as the archive. */}
+      <LanePair product="moonshot" lead lanes={loadProductLanes("moonshot") as LaneView[]} />
+      <MoreDisclosure id="track-record" title="Earlier Moonshot lane (archive) — not today's challenge lanes" summary="The earlier 3-day lane, its reconciliation, today's model checks and the graded record" className="mt-6">
+        <div className="flex flex-col gap-6">
+          {/* Slate liveness (real ET clock) — no-play framing when today has no live slate; points at the next
+              scheduled focus. The ladder lanes below remain the most-recent published cards. */}
+          <SlateLivenessBanner
+            publishDeadlineUtc={publicationDeadlineUtc()}
+            buildTimeToday={currentEtDate()}
+            latestSlate={etToday}
+            latestSlateHasGames={todayAcross.eventsToday > 0}
+            todayEvidence={todayAcross.state === "UNKNOWN" ? "unknown" : "known"}
+            archiveHref="/results"
+            archiveLabel="See results & receipts"
           />
-        ) : (
-          <div className="rounded-xl px-4 py-8 text-center" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
-            <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>Moonshot Lane data pending</p>
-            <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
-              The tracker appears once a lane artifact is published. <Link href="/bank-builder" style={{ color: "var(--vault-gold-bright)" }}>Open Bank Builder</Link>.
-            </p>
+          <PicksSurfaceHeader
+            headingLevel={2}
+            eyebrow="Moonshot Lane"
+            title="Moonshot Lane"
+            status={status}
+            statusLabel={!moonshot.running ? "Not running" : todayRanWithoutCard ? noCardLabel : signature.label}
+            /* NO counts chips. They render a settled/pending pair, and neither number can be stated as a
+               single figure here: two ledgers disagree on how many cards are settled, and the open cards
+               are not "pending" because nothing will ever grade them. The reconciliation below shows both
+               sources instead of picking one for a chip. */
+            primaryAction={{ label: "Open Bank Builder", href: "/bank-builder" }}
+            secondaryAction={{ label: "Mr. Dub", href: "/mr-dub" }}
+            /* Derived, never hand-typed — the previous note claimed daily publication for a product that
+               had published nothing in weeks. */
+            note={moonshot.publicNote}
+          />
+
+          {/* THE RECONCILIATION — the charter's P0: one place where pending count, settled count,
+              exposure and card status are stated together, including where the sources disagree.
+              Hiding the disagreement behind a single chip is what produced the contradiction. */}
+          {moonshot.contradictions.length || moonshot.displayRecord ? (
+            <section
+              aria-label="Moonshot state reconciliation"
+              className="rounded-xl px-4 py-4 flex flex-col gap-3"
+              style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}
+            >
+              <h2 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 15 }}>Where Moonshot stands</h2>
+
+              <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {/* Each tile names WHICH record it reads (P250 · A01): the first pair describe TODAY's
+                    publication surface; the last pair reconcile the retired legacy lane against the
+                    lifecycle ledger. Unlabeled, "Open cards 0 · $0.00" sat two sections above today's
+                    two published cards and $50 paper exposure — one page, two unscoped eras. */}
+                {[
+                  ["Published today", String(moonshotLanes.length), moonshotLanes.length ? `$${dailyPortfolio.exposure.moonshot.toFixed(2)} paper` : "no card today"],
+                  /* Founder decision 2026-09-22: the CURRENT record is the receipt/fold era (mr-dub/portfolio.json
+                     .moonshot, graded nightly from official results). The June ledger is a legacy era, shown
+                     collapsed below — never combined into this tile. */
+                  /* P0 U2: labelled by scope ("Current era"), through the shared reader — it was "Settled record", the
+                     same words /results used for Bank Builder's all-time figure. */
+                  [`${RECORD_SCOPE_LABEL["current-era"]} record`, msEra ? msEra.recordLabel : "—",
+                    msEra ? `${recordWindowText(msEra) ?? "—"} · settled receipts` : moonshot.displayRecord ? "legacy era · no current-era record" : ""],
+                  ["Legacy open cards", String(moonshot.openCardCount), moonshot.openCardCount === 0 ? "legacy lane fully graded" : moonshot.unsettleableCardCount ? "cannot be graded" : "awaiting results"],
+                  ["Legacy stranded stake", `$${moonshot.openExposure.toFixed(2)}`, "legacy lane · paper"],
+                ].map(([k, v, sub]) => (
+                  <div key={k} className="rounded-[10px] px-3 py-2" style={{ background: "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)" }}>
+                    {/* <dt> before <dd>, and the sub-line INSIDE the <dd>: a <dl> group may hold only dt/dd (axe
+                        definition-list / dlitem). The term reads first for a screen reader as well as visually. */}
+                    <dt className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{k}</dt>
+                    <dd>
+                      <span className="block font-mono tabular" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>{v}</span>
+                      {sub ? <span className="block font-mono mt-0.5" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{sub}</span> : null}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+
+              {msEra ? (
+                <RecordComposition product="moonshot" recordLabel={msEra.recordLabel} scopeLabel={RECORD_SCOPE_LABEL["current-era"]}
+                  window={{ from: msEra.from, to: msEra.to }} composition={null} backlog={moonshotBacklog} />
+              ) : null}
+
+              {/* The legacy era, as a labelled detail (founder decision 2026-09-22 · UX M-2): a different
+                  population — June multi-leg cards — never combined with the current era's headline. */}
+              {moonshot.legacyRecord && msEra && msHistory.length ? (
+                <details className="rounded-[10px] px-3 py-2" style={{ background: "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)" }}>
+                  <summary className="cursor-pointer font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+                    {/* P0 U2: "History · June single-card lane 0–7 · Jun 23 – Jul 6, 2026" — the shared reader's name and
+                        dates, so the June figure can never be read as a rival to the current-era record above. */}
+                    History · {msHistory.map((h) => scopedRecordText(h)).join(" · ")}
+                  </summary>
+                  <p className="mt-1.5 font-mono leading-relaxed" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
+                    The June 2026 Moonshot was a different product — {moonshot.legacyRecord.settled} multi-leg card{moonshot.legacyRecord.settled === 1 ? "" : "s"} settled in the June 2026 ledger. It is kept here as history and is never added to the current record above.
+                  </p>
+                </details>
+              ) : null}
+
+              {/* Overnight 10-28 (RELOCATE): how the stored records reconcile ("The old lane record … not updated in N days",
+                  the two eras' counts) and the open accounting question are audit detail. Both stay public, word for word
+                  (founder-token-boundary: the reason and the open question are never hidden) — folded, not removed. */}
+              {moonshot.contradictions.length || moonshot.founderDecision ? (
+                <MoreDisclosure title="Technical details" summary="How the stored Moonshot records reconcile, and what is still open">
+                  {moonshot.contradictions.length ? (
+                    <div className="flex flex-col gap-1.5">
+                      <p className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+                        What the stored records say, side by side
+                      </p>
+                      <ul className="flex flex-col gap-1">
+                        {moonshot.contradictions.map((c) => (
+                          <li key={c} className="font-mono leading-relaxed" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>· {c}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                  {moonshot.founderDecision ? (
+                    <p className="font-mono leading-relaxed" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+                      Still open: {moonshot.founderDecision}
+                    </p>
+                  ) : null}
+                </MoreDisclosure>
+              ) : null}
+            </section>
+          ) : null}
+
+          {/* The 3-STEP LADDER — the rule both lanes climb. Since 2026-09-10 each lane's rung comes from the
+              official receipts (products/ladder-position.mjs), and each lane's own day is on its rail in
+              today's cards below; this graphic names no single LIVE day, because two lanes can stand on
+              different ones. */}
+          <MoonshotLadderV2 currentDay={1} />
+
+          {/* The next transition, and only when one genuinely exists. This line used to assert ladder
+              progression mechanics ("a win unlocks the next day") for cards that are not ladder steps. */}
+          <p className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+            {moonshotLanes.length
+              ? "Next transition: today's cards settle overnight from official results. Both legs win → the whole payout carries to the lane's next day; either leg loses → the lane restarts at $25."
+              : "No card is placed today. The ladder deals again tomorrow morning from wherever each lane stands."}
+          </p>
+
+          {/* v1.7 — which sports could contribute a leg today, from the availability owner (counts + plain
+              reasons; names the market-priced caveat). Same component as /bank-builder, same owner. */}
+          <EligibleUniverse availability={loadProductAvailability()} compact scope="Moonshot" levelASports={levelAModel ? levelASportsShown(levelAModel, "moonshot") : null} />
+          {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="moonshot" /> : null}
+          {/* P0-E: today's priced NBA/NFL candidate or the exact reasons there is none (own section; history below is untouched). */}
+          {dailyCandidateSectionEnabled() ? <DailyCandidatePanel model={dailyCandidateForPage("moonshot") as unknown as DailyCandidateModel} /> : null}
+
+          {/*
+            TODAY'S CARD — the PUBLISHED lanes themselves (P243 · A-2).
+            This section used to be "Today's structured Moonshot", assembled from the RETIRED World Cup
+            round-of-32 board — which on an MLB day always found no usable pair and rendered
+            "No qualified Moonshot today" on the same page whose header said today's card is published.
+            Two derivations of "today" cannot share a page: this one now renders the very cards the
+            header is talking about, and its empty state quotes the SAME derived sentence the header
+            uses, so the two surfaces cannot disagree again.
+          */}
+          <section className="flex flex-col gap-3 overflow-x-hidden">
+            <h2 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 17 }}>Today&rsquo;s Moonshot · {today}</h2>
+            {moonshotLanes.length ? (
+              <>
+                <ProductLanesLadder productLabel="Moonshot" product="moonshot" lanes={moonshotLanes} accent="gold" />
+                <p className="font-mono leading-relaxed" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>
+                  Paper exposure {money(dailyPortfolio.exposure.moonshot)} placed · active bankroll {money(dailyPortfolio.activeBankroll)} · available {money(dailyPortfolio.availableBankroll)} · crown {money(dailyPortfolio.crownBankroll)} (historical, unchanged)
+                </p>
+              </>
+            ) : (
+              <div className="rounded-[12px] px-5 py-6 text-center" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)", border: "1px dashed var(--vault-rule)" }}>
+                <span aria-hidden style={{ fontSize: 22 }}>🌙</span>
+                <p className="mt-1.5" style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 600 }}>No published Moonshot card for {today}</p>
+                <p className="mt-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{moonshot.publicNote}</p>
+              </div>
+            )}
+          </section>
+
+          <LifecycleRecord
+            cards={settledCardsFor(msLedger, "moonshot")}
+            /* Where Lane A stands, from the same official receipts the generator deals from; the card on
+               the table wins for today. */
+            position={receiptPositionRecord(
+              positionFromReceipts({ receipts: readReceipts(path.join(process.cwd(), "public", "data"), today), product: "moonshot", lane: "A", ladder: MOONSHOT_LADDER as never, seed: MOONSHOT_SEED }) as never,
+              dailyPortfolio.cards.find((c) => c.product === "moonshot" && c.lane === "A" && c.status === "active")?.step ?? null,
+            )}
+            positionLabel="Moonshot Lane A"
+            emptyReason="No Moonshot card has been graded yet. When a card's games finish, its legs and the official numbers they were graded against appear here."
+          />
+
+          {/* History — the day-by-day lane tracker (stopped / restart state) below the live ladder. */}
+          <div className="flex flex-col gap-3">
+            <h2 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 17 }}>History</h2>
+            {lane ? (
+              <MoonshotLaneTracker
+                lane={lane}
+                /* H · M-2: this tracker reads the LEGACY lane store; the CURRENT record is not printed beside legacy cards
+                   (it is stated once, labelled, in the tiles above). */
+                exposure={exposure}
+                running={moonshot.running}
+                /* Outcomes the lifecycle ledger graded, keyed by the lane's own card ids — without this
+                   the tracker said "pending" directly above a record listing the same card as lost. */
+                settledOutcomes={new Map(settledCardsFor(msLedger, "moonshot").flatMap((c) => (c.sourceCardId && c.result ? [[c.sourceCardId, c.result] as [string, string]] : [])))}
+              />
+            ) : (
+              <div className="rounded-xl px-4 py-8 text-center" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
+                <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>Moonshot Lane data pending</p>
+                <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
+                  The tracker appears once a lane artifact is published. <Link href="/bank-builder" style={{ color: "var(--vault-gold-bright)" }}>Open Bank Builder</Link>.
+                </p>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      </MoreDisclosure>
     </div>
   );
 }

@@ -187,9 +187,9 @@ export default function ClimbHero({
         {/* h1: this is /bank-builder's primary page heading. It was an h2, so the page had no h1
             and its outline started at level 2 — a screen-reader user pressing "1" found nothing.
             Level only; styling and copy are unchanged. */}
-        <h1 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(20px, 4.4vw, 30px)", fontWeight: 800, lineHeight: 1.06 }}>
+        <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(20px, 4.4vw, 30px)", fontWeight: 800, lineHeight: 1.06 }}>
           Watch the ladder climb toward $10K
-        </h1>
+        </h2>
         {/* P213 R-C2: the essay is now ONE purpose line + the Sprint-035 sample-size truth in one
             sentence; the mechanics chip-list folds into the disclosure (the header chip already
             says paper-only). The state banner and ladder below are the page. */}

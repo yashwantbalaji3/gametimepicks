@@ -73,8 +73,9 @@ function fmtSlate(iso?: string): string | null {
 }
 
 export default function PicksSurfaceHeader({
-  title, eyebrow, slateDate, status = "pregame", counts, primaryAction, secondaryAction, note, statusLabel,
-}: PicksSurfaceHeaderProps) {
+  title, eyebrow, slateDate, status = "pregame", counts, primaryAction, secondaryAction, note, statusLabel, headingLevel = 1,
+}: PicksSurfaceHeaderProps & { /** 2 where the page's h1 is elsewhere (BBM V2 lanes lead /moonshot, 2026-11-04). */ headingLevel?: 1 | 2 }) {
+  const Heading = headingLevel === 2 ? "h2" : "h1";
   const s = STATUS_META[status];
   const slateLabel = fmtSlate(slateDate);
   const chips = counts ? COUNT_LABELS.filter(([k]) => typeof counts[k] === "number") : [];
@@ -105,9 +106,9 @@ export default function PicksSurfaceHeader({
         </span>
       </div>
 
-      <h1 className="relative mt-2 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 26, fontWeight: 800, lineHeight: 1.05 }}>
+      <Heading className="relative mt-2 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 26, fontWeight: 800, lineHeight: 1.05 }}>
         {title}
-      </h1>
+      </Heading>
 
       {note ? (
         <p className="relative mt-1.5 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)", maxWidth: 720 }}>{note}</p>

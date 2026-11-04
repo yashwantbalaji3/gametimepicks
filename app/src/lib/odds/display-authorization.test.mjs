@@ -4,6 +4,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   DISPLAY_AUTHORIZATION, DISPLAY_SURFACE_FIELD, assertDisplayAuthorized, displayAuthorization, DisplayNotAuthorizedError, NOT_AUTHORIZED_REASON,
   directionAuthorization, publicDirectionGate,
@@ -23,7 +25,13 @@ test("committed state (founder 2026-10-29): site authorized for NBA and NFL; soc
     assert.ok(directionQualified && Object.isFrozen(directionQualified));
     assert.deepEqual(
       switches,
-      { siteDisplay: true, socialDisplay: false, providerTermsRef: TERMS_REF, attribution: null, approvedBy: "founder", approvedAt: "2026-10-29", socialFeedPrices: false, socialFeedPricesConfirmationRef: null },
+      {
+        siteDisplay: true, socialDisplay: false, providerTermsRef: TERMS_REF, attribution: null, approvedBy: "founder", approvedAt: "2026-10-29", socialFeedPrices: false, socialFeedPricesConfirmationRef: null,
+        // founder 2026-11-04: prices in Bank Builder & Moonshot V2 challenge graphics, NBA only; social stays off
+        ...(sport === "nba"
+          ? { challengeGraphicsPrices: true, challengeGraphicsTermsRef: "docs/odds/ODDS_API_CHALLENGE_GRAPHICS_TERMS_2026-11-04.md", challengeGraphicsApprovedAt: "2026-11-04" }
+          : { challengeGraphicsPrices: false, challengeGraphicsTermsRef: null, challengeGraphicsApprovedAt: null }),
+      },
       sport,
     );
     assert.ok(Object.isFrozen(DISPLAY_AUTHORIZATION[sport]));
@@ -143,4 +151,16 @@ test("direction qualification: needs the surface authorized AND a complete quali
   }
   assert.equal(directionAuthorization("nba", "pts", "social", r(q(), { socialDisplay: false })).ok, false, "the social surface is gated on its own switch");
   assert.equal(directionAuthorization("nfl", "pts", "site", r(q())).ok, false, "an NBA qualification never carries over to NFL");
+});
+
+test("challenge-lane graphics: own switch, own terms record and date; the social feed stays off (founder 2026-11-04)", () => {
+  assert.equal(displayAuthorization("nba", "challengeGraphics").ok, true);
+  assert.equal(DISPLAY_AUTHORIZATION.nba.socialDisplay, false, "the challenge switch must not open the social feed");
+  assert.equal(DISPLAY_AUTHORIZATION.nba.socialFeedPrices, false);
+  assert.equal(displayAuthorization("nfl", "challengeGraphics").ok, false);
+  const base = { ...DISPLAY_AUTHORIZATION.nba };
+  assert.match(displayAuthorization("nba", "challengeGraphics", { nba: { ...base, challengeGraphicsTermsRef: null } }).reasons.join("; "), /challengeGraphicsTermsRef is missing/);
+  assert.match(displayAuthorization("nba", "challengeGraphics", { nba: { ...base, challengeGraphicsApprovedAt: "2026-13-01" } }).reasons.join("; "), /challengeGraphicsApprovedAt/);
+  assert.equal(displayAuthorization("nba", "challengeGraphics", { nba: { ...base, challengeGraphicsPrices: false } }).ok, false);
+  assert.ok(fs.existsSync(path.join(path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../.."), DISPLAY_AUTHORIZATION.nba.challengeGraphicsTermsRef)), "the terms record is committed");
 });

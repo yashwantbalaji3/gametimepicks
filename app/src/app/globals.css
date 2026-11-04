@@ -6141,3 +6141,163 @@ textarea:focus-visible { outline: none; box-shadow: var(--vault-focus-ring); bor
 /* (b′) The same tone dot without the pill, for a status said inline in a sentence-like row (homepage lanes). */
 .gtp-calm-dot { display: inline-flex; align-items: center; gap: 6px; }
 .gtp-calm-dot::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 9999px; background: var(--chip-tone, var(--vault-text-faint)); }
+
+/* BBM V2 challenge lanes (components/challenge-lanes): the website twin of the lane X graphic. --cl-accent is the
+   product colour (Bank Builder gold, Moonshot orange-violet). Goal = hypothetical (dashed), tracked = settled (solid
+   accent), start = plain. The ladder lights rung by rung once on load; prefers-reduced-motion shows it lit, still. */
+.cl-section { display: flex; flex-direction: column; gap: 14px; margin: 24px 0; min-width: 0; }
+.cl-intro { margin: 0; color: var(--vault-text-mute); font-size: 14px; line-height: 1.55; max-width: 72ch; }
+.cl-pair { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+@media (min-width: 900px) { .cl-pair { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.cl-lane { --cl-accent: var(--sport-bank); --cl-accent-ink: var(--vault-ink-black); position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 14px; min-width: 0; border-radius: 18px; padding: 18px 14px 16px; background: radial-gradient(120% 60% at 50% 0%, color-mix(in srgb, var(--cl-accent) 14%, transparent) 0%, transparent 60%), var(--vault-panel); border: 1px solid color-mix(in srgb, var(--cl-accent) 30%, var(--vault-border)); }
+.cl-lane--moonshot { --cl-accent: var(--product-moonshot); background: radial-gradient(90% 60% at 0% 0%, color-mix(in srgb, var(--product-moonshot-electric) 26%, transparent) 0%, transparent 60%), radial-gradient(90% 60% at 100% 0%, color-mix(in srgb, var(--risk-longshot) 18%, transparent) 0%, transparent 60%), var(--vault-panel); }
+.cl-lane--lost { border-color: color-mix(in srgb, var(--vault-danger) 45%, var(--vault-border)); }
+.cl-lane-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.cl-lane-title { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.cl-product { font-family: var(--font-mono, ui-monospace, monospace); font-size: 13px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; color: var(--cl-accent); }
+.cl-lane-chip { display: inline-flex; align-items: center; min-height: 28px; padding: 2px 10px; border-radius: 6px; background: var(--cl-accent); color: var(--cl-accent-ink); font-size: 14px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.cl-lane-run { font-size: 12px; color: var(--vault-text-mute); }
+.cl-status { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 2px 12px; border-radius: 9999px; font-size: 12px; font-weight: 800; letter-spacing: .08em; border: 1px solid var(--vault-border-strong); color: var(--vault-text-mute); }
+.cl-status--active { color: var(--vault-success); border-color: color-mix(in srgb, var(--vault-success) 55%, transparent); background: color-mix(in srgb, var(--vault-success) 10%, transparent); }
+.cl-status--won { color: var(--vault-gold-bright); border-color: color-mix(in srgb, var(--vault-gold) 60%, transparent); background: color-mix(in srgb, var(--vault-gold) 10%, transparent); }
+.cl-badges { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.cl-status--prelim { color: var(--vault-gold-bright); border-style: dashed; border-color: color-mix(in srgb, var(--vault-gold) 60%, transparent); }
+.cl-status--lost { color: var(--vault-danger); border-color: color-mix(in srgb, var(--vault-danger) 55%, transparent); background: color-mix(in srgb, var(--vault-danger) 10%, transparent); }
+.cl-step { margin: 2px 0 0; text-align: center; font-size: clamp(40px, 11vw, 64px); font-weight: 900; line-height: .95; letter-spacing: -.01em; color: var(--vault-text); text-transform: uppercase; }
+.cl-step-k { color: var(--cl-accent); text-shadow: 0 0 24px color-mix(in srgb, var(--cl-accent) 55%, transparent); }
+.cl-sub { margin: -4px 0 0; text-align: center; font-family: var(--font-mono, ui-monospace, monospace); font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--vault-text-mute); }
+.cl-note { margin: 0; text-align: center; color: var(--vault-text-mute); font-size: 13.5px; line-height: 1.5; }
+.cl-label { font-family: var(--font-mono, ui-monospace, monospace); text-transform: uppercase; letter-spacing: .1em; font-size: 10.5px; font-weight: 700; color: var(--vault-text-mute); }
+.cl-label--accent { color: var(--cl-accent); }
+/* The ladder: dots joined by a rail; completed rungs filled, the active one ringed and glowing, a failed one crossed. */
+.cl-ladder { padding: 4px 0 2px; }
+.cl-rungs { list-style: none; margin: 0; padding: 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
+.cl-rung { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+.cl-rung::before { content: ""; position: absolute; top: 19px; left: -50%; width: 100%; height: 4px; border-radius: 2px; background: var(--vault-border-strong); z-index: 0; }
+.cl-rung:first-child::before { display: none; }
+.cl-rung--completed::before, .cl-rung--active::before, .cl-rung--failed::before { background: var(--cl-accent); }
+.cl-rung-dot { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 9999px; font-weight: 900; font-size: 15px; background: var(--vault-panel-elevated, var(--vault-panel)); border: 2px solid var(--vault-border-strong); color: var(--vault-text-mute); }
+.cl-rung--completed .cl-rung-dot { background: var(--cl-accent); border-color: var(--cl-accent); color: var(--cl-accent-ink); }
+.cl-rung--active .cl-rung-dot { border: 3px solid var(--cl-accent); color: var(--vault-text); box-shadow: 0 0 0 4px color-mix(in srgb, var(--cl-accent) 22%, transparent), 0 0 22px color-mix(in srgb, var(--cl-accent) 55%, transparent); }
+.cl-rung--failed .cl-rung-dot { border-color: var(--vault-danger); background: color-mix(in srgb, var(--vault-danger) 22%, var(--vault-panel)); color: var(--vault-danger); }
+.cl-rung-label { font-family: var(--font-mono, ui-monospace, monospace); font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--vault-text-mute); }
+.cl-rung--active .cl-rung-label { color: var(--cl-accent); }
+.cl-rung-milestone { font-size: 12px; font-weight: 800; color: var(--vault-text); }
+@keyframes cl-rung-in { from { opacity: .25; transform: scale(.82); } to { opacity: 1; transform: none; } }
+@keyframes cl-rail-in { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes cl-glow { 0%, 100% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--cl-accent) 22%, transparent), 0 0 14px color-mix(in srgb, var(--cl-accent) 40%, transparent); } 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--cl-accent) 16%, transparent), 0 0 28px color-mix(in srgb, var(--cl-accent) 65%, transparent); } }
+.cl-rung .cl-rung-dot { animation: cl-rung-in .45s ease-out both; animation-delay: calc(var(--i, 0) * 140ms); }
+.cl-rung--completed::before, .cl-rung--active::before, .cl-rung--failed::before { transform-origin: left center; animation: cl-rail-in .4s ease-out both; animation-delay: calc(var(--i, 0) * 140ms - 70ms); }
+.cl-rung--active .cl-rung-dot { animation: cl-rung-in .45s ease-out both, cl-glow 2.8s ease-in-out 1.2s infinite; animation-delay: calc(var(--i, 0) * 140ms), calc(var(--i, 0) * 140ms + 600ms); }
+@media (prefers-reduced-motion: reduce) { .cl-rung .cl-rung-dot, .cl-rung::before, .cl-rung--active .cl-rung-dot { animation: none !important; } }
+/* Start / tracked / goal. */
+.cl-bank { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr); gap: 8px; }
+.cl-bank-box { margin: 0; min-width: 0; padding: 10px 8px; border-radius: 12px; text-align: center; border: 1px solid var(--vault-border); background: color-mix(in srgb, var(--vault-ink-black) 35%, transparent); }
+.cl-bank-box dt { font-family: var(--font-mono, ui-monospace, monospace); font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--vault-text-mute); }
+.cl-bank-box dd { margin: 4px 0 0; font-size: clamp(18px, 4.6vw, 26px); font-weight: 900; color: var(--vault-text); overflow-wrap: anywhere; }
+.cl-bank--tracked { background: var(--cl-accent); border-color: var(--cl-accent); box-shadow: 0 10px 30px -14px var(--cl-accent); }
+.cl-bank--tracked dt, .cl-bank--tracked dd { color: var(--cl-accent-ink); }
+.cl-bank-box dd.cl-bank-pending { font-size: 13px; line-height: 1.25; text-transform: uppercase; letter-spacing: .02em; }
+.cl-bank--goal { border: 1.5px dashed var(--cl-accent); }
+.cl-bank--goal dt, .cl-bank--goal dd { color: var(--cl-accent); }
+.cl-lane--moonshot .cl-bank--goal dt, .cl-lane--moonshot .cl-bank--goal dd { color: var(--vault-text); }
+.cl-pace { margin: -4px 0 0; text-align: center; font-size: 13px; font-weight: 700; color: var(--vault-text-mute); }
+.cl-pace--on { color: var(--vault-success); }
+.cl-pace--behind { color: var(--risk-high); }
+/* Leg cards: number, team name, team chip, matchup and time; MODEL WIN PROBABILITY large on the right. */
+.cl-legs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.cl-leg { --cl-team: var(--vault-border-strong); position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 4px 12px; min-height: 64px; padding: 12px 12px 12px 16px; border-radius: 12px; border: 1px solid var(--vault-border); background: linear-gradient(90deg, color-mix(in srgb, var(--cl-team) 20%, var(--vault-panel)) 0%, var(--vault-panel) 55%); box-shadow: inset 4px 0 0 var(--cl-team); }
+.cl-leg-n { font-size: 24px; font-weight: 900; color: var(--cl-accent); min-width: 18px; text-align: center; }
+.cl-leg-main { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.cl-leg-name { font-size: 17px; font-weight: 900; line-height: 1.1; text-transform: uppercase; color: var(--vault-text); overflow-wrap: anywhere; }
+.cl-leg-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: var(--vault-text-mute); }
+.cl-team-chip { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 4px; font-size: 11.5px; font-weight: 900; letter-spacing: .04em; background: var(--cl-team); color: var(--cl-team-ink, var(--vault-text)); }
+.cl-leg-flag { font-size: 12px; line-height: 1.45; color: var(--vault-text); }
+.cl-leg-odds { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--vault-text-mute); }
+.cl-odds-chip { display: inline-flex; padding: 1px 7px; border-radius: 4px; font-size: 12.5px; font-weight: 900; background: color-mix(in srgb, var(--cl-accent) 18%, transparent); border: 1px solid color-mix(in srgb, var(--cl-accent) 55%, transparent); color: var(--vault-text); }
+.cl-combined { margin: 2px 0 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--cl-accent) 45%, var(--vault-border)); }
+.cl-combined strong { font-size: 18px; font-weight: 900; color: var(--vault-text); }
+.cl-combined-src { flex-basis: 100%; font-size: 12px; color: var(--vault-text-mute); }
+.cl-combined--estimate { border-style: dashed; }
+.cl-money--priced { border-color: color-mix(in srgb, var(--cl-accent) 60%, var(--vault-border)); }
+.cl-rg { margin: -4px 0 0; text-align: center; font-size: 12px; font-weight: 700; color: var(--vault-text-mute); }
+.cl-rg a { color: var(--vault-text); text-decoration: underline; display: inline-flex; align-items: center; min-height: 24px; }
+.cl-flag-chip { display: inline-flex; padding: 0 6px; margin-right: 4px; border-radius: 4px; font-size: 10.5px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; background: var(--vault-gold); color: var(--vault-ink-black); }
+.cl-leg-side { display: flex; flex-direction: column; align-items: flex-end; text-align: right; gap: 2px; }
+.cl-leg-side .cl-label { font-size: 9.5px; max-width: 12ch; line-height: 1.2; }
+.cl-leg-pct { font-size: clamp(24px, 6vw, 32px); font-weight: 900; line-height: 1; color: var(--vault-text); }
+.cl-outcome { font-size: 12px; font-weight: 700; color: var(--vault-text-mute); }
+.cl-outcome--win { color: var(--vault-success); }
+.cl-outcome--loss { color: var(--vault-danger); }
+.cl-legs--compact .cl-leg { min-height: 52px; padding: 8px 10px 8px 14px; }
+.cl-legs--compact .cl-leg-name { font-size: 14px; }
+.cl-legs--compact .cl-leg-pct { font-size: 20px; }
+.cl-legs--compact .cl-leg-n { font-size: 18px; }
+/* Money row. */
+.cl-money { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr); gap: 8px; }
+.cl-money-cell { margin: 0; min-width: 0; padding: 10px; border-radius: 12px; border: 1px solid var(--vault-border); background: color-mix(in srgb, var(--vault-ink-black) 35%, transparent); }
+.cl-money-cell dt { font-family: var(--font-mono, ui-monospace, monospace); text-transform: uppercase; letter-spacing: .08em; font-size: 10px; font-weight: 700; color: var(--cl-accent); }
+.cl-money-cell dd { margin: 4px 0 0; font-size: 16px; font-weight: 900; color: var(--vault-text); overflow-wrap: anywhere; }
+.cl-money--pending { border: 1.5px dashed color-mix(in srgb, var(--cl-accent) 70%, transparent); }
+.cl-money--pending dd { font-size: 13px; text-transform: uppercase; letter-spacing: .02em; }
+.cl-money-sub { display: block; font-family: var(--font-mono, ui-monospace, monospace); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--vault-text-mute); }
+@media (max-width: 479px) { .cl-money { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .cl-money--pending { grid-column: 1 / -1; order: 3; } }
+.cl-block { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--vault-border); padding-top: 12px; }
+.cl-block-title { margin: 0; font-size: 13px; font-weight: 800; color: var(--vault-text); }
+/* The story: a timeline, newest first; won days gold, the lost day red, held days grey. */
+.cl-story { list-style: none; margin: 0; padding: 0 0 0 18px; display: flex; flex-direction: column; gap: 4px; border-left: 2px solid var(--vault-border); }
+.cl-story-day { position: relative; }
+.cl-story-dot { position: absolute; left: -25px; top: 16px; width: 12px; height: 12px; border-radius: 9999px; background: var(--vault-border-strong); border: 2px solid var(--vault-panel); }
+.cl-story-day--won .cl-story-dot { background: var(--vault-gold-bright); }
+.cl-story-day--lost .cl-story-dot { background: var(--vault-danger); }
+.cl-story-day--active .cl-story-dot { background: var(--vault-success); }
+.cl-story-summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-size: 13.5px; color: var(--vault-text); }
+.cl-story-body { display: flex; flex-direction: column; gap: 8px; padding: 2px 0 10px; }
+.cl-day-reason { margin: 0; font-size: 13px; line-height: 1.5; color: var(--vault-text-mute); }
+.cl-day-result { margin: 0; font-size: 13px; line-height: 1.5; font-weight: 700; color: var(--vault-text); }
+.cl-runs { margin: 0; padding-left: 18px; font-size: 13px; color: var(--vault-text-mute); display: flex; flex-direction: column; gap: 2px; }
+.cl-runs strong { color: var(--vault-text); }
+.cl-graphics { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.cl-graphic { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--vault-text-mute); }
+.cl-graphic-img { width: 100%; max-width: 320px; height: auto; border-radius: 10px; border: 1px solid var(--vault-border); }
+.cl-graphic-text strong { color: var(--vault-text); }
+.cl-graphic a { color: var(--cl-accent); text-decoration: underline; display: inline-flex; align-items: center; min-height: 24px; }
+.cl-fact { margin: 0; text-align: center; font-family: var(--font-mono, ui-monospace, monospace); font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--vault-text-mute); }
+@media (min-width: 768px) { .cl-lane { padding: 22px 20px 18px; gap: 16px; } .cl-leg-name { font-size: 19px; } }
+/* Provisional prop analysis (components/challenge-lanes/prop-analysis-panel): plainly not a challenge leg. */
+.pa-section { display: flex; flex-direction: column; gap: 10px; margin: 24px 0; min-width: 0; }
+.pa-label { margin: 0; padding: 8px 12px; border-radius: 10px; border: 1px dashed var(--vault-border-strong); font-size: 13px; font-weight: 700; color: var(--vault-text-mute); }
+.pa-rows { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+@media (min-width: 900px) { .pa-rows { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.pa-row { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 12px; border-radius: 12px; border: 1px solid var(--vault-border); background: var(--vault-panel); }
+.pa-who { display: flex; flex-direction: column; gap: 2px; }
+.pa-player { font-weight: 800; color: var(--vault-text); }
+.pa-meta { font-size: 12.5px; color: var(--vault-text-mute); }
+.pa-nums { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.pa-nums div { margin: 0; min-width: 0; }
+.pa-nums dt { font-family: var(--font-mono, ui-monospace, monospace); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--vault-text-mute); }
+.pa-nums dd { margin: 2px 0 0; font-size: 16px; font-weight: 900; color: var(--vault-text); overflow-wrap: anywhere; }
+.pa-src { margin: 0; font-size: 12px; color: var(--vault-text-mute); }
+.pa-game { border: 1px solid var(--vault-border); border-radius: 12px; padding: 0 12px; }
+.pa-game[open] { padding-bottom: 12px; }
+.pa-game-summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-size: 14px; color: var(--vault-text); }
+.pa-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 12.5px; }
+.pa-table th, .pa-table td { padding: 6px 4px; text-align: right; border-top: 1px solid var(--vault-border); color: var(--vault-text); overflow-wrap: anywhere; }
+.pa-table thead th { font-family: var(--font-mono, ui-monospace, monospace); font-size: 9.5px; font-weight: 700; letter-spacing: .02em; text-transform: uppercase; color: var(--vault-text-mute); border-top: 0; overflow-wrap: normal; word-break: keep-all; vertical-align: bottom; }
+.pa-table th[scope="row"], .pa-table thead th:first-child { text-align: left; width: 38%; font-weight: 700; }
+.pa-table thead th:nth-child(2) { width: 14%; }
+.pa-table thead th:nth-child(3) { width: 20%; }
+.pa-table thead th:nth-child(4) { width: 12%; }
+.pa-table thead th:nth-child(5) { width: 16%; }
+.pa-book { display: block; font-size: 11px; font-weight: 500; color: var(--vault-text-mute); }
+.pa-team { color: var(--vault-text-mute); font-weight: 600; }
+@media (min-width: 768px) { .pa-table { font-size: 13.5px; } }
+.pa-stale { font-size: 11px; font-weight: 700; color: var(--vault-text-mute); white-space: nowrap; }
+/* The lanes' page header (founder cleanup 2026-11-04): "BANK BUILDER — $100 TO $10,000". */
+.cl-lead-title { margin: 0; font-size: clamp(26px, 6.4vw, 44px); font-weight: 900; line-height: 1.05; letter-spacing: .01em; color: var(--vault-text); overflow-wrap: anywhere; }
+.cl-lead-range { color: var(--sport-bank); }
+.cl-lead-title--moonshot { text-transform: uppercase; text-shadow: 0 0 28px color-mix(in srgb, var(--product-moonshot-electric) 60%, transparent); }
+.cl-lead-title--moonshot .cl-lead-range { color: var(--product-moonshot); }
+.pa-summary { margin: 0; padding-left: 18px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px 24px; font-size: 13.5px; color: var(--vault-text-mute); }
+.pa-summary strong { color: var(--vault-text); }
+@media (min-width: 900px) { .pa-summary { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
