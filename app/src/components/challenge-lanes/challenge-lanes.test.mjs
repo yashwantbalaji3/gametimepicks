@@ -179,9 +179,14 @@ test("SITE/SOCIAL CONSISTENCY: every step, rung, status, bankroll, distance, pac
   }
   // Structural: the site reads with the engine's reader and folds with the engine's laneDisplay, and has no fold of its own.
   assert.match(read("src/lib/products/challenge-lanes/load.mjs"), /import \{ readLaneProjection \} from "\.\.\/\.\.\/challenge-lanes\/public-reader\.mjs";/);
+  const loader = read("src/lib/products/challenge-lanes/load.mjs");
+  assert.match(loader, /import \{ pricedLaneDisplay \} from "\.\.\/\.\.\/challenge-lanes\/display\.mjs";/);
+  assert.match(loader, /import \{ readLanePrices \} from "\.\.\/\.\.\/challenge-lanes\/price-display\.mjs";/);
+  assert.match(loader, /const display = pricedLaneDisplay\(r\.doc, readLanePrices\(\{ appDir, laneId, env \}\)\);/);
+  assert.doesNotMatch(read("src/lib/products/challenge-lanes/lane.mjs"), /withLanePrices|decryptDisplayArtifact|readLanePriceDisplay/, "the site joins and decrypts nothing itself");
   const src = read("src/lib/products/challenge-lanes/lane.mjs");
   assert.match(src, /import \{ laneDisplay \} from "\.\.\/\.\.\/challenge-lanes\/display\.mjs";/);
-  const view = src.slice(src.indexOf("export function laneView"), src.indexOf(" * JOIN the engine's decrypted price display"));
+  const view = src.slice(src.indexOf("export function laneView"), src.indexOf("export function unavailableLaneView"));
   assert.match(view, /const d = display \?\? laneDisplay\(doc\);\n  if \(d\.sourceSha256 !== doc\.contentSha256\) throw/);
   assert.doesNotMatch(view, /doc\.(runs|current|steps|baseCents|targetCents|milestonesCents)|publicStatus|trackedBankrollWithheld|readFileSync/, "laneView reads only laneDisplay's output");
 });
@@ -215,15 +220,15 @@ test("PRICED: odds, book and capture time per leg, the combined price (leg produ
   assert.deepEqual(v.current.legs.map((l) => l.price.odds), ["+120", "-150"]);
   assert.match(t, /\+120 SAMPLE BOOK/); assert.match(t, /-150 SAMPLE BOOK/);
   assert.match(t, /Combined price \(leg product\) \+267 · 3\.67× SAMPLE BOOK · captured Nov 3, 5:15 PM ET/);
-  assert.equal(v.wager, "$100"); assert.equal(v.potentialPayout, "$366.67"); assert.equal(v.potentialProfit, "$266.67");
-  assert.match(t, /Wager \$100 tracked stake Potential payout · profit \$366\.67 profit \$266\.67/);
+  assert.equal(v.wager, "$100"); assert.equal(v.potentialPayout, "$366.66"); assert.equal(v.potentialProfit, "$266.66");
+  assert.match(t, /Wager \$100 tracked stake Potential payout · profit \$366\.66 profit \$266\.66/);
   assert.doesNotMatch(t, /Potential payout · profit Awaiting verified prices/);
   // The same file without the priced fold prints no price at all.
   const plain = text(html(React.createElement(LaneCard, { lane: lane.laneView(doc) })));
   assert.doesNotMatch(plain, /SAMPLE BOOK|\+120|-150|Combined price/);
   assert.match(plain, /Potential payout · profit Awaiting verified prices/);
   // A same-game estimate is labelled as one, never as a book's offer.
-  const sg = { ...d, day: { ...d.day, price: { ...d.day.price, combined: { ...d.day.price.combined, method: "LEG_PRODUCT_ESTIMATE", estimate: true, label: null } } } };
+  const sg = { ...d, day: { ...d.day, price: { ...d.day.price, method: "LEG_PRODUCT_ESTIMATE", estimate: true, label: null } } };
   assert.match(text(html(React.createElement(LaneCard, { lane: lane.laneView(doc, { display: sg }) }))), /Combined price · estimate \(same-game legs, not a book.s offer\)/);
   // A display folded from another file is refused.
   assert.throws(() => lane.laneView(FIX["bb-a"], { display: d }), /not folded from this lane file/);

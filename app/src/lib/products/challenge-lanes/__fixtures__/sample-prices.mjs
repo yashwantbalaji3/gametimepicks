@@ -1,23 +1,29 @@
 /**
  * TEST-ONLY SAMPLE PRICES (SPEC §5/§7: "fixture prices only in samples, visibly labelled"). Not a bookmaker's price,
- * not captured from any provider: the book is "SAMPLE BOOK" and the odds are made up. Turns the engine's laneDisplay of
- * a lane into the PRICED shape bb-redesign proposed to betting-engine (laneDisplay + day.price), so the site's priced
- * layout can be tested and shown on the gated dev route before the engine's encrypted priced fold exists. Never read by
- * a public page.
+ * not captured from any provider: the book is "SAMPLE BOOK" and the odds are made up. A plaintext price display in the
+ * engine's own shape, folded by the engine's own pricedLaneDisplay, so the site's priced layout can be tested and shown
+ * on the gated dev route before a real encrypted price file exists. Never read by a public page.
  */
-import { laneDisplay } from "../../../challenge-lanes/display.mjs";
+import { pricedLaneDisplay } from "../../../challenge-lanes/display.mjs";
+import { americanToDecimal } from "../../../challenge-lanes/payout.mjs";
 
 export const SAMPLE_BOOK = "SAMPLE BOOK";
 export const SAMPLE_CAPTURED_AT = "2026-11-03T22:15:00Z";
 
-export function samplePricedDisplay(doc, { stakeCents = doc.baseCents } = {}) {
-  const d = laneDisplay(doc);
-  if (!d.day?.card) return d;
-  const legs = d.day.card.legs.map((l, i) => {
-    const oddsAmerican = i % 2 ? -150 : 120;
-    return { legId: l.legId, book: SAMPLE_BOOK, oddsAmerican, decimal: oddsAmerican > 0 ? 1 + oddsAmerican / 100 : 1 + 100 / -oddsAmerican, line: null, capturedAt: SAMPLE_CAPTURED_AT };
-  });
-  const decimal = legs.reduce((p, l) => p * l.decimal, 1);
-  const gross = Math.round(stakeCents * decimal);
-  return { ...d, day: { ...d.day, price: { legs, combined: { method: "LEG_PRODUCT", decimal, american: Math.round((decimal - 1) * 100), book: SAMPLE_BOOK }, stakeCents, grossPayoutCents: gross, profitCents: gross - stakeCents } } };
+/** A made-up plaintext price display (the engine's gtp.challenge-lane.prices@1 shape) for the lane's latest card. */
+export function samplePrices(doc, { stakeCents = doc.baseCents } = {}) {
+  const run = doc.runs.at(-1);
+  const day = run.days.findLast((d) => d.card);
+  if (!day) return null;
+  const legs = day.card.legs.map((l, i) => ({ legId: l.legId, selectionCode: l.selection.code, oddsFormat: "american", price: i % 2 ? -150 : 120, line: null, fetchedAt: SAMPLE_CAPTURED_AT }));
+  const decimalPrice = legs.reduce((p, l) => p * americanToDecimal(l.price), 1);
+  const gross = Math.floor(stakeCents * decimalPrice);
+  return {
+    schema: "gtp.challenge-lane.prices@1", laneId: doc.laneId, projectionSha256: doc.contentSha256,
+    runs: [{ runId: run.runId, trackedBankrollCents: stakeCents, step: run.step, status: run.status, pace: { milestoneCents: doc.milestonesCents?.[run.stepsWon] ?? null, requiredMultiplier: 2.51, behindByCents: 0, onPace: true },
+      days: [{ date: day.date, step: day.step, result: "VERIFIED", refusals: null, book: SAMPLE_BOOK, method: "LEG_PRODUCT", estimate: false, label: null, legs, decimalPrice, pace: 2.51, belowPace: decimalPrice < 2.51, stakeCents, grossPayoutCents: gross, profitCents: gross - stakeCents, stepOutcome: null, bankrollAfterCents: null }] }],
+  };
 }
+
+/** The engine's pricedLaneDisplay over the sample prices: the same fold real prices go through. */
+export const samplePricedDisplay = (doc, opts) => pricedLaneDisplay(doc, samplePrices(doc, opts));

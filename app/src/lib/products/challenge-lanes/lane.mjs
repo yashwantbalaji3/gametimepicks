@@ -12,16 +12,16 @@
 import { verifyLaneProjection, IMAGE_PATH } from "../../challenge-lanes/projection.mjs";
 import { LANES as ENGINE_LANES } from "../../challenge-lanes/lanes.mjs";
 import { laneDisplay } from "../../challenge-lanes/display.mjs";
-import { decimalToAmerican, americanToDecimal } from "../../challenge-lanes/payout.mjs";
+import { decimalToAmerican } from "../../challenge-lanes/payout.mjs";
 
 export const LANE_IDS = Object.freeze(Object.keys(ENGINE_LANES));
 export const lanesOf = (product) => LANE_IDS.filter((id) => ENGINE_LANES[id].product === product);
 
 /**
  * PRICES ON THE SITE (founder 2026-11-04, SPEC §0/§7: the existing The Odds API subscription). They render ONLY from the
- * engine's priced fold (laneDisplay output carrying `day.price`, decrypted server-side from the encrypted display
- * artifact); the public JSON stays price-free and acceptLaneProjection still refuses a price in it. With no price
- * block, every money cell reads "Awaiting verified prices".
+ * engine's priced fold (display.mjs pricedLaneDisplay over the encrypted display artifact, decrypted server-side by
+ * price-display.mjs readLanePrices); the public JSON stays price-free and acceptLaneProjection still refuses a price in
+ * it. With no VERIFIED price for a day, every money cell reads "Awaiting verified prices".
  */
 export const PRICES_ON_SITE = true;
 export const AWAITING_PRICES = "Awaiting verified prices";
@@ -111,27 +111,30 @@ const american = (n) => (typeof n === "number" && Number.isFinite(n) ? (n > 0 ? 
 const ET_STAMP = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 const etStamp = (iso) => { const t = Date.parse(String(iso ?? "")); return Number.isFinite(t) ? `${ET_STAMP.format(t)} ET` : null; };
 
-/** A frozen leg price as the engine's priced fold carries it: odds, line, book, capture time. Presentation only. */
-const legPrice = (p) => (p ? { odds: american(p.oddsAmerican), line: p.line ?? null, book: p.book ?? null, captured: etStamp(p.capturedAt) } : null);
+/** The engine's day price (pricedLaneDisplay `day.price`), only when that day's payout was VERIFIED. */
+const verified = (price) => (PRICES_ON_SITE && price?.result === "VERIFIED" ? price : null);
+/** A frozen leg price as the engine carries it (`price` in its `oddsFormat`): odds, line, book, capture time. */
+const legPrice = (p, book) => (p ? { odds: american(p.oddsFormat === "american" ? p.price : decimalToAmerican(p.price)), line: p.line ?? null, book: book ?? null, captured: etStamp(p.fetchedAt) } : null);
 
-/** The day's priced block (combined price, stake, payout, profit), formatted; null when the fold carries none. */
-function priceOf(price) {
-  if (!PRICES_ON_SITE || !price?.combined) return null;
-  const c = price.combined;
-  const estimate = c.estimate === true;
+/** The day's priced block (combined price, stake, payout, profit, pace), formatted; null without a VERIFIED price. */
+function priceOf(day) {
+  const p = verified(day.price);
+  if (!p) return null;
   return {
-    method: c.method, estimate,
-    combinedLabel: estimate ? c.label ?? "Combined price · estimate (same-game legs, not a book's offer)" : "Combined price (leg product)",
-    combined: [american(c.american), typeof c.decimal === "number" ? `${c.decimal.toFixed(2)}×` : null].filter(Boolean).join(" · "),
-    book: c.book ?? null,
-    stake: money(price.stakeCents), payout: money(price.grossPayoutCents), profit: money(price.profitCents),
-    captured: etStamp([...(price.legs ?? [])].map((l) => l.capturedAt).filter(Boolean).sort().at(-1)),
+    method: p.method, estimate: p.estimate === true,
+    combinedLabel: p.estimate ? p.label ?? "Combined price · estimate (same-game legs, not a book's offer)" : "Combined price (leg product)",
+    combined: [american(decimalToAmerican(p.decimalPrice)), typeof p.decimalPrice === "number" ? `${p.decimalPrice.toFixed(2)}×` : null].filter(Boolean).join(" · "),
+    decimal: p.decimalPrice, book: p.book ?? null,
+    stake: money(p.stakeCents), payout: money(p.grossPayoutCents), profit: money(p.profitCents),
+    requiredMultiple: typeof p.pace === "number" ? p.pace : null, belowPace: p.belowPace ?? null,
+    captured: etStamp([...(p.legs ?? [])].map((l) => l.fetchedAt).filter(Boolean).sort().at(-1)),
   };
 }
 
 function legsOf(day, projectionLabel, teams) {
   const outcome = new Map((day.legResults ?? []).map((r) => [r.legId, r.outcome]));
-  const prices = new Map((PRICES_ON_SITE ? day.price?.legs ?? [] : []).map((p) => [p.legId, p]));
+  const vp = verified(day.price);
+  const prices = new Map((vp?.legs ?? []).map((p) => [p.legId, p]));
   return (day.card?.legs ?? []).map((l, i) => {
     const o = outcome.get(l.legId);
     const abbr = l.selection?.teamAbbr ?? null;
@@ -146,7 +149,7 @@ function legsOf(day, projectionLabel, teams) {
       projectionLabel: prop ? projectionLabel : "MODEL WIN PROBABILITY", projection: l.probabilityShown ?? null,
       flags: l.guard?.flagText ?? [],
       outcome: o && o !== "PENDING" ? o : null,
-      price: legPrice(prices.get(l.legId)),
+      price: legPrice(prices.get(l.legId), vp?.book),
     };
   });
 }
@@ -165,7 +168,7 @@ function dayPresent(day, projectionLabel, teams) {
     tone: day.stepOutcome === "WIN" ? "won" : day.stepOutcome === "LOSS" ? "lost" : status === "IN_PLAY" ? "active" : "held",
     reason: reasonText(day.reason), staked: Boolean(day.staked), legs: day.card ? legsOf(day, projectionLabel, teams) : [], hasCard: Boolean(day.card),
     modelCardResult: day.modelCardResult ?? null, stepOutcome: day.stepOutcome ?? null, result,
-    price: priceOf(day.price),
+    price: priceOf(day),
   };
 }
 
@@ -191,10 +194,10 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
   if (!note && d.status === "ACTIVE") note = `Step ${d.step} of ${d.steps} is active. No new card until it settles.`;
   if (!note && d.status === "WON") note = `Step ${d.step - 1} won. Step ${d.step} gets the next qualifying card.`;
   const p = d.pace;
-  const pp = d.day?.price;
+  const pp = current?.price;
   /* Pace means nothing once a lane is lost: it is not shown. A priced card states its multiple against the pace. */
   const pace = !p || d.status === "LOST" ? null
-    : pp?.requiredMultiple && pp.combined?.decimal ? { state: pp.belowPace ? "behind" : "on", text: `This card ${pp.combined.decimal.toFixed(2)}× · pace needs ${pp.requiredMultiple.toFixed(2)}×${pp.belowPace ? " · below pace, disclosed" : ""}${p.nextMilestoneCents ? ` · next milestone ${money(p.nextMilestoneCents)}` : ""}` }
+    : pp?.requiredMultiple && pp.decimal ? { state: pp.belowPace ? "behind" : "on", text: `This card ${pp.decimal.toFixed(2)}× · pace needs ${pp.requiredMultiple.toFixed(2)}×${pp.belowPace ? " · below pace, disclosed" : ""}${p.nextMilestoneCents ? ` · next milestone ${money(p.nextMilestoneCents)}` : ""}` }
     : p.state === "withheld" ? { state: "withheld", text: "Pace: awaiting verified prices" }
     : p.state === "on" ? { state: "on", text: `On pace${p.nextMilestoneCents ? ` · next milestone ${money(p.nextMilestoneCents)}` : ""}` }
     : { state: "behind", text: `Behind pace by ${money(p.behindCents)}${p.nextMilestoneCents ? ` · next milestone ${money(p.nextMilestoneCents)}` : ""}` };
@@ -226,43 +229,6 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
     current, story, graphics,
     runs: d.runs.map((r, i) => ({ runId: r.runId, number: i + 1, started: String(r.startedAt ?? "").slice(0, 10) || null, status: r.endStatus, stepsWon: r.stepsWon ?? 0, current: i === d.runs.length - 1 })),
     sourceSha256: d.sourceSha256,
-  };
-}
-
-/**
- * JOIN the engine's decrypted price display (`gtp.challenge-lane.prices@1`, lib/challenge-lanes/price-display.mjs) onto
- * its laneDisplay of the same lane, by runId, date and legId, as the engine specifies. Pure; returns a new display.
- * Only VERIFIED payouts are joined. It fills only what the plain projection withholds — each day's `price`, and the
- * tracked bankroll the engine withheld — and never changes a step, status or leg. BUILD TIME ONLY: the result renders
- * into HTML and is never a client prop or a /data file (display-crypto.mjs).
- */
-export function withLanePrices(display, prices) {
-  if (!PRICES_ON_SITE || !prices) return display;
-  if (prices.schema !== "gtp.challenge-lane.prices@1" || prices.laneId !== display.laneId) throw new Error(`withLanePrices: price display is not ${display.laneId}'s`);
-  const run = prices.runs.find((r) => r.runId === display.runId);
-  if (!run) return display;
-  const priceFor = (day) => {
-    const p = day && run.days.find((x) => x.date === day.date && x.step === day.step && x.result === "VERIFIED");
-    if (!p) return null;
-    const legIds = new Set((day.card?.legs ?? []).map((l) => l.legId));
-    if (p.legs.length !== legIds.size || p.legs.some((l) => !legIds.has(l.legId))) throw new Error(`withLanePrices: ${display.laneId} ${day.date} prices do not match the frozen legs`);
-    return {
-      legs: p.legs.map((l) => ({
-        legId: l.legId, book: p.book, line: l.line ?? null, capturedAt: l.fetchedAt,
-        oddsAmerican: l.oddsFormat === "american" ? l.price : decimalToAmerican(l.price),
-        decimal: l.oddsFormat === "american" ? americanToDecimal(l.price) : l.price,
-      })),
-      combined: { method: p.method, estimate: p.estimate === true, label: p.label ?? null, decimal: p.decimalPrice, american: decimalToAmerican(p.decimalPrice), book: p.book },
-      stakeCents: p.stakeCents, grossPayoutCents: p.grossPayoutCents, profitCents: p.profitCents,
-      requiredMultiple: p.pace ?? null, belowPace: p.belowPace ?? null, bankrollAfterCents: p.bankrollAfterCents ?? null,
-    };
-  };
-  const history = display.history.map((d) => ({ ...d, price: priceFor(d) }));
-  const day = display.day && { ...display.day, price: priceFor(display.day) };
-  const bankroll = display.trackedBankrollCents ?? (Number.isInteger(run.trackedBankrollCents) ? run.trackedBankrollCents : null);
-  return {
-    ...display, history, day, trackedBankrollCents: bankroll, trackedBankrollWithheld: bankroll == null ? display.trackedBankrollWithheld : null,
-    distanceToTargetCents: bankroll == null ? null : Math.max(0, display.targetCents - bankroll),
   };
 }
 
