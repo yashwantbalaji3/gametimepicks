@@ -21,12 +21,18 @@ import { evidenceLine } from "../../../src/lib/challenge-lanes/card-fields.mjs";
 
 const a = parseArgs(process.argv.slice(2));
 const FINAL = a.final != null && a.final !== "0" && a.final !== false;
+// --candidate 1 (founder 2026-11-04): FINAL-CANDIDATE images from the engine's verified-candidate records (approvalStatus
+// CANDIDATE, priceCheck PASS): banner-free, the clean final layout, never "preliminary". The founder approves these exact shas.
+const CANDIDATE = a.candidate != null && a.candidate !== "0";
+const CLEAN = FINAL || CANDIDATE;
+const RENDER_AT = Date.now();
 const out = path.resolve(a.out);
 const raw = fs.readFileSync(a.selection);
 const sel0 = JSON.parse(raw);
 // A sealed-records file (records["<lane>:<A|B|C>"].record): option A is the lane's card, the others render as alternates.
-const sel = sel0.records ? { now: sel0.evaluatedAt, lanes: Object.fromEntries(["bb-a", "bb-b", "ms-a", "ms-b"].filter((l) => sel0.records[`${l}:A`]).map((l) => [l, { card: sel0.records[`${l}:A`].record }])) } : sel0;
-const RECORD_ALTS = sel0.records && !FINAL ? Object.keys(sel0.records).filter((k) => !k.endsWith(":A") && sel0.records[k].record?.classification !== "HOLD").map((k) => { const [laneId, opt] = k.split(":"); return { laneId, name: `${laneId}-${opt}`, sel: { lanes: { [laneId]: { card: sel0.records[k].record } } }, file: `${a.selection}#${k}` }; }) : [];
+const sel0b = sel0.lanes && Object.values(sel0.lanes).some((v) => v?.schema === "gtp.bbm.card@2") ? { ...sel0, lanes: Object.fromEntries(Object.entries(sel0.lanes).map(([k, v]) => [k, { card: v }])) } : sel0;
+const sel = sel0.records ? { now: sel0.evaluatedAt, lanes: Object.fromEntries(["bb-a", "bb-b", "ms-a", "ms-b"].filter((l) => sel0.records[`${l}:A`]).map((l) => [l, { card: sel0.records[`${l}:A`].record }])) } : sel0b;
+const RECORD_ALTS = sel0.records && !CLEAN ? Object.keys(sel0.records).filter((k) => !k.endsWith(":A") && sel0.records[k].record?.classification !== "HOLD").map((k) => { const [laneId, opt] = k.split(":"); return { laneId, name: `${laneId}-${opt}`, sel: { lanes: { [laneId]: { card: sel0.records[k].record } } }, file: `${a.selection}#${k}` }; }) : [];
 const TEAMS = JSON.parse(fs.readFileSync(path.resolve("src/lib/simulation-theater/nba/nba-team-colors.json"), "utf8"));
 const teamName = (abbr) => TEAMS.teams[abbr]?.name ?? TEAMS.teams[TEAMS.aliases?.[abbr]]?.name ?? abbr;
 const sha = (b) => crypto.createHash("sha256").update(b).digest("hex");
@@ -36,7 +42,7 @@ const SHORT = { player_points: "PTS", player_rebounds: "REB", player_assists: "A
 const WORD = { player_points: "points", player_rebounds: "rebounds", player_assists: "assists", player_threes: "threes" };
 // --final 1 (founder 2026-11-04): the FINAL images, final-first. No review ribbon and no preliminary; every record must carry
 // the run-2 PRICE_VERIFIED event and the founder's approval, and its money must reconcile with an independent recompute.
-const REVIEW = FINAL ? null : "Founder review · not approved · do not post";
+const REVIEW = CLEAN ? null : "Founder review · not approved · do not post";
 const decimalOf = (am) => (am > 0 ? 1 + am / 100 : 1 + 100 / -am);
 /** Fail-closed field checks for a final record: price event, approval, combined decimal, gross and profit (1 cent). */
 function finalProblems(c) {
@@ -67,6 +73,30 @@ const ALTS = String(a.alt ?? "").split(",").filter(Boolean).map((x) => {
 });
 /** An unmapped engine flag code in plain words: prefix dropped, sentence case ("ML_KEY_UNCERTAIN" → "Key uncertain"). */
 const flagWords = (code) => { const t = code.replace(/^[A-Z]+_/, "").replace(/_/g, " ").toLowerCase(); return t.charAt(0).toUpperCase() + t.slice(1); };
+/** The clean card's verified-odds mark: FINAL = the run-2 PRICE_VERIFIED event; CANDIDATE = every price check PASS and unexpired at render. */
+const verifiedMarkOf = (c) => (FINAL ? Boolean(c.priceEventSha256) : CANDIDATE ? c.priceCheckAll === "PASS" && c.legs.every((l) => l.priceCheck?.result === "PASS" && Date.parse(l.priceCheck.expiresAt) > RENDER_AT) : false);
+const winsLosses = (w) => `${w.hits}-${w.n - w.hits}`;
+/** The clean leg from the record: the engine's display strings, each cross-checked against the raw hit-rate windows (fail-closed). */
+function cleanLegOf(l, base, name) {
+  const win = (id) => l.hitRate?.windows?.find((w) => w.window === id);
+  const d = l.display ?? {};
+  const bad = (m) => { throw new Error(`${name}: ${l.legId}: ${m}`); };
+  if (isMoneyline(l)) {
+    const w5 = win("last5"); const w10 = win("last10"); const ws = win("season-2026-27");
+    if (!w5 || !w10 || !ws) bad("missing W-L windows");
+    if (d.last5 && d.last5 !== winsLosses(w5)) bad(`display last5 ${d.last5} is not ${winsLosses(w5)}`);
+    if (d.last10 && !String(d.last10).startsWith(winsLosses(w10))) bad(`display last10 ${d.last10} is not ${winsLosses(w10)}`);
+    if (d.season && d.season !== winsLosses(ws)) bad(`display season ${d.season} is not ${winsLosses(ws)}`);
+    const recordText = `Last ${w5.n}: ${winsLosses(w5)} | Last ${w10.n}: ${winsLosses(w10)} | Season: ${winsLosses(ws)}`;
+    return { ...base, team: { abbr: base.team.abbr, name: d.team ?? base.team.name }, opponent: { abbr: base.opponent.abbr, name: d.opponent ?? teamName(base.opponent.abbr) }, home: d.venue ? d.venue === "vs" : base.home, recordText, level: "B", evidenceText: undefined, flagText: [] };
+  }
+  const w5 = win("last5"); const w10 = win("last10");
+  if (!w5 || !w10) bad("missing L5 / L10 hit counts");
+  if (d.last5 && d.last5 !== `${w5.hits}/${w5.n}`) bad(`display last5 ${d.last5} is not ${w5.hits}/${w5.n}`);
+  if (d.last10 && d.last10 !== `${w10.hits}/${w10.n}`) bad(`display last10 ${d.last10} is not ${w10.hits}/${w10.n}`);
+  const stat = d.stat ?? WORD[l.market] ?? l.family;
+  return { ...base, lineWords: `${l.side.toUpperCase()} ${l.line} ${String(stat).toUpperCase()}`, gameLabel: d.matchup ?? l.eventLabel, recordText: `Last ${w5.n}: ${w5.hits}/${w5.n} | Last ${w10.n}: ${w10.hits}/${w10.n}`, evidenceText: null, evidenceBig: null, flagText: [] };
+}
 const isMoneyline = (l) => ["winner", "moneyline", "h2h", "ml"].includes(String(l.market ?? l.family ?? "").toLowerCase());
 /** The engine's Level B leg flags in plain words (the record's flags[] codes). */
 const FLAG_WORDS = { B_ROLE_UNSTABLE: "Role unstable", B_MINUTES_VOLATILE: "Minutes volatile", B_MINUTES_UNCERTAIN: "Minutes uncertain", B_MINUTES_DROP: "Minutes drop", ML_SMALL_SAMPLE: "Small sample", ML_ROSTER_TURNOVER: "Roster turnover", ML_KEY_OUT: "Key player out", ML_KEY_DTD: "Key player day-to-day", ML_TOP5_OUT: "Top 5 player out" };
@@ -113,11 +143,17 @@ for (const { laneId, name, sel: src, file: srcFile, alt } of jobs) {
   });
   const verified = c.priceEventSha256 != null;
   if (FINAL) { const fp = finalProblems(c); if (fp.length) throw new Error(`${name}: not final: ${fp.join("; ")}`); }
+  if (CANDIDATE) {
+    const fp = finalProblems(c).filter((x) => !/PRICE_VERIFIED|approval is/.test(x));
+    if (c.approvalStatus !== "CANDIDATE") fp.push(`approval is ${c.approvalStatus}, not CANDIDATE`);
+    if (c.priceCheckAll !== "PASS" || c.legs.some((l) => l.priceCheck?.result !== "PASS")) fp.push("a price check did not PASS");
+    if (fp.length) throw new Error(`${name}: not a final candidate: ${fp.join("; ")}`);
+  }
   const rungs = RULES_V2.milestonesCents[product].map((m, i) => ({ step: i + 1, milestoneCents: m, state: i ? RUNG.UPCOMING : RUNG.ACTIVE }));
   models.push({ laneId, name, alt: alt === true, sourceFile: srcFile, record: c, legsRaw: c.legs, model: {
     product, letter: L.letter, laneId, date: c.date, step: 1, steps: 5, rungs, ...TERMS[product], bankrollCents: c.money.stakeCents, badge: BADGE.ACTIVE, view: VIEW.CARD, template: false,
-    laneType: c.laneType ?? lane.laneType ?? undefined, legs, selectionLabel: c.selectionLabel ?? (c.classification === "LEVEL_B" ? "Research selection — no validated edge claim" : null), reviewRibbon: REVIEW, showStepTarget: true,
-    payout: { combinedLabel: c.combinedLabel ?? c.combined?.label ?? null, combinedAmerican: c.combined.american, grossCents: c.money.grossPayoutCents, profitCents: c.money.profitCents, stakeCents: c.money.stakeCents, preliminary: !verified, fixture: false, estimate: false, legs: Object.fromEntries(c.legs.map((l) => [l.legId, { price: l.price, oddsFormat: "american", line: l.line }])) },
+    laneType: c.laneType ?? lane.laneType ?? undefined, legs: CLEAN ? c.legs.map((l, i) => cleanLegOf(l, legs[i], name)) : legs, clean: CLEAN, selectionLabel: CLEAN ? null : c.selectionLabel ?? (c.classification === "LEVEL_B" ? "Research selection — no validated edge claim" : null), reviewRibbon: REVIEW, showStepTarget: !CLEAN,
+    payout: { verifiedMark: verifiedMarkOf(c), combinedLabel: c.combinedLabel ?? c.combined?.label ?? null, combinedAmerican: c.combined.american, grossCents: c.money.grossPayoutCents, profitCents: c.money.profitCents, stakeCents: c.money.stakeCents, preliminary: !verified, fixture: false, estimate: false, legs: Object.fromEntries(c.legs.map((l) => [l.legId, { price: l.price, oddsFormat: "american", line: l.line }])) },
   } });
 }
 // Founder 2026-11-04, diversity@2: no leg repeats across the day's four lanes. Identity is the underlying selection
@@ -132,7 +168,7 @@ for (const m of models.filter((x) => !x.alt && !x.held)) for (const l of m.legsR
   else if (seenMarket.has(mk)) repeats.push(`opposing sides of ${mk} on ${seenMarket.get(mk).laneId} (${seenMarket.get(mk).id}) and ${m.laneId} (${id})`);
   seen.set(id, m.laneId); if (!seenMarket.has(mk)) seenMarket.set(mk, { laneId: m.laneId, id });
 }
-if (repeats.length && FINAL) throw new Error(`diversity@2: a leg repeats across lanes; the day's set is refused:\n  ${repeats.join("\n  ")}`);
+if (repeats.length && CLEAN) throw new Error(`diversity@2: a leg repeats across lanes; the day's set is refused:\n  ${repeats.join("\n  ")}`);
 if (repeats.length) console.log(`DIVERSITY WARNING (a final render would refuse):\n  ${repeats.join("\n  ")}`);
 const cards = models.map((m) => ({ ...m, card: { ...bbmCardV6(m.model), name: m.name } }));
 const bad = cards.flatMap((m) => verifyBbmCardV6(m.card).map((e) => `${m.name}: ${e}`));
@@ -142,6 +178,7 @@ function caption(product, pair) {
   const lanes = pair.map((m) => (m.held ? `Lane ${BBM_LANES[m.laneId].letter} · Held · Step 1 of 5` : `Lane ${BBM_LANES[m.laneId].letter} · Step 1 of 5\n${m.legsRaw.map((l) => (isMoneyline(l) ? `${l.teamName ?? teamName(l.selection?.teamAbbr ?? l.team)} to win` : `${l.player.name} · ${WORD[l.market] ?? l.family}`)).join("\n")}`));
   const t = pair.every((m) => m.held)
     ? [head, ...lanes, "No card tonight; both lanes hold their place and tracked bankroll. Tracked challenge, no real wager placed. #NBA"].join("\n\n")
+    : CLEAN ? [head, ...lanes, "Research selections from historical data · no validated edge · 21+", "Tracked challenge, no real wager placed. #NBA"].join("\n\n")
     : [head, ...(pair.some((m) => m.record?.classification === "LEVEL_B") ? ["Research selection · no validated edge claim"] : []), ...lanes, `${pair.every((m) => m.record?.classification === "LEVEL_A") ? "Model probabilities" : "Research evidence"} on the graphic. Tracked challenge, no real wager placed. #NBA`].join("\n\n");
   if (xWeighted(t) > X_LIMIT || CAPTION_PRICE_TEXT.test(t)) throw new Error(`${product}: caption fails (${xWeighted(t)} X-weighted; ${t.match(CAPTION_PRICE_TEXT)?.[0] ?? "no price text"})`);
   return t;
@@ -151,7 +188,8 @@ function caption(product, pair) {
 function parity(m) {
   const c = m.record; const cells = m.card.cells; const mis = [];
   const want = { "money.wager": cents(c.money.stakeCents), "money.payout": cents(c.money.grossPayoutCents), "money.profit": cents(c.money.profitCents), "price.combined": american(c.combined.american) };
-  c.legs.forEach((l, i) => Object.assign(want, isMoneyline(l) ? { [`leg${i + 1}.team`]: m.model.legs[i].team.abbr, [`leg${i + 1}.odds`]: american(l.price), ...(m.model.legs[i].level === "A" ? { [`leg${i + 1}.proj`]: m.model.legs[i].projectionText } : { [`leg${i + 1}.evidence`]: m.model.legs[i].evidenceText }) } : { [`leg${i + 1}.name`]: l.player.name, [`leg${i + 1}.odds`]: american(l.price), [`leg${i + 1}.line`]: m.model.legs[i].lineText, [`leg${i + 1}.evidence`]: evidenceLine(l) }));
+  if (CLEAN) c.legs.forEach((l, i) => Object.assign(want, { [`leg${i + 1}.odds`]: american(l.price), [`leg${i + 1}.record`]: m.model.legs[i].recordText, ...(isMoneyline(l) ? { [`leg${i + 1}.name`]: m.model.legs[i].team.name } : { [`leg${i + 1}.name`]: l.player.name, [`leg${i + 1}.line`]: m.model.legs[i].lineWords.split(" ").slice(1).join(" ") }) }));
+  else c.legs.forEach((l, i) => Object.assign(want, isMoneyline(l) ? { [`leg${i + 1}.team`]: m.model.legs[i].team.abbr, [`leg${i + 1}.odds`]: american(l.price), ...(m.model.legs[i].level === "A" ? { [`leg${i + 1}.proj`]: m.model.legs[i].projectionText } : { [`leg${i + 1}.evidence`]: m.model.legs[i].evidenceText }) } : { [`leg${i + 1}.name`]: l.player.name, [`leg${i + 1}.odds`]: american(l.price), [`leg${i + 1}.line`]: m.model.legs[i].lineText, [`leg${i + 1}.evidence`]: evidenceLine(l) }));
   for (const [k, v] of Object.entries(want)) if (cells[k] !== v) mis.push(`${k}: printed ${cells[k]} record ${v}`);
   if (c.classification === "LEVEL_B" && Object.keys(cells).some((k) => /\.proj$/.test(k))) mis.push("a Level B card with a probability row");
   if ("price.verified" in cells && c.priceEventSha256 == null) mis.push("VERIFIED on an unverified price");
@@ -187,7 +225,7 @@ try {
       legs: c.legs.map((l) => ({ legId: l.legId, side: l.side, line: l.line, market: l.market, odds: american(l.price), book: l.book, quotedAt: l.quotedAt, fetchedAt: l.fetchedAt, evidence: evidenceLine(l), minutes: minutesNote(l.role), injury: c.injuryStatus?.find((x) => x.legId === l.legId) ?? null })),
       combinedAmerican: american(c.combined.american), payoutCents: c.money.grossPayoutCents, profitCents: c.money.profitCents,
       priceClass: c.priceEventSha256 ? "VERIFIED" : "QUOTE_UNVERIFIED", priceEventSha256: c.priceEventSha256, payoutEventSha256: null, refEventSha256: null,
-      parity: { ok: parity(m).length === 0, mismatches: parity(m) },
+      parity: { ok: parity(m).length === 0, mismatches: parity(m) }, candidateRecordSha256: c.candidateRecordSha256 ?? null, verifiedMark: m.card.verifiedMark === true, priceExpiresAt: c.legs.map((l) => l.priceCheck?.expiresAt ?? null),
     };
   };
   for (const [product, ids, pkg] of [["bank-builder", ["bb-a", "bb-b"], "bb"], ["moonshot", ["ms-a", "ms-b"], "ms"]]) {
@@ -199,7 +237,7 @@ try {
   // Alternates: images only (a chosen alternate replaces its lane and the package caption is rewritten then).
   for (const m of cards.filter((x) => x.alt)) rows.push(row(m, { pkg: null, mediaIndex: null, cap: null, shots: await shoot(m) }));
 } finally { await browser.close(); }
-const manifest = { schema: FINAL ? "gtp.bbm-v6-final@1" : "gtp.bbm-v6-founder-review@1", final: FINAL, diversity: { rule: "diversity@2", repeats }, source: { file: a.selection, sha256: sha(raw), now: sel.now ?? null }, note: FINAL ? "FINAL images from run-2 PRICE_VERIFIED records with founder approval; reconciled field by field. Not yet packaged or posted." : "FOUNDER-REVIEW previews only: not approved, never packaged, never posted. Prices are quotes, not verified price events.", checker: bad, layout, parityRows: rows };
+const manifest = { schema: FINAL ? "gtp.bbm-v6-final@1" : CANDIDATE ? "gtp.bbm-v6-final-candidate@1" : "gtp.bbm-v6-founder-review@1", final: FINAL, status: FINAL ? "FINAL" : CANDIDATE ? "FINAL_CANDIDATE" : "PREVIEW", renderedAt: new Date(RENDER_AT).toISOString(), diversity: { rule: "diversity@2", repeats }, source: { file: a.selection, sha256: sha(raw), now: sel.now ?? null }, note: FINAL ? "FINAL images from run-2 PRICE_VERIFIED records with founder approval; reconciled field by field. Not yet packaged or posted." : "FOUNDER-REVIEW previews only: not approved, never packaged, never posted. Prices are quotes, not verified price events.", checker: bad, layout, parityRows: rows };
 fs.writeFileSync(path.join(out, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(`checker problems: ${bad.length}${bad.length ? `\n  ${bad.join("\n  ")}` : ""}`);
 console.log(`layout problems: ${layout.length}${layout.length ? `\n  ${layout.join("\n  ")}` : ""}`);

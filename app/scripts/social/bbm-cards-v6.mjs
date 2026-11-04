@@ -125,10 +125,31 @@ ${NEON2X("neonM", 3, 16)}<filter id="soft" x="-50%" y="-50%" width="200%" height
 function compartment(cells, r, steps) {
   const top = r.step === steps;
   const mark = r.state === RUNG.COMPLETED ? "✓ " : r.state === RUNG.FAILED ? "✕ " : "";
+  // Founder 2026-11-04 (final polish): the current step shows the card's exact payout; future steps show ~targets.
+  if (r.exactCents != null) return `<div class="cp ${r.state}" data-rung="${r.state}"><span class="k">${esc(mark)}Step ${r.step}</span>${cell(cells, `ladder.m${r.step}`, cents(r.exactCents), "m")}<span class="t">(Potential)</span></div>`;
   return `<div class="cp ${r.state}" data-rung="${r.state}"><span class="k">${esc(mark)}Step ${r.step}</span>${cell(cells, `ladder.m${r.step}`, `${top ? "" : "~"}${cents(r.milestoneCents)}`, "m")}<span class="t">(${top ? "Goal" : "Target"})</span></div>`;
 }
 
+/**
+ * The simplified leg card (founder 2026-11-04 final polish): no research panel, no technical strings, no flags.
+ * Moneyline: TEAM ML (team in the lane neon) / vs Opponent / tip | odds / Last 5 · Last 10 (or Last n) · Season W-L.
+ * Prop: PLAYER / OVER 3.5 ASSISTS / AWY @ HOM | tip | odds / Last 5 k/5 · Last 10 k/10 at the exact line.
+ * Every count is the engine record's, with its real sample size; none is invented.
+ */
+function cleanLeg(cells, l, i, ctx) {
+  const k = `leg${i + 1}`;
+  const t = teamOf(l.team.abbr, l.team.name);
+  const odds = ctx.price && american(ctx.price.price) ? cell(cells, `${k}.odds`, american(ctx.price.price), "chip odds") : "";
+  const rec = l.recordText ? `<div class="rec">${cell(cells, `${k}.record`, l.recordText)}</div>` : "";
+  if (l.kind === "PROP") {
+    const [dir, ...rest] = String(l.lineWords).split(" ");
+    return `<div class="leg clean prop" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit>${cell(cells, `${k}.name`, l.player.name)}</span><div class="dir"><b class="${dir.toLowerCase()}">${esc(dir)}</b> ${cell(cells, `${k}.line`, rest.join(" "))}</div><div class="mt">${cell(cells, `${k}.game`, `${l.gameLabel} | ${tipText(l.tipUtc)}`)}<span class="bar">|</span>${odds}</div>${rec}</div></div>`;
+  }
+  return `<div class="leg clean ml" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit><span class="selt">${cell(cells, `${k}.name`, l.team.name)}</span> ML</span><div class="vs">${cell(cells, `${k}.opp`, `${l.home ? "vs" : "at"} ${l.opponent.name ?? l.opponent.abbr}`)}</div><div class="mt">${cell(cells, `${k}.game`, tipText(l.tipUtc))}<span class="bar">|</span>${odds}</div>${rec}</div></div>`;
+}
+
 function legPanel(cells, l, i, ctx) {
+  if (ctx.clean && !l.placeholder) return cleanLeg(cells, l, i, ctx);
   const k = `leg${i + 1}`;
   if (l.placeholder) {
     return `<div class="leg ph" data-slot="${l.placeholder}"><div class="n">${i + 1}</div><div class="who">${cell(cells, `${k}.name`, V6_PLACEHOLDER.leg, "nm ph")}<div class="mt">${cell(cells, `${k}.odds`, V6_PLACEHOLDER.price, "chip dim")}${l.placeholder === "optional" ? `<span class="opt">${cell(cells, `${k}.optional`, "Optional")}</span>` : ""}</div></div><div class="rt"><span class="pk">Research<br>evidence</span>${cell(cells, `${k}.proj`, "Pending", "pv dim")}</div></div>`;
@@ -262,6 +283,38 @@ export function heldReasonText(reason) {
   const t = r.replace(/\s*[—–]\s*/g, " · ").replace(/\s+/g, " ");
   return /[.!?]$/.test(t) ? t : `${t}.`;
 }
+const CLEAN_CSS = `<style>
+.v5.clean .legs5{margin-top:30px;gap:16px;justify-content:flex-start}
+.v5.clean .leg.clean{grid-template-columns:60px 1fr;min-height:0;padding:16px 24px 14px;background:linear-gradient(100deg,color-mix(in srgb,var(--c) 55%,#05070a) 0%,color-mix(in srgb,var(--c) 22%,#05070a) 70%,#05070a);border:3px solid color-mix(in srgb,var(--c) 55%,#fff);box-shadow:0 0 14px color-mix(in srgb,var(--c) 60%,transparent),inset 0 2px 0 rgba(255,255,255,.25)}
+.v5.clean .leg.clean .n{font-size:64px;filter:none}
+.v5.clean .leg.clean .who{gap:6px}
+.v5.clean .leg.clean .nm{font:900 44px/1.02 var(--headline);color:#FFFFFF;text-shadow:0 2px 0 rgba(0,0,0,.85);white-space:nowrap}
+.v5.clean .leg.clean .nm .selt{color:var(--neon);-webkit-text-stroke:1px rgba(0,0,0,.6)}
+.v5.clean .leg.clean .vs{font:800 26px/1.1 var(--display);color:#FFFFFF;text-shadow:0 1px 2px #000}
+.v5.clean .leg.clean .dir{font:900 34px/1.05 var(--headline);color:#FFFFFF;text-transform:uppercase;text-shadow:0 2px 0 #000}
+.v5.clean .leg.clean .dir b.over{color:var(--neon)}.v5.clean .leg.clean .dir b.under{color:#5FD3FF}
+.v5.clean .leg.clean .mt{gap:12px;font:800 24px/1 var(--display);color:#FFFFFF;text-shadow:0 1px 2px #000}
+.v5.clean .leg.clean .mt .bar{color:rgba(255,255,255,.55)}
+.v5.clean .leg.clean .chip.odds{font:900 28px/1 var(--display);padding:6px 12px 4px;background:#FFFFFF;color:#050706;letter-spacing:1px}
+.v5.clean .leg.clean .rec{font:800 22px/1.15 var(--display);color:#FFE27A;text-shadow:0 1px 2px #000;white-space:nowrap}
+.v5.clean .legs5>.leg.clean:only-child{min-height:0;padding:22px 26px 20px}.v5.clean .legs5>.leg.clean:only-child .nm{font-size:52px}
+.v5.clean .tgt5{margin-top:20px;align-self:center;display:flex;align-items:center;gap:16px;padding:10px 24px 8px;border-radius:999px;border:2px solid var(--neon);background:rgba(0,0,0,.85);white-space:nowrap}
+.v5.clean .tgt5 span{font:800 22px/1 var(--display);letter-spacing:2px;text-transform:uppercase;color:#FFFFFF}
+.v5.clean .tgt5 .to{font:900 36px/1 var(--display);color:#FFE27A}
+.v5.clean .money5.clean{top:948px;height:214px;grid-template-columns:1fr 1fr 1.35fr 1fr;gap:10px}
+.v5.clean .money5.clean>div{padding:12px 8px;border:2px solid rgba(255,255,255,.5);background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(0,0,0,.92) 45%);box-shadow:none}
+.v5.clean .money5.clean .k{font:800 20px/1.1 var(--display);letter-spacing:1px}
+.v5.clean .money5.clean .v{margin-top:10px;font:900 46px/1 var(--display);color:#FFFFFF;text-shadow:none;filter:none;-webkit-text-stroke:1px rgba(0,0,0,.5)}
+.v5.clean .money5.clean .odds .v{color:#FFFFFF}
+.v5.clean .money5.clean .sub{margin-top:8px;font:800 15px/1 var(--display);letter-spacing:2px;color:rgba(255,255,255,.7);text-transform:uppercase}
+.v5.clean .money5.clean .vm{margin-top:8px;display:flex;align-items:center;justify-content:center;gap:6px;color:var(--neon);font:900 14px/1 var(--display);letter-spacing:1px;text-transform:uppercase}.v5.clean .money5.clean .vm svg{width:20px;height:20px}
+.v5.clean .money5.clean .pay{border:4px solid #FFD54A;background:radial-gradient(130% 120% at 50% 20%,rgba(255,215,80,.45),rgba(25,12,0,.95) 65%);box-shadow:0 0 0 1px #FFF3C0,0 0 22px rgba(255,180,0,.55)}
+.v5.clean .money5.clean .pay .k{color:#FFFFFF;text-shadow:none}
+.v5.clean .money5.clean .pay .v{font-size:58px;background:none;color:#FFD84A;-webkit-text-fill-color:#FFD84A;-webkit-text-stroke:1.5px #5A2A00;filter:none}
+.v5.clean .money5.clean .pro .v{color:var(--neon);text-shadow:none}
+.v5.clean .cp .m{filter:none}.v5.clean .cp.active .m{filter:none}
+.v5.clean .rt5{bottom:440px}
+</style>`;
 const CHECK = `<svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="13" fill="none" stroke="currentColor" stroke-width="3"/><path d="M8 15.5 L13 20 L22 10" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 /** One V6 card. `model` as bbmCardV4; legs may also be props: { kind: "PROP", player, team, opponent, home, tipUtc, lineText, oddsText?, level: "A"|"B", projectionText?, evidence: { l10, l20 } }. */
@@ -283,17 +336,26 @@ export function bbmCardV6(model, { testData = false } = {}) {
   const stepWord = model.view === VIEW.COMPLETE || model.view === VIEW.FINISHED_SHORT ? `${model.rungs.filter((r) => r.state === RUNG.COMPLETED).length} of ${model.steps} won` : `Step ${model.step} of ${model.steps}`;
   const status = model.badge === BADGE.ACTIVE ? "" : `<span class="st ${String(model.badge).split(" ")[0]}">${cell(cells, "status", STATUS_WORD[model.badge] ?? model.badge)}</span>`;
   const head = `<img class="logo5" src="${logoDataUri()}" alt=""><div style="text-align:center"><span class="chip5" style="display:inline-block">${cell(cells, "chip", chipText(model.date))}</span></div><div class="title5">${esc(P.name)}</div><div class="goal5">${cell(cells, "goal", `${cents(model.baseCents)} → ${cents(model.targetCents)} challenge`)}</div><div style="text-align:center"><span class="pills5${status ? " three" : ""}" style="display:inline-flex"><b>${cell(cells, "lane", `Lane ${model.letter}${LANE_TYPE[model.letter] ? ` · ${LANE_TYPE[model.letter]}` : ""}`)}</b><span>${cell(cells, "step", stepWord)}</span>${status}</span></div>`;
-  const meter = model.product === "moonshot" ? rocket(cells, model.rungs, P) : battery(cells, model.rungs, P);
+  const clean = model.clean === true && model.view === VIEW.CARD && model.payout && !tpl;
+  const rungs = clean ? model.rungs.map((r) => (r.state === RUNG.ACTIVE ? { ...r, exactCents: model.payout.grossCents } : r)) : model.rungs;
+  const meter = model.product === "moonshot" ? rocket(cells, rungs, P) : battery(cells, rungs, P);
   const outs = Object.fromEntries((model.legResults ?? []).map((r) => [r.legId, r.outcome]));
   let mid; let bottom = "";
   if ([VIEW.CARD, VIEW.WON, VIEW.BUSTED].includes(model.view) && (model.legs ?? []).length) {
     // The engine's classification label for a research selection (its dash drawn as a dot).
     const sel = model.selectionLabel ? `<div class="sel5">${cell(cells, "selection.label", String(model.selectionLabel).replace(/\s*[—–]\s*/g, " · "))}</div>` : "";
-    mid = sel + `<div class="legs5">${model.legs.map((l, i) => legPanel(cells, l, i, { price: model.view === VIEW.CARD ? model.payout?.legs?.[l.legId] : null, outcome: model.view === VIEW.CARD || l.placeholder ? null : outs[l.legId] ?? "PENDING" })).join("")}</div>`;
+    mid = sel + `<div class="legs5">${model.legs.map((l, i) => legPanel(cells, l, i, { clean, price: model.view === VIEW.CARD ? model.payout?.legs?.[l.legId] : null, outcome: model.view === VIEW.CARD || l.placeholder ? null : outs[l.legId] ?? "PENDING" })).join("")}</div>`;
     const target = model.rungs[model.step - 1]?.milestoneCents;
     // STEP n PLAN: the lane's tracked bankroll to this step's milestone (approximate except the goal), from the engine record.
-    if (model.view === VIEW.CARD && model.bankrollCents > 0 && target) mid += `<div class="plan5" data-plan><span class="lb">${cell(cells, "plan.label", `Step ${model.step} plan`)}</span>${TARGET_ICON}${cell(cells, "plan.from", cents(model.bankrollCents), "f")}<span class="ar">→</span>${cell(cells, "plan.to", `${model.step === model.steps ? "" : "~"}${cents(target)}`, "to")}${cell(cells, "plan.mult", `(≈${(target / model.bankrollCents).toFixed(1)}×)`, "x")}</div>`;
-    if (model.view === VIEW.CARD) {
+    if (clean) mid += `<div class="tgt5" data-plan><span>${cell(cells, "plan.label", "Current step target")}</span>${cell(cells, "plan.to", `${model.step === model.steps ? "" : "~"}${cents(target)}`, "to")}</div>`;
+    else if (model.view === VIEW.CARD && model.bankrollCents > 0 && target) mid += `<div class="plan5" data-plan><span class="lb">${cell(cells, "plan.label", `Step ${model.step} plan`)}</span>${TARGET_ICON}${cell(cells, "plan.from", cents(model.bankrollCents), "f")}<span class="ar">→</span>${cell(cells, "plan.to", `${model.step === model.steps ? "" : "~"}${cents(target)}`, "to")}${cell(cells, "plan.mult", `(≈${(target / model.bankrollCents).toFixed(1)}×)`, "x")}</div>`;
+    if (clean) {
+      // Separated ODDS · TRACKED STAKE · POTENTIAL PAYOUT (focal) · PROFIT. The verified mark only on a passing, unexpired price check.
+      const n = model.legs.length;
+      const kind = model.payout.combinedLabel === "book-quoted parlay" ? "Book parlay" : n === 1 ? "Selection" : "Leg product";
+      const mark = model.payout.verifiedMark ? `<div class="vm">${CHECK}${cell(cells, "price.verified", "Verified odds")}</div>` : "";
+      bottom += `<div class="money5 clean"><div class="odds"><div class="k">Odds</div>${cell(cells, "price.combined", american(model.payout.combinedAmerican), "v")}<div class="sub">${cell(cells, "price.kind", kind)}</div>${mark}</div><div><div class="k">Tracked stake</div>${cell(cells, "money.wager", cents(model.bankrollCents), "v")}</div><div class="pay" data-money="payout"><div class="k">Potential payout</div>${cell(cells, "money.payout", cents(model.payout.grossCents), "v")}</div><div class="pro"><div class="k">Profit</div>${cell(cells, "money.profit", cents(model.payout.profitCents), "v")}</div></div>`;
+    } else if (model.view === VIEW.CARD) {
       const stepTarget = model.rungs[model.step - 1]?.milestoneCents;
       const am = model.payout ? american(model.payout.combinedAmerican) : null;
       const verified = !tpl && model.payout && !model.payout.preliminary && !model.payout.fixture;
@@ -317,9 +379,9 @@ export function bbmCardV6(model, { testData = false } = {}) {
   }
   const rib = [model.reviewRibbon ?? null, tpl ? TEMPLATE_RIBBON : null, testData ? TEST_RIBBON : null, model.payout?.fixture ? SAMPLE_PRICE_RIBBON : null].filter(Boolean);
   const ribbon = rib.length ? `<div class="rib5 ${testData && !tpl ? "t" : ""}">${esc(rib.join(" · "))}</div>` : "";
-  const body = `${CSS(P)}<div class="v5 ${P.cls}">${scene(P)}${meter}<div class="rt5">${head}${mid}</div>${bottom}${ribbon}</div>`;
+  const body = `${CSS(P)}${clean ? CLEAN_CSS : ""}<div class="v5 ${P.cls}${clean ? " clean" : ""}">${scene(P)}${meter}<div class="rt5">${head}${mid}</div>${bottom}${ribbon}</div>`;
   const html = shell({ chip: "", body, review: false, disclosure: V6_FOOTER }).replace(/<div class="rg">[^<]*<\/div>/g, "");
-  return { html, cells, classification, laneId: model.laneId, view: model.view, badge: model.badge, template: tpl, preliminary: model.payout?.preliminary === true, testData, samplePrice: model.payout?.fixture === true, priced: model.payout != null, disclosure: V6_FOOTER, design: BBM_V6_DESIGN_VERSION };
+  return { html, cells, classification, laneId: model.laneId, view: model.view, badge: model.badge, template: tpl, preliminary: model.payout?.preliminary === true, testData, samplePrice: model.payout?.fixture === true, priced: model.payout != null, clean, verifiedMark: clean && model.payout.verifiedMark === true, disclosure: V6_FOOTER, design: BBM_V6_DESIGN_VERSION };
 }
 
 const cellsIn = (html) => Object.fromEntries([...html.matchAll(/data-cell="([^"]+)">([^<]*)</g)].map((m) => [m[1], m[2].replace(/&amp;/g, "&").replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">")]));
@@ -355,7 +417,7 @@ export function verifyBbmCardV6(card) {
   if (/[—–]/.test(text)) e.push("dash on image");
   e.push(...sourceTextProblems(shown), ...statLabelProblems(shown));
   if (!card.template) {
-    const verified = card.priced && !card.preliminary && !card.samplePrice;
+    const verified = card.clean ? card.verifiedMark : card.priced && !card.preliminary && !card.samplePrice;
     if (verified !== ("price.verified" in got)) e.push(verified ? "a verified price without its badge" : "a verified badge without a verified real price");
   }
   return e;
