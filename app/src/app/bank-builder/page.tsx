@@ -12,6 +12,9 @@ import ProductHero from "@/components/tier-board/product-hero";
 import TierBoardSection from "@/components/tier-board/tier-board-section";
 import ProductDisclosure from "@/components/tier-board/product-disclosure";
 import { loadTierBoard, playerGuardFor } from "@/lib/products/tier-board/load";
+import LanePair from "@/components/challenge-lanes/lane-pair";
+import type { LaneView } from "@/components/challenge-lanes/lane-card";
+import { loadProductLanes } from "@/lib/products/challenge-lanes/load.mjs";
 
 import PreviousHits from "@/components/bank-builder/previous-hits";
 import { loadOfficialStepCandidate } from "@/lib/world-cup-flex";
@@ -513,6 +516,10 @@ export default function BankBuilderPage() {
           ? "It settles overnight from official box scores — the ladder advances or restarts on the graded result."
           : NEXT_EVALUATION_ET ? `Next check ${NEXT_EVALUATION_ET}.` : ""}`.trim()}
       />
+
+      {/* BBM V2 CHALLENGE LANES (founder, 2026-11-04) — lanes A and B, the same step, ladder, legs, settlements, status
+          and graphics as the X posts, read through the ONE verifying loader of public/data/challenge-lanes/<laneId>.json. */}
+      <LanePair product="bank-builder" lanes={loadProductLanes("bank-builder") as LaneView[]} />
 
       {/* TODAY'S CARD — the featured parlay, or one explicit state. The day's detailed checks fold beneath it. */}
       <TierBoardSection

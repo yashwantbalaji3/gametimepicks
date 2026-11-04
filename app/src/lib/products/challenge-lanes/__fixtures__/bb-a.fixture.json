@@ -1,0 +1,104 @@
+{
+ "fixture": true,
+ "fixtureNote": "TEST-ONLY. Not a real lane record. Legs from the engine's 2026-11-02 replay; lane ms-b's history is synthetic.",
+ "schema": "gtp.challenge-lane@1",
+ "laneId": "bb-a",
+ "product": "bank-builder",
+ "runs": [
+  {
+   "header": {
+    "laneId": "bb-a",
+    "runId": "run-1",
+    "product": "bank-builder",
+    "base": 100,
+    "target": 10000,
+    "steps": 3,
+    "startedAt": "2026-11-02",
+    "approvedBy": "FIXTURE · no approval"
+   },
+   "events": [
+    {
+     "type": "CARD_FROZEN",
+     "date": "2026-11-02",
+     "step": 1,
+     "at": "2026-11-02T18:00:00Z",
+     "source": "FIXTURE (bb-redesign, from the engine's 2026-11-02 replay)",
+     "legs": [
+      {
+       "gameId": "401909910",
+       "gameLabel": "BKN @ NY",
+       "market": "winner",
+       "selection": {
+        "teamAbbr": "NY",
+        "label": "NY (official side)"
+       },
+       "projection": {
+        "label": "MODEL WIN PROBABILITY",
+        "value": 0.911,
+        "shown": "91%"
+       },
+       "flagText": [],
+       "snapshotId": "nba-preseason-experimental-v0.1@2026-11-02T05:57:53Z",
+       "contentSha256": "8bfe6b841968cd6ce66a41280de3937d3e37e4088ab57e08aa8b1ce7020e9cd1"
+      },
+      {
+       "gameId": "401909918",
+       "gameLabel": "POR @ DEN",
+       "market": "winner",
+       "selection": {
+        "teamAbbr": "DEN",
+        "label": "DEN (official side)"
+       },
+       "projection": {
+        "label": "MODEL WIN PROBABILITY",
+        "value": 0.6914,
+        "shown": "69%"
+       },
+       "flagText": [],
+       "snapshotId": "nba-preseason-experimental-v0.1@2026-11-02T05:57:53Z",
+       "contentSha256": "69cac4398c10b86ba543f138eeafa454567a35b91de1ef734f8e7cce093f1e4f"
+      }
+     ],
+     "suggestedCardsSha": "17aa1eec",
+     "prevSha256": "e1ada94b62ea3e10a36127e2ff2ff8adb2d2fecc42355ccb3d2d1899c8629ade",
+     "sha256": "f947ca87e72bd7c09cc4a10e53fc890c2c5517146537060a012c8559708fb07d"
+    },
+    {
+     "type": "STAKE_SET",
+     "date": "2026-11-02",
+     "step": 1,
+     "at": "2026-11-02T18:00:00Z",
+     "source": "FIXTURE (bb-redesign, from the engine's 2026-11-02 replay)",
+     "stake": 100,
+     "placedWager": false,
+     "prevSha256": "f947ca87e72bd7c09cc4a10e53fc890c2c5517146537060a012c8559708fb07d",
+     "sha256": "425eea8083c4d708e1026e0902647fedc4a0475ec7255838fcc6b690ee11f0b3"
+    },
+    {
+     "type": "STATUS",
+     "date": "2026-11-02",
+     "step": 1,
+     "at": "2026-11-02T18:00:00Z",
+     "source": "FIXTURE (bb-redesign, from the engine's 2026-11-02 replay)",
+     "status": "UNPRICED",
+     "reason": "awaiting verified prices (founder decision P1)",
+     "prevSha256": "425eea8083c4d708e1026e0902647fedc4a0475ec7255838fcc6b690ee11f0b3",
+     "sha256": "c97458b6fb11177acbc6c0fa9d23120370ab06bc6104f0a7abf70a1656340975"
+    },
+    {
+     "type": "GRAPHIC_RENDERED",
+     "date": "2026-11-02",
+     "step": 1,
+     "at": "2026-11-02T18:00:00Z",
+     "source": "FIXTURE (bb-redesign, from the engine's 2026-11-02 replay)",
+     "packageId": "bb-2026-11-02",
+     "imageSha": "fixture",
+     "alt": "Lane A, step 1 of 3, in play",
+     "prevSha256": "c97458b6fb11177acbc6c0fa9d23120370ab06bc6104f0a7abf70a1656340975",
+     "sha256": "5e25871ab6b63ce4cb1dfc1c221e8166ef06172a4ffc0b6e07b2ecd69f630051"
+    }
+   ]
+  }
+ ],
+ "contentSha256": "d8b8eac463b5f7f9283d148aabc9a3db2ab42e20158a990226394080ead8ab0b"
+}

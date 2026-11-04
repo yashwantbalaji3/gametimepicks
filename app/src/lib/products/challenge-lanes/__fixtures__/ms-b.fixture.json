@@ -1,0 +1,148 @@
+{
+ "fixture": true,
+ "fixtureNote": "TEST-ONLY. Not a real lane record. Legs from the engine's 2026-11-02 replay; lane ms-b's history is synthetic.",
+ "schema": "gtp.challenge-lane@1",
+ "laneId": "ms-b",
+ "product": "moonshot",
+ "runs": [
+  {
+   "header": {
+    "laneId": "ms-b",
+    "runId": "run-1",
+    "product": "moonshot",
+    "base": 25,
+    "target": 1000,
+    "steps": 5,
+    "startedAt": "2026-11-01",
+    "approvedBy": "FIXTURE · no approval"
+   },
+   "events": [
+    {
+     "type": "CARD_FROZEN",
+     "date": "2026-11-01",
+     "step": 1,
+     "at": "2026-11-01T18:00:00Z",
+     "source": "FIXTURE (bb-redesign, from the engine's 2026-11-02 replay)",
+     "legs": [
+      {
+       "gameId": "fixture-g1",
+       "gameLabel": "AAA @ BBB (synthetic)",
+       "market": "winner",
+       "selection": {
+        "teamAbbr": "BBB",
+        "label": "BBB (synthetic)"
+       },
+       "projection": {
+        "label": "MODEL WIN PROBABILITY",
+        "value": 0.58,
+        "shown": "58%"
+       },
+       "flagText": [],
+       "snapshotId": "fixture",
+       "contentSha256": "fixture"
+      },
+      {
+       "gameId": "fixture-g2",
+       "gameLabel": "CCC @ DDD (synthetic)",
+       "market": "winner",
+       "selection": {
+        "teamAbbr": "CCC",
+        "label": "CCC (synthetic)"
+       },
+       "projection": {
+        "label": "MODEL WIN PROBABILITY",
+        "value": 0.47,
+        "shown": "47%"
+       },
+       "flagText": [],
+       "snapshotId": "fixture",
+       "contentSha256": "fixture"
+      }
+     ],
+     "suggestedCardsSha": "fixture",
+     "prevSha256": "f506bac3f47c7f5e2693badd19a5a9b65d3a1bdd7c21c7f34d1e40b3735ca7f4",
+     "sha256": "c864972a6e4c5e9148bf67a4ec3d40c57356438c446e8dbe5ad6d559cbe44e78"
+    },
+    {
+     "type": "STAKE_SET",
+     "date": "2026-11-01",
+     "step": 1,
+     "at": "2026-11-01T18:00:00Z",
+     "source": "FIXTURE (bb-redesign, from the engine's 2026-11-02 replay)",
+     "stake": 25,
+     "placedWager": false,
+     "prevSha256": "c864972a6e4c5e9148bf67a4ec3d40c57356438c446e8dbe5ad6d559cbe44e78",
+     "sha256": "ef216a7427d9fa99231ce62a6fe7072cc63de11420ab3cb1ba6bb578276aa63d"
+    },
+    {
+     "type": "GRAPHIC_RENDERED",
+     "date": "2026-11-01",
+     "step": 1,
+     "at": "2026-11-01T18:00:00Z",
+     "source": "FIXTURE (bb-redesign, from the engine's 2026-11-02 replay)",
+     "packageId": "ms-b-2026-11-01",
+     "imageSha": "fixture",
+     "alt": "Lane B, step 1 of 5, in play",
+     "prevSha256": "ef216a7427d9fa99231ce62a6fe7072cc63de11420ab3cb1ba6bb578276aa63d",
+     "sha256": "9783c480f8dfe562fc10663a950e4c30dd1d9485078ee225ebc8a669bc4833e0"
+    },
+    {
+     "type": "LEG_SETTLED",
+     "date": "2026-11-02",
+     "step": 1,
+     "at": "2026-11-02T18:00:00Z",
+     "source": "FIXTURE · synthetic final",
+     "gameId": "fixture-g1",
+     "outcome": "WIN",
+     "prevSha256": "9783c480f8dfe562fc10663a950e4c30dd1d9485078ee225ebc8a669bc4833e0",
+     "sha256": "007e196c074f9c2e9aa92c6c542a8a27487a5515d9813ed1a4d0838046c821d1"
+    },
+    {
+     "type": "LEG_SETTLED",
+     "date": "2026-11-02",
+     "step": 1,
+     "at": "2026-11-02T18:00:00Z",
+     "source": "FIXTURE · synthetic final",
+     "gameId": "fixture-g2",
+     "outcome": "LOSS",
+     "prevSha256": "007e196c074f9c2e9aa92c6c542a8a27487a5515d9813ed1a4d0838046c821d1",
+     "sha256": "87f7435120b61481140be382dfb9bfbd77b1ae8cce2aa89de70fd6c659edb0bb"
+    },
+    {
+     "type": "STEP_SETTLED",
+     "date": "2026-11-02",
+     "step": 1,
+     "at": "2026-11-02T18:00:00Z",
+     "source": "FIXTURE (bb-redesign, from the engine's 2026-11-02 replay)",
+     "outcome": "LOSS",
+     "prevSha256": "87f7435120b61481140be382dfb9bfbd77b1ae8cce2aa89de70fd6c659edb0bb",
+     "sha256": "b31872046572abc8693f4b7a410eda5006a8cc6097bea4dd397d923591819901"
+    },
+    {
+     "type": "STATUS",
+     "date": "2026-11-02",
+     "step": 1,
+     "at": "2026-11-02T18:00:00Z",
+     "source": "FIXTURE (bb-redesign, from the engine's 2026-11-02 replay)",
+     "status": "AWAITING_RESTART_APPROVAL",
+     "reason": "busted at step 1",
+     "prevSha256": "b31872046572abc8693f4b7a410eda5006a8cc6097bea4dd397d923591819901",
+     "sha256": "b73d91eb4a5ce79cce02814a6d7d931adf406ed879a985f3c1c4a1801772a4b1"
+    },
+    {
+     "type": "GRAPHIC_RENDERED",
+     "date": "2026-11-02",
+     "step": 1,
+     "at": "2026-11-02T18:00:00Z",
+     "source": "FIXTURE (bb-redesign, from the engine's 2026-11-02 replay)",
+     "packageId": "ms-b-2026-11-02",
+     "imageSha": "fixture",
+     "alt": "Lane B, busted at step 1 of 5",
+     "prevSha256": "b73d91eb4a5ce79cce02814a6d7d931adf406ed879a985f3c1c4a1801772a4b1",
+     "sha256": "73175487ea6021a46fe21b2eb3f2c10b1fb9e8a196aac0a0c4fb5c457d802f29"
+    }
+   ]
+  }
+ ],
+ "contentSha256": "7b82ecb23575d476a52a3d857e3ef425cd412f6ac4089a76eb78450871c1a623"
+}

@@ -6250,3 +6250,64 @@ textarea:focus-visible { outline: none; box-shadow: var(--vault-focus-ring); bor
 .tb-hero--lab { background: linear-gradient(120deg, color-mix(in srgb, var(--risk-low) 12%, var(--vault-panel)) 0%, var(--vault-panel) 40%, var(--vault-panel) 60%, color-mix(in srgb, var(--risk-longshot) 14%, var(--vault-panel)) 100%); border-color: var(--vault-border-strong); }
 .tb-hero--lab .tb-eyebrow { color: var(--vault-text-mute); }
 .tb-hero--lab .tb-btn--primary { background: var(--vault-text); border-color: var(--vault-text); color: var(--vault-ink-black); }
+
+/* BBM V2 challenge lanes (components/challenge-lanes): two lanes side by side, the same facts as the X graphics.
+   --cl-accent is the product colour; target = goal (outlined), tracked = settled (solid), potential = pending (dashed). */
+.cl-section { display: flex; flex-direction: column; gap: 14px; margin: 24px 0; }
+.cl-intro { margin: 0; color: var(--vault-text-mute); font-size: 14px; line-height: 1.55; max-width: 72ch; }
+.cl-pair { display: grid; grid-template-columns: 1fr; gap: 16px; }
+@media (min-width: 900px) { .cl-pair { grid-template-columns: 1fr 1fr; } }
+.cl-lane { --cl-accent: var(--sport-bank); display: flex; flex-direction: column; gap: 14px; min-width: 0; border-radius: 16px; padding: 18px 16px; background: var(--vault-panel); border: 1px solid var(--vault-border); border-top: 3px solid var(--cl-accent); }
+.cl-lane--moonshot { --cl-accent: var(--product-moonshot); border-top-color: var(--product-moonshot-mid); background: linear-gradient(180deg, color-mix(in srgb, var(--product-moonshot-deep) 16%, var(--vault-panel)) 0%, var(--vault-panel) 55%); box-shadow: 0 18px 48px -28px color-mix(in srgb, var(--product-moonshot-electric) 60%, transparent); }
+.cl-lane-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.cl-lane-name { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; color: var(--vault-text); }
+.cl-lane-run { font-weight: 500; color: var(--vault-text-mute); text-transform: none; font-size: 13px; }
+.cl-status { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 2px 12px; border-radius: 9999px; font-size: 12px; font-weight: 800; letter-spacing: .06em; border: 1px solid var(--vault-border-strong); color: var(--vault-text); }
+.cl-status--in-play { color: var(--vault-success); border-color: color-mix(in srgb, var(--vault-success) 55%, transparent); background: color-mix(in srgb, var(--vault-success) 10%, transparent); }
+.cl-status--busted { color: var(--vault-danger); border-color: color-mix(in srgb, var(--vault-danger) 55%, transparent); background: color-mix(in srgb, var(--vault-danger) 10%, transparent); }
+.cl-status--complete { color: var(--vault-gold-bright); border-color: color-mix(in srgb, var(--vault-gold) 60%, transparent); }
+.cl-status--paused, .cl-status--no-card, .cl-status--unavailable { color: var(--vault-text-mute); }
+.cl-step { margin: 0; font-size: clamp(30px, 6vw, 42px); font-weight: 900; line-height: 1; letter-spacing: .01em; color: var(--vault-text); }
+.cl-step-of { color: var(--cl-accent); }
+.cl-note { margin: -4px 0 0; color: var(--vault-text-mute); font-size: 13.5px; line-height: 1.5; }
+.cl-label { font-family: var(--font-mono, ui-monospace, monospace); text-transform: uppercase; letter-spacing: .1em; font-size: 10.5px; font-weight: 700; color: var(--vault-text-mute); }
+.cl-meter { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; }
+.cl-meter-end { display: flex; flex-direction: column; font-weight: 800; font-size: 14px; color: var(--vault-text); }
+.cl-meter-end--target { text-align: right; color: var(--cl-accent); }
+.cl-rungs { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; gap: 4px; }
+.cl-rung { flex: 1; display: flex; align-items: center; justify-content: center; height: 34px; border-radius: 8px; font-weight: 800; font-size: 13px; border: 1.5px dashed var(--vault-border-strong); color: var(--vault-text-mute); }
+.cl-rung--completed { border: 1.5px solid var(--cl-accent); background: var(--cl-accent); color: var(--vault-ink-black); }
+.cl-rung--active { border: 2px solid var(--cl-accent); color: var(--vault-text); box-shadow: 0 0 0 3px color-mix(in srgb, var(--cl-accent) 25%, transparent); }
+.cl-rung--failed { border: 1.5px solid var(--vault-danger); background: color-mix(in srgb, var(--vault-danger) 18%, transparent); color: var(--vault-danger); }
+.cl-money { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cl-money-cell { margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--vault-wash-faint, transparent); border: 1px solid var(--vault-border); min-width: 0; }
+.cl-money-cell dt { font-family: var(--font-mono, ui-monospace, monospace); text-transform: uppercase; letter-spacing: .1em; font-size: 10.5px; font-weight: 700; color: var(--vault-text-mute); }
+.cl-money-cell dd { margin: 4px 0 0; font-size: 16px; font-weight: 800; color: var(--vault-text); overflow-wrap: anywhere; }
+.cl-money--tracked { border-color: color-mix(in srgb, var(--cl-accent) 55%, transparent); }
+.cl-money--pending { border-style: dashed; }
+.cl-money--pending dd { font-size: 13px; font-weight: 700; color: var(--vault-text-mute); }
+.cl-money--goal { grid-column: 1 / -1; }
+.cl-block { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--vault-border); padding-top: 12px; }
+.cl-block-title { margin: 0; font-size: 13px; font-weight: 700; color: var(--vault-text); }
+.cl-legs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.cl-leg { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 12px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--vault-border); min-height: 44px; }
+.cl-leg-main, .cl-leg-side { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cl-leg-side { align-items: flex-end; text-align: right; }
+.cl-leg-pick { font-weight: 800; color: var(--vault-text); }
+.cl-leg-game { font-size: 12.5px; color: var(--vault-text-mute); }
+.cl-leg-proj { font-weight: 800; color: var(--vault-text); }
+.cl-outcome { font-size: 12px; font-weight: 700; color: var(--vault-text-mute); }
+.cl-outcome--win { color: var(--vault-success); }
+.cl-outcome--loss { color: var(--vault-danger); }
+.cl-leg-flag, .cl-leg-src { flex-basis: 100%; margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--vault-text-mute); }
+.cl-leg-flag { color: var(--vault-text); }
+.cl-leg-flag > span { color: var(--risk-high); }
+.cl-settled-summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-size: 13.5px; color: var(--vault-text); }
+.cl-graphics { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.cl-graphic { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--vault-text-mute); }
+.cl-graphic-img { width: 100%; max-width: 320px; height: auto; border-radius: 10px; border: 1px solid var(--vault-border); }
+.cl-graphic-text strong { color: var(--vault-text); }
+.cl-graphic a { color: var(--cl-accent); text-decoration: underline; display: inline-block; min-height: 24px; }
+.cl-runs, .cl-fact { margin: 0; font-size: 12.5px; color: var(--vault-text-mute); }
+.cl-fact { font-family: var(--font-mono, ui-monospace, monospace); letter-spacing: .04em; }
+@media (min-width: 768px) { .cl-lane { padding: 22px 22px; } }

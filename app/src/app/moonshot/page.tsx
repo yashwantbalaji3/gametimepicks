@@ -26,6 +26,9 @@ import ProductHero from "@/components/tier-board/product-hero";
 import TierBoardSection from "@/components/tier-board/tier-board-section";
 import ProductDisclosure from "@/components/tier-board/product-disclosure";
 import { loadTierBoard, playerGuardFor } from "@/lib/products/tier-board/load";
+import LanePair from "@/components/challenge-lanes/lane-pair";
+import type { LaneView } from "@/components/challenge-lanes/lane-card";
+import { loadProductLanes } from "@/lib/products/challenge-lanes/load.mjs";
 import { presentFromArtifact } from "@/lib/signature-presentation.mjs";
 import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
 import EligibleUniverse from "@/components/products/eligible-universe";
@@ -181,6 +184,10 @@ export default function MoonshotPage() {
         statusLabel={!moonshot.running ? "Not running" : todayRanWithoutCard ? noCardLabel : signature.label}
         statusNote={moonshot.publicNote}
       />
+
+      {/* BBM V2 CHALLENGE LANES (founder, 2026-11-04) — lanes A and B, the same step, ladder, legs, settlements, status
+          and graphics as the X posts, read through the ONE verifying loader of public/data/challenge-lanes/<laneId>.json. */}
+      <LanePair product="moonshot" lanes={loadProductLanes("moonshot") as LaneView[]} />
 
       {/* TODAY'S CARD — the featured parlay, or one explicit state. The day's detailed checks fold beneath it. */}
       <TierBoardSection

@@ -1,0 +1,47 @@
+{
+ "fixture": true,
+ "fixtureNote": "TEST-ONLY. Not a real lane record. Legs from the engine's 2026-11-02 replay; lane ms-b's history is synthetic.",
+ "schema": "gtp.challenge-lane@1",
+ "laneId": "bb-b",
+ "product": "bank-builder",
+ "runs": [
+  {
+   "header": {
+    "laneId": "bb-b",
+    "runId": "run-1",
+    "product": "bank-builder",
+    "base": 100,
+    "target": 10000,
+    "steps": 3,
+    "startedAt": "2026-11-02",
+    "approvedBy": "FIXTURE · no approval"
+   },
+   "events": [
+    {
+     "type": "STATUS",
+     "date": "2026-11-02",
+     "step": 1,
+     "at": "2026-11-02T18:00:00Z",
+     "source": "FIXTURE (bb-redesign, from the engine's 2026-11-02 replay)",
+     "status": "NO_ELIGIBLE_CARD",
+     "reason": "no eligible card shares no game with lane A",
+     "prevSha256": "608bb20c16f0cdb34123696ca0ada8cf62c51e3139573bdfaaff3a737f28b8b3",
+     "sha256": "0d9af58ff01ae95a64a891ca13ba1076078c1de1351e947ebd4074bd3201d64c"
+    },
+    {
+     "type": "GRAPHIC_RENDERED",
+     "date": "2026-11-02",
+     "step": 1,
+     "at": "2026-11-02T18:00:00Z",
+     "source": "FIXTURE (bb-redesign, from the engine's 2026-11-02 replay)",
+     "packageId": "bb-2026-11-02",
+     "imageSha": "fixture",
+     "alt": "Lane B, no qualifying card today, still step 1 of 3",
+     "prevSha256": "0d9af58ff01ae95a64a891ca13ba1076078c1de1351e947ebd4074bd3201d64c",
+     "sha256": "28ae8139c85f591e8f00a86485ac00659ff10f208f37f15c10f946a3a0ae6000"
+    }
+   ]
+  }
+ ],
+ "contentSha256": "64c1d29538d27605e0b458d49419b392d0f8dd6473b1490ada62150d8e0e3f4a"
+}
