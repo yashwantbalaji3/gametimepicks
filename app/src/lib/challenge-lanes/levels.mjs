@@ -33,6 +33,8 @@ export const LEVEL_B_PARAMS = Object.freeze({
   minGamesPlayed: Object.freeze({ value: 3, state: "PROPOSED" }),
   maxMinutesCv: Object.freeze({ value: 0.25, state: "PROPOSED" }),
   allowedInjury: Object.freeze({ value: Object.freeze(["ACTIVE", "PROBABLE"]), state: "PROPOSED" }),
+  /* Founder 2026-11-04 ~19:25Z: an evening prop needs its role under tonight's lineup, not static morning evidence. */
+  requireLineup: Object.freeze({ value: true, state: "PROPOSED" }),
   legDecimalRange: Object.freeze({ value: Object.freeze([1.25, 4.0]), state: "PROPOSED" }),
   minBooksAtLine: Object.freeze({ value: 2, state: "PROPOSED" }),
   maxQuoteAgeMs: Object.freeze({ value: 90 * 60 * 1000, state: "PROPOSED" }),
@@ -40,6 +42,8 @@ export const LEVEL_B_PARAMS = Object.freeze({
   rateBucket: Object.freeze({ value: 0.05, state: "PROPOSED" }),
 });
 const P = (k, over) => over?.[k] ?? LEVEL_B_PARAMS[k].value;
+/* Bucket index with a tolerance: 0.60 / 0.05 is 11.999… in binary floating point, and 0.60 must sit in bucket 12. */
+const bucketOf = (x, bucket) => Math.floor(x / bucket + 1e-9);
 
 /** "hits of n" text: the ONLY way a hit rate is displayed. 5 of 5 is "5 of 5", never "100%". */
 export const hitRateText = (w) => `${w.hits} of ${w.n} (${w.window})`;
@@ -70,7 +74,7 @@ export function legFromShortlist(c) {
     forecastVersion: c.forecastVersion ?? null, evidenceSha256: c.evidenceSha256 ?? null,
     projection: c.projection ? { value: c.projection.value ?? null, label: "MODEL PROJECTION", snapshotId: c.projection.snapshotId ?? null } : null,
     hitRate: c.hitRate ? { windows: (c.hitRate.windows ?? []).map((w) => ({ window: w.window, hits: w.hits, n: w.n, text: hitRateText(w) })), shrunk: c.hitRate.shrunk ?? null, lineBasis: c.hitRate.lineBasis ?? null } : null,
-    role: c.role ?? null, injury: c.injury ?? null, dataQuality: c.dataQuality ?? null,
+    role: c.role ?? null, injury: c.injury ?? null, dataQuality: c.dataQuality ?? null, lineup: c.lineup ?? null,
     probability: null, uncertainty: null, ev: null,
   };
 }
@@ -125,6 +129,14 @@ export function legSignals(leg, { params = null, now } = {}) {
   }
   const C = { status: leg.injury?.status ?? null, fetchedAt: leg.injury?.fetchedAt ?? null };
   if (leg.family !== "winner" && !P("allowedInjury", params).includes(C.status)) r.push(`C_AVAILABILITY ${leg.legId}: ${C.status ?? "unknown"}`);
+  /* Lineup sensitivity: the evaluator's teammate-scenario splits (k/n at this line per scenario) decide whether the base
+     sample represents tonight. Unknown → HOLD; sensitive or unrepresentative → HOLD. */
+  const lu = leg.lineup;
+  C.lineup = lu ? { tonightScenario: lu.tonightScenario ?? null, sensitive: lu.sensitive ?? null, baseRepresentative: lu.baseRepresentative ?? null, scenarios: (lu.scenarios ?? []).map((x) => `${x.label}: ${x.hits}/${x.games}${x.minutesAvg != null ? ` · ${x.minutesAvg} min` : ""}`), keyTeammates: (lu.keyTeammates ?? []).map((t) => `${t.name} ${t.statusNow}`) } : null;
+  if (leg.family !== "winner" && P("requireLineup", params)) {
+    if (!lu) r.push(`C_LINEUP_UNKNOWN ${leg.legId}: no teammate-scenario evidence`);
+    else if (lu.sensitive !== false || lu.baseRepresentative !== true) r.push(`C_LINEUP_SENSITIVE ${leg.legId}: ${lu.sensitive !== false ? "role shifts across plausible teammate scenarios" : "base sample does not represent tonight's lineup"}${lu.note ? ` (${lu.note})` : ""}`);
+  }
   const D = { ok: leg.dataQuality?.ok ?? null, issues: leg.dataQuality?.issues ?? [] };
   if (D.ok !== true) r.push(`D_DATA_QUALITY ${leg.legId}: ${D.issues.join(", ") || "not confirmed"}`);
   if (!(Date.parse(leg.startUtc) > Date.parse(now))) r.push(`STARTED ${leg.legId}`);
@@ -196,7 +208,7 @@ export function evaluateLevelCandidates({ legs, position, now, propCapture = nul
   /* RULES-BASED ORDER (labelled, not a probability): weakest leg's shrunk rate (bucketed), then fewer legs, then the
      smallest evidence denominator, then minutes stability, then closeness to the step target, then freshness, then id. */
   const ranked = rows.filter((r) => r.classification === LEVEL.B).sort((a, b) =>
-    Math.floor(b.rankKeys.weakestShrunkRate / bucket) - Math.floor(a.rankKeys.weakestShrunkRate / bucket)
+    bucketOf(b.rankKeys.weakestShrunkRate, bucket) - bucketOf(a.rankKeys.weakestShrunkRate, bucket)
     || a.rankKeys.legCount - b.rankKeys.legCount
     || b.rankKeys.smallestLongestN - a.rankKeys.smallestLongestN
     || a.rankKeys.worstMinutesCv - b.rankKeys.worstMinutesCv
@@ -235,9 +247,59 @@ export function levelCardRecord(candidate, { laneId, date }) {
     legs: candidate.legs.map((l) => ({ legId: l.legId, sport: l.sport, gameId: l.gameId, eventLabel: l.eventLabel, startUtc: l.startUtc, player: l.player, team: l.team, market: l.market, family: l.family, projection: l.projection ?? null, line: l.line, side: l.side, book: l.quote?.book ?? null, price: l.quote?.american ?? null, quotedAt: l.quote?.quotedAt ?? null, fetchedAt: l.quote?.fetchedAt ?? null, forecastVersion: l.forecastVersion, hitRate: l.hitRate, role: l.role, injury: l.injury, classification: candidate.classification, evidenceClass: candidate.classification === LEVEL.HOLD ? null : candidate.classification, evidenceLabel: EVIDENCE_LABEL[candidate.classification] ?? null, probability: null, uncertainty: null, ev: null })),
     combined: candidate.price && { method: candidate.price.method, label: candidate.price.label, decimal: candidate.price.decimal, american: candidate.price.american },
     money: candidate.money, reasons: candidate.reasons,
-    approvalStatus: "PENDING_FOUNDER", priceEventSha256: null, graphicVersion: null, siteRecordVersion: null, xReceipt: null,
+    /* Parity gate fields (engine → site → graphic → caption → console); filled by each stage, never by the engine. */
+    injuryStatus: candidate.legs.map((l) => ({ legId: l.legId, status: l.injury?.status ?? null, checkedAt: l.injury?.fetchedAt ?? null, lineup: l.lineup ? { tonightScenario: l.lineup.tonightScenario ?? null, sensitive: l.lineup.sensitive ?? null } : null })),
+    approvalStatus: "PENDING_FOUNDER", priceEventSha256: null, graphicVersion: null, captionText: null, captionSha256: null, siteRecordVersion: null, xReceipt: null,
     recordSha256: null,
   };
 }
 export const sealCardRecord = (r) => ({ ...r, recordSha256: sha256(canonical({ ...r, recordSha256: null })) });
 
+
+/* ───────────────────────────── four-lane joint assignment (founder ~19:25Z) ───────────────────────────── */
+
+const LANE_IDS4 = Object.freeze({ "bank-builder": ["bb-a", "bb-b"], moonshot: ["ms-a", "ms-b"] });
+const legSetKey = (c) => c.legs.map((l) => l.legId).sort().join("+");
+/** A candidate's quality tier for "never weaker": the first two rules-based ranking keys. */
+const tierOf = (c, bucket) => [bucketOf(c.rankKeys.weakestShrunkRate, bucket), -c.rankKeys.legCount];
+const notWeaker = (x, y, bucket) => { const a = tierOf(x, bucket); const b = tierOf(y, bucket); return a[0] > b[0] || (a[0] === b[0] && a[1] >= b[1]); };
+
+/**
+ * Build both products' ranked pools, then assign bb-a, bb-b, ms-a, ms-b jointly:
+ *   - each lane takes its best Level B candidate that shares no game with its product partner (A before B);
+ *   - across products, a card identical to one already assigned is replaced only by a candidate that is NOT weaker
+ *     (same evidence tier, no more legs); otherwise the identical card stands and the trade-off is recorded;
+ *   - no qualifying candidate → HELD.
+ * Returns per lane: the assignment, the top 3 options under the lane's constraints, and the trade-offs.
+ */
+export function assignFourLanes({ legs, now, propCapture, propCaptureSha256 = null, h2h = null, params = null, bankrolls = { "bb-a": 10000, "bb-b": 10000, "ms-a": 2500, "ms-b": 2500 }, steps = { "bb-a": 1, "bb-b": 1, "ms-a": 1, "ms-b": 1 } }) {
+  const bucket = P("rateBucket", params);
+  const bandParams = params?.bandPct != null ? { bandPct: params.bandPct } : null;
+  const out = {}; const assigned = []; const tradeOffs = [];
+  for (const product of ["bank-builder", "moonshot"]) {
+    const [a, b] = LANE_IDS4[product];
+    for (const laneId of [a, b]) {
+      const pos = stepPosition({ product, step: steps[laneId], bankrollCents: bankrolls[laneId], params: bandParams });
+      if (!pos.ok) { out[laneId] = { laneId, status: "HELD", code: pos.refusal, options: [] }; continue; }
+      const partner = laneId === b ? out[a]?.card : null;
+      const ev = evaluateLevelCandidates({ legs, position: pos, now, propCapture, propCaptureSha256, h2h, params, excludeGames: partner ? partner.legs.map((l) => l.gameId) : [] });
+      const eligible = ev.ranked;
+      const identical = (c) => assigned.find((x) => x.product !== product && legSetKey(x.card) === legSetKey(c));
+      let pick = eligible[0] ?? null; let note = null;
+      if (pick && identical(pick)) {
+        const alt = eligible.find((c) => !identical(c) && notWeaker(c, pick, bucket));
+        const twin = identical(pick).laneId;
+        if (alt) { note = `diversified: ${legSetKey(pick)} is already ${twin}; took ${alt.candidateId} (same evidence tier, not weaker)`; pick = alt; }
+        else { note = `IDENTICAL to ${twin}: every non-identical alternative is weaker (or none exists), so the identical card stands (founder may HOLD instead)`; }
+        tradeOffs.push({ laneId, note });
+      }
+      const options = eligible.slice(0, 3).map((c) => ({ rank: c.rank, candidateId: c.candidateId, identicalTo: identical(c)?.laneId ?? null, legs: c.legs.map((l) => ({ legId: l.legId, player: l.player?.name ?? null, team: l.team, family: l.family, side: l.side, line: l.line, eventLabel: l.eventLabel, book: l.quote?.book ?? null, american: l.quote?.american ?? null, quotedAt: l.quote?.quotedAt ?? null })), american: c.price.american, grossPayoutCents: c.money.grossPayoutCents, targetDeviation: c.targetDeviation, rankKeys: c.rankKeys }));
+      const why = {}; for (const c of ev.candidates) for (const x of c.reasons) { const k = x.split(/[ :]/)[0]; why[k] = (why[k] ?? 0) + 1; }
+      out[laneId] = pick
+        ? { laneId, product, status: "READY_FOR_APPROVAL", classification: LEVEL.B, card: pick, note, options, position: pos, counts: ev.counts, reasonCounts: why }
+        : { laneId, product, status: "HELD", code: "NO_QUALIFIED_CARD", options, position: pos, counts: ev.counts, reasonCounts: why };
+      if (pick) assigned.push({ laneId, product, card: pick });
+    }
+  }
+  return { rulesVersion: RULES_VERSION, mode: "LEVEL_B_RESEARCH (founder approval required)", rankingLabel: RANKING_LABEL, lanes: out, tradeOffs };
+}

@@ -59,7 +59,7 @@ export function lanePriceDisplay(laneId, runs) {
       const remaining = Math.max(s.steps - s.step + 1, 0);
       const ladder = events[0].stepTargetsCents ?? MILESTONES[s.product];
       const milestoneCents = won > 0 ? ladder[Math.min(won, s.steps) - 1] : s.baseCents;
-      const pace = { milestoneCents, requiredMultiplier: !remaining ? null : events[0].rulesVersion ? Math.round((ladder[s.step - 1] / s.bankrollCents) * 1e4) / 1e4 : Math.round((s.targetCents / s.bankrollCents) ** (1 / remaining) * 1e4) / 1e4, behindByCents: Math.max(0, milestoneCents - s.bankrollCents), onPace: s.bankrollCents >= milestoneCents };
+      const pace = { milestoneCents, requiredMultiplier: !remaining || !(s.bankrollCents > 0) ? null : events[0].rulesVersion ? Math.round((ladder[s.step - 1] / s.bankrollCents) * 1e4) / 1e4 : Math.round((s.targetCents / s.bankrollCents) ** (1 / remaining) * 1e4) / 1e4, behindByCents: Math.max(0, milestoneCents - s.bankrollCents), onPace: s.bankrollCents >= milestoneCents };
       return { runId: s.runId, trackedBankrollCents: s.bankrollCents, step: s.step, status: s.status, pace, days };
     }),
   };

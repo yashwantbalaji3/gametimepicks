@@ -152,7 +152,7 @@ export function laneState(events) {
       case "STEP_SETTLED": {
         const d = day(e.date); d.outcome = e.outcome;
         if (e.outcome === "WIN") { s.bankrollCents = e.bankrollAfterCents; s.step += 1; s.status = STATUS.READY; }
-        if (e.outcome === "LOSS") s.status = STATUS.BUSTED;
+        if (e.outcome === "LOSS") { s.status = STATUS.BUSTED; s.bankrollCents = e.bankrollAfterCents ?? 0; } // the tracked bankroll after a lost step is what settled: $0
         if (s.open?.date === e.date) s.open = null;
         break;
       }

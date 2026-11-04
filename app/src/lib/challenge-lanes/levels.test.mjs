@@ -18,6 +18,7 @@ const row = (o = {}) => ({
   eventId: "1", eventLabel: "AAA @ BBB", startUtc: "2026-11-05T00:00Z", family: "pts", player: { playerId: "p1", name: "Player One", team: "BBB" }, side: "over", line: 20.5,
   hitRate: { windows: [{ window: "last5", hits: 4, n: 5 }, { window: "season-2026-27", hits: 6, n: 8 }, { window: "2025-26", hits: 45, n: 70 }], shrunk: { rate: 0.64, nEffective: 83, method: "test" }, lineBasis: "exact" },
   role: { minutesAvg: 34, minutesSd: 3, gamesPlayed: 8, starts: 8, stable: true }, injury: { status: "ACTIVE", source: "test", fetchedAt: FETCHED }, dataQuality: { ok: true, issues: [] },
+  lineup: { keyTeammates: [{ playerId: "t1", name: "Teammate", statusNow: "ACTIVE" }], scenarios: [{ label: "all in", teammatesOut: [], games: 40, hits: 26, minutesAvg: 34 }], tonightScenario: "all in", baseRepresentative: true, sensitive: false },
   forecastVersion: "test-eval", evidenceSha256: sha256("e"), ...o,
 });
 /* quotes: [eventId, playerId, family, line, over, under, books?] */
@@ -152,4 +153,40 @@ test("research files: written to the documented paths, read back verified; price
   assert.deepEqual([unpriced.priced, unpriced.candidates[0].legs[0].price], [false, null]);
   assert.equal(io.readResearchDisplay({ appDir, product: "moonshot", date: "2030-01-02", env: {} }), null);
   assert.ok(!fs.readFileSync(path.join(appDir, io.RESEARCH_PUBLIC_DIR, "moonshot", "2030-01-01.json"), "utf8").includes("20.5"));
+});
+
+
+test("lineup sensitivity: no teammate-scenario evidence, a sensitive role or an unrepresentative base sample is HOLD", () => {
+  const cap = capture([["1", "p1", "pts", 20.5, 100, -120]]);
+  const r = (lineup) => evaluateLevelSet([legFromShortlist(row({ lineup }))], ctx(cap, MS1));
+  assert.ok(r(null).reasons.some((x) => x.startsWith("C_LINEUP_UNKNOWN")));
+  assert.ok(r({ scenarios: [], sensitive: true, baseRepresentative: true, note: "Tatum out: 3/9" }).reasons.some((x) => x.startsWith("C_LINEUP_SENSITIVE")));
+  assert.ok(r({ scenarios: [], sensitive: false, baseRepresentative: false }).reasons.some((x) => x.startsWith("C_LINEUP_SENSITIVE")));
+  assert.equal(r(row().lineup).classification, LEVEL.B);
+});
+
+test("four-lane assignment: partners game-disjoint; no identical card across products unless every alternative is weaker", async () => {
+  const { assignFourLanes } = await import("./levels.mjs");
+  const strong = (id, pid, o = {}) => row({ eventId: id, eventLabel: `G${id}A @ G${id}H`, player: { playerId: pid, name: `P${pid}`, team: "X" }, ...o });
+  const legs = [strong("1", "a"), strong("2", "b"), strong("3", "c"), strong("4", "d")].map(legFromShortlist);
+  const cap = capture([["1", "a", "pts", 20.5, 100, -120], ["2", "b", "pts", 20.5, 100, -120], ["3", "c", "pts", 20.5, 100, -120], ["4", "d", "pts", 20.5, 100, -120]]);
+  const r = assignFourLanes({ legs, now: NOW, propCapture: cap });
+  const key = (id) => r.lanes[id].card.legs.map((l) => l.legId).join("+");
+  assert.equal(new Set(["bb-a", "bb-b", "ms-a", "ms-b"].map(key)).size, 4, "four different cards when equal-tier alternatives exist");
+  assert.notEqual(r.lanes["bb-a"].card.legs[0].gameId, r.lanes["bb-b"].card.legs[0].gameId);
+  for (const id of ["bb-a", "bb-b", "ms-a", "ms-b"]) assert.ok(r.lanes[id].options.length <= 3);
+  const two = assignFourLanes({ legs: legs.slice(0, 2), now: NOW, propCapture: cap });
+  assert.deepEqual(["bb-a", "bb-b", "ms-a", "ms-b"].map((id) => two.lanes[id].status), ["READY_FOR_APPROVAL", "READY_FOR_APPROVAL", "READY_FOR_APPROVAL", "READY_FOR_APPROVAL"]);
+  assert.ok(two.tradeOffs.some((t) => /IDENTICAL/.test(t.note)), "only two cards exist: the identical card stands, recorded as a trade-off");
+  const weakAlt = [strong("1", "a"), strong("2", "b", { hitRate: { windows: [{ window: "2025-26", hits: 40, n: 60 }], shrunk: { rate: 0.6, nEffective: 60 } } })].map(legFromShortlist);
+  const w = assignFourLanes({ legs: weakAlt, now: NOW, propCapture: cap });
+  assert.equal(w.lanes["ms-a"].card.legs[0].legId, w.lanes["bb-a"].card.legs[0].legId, "a weaker card never replaces the identical stronger one");
+});
+
+test("rank buckets are exact at the boundary: 0.60 and 0.618 share the 0.60–0.65 tier", () => {
+  const legs = [legFromShortlist(row({ hitRate: { ...row().hitRate, shrunk: { rate: 0.6, nEffective: 84 } } })), legFromShortlist(row({ eventId: "2", eventLabel: "CCC @ DDD", player: { playerId: "p2", name: "Two", team: "DDD" }, hitRate: { ...row().hitRate, shrunk: { rate: 0.618, nEffective: 84 } } }))];
+  const cap = capture([["1", "p1", "pts", 20.5, 100, -120], ["2", "p2", "pts", 20.5, 100, -120]]);
+  const ev = evaluateLevelCandidates({ legs, position: MS1, now: NOW, propCapture: cap });
+  assert.equal(ev.ranked.length, 2);
+  assert.ok(ev.ranked[0].candidateId < ev.ranked[1].candidateId, "same tier and equal later keys: the id tie-break decides, not the 0.018 difference");
 });
