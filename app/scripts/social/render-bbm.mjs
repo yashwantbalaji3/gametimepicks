@@ -268,6 +268,8 @@ export function stagingViolations(plans, outRoot, { displayRecord = undefined } 
   if (abs === LIVE_PACKAGES || abs.startsWith(LIVE_PACKAGES + path.sep) || LIVE_PACKAGES.startsWith(abs + path.sep)) v.push(`${abs}: V2 packages never go to the live packages folder before the cut-over is approved`);
   for (const p of plans) if (xWeighted(p.caption) > X_LIMIT) v.push(`${p.packageId}: the caption is ${xWeighted(p.caption)} X-weighted characters (limit ${X_LIMIT})`);
   for (const p of plans) if (CAPTION_PRICE_TEXT.test(p.caption)) v.push(`${p.packageId}: the caption carries price language (${p.caption.match(CAPTION_PRICE_TEXT)[0]}); prices appear only on the image`);
+  // A V4 template (placeholder slots, step target) is never a package (founder 2026-11-04).
+  for (const p of plans) for (const l of p.lanes) if (l.card?.template) v.push(`${p.packageId}/${l.laneId}: a template is never packaged`);
   for (const p of plans) for (const l of p.lanes) if (!l.parity?.ok) v.push(`${p.packageId}/${l.laneId}: parity with the engine record is ${l.parity ? `broken (${l.parity.mismatches.join("; ")})` : "missing"}`);
   for (const p of plans) for (const l of p.lanes) {
     if (l.card.samplePrice || l.view.payout?.fixture) v.push(`${p.packageId}/${l.laneId}: a fixture price never reaches a package`);

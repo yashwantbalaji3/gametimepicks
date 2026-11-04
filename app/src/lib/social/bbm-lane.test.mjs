@@ -17,6 +17,7 @@ import { BADGE, BBM_LANES, RUNG, VIEW, laneView, pricedDay, projectionViolations
 import { append, laneState, runStarted } from "../challenge-lanes/lanes.mjs";
 import { priceLane } from "../challenge-lanes/ops.mjs";
 import { DISPLAY_AUTHORIZATION } from "../odds/display-authorization.mjs";
+import { RULES_V2, bbmCardV4, verifyBbmCardV4 } from "../../../scripts/social/bbm-cards-v4.mjs";
 /** The committed record (founder 2026-11-04: NBA challengeGraphicsPrices on), and the same record with that switch off. */
 const SOCIAL_ON = DISPLAY_AUTHORIZATION;
 const PRICES_OFF = { ...DISPLAY_AUTHORIZATION, nba: { ...DISPLAY_AUTHORIZATION.nba, challengeGraphicsPrices: false } };
@@ -384,4 +385,29 @@ test("parity (founder 2026-11-04: website = X): each lane's printed legs, step, 
   const tampered = { ...p, card: { ...p.card, cells: { ...p.card.cells, "money.payout": "$999" } } };
   assert.match(parityRow(tampered, { doc, privateEvents: real.events }).mismatches.join(";"), /printed money.payout/);
   fs.rmSync(out, { recursive: true, force: true });
+});
+
+test("V4 templates (founder rules v2): placeholders never look verified or carry a payout, never package, and take at most 2 legs", () => {
+  const rungs = RULES_V2.milestonesCents["bank-builder"].map((m, i) => ({ step: i + 1, milestoneCents: m, state: i ? RUNG.UPCOMING : RUNG.ACTIVE }));
+  const model = { product: "bank-builder", letter: "A", laneId: "bb-a", date: DATE, step: 1, steps: 5, rungs, baseCents: 10000, targetCents: 1000000, bankrollCents: 10000, badge: BADGE.ACTIVE, view: VIEW.CARD, legs: [{ placeholder: "required" }, { placeholder: "optional" }], payout: null, template: true };
+  const c = bbmCardV4(model);
+  assert.deepEqual(verifyBbmCardV4(c), []);
+  const t = textOf(c);
+  assert.match(t, /TEMPLATE PREVIEW · NOT A PICK · DO NOT POST/i); assert.match(t, /Leg 1 · Awaiting qualified selection/); assert.match(t, /Pending \/ not yet qualified/); assert.match(t, /Target ~\$200/);
+  assert.ok(!("money.payout" in c.cells) && !("price.verified" in c.cells));
+  assert.deepEqual(rungs.map((r) => r.milestoneCents), [20000, 50000, 125000, 312500, 1000000]);
+  assert.deepEqual(RULES_V2.milestonesCents.moonshot, [5000, 10000, 20000, 40000, 100000]);
+  // A template that claims VERIFIED, or carries a payout, is refused.
+  assert.match(verifyBbmCardV4({ ...c, html: c.html.replace("Not yet qualified", "Verified odds") }).join(";"), /template carries VERIFIED/);
+  assert.match(verifyBbmCardV4({ ...c, priced: true }).join(";"), /template carries a price/);
+  // More than two legs is refused at render.
+  assert.throws(() => bbmCardV4({ ...model, legs: [{ placeholder: "required" }, { placeholder: "optional" }, { placeholder: "optional" }] }), /at most 2/);
+  // A template is never packaged, whatever else it says.
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), "bbm-"));
+  const fake = [{ packageId: `bb-${DATE}`, caption: "x", lanes: [{ laneId: "bb-a", card: c, view: { payout: null }, parity: { ok: true } }, { laneId: "bb-b", card: c, view: { payout: null }, parity: { ok: true } }] }];
+  assert.match(stagingViolations(fake, out).join(";"), /a template is never packaged/);
+  fs.rmSync(out, { recursive: true, force: true });
+  // The rocket and battery both render all 5 segments.
+  assert.equal((c.html.match(/class="sg /g) ?? []).length, 5);
+  assert.equal((bbmCardV4({ ...model, product: "moonshot", laneId: "ms-a", rungs: RULES_V2.milestonesCents.moonshot.map((m, i) => ({ step: i + 1, milestoneCents: m, state: i ? RUNG.UPCOMING : RUNG.ACTIVE })) }).html.match(/data-meter="rocket"/g) ?? []).length, 1);
 });
