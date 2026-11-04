@@ -91,7 +91,9 @@ export function OfficialProjectionPanel({ official, teams, unavailable = null, d
               <thead><tr><th scope="col">Player</th><th scope="col">Exp. MIN</th><th scope="col">PTS</th><th scope="col">REB</th><th scope="col">AST</th><th scope="col">3PM</th></tr></thead>
               <tbody>
                 {players(side).map((p) => (
-                  <tr key={p.playerId}><td>{p.displayName ?? p.playerId}</td><td>{laneText(p.expectedMinutes)}</td><td>{laneText(p.medians.pts)}</td><td>{laneText(p.medians.reb)}</td><td>{laneText(p.medians.ast)}</td><td>{laneText(p.medians.threePm)}</td></tr>
+                  p.guard && p.guard.state !== "pass"
+                    ? <tr key={p.playerId} data-nbp-under-review=""><td>{p.displayName ?? p.playerId}</td><td colSpan={5}>{p.guard.text}</td></tr>
+                    : <tr key={p.playerId}><td>{p.displayName ?? p.playerId}</td><td>{laneText(p.expectedMinutes)}</td>{(["pts", "reb", "ast", "threePm"] as const).map((k) => <td key={k}>{p.guard && p.medians[k] == null ? "Under review" : laneText(p.medians[k])}</td>)}</tr>
                 ))}
                 {none(side).map((u) => (
                   <tr key={`u-${u.providerAthleteId}`} data-nbp-projection-unavailable={u.providerAthleteId}><td>{u.name ?? u.providerAthleteId}</td><td colSpan={5}>Projection unavailable — {unavailableReasonText(u.reason, u.status)}</td></tr>

@@ -209,6 +209,8 @@ jobs:
               case "$OUT" in *"action=PUBLISH"*) ;; *) return 0 ;; esac
               git add "public/data/nba/experimental-public/$D.json" public/data/nba/experimental-public/latest.json 2>/dev/null || git add public/data/nba/experimental-public/latest.json
               if [ -d "../data/internal/research/nba/theater-possession/$D" ]; then git add "../data/internal/research/nba/theater-possession/$D/"; fi
+              # forecast guard document (write-once, same commit as the lane; absent = every player figure withheld)
+              if [ -f "public/data/nba/forecast-guard/$D.json" ]; then git add "public/data/nba/forecast-guard/$D.json"; fi
               if git diff --cached --quiet; then echo "nothing staged"; return 0; fi
               git commit -q -m "auto: nba experimental lane $D (once per slate; Theater runs if built) [skip ci]"
               if git push -q origin HEAD:main; then return 0; fi

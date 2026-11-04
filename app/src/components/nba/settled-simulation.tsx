@@ -21,6 +21,8 @@ import { ELO_WIN_PROBABILITY_LABEL, eloWinProbabilityOf } from "@/lib/sports/nba
 import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
 import { NBA_FORECAST_DISCLOSURE, PUBLIC_TERMS } from "@/lib/public-registry";
 import NbaPropLines from "@/components/nba/nba-prop-lines";
+import { UNDER_REVIEW_TEXT, UNDER_REVIEW_SHORT } from "@/lib/sports/nba/forecast-guard.mjs";
+import { cellWithheld, rowWithheld } from "@/lib/sports/nba/forecast-guard-accessor.mjs";
 
 /** The page's own marker: the flag-ON export scan tells a settled page from a Game Simulation page by it. */
 export const SETTLED_SIMULATION_ATTR = "data-nba-settled-simulation";
@@ -70,7 +72,7 @@ export default function SettledSimulation({ view }: { view: SettledView }) {
         <p className="nbx-kind">{PUBLIC_TERMS.OFFICIAL_FORECAST} · frozen before tip-off · shown exactly as frozen</p>
         <h2 id="settled-official-h">{OFFICIAL_PREDICTIONS_TITLE}</h2>
         <dl className="nbx-kv">
-          <dt>Favoured side</dt><dd><strong>{fav ? `${fav.name ?? fav.abbr} (${fav.abbr})` : "Neither side"}</strong> · {OFFICIAL_MODEL_PLAIN.game}</dd>
+          <dt>Favoured side</dt><dd><strong>{fav ? `${fav.name ?? fav.abbr} (${fav.abbr})` : "Neither side"}</strong> · {OFFICIAL_MODEL_PLAIN.game}{g.guard?.favoured ? <span className="block nbx-fine" data-nba-favoured-review="">{UNDER_REVIEW_SHORT}: {g.guard.favoured.text.join(" ")}</span> : null}</dd>
           {eloShown ? <><dt>{ELO_WIN_PROBABILITY_LABEL}</dt><dd><EloWinProbability game={g} ctx={elo} /></dd></> : null}
           <dt>Player statistics</dt><dd>{OFFICIAL_MODEL_PLAIN.players} · medians</dd>
           <dt>Frozen</dt><dd>{et(g.frozenAt)}</dd>
@@ -126,9 +128,11 @@ function PlayerTable({ team, rows, none }: { team: string; rows: readonly Row[];
           {rows.map((r) => (
             <tr key={r.providerAthleteId}>
               <th scope="row">{r.name ?? r.providerAthleteId}{r.injuryStatus ? <span data-injury-status=""> · {r.injuryStatus}</span> : null}</th>
-              <td>{fmt(r.expectedMinutes)}</td>
-              {STATS.map(([k]) => <td key={k}>{fmt(r.medians[k])}</td>)}
-              {COMBO_STATS.map(([k]) => <td key={k}>{fmt(r.comboMedians?.[k])}</td>)}
+              {rowWithheld(r) ? <td colSpan={1 + STATS.length + COMBO_STATS.length} style={{ textAlign: "left" }} data-nba-under-review="">{UNDER_REVIEW_TEXT}</td> : <>
+                <td>{fmt(r.expectedMinutes)}</td>
+                {STATS.map(([k]) => <td key={k}>{cellWithheld(r, k) ? UNDER_REVIEW_SHORT : fmt(r.medians[k])}</td>)}
+                {COMBO_STATS.map(([k]) => <td key={k}>{cellWithheld(r, k) ? UNDER_REVIEW_SHORT : fmt(r.comboMedians?.[k])}</td>)}
+              </>}
             </tr>
           ))}
           {missing.map((u) => (

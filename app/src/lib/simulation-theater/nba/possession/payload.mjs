@@ -72,6 +72,8 @@ export function officialPanelFromLane(panel, laneGame, elo = null, eloText = nul
         displayName: l.name ?? p.displayName,
         medians: Object.fromEntries(PANEL_FAMILIES.map((f) => [f, isNum(l.medians?.[f]) ? l.medians[f] : null])),
         expectedMinutes: isNum(l.expectedMinutes) ? l.expectedMinutes : null,
+        // forecast guard: a withheld lane row stays withheld here — its nulls are never filled from the artifact's copy
+        ...(l.guard ? { guard: { state: l.guard.state, text: l.guard.text, ...(l.guard.cells ? { cells: l.guard.cells } : {}) } } : {}),
       };
     }),
   };

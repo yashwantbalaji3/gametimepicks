@@ -90,6 +90,8 @@ export function buildLaneTopBoards(lane, { nowIso, size = NBA_LANE_TOP_BOARD_SIZ
     for (const r of g.players?.[side] ?? []) {
       const base = { providerEventId: String(g.providerEventId), providerAthleteId: String(r.providerAthleteId), name: r.name ?? "", team, opponent, matchup: `${g.away?.abbr ?? ""} @ ${g.home?.abbr ?? ""}`, tipUtc: g.tipUtc, frozenAt: g.frozenAt ?? null, expectedMinutes: isNum(r.expectedMinutes) ? r.expectedMinutes : null, receiptPayloadSha256: g.receipt?.payloadSha256 ?? null };
       if (r.injuryStatus != null) { excluded.push({ ...base, reason: `INJURY_DESIGNATION:${r.injuryStatus}` }); continue; }
+      // forecast guard: a projection under model review is never ranked (its figures are null; this records why)
+      if (r.guard && r.guard.state !== "pass") { excluded.push({ ...base, reason: "UNDER_MODEL_REVIEW" }); continue; }
       pool.push({ base, row: r });
     }
   }

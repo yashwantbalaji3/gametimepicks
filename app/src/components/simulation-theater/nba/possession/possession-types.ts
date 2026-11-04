@@ -10,7 +10,8 @@ export type PbRun = {
   kind: string; title: string; role: "CENTRAL_SCENARIO" | "WHAT_IF"; hypothetical: boolean; runIndex: number; rule: string; distance: number | null;
   final: { home: number; away: number }; periods: [number[], number[]]; overtimePeriods: number; events: PbEvent[];
 };
-export type PbOfficialPlayer = { playerId: string; team: "home" | "away" | null; displayName: string | null; participation: string | null; medians: Record<string, number | null>; expectedMinutes: number | null };
+/** `guard` (forecast guard): the lane row is withheld (state review / blocked) or has withheld cells; its figures are null. */
+export type PbOfficialPlayer = { playerId: string; team: "home" | "away" | null; displayName: string | null; participation: string | null; medians: Record<string, number | null>; expectedMinutes: number | null; guard?: { state: string; text: string; cells?: string[] } };
 export type PbOfficial = {
   snapshotId: string; eventId: string; publication: string | null; favouredSide: "HOME" | "AWAY" | null; sideRule: string | null;
   models: { game: string | null; players: string[] }; frozenAt: string | null; lockAt: string | null;

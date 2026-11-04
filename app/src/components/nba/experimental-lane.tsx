@@ -25,12 +25,17 @@ import GameStatusOnClock from "@/components/nba/projection-game-status";
 import { EloAccuracyDisclosure, EloWinProbability, type EloCtx } from "@/components/nba/elo-win-probability";
 import { ELO_WIN_PROBABILITY_LABEL, eloWinProbabilityOf } from "@/lib/sports/nba/elo-win-probability.mjs";
 import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
+import { guardLane } from "@/lib/sports/nba/forecast-guard-files.mjs";
+import { UNDER_REVIEW_TEXT, UNDER_REVIEW_SHORT } from "@/lib/sports/nba/forecast-guard.mjs";
+import { cellWithheld, favouredUnderReview, rowWithheld } from "@/lib/sports/nba/forecast-guard-accessor.mjs";
 
 /** Lane `players.unavailable` row (PR 1230): name and reason only, never a number. Release H integration: one shape for
  *  the hub and the Theater's Official Forecast panel (official-predictions.tsx LaneUnavailable). */
 export type LaneUnavailablePlayer = { providerAthleteId: string; name: string | null; position?: string | null; state: string; reason: string; status?: string | null };
 
-type Row = { providerAthleteId: string; name: string | null; expectedMinutes: number | null; injuryStatus: string | null; medians: Record<string, number | null>; comboMedians?: Record<string, number | null> };
+/** `guard` (forecast-guard-accessor.mjs): present only on a row the guard withholds in whole or in part — its figures are then null. */
+export type RowGuard = { state: "pass" | "review" | "blocked"; rules: string[]; text: string; reasons: string[]; cells?: string[] };
+type Row = { providerAthleteId: string; name: string | null; expectedMinutes: number | null; injuryStatus: string | null; medians: Record<string, number | null>; comboMedians?: Record<string, number | null>; guard?: RowGuard };
 type Game = {
   providerEventId: string; tipUtc: string; frozenAt: string;
   away: { abbr: string | null; name: string | null }; home: { abbr: string | null; name: string | null };
@@ -38,10 +43,12 @@ type Game = {
   engine: { simulation: string | null; simulations: number | null };
   elo: { favoured: string | null; state: string; source: string; rule?: string | null; winProbability?: { home: number; away: number; provenance: Record<string, string | null> } };
   teamScores: { state: string; reason: string };
+  /** forecast guard: the favoured side's rotation warning (a warning beside the side, never a changed side). */
+  guard?: { favoured: { state: string; flags: string[]; text: string[]; short: string; players: { name: string | null; status: string | null }[] } };
   /** `unavailable` (PR 1230): rostered players with no projection — a reason, never a number. Absent on older slates. */
   players: { source: string; comboSource?: string; away: Row[]; home: Row[]; unavailable?: { away: LaneUnavailablePlayer[]; home: LaneUnavailablePlayer[] } };
 };
-export type Snapshot = { schema: string; label: string; validation: string; date: string | null; withheld: Record<string, string>; games: Game[]; excluded: { providerEventId: string; reason: string }[] };
+export type Snapshot = { schema: string; label: string; validation: string; date: string | null; generatedAt?: string; withheld: Record<string, string>; games: Game[]; excluded: { providerEventId: string; reason: string }[]; guard?: { id: string; state: string; problems?: string[] } };
 
 /** The lane to show at `etDate`: null when disabled, missing, or its slate is in the past (never shown as current). */
 export function loadCurrentLane(etDate: string): Snapshot | null {
@@ -53,7 +60,8 @@ export function loadExperimentalSnapshot(): Snapshot | null {
   if (!LANE.enabled) return null;
   try {
     const s = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "nba", "experimental-public", "latest.json"), "utf8"));
-    return s?.schema === LANE_SNAPSHOT_SCHEMA && Array.isArray(s.games) ? s : null;
+    // THE ONE ACCESSOR (forecast guard): the same object before the cut-over, a hide-only guarded copy from it on
+    return s?.schema === LANE_SNAPSHOT_SCHEMA && Array.isArray(s.games) ? guardLane(process.cwd(), s) : null;
   } catch {
     return null;
   }
@@ -69,7 +77,7 @@ const DATED = /^(\d{4}-\d{2}-\d{2})\.json$/;
 function readDated(date: string): Snapshot | null {
   try {
     const s = JSON.parse(fs.readFileSync(path.join(LANE_DIR(), `${date}.json`), "utf8"));
-    return s?.schema === LANE_SNAPSHOT_SCHEMA && s.date === date && Array.isArray(s.games) ? s : null;
+    return s?.schema === LANE_SNAPSHOT_SCHEMA && s.date === date && Array.isArray(s.games) ? guardLane(process.cwd(), s) : null;
   } catch {
     return null;
   }
@@ -108,8 +116,10 @@ function TeamTable({ team, rows }: { team: string; rows: Row[] }) {
           {rows.map((r) => (
             <tr key={r.providerAthleteId}>
               <td>{r.name}{r.injuryStatus ? ` · ${r.injuryStatus}` : ""}</td>
-              <td>{fmt(r.expectedMinutes)}</td>
-              {STATS.map(([k]) => <td key={k}>{fmt(r.medians[k])}</td>)}
+              {rowWithheld(r) ? <td colSpan={1 + STATS.length} data-nba-under-review="">{UNDER_REVIEW_TEXT}</td> : <>
+                <td>{fmt(r.expectedMinutes)}</td>
+                {STATS.map(([k]) => <td key={k}>{cellWithheld(r, k) ? UNDER_REVIEW_SHORT : fmt(r.medians[k])}</td>)}
+              </>}
             </tr>
           ))}
         </tbody>
@@ -125,6 +135,8 @@ const code = (abbr: string | null) => abbr ?? "—";
 
 /** Rostered players the forecast lists as "projection unavailable" (PR 1230) — counted, never given a number. */
 const unavailableCount = (g: Game) => (g.players.unavailable?.away.length ?? 0) + (g.players.unavailable?.home.length ?? 0);
+/** Projected players the forecast guard withholds ("Projection under model review") — counted, never given a number. */
+const reviewCount = (g: Game) => [...g.players.away, ...g.players.home].filter(rowWithheld).length;
 
 /** The game's row in the hub's Official Forecasts table — today's game card links here when no Game Simulation page is built. */
 export const forecastRowId = (id: string) => `nba-fc-${id}`;
@@ -199,9 +211,9 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
                 {snapshot.games.map((g) => (
                   <tr key={g.providerEventId} id={forecastRowId(g.providerEventId)}>
                     <th scope="row">{code(g.away.abbr)} @ {code(g.home.abbr)}</th>
-                    <td><strong>{favouredName(g) ?? "Neither side"}</strong></td>
+                    <td><strong>{favouredName(g) ?? "Neither side"}</strong>{favouredUnderReview(g) ? <span className="nbx-fine" data-nba-favoured-review=""> · {UNDER_REVIEW_SHORT}: {g.guard!.favoured.short}</span> : null}</td>
                     {eloCol ? <td><EloWinProbability game={g} ctx={elo} /></td> : null}
-                    <td>{g.players.away.length + g.players.home.length}{unavailableCount(g) ? ` · ${unavailableCount(g)} without a projection` : ""}</td>
+                    <td>{g.players.away.length + g.players.home.length}{reviewCount(g) ? ` · ${reviewCount(g)} under model review` : ""}{unavailableCount(g) ? ` · ${unavailableCount(g)} without a projection` : ""}</td>
                     <td>{et(g.frozenAt).replace(/^[A-Z][a-z]{2} \d+, /, "")}</td>
                   </tr>
                 ))}
@@ -227,6 +239,7 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
             </header>
             <p className="m-0 text-[13px]" style={{ color: "var(--vault-text)" }}>
               <strong>Elo rating favours {favouredName(g) ?? "neither side"}.</strong>
+              {favouredUnderReview(g) ? <span data-nba-favoured-review=""> {UNDER_REVIEW_SHORT}: {g.guard!.favoured.text[0]}</span> : null}
             </p>
             <EloWinProbability as="p" className="m-0 text-[13px]" game={g} ctx={elo} />
             <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>Team scores: {g.teamScores.reason}</p>

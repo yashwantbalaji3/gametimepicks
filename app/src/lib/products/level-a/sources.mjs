@@ -28,6 +28,8 @@ import { canEnterModelSuggestions } from "../../sport-capability-registry.ts";
 import { loadEplForecasts, forecastRows as eplForecastRows } from "../../sports/epl/forecast-view.ts";
 import { eloWinProbabilityOf, eloWinProbabilityText } from "../../sports/nba/elo-win-probability.mjs";
 import { loadEloWinProbabilityContext } from "../../sports/nba/elo-win-probability-context.mjs";
+import { guardLane } from "../../sports/nba/forecast-guard-files.mjs";
+import { favouredUnderReview } from "../../sports/nba/forecast-guard-accessor.mjs";
 
 const readJson = (f) => { try { return JSON.parse(fs.readFileSync(f, "utf8")); } catch { return null; } };
 const OUTCOME_LABEL = { home: "home win", draw: "draw", away: "away win" };
@@ -60,7 +62,8 @@ export function mlbSelections({ repoRoot, date }) {
 
 export function nbaSelections({ repoRoot, date, eloCtx = null }) {
   const rel = `app/public/data/nba/experimental-public/${date}.json`;
-  const doc = readJson(path.join(repoRoot, rel));
+  // the one accessor: the lane through the forecast guard (withheld projections carry null figures and are skipped below)
+  const doc = guardLane(path.join(repoRoot, "app"), readJson(path.join(repoRoot, rel)));
   if (!doc || doc.date !== date) return { selections: [], projections: [] };
   const elo = eloCtx ?? loadEloWinProbabilityContext({ appDir: path.join(repoRoot, "app") });
   const selections = [], projections = [];
@@ -78,7 +81,8 @@ export function nbaSelections({ repoRoot, date, eloCtx = null }) {
       uncertainty: wp
         ? { kind: "elo-win-probability", home: wp.home, away: wp.away, text: eloWinProbabilityText(wp), note: elo.disclosure }
         : { kind: "side-only", note: doc.withheld?.winProbability ?? "Win probability not published." },
-      participantStatuses: [],
+      // forecast guard: a favoured-side rotation player Out / Day-To-Day at the freeze → Level A's own UNAVAILABLE refusal
+      participantStatuses: favouredUnderReview(g) ? (g.guard.favoured.players.length ? g.guard.favoured.players.map((p) => `injury: ${p.name ?? "rotation player"} ${p.status ?? ""}`.trim()) : ["injury: rotation availability not checked"]) : [],
       settlement: { grader: "nba-settlement-contract", market: "moneyline", side },
     });
     for (const team of ["away", "home"]) for (const p of g.players?.[team] ?? []) {

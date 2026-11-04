@@ -26,10 +26,14 @@ import { EloWinProbability, type EloCtx } from "@/components/nba/elo-win-probabi
 import { eloWinProbabilityOf, ELO_WIN_PROBABILITY_LABEL } from "@/lib/sports/nba/elo-win-probability.mjs";
 import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
 import NbaPropLines from "@/components/nba/nba-prop-lines";
+import { UNDER_REVIEW_TEXT, UNDER_REVIEW_SHORT } from "@/lib/sports/nba/forecast-guard.mjs";
 
 /* The official panel's shape (possession-types PbOfficial — payload.mjs officialPanel), declared here structurally so
    this official component imports nothing from the research Theater library (public-theater-route research boundary). */
-type OfficialPlayer = { playerId: string; team: "home" | "away" | null; displayName: string | null; medians: Record<string, number | null>; expectedMinutes: number | null };
+/* `guard` (forecast guard, via payload.mjs officialPanelFromLane): the lane row is withheld in whole (state review /
+   blocked) or in the listed cells; its figures are already null. */
+type OfficialGuard = { state: string; text: string; cells?: string[] };
+type OfficialPlayer = { playerId: string; team: "home" | "away" | null; displayName: string | null; medians: Record<string, number | null>; expectedMinutes: number | null; guard?: OfficialGuard };
 export type PbOfficial = {
   snapshotId: string; eventId: string; favouredSide: "HOME" | "AWAY" | null;
   models: { game: string | null; players: string[] }; frozenAt: string | null; lockAt: string | null;
@@ -43,6 +47,8 @@ type LaneUnavailable = { providerAthleteId: string; name: string | null; positio
 export type OfficialLaneGame = {
   providerEventId: string; receipt: { modelVersion: string; payloadSha256?: string }; players: { away: LaneRow[]; home: LaneRow[]; unavailable?: { away: LaneUnavailable[]; home: LaneUnavailable[] } };
   frozenAt?: string; home?: { abbr: string | null }; away?: { abbr: string | null };
+  /** forecast guard: the favoured side's rotation warning (forecast-guard-accessor.mjs) — beside the side, never a changed side */
+  guard?: { favoured?: { state: string; text: string[] } };
   elo?: { favoured: string | null; state: string; rule?: string | null; winProbability?: { home: number; away: number; provenance: Record<string, string | null> } };
 } | null;
 
@@ -133,7 +139,7 @@ function Official({ official, teams, lane, elo }: { official: PbOfficial; teams:
   return (
     <>
       <dl className="nbx-kv">
-        <dt>Favoured side</dt><dd data-nba-official-side=""><strong>{fav ? `${fav.name} (${fav.abbr})` : "Neither side"}</strong> · Elo rating</dd>
+        <dt>Favoured side</dt><dd data-nba-official-side=""><strong>{fav ? `${fav.name} (${fav.abbr})` : "Neither side"}</strong> · Elo rating{lane && String(lane.providerEventId) === String(official.eventId) && lane.guard?.favoured ? <span className="block nbx-fine" data-nba-favoured-review="">{UNDER_REVIEW_SHORT}: {lane.guard.favoured.text.join(" ")}</span> : null}</dd>
         {/* Founder mandate 2026-10-24: the models in words; the exact ids are kept, verbatim, under Technical details below. */}
         <dt>Game winner</dt><dd>{OFFICIAL_MODEL_PLAIN.game}</dd>
         <dt>Player statistics</dt><dd>{OFFICIAL_MODEL_PLAIN.players} · medians</dd>
@@ -165,9 +171,12 @@ function Official({ official, teams, lane, elo }: { official: PbOfficial; teams:
                   const c = combos.get(p.playerId);
                   return (
                     <tr key={p.playerId}>
-                      <th scope="row">{p.displayName ?? p.playerId}</th><td>{fmt(p.expectedMinutes)}</td>
-                      {STATS.map(([k]) => <td key={k}>{fmt(p.medians[k])}</td>)}
-                      {COMBO_STATS.map(([k]) => <td key={k}>{fmt(c?.[k])}</td>)}
+                      <th scope="row">{p.displayName ?? p.playerId}</th>
+                      {p.guard && p.guard.state !== "pass" ? <td colSpan={1 + STATS.length + COMBO_STATS.length} style={{ textAlign: "left" }} data-nba-under-review="">{UNDER_REVIEW_TEXT}</td> : <>
+                        <td>{fmt(p.expectedMinutes)}</td>
+                        {STATS.map(([k]) => <td key={k}>{p.guard && p.medians[k] == null ? UNDER_REVIEW_SHORT : fmt(p.medians[k])}</td>)}
+                        {COMBO_STATS.map(([k]) => <td key={k}>{p.guard && c?.[k] == null ? UNDER_REVIEW_SHORT : fmt(c?.[k])}</td>)}
+                      </>}
                     </tr>
                   );
                 })}

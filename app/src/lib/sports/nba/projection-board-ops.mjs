@@ -22,6 +22,7 @@ export function boardRows(snapshot, stats) {
     for (const side of ["away", "home"]) {
       const team = g[side] ?? {};
       for (const r of g.players?.[side] ?? []) {
+        const v = stats.map(([k]) => (r.medians && k in r.medians ? r.medians[k] : r.comboMedians?.[k] ?? null));
         rows.push({
           id: `${g.providerEventId}:${r.providerAthleteId}`,
           game: String(g.providerEventId),
@@ -32,7 +33,10 @@ export function boardRows(snapshot, stats) {
           min: r.expectedMinutes ?? null,
           // the lane's roster position (PR 1230), only on slates published with it; undefined = not recorded
           ...(r.position !== undefined ? { pos: r.position ?? null } : {}),
-          v: stats.map(([k]) => (r.medians && k in r.medians ? r.medians[k] : r.comboMedians?.[k] ?? null)),
+          v,
+          // forecast guard (forecast-guard-accessor.mjs): 1 = the whole projection is under model review; otherwise the
+          // indexes of the withheld cells. The withheld values are already null — this only says why.
+          ...(r.guard ? { gd: r.guard.state !== "pass" ? 1 : v.flatMap((x, i) => (x == null ? [i] : [])) } : {}),
         });
       }
     }
@@ -76,6 +80,8 @@ export function packBoard(rows, actuals = null, awaiting = null, unprojected = n
   });
   const out = { t, r };
   if (sorted.some((x) => x.pos !== undefined)) out.p = sorted.map((x) => x.pos ?? 0);
+  // forecast guard: `g` (parallel to `r`) — 0 shown, 1 whole row under model review, [i…] withheld cells; absent = none
+  if (sorted.some((x) => x.gd !== undefined)) out.g = sorted.map((x) => x.gd ?? 0);
   if (actuals) out.a = sorted.map((x) => actuals[x.id] ?? (awaiting?.has(x.game) ? 1 : 0));
   if (unprojected?.length) {
     out.u = unprojected.map((x) => {
@@ -96,13 +102,14 @@ export function packBoard(rows, actuals = null, awaiting = null, unprojected = n
 }
 
 /**
- * @param {{ t: [string, string, string][], r: (string | number | null)[][], a?: (0 | 1 | (number | string | null)[])[], u?: (string | number | null)[][], p?: (string | 0)[], c?: [number, number, number | string | null][] }} packed
- * @returns {{ id: string, game: string, name: string, injury: string | null, team: string, teamName: string, min: number | null, v: (number | null)[], am?: number | "DNP" | null, aw?: boolean, np?: string, pos?: string | null, cv?: Record<number, number | string | null> }[]}
+ * @param {{ t: [string, string, string][], r: (string | number | null)[][], a?: (0 | 1 | (number | string | null)[])[], u?: (string | number | null)[][], p?: (string | 0)[], c?: [number, number, number | string | null][], g?: (0 | 1 | number[])[] }} packed
+ * @returns {{ id: string, game: string, name: string, injury: string | null, team: string, teamName: string, min: number | null, v: (number | null)[], am?: number | "DNP" | null, aw?: boolean, np?: string, pos?: string | null, cv?: Record<number, number | string | null>, ur?: boolean, uc?: number[] }[]}
  */
-export function unpackBoard({ t, r, a, u, p, c }) {
+export function unpackBoard({ t, r, a, u, p, c, g }) {
   const board = r.map(([name, injury, ti, min, ...v], i) => {
     const [team, teamName, game] = t[/** @type {number} */ (ti)];
-    const row = { id: String(i).padStart(4, "0"), game, name: /** @type {string} */ (name), injury: /** @type {string} */ (injury) || null, team, teamName, min: /** @type {number | null} */ (min), v: /** @type {(number | null)[]} */ (v), ...(p ? { pos: p[i] || null } : {}) };
+    const gd = g?.[i];
+    const row = { id: String(i).padStart(4, "0"), game, name: /** @type {string} */ (name), injury: /** @type {string} */ (injury) || null, team, teamName, min: /** @type {number | null} */ (min), v: /** @type {(number | null)[]} */ (v), ...(p ? { pos: p[i] || null } : {}), ...(gd === 1 ? { ur: true } : Array.isArray(gd) ? { uc: gd } : {}) };
     if (!a) return row;
     const act = Array.isArray(a[i]) ? a[i] : null;
     return { ...row, v: [...row.v, ...(act ? act.slice(1) : v.map(() => null))], am: act ? act[0] : null, aw: a[i] === 1 };
@@ -127,6 +134,10 @@ export function boardOptions(snapshot) {
   }
   return { matchups, teams };
 }
+
+/** The forecast guard's words for a withheld row / cell (forecast-guard.mjs UNDER_REVIEW_TEXT / _SHORT, copied so this
+    file stays import-free for the client island; forecast-guard-accessor.test.mjs pins them equal). */
+export const UNDER_REVIEW_LABEL = Object.freeze({ text: "Projection under model review", short: "Under review" });
 
 /** Why a listed player has no projection, in plain words: the lane's own reason codes (PR 1230 — the three below the
     first two are the codes it may add) and the box-score-only "played". An unknown code reads "Projection unavailable". */

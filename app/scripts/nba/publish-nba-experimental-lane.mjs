@@ -13,6 +13,12 @@
  * day file, latest.json and data/internal/research/nba/theater-possession/<D>/. The Theater can never block the lane:
  * a failed or refused build prints `theater=FAILED …` and the lane still publishes (that day simply has no Theater).
  * Prints `theater=OK|FAILED|SKIPPED` before the action line. Never run on NOOP / HOLD: a published slate is frozen.
+ *
+ * FORECAST GUARD (founder authorization 2026-11-04): on a PUBLISH that writes the day file, ALSO write the slate's guard
+ * document app/public/data/nba/forecast-guard/<date>.json (forecast-guard.mjs, from the day file just written and the
+ * committed box scores), write-once, so the same commit carries both. A failure never blocks the lane: the slate then has
+ * no guard document and every surface withholds its player figures ("Projection under model review" — fail closed).
+ * Prints `guard=OK|FAILED|SKIPPED` before the action line.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -24,6 +30,8 @@ import { decidePublish, PUBLISH } from "../../src/lib/sports/nba/experimental-la
 import { etDateOf } from "../../src/lib/sports/nba/experimental-forecast.mjs";
 import { loadRosterIndex } from "../../src/lib/sports/nba/roster-index.mjs";
 import { eloWinProbabilityForPublish } from "../../src/lib/sports/nba/elo-win-probability.mjs";
+import { guardFile } from "../../src/lib/sports/nba/forecast-guard-files.mjs";
+import { buildGuardFromRepo } from "../../src/lib/sports/nba/forecast-guard-build.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -65,6 +73,19 @@ if (d.action === PUBLISH.PUBLISH && argv.includes("--write")) {
   fs.mkdirSync(OUT, { recursive: true });
   if (d.writeDay) { fs.writeFileSync(path.join(OUT, `${DATE}.json`), text); console.log(`  wrote public/data/nba/experimental-public/${DATE}.json`); }
   if (d.writeLatest) { fs.writeFileSync(path.join(OUT, "latest.json"), d.writeDay ? text : `${JSON.stringify(committedDay, null, 1)}\n`); console.log("  wrote public/data/nba/experimental-public/latest.json"); }
+  if (d.writeDay) {
+    try {
+      const gfile = guardFile(APP, DATE);
+      if (!fs.existsSync(gfile)) {
+        fs.mkdirSync(path.dirname(gfile), { recursive: true });
+        fs.writeFileSync(gfile, `${JSON.stringify(buildGuardFromRepo(REPO, JSON.parse(text)), null, 1)}\n`);
+        console.log(`  wrote ${path.relative(APP, gfile)}`);
+      }
+      console.log("guard=OK");
+    } catch (e) {
+      console.log(`guard=FAILED ${String(e?.message ?? e).split("\n")[0]} (the lane still publishes; its player figures are withheld until a guard document exists)`);
+    }
+  } else console.log("guard=SKIPPED (no day file written)");
 }
 if (argv.includes("--theater")) {
   if (d.action === PUBLISH.PUBLISH && argv.includes("--write")) {

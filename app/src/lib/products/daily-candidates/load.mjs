@@ -27,6 +27,8 @@ import { LEG_TYPE, NFL_ESTIMATE_FAMILIES } from "./policy.mjs";
 import { buildDailyCandidate } from "./engine.mjs";
 import { productDayOf } from "../level-a/suggestions.mjs";
 import { buildAsOfIso } from "../../build-asof.ts";
+import { guardLane } from "../../sports/nba/forecast-guard-files.mjs";
+import { favouredUnderReview } from "../../sports/nba/forecast-guard-accessor.mjs";
 
 const readJson = (f) => { try { return JSON.parse(fs.readFileSync(f, "utf8")); } catch { return null; } };
 const iso = (s) => { const t = Date.parse(s ?? ""); return Number.isFinite(t) ? new Date(t).toISOString() : null; };
@@ -43,7 +45,8 @@ export function availabilityOf(injuryStatus) {
 /** NBA inputs for one product day. */
 export function nbaInputs({ appRoot, productDay, env }) {
   const rel = `app/public/data/nba/experimental-public/${productDay}.json`;
-  const lane = readJson(path.join(appRoot, "public", "data", "nba", "experimental-public", `${productDay}.json`));
+  // the one accessor: the lane through the forecast guard (a withheld projection has a null median and makes no leg)
+  const lane = guardLane(appRoot, readJson(path.join(appRoot, "public", "data", "nba", "experimental-public", `${productDay}.json`)));
   const notes = {
     [LEG_TYPE.NBA_PLAYER_PROP]: { forecast: null, price: null },
     [LEG_TYPE.NBA_GAME_WINNER]: { forecast: null, price: "The authorized NBA line capture carries player props only; it has no game-winner (moneyline) prices." },
@@ -75,6 +78,7 @@ export function nbaInputs({ appRoot, productDay, env }) {
         team: fav, opponent: home ? g.away?.abbr : g.home?.abbr, participantId: null, participantName: null,
         family: "winner", marketFamily: "team_result", marketKey: "h2h", side: fav, line: null, selection: `${fav} to win`,
         availabilityState: "UNKNOWN",
+        ...(favouredUnderReview(g) ? { guard: { state: "review", flags: g.guard.favoured.flags, text: g.guard.favoured.text } } : {}),
         forecast: { ...forecastBase, probability: g.elo?.winProbability?.[home ? "home" : "away"] ?? null, probabilityBasis: PROBABILITY_BASIS.NO_VALIDATED_MAPPING, probabilityReason: "Elo-derived estimate; accuracy not established", projection: null },
         price: null,
       });

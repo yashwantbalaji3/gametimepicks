@@ -19,6 +19,8 @@ import { eloWinProbabilityOf, eloWinProbabilityText } from "../../../sports/nba/
 import { etDateOf, readPossessionArtifact, replayGateProblems, sideConstraintProblem, validatedGame } from "./stored-run.mjs";
 import { NBA_THEATER_REPLAY_ENGINE } from "../../../consistency/theater-replay-engine.mjs";
 import { nbaPalette } from "../nba-team-colors.mjs";
+import { readGuardDoc } from "../../../sports/nba/forecast-guard-files.mjs";
+import { applyForecastGuard } from "../../../sports/nba/forecast-guard-accessor.mjs";
 
 /**
  * THE CURRENT SLATE (release owner 2026-10-21): the public route follows the build's ET date, as the /nba lane does
@@ -70,7 +72,7 @@ export function laneAgreementProblem(game, panel, lane) {
   return null;
 }
 
-export function loadPublicPossessionTheater(repoRoot, eventId, { date = publicTheaterSlate(), read = null, lane = undefined } = {}) {
+export function loadPublicPossessionTheater(repoRoot, eventId, { date = publicTheaterSlate(), read = null, lane = undefined, guard = undefined } = {}) {
   const id = String(eventId);
   const r = read ?? readPossessionArtifact(repoRoot, date);
   const v = validatedGame(r, id);
@@ -91,8 +93,10 @@ export function loadPublicPossessionTheater(repoRoot, eventId, { date = publicTh
   const mismatch = laneAgreementProblem(game, panel, laneDoc);
   if (mismatch) return fail(id, "LANE_MISMATCH", mismatch);
   const colors = readColors(repoRoot);
-  // the PRINTED official numbers are the lane's (the canonical accessor), never the artifact's embedded copy
-  const laneGame = (laneDoc?.games ?? []).find((g) => String(g.providerEventId) === id) ?? null;
+  // the PRINTED official numbers are the lane's (the canonical accessor), never the artifact's embedded copy — read
+  // through the forecast guard (agreement above is checked on the frozen file; the guard only withholds, never re-values)
+  const shown = applyForecastGuard(laneDoc, guard === undefined ? readGuardDoc(path.join(repoRoot, "app"), laneDoc?.date) : guard);
+  const laneGame = (shown?.games ?? []).find((g) => String(g.providerEventId) === id) ?? null;
   const elo = eloWinProbabilityOf(laneGame);
   return {
     eventId: id, ok: true, error: null,

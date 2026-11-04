@@ -35,9 +35,9 @@
  */
 import React, { useEffect, useId, useMemo, useState } from "react";
 
-import { filterRows, sortRows, unpackBoard, gameStatusOnClock, GAME_STATUS_LABEL, noProjectionShort, POSITION_GROUPS } from "@/lib/sports/nba/projection-board-ops.mjs";
+import { filterRows, sortRows, unpackBoard, gameStatusOnClock, GAME_STATUS_LABEL, noProjectionShort, POSITION_GROUPS, UNDER_REVIEW_LABEL } from "@/lib/sports/nba/projection-board-ops.mjs";
 
-export type BoardRow = { id: string; game: string; name: string; injury: string | null; team: string; teamName: string; min: number | null; v: (number | null)[]; am?: number | "DNP" | null; aw?: boolean; np?: string; pos?: string | null; cv?: Record<number, number | string | null> };
+export type BoardRow = { id: string; game: string; name: string; injury: string | null; team: string; teamName: string; min: number | null; v: (number | null)[]; am?: number | "DNP" | null; aw?: boolean; np?: string; pos?: string | null; cv?: Record<number, number | string | null>; ur?: boolean; uc?: number[] };
 /** One game chip: id, short matchup ("BOS @ DET"), build-time status code, tip-off instant, optional actual-state note. */
 export type BoardGameNav = [string, string, "upcoming" | "started" | "final" | "postponed", string, string?];
 type SortKey = number | "min" | "am";
@@ -47,6 +47,8 @@ export type PackedBoard = { t: [string, string, string][]; r: (string | number |
 export type StatGroup = { id: string; label: string; cols: number[] };
 
 const fmt = (v: number | string | null | undefined) => (v == null ? "—" : String(v));
+/* forecast guard: a withheld cell says so; its value is already null, so nothing else could print */
+const cellText = (r: BoardRow, i: number) => (r.uc?.includes(i) ? UNDER_REVIEW_LABEL.short : fmt(r.v[i]));
 /** An actual a box-score correction changed after grading: the corrected value, a dagger, and (for screen readers) the graded value. */
 const actualCell = (v: number | string | null | undefined, was: number | string | null | undefined, corrected: boolean) =>
   corrected ? <>{fmt(v)}<span aria-hidden="true">†</span><span className="sr-only"> (stat corrected after grading; graded on {fmt(was)})</span></> : fmt(v);
@@ -223,13 +225,13 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
             <tbody style={{ color: "var(--vault-text)" }}>
               {(mounted ? shown : shown.slice(0, SSR_ROWS)).map((r) => (
                 <tr key={r.id}>
-                  <th scope="row">{r.name}{r.injury ? ` · ${r.injury}` : ""}{r.np ? <span className="block text-[11px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{noProjectionShort(r.np)}</span> : null}</th>
+                  <th scope="row">{r.name}{r.injury ? ` · ${r.injury}` : ""}{r.np ? <span className="block text-[11px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{noProjectionShort(r.np)}</span> : null}{r.ur ? <span className="block text-[11px] leading-snug" style={{ color: "var(--vault-text-mute)" }} data-nba-under-review="">{UNDER_REVIEW_LABEL.text}</span> : null}</th>
                   <td title={r.teamName}>{r.team}</td>
                   <td>{fmt(r.min)}</td>
                   {post ? <td>{r.aw ? "awaiting final" : actualCell(r.am, r.cv?.[0], r.cv?.[0] !== undefined)}</td> : null}
                   {post
-                    ? cols.map((i) => <React.Fragment key={stats[i][0]}><td>{fmt(r.v[i])}</td><td>{actualCell(r.v[i + n], r.cv?.[i + 1], r.cv?.[i + 1] !== undefined)}</td></React.Fragment>)
-                    : cols.map((i) => <td key={stats[i][0]}>{fmt(r.v[i])}</td>)}
+                    ? cols.map((i) => <React.Fragment key={stats[i][0]}><td>{cellText(r, i)}</td><td>{actualCell(r.v[i + n], r.cv?.[i + 1], r.cv?.[i + 1] !== undefined)}</td></React.Fragment>)
+                    : cols.map((i) => <td key={stats[i][0]}>{cellText(r, i)}</td>)}
                 </tr>
               ))}
             </tbody>
