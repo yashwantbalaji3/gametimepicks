@@ -20,7 +20,7 @@ import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 export function plainLaneReason(reason: string, lane?: string): string {
   /* Review fix: the cross-sport lane's reason of record is often a bare "refused (NOT_ELIGIBLE)" — it is closed
      because fewer than two sports are open, which is decided by the lane, not by the code. */
-  if (lane === "multi" || /two live sports|cross-sport card needs/.test(reason)) return "a mixed-sport card needs two sports open today";
+  if (lane === "multi" || /two live sports|cross-sport card needs/.test(reason)) return "a priced mixed-sport card needs two sports open today";
   if (/CAPABILITY_GATED|not cleared to (publish|show)|SCAFFOLD_ONLY/.test(reason)) return "this sport isn't cleared to publish model cards yet";
   if (/priced game|price capture|days old/.test(reason)) return "not enough current sportsbook prices to build a card today";
   if (/grader|settle/i.test(reason)) return "no official grading path for this sport's cards yet";

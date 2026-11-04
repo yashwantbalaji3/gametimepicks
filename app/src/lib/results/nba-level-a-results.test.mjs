@@ -239,7 +239,9 @@ test("🔴 withdrawn, real data: exactly the 2026-10-26 mixed-sport cards the re
   assert.deepEqual(v.entries.filter((e) => e.withdrawn).map((e) => e.id).sort(), expected);
   const mixed1026 = v.entries.filter((e) => e.productDay === "2026-10-26" && e.policy.startsWith("level-a-mixed@1/"));
   assert.ok(mixed1026.length >= 5 && mixed1026.every((e) => e.withdrawn), "the five level-a-mixed@1 cards of 10-26");
-  const h = renderToStaticMarkup(React.createElement(ModelSuggestionsRecord, { view: v }));
+  /* The page lists only the newest days, so 10-26 left it on 11-02. The note is what is proven here, not the window. */
+  const through1026 = { ...v, entries: v.entries.filter((e) => e.productDay <= "2026-10-26") };
+  const h = renderToStaticMarkup(React.createElement(ModelSuggestionsRecord, { view: through1026 }));
   for (const e of mixed1026) assert.match(h, new RegExp(`data-withdrawn="${e.id}"[^>]*>Withdrawn before start \\(served 4:45–4:51 PM ET\\)`));
   const plain = levelARecord(read("suggestions.jsonl"), read("graded.jsonl"));
   assert.deepEqual(v.byGroup, plain.byGroup, "real counts identical with and without the withdrawal file");

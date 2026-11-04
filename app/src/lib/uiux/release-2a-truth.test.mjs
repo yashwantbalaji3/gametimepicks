@@ -43,7 +43,7 @@ test("GTP-22: the PAUSED meaning fits a preregistered-bar fallback too, and WATC
 test("GTP-27: closed lanes speak in sentences; codes and UTC instants stay in the details", () => {
   assert.equal(plainLaneReason("lane evaluation of record refused (CAPABILITY_GATED) at 2026-10-13T18:03:34Z; the next run…"), "this sport isn't cleared to publish model cards yet");
   assert.equal(plainLaneReason("no price capture for 2026-10-13 yet — …; only 0 priced games — the ladder needs 4"), "not enough current sportsbook prices to build a card today");
-  assert.equal(plainLaneReason("a cross-sport card needs two live sports; only Premier League is cleared"), "a mixed-sport card needs two sports open today");
+  assert.equal(plainLaneReason("a cross-sport card needs two live sports; only Premier League is cleared"), "a priced mixed-sport card needs two sports open today");
   for (const r of ["x (NOT_ELIGIBLE) y", "anything else"]) assert.doesNotMatch(plainLaneReason(r), /[A-Z]{3,}_[A-Z]{3,}/);
   assert.match(readableReason("refused at 2026-10-13T18:03:34Z;"), /refused at Oct 13, 2:03 PM ET;/);
   assert.doesNotMatch(src("src/components/methodology-card.tsx"), />\s*MODEL_LEARNING_ROADMAP_2026-05-28\.md\s*</);
@@ -126,7 +126,7 @@ test("review #1: a WATCH headline agrees with its own interval (stale scorecard 
 });
 
 test("review #2: the cross-sport lane is never described as short of prices; a bare NOT_ELIGIBLE claims nothing specific", () => {
-  assert.equal(plainLaneReason("lane evaluation of record refused (NOT_ELIGIBLE) at 2026-10-13T00:56:17Z", "multi"), "a mixed-sport card needs two sports open today");
+  assert.equal(plainLaneReason("lane evaluation of record refused (NOT_ELIGIBLE) at 2026-10-13T00:56:17Z", "multi"), "a priced mixed-sport card needs two sports open today");
   assert.equal(plainLaneReason("lane evaluation of record refused (NOT_ELIGIBLE) at 2026-10-13T00:56:17Z", "nfl"), "not eligible today");
   assert.match(src("src/lib/home/suggested-parlays.mjs"), /fullReason: row\.laneReason/);
 });

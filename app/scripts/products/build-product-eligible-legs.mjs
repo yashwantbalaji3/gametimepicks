@@ -81,7 +81,7 @@ export function buildEligibleLegs({ date = DATE, now = NOW, root = ROOT } = {}) 
     nfl: nflCandidates({ forecasts: nflForecastsAsOf(root, now), markets: nflMarketsAsOf(root, now) }),
     ufc: ufcCandidates({ odds: rj("ufc/odds-latest.json") }),
     epl: eplCandidates({ forecasts: rj(`soccer/epl/forecasts/${date}.json`) ?? rj("soccer/epl/forecasts/latest.json"), odds: rj("soccer/epl/odds/latest.json"), date }),
-    nba: { candidates: [], rawForecastCount: 0, publicForecastCount: 0, ownerNote: "HISTORICAL_ONLY — no current NBA forecast owner; nothing is normalized by design" },
+    nba: { candidates: [], rawForecastCount: 0, publicForecastCount: 0, ownerNote: "HISTORICAL_ONLY in the registry — NBA forecasts are published, but no authorized price feeds this universe; nothing is normalized by design" },
   };
   const legs = []; const perSport = {};
   for (const sport of CONTRACT_SPORTS) {

@@ -1,7 +1,7 @@
 {
   "kind": "publication-slo",
-  "date": "2026-11-01",
-  "platformState": "MISSED_COVERAGE",
+  "date": "2026-11-03",
+  "platformState": "PUBLISHING",
   "sports": {
     "mlb": {
       "state": "NO_EVENT",
@@ -15,49 +15,41 @@
       }
     },
     "nfl": {
-      "state": "PUBLISHING",
-      "reason": "1 event(s) still awaiting a forecast, none of them late yet",
-      "deadlineUtc": "2026-11-05T23:45:00.000Z",
-      "counts": {
-        "scheduled": 14,
-        "published": 13,
-        "missedCoverage": 0,
-        "awaiting": 1
-      },
-      "missed": []
-    },
-    "ufc": {
-      "state": "MISSED_COVERAGE",
-      "reason": "1 of 12 event(s) started with no pre-event forecast; nothing is still pending",
+      "state": "PUBLISHED",
+      "reason": "all 15 event(s) in the horizon carry a forecast",
       "deadlineUtc": null,
       "counts": {
-        "scheduled": 12,
-        "published": 11,
-        "missedCoverage": 1,
-        "awaiting": 0
-      },
-      "missed": [
-        {
-          "id": "401928109",
-          "label": "Julian Erosa vs JeongYeong Lee",
-          "startUtc": "2026-10-31T21:00Z"
-        }
-      ]
-    },
-    "epl": {
-      "state": "PUBLISHING",
-      "reason": "10 event(s) still awaiting a forecast, none of them late yet",
-      "deadlineUtc": "2026-11-07T13:30:00.000Z",
-      "counts": {
-        "scheduled": 12,
-        "published": 2,
+        "scheduled": 15,
+        "published": 15,
         "missedCoverage": 0,
-        "awaiting": 10
+        "awaiting": 0
+      }
+    },
+    "ufc": {
+      "state": "PUBLISHING",
+      "reason": "4 event(s) still awaiting a forecast, none of them late yet",
+      "deadlineUtc": "2026-11-07T20:30:00.000Z",
+      "counts": {
+        "scheduled": 14,
+        "published": 10,
+        "missedCoverage": 0,
+        "awaiting": 4
       },
       "missed": []
+    },
+    "epl": {
+      "state": "PUBLISHED",
+      "reason": "all 10 event(s) in the horizon carry a forecast",
+      "deadlineUtc": null,
+      "counts": {
+        "scheduled": 10,
+        "published": 10,
+        "missedCoverage": 0,
+        "awaiting": 0
+      }
     }
   },
-  "checkedAt": "2026-11-01T14:04:59.115Z",
+  "checkedAt": "2026-11-04T00:43:57.440Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "NO_EVENT",
@@ -70,7 +62,7 @@
     "present": true,
     "leans": 0,
     "pendingReason": "no_events",
-    "generatedAt": "2026-11-01T09:27:32.211420+00:00",
+    "generatedAt": "2026-11-03T09:29:36.624169+00:00",
     "scheduledGames": 0,
     "startedBeforeGeneration": 0
   },

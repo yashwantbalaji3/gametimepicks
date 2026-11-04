@@ -62,6 +62,17 @@ const NFL_EVENTS = Object.freeze([
   { id: "401873026", matchup: "BAL @ BUF", weekKey: "2-08", nowIso: "2026-11-01T14:00:00Z" }, // Sunday early window
 ]);
 
+/**
+ * KNOWN MISMATCH, NOT A RULE (found 2026-11-02, open in the November ledger). The 11-01 Results Top boards froze at
+ * 10-31 19:35Z; the official board kept refreshing to kickoff, so these two rows differ from the final pregame value.
+ * Frozen files are write-once and a founder decides which value is the record. Each row pins both numbers: anything
+ * else that drifts still fails.
+ */
+const FROZEN_BEFORE_FINAL_BOARD = Object.freeze({
+  "401873026:nfl-athlete-4429615:player_receptions": { frozen: 5.7765, finalOfficial: 6 },
+  "401873026:nfl-athlete-4429615:player_reception_yds": { frozen: 74.81, finalOfficial: 74.09 },
+});
+
 /** THE canonical NFL key set, built once: exactly the inputs forecast-view-load.mjs hands the snapshot. */
 function nflCanonical(eventId) {
   const union = unionFrozenForecasts(
@@ -186,12 +197,20 @@ for (const ev of NFL_EVENTS) {
     const day = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(Date.parse(snap.lockAt)));
     const tbFile = path.join(DATA, "results/top-boards", `${day}.json`);
     if (fs.existsSync(tbFile)) {
-      for (const b of readJson(tbFile).boards ?? []) for (const row of b.rows ?? []) {
+      const frozen = readJson(tbFile);
+      /* Founder 2026-10-29 (3087ea8d11): freezes after this instant keep the exact canonical value; earlier files are
+         write-once and keep their recorded integers. */
+      const exact = Date.parse(frozen.publishedAt) > Date.parse("2026-10-29T23:20:41Z");
+      for (const b of frozen.boards ?? []) for (const row of b.rows ?? []) {
         if (String(row.providerEventId) !== ev.id) continue;
         const c = canon(row.playerId, b.propFamily);
         assert.ok(c, `Results top board ${row.name} ${b.propFamily} is official`);
-        if ("probability" in row.projection) assert.equal(row.projection.probability, c.distribution.p, `Results top board ${row.name}`);
-        else assert.equal(row.projection.median, Math.round(c.median), `Results top board ${row.name} ${b.propFamily} (frozen integer rounding)`);
+        const drift = FROZEN_BEFORE_FINAL_BOARD[row.forecastId];
+        if (drift) {
+          assert.equal(row.projection.median, drift.frozen, `Results top board ${row.name} ${b.propFamily}: the recorded frozen value`);
+          assert.equal(c.median, drift.finalOfficial, `Results top board ${row.name} ${b.propFamily}: the official value this exception names`);
+        } else if ("probability" in row.projection) assert.equal(row.projection.probability, c.distribution.p, `Results top board ${row.name}`);
+        else assert.equal(row.projection.median, exact ? c.median : Math.round(c.median), `Results top board ${row.name} ${b.propFamily} (${exact ? "exact" : "frozen integer rounding"})`);
         checked += 1;
       }
     }

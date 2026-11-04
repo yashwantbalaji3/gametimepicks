@@ -24,6 +24,8 @@ const DAY = 86_400_000;
 /** Days ahead the hub lists, and days back it keeps a started game on the page. */
 export const NBA_HUB_AHEAD_DAYS = 7;
 export const NBA_HUB_BEHIND_DAYS = 3;
+/** Recent games the hub lists. Every game stays on /results/nba/. */
+export const NBA_HUB_RECENT_LISTED = 12;
 
 /* NBA UI parity (2026-10-22): the official forecast (Elo side + player medians) publishes on each game day before
    tip-off, so a regular-season game without one in this build has none YET — "model in validation" read as "never". */

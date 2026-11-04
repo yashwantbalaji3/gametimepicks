@@ -225,11 +225,12 @@ test("OUT / INACTIVE players are excluded; questionable players are flagged with
     assert.ok(!html.includes("D&#39;Andre Swift") && !html.includes("D'Andre Swift") && !html.includes("Jaxon Smith-Njigba"));
     assert.deepEqual(verifyCardHtml(html, doc, page), []);
   }
-  // Questionable: Zach Charbonnet (committed board) carries the site's label.
-  const g = game("401873036");
-  const z = g.doc.teams.flatMap((t) => t.players).find((p) => p.name === "Zach Charbonnet");
+  // Questionable: set on the view, as Out is above. Availability refreshes until kickoff, so a committed board can't pin it.
+  const qView = { ...src.view, players: src.view.players.map((p) => (p.name === "Zach Charbonnet" ? { ...p, availabilityLabel: "Questionable" } : p)) };
+  const qDoc = buildNflGameGraphicsExport({ view: qView, board: src.board, positions: canon.positions, asOf: AS_OF });
+  const z = qDoc.teams.flatMap((t) => t.players).find((p) => p.name === "Zach Charbonnet");
   assert.equal(z.availability, "Questionable");
-  assert.ok(g.cards.some((c) => /Zach Charbonnet<\/span><span class="ppos">RB<\/span><span class="flag">Questionable<\/span>/.test(c.html)));
+  assert.ok(paginate(qDoc).some((page) => /Zach Charbonnet<\/span><span class="ppos">RB<\/span><span class="flag">Questionable<\/span>/.test(renderGameCardHtml({ doc: qDoc, page }))));
 });
 
 /* ───────────────────────────── sportsbook gating ───────────────────────────── */
