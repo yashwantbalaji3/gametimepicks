@@ -1,8 +1,8 @@
 /**
  * TEST-ONLY. Builds the SYNTHETIC lane states the site's dev view and tests need but the real replay cannot reach while
  * P1 is open, with the ENGINE'S OWN operations (prepareLane / priceLane / reconcileLane / ingestReceipts / restartRun /
- * laneProjection), the same way the engine's tests do: the real 2026-11-02 frozen cards, FIXTURE prices (provider
- * "FIXTURE-NOT-A-BOOK"; the projection withholds every price), and the committed finals record with sides flipped where
+ * laneProjection), the same way the engine's tests do: the real 2026-11-02 frozen cards, made-up FIXTURE prices
+ * (provider "FIXTURE-NOT-A-PROVIDER"; the projection withholds every price), and the committed finals record with sides flipped where
  * a loss is wanted. The projections are then tagged `fixture: true, synthetic: true` and re-sealed; the site's loader
  * refuses them. Nothing here is a real lane record.
  *
@@ -30,12 +30,12 @@ const NBA = JSON.parse(fs.readFileSync(path.join(APP, `public/data/nba/experimen
 const DOC = sealSuggestedCards(dailySuggestedCards(buildLegPool({ repoRoot: REPO, date: DATE, evaluatedAt: NBA.generatedAt })));
 const FINALS = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nba/results/finals-2026-27.json"), "utf8"));
 const AT = NBA.generatedAt;
-const FIX = "FIXTURE-NOT-A-BOOK";
+const FIX = "FIXTURE-NOT-A-PROVIDER"; // a test-only provider; the book is an eligible key so the engine prices it
 const SEL = { "bank-builder": selectLaneCards(DOC, "bank-builder"), moonshot: selectLaneCards(DOC, "moonshot") };
 
 function fixturePrice(card) {
   const t = new Date(Math.min(...card.legs.map((l) => Date.parse(l.startUtc))) - 2 * 3600e3).toISOString();
-  return { legs: card.legs.map((l) => ({ legId: l.legId, selectionCode: l.selection.code, provider: FIX, book: FIX, oddsFormat: "american", price: 150, fetchedAt: t })), parlay: { method: "LEG_PRODUCT", fetchedAt: t }, priceSnapshotSha256: "f".repeat(64) };
+  return { legs: card.legs.map((l) => ({ legId: l.legId, selectionCode: l.selection.code, provider: FIX, book: "draftkings", oddsFormat: "american", price: 150, fetchedAt: t })), parlay: { method: "LEG_PRODUCT", fetchedAt: t }, priceSnapshotSha256: "f".repeat(64) };
 }
 const finalsWith = (card, outcomes) => ({ ...FINALS, conflicts: [], finals: FINALS.finals.map((r) => {
   const i = card.legs.findIndex((l) => l.gameId === r.providerEventId);

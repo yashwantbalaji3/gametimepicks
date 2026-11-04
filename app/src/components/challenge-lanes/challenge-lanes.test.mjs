@@ -15,7 +15,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { createHash } from "node:crypto";
+import crypto, { createHash } from "node:crypto";
 import os from "node:os";
 import path from "node:path";
 import React from "react";
@@ -181,7 +181,7 @@ test("SITE/SOCIAL CONSISTENCY: every step, rung, status, bankroll, distance, pac
   assert.match(read("src/lib/products/challenge-lanes/load.mjs"), /import \{ readLaneProjection \} from "\.\.\/\.\.\/challenge-lanes\/public-reader\.mjs";/);
   const src = read("src/lib/products/challenge-lanes/lane.mjs");
   assert.match(src, /import \{ laneDisplay \} from "\.\.\/\.\.\/challenge-lanes\/display\.mjs";/);
-  const view = src.slice(src.indexOf("export function laneView"), src.indexOf("export function unavailableLaneView"));
+  const view = src.slice(src.indexOf("export function laneView"), src.indexOf(" * JOIN the engine's decrypted price display"));
   assert.match(view, /const d = display \?\? laneDisplay\(doc\);\n  if \(d\.sourceSha256 !== doc\.contentSha256\) throw/);
   assert.doesNotMatch(view, /doc\.(runs|current|steps|baseCents|targetCents|milestonesCents)|publicStatus|trackedBankrollWithheld|readFileSync/, "laneView reads only laneDisplay's output");
 });
@@ -223,10 +223,77 @@ test("PRICED: odds, book and capture time per leg, the combined price (leg produ
   assert.doesNotMatch(plain, /SAMPLE BOOK|\+120|-150|Combined price/);
   assert.match(plain, /Potential payout · profit Awaiting verified prices/);
   // A same-game estimate is labelled as one, never as a book's offer.
-  const sg = { ...d, day: { ...d.day, price: { ...d.day.price, combined: { ...d.day.price.combined, method: "SAME_GAME_ESTIMATE" } } } };
+  const sg = { ...d, day: { ...d.day, price: { ...d.day.price, combined: { ...d.day.price.combined, method: "LEG_PRODUCT_ESTIMATE", estimate: true, label: null } } } };
   assert.match(text(html(React.createElement(LaneCard, { lane: lane.laneView(doc, { display: sg }) }))), /Combined price · estimate \(same-game legs, not a book.s offer\)/);
   // A display folded from another file is refused.
   assert.throws(() => lane.laneView(FIX["bb-a"], { display: d }), /not folded from this lane file/);
+});
+
+test("PRICED CONSISTENCY: the same frozen record gives the same numbers on the site as in the engine's payout (graphics' input)", async () => {
+  const { buildLegPool } = await import("../../lib/products/leg-pool/leg-pool.mjs");
+  const { dailySuggestedCards, sealSuggestedCards } = await import("../../lib/products/leg-pool/daily-cards.mjs");
+  const { selectLaneCards, laneState, runStarted } = await import("../../lib/challenge-lanes/lanes.mjs");
+  const { prepareLane, priceLane } = await import("../../lib/challenge-lanes/ops.mjs");
+  const { laneProjection, serializeProjection } = await import("../../lib/challenge-lanes/projection.mjs");
+  const { encryptLanePriceDisplay } = await import("../../lib/challenge-lanes/price-display.mjs");
+  const REPO = path.resolve(APP, "..");
+  const nba = JSON.parse(read("public/data/nba/experimental-public/2026-11-02.json"));
+  const DOC = sealSuggestedCards(dailySuggestedCards(buildLegPool({ repoRoot: REPO, date: "2026-11-02", evaluatedAt: nba.generatedAt })));
+  const head = runStarted({ laneId: "bb-a", runId: "run-1", startedAt: DOC.evaluatedAt, approvedBy: "TEST (not an approval)" });
+  const ev0 = [head, ...prepareLane([head], { date: "2026-11-02", at: DOC.evaluatedAt, selection: selectLaneCards(DOC, "bank-builder"), file: "t", docSha256: DOC.contentSha256 }).events];
+  const card = laneState(ev0).open.cardEvent.card;
+  const t = new Date(Math.min(...card.legs.map((l) => Date.parse(l.startUtc))) - 2 * 3600e3).toISOString();
+  const TEST_PROVIDER = "TEST-PROVIDER";
+  const odds = [-910, -250];
+  const price = { legs: card.legs.map((l, i) => ({ legId: l.legId, selectionCode: l.selection.code, provider: TEST_PROVIDER, book: "draftkings", oddsFormat: "american", price: odds[i], fetchedAt: t })), parlay: { method: "LEG_PRODUCT", fetchedAt: t }, priceSnapshotSha256: "f".repeat(64) };
+  const priced = priceLane(ev0, { date: "2026-11-02", at: t, price, suggestedCards: DOC, permittedProviders: [TEST_PROVIDER], strictPace: false });
+  assert.equal(priced.action, "PAYOUT_COMPUTED", JSON.stringify(priced.payout?.refusals));
+  const ev = [...ev0, ...priced.events];
+  const pay = ev.findLast((e) => e.type === "PAYOUT_COMPUTED");
+  // The repo layout the loader reads: the plain projection under app/public/data, the envelope under <repo>/data/odds-display.
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), "cl-priced-"));
+  const app = path.join(repo, "app");
+  fs.mkdirSync(path.join(app, "public", "data", "challenge-lanes"), { recursive: true });
+  fs.mkdirSync(path.join(repo, "data", "odds-display", "challenge-lanes"), { recursive: true });
+  const projection = laneProjection("bb-a", [ev]);
+  fs.writeFileSync(path.join(app, "public", "data", "challenge-lanes", "bb-a.json"), serializeProjection(projection));
+  assert.doesNotMatch(serializeProjection(projection), /draftkings|-910|-250|"price":/, "the plain public file stays price-free");
+  const key = crypto.randomBytes(32);
+  const envelope = encryptLanePriceDisplay("bb-a", [ev], key);
+  fs.writeFileSync(path.join(repo, "data", "odds-display", "challenge-lanes", "bb-a.json.enc"), envelope);
+  assert.doesNotMatch(envelope, /draftkings|-910/, "the committed envelope is ciphertext");
+  const env = { GTP_ODDS_DISPLAY_KEY: key.toString("hex") };
+
+  const v = loadChallengeLane({ appDir: app, laneId: "bb-a", env }).view;
+  const usd = (c) => `$${(c / 100).toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
+  const sign = (n) => (n > 0 ? `+${n}` : String(n));
+  assert.equal(v.status, laneDisplay(projection).status);
+  assert.deepEqual(v.current.legs.map((l) => [l.legId, l.price.odds, l.price.book]), card.legs.map((l, i) => [l.legId, sign(odds[i]), "draftkings"]));
+  assert.equal(v.wager, usd(pay.inputs.stakeCents));
+  assert.equal(v.potentialPayout, usd(pay.grossPayoutCents));
+  assert.equal(v.potentialProfit, usd(pay.profitCents));
+  assert.ok(v.current.price.combined.includes(`${pay.inputs.decimalPrice.toFixed(2)}×`));
+  assert.equal(v.current.price.combinedLabel, "Combined price (leg product)");
+  const h = text(html(React.createElement(LaneCard, { lane: v })));
+  assert.match(h, new RegExp(`Potential payout · profit \\${usd(pay.grossPayoutCents)} profit \\${usd(pay.profitCents)}`));
+  assert.match(h, /-910 draftkings/);
+
+  // Another key, or no key: nothing priced is shown. A tampered envelope is a release error.
+  for (const e of [{ GTP_ODDS_DISPLAY_KEY: crypto.randomBytes(32).toString("hex") }, {}]) {
+    const u = loadChallengeLane({ appDir: app, laneId: "bb-a", env: e }).view;
+    assert.equal(u.potentialPayout, lane.AWAITING_PRICES);
+    assert.doesNotMatch(text(html(React.createElement(LaneCard, { lane: u }))), /draftkings|-910/);
+  }
+  const bad = JSON.parse(envelope); bad.ct = Buffer.from("x".repeat(40)).toString("base64");
+  fs.writeFileSync(path.join(repo, "data", "odds-display", "challenge-lanes", "bb-a.json.enc"), JSON.stringify(bad));
+  assert.throws(() => loadChallengeLane({ appDir: app, laneId: "bb-a", env }), /failed authentication/);
+  fs.rmSync(repo, { recursive: true, force: true });
+});
+
+test("decrypted prices reach only server-rendered HTML: no client component, no /data file, no JSON prop", () => {
+  for (const f of ["src/components/challenge-lanes/lane-card.tsx", "src/components/challenge-lanes/lane-pair.tsx"]) assert.doesNotMatch(read(f), /^["']use client["']/m, f);
+  for (const f of ["src/app/bank-builder/page.tsx", "src/app/moonshot/page.tsx"]) assert.doesNotMatch(read(f), /JSON\.stringify\([^)]*lanes|challenge-lanes[^"]*\.json\.enc/, f);
+  assert.doesNotMatch(read("src/lib/products/challenge-lanes/load.mjs"), /writeFileSync/);
 });
 
 test("progression animation is CSS-only and prefers-reduced-motion turns it off", () => {

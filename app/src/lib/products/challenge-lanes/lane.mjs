@@ -12,6 +12,7 @@
 import { verifyLaneProjection, IMAGE_PATH } from "../../challenge-lanes/projection.mjs";
 import { LANES as ENGINE_LANES } from "../../challenge-lanes/lanes.mjs";
 import { laneDisplay } from "../../challenge-lanes/display.mjs";
+import { decimalToAmerican, americanToDecimal } from "../../challenge-lanes/payout.mjs";
 
 export const LANE_IDS = Object.freeze(Object.keys(ENGINE_LANES));
 export const lanesOf = (product) => LANE_IDS.filter((id) => ENGINE_LANES[id].product === product);
@@ -117,10 +118,10 @@ const legPrice = (p) => (p ? { odds: american(p.oddsAmerican), line: p.line ?? n
 function priceOf(price) {
   if (!PRICES_ON_SITE || !price?.combined) return null;
   const c = price.combined;
-  const estimate = c.method === "SAME_GAME_ESTIMATE";
+  const estimate = c.estimate === true;
   return {
     method: c.method, estimate,
-    combinedLabel: estimate ? "Combined price · estimate (same-game legs, not a book's offer)" : "Combined price (leg product)",
+    combinedLabel: estimate ? c.label ?? "Combined price · estimate (same-game legs, not a book's offer)" : "Combined price (leg product)",
     combined: [american(c.american), typeof c.decimal === "number" ? `${c.decimal.toFixed(2)}×` : null].filter(Boolean).join(" · "),
     book: c.book ?? null,
     stake: money(price.stakeCents), payout: money(price.grossPayoutCents), profit: money(price.profitCents),
@@ -190,8 +191,10 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
   if (!note && d.status === "ACTIVE") note = `Step ${d.step} of ${d.steps} is active. No new card until it settles.`;
   if (!note && d.status === "WON") note = `Step ${d.step - 1} won. Step ${d.step} gets the next qualifying card.`;
   const p = d.pace;
-  /* Pace means nothing once a lane is lost: it is not shown. */
+  const pp = d.day?.price;
+  /* Pace means nothing once a lane is lost: it is not shown. A priced card states its multiple against the pace. */
   const pace = !p || d.status === "LOST" ? null
+    : pp?.requiredMultiple && pp.combined?.decimal ? { state: pp.belowPace ? "behind" : "on", text: `This card ${pp.combined.decimal.toFixed(2)}× · pace needs ${pp.requiredMultiple.toFixed(2)}×${pp.belowPace ? " · below pace, disclosed" : ""}${p.nextMilestoneCents ? ` · next milestone ${money(p.nextMilestoneCents)}` : ""}` }
     : p.state === "withheld" ? { state: "withheld", text: "Pace: awaiting verified prices" }
     : p.state === "on" ? { state: "on", text: `On pace${p.nextMilestoneCents ? ` · next milestone ${money(p.nextMilestoneCents)}` : ""}` }
     : { state: "behind", text: `Behind pace by ${money(p.behindCents)}${p.nextMilestoneCents ? ` · next milestone ${money(p.nextMilestoneCents)}` : ""}` };
@@ -223,6 +226,43 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
     current, story, graphics,
     runs: d.runs.map((r, i) => ({ runId: r.runId, number: i + 1, started: String(r.startedAt ?? "").slice(0, 10) || null, status: r.endStatus, stepsWon: r.stepsWon ?? 0, current: i === d.runs.length - 1 })),
     sourceSha256: d.sourceSha256,
+  };
+}
+
+/**
+ * JOIN the engine's decrypted price display (`gtp.challenge-lane.prices@1`, lib/challenge-lanes/price-display.mjs) onto
+ * its laneDisplay of the same lane, by runId, date and legId, as the engine specifies. Pure; returns a new display.
+ * Only VERIFIED payouts are joined. It fills only what the plain projection withholds — each day's `price`, and the
+ * tracked bankroll the engine withheld — and never changes a step, status or leg. BUILD TIME ONLY: the result renders
+ * into HTML and is never a client prop or a /data file (display-crypto.mjs).
+ */
+export function withLanePrices(display, prices) {
+  if (!PRICES_ON_SITE || !prices) return display;
+  if (prices.schema !== "gtp.challenge-lane.prices@1" || prices.laneId !== display.laneId) throw new Error(`withLanePrices: price display is not ${display.laneId}'s`);
+  const run = prices.runs.find((r) => r.runId === display.runId);
+  if (!run) return display;
+  const priceFor = (day) => {
+    const p = day && run.days.find((x) => x.date === day.date && x.step === day.step && x.result === "VERIFIED");
+    if (!p) return null;
+    const legIds = new Set((day.card?.legs ?? []).map((l) => l.legId));
+    if (p.legs.length !== legIds.size || p.legs.some((l) => !legIds.has(l.legId))) throw new Error(`withLanePrices: ${display.laneId} ${day.date} prices do not match the frozen legs`);
+    return {
+      legs: p.legs.map((l) => ({
+        legId: l.legId, book: p.book, line: l.line ?? null, capturedAt: l.fetchedAt,
+        oddsAmerican: l.oddsFormat === "american" ? l.price : decimalToAmerican(l.price),
+        decimal: l.oddsFormat === "american" ? americanToDecimal(l.price) : l.price,
+      })),
+      combined: { method: p.method, estimate: p.estimate === true, label: p.label ?? null, decimal: p.decimalPrice, american: decimalToAmerican(p.decimalPrice), book: p.book },
+      stakeCents: p.stakeCents, grossPayoutCents: p.grossPayoutCents, profitCents: p.profitCents,
+      requiredMultiple: p.pace ?? null, belowPace: p.belowPace ?? null, bankrollAfterCents: p.bankrollAfterCents ?? null,
+    };
+  };
+  const history = display.history.map((d) => ({ ...d, price: priceFor(d) }));
+  const day = display.day && { ...display.day, price: priceFor(display.day) };
+  const bankroll = display.trackedBankrollCents ?? (Number.isInteger(run.trackedBankrollCents) ? run.trackedBankrollCents : null);
+  return {
+    ...display, history, day, trackedBankrollCents: bankroll, trackedBankrollWithheld: bankroll == null ? display.trackedBankrollWithheld : null,
+    distanceToTargetCents: bankroll == null ? null : Math.max(0, display.targetCents - bankroll),
   };
 }
 
