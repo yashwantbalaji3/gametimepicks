@@ -79,6 +79,12 @@ export function laneParity({ doc, prices, view }) {
   const sProps = sp ? siteProps : [];
   rowOpt("prop lines", pLegs.length ? pLegs.map((l) => [l.legId, l.line ?? detail.get(l.legId)?.line ?? null]) : null, sProps.length ? sProps.map((l) => [l.legId, l.price?.line ?? null]) : null);
   rowOpt("prop hit rates", pLegs.some((l) => hrOf(l).length) ? pLegs.map((l) => [l.legId, hrOf(l)]) : null, sProps.some((l) => l.price?.hitRates?.length) ? sProps.map((l) => [l.legId, l.price?.hitRates ?? []]) : null);
+  rowP("price event sha", priced ? pd.priceEventSha256 : null, sp?.priceEventSha256);
+  /* Graphics (PD 2026-11-04): every GRAPHIC_RENDERED receipt the record holds, with its image, caption and renderer
+     version, is the one the site lists — same order, same hashes. Absent on both sides matches. */
+  const recG = run.days.flatMap((d) => (d.receipts ?? []).filter((r) => r.type === "GRAPHIC_RENDERED"));
+  rowOpt("graphic receipts", recG.length ? recG.map((g) => [g.date, g.packageId ?? null, g.imageSha256 ?? null, g.captionSha256 ?? null, g.rendererCommit ?? null]) : null,
+    view.graphics?.length ? view.graphics.map((g) => [g.date, g.packageId, g.imageSha256, g.captionSha256 ?? null, g.graphicVersion ?? null]) : null);
   rowP("odds snapshot sha", priced ? pd.priceSnapshotSha256 : null, sp?.snapshotSha256);
   return out;
 }
@@ -96,6 +102,41 @@ export function researchParity({ block, view, laneId = "research" }) {
   row("research legs", live?.candidates.map((c) => c.legs.map((l) => [l.legId, isProp(l) ? l.player?.name ?? null : l.team ?? null])), view?.candidates.map((c) => c.legs.map((l) => [l.legId, l.who])));
   /* A stale line is withheld whole: no odds, no hit rates, no capture time (the line itself is never put in `what`). */
   out.push({ laneId, field: "no stale line shown", engine: null, site: null, ok: !view || view.candidates.every((c) => !c.stale || (c.captured == null && c.legs.every((l) => l.odds == null && !l.hitRates.length))) });
+  return out;
+}
+
+/**
+ * CROSS-SURFACE PARITY (PD 2026-11-04): engine ↔ site ↔ graphic ↔ caption ↔ console for one lane. Each surface hands
+ * in rows keyed by (date, packageId): bb-social's render manifest ({date, packageId, imageSha256, captionSha256,
+ * graphicVersion, priceEventSha256}), the posted caption ({date, packageId, captionSha256}) and the console's approval
+ * receipt ({date, packageId, imageSha256, approvedVersionSha256}). Every row must match the engine record's
+ * GRAPHIC_RENDERED / APPROVED receipts and, when priced, the price display's priceEventSha256 for that day. A surface
+ * row with no record receipt, or a record graphic missing from a surface that was handed in, fails. Field names are
+ * PROPOSED to betting-engine and bb-social (2026-11-04).
+ */
+export function surfaceParity({ doc, prices = null, view = null, graphic = null, caption = null, console: cons = null }) {
+  const out = [];
+  const push = (field, engine, site) => out.push({ laneId: doc.laneId, field, engine: engine ?? null, site: site ?? null, ok: JSON.stringify(engine ?? null) === JSON.stringify(site ?? null) });
+  const receipts = doc.runs.flatMap((r) => r.days.flatMap((d) => d.receipts ?? []));
+  const key = (x) => `${x.date}|${x.packageId ?? ""}`;
+  const rendered = new Map(receipts.filter((r) => r.type === "GRAPHIC_RENDERED").map((r) => [key(r), r]));
+  const approved = new Map(receipts.filter((r) => r.type === "APPROVED").map((r) => [key(r), r]));
+  const priceEvent = new Map((prices?.runs ?? []).flatMap((r) => r.days).map((d) => [d.date, d.priceEventSha256 ?? null]));
+  const surfaces = { site: view?.graphics ?? null, graphic, caption, console: cons };
+  for (const [name, rows] of Object.entries(surfaces)) {
+    if (!rows) continue;
+    const seen = new Set(rows.map(key));
+    for (const k of rendered.keys()) if (!seen.has(k)) push(`${name} ${k} graphic`, k, null);
+    for (const row of rows) {
+      const k = key(row), g = rendered.get(k);
+      if (!g) { push(`${name} ${k} graphic`, null, k); continue; }
+      if ("imageSha256" in row) push(`${name} ${k} image sha`, g.imageSha256 ?? null, row.imageSha256);
+      if ("captionSha256" in row) push(`${name} ${k} caption sha`, g.captionSha256 ?? null, row.captionSha256);
+      if ("graphicVersion" in row) push(`${name} ${k} graphic version`, g.rendererCommit ?? null, row.graphicVersion);
+      if ("approvedVersionSha256" in row) push(`${name} ${k} approved version`, approved.get(k)?.approvedVersionSha256 ?? null, row.approvedVersionSha256);
+      if ("priceEventSha256" in row && prices) push(`${name} ${k} price event`, priceEvent.get(row.date) ?? null, row.priceEventSha256);
+    }
+  }
   return out;
 }
 

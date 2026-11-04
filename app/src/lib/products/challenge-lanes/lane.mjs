@@ -162,7 +162,7 @@ function priceOf(day) {
     requiredMultiple: typeof p.pace === "number" ? p.pace : null, belowPace: p.belowPace ?? null,
     captured: etStamp([...(p.legs ?? [])].map((l) => l.fetchedAt).filter(Boolean).sort().at(-1)),
     verification: verificationOf(p), verificationNote: p.verification === "PRELIMINARY" ? p.verificationLabel ?? null : null,
-    snapshotSha256: p.priceSnapshotSha256 ?? null,
+    snapshotSha256: p.priceSnapshotSha256 ?? null, priceEventSha256: p.priceEventSha256 ?? null,
   };
 }
 
@@ -277,6 +277,9 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
     const pathOk = typeof g.imagePath === "string" && IMAGE_PATH.test(g.imagePath) && !g.imagePath.includes("..");
     return {
       date: g.date, step: g.step, packageId: g.packageId ?? null, imageSha256: g.imageSha256 ?? null,
+      /* Cross-surface parity (PD 2026-11-04): the caption's hash and the renderer version the engine recorded, verbatim. */
+      captionSha256: g.captionSha256 ?? null, graphicVersion: g.rendererCommit ?? null,
+      approvedVersionSha256: receipts.find((r) => r.type === "APPROVED" && same(r))?.approvedVersionSha256 ?? null,
       imagePath: pathOk && g.imageSha256 && imageVerified(g.imagePath, g.imageSha256) ? g.imagePath : null,
       approved: receipts.some((r) => r.type === "APPROVED" && same(r)), postUrl: xUrl(post?.url), postedAt: post?.postedAt ?? null,
     };

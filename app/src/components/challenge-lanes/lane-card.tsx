@@ -14,7 +14,7 @@ export type LaneLeg = {
   player?: { name: string | null; team: string | null; side: string | null; market: string } | null;
   evidence?: { class: string; label: string } | null;
 };
-export type LanePrice = { method: string; estimate: boolean; combinedLabel: string; combined: string; decimal?: number | null; book: string | null; stake: string | null; payout: string | null; profit: string | null; captured: string | null; requiredMultiple?: number | null; belowPace?: boolean | null; verification?: string | null; verificationNote?: string | null; snapshotSha256?: string | null; band?: string | null };
+export type LanePrice = { method: string; estimate: boolean; combinedLabel: string; combined: string; decimal?: number | null; book: string | null; stake: string | null; payout: string | null; profit: string | null; captured: string | null; requiredMultiple?: number | null; belowPace?: boolean | null; verification?: string | null; verificationNote?: string | null; snapshotSha256?: string | null; priceEventSha256?: string | null; band?: string | null };
 export type LaneDay = {
   date: string; step: number; internalStatus: string | null; statusText: string; tone: string; reason: string | null; staked: boolean;
   legs: LaneLeg[]; hasCard: boolean; modelCardResult: string | null; stepOutcome: string | null; result: string | null; price: LanePrice | null; ruleTag?: string | null;
@@ -29,7 +29,7 @@ export type LaneView = {
   rungs: Array<{ step: number; state: string; milestone: string | null }>;
   current: LaneDay | null;
   story: LaneDay[];
-  graphics: Array<{ date: string; step: number; packageId: string | null; imageSha256: string | null; imagePath: string | null; approved: boolean; postUrl: string | null; postedAt: string | null }>;
+  graphics: Array<{ date: string; step: number; packageId: string | null; imageSha256: string | null; captionSha256?: string | null; graphicVersion?: string | null; approvedVersionSha256?: string | null; imagePath: string | null; approved: boolean; postUrl: string | null; postedAt: string | null }>;
   runs: Array<{ runId: string; number: number; started: string | null; status: string; stepsWon: number; current: boolean; ruleTag?: string | null }>;
   ruleVersion?: string | null; ruleLabel?: string | null; stepTarget?: { label: string; value: string | null } | null;
   evidence?: { class: string; label: string } | null;
@@ -57,7 +57,7 @@ function LegCard({ l }: { l: LaneLeg }) {
         {l.price ? (
           <span className="cl-leg-odds" data-leg-odds="">
             <span className="cl-odds-chip">{l.price.odds}</span>
-            {l.price.line != null ? <span>line {l.price.line}</span> : null}
+            {l.price.line != null && !l.player ? <span>line {l.price.line}</span> : null}
             {l.price.book ? <span>{l.price.book}</span> : null}
           </span>
         ) : null}
@@ -131,7 +131,7 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
       <p className="cl-step" data-lane-step="">
         {lane.step ? <>STEP <span className="cl-step-k">{lane.step}</span> OF {lane.steps}</> : <>{lane.steps} STEPS</>}
       </p>
-      <p className="cl-sub">{legs.length ? `${legs.length} legs · ` : ""}{lane.cleared} of {lane.steps} steps cleared</p>
+      <p className="cl-sub">{legs.length ? `${legs.length} ${legs.length === 1 ? "leg" : "legs"} · ` : ""}{lane.cleared} of {lane.steps} steps cleared</p>
       {lane.note ? <p className="cl-note">{lane.note}</p> : null}
 
       <div className="cl-ladder" role="img" aria-label={`Ladder: ${lane.rungs.map((r) => `step ${r.step} ${RUNG_TEXT[r.state]}${r.milestone ? `, milestone ${r.milestone}` : ""}`).join("; ")}`} data-lane-meter="">
@@ -212,7 +212,7 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
         {lane.graphics.length ? (
           <ol className="cl-graphics">
             {[...lane.graphics].reverse().map((g, i) => (
-              <li key={`${g.date}:${g.packageId}:${i}`} className="cl-graphic" data-lane-graphic={g.packageId ?? ""}>
+              <li key={`${g.date}:${g.packageId}:${i}`} className="cl-graphic" data-lane-graphic={g.packageId ?? ""} data-graphic-version={g.graphicVersion ?? ""} data-caption-sha256={g.captionSha256 ?? ""} data-image-sha256={g.imageSha256 ?? ""}>
                 {g.imagePath ? <img src={g.imagePath} alt={`${lane.name}, ${g.date}, step ${g.step}`} width={1080} height={1350} loading="lazy" className="cl-graphic-img" /> : null}
                 <span className="cl-graphic-text">
                   <strong>{g.date}</strong> · step {g.step}{g.packageId ? ` · ${g.packageId}` : ""}

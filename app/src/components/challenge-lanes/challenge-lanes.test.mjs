@@ -693,6 +693,44 @@ test("the view never mutates the accepted document (a cached file must still ver
   }
 });
 
+test("CROSS-SURFACE PARITY: engine receipts ↔ site ↔ graphic manifest ↔ caption ↔ console — image, caption, graphic version, approval, price event", async () => {
+  const { laneParity, surfaceParity, parityReport } = await import("../../lib/products/challenge-lanes/parity.mjs");
+  const { samplePrices } = await import("../../lib/products/challenge-lanes/__fixtures__/sample-prices.mjs");
+  const { pricedLaneDisplay } = await import("../../lib/challenge-lanes/display.mjs");
+  const IMG = "1a".repeat(32), CAP = "2b".repeat(32), APV = "3c".repeat(32);
+  const base = real(SYN["bb-a"]);
+  const date = base.runs.at(-1).days.at(-1).date;
+  const doc = real(SYN["bb-a"], (d) => {
+    const day = d.runs.at(-1).days.at(-1);
+    day.receipts = [...(day.receipts ?? []),
+      { seq: 90, type: "GRAPHIC_RENDERED", date, step: day.step, at: "x", source: "x", sha256: "g", packageId: "bb-pkg", imageSha256: IMG, captionSha256: CAP, rendererCommit: "v6-abc123", imagePath: null },
+      { seq: 91, type: "APPROVED", date, step: day.step, at: "x", source: "x", sha256: "h", packageId: "bb-pkg", approvedVersionSha256: APV, imageSha256: IMG }];
+    return d;
+  });
+  const prices = samplePrices(doc);
+  const PE = prices.runs[0].days[0].priceEventSha256;
+  const view = lane.laneView(doc, { display: pricedLaneDisplay(doc, prices) });
+  const lanes = parityReport([laneParity({ doc, prices, view })]);
+  assert.deepEqual(lanes.failures, []);
+  assert.ok(lanes.rows.some((r) => r.field === "graphic receipts" && r.ok && r.engine), "the site lists the record's graphic with image, caption and version");
+  assert.ok(lanes.rows.some((r) => r.field === "price event sha" && r.ok && r.engine));
+  assert.match(html(React.createElement(LaneCard, { lane: view })), new RegExp(`data-graphic-version="v6-abc123" data-caption-sha256="${CAP}"`));
+  const graphic = [{ date, packageId: "bb-pkg", imageSha256: IMG, captionSha256: CAP, graphicVersion: "v6-abc123", priceEventSha256: PE }];
+  const caption = [{ date, packageId: "bb-pkg", captionSha256: CAP }];
+  const consoleRows = [{ date, packageId: "bb-pkg", imageSha256: IMG, approvedVersionSha256: APV }];
+  const all = parityReport([surfaceParity({ doc, prices, view, graphic, caption, console: consoleRows })]);
+  assert.deepEqual(all.failures, []);
+  for (const f of ["site", "graphic", "caption", "console"]) assert.ok(all.rows.some((r) => r.field.startsWith(`${f} `) && r.ok), f);
+  /* Each drift fails, named by surface and field. */
+  const bad = parityReport([surfaceParity({ doc, prices, view,
+    graphic: [{ ...graphic[0], priceEventSha256: "0".repeat(64), graphicVersion: "v5" }],
+    caption: [{ ...caption[0], captionSha256: "f".repeat(64) }],
+    console: [{ ...consoleRows[0], approvedVersionSha256: "e".repeat(64) }, { date, packageId: "unrecorded", imageSha256: IMG }] })]).failures;
+  for (const f of [`graphic ${date}|bb-pkg price event`, `graphic ${date}|bb-pkg graphic version`, `caption ${date}|bb-pkg caption sha`, `console ${date}|bb-pkg approved version`, `console ${date}|unrecorded graphic (NOT_IN_RECORD)`]) assert.ok(bad.includes(`bb-a ${f}`), `${f}: ${bad.join(", ")}`);
+  /* A surface handed in without the record's graphic fails closed. */
+  assert.ok(parityReport([surfaceParity({ doc, prices, caption: [] })]).failures.includes(`bb-a caption ${date}|bb-pkg graphic (NOT_ON_SITE)`));
+});
+
 test("graphic history: an image only when the path passes IMAGE_PATH and the bytes match the recorded sha; X link only for x.com", () => {
   const png = Buffer.from("not really a png, but bytes");
   const sha = createHash("sha256").update(png).digest("hex");
