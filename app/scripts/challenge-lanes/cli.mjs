@@ -15,8 +15,19 @@
  * spent and no lane is touched. With --apply under a committed BBM receipt it makes the one capture (odds.mjs), books
  * credits in the committed ledger (credits and status only), writes the PRIVATE snapshot under GTP_PRIVATE_DATA_DIR
  * (or --out-dir), then prices each open card from that snapshot. The API key is read from ODDS_API_KEY only with
- * --apply and is never printed.
+ * --apply and is never printed. `--env-file <repo .env>` loads ODDS_API_KEY (price) or GTP_ODDS_DISPLAY_KEY (display) from
+ * that file inside this process, the way odds-key-check.sh does: never in argv, never printed, only after the receipt
+ * parses (price) and only for the run. Posts: `--post-at-bb` / `--post-at-ms` per product (else `--post-at` for both).
  */
+
+/** One variable from a dotenv file, or null. The value is returned to the caller only, never logged. */
+function envFromFile(file, name) {
+  try {
+    const line = fs.readFileSync(file, "utf8").split("\n").find((l) => l.startsWith(`${name}=`));
+    const v = line ? line.slice(name.length + 1).replace(/[\r"' ]/g, "") : "";
+    return v || null;
+  } catch { return null; }
+}
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -101,8 +112,9 @@ export async function main(command, argv = process.argv) {
         report.lanes[laneId] = { runId: run.file.replace(".jsonl", ""), action: r.action, reason: r.events[0]?.reason ?? null };
       }
     } else {
-      const postAt = arg("--post-at");
-      if (!Number.isFinite(Date.parse(postAt ?? ""))) fail("--post-at <ISO> required: a price is used only if captured at most 90 minutes before the post");
+      const postAtFor = { "bank-builder": arg("--post-at-bb") ?? arg("--post-at"), moonshot: arg("--post-at-ms") ?? arg("--post-at") };
+      if (!Object.values(postAtFor).every((t) => Number.isFinite(Date.parse(t ?? "")))) fail("--post-at <ISO> (or --post-at-bb and --post-at-ms) required: a price is used only if captured at most 90 minutes before the post");
+      report.postAt = postAtFor;
       const legs = [...new Map(Object.values(open).filter(Boolean).flatMap((o) => o.card.legs).map((l) => { const [away, home] = String(l.eventLabel).split(" @ "); return [l.gameId, { gameId: l.gameId, home, away, startUtc: l.startUtc, market: l.market }]; })).values()];
       let snapshot = null;
       const snapFile = arg("--snapshot");
@@ -117,7 +129,7 @@ export async function main(command, argv = process.argv) {
         if (apply && !priv.ok) fail(`${priv.reason} — no paid call made`);
         const ledgerPath = path.join(REPO, BBM_LEDGER_RELPATH);
         const ledger = fs.existsSync(ledgerPath) ? JSON.parse(fs.readFileSync(ledgerPath, "utf8")) : null;
-        const cap = await captureBbmPrices({ now: at, receiptText: fs.readFileSync(abs, "utf8"), receiptRel: rel, ledger, legs, apply, apiKey: apply ? (process.env.ODDS_API_KEY ?? "").trim() : "", fetchImpl: globalThis.fetch });
+        const cap = await captureBbmPrices({ now: at, receiptText: fs.readFileSync(abs, "utf8"), receiptRel: rel, ledger, legs, apply, apiKey: apply ? ((arg("--env-file") ? envFromFile(path.resolve(arg("--env-file")), "ODDS_API_KEY") : null) ?? process.env.ODDS_API_KEY ?? "").trim() : "", fetchImpl: globalThis.fetch });
         if (cap.calls?.length) { fs.mkdirSync(path.dirname(ledgerPath), { recursive: true }); fs.writeFileSync(ledgerPath, `${JSON.stringify(cap.ledger, null, 1)}\n`); }
         report.capture = { state: cap.state, reasons: cap.reasons ?? null, stoppedBecause: cap.stoppedBecause ?? null, plan: cap.plan ?? null, ceilings: cap.ceilings ?? null, spentToday: cap.spentToday ?? null, calls: cap.calls, creditsCharged: (cap.ledger?.cumulativeCredits ?? 0) - (ledger?.cumulativeCredits ?? 0), unjoined: cap.unjoined ?? null };
         if (cap.snapshot && priv.ok) {
@@ -137,7 +149,7 @@ export async function main(command, argv = process.argv) {
         const docFile = path.join(APP, "public", "data", "suggested-cards", `${DATE}.json`);
         const cardsFile = arg("--cards", docFile);
         const doc = fs.existsSync(cardsFile) ? JSON.parse(fs.readFileSync(cardsFile, "utf8")) : null;
-        const r = priceLane(o.run.events, { date: DATE, at: snapshot.fetchedAt, price: p.price, suggestedCards: doc, postScheduledAt: postAt });
+        const r = priceLane(o.run.events, { date: DATE, at: snapshot.fetchedAt, price: p.price, suggestedCards: doc, postScheduledAt: postAtFor[LANES[laneId].product] });
         appendEvents(root, laneId, o.run.file, o.run.events.length, r.events);
         report.lanes[laneId] = { runId: o.run.file.replace(".jsonl", ""), action: r.action, refusals: r.payout?.refusals?.map((x) => x.code) ?? null, book: r.payout?.inputs?.book ?? null, belowPace: r.payout?.inputs?.belowPace ?? null };
         if (r.payout?.ok) report.privateTotals = { ...(report.privateTotals ?? {}), [laneId]: "see the private log (PAYOUT_COMPUTED); never printed" };
@@ -146,9 +158,10 @@ export async function main(command, argv = process.argv) {
   } else if (command === "display") {
     const auth = displayAuthorization("nba", "site");
     if (!auth.ok) fail(`NBA site display is not authorized: ${auth.reasons.join("; ")}`);
-    const k = readDisplayKey();
+    const fileKey = arg("--env-file") ? envFromFile(path.resolve(arg("--env-file")), "GTP_ODDS_DISPLAY_KEY") : null;
+    const k = readDisplayKey(fileKey ? { GTP_ODDS_DISPLAY_KEY: fileKey } : process.env);
     if (!k.ok) fail(`${k.reason} — no encrypted display artifact written`);
-    const dir = path.join(REPO, PRICE_DISPLAY_REPO_DIR);
+    const dir = path.resolve(arg("--display-out", path.join(REPO, PRICE_DISPLAY_REPO_DIR)));
     fs.mkdirSync(dir, { recursive: true });
     for (const laneId of LANE_IDS) {
       const runs = readRuns(root, laneId);

@@ -174,7 +174,9 @@ Run these from `app/`. Each CLI prints a JSON report and exits 1 if any lane was
    - Writes CARD_FROZEN for each lane that is not in play, or NO_ELIGIBLE_CARD when there is no file or no card.
    - The `at` field is the file's `evaluatedAt`. With no file, it is `--now` (default `D`T11:00Z).
    - The first run, or a restart after BUSTED (`--restart LANE`), needs `--approved-by "<founder approval ref>"`.
-2. **Price:** `lanes-price.mjs --root … --date D --post-at <scheduled post ISO> --receipt docs/receipts/<BBM receipt>.md`
+2. **Price:** `lanes-price.mjs --root … --date D --post-at-bb <ISO> --post-at-ms <ISO> --receipt docs/receipts/<BBM receipt>.md [--apply --env-file <repo>/.env]`
+   - Posts (PD 2026-11-04): bb-<date> at the slate's first tip − 60 min, and ms-<date> at first tip − 58 min. Capture within the 90 minutes before the earlier one.
+   - `--env-file` loads ODDS_API_KEY (or, for `lanes-display`, GTP_ODDS_DISPLAY_KEY) inside the process. It is never put in argv or printed, and is read only after the receipt parses and only with `--apply`.
    - Without `--apply` it prints the plan (games, worst-case credits, ceilings). It spends nothing and touches no lane.
    - With `--apply` (and `ODDS_API_KEY` and `GTP_PRIVATE_DATA_DIR` in the environment) it makes the one capture, then PRICE_VERIFIED + STAKE_SET + PAYOUT_COMPUTED for each open card. A refusal leaves the card open.
    - `--snapshot FILE` prices from an existing private snapshot, with no call.
