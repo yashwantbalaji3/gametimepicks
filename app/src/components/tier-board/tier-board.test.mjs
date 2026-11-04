@@ -254,3 +254,15 @@ test("shared Predicted Player Statistics: guarded (fail closed) on /bank-builder
   assert.deepEqual(users, ["src/app/bank-builder/page.tsx", "src/app/moonshot/page.tsx", "src/components/products/level-a-suggestions.tsx", "src/components/tier-board/tier-board.test.mjs"]);
   assert.match(read("src/app/build/page.tsx"), /<LevelASuggestions model=\{[^}]+\} mode="parlay-lab" \/>/, "/build is unchanged");
 });
+
+test("rotation guard (engine a746932123): a flagged favourite reads as under review with its rotation players, never 'passed every guard'", () => {
+  const board = view.tierBoardFromSuggestedCards(FIXTURE, "bank-builder", { allowFixture: true });
+  const h = html(React.createElement(TierBoardSection, { board, productName: "Bank Builder" }));
+  for (const leg of FIXTURE.bankBuilder.nba.card.legs.filter((l) => l.guard.state === "review")) {
+    const block = text(h.split('<li class="tb-leg"').find((x) => x.includes(`data-leg="${leg.legId}"`)));
+    assert.doesNotMatch(block, /passed every guard/, leg.legId);
+    assert.match(block, /Eligible with review flags/);
+    for (const r of leg.guard.rotationFlagged.filter((x) => x.flag !== "ROTATION_FROM_LANE")) assert.ok(block.includes(`${r.name} (${r.status})`) || /\+\d+ more/.test(block), `${leg.legId}: ${r.name}`);
+  }
+  assert.ok(!text(h).includes("Cody Williams"), "a guard-blocked key player is absent");
+});

@@ -1,6 +1,6 @@
 {
  "fixture": true,
- "fixtureNote": "TEST-ONLY. Engine deterministic replay for 2026-11-02 (claude/betting-engine-1104-02e05b @ 380a6d98dc), trimmed. Never rendered by a real page.",
+ "fixtureNote": "TEST-ONLY. Engine deterministic replay for 2026-11-02 with the rotation guard fix and MODEL PROJECTION wording (claude/betting-engine-1104-02e05b @ b5d9e26adc), trimmed. Never rendered by a real page.",
  "schema": "gtp.suggested-cards@1",
  "productDay": "2026-11-02",
  "evaluatedAt": "2026-11-02T05:58:41Z",
@@ -46,7 +46,7 @@
    "legPool": {
     "eligible": 15,
     "tierable": 15,
-    "review": 3,
+    "review": 8,
     "refused": 0,
     "byReason": {}
    },
@@ -143,10 +143,64 @@
        "receiptSha256": "8bb75c9f2588230799e25982f0fa9dbbfd106751571963211f6dda43130dc5bb"
       },
       "guard": {
-       "state": "pass",
-       "flags": [],
-       "flagText": [],
-       "rotationFlagged": [],
+       "state": "review",
+       "flags": [
+        "FAVOURED_ROTATION_OUT"
+       ],
+       "flagText": [
+        "One of the favoured team's five highest-minute players this season is ruled Out; the Elo side does not account for it."
+       ],
+       "rotation": [
+        {
+         "playerId": "4566434",
+         "name": "Franz Wagner",
+         "minutesAvg": 34.4,
+         "gamesPlayed": 5
+        },
+        {
+         "playerId": "4066320",
+         "name": "Desmond Bane",
+         "minutesAvg": 33.6,
+         "gamesPlayed": 5
+        },
+        {
+         "playerId": "4432573",
+         "name": "Paolo Banchero",
+         "minutesAvg": 33.5,
+         "gamesPlayed": 2
+        },
+        {
+         "playerId": "4432165",
+         "name": "Jalen Suggs",
+         "minutesAvg": 33.3,
+         "gamesPlayed": 3
+        },
+        {
+         "playerId": "4277847",
+         "name": "Wendell Carter Jr.",
+         "minutesAvg": 31.6,
+         "gamesPlayed": 5
+        }
+       ],
+       "rotationSource": "season-box-scores",
+       "rotationFlagged": [
+        {
+         "playerId": "4432573",
+         "name": "Paolo Banchero",
+         "minutesAvg": 33.5,
+         "gamesPlayed": 2,
+         "status": "Out",
+         "flag": "FAVOURED_ROTATION_OUT"
+        },
+        {
+         "playerId": "4432165",
+         "name": "Jalen Suggs",
+         "minutesAvg": 33.3,
+         "gamesPlayed": 3,
+         "status": "Out",
+         "flag": "FAVOURED_ROTATION_OUT"
+        }
+       ],
        "outAtFreeze": [
         {
          "playerId": "4065654",
@@ -204,10 +258,56 @@
        "receiptSha256": "fcbf84a20ccb6e1c5d3a6f38306b0cd62000e4491860a20782a194dd6c13fe24"
       },
       "guard": {
-       "state": "pass",
-       "flags": [],
-       "flagText": [],
-       "rotationFlagged": [],
+       "state": "review",
+       "flags": [
+        "FAVOURED_ROTATION_OUT"
+       ],
+       "flagText": [
+        "One of the favoured team's five highest-minute players this season is ruled Out; the Elo side does not account for it."
+       ],
+       "rotation": [
+        {
+         "playerId": "4594268",
+         "name": "Anthony Edwards",
+         "minutesAvg": 33.8,
+         "gamesPlayed": 4
+        },
+        {
+         "playerId": "4431671",
+         "name": "Jaden McDaniels",
+         "minutesAvg": 33.4,
+         "gamesPlayed": 7
+        },
+        {
+         "playerId": "4433247",
+         "name": "Jonathan Kuminga",
+         "minutesAvg": 30.4,
+         "gamesPlayed": 7
+        },
+        {
+         "playerId": "3032976",
+         "name": "Rudy Gobert",
+         "minutesAvg": 30,
+         "gamesPlayed": 6
+        },
+        {
+         "playerId": "4397002",
+         "name": "Ayo Dosunmu",
+         "minutesAvg": 29.3,
+         "gamesPlayed": 7
+        }
+       ],
+       "rotationSource": "season-box-scores",
+       "rotationFlagged": [
+        {
+         "playerId": "4594268",
+         "name": "Anthony Edwards",
+         "minutesAvg": 33.8,
+         "gamesPlayed": 4,
+         "status": "Out",
+         "flag": "FAVOURED_ROTATION_OUT"
+        }
+       ],
        "outAtFreeze": [
         {
          "playerId": "3934673",
@@ -235,8 +335,8 @@
      "rule": "model joint chance 50.0% to 66.7%",
      "method": "Joint probability = product of each leg's official forecast probability, legs from different games only (treated as independent across games). Tier = the published risk band of the model-fair price (1 ÷ joint). No sportsbook price is used."
     },
-    "rationale": "Each leg is the official NBA side with its published Elo-derived game-winner estimate; this is the combination with the highest joint probability in the Low Risk band (2 legs).",
-    "confidence": "Model estimates are not yet validated over a large forward sample.",
+    "rationale": "Each leg is the official NBA side with its MODEL PROJECTION win chance from the frozen Elo team rating; this is the combination with the highest joint chance in the Low Risk band (2 legs).",
+    "confidence": "2 legs carry an availability flag (shown on the leg). MODEL PROJECTION accuracy is not yet established over a large forward sample.",
     "dependency": "Assumes the games are independent: every leg is a different NBA game, so no two legs share a team, but same-night results can still be related (travel, schedule, league-wide scoring) and that is not modelled.",
     "disclosure": "Model Performance: the Elo rating’s game-outcome accuracy is not yet established — 107 regular-season games graded so far; the preregistration requires 300 before any accuracy claim. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation.",
     "status": "MODEL_ONLY",
@@ -280,7 +380,7 @@
        "teamAbbr": "OKC"
       },
       "status": "MODEL_ONLY",
-      "probability": 0.5678000000000001,
+      "probability": 0.5678,
       "probabilityShown": "57%",
       "forecast": {
        "owner": "nba-official-composition@1",
@@ -290,10 +390,64 @@
        "receiptSha256": "3b375e054eba9ae418d32021c5e0679e1a8663182fd0ef5761b268164eeaf059"
       },
       "guard": {
-       "state": "pass",
-       "flags": [],
-       "flagText": [],
-       "rotationFlagged": [],
+       "state": "review",
+       "flags": [
+        "FAVOURED_ROTATION_OUT"
+       ],
+       "flagText": [
+        "One of the favoured team's five highest-minute players this season is ruled Out; the Elo side does not account for it."
+       ],
+       "rotation": [
+        {
+         "playerId": "4278073",
+         "name": "Shai Gilgeous-Alexander",
+         "minutesAvg": 32.7,
+         "gamesPlayed": 6
+        },
+        {
+         "playerId": "4593803",
+         "name": "Jalen Williams",
+         "minutesAvg": 31.7,
+         "gamesPlayed": 3
+        },
+        {
+         "playerId": "4433255",
+         "name": "Chet Holmgren",
+         "minutesAvg": 30,
+         "gamesPlayed": 3
+        },
+        {
+         "playerId": "4900671",
+         "name": "Ajay Mitchell",
+         "minutesAvg": 25.5,
+         "gamesPlayed": 6
+        },
+        {
+         "playerId": "4683778",
+         "name": "Jared McCain",
+         "minutesAvg": 24.7,
+         "gamesPlayed": 6
+        }
+       ],
+       "rotationSource": "season-box-scores",
+       "rotationFlagged": [
+        {
+         "playerId": "4593803",
+         "name": "Jalen Williams",
+         "minutesAvg": 31.7,
+         "gamesPlayed": 3,
+         "status": "Out",
+         "flag": "FAVOURED_ROTATION_OUT"
+        },
+        {
+         "playerId": "4433255",
+         "name": "Chet Holmgren",
+         "minutesAvg": 30,
+         "gamesPlayed": 3,
+         "status": "Out",
+         "flag": "FAVOURED_ROTATION_OUT"
+        }
+       ],
        "outAtFreeze": [
         {
          "playerId": "2991350",
@@ -356,10 +510,56 @@
        "receiptSha256": "fcbf84a20ccb6e1c5d3a6f38306b0cd62000e4491860a20782a194dd6c13fe24"
       },
       "guard": {
-       "state": "pass",
-       "flags": [],
-       "flagText": [],
-       "rotationFlagged": [],
+       "state": "review",
+       "flags": [
+        "FAVOURED_ROTATION_OUT"
+       ],
+       "flagText": [
+        "One of the favoured team's five highest-minute players this season is ruled Out; the Elo side does not account for it."
+       ],
+       "rotation": [
+        {
+         "playerId": "4594268",
+         "name": "Anthony Edwards",
+         "minutesAvg": 33.8,
+         "gamesPlayed": 4
+        },
+        {
+         "playerId": "4431671",
+         "name": "Jaden McDaniels",
+         "minutesAvg": 33.4,
+         "gamesPlayed": 7
+        },
+        {
+         "playerId": "4433247",
+         "name": "Jonathan Kuminga",
+         "minutesAvg": 30.4,
+         "gamesPlayed": 7
+        },
+        {
+         "playerId": "3032976",
+         "name": "Rudy Gobert",
+         "minutesAvg": 30,
+         "gamesPlayed": 6
+        },
+        {
+         "playerId": "4397002",
+         "name": "Ayo Dosunmu",
+         "minutesAvg": 29.3,
+         "gamesPlayed": 7
+        }
+       ],
+       "rotationSource": "season-box-scores",
+       "rotationFlagged": [
+        {
+         "playerId": "4594268",
+         "name": "Anthony Edwards",
+         "minutesAvg": 33.8,
+         "gamesPlayed": 4,
+         "status": "Out",
+         "flag": "FAVOURED_ROTATION_OUT"
+        }
+       ],
        "outAtFreeze": [
         {
          "playerId": "3934673",
@@ -404,16 +604,70 @@
       "guard": {
        "state": "review",
        "flags": [
+        "FAVOURED_ROTATION_OUT",
         "FAVOURED_ROTATION_R1"
        ],
        "flagText": [
-        "A top-five-minutes player on the favoured team was listed Day-To-Day, Questionable, Doubtful or Out at freeze; the Elo side does not account for it."
+        "One of the favoured team's five highest-minute players this season is ruled Out; the Elo side does not account for it.",
+        "One of the favoured team's five highest-minute players this season was listed Day-To-Day, Questionable or Doubtful at freeze; the Elo side does not account for it."
        ],
-       "rotationFlagged": [
+       "rotation": [
+        {
+         "playerId": "4709138",
+         "name": "Brandin Podziemski",
+         "minutesAvg": 32.8,
+         "gamesPlayed": 4
+        },
+        {
+         "playerId": "5175737",
+         "name": "Yaxel Lendeborg",
+         "minutesAvg": 32,
+         "gamesPlayed": 6
+        },
+        {
+         "playerId": "6589",
+         "name": "Draymond Green",
+         "minutesAvg": 28.6,
+         "gamesPlayed": 5
+        },
+        {
+         "playerId": "3975",
+         "name": "Stephen Curry",
+         "minutesAvg": 28.2,
+         "gamesPlayed": 5
+        },
         {
          "playerId": "4997536",
          "name": "Gui Santos",
-         "status": "Day-To-Day"
+         "minutesAvg": 22.4,
+         "gamesPlayed": 5
+        }
+       ],
+       "rotationSource": "season-box-scores",
+       "rotationFlagged": [
+        {
+         "playerId": "6589",
+         "name": "Draymond Green",
+         "minutesAvg": 28.6,
+         "gamesPlayed": 5,
+         "status": "Out",
+         "flag": "FAVOURED_ROTATION_OUT"
+        },
+        {
+         "playerId": "3975",
+         "name": "Stephen Curry",
+         "minutesAvg": 28.2,
+         "gamesPlayed": 5,
+         "status": "Out",
+         "flag": "FAVOURED_ROTATION_OUT"
+        },
+        {
+         "playerId": "4997536",
+         "name": "Gui Santos",
+         "minutesAvg": 22.4,
+         "gamesPlayed": 5,
+         "status": "Day-To-Day",
+         "flag": "FAVOURED_ROTATION_R1"
         }
        ],
        "outAtFreeze": [
@@ -478,13 +732,49 @@
         "FAVOURED_ROTATION_R1"
        ],
        "flagText": [
-        "A top-five-minutes player on the favoured team was listed Day-To-Day, Questionable, Doubtful or Out at freeze; the Elo side does not account for it."
+        "One of the favoured team's five highest-minute players this season was listed Day-To-Day, Questionable or Doubtful at freeze; the Elo side does not account for it."
        ],
+       "rotation": [
+        {
+         "playerId": "4396907",
+         "name": "Darius Garland",
+         "minutesAvg": 32.4,
+         "gamesPlayed": 5
+        },
+        {
+         "playerId": "2991139",
+         "name": "Kris Dunn",
+         "minutesAvg": 30.4,
+         "gamesPlayed": 5
+        },
+        {
+         "playerId": "4066648",
+         "name": "Rui Hachimura",
+         "minutesAvg": 30,
+         "gamesPlayed": 4
+        },
+        {
+         "playerId": "3936099",
+         "name": "Derrick Jones Jr.",
+         "minutesAvg": 29,
+         "gamesPlayed": 5
+        },
+        {
+         "playerId": "5254165",
+         "name": "Keaton Wagler",
+         "minutesAvg": 26.4,
+         "gamesPlayed": 5
+        }
+       ],
+       "rotationSource": "season-box-scores",
        "rotationFlagged": [
         {
          "playerId": "3936099",
          "name": "Derrick Jones Jr.",
-         "status": "Day-To-Day"
+         "minutesAvg": 29,
+         "gamesPlayed": 5,
+         "status": "Day-To-Day",
+         "flag": "FAVOURED_ROTATION_R1"
         }
        ],
        "outAtFreeze": [
@@ -529,8 +819,8 @@
      "rule": "model joint chance below 14.3%",
      "method": "Joint probability = product of each leg's official forecast probability, legs from different games only (treated as independent across games). Tier = the published risk band of the model-fair price (1 ÷ joint). No sportsbook price is used."
     },
-    "rationale": "Each leg is the official NBA side with its published Elo-derived game-winner estimate; this is the combination with the highest joint probability in the Longshot band (4 legs).",
-    "confidence": "2 legs carry an availability flag (shown on the leg). Model estimates are not yet validated over a large forward sample.",
+    "rationale": "Each leg is the official NBA side with its MODEL PROJECTION win chance from the frozen Elo team rating; this is the combination with the highest joint chance in the Longshot band (4 legs).",
+    "confidence": "4 legs carry an availability flag (shown on the leg). MODEL PROJECTION accuracy is not yet established over a large forward sample.",
     "dependency": "Assumes the games are independent: every leg is a different NBA game, so no two legs share a team, but same-night results can still be related (travel, schedule, league-wide scoring) and that is not modelled.",
     "disclosure": "Model Performance: the Elo rating’s game-outcome accuracy is not yet established — 107 regular-season games graded so far; the preregistration requires 300 before any accuracy claim. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation.",
     "status": "MODEL_ONLY",

@@ -92,8 +92,11 @@ export function legView(leg, { productDay = null, players = [] } = {}) {
   const priced = Boolean(leg.price && leg.priceAuthorized === true);
   const teamName = leg.selection?.label?.replace(/\s*\(official side\)\s*$/i, "").replace(/\s+to win$/i, "") ?? null;
   const teamAbbr = leg.selection?.teamAbbr ?? (teamName && /^[A-Z]{2,4}$/.test(teamName) ? teamName : null);
-  const out = (leg.guard?.outAtFreeze ?? []).map((p) => p.name).filter(Boolean);
-  const rotation = (leg.guard?.rotationFlagged ?? []).map((p) => `${p.name} (${p.status})`);
+  const flaggedNames = new Set((leg.guard?.rotationFlagged ?? []).map((p) => p.name));
+  // A rotation player already named above is not repeated in the out-at-freeze list.
+  const out = (leg.guard?.outAtFreeze ?? []).map((p) => p.name).filter((n) => n && !flaggedNames.has(n));
+  /* ROTATION_FROM_LANE is informational (engine, a746932123) and never puts a leg under review, so it is not listed. */
+  const rotation = (leg.guard?.rotationFlagged ?? []).filter((p) => p.flag !== "ROTATION_FROM_LANE").map((p) => `${p.name} (${p.status})`);
   const playerHref = sport === "nba" && productDay ? slateHref(productDay) : null;
   /* Founder rule (PD 2026-11-04): a withheld or under-review value is never displayed, anywhere. Only players whose
      guard passed are listed (engine: "blocked" = R1–R3 or a readiness block, "review" = flagged); the rest are omitted,
@@ -121,7 +124,7 @@ export function legView(leg, { productDay = null, players = [] } = {}) {
       : {
           state: rotation.length ? "flagged" : "team",
           text: [
-            rotation.length ? `Rotation player listed at freeze: ${nameList(rotation)}` : null,
+            rotation.length ? `Season top-five rotation listed at freeze: ${nameList(rotation)}` : null,
             out.length ? `Out at forecast freeze: ${nameList(out)}` : null,
           ].filter(Boolean).join(" · ") || "No player listed out at forecast freeze",
         },
