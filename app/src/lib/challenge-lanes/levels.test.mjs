@@ -201,7 +201,7 @@ test("evidenceLine: counts only, from either leg shape; null when a window is mi
 
 test("RESEARCH mode: role and lineup uncertainty are flags; a large lineup scenario against the side excludes; a guide window, not a band", () => {
   const R = { mode: "RESEARCH", minShrunkRateByFamily: { pts: 0.6 } };
-  const cap = capture([["1", "p1", "pts", 20.5, -150, 120]]);
+  const cap = capture([["1", "p1", "pts", 20.5, 100, -120]]);
   const ev = (o, params = R) => evaluateLevelSet([legFromShortlist(row(o))], ctx(cap, MS1, { params }));
   const unstable = ev({ role: { minutesAvg: 30, minutesSd: 12, gamesPlayed: 8, stable: false } });
   assert.equal(unstable.classification, LEVEL.B, unstable.reasons.join("; "));
@@ -211,14 +211,14 @@ test("RESEARCH mode: role and lineup uncertainty are flags; a large lineup scena
   const thin = ev({ lineup: { tonightScenario: "X out", tonight: { games: 4, hits: 3 }, scenarios: [], sensitive: true, baseRepresentative: false } });
   assert.equal(thin.classification, LEVEL.B);
   assert.ok(thin.flags.some((x) => /C_LINEUP_UNCERTAIN .*wide uncertainty/.test(x)));
-  assert.ok(ev({}).money.grossPayoutCents < 4500 && ev({}).classification === LEVEL.B, "−150 → $41.67: outside ±10% but inside the guide window");
-  assert.ok(ev({}, null).reasons.some((x) => x.startsWith("OUT_OF_BAND")), "STRICT keeps the band");
+  assert.ok(ev({}).money.grossPayoutCents === 5000 && ev({}).classification === LEVEL.B, "+100 → $50.00: inside research-band@2");
+  assert.ok(evaluateLevelSet([legFromShortlist(row())], ctx(capture([["1", "p1", "pts", 20.5, -150, 120]]), MS1)).reasons.some((x) => x.startsWith("OUT_OF_BAND")), "STRICT keeps its band");
   assert.ok(ev({ hitRate: { ...row().hitRate, shrunk: { rate: 0.58, nEffective: 84 } } }).reasons.some((x) => x.startsWith("A_WEAK_EVIDENCE")), "the family floor still applies");
 });
 
 test("RESEARCH with a contextual block: the contextual rate is the evidence; its exclude holds; MEDIUM/HIGH are flags", () => {
   const R = { mode: "RESEARCH" };
-  const cap = capture([["1", "p1", "pts", 20.5, -150, 120]]);
+  const cap = capture([["1", "p1", "pts", 20.5, 100, -120]]);
   const lu = (cx) => ({ ...row().lineup, sensitive: true, baseRepresentative: false, contextual: cx });
   const ev = (cx) => evaluateLevelSet([legFromShortlist(row({ lineup: lu(cx) }))], ctx(cap, MS1, { params: R }));
   const low = ev({ primary: { rate: 0.52, interval95: [0.4, 0.6], nEff: 70, exact: { hits: 30, games: 50 } }, flagLevel: "LOW", exclude: false });
@@ -283,12 +283,21 @@ test("moneyline evidence line: model side vs market favourite and W-L, no probab
   assert.ok(!/%|0\\.557/.test(evidenceLine(leg)));
 });
 
-test("research-band@1 (founder 20:40Z): no lower payout bound, upper +20%", () => {
+test("research-band@2 (founder 20:45Z): strict ±10% gross band, both products, dynamic per step", () => {
   const R = { mode: "RESEARCH" };
-  const ev = (over, under) => evaluateLevelSet([legFromShortlist(row())], ctx(capture([["1", "p1", "pts", 20.5, over, under]]), MS1, { params: R }));
-  const low = ev(-278, 220);
-  assert.equal(low.money.grossPayoutCents, 3399);
-  assert.equal(low.classification, LEVEL.B, "a $33.99 single on a $50 target is allowed; its shortfall is disclosed");
-  assert.ok(ev(150, -180).reasons.some((x) => x.startsWith("OUT_OF_GUIDE_WINDOW")), "$62.50 > $60 (target × 1.20)");
-  assert.equal(ev(140, -170).classification, LEVEL.B, "$60.00 is inside");
+  const BB = stepPosition({ product: "bank-builder", step: 1, bankrollCents: 10000 });
+  const at = (gross, position) => evaluateLevelSet([legFromShortlist(row())], ctx(capture([["1", "p1", "pts", 20.5, Math.round(gross - 100), -300]]), position, { params: R }));
+  const refused = (r) => r.reasons.some((x) => x.startsWith("OUT_OF_GUIDE_WINDOW"));
+  /* +100 on $100 = $200; American +A gives gross 100 + A on a $100 stake */
+  assert.ok(refused(evaluateLevelSet([legFromShortlist(row())], ctx(capture([["1", "p1", "pts", 20.5, -278, 220]]), MS1, { params: R }))), "$33.99 on a $50 target is refused now");
+  const g = (american, position) => evaluateLevelSet([legFromShortlist(row())], ctx(capture([["1", "p1", "pts", 20.5, american, american > 0 ? -american - 20 : 100]]), position, { params: R }));
+  assert.ok(refused(g(-126, BB)), "$179.36 < $180");
+  assert.ok(!refused(g(-125, BB)), "$180.00 passes");
+  assert.ok(!refused(g(120, BB)), "$220.00 passes");
+  assert.ok(refused(g(121, BB)), "$221.00 refused");
+  assert.ok(!refused(g(-122, MS1)) && refused(g(130, MS1)), "Moonshot $45–$55");
+  const step2 = stepPosition({ product: "moonshot", step: 2, bankrollCents: 5240 });
+  assert.deepEqual([step2.targetCents, Math.ceil(step2.targetCents * 0.9), Math.floor(step2.targetCents * 1.1)], [10000, 9000, 11000]);
+  assert.ok(!refused(g(-110, step2)), "$52.40 at −110 → $100.03: inside [$90, $110] for the settled bankroll");
+  void at;
 });
