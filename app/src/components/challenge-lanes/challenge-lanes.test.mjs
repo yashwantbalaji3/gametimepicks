@@ -755,7 +755,8 @@ test("LANE SPECIALIZATION (proposed): the lane-type badge from the engine's disp
   assert.match(tB, /Lane B run-\d+ RULES V2 NBA PLAYER PROPS/);
   assert.equal(vA.current.legs.length, 1); assert.match(tA, /SELECTION ODDS/); assert.doesNotMatch(tA, /COMBINED ODDS/);
   assert.equal(vB.current.legs.length, 2); assert.match(tB, /COMBINED ODDS \(calculated leg product\)/);
-  assert.equal(lane.oddsLabel({ method: "BOOK_PARLAY" }, 2), "COMBINED ODDS (book-quoted parlay)");
+  assert.equal(lane.oddsLabel({ method: "BOOK_QUOTED_PARLAY" }, 2), "COMBINED ODDS (book-quoted parlay)");
+  assert.equal(lane.flagWords({ code: "SOME_NEW_CODE" }), null, "an unknown flag code is absent, never invented text");
   assert.equal(lane.oddsLabel({ method: "LEG_PRODUCT", combinedLabel: "calculated leg product" }, 2), "COMBINED ODDS (calculated leg product)");
   /* No type in the record → no badge (never a hard-coded guess). */
   assert.equal(lane.laneView(ms.pub, { display: ms.priced, productDay: ms.priced.day.date }).laneType, null);

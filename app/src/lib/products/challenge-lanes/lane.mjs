@@ -156,9 +156,10 @@ export const PROP_MARKET = Object.freeze({ pts: "PTS", reb: "REB", ast: "AST", p
 export const FLAG_TEXT = Object.freeze({
   B_ROLE_UNSTABLE: "Role unstable", B_MINUTES_VOLATILE: "Minutes volatile", C_LINEUP_UNCERTAIN: "Lineup uncertain",
   C_LINEUP_MEDIUM: "Lineup uncertainty: MEDIUM", C_LINEUP_HIGH: "Lineup uncertainty: HIGH",
+  B_MINUTES_DROP: "Minutes dropping", B_MINUTES_UNCERTAIN: "Minutes uncertain",
 });
-/* *_WEIGHT codes are the engine's ranking markers (a HIGH flag counts twice), not a limit to disclose. */
-export const flagWords = (f) => (!f?.code || /_WEIGHT$/.test(f.code) ? null : FLAG_TEXT[f.code] ?? String(f.code).replaceAll("_", " ").toLowerCase());
+/* Only codes the site knows are shown (betting-engine: treat unknown codes as absent); *_WEIGHT ranking markers never are. */
+export const flagWords = (f) => FLAG_TEXT[f?.code] ?? null;
 /** The engine's lineup context (encrypted legDetails.lineup) in words and counts: tonight's expected lineup, how often
     the side hit in exactly that lineup (k of n), who is uncertain. Never the contextual rate. */
 export const lineupText = (lu) => {
@@ -174,13 +175,13 @@ export const isProp = (l) => !["winner", "h2h"].includes(l?.family ?? l?.market 
 
 /**
  * The odds heading by card shape (founder 2026-11-04): one leg → "SELECTION ODDS"; two or more → "COMBINED ODDS" with
- * its basis — the engine's combinedLabel verbatim, else from its method (BOOK_PARLAY: a book-quoted parlay; otherwise the
+ * its basis — the engine's combinedLabel verbatim, else from its method (BOOK_QUOTED_PARLAY: a book-quoted parlay; otherwise the
  * calculated leg product). A same-game estimate keeps the engine's own estimate label.
  */
 export const oddsLabel = (p, legCount) => {
   if (p?.estimate) return p.label ?? "Combined price · estimate (same-game legs, not a book's offer)";
   if (legCount === 1) return "SELECTION ODDS";
-  return `COMBINED ODDS (${p?.combinedLabel ?? (p?.method === "BOOK_PARLAY" ? "book-quoted parlay" : "calculated leg product")})`;
+  return `COMBINED ODDS (${p?.combinedLabel ?? (p?.method === "BOOK_QUOTED_PARLAY" ? "book-quoted parlay" : "calculated leg product")})`;
 };
 
 /** The day's priced block (combined price, stake, payout, profit, pace), formatted; null without a VERIFIED price. */
