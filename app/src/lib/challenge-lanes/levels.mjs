@@ -39,7 +39,11 @@ export const LEVEL_B_PARAMS = Object.freeze({
      uncertainty become disclosed flags; the payout target is a guide (a wide window, ranked evidence-first). */
   mode: Object.freeze({ value: "STRICT", state: "PROPOSED", note: "STRICT | RESEARCH" }),
   minShrunkRateByFamily: Object.freeze({ value: null, state: "PROPOSED", note: "e.g. { pts: 0.60, reb: 0.60, ast: 0.57 } from nba-engine-eval's walk-forward (cc465d1a57)" }),
-  guideWindow: Object.freeze({ value: Object.freeze([0.75, 1.30]), state: "PROPOSED", note: "RESEARCH: gross within target × [lo, hi]; inside it, evidence ranks first and target proximity later" }),
+  /* FOUNDER-APPROVED 2026-11-04 ~20:40Z (verbatim, relayed by the PD): "I approve the no-lower-payout-bound approach for
+     Level B research selections only… Maintain an upper payout tolerance of +20% in research mode. Continue to prioritize
+     the most defensible selection regardless of whether it is one or two legs, with a maximum of two." research-band@1:
+     no lower bound, upper target × 1.20; evidence ranks first; the actual payout and its shortfall are always disclosed. */
+  guideWindow: Object.freeze({ value: Object.freeze([0, 1.20]), state: "FOUNDER_APPROVED", version: "research-band@1", approvalRef: "founder 2026-11-04 ~20:40Z via PD (no lower payout bound; +20% upper; research mode only)", note: "RESEARCH: gross ≤ target × 1.20; no lower bound; evidence ranks first, target proximity later" }),
   lineupExcludeMinN: Object.freeze({ value: 20, state: "PROPOSED", note: "RESEARCH: exclude when tonight's teammate scenario has n ≥ this and its side rate is below lineupExcludeRate" }),
   lineupExcludeRate: Object.freeze({ value: 0.55, state: "PROPOSED" }),
   /* Founder ~19:55Z: a projected-minutes drop of ≥ 20% vs L5 is a flag, and the evidence is re-weighted to minutes-comparable games. */

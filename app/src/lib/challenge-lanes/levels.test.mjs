@@ -282,3 +282,13 @@ test("moneyline evidence line: model side vs market favourite and W-L, no probab
   assert.equal(moneylineEvidenceLine({ ...leg, eloSide: undefined }), null);
   assert.ok(!/%|0\\.557/.test(evidenceLine(leg)));
 });
+
+test("research-band@1 (founder 20:40Z): no lower payout bound, upper +20%", () => {
+  const R = { mode: "RESEARCH" };
+  const ev = (over, under) => evaluateLevelSet([legFromShortlist(row())], ctx(capture([["1", "p1", "pts", 20.5, over, under]]), MS1, { params: R }));
+  const low = ev(-278, 220);
+  assert.equal(low.money.grossPayoutCents, 3399);
+  assert.equal(low.classification, LEVEL.B, "a $33.99 single on a $50 target is allowed; its shortfall is disclosed");
+  assert.ok(ev(150, -180).reasons.some((x) => x.startsWith("OUT_OF_GUIDE_WINDOW")), "$62.50 > $60 (target × 1.20)");
+  assert.equal(ev(140, -170).classification, LEVEL.B, "$60.00 is inside");
+});
