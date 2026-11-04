@@ -16,6 +16,9 @@ import { fileURLToPath } from "node:url";
 import { BADGE, BBM_LANES, RUNG, VIEW, laneView, pricedDay, projectionViolations, sealProjection } from "./bbm-lane.mjs";
 import { append, laneState, runStarted } from "../challenge-lanes/lanes.mjs";
 import { priceLane } from "../challenge-lanes/ops.mjs";
+import { DISPLAY_AUTHORIZATION } from "../odds/display-authorization.mjs";
+/** The committed display record with NBA social turned on: what a founder-reviewed commit would make it (test only). */
+const SOCIAL_ON = { ...DISPLAY_AUTHORIZATION, nba: { ...DISPLAY_AUTHORIZATION.nba, socialDisplay: true } };
 import { laneProjection } from "../challenge-lanes/projection.mjs";
 import { laneDisplay } from "../challenge-lanes/display.mjs";
 import { eloWinProbabilityOf } from "../sports/nba/elo-win-probability.mjs";
@@ -256,7 +259,7 @@ const pricedEvents = (laneId, { provider = "FIXTURE-NOT-A-BOOK", book = "SAMPLE 
   const card = laneState(ev).open.cardEvent.card;
   const fetchedAt = new Date(FIRST - 2 * 3.6e6).toISOString().replace(".000Z", "Z");
   const price = { legs: card.legs.map((l, i) => ({ legId: l.legId, selectionCode: l.selection.code, provider, book, oddsFormat: "american", price: odds[i], fetchedAt })), parlay: { method: "LEG_PRODUCT", fetchedAt }, priceSnapshotSha256: "f".repeat(64) };
-  const r = priceLane(ev, { date: DATE, at: fetchedAt, price, suggestedCards: FILE, permittedProviders: [provider] });
+  const r = priceLane(ev, { date: DATE, at: fetchedAt, price, suggestedCards: FILE, permittedProviders: [provider], eligibleBooks: [book] });
   return { events: [...ev, ...r.events], action: r.action, payout: r.payout };
 };
 
@@ -264,7 +267,10 @@ test("priced (founder 2026-11-04): odds, book, capture time, leg-product combine
   const real = pricedEvents("bb-a", { provider: "the-odds-api", book: "DraftKings", odds: [-150, -200] });
   assert.equal(real.action, "PAYOUT_COMPUTED");
   const doc = laneProjection("bb-a", [real.events]);
-  const p = prep(doc, { privateEvents: real.events });
+  // The committed record still has NBA social off: a real price prints as awaiting, and cannot be packaged as priced.
+  const gated = prep(doc, { privateEvents: real.events });
+  assert.equal(gated.card.cells["money.payout"], AWAITING); assert.ok(!Object.keys(gated.card.cells).some((k) => k.endsWith(".odds")));
+  const p = prep(doc, { privateEvents: real.events, displayRecord: SOCIAL_ON });
   assert.equal(p.refused, undefined, p.refused);
   const pc = real.events.findLast((e) => e.type === "PAYOUT_COMPUTED");
   const t = textOf(p.card);
@@ -279,7 +285,8 @@ test("priced (founder 2026-11-04): odds, book, capture time, leg-product combine
   if (p.view.payout.belowPace) assert.match(t, /THIS CARD PRICES BELOW PACE/);
   assert.deepEqual(verifyBbmCard(p.card), []);
   const out = fs.mkdtempSync(path.join(os.tmpdir(), "bbm-"));
-  assert.deepEqual(stagingViolations(planPackages([p, prep(statusDoc("bb-b"))], DATE), out), [], "a verified real price may be packaged");
+  assert.deepEqual(stagingViolations(planPackages([p, prep(statusDoc("bb-b"))], DATE), out, { displayRecord: SOCIAL_ON }), [], "a verified real price may be packaged once social is authorized");
+  assert.match(stagingViolations(planPackages([p, prep(statusDoc("bb-b"))], DATE), out).join(";"), /authorizes NBA social/);
   // The SAMPLE provider is a fixture: ribboned, and never packaged.
   const fx = pricedEvents("bb-a");
   const s = prep(laneProjection("bb-a", [fx.events]), { privateEvents: fx.events });
@@ -300,7 +307,7 @@ test("priced refusals: another run's log, a refused payout, a broken chain, pric
   assert.equal(bad.action, "REFUSED");
   const rl = [...refusedLog, ...bad.events];
   assert.ok(pricedDay(rl, { date: DATE }).unpricedReason.startsWith("PAYOUT_COMPUTED REFUSED"));
-  const p = prep(laneProjection("bb-a", [real.events]), { privateEvents: real.events });
+  const p = prep(laneProjection("bb-a", [real.events]), { privateEvents: real.events, displayRecord: SOCIAL_ON });
   assert.match(verifyBbmCard({ ...p.card, priced: false }).join(";"), /price text prints without a verified price/);
   const v = { ...p.view, payout: { ...p.view.payout, estimate: true, method: "SAME_GAME_ESTIMATE" } };
   const est = bbmCardFor(v, p.combo);

@@ -29,7 +29,7 @@ import { APP, assertPrivateOutDir } from "./nba-line-graphics-io.mjs";
 import { parseArgs } from "./render-social-pack.mjs";
 import { laneBytes } from "./render-combo-cards.mjs";
 import { BBM_DESIGN_VERSION, FACT_LINE, bbmCard, bbmLayoutErrors, cents, verifyBbmCard } from "./bbm-cards.mjs";
-import { BBM_LANES, P1_PRICE_SOURCE_DECIDED, VIEW, laneView, pricedDay, privateBankrollCents } from "../../src/lib/social/bbm-lane.mjs";
+import { BBM_LANES, VIEW, laneView, pricedDay, privateBankrollCents, socialPricesOk } from "../../src/lib/social/bbm-lane.mjs";
 import { readLaneProjection } from "../../src/lib/challenge-lanes/public-reader.mjs";
 import { currentRun } from "../../src/lib/challenge-lanes/store.mjs";
 import { MARKET_SHORT, comboFromSuggestedCards, resolveCombo, suggestedCardsSealed } from "../../src/lib/social/combo-social.mjs";
@@ -77,7 +77,7 @@ export function engineCardFor(dayCard, file, product) {
  * day's slate); `roster` is the render-time unified roster. Samples only: `testData` marks a fixture lane history and
  * `samplePayout` ({ grossCents, profitCents, fixture: true }) draws a labelled fixture price.
  */
-export function prepareLane({ doc, date, slate, roster, asOf, testData = false, samplePayout = null, privateEvents = null }) {
+export function prepareLane({ doc, date, slate, roster, asOf, testData = false, samplePayout = null, privateEvents = null, displayRecord = undefined }) {
   const laneId = doc?.laneId ?? "?";
   const refuse = (reason) => ({ laneId, refused: reason });
   let view;
@@ -88,7 +88,9 @@ export function prepareLane({ doc, date, slate, roster, asOf, testData = false, 
   if (privateEvents && view.view === VIEW.CARD) {
     const pr = pricedDay(privateEvents, { date, doc });
     if (pr?.refused) return refuse(`price refused: ${pr.refused}`);
-    if (pr && !pr.unpricedReason) {
+    // A real price prints only under the display record's NBA social surface; a fixture is a labelled sample either way.
+    if (pr && !pr.unpricedReason && !pr.fixture && !socialPricesOk(displayRecord)) view = { ...view, unpricedReason: "social prices are not authorized in the display record (NBA socialDisplay)" };
+    else if (pr && !pr.unpricedReason) {
       view = { ...view, payout: pr };
       // A priced win withholds the public bankroll; the private log's own fold supplies it for the stake line.
       if (view.bankrollCents == null) view = { ...view, bankrollCents: privateBankrollCents(privateEvents) };
@@ -97,7 +99,7 @@ export function prepareLane({ doc, date, slate, roster, asOf, testData = false, 
     }
   }
   if (samplePayout) {
-    if (samplePayout.fixture !== true) return refuse("a payout is drawn only as a labelled fixture until founder decision P1");
+    if (samplePayout.fixture !== true) return refuse("a sample payout is drawn only as a labelled fixture");
     if (view.view !== VIEW.CARD || samplePayout.grossCents - samplePayout.profitCents !== view.bankrollCents) return refuse("the sample payout does not fit the card's tracked stake (gross - profit = stake)");
     view = { ...view, payout: samplePayout };
   }
@@ -177,14 +179,14 @@ export function planPackages(prepared, date) {
 }
 
 /** A fixture price or a TEST history in a package is refused before anything is written. */
-export function stagingViolations(plans, outRoot) {
+export function stagingViolations(plans, outRoot, { displayRecord = undefined } = {}) {
   const v = [];
   const abs = path.resolve(outRoot);
   if (abs === LIVE_PACKAGES || abs.startsWith(LIVE_PACKAGES + path.sep) || LIVE_PACKAGES.startsWith(abs + path.sep)) v.push(`${abs}: V2 packages never go to the live packages folder before the cut-over is approved`);
   for (const p of plans) for (const l of p.lanes) {
     if (l.card.samplePrice || l.view.payout?.fixture) v.push(`${p.packageId}/${l.laneId}: a fixture price never reaches a package`);
     if (l.testData || l.card.testData) v.push(`${p.packageId}/${l.laneId}: a TEST lane history never reaches a package`);
-    if (l.view.payout && !P1_PRICE_SOURCE_DECIDED) v.push(`${p.packageId}/${l.laneId}: no payout may be exported before founder decision P1`);
+    if (l.view.payout && !l.view.payout.fixture && !socialPricesOk(displayRecord)) v.push(`${p.packageId}/${l.laneId}: a price may be exported only when the display record authorizes NBA social`);
   }
   return v;
 }
@@ -203,8 +205,8 @@ export function rendererCommit() {
 }
 
 /** Render and write the package folders. Returns the manifests. Throws (nothing written) on any staging violation. */
-export async function writeStaging(plans, { outRoot, browser, commit = rendererCommit(), lanesRef = {} }) {
-  const bad = stagingViolations(plans, outRoot);
+export async function writeStaging(plans, { outRoot, browser, commit = rendererCommit(), lanesRef = {}, displayRecord = undefined }) {
+  const bad = stagingViolations(plans, outRoot, { displayRecord });
   if (bad.length) throw new Error(`staging refused:\n  - ${bad.join("\n  - ")}`);
   const layout = await bbmLayoutErrors(browser, plans.flatMap((p) => p.lanes.map((l) => l.card)));
   if (layout.length) throw new Error(`layout check failed:\n  - ${layout.join("\n  - ")}`);

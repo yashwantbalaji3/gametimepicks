@@ -11,6 +11,7 @@ import { canonical, sha256, verifyChain } from "../challenge-lanes/chain.mjs";
 import { laneDisplay, RUNG } from "../challenge-lanes/display.mjs";
 import { LANES, laneState } from "../challenge-lanes/lanes.mjs";
 import { decimalToAmerican } from "../challenge-lanes/payout.mjs";
+import { lanePriceDisplay, socialPricesAuthorized } from "../challenge-lanes/price-display.mjs";
 import { verifyLaneProjection } from "../challenge-lanes/projection.mjs";
 
 export { RUNG };
@@ -23,8 +24,8 @@ export const VIEW = Object.freeze({ CARD: "CARD", WON: "WON", NO_ELIGIBLE_CARD: 
 export const BADGE = Object.freeze({ ACTIVE: "ACTIVE", WON: "WON", LOST: "LOST", HELD: "HELD", COMPLETED: "COMPLETED", FINISHED_SHORT: "FINISHED SHORT" });
 /**
  * Founder decision 2026-11-04 (SPEC §7, "USE OUR EXISTING THE ODDS API SUBSCRIPTION"): odds and calculated payouts may
- * appear on BBM V2 graphics (socialFeedPrices ON for these graphics only). They come only from the engine's private
- * PRICE_VERIFIED / PAYOUT_COMPUTED events; nothing here computes a price or a payout.
+ * appear on BBM V2 graphics, from the engine's private price fold only; nothing here computes a price or a payout. A real
+ * price still prints only when the committed display record authorizes NBA social (socialPricesOk).
  */
 export const P1_PRICE_SOURCE_DECIDED = true;
 
@@ -63,7 +64,8 @@ export function laneView(doc, date) {
   if (!d.day) return { ...base, view: null, reason: `no day ${date} in ${doc.laneId}` };
   if (run.days.at(-1).date !== date) return { ...base, view: null, reason: `${date} is not the lane's latest day (${run.days.at(-1).date}); a graphic shows the lane as it stands` };
   // The image's source event is laneDisplay's: the day's CARD_FROZEN, or its latest STATUS.
-  const eventOf = (type) => (d.day.sourceEventType === type ? d.day.sourceEventSha256 : null) ?? [...run.events].reverse().find((e) => e.type === type && e.date === date)?.sha256 ?? null;
+  // The image's source event is laneDisplay's own: the day's CARD_FROZEN, or its latest STATUS.
+  const eventOf = (type) => (type === "CARD_FROZEN" ? d.day.cardEventSha256 : type === "STATUS" ? d.day.statusEventSha256 : null) ?? [...run.events].reverse().find((e) => e.type === type && e.date === date)?.sha256 ?? null;
   const v = { ...base, runId: d.runId, step: d.step, rungs: d.rungs, cleared: d.rungs.filter((r) => r.state === RUNG.COMPLETED).length, bankrollCents: d.trackedBankrollCents, bankrollWithheld: d.trackedBankrollWithheld, pace: paceOf(d), staked: d.day.staked === true, badge: d.status, dayStatus: d.day.status, reason: d.day.reason ?? d.reason };
   if (!Object.values(BADGE).includes(d.status)) return { ...v, view: null, reason: `status ${d.status} is not in the public vocabulary` };
   if (d.status === BADGE.LOST) {
@@ -80,13 +82,18 @@ export function laneView(doc, date) {
 }
 
 /** A fixture price (the engine's FIXTURE-NOT-A-BOOK provider, or a book labelled SAMPLE) draws only with its SAMPLE ribbon. */
-const isFixturePrice = (leg) => /^FIXTURE/i.test(String(leg?.provider ?? "")) || /SAMPLE PRICE|NOT REAL/i.test(String(leg?.book ?? ""));
+const isFixturePrice = (provider, book) => /^FIXTURE/i.test(String(provider ?? "")) || /SAMPLE|FIXTURE|NOT REAL/i.test(String(book ?? ""));
 
 /**
- * The verified price of the lane's card on `date`, read from the engine's private run log (SPEC §7), or null when the
- * card is not priced. `{ refused }` when the log cannot back a printed price. Checks: the chain verifies and is the run
- * the public file projects (same head); the PAYOUT_COMPUTED is VERIFIED and names this day's CARD_FROZEN and its own
- * PRICE_VERIFIED; that price covers exactly the card's legs; gross - profit = stake. Every number is the engine's.
+ * Real prices on a social graphic need the committed display record's NBA "social" surface (odds/display-authorization.mjs,
+ * founder 2026-10-29: off). Until a reviewed commit turns it on, a real price prints as AWAITING VERIFIED PRICES.
+ */
+export const socialPricesOk = (record) => socialPricesAuthorized(record).ok === true;
+
+/**
+ * The day's verified price for the lane's card, through the engine's one price fold (lanePriceDisplay over the private
+ * run log), or null when the card is not priced. `{ refused }` when the log cannot back a printed price;
+ * `{ unpricedReason }` for a REFUSED payout (the lane is held, never shown with a number). Every number is the engine's.
  */
 export function pricedDay(events, { date, doc = null }) {
   if (!Array.isArray(events) || !events.length) return { refused: "no private lane log" };
@@ -94,30 +101,25 @@ export function pricedDay(events, { date, doc = null }) {
   if (doc && doc.runs.at(-1).headSha256 !== events.at(-1).sha256) return { refused: "the private lane log is not the run the public file projects (head differs)" };
   const card = events.findLast((e) => e.type === "CARD_FROZEN" && e.date === date);
   if (!card) return null;
-  const pc = events.findLast((e) => e.type === "PAYOUT_COMPUTED" && e.date === date && e.step === card.step);
-  if (!pc) return null;
-  // A refused payout leaves the card unpriced (the engine holds the lane); the graphic says it awaits verified prices.
-  if (pc.result !== "VERIFIED") return { unpricedReason: `PAYOUT_COMPUTED ${pc.result}: ${(pc.refusals ?? []).map((r) => r.code ?? r).join(", ")}` };
-  const pv = events.find((e) => e.type === "PRICE_VERIFIED" && e.sha256 === pc.inputs?.priceEventSha256);
-  if (!pv) return { refused: "PAYOUT_COMPUTED names no PRICE_VERIFIED in this log" };
-  if (pc.inputs.cardEventSha256 !== card.sha256 || pv.cardEventSha256 !== card.sha256) return { refused: "the price is not for this day's frozen card" };
+  const day = lanePriceDisplay(events[0].laneId, [events]).runs.at(-1).days.findLast((d) => d.date === date && d.step === card.step);
+  if (!day) return null;
+  if (day.result !== "VERIFIED") return { unpricedReason: `PAYOUT_COMPUTED ${day.result}: ${(day.refusals ?? []).join(", ")}` };
   const legIds = card.card.legs.map((l) => String(l.legId)).sort();
-  const priced = (pv.price?.legs ?? []).map((l) => String(l.legId)).sort();
-  if (legIds.join() !== priced.join()) return { refused: "the price does not cover exactly the card's legs" };
-  const ints = [pc.inputs.stakeCents, pc.grossPayoutCents, pc.profitCents];
-  if (!ints.every(Number.isInteger) || pc.grossPayoutCents - pc.profitCents !== pc.inputs.stakeCents) return { refused: "PAYOUT_COMPUTED amounts do not hold (gross - profit = stake)" };
-  const legs = Object.fromEntries(pv.price.legs.map((l) => [String(l.legId), { price: l.price, oddsFormat: l.oddsFormat, book: l.book, fetchedAt: l.fetchedAt }]));
-  const books = [...new Set(pv.price.legs.map((l) => l.book))];
-  const fetched = pv.price.legs.map((l) => l.fetchedAt).sort();
-  const method = pc.inputs.method ?? pv.price.parlay?.method ?? null;
+  if (legIds.join() !== day.legs.map((l) => String(l.legId)).sort().join()) return { refused: "the price does not cover exactly the card's legs" };
+  if (![day.stakeCents, day.grossPayoutCents, day.profitCents].every(Number.isInteger) || day.grossPayoutCents - day.profitCents !== day.stakeCents) return { refused: "the payout amounts do not hold (gross - profit = stake)" };
+  const pv = events.find((e) => e.type === "PRICE_VERIFIED" && e.cardEventSha256 === card.sha256);
+  const providers = (pv?.price?.legs ?? []).map((l) => l.provider);
+  const books = day.book ? [day.book] : [...new Set((pv?.price?.legs ?? []).map((l) => l.book))];
+  if (books.length !== 1) return { refused: `every leg must come from one book (got ${books.length})` };
+  const fetched = day.legs.map((l) => l.fetchedAt).filter(Boolean).sort();
   return {
-    stakeCents: pc.inputs.stakeCents, grossCents: pc.grossPayoutCents, profitCents: pc.profitCents,
-    decimalPrice: pc.inputs.decimalPrice, combinedAmerican: decimalToAmerican(pc.inputs.decimalPrice), method,
-    // Same-game legs have no book offer for the whole slip: their product is only an estimate (SPEC §7).
-    estimate: method !== "LEG_PRODUCT", legs, books, capturedAt: fetched[0] ?? null,
-    // Disclosed, never refused (SPEC rev. 2 §2): the engine's own combined price under its own required pace multiple.
-    belowPace: typeof pc.inputs.pace === "number" && typeof pc.inputs.decimalPrice === "number" ? pc.inputs.decimalPrice < pc.inputs.pace : null,
-    fixture: pv.price.legs.some(isFixturePrice), payoutEventSha256: pc.sha256, priceEventSha256: pv.sha256,
+    stakeCents: day.stakeCents, grossCents: day.grossPayoutCents, profitCents: day.profitCents,
+    decimalPrice: day.decimalPrice, combinedAmerican: decimalToAmerican(day.decimalPrice), method: day.method,
+    // Anything but one book's product over different games carries its label (SPEC §7); lanes never produce it.
+    estimate: day.estimate === true || day.method !== "LEG_PRODUCT", label: day.label,
+    legs: Object.fromEntries(day.legs.map((l) => [String(l.legId), { price: l.price, oddsFormat: l.oddsFormat, line: l.line, fetchedAt: l.fetchedAt }])),
+    books, capturedAt: fetched[0] ?? null, belowPace: day.belowPace,
+    fixture: providers.some((x) => isFixturePrice(x, null)) || books.some((b) => isFixturePrice(null, b)),
   };
 }
 

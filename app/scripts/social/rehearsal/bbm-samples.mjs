@@ -69,7 +69,7 @@ function priced(events, date, at, odds, suggestedCards = file) {
   const card = laneState(events).open?.cardEvent?.card;
   if (!card) throw new Error("no open card to price");
   const price = { legs: card.legs.map((l, i) => ({ legId: l.legId, selectionCode: l.selection.code, provider: FIXTURE_PROVIDER, book: "SAMPLE BOOK", oddsFormat: "american", price: odds[i] ?? -110, fetchedAt: at, ...(l.prop ? { line: l.prop.line } : {}) })), parlay: { method: "LEG_PRODUCT", fetchedAt: at }, priceSnapshotSha256: "f".repeat(64) };
-  const r = priceLane(events, { date, at, price, suggestedCards, permittedProviders: [FIXTURE_PROVIDER] });
+  const r = priceLane(events, { date, at, price, suggestedCards, permittedProviders: [FIXTURE_PROVIDER], eligibleBooks: ["SAMPLE BOOK"] });
   if (r.action !== "PAYOUT_COMPUTED") throw new Error(`fixture price refused: ${JSON.stringify(r.payout?.refusals ?? r.action)}`);
   return [...events, ...r.events];
 }
