@@ -60,7 +60,7 @@ export const STATUS = Object.freeze({
 const TERMINAL = new Set([STATUS.BUSTED, STATUS.COMPLETE, STATUS.FINISHED_SHORT, STATUS.AWAITING_RESTART_APPROVAL, STATUS.RETIRED_SUPERSEDED]);
 
 /** The public status vocabulary (§3): ACTIVE · WON · LOST · HELD · COMPLETED · FINISHED SHORT. The internal code is kept beside it. */
-export const PUBLIC_STATUS = Object.freeze({ ACTIVE: "ACTIVE", WON: "WON", LOST: "LOST", HELD: "HELD", COMPLETED: "COMPLETED", FINISHED_SHORT: "FINISHED SHORT" });
+export const PUBLIC_STATUS = Object.freeze({ ACTIVE: "ACTIVE", WON: "WON", LOST: "LOST", HELD: "HELD", COMPLETED: "COMPLETED", FINISHED_SHORT: "FINISHED SHORT", RETIRED: "RETIRED" });
 export function publicStatusOf(s) {
   switch (s.status) {
     case STATUS.IN_PLAY: return PUBLIC_STATUS.ACTIVE;
@@ -68,6 +68,7 @@ export function publicStatusOf(s) {
     case STATUS.BUSTED: case STATUS.AWAITING_RESTART_APPROVAL: return PUBLIC_STATUS.LOST;
     case STATUS.COMPLETE: return PUBLIC_STATUS.COMPLETED;
     case STATUS.FINISHED_SHORT: return PUBLIC_STATUS.FINISHED_SHORT;
+    case STATUS.RETIRED_SUPERSEDED: return PUBLIC_STATUS.RETIRED; // bbm-rules@2 migration: replaced by a run under new rules
     default: return PUBLIC_STATUS.HELD; // UNPRICED · NO_ELIGIBLE_CARD · PENDING_VOID_REVIEW · PAUSED
   }
 }

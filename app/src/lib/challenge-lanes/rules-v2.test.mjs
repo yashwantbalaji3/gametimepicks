@@ -219,3 +219,40 @@ test("old-record preservation: withdrawing an unposted v1 card appends two event
   const v2 = runStartedV2({ laneId: "ms-a", runId: "run-2", startedAt: "2026-11-04T19:00:00Z", approvedBy: "FOUNDER receipt", supersedes: { runId: "run-1", headSha256: out.at(-1).sha256 } });
   assert.deepEqual([v2.rulesVersion, v2.maxLegs, v2.supersedes.headSha256, v2.baseCents], [RULES_VERSION, 2, out.at(-1).sha256, 2500]);
 });
+
+test("P-EV-1 (no-vig consensus): EV at the lowest book de-vig can never be positive at a vigged book; point EV is line shopping", () => {
+  const w = world([["1", "PHI", "DET", "home", 0.6, 105, -125]]);
+  /* draftkings (the fixed first book) offers the best price; the other books are worse */
+  const g = w.snapshot.games["1"];
+  g.books.fanduel = { ...g.books.fanduel, home: { ...g.books.fanduel.home, price: -105 }, away: { ...g.books.fanduel.away, price: -115 } };
+  g.books.betmgm = { ...g.books.betmgm, home: { ...g.books.betmgm.home, price: -110 }, away: { ...g.books.betmgm.away, price: -110 } };
+  const { snapshotSha256: _x, ...doc } = w.snapshot; const snap = { ...doc, snapshotSha256: sha256(canonical(doc)) };
+  const PEV = { probabilitySource: "NO_VIG_CONSENSUS", bandPct: 0.5 };
+  const lo = evaluateSet(w.legs, ctx(snap, MS1, { calibration: null, params: PEV }));
+  assert.equal(lo.probability.source, "NO_VIG_CONSENSUS");
+  assert.ok(!lo.reasons.some((x) => x.startsWith("CALIBRATION")), "the market is the source: no model calibration gate");
+  assert.ok(lo.evLow < 0 && lo.reasons.some((x) => x.startsWith("EV_NOT_ROBUST")), "p_lo ≤ the offering book's own de-vig, and that × its price = 1 / its overround < 1");
+  const pt = evaluateSet(w.legs, ctx(snap, MS1, { calibration: null, params: { ...PEV, evGate: "POINT" } }));
+  assert.ok(pt.ev > 0, "point EV is positive only because the fixed book beats the consensus: a line-shopping edge");
+  assert.equal(pt.qualified, true, pt.reasons.join("; "));
+});
+
+test("site contract on the synthetic v2 sample: rule versions, per-run ladder, leg cap, target, HELD code, no price in public", async () => {
+  const { sampleOutputs } = await import("../../../scripts/challenge-lanes/v2-sample.mjs");
+  const [ms, bb] = sampleOutputs();
+  assert.deepEqual(ms.display.runs.map((r) => [r.runId, r.ruleVersion, r.endStatus]), [["run-1", "bbm-rules@1", "RETIRED"], ["run-2", RULES_VERSION, "ACTIVE"]]);
+  assert.equal(ms.pub.ruleVersion, RULES_VERSION);
+  assert.deepEqual(ms.display.milestonesCents, [5000, 10000, 20000, 40000, 100000]);
+  assert.equal(ms.display.maxLegs, 2);
+  for (const o of [ms, bb]) for (const d of o.display.history) assert.ok(d.legCount <= d.maxLegs, `${o.laneId} ${d.date}`);
+  const held = ms.display.history.find((d) => d.date === "2030-01-02");
+  assert.deepEqual([held.heldCode, held.legCount, held.targetPayoutCents], ["NO_QUALIFIED_CARD", 0, 10000]);
+  assert.equal(ms.priced.trackedBankrollCents, 5240, "carry-forward: the settled payout");
+  assert.equal(ms.priced.pace.requiredMultiple, 1.9084);
+  const won = ms.priced.history.find((d) => d.date === "2030-01-01");
+  assert.deepEqual([won.price.targetPayoutCents, won.price.targetPayoutLabel, won.price.bankrollAfterCents], [5000, "STEP TARGET", 5240]);
+  const pubText = JSON.stringify(ms.pub) + JSON.stringify(bb.pub);
+  assert.ok(!/synthetic-book|"price":|grossPayoutCents|decimalPrice/.test(pubText), "the public projection carries no price");
+  const v1days = ms.pub.runs[0].days;
+  assert.equal(v1days[0].withdrawn, true);
+});

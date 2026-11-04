@@ -108,6 +108,29 @@ Evaluated at 18:00Z, both products at step 1 (Bank Builder $100 → target $200;
 - `MODEL_MARKET_GAP` also fires on PHX and LAC.
 - Price-derived numbers (break-even, no-vig, EV) are in the private audit only.
 
+### 4a. P-EV-1 (nba-engine-eval: p = no-vig consensus, Elo weight 0), assessed
+
+nba-engine-eval found the NBA Elo winner chance not calibrated: forward ECE 0.102 at n 107, and versus no-vig, Δ log loss +0.088 with a 95% interval of [+0.0002, +0.183]. P-EV-1 therefore proposes taking p from the market.
+
+It is implemented as `probabilitySource: NO_VIG_CONSENSUS` (PROPOSED, off by default):
+- p is the median over eligible books of each book's multiplicative de-vig.
+- p_lo is the lowest de-vig.
+- The model gate drops out, and Elo only picks the side.
+
+Inside this EV gate, P-EV-1 is a pure line-shopping rule, and its lower-bound form can never qualify anything:
+- The offering book is one of the books in the minimum, so p_lo ≤ that book's own de-vig.
+- That de-vig × the book's own decimal = 1 ÷ its overround, which is below 1 for any book with a margin.
+- So EV_lo < 0 for every single, and for every 2-leg product (each factor is below 1).
+- That holds even if a different book were shopped. A quote whose two sides imply less than 100% is already refused as `BAD_ODDS`.
+- With a point-EV gate (`evGate: POINT`), EV > 0 exactly when the fixed book's price beats the consensus fair price. That is a line-shopping edge, not a forecast.
+- `rules-v2.test.mjs` proves both properties.
+
+On the Nov 4 noon snapshot, the free re-run gives 0 of 91 priced candidates with positive EV in either form. This holds with or without the model–market gap gate, so all four lanes are HELD.
+
+Under P-EV-1, Bank Builder and Moonshot would therefore post only when the fixed book is out of line with the market, which is rare and small. So the practical choice for the founder is:
+- (a) hold NBA winner legs until a model passes the pre-registered bar (n ≥ 300, ECE ≤ 0.05, and a Δ log loss upper bound below 0 versus the market); or
+- (b) explicitly approve a no-edge product where p = consensus and EV ≤ 0 is disclosed. That would relax the negative-EV refusal, so it can only be the founder's call.
+
 ## 5. Migration and rollback (PROPOSED; founder approval per step)
 
 Today's run-1 cards are frozen, priced and IN_PLAY under v1, and they were **not posted**.
@@ -158,3 +181,19 @@ Additions to `@1`. Prices remain only in the encrypted `gtp.odds-display.enc@1` 
 | ids/timestamps: `runId`, `supersedes`, `headSha256`, `cardEventSha256`, `priceEventSha256`, `payoutEventSha256`, `priceSnapshotSha256`, `capturedAt` | event shas yes; snapshot sha and capture time **no** | yes |
 
 The combined price is labelled "calculated leg product" unless it was book-quoted. Graphics keep the MODEL PROJECTION / MODEL WIN PROBABILITY labels.
+
+### 6a. As implemented (site reads these from `laneDisplay` / `pricedLaneDisplay`)
+
+v2-only fields are added only to v2 runs, so v1 projections and the encrypted display stay byte-identical (checked on all four Nov 4 lanes).
+
+- **`ruleVersion`**
+  - On the doc (current run), on `current`, on each run, and on each history day.
+  - A run or day without it is `bbm-rules@1`. The display always fills it.
+- **`milestonesCents`, `steps`, `maxLegs` per run**
+  - A v2 run's ladder is its own step targets. `laneDisplay` uses the current run's ladder for the rungs.
+  - The doc's fixed terms (base, target, steps) are unchanged in v2.
+- **Per day:** `legCount` (1 or 2), `maxLegs` (2), `targetPayoutCents` and `targetPayoutLabel` (`"STEP TARGET"`), `heldCode` (`NO_QUALIFIED_CARD`), and `withdrawn` (true on a v1 day withdrawn by the migration).
+- **Priced day** (encrypted display): `ruleVersion`, `targetPayoutCents`, `targetPayoutLabel`, `requiredMultiplier`, `band {pct, loCents, hiCents}`, `candidateId`, `combinedLabel` (`"calculated leg product"`), `belowPace` (gross below the step target), and `bankrollAfterCents` (the carry-forward amount, on the settled day).
+- **Carry-forward:** `trackedBankrollCents` is the latest STEP_SETTLED gross. It is withheld in the public file after a priced win (P1) and shown in `pricedLaneDisplay`.
+- **Public status** gains `RETIRED` (a run superseded under new rules).
+- **Synthetic fixtures:** `app/scripts/challenge-lanes/v2-sample.mjs <outDir>` writes made-up v2 lanes (ms-a: v1 withdrawn and retired, then a v2 win, a HELD day and an in-play day; bb-a: a v2 single win, then a double loss).

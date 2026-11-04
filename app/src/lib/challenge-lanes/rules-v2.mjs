@@ -42,6 +42,7 @@ export const RULES_V2 = Object.freeze({
     minBooksQuoting: Object.freeze({ value: 3, state: "PROPOSED", note: "eligible books quoting the side (market depth)" }),
     maxPriceAgeMs: Object.freeze({ value: 90 * 60 * 1000, state: "PROPOSED", note: "snapshot age at evaluation; v1 PRICE_WINDOW_MS" }),
     evRankBucket: Object.freeze({ value: 0.01, state: "PROPOSED", note: "EV lower bounds within one bucket tie; later keys break the tie" }),
+    probabilitySource: Object.freeze({ value: "MODEL", state: "PROPOSED", note: "MODEL: the frozen leg chance with calibration evidence and its half-width. NO_VIG_CONSENSUS (nba-engine-eval P-EV-1): p = the median over eligible books of each book's multiplicative de-vig, p_lo = the lowest; the model only picks the side" }),
     diversification: Object.freeze({ value: "GAME_DISJOINT", state: "PROPOSED", note: "lane B shares no game with lane A; B passes the same gates or is HELD" }),
   }),
 });
@@ -73,6 +74,7 @@ function legRefusals(l, { product, calibration, params, injuryOverrides }) {
   const live = injuryOverrides?.[l.legId];
   if (live) out.push(`INJURY_STATUS ${l.legId}: ${live}`);
   const c = calibration?.[l.forecast?.modelId];
+  if (P("probabilitySource", params) === "NO_VIG_CONSENSUS") return out; // the chance is the market's, not the model's
   if (!c) out.push(`CALIBRATION_MISSING ${l.legId}: no evidence for ${l.forecast?.modelId ?? "unknown model"}`);
   else if (c.status !== "QUALIFIED") out.push(`UNCALIBRATED ${l.legId}: ${l.forecast.modelId} ${c.status}`);
   else if (!(c.sampleSize >= P("minCalibrationSample", params))) out.push(`SAMPLE_TOO_SMALL ${l.legId}: ${c.sampleSize ?? 0} < ${P("minCalibrationSample", params)}`);
@@ -116,24 +118,29 @@ export function evaluateSet(set, { snapshot, position, now, calibration = null, 
     const noVig = imp / overround;
     if (Math.abs(l.probability - noVig) > P("maxModelMarketGap", params)) reasons.push(`MODEL_MARKET_GAP ${l.legId}: model ${l.probability.toFixed(4)} vs no-vig ${noVig.toFixed(4)}`);
     ratio = ratioMul(ratio, r);
-    return { legId: l.legId, book, american: pl.price, decimal: d, impliedP: imp, noVigP: noVig, booksQuoting: books, fetchedAt: pl.fetchedAt };
+    /* Each book's own multiplicative de-vig of this side (P-EV-1): its median and its minimum across eligible books. */
+    const devig = Object.values(g.books).map((b) => { const a = priceRatio("american", b?.[side]?.price); const o = priceRatio("american", b?.[other]?.price); if (!a || !o) return null; const x = 1 / dec(a); const y = 1 / dec(o); return x + y >= 1 ? x / (x + y) : null; }).filter((x) => x != null).sort((x, y) => x - y);
+    const mid = devig.length ? (devig.length % 2 ? devig[(devig.length - 1) / 2] : (devig[devig.length / 2 - 1] + devig[devig.length / 2]) / 2) : null;
+    return { legId: l.legId, book, american: pl.price, decimal: d, impliedP: imp, noVigP: noVig, booksQuoting: books, consensusNoVigP: mid, minNoVigP: devig[0] ?? null, booksDevigged: devig.length, fetchedAt: pl.fetchedAt };
   });
   if (bad) return { ...base, qualified: false, reasons, price: { book, legs: legPrices } };
   const D = dec(ratio);
   const { grossPayoutCents, profitCents } = payoutCents(position.bankrollCents, ratio);
-  const pJoint = sorted.reduce((p, l) => p * l.probability, 1);
+  const market = P("probabilitySource", params) === "NO_VIG_CONSENSUS";
+  if (market) for (const lp of legPrices) if (!(lp.booksDevigged >= 2)) reasons.push(`MARKET_THRESHOLD ${lp.legId}: ${lp.booksDevigged} books to de-vig < 2`);
+  const pJoint = market ? legPrices.reduce((p, lp) => p * (lp.consensusNoVigP ?? 0), 1) : sorted.reduce((p, l) => p * l.probability, 1);
   const hw = (l) => calibration?.[l.forecast?.modelId]?.probabilityHalfWidth;
   const hasHw = sorted.every((l) => typeof hw(l) === "number");
-  const pLow = hasHw ? sorted.reduce((p, l) => p * Math.max(0, l.probability - hw(l)), 1) : null;
+  const pLow = market ? legPrices.reduce((p, lp) => p * (lp.minNoVigP ?? 0), 1) : hasHw ? sorted.reduce((p, l) => p * Math.max(0, l.probability - hw(l)), 1) : null;
   const ev = pJoint * D - 1; const evLow = pLow == null ? null : pLow * D - 1;
-  if (!(ev > 0)) reasons.push(`NEGATIVE_EV: model ${pJoint.toFixed(4)} vs break-even ${(1 / D).toFixed(4)}`);
-  if (P("evGate", params) === "LOWER_BOUND_POSITIVE" && !(evLow != null && evLow > 0)) reasons.push(evLow == null ? "EV_UNCERTAINTY_UNKNOWN: no calibration half-width" : `EV_NOT_ROBUST: EV at the calibration lower bound ${evLow.toFixed(4)} ≤ 0`);
+  if (!(ev > 0)) reasons.push(`NEGATIVE_EV: ${market ? "no-vig consensus" : "model"} ${pJoint.toFixed(4)} vs break-even ${(1 / D).toFixed(4)}`);
+  if (P("evGate", params) === "LOWER_BOUND_POSITIVE" && !(evLow != null && evLow > 0)) reasons.push(evLow == null ? "EV_UNCERTAINTY_UNKNOWN: no calibration half-width" : `EV_NOT_ROBUST: EV at the ${market ? "lowest book de-vig" : "calibration lower bound"} ${evLow.toFixed(4)} ≤ 0`);
   const dev = grossPayoutCents / position.targetCents - 1;
   if (grossPayoutCents < position.band.loCents || grossPayoutCents > position.band.hiCents) reasons.push(`OUT_OF_BAND: gross ${grossPayoutCents} outside [${position.band.loCents}, ${position.band.hiCents}]`);
   return {
     ...base, qualified: reasons.length === 0, reasons,
     price: { book, capturedAt: snapshot.fetchedAt, priceSnapshotSha256: snapshot.snapshotSha256, legs: legPrices, combined: { method: "CALCULATED_LEG_PRODUCT", decimal: D, american: decimalToAmerican(D), ratio: { n: String(ratio.n), d: String(ratio.d) } } },
-    probability: { joint: pJoint, jointLow: pLow, assumption: sorted.length > 1 ? "INDEPENDENT: legs from different games; the joint chance is the product of the leg chances (no dependence modelled)" : "SINGLE", breakEven: 1 / D },
+    probability: { source: market ? "NO_VIG_CONSENSUS" : "MODEL", joint: pJoint, jointLow: pLow, assumption: sorted.length > 1 ? "INDEPENDENT: legs from different games; the joint chance is the product of the leg chances (no dependence modelled)" : "SINGLE", breakEven: 1 / D },
     money: { stakeCents: position.bankrollCents, grossPayoutCents, profitCents }, ev, evLow, targetDeviation: dev,
   };
 }

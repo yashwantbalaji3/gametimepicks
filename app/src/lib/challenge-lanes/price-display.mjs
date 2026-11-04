@@ -49,12 +49,15 @@ export function lanePriceDisplay(laneId, runs) {
           decimalPrice: pay.inputs.decimalPrice, pace: pay.inputs.pace, belowPace: pay.inputs.belowPace ?? null,
           stakeCents: pay.inputs.stakeCents, grossPayoutCents: pay.grossPayoutCents ?? null, profitCents: pay.profitCents ?? null,
           stepOutcome: settled?.outcome ?? null, bankrollAfterCents: settled?.bankrollAfterCents ?? null,
+          /* bbm-rules@2 only (absent from v1 bytes): the step target, band, multiplier and candidate behind the card. */
+          ...(pay.inputs.ruleVersion ? { ruleVersion: pay.inputs.ruleVersion, targetPayoutCents: pay.inputs.targetPayoutCents ?? null, targetPayoutLabel: "STEP TARGET", requiredMultiplier: pay.inputs.requiredMultiplier ?? null, band: pay.inputs.band ?? null, candidateId: pay.inputs.candidateId ?? null, combinedLabel: "calculated leg product" } : {}),
         });
       }
       const won = days.filter((d) => d.stepOutcome === "WIN").length;
       const remaining = Math.max(s.steps - s.step + 1, 0);
-      const milestoneCents = won > 0 ? MILESTONES[s.product][Math.min(won, s.steps) - 1] : s.baseCents;
-      const pace = { milestoneCents, requiredMultiplier: remaining ? Math.round((s.targetCents / s.bankrollCents) ** (1 / remaining) * 1e4) / 1e4 : null, behindByCents: Math.max(0, milestoneCents - s.bankrollCents), onPace: s.bankrollCents >= milestoneCents };
+      const ladder = events[0].stepTargetsCents ?? MILESTONES[s.product];
+      const milestoneCents = won > 0 ? ladder[Math.min(won, s.steps) - 1] : s.baseCents;
+      const pace = { milestoneCents, requiredMultiplier: !remaining ? null : events[0].rulesVersion ? Math.round((ladder[s.step - 1] / s.bankrollCents) * 1e4) / 1e4 : Math.round((s.targetCents / s.bankrollCents) ** (1 / remaining) * 1e4) / 1e4, behindByCents: Math.max(0, milestoneCents - s.bankrollCents), onPace: s.bankrollCents >= milestoneCents };
       return { runId: s.runId, trackedBankrollCents: s.bankrollCents, step: s.step, status: s.status, pace, days };
     }),
   };
