@@ -29,7 +29,7 @@ import { parseArgs } from "./render-social-pack.mjs";
 import { laneBytes } from "./render-combo-cards.mjs";
 import { BBM_DESIGN_VERSION, FACT_LINE, bbmCard, bbmLayoutErrors, cents, verifyBbmCard } from "./bbm-cards.mjs";
 import { BBM_LANES, P1_PRICE_SOURCE_DECIDED, VIEW, laneView } from "../../src/lib/social/bbm-lane.mjs";
-import { comboFromSuggestedCards, resolveCombo, suggestedCardsSealed } from "../../src/lib/social/combo-social.mjs";
+import { MARKET_SHORT, comboFromSuggestedCards, resolveCombo, suggestedCardsSealed } from "../../src/lib/social/combo-social.mjs";
 
 export const BBM_PACKAGE_SCHEMA = "gtp.bbm-package@1";
 const sha = (b) => crypto.createHash("sha256").update(b).digest("hex");
@@ -61,6 +61,7 @@ export function engineCardFor(dayCard, file, product) {
     if (!f) return { error: `${l.legId} is not in the frozen file` };
     if (String(f.eventId) !== String(l.gameId) || f.selection?.teamAbbr !== l.selection?.teamAbbr || f.probability !== l.probability || f.startUtc !== l.startUtc) return { error: `${l.legId}: the lane card leg is not the frozen file's (game, side, probability or tip)` };
     if ([...(f.guard?.flags ?? [])].sort().join() !== [...(l.guard?.flags ?? [])].sort().join()) return { error: `${l.legId}: guard flags differ from the frozen file` };
+    if (JSON.stringify(f.prop ?? null) !== JSON.stringify(l.prop ?? null)) return { error: `${l.legId}: the prop (player, stat, side, line) differs from the frozen file` };
     legs.push(f);
   }
   if (!legs.length) return { error: "the lane card has no legs" };
@@ -82,7 +83,6 @@ export function prepareLane({ doc, date, slate, roster, asOf, testData = false, 
   if (view.view === VIEW.IN_PLAY) return refuse(`IN_PLAY: ${view.reason}; no new card (SPEC §3.2)`);
   if (samplePayout) {
     if (samplePayout.fixture !== true) return refuse("a payout is drawn only as a labelled fixture until founder decision P1");
-    if (samplePayout.lines && Object.keys(samplePayout.lines).length && samplePayout.fixture !== true) return refuse("a line prints only with a verified price");
     if (view.view !== VIEW.CARD || samplePayout.grossCents - samplePayout.profitCents !== view.bankrollCents) return refuse("the sample payout does not fit the card's tracked stake (gross - profit = stake)");
     view = { ...view, payout: samplePayout };
   }
@@ -98,7 +98,8 @@ export function prepareLane({ doc, date, slate, roster, asOf, testData = false, 
     const max = BBM_LANES[laneId].maxLegs;
     if (max != null && combo.legs.length > max) return refuse(`${combo.legs.length} legs: ${laneId} takes at most ${max} (SPEC rev. 2 §1, hard)`);
     // A sample line rides only with the labelled fixture price.
-    if (samplePayout?.lines) combo = { ...combo, legs: combo.legs.map((l) => ({ ...l, lineText: samplePayout.lines[l.legId] ?? null })) };
+    // A prop's line prints only once its price is verified (a labelled sample here); the leg carries side and line.
+    if (samplePayout) combo = { ...combo, legs: combo.legs.map((l) => ({ ...l, lineText: l.kind === "PLAYER_PROP" && l.prop?.line != null ? `${String(l.prop.side ?? "").toUpperCase()} ${l.prop.line} ${MARKET_SHORT[l.market]}`.trim() : null })) };
   }
   const card = { ...bbmCard(view, combo, { testData }), name: `${laneId}-${date}` };
   const errs = verifyBbmCard(card);
@@ -121,7 +122,7 @@ export function slateReader(files) {
 }
 
 const DAY = new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "short", day: "numeric" });
-const legLine = (l) => `${l.kind === "GAME_WINNER" ? `${l.team.name} to win` : `${l.player.name} ${l.marketLabel.toLowerCase()}`}${(l.flagText ?? []).length ? ` (${l.flagText.join("; ")})` : ""}`;
+const legLine = (l) => `${l.kind === "GAME_WINNER" ? `${l.team.name} to win` : `${l.player.name} ${l.marketLabel.toLowerCase()}${l.lineText ? ` ${l.lineText.toLowerCase()}` : ""}`}${(l.flagText ?? []).length ? ` (${l.flagText.join("; ")})` : ""}`;
 const title = (b) => b.charAt(0) + b.slice(1).toLowerCase();
 /** One lane's caption block: its step and public status stated separately, legs by name, no odds language. */
 export function laneCaption(p) {

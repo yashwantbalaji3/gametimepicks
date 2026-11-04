@@ -141,6 +141,20 @@ export function comboViolations(doc, { lane, laneSha256, asOf, roster = null }) 
           else if (OUT_STATUS.test(now)) v.push(`${id}: flagged player ${r.name} is now ${now}`);
         }
       }
+    } else if (l.kind === "PLAYER_PROP") {
+      const side = l.team === g.home.abbr ? "home" : "away";
+      const p = (g.players?.[side] ?? []).find((x) => String(x.providerAthleteId) === String(l.player?.id));
+      if (!p) { v.push(`${id}: player ${l.player?.id} is not on the ${l.team} lane roster`); continue; }
+      if (p.name !== l.player.name) v.push(`${id}: name ${l.player.name} is not the lane's ${p.name}`);
+      if (!isNum(l.projection) || l.projection <= 0 || l.projection >= 1) v.push(`${id}: a prop leg needs the frozen file's probability`);
+      const status = p.injuryStatus ?? null;
+      if (status && R1_STATUS.test(status) ) v.push(`${id}: R1 ${status}`);
+      if (roster) {
+        const g2 = roster.__guard?.[String(p.providerAthleteId)];
+        if (g2?.length) v.push(`${id}: roster guard ${g2.join(", ")}`);
+        if ((roster.__cells?.[String(p.providerAthleteId)] ?? []).includes(l.market)) v.push(`${id}: the roster hides ${l.market} for this player`);
+        if ((roster[l.team] ?? []).some((e) => e?.review && String(e.id) === String(p.providerAthleteId))) v.push(`${id}: the roster holds this player under review`);
+      }
     } else if (l.kind === "PLAYER_PROJECTION") {
       const side = l.team === g.home.abbr ? "home" : "away";
       const p = (g.players?.[side] ?? []).find((x) => String(x.providerAthleteId) === String(l.player?.id));
@@ -183,7 +197,8 @@ export function resolveCombo(doc, ctx) {
       legId: l.legId, eventId: String(l.eventId), tipUtc: l.tipUtc, kind: l.kind, market: l.market, marketLabel: MARKET_LABEL[l.market],
       team, opponent: opp, home: l.team === g.home.abbr, player: l.player,
       projection: l.projection,
-      projectionText: wp ? `${l.team === g.home.abbr ? wp.homePct : wp.awayPct}%` : projectionText(l.projection),
+      projectionText: wp ? `${l.team === g.home.abbr ? wp.homePct : wp.awayPct}%` : l.kind === "PLAYER_PROP" ? l.projectionShown ?? `${Math.round(l.projection * 100)}%` : projectionText(l.projection),
+      prop: l.prop ?? null,
       targetText: l.target ? targetText(l.target) : null,
       flagText: (l.availability?.flags ?? []).map(flagLine),
     };
@@ -264,8 +279,9 @@ export function comboFromSuggestedCards(file, product, { testData = false, card 
     const team = l.selection?.teamAbbr ?? l.team ?? null;
     const base = { legId: l.legId, eventId: String(l.eventId ?? l.gameId), tipUtc: l.startUtc, team, opponent: opponentIn(l.eventLabel, team), market: l.market, target: null, availability: availabilityOf(l.guard) };
     if (l.market === "winner") return { ...base, kind: "GAME_WINNER", player: null, projection: l.probability, projectionShown: l.probabilityShown ?? null, modelProbability: l.probability, probabilityBasis: "MODEL_UNVALIDATED" };
-    // Player prop (SPEC rev. 2 §1): the canonical MODEL PROJECTION from the lane; no line is carried until a price source is approved.
-    if (l.player?.id && l.market in MARKET_SHORT) return { ...base, kind: "PLAYER_PROJECTION", player: { id: String(l.player.id), name: l.player.name }, projection: typeof l.projection === "number" ? l.projection : l.projection?.value ?? null, modelProbability: l.probability ?? null, probabilityBasis: l.probability == null ? null : "MODEL_UNVALIDATED" };
+    // Player prop (SPEC rev. 2 §1, engine leg.market "player-prop"): the frozen file's own probability for the side at its
+    // evaluated line. A chance is never derived from a lane median, so the lane checks identity and availability only.
+    if (l.market === "player-prop" && l.prop?.playerId && l.prop.stat in MARKET_SHORT) return { ...base, kind: "PLAYER_PROP", market: l.prop.stat, player: { id: String(l.prop.playerId), name: l.prop.playerName }, prop: { side: l.prop.side ?? null, line: typeof l.prop.line === "number" ? l.prop.line : null }, projection: l.probability, projectionShown: l.probabilityShown ?? null, modelProbability: l.probability, probabilityBasis: "MODEL_UNVALIDATED" };
     return { ...base, kind: `UNSUPPORTED_${l.market}`, player: null, projection: null };
   });
   return sealCombo({ ...base, state: COMBO_STATE.CARD, reasons: [], engineCardId: c.id, combination: { legs, risk: { tier: TIER_OF[c.tier] ?? `UNKNOWN_${c.tier}`, jointModelProbability: c.jointProbability ?? null, basis: "independent" }, pricing: { state: "MODEL_ONLY" } } });
