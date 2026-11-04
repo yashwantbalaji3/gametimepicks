@@ -183,6 +183,7 @@ Run these from `app/`. Each CLI prints a JSON report and exits 1 if any lane was
    - With `--apply` (and `ODDS_API_KEY` and `GTP_PRIVATE_DATA_DIR` in the environment) it makes the one capture, then PRICE_VERIFIED + STAKE_SET + PAYOUT_COMPUTED for each open card. A refusal leaves the card open.
    - `--snapshot FILE` prices from an existing private snapshot, with no call.
    - `--close-unpriced "<reason>"` closes the day's still-unpriced cards as UNPRICED (HELD; no step consumed).
+   - `--quote-only` (founder 2026-11-04): a NEWER QUOTE on cards already staked that day. One capture under the receipt, then a private snapshot and a private `newer-quote-<ts>.json` comparison (label "NEWER QUOTE — not the posted record…", per-leg staked vs quote, changedLegs, the record's payout event sha). It appends NO lane event, so the posted record never changes, and nothing is published automatically. A staked card is never re-priced by a plain `lanes-price` run either (SKIP).
    - `--lanes a,b` limits any acting command to those lanes. `--close-unpriced "<reason>" --lanes bb-b` holds one lane by hand: only on the founder's own decision, or on an Out ruling for a player listed on one of that lane's legs (report to the PD first: player, lane, status). The other lanes stay open, and a held lane is never priced or swapped later that day.
    - Then `lanes-display.mjs --root …` (with `GTP_ODDS_DISPLAY_KEY`) refreshes the encrypted site prices.
 3. Render, then the console approves and posts. The console writes POSTED into its inbox (§4).

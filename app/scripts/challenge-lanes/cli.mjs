@@ -38,6 +38,7 @@ import { laneProjection, serializeProjection } from "../../src/lib/challenge-lan
 import { currentRun, appendEvents, readRuns, readInboxes, runFiles } from "../../src/lib/challenge-lanes/store.mjs";
 import { captureBbmPrices, priceForCard, BBM_LEDGER_RELPATH } from "../../src/lib/challenge-lanes/odds.mjs";
 import { encryptLanePriceDisplay, PRICE_DISPLAY_REPO_DIR } from "../../src/lib/challenge-lanes/price-display.mjs";
+import { newerQuote } from "../../src/lib/challenge-lanes/quote.mjs";
 import { priceLane } from "../../src/lib/challenge-lanes/ops.mjs";
 import { resolvePrivateDataDir } from "../../src/lib/ops/private-data-dir.mjs";
 import { readDisplayKey } from "../../src/lib/odds/display-crypto.mjs";
@@ -108,8 +109,12 @@ export async function main(command, argv = process.argv) {
     }
   } else if (command === "price") {
     const at = arg("--now") ?? new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
-    const open = Object.fromEntries(ACT.map((laneId) => { const run = currentRun(root, laneId); const s = run && laneState(run.events); return [laneId, s?.open?.date === DATE && !s.open.payoutEvent ? { run, card: s.open.cardEvent.card } : null]; }));
+    /* --quote-only: a NEWER QUOTE on the day's STAKED cards (quote.mjs). It writes a private snapshot and a private
+       comparison file, and never appends a lane event: the posted record stays the record. */
+    const quoteOnly = argv.includes("--quote-only");
+    const open = Object.fromEntries(ACT.map((laneId) => { const run = currentRun(root, laneId); const s = run && laneState(run.events); const staked = Boolean(s?.open?.payoutEvent); return [laneId, s?.open?.date === DATE && staked === quoteOnly ? { run, card: s.open.cardEvent.card } : null]; }));
     const closeReason = arg("--close-unpriced");
+    if (closeReason && quoteOnly) fail("--close-unpriced and --quote-only do not combine");
     if (closeReason) {
       for (const laneId of ACT) {
         const run = currentRun(root, laneId);
@@ -122,7 +127,8 @@ export async function main(command, argv = process.argv) {
       const preliminary = argv.includes("--preliminary");
       if (preliminary && !arg("--snapshot")) fail("--preliminary prices only from an existing --snapshot (no call)");
       const postAtFor = { "bank-builder": arg("--post-at-bb") ?? arg("--post-at"), moonshot: arg("--post-at-ms") ?? arg("--post-at") };
-      if (!preliminary && !Object.values(postAtFor).every((t) => Number.isFinite(Date.parse(t ?? "")))) fail("--post-at <ISO> (or --post-at-bb and --post-at-ms) required: a price is used only if captured at most 90 minutes before the post");
+      if (preliminary && quoteOnly) fail("--quote-only is a near-window check, never --preliminary");
+      if (!preliminary && !quoteOnly && !Object.values(postAtFor).every((t) => Number.isFinite(Date.parse(t ?? "")))) fail("--post-at <ISO> (or --post-at-bb and --post-at-ms) required: a price is used only if captured at most 90 minutes before the post");
       report.postAt = postAtFor;
       const legs = [...new Map(Object.values(open).filter(Boolean).flatMap((o) => o.card.legs).map((l) => { const [away, home] = String(l.eventLabel).split(" @ "); return [l.gameId, { gameId: l.gameId, home, away, startUtc: l.startUtc, market: l.market }]; })).values()];
       let snapshot = null;
@@ -149,7 +155,26 @@ export async function main(command, argv = process.argv) {
         }
         snapshot = cap.snapshot ?? null;
       }
-      for (const laneId of ACT) {
+      if (quoteOnly) {
+        const quotes = [];
+        for (const laneId of ACT) {
+          const o = open[laneId];
+          if (!o) { report.lanes[laneId] = { action: "SKIP", reason: "NOT_STAKED_TODAY" }; continue; }
+          if (!snapshot) { report.lanes[laneId] = { action: "NO_QUOTE", reason: "no snapshot this run" }; continue; }
+          const q = newerQuote(o.run.events, snapshot, { date: DATE });
+          if (!q.ok) { report.lanes[laneId] = { action: "NO_QUOTE", reason: q.refusal }; continue; }
+          quotes.push(q);
+          report.lanes[laneId] = { action: "NEWER_QUOTE", changedLegs: q.changedLegs, quoteSha256: q.quoteSha256 };
+        }
+        const priv = resolvePrivateDataDir({ cliDir: arg("--out-dir"), repoRoot: REPO });
+        if (quotes.length && priv.ok) {
+          const out = path.join(priv.dir, "odds", "nba", "bbm", DATE, `newer-quote-${snapshot.fetchedAt.replace(/[:.]/g, "")}.json`);
+          fs.mkdirSync(path.dirname(out), { recursive: true, mode: 0o700 });
+          fs.writeFileSync(out, `${JSON.stringify({ label: quotes[0].label, snapshotSha256: snapshot.snapshotSha256, quotes }, null, 1)}\n`, { mode: 0o600 });
+          report.quoteFile = out;
+        }
+      }
+      for (const laneId of quoteOnly ? [] : ACT) {
         const o = open[laneId];
         if (!o) { report.lanes[laneId] = { action: "SKIP", reason: "NO_OPEN_CARD" }; continue; }
         if (!snapshot) { report.lanes[laneId] = { action: "NOT_PRICED", reason: "no snapshot this run; the card stays open" }; continue; }
