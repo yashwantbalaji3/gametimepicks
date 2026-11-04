@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-04T01:04:33Z",
- "sourceGeneratedAt": "2026-11-04T01:04:33Z",
- "forecastInputHash": "59b75ae34e5c6343",
+ "generatedAt": "2026-11-04T17:08:16Z",
+ "sourceGeneratedAt": "2026-11-04T17:08:16Z",
+ "forecastInputHash": "5d38cb9c0f774410",
  "providerEventId": "401873051",
  "matchup": "BUF @ MIN",
  "kickoffUtc": "2026-11-10T01:15Z",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-04T01:04:33Z",
-  "roleEvidenceAt": "2026-11-04T01:04:33Z",
+  "injuriesCapturedAt": "2026-11-04T17:08:16Z",
+  "roleEvidenceAt": "2026-11-04T17:08:16Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -24,15 +24,6 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
-   "withheldPassers": [
-    {
-     "team": "MIN",
-     "playerId": "nfl-athlete-4573398",
-     "name": "Max Brosmer",
-     "share": 0.474,
-     "reason": "withheld for Max Brosmer (MIN): his modelled share of MIN's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    }
-   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -102,8 +93,8 @@
  "coverage": {
   "BUF": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 12,
+    "EXCLUDED_UNAVAILABLE": 0,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -221,6 +212,15 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-4241476",
+     "name": "Tyrell Shavers",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
      "playerId": "nfl-athlete-4683153",
      "name": "Skyler Bell",
      "state": "PROJECTED",
@@ -229,12 +229,6 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4241476",
-     "name": "Tyrell Shavers",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
     }
    ]
   },
@@ -265,10 +259,16 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-3042519",
@@ -371,12 +371,12 @@
      "playerId": "nfl-athlete-4573398",
      "name": "Max Brosmer",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "withheld for Max Brosmer (MIN): his modelled share of MIN's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Max Brosmer (MIN): his modelled share of MIN's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     }
@@ -395,15 +395,25 @@
    },
    {
     "team": "MIN",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-3917315",
-     "nfl-athlete-2573079",
-     "nfl-athlete-4573398"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3917315",
+     "name": "Kyler Murray"
+    },
+    "snapshotAt": "2026-11-04T15:20:57Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-2573079",
+      "name": "Carson Wentz"
+     },
+     {
+      "playerId": "nfl-athlete-4573398",
+      "name": "Max Brosmer"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-31T13:34:51Z"
+    "passers": [
+     "nfl-athlete-3917315"
+    ]
    }
   ],
   "passerShareFloor": [
@@ -420,19 +430,9 @@
     "team": "MIN",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3917315",
-     "nfl-athlete-2573079",
-     "nfl-athlete-4573398"
+     "nfl-athlete-3917315"
     ],
-    "withheld": [
-     {
-      "team": "MIN",
-      "playerId": "nfl-athlete-4573398",
-      "name": "Max Brosmer",
-      "share": 0.474,
-      "reason": "withheld for Max Brosmer (MIN): his modelled share of MIN's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    }
   ],
@@ -460,19 +460,6 @@
     "originalSum": 0.9805,
     "residualOther": 0.0195,
     "joined": 7,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "MIN",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 0.913,
-    "originalSum": 0.913,
-    "residualOther": 0.087,
-    "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
    },
@@ -1099,15 +1086,6 @@
      "p90": 22.41,
      "pricingState": "NOT_PROBED"
     },
-    "player_pass_yds": {
-     "mean": 194.1117,
-     "p10": 92.9223,
-     "p25": 129.6004,
-     "median": 180.881,
-     "p75": 244.2747,
-     "p90": 312.4415,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.0671,
      "pricingState": "NOT_PROBED"
@@ -1122,6 +1100,23 @@
    "markets": {
     "anytime_td": {
      "probability": 0.0607,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4241476",
+   "name": "Tyrell Shavers",
+   "team": "BUF",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 14.323,
+     "p10": 0,
+     "p25": 0,
+     "median": 7.82,
+     "p75": 22.15,
+     "p90": 40.02,
      "pricingState": "NOT_PROBED"
     }
    }

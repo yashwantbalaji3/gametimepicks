@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-04T01:04:33Z",
- "sourceGeneratedAt": "2026-11-04T01:04:33Z",
- "forecastInputHash": "1e205fd87cd268c6",
+ "generatedAt": "2026-11-04T17:08:16Z",
+ "sourceGeneratedAt": "2026-11-04T17:08:16Z",
+ "forecastInputHash": "51906d4649f5d860",
  "providerEventId": "401873043",
  "matchup": "LAR @ WSH",
  "kickoffUtc": "2026-11-08T18:00Z",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-04T01:04:33Z",
-  "roleEvidenceAt": "2026-11-04T01:04:33Z",
+  "injuriesCapturedAt": "2026-11-04T17:08:16Z",
+  "roleEvidenceAt": "2026-11-04T17:08:16Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -24,31 +24,10 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
-   "withheldPassers": [
-    {
-     "team": "WSH",
-     "playerId": "nfl-athlete-2576980",
-     "name": "Marcus Mariota",
-     "share": 0.549,
-     "reason": "withheld for Marcus Mariota (WSH): his modelled share of WSH's pass attempts is 0.55, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    }
-   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "WSH",
-      "pool": "passAttempts",
-      "originalSum": 1.8076,
-      "normalizedSum": 1,
-      "factor": 0.5532,
-      "playerIds": [
-       "nfl-athlete-4426348",
-       "nfl-athlete-4432722"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_rush_yds": {
@@ -130,7 +109,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 58,
+  "absent": 57,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -292,10 +271,16 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4575131",
@@ -320,7 +305,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Marcus Mariota (WSH): his modelled share of WSH's pass attempts is 0.55, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -442,15 +427,25 @@
    },
    {
     "team": "WSH",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4426348",
-     "nfl-athlete-4432722",
-     "nfl-athlete-2576980"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4426348",
+     "name": "Jayden Daniels"
+    },
+    "snapshotAt": "2026-11-04T15:20:57Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4432722",
+      "name": "Athan Kaliakmanis"
+     },
+     {
+      "playerId": "nfl-athlete-2576980",
+      "name": "Marcus Mariota"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-31T13:34:51Z"
+    "passers": [
+     "nfl-athlete-4426348"
+    ]
    }
   ],
   "passerShareFloor": [
@@ -467,19 +462,9 @@
     "team": "WSH",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4426348",
-     "nfl-athlete-4432722",
-     "nfl-athlete-2576980"
+     "nfl-athlete-4426348"
     ],
-    "withheld": [
-     {
-      "team": "WSH",
-      "playerId": "nfl-athlete-2576980",
-      "name": "Marcus Mariota",
-      "share": 0.549,
-      "reason": "withheld for Marcus Mariota (WSH): his modelled share of WSH's pass attempts is 0.55, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    }
   ],
@@ -490,12 +475,12 @@
     "markets": [
      "player_pass_yds"
     ],
-    "sum": 1,
-    "originalSum": 1.8076,
-    "residualOther": 0,
-    "joined": 2,
+    "sum": 0.9157,
+    "originalSum": 0.9157,
+    "residualOther": 0.0843,
+    "joined": 1,
     "missed": 0,
-    "state": "NORMALIZED"
+    "state": "CONSERVED"
    },
    {
     "team": "WSH",
@@ -813,16 +798,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
-     "mean": 112.6844,
-     "p10": 56.5311,
-     "p25": 77.2299,
-     "median": 105.7631,
-     "p75": 140.6287,
-     "p90": 177.7962,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.5532
-     },
+     "mean": 203.6883,
+     "p10": 102.1857,
+     "p25": 139.6007,
+     "median": 191.1773,
+     "p75": 254.2004,
+     "p90": 321.3844,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1006,19 +987,6 @@
      "median": 1.91,
      "p75": 10.69,
      "p90": 22.97,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_pass_yds": {
-     "mean": 98.7127,
-     "p10": 46.8729,
-     "p25": 65.6089,
-     "median": 91.868,
-     "p75": 124.3944,
-     "p90": 159.4214,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.5532
-     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {

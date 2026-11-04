@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-04T01:04:33Z",
- "sourceGeneratedAt": "2026-11-04T01:04:33Z",
- "forecastInputHash": "8118d6bd5d9a9e17",
+ "generatedAt": "2026-11-04T17:08:16Z",
+ "sourceGeneratedAt": "2026-11-04T17:08:16Z",
+ "forecastInputHash": "5fdf48b624527d19",
  "providerEventId": "401873037",
  "matchup": "JAX @ BAL",
  "kickoffUtc": "2026-11-06T01:15Z",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-04T01:04:33Z",
-  "roleEvidenceAt": "2026-11-04T01:04:33Z",
+  "injuriesCapturedAt": "2026-11-04T17:08:16Z",
+  "roleEvidenceAt": "2026-11-04T17:08:16Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -27,10 +27,10 @@
    "withheldPassers": [
     {
      "team": "BAL",
-     "playerId": "nfl-athlete-4035671",
-     "name": "Tyler Huntley",
-     "share": 0.667,
-     "reason": "withheld for Tyler Huntley (BAL): his modelled share of BAL's pass attempts is 0.67, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     "playerId": "nfl-athlete-3916387",
+     "name": "Lamar Jackson",
+     "share": 0.7,
+     "reason": "withheld for Lamar Jackson (BAL): his modelled share of BAL's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
     }
    ],
    "conservation": {
@@ -281,19 +281,19 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4035671",
-     "name": "Tyler Huntley",
+     "playerId": "nfl-athlete-3916387",
+     "name": "Lamar Jackson",
      "state": "PROJECTED",
      "families": [
       "anytime_td",
       "player_rush_yds"
      ],
-     "participation": "QUESTIONABLE",
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Tyler Huntley (BAL): his modelled share of BAL's pass attempts is 0.67, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "withheld for Lamar Jackson (BAL): his modelled share of BAL's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
       }
      ]
     },
@@ -386,8 +386,8 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-3916387",
-     "name": "Lamar Jackson",
+     "playerId": "nfl-athlete-4035671",
+     "name": "Tyler Huntley",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Out"
     },
@@ -413,13 +413,13 @@
    {
     "team": "BAL",
     "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
+    "reason": "depth-chart QB1 Tyler Huntley is not in the board's passing pool",
     "passers": [
-     "nfl-athlete-4035671",
+     "nfl-athlete-3916387",
      "nfl-athlete-4429582"
     ],
     "removed": [],
-    "snapshotAt": "2026-10-31T13:34:51Z"
+    "snapshotAt": "2026-11-04T15:20:57Z"
    }
   ],
   "passerShareFloor": [
@@ -436,16 +436,16 @@
     "team": "BAL",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4035671",
+     "nfl-athlete-3916387",
      "nfl-athlete-4429582"
     ],
     "withheld": [
      {
       "team": "BAL",
-      "playerId": "nfl-athlete-4035671",
-      "name": "Tyler Huntley",
-      "share": 0.667,
-      "reason": "withheld for Tyler Huntley (BAL): his modelled share of BAL's pass attempts is 0.67, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+      "playerId": "nfl-athlete-3916387",
+      "name": "Lamar Jackson",
+      "share": 0.7,
+      "reason": "withheld for Lamar Jackson (BAL): his modelled share of BAL's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
      }
     ],
     "unjoined": []
@@ -983,22 +983,22 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4035671",
-   "name": "Tyler Huntley",
+   "playerId": "nfl-athlete-3916387",
+   "name": "Lamar Jackson",
    "team": "BAL",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 12.081,
+     "mean": 14.655,
      "p10": 0,
-     "p25": 0.36,
-     "median": 6.38,
-     "p75": 17.77,
-     "p90": 32.53,
+     "p25": 0.55,
+     "median": 7.98,
+     "p75": 21.62,
+     "p90": 38.62,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
-     "probability": 0.1209,
+     "probability": 0.1158,
      "pricingState": "NOT_PROBED"
     }
    }

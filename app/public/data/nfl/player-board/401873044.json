@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-04T01:04:33Z",
- "sourceGeneratedAt": "2026-11-04T01:04:33Z",
- "forecastInputHash": "5bf74530600e0c96",
+ "generatedAt": "2026-11-04T17:08:16Z",
+ "sourceGeneratedAt": "2026-11-04T17:08:16Z",
+ "forecastInputHash": "bc7e6caa3812a8c0",
  "providerEventId": "401873044",
  "matchup": "NYG @ PHI",
  "kickoffUtc": "2026-11-08T18:00Z",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-04T01:04:33Z",
-  "roleEvidenceAt": "2026-11-04T01:04:33Z",
+  "injuriesCapturedAt": "2026-11-04T17:08:16Z",
+  "roleEvidenceAt": "2026-11-04T17:08:16Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -27,20 +27,6 @@
    "withheldPassers": [
     {
      "team": "NYG",
-     "playerId": "nfl-athlete-4689114",
-     "name": "Jaxson Dart",
-     "share": 0.681,
-     "reason": "withheld for Jaxson Dart (NYG): his modelled share of NYG's pass attempts is 0.68, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "NYG",
-     "playerId": "nfl-athlete-2969939",
-     "name": "Jameis Winston",
-     "share": 0.643,
-     "reason": "withheld for Jameis Winston (NYG): his modelled share of NYG's pass attempts is 0.64, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "NYG",
      "playerId": "nfl-athlete-4433970",
      "name": "J.J. McCarthy",
      "share": 0.54,
@@ -50,19 +36,7 @@
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "PHI",
-      "pool": "passAttempts",
-      "originalSum": 1.8883,
-      "normalizedSum": 1,
-      "factor": 0.5296,
-      "playerIds": [
-       "nfl-athlete-4040715",
-       "nfl-athlete-4685201"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_rush_yds": {
@@ -144,7 +118,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 69,
+  "absent": 68,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -183,7 +157,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Jaxson Dart (NYG): his modelled share of NYG's pass attempts is 0.68, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -200,7 +174,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Jameis Winston (NYG): his modelled share of NYG's pass attempts is 0.64, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -333,10 +307,16 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-3929630",
@@ -491,26 +471,43 @@
   "qbStarter": [
    {
     "team": "NYG",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4689114",
-     "nfl-athlete-2969939",
-     "nfl-athlete-4433970"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4433970",
+     "name": "J.J. McCarthy"
+    },
+    "snapshotAt": "2026-11-04T15:20:57Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4689114",
+      "name": "Jaxson Dart"
+     },
+     {
+      "playerId": "nfl-athlete-2969939",
+      "name": "Jameis Winston"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-31T13:34:51Z"
+    "passers": [
+     "nfl-athlete-4433970"
+    ]
    },
    {
     "team": "PHI",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4040715",
-     "nfl-athlete-4685201"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4685201",
+     "name": "Tanner McKee"
+    },
+    "snapshotAt": "2026-11-04T15:20:57Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4040715",
+      "name": "Jalen Hurts"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-31T13:34:51Z"
+    "passers": [
+     "nfl-athlete-4685201"
+    ]
    }
   ],
   "passerShareFloor": [
@@ -518,25 +515,9 @@
     "team": "NYG",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4689114",
-     "nfl-athlete-2969939",
      "nfl-athlete-4433970"
     ],
     "withheld": [
-     {
-      "team": "NYG",
-      "playerId": "nfl-athlete-4689114",
-      "name": "Jaxson Dart",
-      "share": 0.681,
-      "reason": "withheld for Jaxson Dart (NYG): his modelled share of NYG's pass attempts is 0.68, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     },
-     {
-      "team": "NYG",
-      "playerId": "nfl-athlete-2969939",
-      "name": "Jameis Winston",
-      "share": 0.643,
-      "reason": "withheld for Jameis Winston (NYG): his modelled share of NYG's pass attempts is 0.64, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     },
      {
       "team": "NYG",
       "playerId": "nfl-athlete-4433970",
@@ -551,7 +532,6 @@
     "team": "PHI",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4040715",
      "nfl-athlete-4685201"
     ],
     "withheld": [],
@@ -559,19 +539,6 @@
    }
   ],
   "pools": [
-   {
-    "team": "PHI",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 1,
-    "originalSum": 1.8883,
-    "residualOther": 0,
-    "joined": 2,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
    {
     "team": "PHI",
     "pool": "targets",
@@ -595,6 +562,19 @@
     "originalSum": 0.9209,
     "residualOther": 0.0791,
     "joined": 6,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "PHI",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.8973,
+    "originalSum": 0.8973,
+    "residualOther": 0.1027,
+    "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
    }
@@ -1055,19 +1035,6 @@
      "p90": 31.72,
      "pricingState": "NOT_PROBED"
     },
-    "player_pass_yds": {
-     "mean": 109.8993,
-     "p10": 56.4284,
-     "p25": 76.303,
-     "median": 103.5087,
-     "p75": 136.5594,
-     "p90": 171.6382,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.5296
-     },
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.1729,
      "pricingState": "NOT_PROBED"
@@ -1276,16 +1243,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_pass_yds": {
-     "mean": 96.0342,
-     "p10": 48.8341,
-     "p25": 66.3172,
-     "median": 90.3193,
-     "p75": 119.5491,
-     "p90": 150.6295,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.5296
-     },
+     "mean": 181.3414,
+     "p10": 92.2135,
+     "p25": 125.2267,
+     "median": 170.5499,
+     "p75": 225.7445,
+     "p90": 284.4337,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {

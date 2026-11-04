@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-04T01:04:33Z",
- "sourceGeneratedAt": "2026-11-04T01:04:33Z",
- "forecastInputHash": "bfcd5b8aeaec36b9",
+ "generatedAt": "2026-11-04T17:08:16Z",
+ "sourceGeneratedAt": "2026-11-04T17:08:16Z",
+ "forecastInputHash": "666cf549c0b6154a",
  "providerEventId": "401873048",
  "matchup": "ARI @ SEA",
  "kickoffUtc": "2026-11-08T21:25Z",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-04T01:04:33Z",
-  "roleEvidenceAt": "2026-11-04T01:04:33Z",
+  "injuriesCapturedAt": "2026-11-04T17:08:16Z",
+  "roleEvidenceAt": "2026-11-04T17:08:16Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -31,13 +31,6 @@
      "name": "Gardner Minshew",
      "share": 0.5,
      "reason": "withheld for Gardner Minshew (ARI): his modelled share of ARI's pass attempts is 0.50, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "SEA",
-     "playerId": "nfl-athlete-3924327",
-     "name": "Drew Lock",
-     "share": 0.696,
-     "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
     }
    ],
    "conservation": {
@@ -114,7 +107,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 55,
+  "absent": 54,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -134,10 +127,16 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4361307",
@@ -380,12 +379,12 @@
      "playerId": "nfl-athlete-3924327",
      "name": "Drew Lock",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     }
@@ -396,25 +395,39 @@
   "qbStarter": [
    {
     "team": "ARI",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-2578570",
-     "nfl-athlete-4038524"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4038524",
+     "name": "Gardner Minshew II"
+    },
+    "snapshotAt": "2026-11-04T15:20:57Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-2578570",
+      "name": "Jacoby Brissett"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-31T13:34:51Z"
+    "passers": [
+     "nfl-athlete-4038524"
+    ]
    },
    {
     "team": "SEA",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-3912547",
-     "nfl-athlete-3924327"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3912547",
+     "name": "Sam Darnold"
+    },
+    "snapshotAt": "2026-11-04T15:20:57Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-3924327",
+      "name": "Drew Lock"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-31T13:34:51Z"
+    "passers": [
+     "nfl-athlete-3912547"
+    ]
    }
   ],
   "passerShareFloor": [
@@ -422,7 +435,6 @@
     "team": "ARI",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-2578570",
      "nfl-athlete-4038524"
     ],
     "withheld": [
@@ -440,18 +452,9 @@
     "team": "SEA",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3912547",
-     "nfl-athlete-3924327"
+     "nfl-athlete-3912547"
     ],
-    "withheld": [
-     {
-      "team": "SEA",
-      "playerId": "nfl-athlete-3924327",
-      "name": "Drew Lock",
-      "share": 0.696,
-      "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    }
   ],
@@ -478,19 +481,6 @@
     "sum": 0.9314,
     "originalSum": 0.9314,
     "residualOther": 0.0686,
-    "joined": 1,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "ARI",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 0.8956,
-    "originalSum": 0.8956,
-    "residualOther": 0.1044,
     "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
@@ -1002,15 +992,6 @@
      "median": 2.38,
      "p75": 9.64,
      "p90": 19.88,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_pass_yds": {
-     "mean": 202.8429,
-     "p10": 110.0028,
-     "p25": 145.1934,
-     "median": 192.5739,
-     "p75": 249.3401,
-     "p90": 308.9566,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {

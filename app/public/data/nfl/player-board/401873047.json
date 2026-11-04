@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-04T01:04:33Z",
- "sourceGeneratedAt": "2026-11-04T01:04:33Z",
- "forecastInputHash": "a8b6201ea0cfef6b",
+ "generatedAt": "2026-11-04T17:08:16Z",
+ "sourceGeneratedAt": "2026-11-04T17:08:16Z",
+ "forecastInputHash": "7a50ec6374965373",
  "providerEventId": "401873047",
  "matchup": "LV @ SF",
  "kickoffUtc": "2026-11-08T21:25Z",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-04T01:04:33Z",
-  "roleEvidenceAt": "2026-11-04T01:04:33Z",
+  "injuriesCapturedAt": "2026-11-04T17:08:16Z",
+  "roleEvidenceAt": "2026-11-04T17:08:16Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -27,19 +27,7 @@
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "LV",
-      "pool": "passAttempts",
-      "originalSum": 1.7955,
-      "normalizedSum": 1,
-      "factor": 0.5569,
-      "playerIds": [
-       "nfl-athlete-14880",
-       "nfl-athlete-4260394"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_rush_yds": {
@@ -139,7 +127,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 70,
+  "absent": 69,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -268,10 +256,16 @@
      "name": "Aidan O'Connell",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_pass_yds"
+      "anytime_td"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4698191",
@@ -468,14 +462,21 @@
   "qbStarter": [
    {
     "team": "LV",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-14880",
-     "nfl-athlete-4260394"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-14880",
+     "name": "Kirk Cousins"
+    },
+    "snapshotAt": "2026-11-04T15:20:57Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4260394",
+      "name": "Aidan O'Connell"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-31T13:34:51Z"
+    "passers": [
+     "nfl-athlete-14880"
+    ]
    },
    {
     "team": "SF",
@@ -491,8 +492,7 @@
     "team": "LV",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-14880",
-     "nfl-athlete-4260394"
+     "nfl-athlete-14880"
     ],
     "withheld": [],
     "unjoined": []
@@ -508,19 +508,6 @@
    }
   ],
   "pools": [
-   {
-    "team": "LV",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 1,
-    "originalSum": 1.7955,
-    "residualOther": 0,
-    "joined": 2,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
    {
     "team": "LV",
     "pool": "targets",
@@ -543,6 +530,19 @@
     "sum": 0.9973,
     "originalSum": 0.9973,
     "residualOther": 0.0027,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "LV",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.968,
+    "originalSum": 0.968,
+    "residualOther": 0.032,
     "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
@@ -1257,16 +1257,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
-     "mean": 138.3661,
-     "p10": 73.2113,
-     "p25": 97.6908,
-     "median": 130.897,
-     "p75": 170.9319,
-     "p90": 213.1794,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.5569
-     },
+     "mean": 248.4363,
+     "p10": 131.4509,
+     "p25": 175.4039,
+     "median": 235.0255,
+     "p75": 306.9082,
+     "p90": 382.7636,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1281,19 +1277,6 @@
    "team": "LV",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_pass_yds": {
-     "mean": 106.6765,
-     "p10": 53.7674,
-     "p25": 73.303,
-     "median": 100.1948,
-     "p75": 133.0165,
-     "p90": 167.9744,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.5569
-     },
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.058,
      "pricingState": "NOT_PROBED"

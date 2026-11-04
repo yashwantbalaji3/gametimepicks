@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-04T01:04:33Z",
- "sourceGeneratedAt": "2026-11-04T01:04:33Z",
- "forecastInputHash": "67a535a87d54add1",
+ "generatedAt": "2026-11-04T17:08:16Z",
+ "sourceGeneratedAt": "2026-11-04T17:08:16Z",
+ "forecastInputHash": "62fd862ede5124f8",
  "providerEventId": "401873039",
  "matchup": "CLE @ NO",
  "kickoffUtc": "2026-11-08T18:00Z",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-04T01:04:33Z",
-  "roleEvidenceAt": "2026-11-04T01:04:33Z",
+  "injuriesCapturedAt": "2026-11-04T17:08:16Z",
+  "roleEvidenceAt": "2026-11-04T17:08:16Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -24,29 +24,6 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
-   "withheldPassers": [
-    {
-     "team": "CLE",
-     "playerId": "nfl-athlete-4432762",
-     "name": "Shedeur Sanders",
-     "share": 0.33,
-     "reason": "withheld for Shedeur Sanders (CLE): his modelled share of CLE's pass attempts is 0.33, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "CLE",
-     "playerId": "nfl-athlete-4427238",
-     "name": "Dillon Gabriel",
-     "share": 0.481,
-     "reason": "withheld for Dillon Gabriel (CLE): his modelled share of CLE's pass attempts is 0.48, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "NO",
-     "playerId": "nfl-athlete-4426339",
-     "name": "Spencer Rattler",
-     "share": 0.368,
-     "reason": "withheld for Spencer Rattler (NO): his modelled share of NO's pass attempts is 0.37, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    }
-   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -178,7 +155,7 @@
       "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4685702",
@@ -289,12 +266,12 @@
      "playerId": "nfl-athlete-4432762",
      "name": "Shedeur Sanders",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "withheld for Shedeur Sanders (CLE): his modelled share of CLE's pass attempts is 0.33, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Shedeur Sanders (CLE): his modelled share of CLE's pass attempts is 0.33, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -302,12 +279,12 @@
      "playerId": "nfl-athlete-4427238",
      "name": "Dillon Gabriel",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "withheld for Dillon Gabriel (CLE): his modelled share of CLE's pass attempts is 0.48, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Dillon Gabriel (CLE): his modelled share of CLE's pass attempts is 0.48, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     }
@@ -347,7 +324,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Spencer Rattler (NO): his modelled share of NO's pass attempts is 0.37, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -468,26 +445,43 @@
   "qbStarter": [
    {
     "team": "CLE",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-3122840",
-     "nfl-athlete-4432762",
-     "nfl-athlete-4427238"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3122840",
+     "name": "Deshaun Watson"
+    },
+    "snapshotAt": "2026-11-04T15:20:57Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4432762",
+      "name": "Shedeur Sanders"
+     },
+     {
+      "playerId": "nfl-athlete-4427238",
+      "name": "Dillon Gabriel"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-31T13:34:51Z"
+    "passers": [
+     "nfl-athlete-3122840"
+    ]
    },
    {
     "team": "NO",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4360689",
-     "nfl-athlete-4426339"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4360689",
+     "name": "Tyler Shough"
+    },
+    "snapshotAt": "2026-11-04T15:20:57Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4426339",
+      "name": "Spencer Rattler"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-31T13:34:51Z"
+    "passers": [
+     "nfl-athlete-4360689"
+    ]
    }
   ],
   "passerShareFloor": [
@@ -495,44 +489,18 @@
     "team": "CLE",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3122840",
-     "nfl-athlete-4432762",
-     "nfl-athlete-4427238"
+     "nfl-athlete-3122840"
     ],
-    "withheld": [
-     {
-      "team": "CLE",
-      "playerId": "nfl-athlete-4432762",
-      "name": "Shedeur Sanders",
-      "share": 0.33,
-      "reason": "withheld for Shedeur Sanders (CLE): his modelled share of CLE's pass attempts is 0.33, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     },
-     {
-      "team": "CLE",
-      "playerId": "nfl-athlete-4427238",
-      "name": "Dillon Gabriel",
-      "share": 0.481,
-      "reason": "withheld for Dillon Gabriel (CLE): his modelled share of CLE's pass attempts is 0.48, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    },
    {
     "team": "NO",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4360689",
-     "nfl-athlete-4426339"
+     "nfl-athlete-4360689"
     ],
-    "withheld": [
-     {
-      "team": "NO",
-      "playerId": "nfl-athlete-4426339",
-      "name": "Spencer Rattler",
-      "share": 0.368,
-      "reason": "withheld for Spencer Rattler (NO): his modelled share of NO's pass attempts is 0.37, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    }
   ],
@@ -559,19 +527,6 @@
     "sum": 0.995,
     "originalSum": 0.995,
     "residualOther": 0.005,
-    "joined": 1,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "CLE",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 0.9845,
-    "originalSum": 0.9845,
-    "residualOther": 0.0155,
     "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
@@ -944,7 +899,7 @@
    "playerId": "nfl-athlete-3122840",
    "name": "Deshaun Watson",
    "team": "CLE",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
      "mean": 19.871,
