@@ -229,7 +229,8 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
           <ol className="cl-graphics">
             {[...lane.graphics].reverse().map((g, i) => (
               <li key={`${g.date}:${g.packageId}:${i}`} className="cl-graphic" data-lane-graphic={g.packageId ?? ""} data-graphic-version={g.graphicVersion ?? ""} data-caption-sha256={g.captionSha256 ?? ""} data-image-sha256={g.imageSha256 ?? ""}>
-                {g.imagePath ? <img src={g.imagePath} alt={`${lane.name}, ${g.date}, step ${g.step}`} width={1080} height={1350} loading="lazy" className="cl-graphic-img" /> : null}
+                {/* The verified graphic is linked, not embedded: raw image tags stay inside the identity components (identity-assets ratchet). */}
+                {g.imagePath ? <a href={g.imagePath} className="cl-graphic-link" data-lane-graphic-image="">View graphic</a> : null}
                 <span className="cl-graphic-text">
                   <strong>{g.date}</strong> · step {g.step}{g.packageId ? ` · ${g.packageId}` : ""}
                   {g.postUrl ? <> · <a href={g.postUrl} rel="noopener" target="_blank">Post on X</a></> : g.approved ? " · approved, not posted" : " · not posted"}

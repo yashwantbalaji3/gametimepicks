@@ -6157,8 +6157,8 @@ textarea:focus-visible { outline: none; box-shadow: var(--vault-focus-ring); bor
 .tb-hero--moonshot .tb-hero-title { color: var(--vault-text); text-transform: uppercase; letter-spacing: .01em; text-shadow: 0 0 28px color-mix(in srgb, var(--product-moonshot-electric) 70%, transparent), 0 0 2px color-mix(in srgb, var(--product-moonshot) 80%, transparent); }
 .tb-hero-promise { margin: 0; max-width: 60ch; color: var(--vault-text); font-size: 15.5px; line-height: 1.55; }
 .tb-band-row { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
-.tb-band { display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; border-radius: 12px; border: 1px solid var(--tb-band, var(--vault-border)); background: color-mix(in srgb, var(--tb-band, transparent) 10%, transparent); min-width: 140px; }
-.tb-band-name { color: var(--tb-band, var(--vault-text)); font-weight: 700; font-size: 13px; }
+.tb-band { display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; border-radius: 12px; border: 1px solid var(--tb-band); background: color-mix(in srgb, var(--tb-band) 10%, transparent); min-width: 140px; }
+.tb-band-name { color: var(--tb-band); font-weight: 700; font-size: 13px; }
 .tb-band-range { color: var(--vault-text-mute); font-size: 12px; }
 .tb-band--low { --tb-band: var(--risk-low); }
 .tb-band--medium { --tb-band: var(--risk-medium); }
@@ -6285,7 +6285,7 @@ textarea:focus-visible { outline: none; box-shadow: var(--vault-focus-ring); bor
 .cl-rung::before { content: ""; position: absolute; top: 19px; left: -50%; width: 100%; height: 4px; border-radius: 2px; background: var(--vault-border-strong); z-index: 0; }
 .cl-rung:first-child::before { display: none; }
 .cl-rung--completed::before, .cl-rung--active::before, .cl-rung--failed::before { background: var(--cl-accent); }
-.cl-rung-dot { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 9999px; font-weight: 900; font-size: 15px; background: var(--vault-panel-elevated, var(--vault-panel)); border: 2px solid var(--vault-border-strong); color: var(--vault-text-mute); }
+.cl-rung-dot { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 9999px; font-weight: 900; font-size: 15px; background: var(--vault-panel-elevated); border: 2px solid var(--vault-border-strong); color: var(--vault-text-mute); }
 .cl-rung--completed .cl-rung-dot { background: var(--cl-accent); border-color: var(--cl-accent); color: var(--cl-accent-ink); }
 .cl-rung--active .cl-rung-dot { border: 3px solid var(--cl-accent); color: var(--vault-text); box-shadow: 0 0 0 4px color-mix(in srgb, var(--cl-accent) 22%, transparent), 0 0 22px color-mix(in srgb, var(--cl-accent) 55%, transparent); }
 .cl-rung--failed .cl-rung-dot { border-color: var(--vault-danger); background: color-mix(in srgb, var(--vault-danger) 22%, var(--vault-panel)); color: var(--vault-danger); }
@@ -6295,9 +6295,9 @@ textarea:focus-visible { outline: none; box-shadow: var(--vault-focus-ring); bor
 @keyframes cl-rung-in { from { opacity: .25; transform: scale(.82); } to { opacity: 1; transform: none; } }
 @keyframes cl-rail-in { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes cl-glow { 0%, 100% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--cl-accent) 22%, transparent), 0 0 14px color-mix(in srgb, var(--cl-accent) 40%, transparent); } 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--cl-accent) 16%, transparent), 0 0 28px color-mix(in srgb, var(--cl-accent) 65%, transparent); } }
-.cl-rung .cl-rung-dot { animation: cl-rung-in .45s ease-out both; animation-delay: calc(var(--i, 0) * 140ms); }
-.cl-rung--completed::before, .cl-rung--active::before, .cl-rung--failed::before { transform-origin: left center; animation: cl-rail-in .4s ease-out both; animation-delay: calc(var(--i, 0) * 140ms - 70ms); }
-.cl-rung--active .cl-rung-dot { animation: cl-rung-in .45s ease-out both, cl-glow 2.8s ease-in-out 1.2s infinite; animation-delay: calc(var(--i, 0) * 140ms), calc(var(--i, 0) * 140ms + 600ms); }
+.cl-rung .cl-rung-dot { animation: cl-rung-in var(--motion-entrance-duration) var(--motion-entrance-easing) both; animation-delay: calc(var(--i, 0) * 140ms); }
+.cl-rung--completed::before, .cl-rung--active::before, .cl-rung--failed::before { transform-origin: left center; animation: cl-rail-in var(--motion-entrance-duration) var(--motion-entrance-easing) both; animation-delay: calc(var(--i, 0) * 140ms - 70ms); }
+.cl-rung--active .cl-rung-dot { animation: cl-rung-in var(--motion-entrance-duration) var(--motion-entrance-easing) both, cl-glow var(--motion-ambient-duration) var(--motion-ambient-easing) 1.2s infinite; animation-delay: calc(var(--i, 0) * 140ms), calc(var(--i, 0) * 140ms + 600ms); }
 @media (prefers-reduced-motion: reduce) { .cl-rung .cl-rung-dot, .cl-rung::before, .cl-rung--active .cl-rung-dot { animation: none !important; } }
 /* Start / tracked / goal. */
 .cl-bank { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr); gap: 8px; }
@@ -6435,6 +6435,6 @@ textarea:focus-visible { outline: none; box-shadow: var(--vault-focus-ring); bor
 .cl-lost-restart { margin: 12px 0; padding: 12px 14px; border-radius: 12px; border: 1px dashed color-mix(in srgb, var(--risk-high) 50%, transparent); color: var(--vault-text); font-size: 13.5px; font-weight: 700; }
 /* DAILY RESEARCH SELECTION (founder 2026-11-04): the engine's mode label and the legs' disclosed limits. */
 .cl-selection-mode { display: inline-flex; align-items: center; min-height: 24px; padding: 1px 10px; border-radius: 9999px; font-size: 11px; font-weight: 800; letter-spacing: .04em; border: 1px dashed var(--vault-border-strong); color: var(--vault-gold-bright); }
-.cl-limits { display: flex; flex-wrap: wrap; gap: 4px 6px; font-size: 12px; color: var(--vault-warn, var(--vault-text-mute)); }
+.cl-limits { display: flex; flex-wrap: wrap; gap: 4px 6px; font-size: 12px; color: var(--vault-warn); }
 /* LANE SPECIALIZATION (founder 2026-11-04): the lane's type, readable at a glance. */
 .cl-lane-type { margin: 6px 0 0; font-size: 15px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--vault-text); }

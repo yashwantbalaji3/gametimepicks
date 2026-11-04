@@ -44,13 +44,13 @@ export default function ChallengeLanesFixturePage() {
   if (!parlayFixtureRouteEnabled()) notFound();
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 overflow-x-hidden flex flex-col gap-4" data-dev-route="challenge-lanes-fixture">
-      <p className="m-0 font-mono" style={{ color: "var(--vault-warn, var(--vault-pending))", fontSize: 12 }}>
+      <p className="m-0 font-mono" style={{ color: "var(--vault-warn)", fontSize: 12 }}>
         DEVELOPMENT FIXTURE · not real lane records · the engine&rsquo;s 2026-11-02 → 11-03 replay · the last three pairs are synthetic
       </p>
       <div id="fixture-bank-builder"><LanePair product="bank-builder" lanes={[view(bbA), view(bbB)]} /></div>
       <div id="fixture-moonshot"><LanePair product="moonshot" lanes={[view(msA), view(msB)]} /></div>
       <div id="fixture-synthetic-bank-builder"><LanePair product="bank-builder" lanes={[view(synBbA), view(synBbB)]} /></div>
-      <p className="m-0 font-mono" style={{ color: "var(--vault-warn, var(--vault-pending))", fontSize: 12 }} data-sample-price="">
+      <p className="m-0 font-mono" style={{ color: "var(--vault-warn)", fontSize: 12 }} data-sample-price="">
         SAMPLE PRICE · NOT REAL · made-up odds from &ldquo;SAMPLE BOOK&rdquo; to show the priced layout; real prices come only from the engine&rsquo;s encrypted file
       </p>
       <div id="fixture-priced"><LanePair product="bank-builder" lanes={[view(synBbA, true), view(synBbB)]} /></div>
