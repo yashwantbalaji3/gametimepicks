@@ -357,8 +357,11 @@ type Cmp = { playerId: string; team: string | null; name: string | null; familie
 export function OfficialComparison({ rows, teams }: { rows: Cmp[]; teams: Teams }) {
   return (
     <div className="nbp-scroll" role="region" aria-label={COMPARE_TITLE} tabIndex={0}>
+      {/* the section's h3 is the visible title; the caption names the table for screen readers only (it repeated the h3
+          and ran off a 390px screen), and the cell key sits above the table where it fits */}
+      <p className="nbp-note" style={{ marginTop: 0 }}>Each cell: this run / official median. MIN is official expected minutes.</p>
       <table className="nbp-table" data-nbp-compare="">
-        <caption>{COMPARE_TITLE}, per player: this run&apos;s number / the Official Forecast&apos;s median (MIN is the official expected minutes)</caption>
+        <caption className="st-sr">{COMPARE_TITLE}, per player: this run&apos;s number / the Official Forecast&apos;s median (MIN is the official expected minutes)</caption>
         <thead><tr><th scope="col">Player</th>{rows[0]?.families.map((f) => <th key={f.family} scope="col">{f.label} run / official</th>)}</tr></thead>
         <tbody>
           {rows.map((r) => (

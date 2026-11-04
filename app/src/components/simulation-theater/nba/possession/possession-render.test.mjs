@@ -341,3 +341,10 @@ test("legend chips: the official panel is MODEL PROJECTION, the run's box score 
   assert.match(h, /<details class="nbp-details" data-nbp-run-rule=""><summary>How this run was chosen<\/summary><p class="nbp-note">Chosen by rule, not by hand: /);
   assert.equal((h.match(/class="nbp-prog-(?:home|away) is-ghost"/g) ?? []).length, 2);
 });
+
+test("comparison table: one visible title (the h3); the caption is screen-reader only", () => {
+  const h = render(LOADS[0]);
+  assert.match(h, new RegExp(`<h3 class="nba-h3">${LABELS.COMPARE_TITLE.replace(/[()]/g, "\\$&")}</h3>`));
+  assert.match(h, /<table class="nbp-table" data-nbp-compare=""><caption class="st-sr">/);
+  assert.match(text(h), /Each cell: this run \/ official median\. MIN is official expected minutes\./);
+});
