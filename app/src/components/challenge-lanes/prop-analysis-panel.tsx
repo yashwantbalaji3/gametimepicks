@@ -14,7 +14,7 @@ export type PropAnalysisView = {
 export const PROP_PANEL_LABEL = "Not a challenge leg — no prop passed the reliability gate";
 
 export default function PropAnalysisPanel({ analysis }: { analysis: PropAnalysisView | null }) {
-  if (!analysis || !analysis.rows.length) return null;
+  if (!analysis || (!analysis.rows.length && !analysis.stale)) return null;
   return (
     <section id="prop-analysis" className="pa-section scroll-mt-24" aria-labelledby="prop-analysis-h" data-prop-analysis={analysis.date}>
       <div className="tb-section-head">

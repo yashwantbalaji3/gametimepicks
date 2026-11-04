@@ -341,28 +341,41 @@ test("provisional prop analysis: a separate panel, labelled not a challenge leg,
   assert.doesNotMatch(read("src/components/challenge-lanes/prop-analysis-panel.tsx"), /^["']use client["']/m);
 });
 
-test("prop analysis presenter: COMPARED rows only, no side, counts for the rest, stale lines hide differences", async () => {
-  const { propAnalysisView } = await import("../../lib/products/challenge-lanes/prop-analysis.mjs");
+test("PROP ANALYSIS end to end: nba-engine-eval's writer + reader → the panel: compared rows only, no side, no price, stale counted", async () => {
+  const { writePropAnalysisArtifacts } = await import("../../lib/odds/nba-prop-analysis.mjs");
+  const { loadPropAnalysis } = await import("../../lib/products/challenge-lanes/load.mjs");
   const { default: PropAnalysisPanel } = await import("./prop-analysis-panel.tsx");
-  const doc = { schema: "gtp-nba-prop-provisional-analysis@1", label: "PROVISIONAL ANALYSIS — not a challenge leg; no prop passed the reliability gate (backtest 0ce4b94208)", date: "2026-11-04",
-    capture: { capturedAt: "2026-11-04T05:18:00Z" }, lineStaleAfter: "2026-11-04T11:18:00Z",
-    rows: [
-      { eventId: "e1", playerId: "p1", name: "Sample Player", team: "NY", game: "BKN @ NY", family: "pts", projection: 24.6, line: { book: "SAMPLE BOOK", line: 22.5, overPrice: -110, underPrice: -110, capturedAt: "2026-11-04T05:18:00Z" }, bookRange: { min: 22.5, max: 23.5, books: 3 }, difference: 2.1, side: "OVER", state: "COMPARED" },
-      { eventId: "e1", playerId: "p2", name: "Excluded Player", team: "NY", family: "reb", projection: 8.1, line: { book: "SAMPLE BOOK", line: 7.5 }, state: "EXCLUDED", side: null },
-      { eventId: "e1", playerId: "p3", name: "No Line", team: "BKN", family: "ast", projection: 5.0, line: null, state: "NO_LINE", side: null },
-    ] };
-  const fresh = propAnalysisView(doc, { now: Date.parse("2026-11-04T06:00:00Z") });
-  assert.deepEqual(fresh.rows.map((r) => [r.player, r.projection, r.line, r.difference, r.range]), [["Sample Player", "24.6", "22.5", "+2.1", "3 books, 22.5–23.5"]]);
+  const KEY = crypto.randomBytes(32).toString("hex");
+  const row = (over) => ({ eventId: "401900001", game: "AAA @ BBB", tipUtc: "2099-01-15T06:00Z", playerId: "7", name: "Test Player", team: "BBB", family: "pts",
+    projectionLabel: "MODEL PROJECTION", projection: 21.3, expectedMinutes: 32,
+    line: { book: "draftkings", line: 19.5, overPrice: -115, underPrice: -105, capturedAt: "2099-01-14T20:00:00.000Z" }, bookRange: { min: 19.5, max: 20.5, books: 3 }, state: "COMPARED", excluded: [], ...over });
+  const analysis = { schema: "gtp-nba-prop-provisional-analysis@1", date: "2099-01-15",
+    lane: { file: "x", generatedAt: "2099-01-15T06:00:00Z", family: "v0.1" }, capture: { file: "c", capturedAt: "2099-01-14T20:00:00.000Z" }, offerRule: "chooseOffer", lineMaxAgeHours: 6,
+    comparisonRule: "nba-line-comparison@1", guard: { rules: { R1: "status Out or Day-To-Day" } },
+    rows: [row(), row({ playerId: "8", name: "Guarded Player", state: "EXCLUDED", excluded: [{ rule: "R1", reason: "Day-To-Day" }] })] };
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), "pa-")); const app = path.join(repo, "app"); fs.mkdirSync(app);
+  writePropAnalysisArtifacts({ appDir: app, analysis, laneSha256: "ab".repeat(32), env: { GTP_ODDS_DISPLAY_KEY: KEY } });
+  const fresh = loadPropAnalysis({ appDir: app, date: "2099-01-15", env: { GTP_ODDS_DISPLAY_KEY: KEY }, asOf: "2099-01-14T21:00:00Z" });
+  assert.deepEqual(fresh.rows.map((r) => [r.player, r.market, r.projection, r.line, r.difference, r.book, r.range]), [["Test Player", "Points", "21.3", "19.5", "+1.8", "draftkings", "3 books, 19.5–20.5"]]);
   const t = text(html(React.createElement(PropAnalysisPanel, { analysis: fresh })));
-  assert.doesNotMatch(t, /OVER|UNDER|probability|confiden|-110/i, "no side, no probability, no price on the panel");
-  assert.match(t, /Lines captured Nov 4, 12:18 AM ET; stale after Nov 4, 6:18 AM ET\./);
-  assert.match(t, /Also 1 excluded by the availability and minutes rules, 1 without a captured line; not listed\./);
+  assert.match(t, /Provisional prop analysis · 2099-01-15 Not a challenge leg — no prop passed the reliability gate\./);
   assert.match(t, /PROVISIONAL ANALYSIS — not a challenge leg/);
-  const stale = propAnalysisView(doc, { now: Date.parse("2026-11-04T12:00:00Z") });
-  assert.deepEqual([stale.stale, stale.rows[0].line, stale.rows[0].difference], [true, null, null]);
-  assert.match(text(html(React.createElement(PropAnalysisPanel, { analysis: stale }))), /Lines stale — awaiting a fresher capture\./);
-  assert.equal(propAnalysisView(null), null);
-  assert.equal(propAnalysisView({ ...doc, schema: "other" }), null);
+  assert.match(t, /Also 1 excluded by the availability and minutes rules; not listed\./);
+  assert.doesNotMatch(t, /OVER|UNDER|-115|-105|probability|confiden|Guarded Player/i, "no side, no price, no probability; excluded rows not listed");
+  // After the 6 h rule the lines are STALE: counted, not shown.
+  const stale = loadPropAnalysis({ appDir: app, date: "2099-01-15", env: { GTP_ODDS_DISPLAY_KEY: KEY }, asOf: "2099-01-15T02:30:00Z" });
+  assert.equal(stale.rows.length, 0); assert.equal(stale.stale, true);
+  assert.match(text(html(React.createElement(PropAnalysisPanel, { analysis: stale }))), /Lines stale — awaiting a fresher capture\..*with lines older than the 6-hour limit/);
+  // No key or another key: no prices, no panel. No file: no panel.
+  assert.equal(loadPropAnalysis({ appDir: app, date: "2099-01-15", env: {}, asOf: "2099-01-14T21:00:00Z" }), null);
+  assert.equal(loadPropAnalysis({ appDir: app, date: "2099-01-15", env: { GTP_ODDS_DISPLAY_KEY: crypto.randomBytes(32).toString("hex") } }), null);
+  assert.equal(loadPropAnalysis({ appDir: app, date: "2099-01-16", env: { GTP_ODDS_DISPLAY_KEY: KEY } }), null);
+  fs.rmSync(repo, { recursive: true, force: true });
+  for (const f of ["src/app/bank-builder/page.tsx", "src/app/moonshot/page.tsx"]) {
+    const src = read(f);
+    assert.match(src, /<PropAnalysisPanel analysis=\{loadPropAnalysis\(\{ date: levelAModel\?\.productDay \?\? (currentEtDate\(\)|etToday) \}\) as PropAnalysisView \| null\} \/>/, f);
+    assert.ok(src.indexOf("<LanePair") < src.indexOf("<PropAnalysisPanel"), f);
+  }
 });
 
 test("progression animation is CSS-only and prefers-reduced-motion turns it off", () => {
