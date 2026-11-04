@@ -116,7 +116,7 @@ Each receipt has these fields:
 - `refEventSha256`: the CARD_FROZEN or STATUS event it refers to;
 - the writer's own fields: `packageId, approvedVersionSha256, mediaIndex, imageSha256, scheduledFor`; POSTED adds `xPostId, url, postedAt`; APPROVED adds `approvedBy, approvedAt`.
 
-The public projection carries all of these except `approvedBy`, which stays in the private log.
+The public projection carries all of these except `approvedBy`, which stays in the private log. GRAPHIC_RENDERED may add `imagePath`; it is projected only when it is a site path matching `/data/challenge-lanes/graphics/<name>.png`, and is otherwise `null`.
 
 `lanes-prepare` and `lanes-reconcile` ingest every inbox before they act:
 - A valid receipt is appended to the lane log once, keyed by `receiptSha256`.

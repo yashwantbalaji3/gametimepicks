@@ -15,6 +15,10 @@ export const LANE_PROJECTION_SCHEMA = "gtp.challenge-lane.public@1";
 export const PUBLIC_PRICES = Object.freeze({ state: "WITHHELD_P1", note: "Payouts and prices are withheld until the founder approves a price source whose terms permit display (P1)." });
 const PRICE_EVENTS = new Set(["PRICE_VERIFIED", "PAYOUT_COMPUTED"]);
 
+/** A receipt's image, only as a site path under /data/challenge-lanes/graphics/ (where the PNG lives is the renderer's call). */
+export const IMAGE_PATH = /^\/data\/challenge-lanes\/graphics\/[a-z0-9][a-z0-9.-]*\.png$/;
+const publicImagePath = (p) => (typeof p === "string" && IMAGE_PATH.test(p) && !p.includes("..") ? p : null);
+
 /* The package fields an approval or post receipt shares (the console's receipt; its approver name stays private). */
 const post = (e) => ({ packageId: e.packageId ?? null, approvedVersionSha256: e.approvedVersionSha256 ?? null, mediaIndex: e.mediaIndex ?? null, imageSha256: e.imageSha256 ?? null, scheduledFor: e.scheduledFor ?? null, refEventSha256: e.refEventSha256 ?? null });
 
@@ -28,7 +32,7 @@ function publicEvent(e, withheldMoney) {
     case "LEG_SETTLED": return { ...head, sha256: e.sha256, legId: e.legId, gameId: e.gameId, outcome: e.outcome, final: e.final, resultSource: e.source };
     case "STEP_SETTLED": return { ...head, sha256: withheldMoney ? null : e.sha256, outcome: e.outcome, bankrollAfterCents: withheldMoney ? null : e.bankrollAfterCents };
     case "STATUS": return { ...head, sha256: e.sha256, status: e.status, reason: e.reason ?? null };
-    case "GRAPHIC_RENDERED": return { ...head, sha256: e.sha256, packageId: e.packageId ?? null, imageSha256: e.imageSha256 ?? null, captionSha256: e.captionSha256 ?? null, rendererCommit: e.rendererCommit ?? null };
+    case "GRAPHIC_RENDERED": return { ...head, sha256: e.sha256, packageId: e.packageId ?? null, imageSha256: e.imageSha256 ?? null, captionSha256: e.captionSha256 ?? null, rendererCommit: e.rendererCommit ?? null, imagePath: publicImagePath(e.imagePath) };
     case "APPROVED": return { ...head, sha256: e.sha256, ...post(e), approvedAt: e.approvedAt ?? null };
     case "POSTED": return { ...head, sha256: e.sha256, ...post(e), xPostId: e.xPostId ?? null, url: e.url ?? null, postedAt: e.postedAt ?? null };
     default: return { ...head, sha256: e.sha256 };
