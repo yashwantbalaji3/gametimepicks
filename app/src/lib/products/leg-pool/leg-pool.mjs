@@ -113,7 +113,8 @@ export function buildLegPool({ repoRoot, date, evaluatedAt, sources = null, lane
       leg: l, // the Level A leg, unchanged, for the shared selection engine
       legId: key, sport: "nba", eventId: String(l.eventId), eventLabel: l.eventLabel, startUtc: l.startUtc, market: l.market,
       selection: { ...l.selection, teamAbbr: g[l.selection.code]?.abbr ?? null }, status: LEG_STATUS.MODEL_ONLY,
-      probability: shown ? (l.selection.code === "home" ? shown.pHome : 1 - shown.pHome) : null,
+      // the lane's own stored value for the side (an away side is never re-derived as 1 − pHome, which drifts in the 16th digit)
+      probability: shown ? (typeof g.elo?.winProbability?.[l.selection.code] === "number" ? g.elo.winProbability[l.selection.code] : l.selection.code === "home" ? shown.pHome : 1 - shown.pHome) : null,
       probabilityShown: shown?.shown?.[l.selection.code] ?? null,
       forecast: { ...l.forecast, receiptSha256: g.receipt.payloadSha256 },
       guard: { state: avail.flags.length ? "review" : "pass", flags: avail.flags, flagText: avail.flags.map((f) => FLAG_TEXT[f]), rotationFlagged: avail.rotationFlagged, outAtFreeze: avail.outAtFreeze },

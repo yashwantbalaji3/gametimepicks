@@ -147,3 +147,10 @@ test("NBA legs are game winners only, said in the file; each side names its team
   assert.equal(D.methodologyDependencies.find((m) => m.key === "nba-player-prop-probability").state, "NOT_APPROVED");
   for (const l of D.legs.filter((x) => x.sport === "nba")) { assert.equal(l.market, "winner"); assert.match(l.selection.teamAbbr, /^[A-Z]{2,4}$/); }
 });
+
+test("a leg's probability is the lane's stored value for its side, exactly", () => {
+  for (const l of D.legs.filter((x) => x.sport === "nba")) {
+    const g = LANE.games.find((x) => String(x.providerEventId) === l.eventId);
+    assert.equal(l.probability, g.elo.winProbability[l.selection.code]);
+  }
+});
