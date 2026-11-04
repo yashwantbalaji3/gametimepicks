@@ -56,3 +56,13 @@ test("only the banner goes; a changed value is caught", () => {
   assert.ok(sameDisplayProblems(html, clean.replace(">1<", ">2<"), "Model projections").length);
   assert.throws(() => withoutBanner("no banner"));
 });
+
+test("model-only NBA game post: design 3 allowed only with two design-2 cards, no market data and no lines", async () => {
+  const { cleanEligibilityProblems, isModelGamePost } = await import("./clean-export.mjs");
+  const ok = { contentType: "NBA_GAME_POST", variant: "9-model", designVersion: "3", containsMarketData: false, anomalyCheck: "PASS", content: { eventId: "9", model: true, linesShown: 0, sourceDesignVersions: ["2", "2"] } };
+  assert.equal(isModelGamePost(ok), true);
+  assert.deepEqual(cleanEligibilityProblems(ok), []);
+  for (const bad of [{ ...ok, variant: "9" }, { ...ok, containsMarketData: true }, { ...ok, content: { ...ok.content, linesShown: 2 } }, { ...ok, content: { ...ok.content, sourceDesignVersions: ["2", "3"] } }, { ...ok, content: { ...ok.content, model: false } }])
+    assert.ok(cleanEligibilityProblems(bad).length, JSON.stringify(bad));
+  assert.ok(cleanEligibilityProblems({ ...ok, anomalyCheck: "REVIEW" }).includes("anomalyCheck REVIEW"));
+});
