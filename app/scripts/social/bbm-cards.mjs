@@ -147,6 +147,9 @@ function ladderHtml(cells, v) {
   return `<div class="bv-lad" data-ladder="${v.steps}">${parts.join("")}</div>`;
 }
 
+/** The held day's note from the engine's reason code: no frozen card file is not the same as no card meeting the rules. */
+const heldNote = (reason) => (/^NO_FROZEN_CARD_FILE/.test(String(reason ?? "")) ? "No frozen card for today" : /^PENDING_VOID_REVIEW/.test(String(reason ?? "")) ? "A void is under review" : "No card met the rules today");
+
 /** Pace against the illustrative milestone (SPEC rev. 2 §2). */
 function paceHtml(cells, v) {
   if (!v.pace) return "";
@@ -206,7 +209,7 @@ export function bbmCard(view, combo = null, { testData = false } = {}) {
   } else if (view.view === VIEW.NO_ELIGIBLE_CARD) {
     hero = `<div class="bv-hero s">${cell(cells, "status", "NO QUALIFYING CARD TODAY")}</div>`;
     sub = cell(cells, "status.step", `STILL STEP ${view.step} OF ${view.steps}`);
-    middle = `<div class="bv-stat"><div class="k">${cell(cells, "status.note", "No card met the rules today")}</div><div class="c">${cell(cells, "status.rule", "The lane keeps its step and its tracked bankroll.")}</div></div>`;
+    middle = `<div class="bv-stat"><div class="k">${cell(cells, "status.note", heldNote(view.reason))}</div><div class="c">${cell(cells, "status.rule", "The lane keeps its step and its tracked bankroll.")}</div></div>`;
     moneyBlock = statusMoneyHtml(cells, view);
   } else if (view.view === VIEW.COMPLETE || view.view === VIEW.FINISHED_SHORT) {
     const done = view.view === VIEW.COMPLETE;
