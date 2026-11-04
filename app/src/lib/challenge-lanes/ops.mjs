@@ -66,19 +66,34 @@ export function unpricedLane(events, { date, at, reason = P1_UNPRICED }) {
  * @param {{ date, at, price, suggestedCards, postScheduledAt?, permittedProviders?, strictPace? }} p
  *   price: { legs: [{ legId, selectionCode, provider, book, oddsFormat, price, fetchedAt }], parlay: { method, oddsFormat, price, provider?, fetchedAt? }, priceSnapshotSha256 }
  */
-export function priceLane(events, { date, at, price, suggestedCards, postScheduledAt = null, permittedProviders, eligibleBooks, strictPace }) {
+/**
+ * PRELIMINARY (founder P0 2026-11-04): an early build from an early snapshot, before the post window. Every check runs
+ * except the post-window freshness (no postScheduledAt is passed), and the result is PAYOUT_COMPUTED `result:
+ * "PRELIMINARY"`, never VERIFIED: it stakes nothing and can never settle a step. The near-window refresh is a normal
+ * priceLane call (with postScheduledAt) that appends the VERIFIED payout and names the legs whose price changed.
+ */
+export function priceLane(events, { date, at, price, suggestedCards, postScheduledAt = null, permittedProviders, eligibleBooks, strictPace, preliminary = false }) {
   const s = laneState(events);
   if (s.open?.date !== date || s.open.payoutEvent) return { events: [], action: "SKIP" };
+  if (preliminary && postScheduledAt) throw new Error("priceLane: a preliminary price is checked without a post time; the post window gates the final price");
   const card = s.open.cardEvent;
+  const earlier = events.filter((e) => e.type === "PRICE_VERIFIED" && e.cardEventSha256 === card.sha256).at(-1)?.price ?? null;
+  const changed = earlier ? price.legs.filter((l) => { const o = earlier.legs.find((x) => x.legId === l.legId); return !o || o.price !== l.price || o.book !== l.book || o.line !== l.line; }).map((l) => l.legId) : null;
+  price = { ...price, preliminary: preliminary === true };
   let ev = append(events, { type: "PRICE_VERIFIED", date, step: s.step, at, source: "lanes-price", cardEventSha256: card.sha256, price });
   const priceEvent = ev.at(-1);
   ev = append(ev, { type: "STAKE_SET", date, step: s.step, at, source: "lanes-price", stakeCents: s.bankrollCents, placedWager: false, basis: "all-in tracked bankroll (D1 proposed)", postScheduledAt });
   const r = computePayout({ events: ev, cardEvent: card, suggestedCards, priceEvent, stakeCents: s.bankrollCents, bankrollCents: s.bankrollCents, ladder: { targetCents: s.targetCents, stepsRemaining: s.steps - s.step + 1 }, postScheduledAt, permittedProviders, eligibleBooks, strictPace });
+  const inputs = { ...r.inputs, preliminary: preliminary === true, verification: r.ok ? (preliminary ? "PRELIMINARY" : "VERIFIED") : "REFUSED", changedFromEarlier: changed };
   if (r.ok) {
-    ev = append(ev, { type: "PAYOUT_COMPUTED", result: "VERIFIED", date, step: s.step, at, source: "lanes-price", inputs: r.inputs, grossPayoutCents: r.grossPayoutCents, profitCents: r.profitCents });
-    return { events: ev.slice(events.length), action: "PAYOUT_COMPUTED", payout: r };
+    ev = append(ev, { type: "PAYOUT_COMPUTED", result: preliminary ? "PRELIMINARY" : "VERIFIED", date, step: s.step, at, source: "lanes-price", inputs, grossPayoutCents: r.grossPayoutCents, profitCents: r.profitCents });
+    return { events: ev.slice(events.length), action: preliminary ? "PRELIMINARY" : "PAYOUT_COMPUTED", payout: { ...r, inputs } };
   }
-  ev = append(ev, { type: "PAYOUT_COMPUTED", result: "REFUSED", date, step: s.step, at, source: "lanes-price", inputs: r.inputs, refusals: r.refusals });
+  if (preliminary) { // an early refusal leaves the card open for the near-window price; it closes nothing
+    ev = append(ev, { type: "PAYOUT_COMPUTED", result: "REFUSED", date, step: s.step, at, source: "lanes-price", inputs, refusals: r.refusals });
+    return { events: ev.slice(events.length), action: "REFUSED", payout: { ...r, inputs } };
+  }
+  ev = append(ev, { type: "PAYOUT_COMPUTED", result: "REFUSED", date, step: s.step, at, source: "lanes-price", inputs, refusals: r.refusals });
   const pace = r.refusals.every((x) => x.code === "BELOW_PACE");
   ev = append(ev, { type: "STATUS", status: pace ? STATUS.NO_ELIGIBLE_CARD : STATUS.UNPRICED, reason: `REFUSED: ${r.refusals.map((x) => x.code).join(", ")}`, date, step: s.step, at, source: "lanes-price" });
   return { events: ev.slice(events.length), action: "REFUSED", payout: r };

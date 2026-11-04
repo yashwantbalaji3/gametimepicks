@@ -38,6 +38,8 @@ export function laneDisplay(doc, { date } = {}) {
   /* The event an image of this day is drawn from: the day's CARD_FROZEN, else its latest STATUS (console refEventSha256). */
   const status = day && run.events.filter((e) => e.type === "STATUS" && e.date === day.date).at(-1);
   const milestones = doc.milestonesCents ?? [];
+  /* The day's price state from the public (withheld) payout events: PRELIMINARY = priced early, AWAITING VERIFICATION. */
+  const priceVerification = day && ({ VERIFIED: "VERIFIED", PRELIMINARY: "PRELIMINARY", REFUSED: "REFUSED" }[run.events.filter((e) => e.type === "PAYOUT_COMPUTED" && e.date === day.date).at(-1)?.result] ?? null);
   const L = LANES[doc.laneId];
   const bankroll = run.trackedBankrollCents;
   const p = run.pace;
@@ -51,7 +53,7 @@ export function laneDisplay(doc, { date } = {}) {
     distanceToTargetCents: bankroll == null ? null : Math.max(0, doc.targetCents - bankroll),
     pace: p.withheld ? { state: "withheld", withheld: p.withheld, milestoneCents: p.milestoneCents, nextMilestoneCents: milestones[run.stepsWon] ?? null, requiredMultiple: null, behindCents: null }
       : { state: p.onPace ? "on" : "behind", withheld: null, milestoneCents: p.milestoneCents, nextMilestoneCents: milestones[run.stepsWon] ?? null, requiredMultiple: p.requiredMultiplier, behindCents: p.behindByCents },
-    day: day && { ...dayView(day), packageId: frozen?.packageId ?? L.packageId(day.date), mediaIndex: frozen?.mediaIndex ?? L.mediaIndex, cardEventSha256: frozen?.sha256 ?? null, statusEventSha256: status?.sha256 ?? null, sourceEventSha256: frozen?.sha256 ?? status?.sha256 ?? null, sourceEventType: frozen ? "CARD_FROZEN" : status ? "STATUS" : null },
+    day: day && { ...dayView(day), packageId: frozen?.packageId ?? L.packageId(day.date), mediaIndex: frozen?.mediaIndex ?? L.mediaIndex, priceVerification, awaitingVerification: priceVerification === "PRELIMINARY", cardEventSha256: frozen?.sha256 ?? null, statusEventSha256: status?.sha256 ?? null, sourceEventSha256: frozen?.sha256 ?? status?.sha256 ?? null, sourceEventType: frozen ? "CARD_FROZEN" : status ? "STATUS" : null },
     history: run.days.map(dayView),
     runs: doc.runs.map((r) => ({ runId: r.runId, startedAt: r.startedAt, approvedBy: r.approvedBy, endStatus: r.publicStatus, stepsWon: r.stepsWon })),
     prices: doc.prices, label: doc.label, projectionLabel: doc.projectionLabel,

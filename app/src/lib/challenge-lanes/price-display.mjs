@@ -36,6 +36,11 @@ export function lanePriceDisplay(laneId, runs) {
         const settled = events.find((e) => e.type === "STEP_SETTLED" && e.payoutEventSha256 === pay.sha256) ?? null;
         days.push({
           date: pay.date, step: pay.step, result: pay.result, refusals: pay.refusals?.map((r) => r.code) ?? null,
+          /* PRELIMINARY: an early build, "PRELIMINARY — re-verified before posting"; VERIFIED: the near-window price that
+             stakes the step. A day whose latest entry is PRELIMINARY is AWAITING VERIFICATION. */
+          verification: pay.result === "VERIFIED" ? "VERIFIED" : pay.result === "PRELIMINARY" ? "PRELIMINARY" : "REFUSED",
+          verificationLabel: pay.result === "PRELIMINARY" ? "PRELIMINARY — re-verified before posting" : null,
+          capturedAt: price?.legs?.[0]?.fetchedAt ?? null, changedFromEarlier: pay.inputs.changedFromEarlier ?? null,
           book: pay.inputs.book, method: pay.inputs.method, estimate: pay.inputs.estimate === true, label: pay.inputs.label ?? null,
           legs: (price?.legs ?? []).map((l) => ({ legId: l.legId, selectionCode: l.selectionCode, oddsFormat: l.oddsFormat, price: l.price, line: l.line ?? null, fetchedAt: l.fetchedAt })),
           decimalPrice: pay.inputs.decimalPrice, pace: pay.inputs.pace, belowPace: pay.inputs.belowPace ?? null,

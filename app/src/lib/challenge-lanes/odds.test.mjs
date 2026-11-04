@@ -232,3 +232,32 @@ test("pricedLaneDisplay: the same fold with the withheld money filled in, only f
   fs.rmSync(dir, { recursive: true, force: true });
   assert.equal(laneDisplay(doc).day.cardEventSha256, ev0[1].sha256);
 });
+
+test("PRELIMINARY early build: priced from an early snapshot, never staked; the near-window refresh verifies and names changed legs", async () => {
+  const early = (await run({ clock: () => "2026-11-02T05:22:01Z", now: "2026-11-02T05:22:00Z" })).snapshot;
+  const head = runStarted({ laneId: "bb-a", runId: "run-1", startedAt: DOC.evaluatedAt, approvedBy: "TEST" });
+  const ev0 = [head, ...prepareLane([head], { date: DATE, at: DOC.evaluatedAt, selection: SEL, file: "t", docSha256: DOC.contentSha256 }).events];
+  const c = laneState(ev0).open.cardEvent.card;
+  const pre = priceLane(ev0, { date: DATE, at: early.fetchedAt, price: priceForCard(c, early).price, suggestedCards: DOC, preliminary: true });
+  assert.equal(pre.action, "PRELIMINARY", JSON.stringify(pre.payout?.refusals));
+  assert.throws(() => priceLane(ev0, { date: DATE, at: early.fetchedAt, price: priceForCard(c, early).price, suggestedCards: DOC, preliminary: true, postScheduledAt: "2026-11-02T23:00:00Z" }), /post time/);
+  const ev1 = [...ev0, ...pre.events];
+  assert.equal(ev1.find((e) => e.type === "PRICE_VERIFIED").price.preliminary, true);
+  const s1 = laneState(ev1);
+  assert.deepEqual([s1.status, s1.open.payoutEvent, s1.days[0].staked], ["READY", null, false], "a preliminary price stakes nothing");
+  const v1 = laneDisplay(laneProjection("bb-a", [ev1]));
+  assert.deepEqual([v1.status, v1.day.priceVerification, v1.day.awaitingVerification], ["ACTIVE", "PRELIMINARY", true]);
+  assert.equal(PRICE_TOO_EARLY_CHECK(pre), true);
+  const moveHome = (m, team) => ({ ...m, outcomes: m.outcomes.map((o) => (o.name === team ? { ...o, price: -1000 } : o)) });
+  const moved = oddsBody().map((e, k) => (k ? e : { ...e, bookmakers: e.bookmakers.map((b) => (b.key === "draftkings" ? { ...b, markets: b.markets.map((m) => moveHome(m, e.home_team)) } : b)) }));
+  const late = (await run({ fetchImpl: fakeFetch({ body: moved }) })).snapshot;
+  const fin = priceLane(ev1, { date: DATE, at: late.fetchedAt, price: priceForCard(c, late).price, suggestedCards: DOC, postScheduledAt: "2026-11-02T23:00:00Z" });
+  assert.equal(fin.action, "PAYOUT_COMPUTED", JSON.stringify(fin.payout?.refusals));
+  assert.deepEqual([fin.payout.inputs.verification, fin.payout.inputs.changedFromEarlier], ["VERIFIED", [c.legs[0].legId]], "only the leg whose price moved is named");
+  const ev2 = [...ev1, ...fin.events];
+  assert.equal(laneState(ev2).status, "IN_PLAY");
+  const days = lanePriceDisplay("bb-a", [ev2]).runs[0].days;
+  assert.deepEqual(days.map((d) => [d.verification, d.verificationLabel, d.capturedAt]), [["PRELIMINARY", "PRELIMINARY — re-verified before posting", "2026-11-02T05:22:01Z"], ["VERIFIED", null, "2026-11-02T22:30:05Z"]]);
+  assert.equal(laneDisplay(laneProjection("bb-a", [ev2])).day.priceVerification, "VERIFIED");
+});
+const PRICE_TOO_EARLY_CHECK = (pre) => !(pre.payout.refusals ?? []).some((x) => x.code === "PRICE_TOO_EARLY");
