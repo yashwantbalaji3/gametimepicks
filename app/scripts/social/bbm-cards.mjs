@@ -6,7 +6,7 @@
  * (src/lib/social/combo-social.mjs resolveCombo).
  *
  *   hero     STEP k OF N (or BUSTED AT STEP k OF N, NO QUALIFYING CARD TODAY with the step it is still on, GOAL REACHED)
- *   ladder   one rung per step: completed (filled, the settled bankroll under it), active (lit ring), failed, upcoming
+ *   ladder   one rung per step: completed (filled), active (lit ring), failed, upcoming
  *   bankroll START (muted) · TRACKED (solid: the settled result) · GOAL (dashed outline: hypothetical)
  *   legs     team identity, game, tip, MODEL WIN PROBABILITY / MODEL PROJECTION; Moonshot rotation flags
  *   money    WAGER (tracked stake) · POTENTIAL PAYOUT · POTENTIAL PROFIT (striped: pending) · LADDER PROGRESS.
@@ -110,8 +110,9 @@ const at = (iso) => new Date(Date.parse(String(iso).replace(/T(\d\d):(\d\d)Z$/, 
 export const tipText = (iso) => `${ET_TIME.format(at(iso))} ET`;
 /** The posting day is an ET calendar date; printed from the date itself, never from a clock. */
 export const chipText = (date) => `NBA · ${ET_DAY.format(new Date(`${date}T12:00:00Z`)).replace(",", "")}`;
-/** $100, $10,000, $464.13: whole dollars without cents, otherwise two decimals. */
-export const money = (n) => `$${Number(n).toLocaleString("en-US", Number.isInteger(n) ? { maximumFractionDigits: 0 } : { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+/** $100, $10,000, $464.13 from integer cents: whole dollars without cents, otherwise two decimals. */
+export const cents = (c) => money(c / 100);
+const money = (n) => `$${Number(n).toLocaleString("en-US", Number.isInteger(n) ? { maximumFractionDigits: 0 } : { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const OUTCOME_TEXT = Object.freeze({ WIN: "LANDED", LOSS: "MISSED", VOID: "VOID", PUSH: "PUSH", PENDING: "PENDING" });
 
 function legHtml(cells, l, i, outcome) {
@@ -130,27 +131,28 @@ function ladderHtml(cells, v) {
   v.rungs.forEach((r, i) => {
     parts.push(`<div class="seg${i === 0 || v.rungs[i - 1].state === RUNG.COMPLETED ? " on" : ""}"></div>`);
     const mark = r.state === RUNG.COMPLETED ? "✓" : r.state === RUNG.FAILED ? "✕" : String(r.step);
-    parts.push(`<div class="rg ${r.state}" data-rung="${r.state}"><div class="dot">${esc(mark)}</div><div class="k">STEP ${r.step}</div>${r.state === RUNG.COMPLETED ? `<div class="a">${cell(cells, `ladder.step${r.step}`, money(r.bankrollAfter))}</div>` : ""}</div>`);
+    parts.push(`<div class="rg ${r.state}" data-rung="${r.state}"><div class="dot">${esc(mark)}</div><div class="k">STEP ${r.step}</div></div>`);
   });
   parts.push(`<div class="seg${v.view === VIEW.COMPLETE ? " on" : ""}"></div>`);
   return `<div class="bv-lad" data-ladder="${v.steps}">${parts.join("")}</div>`;
 }
 
-const bankHtml = (cells, v) => `<div class="bv-bank"><div class="st" data-bank="start"><div class="k">Start</div>${cell(cells, "bank.start", money(v.base), "v")}</div><div class="tr" data-bank="tracked"><div class="k">Tracked bankroll · settled</div>${cell(cells, "bank.tracked", money(v.bankroll), "v")}</div><div class="gl" data-bank="goal"><div class="k">Goal · hypothetical</div>${cell(cells, "bank.goal", money(v.target), "v")}</div></div>`;
+const bankHtml = (cells, v) => `<div class="bv-bank"><div class="st" data-bank="start"><div class="k">Start</div>${cell(cells, "bank.start", cents(v.baseCents), "v")}</div><div class="tr" data-bank="tracked"><div class="k">Tracked bankroll · settled</div>${cell(cells, "bank.tracked", cents(v.bankrollCents), "v")}</div><div class="gl" data-bank="goal"><div class="k">Goal · hypothetical</div>${cell(cells, "bank.goal", cents(v.targetCents), "v")}</div></div>`;
 
 /** Status days: no wager today (no card) or the stake the busting step lost. */
 function statusMoneyHtml(cells, v) {
   const progress = `<div><div class="k">Ladder progress</div>${cell(cells, "money.progress", `${v.cleared} OF ${v.steps}`, "v")}<div class="c">Steps cleared</div></div>`;
-  if (v.view === VIEW.BUSTED) return `<div class="bv-money">${v.bustedAt?.stake != null ? `<div><div class="k">Wager</div>${cell(cells, "money.wager", money(v.bustedAt.stake), "v")}<div class="c">Tracked stake lost</div></div>` : "<div></div>"}<div class="bust"><div class="k">Result</div>${cell(cells, "money.result", `STEP ${v.step} MISSED`, "v")}<div class="c">Run ${esc(String(v.runId).replace(/^run-/, ""))} ends here</div></div>${progress}</div>`;
+  if (v.view === VIEW.BUSTED) return `<div class="bv-money"><div><div class="k">Tracked bankroll</div>${cell(cells, "money.wager", cents(0), "v")}<div class="c">After the missed step</div></div><div class="bust"><div class="k">Result</div>${cell(cells, "money.result", `STEP ${v.step} MISSED`, "v")}<div class="c">Run ${esc(String(v.runId).replace(/^run-/, ""))} ends here</div></div>${progress}</div>`;
   return `<div class="bv-money"><div><div class="k">Wager</div>${cell(cells, "money.wager", "NONE", "v")}<div class="c">No card today</div></div><div><div class="k">Next card</div>${cell(cells, "money.next", `STEP ${v.step} OF ${v.steps}`, "v")}<div class="c">Same tracked bankroll</div></div>${progress}</div>`;
 }
 
 function moneyHtml(cells, v) {
   const progress = `<div><div class="k">Ladder progress</div>${cell(cells, "money.progress", `${v.cleared} OF ${v.steps}`, "v")}<div class="c">Steps cleared</div></div>`;
-  const wager = `<div><div class="k">Wager</div>${cell(cells, "money.wager", money(v.stake), "v")}<div class="c">Tracked stake</div></div>`;
+  // All-in ladder (SPEC §2 STAKE_SET): the tracked stake is the tracked bankroll; an unpriced card is never staked.
+  const wager = `<div><div class="k">Wager</div>${cell(cells, "money.wager", cents(v.bankrollCents), "v")}<div class="c">${cell(cells, "money.wagerState", v.staked ? "Tracked stake" : "Not staked until priced")}</div></div>`;
   if (!v.payout) return `<div class="bv-money">${wager}<div class="pend aw" data-money="awaiting"><div class="k">Potential payout · profit</div>${cell(cells, "money.payout", AWAITING, "v")}</div>${progress}</div>`;
   const fx = v.payout.fixture ? '<span class="fx">SAMPLE</span>' : "";
-  return `<div class="bv-money pr">${wager}<div class="pend" data-money="payout">${fx}<div class="k">Potential payout</div>${cell(cells, "money.payout", money(v.payout.grossPayout), "v")}<div class="c">Pending</div></div><div class="pend" data-money="profit">${fx}<div class="k">Potential profit</div>${cell(cells, "money.profit", money(v.payout.profit), "v")}<div class="c">Pending</div></div>${progress}</div>`;
+  return `<div class="bv-money pr">${wager}<div class="pend" data-money="payout">${fx}<div class="k">Potential payout</div>${cell(cells, "money.payout", cents(v.payout.grossCents), "v")}<div class="c">Pending</div></div><div class="pend" data-money="profit">${fx}<div class="k">Potential profit</div>${cell(cells, "money.profit", cents(v.payout.profitCents), "v")}<div class="c">Pending</div></div>${progress}</div>`;
 }
 
 /**
@@ -173,7 +175,7 @@ export function bbmCard(view, combo = null, { testData = false } = {}) {
   } else if (view.view === VIEW.BUSTED) {
     hero = `<div class="bv-hero s bust">${cell(cells, "status", `BUSTED AT STEP ${view.step} OF ${view.steps}`)}</div>`;
     sub = `${esc(lane)} · RUN ${esc(String(view.runId).replace(/^run-/, ""))}`;
-    const outs = view.card?.outcomes ?? {};
+    const outs = Object.fromEntries((view.legResults ?? []).map((r) => [r.legId, r.outcome]));
     moneyBlock = statusMoneyHtml(cells, view);
     middle = combo ? `<div class="bv-legs${combo.legs.length > 2 ? " d" : ""}">${combo.legs.map((l, i) => legHtml(cells, l, i, outs[l.legId] ?? "PENDING")).join("")}</div>` : `<div class="bv-stat"><div class="k">${cell(cells, "status.note", "Lane busted")}</div></div>`;
   } else if (view.view === VIEW.NO_ELIGIBLE_CARD) {
@@ -184,7 +186,7 @@ export function bbmCard(view, combo = null, { testData = false } = {}) {
   } else if (view.view === VIEW.COMPLETE) {
     hero = `<div class="bv-hero s">${cell(cells, "status", "GOAL REACHED")}</div>`;
     sub = cell(cells, "status.step", `${view.steps} OF ${view.steps} CLEARED`);
-    middle = `<div class="bv-stat"><div class="k">${cell(cells, "status.note", `Tracked bankroll ${money(view.bankroll)}`)}</div></div>`;
+    middle = `<div class="bv-stat"><div class="k">${cell(cells, "status.note", `Goal reached`)}</div></div>`;
   } else throw new Error(`${view.laneId}: no graphic for view ${view.view}`);
   const body = `${CSS}${ms ? '<div class="bv-burst"></div>' : ""}<div class="bv ${P.cls}" style="--acc:${P.acc};--acc2:${P.acc2}">
 <div class="bv-top"><span class="p">${esc(P.name)}</span><span class="l">${esc(lane)}</span>${ms ? `<span class="r">${cell(cells, "risk", "Longshot · higher risk")}</span>` : ""}</div>

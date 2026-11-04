@@ -9,11 +9,12 @@
  * imports the folder and the founder approves the exact version there.
  *
  *   cd app && npx tsx scripts/social/render-bbm.mjs --date <ET date> --as-of <ISO> --suggested-cards <file> \
- *       --lanes <dir holding bb-a.jsonl ...> --roster <unified roster.json> --out <staging root, outside the repo>
+ *       --lanes <dir holding the public projections bb-a.json ...> --roster <unified roster.json> --out <staging root>
  *
- * Every lane is replayed from its hash-chained log (bbm-lane.mjs), and its frozen card is joined to the founder rule B
- * suggested-cards file (contentSha256 verified, the CARD_FROZEN sha equal to it) and re-checked against the committed lane
- * and the render-time roster (combo-social.mjs resolveCombo). Any failure refuses that lane: no image, the reason in the
+ * Every lane is read from the engine's public projection (gtp.challenge-lane.public@1, the file the website reads,
+ * contentSha256 verified; bbm-lane.mjs), and its frozen card is joined to the founder rule B suggested-cards file it
+ * names (sealed, same legs, sides, probabilities and flags) and re-checked against the committed lane and the
+ * render-time roster (combo-social.mjs resolveCombo). Any failure refuses that lane: no image, the reason in the
  * report. A fixture price or a TEST lane history never reaches a package (samples only, written by writeSamples).
  */
 import crypto from "node:crypto";
@@ -26,70 +27,78 @@ import { fileURLToPath } from "node:url";
 import { APP, assertPrivateOutDir } from "./nba-line-graphics-io.mjs";
 import { parseArgs } from "./render-social-pack.mjs";
 import { laneBytes } from "./render-combo-cards.mjs";
-import { BBM_DESIGN_VERSION, FACT_LINE, bbmCard, bbmLayoutErrors, money, verifyBbmCard } from "./bbm-cards.mjs";
-import { BBM_LANES, P1_PRICE_SOURCE_DECIDED, VIEW, laneView, parseLaneLog } from "../../src/lib/social/bbm-lane.mjs";
+import { BBM_DESIGN_VERSION, FACT_LINE, bbmCard, bbmLayoutErrors, cents, verifyBbmCard } from "./bbm-cards.mjs";
+import { BBM_LANES, P1_PRICE_SOURCE_DECIDED, VIEW, laneView } from "../../src/lib/social/bbm-lane.mjs";
 import { comboFromSuggestedCards, resolveCombo, suggestedCardsSealed } from "../../src/lib/social/combo-social.mjs";
 
 export const BBM_PACKAGE_SCHEMA = "gtp.bbm-package@1";
 const sha = (b) => crypto.createHash("sha256").update(b).digest("hex");
 const KIND = Object.freeze({ "bank-builder": "bbm-bank-builder", moonshot: "bbm-moonshot" });
-const SECTION = Object.freeze({ "bank-builder": "bankBuilder", moonshot: "moonshot" });
 /** The live social packages folder: V2 never writes there before the founder approves the cut-over (SPEC §7.3). */
 export const LIVE_PACKAGES = path.join(os.homedir(), "gtp-private", "graphics", "packages");
 
-/** Every card object in the file's NBA section for this product (the section card is lane A; `cards`, if present, list more). */
-function cardsOf(file, product) {
-  const s = file?.[SECTION[product]]?.nba;
-  return [s?.card, ...(Array.isArray(s?.cards) ? s.cards : [])].filter(Boolean);
+const SECTION = Object.freeze({ "bank-builder": "bankBuilder", moonshot: "moonshot" });
+/** Every engine leg in the rule B file: the leg pool plus each card's legs (full guard, with rotation names). */
+function fileLegs(file) {
+  const all = [...(file?.legs ?? [])];
+  for (const k of Object.values(SECTION)) for (const c of [file?.[k]?.nba?.card, ...(file?.[k]?.nba?.cards ?? [])]) for (const l of c?.legs ?? []) all.push(l);
+  return new Map(all.map((l) => [String(l.legId), l]));
 }
-const legIds = (legs) => (legs ?? []).map((l) => String(l.legId)).sort().join(",");
 
 /**
- * The engine card a CARD_FROZEN event froze, from the rule B file, or a refusal. The file must be sealed, be the file the
- * event names, and hold a card of this product with exactly the frozen legs at exactly the frozen probabilities.
+ * The lane's frozen card (projection days[].card) as an engine card from the rule B file, or a refusal. The file must
+ * be sealed and be the one the card names; every leg must be in it with the same game, side, probability and guard
+ * flags. The file's leg carries the guard detail (which rotation player is listed) the card's flag line prints.
  */
-export function frozenCardOf(frozen, file, product) {
+export function engineCardFor(dayCard, file, product) {
   if (!suggestedCardsSealed(file)) return { error: "the suggested-cards file is not sealed (contentSha256 missing or wrong)" };
-  if (frozen.suggestedCardsSha256 !== file.contentSha256) return { error: `CARD_FROZEN names suggested-cards ${String(frozen.suggestedCardsSha256).slice(0, 12)}, the file is ${file.contentSha256.slice(0, 12)}` };
-  const card = cardsOf(file, product).find((c) => (frozen.engineCardId ? c.id === frozen.engineCardId : true) && legIds(c.legs) === legIds(frozen.legs));
-  if (!card) return { error: `no ${product} card in the file has exactly the frozen legs ${legIds(frozen.legs)}` };
-  for (const f of frozen.legs) {
-    const l = card.legs.find((x) => String(x.legId) === String(f.legId));
-    if (f.projection !== l.probability) return { error: `${f.legId}: frozen projection ${f.projection} is not the file's ${l.probability}` };
-    if (f.selection != null && f.selection !== l.selection?.teamAbbr && f.selection !== l.selection?.code) return { error: `${f.legId}: frozen selection ${f.selection} is not the file's ${l.selection?.teamAbbr}` };
+  if (dayCard?.suggestedCardsSha256 !== file.contentSha256) return { error: `the lane card names suggested-cards ${String(dayCard?.suggestedCardsSha256).slice(0, 12)}, the file is ${file.contentSha256.slice(0, 12)}` };
+  if (dayCard.product !== product || dayCard.productDay !== file.productDay) return { error: `the lane card is ${dayCard.product} ${dayCard.productDay}, not ${product} ${file.productDay}` };
+  const pool = fileLegs(file);
+  const legs = [];
+  for (const l of dayCard.legs ?? []) {
+    const f = pool.get(String(l.legId));
+    if (!f) return { error: `${l.legId} is not in the frozen file` };
+    if (String(f.eventId) !== String(l.gameId) || f.selection?.teamAbbr !== l.selection?.teamAbbr || f.probability !== l.probability || f.startUtc !== l.startUtc) return { error: `${l.legId}: the lane card leg is not the frozen file's (game, side, probability or tip)` };
+    if ([...(f.guard?.flags ?? [])].sort().join() !== [...(l.guard?.flags ?? [])].sort().join()) return { error: `${l.legId}: guard flags differ from the frozen file` };
+    legs.push(f);
   }
-  return { card };
+  if (!legs.length) return { error: "the lane card has no legs" };
+  return { card: { id: dayCard.cardId, tier: dayCard.tier, legs, jointProbability: dayCard.jointProbability ?? null, status: "MODEL_ONLY", priced: false, price: null, payout: null } };
 }
 
 /**
- * One lane for one date → { laneId, view, combo, card } or { laneId, refused }. `slate(date)` returns that slate's
- * { file (rule B suggested-cards), lane, laneSha256 } (a BUSTED card reads its own day's slate); `roster` is the
- * render-time unified roster; `testData` marks a fixture lane history.
+ * One lane for one date → { laneId, view, combo, card } or { laneId, refused }. `doc` is the lane's public projection;
+ * `slate(date)` returns that slate's { file (rule B suggested-cards), lane, laneSha256 } (a BUSTED card reads its own
+ * day's slate); `roster` is the render-time unified roster. Samples only: `testData` marks a fixture lane history and
+ * `samplePayout` ({ grossCents, profitCents, fixture: true }) draws a labelled fixture price.
  */
-export function prepareLane({ log, date, slate, roster, asOf, testData = false }) {
-  const laneId = log?.header?.laneId ?? "?";
+export function prepareLane({ doc, date, slate, roster, asOf, testData = false, samplePayout = null }) {
+  const laneId = doc?.laneId ?? "?";
   const refuse = (reason) => ({ laneId, refused: reason });
   let view;
-  try { view = laneView(log, date); } catch (e) { return refuse(e.message); }
+  try { view = laneView(doc, date); } catch (e) { return refuse(e.message); }
   if (!view.view) return refuse(view.reason);
-  if (view.view === VIEW.IN_PLAY) return refuse(`IN_PLAY: step ${view.step} from ${view.card.date} has not settled; no new card (SPEC §3.2)`);
-  if (![VIEW.CARD, VIEW.BUSTED, VIEW.NO_ELIGIBLE_CARD, VIEW.COMPLETE].includes(view.view)) return refuse(`${view.view}: no graphic`);
-  if (view.payout && !view.payout.fixture && !P1_PRICE_SOURCE_DECIDED) return refuse("a real payout cannot print until founder decision P1 names a permitted price source");
+  if (view.view === VIEW.IN_PLAY) return refuse(`IN_PLAY: ${view.reason}; no new card (SPEC §3.2)`);
+  if (samplePayout) {
+    if (samplePayout.fixture !== true) return refuse("a payout is drawn only as a labelled fixture until founder decision P1");
+    if (view.view !== VIEW.CARD || samplePayout.grossCents - samplePayout.profitCents !== view.bankrollCents) return refuse("the sample payout does not fit the card's tracked stake (gross - profit = stake)");
+    view = { ...view, payout: samplePayout };
+  }
   let combo = null;
   if (view.card && (view.view === VIEW.CARD || view.view === VIEW.BUSTED)) {
     let s;
-    try { s = slate(view.card.date); } catch (e) { return refuse(e.message); }
-    if (s.file?.productDay !== view.card.date) return refuse(`the suggested-cards file is for ${s.file?.productDay}, the card is ${view.card.date}`);
-    const { card, error } = frozenCardOf(view.card, s.file, view.product);
+    try { s = slate(view.card.productDay); } catch (e) { return refuse(e.message); }
+    const { card, error } = engineCardFor(view.card, s.file, view.product);
     if (error) return refuse(error);
     // CARD: every check at the render instant against the render-time roster. BUSTED: the record as frozen (its own instant).
-    const doc = comboFromSuggestedCards(s.file, view.product, { card, testData });
-    try { combo = resolveCombo(doc, view.view === VIEW.CARD ? { lane: s.lane, laneSha256: s.laneSha256, asOf, roster } : { lane: s.lane, laneSha256: s.laneSha256, asOf: view.card.at, roster: null }); } catch (e) { return refuse(e.message); }
+    const doc2 = comboFromSuggestedCards(s.file, view.product, { card, testData });
+    try { combo = resolveCombo(doc2, view.view === VIEW.CARD ? { lane: s.lane, laneSha256: s.laneSha256, asOf, roster } : { lane: s.lane, laneSha256: s.laneSha256, asOf: view.card.evaluatedAt, roster: null }); } catch (e) { return refuse(e.message); }
   }
   const card = { ...bbmCard(view, combo, { testData }), name: `${laneId}-${date}` };
   const errs = verifyBbmCard(card);
   if (errs.length) return refuse(`card failed validation: ${errs.join("; ")}`);
-  return { laneId, view, combo, card, testData };
+  return { laneId, view, combo, card, testData, projectionSha256: doc.contentSha256 };
 }
 
 /** slate(date) over suggested-cards files (keyed by productDay) and the committed lanes. */
@@ -111,10 +120,10 @@ const legLine = (l) => `${l.kind === "GAME_WINNER" ? `${l.team.name} to win` : `
 /** One lane's caption block: the step and the lane status, legs by name, no odds language. */
 export function laneCaption(p) {
   const v = p.view; const head = `Lane ${v.letter}`;
-  if (v.view === VIEW.CARD) return [`${head} · Step ${v.step} of ${v.steps}`, ...p.combo.legs.map(legLine), `Tracked bankroll ${money(v.bankroll)} · goal ${money(v.target)}`].join("\n");
+  if (v.view === VIEW.CARD) return [`${head} · Step ${v.step} of ${v.steps}`, ...p.combo.legs.map(legLine), `Tracked bankroll ${cents(v.bankrollCents)} · goal ${cents(v.targetCents)}`].join("\n");
   if (v.view === VIEW.BUSTED) return `${head} · Busted at step ${v.step} of ${v.steps}`;
   if (v.view === VIEW.NO_ELIGIBLE_CARD) return `${head} · No qualifying card today, still step ${v.step} of ${v.steps}`;
-  return `${head} · Goal reached: tracked bankroll ${money(v.bankroll)}`;
+  return `${head} · Goal reached`;
 }
 export function packageCaption(product, lanes, date) {
   const title = product === "bank-builder" ? `🏦 Bank Builder · ${DAY.format(new Date(`${date}T12:00:00Z`))}` : `🚀 Moonshot · ${DAY.format(new Date(`${date}T12:00:00Z`))}`;
@@ -194,7 +203,7 @@ export async function writeStaging(plans, { outRoot, browser, commit = rendererC
         schema: BBM_PACKAGE_SCHEMA, packageId: p.packageId, kind: p.kind, date: p.date, lanes: p.lanes.map((l) => l.laneId), media,
         caption: { text: p.caption, sha256: sha(Buffer.from(p.caption, "utf8")) },
         needsFounderReview: p.needsFounderReview, rendererCommit: commit, designVersion: BBM_DESIGN_VERSION,
-        sources: p.lanes.map((l) => ({ laneId: l.laneId, laneLogRef: lanesRef[l.laneId] ?? null, runId: l.view.runId, eventSha256: drawnEventSha(l.view), suggestedCardsSha256: l.view.card?.suggestedCardsSha256 ?? null })),
+        sources: p.lanes.map((l) => ({ laneId: l.laneId, laneLogRef: lanesRef[l.laneId] ?? null, projectionSha256: l.projectionSha256, runId: l.view.runId, eventSha256: drawnEventSha(l.view), suggestedCardsSha256: l.view.card?.suggestedCardsSha256 ?? null })),
         laneStatus: Object.fromEntries(p.lanes.map((l) => [l.laneId, l.view.view])),
         testData: false,
       };
@@ -205,13 +214,13 @@ export async function writeStaging(plans, { outRoot, browser, commit = rendererC
   return out;
 }
 
-/** The lane-log event a graphic is drawn from: the CARD_FROZEN, the day's STATUS, or the STEP_SETTLED that busted or completed it. */
-export const drawnEventSha = (v) => (v.view === VIEW.CARD ? v.card.sha256 : v.view === VIEW.NO_ELIGIBLE_CARD ? v.statusEventSha256 : v.settledSha256) ?? null;
+/** The lane-log event a graphic is drawn from: the CARD_FROZEN (a card or the busting card) or the day's STATUS. */
+export const drawnEventSha = (v) => v.eventSha256 ?? null;
 
 /** Alt text for one image: the same facts as the card. */
 export function altText(l) {
   const v = l.view; const name = v.product === "bank-builder" ? "Bank Builder" : "Moonshot";
-  if (v.view === VIEW.CARD) return `${name} lane ${v.letter}, step ${v.step} of ${v.steps}. ${l.combo.legs.map((x) => `${legLine(x)}, ${x.kind === "GAME_WINNER" ? "model win probability" : "model projection"} ${x.projectionText}`).join("; ")}. Tracked bankroll ${money(v.bankroll)}, goal ${money(v.target)}. ${FACT_LINE}.`;
+  if (v.view === VIEW.CARD) return `${name} lane ${v.letter}, step ${v.step} of ${v.steps}. ${l.combo.legs.map((x) => `${legLine(x)}, ${x.kind === "GAME_WINNER" ? "model win probability" : "model projection"} ${x.projectionText}`).join("; ")}. Tracked bankroll ${cents(v.bankrollCents)}, goal ${cents(v.targetCents)}. ${FACT_LINE}.`;
   return `${name} lane ${v.letter}. ${laneCaption(l).replace(/\n/g, ". ")}. ${FACT_LINE}.`;
 }
 
@@ -246,10 +255,10 @@ async function main(argv) {
   const roster = JSON.parse(fs.readFileSync(a.roster, "utf8"));
   const lanesRef = {}; const prepared = [];
   for (const laneId of Object.keys(BBM_LANES)) {
-    const f = [".jsonl", ".json"].map((x) => path.join(a.lanes, `${laneId}${x}`)).find((x) => fs.existsSync(x));
-    if (!f) { prepared.push({ laneId, refused: `no lane log ${laneId}.jsonl in ${a.lanes}` }); continue; }
+    const f = path.join(a.lanes, `${laneId}.json`);
+    if (!fs.existsSync(f)) { prepared.push({ laneId, refused: `no lane projection ${laneId}.json in ${a.lanes}` }); continue; }
     lanesRef[laneId] = f;
-    prepared.push(prepareLane({ log: parseLaneLog(fs.readFileSync(f, "utf8")), date, slate, roster, asOf }));
+    prepared.push(prepareLane({ doc: JSON.parse(fs.readFileSync(f, "utf8")), date, slate, roster, asOf }));
   }
   const plans = planPackages(prepared, date);
   const { chromium } = await import("playwright");
