@@ -25,7 +25,8 @@ function rungsOf(run, milestones) {
 /* Rule version: a v2 day/run says so; anything older is bbm-rules@1 (its bytes predate the field). */
 const V1 = "bbm-rules@1";
 const dayView = (d) => ({ date: d.date, step: d.step, status: d.status, reason: d.reason, staked: d.staked, card: d.card, legResults: d.legResults, modelCardResult: d.modelCardResult, stepOutcome: d.stepOutcome, receipts: d.receipts,
-  ruleVersion: d.ruleVersion ?? V1, withdrawn: d.withdrawn === true, legCount: d.legCount ?? d.card?.legs?.length ?? 0, maxLegs: d.maxLegs ?? null, targetPayoutCents: d.targetPayoutCents ?? null, targetPayoutLabel: d.targetPayoutLabel ?? null, heldCode: d.heldCode ?? null });
+  ruleVersion: d.ruleVersion ?? V1, withdrawn: d.withdrawn === true, legCount: d.legCount ?? d.card?.legs?.length ?? 0, maxLegs: d.maxLegs ?? null, targetPayoutCents: d.targetPayoutCents ?? null, targetPayoutLabel: d.targetPayoutLabel ?? null, heldCode: d.heldCode ?? null,
+  evidenceClass: d.card?.classification && d.card.classification !== "HOLD" ? d.card.classification : null, evidenceLabel: d.card?.evidenceLabel ?? null });
 
 /**
  * @param {object} doc   a public lane projection; refused (throws) unless verifyLaneProjection passes

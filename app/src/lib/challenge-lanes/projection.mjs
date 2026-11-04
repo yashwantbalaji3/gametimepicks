@@ -10,6 +10,9 @@
  */
 import { canonical, sha256, verifyChain } from "./chain.mjs";
 import { LANES, MILESTONES, laneState, inPlay, publicStatusOf } from "./lanes.mjs";
+import { publicLeg } from "./card-fields.mjs";
+/* A card@2 (classified) card never carries its book line, price or line-dependent hit rates in the public file. */
+const publicCard = (c) => (c?.classification ? { ...c, legs: c.legs.map(publicLeg), combined: undefined, money: undefined, reasons: undefined } : c);
 
 export const LANE_PROJECTION_SCHEMA = "gtp.challenge-lane.public@1";
 export const PUBLIC_PRICES = Object.freeze({ state: "WITHHELD_P1", note: "Payouts and prices are withheld until the founder approves a price source whose terms permit display (P1)." });
@@ -29,7 +32,7 @@ function publicEvent(e, withheldMoney) {
   if (PRICE_EVENTS.has(e.type)) return { ...head, withheld: "P1", ...(e.type === "PAYOUT_COMPUTED" ? { result: e.result, refusals: e.refusals?.map((r) => r.code) ?? null } : {}) };
   switch (e.type) {
     case "RUN_STARTED": return { ...head, sha256: e.sha256, laneId: e.laneId, runId: e.runId, product: e.product, baseCents: e.baseCents, targetCents: e.targetCents, steps: e.steps, startedAt: e.startedAt, approvedBy: e.approvedBy, ...def({ ruleVersion: e.rulesVersion, maxLegs: e.rulesVersion ? e.maxLegs : undefined, stepTargetsCents: e.stepTargetsCents, supersedes: e.supersedes ?? undefined }) };
-    case "CARD_FROZEN": return { ...head, sha256: e.sha256, packageId: e.packageId, mediaIndex: e.mediaIndex ?? null, suggestedCards: e.suggestedCards, card: e.card };
+    case "CARD_FROZEN": return { ...head, sha256: e.sha256, packageId: e.packageId, mediaIndex: e.mediaIndex ?? null, suggestedCards: e.suggestedCards, card: publicCard(e.card) };
     case "STAKE_SET": return { ...head, withheld: withheldMoney ? "P1" : null, stakeCents: withheldMoney ? null : e.stakeCents, placedWager: e.placedWager };
     case "LEG_SETTLED": return { ...head, sha256: e.sha256, legId: e.legId, gameId: e.gameId, outcome: e.outcome, final: e.final, resultSource: e.source };
     case "STEP_SETTLED": return { ...head, sha256: withheldMoney ? null : e.sha256, outcome: e.outcome, bankrollAfterCents: withheldMoney ? null : e.bankrollAfterCents };
@@ -66,7 +69,7 @@ function publicRun(events) {
     trackedBankrollCents: withheldMoney ? null : s.bankrollCents, trackedBankrollWithheld: withheldMoney ? "P1" : null,
     days: s.days.map((d) => ({
       date: d.date, step: d.step, status: d.status, reason: d.reason, staked: d.staked,
-      card: d.card, cardEventSha256: d.cardEventSha256 ?? null,
+      card: publicCard(d.card), cardEventSha256: d.cardEventSha256 ?? null,
       legResults: d.card ? d.card.legs.map((l) => ({ legId: l.legId, outcome: d.legs[l.legId] ?? "PENDING" })) : [],
       modelCardResult: !d.card ? null : Object.values(d.legs).includes("LOSS") ? "LOSS" : d.card.legs.every((l) => d.legs[l.legId] === "WIN") ? "WIN" : "PENDING",
       stepOutcome: d.outcome ?? null, receipts: receiptsFor(d.date),

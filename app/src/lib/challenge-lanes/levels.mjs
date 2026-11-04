@@ -18,6 +18,8 @@ import { canonical, sha256 } from "./chain.mjs";
 import { priceRatio, payoutCents, decimalToAmerican } from "./payout.mjs";
 import { stepPosition, RULES_VERSION } from "./rules-v2.mjs";
 import { ELIGIBLE_OPERATOR_KEYS } from "../sports/odds/eligible-operators.mjs";
+import { EVIDENCE_LABEL } from "./card-fields.mjs";
+export { EVIDENCE_LABEL, PRIVATE_LEG_FIELDS, publicLeg, privateLeg } from "./card-fields.mjs";
 
 export const SHORTLIST_SCHEMA = "gtp.bbm.level-b-shortlist@1";
 export const LEVEL = Object.freeze({ A: "LEVEL_A", B: "LEVEL_B", HOLD: "HOLD" });
@@ -59,12 +61,14 @@ export function verifyShortlist(doc) {
 
 /** The leg schema (founder contract), from one shortlist row. Probability and EV are null: Level B never carries them. */
 export function legFromShortlist(c) {
-  const id = c.family === "winner" ? `nba:${c.eventId}:winner:${c.side}` : `nba:${c.eventId}:${c.family}:${c.player.playerId}:${c.side}:${c.line}`;
+  /* The leg id never contains the line: ids are public, the line is price data. */
+  const id = c.family === "winner" ? `nba:${c.eventId}:winner:${c.side}` : `nba:${c.eventId}:${c.family}:${c.player.playerId}:${c.side}`;
   return {
     legId: id, sport: "nba", gameId: String(c.eventId), eventLabel: c.eventLabel, startUtc: c.startUtc,
     market: c.family === "winner" ? "h2h" : PROP_FAMILIES[c.family], family: c.family,
     player: c.player ?? null, team: c.family === "winner" ? c.teamAbbr ?? null : c.player?.team ?? null, side: c.side, line: c.line ?? null,
     forecastVersion: c.forecastVersion ?? null, evidenceSha256: c.evidenceSha256 ?? null,
+    projection: c.projection ? { value: c.projection.value ?? null, label: "MODEL PROJECTION", snapshotId: c.projection.snapshotId ?? null } : null,
     hitRate: c.hitRate ? { windows: (c.hitRate.windows ?? []).map((w) => ({ window: w.window, hits: w.hits, n: w.n, text: hitRateText(w) })), shrunk: c.hitRate.shrunk ?? null, lineBasis: c.hitRate.lineBasis ?? null } : null,
     role: c.role ?? null, injury: c.injury ?? null, dataQuality: c.dataQuality ?? null,
     probability: null, uncertainty: null, ev: null,
@@ -227,8 +231,8 @@ export function constructLevelPair({ legs, now, product, laneA, laneB, propCaptu
 export function levelCardRecord(candidate, { laneId, date }) {
   return {
     schema: "gtp.bbm.card@2", rulesVersion: RULES_VERSION, laneId, date, candidateId: candidate.candidateId,
-    classification: candidate.classification, classificationLabel: LEVEL_LABEL[candidate.classification], evClaim: false, probability: null,
-    legs: candidate.legs.map((l) => ({ legId: l.legId, sport: l.sport, gameId: l.gameId, eventLabel: l.eventLabel, startUtc: l.startUtc, player: l.player, team: l.team, market: l.market, line: l.line, side: l.side, book: l.quote?.book ?? null, price: l.quote?.american ?? null, quotedAt: l.quote?.quotedAt ?? null, fetchedAt: l.quote?.fetchedAt ?? null, forecastVersion: l.forecastVersion, hitRate: l.hitRate, role: l.role, injury: l.injury, classification: candidate.classification, probability: null, uncertainty: null, ev: null })),
+    classification: candidate.classification, classificationLabel: LEVEL_LABEL[candidate.classification], evidenceLabel: EVIDENCE_LABEL[candidate.classification] ?? null, evClaim: false, probability: null,
+    legs: candidate.legs.map((l) => ({ legId: l.legId, sport: l.sport, gameId: l.gameId, eventLabel: l.eventLabel, startUtc: l.startUtc, player: l.player, team: l.team, market: l.market, family: l.family, projection: l.projection ?? null, line: l.line, side: l.side, book: l.quote?.book ?? null, price: l.quote?.american ?? null, quotedAt: l.quote?.quotedAt ?? null, fetchedAt: l.quote?.fetchedAt ?? null, forecastVersion: l.forecastVersion, hitRate: l.hitRate, role: l.role, injury: l.injury, classification: candidate.classification, probability: null, uncertainty: null, ev: null })),
     combined: candidate.price && { method: candidate.price.method, label: candidate.price.label, decimal: candidate.price.decimal, american: candidate.price.american },
     money: candidate.money, reasons: candidate.reasons,
     approvalStatus: "PENDING_FOUNDER", priceEventSha256: null, graphicVersion: null, siteRecordVersion: null, xReceipt: null,
@@ -236,3 +240,4 @@ export function levelCardRecord(candidate, { laneId, date }) {
   };
 }
 export const sealCardRecord = (r) => ({ ...r, recordSha256: sha256(canonical({ ...r, recordSha256: null })) });
+

@@ -115,3 +115,21 @@ test("card record: classification, pending approval and empty publication receip
   assert.deepEqual([c.classification, c.approvalStatus, c.priceEventSha256, c.graphicVersion, c.siteRecordVersion, c.xReceipt, c.evClaim], [LEVEL.B, "PENDING_FOUNDER", null, null, null, null, false]);
   assert.equal(sealCardRecord(levelCardRecord(r, { laneId: "ms-a", date: "2026-11-04" })).recordSha256, c.recordSha256);
 });
+
+test("public/private split: a card@2 or research file in plain JSON carries no line, book, price or hit rate; the encrypted views do", async () => {
+  const { sampleOutputs } = await import("../../../scripts/challenge-lanes/v2-sample.mjs");
+  const out = sampleOutputs();
+  const bbb = out.find((o) => o.laneId === "bb-b"); const msb = out.find((o) => o.laneId === "ms-b");
+  const plain = JSON.stringify(bbb.pub) + JSON.stringify(msb.research.public);
+  assert.ok(!/"line"|"american"|synthetic-book|hitRate|"k":|18\.5|20\.5|9\.5/.test(plain), "no line-dependent field in a public file");
+  const days = bbb.display.history.map((d) => [d.evidenceClass, d.evidenceLabel]);
+  assert.deepEqual(days, [["LEVEL_A", "Model-validated value"], ["LEVEL_B", "Historical hit-rate research (experimental)"]]);
+  const det = bbb.priced.history[1].price.legDetails;
+  assert.deepEqual(det.map((l) => [l.line, l.hitRates[0]]), [[18.5, { window: "last10", k: 7, n: 10 }], [9.5, { window: "last10", k: 7, n: 10 }]]);
+  assert.ok(det.every((l) => Date.parse(l.staleAfter) > Date.parse(l.fetchedAt)));
+  assert.deepEqual([msb.researchView.official, msb.researchView.lanesHeld[0].heldCode, msb.researchView.candidates[0].status], [false, "NO_QUALIFIED_CARD", "RESEARCH"]);
+  assert.ok(!/stakeCents|grossPayoutCents|profitCents/.test(JSON.stringify(msb.researchView)), "research never carries a stake or payout");
+  assert.equal(msb.researchPublicView.candidates[0].legs[0].price, null, "without the companion, no price appears");
+  const { researchDisplay } = await import("./research.mjs");
+  assert.throws(() => researchDisplay(msb.research.public, { ...msb.research.prices, publicSha256: "0".repeat(64) }), /not made from/);
+});
