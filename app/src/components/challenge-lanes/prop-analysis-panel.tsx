@@ -19,7 +19,13 @@ const groups = (rows: PropAnalysisRow[]) => {
 
 export const PROP_PANEL_LABEL = "Not a challenge leg — no prop passed the reliability gate";
 
-export default function PropAnalysisPanel({ analysis }: { analysis: PropAnalysisView | null }) {
+/**
+ * `summary` (the Bank Builder and Moonshot pages): one line per game instead of the row tables. A full slate is ~300 rows,
+ * and the row tables cost ~68 KB of HTML plus the same again (and more) in the page's flight payload — measured on the
+ * real Nov 4 flag-ON export: /bank-builder 526 KiB (budget 400), /moonshot 466 KiB (budget 300). The tables belong on a
+ * page of their own.
+ */
+export default function PropAnalysisPanel({ analysis, summary = false }: { analysis: PropAnalysisView | null; summary?: boolean }) {
   if (!analysis || (!analysis.rows.length && !analysis.stale)) return null;
   return (
     <section id="prop-analysis" className="pa-section scroll-mt-24" aria-labelledby="prop-analysis-h" data-prop-analysis={analysis.date}>
@@ -29,8 +35,21 @@ export default function PropAnalysisPanel({ analysis }: { analysis: PropAnalysis
       <p className="pa-label" data-prop-analysis-label="">{PROP_PANEL_LABEL}{analysis.gateReason ? `. ${analysis.gateReason}` : "."}</p>
       {analysis.label ? <p className="pa-src" data-prop-analysis-source-label="">{analysis.label}</p> : null}
       {analysis.freshness ? <p className="pa-src" data-prop-analysis-freshness="">{analysis.freshness}{analysis.stale ? " These lines are stale, so no difference is shown — awaiting a fresher capture." : ""}</p> : null}
+      {summary ? (
+        <ul className="pa-summary" data-prop-analysis-summary="">
+          {groups(analysis.rows).map(([game, rows]) => {
+            const compared = rows.filter((r) => !r.lineStale).length;
+            return (
+              <li key={game}>
+                <strong>{game}</strong> · {rows.length} {rows.length === 1 ? "prop" : "props"}
+                {compared ? ` · ${compared} compared with a current line` : " · lines stale"}
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
       {/* Grouped by game in tip-off order and folded, so a full slate stays short; never ranked by difference. */}
-      {groups(analysis.rows).map(([game, rows]) => (
+      {summary ? null : groups(analysis.rows).map(([game, rows]) => (
         <details key={game} className="pa-game" data-prop-game={game}>
           <summary className="pa-game-summary"><span><strong>{game}</strong> · {rows.length} {rows.length === 1 ? "prop" : "props"}</span></summary>
           <table className="pa-table">

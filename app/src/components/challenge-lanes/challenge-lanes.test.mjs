@@ -390,10 +390,15 @@ test("PROP ANALYSIS end to end: nba-engine-eval's writer + reader → the panel:
   assert.equal(loadPropAnalysis({ appDir: app, date: "2099-01-15", env: { GTP_ODDS_DISPLAY_KEY: crypto.randomBytes(32).toString("hex") } }), null);
   assert.equal(loadPropAnalysis({ appDir: app, date: "2099-01-16", env: { GTP_ODDS_DISPLAY_KEY: KEY } }), null);
   assert.doesNotMatch(fs.readFileSync(path.join(repo, "data", "odds-display", "nba", "prop-analysis", "2099-01-15.json.enc"), "utf8"), /draftkings|Test Player/);
+  // The pages render the per-game summary only: no row table, no player, line or book (page weight; the tables belong on a page of their own).
+  const sum = html(React.createElement(PropAnalysisPanel, { analysis: fresh, summary: true }));
+  assert.match(text(sum), /AAA @ BBB · 1 prop · 1 compared with a current line/);
+  assert.doesNotMatch(sum, /pa-table|Test Player|draftkings|19\.5/);
+  assert.match(text(html(React.createElement(PropAnalysisPanel, { analysis: stale, summary: true }))), /AAA @ BBB · 1 prop · lines stale/);
   fs.rmSync(repo, { recursive: true, force: true });
   for (const f of ["src/app/bank-builder/page.tsx", "src/app/moonshot/page.tsx"]) {
     const src = read(f);
-    assert.match(src, /<PropAnalysisPanel analysis=\{loadPropAnalysis\(\{ date: levelAModel\?\.productDay \?\? (currentEtDate\(\)|etToday) \}\) as PropAnalysisView \| null\} \/>/, f);
+    assert.match(src, /<PropAnalysisPanel summary analysis=\{loadPropAnalysis\(\{ date: levelAModel\?\.productDay \?\? (currentEtDate\(\)|etToday) \}\) as PropAnalysisView \| null\} \/>/, f);
     assert.ok(src.indexOf("<LanePair") < src.indexOf("<PropAnalysisPanel"), f);
   }
 });

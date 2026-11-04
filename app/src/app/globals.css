@@ -6407,3 +6407,6 @@ textarea:focus-visible { outline: none; box-shadow: var(--vault-focus-ring); bor
 .cl-lead-range { color: var(--sport-bank); }
 .cl-lead-title--moonshot { text-transform: uppercase; text-shadow: 0 0 28px color-mix(in srgb, var(--product-moonshot-electric) 60%, transparent); }
 .cl-lead-title--moonshot .cl-lead-range { color: var(--product-moonshot); }
+.pa-summary { margin: 0; padding-left: 18px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px 24px; font-size: 13.5px; color: var(--vault-text-mute); }
+.pa-summary strong { color: var(--vault-text); }
+@media (min-width: 900px) { .pa-summary { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }

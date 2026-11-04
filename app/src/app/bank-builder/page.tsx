@@ -513,7 +513,7 @@ export default function BankBuilderPage() {
           and graphics as the X posts, read through the ONE verifying loader of public/data/challenge-lanes/<laneId>.json. */}
       <LanePair product="bank-builder" lead lanes={loadProductLanes("bank-builder") as LaneView[]} />
       {/* PROVISIONAL PROP ANALYSIS (founder P0, 2026-11-04): a separate panel, never a challenge leg. */}
-      <PropAnalysisPanel analysis={loadPropAnalysis({ date: levelAModel?.productDay ?? currentEtDate() }) as PropAnalysisView | null} />
+      <PropAnalysisPanel summary analysis={loadPropAnalysis({ date: levelAModel?.productDay ?? currentEtDate() }) as PropAnalysisView | null} />
 
       <MoreDisclosure title="How Bank Builder works" summary="Risk bands, today's model card and the checks behind it" className="mt-6">
         {/* FRONT DOOR — the product's identity, its bands and its risk, and the ladder's operating state (Program 140)

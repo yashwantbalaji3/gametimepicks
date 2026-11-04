@@ -183,7 +183,7 @@ export default function MoonshotPage() {
           and graphics as the X posts, read through the ONE verifying loader of public/data/challenge-lanes/<laneId>.json. */}
       <LanePair product="moonshot" lead lanes={loadProductLanes("moonshot") as LaneView[]} />
       {/* PROVISIONAL PROP ANALYSIS (founder P0, 2026-11-04): a separate panel, never a challenge leg. */}
-      <PropAnalysisPanel analysis={loadPropAnalysis({ date: levelAModel?.productDay ?? etToday }) as PropAnalysisView | null} />
+      <PropAnalysisPanel summary analysis={loadPropAnalysis({ date: levelAModel?.productDay ?? etToday }) as PropAnalysisView | null} />
 
       <MoreDisclosure title="How Moonshot works" summary="Risk bands, today's model card and the checks behind it">
         <div className="flex flex-col gap-6">
