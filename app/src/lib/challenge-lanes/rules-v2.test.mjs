@@ -248,6 +248,7 @@ test("site contract on the synthetic v2 sample: rule versions, per-run ladder, l
   const held = ms.display.history.find((d) => d.date === "2030-01-02");
   assert.deepEqual([held.heldCode, held.legCount, held.targetPayoutCents], ["NO_QUALIFIED_CARD", 0, 10000]);
   assert.equal(ms.priced.trackedBankrollCents, 5240, "carry-forward: the settled payout");
+  assert.deepEqual([bb.display.status, bb.priced.trackedBankrollCents, bb.prices.runs.at(-1).trackedBankrollCents, bb.priced.pace.requiredMultiple], ["LOST", 0, 0, null], "a lost step settles the tracked bankroll to $0, never the pre-loss amount");
   assert.equal(ms.priced.pace.requiredMultiple, 1.9084);
   const won = ms.priced.history.find((d) => d.date === "2030-01-01");
   assert.deepEqual([won.price.targetPayoutCents, won.price.targetPayoutLabel, won.price.bankrollAfterCents], [5000, "STEP TARGET", 5240]);

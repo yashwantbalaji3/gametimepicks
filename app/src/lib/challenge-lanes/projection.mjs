@@ -59,7 +59,7 @@ function publicRun(events) {
   const milestone = wins > 0 ? ladder[Math.min(wins, s.steps) - 1] : s.baseCents;
   const pace = withheldMoney
     ? { withheld: "P1", milestoneCents: milestone, requiredMultiplier: null, behindByCents: null, onPace: null }
-    : { withheld: null, milestoneCents: milestone, requiredMultiplier: !remaining ? null : v2 ? Math.round((ladder[s.step - 1] / s.bankrollCents) * 1e4) / 1e4 : Math.round((s.targetCents / s.bankrollCents) ** (1 / remaining) * 1e4) / 1e4, behindByCents: Math.max(0, milestone - s.bankrollCents), onPace: s.bankrollCents >= milestone };
+    : { withheld: null, milestoneCents: milestone, requiredMultiplier: !remaining || !(s.bankrollCents > 0) ? null : v2 ? Math.round((ladder[s.step - 1] / s.bankrollCents) * 1e4) / 1e4 : Math.round((s.targetCents / s.bankrollCents) ** (1 / remaining) * 1e4) / 1e4, behindByCents: Math.max(0, milestone - s.bankrollCents), onPace: s.bankrollCents >= milestone };
   const receiptsFor = (date) => events.filter((e) => ["GRAPHIC_RENDERED", "APPROVED", "POSTED"].includes(e.type) && e.date === date).map((e) => publicEvent(e, withheldMoney));
   return {
     runId: s.runId, startedAt: s.startedAt, approvedBy: s.approvedBy, headSha256: events.at(-1).sha256, eventCount: events.length,
