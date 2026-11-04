@@ -249,15 +249,6 @@ jobs:
           (cd app && npx tsx scripts/products/build-recommendation-universe.mjs --date "$DATE" --now "$NOW" --write)
           (cd app && npx tsx scripts/products/suggested-parlays-shadow.mjs build --date "$DATE" --now "$NOW" --write)
 
-      # Leg pool + daily suggested cards (Bank Builder, Moonshot, parlay tiers; NBA-only and cross-sport). Model-only:
-      # no price, payout or link. Write-once per date (the first generation is the record). Runs on an MLB-off day too:
-      # NBA does not depend on the MLB verdict.
-      - name: Suggested cards from the leg pool (NETWORK-FREE, MODEL-ONLY)
-        if: steps.recovery.outputs.already-generated != 'true' && github.event.inputs.dry_run != 'true'
-        run: |
-          set -euo pipefail
-          (cd app && npx tsx scripts/products/build-suggested-cards.mjs --date "${{ steps.d.outputs.date }}" --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --write)
-
       - name: Protected money must be byte-identical
         # A DISPLAY refresh that moved the bankroll would be a serious defect. The orchestrator has
         # this guard; a scheduled job that writes the same artifacts needs it just as much.
@@ -412,7 +403,6 @@ jobs:
           git add data/internal/products/recommendation-universe/ 2>/dev/null || true
           git add data/internal/products/engine-v2/ 2>/dev/null || true
           git add app/public/data/products/availability/ 2>/dev/null || true
-          git add app/public/data/suggested-cards/ 2>/dev/null || true
           git add app/public/data/parlays/risk-ladder/ 2>/dev/null || true
           git add app/public/data/mlb/season-state.json 2>/dev/null || true
           git add app/public/data/parlays/lab-ledger.json app/public/data/parlays/coverage-matrix.json 2>/dev/null || true

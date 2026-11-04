@@ -131,3 +131,9 @@ test("grading reads the same file: a missing final is PENDING (never a loss), on
   assert.equal(gradeSuggestedCards(D, { finals: [row(a, false)] }).cards.find((c) => c.product === "bank-builder").state, "LOSS");
   assert.equal(gradeSuggestedCards(D, { finals: [row(a, true)], conflicts: [{ providerEventId: b.eventId }] }).cards.find((c) => c.product === "bank-builder").state, "PENDING");
 });
+
+test("NBA legs are game winners only, said in the file; each side names its team", () => {
+  assert.deepEqual(D.nbaLegKinds, ["game-winner"]);
+  assert.equal(D.methodologyDependencies.find((m) => m.key === "nba-player-prop-probability").state, "NOT_APPROVED");
+  for (const l of D.legs.filter((x) => x.sport === "nba")) { assert.equal(l.market, "winner"); assert.match(l.selection.teamAbbr, /^[A-Z]{2,4}$/); }
+});

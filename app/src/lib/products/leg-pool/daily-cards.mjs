@@ -22,6 +22,22 @@ import { PUBLIC_RISK_TIERS, PUBLIC_RISK_LABELS, PARLAY_ODDS_BANDS } from "../../
 
 export const SUGGESTED_CARDS_SCHEMA = "gtp.suggested-cards@1";
 export const CARD_STATE = Object.freeze({ QUALIFIED: "qualified", MODEL_ONLY: "model-only", BLOCKED: "blocked", INSUFFICIENT: "insufficient" });
+/* What is NOT in these cards, and what it waits on. Stated in every file so the pages and social can say it plainly. */
+export const METHODOLOGY_DEPENDENCIES = Object.freeze([
+  Object.freeze({
+    key: "nba-player-prop-probability",
+    state: "NOT_APPROVED",
+    effect: "NBA legs are game winners only. Player props are not legs: the official lane publishes medians only, and no over/under probability or threshold is derived from a median.",
+    proposedMethod: "Publish a per-player, per-stat P(stat >= threshold) from the frozen v0.1 simulation draws (the same 10,000 runs the medians come from), for thresholds set by a rule fixed in advance, only after the band-80 coverage of those draws passes a preregistered check on graded 2026-27 games. Needs founder approval before any build reads it.",
+  }),
+  Object.freeze({
+    key: "priced-cards",
+    state: "NOT_AUTHORIZED",
+    effect: "No card is qualified (bettable): no fresh, permitted sportsbook odds exist, and provider terms bar public price JSON.",
+    proposedMethod: "An authorized NBA price feed with terms that permit display, then the established Level B gates.",
+  }),
+]);
+
 export const PRICING = Object.freeze({
   state: "MODEL_ONLY",
   note: "No fresh, permitted sportsbook odds are available, so every card is a model suggestion: no price, no payout, not a bet. Settles on the official final.",
@@ -98,6 +114,7 @@ export function dailySuggestedCards(pool) {
     schema: SUGGESTED_CARDS_SCHEMA,
     productDay: pool.productDay, evaluatedAt: pool.evaluatedAt, legPool: pool.version,
     label: LEVEL_A_LABEL, pricing: PRICING,
+    nbaLegKinds: ["game-winner"], methodologyDependencies: METHODOLOGY_DEPENDENCIES,
     inputs: pool.inputs,
     sports: pool.sports,
     bankBuilder: {

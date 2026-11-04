@@ -112,7 +112,7 @@ export function buildLegPool({ repoRoot, date, evaluatedAt, sources = null, lane
     nbaLegs.push({
       leg: l, // the Level A leg, unchanged, for the shared selection engine
       legId: key, sport: "nba", eventId: String(l.eventId), eventLabel: l.eventLabel, startUtc: l.startUtc, market: l.market,
-      selection: l.selection, status: LEG_STATUS.MODEL_ONLY,
+      selection: { ...l.selection, teamAbbr: g[l.selection.code]?.abbr ?? null }, status: LEG_STATUS.MODEL_ONLY,
       probability: shown ? (l.selection.code === "home" ? shown.pHome : 1 - shown.pHome) : null,
       probabilityShown: shown?.shown?.[l.selection.code] ?? null,
       forecast: { ...l.forecast, receiptSha256: g.receipt.payloadSha256 },
