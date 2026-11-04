@@ -8,6 +8,7 @@
 import { decimalToAmerican } from "../../challenge-lanes/payout.mjs";
 import { isProp, hitRateText } from "./lane.mjs";
 import { EVIDENCE_LABEL } from "../../challenge-lanes/card-fields.mjs";
+import { laneDisplay } from "../../challenge-lanes/display.mjs";
 
 const money = (cents) => (typeof cents === "number" && Number.isFinite(cents) ? `$${(cents / 100).toLocaleString("en-US", cents % 100 ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } : { maximumFractionDigits: 0 })}` : null);
 const american = (n) => (typeof n === "number" && Number.isFinite(n) ? (n > 0 ? `+${n}` : String(n)) : null);
@@ -60,11 +61,8 @@ export function laneParity({ doc, prices, view }) {
   const pr = prices?.runs?.find((r) => r.runId === run.runId);
   const pd = pr?.days?.filter((d) => d.date === day?.date).at(-1) ?? null;
   row("prices bound to projection", prices?.projectionSha256, doc.contentSha256);
-  /* A BUSTED run's current bankroll is the losing day's bankrollAfterCents (the engine's trackedBankrollCents still
-     holds the pre-loss figure in the v2 sample; raised with betting-engine 2026-11-04). */
-  const busted = pr?.status === "BUSTED" || doc.current?.publicStatus === "LOST";
-  const lostDay = busted ? pr?.days?.filter((d) => d.stepOutcome === "LOSS" || typeof d.bankrollAfterCents === "number").at(-1) : null;
-  row("tracked bankroll", busted ? (typeof lostDay?.bankrollAfterCents === "number" ? money(lostDay.bankrollAfterCents) : "Busted") : money(pr?.trackedBankrollCents), view.tracked);
+  /* The post-settlement bankroll in every state ($0 on BUSTED, engine 566ab9cfd5); the site never shows a pre-loss figure. */
+  row("tracked bankroll", pr ? money(pr.trackedBankrollCents) : doc.current?.publicStatus === "LOST" ? "Busted" : null, view.tracked);
   const sp = siteDay?.price ?? null;
   const priced = pd && pd.verification !== "REFUSED";
   /* A priced day must show every price field, exactly (fail-closed); an unpriced or refused day must show none. */
@@ -126,7 +124,22 @@ export function surfaceParity({ doc, prices = null, view = null, graphic = null,
   const key = (x) => `${x.date}|${x.packageId ?? ""}`;
   const rendered = new Map(receipts.filter((r) => r.type === "GRAPHIC_RENDERED").map((r) => [key(r), r]));
   const approved = new Map(receipts.filter((r) => r.type === "APPROVED").map((r) => [key(r), r]));
-  const priceEvent = new Map((prices?.runs ?? []).flatMap((r) => r.days).map((d) => [d.date, d.priceEventSha256 ?? null]));
+  const priceDays = new Map((prices?.runs ?? []).flatMap((r) => r.days).map((d) => [d.date, d]));
+  /* The card or status event each day's image must be drawn from (betting-engine: display day.sourceEventSha256). */
+  const shown = laneDisplay(doc);
+  const sourceEvent = new Map([...shown.history, ...(shown.day ? [shown.day] : [])].map((d) => [d.date, d.sourceEventSha256 ?? null]));
+  /* Record-internal checks (betting-engine 2026-11-04): POSTED approves what APPROVED approved; card@2.graphicVersion
+     mirrors "<rendererCommit>:<imageSha256>"; card@2.priceEventSha256 mirrors the price display's. */
+  for (const p of receipts.filter((r) => r.type === "POSTED")) push(`record ${key(p)} posted = approved version`, approved.get(key(p))?.approvedVersionSha256 ?? null, p.approvedVersionSha256 ?? null);
+  for (const d of doc.runs.flatMap((r) => r.days)) {
+    const card = d.card;
+    if (!card) continue;
+    if (card.graphicVersion != null) {
+      const g = [...rendered.values()].filter((r) => r.date === d.date).at(-1);
+      push(`record ${d.date} graphic version mirror`, g ? `${g.rendererCommit}:${g.imageSha256}` : null, card.graphicVersion);
+    }
+    if (card.priceEventSha256 != null && prices) push(`record ${d.date} price event mirror`, priceDays.get(d.date)?.priceEventSha256 ?? null, card.priceEventSha256);
+  }
   const surfaces = { site: view?.graphics ?? null, graphic, caption, console: cons };
   for (const [name, rows] of Object.entries(surfaces)) {
     if (!rows) continue;
@@ -139,7 +152,9 @@ export function surfaceParity({ doc, prices = null, view = null, graphic = null,
       if ("captionSha256" in row) push(`${name} ${k} caption sha`, g.captionSha256 ?? null, row.captionSha256);
       if ("graphicVersion" in row) push(`${name} ${k} graphic version`, g.rendererCommit ?? null, row.graphicVersion);
       if ("approvedVersionSha256" in row) push(`${name} ${k} approved version`, approved.get(k)?.approvedVersionSha256 ?? null, row.approvedVersionSha256);
-      if ("priceEventSha256" in row && prices) push(`${name} ${k} price event`, priceEvent.get(row.date) ?? null, row.priceEventSha256);
+      if ("priceEventSha256" in row && prices) push(`${name} ${k} price event`, priceDays.get(row.date)?.priceEventSha256 ?? null, row.priceEventSha256);
+      if ("payoutEventSha256" in row && prices) push(`${name} ${k} payout event`, priceDays.get(row.date)?.payoutEventSha256 ?? null, row.payoutEventSha256);
+      if ("refEventSha256" in row) push(`${name} ${k} drawn from`, g.refEventSha256 ?? sourceEvent.get(row.date) ?? null, row.refEventSha256);
     }
   }
   return out;

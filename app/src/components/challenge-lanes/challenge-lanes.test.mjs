@@ -166,7 +166,7 @@ test("SITE/SOCIAL CONSISTENCY: every step, rung, status, bankroll, distance, pac
     assert.equal(v.status, d.status, tag); assert.equal(v.internalStatus, d.internalStatus, tag);
     assert.deepEqual(v.rungs.map((r) => [r.step, r.state, r.milestone]), d.rungs.map((r) => [r.step, r.state, usd(r.milestoneCents)]), tag);
     /* LOST: the bankroll after the losing step, or "Busted" with no verified price (never the pre-loss figure). */
-    if (d.status === "LOST") assert.equal(v.tracked, typeof d.day?.price?.bankrollAfterCents === "number" ? usd(d.day.price.bankrollAfterCents) : "Busted", tag);
+    if (d.status === "LOST") assert.equal(v.tracked, d.trackedBankrollCents == null ? "Busted" : usd(d.trackedBankrollCents), tag);
     else assert.equal(v.tracked, d.trackedBankrollCents == null ? lane.AWAITING_PRICES : usd(d.trackedBankrollCents), tag);
     assert.equal(v.toTarget, d.status === "LOST" ? null : usd(d.distanceToTargetCents), tag);
     assert.equal(v.pace?.state ?? null, d.status === "LOST" ? null : d.pace.state, tag);
@@ -688,7 +688,8 @@ test("LOST lane (PD 2026-11-04): reads LOST AT STEP k, the bankroll after the lo
   const v = lane.laneView(o.pub, { display: o.priced, productDay: o.priced.day.date });
   assert.equal(v.status, "LOST");
   assert.equal(v.stepText, "LOST AT STEP 2 OF 5");
-  assert.equal(v.tracked, "$0", "the losing day's bankrollAfterCents, never the pre-loss $195.23");
+  assert.equal(v.tracked, "$0", "the post-loss bankroll (engine 566ab9cfd5), never the pre-loss $195.23");
+  assert.equal(o.priced.trackedBankrollCents, 0);
   assert.equal(v.stepTarget, null);
   const h = html(React.createElement(LaneCard, { lane: v }));
   const t = text(h);
@@ -742,7 +743,8 @@ test("CROSS-SURFACE PARITY: engine receipts ↔ site ↔ graphic manifest ↔ ca
   assert.ok(lanes.rows.some((r) => r.field === "graphic receipts" && r.ok && r.engine), "the site lists the record's graphic with image, caption and version");
   assert.ok(lanes.rows.some((r) => r.field === "price event sha" && r.ok && r.engine));
   assert.match(html(React.createElement(LaneCard, { lane: view })), new RegExp(`data-graphic-version="v6-abc123" data-caption-sha256="${CAP}"`));
-  const graphic = [{ date, packageId: "bb-pkg", imageSha256: IMG, captionSha256: CAP, graphicVersion: "v6-abc123", priceEventSha256: PE }];
+  const REF = (await import("../../lib/challenge-lanes/display.mjs")).laneDisplay(doc).day.sourceEventSha256;
+  const graphic = [{ date, packageId: "bb-pkg", imageSha256: IMG, captionSha256: CAP, graphicVersion: "v6-abc123", priceEventSha256: PE, payoutEventSha256: prices.runs[0].days[0].payoutEventSha256 ?? null, refEventSha256: REF }];
   const caption = [{ date, packageId: "bb-pkg", captionSha256: CAP }];
   const consoleRows = [{ date, packageId: "bb-pkg", imageSha256: IMG, approvedVersionSha256: APV }];
   const all = parityReport([surfaceParity({ doc, prices, view, graphic, caption, console: consoleRows })]);
@@ -754,6 +756,20 @@ test("CROSS-SURFACE PARITY: engine receipts ↔ site ↔ graphic manifest ↔ ca
     caption: [{ ...caption[0], captionSha256: "f".repeat(64) }],
     console: [{ ...consoleRows[0], approvedVersionSha256: "e".repeat(64) }, { date, packageId: "unrecorded", imageSha256: IMG }] })]).failures;
   for (const f of [`graphic ${date}|bb-pkg price event`, `graphic ${date}|bb-pkg graphic version`, `caption ${date}|bb-pkg caption sha`, `console ${date}|bb-pkg approved version`, `console ${date}|unrecorded graphic (NOT_IN_RECORD)`]) assert.ok(bad.includes(`bb-a ${f}`), `${f}: ${bad.join(", ")}`);
+  /* A re-render drawn from another card fails on the strong check. */
+  assert.ok(parityReport([surfaceParity({ doc, prices, graphic: [{ ...graphic[0], refEventSha256: "9".repeat(64) }] })]).failures.includes(`bb-a graphic ${date}|bb-pkg drawn from`));
+  /* Record-internal: POSTED must carry APPROVED's version; the card's graphicVersion mirror must equal the receipt. */
+  const posted = real(SYN["bb-a"], (d) => {
+    const day = d.runs.at(-1).days.at(-1);
+    day.receipts = [...(day.receipts ?? []),
+      { seq: 90, type: "GRAPHIC_RENDERED", date, step: day.step, at: "x", source: "x", sha256: "g", packageId: "bb-pkg", imageSha256: IMG, captionSha256: CAP, rendererCommit: "v6-abc123", imagePath: null },
+      { seq: 91, type: "APPROVED", date, step: day.step, at: "x", source: "x", sha256: "h", packageId: "bb-pkg", approvedVersionSha256: APV },
+      { seq: 92, type: "POSTED", date, step: day.step, at: "x", source: "x", sha256: "i", packageId: "bb-pkg", approvedVersionSha256: "d".repeat(64), url: "https://x.com/i/status/1" }];
+    day.card = { ...day.card, graphicVersion: `v6-abc123:${"0".repeat(64)}` };
+    return d;
+  });
+  const rec = parityReport([surfaceParity({ doc: posted })]).failures;
+  assert.ok(rec.includes(`bb-a record ${date}|bb-pkg posted = approved version`) && rec.includes(`bb-a record ${date} graphic version mirror`), rec.join(", "));
   /* A surface handed in without the record's graphic fails closed. */
   assert.ok(parityReport([surfaceParity({ doc, prices, caption: [] })]).failures.includes(`bb-a caption ${date}|bb-pkg graphic (NOT_ON_SITE)`));
 });

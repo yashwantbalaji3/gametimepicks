@@ -289,10 +289,9 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
       approved: receipts.some((r) => r.type === "APPROVED" && same(r)), postUrl: xUrl(post?.url), postedAt: post?.postedAt ?? null,
     };
   });
-  /* A LOST lane shows the bankroll AFTER the losing step (the engine's bankrollAfterCents for that day), never the
-     pre-loss figure; with no verified price, "Busted" (no number is guessed). */
-  const lostAfter = lost ? verified(d.day?.price)?.bankrollAfterCents : undefined;
-  const tracked = lost ? (typeof lostAfter === "number" ? money(lostAfter) : "Busted") : d.trackedBankrollCents == null ? AWAITING_PRICES : money(d.trackedBankrollCents);
+  /* A LOST lane shows the bankroll after the losing step: the engine's trackedBankrollCents is the post-settlement
+     bankroll in every state since 566ab9cfd5 ($0 on BUSTED); with no verified price, "Busted" (no number is guessed). */
+  const tracked = d.trackedBankrollCents == null ? (lost ? "Busted" : AWAITING_PRICES) : money(d.trackedBankrollCents);
   return {
     laneId: d.laneId, product: d.product, letter: d.slot, name: `Lane ${d.slot}`,
     runId: d.runId, runNumber: d.runNumber, startedAt: String(d.runs.at(-1)?.startedAt ?? "").slice(0, 10) || null,
