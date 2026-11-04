@@ -15,13 +15,29 @@ import { bestInk } from "../../simulation-theater/nba/nba-team-colors.mjs";
 import { readPropAnalysis } from "../../odds/nba-prop-analysis.mjs";
 import { propAnalysisView } from "./prop-analysis.mjs";
 
+const KEY_ENV = "GTP_ODDS_DISPLAY_KEY";
+/**
+ * The environment a reader gets. Production and CI builds pass process.env as is (the key comes from the build's own
+ * environment). LOCAL DEVELOPMENT ONLY (`next dev` with GTP_DEV_ROUTES=1 and no key in the environment): read that one
+ * variable from the repo-root .env in-process, as scripts/challenge-lanes/cli.mjs does, because `next dev` loads only
+ * app/.env*. The value is never logged, written, or put on a command line.
+ */
+export function displayEnv(env = process.env, { appDir = process.cwd() } = {}) {
+  if (env[KEY_ENV] || env.NODE_ENV !== "development" || env.GTP_DEV_ROUTES !== "1") return env;
+  try {
+    const line = fs.readFileSync(path.resolve(appDir, "..", ".env"), "utf8").split("\n").find((l) => l.startsWith(`${KEY_ENV}=`));
+    const v = line ? line.slice(KEY_ENV.length + 1).replace(/[\r"' ]/g, "") : "";
+    return v ? { ...env, [KEY_ENV]: v } : env;
+  } catch { return env; }
+}
+
 /**
  * The day's provisional prop analysis panel (founder P0, 2026-11-04), decrypted by nba-engine-eval's readPropAnalysis
  * (data/odds-display/nba/prop-analysis/<date>.json.enc; null with site display off, no file, no key or another key;
  * throws on tamper) and presented without a side, price or probability; staleness is judged at the build instant. BUILD TIME ONLY: renders into HTML only.
  * @param {{ appDir?: string, date?: string | null, env?: Record<string, string | undefined>, asOf?: string }} [opts]
  */
-export const loadPropAnalysis = ({ appDir = process.cwd(), date = null, env = process.env, asOf = undefined } = {}) =>
+export const loadPropAnalysis = ({ appDir = process.cwd(), date = null, env = displayEnv(process.env, { appDir }), asOf = undefined } = {}) =>
   /^\d{4}-\d{2}-\d{2}$/.test(String(date ?? "")) ? propAnalysisView(readPropAnalysis({ appDir, date, env }), { now: asOf ? Date.parse(asOf) : Date.now() }) : null;
 
 /** The NBA team colour DATA (names + listed colours), read server-side like the theater's loader; null if unreadable. */
@@ -38,7 +54,7 @@ export const imageVerifiedIn = (appDir) => (imagePath, sha) => {
 };
 
 /** { doc, view } for an accepted file, or { doc: null, view: <unavailable>, reason }. */
-export function loadChallengeLane({ appDir = process.cwd(), laneId, env = process.env }) {
+export function loadChallengeLane({ appDir = process.cwd(), laneId, env = displayEnv(process.env, { appDir }) }) {
   if (!LANE_IDS.includes(laneId)) throw new Error(`unknown lane ${laneId}`);
   const r = readLaneProjection({ appDir, laneId });
   if (!r.ok) {

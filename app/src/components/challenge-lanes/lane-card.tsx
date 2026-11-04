@@ -21,7 +21,7 @@ export type LaneView = {
   step: number | null; steps: number; stepText: string | null; maxLegs: number | null; cleared: number; status: string; statusLabel: string; statusGlyph: string; tone: string;
   internalStatus: string | null; note: string | null;
   base: string | null; target: string | null; tracked: string | null; toTarget: string | null; wager: string | null; wagerNote: string | null;
-  potentialPayout: string; potentialProfit: string; pace: { state: string; text: string } | null; label: string; sourceSha256: string | null;
+  potentialPayout: string; potentialProfit: string; pace: { state: string; text: string } | null; label: string; sourceSha256: string | null; verification?: string | null; verificationNote?: string | null;
   rungs: Array<{ step: number; state: string; milestone: string | null }>;
   current: LaneDay | null;
   story: LaneDay[];
@@ -95,9 +95,9 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
           <span className={`cl-status cl-status--${lane.tone}`} data-lane-status-badge="">
             <span aria-hidden>{lane.statusGlyph}</span> {lane.statusLabel}
           </span>
-          {lane.current?.price?.verification ? (
-            <span className="cl-status cl-status--prelim" data-lane-verification={lane.current.price.verification}>
-              <span aria-hidden>◷</span> {lane.current.price.verification}
+          {lane.verification ? (
+            <span className="cl-status cl-status--prelim" data-lane-verification={lane.verification}>
+              <span aria-hidden>◷</span> {lane.verification}
             </span>
           ) : null}
         </span>
@@ -140,7 +140,7 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
             <p className={`cl-combined${lane.current.price.estimate ? " cl-combined--estimate" : ""}`} data-lane-combined={lane.current.price.method}>
               <span className="cl-label cl-label--accent">{lane.current.price.combinedLabel}</span>
               <strong>{lane.current.price.combined}</strong>
-              <span className="cl-combined-src">{[lane.current.price.book, lane.current.price.captured ? `captured ${lane.current.price.captured}` : null, lane.current.price.verification === "PRELIMINARY" ? "priced from the early snapshot; re-verified near the posting window" : lane.current.price.verification === "AWAITING VERIFICATION" ? "awaiting the near-window price check" : null].filter(Boolean).join(" · ")}</span>
+              <span className="cl-combined-src">{[lane.current.price.book, lane.current.price.captured ? `captured ${lane.current.price.captured}` : null, lane.verificationNote].filter(Boolean).join(" · ")}</span>
             </p>
           ) : null}
         </section>

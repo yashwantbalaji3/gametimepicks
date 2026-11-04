@@ -117,10 +117,10 @@ const etStamp = (iso) => { const t = Date.parse(String(iso ?? "")); return Numbe
  * one. VERIFIED (or no field) shows no extra label.
  */
 export const VERIFICATION_LABEL = Object.freeze({ PRELIMINARY: "PRELIMINARY", AWAITING_VERIFICATION: "AWAITING VERIFICATION" });
-const verificationOf = (p) => VERIFICATION_LABEL[p?.verification ?? p?.verificationState ?? ""] ?? null;
+const verificationOf = (p) => (p?.verification === "PRELIMINARY" ? VERIFICATION_LABEL.PRELIMINARY : null);
 
-/** The engine's day price (pricedLaneDisplay `day.price`), only when that day's payout was VERIFIED. */
-const verified = (price) => (PRICES_ON_SITE && price?.result === "VERIFIED" ? price : null);
+/** The engine's day price (pricedLaneDisplay `day.price`): a computed payout, PRELIMINARY or VERIFIED; never REFUSED. */
+const verified = (price) => (PRICES_ON_SITE && ["VERIFIED", "PRELIMINARY"].includes(price?.result) && price?.verification !== "REFUSED" ? price : null);
 /** A frozen leg price as the engine carries it (`price` in its `oddsFormat`): odds, line, book, capture time. */
 const legPrice = (p, book) => (p ? { odds: american(p.oddsFormat === "american" ? p.price : decimalToAmerican(p.price)), line: p.line ?? null, book: book ?? null, captured: etStamp(p.fetchedAt) } : null);
 
@@ -136,7 +136,7 @@ function priceOf(day) {
     stake: money(p.stakeCents), payout: money(p.grossPayoutCents), profit: money(p.profitCents),
     requiredMultiple: typeof p.pace === "number" ? p.pace : null, belowPace: p.belowPace ?? null,
     captured: etStamp([...(p.legs ?? [])].map((l) => l.fetchedAt).filter(Boolean).sort().at(-1)),
-    verification: verificationOf(p),
+    verification: verificationOf(p), verificationNote: p.verification === "PRELIMINARY" ? p.verificationLabel ?? null : null,
   };
 }
 
@@ -234,6 +234,10 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
     wager: d.status === "LOST" ? null : current?.price?.stake ?? tracked, wagerNote: current?.price ? "tracked stake" : latest?.staked ? "staked" : "not staked until priced",
     potentialPayout: current?.price?.payout ?? AWAITING_PRICES, potentialProfit: current?.price?.profit ?? AWAITING_PRICES,
     pace, label: d.label ?? "Tracked challenge · no real wager placed",
+    /* PRELIMINARY when the priced day is the early snapshot; AWAITING VERIFICATION from the plain file alone (no prices
+       in this build); nothing once VERIFIED. Both come from the engine's fields, never inferred. */
+    verification: current?.price?.verification ?? (d.day?.awaitingVerification && d.status !== "LOST" ? VERIFICATION_LABEL.AWAITING_VERIFICATION : null),
+    verificationNote: current?.price?.verificationNote ?? null,
     rungs: d.rungs.map((r) => ({ step: r.step, state: r.state, milestone: money(r.milestoneCents) })),
     current, story, graphics,
     runs: d.runs.map((r, i) => ({ runId: r.runId, number: i + 1, started: String(r.startedAt ?? "").slice(0, 10) || null, status: r.endStatus, stepsWon: r.stepsWon ?? 0, current: i === d.runs.length - 1 })),

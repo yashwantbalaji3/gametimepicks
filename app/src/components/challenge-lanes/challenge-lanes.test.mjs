@@ -312,15 +312,24 @@ test("decrypted prices reach only server-rendered HTML: no client component, no 
   assert.doesNotMatch(read("src/lib/products/challenge-lanes/load.mjs"), /writeFileSync/);
 });
 
-test("PRELIMINARY / AWAITING VERIFICATION come from the engine's day price field, never inferred", () => {
+test("PRELIMINARY / AWAITING VERIFICATION come from the engine's fields, never inferred; REFUSED never prices", () => {
   const doc = SYN["bb-a"];
   const d = samplePricedDisplay(doc);
-  const at = (verification) => lane.laneView(doc, { display: { ...d, day: { ...d.day, price: { ...d.day.price, verification } } } });
+  const at = (price, day = {}) => lane.laneView(doc, { display: { ...d, day: { ...d.day, ...day, price: price && { ...d.day.price, ...price } } } });
   const t = (v) => text(html(React.createElement(LaneCard, { lane: v })));
-  assert.match(t(at("PRELIMINARY")), /● ACTIVE ◷ PRELIMINARY/);
-  assert.match(t(at("PRELIMINARY")), /priced from the early snapshot; re-verified near the posting window/);
-  assert.match(t(at("AWAITING_VERIFICATION")), /◷ AWAITING VERIFICATION/);
-  assert.doesNotMatch(t(at("VERIFIED")), /PRELIMINARY|AWAITING VERIFICATION/);
+  const prelim = at({ result: "PRELIMINARY", verification: "PRELIMINARY", verificationLabel: "PRELIMINARY — re-verified before posting" }, { priceVerification: "PRELIMINARY", awaitingVerification: true });
+  assert.match(t(prelim), /● ACTIVE ◷ PRELIMINARY/);
+  assert.match(t(prelim), /PRELIMINARY — re-verified before posting/);
+  assert.equal(prelim.potentialPayout, "$366.66", "a PRELIMINARY price is shown, labelled");
+  const verifiedV = at({ result: "VERIFIED", verification: "VERIFIED" }, { priceVerification: "VERIFIED", awaitingVerification: false });
+  assert.doesNotMatch(t(verifiedV), /PRELIMINARY|AWAITING VERIFICATION/);
+  const refused = at({ result: "REFUSED", verification: "REFUSED" });
+  assert.equal(refused.potentialPayout, lane.AWAITING_PRICES, "a refused price is never shown");
+  // No prices in this build, but the plain file says the day is priced PRELIMINARY: AWAITING VERIFICATION, no numbers.
+  const base = laneDisplay(doc);
+  const plain = lane.laneView(doc, { display: { ...base, day: { ...base.day, priceVerification: "PRELIMINARY", awaitingVerification: true } } });
+  assert.match(t(plain), /◷ AWAITING VERIFICATION/);
+  assert.doesNotMatch(t(plain), /SAMPLE BOOK|\$366/);
   assert.doesNotMatch(t(lane.laneView(doc, { display: d })), /PRELIMINARY|AWAITING VERIFICATION/, "no field, no label");
 });
 
@@ -380,6 +389,20 @@ test("PROP ANALYSIS end to end: nba-engine-eval's writer + reader → the panel:
     assert.match(src, /<PropAnalysisPanel analysis=\{loadPropAnalysis\(\{ date: levelAModel\?\.productDay \?\? (currentEtDate\(\)|etToday) \}\) as PropAnalysisView \| null\} \/>/, f);
     assert.ok(src.indexOf("<LanePair") < src.indexOf("<PropAnalysisPanel"), f);
   }
+});
+
+test("display key: production and CI builds use their own environment; only local `next dev` with dev routes reads the repo .env", async () => {
+  const { displayEnv } = await import("../../lib/products/challenge-lanes/load.mjs");
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), "env-")); const app = path.join(repo, "app"); fs.mkdirSync(app);
+  const KEY = crypto.randomBytes(32).toString("hex");
+  fs.writeFileSync(path.join(repo, ".env"), `OTHER=1\nGTP_ODDS_DISPLAY_KEY=${KEY}\n`);
+  assert.equal(displayEnv({ NODE_ENV: "production", GTP_DEV_ROUTES: "1" }, { appDir: app }).GTP_ODDS_DISPLAY_KEY, undefined, "a production build never reads .env");
+  assert.equal(displayEnv({ NODE_ENV: "development" }, { appDir: app }).GTP_ODDS_DISPLAY_KEY, undefined, "dev without dev routes never reads .env");
+  assert.equal(displayEnv({ NODE_ENV: "development", GTP_DEV_ROUTES: "1" }, { appDir: app }).GTP_ODDS_DISPLAY_KEY, KEY);
+  assert.equal(displayEnv({ NODE_ENV: "development", GTP_DEV_ROUTES: "1", GTP_ODDS_DISPLAY_KEY: "x" }, { appDir: app }).GTP_ODDS_DISPLAY_KEY, "x", "the environment wins");
+  assert.equal(displayEnv({ NODE_ENV: "development", GTP_DEV_ROUTES: "1" }, { appDir: path.join(os.tmpdir(), "nope", "app") }).GTP_ODDS_DISPLAY_KEY, undefined);
+  fs.rmSync(repo, { recursive: true, force: true });
+  assert.doesNotMatch(read("src/lib/products/challenge-lanes/load.mjs"), /console\.|writeFileSync/, "the key is never logged or written");
 });
 
 test("progression animation is CSS-only and prefers-reduced-motion turns it off", () => {
