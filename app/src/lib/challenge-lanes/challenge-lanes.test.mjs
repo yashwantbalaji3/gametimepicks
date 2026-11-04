@@ -13,10 +13,12 @@ import { fileURLToPath } from "node:url";
 import { buildLegPool } from "../products/leg-pool/leg-pool.mjs";
 import { dailySuggestedCards, sealSuggestedCards } from "../products/leg-pool/daily-cards.mjs";
 import { canonical, chainEvent, verifyChain, eventSha, GENESIS, parseEvents, serializeEvents } from "./chain.mjs";
-import { LANES, STATUS, selectLaneCards, laneState, runStarted, append, inPlay } from "./lanes.mjs";
+import { LANES, STATUS, PUBLIC_STATUS, MILESTONES, selectLaneCards, laneState, runStarted, append, inPlay, publicStatusOf } from "./lanes.mjs";
 import { americanToDecimal, decimalToAmerican, priceRatio, payoutCents, computePayout, paceFor, PERMITTED_PRICE_PROVIDERS } from "./payout.mjs";
-import { prepareLane, unpricedLane, priceLane, reconcileLane, ingestReceipts, P1_UNPRICED } from "./ops.mjs";
+import { prepareLane, unpricedLane, priceLane, reconcileLane, ingestReceipts, restartRun, P1_UNPRICED } from "./ops.mjs";
 import { laneProjection, verifyLaneProjection, serializeProjection } from "./projection.mjs";
+import { readLaneProjection, readAllLaneProjections } from "./public-reader.mjs";
+import { laneDisplay } from "./display.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -43,7 +45,7 @@ function fixturePrice(card, { american = -110, parlay = { method: "LEG_PRODUCT" 
 const priced = (laneId, opts = {}, pOpts = {}) => {
   const ev = prepared(laneId);
   const card = laneState(ev).open.cardEvent.card;
-  const r = priceLane(ev, { date: DATE, at: fixturePrice(card, pOpts).legs[0].fetchedAt, price: fixturePrice(card, pOpts), suggestedCards: DOC, permittedProviders: [FIX], paceRule: false, ...opts });
+  const r = priceLane(ev, { date: DATE, at: fixturePrice(card, pOpts).legs[0].fetchedAt, price: fixturePrice(card, pOpts), suggestedCards: DOC, permittedProviders: [FIX], ...opts });
   return { events: [...ev, ...r.events], r, card };
 };
 /** A finals record in which the lane's own legs won or lost as chosen (the committed record's rows, sides flipped). */
@@ -125,6 +127,7 @@ test("conversions and verified-calculation vectors (integer cents, floored, exac
   assert.deepEqual(payoutCents(2500, priceRatio("american", 109)), { grossPayoutCents: 5225, profitCents: 2725 });
   assert.equal(priceRatio("decimal", 0.55), null);
   assert.equal(priceRatio("decimal", 1.23456), null);
+  assert.equal(paceFor({ targetCents: 1000000, bankrollCents: 10000, stepsRemaining: 5 }).toFixed(3), "2.512");
   assert.equal(paceFor({ targetCents: 1000000, bankrollCents: 10000, stepsRemaining: 3 }).toFixed(3), "4.642");
   assert.equal(paceFor({ targetCents: 100000, bankrollCents: 2500, stepsRemaining: 5 }).toFixed(3), "2.091");
 });
@@ -149,7 +152,7 @@ test("payout refusals: each named, none estimated", () => {
   const cardEvent = laneState(ev).open.cardEvent;
   const card = cardEvent.card;
   const priceEv = (price) => chainEvent(ev, { type: "PRICE_VERIFIED", date: DATE, step: 1, at: AT, cardEventSha256: cardEvent.sha256, price });
-  const run = (o) => computePayout({ events: ev, cardEvent, suggestedCards: DOC, priceEvent: priceEv(fixturePrice(card)), stakeCents: 10000, bankrollCents: 10000, ladder: { targetCents: 1000000, stepsRemaining: 3 }, permittedProviders: [FIX], paceRule: false, ...o });
+  const run = (o) => computePayout({ events: ev, cardEvent, suggestedCards: DOC, priceEvent: priceEv(fixturePrice(card)), stakeCents: 10000, bankrollCents: 10000, ladder: { targetCents: 1000000, stepsRemaining: 5 }, permittedProviders: [FIX], ...o });
   const codes = (r) => (r.refusals ?? []).map((x) => x.code);
   assert.equal(run({}).ok, true);
   assert.deepEqual(codes(run({ priceEvent: null })), ["NO_PRICE_VERIFIED"]);
@@ -169,11 +172,17 @@ test("payout refusals: each named, none estimated", () => {
   const asProb = fixturePrice(card); asProb.legs = asProb.legs.map((l) => ({ ...l, oddsFormat: "decimal", price: card.legs.find((c) => c.legId === l.legId).probability }));
   assert.ok(codes(run({ priceEvent: priceEv(asProb) })).includes("MODEL_PROBABILITY_AS_PRICE"));
   const fair = fixturePrice(card); fair.legs = fair.legs.map((l) => ({ ...l, oddsFormat: "decimal", price: Math.round((1 / card.legs.find((c) => c.legId === l.legId).probability) * 1e4) / 1e4 }));
-  assert.ok(codes(run({ priceEvent: priceEv(fair) })).includes("MODEL_PROBABILITY_AS_PRICE"), "1 / model chance is not a price");
+  assert.ok(codes(run({ priceEvent: priceEv(fair) })).includes("MODEL_PROBABILITY_AS_PRICE"), "1 / model chance on every leg is not a price");
+  const oneFair = fixturePrice(card); oneFair.legs[0] = fair.legs[0];
+  assert.ok(!codes(run({ priceEvent: priceEv(oneFair) })).includes("MODEL_PROBABILITY_AS_PRICE"), "one leg matching 1/p by chance is not refused");
   const model = fixturePrice(card); model.legs = model.legs.map((l) => ({ ...l, provider: "gtp-elo" }));
   assert.ok(codes(run({ priceEvent: priceEv(model) })).includes("MODEL_PROBABILITY_AS_PRICE"));
   assert.deepEqual(codes(run({ stakeCents: 5000 })), ["STAKE_NOT_BANKROLL"]);
-  assert.deepEqual(codes(run({ paceRule: true })), ["BELOW_PACE"], "1.909² = 3.64 < 4.64 Bank Builder pace");
+  const short = (american) => priceEv(fixturePrice(card, { american }));
+  assert.deepEqual(codes(run({ priceEvent: short(-300), strictPace: true })), ["BELOW_PACE"], "1.333² = 1.78 < 2.51 (rev 1 strict pace)");
+  const allowed = run({ priceEvent: short(-300) });
+  assert.ok(allowed.ok && allowed.inputs.belowPace === true, "rev 2: a below-pace card is allowed and the shortfall disclosed");
+  assert.equal(run({}).inputs.belowPace, false, "1.909² = 3.64 ≥ 2.51");
   const bad = fixturePrice(card, { parlay: { method: "LEG_PRODUCT", oddsFormat: "american", price: 500 } });
   assert.ok(codes(run({ priceEvent: priceEv(bad) })).includes("BAD_PRICE"));
 });
@@ -193,7 +202,7 @@ test("only STEP_SETTLED(WIN) advances; IN PLAY blocks a new card; a new day neve
   const { events, card } = priced("bb-a");
   const blocked = prepareLane(events, { date: "2026-11-04", at: AT, selection: SEL.bb });
   assert.equal(blocked.action, "SKIP");
-  assert.match(blocked.reason, /^IN_PLAY: STEP 1 OF 3/);
+  assert.match(blocked.reason, /^IN_PLAY: STEP 1 OF 5/);
   const half = { ...finalsWith(card, ["WIN", "WIN"]), finals: finalsWith(card, ["WIN", "WIN"]).finals.filter((f) => f.providerEventId !== card.legs[1].gameId) };
   const r1 = reconcileLane(events, { finalsRecord: half });
   assert.deepEqual(r1.held, [{ date: DATE, legId: card.legs[1].legId, state: "PENDING" }]);
@@ -210,11 +219,11 @@ test("LOSS → BUSTED, then AWAITING_RESTART_APPROVAL; never quietly reset", () 
   const { events, card } = priced("bb-a");
   const r = reconcileLane(events, { finalsRecord: finalsWith(card, ["WIN", "LOSS"]) });
   assert.deepEqual(r.events.map((e) => e.type), ["LEG_SETTLED", "LEG_SETTLED", "STEP_SETTLED", "STATUS"]);
-  assert.equal(r.events.at(-1).reason, "LANE A — BUSTED AT STEP 1 OF 3");
+  assert.equal(r.events.at(-1).reason, "LANE A — BUSTED AT STEP 1 OF 5");
   const ev = [...events, ...r.events];
   const next = prepareLane(ev, { date: "2026-11-04", at: AT, selection: SEL.bb });
   assert.equal(next.action, STATUS.AWAITING_RESTART_APPROVAL);
-  assert.match(next.reason, /^BUSTED AT STEP 1 OF 3 on 2026-11-02; a new run starts at \$100 only after a founder-approved restart/);
+  assert.match(next.reason, /^BUSTED AT STEP 1 OF 5 on 2026-11-02; a new run starts at \$100 only after a founder-approved restart/);
   assert.equal(prepareLane([...ev, ...next.events], { date: "2026-11-05", at: AT, selection: SEL.bb }).action, "SKIP");
   assert.throws(() => runStarted({ laneId: "bb-a", runId: "run-2", startedAt: AT, approvedBy: null }), /founder approval/);
 });
@@ -239,7 +248,7 @@ test("NO_ELIGIBLE_CARD and UNPRICED never consume a step", () => {
   let ev = startRun("bb-b");
   ev = [...ev, ...prepareLane(ev, { date: "2026-11-03", at: "2026-11-03T11:00:00Z", selection: null }).events];
   assert.equal(laneState(ev).status, STATUS.NO_ELIGIBLE_CARD);
-  assert.match(ev.at(-1).reason, /^NO_FROZEN_CARD_FILE: .*STEP 1 OF 3 is unchanged\.$/);
+  assert.match(ev.at(-1).reason, /^NO_FROZEN_CARD_FILE: .*STEP 1 OF 5 is unchanged\.$/);
   ev = [...ev, ...prepareLane(ev, { date: DATE, at: AT, selection: SEL.bb }).events];
   ev = [...ev, ...unpricedLane(ev, { date: DATE, at: AT }).events];
   assert.equal(ev.at(-1).reason, P1_UNPRICED);
@@ -255,7 +264,7 @@ test("NO_ELIGIBLE_CARD and UNPRICED never consume a step", () => {
 test("POSTED receipts from the console's chained inbox are ingested once; bad ones are refused", () => {
   const ev = prepared("ms-b");
   const cardSha = laneState(ev).open.cardEvent.sha256;
-  let inbox = [chainEvent([], { type: "POSTED", laneId: "ms-b", runId: "run-1", date: DATE, step: 1, at: "2026-11-02T20:00:00Z", source: "cc-console", refEventSha256: cardSha, packageId: "ms-b-2026-11-02", approvedVersionSha256: "a".repeat(64), xPostId: "123", url: "https://x.com/i/status/123", scheduledFor: "2026-11-02T20:00:00Z", postedAt: "2026-11-02T20:00:03Z" })];
+  let inbox = [chainEvent([], { type: "POSTED", laneId: "ms-b", runId: "run-1", date: DATE, step: 1, at: "2026-11-02T20:00:00Z", source: "cc-console", refEventSha256: cardSha, packageId: "ms-2026-11-02", approvedVersionSha256: "a".repeat(64), xPostId: "123", url: "https://x.com/i/status/123", scheduledFor: "2026-11-02T20:00:00Z", postedAt: "2026-11-02T20:00:03Z" })];
   inbox = append(inbox, { type: "POSTED", laneId: "ms-a", runId: "run-1", date: DATE, step: 1, at: "x", source: "cc-console", refEventSha256: cardSha });
   inbox = append(inbox, { type: "STEP_SETTLED", laneId: "ms-b", runId: "run-1", date: DATE, step: 1, at: "x", source: "cc-console", refEventSha256: cardSha });
   const r = ingestReceipts(ev, inbox);
@@ -263,11 +272,11 @@ test("POSTED receipts from the console's chained inbox are ingested once; bad on
   assert.equal(r.events[0].receiptSha256, inbox[0].sha256);
   assert.deepEqual(r.refused.map((x) => x.reason), ["OTHER_LANE_OR_RUN", "TYPE_NOT_ALLOWED"]);
   assert.equal(ingestReceipts([...ev, ...r.events], inbox).events.length, 0, "idempotent");
-  const gfx = (imagePath) => { const g = append([], { type: "GRAPHIC_RENDERED", laneId: "ms-b", runId: "run-1", date: DATE, step: 1, at: "x", source: "bb-social", refEventSha256: cardSha, packageId: "ms-b-2026-11-02", imageSha256: "b".repeat(64), imagePath }); return laneProjection("ms-b", [[...ev, ...ingestReceipts(ev, g).events]]).runs[0].days[0].receipts[0].imagePath; };
+  const gfx = (imagePath) => { const g = append([], { type: "GRAPHIC_RENDERED", laneId: "ms-b", runId: "run-1", date: DATE, step: 1, at: "x", source: "bb-social", refEventSha256: cardSha, packageId: "ms-2026-11-02", imageSha256: "b".repeat(64), imagePath }); return laneProjection("ms-b", [[...ev, ...ingestReceipts(ev, g).events]]).runs[0].days[0].receipts[0].imagePath; };
   assert.equal(gfx("/data/challenge-lanes/graphics/ms-b-2026-11-02-ms-b.png"), "/data/challenge-lanes/graphics/ms-b-2026-11-02-ms-b.png");
   for (const bad of ["https://evil.example/x.png", "/data/challenge-lanes/graphics/../../x.png", "/data/other/x.png", "/data/challenge-lanes/graphics/x.svg", undefined]) assert.equal(gfx(bad), null, String(bad));
   const pub = laneProjection("ms-b", [[...ev, ...r.events]]).runs[0].days[0].receipts[0];
-  assert.deepEqual([pub.type, pub.xPostId, pub.packageId, pub.scheduledFor, pub.refEventSha256], ["POSTED", "123", "ms-b-2026-11-02", "2026-11-02T20:00:00Z", cardSha]);
+  assert.deepEqual([pub.type, pub.xPostId, pub.packageId, pub.scheduledFor, pub.refEventSha256], ["POSTED", "123", "ms-2026-11-02", "2026-11-02T20:00:00Z", cardSha]);
   assert.match(ingestReceipts(ev, [inbox[0], { ...inbox[1], at: "y" }]).refused[0].reason, /^INBOX_CHAIN_BROKEN/);
 });
 
@@ -283,9 +292,139 @@ test("projection: deterministic, verifies, and carries no price or price-derived
   for (const banned of [FIX, "-137", "oddsFormat", "fetchedAt", "grossPayout", "profitCents", "priceSnapshot", "decimalPrice", '"book"', String(laneState(won).bankrollCents)]) assert.ok(!text.includes(banned), `projection leaks ${banned}`);
   assert.equal(p.current.trackedBankrollCents, null);
   assert.equal(p.current.trackedBankrollWithheld, "P1");
-  assert.equal(p.current.stepText, "STEP 2 OF 3");
+  assert.equal(p.current.stepText, "STEP 2 OF 5");
   assert.ok(p.runs[0].events.filter((e) => ["PRICE_VERIFIED", "PAYOUT_COMPUTED"].includes(e.type)).every((e) => e.withheld === "P1" && !("sha256" in e)));
   assert.throws(() => laneProjection("bb-a", [[won[0], { ...won[1], step: 9 }]]), /chain broken/);
+});
+
+/* ─────────── SPEC revision 2 (§1–2, §10) ─────────── */
+
+test("rev 2: four lanes, five steps each; Bank Builder max 2 legs; packages bb-<date> / ms-<date> with A first", () => {
+  assert.deepEqual(Object.values(LANES).map((l) => [l.laneId, l.steps, l.baseCents, l.targetCents, l.maxLegs, l.packageId(DATE), l.mediaIndex]), [
+    ["bb-a", 5, 10000, 1000000, 2, "bb-2026-11-02", 0], ["bb-b", 5, 10000, 1000000, 2, "bb-2026-11-02", 1],
+    ["ms-a", 5, 2500, 100000, null, "ms-2026-11-02", 0], ["ms-b", 5, 2500, 100000, null, "ms-2026-11-02", 1]]);
+  assert.deepEqual([...MILESTONES["bank-builder"]], [30000, 90000, 270000, 650000, 1000000]);
+  assert.deepEqual([...MILESTONES.moonshot], [7500, 18000, 36000, 65000, 100000]);
+  const f = prepared("bb-b").at(-1);
+  assert.deepEqual([f.packageId, f.mediaIndex, f.card.legs.length], ["bb-2026-11-02", 1, 2]);
+});
+
+test("Bank Builder 2-leg max is a hard refusal (selection and payout)", () => {
+  const three = sealSuggestedCards({ ...DOC, bankBuilder: { ...DOC.bankBuilder, nba: { ...DOC.bankBuilder.nba, card: { ...DOC.bankBuilder.nba.card, legs: [...DOC.bankBuilder.nba.card.legs, DOC.legs.find((l) => l.eventId === "401909911")] } } } });
+  assert.equal(selectLaneCards(three, "bank-builder").ok, false);
+  const ev = prepared("bb-a");
+  const cardEvent = laneState(ev).open.cardEvent;
+  const extra = { ...cardEvent.card.legs[0], legId: "nba:401909911:winner", gameId: "401909911" };
+  const big = { ...cardEvent, card: { ...cardEvent.card, legs: [...cardEvent.card.legs, extra] } };
+  const price = fixturePrice(big.card);
+  const r = computePayout({ events: ev, cardEvent: big, suggestedCards: DOC, priceEvent: chainEvent(ev, { type: "PRICE_VERIFIED", cardEventSha256: big.sha256, price }), stakeCents: 10000, bankrollCents: 10000, ladder: { targetCents: 1000000, stepsRemaining: 5 }, permittedProviders: [FIX] });
+  assert.deepEqual(r.refusals.map((x) => x.code), ["LEG_COUNT_EXCEEDED"]);
+});
+
+test("prop legs are line-bound; same-game legs need the book's whole-parlay price", () => {
+  const ev = prepared("ms-a");
+  const cardEvent = laneState(ev).open.cardEvent;
+  const prop = (line) => ({ ...cardEvent.card.legs[0], legId: "nba:401909908:prop:4432166:pts", market: "player-prop", prop: { playerId: "4432166", playerName: "FIXTURE PLAYER", stat: "pts", side: "over", line } });
+  const card = (legs) => ({ ...cardEvent, card: { ...cardEvent.card, legs } });
+  const pay = (ce, price) => computePayout({ events: ev, cardEvent: ce, suggestedCards: DOC, priceEvent: chainEvent(ev, { type: "PRICE_VERIFIED", cardEventSha256: ce.sha256, price }), stakeCents: 2500, bankrollCents: 2500, ladder: { targetCents: 100000, stepsRemaining: 5 }, permittedProviders: [FIX] });
+  const codes = (r) => (r.refusals ?? []).map((x) => x.code);
+  const noLine = card([prop(null), ...cardEvent.card.legs.slice(1)]);
+  assert.ok(codes(pay(noLine, fixturePrice(noLine.card))).includes("PROP_LINE_UNVERIFIED"), "no line → never priced (lane holds UNPRICED)");
+  const withLine = card([prop(24.5), ...cardEvent.card.legs]); // the prop shares legs[0]'s game
+  const atOther = fixturePrice(withLine.card); atOther.legs[0] = { ...atOther.legs[0], line: 22.5 };
+  assert.ok(codes(pay(withLine, atOther)).includes("PROP_LINE_UNVERIFIED"), "priced at another line");
+  const atLine = fixturePrice(withLine.card); atLine.legs[0] = { ...atLine.legs[0], line: 24.5 };
+  assert.ok(codes(pay(withLine, atLine)).includes("SAME_GAME_NEEDS_PARLAY_PRICE"), "the prop shares a game with the moneyline leg");
+  const quoted = { ...atLine, parlay: { method: "BOOK_QUOTED_PARLAY", oddsFormat: "american", price: 1200, provider: FIX, fetchedAt: atLine.legs[0].fetchedAt } };
+  assert.deepEqual(codes(pay(withLine, quoted)), [], "the book's whole-parlay price settles the correlation");
+  assert.equal(SEL.ms.A.card.legs.every((l) => l.market === "winner"), true, "the 11-02 file has no prop leg: no probability is derived from a median");
+});
+
+test("FINISHED SHORT after step 5 wins below target; A and B never move each other", () => {
+  let ev = startRun("bb-a");
+  for (let k = 1; k <= 5; k += 1) {
+    const day = `2026-11-${String(k + 1).padStart(2, "0")}`;
+    const sel = { ...SEL.bb, A: { card: { ...SEL.bb.A.card, legs: SEL.bb.A.card.legs.map((l) => ({ ...l, legId: `${l.legId}#${k}` })) }, reason: null } };
+    ev = [...ev, ...prepareLane(ev, { date: day, at: AT, selection: sel }).events];
+    const card = laneState(ev).open.cardEvent.card;
+    ev = [...ev, ...priceLane(ev, { date: day, at: fixturePrice(card).legs[0].fetchedAt, price: fixturePrice(card, { american: -200 }), suggestedCards: DOC, permittedProviders: [FIX] }).events];
+    ev = [...ev, ...reconcileLane(ev, { finalsRecord: finalsWith(SEL.bb.A.card, ["WIN", "WIN"]) }).events];
+  }
+  const s = laneState(ev);
+  assert.equal(s.status, STATUS.FINISHED_SHORT, `status ${s.status} step ${s.step}`);
+  assert.equal(publicStatusOf(s), PUBLIC_STATUS.FINISHED_SHORT);
+  assert.equal(s.bankrollCents, 576648); // 2.25× per step, floored to the cent each step: $5,766.48, short of $10,000
+  assert.equal(prepareLane(ev, { date: "2026-11-30", at: AT, selection: SEL.bb }).action, "SKIP");
+  const b = prepared("bb-b");
+  assert.deepEqual([laneState(b).step, laneState(b).bankrollCents], [1, 10000], "bb-b is untouched by bb-a's run");
+});
+
+test("public status vocabulary maps every internal code, with the reason kept", () => {
+  const { events, card } = priced("bb-a");
+  assert.equal(publicStatusOf(laneState(prepared("bb-a"))), PUBLIC_STATUS.ACTIVE);
+  assert.equal(publicStatusOf(laneState(events)), PUBLIC_STATUS.ACTIVE);
+  const won = [...events, ...reconcileLane(events, { finalsRecord: finalsWith(card, ["WIN", "WIN"]) }).events];
+  assert.equal(publicStatusOf(laneState(won)), PUBLIC_STATUS.WON);
+  const lost = [...events, ...reconcileLane(events, { finalsRecord: finalsWith(card, ["LOSS", "WIN"]) }).events];
+  assert.equal(publicStatusOf(laneState(lost)), PUBLIC_STATUS.LOST);
+  const unpriced = prepared("bb-a"); const u = [...unpriced, ...unpricedLane(unpriced, { date: DATE, at: AT }).events];
+  assert.equal(publicStatusOf(laneState(u)), PUBLIC_STATUS.HELD);
+  const p = laneProjection("bb-a", [u]);
+  assert.deepEqual([p.current.publicStatus, p.current.status, p.current.statusReason], ["HELD", "UNPRICED", P1_UNPRICED]);
+  assert.deepEqual(p.current.pace, { withheld: null, milestoneCents: 10000, requiredMultiplier: 2.5119, behindByCents: 0, onPace: true });
+  assert.equal(laneProjection("bb-a", [won]).current.pace.withheld, "P1", "pace numbers reveal the bankroll, so they are withheld with it");
+});
+
+test("restart after BUSTED: a new run at base, the old run kept in the history", () => {
+  const { events, card, r: pr } = priced("ms-a");
+  assert.equal(pr.action, "PAYOUT_COMPUTED", JSON.stringify(pr.payout?.refusals));
+  const lost = [...events, ...reconcileLane(events, { finalsRecord: finalsWith(card, card.legs.map((_, i) => (i ? "WIN" : "LOSS"))) }).events];
+  const busted = [...lost, ...prepareLane(lost, { date: "2026-11-04", at: AT, selection: SEL.ms }).events];
+  assert.equal(laneState(busted).status, STATUS.AWAITING_RESTART_APPROVAL);
+  const ref = busted.at(-1).sha256; // the AWAITING_RESTART_APPROVAL status
+  const rcpt = (o = {}) => append([], { type: "RESTART_APPROVED", laneId: "ms-a", runId: "run-1", date: "2026-11-05", step: 1, at: "2026-11-05T11:00:00Z", source: "cc-console", refEventSha256: ref, nextRunId: "run-2", approvedBy: "founder", ...o });
+  assert.equal(restartRun(busted), null, "no restart without the receipt");
+  assert.deepEqual(ingestReceipts(busted, rcpt({ nextRunId: "run-3" })).refused.map((x) => x.reason), ["RESTART_BAD_NEXT_RUN"]);
+  assert.deepEqual(ingestReceipts(busted, rcpt({ refEventSha256: busted[1].sha256 })).refused.map((x) => x.reason), ["RESTART_BAD_REF"]);
+  assert.deepEqual(ingestReceipts(events, append([], { type: "RESTART_APPROVED", laneId: "ms-a", runId: "run-1", date: DATE, step: 1, at: "x", source: "cc-console", refEventSha256: events[1].sha256, nextRunId: "run-2", approvedBy: "founder" })).refused.map((x) => x.reason), ["RESTART_NOT_AWAITED"], "only after LOST");
+  const withRestart = [...busted, ...ingestReceipts(busted, rcpt()).events];
+  const twice = append(rcpt(), { type: "RESTART_APPROVED", laneId: "ms-a", runId: "run-1", date: "2026-11-05", step: 1, at: "y", source: "cc-console", refEventSha256: ref, nextRunId: "run-2", approvedBy: "founder" });
+  assert.deepEqual(ingestReceipts(withRestart, twice).refused.map((x) => x.reason), ["RESTART_ALREADY_APPROVED"], "once per run");
+  const run2 = [restartRun(withRestart)];
+  assert.deepEqual([run2[0].runId, run2[0].baseCents, run2[0].startedAt], ["run-2", 2500, "2026-11-05T11:00:00Z"]);
+  assert.match(run2[0].approvedBy, /^founder via cc-console RESTART_APPROVED [0-9a-f]{64}$/);
+  const p = laneProjection("ms-a", [withRestart, run2]);
+  assert.deepEqual(p.runs.map((r) => [r.runId, r.publicStatus]), [["run-1", "LOST"], ["run-2", "HELD"]]);
+  assert.deepEqual([p.current.runId, p.current.step, p.current.trackedBankrollCents], ["run-2", 1, 2500]);
+  assert.equal(p.runs[0].days[0].stepOutcome, "LOSS");
+});
+
+test("one public reader for site and renderer: verified bytes or a named refusal", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "lanes-pub-"));
+  const doc = laneProjection("bb-a", [prepared("bb-a")]);
+  fs.writeFileSync(path.join(dir, "bb-a.json"), serializeProjection(doc));
+  fs.writeFileSync(path.join(dir, "bb-b.json"), serializeProjection({ ...doc, steps: 3 }));
+  fs.writeFileSync(path.join(dir, "ms-a.json"), serializeProjection(doc));
+  const all = readAllLaneProjections({ dir });
+  assert.deepEqual(Object.keys(all), ["bb-a", "bb-b", "ms-a", "ms-b"]);
+  assert.deepEqual(all["bb-a"], { ok: true, doc });
+  assert.deepEqual([all["bb-b"].refusal, all["ms-a"].refusal, all["ms-b"].refusal], ["UNVERIFIED", "WRONG_LANE", "MISSING"]);
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
+test("laneDisplay: the one fold site and graphics share (rungs, status, pace, package)", () => {
+  const rungs = (v) => v.rungs.map((r) => r.state).join(",");
+  const a = laneDisplay(laneProjection("bb-b", [prepared("bb-b")]));
+  assert.deepEqual([a.status, a.stepText, rungs(a), a.trackedBankrollCents, a.distanceToTargetCents, a.pace.state, a.day.packageId, a.day.mediaIndex], ["ACTIVE", "STEP 1 OF 5", "active,upcoming,upcoming,upcoming,upcoming", 10000, 990000, "on", "bb-2026-11-02", 1]);
+  assert.deepEqual(a.rungs.map((r) => r.milestoneCents), [30000, 90000, 270000, 650000, 1000000]);
+  const { events, card } = priced("bb-a");
+  const won = laneDisplay(laneProjection("bb-a", [[...events, ...reconcileLane(events, { finalsRecord: finalsWith(card, ["WIN", "WIN"]) }).events]]));
+  assert.deepEqual([won.status, won.step, rungs(won), won.trackedBankrollCents, won.distanceToTargetCents, won.pace.state], ["WON", 2, "completed,active,upcoming,upcoming,upcoming", null, null, "withheld"]);
+  const lost = laneDisplay(laneProjection("bb-a", [[...events, ...reconcileLane(events, { finalsRecord: finalsWith(card, ["LOSS", "WIN"]) }).events]]));
+  assert.deepEqual([lost.status, rungs(lost), lost.runs[0].endStatus], ["LOST", "failed,upcoming,upcoming,upcoming,upcoming", "LOST"]);
+  const doc = laneProjection("ms-a", [prepared("ms-a")]);
+  assert.throws(() => laneDisplay({ ...doc, steps: 3 }), /does not verify/);
+  assert.equal(laneDisplay(doc, { date: "2026-11-09" }).day, null);
 });
 
 /* ─────────── CLIs: replay 11-02 → 11-03 on real data in a temp root ─────────── */

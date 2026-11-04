@@ -1,8 +1,9 @@
 /**
  * BANK BUILDER & MOONSHOT CHALLENGE LANES V2 (~/gtp-evidence/bbm-v2/SPEC.md §1–3). PURE.
  *
- * Four lanes: bb-a, bb-b (3 steps, $100 → $10,000) and ms-a, ms-b (5 steps, $25 → $1,000). Each run is a hash-chained,
- * append-only event log (chain.mjs); its state is a fold over the log and is never stored anywhere else.
+ * Four lanes, five steps each (SPEC revision 2): bb-a, bb-b ($100 → $10,000, at most 2 legs, hard) and ms-a, ms-b ($25 →
+ * $1,000). Each run is a hash-chained, append-only event log (chain.mjs); its state is a fold over the log and is never
+ * stored anywhere else. Lanes are independent: each has its own log, and nothing in one lane's log reads another's.
  *
  * SELECTION (D3, proposed): both cards come from the frozen Rule B file (`gtp.suggested-cards@1`, contentSha256
  * verified), NBA scope. A is that file's own product card. B is the shared Level A engine's best card (engine.mjs
@@ -13,7 +14,11 @@
  * PROGRESSION (§3). Only STEP_SETTLED(WIN) advances a step, and only when every leg settled on the official final and a
  * verified payout was recorded before the first leg started. A card with no verified payout is never staked: the day
  * ends UNPRICED, its legs are still settled for the record, and the lane stays on the same step. LOSS → BUSTED (a new
- * run needs a founder-approved restart). VOID or PUSH → PENDING_VOID_REVIEW, never an automatic advance.
+ * run needs a founder-approved restart). VOID or PUSH → PENDING_VOID_REVIEW, never an automatic advance. Step 5 won below
+ * the target → FINISHED_SHORT (D6: a 6th step or a new run is the founder's call).
+ *
+ * ELASTIC LADDER (§2). The pace a step needs is (target ÷ tracked bankroll)^(1 ÷ steps remaining). A qualifying card that
+ * prices below pace is allowed, with the shortfall disclosed; MILESTONES are display defaults, founder-adjustable.
  */
 import { best } from "../products/level-a/engine.mjs";
 import { tierForJoint, jointShownFor } from "../products/level-a/suggestions.mjs";
@@ -21,12 +26,20 @@ import { verifySuggestedCards, RULE_A } from "../products/leg-pool/daily-cards.m
 import { NBA_GW_PRODUCT_RULES } from "../products/level-a/nba-game-winner-tiers.mjs";
 import { chainEvent, sha256, canonical } from "./chain.mjs";
 
+/* One X post per product per day: `bb-<date>` carries bb-a then bb-b, `ms-<date>` carries ms-a then ms-b (§5). */
+const lane = (laneId, product, slot, baseCents, targetCents, maxLegs) => Object.freeze({ laneId, product, slot, baseCents, targetCents, steps: 5, maxLegs, mediaIndex: slot === "A" ? 0 : 1, packageId: (d) => `${product === "bank-builder" ? "bb" : "ms"}-${d}` });
 export const LANES = Object.freeze({
-  "bb-a": Object.freeze({ laneId: "bb-a", product: "bank-builder", slot: "A", baseCents: 10000, targetCents: 1000000, steps: 3, packageId: (d) => `bb-${d}` }),
-  "bb-b": Object.freeze({ laneId: "bb-b", product: "bank-builder", slot: "B", baseCents: 10000, targetCents: 1000000, steps: 3, packageId: (d) => `bb-${d}` }),
-  "ms-a": Object.freeze({ laneId: "ms-a", product: "moonshot", slot: "A", baseCents: 2500, targetCents: 100000, steps: 5, packageId: (d) => `ms-a-${d}` }),
-  "ms-b": Object.freeze({ laneId: "ms-b", product: "moonshot", slot: "B", baseCents: 2500, targetCents: 100000, steps: 5, packageId: (d) => `ms-b-${d}` }),
+  "bb-a": lane("bb-a", "bank-builder", "A", 10000, 1000000, 2),
+  "bb-b": lane("bb-b", "bank-builder", "B", 10000, 1000000, 2),
+  "ms-a": lane("ms-a", "moonshot", "A", 2500, 100000, null),
+  "ms-b": lane("ms-b", "moonshot", "B", 2500, 100000, null),
 });
+/** Illustrative milestones after steps 1–5, in cents (SPEC §2; Moonshot row is the PD proposal). Display only. */
+export const MILESTONES = Object.freeze({
+  "bank-builder": Object.freeze([30000, 90000, 270000, 650000, 1000000]),
+  moonshot: Object.freeze([7500, 18000, 36000, 65000, 100000]),
+});
+export const MAX_LEGS = Object.freeze({ "bank-builder": 2, moonshot: null });
 export const LANE_IDS = Object.freeze(Object.keys(LANES));
 
 /** Rule A, as the engine already applies it on 827bdc1ded: OUT nowhere; R1 never in Bank Builder (shown in Moonshot). */
@@ -39,9 +52,22 @@ const FILE_SECTION = { "bank-builder": "bankBuilder", moonshot: "moonshot" };
 
 export const STATUS = Object.freeze({
   IN_PLAY: "IN_PLAY", READY: "READY", NO_ELIGIBLE_CARD: "NO_ELIGIBLE_CARD", UNPRICED: "UNPRICED", PAUSED: "PAUSED",
-  PENDING_VOID_REVIEW: "PENDING_VOID_REVIEW", BUSTED: "BUSTED", COMPLETE: "COMPLETE", AWAITING_RESTART_APPROVAL: "AWAITING_RESTART_APPROVAL",
+  PENDING_VOID_REVIEW: "PENDING_VOID_REVIEW", BUSTED: "BUSTED", COMPLETE: "COMPLETE", FINISHED_SHORT: "FINISHED_SHORT", AWAITING_RESTART_APPROVAL: "AWAITING_RESTART_APPROVAL",
 });
-const TERMINAL = new Set([STATUS.BUSTED, STATUS.COMPLETE, STATUS.AWAITING_RESTART_APPROVAL]);
+const TERMINAL = new Set([STATUS.BUSTED, STATUS.COMPLETE, STATUS.FINISHED_SHORT, STATUS.AWAITING_RESTART_APPROVAL]);
+
+/** The public status vocabulary (§3): ACTIVE · WON · LOST · HELD · COMPLETED · FINISHED SHORT. The internal code is kept beside it. */
+export const PUBLIC_STATUS = Object.freeze({ ACTIVE: "ACTIVE", WON: "WON", LOST: "LOST", HELD: "HELD", COMPLETED: "COMPLETED", FINISHED_SHORT: "FINISHED SHORT" });
+export function publicStatusOf(s) {
+  switch (s.status) {
+    case STATUS.IN_PLAY: return PUBLIC_STATUS.ACTIVE;
+    case STATUS.READY: return s.open ? PUBLIC_STATUS.ACTIVE : s.days.findLast((d) => d.outcome)?.outcome === "WIN" ? PUBLIC_STATUS.WON : PUBLIC_STATUS.HELD;
+    case STATUS.BUSTED: case STATUS.AWAITING_RESTART_APPROVAL: return PUBLIC_STATUS.LOST;
+    case STATUS.COMPLETE: return PUBLIC_STATUS.COMPLETED;
+    case STATUS.FINISHED_SHORT: return PUBLIC_STATUS.FINISHED_SHORT;
+    default: return PUBLIC_STATUS.HELD; // UNPRICED · NO_ELIGIBLE_CARD · PENDING_VOID_REVIEW · PAUSED
+  }
+}
 
 const eligible = (leg, product) => ["pass", "review"].includes(leg.guard?.state) && !(leg.guard?.flags ?? []).some((f) => RULE_A_FOR_PRODUCT[product].includes(f));
 const eventsKey = (legs) => legs.map((l) => String(l.eventId)).sort().join("|");
@@ -59,6 +85,7 @@ function laneCard(legs, { doc, product, slot, sourceCardId, method }) {
     legs: sorted.map((l) => ({
       legId: l.legId, gameId: String(l.eventId), eventLabel: l.eventLabel, startUtc: l.startUtc, market: l.market,
       selection: l.selection, probability: l.probability, probabilityShown: l.probabilityShown,
+      ...(l.market === "winner" ? {} : { prop: { playerId: l.prop?.playerId ?? null, playerName: l.prop?.playerName ?? null, stat: l.prop?.stat ?? null, side: l.prop?.side ?? null, line: l.prop?.line ?? null } }),
       projection: { owner: l.forecast?.owner ?? null, modelId: l.forecast?.modelId ?? null, snapshotId: l.forecast?.ref ?? null, stampedAt: l.forecast?.stampedAt ?? null, contentSha256: l.forecast?.receiptSha256 ?? null },
       guard: { state: l.guard?.state ?? null, flags: l.guard?.flags ?? [], flagText: l.guard?.flagText ?? [] },
       settlement: l.settlement ?? null,
@@ -75,7 +102,11 @@ export function selectLaneCards(doc, product) {
   if (doc.options?.ruleA !== true) return { ok: false, refusal: "RULE_A_OFF_IN_FILE" };
   const sec = doc[FILE_SECTION[product]]?.nba;
   const rule = PRODUCT_RULE[product];
+  /* Game winners only today: the file's NBA player projections are medians with no published probability, and a chance
+     is never derived from a median (METHODOLOGY_DEPENDENCIES nba-player-prop-probability, NOT_APPROVED). A prop leg can
+     enter only once the file itself carries it as a leg with its official probability and a verified line. */
   const pool = (doc.legs ?? []).filter((l) => l.sport === "nba" && l.market === "winner" && typeof l.probability === "number" && eligible(l, product));
+  if (MAX_LEGS[product] != null && rule.sizes.some((k) => k > MAX_LEGS[product])) return { ok: false, refusal: "LEG_COUNT_EXCEEDED" };
   if (!sec?.card) {
     const reason = sec?.reason ?? "no card in the frozen file";
     return { ok: true, A: { card: null, reason }, B: { card: null, reason: `no lane A card, so no lane B card: ${reason}` } };
@@ -84,6 +115,7 @@ export function selectLaneCards(doc, product) {
   const again = best(pool, rule.sizes, rule.tiers, null);
   if (!again || eventsKey(again.c) !== eventsKey(fileCard.legs)) return { ok: false, refusal: "SELECTION_MISMATCH" };
   if (fileCard.legs.some((l) => !eligible(l, product))) return { ok: false, refusal: "LEG_INELIGIBLE_RULE_A" };
+  if (MAX_LEGS[product] != null && fileCard.legs.length > MAX_LEGS[product]) return { ok: false, refusal: "LEG_COUNT_EXCEEDED" };
   const A = laneCard(fileCard.legs, { doc, product, slot: "A", sourceCardId: fileCard.id, method: `${fileCard.policy} (the frozen file's own card)` });
   const used = new Set(fileCard.legs.map((l) => String(l.eventId)));
   const rest = pool.filter((l) => !used.has(String(l.eventId)));
@@ -128,6 +160,7 @@ export function laneState(events) {
         if ([STATUS.UNPRICED, STATUS.NO_ELIGIBLE_CARD].includes(e.status) && s.open?.date === e.date) s.open = null;
         break;
       }
+      case "RESTART_APPROVED": s.restartApproved = { nextRunId: e.nextRunId, receiptSha256: e.receiptSha256 }; break; // the next run opens it
       default: break; // GRAPHIC_RENDERED, APPROVED, POSTED, WAGER_DOCUMENTED: receipts, no state change
     }
   }

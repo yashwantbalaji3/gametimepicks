@@ -9,7 +9,7 @@
  *   reconcileLane  next morning: LEG_SETTLED from the official finals record, then STEP_SETTLED + STATUS.
  *   ingestReceipts GRAPHIC_RENDERED / APPROVED / POSTED receipts from a writer's own chained inbox.
  */
-import { LANES, STATUS, laneState, inPlay, append, stepOutcome } from "./lanes.mjs";
+import { LANES, STATUS, laneState, inPlay, append, stepOutcome, runStarted } from "./lanes.mjs";
 import { verifyChain } from "./chain.mjs";
 import { computePayout } from "./payout.mjs";
 
@@ -27,7 +27,7 @@ export function prepareLane(events, { date, at, selection, file = null, docSha25
   const s = laneState(events);
   const L = LANES[s.laneId];
   if (s.days.some((d) => d.date === date && (d.card || d.status))) return { events: [], action: "SKIP", reason: "ALREADY_PREPARED" };
-  if (s.status === STATUS.COMPLETE) return { events: [], action: "SKIP", reason: "COMPLETE" };
+  if (s.status === STATUS.COMPLETE || s.status === STATUS.FINISHED_SHORT) return { events: [], action: "SKIP", reason: s.status };
   if (s.status === STATUS.AWAITING_RESTART_APPROVAL) return { events: [], action: "SKIP", reason: "AWAITING_RESTART_APPROVAL" };
   if (s.status === STATUS.PAUSED) return { events: [], action: "SKIP", reason: `PAUSED: ${s.statusReason}` };
   const base = { date, step: s.step, at, source: "lanes-prepare" };
@@ -47,7 +47,7 @@ export function prepareLane(events, { date, at, selection, file = null, docSha25
     const reason = `${pick.reason} ${stepText(s)} is unchanged.`;
     return { events: append(events, { ...base, type: "STATUS", status: STATUS.NO_ELIGIBLE_CARD, reason }).slice(events.length), action: STATUS.NO_ELIGIBLE_CARD, reason };
   }
-  const body = { ...base, type: "CARD_FROZEN", product: s.product, packageId: L.packageId(date), suggestedCards: { file, contentSha256: docSha256 }, card: pick.card };
+  const body = { ...base, type: "CARD_FROZEN", product: s.product, packageId: L.packageId(date), mediaIndex: L.mediaIndex, suggestedCards: { file, contentSha256: docSha256 }, card: pick.card };
   return { events: append(events, body).slice(events.length), action: "CARD_FROZEN", reason: null };
 }
 
@@ -63,17 +63,17 @@ export function unpricedLane(events, { date, at }) {
 /**
  * The price step once P1 permits a provider (and in tests, with a FIXTURE provider): the verified price, the all-in
  * stake and the payout — or, on any refusal, PAYOUT_COMPUTED(REFUSED) + STATUS UNPRICED with every refusal code.
- * @param {{ date, at, price, suggestedCards, postScheduledAt?, permittedProviders?, paceRule? }} p
+ * @param {{ date, at, price, suggestedCards, postScheduledAt?, permittedProviders?, strictPace? }} p
  *   price: { legs: [{ legId, selectionCode, provider, book, oddsFormat, price, fetchedAt }], parlay: { method, oddsFormat, price, provider?, fetchedAt? }, priceSnapshotSha256 }
  */
-export function priceLane(events, { date, at, price, suggestedCards, postScheduledAt = null, permittedProviders, paceRule }) {
+export function priceLane(events, { date, at, price, suggestedCards, postScheduledAt = null, permittedProviders, strictPace }) {
   const s = laneState(events);
   if (s.open?.date !== date || s.open.payoutEvent) return { events: [], action: "SKIP" };
   const card = s.open.cardEvent;
   let ev = append(events, { type: "PRICE_VERIFIED", date, step: s.step, at, source: "lanes-price", cardEventSha256: card.sha256, price });
   const priceEvent = ev.at(-1);
   ev = append(ev, { type: "STAKE_SET", date, step: s.step, at, source: "lanes-price", stakeCents: s.bankrollCents, placedWager: false, basis: "all-in tracked bankroll (D1 proposed)" });
-  const r = computePayout({ events: ev, cardEvent: card, suggestedCards, priceEvent, stakeCents: s.bankrollCents, bankrollCents: s.bankrollCents, ladder: { targetCents: s.targetCents, stepsRemaining: s.steps - s.step + 1 }, postScheduledAt, permittedProviders, paceRule });
+  const r = computePayout({ events: ev, cardEvent: card, suggestedCards, priceEvent, stakeCents: s.bankrollCents, bankrollCents: s.bankrollCents, ladder: { targetCents: s.targetCents, stepsRemaining: s.steps - s.step + 1 }, postScheduledAt, permittedProviders, strictPace });
   if (r.ok) {
     ev = append(ev, { type: "PAYOUT_COMPUTED", result: "VERIFIED", date, step: s.step, at, source: "lanes-price", inputs: r.inputs, grossPayoutCents: r.grossPayoutCents, profitCents: r.profitCents });
     return { events: ev.slice(events.length), action: "PAYOUT_COMPUTED", payout: r };
@@ -122,13 +122,35 @@ export function reconcileLane(events, { finalsRecord, recordFile = FINALS_RECORD
     }
     ev = append(ev, { ...base, type: "STEP_SETTLED", outcome: "WIN", payoutEventSha256: payout.sha256, bankrollBeforeCents: s.bankrollCents, bankrollAfterCents: payout.grossPayoutCents });
     if (payout.grossPayoutCents >= s.targetCents) ev = append(ev, { ...base, step: s.step + 1, type: "STATUS", status: STATUS.COMPLETE, reason: `Tracked bankroll reached the ${dollars(s.targetCents)} target.` });
+    else if (s.step >= s.steps) ev = append(ev, { ...base, step: s.step + 1, type: "STATUS", status: STATUS.FINISHED_SHORT, reason: `All ${s.steps} steps won, below the ${dollars(s.targetCents)} target; a 6th step or a new run is the founder's decision (D6).` });
   }
   return { events: ev.slice(events.length), held };
 }
 
 /* ───────────────────────────── receipts from other writers ───────────────────────────── */
 
-export const RECEIPT_TYPES = Object.freeze(["GRAPHIC_RENDERED", "APPROVED", "POSTED", "WAGER_DOCUMENTED"]);
+export const RECEIPT_TYPES = Object.freeze(["GRAPHIC_RENDERED", "APPROVED", "POSTED", "RESTART_APPROVED", "WAGER_DOCUMENTED"]);
+const runNumber = (runId) => Number(/^run-(\d+)$/.exec(String(runId))?.[1] ?? NaN);
+
+/** Why a RESTART_APPROVED receipt cannot apply to this run, or null (§4.4: only after LOST, once per run, to run-N+1). */
+function restartRefusal(events, s, r) {
+  if (![STATUS.BUSTED, STATUS.AWAITING_RESTART_APPROVAL].includes(s.status)) return "RESTART_NOT_AWAITED";
+  if (events.some((e) => e.type === "RESTART_APPROVED")) return "RESTART_ALREADY_APPROVED";
+  if (r.nextRunId !== `run-${runNumber(s.runId) + 1}`) return "RESTART_BAD_NEXT_RUN";
+  const ref = events.find((e) => e.sha256 === r.refEventSha256);
+  const ok = ref && ((ref.type === "STATUS" && [STATUS.BUSTED, STATUS.AWAITING_RESTART_APPROVAL].includes(ref.status)) || (ref.type === "STEP_SETTLED" && ref.outcome === "LOSS"));
+  if (!ok) return "RESTART_BAD_REF";
+  if (!r.approvedBy) return "RESTART_NO_APPROVER";
+  return null;
+}
+
+/** The next run's header when the current run holds an ingested RESTART_APPROVED, else null. Starts at base. */
+export function restartRun(events) {
+  const r = events.find((e) => e.type === "RESTART_APPROVED");
+  if (!r) return null;
+  const s = laneState(events);
+  return runStarted({ laneId: s.laneId, runId: r.nextRunId, startedAt: r.at, approvedBy: `${r.approvedBy} via ${r.source} RESTART_APPROVED ${r.receiptSha256}` });
+}
 
 /**
  * A writer (the console, the renderer) keeps its own append-only chained inbox per lane, same hashing rule as the lane
@@ -144,7 +166,8 @@ export function ingestReceipts(events, receipts) {
   let ev = events; const refused = [];
   for (const r of receipts) {
     if (known.has(r.sha256)) continue;
-    const bad = !RECEIPT_TYPES.includes(r.type) ? "TYPE_NOT_ALLOWED" : r.laneId !== s.laneId || r.runId !== s.runId ? "OTHER_LANE_OR_RUN" : !refs.has(r.refEventSha256) ? "UNKNOWN_REF_EVENT" : r.type === "WAGER_DOCUMENTED" ? "WAGER_NEEDS_FOUNDER_PROOF" : null;
+    if (r.laneId === s.laneId && runNumber(r.runId) < runNumber(s.runId)) continue; // an earlier run's receipt: that run's own
+    const bad = !RECEIPT_TYPES.includes(r.type) ? "TYPE_NOT_ALLOWED" : r.laneId !== s.laneId || r.runId !== s.runId ? "OTHER_LANE_OR_RUN" : !refs.has(r.refEventSha256) ? "UNKNOWN_REF_EVENT" : r.type === "WAGER_DOCUMENTED" ? "WAGER_NEEDS_FOUNDER_PROOF" : r.type === "RESTART_APPROVED" ? restartRefusal(ev, s, r) : null;
     if (bad) { refused.push({ receiptSha256: r.sha256, type: r.type, reason: bad }); continue; }
     const { schema: _s, seq: _q, prevSha256: _p, sha256: rs, laneId: _l, runId: _r, ...body } = r;
     ev = append(ev, { ...body, receiptSha256: rs });
