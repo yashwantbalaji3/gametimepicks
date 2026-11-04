@@ -27,3 +27,14 @@
 - Spends nothing and authorizes no new display surface.
 
 Approved by: founder 2026-11-04
+
+## Amendment, 2026-11-04 about 5:15 PM ET (founder, verbatim excerpts)
+
+> Specifically: Moneyline capture: approximately 4:05 PM ET. Challenge prop capture: approximately 4:06 PM ET. Existing older prop captures: approximately 2:05 PM and 2:44 PM ET where supported.
+> The graphics should clearly identify each actual capture time rather than mislabeling every price as 4:05 PM.
+> Captions should disclose: "Odds shown are snapshots captured at the stated time and may have changed."
+> I authorize the use of already captured and appropriately sourced November 4 sportsbook moneyline and player-prop prices in our NBA matchup social graphics, subject to the provider's actual publication rights and the historical-snapshot disclosure.
+> This is a display authorization, not permission to spend additional credits.
+> If the provider's terms prohibit a specific form of social-image publication, flag the precise restriction rather than assuming authorization overrides it.
+
+Effect: the snapshot scope now also covers the 19:05Z (2:05 PM ET) and 19:44Z (2:44 PM ET) prop captures; each graphic shows its own capture time. NBA matchup social graphics may display those captured prices (2026-11-04 only). Terms note (docs/odds/ODDS_API_CHALLENGE_GRAPHICS_TERMS_2026-11-04.md): social images are not named in the provider terms; the founder accepts that interpretation as for challenge graphics; no sportsbook logos.
