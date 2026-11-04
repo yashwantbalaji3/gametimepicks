@@ -19,7 +19,7 @@ import { priceLane } from "../challenge-lanes/ops.mjs";
 import { DISPLAY_AUTHORIZATION } from "../odds/display-authorization.mjs";
 import { RULES_V2, bbmCardV4, verifyBbmCardV4 } from "../../../scripts/social/bbm-cards-v4.mjs";
 import { bbmCardV5, verifyBbmCardV5 } from "../../../scripts/social/bbm-cards-v5.mjs";
-import { bbmCardV6, verifyBbmCardV6 } from "../../../scripts/social/bbm-cards-v6.mjs";
+import { bbmCardV6, heldReasonText, verifyBbmCardV6 } from "../../../scripts/social/bbm-cards-v6.mjs";
 /** The committed record (founder 2026-11-04: NBA challengeGraphicsPrices on), and the same record with that switch off. */
 const SOCIAL_ON = DISPLAY_AUTHORIZATION;
 const PRICES_OFF = { ...DISPLAY_AUTHORIZATION, nba: { ...DISPLAY_AUTHORIZATION.nba, challengeGraphicsPrices: false } };
@@ -467,4 +467,16 @@ test("V6 (contrast pass): the same gates as V5, and the STEP n PLAN box comes fr
   assert.ok(!("price.verified" in priced({ fixture: true }).cells)); assert.ok("price.verified" in priced({}).cells);
   assert.deepEqual(verifyBbmCardV6(priced({})), []);
   assert.throws(() => bbmCardV6({ ...model, legs: [{ kind: "PROP", legId: "p", player: { name: "Sample Player" }, team, opponent: opp, home: true, tipUtc: "2026-11-05T00:00:00Z", lineText: "Over 24.5 pts", level: "B", projectionText: "80%", evidence: { l10: "8/10", l20: "14/20" } }] }), /never carries a probability/);
+});
+
+test("V6 HELD (PD 2026-11-04): the engine's reason in plain words, no picks, no prices, never VERIFIED", () => {
+  const rungs = RULES_V2.milestonesCents.moonshot.map((m, i) => ({ step: i + 1, milestoneCents: m, state: i ? RUNG.UPCOMING : RUNG.ACTIVE }));
+  const model = { product: "moonshot", letter: "B", laneId: "ms-b", date: DATE, step: 1, steps: 5, rungs, baseCents: 2500, targetCents: 100000, bankrollCents: 2500, badge: BADGE.HELD, view: VIEW.NO_ELIGIBLE_CARD, legs: [], payout: null, template: false, heldReason: "No two-leg card met the rules — today", researchLine: true };
+  const c = bbmCardV6(model);
+  assert.deepEqual(verifyBbmCardV6(c), []);
+  const t = textOf(c);
+  assert.match(t, /Lane held/); assert.match(t, /No qualified card/); assert.match(t, /No two-leg card met the rules · today\./); assert.match(t, /Research analysis on gametimepicks\.com/);
+  assert.ok(!Object.keys(c.cells).some((k) => /^price\.|^money\.(payout|profit)|^leg\d|^plan\./.test(k)));
+  assert.match(verifyBbmCardV6({ ...c, cells: { ...c.cells, "price.verified": "Verified odds" }, html: c.html.replace(">Lane held<", ' data-cell="price.verified">Verified odds<') }).join(";"), /held card carries a pick or a price|VERIFIED on unpriced/);
+  assert.equal(heldReasonText("NO_SLATE"), "There are no eligible games on today's slate."); assert.equal(heldReasonText(null), "No card met the qualification rules today."); assert.equal(heldReasonText("SOME_NEW_CODE"), "No card met the qualification rules today.");
 });

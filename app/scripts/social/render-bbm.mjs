@@ -29,7 +29,8 @@ import { APP, assertPrivateOutDir } from "./nba-line-graphics-io.mjs";
 import { parseArgs } from "./render-social-pack.mjs";
 import { laneBytes } from "./render-combo-cards.mjs";
 import { BBM_V3_DESIGN_VERSION, bbmCardV3, bbmV3LayoutErrors, verifyBbmCardV3 } from "./bbm-cards-v3.mjs";
-import { BBM_DESIGN_VERSION, FACT_LINE, bbmCard, bbmLayoutErrors, cents, verifyBbmCard } from "./bbm-cards.mjs";
+import { BBM_V6_DESIGN_VERSION, RULES_V2, bbmCardV6, bbmV6LayoutErrors, verifyBbmCardV6 } from "./bbm-cards-v6.mjs";
+import { BBM_DESIGN_VERSION, FACT_LINE, american, bbmCard, bbmLayoutErrors, cents, verifyBbmCard } from "./bbm-cards.mjs";
 import { BBM_LANES, VIEW, laneView, pricedDay, privateBankrollCents, socialPricesOk } from "../../src/lib/social/bbm-lane.mjs";
 import { readLaneProjection } from "../../src/lib/challenge-lanes/public-reader.mjs";
 import { laneDisplay } from "../../src/lib/challenge-lanes/display.mjs";
@@ -81,6 +82,11 @@ export function engineCardFor(dayCard, file, product) {
  * day's slate); `roster` is the render-time unified roster. Samples only: `testData` marks a fixture lane history and
  * `samplePayout` ({ grossCents, profitCents, fixture: true }) draws a labelled fixture price.
  */
+/** The V6 card model from the lane view and the resolved legs (no selection logic: the engine's card, its prices and its reason). */
+export function v6Model(view, combo) {
+  return { ...view, template: false, legs: combo?.legs ?? [], heldReason: view.reason ?? null, researchLine: view.view === VIEW.NO_ELIGIBLE_CARD, legResults: view.legResults ?? [] };
+}
+
 export function prepareLane({ doc, date, slate, roster, asOf, testData = false, samplePayout = null, privateEvents = null, displayRecord = undefined, design = "v2" }) {
   const laneId = doc?.laneId ?? "?";
   const refuse = (reason) => ({ laneId, refused: reason });
@@ -127,8 +133,17 @@ export function prepareLane({ doc, date, slate, roster, asOf, testData = false, 
     if (view.payout) combo = { ...combo, legs: combo.legs.map((l) => ({ ...l, lineText: l.kind === "PLAYER_PROP" && l.prop?.line != null ? `${String(l.prop.side ?? "").toUpperCase()} ${l.prop.line} ${MARKET_SHORT[l.market]}`.trim() : null })) };
   }
   // V3 (founder design directive 2026-11-04): same view, legs and price; a different card and its own checker.
-  const card = { ...(design === "v3" ? bbmCardV3 : bbmCard)(view, combo, { testData }), name: `${laneId}-${date}` };
-  const errs = (design === "v3" ? verifyBbmCardV3 : verifyBbmCard)(card);
+  // V6 (reference composition, PD 2026-11-04): rules v2 (at most 2 legs) and the engine's held reason; props need engine evidence.
+  let card; let errs;
+  if (design === "v6") {
+    if (combo && combo.legs.length > RULES_V2.maxLegs) return refuse(`${combo.legs.length} legs: rules v2 take at most ${RULES_V2.maxLegs}`);
+    if (combo?.legs.some((l) => l.kind === "PLAYER_PROP" && !l.evidence)) return refuse("a prop leg without the engine's evidence windows and level is not drawn");
+    try { card = { ...bbmCardV6(v6Model(view, combo), { testData }), name: `${laneId}-${date}` }; } catch (e) { return refuse(e.message); }
+    errs = verifyBbmCardV6(card);
+  } else {
+    card = { ...(design === "v3" ? bbmCardV3 : bbmCard)(view, combo, { testData }), name: `${laneId}-${date}` };
+    errs = (design === "v3" ? verifyBbmCardV3 : verifyBbmCard)(card);
+  }
   if (errs.length) return refuse(`card failed validation: ${errs.join("; ")}`);
   const prepared = { laneId, view, combo, card, testData, projectionSha256: doc.contentSha256, fileLegs };
   // Founder 2026-11-04: website and X legs identical. Fail closed on any parity mismatch.
@@ -297,7 +312,7 @@ export async function writeStaging(plans, { outRoot, browser, commit = rendererC
   const bad = stagingViolations(plans, outRoot, { displayRecord });
   if (bad.length) throw new Error(`staging refused:\n  - ${bad.join("\n  - ")}`);
   const cardsAll = plans.flatMap((p) => p.lanes.map((l) => l.card));
-  const layout = [...await bbmLayoutErrors(browser, cardsAll.filter((c) => c.design !== BBM_V3_DESIGN_VERSION)), ...await bbmV3LayoutErrors(browser, cardsAll.filter((c) => c.design === BBM_V3_DESIGN_VERSION))];
+  const layout = await layoutErrorsByDesign(browser, cardsAll);
   if (layout.length) throw new Error(`layout check failed:\n  - ${layout.join("\n  - ")}`);
   const page = await browser.newPage({ viewport: { width: 1080, height: 1350 } });
   const out = [];
@@ -325,6 +340,8 @@ export async function writeStaging(plans, { outRoot, browser, commit = rendererC
         pricing: Object.fromEntries(p.lanes.map((l) => [l.laneId, l.view.payout ? { state: l.view.payout.preliminary ? "PRELIMINARY" : "VERIFIED", payoutEventSha256: l.view.payout.payoutEventSha256 ?? null, capturedAt: l.view.payout.capturedAt, postScheduledAt: l.view.payout.postScheduledAt ?? null } : { state: l.view.view === VIEW.CARD ? "UNPRICED" : "NONE" }])),
         // Founder 2026-11-04: per-lane parity against the engine record (website = X); staging refuses any mismatch.
         parity: p.lanes.map((l) => ({ laneId: l.laneId, ok: l.parity?.ok === true, mismatches: l.parity?.mismatches ?? ["no parity row"], legs: l.parity?.rendered.legs, step: l.parity?.rendered.step, bankrollCents: l.parity?.rendered.bankrollCents, targetCents: l.parity?.rendered.targetCents, status: l.parity?.rendered.status, price: l.parity?.rendered.price })),
+        // PD 2026-11-04 parity gate (engine / site / graphic / caption / console): one row per image, fail-closed on a one-sided field.
+        parityRows: p.lanes.map((l, i) => parityGateRow(l, { packageId: p.packageId, date: p.date, mediaIndex: i + 1, imageSha256: media[i].sha256, caption: p.caption, commit })),
         // The render-time availability input (PD 2026-11-04: fresh at render, never the morning build's).
         roster: rosterRef,
         testData: false,
@@ -334,6 +351,32 @@ export async function writeStaging(plans, { outRoot, browser, commit = rendererC
     }
   } finally { await page.close(); }
   return out;
+}
+
+async function layoutErrorsByDesign(browser, cards) {
+  const by = (v) => cards.filter((c) => c.design === v);
+  return [...await bbmLayoutErrors(browser, cards.filter((c) => ![BBM_V3_DESIGN_VERSION, BBM_V6_DESIGN_VERSION].includes(c.design))), ...await bbmV3LayoutErrors(browser, by(BBM_V3_DESIGN_VERSION)), ...await bbmV6LayoutErrors(browser, by(BBM_V6_DESIGN_VERSION))];
+}
+
+/** The ladder rules the engine record drew (its milestones), never the renderer's version: rules v2 or the v1 ladder. */
+export const rulesVersionOf = (v) => (JSON.stringify((v.rungs ?? []).map((r) => r.milestoneCents)) === JSON.stringify(RULES_V2.milestonesCents[v.product]) ? "bbm-rules-v2" : "bbm-rules-v1");
+
+/** One parity-gate row for a rendered image: what the image prints, keyed to the engine events it came from. */
+export function parityGateRow(l, { packageId, date, mediaIndex, imageSha256, caption, commit }) {
+  const v = l.view; const pay = v.payout && !v.payout.fixture ? v.payout : null;
+  const legs = (l.combo?.legs ?? []).map((x) => {
+    const pr = pay?.legs?.[String(x.legId)] ?? null;
+    return { legId: String(x.legId), side: sideOf(x), market: x.market ?? null, line: pr?.line ?? x.lineText ?? null, odds: pr ? american(pr.price) : null, oddsFormat: pr?.oddsFormat ?? null, classification: x.kind === "PLAYER_PROP" ? (x.level === "A" ? "MODEL_VALUE_LEVEL_A" : "RESEARCH_LEVEL_B") : "MODEL_WIN_PROBABILITY", probabilityShown: x.projectionText ?? null, injury: x.flagText ?? [] };
+  });
+  return {
+    laneId: l.laneId, date, packageId, mediaIndex, imageSha256, captionSha256: sha(Buffer.from(caption, "utf8")), caption,
+    graphicVersion: commit, designVersion: l.card.design, rulesVersion: rulesVersionOf(v),
+    view: v.view, status: v.badge, heldReason: v.view === VIEW.NO_ELIGIBLE_CARD ? (v.reason ?? null) : null,
+    step: v.step, bankrollCents: v.bankrollCents ?? null, legs,
+    classification: pay ? (pay.preliminary ? "PRELIMINARY" : "VERIFIED") : v.view === VIEW.CARD ? "UNPRICED" : "NONE",
+    capturedAt: pay?.capturedAt ?? null, combinedAmerican: pay ? american(pay.combinedAmerican) : null, payoutCents: pay?.grossCents ?? null, profitCents: pay?.profitCents ?? null,
+    priceEventSha256: pay?.payoutEventSha256 ?? null, sourceEventSha256: drawnEventSha(v),
+  };
 }
 
 /** The lane-log event a graphic is drawn from: the CARD_FROZEN (a card or the busting card) or the day's STATUS. */
@@ -349,7 +392,7 @@ export function altText(l) {
 /** Sample PNGs (labelled fixtures allowed) into a samples folder: no manifest, never a package. */
 export async function writeSamples(items, { outDir, browser, scales = [1], preview = false }) {
   if (path.resolve(outDir).startsWith(LIVE_PACKAGES)) throw new Error("samples never go to the live packages folder");
-  const layout = [...await bbmLayoutErrors(browser, items.map((i) => i.card).filter((c) => c.design !== BBM_V3_DESIGN_VERSION)), ...await bbmV3LayoutErrors(browser, items.map((i) => i.card).filter((c) => c.design === BBM_V3_DESIGN_VERSION))];
+  const layout = await layoutErrorsByDesign(browser, items.map((i) => i.card));
   if (layout.length && !preview) throw new Error(`layout check failed:\n  - ${layout.join("\n  - ")}`);
   if (layout.length) console.log(`PREVIEW, layout errors:\n  - ${layout.join("\n  - ")}`);
   fs.mkdirSync(assertPrivateOutDir(outDir), { recursive: true });

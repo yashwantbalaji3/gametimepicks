@@ -199,6 +199,14 @@ const CSS = (P) => `<style>
 .plan5{position:relative;margin-top:26px;height:84px;flex:none;display:flex;align-items:center;justify-content:center;gap:16px;border-radius:22px;border:3px solid var(--neon);background:rgba(0,0,0,.86);box-shadow:var(--n2x);white-space:nowrap}
 .plan5 .lb{position:absolute;top:-19px;left:50%;transform:translateX(-50%);padding:6px 20px 4px;border-radius:999px;border:3px solid var(--neon);background:#000;box-shadow:var(--n2x);font:900 22px/1 var(--display);letter-spacing:2px;text-transform:uppercase;color:#FFFFFF}
 .plan5 .f,.plan5 .to{font:900 46px/1 var(--display);color:#FFFFFF;text-shadow:0 0 12px rgba(255,255,255,.4)}.plan5 .ar{font:900 40px/1 var(--display);color:#FFC400;text-shadow:0 0 10px #FFB000}.plan5 .x{font:800 26px/1 var(--display);color:rgba(255,255,255,.88)}
+.held5{flex:1;min-height:0;margin-top:28px;margin-bottom:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:26px 30px;text-align:center;border-radius:26px;border:4px solid #FFC400;background:radial-gradient(120% 90% at 50% 0%,rgba(255,196,0,.22),rgba(0,0,0,.9) 60%);box-shadow:0 0 0 1px #FFF3C0,0 0 10px #FFC400,0 0 34px rgba(255,180,0,.7),0 0 70px rgba(255,160,0,.35),inset 0 0 30px rgba(255,196,0,.18)}
+.held5 .hk{font:900 italic 78px/1 var(--headline);text-transform:uppercase;background:linear-gradient(180deg,#FFFDE8,var(--g1) 25%,#FFC400 60%,#B85C00);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 #6B3000) drop-shadow(0 0 16px rgba(255,190,0,.7))}
+.held5 .hs{font:900 36px/1 var(--display);letter-spacing:3px;text-transform:uppercase;color:#FFFFFF;text-shadow:0 0 12px rgba(255,255,255,.35)}
+.held5 .hr{max-width:560px;font:700 28px/1.3 var(--display);color:rgba(255,255,255,.92)}
+.held5 .hn{font:800 22px/1.2 var(--display);letter-spacing:1px;text-transform:uppercase;color:var(--neon);text-shadow:0 0 10px var(--neon)}
+.held5 .hx{margin-top:4px;padding:8px 18px 6px;border-radius:999px;border:2px solid rgba(255,255,255,.5);font:800 20px/1 var(--display);letter-spacing:1px;text-transform:uppercase;color:#FFFFFF}
+.comb5.held .k{font:900 28px/1 var(--display);letter-spacing:2px;color:#FFFFFF}
+.money5 .pay.hold .v{font-size:56px}
 .stat5{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px;text-align:center}
 .stat5 .k{font:900 italic 66px/1 var(--headline);text-transform:uppercase;background:linear-gradient(180deg,var(--g1),var(--g2) 60%,var(--g3));-webkit-background-clip:text;background-clip:text;color:transparent}
 .stat5 .c{font:700 28px/1.3 var(--display);color:rgba(247,247,242,.86)}
@@ -224,6 +232,17 @@ const CSS = (P) => `<style>
 </style>`;
 
 const TARGET_ICON = `<svg width="46" height="46" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="20" fill="#E8332A"/><circle cx="23" cy="23" r="14" fill="#FFFFFF"/><circle cx="23" cy="23" r="8" fill="#E8332A"/><path d="M23 23 L42 4 M36 4 H42 V10" stroke="#FFC400" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`;
+const PAUSE_ICON = `<svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28" fill="none" stroke="#FFC400" stroke-width="5"/><rect x="21" y="18" width="8" height="28" rx="2" fill="#FFC400"/><rect x="35" y="18" width="8" height="28" rx="2" fill="#FFC400"/></svg>`;
+/** The engine's held reason in plain words: known codes map to a sentence; prose passes through (dashes become dots); none falls back to the rule. */
+const HELD_REASON = Object.freeze({ NO_ELIGIBLE_CARD: "No card met the qualification rules today.", NO_QUALIFIED_CARD: "No card met the qualification rules today.", NO_SLATE: "There are no eligible games on today's slate.", PRICE_UNAVAILABLE: "Prices for the qualifying card could not be verified in time.", BELOW_EDGE: "No card cleared the minimum model edge today." });
+export function heldReasonText(reason) {
+  if (!reason) return HELD_REASON.NO_ELIGIBLE_CARD;
+  const r = String(reason).trim();
+  if (HELD_REASON[r]) return HELD_REASON[r];
+  if (/^[A-Z0-9_]+$/.test(r)) return HELD_REASON.NO_ELIGIBLE_CARD;
+  const t = r.replace(/\s*[—–]\s*/g, " · ").replace(/\s+/g, " ");
+  return /[.!?]$/.test(t) ? t : `${t}.`;
+}
 const CHECK = `<svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="13" fill="none" stroke="currentColor" stroke-width="3"/><path d="M8 15.5 L13 20 L22 10" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 /** One V6 card. `model` as bbmCardV4; legs may also be props: { kind: "PROP", player, team, opponent, home, tipUtc, lineText, oddsText?, level: "A"|"B", projectionText?, evidence: { l10, l20 } }. */
@@ -257,8 +276,16 @@ export function bbmCardV6(model, { testData = false } = {}) {
       else bottom += `<div class="money5">${stake}<div class="pay" data-money="payout"><div class="k">Potential payout</div>${cell(cells, "money.payout", cents(model.payout.grossCents), "v")}</div><div class="pro"><div class="k">Potential profit</div>${cell(cells, "money.profit", cents(model.payout.profitCents), "v")}</div></div>`;
     }
   } else {
-    const note = model.view === VIEW.NO_ELIGIBLE_CARD ? ["No qualified card", "The lane holds its place and its tracked bankroll."] : model.view === VIEW.COMPLETE ? ["Goal reached", `${cents(model.bankrollCents)} of ${cents(model.targetCents)}`] : model.view === VIEW.FINISHED_SHORT ? ["Finished short", `${cents(model.bankrollCents)} of ${cents(model.targetCents)}`] : ["Lane busted", ""];
-    mid = `<div class="stat5"><div class="k">${cell(cells, "status.note", note[0])}</div>${note[1] ? `<div class="c">${cell(cells, "status.rule", note[1])}</div>` : ""}</div>`;
+    if (model.view === VIEW.NO_ELIGIBLE_CARD) {
+      // PD 2026-11-04: the held state is a designed card. No picks, no prices, never VERIFIED; the engine's reason in plain words.
+      const target = model.rungs[model.step - 1]?.milestoneCents;
+      mid = `<div class="held5" data-held><div class="hi">${PAUSE_ICON}</div><div class="hk">${cell(cells, "held.title", "Lane held")}</div><div class="hs">${cell(cells, "held.sub", "No qualified card")}</div><div class="hr">${cell(cells, "held.reason", heldReasonText(model.heldReason))}</div><div class="hn">${cell(cells, "held.rule", `Step ${model.step} carries to the next slate`)}</div>${model.researchLine ? `<div class="hx">${cell(cells, "held.research", "Research analysis on gametimepicks.com")}</div>` : ""}</div>`;
+      bottom += `<div class="comb5 held">${cell(cells, "held.bar", "No picks today · bankroll held", "k")}</div>`;
+      bottom += `<div class="money5"><div><div class="k">Tracked bankroll</div>${model.bankrollCents == null ? cell(cells, "money.wager", "Withheld", "v") : cell(cells, "money.wager", cents(model.bankrollCents), "v")}</div><div class="pay hold"><div class="k">Step ${model.step} target</div>${cell(cells, "held.target", `${model.step === model.steps ? "" : "~"}${cents(target)}`, "v")}</div><div><div class="k">Challenge goal</div>${cell(cells, "held.goal", cents(model.targetCents), "v")}</div></div>`;
+    } else {
+      const note = model.view === VIEW.COMPLETE ? ["Goal reached", `${cents(model.bankrollCents)} of ${cents(model.targetCents)}`] : model.view === VIEW.FINISHED_SHORT ? ["Finished short", `${cents(model.bankrollCents)} of ${cents(model.targetCents)}`] : ["Lane busted", ""];
+      mid = `<div class="stat5"><div class="k">${cell(cells, "status.note", note[0])}</div>${note[1] ? `<div class="c">${cell(cells, "status.rule", note[1])}</div>` : ""}</div>`;
+    }
   }
   const rib = [tpl ? TEMPLATE_RIBBON : null, testData ? TEST_RIBBON : null, model.payout?.fixture ? SAMPLE_PRICE_RIBBON : null].filter(Boolean);
   const ribbon = rib.length ? `<div class="rib5 ${testData && !tpl ? "t" : ""}">${esc(rib.join(" · "))}</div>` : "";
@@ -286,6 +313,8 @@ export function verifyBbmCardV6(card) {
     if (card.priced) e.push("a template carries a price");
   } else if (/template preview/i.test(text)) e.push("TEMPLATE ribbon on a real card");
   if (!card.priced && "price.verified" in got) e.push("VERIFIED on unpriced content");
+  // A held card shows no picks and no prices, and is never VERIFIED.
+  if (card.view === VIEW.NO_ELIGIBLE_CARD && Object.keys(got).some((k) => /^price\.|^money\.(payout|profit)|^leg\d|^plan\./.test(k))) e.push("a held card carries a pick or a price");
   // A hit rate is research evidence, never a probability: no "%" in any evidence cell.
   for (const [k, v] of Object.entries(got)) if (/\.(evidence|evidenceBig)$/.test(k) && /%/.test(v)) e.push(`${k}: a hit rate shown as a percentage`);
   const priceCells = Object.entries(got).filter(([k]) => /\.(odds|line)$|^price\.|^plan\.mult$/.test(k));
@@ -311,7 +340,7 @@ export async function bbmV6LayoutErrors(browser, cards) {
     const m = await page.evaluate(() => {
       const clipped = [...document.querySelectorAll("[data-cell]")].filter((e) => { const r = e.getBoundingClientRect(); const block = getComputedStyle(e).display !== "inline"; return (block && e.scrollWidth > e.clientWidth + 1) || r.right > 1080 - 10 || r.left < 10 || r.bottom > 1350 - 6; }).map((e) => `${e.dataset.cell}=${e.textContent}`);
       const rt = document.querySelector(".rt5").getBoundingClientRect();
-      const blocks = [".logo5", ".chip5", ".title5", ".goal5", ".pills5", ".legs5,.stat5"].map((s) => document.querySelector(s)).filter(Boolean).map((e) => ({ s: e.className, r: e.getBoundingClientRect() }));
+      const blocks = [".logo5", ".chip5", ".title5", ".goal5", ".pills5", ".legs5,.stat5,.held5"].map((s) => document.querySelector(s)).filter(Boolean).map((e) => ({ s: e.className, r: e.getBoundingClientRect() }));
       const overlaps = []; for (let i = 1; i < blocks.length; i += 1) if (blocks[i].r.top < blocks[i - 1].r.bottom - 1) overlaps.push(`${blocks[i - 1].s} / ${blocks[i].s}`);
       const legs = document.querySelector(".legs5")?.getBoundingClientRect();
       const comb = document.querySelector(".comb5")?.getBoundingClientRect(); const money = document.querySelector(".money5")?.getBoundingClientRect(); const social = document.querySelector(".social")?.getBoundingClientRect();
