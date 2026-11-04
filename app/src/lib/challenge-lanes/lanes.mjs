@@ -53,11 +53,14 @@ const FILE_SECTION = { "bank-builder": "bankBuilder", moonshot: "moonshot" };
 export const STATUS = Object.freeze({
   IN_PLAY: "IN_PLAY", READY: "READY", NO_ELIGIBLE_CARD: "NO_ELIGIBLE_CARD", UNPRICED: "UNPRICED", PAUSED: "PAUSED",
   PENDING_VOID_REVIEW: "PENDING_VOID_REVIEW", BUSTED: "BUSTED", COMPLETE: "COMPLETE", FINISHED_SHORT: "FINISHED_SHORT", AWAITING_RESTART_APPROVAL: "AWAITING_RESTART_APPROVAL",
+  /* bbm-rules@2 migration (proposed, founder approval required): an unposted card withdrawn because the rules changed
+     before publication (no step consumed, bankroll unchanged), and a run retired in favour of a run under new rules. */
+  WITHDRAWN_RULES_CHANGED: "WITHDRAWN_RULES_CHANGED", RETIRED_SUPERSEDED: "RETIRED_SUPERSEDED",
 });
-const TERMINAL = new Set([STATUS.BUSTED, STATUS.COMPLETE, STATUS.FINISHED_SHORT, STATUS.AWAITING_RESTART_APPROVAL]);
+const TERMINAL = new Set([STATUS.BUSTED, STATUS.COMPLETE, STATUS.FINISHED_SHORT, STATUS.AWAITING_RESTART_APPROVAL, STATUS.RETIRED_SUPERSEDED]);
 
 /** The public status vocabulary (§3): ACTIVE · WON · LOST · HELD · COMPLETED · FINISHED SHORT. The internal code is kept beside it. */
-export const PUBLIC_STATUS = Object.freeze({ ACTIVE: "ACTIVE", WON: "WON", LOST: "LOST", HELD: "HELD", COMPLETED: "COMPLETED", FINISHED_SHORT: "FINISHED SHORT" });
+export const PUBLIC_STATUS = Object.freeze({ ACTIVE: "ACTIVE", WON: "WON", LOST: "LOST", HELD: "HELD", COMPLETED: "COMPLETED", FINISHED_SHORT: "FINISHED SHORT", RETIRED: "RETIRED" });
 export function publicStatusOf(s) {
   switch (s.status) {
     case STATUS.IN_PLAY: return PUBLIC_STATUS.ACTIVE;
@@ -65,6 +68,7 @@ export function publicStatusOf(s) {
     case STATUS.BUSTED: case STATUS.AWAITING_RESTART_APPROVAL: return PUBLIC_STATUS.LOST;
     case STATUS.COMPLETE: return PUBLIC_STATUS.COMPLETED;
     case STATUS.FINISHED_SHORT: return PUBLIC_STATUS.FINISHED_SHORT;
+    case STATUS.RETIRED_SUPERSEDED: return PUBLIC_STATUS.RETIRED; // bbm-rules@2 migration: replaced by a run under new rules
     default: return PUBLIC_STATUS.HELD; // UNPRICED · NO_ELIGIBLE_CARD · PENDING_VOID_REVIEW · PAUSED
   }
 }
@@ -158,6 +162,9 @@ export function laneState(events) {
         s.status = e.status; s.statusReason = e.reason ?? null;
         /* UNPRICED / NO_ELIGIBLE_CARD: the day's card (if any) is never staked; same step, and the lane is free tomorrow. */
         if ([STATUS.UNPRICED, STATUS.NO_ELIGIBLE_CARD].includes(e.status) && s.open?.date === e.date) s.open = null;
+        /* WITHDRAWN: the priced card stays in the record but was never published, so it is not a stake: same step, same
+           bankroll, and a later LEG_SETTLED for it is record only (no STEP_SETTLED follows). */
+        if (e.status === STATUS.WITHDRAWN_RULES_CHANGED && s.open?.date === e.date) { d.staked = false; d.withdrawn = true; s.open = null; }
         break;
       }
       case "RESTART_APPROVED": s.restartApproved = { nextRunId: e.nextRunId, receiptSha256: e.receiptSha256 }; break; // the next run opens it
