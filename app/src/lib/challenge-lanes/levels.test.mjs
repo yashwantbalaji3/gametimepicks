@@ -247,7 +247,7 @@ test("research card record: selection label and flag codes public; evidence line
 test("minutes drop ≥ 20% flags and caps evidence to minutes-comparable games; lane types split moneyline and props", async () => {
   const { assignFourLanes } = await import("./levels.mjs");
   const R = { mode: "RESEARCH" };
-  const cap = capture([["1", "p1", "pts", 20.5, -150, 120], ["2", "p2", "pts", 20.5, -150, 120]]);
+  const cap = capture([["1", "p1", "pts", 20.5, -150, 120], ["2", "p2", "pts", 20.5, 100, -120]]);
   const kj = row({ role: { minutesAvg: 23, minutesSd: 3, gamesPlayed: 7, stable: true, note: "lane projected 15.5 min; L5 mean 24.4" }, hitRate: { windows: [{ window: "last10", hits: 9, n: 10 }, { window: "2025-26", hits: 59, n: 82 }, { window: "last20-minutes-within-4", hits: 4, n: 9 }], shrunk: { rate: 0.656, nEffective: 70 } } });
   const r = evaluateLevelSet([legFromShortlist(kj)], ctx(cap, MS1, { params: R }));
   assert.ok(r.flags.some((x) => x.startsWith("B_MINUTES_DROP")));
