@@ -11,7 +11,7 @@ import { loadFoldBacklog } from "@/lib/mr-dub/fold-backlog-view";
 import ProductHero from "@/components/tier-board/product-hero";
 import TierBoardSection from "@/components/tier-board/tier-board-section";
 import ProductDisclosure from "@/components/tier-board/product-disclosure";
-import { loadTierBoard } from "@/lib/products/tier-board/load";
+import { loadTierBoard, playerGuardFor } from "@/lib/products/tier-board/load";
 
 import PreviousHits from "@/components/bank-builder/previous-hits";
 import { loadOfficialStepCandidate } from "@/lib/world-cup-flex";
@@ -522,7 +522,7 @@ export default function BankBuilderPage() {
           <>
             {/* v1.7 — which sports could contribute a leg today, from the availability owner. */}
             <EligibleUniverse availability={loadProductAvailability()} compact scope="Bank Builder" levelASports={levelAModel ? levelASportsShown(levelAModel, "bank-builder") : null} />
-            {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="bank-builder" /> : null}
+            {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="bank-builder" applyAvailabilityGuard playerGuard={playerGuardFor(levelAModel?.productDay ?? currentEtDate())} /> : null}
             {/* P0-E: today's priced NBA/NFL candidate or the exact reasons there is none. */}
             {dailyCandidateSectionEnabled() ? <DailyCandidatePanel model={dailyCandidateForPage("bank-builder") as unknown as DailyCandidateModel} /> : null}
           </>

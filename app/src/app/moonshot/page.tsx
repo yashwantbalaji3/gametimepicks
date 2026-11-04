@@ -25,7 +25,7 @@ import MoonshotLadderV2 from "@/components/moonshot/ladder-v2";
 import ProductHero from "@/components/tier-board/product-hero";
 import TierBoardSection from "@/components/tier-board/tier-board-section";
 import ProductDisclosure from "@/components/tier-board/product-disclosure";
-import { loadTierBoard } from "@/lib/products/tier-board/load";
+import { loadTierBoard, playerGuardFor } from "@/lib/products/tier-board/load";
 import { presentFromArtifact } from "@/lib/signature-presentation.mjs";
 import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
 import EligibleUniverse from "@/components/products/eligible-universe";
@@ -190,7 +190,7 @@ export default function MoonshotPage() {
           <>
             {/* v1.7 — which sports could contribute a leg today, from the availability owner (same as /bank-builder). */}
             <EligibleUniverse availability={loadProductAvailability()} compact scope="Moonshot" levelASports={levelAModel ? levelASportsShown(levelAModel, "moonshot") : null} />
-            {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="moonshot" /> : null}
+            {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="moonshot" applyAvailabilityGuard playerGuard={playerGuardFor(levelAModel?.productDay ?? etToday)} /> : null}
             {/* P0-E: today's priced NBA/NFL candidate or the exact reasons there is none. */}
             {dailyCandidateSectionEnabled() ? <DailyCandidatePanel model={dailyCandidateForPage("moonshot") as unknown as DailyCandidateModel} /> : null}
           </>

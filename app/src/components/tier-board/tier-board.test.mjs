@@ -223,3 +223,34 @@ test("pages read the daily file only through the founder switch (decision b), de
   assert.ok(readSuggestedCards("2026-11-02", root, true), "switch on → the day's file");
   fs.rmSync(root, { recursive: true });
 });
+
+test("shared Predicted Player Statistics: guarded (fail closed) on /bank-builder and /moonshot, unchanged on /build and everywhere else", async () => {
+  const { default: LevelASuggestions } = await import("../products/level-a-suggestions.tsx");
+  const proj = (playerId, name, median) => ({ eventId: "401", playerId, eventLabel: "AAA @ BBB", name, team: "BBB", availability: null, points: { median }, frozenAt: "2026-11-02T05:00:00Z" });
+  const model = {
+    productDay: "2026-11-02", label: "L.", method: "M.", legs: [], untiered: [], refusedByReason: {}, parlayLab: [],
+    bankBuilder: { card: null, reason: "none" }, moonshot: { card: null, reason: "none" },
+    nbaProjections: [proj("1", "Pass Player", 21.5), proj("2", "Review Player", 17.25), proj("3", "Blocked Player", 31.75), proj("4", "Unknown Player", 9.75)],
+  };
+  const guard = { "401:1": "pass", "401:2": "review", "401:3": "blocked" };
+  for (const mode of ["bank-builder", "moonshot"]) {
+    const t = text(html(React.createElement(LevelASuggestions, { model, mode, applyAvailabilityGuard: true, playerGuard: guard })));
+    assert.match(t, /Pass Player .*21\.5/, `${mode}: the guard-pass player is listed`);
+    for (const n of ["Review Player", "Blocked Player", "Unknown Player"]) assert.ok(!t.includes(n), `${mode}: ${n} is not listed`);
+    for (const v of ["17.2", "17.3", "31.8", "31.7", "9.8", "9.7"]) assert.ok(!t.includes(v), `${mode}: withheld value ${v} never printed`);
+    assert.match(t, /3 player projections are not listed here until they pass the player checks\./);
+    const none = text(html(React.createElement(LevelASuggestions, { model, mode, applyAvailabilityGuard: true, playerGuard: null })));
+    assert.ok(!/Pass Player|21\.5/.test(none), `${mode}: no guard data → nothing listed (fail closed)`);
+  }
+  // Unguarded (the default every other surface uses): all four, exactly as before.
+  for (const mode of ["parlay-lab", "bank-builder"]) {
+    const t = text(html(React.createElement(LevelASuggestions, { model, mode })));
+    for (const n of ["Pass Player", "Review Player", "Blocked Player", "Unknown Player"]) assert.ok(t.includes(n), `${mode} unguarded: ${n} listed`);
+    assert.doesNotMatch(t, /not listed here until/);
+  }
+  // Only the two product pages opt in; /build renders the shared block without the prop.
+  const { execSync } = await import("node:child_process");
+  const users = execSync("git grep -l applyAvailabilityGuard -- src", { encoding: "utf8" }).trim().split("\n").sort();
+  assert.deepEqual(users, ["src/app/bank-builder/page.tsx", "src/app/moonshot/page.tsx", "src/components/products/level-a-suggestions.tsx", "src/components/tier-board/tier-board.test.mjs"]);
+  assert.match(read("src/app/build/page.tsx"), /<LevelASuggestions model=\{[^}]+\} mode="parlay-lab" \/>/, "/build is unchanged");
+});

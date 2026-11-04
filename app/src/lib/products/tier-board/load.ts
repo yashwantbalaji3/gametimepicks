@@ -29,3 +29,14 @@ export function readSuggestedCards(productDay: string | null, root = path.join(p
 export function loadTierBoard(product: "bank-builder" | "moonshot", { productDay, levelAModel }: { productDay: string | null; levelAModel: unknown }): TierBoardView | null {
   return tierBoardFor(product, { suggestedCards: readSuggestedCards(productDay), levelAModel, productDay }) as TierBoardView | null;
 }
+
+/**
+ * The engine guard's state for each NBA player MODEL PROJECTION of the day (`${eventId}:${playerId}` → "pass" | "review"
+ * | "blocked"), from the same switched daily file. Empty while the switch is off, so a guarded list withholds everyone.
+ */
+export function playerGuardFor(productDay: string | null): Record<string, string> {
+  const doc = readSuggestedCards(productDay) as { playerProjections?: { nba?: Array<{ eventId?: string; playerId?: string; guard?: { state?: string } }> } } | null;
+  const out: Record<string, string> = {};
+  for (const p of doc?.playerProjections?.nba ?? []) if (p.eventId && p.playerId && p.guard?.state) out[`${p.eventId}:${p.playerId}`] = p.guard.state;
+  return out;
+}
