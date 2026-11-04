@@ -128,7 +128,7 @@ What the projection hides:
 - **Price events:** `PRICE_VERIFIED` and `PAYOUT_COMPUTED` appear only as `{seq, type, date, step, at, source, withheld: "P1"}`, plus `result` and refusal codes on a payout. They carry no hash, no numbers, no provider and no book.
 - **Bankroll:** once a step has been won, the tracked bankroll, the stake and `bankrollAfterCents` become `null` with the marker `"P1"`, because those amounts reveal the price.
 
-Use `verifyLaneProjection(doc)` to check a file. A page or a graphic must refuse a file that does not verify.
+**One reader for the site and the renderer:** `readLaneProjection({ appDir, laneId })` / `readAllLaneProjections()` in `public-reader.mjs`. It returns `{ ok: true, doc }` (verified, the right lane, base, target and steps) or `{ ok: false, refusal }` with MISSING, UNREADABLE, UNVERIFIED or WRONG_LANE. Neither surface keeps its own copy or recomputes a lane. Both then call **`laneDisplay(doc, { date })`** (`display.mjs`), which returns `{ laneId, product, slot, runId, runNumber, step, steps, stepText, status (public), internalStatus, reason, inPlay, rungs[{step, state completed|active|failed|upcoming, milestoneCents}], baseCents, targetCents, maxLegs, trackedBankrollCents|null, trackedBankrollWithheld, distanceToTargetCents|null, pace{state on|behind|withheld, milestoneCents, requiredMultiple, behindCents}, day{…, packageId, mediaIndex}|null, history[], runs[{runId, startedAt, approvedBy, endStatus, stepsWon}], prices, label, projectionLabel, sourceSha256 }`. It throws on a file that does not verify.
 
 ## 4. Receipts from other writers (console, renderer)
 

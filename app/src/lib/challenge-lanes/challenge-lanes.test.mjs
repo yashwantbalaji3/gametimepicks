@@ -17,6 +17,8 @@ import { LANES, STATUS, PUBLIC_STATUS, MILESTONES, selectLaneCards, laneState, r
 import { americanToDecimal, decimalToAmerican, priceRatio, payoutCents, computePayout, paceFor, PERMITTED_PRICE_PROVIDERS } from "./payout.mjs";
 import { prepareLane, unpricedLane, priceLane, reconcileLane, ingestReceipts, restartRun, P1_UNPRICED } from "./ops.mjs";
 import { laneProjection, verifyLaneProjection, serializeProjection } from "./projection.mjs";
+import { readLaneProjection, readAllLaneProjections } from "./public-reader.mjs";
+import { laneDisplay } from "./display.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -395,6 +397,34 @@ test("restart after BUSTED: a new run at base, the old run kept in the history",
   assert.deepEqual(p.runs.map((r) => [r.runId, r.publicStatus]), [["run-1", "LOST"], ["run-2", "HELD"]]);
   assert.deepEqual([p.current.runId, p.current.step, p.current.trackedBankrollCents], ["run-2", 1, 2500]);
   assert.equal(p.runs[0].days[0].stepOutcome, "LOSS");
+});
+
+test("one public reader for site and renderer: verified bytes or a named refusal", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "lanes-pub-"));
+  const doc = laneProjection("bb-a", [prepared("bb-a")]);
+  fs.writeFileSync(path.join(dir, "bb-a.json"), serializeProjection(doc));
+  fs.writeFileSync(path.join(dir, "bb-b.json"), serializeProjection({ ...doc, steps: 3 }));
+  fs.writeFileSync(path.join(dir, "ms-a.json"), serializeProjection(doc));
+  const all = readAllLaneProjections({ dir });
+  assert.deepEqual(Object.keys(all), ["bb-a", "bb-b", "ms-a", "ms-b"]);
+  assert.deepEqual(all["bb-a"], { ok: true, doc });
+  assert.deepEqual([all["bb-b"].refusal, all["ms-a"].refusal, all["ms-b"].refusal], ["UNVERIFIED", "WRONG_LANE", "MISSING"]);
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
+test("laneDisplay: the one fold site and graphics share (rungs, status, pace, package)", () => {
+  const rungs = (v) => v.rungs.map((r) => r.state).join(",");
+  const a = laneDisplay(laneProjection("bb-b", [prepared("bb-b")]));
+  assert.deepEqual([a.status, a.stepText, rungs(a), a.trackedBankrollCents, a.distanceToTargetCents, a.pace.state, a.day.packageId, a.day.mediaIndex], ["ACTIVE", "STEP 1 OF 5", "active,upcoming,upcoming,upcoming,upcoming", 10000, 990000, "on", "bb-2026-11-02", 1]);
+  assert.deepEqual(a.rungs.map((r) => r.milestoneCents), [30000, 90000, 270000, 650000, 1000000]);
+  const { events, card } = priced("bb-a");
+  const won = laneDisplay(laneProjection("bb-a", [[...events, ...reconcileLane(events, { finalsRecord: finalsWith(card, ["WIN", "WIN"]) }).events]]));
+  assert.deepEqual([won.status, won.step, rungs(won), won.trackedBankrollCents, won.distanceToTargetCents, won.pace.state], ["WON", 2, "completed,active,upcoming,upcoming,upcoming", null, null, "withheld"]);
+  const lost = laneDisplay(laneProjection("bb-a", [[...events, ...reconcileLane(events, { finalsRecord: finalsWith(card, ["LOSS", "WIN"]) }).events]]));
+  assert.deepEqual([lost.status, rungs(lost), lost.runs[0].endStatus], ["LOST", "failed,upcoming,upcoming,upcoming,upcoming", "LOST"]);
+  const doc = laneProjection("ms-a", [prepared("ms-a")]);
+  assert.throws(() => laneDisplay({ ...doc, steps: 3 }), /does not verify/);
+  assert.equal(laneDisplay(doc, { date: "2026-11-09" }).day, null);
 });
 
 /* ─────────── CLIs: replay 11-02 → 11-03 on real data in a temp root ─────────── */
