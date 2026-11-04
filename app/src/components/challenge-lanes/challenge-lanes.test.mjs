@@ -671,6 +671,7 @@ test("RESEARCH loader: reads the engine's public file + encrypted companion; mis
   if (displayAuthorization("nba", "site").ok) assert.throws(() => loadResearch({ appDir, product: "moonshot", date: "2030-01-01", env }), /not made from this research file/);
   fs.writeFileSync(path.join(appDir, "public", "data", "challenge-research", "moonshot", "2030-01-01.json"), JSON.stringify({ ...o.research.public, label: "Picks" }));
   assert.throws(() => loadResearch({ appDir, product: "moonshot", date: "2030-01-01", env }), /does not verify/);
+  assert.match(read("src/lib/products/challenge-lanes/load.mjs"), /readResearchDisplay\(/, "the site reads research only through the engine's reader");
 });
 
 test("progression animation is CSS-only and prefers-reduced-motion turns it off", () => {
