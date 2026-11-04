@@ -190,3 +190,11 @@ test("rank buckets are exact at the boundary: 0.60 and 0.618 share the 0.60–0.
   assert.equal(ev.ranked.length, 2);
   assert.ok(ev.ranked[0].candidateId < ev.ranked[1].candidateId, "same tier and equal later keys: the id tie-break decides, not the 0.018 difference");
 });
+
+test("evidenceLine: counts only, from either leg shape; null when a window is missing", async () => {
+  const { evidenceLine } = await import("./card-fields.mjs");
+  const leg = legFromShortlist(row({ hitRate: { windows: [{ window: "last10", hits: 8, n: 10 }, { window: "last20", hits: 14, n: 20 }], shrunk: { rate: 0.62, nEffective: 84 } } }));
+  assert.equal(evidenceLine(leg), "Hit 8/10 L10 · 14/20 L20");
+  assert.equal(evidenceLine({ hitRates: [{ window: "last10", k: 8, n: 10 }, { window: "last20", k: 14, n: 20 }] }), "Hit 8/10 L10 · 14/20 L20");
+  assert.equal(evidenceLine({ hitRates: [{ window: "last10", k: 8, n: 10 }] }), null);
+});
