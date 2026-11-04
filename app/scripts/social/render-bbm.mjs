@@ -147,7 +147,7 @@ const title = (b) => b.charAt(0) + b.slice(1).toLowerCase();
 /** One lane's caption block: its step and public status stated separately, legs by name, no odds language. */
 export function laneCaption(p) {
   const v = p.view; const head = `Lane ${v.letter} · ${title(v.badge)}`;
-  const held = v.badge === "HELD" ? (v.view === VIEW.CARD ? " (awaiting verified prices)" : " (no qualifying card today)") : "";
+  const held = v.badge === "HELD" ? (v.view === VIEW.CARD ? " (awaiting verification)" : " (no qualifying card today)") : "";
   if (v.view === VIEW.CARD) return [`${head}${held} · Step ${v.step} of ${v.steps}`, ...p.combo.legs.map(legLine), `Tracked bankroll ${cents(v.bankrollCents)} · goal ${cents(v.targetCents)}`].join("\n");
   if (v.view === VIEW.WON) return [`${head} · Step ${v.step} of ${v.steps} won`, ...p.combo.legs.map(legLine), `Tracked bankroll ${cents(v.bankrollCents)} · goal ${cents(v.targetCents)}`].join("\n");
   if (v.view === VIEW.BUSTED) return `${head} · Busted at step ${v.step} of ${v.steps}`;

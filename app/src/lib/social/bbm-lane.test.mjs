@@ -185,7 +185,7 @@ test("packages: exactly two posts with four ordered images (bb-a, bb-b; ms-a, ms
   assert.ok(!plans.some((p) => /^ms-[ab]-/.test(p.packageId)), "no retired ms-a-/ms-b- packages");
   assert.deepEqual(planPackages([prep(projection("bb-a")), prep(projection("ms-a"))], DATE), [], "no one-image post");
   const bb = plans.find((p) => p.packageId === `bb-${DATE}`).caption;
-  assert.match(bb, /Lane A · Held \(awaiting verified prices\) · Step 1 of 5/); assert.match(bb, /Lane B · Held \(awaiting verified prices\) · Step 1 of 5/); assert.match(bb, /no real wager placed/);
+  assert.match(bb, /Lane A · Held \(awaiting verification\) · Step 1 of 5/); assert.match(bb, /Lane B · Held \(awaiting verification\) · Step 1 of 5/); assert.match(bb, /no real wager placed/);
   const msCap = plans.find((p) => p.packageId === `ms-${DATE}`).caption;
   assert.match(msCap, /Lane A · Held \(no qualifying card today\) · Still step 1 of 5/); assert.match(msCap, /Lane B · Held/);
   for (const p of plans) for (const w of [/odds/i, /parlay/i, /payout/i, /[+-]\d{3}\b/, /must land/i, /betting advice/i, /sportsbook/i]) assert.doesNotMatch(p.caption, w);
