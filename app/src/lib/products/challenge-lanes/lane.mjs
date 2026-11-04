@@ -242,7 +242,9 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
      record marks with another rule version stay in the history, labelled with that version — never re-read as today's. */
   const currentRule = d.ruleVersion ?? d.runs?.at(-1)?.ruleVersion ?? null;
   const ruleTag = (v) => (v && v !== currentRule ? ruleLabel(v) : null);
-  const story = [...d.history].reverse().map((x) => ({ ...dayPresent(x, projectionLabel, teams), ruleTag: ruleTag(x.ruleVersion) }));
+  /* Every history day names its own rule version (PD 2026-11-04), so an old card never reads as today's; ruleTag stays
+     the "differs from the current rules" marker. */
+  const story = [...d.history].reverse().map((x) => ({ ...dayPresent(x, projectionLabel, teams), ruleTag: ruleTag(x.ruleVersion), ruleLabel: ruleLabel(x.ruleVersion ?? "bbm-rules@1") }));
   const latest = d.day ? dayPresent(d.day, projectionLabel, teams) : null;
   /* AWAITING QUALIFIED SELECTION (PD 2026-11-04, rules v2): the lane is open but the engine has recorded nothing for the
      product day yet. An engine decision for the day (a frozen card, or HELD with its reason) always wins over this. */
@@ -257,6 +259,9 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
   const REASONED = new Set(["HELD", "LOST", "RETIRED", "FINISHED SHORT", "COMPLETED"]);
   let note = awaiting ? `No qualified selection has been frozen for ${productDay} yet. Nothing is priced until one is.` : REASONED.has(d.status) ? reasonText(d.reason) : null;
   if (!note && d.status === "ACTIVE") note = `Step ${d.step} of ${d.steps} is active. No new card until it settles.`;
+  /* LOST (PD 2026-11-04): busted at the step it lost, waiting on a founder-approved restart; never an active step. */
+  const lost = d.status === "LOST";
+  if (lost) note = [note, "Awaiting restart approval."].filter(Boolean).join(" ");
   if (!note && d.status === "WON") note = `Step ${d.step - 1} won. Step ${d.step} gets the next qualifying card.`;
   const p = d.pace;
   const pp = current?.price;
@@ -284,11 +289,15 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
       approved: receipts.some((r) => r.type === "APPROVED" && same(r)), postUrl: xUrl(post?.url), postedAt: post?.postedAt ?? null,
     };
   });
-  const tracked = d.trackedBankrollCents == null ? AWAITING_PRICES : money(d.trackedBankrollCents);
+  /* A LOST lane shows the bankroll AFTER the losing step (the engine's bankrollAfterCents for that day), never the
+     pre-loss figure; with no verified price, "Busted" (no number is guessed). */
+  const lostAfter = lost ? verified(d.day?.price)?.bankrollAfterCents : undefined;
+  const tracked = lost ? (typeof lostAfter === "number" ? money(lostAfter) : "Busted") : d.trackedBankrollCents == null ? AWAITING_PRICES : money(d.trackedBankrollCents);
   return {
     laneId: d.laneId, product: d.product, letter: d.slot, name: `Lane ${d.slot}`,
     runId: d.runId, runNumber: d.runNumber, startedAt: String(d.runs.at(-1)?.startedAt ?? "").slice(0, 10) || null,
-    step: d.step, steps: d.steps, stepText: d.stepText, maxLegs: d.maxLegs ?? null,
+    step: d.step, steps: d.steps, stepText: lost ? `LOST AT STEP ${d.step} OF ${d.steps}` : d.stepText, maxLegs: d.maxLegs ?? null, lost,
+    trackedLabel: lost ? "Bankroll after the loss" : "Tracked bankroll · settled",
     cleared: d.cleared ?? d.rungs.filter((r) => r.state === "completed").length,
     status: awaiting ? "AWAITING" : d.status, statusLabel: awaiting ? AWAITING_SELECTION : d.status, statusGlyph: glyph.glyph, tone: glyph.tone, internalStatus: d.internalStatus, note,
     base: money(d.baseCents), target: money(d.targetCents), tracked,
@@ -304,7 +313,7 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
     current, story, graphics,
     runs: d.runs.map((r, i) => ({ runId: r.runId, number: i + 1, started: String(r.startedAt ?? "").slice(0, 10) || null, status: r.endStatus, stepsWon: r.stepsWon ?? 0, current: i === d.runs.length - 1, ruleTag: ruleTag(r.ruleVersion) })),
     ruleVersion: currentRule, ruleLabel: ruleLabel(currentRule), evidence: current?.evidence ?? null,
-    stepTarget: awaiting ? null : latest?.stepTarget ?? null,
+    stepTarget: awaiting || lost ? null : latest?.stepTarget ?? null,
     sourceSha256: d.sourceSha256,
   };
 }

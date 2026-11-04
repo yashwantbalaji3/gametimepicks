@@ -161,10 +161,13 @@ test("SITE/SOCIAL CONSISTENCY: every step, rung, status, bankroll, distance, pac
     const d = laneDisplay(doc);
     const v = lane.laneView(doc);
     const tag = `${doc.laneId}${doc.synthetic ? " (synthetic)" : ""}`;
-    assert.equal(v.stepText, d.stepText, tag); assert.equal(v.step, d.step, tag); assert.equal(v.steps, d.steps, tag);
+    /* A LOST lane reads "LOST AT STEP k OF N" (PD 2026-11-04); the step number is still the engine's. */
+    assert.equal(v.stepText, d.status === "LOST" ? `LOST AT ${d.stepText}` : d.stepText, tag); assert.equal(v.step, d.step, tag); assert.equal(v.steps, d.steps, tag);
     assert.equal(v.status, d.status, tag); assert.equal(v.internalStatus, d.internalStatus, tag);
     assert.deepEqual(v.rungs.map((r) => [r.step, r.state, r.milestone]), d.rungs.map((r) => [r.step, r.state, usd(r.milestoneCents)]), tag);
-    assert.equal(v.tracked, d.trackedBankrollCents == null ? lane.AWAITING_PRICES : usd(d.trackedBankrollCents), tag);
+    /* LOST: the bankroll after the losing step, or "Busted" with no verified price (never the pre-loss figure). */
+    if (d.status === "LOST") assert.equal(v.tracked, typeof d.day?.price?.bankrollAfterCents === "number" ? usd(d.day.price.bankrollAfterCents) : "Busted", tag);
+    else assert.equal(v.tracked, d.trackedBankrollCents == null ? lane.AWAITING_PRICES : usd(d.trackedBankrollCents), tag);
     assert.equal(v.toTarget, d.status === "LOST" ? null : usd(d.distanceToTargetCents), tag);
     assert.equal(v.pace?.state ?? null, d.status === "LOST" ? null : d.pace.state, tag);
     assert.equal(v.base, usd(d.baseCents)); assert.equal(v.target, usd(d.targetCents));
@@ -206,7 +209,9 @@ test("the lane card mirrors the graphic: product + lane chip, STEP k OF N, lit l
   assert.match(t, /\d{1,2}:\d{2} PM ET/);
   const legs = v.current.legs.length;
   assert.equal((t.match(/MODEL WIN PROBABILITY/g) ?? []).length, legs + v.story[1].legs.length, "the current step's legs once, plus step 1's in the story");
-  assert.match(t, /2026-11-03 · step 2 · Active The selections above\./);
+  assert.match(t, /2026-11-03 · step 2 · Active RULES V1 The selections above\./);
+  /* Every history leg names its rule version, so an old card never reads as today's. */
+  assert.match(t, /Charlotte Hornets CHA vs DET · 7:30 PM ET RULES V1 · history MODEL WIN PROBABILITY 52% Won/);
   assert.match(t, /Tracked challenge · no real wager placed/);
   assert.doesNotMatch(t, /\b(ESTIMATE|est\.|projected median|odds)\b/i);
   assert.doesNotMatch(t, /not betting advice|FOUNDER REVIEW|NOT A SPORTSBOOK OFFER/i);
@@ -676,6 +681,28 @@ test("RESEARCH loader: reads the engine's public file + encrypted companion; mis
   fs.writeFileSync(path.join(appDir, "public", "data", "challenge-research", "moonshot", "2030-01-01.json"), JSON.stringify({ ...o.research.public, label: "Picks" }));
   assert.throws(() => loadResearch({ appDir, product: "moonshot", date: "2030-01-01", env }), /does not verify/);
   assert.match(read("src/lib/products/challenge-lanes/load.mjs"), /readResearchDisplay\(/, "the site reads research only through the engine's reader");
+});
+
+test("LOST lane (PD 2026-11-04): reads LOST AT STEP k, the bankroll after the loss, awaiting restart; no step target, wager or payout box", async () => {
+  const o = await v2Sample("bb-a");
+  const v = lane.laneView(o.pub, { display: o.priced, productDay: o.priced.day.date });
+  assert.equal(v.status, "LOST");
+  assert.equal(v.stepText, "LOST AT STEP 2 OF 5");
+  assert.equal(v.tracked, "$0", "the losing day's bankrollAfterCents, never the pre-loss $195.23");
+  assert.equal(v.stepTarget, null);
+  const h = html(React.createElement(LaneCard, { lane: v }));
+  const t = text(h);
+  assert.match(t, /LOST AT STEP 2 OF 5/);
+  assert.match(t, /Bankroll after the loss \$0/);
+  assert.match(t, /awaiting restart approval/i);
+  assert.doesNotMatch(t, /\$195\.23|STEP TARGET|Potential payout|Awaiting verified prices/);
+  assert.doesNotMatch(h, /data-lane-money=/);
+  /* Without prices: "Busted", no number guessed. */
+  assert.equal(lane.laneView(o.pub, { productDay: o.priced.day.date }).tracked, "Busted");
+  const { laneParity, parityReport } = await import("../../lib/products/challenge-lanes/parity.mjs");
+  assert.deepEqual(parityReport([laneParity({ doc: o.pub, prices: o.prices, view: v })]).failures, []);
+  /* Showing the pre-loss figure as current fails parity. */
+  assert.ok(parityReport([laneParity({ doc: o.pub, prices: o.prices, view: { ...v, tracked: "$195.23" } })]).failures.includes("bb-a tracked bankroll"));
 });
 
 test("progression animation is CSS-only and prefers-reduced-motion turns it off", () => {

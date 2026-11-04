@@ -17,12 +17,12 @@ export type LaneLeg = {
 export type LanePrice = { method: string; estimate: boolean; combinedLabel: string; combined: string; decimal?: number | null; book: string | null; stake: string | null; payout: string | null; profit: string | null; captured: string | null; requiredMultiple?: number | null; belowPace?: boolean | null; verification?: string | null; verificationNote?: string | null; snapshotSha256?: string | null; priceEventSha256?: string | null; band?: string | null };
 export type LaneDay = {
   date: string; step: number; internalStatus: string | null; statusText: string; tone: string; reason: string | null; staked: boolean;
-  legs: LaneLeg[]; hasCard: boolean; modelCardResult: string | null; stepOutcome: string | null; result: string | null; price: LanePrice | null; ruleTag?: string | null;
+  legs: LaneLeg[]; hasCard: boolean; modelCardResult: string | null; stepOutcome: string | null; result: string | null; price: LanePrice | null; ruleTag?: string | null; ruleLabel?: string | null; evidence?: { class: string; label: string } | null;
   withdrawn?: boolean; legCount?: number | null; maxLegs?: number | null; stepTarget?: { label: string; value: string | null } | null;
 };
 export type LaneView = {
   laneId: string; product: string; letter: string; name: string; runId: string | null; runNumber: number; startedAt: string | null;
-  step: number | null; steps: number; stepText: string | null; maxLegs: number | null; cleared: number; status: string; statusLabel: string; statusGlyph: string; tone: string;
+  step: number | null; steps: number; stepText: string | null; maxLegs: number | null; lost?: boolean; trackedLabel?: string; cleared: number; status: string; statusLabel: string; statusGlyph: string; tone: string;
   internalStatus: string | null; note: string | null;
   base: string | null; target: string | null; tracked: string | null; toTarget: string | null; wager: string | null; wagerNote: string | null;
   potentialPayout: string; potentialProfit: string; pace: { state: string; text: string } | null; label: string; sourceSha256: string | null; verification?: string | null; verificationNote?: string | null;
@@ -38,7 +38,7 @@ export type LaneView = {
 const RUNG_TEXT: Record<string, string> = { completed: "won", active: "current", failed: "lost", upcoming: "to come" };
 const OUTCOME_TEXT: Record<string, string> = { WIN: "Won", LOSS: "Lost", VOID: "Void", PUSH: "Push" };
 
-function LegCard({ l }: { l: LaneLeg }) {
+function LegCard({ l, tag = null }: { l: LaneLeg; tag?: string | null }) {
   const style = l.team ? ({ "--cl-team": l.team.color, "--cl-team-ink": l.team.ink ?? "var(--vault-text)" } as CSSProperties) : undefined;
   return (
     <li className={`cl-leg${l.team ? " cl-leg--team" : ""}`} style={style} data-lane-leg={l.gameId} data-leg-outcome={l.outcome ?? "open"}>
@@ -66,6 +66,7 @@ function LegCard({ l }: { l: LaneLeg }) {
             <span className="cl-label">Hit rate</span> {l.price.hitRates.join(" · ")}
           </span>
         ) : null}
+        {tag && !l.evidence ? <span className="cl-rule-tag" data-leg-rule="">{tag} · history</span> : null}
         {l.evidence ? <span className={`cl-evidence cl-evidence--${l.evidence.class.toLowerCase()}`} data-leg-evidence={l.evidence.class}>{l.evidence.label}</span> : null}
         {l.flags.length ? <span className="cl-leg-flag"><span className="cl-flag-chip">Flag</span> {l.flags.join(" ")}</span> : null}
       </div>
@@ -88,11 +89,11 @@ function StoryDay({ d, laneNote, isCurrent }: { d: LaneDay; laneNote: string | n
       <span className="cl-story-dot" aria-hidden />
       <details className="cl-story-fold" open={d.stepOutcome != null || undefined}>
         <summary className="cl-story-summary">
-          <span><strong>{d.date}</strong> · step {d.step} · {d.statusText}{d.ruleTag ? <span className="cl-rule-tag" data-rule-tag="">{d.ruleTag}</span> : null}</span>
+          <span><strong>{d.date}</strong> · step {d.step} · {d.statusText}{d.ruleLabel ? <span className="cl-rule-tag" data-rule-tag={d.ruleTag ? "" : undefined} data-day-rule="">{d.ruleLabel}</span> : null}{d.evidence ? <span className={`cl-evidence cl-evidence--${d.evidence.class.toLowerCase()}`}>{d.evidence.label}</span> : null}</span>
         </summary>
         <div className="cl-story-body">
           {d.reason && d.reason !== laneNote ? <p className="cl-day-reason">{d.reason}</p> : null}
-          {d.legs.length && isCurrent ? <p className="cl-day-reason">The selections above.</p> : d.legs.length ? <ol className="cl-legs cl-legs--compact">{d.legs.map((l) => <LegCard key={l.legId} l={l} />)}</ol> : null}
+          {d.legs.length && isCurrent ? <p className="cl-day-reason">The selections above.</p> : d.legs.length ? <ol className="cl-legs cl-legs--compact">{d.legs.map((l) => <LegCard key={l.legId} l={l} tag={d.ruleLabel ?? null} />)}</ol> : null}
           {d.result ? <p className="cl-day-result" data-day-result="">{d.result}</p> : null}
         </div>
       </details>
@@ -129,7 +130,7 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
       </header>
 
       <p className="cl-step" data-lane-step="">
-        {lane.step ? <>STEP <span className="cl-step-k">{lane.step}</span> OF {lane.steps}</> : <>{lane.steps} STEPS</>}
+        {lane.lost ? <span className="cl-step-lost">{lane.stepText}</span> : lane.step ? <>STEP <span className="cl-step-k">{lane.step}</span> OF {lane.steps}</> : <>{lane.steps} STEPS</>}
       </p>
       <p className="cl-sub">{legs.length ? `${legs.length} ${legs.length === 1 ? "leg" : "legs"} · ` : ""}{lane.cleared} of {lane.steps} steps cleared</p>
       {lane.note ? <p className="cl-note">{lane.note}</p> : null}
@@ -148,7 +149,7 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
 
       <dl className="cl-bank" data-lane-bank="">
         <div className="cl-bank-box cl-bank--start"><dt>Start</dt><dd>{lane.base}</dd></div>
-        <div className="cl-bank-box cl-bank--tracked"><dt>Tracked bankroll · settled</dt><dd className={lane.tracked && !lane.tracked.startsWith("$") ? "cl-bank-pending" : undefined}>{lane.tracked ?? "—"}</dd></div>
+        <div className="cl-bank-box cl-bank--tracked"><dt>{lane.trackedLabel ?? "Tracked bankroll · settled"}</dt><dd className={lane.tracked && !lane.tracked.startsWith("$") ? "cl-bank-pending" : undefined}>{lane.tracked ?? "—"}</dd></div>
         <div className="cl-bank-box cl-bank--goal"><dt>Goal · hypothetical</dt><dd>{lane.target}</dd></div>
       </dl>
       {lane.stepTarget?.value ? (
@@ -177,6 +178,9 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
         </section>
       ) : null}
 
+      {lane.lost ? (
+        <p className="cl-lost-restart" data-lane-restart="">Lane lost · awaiting restart approval. Nothing is staked until a new run is approved.</p>
+      ) : (
       <dl className="cl-money" data-lane-money="">
         <div className="cl-money-cell"><dt>Wager</dt><dd>{lane.wager ?? "—"}{lane.wager && lane.wagerNote ? <span className="cl-money-sub">{lane.wagerNote}</span> : null}</dd></div>
         {lane.current?.price?.payout ? (
@@ -186,6 +190,7 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
         )}
         <div className="cl-money-cell"><dt>Ladder progress</dt><dd>{lane.cleared} of {lane.steps}<span className="cl-money-sub">steps cleared</span></dd></div>
       </dl>
+      )}
       {lane.current?.price ? (
         <p className="cl-rg" data-lane-rg="">21+ · <a href="/responsible-use/">Gamble responsibly</a></p>
       ) : null}

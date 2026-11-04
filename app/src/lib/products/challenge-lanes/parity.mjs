@@ -55,11 +55,16 @@ export function laneParity({ doc, prices, view }) {
   rowOpt("prop players", props.length ? props.map((l) => [l.legId, l.player?.name ?? null, l.player?.team ?? l.team ?? null]) : null, siteProps.length ? siteProps.map((l) => [l.legId, l.player?.name ?? null, l.player?.team ?? null]) : null);
   rowOpt("prop sides", props.length ? props.map((l) => [l.legId, l.side ? String(l.side).toUpperCase() : null]) : null, siteProps.length ? siteProps.map((l) => [l.legId, l.player?.side ?? null]) : null);
   rowOpt("prop projections", props.length ? props.map((l) => [l.legId, typeof l.projection?.value === "number" ? l.projection.value.toFixed(1) : null]) : null, siteProps.length ? siteProps.map((l) => [l.legId, l.projection ?? null]) : null);
-  rowOpt("step target", typeof day?.targetPayoutCents === "number" ? { label: day.targetPayoutLabel ?? null, value: money(day.targetPayoutCents) } : null, view.stepTarget ?? null);
+  /* A LOST lane shows no step target (nothing is being played for). */
+  rowOpt("step target", typeof day?.targetPayoutCents === "number" && doc.current?.publicStatus !== "LOST" ? { label: day.targetPayoutLabel ?? null, value: money(day.targetPayoutCents) } : null, view.stepTarget ?? null);
   const pr = prices?.runs?.find((r) => r.runId === run.runId);
   const pd = pr?.days?.filter((d) => d.date === day?.date).at(-1) ?? null;
   row("prices bound to projection", prices?.projectionSha256, doc.contentSha256);
-  row("tracked bankroll", money(pr?.trackedBankrollCents), view.tracked);
+  /* A BUSTED run's current bankroll is the losing day's bankrollAfterCents (the engine's trackedBankrollCents still
+     holds the pre-loss figure in the v2 sample; raised with betting-engine 2026-11-04). */
+  const busted = pr?.status === "BUSTED" || doc.current?.publicStatus === "LOST";
+  const lostDay = busted ? pr?.days?.filter((d) => d.stepOutcome === "LOSS" || typeof d.bankrollAfterCents === "number").at(-1) : null;
+  row("tracked bankroll", busted ? (typeof lostDay?.bankrollAfterCents === "number" ? money(lostDay.bankrollAfterCents) : "Busted") : money(pr?.trackedBankrollCents), view.tracked);
   const sp = siteDay?.price ?? null;
   const priced = pd && pd.verification !== "REFUSED";
   /* A priced day must show every price field, exactly (fail-closed); an unpriced or refused day must show none. */
