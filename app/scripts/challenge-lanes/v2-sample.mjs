@@ -16,6 +16,7 @@ import { laneProjection, serializeProjection } from "../../src/lib/challenge-lan
 import { lanePriceDisplay } from "../../src/lib/challenge-lanes/price-display.mjs";
 import { laneDisplay, pricedLaneDisplay } from "../../src/lib/challenge-lanes/display.mjs";
 import { priceRatio, payoutCents } from "../../src/lib/challenge-lanes/payout.mjs";
+import { sha256 } from "../../src/lib/challenge-lanes/chain.mjs";
 
 const SAMPLE = "SYNTHETIC SAMPLE — not a forecast, price or lane record";
 const leg = (id, away, home, side, p, start) => ({ legId: `nba:${id}:winner`, gameId: id, eventLabel: `${away} @ ${home}`, startUtc: start, market: "winner", selection: { code: side, label: `${side === "home" ? home : away} (official side)`, teamAbbr: side === "home" ? home : away }, probability: p, probabilityShown: `${Math.round(p * 100)}%`, projection: { owner: SAMPLE, modelId: "synthetic", snapshotId: null, stampedAt: null, contentSha256: null }, guard: { state: "pass", flags: [], flagText: [] }, settlement: null });
@@ -29,11 +30,12 @@ function pricedDay(ev, { date, legs, prices, laneId }) {
   ev = append(ev, { ...base, type: "CARD_FROZEN", at: `${date}T13:30:00Z`, packageId: `${s.product === "bank-builder" ? "bb" : "ms"}-${date}`, mediaIndex: card.slot === "A" ? 0 : 1, suggestedCards: null, card });
   const cardEv = ev.at(-1);
   const fetchedAt = `${date}T17:00:00Z`;
-  ev = append(ev, { ...base, type: "PRICE_VERIFIED", at: fetchedAt, cardEventSha256: cardEv.sha256, price: { legs: legs.map((l, i) => ({ legId: l.legId, selectionCode: l.selection.code, provider: "synthetic", book: "synthetic-book", market: "h2h", oddsFormat: "american", price: prices[i], line: null, fetchedAt })), parlay: { method: "LEG_PRODUCT", provider: "synthetic", book: "synthetic-book", fetchedAt }, priceSnapshotSha256: null } });
+  const snapSha = sha256(`SYNTHETIC snapshot ${laneId} ${date}`); // a stand-in identity; no snapshot exists
+  ev = append(ev, { ...base, type: "PRICE_VERIFIED", at: fetchedAt, cardEventSha256: cardEv.sha256, price: { legs: legs.map((l, i) => ({ legId: l.legId, selectionCode: l.selection.code, provider: "synthetic", book: "synthetic-book", market: "h2h", oddsFormat: "american", price: prices[i], line: null, fetchedAt })), parlay: { method: "LEG_PRODUCT", provider: "synthetic", book: "synthetic-book", fetchedAt }, priceSnapshotSha256: snapSha } });
   const priceEv = ev.at(-1);
   const r = prices.map((p) => priceRatio("american", p)).reduce((a, x) => ({ n: a.n * BigInt(x.n), d: a.d * BigInt(x.d) }), { n: 1n, d: 1n });
   const money = payoutCents(s.bankrollCents, r);
-  ev = append(ev, { ...base, type: "PAYOUT_COMPUTED", at: fetchedAt, result: "VERIFIED", refusals: null, ...money, inputs: { estimate: false, label: null, book: "synthetic-book", cardEventSha256: cardEv.sha256, priceEventSha256: priceEv.sha256, priceSnapshotSha256: null, stakeCents: s.bankrollCents, bankrollCents: s.bankrollCents, decimalPrice: Number(r.n) / Number(r.d), method: "LEG_PRODUCT", pace: pos.requiredMultiplier, belowPace: money.grossPayoutCents < pos.targetCents, strictPace: false, ruleVersion: RULES_VERSION, targetPayoutCents: pos.targetCents, requiredMultiplier: pos.requiredMultiplier, band: pos.band, candidateId: card.candidateId } });
+  ev = append(ev, { ...base, type: "PAYOUT_COMPUTED", at: fetchedAt, result: "VERIFIED", refusals: null, ...money, inputs: { estimate: false, label: null, book: "synthetic-book", cardEventSha256: cardEv.sha256, priceEventSha256: priceEv.sha256, priceSnapshotSha256: snapSha, stakeCents: s.bankrollCents, bankrollCents: s.bankrollCents, decimalPrice: Number(r.n) / Number(r.d), method: "LEG_PRODUCT", pace: pos.requiredMultiplier, belowPace: money.grossPayoutCents < pos.targetCents, strictPace: false, ruleVersion: RULES_VERSION, targetPayoutCents: pos.targetCents, requiredMultiplier: pos.requiredMultiplier, band: pos.band, candidateId: card.candidateId } });
   return { ev, payout: ev.at(-1), money };
 }
 function settle(ev, { date, legs, outcomes, payout, money }) {
