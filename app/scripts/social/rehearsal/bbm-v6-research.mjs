@@ -42,6 +42,8 @@ const ALTS = String(a.alt ?? "").split(",").filter(Boolean).map((x) => {
   if (key && !j.records?.[key]?.record) throw new Error(`${f}: no sealed record ${key}`);
   return { laneId, file: ref, sel: key ? { lanes: { [laneId]: { card: j.records[key].record } } } : j };
 });
+/** An unmapped engine flag code in plain words: prefix dropped, sentence case ("ML_KEY_UNCERTAIN" → "Key uncertain"). */
+const flagWords = (code) => { const t = code.replace(/^[A-Z]+_/, "").replace(/_/g, " ").toLowerCase(); return t.charAt(0).toUpperCase() + t.slice(1); };
 const isMoneyline = (l) => ["winner", "moneyline", "h2h", "ml"].includes(String(l.market ?? l.family ?? "").toLowerCase());
 /** The engine's Level B leg flags in plain words (the record's flags[] codes). */
 const FLAG_WORDS = { B_ROLE_UNSTABLE: "Role unstable", B_MINUTES_VOLATILE: "Minutes volatile", B_MINUTES_UNCERTAIN: "Minutes uncertain", B_MINUTES_DROP: "Minutes drop", ML_SMALL_SAMPLE: "Small sample", ML_ROSTER_TURNOVER: "Roster turnover", ML_KEY_OUT: "Key player out", ML_KEY_DTD: "Key player day-to-day" };
@@ -75,14 +77,14 @@ for (const { laneId, name, sel: src, file: srcFile, alt } of jobs) {
       if (levelA && !shown) throw new Error(`${laneId}: Level A moneyline ${l.legId} carries no model win probability`);
       const evText = levelA ? null : (l.evidenceLine ?? l.evidenceText ?? evidenceLine(l));
       if (!levelA && !evText) throw new Error(`${laneId}: Level B moneyline ${l.legId} carries no evidence line`);
-      const flags = [...(inj0?.lineup?.sensitive ? [`Lineup watch: ${inj0.lineup.tonightScenario}`] : []), ...(l.flagText ?? []).filter((t) => !/^[A-Z]+_[A-Z_]+ /.test(t)), ...(c.flags ?? []).filter((f) => f.legId === l.legId).map((f) => FLAG_WORDS[f.code] ?? f.code.replace(/^[A-Z]_/, "").replace(/_/g, " ").toLowerCase())];
+      const flags = [...(inj0?.lineup?.sensitive ? [`Lineup watch: ${inj0.lineup.tonightScenario}`] : []), ...(l.flagText ?? []).filter((t) => !/^[A-Z]+_[A-Z_]+ /.test(t)), ...(c.flags ?? []).filter((f) => f.legId === l.legId).map((f) => FLAG_WORDS[f.code] ?? flagWords(f.code))];
       return { legId: l.legId, team: { abbr: side, name: l.teamName ?? teamName(side) }, opponent: { abbr: side === home ? away : home }, home: side === home, tipUtc: l.startUtc, level: levelA ? "A" : "B", ...(levelA ? { projectionText: shown } : { evidenceText: evText }), flagText: flags };
     }
     const ev = evidenceLine(l);
     if (!ev) throw new Error(`${laneId}: ${l.legId} lacks L10 or L20 hit counts`);
     const w10 = l.hitRate.windows.find((w) => w.window === "last10");
     const inj = c.injuryStatus?.find((x) => x.legId === l.legId);
-    const flags = [...(inj && inj.status !== "ACTIVE" ? [`${l.player.name} ${String(inj.status).toLowerCase()}`] : []), ...(inj?.lineup?.sensitive ? [`Lineup watch: ${inj.lineup.tonightScenario}`] : []), ...(minutesNote(l.role) ? [minutesNote(l.role)] : []), ...(c.flags ?? []).filter((f) => f.legId === l.legId).map((f) => FLAG_WORDS[f.code] ?? f.code.replace(/^[A-Z]_/, "").replace(/_/g, " ").toLowerCase())];
+    const flags = [...(inj && inj.status !== "ACTIVE" ? [`${l.player.name} ${String(inj.status).toLowerCase()}`] : []), ...(inj?.lineup?.sensitive ? [`Lineup watch: ${inj.lineup.tonightScenario}`] : []), ...(minutesNote(l.role) ? [minutesNote(l.role)] : []), ...(c.flags ?? []).filter((f) => f.legId === l.legId).map((f) => FLAG_WORDS[f.code] ?? flagWords(f.code))];
     const levelA = l.classification === "LEVEL_A" && l.probability != null;
     return { kind: "PROP", legId: l.legId, player: { name: l.player.name }, team: { abbr: l.team, name: l.team }, opponent: { abbr: l.team === home ? away : home }, home: l.team === home, tipUtc: l.startUtc, level: levelA ? "A" : "B", ...(levelA ? { projectionText: l.probabilityShown ?? `${Math.round(l.probability * 100)}%` } : {}), lineText: `${l.side.toUpperCase()} ${l.line} ${SHORT[l.market] ?? ""}`.trim(), evidenceText: ev, evidenceBig: `${w10.hits}/${w10.n}`, flagText: flags };
   });
