@@ -6237,3 +6237,16 @@ textarea:focus-visible { outline: none; box-shadow: var(--vault-focus-ring); bor
 .tb-player-list li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 12px; border-top: 1px solid var(--vault-border); }
 .tb-player-proj { color: var(--vault-text-mute); font-size: 12.5px; font-variant-numeric: tabular-nums; }
 .tb-pending { display: flex; flex-direction: column; gap: 6px; border-radius: 12px; padding: 12px 14px; border: 1px solid var(--vault-border); background: var(--vault-wash-faint); }
+.tb-source { margin: 0; color: var(--vault-text-mute); font-size: 12px; font-style: italic; }
+.tb-card--tier { border-top: 3px solid var(--tb-band); }
+.tb-card--tier .tb-leg-num { border-color: color-mix(in srgb, var(--tb-band) 60%, transparent); color: var(--tb-band); }
+.tb-card--tier .tb-joint-value { color: var(--tb-band); }
+.tb-tier-grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+@media (min-width: 1100px) { .tb-tier-grid { grid-template-columns: 1fr 1fr; } }
+.tb-tier { display: flex; flex-direction: column; gap: 10px; }
+.tb-tier-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 10px; padding-bottom: 6px; border-bottom: 2px solid var(--tb-band); }
+.tb-tier-name { margin: 0; font-family: var(--font-display); font-size: 18px; font-weight: 800; color: var(--tb-band); }
+.tb-tier-range { color: var(--vault-text-mute); font-size: 12.5px; }
+.tb-hero--lab { background: linear-gradient(120deg, color-mix(in srgb, var(--risk-low) 12%, var(--vault-panel)) 0%, var(--vault-panel) 40%, var(--vault-panel) 60%, color-mix(in srgb, var(--risk-longshot) 14%, var(--vault-panel)) 100%); border-color: var(--vault-border-strong); }
+.tb-hero--lab .tb-eyebrow { color: var(--vault-text-mute); }
+.tb-hero--lab .tb-btn--primary { background: var(--vault-text); border-color: var(--vault-text); color: var(--vault-ink-black); }

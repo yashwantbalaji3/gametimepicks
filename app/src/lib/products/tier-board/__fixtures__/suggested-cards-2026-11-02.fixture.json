@@ -837,6 +837,1416 @@
    "reason": "Insufficient eligible legs: a mixed card needs legs from two sports; today only NBA has a leg with a published probability."
   }
  },
+ "parlays": {
+  "nba": [
+   {
+    "tier": "low",
+    "tierLabel": "Low Risk",
+    "threshold": "model joint chance 50.0% to 66.7%",
+    "policy": "nba-game-winner-tiers@1/parlay-lab",
+    "state": "model-only",
+    "card": {
+     "id": "d021c1cba07d0bb2",
+     "policy": "nba-game-winner-tiers@1/parlay-lab",
+     "scope": "nba",
+     "tier": "low",
+     "tierLabel": "Low Risk",
+     "sports": [
+      "nba"
+     ],
+     "legs": [
+      {
+       "legId": "nba:401909911:winner",
+       "sport": "nba",
+       "eventId": "401909911",
+       "eventLabel": "WSH @ ORL",
+       "startUtc": "2026-11-03T00:30Z",
+       "market": "winner",
+       "selection": {
+        "code": "home",
+        "label": "ORL (official side)",
+        "teamAbbr": "ORL"
+       },
+       "status": "MODEL_ONLY",
+       "probability": 0.8522,
+       "probabilityShown": "85%",
+       "forecast": {
+        "owner": "nba-official-composition@1",
+        "modelId": "nba-preseason-experimental-v0.1",
+        "stampedAt": "2026-11-02T05:57:53Z",
+        "ref": "app/public/data/nba/experimental-public/2026-11-02.json#401909911",
+        "receiptSha256": "8bb75c9f2588230799e25982f0fa9dbbfd106751571963211f6dda43130dc5bb"
+       },
+       "guard": {
+        "state": "review",
+        "flags": [
+         "FAVOURED_ROTATION_OUT"
+        ],
+        "flagText": [
+         "One of the favoured team's five highest-minute players this season is ruled Out; the Elo side does not account for it."
+        ],
+        "rotation": [
+         {
+          "playerId": "4566434",
+          "name": "Franz Wagner",
+          "minutesAvg": 34.4,
+          "gamesPlayed": 5
+         },
+         {
+          "playerId": "4066320",
+          "name": "Desmond Bane",
+          "minutesAvg": 33.6,
+          "gamesPlayed": 5
+         },
+         {
+          "playerId": "4432573",
+          "name": "Paolo Banchero",
+          "minutesAvg": 33.5,
+          "gamesPlayed": 2
+         },
+         {
+          "playerId": "4432165",
+          "name": "Jalen Suggs",
+          "minutesAvg": 33.3,
+          "gamesPlayed": 3
+         },
+         {
+          "playerId": "4277847",
+          "name": "Wendell Carter Jr.",
+          "minutesAvg": 31.6,
+          "gamesPlayed": 5
+         }
+        ],
+        "rotationSource": "season-box-scores",
+        "rotationFlagged": [
+         {
+          "playerId": "4432573",
+          "name": "Paolo Banchero",
+          "minutesAvg": 33.5,
+          "gamesPlayed": 2,
+          "status": "Out",
+          "flag": "FAVOURED_ROTATION_OUT"
+         },
+         {
+          "playerId": "4432165",
+          "name": "Jalen Suggs",
+          "minutesAvg": 33.3,
+          "gamesPlayed": 3,
+          "status": "Out",
+          "flag": "FAVOURED_ROTATION_OUT"
+         }
+        ],
+        "outAtFreeze": [
+         {
+          "playerId": "4065654",
+          "name": "Jonathan Isaac",
+          "status": "Out"
+         },
+         {
+          "playerId": "4432165",
+          "name": "Jalen Suggs",
+          "status": "Out"
+         },
+         {
+          "playerId": "4432573",
+          "name": "Paolo Banchero",
+          "status": "Out"
+         },
+         {
+          "playerId": "5107251",
+          "name": "Izaiyah Nelson",
+          "status": "Out"
+         },
+         {
+          "playerId": "5214637",
+          "name": "Noah Penda",
+          "status": "Out"
+         }
+        ]
+       },
+       "settlement": {
+        "grader": "nba-settlement-contract",
+        "market": "moneyline",
+        "side": "home"
+       }
+      },
+      {
+       "legId": "nba:401909915:winner",
+       "sport": "nba",
+       "eventId": "401909915",
+       "eventLabel": "MIL @ MIN",
+       "startUtc": "2026-11-03T01:00Z",
+       "market": "winner",
+       "selection": {
+        "code": "home",
+        "label": "MIN (official side)",
+        "teamAbbr": "MIN"
+       },
+       "status": "MODEL_ONLY",
+       "probability": 0.7782,
+       "probabilityShown": "78%",
+       "forecast": {
+        "owner": "nba-official-composition@1",
+        "modelId": "nba-preseason-experimental-v0.1",
+        "stampedAt": "2026-11-02T05:57:53Z",
+        "ref": "app/public/data/nba/experimental-public/2026-11-02.json#401909915",
+        "receiptSha256": "fcbf84a20ccb6e1c5d3a6f38306b0cd62000e4491860a20782a194dd6c13fe24"
+       },
+       "guard": {
+        "state": "review",
+        "flags": [
+         "FAVOURED_ROTATION_OUT"
+        ],
+        "flagText": [
+         "One of the favoured team's five highest-minute players this season is ruled Out; the Elo side does not account for it."
+        ],
+        "rotation": [
+         {
+          "playerId": "4594268",
+          "name": "Anthony Edwards",
+          "minutesAvg": 33.8,
+          "gamesPlayed": 4
+         },
+         {
+          "playerId": "4431671",
+          "name": "Jaden McDaniels",
+          "minutesAvg": 33.4,
+          "gamesPlayed": 7
+         },
+         {
+          "playerId": "4433247",
+          "name": "Jonathan Kuminga",
+          "minutesAvg": 30.4,
+          "gamesPlayed": 7
+         },
+         {
+          "playerId": "3032976",
+          "name": "Rudy Gobert",
+          "minutesAvg": 30,
+          "gamesPlayed": 6
+         },
+         {
+          "playerId": "4397002",
+          "name": "Ayo Dosunmu",
+          "minutesAvg": 29.3,
+          "gamesPlayed": 7
+         }
+        ],
+        "rotationSource": "season-box-scores",
+        "rotationFlagged": [
+         {
+          "playerId": "4594268",
+          "name": "Anthony Edwards",
+          "minutesAvg": 33.8,
+          "gamesPlayed": 4,
+          "status": "Out",
+          "flag": "FAVOURED_ROTATION_OUT"
+         }
+        ],
+        "outAtFreeze": [
+         {
+          "playerId": "3934673",
+          "name": "Donte DiVincenzo",
+          "status": "Out"
+         },
+         {
+          "playerId": "4594268",
+          "name": "Anthony Edwards",
+          "status": "Out"
+         }
+        ]
+       },
+       "settlement": {
+        "grader": "nba-settlement-contract",
+        "market": "moneyline",
+        "side": "home"
+       }
+      }
+     ],
+     "jointProbability": 0.6632,
+     "jointShown": "66.3%",
+     "band": {
+      "tier": "low",
+      "rule": "model joint chance 50.0% to 66.7%",
+      "method": "Joint probability = product of each leg's official forecast probability, legs from different games only (treated as independent across games). Tier = the published risk band of the model-fair price (1 ÷ joint). No sportsbook price is used."
+     },
+     "rationale": "Each leg is the official NBA side with its MODEL PROJECTION win chance from the frozen Elo team rating; this is the combination with the highest joint chance in the Low Risk band (2 legs).",
+     "confidence": "2 legs carry an availability flag (shown on the leg). MODEL PROJECTION accuracy is not yet established over a large forward sample.",
+     "dependency": "Assumes the games are independent: every leg is a different NBA game, so no two legs share a team, but same-night results can still be related (travel, schedule, league-wide scoring) and that is not modelled.",
+     "disclosure": "Model Performance: the Elo rating’s game-outcome accuracy is not yet established — 107 regular-season games graded so far; the preregistration requires 300 before any accuracy claim. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation.",
+     "status": "MODEL_ONLY",
+     "priced": false,
+     "price": null,
+     "payout": null
+    },
+    "reason": null
+   },
+   {
+    "tier": "medium",
+    "tierLabel": "Medium Risk",
+    "threshold": "model joint chance 25.0% to 50.0%",
+    "policy": "nba-game-winner-tiers@1/parlay-lab",
+    "state": "model-only",
+    "card": {
+     "id": "f3a11726f5db9853",
+     "policy": "nba-game-winner-tiers@1/parlay-lab",
+     "scope": "nba",
+     "tier": "medium",
+     "tierLabel": "Medium Risk",
+     "sports": [
+      "nba"
+     ],
+     "legs": [
+      {
+       "legId": "nba:401909915:winner",
+       "sport": "nba",
+       "eventId": "401909915",
+       "eventLabel": "MIL @ MIN",
+       "startUtc": "2026-11-03T01:00Z",
+       "market": "winner",
+       "selection": {
+        "code": "home",
+        "label": "MIN (official side)",
+        "teamAbbr": "MIN"
+       },
+       "status": "MODEL_ONLY",
+       "probability": 0.7782,
+       "probabilityShown": "78%",
+       "forecast": {
+        "owner": "nba-official-composition@1",
+        "modelId": "nba-preseason-experimental-v0.1",
+        "stampedAt": "2026-11-02T05:57:53Z",
+        "ref": "app/public/data/nba/experimental-public/2026-11-02.json#401909915",
+        "receiptSha256": "fcbf84a20ccb6e1c5d3a6f38306b0cd62000e4491860a20782a194dd6c13fe24"
+       },
+       "guard": {
+        "state": "review",
+        "flags": [
+         "FAVOURED_ROTATION_OUT"
+        ],
+        "flagText": [
+         "One of the favoured team's five highest-minute players this season is ruled Out; the Elo side does not account for it."
+        ],
+        "rotation": [
+         {
+          "playerId": "4594268",
+          "name": "Anthony Edwards",
+          "minutesAvg": 33.8,
+          "gamesPlayed": 4
+         },
+         {
+          "playerId": "4431671",
+          "name": "Jaden McDaniels",
+          "minutesAvg": 33.4,
+          "gamesPlayed": 7
+         },
+         {
+          "playerId": "4433247",
+          "name": "Jonathan Kuminga",
+          "minutesAvg": 30.4,
+          "gamesPlayed": 7
+         },
+         {
+          "playerId": "3032976",
+          "name": "Rudy Gobert",
+          "minutesAvg": 30,
+          "gamesPlayed": 6
+         },
+         {
+          "playerId": "4397002",
+          "name": "Ayo Dosunmu",
+          "minutesAvg": 29.3,
+          "gamesPlayed": 7
+         }
+        ],
+        "rotationSource": "season-box-scores",
+        "rotationFlagged": [
+         {
+          "playerId": "4594268",
+          "name": "Anthony Edwards",
+          "minutesAvg": 33.8,
+          "gamesPlayed": 4,
+          "status": "Out",
+          "flag": "FAVOURED_ROTATION_OUT"
+         }
+        ],
+        "outAtFreeze": [
+         {
+          "playerId": "3934673",
+          "name": "Donte DiVincenzo",
+          "status": "Out"
+         },
+         {
+          "playerId": "4594268",
+          "name": "Anthony Edwards",
+          "status": "Out"
+         }
+        ]
+       },
+       "settlement": {
+        "grader": "nba-settlement-contract",
+        "market": "moneyline",
+        "side": "home"
+       }
+      },
+      {
+       "legId": "nba:401909917:winner",
+       "sport": "nba",
+       "eventId": "401909917",
+       "eventLabel": "UTAH @ SA",
+       "startUtc": "2026-11-03T01:30Z",
+       "market": "winner",
+       "selection": {
+        "code": "home",
+        "label": "SA (official side)",
+        "teamAbbr": "SA"
+       },
+       "status": "MODEL_ONLY",
+       "probability": 0.9002,
+       "probabilityShown": "90%",
+       "forecast": {
+        "owner": "nba-official-composition@1",
+        "modelId": "nba-preseason-experimental-v0.1",
+        "stampedAt": "2026-11-02T05:57:53Z",
+        "ref": "app/public/data/nba/experimental-public/2026-11-02.json#401909917",
+        "receiptSha256": "fde02effe0546f8a0ddb98a0a6e3da2723228c8776fdd37473f1f3e8f997fdc1"
+       },
+       "guard": {
+        "state": "pass",
+        "flags": [],
+        "flagText": [],
+        "rotation": [
+         {
+          "playerId": "5037871",
+          "name": "Dylan Harper",
+          "minutesAvg": 33.7,
+          "gamesPlayed": 6
+         },
+         {
+          "playerId": "4395630",
+          "name": "Devin Vassell",
+          "minutesAvg": 32.5,
+          "gamesPlayed": 6
+         },
+         {
+          "playerId": "5104157",
+          "name": "Victor Wembanyama",
+          "minutesAvg": 32.5,
+          "gamesPlayed": 6
+         },
+         {
+          "playerId": "4066259",
+          "name": "De'Aaron Fox",
+          "minutesAvg": 32.3,
+          "gamesPlayed": 6
+         },
+         {
+          "playerId": "4845367",
+          "name": "Stephon Castle",
+          "minutesAvg": 29.3,
+          "gamesPlayed": 6
+         }
+        ],
+        "rotationSource": "season-box-scores",
+        "rotationFlagged": [],
+        "outAtFreeze": [
+         {
+          "playerId": "5101845",
+          "name": "Jayden Quaintance",
+          "status": "Out"
+         },
+         {
+          "playerId": "6440",
+          "name": "Tobias Harris",
+          "status": "Out"
+         }
+        ]
+       },
+       "settlement": {
+        "grader": "nba-settlement-contract",
+        "market": "moneyline",
+        "side": "home"
+       }
+      },
+      {
+       "legId": "nba:401909921:winner",
+       "sport": "nba",
+       "eventId": "401909921",
+       "eventLabel": "MIA @ LAL",
+       "startUtc": "2026-11-03T03:00Z",
+       "market": "winner",
+       "selection": {
+        "code": "home",
+        "label": "LAL (official side)",
+        "teamAbbr": "LAL"
+       },
+       "status": "MODEL_ONLY",
+       "probability": 0.7055,
+       "probabilityShown": "71%",
+       "forecast": {
+        "owner": "nba-official-composition@1",
+        "modelId": "nba-preseason-experimental-v0.1",
+        "stampedAt": "2026-11-02T05:57:53Z",
+        "ref": "app/public/data/nba/experimental-public/2026-11-02.json#401909921",
+        "receiptSha256": "08608efd01c0ba5b85dd099342993073a8d4684acd9f5a7be677ae85e270d113"
+       },
+       "guard": {
+        "state": "review",
+        "flags": [
+         "FAVOURED_ROTATION_OUT"
+        ],
+        "flagText": [
+         "One of the favoured team's five highest-minute players this season is ruled Out; the Elo side does not account for it."
+        ],
+        "rotation": [
+         {
+          "playerId": "3945274",
+          "name": "Luka Doncic",
+          "minutesAvg": 35.8,
+          "gamesPlayed": 5
+         },
+         {
+          "playerId": "4066457",
+          "name": "Austin Reaves",
+          "minutesAvg": 35.5,
+          "gamesPlayed": 6
+         },
+         {
+          "playerId": "4433136",
+          "name": "Walker Kessler",
+          "minutesAvg": 30.5,
+          "gamesPlayed": 6
+         },
+         {
+          "playerId": "4433137",
+          "name": "Ziaire Williams",
+          "minutesAvg": 28.5,
+          "gamesPlayed": 4
+         },
+         {
+          "playerId": "4397014",
+          "name": "Quentin Grimes",
+          "minutesAvg": 26.8,
+          "gamesPlayed": 6
+         }
+        ],
+        "rotationSource": "season-box-scores",
+        "rotationFlagged": [
+         {
+          "playerId": "4433137",
+          "name": "Ziaire Williams",
+          "minutesAvg": 28.5,
+          "gamesPlayed": 4,
+          "status": "Out",
+          "flag": "FAVOURED_ROTATION_OUT"
+         }
+        ],
+        "outAtFreeze": [
+         {
+          "playerId": "4433137",
+          "name": "Ziaire Williams",
+          "status": "Out"
+         },
+         {
+          "playerId": "5060631",
+          "name": "Adou Thiero",
+          "status": "Out"
+         }
+        ]
+       },
+       "settlement": {
+        "grader": "nba-settlement-contract",
+        "market": "moneyline",
+        "side": "home"
+       }
+      }
+     ],
+     "jointProbability": 0.4942,
+     "jointShown": "49.4%",
+     "band": {
+      "tier": "medium",
+      "rule": "model joint chance 25.0% to 50.0%",
+      "method": "Joint probability = product of each leg's official forecast probability, legs from different games only (treated as independent across games). Tier = the published risk band of the model-fair price (1 ÷ joint). No sportsbook price is used."
+     },
+     "rationale": "Each leg is the official NBA side with its MODEL PROJECTION win chance from the frozen Elo team rating; this is the combination with the highest joint chance in the Medium Risk band (3 legs).",
+     "confidence": "2 legs carry an availability flag (shown on the leg). MODEL PROJECTION accuracy is not yet established over a large forward sample.",
+     "dependency": "Assumes the games are independent: every leg is a different NBA game, so no two legs share a team, but same-night results can still be related (travel, schedule, league-wide scoring) and that is not modelled.",
+     "disclosure": "Model Performance: the Elo rating’s game-outcome accuracy is not yet established — 107 regular-season games graded so far; the preregistration requires 300 before any accuracy claim. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation.",
+     "status": "MODEL_ONLY",
+     "priced": false,
+     "price": null,
+     "payout": null
+    },
+    "reason": null
+   },
+   {
+    "tier": "high",
+    "tierLabel": "High Risk",
+    "threshold": "model joint chance 14.3% to 25.0%",
+    "policy": "nba-game-winner-tiers@1/parlay-lab",
+    "state": "model-only",
+    "card": {
+     "id": "b24a9bfd011facc9",
+     "policy": "nba-game-winner-tiers@1/parlay-lab",
+     "scope": "nba",
+     "tier": "high",
+     "tierLabel": "High Risk",
+     "sports": [
+      "nba"
+     ],
+     "legs": [
+      {
+       "legId": "nba:401909911:winner",
+       "sport": "nba",
+       "eventId": "401909911",
+       "eventLabel": "WSH @ ORL",
+       "startUtc": "2026-11-03T00:30Z",
+       "market": "winner",
+       "selection": {
+        "code": "home",
+        "label": "ORL (official side)",
+        "teamAbbr": "ORL"
+       },
+       "status": "MODEL_ONLY",
+       "probability": 0.8522,
+       "probabilityShown": "85%",
+       "forecast": {
+        "owner": "nba-official-composition@1",
+        "modelId": "nba-preseason-experimental-v0.1",
+        "stampedAt": "2026-11-02T05:57:53Z",
+        "ref": "app/public/data/nba/experimental-public/2026-11-02.json#401909911",
+        "receiptSha256": "8bb75c9f2588230799e25982f0fa9dbbfd106751571963211f6dda43130dc5bb"
+       },
+       "guard": {
+        "state": "review",
+        "flags": [
+         "FAVOURED_ROTATION_OUT"
+        ],
+        "flagText": [
+         "One of the favoured team's five highest-minute players this season is ruled Out; the Elo side does not account for it."
+        ],
+        "rotation": [
+         {
+          "playerId": "4566434",
+          "name": "Franz Wagner",
+          "minutesAvg": 34.4,
+          "gamesPlayed": 5
+         },
+         {
+          "playerId": "4066320",
+          "name": "Desmond Bane",
+          "minutesAvg": 33.6,
+          "gamesPlayed": 5
+         },
+         {
+          "playerId": "4432573",
+          "name": "Paolo Banchero",
+          "minutesAvg": 33.5,
+          "gamesPlayed": 2
+         },
+         {
+          "playerId": "4432165",
+          "name": "Jalen Suggs",
+          "minutesAvg": 33.3,
+          "gamesPlayed": 3
+         },
+         {
+          "playerId": "4277847",
+          "name": "Wendell Carter Jr.",
+          "minutesAvg": 31.6,
+          "gamesPlayed": 5
+         }
+        ],
+        "rotationSource": "season-box-scores",
+        "rotationFlagged": [
+         {
+          "playerId": "4432573",
+          "name": "Paolo Banchero",
+          "minutesAvg": 33.5,
+          "gamesPlayed": 2,
+          "status": "Out",
+          "flag": "FAVOURED_ROTATION_OUT"
+         },
+         {
+          "playerId": "4432165",
+          "name": "Jalen Suggs",
+          "minutesAvg": 33.3,
+          "gamesPlayed": 3,
+          "status": "Out",
+          "flag": "FAVOURED_ROTATION_OUT"
+         }
+        ],
+        "outAtFreeze": [
+         {
+          "playerId": "4065654",
+          "name": "Jonathan Isaac",
+          "status": "Out"
+         },
+         {
+          "playerId": "4432165",
+          "name": "Jalen Suggs",
+          "status": "Out"
+         },
+         {
+          "playerId": "4432573",
+          "name": "Paolo Banchero",
+          "status": "Out"
+         },
+         {
+          "playerId": "5107251",
+          "name": "Izaiyah Nelson",
+          "status": "Out"
+         },
+         {
+          "playerId": "5214637",
+          "name": "Noah Penda",
+          "status": "Out"
+         }
+        ]
+       },
+       "settlement": {
+        "grader": "nba-settlement-contract",
+        "market": "moneyline",
+        "side": "home"
+       }
+      },
+      {
+       "legId": "nba:401909916:winner",
+       "sport": "nba",
+       "eventId": "401909916",
+       "eventLabel": "BOS @ HOU",
+       "startUtc": "2026-11-03T01:30Z",
+       "market": "winner",
+       "selection": {
+        "code": "home",
+        "label": "HOU (official side)",
+        "teamAbbr": "HOU"
+       },
+       "status": "MODEL_ONLY",
+       "probability": 0.542,
+       "probabilityShown": "54%",
+       "forecast": {
+        "owner": "nba-official-composition@1",
+        "modelId": "nba-preseason-experimental-v0.1",
+        "stampedAt": "2026-11-02T05:57:53Z",
+        "ref": "app/public/data/nba/experimental-public/2026-11-02.json#401909916",
+        "receiptSha256": "d845a3a2e7bcb08fe311a8153c5234eb2f5cf87d01238a7064e9767c8f31ac38"
+       },
+       "guard": {
+        "state": "pass",
+        "flags": [],
+        "flagText": [],
+        "rotation": [
+         {
+          "playerId": "4432639",
+          "name": "Jabari Smith Jr.",
+          "minutesAvg": 34.3,
+          "gamesPlayed": 7
+         },
+         {
+          "playerId": "4871144",
+          "name": "Alperen Sengun",
+          "minutesAvg": 33.8,
+          "gamesPlayed": 5
+         },
+         {
+          "playerId": "3202",
+          "name": "Kevin Durant",
+          "minutesAvg": 33.7,
+          "gamesPlayed": 7
+         },
+         {
+          "playerId": "4684740",
+          "name": "Amen Thompson",
+          "minutesAvg": 33.7,
+          "gamesPlayed": 7
+         },
+         {
+          "playerId": "2991230",
+          "name": "Fred VanVleet",
+          "minutesAvg": 30.6,
+          "gamesPlayed": 5
+         }
+        ],
+        "rotationSource": "season-box-scores",
+        "rotationFlagged": [],
+        "outAtFreeze": [
+         {
+          "playerId": "2991235",
+          "name": "Steven Adams",
+          "status": "Out"
+         }
+        ]
+       },
+       "settlement": {
+        "grader": "nba-settlement-contract",
+        "market": "moneyline",
+        "side": "home"
+       }
+      },
+      {
+       "legId": "nba:401909919:winner",
+       "sport": "nba",
+       "eventId": "401909919",
+       "eventLabel": "PHX @ GS",
+       "startUtc": "2026-11-03T03:00Z",
+       "market": "winner",
+       "selection": {
+        "code": "home",
+        "label": "GS (official side)",
+        "teamAbbr": "GS"
+       },
+       "status": "MODEL_ONLY",
+       "probability": 0.54,
+       "probabilityShown": "54%",
+       "forecast": {
+        "owner": "nba-official-composition@1",
+        "modelId": "nba-preseason-experimental-v0.1",
+        "stampedAt": "2026-11-02T05:57:53Z",
+        "ref": "app/public/data/nba/experimental-public/2026-11-02.json#401909919",
+        "receiptSha256": "28d46dc79606b2c02b0ee4a32ba60f320ce11ada8a8730ebe6390f9538bd51bb"
+       },
+       "guard": {
+        "state": "review",
+        "flags": [
+         "FAVOURED_ROTATION_OUT",
+         "FAVOURED_ROTATION_R1"
+        ],
+        "flagText": [
+         "One of the favoured team's five highest-minute players this season is ruled Out; the Elo side does not account for it.",
+         "One of the favoured team's five highest-minute players this season was listed Day-To-Day, Questionable or Doubtful at freeze; the Elo side does not account for it."
+        ],
+        "rotation": [
+         {
+          "playerId": "4709138",
+          "name": "Brandin Podziemski",
+          "minutesAvg": 32.8,
+          "gamesPlayed": 4
+         },
+         {
+          "playerId": "5175737",
+          "name": "Yaxel Lendeborg",
+          "minutesAvg": 32,
+          "gamesPlayed": 6
+         },
+         {
+          "playerId": "6589",
+          "name": "Draymond Green",
+          "minutesAvg": 28.6,
+          "gamesPlayed": 5
+         },
+         {
+          "playerId": "3975",
+          "name": "Stephen Curry",
+          "minutesAvg": 28.2,
+          "gamesPlayed": 5
+         },
+         {
+          "playerId": "4997536",
+          "name": "Gui Santos",
+          "minutesAvg": 22.4,
+          "gamesPlayed": 5
+         }
+        ],
+        "rotationSource": "season-box-scores",
+        "rotationFlagged": [
+         {
+          "playerId": "6589",
+          "name": "Draymond Green",
+          "minutesAvg": 28.6,
+          "gamesPlayed": 5,
+          "status": "Out",
+          "flag": "FAVOURED_ROTATION_OUT"
+         },
+         {
+          "playerId": "3975",
+          "name": "Stephen Curry",
+          "minutesAvg": 28.2,
+          "gamesPlayed": 5,
+          "status": "Out",
+          "flag": "FAVOURED_ROTATION_OUT"
+         },
+         {
+          "playerId": "4997536",
+          "name": "Gui Santos",
+          "minutesAvg": 22.4,
+          "gamesPlayed": 5,
+          "status": "Day-To-Day",
+          "flag": "FAVOURED_ROTATION_R1"
+         }
+        ],
+        "outAtFreeze": [
+         {
+          "playerId": "3102531",
+          "name": "Kristaps Porzingis",
+          "status": "Out"
+         },
+         {
+          "playerId": "3975",
+          "name": "Stephen Curry",
+          "status": "Out"
+         },
+         {
+          "playerId": "4432171",
+          "name": "Moses Moody",
+          "status": "Out"
+         },
+         {
+          "playerId": "6430",
+          "name": "Jimmy Butler III",
+          "status": "Out"
+         },
+         {
+          "playerId": "6589",
+          "name": "Draymond Green",
+          "status": "Out"
+         }
+        ]
+       },
+       "settlement": {
+        "grader": "nba-settlement-contract",
+        "market": "moneyline",
+        "side": "home"
+       }
+      }
+     ],
+     "jointProbability": 0.2494,
+     "jointShown": "24.9%",
+     "band": {
+      "tier": "high",
+      "rule": "model joint chance 14.3% to 25.0%",
+      "method": "Joint probability = product of each leg's official forecast probability, legs from different games only (treated as independent across games). Tier = the published risk band of the model-fair price (1 ÷ joint). No sportsbook price is used."
+     },
+     "rationale": "Each leg is the official NBA side with its MODEL PROJECTION win chance from the frozen Elo team rating; this is the combination with the highest joint chance in the High Risk band (3 legs).",
+     "confidence": "2 legs carry an availability flag (shown on the leg). MODEL PROJECTION accuracy is not yet established over a large forward sample.",
+     "dependency": "Assumes the games are independent: every leg is a different NBA game, so no two legs share a team, but same-night results can still be related (travel, schedule, league-wide scoring) and that is not modelled.",
+     "disclosure": "Model Performance: the Elo rating’s game-outcome accuracy is not yet established — 107 regular-season games graded so far; the preregistration requires 300 before any accuracy claim. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation.",
+     "status": "MODEL_ONLY",
+     "priced": false,
+     "price": null,
+     "payout": null
+    },
+    "reason": null
+   },
+   {
+    "tier": "longshot",
+    "tierLabel": "Longshot",
+    "threshold": "model joint chance below 14.3%",
+    "policy": "nba-game-winner-tiers@1/parlay-lab",
+    "state": "model-only",
+    "card": {
+     "id": "725314bb55102513",
+     "policy": "nba-game-winner-tiers@1/parlay-lab",
+     "scope": "nba",
+     "tier": "longshot",
+     "tierLabel": "Longshot",
+     "sports": [
+      "nba"
+     ],
+     "legs": [
+      {
+       "legId": "nba:401909907:winner",
+       "sport": "nba",
+       "eventId": "401909907",
+       "eventLabel": "OKC @ CLE",
+       "startUtc": "2026-11-03T00:00Z",
+       "market": "winner",
+       "selection": {
+        "code": "away",
+        "label": "OKC (official side)",
+        "teamAbbr": "OKC"
+       },
+       "status": "MODEL_ONLY",
+       "probability": 0.5678,
+       "probabilityShown": "57%",
+       "forecast": {
+        "owner": "nba-official-composition@1",
+        "modelId": "nba-preseason-experimental-v0.1",
+        "stampedAt": "2026-11-02T05:57:53Z",
+        "ref": "app/public/data/nba/experimental-public/2026-11-02.json#401909907",
+        "receiptSha256": "3b375e054eba9ae418d32021c5e0679e1a8663182fd0ef5761b268164eeaf059"
+       },
+       "guard": {
+        "state": "review",
+        "flags": [
+         "FAVOURED_ROTATION_OUT"
+        ],
+        "flagText": [
+         "One of the favoured team's five highest-minute players this season is ruled Out; the Elo side does not account for it."
+        ],
+        "rotation": [
+         {
+          "playerId": "4278073",
+          "name": "Shai Gilgeous-Alexander",
+          "minutesAvg": 32.7,
+          "gamesPlayed": 6
+         },
+         {
+          "playerId": "4593803",
+          "name": "Jalen Williams",
+          "minutesAvg": 31.7,
+          "gamesPlayed": 3
+         },
+         {
+          "playerId": "4433255",
+          "name": "Chet Holmgren",
+          "minutesAvg": 30,
+          "gamesPlayed": 3
+         },
+         {
+          "playerId": "4900671",
+          "name": "Ajay Mitchell",
+          "minutesAvg": 25.5,
+          "gamesPlayed": 6
+         },
+         {
+          "playerId": "4683778",
+          "name": "Jared McCain",
+          "minutesAvg": 24.7,
+          "gamesPlayed": 6
+         }
+        ],
+        "rotationSource": "season-box-scores",
+        "rotationFlagged": [
+         {
+          "playerId": "4593803",
+          "name": "Jalen Williams",
+          "minutesAvg": 31.7,
+          "gamesPlayed": 3,
+          "status": "Out",
+          "flag": "FAVOURED_ROTATION_OUT"
+         },
+         {
+          "playerId": "4433255",
+          "name": "Chet Holmgren",
+          "minutesAvg": 30,
+          "gamesPlayed": 3,
+          "status": "Out",
+          "flag": "FAVOURED_ROTATION_OUT"
+         }
+        ],
+        "outAtFreeze": [
+         {
+          "playerId": "2991350",
+          "name": "Alex Caruso",
+          "status": "Out"
+         },
+         {
+          "playerId": "4433255",
+          "name": "Chet Holmgren",
+          "status": "Out"
+         },
+         {
+          "playerId": "4593803",
+          "name": "Jalen Williams",
+          "status": "Out"
+         },
+         {
+          "playerId": "4683692",
+          "name": "Cason Wallace",
+          "status": "Out"
+         },
+         {
+          "playerId": "5061603",
+          "name": "Thomas Sorber",
+          "status": "Out"
+         },
+         {
+          "playerId": "5159925",
+          "name": "Nikola Topic",
+          "status": "Out"
+         }
+        ]
+       },
+       "settlement": {
+        "grader": "nba-settlement-contract",
+        "market": "moneyline",
+        "side": "away"
+       }
+      },
+      {
+       "legId": "nba:401909915:winner",
+       "sport": "nba",
+       "eventId": "401909915",
+       "eventLabel": "MIL @ MIN",
+       "startUtc": "2026-11-03T01:00Z",
+       "market": "winner",
+       "selection": {
+        "code": "home",
+        "label": "MIN (official side)",
+        "teamAbbr": "MIN"
+       },
+       "status": "MODEL_ONLY",
+       "probability": 0.7782,
+       "probabilityShown": "78%",
+       "forecast": {
+        "owner": "nba-official-composition@1",
+        "modelId": "nba-preseason-experimental-v0.1",
+        "stampedAt": "2026-11-02T05:57:53Z",
+        "ref": "app/public/data/nba/experimental-public/2026-11-02.json#401909915",
+        "receiptSha256": "fcbf84a20ccb6e1c5d3a6f38306b0cd62000e4491860a20782a194dd6c13fe24"
+       },
+       "guard": {
+        "state": "review",
+        "flags": [
+         "FAVOURED_ROTATION_OUT"
+        ],
+        "flagText": [
+         "One of the favoured team's five highest-minute players this season is ruled Out; the Elo side does not account for it."
+        ],
+        "rotation": [
+         {
+          "playerId": "4594268",
+          "name": "Anthony Edwards",
+          "minutesAvg": 33.8,
+          "gamesPlayed": 4
+         },
+         {
+          "playerId": "4431671",
+          "name": "Jaden McDaniels",
+          "minutesAvg": 33.4,
+          "gamesPlayed": 7
+         },
+         {
+          "playerId": "4433247",
+          "name": "Jonathan Kuminga",
+          "minutesAvg": 30.4,
+          "gamesPlayed": 7
+         },
+         {
+          "playerId": "3032976",
+          "name": "Rudy Gobert",
+          "minutesAvg": 30,
+          "gamesPlayed": 6
+         },
+         {
+          "playerId": "4397002",
+          "name": "Ayo Dosunmu",
+          "minutesAvg": 29.3,
+          "gamesPlayed": 7
+         }
+        ],
+        "rotationSource": "season-box-scores",
+        "rotationFlagged": [
+         {
+          "playerId": "4594268",
+          "name": "Anthony Edwards",
+          "minutesAvg": 33.8,
+          "gamesPlayed": 4,
+          "status": "Out",
+          "flag": "FAVOURED_ROTATION_OUT"
+         }
+        ],
+        "outAtFreeze": [
+         {
+          "playerId": "3934673",
+          "name": "Donte DiVincenzo",
+          "status": "Out"
+         },
+         {
+          "playerId": "4594268",
+          "name": "Anthony Edwards",
+          "status": "Out"
+         }
+        ]
+       },
+       "settlement": {
+        "grader": "nba-settlement-contract",
+        "market": "moneyline",
+        "side": "home"
+       }
+      },
+      {
+       "legId": "nba:401909919:winner",
+       "sport": "nba",
+       "eventId": "401909919",
+       "eventLabel": "PHX @ GS",
+       "startUtc": "2026-11-03T03:00Z",
+       "market": "winner",
+       "selection": {
+        "code": "home",
+        "label": "GS (official side)",
+        "teamAbbr": "GS"
+       },
+       "status": "MODEL_ONLY",
+       "probability": 0.54,
+       "probabilityShown": "54%",
+       "forecast": {
+        "owner": "nba-official-composition@1",
+        "modelId": "nba-preseason-experimental-v0.1",
+        "stampedAt": "2026-11-02T05:57:53Z",
+        "ref": "app/public/data/nba/experimental-public/2026-11-02.json#401909919",
+        "receiptSha256": "28d46dc79606b2c02b0ee4a32ba60f320ce11ada8a8730ebe6390f9538bd51bb"
+       },
+       "guard": {
+        "state": "review",
+        "flags": [
+         "FAVOURED_ROTATION_OUT",
+         "FAVOURED_ROTATION_R1"
+        ],
+        "flagText": [
+         "One of the favoured team's five highest-minute players this season is ruled Out; the Elo side does not account for it.",
+         "One of the favoured team's five highest-minute players this season was listed Day-To-Day, Questionable or Doubtful at freeze; the Elo side does not account for it."
+        ],
+        "rotation": [
+         {
+          "playerId": "4709138",
+          "name": "Brandin Podziemski",
+          "minutesAvg": 32.8,
+          "gamesPlayed": 4
+         },
+         {
+          "playerId": "5175737",
+          "name": "Yaxel Lendeborg",
+          "minutesAvg": 32,
+          "gamesPlayed": 6
+         },
+         {
+          "playerId": "6589",
+          "name": "Draymond Green",
+          "minutesAvg": 28.6,
+          "gamesPlayed": 5
+         },
+         {
+          "playerId": "3975",
+          "name": "Stephen Curry",
+          "minutesAvg": 28.2,
+          "gamesPlayed": 5
+         },
+         {
+          "playerId": "4997536",
+          "name": "Gui Santos",
+          "minutesAvg": 22.4,
+          "gamesPlayed": 5
+         }
+        ],
+        "rotationSource": "season-box-scores",
+        "rotationFlagged": [
+         {
+          "playerId": "6589",
+          "name": "Draymond Green",
+          "minutesAvg": 28.6,
+          "gamesPlayed": 5,
+          "status": "Out",
+          "flag": "FAVOURED_ROTATION_OUT"
+         },
+         {
+          "playerId": "3975",
+          "name": "Stephen Curry",
+          "minutesAvg": 28.2,
+          "gamesPlayed": 5,
+          "status": "Out",
+          "flag": "FAVOURED_ROTATION_OUT"
+         },
+         {
+          "playerId": "4997536",
+          "name": "Gui Santos",
+          "minutesAvg": 22.4,
+          "gamesPlayed": 5,
+          "status": "Day-To-Day",
+          "flag": "FAVOURED_ROTATION_R1"
+         }
+        ],
+        "outAtFreeze": [
+         {
+          "playerId": "3102531",
+          "name": "Kristaps Porzingis",
+          "status": "Out"
+         },
+         {
+          "playerId": "3975",
+          "name": "Stephen Curry",
+          "status": "Out"
+         },
+         {
+          "playerId": "4432171",
+          "name": "Moses Moody",
+          "status": "Out"
+         },
+         {
+          "playerId": "6430",
+          "name": "Jimmy Butler III",
+          "status": "Out"
+         },
+         {
+          "playerId": "6589",
+          "name": "Draymond Green",
+          "status": "Out"
+         }
+        ]
+       },
+       "settlement": {
+        "grader": "nba-settlement-contract",
+        "market": "moneyline",
+        "side": "home"
+       }
+      },
+      {
+       "legId": "nba:401909920:winner",
+       "sport": "nba",
+       "eventId": "401909920",
+       "eventLabel": "TOR @ LAC",
+       "startUtc": "2026-11-03T03:00Z",
+       "market": "winner",
+       "selection": {
+        "code": "home",
+        "label": "LAC (official side)",
+        "teamAbbr": "LAC"
+       },
+       "status": "MODEL_ONLY",
+       "probability": 0.5979,
+       "probabilityShown": "60%",
+       "forecast": {
+        "owner": "nba-official-composition@1",
+        "modelId": "nba-preseason-experimental-v0.1",
+        "stampedAt": "2026-11-02T05:57:53Z",
+        "ref": "app/public/data/nba/experimental-public/2026-11-02.json#401909920",
+        "receiptSha256": "085fb293ecf2275e8082a1d99159ff91597f79e08f8ff9502895344fad045d48"
+       },
+       "guard": {
+        "state": "review",
+        "flags": [
+         "FAVOURED_ROTATION_R1"
+        ],
+        "flagText": [
+         "One of the favoured team's five highest-minute players this season was listed Day-To-Day, Questionable or Doubtful at freeze; the Elo side does not account for it."
+        ],
+        "rotation": [
+         {
+          "playerId": "4396907",
+          "name": "Darius Garland",
+          "minutesAvg": 32.4,
+          "gamesPlayed": 5
+         },
+         {
+          "playerId": "2991139",
+          "name": "Kris Dunn",
+          "minutesAvg": 30.4,
+          "gamesPlayed": 5
+         },
+         {
+          "playerId": "4066648",
+          "name": "Rui Hachimura",
+          "minutesAvg": 30,
+          "gamesPlayed": 4
+         },
+         {
+          "playerId": "3936099",
+          "name": "Derrick Jones Jr.",
+          "minutesAvg": 29,
+          "gamesPlayed": 5
+         },
+         {
+          "playerId": "5254165",
+          "name": "Keaton Wagler",
+          "minutesAvg": 26.4,
+          "gamesPlayed": 5
+         }
+        ],
+        "rotationSource": "season-box-scores",
+        "rotationFlagged": [
+         {
+          "playerId": "3936099",
+          "name": "Derrick Jones Jr.",
+          "minutesAvg": 29,
+          "gamesPlayed": 5,
+          "status": "Day-To-Day",
+          "flag": "FAVOURED_ROTATION_R1"
+         }
+        ],
+        "outAtFreeze": [
+         {
+          "playerId": "3913176",
+          "name": "Brandon Ingram",
+          "status": "Out"
+         },
+         {
+          "playerId": "4065778",
+          "name": "Max Strus",
+          "status": "Out"
+         },
+         {
+          "playerId": "4396818",
+          "name": "Jordan Miller",
+          "status": "Out"
+         },
+         {
+          "playerId": "5108024",
+          "name": "Yanic Konan Niederhauser",
+          "status": "Out"
+         },
+         {
+          "playerId": "6580",
+          "name": "Bradley Beal",
+          "status": "Out"
+         }
+        ]
+       },
+       "settlement": {
+        "grader": "nba-settlement-contract",
+        "market": "moneyline",
+        "side": "home"
+       }
+      }
+     ],
+     "jointProbability": 0.1427,
+     "jointShown": "14.27%",
+     "band": {
+      "tier": "longshot",
+      "rule": "model joint chance below 14.3%",
+      "method": "Joint probability = product of each leg's official forecast probability, legs from different games only (treated as independent across games). Tier = the published risk band of the model-fair price (1 ÷ joint). No sportsbook price is used."
+     },
+     "rationale": "Each leg is the official NBA side with its MODEL PROJECTION win chance from the frozen Elo team rating; this is the combination with the highest joint chance in the Longshot band (4 legs).",
+     "confidence": "4 legs carry an availability flag (shown on the leg). MODEL PROJECTION accuracy is not yet established over a large forward sample.",
+     "dependency": "Assumes the games are independent: every leg is a different NBA game, so no two legs share a team, but same-night results can still be related (travel, schedule, league-wide scoring) and that is not modelled.",
+     "disclosure": "Model Performance: the Elo rating’s game-outcome accuracy is not yet established — 107 regular-season games graded so far; the preregistration requires 300 before any accuracy claim. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation.",
+     "status": "MODEL_ONLY",
+     "priced": false,
+     "price": null,
+     "payout": null
+    },
+    "reason": null
+   }
+  ],
+  "cross": [
+   {
+    "tier": "low",
+    "tierLabel": "Low Risk",
+    "threshold": "model joint chance 50.0% to 66.7%",
+    "policy": "level-a-mixed@1/parlay-lab",
+    "state": "insufficient",
+    "card": null,
+    "reason": "Insufficient eligible legs: a mixed card needs legs from two sports; today only NBA has a leg with a published probability."
+   },
+   {
+    "tier": "medium",
+    "tierLabel": "Medium Risk",
+    "threshold": "model joint chance 25.0% to 50.0%",
+    "policy": "level-a-mixed@1/parlay-lab",
+    "state": "insufficient",
+    "card": null,
+    "reason": "Insufficient eligible legs: a mixed card needs legs from two sports; today only NBA has a leg with a published probability."
+   },
+   {
+    "tier": "high",
+    "tierLabel": "High Risk",
+    "threshold": "model joint chance 14.3% to 25.0%",
+    "policy": "level-a-mixed@1/parlay-lab",
+    "state": "insufficient",
+    "card": null,
+    "reason": "Insufficient eligible legs: a mixed card needs legs from two sports; today only NBA has a leg with a published probability."
+   },
+   {
+    "tier": "longshot",
+    "tierLabel": "Longshot",
+    "threshold": "model joint chance below 14.3%",
+    "policy": "level-a-mixed@1/parlay-lab",
+    "state": "insufficient",
+    "card": null,
+    "reason": "Insufficient eligible legs: a mixed card needs legs from two sports; today only NBA has a leg with a published probability."
+   }
+  ]
+ },
  "playerProjections": {
   "nba": [
    {
@@ -1652,6 +3062,510 @@
     "usableInCards": false
    },
    {
+    "eventId": "401909916",
+    "playerId": "4065648",
+    "name": "Jayson Tatum",
+    "team": "BOS",
+    "expectedMinutes": 32.3,
+    "medians": {
+     "pts": 20.3
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909916",
+    "playerId": "4251",
+    "name": "Paul George",
+    "team": "BOS",
+    "expectedMinutes": 32.1,
+    "medians": {
+     "pts": 13.9
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909916",
+    "playerId": "3078576",
+    "name": "Derrick White",
+    "team": "BOS",
+    "expectedMinutes": 29.8,
+    "medians": {
+     "pts": 8.9
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909916",
+    "playerId": "4066354",
+    "name": "Payton Pritchard",
+    "team": "BOS",
+    "expectedMinutes": 28.8,
+    "medians": {
+     "pts": 13.9
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909916",
+    "playerId": "4065804",
+    "name": "Sam Hauser",
+    "team": "BOS",
+    "expectedMinutes": 21.7,
+    "medians": {
+     "pts": 8
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909916",
+    "playerId": "4397424",
+    "name": "Neemias Queta",
+    "team": "BOS",
+    "expectedMinutes": 18.4,
+    "medians": {
+     "pts": 7.4
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909916",
+    "playerId": "4593841",
+    "name": "Baylor Scheierman",
+    "team": "BOS",
+    "expectedMinutes": 16.8,
+    "medians": {
+     "pts": 7
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909916",
+    "playerId": "4683689",
+    "name": "Jordan Walsh",
+    "team": "BOS",
+    "expectedMinutes": 14.1,
+    "medians": {
+     "pts": 2.4
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909916",
+    "playerId": "3195",
+    "name": "Mike Conley",
+    "team": "BOS",
+    "expectedMinutes": 13.5,
+    "medians": {
+     "pts": 3.7
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909916",
+    "playerId": "4277951",
+    "name": "Luka Garza",
+    "team": "BOS",
+    "expectedMinutes": 11.1,
+    "medians": {
+     "pts": 6.1
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909916",
+    "playerId": "4684740",
+    "name": "Amen Thompson",
+    "team": "HOU",
+    "expectedMinutes": 32,
+    "medians": {
+     "pts": 16.3
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909916",
+    "playerId": "4432639",
+    "name": "Jabari Smith Jr.",
+    "team": "HOU",
+    "expectedMinutes": 30.4,
+    "medians": {
+     "pts": 13.3
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909916",
+    "playerId": "3202",
+    "name": "Kevin Durant",
+    "team": "HOU",
+    "expectedMinutes": 28.8,
+    "medians": {
+     "pts": 20.4
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909916",
+    "playerId": "4871144",
+    "name": "Alperen Sengun",
+    "team": "HOU",
+    "expectedMinutes": 26.8,
+    "medians": {
+     "pts": 13.3
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909916",
+    "playerId": "2990992",
+    "name": "Marcus Smart",
+    "team": "HOU",
+    "expectedMinutes": 25.8,
+    "medians": {
+     "pts": 9.6
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909916",
+    "playerId": "4433192",
+    "name": "Tari Eason",
+    "team": "HOU",
+    "expectedMinutes": 22.5,
+    "medians": {
+     "pts": 9.4
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909916",
+    "playerId": "4711272",
+    "name": "Reed Sheppard",
+    "team": "HOU",
+    "expectedMinutes": 20.7,
+    "medians": {
+     "pts": 8.4
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909916",
+    "playerId": "4432827",
+    "name": "Oscar Tshiebwe",
+    "team": "HOU",
+    "expectedMinutes": 15.5,
+    "medians": {
+     "pts": 8.2
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909916",
+    "playerId": "3037789",
+    "name": "Bogdan Bogdanovic",
+    "team": "HOU",
+    "expectedMinutes": 14.8,
+    "medians": {
+     "pts": 4.7
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909917",
+    "playerId": "4066336",
+    "name": "Lauri Markkanen",
+    "team": "UTAH",
+    "expectedMinutes": 28.3,
+    "medians": {
+     "pts": 21.6
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909917",
+    "playerId": "4433627",
+    "name": "Keyonte George",
+    "team": "UTAH",
+    "expectedMinutes": 27.3,
+    "medians": {
+     "pts": 19
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909917",
+    "playerId": "4873138",
+    "name": "Ace Bailey",
+    "team": "UTAH",
+    "expectedMinutes": 25.8,
+    "medians": {
+     "pts": 13.5
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909917",
+    "playerId": "5105839",
+    "name": "Brice Sensabaugh",
+    "team": "UTAH",
+    "expectedMinutes": 23.9,
+    "medians": {
+     "pts": 16.9
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909917",
+    "playerId": "4684793",
+    "name": "Kyle Filipowski",
+    "team": "UTAH",
+    "expectedMinutes": 23,
+    "medians": {
+     "pts": 16.2
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909917",
+    "playerId": "4683766",
+    "name": "Isaiah Collier",
+    "team": "UTAH",
+    "expectedMinutes": 21.2,
+    "medians": {
+     "pts": 9.2
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909917",
+    "playerId": "3133602",
+    "name": "Svi Mykhailiuk",
+    "team": "UTAH",
+    "expectedMinutes": 19,
+    "medians": {
+     "pts": 7.3
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909917",
+    "playerId": "4277919",
+    "name": "Mo Bamba",
+    "team": "UTAH",
+    "expectedMinutes": 15.7,
+    "medians": {
+     "pts": 8.4
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909917",
+    "playerId": "4065663",
+    "name": "Josh Okogie",
+    "team": "UTAH",
+    "expectedMinutes": 15.3,
+    "medians": {
+     "pts": 3.3
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909917",
+    "playerId": "4397077",
+    "name": "Jaxson Hayes",
+    "team": "UTAH",
+    "expectedMinutes": 13.4,
+    "medians": {
+     "pts": 4.3
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909917",
+    "playerId": "5104157",
+    "name": "Victor Wembanyama",
+    "team": "SA",
+    "expectedMinutes": 36.7,
+    "medians": {
+     "pts": 24.7
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909917",
+    "playerId": "4395630",
+    "name": "Devin Vassell",
+    "team": "SA",
+    "expectedMinutes": 34.5,
+    "medians": {
+     "pts": 12.2
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909917",
+    "playerId": "4066259",
+    "name": "De'Aaron Fox",
+    "team": "SA",
+    "expectedMinutes": 33.1,
+    "medians": {
+     "pts": 11.6
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909917",
+    "playerId": "4845367",
+    "name": "Stephon Castle",
+    "team": "SA",
+    "expectedMinutes": 31.5,
+    "medians": {
+     "pts": 15.2
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909917",
+    "playerId": "4592479",
+    "name": "Julian Champagnie",
+    "team": "SA",
+    "expectedMinutes": 30.6,
+    "medians": {
+     "pts": 11.5
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909917",
+    "playerId": "5037871",
+    "name": "Dylan Harper",
+    "team": "SA",
+    "expectedMinutes": 26,
+    "medians": {
+     "pts": 13
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909917",
+    "playerId": "4395723",
+    "name": "Keldon Johnson",
+    "team": "SA",
+    "expectedMinutes": 15.5,
+    "medians": {
+     "pts": 6.3
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
     "eventId": "401909919",
     "playerId": "3136193",
     "name": "Devin Booker",
@@ -2138,6 +4052,314 @@
     },
     "guard": {
      "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "4278053",
+    "name": "Davion Mitchell",
+    "team": "MIA",
+    "expectedMinutes": 26.2,
+    "medians": {
+     "pts": 10.4
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "4066261",
+    "name": "Bam Adebayo",
+    "team": "MIA",
+    "expectedMinutes": 26.1,
+    "medians": {
+     "pts": 13.9
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "3059319",
+    "name": "Andrew Wiggins",
+    "team": "MIA",
+    "expectedMinutes": 24.2,
+    "medians": {
+     "pts": 11.4
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "4601025",
+    "name": "Pelle Larsson",
+    "team": "MIA",
+    "expectedMinutes": 24.2,
+    "medians": {
+     "pts": 11
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "3032977",
+    "name": "Giannis Antetokounmpo",
+    "team": "MIA",
+    "expectedMinutes": 23.5,
+    "medians": {
+     "pts": 21.9
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "3064482",
+    "name": "Bobby Portis",
+    "team": "MIA",
+    "expectedMinutes": 19.7,
+    "medians": {
+     "pts": 10.7
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "2528210",
+    "name": "Tim Hardaway Jr.",
+    "team": "MIA",
+    "expectedMinutes": 19,
+    "medians": {
+     "pts": 8.3
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "4278076",
+    "name": "Nick Richards",
+    "team": "MIA",
+    "expectedMinutes": 18.2,
+    "medians": {
+     "pts": 7.2
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "6475",
+    "name": "Klay Thompson",
+    "team": "MIA",
+    "expectedMinutes": 14.8,
+    "medians": {
+     "pts": 7.7
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "4997528",
+    "name": "Nikola Jovic",
+    "team": "MIA",
+    "expectedMinutes": 14.1,
+    "medians": {
+     "pts": 5.2
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "4431786",
+    "name": "Keshad Johnson",
+    "team": "MIA",
+    "expectedMinutes": 10.2,
+    "medians": {
+     "pts": 1.9
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "4066457",
+    "name": "Austin Reaves",
+    "team": "LAL",
+    "expectedMinutes": 30.9,
+    "medians": {
+     "pts": 16.8
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "3945274",
+    "name": "Luka Doncic",
+    "team": "LAL",
+    "expectedMinutes": 30,
+    "medians": {
+     "pts": 27.7
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "4433136",
+    "name": "Walker Kessler",
+    "team": "LAL",
+    "expectedMinutes": 26,
+    "medians": {
+     "pts": 11.9
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "4277811",
+    "name": "Collin Sexton",
+    "team": "LAL",
+    "expectedMinutes": 24.5,
+    "medians": {
+     "pts": 16.3
+    },
+    "guard": {
+     "state": "pass"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "4596528",
+    "name": "Lawson Lovering",
+    "team": "LAL",
+    "expectedMinutes": 21,
+    "medians": {
+     "pts": 9.2
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "4397014",
+    "name": "Quentin Grimes",
+    "team": "LAL",
+    "expectedMinutes": 18.3,
+    "medians": {
+     "pts": 5.5
+    },
+    "guard": {
+     "state": "review"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "3155535",
+    "name": "Kevon Looney",
+    "team": "LAL",
+    "expectedMinutes": 16.2,
+    "medians": {
+     "pts": 1.3
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "4868423",
+    "name": "Jaden Hardy",
+    "team": "LAL",
+    "expectedMinutes": 15.9,
+    "medians": {
+     "pts": 8.4
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "4278580",
+    "name": "Sandro Mamukelashvili",
+    "team": "LAL",
+    "expectedMinutes": 13.7,
+    "medians": {
+     "pts": 5.1
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "3907498",
+    "name": "Matisse Thybulle",
+    "team": "LAL",
+    "expectedMinutes": 13.7,
+    "medians": {
+     "pts": 2.6
+    },
+    "guard": {
+     "state": "blocked"
+    },
+    "usableInCards": false
+   },
+   {
+    "eventId": "401909921",
+    "playerId": "4592691",
+    "name": "Jake LaRavia",
+    "team": "LAL",
+    "expectedMinutes": 11.9,
+    "medians": {
+     "pts": 2.6
+    },
+    "guard": {
+     "state": "review"
     },
     "usableInCards": false
    }

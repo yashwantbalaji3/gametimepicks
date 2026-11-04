@@ -131,7 +131,7 @@ test("every leg opens to identification, projection, eligibility, availability a
   assert.match(h, /Why this combination/);
   assert.match(h, /model joint chance 50\.0% to 66\.7%/, "the band rule is the engine's own text");
   assert.match(h, /If any one leg loses, the whole card loses\./);
-  assert.match(h, /href="\/build\/#level-a-parlay-lab"/, "Parlay Lab is the four-tier board on /build, not the redirecting /parlay-lab alias");
+  assert.match(h, /href="\/build\/#parlay-tiers"/, "Parlay Lab is the four-tier board on /build, not the redirecting /parlay-lab alias");
   assert.match(h, /Add card to Smart Betslip/);
 });
 
@@ -265,4 +265,62 @@ test("rotation guard (engine a746932123): a flagged favourite reads as under rev
     for (const r of leg.guard.rotationFlagged.filter((x) => x.flag !== "ROTATION_FROM_LANE")) assert.ok(block.includes(`${r.name} (${r.status})`) || /\+\d+ more/.test(block), `${leg.legId}: ${r.name}`);
   }
   assert.ok(!text(h).includes("Cody Williams"), "a guard-blocked key player is absent");
+});
+
+test("Parlay Lab: four tiers in band order, each a card or an explicit insufficient/blocked state with its reasons", async () => {
+  const { default: ParlayTierBoard } = await import("./parlay-tier-board.tsx");
+  const board = view.parlayTiersFromSuggestedCards(FIXTURE, { allowFixture: true });
+  assert.equal(view.parlayTiersFromSuggestedCards(FIXTURE), null, "fixture refused by default");
+  assert.deepEqual(board.tiers.map((t) => t.tier), ["low", "medium", "high", "longshot"]);
+  for (const t of board.tiers) {
+    const nba = FIXTURE.parlays.nba.find((x) => x.tier === t.tier);
+    assert.equal(Boolean(t.card), Boolean(nba.card), t.tier);
+    if (t.card) assert.ok(["low", "medium", "high", "longshot"].includes(t.card.tier) && t.card.tier === t.tier, `${t.tier}: card sits in its own band`);
+  }
+  const h = html(React.createElement(ParlayTierBoard, { board }));
+  assert.match(h, /id="parlay-tiers"/);
+  assert.equal((h.match(/data-parlay-tier="/g) ?? []).length, 4);
+  assert.match(text(h), /Source: the frozen daily card file for 2026-11-02\./);
+  // The insufficient state, explicitly, with the source's per-scope reason.
+  const empty = { ...board, tiers: board.tiers.map((t, i) => (i === 2 ? { ...t, card: null, state: "insufficient", reasons: [{ scope: "nba", label: "NBA game winners card", text: "Insufficient eligible legs: only 2 games have a published probability" }] } : t)) };
+  const he = html(React.createElement(ParlayTierBoard, { board: empty }));
+  const high = text(he.split('data-parlay-tier="high"')[1].split('data-parlay-tier="longshot"')[0]);
+  assert.match(high, /Insufficient eligible legs/);
+  assert.match(high, /NBA game winners card: Insufficient eligible legs: only 2 games/);
+  assert.doesNotMatch(text(he), /\$\d|[+−]\d{3}\b/, "no price or odds anywhere");
+  const ids = [...h.matchAll(/ id="([^"]+)"/g)].map((m) => m[1]);
+  assert.equal(new Set(ids).size, ids.length, "every id on the board is unique");
+});
+
+test("Level A fallback is labelled on every board; /build renders the Parlay Lab board with Level A folded beneath", async () => {
+  const levelA = { productDay: "2026-11-03", parlayLab: [{ tier: "low", tierLabel: "Low Risk", card: null, reason: "a mixed card needs legs from two sports" }], bankBuilder: { card: null, reason: "x" }, moonshot: { card: null, reason: "y" } };
+  const lab = view.parlayTiersFromLevelA(levelA);
+  assert.equal(lab.origin, "level-a");
+  assert.match(view.sourceLine(lab), /fallback/);
+  const { default: ParlayTierBoard } = await import("./parlay-tier-board.tsx");
+  assert.match(text(html(React.createElement(ParlayTierBoard, { board: lab }))), /Source: today.s model suggestions\. The frozen daily card file has not been published for 2026-11-03, so this is the fallback\./);
+  const bb = view.tierBoardFromLevelA(levelA, "bank-builder");
+  assert.match(text(html(React.createElement(TierBoardSection, { board: bb, productName: "Bank Builder" }))), /so this is the fallback/);
+  const build = read("src/app/build/page.tsx");
+  assert.match(build, /<ParlayTierBoard\s+board=\{loadParlayTiers\(/);
+  assert.ok(build.indexOf("<ParlayTierBoard") < build.indexOf("{noCardToday ?"), "the tier board leads the page, above the MLB ladder's no-card panel");
+  assert.match(build, /checks=\{levelAModel \? <LevelASuggestions model=\{levelAModel as unknown as LevelAModel\} mode="parlay-lab" \/> : null\}/);
+});
+
+test("Parlay Lab says things once: one model disclosure under the board, and shared empty-day reasons once", async () => {
+  const { default: ParlayTierBoard } = await import("./parlay-tier-board.tsx");
+  const board = view.parlayTiersFromSuggestedCards(FIXTURE, { allowFixture: true });
+  const h = html(React.createElement(ParlayTierBoard, { board }));
+  assert.equal((h.match(/data-card-disclosure=/g) ?? []).length, new Set(board.tiers.map((t) => t.card?.disclosure).filter(Boolean)).size);
+  const reasons = [{ scope: "cross", label: "Mixed-sport card", text: "Insufficient eligible legs: a mixed card needs legs from two sports" }];
+  const empty = { ...board, tiers: board.tiers.map((t) => ({ ...t, card: null, state: "insufficient", reasons })) };
+  const he = html(React.createElement(ParlayTierBoard, { board: empty }));
+  assert.equal((text(he).match(/a mixed card needs legs from two sports/g) ?? []).length, 1, "the shared reason prints once");
+  assert.match(text(he), /Insufficient eligible legs for every tier today/);
+  assert.equal((he.match(/data-parlay-tier-state="insufficient"/g) ?? []).length, 4, "each tier still says its state");
+  // A reason that differs by tier (the NBA rule's game count) stays on its own tier; the common one still prints once.
+  const mixed = { ...empty, tiers: empty.tiers.map((t, i) => ({ ...t, reasons: [...reasons, { scope: "nba", label: "NBA game winners card", text: `needs ${i + 2} games` }] })) };
+  const hm = text(html(React.createElement(ParlayTierBoard, { board: mixed })));
+  assert.equal((hm.match(/a mixed card needs legs from two sports/g) ?? []).length, 1);
+  for (let i = 0; i < 4; i++) assert.equal((hm.match(new RegExp(`needs ${i + 2} games`, "g")) ?? []).length, 1);
 });

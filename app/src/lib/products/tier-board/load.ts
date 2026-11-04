@@ -5,7 +5,8 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { tierBoardFor } from "@/lib/products/tier-board/view.mjs";
+import { tierBoardFor, parlayTiersFor } from "@/lib/products/tier-board/view.mjs";
+import type { ParlayTiersView } from "@/components/tier-board/parlay-tier-board";
 import type { TierBoardView } from "@/components/tier-board/tier-board-section";
 
 /**
@@ -39,4 +40,9 @@ export function playerGuardFor(productDay: string | null): Record<string, string
   const out: Record<string, string> = {};
   for (const p of doc?.playerProjections?.nba ?? []) if (p.eventId && p.playerId && p.guard?.state) out[`${p.eventId}:${p.playerId}`] = p.guard.state;
   return out;
+}
+
+/** The Parlay Lab's four-tier board for a product day: the frozen daily file when present, else the Level A model. */
+export function loadParlayTiers({ productDay, levelAModel }: { productDay: string | null; levelAModel: unknown }): ParlayTiersView | null {
+  return parlayTiersFor({ suggestedCards: readSuggestedCards(productDay), levelAModel, productDay }) as ParlayTiersView | null;
 }

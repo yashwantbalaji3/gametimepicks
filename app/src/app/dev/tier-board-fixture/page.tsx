@@ -16,7 +16,8 @@ import { parlayFixtureRouteEnabled } from "@/lib/parlays/v2/dev-route.mjs";
 import ProductHero from "@/components/tier-board/product-hero";
 import TierBoardSection, { type TierBoardView } from "@/components/tier-board/tier-board-section";
 import ProductDisclosure from "@/components/tier-board/product-disclosure";
-import { tierBoardFromSuggestedCards } from "@/lib/products/tier-board/view.mjs";
+import ParlayTierBoard, { type ParlayTiersView } from "@/components/tier-board/parlay-tier-board";
+import { tierBoardFromSuggestedCards, parlayTiersFromSuggestedCards } from "@/lib/products/tier-board/view.mjs";
 import fixture from "@/lib/products/tier-board/__fixtures__/suggested-cards-2026-11-02.fixture.json";
 
 export const metadata: Metadata = withRouteMetadata("/dev/tier-board-fixture/", {
@@ -42,6 +43,9 @@ export default function TierBoardFixturePage() {
       <div id="fixture-moonshot">
         <ProductHero product="moonshot" state={ms.featured?.state ?? ms.state} statusLabel="Fixture" statusNote="2026-11-02 replay" />
         <TierBoardSection board={ms} productName="Moonshot" />
+      </div>
+      <div id="fixture-parlay-lab">
+        <ParlayTierBoard board={parlayTiersFromSuggestedCards(fixture, { allowFixture: true }) as ParlayTiersView} />
       </div>
       <div id="fixture-blocked"><TierBoardSection board={blocked} productName="Bank Builder" /></div>
       <div id="fixture-insufficient"><TierBoardSection board={insufficient} productName="Moonshot" /></div>

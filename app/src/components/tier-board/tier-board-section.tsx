@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import StateBadge from "@/components/tier-board/state-badge";
 import FeaturedParlay, { type CardView } from "@/components/tier-board/featured-parlay";
+import BoardNotes from "@/components/tier-board/board-notes";
 import { tierState } from "@/lib/products/tier-board/view.mjs";
 
 /* TODAY'S CARD (Founder Priority 4). The featured parlay when there is one; otherwise ONE explicit state panel
@@ -17,9 +18,6 @@ export type TierBoardView = {
   legKinds?: string[];
   pending?: Array<{ key: string; state: string; text: string }>;
 };
-
-const PENDING_STATE: Record<string, string> = { NOT_APPROVED: "Not approved yet", NOT_AUTHORIZED: "Not authorized yet" };
-const LEG_KIND: Record<string, string> = { "game-winner": "NBA game winners" };
 
 const SCOPE: Record<string, string> = { cross: "Mixed-sport card", nba: "NBA game winners card" };
 
@@ -44,23 +42,11 @@ export default function TierBoardSection({ board, checks, productName }: { board
             </ul>
           ) : null}
           <p className="tb-empty-text">
-            <Link className="tb-link" href="/build/#level-a-parlay-lab">Explore every tier in the Parlay Lab →</Link>
+            <Link className="tb-link" href="/build/#parlay-tiers">Explore every tier in the Parlay Lab →</Link>
           </p>
         </div>
       )}
-      {board?.legKinds?.length || board?.pending?.length ? (
-        <div className="tb-pending" data-tier-pending="">
-          {board.legKinds?.length ? <p className="tb-empty-text"><strong>Legs today:</strong> {board.legKinds.map((k) => LEG_KIND[k] ?? k).join(", ")} only.</p> : null}
-          {board.pending?.length ? (
-            <>
-              <p className="tb-subhead">What today&rsquo;s card can&rsquo;t include yet</p>
-              <ul className="tb-bullets">
-                {board.pending.map((m) => <li key={m.key}><strong>{PENDING_STATE[m.state] ?? m.state}:</strong> {m.text}</li>)}
-              </ul>
-            </>
-          ) : null}
-        </div>
-      ) : null}
+      <BoardNotes board={board} />
       {checks ? (
         <details className="tb-checks">
           <summary className="tb-checks-summary">Why, check by check <span className="tb-checks-sub">eligible sports, candidate checks and every model suggestion today</span></summary>

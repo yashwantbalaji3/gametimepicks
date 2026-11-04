@@ -215,3 +215,60 @@ export function tierBoardFor(product, { suggestedCards = null, levelAModel = nul
   const fromFile = suggestedCards && (!productDay || suggestedCards.productDay === productDay) ? tierBoardFromSuggestedCards(suggestedCards, product) : null;
   return fromFile ?? tierBoardFromLevelA(levelAModel, product);
 }
+
+/** Where a board's cards came from, said plainly (founder rule B, 2026-11-04: the frozen daily file is the default; the
+ *  Level A model is the labelled fallback for a day with no file). */
+export function sourceLine(board) {
+  if (!board) return null;
+  return board.origin === "suggested-cards"
+    ? `Source: the frozen daily card file for ${board.productDay ?? "today"}.`
+    : `Source: today's model suggestions. The frozen daily card file has not been published for ${board.productDay ?? "today"}, so this is the fallback.`;
+}
+
+export const PARLAY_TIERS = Object.freeze(["low", "medium", "high", "longshot"]);
+const SCOPE_LABEL = { cross: "Mixed-sport card", nba: "NBA game winners card" };
+
+/** One tier of the Parlay Lab board from per-scope slots ({ scope, state, card, reason }); a mixed-sport card leads, then NBA. */
+function tierView(tier, slots, { productDay, origin, players }) {
+  const lead = slots.find((s) => s.card && s.state !== "blocked") ?? null;
+  const state = lead ? lead.state : slots.some((s) => s.state === "blocked") ? "blocked" : "insufficient";
+  return {
+    tier, label: PUBLIC_RISK_LABELS[tier], range: bandRangeText(tier), state: normState(state),
+    card: lead ? cardView(lead.card, { state: lead.state, productDay, origin, players }) : null,
+    reasons: slots.filter((s) => !s.card && s.reason).map((s) => ({ scope: s.scope, label: SCOPE_LABEL[s.scope] ?? s.scope, text: String(s.reason).replace(/\.$/, "") })),
+  };
+}
+
+/** The four-tier Parlay Lab board from a suggested-cards@1 document (`parlays.{cross,nba}[]`). */
+export function parlayTiersFromSuggestedCards(doc, { allowFixture = false } = {}) {
+  if (!doc || doc.schema !== TIER_BOARD_SCHEMA) return null;
+  if (doc.fixture === true && !allowFixture) return null;
+  const ctx = { productDay: doc.productDay ?? null, origin: "suggested-cards", players: doc.playerProjections?.nba ?? [] };
+  const of = (scope) => (doc.parlays?.[scope] ?? []).map((t) => ({ scope, ...t }));
+  const all = [...of("cross"), ...of("nba")];
+  return {
+    productDay: ctx.productDay, origin: ctx.origin, fixture: doc.fixture === true,
+    tiers: PARLAY_TIERS.map((tier) => tierView(tier, all.filter((s) => s.tier === tier), ctx)),
+    legKinds: Array.isArray(doc.nbaLegKinds) ? doc.nbaLegKinds.map(String) : [],
+    pending: (doc.methodologyDependencies ?? []).filter((m) => m && m.state !== "APPROVED" && m.effect).map((m) => ({ key: String(m.key), state: String(m.state), text: String(m.effect) })),
+  };
+}
+
+/** The same board from the Level A model (parlayLab = mixed cards; nbaGameWinners.tiers when that display is public). */
+export function parlayTiersFromLevelA(model) {
+  if (!model) return null;
+  const ctx = { productDay: model.productDay ?? null, origin: "level-a", players: [] };
+  const cross = (model.parlayLab ?? []).map((t) => ({ scope: "cross", state: t.card ? "model-only" : "insufficient", ...t }));
+  const nba = model.nbaGameWinners?.public ? (model.nbaGameWinners.tiers ?? []).map((t) => ({ scope: "nba", state: t.card ? "model-only" : "insufficient", ...t })) : [];
+  const all = [...cross, ...nba];
+  return { productDay: ctx.productDay, origin: ctx.origin, fixture: false, tiers: PARLAY_TIERS.map((tier) => tierView(tier, all.filter((s) => s.tier === tier), ctx)), legKinds: [], pending: [] };
+}
+
+/**
+ * The Parlay Lab page's one call: the day's frozen file when present, else the Level A model.
+ * @param {{ suggestedCards?: any, levelAModel?: any, productDay?: string | null }} [opts]
+ */
+export function parlayTiersFor({ suggestedCards = null, levelAModel = null, productDay = null } = {}) {
+  const fromFile = suggestedCards && (!productDay || suggestedCards.productDay === productDay) ? parlayTiersFromSuggestedCards(suggestedCards) : null;
+  return fromFile ?? parlayTiersFromLevelA(levelAModel);
+}

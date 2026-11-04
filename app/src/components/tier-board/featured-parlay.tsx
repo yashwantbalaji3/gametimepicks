@@ -92,17 +92,20 @@ function Leg({ l, n }: { l: LegView; n: number }) {
   );
 }
 
-export default function FeaturedParlay({ card, product }: { card: CardView; product: "bank-builder" | "moonshot" }) {
+/** `product` picks the identity: Bank Builder, Moonshot, or a Parlay Lab tier ("tier", coloured by the card's band). */
+export default function FeaturedParlay({ card, product, title, headingId = "tb-featured-title", hideDisclosure = false }: { card: CardView; product: "bank-builder" | "moonshot" | "tier"; title?: string; headingId?: string; hideDisclosure?: boolean }) {
   const keys = card.legs.map(slipKey).filter((k): k is string => Boolean(k));
+  const name = title ?? `Today’s featured ${product === "moonshot" ? "Moonshot" : "Bank Builder"}`;
+  const variant = product === "moonshot" ? "tb-card--moonshot" : product === "tier" ? `tb-card--tier tb-band--${card.tier ?? "low"}` : "tb-card--bank";
   return (
-    <article className={`tb-card ${product === "moonshot" ? "tb-card--moonshot" : "tb-card--bank"}`} aria-labelledby="tb-featured-title" data-featured-card={card.id ?? card.origin}>
+    <article className={`tb-card ${variant}`} aria-labelledby={headingId} data-featured-card={card.id ?? card.origin}>
       <header className="tb-card-head">
         <div className="flex flex-wrap items-center gap-2">
           <StateBadge state={card.state} size="sm" />
           {card.tier ? <span className={`tb-tier-chip tb-band--${card.tier}`}>{card.tierLabel}</span> : null}
           <span className="tb-leg-count">{card.legs.length} legs</span>
         </div>
-        <h3 id="tb-featured-title" className="tb-card-title">Today&rsquo;s featured {product === "moonshot" ? "Moonshot" : "Bank Builder"}</h3>
+        <h3 id={headingId} className="tb-card-title">{name}</h3>
         {card.joint ? (
           <p className="tb-joint">
             <span className="tb-proj-label">MODEL PROJECTION</span>
@@ -128,13 +131,13 @@ export default function FeaturedParlay({ card, product }: { card: CardView; prod
       </div>
 
       <footer className="tb-card-foot">
-        {card.disclosure ? <p className="tb-pricing" data-card-disclosure="">{card.disclosure}</p> : null}
+        {card.disclosure && !hideDisclosure ? <p className="tb-pricing" data-card-disclosure="">{card.disclosure}</p> : null}
         <p className="tb-pricing" data-pricing-authorized={card.pricing.authorized ? "true" : "false"}>
           {card.pricing.authorized && card.pricing.combined ? `Combined ${am(card.pricing.combined.american)}. ` : ""}{card.pricing.text}
         </p>
         <div className="tb-card-actions">
-          {keys.length ? <AddToSlip keys={keys} label="Add card to Smart Betslip" name={`Featured ${product === "moonshot" ? "Moonshot" : "Bank Builder"} (${keys.length} legs)`} /> : null}
-          <Link className="tb-btn" href="/build/#level-a-parlay-lab">Open in Parlay Lab</Link>
+          {keys.length ? <AddToSlip keys={keys} label="Add card to Smart Betslip" name={`${name} (${keys.length} legs)`} /> : null}
+          {product !== "tier" ? <Link className="tb-btn" href="/build/#parlay-tiers">Open in Parlay Lab</Link> : null}
         </div>
       </footer>
     </article>

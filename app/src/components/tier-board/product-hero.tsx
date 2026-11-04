@@ -38,7 +38,7 @@ export default function ProductHero({ product, state, statusLabel, statusNote }:
       </p>
       <nav className="tb-hero-links" aria-label={`${id.name} shortcuts`}>
         <a className="tb-btn tb-btn--primary" href="#todays-card">Today&rsquo;s card</a>
-        <Link className="tb-btn" href="/build/#level-a-parlay-lab">Parlay Lab</Link>
+        <Link className="tb-btn" href="/build/#parlay-tiers">Parlay Lab</Link>
         <a className="tb-btn" href="#track-record">Track record</a>
       </nav>
     </header>
