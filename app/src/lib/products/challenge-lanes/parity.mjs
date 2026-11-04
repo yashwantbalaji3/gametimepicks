@@ -61,6 +61,9 @@ export function laneParity({ doc, prices, view }) {
   rowOpt("selection label", card?.selectionLabel ?? null, siteDay?.selection?.label ?? null);
   rowOpt("flag codes", card?.flags?.length ? card.legs.map((l) => [l.legId, [...new Set(card.flags.filter((f) => f.legId === l.legId).map(flagWords).filter(Boolean))]]) : null,
     siteDay?.legs?.some((l) => l.limits?.length) ? siteDay.legs.map((l) => [l.legId, l.limits ?? []]) : null);
+  /* LANE SPECIALIZATION (proposed): the record's lane type and label, verbatim on the site. */
+  const lt = run.laneType ?? doc.laneType ?? null;
+  rowOpt("lane type", lt ? [lt, run.laneTypeLabel ?? doc.laneTypeLabel ?? lt.replaceAll("_", " ")] : null, view.laneType ? [view.laneType.type, view.laneType.label] : null);
   rowOpt("step target", typeof day?.targetPayoutCents === "number" && doc.current?.publicStatus !== "LOST" ? { label: day.targetPayoutLabel ?? null, value: money(day.targetPayoutCents) } : null, view.stepTarget ?? null);
   const pr = prices?.runs?.find((r) => r.runId === run.runId);
   const pd = pr?.days?.filter((d) => d.date === day?.date).at(-1) ?? null;

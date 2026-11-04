@@ -54,7 +54,7 @@ export default function ResearchCandidates({ research }: { research: ResearchVie
                 </li>
               ))}
             </ol>
-            {c.combined?.odds ? <p className="rc-reason">Combined price ({c.combined.label}) {c.combined.odds}</p> : null}
+            {c.combined?.odds ? <p className="rc-reason">{c.legs.length === 1 ? "SELECTION ODDS" : `COMBINED ODDS (${c.combined.label})`} {c.combined.odds}</p> : null}
             {c.reasonCodes.length ? <p className="rc-reason">Held back: {c.reasonCodes.join(", ")}</p> : null}
           </li>
         ))}

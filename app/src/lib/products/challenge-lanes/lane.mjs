@@ -172,13 +172,24 @@ export const lineupText = (lu) => {
 export const selectionOf = (card) => (card?.selectionLabel ? { mode: card.selectionMode ?? null, label: card.selectionLabel } : null);
 export const isProp = (l) => !["winner", "h2h"].includes(l?.family ?? l?.market ?? "winner");
 
+/**
+ * The odds heading by card shape (founder 2026-11-04): one leg → "SELECTION ODDS"; two or more → "COMBINED ODDS" with
+ * its basis — the engine's combinedLabel verbatim, else from its method (BOOK_PARLAY: a book-quoted parlay; otherwise the
+ * calculated leg product). A same-game estimate keeps the engine's own estimate label.
+ */
+export const oddsLabel = (p, legCount) => {
+  if (p?.estimate) return p.label ?? "Combined price · estimate (same-game legs, not a book's offer)";
+  if (legCount === 1) return "SELECTION ODDS";
+  return `COMBINED ODDS (${p?.combinedLabel ?? (p?.method === "BOOK_PARLAY" ? "book-quoted parlay" : "calculated leg product")})`;
+};
+
 /** The day's priced block (combined price, stake, payout, profit, pace), formatted; null without a VERIFIED price. */
 function priceOf(day) {
   const p = verified(day.price);
   if (!p) return null;
   return {
     method: p.method, estimate: p.estimate === true,
-    combinedLabel: p.estimate ? p.label ?? "Combined price · estimate (same-game legs, not a book's offer)" : p.combinedLabel ? `Combined price (${p.combinedLabel})` : "Combined price (leg product)",
+    combinedLabel: oddsLabel(p, day.card?.legs?.length ?? 0),
     band: p.band && typeof p.band.loCents === "number" ? `${money(p.band.loCents)}–${money(p.band.hiCents)}` : null,
     combined: [american(decimalToAmerican(p.decimalPrice)), typeof p.decimalPrice === "number" ? `${p.decimalPrice.toFixed(2)}×` : null].filter(Boolean).join(" · "),
     decimal: p.decimalPrice, book: p.book ?? null,
@@ -279,6 +290,13 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
   const current = !awaiting && latest?.hasCard && !latest.stepOutcome && d.status !== "LOST" ? latest : null;
   /* Leg cap (rules v2): a card with more legs than its own day's cap is refused, never shown as a qualified card. */
   if (current && typeof current.maxLegs === "number" && current.legs.length > current.maxLegs) throw new Error(`laneView: ${d.laneId} ${current.date} shows ${current.legs.length} legs over its cap of ${current.maxLegs}`);
+  /* LANE SPECIALIZATION (founder 2026-11-04, proposed): the lane's type from the engine record (the current run's, else
+     the file's), printed verbatim; a card whose legs do not fit the type is refused, never shown as the lane's card.
+     Field names PROPOSED to betting-engine. */
+  const lt = d.runs?.at(-1)?.laneType ?? d.laneType ?? null;
+  const laneType = lt ? { type: lt, label: d.runs?.at(-1)?.laneTypeLabel ?? d.laneTypeLabel ?? lt.replaceAll("_", " ") } : null;
+  const fits = (l) => (lt === "NBA_MONEYLINE" ? !l.prop : lt === "NBA_PLAYER_PROPS" ? l.prop : true);
+  if (current && !current.legs.every(fits)) throw new Error(`laneView: ${d.laneId} ${current.date} has legs outside its lane type ${lt}`);
   const glyph = awaiting ? AWAITING : LANE_STATUS[d.status] ?? LANE_STATUS.HELD;
   /* The engine keeps a run's last reason after it moves on (a HELD day's reason stays on the run once a card is in
      play), so a reason is shown only for the states it explains. */
@@ -319,7 +337,7 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
      bankroll in every state since 566ab9cfd5 ($0 on BUSTED); with no verified price, "Busted" (no number is guessed). */
   const tracked = d.trackedBankrollCents == null ? (lost ? "Busted" : AWAITING_PRICES) : money(d.trackedBankrollCents);
   return {
-    laneId: d.laneId, product: d.product, letter: d.slot, name: `Lane ${d.slot}`,
+    laneId: d.laneId, product: d.product, letter: d.slot, name: `Lane ${d.slot}`, laneType,
     runId: d.runId, runNumber: d.runNumber, startedAt: String(d.runs.at(-1)?.startedAt ?? "").slice(0, 10) || null,
     step: d.step, steps: d.steps, stepText: lost ? `LOST AT STEP ${d.step} OF ${d.steps}` : d.stepText, maxLegs: d.maxLegs ?? null, lost,
     trackedLabel: lost ? "Bankroll after the loss" : "Tracked bankroll · settled",

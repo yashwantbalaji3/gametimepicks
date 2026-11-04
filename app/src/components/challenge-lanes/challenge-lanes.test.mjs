@@ -224,13 +224,13 @@ test("PRICED: odds, book and capture time per leg, the combined price (leg produ
   const t = text(html(React.createElement(LaneCard, { lane: v })));
   assert.deepEqual(v.current.legs.map((l) => l.price.odds), ["+120", "-150"]);
   assert.match(t, /\+120 SAMPLE BOOK/); assert.match(t, /-150 SAMPLE BOOK/);
-  assert.match(t, /Combined price \(leg product\) \+267 · 3\.67× SAMPLE BOOK · captured Nov 3, 5:15 PM ET/);
+  assert.match(t, /COMBINED ODDS \(calculated leg product\) \+267 · 3\.67× SAMPLE BOOK · captured Nov 3, 5:15 PM ET/);
   assert.equal(v.wager, "$100"); assert.equal(v.potentialPayout, "$366.66"); assert.equal(v.potentialProfit, "$266.66");
   assert.match(t, /Wager \$100 tracked stake Potential payout · profit \$366\.66 profit \$266\.66/);
   assert.doesNotMatch(t, /Potential payout · profit Awaiting verified prices/);
   // The same file without the priced fold prints no price at all.
   const plain = text(html(React.createElement(LaneCard, { lane: lane.laneView(doc) })));
-  assert.doesNotMatch(plain, /SAMPLE BOOK|\+120|-150|Combined price/);
+  assert.doesNotMatch(plain, /SAMPLE BOOK|\+120|-150|COMBINED ODDS|SELECTION ODDS/);
   assert.match(plain, /Potential payout · profit Awaiting verified prices/);
   assert.doesNotMatch(plain, /21\+/, "no responsible-gambling line without prices");
   // A same-game estimate is labelled as one, never as a book's offer.
@@ -284,7 +284,7 @@ test("PRICED CONSISTENCY: the same frozen record gives the same numbers on the s
   assert.equal(v.potentialPayout, usd(pay.grossPayoutCents));
   assert.equal(v.potentialProfit, usd(pay.profitCents));
   assert.ok(v.current.price.combined.includes(`${pay.inputs.decimalPrice.toFixed(2)}×`));
-  assert.equal(v.current.price.combinedLabel, "Combined price (leg product)");
+  assert.equal(v.current.price.combinedLabel, "COMBINED ODDS (calculated leg product)");
   const h = text(html(React.createElement(LaneCard, { lane: v })));
   assert.match(h, new RegExp(`Potential payout · profit \\${usd(pay.grossPayoutCents)} profit \\${usd(pay.profitCents)}`));
   assert.match(h, /-910 draftkings/);
@@ -521,7 +521,7 @@ test("RULES v2 on the engine's synthetic sample: retired v1 run, v2 win, HELD wi
   assert.deepEqual(ms.current.legs.map((l) => l.teamAbbr), ["LLL"], "KKK @ LLL, home side");
   assert.deepEqual(ms.stepTarget, { label: "STEP TARGET", value: "$100" });
   assert.equal(ms.current.price.band, "$90–$110");
-  assert.match(ms.current.price.combinedLabel, /^Combined price \(calculated leg product\)$/);
+  assert.equal(ms.current.price.combinedLabel, ms.current.legs.length === 1 ? "SELECTION ODDS" : "COMBINED ODDS (calculated leg product)");
   assert.equal(ms.tracked, "$52.40", "carry-forward bankroll after the step-1 win");
   assert.equal(ms.wager, "$52.40");
   assert.deepEqual(ms.rungs.map((r) => r.milestone), ["$50", "$100", "$200", "$400", "$1,000"], "the v2 ladder from the record");
@@ -742,6 +742,26 @@ test("DAILY RESEARCH SELECTION: the card's mode label verbatim, disclosed limits
   /* An evidence line carrying a rate is refused, never printed. */
   pd.legDetails[0].evidenceLine = "Hit 61% L10";
   assert.equal(lane.laneView(o.pub, { display: pricedLaneDisplay(o.pub, o.prices), productDay: day.date }).current.legs[0].price.evidenceLine, null);
+});
+
+test("LANE SPECIALIZATION (proposed): the lane-type badge from the engine's display; SELECTION ODDS for one leg, COMBINED ODDS (basis) for two; a leg outside the type is refused", async () => {
+  const ms = await v2Sample("ms-a"); const bb = await v2Sample("bb-b");
+  /* Stand-in for the engine's display carrying the type (field names proposed to betting-engine 2026-11-04). */
+  const typed = (o, type, label) => ({ ...o.priced, laneType: type, laneTypeLabel: label });
+  const vA = lane.laneView(ms.pub, { display: typed(ms, "NBA_MONEYLINE", "NBA MONEYLINES"), productDay: ms.priced.day.date });
+  const vB = lane.laneView(bb.pub, { display: typed(bb, "NBA_PLAYER_PROPS", "NBA PLAYER PROPS"), productDay: bb.priced.day.date });
+  const tA = text(html(React.createElement(LaneCard, { lane: vA }))), tB = text(html(React.createElement(LaneCard, { lane: vB })));
+  assert.match(tA, /Lane A run-\d+ RULES V2 NBA MONEYLINES/);
+  assert.match(tB, /Lane B run-\d+ RULES V2 NBA PLAYER PROPS/);
+  assert.equal(vA.current.legs.length, 1); assert.match(tA, /SELECTION ODDS/); assert.doesNotMatch(tA, /COMBINED ODDS/);
+  assert.equal(vB.current.legs.length, 2); assert.match(tB, /COMBINED ODDS \(calculated leg product\)/);
+  assert.equal(lane.oddsLabel({ method: "BOOK_PARLAY" }, 2), "COMBINED ODDS (book-quoted parlay)");
+  assert.equal(lane.oddsLabel({ method: "LEG_PRODUCT", combinedLabel: "calculated leg product" }, 2), "COMBINED ODDS (calculated leg product)");
+  /* No type in the record → no badge (never a hard-coded guess). */
+  assert.equal(lane.laneView(ms.pub, { display: ms.priced, productDay: ms.priced.day.date }).laneType, null);
+  /* A props card on a moneyline lane (and the reverse) is refused. */
+  assert.throws(() => lane.laneView(bb.pub, { display: typed(bb, "NBA_MONEYLINE", "NBA MONEYLINES"), productDay: bb.priced.day.date }), /outside its lane type/);
+  assert.throws(() => lane.laneView(ms.pub, { display: typed(ms, "NBA_PLAYER_PROPS", "NBA PLAYER PROPS"), productDay: ms.priced.day.date }), /outside its lane type/);
 });
 
 test("progression animation is CSS-only and prefers-reduced-motion turns it off", () => {

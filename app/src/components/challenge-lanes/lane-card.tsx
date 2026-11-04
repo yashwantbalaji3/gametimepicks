@@ -33,7 +33,7 @@ export type LaneView = {
   graphics: Array<{ date: string; step: number; packageId: string | null; imageSha256: string | null; captionSha256?: string | null; graphicVersion?: string | null; approvedVersionSha256?: string | null; imagePath: string | null; approved: boolean; postUrl: string | null; postedAt: string | null }>;
   runs: Array<{ runId: string; number: number; started: string | null; status: string; stepsWon: number; current: boolean; ruleTag?: string | null }>;
   ruleVersion?: string | null; ruleLabel?: string | null; stepTarget?: { label: string; value: string | null } | null;
-  evidence?: { class: string; label: string } | null; selection?: { mode: string | null; label: string } | null;
+  evidence?: { class: string; label: string } | null; selection?: { mode: string | null; label: string } | null; laneType?: { type: string; label: string } | null;
 };
 
 const RUNG_TEXT: Record<string, string> = { completed: "won", active: "current", failed: "lost", upcoming: "to come" };
@@ -123,6 +123,7 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
           {lane.runId ? <span className="cl-lane-run">{lane.runId}</span> : null}
           {lane.ruleLabel ? <span className="cl-rule-tag" data-lane-rule="">{lane.ruleLabel}</span> : null}
         </h3>
+        {lane.laneType ? <p className="cl-lane-type" data-lane-type={lane.laneType.type}>{lane.laneType.label}</p> : null}
         <span className="cl-badges">
           <span className={`cl-status cl-status--${lane.tone}`} data-lane-status-badge="">
             <span aria-hidden>{lane.statusGlyph}</span> {lane.statusLabel}
