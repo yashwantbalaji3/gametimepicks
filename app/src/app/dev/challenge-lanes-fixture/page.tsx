@@ -3,8 +3,9 @@
  *
  * The four BBM V2 challenge lanes rendered through the REAL components and the REAL acceptance check and view model
  * (lib/products/challenge-lanes/lane.mjs), over the engine's Nov 2 → Nov 3 replay projections re-tagged `fixture: true`,
- * plus SYNTHETIC states the replay cannot reach while P1 is open (ACTIVE on step 2 after a won step 1; LOST awaiting a
- * restart). The site's loader refuses all of them.
+ * plus SYNTHETIC states the replay cannot reach while P1 is open, built with the engine's own operations
+ * (__fixtures__/build-synthetic.mjs): ACTIVE on step 2 after a won step 1, LOST awaiting a restart, and a restarted lane.
+ * The site's loader refuses all of them.
  *
  * GATED like every /dev/** route: content only when the build or dev server sets GTP_DEV_ROUTES=1. Otherwise
  * notFound() runs before any fixture is read.
@@ -17,11 +18,14 @@ import LanePair from "@/components/challenge-lanes/lane-pair";
 import type { LaneView } from "@/components/challenge-lanes/lane-card";
 import { laneView, acceptLaneProjection } from "@/lib/products/challenge-lanes/lane.mjs";
 import { readTeamColours } from "@/lib/products/challenge-lanes/load.mjs";
-import { syntheticActiveStep2, syntheticLostAwaitingRestart } from "@/lib/products/challenge-lanes/__fixtures__/states.mjs";
 import bbA from "@/lib/products/challenge-lanes/__fixtures__/bb-a.fixture.json";
 import bbB from "@/lib/products/challenge-lanes/__fixtures__/bb-b.fixture.json";
 import msA from "@/lib/products/challenge-lanes/__fixtures__/ms-a.fixture.json";
 import msB from "@/lib/products/challenge-lanes/__fixtures__/ms-b.fixture.json";
+import synBbA from "@/lib/products/challenge-lanes/__fixtures__/synthetic-bb-a.fixture.json";
+import synBbB from "@/lib/products/challenge-lanes/__fixtures__/synthetic-bb-b.fixture.json";
+import synMsA from "@/lib/products/challenge-lanes/__fixtures__/synthetic-ms-a.fixture.json";
+import synMsB from "@/lib/products/challenge-lanes/__fixtures__/synthetic-ms-b.fixture.json";
 
 export const metadata: Metadata = withRouteMetadata("/dev/challenge-lanes-fixture/", {
   title: "Challenge lanes · development fixture",
@@ -43,8 +47,8 @@ export default function ChallengeLanesFixturePage() {
       </p>
       <div id="fixture-bank-builder"><LanePair product="bank-builder" lanes={[view(bbA), view(bbB)]} /></div>
       <div id="fixture-moonshot"><LanePair product="moonshot" lanes={[view(msA), view(msB)]} /></div>
-      <div id="fixture-synthetic-bank-builder"><LanePair product="bank-builder" lanes={[view(syntheticActiveStep2(bbA, bbB)), view(syntheticLostAwaitingRestart(bbB, bbA))]} /></div>
-      <div id="fixture-synthetic-moonshot"><LanePair product="moonshot" lanes={[view(syntheticActiveStep2(msA, msB)), view(syntheticLostAwaitingRestart(msB, msA))]} /></div>
+      <div id="fixture-synthetic-bank-builder"><LanePair product="bank-builder" lanes={[view(synBbA), view(synBbB)]} /></div>
+      <div id="fixture-synthetic-moonshot"><LanePair product="moonshot" lanes={[view(synMsA), view(synMsB)]} /></div>
     </div>
   );
 }

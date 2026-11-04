@@ -1,9 +1,10 @@
 /**
- * BBM V2 — the website's challenge lanes (SPEC §5) over the engine's public projection `gtp.challenge-lane.public@1`.
+ * BBM V2 — the website's challenge lanes (SPEC rev 2 §3, §6) over the engine's public projection
+ * `gtp.challenge-lane.public@1`, read with the engine's ONE public reader and folded by the engine's ONE laneDisplay.
  *
- *   loader      one loader reads public/data/challenge-lanes/<laneId>.json and accepts it only through the engine's
- *               verifyLaneProjection plus the site's refusals; no file / tampered / wrong lane / fixture / priced →
- *               an explicit "record not published" lane, never a guess
+ *   loader      readLaneProjection (MISSING / UNREADABLE / UNVERIFIED / WRONG_LANE) plus the site's refusals (fixture,
+ *               anything priced) → an explicit "record not published" lane, never a guess
+ *   consistent  every number the site shows is laneDisplay's: the site has no fold of its own
  *   view        STEP k OF N, ladder rungs, status (IN PLAY · BUSTED · PAUSED · NO QUALIFYING CARD · COMPLETE), the day
  *               history, and an unstaked card that lost never reads as a lane loss
  *   unpriced    payout and profit always read "Awaiting verified prices"; no $ amount but base, target, tracked, stake
@@ -26,10 +27,12 @@ process.env.__NEXT_TRAILING_SLASH = "true";
 const APP = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
 const FIX = Object.fromEntries(["bb-a", "bb-b", "ms-a", "ms-b"].map((id) => [id, JSON.parse(read(`src/lib/products/challenge-lanes/__fixtures__/${id}.fixture.json`))]));
+/** Built with the engine's own operations (__fixtures__/build-synthetic.mjs). */
+const SYN = Object.fromEntries(["bb-a", "bb-b", "ms-a", "ms-b"].map((id) => [id, JSON.parse(read(`src/lib/products/challenge-lanes/__fixtures__/synthetic-${id}.fixture.json`))]));
 
 const lane = await import("../../lib/products/challenge-lanes/lane.mjs");
 const { loadChallengeLane, loadProductLanes, readTeamColours } = await import("../../lib/products/challenge-lanes/load.mjs");
-const { syntheticActiveStep2, syntheticLostAwaitingRestart } = await import("../../lib/products/challenge-lanes/__fixtures__/states.mjs");
+const { laneDisplay } = await import("../../lib/challenge-lanes/display.mjs");
 const { canonical, sha256 } = await import("../../lib/challenge-lanes/chain.mjs");
 const { LANES: ENGINE_LANES, STATUS } = await import("../../lib/challenge-lanes/lanes.mjs");
 const { default: LaneCard } = await import("./lane-card.tsx");
@@ -47,41 +50,41 @@ const tmpApp = (files) => {
   return dir;
 };
 
-test("the four lanes are the engine's: bb-a/bb-b $100→$10,000 in 3, ms-a/ms-b $25→$1,000 in 5", () => {
+test("SPEC rev 2: four lanes, five steps each; BB $100→$10,000 with at most 2 legs, MS $25→$1,000", () => {
   assert.deepEqual(lane.lanesOf("bank-builder"), ["bb-a", "bb-b"]);
   assert.deepEqual(lane.lanesOf("moonshot"), ["ms-a", "ms-b"]);
-  assert.deepEqual([ENGINE_LANES["bb-a"].baseCents, ENGINE_LANES["bb-a"].targetCents, ENGINE_LANES["bb-a"].steps], [10000, 1000000, 3]);
-  assert.deepEqual([ENGINE_LANES["ms-b"].baseCents, ENGINE_LANES["ms-b"].targetCents, ENGINE_LANES["ms-b"].steps], [2500, 100000, 5]);
+  for (const id of lane.LANE_IDS) assert.equal(ENGINE_LANES[id].steps, 5, id);
+  assert.deepEqual([ENGINE_LANES["bb-a"].baseCents, ENGINE_LANES["bb-a"].targetCents], [10000, 1000000]);
+  assert.deepEqual([ENGINE_LANES["ms-b"].baseCents, ENGINE_LANES["ms-b"].targetCents], [2500, 100000]);
+  assert.equal(lane.laneView(FIX["bb-a"]).maxLegs, 2);
   assert.equal(lane.PRICES_ON_SITE, false);
+  for (const doc of [...Object.values(FIX), ...Object.values(SYN)]) assert.equal(doc.steps, 5, doc.laneId);
 });
 
-test("the fixtures are the engine's replay, accepted only with allowFixture; the site loader refuses them", () => {
-  for (const [id, doc] of Object.entries(FIX)) {
+test("fixtures (the engine's replay and its synthetic states) are accepted only with allowFixture; the site loader refuses them", () => {
+  for (const [id, doc] of [...Object.entries(FIX), ...Object.entries(SYN)]) {
     assert.equal(doc.fixture, true, id);
     assert.equal(doc.schema, "gtp.challenge-lane.public@1", id);
     assert.deepEqual(lane.acceptLaneProjection(doc, { laneId: id, allowFixture: true }), { ok: true }, id);
     assert.equal(lane.acceptLaneProjection(doc, { laneId: id }).reason, "fixture file", id);
     assert.deepEqual(lane.acceptLaneProjection(real(doc), { laneId: id }), { ok: true }, `${id} as published`);
   }
-  for (const s of [syntheticActiveStep2(FIX["ms-a"], FIX["ms-b"]), syntheticLostAwaitingRestart(FIX["ms-b"], FIX["ms-a"])]) {
-    assert.deepEqual(lane.acceptLaneProjection(s, { allowFixture: true }), { ok: true });
-    assert.equal(lane.acceptLaneProjection(s).reason, "fixture file");
-  }
   const r = loadChallengeLane({ appDir: tmpApp({ "bb-a": FIX["bb-a"] }), laneId: "bb-a" });
   assert.equal(r.doc, null); assert.equal(r.reason, "fixture file"); assert.equal(r.view.status, "UNAVAILABLE");
 });
 
-test("the one loader: a sealed file renders; absent, unreadable, tampered and wrong-lane files are refused", () => {
+test("the loader reads through the engine's readLaneProjection: MISSING, UNREADABLE, UNVERIFIED and WRONG_LANE are refused", () => {
   const tampered = real(FIX["bb-b"]); tampered.runs[0].days[0].card.legs[0].selection.teamAbbr = "BOS";
   const dir = tmpApp({ "bb-a": real(FIX["bb-a"]), "bb-b": tampered, "ms-a": real(FIX["ms-b"]), "ms-b": "{not json" });
   assert.equal(loadChallengeLane({ appDir: dir, laneId: "bb-a" }).view.status, "HELD");
-  assert.equal(loadChallengeLane({ appDir: dir, laneId: "bb-b" }).reason, "schema or content digest does not verify");
-  assert.match(loadChallengeLane({ appDir: dir, laneId: "ms-a" }).reason, /file is lane ms-b, not ms-a/);
-  assert.equal(loadChallengeLane({ appDir: dir, laneId: "ms-b" }).reason, "no file");
-  assert.equal(loadChallengeLane({ appDir: tmpApp({}), laneId: "bb-a" }).reason, "no file");
-  assert.equal(lane.acceptLaneProjection(real(FIX["bb-a"], (d) => ({ ...d, schema: "gtp.challenge-lane@1" }))).reason, "schema or content digest does not verify");
-  assert.match(lane.acceptLaneProjection(real(FIX["bb-a"], (d) => ({ ...d, targetCents: 500000 }))).reason, /base\/target\/steps differ/);
+  assert.equal(loadChallengeLane({ appDir: dir, laneId: "bb-b" }).reason, "UNVERIFIED");
+  assert.equal(loadChallengeLane({ appDir: dir, laneId: "ms-a" }).reason, "WRONG_LANE");
+  assert.equal(loadChallengeLane({ appDir: dir, laneId: "ms-b" }).reason, "UNREADABLE");
+  const none = loadChallengeLane({ appDir: tmpApp({}), laneId: "bb-a" });
+  assert.equal(none.reason, "MISSING"); assert.equal(none.view.note, "The lane record has not been published yet.");
+  assert.equal(loadChallengeLane({ appDir: dir, laneId: "bb-b" }).view.note, "The lane record did not pass verification, so it is not shown.");
   assert.throws(() => loadChallengeLane({ appDir: dir, laneId: "zz" }), /unknown lane/);
+  assert.throws(() => lane.laneView(tampered), /does not verify/, "laneDisplay refuses an unverified file");
 });
 
 test("anything priced in a public file is refused whole, even sealed: price keys, unstubbed price events, a withheld bankroll", () => {
@@ -94,101 +97,96 @@ test("anything priced in a public file is refused whole, even sealed: price keys
     assert.match(lane.acceptLaneProjection(unstubbed).reason, new RegExp(`${type} is not the withheld stub`));
     const notWithheld = real(FIX["bb-a"], (d) => { d.runs[0].events.push({ seq: 99, type, date: "2026-11-02", step: 1, at: "x", source: "x" }); return d; });
     assert.match(lane.acceptLaneProjection(notWithheld).reason, new RegExp(`${type} is not the withheld stub`));
-    const stub = real(FIX["bb-a"], (d) => { d.runs[0].events.push({ seq: 99, type, date: "2026-11-02", step: 1, at: "x", source: "x", withheld: "P1", ...(type === "PAYOUT_COMPUTED" ? { result: "REFUSED", refusals: ["NO_PRICE"] } : {}) }); return d; });
-    assert.deepEqual(lane.acceptLaneProjection(stub), { ok: true }, `${type} withheld stub is fine`);
   }
   const bankroll = real(FIX["bb-a"], (d) => { d.current.trackedBankrollWithheld = "P1"; return d; });
   assert.equal(lane.acceptLaneProjection(bankroll).reason, "withheld bankroll printed");
+  for (const doc of Object.values(SYN)) assert.doesNotMatch(JSON.stringify(doc), /FIXTURE-NOT-A-BOOK|"price":/, `${doc.laneId}: the engine withheld the fixture prices`);
 });
 
-test("rev 2 status vocabulary: every engine status maps to ACTIVE / WON / LOST / HELD / COMPLETED / FINISHED SHORT", () => {
-  assert.deepEqual(Object.keys(lane.LANE_STATUS).filter((k) => k !== "UNAVAILABLE"), ["ACTIVE", "WON", "LOST", "HELD", "COMPLETED", "FINISHED_SHORT"]);
-  for (const s of Object.values(STATUS)) assert.ok(lane.LANE_STATUS[lane.PUBLIC_STATUS_OF[s]], `engine status ${s}`);
-  assert.equal(lane.PUBLIC_STATUS_OF.UNPRICED, "HELD"); assert.equal(lane.PUBLIC_STATUS_OF.NO_ELIGIBLE_CARD, "HELD");
-  assert.equal(lane.PUBLIC_STATUS_OF.PENDING_VOID_REVIEW, "HELD"); assert.equal(lane.PUBLIC_STATUS_OF.AWAITING_RESTART_APPROVAL, "LOST");
-  assert.equal(lane.PUBLIC_STATUS_OF.FINISHED_SHORT, "FINISHED_SHORT");
-  for (const v of Object.values(lane.LANE_STATUS)) assert.ok(v.glyph && v.label);
-});
-
-test("the real replay: every lane HELD at STEP 1 on Nov 3 with the reason; Nov 2's unpriced card never reads as a loss", () => {
+test("the real replay: every lane HELD at STEP 1 OF 5 with the reason; Nov 2's unpriced card never reads as a loss", () => {
   for (const [id, doc] of Object.entries(FIX)) {
     const v = lane.laneView(doc);
     assert.equal(v.statusLabel, "HELD", id);
-    assert.equal(v.step, 1, id);
-    assert.equal(v.rungs[0].state, "active", id);
+    assert.equal(v.stepText, "STEP 1 OF 5", id);
+    assert.deepEqual(v.rungs.map((r) => r.state), ["active", "upcoming", "upcoming", "upcoming", "upcoming"], id);
     assert.equal(v.tracked, id.startsWith("bb") ? "$100" : "$25", id);
     assert.equal(v.toTarget, id.startsWith("bb") ? "$9,900" : "$975", id);
+    assert.equal(v.pace.state, "on", id);
     assert.equal(v.current, null, `${id}: no card on Nov 3`);
-    assert.match(v.note, /^No sealed suggested-cards file for 2026-11-03; STEP 1 OF \d is unchanged/, id);
+    assert.match(v.note, /^No sealed suggested-cards file for 2026-11-03; STEP 1 OF 5 is unchanged/, id);
     assert.deepEqual(v.story.map((d) => d.date), ["2026-11-03", "2026-11-02"], id);
-    const nov2 = v.story[1];
-    assert.equal(nov2.statusText, "Held · not staked, awaiting verified prices"); assert.equal(nov2.staked, false);
+    assert.equal(v.story[1].statusText, "Held · not staked, awaiting verified prices");
     const h = text(html(React.createElement(LaneCard, { lane: v })));
     assert.match(h, /The model card lost, but it was not staked, so the lane did not move\./, id);
     assert.doesNotMatch(h, /\bLOST\b|Step 1 lost/, id);
     assert.equal(h.split("No sealed suggested-cards file for 2026-11-03").length - 1, 1, `${id}: the reason prints once`);
   }
   assert.deepEqual(lane.laneView(FIX["bb-a"]).story[1].legs.map((l) => [l.teamAbbr, l.outcome]), [["NY", "WIN"], ["DEN", "LOSS"]]);
-  assert.deepEqual(lane.laneView(FIX["bb-b"]).story[1].legs.map((l) => l.teamAbbr), ["DAL", "SA"]);
 });
 
-test("ACTIVE on step 2 after a won step 1; LOST awaiting restart; COMPLETED; the won bankroll stays withheld (P1)", () => {
-  const active = lane.laneView(syntheticActiveStep2(FIX["ms-a"], FIX["ms-b"]));
-  assert.equal(active.statusLabel, "ACTIVE"); assert.equal(active.step, 2); assert.equal(active.cleared, 1);
-  assert.deepEqual(active.rungs.map((r) => r.state), ["completed", "active", "upcoming", "upcoming", "upcoming"]);
-  assert.equal(active.tracked, lane.AWAITING_PRICES); assert.equal(active.toTarget, null);
-  assert.equal(active.pace.state, "unpriced");
-  assert.deepEqual(active.current.legs.map((l) => l.teamAbbr), ["ATL", "DAL", "HOU", "LAC"]);
-  assert.deepEqual(active.story.map((d) => [d.date, d.statusText]), [["2026-11-03", "Active"], ["2026-11-02", "Won"]]);
-  const lost = lane.laneView(syntheticLostAwaitingRestart(FIX["ms-b"], FIX["ms-a"]));
-  assert.equal(lost.statusLabel, "LOST"); assert.equal(lost.tracked, "$0"); assert.equal(lost.toTarget, null); assert.equal(lost.wager, null); assert.equal(lost.pace, null);
-  assert.equal(lost.note, "Lost at step 2 of 5. A new run starts only after a founder-approved restart.");
-  assert.deepEqual(lost.rungs.map((r) => r.state), ["completed", "failed", "upcoming", "upcoming", "upcoming"]);
-  assert.equal(lost.story[0].result, "Step 2 lost."); assert.equal(lost.story[1].result, "Step 1 won.");
-  assert.deepEqual(lost.story[0].legs.map((l) => l.outcome), ["WIN", "LOSS", "WIN", "WIN"]);
-  const as = (status, extra = {}) => lane.laneView(real(FIX["ms-a"], (d) => { d.current = { ...d.current, status, statusReason: "SLATE_POSTPONED: the slate was postponed.", ...extra }; return d; }));
-  assert.equal(as("PAUSED").statusLabel, "HELD"); assert.equal(as("PAUSED").note, "The slate was postponed.");
-  const done = as("COMPLETE", { step: 6 });
-  assert.equal(done.statusLabel, "COMPLETED"); assert.equal(done.step, 5); assert.ok(done.rungs.every((r) => r.state === "completed"));
-  assert.equal(as("FINISHED_SHORT", { step: 6 }).statusLabel, "FINISHED SHORT");
-});
-
-test("milestones and pace: SPEC rev 2 defaults on a five-step lane until the projection carries its own", () => {
-  const v = lane.laneView(FIX["ms-a"]);
-  assert.equal(v.milestoneSource, "spec-rev2-default");
-  assert.deepEqual(v.rungs.map((r) => r.milestone), ["$75", "$180", "$360", "$650", "$1,000"]);
-  assert.deepEqual(v.pace, { state: "on", text: "On pace · next milestone $75" });
-  assert.deepEqual(lane.SPEC_REV2_MILESTONES_CENTS["bank-builder"], [10000, 30000, 90000, 270000, 650000, 1000000]);
-  const behind = lane.laneView(real(FIX["ms-a"], (d) => { d.runs[0].days[0] = { ...d.runs[0].days[0], stepOutcome: "WIN" }; d.current = { ...d.current, step: 2, trackedBankrollCents: 5000 }; return d; }));
-  assert.equal(behind.pace.text, "Behind pace by $25 · milestone $75");
-  const own = lane.laneView(real(FIX["ms-a"], (d) => ({ ...d, milestonesCents: [2500, 5000, 10000, 20000, 50000, 100000] })));
-  assert.equal(own.milestoneSource, "projection"); assert.equal(own.rungs[0].milestone, "$50");
-  assert.equal(lane.laneView(FIX["bb-a"]).milestoneSource, null, "the replay's 3-step Bank Builder lane gets no 5-step milestones");
-});
-
-test("SITE/SOCIAL CONSISTENCY: the site shows exactly the projection's step, bankroll, legs, results and status (what the graphics read)", () => {
-  const docs = [...Object.values(FIX), syntheticActiveStep2(FIX["ms-a"], FIX["ms-b"]), syntheticLostAwaitingRestart(FIX["ms-b"], FIX["ms-a"]), syntheticActiveStep2(FIX["bb-a"], FIX["bb-b"])];
-  for (const doc of docs) {
-    const v = lane.laneView(doc);
-    const run = doc.runs.at(-1);
-    assert.equal(`STEP ${v.step} OF ${v.steps}`, doc.current.stepText, `${doc.laneId} step`);
-    assert.equal(v.steps, doc.steps);
-    const expectBankroll = lane.PUBLIC_STATUS_OF[doc.current.status] === "LOST" ? "$0" : doc.current.trackedBankrollWithheld ? lane.AWAITING_PRICES : `$${(doc.current.trackedBankrollCents / 100).toLocaleString("en-US")}`;
-    assert.equal(v.tracked, expectBankroll, `${doc.laneId} bankroll`);
-    assert.equal(v.status, lane.PUBLIC_STATUS_OF[doc.current.status], `${doc.laneId} status`);
-    assert.equal(v.cleared, run.days.filter((d) => d.stepOutcome === "WIN").length, `${doc.laneId} steps cleared`);
-    for (const [i, day] of [...run.days].reverse().entries()) {
-      const sv = v.story[i];
-      assert.equal(sv.date, day.date); assert.equal(sv.step, day.step);
-      assert.deepEqual(sv.legs.map((l) => [l.legId, l.teamAbbr, l.projection]), (day.card?.legs ?? []).map((l) => [l.legId, l.selection.teamAbbr, l.probabilityShown]), `${doc.laneId} ${day.date} legs`);
-      assert.deepEqual(sv.legs.map((l) => l.outcome ?? "PENDING"), (day.legResults ?? []).map((r) => r.outcome), `${doc.laneId} ${day.date} results`);
-    }
-    if (v.current) assert.equal(v.current.date, run.days.at(-1).date);
+test("engine-built states: ACTIVE on step 2 after a won step 1, LOST awaiting restart, a restarted lane with its run history", () => {
+  for (const id of ["bb-a", "ms-a"]) {
+    const v = lane.laneView(SYN[id]);
+    assert.equal(v.statusLabel, "ACTIVE", id); assert.equal(v.stepText, "STEP 2 OF 5", id); assert.equal(v.cleared, 1, id);
+    assert.deepEqual(v.rungs.map((r) => r.state), ["completed", "active", "upcoming", "upcoming", "upcoming"], id);
+    assert.equal(v.tracked, lane.AWAITING_PRICES, `${id}: a won step's bankroll is withheld (P1)`);
+    assert.equal(v.pace.state, "withheld"); assert.equal(v.pace.text, "Pace: awaiting verified prices");
+    assert.ok(v.current?.legs.length, id);
+    assert.deepEqual(v.story.map((d) => d.statusText), ["Active", "Won"], id);
   }
+  const lost = lane.laneView(SYN["bb-b"]);
+  assert.equal(lost.statusLabel, "LOST"); assert.equal(lost.wager, null); assert.equal(lost.pace, null); assert.equal(lost.toTarget, null); assert.equal(lost.current, null);
+  assert.deepEqual(lost.rungs.map((r) => r.state), ["completed", "failed", "upcoming", "upcoming", "upcoming"]);
+  assert.match(lost.note, /BUSTED AT STEP 2 OF 5 .*only after a founder-approved restart/);
+  assert.ok(lost.story.some((d) => d.result === "Step 2 lost.") && lost.story.some((d) => d.result === "Step 1 won."));
+  const re = lane.laneView(SYN["ms-b"]);
+  assert.deepEqual(re.runs.map((r) => [r.runId, r.status, r.current]), [["run-1", "LOST", false], ["run-2", "HELD", true]]);
+  assert.equal(re.stepText, "STEP 1 OF 5"); assert.equal(re.tracked, "$25");
+  const h = text(html(React.createElement(LaneCard, { lane: re })));
+  assert.match(h, /Runs run-1 · started 2026-11-02 · 0 won · LOST run-2 · started 2026-11-04 · 0 won · current/);
+});
+
+test("milestones come from the file (lanes.mjs MILESTONES via laneDisplay); the site hardcodes none", () => {
+  const v = lane.laneView(FIX["ms-a"]);
+  assert.deepEqual(v.rungs.map((r) => r.milestone), FIX["ms-a"].milestonesCents.slice(0, 5).map((c) => `$${(c / 100).toLocaleString("en-US")}`));
+  assert.deepEqual(v.rungs.map((r) => r.milestone), laneDisplay(FIX["ms-a"]).rungs.map((r) => `$${(r.milestoneCents / 100).toLocaleString("en-US")}`));
+  const src = read("src/lib/products/challenge-lanes/lane.mjs");
+  assert.doesNotMatch(src, /MILESTONES|milestonesCents|\b(30000|90000|270000|650000|7500|18000|36000|65000)\b/);
+});
+
+test("SITE/SOCIAL CONSISTENCY: every step, rung, status, bankroll, distance, pace and leg the site shows is laneDisplay's", () => {
+  const usd = (c) => (c == null ? null : `$${(c / 100).toLocaleString("en-US", { maximumFractionDigits: 2 })}`);
+  for (const doc of [...Object.values(FIX), ...Object.values(SYN)]) {
+    const d = laneDisplay(doc);
+    const v = lane.laneView(doc);
+    const tag = `${doc.laneId}${doc.synthetic ? " (synthetic)" : ""}`;
+    assert.equal(v.stepText, d.stepText, tag); assert.equal(v.step, d.step, tag); assert.equal(v.steps, d.steps, tag);
+    assert.equal(v.status, d.status, tag); assert.equal(v.internalStatus, d.internalStatus, tag);
+    assert.deepEqual(v.rungs.map((r) => [r.step, r.state, r.milestone]), d.rungs.map((r) => [r.step, r.state, usd(r.milestoneCents)]), tag);
+    assert.equal(v.tracked, d.trackedBankrollCents == null ? lane.AWAITING_PRICES : usd(d.trackedBankrollCents), tag);
+    assert.equal(v.toTarget, d.status === "LOST" ? null : usd(d.distanceToTargetCents), tag);
+    assert.equal(v.pace?.state ?? null, d.status === "LOST" ? null : d.pace.state, tag);
+    assert.equal(v.base, usd(d.baseCents)); assert.equal(v.target, usd(d.targetCents));
+    assert.equal(v.sourceSha256, doc.contentSha256, tag);
+    assert.deepEqual(v.runs.map((r) => [r.runId, r.status]), d.runs.map((r) => [r.runId, r.endStatus]), tag);
+    const hist = [...d.history].reverse();
+    assert.deepEqual(v.story.map((x) => [x.date, x.step]), hist.map((x) => [x.date, x.step]), tag);
+    for (const [i, day] of hist.entries()) {
+      assert.deepEqual(v.story[i].legs.map((l) => [l.legId, l.teamAbbr, l.projection]), (day.card?.legs ?? []).map((l) => [l.legId, l.selection.teamAbbr, l.probabilityShown]), `${tag} ${day.date} legs`);
+      assert.deepEqual(v.story[i].legs.map((l) => l.outcome ?? "PENDING"), (day.legResults ?? []).map((r) => r.outcome), `${tag} ${day.date} results`);
+    }
+  }
+  // Structural: the site reads with the engine's reader and folds with the engine's laneDisplay, and has no fold of its own.
+  assert.match(read("src/lib/products/challenge-lanes/load.mjs"), /import \{ readLaneProjection \} from "\.\.\/\.\.\/challenge-lanes\/public-reader\.mjs";/);
+  const src = read("src/lib/products/challenge-lanes/lane.mjs");
+  assert.match(src, /import \{ laneDisplay \} from "\.\.\/\.\.\/challenge-lanes\/display\.mjs";/);
+  const view = src.slice(src.indexOf("export function laneView"), src.indexOf("export function unavailableLaneView"));
+  assert.match(view, /const d = laneDisplay\(doc\);/);
+  assert.doesNotMatch(view, /doc\.(runs|current|steps|baseCents|targetCents|milestonesCents)|publicStatus|trackedBankrollWithheld|readFileSync/, "laneView reads only laneDisplay's output");
 });
 
 test("the lane card mirrors the graphic: product + lane chip, STEP k OF N, lit ladder, start/tracked/goal, team-marked legs, unpriced payout", () => {
-  const v = lane.laneView(syntheticActiveStep2(FIX["ms-a"], FIX["ms-b"]), { teams: readTeamColours(APP) });
+  const v = lane.laneView(SYN["ms-a"], { teams: readTeamColours(APP) });
   const h = html(React.createElement(LaneCard, { lane: v }));
   const t = text(h);
   assert.match(t, /Moonshot Lane A run-1 ● ACTIVE/);
@@ -198,15 +196,13 @@ test("the lane card mirrors the graphic: product + lane chip, STEP k OF N, lit l
   assert.equal((h.match(/data-rung-state="completed"/g) ?? []).length, 1);
   assert.equal((h.match(/data-lane-unpriced=""/g) ?? []).length, 1);
   assert.match(t, /Potential payout · profit Awaiting verified prices/);
-  assert.match(t, /ATLANTA HAWKS|Atlanta Hawks/);
   assert.match(h, /class="cl-leg cl-leg--team" style="--cl-team:#[0-9A-Fa-f]{6};--cl-team-ink:#[0-9A-Fa-f]{6}"/);
-  assert.match(t, /ATL @ IND · 7:30 PM ET/);
-  assert.equal((t.match(/MODEL WIN PROBABILITY/g) ?? []).length, 4 + 4, "the current step's 4 legs once, plus step 1's 4 in the story");
+  assert.match(t, /\d{1,2}:\d{2} PM ET/);
+  const legs = v.current.legs.length;
+  assert.equal((t.match(/MODEL WIN PROBABILITY/g) ?? []).length, legs + v.story[1].legs.length, "the current step's legs once, plus step 1's in the story");
   assert.match(t, /2026-11-03 · step 2 · Active The selections above\./);
-  assert.match(t, /Flag One of the favoured team/);
   assert.match(t, /Tracked challenge · no real wager placed/);
   assert.doesNotMatch(t, /\b(ESTIMATE|est\.|projected median|odds)\b/i);
-  assert.deepEqual([...new Set(t.match(/\$[\d,]+/g))].sort(), ["$1,000", "$180", "$25", "$360", "$650", "$75"]);
   assert.doesNotMatch(t, /not betting advice|FOUNDER REVIEW|NOT A SPORTSBOOK OFFER/i);
 });
 
@@ -268,7 +264,7 @@ test("the pair renders lanes A and B side by side; an unavailable lane says so a
   assert.match(h, /data-lane-pair="bank-builder"/);
   assert.ok(h.indexOf('data-lane="bb-a"') < h.indexOf('data-lane="bb-b"'));
   assert.match(t, /Lane B .*RECORD NOT PUBLISHED.*The lane record has not been published yet/);
-  assert.match(t, /\$100 to \$10,000 in 3 steps/);
+  assert.match(t, /\$100 to \$10,000 in 5 steps/);
   const bLane = h.slice(h.indexOf('data-lane="bb-b"'));
   assert.doesNotMatch(text(bLane), /STEP \d OF/);
   assert.doesNotMatch(bLane, /data-lane-leg=/);
@@ -283,7 +279,7 @@ test("pages: /bank-builder and /moonshot read their lanes only through loadProdu
     assert.doesNotMatch(src, /challenge-lanes\/__fixtures__|challenge-lanes\/[a-z-]+\.json/, file);
   }
   const loader = read("src/lib/products/challenge-lanes/load.mjs");
-  assert.match(loader, /acceptLaneProjection\(doc, \{ laneId \}\)/);
+  assert.match(loader, /acceptLaneProjection\(r\.doc, \{ laneId \}\)/);
   assert.match(read("src/lib/products/challenge-lanes/lane.mjs"), /import \{ verifyLaneProjection, IMAGE_PATH \} from "\.\.\/\.\.\/challenge-lanes\/projection\.mjs";/);
   assert.doesNotMatch(read("src/lib/products/challenge-lanes/lane.mjs"), /node:fs|readFileSync/);
   const dev = read("src/app/dev/challenge-lanes-fixture/page.tsx");

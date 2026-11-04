@@ -1,16 +1,17 @@
 /**
- * BANK BUILDER & MOONSHOT SOCIAL CHALLENGES V2 (founder directive, 2026-11-04; contract ~/gtp-evidence/bbm-v2/SPEC.md).
- * The website shows the SAME four lanes as the X graphics, read from the engine's public lane projection
- * (`gtp.challenge-lane.public@1`, lib/challenge-lanes/projection.mjs; docs/CHALLENGE_LANES_V2.md §3) at
- * app/public/data/challenge-lanes/<laneId>.json. Pure: the site's acceptance check and view model, no file access.
+ * BANK BUILDER & MOONSHOT SOCIAL CHALLENGES V2 (SPEC rev 2 §3, §6). The website shows the SAME four lanes as the X
+ * graphics: both read the file through the engine's ONE public reader (lib/challenge-lanes/public-reader.mjs) and fold it
+ * through the engine's ONE display function (lib/challenge-lanes/display.mjs `laneDisplay`). Step, rungs, milestones,
+ * status, bankroll, distance and pace all come from laneDisplay; this module only PRESENTS them (money strings, team
+ * marks, sentences) and adds the site's own refusals. Pure: no file access.
  *
- * ACCEPTANCE = the engine's verifyLaneProjection (schema + canonical content digest) PLUS the site's own refusals: the
- * file is the lane asked for, its base/target/steps are the lane's, it is not a fixture, and NOTHING PRICED is in it —
- * a price event must be the engine's withheld stub, no price/odds/book/payout/profit key appears anywhere, and a
- * withheld bankroll is null. A file that fails any of these is refused whole, never filtered.
+ * SITE REFUSALS on top of the engine's checks: not a fixture, and NOTHING PRICED in a public file — a price event must be
+ * the engine's withheld stub, no price/odds/book/payout/profit key appears anywhere, and a withheld bankroll is null. A
+ * file that fails any of these is refused whole, never filtered.
  */
 import { verifyLaneProjection, IMAGE_PATH } from "../../challenge-lanes/projection.mjs";
-import { LANES as ENGINE_LANES, STATUS } from "../../challenge-lanes/lanes.mjs";
+import { LANES as ENGINE_LANES } from "../../challenge-lanes/lanes.mjs";
+import { laneDisplay } from "../../challenge-lanes/display.mjs";
 
 export const LANE_IDS = Object.freeze(Object.keys(ENGINE_LANES));
 export const lanesOf = (product) => LANE_IDS.filter((id) => ENGINE_LANES[id].product === product);
@@ -62,41 +63,21 @@ export function acceptLaneProjection(doc, { laneId, allowFixture = false } = {})
   return { ok: true };
 }
 
-/**
- * PUBLIC STATUS VOCABULARY (SPEC rev 2 §3), shared with the graphics: one word each, with a glyph so state is never
- * colour alone. The engine's internal codes map onto these with the reason shown.
- */
+/** The public statuses (SPEC rev 2 §3; laneDisplay's `status`), each with a glyph so state is never colour alone. */
 export const LANE_STATUS = Object.freeze({
-  ACTIVE: { label: "ACTIVE", glyph: "●", tone: "active" },
-  WON: { label: "WON", glyph: "✓", tone: "won" },
-  LOST: { label: "LOST", glyph: "✕", tone: "lost" },
-  HELD: { label: "HELD", glyph: "Ⅱ", tone: "held" },
-  COMPLETED: { label: "COMPLETED", glyph: "★", tone: "won" },
-  FINISHED_SHORT: { label: "FINISHED SHORT", glyph: "◐", tone: "held" },
-  UNAVAILABLE: { label: "RECORD NOT PUBLISHED", glyph: "○", tone: "held" },
+  ACTIVE: { glyph: "●", tone: "active" },
+  WON: { glyph: "✓", tone: "won" },
+  LOST: { glyph: "✕", tone: "lost" },
+  HELD: { glyph: "Ⅱ", tone: "held" },
+  COMPLETED: { glyph: "★", tone: "won" },
+  "FINISHED SHORT": { glyph: "◐", tone: "held" },
 });
-/** The engine's lane statuses (lib/challenge-lanes/lanes.mjs STATUS, plus rev 2's FINISHED_SHORT) → the public six. */
-export const PUBLIC_STATUS_OF = Object.freeze({
-  [STATUS.IN_PLAY]: "ACTIVE",
-  [STATUS.READY]: "HELD", [STATUS.UNPRICED]: "HELD", [STATUS.NO_ELIGIBLE_CARD]: "HELD", [STATUS.PENDING_VOID_REVIEW]: "HELD", [STATUS.PAUSED]: "HELD",
-  [STATUS.BUSTED]: "LOST", [STATUS.AWAITING_RESTART_APPROVAL]: "LOST",
-  [STATUS.COMPLETE]: "COMPLETED", FINISHED_SHORT: "FINISHED_SHORT",
-});
+const UNAVAILABLE = { label: "RECORD NOT PUBLISHED", glyph: "○", tone: "held" };
+/** Day-level wording for the engine's internal day codes (presentation only). */
 const DAY_TEXT = Object.freeze({
-  [STATUS.IN_PLAY]: "Active", [STATUS.PENDING_VOID_REVIEW]: "Held · void under review", [STATUS.BUSTED]: "Lost",
-  [STATUS.AWAITING_RESTART_APPROVAL]: "Lost · restart awaiting approval", [STATUS.COMPLETE]: "Completed",
-  [STATUS.NO_ELIGIBLE_CARD]: "Held · no qualifying card", [STATUS.UNPRICED]: "Held · not staked, awaiting verified prices",
-  [STATUS.PAUSED]: "Held", [STATUS.READY]: "Card frozen · awaiting verified prices", FINISHED_SHORT: "Finished short",
-});
-
-/**
- * ILLUSTRATIVE MILESTONES (SPEC rev 2 §2: display defaults, founder-adjustable; Moonshot's row is the PD proposal).
- * TEMPORARY, adapter-only: the engine owns these once its projection carries `milestonesCents`, and the site then reads
- * the projection's. Applied only to a five-step lane; index 0 is the base, index 5 the target.
- */
-export const SPEC_REV2_MILESTONES_CENTS = Object.freeze({
-  "bank-builder": Object.freeze([10000, 30000, 90000, 270000, 650000, 1000000]),
-  moonshot: Object.freeze([2500, 7500, 18000, 36000, 65000, 100000]),
+  IN_PLAY: "Active", PENDING_VOID_REVIEW: "Held · void under review", BUSTED: "Lost", AWAITING_RESTART_APPROVAL: "Lost · restart awaiting approval",
+  COMPLETE: "Completed", FINISHED_SHORT: "Finished short", NO_ELIGIBLE_CARD: "Held · no qualifying card",
+  UNPRICED: "Held · not staked, awaiting verified prices", PAUSED: "Held", READY: "Card frozen · awaiting verified prices",
 });
 
 const money = (cents) => (typeof cents === "number" && Number.isFinite(cents) ? `$${(cents / 100).toLocaleString("en-US", { maximumFractionDigits: 2 })}` : null);
@@ -140,69 +121,48 @@ function legsOf(day, projectionLabel, teams) {
   });
 }
 
-function dayView(day, projectionLabel, teams) {
-  const legs = day.card ? legsOf(day, projectionLabel, teams) : [];
+function dayPresent(day, projectionLabel, teams) {
+  /* The engine leaves a staked, unsettled day's own status empty: that day is the active step. */
+  const status = day.status ?? (day.staked && !day.stepOutcome ? "IN_PLAY" : null);
   let result = null;
   if (day.stepOutcome === "WIN") result = `Step ${day.step} won.`;
   else if (day.stepOutcome === "LOSS") result = `Step ${day.step} lost.`;
   else if (day.stepOutcome) result = `Step ${day.step}: ${day.stepOutcome}.`;
   else if (day.card && !day.staked && day.modelCardResult && day.modelCardResult !== "PENDING") result = `The model card ${day.modelCardResult === "WIN" ? "won" : "lost"}, but it was not staked, so the lane did not move.`;
   return {
-    date: day.date, step: day.step, internalStatus: day.status,
-    statusText: day.stepOutcome === "WIN" ? "Won" : day.stepOutcome === "LOSS" ? "Lost" : DAY_TEXT[day.status] ?? day.status ?? "",
-    tone: day.stepOutcome === "WIN" ? "won" : day.stepOutcome === "LOSS" ? "lost" : day.status === STATUS.IN_PLAY ? "active" : "held",
-    reason: reasonText(day.reason), staked: Boolean(day.staked), legs, hasCard: Boolean(day.card),
+    date: day.date, step: day.step, internalStatus: status,
+    statusText: day.stepOutcome === "WIN" ? "Won" : day.stepOutcome === "LOSS" ? "Lost" : DAY_TEXT[status] ?? status ?? "",
+    tone: day.stepOutcome === "WIN" ? "won" : day.stepOutcome === "LOSS" ? "lost" : status === "IN_PLAY" ? "active" : "held",
+    reason: reasonText(day.reason), staked: Boolean(day.staked), legs: day.card ? legsOf(day, projectionLabel, teams) : [], hasCard: Boolean(day.card),
     modelCardResult: day.modelCardResult ?? null, stepOutcome: day.stepOutcome ?? null, result,
   };
 }
 
 /**
- * The site's view of one lane (its current run, earlier runs as the restart history) from an ACCEPTED document. Pure and
+ * The site's presentation of one lane, from the engine's laneDisplay (which throws on a file that does not verify). Pure;
  * never mutates the document. Options: `teams` (NBA team colour data, for team marks), `imageVerified(path, sha)` (the
  * loader's byte check; with none, no image is shown).
  * @param {any} doc
  * @param {{ teams?: { teams: any, aliases: any, inkFor?: (fill: string) => string } | null, imageVerified?: (path: string, sha: string) => boolean }} [opts]
  */
 export function laneView(doc, { teams = null, imageVerified = () => false } = {}) {
-  const lane = ENGINE_LANES[doc.laneId];
-  const run = doc.runs[doc.runs.length - 1];
-  const cur = doc.current;
-  const steps = doc.steps;
-  const step = Math.min(cur.step, steps);
-  const projectionLabel = doc.projectionLabel ?? "MODEL PROJECTION";
-  const days = run.days.map((d) => dayView(d, projectionLabel, teams));
-  const latest = days.at(-1) ?? null;
-  let status = PUBLIC_STATUS_OF[cur.status] ?? "HELD";
-  /* WON: the latest day settled a winning step and the next step has no card yet. */
-  if (status === "HELD" && latest?.stepOutcome === "WIN") status = "WON";
-  const lost = status === "LOST";
-  const wonSteps = new Set(run.days.filter((d) => d.stepOutcome === "WIN").map((d) => d.step));
-  const milestonesCents = Array.isArray(doc.milestonesCents) && doc.milestonesCents.length === steps + 1 ? doc.milestonesCents
-    : steps === 5 ? SPEC_REV2_MILESTONES_CENTS[lane.product] : null;
-  const milestoneSource = Array.isArray(doc.milestonesCents) ? "projection" : milestonesCents ? "spec-rev2-default" : null;
-  const rungs = Array.from({ length: steps }, (_, i) => {
-    const k = i + 1;
-    const state = status === "COMPLETED" || wonSteps.has(k) ? "completed" : lost && k === step ? "failed" : k === step && !lost ? "active" : "upcoming";
-    return { step: k, state, milestone: milestonesCents ? money(milestonesCents[k]) : null };
-  });
-  const cleared = rungs.filter((r) => r.state === "completed").length;
-  /* A lost step loses the whole tracked bankroll (all-in ladder), as the graphics print it; no price is involved. */
-  const trackedCents = lost ? 0 : cur.trackedBankrollWithheld ? null : cur.trackedBankrollCents;
-  /* Pace: the tracked bankroll against the milestone the lane should have reached after the steps it has cleared. */
-  let pace = null;
-  if (milestonesCents && !lost && status !== "COMPLETED") {
-    const due = milestonesCents[Math.min(cleared, steps)];
-    if (trackedCents == null) pace = { state: "unpriced", text: "Pace: awaiting verified prices" };
-    else if (trackedCents >= due) pace = { state: "on", text: cleared ? `On pace · milestone ${money(due)}` : `On pace · next milestone ${money(milestonesCents[1])}` };
-    else pace = { state: "behind", text: `Behind pace by ${money(due - trackedCents)} · milestone ${money(due)}` };
-  }
-  let note = reasonText(cur.statusReason);
-  if (lost) note = `Lost at step ${step} of ${steps}.${cur.status === STATUS.AWAITING_RESTART_APPROVAL ? " A new run starts only after a founder-approved restart." : ""}`;
-  if (!note && status === "ACTIVE") note = `Step ${step} of ${steps} is active. No new card until it settles.`;
-  if (!note && status === "WON") note = `Step ${step - 1} won. Step ${step} gets the next qualifying card.`;
-  const current = latest?.hasCard && ["ACTIVE", "HELD"].includes(status) && latest.internalStatus !== STATUS.NO_ELIGIBLE_CARD ? latest : null;
-  const stake = [...run.events].reverse().find((e) => e.type === "STAKE_SET" && e.date === latest?.date);
-  const receipts = run.days.flatMap((d) => d.receipts ?? []);
+  const d = laneDisplay(doc);
+  const lane = ENGINE_LANES[d.laneId];
+  const projectionLabel = d.projectionLabel ?? "MODEL PROJECTION";
+  const story = [...d.history].reverse().map((x) => dayPresent(x, projectionLabel, teams));
+  const latest = d.day ? dayPresent(d.day, projectionLabel, teams) : null;
+  const current = latest?.hasCard && !latest.stepOutcome && d.status !== "LOST" ? latest : null;
+  const glyph = LANE_STATUS[d.status] ?? LANE_STATUS.HELD;
+  let note = reasonText(d.reason);
+  if (!note && d.status === "ACTIVE") note = `Step ${d.step} of ${d.steps} is active. No new card until it settles.`;
+  if (!note && d.status === "WON") note = `Step ${d.step - 1} won. Step ${d.step} gets the next qualifying card.`;
+  const p = d.pace;
+  /* Pace means nothing once a lane is lost: it is not shown. */
+  const pace = !p || d.status === "LOST" ? null
+    : p.state === "withheld" ? { state: "withheld", text: "Pace: awaiting verified prices" }
+    : p.state === "on" ? { state: "on", text: `On pace · milestone ${money(p.milestoneCents)}` }
+    : { state: "behind", text: `Behind pace by ${money(p.behindCents)} · milestone ${money(p.milestoneCents)}` };
+  const receipts = d.history.flatMap((x) => x.receipts ?? []);
   const graphics = receipts.filter((r) => r.type === "GRAPHIC_RENDERED").map((g) => {
     const same = (r) => (r.packageId ?? null) === (g.packageId ?? null) && r.date === g.date;
     const post = receipts.find((r) => r.type === "POSTED" && same(r));
@@ -214,22 +174,22 @@ export function laneView(doc, { teams = null, imageVerified = () => false } = {}
       approved: receipts.some((r) => r.type === "APPROVED" && same(r)), postUrl: xUrl(post?.url), postedAt: post?.postedAt ?? null,
     };
   });
-  const runs = doc.runs.map((r, i) => ({
-    runId: r.runId, number: i + 1, started: String(r.startedAt ?? "").slice(0, 10) || null,
-    status: LANE_STATUS[PUBLIC_STATUS_OF[r.status] ?? "HELD"].label, stepsWon: r.stepsWon ?? 0, current: i === doc.runs.length - 1,
-  }));
+  const tracked = d.trackedBankrollCents == null ? AWAITING_PRICES : money(d.trackedBankrollCents);
   return {
-    laneId: doc.laneId, product: lane.product, letter: lane.slot, name: `Lane ${lane.slot}`,
-    runId: run.runId, runNumber: doc.runs.length, startedAt: String(run.startedAt ?? "").slice(0, 10) || null,
-    step, steps, cleared, status, statusLabel: LANE_STATUS[status].label, statusGlyph: LANE_STATUS[status].glyph, tone: LANE_STATUS[status].tone,
-    internalStatus: cur.status, note,
-    base: money(doc.baseCents), target: money(doc.targetCents),
-    tracked: trackedCents == null ? AWAITING_PRICES : money(trackedCents),
-    toTarget: trackedCents == null || lost ? null : money(Math.max(0, doc.targetCents - trackedCents)),
-    wager: lost ? null : stake?.stakeCents != null ? money(stake.stakeCents) : stake?.withheld ? AWAITING_PRICES : "Not staked",
+    laneId: d.laneId, product: d.product, letter: d.slot, name: `Lane ${d.slot}`,
+    runId: d.runId, runNumber: d.runNumber, startedAt: String(d.runs.at(-1)?.startedAt ?? "").slice(0, 10) || null,
+    step: d.step, steps: d.steps, stepText: d.stepText, maxLegs: d.maxLegs ?? null,
+    cleared: d.rungs.filter((r) => r.state === "completed").length,
+    status: d.status, statusLabel: d.status, statusGlyph: glyph.glyph, tone: glyph.tone, internalStatus: d.internalStatus, note,
+    base: money(d.baseCents), target: money(d.targetCents), tracked,
+    toTarget: d.distanceToTargetCents == null || d.status === "LOST" ? null : money(d.distanceToTargetCents),
+    wager: d.status === "LOST" ? null : tracked, wagerNote: latest?.staked ? "staked" : "not staked until priced",
     potentialPayout: AWAITING_PRICES, potentialProfit: AWAITING_PRICES,
-    pace, milestoneSource, label: doc.label ?? "Tracked challenge · no real wager placed",
-    rungs, current, story: [...days].reverse(), graphics, runs,
+    pace, label: d.label ?? "Tracked challenge · no real wager placed",
+    rungs: d.rungs.map((r) => ({ step: r.step, state: r.state, milestone: money(r.milestoneCents) })),
+    current, story, graphics,
+    runs: d.runs.map((r, i) => ({ runId: r.runId, number: i + 1, started: String(r.startedAt ?? "").slice(0, 10) || null, status: r.endStatus, stepsWon: r.stepsWon ?? 0, current: i === d.runs.length - 1 })),
+    sourceSha256: d.sourceSha256,
   };
 }
 
@@ -238,10 +198,10 @@ export function unavailableLaneView(laneId, reason) {
   const lane = ENGINE_LANES[laneId];
   return {
     laneId, product: lane.product, letter: lane.slot, name: `Lane ${lane.slot}`, runId: null, runNumber: 0, startedAt: null,
-    step: null, steps: lane.steps, cleared: 0, status: "UNAVAILABLE", statusLabel: LANE_STATUS.UNAVAILABLE.label, statusGlyph: LANE_STATUS.UNAVAILABLE.glyph, tone: "held",
-    internalStatus: null, note: reason, base: money(lane.baseCents), target: money(lane.targetCents), tracked: null, toTarget: null, wager: null,
-    potentialPayout: AWAITING_PRICES, potentialProfit: AWAITING_PRICES, pace: null, milestoneSource: null, label: "Tracked challenge · no real wager placed",
+    step: null, steps: lane.steps, stepText: null, maxLegs: null, cleared: 0, status: "UNAVAILABLE", statusLabel: UNAVAILABLE.label, statusGlyph: UNAVAILABLE.glyph, tone: UNAVAILABLE.tone,
+    internalStatus: null, note: reason, base: money(lane.baseCents), target: money(lane.targetCents), tracked: null, toTarget: null, wager: null, wagerNote: null,
+    potentialPayout: AWAITING_PRICES, potentialProfit: AWAITING_PRICES, pace: null, label: "Tracked challenge · no real wager placed",
     rungs: Array.from({ length: lane.steps }, (_, i) => ({ step: i + 1, state: "upcoming", milestone: null })),
-    current: null, story: [], graphics: [], runs: [],
+    current: null, story: [], graphics: [], runs: [], sourceSha256: null,
   };
 }

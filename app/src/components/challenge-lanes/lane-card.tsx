@@ -1,5 +1,5 @@
-/* ONE CHALLENGE LANE (BBM V2, SPEC rev 2 §5–6): the website twin of the lane's X graphic, from the engine's public
-   projection. Same visual language: product + lane chip, STEP k OF N hero, the lit ladder (completed / active / failed /
+/* ONE CHALLENGE LANE (BBM V2, SPEC rev 2 §5–6): the website twin of the lane's X graphic, presenting the engine's
+   laneDisplay (the same fold the graphics use). Same visual language: product + lane chip, STEP k OF N hero, the lit ladder (completed / active / failed /
    upcoming, milestones under each rung), start / tracked / goal boxes, pace and distance to target, leg cards with team
    marks and MODEL WIN PROBABILITY, the money row (payout never a number before the price-source decision), then the
    lane's whole story, its runs and its graphics. The ladder lights up once on load; prefers-reduced-motion stills it. */
@@ -16,10 +16,10 @@ export type LaneDay = {
 };
 export type LaneView = {
   laneId: string; product: string; letter: string; name: string; runId: string | null; runNumber: number; startedAt: string | null;
-  step: number | null; steps: number; cleared: number; status: string; statusLabel: string; statusGlyph: string; tone: string;
+  step: number | null; steps: number; stepText: string | null; maxLegs: number | null; cleared: number; status: string; statusLabel: string; statusGlyph: string; tone: string;
   internalStatus: string | null; note: string | null;
-  base: string | null; target: string | null; tracked: string | null; toTarget: string | null; wager: string | null;
-  potentialPayout: string; potentialProfit: string; pace: { state: string; text: string } | null; milestoneSource: string | null; label: string;
+  base: string | null; target: string | null; tracked: string | null; toTarget: string | null; wager: string | null; wagerNote: string | null;
+  potentialPayout: string; potentialProfit: string; pace: { state: string; text: string } | null; label: string; sourceSha256: string | null;
   rungs: Array<{ step: number; state: string; milestone: string | null }>;
   current: LaneDay | null;
   story: LaneDay[];
@@ -124,7 +124,7 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
       ) : null}
 
       <dl className="cl-money" data-lane-money="">
-        <div className="cl-money-cell"><dt>Wager</dt><dd>{lane.wager ?? "—"}</dd></div>
+        <div className="cl-money-cell"><dt>Wager</dt><dd>{lane.wager ?? "—"}{lane.wager && lane.wagerNote ? <span className="cl-money-sub">{lane.wagerNote}</span> : null}</dd></div>
         <div className="cl-money-cell cl-money--pending"><dt>Potential payout · profit</dt><dd data-lane-unpriced="">{lane.potentialPayout}</dd></div>
         <div className="cl-money-cell"><dt>Ladder progress</dt><dd>{lane.cleared} of {lane.steps}<span className="cl-money-sub">steps cleared</span></dd></div>
       </dl>
@@ -132,7 +132,7 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
       {lane.story.length ? (
         <section className="cl-block" aria-label={`${lane.name} story`}>
           <h4 className="cl-block-title">The story so far{lane.startedAt ? ` · started ${lane.startedAt} at ${lane.base}` : ""}</h4>
-          <ol className="cl-story">{lane.story.map((d) => <StoryDay key={`${d.date}:${d.step}`} d={d} laneNote={lane.note} isCurrent={d === lane.current} />)}</ol>
+          <ol className="cl-story">{lane.story.map((d) => <StoryDay key={`${d.date}:${d.step}`} d={d} laneNote={lane.note} isCurrent={lane.current?.date === d.date} />)}</ol>
         </section>
       ) : null}
 
