@@ -1,128 +1,148 @@
-/* ONE CHALLENGE LANE (BBM V2, SPEC §4–5): the same facts as the lane's X graphic, from the engine's public projection.
-   STEP k OF N, the ladder meter (completed / active / failed / upcoming rungs), the starting, tracked and target
-   bankrolls kept visually distinct, the money block (payout and profit never print a number until founder decision
-   P1), the day's frozen legs with MODEL PROJECTION and results, the day-by-day history, and the graphic history.
-   Renders only what the accepted file says. */
+/* ONE CHALLENGE LANE (BBM V2, SPEC rev 2 §5–6): the website twin of the lane's X graphic, from the engine's public
+   projection. Same visual language: product + lane chip, STEP k OF N hero, the lit ladder (completed / active / failed /
+   upcoming, milestones under each rung), start / tracked / goal boxes, pace and distance to target, leg cards with team
+   marks and MODEL WIN PROBABILITY, the money row (payout never a number before the price-source decision), then the
+   lane's whole story, its runs and its graphics. The ladder lights up once on load; prefers-reduced-motion stills it. */
+import type { CSSProperties } from "react";
+
 export type LaneLeg = {
-  legId: string; gameId: string; game: string; selection: string; teamAbbr: string | null;
-  projectionLabel: string; projection: string | null; flags: string[]; outcome: string | null;
+  n: number; legId: string; gameId: string; game: string; market: string | null; prop: boolean;
+  selection: string; teamAbbr: string | null; team: { name: string | null; color: string; ink: string | null } | null;
+  matchup: string | null; time: string | null; projectionLabel: string; projection: string | null; flags: string[]; outcome: string | null;
 };
 export type LaneDay = {
-  date: string; step: number; status: string | null; statusText: string; reason: string | null; staked: boolean;
-  card: { legs: LaneLeg[] } | null; modelCardResult: string | null; stepOutcome: string | null;
+  date: string; step: number; internalStatus: string | null; statusText: string; tone: string; reason: string | null; staked: boolean;
+  legs: LaneLeg[]; hasCard: boolean; modelCardResult: string | null; stepOutcome: string | null; result: string | null;
 };
 export type LaneView = {
   laneId: string; product: string; letter: string; name: string; runId: string | null; runNumber: number; startedAt: string | null;
-  step: number | null; steps: number; status: string; statusLabel: string; statusGlyph: string; note: string | null;
-  base: string | null; target: string | null; tracked: string | null; wager: string | null;
-  potentialPayout: string; potentialProfit: string; label: string;
-  rungs: Array<{ step: number; state: string }>;
-  today: LaneDay | null;
-  history: LaneDay[];
+  step: number | null; steps: number; cleared: number; status: string; statusLabel: string; statusGlyph: string; tone: string;
+  internalStatus: string | null; note: string | null;
+  base: string | null; target: string | null; tracked: string | null; toTarget: string | null; wager: string | null;
+  potentialPayout: string; potentialProfit: string; pace: { state: string; text: string } | null; milestoneSource: string | null; label: string;
+  rungs: Array<{ step: number; state: string; milestone: string | null }>;
+  current: LaneDay | null;
+  story: LaneDay[];
   graphics: Array<{ date: string; step: number; packageId: string | null; imageSha256: string | null; imagePath: string | null; approved: boolean; postUrl: string | null; postedAt: string | null }>;
-  earlierRuns: Array<{ runId: string; startedAt: string | null; status: string }>;
+  runs: Array<{ runId: string; number: number; started: string | null; status: string; stepsWon: number; current: boolean }>;
 };
 
 const RUNG_TEXT: Record<string, string> = { completed: "won", active: "current", failed: "lost", upcoming: "to come" };
 const OUTCOME_TEXT: Record<string, string> = { WIN: "Won", LOSS: "Lost", VOID: "Void", PUSH: "Push" };
 
-function Legs({ legs }: { legs: LaneLeg[] }) {
+function LegCard({ l }: { l: LaneLeg }) {
+  const style = l.team ? ({ "--cl-team": l.team.color, "--cl-team-ink": l.team.ink ?? "var(--vault-text)" } as CSSProperties) : undefined;
   return (
-    <ol className="cl-legs">
-      {legs.map((l) => (
-        <li key={l.legId} className="cl-leg" data-lane-leg={l.gameId} data-leg-outcome={l.outcome ?? "open"}>
-          <div className="cl-leg-main">
-            <span className="cl-leg-pick">{l.selection}</span>
-            <span className="cl-leg-game">{l.game}</span>
-          </div>
-          <div className="cl-leg-side">
-            <span className="cl-leg-proj"><span className="cl-label">{l.projectionLabel}</span> {l.projection ?? "—"}</span>
-            <span className={`cl-outcome cl-outcome--${(l.outcome ?? "open").toLowerCase()}`}>{l.outcome ? OUTCOME_TEXT[l.outcome] ?? l.outcome : "Not settled"}</span>
-          </div>
-          {l.flags.length ? <p className="cl-leg-flag"><span aria-hidden>⚑</span> {l.flags.join(" ")}</p> : null}
-        </li>
-      ))}
-    </ol>
+    <li className={`cl-leg${l.team ? " cl-leg--team" : ""}`} style={style} data-lane-leg={l.gameId} data-leg-outcome={l.outcome ?? "open"}>
+      <span className="cl-leg-n" aria-hidden>{l.n}</span>
+      <div className="cl-leg-main">
+        <span className="cl-leg-name">{l.team?.name ?? l.selection}</span>
+        <span className="cl-leg-meta">
+          {l.teamAbbr ? <span className="cl-team-chip">{l.teamAbbr}</span> : null}
+          <span>{[l.matchup, l.time].filter(Boolean).join(" · ")}</span>
+        </span>
+        {l.flags.length ? <span className="cl-leg-flag"><span className="cl-flag-chip">Flag</span> {l.flags.join(" ")}</span> : null}
+      </div>
+      <div className="cl-leg-side">
+        <span className="cl-label cl-label--accent">{l.projectionLabel}</span>
+        <span className="cl-leg-pct">{l.projection ?? "—"}</span>
+        <span className={`cl-outcome cl-outcome--${(l.outcome ?? "open").toLowerCase()}`}>{l.outcome ? OUTCOME_TEXT[l.outcome] ?? l.outcome : l.prop ? "" : "to win"}</span>
+      </div>
+    </li>
   );
 }
 
-/* What the day did to the lane, in one sentence. A card that was never staked cannot move the lane, win or lose. */
-function dayResult(d: LaneDay): string | null {
-  if (d.stepOutcome) return d.stepOutcome === "WIN" ? `Step ${d.step} won.` : d.stepOutcome === "LOSS" ? `Step ${d.step} lost.` : `Step ${d.step}: ${d.stepOutcome}.`;
-  if (d.card && !d.staked && d.modelCardResult && d.modelCardResult !== "PENDING") {
-    return `The model card ${d.modelCardResult === "WIN" ? "won" : "lost"}, but it was not staked, so the lane did not move.`;
-  }
-  return null;
-}
-
-function Day({ d, current, laneNote }: { d: LaneDay; current?: boolean; laneNote?: string | null }) {
-  const result = dayResult(d);
-  const body = (
-    <>
-      {d.reason && d.reason !== laneNote ? <p className="cl-day-reason">{d.reason}</p> : null}
-      {d.card ? <Legs legs={d.card.legs} /> : null}
-      {result ? <p className="cl-day-result" data-day-result="">{result}</p> : null}
-    </>
-  );
-  if (current) {
-    return (
-      <section className="cl-block" aria-label={`Latest day, ${d.date}`} data-lane-day={d.date}>
-        <h4 className="cl-block-title">{d.date} · step {d.step} · {d.statusText}</h4>
-        {body}
-      </section>
-    );
-  }
+function StoryDay({ d, laneNote, isCurrent }: { d: LaneDay; laneNote: string | null; isCurrent: boolean }) {
   return (
-    <details className="cl-settled" data-lane-day={d.date}>
-      <summary className="cl-settled-summary"><span>{d.date} · step {d.step} · <strong>{d.statusText}</strong></span></summary>
-      <div className="cl-day-body">{body}</div>
-    </details>
+    <li className={`cl-story-day cl-story-day--${d.tone}`} data-lane-day={d.date}>
+      <span className="cl-story-dot" aria-hidden />
+      <details className="cl-story-fold" open={d.stepOutcome != null || undefined}>
+        <summary className="cl-story-summary">
+          <span><strong>{d.date}</strong> · step {d.step} · {d.statusText}</span>
+        </summary>
+        <div className="cl-story-body">
+          {d.reason && d.reason !== laneNote ? <p className="cl-day-reason">{d.reason}</p> : null}
+          {d.legs.length && isCurrent ? <p className="cl-day-reason">The selections above.</p> : d.legs.length ? <ol className="cl-legs cl-legs--compact">{d.legs.map((l) => <LegCard key={l.legId} l={l} />)}</ol> : null}
+          {d.result ? <p className="cl-day-result" data-day-result="">{d.result}</p> : null}
+        </div>
+      </details>
+    </li>
   );
 }
 
 export default function LaneCard({ lane }: { lane: LaneView }) {
   const moon = lane.product === "moonshot";
   const headingId = `lane-${lane.laneId}-h`;
+  const legs = lane.current?.legs ?? [];
   return (
-    <article className={`cl-lane ${moon ? "cl-lane--moonshot" : "cl-lane--bank"}`} aria-labelledby={headingId} data-lane={lane.laneId} data-lane-status={lane.status}>
+    <article className={`cl-lane ${moon ? "cl-lane--moonshot" : "cl-lane--bank"} cl-lane--${lane.tone}`} aria-labelledby={headingId} data-lane={lane.laneId} data-lane-status={lane.status}>
       <header className="cl-lane-head">
-        <h3 id={headingId} className="cl-lane-name">{lane.name}{lane.runId ? <span className="cl-lane-run"> · {lane.runId}</span> : null}</h3>
-        <span className={`cl-status cl-status--${lane.status}`} data-lane-status-badge="">
+        <h3 id={headingId} className="cl-lane-title">
+          <span className="cl-product">{moon ? "Moonshot" : "Bank Builder"}</span>
+          <span className="cl-lane-chip">{lane.name}</span>
+          {lane.runId ? <span className="cl-lane-run">{lane.runId}</span> : null}
+        </h3>
+        <span className={`cl-status cl-status--${lane.tone}`} data-lane-status-badge="">
           <span aria-hidden>{lane.statusGlyph}</span> {lane.statusLabel}
         </span>
       </header>
 
       <p className="cl-step" data-lane-step="">
-        {lane.step ? <>STEP {lane.step} <span className="cl-step-of">OF {lane.steps}</span></> : <>{lane.steps} STEPS</>}
+        {lane.step ? <>STEP <span className="cl-step-k">{lane.step}</span> OF {lane.steps}</> : <>{lane.steps} STEPS</>}
       </p>
+      <p className="cl-sub">{legs.length ? `${legs.length} legs · ` : ""}{lane.cleared} of {lane.steps} steps cleared</p>
       {lane.note ? <p className="cl-note">{lane.note}</p> : null}
 
-      <div className="cl-meter" role="img" aria-label={`Ladder: ${lane.rungs.map((r) => `step ${r.step} ${RUNG_TEXT[r.state]}`).join(", ")}`} data-lane-meter="">
-        <span className="cl-meter-end cl-meter-end--base"><span className="cl-label">Start</span> {lane.base}</span>
+      <div className="cl-ladder" role="img" aria-label={`Ladder: ${lane.rungs.map((r) => `step ${r.step} ${RUNG_TEXT[r.state]}${r.milestone ? `, milestone ${r.milestone}` : ""}`).join("; ")}`} data-lane-meter="">
         <ol className="cl-rungs" aria-hidden>
-          {lane.rungs.map((r) => (
-            <li key={r.step} className={`cl-rung cl-rung--${r.state}`} data-rung-state={r.state}>
-              <span className="cl-rung-num">{r.state === "failed" ? "✕" : r.state === "completed" ? "✓" : r.step}</span>
+          {lane.rungs.map((r, i) => (
+            <li key={r.step} className={`cl-rung cl-rung--${r.state}`} data-rung-state={r.state} style={{ "--i": i } as CSSProperties}>
+              <span className="cl-rung-dot">{r.state === "failed" ? "✕" : r.state === "completed" ? "✓" : r.step}</span>
+              <span className="cl-rung-label">Step {r.step}</span>
+              {r.milestone ? <span className="cl-rung-milestone">{r.milestone}</span> : null}
             </li>
           ))}
         </ol>
-        <span className="cl-meter-end cl-meter-end--target"><span className="cl-label">Goal</span> {lane.target}</span>
       </div>
 
+      <dl className="cl-bank" data-lane-bank="">
+        <div className="cl-bank-box cl-bank--start"><dt>Start</dt><dd>{lane.base}</dd></div>
+        <div className="cl-bank-box cl-bank--tracked"><dt>Tracked bankroll · settled</dt><dd className={lane.tracked && !lane.tracked.startsWith("$") ? "cl-bank-pending" : undefined}>{lane.tracked ?? "—"}</dd></div>
+        <div className="cl-bank-box cl-bank--goal"><dt>Goal · hypothetical</dt><dd>{lane.target}</dd></div>
+      </dl>
+      {lane.pace || lane.toTarget ? (
+        <p className={`cl-pace cl-pace--${lane.pace?.state ?? "none"}`} data-lane-pace="">
+          {[lane.pace?.text, lane.toTarget ? `${lane.toTarget} to the goal` : null].filter(Boolean).join(" · ")}
+        </p>
+      ) : null}
+
+      {legs.length ? (
+        <section className="cl-block" aria-label={`${lane.name} step ${lane.current?.step} selections`}>
+          <h4 className="cl-block-title">Step {lane.current?.step} selections · frozen {lane.current?.date}</h4>
+          <ol className="cl-legs">{legs.map((l) => <LegCard key={l.legId} l={l} />)}</ol>
+        </section>
+      ) : null}
+
       <dl className="cl-money" data-lane-money="">
-        <div className="cl-money-cell cl-money--tracked"><dt>Tracked bankroll</dt><dd>{lane.tracked ?? "—"}</dd></div>
         <div className="cl-money-cell"><dt>Wager</dt><dd>{lane.wager ?? "—"}</dd></div>
-        <div className="cl-money-cell cl-money--pending"><dt>Potential payout</dt><dd data-lane-unpriced="">{lane.potentialPayout}</dd></div>
-        <div className="cl-money-cell cl-money--pending"><dt>Potential profit</dt><dd data-lane-unpriced="">{lane.potentialProfit}</dd></div>
-        <div className="cl-money-cell cl-money--goal"><dt>Ladder progress</dt><dd>{lane.step ? `Step ${lane.step} of ${lane.steps} · goal ${lane.target}` : `Goal ${lane.target}`}</dd></div>
+        <div className="cl-money-cell cl-money--pending"><dt>Potential payout · profit</dt><dd data-lane-unpriced="">{lane.potentialPayout}</dd></div>
+        <div className="cl-money-cell"><dt>Ladder progress</dt><dd>{lane.cleared} of {lane.steps}<span className="cl-money-sub">steps cleared</span></dd></div>
       </dl>
 
-      {lane.today ? <Day d={lane.today} current laneNote={lane.note} /> : null}
+      {lane.story.length ? (
+        <section className="cl-block" aria-label={`${lane.name} story`}>
+          <h4 className="cl-block-title">The story so far{lane.startedAt ? ` · started ${lane.startedAt} at ${lane.base}` : ""}</h4>
+          <ol className="cl-story">{lane.story.map((d) => <StoryDay key={`${d.date}:${d.step}`} d={d} laneNote={lane.note} isCurrent={d === lane.current} />)}</ol>
+        </section>
+      ) : null}
 
-      {lane.history.length ? (
-        <section className="cl-block" aria-label={`${lane.name} history`}>
-          <h4 className="cl-block-title">Earlier days</h4>
-          {lane.history.map((d) => <Day key={`${d.date}:${d.step}`} d={d} />)}
+      {lane.runs.length > 1 ? (
+        <section className="cl-block" aria-label={`${lane.name} runs`}>
+          <h4 className="cl-block-title">Runs</h4>
+          <ol className="cl-runs">
+            {lane.runs.map((r) => <li key={r.runId}><strong>{r.runId}</strong> · started {r.started ?? "—"} · {r.stepsWon} won · {r.current ? "current" : r.status}</li>)}
+          </ol>
+          <p className="cl-day-reason">A lane is never reset quietly: every new run followed a founder-approved restart.</p>
         </section>
       ) : null}
 
@@ -143,9 +163,6 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
         ) : <p className="cl-day-reason">No graphic has been posted for this run yet.</p>}
       </section>
 
-      {lane.earlierRuns.length ? (
-        <p className="cl-runs">Earlier runs: {lane.earlierRuns.map((r) => r.runId).join(", ")}. A lane is never reset quietly; each restart was founder-approved.</p>
-      ) : null}
       <p className="cl-fact">{lane.label}</p>
     </article>
   );

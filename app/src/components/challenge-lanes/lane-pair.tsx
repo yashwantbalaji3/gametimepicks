@@ -11,8 +11,8 @@ export default function LanePair({ product, lanes }: { product: "bank-builder" |
         <h2 id="challenge-lanes-h" className="tb-section-title">The {name} challenge · lanes A and B</h2>
       </div>
       <p className="cl-intro">
-        Two independent lanes, each {goal}. Every step is one frozen card; only a settled win moves a lane up. Payouts
-        show once prices are verified; until then they read &ldquo;awaiting verified prices&rdquo;.
+        Two independent lanes, each {goal}. Every step is one frozen card, and only a settled win moves a lane up; one
+        lane&rsquo;s result never moves the other. Payouts show once prices are verified.
       </p>
       <div className="cl-pair">
         {lanes.map((l) => <LaneCard key={l.laneId} lane={l} />)}
