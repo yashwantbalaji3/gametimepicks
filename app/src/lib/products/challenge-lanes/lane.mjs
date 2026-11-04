@@ -208,11 +208,14 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
   const p = d.pace;
   const pp = current?.price;
   /* Pace means nothing once a lane is lost: it is not shown. A priced card states its multiple against the pace. */
+  /* PACE (founder 2026-11-04): the engine's pace flag verbatim — "BELOW PACE" when it is set, and never an "on pace"
+     claim anywhere on the lane (the card's own multiple and the next milestone say the rest). */
+  const milestone = p?.nextMilestoneCents ? ` · next milestone ${money(p.nextMilestoneCents)}` : "";
   const pace = !p || d.status === "LOST" ? null
-    : pp?.requiredMultiple && pp.decimal ? { state: pp.belowPace ? "behind" : "on", text: `This card ${pp.decimal.toFixed(2)}× · pace needs ${pp.requiredMultiple.toFixed(2)}×${pp.belowPace ? " · below pace, disclosed" : ""}${p.nextMilestoneCents ? ` · next milestone ${money(p.nextMilestoneCents)}` : ""}` }
+    : pp?.requiredMultiple && pp.decimal ? { state: pp.belowPace ? "behind" : "on", text: `${pp.belowPace ? "BELOW PACE · " : ""}This card ${pp.decimal.toFixed(2)}× · pace needs ${pp.requiredMultiple.toFixed(2)}×${milestone}` }
     : p.state === "withheld" ? { state: "withheld", text: "Pace: awaiting verified prices" }
-    : p.state === "on" ? { state: "on", text: `On pace${p.nextMilestoneCents ? ` · next milestone ${money(p.nextMilestoneCents)}` : ""}` }
-    : { state: "behind", text: `Behind pace by ${money(p.behindCents)}${p.nextMilestoneCents ? ` · next milestone ${money(p.nextMilestoneCents)}` : ""}` };
+    : p.state === "behind" ? { state: "behind", text: `BELOW PACE by ${money(p.behindCents)}${milestone}` }
+    : milestone ? { state: "on", text: milestone.slice(3).replace(/^n/, "N") } : null;
   const receipts = d.history.flatMap((x) => x.receipts ?? []);
   const graphics = receipts.filter((r) => r.type === "GRAPHIC_RENDERED").map((g) => {
     const same = (r) => (r.packageId ?? null) === (g.packageId ?? null) && r.date === g.date;
