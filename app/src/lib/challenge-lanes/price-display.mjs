@@ -76,4 +76,4 @@ export function readLanePrices({ appDir = process.cwd(), laneId, env = process.e
 }
 
 /** Prices may appear on a social graphic only when the display record authorizes NBA "social" (off today). */
-export const socialPricesAuthorized = (record) => displayAuthorization("nba", "social", ...(record ? [record] : []));
+export const socialPricesAuthorized = (record) => displayAuthorization("nba", "challengeGraphics", ...(record ? [record] : []));

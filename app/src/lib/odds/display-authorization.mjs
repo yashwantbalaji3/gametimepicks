@@ -65,7 +65,15 @@ function qualified(evidence, approvedBy, approvedAt) {
 export const ODDS_API_TERMS_REF = "docs/odds/ODDS_API_DISPLAY_TERMS_2026-10-29.md";
 
 /** Surface → the record field that switches it. Unknown surfaces refuse. */
-export const DISPLAY_SURFACE_FIELD = Object.freeze({ site: "siteDisplay", social: "socialDisplay", socialPrices: "socialFeedPrices" });
+export const DISPLAY_SURFACE_FIELD = Object.freeze({ site: "siteDisplay", social: "socialDisplay", socialPrices: "socialFeedPrices", challengeGraphics: "challengeGraphicsPrices" });
+
+/**
+ * CHALLENGE GRAPHICS (founder 2026-11-04): selected verified prices, lines, combined prices, wagers and payouts rendered
+ * INTO the Bank Builder & Moonshot V2 challenge-lane images only. It is its own switch, not "social". The social switch
+ * also opens the public social JSON feed, which is a data feed under the provider's redistribution clause and stays off.
+ * It needs its own terms record and approval date.
+ */
+export const ODDS_API_CHALLENGE_GRAPHICS_TERMS_REF = "docs/odds/ODDS_API_CHALLENGE_GRAPHICS_TERMS_2026-11-04.md";
 
 /** Provenance fields every authorized record must carry (non-blank strings; approvedAt a real YYYY-MM-DD date). */
 export const DISPLAY_AUTHORIZATION_REQUIRED = Object.freeze(["providerTermsRef", "approvedBy", "approvedAt"]);
@@ -96,6 +104,11 @@ export const DISPLAY_AUTHORIZATION = Object.freeze({
     // confirmation, referenced here, before it may be true.
     socialFeedPrices: false,
     socialFeedPricesConfirmationRef: null,
+    // Prices rendered into the Bank Builder & Moonshot V2 challenge-lane images only (founder 2026-11-04). The social
+    // feed stays off.
+    challengeGraphicsPrices: true,
+    challengeGraphicsTermsRef: ODDS_API_CHALLENGE_GRAPHICS_TERMS_REF,
+    challengeGraphicsApprovedAt: "2026-11-04",
     // Which statistics may show a public direction (see the header). Evidence: NBA v0.1 graded official above-median
     // shares, 54 games / 910 graded played rows per family (founder message 2026-10-29); approved rule [0.45, 0.55], n ≥ 300.
     directionQualified: Object.freeze({
@@ -119,6 +132,9 @@ export const DISPLAY_AUTHORIZATION = Object.freeze({
     approvedAt: "2026-10-29",
     socialFeedPrices: false,
     socialFeedPricesConfirmationRef: null,
+    challengeGraphicsPrices: false,
+    challengeGraphicsTermsRef: null,
+    challengeGraphicsApprovedAt: null,
     // Over/under families only (anytime touchdown is a yes/no market and never carries a direction). All unqualified
     // under the approved [0.45, 0.55] / n ≥ 300 rule.
     directionQualified: Object.freeze({
@@ -148,15 +164,24 @@ export function displayAuthorization(sport, surface, record = DISPLAY_AUTHORIZAT
   const reasons = [];
   const e = record && Object.prototype.hasOwnProperty.call(record, sport) ? record[sport] : null;
   const field = Object.prototype.hasOwnProperty.call(DISPLAY_SURFACE_FIELD, surface) ? DISPLAY_SURFACE_FIELD[surface] : null;
-  if (!field) reasons.push(`unknown display surface ${JSON.stringify(surface)} (site | social | socialPrices)`);
+  if (!field) reasons.push(`unknown display surface ${JSON.stringify(surface)} (site | social | socialPrices | challengeGraphics)`);
   if (!e || typeof e !== "object") reasons.push(`no display authorization record for ${JSON.stringify(sport)}`);
   else {
-    for (const f of Object.values(DISPLAY_SURFACE_FIELD)) if (typeof e[f] !== "boolean") reasons.push(`${f} must be true or false (got ${JSON.stringify(e[f] ?? null)})`);
+    // challengeGraphicsPrices (2026-11-04) may be absent from older records; absent reads as off.
+    for (const f of Object.values(DISPLAY_SURFACE_FIELD)) {
+      if (f === "challengeGraphicsPrices" && e[f] === undefined) continue;
+      if (typeof e[f] !== "boolean") reasons.push(`${f} must be true or false (got ${JSON.stringify(e[f] ?? null)})`);
+    }
     if (field && e[field] !== true) reasons.push(`${field} is not true: ${NOT_AUTHORIZED_REASON[sport] ?? "display is not authorized"}`);
     // Prices in the social feed ride on the social surface and on the provider's written confirmation.
     if (surface === "socialPrices") {
       if (e.socialDisplay !== true) reasons.push("socialDisplay is not true (feed prices need the social surface first)");
       if (blank(e.socialFeedPricesConfirmationRef)) reasons.push("socialFeedPricesConfirmationRef is missing (written provider confirmation that a price feed is permitted)");
+    }
+    // Challenge-lane graphics carry their own terms record and approval date (2026-11-04), independent of "social".
+    if (surface === "challengeGraphics") {
+      if (blank(e.challengeGraphicsTermsRef)) reasons.push("challengeGraphicsTermsRef is missing (the committed terms review for challenge-lane graphics)");
+      if (!isDate(e.challengeGraphicsApprovedAt)) reasons.push(`challengeGraphicsApprovedAt must be a YYYY-MM-DD date (got ${JSON.stringify(e.challengeGraphicsApprovedAt ?? null)})`);
     }
     for (const f of DISPLAY_AUTHORIZATION_REQUIRED) if (blank(e[f])) reasons.push(`${f} is missing`);
     if (!blank(e.approvedAt) && !isDate(e.approvedAt)) reasons.push(`approvedAt must be a YYYY-MM-DD date (got ${JSON.stringify(e.approvedAt)})`);
