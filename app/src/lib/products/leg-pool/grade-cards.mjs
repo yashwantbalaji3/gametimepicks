@@ -9,6 +9,7 @@
  * Paper only: no stake, no payout, no ROI — there is no price.
  */
 import { finalFor } from "../../sports/nba/finals-record.mjs";
+import { verifySuggestedCards } from "./daily-cards.mjs";
 
 export const GRADE_SCHEMA = "gtp.suggested-cards.grade@1";
 
@@ -28,10 +29,11 @@ export function gradeCard(card, finals) {
 
 /** Every card in the file: Bank Builder, Moonshot and each parlay tier, NBA-only and cross-sport. */
 export function gradeSuggestedCards(doc, finals) {
+  if (!verifySuggestedCards(doc)) throw new Error("gradeSuggestedCards: the file's content digest does not verify; refusing to grade an altered card file");
   const sections = [
     ...["nba", "cross"].flatMap((s) => [["bank-builder", s, doc.bankBuilder?.[s]], ["moonshot", s, doc.moonshot?.[s]]]),
     ...["nba", "cross"].flatMap((s) => (doc.parlays?.[s] ?? []).map((t) => [`parlay-${t.tier}`, s, t])),
   ];
   const cards = sections.filter(([, , x]) => x?.card).map(([product, scope, x]) => ({ product, scope, ...gradeCard(x.card, finals) }));
-  return { schema: GRADE_SCHEMA, productDay: doc.productDay, cards };
+  return { schema: GRADE_SCHEMA, productDay: doc.productDay, source: { schema: doc.schema, contentSha256: doc.contentSha256 }, cards };
 }

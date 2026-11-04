@@ -19,7 +19,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import { buildLegPool } from "../../src/lib/products/leg-pool/leg-pool.mjs";
-import { dailySuggestedCards } from "../../src/lib/products/leg-pool/daily-cards.mjs";
+import { dailySuggestedCards, sealSuggestedCards } from "../../src/lib/products/leg-pool/daily-cards.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -34,12 +34,13 @@ const PUBLIC_OUT = path.join(APP, "public", "data", "suggested-cards");
 const OUT = path.resolve(arg("--out", PUBLIC_OUT));
 if (process.argv.includes("--replay") && OUT === PUBLIC_OUT) { console.error("REFUSED: --replay writes a past day, never into the public record; pass --out DIR"); process.exit(2); }
 
-const doc = dailySuggestedCards(buildLegPool({ repoRoot: REPO, date: DATE, evaluatedAt: NOW }));
+let doc = dailySuggestedCards(buildLegPool({ repoRoot: REPO, date: DATE, evaluatedAt: NOW }));
 /* The input's git BLOB id (content-derived), not a commit: when this file rides the lane's own commit, that commit does not
    exist yet, and a re-run after it does must still write the same bytes. `git log --find-object=<gitBlob>` names the
    commit that introduced the input. */
 const blobOf = (rel) => { try { return execFileSync("git", ["hash-object", "--", rel], { cwd: REPO, encoding: "utf8" }).trim() || null; } catch { return null; } };
 for (const i of doc.inputs) i.gitBlob = blobOf(i.file);
+doc = sealSuggestedCards(doc); // last: the digest covers every field above
 const s = (x) => `${x.state}${x.card ? ` ${x.card.tier} ${x.card.legs.length}L ${x.card.jointShown}` : ""}`;
 console.log(`suggested cards ${DATE} @ ${NOW}`);
 for (const [k, v] of Object.entries(doc.sports)) console.log(`  ${k.padEnd(8)} ${v.state.padEnd(9)} legs ${v.legPool.eligible} (tierable ${v.legPool.tierable}, review ${v.legPool.review}) refused ${v.legPool.refused}${v.playerProjections ? ` · players pass ${v.playerProjections.pass} review ${v.playerProjections.review} blocked ${v.playerProjections.blocked}` : ""}`);

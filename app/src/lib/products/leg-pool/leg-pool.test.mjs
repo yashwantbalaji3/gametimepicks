@@ -5,6 +5,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildLegPool, laneFreshness, favouredAvailability } from "./leg-pool.mjs";
@@ -52,26 +53,39 @@ test("NBA parlay tiers and Moonshot equal the shared engine on the same legs (on
   for (const t of ref.tiers) assert.equal(ids(D.parlays.nba.find((x) => x.tier === t.tier).card), ids(t.card), t.tier);
   assert.equal(ids(D.moonshot.nba.card), ids(ref.moonshot.card));
   // the 06:01Z production build recorded these for Nov 2 (data/internal/products/level-a/suggestions.jsonl)
-  assert.equal(D.bankBuilder.nba.card.jointProbability, 0.6632);
+  assert.equal(dailySuggestedCards(P, { bankBuilderExcludesFlagged: false }).bankBuilder.nba.card.jointProbability, 0.6632, "rule A off = the production pick");
   assert.equal(D.moonshot.nba.card.jointShown, "14.27%");
 });
 
-test("option (a) off by default: Bank Builder selects as the live page; on: it never uses a flagged leg", () => {
+test("rule A ON (founder 2026-11-03): Bank Builder never uses a flagged leg and re-picks among the others; off: as the live page", () => {
   const review = new Set(P.nbaLegs.filter((l) => l.guard.state === "review").map((l) => l.legId));
-  assert.ok(review.size > 0, "Nov 2 has Day-To-Day rotation players on favoured teams");
+  assert.ok(review.size > 0, "Nov 2 has favourites missing season rotation players");
+  assert.equal(D.options.bankBuilderExcludesFlagged, true);
+  for (const l of D.bankBuilder.nba.card.legs) assert.ok(!review.has(l.legId));
+  assert.deepEqual(D.bankBuilder.nba.card.legs.map((l) => l.selection.teamAbbr).sort(), ["DEN", "NY"], "Nov 2: NY + DEN once ORL and MIN are excluded");
   const ref = nbaGameWinnerTiers({ legs: P.nbaLegs.map((l) => l.leg), accessor: P.accessor, receiptOf: P.receiptOf, enabled: true });
-  assert.equal(D.options.bankBuilderExcludesFlagged, false);
-  assert.deepEqual(D.bankBuilder.nba.card.legs.map((l) => l.eventId), ref.bankBuilder.card.legs.map((l) => String(l.eventId)));
-  const on = dailySuggestedCards(P, { bankBuilderExcludesFlagged: true });
-  for (const l of on.bankBuilder.nba.card.legs) assert.ok(!review.has(l.legId));
+  const off = dailySuggestedCards(P, { bankBuilderExcludesFlagged: false });
+  assert.deepEqual(off.bankBuilder.nba.card.legs.map((l) => l.eventId), ref.bankBuilder.card.legs.map((l) => String(l.eventId)));
   const flagged = [...D.parlays.nba.map((t) => t.card), D.moonshot.nba.card].filter(Boolean).flatMap((c) => c.legs).filter((l) => review.has(l.legId));
   for (const l of flagged) assert.ok(l.guard.flags.some((f) => f === "FAVOURED_ROTATION_OUT" || f === "FAVOURED_ROTATION_R1"));
 });
 
-test("option (b) off by default: nothing reads the frozen file", async () => {
+test("rule B ON: pages, grader and social read only a sealed file whose content digest verifies", async () => {
   const { loadFrozenDailyCards, FROZEN_DAILY_CARDS_PUBLIC } = await import("./page-source.mjs");
-  assert.equal(FROZEN_DAILY_CARDS_PUBLIC, false);
-  assert.equal(loadFrozenDailyCards({ appDir: path.join(REPO, "app"), date: DATE, enabled: false }), null);
+  const { sealSuggestedCards, verifySuggestedCards } = await import("./daily-cards.mjs");
+  assert.equal(FROZEN_DAILY_CARDS_PUBLIC, true);
+  const sealed = sealSuggestedCards(D);
+  assert.ok(verifySuggestedCards(sealed));
+  assert.equal(sealSuggestedCards(sealed).contentSha256, sealed.contentSha256, "sealing is idempotent");
+  assert.ok(!verifySuggestedCards({ ...sealed, bankBuilder: { ...sealed.bankBuilder, nba: { ...sealed.bankBuilder.nba, card: null } } }), "an altered file fails");
+  assert.ok(!verifySuggestedCards(D), "an unsealed file fails");
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "cards-"));
+  fs.mkdirSync(path.join(tmp, "public/data/suggested-cards"), { recursive: true });
+  fs.writeFileSync(path.join(tmp, `public/data/suggested-cards/${DATE}.json`), JSON.stringify(sealed));
+  assert.equal(loadFrozenDailyCards({ appDir: tmp, date: DATE })?.contentSha256, sealed.contentSha256);
+  fs.writeFileSync(path.join(tmp, `public/data/suggested-cards/${DATE}.json`), JSON.stringify({ ...sealed, label: "edited" }));
+  assert.equal(loadFrozenDailyCards({ appDir: tmp, date: DATE }), null, "a tampered file is refused");
+  assert.equal(loadFrozenDailyCards({ appDir: tmp, date: "2026-11-05" }), null, "no file for the day: the page's fallback");
 });
 
 test("availability context: an Out season-rotation player and a Day-To-Day one flag the side; Out players are listed", () => {
@@ -134,14 +148,17 @@ test("NFL and UFC are closed on the Level A axis and contribute nothing", () => 
 
 test("grading reads the same file: a missing final is PENDING (never a loss), one lost leg loses the card", async () => {
   const { gradeSuggestedCards } = await import("./grade-cards.mjs");
-  const card = D.bankBuilder.nba.card;
+  const { sealSuggestedCards } = await import("./daily-cards.mjs");
+  assert.throws(() => gradeSuggestedCards(D, { finals: [] }), /does not verify/, "an unsealed file is never graded");
+  const S = sealSuggestedCards(D);
+  const card = S.bankBuilder.nba.card;
   const [a, b] = card.legs;
   const row = (l, won) => ({ providerEventId: l.eventId, winnerSide: won ? l.selection.code : l.selection.code === "home" ? "away" : "home", ftHome: 1, ftAway: 0, home: { tricode: "H" }, away: { tricode: "A" } });
-  const g0 = gradeSuggestedCards(D, { finals: [] }).cards.find((c) => c.product === "bank-builder");
+  const g0 = gradeSuggestedCards(S, { finals: [] }).cards.find((c) => c.product === "bank-builder");
   assert.equal(g0.state, "PENDING");
-  assert.equal(gradeSuggestedCards(D, { finals: [row(a, true), row(b, true)] }).cards.find((c) => c.product === "bank-builder").state, "WIN");
-  assert.equal(gradeSuggestedCards(D, { finals: [row(a, false)] }).cards.find((c) => c.product === "bank-builder").state, "LOSS");
-  assert.equal(gradeSuggestedCards(D, { finals: [row(a, true)], conflicts: [{ providerEventId: b.eventId }] }).cards.find((c) => c.product === "bank-builder").state, "PENDING");
+  assert.equal(gradeSuggestedCards(S, { finals: [row(a, true), row(b, true)] }).cards.find((c) => c.product === "bank-builder").state, "WIN");
+  assert.equal(gradeSuggestedCards(S, { finals: [row(a, false)] }).cards.find((c) => c.product === "bank-builder").state, "LOSS");
+  assert.equal(gradeSuggestedCards(S, { finals: [row(a, true)], conflicts: [{ providerEventId: b.eventId }] }).cards.find((c) => c.product === "bank-builder").state, "PENDING");
 });
 
 test("NBA legs are game winners only, said in the file; each side names its team", () => {
@@ -183,4 +200,29 @@ test("our own card text uses MODEL PROJECTION wording, never estimate / est. / p
     for (const t of [c.rationale, c.confidence]) { assert.doesNotMatch(t, /estimate|\best\.|projected median/i); assert.match(t, /MODEL PROJECTION/); }
   }
   for (const m of D.methodologyDependencies) assert.doesNotMatch(m.effect, /estimate|\best\.|projected median/i);
+});
+
+test("NFL reader: the official forecast as of the instant, one product day, held back while both founder rules are pending", async () => {
+  const { nflPoolCandidates, gradeNflWinner, NFL_FORECAST_OF_RECORD, NFL_TIE_RULE } = await import("./nfl-reader.mjs");
+  assert.equal(NFL_FORECAST_OF_RECORD, "PENDING"); assert.equal(NFL_TIE_RULE, "PENDING");
+  const c = nflPoolCandidates({ repoRoot: REPO, date: "2026-11-08", evaluatedAt: "2026-11-03T18:00:00Z" });
+  assert.equal(c.input.file, "app/public/data/nfl/forecasts/2026-11-03.json", "the newest file generated at or before the instant");
+  assert.equal(c.legs.length, 0, "no NFL leg while the rules are pending (and the registry is CLOSED)");
+  assert.ok(c.refused.length >= 10);
+  for (const r of c.refused) {
+    assert.ok(r.reasons.includes("RULE_PENDING:FORECAST_OF_RECORD") && r.reasons.includes("RULE_PENDING:TIE_RULE"));
+    assert.equal(r.market, "winner"); assert.ok(r.probability > 0.5 && r.probability < 1); assert.ok(r.tieMass > 0);
+    assert.ok(r.forecast.stampedAt < r.startUtc);
+  }
+  assert.equal(c.wouldQualify, c.refused.length, "every Nov 8 game fails only on the pending decisions");
+  const pool = buildLegPool({ repoRoot: REPO, date: "2026-11-08", evaluatedAt: "2026-11-03T18:00:00Z", lane: null, sources: { selections: [], nbaProjections: [] } });
+  assert.equal(pool.sports.nfl.state, "closed");
+  assert.deepEqual(pool.sports.nfl.pendingRules, ["forecastOfRecord", "tieRule"]);
+  assert.equal(pool.sports.nfl.wouldQualify, c.wouldQualify);
+  const leg = { legId: "x", selection: { code: "home" } };
+  assert.equal(gradeNflWinner(leg, { state: "FINAL", homeScore: 20, awayScore: 20 }).state, "PENDING_RULE");
+  assert.equal(gradeNflWinner(leg, { state: "FINAL", homeScore: 20, awayScore: 20 }, "LOSS").state, "LOSS");
+  assert.equal(gradeNflWinner(leg, { state: "FINAL", homeScore: 20, awayScore: 20 }, "VOID").state, "VOID");
+  assert.equal(gradeNflWinner(leg, { state: "FINAL", homeScore: 24, awayScore: 20 }).state, "WIN");
+  assert.equal(gradeNflWinner(leg, null).state, "PENDING");
 });

@@ -35,6 +35,7 @@ import { levelASuggestions, productDayOf } from "../level-a/suggestions.mjs";
 import { nbaGameWinnerDisplay } from "../level-a/nba-game-winner-source.mjs";
 import { MODEL_SUGGESTION_CAPABILITIES } from "../../sport-capability-registry.ts";
 import { loadSeasonBoxscores, seasonHistory, playerGuard, GUARD_TEXT } from "./nba-guard.mjs";
+import { nflPoolCandidates } from "./nfl-reader.mjs";
 
 export const LEG_POOL_VERSION = "leg-pool@1";
 export const LEG_STATUS = Object.freeze({ MODEL_ONLY: "MODEL_ONLY", PRICED: "PRICED" });
@@ -111,7 +112,7 @@ export function favouredAvailability(game, side, teamHistory = null) {
  * @param {{ repoRoot: string, date: string, evaluatedAt: string, sources?: object, lane?: object|null, boxscores?: object[], display?: object }} input
  *   `sources`, `lane`, `boxscores`, `display` replace the files read (tests pin committed inputs with them).
  */
-export function buildLegPool({ repoRoot, date, evaluatedAt, sources = null, lane = undefined, boxscores = null, display = null }) {
+export function buildLegPool({ repoRoot, date, evaluatedAt, sources = null, lane = undefined, boxscores = null, display = null, nfl = undefined }) {
   if (!Number.isFinite(Date.parse(evaluatedAt ?? ""))) throw new TypeError("buildLegPool: evaluatedAt must be an ISO instant");
   const laneRel = `app/public/data/nba/experimental-public/${date}.json`;
   const laneRaw = lane === undefined ? readRaw(path.join(repoRoot, laneRel)) : null;
@@ -179,6 +180,11 @@ export function buildLegPool({ repoRoot, date, evaluatedAt, sources = null, lane
   }
   for (const r of answer.refused.filter((x) => x.sport !== "nba" && !x.reasons.every((c) => c === "OTHER_PRODUCT_DAY"))) refused.push(r);
 
+  // ── NFL: the official game forecast, read but held back while its two founder rules are pending (nfl-reader.mjs) ──
+  const nflC = nfl !== undefined ? nfl : nflPoolCandidates({ repoRoot, date, evaluatedAt });
+  if (nflC?.input) inputs.push({ ...nflC.input, sha256: (() => { const raw = readRaw(path.join(repoRoot, nflC.input.file)); return raw ? sha256(raw) : null; })() });
+  for (const r of nflC?.refused ?? []) refused.push(r);
+
   // ── Per-sport status ──
   const sports = {};
   for (const cap of MODEL_SUGGESTION_CAPABILITIES) {
@@ -195,6 +201,11 @@ export function buildLegPool({ repoRoot, date, evaluatedAt, sources = null, lane
       events: new Set([...legs, ...ref].map((l) => String(l.eventId))).size,
       legPool: { eligible: legs.length, tierable: legs.filter((l) => typeof l.probability === "number").length, review: legs.filter((l) => l.guard.state === "review").length, refused: ref.length, byReason },
     };
+  }
+  if (sports.nfl && nflC) {
+    sports.nfl.candidates = (nflC.legs?.length ?? 0) + (nflC.refused?.length ?? 0);
+    sports.nfl.wouldQualify = nflC.wouldQualify ?? 0;
+    sports.nfl.pendingRules = Object.entries(nflC.rules ?? {}).filter(([, v]) => v === "PENDING").map(([k]) => k);
   }
   if (sports.nba) {
     const pp = playerProjections;

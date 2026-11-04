@@ -53,6 +53,18 @@ export const TIER_THRESHOLD = Object.freeze(Object.fromEntries(PUBLIC_RISK_TIERS
   return [t, lo == null ? `model joint chance below ${pct(hi)}` : `model joint chance ${pct(lo)} to ${pct(hi)}`];
 })));
 
+/**
+ * FOUNDER RULE B (approved 2026-11-03): one frozen, versioned daily card file read by the website, the results grader
+ * and social graphics alike. Version = `schema` + `contentSha256` (sha256 of the canonical JSON of the file without that
+ * field). Every reader verifies it and refuses a file that does not match.
+ */
+const digestOf = (doc) => { const { contentSha256: _d, ...rest } = doc; return createHash("sha256").update(JSON.stringify(rest)).digest("hex"); };
+export function sealSuggestedCards(doc) {
+  const { contentSha256: _d, ...rest } = doc;
+  return { ...rest, contentSha256: digestOf(rest) };
+}
+export const verifySuggestedCards = (doc) => doc?.schema === SUGGESTED_CARDS_SCHEMA && typeof doc.contentSha256 === "string" && digestOf(doc) === doc.contentSha256;
+
 const idOf = (s) => createHash("sha256").update(s).digest("hex").slice(0, 16);
 
 /** A pool leg in the public contract (the Level A leg's own fields plus the pool's guard). */
@@ -97,11 +109,13 @@ const section = (r, policy, byKey, scope, blockedReason) => {
 };
 
 /**
- * FOUNDER DECISION PENDING (a), put to the founder by the Program Director 2026-11-03: keep favoured sides with an
- * availability flag out of Bank Builder. OFF by default, so Bank Builder selects exactly as the live page does (guard
- * `pass` and `review` legs alike); the flag still rides each leg. Rollout = set this to true in a reviewed commit.
+ * FOUNDER RULE A (approved 2026-11-03, relayed by the Program Director): "Exclude favorites with material, unresolved
+ * injury or rotation flags from recommended Bank Builder legs … Re-evaluate the eligible alternatives using the frozen
+ * canonical forecast." ON: Bank Builder selects from guard-`pass` legs only (no FAVOURED_ROTATION_OUT / _R1), so the
+ * engine re-picks among the remaining official sides; nothing is replaced or re-forecast. Moonshot and the parlay tiers
+ * keep flagged legs with the flag shown (their treatment is a separate recommendation).
  */
-export const BANK_BUILDER_EXCLUDES_FLAGGED = false;
+export const BANK_BUILDER_EXCLUDES_FLAGGED = true;
 
 /**
  * @param {ReturnType<import("./leg-pool.mjs").buildLegPool>} pool
