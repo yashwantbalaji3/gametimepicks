@@ -9,10 +9,12 @@ export type LaneLeg = {
   n: number; legId: string; gameId: string; game: string; market: string | null; prop: boolean;
   selection: string; teamAbbr: string | null; team: { name: string | null; color: string; ink: string | null } | null;
   matchup: string | null; time: string | null; projectionLabel: string; projection: string | null; flags: string[]; outcome: string | null;
+  price: { odds: string | null; line: number | string | null; book: string | null; captured: string | null } | null;
 };
+export type LanePrice = { method: string; estimate: boolean; combinedLabel: string; combined: string; book: string | null; stake: string | null; payout: string | null; profit: string | null; captured: string | null };
 export type LaneDay = {
   date: string; step: number; internalStatus: string | null; statusText: string; tone: string; reason: string | null; staked: boolean;
-  legs: LaneLeg[]; hasCard: boolean; modelCardResult: string | null; stepOutcome: string | null; result: string | null;
+  legs: LaneLeg[]; hasCard: boolean; modelCardResult: string | null; stepOutcome: string | null; result: string | null; price: LanePrice | null;
 };
 export type LaneView = {
   laneId: string; product: string; letter: string; name: string; runId: string | null; runNumber: number; startedAt: string | null;
@@ -41,6 +43,13 @@ function LegCard({ l }: { l: LaneLeg }) {
           {l.teamAbbr ? <span className="cl-team-chip">{l.teamAbbr}</span> : null}
           <span>{[l.matchup, l.time].filter(Boolean).join(" · ")}</span>
         </span>
+        {l.price ? (
+          <span className="cl-leg-odds" data-leg-odds="">
+            <span className="cl-odds-chip">{l.price.odds}</span>
+            {l.price.line != null ? <span>line {l.price.line}</span> : null}
+            {l.price.book ? <span>{l.price.book}</span> : null}
+          </span>
+        ) : null}
         {l.flags.length ? <span className="cl-leg-flag"><span className="cl-flag-chip">Flag</span> {l.flags.join(" ")}</span> : null}
       </div>
       <div className="cl-leg-side">
@@ -120,12 +129,23 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
         <section className="cl-block" aria-label={`${lane.name} step ${lane.current?.step} selections`}>
           <h4 className="cl-block-title">Step {lane.current?.step} selections · frozen {lane.current?.date}</h4>
           <ol className="cl-legs">{legs.map((l) => <LegCard key={l.legId} l={l} />)}</ol>
+          {lane.current?.price ? (
+            <p className={`cl-combined${lane.current.price.estimate ? " cl-combined--estimate" : ""}`} data-lane-combined={lane.current.price.method}>
+              <span className="cl-label cl-label--accent">{lane.current.price.combinedLabel}</span>
+              <strong>{lane.current.price.combined}</strong>
+              <span className="cl-combined-src">{[lane.current.price.book, lane.current.price.captured ? `captured ${lane.current.price.captured}` : null].filter(Boolean).join(" · ")}</span>
+            </p>
+          ) : null}
         </section>
       ) : null}
 
       <dl className="cl-money" data-lane-money="">
         <div className="cl-money-cell"><dt>Wager</dt><dd>{lane.wager ?? "—"}{lane.wager && lane.wagerNote ? <span className="cl-money-sub">{lane.wagerNote}</span> : null}</dd></div>
-        <div className="cl-money-cell cl-money--pending"><dt>Potential payout · profit</dt><dd data-lane-unpriced="">{lane.potentialPayout}</dd></div>
+        {lane.current?.price?.payout ? (
+          <div className="cl-money-cell cl-money--priced" data-lane-priced=""><dt>Potential payout · profit</dt><dd>{lane.potentialPayout}<span className="cl-money-sub">profit {lane.potentialProfit}</span></dd></div>
+        ) : (
+          <div className="cl-money-cell cl-money--pending"><dt>Potential payout · profit</dt><dd data-lane-unpriced="">{lane.potentialPayout}</dd></div>
+        )}
         <div className="cl-money-cell"><dt>Ladder progress</dt><dd>{lane.cleared} of {lane.steps}<span className="cl-money-sub">steps cleared</span></dd></div>
       </dl>
 

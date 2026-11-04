@@ -16,8 +16,13 @@ import { laneDisplay } from "../../challenge-lanes/display.mjs";
 export const LANE_IDS = Object.freeze(Object.keys(ENGINE_LANES));
 export const lanesOf = (product) => LANE_IDS.filter((id) => ENGINE_LANES[id].product === product);
 
-/** No prices or payouts on the site until founder decision P1. A switch, not a branch: the view never prints one. */
-export const PRICES_ON_SITE = false;
+/**
+ * PRICES ON THE SITE (founder 2026-11-04, SPEC §0/§7: the existing The Odds API subscription). They render ONLY from the
+ * engine's priced fold (laneDisplay output carrying `day.price`, decrypted server-side from the encrypted display
+ * artifact); the public JSON stays price-free and acceptLaneProjection still refuses a price in it. With no price
+ * block, every money cell reads "Awaiting verified prices".
+ */
+export const PRICES_ON_SITE = true;
 export const AWAITING_PRICES = "Awaiting verified prices";
 
 const PRICE_EVENTS = new Set(["PRICE_VERIFIED", "PAYOUT_COMPUTED"]);
@@ -101,8 +106,31 @@ function teamOf(teams, abbr) {
   return { name: t.name ?? null, color: t.listed[0], ink: teams.inkFor ? teams.inkFor(t.listed[0]) : null };
 }
 
+const american = (n) => (typeof n === "number" && Number.isFinite(n) ? (n > 0 ? `+${n}` : String(n)) : null);
+const ET_STAMP = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+const etStamp = (iso) => { const t = Date.parse(String(iso ?? "")); return Number.isFinite(t) ? `${ET_STAMP.format(t)} ET` : null; };
+
+/** A frozen leg price as the engine's priced fold carries it: odds, line, book, capture time. Presentation only. */
+const legPrice = (p) => (p ? { odds: american(p.oddsAmerican), line: p.line ?? null, book: p.book ?? null, captured: etStamp(p.capturedAt) } : null);
+
+/** The day's priced block (combined price, stake, payout, profit), formatted; null when the fold carries none. */
+function priceOf(price) {
+  if (!PRICES_ON_SITE || !price?.combined) return null;
+  const c = price.combined;
+  const estimate = c.method === "SAME_GAME_ESTIMATE";
+  return {
+    method: c.method, estimate,
+    combinedLabel: estimate ? "Combined price · estimate (same-game legs, not a book's offer)" : "Combined price (leg product)",
+    combined: [american(c.american), typeof c.decimal === "number" ? `${c.decimal.toFixed(2)}×` : null].filter(Boolean).join(" · "),
+    book: c.book ?? null,
+    stake: money(price.stakeCents), payout: money(price.grossPayoutCents), profit: money(price.profitCents),
+    captured: etStamp([...(price.legs ?? [])].map((l) => l.capturedAt).filter(Boolean).sort().at(-1)),
+  };
+}
+
 function legsOf(day, projectionLabel, teams) {
   const outcome = new Map((day.legResults ?? []).map((r) => [r.legId, r.outcome]));
+  const prices = new Map((PRICES_ON_SITE ? day.price?.legs ?? [] : []).map((p) => [p.legId, p]));
   return (day.card?.legs ?? []).map((l, i) => {
     const o = outcome.get(l.legId);
     const abbr = l.selection?.teamAbbr ?? null;
@@ -117,6 +145,7 @@ function legsOf(day, projectionLabel, teams) {
       projectionLabel: prop ? projectionLabel : "MODEL WIN PROBABILITY", projection: l.probabilityShown ?? null,
       flags: l.guard?.flagText ?? [],
       outcome: o && o !== "PENDING" ? o : null,
+      price: legPrice(prices.get(l.legId)),
     };
   });
 }
@@ -135,6 +164,7 @@ function dayPresent(day, projectionLabel, teams) {
     tone: day.stepOutcome === "WIN" ? "won" : day.stepOutcome === "LOSS" ? "lost" : status === "IN_PLAY" ? "active" : "held",
     reason: reasonText(day.reason), staked: Boolean(day.staked), legs: day.card ? legsOf(day, projectionLabel, teams) : [], hasCard: Boolean(day.card),
     modelCardResult: day.modelCardResult ?? null, stepOutcome: day.stepOutcome ?? null, result,
+    price: priceOf(day.price),
   };
 }
 
@@ -143,10 +173,13 @@ function dayPresent(day, projectionLabel, teams) {
  * never mutates the document. Options: `teams` (NBA team colour data, for team marks), `imageVerified(path, sha)` (the
  * loader's byte check; with none, no image is shown).
  * @param {any} doc
- * @param {{ teams?: { teams: any, aliases: any, inkFor?: (fill: string) => string } | null, imageVerified?: (path: string, sha: string) => boolean }} [opts]
+ * `display` is the engine's PRICED fold of the same file when the caller has one (it must name this file's digest); by
+ * default the price-free laneDisplay(doc).
+ * @param {{ teams?: { teams: any, aliases: any, inkFor?: (fill: string) => string } | null, imageVerified?: (path: string, sha: string) => boolean, display?: any }} [opts]
  */
-export function laneView(doc, { teams = null, imageVerified = () => false } = {}) {
-  const d = laneDisplay(doc);
+export function laneView(doc, { teams = null, imageVerified = () => false, display = null } = {}) {
+  const d = display ?? laneDisplay(doc);
+  if (d.sourceSha256 !== doc.contentSha256) throw new Error("laneView: the display was not folded from this lane file");
   const lane = ENGINE_LANES[d.laneId];
   const projectionLabel = d.projectionLabel ?? "MODEL PROJECTION";
   const story = [...d.history].reverse().map((x) => dayPresent(x, projectionLabel, teams));
@@ -160,8 +193,8 @@ export function laneView(doc, { teams = null, imageVerified = () => false } = {}
   /* Pace means nothing once a lane is lost: it is not shown. */
   const pace = !p || d.status === "LOST" ? null
     : p.state === "withheld" ? { state: "withheld", text: "Pace: awaiting verified prices" }
-    : p.state === "on" ? { state: "on", text: `On pace · milestone ${money(p.milestoneCents)}` }
-    : { state: "behind", text: `Behind pace by ${money(p.behindCents)} · milestone ${money(p.milestoneCents)}` };
+    : p.state === "on" ? { state: "on", text: `On pace${p.nextMilestoneCents ? ` · next milestone ${money(p.nextMilestoneCents)}` : ""}` }
+    : { state: "behind", text: `Behind pace by ${money(p.behindCents)}${p.nextMilestoneCents ? ` · next milestone ${money(p.nextMilestoneCents)}` : ""}` };
   const receipts = d.history.flatMap((x) => x.receipts ?? []);
   const graphics = receipts.filter((r) => r.type === "GRAPHIC_RENDERED").map((g) => {
     const same = (r) => (r.packageId ?? null) === (g.packageId ?? null) && r.date === g.date;
@@ -179,12 +212,12 @@ export function laneView(doc, { teams = null, imageVerified = () => false } = {}
     laneId: d.laneId, product: d.product, letter: d.slot, name: `Lane ${d.slot}`,
     runId: d.runId, runNumber: d.runNumber, startedAt: String(d.runs.at(-1)?.startedAt ?? "").slice(0, 10) || null,
     step: d.step, steps: d.steps, stepText: d.stepText, maxLegs: d.maxLegs ?? null,
-    cleared: d.rungs.filter((r) => r.state === "completed").length,
+    cleared: d.cleared ?? d.rungs.filter((r) => r.state === "completed").length,
     status: d.status, statusLabel: d.status, statusGlyph: glyph.glyph, tone: glyph.tone, internalStatus: d.internalStatus, note,
     base: money(d.baseCents), target: money(d.targetCents), tracked,
     toTarget: d.distanceToTargetCents == null || d.status === "LOST" ? null : money(d.distanceToTargetCents),
-    wager: d.status === "LOST" ? null : tracked, wagerNote: latest?.staked ? "staked" : "not staked until priced",
-    potentialPayout: AWAITING_PRICES, potentialProfit: AWAITING_PRICES,
+    wager: d.status === "LOST" ? null : current?.price?.stake ?? tracked, wagerNote: current?.price ? "tracked stake" : latest?.staked ? "staked" : "not staked until priced",
+    potentialPayout: current?.price?.payout ?? AWAITING_PRICES, potentialProfit: current?.price?.profit ?? AWAITING_PRICES,
     pace, label: d.label ?? "Tracked challenge · no real wager placed",
     rungs: d.rungs.map((r) => ({ step: r.step, state: r.state, milestone: money(r.milestoneCents) })),
     current, story, graphics,

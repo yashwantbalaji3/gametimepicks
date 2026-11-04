@@ -33,6 +33,7 @@ const SYN = Object.fromEntries(["bb-a", "bb-b", "ms-a", "ms-b"].map((id) => [id,
 const lane = await import("../../lib/products/challenge-lanes/lane.mjs");
 const { loadChallengeLane, loadProductLanes, readTeamColours } = await import("../../lib/products/challenge-lanes/load.mjs");
 const { laneDisplay } = await import("../../lib/challenge-lanes/display.mjs");
+const { samplePricedDisplay } = await import("../../lib/products/challenge-lanes/__fixtures__/sample-prices.mjs");
 const { canonical, sha256 } = await import("../../lib/challenge-lanes/chain.mjs");
 const { LANES: ENGINE_LANES, STATUS } = await import("../../lib/challenge-lanes/lanes.mjs");
 const { default: LaneCard } = await import("./lane-card.tsx");
@@ -57,7 +58,7 @@ test("SPEC rev 2: four lanes, five steps each; BB $100→$10,000 with at most 2 
   assert.deepEqual([ENGINE_LANES["bb-a"].baseCents, ENGINE_LANES["bb-a"].targetCents], [10000, 1000000]);
   assert.deepEqual([ENGINE_LANES["ms-b"].baseCents, ENGINE_LANES["ms-b"].targetCents], [2500, 100000]);
   assert.equal(lane.laneView(FIX["bb-a"]).maxLegs, 2);
-  assert.equal(lane.PRICES_ON_SITE, false);
+  assert.equal(lane.PRICES_ON_SITE, true, "founder 2026-11-04: prices on the site, from the encrypted priced fold only");
   for (const doc of [...Object.values(FIX), ...Object.values(SYN)]) assert.equal(doc.steps, 5, doc.laneId);
 });
 
@@ -181,7 +182,7 @@ test("SITE/SOCIAL CONSISTENCY: every step, rung, status, bankroll, distance, pac
   const src = read("src/lib/products/challenge-lanes/lane.mjs");
   assert.match(src, /import \{ laneDisplay \} from "\.\.\/\.\.\/challenge-lanes\/display\.mjs";/);
   const view = src.slice(src.indexOf("export function laneView"), src.indexOf("export function unavailableLaneView"));
-  assert.match(view, /const d = laneDisplay\(doc\);/);
+  assert.match(view, /const d = display \?\? laneDisplay\(doc\);\n  if \(d\.sourceSha256 !== doc\.contentSha256\) throw/);
   assert.doesNotMatch(view, /doc\.(runs|current|steps|baseCents|targetCents|milestonesCents)|publicStatus|trackedBankrollWithheld|readFileSync/, "laneView reads only laneDisplay's output");
 });
 
@@ -204,6 +205,28 @@ test("the lane card mirrors the graphic: product + lane chip, STEP k OF N, lit l
   assert.match(t, /Tracked challenge · no real wager placed/);
   assert.doesNotMatch(t, /\b(ESTIMATE|est\.|projected median|odds)\b/i);
   assert.doesNotMatch(t, /not betting advice|FOUNDER REVIEW|NOT A SPORTSBOOK OFFER/i);
+});
+
+test("PRICED: odds, book and capture time per leg, the combined price (leg product), stake, payout and profit — only from the priced fold", () => {
+  const doc = SYN["bb-a"];
+  const d = samplePricedDisplay(doc);
+  const v = lane.laneView(doc, { display: d, teams: readTeamColours(APP) });
+  const t = text(html(React.createElement(LaneCard, { lane: v })));
+  assert.deepEqual(v.current.legs.map((l) => l.price.odds), ["+120", "-150"]);
+  assert.match(t, /\+120 SAMPLE BOOK/); assert.match(t, /-150 SAMPLE BOOK/);
+  assert.match(t, /Combined price \(leg product\) \+267 · 3\.67× SAMPLE BOOK · captured Nov 3, 5:15 PM ET/);
+  assert.equal(v.wager, "$100"); assert.equal(v.potentialPayout, "$366.67"); assert.equal(v.potentialProfit, "$266.67");
+  assert.match(t, /Wager \$100 tracked stake Potential payout · profit \$366\.67 profit \$266\.67/);
+  assert.doesNotMatch(t, /Potential payout · profit Awaiting verified prices/);
+  // The same file without the priced fold prints no price at all.
+  const plain = text(html(React.createElement(LaneCard, { lane: lane.laneView(doc) })));
+  assert.doesNotMatch(plain, /SAMPLE BOOK|\+120|-150|Combined price/);
+  assert.match(plain, /Potential payout · profit Awaiting verified prices/);
+  // A same-game estimate is labelled as one, never as a book's offer.
+  const sg = { ...d, day: { ...d.day, price: { ...d.day.price, combined: { ...d.day.price.combined, method: "SAME_GAME_ESTIMATE" } } } };
+  assert.match(text(html(React.createElement(LaneCard, { lane: lane.laneView(doc, { display: sg }) }))), /Combined price · estimate \(same-game legs, not a book.s offer\)/);
+  // A display folded from another file is refused.
+  assert.throws(() => lane.laneView(FIX["bb-a"], { display: d }), /not folded from this lane file/);
 });
 
 test("progression animation is CSS-only and prefers-reduced-motion turns it off", () => {

@@ -18,6 +18,7 @@ import LanePair from "@/components/challenge-lanes/lane-pair";
 import type { LaneView } from "@/components/challenge-lanes/lane-card";
 import { laneView, acceptLaneProjection } from "@/lib/products/challenge-lanes/lane.mjs";
 import { readTeamColours } from "@/lib/products/challenge-lanes/load.mjs";
+import { samplePricedDisplay } from "@/lib/products/challenge-lanes/__fixtures__/sample-prices.mjs";
 import bbA from "@/lib/products/challenge-lanes/__fixtures__/bb-a.fixture.json";
 import bbB from "@/lib/products/challenge-lanes/__fixtures__/bb-b.fixture.json";
 import msA from "@/lib/products/challenge-lanes/__fixtures__/ms-a.fixture.json";
@@ -32,10 +33,10 @@ export const metadata: Metadata = withRouteMetadata("/dev/challenge-lanes-fixtur
   robots: { index: false, follow: false, nocache: true, googleBot: { index: false, follow: false } },
 });
 
-const view = (doc: unknown): LaneView => {
+const view = (doc: unknown, priced = false): LaneView => {
   const v = acceptLaneProjection(doc, { allowFixture: true });
   if (!v.ok) throw new Error(`fixture lane does not verify: ${v.reason}`);
-  return laneView(doc, { teams: readTeamColours() }) as LaneView;
+  return laneView(doc, { teams: readTeamColours(), display: priced ? samplePricedDisplay(doc) : null }) as LaneView;
 };
 
 export default function ChallengeLanesFixturePage() {
@@ -43,11 +44,15 @@ export default function ChallengeLanesFixturePage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 overflow-x-hidden flex flex-col gap-4" data-dev-route="challenge-lanes-fixture">
       <p className="m-0 font-mono" style={{ color: "var(--vault-warn, var(--vault-pending))", fontSize: 12 }}>
-        DEVELOPMENT FIXTURE · not real lane records · the engine&rsquo;s 2026-11-02 → 11-03 replay · the last two pairs are synthetic
+        DEVELOPMENT FIXTURE · not real lane records · the engine&rsquo;s 2026-11-02 → 11-03 replay · the last three pairs are synthetic
       </p>
       <div id="fixture-bank-builder"><LanePair product="bank-builder" lanes={[view(bbA), view(bbB)]} /></div>
       <div id="fixture-moonshot"><LanePair product="moonshot" lanes={[view(msA), view(msB)]} /></div>
       <div id="fixture-synthetic-bank-builder"><LanePair product="bank-builder" lanes={[view(synBbA), view(synBbB)]} /></div>
+      <p className="m-0 font-mono" style={{ color: "var(--vault-warn, var(--vault-pending))", fontSize: 12 }} data-sample-price="">
+        SAMPLE PRICE · NOT REAL · made-up odds from &ldquo;SAMPLE BOOK&rdquo; to show the priced layout; real prices come only from the engine&rsquo;s encrypted file
+      </p>
+      <div id="fixture-priced"><LanePair product="bank-builder" lanes={[view(synBbA, true), view(synBbB)]} /></div>
       <div id="fixture-synthetic-moonshot"><LanePair product="moonshot" lanes={[view(synMsA), view(synMsB)]} /></div>
     </div>
   );
