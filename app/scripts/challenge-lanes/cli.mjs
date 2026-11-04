@@ -112,8 +112,10 @@ export async function main(command, argv = process.argv) {
         report.lanes[laneId] = { runId: run.file.replace(".jsonl", ""), action: r.action, reason: r.events[0]?.reason ?? null };
       }
     } else {
+      const preliminary = argv.includes("--preliminary");
+      if (preliminary && !arg("--snapshot")) fail("--preliminary prices only from an existing --snapshot (no call)");
       const postAtFor = { "bank-builder": arg("--post-at-bb") ?? arg("--post-at"), moonshot: arg("--post-at-ms") ?? arg("--post-at") };
-      if (!Object.values(postAtFor).every((t) => Number.isFinite(Date.parse(t ?? "")))) fail("--post-at <ISO> (or --post-at-bb and --post-at-ms) required: a price is used only if captured at most 90 minutes before the post");
+      if (!preliminary && !Object.values(postAtFor).every((t) => Number.isFinite(Date.parse(t ?? "")))) fail("--post-at <ISO> (or --post-at-bb and --post-at-ms) required: a price is used only if captured at most 90 minutes before the post");
       report.postAt = postAtFor;
       const legs = [...new Map(Object.values(open).filter(Boolean).flatMap((o) => o.card.legs).map((l) => { const [away, home] = String(l.eventLabel).split(" @ "); return [l.gameId, { gameId: l.gameId, home, away, startUtc: l.startUtc, market: l.market }]; })).values()];
       let snapshot = null;
@@ -149,9 +151,9 @@ export async function main(command, argv = process.argv) {
         const docFile = path.join(APP, "public", "data", "suggested-cards", `${DATE}.json`);
         const cardsFile = arg("--cards", docFile);
         const doc = fs.existsSync(cardsFile) ? JSON.parse(fs.readFileSync(cardsFile, "utf8")) : null;
-        const r = priceLane(o.run.events, { date: DATE, at: snapshot.fetchedAt, price: p.price, suggestedCards: doc, postScheduledAt: postAtFor[LANES[laneId].product] });
+        const r = priceLane(o.run.events, { date: DATE, at: snapshot.fetchedAt, price: p.price, suggestedCards: doc, postScheduledAt: preliminary ? null : postAtFor[LANES[laneId].product], preliminary });
         appendEvents(root, laneId, o.run.file, o.run.events.length, r.events);
-        report.lanes[laneId] = { runId: o.run.file.replace(".jsonl", ""), action: r.action, refusals: r.payout?.refusals?.map((x) => x.code) ?? null, book: r.payout?.inputs?.book ?? null, belowPace: r.payout?.inputs?.belowPace ?? null };
+        report.lanes[laneId] = { runId: o.run.file.replace(".jsonl", ""), action: r.action, verification: r.payout?.inputs?.verification ?? null, refusals: r.payout?.refusals?.map((x) => x.code) ?? null, book: r.payout?.inputs?.book ?? null, belowPace: r.payout?.inputs?.belowPace ?? null, changedFromEarlier: r.payout?.inputs?.changedFromEarlier ?? null };
         if (r.payout?.ok) report.privateTotals = { ...(report.privateTotals ?? {}), [laneId]: "see the private log (PAYOUT_COMPUTED); never printed" };
       }
     }
