@@ -74,3 +74,25 @@ export function moneylineEvidenceLine(leg) {
   const keys = (leg.injury?.keyPlayers ?? []).map((p) => `${p.name} ${plain(p.status)}`);
   return [`Model side ${leg.eloSide === leg.side ? team : "opponent"}`, `market favourite ${nv > 0.5 ? team : "opponent"}`, `W-L L5 ${wl(w("last5"))}`, `L10 ${wl(w("last10"))}`, ...(w("season") ? [`season ${wl(w("season"))}`] : []), ...(venue ? [`${leg.side} ${wl(venue)}`] : []), ...(keys.length ? [`key players: ${keys.join(", ")}`] : [])].join(" · ");
 }
+
+/**
+ * diversity@1 (founder 2026-11-04 ~21:12Z; PROPOSED until approved), one checker for engine and site. Pure.
+ * Scope: cards in play on the SAME date (held lanes hold no card and are skipped). Legs compare by legId, which fixes
+ * game, market, player/team and side, so the same game in a different market is a different leg (allowed).
+ * Rules: no two lanes with the same leg set (order-insensitive; a duplicate single counts); a leg in at most two lanes.
+ * @param {{ laneId: string, date: string, legIds: string[] }[]} cards
+ * @returns {string[]} violations, empty when compliant
+ */
+export function diversityViolations(cards) {
+  const out = [];
+  const byDate = new Map();
+  for (const c of cards ?? []) { if (!c?.legIds?.length) continue; if (!byDate.has(c.date)) byDate.set(c.date, []); byDate.get(c.date).push(c); }
+  for (const [date, cs] of byDate) {
+    const seen = new Map();
+    for (const c of cs) { const k = [...c.legIds].sort().join("+"); if (seen.has(k)) out.push(`DIVERSITY_DUPLICATE_COMBINATION ${date}: ${seen.get(k)} and ${c.laneId}`); else seen.set(k, c.laneId); }
+    const use = new Map();
+    for (const c of cs) for (const id of new Set(c.legIds)) use.set(id, [...(use.get(id) ?? []), c.laneId]);
+    for (const [id, lanes] of use) if (lanes.length > 2) out.push(`DIVERSITY_LEG_LIMIT ${date}: ${id} in ${lanes.length} lanes (${lanes.join(", ")})`);
+  }
+  return out;
+}

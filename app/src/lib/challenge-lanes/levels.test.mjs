@@ -318,3 +318,12 @@ test("diversity@1: identical combinations refused (order-insensitive), a leg in 
   assert.equal(approvalValid(rec, { candidateId: "c1", recordSha256: "s1" }), true);
   assert.equal(approvalValid({ ...rec, recordSha256: "s2" }, { candidateId: "c1", recordSha256: "s1" }), false, "a replaced leg or price invalidates the approval");
 });
+
+test("diversityViolations (shared checker): same-date scope, order-insensitive, leg ≤ 2 lanes, held lanes skipped", async () => {
+  const { diversityViolations } = await import("./card-fields.mjs");
+  const d = "2026-11-04";
+  assert.deepEqual(diversityViolations([{ laneId: "bb-a", date: d, legIds: ["a", "b"] }, { laneId: "ms-a", date: d, legIds: ["b", "a"] }]).length, 1);
+  assert.deepEqual(diversityViolations([{ laneId: "bb-a", date: d, legIds: ["a", "b"] }, { laneId: "ms-a", date: d, legIds: ["a", "c"] }, { laneId: "bb-b", date: d, legIds: [] }]), []);
+  assert.match(diversityViolations([{ laneId: "bb-a", date: d, legIds: ["a"] }, { laneId: "ms-a", date: d, legIds: ["a", "c"] }, { laneId: "bb-b", date: d, legIds: ["a", "d"] }]).join(), /DIVERSITY_LEG_LIMIT .*a in 3 lanes/);
+  assert.deepEqual(diversityViolations([{ laneId: "bb-a", date: d, legIds: ["a"] }, { laneId: "ms-a", date: "2026-11-05", legIds: ["a"] }]), [], "different days are independent");
+});
