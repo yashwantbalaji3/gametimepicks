@@ -1,9 +1,9 @@
 /**
  * /dev/challenge-lanes-fixture — DEVELOPMENT ONLY, UNLINKED, NOINDEX. FIXTURE — not real lane records.
  *
- * The four BBM V2 challenge lanes rendered through the REAL components and the REAL verifier and view model
- * (lib/products/challenge-lanes/lane.mjs), over test-only lane files tagged `fixture: true`: legs from the engine's
- * 2026-11-02 replay; lane ms-b's history is synthetic. The site's loader refuses these files.
+ * The four BBM V2 challenge lanes rendered through the REAL components and the REAL acceptance check and view model
+ * (lib/products/challenge-lanes/lane.mjs), over the engine's Nov 2 → Nov 3 replay projections re-tagged `fixture: true`,
+ * plus two SYNTHETIC states the replay cannot reach while P1 is open (in play, busted). The site's loader refuses all.
  *
  * GATED like every /dev/** route: content only when the build or dev server sets GTP_DEV_ROUTES=1. Otherwise
  * notFound() runs before any fixture is read.
@@ -14,7 +14,8 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { parlayFixtureRouteEnabled } from "@/lib/parlays/v2/dev-route.mjs";
 import LanePair from "@/components/challenge-lanes/lane-pair";
 import type { LaneView } from "@/components/challenge-lanes/lane-card";
-import { laneView, verifyChallengeLane } from "@/lib/products/challenge-lanes/lane.mjs";
+import { laneView, acceptLaneProjection } from "@/lib/products/challenge-lanes/lane.mjs";
+import { syntheticInPlay, syntheticBusted } from "@/lib/products/challenge-lanes/__fixtures__/states.mjs";
 import bbA from "@/lib/products/challenge-lanes/__fixtures__/bb-a.fixture.json";
 import bbB from "@/lib/products/challenge-lanes/__fixtures__/bb-b.fixture.json";
 import msA from "@/lib/products/challenge-lanes/__fixtures__/ms-a.fixture.json";
@@ -26,7 +27,7 @@ export const metadata: Metadata = withRouteMetadata("/dev/challenge-lanes-fixtur
 });
 
 const view = (doc: unknown): LaneView => {
-  const v = verifyChallengeLane(doc, { allowFixture: true });
+  const v = acceptLaneProjection(doc, { allowFixture: true });
   if (!v.ok) throw new Error(`fixture lane does not verify: ${v.reason}`);
   return laneView(doc) as LaneView;
 };
@@ -36,10 +37,11 @@ export default function ChallengeLanesFixturePage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 overflow-x-hidden flex flex-col gap-4" data-dev-route="challenge-lanes-fixture">
       <p className="m-0 font-mono" style={{ color: "var(--vault-warn, var(--vault-pending))", fontSize: 12 }}>
-        DEVELOPMENT FIXTURE · not real lane records · legs from the 2026-11-02 replay · lane ms-b history is synthetic
+        DEVELOPMENT FIXTURE · not real lane records · the engine&rsquo;s 2026-11-02 → 11-03 replay · the last pair is synthetic
       </p>
       <div id="fixture-bank-builder"><LanePair product="bank-builder" lanes={[view(bbA), view(bbB)]} /></div>
       <div id="fixture-moonshot"><LanePair product="moonshot" lanes={[view(msA), view(msB)]} /></div>
+      <div id="fixture-synthetic"><LanePair product="moonshot" lanes={[view(syntheticInPlay(msA)), view(syntheticBusted(msB))]} /></div>
     </div>
   );
 }
